@@ -284,7 +284,6 @@ function getOpenerPageElement(name)
 
 function getFormElement(f, field_name, num)
 {
-
     var y = 0;
     for (var i = 0; i < f.elements.length; i++) {
         if (num != null) {
@@ -443,9 +442,7 @@ function isElementVisible(element)
 
 function toggleVisibility(title, keep_basic_filter_form, create_cookie)
 {
-
     var element = getPageElement(title + '1');
-//alert(title);
 	if (element == null) {
     	var element = getPageElement('tr_' + title);
 		if (element == null) {
@@ -598,26 +595,25 @@ function clearFlashMessage()
  * called from autosuggest.js in the hideSuggestions method
  */
 function authorSuggestorCallback(oThis, oTarget) {
-			var dtList = new Array();
-			if (isWhitespace(oThis.textboxcopy.value)) {
-				oThis.textboxcopy.value = oTarget.firstChild.nodeValue;
-			}
-			dtList[0] = new Option;
-			dtList[0].text = "(none)";
-			dtList[0].value = "0";
-			dtList[1] = new Option;			
-			dtList[1].value = oTarget.getAttribute('id');
-			dtList[1].text = oTarget.firstChild.nodeValue+" ("+oTarget.getAttribute('id')+")";
-			dtList[1].selected = true;
+	var dtList = new Array();
+	if (isWhitespace(oThis.textboxcopy.value)) {
+		oThis.textboxcopy.value = oTarget.firstChild.nodeValue;
+	}
+	dtList[0] = new Option;
+	dtList[0].text = "(none)";
+	dtList[0].value = "0";
+	dtList[1] = new Option;			
+	dtList[1].value = oTarget.getAttribute('id');
+	dtList[1].text = oTarget.firstChild.nodeValue+" ("+oTarget.getAttribute('id')+")";
+	dtList[1].selected = true;
 
-
-			if (oThis.textboxcopy == null) {
-				oThis.textbox.focus();
-			} else {				
-				oThis.textboxcopy.focus();
-				removeAllOptions(oThis.form, oThis.selectbox);
-				addOptions(oThis.form, oThis.selectbox, dtList);
-			}		
+	if (oThis.textboxcopy == null) {
+		oThis.textbox.focus();
+	} else {				
+		oThis.textboxcopy.focus();
+		removeAllOptions(oThis.form, oThis.selectbox);
+		addOptions(oThis.form, oThis.selectbox, dtList);
+	}		
 }
 
 function cloneSuggestorCallback(oThis, oTarget) {
