@@ -1,4 +1,5 @@
 {include file="js/list.tpl.js"}
+<script language="JavaScript" type="text/javascript" src="/js/listpage.js"></script>
 <center>
 
 <div style="margin: -30px 0px 0px 0px; width: 980px;">
@@ -41,6 +42,8 @@
 
 {include file="list_browse_type.tpl.html"}
 
+
+
 {if ($browse_heading == "") ||  ($browse_type != "" && ($author != "" || $author_id != "")) || ($browse_type != "" & $depositor != "") || ($browse_type != "" && $year != "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)} 
         
 	{if $spell_suggest != ""}
@@ -51,8 +54,28 @@
 	</table>
 	{/if}
 		
+	{if $facets}
+    <div style="float:left; font-family:Verdana,Arial,Helvetica,sans-serif;font-size:75%;font-style:normal;font-weight:normal;">
+    <div style="background: #317DCE; color:white;">
+    <h2>Refine</h2>
+    </div>
+    
+    <ul style="text-align:left;">
+    {foreach from=$facets key=sek_id item=items}
+        <li><strong>{$items.sek_title}</strong></li>
+        {foreach from=$items.values key=id item=valueData}
+        {if $valueData.num > 0 }
+        <li style="list-style-image: url(/images/orange_arrow.gif)"><a href="?{$url_wo_rows}&search_keys[{$sek_id}]={$id}">{$valueData.value}</a> ({$valueData.num})</li>
+        {/if}
+        {/foreach}
+        <li>&nbsp;</li>
+    {/foreach}
+    </ul>
+    
+    </div>
+    {/if}
 
-	<table width="100%" cellpadding="10" cellspacing="0" class="listrecord">
+	<table {if $facets}width="70%"{else}width="100%"{/if} cellpadding="10" cellspacing="0" class="listrecord">
         <tr>
             <td colspan="{if ($isAdministrator)}3{else}2{/if}">&nbsp;</td>
             {if $showEdit || $isAdministrator}		
