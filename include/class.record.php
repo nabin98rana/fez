@@ -2612,7 +2612,7 @@ class Record
 			$datastreamXMLHeaders = Misc::array_clean_key($datastreamXMLHeaders, "Link", true, true);
 		}
 
-		if( APP_VERSION_UPLOADS_AND_LINKS == "ON" )
+		if( APP_VERSION_UPLOADS_AND_LINKS == "ON" && !in_array("FezACML", $specify_list))
 			$datastreamXMLHeaders = Misc::processLinkVersioning($pid,$datastreamXMLHeaders,$datastreamXMLContent,$existingDatastreams);
 
         if ($ingestObject) {
@@ -4389,8 +4389,9 @@ class RecordObject extends RecordGeneral
 			$existingDatastreams = array();
         } else {
 			$existingDatastreams = Fedora_API::callGetDatastreams($this->pid);
-			if( APP_VERSION_UPLOADS_AND_LINKS != "ON" )
+			if (APP_VERSION_UPLOADS_AND_LINKS != "ON" && !in_array("FezACML", $specify_list)) {
 				Misc::purgeExistingLinks($this->pid, $existingDatastreams);
+			}
 			$this->getObjectAdminMD();
 			if (empty($this->created_date)) {
 				$this->created_date = Date_API::getFedoraFormattedDateUTC();
