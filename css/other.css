@@ -353,3 +353,7 @@ a.form_note:hover span.form_note {
 	border: solid 1px black;
 	text-align: left;
 }
+
+.query_footer {
+    color:#FFFFFF;
+}
