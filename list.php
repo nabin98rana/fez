@@ -37,11 +37,13 @@ include_once("config.inc.php");
 include_once(APP_INC_PATH . "class.lister.php");
 
 $res = Lister::getList($_GET, true);
-
-foreach ($res['list'] as $record) {
-	$pids[] = $record['rek_pid'];
+if (is_array($res)) {
+	foreach ($res['list'] as $record) {
+		$pids[] = $record['rek_pid'];
+	}
+} else {
+	$pids = array();
 }
-
 $_SESSION['list'] = $pids;
 $_SESSION['list_params'] = $_GET;
 $_SESSION['script_name'] = $_SERVER['SCRIPT_NAME'];
