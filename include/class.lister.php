@@ -152,7 +152,7 @@ class Lister
 			header($header);
 		} elseif ($tpl_idx == 1) {
 			header("Content-type: application/vnd.ms-excel");
-			header("Content-Disposition: attachment; filename=jerds.xls");
+			header("Content-Disposition: attachment; filename=export.xls");
 			header("Content-Description: PHP Generated XLS Data");
 		}
 		
