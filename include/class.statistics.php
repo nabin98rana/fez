@@ -275,6 +275,7 @@ class Statistics
 			if (count($buffer) == 0 ) { return false; }
 			foreach ($buffer as $brow) {
 	//				print_r($matches); // debug
+					$counter++;
 					$pid = "";
 					$country_code = '';
 					$insertid = '';
@@ -302,7 +303,7 @@ class Statistics
 					$dsid = $brow['str_dsid'];
 
 					$uniquebits = $buffer;
-					$counter++;
+
 //					preg_match("/^.*:([0-9]+:[0-9]+:[0-9]+) .*/i", $date, $timematch);
 //					$date = preg_replace("/:.*/","",$date);
 //					$date = preg_replace("/\//", " ", $date);
@@ -409,7 +410,7 @@ class Statistics
 
 					}
 				}
-
+			Statistics::cleanupFalseHits($increments); // clean up any false stats entered in. $increments will be decremented for any bad counter hits.
 			Statistics::updateSummaryStatsByIncrement($increments);
 			if( APP_SOLR_INDEXER == "ON" ) {
 				if (count($changedPids) > 0) {
@@ -462,10 +463,10 @@ class Statistics
 				" . APP_TABLE_PREFIX . "record_search_key r1
 				SET rek_file_downloads = (
 				SELECT COUNT(*) FROM " . APP_TABLE_PREFIX . "statistics_all
-				WHERE stl_dsid <> '' AND stl_pid = r1.rek_pid),
+				WHERE stl_dsid <> '' AND stl_pid = r1.rek_pid AND stl_counter_bad = 0),
 				rek_views = (
 				SELECT COUNT(*) FROM " . APP_TABLE_PREFIX . "statistics_all
-				WHERE stl_dsid = '' AND stl_pid = r1.rek_pid)";
+				WHERE stl_dsid = '' AND stl_pid = r1.rek_pid AND stl_counter_bad = 0)";
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
 		if (PEAR::isError($res)) {
 			Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -482,7 +483,7 @@ class Statistics
 					$stmt = "UPDATE 
 							" . APP_TABLE_PREFIX . "record_search_key r1
 							SET rek_views = rek_views + ".$val['views']."
-							WHERE r1.rek_pid = ".$pid.")";
+							WHERE r1.rek_pid = '".$pid."'";
 					$res = $GLOBALS["db_api"]->dbh->query($stmt);
 					if (PEAR::isError($res)) {
 						Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -495,7 +496,7 @@ class Statistics
 					$stmt = "UPDATE 
 							" . APP_TABLE_PREFIX . "record_search_key r1
 							SET rek_file_downloads = rek_file_downloads + ".$val['downloads']."
-							WHERE r1.rek_pid = ".$pid.")";
+							WHERE r1.rek_pid = '".$pid."'";
 					$res = $GLOBALS["db_api"]->dbh->query($stmt);
 					if (PEAR::isError($res)) {
 						Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -511,10 +512,10 @@ class Statistics
 				" . APP_TABLE_PREFIX . "record_search_key r1
 				SET rek_file_downloads = (
 						SELECT COUNT(*) FROM " . APP_TABLE_PREFIX . "statistics_all
-						WHERE stl_dsid <> '' AND stl_pid = '".$pid."'),
+						WHERE stl_dsid <> '' AND stl_pid = '".$pid."' AND stl_counter_bad = 0),
 					rek_views = (
 						SELECT COUNT(*) FROM " . APP_TABLE_PREFIX . "statistics_all
-						WHERE stl_dsid = '' AND stl_pid = '".$pid."')
+						WHERE stl_dsid = '' AND stl_pid = '".$pid."' AND stl_counter_bad = 0)
 				WHERE rek_pid = '".$pid."'";
 		
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -601,6 +602,7 @@ class Statistics
 	    $stmt = "SELECT stl_pid, COUNT(*) as downloads
                  FROM fez_statistics_all
                  WHERE stl_dsid <> '' AND stl_request_date > '".date('Y-m-d H:i:s',strtotime("-1 week"))."'
+				 AND stl_counter_bad = 0
                  GROUP BY stl_pid
                  ORDER BY downloads DESC
                  LIMIT $limit";
@@ -634,10 +636,10 @@ class Statistics
 
 
         function cleanupFalseHitsBatch($limit, $offset, $min_date = false) {
-            $stmt = "SELECT stl_id, stl_pid, stl_dsid, stl_ip, stl_request_date
+            $stmt = "SELECT stl_id, stl_pid, stl_dsid, stl_ip, stl_request_date, stl_counter_bad
                  FROM fez_statistics_all ";
 			if ($min_date !== false) {
-				$stmt .= " WHERE stl_request_date >= '".$min_date."' ";
+				$stmt .= " WHERE stl_request_date >= date_sub('".$min_date."', INTERVAL 11 SECOND) ";
 			}
             $stmt .= " ORDER BY stl_request_date ASC LIMIT $limit OFFSET $offset";
             $res = $GLOBALS["db_api"]->dbh->getAll($stmt,  DB_FETCHMODE_ASSOC);
@@ -654,7 +656,7 @@ class Statistics
                  FROM fez_statistics_all";
 
 			if ($date_min !== false) {
-				$stmt .= " WHERE stl_request_date >= '".$date_min."'";
+				$stmt .= " WHERE stl_request_date >= date_sub('".$date_min."', INTERVAL 11 SECOND) ";
 			}
 //            $stmt .= " WHERE stl_pid = 'UQ:107702'";
 
@@ -715,7 +717,7 @@ class Statistics
 	}
 
 
-	function cleanupFalseHits() {
+	function cleanupFalseHits(&$increments = array()) {
 		$seconds_limit = 10; // 10 seconds COUNTER draft 3 recommended limit
 		$min_date = Statistics::getMinBadDate();
 		$stats_count = Statistics::cleanupFalseHitsCount($min_date);
@@ -738,11 +740,23 @@ class Statistics
 							$seconds_diff = Date_API::dateDiff("s", $history[$newkey]['stl_request_date'], $val['stl_request_date']);
 							// echo $hval['stl_id']." vs ".$val['stl_id']." = seconds diff of $seconds_diff "; echo "\n";
 							if ($seconds_diff <= $seconds_limit) {
-								Statistics::setCounterBad($val['stl_id']);
-								$remove_count++;
-								//	echo $remove_count." would mark bad "; echo($val['stl_id']." - ".$val['stl_ip']." - ".$val['stl_pid']." - ".$val['stl_dsid']." - ".$val['stl_request_date']); echo "\n";
+								if ($val['stl_counter_bad'] != 1) { //if not already bad (eg from the 11 seconds back in time we go to begin with)
+									Statistics::setCounterBad($val['stl_id']);
+									if (count($increments) != 0) { // sent an increment array so see if you need to decrement anything from it that is counter 'bad'
+										$pid = $val['stl_pid'];
+										if (is_array($increments[$pid])) {
+											if ($val['stl_dsid'] != "" && !is_null($val['stl_dsid']) && $increments[$pid]['downloads'] != 0) {
+												$increments[$pid]['downloads']--;
+											} elseif ($increments[$pid]['views'] != 0) {
+												$increments[$pid]['views']--;
+											}
+										}
+									}								
+									$remove_count++;
+									//	echo $remove_count." would mark bad "; echo($val['stl_id']." - ".$val['stl_ip']." - ".$val['stl_pid']." - ".$val['stl_dsid']." - ".$val['stl_request_date']); echo "\n";
+								}
 							}
-						}						
+						}
 					}
 					$newhistory[$newkey] = $val;
 				} else {
@@ -779,7 +793,7 @@ class Statistics
 	function getStatsByDatastream($pid, $dsid) {	
 		$stmt = "select count(*)  
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
-				 where stl_pid = '".$pid."' and stl_dsid = '".$dsid."'";
+				 where stl_pid = '".$pid."' and stl_dsid = '".$dsid."' AND stl_counter_bad = 0";
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 		if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -810,7 +824,7 @@ class Statistics
 
 		$stmt = "select count(*)  
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
-				 where stl_pid = '".$pid."' AND stl_dsid = '' ".$limit;
+				 where stl_pid = '".$pid."' AND stl_counter_bad = 0 AND stl_dsid = '' ".$limit;
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -840,7 +854,7 @@ class Statistics
 
 		$stmt = "select count(*)  
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
-				 where stl_pid = '".$pid."' and stl_dsid <> '' ".$limit;
+				 where stl_pid = '".$pid."' AND stl_counter_bad = 0 and stl_dsid <> '' ".$limit;
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 		if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -874,7 +888,7 @@ class Statistics
 		$stmt = "select count(*) as abstracts, usr_full_name  
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
 				 inner join " . APP_TABLE_PREFIX . "user on usr_id = stl_usr_id
-				 ".$limit."
+				 ".$limit." AND stl_counter_bad = 0
 				 group by usr_full_name
 				 order by abstracts desc, usr_full_name asc";
 
@@ -912,7 +926,7 @@ class Statistics
 
 		$stmt = "select count(*) as stl_country_count, stl_country_name, stl_country_code  
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
-				 ".$limit."
+				 ".$limit." AND stl_counter_bad = 0
 				 group by stl_country_name, stl_country_code
 				 order by stl_country_count desc, stl_country_name asc";
 
@@ -948,7 +962,7 @@ class Statistics
 		$limit .= " and stl_country_name = '".$country."'";
 		$stmt = "select count(*) as stl_country_count, stl_country_name, stl_country_code, stl_region, stl_city
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
-				 ".$limit."
+				 ".$limit." AND stl_counter_bad = 0
 				 group by stl_country_name, stl_country_code, stl_region, stl_city
 				 order by stl_country_name asc, stl_region asc, stl_city asc, stl_country_count desc";
 
@@ -1032,7 +1046,7 @@ class Statistics
 		
 		$stmt = "select count(*) as stl_country_count, stl_country_name, stl_country_code  
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
-				 ".$limit."
+				 ".$limit." AND stl_counter_bad = 0
 				 group by stl_country_name, stl_country_code
 				 order by stl_country_count desc, stl_country_name asc";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt,  DB_FETCHMODE_ASSOC);
@@ -1069,7 +1083,7 @@ class Statistics
 		$stmt = "select count(*) as downloads, usr_full_name
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
 				 inner join " . APP_TABLE_PREFIX . "user on usr_id = stl_usr_id
-				 ".$limit."
+				 ".$limit." AND stl_counter_bad = 0
 				 group by usr_full_name
 				 order by downloads desc, usr_full_name asc";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt,  DB_FETCHMODE_ASSOC);
@@ -1107,7 +1121,7 @@ class Statistics
 		
 		$stmt = "select count(*) as stl_country_count, stl_country_name, stl_country_code, stl_region, stl_city
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
-				 ".$limit."
+				 ".$limit." AND stl_counter_bad = 0
 				 group by stl_country_name, stl_country_code, stl_region, stl_city
 				 order by stl_country_name asc, stl_region asc, stl_city asc, stl_country_count desc";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt,  DB_FETCHMODE_ASSOC);
@@ -1127,7 +1141,7 @@ class Statistics
 	function getStatsByObject($pid) {	
 		$stmt = "select count(*)  
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
-				 where stl_pid = '".$pid."'";
+				 where stl_pid = '".$pid."' AND stl_counter_bad = 0";
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 		if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -1151,7 +1165,7 @@ class Statistics
 
 		$stmt = "select count(*) as count,month(date(stl_request_date)) as monthnum,date_format(date(stl_request_date),'%b') as month,year(date(stl_request_date)) as year 
 	 	 from " . APP_TABLE_PREFIX . "statistics_all
-		 ".$limit." 		
+		 ".$limit." AND stl_counter_bad = 0
  		 group by year, month, monthnum
 		 order by year DESC, monthnum DESC";
 
@@ -1178,7 +1192,7 @@ class Statistics
 		
 		$stmt = "select count(*) as count,month(date(stl_request_date)) as monthnum,date_format(date(stl_request_date),'%b') as month,year(date(stl_request_date)) as year 
 	 	 from " . APP_TABLE_PREFIX . "statistics_all
-		 ".$limit."		
+		 ".$limit." AND stl_counter_bad = 0
  		 group by year, month, monthnum 
 		 order by year DESC, monthnum DESC";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
