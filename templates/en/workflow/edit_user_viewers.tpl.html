@@ -1,0 +1,56 @@
+
+      <table width="100%" class="admin-box" border="0" cellspacing="0" cellpadding="0" align="center">
+        <tr>
+          <td>
+            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+              <tr>
+                <td colspan="3" class="default">
+                  <b>Manage Viewer Rights:</b>
+                </td>
+              </tr>
+              <tr>
+                <td>
+					<span class="default">User List</span>
+                </td>
+				<td>
+					&nbsp;
+				</td>
+                <td>
+					<span class="default">Currently Assigned Viewers</span>
+                </td>
+              </tr>
+
+              <tr>
+                <td align="left" width="5%">
+				<input type="hidden" name="cat" value="update" />
+				<select id="user_options" multiple size="30" width="40" class="default" name="user_options[]">
+				  {html_options options=$user_options}
+				</select>
+                </td>
+				<td width="5%" align="left">
+					<input type="button" name="copy_right" value="Copy selected to right ->" onClick="javascript:addToParentList(this.form.user_options, this.form.fezacml_user_viewers)" />
+					<br />
+					<br />
+					<input type="button" name="remove_right" value="Remove selected from right" onClick="javascript:deleteSelectedItemsFromList(this.form.fezacml_user_viewers)" />
+				</td>
+                <td align="left">
+				<select id="fezacml_user_viewers" multiple size="30" width="40" class="default" name="fezacml_user_viewers[]">
+				  {html_options options=$fezacml_user_viewers}
+				</select>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+	{literal}
+	<script type="text/javascript">
+	function validateForm() {
+		var field = document.wfl_form1.fezacml_user_viewers;
+	
+	    for (var y = 0; y < field.options.length; y++) {
+	        field.options[y].selected = true;
+	    }
+	}	
+	</script>
+	{/literal}

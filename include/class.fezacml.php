@@ -65,6 +65,94 @@ class FezACML
             return $res;
         }
     }
+
+	function getList() {
+		return array();
+	}
+
+	function getPopularList() {
+		return array();
+	}
+
+	function getUsersByRolePidAssoc($pid, $role) {
+		$return = array();
+		$acmlBase = Record::getACML($pid);
+		if ($acmlBase == "") { 
+			return array(); 
+		}
+        $xpath = new DOMXPath($acmlBase);
+        $userSearch = $xpath->query('/FezACML/rule/role[@name="'.$role.'"]/Fez_User');
+        if ($userSearch->length != 0) {
+			foreach ($userSearch as $userRow) {
+				if (is_numeric($userRow->nodeValue)) {
+					$userDisplayName = User::getDisplayNameByID($userRow->nodeValue);
+					$return[$userRow->nodeValue] = $userDisplayName;
+				}
+			}
+		}
+		return $return;
+	}
+
+
+    function updateUsersByRolePid($pid, $fezacml_user_list, $role, $remove_only_list = array()) {
+		$newXML = "";
+        $xmlString = Fedora_API::callGetDatastreamContents($pid, 'FezACML', true);
+        
+        if(empty($xmlString) || !is_string($xmlString)) {
+//	            return -3;
+			//create new fezacml template with inherit on
+			$xmlString = '<FezACML xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+			  <rule>
+			    <role name="'.$role.'" />
+			  </rule>
+			  <inherit_security>on</inherit_security>
+			</FezACML>';
+        }
+        
+		$doc = DOMDocument::loadXML($xmlString);
+		$xpath = new DOMXPath($doc);
+
+
+        $fieldNodeList = $xpath->query('/FezACML/rule/role[@name="'.$role.'"]/Fez_User');
+
+
+        if ($fieldNodeList->length == 0) {
+			$parentNodeList = $xpath->query('/FezACML/rule/role[@name="'.$role.'"]');
+	        if ($parentNodeList->length == 0) {
+				return -1;
+			} 
+			$parentNode = $parentNodeList->item(0);
+        } else {
+			foreach ($fieldNodeList as $fieldNode) { // first delete all the Fez_Users
+				$parentNode = $fieldNode->parentNode;
+				if (count($remove_only_list) == 0) { 
+	                $parentNode->removeChild($fieldNode);
+				} elseif (in_array($fieldNode->nodeValue, $remove_only_list) || $fieldNode->nodeValue == "") { // if a list of remove only ids is set, only remove ones in this list (eg to send a list of ids in a fez group)
+					$parentNode->removeChild($fieldNode);
+				}
+			}
+		}
+		if (is_array($fezacml_user_list)) {
+			foreach ($fezacml_user_list as $fez_user) {
+				$newNode = $doc->createElement('Fez_User', $fez_user);
+				$parentNode->appendChild($newNode);
+			}
+		}
+		$newXML = $doc->SaveXML();
+		$FezACML = "FezACML";
+		if (Fedora_API::datastreamExists($pid, $FezACML)) {
+			Fedora_API::callModifyDatastreamByValue($pid, $FezACML, "A", "FezACML",
+					$newXML, "text/xml", "inherit");
+		} else {
+			Fedora_API::getUploadLocation($pid, $FezACML, $newXML, "FezACML",
+					"text/xml", "X", null, "true");
+		}
+		Record::setIndexMatchingFields($pid);
+		return 1;
+    }
+
+
+
 	
     function getQuickTemplateValue($qat_id)
     {

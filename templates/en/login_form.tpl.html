@@ -84,7 +84,7 @@ function toggleHideSecondaryLogin()
 </form>
 {/if}	
 
-{if $SHIB_SWITCH == "ON"}<div id="secondary-login-unhider" style="margin: 20px;"><a href="#" onclick="javascript:toggleHideSecondaryLogin(); return false;">Non-{$app_short_org_name} login</a></div>{/if}
+{if $SHIB_SWITCH == "ON"}<div id="secondary-login-unhider" style="margin: 20px;"><a href="#" onclick="javascript:toggleHideSecondaryLogin(); document.login_form.username.focus(); return false;">Non-{$app_short_org_name} login</a></div>{/if}
 
 <div id="secondary-login"{if $SHIB_SWITCH == "ON"} style="display: none;"{/if}>
 
@@ -182,7 +182,7 @@ function toggleHideSecondaryLogin()
   </tr>
 </table>
 
-	<div style="padding: 30px;"><a href="mailto:{$smarty.const.APP_ADMIN_EMAIL}?subject={$application_title}: Non-{$app_short_org_name} access request">Request access to the system</a></div>
+	<div style="padding: 30px;"><a href="mailto:{$smarty.const.APP_ADMIN_EMAIL}?subject={$application_title}: Non-{$app_short_org_name} access request">Request access to the system - for former {$org_short_name} staff and students only</a></div>
 
 </div>
 

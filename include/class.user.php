@@ -288,6 +288,33 @@ class User
         }
     }
 
+
+    /**
+     * Method used to get the displayname of a specific user.
+     *
+     * @access  public
+     * @param   integer $uid The user ID number
+     * @return  array The user display name
+     */
+    function getDisplayNameByID($id)
+    {
+        $stmt = "SELECT
+                    usr_full_name
+                 FROM
+                    " . APP_TABLE_PREFIX . "user
+                 WHERE
+                    usr_id=".$id;
+
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
+
+
     /**
      * Method used to get the full name of the specified user.
      *
