@@ -114,7 +114,7 @@ class Default_Data
         $defaultData['app_light_color']                     = "#F5F8FF";
         $defaultData['app_selected_color']                  = "#fdffd9";
         $defaultData['app_middle_color']                    = "#cecece";
-        $defaultData['app_dark_color']                      = "#87ABE9";
+        $defaultData['app_dark_color']                      = "#317DCE"; 
         $defaultData['app_heading_color']                   = "#6C94DA";
         $defaultData['app_cycle_color_one']                 = "#ebebeb";
         $defaultData['app_cycle_color_two']                 = "#f7f7f7";
