@@ -65,7 +65,7 @@
         <li><strong>{$items.sek_title}</strong></li>
         {foreach from=$items.values key=id item=valueData}
         {if $valueData.num > 0 }
-        <li><a href="?{$url_wo_rows}&search_keys[{$sek_id}]={$id}">{$valueData.value}</a> ({$valueData.num})</li>
+        <li class='facetarrow'><a href="?{$url_wo_rows}&search_keys[{$sek_id}]={$id}">{$valueData.value}</a> ({$valueData.num})</li>
         {/if}
         {/foreach}
         <li>&nbsp;</li>

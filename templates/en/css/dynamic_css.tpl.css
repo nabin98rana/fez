@@ -1201,8 +1201,8 @@ margin-bottom: 1em;
 	text-align:left; margin-left:0px; padding:2px;
 }
 
-.facet li {
-	list-style-image: url(/images/orange_arrow.gif)
+.facetarrow {
+	list-style-image: url(/images/tab-arrow.gif)
 }
 
 .facet a {
