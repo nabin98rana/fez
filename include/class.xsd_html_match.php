@@ -46,7 +46,6 @@ include_once (APP_INC_PATH . "class.error_handler.php");
 include_once (APP_INC_PATH . "class.misc.php");
 include_once (APP_INC_PATH . "class.xsd_relationship.php");
 include_once (APP_INC_PATH . "class.xsd_loop_subelement.php");
-include_once (APP_INC_PATH . "class.xsd_html_match_generator.php");
 include_once (APP_INC_PATH . "class.record.php");
 include_once (APP_INC_PATH . "class.user.php");
 include_once (APP_INC_PATH . "class.auth.php");

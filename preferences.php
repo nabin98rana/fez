@@ -53,7 +53,8 @@ $isAdministrator = User::isUserAdministrator($username);
 if (Auth::userExists($username)) { // if the user is registered as a Fez user
 	$tpl->assign("isFezUser", $username);
 } else {
-	Auth::redirect(APP_RELATIVE_URL . "register.php?err=5&username=" . $username);	
+	// Not really possible to get here
+	Auth::redirect(APP_RELATIVE_URL);	
 }
 $tpl->assign("isAdministrator", $isAdministrator);
 
