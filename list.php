@@ -37,7 +37,7 @@ include_once("config.inc.php");
 include_once(APP_INC_PATH . "class.lister.php");
 
 $res = Lister::getList($_GET, true);
-if (is_array($res)) {
+if (is_array($res['list'])) {
 	foreach ($res['list'] as $record) {
 		$pids[] = $record['rek_pid'];
 	}
