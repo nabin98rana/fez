@@ -153,6 +153,7 @@ class Search_Key
 					sek_html_input,
 					sek_fez_variable,
 					sek_lookup_function,
+					sek_suggest_function,
 					sek_smarty_variable ";
 				if (is_numeric($_POST["sek_cvo_id"])) {
 					$stmt .= " ,sek_cvo_id ";
@@ -183,7 +184,8 @@ class Search_Key
                     '" . Misc::escapeString($_POST["sek_data_type"]) . "',					
                     '" . Misc::escapeString($_POST["field_type"]) . "',					
                     '" . Misc::escapeString($_POST["sek_fez_variable"]) . "',
-					'" . Misc::escapeString($_POST["sek_lookup_function"]) . "',					
+					'" . Misc::escapeString($_POST["sek_lookup_function"]) . "',
+					'" . Misc::escapeString($_POST["sek_suggest_function"]) . "',
                     '" . Misc::escapeString($_POST["sek_smarty_variable"]) . "'";
 					if (is_numeric($_POST["sek_cvo_id"])) {
 	                    $stmt .=  "," . $_POST["sek_cvo_id"];
@@ -301,6 +303,7 @@ class Search_Key
                     sek_html_input = '" . Misc::escapeString($_POST["field_type"]) . "',
                     sek_smarty_variable = '" . Misc::escapeString($_POST["sek_smarty_variable"]) . "',
 					sek_lookup_function = '" . Misc::escapeString($_POST["sek_lookup_function"]) . "',
+					sek_suggest_function = '" . Misc::escapeString($_POST["sek_suggest_function"]) . "',
 					sek_data_type = '" . Misc::escapeString($_POST["sek_data_type"]) . "',
                     sek_fez_variable = '" . Misc::escapeString($_POST["sek_fez_variable"]) . "'";
 					if (is_numeric($_POST["sek_cvo_id"])) {
@@ -795,6 +798,77 @@ class Search_Key
             return $res;
         }
     }
+
+
+    /**
+     * Method used to get the details of a specific search key suggest function from a passed XSDMF match
+     *
+     * @access  public
+     * @param   integer $xsdmf_id The xsd matching field ID
+     * @return  array The search key suggest function string
+     */
+    function getSuggestFunctionByXSDMF_ID($xsdmf_id)
+    {
+        $stmt = "SELECT
+                    s1.sek_suggest_function
+                 FROM
+                    " . APP_TABLE_PREFIX . "search_key as s1
+                    inner join " . APP_TABLE_PREFIX . "xsd_display_matchfields as x1
+                    on xsdmf_sek_id=sek_id                    
+                 WHERE
+                    xsdmf_id=".$xsdmf_id;
+        
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
+
+
+	function suggestSearchKeyIndexValue($sek_details, $term, $assoc = false) {
+		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+		if (!is_array($sek_details)) {
+			return false;
+		}
+		$sek_title = Search_Key::makeSQLTableName($sek_details['sek_title']);		
+		if ($sek_details['sek_relationship'] == 1) { //1-M 
+
+			$stmt = " SELECT rek_".$sek_title."_id as id, rek_".$sek_title." as name FROM (";		
+			$stmt .= " 
+				  SELECT rek_".$sek_title."_id, rek_".$sek_title.",
+					MATCH(rek_".$sek_title.") AGAINST ('".$term."') as Relevance FROM ".$dbtp."record_search_key_".$sek_title."
+				 WHERE MATCH (rek_".$sek_title.") AGAINST ('*".$term."*' IN BOOLEAN MODE) ";
+			$stmt .= " ORDER BY Relevance DESC, rek_".$sek_title." LIMIT 0,10) as tempsuggest group by name";
+		} else { //1-1 index table
+			$stmt = " SELECT rek_".$sek_title."_id as id, rek_".$sek_title." as name FROM (";		
+			$stmt .= " 
+				  SELECT rek_".$sek_title."_id, rek_".$sek_title.",
+					MATCH(rek_".$sek_title.") AGAINST ('".$term."') as Relevance FROM ".$dbtp."record_search_key
+				 WHERE MATCH (rek_".$sek_title.") AGAINST ('*".$term."*' IN BOOLEAN MODE) ";
+			$stmt .= " ORDER BY Relevance DESC, rek_".$sek_title." LIMIT 0,10) as tempsuggest group by name";
+		}
+		if ($assoc) {
+		    $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+		} else {
+		    $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+		}
+       	if (PEAR::isError($res)) {
+           	Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+       	} else {
+       		if ($getLookup == true && $sek_details['sek_lookup_function'] != "") {
+       			$temp = array();
+       			eval("\$temp_value = ".$sek_details["sek_lookup_function"]."(".$res.");");
+       			$temp[$res] = $temp_value;
+       			$res = $temp;
+       		}
+       		return $res;
+       	}
+	}
+
+
 
 
     function getAllDetailsByXSDMF_ID($xsdmf_id)

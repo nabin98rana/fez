@@ -26,9 +26,9 @@
             <!-- Google suggest style selection -->
             {* IE HACK: We want the suggest dropdown to be on top of any other auto-suggest controls which appear below it *}
             {* smarty.section.i.index is used incase this suggest control is used by more than 1 element ie. Author and Editor *}
-    		<div id="authorsuggest" style="width:15em;height:2em;position:relative;z-index:{math equation="2000 - x - y" y=$loop_num x=$smarty.section.i.index};">
-            	<input id="{$attached_field_id}_lookup" type="text" />
-            	<div id="{$attached_field_id}_container"></div>
+			<div id="authorsuggest" style="width:15em;height:2em;position:relative;z-index:{math equation="2000 - x - y" y=$loop_num x=$smarty.section.i.index};">
+			  <div id="{$attached_field_id}_container" style="position:absolute;top:1.6em;"></div>
+            	<input id="{$attached_field_id}_lookup" type="text">
             </div>
         </td>
     </tr>
@@ -73,13 +73,21 @@
     </script>
     
     <style type="text/css">
+    #{/literal}{$attached_field_id}{literal}_container {
+	    position:absolute;
+	    top:1.6em; 
+	    width:100%;
+    }
+
     #{/literal}{$attached_field_id}{literal}_container .yui-ac-content {
+	    position:relative;
         max-height:11em;
         /* height: 150px; */
         width: 250px;
         overflow:auto;
         overflow-x:hidden; /* scrolling */
         _height:11em; /* ie6 */
+        z-index:9071;
     }
     </style>
     

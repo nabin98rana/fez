@@ -380,6 +380,39 @@ class Org_Structure
         }
     }	
 
+    /**
+     * Method used to search and suggest all the org structure names for a given string.
+     *
+     * @access  public
+     * @return  array List of Org structure titles
+     */
+	function suggest($term, $assoc = false) {
+		$dbtp = APP_TABLE_PREFIX;
+		
+		$term = Misc::escapeString($term);
+
+		$stmt = " SELECT org_id as id, org_title as name FROM (";		
+		$stmt .= " 
+			  SELECT org_id, 
+				org_title,
+				MATCH(org_title) AGAINST ('".$term."') as Relevance FROM ".$dbtp."org_structure
+			 WHERE MATCH (org_title) AGAINST ('*".$term."*' IN BOOLEAN MODE)  AND (org_extdb_name = 'hr' OR org_extdb_name = 'rrtd') ";
+		$stmt .= " ORDER BY Relevance DESC, org_title LIMIT 0,10) as tempsuggest";
+
+		if ($assoc) {
+		    $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+		} else {
+		    $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+		}
+	    
+     if (PEAR::isError($res)) {
+         Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+         return "";
+     } else {
+         return $res;
+     }
+	}
+
    /**
      * Method used to get the list of organsational structures available in the 
      * system returned in an associative array for drop down lists.

@@ -11,14 +11,13 @@ version: 2.4.1
 }
 
 .yui-ac-input{
-    position:absolute;
-    /* position:relative;  display: inline;  */
-    width:100%;
+    /*position:absolute; */
+     position:relative;  display: inline;  
+/*    width:100%; */
 }
     
 .yui-ac-container{
     position:absolute;
-    top:1.6em;
     width:100%;
 }
 
@@ -29,7 +28,7 @@ version: 2.4.1
     background:#fff;
     overflow:hidden;
     z-index:9050;
-    
+
     /* Custom size for auto-suggest control */
     font:13px/1.231 arial,helvetica,clean,sans-serif;
     *font-size:small;

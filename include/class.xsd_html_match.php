@@ -433,7 +433,8 @@ class XSD_HTML_Match {
 							xsdmf_meta_header_name,
 							xsdmf_show_simple_create,
 							xsdmf_xpath,
-							sek_title
+							sek_title,
+							sek_suggest_function
 		                 FROM
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields as m1
 							left join " . APP_TABLE_PREFIX . "search_key as sk1 on sk1.sek_id = m1.xsdmf_sek_id ";
