@@ -1815,6 +1815,7 @@ class Record
         	$res = $GLOBALS["db_api"]->dbh->getCol($stmt);
         	if (PEAR::isError($res)) {
             	Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+				return false;
         	} else {
         		if ($getLookup == true && $sek_details['sek_lookup_function'] != "") {
         			$temp = array();
@@ -1836,6 +1837,7 @@ class Record
         	$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         	if (PEAR::isError($res)) {
             	Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+				return false;
         	} else {
         		if ($getLookup == true && $sek_details['sek_lookup_function'] != "") {
         			$temp = array();

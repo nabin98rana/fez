@@ -63,7 +63,13 @@ if ($isAdministrator) {
 $tpl->assign("fez_root_dir", APP_PATH);
 $tpl->assign("eserv_url", APP_BASE_URL."eserv/".$pid."/");
 $tpl->assign("local_eserv_url", APP_BASE_URL."eserv/".$pid."/");
-$tpl->assign("extra_title", "Record #".$pid." Details");
+$title = Record::getSearchKeyIndexValue($pid, "title", false);
+if ($title !== false) {
+	$tpl->assign("extra_title", $title);	
+} else {
+	$tpl->assign("extra_title", "Record #".$pid." Details");	
+}
+
 
 $debug = @$_REQUEST['debug'];
 if ($debug == 1) {
