@@ -192,7 +192,7 @@
     <WorkflowTrigger wft_id="298" wft_pid="-1" wft_type_id="3" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/delete.gif" wft_ret_id="1" wft_options="0"/>
   </workflow>
   <workflow wfl_id="195" wfl_title="Duplicates Report" wfl_version="1.0" wfl_description="Workflow for finding duplicates in a collection." wfl_roles="Editor" wfl_end_button_label="Finished">
-    <WorkflowState wfs_id="889" wfs_title="Show Duplicates List" wfs_description="This is a report of duplicates found for the selected records.  Select an item to see it's duplicate records." wfs_auto="0" wfs_wfb_id="131" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="889" wfs_title="Show Duplicates List" wfs_description="This is a report of duplicates found for the selected records.  Select an item to see its duplicate records." wfs_auto="0" wfs_wfb_id="131" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
     <WorkflowTrigger wft_id="346" wft_pid="-1" wft_type_id="1" wft_xdis_id="285" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="3" wft_options="0"/>
   </workflow>
   <workflow wfl_id="202" wfl_title="Edit Author Affiliations" wfl_version="1.0" wfl_description="HERDIC Author Affiliations" wfl_roles="Approver,Community_Administrator,Editor" wfl_end_button_label="Finished">
