@@ -1,6 +1,4 @@
-{$najax_register}
 {literal}
-
 function openHistory(pid)
 {
     var features = 'width=520,height=400,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
@@ -19,5 +17,4 @@ function showDiv(p)
         document.getElementById(p).style.display = "block";
     }
 }
-
 {/literal}
