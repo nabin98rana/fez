@@ -352,15 +352,18 @@ class Record
          * cached files as well as cached files for custom views
          */
         if(APP_FILECACHE == "ON") {
-        	$this->cviews = Custom_View::getCviewList();
+        	$cviews = array();
+        	$cviews = Custom_View::getCviewList();
         	
 	        $cache = new fileCache($pid, 'pid='.$pid);
 	        $cache->poisonCache();
 	        
-            foreach ($this->cviews as $cview) {
-                $cache = new fileCache($pid, "custom_view_pid={$cview['cvcom_com_pid']}&pid=$pid");
-                $cache->poisonCache();
-            }
+	        if(count($cviews) > 0) {
+	            foreach ($cviews as $cview) {
+	                $cache = new fileCache($pid, "custom_view_pid={$cview['cvcom_com_pid']}&pid=$pid");
+	                $cache->poisonCache();
+	            }
+	        }
         }
         
         if ($ret) {
