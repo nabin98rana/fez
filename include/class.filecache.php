@@ -37,10 +37,30 @@ class fileCache {
 	        $htmlContent = file_get_contents($this->cachePath.$this->cacheFileName);
 	        
 	        $views = Record::getSearchKeyIndexValue($this->pid, "Views");
-	        $dls = Record::getSearchKeyIndexValue($this->pid, "File Downloads");
+            $dls = Record::getSearchKeyIndexValue($this->pid, "File Downloads");
 	        
 	        $pat = array('/<fez:statsAbs>\d<\/fez:statsAbs>/', '/<fez:statsDownloads>\d<\/fez:statsDownloads>/');
-	        $rep = array("<fez:statsAbs>$views<fez:statsAbs>", "<fez:statsDownloads>$dls<fez:statsDownloads>");
+            $rep = array("<fez:statsAbs>$views</fez:statsAbs>", "<fez:statsDownloads>$dls</fez:statsDownloads>");
+	        
+            $datastreams = Fedora_API::callGetDatastreams($this->pid, $requestedVersionDate, 'A');
+            $datastreams = Misc::cleanDatastreamListLite($datastreams, $pid);
+            
+	        foreach ($datastreams as $ds) {
+	        	if($ds['controlGroup'] == 'M') {
+	        		$dls = Statistics::getStatsByDatastream($this->pid, $ds['ID']);
+	        		$base64 = base64_encode($ds['ID']);
+	        		
+	        		$pat[] = "/<fez:ds_$base64>\d<\/fez:ds_$base64>/";
+	        		$rep[] = "<fez:ds_$base64>$dls</fez:ds_$base64>";
+	        	}
+	        }
+	        
+	        $GLOBALS["bench"]->stop();
+            $profiling = $GLOBALS["bench"]->getProfiling();
+            $totaltime = sprintf("%.4f", $profiling[count($profiling)-1]["total"]);
+            
+            $pat[] = '/<fez:totaltime>.*<\/fez:totaltime>/';
+            $rep[] = "<fez:totaltime>$totaltime</fez:totaltime>";
 	        
 	        $htmlContent = preg_replace($pat, $rep, $htmlContent);
 	        

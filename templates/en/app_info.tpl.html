@@ -1,7 +1,7 @@
 <div id="footer">
 	<p>&copy 2008 <a title="{$smarty.const.APP_NAME}" href="{$rel_url}">{$smarty.const.APP_NAME}</a> &middot; <!--a href="privpolicy.php?subnav=privpolicy_1">Privacy Policy</a> &middot; <a href="{$rel_url}terms.php">Terms of use</a> &middot; -->Powered by <a title="Fez Wiki website"href="http://dev-repo.library.uq.edu.au/wiki/" target="_blank">Fez {$application_version} Software</a> &middot; <a href="{$rel_url}contact.php">Contact us</a>{if $isUser} &middot; <a href="{$rel_url}help.php?topic=main">Help</a>{/if}</p>
 	
-	<div class="query_footer"><p>Page generated in {$benchmark_total} seconds {if $total_queries}({$total_queries} queries){/if} on {$generated_time}</p></div>
+	<div class="query_footer"><p>Page generated in <fez:totaltime>{$benchmark_total}</fez:totaltime> seconds {if $total_queries}({$total_queries} queries){/if} on {$generated_time}</p></div>
 	
 
 	<div id="omc">

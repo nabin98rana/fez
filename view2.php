@@ -377,7 +377,8 @@ if (!empty($pid) && $record->checkExists()) {
 				$datastreams[$ds_key]['origami_switch'] = $origami_switch;
 				
 				$datastreams[$ds_key]['FezACML'] = Auth::getAuthorisationGroups($pid, $datastreams[$ds_key]['ID']);
-				$datastreams[$ds_key]['downloads'] = Statistics::getStatsByDatastream($pid, $ds['ID']);			
+				$datastreams[$ds_key]['downloads'] = Statistics::getStatsByDatastream($pid, $ds['ID']);	
+				$datastreams[$ds_key]['base64ID'] = base64_encode($ds['ID']); 		
 				Auth::getAuthorisation($datastreams[$ds_key]);
 			}
 			

@@ -296,7 +296,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 				<td>{$datastreams[d].label}</td>
 				<td>{$datastreams[d].MIMEType}</td>
 				<td>{$datastreams[d].archival_size}</td>				
-				<td align="right">{$datastreams[d].downloads}</td>				
+				<td align="right"><fez:ds_{$datastreams[d].base64ID}>{$datastreams[d].downloads}</fez:ds_{$datastreams[d].base64ID}></td>				
 			  </tr>
 			 {/if}
         {/section}
