@@ -1,8 +1,8 @@
 <div id="footer">
 	<p>&copy 2008 <a title="{$smarty.const.APP_NAME}" href="{$rel_url}">{$smarty.const.APP_NAME}</a> &middot; <!--a href="privpolicy.php?subnav=privpolicy_1">Privacy Policy</a> &middot; <a href="{$rel_url}terms.php">Terms of use</a> &middot; -->Powered by <a title="Fez Wiki website"href="http://dev-repo.library.uq.edu.au/wiki/" target="_blank">Fez {$application_version} Software</a> &middot; <a href="{$rel_url}contact.php">Contact us</a>{if $isUser} &middot; <a href="{$rel_url}help.php?topic=main">Help</a>{/if}</p>
-	{if $benchmark_total && $isAdministrator}
-	<p>Page generated in {$benchmark_total} seconds {if $total_queries}({$total_queries} queries){/if}</p>
-	{/if}
+	
+	<div class="query_footer"><p>Page generated in {$benchmark_total} seconds {if $total_queries}({$total_queries} queries){/if} on {$generated_time}</p></div>
+	
 
 	<div id="omc">
 		<a href="http://www.uq.edu.au/terms-of-use/" target="_blank">Copyright</a> | <a href="http://www.uq.edu.au/terms-of-use/" target="_blank">Privacy</a> | <a href="http://www.uq.edu.au/terms-of-use/" target="_blank">Disclaimer</a><br />

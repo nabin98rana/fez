@@ -318,6 +318,7 @@ class Template_API
         $this->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
         $this->assign('najax_register', $this->najax_register);
         $this->assign('headerscript', $this->headerscript);
+        $this->assign('generated_time', date('Y-m-d H:i:s'));
         
     }
     

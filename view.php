@@ -45,13 +45,27 @@ include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 include_once(APP_INC_PATH . "class.xsd_relationship.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
+include_once(APP_INC_PATH . "class.filecache.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("view.tpl.html");
 $pid = @$_REQUEST["pid"];
 
 $show_tombstone = true;  // tell view2.php to show the tombstone if the record has a deleted fedora status
+$savePage = true;
+
+$logged_in = Auth::isValidSession($_SESSION);
+$cache = new fileCache($pid, $_SERVER['QUERY_STRING'], $_GET['flushcache']);
+
+if(!$logged_in && APP_FILECACHE == "ON") {
+	$cache->checkForCacheFile();
+}
 
 include_once('view2.php');
 $tpl->displayTemplateRecord($pid);
+
+if(!$logged_in && APP_FILECACHE == "ON") {
+	$cache->saveCacheFile($savePage);
+}
+
 ?>

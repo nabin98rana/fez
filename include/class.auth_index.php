@@ -2,12 +2,14 @@
 
 include_once(APP_INC_PATH.'class.record.php');
 include_once(APP_INC_PATH . "class.bgp_index_auth.php");
+include_once(APP_INC_PATH . "class.filecache.php");
 
 class AuthIndex {
     var $get_auth_done_pids = array();
     var $bgp;
     var $pid_cache = array();
     var $pid_count = 0;
+    var $cviews = array();
 
     function setIndexAuth($pid, $recurse=false)
     {
@@ -195,6 +197,20 @@ class AuthIndex {
             
             foreach ($children as $child_pid) {
                 AuthIndex::setIndexAuthBGP($child_pid, $recurse, false);
+            }
+            
+            if( APP_FILECACHE == "ON" && $topcall) {
+            	$this->cviews = Custom_View::getCviewList();
+            }
+            
+            if( APP_FILECACHE == "ON" ) {
+	            $cache = new fileCache($pid, 'pid='.$pid);
+	            $cache->poisonCache();
+	            
+	            foreach ($this->cviews as $cview) {
+	            	$cache = new fileCache($pid, "custom_view_pid={$cview['cvcom_com_pid']}&pid=$pid");
+                    $cache->poisonCache();
+	            }
             }
             
             $this->bgp->setStatus("Finished Index Auth for ".$title);

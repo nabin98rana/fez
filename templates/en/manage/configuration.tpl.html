@@ -243,7 +243,7 @@ function restoreDefaultColours(el)
 		    <td class="colname">Secure logins</td>
 			<td class="coldetail">
 			  <select name="app_https">
-			    <option value="ON"{if $config_settings.app_https == "ON"} selected="selected"{/if}>On</option>
+			    <option value="ON"{if $config_settings.app_https == ""} selected="selected"{/if}>On</option>
 				<option value="OFF"{if $config_settings.app_https == "OFF"} selected="selected"{/if}>Off</option>
 			  </select>
 			  <br />Whether you want users redirected to SSL/HTTPS for login/password screens.
@@ -270,6 +270,15 @@ function restoreDefaultColours(el)
 			  </select>
 			</td>
   		  </tr>
+  		  <tr>
+            <td class="colname">View page caching</td>
+            <td class="coldetail">
+              <select name="app_filecache">
+                <option value="ON"{if $config_settings.app_filecache == "ON"} selected="selected"{/if}>On</option>
+                <option value="OFF"{if $config_settings.app_filecache == "OFF"} selected="selected"{/if}>Off</option>
+              </select>
+            </td>
+          </tr>
 		  <tr>
 		    <td class="colname">Link prefix</td>
 			<td class="coldetail">
@@ -663,6 +672,13 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_py_exec"}
 			</td>
   		  </tr>
+  		  <tr>
+            <td class="colname">File Cache location</td>
+            <td class="coldetail">
+              <input type="text" name="app_filecache_dir" value="{$config_settings.app_filecache_dir|escape:"html"}" size="40" />
+              {include file="error_icon.tpl.html" field="app_filecache_dir"}
+            </td>
+          </tr>
 		</table>
 		</div>
 

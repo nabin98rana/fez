@@ -280,6 +280,7 @@ if (!empty($pid) && $record->checkExists()) {
 		
 	} else {
 		$tpl->assign("show_not_allowed_msg", true);
+		$savePage = false;
 	}
 	
 	if (empty($details)) {
@@ -499,6 +500,7 @@ if (!empty($pid) && $record->checkExists()) {
 } else {
     $tpl->assign('not_exists', true);
 	$tpl->assign("show_not_allowed_msg", true);
+	$savePage = false;
 }
 
 // display user comments, if any
