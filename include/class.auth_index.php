@@ -48,6 +48,7 @@ class AuthIndex {
             			if( $rule['rule'] == "override" ) {
             				unset($res[$role][$ruleID]);
             				$has_list_rules = false;
+            				break;
             			} elseif(  $rule['value'] != "off" ) {
             				$has_list_rules = true;
             			}
@@ -61,6 +62,7 @@ class AuthIndex {
                         if( $rule['rule'] == "override" ) {
                         	unset($res[$role][$ruleID]);
                             $has_view_rules = false;
+                            break;
                         } elseif( $rule['value'] != "off" ) {
                             $has_view_rules = true;
                         }
