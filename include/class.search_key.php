@@ -48,7 +48,7 @@ include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.status.php");
-
+include_once(APP_INC_PATH . "class.org_structure.php");
 
 class Search_Key
 {
