@@ -194,6 +194,8 @@ class Default_Data
 		$defaultData['app_origami_path']				    = "";
 		$defaultData['app_version_uploads_and_links']		= "OFF";
 		$defaultData['app_version_time_interval']	        = "30";
+		$defaultData['app_filecache_dir']                   = "";
+        $defaultData['app_filecache']                       = "OFF";
 
         return $defaultData;
 

@@ -1,0 +1,1 @@
+REPLACE INTO %TABLE_PREFIX%search_key VALUES ('core_83','core',83,'Views','',0,0,0,999,'text','none','',450005,NULL,'int',0,'',0,'','');

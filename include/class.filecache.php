@@ -13,7 +13,7 @@ class fileCache {
 		
 		$this->flushCache = $flushCache;
 		if($this->flushCache == 1 || $this->flushCache == true) {
-			$cacheid = str_replace('?flushcache='.$flushCache, '', $cacheid);
+			$cacheid = str_replace('&flushcache='.$flushCache, '', $cacheid);
 		}
 		
 		$this->pid = $pid;
