@@ -117,6 +117,12 @@ class Record
         }
     }
 
+    function getTitleFromIndex($pid) {
+		$title = Record::getSearchKeyIndexValue($pid, "title", false);
+		return $title;
+	}
+
+
    /**
     * Method used to get the parents of a given record available in the
     * system.
@@ -1404,7 +1410,7 @@ class Record
 	                    if (!is_array($p[$res[$i]["rek_".$sek_sql_title."_pid"]])) {
 	                        $p[$res[$i]["rek_".$sek_sql_title."_pid"]] = array();
 	                    }
-						eval('$res[$i]["rek_'.$sek_sql_title.'_lookup"] = '.$sekData['sek_lookup_function'].'('.$res[$i]['rek_'.$sek_sql_title].');');
+						eval('$res[$i]["rek_'.$sek_sql_title.'_lookup"] = '.$sekData['sek_lookup_function']."('".$res[$i]['rek_'.$sek_sql_title]."');");
                     	$p[$res[$i]["rek_".$sek_sql_title."_pid"]][] =  $res[$i]["rek_".$sek_sql_title."_lookup"];
 					}
                     $t[$res[$i]["rek_".$sek_sql_title."_pid"]][] =  $res[$i]["rek_".$sek_sql_title];
@@ -2449,14 +2455,14 @@ class Record
 			if ($sort == 1) {
 				$suffix .= "_s";
 			} elseif($facet == 1) {
-			    //$suffix .= "f";
+			    $suffix .= "_ft";
 			}
 		} elseif (($sek_data_type == 'varchar' || $sek_data_type == 'text') && $sek_relationship == 1) {
 			$suffix = "_m";
 			if ($sort == 1) {
 				$suffix .= "s";
 			} elseif($facet == 1) {
-			    //$suffix .= "f";
+			    $suffix .= "ft";
 			} else {
 			    $suffix .= "t";
 			}
@@ -3749,8 +3755,6 @@ class RecordGeneral
             return null;
         }
     }
-
-
 
     /**
      * getTitle

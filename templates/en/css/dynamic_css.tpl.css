@@ -1013,14 +1013,20 @@ hr {
     visibility: hidden;
 }
 
-.clearfix {display: inline-block;}
+.clearfix {
+	display: inline-block;
+}
 
 /* Hides from IE-mac \*/
-* html .clearfix {height: 1%;}
-.clearfix {display: block;}
+* html .clearfix {
+	height: 1%;
+}
+
+.clearfix {
+	display: block;
+}
+	
 /* End hide from IE-mac */
-
-
 #criteria-box {
 	margin: 1em 0 1em;
 	text-align: left;
@@ -1181,4 +1187,24 @@ vertical-align: top;
 
 .compare_records_left_side div, .compare_records_right_side div {
 margin-bottom: 1em;
+}
+
+.facet {
+	float:left; font-family:Verdana,Arial,Helvetica,sans-serif;font-size:75%;font-style:normal;font-weight:normal;width:200px;padding: 0px;
+}
+
+.facetheader {
+	background: #317DCE; color:white;align:left;padding: 0px;
+}
+
+.facet ul {
+	text-align:left; margin-left:0px; padding:2px;
+}
+
+.facet li {
+	list-style-image: url(/images/orange_arrow.gif)
+}
+
+.facet a {
+	text-decoration: none;
 }

@@ -707,7 +707,7 @@ class Fedora_API {
     	   'dsID'          => $dsID, 
     	   'altIDs'        => array(), 
     	   'label'         => $dsLabel, 
-    	   new soapval('versionable', 'string', $versionable), 
+    	   new soapval('versionable', 'boolean', $versionable), 
     	   'MIMEType'      => $mimetype, 
     	   'formatURI'     => 'unknown', 
     	   new soapval('location', 'string', $uploadLocation), 
@@ -1176,7 +1176,7 @@ class Fedora_API {
 		   $parms= array(
 		       'PID'           => $pid, 
 		       'datastreamID'  => $dsID, 
-		       new soapval('versionable', 'string', $versionable), 
+		       new soapval('versionable', 'boolean', $versionable), 
 		       'logMessage'    => $logmsg, 
 	       );
 	       Fedora_API::openSoapCall('setDatastreamVersionable', $parms);

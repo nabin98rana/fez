@@ -275,11 +275,12 @@
    
    <dynamicField name="*_s"  type="alphaOnlySort"  indexed="true"  stored="true"/>
    <dynamicField name="*_ms"  type="alphaOnlySort"  indexed="true"  stored="true" multiValued="true"/>
-   
+   <dynamicField name="*_mft" type="string" indexed="true" stored="false" multiValued="true"/> 
    <dynamicField name="*_l"  type="slong"   indexed="true"  stored="true"/>
    
    <dynamicField name="*_t"  type="text"    indexed="true"  stored="true"/>
    <dynamicField name="*_t_s"  type="alphaOnlySort"    indexed="true"  stored="true"/>
+   <dynamicField name="*_t_ft" type="string" indexed="true" stored="false"/>
    <!-- <dynamicField name="author_mt"  type="text"    indexed="true"  stored="true" multiValued="true"/> -->
    <dynamicField name="*_mt"  type="text"    indexed="true"  stored="true" multiValued="true"/>
    <!-- long texts -->
@@ -320,6 +321,9 @@
    <copyField source="*_mt" dest="*_ms"/>  
 
    <!-- Copy for ALL search -->
+   <copyField source="*_t" dest="*_t_ft"/>
+   <copyField source="*_mt" dest="*_mft"/>
+   <copyField source="content" dest="all"/>
    <copyField source="*_t" dest="all"/>
    <copyField source="*_mt" dest="all"/>
  

@@ -293,11 +293,11 @@ class FulltextIndex_Solr extends FulltextIndex {
 				
 				$params['facet'] = 'true';
 				$params['facet.limit'] = '5';
-				$params['facet.mincount'] = '1';
+				$params['facet.mincount'] = '2';
 				
 				foreach ($sekIDs as $sek) {
 				    $sek_title_db = Search_Key::makeSQLTableName($sek['sek_title']);
-				    $solr_suffix = Record::getSolrSuffix($sek,1,0);
+				    $solr_suffix = Record::getSolrSuffix($sek,0,1);
 				    $facetsToUse[] = $sek_title_db.$solr_suffix;
 				}
 			
@@ -375,7 +375,7 @@ class FulltextIndex_Solr extends FulltextIndex {
     				         */
     				        foreach ($sekdet as $sval) {
     				            
-                                $solr_suffix = Record::getSolrSuffix($sval,1,0);
+                                $solr_suffix = Record::getSolrSuffix($sval,0,1);
                                 $solr_name = $sval['sek_title_db'].$solr_suffix;
                                 
                                 if(isset($facetData->$solr_name)) {
@@ -388,7 +388,7 @@ class FulltextIndex_Solr extends FulltextIndex {
                                         
                                     	$id = $value;
                                         if($sval['sek_lookup_function']) {
-                                            eval("\$value = ".$sval["sek_lookup_function"]."(".$value.");");
+                                            eval("\$value = ".$sval["sek_lookup_function"]."('".$value."');");
                                         }
                                         
                                         $tmpArr[$id] = array(
