@@ -171,6 +171,8 @@ if (!empty($pid) && !empty($dsID)) {
 			  	echo stream_get_contents($fh, $size, $seekat);
 				fclose($fh);
 			}
+			// Add view to statistics buffer
+			Statistics::addBuffer($pid, $dsID);							
 		    exit;
 		    
 		} elseif( $origami == true ) {
@@ -183,6 +185,8 @@ if (!empty($pid) && !empty($dsID)) {
 	        
 			$tpl->assign("url", Origami::getTitleLocation($pid, $dsID));
 			$tpl->displayTemplate();
+			// Add view to statistics buffer
+			Statistics::addBuffer($pid, $dsID);
 			exit;
 		    
 		} elseif (($is_video == 1) && (is_numeric(strpos($ctype, "flv")))) {
@@ -232,6 +236,8 @@ if (!empty($pid) && !empty($dsID)) {
 		 * Send file to user
 		 */
 		Misc::processURL($urldata, true);
+		// Add view to statistics buffer
+		Statistics::addBuffer($pid, $dsID);				
 		exit;
 	}
 }

@@ -28,18 +28,15 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>,                    |
+// |          Rhys Palmer <r.rpalmer@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
-//
-//
-include_once(APP_INC_PATH . "class.db_api.php");
-$db_api =& new DB_API;
-if( APP_FEDORA_APIA_DIRECT == "ON" ) {
-    $GLOBALS['db_api']->setupFDAConn();
-}
 
-// benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included db_access file');
-}
+include_once("../config.inc.php");
+include_once(APP_INC_PATH . "db_access.php");
+include_once(APP_INC_PATH . "class.statistics.php");
+
+Statistics::gatherStatsFromBuffer();
+
+
 ?>

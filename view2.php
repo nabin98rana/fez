@@ -438,6 +438,9 @@ if (!empty($pid) && $record->checkExists()) {
 
 		$tpl->assign("statsAbstract", Statistics::getStatsByAbstractView($pid));				
 		$tpl->assign("statsFiles", Statistics::getStatsByAllFileDownloads($pid));						
+
+		// Add view to statistics buffer
+		Statistics::addBuffer($pid);
         
         // Get the current listing 
         $list = $_SESSION['list'];

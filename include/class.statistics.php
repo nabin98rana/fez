@@ -72,6 +72,7 @@ class Statistics
 		$timeStarted = date('Y-m-d H:i:s');
 		$counter = 0;
 		$counter_inserted = 0;
+		$changedPids = array();
 		$requestDateLatest = 0;
 		$datetestA = strtotime(Statistics::getLastestLogEntry());
 		$requestDateLatest = $datetestA;
@@ -231,8 +232,207 @@ class Statistics
 		Statistics::updateSummaryStats();
 		$timeFinished = date('Y-m-d H:i:s');
 		Statistics::setLogRun($requestDateLatest, $counter, $counter_inserted, $timeStarted, $timeFinished);
-
     }
+
+
+    function clearBufferByDate($date) {
+        $stmt = "DELETE FROM
+                    " . APP_TABLE_PREFIX . "statistics_buffer
+                 WHERE
+                    str_request_date <= '".date('Y-m-d H:i:s', $date)."'";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return false;
+        } else {
+            return true; 
+        }
+    }
+
+
+
+	    /**
+	     * Method used to scan a web server log for Fez statistics.
+	     *
+	     * @access  public
+	     * @return  boolean
+	     */
+	    function gatherStatsFromBuffer() {
+	        Statistics::checkSetup();
+			$timeStarted = date('Y-m-d H:i:s');
+			$counter = 0;
+			$counter_inserted = 0;
+			$requestDateLatest = 0;
+			$changedPids = array();
+			$datetestA = strtotime(Statistics::getLastestLogEntry());
+			$requestDateLatest = $datetestA;
+//			$logf = WEBSERVER_LOG_DIR . WEBSERVER_LOG_FILE;
+			$archive_name = APP_HOSTNAME;
+//			$handle = fopen($logf, "r");
+
+			$buffer = Statistics::getAllFromBuffer();
+			if (count($buffer) == 0 ) { return false; }
+			foreach ($buffer as $brow) {
+	//				print_r($matches); // debug
+					$pid = "";
+					$country_code = '';
+					$insertid = '';
+					$view_type = '';
+					$uniquebits = '';
+					$ip = $brow['str_ip'];
+					if ($ip != "") {
+						if (Statistics::isRobot($ip) == 1) {
+							continue;
+						}
+						$hostname = Statistics::gethostbyaddr_with_cache($ip);				
+						$robot_matches = 0;
+						// Try and find any of the major web crawlers and exclude them from the stats (they will usually already have been picked up by the above robots.txt check)
+						$crawler_matches = 0;
+						$crawler_matches = preg_match("/^.*((googlebot)|(slurp)|(jeeves)|(yahoo)|(msn)).*/i", $hostname);
+						if ($crawler_matches > 0) {
+							Statistics::addRobot($ip, $hostname);
+							continue;
+						}					
+					} else { // if there is no ip then skip this line
+						continue;
+					}
+					$date = $brow['str_request_date'];
+					$pid = $brow['str_pid'];
+					$dsid = $brow['str_dsid'];
+
+					$uniquebits = $buffer;
+					$counter++;
+//					preg_match("/^.*:([0-9]+:[0-9]+:[0-9]+) .*/i", $date, $timematch);
+//					$date = preg_replace("/:.*/","",$date);
+//					$date = preg_replace("/\//", " ", $date);
+//					$when = getdate(strtotime($date));
+//					$request_date = $when["year"]."-".$when["mon"]."-".$when["mday"];
+//					$request_date .= " ".$timematch[1]; */
+
+					$request_date = $date;
+					
+					$datetestB = strtotime($request_date);
+					if (($datetestB > $requestDateLatest) || ($requestDateLatest == 0)) {
+						$requestDateLatest = $datetestB;
+					}
+					if ($datetestB <= $datetestA) { // make sure the log entry is newer than the last log run date
+						continue;
+					}
+					// Try and find any thumbnails and preview copies of images as these should not be counted towards the file downloads for an image datastream
+					$image_matches = 0;
+					$image_matches = preg_match("/^((thumbnail_)|(preview_)|(presmd_)).*/i", $dsid);
+					if ($image_matches > 0) {
+						continue;
+					}
+
+					$gi = geoip_open(APP_GEOIP_PATH."GeoLiteCity.dat",GEOIP_STANDARD);
+					$record = geoip_record_by_addr($gi,$ip);
+					$country_code = $record->country_code;
+					$country_name = $record->country_name;
+					$city = $record->city;
+					$region = $record->region;
+
+	                 // Make this stuff SQL-safe.
+	                $archive_name = Misc::escapeString($archive_name);
+	                $ip = Misc::escapeString($ip);
+	                $hostname = Misc::escapeString($hostname);
+	                $request_date = Misc::escapeString($request_date);
+	                $country_code = Misc::escapeString($country_code);
+	                $country_name = Misc::escapeString($country_name);
+	                $region = Misc::escapeString($region);
+	                $city = Misc::escapeString($city);
+	                $pid = Misc::escapeString($pid);
+	                $dsid = Misc::escapeString($dsid);
+	                $pidNum = Misc::escapeString(Misc::numPID($pid));
+					$usr_id = Misc::escapeString($brow['str_usr_id']);
+					if (!is_numeric($usr_id)) {
+						$usr_id = "NULL";
+					}
+					// below commented out lines are other GeoIP information you could possibly use if you are interested
+	/*				print $record->postal_code . "\n";
+					print $record->latitude . "\n";
+					print $record->longitude . "\n";
+					print $record->dma_code . "\n";
+					print $record->area_code . "\n";				*/
+					geoip_close($gi);
+					if ($pid != "") {
+					   $stmt = "INSERT INTO
+									" . APP_TABLE_PREFIX . "statistics_all
+								 (
+									stl_archive_name,
+									stl_ip,
+									stl_hostname,
+									stl_request_date,
+									stl_country_code,
+									stl_country_name,																								
+									stl_region,
+									stl_city,
+									stl_pid,																							
+									stl_dsid,
+	                                stl_pid_num,
+									stl_usr_id
+								 ) VALUES (
+									'" . $archive_name . "',
+									'" . $ip . "',
+									'" . $hostname . "',
+									'" . $request_date . "',
+									'" . $country_code . "',
+									'" . $country_name . "',
+									'" . $region . "',
+									'" . $city . "',
+									'" . $pid . "',			
+									'" . $dsid . "',
+									'" . $pidNum . "',
+									" . $usr_id . "
+								 )"; 
+						$res = $GLOBALS["db_api"]->dbh->query($stmt);
+						if (PEAR::isError($res)) {
+							Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+							return -1; //abort
+						} else {
+							$counter_inserted++;
+
+							if( APP_SOLR_INDEXER == "ON" ) {
+							    $changedPids[$pid] = true;
+							}
+						}
+
+					}
+				}
+			
+
+			if( APP_SOLR_INDEXER == "ON" ) {
+				if (count($changedPids) > 0) {
+				    foreach ($changedPids as $pid => $null) {
+		                FulltextQueue::singleton()->add($pid);
+				    }
+				}
+			}
+
+			Statistics::updateSummaryStats();
+			$timeFinished = date('Y-m-d H:i:s');
+			Statistics::setLogRun($requestDateLatest, $counter, $counter_inserted, $timeStarted, $timeFinished);
+			Statistics::clearBufferByDate($requestDateLatest);
+	    }
+
+
+	    function getAllFromBuffer()
+	    {
+	        $stmt = "SELECT
+						*
+	                 FROM
+	                    " . APP_TABLE_PREFIX . "statistics_buffer
+	                 ORDER BY
+	                    str_id ASC";
+	        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+	        if (PEAR::isError($res)) {
+	            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+	            return "";
+	        } else {
+	            return $res;
+	        }
+	    }
+
 
 	function setLogRun($request_date, $counter, $counter_inserted, $timeStarted, $timeFinished) {
 	/*
@@ -309,6 +509,50 @@ class Statistics
 		}
 
 	}	
+
+	function addBuffer($pid, $ds_id = null) {	
+		//Filter out basics, but dont do robots etc until the buffer moves to the main table as checking for robots will be to costly timewise
+		// Try and find any thumbnails and preview copies of images as these should not be counted towards the file downloads for an image datastream
+		if (!is_null($ds_id)) {
+			$image_matches = 0;
+			$image_matches = preg_match("/^((thumbnail_)|(preview_)|(presmd_)).*/i", $ds_id);
+			if ($image_matches > 0) {
+				return false;
+			}	
+		}
+		$usr_id = Auth::getUserID();
+		//print_r($_SERVER);
+		$pid = Misc::escapeString($pid);	
+		$remote_address = Misc::escapeString($_SERVER['REMOTE_ADDR']);
+		$request_date = Misc::escapeString(date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']));
+		$stmt = "INSERT DELAYED INTO " . APP_TABLE_PREFIX . "statistics_buffer 
+		(str_ip, str_request_date, str_pid";
+		if (!is_null($ds_id)) {
+			$stmt .= ", str_dsid";
+		}
+		if (is_numeric($usr_id)) {
+			$stmt .= ", str_usr_id";
+		}
+		$stmt .= "
+		) 
+		VALUES 
+		('".$remote_address."', '".$request_date."', '".$pid."'";
+		if (!is_null($ds_id)) {
+			$stmt .= ", '".Misc::escapeString($ds_id)."'";
+		}
+		if (is_numeric($usr_id)) {
+			$stmt .= ", ".$usr_id;
+		}
+		$stmt .= ")";
+//		echo $stmt;
+		$res = $GLOBALS["db_api"]->dbh->query($stmt);
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+			return -1; //abort
+		} 
+
+	}	
+
 
 	function getRecentPopularItems($limit) {
 	    
@@ -419,7 +663,6 @@ class Statistics
 				if (strtotime($hval['stl_request_date']) <= $latest_req_time) {
 					$seconds_diff = Date_API::dateDiff("s", $hval['stl_request_date'], $latest_request_date);
 					if ($seconds_diff <= $seconds_limit) {
-//						echo "keeping ".$hkey." ".$hval['stl_request_date']. " cause its less than ".$latest_request_date."\n";
 						$newhistory[$hkey] = $hval;
 					}
 				}

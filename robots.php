@@ -32,14 +32,16 @@
 // +----------------------------------------------------------------------+
 //
 //
-include_once(APP_INC_PATH . "class.db_api.php");
-$db_api =& new DB_API;
-if( APP_FEDORA_APIA_DIRECT == "ON" ) {
-    $GLOBALS['db_api']->setupFDAConn();
-}
 
-// benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included db_access file');
+include_once("config.inc.php");
+include_once(APP_INC_PATH . "class.statistics.php");
+	
+$ip = $_SERVER['REMOTE_ADDR'];
+$hostname = Statistics::gethostbyaddr_with_cache($ip);
+if (Statistics::isRobot($ip) != 1) {
+	Statistics::addRobot($ip, $hostname);
 }
+header("Content-type: text/plain");
+echo file_get_contents("robots.txt");
+
 ?>
