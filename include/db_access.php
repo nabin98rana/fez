@@ -34,9 +34,6 @@
 //
 include_once(APP_INC_PATH . "class.db_api.php");
 $db_api =& new DB_API;
-if( APP_FEDORA_APIA_DIRECT == "ON" ) {
-    $GLOBALS['db_api']->setupFDAConn();
-}
 
 // benchmarking the included file (aka setup time)
 if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
