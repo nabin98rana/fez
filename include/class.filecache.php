@@ -39,7 +39,7 @@ class fileCache {
 	        $views = Record::getSearchKeyIndexValue($this->pid, "Views");
             $dls = Record::getSearchKeyIndexValue($this->pid, "File Downloads");
 	        
-	        $pat = array('/<fez:statsAbs>\d<\/fez:statsAbs>/', '/<fez:statsDownloads>\d<\/fez:statsDownloads>/');
+	        $pat = array('/<fez:statsAbs>\d+<\/fez:statsAbs>/', '/<fez:statsDownloads>\d+<\/fez:statsDownloads>/');
             $rep = array("<fez:statsAbs>$views</fez:statsAbs>", "<fez:statsDownloads>$dls</fez:statsDownloads>");
 	        
             $datastreams = Fedora_API::callGetDatastreams($this->pid, $requestedVersionDate, 'A');
@@ -50,7 +50,7 @@ class fileCache {
 	        		$dls = Statistics::getStatsByDatastream($this->pid, $ds['ID']);
 	        		$base64 = base64_encode($ds['ID']);
 	        		
-	        		$pat[] = "/<fez:ds_$base64>\d<\/fez:ds_$base64>/";
+	        		$pat[] = "/<fez:ds_$base64>\d+<\/fez:ds_$base64>/";
 	        		$rep[] = "<fez:ds_$base64>$dls</fez:ds_$base64>";
 	        	}
 	        }
