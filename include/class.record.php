@@ -557,7 +557,7 @@ class Record
 			$value = strtotime($value);
             $date = new Date($value);
             $value = $date->format('%Y-%m-%d %T');            
-            if ($value == "0000-01-01 00:00:00" || $value == "0000-00-00 00:00:00") {
+            if ($value == "0000-01-01 00:00:00" || $value == "0000-00-00 00:00:00" || $value == "0-01-01 00:00:00") {
 				$value = "NULL";
 			}
 
@@ -4036,7 +4036,7 @@ class RecordGeneral
 						$xsdmf_value = strtotime($xsdmf_value);
                         $date = new Date($xsdmf_value);
                         $xsdmf_value = $date->format('%Y-%m-%d %T');
-	                    if ($xsdmf_value == "0000-01-01 00:00:00" || $xsdmf_value == "0000-00-00 00:00:00") {
+	                    if ($xsdmf_value == "0000-01-01 00:00:00" || $xsdmf_value == "0000-00-00 00:00:00" || $xsdmf_value == "0-01-01 00:00:00") {
 							$xsdmf_value = "NULL";
 						}
                 	} else {
