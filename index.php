@@ -33,6 +33,7 @@
 // +----------------------------------------------------------------------+
 //
 //
+
 if (!is_file("config.inc.php")) {
     header("Location: setup/");
     exit;
@@ -120,9 +121,7 @@ $tpl = new Template_API();
 //$tpl->setTemplate("maintenance.tpl.html");
 $front_page = "";
 $username = Auth::getUsername();
-$tpl->assign("isUser", $username);
 if (Auth::userExists($username)) { // if the user is registered as a Fez user
-	$tpl->assign("isFezUser", $username);
     $prefs = Prefs::get(Auth::getUserID());  	
 	$front_page = $prefs['front_page'];
 } else {
@@ -138,8 +137,6 @@ if ($front_page == "" || $front_page == "front_page") {
 }
 $tpl->setTemplate($front_page);
 
-$isAdministrator = User::isUserAdministrator($username);
-$tpl->assign("isAdministrator", $isAdministrator);
 //check for custom view search keys
 if (is_numeric(APP_CUSTOM_VIEW_ID)) {
 	include_once(APP_INC_PATH . "class.custom_view.php");
@@ -152,14 +149,18 @@ $news_count = count($news);
 $tpl->assign("news", $news);
 $tpl->assign("isHomePage", "true");
 $tpl->assign("news_count", $news_count);
-$tpl->headerscript .= "window.oTextbox_front_search
-	= new AutoSuggestControl(document.search_frm, 'front_search', document.getElementById('front_search'), document.getElementById('front_search'),
-			new StateSuggestions('Collection','suggest',false,
-				'class.collection.php'));
-	";
 
-$tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
-$tpl->registerNajax(NAJAX_Client::register('Suggestor', 'index.php'));
+if( $front_page == "simple_front_page.tpl.html" || $front_page == "very_simple_front_page.tpl.html" ) {
+	$tpl->assign("autosuggest", 1);
+	$tpl->headerscript .= "window.oTextbox_front_search
+		= new AutoSuggestControl(document.search_frm, 'front_search', document.getElementById('front_search'), document.getElementById('front_search'),
+				new StateSuggestions('Collection','suggest',false,
+					'class.collection.php'));
+		";
+	
+	$tpl->registerNajax(NAJAX_Client::register('Suggestor', 'index.php'));
+}
+
 $tpl->assign("active_nav", "home");
 $tpl->displayTemplate();
 //echo ($GLOBALS['bench']->getOutput());
