@@ -13,7 +13,6 @@ function closeAndGotoList()
     window.close();
 }
 
-
 function unhideRow(element_name, table_name)
 {
 	var firstHiddenRow = 0;
@@ -78,110 +77,6 @@ function str_replace(s, srch, rplc) {
   return tmp_output + tmp;
 }
 
-
-function displayFixedWidth(element_name)
-{
-    var el = getPageElement(element_name);
-    // only do this for mozilla
-    if (is_nav6up) {
-        var content = el.innerHTML;
-        el.innerHTML = '<pre>' + str_replace(content, "<br>", '') + '</pre>';
-        el.className = '';
-    }
-    el.style.fontFamily = 'Mono, Monaco, Courier New, Courier';
-    el.style.whiteSpace = 'pre';
-}
-
-function showSelections(form_name, field_name)
-{
-    var f = getForm(form_name);
-    var field = getFormElement(f, field_name);
-    var selections = getSelectedItems(field);
-    var selected_names = new Array();
-    for (var i = 0; i < selections.length; i++) {
-        selected_names.push(selections[i].text);
-    }
-    var display_div = getPageElement('selection_' + field_name);
-    display_div.innerHTML = 'Current Selections: ' + selected_names.join(', ');
-}
-
-
-// @@@ CK - 3/9/2004 - Added so the fill user name will fill the text box
-function showSelectionsFill(form_name, field_name, fld_id)
-{
-    var f = getForm(form_name);
-    var field = getFormElement(f, field_name);
-    var selections = getSelectedItems(field);
-    var selected_names = new Array();
-    for (var i = 0; i < selections.length; i++) {
-        selected_names.push(selections[i].text);
-    }
-    var display_div = getPageElement('custom'+fld_id);
-//	if (isWhitespace(display_div.value)) { 
-      display_div.value = selected_names.join(', ');
-/*	} else {
-		selected_names.push(display_div.value);
-		display_div.value = selected_names.join(', ');
-	} */
-	
-}
-
-function replaceWords(str, original, replacement)
-{
-    var lines = str.split("\n");
-    for (var i = 0; i < lines.length; i++) {
-        lines[i] = replaceWordsOnLine(lines[i], original, replacement);
-    }
-    return lines.join("\n");
-}
-
-function replaceWordsOnLine(str, original, replacement)
-{
-    var words = str.split(' ');
-    for (var i = 0; i < words.length; i++) {
-        words[i] = words[i].replace(/^\s*/, '').replace(/\s*$/, ''); 
-        if (words[i] == original) {
-            words[i] = replacement;
-        }
-    }
-    return words.join(' ');
-}
-
-function checkSpelling(form_name, field_name)
-{
-    var features = 'width=420,height=400,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
-    var popupWin = window.open('spell_check.php?form_name=' + form_name + '&field_name=' + field_name, '_spellChecking', features);
-    popupWin.focus();
-}
-
-function updateTimeFields(form_name, year_field, month_field, day_field, hour_field, minute_field)
-{
-    var f = getForm(form_name);
-    var current_date = new Date();
-    selectOption(f, month_field, padDateValue(current_date.getMonth()+1));
-    selectOption(f, day_field, padDateValue(current_date.getDate()));
-    selectOption(f, year_field, current_date.getFullYear());
-    selectOption(f, hour_field, padDateValue(current_date.getHours()));
-    selectOption(f, minute_field, padDateValue(current_date.getMinutes()));
-}
-
-function padDateValue(str)
-{
-    if (str.length == 1) {
-        str = '0' + str;
-    }
-    return str;
-}
-
-function resizeTextarea(page_name, form_name, field_name, change)
-{
-    var f = getForm(form_name);
-    var field = getFormElement(f, field_name);
-    field.cols = field.cols + change;
-    var cookie_name = 'textarea_' + page_name + '_' + field_name;
-    setCookie(cookie_name, field.cols, expires);
-}
-
 function removeOptionByValue(f, field_name, value)
 {
     var field = getFormElement(f, field_name);
@@ -214,34 +109,6 @@ function getTotalCheckboxesChecked(f, field_name)
     return total;
 }
 
-// @@@ CK - 20/10/2004 - Added for the forward email functionality
-// Will get the bottom checked field, but will only be used for when there is only one checked.
-function getCheckboxChecked(f, field_name)
-{
-    var returnNum = false;
-    for (var i = 0; i < f.elements.length; i++) {
-        if ((f.elements[i].name == field_name) && (f.elements[i].checked)) {
-           returnNum = f.elements[i].value;
-        }
-    }
-    return returnNum;
-}
-
-function hideComboBoxes(except_field)
-{
-    for (var i = 0; i < document.forms.length; i++) {
-        for (var y = 0; y < document.forms[i].elements.length; y++) {
-            if (((document.forms[i].elements[y].type == 'select-one') ||
-                 (document.forms[i].elements[y].type == 'select-multiple')) && 
-                    (document.forms[i].elements[y].name != except_field) &&
-                    (document.forms[i].elements[y].name != 'lookup') &&
-                    (document.forms[i].elements[y].name != 'lookup[]')) {
-                document.forms[i].elements[y].style.visibility = 'hidden';
-            }
-        }
-    }
-}
-
 function showComboBoxes()
 {
     for (var i = 0; i < document.forms.length; i++) {
@@ -254,67 +121,6 @@ function showComboBoxes()
             }
         }
     }
-}
-
-function getOverlibContents(options, target_form, target_field, is_multiple)
-{
-    hideComboBoxes(target_field);
-    var html = '<form onSubmit="javascript:return lookupOption(this, \'' + target_form + '\', \'' + target_field + '\');">' + options + '<input class="button_overlib" type="submit" value="Lookup"><br><input name="search" class="lookup_field_overlib" type="text" size="24" value="Paste or start typing here" onBlur="javascript:this.value=\'Paste or start typing here\';" onFocus="javascript:this.value=\'\';" onKeyUp="javascript:lookupField(this.form, this, \'lookup';
-    if ((is_multiple != null) && (is_multiple == true)) {
-        html += '[]';
-    }
-    html += '\');"></form>';
-    return html;
-}
-
-function getFillInput(options, target_form, target_field)
-{
-    hideComboBoxes(target_field);
-    return '<form onSubmit="javascript:return fillInput(this, \'' + target_form + '\', \'' + target_field + '\');">' + options + '<input class="button_overlib" type="submit" value="Lookup"><br><input name="search" class="lookup_field_overlib" type="text" size="24" value="Paste or start typing here" onBlur="javascript:this.value=\'Paste or start typing here\';" onFocus="javascript:this.value=\'\';" onKeyUp="javascript:lookupField(this.form, this, \'lookup\');"></form>';
-}
-
-function lookupOption(f, target_form, target_field)
-{
-    var w = document;
-    for (var i = 0; i < w.forms.length; i++) {
-        if (w.forms[i].name == target_form) {
-            var test = getFormElement(f, 'lookup');
-            if (!test) {
-                var field = getFormElement(f, 'lookup[]');
-                var target = getFormElement(getForm(target_form), target_field);
-                clearSelectedOptions(target);
-                selectOptions(w.forms[i], target_field, getSelectedItems(field));
-            } else {
-                selectOption(w.forms[i], target_field, getSelectedOption(f, 'lookup'));
-            }
-            nd();
-            showComboBoxes();
-            break;
-        }
-    }
-    return false;
-}
-
-function fillInput(f, target_form, target_field)
-{
-    var exists = getFormElement(f, 'lookup');
-    var target_f = getForm(target_form);
-    if (!exists) {
-        var field = getFormElement(f, 'lookup[]');
-        var target_field = getFormElement(target_f, target_field);
-        target_field.value = '';
-        var values = getValues(getSelectedItems(field));
-        target_field.value = values.join('; ');
-        errorDetails(target_f, target_field, false);
-    } else {
-        var field_value = getSelectedOption(f, 'lookup');
-        var field = getFormElement(target_f, target_field);
-        field.value = field_value;
-        errorDetails(target_f, target_field, false);
-    }
-    nd();
-    showComboBoxes();
-    return false;
 }
 
 function lookupField(f, search_field, field_name, callbacks)
@@ -491,8 +297,6 @@ function getFormElement(f, field_name, num)
         } else {
 
 			if (f.elements[i].name == field_name) {
-//				alert('found a match'); 
-//				alert(f.elements[i].name); 
 				return f.elements[i];
             }
         }
@@ -625,21 +429,6 @@ function toggleSelectAll(f, field_name)
         toggle = 'on';
     } else {
         toggle = 'off';
-    }
-}
-
-function getCookies()
-{
-    var t = new Array();
-    var pieces = new Array();
-    var cookies = new Object();
-    if (document.cookie) {
-        t = document.cookie.split(';');
-        for (var i = 0; i < t.length; i++) {
-            pieces = t[i].split('=');
-            eval('cookies.' + pieces[0].replace('[', '_').replace(']', '_') + ' = "' + pieces[1] + '";');
-        }
-        return cookies;
     }
 }
 
@@ -777,51 +566,6 @@ function openHelp(rel_url, topic)
     helpWin.focus();
 }
 
-function handleXSDMF_Editor(pid, xsdmf_id, vidx)
-{
-	if (vidx.length < 1) {
-		vidx = '0';
-	}
-	safe_pid = pid.replace(/:/,"_");
-	mess = document.getElementById('xsdmf_editor_mess_'+xsdmf_id+'_'+safe_pid+'_'+vidx);
-	sUpdating = 'Updating...';
-    if (mess.innerHTML == sUpdating) {
-        return;
-    } 
-    mess.innerHTML = sUpdating;
-    mess.style.backgroundColor = 'red';
-    mess.style.color = 'white';
-    mess.style.display = '';
-	newValue = document.getElementById('xsdmf_editor_input_'+xsdmf_id+'_'+safe_pid+'_'+vidx).value;
-    ajax_obj = new NajaxRecord();
-    ajax_obj.onSetValueError = function() {
-        mess = document.getElementById('xsdmf_editor_mess_'+xsdmf_id+'_'+safe_pid+'_'+vidx);
-        mess.innerHTML = 'Timeout or Ajax Error';
-        mess.style.backgroundColor = 'red';
-        setTimeout("document.getElementById('xsdmf_editor_mess_"+xsdmf_id+'_'+safe_pid+'_'+vidx+"').style.display='none'", 5000);
-    };
-    ajax_obj.setPid(pid);
-    ajax_obj.setValue(xsdmf_id, newValue, vidx, function(isOk) {
-        mess = document.getElementById('xsdmf_editor_mess_'+xsdmf_id+'_'+safe_pid+'_'+vidx);
-        if (isOk) {
-            mess.innerHTML = 'Done';
-            mess.style.backgroundColor = 'green';
-        } else {
-            mess.innerHTML = 'Failed';
-            mess.style.backgroundColor = 'red';
-        }
-        setTimeout("document.getElementById('xsdmf_editor_mess_"+xsdmf_id+'_'+safe_pid+'_'+vidx+"').style.display='none'", 5000);
-    });
-}
-
-function unhideXSDMF_Editor(pid, xsdmf_id, vidx) {
-	safe_pid = pid.replace(/:/,"_");
-	div = document.getElementById('xsdmf_editor_div_'+xsdmf_id+'_'+safe_pid+'_'+vidx);
-	if (div != null) {
-		div.style.display='';
-	}
-}
-
 function showFlashMessage()
 {
 	document.getElementById('flash_message_div').style.display = '';
@@ -935,12 +679,6 @@ function workflowBulkChangeSearch(f, rel_url)
 	 
 }
 
-function resizePager(f, page_url)
-{
-    var pagesize = f.page_size.options[f.page_size.selectedIndex].value;   
-    window.location.href = page_url + "/rows=" + pagesize + "&pager_row=0";
-}
-
 function toggleDateFields(f, field_name)
 {
     var checkbox = getFormElement(f, 'filter[' + field_name + ']');
@@ -979,6 +717,7 @@ function toggleDateFields(f, field_name)
     day_end_field.disabled = disable;
     year_end_field.disabled = disable;
 }
+
 function checkDateFilterType(f, type_field)
 {
     var option = getSelectedOption(f, type_field.name);
@@ -1014,16 +753,6 @@ function confirmDelete() {
     } else {
         return false;
 	}
-}
-
-function sortList(f, field) {
-    sort_by = getSelectedOption(f, field);
-    window.location.href = page_url + "/" + replaceParam(window.location.href, 'sort_by', sort_by);
-}
-
-function sortListOrder(f, field) {
-	sort_order = getSelectedOption(f, field);
-    window.location.href = page_url + "/" + replaceParam(window.location.href, 'sort_order', sort_order);
 }
 
 function swapTextBox(textbox, xsdmf_id, loopnum, direction)

@@ -5,14 +5,8 @@
 <title>{if $extra_title != ""}{$extra_title} - {/if}{$application_title}</title>
 <link rel="Bookmark" href="{$rel_url}favicon.ico" />
 <link rel="SHORTCUT ICON" href="{$rel_url}favicon.ico" />
-{if $user_agent == 'ie'}
-<link rel="stylesheet" href="{$rel_url}css/style.css" type="text/css" />
-{else}
-<link rel="stylesheet" href="{$rel_url}css/other.css" type="text/css" />
-{/if}
+
 <link rel="stylesheet" href="{$rel_url}css/common.css" type="text/css" />
-<link rel="stylesheet" href="{$rel_url}css/home.css" type="text/css" />
-<link rel="stylesheet" href="{$rel_url}css/dynCalendar.css" type="text/css" />
 <link rel="stylesheet" href="{$rel_url}css/dynamic_css.php" type="text/css" />
 {if $cv_css != ""}
 <link rel="stylesheet" href="{$cv_css}" type="text/css" />
@@ -25,9 +19,6 @@
 {/if}
 {$najax_header}
 {$meta_head}
-<script language="JavaScript" type="text/javascript" src="{$rel_url}js/suggestions.js"></script>
-<script language="JavaScript" type="text/javascript" src="{$rel_url}js/autosuggest.js"></script>
-<script language="JavaScript" type="text/javascript" src="{$rel_url}js/autocomplete.js"></script>
 <script language="JavaScript" type="text/javascript">
 <!--
 {$najax_register}

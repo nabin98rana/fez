@@ -1,4 +1,5 @@
 {include file="js/list.tpl.js"}
+<script language="JavaScript" type="text/javascript" src="/js/listpage.js"></script>
 <center>
 
 <div style="margin: -30px 0px 0px 0px; width: 980px;">
@@ -99,8 +100,8 @@
           
           {if $icon != ""}
           <td width={$smarty.const.APP_THUMBNAIL_WIDTH} valign='top'>
-                {if $href_view}<a href='{$rel_url}{$href_view}' title='{$list[i].rek_title}'>{/if}<img {if ($icon_width != "" && $icon_height != "")}width={$icon_width} height={$icon_height}{/if} valign='top' src="{$icon}" alt="{$list[i].rek_title}" border="0" />{if $href_view}
-				<br />{$list[i].rek_title}</a>{/if}
+                {if $href_view}<a href='{$rel_url}{$href_view}' title='{$list[i].rek_title|escape:"html"}'>{/if}<img {if ($icon_width != "" && $icon_height != "")}width={$icon_width} height={$icon_height}{/if} valign='top' src="{$icon}" alt="{$list[i].rek_title|escape:"html"}" border="0" />{if $href_view}
+				<br />{$list[i].rek_title|escape:"html"}</a>{/if}
 		  </td>
 		  {/if}
 		 		{* see if we should go to the next row *}
