@@ -693,7 +693,7 @@ class Record
         foreach ($sekData[1] as $sek_table => $sek_value) {
         	
         	$stmt = "";
-        	if(!empty($sek_value['xsdmf_value'])) {
+        	if(!empty($sek_value['xsdmf_value']) && !is_null($sek_value['xsdmf_value']) && (strtoupper($sek_value['xsdmf_value']) != "NULL")) {
 	        	
         		$cardinalityCol = "";
 	        	if(is_array($sek_value['xsdmf_value'])) {
