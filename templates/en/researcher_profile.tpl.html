@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ResearcherID profile creation sample XML -->
+<profileUpload>
+	<sponsor>
+	      <name>{$org_name}</name>
+	      <admin>
+			  <!-- first name, last name, middle name are all optional for the admin -->
+{if 1 < 0}
+		      <firstName>I</firstName>
+		      <middleName>M.</middleName>
+		      <lastName>Admin</lastName>
+{/if}
+		      <email>{$app_admin_email}</email>
+{if 1 < 0}
+		      <!-- cc-list is optional, but if mentioned has to have at least one email in it -->
+		      <email-cc-list>
+			      <email>1.another.admin.to.cc@uq.edu.au</email>
+			      <email>2.another.admin.to.cc@uq.edu.au</email>
+			      <email>3.another.admin.to.cc@uq.edu.au</email>
+		      </email-cc-list>
+{/if}
+	      </admin>
+	      <!-- The intimate-researcher-individually value determines if ResearcherID should (true) sent notification of account creation to researchers
+	      directly or if instituion would like to do this (false). -->
+	      <intimate-researcher-individually>false</intimate-researcher-individually>
+	      <email-append-note-content>This static text, with no placeholders, 
+	      				 will be appended to every confirmation mail sent out.
+	      				 This will be the message from the institution,
+	      				 on top (or bottom!) of our own templated mail.
+	      </email-append-note-content>
+	</sponsor>
+	<!-- Default institution name will be used in cases where the indiviudals institution name differs from the instituion performing the batch upload -->
+	<profileList>
+		<default-institution-name>{$org_name}</default-institution-name>
+{section name="i" loop=$list}
+		<researcher-profile>
+			      <firstName>{$list[i].aut_fname}</firstName>
+			      <lastName>{$list[i].aut_lname}</lastName>
+			      <email>{$list[i].aut_email}</email>
+			      <other-names>
+					<other-name></other-name>
+					<other-name></other-name>
+					<other-name></other-name>		      
+			      </other-names>
+			      <institution>
+					<name>{$org_name}</name>
+					<address>
+						<addressLine1>St Lucia</addressLine1> 
+						<city>Queensland</city>
+						<state-or-province>Queensland</state-or-province>
+						<country>Australia</country>
+						<postalcode>4072</postalcode>
+					</address>
+					<!-- At least one department -->
+					<departmentName>Physics</departmentName>
+					<departmentName>Math</departmentName>
+					<departmentName>Astro-Physics</departmentName>
+					<sponsorID>{$list[i].aut_id}</sponsorID>
+					<role>Researcher (Academic)</role>
+					<start-date>2003</start-date>
+			      </institution>
+{if 1 < 0}
+			      <affiliate-institution>
+					<name>University Of Sydney</name>
+					<address>
+						<addressLine1>123 University Avenue</addressLine1>
+						<addressLine2>45 Main Street</addressLine2> 
+						<city>Sydney</city>
+						<state-or-province>New South Wales</state-or-province>
+						<country>Australia</country>
+						<postalcode>12345</postalcode>
+					</address>
+					<departmentName>Physics</departmentName>
+					<departmentName>Math</departmentName>
+					<departmentName>Astro-Physics</departmentName>
+					<role>Researcher (Academic)</role>
+					<start-date>2005</start-date>
+			      </affiliate-institution>
+			      <past-institution>
+					<name>University Of Canberra</name>
+					<address>
+						<addressLine1>123 University Avenue</addressLine1>
+						<addressLine2>45 Main Street</addressLine2> 
+						<city>Sydney</city>
+						<state-or-province>New South Wales</state-or-province>
+						<country>Australia</country>
+						<postalcode>12345</postalcode>
+					</address>
+					<departmentName>Physics</departmentName>
+					<departmentName>Optics</departmentName>
+					<role>Researcher (Academic)</role>
+					<start-date>1999</start-date>
+					<end-date>2003</end-date>
+			      </past-institution>
+			      <past-institution>
+					<name>University Of Canberra</name>
+					<address>
+						<addressLine1>University Avenue</addressLine1>
+						<addressLine2>Main Street</addressLine2> 
+						<city>Sydney</city>
+						<state-or-province>New South Wales</state-or-province>
+						<country>Australia</country>
+						<postalcode>12345</postalcode>
+					</address>
+					<departmentName>Physics</departmentName>
+					<start-date>1995</start-date>
+					<!-- Empty or missing end-date implies Present -->
+					<end-date></end-date>
+			      </past-institution>
+{/if}
+		</researcher-profile>
+{/section}
+{if 1 < 0}
+		<researcher-profile>
+			      <firstName>Alberto</firstName>
+			      <lastName>Finestein</lastName>
+			      <email>alberto.finestein@uq.edu.au</email>
+			      <other-names>
+					<other-name>AL Finestein</other-name>
+					<other-name></other-name>
+					<other-name></other-name>		      
+			      </other-names>
+			      <institution>
+					<name>University Of Queensland</name>
+					<address>
+						<addressLine1>University Avenue</addressLine1> 
+						<city>Queensland</city>
+						<state-or-province>Queensland</state-or-province>
+						<country>Australia</country>
+						<postalcode>12345</postalcode>
+					</address>
+					<departmentName>Biology</departmentName>
+					<sponsorID>PeopleSoft-103</sponsorID>
+					<role>Researcher (Academic)</role>
+					<start-date>2003</start-date>
+			      </institution>
+		</researcher-profile>
+{/if}
+	</profileList>
+</profileUpload>

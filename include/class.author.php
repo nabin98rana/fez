@@ -402,6 +402,71 @@ class Author
 
 
     /**
+     * Method used to get the list of authors available in the 
+     * system.
+     *
+     * @access  public
+     * @return  array The list of authors
+     */
+    function getListByStaffIDList($current_row = 0, $max = 25, $order_by = 'aut_lname', $staff_ids = array())
+    {
+
+		if (!is_array($staff_ids)) {
+			return false;
+		}
+		
+		if (count($staff_ids) == 0) {
+			return false;
+		}
+
+    	$where_stmt = "";
+    	$extra_stmt = "";
+    	$extra_order_stmt = "";    	    	
+    	if (!empty($staff_ids)) {
+    	    $where_stmt .= " WHERE aut_org_staff_id in  ('".implode($staff_ids, "','")."')";
+    	}
+    	
+		$start = $current_row * $max;
+        $stmt = "SELECT SQL_CALC_FOUND_ROWS 
+					* ".$extra_stmt."
+                 FROM
+                    " . APP_TABLE_PREFIX . "author
+				".$where_stmt."
+                 ORDER BY ".$extra_order_stmt."
+                    ".$order_by."
+				 LIMIT ".$start.", ".$max;
+//		echo $stmt;
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);        
+		$total_rows = $GLOBALS["db_api"]->dbh->getOne('SELECT FOUND_ROWS()');
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+			if (($start + $max) < $total_rows) {
+				$total_rows_limit = $start + $max;
+			} else {
+			   $total_rows_limit = $total_rows;
+			}
+			$total_pages = ceil($total_rows / $max);
+			$last_page = $total_pages - 1;			
+            return array(
+                "list" => $res,
+                "list_info" => array(
+                    "current_page"  => $current_row,
+                    "start_offset"  => $start,
+                    "end_offset"    => $total_rows_limit,
+                    "total_rows"    => $total_rows,
+                    "total_pages"   => $total_pages,
+                    "prev_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+                    "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
+                    "last_page"     => $last_page
+                )
+            );
+
+        }
+    }
+
+    /**
      * Method used to get an associative array of author ID and concatenated title, first name, lastname
      * of all authors available in the system.
      *
