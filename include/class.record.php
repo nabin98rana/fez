@@ -1062,9 +1062,8 @@ class Record
 					$thumb_counter++;
 				}
 				$res[$key]['isLister'] = true;
+				$res[$key]['rek_citation_stripped'] = strip_tags($res[$key]['rek_citation']);
 			}		
-			
-
 		}
 		$list = $res;
 		if (count($res) != 0) {

@@ -113,6 +113,7 @@ class Lister
             0 => array('file' => 'list.tpl.html', 'title' => 'Default'),
             2 => array('file' => 'rss.tpl.html', 'title' => 'RSS Feed'),
             3 => array('file' => 'xml_feed.tpl.html', 'title' => 'XML Feed'),
+			1 => array('file' => 'excel.tpl.html', 'title' => 'Excel File'),
             4 => array('file' => 'citation_only_list.tpl.html', 'title' => 'Citations Only'),
             5 => array('file' => 'simple_list.tpl.html', 'title' => 'Classic Simple View'),
             6 => array('file' => 'gallery_list.tpl.html', 'title' => 'Image Gallery View')
@@ -149,6 +150,10 @@ class Lister
 		if ($tpl_idx == 2 || $tpl_idx == 3) {
 			$header = "Content-type: application/xml\n";
 			header($header);
+		} elseif ($tpl_idx == 1) {
+			header("Content-type: application/vnd.ms-excel");
+			header("Content-Disposition: attachment; filename=jerds.xls");
+			header("Content-Description: PHP Generated XLS Data");
 		}
 		
         
@@ -798,7 +803,7 @@ class Lister
         $tpl_file = $tpls[$tpl_idx]['file'];
         $tpl->setTemplate($tpl_file);
 		$tpl->assign("template_mode", $tpl_idx);
-            
+
         if ($display) {
             $tpl->displayTemplate();
         } 

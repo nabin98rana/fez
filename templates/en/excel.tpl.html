@@ -1,0 +1,16 @@
+<table border="1">
+  <tr>
+    <td bgcolor="#CCCCCC"><b>PID</b></td>
+    <td bgcolor="#CCCCCC"><b>Title</b></td>
+    <td bgcolor="#CCCCCC"><b>Type</b></td>
+    <td bgcolor="#CCCCCC"><b>Details</b></td>
+  </tr>
+{section name="i" loop=$list}
+  <tr>
+    <td>{$list[i].rek_pid|escape:"html"}</td>
+    <td>{$list[i].rek_title|escape:"html"}</td>
+    <td>{$list[i].rek_display_type_lookup|escape:"html"}</td>
+    <td>{$list[i].rek_citation_stripped|escape:"html"}</td>
+  </tr>
+{/section}
+</table>
