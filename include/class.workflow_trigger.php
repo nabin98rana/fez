@@ -203,7 +203,7 @@ class WorkflowTrigger
         $stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "workflow_trigger
 				INNER JOIN " . APP_TABLE_PREFIX . "workflow on (wfl_id = wft_wfl_id) WHERE wft_pid='".$pid."'
             ".$wherestr." ORDER BY wft_type_id, wft_xdis_id";
-
+//echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -341,6 +341,32 @@ class WorkflowTrigger
         return WorkflowTrigger::getList($pid, " AND wft_type_id=".$trigger." 
                 AND (wft_ret_id='".$ret_id."' ".$orstr." ) AND wft_xdis_id != '-2' ");
     }
+
+    /**
+     * Get list of triggers for a record that have a given trigger type and ret_id and xdis_id
+     * @param string pid record id
+     * @param string or integer Trigger id
+     * @param integer $ret_id Object Type id
+     * @param boolean $strict If strict is true, then the default ret_id won't be allowed in the list.  
+     * This means that triggers where ret_id = 0 (for Any) won't be allowed in the results.
+     * @return List of triggers
+     */
+    function getListByTriggerAndRET_IDAndXDIS_ID($pid, $trigger, $ret_id, $xdis_id, $strict=false)
+    {
+        if (!Misc::isInt($trigger)) {
+            $trigger = WorkflowTrigger::getTriggerId($trigger);
+        }
+        if (!$strict) {
+            $orstrRET = " OR wft_ret_id=0 ";
+            $orstrXDIS = " OR wft_xdis_id=-1 ";
+        } else {
+            $orstrRET = "";
+            $orstrXDIS = " OR wft_xdis_id=-1 ";
+        }
+        return WorkflowTrigger::getList($pid, " AND wft_type_id=".$trigger." 
+                AND ((wft_ret_id='".$ret_id."' ".$orstrRET." ) AND (wft_xdis_id='".$xdis_id."' ".$orstrXDIS." )) ");
+    }
+
 
     /**
       * @param array $options Associative array, can have 

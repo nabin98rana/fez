@@ -159,8 +159,9 @@ if (!empty($pid) && $record->checkExists()) {
 
         $ret_id = 3;
         $strict = false;
-        $workflows = array_merge(   $record->getWorkflowsByTriggerAndRET_ID('Update', $ret_id, $strict),
-                                    $record->getWorkflowsByTriggerAndRET_ID('Export', $ret_id, $strict));
+        $workflows = array_merge(   $record->getWorkflowsByTriggerAndRET_IDAndXDIS_ID('Update', $ret_id, $xdis_id, $strict),
+                                    $record->getWorkflowsByTriggerAndRET_IDAndXDIS_ID('Export', $ret_id, $xdis_id, $strict));
+		print_r($workflows);
         
         // check which workflows can be triggered
         $workflows1 = array();

@@ -3908,6 +3908,21 @@ class RecordGeneral
         return $triggers;
     }
 
+    function getWorkflowsByTriggerAndRET_IDAndXDIS_ID($trigger, $ret_id, $xdis_id, $strict=false)
+    {
+        $this->getParents();
+        $triggers = WorkflowTrigger::getListByTriggerAndRET_IDAndXDIS_ID($this->pid, $trigger, $ret_id, $xdis_id, $strict);
+        foreach ($this->record_parents as $ppid) {
+            $triggers = array_merge($triggers,
+                    WorkflowTrigger::getListByTriggerAndRET_IDAndXDIS_ID($ppid, $trigger, $ret_id, $xdis_id, $strict));
+        }
+        // get defaults
+        $triggers = array_merge($triggers,
+                WorkflowTrigger::getListByTriggerAndRET_IDAndXDIS_ID(-1, $trigger, $ret_id, $xdis_id, $strict));
+        return $triggers;
+    }
+
+
     function getWorkflowsByTriggerAndXDIS_ID($trigger, $xdis_id, $strict=false)
     {
         $this->getParents();
