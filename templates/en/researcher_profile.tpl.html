@@ -34,107 +34,36 @@
 		<default-institution-name>{$org_name}</default-institution-name>
 {section name="i" loop=$list}
 		<researcher-profile>
-			      <firstName>{$list[i].aut_fname}</firstName>
-			      <lastName>{$list[i].aut_lname}</lastName>
-			      <email>{$list[i].aut_email}</email>
-			      <other-names>
-					<other-name></other-name>
-					<other-name></other-name>
-					<other-name></other-name>		      
-			      </other-names>
+			      <firstName>{$list[i].aut_fname|escape:"html"}</firstName>
+			      <lastName>{$list[i].aut_lname|escape:"html"}</lastName>
+			      <email>{$list[i].aut_email|escape:"html"}</email>
+				{section name="y" loop=$list[i].positions}
+				{if $list[i].positions[y].DT_TO != '0000-00-00' && ($list[i].positions[y].DT_TO|date_format:'%Y') < ($smarty.now|date_format:'%Y')}
+			      <past-institution>
+				{else}
 			      <institution>
-					<name>{$org_name}</name>
+				{/if}
+					<name>{$org_name|escape:"html"}</name>
 					<address>
 						<addressLine1>St Lucia</addressLine1> 
-						<city>Queensland</city>
+						<city>Brisbane</city>
 						<state-or-province>Queensland</state-or-province>
 						<country>Australia</country>
 						<postalcode>4072</postalcode>
 					</address>
 					<!-- At least one department -->
-					<departmentName>Physics</departmentName>
-					<departmentName>Math</departmentName>
-					<departmentName>Astro-Physics</departmentName>
+					<departmentName>{$list[i].positions[y].org_title|escape:"html"}</departmentName>
 					<sponsorID>{$list[i].aut_id}</sponsorID>
-					<role>Researcher (Academic)</role>
-					<start-date>2003</start-date>
+					<role>{$list[i].positions[y].POS_TITLE|escape:"html"}</role>
+					<start-date>{$list[i].positions[y].DT_FROM|date_format:'%Y'}</start-date>
+					<end-date>{if $list[i].positions[y].DT_TO != '0000-00-00' && ($list[i].positions[y].DT_TO|date_format:'%Y') <= ($smarty.now|date_format:'%Y')}{$list[i].positions[y].DT_TO|date_format:'%Y'}{/if}</end-date>
+				{if $list[i].positions[y].DT_TO != '0000-00-00' && ($list[i].positions[y].DT_TO|date_format:'%Y') < ($smarty.now|date_format:'%Y')}
+			      </past-institution>
+					{else}
 			      </institution>
-{if 1 < 0}
-			      <affiliate-institution>
-					<name>University Of Sydney</name>
-					<address>
-						<addressLine1>123 University Avenue</addressLine1>
-						<addressLine2>45 Main Street</addressLine2> 
-						<city>Sydney</city>
-						<state-or-province>New South Wales</state-or-province>
-						<country>Australia</country>
-						<postalcode>12345</postalcode>
-					</address>
-					<departmentName>Physics</departmentName>
-					<departmentName>Math</departmentName>
-					<departmentName>Astro-Physics</departmentName>
-					<role>Researcher (Academic)</role>
-					<start-date>2005</start-date>
-			      </affiliate-institution>
-			      <past-institution>
-					<name>University Of Canberra</name>
-					<address>
-						<addressLine1>123 University Avenue</addressLine1>
-						<addressLine2>45 Main Street</addressLine2> 
-						<city>Sydney</city>
-						<state-or-province>New South Wales</state-or-province>
-						<country>Australia</country>
-						<postalcode>12345</postalcode>
-					</address>
-					<departmentName>Physics</departmentName>
-					<departmentName>Optics</departmentName>
-					<role>Researcher (Academic)</role>
-					<start-date>1999</start-date>
-					<end-date>2003</end-date>
-			      </past-institution>
-			      <past-institution>
-					<name>University Of Canberra</name>
-					<address>
-						<addressLine1>University Avenue</addressLine1>
-						<addressLine2>Main Street</addressLine2> 
-						<city>Sydney</city>
-						<state-or-province>New South Wales</state-or-province>
-						<country>Australia</country>
-						<postalcode>12345</postalcode>
-					</address>
-					<departmentName>Physics</departmentName>
-					<start-date>1995</start-date>
-					<!-- Empty or missing end-date implies Present -->
-					<end-date></end-date>
-			      </past-institution>
-{/if}
+				{/if}
+				{/section}
 		</researcher-profile>
 {/section}
-{if 1 < 0}
-		<researcher-profile>
-			      <firstName>Alberto</firstName>
-			      <lastName>Finestein</lastName>
-			      <email>alberto.finestein@uq.edu.au</email>
-			      <other-names>
-					<other-name>AL Finestein</other-name>
-					<other-name></other-name>
-					<other-name></other-name>		      
-			      </other-names>
-			      <institution>
-					<name>University Of Queensland</name>
-					<address>
-						<addressLine1>University Avenue</addressLine1> 
-						<city>Queensland</city>
-						<state-or-province>Queensland</state-or-province>
-						<country>Australia</country>
-						<postalcode>12345</postalcode>
-					</address>
-					<departmentName>Biology</departmentName>
-					<sponsorID>PeopleSoft-103</sponsorID>
-					<role>Researcher (Academic)</role>
-					<start-date>2003</start-date>
-			      </institution>
-		</researcher-profile>
-{/if}
 	</profileList>
 </profileUpload>

@@ -47,6 +47,7 @@ include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "class.date.php");
+include_once(APP_INC_PATH . "class.org_structure.php");
 include_once(APP_INC_PATH . "class.status.php");
 
 class Author
@@ -400,6 +401,24 @@ class Author
         }
     }
 
+    function getPositionsByOrgStaffID($org_staff_id)
+    {	
+	
+        $stmt = "SELECT
+                    POS_TITLE, org_title, DT_FROM, DT_TO
+					FROM fez_author
+					LEFT JOIN hr_position_vw on WAMIKEY = aut_org_staff_id
+					LEFT JOIN fez_org_structure on AOU = org_extdb_id AND org_extdb_name = 'hr'
+					WHERE aut_org_staff_id = ".$org_staff_id;
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
+
 
     /**
      * Method used to get the list of authors available in the 
@@ -442,6 +461,13 @@ class Author
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
+	
+	
+			foreach ($res as $key => $row) {
+				$res[$key]['positions'] = array();
+				$res[$key]['positions'] = Author::getPositionsByOrgStaffID($res[$key]['aut_org_staff_id']);
+			}
+			
 			if (($start + $max) < $total_rows) {
 				$total_rows_limit = $start + $max;
 			} else {
