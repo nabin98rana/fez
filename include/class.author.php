@@ -405,7 +405,7 @@ class Author
     {	
 	
         $stmt = "SELECT
-                    POS_TITLE, org_title, DT_FROM, DT_TO
+                    POS_TITLE, org_title, YEAR(DT_FROM) AS DT_FROM, YEAR(DT_TO) AS DT_TO
 					FROM fez_author
 					LEFT JOIN hr_position_vw on WAMIKEY = aut_org_staff_id
 					LEFT JOIN fez_org_structure on AOU = org_extdb_id AND org_extdb_name = 'hr'

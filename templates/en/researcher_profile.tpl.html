@@ -38,7 +38,7 @@
 			      <lastName>{$list[i].aut_lname|escape:"html"}</lastName>
 			      <email>{$list[i].aut_email|escape:"html"}</email>
 				{section name="y" loop=$list[i].positions}
-				{if $list[i].positions[y].DT_TO != '0000-00-00' && ($list[i].positions[y].DT_TO|date_format:'%Y') < ($smarty.now|date_format:'%Y')}
+				{if $list[i].positions[y].DT_TO != '0' && ($list[i].positions[y].DT_TO) < ($smarty.now|date_format:'%Y')}
 			      <past-institution>
 				{else}
 			      <institution>
@@ -55,9 +55,9 @@
 					<departmentName>{$list[i].positions[y].org_title|escape:"html"}</departmentName>
 					<sponsorID>{$list[i].aut_id}</sponsorID>
 					<role>{$list[i].positions[y].POS_TITLE|escape:"html"}</role>
-					<start-date>{$list[i].positions[y].DT_FROM|date_format:'%Y'}</start-date>
-					<end-date>{if $list[i].positions[y].DT_TO != '0000-00-00' && ($list[i].positions[y].DT_TO|date_format:'%Y') <= ($smarty.now|date_format:'%Y')}{$list[i].positions[y].DT_TO|date_format:'%Y'}{/if}</end-date>
-				{if $list[i].positions[y].DT_TO != '0000-00-00' && ($list[i].positions[y].DT_TO|date_format:'%Y') < ($smarty.now|date_format:'%Y')}
+					<start-date>{$list[i].positions[y].DT_FROM}</start-date>
+					<end-date>{if $list[i].positions[y].DT_TO != '0' && ($list[i].positions[y].DT_TO) <= ($smarty.now|date_format:'%Y')}{$list[i].positions[y].DT_TO}{/if}</end-date>
+				{if $list[i].positions[y].DT_TO != '0' && ($list[i].positions[y].DT_TO) < ($smarty.now|date_format:'%Y')}
 			      </past-institution>
 					{else}
 			      </institution>
