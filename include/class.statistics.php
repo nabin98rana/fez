@@ -222,14 +222,14 @@ class Statistics
 			}
 		}
 		
+		
+		fclose($handle);
+		Statistics::updateSummaryStats();
 		if( APP_SOLR_INDEXER == "ON" ) {
 		    foreach ($changedPids as $pid => $null) {
                 FulltextQueue::singleton()->add($pid);
 		    }
 		}
-		
-		fclose($handle);
-		Statistics::updateSummaryStats();
 		$timeFinished = date('Y-m-d H:i:s');
 		Statistics::setLogRun($requestDateLatest, $counter, $counter_inserted, $timeStarted, $timeFinished);
     }
@@ -262,6 +262,7 @@ class Statistics
 			$timeStarted = date('Y-m-d H:i:s');
 			$counter = 0;
 			$counter_inserted = 0;
+			$increments = array();
 			$requestDateLatest = 0;
 			$changedPids = array();
 			$datetestA = strtotime(Statistics::getLastestLogEntry());
@@ -391,7 +392,16 @@ class Statistics
 							return -1; //abort
 						} else {
 							$counter_inserted++;
-
+							if (!is_array($increments[$pid])) {
+								$increments[$pid] = array();
+								$increments[$pid]['views'] = 0;
+								$increments[$pid]['downloads'] = 0;
+							}
+							if ($dsid != "" && !is_null($dsid)) {
+								$increments[$pid]['downloads']++;
+							} else {
+								$increments[$pid]['views']++;
+							}
 							if( APP_SOLR_INDEXER == "ON" ) {
 							    $changedPids[$pid] = true;
 							}
@@ -399,8 +409,8 @@ class Statistics
 
 					}
 				}
-			
 
+			Statistics::updateSummaryStatsByIncrement($increments);
 			if( APP_SOLR_INDEXER == "ON" ) {
 				if (count($changedPids) > 0) {
 				    foreach ($changedPids as $pid => $null) {
@@ -409,7 +419,6 @@ class Statistics
 				}
 			}
 
-			Statistics::updateSummaryStats();
 			$timeFinished = date('Y-m-d H:i:s');
 			Statistics::setLogRun($requestDateLatest, $counter, $counter_inserted, $timeStarted, $timeFinished);
 			Statistics::clearBufferByDate($requestDateLatest);
@@ -461,6 +470,39 @@ class Statistics
 		if (PEAR::isError($res)) {
 			Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return -1; //abort
+		}
+	}
+
+
+	function updateSummaryStatsByIncrement($stats = array()) {
+		if (count($stats) == 0) { return false; }
+		foreach ($stats as $pid => $val) {
+			if (is_numeric($val['views'])) {
+				if ($val['views'] > 0) {
+					$stmt = "UPDATE 
+							" . APP_TABLE_PREFIX . "record_search_key r1
+							SET rek_views = rek_views + ".$val['views']."
+							WHERE r1.rek_pid = ".$pid.")";
+					$res = $GLOBALS["db_api"]->dbh->query($stmt);
+					if (PEAR::isError($res)) {
+						Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+						return -1; //abort
+					}
+				}
+			}
+			if (is_numeric($val['downloads'])) {
+				if ($val['downloads'] > 0) {
+					$stmt = "UPDATE 
+							" . APP_TABLE_PREFIX . "record_search_key r1
+							SET rek_file_downloads = rek_file_downloads + ".$val['downloads']."
+							WHERE r1.rek_pid = ".$pid.")";
+					$res = $GLOBALS["db_api"]->dbh->query($stmt);
+					if (PEAR::isError($res)) {
+						Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+						return -1; //abort
+					}
+				}
+			}
 		}
 	}
 
@@ -793,6 +835,44 @@ class Statistics
 		return $count; 
 	}
 
+	function getStatsByUserAbstractView($pid, $year='all', $month='all', $range='all') {	
+		if ($pid != 'all') {
+			$limit = "where stl_pid = '".$pid."' and stl_dsid = ''";
+		} else {
+			$limit = "where stl_dsid = '' ";		
+		}
+		if ($year != 'all' && is_numeric($year)) {
+			$year = Misc::escapeString($year);
+			$limit .= " and year(date(stl_request_date)) = ".$year;
+			if ($month != 'all' && is_numeric($month)) {
+				$month = Misc::escapeString($month);
+				$limit .= " and month(date(stl_request_date)) = ".$month;
+			}
+		} elseif ($range != 'all' && $range == '4w') {
+			$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
+		}
+
+		$stmt = "select count(*) as usr_count, usr_full_name  
+			 	 from " . APP_TABLE_PREFIX . "statistics_all
+				 inner join " . APP_TABLE_PREFIX . "user on usr_id = stl_usr_id
+				 ".$limit."
+				 group by usr_full_name
+				 order by usr_count desc, usr_full_name asc";
+
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt,  DB_FETCHMODE_ASSOC);
+		if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = array();
+        }
+        if (!empty($res)) {
+			$count = $res;
+		} else {
+			$count = array();
+		}
+		return $count; 
+	}	
+
+
 	
 	function getStatsByCountryAbstractView($pid, $year='all', $month='all', $range='all') {	
 		if ($pid != 'all') {
@@ -941,6 +1021,44 @@ class Statistics
 			return $count; 
 		}
 	}	
+
+	function getStatsByUserDownloads($pid, $year='all', $month='all', $range='all') {	
+		if ($pid != 'all') {
+			$limit = "where stl_pid = '$pid' and stl_dsid <> ''";
+		} else {
+			$limit = "where stl_dsid <> '' ";		
+		}
+		if ($year != 'all' && is_numeric($year)) {
+			$year = Misc::escapeString($year);
+			$limit .= " and year(date(stl_request_date)) = ".$year;
+			if ($month != 'all' && is_numeric($month)) {
+				$month = Misc::escapeString($month);
+				$limit .= " and month(date(stl_request_date)) = ".$month;
+			}
+		} elseif ($range != 'all' && $range == '4w') {
+			$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
+		}
+		
+		$stmt = "select count(*) as usr_count, usr_full_name
+			 	 from " . APP_TABLE_PREFIX . "statistics_all
+				 inner join " . APP_TABLE_PREFIX . "user on usr_id = stl_usr_id
+				 ".$limit."
+				 group by usr_full_name
+				 order by usr_count desc, usr_full_name asc";
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt,  DB_FETCHMODE_ASSOC);
+		if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else { 
+			if (!empty($res)) {
+				$count = $res;
+			} else {
+				$count = array();
+			}
+			return $count; 
+		}
+	}
+
 
 	function getStatsByCountrySpecificAllFileDownloads($pid, $year='all', $month='all', $range='all', $country) {	
 		if ($pid != 'all') {
