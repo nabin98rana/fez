@@ -214,6 +214,7 @@ class FulltextIndex_Solr extends FulltextIndex {
 	}
 
 
+
     protected function prepareAdvancedQuery($searchKey_join, $filter_join, $roles) {
 
         $filterQuery = "";
@@ -247,6 +248,7 @@ class FulltextIndex_Solr extends FulltextIndex {
             if(in_array('Lister', $approved_roles)) {
                 $filterQueryParts[] = "(_authlister_t:(" . $rulegroups . "))";
             }
+
             if (is_array($filterQueryParts)) {
             	$filterQuery = implode(" OR ", $filterQueryParts);
 			} else {
@@ -264,6 +266,7 @@ class FulltextIndex_Solr extends FulltextIndex {
         return array('query' => $searchQuery, 'filter' => $filterQuery);
     }
 
+
 	public function searchAdvancedQuery($searchKey_join, $filter_join, $approved_roles, $start, $page_rows) {
 
 
@@ -277,22 +280,34 @@ class FulltextIndex_Solr extends FulltextIndex {
 
 			// hit highlighting
 			$params['hl'] = 'true';			
-			$params['hl.fl'] = 'content_mt'; //'content_mt,alternative_title_mt,author_mt,keywords_mt';
+			$params['hl.fl'] = 'content'; //'content_mt,alternative_title_mt,author_mt,keywords_mt';
 			$params['hl.requireFieldMatch'] = 'false';			
 			$params['hl.snippets'] = 3;
-			//$params['hl.formatter'] = 'gap';
-			//$params['hl.formatter'] = 'simple';
 			$params['hl.fragmenter'] = 'gap';
 			$params['hl.fragsize'] = 150;
 			$params['hl.mergeContiguous'] = "true";
+			
+			$sekIDs = Search_Key::getFacetList();
+			
+			if(count($sekIDs) > 0) { 
+				
+				$params['facet'] = 'true';
+				$params['facet.limit'] = '5';
+				$params['facet.mincount'] = '1';
+				
+				foreach ($sekIDs as $sek) {
+				    $sek_title_db = Search_Key::makeSQLTableName($sek['sek_title']);
+				    $solr_suffix = Record::getSolrSuffix($sek,1,0);
+				    $facetsToUse[] = $sek_title_db.$solr_suffix;
+				}
+			
+				$params['facet.field'] = $facetsToUse;
+			}
 
 			// filtering
 			$params['fq'] = $query['filter'];
 			$queryString = $query['query'];
 			$params['fl'] = '*,score';
-
-			//$sort_by = 'score';
-//			$sort_by
 
 			// sorting
 			if (empty($searchKey_join[SK_SORT_ORDER])) {
@@ -305,53 +320,121 @@ class FulltextIndex_Solr extends FulltextIndex {
 			Logger::debug("Solr query string: ".$queryString);
 			Logger::debug("Solr sort by: ".$params['sort']);
 
+			
 			$response = $this->solr->search($queryString, $start, $page_rows, $params);
 			$total_rows = $response->response->numFound;
-			$sekdet = Search_Key::getList();
 			$docs = array();
 			$snips = array();
+			
 			if ($total_rows > 0) {		
 				$i = 0;
+				
 				foreach ($response->response->docs as $doc) {
+				    
+				    foreach ( $doc as $solrID => $field ) {
+				        if(($sek_id = Search_Key::getDBnamefromSolrID($solrID))) {
+				            $docs[$i][$sek_id] = $field;
+				        }
+				    }
+				    
 					// resolve result
 					$docs[$i]['Relevance'] = $doc->score;
-					$docs[$i]['rek_citation'] = $doc->citation_t;
 					$docs[$i]['rek_views'] = $doc->views_i;
 					
-					foreach ($sekdet as $skey => $sval) {
-						$solr_suffix = Record::getSolrSuffix($sval);
-						$solr_name = $sval['sek_title_db'].$solr_suffix;
-						if ($sval['sek_relationship'] == 1) {
-							if (is_array($doc->$solr_name)) {
-								$docs[$i]["rek_".$sval['sek_title_db']] = $doc->$solr_name;
-							} else {
-								$docs[$i]["rek_".$sval['sek_title_db']] = array();
-								if ($doc->$solr_name != "") {
-									$docs[$i]["rek_".$sval['sek_title_db']][0] = $doc->$solr_name;
-								}
-							}
-						} else {
-							$docs[$i]["rek_".$sval['sek_title_db']] = $doc->$solr_name;							
-						}
-					}
+//					foreach ($sekdet as $skey => $sval) {
+//						$solr_suffix = Record::getSolrSuffix($sval);
+//						$solr_name = $sval['sek_title_db'].$solr_suffix;
+//						if ($sval['sek_relationship'] == 1) {
+//							if (is_array($doc->$solr_name)) {
+//								$docs[$i]["rek_".$sval['sek_title_db']] = $doc->$solr_name;
+//							} else {
+//								$docs[$i]["rek_".$sval['sek_title_db']] = array();
+//								if ($doc->$solr_name != "") {
+//									$docs[$i]["rek_".$sval['sek_title_db']][0] = $doc->$solr_name;
+//								}
+//							}
+//						} else {
+//							$docs[$i]["rek_".$sval['sek_title_db']] = $doc->$solr_name;							
+//						}
+//					}
 					$i++;
 				}
+				
+                if(is_object($response->facet_counts)) {
+                    
+                    $sekdet = Search_Key::getList(false);
+                    
+    				foreach ($response->facet_counts as $facetType => $facetData) {
+    					
+    				    if($facetType == 'facet_fields') {
+    				        
+    				        /*
+    				         * We have to loop through every search key because
+    				         * we can create a solr id from a fez search key but 
+    				         * not the other way around.
+    				         */
+    				        foreach ($sekdet as $sval) {
+    				            
+                                $solr_suffix = Record::getSolrSuffix($sval,1,0);
+                                $solr_name = $sval['sek_title_db'].$solr_suffix;
+                                
+                                if(isset($facetData->$solr_name)) {
+                                    
+                                    /*
+                                     * Convert (if possible) values into text representation
+                                     * Depositor id=1 becomes 'Adminstrator'
+                                     */
+                                    foreach ($facetData->$solr_name as $value => $numInFacet) {
+                                        
+                                    	$id = $value;
+                                        if($sval['sek_lookup_function']) {
+                                            eval("\$value = ".$sval["sek_lookup_function"]."(".$value.");");
+                                        }
+                                        
+                                        $tmpArr[$id] = array(
+                                            'value' =>  $value,
+                                            'num'   =>  $numInFacet,
+                                        );
+                                    }
+                                    
+                                    if($tmpArr) {
+                                        $facets[$sval['sek_id']] = array(
+                                            'sek_title'     =>  $sval['sek_title'],
+                                            'values'        =>  $tmpArr,
+                                        );
+                                        unset($tmpArr);
+                                    }
+                                    
+                                    
+                                }
+                            }
+    				        
+    				    } elseif($facetType == 'facet_dates') {
+    				        // Nothing for now
+    				    }
+    				}
+    				
+                }
+                
+                
 
 				// Solr hit highlighting				
-	            foreach ($response->highlighting as $pid => $snippet) {	            	
-	            	if (isset($snippet->content_mt)) {    	            	       	
-		            	foreach ($snippet->content_mt as $part) {
+	            foreach ($response->highlighting as $pid => $snippet) {
+
+	            	if (isset($snippet->content)) {   
+	            		echo 'here';            	       	
+		            	foreach ($snippet->content as $part) {
 		            		$part = trim(str_ireplace(chr(12), ' | ', $part));		            		
 		            		$snips[$pid] .= $part;
 		            	}	
 	            	} 
-	            	if (isset($snippet->keywords_mt)) {
-	            		foreach ($snippet->content_mt as $part) {
-		            		$part = trim(str_ireplace(chr(12), ' | ', $part));		            		
-		            		$snips[$pid] .= $part;
-		            	}
-	            	}
-	            } 	
+//	            	if (isset($snippet->keywords_mt)) {
+//	            		foreach ($snippet->content_mt as $part) {
+//		            		$part = trim(str_ireplace(chr(12), ' | ', $part));		            		
+//		            		$snips[$pid] .= $part;
+//		            	}
+//	            	}
+	            }
 
 	         }	
 
@@ -371,7 +454,8 @@ class FulltextIndex_Solr extends FulltextIndex {
     	}
 
     	return array(
-    	   'total_rows' => $total_rows, 
+    	   'total_rows' => $total_rows,
+    	   'facets'     => $facets,
     	   'docs'       => $docs, 
     	   'snips'      => $snips
 	   );		

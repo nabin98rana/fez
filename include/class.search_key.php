@@ -122,6 +122,12 @@ class Search_Key
 		} else {
 			$sek_myfez_visible = 0;
 		}
+		if (@$_POST["sek_faceting"]) {
+			$sek_faceting = 1;
+		} else {
+			$sek_faceting = 0;
+		}
+		
 		$sekIncrId = Search_Key::getNextIncrId(APP_PID_NAMESPACE);
 		$sek_id = APP_PID_NAMESPACE . '_' . $sekIncrId;
 		
@@ -137,7 +143,8 @@ class Search_Key
 					sek_meta_header,
 					sek_simple_used,
 					sek_adv_visible,
-					sek_myfez_visible,";
+					sek_myfez_visible,
+					sek_faceting,";
 				if (is_numeric($_POST["sek_order"])) {
 					$stmt .= " sek_order, ";
 				}
@@ -169,7 +176,8 @@ class Search_Key
 					'" . Misc::escapeString($_POST["sek_meta_header"]) . "',
 					" . $sek_simple_used .",
 					" . $sek_adv_visible .",
-					" . $sek_myfez_visible .",";
+					" . $sek_myfez_visible .",
+		            " . $sek_faceting .",";
 					if (is_numeric($_POST["sek_order"])) {
 	                    $stmt .=  $_POST["sek_order"] . ",";
 					}
@@ -274,6 +282,11 @@ class Search_Key
 		} else {
 			$sek_myfez_visible = 0;
 		}
+		if (@$_POST["sek_faceting"]) {
+			$sek_faceting = 1;
+		} else {
+			$sek_faceting = 0;
+		}
 
 		if(function_exists('apc_clear_cache')) {
 			apc_clear_cache('user');
@@ -288,7 +301,8 @@ class Search_Key
                     sek_meta_header = '" . Misc::escapeString($_POST["sek_meta_header"]) . "',
 					sek_simple_used = ".$sek_simple_used.",
 					sek_myfez_visible = ".$sek_myfez_visible.",
-					sek_adv_visible = ".$sek_adv_visible.",";
+					sek_adv_visible = ".$sek_adv_visible.",
+					sek_faceting = ".$sek_faceting.",";
 					if ($_POST["sek_order"]) {
 						$stmt .= "sek_order = ".$_POST["sek_order"].",";
 					}
@@ -377,6 +391,37 @@ class Search_Key
     	} else {
     		return $res;
     	}
+    }
+    
+    function getDBnamefromSolrID($solrID) {
+        
+        /*
+         * These fields exist in solr for sorting purposes only
+         * We dont need them in fez
+         */
+        if($solrID == 'id') {
+            return false;
+        }
+        
+        if(strpos($solrID, '_t_s')) {
+            return false;
+        }
+            
+        if(strpos($solrID, '_ms')) {
+            return false;
+        }
+            
+        if(strpos($solrID, 'authlister')) {
+            return false;
+        }
+            
+        $lastUnderscore = strrpos($solrID, '_');
+        
+        if(!$lastUnderscore) {
+            return false;
+        }
+        
+        return 'rek_'. substr($solrID, 0, $lastUnderscore);
     }
 
     /**
@@ -535,10 +580,7 @@ class Search_Key
           }	
           return $res;
         }
-    }	
-    
-    
-   
+    }
     
     
     /**
@@ -710,6 +752,26 @@ class Search_Key
     		}
     	}
     }
+    
+    
+    function getFacetList() {
+       
+        $stmt = "SELECT *
+                 FROM " . APP_TABLE_PREFIX . "search_key
+				 WHERE sek_faceting = 1";
+       
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } 
+            
+        if (empty($res)) {
+            return array();
+        } 
+        
+        return $res;
+   }
     
     /**
      * Method used to get the list of search keys available in the 
@@ -942,7 +1004,7 @@ class Search_Key
         }
     }
 
-    function makeSQLTableName($sek_title, $i=0) {
+    function makeSQLTableName($sek_title) {
         $retString = str_replace(" ", "_", trim(strtolower($sek_title)));
         
     	return $retString;

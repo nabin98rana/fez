@@ -122,7 +122,7 @@ class Lister
         // 1 => array('file' => 'views/list/author_bulk_edit.tpl.html', 'title' => 'Edit Authors'),
 
 		if (!empty($custom_view_pid)) {			
-			if (!is_numeric($_GET['tpl'])) {
+			if (!is_numeric($params['tpl'])) {
 				$cvcom_details = Custom_View::getCommCview($custom_view_pid);
 				foreach ($tpls as $tplkey => $tplval) {
 					if ($cvcom_details['cvcom_default_template'] == $tplval['file']) {
@@ -221,6 +221,10 @@ class Lister
 		$tpl->assign("browse_mode", $browse_mode);
 		$sort_by = $options["sort_by"];
 		$operator = $options["operator"];
+		
+		if(empty($operator)) {
+		    $operator = "AND";
+		}
 
 		/*
 		 * These options are used in a dropdown box to allow the 
@@ -298,7 +302,9 @@ class Lister
                                 
                 //$list = Collection::getListing($collection_pid, $pager_row, $rows, $sort_by);
                 $list_info = $list["info"];
+                $facets = @$list['facets'];
                 $list = $list["list"];
+                
                 $title = Record::getSearchKeyIndexValue($collection_pid, "Title");
                 $display_type = Record::getSearchKeyIndexValue($collection_pid, "Display Type");
 				$display_type = array_values($display_type);
@@ -326,8 +332,6 @@ class Lister
             
         } elseif (!empty($community_pid)) {
             
-
-            
 			$sort_by = "searchKey".Search_Key::getID("Title");
 			
             // list collections in a community
@@ -337,32 +341,6 @@ class Lister
             $tpl->assign("isViewer", $canView);
             if ($canView) {	
                 
-                /* 
-                 * Custom View
-                 */
-/*                $customView = Custom_View::getCommCview($community_pid);
-                
-                if($customView) {
-                    $path       = $customView['cview_folder'];
-                    $header     = APP_PATH. $path . $customView['cview_header_tpl'];
-                    $content    = APP_PATH. $path . $customView['cview_content_tpl'];
-                    $footer     = APP_PATH. $path . $customView['cview_footer_tpl'];
-                    $css        = APP_PATH. $path . $customView['cview_css'];
-
-                    if( is_file($header) ) {
-                        $tpl->assign('cv_header',   $header);
-					}
-                    
-                    if( is_file($content) )
-                        $tpl->assign('cv_content',  $content);
-                        
-                    if( is_file($footer) )
-                        $tpl->assign('cv_footer',   $footer);
-                        
-                    if( is_file($css) )
-                        $tpl->assign('cv_css',      $css);
-                }
-*/                
                 $tpl->assign("community_pid", $community_pid);
                 $userPIDAuthGroups = AuthIndex::getIndexAuthRoles($community_pid);
                 $isCreator = @$userPIDAuthGroups['isCreator'] == 1;
@@ -380,7 +358,9 @@ class Lister
             	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
                 
                 $list_info = $list["info"];
+                $facets = @$list['facets'];
                 $list = $list["list"];
+                
                 $title = Record::getSearchKeyIndexValue($community_pid, "Title");
                 $display_type = Record::getSearchKeyIndexValue($community_pid, "Display Type");
 				$display_type = array_values($display_type);
@@ -708,6 +688,7 @@ class Lister
 			
         	$list_info = @$list["info"];
         	$terms = @$list_info['search_info'];
+        	$facets = @$list['facets'];
         	$list = @$list["list"];
 			
         	// KJ@ETH
@@ -745,6 +726,21 @@ class Lister
         	unset($tpls[5]);
         }
         
+        /*
+         * We dont want to display facets that a user
+         * has already searched by
+         */
+        if(isset($facets)) {
+                
+            foreach ($facets as $sek_id => $facetData) {
+                if(!empty($options['searchKey'.$sek_id])) {
+                    unset($facets[$sek_id]);
+                }
+            }
+                
+        }
+        
+        $tpl->assign('facets', $facets);
         $tpl->assign('rows', $rows);
         $tpl->assign('tpl_list', array_map(create_function('$a','return $a[\'title\'];'), $tpls));
         $tpl->assign('browse', $browse);

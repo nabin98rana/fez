@@ -224,7 +224,7 @@
               </tr>
               {/if}
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td width="160" bgcolor="{$cell_color}" class="default">
                   <b>Title:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -233,7 +233,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td bgcolor="{$cell_color}" class="default">
                   <b>Alternative Title (if empty Title will be used, useful for language translations of Fez):</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -242,7 +242,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td bgcolor="{$cell_color}" class="default">
                   <b>Description (will appear as a hover tooltip):</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -260,7 +260,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td bgcolor="{$cell_color}" class="default">
                   <b>Show in Advanced Search Form?:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -278,7 +278,15 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td bgcolor="{$cell_color}" class="default">
+                  <b>Use for search faceting:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="checkbox" name="sek_faceting" class="default" {if ($info.sek_faceting != 0)}checked{/if}><br />
+                </td>
+              </tr>
+              <tr>
+                <td bgcolor="{$cell_color}" class="default">
                   <b>Display Order:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -286,7 +294,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td bgcolor="{$cell_color}" class="default">
                   <b>OAI/Header Name:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -294,7 +302,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td bgcolor="{$cell_color}" class="default">
                   <b>Multiple?:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -303,7 +311,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td bgcolor="{$cell_color}" class="default">
                   <b>Multiple Limit:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -312,7 +320,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td bgcolor="{$cell_color}" class="default">
                   <b>Field Type:</b>
                 </td>
                 <td bgcolor="{$light_color}" class="default">
@@ -353,7 +361,9 @@
 
                   {assign var="show_field_options" value=true}
               <tr id="controlled_vocab_tr"  {if $info.sek_html_input != 'contvocab'}style="display:none"{/if} >
-                 <td width="120" bgcolor="{$cell_color}" class="default"><b>Controlled Vocabulary:</b></td>
+                 <td bgcolor="{$cell_color}" class="default">
+                    <b>Controlled Vocabulary:</b>
+                 </td>
  				<td bgcolor="{$light_color}">
 					<select class="default" name="sek_cvo_id">
 					  {html_options options=$controlled_vocab_list selected=$info.sek_cvo_id}
@@ -361,13 +371,13 @@
 			  	</td>
 		     </tr>
               <tr id="smarty_variable_tr"  {$selectingfield_only} >
-                 <td width="120" bgcolor="{$cell_color}" class="default"><b>Dynamic Variable:</b></td>
+                 <td bgcolor="{$cell_color}" class="default"><b>Dynamic Variable:</b></td>
  				<td bgcolor="{$light_color}">
 					<input class="default" type="text" name="sek_smarty_variable" size="40" value="{$info.sek_smarty_variable}">
 			  	</td>
 		     </tr>
               <tr id="lookup_function_tr">
-                 <td width="120" bgcolor="{$cell_color}" class="default"><b>Function Lookup for Value of ID (optional):</b></td>
+                 <td bgcolor="{$cell_color}" class="default"><b>Function Lookup for Value of ID (optional):</b></td>
  				<td bgcolor="{$light_color}">
 					<input class="default" type="text" name="sek_lookup_function" size="40" value="{$info.sek_lookup_function}">
 			  	</td>
@@ -379,7 +389,7 @@
 			  	</td>
 		     </tr>
               <tr id="cardinality_tr">
-                 <td width="120" bgcolor="{$cell_color}" class="default"><b>Data Cardinality (1-1/1-M):</b></td>
+                 <td bgcolor="{$cell_color}" class="default"><b>Data Cardinality (1-1/1-M):</b></td>
  				<td bgcolor="{$light_color}">
 				<select class="default" name="sek_cardinality">
 				  {html_options options=$sek_cardinality_list selected=$info.sek_cardinality}
@@ -387,7 +397,7 @@
 			  	</td>
 		     </tr>
               <tr id="relationship_tr">
-                 <td width="120" bgcolor="{$cell_color}" class="default"><b>Data Storage (in own table or core table):</b></td>
+                 <td bgcolor="{$cell_color}" class="default"><b>Data Storage (in own table or core table):</b></td>
  				<td bgcolor="{$light_color}">
 				<select class="default" name="sek_relationship">
 				  {html_options options=$sek_relationship_list selected=$info.sek_relationship}
@@ -395,7 +405,7 @@
 			  	</td>
 		     </tr>
               <tr id="data_type_tr">
-                 <td width="120" bgcolor="{$cell_color}" class="default"><b>Data Type:</b></td>
+                 <td bgcolor="{$cell_color}" class="default"><b>Data Type:</b></td>
  				<td bgcolor="{$light_color}">
 				<select class="default" name="sek_data_type">
 				  {html_options options=$sek_data_type_list selected=$info.sek_data_type}
@@ -404,7 +414,7 @@
 		     </tr>
 		     
 			 <tr id="sek_fez_variable_tr" {if $info.sek_html_input != 'static' && !$selectingfield}style="display:none"{/if}>
-                 <td width="120" bgcolor="{$cell_color}" class="default"><b>Fez Variable:</b><i>(If a Fez variable is set it will be used instead of any other options including smarty template variables)</i></td>
+                 <td bgcolor="{$cell_color}" class="default"><b>Fez Variable:</b><i>(If a Fez variable is set it will be used instead of any other options including smarty template variables)</i></td>
 				<td class="default" bgcolor="{$light_color}"><br /><b>OR use one of these Fez variables: </b> <br />
 					<INPUT TYPE=RADIO NAME="sek_fez_variable" VALUE="none" {if ($info.sek_fez_variable == "" || $info.sek_fez_variable == "none")}checked{/if}/>None<BR>
 					<INPUT TYPE=RADIO NAME="sek_fez_variable" VALUE="pid" {if $info.sek_fez_variable == "pid"}checked{/if}/>Pid (for new records it will get the new Pid and then create this parent datastream)<BR>
@@ -414,7 +424,7 @@
  			  </tr> 
  			  {if $info.key_table_exists != 1}
 		      <tr>
-		          <td width="120" bgcolor="#FFCC66" class="default"><b>Create table/column in database</b></td>
+		          <td bgcolor="#FFCC66" class="default"><b>Create table/column in database</b></td>
 		          <td class="default" bgcolor="#FFCC66">
 					<select name="create_sql">
 					   <option value="0">No</option>
@@ -471,14 +481,10 @@
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Alt Title</b>&nbsp;</td>                      
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>In Simple Search?</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>On Adv Search Page?</b>&nbsp;</td>					  					  
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>On MyFez Search Page?</b>&nbsp;</td>					  					                        
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Multiple?</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Multiple Limit</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Field Type</b>&nbsp;</td>					  
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Order</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>OAI/Header</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>On MyFez Search Page?</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Faceting?</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Field Type</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Data Type</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Data Cardinality</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Data Storage</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>View SQL</b>&nbsp;</td>
                     </tr>
@@ -505,27 +511,14 @@
                         &nbsp;{if $list[i].sek_myfez_visible == 1}<font color="green">yes</font>{else}<font color="red">no</font>{/if}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
-                        &nbsp;{if $list[i].sek_multiple == 1}<font color="green">yes</font>{else}<font color="red">no</font>{/if}
-                      </td>
-                      <td bgcolor="{$row_color}" class="default">
-                        &nbsp;{$list[i].sek_multiple_limit}
+                        &nbsp;{if $list[i].sek_faceting == 1}<font color="green">yes</font>{else}<font color="red">no</font>{/if}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
                         &nbsp;{$list[i].sek_html_input}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
-                        &nbsp;{$list[i].sek_order}
-                      </td>
-                      <td bgcolor="{$row_color}" class="default">
-                        &nbsp;{$list[i].sek_meta_header}
-                      </td>
-                      <td bgcolor="{$row_color}" class="default">
                		{assign var="sek_data_type" value=$list[i].sek_data_type}
                       &nbsp;{$sek_data_type_list[$sek_data_type]}
-                      </td>
-                      <td bgcolor="{$row_color}" class="default">
-                 		{assign var="sek_cardinality" value=$list[i].sek_cardinality}
-                        &nbsp;{$sek_cardinality_list_short[$sek_cardinality]}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
                  		{assign var="sek_relationship" value=$list[i].sek_relationship}

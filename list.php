@@ -44,6 +44,10 @@ if (is_array($res['list'])) {
 } else {
 	$pids = array();
 }
+/*
+ * We want to save this data for view pages, so when can create
+ * 'prev' and 'next' links
+ */
 $_SESSION['list'] = $pids;
 $_SESSION['list_params'] = $_GET;
 $_SESSION['script_name'] = $_SERVER['SCRIPT_NAME'];
