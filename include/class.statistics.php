@@ -758,6 +758,24 @@ class Statistics
 	}
 
 	
+	function getEarliestUserView() {	
+		$stmt = "select MIN(stl_request_date) as first_logged
+			 	 from " . APP_TABLE_PREFIX . "statistics_all
+				 where stl_usr_id is not null";
+		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+		if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+			if ((count($res) == 1) && (!empty($res)) && (!is_null($res))) {
+				$date = $res;
+			} else {
+				$date = 0;
+			}
+			return $date; 
+		}
+	}
+
 	function getStatsByDatastream($pid, $dsid) {	
 		$stmt = "select count(*)  
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
@@ -775,6 +793,7 @@ class Statistics
 			return $count; 
 		}
 	}
+
 
 	function getStatsByAbstractView($pid, $year='all', $month='all', $range='all') {	
         $limit = '';
@@ -852,12 +871,12 @@ class Statistics
 			$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
 		}
 
-		$stmt = "select count(*) as usr_count, usr_full_name  
+		$stmt = "select count(*) as abstracts, usr_full_name  
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
 				 inner join " . APP_TABLE_PREFIX . "user on usr_id = stl_usr_id
 				 ".$limit."
 				 group by usr_full_name
-				 order by usr_count desc, usr_full_name asc";
+				 order by abstracts desc, usr_full_name asc";
 
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt,  DB_FETCHMODE_ASSOC);
 		if (PEAR::isError($res)) {
@@ -953,6 +972,14 @@ class Statistics
 		return Statistics::mergeCountries($aa, $ad);
 	}
 
+	function getStatsByUserAbstractsDownloads($pid, $year='all', $month='all', $range='all') {	
+
+		$aa = Statistics::getStatsByUserAbstractView($pid, $year, $month, $range);	
+		$ad = Statistics::getStatsByUserAllFileDownloads($pid, $year, $month, $range);	
+		return Statistics::mergeUsers($aa, $ad);
+	}
+
+
 	function getStatsByCountrySpecificAbstractsDownloads($pid, $year='all', $month='all', $range='all', $country) {	
 
 		$aa = Statistics::getStatsByCountrySpecificAbstractView($pid, $year, $month, $range, $country);	
@@ -990,7 +1017,7 @@ class Statistics
 		if ($pid != 'all') {
 			$limit = "where stl_pid = '$pid' and stl_dsid <> ''";
 		} else {
-			$limit = "where stl_dsid <> '' ";		
+			$limit = "where stl_dsid <> '' ";
 		}
 		if ($year != 'all' && is_numeric($year)) {
 			$year = Misc::escapeString($year);
@@ -1026,7 +1053,7 @@ class Statistics
 		if ($pid != 'all') {
 			$limit = "where stl_pid = '$pid' and stl_dsid <> ''";
 		} else {
-			$limit = "where stl_dsid <> '' ";		
+			$limit = "where stl_dsid <> '' ";
 		}
 		if ($year != 'all' && is_numeric($year)) {
 			$year = Misc::escapeString($year);
@@ -1039,12 +1066,12 @@ class Statistics
 			$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
 		}
 		
-		$stmt = "select count(*) as usr_count, usr_full_name
+		$stmt = "select count(*) as downloads, usr_full_name
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
 				 inner join " . APP_TABLE_PREFIX . "user on usr_id = stl_usr_id
 				 ".$limit."
 				 group by usr_full_name
-				 order by usr_count desc, usr_full_name asc";
+				 order by downloads desc, usr_full_name asc";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt,  DB_FETCHMODE_ASSOC);
 		if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -1355,6 +1382,49 @@ class Statistics
 						"stl_country_name"      => $aa[$j]["stl_country_name"],
 						"stl_country_downloads" => 0,
 						"stl_country_abstracts" => $aa[$j]["stl_country_count"]
+						);
+					// and increment $i
+					$i++;
+				}
+		} // for on $j
+		return $merged;
+	}
+
+
+	function mergeUsers($aa, &$ad)
+	// reference parameter $ad for efficiency, not changed, 
+	//	however the $aa value parameter is altered and is not prapogated back
+	{
+		$merged = array();
+		// Copy acrosss the download array, adding counts from the abstract array as needed.
+		for ($i=0; $i<count($ad); $i++) {
+			$merged[$i] = array(
+				"usr_full_name"      => $ad[$i]["usr_full_name"],
+				"downloads" => $ad[$i]["downloads"],
+				"abstracts" => 0
+				);
+			$full_name = $merged[$i]["usr_full_name"];
+			for ($j=0; $j<count($aa); $j++) {
+				if ($full_name == $aa[$j]["usr_full_name"]) {
+					// matching country in abstracts
+					$merged[$i]["abstracts"] = $aa[$j]["abstracts"];
+					// render this entry dead in future with reserved full name
+					$aa[$j]["usr_full_name"] = '==';
+					// and get out of the loop
+					break;
+				}
+			} // for on $j
+		} // for on $i
+		
+		// Copy what is left of the abstract array
+		$i = count($merged);
+		for ($j=0; $j<count($aa); $j++) {
+				if ($aa[$j]["usr_full_name"] != '==') {
+					// user with only abstract views, so copy
+					$merged[$i] = array(
+						"usr_full_name"      => $aa[$i]["usr_full_name"],
+						"abstracts" => 0,
+						"abstracts" => $aa[$i]["abstracts"]
 						);
 					// and increment $i
 					$i++;

@@ -255,6 +255,34 @@ function purgeObject(pid)
 				</table>		
 			</td>
 		</tr>
+
+
+	    <tr>
+			<td align="left">
+				<table cellspacing="0" cellpadding="3" width="800">
+					<tr bgcolor="{$heading_color}">
+						<td colspan="4" class="default_white"><strong>Logged in user views</strong> {if $firstLogged != 0}(started logging user views on {$firstLogged|date_format:'%a, %d %b %Y'}){else}(None logged yet){/if}</td>
+					</tr>
+					<tr>
+						<td bgcolor="{$light_color}" class="default" width="150"><strong>User</strong></td>
+						<td align="right" bgcolor="{$cell_color}" class="default" width="75">Abstracts</td>
+						<td align="right" bgcolor="{$dark_color}" class="default_white" width="75">Downloads</td>
+						<td bgcolor="{$light_color}">&nbsp;</td>																							
+					</tr>
+					{section name="i" loop=$listUsers}
+					<tr class="default">
+						<td bgcolor="{$light_color}" nowrap>{$listUsers[i].usr_full_name}</td>
+						<td align="right">{$listUsers[i].abstracts}</td>
+						<td align="right">{$listUsers[i].downloads}</td>
+						<td><img src="{$rel_url}images/hh.png" alt="abstracts" height="9" width="{$listUsers[i].abstractViewsWidth}"><br />
+							<img src="{$rel_url}images/hp.png" alt="downloads" height="9" width="{$listUsers[i].downloadsWidth}">
+						</td>																							
+					</tr>								
+					{/section}
+				</table>		
+			</td>
+		</tr>
+
 		{elseif $action == 'cumulative_usage'}
 			    <tr>
 			<td align="left">

@@ -85,13 +85,28 @@ if ($range == "4w") {
 	$dateString = "for all years";
 }
 if ($action == "show_detail") {
+	$userAbstractViews = Statistics::getStatsByUserAbstractView($pid, $year, $month, $range);
+	$userDownloads = Statistics::getStatsByUserDownloads($pid, $year, $month, $range);
+
+	$allUsers = Statistics::mergeUsers($userAbstractViews, $userDownloads);
+	for ($i=0;$i<count($allUsers);$i++) {
+		$max_count = max($max_count, $allUsers[$i]['downloads'], $allUsers[$i]['abstracts']);
+	}
+
+	for ($i=0;$i<count($allUsers);$i++) {
+		$allUsers[$i]['abstractViewsWidth'] = (int) ($allUsers[$i]['stl_country_abstracts']/$max_count * $max_width); 
+		$allUsers[$i]['downloadsWidth'] = (int) ($allUsers[$i]['stl_country_downloads']/$max_count * $max_width); 
+	}
+
+
 	$abstractViews = Statistics::getStatsByAbstractView($pid, $year, $month, $range);
 	$downloads = Statistics::getStatsByAllFileDownloads($pid, $year, $month, $range);
 	$countryAll = Statistics::getStatsByCountryAbstractsDownloads($pid, $year, $month, $range);	
 	$abstractViewsHistory = Statistics::getStatsByAbstractViewHistory($pid);
 	$downloadsHistory = Statistics::getStatsByDownloadHistory($pid);
 	$allHistory = Statistics::mergeDates($abstractViewsHistory, $downloadsHistory);
-	$max_count = max($abstractViews, $downloads, 1);
+
+	$max_count = max($max_count, $abstractViews, $downloads, 1);
 	for ($i=0;$i<count($countryAll);$i++) {
 		$max_count = max($max_count, $countryAll[$i]['stl_country_downloads'], $countryAll[$i]['stl_country_abstracts']);
 	}
@@ -143,13 +158,16 @@ if ($action == "show_detail") {
 	}
 }
 
-
-
-
 for ($i=0;$i<count($countryAll);$i++) {	
 	$countryAll[$i]['abstractViewsWidth'] = (int) ($countryAll[$i]['stl_country_abstracts']/$max_count * $max_width); 
 	$countryAll[$i]['downloadsWidth'] = (int) ($countryAll[$i]['stl_country_downloads']/$max_count * $max_width); 
 }
+
+for ($i=0;$i<count($allUsers);$i++) {
+	$allUsers[$i]['abstractViewsWidth'] = (int) ($allUsers[$i]['abstracts']/$max_count * $max_width); 
+	$allUsers[$i]['downloadsWidth'] = (int) ($allUsers[$i]['downloads']/$max_count * $max_width); 
+}
+
 
 
 for ($i=0;$i<count($allHistory);$i++) {
@@ -165,11 +183,17 @@ $tpl->assign("lastYear", date("Y")-1);
 $tpl->assign("downloads", $downloads);
 $tpl->assign("abstractViews", $abstractViews);
 $tpl->assign("downloadsWidth", $downloadsWidth);
+$tpl->assign("userDownloadsWidth", $userDownloadsWidth);
+$tpl->assign("userAbstractViewsWidth", $userAbstractViewsWidth);
+$tpl->assign("userAbstractViews", $userAbstractViews);
+$tpl->assign("userDownloads", $userDownloads);
 $tpl->assign("abstractViewsWidth", $abstractViewsWidth);
 
 $tpl->assign("dateString", $dateString);
 //$tpl->assign("list", $list);
 $tpl->assign("listHistory", $allHistory);
+$tpl->assign("listUsers", $allUsers);
+$tpl->assign("firstLogged", Statistics::getEarliestUserView());
 $tpl->assign("listCountry", $countryAll);
 $tpl->assign("listCountryCount", count($countryAll));
 //$tpl->assign("list", $list_history);
