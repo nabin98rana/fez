@@ -898,6 +898,7 @@ td.search_multi_input {
 }
 
 #paging-box {
+	clear:both;
 	position: relative;
 	border-top: 2px solid #d6d6d6;
 	border-right: 2px solid #d6d6d6;
