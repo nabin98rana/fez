@@ -791,9 +791,25 @@ class Statistics
 	}
 
 	function getStatsByDatastream($pid, $dsid) {	
+		
+		
+		if (is_numeric(strrpos($dsid, "."))) {
+  			$web = "web_".substr($dsid, 0, strrpos($dsid, ".") + 1)."jpg";
+        } else {
+            $web = "web_".$dsid.".jpg";
+        }
+
+		if (is_numeric(strrpos($dsid, "."))) {
+  			$stream = "stream_".substr($dsid, 0, strrpos($dsid, ".") + 1)."flv";
+        } else {
+            $stream = "stream_".$dsid.".flv";
+        }
+
+        
+		
 		$stmt = "select count(*)  
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
-				 where stl_pid = '".$pid."' and stl_dsid = '".$dsid."' AND stl_counter_bad = 0";
+				 where stl_pid = '".$pid."' and (stl_dsid = '".$dsid."' or stl_dsid = '".$web."' or stl_dsid = '".$stream."') AND stl_counter_bad = 0";
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 		if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
