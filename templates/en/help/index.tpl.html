@@ -118,6 +118,7 @@ a:hover {
 <a href="#baseurl">What is UQ eSpace's base URL for OAI harvesters?</a><br />
 
 <h3>Statistics</h3>
+<a href="#statistics">How does UQ eSpace calculate statistics?</a><br />
 <a href="#downloads">Can I get figures on how often my papers are being downloaded?</a><br />
 <a href="#wheredown">Where are my download statistics?</a><br />
 <a href="#meas">What is measured?</a><br />
@@ -301,7 +302,29 @@ Former academic staff and postgraduate students are welcome to deposit materials
 <b><a name="exstudents"></a>Can former students deposit materials?</b><br />
 Former academic staff and postgraduate students are welcome to deposit materials in UQ eSpace. Your collection is entitled <a href="http://espace.library.uq.edu.au/list.php?collection_pid=uq:12339">Papers and Publications of Former UQ Staff and Postgraduate Students</a> and it sits under the community called the <a href="http://espace.library.uq.edu.au/list.php?community_pid=uq:12338">UQ Community</a>. Before you can deposit material, you will need to obtain a UQ eSpace username and password. This will allow you to log in to your collection. <a href="#help">Please contact the Manager, UQ eSpace, to arrange this access.</a><p>
 
+<b><a name="statistics"></a>How does {$smarty.const.APP_NAME} calculate statistics?</b><br />
 
+The aim of UQ eSpace’s download statistics is to show the extent of genuine human interest in the material we showcase within the repository.
+<p>
+UQ eSpace statistics are calculated and updated hourly. Generally, each click on a record counts as a download. A ‘download’ may be of a view of the record’s abstract page or it might be a click to open a file attached to that record, e.g. a full text PDF or an image.
+<p>
+Abstract views and full downloads are counted separately, and separate tallies for them are available for each record. Where a record shows counts for abstract views only, this is generally because the record has no attached datastream (or file). 
+<p>
+However, there are certain types of access that are not included in final counts. These accesses are collected in logs, since logs record all activity to do with records, but are excluded from final counts.  There are two main exclusions from counts:
+<p>
+<ul>
+<li>1. Many activity by search engine crawlers, e.g. the Googlebot for Google, and crawlers from other services such as Yahoo!, ninemsn, and so on </li>
+<li>2. Any double clicks emanating from the same person on the same record within the same timeframe for either an abstract view or a full download.</li>
+</ul>
+<p>
+The exclusion of double clicks is designed to keep statistics as meaningful as possible.
+<p>
+Other exclusions from counts include ‘Bad Requests’, ‘404 File Not Found’ errors, and clicks by people who do not have sufficient rights to view the object in question. Since such clicks would not be successful, they are discounted.
+<p>
+Statistics were brought in to {$smarty.const.APP_NAME} from our former ePrintsUQ service. That service did not exclude crawlers, bots or double-clicks from counts, so statistics from that service were always higher than those of UQ eSpace. However, before being added to the UQ eSpace counts, the ePrintsUQ statistics were made to conform, as much as possible, with UQ eSpace requirements.
+<p>
+One of the aims of our statistical reporting it to comply as closely as possible with the standards of Project Counter (<a href='http://projectcounter.org/'>http://projectcounter.org/</a>). Launched in March 2002, COUNTER (Counting Online Usage of Networked Electronic Resources) is an international initiative serving librarians, publishers and intermediaries by setting standards that facilitate the recording and reporting of online usage statistics in a consistent, credible and compatible way.
+<p>
 
 <b><a name="downloads"></a>Can I get figures on how often my papers are being downloaded?</b><br />
 Yes, there are statistics provided on the web site. You can see statistics on the Top 50 papers and the Top 50 authors. The figures are broken up into Full Downloads and Abstract Views. The figures are updated overnight, not in real time. Downloads per item are listed in the view of each individual item, or when items are returned in search results.

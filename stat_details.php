@@ -85,19 +85,24 @@ if ($range == "4w") {
 	$dateString = "for all years";
 }
 if ($action == "show_detail") {
-	$userAbstractViews = Statistics::getStatsByUserAbstractView($pid, $year, $month, $range);
-	$userDownloads = Statistics::getStatsByUserDownloads($pid, $year, $month, $range);
+	if ($record->canApprove()) {
+		$userAbstractViews = Statistics::getStatsByUserAbstractView($pid, $year, $month, $range);
+		$userDownloads = Statistics::getStatsByUserDownloads($pid, $year, $month, $range);
 
-	$allUsers = Statistics::mergeUsers($userAbstractViews, $userDownloads);
-	for ($i=0;$i<count($allUsers);$i++) {
-		$max_count = max($max_count, $allUsers[$i]['downloads'], $allUsers[$i]['abstracts']);
+		$allUsers = Statistics::mergeUsers($userAbstractViews, $userDownloads);
+		for ($i=0;$i<count($allUsers);$i++) {
+			$max_count = max($max_count, $allUsers[$i]['downloads'], $allUsers[$i]['abstracts']);
+		}
+
+		for ($i=0;$i<count($allUsers);$i++) {
+			$allUsers[$i]['abstractViewsWidth'] = (int) ($allUsers[$i]['stl_country_abstracts']/$max_count * $max_width); 
+			$allUsers[$i]['downloadsWidth'] = (int) ($allUsers[$i]['stl_country_downloads']/$max_count * $max_width); 
+		}
+		$tpl->assign("showUsers", 1);
+	} else {
+		$tpl->assign("showUsers", 0);
+		$allUsers = array();
 	}
-
-	for ($i=0;$i<count($allUsers);$i++) {
-		$allUsers[$i]['abstractViewsWidth'] = (int) ($allUsers[$i]['stl_country_abstracts']/$max_count * $max_width); 
-		$allUsers[$i]['downloadsWidth'] = (int) ($allUsers[$i]['stl_country_downloads']/$max_count * $max_width); 
-	}
-
 
 	$abstractViews = Statistics::getStatsByAbstractView($pid, $year, $month, $range);
 	$downloads = Statistics::getStatsByAllFileDownloads($pid, $year, $month, $range);

@@ -256,7 +256,7 @@ function purgeObject(pid)
 			</td>
 		</tr>
 
-
+			{if $showUsers == 1}
 	    <tr>
 			<td align="left">
 				<table cellspacing="0" cellpadding="3" width="800">
@@ -282,7 +282,7 @@ function purgeObject(pid)
 				</table>		
 			</td>
 		</tr>
-
+			{/if}
 		{elseif $action == 'cumulative_usage'}
 			    <tr>
 			<td align="left">
@@ -390,6 +390,16 @@ function purgeObject(pid)
 		</tr>
 
 		{/if}
+		<tr>
+			<td align="left">
+				<table cellspacing="0" cellpadding="3" width="800">
+					<tr>
+						<td colspan="4" class="default_white"><a href="{$smarty.const.APP_RELATIVE_URL}help.php?topic=statistics#statistics"/>Click here to find out how {$smarty.const.APP_NAME} counts download statistics</a></td>
+					</tr>
+				</table>		
+			</td>
+		</tr>
+	    
       </table>
     </td>
   </tr>
