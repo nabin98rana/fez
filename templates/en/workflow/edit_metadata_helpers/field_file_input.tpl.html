@@ -5,7 +5,7 @@
 			{assign var="loop_num" value=$smarty.section.z.index}
 			<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}" {if $loop_num != 0 || $xsdmf.xsdmf_invisible == 1}style="display:none"{/if}>
 				<td width="200" bgcolor="{$cell_color}" class="default">
-					<b>{$xsdmf.xsdmf_title} {math equation='x + 1' x=$loop_num}</b>{if $xsdmf.xsdmf_required == 1} * {/if}<br />{if $loop_num == 0}<i>(More {$xsdmf.xsdmf_title} input boxes will appears as they are used up)</i>{/if}
+					<b>{$xsdmf.xsdmf_title} {math equation='x + 1' x=$loop_num}</b>{if $xsdmf.xsdmf_required == 1} * {/if}<br />{if $loop_num == 0}<i>(More {$xsdmf.xsdmf_title} input boxes will appear as you type)</i>{/if}
 				</td>
 				<td bgcolor="{$value_color}">
 					<input type="hidden" name="MAX_FILE_SIZE" value="{$phpini_upload_max_filesize}" />

@@ -277,7 +277,7 @@ function selectDateField(field_name, day, month, year)
 						{assign var="loop_num" value=$smarty.section.z.index}
 						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" {if $loop_num != 0 || ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1)}style="display:none"{/if}>
 						  <td width="200" bgcolor="{$cell_color}" class="default">
-							<b>{$xsd_display_fields[i].xsdmf_title} {math equation="x + 1" x=$loop_num}</b><br />{if $loop_num == 0}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appears as they are used up)</i>{/if}
+							<b>{$xsd_display_fields[i].xsdmf_title} {math equation="x + 1" x=$loop_num}</b><br />{if $loop_num == 0}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appear as you type)</i>{/if}
 						  </td>
 						  <td bgcolor="{$light_color}">
 						<input type="hidden" name="MAX_FILE_SIZE" value="{$phpini_upload_max_filesize}" />
@@ -301,7 +301,7 @@ function selectDateField(field_name, day, month, year)
 						{assign var="loop_num" value=$smarty.section.z.index}
 						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" {if $loop_num != 0 || ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1)}style="display:none"{/if} valign="top">
 						  <td width="200" bgcolor="{$cell_color}" class="default">
-							<b>{$xsd_display_fields[i].xsdmf_title} {math equation="x + 1" x=$loop_num}</b>{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}<br />{if $loop_num == 0}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appears as they are used up)</i>{/if}
+							<b>{$xsd_display_fields[i].xsdmf_title} {math equation="x + 1" x=$loop_num}</b>{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}<br />{if $loop_num == 0}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appear as you type)</i>{/if}
 						  </td>
 						  <td bgcolor="{$value_color}">
 						<input class="default" type="checkbox" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" {if $xsd_display_fields[i].xsdmf_cso_value == 'checked'}checked{/if}>
@@ -340,7 +340,7 @@ function selectDateField(field_name, day, month, year)
                                   <br/><i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
                                 {/if}
 								<br />
-								<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appears as they are used up)</i>
+								<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appear as you type)</i>
 								{/if}
 							  </td>
 							  <td bgcolor="{$value_color}">
@@ -460,7 +460,7 @@ function selectDateField(field_name, day, month, year)
                               <br/><i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
                             {/if}
                             <br />
-							<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appears as they are used up)</i>
+							<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appear as you type)</i>
 							{/if}
 						  </td>
 						  <td bgcolor="{$light_color}">
@@ -715,7 +715,7 @@ function selectDateField(field_name, day, month, year)
                               <br/><i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
                             {/if}
 							<br />                            
-							<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appears as they are used up)</i>
+							<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appear as you type)</i>
 							{/if}
 						  </td>
 						  <td bgcolor="{$light_color}">
@@ -744,7 +744,7 @@ function selectDateField(field_name, day, month, year)
 						{assign var="loop_num" value=$smarty.section.z.index}
 						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" style="display:none">
 						  <td width="200" bgcolor="{$cell_color}" class="default">
-							<b>{$xsd_display_fields[i].xsdmf_title} {math equation="x + 1" x=$loop_num} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />{if $loop_num == 0}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appears as they are used up)</i>{/if}
+							<b>{$xsd_display_fields[i].xsdmf_title} {math equation="x + 1" x=$loop_num} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />{if $loop_num == 0}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appear as you type)</i>{/if}
 						  </td>
 						  <td bgcolor="{$light_color}">
 				            <input type="hidden" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" />
@@ -790,7 +790,7 @@ function selectDateField(field_name, day, month, year)
 						{assign var="loop_num" value=$smarty.section.z.index}
 						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" {if $loop_num != 0 || ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && ($xsd_display_fields[i].xsdmf_required != 1 || $xsd_display_fields[i].selected_option != ''))}style="display:none"{/if} valign="top">
 						  <td width="200" bgcolor="{$cell_color}" class="default">
-							<b>{$xsd_display_fields[i].xsdmf_title} {math equation="x + 1" x=$loop_num} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />{if $loop_num == 0}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appears as they are used up)</i>{/if}
+							<b>{$xsd_display_fields[i].xsdmf_title} {math equation="x + 1" x=$loop_num} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />{if $loop_num == 0}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appear as you type)</i>{/if}
 							{if $xsd_display_fields[i].xsdmf_description != ""}
 								<br /><i>{$xsd_display_fields[i].xsdmf_description}</i>
 							{/if}
