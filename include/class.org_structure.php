@@ -396,7 +396,7 @@ class Org_Structure
 			  SELECT org_id, 
 				org_title,
 				MATCH(org_title) AGAINST ('".$term."') as Relevance FROM ".$dbtp."org_structure
-			 WHERE MATCH (org_title) AGAINST ('*".$term."*' IN BOOLEAN MODE)  AND (org_extdb_name = 'hr' OR org_extdb_name = 'rrtd') ";
+			 WHERE MATCH (org_title) AGAINST ('*".$term."*' IN BOOLEAN MODE) AND org_title not like 'Faculty of%' AND (org_extdb_name = 'hr' OR org_extdb_name = 'rrtd') ";
 		$stmt .= " ORDER BY Relevance DESC, org_title LIMIT 0,10) as tempsuggest";
 
 		if ($assoc) {
