@@ -341,3 +341,7 @@ a.form_note:hover span.form_note {
 	color: black;
 	text-align: left;
 }
+
+.query_footer {
+    color:#FFFFFF;
+}

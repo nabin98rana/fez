@@ -4,3 +4,5 @@ Disallow: /login.php
 Disallow: /stat_details.php
 Disallow: /stats.php
 Disallow: /adv_search.php
+Disallow: /js/
+Disallow: /css/

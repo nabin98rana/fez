@@ -33,7 +33,18 @@ class fileCache {
 		
 	    if(file_exists($this->cachePath.$this->cacheFileName) && !$this->flushCache) {
 	        Statistics::addBuffer($this->pid);
-	        echo file_get_contents($this->cachePath.$this->cacheFileName);
+	        
+	        $htmlContent = file_get_contents($this->cachePath.$this->cacheFileName);
+	        
+	        $views = Record::getSearchKeyIndexValue($this->pid, "Views");
+	        $dls = Record::getSearchKeyIndexValue($this->pid, "File Downloads");
+	        
+	        $pat = array('/<fez:statsAbs>\d<\/fez:statsAbs>/', '/<fez:statsDownloads>\d<\/fez:statsDownloads>/');
+	        $rep = array("<fez:statsAbs>$views<fez:statsAbs>", "<fez:statsDownloads>$dls<fez:statsDownloads>");
+	        
+	        $htmlContent = preg_replace($pat, $rep, $htmlContent);
+	        
+	        echo $htmlContent;
 	        exit();
 	    }
 	    

@@ -3,15 +3,10 @@
 		{if $xsd_display_fields[i].xsdmf_html_input != 'static' and $xsd_display_fields[i].xsdmf_show_in_view == 1 and $xsd_display_fields[i].xsdmf_html_input != 'xsdmf_id_ref' and $xsd_display_fields[i].xsdmf_html_input != 'xsd_ref' and $xsd_display_fields[i].xsdmf_html_input != ''}
 		{assign var="temp_fld_id" value=$xsd_display_fields[i].xsdmf_id}
 		{assign var="attached_temp_fld_id" value=$xsd_display_fields[i].xsdmf_attached_xsdmf_id}
-
 		  {if $xsd_display_fields[i].xsdmf_show_in_view == 1 && $details[$temp_fld_id]}
 			  {if $xsd_display_fields[i].xsdmf_data_type == 'date'}
-			  
 			<tr>			
-			  <td align="right" bgcolor="{$cell_color}" class="default" width="20%" valign="top" nowrap><b>{$xsd_display_fields[i].xsdmf_title}</b>			{if $debug == 1}
-				{$xsd_display_fields[i].xsdmf_order}
-			{/if}</td>
-
+			  <td align="right" bgcolor="{$cell_color}" class="default" width="20%" valign="top" nowrap><b>{$xsd_display_fields[i].xsdmf_title}</b>{if $debug == 1}{$xsd_display_fields[i].xsdmf_order}{/if}</td>
  			  <td align="left" bgcolor="{$light_color}" class="default">
  			  {if $xsd_display_fields[i].xsdmf_html_input == 'date'}
 		          {$details[$temp_fld_id]}
@@ -22,15 +17,8 @@
 			</tr>
 			  {else}
 			<tr>
-
-			  <td align="right" bgcolor="{$cell_color}" class="default" width="20%" valign="top"><b>{$xsd_display_fields[i].xsdmf_title}</b>			{if $debug == 1}
-				{$xsd_display_fields[i].xsdmf_order}
-			{/if}</td>
-
- 			  <td align="left" bgcolor="{$light_color}" class="default">
-			  {$details[$temp_fld_id]}
-			  </td>
-
+			  <td align="right" bgcolor="{$cell_color}" class="default" width="20%" valign="top"><b>{$xsd_display_fields[i].xsdmf_title}</b>{if $debug == 1}{$xsd_display_fields[i].xsdmf_order}{/if}</td>
+ 			  <td align="left" bgcolor="{$light_color}" class="default">{$details[$temp_fld_id]}</td>
 			</tr>
 			  {/if}
 		  {/if}
