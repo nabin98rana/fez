@@ -1,0 +1,6 @@
+User-agent: *
+Crawl-Delay: 10
+Disallow: /login.php
+Disallow: /stat_details.php
+Disallow: /stats.php
+Disallow: /adv_search.php
