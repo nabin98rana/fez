@@ -1,0 +1,148 @@
+
+{literal}
+<script language="JavaScript">
+<!--
+function validateForm(f)
+{
+    if (isWhitespace(f.username.value)) {
+        errors[errors.length] = new Option('UQ Username', 'username');
+    }
+    if (isWhitespace(f.passwd.value)) {
+        errors[errors.length] = new Option('Password', 'passwd');
+    }
+    if (errors.length > 0) {
+        return false;
+    }
+}
+//-->
+</script>
+{/literal}
+<form name="login_form" onSubmit="javascript:return checkFormSubmission(this, 'validateForm');" method="post" action="index.php">
+<input type="hidden" name="cat" value="login">
+<input type="hidden" name="url" value="{$smarty.get.url}">
+<table align="center" width="400" border="0" cellspacing="0" cellpadding="1" bgcolor="#FFFFFF">
+  <tr>
+    <td>
+      <table bgcolor="#FFFFFF" width="100%" border="0" cellspacing="0" cellpadding="4">
+        <tr>
+          <td colspan="2" align="center" nowrap>
+            <br /><br />
+            <h2>{$app_setup.tool_caption|default:$application_title}</h2>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table align="center" width="400" border="0" cellspacing="0" cellpadding="1" bgcolor="#000000">
+  <tr>
+    <td>
+      <table bgcolor="#FFFFFF" width="100%" border="0" cellspacing="0" cellpadding="4">
+        <tr>
+          <td colspan="2" bgcolor="#006486"><img src="images/blank.gif" width="1" height="5"></td>
+        </tr>
+        {if $smarty.get.err != 0}
+        <tr>
+          <td colspan="2" align="center" class="error" bgcolor="#006486">
+            <b>
+            {if $smarty.get.err == 1}
+              Error: Please provide your UQ username.
+            {elseif $smarty.get.err == 2}
+              Error: Please provide your password.
+            {elseif $smarty.get.err == 3 or $smarty.get.err == 4}
+              Error: The username / password combination could not be found in the system.
+            {elseif $smarty.get.err == 5}
+              Your session has expired. Please login again to continue.
+            {elseif $smarty.get.err == 6}
+              Thank you, you are now logged out of {$application_title}.
+            {elseif $smarty.get.err == 7}
+              Error: Your user status is currently set as inactive. Please 
+              contact your local system administrator for further information.
+            {elseif $smarty.get.err == 8}
+              Thank you, your account is now active and ready to be 
+              used. Use the form below to login.
+            {elseif $smarty.get.err == 9}
+              Error: Your user status is currently set as pending. This 
+              means that you still need to confirm your account 
+              creation request. Please contact your local system 
+              administrator for further information.
+            {elseif $smarty.get.err == 11}
+              Error: Cookies support seem to be disabled in your browser. Please enable this feature and try again.
+            {elseif $smarty.get.err == 20}
+              Error: Your IP Address appears to have changed during your login session in {$application_title}. This behaviour is often
+			  indicative of an attempt to hijack a session to gain priviledges in web applications, so you have been logged out. If
+              this continues to be a problem for you, please contact the {$application_title} webmaster as your ISP may be forcing you through a rotating proxy.
+            {elseif $smarty.get.err == 21}
+			  You must first login to access this resource.
+            {elseif $smarty.get.err == 12}
+              Error: In order for {$application_title} to work properly, you must enable cookie support in your browser. Please login 
+              again and accept all cookies coming from it.
+            {/if}
+            </b>
+          </td>
+        </tr>
+        {/if}
+        <tr>
+          <td align="right" width="40%" class="default_white" bgcolor="#006486"><b><u>U</u>Q username:</b></td>
+          <td width="60%" bgcolor="#006486">
+            <input accessKey="u" class="default" type="text" name="username" value="{$username|default:$smarty.get.username}" size="30">
+            {include file="error_icon.tpl.html" field="username"}
+          </td>
+        </tr>
+        <tr>
+          <td align="right" width="40%" class="default_white" bgcolor="#006486"><b><u>P</u>assword:</b></td>
+          <td width="60%" bgcolor="#006486">
+            <input accessKey="p" class="default" type="password" name="passwd" size="20" maxlength="32">
+            {include file="error_icon.tpl.html" field="passwd"}
+          </td>
+        </tr>
+        <tr align="center">
+          <td colspan="2" bgcolor="#006486">
+            <input type="submit" name="Submit" value="Login" class="button">
+          </td>
+        </tr>
+        <tr align="center">
+          <td colspan="2" class="default_white" bgcolor="#006486">
+			&nbsp;
+            {if $app_setup.open_signup == 'enabled'}<a class="white_link" href="signup.php">Signup for an Account</a>{/if}
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</form>
+{if $anonymous_post}
+<br />
+<table width="400" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+  <tr>
+    <td>
+      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+        <tr>
+          <td class="default">
+            <b>NOTE: You may report issues without the need to login by using the following URL:</b>
+            <br /><br />
+            <a href="{$app_base_url}post.php" class="link">{$app_base_url}post.php</a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+{/if}
+{literal}
+<script language="JavaScript">
+<!--
+window.onload = setFocus;
+function setFocus()
+{
+    if (!isWhitespace(document.login_form.username.value)) {
+        document.login_form.passwd.focus();
+    } else {
+        document.login_form.username.focus();
+    }
+}
+//-->
+</script>
+{/literal}
+

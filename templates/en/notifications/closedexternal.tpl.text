@@ -1,0 +1,17 @@
+This issue has just been completed. If you have any further enquiries about this issue just reply to this email.
+
+If you have a new issue to report please email ithelp@library.uq.edu.au or call the LTS Helpdesk on ext 56285.
+
+----------------------------------------------------------------------
+               ID: {$data.iss_id}
+          Summary: {$data.iss_summary}
+           Status: {$data.sta_title}
+             Team: {$data.prj_title}
+      Reported By: {$data.usr_full_name}
+      Description:
+----------------------------------------------------------------------
+{$data.iss_description}
+----------------------------------------------------------------------
+
+
+

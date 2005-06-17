@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//Tigris//DTD XHTML 1.0 Transitional//EN"
+"http://style.tigris.org/tigris_transitional.dtd">
+<html>
+<head>
+ <style type="text/css">
+/* <![CDATA[ */ 
+@import "css/readyset.css"; 
+@import "css/inst.css";
+/*  ]]> */
+ </style>
+
+<link rel="stylesheet" type="text/css" href="css/print.css" media="print" />
+ <title>Source Code Organization and Build System</title>
+</head>
+
+<body>
+<div class="app">
+<div class="readyset">
+ <h2><a href="design.html">Design</a> &gt; Source Code Organization and Build System</h2>
+
+ <div id="releaseinfo">
+ <h3>Release Information</h3>
+ <table border="1" cellpadding="3" cellspacing="2" class="axial">
+  <tr>
+   <th>Project:</th> 
+   <td><a href="index.html">eSpace</a></td> 
+  </tr>
+  <tr>
+   <th>Internal Release Number:</th> 
+   <td>0.1.0</td> 
+  </tr>
+  <tr>
+   <th>Related Documents:</th> 
+   <td>
+    <div><a href="config.inc.txt">Example config.inc.php for eSpace</a></div>
+    <div>LINKS TO RELEVANT STANDARDS</div>
+    <div>LINKS TO OTHER DOCUMENTS</div>
+   </td>
+  </tr>
+ </table>
+ </div> <!-- /releaseinfo -->
+
+
+
+ <div id="overview">
+ <h3>Overview</h3>
+
+
+ <dl>
+  <dt>What are the most important facts that a developer should know
+  about this source code organization and build system?</dt>
+
+  <dd class="sample1">The system configuration settings (application and DB usernames and passwords) are stored in config.inc.php. The eSpace code architecture uses the <a href="smarty.php.net">Smarty</a> templating system to seperate business logic from presentation logic. Some <a href="pear.php.net">PEAR</a> modules are used for some core functions.</dd>
+
+
+  <dt>What are the ranked goals of this source code organization and build system?</dt>
+
+  <dd class="sample1">
+   <ol>
+    <li>Separation of files by type (classes, smarty templates, javascript, php runtime scripts)</li>
+
+    <li>Platform independence</li>
+   </ol>
+  </dd>
+
+ </dl>
+ </div> <!-- /overview -->
+
+
+
+ <div id="directories">
+ <h3>Key Directories and Files in Developer Working Copies</h3>
+
+
+
+ <table border="1" cellpadding="3" cellspacing="2" width="100%">
+  <tr><th>Path</th><th>VC</th><th>Description</th></tr>
+  <tr>
+   <td>config.inc.php</td>
+   <td>No</td>
+   <td>eSpace configuration properties file (A generic copy will be version controlled)</td>
+  </tr>
+  <tr>
+   <td>css/</td>
+   <td>Yes</td>
+   <td>Cascading Style Sheets for presentation</td>
+  </tr>
+  <tr>
+   <td>documentation/</td>
+   <td>Yes</td>
+   <td>This  documentation</td>
+  </tr>
+  <tr>
+   <td>images/</td>
+   <td>Yes</td>
+   <td>Internal web application images </td>
+  </tr>
+  <tr>
+   <td>include/</td>
+   <td>Yes</td>
+   <td>PHP class files </td>
+  </tr>
+  <tr>
+   <td>js/</td>
+   <td>Yes</td>
+   <td>Javascript classes </td>
+  </tr>
+  <tr>
+   <td>manage/</td>
+   <td>Yes</td>
+   <td>Administration PHP scripts </td>
+  </tr>
+  <tr>
+   <td>setup/</td>
+   <td>Yes</td>
+   <td>Generator for web application private key </td>
+  </tr>
+  <tr>
+   <td>templates/</td>
+   <td>Yes</td>
+   <td>Smarty templates </td>
+  </tr>
+  <tr>
+   <td>templates_c/</td>
+   <td>Yes</td>
+   <td>Compiled Smarty templates </td>
+  </tr>
+ </table>
+ </div> <!-- /directories -->
+
+
+
+ <div id="targets"></div> 
+ <!-- /targets -->
+</div>
+
+
+ <div class="legal1">Company Proprietary</div>
+
+<div class="footnote">
+ Copyright &#169; 2003-2004 Jason Robbins.  All rights reserved. <a href="readyset-license.html">License terms</a>.
+ Retain this copyright statement whenever this file is used as a
+ template.
+</div>
+
+</div>
+</body>
+</html>

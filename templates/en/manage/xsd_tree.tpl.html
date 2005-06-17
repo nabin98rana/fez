@@ -1,0 +1,39 @@
+<html>
+<head>
+<link rel="StyleSheet" href="{$rel_url}css/dtree.css" type="text/css" />
+<script type="text/javascript" src="{$rel_url}js/dtree.js"></script>
+</head>
+
+<body topmargin="5" marginheight="5">
+
+<div class="dtree">
+<script type="text/javascript">
+<!--
+tree = new dTree('tree');
+tree.config.useCookies = false;
+tree.icon.root = '{$rel_url}images/dtree/base.gif';
+tree.icon.folder = '{$rel_url}images/dtree/element.gif';
+tree.icon.folderOpen = '{$rel_url}images/dtree/element.gif';
+tree.icon.node = '{$rel_url}images/dtree/element.gif';
+tree.icon.empty = '{$rel_url}images/dtree/empty.gif';
+tree.icon.line = '{$rel_url}images/dtree/line.gif';
+tree.icon.join= '{$rel_url}images/dtree/join.gif';
+tree.icon.joinBottom = '{$rel_url}images/dtree/joinbottom.gif';
+tree.icon.plus = '{$rel_url}images/dtree/plus.gif';
+tree.icon.plusBottom = '{$rel_url}images/dtree/plusbottom.gif';
+tree.icon.minus = '{$rel_url}images/dtree/minus.gif';
+tree.icon.minusBottom = '{$rel_url}images/dtree/minusbottom.gif';
+tree.icon.nlPlus = '{$rel_url}images/dtree/nolines_plus.gif';
+tree.icon.nlMinus = '{$rel_url}images/dtree/nolines_minus.gif';
+
+{$xsd_tree}
+
+document.write(tree);
+
+tree.openAll();
+//-->
+</script>
+</div>
+
+</body>
+</html>

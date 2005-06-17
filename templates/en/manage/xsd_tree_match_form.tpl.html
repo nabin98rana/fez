@@ -1,0 +1,1064 @@
+{include file="header.tpl.html"}
+
+{if $show_subelement_parents == true}
+
+      <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+        <tr>
+          <td>
+            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+              <form name="xsdsel_match_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}">
+		      <input type="hidden" name="form_name" value="xsdsel_match_form">
+              {if $form_cat == 'edit'}
+              <input type="hidden" name="form_cat" value="update">
+              {else}
+              <input type="hidden" name="form_cat" value="new">
+              {/if}
+              <input type="hidden" name="xdis_id" value="{$xdis_id}">
+              <input type="hidden" name="xml_element" value="{$xml_element}">
+              <tr>
+                <td colspan="2" class="default">
+                  <b>Choose the Looping Subelement Instance:</b>
+                </td>
+              </tr>
+				<tr>
+				  <td width="5" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
+				  <td width="50%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Title</b></td>
+				  <td width="15%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Type</b></td>
+				  <td width="15%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Order</b></td>
+				  <td width="15%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Link to XSD Match Field for this Subelement Instance</b></td>
+				</tr>
+				{section name="i" loop=$xsdsel_loop_list}
+				{cycle values=$cycle assign="row_color"}
+				<tr>
+				  <td width="4" nowrap bgcolor="{$row_color}" align="center">
+					<input type="checkbox" name="items[]" value="{$xsdsel_loop_list[i].xsdsel_id}" {if $smarty.section.i.total == 0}disabled{/if}>
+				  </td>
+				  <td width="50%" bgcolor="{$row_color}" class="default">
+					&nbsp;{$xsdsel_loop_list[i].xsdsel_title}
+				  </td>
+				  <td width="15%" bgcolor="{$row_color}" class="default">
+					&nbsp;{$xsdsel_loop_list[i].xsdsel_type}
+				  </td>
+				  <td width="15%" bgcolor="{$row_color}" class="default">
+					&nbsp;{$xsdsel_loop_list[i].xsdsel_order}
+				  </td>
+				  <td width="15%" bgcolor="{$row_color}" class="default">
+                        &nbsp;<a class="link" href="xsd_tree_match_form.php?&xdis_id={$xdis_id}&xml_element={$xml_element}&xsdsel_id={$xsdsel_loop_list[i].xsdsel_id}" title="match this XSD Display against HTML elements">Link</a>
+				  </td>
+				</tr>
+				{/section}
+				<tr>
+				  <td width="4" align="center" bgcolor="{$cell_color}">
+					<input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
+				  </td>
+				  <td colspan="5" bgcolor="{$cell_color}">
+					<input type="submit" value="Delete" class="button">
+				  </td>
+				</tr>
+				</form>
+			</table>
+		  </td>
+	    </tr>
+	  </table>	
+{else}
+      <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+        <tr>
+          <td>
+            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+              {literal}
+              <script language="JavaScript">
+              <!--
+              var editing_option_id = -1;
+              function validateForm(f)
+              {
+                  if (isWhitespace(f.title.value)) {
+                      alert('Please enter the title of this xsd element to html element match.');
+                      selectField(f, 'title');
+                      return false;
+                  }
+                  if ((f.field_type[2].checked) || (f.field_type[3].checked)) {
+                      // select all of the options in the select box
+                      selectAllOptions(f, 'field_options[]');
+                  }
+                  return true;
+              }
+              function addFieldOption(f)
+              {
+                  var value = f.new_value.value;
+                  if (isWhitespace(value)) {
+                      alert('Please enter the new value for the combo box.');
+                      f.new_value.value = '';
+                      f.new_value.focus();
+                      return false;
+                  }
+                  var field = getFormElement(f, 'field_options[]');
+                  var current_length = field.options.length;
+                  if (current_length == 1) {
+                      if (field.options[0].value == -1) {
+                          removeFieldOption(f, true);
+                      }
+                  }
+                  // check for an existing option with the same value
+                  for (var i = 0; i < field.options.length; i++) {
+                      if (field.options[i].text == value) {
+                          alert('The specified value already exists in the list of options.');
+                          f.new_value.focus();
+                          return false;
+                      }
+                  }
+                  current_length = field.options.length;
+                  field.options[current_length] = new Option(value, 'new:' + value);
+                  f.new_value.value = '';
+                  f.new_value.focus();
+              }
+              function parseParameters(value)
+              {
+                  value = value.substring(value.indexOf(':')+1);
+                  var id = value.substring(0, value.indexOf(':'));
+                  var text = value.substring(value.indexOf(':')+1);
+                  return new Option(text, id);
+              }
+              function updateFieldOption(f)
+              {
+                  if (isWhitespace(f.new_value.value)) {
+                      alert('Please enter the updated value.');
+                      f.new_value.value = '';
+                      f.new_value.focus();
+                      return false;
+                  }
+                  var field = getFormElement(f, 'field_options[]');
+                  for (var i = 0; i < field.options.length; i++) {
+                      if (field.options[i].value == editing_option_id) {
+                          var params = parseParameters(field.options[i].value);
+                          field.options[i].value = 'existing:' + params.value + ':' + f.new_value.value;
+                          field.options[i].text = f.new_value.value;
+                          f.new_value.value = '';
+                          f.update_button.disabled = true;
+                      }
+                  }
+              }
+              function editFieldOption(f)
+              {
+                  var options = getSelectedItems(getFormElement(f, 'field_options[]'));
+                  if (options.length == 0) {
+                      alert('Please select an option from the list.');
+                      return false;
+                  }
+                  editing_option_id = options[0].value;
+                  f.new_value.value = options[0].text;
+                  f.new_value.focus();
+                  f.update_button.disabled = false;
+              }
+              function removeFieldOption(f, delete_first)
+              {
+                  if (delete_first != null) {
+                      var remove = new Array('-1');
+                  } else {
+                      var options = getSelectedItems(getFormElement(f, 'field_options[]'));
+                      if (options.length == 0) {
+                          alert('Please select an option from the list.');
+                          return false;
+                      }
+                      var remove = new Array();
+                      for (var i = 0; i < options.length; i++) {
+                          remove[remove.length] = options[i].value;
+                      }
+                  }
+                  for (var i = 0; i < remove.length; i++) {
+                      removeOptionByValue(f, 'field_options[]', remove[i]);
+                  }
+                  var field = getFormElement(f, 'field_options[]');
+                  if ((delete_first == null) && (field.options.length == 0)) {
+                      field.options[0] = new Option('enter a new option above', '-1');
+                  }
+              }
+              function toggleXSDMatchField(show_field)
+              {
+                  var f = getForm('xsd_tree_match_form');
+                  f.new_value.disabled = show_field;
+                  var field = getFormElement(f, 'field_options[]');
+                  field.disabled = show_field;
+                  f.add_button.disabled = show_field;
+                  f.remove_button.disabled = show_field;
+                  if (f.edit_button) {
+                      f.edit_button.disabled = show_field;
+                  }
+                  return true;
+              }
+              function toggleStaticText(show_field)
+              {
+                  var f = getForm('xsd_tree_match_form');
+				  var elementTitle = getPageElement('static_text_tr');
+				  if (show_field == true) {
+					elementTitle.style.display = '';
+				  } else {
+					elementTitle.style.display = 'none';
+				  }
+                  return true;
+              }
+              function toggleDynamicText(show_field)
+              {
+                  var f = getForm('xsd_tree_match_form');
+				  var elementTitle = getPageElement('dynamic_text_tr');
+				  if (show_field == true) {
+					elementTitle.style.display = '';
+				  } else {
+					elementTitle.style.display = 'none';
+				  }
+                  return true;
+              }
+              function toggleEspaceVarText(show_field)
+              {
+                  var f = getForm('xsd_tree_match_form');
+				  var elementTitle = getPageElement('espace_variable_tr');
+				  if (show_field == true) {
+					elementTitle.style.display = '';
+				  } else {
+					elementTitle.style.display = 'none';
+				  }
+                  return true;
+              }
+              function toggleSmartyVarText(show_field)
+              {
+                  var f = getForm('xsd_tree_match_form');
+				  var elementTitle = getPageElement('smarty_variable_tr');
+				  if (show_field == true) {
+					elementTitle.style.display = '';
+				  } else {
+					elementTitle.style.display = 'none';
+				  }
+                  return true;
+              }
+
+              function toggleXSDRef(show_field)
+              {
+//                  var f = getForm('xsd_tree_match_form');
+//				  if (
+				  var elementCheck = getPageElement('no_xsd_refs');
+				  if (!(elementCheck) && (show_field == true)) {
+					  var f = getForm('xsd_tree_match_form');
+					  for (var x=0; x < 7; x++) {
+						if (x != 5) {
+						  var field = getFormElement(f, 'field_type', x);
+						  field.disabled = true;
+						}
+					  }
+				  }
+                  //f.field_type.disabled = true;
+
+
+				  var elementTitle = getPageElement('xsd_display_ref_tr');
+
+				  
+				  if ((elementCheck) && (show_field == false)) {
+					  if (show_field == true) {
+						elementTitle.style.display = '';
+					  } else {
+						elementTitle.style.display = 'none';
+					  }
+					  return true;
+				  } else {
+					  if (show_field == true) {
+						  elementTitle.style.display = '';
+						  return true;
+					  } else {
+						  alert('There are still XSD Display references against this XSD Display Matching Field!\nYou must delete the references before you can change this XSDMF to another type.');
+						  return false;
+					  }
+				  }
+              }
+              function toggleXSDLoopSubelement(show_field)
+              {
+//                  var f = getForm('xsd_tree_match_form');
+//				  if (
+				  var elementCheck = getPageElement('no_xsd_looping_subelements');
+				  if (!(elementCheck) && (show_field == true)) {
+					  var f = getForm('xsd_tree_match_form');
+					  for (var x=0; x < 7; x++) {
+						if (x != 6) {
+						  var field = getFormElement(f, 'field_type', x);
+						  field.disabled = true;
+						}
+					  }
+				  }
+                  //f.field_type.disabled = true;
+
+
+				  var elementTitle = getPageElement('xsd_loop_subelement_tr');
+//				  var elementTitle = getPageElement('xsd_display_ref_tr');
+//				  elementTitle.style.display = '';
+
+				  if ((elementCheck) && (show_field == false)) {
+					  if (show_field == true) {
+						elementTitle.style.display = '';
+
+					  } else {
+						elementTitle.style.display = 'none';
+					  }
+					  return true;
+				  } else {
+
+					  if (show_field == true) {
+						  elementTitle.style.display = '';
+						  return true;
+					  } else {
+						  alert('There are still XSD Looping Subelements against this XSD Display Matching Field!\nYou must delete the references before you can change this XSDMF to another type.');
+						  return false;
+					  }
+				  }
+              }
+
+
+              function toggleValidationType(show_field)
+              {
+                  var f = getForm('xsd_tree_match_form');
+				  var elementTitle = getPageElement('validation_type_tr');
+				  if (show_field == true) {
+					elementTitle.style.display = '';
+				  } else {
+					elementTitle.style.display = 'none';
+				  }
+                  return true;
+              }
+              function toggleXSDMF_ID_Refs(show_field)
+              {
+                  var f = getForm('xsd_tree_match_form');
+				  var elementTitle = getPageElement('xsdmf_id_ref_tr');
+				  if (show_field == true) {
+					elementTitle.style.display = '';
+				  } else {
+					elementTitle.style.display = 'none';
+				  }
+                  return true;
+              }
+              function toggleFieldOptions(show_field)
+              {
+                  var f = getForm('xsd_tree_match_form');
+				  var elementTitle = getPageElement('field_options_tr');
+				  if (show_field == true) {
+					elementTitle.style.display = '';
+				  } else {
+					elementTitle.style.display = 'none';
+				  }
+				  toggleDynamicSelectedOption(show_field);
+                  return true;
+              }
+              function toggleDynamicSelectedOption(show_field)
+              {
+                  var f = getForm('xsd_tree_match_form');
+				  var elementTitle = getPageElement('dynamic_selected_option_tr');
+				  if (show_field == true) {
+					elementTitle.style.display = '';
+				  } else {
+					elementTitle.style.display = 'none';
+				  }
+                  return true;
+              }
+
+              function checkRequiredFields()
+              {
+                  var f = getForm('xsd_tree_match_form');
+                  f.report_form_required.disabled = !(f.report_form.checked);
+                  if (f.report_form_required.disabled) {
+                      f.report_form_required.checked = false;
+                  }
+                  f.anon_form_required.disabled = !(f.anon_form.checked);
+                  if (f.anon_form_required.disabled) {
+                      f.anon_form_required.checked = false;
+                  }
+              }
+              //-->
+              </script>
+              {/literal}
+              <form name="xsd_tree_match_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}">
+		      <input type="hidden" name="form_name" value="xsdmf">
+			  <input type="hidden" name="xsdmf_id" value="{$xsdmf_id}">
+              {if $form_cat == 'edit'}
+              <input type="hidden" name="form_cat" value="update">
+              {else}
+              <input type="hidden" name="form_cat" value="new">
+              {/if}
+              <input type="hidden" name="xdis_id" value="{$xdis_id}">
+              <input type="hidden" name="xml_element" value="{$xml_element}">
+              <input type="hidden" name="xsdsel_id" value="{$xsdsel_id}">
+              <tr>
+                <td colspan="2" class="default">
+                  <b>XSD Tree Match to HTML Elements Form</b>
+                </td>
+              </tr>
+              {if $result != ""}
+              <tr>
+                <td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
+                  {if $smarty.post.form_cat == "new"}
+                    {if $result == -1}
+                      An error occurred while trying to add the new xsd element to html element match.
+                    {elseif $result == 1}
+                      Thank you, the xsd element to html element match was added successfully.
+                    {/if}
+                  {elseif $smarty.post.form_cat == "update"}
+                    {if $result == -1}
+                      An error occurred while trying to update the xsd element to html element match information.
+                    {elseif $result == 1}
+                      Thank you, the xsd element to html element match was updated successfully.
+                    {/if}
+                  {/if}	
+                </td>
+              </tr>
+              {/if}
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>XSD Sublooping Element Title:</b>
+                </td>
+                <td bgcolor="{$light_color}" class="default">
+					{$xsdsel_title}
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>XML Element:</b>
+                </td>
+                <td bgcolor="{$light_color}" class="default">
+                  {$xml_element_clean}
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Title:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="text" name="title" size="80" class="default" value="{if $info.xsdmf_title}{$info.xsdmf_title}{else}{if $xsdsel_title != "N/A"}{$xsdsel_title} - {/if}{$xml_element_clean}{/if}">
+                  {include file="error_icon.tpl.html" field="title"}
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Short Description:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="text" name="description" size="30" class="default" value="{$info.xsdmf_description}">
+                  <span class="small_default">(it will show up by the side of the field)</span>
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Image Location:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="text" name="image_location" size="30" class="default" value="{$info.xsdmf_image_location}">
+                  <span class="small_default">(It will be shown to the left of the title of the element if it exists in the images directory of eSpace.)</span>
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Enforced Namespace Prefix:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="text" name="enforced_prefix" size="30" class="default" value="{$info.xsdmf_enforced_prefix}">
+                  <span class="small_default">(it will be used as the namespace for this field and override the main object namespace. You must include the ":".)</span>
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Value Prefix:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="text" name="value_prefix" size="30" class="default" value="{$info.xsdmf_value_prefix}">
+                  <span class="small_default">(it will be appended to the front of any form entered variable for this xsdmf match eg for Pids to have info:fedora/ at the front.)</span>
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Display Order Priority:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="text" name="order" size="30" class="default" value="{if $info.xsdmf_order}{$info.xsdmf_order}{else}0{/if}"><br />
+                  <span class="small_default">(The order the field will display on HTML forms, 0 is highest priority, 1, 2 next etc.)</span>
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>XML Instance Order:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="text" name="xml_order" size="30" class="default" value="{if $info.xsdmf_xml_order}{$info.xsdmf_xml_order}{else}0{/if}"><br />
+                  <span class="small_default">(The order the field will feed into the xml object, 0 is highest priority, 1, 2 next etc.)</span>
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Enabled?:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="checkbox" name="enabled" class="default" {if (($info.xsdmf_enabled != 0) || ($info.xsdmf_enabled==''))}checked{/if}><br />
+                  <span class="small_default">(If this enabled tickbox is not ticked this element will not be active)</span>
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Required?:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="checkbox" name="required" class="default" {if ($info.xsdmf_required != 0)}checked{/if}><br />
+                  <span class="small_default">(If this enabled tickbox is not ticked you the input form will not require this field)</span>
+                </td>
+              </tr>
+              <tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Multiple?:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="checkbox" name="multiple" class="default" {if ($info.xsdmf_multiple == 1)}checked{/if}><br />
+                  <span class="small_default">(If this enabled tickbox is ticked this element will be able to be entered multiple times in forms)</span>
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Multiple Limit:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="text" name="multiple_limit" class="default" size="30" value="{$info.xsdmf_multiple_limit}"><br />
+                  <span class="small_default">(The maximum amount of html input elements that will show for this element if it is a multiple)</span>
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Show in View Details?:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="checkbox" name="show_in_view" class="default" {if ($info.xsdmf_show_in_view == 1 || $info.xsdmf_show_in_view == "")}checked{/if}><br />
+                  <span class="small_default">(If this enabled tickbox is ticked this element will show its heading and value in the object view form)</span>
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Value In Tag?:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="checkbox" name="valueintag" class="default" {if ($info.xsdmf_valueintag == 1 || $info.xsdmf_valueintag == "")}checked{/if}><br />
+                  <span class="small_default">(If this enabled tickbox is ticked this element will have a start and end tag, rather than one which does both)</span>
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Is a SEL Unique Key?:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="checkbox" name="is_key" class="default" {if ($info.xsdmf_is_key == 1)}checked{/if}><br />
+                  <span class="small_default">(If this tickbox is ticked the element key match value will match against)</span>
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Key Match Text:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+				  <input type="text" name="key_match" size="40" class="default" value="{$info.xsdmf_key_match}">
+                  <span class="small_default">(If the above tickbox is ticked xml elements will be matched against this text value to get the corresponding xsdmf_id)</span>
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Parent Key Match Text:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+				  <input type="text" name="parent_key_match" size="40" class="default" value="{$info.xsdmf_parent_key_match}">
+                  <span class="small_default">(If the above tickbox is ticked xml elements will be matched against this text value to get the corresponding xsdmf_id from the parent element passed key match (if one exists))</span>
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Field Type:</b>
+                </td>
+                <td bgcolor="{$light_color}" class="default">
+				  {literal}
+                  <input type="radio" name="field_type" value="text" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'text'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleEspaceVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(true);toggleXSDMF_ID_Refs(false);}">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { checkRadio('xsd_tree_match_form', 'field_type', 0);  toggleEspaceVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(true);toggleXSDMF_ID_Refs(false);}">Text Input</a>&nbsp;
+                  <input type="radio" name="field_type" value="textarea" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'textarea'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleEspaceVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(true);toggleXSDMF_ID_Refs(false);}">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { checkRadio('xsd_tree_match_form', 'field_type', 1);  toggleEspaceVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(true);toggleXSDMF_ID_Refs(false);}">Textarea</a>&nbsp;
+                  <input type="radio" name="field_type" value="combo" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'combo'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleEspaceVarText(true);toggleSmartyVarText(true);toggleXSDMatchField(false);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(true);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { checkRadio('xsd_tree_match_form', 'field_type', 2);  toggleEspaceVarText(true);toggleSmartyVarText(true);toggleXSDMatchField(false);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(true);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">Combo Box</a>&nbsp;
+                  <input type="radio" name="field_type" value="multiple" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'multiple'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleEspaceVarText(true);toggleSmartyVarText(true);toggleXSDMatchField(false);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(true);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">
+	              <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { checkRadio('xsd_tree_match_form', 'field_type', 3);  toggleEspaceVarText(true);toggleSmartyVarText(true);toggleXSDMatchField(false);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(true);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">Multiple Combo Box</a>
+<br />            <input type="radio" name="field_type" value="checkbox" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'checkbox'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleEspaceVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { checkRadio('xsd_tree_match_form', 'field_type', 4);  toggleEspaceVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">Checkbox</a>&nbsp;
+		         <input type="radio" name="field_type" value="static" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'static'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) {  toggleEspaceVarText(true);toggleSmartyVarText(false);toggleXSDMatchField(false);toggleStaticText(true);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) {checkRadio('xsd_tree_match_form', 'field_type', 5);  toggleEspaceVarText(true);toggleSmartyVarText(false);toggleXSDMatchField(false);toggleStaticText(true);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">Hidden Static Text</a>
+       			  <input type="radio" name="field_type" value="dynamic" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'dynamic'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleEspaceVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(false);toggleStaticText(false);toggleDynamicText(true);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) {checkRadio('xsd_tree_match_form', 'field_type', 6);  toggleEspaceVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(false);toggleStaticText(false);toggleDynamicText(true);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">Hidden Dynamic Text</a>
+<br />            <input type="radio" name="field_type" value="xsd_ref" {/literal}{if $info.xsdmf_html_input == 'xsd_ref'}checked{/if} {if ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if}{literal} onClick="javascript: if (toggleXSDRef(true) && toggleXSDLoopSubelement(false)) { toggleEspaceVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(false);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="if (toggleXSDRef(true) && toggleXSDLoopSubelement(false)) { javascript:checkRadio('xsd_tree_match_form', 'field_type', 7); toggleEspaceVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(false);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">XSD Reference(s)</a>
+		          <input type="radio" name="field_type" value="xsd_loop_subelement" {/literal}{if $info.xsdmf_html_input == 'xsd_loop_subelement'}checked{/if} {if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0)}disabled{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(true)) { toggleEspaceVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(false);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="if (toggleXSDRef(false) && toggleXSDLoopSubelement(true)) { javascript:checkRadio('xsd_tree_match_form', 'field_type', 8); toggleEspaceVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(false);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">XSD Loop Subelement(s)</a>
+                  <input type="radio" name="field_type" value="xsdmf_id_ref" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'xsdmf_id_ref'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleEspaceVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(true);}">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { checkRadio('xsd_tree_match_form', 'field_type', 9);  toggleEspaceVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(true);}">XSDMF ID Reference</a>&nbsp;
+<br />            <input type="radio" name="field_type" value="file_input" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'file_input'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleEspaceVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { checkRadio('xsd_tree_match_form', 'field_type', 10);  toggleEspaceVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">File Upload Input</a>&nbsp;
+                  <input type="radio" name="field_type" value="file_selector" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'file_selector'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleEspaceVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { checkRadio('xsd_tree_match_form', 'field_type', 11);  toggleEspaceVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">File Selector</a>&nbsp;
+				  {/literal}
+                </td>
+              </tr>
+              <tr id="field_options_tr" {if $info.xsdmf_html_input != 'combo' and $info.xsdmf_html_input != 'multiple'}style="display:none"{/if}>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Field Options:</b><i>(If a dynamic variable is set it will be used instead of the entered values)</i>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <table bgcolor="{$dark_color}" cellspacing="0" cellpadding="0" border="0">
+                    <tr>
+                      <td rowspan="2"><img src="{$rel_url}images/blank.gif" width="30" height="1"></td>
+                      <td>
+                        <span class="default"><b>Set available options:</b></span><br />
+                        <input class="default" type="text" name="new_value" size="26"><input class="shortcut" name="add_button" type="button" value="Add" onClick="javascript:addFieldOption(this.form);">{if $smarty.get.form_cat == 'edit'}<input class="shortcut" name="update_button" type="button" value="Update Value" disabled onClick="javascript:updateFieldOption(this.form);">{/if}<br />
+                      </td>
+                      <td rowspan="3"><img src="{$rel_url}images/blank.gif" width="30" height="1"></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <table border="0" cellspacing="0" cellpadding="0">
+                          <tr>
+                            <td>
+                              <select name="field_options[]" multiple size="3" class="default">
+                              {if $info.field_options == ""}
+                                <option value="-1">enter a new option above</option>
+                              {else}
+                                {html_options options=$info.field_options}
+                              {/if}
+                              </select>
+                            </td>
+                            <td valign="top">
+                              {if $form_cat == 'edit'}
+                              <input class="shortcut" type="button" name="edit_button" value="Edit Option" onClick="javascript:editFieldOption(this.form);"><br />
+                              {/if}
+                              <input class="shortcut" type="button" name="remove_button" value="Remove" onClick="javascript:removeFieldOption(this.form);">
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr id="xsdmf_id_ref_tr" {if $info.xsdmf_html_input != 'xsdmf_id_ref'}style="display:none"{/if}>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>XSD ID Reference:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+					<select name="xsdmf_id_ref" class="default">
+						{html_options options=$xsdmf_id_ref_list selected=$info.xsdmf_id_ref}
+					</select>
+                </td>
+              </tr>
+              <tr id="static_text_tr" {if $info.xsdmf_html_input != 'static'}style="display:none"{/if}>
+				<td width="120" bgcolor="{$cell_color}" class="default_white">
+				  <b>Static Text:</b>
+				</td>
+                <td bgcolor="{$light_color}">
+                  <table bgcolor="{$dark_color}" cellspacing="0" cellpadding="0" border="0">
+                    <tr>			
+						<td bgcolor="{$light_color}">
+						  <textarea name="static_text" rows="20" cols="60" class="default" value="{$info.xsdmf_static_text}">{$info.xsdmf_static_text}</textarea>
+						  <br /><span class="small_default">(it will be added when XML for an instance of this XSD is created)</span>
+						</td>
+					  </tr>
+					</table>
+				 </td>
+			  </tr>
+
+              <tr id="dynamic_text_tr" {if $info.xsdmf_html_input != 'dynamic'}style="display:none"{/if}>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Dynamic Text: <br /><i>(The xml creation process will look for a post variable with the name you put in the textarea and use it as the dynamic variable so make sure it exists, usually as a hidden form html input)</i></b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <textarea name="dynamic_text" rows="20" cols="60" class="default" value="{$info.xsdmf_dynamic_text}">{$info.xsdmf_dynamic_text}</textarea>
+                  <br /><span class="small_default">(it will be added when XML for an instance of this XSD is created)</span>
+                </td>
+              </tr>
+              <tr id="validation_type_tr" style="display:none">
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Validation Type:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+				  <select name="validation_types" multiple size="4" class="default">
+				  	<option value="none" {if ($info.xsdmf_validation_type == 'none') or ($info.xsdmf_validation_type == '')}selected{/if}>None</option>
+				  	<option value="numeric" {if ($info.xsdmf_validation_type == 'numeric')}selected{/if}>Numeric</option>
+				  	<option value="date" {if ($info.xsdmf_validation_type == 'date')}selected{/if}>Date</option>
+				  	<option value="email" {if ($info.xsdmf_validation_type == 'email')}selected{/if}>Email Address</option>
+				  </select>
+                  <br /><span class="small_default">(The datatype the javascript will validate input in this field against)</span>
+                </td>
+              </tr>
+		      <tr id="smarty_variable_tr" {if $info.xsdmf_html_input != 'multiple' && $info.xsdmf_html_input != 'combo'}style="display:none"{/if}>
+                 <td width="120" bgcolor="{$cell_color}" class="default_white"><b>Dynamic Variable:</b><i>(If a dynamic variable is set it will be used instead of the entered values, or if this is a combo or multiple html input then the dynamic variable will be used as the field options)</i></td>
+ 				<td bgcolor="{$light_color}"><span class="default"><br /><b>OR use this dynamic variable:</b></span> <br />
+					<input class="default" type="text" name="smarty_variable" size="26" value="{$info.xsdmf_smarty_variable}">
+			  	</td>
+		     </tr>
+		      <tr id="dynamic_selected_option_tr" {if $info.xsdmf_html_input != 'multiple' && $info.xsdmf_html_input != 'combo'}style="display:none"{/if}>
+                 <td width="120" bgcolor="{$cell_color}" class="default_white"><b>Dynamic Selected Option:</b><i>(If a dynamic variable is set it will be used to preselect the select options for combo boxes and multiple select boxes)</i></td>
+ 				<td bgcolor="{$light_color}">
+					<input class="default" type="text" name="dynamic_selected_option" size="26" value="{$info.xsdmf_dynamic_selected_option}">
+			  	</td>
+		     </tr>
+			 <tr id="espace_variable_tr" {if $info.xsdmf_html_input != 'static' && $info.xsdmf_html_input != 'multiple' && $info.xsdmf_html_input != 'combo'}style="display:none"{/if}>
+                 <td width="120" bgcolor="{$cell_color}" class="default_white"><b>eSpace Variable:</b><i>(If an eSpace variable is set it will be used instead of any other options including smarty template variables)</i></td>
+				<td class="default" bgcolor="{$light_color}"><br /><b>OR use one of these eSpace variables: </b> <br />
+					<INPUT TYPE=RADIO NAME="espace_variable" VALUE="none" {if ($info.xsdmf_espace_variable == "" || $info.xsdmf_espace_variable == "none")}checked{/if}/>None<BR>
+					<INPUT TYPE=RADIO NAME="espace_variable" VALUE="pid" {if $info.xsdmf_espace_variable == "pid"}checked{/if}/>Pid (for new records it will get the new Pid and then create this parent datastream)<BR>
+					<INPUT TYPE=RADIO NAME="espace_variable" VALUE="xdis_id" {if $info.xsdmf_espace_variable == "xdis_id"}checked{/if}/>XSD Display ID<BR>
+				</td>
+ 			  </tr> 
+              <tr>
+                <td colspan="2" bgcolor="{$cell_color}" align="center">
+                  {if $form_cat == 'edit'}
+                  <input class="button" type="submit" value="Update XSD Element to HTML Element Match">
+                  {else}
+                  <input class="button" type="submit" value="Create XSD Element to HTML Element Match">
+                  {/if}
+                  <input class="button" type="reset" value="Reset">
+                  {if $form_cat == 'edit'}
+                  <input class="button" type="submit" name="submit" value="Delete" onclick="return confirm('Are you sure you want to delete the selected XSD Element to HTML input form matching?')">
+                  {/if}
+                </td>
+              </tr>
+              </form>
+            </table>
+          </td>
+        </tr>
+
+		<tr id="xsd_display_ref_tr" {if $info.xsdmf_html_input != 'xsd_ref'}style="display:none"{/if}>
+			<td>
+			  <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+				<tr>
+				  <td>
+					<table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+					  <form name="xsd_display_ref_form" method="post" action="{$smarty.server.PHP_SELF}">
+		              <input type="hidden" name="xdis_id" value="{$xdis_id}">
+ 		              <input type="hidden" name="xml_element" value="{$xml_element}">
+		              <input type="hidden" name="xsdsel_id" value="{$xsdsel_id}">
+ 					  <input type="hidden" name="form_name" value="xsdrel_main">
+ 					  <input type="hidden" name="xsdrel_xsdmf_id" value="{$xsdmf_id}">
+ 					  <input type="hidden" name="xsdrel_xdis_id" value="{$xdis_id}">
+					  {if $smarty.get.form_cat == 'edit'}
+					  <input type="hidden" name="form_cat" value="update">
+					  {else}
+					  <input type="hidden" name="form_cat" value="new">
+					  {/if}
+					  <tr>
+						<td colspan="2" class="default">
+						  <b>Manage XSD Display References</b>
+						</td>
+					  </tr>
+					  {if $result != ""}
+					  <tr>
+						<td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
+						  {if $smarty.post.form_cat == "new"}
+							{if $result == -1}
+							  An error occurred while trying to add the new xsd display.
+							{elseif $result == 1}
+							  Thank you, the xsd display was added successfully.
+							{/if}
+						  {elseif $smarty.post.form_cat == "update"}
+							{if $result == -1}
+							  An error occurred while trying to update the xsd display information.
+							{elseif $result == 1}
+							  Thank you, the xsd display was updated successfully.
+							{/if}
+						  {/if}
+						</td>
+					  </tr>
+					  {/if}
+					  <tr>
+						<td width="120" bgcolor="{$cell_color}" class="default_white">
+						  <b>XSD Display:</b>
+						</td>
+						<td bgcolor="{$light_color}">
+						<select class="default" name="xsd_display_id">
+						  {html_options options=$xsd_displays}
+						</select>
+
+						 <!-- <input type="text" name="xdis_title" size="40" class="default" value="{$info.xdis_title}"> -->
+						  {include file="error_icon.tpl.html" field="title"}
+						</td>
+					  </tr>
+					  <tr>
+						<td width="120" bgcolor="{$cell_color}" class="default_white">
+						  <b>Order:</b>
+						</td>
+						<td bgcolor="{$light_color}">
+						  <input type="text" name="xsdrel_order" size="20" class="default">
+						  {include file="error_icon.tpl.html" field="xsdrel_order"}
+						</td>
+					  </tr>
+					  <tr>
+						<td colspan="2" bgcolor="{$cell_color}" align="center">
+						  {if $smarty.get.form_cat == 'edit'}
+						  <input class="button" type="submit" value="Update XSD Display Reference">
+						  {else}
+						  <input class="button" type="submit" value="Add XSD Display Reference">
+						  {/if}
+						  <input class="button" type="reset" value="Reset">
+						</td>
+					  </tr>
+					  </form>
+					  <tr>
+						<td colspan="2" class="default">
+						  <b>Existing XSD Display References:</b>
+						</td>
+					  </tr>
+					  <tr>
+						<td colspan="2">
+						  <table border="0" width="100%" cellpadding="1" cellspacing="1">
+							<form onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
+				            <input type="hidden" name="xdis_id" value="{$xdis_id}">
+				            <input type="hidden" name="xml_element" value="{$xml_element}">
+				            <input type="hidden" name="xsdsel_id" value="{$xsdsel_id}">
+						    <input type="hidden" name="form_name" value="xsdrel_delete">
+							<input type="hidden" name="form_cat" value="delete">
+							<input type="hidden" name="xsdrel_xsdmf_id" value="{$xsdrel_xsdmf_id}">
+							<tr>
+							  <td width="5" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
+							  <td width="50%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Title</b></td>
+							  <td width="15%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Version</b></td>
+							  <td width="15%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Order</b></td>
+							  <td width="15%" bgcolor="{$cell_color}" class="default_white" nowrap>&nbsp;<b>XSD HTML Matching Editor&nbsp;</b></td>
+							</tr>
+							{section name="i" loop=$xsd_display_ref_list}
+							{cycle values=$cycle assign="row_color"}
+							<tr>
+							  <td width="4" nowrap bgcolor="{$row_color}" align="center">
+								<input type="checkbox" name="items[]" value="{$xsd_display_ref_list[i].xsdrel_id}" {if $smarty.section.i.total == 0}disabled{/if}>
+							  </td>
+							  <td width="50%" bgcolor="{$row_color}" class="default">
+								&nbsp;{$xsd_display_ref_list[i].xdis_title}
+							  </td>
+							  <td width="15%" bgcolor="{$row_color}" class="default">
+								&nbsp;{$xsd_display_ref_list[i].xdis_version}
+							  </td>
+							  <td width="15%" bgcolor="{$row_color}" class="default">
+								&nbsp;{$xsd_display_ref_list[i].xsdrel_order}
+							  </td>
+							  <td width="15%" bgcolor="{$row_color}" class="default">
+								&nbsp;<a class="link" href="xsd_tree_match.php?&xdis_id={$xsd_display_ref_list[i].xdis_id}" title="match this XSD Display against HTML elements">Edit</a>
+							  </td>
+							</tr>
+							{sectionelse}
+							<tr>
+							  <td colspan="5" bgcolor="{$light_color}" align="center" class="default">
+								No xsd display references could be found.
+								<input type="hidden" id="no_xsd_refs" name="no_xsd_refs" value="true">
+							  </td>
+							</tr>
+							{/section}
+							<tr>
+							  <td width="4" align="center" bgcolor="{$cell_color}">
+								<input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
+							  </td>
+							  <td colspan="5" bgcolor="{$cell_color}">
+								<input type="submit" value="Delete" class="button">
+							  </td>
+							</tr>
+							</form>
+						  </table>
+						</td>
+					  </tr>
+					</table>
+				  </td>
+				</tr>
+					</table>
+				  </td>
+				</tr>
+
+				<tr id="xsd_loop_subelement_tr" {if $info.xsdmf_html_input != 'xsd_loop_subelement'}style="display:none"{/if}>
+					<td>
+					  <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+						<tr>
+						  <td>
+							<table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+							  <form name="xsd_loop_subelement_form" method="post" action="{$smarty.server.PHP_SELF}">
+							  <input type="hidden" name="xdis_id" value="{$xdis_id}">
+							  <input type="hidden" name="xml_element" value="{$xml_element}">
+				              <input type="hidden" name="xsdsel_id" value="{$xsdsel_id}">
+							  <input type="hidden" name="form_name" value="xsdsel_main">
+							  <input type="hidden" name="xsdsel_xsdmf_id" value="{$xsdmf_id}">
+							  <input type="hidden" name="xsdsel_xdis_id" value="{$xdis_id}">
+							  {if $smarty.get.form_cat == 'edit'}
+							  <input type="hidden" name="form_cat" value="update">
+							  {else}
+							  <input type="hidden" name="form_cat" value="new">
+							  {/if}
+							  <tr>
+								<td colspan="2" class="default">
+								  <b>Manage XSD Looping Subelements</b>
+								</td>
+							  </tr>
+							  {if $result != ""}
+							  <tr>
+								<td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
+								  {if $smarty.post.form_cat == "new"}
+									{if $result == -1}
+									  An error occurred while trying to add the new xsd looping subelement.
+									{elseif $result == 1}
+									  Thank you, the xsd looping subelement was added successfully.
+									{/if}
+								  {elseif $smarty.post.form_cat == "update"}
+									{if $result == -1}
+									  An error occurred while trying to update the xsd looping subelement.
+									{elseif $result == 1}
+									  Thank you, the xsd looping subelement was updated successfully.
+									{/if}
+								  {/if}
+								</td>
+							  </tr>
+							  {/if}
+							  <tr>
+								<td width="120" bgcolor="{$cell_color}" class="default_white">
+								  <b>XSD Subelement Loop Title:</b>
+								</td>
+								<td bgcolor="{$light_color}">
+								 <input type="text" name="xsdsel_title" size="20" class="default">
+		
+								 <!-- <input type="text" name="xdis_title" size="40" class="default" value="{$info.xdis_title}"> -->
+								  {include file="error_icon.tpl.html" field="title"}
+								</td>
+							  </tr>
+							  <tr>
+								<td width="120" bgcolor="{$cell_color}" class="default_white">
+								  <b>Subelement Loop Type:</b>
+								</td>
+								<td bgcolor="{$light_color}">
+								<select class="default" name="xsdsel_type">
+								  <option value="hardset">Hardset</option>
+								  <option value="hardsetplus">Hardset Plus Unlimited</option>
+								  <option value="hardsetplusrestricted">Hardset Plus Unlimited Restricted</option>
+								  <option value="unlimited">Unlimited</option>
+								  <option value="restrictedunlimited">Restricted Unlimited</option>
+								  <option value="attributeloop">Loop on Element Attribute</option>
+								</select>
+								</td>
+							  </tr>
+							  <tr>
+								<td width="120" bgcolor="{$cell_color}" class="default_white">
+								  <b>Loop on Element Attribute XSDMF_ID:</b>
+								</td>
+								<td bgcolor="{$light_color}">
+									<select class="default" name="xsdsel_attribute_loop_xsdmf_id">
+									  <option value=0>none</option>
+									  {html_options options=$xsdmf_id_ref_list}
+									</select>
+								</td>
+							  </tr>
+							  <tr>
+								<td width="120" bgcolor="{$cell_color}" class="default_white">
+								  <b>Order:</b>
+								</td>
+								<td bgcolor="{$light_color}">
+								  <input type="text" name="xsdsel_order" size="20" class="default">
+								  {include file="error_icon.tpl.html" field="xsdsel_order"}
+								</td>
+							  </tr>
+							  <tr>
+								<td colspan="2" bgcolor="{$cell_color}" align="center">
+								  {if $smarty.get.form_cat == 'edit'}
+								  <input class="button" type="submit" value="Update XSD Looping Subelement">
+								  {else}
+								  <input class="button" type="submit" value="Add XSD Looping Subelement">
+								  {/if}
+								  <input class="button" type="reset" value="Reset">
+								</td>
+							  </tr>
+							  </form>
+							  <tr>
+								<td colspan="2" class="default">
+								  <b>Existing XSD Looping Subelements:</b>
+								</td>
+							  </tr>
+							  <tr>
+								<td colspan="2">
+								  <table border="0" width="100%" cellpadding="1" cellspacing="1">
+									<form onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
+									<input type="hidden" name="xdis_id" value="{$xdis_id}">
+									<input type="hidden" name="xml_element" value="{$xml_element}">
+						            <input type="hidden" name="xsdsel_id" value="{$xsdsel_id}">
+									<input type="hidden" name="form_name" value="xsdsel_delete">
+									<input type="hidden" name="form_cat" value="delete">
+									<input type="hidden" name="xsdsel_xsdmf_id" value="{$xsdsel_xsdmf_id}">
+									<tr>
+									  <td width="5" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
+									  <td width="50%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Title</b></td>
+									  <td width="15%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Type</b></td>
+									  <td width="15%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Order</b></td>
+									  <td width="15%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Attribute Loop Candidate</b></td>
+									</tr>
+									{section name="i" loop=$xsd_loop_subelement_list}
+									{cycle values=$cycle assign="row_color"}
+									<tr>
+									  <td width="4" nowrap bgcolor="{$row_color}" align="center">
+										<input type="checkbox" name="items[]" value="{$xsd_loop_subelement_list[i].xsdsel_id}" {if $smarty.section.i.total == 0}disabled{/if}>
+									  </td>
+									  <td width="50%" bgcolor="{$row_color}" class="default">
+										&nbsp;{$xsd_loop_subelement_list[i].xsdsel_title}
+									  </td>
+									  <td width="15%" bgcolor="{$row_color}" class="default">
+										&nbsp;{$xsd_loop_subelement_list[i].xsdsel_type}
+									  </td>
+									  <td width="15%" bgcolor="{$row_color}" class="default">
+										&nbsp;{$xsd_loop_subelement_list[i].xsdsel_order}
+									  </td>
+									  <td width="15%" bgcolor="{$row_color}" class="default">
+										&nbsp;{$xsd_loop_subelement_list[i].xsdsel_attribute_loop_xsdmf_id}
+									  </td>
+
+									</tr>
+									{sectionelse}
+									<tr>
+									  <td colspan="6" bgcolor="{$light_color}" align="center" class="default">
+										No xsd looping subelements could be found.
+										<input type="hidden" id="no_xsd_looping_subelements" name="no_xsd_looping_subelements" value="true">
+									  </td>
+									</tr>
+									{/section}
+									<tr>
+									  <td width="4" align="center" bgcolor="{$cell_color}">
+										<input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
+									  </td>
+									  <td colspan="5" bgcolor="{$cell_color}">
+										<input type="submit" value="Delete" class="button">
+									  </td>
+									</tr>
+									</form>
+								  </table>
+								</td>
+							  </tr>
+
+							</table>
+						  </td>
+					    </tr>
+
+
+					  </table>
+				    </td>
+				  </tr>
+
+			    </table>
+      {literal}
+      <script language="JavaScript">
+      <!--
+      window.onload = setXSDMatchField;
+      function setXSDMatchField()
+      {
+          var f = getForm('xsd_tree_match_form');
+          var field1 = getFormElement(f, 'field_type', 0);
+          if (field1.checked) {
+              toggleXSDMatchField(true);
+          } else {
+              toggleXSDMatchField(false);
+          }
+//          checkRequiredFields();
+      }
+      //-->
+      </script>
+      {/literal}
+
+{/if}
+{include file="footer.tpl.html"}

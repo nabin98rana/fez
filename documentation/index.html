@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//Tigris//DTD XHTML 1.0 Transitional//EN"
+"http://style.tigris.org/tigris_transitional.dtd">
+<html>
+<head>
+ <style type="text/css">
+/* <![CDATA[ */ 
+@import "templates/css/readyset.css"; 
+@import "templates/css/inst.css"; 
+/*  ]]> */
+ </style>
+  <link rel="stylesheet" type="text/css" href="http://www.tigris.org/branding/css/print.css" media="print" />
+
+ <title>eSpace: Project Overview</title>
+
+</head>
+
+<body>
+ <h2>eSpace: Project Overview</h2>
+
+ <div class="app">
+ <div class="readyset">
+
+
+ <h3>Mission</h3>
+
+ <div align="right" 
+  style="background-color: #ffc; padding: 1em; float: right; border:
+  #cc0 3px outset; margin: 1em; text-align: left;">
+  <a href="templates/frameset.html">Browse documentation </a></div>
+
+ <dl>
+  <dt>What problem does this project address?</dt>
+
+  <dd>The project addresses the lack of a suitable freely available and open-source web interface and workflow management system to the <a href="http://www.fedora.info/">FEDORA</a> digital repository.</dd>
+
+  <dt>What is the goal of this project?</dt>
+
+  <dd>eSpace is an open source project to produce and maintain a
+  highly flexible web interface to FEDORA for any Library or Insituition to configure and publish or archive documents of any type sustainably.</dd>
+
+ <dt>What are some key features that define the product?</dt>
+
+ <dd>
+  <ul>
+   <li>Designed around Fedora 2.0. </li>
+
+   <li>XSD based document type mapping to Webform HTML inputs for highly configurable web interface screens. </li>
+   <li>Uses simple open-source web technologies: PHP 5 &amp; MySQL 4.1 </li>
+
+   <li>LDAP (or Active Directory) Authentication and Authorisation.</li>
+   <li>Security based on eSpaceACML to describe user roles an rights on a per object basis or through parent collection or community security inheritance.</li>
+   <li>Based on Communities and Collections with object relationships mapped with RELS-EXT datastreams.</li>
+   <li>Security based at object granularity, drilled down from parent Communities and Collections.</li>
+   <li>Basic browsing and search.</li>
+   <li>Basic OAI Service Provider.</li>
+  </ul>
+ </dd>
+ <dt>What are some key features that are planned and in development for the product?</dt>
+ <dd>
+   <ul>
+     <li>Advanced Searching.</li>
+     <li>Self archival registration process for academic submission.</li>
+     <li>Peer review and Research reporting interfaces.</li>
+     <li>XSD based document workflow and document lifecycle management.</li>
+     <li>eSpace internal and Innovative Innopac Authentication and Authorisation.</li>
+     <li>Preservation Metadata.</li>
+     <li>Automatic Preservation Metadata extraction.</li>
+     <li>Automatic Archival to web-format datastream (file) conversion.</li>
+     <li>Commenting system.</li>
+     <li>Annotation system.</li>
+     <li>Statistics (eg Downloads per Author, per Community, per Collection, per Subject etc).</li>
+     <li>Federated Searching.</li>
+     <li>Federated Authentication (possible via Shibboleth).</li>
+     <li>Complex OAI Service Provider based on searches.</li>
+     <li>Controlled Vocabularies (eg the ASRC subject code classification). </li>
+     <li>Browsing by Author, Subject  etc.</li>
+   </ul>
+ </dd>
+ <dt></dt>
+ <dd>&nbsp;</dd>
+ <dt>What makes this product different from others?</dt>
+
+ <dd>This is an open source project that you are welcome to use for
+ free and help make better.  Existing freely available and open-source web interfaces to FEDORA are few and limited in functionality.</dd>
+
+ <dd>This system has been designed to be as flexible as possible. </dd>
+
+ <dd>&nbsp;</dd>
+
+ </dl>
+
+ <h3>Scope</h3>
+
+<dl>
+ <dt>What is the scope of this project?</dt>
+
+ <dd>
+  We will build templates for common software engineering documents
+  inspired by our own exprience. 
+ </dd>
+
+ <dt>What are the high-level assumptions or ground rules for the project?</dt>
+
+ <dd>
+  I assume that the user takes ultimate responsibility for the content
+  of all their actual project documents.  The templates are merely
+  starting points and low-level guidance.
+ </dd>
+
+ <dt>What are we not going to do?</dt>
+
+ <dd>
+  This project does not attempt to provide powerful tools
+  for reorganizing the templates, mapping them to a given software
+  development process, or generating templates from a underlying
+  process model.  This project does not include any application code
+  for any tools, users simply use text editors to fill in or customize
+  the templates.
+ </dd>
+
+ <dt>Is this project part of a larger effort?</dt>
+
+ <dd>
+  Yes.  It is part of the <a href="http://www.apsr.edu.au/">Australian Partnership for Sustainable Repositories</a> (APSR). eSpace is one of the deliverables of the APSR <a href="http://www.library.uq.edu.au/escholarship">eScholarship</a> testbed in the <a href="http://www.library.uq.edu.au/">University of Queensland Library</a>. </dd>
+
+</dl>
+
+
+ <h3>Status</h3>
+<dl>
+ <dt>What is the status of this project?</dt>
+ 
+ <dd>The project is currently in heavy development, although some basic functionality is complete. Development will continue through 2005 and 2006 as new releases of Fedora are released, especially Fedora 2.1. A v1.0 release with most of the above mentioned functionality is expected towards the end of 2005. </dd>
+
+ <dd>When the software is at a stage where it is ready for release it will be available for download, although CVS code snapshots will be available before official 1.0 release in the Subversion repository.</dd>
+
+ <dd>For the latest news, see the <a
+ href="http://readyset.tigris.org/servlets/ProjectNewsList">Project Announcements</a>.</dd>
+
+
+</dl>
+
+<h3>Applicability</h3>
+
+<dl>
+ <dt>Who should use this product?</dt>
+
+ <dd>eSpace is aimed at Librarys and instituitions primarily for education and archival.</dd>
+
+ <dt>How can users get started?</dt>
+ <dd>Note: Some knowledge of PHP, MySQL and webservers it necessary to setup and configure eSpace. </dd>
+</dl>
+
+<dl>
+  <dd><a href="templates/frameset.html"></a>
+    <ol>
+      <li>Setup PHP 5, MySQL on your webserver.</li>
+       <li>Download the eSpace source and unarchive</li>
+       <li>Edit the <strong>config.inc.php</strong> configuration file to suit your environment </li>
+       <li>More steps to follow... </li>
+    
+   </ol>
+   </dd>
+</dl>
+ </div> 
+</div> 
+
+</body>
+</html>

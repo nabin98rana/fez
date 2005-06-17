@@ -1,0 +1,80 @@
+
+
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  {if $benchmark_total}
+  {literal}
+  <script language="JavaScript">
+  <!--
+  function openBenchmark()
+  {
+      var f = getForm('benchmark_form');
+      var width = 500;
+      var height = 450;
+      var w_offset = 30;
+      var h_offset = 30;
+      var location = 'top=' + h_offset + ',left=' + w_offset + ',';
+      if (screen.width) {
+          location = 'top=' + h_offset + ',left=' + (screen.width - (width + w_offset)) + ',';
+      }
+      var features = 'width=' + width + ',height=' + height + ',' + location + 'resizable=yes,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
+      var benchmarkWin = window.open('', '_benchmark', features);
+      f.submit();
+      benchmarkWin.focus();
+  }
+  //-->
+  </script>
+  {/literal}
+  <form name="benchmark_form" target="_benchmark" method="post" action="{$rel_url}benchmark.php">
+  <input type="hidden" name="encoded_stats" value="{$benchmark_results}">
+  {/if}
+  <tr>
+	<td class="feedback">&nbsp;
+		
+	</td>
+    <TD class="feedback"  class=uqfooterfeedback align=right colSpan=2 height=10><A
+     class="uqfeedback" style="TEXT-DECORATION: none"
+      href="http://www.library.uq.edu.au/privacy.html">privacy</A> | <A class="uqfeedback"
+      style="TEXT-DECORATION: none"
+      href="http://www.library.uq.edu.au/webmaster.html">feedback</A>&nbsp;</TD>
+</tr>
+  <tr>
+    <td {if $benchmark_total}width="60%"{/if} valign="top" class="footer">
+      &nbsp;{$application_title} {$application_version}<br />
+      &nbsp;Copyright © 2005 <a href="http://www.library.uq.edu.au/escholarship" class="link" title="APSR eScholarship">APSR UQ eScholarship</a>.
+    {if $benchmark_total}
+	  <br />
+      &nbsp;Page generated in {$benchmark_total} seconds {if $total_queries}({$total_queries} queries){/if}    
+    {/if}
+    </td>
+	<td>
+<TABLE cellSpacing=2 cellPadding=0 width="100%" border=0>
+  <TBODY>
+  <TR>
+    <TD width="50%"></TD>
+    <TD class=uqfooter vAlign=top align=right>©2004 The University of
+      Queensland, Brisbane Australia</TD></TR>
+  <TR>
+    <TD width="50%"></TD>
+    <TD class=uqfooter vAlign=top align=right>ABN 63 942 912 684</TD></TR>
+  <TR>
+    <TD width="50%"></TD>
+    <TD class=uqfooter vAlign=top align=right>University Provider Number:
+      00025B</TD></TR>
+  <TR>
+    <TD width="50%"></TD>
+    <TD class=uqfooter vAlign=top align=right>Authorised by: University
+      Librarian</TD></TR>
+  <TR>
+    <TD width="50%"></TD>
+    <TD class=uqfooter vAlign=top align=right>Maintained by: <A
+      class=uqfooterlink href="mailto:webmaster@library.uq.edu.au">UQ
+    Library</A></TD></TR>
+  </TBODY>
+</TABLE>
+	</td>
+  </tr>
+  {if $benchmark_total}
+  </form>
+  {/if}
+</table>

@@ -1,0 +1,168 @@
+
+<script language="JavaScript">
+<!--
+//var page_url = '{$smarty.server.PHP_SELF}';
+//var current_page = {$details_info.current_page};
+//var last_page = {$details_info.last_page};
+{literal}
+function assignItems(f)
+{
+    if (!hasOneChecked(f, 'item[]')) {
+        alert('Please choose which entries to assign.');
+        return false;
+    }
+    if (f.users.options[f.users.selectedIndex].value == '') {
+        alert('Please choose the user to assign these entries to.');
+        f.users.focus();
+        selectField(f, 'users');
+        return false;
+    }
+    var features = 'width=420,height=200,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
+    var popupWin = window.open('', '_popup', features);
+    popupWin.focus();
+    f.action = 'popup.php';
+    f.target = '_popup';
+    f.submit();
+}
+function hideClosed(f)
+{
+    if (f.hide_closed.checked) {
+        window.location.href = page_url + "?" + replaceParam(window.location.href, 'hide_closed', '1');
+    } else {
+        window.location.href = page_url + "?" + replaceParam(window.location.href, 'hide_closed', '0');
+    }
+}
+function resizePager(f)
+{
+    var pagesize = f.page_size.options[f.page_size.selectedIndex].value;
+    window.location.href = page_url + "?" + replaceParam(window.location.href, 'rows', pagesize);
+}
+function checkPageField(ev)
+{
+    // check if the user is trying to submit the form by hitting <enter>
+    if (((window.event) && (window.event.keyCode == 13)) ||
+            ((ev) && (ev.which == 13))) {
+        return false;
+    }
+}
+function goPage(f, new_page)
+{
+    if ((new_page > last_page+1) || (new_page <= 0) ||
+            (new_page == current_page+1) || (!isNumberOnly(new_page))) {
+        f.page.value = current_page+1;
+        return false;
+    }
+    setPage(new_page-1);
+}
+function setPage(new_page)
+{
+    if ((new_page > last_page) || (new_page < 0) ||
+            (new_page == current_page)) {
+        return false;
+    }
+    window.location.href = page_url + "?" + replaceParam(window.location.href, 'pagerRow', new_page);
+}
+function downloadCSV()
+{
+    var f = this.document.csv_form;
+    f.submit();
+    return false;
+}
+//window.onload = disableFields;
+function disableFields()
+{
+    var f = document.details_form;
+    if (current_page == 0) {
+        f.first.disabled = true;
+        f.previous.disabled = true;
+    }
+    if ((current_page == last_page) || (last_page <= 0)) {
+        f.next.disabled = true;
+        f.last.disabled = true;
+    }
+    if ((current_page == 0) && (last_page <= 0)) {
+        f.page.disabled = true;
+        f.go.disabled = true;
+    }
+}
+//-->
+</script>
+{/literal}
+<table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+  <form name="details_form" method="post" action="{$smarty.server.PHP_SELF}">
+  <input type="hidden" name="cat" value="assign">
+  <tr>
+    <td>
+      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+
+        <tr>
+          <td align="left" class="default" nowrap colspan="2"><br /> <b>View Details: </b> {if $isEditor || $isAdministrator}<a href='update.php?pid={$pid|escape:"html"}'><img title="Edit" align="absmiddle" src="/images/edit.png" border="0"></a> {/if}<br /><br /></td>
+        </tr>
+
+		<tr>
+		  <td align="left"> 
+			<table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="1">
+				<tr>
+				  <td align="left" class="default" nowrap> <b>Parent Collections: </b></td>
+				  <td align="left" class="default" nowrap> &nbsp;
+					{section name="i" loop=$parents}
+						<a href="/list.php?collection_pid={$parents[i].pid}">{$parents[i].title}</a> &nbsp;
+					{/section}
+				  </td>
+				</tr>
+			</table><br />
+		  </td>
+		</tr>
+
+
+        {section name="i" loop=$xsd_display_fields}
+		{if $xsd_display_fields[i].xsdmf_html_input != 'static' and $xsd_display_fields[i].xsdmf_html_input != 'xsdmf_id_ref' and $xsd_display_fields[i].xsdmf_html_input != 'xsd_ref' and $xsd_display_fields[i].xsdmf_html_input != ''}
+		{assign var="temp_fld_id" value=$xsd_display_fields[i].xsdmf_id}
+		  {if $xsd_display_fields[i].xsdmf_show_in_view == 1}
+			<tr>
+			  <td align="left" class="default" width="10%"><b>{$xsd_display_fields[i].xsdmf_title}</b></td>
+			  <td align="left" class="default">{$details[$temp_fld_id]|escape:"html"}</td>
+			</tr>
+			{/if}
+		{/if}	
+        {sectionelse}
+        <tr bgcolor="gray">
+          <td colspan="13" class="default_white" align="center">
+            <b>No details could be found.</b>
+          </td>
+        </tr>
+        {/section}
+      </table>
+    </td>
+  </tr>
+  </form>
+	<tr>
+	  <td colspan="2" class="default">
+		<table border="0" cellpadding="2" cellspacing="0" width="100%"  bgcolor="#FFFFFF" >
+		  <tr>
+			<td class="default" colspan="3"><b>Attached Datastreams</b></td>
+		  </tr>
+
+		  <tr class="default_white">
+			<td bgcolor="{$cell_color}">Name</td>
+			<td bgcolor="{$cell_color}">MIMEType</td>
+			<td bgcolor="{$cell_color}">Size</td>
+		  </tr>
+
+	{section name="d" loop=$datastreams}
+		  <tr class="default">
+				{assign var="image_file_name" value=$datastreams[d].MIMEType|replace:"/":"_"|cat:".png"}
+				{assign var="image_name" value=$espace_root_dir|cat:"images/"|cat:$image_file_name} 
+				{assign var="image_file_string" value=""}
+				{fetch file=$image_name assign="image_file_string"} 
+			<td bgcolor="{$light_color}">{if $image_file_string != ""}<img align="absmiddle" src="/images/{$image_file_name}">{else}<img align="absmiddle" src="/images/default.png">{/if} <a target="_blank" href="eserv.php?pid={$pid}&dsID={$datastreams[d].ID}">{$datastreams[d].ID}</a> </td>
+			<td bgcolor="{$light_color}">{$datastreams[d].MIMEType}</td>
+			<td bgcolor="{$light_color}">{$datastreams[d].size} bytes</td>
+		  </tr>
+	{/section}
+		</table>
+	  </td>
+	</tr>			
+
+</table>
+

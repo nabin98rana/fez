@@ -1,0 +1,116 @@
+{include file="header.tpl.html"}
+<h4>Desk Enquiry Statistics {$prj_name} Team {$selected_year}</h4>
+<table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+  <tr>
+    <td>
+      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+        <tr bgcolor="{$cell_color}">
+          <td align="center" class="default_white">&nbsp;</td>
+{foreach key=display_num item=display_text from=$display_list}
+          <td align="center" class="default_white" nowrap colspan="3"><b>{$display_text}</b></td>
+{/foreach}
+          <td align="center" class="default_white" colspan="3"><b>Totals</b></td>
+		</tr>
+        <tr bgcolor="{$cell_color}">
+          <td align="center" class="default_white">&nbsp;</td>
+{foreach key=display_num item=display_text from=$display_list}
+	{section name="year_heading" loop=$year_list}
+	          <td align="center" class="default_white" nowrap><b>{$year_list[year_heading]}</b></td>
+	{/section}
+{/foreach}
+	{section name="year_heading" loop=$year_list}
+	          <td align="center" class="default_white" nowrap><b>{$year_list[year_heading]}</b></td>
+	{/section}
+			</tr>
+<!-- HERE IS THE MAIN -->
+
+	{section name="month_list_num_loop" loop=$month_list_num}
+
+        <tr bgcolor="{$cell_color}">
+          <td align="center" class="default_white">{$month_list[month_list_num_loop]}</td>
+		{foreach key=display_num item=display_text from=$display_list}
+		  	{section name="year_heading" loop=$year_list}
+				{assign var="tempTotal" value="0"}
+				{section name="month_loop" loop=$month}
+					{if $month[month_loop][0] == $display_text && $month[month_loop][2] == $year_list[year_heading] && $month[month_loop][1] == $month_list_num[month_list_num_loop]}
+						{assign var="tempTotal" value=$month[month_loop][3]}
+					{/if}
+				{/section}
+	 		    <td class="default_white" align="center"><b>{$tempTotal}</b></td>
+			{/section}	
+		{/foreach}
+		{section name="year_heading" loop=$year_list}
+			{assign var="tempTotal" value="0"}
+			{section name="year_loop" loop=$year}
+				{if $year[year_loop][1] == $year_list[year_heading] &&  $year[year_loop][0] == $month_list_num[month_list_num_loop]}
+					{assign var="tempTotal" value=$year[year_loop][2]}
+				{/if}
+			{/section}
+			<td class="default_white" align="center"><b>{$tempTotal}</b></td>
+		{/section}	
+
+
+		</tr>
+	{/section}
+	<!-- do the totals -->
+        <tr bgcolor="{$cell_color}">
+          <td align="center" class="default_white"><b>Total</b></td>
+	{foreach key=display_num item=display_text from=$display_list}
+		{section name="year_heading" loop=$year_list}
+			{assign var="tempTotal" value="0"}
+			{section name="month_loop" loop=$month_totals}
+				{if $month_totals[month_loop][0] == $display_text && $month_totals[month_loop][1] == $year_list[year_heading]}
+					{assign var="tempTotal" value=$month_totals[month_loop][2]}
+				{/if}
+			{/section}
+			<td class="default_white" align="center"><b>{$tempTotal}</b></td>
+		{/section}	
+	{/foreach}
+	{section name="year_heading" loop=$year_list}
+		{assign var="tempTotal" value="0"}
+		{section name="month_loop" loop=$month_totals}
+			{if $year_totals[month_loop][0] == $year_list[year_heading]}
+				{assign var="tempTotal" value=$year_totals[month_loop][1]}
+			{/if}
+		{/section}
+		<td class="default_white" align="center"><b>{$tempTotal}</b></td>
+	{/section}	
+		</tr>
+	<!-- do the totals -->
+        <tr bgcolor="{$cell_color}">
+          <td align="center" class="default_white"><b>Avg per day</b></td>
+	{foreach key=display_num item=display_text from=$display_list}
+		{section name="year_heading" loop=$year_list}
+			{assign var="tempTotal" value="0.00"}
+			{section name="month_loop" loop=$month_totals}
+				{if $month_totals[month_loop][0] == $display_text && $month_totals[month_loop][1] == $year_list[year_heading]}
+					{assign var="tempTotal" value=$month_totals[month_loop][3]}
+				{/if}
+			{/section}
+			<td class="default_white" align="center"><b>{$tempTotal}</b></td>
+		{/section}	
+	{/foreach}
+	{section name="year_heading" loop=$year_list}
+		{assign var="tempTotal" value="0.00"}
+		{section name="month_loop" loop=$month_totals}
+			{if $year_totals[month_loop][0] == $year_list[year_heading]}
+				{assign var="tempTotal" value=$year_totals[month_loop][2]}
+			{/if}
+		{/section}
+		<td class="default_white" align="center"><b>{$tempTotal}</b></td>
+	{/section}	
+		</tr>
+
+
+
+
+      </table>
+
+    </td>
+  </tr>
+
+</table>
+<br />
+
+
+{include file="footer.tpl.html"}

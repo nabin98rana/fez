@@ -1,0 +1,203 @@
+/*
+ * $Id: harvester.css,v 1.5 2004/02/23 00:50:03 kevin Exp $
+ *
+ * PKP OAI Harvester
+ * Copyright (c) 2003-2004 The Public Knowledge Project
+ * http://www.pkp.ubc.ca
+ * 
+ * This file is part of the PKP OAI Harvester.
+ * 
+ * The PKP OAI Harvester is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * The PKP OAI Harvester is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with the PKP OAI Harvester; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * include/harvester.css
+ * Harvester stylesheet
+ */
+ 
+ 
+/*
+ * Generic styles
+ */
+
+html, body {
+	font-family: Verdana,Arial,Geneva,Helvetica,sans-serif;
+	font-size: 12px;
+	background: #FFFFFF;
+}
+
+input {
+	font-size: 12px;
+}
+
+textarea {
+	font-size: 12px;
+	width: 575px;
+}
+
+select {
+	font-size: 12px;
+}
+
+hr {
+	color: #666;
+	background-color: #666;
+	height: 1px;
+	border: 0;
+}
+
+
+
+/*
+ * Main page layout
+ */
+
+div.main {
+	margin-left: 10px;
+	margin-right: 10px;
+	background: #FFF;
+	border: 1px #D2D2D2 solid;
+	padding: 15px;
+	overflow: auto;
+}
+
+div.sidebar {
+	width: 225px;
+	background: #EDEDED;
+	border: 1px #666 dotted;
+	padding: 10px;
+}
+
+div.left {
+	float: left;
+	margin-right: 15px;
+}
+
+div.right {
+	float: right;
+	margin-left: 15px;
+}
+
+div.spacer {
+	font-size: 2px;
+	clear: both;
+}
+
+
+/*
+ * Text styles
+ */
+
+.title {
+	color: #183560;
+	font-weight: bold
+}
+
+span.sectionTitle {
+	color: #183560;
+	font-size: 14px;
+	font-weight: bold;
+}
+
+span.topNav {
+	color: #183560;
+	font-size: 14px;
+}
+
+a.backLink {
+	font-weight: bold;
+}
+
+a.topNav {
+	text-decoration: none;
+}
+
+a.bottomNav {
+	font-size: 10px;
+	font-weight: bold;
+}
+
+input.button {
+	font-weight: bold;
+	color: #FFF;
+	background: #183560;
+	border-top: 1px #CCC solid;
+	border-left: 1px #999 solid;
+	border-bottom: 1px #333 solid;
+	border-right: 1px #000 solid;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+
+input.button:hover {
+	border-top: 1px #333 solid;
+	border-left: 1px #000 solid;
+	border-bottom: 1px #CCC solid;
+	border-right: 1px #999 solid;
+}
+
+
+
+/*
+ * Form layout (thanks to alistapart.com)
+ */
+
+div.form {
+	width: 750px;
+	border: 1px #000 dashed;
+	background: #EEE;
+	padding: 10px;
+}
+
+div.row {
+	clear: both;
+	padding-top: 10px;
+}
+
+div.form span.formTitle {
+	color: #3C73A6;
+	font-size: 14px;
+}
+
+div.form span.formError {
+	color: #800;
+	font-weight: bold;
+}
+
+div.row span.formLabel {
+	color: #3C73A6;
+	font-weight: bold;
+	float: left;
+	width: 150px;
+	text-align: right;
+}
+
+div.row span.formLabelPlain {
+	float: left;
+	width: 150px;
+	text-align: right;
+}
+
+div.row span.formInstructions {
+	color: #000;
+	font-size: 10px;
+	font-weight: normal;
+}
+
+div.row span.formField {
+	width: 575px;
+	float: right;
+	text-align: left;
+}

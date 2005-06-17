@@ -1,0 +1,46 @@
+
+      <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+        <tr>
+          <td>
+            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+                    <form method="post" action="{$smarty.server.PHP_SELF}">
+                    <input type="hidden" name="cat" value="delete">
+                    <tr>                
+                      <td width="50%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>XSD Path</b></td>
+                      <td width="20%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>XSD Element</b></td>
+                      <td width="20%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>XSD Input Type</b></td>
+                      <td width="4" bgcolor="{$cell_color}" class="default_white" nowrap>&nbsp;<b>Is Multiple?&nbsp;</b><br /><input type="button" value="All" class="shortcut"></td>
+                      <td width="4" bgcolor="{$cell_color}" class="default_white" nowrap>&nbsp;<b>Is Used?&nbsp;</b><br /><input type="button" value="All" class="shortcut"></td>
+                    </tr>
+                    {section name="i" loop=$list}
+                    {cycle values=$cycle assign="row_color"}
+                    <tr>
+                      <td width="50%" bgcolor="{$row_color}" class="default">
+                        &nbsp;{$list[i]}
+                      </td>
+                      <td width="20%" bgcolor="{$row_color}" class="default">
+                        &nbsp;{$values[i]}
+                      </td>
+                      <td width="20%" bgcolor="{$row_color}" class="default">
+                        &nbsp;
+                      </td>
+                      <td width="4" bgcolor="{$row_color}" class="default">
+						<input type="checkbox" name="is_multiple[]" value="{$list[i]}" {if $smarty.section.i.total == 0}disabled{/if}>
+                      </td>
+                      <td width="4" bgcolor="{$row_color}" class="default">
+						<input type="checkbox" name="is_used[]" value="{$list[i]}" {if $smarty.section.i.total == 0}disabled{/if}>
+                      </td>
+                    </tr>
+                    {sectionelse}
+                    <tr>
+                      <td colspan="4" bgcolor="{$light_color}" align="center" class="default">
+                        No doc type xsds could be found.
+                      </td>
+                    </tr>
+                    {/section}
+                </form>
+            </table>
+          </td>
+        </tr>
+      </table>
+

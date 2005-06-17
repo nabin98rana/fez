@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//Tigris//DTD XHTML 1.0 Transitional//EN"
+"http://style.tigris.org/tigris_transitional.dtd">
+<html>
+<head>
+ <style type="text/css">
+/* <![CDATA[ */ 
+@import "css/readyset.css"; 
+@import "css/inst.css";
+/*  ]]> */
+ </style>
+
+<link rel="stylesheet" type="text/css" href="css/print.css" media="print" />
+ <title>Security</title>
+</head>
+
+<body>
+<div class="app">
+<div class="readyset">
+ <h2><a href="design.html">Design</a> &gt; Security</h2>
+
+ <div id="releaseinfo">
+ <h3>Release Information</h3>
+ <table border="1" cellpadding="3" cellspacing="2" class="axial">
+  <tr>
+   <th>Project:</th> 
+   <td><a href="index.html">eSpace</a></td> 
+  </tr>
+  <tr>
+   <th>Internal Release Number:</th> 
+   <td>0.1.0</td> 
+  </tr>
+  <tr>
+   <th>Related Documents:</th> 
+   <td>
+    <div>LINKS TO RELEVANT STANDARDS</div>
+    <div>LINKS TO OTHER DOCUMENTS</div>
+   </td>
+  </tr>
+ </table>
+ </div> <!-- /releaseinfo -->
+
+
+
+ <div id="overview">
+ <h3>Overview</h3>
+
+
+ <dl>
+
+  <dt>What are the most important facts that a developer should know
+  about the security of this system?</dt>
+
+  <dd>eSpace uses a highly configurable and granular method for authentication and authorisation named eSpace Access Control Markup Language (eSpaceACML). It is saved as a datastream in objects in eSpace. If an eSpace Record object does not have an eSpaceACML datastream the web application will attempt to find any parent Collection  object's eSpaceACML datastreams and use the access rules in those datastreams. If the eSpace Record has more than only parent Collection then the access logic will try and authenticate and authorise the user against each parent eSpaceACML (using boolean OR logic, not AND logic).</dd>
+  <dt>&nbsp;</dt>
+  <dt>What are the ranked goals for security in this system?</dt>
+
+  <dd>
+   <ol>
+    <li><a class="def" href="glossary-std.html#dg_data_security">Data security</a></li>
+
+    <li><a class="def" href="glossary-std.html#dg_no_intrusion">Intrusion prevention</a></li>
+
+    <li><a class="def" href="glossary-std.html#dg_no_abuse">Abuse prevention</a></li>
+
+    <li><a class="def" href="glossary-std.html#dg_auditability">Auditability</a></li>
+   </ol>
+  </dd>
+
+ </dl>
+ </div> <!-- /overview -->
+
+
+ <div id="mechanisms">
+ <h3>Security Mechanisms</h3>
+
+ <dl>
+  <dt>What physical security mechanisms will be used?</dt>
+
+  <dd class="sample1">
+   <ul>
+    <li>Servers will be kept in a locked room with door code known
+    only to administrators.</li>
+
+    <li>Servers will be kept in a locked equipment rack.</li>
+
+    <li>Server case itself has a security cable that prevents the case
+    from being opened (so the hard-disk with sensitive data cannot be
+    removed).</li>
+
+    <li>Backup tapes are stored in a locked cabinet in a locked room.</li>
+   </ul>
+  </dd>
+
+
+  <dt>What network security mechanisms will be used?</dt>
+
+  <dd class="sample1"><ul><li>Firewall software limits access to specific network ports
+    (e.g., port 80 for web server access).</li>
+    </ul>
+  </dd>
+
+
+  <dt>What operating system security will be used?</dt>
+
+  <dd class="sample1">
+   <ul>
+    <li>Operating system user accounts will never be created on the
+    servers, other than those needed by the application itself.</li>
+
+    <li>Different components in the application execute as different
+    operating system users, have only the least possible
+    privileges, and may only access the particular files needed by that
+    component.</li>
+
+    <li>Operating system permissions on files and directories are set
+    to prevent undesired access or modification.</li>
+
+    <li>Intrusion detection software will be used on the server to
+    detect any modifications made by hackers.</li>
+
+    <li>Administrators will monitor security mailing lists for
+    announcements of security holes in any components that we use and
+    security patches and upgrades will be applied quickly.</li>
+
+    <li>Data on disks and backup tapes is stored using an encrypted
+    file system so that the data is protected if the media itself is
+    stolen or somehow accessed.</li>
+   </ul>
+  </dd>
+
+  
+  <dt>What application security mechanisms will be used?</dt>
+
+  <dd class="sample1">
+   <ul>
+    <li>Access and Authorisaion to objects in eSpace is controlled by eSpace Access Control Markup Language, saved as a datastream in eSpace objects. It is highly configurable and can be set on the community, collection or as granular as the per object level. </li>
+
+    <li>Sessions are tied to a particular client IP-address so that
+      stolen cookies cannot be used.</li>
+    <li>Sessions time out so that unattended terminals cannot be
+    abused.</li>
+
+    <li>The HTML generation layer will be responsible for preventing
+    cross-site-scripting (XSS) attacks.</li>
+
+    </ul>
+  </dd>
+
+ </dl>
+ </div> <!-- /mechanisms -->
+
+
+
+ <div id="checklist">
+ <h3>Security Checklist</h3>
+
+ <dl>
+  <dt>Protection of data: To what extent has this been achieved?</dt>
+
+  <dd>All the servers in the eSpace environment are backed up to tape nightly. </dd>
+
+
+  <dt>Prevention of intrusion: To what extent has this been achieved?</dt>
+
+  <dd>The servers eSpace runs on are firewalled to allow administrator access only from certain IPs and requires an SSH Key and password. </dd>
+
+
+  <dt>Prevention of abuse: To what extent has this been achieved?</dt>
+
+  <dd>Web application security prevents access to modification of objects to select access groups based on eSpaceACML. </dd>
+
+
+  <dt>Accountability/auditing: To what extent has this been achieved?</dt>
+
+  <dd>Access and error logging on the Apache webserver is enabled so track suspicious network traffic. The eSpace inbuilt Fedora version control system will track changes to objects.</dd>
+
+
+  <dt>Have these security mechanisms been communicated to the
+  development team and other stakeholders?</dt>
+
+  <dd class="sample1">Yes, everyone understands.  Feedback is
+  welcome.</dd>
+
+  <dd class="sample1">&nbsp;</dd>
+
+
+ </dl>
+ </div> <!-- /checklist -->
+
+ 
+</div>
+
+
+
+<div class="legal1">Company Proprietary</div>
+
+<div class="footnote">
+ Copyright &#169; 2003-2004 Jason Robbins.  All rights reserved. <a href="readyset-license.html">License terms</a>.
+ Retain this copyright statement whenever this file is used as a
+ template.
+</div>
+
+</div>
+</body>
+</html>

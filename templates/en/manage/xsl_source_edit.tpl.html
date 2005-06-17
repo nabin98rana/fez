@@ -1,0 +1,78 @@
+
+      <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+        <tr>
+          <td>
+            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+
+              <form name="xsl_source_form" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
+              <input type="hidden" name="cat" value="update">
+              <input type="hidden" name="xsl_id" value="{$xsl_id}">
+              <tr>
+                <td colspan="2" class="default">
+                  <b>Edit XSL Source</b>
+                </td>
+              </tr>
+              {if $result != ""}
+              <tr>
+                <td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
+                  {if $smarty.post.cat == "new"}
+                    {if $result == -1}
+                      An error occurred while trying to add the new xsl source.
+                    {elseif $result == 1}
+                      Thank you, the xsl source was added successfully.
+                    {/if}
+                  {elseif $smarty.post.cat == "update"}
+                    {if $result == -1}
+                      An error occurred while trying to update the xsl source information.
+                    {elseif $result == 1}
+                      Thank you, the xsl source was updated successfully.
+                    {/if}
+                  {/if}
+                </td>
+              </tr>
+              {/if}
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Title:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="text" name="xsl_title" size="40" class="default" value="{$list.xsl_title}">
+                  {include file="error_icon.tpl.html" field="title"}
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Version:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="text" name="xsl_version" size="30" class="default" value="{$list.xsl_version}">
+                </td>
+              </tr>
+              <tr valign="top">
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Edit XSL Source:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <textarea name="xsl_source" rows="40" cols="100" class="default">{$list.xsl_file}</textarea>
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>or Reupload XSL Source File:</b> <br /><i>If anything is in this field it will override any changes made to the above XSL Source.</i>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input size="50" name="xsl_file[]" type="file" class="shortcut" />
+                </td>
+              </tr>
+              <tr>
+                <td colspan="2" bgcolor="{$cell_color}" align="center">
+                  <input class="button" type="submit" value="Update XSL Source">
+                  <input class="button" type="reset" value="Reset">
+                </td>
+              </tr>
+              </form>
+            </table>
+          </td>
+        </tr>
+      </table>
+

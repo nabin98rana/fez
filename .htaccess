@@ -1,0 +1,17 @@
+# START OF EXAMPLE FILE
+
+# IP-based restrictions
+Order deny,allow
+Deny  from all
+Allow from localhost 130.102.44 130.102.42 130.102.45 130.102.44.103
+
+# User-based restrictions
+#AuthExternal kerbauth
+#AuthType Basic
+#AuthName "Business Services Development Area"
+#require user uqckorte ccroy uqrwalte uqpmcder adpbeck bsohudsp bsrbrink uqrlong bsslevit
+
+# Both the IP-based and user-based restrictions must be satisfied Satisfy all
+
+# END OF EXAMPLE FILE
+

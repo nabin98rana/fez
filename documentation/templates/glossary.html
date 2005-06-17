@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//Tigris//DTD XHTML 1.0 Transitional//EN"
+"http://style.tigris.org/tigris_transitional.dtd">
+<html>
+<head>
+ <style type="text/css">
+/* <![CDATA[ */ 
+@import "css/readyset.css"; 
+@import "css/inst.css";
+/*  ]]> */
+ </style>
+
+<link rel="stylesheet" type="text/css" href="css/print.css" media="print" />
+ <title>Project terms</title>
+</head>
+
+<body>
+<div class="app">
+<div class="readyset">
+ <h2>Glossary</h2>
+
+ <div class="tabs">
+ <table border="0" cellspacing="0" cellpadding="0"><tr>
+  <th>Project terms</th>
+  <td><a href="glossary-std.html">Standard terms</a></td>
+ </tr></table>
+ </div>
+
+ <div id="processimpact">
+  <strong>Note:</strong> These eSpace specific terms are based around terms used in Fedora. If the descriptions below are not sufficient please see <a href="http://www.fedora.info/">http://www.fedora.info/</a> for more details </div> 
+ <!-- /processimpact -->
+
+ <div>Jump to: <a href="#A">A</a> | <a href="#B">B</a> | <a
+ href="#C">C</a> | <a href="#D">D</a> | <a href="#E">E</a> | <a
+ href="#F">F</a> | <a href="#G">G</a> | <a href="#H">H</a> | <a
+ href="#I">I</a> | <a href="#J">J</a> | <a href="#K">K</a> | <a
+ href="#L">L</a> | <a href="#M">M</a> | <a href="#N">N</a> | <a
+ href="#O">O</a> | <a href="#P">P</a> | <a href="#Q">Q</a> | <a
+ href="#R">R</a> | <a href="#S">S</a> | <a href="#T">T</a> | <a
+ href="#U">U</a> | <a href="#V">V</a> | <a href="#W">W</a> | <a
+ href="#X">X</a> | <a href="#Y">Y</a> | <a href="#Z">Z</a> | <a
+ href="#Other">Other</a> </div>
+
+
+
+
+ <h3>Project-specific Terms</h3>
+
+
+
+ <dl>
+
+<a name="A"></a>
+
+<a name="B"></a>
+
+
+<a name="C"></a>
+
+  <dt id="community">Collection</dt>
+
+  <dd class="sample1"><i>n.</i> An organisational grouping of objects by commonality, belonging to a parent Community (see below). Although the definition is up for interpretation as far as how the system will be used, an example for the 'UQ Library' Community would be 'Fryer Findaids' or 'University Archives'. For the 'Faculty of Behavioural Sciences' Community a collection might be 'Taxonomies of 21st Century Students' or 'Hierarchical Classes in Modern Society'. A collection can below to one or many Communities. </dd>
+
+  <dt id="community">Community</dt>
+
+  <dd class="sample1"><i>n.</i> An organisational grouping of objects by commonality. Although the definition is up for interpretation as far as how the system will be used, an example would be 'UQ Library' or 'Faculty of Behavioural Sciences' or 'Office of Research and Postgraduate Studies'. A Community can have many collections inside it. </dd>
+
+
+<a name="D"></a>
+  <dt id="datastream">Datastream</dt>
+
+  <dd class="sample1"><i>n.</i> A file or XML content attached to a Fedora object. This can be a image (a .jpg file) or a word doc (.doc) or an Acrobat PDF (.pdf) or any other kind of file. Note that Fedora (2.0) currently has an upload limit of approximately 2 gigabytes, but this can be further limited by PHP's file upload limit in php.ini. See the fedora object model documentation for further detail <a href="http://www.fedora.info/download/2.0/userdocs/digitalobjects/objectModel.html">here</a>.</dd>
+  <dt id="datastream">Disseminator</dt>
+
+  <dd class="sample1"><i>n.</i> A method of transforming a Datastream into a desired method of output. For example an image datastream might have a 'getThumbnail' disseminator which will return the image in a thumbnail size. Disseminators can also be used to transform XML via XSLT. See the fedora object model documentation for further detail <a href="http://www.fedora.info/download/2.0/userdocs/digitalobjects/objectModel.html">here</a>.</dd>
+  <dt id="dublincore">Dublin Core</dt>
+
+  <dd class="sample1"><i>n.</i> The basic metadata elements belonging to every object in eSpace/Fedora. Eg Title, Author, Publisher etc. </dd>
+
+  <a name="E"></a>
+  <dt id="datastream">eSpaceACML</dt>
+
+  <dd class="sample1"><i>n.</i> eSpace Access Control Markup Language. eSpaceACML is an XSD designed for eSpace to describe the security on objects in the system. Each Community, Collection and Record in eSpace has an eSpaceACML datastream. If a Collection or Record does not have an eSpaceACML datastream the system uses the objects parent eSpaceACML datastream to determine security rights. If the Community for a Collection or Record still does not have an eSpaceACML datastream only eSpace Administrators have any access to the object. </dd>
+
+<a name="F"></a>
+  <dt id="foxml">FOXML</dt>
+
+  <dd class="sample1"><i>n.</i> Fedora Object XML. The format that all fedora objects as stored as internally in Fedora. See the fedora object XML XSD for further detail <a href="http://www.fedora.info/definitions/1/0/foxml1-0.xsd">here</a>.</dd>
+
+
+<a name="G"></a>
+ 
+
+<a name="H"></a>
+
+<a name="I"></a>
+
+<a name="J"></a>
+
+<a name="K"></a>
+
+<a name="L"></a>
+  <dt id="ldap">LDAP</dt>
+
+  <dd class="sample1"><i>n.</i> Lightwieght Digital Authentication Protocol. A common protocol for authenticating against Organisational authentication systems eg Microsoft Windows Active Directory. </dd>
+
+  <a name="M"></a>
+
+<a name="N"></a>
+
+<a name="O"></a>
+
+<a name="P"></a>
+  <dt id="preservationmetadata">Preservation Metadata</dt>
+
+  <dd class="sample1"><i>n.</i> Metadata to describe aspects of an object to allow the object to be able to be viewed, understood and useful when the viewers for an object might not be common or even exist. For example for an Audio based object there would be preservation metadata to describe aspects of the audio such as 'bit rate', 'frequency', 'length', plus other metadata like links to software capable of playing the audio and the hardware and software requirements for the audio player. eSpace will use a tool to automatically extract most of the preservation metadata from uploaded files. Eg if a jpeg image is uploaded the automatic extraction tool will record things like 'image size', 'colour depth' etc. </dd>
+
+  <a name="Q"></a>
+
+<a name="R"></a>
+  <dt id="record">Record</dt>
+
+  <dd class="sample1"><i>n.</i> The most granular level of object in eSpace. A Record belongs to one or many Collections. An example of an object in the Community 'UQ Library' in Collection 'Digilib Photo Collection' could have the title 'St Lucia Campus Aerial shot 1972'. Each record has Dublin Core metadata that is indexed against the Fedora Resource Index. Records also have datastreams for Preservation Metadata, eSpaceACML for security and RELS-EXT to describe their relationships with other objects. They can also have datastreams of files of images, documents, audio etc. </dd>
+
+  <dt id="record">RELS-EXT</dt>
+
+  <dd class="sample1"><i>n.</i> Each Collection and Record Object in eSpace/Fedora has a RELS-EXT inline xml datastream to describe the relationships between the object and other objects. eSpace currently only uses the 'isMemberOf' attribute of the RELS-EXT XSD to show parent-child relationships. </dd>
+
+  <a name="S"></a>
+
+
+<a name="T"></a>
+
+
+
+<a name="U"></a>
+
+
+<a name="V"></a>
+
+<a name="W"></a>
+
+<a name="X"></a>
+  <dt id="xsd">XSD</dt>
+
+  <dd class="sample1"><i>n.</i> eXtenisbile Schema Definition. XSD's are like Document Type Definitions (DTD), but are expressed in XML. They are templates describing how an XML document or object based on the XSD should conform. eSpace contains XSDs for FOXML, along with FOXML extensions to describe eSpaceACML, Preservation Metadata, RELS-EXT. </dd>
+
+<a name="Y"></a>
+
+<a name="Z"></a>
+
+<a name="Other"></a>
+
+
+
+
+
+ </dl>
+
+
+ 
+
+
+
+</div>
+
+<div class="legal1">Company Proprietary</div>
+
+<div class="footnote">
+ Copyright &#169; 2003-2004 Jason Robbins.  All rights reserved. <a href="readyset-license.html">License terms</a>.
+ Retain this copyright statement whenever this file is used as a
+ template.
+</div>
+
+</div>
+</body>
+</html>

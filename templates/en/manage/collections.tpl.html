@@ -1,0 +1,142 @@
+
+      <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+        <tr>
+          <td>
+            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+              {literal}
+              <script language="JavaScript">
+              <!--
+              function validateForm(f)
+              {
+                  checkLeadSelection(f);
+                  if (isWhitespace(f.title.value)) {
+                      alert('Please enter the title of this collection.');
+                      selectField(f, 'title');
+                      return false;
+                  }
+                  if (!hasOneSelected(f, 'users[]')) {
+                      alert('Please assign the users for this collection.');
+                      selectField(f, 'users[]');
+                      return false;
+                  }
+                  if (!hasOneSelected(f, 'statuses[]')) {
+                      alert('Please assign the statuses for this collection.');
+                      selectField(f, 'statuses[]');
+                      return false;
+                  }
+                  // the selected initial status should be one of the selected assigned statuses
+                  initial_status = getSelectedOption(f, 'initial_status');
+                  assigned_statuses = getFormElement(f, 'statuses[]');
+                  var found = 0;
+                  for (var i = 0; i < assigned_statuses.options.length; i++) {
+                      if ((assigned_statuses.options[i].selected) && (initial_status == assigned_statuses.options[i].value)) {
+                          found = 1;
+                      }
+                  }
+                  if (!found) {
+                      alert('Please choose the initial status from one of the assigned statuses of this collection.');
+                      selectField(f, 'initial_status');
+                      return false;
+                  }
+                  if (isWhitespace(f.outgoing_sender_email.value)) {
+                      alert('Please enter the outgoing sender address for this collection.');
+                      selectField(f, 'outgoing_sender_email');
+                      return false;
+                  }
+                  return true;
+              }
+              function checkLeadSelection(f)
+              {
+                  var selection = f.lead_usr_id.options[f.lead_usr_id.selectedIndex].value;
+                  selectOption(f, 'users[]', selection);
+              }
+              //-->
+              </script>
+              {/literal}
+
+              <tr>
+                <td colspan="2" class="default">
+					{include file="report_form.tpl.html"}
+				</td>
+			  </tr>		
+
+              <tr>
+                <td colspan="2" class="default">
+                  <b>Existing Collections:</b>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="2">
+                  {literal}
+                  <script language="JavaScript">
+                  <!--
+                  function checkDelete(f)
+                  {
+                      var total_selected = getTotalCheckboxesChecked(f, 'items[]');
+                      var total = getTotalCheckboxes(f, 'items[]');
+                      if (total == total_selected) {
+                          alert('You cannot remove all of the collections in the system.');
+                          return false;
+                      }
+                      if (!hasOneChecked(f, 'items[]')) {
+                          alert('Please select at least one of the collections.');
+                          return false;
+                      }
+                      if (!confirm('WARNING: This action will remove the selected collections permanently.\nIt will remove all of its associated entries as well (issues, notes, attachments,\netc), so please click OK to confirm.')) {
+                          return false;
+                      } else {
+                          return true;
+                      }
+                  }
+                  //-->
+                  </script>
+                  {/literal}
+                  <table border="0" width="100%" cellpadding="1" cellspacing="1">
+                    <form onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
+                    <input type="hidden" name="cat" value="delete">
+                    <tr>
+                      <td width="4" bgcolor="{$cell_color}" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
+                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Title</b></td>
+                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Primary Collection Manager</b></td>
+                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Status</b></td>
+                      <td bgcolor="{$cell_color}" nowrap class="default_white" align="center">&nbsp;<b>Actions</b></td>
+                    </tr>
+                    {section name="i" loop=$list}
+                    {cycle values=$cycle assign="row_color"}
+                    <tr>
+                      <td width="4" align="center" nowrap bgcolor="{$row_color}"><input type="checkbox" name="items[]" value="{$list[i].prj_id}"></td>
+                      <td width="30%" bgcolor="{$row_color}" class="default">
+                        &nbsp;<a class="link" href="{$smarty.server.PHP_SELF}?cat=edit&id={$list[i].pid}" title="update this entry">{$list[i].title}</a>
+                      </td>
+                      <td width="20%" bgcolor="{$row_color}" class="default">&nbsp;{$list[i].usr_full_name}</td>
+                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].prj_status|capitalize}</td>
+                      <td width="30%" bgcolor="{$row_color}" nowrap class="default">
+                        <ul>
+                          <li><a href="{$rel_url}manage/categories.php?pid={$list[i].pid}" class="link">Edit Categories</a></li>
+                        </ul>
+                      </td>
+                    </tr>
+                    {sectionelse}
+                    <tr>
+                      <td colspan="5" bgcolor="{$light_color}" align="center" class="default">
+                        No collections could be found.
+                      </td>
+                    </tr>
+                    {/section}
+                    <tr>
+                      <td width="4" bgcolor="{$cell_color}" align="center">
+                        <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
+                      </td>
+                      <td colspan="4" bgcolor="{$cell_color}" align="center">
+                        <input type="submit" value="Delete" class="button">
+                      </td>
+                    </tr>
+                    </form>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+
