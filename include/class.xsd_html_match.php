@@ -44,7 +44,6 @@ include_once(APP_INC_PATH . "class.xsd_loop_subelement.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.auth.php");
-include_once(APP_INC_PATH . "class.history.php");
 
 class XSD_HTML_Match
 {

@@ -74,33 +74,27 @@ class Auth
      */
     function checkAuthentication($session_name, $failed_url = NULL, $is_popup = false)
     {
-        global $HTTP_SESSION_VARS, $HTTP_SERVER_VARS;
+        global $HTTP_SERVER_VARS;
+
+        session_name($session_name);
+        @session_start();
 
         if ($failed_url == NULL) {
             $failed_url = APP_RELATIVE_URL . "login.php?err=5";
         }
-        if (!isset($HTTP_SESSION_VARS[$session_name])) {
-            $failed_url .= "&url=" . Auth::getRequestedURL();
-            Auth::redirect($failed_url, $is_popup);
-        }
-        $session = $HTTP_SESSION_VARS[$session_name];
-        $session = unserialize(base64_decode($session));
-        if (!Auth::isValidSession($session)) {
+        
+        if (!Auth::isValidSession($_SESSION)) {
             Auth::removeSession($session_name);
             Auth::redirect($failed_url, $is_popup);
         }
-		if ($session['ipaddress'] != $HTTP_SERVER_VARS['REMOTE_ADDR']) {
-            Auth::removeSession($session_name);
-            Auth::redirect(APP_RELATIVE_URL . "login.php?err=20", $is_popup);
-		}
 
-/*        if (Auth::isPendingUser($session["username"])) {
+/*        if (Auth::isPendingUser($_SESSION["username"])) {
             Auth::removeSession($session_name);
-            Auth::redirect(APP_RELATIVE_URL . "login.php?err=9", $is_popup);
+            Auth::redirect($failed_url, $is_popup);
         }
-        if (!Auth::isActiveUser($session["username"])) {
+        if (!Auth::isActiveUser($_SESSION["username"])) {
             Auth::removeSession($session_name);
-            Auth::redirect(APP_RELATIVE_URL . "login.php?err=7", $is_popup);
+            Auth::redirect($failed_url, $is_popup);
         }
 */
         // check whether the collection selection is set or not
@@ -111,7 +105,7 @@ class Auth
         }
 */
         // if the current session is still valid, then renew the expiration
-        Auth::createLoginSession($session_name, $session['username'], $session['fullname'], $session['email'], $session['autologin']);
+        Auth::createLoginSession($_SESSION['username'], $_SESSION['fullname'], $_SESSION['email'], $_SESSION['autologin']);
         // renew the collection session as well
 //        $col_session = Auth::getSessionInfo(APP_COLLECTION_session);
 //        Auth::setCurrentCollection($col_id, $col_session["remember"]);
@@ -150,9 +144,15 @@ class Auth
 
 	}*/
 
-	function checkAuthorisation($pid, $xdis_id, $acceptable_roles, $failed_url) {
-		global $HTTP_SESSION_VARS;
-		session_start();
+    /**
+     * checkAuthorisation
+     * Can the current user access this page?
+     * @returns boolean true if access is ok.
+     */
+    function checkAuthorisation($pid, $xdis_id, $acceptable_roles, $failed_url) {
+        session_name(APP_SESSION);
+        @session_start();
+
 		$isAdministrator = User::isUserAdministrator(Auth::getUsername());
 		if ($isAdministrator == true) {
 			return true;
@@ -161,7 +161,7 @@ class Auth
 			return false;
 		}
 
-
+        // find out which role groups this user belongs to
 		$userPIDAuthGroups = Auth::getAuthorisationGroups($pid, $xdis_id);
 		$auth_ok = false;
 //		if $userPIDAuthGroups 
@@ -171,7 +171,8 @@ class Auth
 			}
 		}
 		if ($auth_ok != true) {
-			if (!isset($HTTP_SESSION_VARS[APP_SESSION])) {
+            // Perhaps the user hasn't logged in
+			if (!Auth::isValidSession($_SESSION)) {
 			    Auth::redirect(APP_RELATIVE_URL . "login.php?err=21&url=".$failed_url, $is_popup);
 			} else {
 				return false;	
@@ -183,10 +184,7 @@ class Auth
 	}
 
 	function getAuthorisationGroups ($pid, $xdis_id) {
-		global $HTTP_SESSION_VARS;
-		session_start();
 //		echo "PID = $pid, xdis_id = $xdis_id\n\n";
-		$info = Auth::getSessionInfo(APP_SESSION);
 		$userPIDAuthGroups = array();
 
 		$acmlBase = Record::getACML($pid, $xdis_id);
@@ -209,27 +207,32 @@ class Auth
 		$userPIDAuthGroups = $NonRestrictedRoles;
 		foreach ($ACMLArray as $acml) {
 			foreach ($acml as $role => $groups) {
-				if (in_array($role, $userPIDAuthGroups)) { // if the role is in the ACML then it is restricted so remove it
+                // if the role is in the ACML then it is restricted so remove it
+				if (in_array($role, $userPIDAuthGroups)) { 
 					$userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role);
 				}
 				foreach ($groups as $group_name => $group_values) {
 					foreach ($group_values as $group_value) {
-						// @@@ CK - Put a check in here to say if the role has already been found then don't check for it again
+						// @@@ CK - Put a check in here to say if the role has already been 
+                        // found then don't check for it again
 						if ($group_name == 'AD_Group') {
-							if (in_array($group_value, $HTTP_SESSION_VARS[APP_LDAP_GROUPS_SESSION]) && (!in_array($role, $userPIDAuthGroups)) ) {
+							if (in_array($group_value, $_SESSION['ldap_groups']) 
+                                    && (!in_array($role, $userPIDAuthGroups)) ) {
 								array_push($userPIDAuthGroups, $role);
 							}
 						} elseif ($group_name == 'in_AD') {
 //							echo "$role AD VALUE -> ".$group_value."\n\n";
-							if (($group_value == 'on') && (isset($HTTP_SESSION_VARS[APP_SESSION])) && (!in_array($role, $userPIDAuthGroups)) ) {							
+							if (($group_value == 'on') && Auth::isValidSession($_SESSION) 
+                                    && (!in_array($role, $userPIDAuthGroups)) ) {							
 								array_push($userPIDAuthGroups, $role);
 							}
-						} elseif ($group_name == 'in_eSpace') { // note used as yet..
-							if (($group_value == 'on') && (isset($HTTP_SESSION_VARS[APP_SESSION])) && (!in_array($role, $userPIDAuthGroups)) ) {							
+						} elseif ($group_name == 'in_eSpace') { // not used as yet..
+							if (($group_value == 'on') && Auth::isValidSession($_SESSION) 
+                                    && (!in_array($role, $userPIDAuthGroups)) ) {							
 								array_push($userPIDAuthGroups, $role);
 							}	
 						} elseif ($group_name == 'AD_User') {
-							if (($group_value == $info['username']) && (!in_array($role, $userPIDAuthGroups)) ) {
+							if (($group_value == $_SESSION['username']) && (!in_array($role, $userPIDAuthGroups)) ) {
 								array_push($userPIDAuthGroups, $role);
 							}	
 						} elseif ($group_name == 'eSpace_Group') { //not implemented yet
@@ -312,34 +315,12 @@ class Auth
      */
     function hasValidSession($session_name)
     {
-        global $HTTP_SESSION_VARS;
+        session_name($session_name);
+        @session_start();
 
-        $session = @$HTTP_SESSION_VARS[$session_name];
-        $session = unserialize(base64_decode($session));
-        if (!Auth::isValidSession($session)) {
-            return false;
-        } else {
-            return true;
-        }
+        return Auth::isValidSession($_SESSION);
     }
 
-
-    /**
-     * Method used to get the unserialized contents of the specified session
-     * name.
-     *
-     * @access  public
-     * @param   string $session_name The name of the session to check for
-     * @return  array The unserialized contents of the session
-     */
-    function getSessionInfo($session_name)
-    {   //var_dump($session_name);
-        global $HTTP_SESSION_VARS;
-		session_start();
-        $session = @$HTTP_SESSION_VARS[$session_name];
-//		print_r(unserialize(base64_decode($session)));
-        return unserialize(base64_decode($session));
-    }
 
 
     /**
@@ -351,8 +332,12 @@ class Auth
      */
     function isValidSession($session)
     {
-        if ((empty($session["username"])) || (empty($session["hash"])) ||
-           ($session["hash"] != md5($GLOBALS["private_key"] . md5($session["login_time"]) . $session["username"]))) {
+        global $HTTP_SERVER_VARS;
+
+        if ((empty($session["username"])) || (empty($session["hash"])) 
+                || ($session["hash"] != md5($GLOBALS["private_key"] . md5($session["login_time"]) 
+                        . $session["username"]))
+                || ($session['ipaddress'] != $HTTP_SERVER_VARS['REMOTE_ADDR'])) {
 //            echo "isvalisession about to return false";
             return false;
         } else {
@@ -372,17 +357,16 @@ class Auth
      * Method used to create the login session in the user's machine.
      *
      * @access  public
-     * @param   string $session_name The session name to be created
      * @param   string $email The email address to be stored in the session
      * @param   integer $autologin Flag to indicate whether this user should be automatically logged in or not
      * @return  void
      */
-    function createLoginSession($session_name, $username, $fullname, $email, $autologin = 0)
+    function createLoginSession($username, $fullname, $email, $autologin = 0)
     {
 		global $HTTP_SERVER_VARS;
 		$ipaddress = $HTTP_SERVER_VARS['REMOTE_ADDR'];
         $time = time();
-        $session = array(
+        $_SESSION = array(
             "username"   => $username,
             "fullname"   => $fullname,
             "email"   => $email,
@@ -391,18 +375,8 @@ class Auth
             "hash"       => md5($GLOBALS["private_key"] . md5($time) . $username),
             "autologin"  => $autologin
         );
-//		print_r($session);
-        $session = base64_encode(serialize($session));
-        Auth::setSession($session_name, $session);
     }
 
-
-
-	function setSession($session_name, $session) {
-		global $HTTP_SESSION_VARS;
-		session_start();		
-		$HTTP_SESSION_VARS[$session_name] = $session;
-	}
 
 
     /**
@@ -442,7 +416,8 @@ class Auth
     {
 		// Initialize the session.
 		// If you are using session_name("something"), don't forget it now!
-		session_start();
+        session_name($session_name);
+		@session_start();
 		
 		// Unset all of the session variables.
 		$_SESSION = array();
@@ -455,7 +430,6 @@ class Auth
 		
 		// Finally, destroy the session.
 		session_destroy();
-//        Auth::setSession($session_name, "", time()-36000, APP_RELATIVE_URL);
     }
 
 
@@ -523,11 +497,10 @@ class Auth
      */
     function getUserID()
     {
-        $info = Auth::getSessionInfo(APP_SESSION);
-        if (empty($info)) {
+        if (empty($_SESSION['username'])) {
             return '';
         } else {
-            return @User::getUserIDByUsername($info["username"]);
+            return @User::getUserIDByUsername($_SESSION["username"]);
 //            return @User::getUserIDByEmail($info["email"]);
         }
     }
@@ -541,11 +514,10 @@ class Auth
      */
     function getUsername()
     {
-        $info = Auth::getSessionInfo(APP_SESSION);
-        if (empty($info)) {
+        if (empty($_SESSION) || empty($_SESSION['username'])) {
             return '';
         } else {
-            return $info["username"];
+            return $_SESSION['username'];
         }
     }
     /**
@@ -556,11 +528,10 @@ class Auth
      */
     function getUserFullName()
     {
-        $info = Auth::getSessionInfo(APP_SESSION);
-        if (empty($info)) {
+        if (empty($_SESSION) || empty($_SESSION["fullname"])) {
             return '';
         } else {
-            return $info["fullname"];
+            return $_SESSION["fullname"];
         }
     }
     /**
@@ -571,11 +542,10 @@ class Auth
      */
     function getUserEmail()
     {
-        $info = Auth::getSessionInfo(APP_SESSION);
-        if (empty($info)) {
+        if (empty($_SESSION) || empty($_SESSION["email"])) {
             return '';
         } else {
-            return $info["email"];
+            return $_SESSION["email"];
         }
     }
 
@@ -671,7 +641,7 @@ class Auth
 //		echo "USER LDAP GROUPS -> ";
 //		print_r($usersgroups);
 //		session_start();
-		Auth::setSession(APP_LDAP_GROUPS_SESSION, $usersgroups);
+		$_SESSION['ldap_groups'] = $usersgroups;
 //		$HTTP_SESSION_VARS['ESPACE_GROUPS']['LDAP_GROUPS'] = $usersgroups;
 //		$_SESSION['ESPACE_GROUPS']['LDAP_GROUPS'] = $usersgroups; // set the session session for ldap groups
 //		print_r($HTTP_SESSION_VARS['ESPACE_GROUPS']['LDAP_GROUPS']);

@@ -54,7 +54,7 @@ class Language
      */
     function setPreference()
     {
-        global $HTTP_GET_VARS, $HTTP_SESSION_VARS, $app_lang, $avail_langs;
+        global $HTTP_GET_VARS, $app_lang, $avail_langs;
 
         @session_start();
         if (!empty($HTTP_GET_VARS["lang"])) {

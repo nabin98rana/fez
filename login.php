@@ -45,8 +45,7 @@ $tpl = new Template_API();
 $tpl->setTemplate("index.tpl.html");
 
 if (Auth::hasValidSession(APP_SESSION)) {
-    $session = Auth::getSessionInfo(APP_SESSION);
-    if ($session["autologin"]) {
+    if ($_SESSION["autologin"]) {
         if (!empty($HTTP_GET_VARS["url"])) {
             $extra = '?url=' . $HTTP_GET_VARS["url"];
         } else {

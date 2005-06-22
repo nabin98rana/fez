@@ -84,7 +84,7 @@ if (count($HTTP_POST_VARS) > 0) {
 		}
 	}
 
-	Auth::createLoginSession(APP_SESSION, $HTTP_POST_VARS["username"], $fullname, $email, $HTTP_POST_VARS["remember_login"]);
+	Auth::createLoginSession($HTTP_POST_VARS["username"], $fullname, $email, $HTTP_POST_VARS["remember_login"]);
 	
 	if (!empty($HTTP_POST_VARS["url"])) {
 	//    $extra = '?url=' . $HTTP_POST_VARS["url"];

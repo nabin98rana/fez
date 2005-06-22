@@ -43,7 +43,6 @@ include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "class.mail_queue.php");
 include_once(APP_INC_PATH . "class.user.php");
-include_once(APP_INC_PATH . "class.mime_helper.php");
 
 class Mail_API
 {
