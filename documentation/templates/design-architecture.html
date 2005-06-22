@@ -24,11 +24,11 @@
  <table border="1" cellpadding="3" cellspacing="2" class="axial">
   <tr>
    <th>Project:</th> 
-   <td><a href="index.html">PROJECTNAME</a></td> 
+   <td><a href="index.html">eSpace</a></td> 
   </tr>
   <tr>
    <th>Internal Release Number:</th> 
-   <td>X.Y.Z</td> 
+   <td>0.1.0</td> 
   </tr>
   <tr>
    <th>Related Documents:</th> 
@@ -46,10 +46,7 @@
  </table>
  </div> <!-- /releaseinfo -->
 
- <div class="todo">
-  TODO: Answer the questions below to help you define your system
-  architecture.  Some example text is provided.
- </div>
+
 
 
 
@@ -61,29 +58,14 @@
   <dt>What are the most important facts that a developer should know
   about this system architecture?</dt>
 
-  <dd>PARAGRAPH OR BULLETS</dd>
+  <dd>It is based around the same programming model as the Eventum helpdesk software, however the system data content is stored in the Fedora system instead of a purely relational database system like MySQL. Fedora itself is a middle layer between eSpace and Fedora's own relational database (which is MySQL, but could be Oracle etc). eSpace communicates with the Fedora middle layer through Fedora webservices using basic web service calls to URLs and also using SOAP communications with the PHP NuSOAP classes. </dd>
 
 
   <dt>What software architecture style is being used?</dt>
 
-  <dd class="sample1">Single-process desktop application (with plug-in extension modules).</dd>
+  <dd class="sample1">3-tier web application: webserver, app-server, database.</dd>
 
-  <dd class="sample2">Client-server with a custom thick-clients and server.</dd>
-
-  <dd class="sample3">2-tier web application: webserver/app-server, database.</dd>
-
-  <dd class="sample4">3-tier web application: webserver, app-server, database.</dd>
-
-  <dd class="sample1">Single web service: app-server, database.</dd>
-
-  <dd class="sample2">Network of web services.</dd>
-
-  <dd class="sample3">Peer-to-peer with/without central server.</dd>
-
-  <dd class="sample4">Pipe-and-filter.</dd>
-
-  <dd class="sample1">Computing grid / distributed servers.</dd>
-
+  <dd class="sample1">&nbsp;</dd>
 
   <dt>What are the ranked goals of this architecture?</dt>
 
@@ -110,29 +92,31 @@
  <dl>
   <dt>What are the components of this system?</dt>
 
-  <dd class="sample1">The components of this system are clearly defined in this <a
-  href="LINK-TO-MODEL">UML Model with Component Diagram</a>.</dd>
-
-  <dd class="sample2">
-   The components of this system are listed below by type:
-   <ul>
-    <li>Presentation/UI Components
-     <ul>
-      <li><a href="design-components.html#C-00">C-00: COMPONENTNAME</a></li>
-     </ul>
-    </li>
-    <li>Application Logic Components
-     <ul>
-      <li><a href="design-components.html#C-10">C-10: COMPONENTNAME</a></li>
-     </ul>
-    </li>
-    <li>Data Storage Components
-     <ul>
-      <li><a href="design-components.html#C-20">C-20: COMPONENTNAME</a></li>
-     </ul>
-    </li>
-   </ul>
-  </dd>
+  <dd class="sample1">The components of this system are clearly defined in this diagram: <img src="../images/eSpaceTopLevel.jpg" width="720" height="825" /></dd>
+  </dl>
+ <p>&nbsp;</p>
+ <dl>
+   <dd class="sample2">
+       The components of this system are listed below by type:
+       <ul>
+        <li>Presentation/UI/Workflow/Management Components
+          <ul>
+          <li><a href="design-components.html#C-00">C-00: eSpace Web Application</a></li>
+         </ul>
+        </li>
+        <li>Digital Object Storage Management Components
+          <ul>
+          <li><a href="design-components.html#C-10">C-10: Fedora Digital Repository </a></li>
+         </ul>
+        </li>
+        <li>Data Storage Components
+         <ul>
+          <li><a href="design-components.html#C-20">C-20: MySQL Database </a></li>
+          <li><a href="design-components.html#C-21">C-21: Storage Area Network </a></li>
+         </ul>
+        </li>
+       </ul>
+    </dd>
  </dl>
  </div> <!-- /components -->
 
@@ -144,9 +128,7 @@
  <dl>
   <dt>How will the components be deployed to processes and machines?</dt>
 
-  <dd class="sample1">The deployment of components to processes and machines is clearly defined in
-  this <a href="LINK-TO-MODEL">UML Model with Deployment
-  Diagram</a>.</dd>
+  <dd class="sample1">&nbsp;</dd>
 
   <dd class="sample2">
    The deployment of components to processes and machines is clearly defined below:
@@ -154,16 +136,23 @@
 
     <li>All-in-one server
      <ul>
-      <li>Tomcat process
-       <ul>
-        <li><a href="design-components.html#C-00">C-00: Tomcat web server</a></li>
-        <li><a href="design-components.html#C-10">C-10: PROJECTNAME application</a></li>
-       </ul>
+      <li>IIS/Apache
+PHP Service on port 80    
+        <ul>
+        <li><a href="design-components.html#C-00">C-00: eSpace Web Application</a></li>
+        </ul>
       </li>
-      <li>Database process
-       <ul>
-        <li><a href="design-components.html#C-30">C-20: COMPONENTNAME</a></li>
-       </ul>
+      <li>Fedora Tomcat Service
+on port 8080      
+        <ul>
+          <li><a href="design-components.html#C-10">C-10: Fedora Digital Repository </a></li>
+        </ul>
+      </li>
+      <li>Local Database &amp; Storage process
+          <ul>
+             <li><a href="design-components.html#C-20">C-20: MySQL Database </a></li>
+             <li><a href="design-components.html#C-21">C-21: Storage Area Network</a></li>
+           </ul>
       </li>
      </ul>
     </li>
@@ -171,73 +160,36 @@
   </dd>
 
   <dd class="sample3">
-   The deployment of components to processes and machines is clearly defined below:
-   <ul>
-
-    <li>Load-balanced front-end servers
+   The deployment of components to processes and machines is clearly defined below (This is how UQ Library has setup eSpace - recommended):
      <ul>
-      <li><a href="design-components.html#C-00">C-01: COMPONENTNAME</a></li>
+
+    <li>Load-balanced front-end IIS/Apache servers
+      <ul>
+      <li><a href="design-components.html#C-00">C-00: eSpace Web Application</a></li>
      </ul>
     </li>
-    <li>Back-end server
-     <ul>
-      <li>JVM process
-       <ul>
-        <li><a href="design-components.html#C-00">C-00: COMPONENTNAME</a></li>
-        <li><a href="design-components.html#C-10">C-10: COMPONENTNAME</a></li>
-        <li><a href="design-components.html#C-11">C-11: PLUG-IN COMPONENTNAME</a></li>
-        <li><a href="design-components.html#C-12">C-12: PLUG-IN COMPONENTNAME</a></li>
-       </ul>
-      </li>
-      <li>Database process
-       <ul>
-        <li><a href="design-components.html#C-30">C-20: COMPONENTNAME</a></li>
-       </ul>
-      </li>
-     </ul>
+    <li>Back-end Fedora Tomcat server
+      <ul>
+      <li><a href="design-components.html#C-10">C-10: Fedora Digital Repository </a></li>
+      </ul>
+    </li>
+    <li>Back-end MySQL database server
+      <ul>
+      <li><a href="design-components.html#C-20">C-20: MySQL Database </a></li>
+      </ul>
+    </li>
+    <li>Back-end SAN storage server
+      <ul>
+      <li><a href="design-components.html#C-21">C-21: Storage Area Network </a></li>
+      </ul>
     </li>
 
    </ul>
   </dd>
 
-
-  <dt>What aspects/resources of their environment are shared?</dt>
-
-  <dd class="sample1">Everything is on one server so all machine resources are shared
-  by all components.</dd>
-
-  <dd class="sample2">All machines share the same bandwidth to the Internet.  All
-  machines access the same file server.  So, if one component uses the
-  resources heavily, other components may have to wait.</dd>
-
-
-  <dt>How are requests allocated to redundant or load-balanced
-  servers?</dt>
-
-  <dd class="sample1">We are not doing any load-balancing or redundancy for
-  fail-over.</dd>
-
-  <dd class="sample2">Load-balancing among front-end servers is handled by a load
-  balancing device that we can make very few assumptions about.
-  However, once a user session is established, the same front-end
-  server will be used for all requests during that session.</dd>
-
-
-  <dt>What alternative deployment configurations are possible?</dt>
-
-  <dd class="sample1">This is the only possible deployment.</dd>
-
-  <dd class="sample2">The database could be moved to a different machine with a fairly
-  simple change to a configuration file.  Otherwise, nothing can be
-  changed about the deployment.</dd>
-
-  <dd class="sample3">We have the ability to move the database process to a separate
-  machine.  We have the ability to add more front-end servers.  The
-  application logic running on the application server cannot be split
-  or load-balanced.</dd>
-
- </dl>
- </div> <!-- /deployment -->
+  </dl>
+ </div> 
+ <!-- /deployment -->
 
 
 
@@ -276,91 +228,11 @@
   modifications can be made at the design-level, but deploying those
   changes requires recompilation and down-time.</dd>
  </dl>
- </div> <!-- /integration -->
-
-
-
- <div id="scenarios">
- <h3>Architectural Scenarios</h3>
-
- <div class="todo">
-  TODO: Provide architecture scenarios that show how objects will
-  communicate across components, processes, and machines.  Focus on
-  scenarios where the architecture itself is changing, e.g., system
-  startup, shutdown, adding or upgrading components, load balancing or
-  fail-over.
- </div>
-
- <p>The following sequence diagrams give step-by-step descriptions of
- how components communicate during some important usage
- scenarios:</p>
-
- <ul>
-  <li><a href="LINK-TO-DIAGRAM">System startup</a></li>
-  <li><a href="LINK-TO-DIAGRAM">System shutdown</a></li>
-  <li><a href="LINK-TO-DIAGRAM">SCENARIO NAME</a></li>
- </ul>
- </div> <!-- /scenarios -->
-
-
-
- <div id="checklist">
- <h3>Architecture Checklist</h3>
-
- <div class="todo">
-  TODO: Evaluate your architecture with respect to each of your goals.
- </div>
-
- <dl>
-  <dt>Ease of integration: Have mechanisms been provided for all
-  needed types of integration?</dt>
-
-  <dd class="sample1">Yes. In this system, all of the new components are designed to
-  work together.  And, the reused components are integrated via fairly
-  simple interfaces.</dd>
-
-
-  <dt>Extensibility: What types of components can be added later and
-  how?</dt>
-
-  <dd>See above.</dd>
-
-
-  <dt>Capacity matching: How has this architecture 
-  matched component resource needs to machines?</dt>
-
-  <dd class="sample1">The database can be on a machine with RAID disks and a
-  hot-swappable power supply, while the web front-end components can be
-  on cheaper machines that could fail individually without causing
-  system downtime.  The front-end web servers and application server
-  are both CPU-intensive, so they are deployed to different CPUs.  The
-  database is disk-intensive, so it can be deployed to the same
-  machine as the CPU-intensive application server, with only moderate
-  competition for resources.</dd>
-
-
-  <dt>Has the architecture been communicated to the development
-  team and other stakeholders?</dt>
-
-  <dd class="sample1">Yes, everyone understands.  Feedback is
-  welcome.</dd>
-
-  <dd class="sample1">No, this is a risk that is noted in the <a
-  href="plan.html#risks">Risk Management</a> section.</dd>
-   
- </dl>
- </div> <!-- /checklist -->
+ </div> <div id="checklist"></div> 
+ <!-- /checklist -->
 
 </div>
 
-
- <div class="todo">
-  TODO:  Check for <a
-  href="http://readyset.tigris.org/words-of-wisdom/design-architecture.html">words
-  of wisdom</a> and discuss ways to improve this template.
-  Or, evaluate the ReadySET Pro <a title="pro use case template and sample test plan"
-  href="http://www.readysetpro.com/">professional architectural design template</a>.
- </div>
 
 <div class="legal1">Company Proprietary</div>
 

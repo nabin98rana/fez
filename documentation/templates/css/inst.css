@@ -23,26 +23,25 @@ body {
 }
 
 h3, h4 {
- background-image: none;
- background: #ccc;
+ background: #ffFFFF url(none);
  color: #000;
 }
 
 h3 {
- border-left: solid 1.2em #666;
+ border-left: solid 1.2em #f00;
 }
 
 h4 {
- border-left: solid 0.7em #666;
+ border-left: solid 0.7em #f00;
 }
 
 #bodycol h3, #bodycol h4 { border: 0; }
 
-.readyset td { background: #eee !important; }
+.readyset td { background: #fff !important; }
 
 .readyset .axial td { background: #fff !important; }
 
-.readyset th { background-color: #ccc; }
+.readyset th { background-color: #ffFFFF; }
 
 body, th, td, input, select {
  font-family: Verdana, Helvetica, Arial, sans-serif;
@@ -60,23 +59,17 @@ code, pre, textarea {
 }
 
 .tip {
- background: #ffc;
- background-image: url(http://www.readysetpro.com/css/tip.gif);
- background-repeat: no-repeat;
- background-position: top left;
+ background: #FFFFCC url(tip.gif) no-repeat left top;
  border-right-color: #aaa;
  border-bottom-color: #aaa;
- padding-left: 36px;
+ padding-left: 30px;
  min-width: 30px; min-height: 30px;
  /* filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='tip.png',sizingMethod='scale'); */
 }
 
 
 .todo {
- background: #ffc;
- background-image: url(http://www.readysetpro.com/css/todo.gif);
- background-repeat: no-repeat;
- background-position: top left;
+ background: #FFFFCC url(todo.gif) no-repeat left top;
  border-right-color: #aaa;
  border-bottom-color: #aaa;
  padding-left: 36px;
@@ -89,7 +82,7 @@ code, pre, textarea {
 #processimpact {
  background: #eee;
  border-color: #aaa;
- background-image: url(http://www.readysetpro.com/css/gears.gif);
+ background-image: url(gears.gif);
  background-repeat: no-repeat;
  background-position: top left;
  padding-left: 36px;
@@ -98,7 +91,7 @@ code, pre, textarea {
 }
 
 .reusablefragment {
- background: #eee;
+ background: #efe;
  border: 2px dashed;
 }
 

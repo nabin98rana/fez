@@ -40,10 +40,8 @@
   <tr>
    <th>Related Documents:</th> 
    <td>
-    <div><a href="proposal.html">Project proposal</a> &gt;
+    <div><a href="proposal.html">Project proposal</a>,
          <a href="user-needs.html">User needs</a></div>
-    <div>LINKS TO RELEVANT STANDARDS</div>
-    <div>LINKS TO OTHER DOCUMENTS</div>
     <div><a href="glossary.html">Glossary</a></div>
    </td>
   </tr>
@@ -113,30 +111,14 @@
 
   <dt>What are the usability requirements?</dt>
 
-  <dd class="sample1">
-   <p>Our main criteria for making the system usable is the difficulty
-   of performing each high-frequency use case.  Difficulty depends on
-   the number of steps, the knowledge that the user must have at each
-   step, the decisions that the user must make at each step, and the
-   mechanics of each step (e.g., typing a book title exactly is hard,
-   clicking on a title in a list is easy).</p>
-  
-   <p>The user interface should be as familiar as possible to users
-   who have used other web applications and Windows desktop
-   applications.  E.g., we will follow the UI guidelines for naming
-   menus, buttons, and dialog boxes whenever possible.
-   </p>
+  <dd>
+   Easy to use for non-technical researchers. The interface should be intuitive and un-cluttered.</dd>
+<dd>Researchers should be able to get to their data easily and have a feeling of control over their research data
+  </dd>
+</dl>
+<dl>  <dt>What are the security requirements?</dt>
 
-   </dd>
-
-  <dd class="sample1">&nbsp;</dd>
-
-  <dd class="sample1">&nbsp;</dd>
-
-
-  <dt>What are the security requirements?</dt>
-
-  <dd class="sample1">
+  <dd>
    <p>Access will be controlled with usernames and passwords via LDAP or internally via MySQL MD5 hashes. </p>
 
    <p>Only administrator users will have access to administrative
@@ -145,23 +127,12 @@
    <p>Details:</p>
 
    <ul>
-    <li>We use encrypted communications (SSL) for this website for login screens </li>
-    </ul>
+    <li>We use encrypted communications (SSL) for this website, especially on login screens.</li>
+    <li>User data is stored in sessions, not cookies or query params.  </li>
+   </ul>
   </dd>
 
 
-  <dt>&nbsp;</dt>
-
-  <dd class="sample1">&nbsp;</dd>
-
-  <dd class="sample1">&nbsp;</dd>
-
-  <dd class="sample1">&nbsp;</dd>
-
-
-  <dt>&nbsp;</dt>
-
-  <dd class="sample1">&nbsp;</dd>
 
  </dl>
  </div> <!-- /nonfunctional -->
@@ -171,46 +142,42 @@
  <h3>Environmental Requirements</h3>
 
  <dl>
-
   <dt>What are the system hardware requirements?</dt>
 
-  <dd class="sample1">
-
-
-   <p>We recommend running Fedora on its own server as it uses its own inbuilt Tomcat webserver. You can configure Tomcat to run on the same server as Apache or IIS but it is complicated (we don't do it). You can run Fedora on Windows or Linux (we use Linux). eSpace will run on any server that supports PHP, so IIS or Apache. We run eSpace on Apache 1.3.x on Linux (a variant of Red Hat Enterprise 3). We achieve reasonably fast response times (less than a second) for our servers with Fedora and eSpace on dual Xeon 2ghz servers with 1 gig of RAM each. The MySQL database server is a similar hardware setup. </p>
-
-   </dd>
-
-
+  <dd >
+   The system must be supported by the Linux operating system - this leaves a wide array of processor
+ architectures and computer components. The system must be able to comfortably run a web server so will
+ need to be relatively modern with ample RAM, e.g. a small cluster of P4 with 1GB RAM each. 
+  </dd>
+  <dd>The biggest requirement will be for storage, enough for all the research data, which will likely 
+approach 1TB after the system has run for a couple of years. A fibre link to a SAN is the planned method. 
+In the short term, a large capacity SATA hard-disk should suffice. </dd>
+</dl>
+<dl>
   <dt>What are the system software requirements?</dt>
 
-  <dd class="sample1">
-   <p>Fedora 2.0+ must be installed on a server. Visit the Fedora website for details on how to install Fedora. </p>
-
-   <p>The eSpace PHP code must be setup on a webserver with PHP 5+. PHP 4 will not be sufficient as eSpace uses the DOMDocument object which is only in PHP 5 and upwards. MySQL 4.1+ must also be setup on a server. MySQL 4.0 or lower will not be sufficient as eSpace takes advantage of subqueries and other features that were introduced in MySQL 4.1. At UQ Library we run Fedora on its own Linux server with a samba mapped drive to a SAN (storage area network) for storage of non-xml objects like large files. We run the eSpace and the Fedora MySQL database on our central MySQL database server. The eSpace PHP code is run from a specific web application server (with Apache 1.3.x and PHP 5.0.4). </p>
+  <dd >
+   In order for material in eSpace to be as accessible as possible, thus
+     guaranteeing the widest possible research impact worldwide, all software used in
+     the project will be open source. eSpace will be a Web-accessible set
+     of databases, built upon the Linux operating system, using a mySQL database
+     with Perl and PHP as the programming languages. It will comply with a number of
+     Australian and international standards, such as the Open Archives Initiative, for
+     open access collections; enhanced Dublin Core, for metadata; the OpenURL
+     standard, for long-term linking and access; and the Australian Standard Research
+     Classification, as a subject thesaurus. The use of XML as a format for data
+     exchange will also be investigated.
   </dd>
-  <dt>&nbsp;</dt>
-  <dd class="sample1">
-    <p>&nbsp;</p>
-    <p>PHP 5 Configuration Details:</p>
-    <ul>
-          <li>The NuSOAP classes come with the eSpace code, so the 'soap' extension to PHP does not need to be installed (it hasn't even been tested with eSpace, although it may work).</li>
-          <li>The php max_file_upload parameter in php.ini should be changed to at least 12megs instead of the default 2megs for file uploads. The higher the max_file_upload parameter the bigger the size of file you can upload into eSpace.</li>
-          <li>The CURL PHP extenstion must be enabled </li>
-          <li>The DOMXML PHP extenstion must be enabled</li>
-          <li>The LDAP PHP extenstion must be enabled</li>
-          <li>The MySQL 4.1+ libraries must be compiled into PHP</li>
-          <li>The Tidy PHP extension must be enabled</li>
-          <li>Future versions of eSpace will probably require the IMAP and GD PHP extensions as well. </li>
-    </ul>
-  </dd>
-  <dd class="sample1">&nbsp;</dd>
-
-
+</dl><dl>
   <dt>What are the data import and export requirements?</dt>
 
-  <dd class="sample1">
-   <p>The objects in Fedora will be able to be accessed via the Fedora OAI-PMH Service Provider to authenticated OAI-PMH Harvesters. Objects can be imported (or ingested) into Fedora as long as they are in  FOXML or METS format XML files. Entire folders of these XML files can be ingested into Fedora through the Fedora Administrator GUI client by eSpace administrators. eSpace may have a batch import function in a future version so non-administrators can import objects this way. </p>
+  <dd >
+   <p>The objects in Fedora will be accessable via the Fedora <a href="glossary.html#oai-pmh" class="def">OAI-PMH</a> Service 
+Provider to authenticated OAI-PMH Harvesters. Objects can be imported (or ingested) into
+ Fedora as long as they are in  <a href="glossary.html#foxml" class="def">FOXML</a> or <a href="glossary.html#mets" class="def">METS</a> format XML files. Entire folders of these 
+XML files can be ingested into Fedora through the Fedora Administrator GUI client by eSpace 
+administrators. eSpace may have a batch import function in a future version so non-administrators 
+can import objects this way. </p>
 
    <p>Details:</p>
 
