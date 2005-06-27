@@ -70,8 +70,8 @@
 </div> <!-- /defaults -->
 
 
-<div id="UC-00">
-<h3>UC-00: Install eSpace </h3>
+<div id="UC-00-00">
+<h3>UC-00-00: Install eSpace </h3>
 <div>
 <table border="1" cellpadding="3" cellspacing="2"  class="axial">
  <tr>
@@ -123,8 +123,8 @@
 </div>
 </div>
 
-<div id="UC-01">
-<h3>UC-01: Add User</h3>
+<div id="UC-01-00">
+<h3>UC-01-00: Create / Modify User</h3>
 <table border="1" cellpadding="3" cellspacing="2" class="axial">
  <tr>
   <th>Summary:</th>
@@ -182,8 +182,1068 @@
  </tr>
 </table>
 </div>
-<div id="UC-00">
-<h3>UC-00: USE CASE NAME</h3>
+
+<div id="UC-01-01">
+<h3>UC-01-01: Create / Modify User Group</h3>
+<table border="1" cellpadding="3" cellspacing="2" class="axial">
+ <tr>
+  <th>Summary:</th>
+  <td>An eSpace user group can be made to provide authorisation for a group of eSpace users. The users may still be authenticated from AD. </td>
+ </tr>
+ <tr>
+  <th>Priority:</th>
+  <td>Desired</td>
+ </tr>
+ <tr>
+  <th>Use Frequency:</th>
+  <td>Sometimes</td>
+ </tr>
+ <tr>
+  <th>Direct Actors:</th>
+  <td>Administrator</td>
+ </tr>
+ <tr>
+  <th>Stakeholders:</th>
+  <td>User</td>
+ </tr>
+ <tr>
+ <th>Prereq:</th>
+  <td>
+   <div></div>
+   </td>
+ </tr>
+ <tr>
+  <th>Main Success Scenario:</th>
+  <td>
+   <ol>
+    <li>Visit the User Groups Administration page </li>
+    <li>See a user group details form to add a new user group followed by a list of existing user groups </li>
+    <li>Enter the user group details and select the users who belong in the group (from a list and/or using AD usernames) </li>
+    <li>Submit the form </li>
+    <li>See message stating success and the user group details form with pre-entered details of the new user group </li>
+   </ol>
+  </td>
+ </tr>
+ <tr>
+  <th>Alternative Scenario Extensions:</th>
+  <td>
+    <p>If the user group is already in eSpace</p>
+    <ol>
+      <li>See a message stating that the user group already exists</li>
+      <li>See the user groups details pre-entered in the user details form</li>
+      <li>Enter the new values for the user group or click new to start over </li>
+      <li>Proceed from step 4 of Main Success Scenario </li>
+    </ol>    
+    </td>
+ </tr>
+ <tr>
+  <th>Notes and Questions</th>
+  <td>&nbsp;   </td>
+ </tr>
+</table>
+</div>
+
+
+<div id="UC-01-02">
+<h3>UC-01-02: User self registration</h3>
+<table border="1" cellpadding="3" cellspacing="2" class="axial">
+ <tr>
+  <th>Summary:</th>
+  <td>Some users of eSpace may want to have an eSpace account so they can save searches they have made, comment on research and make annotations. </td>
+ </tr>
+ <tr>
+  <th>Priority:</th>
+  <td>Desired</td>
+ </tr>
+ <tr>
+  <th>Use Frequency:</th>
+  <td> Often</td>
+ </tr>
+ <tr>
+  <th>Direct Actors:</th>
+  <td>User</td>
+ </tr>
+ <tr>
+  <th>Stakeholders:</th>
+  <td>User</td>
+ </tr>
+ <tr>
+ <th>Prereq:</th>
+  <td>
+   <div>User must have an email address and pass a CAPTCHA (<i><b>c</b></i>ompletely <i><b>a</b></i>utomated <i><b>p</b></i>ublic <i><b>T</b></i>uring test to tell <i><b>c</b></i>omputers and <i><b>h</b></i>umans <i><b>a</b></i>part) challenge </div>
+   </td>
+ </tr>
+ <tr>
+  <th>Main Success Scenario:</th>
+  <td>
+   <ol>
+    <li>Visit registration page</li>
+    <li>See form requesting details and CAPTCHA challenge </li>
+    <li>Enter user details into form including the CAPTCHA, email address, username and password </li>
+    <li>Submit the form</li>
+    <li>See message advising that an email has been sent for confirmation</li>
+    <li>Receive email</li>
+    <li>See link in email to confirmation address</li>
+    <li>Visit confirmation address</li>
+    <li>See message stating success of registration   </li>
+    </ol>
+  </td>
+ </tr>
+ <tr>
+  <th>Alternative Scenario Extensions:</th>
+  <td>
+    <p>If username exists at step 4 </p>
+    
+       <ol>
+         <li>See message advising user name is already registered, please choose a different name</li>
+         <li>See link to forgotten password page </li>
+         <li>See form with pre-filled values from step 3 but with username blank </li>
+         <li>Proceed from step 3</li>
+         
+       </ol>
+     <p>If email address exists at step 4</p>
+     <ol>
+       <li>See message advising that the email address is in use</li>
+       <li>See link to forgotten password page </li>
+       <li>See form with pre-filled values from step 3 but with email blank </li>
+       <li>Proceed from step 3</li>
+       </ol>
+     <p>If the password and password confirmation don't match at step 4 </p>
+     <ol>
+       <li>See message stating that the passwords didn't match</li>
+       <li> See form with pre-filled values from step 3 but with passwords blank </li>
+       <li>Proceed from step 3</li>
+     </ol></td>
+ </tr>
+ <tr>
+  <th>Notes and Questions</th>
+  <td>
+    <p>The confirmation URL should time out after a few hours.</p>
+    <p>The eSpace user created will belong to a default set of eSpace groups </p></td>
+ </tr>
+</table>
+</div>
+
+<div id="UC-01-03">
+<h3>UC-01-03: Forgotten Password </h3>
+<table border="1" cellpadding="3" cellspacing="2" class="axial">
+ <tr>
+  <th>Summary:</th>
+  <td>When a user forgets their eSpace password, they can re-register using their ability to read their email as a security check. This only works for eSpace users - not UQ AD. </td>
+ </tr>
+ <tr>
+  <th>Priority:</th>
+  <td> Expected</td>
+ </tr>
+ <tr>
+  <th>Use Frequency:</th>
+  <td> Sometimes</td>
+ </tr>
+ <tr>
+  <th>Direct Actors:</th>
+  <td>User</td>
+ </tr>
+ <tr>
+  <th>Stakeholders:</th>
+  <td>User</td>
+ </tr>
+ <tr>
+ <th>Prereq:</th>
+  <td>
+   <div>
+     <p>User is registered with eSpace - it can't obtain their UQ AD password. </p>
+     <p>Logged out of eSpace.</p>
+   </div>
+   </td>
+ </tr>
+ <tr>
+  <th>Main Success Scenario:</th>
+  <td>
+   <ol>
+    <li>Visit Forgotten Password Page</li>
+    <li>See form requesting username or email address</li>
+    <li>Enter either or both</li>
+    <li>Submit form</li>
+    <li>See confirmation message that an email has been sent</li>
+    <li>Receive email</li>
+    <li>See link in email to eSpace password reset page (with unique id)</li>
+    <li>Visit link</li>
+    <li>See form displaying username and requesting to enter a new password</li>
+    <li>Enter password</li>
+    <li>Enter confirmation password</li>
+    <li>Submit form</li>
+    <li>See eSpace login page</li>
+    </ol>
+  </td>
+ </tr>
+ <tr>
+  <th>Alternative Scenario Extensions:</th>
+  <td>
+    <p>If at step 4, the email or username is not in the eSpace database </p>
+    
+       <ol>
+         <li>See error message advising that the account is unknown</li>
+         <li>See forgotten password page</li>
+         <li>Continue from step 2 </li>
+       </ol>
+    
+    </td>
+ </tr>
+ <tr>
+  <th>Notes and Questions:</th>
+  <td>
+    <p>&nbsp;</p>
+    </td>
+ </tr>
+</table>
+</div>
+
+
+<div id="UC-02-00">
+  <h3>UC-02-00: Configure the credentials needed to access an item</h3>
+  <table border="1" cellpadding="3" cellspacing="2" class="axial">
+    <tr>
+      <th>Summary:</th>
+      <td>All items in eSpace including collections and communities can have access restrictions. The restrictions are inherited from parent collections and communities. This is needed so that the repository can have different staff with control of different parts of the repository. </td>
+    </tr>
+    <tr>
+      <th>Priority:</th>
+      <td>Essential</td>
+    </tr>
+    <tr>
+      <th>Use Frequency:</th>
+      <td>Sometimes</td>
+    </tr>
+    <tr>
+      <th>Direct Actors:</th>
+      <td>Administrator</td>
+    </tr>
+    <tr>
+      <th>Stakeholders:</th>
+      <td>User, Collection or Community Reviewers </td>
+    </tr>
+    <tr>
+      <th>Prereq:</th>
+      <td><div>Logged in as Administrator </div>
+          </td>
+    </tr>
+    <tr>
+      <th>Main Success Scenario:</th>
+      <td><ol>
+          <li>Visit the item view page in eSpace </li>
+          <li>See the item details and an icon for editing the item </li>
+          <li>Click on the edit icon</li>
+          <li>See the form for editing the item properties</li>
+          <li>See the section for editing security properties</li>
+          <li>Enter the security restrictions - there are several categories of actions that can be performed on the object. For each of the actions, a set of credentials can be selected as to who can do the action according to user name, AD group, eSpace group etc...</li>
+          <li>Submit the form</li>
+          <li>A message advises that the permissions have been changed</li>
+          <li>See the security details with the pre-entered values that you submitted </li>
+      </ol></td>
+    </tr>
+    <tr>
+      <th>Alternative Scenario Extensions:</th>
+      <td><p>&nbsp;</p>
+          </td>
+    </tr>
+    <tr>
+      <th>Notes and Questions</th>
+      <td><p>Possible actions or roles on an item:</p>
+        <ul>
+          <li>View, List, Edit, Comment</li>
+          </ul>
+        <p>Possible credentials </p>
+        <ul>
+          <li>User in AD, user in AD group(s), user in eSpace, user in eSpace group(s)</li>
+          <li>If there are no credentials set, then the ancestor objects credentials are used</li>
+          <li>If there are no ancestor credentials, then a default set of credentials is used - set in the administrator interface </li>
+        </ul></td>
+    </tr>
+  </table>
+</div>
+
+<div id="UC-02-01">
+<h3>UC-02-01: Configure the groups a user belongs in</h3>
+<table border="1" cellpadding="3" cellspacing="2" class="axial">
+ <tr>
+  <th>Summary:</th>
+  <td>As well as creating user groups that have users in them, each user can belong to multiple groups so there is a way to map groups to a user as well (many to many) </td>
+ </tr>
+ <tr>
+  <th>Priority:</th>
+  <td>Desired</td>
+ </tr>
+ <tr>
+  <th>Use Frequency:</th>
+  <td>Sometimes</td>
+ </tr>
+ <tr>
+  <th>Direct Actors:</th>
+  <td>Administrator</td>
+ </tr>
+ <tr>
+  <th>Stakeholders:</th>
+  <td>User</td>
+ </tr>
+ <tr>
+ <th>Prereq:</th>
+  <td>
+   <div>Logged in as Administrator </div>
+   </td>
+ </tr>
+ <tr>
+  <th>Main Success Scenario:</th>
+  <td>
+   <ol>
+    <li>Visit user administration page</li>
+    <li>See blank User Details Form and list of existing users </li>
+    <li>Select user from list</li>
+    <li>See user details form with pre-entered details for the selected user </li>
+    <li>Select groups (eSpace and AD groups listed) that the user should belong to</li>
+    <li>Submit form</li>
+    <li>See message stating success</li>
+    <li>See user details form with the pre-entered details including the groups selected </li>
+    </ol>
+  </td>
+ </tr>
+ <tr>
+  <th>Alternative Scenario Extensions:</th>
+  <td>
+    <p>&nbsp;</p>
+    
+       </td>
+ </tr>
+ <tr>
+  <th>Notes and Questions</th>
+  <td>
+    <p>There will need to be a list of eSpace users but what about AD users - there are a great many AD users, perhaps this feature can only work for eSpace users.</p>
+    <p>If the eSpace user is also in the AD then you can add AD groups as well as eSpace groups, otherwise only eSpace groups can be used. </p></td>
+ </tr>
+</table>
+</div>
+
+
+<div id="UC-02-02">
+<h3>UC-02-02: Configure the default credentials for the repository </h3>
+<table border="1" cellpadding="3" cellspacing="2" class="axial">
+ <tr>
+  <th>Summary:</th>
+  <td>When an item in the repository has no ancestor credentials, a set of defaults should be used. </td>
+ </tr>
+ <tr>
+  <th>Priority:</th>
+  <td>Essential</td>
+ </tr>
+ <tr>
+  <th>Use Frequency:</th>
+  <td> Rarely</td>
+ </tr>
+ <tr>
+  <th>Direct Actors:</th>
+  <td>Administrator</td>
+ </tr>
+ <tr>
+  <th>Stakeholders:</th>
+  <td>User</td>
+ </tr>
+ <tr>
+ <th>Prereq:</th>
+  <td>
+   <div>Logged in as Administrator </div>
+   </td>
+ </tr>
+ <tr>
+  <th>Main Success Scenario:</th>
+  <td>
+   <ol>
+    <li>Visit Defaults Administration page </li>
+    <li>See filled form that shows the default values for eSpace </li>
+    <li>Enter the credentials required by default for the roles that can access the repository</li>
+    <li>Submit the form</li>
+    <li>See confirmation message</li>
+    <li>See filled form with changed values</li>
+   </ol>
+  </td>
+ </tr>
+ <tr>
+  <th>Alternative Scenario Extensions:</th>
+  <td>
+    <p>&nbsp;</p>
+    
+       </td>
+ </tr>
+ <tr>
+  <th>Notes and Questions:</th>
+  <td>
+    <p>&nbsp;</p>
+    </td>
+ </tr>
+</table>
+</div>
+
+<div id="UC-02-03">
+<h3>UC-02-03: Configure the default user details for the repository</h3>
+<table border="1" cellpadding="3" cellspacing="2" class="axial">
+ <tr>
+  <th>Summary:</th>
+  <td>When a user self registers, their initial group and maybe some other details will need to be set up as well. The Administrator will be able to control what the default group membership is. </td>
+ </tr>
+ <tr>
+  <th>Priority:</th>
+  <td> Desired</td>
+ </tr>
+ <tr>
+  <th>Use Frequency:</th>
+  <td> Rarely</td>
+ </tr>
+ <tr>
+  <th>Direct Actors:</th>
+  <td>Administrator</td>
+ </tr>
+ <tr>
+  <th>Stakeholders:</th>
+  <td>User</td>
+ </tr>
+ <tr>
+ <th>Prereq:</th>
+  <td>
+   <div>Administrator logged in </div>
+   </td>
+ </tr>
+ <tr>
+  <th>Main Success Scenario:</th>
+  <td>
+   <ol>
+    <li>Visit Defaults Administration Page </li>
+    <li>See filled form with defaults for eSpace, including user defaults </li>
+    <li>Enter desired default user options, including the default group(s)</li>
+    <li>Submit form</li>
+    <li>See confirmation message</li>
+    <li>See defaults form filled with changed values </li>
+   </ol>
+  </td>
+ </tr>
+ <tr>
+  <th>Alternative Scenario Extensions:</th>
+  <td>
+    <p>&nbsp;</p>
+    
+       </td>
+ </tr>
+ <tr>
+  <th>Notes and Questions:</th>
+  <td>
+    <p>&nbsp;</p>
+    </td>
+ </tr>
+</table>
+</div>
+
+<div id="UC-03-00">
+<h3>UC-03-00: Create / Modify Document Type XSD</h3>
+<table border="1" cellpadding="3" cellspacing="2" class="axial">
+ <tr>
+  <th>Summary:</th>
+  <td>The document type XSDs describe metadata formats that are used in eSpace. The are formats used for all items and formats used for specialised items such as audio files. </td>
+ </tr>
+ <tr>
+  <th>Priority:</th>
+  <td>Essential</td>
+ </tr>
+ <tr>
+  <th>Use Frequency:</th>
+  <td>Sometimes</td>
+ </tr>
+ <tr>
+  <th>Direct Actors:</th>
+  <td>Administrator</td>
+ </tr>
+ <tr>
+  <th>Stakeholders:</th>
+  <td>Library</td>
+ </tr>
+ <tr>
+ <th>Prereq:</th>
+  <td>
+   <div>Logged in as Administrator </div>
+   </td>
+ </tr>
+ <tr>
+  <th>Main Success Scenario:</th>
+  <td>
+   <ol>
+    <li>Visit the XSD Administration Page</li>
+    <li>See a blank form for entering a new XSD and list of the existing XSD files </li>
+    <li>Enter the new XSD metadata (name, version, root element)</li>
+    <li>Copy and paste the XSD into the text area in the form</li>
+    <li>Submit the form</li>
+    <li>See confirmation message</li>
+    <li>See filled form for the XSD just entered </li>
+    </ol>
+  </td>
+ </tr>
+ <tr>
+  <th>Alternative Scenario Extensions:</th>
+  <td>
+    <p>If Editing an exisiting XSD at step 2 </p>
+    <ol>
+      <li>Click on the name of the XSD to edit </li>
+      <li>See filled form with data for that XSD </li>
+      <li>Proceed from step 3 </li>
+    </ol>
+    <p>If XSD name already exists at step 5 </p>
+    <ol>
+         <li>See error message explaining problem </li>
+         <li>See filled form with previously entered values </li>
+         <li>Proceed from step 3 with different XSD name </li>
+       </ol>
+    
+    </td>
+ </tr>
+ <tr>
+  <th>Notes and Questions:</th>
+  <td>
+    <p>&nbsp;</p>
+    </td>
+ </tr>
+</table>
+</div>
+
+
+<div id="UC-03-01">
+<h3>UC-03-01: Create / Modify Document  Display</h3>
+<table border="1" cellpadding="3" cellspacing="2" class="axial">
+ <tr>
+  <th>Summary:</th>
+  <td>The Administrator can control how metadata is entered into forms in eSpace. XSD documents describe the metadata files. eSpace makes a mapping between the XSD files and HTML form elements such as text boxes.</td>
+ </tr>
+ <tr>
+  <th>Priority:</th>
+  <td>Essential</td>
+ </tr>
+ <tr>
+  <th>Use Frequency:</th>
+  <td>Sometimes</td>
+ </tr>
+ <tr>
+  <th>Direct Actors:</th>
+  <td>Administrator</td>
+ </tr>
+ <tr>
+  <th>Stakeholders:</th>
+  <td>Library</td>
+ </tr>
+ <tr>
+ <th>Prereq:</th>
+  <td>
+   <div>Logged in as Administrator</div>
+   </td>
+ </tr>
+ <tr>
+  <th>Main Success Scenario:</th>
+  <td>
+   <ol>
+    <li>Visit the XSD Administration Page</li>
+    <li>See a list of XSD items with links to edit the displays</li>
+    <li>Click on the link to edit the display for the XSD</li>
+    <li>See a list of displays for the XSD (in various contexts which depends on the type of record that the XSD is attached to)  </li>
+    <li>Click on the display to edit</li>
+    <li>See a tree representation of the XSD file elements</li>
+    <li>Click on an XSD element</li>
+    <li>See a form showing the way that element will be displayed (defaults to blank form)</li>
+    <li>Can still see the tree view of the XSD</li>
+    <li>Enter values to change how the form should be displayed </li>
+    <li>Submit the form</li>
+    <li>See a confirmation message</li>
+    <li>See the updated form</li>
+    </ol>
+  </td>
+ </tr>
+ <tr>
+  <th>Alternative Scenario Extensions:</th>
+  <td>
+    <p>If you need to create a new display </p>
+    
+       <ol>
+         <li>At step 4, See a form to add a new display</li>
+         <li>Enter the name of the display into the form and the version of the display</li>
+         <li>Submit the form</li>
+         <li>See a confirmation message</li>
+         <li>See the new display in the list of displays</li>
+         <li>Proceed from step 5 </li>
+       </ol>
+    
+    </td>
+ </tr>
+ <tr>
+  <th>Notes and Questions:</th>
+  <td>
+    <p>&nbsp;</p>
+    </td>
+ </tr>
+</table>
+</div>
+
+<div id="UC-03-02">
+<h3>UC-03-02: Create / Modify Adapter </h3>
+<table border="1" cellpadding="3" cellspacing="2" class="axial">
+ <tr>
+  <th>Summary:</th>
+  <td><p>An adapter is used to extract metadata from an object automatically. In eSpace, instructions for running the adapter are entered into the system along with information about the file format that it works on such as any documentation that defines it or names of organisations that provide the information. </p>
+    <p>The instructions will be used to run an external application (or call a PHP script if possible) to extract the metadata and associate it with objects as they are ingested.</p></td>
+ </tr>
+ <tr>
+  <th>Priority:</th>
+  <td> Expected</td>
+ </tr>
+ <tr>
+  <th>Use Frequency:</th>
+  <td> Sometimes </td>
+ </tr>
+ <tr>
+  <th>Direct Actors:</th>
+  <td>Administrator</td>
+ </tr>
+ <tr>
+  <th>Stakeholders:</th>
+  <td>Library, Archiver, Reviewer </td>
+ </tr>
+ <tr>
+ <th>Prereq:</th>
+  <td>
+   <div>Logged in as Administrator </div>
+   </td>
+ </tr>
+ <tr>
+  <th>Main Success Scenario:</th>
+  <td>
+   <ol>
+    <li>Visit the Adapter Administration Page</li>
+    <li>See empty form for adding new adapter</li>
+    <li>See list of existing adapters</li>
+    <li>Enter values to describe the adapter, file format and instructions for executing and mapping results to XSD for file format </li>
+    <li>Submit form</li>
+    <li>See confirmation message</li>
+    <li>See filled form</li>
+   </ol>
+  </td>
+ </tr>
+ <tr>
+  <th>Alternative Scenario Extensions:</th>
+  <td>
+    <p>If the application doesn't exist at step 5 </p>
+    
+       <ol>
+         <li>See error message but values are saved anyway </li>
+         <li>continue from step 7 </li>
+         </ol>
+    
+    </td>
+ </tr>
+ <tr>
+  <th>Notes and Questions:</th>
+  <td>
+    <p>eSpace will check that the script exists and notify user but doesn't need to take action.</p>
+    <p>What if the extraction will take a long time? Should there be the option to do it in a cron job? Same problem if the extraction can't happen on eSpace's platform, can metadata be extracted manually and submitted manually in one piece? </p></td>
+ </tr>
+</table>
+</div>
+
+
+<div id="UC-03-03">
+<h3>UC-03-03: Create / Modify Process Record</h3>
+<table border="1" cellpadding="3" cellspacing="2" class="axial">
+ <tr>
+  <th>Summary:</th>
+  <td><p>Process records are used to record any changes to the data after it has been put in the repository. Perhaps items were upgraded to a new file format or transformed in some way. The Adminsitrator will perform these operations on the items and record their actions in a process record. </p>
+    <p>The Process Records are stored as objects in the repository themselves and describe a generalised process. If all WAV files in the archive are to have their header format changed, then only one change record describing the generalised case needs to be created. </p></td>
+ </tr>
+ <tr>
+  <th>Priority:</th>
+  <td>Essential</td>
+ </tr>
+ <tr>
+  <th>Use Frequency:</th>
+  <td>Sometimes</td>
+ </tr>
+ <tr>
+  <th>Direct Actors:</th>
+  <td>Administrator</td>
+ </tr>
+ <tr>
+  <th>Stakeholders:</th>
+  <td>Library</td>
+ </tr>
+ <tr>
+ <th>Prereq:</th>
+  <td>
+   <div>Logged in as Administrator </div>
+   </td>
+ </tr>
+ <tr>
+  <th>Main Success Scenario:</th>
+  <td><ol>
+    <li>Visit the the Process Records Administration Page</li>
+    <li>See blank form to create a new process record</li>
+    <li>See list of process records</li>
+    <li>(optional) select existing process record and see filled form for the process record</li>
+    <li>Enter the values to describe the process</li>
+    <li>Attach any files or scripts that were used to make the changes</li>
+    <li>Enter the list of objects that were changed with this process (option to attach as a file)</li>
+    <li>Submit the form</li>
+    <li>See confirmation message</li>
+    <li>See filled form for process record</li>
+  </ol></td>
+ </tr>
+ <tr>
+  <th>Alternative Scenario Extensions:</th>
+  <td>
+    <p>If there are a large number of objects to be associated with the process </p>
+    
+       <ol>
+         <li>Follow steps in UC-08-06 and UC-08-07 to save a list of items and export to a file. The list could be compiled from several searches </li>
+         <li>At step 7, attach the file.</li>
+         <li>Continue from step 8 </li>
+       </ol>
+    
+    </td>
+ </tr>
+ <tr>
+  <th>Notes and Questions:</th>
+  <td>
+    <p>Unlike the adapters for extracting metadata, the process records are not automated. There is a risk that large scale automated changes within eSpace could corrupt data if the script has a bug. Changes to eSpace data will likely be performed outside of eSpace after extracting the items.</p>
+    <p>An argument for automating processes in eSpace is that we could then guarantee that eSpace has a record of what changed - because eSpace did it using the instructions in the process record, we know the process record must be complete.</p></td>
+ </tr>
+</table>
+</div>
+
+<div id="UC-04-00">
+<h3>UC-04-00: Create / Modify Community</h3>
+<table border="1" cellpadding="3" cellspacing="2" class="axial">
+ <tr>
+  <th>Summary:</th>
+  <td>The Administrator can create communities which are used to group collections of research. These communities might be by faculty or research area. </td>
+ </tr>
+ <tr>
+  <th>Priority:</th>
+  <td>Essential</td>
+ </tr>
+ <tr>
+  <th>Use Frequency:</th>
+  <td> Sometimes</td>
+ </tr>
+ <tr>
+  <th>Direct Actors:</th>
+  <td>Administrator</td>
+ </tr>
+ <tr>
+  <th>Stakeholders:</th>
+  <td>Researcher, Archiver, User </td>
+ </tr>
+ <tr>
+ <th>Prereq:</th>
+  <td>
+   <div>Logged in as Administrator </div>
+   </td>
+ </tr>
+ <tr>
+  <th>Main Success Scenario:</th>
+  <td><ol>
+    <li>Visit the Communities Administration Page</li>
+    <li>See a link  for creating a community</li>
+    <li>See a list of existing communities</li>
+    <li>Click the link to create a community or click on an existing community</li>
+    <li>See a filled form with the community details or blank form if creating a new community</li>
+    <li>Enter the values to configure the community. This includes authorisation info and other metadata. </li>
+    <li>Submit the form</li>
+    <li>See a confirmation message</li>
+    <li>See the filled form for the community</li>
+  </ol></td>
+ </tr>
+ <tr>
+  <th>Alternative Scenario Extensions:</th>
+  <td>
+    <p>&nbsp;</p>
+    
+       </td>
+ </tr>
+ <tr>
+  <th>Notes and Questions:</th>
+  <td>
+    <p>&nbsp;</p>
+    </td>
+ </tr>
+</table>
+</div>
+
+
+<div id="UC-04-01">
+<h3>UC-04-01: Create / Modify Collection</h3>
+<table border="1" cellpadding="3" cellspacing="2" class="axial">
+ <tr>
+  <th>Summary:</th>
+  <td>Collections are used to group sets of items that belong together. The collections are grouped in communities </td>
+ </tr>
+ <tr>
+  <th>Priority:</th>
+  <td>Essential</td>
+ </tr>
+ <tr>
+  <th>Use Frequency:</th>
+  <td>Sometimes</td>
+ </tr>
+ <tr>
+  <th>Direct Actors:</th>
+  <td>Administrator</td>
+ </tr>
+ <tr>
+  <th>Stakeholders:</th>
+  <td>Archiver, Researcher, User </td>
+ </tr>
+ <tr>
+ <th>Prereq:</th>
+  <td>
+   <div>Logged in as Administrator </div>
+   </td>
+ </tr>
+ <tr>
+  <th>Main Success Scenario:</th>
+  <td>
+   <ol>
+    <li>Visit the Communities Administration Page</li>
+    <li>See the list of Communities</li>
+    <li>See link to add collection for each community</li>
+    <li>Click on a community to which the collection should be added</li>
+    <li>See list of collections in the community</li>
+    <li>See link to add a new collection</li>
+    <li>Click on a collection or the link to create a collection</li>
+    <li>See a filled form with the collection details or a blank form if creating a collection</li>
+    <li>Enter the values to describe the collection - permissions and other  metadata </li>
+    <li>Submit the form</li>
+    <li>See a confirmation message</li>
+    <li>See the filled form with the entered values </li>
+   </ol>
+  </td>
+ </tr>
+ <tr>
+  <th>Alternative Scenario Extensions:</th>
+  <td>
+    <p>&nbsp;</p>
+    
+       </td>
+ </tr>
+ <tr>
+  <th>Notes and Questions:</th>
+  <td>
+    <p>&nbsp;</p>
+    </td>
+ </tr>
+</table>
+</div>
+
+
+<div id="UC-04-02">
+<h3>UC-04-02: Create / Modify Workflow Role </h3>
+<table border="1" cellpadding="3" cellspacing="2" class="axial">
+ <tr>
+  <th>Summary:</th>
+  <td><p>Workflows are used to describe how users interact with a piece of software. In this context, an eSpace workflow defines the states an item proceed through to be archived. This eSpace workflow is configurable so that it can be adapted to suit a variety of organisations.</p>
+    <p>The workflow defines a set of roles that will be associated with each object. When an object is submitted, these roles are inherited from the parent object or can be over-ridden by the archiver. </p>
+    <p>&nbsp;</p></td>
+ </tr>
+ <tr>
+  <th>Priority:</th>
+  <td> Desired</td>
+ </tr>
+ <tr>
+  <th>Use Frequency:</th>
+  <td> Sometimes</td>
+ </tr>
+ <tr>
+  <th>Direct Actors:</th>
+  <td>Administrator</td>
+ </tr>
+ <tr>
+  <th>Stakeholders:</th>
+  <td>Library, Archiver, Reviewer </td>
+ </tr>
+ <tr>
+ <th>Prereq:</th>
+  <td>
+   <div>Logged in as Administrator </div>
+ 
+   </td>
+ </tr>
+ <tr>
+  <th>Main Success Scenario:</th>
+  <td>
+   <ol>
+    <li>Visit the Workflow Administration Page</li>
+    <li>See the current workflow roles </li>
+    <li>See a button to add a role</li>
+    <li>Click to add or modify a role</li>
+    <li>See a filled form for the role or an empty form if creating a new role</li>
+    <li>Enter the values for the role - name and description</li>
+    <li>Submit the form</li>
+    <li>See a confirmation message</li>
+    <li>See the filled form for the role</li>
+    </ol>
+  </td>
+ </tr>
+ <tr>
+  <th>Alternative Scenario Extensions:</th>
+  <td>
+    <p>&nbsp;</p>
+    
+       </td>
+ </tr>
+ <tr>
+  <th>Notes and Questions:</th>
+  <td>
+    <p>&nbsp;</p>
+    </td>
+ </tr>
+</table>
+</div>
+
+
+<div id="UC-04-03">
+<h3>UC-04-03: Create / Modify Workflow State</h3>
+<table border="1" cellpadding="3" cellspacing="2" class="axial">
+ <tr>
+  <th>Summary:</th>
+  <td>The eSpace workflow  defines a network of states that the eSpace item must progress through. Each state has a set of instructions and is associated with a configured role. The state of each item is stored in it's metadata. </td>
+ </tr>
+ <tr>
+  <th>Priority:</th>
+  <td> Desired</td>
+ </tr>
+ <tr>
+  <th>Use Frequency:</th>
+  <td>Sometimes</td>
+ </tr>
+ <tr>
+  <th>Direct Actors:</th>
+  <td>Administrator</td>
+ </tr>
+ <tr>
+  <th>Stakeholders:</th>
+  <td>Library, Archiver, Reviewer </td>
+ </tr>
+ <tr>
+ <th>Prereq:</th>
+  <td>
+   <div>
+     Logged in as Administrator 
+   </div>
+   
+   </td>
+ </tr>
+ <tr>
+  <th>Main Success Scenario:</th>
+  <td>
+   <ol>
+     <li>Visit the Workflow Administration Page</li>
+     <li>See the current workflow states </li>
+     <li>Click to add or modify a state</li>
+     <li>See a filled form for the state or an empty form if creating a new state </li>
+     <li>Enter the values for the state - name, description of tasks to perform, states that lead into this state (previous states), role that this state is assigned to.</li>
+     <li>Submit the form</li>
+     <li>See confirmation message</li>
+     <li>See filled form for state</li>
+     </ol>
+  </td>
+ </tr>
+ <tr>
+  <th>Alternative Scenario Extensions:</th>
+  <td>
+    <p>If there are no roles defined, then no states can be created</p>
+    <ol>
+      <li>See message advising that states can't be created until roles are defined </li>
+      <li>See states link is disabled  </li>
+    </ol></td>
+ </tr>
+ <tr>
+  <th>Notes and Questions:</th>
+  <td>
+    <p>It will be possible to mark a Start State.</p>
+    <p>&nbsp;</p></td>
+ </tr>
+</table>
+</div>
+
+
+<div id="UC-05-00">
+<h3>UC-05-00: Login to eSpace</h3>
+<table border="1" cellpadding="3" cellspacing="2" class="axial">
+ <tr>
+  <th>Summary:</th>
+  <td>To access certain parts of eSpace, the user must log into eSpace. </td>
+ </tr>
+ <tr>
+  <th>Priority:</th>
+  <td>Essential</td>
+ </tr>
+ <tr>
+  <th>Use Frequency:</th>
+  <td> Often</td>
+ </tr>
+ <tr>
+  <th>Direct Actors:</th>
+  <td>User</td>
+ </tr>
+ <tr>
+  <th>Stakeholders:</th>
+  <td>All</td>
+ </tr>
+ <tr>
+ <th>Prereq:</th>
+  <td>
+   <div>
+     <p>Not logged into eSpace</p>
+     <p>User exists in eSpace or AD</p>
+   </div>
+   <div></div>
+   </td>
+ </tr>
+ <tr>
+  <th>Main Success Scenario:</th>
+  <td>
+   <ol>
+    <li>See eSpace page header shows user is logged out and a link to login </li>
+    <li>Visit eSpace Login Page</li>
+    <li>See form requesting username and password</li>
+    <li>Enter user name and password</li>
+    <li>See eSpace communities listing page</li>
+    <li>See page header shows user name and link to logout</li>
+   </ol>
+  </td>
+ </tr>
+ <tr>
+  <th>Alternative Scenario Extensions:</th>
+  <td>
+    <p>If username or password is invalid </p>
+    
+       <ol>
+         <li>See error message explaining username or password was incorrect</li>
+         <li>See link to forgotten password page </li>
+         <li>See login form</li>
+         <li>Contintue from step 4</li>
+         </ol>
+    
+       </td>
+ </tr>
+ <tr>
+  <th>Notes and Questions:</th>
+  <td>
+    <p>&nbsp;</p>
+    </td>
+ </tr>
+</table>
+</div>
+
+<div id="UC-00-00">
+<h3>UC-00-00: USE CASE NAME</h3>
 <table border="1" cellpadding="3" cellspacing="2" class="axial">
  <tr>
   <th>Summary:</th>
@@ -199,28 +1259,25 @@
  </tr>
  <tr>
   <th>Direct Actors:</th>
-  <td>ACTOR1, ACTOR2, ACTOR3</td>
+  <td>ACTOR1</td>
  </tr>
  <tr>
   <th>Stakeholders:</th>
-  <td>STAKEHOLDER, STAKEHOLDER, STAKEHOLDER</td>
+  <td>STAKEHOLDER</td>
  </tr>
  <tr>
  <th>Prereq:</th>
   <td>
-   <div>PRECONDITION</div>
-   <div>PRECONDITION</div>
-   <div>PRECONDITION</div>
-  </td>
+   <div>PRECONDITIONS</div>
+   <div></div>
+   </td>
  </tr>
  <tr>
   <th>Main Success Scenario:</th>
   <td>
    <ol>
     <li>STEP</li>
-    <li>STEP</li>
-    <li>STEP</li>
-   </ol>
+    </ol>
   </td>
  </tr>
  <tr>
@@ -230,18 +1287,16 @@
      </p>
     
        <ol>
-         <li>NOTES or DETAILS.</li>
+         <li>STEP.</li>
        </ol>
     
     </td>
  </tr>
  <tr>
-  <th>Notes and Questions</th>
+  <th>Notes and Questions:</th>
   <td>
-    <p>NOTE</p>
-    <p>NOTE</p>
-    <p>QUESTION</p>
-    <p>QUESTION</p></td>
+    <p>&nbsp;</p>
+    </td>
  </tr>
 </table>
 </div>
