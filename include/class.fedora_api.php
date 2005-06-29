@@ -253,8 +253,10 @@ function getITQLQuery($itql, $returnfields) {
 
 	$itql = urlencode($itql); // encode it for url parsing
 
+        // create the fedora web service URL query string to run the ITQL
 	$searchPhrase = "?type=tuples&lang=itql&format=Sparql&limit=1000&dt=on&query=".$itql;
 
+        // format the return fields URL query string
     // Should abstract the below for into a function in here
     $stringfields = array();
     for($x=0;$x<count($returnfields);$x++) {
@@ -262,55 +264,59 @@ function getITQLQuery($itql, $returnfields) {
     }
     $stringfields = join("&", $stringfields);
 
+    // do the query - we are querying the fedora web service here (need to be able to open an URL as a file)
     $filename = APP_FEDORA_RISEARCH_URL.$searchPhrase;
 //	echo $filename;
     $xml = file_get_contents($filename);
 	$xml = preg_replace("'<object uri\=\"info\:fedora\/(.*)\"\/>'", "<pid>\\1</pid>", $xml); // fix the pid tags
 
+        // The query has returned XML. Parse the xml into a DOMDocument
     $doc = DOMDocument::loadXML($xml);
-//	echo $xml;
-    $dom_array = array();
-    Misc::dom_to_simple_array($doc, $dom_array);
-//	print_r($dom_array);
 
-	// Now clean the itql sparql array into an array for smarty presentation - should put this into a reusable function
-    $resultlist = array();
-	$existing_key = false;
-    for ($x=0;$x<count($dom_array['sparql'][0]['results'][0]['result']);$x++) { // loop on the result[] array
-		$existing_key = false;
-		$res_count = count($resultlist);
-		for ($y=0;$y<$res_count;$y++) { // try and find the pid result in the resultlist			
-			if ($resultlist[$y][$returnfields[0]] == $dom_array['sparql'][0]['results'][0]['result'][$x][$returnfields[0]][0]['cdata']) { // if there already exists a result with this pid then merge them				
-				$existing_key = $y;
-				break;
-			}
-		}
-		// if you find the pid in the resultlist then check its variables against this x result set
-		if (is_numeric($existing_key) == true) {
-			$new_key = $existing_key;
-		} else {
-			$new_key = (count($resultlist));
-		}
-//		print_r($dom_array);
-		foreach ($returnfields as $rfield) {
-//			if ((empty($resultlist[$new_key][$rfield]) || ($resultlist[$new_key][$rfield] == "")) && ((!empty($dom_array['sparql'][0]['results'][0]['result'][$x][$rfield][0]["cdata"])) || ($dom_array['sparql'][0]['results'][0]['result'][$x][$rfield][0]["cdata"] != ""))  )  {
-			if ( ((!empty($dom_array['sparql'][0]['results'][0]['result'][$x][$rfield][0]["cdata"])) || ($dom_array['sparql'][0]['results'][0]['result'][$x][$rfield][0]["cdata"] != ""))  )  {				
-				if (!empty($resultlist[$new_key][$rfield]) && !is_array($resultlist[$new_key][$rfield]) && ($rfield != "pid")  && ((trim($dom_array['sparql'][0]['results'][0]['result'][$x][$rfield][0]["cdata"]) != $resultlist[$new_key][$rfield])) ) {
-					$tmp_value = $resultlist[$new_key][$rfield];
-					$resultlist[$new_key][$rfield] = array();
-					array_push($resultlist[$new_key][$rfield], trim($tmp_value));
-					array_push($resultlist[$new_key][$rfield], trim($dom_array['sparql'][0]['results'][0]['result'][$x][$rfield][0]["cdata"]));
-				} elseif (is_array($resultlist[$new_key][$rfield]) && ($rfield != "pid") && !(in_array(trim($dom_array['sparql'][0]['results'][0]['result'][$x][$rfield][0]["cdata"]), $resultlist[$new_key][$rfield])) ) {
-					array_push($resultlist[$new_key][$rfield], trim($dom_array['sparql'][0]['results'][0]['result'][$x][$rfield][0]["cdata"]));
-				} else {
-					$resultlist[$new_key][$rfield] = trim($dom_array['sparql'][0]['results'][0]['result'][$x][$rfield][0]["cdata"]);
-				}
-			}
-		} 
+        $resultlist = array();
 
-	}
+    $xpath = new DOMXPath($doc);
+    $xpath->registerNamespace('r', 'http://www.w3.org/2001/sw/DataAccess/rf1/result');
+    $resultNodeList = $xpath->query('/r:sparql/r:results/r:result');
+    // loop through results to assemble the result list array
+    foreach ($resultNodeList as $resultNode) {
+        // use first item in returnfield as key to resultlist
+        // probably the pid
+        $rkeyName = $returnfields[0];
+        $rkeyValue = $resultNode->getElementsByTagName($rkeyName)->item(0)->nodeValue;
+        $rItem = &$resultlist[$rkeyValue];
+        // pick out the result fields we are interested in
+        foreach ($returnfields as $returnField) {
+            $returnFieldNodes = $resultNode->getElementsByTagName($returnField);
+            if ($returnFieldNodes->length) {
+                $rValue = trim($returnFieldNodes->item(0)->nodeValue);
+                if (!empty($rValue)) {
+                    // Where there are multiple results in the same field, merge them
+                    if (isset($rItem[$returnField])) {
+                        if (is_array($rItem[$returnField])) {
+                            // If we already have arrayed results for this item, then just add to the array
+                            $rItem[$returnField][] = $rValue;
+                        } else {
+                            // if we don't have arrayed results already, then decide whether to make them into an array
+                            if ($rItem[$returnField] != $rValue) {
+                                // if the value isn't the same as the one there, then make an array
+                                $prevValue = $rItem[$returnField];
+                                $rItem[$returnField] = array($prevValue, $rValue);
+                            } 
+                            // else do nothing (item is the same as already found)
+                        }
+                    } else {
+                        // there is no previous value for this return field so just set it
+                        $rItem[$returnField] = $rValue;
+                    }
+                }
+            }
+        }
+    }
+    // strip the keys out
+    $resultlist = array_values($resultlist);
 
-    return ($resultlist);
+    return $resultlist;
 }
 
 
@@ -406,16 +412,24 @@ function getObjectXML($pid) {
     $filename = APP_FEDORA_SEARCH_URL."?xml=true&maxResults=1"."&".$stringfields."&".$searchPhrase;
     $xml = file_get_contents($filename);
     $doc = DOMDocument::loadXML($xml);
-    $dom_array = array();
-    Misc::dom_to_simple_array($doc, $dom_array);
-
     $resultlist = array();
-    for ($x=0;$x<count($dom_array['result'][0]['resultList'][0]['objectFields']);$x++) {
-      foreach ($returnfields as $rfield) {
-        $resultlist[$x][$rfield] = $dom_array['result'][0]['resultList'][0]['objectFields'][$x][$rfield][0]['cdata'];
-      }
+    // Find all the object Fields
+    $xpath = new DOMXPath($doc);
+    $xpath->registerNamespace('r', 'http://www.fedora.info/definitions/1/0/types/');
+    $objectFieldsNodeList = $xpath->query('/r:result/r:resultList/r:objectFields');
+    // loop through the objectFields elements
+    foreach ($objectFieldsNodeList as $objectFieldsNode) {
+        // look for the return fields and group them in an array
+        foreach ($returnfields as $rfield) {
+            $rFieldNodeList = $objectFieldsNode->getElementsByTagName($rfield);
+            if ($rFieldNodeList->length) {
+                $rItem[$rfield] = trim($rFieldNodeList->item(0)->nodeValue);
+            }
+        }
+        // add the return fields array to out list of results
+        $resultlist[] = $rItem;
     }
-    return ($resultlist);
+    return $resultlist;
 }
 
 

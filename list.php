@@ -76,16 +76,17 @@ $usr_id = Auth::getUserID();
 
 //$col_id = Auth::getCurrentCollection();
 //print_r($options);
-$options = $_REQUEST['terms'];
+$options = @$_REQUEST['terms'];
 if ($options == "") {
   $options = "*";
 }
 
-$collection_pid = @$HTTP_POST_VARS["collection_pid"] ? $HTTP_POST_VARS["collection_pid"] : $HTTP_GET_VARS["collection_pid"];	
-$community_pid = @$HTTP_POST_VARS["community_pid"] ? $HTTP_POST_VARS["community_pid"] : $HTTP_GET_VARS["community_pid"];
+$collection_pid = @$HTTP_POST_VARS["collection_pid"] ? $HTTP_POST_VARS["collection_pid"] : @$HTTP_GET_VARS["collection_pid"];	
+$community_pid = @$HTTP_POST_VARS["community_pid"] ? $HTTP_POST_VARS["community_pid"] : @$HTTP_GET_VARS["community_pid"];
 
 
 if (!empty($collection_pid)) {
+    // list a collection
 	$collection_details = Collection::getDetails($collection_pid);
 	$parents = Collection::getParents($collection_pid);
 	$tpl->assign("parents", $parents);
@@ -100,14 +101,15 @@ if (!empty($collection_pid)) {
 	$tpl->assign("list_type", "collection_records_list");
 	$tpl->assign("collection_pid", $collection_pid);
 } elseif (empty($community_pid)) {
+    // list all communities
 	$xdis_id = Community::getCommunityXDIS_ID();
 	$tpl->assign("xdis_id", $xdis_id);	
 	$list = Community::getList();
 	$tpl->assign("list_type", "community_list");
 	$tpl->assign("list_heading", "List of Communities");
 } elseif (!empty($community_pid)) {
+    // list collections in a community
 	$tpl->assign("community_pid", $community_pid);
-//	$xdis_id = Collection::getCollectionXDIS_ID();
 	$xdis_id = Collection::getCollectionXDIS_ID();
 	$community_xdis_id = Community::getCommunityXDIS_ID();
 	$userPIDAuthGroups = Auth::getAuthorisationGroups($community_pid, $community_xdis_id);
@@ -121,6 +123,7 @@ if (!empty($collection_pid)) {
 	$tpl->assign("list_heading", "List of Collections in ".$community_details[0]['title']." Community");
 	$tpl->assign("list_type", "collection_list");
 } else {
+    // UNREACHABLE!
 	$list = Record::getListing($options, 1, 100);
 	$tpl->assign("list_heading", "All Records List");
 	$tpl->assign("list_type", "all_records_list");
@@ -157,7 +160,7 @@ $tpl->assign("list", $list);
 if (Auth::userExists($username)) {
 	$prefs = Prefs::get(Auth::getUserID());
 }
-$tpl->assign("refresh_rate", $prefs['list_refresh_rate'] * 60);
+$tpl->assign("refresh_rate", @$prefs['list_refresh_rate'] * 60);
 $tpl->assign("refresh_page", "list.php");
 
 $tpl->displayTemplate();

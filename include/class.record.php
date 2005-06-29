@@ -3025,53 +3025,15 @@ LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "custom_field_option as 
 		$parents_details = Record::getParents($pid);
 
 		$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, 'eSpaceACML');
-		$xmlACML = $DSResultArray['stream'];		
+		$xmlACML = @$DSResultArray['stream'];		
 
-		$pid_acml_details = XSD_Loop_Subelement::getDatastreamTitle($xdis_id, 'eSpaceACML');
-//		print_r($pid_acml_details);
-//		echo "after";
-		$xsd_id = XSD_Display::getParentXSDID($pid_acml_details['xsdmf_xdis_id']);
-		$xsd_details = Doc_Type_XSD::getDetails($xsd_id);
-		$xsd_element_prefix = $xsd_details['xsd_element_prefix'];
-		$xsd_top_element_name = $xsd_details['xsd_top_element_name'];
-//		echo $xmlACML;
 		if ($xmlACML != "") {
-			$xmlnode = new DomDocument();
-			$xmlnode->loadXML($xmlACML);
-			$array_ptr = array();
-			$xsdmf_array = array();
-			Misc::dom_xml_to_simple_array($xmlnode, $array_ptr, $xsd_top_element_name, $xsd_element_prefix, $xsdmf_array, $xdis_id);
-//			print_r($array_ptr);
-			$acml_array = array();
-			$acml_ptr = array();
-			if (is_array($array_ptr)) {
-				// Clean the array into something usable
-				foreach ($array_ptr['eSpaceACML']['rule']['role'] as $roleTitle => $roleValue) {
-					foreach ($roleValue as $groupTitle => $groupValue) {
-						$finalRoleTitle = "";
-						$finalGroupTitle = "";
-//						echo $roleTitle."\n\n";
-						list($finalRoleTitle, $finalGroupTitle) = explode("!", substr($roleTitle, 1));
-
-						if (($finalRoleTitle != "") && ($finalGroupTitle != "") && (array_key_exists('!rule!role!'.$finalGroupTitle, $groupValue)) &&  (trim($groupValue['!rule!role!'.$finalGroupTitle] != "") )) {
-							$acml_ptr = &$acml_array[$finalRoleTitle][$finalGroupTitle];
-							if (!is_array($acml_ptr)) {
-								$acml_ptr = array();
-							}
-							array_push($acml_ptr, trim($groupValue['!rule!role!'.$finalGroupTitle]));
-						}
-					}
-				}
-			}
-			if (is_array($acml_array)) {
-				return $acml_array;
-			} else {
-				return false;
-			}
+			$xmldoc= new DomDocument();
+			$xmldoc->loadXML($xmlACML);
+            return $xmldoc;
 		} else {
 			return false;
 		}
-	
 	}
 
 

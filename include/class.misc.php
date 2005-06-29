@@ -352,16 +352,21 @@ class Misc
 
 	// @@@ CK - 20/1/2005 - Added from the PHP manual under array_filter comments. Used in newquick.php for filtering AsktIT generic usernames from Logged By list.
 	// Modified to handle associative arrays, eg replace while $i etc with foreach key => data.
-	function array_clean ($input, $delete = false, $caseSensitive = false)
+	function array_clean ($input, $delete = false, $caseSensitive = false, $matchWholeWords = false)
 	{
+        $return = array();
 		foreach ($input as $aryKey => $aryData) {
 			if($delete)	{
 				if($caseSensitive)	{
-					if(!strstr($aryData ,$delete)) {
+                    if ($matchWholeWords && $aryData != $delete) {
+						$return[$aryKey] = $aryData;
+                    } elseif(!strstr($aryData ,$delete)) {
 						$return[$aryKey] = $aryData;
 					}
 				} else {
-					if(!stristr($aryData, $delete)) {
+                    if ($matchWholeWords && strtolower($aryData) != strtolower($delete)) {
+						$return[$aryKey] = $aryData;
+                    } elseif(!stristr($aryData, $delete)) {
 						$return[$aryKey] = $aryData;
 					}
 				}
@@ -1100,7 +1105,7 @@ function dom_xml_to_simple_array($domnode, &$array, $top_element_name, $element_
 							}
 						}
 
-					} // end foreach
+					} 
 
 					if ($xsdmf_details['xsdmf_parent_key_match'] != "") {
 						$array_ptr = &$array["!".$xsdmf_details['xsdmf_parent_key_match']."!".$clean_nodeName];
@@ -1111,7 +1116,7 @@ function dom_xml_to_simple_array($domnode, &$array, $top_element_name, $element_
 					$array_ptr[$while_count][$new_element] = $domobj->nodeValue;
 
 
-				}
+				} // end foreach
 			} // replaced the else statement below because even if it has attributes we want it to check the basic element especially for xsd loop sublelement elements
 //			} else { // else for HasAttributes (so has none)
 //			echo "\n ATTRIB XSDMFID!!! -> "." $xsdmf_id"."\n\n";
@@ -1153,7 +1158,7 @@ function dom_xml_to_simple_array($domnode, &$array, $top_element_name, $element_
 							$next_array_key = 0;
 							$next_array_key = Misc::getNextArrayKey($xsdmf_ptr[$xsdmf_id]);
 							$xsdmf_ptr[$xsdmf_id][$next_array_key] = $ptr_value;
-						} elseif (array_key_exists(0, $xsdmf_ptr[$xsdmf_id])) {
+						} elseif (!empty($xsdmf_ptr[$xsdmf_id]) && array_key_exists(0, $xsdmf_ptr[$xsdmf_id])) {
 							$next_array_key = 0;
 							$next_array_key = Misc::getNextArrayKey($xsdmf_ptr[$xsdmf_id]);
 							$xsdmf_ptr[$xsdmf_id][$next_array_key] = $ptr_value;
@@ -1163,7 +1168,7 @@ function dom_xml_to_simple_array($domnode, &$array, $top_element_name, $element_
 					}
 				}
 //				print_r($xsdmf_details);
-				if ($xsdmf_details['xsdmf_parent_key_match'] != "") {
+				if (!empty($xsdmf_details['xsdmf_parent_key_match'])) {
 
 //						echo "WAKO -> "."!".$xsdmf_details['xsdmf_parent_key_match'].$clean_nodeName;
 					$array_ptr = &$array["!".$xsdmf_details['xsdmf_parent_key_match']."!".$clean_nodeName];
@@ -1171,7 +1176,7 @@ function dom_xml_to_simple_array($domnode, &$array, $top_element_name, $element_
 //					$array_ptr[$while_count]["!".$xsdmf_details['xsdmf_parent_key_match']."!".$new_element] = $domobj->nodeValue;
 				} else {
 					$array_ptr = &$array[$clean_nodeName];
-					$array_ptr[$while_count][$new_element] = $domobj->nodeValue;
+					$array_ptr[$while_count][$new_element] = $domnode->nodeValue;
 				}
 //				$array_ptr[$while_count][$new_element] = $domobj->nodeValue;
 

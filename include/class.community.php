@@ -536,8 +536,6 @@ class Community
 //			$details[$key]['isApprover'] = in_array('Approver', $rowAuthGroups); // probably not necessary at the listing stage
 		}
 		return $details;
-
-		return $details;
     }
 
 

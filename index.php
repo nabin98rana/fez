@@ -64,27 +64,7 @@ if (count($HTTP_POST_VARS) > 0) {
 
 	// redirect to the initial page
 //	Auth::createLoginSession(APP_SESSION, $HTTP_POST_VARS["username"], $HTTP_POST_VARS["remember_login"]);
-
-	if (!Auth::userExists($HTTP_POST_VARS["username"])) { // If the user isn't a registered eSpace user, get their details elsewhere
-		$userDetails = User::GetUserLDAPDetails($HTTP_POST_VARS["username"], $HTTP_POST_VARS["passwd"]);
-		$fullname = $userDetails['displayname'];
-		$email = $userDetails['email'];
-		$username = $HTTP_POST_VARS["username"];
-		Auth::GetUsersLDAPGroups($userDetails['usr_username'], $HTTP_POST_VARS["passwd"]);
-	} else { // if it is a registered eSpace user then get their details from the espace user table
-		$username = $HTTP_POST_VARS["username"];
-		$userDetails = User::getDetails($username);
-		$fullname = $userDetails['usr_full_name'];
-		$email = $userDetails['usr_email'];
-		User::updateLoginDetails(User::getUserIDByUsername($HTTP_POST_VARS["username"])); //incremement login count and last login date
-		if ($userDetails['usr_ldap_authentication'] == 1) {
-			Auth::GetUsersLDAPGroups($userDetails['usr_username'], $HTTP_POST_VARS["passwd"]);
-		} else { 
-			// get internal espace groups - yet to be programmed
-		}
-	}
-
-	Auth::createLoginSession($HTTP_POST_VARS["username"], $fullname, $email, $HTTP_POST_VARS["remember_login"]);
+    Auth::LoginAuthenticatedUser($HTTP_POST_VARS["username"], $HTTP_POST_VARS["passwd"]); 
 	
 	if (!empty($HTTP_POST_VARS["url"])) {
 	//    $extra = '?url=' . $HTTP_POST_VARS["url"];

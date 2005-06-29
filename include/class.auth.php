@@ -203,47 +203,68 @@ class Auth
 		echo "<- \n\n";   */
 //		echo "LDAP GROUPS -> ";
 //		print_r($HTTP_SESSION_VARS['ESPACE_GROUPS']['LDAP_GROUPS']);
+
+        // Usually everyone can list, view and view comments
 		$NonRestrictedRoles = array("Viewer","Lister","Comment_Viewer");
 		$userPIDAuthGroups = $NonRestrictedRoles;
-		foreach ($ACMLArray as $acml) {
-			foreach ($acml as $role => $groups) {
+        // loop through the ACML docs found for the current pid or in the eSpace ancestry
+        foreach ($ACMLArray as $acml) {
+            // Use XPath to find all the roles that have groups set and loop through them
+            $xpath = new DOMXPath($acml);
+            $roleNodes = $xpath->query('/eSpaceACML/rule/role[string-length(normalize-space(*))>0]');
+            foreach ($roleNodes as $roleNode) {
+                $role = $roleNode->getAttribute('name');
                 // if the role is in the ACML then it is restricted so remove it
-				if (in_array($role, $userPIDAuthGroups)) { 
-					$userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role);
-				}
-				foreach ($groups as $group_name => $group_values) {
-					foreach ($group_values as $group_value) {
-						// @@@ CK - Put a check in here to say if the role has already been 
+                if (in_array($role, $userPIDAuthGroups)) { 
+                    $userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role, false, true);
+                }
+                // Use XPath to get the sub groups that have values
+                $groupNodes = $xpath->query('./*[string-length(normalize-space())>0]', $roleNode); /**/
+                foreach ($groupNodes as $groupNode) {
+                    $group_type = $groupNode->nodeName;
+                    $group_values = explode(',', $groupNode->nodeValue);
+                    //echo "$role : $group_name : {$groupNode->nodeValue}<br/>\n";
+                    foreach ($group_values as $group_value) {
+                        $group_value = trim($group_value, ' ');
+                        // @@@ CK - if the role has already been 
                         // found then don't check for it again
-						if ($group_name == 'AD_Group') {
-							if (in_array($group_value, $_SESSION['ldap_groups']) 
-                                    && (!in_array($role, $userPIDAuthGroups)) ) {
-								array_push($userPIDAuthGroups, $role);
-							}
-						} elseif ($group_name == 'in_AD') {
-//							echo "$role AD VALUE -> ".$group_value."\n\n";
-							if (($group_value == 'on') && Auth::isValidSession($_SESSION) 
-                                    && (!in_array($role, $userPIDAuthGroups)) ) {							
-								array_push($userPIDAuthGroups, $role);
-							}
-						} elseif ($group_name == 'in_eSpace') { // not used as yet..
-							if (($group_value == 'on') && Auth::isValidSession($_SESSION) 
-                                    && (!in_array($role, $userPIDAuthGroups)) ) {							
-								array_push($userPIDAuthGroups, $role);
-							}	
-						} elseif ($group_name == 'AD_User') {
-							if (($group_value == $_SESSION['username']) && (!in_array($role, $userPIDAuthGroups)) ) {
-								array_push($userPIDAuthGroups, $role);
-							}	
-						} elseif ($group_name == 'eSpace_Group') { //not implemented yet
-			
-						} elseif ($group_name == 'eSpace_User') { //not implemented yet
-			
-						}
-					}
-				}				
-			}
-		}
+                        if (!in_array($role, $userPIDAuthGroups)) {
+                            switch ($group_type) {
+                                case 'AD_Group': 
+                                    if (@in_array($group_value, $_SESSION['ldap_groups'])) {
+                                        array_push($userPIDAuthGroups, $role);
+                                    }
+                                    break;
+                                case 'in_AD':
+                                    if (($group_value == 'on') && Auth::isValidSession($_SESSION)
+                                            && Auth::isInAD()) {
+                                        array_push($userPIDAuthGroups, $role);
+                                    }
+                                    break;
+                                case 'in_eSpace':
+                                    if (($group_value == 'on') && Auth::isValidSession($_SESSION) 
+                                            && Auth::isInDB()) {
+                                        array_push($userPIDAuthGroups, $role);
+                                    }	
+                                    break;
+                                case 'AD_User':
+                                    if (Auth::isValidSession($_SESSION) 
+                                            && $group_value == Auth::getUsername()) {
+                                        array_push($userPIDAuthGroups, $role);
+                                    }
+                                    break;
+                                case 'eSpace_Group':
+                                case 'eSpace_User':
+                                    //not implemented yet
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
 		return $userPIDAuthGroups;
 	}
 
@@ -708,7 +729,42 @@ class Auth
 
         }
 
+    function LoginAuthenticatedUser($username, $password) {
+        session_name(APP_SESSION);
+        @session_start();
+        if (!Auth::userExists($username)) { // If the user isn't a registered eSpace user, get their details elsewhere
+            $_SESSION['isInAD'] = true;
+            $userDetails = User::GetUserLDAPDetails($username, $password);
+            $fullname = $userDetails['displayname'];
+            $email = $userDetails['email'];
+            $username = $username;
+            Auth::GetUsersLDAPGroups($userDetails['usr_username'], $password);
+        } else { // if it is a registered eSpace user then get their details from the espace user table
+            $_SESSION['isInDB'] = true;
+            $username = $username;
+            $userDetails = User::getDetails($username);
+            $fullname = $userDetails['usr_full_name'];
+            $email = $userDetails['usr_email'];
+            User::updateLoginDetails(User::getUserIDByUsername($username)); //incremement login count and last login date
+            if ($userDetails['usr_ldap_authentication'] == 1) {
+                Auth::GetUsersLDAPGroups($userDetails['usr_username'], $password);
+            } else { 
+                // get internal espace groups - yet to be programmed
+            }
+        }
+        Auth::createLoginSession($username, $fullname, $email, $HTTP_POST_VARS["remember_login"]);
+    }
 
+
+    function isInAD()
+    {
+        return @$_SESSION['isInAD'];
+    }
+
+    function isInDB()
+    {
+        return @$_SESSION['isInDB'];
+    }
 
 
 }
