@@ -38,9 +38,6 @@
     <div><a href="proposal.html">Project proposal</a> &gt;
          <a href="user-needs.html">Use needs</a></div>
     <div><a href="feature-set.html">Feature set</a></div>
-    <div><a href="use-case-format.html">Use case format</a></div>
-    <div><a href="LINK-TO-DIAGRAM">Use case diagram</a></div>
-    
     </td>
   </tr>
  </table>
@@ -1238,6 +1235,215 @@
   <td>
     <p>&nbsp;</p>
     </td>
+ </tr>
+</table>
+</div>
+
+<div id="UC-00-00">
+<h3>UC-06-00: Insert Item (Web Upload) </h3>
+<table border="1" cellpadding="3" cellspacing="2" class="axial">
+ <tr>
+  <th>Summary:</th>
+  <td>Inserting, Ingesting, Uploading. The archiver moves items into the repository. </td>
+ </tr>
+ <tr>
+  <th>Priority:</th>
+  <td>Essential</td>
+ </tr>
+ <tr>
+  <th>Use Frequency:</th>
+  <td> Often</td>
+ </tr>
+ <tr>
+  <th>Direct Actors:</th>
+  <td>Archiver</td>
+ </tr>
+ <tr>
+  <th>Stakeholders:</th>
+  <td>User</td>
+ </tr>
+ <tr>
+ <th>Prereq:</th>
+  <td>
+   <div>
+     <p>Logged in as Archiver. </p>
+     <p>A collection has been created to group the items </p>
+     <p>The repository is configured to ingest the type of item to be submitted </p>
+   </div>
+   </td>
+ </tr>
+ <tr>
+  <th>Main Success Scenario:</th>
+  <td>
+   <ol>
+    <li>Visit the page for the collection that the items will belong to</li>
+    <li>See a link for adding items</li>
+    <li>Visit the link for adding items</li>
+    <li>See a blank form for entering the common item metadata</li>
+    <li>See a selection for the known types of item </li>
+    <li>Enter the metadata</li>
+    <li>Select the type of item </li>
+    <li>See an extra metadata form for the item type</li>
+    <li>See file upload boxes for the item - some items may require multiple upload boxes, e.g. manuscript and transcript</li>
+    <li>Enter the extra values for the item type specific metadata</li>
+    <li>Use the file upload boxes to locate the files to be uploaded</li>
+    <li>Submit the form</li>
+    <li>See confirmation message</li>
+    <li>See filled form with item details</li>
+    <li>See another filled form with automatically extracted preservation metadata</li>
+    <li>See state of item marked according to Workflow Configuration </li>
+   </ol>
+  </td>
+ </tr>
+ <tr>
+  <th>Alternative Scenario Extensions:</th>
+  <td>
+    <p>If the adapter fails to extract the preservation metadata </p>
+    
+       <ol>
+         <li>See error message explaining problem</li>
+         <li>See confirmation that the object has been ingested anyway </li>
+         <li>See preservation metadata notes contain detailed description of problem</li>
+         </ol>
+    
+    </td>
+ </tr>
+ <tr>
+  <th>Notes and Questions:</th>
+  <td>
+    <p>Some users can have multiple roles so the reviewer may also be an archiver - it depends on the configuration of the collection. </p>
+    <p>If there is a problem with the preservation metadata, the problem can be resolved on the spot or fixed later as part of the workflow. The details can be manually added. </p></td>
+ </tr>
+</table>
+</div>
+
+
+<div id="UC-06-02">
+<h3>UC-06-02: Remove Item </h3>
+<table border="1" cellpadding="3" cellspacing="2" class="axial">
+ <tr>
+  <th>Summary:</th>
+  <td>Items can be removed from the repository </td>
+ </tr>
+ <tr>
+  <th>Priority:</th>
+  <td>Essential</td>
+ </tr>
+ <tr>
+  <th>Use Frequency:</th>
+  <td>Sometimes</td>
+ </tr>
+ <tr>
+  <th>Direct Actors:</th>
+  <td>Archiver</td>
+ </tr>
+ <tr>
+  <th>Stakeholders:</th>
+  <td>Library, Archiver , Reviewer </td>
+ </tr>
+ <tr>
+ <th>Prereq:</th>
+  <td>
+   <div>Logged in as Archiver </div>
+   </td>
+ </tr>
+ <tr>
+  <th>Main Success Scenario:</th>
+  <td>
+   <ol>
+    <li>Visit Item Page</li>
+    <li>See link to delete the item</li>
+    <li>  Visit delete link</li>
+    <li>See message that item has been deleted</li>
+    <li>See collection page that the item used to belong to</li>
+    <li>See item in list is struck through</li>
+    <li>See link to recover item </li>
+   </ol>
+  </td>
+ </tr>
+ <tr>
+  <th>Alternative Scenario Extensions:</th>
+  <td>
+    <p>If item was deleted by mistake</p>
+    <ol>
+      <li>visit the recover link</li>
+      <li>See confirmation that item was recovered</li>
+      <li>See item in collection again </li>
+    </ol></td>
+ </tr>
+ <tr>
+  <th>Notes and Questions:</th>
+  <td>
+    <p>The items should only be marked as deleted in fedora - i.e. they can be recovered.</p>
+    <p>non-archivers can't see the deleted items, only the archiver sees them. </p>
+    <p>You could have an extra step for purging deleted items over a month old or something. </p>
+    <p>The unique item identifiers should not be re-used. Even after items are purged, eSpace will keep track that the item has been deleted and won't re-use the item id. Perhaps a deletion record will be kept or maybe eSpace will just hang onto the metadata and just the actual data will be gone. </p></td>
+ </tr>
+</table>
+</div>
+
+<div id="UC-06-03">
+<h3>UC-06-03: Process Item </h3>
+<table border="1" cellpadding="3" cellspacing="2" class="axial">
+ <tr>
+  <th>Summary:</th>
+  <td>When item data needs to be changed, an eSpace process is used to record the changes made. The eSpace process is an item itself that describes how to transform an item type to another form. e.g. perhaps the .au sound format will become awkward to handle but the .wav format is prefferred, so we write a process for converting .au to .wav. </td>
+ </tr>
+ <tr>
+  <th>Priority:</th>
+  <td>Essential</td>
+ </tr>
+ <tr>
+  <th>Use Frequency:</th>
+  <td> Sometimes</td>
+ </tr>
+ <tr>
+  <th>Direct Actors:</th>
+  <td>Archiver </td>
+ </tr>
+ <tr>
+  <th>Stakeholders:</th>
+  <td>Library, User, Administrator </td>
+ </tr>
+ <tr>
+ <th>Prereq:</th>
+  <td>
+   <div>Logged in as Archiver </div>
+   </td>
+ </tr>
+ <tr>
+  <th>Main Success Scenario:</th>
+  <td>
+   <ol>
+    <li>Browse to  the item page</li>
+    <li>See the item to be processed</li>
+    <li>See link to download item data</li>
+    <li>Download item data to local disk  </li>
+    <li>See link for processing</li>
+    <li>Visit the link for processing</li>
+    <li>See a list of process types</li>
+    <li>Choose the process type</li>
+    <li>See the steps for processing the item</li>
+    <li> Follow the steps, applying the changes to the local data</li>
+    <li>See upload form for locating changed data</li>
+    <li>Upload the changed data</li>
+    <li>See confirmation message that item has been processed</li>
+    <li>See processed item   </li>
+   </ol>
+  </td>
+ </tr>
+ <tr>
+  <th>Alternative Scenario Extensions:</th>
+  <td>
+    <p>&nbsp;</p>
+    
+       </td>
+ </tr>
+ <tr>
+  <th>Notes and Questions:</th>
+  <td>
+    <p>Item history will note the process id, time, date and username. </p>
+    <p>For bulk process, see UC-03-03</p></td>
  </tr>
 </table>
 </div>
