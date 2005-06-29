@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+<!-- the root element for RELS-EXT-->
+<xsd:element name="eSpaceACML" type="eSpaceACMLType"/>
+
+<xsd:complexType name="eSpaceACMLType">
+    <xsd:sequence>
+      <xsd:element name="rule" type="ruleType" />
+    </xsd:sequence>
+</xsd:complexType>
+
+<xsd:complexType name="ruleType">
+    <xsd:sequence>
+      <xsd:element name="role" type="roleType" />
+    </xsd:sequence>
+</xsd:complexType>
+
+
+<xsd:complexType name="roleType">
+  <xsd:sequence>
+        <xsd:attribute name="name"/>
+        <xsd:element name="in_AD"/>
+        <xsd:element name="AD_Group"/>
+        <xsd:element name="AD_User"/>        
+        <xsd:element name="eSpace_Group"/>        
+        <xsd:element name="eSpace_User"/>
+  </xsd:sequence>
+</xsd:complexType>
+
+
+</xsd:schema>
+

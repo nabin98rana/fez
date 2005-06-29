@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://www.loc.gov/standards/AudioMD/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.loc.gov/standards/AudioMD/" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<!--============================================================
+
+	 AudioMD: Audio Technical Metadata Extension Schema
+		
+	============================================================-->
+	<xsd:element name="AudioMD" type="AudioMDType"/>
+	<xsd:annotation>
+		<xsd:documentation>AudioMD: Digital Audio Archival Object Technical Metadata Element.
+	                 AudioMD contains technical metadata that describe a digital audio archival object. 
+	             </xsd:documentation>
+	</xsd:annotation>
+	<xsd:annotation>
+		<xsd:documentation>AudioMD: Elements of a digital audio archival object.
+                       	The AudioMD elements describe the characteristics of a digital audio archival object.
+                       	AudioMD contains 6 top level elements:
+				1. bits_per_sample	The number of bits in a digital audio sample  i.e. quantization   e.g. 16, 24;
+				2. channel			Number and information about channels/tracks (e.g., 2-trk, 4-trk, 8-trk, etc.);
+				3. data_rate			Information about the mode and data rate of audio files in Kb/s  e.g. 16, 44.1, 96 etc;
+				4. duration			Duration of audio source material in time    i.e. HH:MM:SSSS format;
+                          5. sampling_frequency	The rate at which the audio was sampled  e.g. 44.1KHz, 96KHz, etc...;                                 				6. sound_field		 Aural space on source recording, e.g., monaural, stereo, surround sound, etc....
+              </xsd:documentation>
+	</xsd:annotation>
+	<xsd:element name="bits_per_sample" type="bits_per_sampleType"/>
+	<xsd:element name="channel" type="channelType"/>
+	<xsd:element name="data_rate" type="data_rateType"/>
+	<xsd:element name="duration" type="durationType"/>
+	<xsd:element name="sampling_frequency" type="sampling_frequencyType"/>
+	<xsd:element name="sound_field" type="sound_fieldType"/>
+	<xsd:complexType name="AudioMDType">
+		<xsd:annotation>
+			<xsd:documentation>AudioMDType: Complex Type for encapsulating within a single
+                        parent element the individual digital audio archival object elements that describe an object or portion of an
+                        object.  But note that the individual digital audio archival object elements that comprise the
+                        AudioMD schema can be used independently of the schema element and  directly under a
+                        METS mdSec.dmWrap element. The individual elements that comprise a digital audio archival object element
+                        are documented under their corresponding types.
+                        AudioMDType has a single attribute, ID (XML ID).
+                    </xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element ref="bits_per_sample" minOccurs="0" maxOccurs="unbounded"/>
+			<xsd:element ref="channel" minOccurs="0" maxOccurs="unbounded"/>
+			<xsd:element ref="data_rate" minOccurs="0" maxOccurs="unbounded"/>
+			<xsd:element ref="duration" minOccurs="0" maxOccurs="unbounded"/>
+			<xsd:element ref="sampling_frequency" minOccurs="0" maxOccurs="unbounded"/>
+			<xsd:element ref="sound_field" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="ID" type="xsd:ID"/>
+	</xsd:complexType>
+	<xsd:complexType name="bits_per_sampleType">
+		<xsd:annotation>
+			<xsd:documentation>bits_per_sampleType: Complex Type for recording sample size of
+                        an item or portion of an item.  bits_per_sampleType has a single attribute, ID (XML ID).
+                    </xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleContent>
+			<xsd:restriction base="xsd:string">
+				<xsd:attribute name="ID" type="xsd:ID"/>
+			</xsd:restriction>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:complexType name="channelType">
+		<xsd:annotation>
+			<xsd:documentation>channelType: Complex Type for recording the channel configuration used
+                        in an item or portion of an item.  channelType has 2 attributes, 
+                        ID: (XML ID)
+                        FIELDTYPE: qualifier of the type of channel metadata contained in the element. 
+                        	- channelTrackQuantity: the number of channels of audio  e.g. 1, 2, 4, 5 
+                        	- channelTrackFormat: information about the track format  e.g. 1/4- trk, 1/2- trk, full-trk, etc... 
+                        	- channelTrackInformation: information about the channel and track configuration
+                    </xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleContent>
+			<xsd:restriction base="xsd:string">
+				<xsd:attribute name="ID" type="xsd:ID"/>
+				<xsd:attribute name="FIELDTYPE" default="channelTrackQuantity">
+					<xsd:simpleType>
+						<xsd:restriction base="xsd:NMTOKEN">
+							<xsd:enumeration value="channelTrackQuantity"/>
+							<xsd:enumeration value="channelTrackFormat"/>
+							<xsd:enumeration value="channelTrackInformation"/>
+						</xsd:restriction>
+					</xsd:simpleType>
+				</xsd:attribute>
+			</xsd:restriction>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:complexType name="data_rateType">
+		<xsd:annotation>
+			<xsd:documentation>data-_rateType: Complex Type for recording the data rate (e.g. 1.5 Mbps, 4Mbps, etc...)
+                        of an item or portion of an item.  data_rateType has 2 attributes,  
+                        ID: (XML ID)
+                        MODE: mode of data rate  i.e. Fixed or Variable.
+                     </xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleContent>
+			<xsd:restriction base="xsd:string">
+				<xsd:attribute name="ID" type="xsd:ID"/>
+				<xsd:attribute name="MODE" type="xsd:string"/>
+			</xsd:restriction>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:complexType name="durationType">
+		<xsd:annotation>
+			<xsd:documentation>durationType: Complex Type for recording the duration
+                        of an item or portion of an item.  durationType has a single attribute, ID (XML ID).
+                    </xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleContent>
+			<xsd:restriction base="xsd:string">
+				<xsd:attribute name="ID" type="xsd:ID"/>
+			</xsd:restriction>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:complexType name="sampling_frequencyType">
+		<xsd:annotation>
+			<xsd:documentation>sampling_frequencyType: Complex Type for recording the sampling frequency
+                        of an item or portion of an item in pixels.  sampling_frequencyType has a 1 attribute, 
+                        ID: (XML ID)
+                    </xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleContent>
+			<xsd:restriction base="xsd:string">
+				<xsd:attribute name="ID" type="xsd:ID"/>
+			</xsd:restriction>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:complexType name="sound_fieldType">
+		<xsd:annotation>
+			<xsd:documentation>sound_fieldType: Complex Type for recording the aural space of the
+                         item or portion of an item.  sound_fieldType has a single attribute, ID (XML ID).
+                    </xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleContent>
+			<xsd:restriction base="xsd:string">
+				<xsd:attribute name="ID" type="xsd:ID"/>
+			</xsd:restriction>
+		</xsd:simpleContent>
+	</xsd:complexType>
+</xsd:schema>
+

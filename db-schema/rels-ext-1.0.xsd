@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rel="info:fedora/fedora-system:def/relations-external#">
+
+<!-- the root element for RELS-EXT-->
+<xsd:element name="RDF" type="RDFType"/>
+
+<xsd:complexType name="RDFType">
+    <xsd:sequence>
+      <xsd:element name="description" type="descriptionType" />
+    </xsd:sequence>
+</xsd:complexType>
+
+<xsd:complexType name="descriptionType" about="">
+  <xsd:sequence>
+        <xsd:attribute name="about" />
+        <xsd:element name="isMemberOf">
+            <xsd:attribute name="resource" />
+        </xsd:element>
+  </xsd:sequence>
+</xsd:complexType>
+
+
+</xsd:schema>
+
