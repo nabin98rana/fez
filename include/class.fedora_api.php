@@ -165,86 +165,42 @@ function callModifyObject ($pid, $label) {
 }
 
 // CK - 25/2/2005 - Added from index.php list records code
-function getListObjectsXML($searchPhrase, $maxResults) {
+function getListObjectsXML($searchTerms, $maxResults, $returnfields=null) {
+    $resultlist = array();
 
-	$searchPhrase = "";
-	// Type contains eSpace_Collection
-//	$searchPhrase = "?type=tuples&lang=rdql&format=Sparql&limit=1000&dt=on&query=select+%3Fobject%2C+%3Ftitle%2C+%3Fidentifier%2C+%3Fcreator%2C+%3Fdescription+from+%3C%23ri%3E%0D%0Awhere++%28%3Fobject+rdf%3Atype+%3Cfedora-model%3AFedoraObject%3E%29%2C%0D%0A%28%3Fobject+%3Cdc%3Atitle%3E+%3Ftitle%29%2C%0D%0A%28%3Fobject+%3Cdc%3Aidentifier%3E+%3Fidentifier%29%2C%0D%0A%28%3Fobject+%3Cdc%3Acreator%3E+%3Fcreator%29%2C%0D%0A%28%3Fobject+%3Cdc%3Adescription%3E+%3Fdescription%29";
+    $searchTerms = urlencode("*$searchTerms*"); // encode it for url parsing
 
-	// Construct the itql statement
-	// NOTE: object (pid) must be the first returned result so that the sparql results array merge code can work properly as it joins on pid
-	$itql = "select \$object \$title \$identifier \$description \$creator from <#ri>
-				where  (\$object <rdf:type> <fedora-model:FedoraObject>) and
-				((\$object <dc:title> \$title) or 
-				(\$object <dc:description> \$description) or
-				(\$object <dc:creator> \$creator) or
-				(\$object <dc:identifier> \$identifier))";
-	echo $itql;
-	$itql = urlencode($itql); // encode it for url parsing
-
-	$searchPhrase = "?type=tuples&lang=itql&format=Sparql&limit=1000&dt=on&query=".$itql;
-    $returnfields = array();
-    array_push($returnfields, "pid"); 
-    array_push($returnfields, "title");
-    array_push($returnfields, "identifier");
-    array_push($returnfields, "description");
-    array_push($returnfields, "creator");
-    // Should abstract the below for into a function in here
-    $stringfields = array();
-    for($x=0;$x<count($returnfields);$x++) {
-     $stringfields[$x] = $returnfields[$x] . "=true";
+    if (empty($returnfields)) {
+        $returnfields = array('pid', 'title', 'identifier', 'description');
     }
-    $stringfields = join("&", $stringfields);
+    $fieldPhrase = '';
+    foreach ($returnfields as $rField) {
+        $fieldPhrase .= "&$rField=true";
+    }
+    
+    $searchPhrase = "?xml=true$fieldPhrase&terms=$searchTerms";
 
-    $filename = APP_FEDORA_RISEARCH_URL.$searchPhrase;
-//	echo $filename;
+    $filename = APP_FEDORA_SEARCH_URL.$searchPhrase;
     $xml = file_get_contents($filename);
-	$xml = preg_replace("'<object uri\=\"info\:fedora\/(.*)\"\/>'", "<pid>\\1</pid>", $xml); // fix the pid tags
+    $xml = preg_replace("'<object uri\=\"info\:fedora\/(.*)\"\/>'", "<pid>\\1</pid>", $xml); // fix the pid tags
 
     $doc = DOMDocument::loadXML($xml);
-//	echo $xml;
-    $dom_array = array();
-    Misc::dom_to_simple_array($doc, $dom_array);
-//	print_r($dom_array);
-
-	// Now clean the itql sparql array into an array for smarty presentation - should put this into a reusable function
-    $resultlist = array();
-	$existing_key = false;
-    for ($x=0;$x<count($dom_array['sparql'][0]['results'][0]['result']);$x++) { // loop on the result[] array
-		$existing_key = false;
-		$res_count = count($resultlist);
-		for ($y=0;$y<$res_count;$y++) { // try and find the pid result in the resultlist			
-			if ($resultlist[$y][$returnfields[0]] == $dom_array['sparql'][0]['results'][0]['result'][$x][$returnfields[0]][0]['cdata']) { // if there already exists a result with this pid then merge them				
-				$existing_key = $y;
-				break;
-			}
-		}
-		// if you find the pid in the resultlist then check its variables against this x result set
-		if (is_numeric($existing_key) == true) {
-			$new_key = $existing_key;
-		} else {
-			$new_key = (count($resultlist));
-		}
-//		print_r($dom_array);
-		foreach ($returnfields as $rfield) {
-//			if ((empty($resultlist[$new_key][$rfield]) || ($resultlist[$new_key][$rfield] == "")) && ((!empty($dom_array['sparql'][0]['results'][0]['result'][$x][$rfield][0]["cdata"])) || ($dom_array['sparql'][0]['results'][0]['result'][$x][$rfield][0]["cdata"] != ""))  )  {
-			if ( ((!empty($dom_array['sparql'][0]['results'][0]['result'][$x][$rfield][0]["cdata"])) || ($dom_array['sparql'][0]['results'][0]['result'][$x][$rfield][0]["cdata"] != ""))  )  {				
-				if (!empty($resultlist[$new_key][$rfield]) && !is_array($resultlist[$new_key][$rfield]) && ($rfield != "pid")  && ((trim($dom_array['sparql'][0]['results'][0]['result'][$x][$rfield][0]["cdata"]) != $resultlist[$new_key][$rfield])) ) {
-					$tmp_value = $resultlist[$new_key][$rfield];
-					$resultlist[$new_key][$rfield] = array();
-					array_push($resultlist[$new_key][$rfield], trim($tmp_value));
-					array_push($resultlist[$new_key][$rfield], trim($dom_array['sparql'][0]['results'][0]['result'][$x][$rfield][0]["cdata"]));
-				} elseif (is_array($resultlist[$new_key][$rfield]) && ($rfield != "pid") && !(in_array(trim($dom_array['sparql'][0]['results'][0]['result'][$x][$rfield][0]["cdata"]), $resultlist[$new_key][$rfield])) ) {
-					array_push($resultlist[$new_key][$rfield], trim($dom_array['sparql'][0]['results'][0]['result'][$x][$rfield][0]["cdata"]));
-				} else {
-					$resultlist[$new_key][$rfield] = trim($dom_array['sparql'][0]['results'][0]['result'][$x][$rfield][0]["cdata"]);
-				}
-			}
-		} 
-
-	}
-
-    return ($resultlist);
+    $xpath = new DOMXPath($doc);
+    $xpath->registerNamespace('r', 'http://www.fedora.info/definitions/1/0/types/');
+    $objectFieldsNodeList = $xpath->query('/r:result/r:resultList/r:objectFields');
+    // loop through the objectFields elements
+    foreach ($objectFieldsNodeList as $objectFieldsNode) {
+        // look for the return fields and group them in an array
+        foreach ($returnfields as $rfield) {
+            $rFieldNodeList = $objectFieldsNode->getElementsByTagName($rfield);
+            if ($rFieldNodeList->length) {
+                $rItem[$rfield] = trim($rFieldNodeList->item(0)->nodeValue);
+            }
+        }
+        // add the return fields array to out list of results
+        $resultlist[] = $rItem;
+    }
+    return $resultlist;
 }
 
 function getITQLQuery($itql, $returnfields) {
@@ -687,19 +643,21 @@ function callGetDatastreamDissemination($pid, $dsID, $asofDateTime="") {
 
 function callGetDatastreamContentsField ($pid, $dsID, $returnfields) {
 //    array_push($returnfields, "pid"); 
+    $resultlist = array();
 
     $filename = APP_FEDORA_GET_URL."/".$pid."/".$dsID;
-    $xml = file_get_contents($filename);
-    $doc = DOMDocument::loadXML($xml);
-    $dom_array = array();
-    Misc::dom_to_simple_array($doc, $dom_array);
-    $resultlist = array();
-    for ($x=0;$x<count($dom_array[$dsID]);$x++) {
-      foreach ($returnfields as $rfield) {
-        $resultlist[$x][$rfield] = trim($dom_array[$dsID][$x][$rfield][0]['cdata']);
-      }
+    $xml = @file_get_contents($filename);
+    if (!empty($xml)) {
+        $doc = DOMDocument::loadXML($xml);
+        $xpath = new DOMXPath($doc);
+        $fieldNodeList = $xpath->query("/$dsID/*");
+        foreach ($fieldNodeList as $fieldNode) {
+            if (in_array($fieldNode->nodeName, $returnfields)) {
+                $resultlist[$fieldNode->nodeName][] = trim($fieldNode->nodeValue);
+            }
+        }
     }
-    return ($resultlist);
+    return $resultlist;
 }
 
 function callGetDatastreamField ($pid, $dsID, $field) {

@@ -73,24 +73,30 @@
             <b>User: {$current_full_name}</b> (<a target="_top" title="modify your account details and preferences" href="{$rel_url}preferences.php" class="link">Preferences</a>)
           </td>
 		  {/if}
- {if $isAdministrator}
           <form target="_top" method="get" action="{$rel_url}list.php">
-          <td width="5%" nowrap bgcolor="{$light_color}">
+          <td width="5%" nowrap bgcolor="{$light_color}" align="right">
             <img src="/images/search_16.png" align="absmiddle"/> <label for="search" accesskey="3"></label>
             <input type="text" id="search" name="terms" value="terms" size="15" 
               onBlur="javascript:if (this.value == '') this.value = 'terms';" onFocus="javascript:if (this.value == 'terms') this.value='';" class="shortcut">
             <input type="submit" value="Search" class="shortcut">
+<a href="#" onClick="javascript:alert( 'Search All Fields\n\n Enter a phrase.  Objects where any field contains the phrase will be returned.\n This is a case-insensitive search, and you may use the * or ? wildcards.\n\n Examples:\n\n li*y\n finds objects that start with li and end with y\n\n b?ts\n finds words that start with b followed by any letter and then ts.  e.g. bits, bats, byts')"><i>help</i></a>
           </td>
           </form>
-{/if}
+<!--
+
+                                  
+<a href="#" onClick="javascript:alert('Search Specific Field(s)\n\nEnter one or more conditions, separated by space.  Objects matching all conditions will be returned.\nA condition is a field (choose from the field names on the left) followed by an operator, followed by a value.\nThe = operator will match if the field\'s entire value matches the value given.\nThe ~ operator will match on phrases within fields, and accepts the ? and * wildcards.\nThe &lt;, &gt;, &lt;=, and &gt;= operators can be used with numeric values, such as dates.\n\nExamples:\n\n  fType=M\n    Matches all behavior mechanism objects.\n\n  pid~demo:* description~fedora\n    Matches all demo objects with a description containing the word fedora.\n\n cDate&gt;=1976-03-04 creator~*n*\n    Matches objects created on or after March 4th, 1976 where at least one of the creators has an n in their name.\n\n  mDate&gt;2002-10-2 mDate&lt;2002-10-2T12:00:00\n   Matches objects modified sometime before noon (UTC) on October 2nd, 2002')"><i>help</i></a>
+    
+
           <form target="_top" method="get" action="{$rel_url}view.php">
           <td width="2%" nowrap bgcolor="{$light_color}" align="right">
             <label for="shortcut" accesskey="4"></label>
             <input type="text" id="shortcut" name="id" value="pid #" 
               onBlur="javascript:if (this.value == '') this.value = 'pid #';" onFocus="javascript:if (this.value == 'pid #') this.value='';" size="5" class="shortcut">
-            <input type="submit" value="Go" class="shortcut">
+            <input type="submit" value="Search" class="shortcut">
           </td>
           </form>
+          -->
         </tr>
       </table>
     </td>

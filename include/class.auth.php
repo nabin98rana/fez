@@ -121,7 +121,7 @@ class Auth
 		foreach ($parents as $parent) {
 
 			$xdis_array = Fedora_API::callGetDatastreamContentsField($parent['pid'], 'eSpaceMD', array('xdis_id'));
-			$xdis_id = $xdis_array[0]['xdis_id'];
+			$xdis_id = $xdis_array['xdis_id'][0];
 			$parentACML = Record::getACML($parent['pid'], $xdis_id);		
 
 //			echo $parent['pid'] ." - ".$xdis_id. " -> "; print_r($parentACML); echo "\n\n";
@@ -765,6 +765,24 @@ class Auth
     {
         return @$_SESSION['isInDB'];
     }
+
+    function ProcessListResults($details) {
+		foreach ($details as $key => $row) {
+			$xdis_array = Fedora_API::callGetDatastreamContentsField ($row['pid'], 'eSpaceMD', array('xdis_id'));
+            if (!empty($xdis_array)) {
+                $xdis_id = $xdis_array['xdis_id'][0];
+                $rowAuthGroups = Auth::getAuthorisationGroups($row['pid'], $xdis_id);
+                // get only the roles which are of relevance/use on the listing screen. This logic may be changed later.
+                $details[$key]['isCommunityAdministrator'] = in_array('Community Administrator', $rowAuthGroups); //editor is only for the children. To edit the actual community record details you need to be a community admin
+                $details[$key]['isEditor'] = in_array('Editor', $rowAuthGroups);
+                $details[$key]['isViewer'] = in_array('Viewer', $rowAuthGroups);
+                $details[$key]['isLister'] = in_array('Lister', $rowAuthGroups);
+                //			$details[$key]['isApprover'] = in_array('Approver', $rowAuthGroups); // probably not necessary at the listing stage
+            } 
+		}
+        return $details;
+    }
+
 
 
 }

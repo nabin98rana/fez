@@ -2296,12 +2296,7 @@ class Record
      */
     function getListing($options, $current_row = 0, $max = 5, $get_reporter = FALSE)
     {
-		$searchPhrase = "";
-		if (!empty($options)) {
-			$searchPhrase = "terms=*".$options."*";
-		} 
-
-		$details = Fedora_API::getListObjectsXML($searchPhrase, $max);
+		$details = Fedora_API::getListObjectsXML($options, $max);
 
 		foreach ($details as $darray_key => $darray) {
 			foreach ($darray as $dkey => $dvalue) { // turn any array values into a comma seperated string value
@@ -2310,6 +2305,7 @@ class Record
 				}
 			}
 		}	
+        $details = Auth::ProcessListResults($details);
 		return $details;
     }
 

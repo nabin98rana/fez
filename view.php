@@ -70,7 +70,7 @@ $pid = @$HTTP_POST_VARS["pid"] ? $HTTP_POST_VARS["pid"] : $HTTP_GET_VARS["pid"];
 	if (!empty($pid)) {
 	
 		$xdis_array = Fedora_API::callGetDatastreamContentsField ($pid, 'eSpaceMD', array('xdis_id'));
-		$xdis_id = $xdis_array[0]['xdis_id'];
+		$xdis_id = $xdis_array['xdis_id'][0];
 		//echo "XDIS_ID -> ".$xdis_id;
 		if (!is_numeric($xdis_id)) {
 			$xdis_id = @$HTTP_POST_VARS["xdis_id"] ? $HTTP_POST_VARS["xdis_id"] : $HTTP_GET_VARS["xdis_id"];	

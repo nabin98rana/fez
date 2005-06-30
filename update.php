@@ -85,7 +85,7 @@ $pid = $record_id;
 //if ($role_id == User::getRoleID('standard user') || ($role_id == User::getRoleID('administrator')) || ($role_id == User::getRoleID('manager'))) {
 $tpl->assign("pid", $pid);
 $xdis_array = Fedora_API::callGetDatastreamContentsField ($pid, 'eSpaceMD', array('xdis_id'));
-$xdis_id = $xdis_array[0]['xdis_id'];
+$xdis_id = $xdis_array['xdis_id'][0];
 
 
 $acceptable_roles = array("Community_Admin", "Editor", "Creator", "Community_Admin");

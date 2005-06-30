@@ -76,10 +76,7 @@ $usr_id = Auth::getUserID();
 
 //$col_id = Auth::getCurrentCollection();
 //print_r($options);
-$options = @$_REQUEST['terms'];
-if ($options == "") {
-  $options = "*";
-}
+$terms = @$_REQUEST['terms'];
 
 $collection_pid = @$HTTP_POST_VARS["collection_pid"] ? $HTTP_POST_VARS["collection_pid"] : @$HTTP_GET_VARS["collection_pid"];	
 $community_pid = @$HTTP_POST_VARS["community_pid"] ? $HTTP_POST_VARS["community_pid"] : @$HTTP_GET_VARS["community_pid"];
@@ -100,13 +97,6 @@ if (!empty($collection_pid)) {
 	$tpl->assign("list_heading", "List of Records in ".$collection_details[0]['title']." Collection");
 	$tpl->assign("list_type", "collection_records_list");
 	$tpl->assign("collection_pid", $collection_pid);
-} elseif (empty($community_pid)) {
-    // list all communities
-	$xdis_id = Community::getCommunityXDIS_ID();
-	$tpl->assign("xdis_id", $xdis_id);	
-	$list = Community::getList();
-	$tpl->assign("list_type", "community_list");
-	$tpl->assign("list_heading", "List of Communities");
 } elseif (!empty($community_pid)) {
     // list collections in a community
 	$tpl->assign("community_pid", $community_pid);
@@ -122,11 +112,18 @@ if (!empty($collection_pid)) {
 	$list = Collection::getList($community_pid);
 	$tpl->assign("list_heading", "List of Collections in ".$community_details[0]['title']." Community");
 	$tpl->assign("list_type", "collection_list");
-} else {
-    // UNREACHABLE!
-	$list = Record::getListing($options, 1, 100);
-	$tpl->assign("list_heading", "All Records List");
+} elseif (!empty($terms)) {
+    // search eSpace
+	$list = Record::getListing($terms, 1, 100);
+	$tpl->assign("list_heading", "Search Results ($terms)");
 	$tpl->assign("list_type", "all_records_list");
+} else {
+    // list all communities
+	$xdis_id = Community::getCommunityXDIS_ID();
+	$tpl->assign("xdis_id", $xdis_id);	
+	$list = Community::getList();
+	$tpl->assign("list_type", "community_list");
+	$tpl->assign("list_heading", "List of Communities");
 }
 
 //$list = Record::getListing($options, 1, 100);

@@ -33,7 +33,7 @@ $tpl->assign("pid", $pid);
 $tpl->assign("dsID", $dsID);
 if (!empty($pid) && !empty($dsID)) {
 	$xdis_array = Fedora_API::callGetDatastreamContentsField ($pid, 'eSpaceMD', array('xdis_id'));
-	$xdis_id = $xdis_array[0]['xdis_id'];
+	$xdis_id = $xdis_array['xdis_id'][0];
 	//echo "XDIS_ID -> ".$xdis_id;
 	if (is_numeric($xdis_id)) {
 	
