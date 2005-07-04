@@ -110,7 +110,7 @@ $pid = @$HTTP_POST_VARS["pid"] ? $HTTP_POST_VARS["pid"] : $HTTP_GET_VARS["pid"];
 		
 			//$tpl->assign("collection_list", Collection::getAllExcept($col_id)); // OLD
 			//@@@ CK 24/8/2004 - Fixed the escalation to show the teams that the collection is not currently set to
-			if (!empty($details)) {
+			if (isset($details['iss_col_id'])) {
 				$tpl->assign("collection_list", Collection::getAllExceptSorted($details['iss_col_id']));
 			}
 		} else {

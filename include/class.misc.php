@@ -1096,7 +1096,7 @@ function dom_xml_to_simple_array($domnode, &$array, $top_element_name, $element_
 								$next_array_key = 0;
 								$next_array_key = Misc::getNextArrayKey($xsdmf_ptr[$xsdmf_id]);
 								$xsdmf_ptr[$xsdmf_id][$next_array_key] = $ptr_value;
-							} elseif (array_key_exists(0, $xsdmf_ptr[$xsdmf_id])) {
+							} elseif (isset($xsdmf_ptr[$xsdmf_id]) && array_key_exists(0, $xsdmf_ptr[$xsdmf_id])) {
 								$next_array_key = 0;
 								$next_array_key = Misc::getNextArrayKey($xsdmf_ptr[$xsdmf_id]);
 								$xsdmf_ptr[$xsdmf_id][$next_array_key] = $ptr_value;
@@ -1107,7 +1107,7 @@ function dom_xml_to_simple_array($domnode, &$array, $top_element_name, $element_
 
 					} 
 
-					if ($xsdmf_details['xsdmf_parent_key_match'] != "") {
+					if (!empty($xsdmf_details) && $xsdmf_details['xsdmf_parent_key_match'] != "") {
 						$array_ptr = &$array["!".$xsdmf_details['xsdmf_parent_key_match']."!".$clean_nodeName];
 					} else {
 						$array_ptr = &$array[$clean_nodeName];
@@ -1151,7 +1151,8 @@ function dom_xml_to_simple_array($domnode, &$array, $top_element_name, $element_
 						} else {
 							$ptr_value = $domnode->nodeValue;
 						}
-						if ((array_key_exists($xsdmf_id, $xsdmf_ptr)) && (!array_key_exists(0, $xsdmf_ptr[$xsdmf_id]))) {
+						if (!empty($xsdmf_ptr) && (array_key_exists($xsdmf_id, $xsdmf_ptr)) 
+                                && (!array_key_exists(0, $xsdmf_ptr[$xsdmf_id]))) {
 							$tmp_value = $xsdmf_ptr[$xsdmf_id];
 							$xsdmf_ptr[$xsdmf_id] = array();
 							$xsdmf_ptr[$xsdmf_id][0] = $tmp_value;
@@ -1187,25 +1188,17 @@ function dom_xml_to_simple_array($domnode, &$array, $top_element_name, $element_
 				} */
 
 		       	$array_ptr[$while_count][$new_element] = $domnode->nodeValue;
-			// IF is a SEL then go recursive
-						// @@@ CK - 31/5/2005 - Added to handle the subelement loops
-						if (($xsdmf_details['xsdmf_is_key'] == 1) && ($xsdmf_details['xsdmf_key_match'] != '')) {
-//							echo " IN AM SO IN!!!"." $xsdmf_id -> ".$xsdmf_details['xsdmf_key_match'];
-							$parent_key = $xsdmf_details['xsdmf_key_match'];
-						}
-						if ($xsdmf_details['xsdmf_html_input'] == 'xsd_loop_subelement') {
-//							echo " IN AM SO IN!!!";
-							$xsd_sel_ids = "";
-							$xsd_sel_ids = XSD_Loop_Subelement::getSELIDsByXSDMF($xsdmf_id);
-//							echo "XSD SEL IDS -> ";
-//							print_r($xsd_sel_ids);
-
-/*							if (count($xsd_sel_ids) > 0) {
-								foreach ($xsd_sel_ids as $sel_id) {
-									
-								}								
-							//} */
-						} 
+                // IF is a SEL then go recursive
+                // @@@ CK - 31/5/2005 - Added to handle the subelement loops
+                if (!empty($xsdmf_details)) {
+                    if (($xsdmf_details['xsdmf_is_key'] == 1) && ($xsdmf_details['xsdmf_key_match'] != '')) {
+                        $parent_key = $xsdmf_details['xsdmf_key_match'];
+                    }
+                    if ($xsdmf_details['xsdmf_html_input'] == 'xsd_loop_subelement') {
+                        $xsd_sel_ids = "";
+                        $xsd_sel_ids = XSD_Loop_Subelement::getSELIDsByXSDMF($xsdmf_id);
+                    } 
+                }
 
 
 //			} // end of if has attributes // commented out for now, see else statement above

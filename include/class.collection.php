@@ -539,12 +539,13 @@ class Collection
     function getList($community_pid)
     {
 
-		$itql = "select \$collTitle \$collDesc \$title \$description \$object from <#ri>
+		$itql = "select \$collTitle \$collDesc \$title \$description \$object \$type from <#ri>
 					where  (<info:fedora/".$community_pid."> <dc:title> \$collTitle) and
                     (<info:fedora/".$community_pid."> <dc:description> \$collDesc) and
 					(\$object <fedora-rels-ext:isMemberOf> <info:fedora/".$community_pid.">) and
-					((\$object <dc:title> \$title) or
-					(\$object <dc:description> \$description))
+					(\$object <dc:title> \$title) and
+					(\$object <dc:description> \$description) and
+                    (\$object <dc:type> \$type)
 					order by \$title asc";
 
 /*		$itql = "select \$object \$title \$identifier \$description \$member from <#ri>
@@ -561,11 +562,7 @@ class Collection
 					order by \$title asc";
 */
 //		echo $itql;
-		$returnfields = array();
-		array_push($returnfields, "pid"); 
-		array_push($returnfields, "title");
-		array_push($returnfields, "identifier");
-		array_push($returnfields, "description");
+		$returnfields = array('pid', 'title', 'identifier', 'description','type');
 
 		$details = Fedora_API::getITQLQuery($itql, $returnfields);
         $details = Auth::ProcessListResults($details);
@@ -595,22 +592,18 @@ class Collection
      */
     function getListing($collection_pid)
     {
-		$itql = "select \$collTitle \$collDesc \$title \$identifier \$description \$object from <#ri>
+		$itql = "select \$collTitle \$collDesc \$title \$identifier \$description \$object \$type from <#ri>
 					where  (<info:fedora/".$collection_pid."> <dc:title> \$collTitle) and
                     (<info:fedora/".$collection_pid."> <dc:description> \$collDesc) and
 					(\$object <fedora-rels-ext:isMemberOf> <info:fedora/".$collection_pid.">) and
-					((\$object <dc:identifier> \$identifier) or
-					(\$object <dc:title> \$title) or
-					(\$object <dc:description> \$description))
+					(\$object <dc:identifier> \$identifier) and
+					(\$object <dc:title> \$title) and
+					(\$object <dc:description> \$description) and
+                    (\$object <dc:type> \$type)
 					order by \$title asc";
 
 //		echo $itql;
-		$returnfields = array();
-		array_push($returnfields, "pid"); 
-		array_push($returnfields, "title");
-		array_push($returnfields, "identifier");
-		array_push($returnfields, "description");
-		array_push($returnfields, "creator");
+		$returnfields = array('pid', 'title', 'identifier', 'description', 'creator', 'type');
 
 		$details = Fedora_API::getITQLQuery($itql, $returnfields);
         $details = Auth::ProcessListResults($details);

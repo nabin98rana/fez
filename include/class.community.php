@@ -511,11 +511,12 @@ class Community
      */
     function getList()
     {
-		$itql = "select \$object \$title \$description from <#ri>
+		$itql = "select \$object \$title \$description \$type from <#ri>
 					where  (\$object <rdf:type> <fedora-model:FedoraObject>) and
                     (\$object <dc:type> 'eSpace_Community') and
-					((\$object <dc:title> \$title) or 
-					(\$object <dc:description> \$description))";
+					(\$object <dc:title> \$title) and 
+					(\$object <dc:description> \$description) and
+                    (\$object <dc:type> \$type)";
 
 //		echo $itql;
 
@@ -523,6 +524,7 @@ class Community
 		array_push($returnfields, "pid"); 
 		array_push($returnfields, "title");
 		array_push($returnfields, "description");
+		array_push($returnfields, "type");
 
 		$details = Fedora_API::getITQLQuery($itql, $returnfields);
         $details = Auth::ProcessListResults($details);

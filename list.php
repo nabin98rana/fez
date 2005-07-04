@@ -157,8 +157,8 @@ $tpl->assign("list", $list);
 if (Auth::userExists($username)) {
 	$prefs = Prefs::get(Auth::getUserID());
 }
-$tpl->assign("refresh_rate", @$prefs['list_refresh_rate'] * 60);
-$tpl->assign("refresh_page", "list.php");
+//$tpl->assign("refresh_rate", @$prefs['list_refresh_rate'] * 60);
+//$tpl->assign("refresh_page", "list.php");
 
 $tpl->displayTemplate();
 ?>

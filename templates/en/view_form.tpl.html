@@ -89,14 +89,17 @@ function disableFields()
 </script>
 {/literal}
 <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
-  <form name="details_form" method="post" action="{$smarty.server.PHP_SELF}">
-  <input type="hidden" name="cat" value="assign">
   <tr>
     <td>
+    <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+    <tr>
+    <td width="50%">
+      <form name="details_form" method="post" action="{$smarty.server.PHP_SELF}">
+      <input type="hidden" name="cat" value="assign">
       <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
 
         <tr>
-          <td align="left" class="default" nowrap colspan="2"><br /> <b>View Details: </b> {if $isEditor || $isAdministrator}<a href='update.php?pid={$pid|escape:"html"}'><img title="Edit" align="absmiddle" src="/images/edit.png" border="0"></a> {/if}<br /><br /></td>
+          <td align="left" class="default" nowrap colspan="2"><br /> <b>View Details: </b> <br /><br /></td>
         </tr>
 
 		<tr>
@@ -114,6 +117,9 @@ function disableFields()
 		  </td>
 		</tr>
 
+                <tr>
+                <td>
+                <table>
 
         {section name="i" loop=$xsd_display_fields}
 		{if $xsd_display_fields[i].xsdmf_html_input != 'static' and $xsd_display_fields[i].xsdmf_html_input != 'xsdmf_id_ref' and $xsd_display_fields[i].xsdmf_html_input != 'xsd_ref' and $xsd_display_fields[i].xsdmf_html_input != ''}
@@ -132,13 +138,15 @@ function disableFields()
           </td>
         </tr>
         {/section}
+        {if $isEditor || $isAdministrator}<tr><td><a href='update.php?pid={$pid|escape:"html"}'><img title="Edit" align="absmiddle" src="/images/edit.png" border="0"></a> </td></tr>{/if}
+                </table>
+                </td>
+                </tr>
       </table>
+      </form>
     </td>
-  </tr>
-  </form>
-	<tr>
-	  <td colspan="2" class="default">
-		<table border="0" cellpadding="2" cellspacing="0" width="100%"  bgcolor="#FFFFFF" >
+    <td align="center" valign="top"  bgcolor="#FFFFFF" cellspacing="1" cellpadding="2" border="0">
+		<table border="0" cellpadding="2" cellspacing="0"  bgcolor="#FFFFFF" >
 		  <tr>
 			<td class="default" colspan="3"><b>Attached Datastreams</b></td>
 		  </tr>
@@ -161,8 +169,11 @@ function disableFields()
 		  </tr>
 	{/section}
 		</table>
-	  </td>
-	</tr>			
+    </td>
+  </tr>			
+  </table>
+  </td>
+  </tr>
 
 </table>
 

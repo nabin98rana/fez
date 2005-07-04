@@ -159,3 +159,66 @@ h4 {
   color: #FFFFFF;
   text-decoration: underline;
 }
+
+.list-record {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 12px;
+    background-color: white;
+    padding: 0px 0px 0px 0px;
+    margin: 0px 0px 0px 50px;
+    text-align: left;
+}
+
+.list-record .row1 {
+    border: 1px solid #255282;
+    width: 600px;
+display: table;
+}
+
+.list-record .row1>div {
+display: table-cell;
+}
+
+
+.list-record .rtitlecell {
+width: 100%;
+}
+
+.list-record .rtitle {
+    font-weight: bold;
+    background-color: #255282;
+    padding: 4px 4px 4px 4px;
+    margin: 0px 0px 0px 0px;
+    color: white;
+}
+
+.list-record .rtitle a {
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
+    display: inline;
+}
+
+.list-record .rtitle a:hover {
+    color: #ffcc00;
+}
+
+.list-record .description {
+    /* background-color: #99ccff; */
+    background-color: #cccccc;
+    padding: 4px 4px 4px 4px;
+    margin: 0px 0px 0px 0px;
+}
+
+.list-record .controls {
+    padding: 4px 4px 4px 4px;
+    vertical-align: middle;
+}
+
+.list-record .icon {
+    vertical-align: middle;
+    padding: 0px 0px 0px 0px;
+    display: inline;
+}

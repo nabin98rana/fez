@@ -108,12 +108,12 @@ function purgeObject(pid)
 //-->
 </script>
 {/literal}
-<table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+<table width="100%" bgcolor="{$cell_color}" cellspacing="0" cellpadding="1" align="center">
   <form name="list_form" method="post" action="{$smarty.server.PHP_SELF}">
   <input type="hidden" name="cat" value="assign">
   <tr>
     <td>
-      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" >
 
 		{if $list_type == 'collection_records_list'}
 		<tr>
@@ -142,38 +142,85 @@ function purgeObject(pid)
 		{/if}
            &nbsp;<b>{$list_heading}: </b></td>
         </tr>
+        <tr><td>
+      <div class="list-record">
         {section name="i" loop=$list}
-		 {if ($list[i].isLister==1 || $isAdministrator)}
-        <tr>
-          <td align="left" class="default"><br /> 
-			{if ($list_type == 'all_records_list' || $list_type == 'collection_records_list')}
-				
-				{if ($list[i].isViewer==1 || $isAdministrator)}<a href='view.php?pid={$list[i].pid|escape:"html"}'>{/if}<img align="absmiddle" src="/images/record.png" border="0">{if ($list[i].isViewer==1 || $isAdministrator)}</a> <a href='view.php?pid={$list[i].pid|escape:"html"}'>{/if}{$list[i].title|escape:"html"}{if ($list[i].isViewer==1 || $isAdministrator)}</a>{/if}  &nbsp;&nbsp;{if $isUser && ($list[i].isEditor==1 || $isAdministrator)} <a href='update.php?pid={$list[i].pid|escape:"html"}'><img title="Edit" align="absmiddle" src="/images/edit.png" border="0"></a>{/if}{if $isAdministrator} &nbsp; <a href='javascript:void(null);' onClick="javascript:purgeObject('{$list[i].pid|escape:"html"}');"><img title="Delete" align="absmiddle" src="/images/delete.png" border="0"></a>{/if}
-			{elseif $list_type == 'community_list'}
-				<a href='list.php?community_pid={$list[i].pid|escape:"html"}'><img align="absmiddle" src="/images/community.png" border="0"></a> <a href='list.php?community_pid={$list[i].pid|escape:"html"}'>{$list[i].title|escape:"html"}</a> &nbsp;&nbsp;{if $isAdministrator} <a href='update.php?pid={$list[i].pid|escape:"html"}'><img title="Edit" align="absmiddle" src="/images/edit.png" border="0"></a> &nbsp; <a href='javascript:void(null);' onClick="javascript:purgeObject('{$list[i].pid|escape:"html"}');"><img title="Delete" align="absmiddle" src="/images/delete.png" border="0"></a>{/if}
-			{elseif $list_type == 'collection_list'}
-				 <a href='list.php?collection_pid={$list[i].pid|escape:"html"}'><img align="absmiddle" src="/images/collection.png" border="0"></a> <a href='list.php?collection_pid={$list[i].pid|escape:"html"}'>{$list[i].title|escape:"html"}</a>  &nbsp;&nbsp; {if $isUser && ($list[i].isEditor==1 || $isAdministrator)}  <a href='update.php?pid={$list[i].pid|escape:"html"}'><img title="Edit" align="absmiddle" src="/images/edit.png" border="0"></a> {/if}{if $isAdministrator}&nbsp; <a href='javascript:void(null);' onClick="javascript:purgeObject('{$list[i].pid|escape:"html"}');"><img title="Delete" align="absmiddle" src="/images/delete.png" border="0"></a> {/if}
-			{/if}
-		  </td>
-        </tr>
-		{if $list[i].creator != ''}
-        <tr>
-          <td align="left" class="default"><i>{$list[i].creator|escape:"html"}</i>. {$list[i].date|escape:"html"} <br /></td>
-        </tr>
-		{/if}
-		{if $list[i].description} 
-        <tr>
-          <td align="left" class="default">{$list[i].description|escape:"html"}<br /></td>
-        </tr>
-		{/if}
-		 {/if}
+        {if ($list[i].isLister==1 || $isAdministrator)}
+	   {if $list[i].type == 'eSpace_Community'}
+                {assign var="href_view" value="list.php?community_pid="|cat:$list[i].pid|escape:"html"}
+                {assign var="icon" value="images/community.png" }
+                {if $isAdministrator} 
+                        {assign var="showEdit" value=true}
+                {else}
+                        {assign var="showEdit" value=false}
+                {/if}
+           {elseif $list[i].type == 'eSpace_Collection'}
+                {assign var="href_view" value="list.php?collection_pid="|cat:$list[i].pid|escape:"html"}
+                {assign var="icon" value="images/collection.png" }
+                {if $isUser && ($list[i].isEditor==1 || $isAdministrator)}  
+                        {assign var="showEdit" value=true}
+                {else}
+                        {assign var="showEdit" value=false}
+                {/if}
+           {else}
+                {if ($list[i].isViewer==1 || $isAdministrator)}
+                  {assign var="href_view" value="view.php?pid="|cat:$list[i].pid|escape:"html"}
+                {else}
+                  {assign var="href_view" value=""}
+                {/if}
+                {assign var="icon" value="images/record.png" }
+                {if $isUser && ($list[i].isEditor==1 || $isAdministrator)} 
+                        {assign var="showEdit" value=true}
+                {else}
+                        {assign var="showEdit" value=false}
+                {/if}
+           {/if}
+              <div class="row1">
+
+                  <div class="rtitlecell">
+                    <div class="rtitle">
+                      <div class="icon">
+                        {if $href_view}<a href='{$href_view}' >{/if}<img align="absmiddle" 
+                        src="{$icon}" border="0">{if $href_view}</a>{/if} 
+                      </div>
+                    {if $href_view}<a href='{$href_view}'
+                    >{/if}{$list[i].title|escape:"html"}{if $href_view}</a>{/if}
+                    </div>
+                    <div class="description">
+                       {if $list[i].description}{$list[i].description|escape:"html"}
+                       {else}&nbsp;{/if} 
+                    </div>
+                  </div>
+
+                  {if $showEdit || $isAdministrator}
+                  <div class="controls">
+                    {if $showEdit}
+                        <a href='update.php?pid={$list[i].pid|escape:"html"}'><img title="Edit" align="absmiddle" src="images/edit.png" border="0"></a> 
+                    {/if}
+                    {if $isAdministrator}
+                         <a href='javascript:void(null);' onClick="javascript:purgeObject('{$list[i].pid|escape:"html"}');"><img title="Delete" align="absmiddle" src="images/delete.png" border="0"></a> 
+                    {/if}
+                  </div>
+                  {/if}
+              </div>
+
+                <!--<tr>
+                  <td></td>
+                  <td id="creator"><i>{$list[i].creator|escape:"html"}</i> {$list[i].date|escape:"html"} <br /> </td>
+                  <td></td>
+                </tr>-->
+                <!-- space between rows -->
+              <div class="space"><br/></div>
+
+	 {/if}
         {sectionelse}
-        <tr bgcolor="gray">
-          <td colspan="13" class="default_white" align="center">
-            <b>No records could be found.</b>
-          </td>
-        </tr>
+        <div class="no-records">
+            No records could be found.
+        </div>
         {/section}
+        </div>
+        </td>
+        </tr>
 		{if $isUser}
         <tr>
           <td align="left" class="default">

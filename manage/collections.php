@@ -72,7 +72,9 @@ if ($isAdministrator) {
 	foreach ($xsd_display_fields  as $dis_key => $dis_field) {
 		if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple') {
 			if (!empty($dis_field["xsdmf_smarty_variable"]) && $dis_field["xsdmf_smarty_variable"] != "none") {
-				eval("\$xsd_display_fields[\$dis_key]['field_options'] = \\" . $dis_field["xsdmf_smarty_variable"] . ";");
+                $evalstr = "\$xsd_display_fields[\$dis_key]['field_options'] = " . $dis_field["xsdmf_smarty_variable"] . ";";
+                echo $evalstr;
+				eval($evalstr);
 			}
 		}
 	}

@@ -5348,7 +5348,7 @@ class soap_parser extends nusoap_base {
 					foreach($this->multirefs as $id => $hrefs){
 						$this->debug('resolving multirefs for id: '.$id);
 						$idVal = $this->buildVal($this->ids[$id]);
-						if (array_key_exists('!id', $idVal)) {
+						if (is_array($idVal) && array_key_exists('!id', $idVal)) {
 							unset($idVal['!id']);
 						}
 						foreach($hrefs as $refPos => $ref){

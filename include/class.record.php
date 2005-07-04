@@ -3042,51 +3042,24 @@ LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "custom_field_option as 
      */
     function getDetails($pid, $xdis_id)
     {
-		// Get the entire XML object.
-        $xml = Fedora_API::getObjectXMLByPID($pid);
-//		$xml = Fedora_API::callGetDatastreams($pid);
 		// Get the Datastreams.
 		$datastreamTitles = XSD_Loop_Subelement::getDatastreamTitles($xdis_id);
-//		print_r($datastreamTitles);
-		$xmlDatastreams = array();
-		foreach ($datastreamTitles as $dsTitle) {
-			$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsTitle['xsdsel_title']);
-			$xmlDatastreams[$dsTitle['xsdsel_title']] = $DSResultArray['stream'];
-		} 
-//		print_r($dat);
-//		print_r($xmlDatastreams);
-//		foreach ($xmlDatastreams as $dsKey => $dsValue) {
 		foreach ($datastreamTitles as $dsValue) {
-			$xsd_id = XSD_Display::getParentXSDID($dsValue['xsdmf_xdis_id']);
-			$xsd_details = Doc_Type_XSD::getDetails($xsd_id);
-			$xsd_element_prefix = $xsd_details['xsd_element_prefix'];
-			$xsd_top_element_name = $xsd_details['xsd_top_element_name'];
-	
-			$xmlnode = new DomDocument();
-			$xmlnode2 = new DomDocument();
-	//		$xmlnode->loadXML($xml);
-	//		$xmlnode->loadXML($xmlDatastreams['RELS-EXT']);
-//			$xmlnode->loadXML($xmlDatastreams['DC']);
-			$xmlnode->loadXML($xmlDatastreams[$dsValue['xsdsel_title']]);
-	//		echo $xml;
-			$array_ptr = array();
-//			$xsdmf_array = array();
-			Misc::dom_xml_to_simple_array($xmlnode, $array_ptr, $xsd_top_element_name, $xsd_element_prefix, $xsdmf_array, $xdis_id);
+			$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title']);
+            if (isset($DSResultArray['stream'])) {
+                $xmlDatastream = $DSResultArray['stream'];
+                $xsd_id = XSD_Display::getParentXSDID($dsValue['xsdmf_xdis_id']);
+                $xsd_details = Doc_Type_XSD::getDetails($xsd_id);
+                $xsd_element_prefix = $xsd_details['xsd_element_prefix'];
+                $xsd_top_element_name = $xsd_details['xsd_top_element_name'];
 
-//			print_r($array_ptr);
-//			print_r($xsdmf_array);
+                $xmlnode = new DomDocument();
+                $xmlnode->loadXML($xmlDatastream);
+                $array_ptr = array();
+                Misc::dom_xml_to_simple_array($xmlnode, $array_ptr, $xsd_top_element_name, $xsd_element_prefix, $xsdmf_array, $xdis_id);
+            }
 		}
-
-
-
-//		$xmlnode2->loadXML($xmlDatastreams['RELS-EXT']);
-//		Misc::dom_xml_to_simple_array($xmlnode2, $array_ptr, $xsd_top_element_name, $xsd_element_prefix, $xsdmf_array, $xdis_id);
-
-//		print_r($array_ptr);
-//		echo "\n\nMOOOO<br /><br />\n\n";
-//		print_r($xsdmf_array);
 		return $xsdmf_array;
-
     }
 
 

@@ -107,12 +107,9 @@ function getNextPID() {
 
 
 function getObjectXMLByPID($pid) {
-//   global $_REQUEST;
-   $parms = array('PID' => $pid);
-   //Call addDatastream
-   $result = Fedora_API::openSoapCall('getObjectXML', $parms);
-//   print_r($result);
-	return $result;
+    $parms = array('PID' => $pid);
+    $result = Fedora_API::openSoapCall('getObjectXML', $parms);
+    return $result;
 }
 
 
@@ -171,7 +168,7 @@ function getListObjectsXML($searchTerms, $maxResults, $returnfields=null) {
     $searchTerms = urlencode("*$searchTerms*"); // encode it for url parsing
 
     if (empty($returnfields)) {
-        $returnfields = array('pid', 'title', 'identifier', 'description');
+        $returnfields = array('pid', 'title', 'identifier', 'description', 'type');
     }
     $fieldPhrase = '';
     foreach ($returnfields as $rField) {
