@@ -853,7 +853,8 @@
  <tr>
   <th>Summary:</th>
   <td><p>Process records are used to record any changes to the data after it has been put in the repository. Perhaps items were upgraded to a new file format or transformed in some way. The Adminsitrator will perform these operations on the items and record their actions in a process record. </p>
-    <p>The Process Records are stored as objects in the repository themselves and describe a generalised process. If all WAV files in the archive are to have their header format changed, then only one change record describing the generalised case needs to be created. </p></td>
+    <p>The Process Records are stored as objects in the repository themselves and describe a generalised process. If all WAV files in the archive are to have their header format changed, then only one change record describing the generalised case needs to be created. </p>
+    <p>Process records are likely to be used by the eSpace workflows to describe standard steps to perform. For this reason, they might also be automated so that a workflow could specify an automatic operation to be performed. </p></td>
  </tr>
  <tr>
   <th>Priority:</th>
@@ -908,8 +909,8 @@
  <tr>
   <th>Notes and Questions:</th>
   <td>
-    <p>Unlike the adapters for extracting metadata, the process records are not automated. There is a risk that large scale automated changes within eSpace could corrupt data if the script has a bug. Changes to eSpace data will likely be performed outside of eSpace after extracting the items.</p>
-    <p>An argument for automating processes in eSpace is that we could then guarantee that eSpace has a record of what changed - because eSpace did it using the instructions in the process record, we know the process record must be complete.</p></td>
+    <p>There is a risk that large scale automated changes within eSpace could corrupt data if the script has a bug. We'll need a procedure for testing eSpace processes to make sure they are correct before we apply them to a large set of data. </p>
+    </td>
  </tr>
 </table>
 </div>
@@ -1044,9 +1045,9 @@
 <table border="1" cellpadding="3" cellspacing="2" class="axial">
  <tr>
   <th>Summary:</th>
-  <td><p>Workflows are used to describe how users interact with a piece of software. In this context, an eSpace workflow defines the states an item proceed through to be archived. This eSpace workflow is configurable so that it can be adapted to suit a variety of organisations.</p>
-    <p>The workflow defines a set of roles that will be associated with each object. When an object is submitted, these roles are inherited from the parent object or can be over-ridden by the archiver. </p>
-    <p>&nbsp;</p></td>
+  <td><p>Workflows are used to describe how users interact with a piece of software. In this context, an eSpace workflow defines the states an item proceeds through to acheive a task - e.g. ingesting or extracting. This eSpace workflow is configurable so that it can be adapted to suit a variety of organisations.</p>
+    <p>The workflow defines a set of roles that will be associated with each object. When an object is submitted, these roles are inherited from the parent object or can be over-ridden by the archiver.</p>
+    </td>
  </tr>
  <tr>
   <th>Priority:</th>
@@ -1109,7 +1110,8 @@
 <table border="1" cellpadding="3" cellspacing="2" class="axial">
  <tr>
   <th>Summary:</th>
-  <td>The eSpace workflow  defines a network of states that the eSpace item must progress through. Each state has a set of instructions and is associated with a configured role. The state of each item is stored in it's metadata. </td>
+  <td><p>The eSpace workflow  defines a network of states that the eSpace item must progress through. Each state has a set of instructions (in a <a href="#UC-03-03">process record</a>) and is associated with a <a href="#UC-0402">configured role</a>. The state of each item is stored in it's metadata. </p>
+    <p>Each Workflow has a start state and a way of triggering it. For example there may be a workflow configured to trigger on the ingesting of a slide image. There is another workflow that is triggered when a user self registers. Making the workflows configurable creates a lot of flexibility about how eSpace interacts with all users. </p></td>
  </tr>
  <tr>
   <th>Priority:</th>
