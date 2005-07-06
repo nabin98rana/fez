@@ -79,7 +79,7 @@ class Auth
         session_name($session_name);
         @session_start();
 
-        if ($failed_url == NULL) {
+        if (empty($failed_url)) {
             $failed_url = APP_RELATIVE_URL . "login.php?err=5";
         }
         
@@ -786,6 +786,9 @@ class Auth
 
 
 }
+
+session_name(APP_SESSION);
+@session_start();
 
 // benchmarking the included file (aka setup time)
 if (APP_BENCHMARK) {

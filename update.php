@@ -43,14 +43,13 @@ include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 
 include_once(APP_INC_PATH . "class.fedora_api.php");
-include_once(APP_INC_PATH . "class.xsd_xsl_transform.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 
 
 $tpl = new Template_API();
 $tpl->setTemplate("update.tpl.html");
 
-//Auth::checkAuthentication(APP_SESSION);
+Auth::checkAuthentication(APP_SESSION);
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
 $isAdministrator = User::isUserAdministrator($username);
@@ -64,8 +63,8 @@ $record_id = @$HTTP_POST_VARS["pid"] ? $HTTP_POST_VARS["pid"] : $HTTP_GET_VARS["
 $pid = $record_id;
 
 
-$collection_pid = @$HTTP_POST_VARS["collection_pid"] ? $HTTP_POST_VARS["collection_pid"] : $HTTP_GET_VARS["collection_pid"];	
-$community_pid = @$HTTP_POST_VARS["community_pid"] ? $HTTP_POST_VARS["community_pid"] : $HTTP_GET_VARS["community_pid"];	
+$collection_pid = @$HTTP_POST_VARS["collection_pid"] ? $HTTP_POST_VARS["collection_pid"] : @$HTTP_GET_VARS["collection_pid"];	
+$community_pid = @$HTTP_POST_VARS["community_pid"] ? $HTTP_POST_VARS["community_pid"] : @$HTTP_GET_VARS["community_pid"];	
 
 $tpl->assign("collection_pid", $collection_pid);
 $tpl->assign("community_pid", $community_pid);
@@ -129,10 +128,10 @@ $xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id));
 foreach ($xsd_display_fields  as $dis_key => $dis_field) {
 	if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple') {
 		if (!empty($dis_field["xsdmf_smarty_variable"]) && $dis_field["xsdmf_smarty_variable"] != "none") {
-			eval("\$xsd_display_fields[\$dis_key]['field_options'] = \\" . $dis_field["xsdmf_smarty_variable"] . ";");
+			eval("\$xsd_display_fields[\$dis_key]['field_options'] = " . $dis_field["xsdmf_smarty_variable"] . ";");
 		}
 		if (!empty($dis_field["xsdmf_dynamic_selected_option"]) && $dis_field["xsdmf_dynamic_selected_option"] != "none") {
-			eval("\$xsd_display_fields[\$dis_key]['selected_option'] = \\" . $dis_field["xsdmf_dynamic_selected_option"] . ";");
+			eval("\$xsd_display_fields[\$dis_key]['selected_option'] = " . $dis_field["xsdmf_dynamic_selected_option"] . ";");
 		}
 	}
 }

@@ -84,6 +84,7 @@ $community_pid = @$HTTP_POST_VARS["community_pid"] ? $HTTP_POST_VARS["community_
 
 if (!empty($collection_pid)) {
     // list a collection
+	$tpl->assign("xdis_id", Record::getRecordXDIS_ID());
 	$collection_details = Collection::getDetails($collection_pid);
 	$parents = Collection::getParents($collection_pid);
 	$tpl->assign("parents", $parents);

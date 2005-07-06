@@ -611,7 +611,7 @@ function datastreamExists ($pid, $dsID) {
 	$dsExists = false;
 	$rs = Fedora_API::callGetDatastreams($pid, $dsID);
 	foreach ($rs as $row) {
-		if ($row['ID'] == $dsID) {
+		if (isset($row['ID']) && $row['ID'] == $dsID) {
 			$dsExists = true;
 		}
 	} 

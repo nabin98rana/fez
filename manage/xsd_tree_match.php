@@ -33,10 +33,10 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "db_access.php");
 
-Auth::checkAuthentication(APP_SESSION);
 $tpl = new Template_API();
 $tpl->setTemplate("manage/xsd_tree_match.tpl.html");
 
+Auth::checkAuthentication(APP_SESSION);
 $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);

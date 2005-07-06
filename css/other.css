@@ -174,7 +174,7 @@ h4 {
 .list-record .row1 {
     border: 1px solid #255282;
     width: 600px;
-display: table;
+    display: table;
 }
 
 .list-record .row1>div {
@@ -221,4 +221,12 @@ width: 100%;
     vertical-align: middle;
     padding: 0px 0px 0px 0px;
     display: inline;
+}
+
+.no-records {
+    /*font-weight: bold;*/
+    background-color: #cccccc;
+    text-align: center;
+    width: 600px;
+    padding: 4px 4px 4px 4px;
 }

@@ -97,6 +97,7 @@ if (!empty($pid) && !empty($dsID)) {
 			// Read the source OAI repository url or file
 			
 			$sourceOAI = fopen($urldata, "r");
+			$sourceOAIRead = '';
 			while ($tmp = fread($sourceOAI, 1024))
 			{
 			$sourceOAIRead .= $tmp;

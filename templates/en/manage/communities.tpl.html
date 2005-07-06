@@ -106,14 +106,11 @@
                     <tr>
                       <td width="4" align="center" nowrap bgcolor="{$row_color}"><input type="checkbox" name="items[]" value="{$list[i].prj_id}"></td>
                       <td width="30%" bgcolor="{$row_color}" class="default">
-                        &nbsp;<a class="link" href="{$smarty.server.PHP_SELF}?cat=edit&id={$list[i].pid}" title="update this entry">{$list[i].title}</a>
+                        &nbsp;<a class="link" href="{$rel_url}update.php?pid={$list[i].pid}" title="update this entry">{$list[i].title}</a>
                       </td>
                       <td width="20%" bgcolor="{$row_color}" class="default">&nbsp;{$list[i].usr_full_name}</td>
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].prj_status|capitalize}</td>
                       <td width="30%" bgcolor="{$row_color}" nowrap class="default">
-                        <ul>
-                          <li><a href="{$rel_url}manage/categories.php?pid={$list[i].pid}" class="link">Edit Categories</a></li>
-                        </ul>
                       </td>
                     </tr>
                     {sectionelse}

@@ -2118,6 +2118,29 @@ class XSD_HTML_Match
             return true;
         }
     }
+
+    function getElementMatchList($xdis_id)
+    {
+        $stmt = "SELECT 
+                    xsdmf_element
+                 FROM
+                    ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."xsd_display_matchfields
+                 WHERE
+                    xsdmf_xdis_id='$xdis_id'
+                    ";
+                    //AND xsdmf_enabled=1";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        } else {
+            $ret = array();
+            foreach ($res as $record) {
+                $ret[] = $record['xsdmf_element'];
+            }
+            return $ret;
+        }
+    }
 }
 
 // benchmarking the included file (aka setup time)

@@ -35,5 +35,11 @@ include_once(APP_INC_PATH . "db_access.php");
 $tpl = new Template_API();
 $tpl->setTemplate("reports/top.tpl.html");
 
+Auth::checkAuthentication(APP_SESSION);
+$isUser = Auth::getUsername();
+$tpl->assign("isUser", $isUser);
+$isAdministrator = User::isUserAdministrator($isUser);
+$tpl->assign("isAdministrator", $isAdministrator);
+
 $tpl->displayTemplate();
 ?>

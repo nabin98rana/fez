@@ -46,7 +46,6 @@ include_once(APP_INC_PATH . "class.community.php");
 include_once(APP_INC_PATH . "class.date.php");
 //include_once(APP_INC_PATH . "class.library_staff_ad.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
-include_once(APP_INC_PATH . "class.xsd_xsl_transform.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 
 
@@ -65,9 +64,9 @@ $tpl->assign("isAdministrator", $isAdministrator);
 
 //if ($role_id == User::getRoleID('standard user') || ($role_id == User::getRoleID('administrator')) || ($role_id == User::getRoleID('manager'))) {
 
-$xdis_id = @$HTTP_POST_VARS["xdis_id"] ? $HTTP_POST_VARS["xdis_id"] : $HTTP_GET_VARS["xdis_id"];	
-$collection_pid = @$HTTP_POST_VARS["collection_pid"] ? $HTTP_POST_VARS["collection_pid"] : $HTTP_GET_VARS["collection_pid"];	
-$community_pid = @$HTTP_POST_VARS["community_pid"] ? $HTTP_POST_VARS["community_pid"] : $HTTP_GET_VARS["community_pid"];	
+$xdis_id = @$HTTP_POST_VARS["xdis_id"] ? $HTTP_POST_VARS["xdis_id"] : @$HTTP_GET_VARS["xdis_id"];	
+$collection_pid = @$HTTP_POST_VARS["collection_pid"] ? $HTTP_POST_VARS["collection_pid"] : @$HTTP_GET_VARS["collection_pid"];	
+$community_pid = @$HTTP_POST_VARS["community_pid"] ? $HTTP_POST_VARS["community_pid"] : @$HTTP_GET_VARS["community_pid"];	
 
 $tpl->assign("collection_pid", $collection_pid);
 $tpl->assign("community_pid", $community_pid);
@@ -102,6 +101,7 @@ if (@$HTTP_POST_VARS["cat"] == "report") {
 	if (@$HTTP_POST_VARS['report_stays']) {
 		// stay here
 	} else { // otherwise redirect to list where this record would show
+        sleep(1); // give fedora some time to update it's indexes or whatever it does.
 		Auth::redirect(APP_RELATIVE_URL . "list.php?new_pid=".$res.$extra_redirect, false);
 	}
 
@@ -163,10 +163,10 @@ $xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id));
 foreach ($xsd_display_fields  as $dis_key => $dis_field) {
 	if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple') {
 		if (!empty($dis_field["xsdmf_smarty_variable"]) && $dis_field["xsdmf_smarty_variable"] != "none") {
-			eval("\$xsd_display_fields[\$dis_key]['field_options'] = \\" . $dis_field["xsdmf_smarty_variable"] . ";");
+			eval("\$xsd_display_fields[\$dis_key]['field_options'] = " . $dis_field["xsdmf_smarty_variable"] . ";");
 		}
 		if (!empty($dis_field["xsdmf_dynamic_selected_option"]) && $dis_field["xsdmf_dynamic_selected_option"] != "none") {
-			eval("\$xsd_display_fields[\$dis_key]['selected_option'] = \\" . $dis_field["xsdmf_dynamic_selected_option"] . ";");
+			eval("\$xsd_display_fields[\$dis_key]['selected_option'] = " . $dis_field["xsdmf_dynamic_selected_option"] . ";");
 		}
 	}
 }
@@ -192,10 +192,6 @@ $setup = Setup::load();
 //$tpl->assign("allow_unassigned_issues", $setup["allow_unassigned_issues"]);
 
 
-if (Auth::userExists($username)) {
-	$prefs = Prefs::get(Auth::getUserID());
-}
-$tpl->assign("user_prefs", $prefs);
 //$user_details = User::getDetails(Auth::getUserID());
 //$primary_campus_id = $user_details['usr_primary_campus_id'];
 //$tpl->assign("user_primary_campus_id", $primary_campus_id);

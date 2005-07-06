@@ -1014,22 +1014,22 @@ function removeNonXMLDatastreams($datastreamTitles, $xmlString) {
 			
 //			$binaryPos = strpos($searchXMLString, '<foxml:binaryContent>');
 			$binaryPos = strrpos($searchXMLString, '<foxml:binaryContent>', $IDPos); // get the last binaryContent position in the xml after ds title, but before a /datastream (close tag)
-			if (is_numeric($binaryPos)) { // if you find binaryContent after this tag
+            if (is_numeric($binaryPos)) { // if you find binaryContent after this tag
 //				$XMLContentStartPos = strrpos($xmlString, '<foxml:datastream', $IDPos);
 //				echo substr($xmlString, 0, $binaryPos);
 //				$XMLContentStartPos = strrpos(substr($xmlString, 0, $binaryPos), '<foxml:datastream '); // the space is essential or it will pick '<foxml:datastreamVersion
 //				echo "HEEEERE!!!";
 //				echo substr($xmlString, 0, $binaryPos); echo "\n\n";
 //				$XMLContentStartPos = strpos(substr($xmlString, 0, $binaryPos), '<foxml:datastream '); // the space is essential or it will pick '<foxml:datastreamVersion
-				$XMLContentStartPos = strrpos(substr($xmlString, 0, $binaryPos), '<foxml:datastream '); // the space is essential or it will pick '<foxml:datastreamVersion
-				$XMLContentEndPos = strpos($xmlString, '</foxml:datastream>', $XMLContentStartPos) + 19;
-			}
-			if (is_numeric($XMLContentStartPos) && is_numeric($XMLContentEndPos)) {
-				$tempXML = substr($xmlString, $XMLContentStartPos, ($XMLContentEndPos-$XMLContentStartPos));
+                $XMLContentStartPos = strrpos(substr($xmlString, 0, $binaryPos), '<foxml:datastream '); // the space is essential or it will pick '<foxml:datastreamVersion
+                $XMLContentEndPos = strpos($xmlString, '</foxml:datastream>', $XMLContentStartPos) + 19;
+                if (is_numeric($XMLContentStartPos) && is_numeric($XMLContentEndPos)) {
+                    $tempXML = substr($xmlString, $XMLContentStartPos, ($XMLContentEndPos-$XMLContentStartPos));
 //				echo "remove temp XML -> ";
 //				echo $tempXML."\n\n\n";
-				$return = str_replace($tempXML, "", $return); // if a binary datastream is found then remove it from the ingest object
-			}
+                    $return = str_replace($tempXML, "", $return); // if a binary datastream is found then remove it from the ingest object
+                }
+            }
 		}
 	}
 //	echo "RETURN CLEANED XMLOBJ -> ".$return."\n\n";
@@ -1152,7 +1152,7 @@ function dom_xml_to_simple_array($domnode, &$array, $top_element_name, $element_
 							$ptr_value = $domnode->nodeValue;
 						}
 						if (!empty($xsdmf_ptr) && (array_key_exists($xsdmf_id, $xsdmf_ptr)) 
-                                && (!array_key_exists(0, $xsdmf_ptr[$xsdmf_id]))) {
+                                && (!is_array($xsdmf_ptr[$xsdmf_id]) || !array_key_exists(0, $xsdmf_ptr[$xsdmf_id]))) {
 							$tmp_value = $xsdmf_ptr[$xsdmf_id];
 							$xsdmf_ptr[$xsdmf_id] = array();
 							$xsdmf_ptr[$xsdmf_id][0] = $tmp_value;
@@ -1366,8 +1366,9 @@ function getXMLObjectByTypeNameValue($domnode, $type, $elementname) {
 	return false;
 }
 
-function getSchemaAttributes($domnode, $top_element_name="", $element_prefix="", $xsd_extra_ns_prefixes) {
+function getSchemaAttributes($domnode, $top_element_name="", $element_prefix="", $xsd_extra_ns_prefixes=array()) {
 	$res = "";
+    $nsURI = '';
 	
 	$currentnode = new DomDocument;
 	$result = $domnode->getElementsByTagname('schema');
@@ -1549,7 +1550,7 @@ function dom_xsd_to_referenced_array($domnode, $topelement, &$array, $parentnode
 						}
 						if ($current_name <> $parentnodename) {
 							$array_ptr = &$array[$current_name];
-							$array_ptr['espace_hyperlink'] = urlencode($parentContent);
+							$array_ptr['espace_hyperlink'] = $parentContent;
 							if ($shortnodename == 'attribute') {
 								$array_ptr['espace_nodetype'] = 'attribute';
 							} elseif ($shortnodename == 'enumeration') {
@@ -1607,7 +1608,7 @@ function dom_xsd_to_referenced_array($domnode, $topelement, &$array, $parentnode
 					if (($current_name != $supertopelement) && ($current_name != "")) {
 						$array_ptr = &$array[$current_name];
 						$parentContent .= "!".$current_name;
-					    $array_ptr['espace_hyperlink'] = urlencode($parentContent);
+					    $array_ptr['espace_hyperlink'] = $parentContent;
 					}
 				}
 
@@ -1675,7 +1676,7 @@ function dom_xsd_to_referenced_array($domnode, $topelement, &$array, $parentnode
 					if (($current_name != $supertopelement) && ($current_name != "")) {					
 						$array_ptr = &$array[$current_name];
 						$parentContent .= "!".$current_name;
-						$array_ptr['espace_hyperlink'] = urlencode($parentContent);
+						$array_ptr['espace_hyperlink'] = $parentContent;
 					}
 				}
 			}
@@ -1937,38 +1938,9 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 											}
 										}
 									}
-								} elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'text' || $xsdmf_details_ref['xsdmf_html_input'] == 'textarea') {
-									if ($xsd_display_fields[i].xsdmf_multiple == 1) {
-										foreach ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] as $multiple_element) {
-											if ($attrib_value == "") {
-												$attrib_value = $multiple_element;
-											} else {
-												// Give a tag to each value, eg DC language - english & french need own language tags
-												// close the previous
-												if (!is_numeric(strpos($i, ":"))) {
-													$attrib_value .= "</".$element_prefix.$i.">\n";
-												} else {
-													$attrib_value .= "</".$i.">\n";
-												}
-												//open a new tag
-												if (!is_numeric(strpos($i, ":"))) {
-													$attrib_value .= "<".$element_prefix.$i;
-												} else {
-													$attrib_value .= "<".$i;
-												} 
-												//finish the new open tag
-												if ($xsdmf_details['xsdmf_valueintag'] == 1) {
-													$attrib_value .= ">\n";
-												} else {
-													$attrib_value .= "/>\n";
-												}
-												$attrib_value .= $multiple_element;
-											}
-	
-										}
-									} else {
-										$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details_ref['xsdmf_id']];
-									}
+								} elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'text' 
+                                        || $xsdmf_details_ref['xsdmf_html_input'] == 'textarea') {
+                                    $attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details_ref['xsdmf_id']];
 								}
 							} elseif ($xsdmf_details['xsdmf_html_input'] == 'static') {
 								if ($xsdmf_details['xsdmf_espace_variable'] == "pid") {
@@ -2036,7 +2008,7 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 					}
 				}
 			} elseif (!empty($j['espace_hyperlink'])) {
-				if ($j['espace_nodetype'] != 'attribute') {
+				if (!isset($j['espace_nodetype']) || $j['espace_nodetype'] != 'attribute') {
 //					echo $j['espace_hyperlink']."<br />";
 					if (is_numeric($parent_sel_id)) { //echo "WAF";
 						$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_ID(urldecode($j['espace_hyperlink']), $parent_sel_id, $xdis_id);
@@ -2072,7 +2044,8 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 						$attrib_value = "";
 						if ($xsdmf_details['xsdmf_html_input'] == 'combo') {
 							$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]);
-						} elseif ($xsdmf_details['xsdmf_html_input'] == 'multiple') {
+						} elseif ($xsdmf_details['xsdmf_html_input'] == 'multiple' 
+                                && isset($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) {
 							foreach ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] as $multiple_element) {
 								if ($attrib_value == "") {
 									$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($multiple_element);
@@ -2177,7 +2150,9 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 						} else {
 							$attrib_value = $xsdmf_details['xsdmf_static_text'];
 						}
-					} elseif ($xsdmf_details['xsdmf_html_input'] == 'file_input' || $xsdmf_details['xsdmf_html_input'] == 'file_selector') {
+					} elseif (($xsdmf_details['xsdmf_html_input'] == 'file_input' 
+                            || $xsdmf_details['xsdmf_html_input'] == 'file_selector')
+                            && !empty($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']])) {
 //						echo "POST FILES !!! - >";
 //						print_r($HTTP_POST_FILES);
 //						$attrib_value = base64_encode(fread(fopen($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']], "r"), $HTTP_POST_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']]));
@@ -2231,7 +2206,7 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 						} elseif ($xsdmf_details['xsdmf_espace_variable'] == "xdis_id") {
 							$attrib_value = $xsdmf_details['xsdmf_value_prefix'] . $top_xdis_id;
 						} else {
-							$attrib_value = $xsdmf_details['xsdmf_value_prefix'] . $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id];
+							$attrib_value = $xsdmf_details['xsdmf_value_prefix'] . @$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id];
 						}
 					} 
 						$xmlObj .= $attrib_value; // The actual value to store inside the element tags, if one exists
@@ -2312,7 +2287,7 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 
 								$xmlObj .= $tagIndent."<".$xsd_element_prefix.$xsd_top_element_name." ";
 
-								$xmlObj .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis, $pid);
+								$xmlObj .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $pid);
 								$xmlObj .= $xml_schema;
 								$xmlObj .= ">\n";
 
@@ -2348,7 +2323,7 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 }
 
 
-function array_to_dtree($a, $xdis_id=0, $counter=0, $parent_counter=-1) {
+function array_to_dtree($a, $xdis_id=0, $element_match_list=array(), $counter=0, $parent_counter=-1) {
 $match_form_url = APP_BASE_URL."manage/xsd_tree_match_form.php?xdis_id=".$xdis_id."&xml_element=";
 $ret = array();
 $dtree_image = "";
@@ -2372,8 +2347,16 @@ foreach ($a as $i => $j) {
 					}
 				}
 
-				if 	(!is_array($j['espace_hyperlink']) && (!empty($j['espace_hyperlink'])))  {
-	  			  $ret[1] .= "tree.add($counter, $parent_counter, '$i', '".$match_form_url.$j['espace_hyperlink']."', '', 'basefrm'".$dtree_image.");\n";
+				if 	(isset($j['espace_hyperlink']) && !is_array($j['espace_hyperlink']))  {
+                    $ehref = $j['espace_hyperlink'];
+                    $node_label = $i;
+                    // make the tree node bold if there is a matchfields entry (i.e. we are using it)
+                    if (in_array($ehref, $element_match_list)) {
+                        $node_label = "<b>$node_label</b>";
+                    }
+                    $ehref = urlencode($ehref);
+	  			  $ret[1] .= "tree.add($counter, $parent_counter, '$node_label', "
+                      ."'$match_form_url$ehref', '', 'basefrm'".$dtree_image.");\n";
 				} else {
 				  $ret[1] .= "tree.add($counter, $parent_counter, '$i');\n";
 				} 
@@ -2384,7 +2367,7 @@ foreach ($a as $i => $j) {
 //			if ($counter == -1) {
 //				$tmp = Misc::array_to_dtree($j, $counter + 1, 0);
 //			} else {
-				$tmp = Misc::array_to_dtree($j, $xdis_id, $counter + 1, $counter);
+				$tmp = Misc::array_to_dtree($j, $xdis_id, $element_match_list, $counter + 1, $counter);
 //			}
 
 			$counter = $tmp[0];
@@ -2393,7 +2376,7 @@ foreach ($a as $i => $j) {
 		} else {
 //			echo "in b";
 			$tmp = array();
-			$tmp = Misc::array_to_dtree($j, $xdis_id, $counter, $parent_counter);
+			$tmp = Misc::array_to_dtree($j, $xdis_id, $element_match_list, $counter, $parent_counter);
 			$counter = $tmp[0];
 			$ret[1] .= $tmp[1];
 		}
@@ -2408,7 +2391,9 @@ foreach ($a as $i => $j) {
 					$dtree_image = ", '../images/dtree/enumeration.gif'";
 				}
 			}
-			$ret[1] .= "tree.add($counter, $parent_counter, '$i', '".$match_form_url.$j['espace_hyperlink']."', '', 'basefrm'".$dtree_image.");\n";
+            $ehref = $j['espace_hyperlink'];
+            $ehref = urlencode($ehref);
+			$ret[1] .= "tree.add($counter, $parent_counter, '$i', '".$match_form_url.$ehref."', '', 'basefrm'".$dtree_image.");\n";
 		} 
 		$counter = $counter + 1;
 	}

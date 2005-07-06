@@ -536,33 +536,30 @@ class Collection
      * @access  public
      * @return  array The list of collections
      */
-    function getList($community_pid)
+    function getList($community_pid=false)
     {
+		$returnfields = array('pid', 'title', 'description','type');
+        $selectstr = '$object ';
+        foreach ($returnfields as $rfield) {
+            if ($rfield != 'pid') {
+                $selectstr .= "\$$rfield ";
+            }
+        }
 
-		$itql = "select \$collTitle \$collDesc \$title \$description \$object \$type from <#ri>
-					where  (<info:fedora/".$community_pid."> <dc:title> \$collTitle) and
-                    (<info:fedora/".$community_pid."> <dc:description> \$collDesc) and
-					(\$object <fedora-rels-ext:isMemberOf> <info:fedora/".$community_pid.">) and
+        $community_query = '';
+        if ($community_pid) {
+            $community_query = " (<info:fedora/".$community_pid."> <dc:title> \$collTitle) and
+                (<info:fedora/".$community_pid."> <dc:description> \$collDesc) and
+                (\$object <fedora-rels-ext:isMemberOf> <info:fedora/$community_pid>) and ";
+        } 
+
+		$itql = "select $selectstr from <#ri>
+                    where $community_query
 					(\$object <dc:title> \$title) and
 					(\$object <dc:description> \$description) and
-                    (\$object <dc:type> \$type)
+                    (\$object <dc:type> \$type) and 
+                    (\$object <dc:type> 'eSpace_Collection') 
 					order by \$title asc";
-
-/*		$itql = "select \$object \$title \$identifier \$description \$member from <#ri>
-
-					where  (<info:fedora/".$community_pid."> <dc:title> \$title) and
-
-					where  (\$object <rdf:type> <fedora-model:FedoraObject>) and
-
-					(\$member <fedora-rels-ext:isMemberOf> <info:fedora/".$community_pid.">) and
-                    (\$object <dc:type> 'eSpace_Collection') and
-					((\$object <dc:title> \$title) or 
-					(\$object <dc:description> \$description) or
-					(\$object <dc:identifier> \$identifier))
-					order by \$title asc";
-*/
-//		echo $itql;
-		$returnfields = array('pid', 'title', 'identifier', 'description','type');
 
 		$details = Fedora_API::getITQLQuery($itql, $returnfields);
         $details = Auth::ProcessListResults($details);

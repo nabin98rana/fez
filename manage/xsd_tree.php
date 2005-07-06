@@ -55,12 +55,10 @@ if ($isAdministrator) {
 
 //echo $_POST['xsd_source'];
 //$role_id = User::getRoleByUserCollection(Auth::getUserID(), $col_id);
-$xdis_id = @$HTTP_POST_VARS["xdis_id"] ? $HTTP_POST_VARS["xdis_id"] : $HTTP_GET_VARS["xdis_id"];
+$xdis_id = @$HTTP_POST_VARS["xdis_id"] ? $HTTP_POST_VARS["xdis_id"] : @$HTTP_GET_VARS["xdis_id"];
 // TEST
 //$xdis_id = 3;
 $xsd_id = XSD_HTML_Match::getXSD_ID($xdis_id);
-
-
 
 $top_element_name = Doc_Type_XSD::getDetails($xsd_id);
 //print_r($top_element_name);
@@ -89,7 +87,8 @@ $temp = array();
 
 Misc::dom_xsd_to_referenced_array($xsd, $top_element_name, &$array_ptr, "", "", $xsd);
 //print_r($array_ptr);
-$temp = (Misc::array_to_dtree($array_ptr, $xdis_id));
+$element_match_list = XSD_HTML_Match::getElementMatchList($xdis_id);
+$temp = (Misc::array_to_dtree($array_ptr, $xdis_id, $element_match_list));
 //var_dump($array_ptr);
 
 $tpl->assign("xsd_tree", $temp[1]);

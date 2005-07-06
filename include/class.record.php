@@ -1198,91 +1198,7 @@ class Record
      */
     function update($pid)
     {
-        global $HTTP_POST_VARS, $HTTP_POST_FILES;
-//		print_r($HTTP_POST_VARS['xsd_display_fields'][26]);
-//		print_r($HTTP_POST_VARS);
-        $usr_id = Auth::getUserID();
-		$xdis_id = $HTTP_POST_VARS["xdis_id"];
-		$xsd_id = XSD_Display::getParentXSDID($xdis_id);
-		$xsd_details = Doc_Type_XSD::getDetails($xsd_id);
-		$xsd_element_prefix = $xsd_details['xsd_element_prefix'];
-		$xsd_top_element_name = $xsd_details['xsd_top_element_name'];
-
-		$xsd_str = Doc_Type_XSD::getXSDSource($xsd_id);
-		$xsd_str = $xsd_str[0]['xsd_file'];
-		
-		$xsd = new DomDocument();
-		$xsd->loadXML($xsd_str);
-					
-		if ($xsd_element_prefix != "") {
-			$xsd_element_prefix .= ":";
-		}
-		$xml_schema = Misc::getSchemaAttributes($xsd, $xsd_top_element_name, $xsd_element_prefix);
-		$array_ptr = array();
-		Misc::dom_xsd_to_referenced_array($xsd, $xsd_top_element_name, &$array_ptr, "", "", $xsd);
-
-		$xmlObj = '<?xml version="1.0"?>'."\n";
-		$xmlObj .= "<".$xsd_element_prefix.$xsd_top_element_name." ";
-		$xmlObj .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name);
-		$xmlObj .= $xml_schema;
-		$xmlObj .= ">\n";
-		//echo $xmlObj;
-// 		print_r($array_ptr);
-		$xmlObj = Misc::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "");
-		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
-//		$xsd_show = new DomDocument();
-//		$xsd_show->loadXML($xmlObj);
-//		$xmlObj = $xsd_show->saveXML();
-// @@@ CK 22/5/2005 - Don't uncomment the tidy code as it will stop the PDF's etc from loading correctly
-/*
-		$config = array(
-          'indent'         => true,
-          'input-xml'   => true,
-          'output-xml'   => true,
-          'wrap'           => 200);
-
-		$tidy = new tidy;
-		$tidy->parseString($xmlObj, $config, 'utf8');
-		$tidy->cleanRepair();
-		$xmlObj = $tidy;
-*/
-//		echo "<pre>\n";
-//		echo $xmlObj;
-		$datastreamTitles = XSD_Loop_Subelement::getDatastreamTitles($xdis_id);
-//		print_r($datastreamTitles);
-		$params = array();
-
-		$datastreamXMLHeaders = Misc::getDatastreamXMLHeaders($datastreamTitles, $xmlObj);
-//		echo "HERE BE THE HEADERS!!! -> ";
-//		print_r($datastreamXMLHeaders);
-		$datastreamXMLContent = Misc::getDatastreamXMLContent($datastreamTitles, $xmlObj);
-//		print_r($datastreamXMLContent);
-//		echo $xmlObj;
-//		print_r($array_ptr);
-//		echo "</pre>";
-		// Actually Modify the object Into Fedora
-
-//	    $parms= array('PID' => $pid, 'state' => $state, 'label' => $label, 'logMessage' => $logmsg);
-// @@@ CK - 4/5/2005 - prevented this from running for now as not sure what to do with state and label just yet
-//  	    Fedora_API::openSoapCall('modifyObject', $parms);
-
-//		print_r(Fedora_API::callGetDatastreams ($pid));
-		foreach ($datastreamTitles as $dsTitle) {
-			if (Fedora_API::datastreamExists($pid, $dsTitle['xsdsel_title'])) {
-//				echo $dsTitle['xsdsel_title'];
-		        Fedora_API::callModifyDatastreamByValue($pid, $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['ID'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['STATE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['LABEL'], $datastreamXMLContent[$dsTitle['xsdsel_title']], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['MIMETYPE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['VERSIONABLE']);
-//		        Fedora_API::callModifyDatastreamByValue($pid, $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['versionID'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['STATE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['LABEL'], $datastreamXMLContent[$dsTitle['xsdsel_title']], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['MIMETYPE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['VERSIONABLE']);
-			} else {
-
-/*$datastreamXMLContent[$dsTitle['xsdsel_title']] = '<eSpaceMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-  <xdis_id>15</xdis_id>
-</eSpaceMD>'; */
-//				Fedora_API::callAddXMLDatastream($pid, $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['ID'], $datastreamXMLContent[$dsTitle['xsdsel_title']], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['LABEL'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['STATE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['MIMETYPE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['CONTROL_GROUP']);
-				Fedora_API::getUploadLocation($pid, $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['ID'], $datastreamXMLContent[$dsTitle['xsdsel_title']], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['LABEL'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['MIMETYPE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['CONTROL_GROUP']);
-			}
-
-    	} 
-        //header("Location: ".APP_BASE_URL."/packages.php?PID=$pid&form=displayObj&message=2");
+        Record::fedoraInsertUpdate($pid);
 		return 1;
     }
 
@@ -1624,31 +1540,28 @@ class Record
         }
     }
 
-
-    /**
-     * Method used to add a new Record using the normal report form.
-     *
-     * @access  public
-     * @return  integer The new Record ID
-     */
-    function insert()
+    function fedoraInsertUpdate($pid=null)
     {
         global $HTTP_POST_VARS, $HTTP_POST_FILES;
-//		print_r($HTTP_POST_VARS);
-//		print_r($HTTP_POST_VARS['xsd_display_fields'][26]);
+
+        // If pid is null then we need to ingest the object as well
+        // otherwise we are updating an existing object
+        $ingestObject = false;
+        if (empty($pid)) {
+            $pid = Fedora_API::getNextPID();
+            $ingestObject = true;
+        }
+            
         $usr_id = Auth::getUserID();
 		$xdis_id = $HTTP_POST_VARS["xdis_id"];
-//		echo $xdis_id;
 		$xsd_id = XSD_Display::getParentXSDID($xdis_id);
 		$xsd_details = Doc_Type_XSD::getDetails($xsd_id);
 		$xsd_element_prefix = $xsd_details['xsd_element_prefix'];
 		$xsd_top_element_name = $xsd_details['xsd_top_element_name'];
-		$xsd_extra_ns_prefixes = explode(",", $xsd_details['xsd_extra_ns_prefixes']); // get an array of the extra namespace prefixes
+		$xsd_extra_ns_prefixes = explode(",", $xsd_details['xsd_extra_ns_prefixes']); 
 		$xsd_str = Doc_Type_XSD::getXSDSource($xsd_id);
 		$xsd_str = $xsd_str[0]['xsd_file'];
-		$next_pid = Fedora_API::getNextPID();
 
-//		echo "NEXT PID!!! -> $next_pid\n";
 		$xsd = new DomDocument();
 		$xsd->loadXML($xsd_str);
 
@@ -1661,106 +1574,60 @@ class Record
 
 		$xmlObj = '<?xml version="1.0"?>'."\n";
 		$xmlObj .= "<".$xsd_element_prefix.$xsd_top_element_name." ";
-		$xmlObj .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $next_pid); // for the pid, fedora uri etc
+		$xmlObj .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $pid); // for the pid, fedora uri etc
 		$xmlObj .= $xml_schema;
 		$xmlObj .= ">\n";
-		//echo $xmlObj;
 
  		// @@@ CK - 6/5/2005 - Added xdis so xml building could search using the xml display ids
-		$xmlObj = Misc::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $next_pid, $xdis_id);
+		$xmlObj = Misc::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id);
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
-//		$xsd_show = new DomDocument();
-//		$xsd_show->loadXML($xmlObj);
-//		$xmlObj = $xsd_show->saveXML();
-// @@@ CK - 22/5/2005 - don't uncomment the tidy as it stuffs up the binary datastreams
-
-//		echo "<pre>\n";
-//		echo $xmlObj;
-//		print_r($array_ptr);
-//		echo "</pre>";
-		// Actually Ingest the object Into Fedora
-		// will have to exclude the non X control group xml and add the datastreams after the base ingestion.
 
 		$datastreamTitles = XSD_Loop_Subelement::getDatastreamTitles($xdis_id);
-//		print_r($datastreamTitles);
 		$params = array();
 
 		$datastreamXMLHeaders = Misc::getDatastreamXMLHeaders($datastreamTitles, $xmlObj);
-//		echo "HERE BE THE HEADERS!!! -> ";
-//		print_r($datastreamXMLHeaders);
 		$datastreamXMLContent = Misc::getDatastreamXMLContent($datastreamTitles, $xmlObj);
-//		print_r($datastreamXMLContent);
-//		echo $xmlObj;
-		$xmlObj = Misc::removeNonXMLDatastreams($datastreamTitles, $xmlObj);
-//		echo $xmlObj;
+        
+        if ($ingestObject) {
+            // Actually Ingest the object Into Fedora
+            // will have to exclude the non X control group xml and add the datastreams after the base ingestion.
 
-		$config = array(
-          'indent'         => true,
-          'input-xml'   => true,
-          'output-xml'   => true,
-          'wrap'           => 200);
+            $xmlObj = Misc::removeNonXMLDatastreams($datastreamTitles, $xmlObj);
 
-		$tidy = new tidy;
-		$tidy->parseString($xmlObj, $config, 'utf8');
-		$tidy->cleanRepair();
-		$xmlObj = $tidy;
+            $config = array(
+                    'indent'         => true,
+                    'input-xml'   => true,
+                    'output-xml'   => true,
+                    'wrap'           => 200);
 
-		Fedora_API::callIngestObject($xmlObj);
+            $tidy = new tidy;
+            $tidy->parseString($xmlObj, $config, 'utf8');
+            $tidy->cleanRepair();
+            $xmlObj = $tidy;
+
+            Fedora_API::callIngestObject($xmlObj);
+        }
 
 		foreach ($datastreamTitles as $dsTitle) {
-			if (Fedora_API::datastreamExists($next_pid, $dsTitle['xsdsel_title'])) {
-//				echo $dsTitle['xsdsel_title'];
-				Fedora_API::callModifyDatastreamByValue($next_pid, $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['ID'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['STATE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['LABEL'], $datastreamXMLContent[$dsTitle['xsdsel_title']], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['MIMETYPE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['VERSIONABLE']);
-//		        Fedora_API::callModifyDatastreamByValue($pid, $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['versionID'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['STATE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['LABEL'], $datastreamXMLContent[$dsTitle['xsdsel_title']], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['MIMETYPE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['VERSIONABLE']);
+			if (Fedora_API::datastreamExists($pid, $dsTitle['xsdsel_title'])) {
+				Fedora_API::callModifyDatastreamByValue($pid, $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['ID'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['STATE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['LABEL'], $datastreamXMLContent[$dsTitle['xsdsel_title']], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['MIMETYPE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['VERSIONABLE']);
 			} else {
-
-//				Fedora_API::callAddXMLDatastream($pid, $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['ID'], $datastreamXMLContent[$dsTitle['xsdsel_title']], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['LABEL'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['STATE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['MIMETYPE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['CONTROL_GROUP']);
-				Fedora_API::getUploadLocation($next_pid, $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['ID'], $datastreamXMLContent[$dsTitle['xsdsel_title']], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['LABEL'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['MIMETYPE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['CONTROL_GROUP']);
+				Fedora_API::getUploadLocation($pid, $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['ID'], $datastreamXMLContent[$dsTitle['xsdsel_title']], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['LABEL'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['MIMETYPE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['CONTROL_GROUP']);
 			}
 
 		} 
-		return $next_pid;
+		return $pid;
+    }
 
-/*		    $options = array(
-                        "indent"             => "    ",
-                        "linebreak"          => "\n",
-                        "defaultTagName"     => "unnamedItem",
-						"scalarAsAttributes" => false,
-                        "contentName"        => 'digitalObject'
-                    );
-
-	$serializer = new XML_Serializer($options);
-    
-    $result = $serializer->serialize($array_ptr);
-    
-    if( $result === true ) {
-		$xml = $serializer->getSerializedData();
-
-	    echo	"<pre>";
-	    print_r( htmlspecialchars($xml) );
-	    echo	"</pre>";
-    } else {
-		echo	"<pre>";
-		print_r($result);
-		echo	"</pre>";
-	}
-
-*/
-
-//		echo "<pre>";
-//		print_r($array_ptr);
-//		echo "</pre>";
-
-/*		foreach ($array_ptr as $i => $j) {
-			if (is_array($j)) {
-				if (count($j > 1) { // if its just 1 then its just its espace_hyperlink which means its reached its limit already
-					$xmlBody .= "<".$i;
-				} else { // it really does have sub arrays
-
-				}
-			}
-		}*/
-        
+    /**
+     * Method used to add a new Record using the normal report form.
+     *
+     * @access  public
+     * @return  integer The new Record ID
+     */
+    function insert()
+    {
+        return Record::fedoraInsertUpdate();
     }
 
     /**
@@ -3317,6 +3184,12 @@ LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "custom_field_option as 
                 return true;
             }
         }
+    }
+
+    function getRecordXDIS_ID() {
+		// will make this more dynamic later. (probably feed from a mysql table which can be configured in the gui admin interface).
+		$xdis_id = 5;
+		return $xdis_id;
     }
 }
 
