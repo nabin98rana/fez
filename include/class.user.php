@@ -569,7 +569,7 @@ class User
                     usr_username='$username'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
-            return "";
+            return false;
         } else {
 //            $returns[$usr_id] = $res;
 			if ($res['usr_administrator'] == 1) {

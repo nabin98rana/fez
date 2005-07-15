@@ -207,7 +207,8 @@ width: 100%;
 
 .list-record .description {
     /* background-color: #99ccff; */
-    background-color: #cccccc;
+    /*background-color: #cccccc;*/
+    background-color: white;
     padding: 4px 4px 4px 4px;
     margin: 0px 0px 0px 0px;
 }

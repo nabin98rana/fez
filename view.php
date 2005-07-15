@@ -53,7 +53,7 @@ $tpl->setTemplate("view.tpl.html");
 
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
-$isAdministrator = User::isUserAdministrator($username);
+$isAdministrator = Auth::isAdministrator();
 $tpl->assign("isAdministrator", $isAdministrator);
 
 
@@ -68,45 +68,38 @@ $pid = @$HTTP_POST_VARS["pid"] ? $HTTP_POST_VARS["pid"] : $HTTP_GET_VARS["pid"];
 
 	$tpl->assign("extra_title", "Record #$pid Details");
 	if (!empty($pid)) {
+		$tpl->assign("pid", $pid);
+        $record = new RecordObject($pid);
+        $xdis_id = $record->getXmlDisplayId();
 	
-		$xdis_array = Fedora_API::callGetDatastreamContentsField ($pid, 'eSpaceMD', array('xdis_id'));
-		$xdis_id = $xdis_array['xdis_id'][0];
 		//echo "XDIS_ID -> ".$xdis_id;
 		if (!is_numeric($xdis_id)) {
-			$xdis_id = @$HTTP_POST_VARS["xdis_id"] ? $HTTP_POST_VARS["xdis_id"] : $HTTP_GET_VARS["xdis_id"];	
+			$xdis_id = @$HTTP_POST_VARS["xdis_id"] ? $HTTP_POST_VARS["xdis_id"] : @$HTTP_GET_VARS["xdis_id"];	
 			if (is_numeric($xdis_id)) { // must have come from select xdis so save xdis in the eSpace MD
-				Record::updateAdminDatastream($pid, $xdis_id);
+                $record->updateAdminDatastream($xdis_id);
 			}
 		}
 		if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for it
 		//	echo "XDIS_ID -> ".$xdis_id;
 		//	echo "redirecting";
-			Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=view_form&pid=".$pid.$extra_redirect, false);
+            Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=view_form&pid=".$pid.$extra_redirect, false);
 		}
+
+        $tpl->assign("isViewer", $record->canView());
+        if ($record->canView()) {
+            $tpl->assign("isEditor", $record->canEdit());
 		
-		$acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
-		if (Auth::checkAuthorisation($pid, $xdis_id, $acceptable_roles, $HTTP_SERVER_VARS['PHP_SELF']."?".$HTTP_SERVER_VARS['QUERY_STRING']) == true) {
-			$tpl->assign("isViewer", true);
-		
-			$details = Record::getDetails($pid, $xdis_id);
-			$rowAuthGroups = Auth::getAuthorisationGroups($pid, $xdis_id);
-			$editor_roles = Misc::array_clean($acceptable_roles, "Viewer");
-			foreach ($editor_roles as $erole) {
-				if (in_array($erole, $rowAuthGroups)) {
-					$tpl->assign("isEditor", true);
-				}
-			}
-	
+            $display = new XSD_DisplayObject($xdis_id);
+			$xsd_display_fields = $display->getMatchFieldsList();
+			$tpl->assign("xsd_display_fields", $xsd_display_fields);
+
+			$details = $record->getDetails2();
 		
 			foreach ($details as $dkey => $dvalue) { // turn any array values into a comma seperated string value
 				if (is_array($dvalue)) {
 					$details[$dkey] = implode(", ", $dvalue);
 				}
 			}
-		//	print_r($details);
-			$xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id));
-		
-			$tpl->assign("xsd_display_fields", $xsd_display_fields);
 		
 			//$tpl->assign("collection_list", Collection::getAllExcept($col_id)); // OLD
 			//@@@ CK 24/8/2004 - Fixed the escalation to show the teams that the collection is not currently set to
@@ -116,7 +109,6 @@ $pid = @$HTTP_POST_VARS["pid"] ? $HTTP_POST_VARS["pid"] : $HTTP_GET_VARS["pid"];
 		} else {
 			$tpl->assign("show_not_allowed_msg", true);
 		}
-		$tpl->assign("pid", $pid);
 		//$tpl->assign("col_id", $col_id);
 		// check if the requested record is a part of the 'current' collection // CK @@@ - 23/8/2004 removed the is current collection check
 		// @@@ CK - 23/8/2004 OLD if ((empty($details)) || ($details['iss_col_id'] != $col_id)) {

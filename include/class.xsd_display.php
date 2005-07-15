@@ -1244,6 +1244,244 @@ class XSD_Display
     }
 }
 
+class XSD_DisplayObject
+{
+    var $xdis_id;
+    var $matchfields;
+    var $retrieved_mf = false;
+
+    function XSD_DisplayObject($xdis_id)
+    {
+        $this->xdis_id = $xdis_id;
+    }
+
+    function refresh()
+    {
+        $this->retrieved_mf = false;
+    }
+
+    function getMatchFieldsList()
+    {
+        if ($this->retrieved_mf) {
+            return $this->matchfields;
+        }
+        $res = XSD_HTML_Match::getBasicListByDisplay($this->xdis_id);
+
+
+        if (count($res) > 0) {
+            // make a list of mf_ids so we can get the options in one query
+            foreach ($res as $r) {
+                $xsdmf_ids[] = $r['xsdmf_id'];
+            }
+            $xsdmf_options = XSD_HTML_Match::getOptions($xsdmf_ids);
+            // reformat the options for smarty
+            foreach ($res as &$r) {
+                if (isset($xsdmf_options[$r['xsdmf_id']][0])) {
+                    $r["field_options"] 
+                        = array($xsdmf_options[$r['xsdmf_id']][0] => $xsdmf_options[$r['xsdmf_id']][1]);
+                    $r["field_options_value_only"] 
+                        = array($xsdmf_options[$r['xsdmf_id']][1] => $xsdmf_options[$r['xsdmf_id']][1]);
+                }
+            }
+        }
+        $this->retrieved_mf = true;
+        $this->matchfields = $res;
+        return $res;
+    }
+
+    function getXsdAsReferencedArray()
+    {
+        $xdis_id = $this->xdis_id;
+		$xsd_id = XSD_Display::getParentXSDID($xdis_id);
+		$xsd_details = Doc_Type_XSD::getDetails($xsd_id);
+		$xsd_element_prefix = $xsd_details['xsd_element_prefix'];
+		$xsd_top_element_name = $xsd_details['xsd_top_element_name'];
+		$xsd_extra_ns_prefixes = explode(",", $xsd_details['xsd_extra_ns_prefixes']); 
+		$xsd_str = Doc_Type_XSD::getXSDSource($xsd_id);
+		$xsd_str = $xsd_str[0]['xsd_file'];
+
+		$xsd = new DomDocument();
+		$xsd->loadXML($xsd_str);
+
+		if ($xsd_element_prefix != "") {
+			$xsd_element_prefix .= ":";
+		}
+		$xml_schema = Misc::getSchemaAttributes($xsd, $xsd_top_element_name, $xsd_element_prefix, $xsd_extra_ns_prefixes); // for the namespace uris etc
+		$array_ptr = array();
+		Misc::dom_xsd_to_referenced_array($xsd, $xsd_top_element_name, &$array_ptr, "", "", $xsd);
+        return $array_ptr;
+    }
+
+    function getDatastreamTitles()
+    {
+		return XSD_Loop_Subelement::getDatastreamTitles($this->xdis_id);
+    }
+
+    function clearXSDMF_Values()
+    {
+        $this->xsdmf_array = array();
+    }
+
+    function getXSDMF_Values()
+    {
+        return $this->xsdmf_array;
+    }
+
+    function processXSDMF($pid) 
+    {
+        $this->clearXSDMF_Values();
+        // Find datastreams that may be used by this display
+		$datastreamTitles = $this->getDatastreamTitles();
+		foreach ($datastreamTitles as $dsValue) {
+            // find out if this record has the datastream 
+			$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title']);
+            if (isset($DSResultArray['stream'])) {
+                $xmlDatastream = $DSResultArray['stream'];
+                // get the matchfields for the datastream (using the sub-display for this stream)
+                $this->processXSDMFDatastream($xmlDatastream, $dsValue['xsdmf_xdis_id']);
+            }
+		}
+    }
+
+    /**
+      * processXSDMFDatastream
+      * Find values for all the matchfields on a given Datastream and xdis_id
+      */
+    function processXSDMFDatastream($xmlDatastream, $xsdmf_xdis_id) 
+    {
+        $xsd_id = XSD_Display::getParentXSDID($xsdmf_xdis_id);
+        $xsd_details = Doc_Type_XSD::getDetails($xsd_id);
+        $this->xsd_element_prefix = $xsd_details['xsd_element_prefix'];
+        $this->xsd_top_element_name = $xsd_details['xsd_top_element_name'];
+
+        $xmlnode = new DomDocument();
+        $xmlnode->loadXML($xmlDatastream);
+
+        $xdis_list = XSD_Relationship::getListByXDIS($this->xdis_id);
+        array_push($xdis_list, array("0" => $this->xdis_id));
+        $xdis_str = Misc::sql_array_to_string($xdis_list);
+        $this->xsd_html_match = new XSD_HTML_MatchObject($xdis_str);
+        $cbdata = array('parentContent' => '', 'parent_key' => '');
+        $this->mfcb_rootdone = false;
+        Misc::XML_Walk($xmlnode, $this, 'matchFieldsCallback', $cbdata);
+    }
+
+    /**
+      * matchFieldsCallback
+      * Used by XML_Walk to recurse through an xsd and work out the match fields.
+      *
+      * @param array $cbdata - data that is passed to each callback but is part of the recursive data - i.e. it is 
+      * not remembered when recursing out.  The record object itself stores data that should persist while recursing.
+      */
+    function matchFieldsCallback($domNode, $cbdata, $context=null)
+    {
+        $clean_nodeName = Misc::strip_element_name($domNode->nodeName);
+        $xsdmf_ptr = &$this->xsdmf_array;
+        $xsdmf_id = null;
+        // look for the xsdmf_id
+        switch ($domNode->nodeType)
+        {
+            case XML_ELEMENT_NODE:
+                switch ($context) {
+                    case 'startopen':
+                        // this is processed before we have walked the attributes for this element
+                        // Store the current node name for use when called back for the attributes.
+                        $cbdata['clean_nodeName'] = $clean_nodeName;
+                        break;
+                    case 'endopen':
+                        // this is processed after we have walked the attributes for this element
+                        {
+                            $parentContent = $cbdata['parentContent'];
+                            if ((is_numeric(strpos(substr($parentContent, 0, 1), "!"))) || ($parentContent == "")) {
+                                $new_element = $parentContent."!".$clean_nodeName; 
+                            } else {
+                                $new_element = "!".$parentContent."!".$clean_nodeName; 
+                            }
+
+                            if ($cbdata['parent_key'] != "") { 
+                                // if there are passed parent keys then use them in the search
+                                $xsdmf_id = $this->xsd_html_match->getXSDMF_IDByParentKeyXDIS_ID($new_element, 
+                                        $cbdata['parent_key']);		
+                            } else {
+                                $xsdmf_id = $this->xsd_html_match->getXSDMF_IDByXDIS_ID($new_element);
+                            }
+                        }
+
+                        break;
+                    case 'close':
+                        // this is processed after have walked the attributes and children for this element
+                        break;
+                }
+                break;
+            case XML_ATTRIBUTE_NODE:
+                $new_element = "!{$cbdata['parentContent']}!{$cbdata['clean_nodeName']}!$clean_nodeName";
+                // Is there a match field for this attribute?
+                // look for key match on the attribute value first - this is where the matchfield needs the 
+                // attribute to be set to a certain value to match.
+                $xsdmf_id = $this->xsd_html_match->getXSDMF_IDByKeyXDIS_ID($new_element, $domNode->nodeValue); 
+                if (empty($xsdmf_id)) {
+                    // look for a straight attribute match
+                    $xsdmf_id = $this->xsd_html_match->getXSDMF_IDByXDIS_ID($new_element);
+                }
+                break;
+            default:
+                break; 
+        }
+        if (is_numeric($xsdmf_id)) {
+            // We have found a match!
+            // Get the value for the match and store it in the result
+            $xsdmf_details = $this->xsd_html_match->getDetailsByXSDMF_ID($xsdmf_id);
+            if (strlen($xsdmf_details['xsdmf_value_prefix']) > 0) {
+                $ptr_value = str_replace($xsdmf_details['xsdmf_value_prefix'], "", $domNode->nodeValue);
+            } else {
+                $ptr_value = $domNode->nodeValue;
+            }
+            // Store the matchfields value against the matchfield id in the result array.
+            // If there's already a value for this match field, then make an array for the value.
+            if (isset($xsdmf_ptr[$xsdmf_id])) {
+                if (is_array($xsdmf_ptr[$xsdmf_id])) {
+                    // add to the array of values
+                    $xsdmf_ptr[$xsdmf_id][] = $ptr_value;
+                } else {
+                    // make an array from the single value
+                    $xsdmf_ptr[$xsdmf_id] = array($xsdmf_ptr[$xsdmf_id], $ptr_value);
+                }
+            } else {
+                // store the value
+                $xsdmf_ptr[$xsdmf_id] = $ptr_value;
+            }
+        }
+
+        if (($domNode->nodeType == XML_ELEMENT_NODE) && ($context == 'endopen')) {
+
+            // Store the parent key for key match fields.
+            //
+            if (!empty($xsdmf_details)) {
+                if (($xsdmf_details['xsdmf_is_key'] == 1) && ($xsdmf_details['xsdmf_key_match'] != '')) {
+                    $cbdata['parent_key'] = $xsdmf_details['xsdmf_key_match'];
+                }
+            }
+
+            // update the parentContent match path
+            if (!$this->mfcb_rootdone) {
+                $cbdata['parentContent'] = "";
+                $this->mfcb_rootdone = true;
+            } else {
+                if ($cbdata['parentContent'] != "") {
+                    $cbdata['parentContent'] = $cbdata['parentContent']."!".$clean_nodeName;
+                } else {
+                    $cbdata['parentContent'] = $clean_nodeName;
+                }
+            }
+
+        }
+
+        return $cbdata;
+
+    }
+
+}
+
 // benchmarking the included file (aka setup time)
 if (APP_BENCHMARK) {
     $GLOBALS['bench']->setMarker('Included XSD_XSL_Transform Class');

@@ -145,15 +145,31 @@ class Auth
 	}*/
 
     /**
+      * isAdministrator
+      * Checks if the current user is the administrator.
+      */
+    function isAdministrator()
+    {
+        $answer = false;
+        if (Auth::isValidSession($_SESSION)) {
+            if (!isset($_SESSION['isAdministrator'])) {
+                $_SESSION['isAdministrator'] = User::isUserAdministrator(Auth::getUsername());
+            }
+            $answer = $_SESSION['isAdministrator'];
+        }
+        return $answer;
+    }
+
+    /**
      * checkAuthorisation
      * Can the current user access this page?
      * @returns boolean true if access is ok.
      */
-    function checkAuthorisation($pid, $xdis_id, $acceptable_roles, $failed_url) {
+    function checkAuthorisation($pid, $xdis_id, $acceptable_roles, $failed_url, $userPIDAuthGroups=null) {
         session_name(APP_SESSION);
         @session_start();
 
-		$isAdministrator = User::isUserAdministrator(Auth::getUsername());
+		$isAdministrator = Auth::isAdministrator();
 		if ($isAdministrator == true) {
 			return true;
 		}
@@ -162,7 +178,9 @@ class Auth
 		}
 
         // find out which role groups this user belongs to
-		$userPIDAuthGroups = Auth::getAuthorisationGroups($pid, $xdis_id);
+        if (is_null($userPIDAuthGroups)) {
+            $userPIDAuthGroups = Auth::getAuthorisationGroups($pid, $xdis_id);
+        }
 		$auth_ok = false;
 //		if $userPIDAuthGroups 
 		foreach ($acceptable_roles as $role) {

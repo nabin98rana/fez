@@ -410,6 +410,7 @@ class XSD_HTML_Match
 		if (count($res) == 0) {
 			return "";
 		} else {
+            echo "About to do ".strval(count($res) * 2)." queries on line ".__LINE__."\n";
 			for ($i = 0; $i < count($res); $i++) {
 				$res[$i]["field_options"] = XSD_HTML_Match::getOptions($res[$i]["xsdmf_id"]);
 				$res[$i]["field_options_value_only"] = XSD_HTML_Match::getOptionsValueOnly($res[$i]["xsdmf_id"]);
@@ -521,6 +522,7 @@ class XSD_HTML_Match
 		if (count($res) == 0) {
 			return "";
 		} else {
+            echo "About to do ".strval(count($res) * 2)." queries on line ".__LINE__."\n";
 			for ($i = 0; $i < count($res); $i++) {
 				$res[$i]["field_options"] = XSD_HTML_Match::getOptions($res[$i]["xsdmf_id"]);
 				$res[$i]["field_options_value_only"] = XSD_HTML_Match::getOptionsValueOnly($res[$i]["xsdmf_id"]);
@@ -534,15 +536,7 @@ class XSD_HTML_Match
         }
     }
 
-    /**
-     * Method used to get the list of custom fields associated with
-     * a given display id.
-     *
-     * @access  public
-     * @param   integer $xdis_id The XSD Display ID
-     * @return  array The list of matching fields fields
-     */
-    function getListByDisplay($xdis_id)
+    function getBasicListByDisplay($xdis_id)
     {
         $stmt = "SELECT
                     xsdmf_id,
@@ -591,7 +585,7 @@ class XSD_HTML_Match
 //		print_r($res);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
+            return array();
         } else {
 
 
@@ -627,9 +621,25 @@ class XSD_HTML_Match
 					}
 				}
 			}			
+            return $res;
+        }
+
+    }
+    
+    /**
+     * Method used to get the list of custom fields associated with
+     * a given display id.
+     *
+     * @access  public
+     * @param   integer $xdis_id The XSD Display ID
+     * @return  array The list of matching fields fields
+     */
+    function getListByDisplay($xdis_id)
+    {
+        $res = XSD_HTML_Match::getBasicListByDisplay($xdis_id);
 
 		if (count($res) == 0) {
-			return "";
+			return array();
 		} else {
 			for ($i = 0; $i < count($res); $i++) {
 				$res[$i]["field_options"] = XSD_HTML_Match::getOptions($res[$i]["xsdmf_id"]);
@@ -637,11 +647,6 @@ class XSD_HTML_Match
 			}
 			return $res;
 		}
-
-			
-
-//            return $res;
-        }
     }
 
 
@@ -1351,6 +1356,12 @@ class XSD_HTML_Match
         }
     }
 
+    /**
+      * getXSDMF_IDByKeyXDIS_ID
+      * look for key match on the attribute value - this is where the matchfield needs the 
+      * attribute to be set to a certain value to match.
+      * @return int Matchfield Id.
+      */
     function getXSDMF_IDByKeyXDIS_ID($xsdmf_element, $element_value, $xdis_str)
     {
 		// @@@ CK 1/4/2005 - Will probably have to add xsd_id as part of the search..
@@ -1377,6 +1388,11 @@ class XSD_HTML_Match
         }
     }
 
+    /**
+      * getXSDMF_IDByParentKeyXDIS_ID
+      * Find element matchfields that have a parent key match setting.  I.e. the $parent_key is the value of
+      * an ancestor element.  If our element key value matches the ancestor value then we will return a xsdmf_id.
+      */
     function getXSDMF_IDByParentKeyXDIS_ID($xsdmf_element, $parent_key, $xdis_str)
     {
 		// @@@ CK 1/4/2005 - Will probably have to add xsd_id as part of the search..
@@ -1779,37 +1795,48 @@ class XSD_HTML_Match
      *
      * @access  public
      * @param   integer $fld_id The custom field ID
-     * @return  array The list of custom field options
+     * @param   array $fld_id If the fld_id is an array of fld_ids, then the fucntion will return a list
+     *                        of matching options for all the fields.
+     * @return  array The list of custom field options as array(mfo_id => mfo_value), 
+                      or if an array was passed, array(fld_id => array(mfo_id, mfo_value))
      * @@@ CK - changed order by to mfo_value instead of mfo_id as per request in eventum issue 1647
      */
     function getOptions($fld_id)
     {
-		// @@@ CK 22/4/2005 - below change stuffed it up so changed it back
-		//@@@  CK - Changed mfo_id to mfo_value as the first select value so that edit xml objects could match in select boxes
-        $stmt = "SELECT
+        if (is_array($fld_id)) {
+            $fld_id_str = implode(',',$fld_id);
+            $stmt = "SELECT
+                    fld_id,
                     mfo_id,
-                    mfo_value
-                 FROM
+                    mfo_value,
+                FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_mf_option
-                 WHERE
-                    mfo_fld_id=$fld_id
-                 ORDER BY
+                WHERE
+                    mfo_fld_id IN ($fld_id_str)
+                ORDER BY
                     mfo_value ASC";
-        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-//		echo $stmt;
+            $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+        } else {
+            // @@@ CK 22/4/2005 - below change stuffed it up so changed it back
+            //@@@  CK - Changed mfo_id to mfo_value as the first select value so that edit xml objects could match in select boxes
+            $stmt = "SELECT
+                mfo_id,
+                mfo_value,
+                FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_mf_option
+                    WHERE
+                    mfo_fld_id=$fld_id
+                    ORDER BY
+                    mfo_value ASC";
+            $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+            //		echo $stmt;
 
+        }
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-			$res2 = array();
-			foreach($res as $key => $value) {
-//				$res2["'".Misc::escapeString(addslashes($key))."'"] = $value;
-				$res2[utf8_encode($key)] = $value;
-			}
-//			print_r($res2);
-            return $res;
+            return array();
         }
+        return $res;
     }
 
     function getOptionsValueOnly($fld_id)
@@ -2142,6 +2169,99 @@ class XSD_HTML_Match
         }
     }
 }
+
+
+
+
+class XSD_HTML_MatchObject
+{
+    var $gotMatchCols = false;
+    var $matchCols;
+
+    function XSD_HTML_MatchObject($xdis_str)
+    {
+        $this->xdis_str = $xdis_str;
+    }
+
+    function getMatchCols()
+    {
+        if (!$this->gotMatchCols) {
+            // do query to get all the match cols for this display set
+            $stmt = "SELECT
+                   xsdmf_element, 
+                   xsdmf_id,  
+                   xsdmf_is_key, 
+                   xsdmf_key_match, 
+                   xsdmf_parent_key_match, 
+                   xsdmf_xsdsel_id,
+                   xsdmf_value_prefix
+                FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+                WHERE
+                    xsdmf_xdis_id in ({$this->xdis_str})";
+            $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+               $this->matchCols = array();
+            } else {
+               $this->matchCols = $res;
+            }
+            $this->gotMatchCols = true;
+        }
+        return $this->matchCols;
+    }
+
+    function getXSDMF_IDByParentKeyXDIS_ID($xsdmf_element, $parent_key)
+    {
+        $this->getMatchCols();
+        foreach ($this->matchCols as $xsdmf) {
+            if (($xsdmf['xsdmf_element'] == $xsdmf_element) 
+                    && ($xsdmf['xsdmf_parent_key'] == $parent_key) 
+                    && !empty($xsdmf['xsdmf_id'])) {
+                return $xsdmf['xsdmf_id'];
+            }
+        }
+        return null;
+    }
+
+    function getXSDMF_IDByXDIS_ID($xsdmf_element)
+    {
+        $this->getMatchCols();
+        foreach ($this->matchCols as $xsdmf) {
+            if (($xsdmf['xsdmf_element'] == $xsdmf_element) 
+                    && !$xsdmf['xsdmf_is_key']
+                    && !empty($xsdmf['xsdmf_id'])) {
+                return $xsdmf['xsdmf_id'];
+            }
+        }
+        return null;
+    }
+    function getXSDMF_IDByKeyXDIS_ID($xsdmf_element, $element_value)
+    {
+        $this->getMatchCols();
+        foreach ($this->matchCols as $xsdmf) {
+            if (($xsdmf['xsdmf_element'] == $xsdmf_element) 
+                    && ($xsdmf['xsdmf_key_match'] == $element_value) 
+                    && $xsdmf['xsdmf_is_key']
+                    && !empty($xsdmf['xsdmf_id'])) {
+                return $xsdmf['xsdmf_id'];
+            }
+        }
+        return null;
+    }
+    function getDetailsByXSDMF_ID($xsdmf_id)
+    {
+        $this->getMatchCols();
+        foreach ($this->matchCols as $xsdmf) {
+            if ($xsdmf['xsdmf_id'] == $xsdmf_id) {
+                return $xsdmf;
+            }
+        }
+        return null;
+    }
+    
+}
+
 
 // benchmarking the included file (aka setup time)
 if (APP_BENCHMARK) {

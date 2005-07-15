@@ -1044,16 +1044,16 @@ function dom_xml_to_simple_array($domnode, &$array, $top_element_name, $element_
 	$domnode = $domnode->firstChild;
 	$while_count = 0;
 	$xsdmf_details = "";
+    // Get XDIS and all SUBXDIS
+    $xdis_list = XSD_Relationship::getListByXDIS($xdis_id);
+    array_push($xdis_list, array("0" => $xdis_id));
+    $xdis_str = Misc::sql_array_to_string($xdis_list);
 	while (!is_null($domnode)) {
 		$clean_nodeName = Misc::strip_element_name($domnode->nodeName, $top_element_name, $element_prefix);
 		if ($clean_nodeName == '#text') {
 			$array_ptr = &$array[$clean_nodeName];
 			$array_ptr = $domnode->nodeValue;
 		} elseif ((strtolower($domnode->nodeName) != "xsd:annotation") && (strtolower($domnode->nodeName) != "xsd:documentation")) { // all other conditions (except desc's)
-			// Get XDIS and all SUBXDIS
-			$xdis_list = XSD_Relationship::getListByXDIS($xdis_id);
-			array_push($xdis_list, array("0" => $xdis_id));
-			$xdis_str = Misc::sql_array_to_string($xdis_list);
 			$xsdmf_id = false;
 			if ($domnode->hasAttributes() ) {
     	    	$attributes = $domnode->attributes; 
@@ -1118,7 +1118,7 @@ function dom_xml_to_simple_array($domnode, &$array, $top_element_name, $element_
 
 				} // end foreach
 			} // replaced the else statement below because even if it has attributes we want it to check the basic element especially for xsd loop sublelement elements
-//			} else { // else for HasAttributes (so has none)
+//			 else  // else for HasAttributes (so has none)
 //			echo "\n ATTRIB XSDMFID!!! -> "." $xsdmf_id"."\n\n";
 
 
@@ -1201,7 +1201,7 @@ function dom_xml_to_simple_array($domnode, &$array, $top_element_name, $element_
                 }
 
 
-//			} // end of if has attributes // commented out for now, see else statement above
+//			 // end of if has attributes // commented out for now, see else statement above
 			$while_count++;
 
 		} // End of if #text or other non desc
@@ -1250,12 +1250,40 @@ function dom_xml_to_simple_array($domnode, &$array, $top_element_name, $element_
 	} // End of while loop
 }
 
-function strip_element_name($element_name, $top_element_name, $element_prefix) {
+/**
+  * XML_Walk
+  * A little bit like a sax parser (xml_parse) only using an object and method for all of the events.
+  * It is more flexible than an even parser as the domNode object is available to the callback.
+  * @param array $callbackdata Used to store data that will be available to sub nodes but not to siblings.  
+  * The callback function should return changes to this data for use by child node callbacks.
+  */
+function XML_Walk($domnode, $callbackobject, $callbackmethod, $callbackdata) {
+    if (is_null($domnode)) {
+        return;
+    }
+    $newcallbackdata = $callbackobject->$callbackmethod($domnode, $callbackdata, 'startopen');
+    // process attributes
+    if ($domnode->hasAttributes() ) {
+        $attributes = $domnode->attributes; 
+        foreach ($attributes as $index => $domobj) {
+            $callbackobject->$callbackmethod($domobj, $newcallbackdata);
+        }
+    }
+    $newcallbackdata = $callbackobject->$callbackmethod($domnode, $newcallbackdata, 'endopen');
+    // recurse children
+    Misc::XML_Walk($domnode->firstChild, $callbackobject, $callbackmethod, $newcallbackdata);
+    // recurse siblings
+    $callbackobject->$callbackmethod($domnode, $newcallbackdata, 'close');
+    Misc::XML_Walk($domnode->nextSibling, $callbackobject, $callbackmethod, $callbackdata);
+}
+
+function strip_element_name($element_name) {
 	 if ( is_numeric(strpos($element_name, "dc:")) ) {
 		  return $element_name;
 	 } else {
-		 if (is_numeric(strpos($element_name, ":")) ) {
-	 		return substr($element_name, strpos($element_name, ":") +1);
+         $element_name_start = strpos($element_name, ":");
+		 if (is_numeric($element_name_start ) ) {
+	 		return substr($element_name, $element_name_start+1);
 		} else {
 			return $element_name;
 		}
