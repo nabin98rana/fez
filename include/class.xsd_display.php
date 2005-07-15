@@ -1244,22 +1244,39 @@ class XSD_Display
     }
 }
 
+/**
+ * XSD_DisplayObject
+ * Manage access to the display tables in the database.
+ */
 class XSD_DisplayObject
 {
     var $xdis_id;
     var $matchfields;
     var $retrieved_mf = false;
 
+    /**
+     * XSD_DisplayObject
+     * Instantiate with a display id
+     */
     function XSD_DisplayObject($xdis_id)
     {
         $this->xdis_id = $xdis_id;
     }
 
+    /**
+     * refresh
+     * Clear the local copies of query results.  Use to make the object requery the database if it has changed.
+     */
     function refresh()
     {
         $this->retrieved_mf = false;
+        $this->xsdmf_array = array();
     }
 
+    /**
+     * getMatchFieldsList
+     * Get the list of fields that can be matched for this display.
+     */ 
     function getMatchFieldsList()
     {
         if ($this->retrieved_mf) {
@@ -1289,6 +1306,10 @@ class XSD_DisplayObject
         return $res;
     }
 
+    /**
+     * getXsdAsReferencedArray
+     * Converts an XSD specification file to an array  
+     */
     function getXsdAsReferencedArray()
     {
         $xdis_id = $this->xdis_id;
@@ -1312,35 +1333,48 @@ class XSD_DisplayObject
         return $array_ptr;
     }
 
+    /**
+     * getDatastreamTitles
+     * Get the datastreams that are used with this display.
+     */ 
     function getDatastreamTitles()
     {
 		return XSD_Loop_Subelement::getDatastreamTitles($this->xdis_id);
     }
 
-    function clearXSDMF_Values()
+    /**
+     * getXSDMF_Values
+     * Return a list of match fields with the values from the datastream for the record with the
+     * given pid.
+     */  
+    function getXSDMF_Values($pid)
     {
-        $this->xsdmf_array = array();
+        $this->processXSDMF($pid); 
+        return $this->xsdmf_array[$pid];
     }
 
-    function getXSDMF_Values()
-    {
-        return $this->xsdmf_array;
-    }
-
+    /**
+     * processXSDMF
+     * Get the values from elements in the datastreams that match against the match fields
+     * for this display
+     */ 
     function processXSDMF($pid) 
     {
-        $this->clearXSDMF_Values();
-        // Find datastreams that may be used by this display
-		$datastreamTitles = $this->getDatastreamTitles();
-		foreach ($datastreamTitles as $dsValue) {
-            // find out if this record has the datastream 
-			$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title']);
-            if (isset($DSResultArray['stream'])) {
-                $xmlDatastream = $DSResultArray['stream'];
-                // get the matchfields for the datastream (using the sub-display for this stream)
-                $this->processXSDMFDatastream($xmlDatastream, $dsValue['xsdmf_xdis_id']);
+        if (!isset($this->xsdmf_array[$pid])) {
+            $this->xsdmf_array[$pid] = array();
+            $this->xsdmf_current = &$this->xsdmf_array[$pid];
+            // Find datastreams that may be used by this display
+            $datastreamTitles = $this->getDatastreamTitles();
+            foreach ($datastreamTitles as $dsValue) {
+                // find out if this record has the datastream 
+                $DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title']);
+                if (isset($DSResultArray['stream'])) {
+                    $xmlDatastream = $DSResultArray['stream'];
+                    // get the matchfields for the datastream (using the sub-display for this stream)
+                    $this->processXSDMFDatastream($xmlDatastream, $dsValue['xsdmf_xdis_id']);
+                }
             }
-		}
+        }
     }
 
     /**
@@ -1376,7 +1410,7 @@ class XSD_DisplayObject
     function matchFieldsCallback($domNode, $cbdata, $context=null)
     {
         $clean_nodeName = Misc::strip_element_name($domNode->nodeName);
-        $xsdmf_ptr = &$this->xsdmf_array;
+        $xsdmf_ptr = &$this->xsdmf_current;
         $xsdmf_id = null;
         // look for the xsdmf_id
         switch ($domNode->nodeType)
@@ -1455,7 +1489,6 @@ class XSD_DisplayObject
         if (($domNode->nodeType == XML_ELEMENT_NODE) && ($context == 'endopen')) {
 
             // Store the parent key for key match fields.
-            //
             if (!empty($xsdmf_details)) {
                 if (($xsdmf_details['xsdmf_is_key'] == 1) && ($xsdmf_details['xsdmf_key_match'] != '')) {
                     $cbdata['parent_key'] = $xsdmf_details['xsdmf_key_match'];

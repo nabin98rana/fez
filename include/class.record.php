@@ -3068,6 +3068,11 @@ class RecordObject
     var $display;
     
 
+    /**
+     * RecordObject
+     * If instantiated with a pid, then this object is linked with the record with the pid, otherwise we are inserting
+     * a record.
+     */
     function RecordObject($pid=null)
     {
         $this->pid = $pid;
@@ -3084,6 +3089,10 @@ class RecordObject
         $this->checked_auth = false;
     }
 
+    /**
+     * getXmlDisplayId
+     * Retrieve the display id for this record
+     */
     function getXmlDisplayId() {
         if (!$this->no_xdis_id) {
             if (is_null($this->xdis_id)) {
@@ -3100,11 +3109,19 @@ class RecordObject
         return null;
     }
     
+    /**
+     * updateAdminDatastream
+     * Used to assocaiate a display for this record
+     */
     function updateAdminDatastream($xdis_id) {
         $this->xdis_id = $xdis_id;
         return $this->fedoraInsertUpdate();
     }
 
+    /**
+     * getAuth
+     * Retrieve the authroisation groups allowed for this record with the current user.
+     */
     function getAuth() {
         if (!$this->checked_auth) {
             $this->auth_groups = Auth::getAuthorisationGroups($this->pid, $this->xdis_id);
@@ -3113,6 +3130,10 @@ class RecordObject
         return $this->auth_groups;
     }
 
+    /**
+     * checkAuth
+     * Find out if the current user can perform the given roles for this record
+     */
     function checkAuth($roles) {
         global $HTTP_SERVER_VARS;
         $this->getAuth();
@@ -3120,14 +3141,26 @@ class RecordObject
                     $HTTP_SERVER_VARS['PHP_SELF']."?".$HTTP_SERVER_VARS['QUERY_STRING'], $this->auth_groups); 
     }
     
+    /**
+     * canView 
+     * Find out if the current user can view this record
+     */
     function canView() {
         return $this->checkAuth($this->viewer_roles);
     }
     
+    /**
+     * canEdit
+     * Find out if the current user can edit this record
+     */
     function canEdit() {
         return $this->checkAuth($this->editor_roles);
     }
 
+    /**
+     * fedoraInsertUpdate 
+     * Process a submitted record insert or update form
+     */
     function fedoraInsertUpdate()
     {
         global $HTTP_POST_VARS, $HTTP_POST_FILES;
@@ -3195,6 +3228,10 @@ class RecordObject
 		return $pid;
     }
     
+    /**
+     * getDisplay
+     * Get a display object for this record
+     */ 
     function getDisplay()
     {
         $this->getXmlDisplayId();
@@ -3208,40 +3245,16 @@ class RecordObject
         }
     }
 
+    /**
+     * getDetails
+     * Users a more object oriented approach with the goal of storing query results so that we don't need to make 
+     * so many queries to view a record.
+     */
     function getDetails()
     {
 		// Get the Datastreams.
         $display = &$this->getDisplay();
-		$datastreamTitles = $display->getDatastreamTitles();
-		foreach ($datastreamTitles as $dsValue) {
-			$DSResultArray = Fedora_API::callGetDatastreamDissemination($this->pid, $dsValue['xsdsel_title']);
-            if (isset($DSResultArray['stream'])) {
-                $xmlDatastream = $DSResultArray['stream'];
-                $xsd_id = XSD_Display::getParentXSDID($dsValue['xsdmf_xdis_id']);
-                $xsd_details = Doc_Type_XSD::getDetails($xsd_id);
-                $xsd_element_prefix = $xsd_details['xsd_element_prefix'];
-                $xsd_top_element_name = $xsd_details['xsd_top_element_name'];
-
-                $xmlnode = new DomDocument();
-                $xmlnode->loadXML($xmlDatastream);
-                $array_ptr = array();
-                Misc::dom_xml_to_simple_array($xmlnode, $array_ptr, $xsd_top_element_name, $xsd_element_prefix, $xsdmf_array, $this->xdis_id);
-            }
-		}
-		return $xsdmf_array;
-    }
-
-    /**
-      * getDetails2
-      * Users a more object oriented approach with the goal of storing query results so that we don't need to make 
-      * so many queries to view a record.
-      */
-    function getDetails2()
-    {
-		// Get the Datastreams.
-        $display = &$this->getDisplay();
-        $display->processXSDMF($this->pid);
-		return $display->getXSDMF_Values();
+		return $display->getXSDMF_Values($this->pid);
     }
 
 

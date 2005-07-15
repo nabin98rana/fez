@@ -2173,16 +2173,29 @@ class XSD_HTML_Match
 
 
 
+/**
+ * XSD_HTML_MatchObject
+ * Object for managing display fields matching against XML datastreams.
+ */
 class XSD_HTML_MatchObject
 {
     var $gotMatchCols = false;
     var $matchCols;
 
+    /** 
+     * XSD_HTML_MatchObject
+     * Instantiate object with a list of displays that relate to the main display being matched
+     */
     function XSD_HTML_MatchObject($xdis_str)
     {
         $this->xdis_str = $xdis_str;
     }
 
+    /**
+     * getMatchCols
+     * Retrieve the matchfields records that relate to the current display and store them locally.  This 
+     * method keeps a local copy of the results to save making multiple queries for the same information.
+     */
     function getMatchCols()
     {
         if (!$this->gotMatchCols) {
@@ -2211,6 +2224,20 @@ class XSD_HTML_MatchObject
         return $this->matchCols;
     }
 
+    /**
+     * refresh
+     * Make the object requery the database.  This should be called if there is expeced to be a change in the db
+     */
+    function refresh()
+    {
+        $this->gotMatchCols = false;
+        $this->matchCols = array();
+    }
+
+    /**
+     * getXSDMF_IDByParentKeyXDIS_ID
+     * Find a match for an element that has a parent key element with the matched value.
+     */
     function getXSDMF_IDByParentKeyXDIS_ID($xsdmf_element, $parent_key)
     {
         $this->getMatchCols();
@@ -2224,6 +2251,10 @@ class XSD_HTML_MatchObject
         return null;
     }
 
+    /**
+     * getXSDMF_IDByXDIS_ID
+     * Find a match for the given element
+     */
     function getXSDMF_IDByXDIS_ID($xsdmf_element)
     {
         $this->getMatchCols();
@@ -2236,6 +2267,11 @@ class XSD_HTML_MatchObject
         }
         return null;
     }
+
+    /**
+     * getXSDMF_IDByKeyXDIS_ID 
+     * Find a match field for an element that matches a key on the element value 
+     */
     function getXSDMF_IDByKeyXDIS_ID($xsdmf_element, $element_value)
     {
         $this->getMatchCols();
@@ -2249,6 +2285,11 @@ class XSD_HTML_MatchObject
         }
         return null;
     }
+
+    /**
+     * getDetailsByXSDMF_ID 
+     * Retrieve the details of a match field
+     */
     function getDetailsByXSDMF_ID($xsdmf_id)
     {
         $this->getMatchCols();

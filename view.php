@@ -93,7 +93,7 @@ $pid = @$HTTP_POST_VARS["pid"] ? $HTTP_POST_VARS["pid"] : $HTTP_GET_VARS["pid"];
 			$xsd_display_fields = $display->getMatchFieldsList();
 			$tpl->assign("xsd_display_fields", $xsd_display_fields);
 
-			$details = $record->getDetails2();
+			$details = $record->getDetails();
 		
 			foreach ($details as $dkey => $dvalue) { // turn any array values into a comma seperated string value
 				if (is_array($dvalue)) {
