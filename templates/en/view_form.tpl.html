@@ -138,7 +138,7 @@ function disableFields()
           </td>
         </tr>
         {/section}
-        {if $isEditor || $isAdministrator}<tr><td><a href='update.php?pid={$pid|escape:"html"}'><img title="Edit" align="absmiddle" src="/images/edit.png" border="0"></a> </td></tr>{/if}
+        {if $isEditor || $isAdministrator}<tr><td><a href='update.php?pid={$pid|escape:"html"}'><img title="Edit" align="absmiddle" src="{$rel_url}/images/edit.png" border="0"></a> </td></tr>{/if}
                 </table>
                 </td>
                 </tr>
@@ -163,7 +163,7 @@ function disableFields()
 				{assign var="image_name" value=$espace_root_dir|cat:"images/"|cat:$image_file_name} 
 				{assign var="image_file_string" value=""}
 				{fetch file=$image_name assign="image_file_string"} 
-			<td bgcolor="{$light_color}">{if $image_file_string != ""}<img align="absmiddle" src="/images/{$image_file_name}">{else}<img align="absmiddle" src="/images/default.png">{/if} <a target="_blank" href="eserv.php?pid={$pid}&dsID={$datastreams[d].ID}">{$datastreams[d].ID}</a> </td>
+			<td bgcolor="{$light_color}">{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}/images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}/images/default.png">{/if} <a target="_blank" href="eserv.php?pid={$pid}&dsID={$datastreams[d].ID}">{$datastreams[d].ID}</a> </td>
 			<td bgcolor="{$light_color}">{$datastreams[d].MIMEType}</td>
 			<td bgcolor="{$light_color}">{$datastreams[d].size} bytes</td>
 		  </tr>
