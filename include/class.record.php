@@ -3179,7 +3179,8 @@ class RecordObject
         }
         $xdis_id = $this->xdis_id;
         $display = &$this->getDisplay();
-        $array_ptr = $display->getXsdAsReferencedArray();
+        list($array_ptr,$xsd_element_prefix, $xsd_top_element_name, $xml_schema) 
+            = $display->getXsdAsReferencedArray();
 
 		$xmlObj = '<?xml version="1.0"?>'."\n";
 		$xmlObj .= "<".$xsd_element_prefix.$xsd_top_element_name." ";
