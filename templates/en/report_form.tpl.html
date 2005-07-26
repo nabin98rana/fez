@@ -90,7 +90,7 @@ function openDetailPage()
 				{fetch file=$image_name assign="image_file_string"} 
 						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1">
 						  <td width="150" bgcolor="{$cell_color}" class="default_white" colspan="2" nowrap>
-							{if $image_file_string != ""}<img align="absmiddle" src="/images/{$xsd_display_fields[i].xsdmf_image_location}">{/if}<b>{$xsd_display_fields[i].xsdmf_static_text}</b>
+							{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$xsd_display_fields[i].xsdmf_image_location}">{/if}<b>{$xsd_display_fields[i].xsdmf_static_text}</b>
 							{if $xsd_display_fields[i].xsdmf_description != ""}
 								&nbsp;<i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
 							{/if}
@@ -102,7 +102,7 @@ function openDetailPage()
 				{fetch file=$image_name assign="image_file_string"} 
 						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1">
 						  <td bgcolor="{$cell_color}" class="default_white" colspan="2" nowrap>
-							{if $image_file_string != ""}<img align="absmiddle" src="/images/{$xsd_display_fields[i].xsdmf_image_location}">{/if}<b>{$xsd_display_fields[i].xsdmf_title}</b>
+							{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$xsd_display_fields[i].xsdmf_image_location}">{/if}<b>{$xsd_display_fields[i].xsdmf_title}</b>
 							{if $xsd_display_fields[i].xsdmf_description != ""}
 								&nbsp;<i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
 							{/if}
