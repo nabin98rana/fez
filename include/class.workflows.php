@@ -39,12 +39,13 @@
 
 include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.misc.php");
+include_once(APP_INC_PATH . "class.workflow_event.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.auth.php");
 
 
-class WF_Behaviour
+class Workflow
 {
     /**
      * Method used to remove a group of custom field options.
@@ -83,30 +84,6 @@ class WF_Behaviour
         }
     }
 
-
-    /**
-     * Method used to get an associative array of action types.
-     *
-     * @access  public
-     * @return  array The list of action types
-     */
-    function getTitles()
-    {
-        $stmt = "SELECT
-                    wfb_id,
-                    wfb_title
-                 FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "wfbehaviour
-                 ORDER BY
-                    wfb_title ASC";
-        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return array();
-        } else {
-            return $res;
-        }
-    }
 
     /**
      * Method used to add possible options into a given custom field.
@@ -583,9 +560,9 @@ class WF_Behaviour
 
         $items = @implode(", ", $HTTP_POST_VARS["items"]);
         $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "wfbehaviour
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow
                  WHERE
-                    wfb_id IN ($items)";
+                    wfl_id IN ($items)";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -640,17 +617,17 @@ class WF_Behaviour
 
 		
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "wfbehaviour
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow
                  (
-                    wfb_title,
-                    wfb_version,
-                    wfb_description,
-                    wfb_script_name
+                    wfl_title,
+                    wfl_version,
+                    wfl_description,
+                    wfl_order
                  ) VALUES (
-                    '" . Misc::escapeString($HTTP_POST_VARS["wfb_title"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["wfb_version"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["wfb_description"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["wfb_script_name"]) . "'
+                    '" . Misc::escapeString($HTTP_POST_VARS["wfl_title"]) . "',
+                    '" . Misc::escapeString($HTTP_POST_VARS["wfl_version"]) . "',
+                    '" . Misc::escapeString($HTTP_POST_VARS["wfl_description"]) . "',
+                    " . Misc::escapeString($HTTP_POST_VARS["wfl_order"]) . "
                  )";
 		echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -668,20 +645,20 @@ class WF_Behaviour
      * @access  public
      * @return  integer 1 if the insert worked, -1 otherwise
      */
-    function update($wfb_id)
+    function update($wfl_id)
     {
 //		echo $HTTP_POST_VARS["xsd_source"];
         global $HTTP_POST_VARS;
 
 		
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "wfbehaviour
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow
                  SET 
-                    wfb_title = '" . Misc::escapeString($HTTP_POST_VARS["wfb_title"]) . "',
-                    wfb_version = '" . Misc::escapeString($HTTP_POST_VARS["wfb_version"]) . "',
-                    wfb_description = '" . Misc::escapeString($HTTP_POST_VARS["wfb_description"]) . "',
-                    wfb_script_name = '" . Misc::escapeString($HTTP_POST_VARS["wfb_script_name"]) . "'
-                 WHERE wfb_id = $wfb_id";
+                    wfl_title = '" . Misc::escapeString($HTTP_POST_VARS["wfl_title"]) . "',
+                    wfl_version = '" . Misc::escapeString($HTTP_POST_VARS["wfl_version"]) . "',
+                    wfl_description = '" . Misc::escapeString($HTTP_POST_VARS["wfl_description"]) . "',
+                    wfl_order = " . Misc::escapeString($HTTP_POST_VARS["wfl_order"]) . "
+                 WHERE wfl_id = $wfl_id";
 //		echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -723,6 +700,32 @@ class WF_Behaviour
 
 
     /**
+     * Method used to get the title of a specific reminder.
+     *
+     * @access  public
+     * @param   integer $rem_id The reminder ID
+     * @return  string The title of the reminder
+     */
+    function getTitle($wfl_id)
+    {
+        $stmt = "SELECT
+                    wfl_title
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow
+                 WHERE
+                    wfl_id=$wfl_id";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return '';
+        } else {
+            return $res;
+        }
+    }
+
+
+    /**
      * Method used to get the list of custom fields available in the 
      * system.
      *
@@ -734,22 +737,33 @@ class WF_Behaviour
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "wfbehaviour
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow
                  ORDER BY
-                    wfb_title ASC";
+                    wfl_order ASC";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-/*            for ($i = 0; $i < count($res); $i++) {
-                $res[$i]["projects"] = @implode(", ", array_values(Doc_Type_XSD::getAssociatedCollections($res[$i]["fld_id"])));
-                if (($res[$i]["fld_type"] == "combo") || ($res[$i]["fld_type"] == "multiple")) {
-                    $res[$i]["field_options"] = @implode(", ", array_values(Doc_Type_XSD::getOptions($res[$i]["fld_id"])));
+            if (empty($res)) {
+                return array();
+            } else {
+                $t = array();
+                for ($i = 0; $i < count($res); $i++) {
+                    // ignore workflow templates that have no events yet...
+					$res[$i]['wfl_created_date'] = Date_API::getFormattedDate($res[$i]["wfl_created_date"]);
+                    $events = Workflow_Event::getList($res[$i]['wfl_id']);
+					$res[$i]['total_events'] = count($events);
+
+                    if (count($events) == 0) {
+	                    $t[] = $res[$i];
+                        continue;
+                    }
+                    $res[$i]['events'] = $events;
+                    $t[] = $res[$i];
                 }
+                return $t;
             }
-*/
-            return $res;
         }
     }
 
@@ -827,14 +841,14 @@ class WF_Behaviour
      * @param   integer $fld_id The custom field ID
      * @return  array The custom field details
      */
-    function getDetails($wfb_id)
+    function getDetails($wfl_id)
     {
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "wfbehaviour
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow
                  WHERE
-                    wfb_id=$wfb_id";
+                    wfl_id=$wfl_id";
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
