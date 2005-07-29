@@ -85,6 +85,23 @@ class Workflow
     }
 
 
+	function checkForImageFile($filename) {
+		$image_extensions = array("tiff", "tif", "jpg", "jpeg", "gif", "png");
+		$filename_ext = strtolower(substr($filename, (strrpos($filename, ".") + 1)));
+		//echo "file -> ".$filename_ext;
+		if (in_array($filename_ext, $image_extensions)) {
+			$getString = "http://".APP_HOSTNAME."/webservices/wfb.thumbnail.php?image=$filename&height=50&width=50&ext=jpg";
+			//echo $getString;
+			$http_req = new HTTP_Request($getString, array("http" => "1.0"));
+			$http_req->setMethod("GET");
+			$http_req->sendRequest();
+			$xml = $http_req->getResponseBody();
+			return "thumbnail_".substr($filename, 0, strrpos($filename, ".")).".jpg";
+		} else {
+			return false;
+		}		
+	}
+
     /**
      * Method used to add possible options into a given custom field.
      *

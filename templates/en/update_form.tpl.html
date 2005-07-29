@@ -261,11 +261,14 @@ function openDetailPage()
 
         {section name="d" loop=$datastreams}
 			  <tr class="default"> 
+
 				{assign var="image_file_name" value=$datastreams[d].MIMEType|replace:"/":"_"|cat:".png"}
 				{assign var="image_name" value=$espace_root_dir|cat:"images/"|cat:$image_file_name} 
+				
 				{assign var="image_file_string" value=""}
-				{fetch file=$image_name assign="image_file_string"} 
-				<td bgcolor="{$light_color}">{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}images/default.png">{/if} <a target="_blank" href="eserv.php?pid={$pid}&dsID={$datastreams[d].ID}">{$datastreams[d].ID}</a> [ <a class="link" title="purge datastream" href="javascript:void(null);" onClick="javascript:purgeDatastream('{$datastreams[d].ID}');">purge</a> ]</td>
+
+				{fetch file=$image_name assign="image_file_string"}
+				<td bgcolor="{$light_color}">{if $datastreams[d].thumbnail != "0"}<img align="absmiddle" src="{$eserv_url}{$datastreams[d].thumbnail}">{/if}{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}images/default.png">{/if} <a target="_blank" href="eserv.php?pid={$pid}&dsID={$datastreams[d].ID}">{$datastreams[d].ID}</a> [ <a class="link" title="purge datastream" href="javascript:void(null);" onClick="javascript:purgeDatastream('{$datastreams[d].ID}');">purge</a> ]</td>
 				<td bgcolor="{$light_color}">{$datastreams[d].MIMEType}</td>
 				<td bgcolor="{$light_color}">{$datastreams[d].size} bytes</td>
 			  </tr>

@@ -86,6 +86,19 @@ function getNextPID() {
 	for ($i = 0; $i < $result->length; $i++) {
 //	   echo $result->item($i)->nodeValue . "\n";    
 	}
+	$getString = "http://".APP_BASE_FEDORA_DOMAIN."/mgmt/getNextPID?xml=true";
+	//: http://hostname:port/fedora/management/getNextPID
+////	$xml = file_get_contents(urlencode($getString));
+//	$getString = "http://www.library.uq.edu.au/";
+//	$xml = Fedora_API::URLopen($getString);
+	$http_req = new HTTP_Request($getString, array("http" => "1.0"));
+	$http_req->setBasicAuth(APP_FEDORA_USERNAME, APP_FEDORA_PWD);
+	$http_req->setMethod("GET");
+	$http_req->sendRequest();
+//	$xml = $http_req->getResponseHeader();
+//	$xml = $http_req->getResponseCode();
+//	$xml = $http_req->_response;
+	$xml = $http_req->getResponseBody();
 
 	//echo count($result);
     //print_r($result->item(0));
@@ -471,6 +484,7 @@ function getUploadLocation ($pid, $dsIDName, $file, $dsLabel, $mimetype='text/xm
    ********************************************/
 //   global $_REQUEST, $uploadURL;
 
+
 	if ($mimetype == 'text/xml') {		
 		$config = array(
           'indent'         => true,
@@ -485,19 +499,19 @@ function getUploadLocation ($pid, $dsIDName, $file, $dsLabel, $mimetype='text/xm
 	}
 
 	if (!empty($file) && (trim($file) != "")) {
-	
 	//	if (is_string($file)) {
-			$fp = fopen(APP_TEMP_DIR."temp.txt", "w");
+			$fp = fopen(APP_TEMP_DIR.$dsIDName, "w"); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
+//			$fp = fopen(APP_TEMP_DIR."temp.txt", "w");
 			fwrite($fp, $file);
 			fclose($fp);
-	//	}
-	
+	//	}	
 	   //Send multipart/form-data via curl
 	//   $ch = curl_init("http://dev-espace.library.uq.edu.au/list.php");
 	   $ch = curl_init(APP_FEDORA_UPLOAD_URL);
 	   curl_setopt($ch, CURLOPT_VERBOSE, 1);
 	   curl_setopt($ch, CURLOPT_HEADER, 0);
-	   curl_setopt($ch, CURLOPT_POSTFIELDS, array('file' => "@".APP_TEMP_DIR."temp.txt"));
+//	   curl_setopt($ch, CURLOPT_POSTFIELDS, array('file' => "@".APP_TEMP_DIR."temp.txt"));
+   	   curl_setopt($ch, CURLOPT_POSTFIELDS, array('file' => "@".APP_TEMP_DIR.$dsIDName)); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
 	   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 	   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 	   $uploadLocation = curl_exec($ch);
@@ -517,6 +531,42 @@ function getUploadLocation ($pid, $dsIDName, $file, $dsLabel, $mimetype='text/xm
 	   }
 	}
 }
+
+function getUploadLocationByLocalRef ($pid, $dsIDName, $local_file_location, $dsLabel, $mimetype='text/xml', $controlGroup='M', $dsID=NULL) {
+   /********************************************
+   * This function uses curl to upload a file into
+   * the fedora upload manager and calls the
+   * the addDatastream or modifyDatastream as needed.
+   ********************************************/
+//   global $_REQUEST, $uploadURL;
+
+
+	if (!empty($local_file_location) && (trim($local_file_location) != "")) {
+	   //Send multipart/form-data via curl
+	   $ch = curl_init(APP_FEDORA_UPLOAD_URL);
+	   curl_setopt($ch, CURLOPT_VERBOSE, 1);
+	   curl_setopt($ch, CURLOPT_HEADER, 0);
+   	   curl_setopt($ch, CURLOPT_POSTFIELDS, array('file' => "@".APP_TEMP_DIR.$local_file_location)); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
+	   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+	   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	   $uploadLocation = curl_exec($ch);
+	//   echo "\n\n".   curl_error($ch) . "\n\n";
+	   curl_close ($ch);
+	
+	   $uploadLocation = trim(str_replace("\n", "", $uploadLocation));
+
+	   if (!Fedora_API::datastreamExists($pid, $dsIDName)) {
+		  //Call callAddDatastream
+		  $dsID = Fedora_API::callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsLabel, $mimetype, $controlGroup);
+		  return $dsID;
+		  exit;
+	   } elseif ($dsIDName != NULL) {
+		  //Call ModifyDatastreamByReference
+		  Fedora_API::callModifyDatastreamByReference ($pid, $dsIDName, $dsLabel, $uploadLocation);
+	   }
+	}
+}
+
 
 function getUploadInfo ($externalURL) {
         $ch = curl_init("$externalURL");

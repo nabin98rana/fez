@@ -183,25 +183,26 @@ function purgeObject(pid)
                         {if $href_view}<a href='{$href_view}' >{/if}<img align="absmiddle" 
                         src="{$icon}" border="0">{if $href_view}</a>{/if} 
                       </div>
-                    {if $href_view}<a href='{$href_view}'
-                    >{/if}{$list[i].title|escape:"html"}{if $href_view}</a>{/if}
+                    {if $href_view}<a href='{$href_view}'>{/if}
+					{$list[i].title|escape:"html"}{if $href_view}</a>{/if}
+					  {if $showEdit || $isAdministrator}
+						{if $showEdit}
+							&nbsp;&nbsp;<a href='update.php?pid={$list[i].pid|escape:"html"}'><img title="Edit" align="absmiddle" src="{$rel_url}images/edit.png" border="0"></a> 
+						{/if}
+						{if $isAdministrator}
+							 <a href='javascript:void(null);' onClick="javascript:purgeObject('{$list[i].pid|escape:"html"}');"><img title="Delete" align="absmiddle" src="{$rel_url}images/delete.png" border="0"></a> 
+						{/if}
+
+					  {/if}
+
                     </div>
+
                     <div class="description">
                        {if $list[i].description}{$list[i].description|escape:"html"}
                        {else}&nbsp;{/if} 
                     </div>
                   </div>
 
-                  {if $showEdit || $isAdministrator}
-                  <div class="controls">
-                    {if $showEdit}
-                        <a href='update.php?pid={$list[i].pid|escape:"html"}'><img title="Edit" align="absmiddle" src="{$rel_url}images/edit.png" border="0"></a> 
-                    {/if}
-                    {if $isAdministrator}
-                         <a href='javascript:void(null);' onClick="javascript:purgeObject('{$list[i].pid|escape:"html"}');"><img title="Delete" align="absmiddle" src="{$rel_url}images/delete.png" border="0"></a> 
-                    {/if}
-                  </div>
-                  {/if}
               </div>
 
                 <!--<tr>

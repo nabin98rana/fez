@@ -41,14 +41,14 @@ if (!empty($pid) && !empty($dsID)) {
 		$acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
 		if (Auth::checkAuthorisation($pid, $xdis_id, $acceptable_roles, $HTTP_SERVER_VARS['PHP_SELF']."?".urlencode($HTTP_SERVER_VARS['QUERY_STRING'])) == true) {
 			$urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsID; // this should stop them dang haxors (forces the http on the front for starters)
-			//	echo $urldata;
+//				echo $urldata;
 			$urlpath = $urldata;
 			
 			//	returnresource($urlpath);
 			
 			
 			//echo "file is $pdfdata<br>";
-			$file_extension = substr( strrchr( $urldata, "." ), 1 );
+			$file_extension = strtolower(substr( strrchr( $urldata, "." ), 1 ));
 			//echo "file_extension is $file_extension<br>";
 			
 			
@@ -87,7 +87,7 @@ if (!empty($pid) && !empty($dsID)) {
 					Header("Content-type: application/vnd.ms-powerpoint");
 					break;
 			default		:
-					Header("Content-type: text/xml");
+//					Header("Content-type: text/xml");
 					break;
 			
 			} // end switch field_extension

@@ -42,6 +42,7 @@ include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.date.php");
+include_once(APP_INC_PATH . "class.workflow.php");
 include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
@@ -3217,13 +3218,23 @@ class RecordObject
 
             Fedora_API::callIngestObject($xmlObj);
         }
-
+		$convert_check = false;
 		foreach ($datastreamTitles as $dsTitle) {
+			$dsIDName = $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['ID'];
+			$filename_ext = strtolower(substr($dsIDName, (strrpos($dsIDName, ".") + 1)));
+			$dsIDName = substr($dsIDName, 0, strrpos($dsIDName, ".") + 1).$filename_ext;
+
 			if (Fedora_API::datastreamExists($pid, $dsTitle['xsdsel_title'])) {
-				Fedora_API::callModifyDatastreamByValue($pid, $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['ID'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['STATE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['LABEL'], $datastreamXMLContent[$dsTitle['xsdsel_title']], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['MIMETYPE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['VERSIONABLE']);
+				Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['STATE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['LABEL'], $datastreamXMLContent[$dsTitle['xsdsel_title']], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['MIMETYPE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['VERSIONABLE']);
 			} else {
-				Fedora_API::getUploadLocation($pid, $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['ID'], $datastreamXMLContent[$dsTitle['xsdsel_title']], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['LABEL'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['MIMETYPE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['CONTROL_GROUP']);
+				Fedora_API::getUploadLocation($pid, $dsIDName, $datastreamXMLContent[$dsTitle['xsdsel_title']], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['LABEL'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['MIMETYPE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['CONTROL_GROUP']);
 			}
+			// Now check for post upload workflow events like thumbnail resizing of images
+			$convert_check = Workflow::checkForImageFile($dsIDName);
+			if ($convert_check != false) {
+				Fedora_API::getUploadLocationByLocalRef($pid, $convert_check, $convert_check, $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['LABEL'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['MIMETYPE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['CONTROL_GROUP']);
+			}				
+
 
 		} 
 		return $pid;
