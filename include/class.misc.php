@@ -387,7 +387,7 @@ class Misc
 		foreach ($dsList as $key => $ds) {		
 			$keep = true;
 			foreach ($p_ds as $protected_ds) {
-				if (($ds['ID'] == $protected_ds) || (is_numeric(strpos($ds['ID'], "thumbnail_"))))   {
+				if (($ds['ID'] == $protected_ds) || (is_numeric(strpos($ds['ID'], "thumbnail_"))) || (is_numeric(strpos($ds['ID'], "presmd_"))) )   {
 					$keep = false;
 				}
 				// now try and find a thumbnail datastream of this datastream
@@ -398,6 +398,15 @@ class Misc
 						$ds['thumbnail'] = $thumbnail;
 					}
 				}
+				// now try and find a preservation metadata datastream of this datastream
+				$presmd = "presmd_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."xml";
+				$ds['presmd'] = 0;
+				foreach ($original_dsList as $o_key => $o_ds) {
+					if ($presmd == $o_ds['ID']) {  // found the presmd datastream so save it against the record
+						$ds['presmd'] = $presmd;
+					}
+				}
+
 			}
 			if ($keep == true) {
 				$return[$key] = $ds;

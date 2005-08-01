@@ -102,6 +102,23 @@ class Workflow
 		}		
 	}
 
+	function checkForPresMD($filename) {
+//		$image_extensions = array("tiff", "tif", "jpg", "jpeg", "gif", "png");
+//		$filename_ext = strtolower(substr($filename, (strrpos($filename, ".") + 1)));
+		//echo "file -> ".$filename_ext;
+		if (is_numeric(strpos($filename, "."))) {
+			$getString = "http://".APP_HOSTNAME."/webservices/wfb.presmd.php?file=$filename";
+			//echo $getString;
+			$http_req = new HTTP_Request($getString, array("http" => "1.0"));
+			$http_req->setMethod("GET");
+			$http_req->sendRequest();
+			$xml = $http_req->getResponseBody();
+			return "presmd_".substr($filename, 0, strrpos($filename, ".")).".xml";
+		} else {
+			return false;
+		}		
+	}
+
     /**
      * Method used to add possible options into a given custom field.
      *

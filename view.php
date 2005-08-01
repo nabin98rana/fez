@@ -61,6 +61,12 @@ $tpl->assign("isAdministrator", $isAdministrator);
 
 
 $pid = @$HTTP_POST_VARS["pid"] ? $HTTP_POST_VARS["pid"] : $HTTP_GET_VARS["pid"];
+
+$tpl->assign("espace_root_dir", APP_PATH);
+$tpl->assign("eserv_url", "http://".APP_HOSTNAME."/eserv.php?pid=".$pid."&dsID=");
+$tpl->assign("local_eserv_url", "/eserv.php?pid=".$pid."&dsID=");
+
+
 // @@@ CK - below three redundant and only for testing as current role gets set in class.template.php
 //$role_id = User::getRoleByUserCollection($usr_id, $col_id);
 //$tpl->assign("current_role", $role_id);
@@ -135,7 +141,6 @@ $pid = @$HTTP_POST_VARS["pid"] ? $HTTP_POST_VARS["pid"] : $HTTP_GET_VARS["pid"];
 		
 			$parents = Record::getParents($pid);
 			$tpl->assign("parents", $parents);
-		
 		
 			$tpl->assign("details", $details);
 	

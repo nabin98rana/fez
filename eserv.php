@@ -87,7 +87,7 @@ if (!empty($pid) && !empty($dsID)) {
 					Header("Content-type: application/vnd.ms-powerpoint");
 					break;
 			default		:
-//					Header("Content-type: text/xml");
+					Header("Content-type: text/xml");
 					break;
 			
 			} // end switch field_extension

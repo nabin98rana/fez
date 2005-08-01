@@ -31,7 +31,8 @@ else{ echo "<b>ERROR:</b> unknown file type<br>"; die; }
 // Create the output file if it does not exist
 if(!is_file(APP_TEMP_DIR.$temp_file)) {
   $command = APP_CONVERT_CMD." -resize ".$width."x".$height." ".APP_TEMP_DIR.$image." ".APP_TEMP_DIR.$temp_file;
-  exec($command);
+//  exec($command);
+	exec(escapeshellcmd($command));
 } 
 // Output the image
 //header("Content-type: ".$content_type);
