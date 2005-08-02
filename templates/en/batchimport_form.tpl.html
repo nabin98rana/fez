@@ -54,153 +54,26 @@ function openDetailPage()
             (Current Team: {$current_collection_name})
           </td>
         </tr>
-        {section name="i" loop=$xsd_display_fields}
-		{if $xsd_display_fields[i].xsdmf_html_input != 'xsd_ref' and $xsd_display_fields[i].xsdmf_html_input != 'xsdmf_id_ref' and $xsd_display_fields[i].xsdmf_html_input != ''}
-		  {if ((($xsd_display_fields[i].xsdmf_html_input == 'static') && ($xsd_display_fields[i].xsdmf_show_in_view == 1)) || ($xsd_display_fields[i].xsdmf_html_input != 'static'))}
-			  {if ((($xsd_display_fields[i].xsdmf_html_input == 'xsd_loop_subelement') && ($xsd_display_fields[i].xsdmf_show_in_view == 1)) || ($xsd_display_fields[i].xsdmf_html_input != 'xsd_loop_subelement'))}
 
-        <tr><td colspan="2" class="default">
-	<table id="choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}" border="0" cellpadding="2" cellspacing="0" width="100%">
-            {if $xsd_display_fields[i].xsdmf_html_input == 'file_input'}
-				{if $xsd_display_fields[i].xsdmf_multiple == 1}
-					{section name="z" loop=$xsd_display_fields[i].multiple_array}
-						{assign var="loop_num" value=$xsd_display_fields[i].multiple_array[z]}
-						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" {if $loop_num != 1}style="display:none"{/if}>
-						  <td width="150" bgcolor="{$cell_color}" class="default_white">
-							<b>{$xsd_display_fields[i].xsdmf_title} {$loop_num}</b><br />{if $loop_num == 1}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appears as they are used up)</i>{/if}
-						  </td>
-						  <td bgcolor="{$light_color}">
-						<input class="default" type="file" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" maxlength="255" size="50">
-						 </td>
-						</tr>
-					{/section}
-				{else}
-						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1">
-						  <td width="150" bgcolor="{$cell_color}" class="default_white">
-							<b>{$xsd_display_fields[i].xsdmf_title}</b>
-						  </td>
-						  <td bgcolor="{$light_color}">
-						<input class="default" type="file" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]"  maxlength="255" size="50">
-						 </td>
-						</tr>
-				{/if}
-			{elseif ($xsd_display_fields[i].xsdmf_html_input == 'static' && $xsd_display_fields[i].xsdmf_show_in_view == 1 && $xsd_display_fields[i].xsdmf_static_text != '')}
-				{assign var="image_name" value=$espace_root_dir|cat:"images/"|cat:$xsd_display_fields[i].xsdmf_image_location} 
-				{assign var="image_file_string" value=""}
-				{fetch file=$image_name assign="image_file_string"} 
-						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1">
-						  <td width="150" bgcolor="{$cell_color}" class="default_white" colspan="2" nowrap>
-							{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$xsd_display_fields[i].xsdmf_image_location}">{/if}<b>{$xsd_display_fields[i].xsdmf_static_text}</b>
-							{if $xsd_display_fields[i].xsdmf_description != ""}
-								&nbsp;<i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
-							{/if}
-						  </td>
-						</tr>
-			{elseif ($xsd_display_fields[i].xsdmf_html_input == 'xsd_loop_subelement' && $xsd_display_fields[i].xsdmf_show_in_view == 1)}
-				{assign var="image_name" value=$espace_root_dir|cat:"images/"|cat:$xsd_display_fields[i].xsdmf_image_location} 
-				{assign var="image_file_string" value=""}
-				{fetch file=$image_name assign="image_file_string"} 
-						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1">
-						  <td bgcolor="{$cell_color}" class="default_white" colspan="2" nowrap>
-							{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$xsd_display_fields[i].xsdmf_image_location}">{/if}<b>{$xsd_display_fields[i].xsdmf_title}</b>
-							{if $xsd_display_fields[i].xsdmf_description != ""}
-								&nbsp;<i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
-							{/if}
-						  </td>
-						</tr>
-
-            {elseif $xsd_display_fields[i].xsdmf_html_input == 'text'}
-				{if $xsd_display_fields[i].xsdmf_multiple == 1}
-					{section name="z" loop=$xsd_display_fields[i].multiple_array}
-						{assign var="loop_num" value=$xsd_display_fields[i].multiple_array[z]}
-						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" {if $loop_num != 1}style="display:none"{/if}>
-						  <td width="150" bgcolor="{$cell_color}" class="default_white">
-							<b>{$xsd_display_fields[i].xsdmf_title} {$loop_num}</b><br />{if $loop_num == 1}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appears as they are used up)</i>{/if}
-						  </td>
-						  <td bgcolor="{$light_color}">
-						<input class="default" type="text" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" maxlength="255" size="50">
-						 </td>
-						</tr>
-					{/section}
-				{else}
-						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1">
-						  <td width="150" bgcolor="{$cell_color}" class="default_white">
-							<b>{$xsd_display_fields[i].xsdmf_title}</b>
-						  </td>
-						  <td bgcolor="{$light_color}">
-						<input class="default" type="text" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]"  maxlength="255" size="50">
-						 </td>
-						</tr>
-				{/if}
-            {elseif $xsd_display_fields[i].xsdmf_html_input == 'textarea'}
-				{if $xsd_display_fields[i].xsdmf_multiple == 1}
-					{section name="z" loop=$xsd_display_fields[i].multiple_array}
-						{assign var="loop_num" value=$xsd_display_fields[i].multiple_array[z]}
-						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" {if $loop_num != 1}style="display:none"{/if}>
-						  <td width="150" bgcolor="{$cell_color}" class="default_white">
-							<b>{$xsd_display_fields[i].xsdmf_title} {$loop_num}</b><br />{if $loop_num == 1}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appears as they are used up)</i>{/if}
-						  </td>
-						  <td bgcolor="{$light_color}">
-				            <textarea id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" rows="10" cols="60"></textarea>
-						 </td>
-						</tr>
-					{/section}
-				{else}
-						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1">
-						  <td width="150" bgcolor="{$cell_color}" class="default_white">
-							<b>{$xsd_display_fields[i].xsdmf_title}</b>
-						  </td>
-						  <td bgcolor="{$light_color}">
-				            <textarea id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]" rows="10" cols="60"></textarea>
-						 </td>
-						</tr>
-				{/if}
-            {elseif $xsd_display_fields[i].xsdmf_html_input == 'multiple' or $xsd_display_fields[i].xsdmf_html_input == 'combo'}
-				{if $xsd_display_fields[i].xsdmf_multiple == 1}
-					{section name="z" loop=$xsd_display_fields[i].multiple_array}
-						{assign var="loop_num" value=$xsd_display_fields[i].multiple_array[z]}
-						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" {if $loop_num != 1}style="display:none"{/if}>
-						  <td width="150" bgcolor="{$cell_color}" class="default_white">
-							<b>{$xsd_display_fields[i].xsdmf_title} {$loop_num}</b><br />{if $loop_num == 1}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appears as they are used up)</i>{/if}
-						  </td>
-						  <td bgcolor="{$light_color}">
-							<select id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" {if $xsd_display_fields[i].xsdmf_html_input == 'multiple'}multiple size="3"{/if} class="default" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple'}[]{/if}" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');">
-							  {if $xsd_display_fields[i].xsdmf_html_input != 'multiple'}<option value="-1">Please choose an option</option>{/if}
-							  {html_options options=$xsd_display_fields[i].field_options  selected=$xsd_display_fields[i].selected_option}
-							</select>
-						 </td>
-						</tr>
-					{/section}
-				{else}
-						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1">
-						  <td width="150" bgcolor="{$cell_color}" class="default_white">
-							<b>{$xsd_display_fields[i].xsdmf_title}</b>
-						  </td>
-						  <td bgcolor="{$light_color}">
-							<select id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1" {if $xsd_display_fields[i].xsdmf_html_input == 'multiple'}multiple size="3"{/if} class="default" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple'}[]{/if}">
-							  {if $xsd_display_fields[i].xsdmf_html_input != 'multiple'}<option value="-1">Please choose an option</option>{/if}
-								  {html_options options=$xsd_display_fields[i].field_options selected=$xsd_display_fields[i].selected_option}
-							</select>
-						 </td>
-						</tr>
-				{/if}
-            {/if}
-            {assign var="custom_field_id" value=$xsd_display_fields[i].xsdmf_id}
-            {if $xsd_display_fields[i].xsdmf_html_input == 'multiple'}
-              {assign var="custom_field_sufix" value="[]"}
-            {else}
-              {assign var="custom_field_sufix" value=""}
-            {/if}
-            {include file="error_icon.tpl.html" field="xsd_display_fields[$custom_field_id]$custom_field_sufix"}
-            {if $xsd_display_fields[i].xsdmf_description != ""  && $xsd_display_fields[i].xsdmf_html_input != 'xsd_loop_subelement' && $xsd_display_fields[i].xsdmf_html_input != 'static'}
-            <span class="small_default">({$xsd_display_fields[i].xsdmf_description|escape:"html"})</span>
-            {/if}
-	</table>
-		</td></tr>
-				{/if}
-			{/if}
-		{/if}
-        {/section}
+		<tr id="directory">
+				  <td width="150" bgcolor="{$cell_color}" class="default_white">
+					<b>Choose the SAN Directory to Import into this Collection</b>
+				  </td>
+				  <td bgcolor="{$light_color}">
+					<select size="10" class="default" name="directory">
+					  {html_options options=$filenames}
+					</select>
+				</td>
+		</tr>
+		<tr id="directory">
+		  <td width="150" bgcolor="{$cell_color}" class="default_white">
+			<b>Object Creation Options:</b>
+		  </td>
+		  <td class="default" bgcolor="{$light_color}">				
+  			  <input type="radio" name="objectimport" value="multiple" checked>One eSpace record object per file
+			  <input type="radio" name="objectimport" value="one">One eSpace record with all the files attached
+		</td>
+		</tr>
 
         <tr>
           <td colspan="2" bgcolor="{$cell_color}">

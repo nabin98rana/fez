@@ -484,6 +484,11 @@ function getUploadLocation ($pid, $dsIDName, $file, $dsLabel, $mimetype='text/xm
    ********************************************/
 //   global $_REQUEST, $uploadURL;
 
+	$loc_dir = "";
+    if (!is_numeric(strpos($dsIDName, "/"))) {
+		$loc_dir = APP_TEMP_DIR;
+	}
+//	$mimetype = mime_content_type($loc_dir.$dsIDName);
 
 	if ($mimetype == 'text/xml') {		
 		$config = array(
@@ -498,9 +503,10 @@ function getUploadLocation ($pid, $dsIDName, $file, $dsLabel, $mimetype='text/xm
 		$file = $tidy;
 	}
 
+
 	if (!empty($file) && (trim($file) != "")) {
 	//	if (is_string($file)) {
-			$fp = fopen(APP_TEMP_DIR.$dsIDName, "w"); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
+			$fp = fopen($loc_dir.$dsIDName, "w"); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
 //			$fp = fopen(APP_TEMP_DIR."temp.txt", "w");
 			fwrite($fp, $file);
 			fclose($fp);
@@ -511,7 +517,8 @@ function getUploadLocation ($pid, $dsIDName, $file, $dsLabel, $mimetype='text/xm
 	   curl_setopt($ch, CURLOPT_VERBOSE, 1);
 	   curl_setopt($ch, CURLOPT_HEADER, 0);
 //	   curl_setopt($ch, CURLOPT_POSTFIELDS, array('file' => "@".APP_TEMP_DIR."temp.txt"));
-   	   curl_setopt($ch, CURLOPT_POSTFIELDS, array('file' => "@".APP_TEMP_DIR.$dsIDName)); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
+
+   	   curl_setopt($ch, CURLOPT_POSTFIELDS, array('file' => "@".$loc_dir.$dsIDName)); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
 	   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 	   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 	   $uploadLocation = curl_exec($ch);
@@ -532,7 +539,7 @@ function getUploadLocation ($pid, $dsIDName, $file, $dsLabel, $mimetype='text/xm
 	}
 }
 
-function getUploadLocationByLocalRef ($pid, $dsIDName, $local_file_location, $dsLabel, $mimetype='text/xml', $controlGroup='M', $dsID=NULL) {
+function getUploadLocationByLocalRef ($pid, $dsIDName, $local_file_location, $dsLabel, $mimetype, $controlGroup='M', $dsID=NULL) {
    /********************************************
    * This function uses curl to upload a file into
    * the fedora upload manager and calls the
@@ -540,13 +547,23 @@ function getUploadLocationByLocalRef ($pid, $dsIDName, $local_file_location, $ds
    ********************************************/
 //   global $_REQUEST, $uploadURL;
 
+	$loc_dir = "";
+    if (!is_numeric(strpos($dsIDName, "/"))) {
+		$loc_dir = APP_TEMP_DIR;
+	}
+//	echo $loc_dir.$dsIDName;
+	if ($mimetype == "") {
+		$mimetype = Misc::mime_content_type($loc_dir.$dsIDName);
+	}
+
+	$dsIDName = substr($dsIDName, strrpos($dsIDName, "/")+1); // take out any nasty slashes from the ds name itself
 
 	if (!empty($local_file_location) && (trim($local_file_location) != "")) {
 	   //Send multipart/form-data via curl
 	   $ch = curl_init(APP_FEDORA_UPLOAD_URL);
 	   curl_setopt($ch, CURLOPT_VERBOSE, 1);
 	   curl_setopt($ch, CURLOPT_HEADER, 0);
-   	   curl_setopt($ch, CURLOPT_POSTFIELDS, array('file' => "@".APP_TEMP_DIR.$local_file_location)); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
+   	   curl_setopt($ch, CURLOPT_POSTFIELDS, array('file' => "@".$loc_dir.$local_file_location)); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
 	   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 	   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 	   $uploadLocation = curl_exec($ch);
@@ -557,7 +574,7 @@ function getUploadLocationByLocalRef ($pid, $dsIDName, $local_file_location, $ds
 
 	   if (!Fedora_API::datastreamExists($pid, $dsIDName)) {
 		  //Call callAddDatastream
-		  $dsID = Fedora_API::callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsLabel, $mimetype, $controlGroup);
+		  $dsID = Fedora_API::callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsIDName, $mimetype, $controlGroup);
 		  return $dsID;
 		  exit;
 	   } elseif ($dsIDName != NULL) {

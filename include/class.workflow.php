@@ -96,7 +96,8 @@ class Workflow
 			$http_req->setMethod("GET");
 			$http_req->sendRequest();
 			$xml = $http_req->getResponseBody();
-			return "thumbnail_".substr($filename, 0, strrpos($filename, ".")).".jpg";
+//			return "thumbnail_".substr($filename, 0, strrpos($filename, ".")).".jpg";
+			return APP_TEMP_DIR."thumbnail_".substr(substr($filename, 0, strrpos($filename, ".")), strrpos($filename, "/")+1).".jpg";
 		} else {
 			return false;
 		}		
@@ -113,7 +114,7 @@ class Workflow
 			$http_req->setMethod("GET");
 			$http_req->sendRequest();
 			$xml = $http_req->getResponseBody();
-			return "presmd_".substr($filename, 0, strrpos($filename, ".")).".xml";
+			return APP_TEMP_DIR."presmd_".substr(substr($filename, 0, strrpos($filename, ".")), strrpos($filename, "/")+1).".xml";
 		} else {
 			return false;
 		}		

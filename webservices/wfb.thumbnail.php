@@ -11,6 +11,12 @@ $image = $_GET["image"];
 $width = $_GET["width"]; //maximum width
 $height = $_GET["height"]; //maximum height
 $ext = $_GET["ext"]; //the file type extension to convert the image to
+
+$image_dir = substr($image, 0, strrpos($image, "/"));
+$image = substr($image, strrpos($image, "/")+1);
+
+if (trim($image_dir) == "") { $image_dir = APP_TEMP_DIR; }
+
 $temp_file = "thumbnail_".substr($image, 0, strrpos($image, ".")).".".$ext;
 //echo $temp_file;
 // Some error reporting
@@ -30,7 +36,8 @@ else{ echo "<b>ERROR:</b> unknown file type<br>"; die; }
 
 // Create the output file if it does not exist
 if(!is_file(APP_TEMP_DIR.$temp_file)) {
-  $command = APP_CONVERT_CMD." -resize ".$width."x".$height." ".APP_TEMP_DIR.$image." ".APP_TEMP_DIR.$temp_file;
+  $command = APP_CONVERT_CMD." -resize ".$width."x".$height." ".$image_dir."/".$image." ".APP_TEMP_DIR.$temp_file;
+//	echo escapeshellcmd($command); echo "<br /><br />";
 //  exec($command);
 	exec(escapeshellcmd($command));
 } 

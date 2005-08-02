@@ -647,6 +647,11 @@ class Misc
         }
     }
 
+	function mime_content_type($f) {
+		$f = escapeshellarg($f);
+		return trim( `file -bi $f` );
+	}
+
 
     /**
      * Method used as a callback with the regular expression code that parses

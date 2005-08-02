@@ -35,6 +35,9 @@ include_once(APP_INC_PATH . "class.auth.php");
 //include_once(APP_INC_PATH . "class.subcategory.php");
 //include_once(APP_INC_PATH . "class.release.php");
 include_once(APP_INC_PATH . "class.record.php");
+
+include_once(APP_INC_PATH . "class.batchimport.php");
+
 include_once(APP_INC_PATH . "class.misc.php");
 //include_once(APP_INC_PATH . "class.resolution_location.php");
 //include_once(APP_INC_PATH . "class.support.php");
@@ -45,12 +48,12 @@ include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.community.php");
 include_once(APP_INC_PATH . "class.date.php");
 //include_once(APP_INC_PATH . "class.library_staff_ad.php");
-include_once(APP_INC_PATH . "class.doc_type_xsd.php");
+//include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 
 
 $tpl = new Template_API();
-$tpl->setTemplate("new.tpl.html");
+$tpl->setTemplate("batchimport.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION);
 //$user_id = Auth::getUserID();
@@ -80,15 +83,16 @@ if (!empty($community_pid)) {
 }
 $community_list = Community::getAssocList();
 $collection_list = Collection::getAssocList();
-if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for it
+/*if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for it
 //	echo "XDIS_ID -> ".$xdis_id;
 //	echo "redirecting";
 	Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=insert_form".$extra_redirect, false);
 }
 $tpl->assign("xdis_id", $xdis_id);
-
+*/
 if (@$HTTP_POST_VARS["cat"] == "report") {
-    $res = Record::insert();
+
+    $res = BatchImport::insert();
 /*    if ($res != -1) {
         // show direct links to the issue page, issue listing page and 
         // email listing page
@@ -102,7 +106,7 @@ if (@$HTTP_POST_VARS["cat"] == "report") {
 		// stay here
 	} else { // otherwise redirect to list where this record would show
         sleep(1); // give fedora some time to update it's indexes or whatever it does.
-		Auth::redirect(APP_RELATIVE_URL . "list.php?new_pid=".$res.$extra_redirect, false);
+//		Auth::redirect(APP_RELATIVE_URL . "list.php?new_pid=".$res.$extra_redirect, false);
 	}
 
 
@@ -157,7 +161,7 @@ $tpl->assign("custom_fields", $custom_modified);*/
 //$custom_modified = array();
 //$xsd_display_fields = (XSD_HTML_Match::getListByCollection($col_id, 'report_form'));
 //$xdis_id = 5; // was 5
-$xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id));
+/*$xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id));
 
 //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
 foreach ($xsd_display_fields  as $dis_key => $dis_field) {
@@ -170,14 +174,27 @@ foreach ($xsd_display_fields  as $dis_key => $dis_field) {
 		}
 	}
 }
+*/
 
-
+//open the current directory
+$directory = opendir(APP_SAN_IMPORT_DIR);
+while (false !== ($file = readdir($directory))) { 
+	if (!is_numeric(strpos($file, "."))) {
+		$filenames[$file] = $file;
+	}
+}
+/*foreach ($filenames as $file)
+{
+	//echo "$file<br>";
+} 
+*/
+$tpl->assign("filenames", $filenames);
 //print_r($xsd_display_fields);
 //asort($custom_modified[1]['field_options']);
 $tpl->assign("xsd_display_fields", $xsd_display_fields);
 $tpl->assign("xdis_id", $xdis_id);
-$tpl->assign("form_title", "Create New Record");
-$tpl->assign("form_submit_button", "Create Record");
+$tpl->assign("form_title", "Batch Import Records");
+$tpl->assign("form_submit_button", "Batch Import Records");
 
 //print_r($HTTP_POST_VARS);
 
