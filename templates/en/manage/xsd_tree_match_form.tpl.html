@@ -588,8 +588,10 @@
                   <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { checkRadio('xsd_tree_match_form', 'field_type', 1);  toggleEspaceVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(true);toggleXSDMF_ID_Refs(false);}">Textarea</a>&nbsp;
                   <input type="radio" name="field_type" value="combo" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'combo'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleEspaceVarText(true);toggleSmartyVarText(true);toggleXSDMatchField(false);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(true);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">
                   <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { checkRadio('xsd_tree_match_form', 'field_type', 2);  toggleEspaceVarText(true);toggleSmartyVarText(true);toggleXSDMatchField(false);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(true);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">Combo Box</a>&nbsp;
+
                   <input type="radio" name="field_type" value="multiple" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'multiple'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleEspaceVarText(true);toggleSmartyVarText(true);toggleXSDMatchField(false);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(true);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">
 	              <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { checkRadio('xsd_tree_match_form', 'field_type', 3);  toggleEspaceVarText(true);toggleSmartyVarText(true);toggleXSDMatchField(false);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(true);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">Multiple Combo Box</a>
+
 <br />            <input type="radio" name="field_type" value="checkbox" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'checkbox'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleEspaceVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">
                   <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { checkRadio('xsd_tree_match_form', 'field_type', 4);  toggleEspaceVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">Checkbox</a>&nbsp;
 		         <input type="radio" name="field_type" value="static" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'static'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) {  toggleEspaceVarText(true);toggleSmartyVarText(false);toggleXSDMatchField(false);toggleStaticText(true);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">
@@ -606,10 +608,35 @@
                   <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { checkRadio('xsd_tree_match_form', 'field_type', 10);  toggleEspaceVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">File Upload Input</a>&nbsp;
                   <input type="radio" name="field_type" value="file_selector" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'file_selector'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleEspaceVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">
                   <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { checkRadio('xsd_tree_match_form', 'field_type', 11);  toggleEspaceVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">File Selector</a>&nbsp;
-				  {/literal}
+
+                {/literal}
+                {capture name="tree_onclick" assign="tree_onclick" }
+                        {literal}javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleEspaceVarText(true);toggleSmartyVarText(true);toggleXSDMatchField(false);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}{/literal}
+                {/capture}
+                  <input type="radio" name="field_type" value="tree" {if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'tree'}checked{/if} onClick="{$tree_onclick}">
+	              <a id="link" class="link" href="javascript:void(null);" onClick="{$tree_onlcick}">Tree</a>
+
                 </td>
               </tr>
-              <tr id="field_options_tr" {if $info.xsdmf_html_input != 'combo' and $info.xsdmf_html_input != 'multiple'}style="display:none"{/if}>
+
+              {if $info.xsdmf_html_input == 'combo' 
+                    || $info.xsdmf_html_input == 'multiple' 
+                        || $info.xsdmf_html_input == 'tree'}
+                 {assign var="selectingfield" value=true}
+              {else}
+                 {assign var="selectingfield" value=false}
+              {/if}
+              {if !$selectingfield}
+                 {assign var="selectingfield_only" value='style="display:none"'}
+              {else}
+                 {assign var="selectingfield_only" value=''}
+              {/if}
+                {if $selectingfield && $info.xsdmf_html_input != 'tree'}
+                  {assign var="show_field_options" value=true}
+                {else}
+                  {assign var="show_field_options" value=false}
+                {/if}
+              <tr id="field_options_tr" {if !$show_field_options}style="display:none"{/if} >
                 <td width="120" bgcolor="{$cell_color}" class="default_white">
                   <b>Field Options:</b><i>(If a dynamic variable is set it will be used instead of the entered values)</i>
                 </td>
@@ -649,6 +676,28 @@
                   </table>
                 </td>
               </tr>
+              <tr id="smarty_variable_tr"  {$selectingfield_only} >
+                 <td width="120" bgcolor="{$cell_color}" class="default_white"><b>Dynamic Variable:</b><i>(If a dynamic variable is set it will be used instead of the entered values, or if this is a combo or multiple html input then the dynamic variable will be used as the field options)</i></td>
+ 				<td bgcolor="{$light_color}"><span class="default"><br /><b>Use field Options OR use this dynamic variable:</b></span> <br />
+					<input class="default" type="text" name="smarty_variable" size="26" value="{$info.xsdmf_smarty_variable}">
+			  	</td>
+		     </tr>
+		      <tr id="dynamic_selected_option_tr" {$selectingfield_only} >
+                 <td width="120" bgcolor="{$cell_color}" class="default_white"><b>Dynamic Selected Option:</b><i>(If a dynamic variable is set it will be used to preselect the select options for combo boxes and multiple select boxes)</i></td>
+ 				<td bgcolor="{$light_color}">
+					<input class="default" type="text" name="dynamic_selected_option" size="26" value="{$info.xsdmf_dynamic_selected_option}">
+			  	</td>
+		     </tr>
+			 <tr id="espace_variable_tr" {if $info.xsdmf_html_input != 'static' && !$selectingfield}style="display:none"{/if}>
+                 <td width="120" bgcolor="{$cell_color}" class="default_white"><b>eSpace Variable:</b><i>(If an eSpace variable is set it will be used instead of any other options including smarty template variables)</i></td>
+				<td class="default" bgcolor="{$light_color}"><br /><b>OR use one of these eSpace variables: </b> <br />
+					<INPUT TYPE=RADIO NAME="espace_variable" VALUE="none" {if ($info.xsdmf_espace_variable == "" || $info.xsdmf_espace_variable == "none")}checked{/if}/>None<BR>
+					<INPUT TYPE=RADIO NAME="espace_variable" VALUE="pid" {if $info.xsdmf_espace_variable == "pid"}checked{/if}/>Pid (for new records it will get the new Pid and then create this parent datastream)<BR>
+					<INPUT TYPE=RADIO NAME="espace_variable" VALUE="xdis_id" {if $info.xsdmf_espace_variable == "xdis_id"}checked{/if}/>XSD Display ID<BR>
+					<INPUT TYPE=RADIO NAME="espace_variable" VALUE="sta_id" {if $info.xsdmf_espace_variable == "sta_id"}checked{/if}/>eSpace Object Status ID<BR>
+				</td>
+ 			  </tr> 
+
               <tr id="xsdmf_id_ref_tr" {if $info.xsdmf_html_input != 'xsdmf_id_ref'}style="display:none"{/if}>
                 <td width="120" bgcolor="{$cell_color}" class="default_white">
                   <b>XSD ID Reference:</b>
@@ -698,27 +747,6 @@
                   <br /><span class="small_default">(The datatype the javascript will validate input in this field against)</span>
                 </td>
               </tr>
-		      <tr id="smarty_variable_tr" {if $info.xsdmf_html_input != 'multiple' && $info.xsdmf_html_input != 'combo'}style="display:none"{/if}>
-                 <td width="120" bgcolor="{$cell_color}" class="default_white"><b>Dynamic Variable:</b><i>(If a dynamic variable is set it will be used instead of the entered values, or if this is a combo or multiple html input then the dynamic variable will be used as the field options)</i></td>
- 				<td bgcolor="{$light_color}"><span class="default"><br /><b>OR use this dynamic variable:</b></span> <br />
-					<input class="default" type="text" name="smarty_variable" size="26" value="{$info.xsdmf_smarty_variable}">
-			  	</td>
-		     </tr>
-		      <tr id="dynamic_selected_option_tr" {if $info.xsdmf_html_input != 'multiple' && $info.xsdmf_html_input != 'combo'}style="display:none"{/if}>
-                 <td width="120" bgcolor="{$cell_color}" class="default_white"><b>Dynamic Selected Option:</b><i>(If a dynamic variable is set it will be used to preselect the select options for combo boxes and multiple select boxes)</i></td>
- 				<td bgcolor="{$light_color}">
-					<input class="default" type="text" name="dynamic_selected_option" size="26" value="{$info.xsdmf_dynamic_selected_option}">
-			  	</td>
-		     </tr>
-			 <tr id="espace_variable_tr" {if $info.xsdmf_html_input != 'static' && $info.xsdmf_html_input != 'multiple' && $info.xsdmf_html_input != 'combo'}style="display:none"{/if}>
-                 <td width="120" bgcolor="{$cell_color}" class="default_white"><b>eSpace Variable:</b><i>(If an eSpace variable is set it will be used instead of any other options including smarty template variables)</i></td>
-				<td class="default" bgcolor="{$light_color}"><br /><b>OR use one of these eSpace variables: </b> <br />
-					<INPUT TYPE=RADIO NAME="espace_variable" VALUE="none" {if ($info.xsdmf_espace_variable == "" || $info.xsdmf_espace_variable == "none")}checked{/if}/>None<BR>
-					<INPUT TYPE=RADIO NAME="espace_variable" VALUE="pid" {if $info.xsdmf_espace_variable == "pid"}checked{/if}/>Pid (for new records it will get the new Pid and then create this parent datastream)<BR>
-					<INPUT TYPE=RADIO NAME="espace_variable" VALUE="xdis_id" {if $info.xsdmf_espace_variable == "xdis_id"}checked{/if}/>XSD Display ID<BR>
-					<INPUT TYPE=RADIO NAME="espace_variable" VALUE="sta_id" {if $info.xsdmf_espace_variable == "sta_id"}checked{/if}/>eSpace Object Status ID<BR>
-				</td>
- 			  </tr> 
               <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $form_cat == 'edit'}

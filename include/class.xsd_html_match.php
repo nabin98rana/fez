@@ -1224,7 +1224,7 @@ class XSD_HTML_Match
 		if ($HTTP_POST_VARS["dynamic_selected_option"] != "") {
         	$stmt .= " xsdmf_dynamic_selected_option = '" . Misc::escapeString($HTTP_POST_VARS["dynamic_selected_option"]) . "',";
 		}
-		if ($HTTP_POST_VARS["selected_option"] != "") {
+		if (!empty($HTTP_POST_VARS["selected_option"])) {
         	$stmt .= " xsdmf_selected_option = '" . Misc::escapeString($HTTP_POST_VARS["selected_option"]) . "',";
 		}
 
