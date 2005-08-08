@@ -140,7 +140,7 @@ class Auth
 		
 		foreach ($res as $result) {
 			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-				if (!is_array($return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
+				if (!is_array(@$return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
 					$return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']] = array();
 				}
 				array_push($return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
@@ -881,11 +881,9 @@ class Auth
             $userDetails = User::GetUserLDAPDetails($username, $password);
             $fullname = $userDetails['displayname'];
             $email = $userDetails['email'];
-            $username = $username;
             Auth::GetUsersLDAPGroups($userDetails['usr_username'], $password);
         } else { // if it is a registered eSpace user then get their details from the espace user table
             $_SESSION['isInDB'] = true;
-            $username = $username;
             $userDetails = User::getDetails($username);
             $fullname = $userDetails['usr_full_name'];
             $email = $userDetails['usr_email'];

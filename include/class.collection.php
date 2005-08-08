@@ -575,6 +575,23 @@ class Collection
      */
     function getList($community_pid=false)
     {
+        // magic numbers used below
+        $ret_id_xsdmf_id = 242;
+        // 242 - ret_id, eSpaceMD Collection - static text = 2, xpath /eSpaceMD/ret_id
+        $isMemberOf_xsdmf_id = 91;
+        // 91 - Member of Communities, Fedora RELS-EXT, xpath /RDF/description/isMemberOf/resource
+
+        // Should we restrict the list to a community.
+        if ($community_pid) {
+            $community_where = "	and r2.rmf_rec_pid in (
+	 						SELECT r3.rmf_rec_pid 
+							FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3
+							WHERE r3.rmf_xsdmf_id = $isMemberOf_xsdmf_id AND r3.rmf_varchar = '$community_pid'
+							)";
+        } else {
+            // list all collections 
+            $community_where = "";
+        }
 
         $stmt = "SELECT
                     * 
@@ -587,12 +604,7 @@ class Collection
                     rmf_rec_pid in (
 						SELECT r2.rmf_rec_pid 
 						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
-						WHERE r2.rmf_xsdmf_id = 242 AND r2.rmf_varchar = '2' and r2.rmf_rec_pid in (
-	 						SELECT r3.rmf_rec_pid 
-							FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3
-							WHERE r3.rmf_xsdmf_id = 91 AND r3.rmf_varchar = '".$community_pid."'						
-							)
-						)									
+						WHERE r2.rmf_xsdmf_id = $ret_id_xsdmf_id AND r2.rmf_varchar = '2' $community_where )
 					";
 
 //		echo $stmt;			
@@ -616,7 +628,7 @@ class Collection
 		}
 
 		foreach ($return as $pid_key => $row) {
-			if (!is_array($row['eSpaceACML'])) {
+			if (!is_array(@$row['eSpaceACML'])) {
 				$parentsACMLs = array();
 				Auth::getIndexParentACMLs(&$parentsACMLs, $pid_key);			
 				$return[$pid_key]['eSpaceACML'] = $parentsACMLs;
@@ -699,6 +711,9 @@ class Collection
      */
     function getListing($collection_pid)
     {
+        $isMemberOf_xsdmf_id = 149;
+        $ret_id_xsd_mf = 236; // eSpaceMD Display, 
+
 
         $stmt = "SELECT
                     * 
@@ -712,10 +727,10 @@ class Collection
                     r1.rmf_rec_pid in (
 						SELECT r2.rmf_rec_pid 
 						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
-						WHERE rmf_xsdmf_id = 236 AND r2.rmf_varchar = '3'and r2.rmf_rec_pid in (
+						WHERE rmf_xsdmf_id = $ret_id_xsd_mf AND r2.rmf_varchar = '3'and r2.rmf_rec_pid in (
 	 						SELECT r3.rmf_rec_pid 
 							FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3
-							WHERE r3.rmf_xsdmf_id = 149 AND r3.rmf_varchar = '".$collection_pid."'						
+							WHERE r3.rmf_xsdmf_id = $isMemberOf_xsdmf_id AND r3.rmf_varchar = '".$collection_pid."'						
 							)
 						)				
 					";
@@ -780,6 +795,21 @@ class Collection
         $details = Auth::ProcessListResults($details);
 
 		return $details; */
+    }
+
+    function getCount($collection_pid)
+    {
+        // Member of Collections, Fedora Records RELS-EXT Display, /RDF/description/isMemberOf/resource
+        $isMemberOf_xsdmf_id = 149; 
+        $stmt = "SELECT count(distinct rmf_rec_pid) as items
+            FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3
+            WHERE r3.rmf_xsdmf_id = $isMemberOf_xsdmf_id AND r3.rmf_varchar = '$collection_pid'	";
+		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return 0;
+        }
+        return $res;
     }
 
 
@@ -1171,6 +1201,13 @@ class Collection
         }
     }
 }
+
+class CollectionObject extends RecordGeneral
+{
+
+}
+
+
 
 // benchmarking the included file (aka setup time)
 if (APP_BENCHMARK) {

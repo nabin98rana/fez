@@ -1,0 +1,152 @@
+{include file="header.tpl.html" extra_title="My eSpace"}
+{include file="navigation.tpl.html"}
+
+<table width="100%">
+<tr>
+  <td valign="top">
+ <!-- Pagelayout Row 1 Column 1 -->
+
+{include file="my_workflow_items.tpl.html"}
+
+{* each of the following should have its own include file *}
+
+<table width="100%" bgcolor="{$cell_color}" cellspacing="0" cellpadding="1" align="center">
+<tr><td>
+  <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" >
+  <tr><td>
+    <h1>Recent Items</h1>
+   <table border="0" width="100%" cellpadding="1" cellspacing="1">
+     <tr>
+       <td width="50%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Title</b></td>
+       <td width="15%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Workflow</b></td>
+       <td width="15%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>State</b></td>
+       <td width="15%" bgcolor="{$cell_color}" class="default_white" nowrap>&nbsp;<b>Action</b></td>
+     </tr>
+     {section name="i" loop=$list}
+     {cycle values=$cycle assign="row_color"}
+     <tr>
+       <td width="50%" bgcolor="{$row_color}" class="default">
+         &nbsp;{$list[i].title|escape}
+       </td>
+       <td width="15%" bgcolor="{$row_color}" class="default">
+         &nbsp;{$list[i].workflow|escape}
+       </td>
+       <td width="15%" bgcolor="{$row_color}" class="default">
+         &nbsp;{$list[i].workflow_state|escape}
+       </td>
+       <td>
+       <a href='update.php?pid={$list[i].pid|escape}'><img title="Edit" align="absmiddle" 
+       src="{$rel_url}images/edit.png" border="0"></a> 
+       </td>
+     </tr>
+     {sectionelse}
+     <tr>
+       <td colspan="5" bgcolor="{$light_color}" align="center" class="default">
+         No items could be found.
+       </td>
+     </tr>
+     {/section}
+   </table>
+
+  </td></tr>
+  </table>
+</td></tr>
+</table>
+
+<table width="100%" bgcolor="{$cell_color}" cellspacing="0" cellpadding="1" align="center">
+<tr><td>
+  <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" >
+  <tr><td>
+    <h1>Saved Searches</h1>
+   <table border="0" width="100%" cellpadding="1" cellspacing="1">
+     <tr>
+       <td width="50%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Title</b></td>
+       <td width="15%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Search terms</b></td>
+       <td width="15%" bgcolor="{$cell_color}" class="default_white" nowrap>&nbsp;<b>Action</b></td>
+     </tr>
+     {section name="i" loop=$list}
+     {cycle values=$cycle assign="row_color"}
+     <tr>
+       <td width="50%" bgcolor="{$row_color}" class="default">
+         &nbsp;{$list[i].title|escape}
+       </td>
+       <td width="15%" bgcolor="{$row_color}" class="default">
+         &nbsp;{$list[i].workflow|escape}
+       </td>
+       <td width="15%" bgcolor="{$row_color}" class="default">
+         &nbsp;{$list[i].workflow_state|escape}
+       </td>
+       <td>
+       <a href='update.php?pid={$list[i].pid|escape}'><img title="Edit" align="absmiddle" 
+       src="{$rel_url}images/edit.png" border="0"></a> 
+       </td>
+     </tr>
+     {sectionelse}
+     <tr>
+       <td colspan="5" bgcolor="{$light_color}" align="center" class="default">
+         No items could be found.
+       </td>
+     </tr>
+     {/section}
+   </table>
+
+  </td></tr>
+  </table>
+</td></tr>
+</table>
+
+  </td>
+  <td valign="top">
+ <!-- Pagelayout Row 1 Column 2 -->
+
+{include file="my_collections.tpl.html"}
+<table width="100%" bgcolor="{$cell_color}" cellspacing="0" cellpadding="1" align="center">
+<tr><td>
+  <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" >
+  <tr><td>
+    <h1>Bookmarks</h1>
+   <table border="0" width="100%" cellpadding="1" cellspacing="1">
+     <tr>
+       <td width="50%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Title</b></td>
+       <td width="15%" bgcolor="{$cell_color}" class="default_white" nowrap>&nbsp;<b>Action</b></td>
+     </tr>
+     {section name="i" loop=$list}
+     {cycle values=$cycle assign="row_color"}
+     <tr>
+       <td width="50%" bgcolor="{$row_color}" class="default">
+         &nbsp;{$list[i].title|escape}
+       </td>
+       <td width="15%" bgcolor="{$row_color}" class="default">
+         &nbsp;{$list[i].workflow|escape}
+       </td>
+       <td width="15%" bgcolor="{$row_color}" class="default">
+         &nbsp;{$list[i].workflow_state|escape}
+       </td>
+       <td>
+       <a href='update.php?pid={$list[i].pid|escape}'><img title="Edit" align="absmiddle" 
+       src="{$rel_url}images/edit.png" border="0"></a> 
+       </td>
+     </tr>
+     {sectionelse}
+     <tr>
+       <td colspan="5" bgcolor="{$light_color}" align="center" class="default">
+         No items could be found.
+       </td>
+     </tr>
+     {/section}
+   </table>
+
+  </td></tr>
+  </table>
+</td></tr>
+</table>
+
+
+  </td>
+</tr>
+
+</table>
+<br />
+
+{include file="app_info.tpl.html"}
+{include file="footer.tpl.html"}

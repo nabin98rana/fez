@@ -2530,6 +2530,23 @@ foreach ($a as $i => $j) {
 return $ret;
 }
 
+    function collateArray($source, $ifield)
+    {
+        $dest = array();
+        foreach ($source as $item) {
+            $dest[$item[$ifield]][] = $item;
+        }
+        return $dest;
+    }
+
+    function collate2ColArray($source, $kfield, $vfield)
+    {
+        $dest = array();
+        foreach ($source as $item) {
+            $dest[$item[$kfield]][] = $item[$vfield];
+        }
+        return $dest;
+    }
 
 } // end of Misc class
 

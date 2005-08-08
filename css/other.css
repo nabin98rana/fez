@@ -53,25 +53,25 @@ h1 {
   font-family: Verdana, Arial, Helvetica, sans-serif;
   font-style: normal;
   font-weight: bold;
-  font-size: 200%;
+  font-size: 100%;
 }
 h2 {
   font-family: Verdana, Arial, Helvetica, sans-serif;
   font-style: normal;
   font-weight: bold;
-  font-size: 180%;
+  font-size: 90%;
 }
 h3 {
   font-family: Verdana, Arial, Helvetica, sans-serif;
   font-style: normal;
   font-weight: bold;
-  font-size: 160%;
+  font-size: 80%;
 }
 h4 {
   font-family: Verdana, Arial, Helvetica, sans-serif;
   font-style: normal;
   font-weight: bold;
-  font-size: 120%;
+  font-size: 70%;
 }
 .shortcut {
   font-family: Verdana, Arial, Helvetica, sans-serif;

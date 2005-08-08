@@ -3063,29 +3063,23 @@ LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "custom_field_option as 
 
 
 /**
-  * RecordObject
-  * Manages the interface to the database and fedora for records.
-  * Stores local copies of record properties to save multiple accesses to the database.
-  */
-class RecordObject 
+ * class RecordGeneral
+ * For general record stuff - shared by collections and communities as well as records. 
+ */
+class RecordGeneral
 {
     var $pid;
-    var $xdis_id;
-    var $no_xdis_id = false;  // true if we couldn't find the xdis_id
-    var $default_xdis_id = 5;
     var $viewer_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator"); 
+    var $editor_roles;
     var $checked_auth = false;
     var $auth_groups;
-    var $editor_roles;
-    var $display;
-    
 
     /**
      * RecordObject
      * If instantiated with a pid, then this object is linked with the record with the pid, otherwise we are inserting
      * a record.
      */
-    function RecordObject($pid=null)
+    function RecordGeneral($pid=null)
     {
         $this->pid = $pid;
         $this->editor_roles = Misc::array_clean($this->viewer_roles, "Viewer");
@@ -3101,34 +3095,6 @@ class RecordObject
         $this->checked_auth = false;
     }
 
-    /**
-     * getXmlDisplayId
-     * Retrieve the display id for this record
-     */
-    function getXmlDisplayId() {
-        if (!$this->no_xdis_id) {
-            if (is_null($this->xdis_id)) {
-                $xdis_array = Fedora_API::callGetDatastreamContentsField($this->pid, 'eSpaceMD', array('xdis_id'));
-                if (isset($xdis_array['xdis_id'][0])) {
-                    $this->xdis_id = $xdis_array['xdis_id'][0];
-                } else {
-                    $this->no_xdis_id = true;
-                    return null;
-                }
-            }
-            return $this->xdis_id;
-        }
-        return null;
-    }
-    
-    /**
-     * updateAdminDatastream
-     * Used to assocaiate a display for this record
-     */
-    function updateAdminDatastream($xdis_id) {
-        $this->xdis_id = $xdis_id;
-        return $this->fedoraInsertUpdate();
-    }
 
     /**
      * getAuth
@@ -3168,6 +3134,51 @@ class RecordObject
     function canEdit() {
         return $this->checkAuth($this->editor_roles);
     }
+
+}
+
+/**
+  * RecordObject
+  * Manages the interface to the database and fedora for records.
+  * Stores local copies of record properties to save multiple accesses to the database.
+  */
+class RecordObject extends RecordGeneral
+{
+    var $xdis_id;
+    var $no_xdis_id = false;  // true if we couldn't find the xdis_id
+    var $default_xdis_id = 5;
+    var $display;
+    
+
+    /**
+     * getXmlDisplayId
+     * Retrieve the display id for this record
+     */
+    function getXmlDisplayId() {
+        if (!$this->no_xdis_id) {
+            if (is_null($this->xdis_id)) {
+                $xdis_array = Fedora_API::callGetDatastreamContentsField($this->pid, 'eSpaceMD', array('xdis_id'));
+                if (isset($xdis_array['xdis_id'][0])) {
+                    $this->xdis_id = $xdis_array['xdis_id'][0];
+                } else {
+                    $this->no_xdis_id = true;
+                    return null;
+                }
+            }
+            return $this->xdis_id;
+        }
+        return null;
+    }
+    
+    /**
+     * updateAdminDatastream
+     * Used to assocaiate a display for this record
+     */
+    function updateAdminDatastream($xdis_id) {
+        $this->xdis_id = $xdis_id;
+        return $this->fedoraInsertUpdate();
+    }
+
 
     /**
      * fedoraInsertUpdate 
