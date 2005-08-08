@@ -38,6 +38,7 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.misc.php");
 
 include_once(APP_INC_PATH . "class.record.php");
+
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.community.php");
 
@@ -99,16 +100,20 @@ if (!empty($collection_pid)) {
 	$tpl->assign("collection_pid", $collection_pid);
 } elseif (!empty($community_pid)) {
     // list collections in a community
+
 	$tpl->assign("community_pid", $community_pid);
 	$xdis_id = Collection::getCollectionXDIS_ID();
 	$community_xdis_id = Community::getCommunityXDIS_ID();
+
 	$userPIDAuthGroups = Auth::getAuthorisationGroups($community_pid, $community_xdis_id);
+
 	$isCreator = (in_array("Creator", $userPIDAuthGroups));
 	$tpl->assign("isCreator", $isCreator);
 	$isEditor = (in_array("Creator", $userPIDAuthGroups) || in_array("Community Administrator", $userPIDAuthGroups) || in_array("Editor", $userPIDAuthGroups));
 	$tpl->assign("isEditor", $isEditor);
 	$tpl->assign("xdis_id", $xdis_id);	
 	$community_details = Community::getDetails($community_pid);
+
 	$list = Collection::getList($community_pid);
 	$tpl->assign("list_heading", "List of Collections in ".$community_details[0]['title']." Community");
 	$tpl->assign("list_type", "collection_list");

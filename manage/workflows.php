@@ -30,7 +30,7 @@
 include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
-include_once(APP_INC_PATH . "class.workflows.php");
+include_once(APP_INC_PATH . "class.workflow.php");
 //include_once(APP_INC_PATH . "class.wfbehaviours.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "db_access.php");

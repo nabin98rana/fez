@@ -332,6 +332,7 @@ class XSD_HTML_Match
                     xsdmf_html_input,
                     xsdmf_order,
                     xsdmf_enabled,
+                    xsdmf_indexed,
                     xsdmf_show_in_view,
                     xsdmf_multiple,
                     xsdmf_multiple_limit,
@@ -995,6 +996,13 @@ class XSD_HTML_Match
 		} else {
 			$multiple = 0;
 		}
+
+		if (@$HTTP_POST_VARS["indexed"]) {
+			$indexed = 1;
+		} else {
+			$indexed = 0;
+		}
+
 		
 		if (@$HTTP_POST_VARS["required"]) {
 			$required = 1;
@@ -1031,6 +1039,7 @@ class XSD_HTML_Match
                     xsdmf_order,
                     xsdmf_validation_type,
                     xsdmf_enabled,
+                    xsdmf_indexed,
                     xsdmf_required,
                     xsdmf_multiple,";
 		if ($HTTP_POST_VARS["multiple_limit"] != "") {
@@ -1078,6 +1087,7 @@ class XSD_HTML_Match
                     '" . Misc::escapeString($HTTP_POST_VARS["validation_types"]) . "',
                     " . $enabled . ",
                     " . $required . ",
+                    " . $indexed . ",
                     " . $multiple . ",";
 			if ($HTTP_POST_VARS["multiple_limit"] != "") {
                $stmt .= Misc::escapeString($HTTP_POST_VARS["multiple_limit"]) . ",";
@@ -1159,6 +1169,11 @@ class XSD_HTML_Match
 		} else {
 			$required = 0;
 		}
+		if (@$HTTP_POST_VARS["indexed"]) {
+			$indexed= 1;
+		} else {
+			$indexed = 0;
+		}
 
 		if (@$HTTP_POST_VARS["valueintag"]) {
 			$valueintag = 1;
@@ -1194,6 +1209,7 @@ class XSD_HTML_Match
                     xsdmf_validation_type = '" . Misc::escapeString($HTTP_POST_VARS["validation_types"]) . "',
                     xsdmf_order = " . Misc::escapeString($HTTP_POST_VARS["order"]) . ",
                     xsdmf_required = " . $required . ",
+                    xsdmf_indexed = " . $indexed . ",
                     xsdmf_enabled = " . $enabled . ",
                     xsdmf_multiple = " . $multiple . ",";
 		if ($HTTP_POST_VARS["multiple_limit"] != "") {

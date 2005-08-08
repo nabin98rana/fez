@@ -189,7 +189,7 @@ $tpl->assign("local_eserv_url", "/eserv.php?pid=".$pid."&dsID=");
 
 
 $tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");
-
+$tpl->assign("isEditor", 1);
 //print_r($details);
 $tpl->assign("details", $details);
 $setup = Setup::load();

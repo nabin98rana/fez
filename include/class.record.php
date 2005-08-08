@@ -64,6 +64,57 @@ $list_headings = array(
 class Record
 {
 
+
+    function getIndexParents($pid)
+    {
+
+        $stmt = "SELECT
+                    * 
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+                 WHERE
+				    r1.rmf_xsdmf_id = x1.xsdmf_id and 
+                    rmf_rec_pid in (
+						SELECT r2.rmf_varchar 
+						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
+						WHERE (rmf_xsdmf_id = 91 AND rmf_varchar = '2' AND r2.rmf_rec_pid = '".$pid."') OR
+							(rmf_xsdmf_id = 149 AND rmf_varchar = '3' AND r2.rmf_rec_pid = '".$pid."')
+						)
+					";
+//		echo $stmt;			
+		$returnfields = array("title", "description", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        //$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+//		print_r($res);
+		$return = array();
+		
+		foreach ($res as $result) {		
+			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
+				if (!is_array($return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
+					$return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']] = array();
+				}
+				array_push($return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+			}
+			if (in_array($result['xsdmf_espace_title'], $returnfields)) {
+				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
+				$return[$result['rmf_rec_pid']][$result['xsdmf_espace_title']] = $result['rmf_'.$result['xsdmf_data_type']];
+			}
+		}
+//		print_r($return);
+//		$return = Auth::getIndexAuthorisationGroups($return);
+		
+		
+		//get groups after you get all the acmls? yeah probably
+//		$return = array_values($return);
+//		$return = Auth::getIndexAuthorisationGroups($return);
+
+		return $return;
+		
+
+    }
+
     function getParents($pid)
     {
 
@@ -1494,159 +1545,79 @@ class Record
      * @return  integer The new Record ID
      */
 
-    function quickInsert()
-    {
-        global $HTTP_POST_VARS, $HTTP_POST_FILES;
+	function insertIndexBatch($pid, $indexArray) {
 
-        $missing_fields = array();
-        if ($HTTP_POST_VARS["category"] == '-1') {
-            $missing_fields[] = "Category";
-        }
-
-        $usr_id = Auth::getUserID();
-		if (($HTTP_POST_VARS["collections"] != "") && ($HTTP_POST_VARS["collections"] != Auth::getCurrentCollection()))  { 
-			$col_id = trim($HTTP_POST_VARS["collections"][0]);
-			$initial_status = Status::getStatusID("Escalated");
-		} else {
-        	$col_id = Auth::getCurrentCollection();
-	        $initial_status = Status::getStatusID($HTTP_POST_VARS["status"]);
+		// first delete all indexes about this pid
+		Record::removeIndexRecord($pid);
+		if (!is_array($indexArray)) {
+			return false;
 		}
-//        $initial_status = Collection::getInitialStatus($col_id);
 
+//		array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $value)
+		foreach ($indexArray as $index) {
+			if ($index[1] == 1) { // if this xsdmf is designated to be indexed then insert it
+				Record::insertIndexMatchingField($index[0], $index[2], $index[3], $index[4], $index[5], $index[6]);
+			}
+		}
+	
+	}
+
+
+
+
+    function removeIndexRecord($pid)
+    {
+ 
 //		echo "monkey = ".$initial_status;
         // add new Record
-        $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "Record
-                 (
-                    rec_col_id,
-                    rec_prc_id,
-                    rec_prsc_id,
-                    rec_usr_id,";
-		if (($HTTP_POST_VARS["submit"] != "Submit & Open")) { // IF QUICK Record ASSIGNED THEN KEEP IT OPEN (except for askit), OTHERWISE MAKE IT DEFAULT (CLOSED) - CK
-			$stmt .= "rec_closed_date,";
-//			$stmt .= "rec_resloc_id,";
-		}
-        $stmt .= "rec_sta_id,";
-        $stmt .= "
-                    rec_created_date
-                 ) VALUES (
-                    " . $col_id . ",
-                    " . $HTTP_POST_VARS["category"] . ",
-                    " . $HTTP_POST_VARS["subcategory"] . ",";
-
-		if ($col_id == 2) {
-				$stmt .=  $HTTP_POST_VARS["loggedby"] . ",";
-		} else {
-                $stmt .=    $usr_id . ",";
-		}
-
-
-//		echo "wild monkey = ".$HTTP_POST_VARS["submit"];
-		if ($HTTP_POST_VARS["submit"] == "Submit & Open") { // IF QUICK Record ASSIGNED THEN KEEP IT OPEN, OTHERWISE MAKE IT DEFAULT (CLOSED) - CK		
-//            $stmt .= $initial_status.",";			
-            $stmt .= Status::getStatusID('Open').",";			
-		} else {
-            $stmt .= "'".Date_API::getCurrentDateGMT() . "',";
-//            $stmt .= $HTTP_POST_VARS["resolution_location"] . ",";
-//            $stmt .= "$initial_status,";
-            $stmt .= Status::getStatusID('Closed').",";			
-        }
-        $stmt .= "
-                    '" . Date_API::getCurrentDateGMT() . "'
-                 )";
+        $stmt = "DELETE FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field
+				 WHERE rmf_rec_pid = '" . $pid . "'";
 //		echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-            $new_Record_id = $GLOBALS["db_api"]->get_last_insert_id();
-            // log the creation of the Record
-			if ($col_id != 2) { // AskIT are different.. They can have generic usernames so you have to use thet logged by field for them.
-				History::add($new_Record_id, Auth::getUserID(), History::getTypeID('Record_opened'), 'Quick Record opened by ' . User::getFullName(Auth::getUserID()));
-				Time_Tracking::recordRemoteEntry($new_Record_id, $usr_id, 37, 'Quick Record Logged', 1); //@@@ CK - assuming cat_id 37 is Quick Record
-			} else {
-	            History::add($new_Record_id, $HTTP_POST_VARS["loggedby"], History::getTypeID('Record_opened'), 'Quick Record opened by ' . User::getFullName($HTTP_POST_VARS["loggedby"]));
-				Time_Tracking::recordRemoteEntry($new_Record_id, $HTTP_POST_VARS["users"], 37, 'Quick Record Logged', 1); //@@@ CK - assuming cat_id 37 is Quick Record
-			}
-			// @@@ CK - 8/9/2004 - If Record was escalated from the start, then save a timetracking against the logging team, to keep cat and subcat for reporting etc
-/*			if (($HTTP_POST_VARS["collections"] != "") && ($HTTP_POST_VARS["collections"] != Auth::getCurrentCollection()))  { 
-				$res = Time_Tracking::recordRemoteEntry($new_Record_id, Auth::getUserID(), 9, 'Record Escalated', 1); //@@@ CK - assuming cat_id 9 is Admin
-			}
-*/
-            // now add the user/Record association
-            $users = array();
-            if (count($HTTP_POST_VARS["users"]) > 0) {
-                for ($i = 0; $i < count($HTTP_POST_VARS["users"]); $i++) {
-                    Notification::insert($new_Record_id, $HTTP_POST_VARS["users"]); 
-                    Record::addUserAssociation($new_Record_id, $HTTP_POST_VARS["users"]);                    
-					if ($HTTP_POST_VARS["users"] != $usr_id) {
-                        $users[] = $HTTP_POST_VARS["users"];
-                    }
-                }
-            } else {
-                // try using the round-robin feature instead
-                $assignee = Round_Robin::getNextAssignee($col_id);
-                // assign the Record to the round robin person
-                if (!empty($assignee)) {
-                    Record::addUserAssociation($new_Record_id, $assignee, false);
-                    History::add($new_Record_id, APP_SYSTEM_USER_ID, History::getTypeID('rr_Record_assigned'), 'Record auto-assigned to ' . User::getFullName($assignee) . ' (RR)');
-                    $users[] = $assignee;
-                }
-            }
-/*            if (count($users)) {
-                Notification::notifyAssignedUsers($users, $new_Record_id);
-            } */
-            // now process any files being uploaded
-            $found = 0;
-            for ($i = 0; $i < count(@$HTTP_POST_FILES["file"]["name"]); $i++) {
-                if (!@empty($HTTP_POST_FILES["file"]["name"][$i])) {
-                    $found = 1;
-                    break;
-                }
-            }
-            if ($found) {
-                $attachment_id = Attachment::add($new_Record_id, $usr_id, '');
-                for ($i = 0; $i < count(@$HTTP_POST_FILES["file"]["name"]); $i++) {
-                    $filename = @$HTTP_POST_FILES["file"]["name"][$i];
-                    if (empty($filename)) {
-                        continue;
-                    }
-                    $blob = Misc::getFileContents($HTTP_POST_FILES["file"]["tmp_name"][$i]);
-                    if (!empty($blob)) {
-                        Attachment::addFile($attachment_id, $new_Record_id, $filename, $HTTP_POST_FILES["file"]["type"][$i], $blob);
-                    }
-                }
-            }
-            // need to associate any emails ?
-            if (!empty($HTTP_POST_VARS["attached_emails"])) {
-                $items = explode(",", $HTTP_POST_VARS["attached_emails"]);
-                Support::associate($usr_id, $new_Record_id, $items);
-            }
+            return $pid;
+        }
+    }
 
-            // need to process any custom fields ?
-            if (@count($HTTP_POST_VARS["custom_fields"]) > 0) {
-                foreach ($HTTP_POST_VARS["custom_fields"] as $fld_id => $value) {
-//					if ($fld_id != 6 && $fld_id != 8) {
-                    	Custom_Field::associateRecord($new_Record_id, $fld_id, $value);
-//					}
-                }
-//                Custom_Field::associateRecord($new_Record_id, 6, $HTTP_POST_VARS["custom6"]); // CK 
-//                Custom_Field::associateRecord($new_Record_id, 8, $HTTP_POST_VARS["custom8"]); // CK
-            }
-            // now subscribe the reporter of this Record (if needed)
-/*            if (@$HTTP_POST_VARS["receive_notifications"] == 1) {
-                // get the actual preference for this subscription
-                if ($HTTP_POST_VARS["choice"] == 'default') {
-                    Notification::insert($new_Record_id, $usr_id);
-                } else {
-                    Notification::subscribeReporter($new_Record_id, $usr_id, $HTTP_POST_VARS["actions"]);
-                }
-            }
-*/
-            // also notify any users that want to receive emails anytime a new Record is created
-//            Notification::notifyNewRecord($col_id, $new_Record_id, $users);
-            return $new_Record_id;
+    function insertIndexMatchingField($pid, $xsdmf_id, $xdis_id, $xsdsel_id, $data_type, $value)
+    {
+ 
+//		echo "monkey = ".$initial_status;
+        // add new Record
+        $stmt = "INSERT INTO
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field
+                 (
+				 	rmf_rec_pid,
+                    rmf_xsdmf_id,
+                    rmf_xdis_id,";
+				if ($xsdsel_id != "") {
+				  $stmt .= "rmf_xsdsel_id,";
+				}
+				$stmt .= "                    
+					rmf_".$data_type."
+                 ) VALUES (
+                    '" . $pid . "',
+                    " . $xsdmf_id . ",
+                    " . $xdis_id . ",";
+				if ($xsdsel_id != "") {
+                	$stmt .= $xsdsel_id . ", ";
+				}
+					if ($data_type != "int") {
+            			$stmt .= "'".$value . "')";
+					} else {
+            			$stmt .= $value . ")";
+					}
+//		echo $stmt;
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+            return $pid;
         }
     }
 
@@ -2741,6 +2712,45 @@ LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "custom_field_option as 
         }
     }
 
+
+	function getIndexACML($pid, $xdis_id) {
+    $stmt = "SELECT
+				* 
+			 FROM
+				" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
+				" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1,
+				" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1
+			 WHERE
+				r1.rmf_rec_pid = '".$pid."'";
+//		echo $stmt;
+		$returnfields = array("title", "description", "ret_id", "xdis_id", "sta_id");
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        //$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+//		print_r($res);
+		$return = array();
+		foreach ($res as $result) {
+			if (in_array($result['xsdmf_espace_title'], $returnfields)) {
+				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
+				$return[$result['rmf_rec_pid']][$result['xsdmf_espace_title']] = $result['rmf_'.$result['xsdmf_data_type']];
+			}
+		}
+		$return = array_values($return);
+//		print_r($return);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+/*            for ($i = 0; $i < count($res); $i++) {
+                $res[$i]["projects"] = @implode(", ", array_values(XSD_HTML_Match::getAssociatedCollections($res[$i]["fld_id"])));
+                if (($res[$i]["fld_type"] == "combo") || ($res[$i]["fld_type"] == "multiple")) {
+                    $res[$i]["field_options"] = @implode(", ", array_values(XSD_HTML_Match::getOptions($res[$i]["fld_id"])));
+                }
+            }
+*/
+            return $return;
+        }
+	}
+	
 	function getACML($pid, $xdis_id) {
 		$parents_details = Record::getParents($pid);
 
@@ -2749,6 +2759,7 @@ LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "custom_field_option as 
 
 		if ($xmlACML != "") {
 			$xmldoc= new DomDocument();
+			$xmldoc->preserveWhiteSpace = false;
 			$xmldoc->loadXML($xmlACML);
             return $xmldoc;
 		} else {
@@ -3190,15 +3201,18 @@ class RecordObject
 		$xmlObj .= ">\n";
 
  		// @@@ CK - 6/5/2005 - Added xdis so xml building could search using the xml display ids
-		$xmlObj = Misc::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id);
+		$indexArray = array();
+		$xmlObj = Misc::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray);
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
-
+		Record::insertIndexBatch($pid, $indexArray);
+//		echo "INDEX ARRAY -> ";
+//	print_r($indexArray);
 		$datastreamTitles = $display->getDatastreamTitles();
 		$params = array();
 
 		$datastreamXMLHeaders = Misc::getDatastreamXMLHeaders($datastreamTitles, $xmlObj);
 		$datastreamXMLContent = Misc::getDatastreamXMLContent($datastreamTitles, $xmlObj);
-        
+//			echo $xmlObj;        
         if ($ingestObject) {
             // Actually Ingest the object Into Fedora
             // will have to exclude the non X control group xml and add the datastreams after the base ingestion.
@@ -3215,14 +3229,15 @@ class RecordObject
             $tidy->parseString($xmlObj, $config, 'utf8');
             $tidy->cleanRepair();
             $xmlObj = $tidy;
-
             Fedora_API::callIngestObject($xmlObj);
         }
 		$convert_check = false;
 		foreach ($datastreamTitles as $dsTitle) {
 			$dsIDName = $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['ID'];
-			$filename_ext = strtolower(substr($dsIDName, (strrpos($dsIDName, ".") + 1)));
-			$dsIDName = substr($dsIDName, 0, strrpos($dsIDName, ".") + 1).$filename_ext;
+			if (is_numeric(strpos($dsIDName, "."))) {
+				$filename_ext = strtolower(substr($dsIDName, (strrpos($dsIDName, ".") + 1)));
+				$dsIDName = substr($dsIDName, 0, strrpos($dsIDName, ".") + 1).$filename_ext;
+			}
 
 			if (Fedora_API::datastreamExists($pid, $dsTitle['xsdsel_title'])) {
 				Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['STATE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['LABEL'], $datastreamXMLContent[$dsTitle['xsdsel_title']], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['MIMETYPE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['VERSIONABLE']);
@@ -3233,7 +3248,7 @@ class RecordObject
 			$convert_check = Workflow::checkForImageFile($dsIDName);
 			if ($convert_check != false) {
 				Fedora_API::getUploadLocationByLocalRef($pid, $convert_check, $convert_check, $convert_check, $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['MIMETYPE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['CONTROL_GROUP']);
-			}				
+			}
 			$presmd_check = Workflow::checkForPresMD($dsIDName);
 			if ($presmd_check != false) {
 				Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, "text/xml", "X");

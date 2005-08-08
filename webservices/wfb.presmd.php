@@ -5,8 +5,11 @@
 
 include_once("../config.inc.php");
 $file = $_GET['file'];
-$file_dir = substr($file, 0, strrpos($file, "/"));
-$file = substr($file, strrpos($file, "/")+1);
+$file_dir = "";	
+if (is_numeric(strpos($file, "/"))) {
+	$file = substr($file, strrpos($file, "/")+1);
+	$file_dir = substr($file, 0, strrpos($file, "/"));
+}
 if (trim($file_dir) == "") { $file_dir = APP_TEMP_DIR; }
 if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) { // check for command hax
 	$APP_JHOVE_DIR = "/usr/local/jhove";

@@ -91,13 +91,17 @@ class Workflow
 		//echo "file -> ".$filename_ext;
 		if (in_array($filename_ext, $image_extensions)) {
 			$getString = "http://".APP_HOSTNAME."/webservices/wfb.thumbnail.php?image=$filename&height=50&width=50&ext=jpg";
-			//echo $getString;
+//			echo $getString;
 			$http_req = new HTTP_Request($getString, array("http" => "1.0"));
 			$http_req->setMethod("GET");
 			$http_req->sendRequest();
 			$xml = $http_req->getResponseBody();
 //			return "thumbnail_".substr($filename, 0, strrpos($filename, ".")).".jpg";
-			return APP_TEMP_DIR."thumbnail_".substr(substr($filename, 0, strrpos($filename, ".")), strrpos($filename, "/")+1).".jpg";
+		    if (is_numeric(strpos($filename, "/"))) {
+				return APP_TEMP_DIR."thumbnail_".substr(substr($filename, 0, strrpos($filename, ".")), strrpos($filename, "/")+1).".jpg";
+			} else {
+				return APP_TEMP_DIR."thumbnail_".substr($filename, 0, strrpos($filename, ".")).".jpg";
+			}
 		} else {
 			return false;
 		}		
@@ -109,12 +113,16 @@ class Workflow
 		//echo "file -> ".$filename_ext;
 		if (is_numeric(strpos($filename, "."))) {
 			$getString = "http://".APP_HOSTNAME."/webservices/wfb.presmd.php?file=$filename";
-			//echo $getString;
+//			echo $getString;
 			$http_req = new HTTP_Request($getString, array("http" => "1.0"));
 			$http_req->setMethod("GET");
 			$http_req->sendRequest();
 			$xml = $http_req->getResponseBody();
-			return APP_TEMP_DIR."presmd_".substr(substr($filename, 0, strrpos($filename, ".")), strrpos($filename, "/")+1).".xml";
+		    if (is_numeric(strpos($filename, "/"))) {
+				return APP_TEMP_DIR."presmd_".substr(substr($filename, 0, strrpos($filename, ".")), strrpos($filename, "/")+1).".xml";
+			} else {
+				return APP_TEMP_DIR."presmd_".substr($filename, 0, strrpos($filename, ".")).".xml";
+			}
 		} else {
 			return false;
 		}		

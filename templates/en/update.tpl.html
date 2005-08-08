@@ -12,7 +12,7 @@
     </tr>
   </table>
 {else}
-  {if $isAdministrator}
+  {if $isAdministrator || $isEditor}
   {include file="update_form.tpl.html"}
   {else}
   <center>

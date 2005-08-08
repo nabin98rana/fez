@@ -54,6 +54,8 @@ if (@$HTTP_GET_VARS["cat"] == "purge_datastream") {
     $res = Record::update($HTTP_POST_VARS["pid"]);
 	$tpl->assign("update_form_result", $res);
 } elseif (@$HTTP_GET_VARS["cat"] == "purge_object") {
+	// first delete all indexes about this pid
+	Record::removeIndexRecord($HTTP_GET_VARS["pid"]);
 	$res = Fedora_API::callPurgeObject($HTTP_GET_VARS["pid"]);
 	$tpl->assign("purge_object_result", $res);
 }

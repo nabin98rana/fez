@@ -548,15 +548,17 @@ function getUploadLocationByLocalRef ($pid, $dsIDName, $local_file_location, $ds
 //   global $_REQUEST, $uploadURL;
 
 	$loc_dir = "";
+//	echo "DS ID NAME = ".$dsIDName;
     if (!is_numeric(strpos($dsIDName, "/"))) {
 		$loc_dir = APP_TEMP_DIR;
+	} else {
+		$dsIDName = substr($dsIDName, strrpos($dsIDName, "/")+1); // take out any nasty slashes from the ds name itself
 	}
+//	echo "DS ID NAME = ".$dsIDName;
 //	echo $loc_dir.$dsIDName;
 	if ($mimetype == "") {
 		$mimetype = Misc::mime_content_type($loc_dir.$dsIDName);
 	}
-
-	$dsIDName = substr($dsIDName, strrpos($dsIDName, "/")+1); // take out any nasty slashes from the ds name itself
 
 	if (!empty($local_file_location) && (trim($local_file_location) != "")) {
 	   //Send multipart/form-data via curl
@@ -791,6 +793,7 @@ function callModifyDatastreamByValue ($pid, $dsID, $state, $label, $dsContent, $
 //	print_r($parms);
 //   $parms= array('pid' => $pid, 'dsID' => $dsID,  new soapval("dsContent","base64Binary",$dsContent));
    //Call modifyDatastream by reference or value.
+//   print_r($parms);
    Fedora_API::openSoapCall('modifyDatastreamByValue', $parms);
 }
 

@@ -295,8 +295,45 @@ class Collection
      */
     function getDetails($collection_pid)
     {
-		$details = Fedora_API::getObjectXML($collection_pid);
-		return $details;
+        $stmt = "SELECT
+                    * 
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1
+                 WHERE
+				    r1.rmf_xsdmf_id = x1.xsdmf_id and
+                    rmf_rec_pid = '".$collection_pid."'";
+//		echo $stmt;			
+		$returnfields = array("title", "description", "ret_id", "xdis_id", "sta_id");
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        //$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+//		print_r($res);
+		$return = array();
+		foreach ($res as $result) {
+			if (in_array($result['xsdmf_espace_title'], $returnfields)) {
+				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
+				$return[$result['rmf_rec_pid']][$result['xsdmf_espace_title']] = $result['rmf_'.$result['xsdmf_data_type']];
+			}
+		}
+		$return = array_values($return);
+//		print_r($return);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+/*            for ($i = 0; $i < count($res); $i++) {
+                $res[$i]["projects"] = @implode(", ", array_values(XSD_HTML_Match::getAssociatedCollections($res[$i]["fld_id"])));
+                if (($res[$i]["fld_type"] == "combo") || ($res[$i]["fld_type"] == "multiple")) {
+                    $res[$i]["field_options"] = @implode(", ", array_values(XSD_HTML_Match::getOptions($res[$i]["fld_id"])));
+                }
+            }
+*/
+            return $return;
+        }
+
+
+//		$details = Fedora_API::getObjectXML($collection_pid);
+//		return $details;
     }
 
 
@@ -538,7 +575,79 @@ class Collection
      */
     function getList($community_pid=false)
     {
-		$returnfields = array('pid', 'title', 'description','type');
+
+        $stmt = "SELECT
+                    * 
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+                 WHERE
+				    r1.rmf_xsdmf_id = x1.xsdmf_id and
+                    rmf_rec_pid in (
+						SELECT r2.rmf_rec_pid 
+						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
+						WHERE r2.rmf_xsdmf_id = 242 AND r2.rmf_varchar = '2' and r2.rmf_rec_pid in (
+	 						SELECT r3.rmf_rec_pid 
+							FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3
+							WHERE r3.rmf_xsdmf_id = 91 AND r3.rmf_varchar = '".$community_pid."'						
+							)
+						)									
+					";
+
+//		echo $stmt;			
+		$returnfields = array("title", "description", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        //$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+//		print_r($res);
+		$return = array();
+
+		foreach ($res as $result) {		
+			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
+				if (!is_array($return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
+					$return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']] = array();
+				}
+				array_push($return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+			}
+			if (in_array($result['xsdmf_espace_title'], $returnfields)) {
+				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
+				$return[$result['rmf_rec_pid']][$result['xsdmf_espace_title']] = $result['rmf_'.$result['xsdmf_data_type']];
+			}
+		}
+
+		foreach ($return as $pid_key => $row) {
+			if (!is_array($row['eSpaceACML'])) {
+				$parentsACMLs = array();
+				Auth::getIndexParentACMLs(&$parentsACMLs, $pid_key);			
+				$return[$pid_key]['eSpaceACML'] = $parentsACMLs;
+			}
+		}
+//		print_r($return);
+
+		$return = array_values($return);
+//		$return = Auth::getIndexAuthorisationGroups($return);
+
+		$return = Auth::getIndexAuthorisationGroups($return);
+//		print_r($roles);
+
+		
+//		print_r($return);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+/*            for ($i = 0; $i < count($res); $i++) {
+                $res[$i]["projects"] = @implode(", ", array_values(XSD_HTML_Match::getAssociatedCollections($res[$i]["fld_id"])));
+                if (($res[$i]["fld_type"] == "combo") || ($res[$i]["fld_type"] == "multiple")) {
+                    $res[$i]["field_options"] = @implode(", ", array_values(XSD_HTML_Match::getOptions($res[$i]["fld_id"])));
+                }
+            }
+*/
+            return $return;
+        }
+
+
+/*		$returnfields = array('pid', 'title', 'description','type');
         $selectstr = '$object ';
         foreach ($returnfields as $rfield) {
             if ($rfield != 'pid') {
@@ -564,6 +673,7 @@ class Collection
 		$details = Fedora_API::getITQLQuery($itql, $returnfields);
         $details = Auth::ProcessListResults($details);
 		return $details;
+*/
     }
 
     /**
@@ -589,7 +699,71 @@ class Collection
      */
     function getListing($collection_pid)
     {
-		$itql = "select \$collTitle \$collDesc \$title \$identifier \$description \$object \$type from <#ri>
+
+        $stmt = "SELECT
+                    * 
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+					
+                 WHERE
+				    r1.rmf_xsdmf_id = x1.xsdmf_id and
+                    r1.rmf_rec_pid in (
+						SELECT r2.rmf_rec_pid 
+						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
+						WHERE rmf_xsdmf_id = 236 AND r2.rmf_varchar = '3'and r2.rmf_rec_pid in (
+	 						SELECT r3.rmf_rec_pid 
+							FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3
+							WHERE r3.rmf_xsdmf_id = 149 AND r3.rmf_varchar = '".$collection_pid."'						
+							)
+						)				
+					";
+//		echo $stmt;			
+		$returnfields = array("title", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        //$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+//		print_r($res);
+		$return = array();
+		foreach ($res as $result) {
+			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
+				if (!is_array($return[$result['rmf_rec_pid']]['eSpaceACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
+					$return[$result['rmf_rec_pid']]['eSpaceACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
+				}
+				array_push($return[$result['rmf_rec_pid']]['eSpaceACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+			}
+			if (in_array($result['xsdmf_espace_title'], $returnfields)) {
+				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
+				$return[$result['rmf_rec_pid']][$result['xsdmf_espace_title']] = $result['rmf_'.$result['xsdmf_data_type']];
+			}
+		}
+		
+		foreach ($return as $pid_key => $row) {
+			if (!is_array($row['eSpaceACML'])) {
+				$parentsACMLs = array();
+				Auth::getIndexParentACMLs(&$parentsACMLs, $pid_key);			
+				$return[$pid_key]['eSpaceACML'] = $parentsACMLs;
+			}
+		}
+
+		
+		$return = array_values($return);
+//		print_r($return);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+/*            for ($i = 0; $i < count($res); $i++) {
+                $res[$i]["projects"] = @implode(", ", array_values(XSD_HTML_Match::getAssociatedCollections($res[$i]["fld_id"])));
+                if (($res[$i]["fld_type"] == "combo") || ($res[$i]["fld_type"] == "multiple")) {
+                    $res[$i]["field_options"] = @implode(", ", array_values(XSD_HTML_Match::getOptions($res[$i]["fld_id"])));
+                }
+            }
+*/
+            return $return;
+        }
+
+/*		$itql = "select \$collTitle \$collDesc \$title \$identifier \$description \$object \$type from <#ri>
 					where  (<info:fedora/".$collection_pid."> <dc:title> \$collTitle) and
                     (<info:fedora/".$collection_pid."> <dc:description> \$collDesc) and
 					(\$object <fedora-rels-ext:isMemberOf> <info:fedora/".$collection_pid.">) and
@@ -605,7 +779,7 @@ class Collection
 		$details = Fedora_API::getITQLQuery($itql, $returnfields);
         $details = Auth::ProcessListResults($details);
 
-		return $details;
+		return $details; */
     }
 
 
@@ -619,10 +793,47 @@ class Collection
      */
     function getAssocList()
     {
-		$details = Fedora_API::getListByTypeObjectsXMLAssoc("eSpace_Collection");
-//		echo "collection details -> ";
-//		print_r($details);
-		return $details;
+        $stmt = "SELECT
+                    *
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1
+                 WHERE
+				    r1.rmf_xsdmf_id = x1.xsdmf_id and
+                    rmf_rec_pid in (
+						SELECT r2.rmf_rec_pid 
+						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
+						WHERE rmf_xsdmf_id = 242 AND rmf_varchar = '2')
+					
+					
+					";
+//		echo $stmt;			
+		$returnfields = array("title");
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        //$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+//		print_r($res);
+		$return = array();
+		foreach ($res as $result) {
+			if (in_array($result['xsdmf_espace_title'], $returnfields)) {
+				$return[$result['rmf_rec_pid']] = $result['rmf_'.$result['xsdmf_data_type']];
+			}
+		}
+//		$return = array_values($return);
+//		print_r($return);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+/*            for ($i = 0; $i < count($res); $i++) {
+                $res[$i]["projects"] = @implode(", ", array_values(XSD_HTML_Match::getAssociatedCollections($res[$i]["fld_id"])));
+                if (($res[$i]["fld_type"] == "combo") || ($res[$i]["fld_type"] == "multiple")) {
+                    $res[$i]["field_options"] = @implode(", ", array_values(XSD_HTML_Match::getOptions($res[$i]["fld_id"])));
+                }
+            }
+*/
+            return $return;
+        }
+
     }
 
 

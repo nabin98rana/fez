@@ -495,6 +495,16 @@
               </tr>
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Indexed?:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="checkbox" name="indexed" class="default" {if ($info.xsdmf_indexed == 1)}checked{/if}><br />
+                  <span class="small_default">(If this indexed tickbox is ticked data entered into this xml element will be used in searches in the eSpace index)</span>
+                </td>
+              </tr>
+              <tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
                   <b>Required?:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -706,6 +716,7 @@
 					<INPUT TYPE=RADIO NAME="espace_variable" VALUE="none" {if ($info.xsdmf_espace_variable == "" || $info.xsdmf_espace_variable == "none")}checked{/if}/>None<BR>
 					<INPUT TYPE=RADIO NAME="espace_variable" VALUE="pid" {if $info.xsdmf_espace_variable == "pid"}checked{/if}/>Pid (for new records it will get the new Pid and then create this parent datastream)<BR>
 					<INPUT TYPE=RADIO NAME="espace_variable" VALUE="xdis_id" {if $info.xsdmf_espace_variable == "xdis_id"}checked{/if}/>XSD Display ID<BR>
+					<INPUT TYPE=RADIO NAME="espace_variable" VALUE="sta_id" {if $info.xsdmf_espace_variable == "sta_id"}checked{/if}/>eSpace Object Status ID<BR>
 				</td>
  			  </tr> 
               <tr>

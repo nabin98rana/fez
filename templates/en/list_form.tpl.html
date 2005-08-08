@@ -146,15 +146,15 @@ function purgeObject(pid)
       <div class="list-record">
         {section name="i" loop=$list}
         {if ($list[i].isLister==1 || $isAdministrator)}
-	   {if $list[i].type == 'eSpace_Community'}
+	   {if $list[i].ret_id == '1'}
                 {assign var="href_view" value="list.php?community_pid="|cat:$list[i].pid|escape:"html"}
                 {assign var="icon" value="images/community.png" }
-                {if $isAdministrator} 
+                {if ($list[i].isEditor==1 || $isAdministrator)} 
                         {assign var="showEdit" value=true}
                 {else}
                         {assign var="showEdit" value=false}
                 {/if}
-           {elseif $list[i].type == 'eSpace_Collection'}
+           {elseif $list[i].ret_id == '2'}
                 {assign var="href_view" value="list.php?collection_pid="|cat:$list[i].pid|escape:"html"}
                 {assign var="icon" value="images/collection.png" }
                 {if $isUser && ($list[i].isEditor==1 || $isAdministrator)}  

@@ -12,8 +12,11 @@ $width = $_GET["width"]; //maximum width
 $height = $_GET["height"]; //maximum height
 $ext = $_GET["ext"]; //the file type extension to convert the image to
 
-$image_dir = substr($image, 0, strrpos($image, "/"));
-$image = substr($image, strrpos($image, "/")+1);
+$image_dir = "";
+if (is_numeric(strpos($image, "/"))) {
+	$image_dir = substr($image, 0, strrpos($image, "/"));
+	$image = substr($image, strrpos($image, "/")+1);
+}	
 
 if (trim($image_dir) == "") { $image_dir = APP_TEMP_DIR; }
 

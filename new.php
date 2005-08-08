@@ -101,7 +101,7 @@ if (@$HTTP_POST_VARS["cat"] == "report") {
 	if (@$HTTP_POST_VARS['report_stays']) {
 		// stay here
 	} else { // otherwise redirect to list where this record would show
-        sleep(1); // give fedora some time to update it's indexes or whatever it does.
+//        sleep(1); // give fedora some time to update it's indexes or whatever it does. // not necessary anymore!
 		Auth::redirect(APP_RELATIVE_URL . "list.php?new_pid=".$res.$extra_redirect, false);
 	}
 

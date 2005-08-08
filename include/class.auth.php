@@ -110,7 +110,53 @@ class Auth
 //        $col_session = Auth::getSessionInfo(APP_COLLECTION_session);
 //        Auth::setCurrentCollection($col_id, $col_session["remember"]);
     }
+	
+	function getIndexParentACMLs(&$array, $pid) {
+		$ACMLArray = &$array;
+//		$ACMLArray = array();
 
+
+        $stmt = "SELECT
+                    * 
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+                 WHERE
+				    r1.rmf_xsdmf_id = x1.xsdmf_id and 
+                    rmf_rec_pid in (
+						SELECT r2.rmf_varchar 
+						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
+						WHERE (rmf_xsdmf_id = 91 AND r2.rmf_rec_pid = '".$pid."') OR
+							(rmf_xsdmf_id = 149 AND r2.rmf_rec_pid = '".$pid."')
+						)
+					";
+//		echo $stmt;			
+		$returnfields = array("Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        //$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+//		print_r($res);
+		$return = array();
+		
+		foreach ($res as $result) {
+			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
+				if (!is_array($return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
+					$return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']] = array();
+				}
+				array_push($return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+			}
+		}
+
+		foreach ($return as $key => $record) {
+
+			if (is_array($record['eSpaceACML'])) {
+				array_push($ACMLArray, $record['eSpaceACML']);
+			} else {
+				Auth::getIndexParentACMLs($ACMLArray, $key);
+			}
+		}
+//		return $ACMLArray; // now we pass the var by reference so dont need to return anything
+	}
 
 	function getParentACMLs($array, $parents) {
 		if (!is_array($parents)) {
@@ -122,7 +168,8 @@ class Auth
 
 			$xdis_array = Fedora_API::callGetDatastreamContentsField($parent['pid'], 'eSpaceMD', array('xdis_id'));
 			$xdis_id = $xdis_array['xdis_id'][0];
-			$parentACML = Record::getACML($parent['pid'], $xdis_id);		
+			$parentACML = Record::getACML($parent['pid'], $xdis_id);
+			
 
 //			echo $parent['pid'] ." - ".$xdis_id. " -> "; print_r($parentACML); echo "\n\n";
 			if ($parentACML != false) {
@@ -137,6 +184,8 @@ class Auth
 		}
 //		return $ACMLArray;
 	}
+	
+	
 
 /*	function isViewRestricted($pid, $xdis_id) {
 		$authGroups = Auth::getAuthorisationGroups($pid, $xdis_id);		
@@ -201,54 +250,130 @@ class Auth
 
 	}
 
-	function getAuthorisationGroups ($pid, $xdis_id) {
-//		echo "PID = $pid, xdis_id = $xdis_id\n\n";
-		$userPIDAuthGroups = array();
-
-		$acmlBase = Record::getACML($pid, $xdis_id);
-		$ACMLArray = array();
-		if ($acmlBase === false) {
-//			echo "GOING IN! with $pid";
-			$parents = Record::getParents($pid);
-//			print_r($parents);
-//			echo "GOING IN!";
-			Auth::getParentACMLs(&$ACMLArray, $parents);
-		} else {
-			$ACMLArray[0] = $acmlBase;
-		}
-/*		echo "\n\nACML Array -> ";
-		print_r($ACMLArray);
-		echo "<- \n\n";   */
-//		echo "LDAP GROUPS -> ";
-//		print_r($HTTP_SESSION_VARS['ESPACE_GROUPS']['LDAP_GROUPS']);
-
+	function getIndexAuthorisationGroups($indexArray, $return_type='groups') {
         // Usually everyone can list, view and view comments
 		$NonRestrictedRoles = array("Viewer","Lister","Comment_Viewer");
-		$userPIDAuthGroups = $NonRestrictedRoles;
+
+	
+		foreach ($indexArray as $indexKey => $indexRecord) {
+			$userPIDAuthGroups = $NonRestrictedRoles;
+			if (!is_array($indexRecord['eSpaceACML'])) {
+//				return false;
+				// if it doesnt have its own acml record try and get rights from its parents
+//				Auth::getIndexAuthorisationGroups();
+				// 1. get the parents records with their espace acml's
+				// 2. if at least one of them have an espace acml then use it otherwise get the parents parents
+
+			}
+			foreach ($indexRecord['eSpaceACML'] as $eSpaceACML) { // can have multiple espace acmls if got from parents
+				foreach ($eSpaceACML as $role_name => $role) {	
+					foreach ($role as $rule_name => $rule) {
+						foreach ($rule as $ruleRecord) {
+							// @@@ CK - if the role has already been 
+							// found then don't check for it again
+							if (!in_array($role_name, $userPIDAuthGroups)) {
+								switch ($rule_name) {
+									case '!rule!role!AD_Group': 
+										if (@in_array($ruleRecord, $_SESSION['ldap_groups'])) {
+											array_push($userPIDAuthGroups, $role_name);
+										}
+										break;
+									case '!rule!role!in_AD':
+										if (($ruleRecord == 'on') && Auth::isValidSession($_SESSION)
+												&& Auth::isInAD()) {
+											array_push($userPIDAuthGroups, $role_name);
+										}
+										break;
+									case '!rule!role!in_eSpace':
+										if (($ruleRecord == 'on') && Auth::isValidSession($_SESSION) 
+												&& Auth::isInDB()) {
+											array_push($userPIDAuthGroups, $role_name);
+										}	
+										break;
+									case '!rule!role!AD_User':
+										if (Auth::isValidSession($_SESSION) 
+												&& $ruleRecord == Auth::getUsername()) {
+											array_push($userPIDAuthGroups, $role_name);
+										}
+										break;
+									case '!rule!role!eSpace_Group':
+									case '!rule!role!eSpace_User':
+										//not implemented yet
+										break;
+									default:
+										break;
+								}
+							}												
+						}
+					}
+				}			
+			}		
+			$indexArray[$indexKey]['isCommunityAdministrator'] = in_array('Community Administrator', $userPIDAuthGroups); //editor is only for the children. To edit the actual community record details you need to be a community admin
+			$indexArray[$indexKey]['isEditor'] = in_array('Editor', $userPIDAuthGroups);
+			$indexArray[$indexKey]['isViewer'] = in_array('Viewer', $userPIDAuthGroups);
+			$indexArray[$indexKey]['isLister'] = in_array('Lister', $userPIDAuthGroups);
+		}
+
+		
+		
+//		return $userPIDAuthGroups;		
+		return $indexArray;		
+	}
+
+
+   function getAuthorisationGroups ($pid, $xdis_id) {
+//        echo "PID = $pid, xdis_id = $xdis_id\n\n";
+        $userPIDAuthGroups = array();
+
+        $acmlBase = Record::getACML($pid, $xdis_id);
+        $ACMLArray = array();
+        if ($acmlBase === false) {
+//            echo "GOING IN! with $pid";
+            $parents = Record::getParents($pid);
+//            print_r($parents);
+//            echo "GOING IN!";
+            Auth::getParentACMLs(&$ACMLArray, $parents);
+        } else {
+            $ACMLArray[0] = $acmlBase;
+        }
+/*        echo "\n\nACML Array -> ";
+        print_r($ACMLArray);
+        echo "<- \n\n";   */
+//        echo "LDAP GROUPS -> ";
+//        print_r($HTTP_SESSION_VARS['ESPACE_GROUPS']['LDAP_GROUPS']);
+
+        // Usually everyone can list, view and view comments
+        $NonRestrictedRoles = array("Viewer","Lister","Comment_Viewer");
+        $userPIDAuthGroups = $NonRestrictedRoles;
         // loop through the ACML docs found for the current pid or in the eSpace ancestry
+
         foreach ($ACMLArray as $acml) {
             // Use XPath to find all the roles that have groups set and loop through them
             $xpath = new DOMXPath($acml);
-            $roleNodes = $xpath->query('/eSpaceACML/rule/role[string-length(normalize-space(*))>0]');
+//            $roleNodes = $xpath->query('/eSpaceACML/rule/role[string-length(normalize-space(*))>0]');
+            $roleNodes = $xpath->query('/eSpaceACML/rule/role');
+
             foreach ($roleNodes as $roleNode) {
                 $role = $roleNode->getAttribute('name');
-                // if the role is in the ACML then it is restricted so remove it
-                if (in_array($role, $userPIDAuthGroups)) { 
-                    $userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role, false, true);
-                }
+//				echo $role;
                 // Use XPath to get the sub groups that have values
                 $groupNodes = $xpath->query('./*[string-length(normalize-space())>0]', $roleNode); /**/
                 foreach ($groupNodes as $groupNode) {
+
+					// if the role is in the ACML then it is restricted so remove it
+					if (in_array($role, $userPIDAuthGroups)) {
+						$userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role, false, true);
+					}
                     $group_type = $groupNode->nodeName;
                     $group_values = explode(',', $groupNode->nodeValue);
-                    //echo "$role : $group_name : {$groupNode->nodeValue}<br/>\n";
+//                    echo "$role : $group_name : {$groupNode->nodeValue}<br/>\n";
                     foreach ($group_values as $group_value) {
                         $group_value = trim($group_value, ' ');
-                        // @@@ CK - if the role has already been 
+                        // @@@ CK - if the role has already been
                         // found then don't check for it again
                         if (!in_array($role, $userPIDAuthGroups)) {
                             switch ($group_type) {
-                                case 'AD_Group': 
+                                case 'AD_Group':
                                     if (@in_array($group_value, $_SESSION['ldap_groups'])) {
                                         array_push($userPIDAuthGroups, $role);
                                     }
@@ -260,13 +385,13 @@ class Auth
                                     }
                                     break;
                                 case 'in_eSpace':
-                                    if (($group_value == 'on') && Auth::isValidSession($_SESSION) 
+                                    if (($group_value == 'on') && Auth::isValidSession($_SESSION)
                                             && Auth::isInDB()) {
                                         array_push($userPIDAuthGroups, $role);
-                                    }	
+                                    }    
                                     break;
                                 case 'AD_User':
-                                    if (Auth::isValidSession($_SESSION) 
+                                    if (Auth::isValidSession($_SESSION)
                                             && $group_value == Auth::getUsername()) {
                                         array_push($userPIDAuthGroups, $role);
                                     }
@@ -283,8 +408,9 @@ class Auth
                 }
             }
         }
-		return $userPIDAuthGroups;
-	}
+
+        return $userPIDAuthGroups;
+    } 
 
     /**
      * Method to check whether an user is pending its confirmation 

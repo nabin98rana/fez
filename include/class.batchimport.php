@@ -154,7 +154,6 @@ function GenerateSingleFOXMLTemplate($pid, $parent_pid, $filename, $xdis_id) {
 				  <dc:contributor/>
 				  <dc:date/>
 				  <dc:type/>
-				  <dc:identifier/>
 				  <dc:source/>
 				  <dc:language/>
 				  <dc:relation/>
