@@ -1592,8 +1592,7 @@ class Record
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field
                  (
 				 	rmf_rec_pid,
-                    rmf_xsdmf_id,
-                    rmf_xdis_id,";
+                    rmf_xsdmf_id,";
 				if ($xsdsel_id != "") {
 				  $stmt .= "rmf_xsdsel_id,";
 				}
@@ -1601,8 +1600,7 @@ class Record
 					rmf_".$data_type."
                  ) VALUES (
                     '" . $pid . "',
-                    " . $xsdmf_id . ",
-                    " . $xdis_id . ",";
+                    " . $xsdmf_id . ",";
 				if ($xsdsel_id != "") {
                 	$stmt .= $xsdsel_id . ", ";
 				}
@@ -2792,8 +2790,10 @@ LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "custom_field_option as 
                 $xmlnode->loadXML($xmlDatastream);
                 $array_ptr = array();
                 Misc::dom_xml_to_simple_array($xmlnode, $array_ptr, $xsd_top_element_name, $xsd_element_prefix, $xsdmf_array, $xdis_id);
+//				print_r($array_ptr);								
             }
 		}
+
 		return $xsdmf_array;
     }
 

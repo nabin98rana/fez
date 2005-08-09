@@ -593,6 +593,7 @@ class Community
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
+
 /*            for ($i = 0; $i < count($res); $i++) {
                 $res[$i]["projects"] = @implode(", ", array_values(XSD_HTML_Match::getAssociatedCollections($res[$i]["fld_id"])));
                 if (($res[$i]["fld_type"] == "combo") || ($res[$i]["fld_type"] == "multiple")) {

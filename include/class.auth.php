@@ -123,15 +123,15 @@ class Auth
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
                  WHERE
-				    r1.rmf_xsdmf_id = x1.xsdmf_id and 
-                    rmf_rec_pid in (
+				    r1.rmf_xsdmf_id = x1.xsdmf_id and (x1.xsdmf_xdis_id = 17) and
+                    r1.rmf_rec_pid in (
 						SELECT r2.rmf_varchar 
 						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
-						WHERE (rmf_xsdmf_id = 91 AND r2.rmf_rec_pid = '".$pid."') OR
-							(rmf_xsdmf_id = 149 AND r2.rmf_rec_pid = '".$pid."')
+						WHERE (r2.rmf_xsdmf_id = 91 AND r2.rmf_rec_pid = '".$pid."') OR
+							(r2.rmf_xsdmf_id = 149 AND r2.rmf_rec_pid = '".$pid."')
 						)
 					";
-//		echo $stmt;			
+//		echo $stmt;
 		$returnfields = array("Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         //$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);

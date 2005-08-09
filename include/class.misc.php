@@ -1148,10 +1148,13 @@ function dom_xml_to_simple_array($domnode, &$array, $top_element_name, $element_
 
 
 				// If we still havent got the xsdmf_id then it either doesnt have one or the element doesnt have attributes, so try to find it without the attributes
+
 				if ((is_numeric(strpos(substr($parentContent, 0, 1), "!"))) || ($parentContent == "")) {
-					$new_element = $parentContent."!".$clean_nodeName; // @@@ CK 31/5/2005 - Added ! to the front of the string
+//					$new_element = $parentContent."!".$clean_nodeName; // @@@ CK 31/5/2005 - Added ! to the front of the string
+					$new_element = "!".$clean_nodeName; // @@@ CK 8/8/2005 - Changed to this because batch import was not working
 				} else {
-					$new_element = "!".$parentContent."!".$clean_nodeName; // @@@ CK 31/5/2005 - Added ! to the front of the string
+//					$new_element = "!".$parentContent."!".$clean_nodeName; // @@@ CK 31/5/2005 - Added ! to the front of the string
+					$new_element = "!".$clean_nodeName; // @@@ CK 8/8/2005 - Changed to this because batch import was not working
 				}
 	
 				if (!is_numeric($xsdmf_id)) {
@@ -1172,6 +1175,7 @@ function dom_xml_to_simple_array($domnode, &$array, $top_element_name, $element_
 							$ptr_value = str_replace($xsdmf_details['xsdmf_value_prefix'], "", $domnode->nodeValue);
 						} else {
 							$ptr_value = $domnode->nodeValue;
+//							$ptr_value = $clean_nodeName;
 						}
 						if (!empty($xsdmf_ptr) && (array_key_exists($xsdmf_id, $xsdmf_ptr)) 
                                 && (!is_array($xsdmf_ptr[$xsdmf_id]) || !array_key_exists(0, $xsdmf_ptr[$xsdmf_id]))) {

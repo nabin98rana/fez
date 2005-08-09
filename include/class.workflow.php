@@ -90,7 +90,7 @@ class Workflow
 		$filename_ext = strtolower(substr($filename, (strrpos($filename, ".") + 1)));
 		//echo "file -> ".$filename_ext;
 		if (in_array($filename_ext, $image_extensions)) {
-			$getString = "http://".APP_HOSTNAME."/webservices/wfb.thumbnail.php?image=$filename&height=50&width=50&ext=jpg";
+			$getString = "http://".APP_HOSTNAME."/webservices/wfb.thumbnail.php?image=".urlencode($filename)."&height=50&width=50&ext=jpg";
 //			echo $getString;
 			$http_req = new HTTP_Request($getString, array("http" => "1.0"));
 			$http_req->setMethod("GET");
@@ -98,9 +98,9 @@ class Workflow
 			$xml = $http_req->getResponseBody();
 //			return "thumbnail_".substr($filename, 0, strrpos($filename, ".")).".jpg";
 		    if (is_numeric(strpos($filename, "/"))) {
-				return APP_TEMP_DIR."thumbnail_".substr(substr($filename, 0, strrpos($filename, ".")), strrpos($filename, "/")+1).".jpg";
+				return APP_TEMP_DIR."thumbnail_".str_replace(" ", "_", substr(substr($filename, 0, strrpos($filename, ".")), strrpos($filename, "/")+1)).".jpg";
 			} else {
-				return APP_TEMP_DIR."thumbnail_".substr($filename, 0, strrpos($filename, ".")).".jpg";
+				return APP_TEMP_DIR."thumbnail_".str_replace(" ", "_", substr($filename, 0, strrpos($filename, "."))).".jpg";
 			}
 		} else {
 			return false;
@@ -112,16 +112,16 @@ class Workflow
 //		$filename_ext = strtolower(substr($filename, (strrpos($filename, ".") + 1)));
 		//echo "file -> ".$filename_ext;
 		if (is_numeric(strpos($filename, "."))) {
-			$getString = "http://".APP_HOSTNAME."/webservices/wfb.presmd.php?file=$filename";
+			$getString = "http://".APP_HOSTNAME."/webservices/wfb.presmd.php?file=".urlencode($filename);
 //			echo $getString;
 			$http_req = new HTTP_Request($getString, array("http" => "1.0"));
 			$http_req->setMethod("GET");
 			$http_req->sendRequest();
 			$xml = $http_req->getResponseBody();
 		    if (is_numeric(strpos($filename, "/"))) {
-				return APP_TEMP_DIR."presmd_".substr(substr($filename, 0, strrpos($filename, ".")), strrpos($filename, "/")+1).".xml";
+				return APP_TEMP_DIR."presmd_".str_replace(" ", "_", substr(substr($filename, 0, strrpos($filename, ".")), strrpos($filename, "/")+1)).".xml";
 			} else {
-				return APP_TEMP_DIR."presmd_".substr($filename, 0, strrpos($filename, ".")).".xml";
+				return APP_TEMP_DIR."presmd_".str_replace(" ", "_", substr($filename, 0, strrpos($filename, "."))).".xml";
 			}
 		} else {
 			return false;

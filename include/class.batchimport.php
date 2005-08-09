@@ -50,7 +50,9 @@ include_once(APP_INC_PATH . "class.workflow.php");
 include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
-//include_once(APP_INC_PATH . "class.doc_type_xsd.php");
+include_once(APP_INC_PATH . "class.xsd_html_match.php");
+include_once(APP_INC_PATH . "class.xsd_loop_subelement.php");
+include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 
 
 
@@ -69,6 +71,18 @@ function insert() {
 //	echo $HTTP_POST_VARS['objectimport']; echo $HTTP_POST_VARS['directory'];
 	if ((!empty($HTTP_POST_VARS['objectimport'])) && (!empty($HTTP_POST_VARS['directory']))) {
 		//open the current directory
+		$xdis_id = 5; // standard fedora object
+		$ret_id = 3; // standard record type id
+		$xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id));
+		$xmlDatastream = $DSResultArray['stream'];
+		$xsd_id = XSD_Display::getParentXSDID($xdis_id);
+		$xsd_details = Doc_Type_XSD::getDetails($xsd_id);
+		$xsd_element_prefix = $xsd_details['xsd_element_prefix'];
+		$xsd_top_element_name = $xsd_details['xsd_top_element_name'];
+		$datastreamTitles = XSD_Loop_Subelement::getDatastreamTitles($xdis_id);
+//		echo $xsd_top_element_name;
+//		echo $xsd_element_prefix;
+//		$xsd_element_prefix = "oai_dc";
 		$collection_pid = $HTTP_POST_VARS['collection_pid'];
 		$dir_name = APP_SAN_IMPORT_DIR."/".$HTTP_POST_VARS['directory'];
 		$directory = opendir($dir_name);
@@ -79,13 +93,14 @@ function insert() {
 		}
 //		print_r($filenames);
 		foreach ($filenames as $full_name => $short_name) {
+			echo $full_name; echo "\n\n<br />";
 //			echo $short_name; echo "\n\n<br />";
 //			$pid = "UQL-Fed:100";
 			$pid = Fedora_API::getNextPID();
 			// Also need to add the espaceMD and RELS-EXT - espaceACML probably not necessary as it can be inhereted
 			// and the espaceMD can have status - 'freshly uploaded' or something.
-			$xmlObj = BatchImport::GenerateSingleFOXMLTemplate($pid, $collection_pid, $short_name, 5);
-            $config = array(
+			$xmlObj = BatchImport::GenerateSingleFOXMLTemplate($pid, $collection_pid, $short_name, $xdis_id, $ret_id);
+/*            $config = array(
                     'indent'         => true,
                     'input-xml'   => true,
                     'output-xml'   => true,
@@ -94,7 +109,7 @@ function insert() {
             $tidy = new tidy;
             $tidy->parseString($xmlObj, $config, 'utf8');
             $tidy->cleanRepair();
-            $xmlObj = $tidy;
+            $xmlObj = $tidy; */
 
 //			echo $xmlObj; echo "\n\n<br />";
 			Fedora_API::callIngestObject($xmlObj);
@@ -113,6 +128,29 @@ function insert() {
 //				echo $presmd_check;
 				Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, "text/xml", "X");
 			}
+			// @@@ CK - 8/8/2005 - Also need to add details of this record into the espace resource index
+			// get the xsdmf_ids - manual xdis_id = 5 at the moment for testing
+
+				
+				$xmlnode = new DomDocument();
+				$xmlnode->loadXML($xmlObj);
+
+				$array_ptr = array();
+				$xsdmf_array = array();
+//				echo $xmlObj;
+				Misc::dom_xml_to_simple_array($xmlnode, $array_ptr, $xsd_top_element_name, $xsd_element_prefix, $xsdmf_array, $xdis_id);
+//				print_r($array_ptr);
+//				print_r($xsdmf_array);
+
+				// Kill any existing resource indexes for that pid
+				Record::removeIndexRecord($pid);
+				
+				foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
+					if (!is_array($xsdmf_value) && !empty($xsdmf_value) && (trim($xsdmf_value) != "")) {
+						Record::insertIndexMatchingField($pid, $xsdmf_id, NULL, NULL, 'varchar', $xsdmf_value);
+					}
+				} 
+//			}
 
 		}
 	}
@@ -123,7 +161,7 @@ function insert() {
 }
 
 
-function GenerateSingleFOXMLTemplate($pid, $parent_pid, $filename, $xdis_id) {
+function GenerateSingleFOXMLTemplate($pid, $parent_pid, $filename, $xdis_id, $ret_id) {
 
 /*	if (empty($this->pid)) {
 		$this->pid = Fedora_API::getNextPID();
@@ -131,9 +169,7 @@ function GenerateSingleFOXMLTemplate($pid, $parent_pid, $filename, $xdis_id) {
 //	$pid = $this->pid;
 
 	
-	$xmlObj = '
-	<?xml version="1.0" ?>
-	
+	$xmlObj = '<?xml version="1.0" ?>	
 	<foxml:digitalObject PID="'.$pid.'"
 	  fedoraxsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-0.xsd" xmlns:fedoraxsi="http://www.w3.org/2001/XMLSchema-instance"
 	  xmlns:foxml="info:fedora/fedora-system:def/foxml#" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
@@ -180,6 +216,8 @@ function GenerateSingleFOXMLTemplate($pid, $parent_pid, $filename, $xdis_id) {
 			<foxml:xmlContent>
 				<eSpaceMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
 				  <xdis_id>'.$xdis_id.'</xdis_id>
+				  <sta_id/>
+  				  <ret_id>'.$ret_id.'</ret_id>
 				</eSpaceMD>
 			</foxml:xmlContent>
 		</foxml:datastreamVersion>

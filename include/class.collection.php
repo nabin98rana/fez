@@ -601,7 +601,7 @@ class Collection
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
                  WHERE
 				    r1.rmf_xsdmf_id = x1.xsdmf_id and
-                    rmf_rec_pid in (
+                    r1.rmf_rec_pid in (
 						SELECT r2.rmf_rec_pid 
 						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
 						WHERE r2.rmf_xsdmf_id = $ret_id_xsdmf_id AND r2.rmf_varchar = '2' $community_where )
@@ -737,6 +737,7 @@ class Collection
 //		echo $stmt;			
 		$returnfields = array("title", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+
         //$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
 //		print_r($res);
 		$return = array();
@@ -756,11 +757,10 @@ class Collection
 		foreach ($return as $pid_key => $row) {
 			if (!is_array($row['eSpaceACML'])) {
 				$parentsACMLs = array();
-				Auth::getIndexParentACMLs(&$parentsACMLs, $pid_key);			
+				Auth::getIndexParentACMLs(&$parentsACMLs, $pid_key);
 				$return[$pid_key]['eSpaceACML'] = $parentsACMLs;
 			}
 		}
-
 		
 		$return = array_values($return);
 //		print_r($return);

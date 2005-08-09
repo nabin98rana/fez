@@ -549,16 +549,30 @@ function getUploadLocationByLocalRef ($pid, $dsIDName, $local_file_location, $ds
 
 	$loc_dir = "";
 //	echo "DS ID NAME = ".$dsIDName;
-    if (!is_numeric(strpos($dsIDName, "/"))) {
-		$loc_dir = APP_TEMP_DIR;
-	} else {
+    if (is_numeric(strpos($dsIDName, "/"))) {
 		$dsIDName = substr($dsIDName, strrpos($dsIDName, "/")+1); // take out any nasty slashes from the ds name itself
+		if ($mimetype == "") {
+			$mimetype = Misc::mime_content_type($local_file_location);
+		}
+
+	} else {
+		$loc_dir = APP_TEMP_DIR;
+		if ($mimetype == "") {
+			$mimetype = Misc::mime_content_type($loc_dir.$dsIDName);
+		}
+
 	}
+	$dsIDName = str_replace(" ", "_", $dsIDName);
+	if (is_numeric(strpos($dsIDName, "."))) {
+		$filename_ext = strtolower(substr($dsIDName, (strrpos($dsIDName, ".") + 1)));
+		$dsIDName = substr($dsIDName, 0, strrpos($dsIDName, ".") + 1).$filename_ext;
+	}
+
 //	echo "DS ID NAME = ".$dsIDName;
 //	echo $loc_dir.$dsIDName;
-	if ($mimetype == "") {
+/*	if ($mimetype == "") {
 		$mimetype = Misc::mime_content_type($loc_dir.$dsIDName);
-	}
+	}*/
 
 	if (!empty($local_file_location) && (trim($local_file_location) != "")) {
 	   //Send multipart/form-data via curl
