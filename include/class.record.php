@@ -3088,6 +3088,129 @@ LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "custom_field_option as 
 		$xdis_id = 5;
 		return $xdis_id;
     }
+
+    /**
+     * getAssocChildren
+     * Finds children of the pid that don't have their own ACML set
+     */
+    function getAssocChildren($checkpids, &$checkedpids)
+    {
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX; // Database and table prefix
+        $newpids = array();
+        // strip out pids we've already checked
+        $checkpids = array_diff($checkpids, $checkedpids);
+        $pids_str = implode("','", $checkpids);
+        // find the child items
+        // ruling out items that have an ACML set
+        $stmt = "SELECT DISTINCT rmf1.rmf_rec_pid as pid FROM {$dbtp}record_matching_field rmf1
+            INNER JOIN {$dbtp}record_matching_field rmf2 ON rmf2.rmf_rec_pid=rmf1.rmf_rec_pid
+            WHERE rmf1.rmf_varchar IN ('$pids_str')
+            AND rmf1.rmf_xsdmf_id IN 
+            (SELECT xsdmf_id FROM {$dbtp}xsd_display_matchfields
+             WHERE
+             xsdmf_element='!description!isMemberOf!resource')
+            AND NOT(rmf2.rmf_xsdmf_id IN
+            (SELECT xsdmf_id FROM {$dbtp}xsd_display_matchfields
+             WHERE
+             xsdmf_element LIKE '!rule!role!%User'))
+            ";
+        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = array();
+        }
+        $checkedpids = array_unique($checkedpids + $checkpids);
+        $newpids = array_unique($newpids + $res);
+        if (!empty($newpids)) {
+            $newpids = array_unique($newpids + Record::getAssocChildren($newpids, $checkedpids));
+        }
+        return $newpids;
+    }
+
+    /**
+      * getAssociated
+      * Find all issues where the user has a role in the ACML
+      * This includes cascading affect of ACML
+      */
+    function getAssociated($username)
+    {
+        // find PIDs and role_names where the current user belongs to an ACML role
+        // The following query doesn't check for group membership yet (could use a rmf_varchar IN ($groups_list_str) 
+        // where the $groups_list_str is obtained from Auth or User class.
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX; // Database and table prefix
+        $stmt = "SELECT rmf1.rmf_rec_pid as pid , xdm1.xsdmf_parent_key_match as role, 
+            count(rmf2.rmf_rec_pid) AS subs FROM 
+        {$dbtp}record_matching_field rmf1
+        INNER JOIN {$dbtp}xsd_display_matchfields xdm1 ON rmf1.rmf_xsdmf_id=xdm1.xsdmf_id
+        LEFT JOIN {$dbtp}record_matching_field rmf2 ON rmf1.rmf_rec_pid=rmf2.rmf_varchar
+            WHERE
+            rmf1.rmf_varchar='$username'
+            AND (xsdmf_element='!rule!role!AD_User'
+                    OR xsdmf_element='!rule!role!eSpace_User')
+            AND rmf2.rmf_xsdmf_id IN 
+            (SELECT xsdmf_id FROM espace_xsd_display_matchfields
+             WHERE
+             xsdmf_element='!description!isMemberOf!resource')
+            GROUP BY rmf1.rmf_rec_pid
+        ";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = array();
+        }
+        foreach ($res as $row) {
+            if ($row['subs'] > 0) {
+                $checkedpids = array();
+                $pids = Record::getAssocChildren(array($row['pid']), $checkedpids);
+                foreach ($pids as $child) {
+                    $res[] = array('pid' => $child, 'role' => $row['role']); 
+                }
+            }
+        }
+        return $res;
+
+
+    }
+
+    /**
+     * getAssigned
+     * Find records where the user is assigned to the issue.  That's where the issue is marked with a 
+     * status and a role that the user is part of
+     */
+    function getAssigned($username)
+    {
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX; // Database and table prefix
+        // for each PID  / role_name combo, check for matches in the status_roles table
+        // i.e. find the sta_id for each of the pids and see if there is a role match for that sta_id in the 
+        // status_roles table.
+        $pidroles = Record::getAssociated($username);
+        $roles = Misc::collate2ColArray($pidroles, 'role', 'pid', true);
+        $result = array();
+        foreach ($roles as $role => $pids) {
+            $pids_str = implode("','", $pids);
+            $stmt = "SELECT rmf1.rmf_rec_pid as pid, sr.str_sta_id as sta_id, sr.str_role_name as role, 
+                s1.sta_title as sta_title, rmf2.rmf_varchar as title FROM
+            {$dbtp}record_matching_field rmf1 
+            INNER JOIN {$dbtp}status_roles sr ON sr.str_sta_id=rmf1.rmf_varchar
+            LEFT JOIN {$dbtp}status s1 ON sr.str_sta_id=s1.sta_id
+            LEFT JOIN {$dbtp}record_matching_field rmf2 ON rmf1.rmf_rec_pid=rmf2.rmf_rec_pid
+                WHERE
+                sr.str_role_name='$role'
+                AND rmf1.rmf_rec_pid IN ('$pids_str')
+                AND rmf1.rmf_xsdmf_id IN (SELECT xsdmf_id FROM {$dbtp}xsd_display_matchfields
+                        WHERE xsdmf_element='!sta_id')
+                AND rmf2.rmf_xsdmf_id IN (SELECT xsdmf_id FROM {$dbtp}xsd_display_matchfields
+                        WHERE xsdmf_element='!dc:title')
+                ";
+            $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                $res = array();
+            }
+            $result = $result + $res;
+        }
+        return $result;
+    }
 }
 
 

@@ -2543,11 +2543,14 @@ return $ret;
         return $dest;
     }
 
-    function collate2ColArray($source, $kfield, $vfield)
+    function collate2ColArray($source, $kfield, $vfield, $unique=false)
     {
         $dest = array();
         foreach ($source as $item) {
             $dest[$item[$kfield]][] = $item[$vfield];
+            if ($unique) {
+                $dest[$item[$kfield]] = array_unique($dest[$item[$kfield]]);
+            }
         }
         return $dest;
     }
