@@ -254,7 +254,7 @@ class Auth
         // Usually everyone can list, view and view comments
 		$NonRestrictedRoles = array("Viewer","Lister","Comment_Viewer");
 
-	
+//		print_r($indexArray);	
 		foreach ($indexArray as $indexKey => $indexRecord) {
 			$userPIDAuthGroups = $NonRestrictedRoles;
 			if (!is_array($indexRecord['eSpaceACML'])) {
@@ -265,6 +265,7 @@ class Auth
 				// 2. if at least one of them have an espace acml then use it otherwise get the parents parents
 
 			}
+//			print_r($indexRecord);
 			foreach ($indexRecord['eSpaceACML'] as $eSpaceACML) { // can have multiple espace acmls if got from parents
 				foreach ($eSpaceACML as $role_name => $role) {	
 					foreach ($role as $rule_name => $rule) {

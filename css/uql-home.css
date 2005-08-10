@@ -251,3 +251,36 @@ font-size: 14px;}
 font-family: Verdana, Arial, Helvetica, sans-serif;
 font-size: 16px;
 font-weight: bold}
+
+.listrecord {
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 11px;
+  border: 1px solid #255282;  
+}
+
+.listrecord .tr {
+    background-color: #255282;
+    color: white;
+
+}
+
+.listrecord .td  {
+
+	font-size: 5px;
+    font-weight: bold;
+    background-color: #255282;
+    padding: 4px 4px 4px 4px;
+    margin: 0px 0px 0px 0px;
+    color: white;
+}
+
+
+
+
+
+
+
+
+

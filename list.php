@@ -137,6 +137,8 @@ if (!empty($collection_pid)) {
 //$tpl->assign("col_id", $col_id);
 //$tpl->assign("projects", Project::getAssocList($usr_id));
 //$tpl->assign("collections", Collection::getAllSorted());
+//$tpl->assign("eserv_url", "http://".APP_HOSTNAME."/eserv.php?pid=".$pid."&dsID=");
+$tpl->assign("eserv_url", "http://".APP_HOSTNAME."/eserv.php");
 $tpl->assign("list", $list);
 //$tpl->assign("list", $list["list"]);
 //$tpl->assign("list_info", $list["info"]);

@@ -93,7 +93,7 @@ function insert() {
 		}
 //		print_r($filenames);
 		foreach ($filenames as $full_name => $short_name) {
-			echo $full_name; echo "\n\n<br />";
+//			echo $full_name; echo "\n\n<br />";
 //			echo $short_name; echo "\n\n<br />";
 //			$pid = "UQL-Fed:100";
 			$pid = Fedora_API::getNextPID();
@@ -112,16 +112,26 @@ function insert() {
             $xmlObj = $tidy; */
 
 //			echo $xmlObj; echo "\n\n<br />";
+			// Kill any existing resource indexes for that pid
+			Record::removeIndexRecord($pid);
+
+
 			Fedora_API::callIngestObject($xmlObj);
 
 //			Fedora_API::getUploadLocation($pid, $full_name, $full_name, $full_name, "", "M");
 			Fedora_API::getUploadLocationByLocalRef($pid, $full_name, $full_name, $full_name, "", "M");
+
 
 			// Now check for post upload workflow events like thumbnail resizing of images
 			$convert_check = Workflow::checkForImageFile($full_name);
 			if ($convert_check != false) {
 //				echo $convert_check;
 				Fedora_API::getUploadLocationByLocalRef($pid, $convert_check, $convert_check, $convert_check, "", "M");
+				if (is_numeric(strpos($convert_check, "/"))) {
+					$convert_check = substr($convert_check, strrpos($convert_check, "/")+1); // take out any nasty slashes from the ds name itself
+				}
+				$convert_check = str_replace(" ", "_", $convert_check);
+				Record::insertIndexMatchingField($pid, 122, NULL, NULL, 'varchar', $convert_check); // add the thumbnail to the espace index				
 			}
 			$presmd_check = Workflow::checkForPresMD($full_name);
 			if ($presmd_check != false) {
@@ -142,14 +152,20 @@ function insert() {
 //				print_r($array_ptr);
 //				print_r($xsdmf_array);
 
-				// Kill any existing resource indexes for that pid
-				Record::removeIndexRecord($pid);
 				
 				foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
 					if (!is_array($xsdmf_value) && !empty($xsdmf_value) && (trim($xsdmf_value) != "")) {
 						Record::insertIndexMatchingField($pid, $xsdmf_id, NULL, NULL, 'varchar', $xsdmf_value);
 					}
-				} 
+				}
+				// now add a resource index for the datastream 
+				// lowercase the extension if necessary
+				if (is_numeric(strpos($short_name, "."))) {
+					$filename_ext = strtolower(substr($short_name, (strrpos($short_name, ".") + 1)));
+					$short_name = substr($short_name, 0, strrpos($short_name, ".") + 1).$filename_ext;
+				}
+
+				Record::insertIndexMatchingField($pid, 122, NULL, NULL, 'varchar', $short_name);
 //			}
 
 		}

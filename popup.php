@@ -44,7 +44,15 @@ $usr_id = Auth::getUserID();
 
 if (@$HTTP_GET_VARS["cat"] == "purge_datastream") {
 	if (!in_array($HTTP_GET_VARS["ds_id"], Misc::const_array(APP_FEDORA_PROTECTED_DATASTREAMS))) {
-	    $res = Fedora_API::callPurgeDatastream($HTTP_GET_VARS["pid"], $HTTP_GET_VARS["ds_id"]);
+		$ds_id = $HTTP_GET_VARS["ds_id"];
+		$pid = $HTTP_GET_VARS["pid"];		
+	    $res = Fedora_API::callPurgeDatastream($pid, $ds_id);
+		Record::removeIndexRecordByValue($pid, $ds_id);
+		$thumbnail = "thumbnail_".str_replace(" ", "_", substr($ds_id, 0, strrpos($ds_id, "."))).".jpg";
+		if (Fedora_API::datastreamExists($pid, $thumbnail)) {
+		    Fedora_API::callPurgeDatastream($pid, $thumbnail);
+			Record::removeIndexRecordByValue($pid, $thumbnail);
+		}
 		if (count($res) == 1) { $res = 1; } else { $res = -1; }
 	} else {
 		$res = -1;

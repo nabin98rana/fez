@@ -1545,18 +1545,25 @@ class Record
      * @return  integer The new Record ID
      */
 
-	function insertIndexBatch($pid, $indexArray) {
+	function insertIndexBatch($pid, $indexArray, $datastreamXMLHeaders) {
 
 		// first delete all indexes about this pid
-		Record::removeIndexRecord($pid);
+		Record::removeIndexRecord($pid, 'keep');
 		if (!is_array($indexArray)) {
 			return false;
 		}
 
 //		array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $value)
 		foreach ($indexArray as $index) {
-			if ($index[1] == 1) { // if this xsdmf is designated to be indexed then insert it
-				Record::insertIndexMatchingField($index[0], $index[2], $index[3], $index[4], $index[5], $index[6]);
+			if ($index[1] == 1)  { // if this xsdmf is designated to be indexed then insert it as long as it has a value
+				foreach ($datastreamXMLHeaders as $dsKey => $dsHeader) { // get the real ds names for the file uploads
+					if ($index[6] == $dsKey) {
+						$index[6] = $dsHeader['ID'];
+					}
+				}
+				if ($index[6] != "") {
+					Record::insertIndexMatchingField($index[0], $index[2], $index[3], $index[4], $index[5], $index[6]);
+				}
 			}
 		}
 	
@@ -1565,7 +1572,7 @@ class Record
 
 
 
-    function removeIndexRecord($pid)
+    function removeIndexRecord($pid, $dsDelete='all')
     {
  
 //		echo "monkey = ".$initial_status;
@@ -1573,6 +1580,9 @@ class Record
         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field
 				 WHERE rmf_rec_pid = '" . $pid . "'";
+		if ($dsDelete=='keep') {
+			$stmt .= " and rmf_xsdmf_id != 122";
+		}
 //		echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -1582,6 +1592,25 @@ class Record
             return $pid;
         }
     }
+
+    function removeIndexRecordByValue($pid, $value, $data_type='varchar')
+    {
+ 
+//		echo "monkey = ".$initial_status;
+        // add new Record
+        $stmt = "DELETE FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field
+				 WHERE rmf_rec_pid = '" . $pid . "' and rmf_".$data_type."='".$value."'";
+//		echo $stmt;
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+            return $pid;
+        }
+    }
+
 
     function insertIndexMatchingField($pid, $xsdmf_id, $xdis_id, $xsdsel_id, $data_type, $value)
     {
@@ -3215,9 +3244,6 @@ class RecordObject extends RecordGeneral
 		$indexArray = array();
 		$xmlObj = Misc::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray);
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
-		Record::insertIndexBatch($pid, $indexArray);
-//		echo "INDEX ARRAY -> ";
-//	print_r($indexArray);
 		$datastreamTitles = $display->getDatastreamTitles();
 		$params = array();
 
@@ -3243,6 +3269,11 @@ class RecordObject extends RecordGeneral
             Fedora_API::callIngestObject($xmlObj);
         }
 		$convert_check = false;
+//		print_r($datastreamXMLHeaders);
+		Record::insertIndexBatch($pid, $indexArray, $datastreamXMLHeaders);
+//		echo "INDEX ARRAY -> ";
+//		print_r($indexArray);
+	
 		foreach ($datastreamTitles as $dsTitle) {
 			$dsIDName = $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['ID'];
 			if (is_numeric(strpos($dsIDName, "."))) {
@@ -3259,6 +3290,11 @@ class RecordObject extends RecordGeneral
 			$convert_check = Workflow::checkForImageFile($dsIDName);
 			if ($convert_check != false) {
 				Fedora_API::getUploadLocationByLocalRef($pid, $convert_check, $convert_check, $convert_check, $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['MIMETYPE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['CONTROL_GROUP']);
+				if (is_numeric(strpos($convert_check, "/"))) {
+					$convert_check = substr($convert_check, strrpos($convert_check, "/")+1); // take out any nasty slashes from the ds name itself
+				}
+				$convert_check = str_replace(" ", "_", $convert_check);
+				Record::insertIndexMatchingField($pid, 122, NULL, NULL, "varchar", $convert_check); // add the thumbnail to the espace index
 			}
 			$presmd_check = Workflow::checkForPresMD($dsIDName);
 			if ($presmd_check != false) {

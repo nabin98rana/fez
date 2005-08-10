@@ -569,6 +569,7 @@ class Community
 		$return = array();
 
 		foreach ($res as $result) {		
+			$return[$result['rmf_rec_pid']]['eSpaceACML'] = array();
 			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
 				if (!is_array(@$return[$result['rmf_rec_pid']]['eSpaceACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
 					$return[$result['rmf_rec_pid']]['eSpaceACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();

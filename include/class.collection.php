@@ -727,14 +727,14 @@ class Collection
                     r1.rmf_rec_pid in (
 						SELECT r2.rmf_rec_pid 
 						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
-						WHERE rmf_xsdmf_id = $ret_id_xsd_mf AND r2.rmf_varchar = '3'and r2.rmf_rec_pid in (
+						WHERE rmf_xsdmf_id = $ret_id_xsd_mf AND r2.rmf_varchar = '3' and r2.rmf_rec_pid in (
 	 						SELECT r3.rmf_rec_pid 
 							FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3
 							WHERE r3.rmf_xsdmf_id = $isMemberOf_xsdmf_id AND r3.rmf_varchar = '".$collection_pid."'						
 							)
 						)				
 					";
-//		echo $stmt;			
+//		echo $stmt;	
 		$returnfields = array("title", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 
@@ -752,9 +752,30 @@ class Collection
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
 				$return[$result['rmf_rec_pid']][$result['xsdmf_espace_title']] = $result['rmf_'.$result['xsdmf_data_type']];
 			}
+			// get thumbnails
+			if ($result['xsdmf_espace_title'] == "datastream_id") {
+				if (is_numeric(strpos($result['rmf_varchar'], "thumbnail_"))) {
+					if (!is_array($return[$result['rmf_rec_pid']]['thumbnails'])) {
+						$return[$result['rmf_rec_pid']]['thumbnails'] = array();
+					}
+					array_push($return[$result['rmf_rec_pid']]['thumbnails'], $result['rmf_varchar']);
+				} else {
+					if (!is_array($return[$result['rmf_rec_pid']]['datastreams'])) {
+						$return[$result['rmf_rec_pid']]['datastreams'] = array();
+					}
+					array_push($return[$result['rmf_rec_pid']]['datastreams'], $result['rmf_varchar']);
+				}
+			}
 		}
 		
 		foreach ($return as $pid_key => $row) {
+			//if there is only one thumbnail DS then use it
+			if (count($row['thumbnails']) == 1) {
+				$return[$pid_key]['thumbnail'] = $row['thumbnails'][0];
+			} else {
+				$return[$pid_key]['thumbnail'] = 0;
+			}
+
 			if (!is_array($row['eSpaceACML'])) {
 				$parentsACMLs = array();
 				Auth::getIndexParentACMLs(&$parentsACMLs, $pid_key);
