@@ -31,6 +31,7 @@ include_once("config.inc.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
+include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.validation.php");
 
 if (count($HTTP_POST_VARS) > 0) {
@@ -73,8 +74,15 @@ if (count($HTTP_POST_VARS) > 0) {
 		$extra = '';
 	}
 }
+$tpl = new Template_API();
+$username = Auth::getUsername();
+$tpl->assign("isUser", $username);
+$isAdministrator = User::isUserAdministrator($username);
+$tpl->assign("isAdministrator", $isAdministrator);
 
 
-Auth::redirect(APP_RELATIVE_URL . "list.php" . $extra);
+$tpl->setTemplate("front_page.tpl.html");
+$tpl->displayTemplate();
+//Auth::redirect(APP_RELATIVE_URL . "list.php" . $extra);
 //Auth::redirect(APP_RELATIVE_URL . "select_collection.php" . $extra);
 ?>

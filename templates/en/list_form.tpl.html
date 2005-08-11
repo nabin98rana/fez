@@ -242,8 +242,8 @@ function purgeObject(pid)
 			{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
 			<br /> <a target="_top" title="create a new collection" href="{$rel_url}new.php?xdis_id={$xdis_id}{if $community_pid}&community_pid={$community_pid}{/if}"><img align="absmiddle" src="{$rel_url}images/folder_new.png" border="0"><b>Create New Collection</b></a>&nbsp;
 			{elseif $list_type == 'all_records_list' || $list_type == 'collection_records_list' && ($isAdministrator || $isCreator)}
-			<br /> <a target="_top" title="create a new record" href="{$rel_url}new.php?xdis_id={$xdis_id}{if $collection_pid}&collection_pid={$collection_pid}{/if}"><img align="absmiddle" src="{$rel_url}images/folder_new.png" border="0"><b>Create New Record</b></a>&nbsp;
-			<br /> <a target="_top" title="batch import" href="{$rel_url}batchimport.php?xdis_id={$xdis_id}{if $collection_pid}&collection_pid={$collection_pid}{/if}"><img align="absmiddle" src="{$rel_url}images/folder_new.png" border="0"><b>Batch Import Records from SAN</b></a>&nbsp;
+			<br /> <a target="_top" title="create a new record" href="{$rel_url}new.php?xdis_id={$xdis_id}{if $collection_pid}&collection_pid={$collection_pid}{/if}"><img align="absmiddle" src="{$rel_url}images/folder_new.png" border="0"><b>Create New Record</b></a>&nbsp;<br />
+			<br /> <a target="_top" title="batch import" href="{$rel_url}batchimport.php?xdis_id={$xdis_id}{if $collection_pid}&collection_pid={$collection_pid}{/if}"><img align="absmiddle" src="{$rel_url}images/scanner_22.png" border="0"><b>Batch Import Records from SAN</b></a>&nbsp;
 			{/if}
 		  </td>
         </tr>
