@@ -904,6 +904,23 @@ function dom_to_simple_array($domnode, &$array) {
   }
 } */
 
+function get_content_type($url,$follow_location = TRUE,$timeout = 5) {
+	$ch = curl_init($url);
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION,$follow_location);
+	curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+	curl_setopt($ch, CURLOPT_HEADER, TRUE);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER,TRUE);
+	curl_exec($ch);
+	if (($c = curl_getinfo($ch,CURLINFO_HTTP_CODE)) < 200 || $c >= 300) {
+		curl_close($ch);
+		return FALSE;
+	}
+
+	$type = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+	curl_close($ch);
+	return $type;
+}
+
 function sql_array_to_string($array){
 	$return_str = "";
 	foreach($array as $key=>$val) {

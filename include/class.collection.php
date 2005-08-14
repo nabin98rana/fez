@@ -709,10 +709,14 @@ class Collection
      * @access  public
      * @return  array The list of collection records with the given collection pid
      */
-    function getListing($collection_pid)
+    function getListing($collection_pid, $current_row = 0, $max = 30)
     {
         $isMemberOf_xsdmf_id = 149;
         $ret_id_xsd_mf = 236; // eSpaceMD Display, 
+		if ($max == "ALL") {
+            $max = 9999999;
+        }
+        $start = $current_row * $max;
 
 
         $stmt = "SELECT
@@ -721,23 +725,50 @@ class Collection
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
-					
-                 WHERE
-				    r1.rmf_xsdmf_id = x1.xsdmf_id and
-                    r1.rmf_rec_pid in (
-						SELECT r2.rmf_rec_pid 
+				INNER JOIN (
+						SELECT distinct r2.rmf_rec_pid 
 						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
-						WHERE rmf_xsdmf_id = $ret_id_xsd_mf AND r2.rmf_varchar = '3' and r2.rmf_rec_pid in (
-	 						SELECT r3.rmf_rec_pid 
+						WHERE r2.rmf_xsdmf_id = $ret_id_xsd_mf AND r2.rmf_varchar = '3' and r2.rmf_rec_pid in (
+	 						SELECT distinct r3.rmf_rec_pid 
 							FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3
-							WHERE r3.rmf_xsdmf_id = $isMemberOf_xsdmf_id AND r3.rmf_varchar = '".$collection_pid."'						
-							)
-						)				
-					";
+							WHERE r3.rmf_xsdmf_id = $isMemberOf_xsdmf_id AND r3.rmf_varchar = '".$collection_pid."'
+						 	) limit $start, $max
+						) as r2 on r1.rmf_rec_pid = r2.rmf_rec_pid					
+                 WHERE
+				    r1.rmf_xsdmf_id = x1.xsdmf_id
+				 ORDER BY
+				 	r1.rmf_rec_pid";
+
+
+        $stmtAll = "SELECT
+                    * 
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+				INNER JOIN (
+						SELECT distinct r2.rmf_rec_pid 
+						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
+						WHERE r2.rmf_xsdmf_id = $ret_id_xsd_mf AND r2.rmf_varchar = '3' and r2.rmf_rec_pid in (
+	 						SELECT distinct r3.rmf_rec_pid 
+							FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3
+							WHERE r3.rmf_xsdmf_id = $isMemberOf_xsdmf_id AND r3.rmf_varchar = '".$collection_pid."'
+						 	) 
+						) as r2 on r1.rmf_rec_pid = r2.rmf_rec_pid					
+                 WHERE
+				    r1.rmf_xsdmf_id = x1.xsdmf_id
+				 ORDER BY
+				 	r1.rmf_rec_pid";
+
 //		echo $stmt;	
 		$returnfields = array("title", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-
+        $total_rows = Pager::getTotalRowsDistinct($stmtAll, "r1.rmf_rec_pid");
+        $total_rows_limit = Pager::getTotalRowsDistinct($stmt, "r1.rmf_rec_pid");
+		$total_pages = ceil($total_rows / $max);
+        $last_page = $total_pages - 1;
+		
+//		echo $total_rows_limit;
         //$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
 //		print_r($res);
 		$return = array();
@@ -796,7 +827,22 @@ class Collection
                 }
             }
 */
-            return $return;
+
+            return array(
+                "list" => $return,
+                "info" => array(
+                    "current_page"  => $current_row,
+                    "start_offset"  => $start,
+                    "end_offset"    => $start + ($total_rows_limit),
+                    "total_rows"    => $total_rows,
+                    "total_pages"   => $total_pages,
+                    "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+                    "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
+                    "last_page"     => $last_page
+                )
+            );
+
+
         }
 
 /*		$itql = "select \$collTitle \$collDesc \$title \$identifier \$description \$object \$type from <#ri>

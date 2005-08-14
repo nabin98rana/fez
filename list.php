@@ -59,7 +59,7 @@ $tpl->assign("isAdministrator", $isAdministrator);
 
 
 
-/*$pagerRow = Record::getParam('pagerRow');
+$pagerRow = Record::getParam('pagerRow');
 if (empty($pagerRow)) {
     $pagerRow = 0;
 }
@@ -67,11 +67,11 @@ $rows = Record::getParam('rows');
 if (empty($rows)) {
     $rows = APP_DEFAULT_PAGER_SIZE;
 }
-$usr_id = Auth::getUserID();
-*/
-//$options = Record::saveSearchParams();
+//$usr_id = Auth::getUserID();
 
-//$tpl->assign("options", $options);
+$options = Record::saveSearchParams();
+
+$tpl->assign("options", $options);
 //$tpl->assign("sorting", Record::getSortingInfo($options));
 
 //$col_id = Auth::getCurrentCollection();
@@ -81,6 +81,7 @@ $terms = @$_REQUEST['terms'];
 $collection_pid = @$HTTP_POST_VARS["collection_pid"] ? $HTTP_POST_VARS["collection_pid"] : @$HTTP_GET_VARS["collection_pid"];	
 $community_pid = @$HTTP_POST_VARS["community_pid"] ? $HTTP_POST_VARS["community_pid"] : @$HTTP_GET_VARS["community_pid"];
 
+$list_info = array();
 
 if (!empty($collection_pid)) {
     // list a collection
@@ -94,7 +95,10 @@ if (!empty($collection_pid)) {
 	$tpl->assign("isCreator", $isCreator);
 	$isEditor = (in_array("Creator", $userPIDAuthGroups) || in_array("Community Administrator", $userPIDAuthGroups) || in_array("Editor", $userPIDAuthGroups) || in_array("Collection Administrator", $userPIDAuthGroups));
 	$tpl->assign("isEditor", $isEditor);
-	$list = Collection::getListing($collection_pid);
+	$list = Collection::getListing($collection_pid, $pagerRow, $rows);
+	$list_info = $list["info"];
+	$list = $list["list"];
+//	print_r($list_info);
 	$tpl->assign("list_heading", "List of Records in ".$collection_details[0]['title']." Collection");
 	$tpl->assign("list_type", "collection_records_list");
 	$tpl->assign("collection_pid", $collection_pid);
@@ -140,6 +144,7 @@ if (!empty($collection_pid)) {
 //$tpl->assign("eserv_url", "http://".APP_HOSTNAME."/eserv.php?pid=".$pid."&dsID=");
 $tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
 $tpl->assign("list", $list);
+$tpl->assign("list_info", $list_info);
 //$tpl->assign("list", $list["list"]);
 //$tpl->assign("list_info", $list["info"]);
 //$tpl->assign("csv_data", base64_encode($list["csv"]));
