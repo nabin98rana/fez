@@ -1,9 +1,8 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
 // +----------------------------------------------------------------------+
-// | Eventum - Issue Tracking System                                      |
+// | eSpace - Digital Repository                                          |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2003, 2004 MySQL AB                                    |
 // |                                                                      |
 // | This program is free software; you can redistribute it and/or modify |
 // | it under the terms of the GNU General Public License as published by |
@@ -21,11 +20,15 @@
 // | Free Software Foundation, Inc.                                       |
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
+// |																	  |
+// | Some code and structure is derived from Eventum (GNU GPL - MySQL AB) |
+// | http://dev.mysql.com/downloads/other/eventum/index.html			  |
+// | Eventum is primarily authored by João Prado Maia <jpm@mysql.com>     |
 // +----------------------------------------------------------------------+
-// | Authors: João Prado Maia <jpm@mysql.com>                             |
+// | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>        |
+// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
 //
-// @(#) $Id: s.class.auth.php 1.37 04/01/16 23:25:25-00:00 jpradomaia $
 //
 
 
@@ -33,7 +36,8 @@
  * Class to handle authentication issues.
  *
  * @version 1.0
- * @author João Prado Maia <jpm@mysql.com>
+ * @author Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>
+ * @author Matthew Smith <m.smith@library.uq.edu.au>
  */
 
 include_once(APP_INC_PATH . "class.error_handler.php");
@@ -185,13 +189,6 @@ class Auth
 //		return $ACMLArray;
 	}
 	
-	
-
-/*	function isViewRestricted($pid, $xdis_id) {
-		$authGroups = Auth::getAuthorisationGroups($pid, $xdis_id);		
-		print_r($authGroups);
-
-	}*/
 
     /**
       * isAdministrator
@@ -254,7 +251,6 @@ class Auth
         // Usually everyone can list, view and view comments
 		$NonRestrictedRoles = array("Viewer","Lister","Comment_Viewer");
 
-//		print_r($indexArray);	
 		foreach ($indexArray as $indexKey => $indexRecord) {
 			$userPIDAuthGroups = $NonRestrictedRoles;
 			if (!is_array($indexRecord['eSpaceACML'])) {
@@ -715,47 +711,6 @@ class Auth
         }
     }
 
-    /**
-     * Gets the current user ID.
-     *
-     * @@@ CK - Needed back in by the end of route_notes.php so the notes could come from the right user
-     * @access  public
-     * @return  integer The ID of the user
-     */
-/*    function getUserIDByEmail()
-    {
-        $info = Auth::getSessionInfo(APP_SESSION);
-        if (empty($info)) {
-            return '';
-        } else {
-//            return @User::getUserIDByUsername($info["username"]);
-            return @User::getUserIDByEmail($info["email"]);
-        }
-    }
-*/
-
-    /**
-     * Gets the current selected collection from the collection session.
-     *
-     * @access  public
-     * @return  integer The collection ID
-     */
-/*    function getCurrentCollection()
-    {
-        $session = Auth::getSessionInfo(APP_COLLECTION_session);
-        if (empty($session)) {
-            return "";
-        }
-        $usr_id = Auth::getUserID();
-        $collections = Collection::getAssocList($usr_id);
-        if (!in_array($session["col_id"], array_keys($collections))) {
-            Auth::redirect(APP_RELATIVE_URL . "select_collection.php?err=1");
-        }
-        return $session["col_id"];
-    }
-*/
-
-
     function GetUsersLDAPGroups($username, $password)  {
 	//PRE:
 	// - $group, $username Parameters are set.
@@ -804,53 +759,11 @@ class Auth
 		} 	
 		// close connection to ldap server
 		ldap_close($ldap_conn);
-//		echo "USER LDAP GROUPS -> ";
-//		print_r($usersgroups);
-//		session_start();
 		$_SESSION['ldap_groups'] = $usersgroups;
-//		$HTTP_SESSION_VARS['ESPACE_GROUPS']['LDAP_GROUPS'] = $usersgroups;
-//		$_SESSION['ESPACE_GROUPS']['LDAP_GROUPS'] = $usersgroups; // set the session session for ldap groups
-//		print_r($HTTP_SESSION_VARS['ESPACE_GROUPS']['LDAP_GROUPS']);
 		return $usersgroups;
     } //end of GetUserGroups function.
 
 
-
-
-
-    /**
-     * Gets the current collection name from the user's collection session.
-     *
-     * @access  public
-     * @return  string The current collection name
-     */
-/*    function getCurrentCollectionName()
-    {
-        $proj_id = Auth::getCurrentCollection();
-        if (!empty($proj_id)) {
-            return Collection::getName($proj_id);
-        }
-    }
-*/
-
-    /**
-     * Sets the current selected collection for the user session.
-     *
-     * @access  public
-     * @param   integer $collection The collection ID
-     * @param   integer $remember Whether to automatically remember the setting or not
-     * @return  void
-     */
-/*    function setCurrentCollection($collection, $remember)
-    {
-        $session = array(
-            "col_id"   => $collection,
-            "remember" => $remember
-        );
-        $session = base64_encode(serialize($session));
-        Auth::setSession(APP_COLLECTION_session, $session, APP_COLLECTION_session_EXPIRE, APP_RELATIVE_URL);
-    }
-*/
         # --------------------
         # Added by Christiaan 28/6/2004
         # Attempt to bind/authenticate the user against the LDAP directory
@@ -937,8 +850,4 @@ session_name(APP_SESSION);
 if (APP_BENCHMARK) {
     $GLOBALS['bench']->setMarker('Included Auth Class');
 }
-
-
-
-
 ?>

@@ -1,9 +1,8 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
 // +----------------------------------------------------------------------+
-// | Eventum - Record Tracking System                                      |
+// | eSpace - Digital Repository                                          |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2003, 2004 MySQL AB                                    |
 // |                                                                      |
 // | This program is free software; you can redistribute it and/or modify |
 // | it under the terms of the GNU General Public License as published by |
@@ -21,20 +20,25 @@
 // | Free Software Foundation, Inc.                                       |
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
+// |																	  |
+// | Some code and structure is derived from Eventum (GNU GPL - MySQL AB) |
+// | http://dev.mysql.com/downloads/other/eventum/index.html			  |
+// | Eventum is primarily authored by João Prado Maia <jpm@mysql.com>     |
 // +----------------------------------------------------------------------+
-// | Authors: João Prado Maia <jpm@mysql.com>                             |
+// | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>        |
+// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
 //
-// @(#) $Id: s.class.Record.php 1.114 04/01/19 15:15:25-00:00 jpradomaia $
 //
 
 
 /**
- * Class designed to handle all business logic related to the Records in the
- * system, such as adding or updating them or listing them in the grid mode.
+ * Class designed to handle all business logic related to the batch importing of records in the
+ * system.
  *
- * @author  João Prado Maia <jpm@mysql.com>
- * @version $Revision: 1.114 $
+ * @version 1.0
+ * @author Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>
+ * @author Matthew Smith <m.smith@library.uq.edu.au>
  */
 
 include_once(APP_INC_PATH . "class.validation.php");
@@ -57,27 +61,281 @@ include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 
 
 /**
-  * Record
-  * Static class for accessing record related queries
-  * See RecordObject for an object oriented representation of a record.
+  * Batch Import
   */
 class BatchImport
 {
 var $pid;
 var $externalDatastreams;
 
-/*
-			// if the text of the file has foxml:digitalObject its probably a fedora object xml so just try and import that, otherwise try and convert it (probably METS)
-			if (!is_numeric(strpos($xmlImport, "foxml:digitalObject"))) {		
-				$xmlObj = BatchImport::ConvertImportXMLFOXML($pid, $xmlImport, $collection_pid, $short_name, $xdis_id, $ret_id);
-			} else {
-				$xmlObj = $xmlImport;
+
+function handleEntireEprintsImport($pid, $collection_pid, $xmlObj) {
+	$importArray = array();
+	$xdis_id = 5; // standard fedora object
+	$ret_id = 3; // standard record type id
+	$sta_id = 1; // standard status type id
+
+
+	$config = array(
+			'indent'         => true,
+			'input-xml'   => true,
+			'output-xml'   => true,
+			'wrap'           => 200);
+
+	$tidy = new tidy;
+	$tidy->parseString($xmlObj, $config, 'utf8');
+	$tidy->cleanRepair();
+	$xmlObj = $tidy;
+
+	$xmlDoc= new DomDocument();
+	$xmlDoc->preserveWhiteSpace = false;
+	$xmlDoc->loadXML($xmlObj);
+
+	
+
+	$xpath = new DOMXPath($xmlDoc);
+
+	$recordNodes = $xpath->query('//eprintsdata/record');
+
+		$authorArray = array();
+		$editorArray = array();
+		$keywordArray = array();		
+
+
+	foreach ($recordNodes as $recordNode) {
+		$record_type = "";
+		$eprint_id = "";
+		//get the record type
+		$type_fields = $xpath->query("./*[contains(@name, 'type')]", $recordNode);
+		foreach ($type_fields as $type_field) {
+			if  ($record_type == "") {
+				$record_type = $type_field->nodeValue;				
 			}
-*/
+		}
+		$id_fields = $xpath->query("./*[contains(@name, 'eprintid')]", $recordNode);
+		foreach ($id_fields as $id_field) {
+			if  ($eprint_id == "") {
+				$eprint_id = $id_field->nodeValue;
+			}
+		}
+
+		$keywordArray[$eprint_id] = array();
+		$keyword_fields = $xpath->query("./*[contains(@name, 'keywords')]", $recordNode);
+		foreach ($keyword_fields as $keyword_field) {
+			$keyword_split = array();
+			$keyword_split = explode(";", $keyword_field->nodeValue);
+			foreach($keyword_split as $kw) {
+				array_push($keywordArray[$eprint_id], trim($kw));
+			}
+		}
+
+		$editorArray[$eprint_id] = array();
+		$editor_fields = $xpath->query("./*[contains(@name, 'editors')]", $recordNode);
+		foreach ($editor_fields as $editor_field) {
+			$family_name = $xpath->query("./*[contains(@name, 'family')]", $editor_field);
+			foreach ($family_name as $fname) {
+				$family = $fname->nodeValue;
+			}
+
+			$given_name = $xpath->query("./*[contains(@name, 'given')]", $editor_field);
+			foreach ($given_name as $gname) {
+				$given = $gname->nodeValue;
+			}
+			
+			array_push($editorArray[$eprint_id], $family.", ".$given);
+		}
+
+		
+		$authorArray[$eprint_id] = array();
+		$author_fields = $xpath->query("./*[contains(@name, 'authors')]", $recordNode);
+		foreach ($author_fields as $author_field) {
+			$family_name = $xpath->query("./*[contains(@name, 'family')]", $author_field);
+			foreach ($family_name as $fname) {
+				$family = $fname->nodeValue;
+			}
+
+			$given_name = $xpath->query("./*[contains(@name, 'given')]", $author_field);
+			foreach ($given_name as $gname) {
+				$given = $gname->nodeValue;			
+			}
+			
+			array_push($authorArray[$eprint_id], $family.", ".$given);
+		}
+		
+		$fieldNodes = $xpath->query("./*[string-length(normalize-space())>0 and not(contains(@name, 'type'))]", $recordNode); 
+		$field = "";
+		$fieldValue = "";
+		foreach ($fieldNodes as $fieldNode) {
+			$field = $fieldNode->getAttribute('name');
+			$fieldValue = $fieldNode->nodeValue;
+			if ($field != "" && $fieldValue != "" && $record_type != "" && $eprint_id != "") {
+				if (!is_array($importArray[$record_type][$eprint_id][$field])) {
+					$importArray[$record_type][$eprint_id][$field] = array();
+				}
+				array_push($importArray[$record_type][$eprint_id][$field], $fieldValue);
+
+			}
+		}
+	}
+//print_r($keywordArray);
+//	print_r($importArray);
+//	exit();
+//print_r($authorArray);
+	foreach ($importArray['confpaper'] as $key => $data_field) {
+//		echo "key = ".$key;
+//		echo "data field = ".$data_field;
+//		$tempXML = BatchImport::ConvertMETSToFOXML($pid, $xmlImport, $collection_pid, $short_name, $xdis_id, $ret_id, $sta_id) {
+		$oai_dc_url = "http://eprint.uq.edu.au/perl/oai2?verb=GetRecord&metadataPrefix=oai_dc&identifier=oai%3Aeprint.uq.edu.au%3A".$key;
+		$oai_dc_xml = Fedora_API::URLopen($oai_dc_url);
+
+
+		$config = array(
+				'indent'         => true,
+				'input-xml'   => true,
+				'output-xml'   => true,
+				'wrap'           => 200);
+	
+		$tidy = new tidy;
+		$tidy->parseString($oai_dc_xml, $config, 'utf8');
+		$tidy->cleanRepair();
+		$oai_dc_xml = $tidy;
+	
+		$xmlOAIDoc= new DomDocument();
+		$xmlOAIDoc->preserveWhiteSpace = false;
+		$xmlOAIDoc->loadXML($oai_dc_xml);
+//		echo $oai_dc_xml;
+		
+	
+		$oai_xpath = new DOMXPath($xmlOAIDoc);
+		$oai_xpath->registerNamespace('oai_dc', 'http://www.openarchives.org/OAI/2.0/oai_dc/');
+		$oai_xpath->registerNamespace('dc', 'http://purl.org/dc/elements/1.1/');
+		$oai_xpath->registerNamespace('d', 'http://www.openarchives.org/OAI/2.0/');
+
+		$formatNodes = $oai_xpath->query('//d:OAI-PMH/d:GetRecord/d:record/d:metadata/oai_dc:dc/dc:format');
+		$oai_ds = array();
+		foreach ($formatNodes as $format) {
+			$httpFind = "http://";
+			if (is_numeric(strpos($format->nodeValue, $httpFind))) {
+				array_push($oai_ds, substr($format->nodeValue, strpos($format->nodeValue, $httpFind)));
+			}
+		} 
+	  $xmlEnd = "";
+	  foreach($oai_ds as $ds) {
+			if (is_numeric(strpos($ds, "/"))) {
+				$short_ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
+			}
+			$short_ds = str_replace(" ", "_", $short_ds);
+			$mimetype = Misc::get_content_type($ds);
+
+			$xmlEnd.= '
+		<foxml:datastream ID="'.$short_ds.'" CONTROL_GROUP="M" STATE="A">
+			<foxml:datastreamVersion ID="'.$short_ds.'.0" MIMETYPE="'.$mimetype.'" LABEL="'.$short_ds.'">
+				<foxml:contentLocation REF="'.$ds.'" TYPE="URL"/>
+			</foxml:datastreamVersion>
+		</foxml:datastream>';
+	  }	  
+
+
+		$xmlObj = '<?xml version="1.0" ?>	
+		<foxml:digitalObject PID="'.$pid.'"
+		  fedoraxsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-0.xsd" xmlns:fedoraxsi="http://www.w3.org/2001/XMLSchema-instance"
+		  xmlns:foxml="info:fedora/fedora-system:def/foxml#" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+		  <foxml:objectProperties>
+			<foxml:property NAME="http://www.w3.org/1999/02/22-rdf-syntax-ns#type" VALUE="FedoraObject"/>
+			<foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
+			<foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Batch Import ePrint Record '.$key.'"/>
+		  </foxml:objectProperties>
+		  <foxml:datastream ID="DC" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+			<foxml:datastreamVersion MIMETYPE="text/xml" ID="DC1.0" LABEL="Dublin Core Record">
+				<foxml:xmlContent>
+					<oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+					  <dc:title>'.$importArray['confpaper'][$key]['title'][0].'</dc:title>
+					  ';
+					  if (is_array($authorArray[$key])) {
+						  foreach ($authorArray[$key] as $author) {
+			$xmlObj .= '<dc:creator>'.$author.'</dc:creator>
+						';					    
+						  }
+					   }
+					  if (is_array($importArray['confpaper'][$key]['subjects'])) {
+						  foreach ($importArray['confpaper'][$key]['subjects'] as $subject) {
+							  $xmlObj .= '
+					  <dc:subject>'.$subject.'</dc:subject>
+					  ';	    
+						  }
+					  }
+
+		  $xmlObj .= '<dc:description>'.$importArray['confpaper'][$key]['abstract'][0].'</dc:description>
+					  <dc:publisher>'.$importArray['confpaper'][$key]['publisher'][0].'</dc:publisher>
+					  <dc:contributor/>
+					  <dc:date>'.$importArray['confpaper'][$key]['datestamp'][0].'</dc:date>
+					  <dc:type>Conference Paper</dc:type>
+					  <dc:source/>
+					  <dc:language>English</dc:language>
+					  <dc:relation/>
+					  <dc:coverage/>
+					  <dc:rights/>
+					</oai_dc:dc>
+				</foxml:xmlContent>			
+			</foxml:datastreamVersion>
+		  </foxml:datastream>
+		  <foxml:datastream ID="RELS-EXT" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+			<foxml:datastreamVersion MIMETYPE="text/xml" ID="RELS-EXT.0" LABEL="Relationships to other objects">
+				<foxml:xmlContent>
+					<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+					  xmlns:rel="info:fedora/fedora-system:def/relations-external#" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+					  <rdf:description rdf:about="info:fedora/'.$pid.'">
+						<rel:isMemberOf rdf:resource="info:fedora/'.$collection_pid.'"/>
+					  </rdf:description>
+					</rdf:RDF>
+				</foxml:xmlContent>
+			</foxml:datastreamVersion>
+		  </foxml:datastream>
+		  <foxml:datastream ID="eSpaceMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+			<foxml:datastreamVersion MIMETYPE="text/xml" ID="eSpace1.0" LABEL="eSpace extension metadata">
+				<foxml:xmlContent>
+					<eSpaceMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+					  <xdis_id>'.$xdis_id.'</xdis_id>
+					  <sta_id>'.$sta_id.'</sta_id>
+					  <ret_id>'.$ret_id.'</ret_id>
+					  <publication>'.$importArray['confpaper'][$key]['publication'][0].'</publication>  
+					  <copyright>'.$importArray['confpaper'][$key]['note'][0].'</copyright> 
+					  ';
+					  if (is_array($keywordArray[$key])) {
+						  foreach ($keywordArray[$key] as $keyword) {
+$xmlObj .= '
+					   <keyword>'.$keyword.'</keyword>';
+						  }
+					  }
+				  $xmlObj .= '
+					</eSpaceMD>
+				</foxml:xmlContent>
+			</foxml:datastreamVersion>
+		  </foxml:datastream>
+  		  <foxml:datastream ID="ConferencePaperMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+			<foxml:datastreamVersion MIMETYPE="text/xml" ID="ConferencePaperMD1.0" LABEL="eSpace extension metadata for Conference Papers">
+				<foxml:xmlContent>
+					<ConferencePaperMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+					  <conference>'.$importArray['confpaper'][$key]['conference'][0].'</conference>
+					  <confdates>'.$importArray['confpaper'][$key]['confdates'][0].'</confdates>
+					  <confloc>'.$importArray['confpaper'][$key]['confloc'][0].'</confloc>
+					</ConferencePaperMD>
+				</foxml:xmlContent>
+			</foxml:datastreamVersion>
+		  </foxml:datastream>';
+		$xmlObj .= $xmlEnd;
+
+		  $xmlObj .= '
+		</foxml:digitalObject>
+		';
+	echo $xmlObj;
+	}
+exit();
+}
 
 function handleFOXMLImport($xmlObj) {
 	// xml is already in fedora object xml format so just add it
-//	Fedora_API::callIngestObject($xmlObj); 
+	Fedora_API::callIngestObject($xmlObj); 
 
 }
 
@@ -142,7 +400,7 @@ function handleMETSImport($pid, $xmlObj, $xmlBegin) {
 				  <dc:coverage/>
 				  <dc:rights/>
 				</oai_dc:dc>
-			</foxml:xmlContent>			
+			</foxml:xmlContent>
 		</foxml:datastreamVersion>
 	  </foxml:datastream>';
 	  }
@@ -150,9 +408,6 @@ function handleMETSImport($pid, $xmlObj, $xmlBegin) {
 	  $xmlBegin .= '	  
 	</foxml:digitalObject>
 	';
-
-	  
-//		echo $xmlBegin;
 
 	Fedora_API::callIngestObject($xmlBegin);
 	foreach($externalDatastreams as $ds) {
@@ -219,7 +474,6 @@ function handleStandardFileImport($pid, $full_name, $short_name, $xmlObj) {
 
 function insert() {
 	global $HTTP_POST_VARS;	
-//	echo $HTTP_POST_VARS['objectimport']; echo $HTTP_POST_VARS['directory'];
 	if ((!empty($HTTP_POST_VARS['objectimport'])) && (!empty($HTTP_POST_VARS['directory']))) {
 		//open the current directory
 		$xdis_id = 5; // standard fedora object
@@ -240,37 +494,33 @@ function insert() {
 				$filenames[$dir_name."/".$file] = $file;
 			}
 		}
-//		print_r($filenames);
 		foreach ($filenames as $full_name => $short_name) {
-//			echo $full_name; echo "\n\n<br />";
-//			echo $short_name; echo "\n\n<br />";
 			$pid = Fedora_API::getNextPID();
 			// Also need to add the espaceMD and RELS-EXT - espaceACML probably not necessary as it can be inhereted
 			// and the espaceMD can have status - 'freshly uploaded' or something.
 
 			$filename_ext = strtolower(substr($short_name, (strrpos($short_name, ".") + 1)));
 			if ($filename_ext == "xml") {
-//				echo "found an xml file!";
 				$xmlObj = file_get_contents($full_name);
-//				echo $xmlObj;
 				if (is_numeric(strpos($xmlObj, "foxml:digitalObject"))) {
-//					echo "found a foxml object!";
 					BatchImport::handleFOXMLImport($xmlObj);
+				} elseif (is_numeric(strpos($xmlObj, "<eprintsdata>"))) {
+					BatchImport::handleEntireEprintsImport($pid, $collection_pid, $xmlObj);
 				} elseif (is_numeric(strpos($xmlObj, "METS:mets"))) {
-//					echo "founc a mets object!";
 					$xmlBegin = BatchImport::ConvertMETSToFOXML($pid, $xmlObj, $collection_pid, $short_name, $xdis_id, $ret_id, $sta_id);
 					$xmlObj = BatchImport::handleMETSImport($pid, $xmlObj, $xmlBegin);
 					
 				} else { // just add it as a normal file if it is not foxml or mets
-//					echo "found a standard xml file";
-					$xmlObj = BatchImport::GenerateSingleFOXMLTemplate($pid, $parent_pid, $full_name, $xdis_id, $ret_id, $sta_id);
-					BatchImport::handleStandardFileImport($pid, $full_name, $short_name, $xmlObj);
+//					$xmlObj = BatchImport::GenerateSingleFOXMLTemplate($pid, $parent_pid, $full_name, $xdis_id, $ret_id, $sta_id);
+//					BatchImport::handleStandardFileImport($pid, $full_name, $short_name, $xmlObj);
 				}
 			} else {
+
 //				echo "found a standard file";
-				$xmlObj = BatchImport::GenerateSingleFOXMLTemplate($pid, $parent_pid, $full_name, $xdis_id, $ret_id, $sta_id);
-				BatchImport::handleStandardFileImport($pid, $full_name, $short_name, $xmlObj);
+//				$xmlObj = BatchImport::GenerateSingleFOXMLTemplate($pid, $parent_pid, $full_name, $xdis_id, $ret_id, $sta_id);
+//				BatchImport::handleStandardFileImport($pid, $full_name, $short_name, $xmlObj);
 			}
+
 //			echo $xmlObj;
 			// @@@ CK - 8/8/2005 - Also need to add details of this record into the espace resource index	
 			// Get the xsdmf details to save in the resource index

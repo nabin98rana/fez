@@ -3423,7 +3423,7 @@ class RecordObject extends RecordGeneral
 			$presmd_check = Workflow::checkForPresMD($dsIDName);
 			if ($presmd_check != false) {
 				Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, "text/xml", "X");
-			}				
+			}
 
 
 		} 

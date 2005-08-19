@@ -209,8 +209,9 @@ function purgeObject(pid)
 				<tr>
                     <td>
                        {if $list[i].creator}{$list[i].creator|escape:"html"}<br />{/if}
-                       {if $list[i].description}{$list[i].description|escape:"html"}<br />
-                       {else}{/if}
+                       {if $list[i].description}{$list[i].description|escape:"html"}...<br />{/if}
+                       {if $list[i].date}{$list[i].date|escape:"html"}<br />{/if}
+                       {if $list[i].type}{$list[i].type|escape:"html"}<br />{/if}   
 					   {if $list[i].ret_id == '3'}<b>Datastreams:</b> {section name="d" loop=$list[i].datastreams}<a href="{$eserv_url|cat:"?pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].datastreams[d]}">{$list[i].datastreams[d]}</a> {/section}{/if}
                     </td>
                   </tr>

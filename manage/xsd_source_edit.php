@@ -57,7 +57,6 @@ if ($isAdministrator) {
 	$list = Doc_Type_XSD::getXSDSource($xsd_id);
     $tpl->assign("list", $list[0]);
     $tpl->assign("xsd_id", $xsd_id);
-//    $tpl->assign("collection_list", Collection::getAll());
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }

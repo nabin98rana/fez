@@ -42,12 +42,15 @@ Auth::checkAuthentication(APP_SESSION);
 $tpl->assign("type", "doc_type_xsds");
 
 $isUser = Auth::getUsername();
+
 $tpl->assign("isUser", $isUser);
+
 $isAdministrator = User::isUserAdministrator($isUser);
+
 $tpl->assign("isAdministrator", $isAdministrator);
 
 if ($isAdministrator) {
-  
+
     if (@$HTTP_POST_VARS["cat"] == "new") {
         $tpl->assign("result", Doc_Type_XSD::insert());
     } elseif (@$HTTP_POST_VARS["cat"] == "update") {
@@ -59,9 +62,7 @@ if ($isAdministrator) {
     if (@$HTTP_GET_VARS["cat"] == "edit") {
         $tpl->assign("info", Doc_Type_XSD::getDetails($HTTP_GET_VARS["id"]));
     }
-
     $tpl->assign("list", Doc_Type_XSD::getList());
-    $tpl->assign("collection_list", Collection::getAll());
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }

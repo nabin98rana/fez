@@ -47,7 +47,7 @@ include_once(APP_INC_PATH . "class.prefs.php");
 include_once(APP_PEAR_PATH . "Date.php");
 
 if (!defined('APP_DEFAULT_TIMEZONE')) {
-    define('APP_DEFAULT_TIMEZONE', 'UTC');                                                                    
+    define('APP_DEFAULT_TIMEZONE', 'UTC');                                                        
 }
 define("SECOND", 1);
 define("MINUTE", SECOND * 60);
