@@ -41,7 +41,6 @@
 
 // this line needed to make sure PEAR knows all eventum dates are stored as UTC (GMT).
 $_DATE_TIMEZONE_DEFAULT = 'UTC';
-
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.prefs.php");
 include_once(APP_PEAR_PATH . "Date.php");

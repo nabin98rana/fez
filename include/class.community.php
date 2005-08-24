@@ -558,10 +558,14 @@ class Community
 				    r1.rmf_xsdmf_id = x1.xsdmf_id and 
                     rmf_rec_pid in (
 						SELECT r2.rmf_rec_pid 
-						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
-						WHERE rmf_xsdmf_id = 239 AND rmf_varchar = '1')										
+						FROM
+						  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
+						  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2,
+					      " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2  						
+						WHERE s2.sek_title = 'Object Type' AND x2.xsdmf_id = r2.rmf_xsdmf_id
+							AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_varchar = '1')		
 					";
-//		echo $stmt;			
+	
 		$returnfields = array("title", "description", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         //$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);

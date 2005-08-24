@@ -32,7 +32,7 @@
 //
 
 /**
- * Class to handle system object status's.
+ * Class to handle search keys.
  *
  * @version 1.0
  * @author Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>
@@ -46,11 +46,11 @@ include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.auth.php");
 
 
-class Status
+class Search_Key
 {
 
     /**
-     * Method used to remove a given list of statuss.
+     * Method used to remove a given list of search keys.
      *
      * @access  public
      * @return  boolean
@@ -61,9 +61,9 @@ class Status
 
         $items = @implode(", ", $HTTP_POST_VARS["items"]);
         $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "status
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
                  WHERE
-                    sta_id IN ($items)";
+                    sek_id IN ($items)";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -75,7 +75,7 @@ class Status
 
 
     /**
-     * Method used to add a new status to the system.
+     * Method used to add a new search key to the system.
      *
      * @access  public
      * @return  integer 1 if the insert worked, -1 otherwise
@@ -83,17 +83,28 @@ class Status
     function insert()
     {
         global $HTTP_POST_VARS;
+
+		if (@$HTTP_POST_VARS["sek_simple_used"]) {
+			$sek_simple_used = 1;
+		} else {
+			$sek_simple_used = 0;
+		}
+		if (@$HTTP_POST_VARS["sek_adv_visible"]) {
+			$sek_adv_visible = 1;
+		} else {
+			$sek_adv_visible = 0;
+		}
 		
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "status
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
                  (
-                    sta_title,
-					sta_order,
-					sta_color
+                    sek_title,
+					sek_simple_used,
+					sek_adv_visible
                  ) VALUES (
-                    '" . Misc::escapeString($HTTP_POST_VARS["sta_title"]) . "',
-					'" . Misc::escapeString($HTTP_POST_VARS["sta_order"]) . "',
-					'" . Misc::escapeString($HTTP_POST_VARS["sta_color"]) . "'					
+                    '" . Misc::escapeString($HTTP_POST_VARS["sek_title"]) . "',
+					" . $sek_simple_used .",
+					" . $sek_adv_visible ."					
                  )";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -105,23 +116,34 @@ class Status
     }
 
     /**
-     * Method used to update details of a status.
+     * Method used to update details of a search key.
      *
      * @access  public
-     * @param   integer $sta_id The status ID
+     * @param   integer $sek_id The search key ID
      * @return  integer 1 if the insert worked, -1 otherwise
      */
-    function update($sta_id)
+    function update($sek_id)
     {
         global $HTTP_POST_VARS;
 
+		if (@$HTTP_POST_VARS["sek_simple_used"]) {
+			$sek_simple_used = 1;
+		} else {
+			$sek_simple_used = 0;
+		}
+		if (@$HTTP_POST_VARS["sek_adv_visible"]) {
+			$sek_adv_visible = 1;
+		} else {
+			$sek_adv_visible = 0;
+		}
+
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "status
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
                  SET 
-                    sta_title = '" . Misc::escapeString($HTTP_POST_VARS["sta_title"]) . "',
-					sta_order = '" . Misc::escapeString($HTTP_POST_VARS["sta_order"]) . "',
-					sta_color = '" . Misc::escapeString($HTTP_POST_VARS["sta_color"]) . "'
-                 WHERE sta_id = $sta_id";
+                    sek_title = '" . Misc::escapeString($HTTP_POST_VARS["sek_title"]) . "',
+					sek_simple_used = ".$sek_simple_used.",
+					sek_adv_visible = ".$sek_adv_visible."
+                 WHERE sek_id = $sek_id";
 
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -134,20 +156,20 @@ class Status
 
 
     /**
-     * Method used to get the title of a specific status.
+     * Method used to get the title of a specific search key.
      *
      * @access  public
-     * @param   integer $sta_id The status ID
-     * @return  string The title of the status
+     * @param   integer $sek_id The search key ID
+     * @return  string The title of the search key
      */
-    function getTitle($sta_id)
+    function getTitle($sek_id)
     {
         $stmt = "SELECT
-                    sta_title
+                    sek_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "status
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
                  WHERE
-                    sta_id=$sta_id";
+                    sek_id=$sek_id";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 
         if (PEAR::isError($res)) {
@@ -160,21 +182,21 @@ class Status
 
 
     /**
-     * Method used to get the list of statuss available in the 
+     * Method used to get the list of search keys available in the 
      * system returned in an associative array for drop down lists.
      *
      * @access  public
-     * @return  array The list of statuss in an associative array (for drop down lists).
+     * @return  array The list of search keys in an associative array (for drop down lists).
      */
     function getAssocList()
     {
         $stmt = "SELECT
-                    sta_id,
-					sta_title
+                    sek_id,
+					sek_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "status
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
                  ORDER BY
-                    sta_title ASC";
+                    sek_title ASC";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -185,20 +207,20 @@ class Status
     }
 
     /**
-     * Method used to get the list of statuss available in the 
+     * Method used to get the list of search keys available in the 
      * system.
      *
      * @access  public
-     * @return  array The list of statuss 
+     * @return  array The list of search keys 
      */
     function getList()
     {
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "status
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
                  ORDER BY
-                    sta_order ASC";
+                    sek_title ASC";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -213,20 +235,20 @@ class Status
     }
 
     /**
-     * Method used to get the details of a specific status.
+     * Method used to get the details of a specific search key.
      *
      * @access  public
-     * @param   integer $sta_id The status ID
-     * @return  array The status details
+     * @param   integer $sek_id The search key ID
+     * @return  array The search key details
      */
-    function getDetails($sta_id)
+    function getDetails($sek_id)
     {
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "status
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
                  WHERE
-                    sta_id=$sta_id";
+                    sek_id=$sek_id";
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -240,6 +262,6 @@ class Status
 
 // benchmarking the included file (aka setup time)
 if (APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included Status Class');
+    $GLOBALS['bench']->setMarker('Included Search_Key Class');
 }
 ?>

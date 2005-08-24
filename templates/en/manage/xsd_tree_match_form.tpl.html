@@ -503,6 +503,16 @@
                 </td>
               </tr>
               <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Search Key:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+					<select name="xsdmf_sek_id" class="default">
+						<option value="">(no search key)</option>
+						{html_options options=$search_key_list selected=$info.xsdmf_sek_id}
+					</select>
+                </td>
+              </tr>			  
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default_white">
                   <b>Required?:</b>
@@ -512,7 +522,6 @@
                   <span class="small_default">(If this enabled tickbox is not ticked you the input form will not require this field)</span>
                 </td>
               </tr>
-              <tr>
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default_white">
                   <b>Multiple?:</b>

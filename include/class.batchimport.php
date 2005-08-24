@@ -71,7 +71,7 @@ var $externalDatastreams;
 
 function handleEntireEprintsImport($pid, $collection_pid, $xmlObj) {
 	$importArray = array();
-	$xdis_id = 5; // standard fedora object
+	$xdis_id = 40; // standard fedora object
 	$ret_id = 3; // standard record type id
 	$sta_id = 1; // standard status type id
 
@@ -236,7 +236,7 @@ function handleEntireEprintsImport($pid, $collection_pid, $xmlObj) {
 	  }	  
 
 
-		$xmlObj = '<?xml version="1.0" ?>	
+		$xmlObj = '<?xml version="1.0" ?>
 		<foxml:digitalObject PID="'.$pid.'"
 		  fedoraxsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-0.xsd" xmlns:fedoraxsi="http://www.w3.org/2001/XMLSchema-instance"
 		  xmlns:foxml="info:fedora/fedora-system:def/foxml#" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
@@ -317,8 +317,10 @@ $xmlObj .= '
 				<foxml:xmlContent>
 					<ConferencePaperMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
 					  <conference>'.$importArray['confpaper'][$key]['conference'][0].'</conference>
-					  <confdates>'.$importArray['confpaper'][$key]['confdates'][0].'</confdates>
+					  <conf_start_date/>
+					  <conf_end_date/>
 					  <confloc>'.$importArray['confpaper'][$key]['confloc'][0].'</confloc>
+					  <conf_details>'.$importArray['confpaper'][$key]['confdates'][0].'</conf_details>
 					</ConferencePaperMD>
 				</foxml:xmlContent>
 			</foxml:datastreamVersion>
@@ -328,7 +330,60 @@ $xmlObj .= '
 		  $xmlObj .= '
 		</foxml:digitalObject>
 		';
-	echo $xmlObj;
+//	echo $xmlObj;
+		$config = array(
+				'indent'         => true,
+				'input-xml'   => true,
+				'output-xml'   => true,
+				'wrap'           => 200);
+	
+		$tidy = new tidy;
+		$tidy->parseString($xmlObj, $config, 'utf8');
+		$tidy->cleanRepair();
+		$xmlObj = $tidy;
+
+		Fedora_API::callIngestObject($xmlObj);
+		foreach($oai_ds as $ds) {
+			$convert_check = Workflow::checkForImageFile($ds);
+			if ($convert_check != false) {
+				Fedora_API::getUploadLocationByLocalRef($pid, $convert_check, $convert_check, $convert_check, "", "M");
+				if (is_numeric(strpos($convert_check, "/"))) {
+					$convert_check = substr($convert_check, strrpos($convert_check, "/")+1); // take out any nasty slashes from the ds name itself
+				}
+				$convert_check = str_replace(" ", "_", $convert_check);
+				Record::insertIndexMatchingField($pid, 122, NULL, NULL, 'varchar', $convert_check); // add the thumbnail to the espace index				
+			}
+			$presmd_check = Workflow::checkForPresMD($ds); // we are not indexing presMD so just upload the presmd if found
+			if ($presmd_check != false) {
+				Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, "text/xml", "X");
+			}
+		
+		
+			if (is_numeric(strpos($ds, "/"))) {
+				$ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
+			}
+			$ds = str_replace(" ", "_", $ds);
+	//		echo $ds;
+			Record::insertIndexMatchingField($pid, 122, NULL, NULL, 'varchar', $ds); // add the thumbnail to the espace index				
+		}	  
+		$xmlnode = new DomDocument();
+		$xmlnode->loadXML($xmlObj);
+
+		$array_ptr = array();
+		$xsdmf_array = array();
+//			echo $xmlObj;
+		Misc::dom_xml_to_simple_array($xmlnode, $array_ptr, $xsd_top_element_name, $xsd_element_prefix, $xsdmf_array, $xdis_id);
+//			print_r($array_ptr);
+//			print_r($xsdmf_array);
+		
+		foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
+			if (!is_array($xsdmf_value) && !empty($xsdmf_value) && (trim($xsdmf_value) != "")) {
+				Record::insertIndexMatchingField($pid, $xsdmf_id, NULL, NULL, 'varchar', $xsdmf_value);
+			}
+		}
+
+
+		$pid = Fedora_API::getNextPID(); // get a new pid for the next loop
 	}
 exit();
 }

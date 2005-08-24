@@ -708,34 +708,6 @@ class Doc_Type_XSD
     }
 
 
-    /**
-     * Method used to associate a custom field to a project.
-     *
-     * @access  public
-     * @param   integer $prj_id The project ID
-     * @param   integer $fld_id The custom field ID
-     * @return  boolean
-     */
-    function associateCollection($prj_id, $fld_id)
-    {
-        $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "project_custom_field
-                 (
-                    pcf_prj_id,
-                    pcf_fld_id
-                 ) VALUES (
-                    $prj_id,
-                    $fld_id
-                 )";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
-            return true;
-        }
-    }
-
 
     /**
      * Method used to get the list of custom fields available in the 
@@ -804,35 +776,6 @@ class Doc_Type_XSD
     }
 
 
-    /**
-     * Method used to get the list of associated projects with a given
-     * custom field ID.
-     *
-     * @access  public
-     * @param   integer $fld_id The project ID
-     * @return  array The list of associated projects
-     */
-    function getAssociatedCollections($fld_id)
-    {
-        $stmt = "SELECT
-                    prj_id,
-                    prj_title
-                 FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "project,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "project_custom_field
-                 WHERE
-                    pcf_prj_id=prj_id AND
-                    pcf_fld_id=$fld_id
-                 ORDER BY
-                    prj_title ASC";
-        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }
 
 
     /**
@@ -855,42 +798,11 @@ class Doc_Type_XSD
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-/*            $res["projects"] = @array_keys(Doc_Type_XSD::getAssociatedCollections($fld_id));
-            $t = array();
-            $options = Doc_Type_XSD::getOptions($fld_id);
-            foreach ($options as $cfo_id => $cfo_value) {
-                $res["field_options"]["existing:" . $cfo_id . ":" . $cfo_value] = $cfo_value;
-            } */
             return $res;
         }
     }
 
 
-    /**
-     * Method used to get the details of a specific custom field.
-     *
-     * @@@ CK - 13/8/2004 - added so custom field reports could use the getGridCustomFieldReport function and get the ID from this function
-     *
-     * @access  public
-     * @param   integer $fld_id The custom field ID
-     * @return  array The custom field details
-     */
-    function getID($fld_title)
-    {
-        $stmt = "SELECT
-                    fld_id
-                 FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "custom_field
-                 WHERE
-                    fld_title='$fld_title'";
-        $res = $GLOBALS["db_api"]->dbh->getOne($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }
 
     /**
      * Method used to get the details of a specific custom field.
@@ -917,35 +829,6 @@ class Doc_Type_XSD
 
 
 
-    /**
-     * Method used to get the list of custom field options associated
-     * with a given custom field ID.
-     *
-     * @access  public
-     * @param   integer $fld_id The custom field ID
-     * @return  array The list of custom field options
-     * @@@ CK - changed order by to cfo_value instead of cfo_id as per request in eventum issue 1647
-     */
-    function getOptions($fld_id)
-    {
-        $stmt = "SELECT
-                    cfo_id,
-                    cfo_value
-                 FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "custom_field_option
-                 WHERE
-                    cfo_fld_id=$fld_id
-                 ORDER BY
-                    cfo_value ASC";
-        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }
-
 
     /**
      * Method used to parse the special format used in the combo boxes
@@ -971,142 +854,6 @@ class Doc_Type_XSD
                 "id"    => substr($value, 0, strpos($value, ":")),
                 "value" => substr($value, strpos($value, ":")+1)
             );
-        }
-    }
-
-
-    /**
-     * Method used to update the details for a specific custom field.
-     *
-     * @access  public
-     * @return  integer 1 if the update worked, -1 otherwise
-     */
-/*    function update()
-    {
-        global $HTTP_POST_VARS;
-
-        if (empty($HTTP_POST_VARS["report_form"])) {
-            $HTTP_POST_VARS["report_form"] = 0;
-        }
-        if (empty($HTTP_POST_VARS["report_form_required"])) {
-            $HTTP_POST_VARS["report_form_required"] = 0;
-        }
-        if (empty($HTTP_POST_VARS["anon_form"])) {
-            $HTTP_POST_VARS["anon_form"] = 0;
-        }
-        if (empty($HTTP_POST_VARS["anon_form_required"])) {
-            $HTTP_POST_VARS["anon_form_required"] = 0;
-        }
-        $old_details = Doc_Type_XSD::getDetails($HTTP_POST_VARS["id"]);
-        $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "custom_field
-                 SET
-                    fld_title='" . Misc::escapeString($HTTP_POST_VARS["title"]) . "',
-                    fld_description='" . Misc::escapeString($HTTP_POST_VARS["description"]) . "',
-                    fld_type='" . Misc::escapeString($HTTP_POST_VARS["field_type"]) . "',
-                    fld_report_form=" . $HTTP_POST_VARS["report_form"] . ",
-                    fld_report_form_required=" . $HTTP_POST_VARS["report_form_required"] . ",
-                    fld_anonymous_form=" . $HTTP_POST_VARS["anon_form"] . ",
-                    fld_anonymous_form_required=" . $HTTP_POST_VARS["anon_form_required"] . "
-                 WHERE
-                    fld_id=" . $HTTP_POST_VARS["id"];
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-            // if the current custom field is a combo box, get all of the current options
-            if (in_array($HTTP_POST_VARS["field_type"], array('combo', 'multiple'))) {
-                $stmt = "SELECT
-                            cfo_id
-                         FROM
-                            " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "custom_field_option
-                         WHERE
-                            cfo_fld_id=" . $HTTP_POST_VARS["id"];
-                $current_options = $GLOBALS["db_api"]->dbh->getCol($stmt);
-            }
-            // gotta remove all custom field options if the field is being changed from a combo box to a text field
-            if (($old_details["fld_type"] != $HTTP_POST_VARS["field_type"]) &&
-                      (!in_array($old_details['fld_type'], array('text', 'textarea'))) &&
-                      (!in_array($HTTP_POST_VARS["field_type"], array('combo', 'multiple')))) {
-                Doc_Type_XSD::removeOptionsByFields($HTTP_POST_VARS["id"]);
-            }
-            // update the custom field options, if any
-            if (($HTTP_POST_VARS["field_type"] == "combo") || ($HTTP_POST_VARS["field_type"] == "multiple")) {
-                $updated_options = array();
-                foreach ($HTTP_POST_VARS["field_options"] as $option_value) {
-                    $params = Doc_Type_XSD::parseParameters($option_value);
-                    if ($params["type"] == 'new') {
-                        Doc_Type_XSD::addOptions($HTTP_POST_VARS["id"], $params["value"]);
-                    } else {
-                        $updated_options[] = $params["id"];
-                        // check if the user is trying to update the value of this option
-                        if ($params["value"] != Doc_Type_XSD::getOptionValue($HTTP_POST_VARS["id"], $params["id"])) {
-                            Doc_Type_XSD::updateOption($params["id"], $params["value"]);
-                        }
-                    }
-                }
-            }
-            // get the diff between the current options and the ones posted by the form
-            // and then remove the options not found in the form submissions
-            if (in_array($HTTP_POST_VARS["field_type"], array('combo', 'multiple'))) {
-                $diff_ids = @array_diff($current_options, $updated_options);
-                if (@count($diff_ids) > 0) {
-                    Doc_Type_XSD::removeOptions($HTTP_POST_VARS['id'], array_values($diff_ids));
-                }
-            }
-            // now we need to check for any changes in the project association of this custom field
-            // and update the mapping table accordingly
-            $old_proj_ids = @array_keys(Doc_Type_XSD::getAssociatedCollections($HTTP_POST_VARS["id"]));
-            // COMPAT: this next line requires PHP > 4.0.4
-            $diff_ids = @array_diff($old_proj_ids, $HTTP_POST_VARS["projects"]);
-            for ($i = 0; $i < count($diff_ids); $i++) {
-                $fld_ids = @Doc_Type_XSD::getFieldsByCollection($diff_ids[$i]);
-                if (count($fld_ids) > 0) {
-                    Doc_Type_XSD::removeRecordAssociation($fld_ids);
-                }
-            }
-            // update the project associations now
-            $stmt = "DELETE FROM
-                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "project_custom_field
-                     WHERE
-                        pcf_fld_id=" . $HTTP_POST_VARS["id"];
-            $res = $GLOBALS["db_api"]->dbh->query($stmt);
-            if (PEAR::isError($res)) {
-                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-                return -1;
-            } else {
-                for ($i = 0; $i < count($HTTP_POST_VARS["projects"]); $i++) {
-                    Doc_Type_XSD::associateCollection($HTTP_POST_VARS["projects"][$i], $HTTP_POST_VARS["id"]);
-                }
-            }
-            return 1;
-        }
-    }
-*/
-
-    /**
-     * Method used to get the list of custom fields associated with a
-     * given project.
-     *
-     * @access  public
-     * @param   integer $prj_id The project ID
-     * @return  array The list of custom fields
-     */
-    function getFieldsByCollection($prj_id)
-    {
-        $stmt = "SELECT
-                    pcf_fld_id
-                 FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "project_custom_field
-                 WHERE
-                    pcf_prj_id=$prj_id";
-        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return array();
-        } else {
-            return $res;
         }
     }
 
@@ -1199,30 +946,6 @@ class Doc_Type_XSD
 //        }
     }
 
-
-    /**
-     * Method used to remove all custom fields associated with 
-     * a given set of projects.
-     *
-     * @access  public
-     * @param   array $ids The array of project IDs
-     * @return  boolean
-     */
-    function removeByCollections($ids)
-    {
-        $items = implode(", ", $ids);
-        $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "project_custom_field
-                 WHERE
-                    pcf_prj_id IN ($items)";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
-            return true;
-        }
-    }
 }
 
 // benchmarking the included file (aka setup time)

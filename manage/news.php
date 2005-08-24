@@ -30,19 +30,21 @@
 include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
-include_once(APP_INC_PATH . "class.project.php");
 include_once(APP_INC_PATH . "class.news.php");
 include_once(APP_INC_PATH . "db_access.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");
 
-Auth::checkAuthentication(APP_SESSION);
+//Auth::checkAuthentication(APP_SESSION);
 
 $tpl->assign("type", "news");
+$isUser = Auth::getUsername();
+$tpl->assign("isUser", $isUser);
+$isAdministrator = User::isUserAdministrator($isUser);
+$tpl->assign("isAdministrator", $isAdministrator);
 
-$role_id = User::getRoleByUser(Auth::getUserID());
-if (($role_id == User::getRoleID('administrator')) || ($role_id == User::getRoleID('manager'))) {
+if ($isAdministrator) {
     if ($role_id == User::getRoleID('administrator')) {
         $tpl->assign("show_setup_links", true);
     }
@@ -59,8 +61,8 @@ if (($role_id == User::getRoleID('administrator')) || ($role_id == User::getRole
         $tpl->assign("info", News::getDetails($HTTP_GET_VARS["id"]));
     }
 
-    $tpl->assign("list", News::getList());
-    $tpl->assign("project_list", Project::getAll());
+    $tpl->assign("list", News::getListAll());
+//    $tpl->assign("project_list", Project::getAll());
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }

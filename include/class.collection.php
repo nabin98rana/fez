@@ -88,40 +88,6 @@ class Collection
         }
     }
 
-
-    /**
-     * Method used to remove a given set of collections from the system.
-     *
-     * @access  public
-     * @return  boolean
-     */
-    function remove()
-    {
-        global $HTTP_POST_VARS;
-
-        $items = @implode(", ", $HTTP_POST_VARS["items"]);
-        $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "collection
-                 WHERE
-                    col_id IN ($items)";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
-            Collection::removeUserByCollections($HTTP_POST_VARS["items"]);
-            Category::removeByCollections($HTTP_POST_VARS["items"]);
-            Record::removeByCollections($HTTP_POST_VARS["items"]);
-            Custom_Field::removeByCollections($HTTP_POST_VARS["items"]);
-            $statuses = array_keys(Status::getAssocStatusList($HTTP_POST_VARS["items"]));
-            foreach ($HTTP_POST_VARS["items"] as $col_id) {
-                Status::removeCollectionAssociations($statuses, $col_id);
-            }
-            return true;
-        }
-    }
-
-
     /**
      * Method used to get the parents of a given collection available in the 
      * system.
@@ -159,18 +125,17 @@ class Collection
      */
     function getList($community_pid=false)
     {
-        // magic numbers used below
-        $ret_id_xsdmf_id = 242;
-        // 242 - ret_id, eSpaceMD Collection - static text = 2, xpath /eSpaceMD/ret_id
-        $isMemberOf_xsdmf_id = 91;
-        // 91 - Member of Communities, Fedora RELS-EXT, xpath /RDF/description/isMemberOf/resource
 
         // Should we restrict the list to a community.
         if ($community_pid) {
             $community_where = "	and r2.rmf_rec_pid in (
 	 						SELECT r3.rmf_rec_pid 
-							FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3
-							WHERE r3.rmf_xsdmf_id = $isMemberOf_xsdmf_id AND r3.rmf_varchar = '$community_pid'
+							FROM  
+							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3,
+							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x3,
+							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s3
+							WHERE x3.xsdmf_sek_id = s3.sek_id AND s3.sek_title = 'isMemberOf' AND x3.xsdmf_id = r3.rmf_xsdmf_id 
+							  AND r3.rmf_varchar = '$community_pid'
 							)";
         } else {
             // list all collections 
@@ -187,8 +152,11 @@ class Collection
 				    r1.rmf_xsdmf_id = x1.xsdmf_id and
                     r1.rmf_rec_pid in (
 						SELECT r2.rmf_rec_pid 
-						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
-						WHERE r2.rmf_xsdmf_id = $ret_id_xsdmf_id AND r2.rmf_varchar = '2' $community_where )
+						FROM  
+						  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
+						  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,
+ 						  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2				  
+						WHERE r2.rmf_xsdmf_id = x2.xsdmf_id AND x2.xsdmf_sek_id = s2.sek_id AND s2.sek_title = 'Object Type' AND r2.rmf_varchar = '2' $community_where )
 					";
 
 		$returnfields = array("title", "description", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
@@ -211,7 +179,7 @@ class Collection
 		foreach ($return as $pid_key => $row) {
 			if (!is_array(@$row['eSpaceACML'])) {
 				$parentsACMLs = array();
-				Auth::getIndexParentACMLs(&$parentsACMLs, $pid_key);			
+				Auth::getIndexParentACMLs(&$parentsACMLs, $pid_key);
 				$return[$pid_key]['eSpaceACML'] = $parentsACMLs;
 			}
 		}
@@ -264,13 +232,18 @@ class Collection
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
 				INNER JOIN (
 						SELECT distinct r2.rmf_rec_pid 
-						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
-						WHERE r2.rmf_xsdmf_id = $ret_id_xsd_mf AND r2.rmf_varchar = '3' and r2.rmf_rec_pid in (
+						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
+							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,
+							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2  							  
+						WHERE r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND s2.sek_title = 'Object Type' AND r2.rmf_varchar = '3' and r2.rmf_rec_pid in (
 	 						SELECT distinct r3.rmf_rec_pid 
-							FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3
-							WHERE r3.rmf_xsdmf_id = $isMemberOf_xsdmf_id AND r3.rmf_varchar = '".$collection_pid."'
+							FROM  
+							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3,
+							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x3,
+							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s3							  							  
+							WHERE r3.rmf_xsdmf_id = x3.xsdmf_id AND s3.sek_id = x3.xsdmf_sek_id AND s3.sek_title = 'isMemberOf' AND r3.rmf_varchar = '".$collection_pid."'
 						 	) limit $start, $max
-						) as r2 on r1.rmf_rec_pid = r2.rmf_rec_pid					
+						) as r2 on r1.rmf_rec_pid = r2.rmf_rec_pid
                  WHERE
 				    r1.rmf_xsdmf_id = x1.xsdmf_id
 				 ORDER BY
@@ -285,11 +258,16 @@ class Collection
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
 				INNER JOIN (
 						SELECT distinct r2.rmf_rec_pid 
-						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
-						WHERE r2.rmf_xsdmf_id = $ret_id_xsd_mf AND r2.rmf_varchar = '3' and r2.rmf_rec_pid in (
+						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
+							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,
+							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2 
+						WHERE r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND s2.sek_title = 'Object Type' AND r2.rmf_varchar = '3' and r2.rmf_rec_pid in (
 	 						SELECT distinct r3.rmf_rec_pid 
-							FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3
-							WHERE r3.rmf_xsdmf_id = $isMemberOf_xsdmf_id AND r3.rmf_varchar = '".$collection_pid."'
+							FROM  
+							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3,
+							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x3,
+							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s3							  							  
+							WHERE r3.rmf_xsdmf_id = x3.xsdmf_id AND s3.sek_id = x3.xsdmf_sek_id AND s3.sek_title = 'isMemberOf' AND r3.rmf_varchar = '".$collection_pid."'
 						 	) 
 						) as r2 on r1.rmf_rec_pid = r2.rmf_rec_pid					
                  WHERE

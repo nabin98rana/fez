@@ -1635,7 +1635,7 @@ class Record
                 	$stmt .= $xsdsel_id . ", ";
 				}
 					if ($data_type != "int") {
-            			$stmt .= "'".$value . "')";
+            			$stmt .= "'".Misc::escapeString($value) . "')";
 					} else {
             			$stmt .= $value . ")";
 					}

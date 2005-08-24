@@ -13,11 +13,6 @@
                       selectField(f, 'title');
                       return false;
                   }
-                  if (!hasOneSelected(f, 'projects[]')) {
-                      alert('Please assign the appropriate teams for this news entry.');
-                      selectField(f, 'projects[]');
-                      return false;
-                  }
                   return true;
               }
               //-->
@@ -62,17 +57,6 @@
                 </td>
               </tr>
               {/if}
-              <tr>
-                <td width="140" bgcolor="{$cell_color}" class="default_white">
-                  <nobr><b>Assigned Teams:</b></nobr>
-                </td>
-                <td bgcolor="{$light_color}">
-                  <select name="projects[]" multiple size="3" class="default">
-                  {html_options options=$project_list selected=$info.projects}
-                  </select>
-                  {include file="error_icon.tpl.html" field="projects[]"}
-                </td>
-              </tr>
               <tr>
                 <td width="140" bgcolor="{$cell_color}" class="default_white">
                   <b>Status:</b>
@@ -143,33 +127,47 @@
                     <input type="hidden" name="cat" value="delete">
                     <tr>
                       <td width="4" bgcolor="{$cell_color}" nowrap>&nbsp;</td>
-                      <td width="40%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Title</b></td>
-                      <td width="40%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Teams</b></td>
-                      <td width="20%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Status</b></td>
+                      <td width="25%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Title</b></td>
+                      <td width="15%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Status</b></td>
+                      <td width="15%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Posted By</b></td>					  
+                      <td width="15%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Created Date</b></td>
+                      <td width="15%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Updated Date</b></td>					  					  
+                      <td width="15%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Published Date</b></td>					  					  
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
                     <tr>
                       <td width="4" nowrap bgcolor="{$row_color}"><input type="checkbox" name="items[]" value="{$list[i].nws_id}"></td>
-                      <td width="40%" bgcolor="{$row_color}" class="default">
+                      <td width="25%" bgcolor="{$row_color}" class="default">
                         &nbsp;<a class="link" href="{$smarty.server.PHP_SELF}?cat=edit&id={$list[i].nws_id}" title="update this entry">{$list[i].nws_title}</a>
                       </td>
-                      <td width="40%" bgcolor="{$row_color}" class="default">
-                        &nbsp;{$list[i].projects|escape:"html"}
+                      <td width="15%" bgcolor="{$row_color}" class="default">
+                        &nbsp;{if ($list[i].nws_status == 'active')}<font color="green">{else}<font color="red">{/if}{$list[i].nws_status|escape:"html"}</font>
                       </td>
-                      <td width="20%" bgcolor="{$row_color}" class="default">
-                        &nbsp;{$list[i].nws_status|escape:"html"}
+                      <td width="15%" bgcolor="{$row_color}" class="default">
+                        &nbsp;{$list[i].usr_full_name|escape:"html"}
                       </td>
+
+                      <td width="15%" bgcolor="{$row_color}" class="default">
+                        &nbsp;{$list[i].nws_created_date}
+                      </td>
+                      <td width="15%" bgcolor="{$row_color}" class="default">
+                        &nbsp;{$list[i].nws_updated_date}
+                      </td>
+                      <td width="15%" bgcolor="{$row_color}" class="default">
+                        &nbsp;{$list[i].nws_published_date}
+                      </td>
+
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="4" bgcolor="{$light_color}" align="center" class="default">
+                      <td colspan="7" bgcolor="{$light_color}" align="center" class="default">
                         No news entries could be found.
                       </td>
                     </tr>
                     {/section}
                     <tr>
-                      <td colspan="4" bgcolor="{$cell_color}" align="center">
+                      <td colspan="7" bgcolor="{$cell_color}" align="center">
                         <input type="submit" value="Delete" class="button">
                       </td>
                     </tr>

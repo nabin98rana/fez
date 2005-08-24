@@ -360,6 +360,33 @@ class XSD_Loop_Subelement
      * @param   integer $xdis_id The XSD Display ID
      * @return  array The list of matching fields fields
      */
+    function getSimpleListByXSDMF($xsdmf_id)
+    {
+        $stmt = "SELECT
+					*
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement
+                 WHERE
+                    xsdsel_xsdmf_id=$xsdmf_id";
+		$stmt .= " ORDER BY xsdsel_order ASC";
+
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
+
+    /**
+     * Method used to get the list of custom fields associated with
+     * a given display id.
+     *
+     * @access  public
+     * @param   integer $xdis_id The XSD Display ID
+     * @return  array The list of matching fields fields
+     */
     function getSELIDsByXSDMF($xsdmf_id)
     {
         $stmt = "SELECT
@@ -850,6 +877,47 @@ class XSD_Loop_Subelement
                     Misc::escapeString($HTTP_POST_VARS["xsdsel_order"]) . "
                  )";
 //		echo $stmt;
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+			//
+        }
+    }
+
+    /**
+     * Method used to add a new custom field to the system.
+     *
+     * @access  public
+     * @return  integer 1 if the insert worked, -1 otherwise
+     */
+    function insertFromArray($xsdmf_id, $insertArray)
+    {
+        global $HTTP_POST_VARS;
+
+        $stmt = "INSERT INTO
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement
+                 (
+                    xsdsel_xsdmf_id,
+                    xsdsel_title,
+                    xsdsel_type,";
+			if (is_numeric($insertArray["xsdsel_attribute_loop_xsdmf_id"])) {
+//                $stmt .= "xsdsel_attribute_loop_xsdmf_id,";
+			}
+				$stmt .="
+					xsdsel_order
+                 ) VALUES (
+                    " . $xsdmf_id . ",
+                    '" . Misc::escapeString($insertArray["xsdsel_title"]) . "',
+                    '" . Misc::escapeString($insertArray["xsdsel_type"]) . "',";
+			if (is_numeric($insertArray["xsdsel_attribute_loop_xsdmf_id"])) {
+//               $stmt .=  Misc::escapeString($insertArray["xsdsel_attribute_loop_xsdmf_id"]) . ",";
+			}
+               $stmt .=
+                    Misc::escapeString($insertArray["xsdsel_order"]) . "
+                 )";
+		//echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

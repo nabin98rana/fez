@@ -25,12 +25,11 @@
 // | Authors: João Prado Maia <jpm@mysql.com>                             |
 // +----------------------------------------------------------------------+
 //
-// @(#) $Id: s.statuses.php 1.1 03/08/12 20:02:58-00:00 jpm $
+// @(#) $Id: s.doc_type_xsds.php 1.2 03/07/14 04:55:26-00:00 jpm $
 //
 include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
-include_once(APP_INC_PATH . "class.project.php");
 include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "db_access.php");
 
@@ -41,16 +40,17 @@ Auth::checkAuthentication(APP_SESSION);
 
 $tpl->assign("type", "statuses");
 
-$role_id = User::getRoleByUser(Auth::getUserID());
-if (($role_id == User::getRoleID('administrator')) || ($role_id == User::getRoleID('manager'))) {
-    if ($role_id == User::getRoleID('administrator')) {
-        $tpl->assign("show_setup_links", true);
-    }
+$isUser = Auth::getUsername();
+$tpl->assign("isUser", $isUser);
+$isAdministrator = User::isUserAdministrator($isUser);
+$tpl->assign("isAdministrator", $isAdministrator);
 
+if ($isAdministrator) {
+  
     if (@$HTTP_POST_VARS["cat"] == "new") {
         $tpl->assign("result", Status::insert());
     } elseif (@$HTTP_POST_VARS["cat"] == "update") {
-        $tpl->assign("result", Status::update());
+        $tpl->assign("result", Status::update($HTTP_POST_VARS["id"]));
     } elseif (@$HTTP_POST_VARS["cat"] == "delete") {
         Status::remove();
     }
@@ -60,7 +60,6 @@ if (($role_id == User::getRoleID('administrator')) || ($role_id == User::getRole
     }
 
     $tpl->assign("list", Status::getList());
-    $tpl->assign("project_list", Project::getAll());
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }

@@ -28,71 +28,11 @@
 // @(#) $Id: s.class.news.php 1.2 04/01/15 18:55:27-00:00 jpradomaia $
 //
 
+include_once(APP_INC_PATH . "class.date.php");
+
 
 class News
 {
-    /**
-     * Method used to get the list of news entries available in the
-     * system for a given project.
-     *
-     * @access  public
-     * @param   integer $prj_id The project ID
-     * @return  array The list of news entries
-     */
-    function getListByProject($prj_id, $show_full_message = FALSE)
-    {
-        $stmt = "SELECT
-                    *
-                 FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "news,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "project_news
-                 WHERE
-                    prn_nws_id=nws_id AND
-                    prn_prj_id=$prj_id AND
-                    nws_status='active'
-                 ORDER BY
-                    nws_created_date DESC
-                 LIMIT
-                    0, 3";
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            for ($i = 0; $i < count($res); $i++) {
-                $res[$i]['nws_created_date'] = Date_API::getSimpleDate($res[$i]["nws_created_date"]);
-				// @@@ CK - 18/10/2004 - want to show the full news for now..
-/*                if ((!$show_full_message) && (strlen($res[$i]['nws_message']) > 255)) {
-                    $res[$i]['nws_message'] = substr($res[$i]['nws_message'], 0, 255) . '...';
-                } */
-            }
-            return $res;
-        }
-    }
-
-
-    /**
-     * Method used to add a project association to a news entry.
-     *
-     * @access  public
-     * @param   integer $nws_id The news ID
-     * @param   integer $prj_id The project ID
-     * @return  void
-     */
-    function addProjectAssociation($nws_id, $prj_id)
-    {
-        $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "project_news
-                 (
-                    prn_nws_id,
-                    prn_prj_id
-                 ) VALUES (
-                    $nws_id,
-                    $prj_id
-                 )";
-        $GLOBALS["db_api"]->dbh->query($stmt);
-    }
-
 
     /**
      * Method used to add a news entry to the system.
@@ -116,13 +56,23 @@ class News
                     nws_usr_id,
                     nws_created_date,
                     nws_title,
-                    nws_message,
+                    nws_message,";
+			if ($HTTP_POST_VARS["status"] == "active") {
+				$stmt .= "nws_published_date,";
+			}
+			$stmt .= "
                     nws_status
                  ) VALUES (
                     " . Auth::getUserID() . ",
                     '" . Date_API::getCurrentDateGMT() . "',
                     '" . Misc::escapeString($HTTP_POST_VARS["title"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["message"]) . "',
+                    '" . Misc::escapeString($HTTP_POST_VARS["message"]) . "',";
+				if ($HTTP_POST_VARS["status"] == "active") {
+					$stmt .= "
+					'" . Date_API::getCurrentDateGMT() . "',";
+				}
+
+					$stmt .= "
                     '" . Misc::escapeString($HTTP_POST_VARS["status"]) . "'
                  )";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -130,11 +80,6 @@ class News
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-            $new_news_id = $GLOBALS["db_api"]->get_last_insert_id();
-            // now populate the project-news mapping table
-            foreach ($HTTP_POST_VARS['projects'] as $prj_id) {
-                News::addProjectAssociation($new_news_id, $prj_id);
-            }
             return 1;
         }
     }
@@ -160,39 +105,6 @@ class News
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return false;
         } else {
-            News::removeProjectAssociations($HTTP_POST_VARS['items']);
-            return true;
-        }
-    }
-
-
-    /**
-     * Method used to remove the project associations for a given
-     * news entry.
-     *
-     * @access  public
-     * @param   integer $nws_id The news ID
-     * @param   integer $prj_id The project ID
-     * @return  boolean
-     */
-    function removeProjectAssociations($nws_id, $prj_id=FALSE)
-    {
-        if (!is_array($nws_id)) {
-            $nws_id = array($nws_id);
-        }
-        $items = @implode(", ", $nws_id);
-        $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "project_news
-                 WHERE
-                    prn_nws_id IN ($items)";
-        if ($prj_id) {
-            $stmt .= " AND prn_prj_id=$prj_id";
-        }
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
             return true;
         }
     }
@@ -208,6 +120,10 @@ class News
     {
         global $HTTP_POST_VARS;
 
+		// get existing details for the publish date condition
+		$existing_res = News::getDetails($HTTP_POST_VARS["id"]);
+
+
         if (Validation::isWhitespace($HTTP_POST_VARS["title"])) {
             return -2;
         }
@@ -219,7 +135,14 @@ class News
                  SET
                     nws_title='" . Misc::escapeString($HTTP_POST_VARS["title"]) . "',
                     nws_message='" . Misc::escapeString($HTTP_POST_VARS["message"]) . "',
-                    nws_status='" . Misc::escapeString($HTTP_POST_VARS["status"]) . "'
+                    nws_status='" . Misc::escapeString($HTTP_POST_VARS["status"]) . "',
+					";
+				if (($HTTP_POST_VARS["status"] == "active") && ($existing_res['published_date'] != '0000-00-00 00:00:00')) {
+					$stmt .= "
+					nws_published_date = '" . Date_API::getCurrentDateGMT() . "',";
+				}
+					$stmt .= "
+                    nws_updated_date='" . Date_API::getCurrentDateGMT() . "'					
                  WHERE
                     nws_id=" . $HTTP_POST_VARS["id"];
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -227,11 +150,6 @@ class News
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-            // remove all of the associations with projects, then add them all again
-            News::removeProjectAssociations($HTTP_POST_VARS['id']);
-            foreach ($HTTP_POST_VARS['projects'] as $prj_id) {
-                News::addProjectAssociation($HTTP_POST_VARS['id'], $prj_id);
-            }
             return 1;
         }
     }
@@ -257,8 +175,6 @@ class News
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-            // get all of the project associations here as well
-            $res['projects'] = array_keys(News::getAssociatedProjects($res['nws_id']));
             return $res;
         }
     }
@@ -273,54 +189,57 @@ class News
     function getList()
     {
         $stmt = "SELECT
-                    nws_id,
-                    nws_title,
-                    nws_status
+					*
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "news
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "news,
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user					
+				 WHERE nws_status = 'active' and usr_id = nws_usr_id
                  ORDER BY
-                    nws_title ASC";
+                    nws_created_date DESC";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-            // get the list of associated projects
-            for ($i = 0; $i < count($res); $i++) {
-                $res[$i]['projects'] = implode(", ", array_values(News::getAssociatedProjects($res[$i]['nws_id'])));
-            }
+			foreach ($res as $key => $row) {			
+			  $res[$key]["nws_created_date"] = Date_API::getFormattedDate($res[$key]["nws_created_date"]);
+			  $res[$key]["nws_updated_date"] = Date_API::getFormattedDate($res[$key]["nws_updated_date"]);
+			  $res[$key]["nws_published_date"] = Date_API::getFormattedDate($res[$key]["nws_published_date"]);
+			}
             return $res;
         }
     }
-
 
     /**
-     * Method used to get the list of associated projects for a given
-     * news entry.
+     * Method used to get the list of news entries available in the system.
      *
      * @access  public
-     * @param   integer $nws_id The news ID
-     * @return  array The list of projects
+     * @return  array The list of news entries
      */
-    function getAssociatedProjects($nws_id)
+    function getListAll()
     {
         $stmt = "SELECT
-                    prj_id,
-                    prj_title
+					*
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "project,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "project_news
-                 WHERE
-                    prj_id=prn_prj_id AND
-                    prn_nws_id=$nws_id";
-        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "news,
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user					
+				 WHERE usr_id = nws_usr_id
+                 ORDER BY
+                    nws_created_date DESC";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return array();
+            return "";
         } else {
+			foreach ($res as $key => $row) {			
+			  $res[$key]["nws_created_date"] = Date_API::getFormattedDate($res[$key]["nws_created_date"]);
+			  $res[$key]["nws_updated_date"] = Date_API::getFormattedDate($res[$key]["nws_updated_date"]);
+			  $res[$key]["nws_published_date"] = Date_API::getFormattedDate($res[$key]["nws_published_date"]);
+			}
             return $res;
         }
     }
+
 }
 
 // benchmarking the included file (aka setup time)

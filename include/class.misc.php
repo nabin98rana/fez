@@ -37,10 +37,12 @@
  * @version 1.0
  * @author João Prado Maia <jpm@mysql.com>
  */
+
 include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
+
 include_once(APP_INC_PATH . "class.xsd_display.php");
 include_once(APP_INC_PATH . "class.xsd_loop_subelement.php");
 include_once(APP_PEAR_PATH . "XML/Serializer.php");

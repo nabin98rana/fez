@@ -2,8 +2,8 @@
 <script language="JavaScript">
 <!--
 var page_url = '{/literal}{$smarty.server.PHP_SELF}{literal}';
-var current_page = {/literal}{$list_info.current_page}{literal};
-var last_page = {/literal}{$list_info.last_page}{literal};
+var current_page = {/literal}{if $list_info.current_page != ""}{$list_info.current_page}{else}1{/if}{literal};
+var last_page = {/literal}{if $list_info.last_page != ""}{$list_info.last_page}{else}1{/if}{literal};
 function assignItems(f)
 {
     if (!hasOneChecked(f, 'item[]')) {

@@ -626,6 +626,42 @@ class XSD_HTML_Match
         }
 
     }
+
+    function getNonSELChildListByDisplay($xdis_id)
+    {
+        $stmt = "SELECT
+					*
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields as m1
+				 WHERE ISNULL(m1.xsdmf_xsdsel_id) AND m1.xsdmf_xdis_id = ".$xdis_id;
+		$stmt .= " ORDER BY xsdmf_id ASC";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        } else {
+            return $res;
+        }
+
+    }
+
+    function getSELChildListByDisplay($xdis_id, $xsdsel_id)
+    {
+        $stmt = "SELECT
+					*
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields as m1
+				 WHERE (m1.xsdmf_xsdsel_id = $xsdsel_id) AND m1.xsdmf_xdis_id = ".$xdis_id;
+		$stmt .= " ORDER BY xsdmf_id ASC";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        } else {
+            return $res;
+        }
+
+    }
     
     /**
      * Method used to get the list of custom fields associated with
@@ -1045,6 +1081,10 @@ class XSD_HTML_Match
 		if ($HTTP_POST_VARS["multiple_limit"] != "") {
           $stmt .= "xsdmf_multiple_limit,";
 		}
+		if ($HTTP_POST_VARS["xsdmf_sek_id"] != "") {
+          $stmt .= "xsdmf_sek_id,";
+		}
+
 		$stmt .= "
                     xsdmf_valueintag,
                     xsdmf_is_key,
@@ -1091,6 +1131,9 @@ class XSD_HTML_Match
                     " . $multiple . ",";
 			if ($HTTP_POST_VARS["multiple_limit"] != "") {
                $stmt .= Misc::escapeString($HTTP_POST_VARS["multiple_limit"]) . ",";
+			}
+			if ($HTTP_POST_VARS["xsdmf_sek_id"] != "") {
+               $stmt .= Misc::escapeString($HTTP_POST_VARS["xsdmf_sek_id"]) . ",";
 			}
 			$stmt .=
                     $valueintag . ",
@@ -1142,6 +1185,350 @@ class XSD_HTML_Match
             }
         }
     }
+
+    /**
+     * Method used to add a new custom field to the system.
+     *
+     * @access  public
+     * @return  integer 1 if the insert worked, -1 otherwise
+     */
+    function insertFromArray($xdis_id, $insertArray)
+    {
+
+
+        $stmt = "INSERT INTO
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+                 (
+                    xsdmf_xdis_id,
+                    xsdmf_element,
+                    xsdmf_title,
+                    xsdmf_description,
+                    xsdmf_html_input,
+                    xsdmf_xml_order,
+                    xsdmf_order,
+                    xsdmf_validation_type,";
+		if (!empty($insertArray["xsdmf_enabled"])) {
+            $stmt .= " xsdmf_enabled,";
+		}
+		if (!empty($insertArray["xsdmf_indexed"])) {
+            $stmt .= " xsdmf_indexed,";
+		}
+		if (!empty($insertArray["xsdmf_required"])) {
+            $stmt .= " xsdmf_required,";
+		}
+		if (!empty($insertArray["xsdmf_multiple"])) {
+            $stmt .= " xsdmf_multiple,";
+		}
+		if (!empty($insertArray["xsdmf_multiple_limit"])) {
+          $stmt .= "xsdmf_multiple_limit,";
+		}
+		if (!empty($insertArray["xsdmf_sek_id"])) {
+          $stmt .= "xsdmf_sek_id,";
+		}
+		if (!empty($insertArray["xsdmf_valueintag"])) {
+          $stmt .= "xsdmf_valueintag,";
+		}
+		if (!empty($insertArray["xsdmf_is_key"])) {
+          $stmt .= "xsdmf_is_key,";
+		}
+
+
+		$stmt .= "
+                    xsdmf_parent_key_match,
+                    xsdmf_key_match,";
+		if (!empty($insertArray["xsdmf_id_ref"])) {
+          $stmt .= "xsdmf_id_ref,";
+		}
+		if (!empty($insertArray["xsdmf_smarty_variable"])) {
+          $stmt .= "xsdmf_smarty_variable,";
+		}
+		if (!empty($insertArray["xsdmf_espace_variable"])) {
+          $stmt .= "xsdmf_espace_variable,";
+		}
+		if (!empty($insertArray["xsdmf_dynamic_selected_option"])) {
+          $stmt .= "xsdmf_dynamic_selected_option,";
+		}
+		if (!empty($insertArray["xsdmf_selected_option"])) {
+          $stmt .= "xsdmf_selected_option,";
+		}
+		if (!empty($insertArray["xsdmf_show_in_view"])) {
+          $stmt .= "xsdmf_show_in_view,";
+		}
+					
+		  $stmt .= "xsdmf_enforced_prefix,
+					xsdmf_value_prefix,
+					xsdmf_image_location,
+					xsdmf_static_text,
+					xsdmf_dynamic_text";
+		if (is_numeric($insertArray["xsdmf_xsdsel_id"])) {
+			$stmt .= ", xsdmf_xsdsel_id";
+		}
+		$stmt .= "
+                 ) VALUES (
+                    $xdis_id,
+                    '" . Misc::escapeString($insertArray["xsdmf_element"]) . "',
+                    '" . Misc::escapeString($insertArray["xsdmf_title"]) . "',
+                    '" . Misc::escapeString($insertArray["xsdmf_description"]) . "',
+                    '" . Misc::escapeString($insertArray["xsdmf_html_input"]) . "',
+                    '" . Misc::escapeString($insertArray["xsdmf_xml_order"]) . "',
+                    '" . Misc::escapeString($insertArray["xsdmf_order"]) . "',
+                    '" . Misc::escapeString($insertArray["xsdmf_validation_type"]) . "',";
+
+			if (!empty($insertArray["xsdmf_enabled"])) {
+               $stmt .=$insertArray["xsdmf_enabled"] . ",";
+			}
+
+			if (!empty($insertArray["xsdmf_required"])) {
+               $stmt .= $insertArray["xsdmf_required"] . ",";
+			}
+
+			if (!empty($insertArray["xsdmf_indexed"])) {
+               $stmt .= $insertArray["xsdmf_indexed"] . ",";
+			}
+			if (!empty($insertArray["xsdmf_multiple"])) {
+               $stmt .= $insertArray["xsdmf_multiple"] . ",";
+			}
+
+			if (!empty($insertArray["xsdmf_multiple_limit"])) {
+               $stmt .= $insertArray["xsdmf_multiple_limit"] . ",";
+			}
+			if (!empty($insertArray["xsdmf_sek_id"])) {
+               $stmt .= $insertArray["xsdmf_sek_id"] . ",";
+			}
+			if (!empty($insertArray["xsdmf_valueintag"])) {
+               $stmt .= $insertArray["xsdmf_valueintag"] . ",";
+			}
+			if (!empty($insertArray["xsdmf_is_key"])) {
+               $stmt .= $insertArray["xsdmf_is_key"] . ",";
+			}
+
+			$stmt .= "
+                    '" . Misc::escapeString($insertArray["xsdmf_parent_key_match"]) . "',
+                    '" . Misc::escapeString($insertArray["xsdmf_key_match"]) . "',";
+
+			if (!empty($insertArray["xsdmf_id_ref"])) {
+              $stmt .=  Misc::escapeString($insertArray["xsdmf_id_ref"]) . ",";
+			}
+			if (!empty($insertArray["xsdmf_smarty_variable"])) {
+              $stmt .= "'" . Misc::escapeString($insertArray["xsdmf_smarty_variable"]) . "',";
+			}
+			if (!empty($insertArray["xsdmf_espace_variable"])) {
+              $stmt .= "'" . Misc::escapeString($insertArray["xsdmf_espace_variable"]) . "',";
+			}
+			if (!empty($insertArray["xsdmf_dynamic_selected_option"])) {
+              $stmt .= "'" . Misc::escapeString($insertArray["xsdmf_dynamic_selected_option"]) . "',";
+			}
+			if (!empty($insertArray["xsdmf_selected_option"])) {
+              $stmt .= "'" . Misc::escapeString($insertArray["xsdmf_selected_option"]) . "',";
+			}
+			if (!empty($insertArray["xsdmf_show_in_view"])) {
+              $stmt .= $insertArray["xsdmf_show_in_view"] . ",";
+			}
+
+
+			$stmt .= "
+                    '" . Misc::escapeString($insertArray["xsdmf_enforced_prefix"]) . "',
+                    '" . Misc::escapeString($insertArray["xsdmf_value_prefix"]) . "',
+                    '" . Misc::escapeString($insertArray["xsdmf_image_location"]) . "',
+                    '" . Misc::escapeString($insertArray["xsdmf_static_text"]) . "',
+                    '" . Misc::escapeString($insertArray["xsdmf_dynamic_text"]) . "'";
+
+		if (is_numeric($insertArray["xsdmf_xsdsel_id"])) {
+			$stmt .= ", " .$insertArray["xsdmf_xsdsel_id"];
+		}
+		$stmt .= "
+                 )";
+//		echo $stmt;
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+			return 1;
+			//
+/*			$new_id = $GLOBALS["db_api"]->get_last_insert_id();
+            if (($insertArray["xsdmf_field_type"] == 'combo') || ($insertArray["xsdmf_field_type"] == 'multiple')) {
+                foreach ($insertArray["field_options"] as $option_value) {
+                    $params = XSD_HTML_Match::parseParameters($option_value);
+                    XSD_HTML_Match::addOptions($new_id, $params["value"]);
+                }
+            }*/
+        }
+    }
+
+    /**
+     * Method used to add a new custom field to the system.
+     *
+     * @access  public
+     * @return  integer 1 if the insert worked, -1 otherwise
+     */
+    function insertFromArraySEL($xdis_id, $xsdsel_id, $insertArray)
+    {
+
+
+        $stmt = "INSERT INTO
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+                 (
+                    xsdmf_xdis_id,
+                    xsdmf_element,
+                    xsdmf_title,
+                    xsdmf_description,
+                    xsdmf_html_input,
+                    xsdmf_xml_order,
+                    xsdmf_order,
+                    xsdmf_validation_type,";
+		if (!empty($insertArray["xsdmf_enabled"])) {
+            $stmt .= " xsdmf_enabled,";
+		}
+		if (!empty($insertArray["xsdmf_indexed"])) {
+            $stmt .= " xsdmf_indexed,";
+		}
+		if (!empty($insertArray["xsdmf_required"])) {
+            $stmt .= " xsdmf_required,";
+		}
+		if (!empty($insertArray["xsdmf_multiple"])) {
+            $stmt .= " xsdmf_multiple,";
+		}
+
+		if (!empty($insertArray["xsdmf_multiple_limit"])) {
+          $stmt .= "xsdmf_multiple_limit,";
+		}
+		if (!empty($insertArray["xsdmf_sek_id"])) {
+          $stmt .= "xsdmf_sek_id,";
+		}
+		if (!empty($insertArray["xsdmf_valueintag"])) {
+          $stmt .= "xsdmf_valueintag,";
+		}
+		if (!empty($insertArray["xsdmf_is_key"])) {
+          $stmt .= "xsdmf_is_key,";
+		}
+
+
+		$stmt .= "
+
+                    xsdmf_parent_key_match,
+                    xsdmf_key_match,";
+		if (!empty($insertArray["xsdmf_id_ref"])) {
+          $stmt .= "xsdmf_id_ref,";
+		}
+		if (!empty($insertArray["xsdmf_smarty_variable"])) {
+          $stmt .= "xsdmf_smarty_variable,";
+		}
+		if (!empty($insertArray["xsdmf_espace_variable"])) {
+          $stmt .= "xsdmf_espace_variable,";
+		}
+		if (!empty($insertArray["xsdmf_dynamic_selected_option"])) {
+          $stmt .= "xsdmf_dynamic_selected_option,";
+		}
+		if (!empty($insertArray["xsdmf_selected_option"])) {
+          $stmt .= "xsdmf_selected_option,";
+		}
+		if (!empty($insertArray["xsdmf_show_in_view"])) {
+          $stmt .= "xsdmf_show_in_view,";
+		}
+					
+		  $stmt .= "xsdmf_enforced_prefix,
+					xsdmf_value_prefix,
+					xsdmf_image_location,
+					xsdmf_static_text,
+					xsdmf_dynamic_text";
+		if (is_numeric($xsdsel_id)) {
+			$stmt .= ", xsdmf_xsdsel_id";
+		}
+		$stmt .= "
+                 ) VALUES (
+                    $xdis_id,
+                    '" . Misc::escapeString($insertArray["xsdmf_element"]) . "',
+                    '" . Misc::escapeString($insertArray["xsdmf_title"]) . "',
+                    '" . Misc::escapeString($insertArray["xsdmf_description"]) . "',
+                    '" . Misc::escapeString($insertArray["xsdmf_html_input"]) . "',
+                    '" . Misc::escapeString($insertArray["xsdmf_xml_order"]) . "',
+                    '" . Misc::escapeString($insertArray["xsdmf_order"]) . "',
+                    '" . Misc::escapeString($insertArray["xsdmf_validation_type"]) . "',";
+
+			if (!empty($insertArray["xsdmf_enabled"])) {
+               $stmt .=$insertArray["xsdmf_enabled"] . ",";
+			}
+
+			if (!empty($insertArray["xsdmf_required"])) {
+               $stmt .= $insertArray["xsdmf_required"] . ",";
+			}
+
+			if (!empty($insertArray["xsdmf_indexed"])) {
+               $stmt .= $insertArray["xsdmf_indexed"] . ",";
+			}
+			if (!empty($insertArray["xsdmf_multiple"])) {
+               $stmt .= $insertArray["xsdmf_multiple"] . ",";
+			}
+
+			if (!empty($insertArray["xsdmf_multiple_limit"])) {
+               $stmt .= $insertArray["xsdmf_multiple_limit"] . ",";
+			}
+			if (!empty($insertArray["xsdmf_sek_id"])) {
+               $stmt .= $insertArray["xsdmf_sek_id"] . ",";
+			}
+			if (!empty($insertArray["xsdmf_valueintag"])) {
+               $stmt .= $insertArray["xsdmf_valueintag"] . ",";
+			}
+			if (!empty($insertArray["xsdmf_is_key"])) {
+               $stmt .= $insertArray["xsdmf_is_key"] . ",";
+			}
+
+			$stmt .= "
+                    '" . Misc::escapeString($insertArray["xsdmf_parent_key_match"]) . "',
+                    '" . Misc::escapeString($insertArray["xsdmf_key_match"]) . "',";
+
+			if (!empty($insertArray["xsdmf_id_ref"])) {
+              $stmt .=  Misc::escapeString($insertArray["xsdmf_id_ref"]) . ",";
+			}
+			if (!empty($insertArray["xsdmf_smarty_variable"])) {
+              $stmt .= "'" . Misc::escapeString($insertArray["xsdmf_smarty_variable"]) . "',";
+			}
+			if (!empty($insertArray["xsdmf_espace_variable"])) {
+              $stmt .= "'" . Misc::escapeString($insertArray["xsdmf_espace_variable"]) . "',";
+			}
+			if (!empty($insertArray["xsdmf_dynamic_selected_option"])) {
+              $stmt .= "'" . Misc::escapeString($insertArray["xsdmf_dynamic_selected_option"]) . "',";
+			}
+			if (!empty($insertArray["xsdmf_selected_option"])) {
+              $stmt .= "'" . Misc::escapeString($insertArray["xsdmf_selected_option"]) . "',";
+			}
+			if (!empty($insertArray["xsdmf_show_in_view"])) {
+              $stmt .= "'" . Misc::escapeString($insertArray["xsdmf_show_in_view"]) . "',";
+			}
+
+
+			$stmt .= "
+                    '" . Misc::escapeString($insertArray["xsdmf_enforced_prefix"]) . "',
+                    '" . Misc::escapeString($insertArray["xsdmf_value_prefix"]) . "',
+                    '" . Misc::escapeString($insertArray["xsdmf_image_location"]) . "',
+                    '" . Misc::escapeString($insertArray["xsdmf_static_text"]) . "',
+                    '" . Misc::escapeString($insertArray["xsdmf_dynamic_text"]) . "'";
+
+		if (is_numeric($xsdsel_id)) {
+			$stmt .= ", " . $xsdsel_id;
+		}
+		$stmt .= "
+                 )";
+
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+			return 1;
+			//
+/*			$new_id = $GLOBALS["db_api"]->get_last_insert_id();
+            if (($insertArray["xsdmf_field_type"] == 'combo') || ($insertArray["xsdmf_field_type"] == 'multiple')) {
+                foreach ($insertArray["field_options"] as $option_value) {
+                    $params = XSD_HTML_Match::parseParameters($option_value);
+                    XSD_HTML_Match::addOptions($new_id, $params["value"]);
+                }
+            }
+			*/
+        }
+    }
+
 
     /**
      * Method used to add a new custom field to the system.
@@ -1214,6 +1601,9 @@ class XSD_HTML_Match
                     xsdmf_multiple = " . $multiple . ",";
 		if ($HTTP_POST_VARS["multiple_limit"] != "") {
         	$stmt .= " xsdmf_multiple_limit = " . Misc::escapeString($HTTP_POST_VARS["multiple_limit"]) . ",";
+		}
+		if (is_numeric($HTTP_POST_VARS["xsdmf_sek_id"])) {
+        	$stmt .= " xsdmf_sek_id = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_sek_id"]) . ",";
 		}
 		if ($HTTP_POST_VARS["smarty_variable"] != "") {
         	$stmt .= " xsdmf_smarty_variable = '" . Misc::escapeString($HTTP_POST_VARS["smarty_variable"]) . "',";
@@ -2049,67 +2439,6 @@ class XSD_HTML_Match
     }
 
 
-    /**
-     * Method used to remove the issue associations related to a given
-     * custom field ID.
-     *
-     * @access  public
-     * @param   integer $fld_id The custom field ID
-     * @param   integer $issue_id The issue ID (not required)
-     * @return  boolean
-     */
-    function removeRecordAssociation($fld_id, $issue_id = FALSE)
-    {
-        if (is_array($fld_id)) {
-            $fld_id = implode(", ", $fld_id);
-        }
-        $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "issue_custom_field
-                 WHERE
-                    icf_fld_id IN ($fld_id)";
-        if ($issue_id) {
-            $stmt .= " AND icf_iss_id=$issue_id";
-        }
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-
-    /**
-     * Method used to remove the custom field options associated with
-     * a given list of custom field IDs.
-     *
-     * @access  public
-     * @param   array $ids The list of custom field IDs
-     * @return  boolean
-     */
-    function removeOptionsByFields($ids)
-    {
-        if (!is_array($ids)) {
-            $ids = array($ids);
-        }
-        $items = implode(", ", $ids);
-        $stmt = "SELECT
-                    mfo_id
-                 FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_mf_option
-                 WHERE
-                    mfo_fld_id IN ($items)";
-        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
-            XSD_HTML_Match::removeOptions($ids, $res);
-            return true;
-        }
-    }
-
 
     /**
      * Method used to remove all custom field entries associated with 
@@ -2138,29 +2467,6 @@ class XSD_HTML_Match
     }
 
 
-    /**
-     * Method used to remove all custom fields associated with 
-     * a given set of projects.
-     *
-     * @access  public
-     * @param   array $ids The array of project IDs
-     * @return  boolean
-     */
-    function removeByCollections($ids)
-    {
-        $items = implode(", ", $ids);
-        $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "project_custom_field
-                 WHERE
-                    pcf_prj_id IN ($items)";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
-            return true;
-        }
-    }
 
     function getElementMatchList($xdis_id)
     {

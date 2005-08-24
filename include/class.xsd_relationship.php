@@ -331,23 +331,38 @@ class XSD_Relationship
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
                  WHERE
                     xsdrel_xsdmf_id=$xsdmf_id and xsdrel_xsdmf_id = xsdmf_id and xsdrel_xdis_id = xdis_id ";
-		// @@@ CK - Added order statement to custom fields displayed in a desired order
 		$stmt .= " ORDER BY xsdrel_order ASC";
-//		echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-/*            if (count($res) == 0) {
-                return "";
-            } else {
-                for ($i = 0; $i < count($res); $i++) {
-                    $res[$i]["field_options"] = XSD_XSL_Transform::getOptions($res[$i]["fld_id"]);
-                }
-                return $res;
-            }
-*/
+            return $res;
+        }
+    }
+
+    /**
+     * Method used to get the list of custom fields associated with
+     * a given display id.
+     *
+     * @access  public
+     * @param   integer $xdis_id The XSD Display ID
+     * @return  array The list of matching fields fields
+     */
+    function getSimpleListByXSDMF($xsdmf_id)
+    {
+        $stmt = "SELECT
+					*
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship
+                 WHERE
+                    xsdrel_xsdmf_id=$xsdmf_id ";
+		$stmt .= " ORDER BY xsdrel_order ASC";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
             return $res;
         }
     }
@@ -714,6 +729,38 @@ class XSD_Relationship
 			//
         }
     }
+
+    /**
+     * Method used to add a new custom field to the system.
+     *
+     * @access  public
+     * @return  integer 1 if the insert worked, -1 otherwise
+     */
+    function insertFromArray($xsdmf_id, $insertArray)
+    {
+        global $HTTP_POST_VARS;
+
+        $stmt = "INSERT INTO
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship
+                 (
+                    xsdrel_xsdmf_id,
+                    xsdrel_xdis_id,
+					xsdrel_order
+                 ) VALUES (
+                    " . $xsdmf_id . ",
+                    " . $insertArray["xsdrel_xdis_id"] . ",
+                    " . $insertArray["xsdrel_order"] . "
+                 )";
+//		echo $stmt;
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+			//
+        }
+    }
+
 
     /**
      * Method used to add a new custom field to the system.

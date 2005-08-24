@@ -27,10 +27,13 @@
 //
 // @(#) $Id: s.index.php 1.21 03/10/08 17:06:06-00:00 jpradomaia $
 //
+
 include_once("config.inc.php");
+
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
+include_once(APP_INC_PATH . "class.news.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.validation.php");
 
@@ -75,13 +78,14 @@ if (count($HTTP_POST_VARS) > 0) {
 	}
 }
 $tpl = new Template_API();
+$tpl->setTemplate("front_page.tpl.html");
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
 $isAdministrator = User::isUserAdministrator($username);
 $tpl->assign("isAdministrator", $isAdministrator);
 
+$tpl->assign("news", News::getList());
 
-$tpl->setTemplate("front_page.tpl.html");
 $tpl->displayTemplate();
 //Auth::redirect(APP_RELATIVE_URL . "list.php" . $extra);
 //Auth::redirect(APP_RELATIVE_URL . "select_collection.php" . $extra);

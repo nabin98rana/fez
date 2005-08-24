@@ -30,48 +30,39 @@
 include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
-include_once(APP_INC_PATH . "class.doc_type_xsd.php");
-include_once(APP_INC_PATH . "class.xsd_display.php");
+include_once(APP_INC_PATH . "class.search_key.php");
+//include_once(APP_INC_PATH . "class.wfbehaviours.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "db_access.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");
 
-
 Auth::checkAuthentication(APP_SESSION);
-$tpl->assign("type", "xsd_displays");
 
+$tpl->assign("type", "search_keys");
 
-//$role_id = User::getRoleByUserCollection(Auth::getUserID(), $col_id);
-$xsd_id = @$HTTP_POST_VARS["xsd_id"] ? $HTTP_POST_VARS["xsd_id"] : $HTTP_GET_VARS["xsd_id"];
-$xdis_id = @$HTTP_POST_VARS["id"] ? $HTTP_POST_VARS["id"] : $HTTP_GET_VARS["id"];
 $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 
 if ($isAdministrator) {
-
+  
     if (@$HTTP_POST_VARS["cat"] == "new") {
-        $tpl->assign("result", XSD_Display::insert($xsd_id));
+        $tpl->assign("result", Search_Key::insert());
     } elseif (@$HTTP_POST_VARS["cat"] == "update") {
-        $tpl->assign("result", XSD_Display::update($xdis_id)); 
+        $tpl->assign("result", Search_Key::update($HTTP_POST_VARS["id"]));
     } elseif (@$HTTP_POST_VARS["cat"] == "delete") {
-        XSD_Display::remove();
+        Search_Key::remove();
     }
 
     if (@$HTTP_GET_VARS["cat"] == "edit") {
-        $tpl->assign("info", XSD_Display::getDetails($xdis_id));
-    }
-    if (@$HTTP_GET_VARS["cat"] == "clone") {
-        $tpl->assign("info", XSD_Display::cloneDisplay($xdis_id));
+        $tpl->assign("info", Search_Key::getDetails($HTTP_GET_VARS["id"]));
     }
 
-	$tpl->assign("xsd_id", ($xsd_id));
-	$tpl->assign("xdis_id", ($xdis_id));	
-//	print_r(XSD_XSL_Transform::getList($xsd_id));
-    $tpl->assign("list", XSD_Display::getList($xsd_id));
+    $tpl->assign("list", Search_Key::getList());
+//    $tpl->assign("collection_list", Collection::getAll());
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }

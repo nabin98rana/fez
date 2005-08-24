@@ -10,7 +10,7 @@
               function validateForm(f)
               {
                   if (isWhitespace(f.title.value)) {
-                      alert('Please enter the title of this xsd display.');
+                      alert('Please enter the title of this search key.');
                       selectField(f, 'title');
                       return false;
                   }
@@ -139,16 +139,15 @@
               </script>
               {/literal}
               <form name="custom_field_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
-              <input type="hidden" name="xsd_id" value="{$xsd_id}">
-              <input type="hidden" name="id" value="{$xdis_id}">			  
               {if $smarty.get.cat == 'edit'}
               <input type="hidden" name="cat" value="update">
+              <input type="hidden" name="id" value="{$smarty.get.id}">
               {else}
               <input type="hidden" name="cat" value="new">
               {/if}
               <tr>
                 <td colspan="2" class="default">
-                  <b>Manage XSD Displays</b>
+                  <b>Manage Search Keys</b>
                 </td>
               </tr>
               {if $result != ""}
@@ -156,21 +155,15 @@
                 <td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
                   {if $smarty.post.cat == "new"}
                     {if $result == -1}
-                      An error occurred while trying to add the new xsd display.
+                      An error occurred while trying to add the new search key.
                     {elseif $result == 1}
-                      Thank you, the xsd display was added successfully.
-                    {/if}
-                  {elseif $smarty.get.cat == "clone"}
-                    {if $result == -1}
-                      An error occurred while trying to clone the xsd display.
-                    {elseif $result == 1}
-                      Thank you, the xsd display was cloned successfully.
+                      Thank you, the search key was added successfully.
                     {/if}
                   {elseif $smarty.post.cat == "update"}
                     {if $result == -1}
-                      An error occurred while trying to update the xsd display information.
+                      An error occurred while trying to update the search key information.
                     {elseif $result == 1}
-                      Thank you, the xsd display was updated successfully.
+                      Thank you, the search key was updated successfully.
                     {/if}
                   {/if}
                 </td>
@@ -181,24 +174,34 @@
                   <b>Title:</b>
                 </td>
                 <td bgcolor="{$light_color}">
-                  <input type="text" name="xdis_title" size="40" class="default" value="{$info.xdis_title}">
+                  <input type="text" name="sek_title" size="40" class="default" value="{$info.sek_title}">
                   {include file="error_icon.tpl.html" field="title"}
                 </td>
               </tr>
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default_white">
-                  <b>Version:</b>
+                  <b>Use in Simple Search?:</b>
                 </td>
                 <td bgcolor="{$light_color}">
-                  <input type="text" name="xdis_version" size="30" class="default" value="{$info.xdis_version}">
+                  <input type="checkbox" name="sek_simple_used" class="default" {if ($info.sek_simple_used != 0)}checked{/if}><br />
+                  <span class="small_default">(If this tickbox is enabled any fields using this search key will be included in a simple search)</span>
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Show in Advanced Search Form?:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="checkbox" name="sek_adv_visible" class="default" {if ($info.sek_adv_visible != 0)}checked{/if}><br />
+                  <span class="small_default">(If this tickbox is enabled this search key will show up as an option checkbox in the advanced search form)</span>
                 </td>
               </tr>
               <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $smarty.get.cat == 'edit'}
-                  <input class="button" type="submit" value="Update XSD Display">
+                  <input class="button" type="submit" value="Update Search Key">
                   {else}
-                  <input class="button" type="submit" value="Add XSD Display">
+                  <input class="button" type="submit" value="Add Search Key">
                   {/if}
                   <input class="button" type="reset" value="Reset">
                 </td>
@@ -206,7 +209,7 @@
               </form>
               <tr>
                 <td colspan="2" class="default">
-                  <b>Existing XSD Displays:</b>
+                  <b>Existing Search Keys:</b>
                 </td>
               </tr>
               <tr>
@@ -217,10 +220,10 @@
                   function checkDelete(f)
                   {
                       if (!hasOneChecked(f, 'items[]')) {
-                          alert('Please select at least one of the xsd displays.');
+                          alert('Please select at least one of the search keys.');
                           return false;
                       }
-                      if (!confirm('This action will permanently remove the selected xsd displays.')) {
+                      if (!confirm('This action will permanently remove the selected search keys.')) {
                           return false;
                       } else {
                           return true;
@@ -232,39 +235,33 @@
                   <table border="0" width="100%" cellpadding="1" cellspacing="1">
                     <form onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
                     <input type="hidden" name="cat" value="delete">
-			        <input type="hidden" name="xsd_id" value="{$xsd_id}">
-			        <input type="hidden" name="id" value="{$xdis_id}">					
                     <tr>
-                      <td width="5" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td width="50%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Title</b></td>
-                      <td width="15%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Version</b></td>
-                      <td width="15%" bgcolor="{$cell_color}" class="default_white" nowrap>&nbsp;<b>XSD HTML Matching Editor&nbsp;</b></td>
-                      <td width="15%" bgcolor="{$cell_color}" class="default_white" nowrap>&nbsp;<b>Clone Display&nbsp;</b></td>					  
+                      <td width="5" bgcolor="{$cell_color}" align="center" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
+                      <td width="50%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Title</b>&nbsp;</td>
+                      <td width="20%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>In Simple Search?</b>&nbsp;</td>
+                      <td width="20%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>On Adv Search Page?</b>&nbsp;</td>					  					  
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
                     <tr>
                       <td width="4" nowrap bgcolor="{$row_color}" align="center">
-                        <input type="checkbox" name="items[]" value="{$list[i].xdis_id}" {if $smarty.section.i.total == 0}disabled{/if}>
+                        <input type="checkbox" name="items[]" value="{$list[i].sek_id}" {if $smarty.section.i.total == 0}disabled{/if}>
                       </td>
                       <td width="50%" bgcolor="{$row_color}" class="default">
-                        &nbsp;<a href="xsd_displays.php?cat=edit&id={$list[i].xdis_id}&xsd_id={$list[i].xdis_xsd_id}">{$list[i].xdis_title}</a>
+                        &nbsp;<a href="search_keys.php?cat=edit&id={$list[i].sek_id}">{$list[i].sek_title}</a>
                       </td>
-                      <td width="15%" bgcolor="{$row_color}" class="default">
-                        &nbsp;{$list[i].xdis_version}
+                      <td width="20%" bgcolor="{$row_color}" class="default">
+                        &nbsp;{if $list[i].sek_simple_used == 1}<font color="green">yes</font>{else}<font color="red">no</font>{/if}
                       </td>
-                      <td width="15%" bgcolor="{$row_color}" class="default">
-                        &nbsp;<a class="link" href="xsd_tree_match.php?&xdis_id={$list[i].xdis_id}" title="match this XSD Display against HTML elements">Edit</a>
-                      </td>
-                      <td width="15%" bgcolor="{$row_color}" class="default">
-                        &nbsp;<a class="link" href="xsd_displays.php?cat=clone&id={$list[i].xdis_id}&xsd_id={$list[i].xdis_xsd_id}" title="Clone this display">Clone</a>
+                      <td width="20%" bgcolor="{$row_color}" class="default">
+                        &nbsp;{if $list[i].sek_adv_visible == 1}<font color="green">yes</font>{else}<font color="red">no</font>{/if}
                       </td>
 
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="5" bgcolor="{$light_color}" align="center" class="default">
-                        No xsd displays could be found.
+                      <td colspan="4" bgcolor="{$light_color}" align="center" class="default">
+                        No search keys could be found.
                       </td>
                     </tr>
                     {/section}
@@ -272,7 +269,7 @@
                       <td width="4" align="center" bgcolor="{$cell_color}">
                         <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
                       </td>
-                      <td colspan="5" bgcolor="{$cell_color}">
+                      <td colspan="6" bgcolor="{$cell_color}">
                         <input type="submit" value="Delete" class="button">
                       </td>
                     </tr>
