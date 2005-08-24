@@ -2177,8 +2177,16 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
                                 && isset($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) {
 							foreach ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] as $multiple_element) {
 								if ($attrib_value == "") {
-									$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($multiple_element);
-									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($multiple_element)));									
+									if ($xsdmf_details['xsdmf_smarty_variable'] == "") {
+										$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($multiple_element);
+										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($multiple_element)));
+									} else {
+										$attrib_value = $multiple_element;
+										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $multiple_element));
+									}
+
+//									$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($multiple_element);
+//									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($multiple_element)));									
 								} else {
 									// Give a tag to each value, eg DC language - english & french need own language tags
 									// close the previous
@@ -2199,8 +2207,15 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 									} else {
 										$attrib_value .= "/>\n";
 									}
-									$attrib_value .= XSD_HTML_Match::getOptionValueByMFO_ID($multiple_element);
-									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $multiple_element));									
+									if ($xsdmf_details['xsdmf_smarty_variable'] == "") {
+										$attrib_value .= XSD_HTML_Match::getOptionValueByMFO_ID($multiple_element);
+										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($multiple_element)));
+									} else {
+										$attrib_value .= $multiple_element;
+										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $multiple_element));
+									}
+//									$attrib_value .= XSD_HTML_Match::getOptionValueByMFO_ID($multiple_element);
+//									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $multiple_element));									
 								}
 							}
 						} elseif ($xsdmf_details['xsdmf_html_input'] == 'xsdmf_id_ref') { // this assumes the xsdmf_id_ref will only refer to an xsdmf_id which is a text/textarea/combo/multiple, will have to modify if we need more
@@ -2211,8 +2226,16 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 						} elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'multiple') {
 							foreach ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']] as $multiple_element) {
 								if ($attrib_value == "") {
-									$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($multiple_element);
-									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $multiple_element));
+									if ($xsdmf_details['xsdmf_smarty_variable'] == "") {
+										$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($multiple_element);
+										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($multiple_element)));
+									} else {
+										$attrib_value = $multiple_element;
+										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $multiple_element));
+									}
+
+//									$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($multiple_element);
+//									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $multiple_element));
 								} else {
 									// Give a tag to each value, eg DC language - english & french need own language tags
 									// close the previous
@@ -2233,8 +2256,17 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 									} else {
 										$attrib_value .= "/>\n";
 									}
-									$attrib_value .= XSD_HTML_Match::getOptionValueByMFO_ID($multiple_element);
-									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($multiple_element)));									
+
+									if ($xsdmf_details['xsdmf_smarty_variable'] == "") {
+										$attrib_value .= XSD_HTML_Match::getOptionValueByMFO_ID($multiple_element);
+										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($multiple_element)));
+									} else {
+										$attrib_value .= $multiple_element;
+										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $multiple_element));
+									}
+
+//									$attrib_value .= XSD_HTML_Match::getOptionValueByMFO_ID($multiple_element);
+//									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($multiple_element)));									
 								}
 							}
 						} elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'file_input' || $xsdmf_details_ref['xsdmf_html_input'] == 'file_selector') {

@@ -3367,6 +3367,7 @@ class RecordObject extends RecordGeneral
  		// @@@ CK - 6/5/2005 - Added xdis so xml building could search using the xml display ids
 		$indexArray = array();
 		$xmlObj = Misc::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray);
+
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
 		$datastreamTitles = $display->getDatastreamTitles();
 		$params = array();

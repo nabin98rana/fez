@@ -281,6 +281,32 @@ class XSD_Display
         }
     }
 
+    /**
+     * Method used to get the list of custom fields available in the 
+     * system.
+     *
+     * @access  public
+     * @return  array The list of custom fields
+     */
+    function getAssocListDocTypes()
+    {
+        $stmt = "SELECT
+                    xdis_id,
+					concat(xdis_title, ' Version ', xdis_version) as xdis_desc
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
+				 WHERE xdis_is_doc_type = 1				 
+                 ORDER BY
+                    xdis_title, xdis_version ASC";
+        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+//		echo $stmt;
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
 
     /**
      * Method used to get the details of a specific custom field.

@@ -218,7 +218,7 @@ function openDetailPage()
 							<b>{$xsd_display_fields[i].xsdmf_title}</b>
 						  </td>
 						  <td bgcolor="{$light_color}">
-							<select {if $xsd_display_fields[i].xsdmf_html_input == 'multiple'}multiple size="3"{/if} class="default" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple'}[]{/if}">
+							<select {if $xsd_display_fields[i].xsdmf_html_input == 'multiple'}multiple size="8"{/if} class="default" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple'}[]{/if}">
 							  {if $xsd_display_fields[i].xsdmf_html_input != 'multiple'}<option value="-1">Please choose an option</option>{/if}
 							  {html_options options=$xsd_display_fields[i].field_options selected=$details[$temp_fld_id]}
 							</select>
