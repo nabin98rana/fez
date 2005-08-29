@@ -134,7 +134,10 @@ if (!empty($collection_pid)) {
 	$tpl->assign("list_type", "collection_list");
 } elseif (!empty($terms)) {
     // search eSpace
-	$list = Record::getListing($terms, 1, 100);
+//	$list = Record::getListing($terms, 1, 100);
+	$list = Collection::searchListing($terms, $pagerRows, $rows);	
+	$list_info = $list["info"];
+	$list = $list["list"];
 	$tpl->assign("list_heading", "Search Results ($terms)");
 	$tpl->assign("list_type", "all_records_list");
 } else {

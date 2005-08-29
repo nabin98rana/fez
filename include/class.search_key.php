@@ -235,6 +235,34 @@ class Search_Key
     }
 
     /**
+     * Method used to get the list of search keys available in the 
+     * system.
+     *
+     * @access  public
+     * @return  array The list of search keys 
+     */
+    function getSimpleList()
+    {
+        $stmt = "SELECT
+                    sek_id
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
+				 WHERE
+				   sek_simple_used = 1";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            if (empty($res)) {
+                return array();
+            } else {
+                return $res;
+            }
+        }
+    }
+
+    /**
      * Method used to get the details of a specific search key.
      *
      * @access  public
