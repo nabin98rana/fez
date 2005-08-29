@@ -80,7 +80,7 @@ class Auth
     {
         global $HTTP_SERVER_VARS;
 
-        session_name($session_name);
+        session_name(APP_SESSION);
         @session_start();
 
         if (empty($failed_url)) {
@@ -119,44 +119,124 @@ class Auth
 		$ACMLArray = &$array;
 //		$ACMLArray = array();
 
+		static $returns;
 
-        $stmt = "SELECT
-                    * 
-                 FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
-                 WHERE
-				    r1.rmf_xsdmf_id = x1.xsdmf_id and (x1.xsdmf_xdis_id = 17) and
-                    r1.rmf_rec_pid in (
-						SELECT r2.rmf_varchar 
-						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
-						WHERE (r2.rmf_xsdmf_id = 91 AND r2.rmf_rec_pid = '".$pid."') OR
-							(r2.rmf_xsdmf_id = 149 AND r2.rmf_rec_pid = '".$pid."')
-						)
-					";
-//		echo $stmt;
-		$returnfields = array("Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        //$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-//		print_r($res);
-		$return = array();
-		
-		foreach ($res as $result) {
-			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-				if (!is_array(@$return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
-					$return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']] = array();
+        if (!empty($returns[$pid])) {		
+			array_push($ACMLArray, $returns[$pid]); //add it to the acml array and dont go any further up the hierarchy
+        } else {								
+			$stmt = "SELECT 
+						* 
+					 FROM
+						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
+					    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1,
+						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1,
+						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
+						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+
+					 WHERE
+						r1.rmf_xsdmf_id = x1.xsdmf_id and ((d1.xdis_id = x1.xsdmf_xdis_id and d1.xdis_title = 'eSpaceACML') or (k1.sek_title = 'isMemberOf' AND r1.rmf_xsdmf_id = x1.xsdmf_id AND k1.sek_id = x1.xsdmf_sek_id)) and
+						r1.rmf_rec_pid in (
+							SELECT r2.rmf_varchar 
+							FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
+								  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,							
+								  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+							WHERE (s2.sek_title = 'isMemberOf' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid = '".$pid."')
+							)
+						";
+//		echo $stmt."\n\n";
+			$returnfields = array("Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
+			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+			//$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+	//		print_r($res);
+			$return = array();
+			
+			foreach ($res as $result) {
+				if (!is_array(@$return[$result['rmf_rec_pid']])) {
+					$return[$result['rmf_rec_pid']]['exists'] = array();
 				}
-				array_push($return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+				if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
+					if (!is_array(@$return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
+						$return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']] = array();
+					}
+					array_push($return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+				}
+			}
+		//print_r($return);
+			foreach ($return as $key => $record) {
+	
+				if (is_array($record['eSpaceACML'])) {
+					if (empty($returns[$pid])) {
+						$returns[$pid] = $record['eSpaceACML'];
+					}
+					array_push($ACMLArray, $record['eSpaceACML']); //add it to the acml array and dont go any further up the hierarchy
+				} else {
+					Auth::getIndexParentACMLs($ACMLArray, $key);
+				}
 			}
 		}
+//		return $ACMLArray; // now we pass the var by reference so dont need to return anything
+	}
 
-		foreach ($return as $key => $record) {
+	function getIndexParentACMLMemberList(&$array, $pid, $parents) {
+		if (!is_array($parents)) {
+			return false;
+		}
+		foreach ($parents as $parent) {
+			Auth::getIndexParentACMLMember(&$array, $parent);
+		}
+	}
 
-			if (is_array($record['eSpaceACML'])) {
-				array_push($ACMLArray, $record['eSpaceACML']);
-			} else {
-				Auth::getIndexParentACMLs($ACMLArray, $key);
+	function getIndexParentACMLMember(&$array, $pid) {
+		$ACMLArray = &$array;
+//		$ACMLArray = array();
+
+		static $returns;
+
+        if (is_array($returns[$pid])) {		
+			$ACMLArray = $returns[$pid]; //add it to the acml array and dont go any further up the hierarchy
+        } else {								
+			$stmt = "SELECT 
+						* 
+					 FROM
+						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
+					    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1,
+						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1,
+						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
+						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+
+					 WHERE
+						r1.rmf_xsdmf_id = x1.xsdmf_id and ((d1.xdis_id = x1.xsdmf_xdis_id and d1.xdis_title = 'eSpaceACML') or (k1.sek_title = 'isMemberOf' AND r1.rmf_xsdmf_id = x1.xsdmf_id AND k1.sek_id = x1.xsdmf_sek_id)) and
+						r1.rmf_rec_pid = '".$pid."'";
+//		echo $stmt."\n\n";
+			$returnfields = array("Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
+			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+			//$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+	//		print_r($res);
+			$return = array();
+			
+			foreach ($res as $result) {
+				if (!is_array(@$return[$result['rmf_rec_pid']])) {
+					$return[$result['rmf_rec_pid']]['exists'] = array();
+				}
+				if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
+					if (!is_array(@$return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
+						$return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']] = array();
+					}
+					array_push($return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+				}
+			}
+
+			foreach ($return as $key => $record) {
+	
+				if (is_array($record['eSpaceACML'])) {
+					if (!is_array($returns[$pid])) {
+						$returns[$pid] = $record['eSpaceACML'];
+					}
+					array_push($ACMLArray, $record['eSpaceACML']); //add it to the acml array and dont go any further up the hierarchy
+				} else {
+					Auth::getIndexParentACMLs($ACMLArray, $key);
+					$returns[$pid] = $ACMLArray;
+				}
 			}
 		}
 //		return $ACMLArray; // now we pass the var by reference so dont need to return anything
@@ -264,14 +344,21 @@ class Auth
 //			print_r($indexRecord);
 			foreach ($indexRecord['eSpaceACML'] as $eSpaceACML) { // can have multiple espace acmls if got from parents
 				foreach ($eSpaceACML as $role_name => $role) {	
+					if (in_array($role_name, $userPIDAuthGroups)) {
+						$userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role_name, false, true);
+					}
+
 					foreach ($role as $rule_name => $rule) {
 						foreach ($rule as $ruleRecord) {
+							// if the role is in the ACML then it is restricted so remove it
+
+
 							// @@@ CK - if the role has already been 
 							// found then don't check for it again
 							if (!in_array($role_name, $userPIDAuthGroups)) {
 								switch ($rule_name) {
 									case '!rule!role!AD_Group': 
-										if (@in_array($ruleRecord, $_SESSION['ldap_groups'])) {
+										if (@in_array($ruleRecord, $_SESSION[APP_LDAP_GROUPS_SESSION])) {
 											array_push($userPIDAuthGroups, $role_name);
 										}
 										break;
@@ -294,8 +381,15 @@ class Auth
 										}
 										break;
 									case '!rule!role!eSpace_Group':
+										if (@in_array($ruleRecord, $_SESSION[APP_INTERNAL_GROUPS_SESSION])) {
+											array_push($userPIDAuthGroups, $role_name);
+										}
+										break;	
 									case '!rule!role!eSpace_User':
-										//not implemented yet
+										if (Auth::isValidSession($_SESSION)
+												&& $ruleRecord == Auth::getUserID()) {
+											array_push($userPIDAuthGroups, $role_name);
+										}
 										break;
 									default:
 										break;
@@ -371,7 +465,7 @@ class Auth
                         if (!in_array($role, $userPIDAuthGroups)) {
                             switch ($group_type) {
                                 case 'AD_Group':
-                                    if (@in_array($group_value, $_SESSION['ldap_groups'])) {
+                                    if (@in_array($group_value, $_SESSION[APP_LDAP_GROUPS_SESSION])) {
                                         array_push($userPIDAuthGroups, $role);
                                     }
                                     break;
@@ -394,8 +488,16 @@ class Auth
                                     }
                                     break;
                                 case 'eSpace_Group':
+                                    if (@in_array($group_value, $_SESSION[APP_INTERNAL_GROUPS_SESSION])) {
+                                        array_push($userPIDAuthGroups, $role);
+                                    }
+                                    break;
+
                                 case 'eSpace_User':
-                                    //not implemented yet
+                                    if (Auth::isValidSession($_SESSION)
+                                            && $group_value == Auth::getUserID()) {
+                                        array_push($userPIDAuthGroups, $role);
+                                    }
                                     break;
                                 default:
                                     break;
@@ -528,15 +630,13 @@ class Auth
 		global $HTTP_SERVER_VARS;
 		$ipaddress = $HTTP_SERVER_VARS['REMOTE_ADDR'];
         $time = time();
-        $_SESSION = array(
-            "username"   => $username,
-            "fullname"   => $fullname,
-            "email"   => $email,
-            "ipaddress"   => $ipaddress,
-            "login_time" => $time,
-            "hash"       => md5($GLOBALS["private_key"] . md5($time) . $username),
-            "autologin"  => $autologin
-        );
+        $_SESSION["username"] = $username;
+        $_SESSION["fullname"] = $fullname;
+        $_SESSION["email"] = $email;
+        $_SESSION["ipaddress"] = $ipaddress;
+        $_SESSION["login_time"] = $time;
+        $_SESSION["hash"] = md5($GLOBALS["private_key"] . md5($time) . $username);
+		$_SESSION["autologin"] = $autologin;
     }
 
 
@@ -633,21 +733,17 @@ class Auth
     function isCorrectPassword($username, $password)
     {
 		// @@@ CK - 9/6/2005 - will have to add extra logic here for non-ldap (espace or other) users. 
-		return Auth::ldap_authenticate($username, $password);
-		
-/*        $stmt = "SELECT usr_username FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user WHERE usr_username='$username'";
-        $passwd = $GLOBALS["db_api"]->dbh->getOne($stmt);
-        if (PEAR::isError($passwd)) {
-            Error_Handler::logError(array($passwd->getMessage(), $passwd->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
-            if ($passwd != md5($password)) {
+
+		$userDetails = User::getDetails($username);
+		if ($userDetails['usr_ldap_authentication'] == 1) {
+			return Auth::ldap_authenticate($username, $password);
+		} else {
+            if ($userDetails['usr_password'] != md5($password)) {
                 return false;
             } else {
                 return true;
             }
-        }
-*/
+		}
     }
 
 
@@ -663,7 +759,6 @@ class Auth
             return '';
         } else {
             return @User::getUserIDByUsername($_SESSION["username"]);
-//            return @User::getUserIDByEmail($info["email"]);
         }
     }
 
@@ -759,7 +854,7 @@ class Auth
 		} 	
 		// close connection to ldap server
 		ldap_close($ldap_conn);
-		$_SESSION['ldap_groups'] = $usersgroups;
+		$_SESSION[APP_LDAP_GROUPS_SESSION] = $usersgroups;
 		return $usersgroups;
     } //end of GetUserGroups function.
 
@@ -777,40 +872,52 @@ class Auth
                 $t_ds                   = ldap_connect(LDAP_SERVER, LDAP_PORT);
 
                 # Attempt to bind with the DN and password
-                $t_br = ldap_bind( $t_ds, LDAP_PREFIX."\\".$t_username, $p_password );
+                $t_br = @ldap_bind( $t_ds, LDAP_PREFIX."\\".$t_username, $p_password );
                 if ($t_br) {
                   $t_authenticated = true;
                 }
-                ldap_unbind( $t_ds );
+                @ldap_unbind( $t_ds );
                 return $t_authenticated; 
 //                return true; // switch this on and comment the rest out for debugging/development
 
         }
 
-    function LoginAuthenticatedUser($username, $password) {
+    function LoginAuthenticatedUser($username, $password) {	
         session_name(APP_SESSION);
         @session_start();
-        if (!Auth::userExists($username)) { // If the user isn't a registered eSpace user, get their details elsewhere
+        if (!Auth::userExists($username)) { // If the user isn't a registered eSpace user, get their details elsewhere (The AD/LDAP)
             $_SESSION['isInAD'] = true;
+            $_SESSION['isInDB'] = false;
             $userDetails = User::GetUserLDAPDetails($username, $password);
             $fullname = $userDetails['displayname'];
             $email = $userDetails['email'];
             Auth::GetUsersLDAPGroups($userDetails['usr_username'], $password);
         } else { // if it is a registered eSpace user then get their details from the espace user table
             $_SESSION['isInDB'] = true;
-            $userDetails = User::getDetails($username);
+            $userDetails = User::getDetails($username);			
             $fullname = $userDetails['usr_full_name'];
             $email = $userDetails['usr_email'];
-            User::updateLoginDetails(User::getUserIDByUsername($username)); //incremement login count and last login date
+			$usr_id = User::getUserIDByUsername($username);
+            User::updateLoginDetails($usr_id); //incremement login count and last login date
             if ($userDetails['usr_ldap_authentication'] == 1) {
+	            $_SESSION['isInAD'] = true;			
                 Auth::GetUsersLDAPGroups($userDetails['usr_username'], $password);
-            } else { 
-                // get internal espace groups - yet to be programmed
-            }
+            }  else {
+	            $_SESSION['isInAD'] = false;			
+			}
+            // get internal espace groups
+			Auth::GetUsersInternalGroups($usr_id);
+            
         }
         Auth::createLoginSession($username, $fullname, $email, $HTTP_POST_VARS["remember_login"]);
     }
 
+	function GetUsersInternalGroups($usr_id) {
+        session_name(APP_SESSION);
+        @session_start();
+		$internal_groups = Group::getGroupColList($usr_id);
+		$_SESSION[APP_INTERNAL_GROUPS_SESSION] = $internal_groups;
+	}
 
     function isInAD()
     {
@@ -843,8 +950,8 @@ class Auth
 
 }
 
-session_name(APP_SESSION);
-@session_start();
+//session_name(APP_SESSION);
+//@session_start();
 
 // benchmarking the included file (aka setup time)
 if (APP_BENCHMARK) {

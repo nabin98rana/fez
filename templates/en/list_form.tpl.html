@@ -24,6 +24,11 @@ function assignItems(f)
     f.submit();
 }
 
+function createRecord(f) {
+    f.action = 'new.php';
+	f.submit();
+}
+
 function hideClosed(f)
 {
     if (f.hide_closed.checked) {
@@ -142,7 +147,7 @@ function purgeObject(pid)
 		{/if}
            &nbsp;<b>{$list_heading}: </b>
 		   
-		   <b>({$list_info.total_rows} results found{if $list_info.end_offset > 0}, {math equation="x + 1" x=$list_info.start_offset} - {$list_info.end_offset} shown{/if})</b>
+		   <b>({$list_info.total_rows} results found{if $list_info.end_offset > 0}, {math equation="x + 1" x=$list_info.start_offset} - {$list_info.end_offset} shown{/if}) ({$list_info.hidden_rows} hidden)</b>
 </td>
         </tr>
         <tr><td>
@@ -171,7 +176,7 @@ function purgeObject(pid)
                 {else}
                   {assign var="href_view" value=""}
                 {/if}
-				{if $list[i].thumbnail != "0"}			
+				{if $list[i].thumbnail != "0" && $list[i].isViewer==1}
 	                {assign var="icon" value=$eserv_url|cat:"?pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].thumbnail}
 				{else}
 	                {assign var="icon" value="images/record.png" }
@@ -212,7 +217,7 @@ function purgeObject(pid)
                        {if $list[i].description}{$list[i].description|escape:"html"}...<br />{/if}
                        {if $list[i].date}{$list[i].date|escape:"html"}<br />{/if}
                        {if $list[i].type}{$list[i].type|escape:"html"}<br />{/if}   
-					   {if $list[i].ret_id == '3'}<b>Datastreams:</b> {section name="d" loop=$list[i].datastreams}<a href="{$eserv_url|cat:"?pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].datastreams[d]}">{$list[i].datastreams[d]}</a> {/section}{/if}
+					   {if $list[i].ret_id == '3'}<b>Datastreams:</b> {section name="d" loop=$list[i].datastreams}{if $href_view}<a href="{$eserv_url|cat:"?pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].datastreams[d]}">{/if}{$list[i].datastreams[d]}{if $href_view}</a>{/if} {/section}{/if}
                     </td>
                   </tr>
 				  </table>
@@ -241,14 +246,22 @@ function purgeObject(pid)
         </tr>
 		{if $isUser}
         <tr>
-          <td align="left" class="default">
+          <td align="left" >
 			{if $list_type == 'community_list' && $isAdministrator}
-			<br /> <a target="_top" title="create a new community" href="{$rel_url}new.php?xdis_id={$xdis_id}"><img align="absmiddle" src="{$rel_url}images/folder_new.png" border="0"><b>Create New Community</b></a>&nbsp;
+			<br /> <a class="default" target="_top" title="create a new community" href="{$rel_url}new.php?xdis_id={$xdis_id}"><img align="absmiddle" src="{$rel_url}images/folder_new.png" border="0"><b>Create New Community</b></a>&nbsp;
 			{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
-			<br /> <a target="_top" title="create a new collection" href="{$rel_url}new.php?xdis_id={$xdis_id}{if $community_pid}&community_pid={$community_pid}{/if}"><img align="absmiddle" src="{$rel_url}images/folder_new.png" border="0"><b>Create New Collection</b></a>&nbsp;
+			<br /> <a class="default" target="_top" title="create a new collection" href="{$rel_url}new.php?xdis_id={$xdis_id}{if $community_pid}&community_pid={$community_pid}{/if}"><img align="absmiddle" src="{$rel_url}images/folder_new.png" border="0"><b>Create New Collection</b></a>&nbsp;
 			{elseif $list_type == 'all_records_list' || $list_type == 'collection_records_list' && ($isAdministrator || $isCreator)}
-			<br /> <a target="_top" title="create a new record" href="{$rel_url}new.php?xdis_id={$xdis_id}{if $collection_pid}&collection_pid={$collection_pid}{/if}"><img align="absmiddle" src="{$rel_url}images/folder_new.png" border="0"><b>Create New Record</b></a>&nbsp;<br />
-			<br /> <a target="_top" title="batch import" href="{$rel_url}batchimport.php?xdis_id={$xdis_id}{if $collection_pid}&collection_pid={$collection_pid}{/if}"><img align="absmiddle" src="{$rel_url}images/scanner_22.png" border="0"><b>Batch Import Records from SAN</b></a>&nbsp;
+				{if $childXDisplayOptions != 0}
+			<br /> <img align="absmiddle" src="{$rel_url}images/folder_new.png" border="0">
+				<input type="hidden" name="collection_pid" value="{$collection_pid}">
+				<select name="xdis_id" class="default">
+				  {html_options options=$childXDisplayOptions}
+				</select>
+				<input class="default" type="button" value="Create" onClick="javascript:createRecord(this.form)">
+			&nbsp;<br />
+				{/if}
+			<br /> <a class="default" target="_top" title="batch import" href="{$rel_url}batchimport.php?xdis_id={$xdis_id}{if $collection_pid}&collection_pid={$collection_pid}{/if}"><img align="absmiddle" src="{$rel_url}images/scanner_22.png" border="0"><b>Batch Import Records from SAN</b></a>&nbsp;
 			{/if}
 		  </td>
         </tr>

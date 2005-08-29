@@ -35,9 +35,7 @@ if (!empty($pid) && !empty($dsID)) {
 	$xdis_array = Fedora_API::callGetDatastreamContentsField ($pid, 'eSpaceMD', array('xdis_id'));
 	$xdis_id = $xdis_array['xdis_id'][0];
 	//echo "XDIS_ID -> ".$xdis_id;
-	if (is_numeric($xdis_id)) {
-	
-	
+	if (is_numeric($xdis_id)) {	
 		$acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
 		if (Auth::checkAuthorisation($pid, $xdis_id, $acceptable_roles, $HTTP_SERVER_VARS['PHP_SELF']."?".urlencode($HTTP_SERVER_VARS['QUERY_STRING'])) == true) {
 			$urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsID; // this should stop them dang haxors (forces the http on the front for starters)

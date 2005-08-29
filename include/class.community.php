@@ -546,8 +546,11 @@ class Community
      * @access  public
      * @return  array The list of communities
      */
-    function getList()
+    function getList($current_row = 0, $max = 25)
     {
+	
+        $start = $current_row * $max;
+
         $stmt = "SELECT
                     * 
                  FROM
@@ -591,22 +594,40 @@ class Community
 
 		$return = Auth::getIndexAuthorisationGroups($return);
 //		print_r($roles);
+		$hidden_rows = count($return);
+		$return = Misc::cleanListResults($return);
 
-		
+//		print_r($return);
+		$total_rows = count($return);
+		if (($start + $max) < $total_rows) {
+	        $total_rows_limit = $start + $max;
+		} else {
+		   $total_rows_limit = $total_rows;
+		}
+		$total_pages = ceil($total_rows / $max);
+        $last_page = $total_pages - 1;
+		$return = Misc::limitListResults($return, $start, ($start + $max));
 //		print_r($return);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
+            return array(
+                "list" => $return,
+                "info" => array(
+                    "current_page"  => $current_row,
+                    "start_offset"  => $start,
+                    "end_offset"    => $total_rows_limit,
+                    "total_rows"    => $total_rows,
+                    "total_pages"   => $total_pages,
+                    "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+                    "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
+                    "last_page"     => $last_page,
+                    "hidden_rows"     => $hidden_rows - $total_rows
+                )
+            );
 
-/*            for ($i = 0; $i < count($res); $i++) {
-                $res[$i]["projects"] = @implode(", ", array_values(XSD_HTML_Match::getAssociatedCollections($res[$i]["fld_id"])));
-                if (($res[$i]["fld_type"] == "combo") || ($res[$i]["fld_type"] == "multiple")) {
-                    $res[$i]["field_options"] = @implode(", ", array_values(XSD_HTML_Match::getOptions($res[$i]["fld_id"])));
-                }
-            }
-*/
-            return $return;
+//            return $return;
         }
 
     }

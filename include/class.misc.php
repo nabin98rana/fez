@@ -381,6 +381,29 @@ class Misc
 		return $return;
 	}
 
+	function cleanListResults($input)
+	{
+        $return = array();
+		foreach ($input as $aryKey => $aryData) {
+			if ($input[$aryKey]['isLister'] == 1) {
+				$return["'".$aryKey."'"] = $aryData;
+			}
+		}
+		$return = array_values($return);		
+		return $return;
+	}
+
+	function limitListResults($input, $start, $end)
+	{
+        $return = array();
+		foreach ($input as $aryKey => $aryData) {
+			if (($aryKey >= $start) && ($aryKey < $end)) {
+				$return["'".$aryKey."'"] = $aryData;
+			}
+		}
+		$return = array_values($return);
+		return $return;
+	}
 
 	function cleanDatastreamList($dsList) {
 		$original_dsList = $dsList;		
@@ -1169,11 +1192,16 @@ function dom_xml_to_simple_array($domnode, &$array, $top_element_name, $element_
 				// If we still havent got the xsdmf_id then it either doesnt have one or the element doesnt have attributes, so try to find it without the attributes
 
 				if ((is_numeric(strpos(substr($parentContent, 0, 1), "!"))) || ($parentContent == "")) {
-//					$new_element = $parentContent."!".$clean_nodeName; // @@@ CK 31/5/2005 - Added ! to the front of the string
-					$new_element = "!".$clean_nodeName; // @@@ CK 8/8/2005 - Changed to this because batch import was not working
+					// @@@ CK - 25/8/2005 - unless it is the below with the parent content, espaceACML doesnt show properley because it needs the !role!rule etc
+					// so any changes to this need to be tested with the espaceACML etc
+					$new_element = $parentContent."!".$clean_nodeName; // @@@ CK 31/5/2005 - Added ! to the front of the string if not there already
+//					$new_element = "!".$clean_nodeName; // @@@ CK 8/8/2005 - Changed to this because batch import was not working
 				} else {
-//					$new_element = "!".$parentContent."!".$clean_nodeName; // @@@ CK 31/5/2005 - Added ! to the front of the string
-					$new_element = "!".$clean_nodeName; // @@@ CK 8/8/2005 - Changed to this because batch import was not working
+				
+					// @@@ CK - 25/8/2005 - unless it is the below with the parent content, espaceACML doesnt show properley because it needs the !role!rule etc
+					// so any changes to this need to be tested with the espaceACML etc
+					$new_element = "!".$parentContent."!".$clean_nodeName; // @@@ CK 31/5/2005 - Added ! to the front of the string
+//					$new_element = "!".$clean_nodeName; // @@@ CK 8/8/2005 - Changed to this because batch import was not working
 				}
 	
 				if (!is_numeric($xsdmf_id)) {
@@ -1284,6 +1312,7 @@ function dom_xml_to_simple_array($domnode, &$array, $top_element_name, $element_
 						$newParentContent = Misc::strip_element_name($domnode->nodeName, $top_element_name, $element_prefix, $parent_key);
 					}
 					Misc::dom_xml_to_simple_array($domnode, $array_ptr, $top_element_name, $element_prefix, $xsdmf_ptr, $xdis_id, $newParentContent, $parent_key);
+//					print_r($array_ptr);
 				}
 //			}
 

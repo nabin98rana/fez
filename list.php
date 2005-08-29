@@ -104,6 +104,13 @@ if (!empty($collection_pid)) {
 	$tpl->assign("list_heading", "List of Records in ".$collection_details[0]['title']." Collection");
 	$tpl->assign("list_type", "collection_records_list");
 	$tpl->assign("collection_pid", $collection_pid);
+	$childXDisplayOptions = Collection::getChildXDisplayOptions($collection_pid);
+	if (count($childXDisplayOptions) > 0) {
+		$tpl->assign("childXDisplayOptions", $childXDisplayOptions);
+	} else {
+		$tpl->assign("childXDisplayOptions", 0);
+	}
+
 } elseif (!empty($community_pid)) {
     // list collections in a community
 
@@ -120,7 +127,9 @@ if (!empty($collection_pid)) {
 	$tpl->assign("xdis_id", $xdis_id);	
 	$community_details = Community::getDetails($community_pid);
 
-	$list = Collection::getList($community_pid);
+	$list = Collection::getList($community_pid, $pagerRow, $rows);
+	$list_info = $list["info"];
+	$list = $list["list"];
 	$tpl->assign("list_heading", "List of Collections in ".$community_details[0]['title']." Community");
 	$tpl->assign("list_type", "collection_list");
 } elseif (!empty($terms)) {
@@ -132,7 +141,10 @@ if (!empty($collection_pid)) {
     // list all communities
 	$xdis_id = Community::getCommunityXDIS_ID();
 	$tpl->assign("xdis_id", $xdis_id);	
-	$list = Community::getList();
+	$list = Community::getList($pagerRow, $rows);
+	$list_info = $list["info"];
+	$list = $list["list"];
+
 	$tpl->assign("list_type", "community_list");
 	$tpl->assign("list_heading", "List of Communities");
 }

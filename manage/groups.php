@@ -31,7 +31,7 @@ set_time_limit(0);
 include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
-include_once(APP_INC_PATH . "class.project.php");
+include_once(APP_INC_PATH . "class.group.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "db_access.php");
@@ -41,7 +41,7 @@ $tpl->setTemplate("manage/index.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION);
 
-$tpl->assign("type", "projects");
+$tpl->assign("type", "groups");
 
 $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
@@ -49,22 +49,24 @@ $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 
 if ($isAdministrator) {
+    if ($role_id == User::getRoleID('administrator')) {
+        $tpl->assign("show_setup_links", true);
+    }
 
     if (@$HTTP_POST_VARS["cat"] == "new") {
-        $tpl->assign("result", Project::insert());
+        $tpl->assign("result", Group::insert());
     } elseif (@$HTTP_POST_VARS["cat"] == "update") {
-        $tpl->assign("result", Project::update());
+        $tpl->assign("result", Group::update());
     } elseif (@$HTTP_POST_VARS["cat"] == "delete") {
-        Project::remove();
+        Group::remove();
     }
 
     if (@$HTTP_GET_VARS["cat"] == "edit") {
-        $tpl->assign("info", Project::getDetails($HTTP_GET_VARS["id"]));
+        $tpl->assign("info", Group::getDetails($HTTP_GET_VARS["id"]));
     }
 
-    $tpl->assign("list", Project::getList());
+    $tpl->assign("list", Group::getList());
     $tpl->assign("user_options", User::getActiveAssocList());
-    $tpl->assign("status_options", Status::getAssocList());
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }

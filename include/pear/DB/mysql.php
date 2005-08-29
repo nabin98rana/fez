@@ -200,6 +200,7 @@ class DB_mysql extends DB_common
      */
     function simpleQuery($query)
     {
+//		echo $query."<br/><br/>\n\n";
         // increments the total number of queries
         global $TOTAL_QUERIES;
         $TOTAL_QUERIES++;

@@ -1861,7 +1861,7 @@ class Record
         $rows = Record::getParam('rows');
         $cookie = array(
             'rows'           => $rows ? $rows : APP_DEFAULT_PAGER_SIZE,
-            'pagerRow'       => Record::getParam('pagerRow'),
+//            'pagerRow'       => Record::getParam('pagerRow'), //stop saving the page in the cookie..
             'hide_closed'    => Record::getParam('hide_closed'),
             "sort_by"        => $sort_by ? $sort_by : "rec_id",
             "sort_order"     => $sort_order ? $sort_order : "DESC",
@@ -2805,6 +2805,7 @@ LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "custom_field_option as 
      */
     function getDetails($pid, $xdis_id)
     {
+
 		// Get the Datastreams.
 		$datastreamTitles = XSD_Loop_Subelement::getDatastreamTitles($xdis_id);
 		foreach ($datastreamTitles as $dsValue) {
@@ -2820,7 +2821,6 @@ LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "custom_field_option as 
                 $xmlnode->loadXML($xmlDatastream);
                 $array_ptr = array();
                 Misc::dom_xml_to_simple_array($xmlnode, $array_ptr, $xsd_top_element_name, $xsd_element_prefix, $xsdmf_array, $xdis_id);
-//				print_r($array_ptr);								
             }
 		}
 
@@ -3395,6 +3395,7 @@ class RecordObject extends RecordGeneral
         }
 		$convert_check = false;
 //		print_r($datastreamXMLHeaders);
+//		print_r($indexArray);
 		Record::insertIndexBatch($pid, $indexArray, $datastreamXMLHeaders);
 //		echo "INDEX ARRAY -> ";
 //		print_r($indexArray);

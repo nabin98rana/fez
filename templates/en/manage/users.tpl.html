@@ -130,10 +130,27 @@
                   <b>Password:</b>
                 </td>
                 <td bgcolor="{$light_color}">
-                  <input type="password" name="password" size="40" class="default" value="{$info.usr_password}"> <i>(Only for Non-LDAP authentication)</i>
+				{if ($smarty.get.cat == "edit")}
+					{if ($info.usr_ldap_authentication == 0)}
+				  <input type="checkbox" name="change_password">  <span class="default"><i>(Tick this if you want to change the user password)</i></span>
+					{/if}
+				{/if}
+                  <input type="password" name="password" size="40" class="default" value="{$info.usr_password}"> <span class="default"><i>(Only for Non-LDAP authentication)</i></span>
                   {include file="error_icon.tpl.html" field="full_name"}
                 </td>
               </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Internal System Groups: *</b>
+                </td>
+                <td bgcolor="{$light_color}" width="80%">
+                  <select name="groups[]" multiple size="10" class="default">
+                    {html_options options=$group_options selected=$info.usr_groups}
+                  </select>
+                  {include file="error_icon.tpl.html" field="users[]"}
+                </td>
+              </tr>
+			  
               <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $smarty.get.cat == 'edit'}
@@ -209,29 +226,29 @@
                       <td width="4" nowrap bgcolor="{$row_color}" align="center">
                         <input type="checkbox" name="items[]" value="{$list[i].usr_id}" {if $smarty.section.i.total == 0}disabled{/if}>
                       </td>
-                      <td width="20%" bgcolor="{$row_color}" class="default">
+                      <td nowrap bgcolor="{$row_color}" class="default">
                         &nbsp;<a class="link" href="{$smarty.server.PHP_SELF}?cat=edit&id={$list[i].usr_id}" title="update this entry">{$list[i].usr_full_name}</a>
                       </td>
-                      <td width="20%" bgcolor="{$row_color}" class="default">
+                      <td nowrap bgcolor="{$row_color}" class="default">
                         &nbsp;{$list[i].usr_username}
                       </td>
-                      <td width="20%" bgcolor="{$row_color}" class="default">
+                      <td bgcolor="{$row_color}" class="default">
                         &nbsp;{if $list[i].usr_administrator == 1}Yes{else}No{/if}
                       </td>
-                      <td width="20%" bgcolor="{$row_color}" class="default">
+                      <td bgcolor="{$row_color}" class="default">
                         &nbsp;{if $list[i].usr_ldap_authentication == 1}Yes{else}No{/if}
                       </td>
-                      <td width="40%" bgcolor="{$row_color}" class="default">
+                      <td nowrap bgcolor="{$row_color}" class="default">
                         &nbsp;<a href="mailto:{$list[i].usr_email}" class="link" title="send email to {$list[i].usr_email}">{$list[i].usr_email}</a>
                       </td>
-                      <td width="20%" bgcolor="{$row_color}" class="default">
+                      <td bgcolor="{$row_color}" class="default">
                         &nbsp;{$list[i].usr_status|capitalize}
                       </td>
-                      <td width="20%" bgcolor="{$row_color}" class="default">
+                      <td  bgcolor="{$row_color}" class="default">
                         &nbsp;{$list[i].usr_login_count}
                       </td>
-                      <td width="20%" bgcolor="{$row_color}" class="default">
-                        &nbsp;{$list[i].usr_last_login_date}
+                      <td nowrap bgcolor="{$row_color}" class="default">
+                        &nbsp;{if $list[i].usr_login_count > 0}{$list[i].usr_last_login_date}{else}Never{/if}
                       </td>
                     </tr>
                     {sectionelse}

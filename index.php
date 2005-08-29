@@ -50,6 +50,7 @@ if (count($HTTP_POST_VARS) > 0) {
 		Auth::redirect(APP_RELATIVE_URL . "login.php?err=3");
 	}
 */
+
 	// check if the password matches
 	if (!Auth::isCorrectPassword($HTTP_POST_VARS["username"], $HTTP_POST_VARS["passwd"])) {
 		Auth::redirect(APP_RELATIVE_URL . "login.php?err=3&username=" . $HTTP_POST_VARS["username"]);
@@ -74,18 +75,19 @@ if (count($HTTP_POST_VARS) > 0) {
 	//    $extra = '?url=' . $HTTP_POST_VARS["url"];
 		Auth::redirect(urldecode($HTTP_POST_VARS["url"])); // @@@ CK - 2/6/2005 - Added this in so url redirects could work again
 	} else {
+		Auth::redirect(APP_RELATIVE_URL); // even though its the same page redirect so if they refresh it doesnt have the post vars
 		$extra = '';
 	}
 }
 $tpl = new Template_API();
 $tpl->setTemplate("front_page.tpl.html");
+
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
 $isAdministrator = User::isUserAdministrator($username);
 $tpl->assign("isAdministrator", $isAdministrator);
 
 $tpl->assign("news", News::getList());
-
 $tpl->displayTemplate();
 //Auth::redirect(APP_RELATIVE_URL . "list.php" . $extra);
 //Auth::redirect(APP_RELATIVE_URL . "select_collection.php" . $extra);

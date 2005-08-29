@@ -30,21 +30,15 @@
 include_once("config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
-//include_once(APP_INC_PATH . "class.news.php");
-//include_once(APP_INC_PATH . "class.category.php");
-//include_once(APP_INC_PATH . "class.subcategory.php");
-//include_once(APP_INC_PATH . "class.release.php");
+include_once(APP_INC_PATH . "class.user.php");
+include_once(APP_INC_PATH . "class.group.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.misc.php");
-//include_once(APP_INC_PATH . "class.resolution_location.php");
-//include_once(APP_INC_PATH . "class.support.php");
-//include_once(APP_INC_PATH . "class.custom_field.php");
 include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.community.php");
 include_once(APP_INC_PATH . "class.date.php");
-//include_once(APP_INC_PATH . "class.library_staff_ad.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 
@@ -80,6 +74,10 @@ if (!empty($community_pid)) {
 }
 $community_list = Community::getAssocList();
 $collection_list = Collection::getAssocList();
+
+$internal_user_list = User::getAssocList();
+$internal_group_list = Group::getAssocListAll();
+
 if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for it
 //	echo "XDIS_ID -> ".$xdis_id;
 //	echo "redirecting";

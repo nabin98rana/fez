@@ -32,7 +32,8 @@ include_once("config.inc.php");
 
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
-
+include_once(APP_INC_PATH . "class.user.php");
+include_once(APP_INC_PATH . "class.group.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.setup.php");
@@ -72,6 +73,8 @@ $tpl->assign("community_pid", $community_pid);
 $community_list = Community::getAssocList();
 $collection_list = Collection::getAssocList();
 
+$internal_user_list = User::getAssocList();
+$internal_group_list = Group::getAssocListAll();
 $extra_redirect = "";
 if (!empty($collection_pid)) {
 	$extra_redirect.="&collection_pid=".$collection_pid;

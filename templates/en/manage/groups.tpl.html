@@ -53,7 +53,7 @@
               //-->
               </script>
               {/literal}
-              <form name="project_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}">
+              <form name="group_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}">
               {if $smarty.get.cat == 'edit'}
               <input type="hidden" name="cat" value="update">
               <input type="hidden" name="id" value="{$smarty.get.id}">
@@ -62,7 +62,7 @@
               {/if}
               <tr>
                 <td colspan="2" class="default">
-                  <b>Manage Teams</b>
+                  <b>Manage Groups</b>
                 </td>
               </tr>
               {if $result != ""}
@@ -93,7 +93,7 @@
                   <b>Title: *</b>
                 </td>
                 <td bgcolor="{$light_color}" width="80%">
-                  <input type="text" name="title" size="40" class="default" value="{$info.prj_title}">
+                  <input type="text" name="title" size="40" class="default" value="{$info.grp_title}">
                   {include file="error_icon.tpl.html" field="title"}
                 </td>
               </tr>
@@ -103,18 +103,8 @@
                 </td>
                 <td bgcolor="{$light_color}" width="80%">
                   <select name="status" class="default">
-                    <option value="active" {if $info.prj_status == 'active'}selected{/if}>Active</option>
-                    <option value="archived" {if $info.prj_status == 'archived'}selected{/if}>Archived</option>
-                  </select>
-                </td>
-              </tr>
-              <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
-                  <b>Team Leader: *</b>
-                </td>
-                <td bgcolor="{$light_color}" width="80%">
-                  <select name="lead_usr_id" class="default" onChange="javascript:checkLeadSelection(this.form);">
-                    {html_options options=$user_options selected=$info.prj_lead_usr_id}
+                    <option value="active" {if $info.grp_status == 'active'}selected{/if}>Active</option>
+                    <option value="archived" {if $info.grp_status == 'archived'}selected{/if}>Archived</option>
                   </select>
                 </td>
               </tr>
@@ -124,67 +114,18 @@
                 </td>
                 <td bgcolor="{$light_color}" width="80%">
                   <select name="users[]" multiple size="10" class="default">
-                    {html_options options=$user_options selected=$info.prj_assigned_users}
+                    {html_options options=$user_options selected=$info.grp_users}
                   </select>
                   {include file="error_icon.tpl.html" field="users[]"}
                 </td>
               </tr>
-              <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
-                  <b>Statuses: *</b>
-                </td>
-                <td bgcolor="{$light_color}" width="80%">
-                  <select name="statuses[]" multiple size="3" class="default">
-                    {html_options options=$status_options selected=$info.assigned_statuses}
-                  </select>
-                  {include file="error_icon.tpl.html" field="statuses[]"}
-                </td>
-              </tr>
-              <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
-                  <b>Initial Status for New Issues: *</b>
-                </td>
-                <td bgcolor="{$light_color}" width="80%">
-                  <select name="initial_status" class="default">
-                    {html_options options=$status_options selected=$info.prj_initial_sta_id}
-                  </select>
-                  {include file="error_icon.tpl.html" field="initial_status"}
-                </td>
-              </tr>
-              <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
-                  <b>Outgoing Email Sender Name:</b>
-                </td>
-                <td bgcolor="{$light_color}" width="80%">
-                  <input type="text" name="outgoing_sender_name" size="40" class="default" value="{$info.prj_outgoing_sender_name}">
-                </td>
-              </tr>
-              <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
-                  <b>Outgoing Email Sender Address: *</b>
-                </td>
-                <td bgcolor="{$light_color}" width="80%">
-                  <input type="text" name="outgoing_sender_email" size="40" class="default" value="{$info.prj_outgoing_sender_email}">
-                  {include file="error_icon.tpl.html" field="outgoing_sender_email"}
-                </td>
-              </tr>
-              <tr>
-                <td width="120" nowrap bgcolor="{$cell_color}" class="default_white">
-                  <b>Remote Invocation:</b>
-                </td>
-                <td width="80%" bgcolor="{$light_color}" class="default">
-                  <input type="radio" name="remote_invocation" value="enabled" {if $info.prj_remote_invocation == 'enabled'}checked{/if}> 
-                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('project_form', 'remote_invocation', 0);">Enabled</a>&nbsp;&nbsp;
-                  <input type="radio" name="remote_invocation" value="disabled" {if $info.prj_remote_invocation != 'enabled'}checked{/if}> 
-                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('project_form', 'remote_invocation', 1);">Disabled</a>
-                </td>
-              </tr>
+
               <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $smarty.get.cat == 'edit'}
-                  <input class="button" type="submit" value="Update Project">
+                  <input class="button" type="submit" value="Update Group">
                   {else}
-                  <input class="button" type="submit" value="Create Project">
+                  <input class="button" type="submit" value="Create Group">
                   {/if}
                   <input class="button" type="reset" value="Reset">
                 </td>
@@ -192,7 +133,7 @@
               </form>
               <tr>
                 <td colspan="2" class="default">
-                  <b>Existing Teams:</b>
+                  <b>Existing Groups:</b>
                 </td>
               </tr>
               <tr>
@@ -227,31 +168,21 @@
                     <tr>
                       <td width="4" bgcolor="{$cell_color}" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
                       <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Title</b></td>
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Team Leader</b></td>
                       <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Status</b></td>
-                      <td bgcolor="{$cell_color}" nowrap class="default_white" align="center">&nbsp;<b>Actions</b></td>
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
                     <tr>
-                      <td width="4" align="center" nowrap bgcolor="{$row_color}"><input type="checkbox" name="items[]" value="{$list[i].prj_id}"></td>
+                      <td width="4" align="center" nowrap bgcolor="{$row_color}"><input type="checkbox" name="items[]" value="{$list[i].grp_id}"></td>
                       <td width="30%" bgcolor="{$row_color}" class="default">
-                        &nbsp;<a class="link" href="{$smarty.server.PHP_SELF}?cat=edit&id={$list[i].prj_id}" title="update this entry">{$list[i].prj_title}</a>
+                        &nbsp;<a class="link" href="{$smarty.server.PHP_SELF}?cat=edit&id={$list[i].grp_id}" title="update this entry">{$list[i].grp_title}</a>
                       </td>
-                      <td width="20%" bgcolor="{$row_color}" class="default">&nbsp;{$list[i].usr_full_name}</td>
-                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].prj_status|capitalize}</td>
-                      <td width="30%" bgcolor="{$row_color}" nowrap class="default">
-                        <ul>
-                          <li><a href="{$rel_url}manage/releases.php?prj_id={$list[i].prj_id}" class="link">Edit Releases</a></li>
-                          <li><a href="{$rel_url}manage/categories.php?prj_id={$list[i].prj_id}" class="link">Edit Categories</a></li>
-                          <li><a href="{$rel_url}manage/anonymous.php?prj_id={$list[i].prj_id}" class="link">Anonymous Reporting</a></li>
-                        </ul>
-                      </td>
+                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].grp_status|capitalize}</td>
                     </tr>
                     {sectionelse}
                     <tr>
                       <td colspan="5" bgcolor="{$light_color}" align="center" class="default">
-                        No teams could be found.
+                        No groups could be found.
                       </td>
                     </tr>
                     {/section}

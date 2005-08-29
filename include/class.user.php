@@ -44,6 +44,8 @@ include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.prefs.php");
 include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "class.date.php");
+include_once(APP_INC_PATH . "class.user.php");
+include_once(APP_INC_PATH . "class.group.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "private_key.php");
@@ -708,15 +710,45 @@ class User
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
                  WHERE
                     usr_username='$username'";
+
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
+			$usr_id = User::getUserIDByUsername($username);
+            $res["usr_groups"] = Group::getGroupColList($usr_id);
+        	return $res;
+		}
+    }
+
+    /**
+     * Method used to get the account details of a specific user.
+     *
+     * @access  public
+     * @param   integer $username The username
+     * @return  array The account details
+     */
+    function getDetailsByID($id)
+    {
+
+        $stmt = "SELECT
+                    *
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                 WHERE
+                    usr_id=$id";
+
+        $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            $res["usr_groups"] = Group::getGroupColList($id);		
+
             return $res;
         }
     }
-
 
     /**
      * Method used to get the full name of the specified user.
@@ -1046,7 +1078,7 @@ class User
                     usr_email='" . Misc::escapeString($HTTP_POST_VARS["email"]) . "',
                     usr_administrator=" . $usr_administrator . ",
                     usr_ldap_authentication=" . $ldap_authentication;
-        if (!empty($HTTP_POST_VARS["password"])) {
+        if ((!empty($HTTP_POST_VARS["password"])) && (($HTTP_POST_VARS["change_password"]))) {
             $stmt .= ",
                     usr_password='" . md5($HTTP_POST_VARS["password"]) . "'";
         } 
@@ -1060,23 +1092,23 @@ class User
             return -1;
         } else {
             // update the collection associations now
-/*            $stmt = "DELETE FROM
-                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "collection_user
+            $stmt = "DELETE FROM
+                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group_user
                      WHERE
-                        pru_usr_id=" . $HTTP_POST_VARS["id"];
+                        gpu_usr_id=" . $HTTP_POST_VARS["id"];
             $res = $GLOBALS["db_api"]->dbh->query($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
                 return -1;
             } else {
-                for ($i = 0; $i < count($HTTP_POST_VARS["collections"]); $i++) {
+                for ($i = 0; $i < count($HTTP_POST_VARS["groups"]); $i++) {
                     $stmt = "INSERT INTO
-                                " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "collection_user
+                                " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group_user
                              (
-                                pru_col_id,
-                                pru_usr_id
+                                gpu_grp_id,
+                                gpu_usr_id
                              ) VALUES (
-                                " . $HTTP_POST_VARS["collections"][$i] . ",
+                                " . $HTTP_POST_VARS["groups"][$i] . ",
                                 " . $HTTP_POST_VARS["id"] . "
                              )";
                     $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -1086,12 +1118,6 @@ class User
                     }
                 }
             }
-*/
-/*            if (!empty($HTTP_POST_VARS["password"])) {
-                Notification::notifyUserPassword($HTTP_POST_VARS["id"], $HTTP_POST_VARS["password"]);
-            } else {
-                Notification::notifyUserAccount($HTTP_POST_VARS["id"]);
-            } */
             return 1;
         }
     }
@@ -1147,11 +1173,9 @@ class User
         } else {
             $new_usr_id = $GLOBALS["db_api"]->get_last_insert_id();
             // add the group associations!
-/*            for ($i = 0; $i < count($HTTP_POST_VARS["collections"]); $i++) {
-                Collection::associateUser($HTTP_POST_VARS["collections"][$i], $new_usr_id);
-            } */
-            // send email to user
-//            Notification::notifyNewUser($new_usr_id, "");
+            for ($i = 0; $i < count($HTTP_POST_VARS["groups"]); $i++) {
+                Group::associateUser($HTTP_POST_VARS["groups"][$i], $new_usr_id);
+            } 
             return 1;
         }
     }
@@ -1284,6 +1308,9 @@ class User
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
+			foreach ($res as $key => $row) {
+			  $res[$key]["usr_last_login_date"] = Date_API::getFormattedDate($res[$key]["usr_last_login_date"]);
+			}
             return $res;
         }
     }
