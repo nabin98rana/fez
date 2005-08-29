@@ -135,7 +135,7 @@ if (!empty($collection_pid)) {
 } elseif (!empty($terms)) {
     // search eSpace
 //	$list = Record::getListing($terms, 1, 100);
-	$list = Collection::searchListing($terms, $pagerRows, $rows);	
+	$list = Collection::searchListing($terms, $pagerRow, $rows);	
 	$list_info = $list["info"];
 	$list = $list["list"];
 	$tpl->assign("list_heading", "Search Results ($terms)");

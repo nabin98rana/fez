@@ -474,11 +474,6 @@ class Collection
  				    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 on (k1.sek_id = x1.xsdmf_sek_id)
 				";
 				
-				// Get the basic search terms
-//				$simpleKeys = Search_Key::getSimpleList();
-				$tableCount = 1;
-				// loop through all the basic search terms to get a 
-//				foreach ($ter as $key => $title) {
 				$stmt .= 
 				" INNER JOIN (
 						SELECT distinct r2.rmf_rec_pid 
@@ -488,7 +483,6 @@ class Collection
 						WHERE r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND ".$termLike." s2.sek_simple_used = 1
 						) as r2 on r1.rmf_rec_pid = r2.rmf_rec_pid
 				";
-//				}
 				$stmt .= 
                 " WHERE
 				    r1.rmf_xsdmf_id = x1.xsdmf_id 
@@ -549,8 +543,8 @@ class Collection
 		}
 		
 		$return = array_values($return);
-		$return = Auth::getIndexAuthorisationGroups($return);
 		$hidden_rows = count($return);
+		$return = Auth::getIndexAuthorisationGroups($return);
 		$return = Misc::cleanListResults($return);
 
 		$total_rows = count($return);
@@ -562,7 +556,7 @@ class Collection
 
 		$total_pages = ceil($total_rows / $max);
         $last_page = $total_pages - 1;
-		$hidden_rows = count($return);
+//		$hidden_rows = count($return);
 		$return = Misc::limitListResults($return, $start, ($start + $max));
 
         if (PEAR::isError($res)) {
