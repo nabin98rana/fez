@@ -131,6 +131,27 @@ class Misc
     }
 
 
+       function array_merge_preserve($arr1,$arr2)
+       {
+               if(!is_array($arr1))
+                       $arr1 = array();
+               if(!is_array($arr2))
+                       $arr2 = array();
+               $keys1 = array_keys($arr1);
+               $keys2 = array_keys($arr2);
+               $keys  = array_merge($keys1,$keys2);
+               $vals1 = array_values($arr1);
+               $vals2 = array_values($arr2);
+               $vals  = array_merge($vals1,$vals2);
+               $ret    = array();
+               foreach($keys as $key)
+               {
+                       list($unused,$val) = each($vals);
+                       $ret[$key] = $val;
+               }
+           return $ret;
+       }
+
     /**
      * Method used to get the standard input.
      *

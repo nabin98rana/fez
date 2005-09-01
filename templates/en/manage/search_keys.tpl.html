@@ -123,6 +123,50 @@
                   }
                   return true;
               }
+			  function toggleEspaceVarText(show_field)
+              {
+                  var f = getForm('custom_field_form');
+				  var elementTitle = getPageElement('sek_espace_variable_tr');
+				  if (show_field == true) {
+					elementTitle.style.display = '';
+				  } else {
+					elementTitle.style.display = 'none';
+				  }
+                  return true;
+              }
+              function toggleSmartyVarText(show_field)
+              {
+                  var f = getForm('custom_field_form');
+				  var elementTitle = getPageElement('smarty_variable_tr');
+				  if (show_field == true) {
+					elementTitle.style.display = '';
+				  } else {
+					elementTitle.style.display = 'none';
+				  }
+                  return true;
+              }
+			  function toggleValidationType(show_field)
+              {
+                  var f = getForm('custom_field_form');
+				  var elementTitle = getPageElement('validation_type_tr');
+				  if (show_field == true) {
+					elementTitle.style.display = '';
+				  } else {
+					elementTitle.style.display = 'none';
+				  }
+                  return true;
+              }
+			  function toggleControlledVocab(show_field)
+              {
+                  var f = getForm('custom_field_form');
+				  var elementTitle = getPageElement('controlled_vocab_tr');
+				  if (show_field == true) {
+					elementTitle.style.display = '';
+				  } else {
+					elementTitle.style.display = 'none';
+				  }
+                  return true;
+              }			  
               function checkRequiredFields()
               {
                   var f = getForm('custom_field_form');
@@ -197,6 +241,100 @@
                 </td>
               </tr>
               <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Display Order:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="text" name="sek_order" size="3" class="default" value="{$info.sek_order}">
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Multiple?:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="checkbox" name="sek_multiple" class="default" {if ($info.sek_multiple == 1)}checked{/if}><br />
+                  <span class="small_default">(If this enabled tickbox is ticked this element will be able to be entered multiple times in forms)</span>
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Multiple Limit:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="text" name="sek_multiple_limit" class="default" size="30" value="{$info.sek_multiple_limit}"><br />
+                  <span class="small_default">(The maximum amount of html input elements that will show for this element if it is a multiple)</span>
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Field Type:</b>
+                </td>
+                <td bgcolor="{$light_color}" class="default">
+				  {literal}
+                  <input type="radio" name="field_type" value="text" {/literal} {if $info.sek_html_input == 'text'}checked{/if}{literal} onClick="javascript: toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(true);">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('custom_field_form', 'field_type', 0);  toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(true);">Text Input</a>&nbsp;
+                  <input type="radio" name="field_type" value="textarea" {/literal} {if $info.sek_html_input == 'textarea'}checked{/if}{literal} onClick="javascript:  toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(true);">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('custom_field_form', 'field_type', 1);  toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(true);}">Text Area</a>&nbsp;
+                  <input type="radio" name="field_type" value="combo" {/literal} {if $info.sek_html_input == 'combo'}checked{/if}{literal} onClick="javascript:toggleControlledVocab(false);toggleEspaceVarText(true);toggleSmartyVarText(true);toggleDynamicText(false);toggleFieldOptions(true);toggleValidationType(false);">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('custom_field_form', 'field_type', 2);  toggleControlledVocab(false);toggleEspaceVarText(true);toggleSmartyVarText(true);toggleDynamicText(false);toggleFieldOptions(true);toggleValidationType(false);">Combo Box</a>&nbsp;
+
+                  <input type="radio" name="field_type" value="multiple" {/literal} {if $info.sek_html_input == 'multiple'}checked{/if}{literal} onClick="javascript: toggleControlledVocab(false);toggleEspaceVarText(true);toggleSmartyVarText(true);toggleDynamicText(false);toggleFieldOptions(true);toggleValidationType(false);">
+	              <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('custom_field_form', 'field_type', 3);  toggleControlledVocab(false);toggleEspaceVarText(true);toggleSmartyVarText(true);toggleDynamicText(false);toggleFieldOptions(true);toggleValidationType(false);">Multiple Combo Box</a>
+
+<br />            <input type="radio" name="field_type" value="checkbox" {/literal} {if $info.sek_html_input == 'checkbox'}checked{/if}{literal} onClick="javascript:toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('custom_field_form', 'field_type', 4);  toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);">Check Box</a>&nbsp;
+		         <input type="radio" name="field_type" value="date" {/literal} {if $info.sek_html_input == 'date'}checked{/if}{literal} onClick="javascript:toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('custom_field_form', 'field_type', 5);  toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);">Date Selector</a>
+		         <input type="radio" name="field_type" value="contvocab" {/literal} {if $info.sek_html_input == 'contvocab'}checked{/if}{literal} onClick="javascript:toggleControlledVocab(true);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('custom_field_form', 'field_type', 6);  toggleControlledVocab(true);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);">Controlled Vocabulary</a>
+		         <input type="radio" name="field_type" value="allcontvocab" {/literal} {if $info.sek_html_input == 'allcontvocab'}checked{/if}{literal} onClick="javascript:toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('custom_field_form', 'field_type', 7);  toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);">All Controlled Vocabularies</a>
+
+                {/literal}
+
+                </td>
+              </tr>
+
+              {if $info.sek_html_input == 'combo' 
+                    || $info.sek_html_input == 'multiple'}
+                 {assign var="selectingfield" value=true}
+              {else}
+                 {assign var="selectingfield" value=false}
+              {/if}
+              {if !$selectingfield}
+                 {assign var="selectingfield_only" value='style="display:none"'}
+              {else}
+                 {assign var="selectingfield_only" value=''}
+              {/if}
+
+                  {assign var="show_field_options" value=true}
+              <tr id="controlled_vocab_tr"  {if $info.sek_html_input != 'contvocab'}style="display:none"{/if} >
+                 <td width="120" bgcolor="{$cell_color}" class="default_white"><b>Controlled Vocabulary:</b></td>
+ 				<td bgcolor="{$light_color}">
+					<select class="default" name="sek_cvo_id">
+					  {html_options options=$controlled_vocab_list}
+					</select>
+			  	</td>
+		     </tr>
+              <tr id="smarty_variable_tr"  {$selectingfield_only} >
+                 <td width="120" bgcolor="{$cell_color}" class="default_white"><b>Dynamic Variable:</b</td>
+ 				<td bgcolor="{$light_color}">
+					<input class="default" type="text" name="sek_smarty_variable" size="26" value="{$info.sek_smarty_variable}">
+			  	</td>
+		     </tr>
+			 <tr id="sek_espace_variable_tr" {if $info.sek_html_input != 'static' && !$selectingfield}style="display:none"{/if}>
+                 <td width="120" bgcolor="{$cell_color}" class="default_white"><b>eSpace Variable:</b><i>(If an eSpace variable is set it will be used instead of any other options including smarty template variables)</i></td>
+				<td class="default" bgcolor="{$light_color}"><br /><b>OR use one of these eSpace variables: </b> <br />
+					<INPUT TYPE=RADIO NAME="sek_espace_variable" VALUE="none" {if ($info.sek_espace_variable == "" || $info.sek_espace_variable == "none")}checked{/if}/>None<BR>
+					<INPUT TYPE=RADIO NAME="sek_espace_variable" VALUE="pid" {if $info.sek_espace_variable == "pid"}checked{/if}/>Pid (for new records it will get the new Pid and then create this parent datastream)<BR>
+					<INPUT TYPE=RADIO NAME="sek_espace_variable" VALUE="xdis_id" {if $info.sek_espace_variable == "xdis_id"}checked{/if}/>XSD Display ID<BR>
+					<INPUT TYPE=RADIO NAME="sek_espace_variable" VALUE="sta_id" {if $info.sek_espace_variable == "sta_id"}checked{/if}/>eSpace Object Status ID<BR>
+				</td>
+ 			  </tr> 
+
+
+              <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $smarty.get.cat == 'edit'}
                   <input class="button" type="submit" value="Update Search Key">
@@ -237,9 +375,13 @@
                     <input type="hidden" name="cat" value="delete">
                     <tr>
                       <td width="5" bgcolor="{$cell_color}" align="center" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td width="50%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Title</b>&nbsp;</td>
-                      <td width="20%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>In Simple Search?</b>&nbsp;</td>
-                      <td width="20%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>On Adv Search Page?</b>&nbsp;</td>					  					  
+                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Title</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>In Simple Search?</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>On Adv Search Page?</b>&nbsp;</td>					  					  
+                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Multiple?</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Multiple Limit</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Field Type</b>&nbsp;</td>					  
+                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Order</b>&nbsp;</td>
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
@@ -247,20 +389,31 @@
                       <td width="4" nowrap bgcolor="{$row_color}" align="center">
                         <input type="checkbox" name="items[]" value="{$list[i].sek_id}" {if $smarty.section.i.total == 0}disabled{/if}>
                       </td>
-                      <td width="50%" bgcolor="{$row_color}" class="default">
+                      <td bgcolor="{$row_color}" class="default">
                         &nbsp;<a href="search_keys.php?cat=edit&id={$list[i].sek_id}">{$list[i].sek_title}</a>
                       </td>
-                      <td width="20%" bgcolor="{$row_color}" class="default">
+                      <td bgcolor="{$row_color}" class="default">
                         &nbsp;{if $list[i].sek_simple_used == 1}<font color="green">yes</font>{else}<font color="red">no</font>{/if}
                       </td>
-                      <td width="20%" bgcolor="{$row_color}" class="default">
+                      <td bgcolor="{$row_color}" class="default">
                         &nbsp;{if $list[i].sek_adv_visible == 1}<font color="green">yes</font>{else}<font color="red">no</font>{/if}
                       </td>
-
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{if $list[i].sek_multiple == 1}<font color="green">yes</font>{else}<font color="red">no</font>{/if}
+                      </td>
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{$list[i].sek_multiple_limit}
+                      </td>
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{$list[i].sek_html_input}
+                      </td>
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{$list[i].sek_order}
+                      </td>
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="4" bgcolor="{$light_color}" align="center" class="default">
+                      <td colspan="8" bgcolor="{$light_color}" align="center" class="default">
                         No search keys could be found.
                       </td>
                     </tr>
@@ -269,7 +422,7 @@
                       <td width="4" align="center" bgcolor="{$cell_color}">
                         <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
                       </td>
-                      <td colspan="6" bgcolor="{$cell_color}">
+                      <td colspan="7" bgcolor="{$cell_color}">
                         <input type="submit" value="Delete" class="button">
                       </td>
                     </tr>

@@ -34,6 +34,7 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
+include_once(APP_INC_PATH . "class.controlled_vocab.php");
 include_once(APP_INC_PATH . "class.search_key.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
@@ -84,7 +85,7 @@ if (count($parent_subelement_loops) > 0) {
 }
 $tpl->assign("show_subelement_parents", $show_subelement_parents);
 $tpl->assign("xsdsel_id", $xsdsel_id);
-
+$tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 	if (is_numeric(strpos(@$HTTP_POST_VARS["form_name"], "xsdmf"))) {
 		if (is_numeric(strpos(@$HTTP_POST_VARS["submit"], "Delete"))) {
 			$form_cat = "delete";

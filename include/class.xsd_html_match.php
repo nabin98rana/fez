@@ -565,7 +565,8 @@ class XSD_HTML_Match
 					xsdmf_xsdsel_id,
 					xsdmf_image_location,
                     xsdmf_id_ref,
-					xsdsel_order
+					xsdsel_order,
+					xsdmf_cvo_id
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields as m1 left join
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement as s1 on (xsdsel_id = xsdmf_xsdsel_id)
@@ -1111,7 +1112,8 @@ class XSD_HTML_Match
 					xsdmf_value_prefix,
 					xsdmf_image_location,
 					xsdmf_static_text,
-					xsdmf_dynamic_text";
+					xsdmf_dynamic_text,
+					xsdmf_cvo_id";
 		if (is_numeric($HTTP_POST_VARS["xsdsel_id"])) {
 			$stmt .= ", xsdmf_xsdsel_id";
 		}
@@ -1162,7 +1164,8 @@ class XSD_HTML_Match
                     '" . Misc::escapeString($HTTP_POST_VARS["value_prefix"]) . "',
                     '" . Misc::escapeString($HTTP_POST_VARS["image_location"]) . "',
                     '" . Misc::escapeString($HTTP_POST_VARS["static_text"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["dynamic_text"]) . "'";
+                    '" . Misc::escapeString($HTTP_POST_VARS["dynamic_text"]) . "',
+                    " . $HTTP_POST_VARS["xsdmf_cvo_id"];
 
 		if (is_numeric($HTTP_POST_VARS["xsdsel_id"])) {
 			$stmt .= ", " . Misc::escapeString($HTTP_POST_VARS["xsdsel_id"]);
@@ -1595,6 +1598,7 @@ class XSD_HTML_Match
                     xsdmf_xml_order = " . Misc::escapeString($HTTP_POST_VARS["xml_order"]) . ",
                     xsdmf_validation_type = '" . Misc::escapeString($HTTP_POST_VARS["validation_types"]) . "',
                     xsdmf_order = " . Misc::escapeString($HTTP_POST_VARS["order"]) . ",
+                    xsdmf_cvo_id = " . $HTTP_POST_VARS["xsdmf_cvo_id"] . ",					
                     xsdmf_required = " . $required . ",
                     xsdmf_indexed = " . $indexed . ",
                     xsdmf_enabled = " . $enabled . ",

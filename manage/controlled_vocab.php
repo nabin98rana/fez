@@ -30,10 +30,9 @@
 include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
-include_once(APP_INC_PATH . "class.search_key.php");
 include_once(APP_INC_PATH . "class.controlled_vocab.php");
 //include_once(APP_INC_PATH . "class.wfbehaviours.php");
-include_once(APP_INC_PATH . "class.collection.php");
+//include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "db_access.php");
 
 $tpl = new Template_API();
@@ -41,8 +40,9 @@ $tpl->setTemplate("manage/index.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION);
 
-$tpl->assign("type", "search_keys");
-
+$tpl->assign("type", "controlled_vocab");
+$parent_id = @$HTTP_POST_VARS["parent_id"] ? $HTTP_POST_VARS["parent_id"] : @$HTTP_GET_VARS["parent_id"];	
+$tpl->assign("parent_id", $parent_id);
 $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
@@ -51,19 +51,24 @@ $tpl->assign("isAdministrator", $isAdministrator);
 if ($isAdministrator) {
   
     if (@$HTTP_POST_VARS["cat"] == "new") {
-        $tpl->assign("result", Search_Key::insert());
+        $tpl->assign("result", Controlled_Vocab::insert());
     } elseif (@$HTTP_POST_VARS["cat"] == "update") {
-        $tpl->assign("result", Search_Key::update($HTTP_POST_VARS["id"]));
+        $tpl->assign("result", Controlled_Vocab::update($HTTP_POST_VARS["id"]));
     } elseif (@$HTTP_POST_VARS["cat"] == "delete") {
-        Search_Key::remove();
+        Controlled_Vocab::remove();
     }
 
     if (@$HTTP_GET_VARS["cat"] == "edit") {
-        $tpl->assign("info", Search_Key::getDetails($HTTP_GET_VARS["id"]));
+        $tpl->assign("info", Controlled_Vocab::getDetails($HTTP_GET_VARS["id"]));
     }
 
-    $tpl->assign("list", Search_Key::getList());
-    $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
+	if (is_numeric($parent_id)) {
+	    $tpl->assign("parent_title", Controlled_Vocab::getTitle($parent_id));
+	} else {
+		$tpl->assign("parent_title", "0");
+	}
+    $tpl->assign("list", Controlled_Vocab::getList($parent_id));
+//    $tpl->assign("collection_list", Collection::getAll());
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }
