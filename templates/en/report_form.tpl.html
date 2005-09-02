@@ -184,7 +184,20 @@ function openDetailPage()
 						 </td>
 						</tr>
 				{/if}
+            {elseif $xsd_display_fields[i].xsdmf_html_input == 'contvocab'}
+
+					<tr id="tr_list_{$list[i].xsdmf_id}_1" valign="top">
+					  <td width="150" bgcolor="{$cell_color}" class="default_white">
+						<b>{$xsd_display_fields[i].xsdmf_title}</b><br />
+					  </td>
+					  <td bgcolor="{$light_color}">
+						<select id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1" multiple size="15" class="default" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]">
+							  {html_options options=$xsd_display_fields[i].field_options}
+						</select>
+					 </td>
+					</tr>				
             {/if}
+			
             {assign var="custom_field_id" value=$xsd_display_fields[i].xsdmf_id}
             {if $xsd_display_fields[i].xsdmf_html_input == 'multiple'}
               {assign var="custom_field_sufix" value="[]"}

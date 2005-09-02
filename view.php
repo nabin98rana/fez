@@ -100,7 +100,7 @@ $tpl->assign("local_eserv_url", APP_RELATIVE_URL."eserv.php?pid=".$pid."&dsID=")
 			$tpl->assign("xsd_display_fields", $xsd_display_fields);
 
 			$details = $record->getDetails();
-		
+
 			foreach ($details as $dkey => $dvalue) { // turn any array values into a comma seperated string value
 				if (is_array($dvalue)) {
 					$details[$dkey] = implode(", ", $dvalue);

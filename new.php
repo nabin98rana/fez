@@ -36,6 +36,7 @@ include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "db_access.php");
+include_once(APP_INC_PATH . "class.controlled_vocab.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.community.php");
 include_once(APP_INC_PATH . "class.date.php");
@@ -156,7 +157,7 @@ $tpl->assign("custom_fields", $custom_modified);*/
 //$xsd_display_fields = (XSD_HTML_Match::getListByCollection($col_id, 'report_form'));
 //$xdis_id = 5; // was 5
 $xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id));
-
+$cvo_list = Controlled_Vocab::getAssocListFullDisplay();
 //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
 foreach ($xsd_display_fields  as $dis_key => $dis_field) {
 	if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple') {
@@ -167,6 +168,10 @@ foreach ($xsd_display_fields  as $dis_key => $dis_field) {
 			eval("\$xsd_display_fields[\$dis_key]['selected_option'] = " . $dis_field["xsdmf_dynamic_selected_option"] . ";");
 		}
 	}
+	if ($dis_field["xsdmf_html_input"] == 'contvocab') {
+		$xsd_display_fields[$dis_key]['field_options'] = $cvo_list['data'][$dis_field['xsdmf_cvo_id']];
+	}
+	
 }
 
 

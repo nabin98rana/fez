@@ -38,6 +38,7 @@ include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "db_access.php");
+include_once(APP_INC_PATH . "class.controlled_vocab.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.community.php");
 include_once(APP_INC_PATH . "class.date.php");
@@ -118,6 +119,7 @@ $maxG = 0;
 //$tpl->assign("col_id", $col_id);
 //$tpl->assign("user_id", $user_id);
 //$xdis_id = 5;
+$cvo_list = Controlled_Vocab::getAssocListFullDisplay();
 $xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id));
 //$prior = array(''=>array('xsdmf_'=>array('')));
 //$priority = array(''=>array('xsdmf_order'=>''));
@@ -137,6 +139,11 @@ foreach ($xsd_display_fields  as $dis_key => $dis_field) {
 		if (!empty($dis_field["xsdmf_dynamic_selected_option"]) && $dis_field["xsdmf_dynamic_selected_option"] != "none") {
 			eval("\$xsd_display_fields[\$dis_key]['selected_option'] = " . $dis_field["xsdmf_dynamic_selected_option"] . ";");
 		}
+
+
+	}
+	if ($dis_field["xsdmf_html_input"] == 'contvocab') {
+		$xsd_display_fields[$dis_key]['field_options'] = $cvo_list['data'][$dis_field['xsdmf_cvo_id']];
 	}
 }
 
@@ -151,7 +158,7 @@ $details = Record::getDetails($pid, $xdis_id);
 
 //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
 foreach ($xsd_display_fields  as $dis_field) {
-	if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple') {
+	if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'contvocab') {
 		if ($details[$dis_field["xsdmf_id"]]) { // if a record detail matches a display field xsdmf entry
 			if (is_array($dis_field["field_options"])) { // if the display field has a list of matching options
 				foreach ($dis_field["field_options"] as $field_key => $field_option) { // for all the matching options match the set the details array the template uses
