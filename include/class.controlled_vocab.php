@@ -210,6 +210,31 @@ class Controlled_Vocab
             return $res;
         }
     }
+	
+    /**
+     * Method used to get the list of controlled vocabularies available in the 
+     * system returned in an associative array for drop down lists.
+     *
+     * @access  public
+     * @return  array The list of controlled vocabularies in an associative array (for drop down lists).
+     */
+    function getAssocListAll()
+    {
+        $stmt = "SELECT
+                    cvo_id,
+					cvo_title
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
+                 ORDER BY
+                    cvo_title ASC";
+        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }	
 
     /**
      * Method used to get the list of controlled vocabularies available in the 

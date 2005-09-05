@@ -43,6 +43,7 @@ include_once(APP_INC_PATH . "class.record.php");
 
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.community.php");
+include_once(APP_INC_PATH . "class.controlled_vocab.php");
 
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.status.php");
@@ -79,12 +80,14 @@ $tpl->assign("options", $options);
 //$col_id = Auth::getCurrentCollection();
 //print_r($options);
 $terms = @$_REQUEST['terms'];
+$cat = @$_REQUEST['cat'];
+$browse = @$_REQUEST['browse'];
 
 $collection_pid = @$HTTP_POST_VARS["collection_pid"] ? $HTTP_POST_VARS["collection_pid"] : @$HTTP_GET_VARS["collection_pid"];	
 $community_pid = @$HTTP_POST_VARS["community_pid"] ? $HTTP_POST_VARS["community_pid"] : @$HTTP_GET_VARS["community_pid"];
 
 $list_info = array();
-
+//print_r($_GET);
 if (!empty($collection_pid)) {
     // list a collection
 	$tpl->assign("xdis_id", Record::getRecordXDIS_ID());
@@ -140,6 +143,28 @@ if (!empty($collection_pid)) {
 	$list = $list["list"];
 	$tpl->assign("list_heading", "Search Results ($terms)");
 	$tpl->assign("list_type", "all_records_list");
+} elseif ($cat == "search") {
+    // search eSpace
+	$list = Collection::advSearchListing($pagerRow, $rows);	
+	$list_info = $list["info"];
+	$list = $list["list"];
+	$tpl->assign("list_heading", "Search Results ($terms)");
+	$tpl->assign("list_type", "all_records_list");
+} elseif ($browse == "subject") {
+	
+    // browse eSpace by subject
+	$parent_id = $_GET['parent_id'];
+	if (is_numeric($parent_id)) {
+		$list = Controlled_Vocab::getList($parent_id);
+	} else {
+		$list = Controlled_Vocab::getList();	
+	}
+
+//	$list = Collection::advSearchListing($pagerRow, $rows);	
+//	$list_info = $list["info"];
+//	$list = $list["list"];
+	$tpl->assign("list_heading", "Browse By Subject Classifications");
+	$tpl->assign("list_type", "browse_subjects_list");
 } else {
     // list all communities
 	$xdis_id = Community::getCommunityXDIS_ID();

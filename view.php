@@ -37,6 +37,7 @@ include_once(APP_INC_PATH . "class.record.php");
 //include_once(APP_INC_PATH . "class.custom_field.php");
 //include_once(APP_INC_PATH . "class.phone_support.php");
 //include_once(APP_INC_PATH . "class.scm.php");
+include_once(APP_INC_PATH . "class.controlled_vocab.php");
 include_once(APP_INC_PATH . "class.collection.php");
 //include_once(APP_INC_PATH . "class.draft.php");
 include_once(APP_INC_PATH . "class.user.php");
@@ -100,10 +101,24 @@ $tpl->assign("local_eserv_url", APP_RELATIVE_URL."eserv.php?pid=".$pid."&dsID=")
 			$tpl->assign("xsd_display_fields", $xsd_display_fields);
 
 			$details = $record->getDetails();
-
+			$controlled_vocabs = Controlled_Vocab::getAssocListAll();
+			$tpl->assign("details_array", $details);
+			foreach ($xsd_display_fields as $row) {
+				if ($row['xsdmf_html_input'] == "contvocab") {
+					if (!empty($details[$row['xsdmf_id']])) {
+						if (is_array($details[$row['xsdmf_id']])) {
+							foreach ($details[$row['xsdmf_id']] as $ckey => $cdata) {
+								$details[$row['xsdmf_id']][$ckey] = $controlled_vocabs[$cdata];
+							}
+						} else {
+							$details[$row['xsdmf_id']] = $controlled_vocabs[$details[$row['xsdmf_id']]];
+						}
+					}
+				}
+			}
 			foreach ($details as $dkey => $dvalue) { // turn any array values into a comma seperated string value
 				if (is_array($dvalue)) {
-					$details[$dkey] = implode(", ", $dvalue);
+					$details[$dkey] = implode("<br /> ", $dvalue);
 				}
 			}
 		
@@ -143,6 +158,8 @@ $tpl->assign("local_eserv_url", APP_RELATIVE_URL."eserv.php?pid=".$pid."&dsID=")
 			$tpl->assign("parents", $parents);
 		
 			$tpl->assign("details", $details);
+
+			$tpl->assign("controlled_vocabs", $controlled_vocabs);			
 	
 	}
 } else {

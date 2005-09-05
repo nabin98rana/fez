@@ -440,6 +440,162 @@ class Collection
      * @access  public
      * @return  array The list of collection records with the given collection pid
      */
+    function advSearchListing($current_row = 0, $max = 25)
+    {
+//        $isMemberOf_xsdmf_id = 149;
+//        $ret_id_xsd_mf = 236; // eSpaceMD Display, 
+		$terms = $_GET['list'];
+
+		if (empty($terms)) {
+			return array();
+		}
+
+		if ($max == "ALL") {
+            $max = 9999999;
+        }
+        $start = $current_row * $max;
+		$middleStmt = "";
+		$foundValue = false;
+		$termCounter = 2;
+		foreach ($terms as $tkey => $tdata) {
+			if (!empty($tdata)) {
+				$middleStmt .= 
+				" INNER JOIN (
+						SELECT distinct r".$termCounter.".rmf_rec_pid 
+						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r".$termCounter.",
+							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x".$termCounter.",
+							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s".$termCounter."  							  
+						WHERE r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id AND s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id AND ".$termLike." s".$termCounter.".sek_id = ".$tkey." AND r".$termCounter.".rmf_varchar like '%".$tdata."%' 
+						) as r".$termCounter." on r1.rmf_rec_pid = r".$termCounter.".rmf_rec_pid
+				";
+				$termCounter++;
+				$foundValue = true;
+			}
+		}
+
+		if ($foundValue == false) {
+			return array();
+		}
+
+        $stmt = "SELECT
+                    * 
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
+
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id) left join
+ 				    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 on (k1.sek_id = x1.xsdmf_sek_id)
+				";
+				
+				$stmt .= $middleStmt;
+				$stmt .= 
+                " WHERE
+				    r1.rmf_xsdmf_id = x1.xsdmf_id 
+				 ORDER BY
+				 	r1.rmf_rec_pid";
+	
+		echo $stmt;
+		$returnfields = array("title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+		
+		$return = array();
+		foreach ($res as $result) {
+			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
+				if (!is_array($return[$result['rmf_rec_pid']]['eSpaceACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
+					$return[$result['rmf_rec_pid']]['eSpaceACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
+				}
+				array_push($return[$result['rmf_rec_pid']]['eSpaceACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+			}
+			if ($result['sek_title'] == 'isMemberOf') {
+				if (!is_array(@$return[$result['rmf_rec_pid']]['isMemberOf'])) {
+					$return[$result['rmf_rec_pid']]['isMemberOf'] = array();
+				}
+				array_push($return[$result['rmf_rec_pid']]['isMemberOf'], $result['rmf_varchar']);
+			}
+			if (in_array($result['xsdmf_espace_title'], $returnfields)) {
+				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
+				$return[$result['rmf_rec_pid']][$result['xsdmf_espace_title']] = $result['rmf_'.$result['xsdmf_data_type']];
+			}
+			// get thumbnails
+			if ($result['xsdmf_espace_title'] == "datastream_id") {
+				if (is_numeric(strpos($result['rmf_varchar'], "thumbnail_"))) {
+					if (!is_array(@$return[$result['rmf_rec_pid']]['thumbnails'])) {
+						$return[$result['rmf_rec_pid']]['thumbnails'] = array();
+					}
+					array_push($return[$result['rmf_rec_pid']]['thumbnails'], $result['rmf_varchar']);
+				} else {
+					if (!is_array(@$return[$result['rmf_rec_pid']]['datastreams'])) {
+						$return[$result['rmf_rec_pid']]['datastreams'] = array();
+					}
+					array_push($return[$result['rmf_rec_pid']]['datastreams'], $result['rmf_varchar']);
+				}
+			}
+		}
+		
+		foreach ($return as $pid_key => $row) {
+			//if there is only one thumbnail DS then use it
+			if (count($row['thumbnails']) == 1) {
+				$return[$pid_key]['thumbnail'] = $row['thumbnails'][0];
+			} else {
+				$return[$pid_key]['thumbnail'] = 0;
+			}
+
+			if (!is_array(@$row['eSpaceACML'])) {
+				$parentsACMLs = array();
+				Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid_key, $row['isMemberOf']);
+				$return[$pid_key]['eSpaceACML'] = $parentsACMLs;
+			}
+		}
+		
+		$return = array_values($return);
+		$hidden_rows = count($return);
+		$return = Auth::getIndexAuthorisationGroups($return);
+		$return = Misc::cleanListResults($return);
+
+		$total_rows = count($return);
+		if (($start + $max) < $total_rows) {
+	        $total_rows_limit = $start + $max;
+		} else {
+		   $total_rows_limit = $total_rows;
+		}
+
+		$total_pages = ceil($total_rows / $max);
+        $last_page = $total_pages - 1;
+//		$hidden_rows = count($return);
+		$return = Misc::limitListResults($return, $start, ($start + $max));
+
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+
+            return array(
+                "list" => $return,
+                "info" => array(
+                    "current_page"  => $current_row,
+                    "start_offset"  => $start,
+                    "end_offset"    => $total_rows_limit,
+                    "total_rows"    => $total_rows,
+                    "total_pages"   => $total_pages,
+                    "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+                    "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
+                    "last_page"     => $last_page,
+                    "hidden_rows"     => $hidden_rows - $total_rows
+                )
+            );
+
+
+        }
+
+    }
+
+    /**
+     * Method used to get the list of collection records available in the 
+     * system.
+     *
+     * @access  public
+     * @return  array The list of collection records with the given collection pid
+     */
     function SearchListing($terms, $current_row = 0, $max = 25)
     {
 //        $isMemberOf_xsdmf_id = 149;

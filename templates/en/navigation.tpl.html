@@ -38,12 +38,12 @@
           
           <td align="right" class="default_white">
             {if $isAdministrator}
-            <img src="{$rel_url}images/administrator_16.png" align="absmiddle"/> <a target="_top" title="manage the application settings, users, etc" href="{$rel_url}manage/" class="white_link">Administration</a>&nbsp;|
+            <img src="{$rel_url}images/administrator_16.gif" align="absmiddle"/> <a target="_top" title="manage the application settings, users, etc" href="{$rel_url}manage/" class="white_link">Administration</a>&nbsp;|
             {/if}
-            <img src="{$rel_url}images/community_16.png" align="absmiddle"/> <a target="_top" title="list the communities stored in eSpace" href="{$rel_url}list.php" class="white_link">Browse Communities</a>&nbsp;|
+            <img src="{$rel_url}images/community_16.gif" align="absmiddle"/> <a target="_top" title="list the communities stored in eSpace" href="{$rel_url}list.php" class="white_link">Browse Communities</a>&nbsp;|
             <!-- {if $isAdministrator}<img src="{$rel_url}images/adv_search_16.png" align="absmiddle"/> <a target="_top" title="get access to advanced search parameters" href="{$rel_url}adv_search.php" class="white_link">Advanced Search</a>&nbsp;|{/if} -->
             {if $isAdministrator}
-            <img src="{$rel_url}images/my_espace_16.png" align="absmiddle"/> <a target="_top" title="" href="{$rel_url}my_espace.php" class="white_link">My eSpace</a>&nbsp;|
+            <img src="{$rel_url}images/my_espace_16.gif" align="absmiddle"/> <a target="_top" title="" href="{$rel_url}my_espace.php" class="white_link">My eSpace</a>&nbsp;|
             {/if}
             <img src="{$rel_url}images/help.gif" align="absmiddle"/> <a title="help documentation" href="javascript:void(null);" onClick="javascript:openHelp('{$rel_url}', 'main');" class="help">Help</a>&nbsp;
           </td>
@@ -75,7 +75,7 @@
 		  {/if}
           <form target="_top" method="get" action="{$rel_url}list.php">
           <td width="5%" nowrap bgcolor="{$light_color}" align="right">
-            <img src="{$rel_url}images/search_16.png" align="absmiddle"/> <label for="search" accesskey="3"></label>
+            <a href="{$rel_url}adv_search.php"><img border="0" title="Click Here for Advanced Search page" src="{$rel_url}images/search_16.png" align="absmiddle"/></a> <label for="search" accesskey="3"></label>
             <input type="text" id="search" name="terms" value="terms" size="15" 
               onBlur="javascript:if (this.value == '') this.value = 'terms';" onFocus="javascript:if (this.value == 'terms') this.value='';" class="shortcut">
             <input type="submit" value="Search" class="shortcut">
