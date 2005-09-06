@@ -2776,6 +2776,34 @@ return $ret;
         return $dest;
     }
 
+    function keyPairs($source, $kfield, $vfield)
+    {
+        $dest = array();
+        foreach ($source as $item) {
+            $dest[$item[$kfield]] = $item[$vfield];
+        }
+        return $dest;
+    }
+
+    function keyArray($source, $kfield)
+    {
+        $dest = array();
+        foreach ($source as $item) {
+            $dest[$item[$kfield]] = $item;
+        }
+        return $dest;
+    }
+
+
+    function checkBox($check)
+    {
+        $result = 0;
+        if (!empty($check)) {
+            $result = 1;
+        }
+        return $result;
+    }
+
 } // end of Misc class
 
 // benchmarking the included file (aka setup time)
