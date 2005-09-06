@@ -1850,6 +1850,22 @@ function dom_xsd_to_referenced_array($domnode, $topelement, &$array, $parentnode
 //	return $array_ptr;
 }
 
+function in_multi_array($needle, $haystack) {
+   $in_multi_array = false;
+   if (in_array($needle, $haystack)) {
+       $in_multi_array = true;
+   } else {
+       foreach ($haystack as $key => $val) {
+           if(is_array($val)) {
+               if (Misc::in_multi_array($needle, $val)) {
+                   $in_multi_array = true;
+                   break;
+               }
+           }
+       }
+   }
+   return $in_multi_array;
+}
 
 
 function array_flatten(&$a,$pref='') {

@@ -180,6 +180,24 @@
                 </td>
               </tr>
               <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Description:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <textarea name="cvo_desc" cols="50" rows="3" class="default">{$info.cvo_desc}</textarea>
+                  {include file="error_icon.tpl.html" field="cvo_desc"}
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                  <b>Image Filename:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="text" name="cvo_image_filename" size="40" class="default" value="{$info.cvo_image_filename}">
+                  {include file="error_icon.tpl.html" field="cvo_image_filename"}
+                </td>
+              </tr>			  
+              <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $smarty.get.cat == 'edit'}
                   <input class="button" type="submit" value="Update Controlled Vocabulary">
@@ -220,8 +238,10 @@
                     <input type="hidden" name="cat" value="delete">
                     <tr>
                       <td width="5" bgcolor="{$cell_color}" align="center" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td width="50%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Title</b>&nbsp;</td>
-                      <td width="40%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Edit Children</b>&nbsp;</td>  
+                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Title</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Desc</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Image Filename</b>&nbsp;</td>					  
+                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Edit Children</b>&nbsp;</td>  
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
@@ -229,17 +249,22 @@
                       <td width="4" nowrap bgcolor="{$row_color}" align="center">
                         <input type="checkbox" name="items[]" value="{$list[i].cvo_id}" {if $smarty.section.i.total == 0}disabled{/if}>
                       </td>
-                      <td width="50%" bgcolor="{$row_color}" class="default">
+                      <td bgcolor="{$row_color}" class="default">
                         &nbsp;<a href="controlled_vocab.php?cat=edit&id={$list[i].cvo_id}">{$list[i].cvo_title}</a>
                       </td>
-                      <td width="40%" bgcolor="{$row_color}" class="default" nowrap>
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{$list[i].cvo_desc}
+                      </td>
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{$list[i].cvo_image_filename}
+                      </td>
+                      <td bgcolor="{$row_color}" class="default">
                         &nbsp;<a href="controlled_vocab.php?parent_id={$list[i].cvo_id}">Edit {$list[i].cvo_title} Child Items</a>
                       </td>
-
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="3" bgcolor="{$light_color}" align="center" class="default">
+                      <td colspan="5" bgcolor="{$light_color}" align="center" class="default">
                         No Controlled Vocabularies could be found.
                       </td>
                     </tr>

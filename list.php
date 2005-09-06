@@ -154,17 +154,42 @@ if (!empty($collection_pid)) {
 	
     // browse eSpace by subject
 	$parent_id = $_GET['parent_id'];
-	if (is_numeric($parent_id)) {
-		$list = Controlled_Vocab::getList($parent_id);
+	if (is_numeric($parent_id)) {	
+		$subject_list = Controlled_Vocab::getList($parent_id);
+		$treeIDs = Controlled_Vocab::getAllTreeIDs($parent_id);
+		$subject_count = Collection::getCountSearch($treeIDs, $parent_id);
+		$list = Collection::browseListing($pagerRow, $rows);	
+		$list_info = $list["info"];
+		$list = $list["list"];		
 	} else {
-		$list = Controlled_Vocab::getList();	
+		$subject_list = Controlled_Vocab::getList();	
+		$treeIDs = Controlled_Vocab::getAllTreeIDs();
+		$subject_count = Collection::getCountSearch($treeIDs);
 	}
+	$breadcrumb = Controlled_Vocab::getParentAssocListFullDisplay($parent_id);
+	$breadcrumb = Misc::array_merge_preserve($breadcrumb, Controlled_Vocab::getAssocListByID($parent_id));
 
-//	$list = Collection::advSearchListing($pagerRow, $rows);	
-//	$list_info = $list["info"];
-//	$list = $list["list"];
-	$tpl->assign("list_heading", "Browse By Subject Classifications");
-	$tpl->assign("list_type", "browse_subjects_list");
+//	print_r(array_values($breadcrumb));
+	$newcrumb = array();
+	foreach ($breadcrumb as $key => $data) {
+		array_push($newcrumb, array("cvo_id" => $key, "cvo_title" => $data));
+	}
+//	print_r($newcrumb);
+//	if (count($newcrumb) > 0) {
+		$max_breadcrumb = (count($newcrumb) -1);
+//	} else {
+//		$max_breadcrumb = -1;
+//	}
+
+	$tpl->assign("max_subject_breadcrumb", $max_breadcrumb);	
+	$tpl->assign("subject_breadcrumb", $newcrumb);	
+	$tpl->assign("list_type", "all_records_list");
+	$tpl->assign("parent_id", $parent_id);
+	$tpl->assign("subject_list", $subject_list);
+	$tpl->assign("subject_count", $subject_count);
+	$tpl->assign("browse_heading", "Browse By Subject Classifications Records");
+	$tpl->assign("list_heading", "List of Subject Classifications Records");
+	$tpl->assign("browse_type", "browse_subjects");
 } else {
     // list all communities
 	$xdis_id = Community::getCommunityXDIS_ID();

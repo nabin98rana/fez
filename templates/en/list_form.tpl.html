@@ -136,6 +136,57 @@ function purgeObject(pid)
 		  </td>
 		</tr>
 		{/if}
+
+        <tr><td>
+      <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1">
+
+		{if $browse_heading != ""} 
+        <tr>
+			<td align="left" class="default"><br />
+			<img src="{$rel_url}images/browse_32.jpg" align="absmiddle"/>		
+           &nbsp;<b>Browse by {if $max_subject_breadcrumb != -1}{section name="b" loop=$subject_breadcrumb}
+				  {assign var="counter" value=b}
+                  {if $subject_breadcrumb[b].cvo_image_filename != ""}<img align="absmiddle" src="{$rel_url}images/{$subject_breadcrumb[b].cvo_image_filename}"/>{/if}
+                        {if $max_subject_breadcrumb != $smarty.section.b.index}<a href='{$rel_url}list.php?browse=subject&parent_id={$subject_breadcrumb[b].cvo_id}'>{else}<b>{/if}{$subject_breadcrumb[b].cvo_title|escape:"html"}{if $max_subject_breadcrumb != $smarty.section.b.index}</a>{else}</b>{/if}
+						{assign var="cvo_id" value=$subject_breadcrumb[b].cvo_id}
+						{if $subject_count[$cvo_id]}({$subject_count[$cvo_id]}){else}{/if}{if $max_subject_breadcrumb != $smarty.section.b.index}->{else}:{/if}					
+			{/section}{else}Subject Classification:{/if}</b>		  
+			</td>
+        </tr>
+		{/if}
+
+        {section name="i" loop=$subject_list}
+		  <tr>
+			  <td>
+			  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
+              <tr>
+                  <td>{if $subject_list[i].cvo_image_filename != ""}<img align="absmiddle" src="{$rel_url}images/{$subject_list[i].cvo_image_filename}"/>{/if}
+                        <a href='{$rel_url}list.php?browse=subject&parent_id={$subject_list[i].cvo_id}'>{$subject_list[i].cvo_title|escape:"html"}</a>
+						{assign var="cvo_id" value=$subject_list[i].cvo_id}
+						{if $subject_count[$cvo_id]}({$subject_count[$cvo_id]}){else}(0){/if}
+					</td>
+				</tr>
+				<tr>
+                    <td>
+						{$subject_list[i].cvo_desc}
+                    </td>
+                  </tr>
+				  </table>
+                <!-- space between rows -->
+	        </td>
+	        </tr>
+        {sectionelse}
+		<tr>
+		<td>
+		  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
+        <tr><td>
+            No further child subject classfications could be found.
+        </td></tr>
+        </table>
+			        </td>
+	        </tr>
+		{/section}
+		{if $browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0} 
         <tr>
 			<td align="left" class="default"><br />
 		{if $list_type == 'all_records_list' || $list_type == 'collection_records_list'}
@@ -152,8 +203,7 @@ function purgeObject(pid)
 		   <b>({$list_info.total_rows} results found{if $list_info.end_offset > 0}, {math equation="x + 1" x=$list_info.start_offset} - {$list_info.end_offset} shown{/if}) ({$list_info.hidden_rows} hidden)</b>
 </td>
         </tr>
-        <tr><td>
-      <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1">
+
         {section name="i" loop=$list}
         {if (($list[i].isLister==1 || $isAdministrator) && $list_type != 'browse_subjects_list')}
 	   		{if $list[i].ret_id == '1'}
@@ -227,25 +277,6 @@ function purgeObject(pid)
 	        </td>
 	        </tr>
 	 {else}
-		  <tr>
-
-			  <td>
-			  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
-              <tr>
-
-                  <td>{if $list[i].cvo_image_filename != ""}<img align="absmiddle" src="{$rel_url}images/{$list[i].cvo_image_filename}"/>{/if}
-                        <a href='{$rel_url}list.php?browse=subject&parent_id={$list[i].cvo_id}'>{$list[i].cvo_title|escape:"html"}</a>
-					</td>
-				</tr>
-				<tr>
-                    <td>
-						{$list[i].cvo_desc}
-                    </td>
-                  </tr>
-				  </table>
-                <!-- space between rows -->
-	        </td>
-	        </tr>
 
 
 	 {/if}
@@ -262,7 +293,7 @@ function purgeObject(pid)
 			        </td>
 	        </tr>
         {/section}
-
+		{/if}
 
 
 		</table>
@@ -275,7 +306,7 @@ function purgeObject(pid)
 			<br /> <a class="default" target="_top" title="create a new community" href="{$rel_url}new.php?xdis_id={$xdis_id}"><img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0"><b>Create New Community</b></a>&nbsp;
 			{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
 			<br /> <a class="default" target="_top" title="create a new collection" href="{$rel_url}new.php?xdis_id={$xdis_id}{if $community_pid}&community_pid={$community_pid}{/if}"><img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0"><b>Create New Collection</b></a>&nbsp;
-			{elseif $list_type == 'all_records_list' || $list_type == 'collection_records_list' && ($isAdministrator || $isCreator)}
+			{elseif ($list_type == 'all_records_list' || $list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}
 				{if $childXDisplayOptions != 0}
 			<br /> <img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0">
 				<input type="hidden" name="collection_pid" value="{$collection_pid}">

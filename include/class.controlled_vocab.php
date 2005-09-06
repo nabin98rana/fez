@@ -236,6 +236,54 @@ class Controlled_Vocab
         }
     }	
 
+   /**
+     * Method used to get the list of controlled vocabularies available in the 
+     * system returned in an associative array for drop down lists.
+     *
+     * @access  public
+     * @return  array The list of controlled vocabularies in an associative array (for drop down lists).
+     */
+    function getAssocListByID($id)
+    {
+        $stmt = "SELECT
+                    cvo_id,
+					cvo_title
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
+				 WHERE cvo_id = $id";
+        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }	
+
+   /**
+     * Method used to get the list of controlled vocabularies available in the 
+     * system returned in an associative array for drop down lists.
+     *
+     * @access  public
+     * @return  array The list of controlled vocabularies in an associative array (for drop down lists).
+     */
+    function getListByID($id)
+    {
+        $stmt = "SELECT
+                    cvo_id,
+					cvo_title
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
+				 WHERE cvo_id = $id";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }	
+
     /**
      * Method used to get the list of controlled vocabularies available in the 
      * system.
@@ -313,7 +361,6 @@ class Controlled_Vocab
 				foreach ($res as $key => $data) {
 					if ($parent_id != false) {
 						$newArray[$key] = $data;
-
 					}
 					$tempArray = Controlled_Vocab::getAssocListFullDisplay($key, $indent);					
 					if (count($tempArray) > 0) {
@@ -330,6 +377,142 @@ class Controlled_Vocab
             }
         }
     }
+
+
+    /**
+     * Method used to get the list of controlled vocabularies available in the 
+     * system.
+     *
+     * @access  public
+     * @return  array The list of controlled vocabularies 
+     */
+    function getParentAssocListFullDisplay($child_id, $indent="")
+    {
+        $stmt = "SELECT
+                    cvo_id,
+					concat('".$indent."',cvo_title) as cvo_title
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab ";
+			$stmt .=   "," . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab_relationship 
+					     WHERE cvr_parent_cvo_id = cvo_id AND cvr_child_cvo_id = ".$child_id;			
+		$stmt .= "
+                 ORDER BY
+                    cvo_title ASC";
+
+        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            if (empty($res)) {
+                return array();
+            } else {
+				$newArray = array();
+				$tempArray = array();
+				foreach ($res as $key => $data) {
+					if ($child_id != false) {
+						$newArray[$key] = $data;
+					}
+					$tempArray = Controlled_Vocab::getParentAssocListFullDisplay($key, $indent);					
+					if (count($tempArray) > 0) {
+						if ($child_id == false) {
+							$newArray['data'][$key] = Misc::array_merge_preserve($tempArray, $newArray[$key]);
+							$newArray['title'][$key] = $data;
+						} else {
+							$newArray = Misc::array_merge_preserve($tempArray, $newArray);
+						}
+					}
+				}
+				$res = $newArray;
+                return $res;
+            }
+        }
+    }
+
+    /**
+     * Method used to get the list of controlled vocabularies available in the 
+     * system.
+     *
+     * @access  public
+     * @return  array The list of controlled vocabularies 
+     */
+    function getParentListFullDisplay($child_id, $indent="")
+    {
+        $stmt = "SELECT
+                    cvo_id,
+					concat('".$indent."',cvo_title) as cvo_title
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab ";
+			$stmt .=   "," . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab_relationship 
+					     WHERE cvr_parent_cvo_id = cvo_id AND cvr_child_cvo_id = ".$child_id;			
+		$stmt .= "
+                 ORDER BY
+                    cvo_title ASC";
+
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            if (empty($res)) {
+                return array();
+            } else {
+				$newArray = array();
+				$tempArray = array();
+				foreach ($res as $key => $data) {
+					if ($child_id != false) {
+						$newArray[$key] = $data;
+					}
+					$tempArray = Controlled_Vocab::getParentListFullDisplay($key, $indent);					
+					if (count($tempArray) > 0) {
+						if ($child_id == false) {
+							$newArray['data'][$key] = array_merge($tempArray, $newArray[$key]);
+							$newArray['title'][$key] = $data;
+						} else {
+							$newArray = array_merge($tempArray, $newArray);
+						}
+					}
+				}
+				$res = $newArray;
+                return $res;
+            }
+        }
+    }
+
+
+	function getAllTreeIDs($parent_id=false) {
+	// recursive function to get all the IDs in a CV tree (to be used in counts for entire CV parents including children).
+        $stmt = "SELECT
+                    cvo_id
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab ";
+		if (is_numeric($parent_id)) {
+			$stmt .=   "," . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab_relationship 
+						 WHERE cvr_parent_cvo_id = ".$parent_id." AND cvr_child_cvo_id = cvo_id ";			
+		} else {
+			$stmt .= " WHERE cvo_id not in (SELECT cvr_child_cvo_id from  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab_relationship)";
+		}
+
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+			foreach ($res as $row) {
+				$tempArray = array();			
+				$tempArray = Controlled_Vocab::getAllTreeIDs($row[0]);
+				
+				if (count($tempArray) > 0) {
+					$newArray[$row[0]] = $tempArray;
+				} else {
+					$newArray[$row[0]] = $row[0];
+				}
+
+			}
+			return $newArray;
+		}
+	}
+
 
     /**
      * Method used to get the details of a specific controlled vocabulary.
