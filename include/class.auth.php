@@ -158,10 +158,12 @@ class Auth
 					if (!is_array(@$return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
 						$return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']] = array();
 					}
-					array_push($return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+					if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
+						array_push($return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+					}
 				}
 			}
-		//print_r($return);
+//		print_r($return);
 			foreach ($return as $key => $record) {
 	
 				if (is_array($record['eSpaceACML'])) {
@@ -193,7 +195,7 @@ class Auth
 		static $returns;
 
         if (is_array($returns[$pid])) {		
-			$ACMLArray = $returns[$pid]; //add it to the acml array and dont go any further up the hierarchy
+			array_push($ACMLArray, $returns[$pid]); //add it to the acml array and dont go any further up the hierarchy
         } else {								
 			$stmt = "SELECT 
 						* 
@@ -213,7 +215,7 @@ class Auth
 			//$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
 	//		print_r($res);
 			$return = array();
-			
+
 			foreach ($res as $result) {
 				if (!is_array(@$return[$result['rmf_rec_pid']])) {
 					$return[$result['rmf_rec_pid']]['exists'] = array();
@@ -222,10 +224,12 @@ class Auth
 					if (!is_array(@$return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
 						$return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']] = array();
 					}
-					array_push($return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+					if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
+						array_push($return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+					}
 				}
 			}
-
+//			print_r($return);
 			foreach ($return as $key => $record) {
 	
 				if (is_array($record['eSpaceACML'])) {
@@ -341,7 +345,7 @@ class Auth
 				// 2. if at least one of them have an espace acml then use it otherwise get the parents parents
 
 			}
-//			print_r($indexRecord);
+
 			foreach ($indexRecord['eSpaceACML'] as $eSpaceACML) { // can have multiple espace acmls if got from parents
 				foreach ($eSpaceACML as $role_name => $role) {	
 					if (in_array($role_name, $userPIDAuthGroups)) {
@@ -349,6 +353,7 @@ class Auth
 					}
 
 					foreach ($role as $rule_name => $rule) {
+//						echo $rule_name; print_r($role);
 						foreach ($rule as $ruleRecord) {
 							// if the role is in the ACML then it is restricted so remove it
 
