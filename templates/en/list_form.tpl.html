@@ -153,7 +153,7 @@ function purgeObject(pid)
 			{/section}{else}Subject Classification:{/if}</b>		  
 			</td>
         </tr>
-		{/if}
+
 
         {section name="i" loop=$subject_list}
 		  <tr>
@@ -186,7 +186,8 @@ function purgeObject(pid)
 			        </td>
 	        </tr>
 		{/section}
-		{if $browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0} 
+		{/if}		
+		{if ($browse_heading == "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)} 
         <tr>
 			<td align="left" class="default"><br />
 		{if $list_type == 'all_records_list' || $list_type == 'collection_records_list'}
