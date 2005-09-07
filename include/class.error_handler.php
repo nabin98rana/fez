@@ -56,6 +56,10 @@ class Error_Handler
      */
     function logError($error_msg = "", $script = "", $line = "")
     {
+        if (APP_DEBUG) {
+            $txt = print_r($error_msg, true);
+            echo "ERROR: $txt $script $line";
+        }
         if (REPORT_ERROR_FILE) {
             Error_Handler::_logToFile($error_msg, $script, $line);
         }

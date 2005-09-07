@@ -1,0 +1,13 @@
+<html>
+<body>
+
+<form  method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
+<textarea name="dot" rows="25" cols="80">{$dot}</textarea>
+<input type="submit" value="show" />
+</form>
+
+<img src="{$rel_url}webservices/graphviz.php?dot={$encoded_dot}" alt="graphviz output" usemap="{$map_name}" />
+{$cmapx}
+
+</body>
+</html>

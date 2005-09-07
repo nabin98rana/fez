@@ -194,15 +194,7 @@
                   <textarea name="wfl_description" size="30" class="default">{$info.wfl_description}</textarea>
                 </td>
               </tr>
-              <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white" nowrap>
-                  <b>Order:</b>
-                </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="wfl_order" size="30" class="default" value="{$info.wfl_order}">
-                </td>
-              </tr>
-              <tr>
+             <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $smarty.get.cat == 'edit'}
                   <input class="button" type="submit" value="Update Workflow Template">
@@ -242,29 +234,29 @@
                     <form onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
                     <input type="hidden" name="cat" value="delete">
                     <tr>
-                      <td width="5" bgcolor="{$cell_color}" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td width="50%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Title</b>&nbsp;</td>
-                      <td width="10%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Version</b>&nbsp;</td>
-                      <td width="10%" bgcolor="{$cell_color}" class="default_white" nowrap>&nbsp;<b>Description</b>&nbsp;</td>
-                      <td width="10%" bgcolor="{$cell_color}" class="default_white" nowrap>&nbsp;<b>Workflow Events</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
+                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Title</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Version</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default_white" nowrap>&nbsp;<b>Description</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default_white" nowrap>&nbsp;<b>Workflow States</b>&nbsp;</td>
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
                     <tr>
-                      <td width="4" nowrap bgcolor="{$row_color}" align="center">
+                      <td nowrap bgcolor="{$row_color}" align="center">
                         <input type="checkbox" name="items[]" value="{$list[i].wfl_id}" {if $smarty.section.i.total == 0}disabled{/if}>
                       </td>
-                      <td width="50%" bgcolor="{$row_color}" class="default">
+                      <td bgcolor="{$row_color}" class="default">
                         &nbsp;<a href="workflows.php?cat=edit&id={$list[i].wfl_id}">{$list[i].wfl_title}</a>
                       </td>
-                      <td width="15%" bgcolor="{$row_color}" class="default">
+                      <td bgcolor="{$row_color}" class="default">
                         &nbsp;{$list[i].wfl_version}
                       </td>
-                      <td width="15%" bgcolor="{$row_color}" class="default">
+                      <td bgcolor="{$row_color}" class="default">
                         &nbsp;{$list[i].wfl_description}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
-                        &nbsp;<a href="workflow_events.php?wfl_id={$list[i].wfl_id}" class="link">{$list[i].total_events} Event{if $list[i].total_events != 1}s{/if}</a>
+                        &nbsp;<a href="workflow_states.php?wfl_id={$list[i].wfl_id}" class="link">{$list[i].total_states} State{if $list[i].total_states != 1}s{/if}</a>
                       </td>
                     </tr>
                     {sectionelse}
@@ -293,7 +285,7 @@
       {literal}
       <script language="JavaScript">
       <!--
-      window.onload = setCustomOptionsField;
+      //window.onload = setCustomOptionsField;
       function setCustomOptionsField()
       {
           var f = getForm('custom_field_form');

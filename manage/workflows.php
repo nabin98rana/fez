@@ -62,7 +62,6 @@ if ($isAdministrator) {
     }
 
     $tpl->assign("list", Workflow::getList());
-//    $tpl->assign("collection_list", Collection::getAll());
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }

@@ -1,7 +1,7 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
 // +----------------------------------------------------------------------+
-// | Eventum - Issue Tracking System                                      |
+// | Stateum - Issue Tracking System                                      |
 // +----------------------------------------------------------------------+
 // | Copyright (c) 2003, 2004 MySQL AB                                    |
 // |                                                                      |
@@ -31,46 +31,56 @@ include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.workflow.php");
-include_once(APP_INC_PATH . "class.workflow_event.php");
-//include_once(APP_INC_PATH . "class.wfbehaviours.php");
+include_once(APP_INC_PATH . "class.workflow_state.php");
+include_once(APP_INC_PATH . "class.wfbehaviours.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "db_access.php");
+include_once(APP_INC_PATH . "class.workflow_state_link.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION);
 
-$tpl->assign("type", "workflow_events");
+$tpl->assign("type", "workflow_states");
 
 $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
-$wfl_id = @$HTTP_POST_VARS['wfl_id'] ? $HTTP_POST_VARS['wfl_id'] : $HTTP_GET_VARS['wfl_id'];
-$wfe_id = @$HTTP_POST_VARS['wfe_id'] ? $HTTP_POST_VARS['wfe_id'] : $HTTP_GET_VARS['wfe_id'];
+$wfl_id = @$HTTP_POST_VARS['wfl_id'] ? $HTTP_POST_VARS['wfl_id'] : @$HTTP_GET_VARS['wfl_id'];
+$wfs_id = @$HTTP_POST_VARS['wfs_id'] ? $HTTP_POST_VARS['wfs_id'] : @$HTTP_GET_VARS['wfs_id'];
 
 if ($isAdministrator) {
   
     if (@$HTTP_POST_VARS["cat"] == "new") {
-        $tpl->assign("result", Workflow_Event::insert());
+        $tpl->assign("result", Workflow_State::insert());
     } elseif (@$HTTP_POST_VARS["cat"] == "update") {
-        $tpl->assign("result", Workflow_Event::update());
+        $tpl->assign("result", Workflow_State::update());
     } elseif (@$HTTP_POST_VARS["cat"] == "delete") {
-        Workflow::remove();
+        Workflow_State::remove();
     }
 
     if (@$HTTP_GET_VARS["cat"] == "edit") {
-        $tpl->assign("info", Workflow_Event::getDetails($wfe_id));
+        $info = Workflow_State::getDetails($wfs_id);
+    } else {
+        $info['next_ids'] = array(-1);
+        $info['prev_ids'] = array(-1);
     }
+    $tpl->assign("info", $info);
 
-    $tpl->assign("list", Workflow_Event::getList($wfl_id));
-	$tpl->assign("event_conditions", Workflow_Event::getEventConditionList());
-	$tpl->assign("event_types", Workflow_Event::getEventTypeList());
+    $states = Workflow_State::getList($wfl_id);
+    $states_list = Misc::keyPairs($states, 'wfs_id', 'wfs_title');
+    $tpl->assign("list", $states);
+    $tpl->assign("states_list", array('-1' => 'None') + $states_list);
+    $dot = WorkflowStateLink::getDot($wfl_id);
+    $tpl->assign("encoded_dot", base64_encode($dot));
+    $link_check = WorkflowStateLink::checkLinks($wfl_id);
+    $tpl->assign("link_check", $link_check);
 	$tpl->assign("wfl_title", Workflow::getTitle($wfl_id));
 	$tpl->assign("wfl_id", $wfl_id);
-
-//    $tpl->assign("collection_list", Collection::getAll());
+    $behaviours = Misc::keyPairs(WF_Behaviour::getList(), 'wfb_id', 'wfb_title');
+    $tpl->assign("behaviours_list", $behaviours);
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }

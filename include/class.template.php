@@ -194,6 +194,7 @@ class Template_API
 //            $this->assign("current_role_name", User::getRole($role_id));
 //            $this->assign("roles", User::getAssocRoleIDs());
         }
+        $this->assign("app_path", APP_PATH);
         $this->assign("app_setup", Setup::load());
         $this->assign("app_setup_path", APP_SETUP_PATH);
         $this->assign("app_setup_file", APP_SETUP_FILE);
@@ -273,6 +274,7 @@ class Template_API
             $this->assign("roles", User::getAssocRoleIDs());
 */
         }
+        $this->assign("app_path", APP_PATH);
         $this->assign("app_setup", Setup::load());
         $this->assign("app_setup_path", APP_SETUP_PATH);
         $this->assign("app_setup_file", APP_SETUP_FILE);
