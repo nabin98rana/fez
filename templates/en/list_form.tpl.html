@@ -307,7 +307,7 @@ function purgeObject(pid)
 			<br /> <a class="default" target="_top" title="create a new community" href="{$rel_url}new.php?xdis_id={$xdis_id}"><img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0"><b>Create New Community</b></a>&nbsp;
 			{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
 			<br /> <a class="default" target="_top" title="create a new collection" href="{$rel_url}new.php?xdis_id={$xdis_id}{if $community_pid}&community_pid={$community_pid}{/if}"><img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0"><b>Create New Collection</b></a>&nbsp;
-			{elseif ($list_type == 'all_records_list' || $list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}
+			{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}
 				{if $childXDisplayOptions != 0}
 			<br /> <img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0">
 				<input type="hidden" name="collection_pid" value="{$collection_pid}">
