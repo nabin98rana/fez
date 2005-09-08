@@ -36,6 +36,7 @@ include_once(APP_INC_PATH . "class.wfbehaviours.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.workflow_state_link.php");
+include_once(APP_INC_PATH . "class.graphviz.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");
@@ -73,8 +74,14 @@ if ($isAdministrator) {
     $states_list = Misc::keyPairs($states, 'wfs_id', 'wfs_title');
     $tpl->assign("list", $states);
     $tpl->assign("states_list", array('-1' => 'None') + $states_list);
-    $dot = WorkflowStateLink::getDot($wfl_id);
+    $dot = WorkflowStateLink::getDot($wfl_id, APP_BASE_URL."/manage/workflow_states?cat=edit&wfl_id=$wfl_id&wfs_id=@id@");
     $tpl->assign("encoded_dot", base64_encode($dot));
+    $map = Graphviz::getCMAPX($dot);
+    $tpl->assign('cmapx', $map); 
+    $map_name = Graphviz::getGraphName($dot);
+    $tpl->assign('map_name', $map_name); 
+
+    
     $link_check = WorkflowStateLink::checkLinks($wfl_id);
     $tpl->assign("link_check", $link_check);
 	$tpl->assign("wfl_title", Workflow::getTitle($wfl_id));

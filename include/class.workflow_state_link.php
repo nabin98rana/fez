@@ -18,7 +18,9 @@ class WorkflowStateLink
             }
         }
         foreach ($_POST['wfsl_next_id'] as $next_id) {
-            if ($next_id > 0) {
+            // check for duplicating a link-to-self 
+            if (($next_id > 0) 
+                    && (!($next_id == $id && in_array($id, $_POST['wfsl_prev_id'])))) {
                 $stmt .= "($wfl_id, $id, $next_id), "; 
             }
         }
@@ -132,7 +134,7 @@ class WorkflowStateLink
         return $res1;
      }
 
-    function getDot($wfl_id)
+    function getDot($wfl_id, $url)
     {
         $res1 = WorkflowStateLink::getList($wfl_id);
         // get the list of details for each node in the to and from columns 
@@ -146,14 +148,18 @@ EOT;
         //}
         foreach ($states1 as $state) {
             $title = wordwrap($state['wfs_title'], '20', '\\n');
-            $dot .= "{$state['wfs_id']} [label=\"$title\"];\n";
+            $url1 = str_replace('@id@', $state['wfs_id'], $url);
+            $dot .= "{$state['wfs_id']} [label=\"$title\" URL=\"$url1\" ";
+            // if the state has not previous states or it has only one previous state that is itself
+            if (empty($state['prev_ids']) 
+                    || (count($state['prev_ids']) == 1 && $state['prev_ids'][0] == $state['wfs_id']) ) {
+                $dot .= " shape=box, style=solid, color=green ";
+            }
+            $dot .= " ];\n";
         }
         foreach ($res1 as $link) {
             $dot .= "\"{$link['wfsl_from_id']}\" -> "
                 ."\"{$link['wfsl_to_id']}\";\n";
-            if (empty($states1[$link['wfsl_from_id']]['prev_ids'])) {
-                $dot .= "\"{$link['wfsl_from_id']}\" [shape=box, style=solid, color=green];";
-            }
         }
         $dot .= "}\n";
         return $dot;
@@ -169,18 +175,20 @@ EOT;
         $start_state = array();
         foreach ($states as $state) {
             if ($state['wfs_auto'] == 1 && count($state['next_ids']) > 1) {
-                $txt .= "Not allowed: {$state['wfs_title']} is automatic and has more than 1 following states<br/>";
+                $txt .= "ALERT: Not allowed: {$state['wfs_title']} is automatic and has more than 1 following states<br/>";
             }
-            if (empty($state['prev_ids'])) {
+            // if the state has not previous states or it has only one previous state that is itself
+            if (empty($state['prev_ids']) 
+                    || (count($state['prev_ids']) == 1 && $state['prev_ids'][0] == $state['wfs_id']) ) {
                 $start_state[] = $state['wfs_title'];
             }
         }
         if (count($start_state) > 1) {
-            $str = implode(',', $start_state);
-            $txt .= "Too many start states: $str <br/>";
+            $str = implode(', ', $start_state);
+            $txt .= "ALERT: Too many start states: $str <br/>";
         }
         if (count($start_state) < 1) {
-            $txt .= "Not allowed: there is no start state.  <br/>";
+            $txt .= "ALERT: Not allowed: there is no start state.  <br/>";
         }
         return $txt;
     }

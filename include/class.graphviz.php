@@ -29,6 +29,12 @@ class Graphviz
         unlink($tmpfname);
 
     }
+
+    function getGraphName($dot)
+    {
+        preg_match('/(di)?graph\s+(\S+)\s*{/', $dot, $matches); // }
+        return $matches[2];
+    }
 }
 
 ?>

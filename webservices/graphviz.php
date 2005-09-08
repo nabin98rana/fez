@@ -1,6 +1,6 @@
 <?php
 include_once('../config.inc.php');
-include_once(APP_INC_PATH. 'graphviz.php');
+include_once(APP_INC_PATH. 'class.graphviz.php');
 
         $encoded_dot = $_GET['dot'];
         $dot = base64_decode($encoded_dot);

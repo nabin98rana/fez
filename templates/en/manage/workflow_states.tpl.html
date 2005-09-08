@@ -326,7 +326,8 @@
               </tr>
               <tr>
                 <td colspan="2" class="default">
-                  <b>State Links Diagram:</b>
+                  <b>State Links Diagram:</b><br/>
+                  Click to edit nodes in the form above.
                 </td>
               </tr>
 {if $link_check}
@@ -338,7 +339,9 @@
 {/if}
               <tr>
                 <td colspan="2">
-                <img src="{$rel_url}webservices/graphviz.php?dot={$encoded_dot}" alt="graphviz output" />
+                <img src="{$rel_url}webservices/graphviz.php?dot={$encoded_dot}" 
+                alt="graphviz output" usemap="{$map_name}" style="border: none;"/>
+                {$cmapx}
                 </td>
               </tr>  
              </table>
