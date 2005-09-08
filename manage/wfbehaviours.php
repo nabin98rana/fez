@@ -46,6 +46,8 @@ $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 
+$wfl_id = @$HTTP_GET_VARS["wfl_id"] ? $HTTP_GET_VARS["wfl_id"] : @$HTTP_POST_VARS["wfl_id"];
+
 if ($isAdministrator) {
   
     if (@$HTTP_POST_VARS["cat"] == "new") {
@@ -61,6 +63,7 @@ if ($isAdministrator) {
     }
 
     $tpl->assign("list", WF_Behaviour::getList());
+    $tpl->assign("wfl_id", $wfl_id);
 //    $tpl->assign("collection_list", Collection::getAll());
 } else {
     $tpl->assign("show_not_allowed_msg", true);

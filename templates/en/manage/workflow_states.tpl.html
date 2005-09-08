@@ -162,7 +162,8 @@
               <input type="hidden" name="wfl_id" value="{$wfl_id}">
               <tr>
                 <td colspan="2" class="default">
-                  <b>Manage Workflow States for Workflow Template '{$wfl_title}' </b> &nbsp;(<a href="{$rel_url}manage/workflows.php">back to Workflow Templates list</a>)
+                  <b>Manage Workflow States for Workflow Template '{$wfl_title}' </b> &nbsp;(
+                          <a href="{$rel_url}manage/workflow_states.php?wfl_id={$wfl_id}">New</a> | <a href="{$rel_url}manage/workflows.php">back to Workflow Templates list</a>)
                 </td>
               </tr>
               {if $result != ""}
@@ -208,6 +209,10 @@
                 <td bgcolor="{$light_color}">
 
                   <label class="default"><input type="checkbox" name="wfs_auto" id="wfs_auto" size="30" class="default" {if $info.wfs_auto}checked="checked"{/if} onclick="javascript:showOrHideElement('tr_wfs_wfb_id','wfs_auto')"/>Scripted</label>
+                  <label class="default"><input type="checkbox" name="wfs_start" id="wfs_start" size="30" class="default" {if $info.wfs_start}checked="checked"{/if} />Start State</label>
+                  <label class="default"><input type="checkbox" name="wfs_end" id="wfs_end" size="30" class="default" {if $info.wfs_end}checked="checked"{/if} />End State</label>
+                </td>
+                </td>
                 </td>
               </tr>  
               <tr id="tr_wfs_wfb_id">
@@ -224,18 +229,28 @@
               // We hide or show the script selection box depending on whether the wfs_auto checkbox is checked.
               showOrHideElement('tr_wfs_wfb_id','wfs_auto'); 
               //--></script>
-
+               <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default_white" nowrap>
+                  <b>Assigned Roles:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <select name="wfs_assigned_role_id" >
+                        {html_options options=$roles_list selected=$info.wfs_assigned_role_id}
+                  </select>
+                </td>
+              </tr>
+ 
                <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default_white" nowrap>
                   <b>Linked States:</b>
                 </td>
                 <td bgcolor="{$light_color}">
-                  <label class="default">Previous:<select name="wfsl_prev_id[]"  multiple="multiple" >
+                  <label class="default">Previous:<br/><select name="wfsl_prev_id[]"  multiple="multiple" >
                         {html_options options=$states_list selected=$info.prev_ids }
-                  </select></label>
-                  <label class="default">Next:<select name="wfsl_next_id[]"  multiple="multiple" >
+                  </select></label><br/><br/>
+                  <label class="default">Next:<br/><select name="wfsl_next_id[]"  multiple="multiple" >
                         {html_options options=$states_list selected=$info.next_ids }
-                  </select></label>
+                  </select></label></br>
                   <p class="default"><i>Note: Scripted states can only have one 'next' state.</i></p>
                 </td>
               </tr>
@@ -283,7 +298,10 @@
                     <tr>
                       <td width="4" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
                       <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Name</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Assigned Role</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Auto</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Start</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>End</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Scripted Behaviour</b>&nbsp;</td>
                     </tr>
                     {section name="i" loop=$list}
@@ -296,11 +314,20 @@
                         &nbsp;<a href="workflow_states.php?cat=edit&wfl_id={$wfl_id}&wfs_id={$list[i].wfs_id}">{$list[i].wfs_title}</a>
                       </td>
                       <td bgcolor="{$row_color}" class="default">
-                        &nbsp;{if $list[i].wfs_auto == 1}<span style="color:green;">yes</span>{else}<span style="color:red">no</span>{/if}
+                        &nbsp;{$list[i].wfs_assigned_role}
+                      </td>
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{if $list[i].wfs_auto == 1}<span style="color:green;">yes</span>{/if}
+                      </td>
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{if $list[i].wfs_start == 1}<span style="color:green;">yes</span>{/if}
+                      </td>
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{if $list[i].wfs_end == 1}<span style="color:green;">yes</span>{/if}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
 {if $list[i].wfs_auto == 1}
-                        &nbsp;<a href="{$rel_url}manage/wfbehaviours.php?cat=edit&id={$list[i].wfs_wfb_id}">{$list[i].wfb_title}</a>
+                        &nbsp;<a href="{$rel_url}manage/wfbehaviours.php?cat=edit&id={$list[i].wfs_wfb_id}&wfl_id={$wfl_id}">{$list[i].wfb_title}</a>
 {/if}
                       </td>
                     </tr>

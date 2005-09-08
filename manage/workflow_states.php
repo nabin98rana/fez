@@ -64,6 +64,12 @@ if ($isAdministrator) {
 
     if (@$HTTP_GET_VARS["cat"] == "edit") {
         $info = Workflow_State::getDetails($wfs_id);
+        if (empty($info['next_ids'])) {
+            $info['next_ids'] = array(-1);
+        }
+        if (empty($info['prev_ids'])) {
+            $info['prev_ids'] = array(-1);
+        }
     } else {
         $info['next_ids'] = array(-1);
         $info['prev_ids'] = array(-1);
@@ -74,7 +80,7 @@ if ($isAdministrator) {
     $states_list = Misc::keyPairs($states, 'wfs_id', 'wfs_title');
     $tpl->assign("list", $states);
     $tpl->assign("states_list", array('-1' => 'None') + $states_list);
-    $dot = WorkflowStateLink::getDot($wfl_id, APP_BASE_URL."/manage/workflow_states?cat=edit&wfl_id=$wfl_id&wfs_id=@id@");
+    $dot = WorkflowStateLink::getDot($wfl_id, APP_BASE_URL."manage/workflow_states?cat=edit&wfl_id=$wfl_id&wfs_id=@id@");
     $tpl->assign("encoded_dot", base64_encode($dot));
     $map = Graphviz::getCMAPX($dot);
     $tpl->assign('cmapx', $map); 
@@ -88,6 +94,7 @@ if ($isAdministrator) {
 	$tpl->assign("wfl_id", $wfl_id);
     $behaviours = Misc::keyPairs(WF_Behaviour::getList(), 'wfb_id', 'wfb_title');
     $tpl->assign("behaviours_list", $behaviours);
+    $tpl->assign("roles_list", Auth::getDefaultRoles());
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }

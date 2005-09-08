@@ -48,6 +48,11 @@ include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "private_key.php");
 
+global $NonRestrictedRoles;
+$NonRestrictedRoles = array("Viewer","Lister","Comment_Viewer");
+global $defaultRoles ;
+$defaultRoles = array("Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
+
 class Auth
 {
     /**
@@ -210,7 +215,8 @@ class Auth
 						r1.rmf_xsdmf_id = x1.xsdmf_id and ((d1.xdis_id = x1.xsdmf_xdis_id and d1.xdis_title = 'eSpaceACML') or (k1.sek_title = 'isMemberOf' AND r1.rmf_xsdmf_id = x1.xsdmf_id AND k1.sek_id = x1.xsdmf_sek_id)) and
 						r1.rmf_rec_pid = '".$pid."'";
 //		echo $stmt."\n\n";
-			$returnfields = array("Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
+            global $defaultRoles;
+			$returnfields = $defaultRoles;
 			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 			//$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
 	//		print_r($res);
@@ -333,7 +339,7 @@ class Auth
 
 	function getIndexAuthorisationGroups($indexArray, $return_type='groups') {
         // Usually everyone can list, view and view comments
-		$NonRestrictedRoles = array("Viewer","Lister","Comment_Viewer");
+		global $NonRestrictedRoles;
 
 		foreach ($indexArray as $indexKey => $indexRecord) {
 			$userPIDAuthGroups = $NonRestrictedRoles;
@@ -439,7 +445,7 @@ class Auth
 //        print_r($HTTP_SESSION_VARS['ESPACE_GROUPS']['LDAP_GROUPS']);
 
         // Usually everyone can list, view and view comments
-        $NonRestrictedRoles = array("Viewer","Lister","Comment_Viewer");
+        global $NonRestrictedRoles;
         $userPIDAuthGroups = $NonRestrictedRoles;
         // loop through the ACML docs found for the current pid or in the eSpace ancestry
 
@@ -951,6 +957,14 @@ class Auth
         return $details;
     }
 
+    function getDefaultRoles() {
+        global $defaultRoles;
+        return $defaultRoles;
+    }
+    function getDefaultRoleName($role_id) {
+        global $defaultRoles;
+        return $defaultRoles[$role_id];
+    }
 
 
 }

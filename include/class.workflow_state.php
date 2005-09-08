@@ -93,13 +93,19 @@ class Workflow_State
                     wfs_title,
                     wfs_description,
                     wfs_auto,
-                    wfs_wfb_id
+                    wfs_wfb_id,
+                    wfs_assigned_role_id,
+                    wfs_start,
+                    wfs_end
                  ) VALUES (
                     '" . $HTTP_POST_VARS['wfs_wfl_id'] . "',
                     '" . Misc::escapeString($HTTP_POST_VARS['wfs_title']) . "',
                     '" . Misc::escapeString($HTTP_POST_VARS['wfs_description']) . "',
                     '" . Misc::checkBox(@$HTTP_POST_VARS['wfs_auto']) . "',
-                    '" . $HTTP_POST_VARS['wfs_wfb_id'] . "'
+                    '" . $HTTP_POST_VARS['wfs_wfb_id'] . "',
+                    '" . $HTTP_POST_VARS['wfs_assigned_role_id'] . "',
+                    '" . Misc::checkBox(@$HTTP_POST_VARS['wfs_start']) . "',
+                    '" . Misc::checkBox(@$HTTP_POST_VARS['wfs_end']) . "'
                  )";		
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -127,7 +133,10 @@ class Workflow_State
                     wfs_title='" . Misc::escapeString($HTTP_POST_VARS['wfs_title']) . "',
                     wfs_description='" . Misc::escapeString($HTTP_POST_VARS['wfs_description']) . "',
                     wfs_auto='".Misc::checkBox(@$HTTP_POST_VARS['wfs_auto'])."',
-                    wfs_wfb_id='" . $HTTP_POST_VARS['wfs_wfb_id'] . "'
+                    wfs_wfb_id='" . $HTTP_POST_VARS['wfs_wfb_id'] . "',
+                    wfs_assigned_role_id='" . $HTTP_POST_VARS['wfs_assigned_role_id'] . "',
+                    wfs_start='".Misc::checkBox(@$HTTP_POST_VARS['wfs_start'])."',
+                    wfs_end='".Misc::checkBox(@$HTTP_POST_VARS['wfs_end'])."'
                  WHERE
                     wfs_id=" . $HTTP_POST_VARS['id'];
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -198,6 +207,7 @@ class Workflow_State
                     $row['next_ids'] = @$nexts[$row['wfs_id']];
                     // items that go to this id
                     $row['prev_ids'] = @$prevs[$row['wfs_id']];
+                    $row['wfs_assigned_role'] = Auth::getDefaultRoleName($row['wfs_assigned_role_id']);
                 }
                 return $res;
             }

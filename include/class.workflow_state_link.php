@@ -149,13 +149,25 @@ EOT;
         foreach ($states1 as $state) {
             $title = wordwrap($state['wfs_title'], '20', '\\n');
             $url1 = str_replace('@id@', $state['wfs_id'], $url);
-            $dot .= "{$state['wfs_id']} [label=\"$title\" URL=\"$url1\" ";
-            // if the state has not previous states or it has only one previous state that is itself
-            if (empty($state['prev_ids']) 
-                    || (count($state['prev_ids']) == 1 && $state['prev_ids'][0] == $state['wfs_id']) ) {
-                $dot .= " shape=box, style=solid, color=green ";
+            $subtitle_array = array();
+            $style = '';
+            if ($state['wfs_start']) {
+                $style .= " shape=box ";
+                $subtitle_array[] = "start";
             }
-            $dot .= " ];\n";
+            if ($state['wfs_end']) {
+                $style .= " style=bold ";
+                $subtitle_array[] = "end";
+            }
+            if ($state['wfs_auto']) {
+                $style .= " color=\"lightgoldenrod1\" ";
+                $subtitle_array[] = "auto";
+            }
+            $subtitle = implode('|',$subtitle_array);
+            if (!empty($subtitle)) {
+                $subtitle = "($subtitle)";
+            }
+            $dot .= "{$state['wfs_id']} [label=\"$title\\n$subtitle\" URL=\"$url1\" $style ];\n";
         }
         foreach ($res1 as $link) {
             $dot .= "\"{$link['wfsl_from_id']}\" -> "
@@ -173,14 +185,17 @@ EOT;
         $states1 = Misc::keyArray($states, 'wfs_id');
         $txt = '';
         $start_state = array();
+        $end_state = array();
         foreach ($states as $state) {
             if ($state['wfs_auto'] == 1 && count($state['next_ids']) > 1) {
                 $txt .= "ALERT: Not allowed: {$state['wfs_title']} is automatic and has more than 1 following states<br/>";
             }
             // if the state has not previous states or it has only one previous state that is itself
-            if (empty($state['prev_ids']) 
-                    || (count($state['prev_ids']) == 1 && $state['prev_ids'][0] == $state['wfs_id']) ) {
+            if ($state['wfs_start']) {
                 $start_state[] = $state['wfs_title'];
+            }
+            if ($state['wfs_end']) {
+                $end_state[] = $state['wfs_title'];
             }
         }
         if (count($start_state) > 1) {
@@ -189,6 +204,9 @@ EOT;
         }
         if (count($start_state) < 1) {
             $txt .= "ALERT: Not allowed: there is no start state.  <br/>";
+        }
+        if (count($end_state) < 1) {
+            $txt .= "ALERT: Not allowed: there is no end state.  <br/>";
         }
         return $txt;
     }
