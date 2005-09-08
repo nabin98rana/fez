@@ -384,7 +384,6 @@ class Group
      */
     function getAssocListAll()
     {
-        static $returns;
 
         $stmt = "SELECT
                     grp_id,
@@ -398,7 +397,6 @@ class Group
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-            $returns[$usr_id] = $res;
             return $res;
         }
     }

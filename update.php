@@ -50,6 +50,7 @@ include_once(APP_INC_PATH . "class.xsd_html_match.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("update.tpl.html");
+$tpl->assign("type", "edit_record");
 
 Auth::checkAuthentication(APP_SESSION);
 $username = Auth::getUsername();
