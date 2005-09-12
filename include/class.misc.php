@@ -1996,6 +1996,19 @@ function getSchemaSubAttributes($a, $top_element_name, $xdis_id, $pid) {
 	return $res;
 }
 
+function getPostedDate($xsdmf_id) {
+	global $HTTP_POST_VARS;
+	 if ((!empty($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year'])) &&
+		 (!empty($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Month'])) &&
+		 (!empty($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Day']))) {
+		$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] = sprintf('%s-%s-%s', $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year'],
+											$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Month'],
+											$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Day']);
+	} else {
+		$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] = '';
+	}
+	return ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]);
+}
 
 function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_type="", $tagIndent="", $parent_sel_id="", $xdis_id, $pid, $top_xdis_id, $attrib_loop_index="", &$indexArray=array()) {
 	// @@@ CK - 6/5/2005 - Added xdis_id
@@ -2025,7 +2038,10 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 							if ($xsdmf_details['xsdmf_enforced_prefix']) {
 								$element_prefix = $xsdmf_details['xsdmf_enforced_prefix'];
 							}
-							if ($xsdmf_details['xsdmf_html_input'] == 'combo') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple
+							if ($xsdmf_details['xsdmf_html_input'] == 'date') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple							
+								$attrib_value = Misc::getPostedDate($xsdmf_id);
+								array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
+							} elseif ($xsdmf_details['xsdmf_html_input'] == 'combo') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple
 								$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]);
 								array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])));
 							} elseif ($xsdmf_details['xsdmf_html_input'] == 'contvocab') {
@@ -2108,37 +2124,42 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 
 							} elseif ($xsdmf_details['xsdmf_html_input'] == 'xsdmf_id_ref') { // this assumes the xsdmf_id_ref will only refer to an xsdmf_id which is a text/textarea/combo/multiple, will have to modify if we need more
 								$xsdmf_details_ref = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_details['xsdmf_id_ref']);
-								if ($xsdmf_details_ref['xsdmf_html_input'] == 'combo') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple
+								if ($xsdmf_details['xsdmf_html_input'] == 'date') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple							
+									$attrib_value = Misc::getPostedDate($xsdmf_id);
+									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
+								} elseif ($xsdmf_details['xsdmf_html_input'] == 'combo') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple
 									$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']]);
 									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']])));									
-							} elseif ($xsdmf_details['xsdmf_html_input'] == 'contvocab') {
-									foreach ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] as $contvocab_element) {
-										if ($attrib_value == "") {
-											$attrib_value = $contvocab_element;
-											array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $contvocab_element));
-										} else {
-											// Give a tag to each value, eg DC language - english & french need own language tags
-											// close the previous
-											if (!is_numeric(strpos($i, ":"))) {
-												$attrib_value .= "</".$element_prefix.$i.">\n";
+								} elseif ($xsdmf_details['xsdmf_html_input'] == 'contvocab') {
+									if (is_array($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) {
+										foreach ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] as $contvocab_element) {
+											if ($attrib_value == "") {
+												$attrib_value = $contvocab_element;
+												array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $contvocab_element));
 											} else {
-												$attrib_value .= "</".$i.">\n";
+												// Give a tag to each value, eg DC language - english & french need own language tags
+												// close the previous
+												if (!is_numeric(strpos($i, ":"))) {
+													$attrib_value .= "</".$element_prefix.$i.">\n";
+												} else {
+													$attrib_value .= "</".$i.">\n";
+												}
+												//open a new tag
+												if (!is_numeric(strpos($i, ":"))) {
+													$attrib_value .= "<".$element_prefix.$i;
+												} else {
+													$attrib_value .= "<".$i;
+												} 
+												//finish the new open tag
+												if ($xsdmf_details['xsdmf_valueintag'] == 1) {
+													$attrib_value .= ">\n";
+												} else {
+													$attrib_value .= "/>\n";
+												}
+	
+												$attrib_value .= $contvocab_element;
+												array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $contvocab_element));
 											}
-											//open a new tag
-											if (!is_numeric(strpos($i, ":"))) {
-												$attrib_value .= "<".$element_prefix.$i;
-											} else {
-												$attrib_value .= "<".$i;
-											} 
-											//finish the new open tag
-											if ($xsdmf_details['xsdmf_valueintag'] == 1) {
-												$attrib_value .= ">\n";
-											} else {
-												$attrib_value .= "/>\n";
-											}
-
-											$attrib_value .= $contvocab_element;
-											array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $contvocab_element));
 										}
 									}
 								} elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'multiple') {
@@ -2296,10 +2317,14 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 						//if (is_numeric($xsdmf_id)) { // if the xsdmf_id exists
 						// if the $xsdmd_id is of type 'xsd_loop_subelement' then get all the sub element ids and loop through them, looping through the subelements
 						$attrib_value = "";
-						if ($xsdmf_details['xsdmf_html_input'] == 'combo') {
+						if ($xsdmf_details['xsdmf_html_input'] == 'date') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple							
+							$attrib_value = Misc::getPostedDate($xsdmf_id);
+							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
+						} elseif ($xsdmf_details['xsdmf_html_input'] == 'combo') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple
 							$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]);
 							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])));									
-						} elseif ($xsdmf_details['xsdmf_html_input'] == 'contvocab') {
+						} elseif ($xsdmf_details['xsdmf_html_input'] == 'contvocab') {							
+							if (is_array($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) {
 								foreach ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] as $contvocab_element) {
 									if ($attrib_value == "") {
 										$attrib_value = $contvocab_element;
@@ -2329,6 +2354,7 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $contvocab_element));
 									}
 								}
+							}
 						} elseif ($xsdmf_details['xsdmf_html_input'] == 'multiple' 
                                 && isset($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) {
 							foreach ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] as $multiple_element) {
@@ -2376,10 +2402,14 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 							}
 						} elseif ($xsdmf_details['xsdmf_html_input'] == 'xsdmf_id_ref') { // this assumes the xsdmf_id_ref will only refer to an xsdmf_id which is a text/textarea/combo/multiple, will have to modify if we need more
 						$xsdmf_details_ref = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_details['xsdmf_id_ref']);
-						if ($xsdmf_details_ref['xsdmf_html_input'] == 'combo') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple
+						if ($xsdmf_details['xsdmf_html_input'] == 'date') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple							
+							$attrib_value = Misc::getPostedDate($xsdmf_id);
+							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
+						} elseif ($xsdmf_details['xsdmf_html_input'] == 'combo') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple
 							$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']]);
 							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']])));
 						} elseif ($xsdmf_details['xsdmf_html_input'] == 'contvocab') {
+							if (is_array($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) {
 								foreach ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] as $contvocab_element) {
 									if ($attrib_value == "") {
 										$attrib_value = $contvocab_element;
@@ -2409,6 +2439,7 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $contvocab_element));
 									}
 								}
+							}
 						} elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'multiple') {
 							foreach ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']] as $multiple_element) {
 								if ($attrib_value == "") {

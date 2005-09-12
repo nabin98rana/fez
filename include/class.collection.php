@@ -443,7 +443,7 @@ class Collection
      * @access  public
      * @return  array The list of collection records with the given collection pid
      */
-    function getCountSearch($treeIDs, $parent_id=false)
+    function getCVCountSearch($treeIDs, $parent_id=false, $searchKey="Subject")
     {
 
 		// get the count of everything in the tree, but the display will only show what is need at each branch
@@ -459,7 +459,7 @@ class Collection
 				FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r".$termCounter.",
 					  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x".$termCounter.",
 					  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s".$termCounter."  							  
-				WHERE r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id AND s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id AND s".$termCounter.".sek_title = 'Subject' AND r".$termCounter.".rmf_varchar in ('".$stringIDs."') 
+				WHERE r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id AND s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id AND s".$termCounter.".sek_title = '".$searchKey."' AND r".$termCounter.".rmf_varchar in ('".$stringIDs."') 
 				) as r".$termCounter." on r1.rmf_rec_pid = r".$termCounter.".rmf_rec_pid
 		";
 
@@ -523,29 +523,46 @@ class Collection
      * @access  public
      * @return  array The list of collection records with the given collection pid
      */
-    function browseListing($current_row = 0, $max = 25)
+    function browseListing($current_row = 0, $max = 25, $searchKey="Subject")
     {
 //        $isMemberOf_xsdmf_id = 149;
 //        $ret_id_xsd_mf = 236; // eSpaceMD Display, 
-		$terms = $_GET['parent_id'];
 
-		if (empty($terms)) {
+
+/*		if (empty($terms)) {
 			return array();
-		}
+		} */
 
 		if ($max == "ALL") {
             $max = 9999999;
         }
         $start = $current_row * $max;
+		$restrictSQL = "";
 		$middleStmt = "";
 		$termCounter = 2;
+		if ($searchKey == "Subject") {				
+			$terms = $_GET['parent_id'];		
+			$data_type = "varchar";
+			$restrictSQL = "AND r".$termCounter.".rmf_".$data_type." = '".$terms."'";
+		} elseif ($searchKey == "Date") {
+			$terms = $_GET['year'];
+			$data_type = "date";
+			$restrictSQL = "AND YEAR(r".$termCounter.".rmf_".$data_type.") = ".$terms."";
+		} elseif ($searchKey == "Author") {
+			$terms = $_GET['author'];
+			$data_type = "varchar";
+			$restrictSQL = "AND r".$termCounter.".rmf_".$data_type." = '".$terms."'";
+		} else {
+			$data_type = "varchar";		
+		}
+
 		$middleStmt .= 
 		" INNER JOIN (
 				SELECT distinct r".$termCounter.".rmf_rec_pid 
 				FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r".$termCounter.",
 					  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x".$termCounter.",
 					  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s".$termCounter."  							  
-				WHERE r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id AND s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id AND s".$termCounter.".sek_title = 'Subject' AND r".$termCounter.".rmf_varchar = '$terms' 
+				WHERE r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id AND s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id AND s".$termCounter.".sek_title = '".$searchKey."' ".$restrictSQL."
 				) as r".$termCounter." on r1.rmf_rec_pid = r".$termCounter.".rmf_rec_pid
 		";
 
@@ -565,10 +582,10 @@ class Collection
 				    r1.rmf_xsdmf_id = x1.xsdmf_id 
 				 ORDER BY
 				 	r1.rmf_rec_pid";
-	
+
 		$returnfields = array("title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-		
+
 		$return = array();
 		foreach ($res as $result) {
 			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
@@ -623,6 +640,122 @@ class Collection
 		$return = Auth::getIndexAuthorisationGroups($return);
 		$return = Misc::cleanListResults($return);
 
+		$total_rows = count($return);
+		if (($start + $max) < $total_rows) {
+	        $total_rows_limit = $start + $max;
+		} else {
+		   $total_rows_limit = $total_rows;
+		}
+
+		$total_pages = ceil($total_rows / $max);
+        $last_page = $total_pages - 1;
+//		$hidden_rows = count($return);
+		$return = Misc::limitListResults($return, $start, ($start + $max));
+
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+
+            return array(
+                "list" => $return,
+                "info" => array(
+                    "current_page"  => $current_row,
+                    "start_offset"  => $start,
+                    "end_offset"    => $total_rows_limit,
+                    "total_rows"    => $total_rows,
+                    "total_pages"   => $total_pages,
+                    "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+                    "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
+                    "last_page"     => $last_page,
+                    "hidden_rows"     => $hidden_rows - $total_rows
+                )
+            );
+        }
+    }
+
+
+    /**
+     * Method used to get the list of collection records available in the 
+     * system.
+     *
+     * @access  public
+     * @return  array The list of collection records with the given collection pid
+     */
+    function listByAttribute($current_row = 0, $max = 25, $searchKey="Date")
+    {
+//        $isMemberOf_xsdmf_id = 149;
+//        $ret_id_xsd_mf = 236; // eSpaceMD Display, 
+
+
+/*		if (empty($terms)) {
+			return array();
+		} */
+
+		if ($max == "ALL") {
+            $max = 9999999;
+        }
+        $start = $current_row * $max;
+		$restrictSQL = "";
+		$middleStmt = "";
+		$termCounter = 2;
+		if ($searchKey == "Subject") {				
+			$terms = $_GET['parent_id'];		
+			$data_type = "varchar";
+		} elseif ($searchKey == "Date") {
+			$data_type = "date";
+			$group_field = "year(r1.rmf_".$data_type.")";
+			$as_field = "record_year";
+		} elseif ($searchKey == "Author") {
+			$data_type = "varchar";
+			$group_field = "(r1.rmf_".$data_type.")";
+			$as_field = "record_author";
+		} else {
+			$data_type = "varchar";
+			$group_field = "(r1.rmf_".$data_type.")";		
+			$as_field = "record_author";
+		}
+		if ($terms != "") {
+//			$restrictSQL = "AND r".$termCounter.".rmf_".$data_type." = '".$terms."'";
+		}
+		$middleStmt .= 
+		" INNER JOIN (
+				SELECT distinct r".$termCounter.".rmf_id 
+				FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r".$termCounter.",
+					  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x".$termCounter.",
+					  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s".$termCounter."  							  
+				WHERE r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id AND s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id AND s".$termCounter.".sek_title = '".$searchKey."' ".$restrictSQL."
+				) as r".$termCounter." on r1.rmf_id = r".$termCounter.".rmf_id
+		";
+        $stmt = "SELECT
+                    count(*) as record_count, ".$group_field." as ".$as_field."
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id) left join
+ 				    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 on (k1.sek_id = x1.xsdmf_sek_id)
+				";
+				
+				$stmt .= $middleStmt;
+				$stmt .= 
+                " WHERE
+				    r1.rmf_xsdmf_id = x1.xsdmf_id 
+				 GROUP BY
+				 	".$group_field."
+				 ORDER BY
+				 	r1.rmf_".$data_type;
+	
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+		foreach ($res as $key => $row) {
+			if (trim($row[$as_field]) != "") {
+				$return[$key][$as_field] = $row[$as_field];
+				$return[$key]['record_count'] = $row['record_count'];
+			}
+		}
+
+//		print_r($res);
+
+		$hidden_rows = count($return);
 		$total_rows = count($return);
 		if (($start + $max) < $total_rows) {
 	        $total_rows_limit = $start + $max;
@@ -936,6 +1069,8 @@ class Collection
 		}
 
 		$total_pages = ceil($total_rows / $max);
+//        $last_page = $total_pages;
+//		echo "total pages = ".$total_pages;
         $last_page = $total_pages - 1;
 //		$hidden_rows = count($return);
 		$return = Misc::limitListResults($return, $start, ($start + $max));

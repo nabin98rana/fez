@@ -2,8 +2,8 @@
 <script language="JavaScript">
 <!--
 var page_url = '{/literal}{$smarty.server.PHP_SELF}{literal}';
-var current_page = {/literal}{if $list_info.current_page != ""}{$list_info.current_page}{else}1{/if}{literal};
-var last_page = {/literal}{if $list_info.last_page != ""}{$list_info.last_page}{else}1{/if}{literal};
+var current_page = {/literal}{if $list_info.current_page != ""}{$list_info.current_page}{else}0{/if}{literal};
+var last_page = {/literal}{if $list_info.last_page != ""}{$list_info.last_page}{else}0{/if}{literal};
 function assignItems(f)
 {
     if (!hasOneChecked(f, 'item[]')) {
@@ -139,18 +139,94 @@ function purgeObject(pid)
 
         <tr><td>
       <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1">
-
-		{if $browse_heading != ""} 
+		{if ($browse_type == "browse_author")} 
         <tr>
 			<td align="left" class="default"><br />
-			<img src="{$rel_url}images/browse_32.jpg" align="absmiddle"/>		
-           &nbsp;<b>Browse by {if $max_subject_breadcrumb != -1}{section name="b" loop=$subject_breadcrumb}
-				  {assign var="counter" value=b}
-                  {if $subject_breadcrumb[b].cvo_image_filename != ""}<img align="absmiddle" src="{$rel_url}images/{$subject_breadcrumb[b].cvo_image_filename}"/>{/if}
-                        {if $max_subject_breadcrumb != $smarty.section.b.index}<a href='{$rel_url}list.php?browse=subject&parent_id={$subject_breadcrumb[b].cvo_id}'>{else}<b>{/if}{$subject_breadcrumb[b].cvo_title|escape:"html"}{if $max_subject_breadcrumb != $smarty.section.b.index}</a>{else}</b>{/if}
-						{assign var="cvo_id" value=$subject_breadcrumb[b].cvo_id}
-						{if $subject_count[$cvo_id]}({$subject_count[$cvo_id]}){else}{/if}{if $max_subject_breadcrumb != $smarty.section.b.index}->{else}:{/if}					
-			{/section}{else}Subject Classification:{/if}</b>		  
+			<a href="{$rel_url}list.php?browse=author"><img border="0" src="{$rel_url}images/browse_32.jpg" align="absmiddle"/></a>
+           &nbsp;<b>{$browse_heading}:</b>		  
+			</td>
+        </tr>
+		   {if $smarty.get.author == ""}
+			{section name="i" loop=$list}
+
+			  <tr>
+				  <td>
+				  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
+				  <tr>
+					  <td>
+							<a href='{$rel_url}list.php?browse=author&author={$list[i].record_author}'>{$list[i].record_author|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+
+						</td>
+					</tr>
+					  </table>
+					<!-- space between rows -->
+				</td>
+				</tr>
+
+			{sectionelse}
+			<tr>
+			<td>
+			  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
+			<tr><td>
+				No authors could be found.
+			</td></tr>
+			</table>
+						</td>
+				</tr>
+			{/section}
+			{/if}
+		{elseif ($browse_type == "browse_year")} 
+        <tr>
+			<td align="left" class="default"><br />
+			<a href="{$rel_url}list.php?browse=year"><img border="0" src="{$rel_url}images/browse_32.jpg" align="absmiddle"/></a>
+           &nbsp;<b>{$browse_heading}:</b>		  
+			</td>
+        </tr>
+		   {if $smarty.get.year == ""}
+			{section name="i" loop=$list}
+
+			  <tr>
+				  <td>
+				  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
+				  <tr>
+					  <td>
+							<a href='{$rel_url}list.php?browse=year&year={$list[i].record_year}'>{$list[i].record_year|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+
+						</td>
+					</tr>
+					  </table>
+					<!-- space between rows -->
+				</td>
+				</tr>
+
+			{sectionelse}
+			<tr>
+			<td>
+			  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
+			<tr><td>
+				No records with saved dates could be found.
+			</td></tr>
+			</table>
+						</td>
+				</tr>
+			{/section}
+			{/if}
+		{elseif $browse_type == "browse_subject"}
+        <tr>
+			<td align="left" class="default"><br />
+			<a href="{$rel_url}list.php?browse=subject"><img border="0" src="{$rel_url}images/browse_32.jpg" align="absmiddle"/></a>
+           &nbsp;<b>Browse by 
+		          {if $max_subject_breadcrumb != -1}
+					  {section name="b" loop=$subject_breadcrumb}
+						  {assign var="counter" value=b}
+		                  {if $subject_breadcrumb[b].cvo_image_filename != ""}
+						    <img align="absmiddle" src="{$rel_url}images/{$subject_breadcrumb[b].cvo_image_filename}"/>
+						  {/if}
+                          {if $max_subject_breadcrumb != $smarty.section.b.index}<a href='{$rel_url}list.php?browse=subject&parent_id={$subject_breadcrumb[b].cvo_id}'>{else}<b>{/if}{$subject_breadcrumb[b].cvo_title|escape:"html"}{if $max_subject_breadcrumb != $smarty.section.b.index}</a>{else}</b>{/if}
+ 						  {assign var="cvo_id" value=$subject_breadcrumb[b].cvo_id}
+						  {if $subject_count[$cvo_id]}({$subject_count[$cvo_id]}){else}{/if}{if $max_subject_breadcrumb != $smarty.section.b.index}->{else}:{/if}					
+					  {/section}
+				   {else}Subject Classification:{/if}</b>		  
 			</td>
         </tr>
 
@@ -187,7 +263,7 @@ function purgeObject(pid)
 	        </tr>
 		{/section}
 		{/if}		
-		{if ($browse_heading == "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)} 
+		{if ($browse_heading == "") || ($browse_type != "" & $smarty.get.author != "") || ($browse_type != "" & $smarty.get.year != "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)} 
         <tr>
 			<td align="left" class="default"><br />
 		{if $list_type == 'all_records_list' || $list_type == 'collection_records_list'}
@@ -268,7 +344,7 @@ function purgeObject(pid)
                     <td>
                        {if $list[i].creator}{$list[i].creator|escape:"html"}<br />{/if}
                        {if $list[i].description}{$list[i].description|escape:"html"}...<br />{/if}
-                       {if $list[i].date}{$list[i].date|escape:"html"}<br />{/if}
+                       {if $list[i].date}{$list[i].date|date_format:"%A, %B %e, %Y"}<br />{/if}
                        {if $list[i].type}{$list[i].type|escape:"html"}<br />{/if}   
 					   {if $list[i].ret_id == '3'}<b>Datastreams:</b> {section name="d" loop=$list[i].datastreams}{if $href_view}<a href="{$eserv_url|cat:"?pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].datastreams[d]}">{/if}{$list[i].datastreams[d]}{if $href_view}</a>{/if} {/section}{/if}
                     </td>

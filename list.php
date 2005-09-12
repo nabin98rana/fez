@@ -144,27 +144,59 @@ if (!empty($collection_pid)) {
 	$tpl->assign("list_heading", "Search Results ($terms)");
 	$tpl->assign("list_type", "all_records_list");
 } elseif ($cat == "search") {
-    // search eSpace
+    // search 
 	$list = Collection::advSearchListing($pagerRow, $rows);	
 	$list_info = $list["info"];
 	$list = $list["list"];
 	$tpl->assign("list_heading", "Search Results ($terms)");
 	$tpl->assign("list_type", "all_records_list");
+} elseif ($browse == "year") {
+    // browse by year
+	$year = $_GET['year'];
+	if (is_numeric($year)) {	
+		$list = Collection::browseListing($pagerRow, $rows, "Date");
+		$list_info = $list["info"];
+		$list = $list["list"];
+		$tpl->assign("browse_heading", "Browse By Year ".$year);
+		$tpl->assign("list_heading", "List of Records");
+	} else {
+		$list = Collection::listByAttribute($pagerRow, $rows);
+		$list_info = $list["info"];
+		$list = $list["list"];
+		$tpl->assign("browse_heading", "Browse By Year");
+	}
+	$tpl->assign("browse_type", "browse_year");
+} elseif ($browse == "author") {
+    // browse by year
+	$author = $_GET['author'];
+	if (!empty($author)) {	
+		$list = Collection::browseListing($pagerRow, $rows, "Author");
+		$list_info = $list["info"];
+		$list = $list["list"];
+		$tpl->assign("browse_heading", "Browse By Author - ".$author);
+		$tpl->assign("list_heading", "List of Records");
+	} else {
+		$list = Collection::listByAttribute($pagerRow, $rows, "Author");
+		$list_info = $list["info"];
+		$list = $list["list"];
+		$tpl->assign("browse_heading", "Browse By Author");
+	}
+	$tpl->assign("browse_type", "browse_author");
+
 } elseif ($browse == "subject") {
-	
-    // browse eSpace by subject
+    // browse by subject
 	$parent_id = $_GET['parent_id'];
 	if (is_numeric($parent_id)) {	
 		$subject_list = Controlled_Vocab::getList($parent_id);
 		$treeIDs = Controlled_Vocab::getAllTreeIDs($parent_id);
-		$subject_count = Collection::getCountSearch($treeIDs, $parent_id);
-		$list = Collection::browseListing($pagerRow, $rows);	
+		$subject_count = Collection::getCVCountSearch($treeIDs, $parent_id);
+		$list = Collection::browseListing($pagerRow, $rows, "Subject");	
 		$list_info = $list["info"];
 		$list = $list["list"];		
 	} else {
 		$subject_list = Controlled_Vocab::getList();	
 		$treeIDs = Controlled_Vocab::getAllTreeIDs();
-		$subject_count = Collection::getCountSearch($treeIDs);
+		$subject_count = Collection::getCVCountSearch($treeIDs);
 	}
 	$breadcrumb = Controlled_Vocab::getParentAssocListFullDisplay($parent_id);
 	$breadcrumb = Misc::array_merge_preserve($breadcrumb, Controlled_Vocab::getAssocListByID($parent_id));
@@ -181,15 +213,15 @@ if (!empty($collection_pid)) {
 //		$max_breadcrumb = -1;
 //	}
 
-	$tpl->assign("max_subject_breadcrumb", $max_breadcrumb);	
-	$tpl->assign("subject_breadcrumb", $newcrumb);	
+	$tpl->assign("max_subject_breadcrumb", $max_breadcrumb);
+	$tpl->assign("subject_breadcrumb", $newcrumb);
 	$tpl->assign("list_type", "all_records_list");
 	$tpl->assign("parent_id", $parent_id);
 	$tpl->assign("subject_list", $subject_list);
 	$tpl->assign("subject_count", $subject_count);
 	$tpl->assign("browse_heading", "Browse By Subject Classifications Records");
 	$tpl->assign("list_heading", "List of Subject Classifications Records");
-	$tpl->assign("browse_type", "browse_subjects");
+	$tpl->assign("browse_type", "browse_subject");
 } else {
     // list all communities
 	$xdis_id = Community::getCommunityXDIS_ID();

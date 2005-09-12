@@ -99,7 +99,7 @@ function disableFields()
       <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
 
         <tr>
-          <td align="left" class="default" nowrap colspan="2"><br /> <b>View Details: </b> <br /><br /></td>
+          <td align="left" class="default" nowrap colspan="2"><br /><img align="absmiddle" src="{$rel_url}images/record_view_32.jpg"/> <b>View Details: </b> <br /><br /></td>
         </tr>
 
 		<tr>
@@ -119,16 +119,24 @@ function disableFields()
 
                 <tr>
                 <td>
-                <table>
+                <table cellpadding="3" cellspacing="1">
 
         {section name="i" loop=$xsd_display_fields}
 		{if $xsd_display_fields[i].xsdmf_html_input != 'static' and $xsd_display_fields[i].xsdmf_html_input != 'xsdmf_id_ref' and $xsd_display_fields[i].xsdmf_html_input != 'xsd_ref' and $xsd_display_fields[i].xsdmf_html_input != ''}
 		{assign var="temp_fld_id" value=$xsd_display_fields[i].xsdmf_id}
 		  {if $xsd_display_fields[i].xsdmf_show_in_view == 1}
+			  {if $xsd_display_fields[i].xsdmf_data_type == 'date'}
 			<tr>
-			  <td align="left" class="default" width="10%" valign="top"><b>{$xsd_display_fields[i].xsdmf_title}</b></td>
- 			  <td align="left" class="default">{$details[$temp_fld_id]}</td>
-			</tr>
+			  <td align="right" bgcolor="{$cell_color}" class="default_white" width="10%" valign="top" nowrap><b>{$xsd_display_fields[i].xsdmf_title}</b></td>
+ 			  <td align="left" bgcolor="{$light_color}" class="default">{$details[$temp_fld_id]|date_format:"%A, %B %e, %Y"}</td>
+			</tr>		
+			  {else}
+			<tr>
+			  <td align="right" bgcolor="{$cell_color}" class="default_white" width="10%" valign="top"><b>{$xsd_display_fields[i].xsdmf_title}</b></td>
+ 			  <td align="left" bgcolor="{$light_color}" class="default">{$details[$temp_fld_id]} {if ($isEditor || $isAdministrator) && ($xsd_display_fields[i].xsdmf_title == 'Title')} <a href='update.php?pid={$pid|escape:"html"}'><img title="Edit" align="absmiddle" src="{$rel_url}images/edit.gif" border="0"></a> {/if}</td>
+
+			</tr>					  
+			  {/if}
 		  {/if}
 		{/if}	
         {sectionelse}
@@ -138,7 +146,7 @@ function disableFields()
           </td>
         </tr>
         {/section}
-        {if $isEditor || $isAdministrator}<tr><td><a href='update.php?pid={$pid|escape:"html"}'><img title="Edit" align="absmiddle" src="{$rel_url}images/edit.gif" border="0"></a> </td></tr>{/if}
+
                 </table>
                 </td>
                 </tr>

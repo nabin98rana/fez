@@ -3374,7 +3374,7 @@ class RecordObject extends RecordGeneral
 
 		$datastreamXMLHeaders = Misc::getDatastreamXMLHeaders($datastreamTitles, $xmlObj);
 		$datastreamXMLContent = Misc::getDatastreamXMLContent($datastreamTitles, $xmlObj);
-//			echo $xmlObj;        
+
         if ($ingestObject) {
             // Actually Ingest the object Into Fedora
             // will have to exclude the non X control group xml and add the datastreams after the base ingestion.
@@ -3393,13 +3393,15 @@ class RecordObject extends RecordGeneral
             $xmlObj = $tidy;
             Fedora_API::callIngestObject($xmlObj);
         }
+//		print_r($indexArray);
+//			echo $xmlObj;        
 		$convert_check = false;
 //		print_r($datastreamXMLHeaders);
 //		print_r($indexArray);
 		Record::insertIndexBatch($pid, $indexArray, $datastreamXMLHeaders);
 //		echo "INDEX ARRAY -> ";
 //		print_r($indexArray);
-	
+
 		foreach ($datastreamTitles as $dsTitle) {
 			$dsIDName = $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['ID'];
 			if (is_numeric(strpos($dsIDName, "."))) {
@@ -3426,8 +3428,6 @@ class RecordObject extends RecordGeneral
 			if ($presmd_check != false) {
 				Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, "text/xml", "X");
 			}
-
-
 		} 
 		return $pid;
     }

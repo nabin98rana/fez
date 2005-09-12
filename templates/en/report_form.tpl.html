@@ -33,10 +33,83 @@ function openDetailPage()
     window.location.href = 'view.php?pid={$new_record_id}';
 {literal}
 }
+
 //-->
 </script>
 {/literal}
 {/if}
+
+{literal}
+<script language="JavaScript" src="{/literal}{$rel_url}{literal}js/dynCalendar.js"></script>
+<script language="JavaScript">
+<!--
+{/literal}
+{section name="i" loop=$xsd_display_fields}
+{if $xsd_display_fields[i].xsdmf_html_input == 'date'}
+{literal}
+function calendarCallback_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}(day, month, year) { selectDateField('xsd_display_fields[{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}]', day, month, year); }
+function calendarCallback_xsd_display_fields_end{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}(day, month, year) { selectDateField('xsd_display_fields_end[{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}]', day, month, year); }
+{/literal}
+{/if}
+{/section}
+{literal}
+
+
+function toggleDateFields(f, field_name)
+{
+    var checkbox = getFormElement(f, 'filter[' + field_name + ']');
+    var filter_type = getFormElement(f, field_name + '[filter_type]');
+    var month_field = getFormElement(f, field_name + '[Month]');
+    var day_field = getFormElement(f, field_name + '[Day]');
+    var year_field = getFormElement(f, field_name + '[Year]');
+    var month_end_field = getFormElement(f, field_name + '_end[Month]');
+    var day_end_field = getFormElement(f, field_name + '_end[Day]');
+    var year_end_field = getFormElement(f, field_name + '_end[Year]');
+    if (checkbox.checked) {
+        var bool = false;
+    } else {
+        var bool = true;
+    }
+    filter_type.disabled = bool;
+    month_field.disabled = bool;
+    day_field.disabled = bool;
+    year_field.disabled = bool;
+    month_end_field.disabled = bool;
+    day_end_field.disabled = bool;
+    year_end_field.disabled = bool;
+}
+function checkDateFilterType(f, type_field)
+{
+    var option = getSelectedOption(f, type_field.name);
+    var element_name = type_field.name.substring(0, type_field.name.indexOf('['));
+    var element = getPageElement(element_name + 1);
+    if ((option == 'between') && (!isElementVisible(element))) {
+        toggleVisibility(element_name, false);
+    } else if ((option != 'between') && (isElementVisible(element))) {
+        toggleVisibility(element_name, false);
+    }
+}
+function selectDateOptions(field_prefix, date_str)
+{
+    if (date_str.length != 10) {
+        return false;
+    } else {
+        var year = date_str.substring(0, date_str.indexOf('-'));
+        var month = date_str.substring(date_str.indexOf('-')+1, date_str.lastIndexOf('-'));
+        var day = date_str.substring(date_str.lastIndexOf('-')+1);
+        selectDateField(field_prefix, day, month, year);
+    }
+}
+function selectDateField(field_name, day, month, year)
+{
+    selectOption(this.document.report_form, field_name + '[Day]', day);
+    selectOption(this.document.report_form, field_name + '[Month]', month);
+    selectOption(this.document.report_form, field_name + '[Year]', year);
+}
+//-->
+</script>
+{/literal}
+
 <table width="99%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
 <form name="report_form" action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
 <input type="hidden" name="cat" value="report">
@@ -184,6 +257,24 @@ function openDetailPage()
 						 </td>
 						</tr>
 				{/if}
+            {elseif $xsd_display_fields[i].xsdmf_html_input == 'date'}
+              <tr>
+				  <td width="150" bgcolor="{$cell_color}" class="default_white">
+					<b>{$xsd_display_fields[i].xsdmf_title}</b><br />
+				  </td>
+                <td nowrap bgcolor="{$light_color}">
+                  {assign var="temp_xsdmf_id" value=$xsd_display_fields[i].xsdmf_id}
+                  {html_select_date month_empty='' year_empty='' day_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="-50" end_year="+0" all_extra='class="default" onChange="javascript:checkDateFilterType(this.form, this);"'}
+                                  {literal}
+                  <script language="JavaScript" type="text/javascript">
+                  <!--
+                  tCalendar_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal} = new dynCalendar('tCalendar_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}', 'calendarCallback_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}', '{/literal}{$rel_url}{literal}images/');
+                  tCalendar_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}.setMonthCombo(false);
+                  tCalendar_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}.setYearCombo(false);
+                  //-->
+                  </script>{/literal}&nbsp;&nbsp;
+                </td>
+              </tr>
             {elseif $xsd_display_fields[i].xsdmf_html_input == 'contvocab'}
 
 					<tr id="tr_list_{$list[i].xsdmf_id}_1" valign="top">

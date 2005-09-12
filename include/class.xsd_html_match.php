@@ -343,6 +343,7 @@ class XSD_HTML_Match
 					xsdmf_selected_option,
 					xsdmf_espace_variable,
 					xsdmf_enforced_prefix,
+					xsdmf_data_type,
 					xsdmf_value_prefix,
                     xsdmf_id_ref,
 					xsdsel_order
@@ -455,6 +456,7 @@ class XSD_HTML_Match
 					xsdmf_selected_option,
 					xsdmf_espace_variable,
 					xsdmf_enforced_prefix,
+					xsdmf_data_type,
 					xsdmf_value_prefix,
                     xsdmf_id_ref,
 					xsdsel_order
@@ -558,6 +560,7 @@ class XSD_HTML_Match
 					xsdmf_espace_variable,
 					xsdmf_enforced_prefix,
 					xsdmf_is_key,
+					xsdmf_data_type,
 					xsdmf_key_match,
 					xsdmf_parent_key_match,
 					xsdmf_value_prefix,
@@ -1089,6 +1092,7 @@ class XSD_HTML_Match
 		$stmt .= "
                     xsdmf_valueintag,
                     xsdmf_is_key,
+                    xsdmf_data_type,
                     xsdmf_parent_key_match,
                     xsdmf_key_match,";
 		if ($HTTP_POST_VARS["xsdmf_id_ref"] != "") {
@@ -1140,6 +1144,7 @@ class XSD_HTML_Match
 			$stmt .=
                     $valueintag . ",
                     " . $is_key . ",
+                    '" . Misc::escapeString($HTTP_POST_VARS["xsdmf_data_type"]) . "',
                     '" . Misc::escapeString($HTTP_POST_VARS["parent_key_match"]) . "',
                     '" . Misc::escapeString($HTTP_POST_VARS["key_match"]) . "',";
 
@@ -1629,6 +1634,7 @@ class XSD_HTML_Match
                     xsdmf_show_in_view = " . $show_in_view . ",
                     xsdmf_key_match = '" . Misc::escapeString($HTTP_POST_VARS["key_match"]) . "',
                     xsdmf_parent_key_match = '" . Misc::escapeString($HTTP_POST_VARS["parent_key_match"]) . "',
+                    xsdmf_data_type = '" . Misc::escapeString($HTTP_POST_VARS["xsdmf_data_type"]) . "',					
                     xsdmf_id_ref = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_id_ref"]) . ",
                     xsdmf_enforced_prefix = '" . Misc::escapeString($HTTP_POST_VARS["enforced_prefix"]) . "',
                     xsdmf_value_prefix = '" . Misc::escapeString($HTTP_POST_VARS["value_prefix"]) . "',
