@@ -1156,7 +1156,12 @@ class User
                     usr_administrator,
                     usr_ldap_authentication,
                     usr_preferences,
-                    usr_username
+                    usr_username";
+        if (!empty($HTTP_POST_VARS["password"]))  {
+            $stmt .= ",usr_password";
+        } 
+
+			$stmt .= "
                  ) VALUES (
                     '" . Date_API::getCurrentDateGMT() . "',
                     '" . Misc::escapeString($HTTP_POST_VARS["full_name"]) . "',
@@ -1164,7 +1169,11 @@ class User
                     " . $usr_administrator . ",
                     " . $ldap_authentication . ",
                     '" . Misc::escapeString($prefs) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["username"]) . "'
+                    '" . Misc::escapeString($HTTP_POST_VARS["username"]) . "'";
+	    if (!empty($HTTP_POST_VARS["password"]))  {					
+			$stmt .= ",'" . md5($HTTP_POST_VARS["password"]) . "'";
+		}
+			$stmt .= "
                  )";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {

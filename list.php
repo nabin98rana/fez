@@ -101,6 +101,7 @@ if (!empty($collection_pid)) {
 	$isEditor = (in_array("Creator", $userPIDAuthGroups) || in_array("Community Administrator", $userPIDAuthGroups) || in_array("Editor", $userPIDAuthGroups) || in_array("Collection Administrator", $userPIDAuthGroups));
 	$tpl->assign("isEditor", $isEditor);
 	$list = Collection::getListing($collection_pid, $pagerRow, $rows);
+//	print_r($list);
 	$list_info = $list["info"];
 	$list = $list["list"];
 //	print_r($list_info);

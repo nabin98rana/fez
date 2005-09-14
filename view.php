@@ -92,9 +92,9 @@ $tpl->assign("local_eserv_url", APP_RELATIVE_URL."eserv.php?pid=".$pid."&dsID=")
             Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=view_form&pid=".$pid.$extra_redirect, false);
 		}
 
-        $tpl->assign("isViewer", $record->canView());
+        $tpl->assign("isViewer", $record->canView(true));
         if ($record->canView()) {
-            $tpl->assign("isEditor", $record->canEdit());
+            $tpl->assign("isEditor", $record->canEdit(false));
 		
             $display = new XSD_DisplayObject($xdis_id);
 			$xsd_display_fields = $display->getMatchFieldsList();

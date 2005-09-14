@@ -1,6 +1,16 @@
 {include file="header.tpl.html"}
 {include file="navigation.tpl.html"}
-{include file="report_form.tpl.html"}
+  {if $isAdministrator || $isCreator}
+  {include file="report_form.tpl.html"}
+  {else}
+  <center>
+<span class="default">
+<b>Sorry, but you do not have the required permission level to access this screen.</b>
+<br /><br />
+<a class="link" href="javascript:history.go(-1);">Go Back</a>
+</span>
+</center>
+  {/if}
 
 {include file="app_info.tpl.html"}
 {include file="footer.tpl.html"}

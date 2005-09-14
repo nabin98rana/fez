@@ -11,6 +11,7 @@ include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.misc.php");
+include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 
 $tpl = new Template_API();
@@ -41,7 +42,9 @@ if (!empty($pid) && !empty($dsID)) {
 			$urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsID; // this should stop them dang haxors (forces the http on the front for starters)
 //				echo $urldata;
 			$urlpath = $urldata;
-			
+			if (!is_numeric(strpos($dsID, "thumbnail"))) {
+				Record::incrementFileDownloads($pid); //increment eSpaceMD.file_downloads counter
+			}
 			//	returnresource($urlpath);
 			
 			
@@ -102,7 +105,7 @@ if (!empty($pid) && !empty($dsID)) {
 			}
 			
 			fclose($sourceOAI);
-			
+	
 			$tempDump = fopen($tempDumpFileName, 'w');
 			// Write the source xml to a temporary file to we can get the filesize (required for the content length header)
 			fwrite($tempDump, $sourceOAIRead);
@@ -114,7 +117,7 @@ if (!empty($pid) && !empty($dsID)) {
 			$sourceOAIRead = fread($tempDump, filesize($tempDumpFileName));
 			header("Content-length: " . filesize($tempDumpFileName) . "\n");
 			echo $sourceOAIRead;
-			
+					
 			//	$fileContents =	file_get_contents($urlpath);
 			//	$fileContents =	file_get_contents(urldecode($urlpath));
 			//	echo $fileContents;

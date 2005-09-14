@@ -331,11 +331,9 @@ class Collection
 				 ORDER BY
 				 	r1.rmf_rec_pid";
 */
-		$returnfields = array("title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
+		$returnfields = array("file_downloads", "title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-//		print_r($res);
 
-		
 		$return = array();
 		foreach ($res as $result) {
 			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
@@ -411,7 +409,6 @@ class Collection
 		$return = Misc::limitListResults($return, $start, ($start + $max));
 
 		
-//		print_r($return);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
@@ -549,7 +546,7 @@ class Collection
 			$data_type = "date";
 			$restrictSQL = "AND YEAR(r".$termCounter.".rmf_".$data_type.") = ".$terms."";
 		} elseif ($searchKey == "Author") {
-			$terms = $_GET['author'];
+			$terms = mysql_escape_string($_GET['author']);
 			$data_type = "varchar";
 			$restrictSQL = "AND r".$termCounter.".rmf_".$data_type." = '".$terms."'";
 		} else {
@@ -583,7 +580,7 @@ class Collection
 				 ORDER BY
 				 	r1.rmf_rec_pid";
 
-		$returnfields = array("title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
+		$returnfields = array("file_downloads", "title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 
 		$return = array();
@@ -637,6 +634,7 @@ class Collection
 		
 		$return = array_values($return);
 		$hidden_rows = count($return);
+//		print_r($return);
 		$return = Auth::getIndexAuthorisationGroups($return);
 		$return = Misc::cleanListResults($return);
 
@@ -744,7 +742,7 @@ class Collection
 				 	".$group_field."
 				 ORDER BY
 				 	r1.rmf_".$data_type;
-	
+
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		foreach ($res as $key => $row) {
 			if (trim($row[$as_field]) != "") {
@@ -785,6 +783,122 @@ class Collection
                     "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
                     "last_page"     => $last_page,
                     "hidden_rows"     => $hidden_rows - $total_rows
+                )
+            );
+        }
+    }
+
+
+    /**
+     * Method used to get the list of collection records available in the 
+     * system.
+     *
+     * @access  public
+     * @return  array The list of collection records with the given collection pid
+     */
+    function statsByAttribute($current_row = 0, $max = 25, $searchKey="Author")
+    {
+//        $isMemberOf_xsdmf_id = 149;
+//        $ret_id_xsd_mf = 236; // eSpaceMD Display, 
+
+
+/*		if (empty($terms)) {
+			return array();
+		} */
+
+		if ($max == "ALL") {
+            $max = 9999999;
+        }
+        $start = $current_row * $max;
+		$restrictSQL = "";
+		$middleStmt = "";
+		$extra = "";
+		$termCounter = 3;
+		if ($searchKey == "Title") {
+			$data_type = "varchar";
+			$extra = ", r1.rmf_rec_pid as pid";
+			$group_field = "r1.rmf_".$data_type.", r1.rmf_rec_pid";
+			$as_field = "record_title";
+		} elseif ($searchKey == "Author") {
+			$data_type = "varchar";
+			$group_field = "(r1.rmf_".$data_type.")";
+			$as_field = "record_author";
+		} else {
+			$data_type = "varchar";
+			$group_field = "(r1.rmf_".$data_type.")";		
+			$as_field = "record_author";
+		}
+		if ($terms != "") {
+//			$restrictSQL = "AND r".$termCounter.".rmf_".$data_type." = '".$terms."'";
+		}
+		$middleStmt .= 
+		" INNER JOIN (
+				SELECT distinct r".$termCounter.".rmf_id 
+				FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r".$termCounter.",
+					  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x".$termCounter.",
+					  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s".$termCounter."  							  
+				WHERE r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id AND s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id AND s".$termCounter.".sek_title = '".$searchKey."' ".$restrictSQL."
+				) as r".$termCounter." on r1.rmf_id = r".$termCounter.".rmf_id";
+		$termCounter++;
+		$middleStmt .= 
+		" LEFT JOIN ( 
+		   		SELECT distinct r".$termCounter.".rmf_id 
+				FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r".$termCounter.", 
+					 " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x".$termCounter.",
+					 " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s".$termCounter." 
+				WHERE r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id AND s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id AND s".$termCounter.".sek_title = 'File Downloads' ) 
+				as r".$termCounter." on r".$termCounter.".rmf_id = r2.rmf_id 
+		";
+        $stmt = "SELECT
+                   r1.rmf_".$data_type." as ".$as_field.$extra.", IFNULL(sum(r2.rmf_int),0) as file_downloads
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,					
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id) left join
+ 				    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 on (k1.sek_id = x1.xsdmf_sek_id)
+				";
+				
+				$stmt .= $middleStmt;
+				$stmt .= 
+                " WHERE
+				    r1.rmf_xsdmf_id = x1.xsdmf_id and r1.rmf_rec_pid = r2.rmf_rec_pid
+				  GROUP BY
+				    ".$group_field."
+				  ORDER BY
+				     file_downloads DESC, r1.rmf_".$data_type."
+				  LIMIT 0,50";
+	
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+/*		foreach ($res as $key => $row) {
+			if (trim($row[$as_field]) != "") {
+				$return[$key][$as_field] = $row[$as_field];
+				$return[$key]['record_count'] = $row['record_count'];
+			}
+		} */
+//		echo $stmt;
+//		print_r($res);
+		$return = $res;
+//		$hidden_rows = count($return);
+//		$return = Misc::limitListResults($return, $start, ($start + $max));
+
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+
+            return array(
+                "list" => $return,
+                "info" => array(
+                    "current_page"  => 0,
+                    "start_offset"  => 0,
+                    "end_offset"    => 50,
+                    "total_rows"    => 50,
+                    "total_pages"   => 1,
+                    "previous_page" => -1,
+                    "next_page"     => -1,
+                    "last_page"     => 0,
+                    "hidden_rows"     => 0
                 )
             );
         }

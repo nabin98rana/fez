@@ -1281,6 +1281,17 @@ class Record
         }
     }
 
+
+    function incrementFileDownloads($pid)
+    {
+        $record = new RecordObject($pid);
+        if ($record->incrementFileDownloads()) {
+            return 1;
+        } else {
+            return -1;
+        }
+    }
+
     /**
      * Method used to associate an existing Record with another one.
      *
@@ -1563,7 +1574,7 @@ class Record
 					}
 				}
 				if ($index[6] != "") {
-					Record::insertIndexMatchingField($index[0], $index[2], $index[3], $index[4], $index[5], $index[6]);
+					Record::insertIndexMatchingField($index[0], $index[2], $index[5], $index[6]);
 				}
 			}
 		}
@@ -1612,8 +1623,26 @@ class Record
         }
     }
 
+    function removeIndexRecordByXSDMF_ID($pid, $xsdmf_id)
+    {
+ 
+//		echo "monkey = ".$initial_status;
+        // add new Record
+        $stmt = "DELETE FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field
+				 WHERE rmf_rec_pid = '" . $pid . "' and rmf_xsdmf_id=".$xsdmf_id;
+//		echo $stmt;
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+            return $pid;
+        }
+    }
 
-    function insertIndexMatchingField($pid, $xsdmf_id, $xdis_id, $xsdsel_id, $data_type, $value)
+
+    function insertIndexMatchingField($pid, $xsdmf_id, $data_type, $value)
     {
  
 //		echo "monkey = ".$initial_status;
@@ -3258,6 +3287,7 @@ class RecordGeneral
             $this->auth_groups = Auth::getAuthorisationGroups($this->pid, $this->xdis_id);
             $this->checked_auth = true;
         }
+		
         return $this->auth_groups;
     }
 
@@ -3265,27 +3295,27 @@ class RecordGeneral
      * checkAuth
      * Find out if the current user can perform the given roles for this record
      */
-    function checkAuth($roles) {
+    function checkAuth($roles, $redirect=true) {
         global $HTTP_SERVER_VARS;
         $this->getAuth();
 		return Auth::checkAuthorisation($this->pid, $this->xdis_id, $roles, 
-                    $HTTP_SERVER_VARS['PHP_SELF']."?".$HTTP_SERVER_VARS['QUERY_STRING'], $this->auth_groups); 
+                    $HTTP_SERVER_VARS['PHP_SELF']."?".$HTTP_SERVER_VARS['QUERY_STRING'], $this->auth_groups, $redirect); 
     }
     
     /**
      * canView 
      * Find out if the current user can view this record
      */
-    function canView() {
-        return $this->checkAuth($this->viewer_roles);
+    function canView($redirect=true) {
+        return $this->checkAuth($this->viewer_roles, $redirect);
     }
     
     /**
      * canEdit
      * Find out if the current user can edit this record
      */
-    function canEdit() {
-        return $this->checkAuth($this->editor_roles);
+    function canEdit($redirect=false) {
+        return $this->checkAuth($this->editor_roles, $redirect);
     }
 
 }
@@ -3298,6 +3328,7 @@ class RecordGeneral
 class RecordObject extends RecordGeneral
 {
     var $xdis_id;
+    var $file_downloads; //for statistics of file datastream downloads from eserv.php
     var $no_xdis_id = false;  // true if we couldn't find the xdis_id
     var $default_xdis_id = 5;
     var $display;
@@ -3322,6 +3353,20 @@ class RecordObject extends RecordGeneral
         }
         return null;
     }
+
+    /**
+     * getFileDownloadsCount
+     * Retrieve the count of file downloads for this record
+     */
+    function getFileDownloadsCount() {
+		$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'eSpaceMD');
+//		print_r($xdis_array);
+		if (is_numeric(trim($xdis_array['file_downloads'][0]))) {
+			$this->file_downloads = trim($xdis_array['file_downloads'][0]);
+		} else {
+			$this->file_downloads = 0;
+		}
+    }
     
     /**
      * updateAdminDatastream
@@ -3332,6 +3377,37 @@ class RecordObject extends RecordGeneral
         return $this->fedoraInsertUpdate();
     }
 
+    function incrementFileDownloads() {
+		$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'eSpaceMD');
+//		print_r($xdis_array);
+		if (isset($xdis_array['file_downloads'][0])) {
+			$this->file_downloads = $xdis_array['file_downloads'][0];
+		} else {
+			$this->file_downloads = 0;
+		}
+		$this->file_downloads++;
+		$newXML = '<eSpaceMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">';
+		$foundElement = false;
+		foreach ($xdis_array as $xkey => $xdata) {
+			foreach ($xdata as $xinstance) {
+				if ($xkey == "file_downloads") {
+					$foundElement = true;
+					$newXML .= "<".$xkey.">".$this->file_downloads."</".$xkey.">";				
+				} elseif ($xinstance != "") {
+					$newXML .= "<".$xkey.">".$xinstance."</".$xkey.">";
+				}
+			}
+		}
+		if ($foundElement != true) {
+			$newXML .= "<file_downloads>".$this->file_downloads."</file_downloads>";
+		}
+		$newXML .= "</eSpaceMD>";
+//		echo $newXML;
+		Fedora_API::callModifyDatastreamByValue($this->pid, "eSpaceMD", "A", "eSpace extension metadata", $newXML, "text/xml", true);
+		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement("!file_downloads", 15);
+		Record::removeIndexRecordByXSDMF_ID($this->pid, $xsdmf_id);
+		Record::insertIndexMatchingField($this->pid, $xsdmf_id, "int", $this->file_downloads);
+    }
 
     /**
      * fedoraInsertUpdate 
@@ -3366,7 +3442,12 @@ class RecordObject extends RecordGeneral
 
  		// @@@ CK - 6/5/2005 - Added xdis so xml building could search using the xml display ids
 		$indexArray = array();
-		$xmlObj = Misc::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray);
+		if (!is_numeric($this->file_downloads)) {
+			$this->getFileDownloadsCount();
+		} 
+		$file_downloads = $this->file_downloads;
+
+		$xmlObj = Misc::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, $file_downloads);
 
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
 		$datastreamTitles = $display->getDatastreamTitles();

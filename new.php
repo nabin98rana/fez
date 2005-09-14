@@ -78,7 +78,9 @@ $collection_list = Collection::getAssocList();
 
 $internal_user_list = User::getAssocList();
 $internal_group_list = Group::getAssocListAll();
-
+$acceptable_roles = array("Community_Admin", "Editor", "Creator", "Community_Admin");
+if (Auth::checkAuthorisation($collection_pid, $xdis_id, $acceptable_roles, $HTTP_SERVER_VARS['PHP_SELF']."?".$HTTP_SERVER_VARS['QUERY_STRING']) == true) {
+$tpl->assign("isCreator", 1);
 if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for it
 //	echo "XDIS_ID -> ".$xdis_id;
 //	echo "redirecting";
@@ -200,10 +202,8 @@ $setup = Setup::load();
 //$tpl->assign("user_primary_campus_id", $primary_campus_id);
 //$tpl->assign("news", News::getListByCollection($col_id));
 
-//} else {
-//	Auth::redirect(APP_RELATIVE_URL . "list.php", false);
-//    $tpl->assign("show_not_allowed_msg", true);
-//}
+
+}
 
 
 $tpl->displayTemplate();

@@ -52,7 +52,7 @@ $tpl = new Template_API();
 $tpl->setTemplate("update.tpl.html");
 $tpl->assign("type", "edit_record");
 
-Auth::checkAuthentication(APP_SESSION);
+Auth::checkAuthentication(APP_SESSION, $HTTP_SERVER_VARS['PHP_SELF']."?".$HTTP_SERVER_VARS['QUERY_STRING']);
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
 $isAdministrator = User::isUserAdministrator($username);

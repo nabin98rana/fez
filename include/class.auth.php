@@ -90,7 +90,9 @@ class Auth
 
         if (empty($failed_url)) {
             $failed_url = APP_RELATIVE_URL . "login.php?err=5";
-        }
+        } else {
+            $failed_url = APP_RELATIVE_URL . "login.php?err=21&url=".$failed_url;
+		}
         
         if (!Auth::isValidSession($_SESSION)) {
             Auth::removeSession($session_name);
@@ -200,7 +202,8 @@ class Auth
 		static $returns;
 
         if (is_array($returns[$pid])) {		
-			array_push($ACMLArray, $returns[$pid]); //add it to the acml array and dont go any further up the hierarchy
+//			array_push($ACMLArray, $returns[$pid]); //add it to the acml array and dont go any further up the hierarchy
+			$ACMLArray = $returns[$pid]; //add it to the acml array and dont go any further up the hierarchy
         } else {								
 			$stmt = "SELECT 
 						* 
@@ -301,10 +304,9 @@ class Auth
      * Can the current user access this page?
      * @returns boolean true if access is ok.
      */
-    function checkAuthorisation($pid, $xdis_id, $acceptable_roles, $failed_url, $userPIDAuthGroups=null) {
+    function checkAuthorisation($pid, $xdis_id, $acceptable_roles, $failed_url, $userPIDAuthGroups=null, $redirect=true) {
         session_name(APP_SESSION);
         @session_start();
-
 		$isAdministrator = Auth::isAdministrator();
 		if ($isAdministrator == true) {
 			return true;
@@ -312,11 +314,12 @@ class Auth
 		if (!is_array($acceptable_roles) || empty($pid) || empty($xdis_id)) {
 			return false;
 		}
-
+		
         // find out which role groups this user belongs to
         if (is_null($userPIDAuthGroups)) {
             $userPIDAuthGroups = Auth::getAuthorisationGroups($pid, $xdis_id);
         }
+
 		$auth_ok = false;
 //		if $userPIDAuthGroups 
 		foreach ($acceptable_roles as $role) {
@@ -327,7 +330,9 @@ class Auth
 		if ($auth_ok != true) {
             // Perhaps the user hasn't logged in
 			if (!Auth::isValidSession($_SESSION)) {
-			    Auth::redirect(APP_RELATIVE_URL . "login.php?err=21&url=".$failed_url, $is_popup);
+				if ($redirect != false) {
+				    Auth::redirect(APP_RELATIVE_URL . "login.php?err=21&url=".$failed_url, $is_popup);
+				}
 			} else {
 				return false;	
 			}
@@ -745,15 +750,19 @@ class Auth
     {
 		// @@@ CK - 9/6/2005 - will have to add extra logic here for non-ldap (espace or other) users. 
 
-		$userDetails = User::getDetails($username);
-		if ($userDetails['usr_ldap_authentication'] == 1) {
-			return Auth::ldap_authenticate($username, $password);
+		if (Auth::userExists($HTTP_POST_VARS["username"])) {
+			$userDetails = User::getDetails($username);
+			if ($userDetails['usr_ldap_authentication'] == 1) {
+				return Auth::ldap_authenticate($username, $password);
+			} else {
+				if ($userDetails['usr_password'] != md5($password)) {
+					return false;
+				} else {
+					return true;
+				}
+			}
 		} else {
-            if ($userDetails['usr_password'] != md5($password)) {
-                return false;
-            } else {
-                return true;
-            }
+			return Auth::ldap_authenticate($username, $password);
 		}
     }
 
@@ -902,7 +911,7 @@ class Auth
             $userDetails = User::GetUserLDAPDetails($username, $password);
             $fullname = $userDetails['displayname'];
             $email = $userDetails['email'];
-            Auth::GetUsersLDAPGroups($userDetails['usr_username'], $password);
+            Auth::GetUsersLDAPGroups($username, $password);
         } else { // if it is a registered eSpace user then get their details from the espace user table
             $_SESSION['isInDB'] = true;
             $userDetails = User::getDetails($username);			

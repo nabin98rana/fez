@@ -721,7 +721,25 @@ function callGetDatastreamDissemination($pid, $dsID, $asofDateTime="") {
    return $dsIDListArray;
 }
 
-function callGetDatastreamContentsField ($pid, $dsID, $returnfields) {
+
+function callGetDatastreamContents($pid, $dsID) {
+    $resultlist = array();
+
+    $filename = APP_FEDORA_GET_URL."/".$pid."/".$dsID;
+    $xml = @file_get_contents($filename);
+    if (!empty($xml)) {
+        $doc = DOMDocument::loadXML($xml);
+        $xpath = new DOMXPath($doc);
+        $fieldNodeList = $xpath->query("/$dsID/*");
+        foreach ($fieldNodeList as $fieldNode) {
+	        $resultlist[$fieldNode->nodeName][] = trim($fieldNode->nodeValue);
+        }
+    }
+    return $resultlist;
+}
+
+
+function callGetDatastreamContentsField($pid, $dsID, $returnfields) {
 //    array_push($returnfields, "pid"); 
     $resultlist = array();
 
