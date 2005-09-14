@@ -3373,8 +3373,31 @@ class RecordObject extends RecordGeneral
      * Used to assocaiate a display for this record
      */
     function updateAdminDatastream($xdis_id) {
+		$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'eSpaceMD');
         $this->xdis_id = $xdis_id;
-        return $this->fedoraInsertUpdate();
+		$newXML = '<eSpaceMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">';
+		$foundElement = false;
+		foreach ($xdis_array as $xkey => $xdata) {
+			foreach ($xdata as $xinstance) {
+				if ($xkey == "xdis_id") {
+					$foundElement = true;
+					$newXML .= "<".$xkey.">".$this->xdis_id."</".$xkey.">";				
+				} elseif ($xinstance != "") {
+					$newXML .= "<".$xkey.">".$xinstance."</".$xkey.">";
+				}
+			}
+		}
+		if ($foundElement != true) {
+			$newXML .= "<xdis_id>".$this->xdis_id."</xdis_id>";
+		}
+		$newXML .= "</eSpaceMD>";
+//		echo $newXML;
+		if ($newXML != "") {
+			Fedora_API::callModifyDatastreamByValue($this->pid, "eSpaceMD", "A", "eSpace extension metadata", $newXML, "text/xml", true);
+			$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement("!xdis_id", 15);
+			Record::removeIndexRecordByXSDMF_ID($this->pid, $xsdmf_id);
+			Record::insertIndexMatchingField($this->pid, $xsdmf_id, "varchar", $this->xdis_id);
+		}
     }
 
     function incrementFileDownloads() {
@@ -3403,10 +3426,12 @@ class RecordObject extends RecordGeneral
 		}
 		$newXML .= "</eSpaceMD>";
 //		echo $newXML;
-		Fedora_API::callModifyDatastreamByValue($this->pid, "eSpaceMD", "A", "eSpace extension metadata", $newXML, "text/xml", true);
-		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement("!file_downloads", 15);
-		Record::removeIndexRecordByXSDMF_ID($this->pid, $xsdmf_id);
-		Record::insertIndexMatchingField($this->pid, $xsdmf_id, "int", $this->file_downloads);
+		if ($newXML != "") {
+			Fedora_API::callModifyDatastreamByValue($this->pid, "eSpaceMD", "A", "eSpace extension metadata", $newXML, "text/xml", true);
+			$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement("!file_downloads", 15);
+			Record::removeIndexRecordByXSDMF_ID($this->pid, $xsdmf_id);
+			Record::insertIndexMatchingField($this->pid, $xsdmf_id, "int", $this->file_downloads);
+	    }
     }
 
     /**

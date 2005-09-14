@@ -840,6 +840,16 @@ class Collection
 				WHERE r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id AND s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id AND s".$termCounter.".sek_title = '".$searchKey."' ".$restrictSQL."
 				) as r".$termCounter." on r1.rmf_id = r".$termCounter.".rmf_id";
 		$termCounter++;
+		// only get the record level objects
+		$middleStmt .= 
+		" INNER JOIN (
+				SELECT distinct r".$termCounter.".rmf_rec_pid 
+				FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r".$termCounter.",
+					  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x".$termCounter.",
+					  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s".$termCounter."  							  
+				WHERE r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id AND s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id AND s".$termCounter.".sek_title = 'Object Type' AND r".$termCounter.".rmf_varchar='3'
+				) as r".$termCounter." on r2.rmf_rec_pid = r".$termCounter.".rmf_rec_pid";
+		$termCounter++;
 		$middleStmt .= 
 		" LEFT JOIN ( 
 		   		SELECT distinct r".$termCounter.".rmf_id 
@@ -876,7 +886,7 @@ class Collection
 				$return[$key]['record_count'] = $row['record_count'];
 			}
 		} */
-//		echo $stmt;
+
 //		print_r($res);
 		$return = $res;
 //		$hidden_rows = count($return);
