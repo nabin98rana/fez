@@ -35,37 +35,72 @@ include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "db_access.php");
+include_once(APP_INC_PATH . "class.workflow_trigger.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("popup.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION, 'index.php?err=5', true);
 $usr_id = Auth::getUserID();
+$cat = @$HTTP_GET_VARS["cat"] ? @$HTTP_GET_VARS["cat"] : @$HTTP_POST_VARS["cat"];
+switch ($cat) 
+{
+    case 'purge_datastream':
+        {
+            if (!in_array($HTTP_GET_VARS["ds_id"], Misc::const_array(APP_FEDORA_PROTECTED_DATASTREAMS))) {
+                $ds_id = $HTTP_GET_VARS["ds_id"];
+                $pid = $HTTP_GET_VARS["pid"];		
+                $res = Fedora_API::callPurgeDatastream($pid, $ds_id);
+                Record::removeIndexRecordByValue($pid, $ds_id);
+                $thumbnail = "thumbnail_".str_replace(" ", "_", substr($ds_id, 0, strrpos($ds_id, "."))).".jpg";
+                if (Fedora_API::datastreamExists($pid, $thumbnail)) {
+                    Fedora_API::callPurgeDatastream($pid, $thumbnail);
+                    Record::removeIndexRecordByValue($pid, $thumbnail);
+                }
+                if (count($res) == 1) { $res = 1; } else { $res = -1; }
+            } else {
+                $res = -1;
+            }
+            $tpl->assign("purge_datastream_result", $res);
+            break;
+        }
+    case 'update_form':
+        {
+            $res = Record::update($HTTP_POST_VARS["pid"]);
+            $tpl->assign("update_form_result", $res);
+            break;
+        }
+    case 'purge_object':
+        {
+            // first delete all indexes about this pid
+            Record::removeIndexRecord($HTTP_GET_VARS["pid"]);
+            $res = Fedora_API::callPurgeObject($HTTP_GET_VARS["pid"]);
+             $tpl->assign("purge_object_result", $res);
+            break;
+        }
+    case 'new_workflow_triggers':
+        {
+            $tpl->assign("generic_result",WorkflowTrigger::insert());
+            $tpl->assign("generic_action",'add');
+            $tpl->assign("generic_type",'workflow trigger');
+            break;
+        }
+    case 'edit_workflow_triggers':
+        {
+            $tpl->assign("generic_result",WorkflowTrigger::update());
+            $tpl->assign("generic_action",'update');
+            $tpl->assign("generic_type",'workflow trigger');
+            break;
+        }
+    case 'delete_workflow_triggers':
+        {
+            $tpl->assign("generic_result",WorkflowTrigger::remove());
+            $tpl->assign("generic_action",'delete');
+            $tpl->assign("generic_type",'workflow trigger');
+            break;
+        }
 
-if (@$HTTP_GET_VARS["cat"] == "purge_datastream") {
-	if (!in_array($HTTP_GET_VARS["ds_id"], Misc::const_array(APP_FEDORA_PROTECTED_DATASTREAMS))) {
-		$ds_id = $HTTP_GET_VARS["ds_id"];
-		$pid = $HTTP_GET_VARS["pid"];		
-	    $res = Fedora_API::callPurgeDatastream($pid, $ds_id);
-		Record::removeIndexRecordByValue($pid, $ds_id);
-		$thumbnail = "thumbnail_".str_replace(" ", "_", substr($ds_id, 0, strrpos($ds_id, "."))).".jpg";
-		if (Fedora_API::datastreamExists($pid, $thumbnail)) {
-		    Fedora_API::callPurgeDatastream($pid, $thumbnail);
-			Record::removeIndexRecordByValue($pid, $thumbnail);
-		}
-		if (count($res) == 1) { $res = 1; } else { $res = -1; }
-	} else {
-		$res = -1;
-	}
-    $tpl->assign("purge_datastream_result", $res);
-} elseif (@$HTTP_POST_VARS["cat"] == "update_form") {
-    $res = Record::update($HTTP_POST_VARS["pid"]);
-	$tpl->assign("update_form_result", $res);
-} elseif (@$HTTP_GET_VARS["cat"] == "purge_object") {
-	// first delete all indexes about this pid
-	Record::removeIndexRecord($HTTP_GET_VARS["pid"]);
-	$res = Fedora_API::callPurgeObject($HTTP_GET_VARS["pid"]);
-	$tpl->assign("purge_object_result", $res);
+
 }
 
 

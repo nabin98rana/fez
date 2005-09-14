@@ -2871,6 +2871,12 @@ return $ret;
         return $result;
     }
 
+    function GETorPOST($key)
+    {
+        global $HTTP_POST_VARS, $HTTP_GET_VARS;
+        return @$HTTP_GET_VARS[$key] ? @$HTTP_GET_VARS[$key] : @$HTTP_POST_VARS[$key];
+    }
+
 } // end of Misc class
 
 // benchmarking the included file (aka setup time)

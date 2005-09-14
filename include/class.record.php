@@ -3332,6 +3332,7 @@ class RecordObject extends RecordGeneral
     var $no_xdis_id = false;  // true if we couldn't find the xdis_id
     var $default_xdis_id = 5;
     var $display;
+    var $details;
     
 
     /**
@@ -3455,7 +3456,8 @@ class RecordObject extends RecordGeneral
             $this->xdis_id = $HTTP_POST_VARS["xdis_id"];
         }
         $xdis_id = $this->xdis_id;
-        $display = &$this->getDisplay();
+        $this->getDisplay();
+        $display = &$this->display;
         list($array_ptr,$xsd_element_prefix, $xsd_top_element_name, $xml_schema) 
             = $display->getXsdAsReferencedArray();
 
@@ -3562,9 +3564,23 @@ class RecordObject extends RecordGeneral
      */
     function getDetails()
     {
-		// Get the Datastreams.
-        $display = &$this->getDisplay();
-		return $display->getXSDMF_Values($this->pid);
+        if (is_null($this->details)) {
+            // Get the Datastreams.
+            $this->getDisplay();
+            $this->details = $this->display->getXSDMF_Values($this->pid);
+        }
+        return $this->details;
+    }
+
+    /**
+      * getTitle
+      * Get the dc:title for the record
+      */
+    function getTitle()
+    {
+        $this->getDetails();
+        $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!dc:title'); 
+        return $this->details[$xsdmf_id];
     }
 
 

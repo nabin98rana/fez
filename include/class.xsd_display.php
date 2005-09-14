@@ -559,7 +559,11 @@ class XSD_DisplayObject
             $this->xsdmf_current = &$this->xsdmf_array[$pid];
             // Find datastreams that may be used by this display
             $datastreamTitles = $this->getDatastreamTitles();
-            foreach ($datastreamTitles as $dsValue) {
+            $xdis_list = XSD_Relationship::getListByXDIS($this->xdis_id);
+            array_push($xdis_list, array("0" => $this->xdis_id));
+            $xdis_str = Misc::sql_array_to_string($xdis_list);
+            $this->xsd_html_match = new XSD_HTML_MatchObject($xdis_str);
+             foreach ($datastreamTitles as $dsValue) {
                 // find out if this record has the datastream 
                 $DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title']);
                 if (isset($DSResultArray['stream'])) {
@@ -585,11 +589,7 @@ class XSD_DisplayObject
         $xmlnode = new DomDocument();
         $xmlnode->loadXML($xmlDatastream);
 
-        $xdis_list = XSD_Relationship::getListByXDIS($this->xdis_id);
-        array_push($xdis_list, array("0" => $this->xdis_id));
-        $xdis_str = Misc::sql_array_to_string($xdis_list);
-        $this->xsd_html_match = new XSD_HTML_MatchObject($xdis_str);
-        $cbdata = array('parentContent' => '', 'parent_key' => '');
+       $cbdata = array('parentContent' => '', 'parent_key' => '');
         $this->mfcb_rootdone = false;
         Misc::XML_Walk($xmlnode, $this, 'matchFieldsCallback', $cbdata);
     }

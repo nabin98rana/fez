@@ -21,19 +21,23 @@
 {elseif $purge_object_result == 1}
   <b>Thank you, the object was purged successfully.</b>
 {/if}
+{if $generic_result==-1}
+  <b>An error occurred while {$generic_action} the {$generic_type}</b>
+{elseif $generic_result==1}
+  <b>Succesfully {$generic_action}ed the {$generic_type}</b>
+{/if}
   </span>
 </center>
 
 
+{if false && $current_user_prefs.close_popup_windows == '1'}
 <script language="JavaScript">
 <!--
-{if $current_user_prefs.close_popup_windows == '1'}
 setTimeout('closeAndRefresh()', 1500);
-{/if}
 //-->
 </script>
 <br />
-{if not $current_user_prefs.close_popup_windows}
+{else}
 <center>
   <span class="default"><a class="link" href="javascript:void(null);" onClick="{if $new_project_result == 1}javascript:closeAndGotoList();{else}javascript:closeAndRefresh();{/if}">Continue</a></span>
 </center>

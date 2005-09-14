@@ -49,62 +49,69 @@ include_once(APP_INC_PATH . "class.xsd_html_match.php");
 $tpl = new Template_API();
 $tpl->setTemplate("update.tpl.html");
 $tpl->assign("type", "workflow_triggers");
+$tpl->assign("type_name", "workflow trigger");
 
-Auth::checkAuthentication(APP_SESSION);
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
 $isAdministrator = User::isUserAdministrator($username);
 $tpl->assign("isAdministrator", $isAdministrator);
 
-$record_id = @$HTTP_POST_VARS["pid"] ? $HTTP_POST_VARS["pid"] : $HTTP_GET_VARS["pid"];
+$record_id = Misc::GETorPOST('pid');
+$cat = Misc::GETorPOST('cat');
 $pid = $record_id;
+if (!empty($pid)) {
+    $tpl->assign("pid", $pid);
+    $record = new RecordObject($pid);
+    $xdis_id = $record->getXmlDisplayId();
 
-$community_list = Community::getAssocList();
-$collection_list = Collection::getAssocList();
+    //echo "XDIS_ID -> ".$xdis_id;
+    if (!is_numeric($xdis_id)) {
+        $xdis_id = Misc::GETorPOST('xdis_id');
+        if (is_numeric($xdis_id)) { // must have come from select xdis so save xdis in the eSpace MD
+            $record->updateAdminDatastream($xdis_id);
+        }
+    }
+    if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for it
+        //	echo "XDIS_ID -> ".$xdis_id;
+        //	echo "redirecting";
+        Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=view_form&pid=".$pid.$extra_redirect, false);
+    }
 
-$internal_user_list = User::getAssocList();
-$internal_group_list = Group::getAssocListAll();
-$extra_redirect = "";
+    $tpl->assign("isEditor", $record->canEdit());
+}
+if ($record && $record->canEdit()) {
 
-$pid = $record_id;
-//if ($role_id == User::getRoleID('standard user') || ($role_id == User::getRoleID('administrator')) || ($role_id == User::getRoleID('manager'))) {
-$tpl->assign("pid", $pid);
-$xdis_list = XSD_Display::getAssocListDocTypes(); 
-$tpl->assign("xdis_list", $xdis_list);
+    $internal_user_list = User::getAssocList();
+    $internal_group_list = Group::getAssocListAll();
+    $extra_redirect = "";
 
-$acceptable_roles = array("Community_Admin", "Editor", "Creator", "Community_Admin");
-$xdis_array = Fedora_API::callGetDatastreamContentsField ($pid, 'eSpaceMD', array('xdis_id'));
-$xdis_id = $xdis_array['xdis_id'][0];
-if (Auth::checkAuthorisation($pid, $xdis_id, $acceptable_roles, $HTTP_SERVER_VARS['PHP_SELF']."?".$HTTP_SERVER_VARS['QUERY_STRING']) == true) {
+    $wfl_list = Workflow::getList();
+    $tpl->assign('wfl_list', Misc::keyPairs($wfl_list, 'wfl_id', 'wfl_title'));
+    $triggers_list = WorkflowTrigger::getTriggerTypes();
+    $tpl->assign('triggers_list', $triggers_list);
+    $xdis_list = XSD_Display::getAssocListDocTypes(); 
+    $tpl->assign('xdis_list', $xdis_list);
+    $details = $record->getDetails();
+    $tpl->assign("details", $details);
+    $tpl->assign('title', $record->getTitle());
+    $list = WorkflowTrigger::getList($pid);
+    $tpl->assign('list', $list);
 
-$wfl_list = Workflow::getList();
-$tpl->assign('wfl_list', Misc::keyPairs($wfl_list, 'wfl_id', 'wfl_title'));
-$triggers_list = WorkflowTrigger::getTriggerTypes();
-$tpl->assign('triggers_list', $triggers_list);
-
-
+    if ($cat == 'edit') {
+        $wft_id = Misc::GETorPOST('wft_id');
+        $info = WorkflowTrigger::getDetails($wft_id);
+        $tpl->assign('info', $info);
+    }
 
     
-$details = Record::getDetails($pid, $xdis_id);
-
-//print_r($datastreams);
-$parents = Record::getParents($pid);
-$tpl->assign("parents", $parents);
-
-$tpl->assign("espace_root_dir", APP_PATH);
-
-$tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");
-$tpl->assign("isEditor", 1);
-//print_r($details);
-$tpl->assign("details", $details);
-$setup = Setup::load();
-
-// if user is an espace user then get prefs
-if (Auth::userExists($username)) {
-	$prefs = Prefs::get(Auth::getUserID());
-}
-$tpl->assign("user_prefs", $prefs);
-//$user_details = User::getDetails(Auth::getUserID());
+    // show number of triggers
+    $tpl->assign('triggers', count($list));
+    // if user is an espace user then get prefs
+    if (Auth::userExists($username)) {
+        $prefs = Prefs::get(Auth::getUserID());
+    }
+    $tpl->assign("user_prefs", $prefs);
+    //$user_details = User::getDetails(Auth::getUserID());
 
 } else {
 //	Auth::redirect(APP_RELATIVE_URL . "list.php", false);

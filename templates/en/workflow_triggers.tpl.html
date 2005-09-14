@@ -8,18 +8,7 @@
               <!--
               var editing_option_id = -1;
               function validateForm(f)
-              {
-                  if (isWhitespace(f.title.value)) {
-                      alert('Please enter the title of this workflow state.');
-                      selectField(f, 'title');
-                      return false;
-                  }
-                  if ((f.field_type[2].checked) || (f.field_type[3].checked)) {
-                      // select all of the options in the select box
-                      selectAllOptions(f, 'field_options[]');
-                  }
-                  return true;
-              }
+              {return true;}
               function addFieldOption(f)
               {
                   var value = f.new_value.value;
@@ -37,7 +26,7 @@
                       }
                   }
                   // check for an existing option with the same value
-                  for (var i = 0; i < field.options.length; i++) {
+                  for (var i = 0; i < field.options.length; i++) { //>
                       if (field.options[i].text == value) {
                           alert('The specified value already exists in the list of options.');
                           f.new_value.focus();
@@ -65,7 +54,7 @@
                       return false;
                   }
                   var field = getFormElement(f, 'field_options[]');
-                  for (var i = 0; i < field.options.length; i++) {
+                  for (var i = 0; i < field.options.length; i++) { // >
                       if (field.options[i].value == editing_option_id) {
                           var params = parseParameters(field.options[i].value);
                           field.options[i].value = 'existing:' + params.value + ':' + f.new_value.value;
@@ -98,11 +87,11 @@
                           return false;
                       }
                       var remove = new Array();
-                      for (var i = 0; i < options.length; i++) {
+                      for (var i = 0; i < options.length; i++) { // >
                           remove[remove.length] = options[i].value;
                       }
                   }
-                  for (var i = 0; i < remove.length; i++) {
+                  for (var i = 0; i < remove.length; i++) { // >
                       removeOptionByValue(f, 'field_options[]', remove[i]);
                   }
                   var field = getFormElement(f, 'field_options[]');
@@ -112,7 +101,7 @@
               }
               function toggleCustomOptionsField(show_field)
               {
-                  var f = getForm('custom_field_form');
+                  var f = getForm('entry_form');
                   f.new_value.disabled = show_field;
                   var field = getFormElement(f, 'field_options[]');
                   field.disabled = show_field;
@@ -125,7 +114,7 @@
               }
               function checkRequiredFields()
               {
-                  var f = getForm('custom_field_form');
+                  var f = getForm('entry_form');
                   f.report_form_required.disabled = !(f.report_form.checked);
                   if (f.report_form_required.disabled) {
                       f.report_form_required.checked = false;
@@ -146,24 +135,31 @@
                       row.style.display='none';
                   }
               }
-
+              function updateForm()
+              {
+                  var features = 'width=420,height=200,top=30,left=30,resizable=yes,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
+                  var updateWin = window.open('', '_update_record_details', features);
+                  updateWin.focus();
+                  return true;
+              }
 
               //-->
               </script>
               {/literal}
-              <form name="custom_field_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
+              <form name="entry_form" onSubmit="javascript:return validateForm(this) && updateForm();" target="_update_record_details" method="post" action="popup.php" enctype="multipart/form-data">
               {if $smarty.get.cat == 'edit'}
-              <input type="hidden" name="cat" value="update">
-              <input type="hidden" name="id" value="{$info.wfs_id}">
+              <input type="hidden" name="cat" value="edit_{$type}">
+              <input type="hidden" name="id" value="{$info.wft_id}">
+              <input type="hidden" name="wft_id" value="{$info.wft_id}">
               {else}
-              <input type="hidden" name="cat" value="new">
+              <input type="hidden" name="cat" value="new_{$type}">
               {/if}
-              <input type="hidden" name="wfs_wfl_id" value="{$wfl_id}">
-              <input type="hidden" name="wfl_id" value="{$wfl_id}">
+              <input type="hidden" name="pid" value="{$pid}">
+              <input type="hidden" name="wft_pid" value="{$pid}">
               <tr>
                 <td colspan="2" class="default">
-                  <b>Manage Workflow States for Workflow Template '{$wfl_title}' </b> &nbsp;(
-                          <a href="{$rel_url}manage/workflow_states.php?wfl_id={$wfl_id}">New</a> | <a href="{$rel_url}manage/workflows.php">back to Workflow Templates list</a>)
+                  <b>Workflow Triggers for {$title}</b> &nbsp;(
+                          <a href="{$rel_url}workflow_triggers.php?pid={$pid}">New</a> )
                 </td>
               </tr>
               {if $result != ""}
@@ -171,15 +167,15 @@
                 <td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
                   {if $smarty.post.cat == "new"}
                     {if $result == -1}
-                      An error occurred while trying to add the new workflow state.
+                      An error occurred while trying to add the new {$type_name}.
                     {elseif $result == 1}
-                      Thank you, the workflow state was added successfully.
+                      Thank you, the {$type_name} was added successfully.
                     {/if}
                   {elseif $smarty.post.cat == "update"}
                     {if $result == -1}
-                      An error occurred while trying to update the workflow state information.
+                      An error occurred while trying to update the {$type_name} information.
                     {elseif $result == 1}
-                      Thank you, the workflow state was updated successfully.
+                      Thank you, the {$type_name} was updated successfully.
                     {/if}
                   {/if}
                 </td>
@@ -223,9 +219,9 @@
              <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $smarty.get.cat == 'edit'}
-                  <input class="button" type="submit" value="Update Workflow State">
+                  <input class="button" type="submit" value="Update">
                   {else}
-                  <input class="button" type="submit" value="Add Workflow State">
+                  <input class="button" type="submit" value="Submit">
                   {/if}
                   <input class="button" type="reset" value="Reset">
                 </td>
@@ -233,7 +229,7 @@
               </form>
               <tr>
                 <td colspan="2" class="default">
-                  <b>Existing Workflow States:</b>
+                  <b>Existing Workflow Triggers:</b>
                 </td>
               </tr>
               <tr>
@@ -244,10 +240,10 @@
                   function checkDelete(f)
                   {
                       if (!hasOneChecked(f, 'items[]')) {
-                          alert('Please select at least one of the workflow states.');
+                          alert('Please select at least one of the {$type_name}.');
                           return false;
                       }
-                      if (!confirm('This action will permanently remove the selected workflow states.')) {
+                      if (!confirm('This action will permanently remove the selected {/literal}{$type_name}{literal}.')) {
                           return false;
                       } else {
                           return true;
@@ -257,9 +253,10 @@
                   </script>
                   {/literal}
                   <table border="0" width="100%" cellpadding="1" cellspacing="1">
-                    <form onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
-                    <input type="hidden" name="cat" value="delete">
-                    <input type="hidden" name="wfl_id" value="{$wfl_id}">
+                    <form onSubmit="javascript:return checkDelete(this) && updateForm();" 
+                    target="_update_record_details" method="post" action="popup.php" enctype="multipart/form-data">
+                    <input type="hidden" name="cat" value="delete_{$type}">
+                    <input type="hidden" name="pid" value="{$pid}">
                     <tr>
                       <td width="4" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
                       <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Trigger</b>&nbsp;</td>
@@ -271,21 +268,22 @@
                     {cycle values=$cycle assign="row_color"}
                     <tr>
                       <td nowrap bgcolor="{$row_color}" align="center">
-                        <input type="checkbox" name="items[]" value="{$list[i].wfs_id}" {if $smarty.section.i.total == 0}disabled{/if}>
+                        <input type="checkbox" name="items[]" value="{$list[i].wft_id}" {if $smarty.section.i.total == 0}disabled{/if}>
                       </td>
                       <td bgcolor="{$row_color}" class="default">
-                        &nbsp;{$list[i].wft_type_id}
+                        {assign var="type_id" value=$list[i].wft_type_id}
+                        &nbsp;{$triggers_list.$type_id}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
-                        &nbsp;{$list[i].wft_xdis_id}
+                        {assign var="xdis_id" value=$list[i].wft_xdis_id}
+                        &nbsp;{$xdis_list.$xdis_id}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
-                        &nbsp;{$list[i].wft_wfl_id}
+                        {assign var="wfl_id" value=$list[i].wft_wfl_id}
+                        &nbsp;{$wfl_list.$wfl_id}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
-{if $list[i].wfs_auto == 1}
-                        &nbsp;<a href="{$rel_url}workflow_triggers.php?cat=edit&id={$list[i].wft_id}&pid={$pid}">[edit]</a>
-{/if}
+                        &nbsp;<a href="{$rel_url}workflow_triggers.php?cat=edit&wft_id={$list[i].wft_id}&pid={$pid}">[edit]</a>
                       </td>
                     </tr>
                     {sectionelse}
@@ -318,7 +316,7 @@
       //window.onload = setCustomOptionsField;
       function setCustomOptionsField()
       {
-          var f = getForm('custom_field_form');
+          var f = getForm('entry_form');
           var field1 = getFormElement(f, 'field_type', 0);
           if (field1.checked) {
               toggleCustomOptionsField(true);

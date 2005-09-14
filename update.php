@@ -46,6 +46,7 @@ include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
+include_once(APP_INC_PATH . "class.workflow_trigger.php");
 
 
 $tpl = new Template_API();
@@ -198,6 +199,8 @@ $tpl->assign("datastreams", $datastreams);
 $tpl->assign("espace_root_dir", APP_PATH);
 $tpl->assign("eserv_url", APP_BASE_URL."eserv.php?pid=".$pid."&dsID=");
 $tpl->assign("local_eserv_url", APP_RELATIVE_URL."eserv.php?pid=".$pid."&dsID=");
+
+$tpl->assign('triggers', count(WorkflowTrigger::getList($pid)));
 
 
 $tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");
