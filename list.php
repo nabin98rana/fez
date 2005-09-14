@@ -151,6 +151,16 @@ if (!empty($collection_pid)) {
 	$list = $list["list"];
 	$tpl->assign("list_heading", "Search Results ($terms)");
 	$tpl->assign("list_type", "all_records_list");
+} elseif ($browse == "latest") {
+    // browse by latest additions / created date desc
+	$list = Collection::browseListing($pagerRow, $rows, "Created Date");
+	$list_info = $list["info"];
+	$list = $list["list"];
+//	$tpl->assign("browse_heading", "Browse By Latest Additions");
+	$tpl->assign("browse_type", "browse_latest");
+	$tpl->assign("list_heading", "Browse By Latest Additions");
+	$tpl->assign("today", date("l"));
+	$tpl->assign("list_type", "all_records_list");
 } elseif ($browse == "year") {
     // browse by year
 	$year = $_GET['year'];

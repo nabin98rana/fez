@@ -33,6 +33,7 @@ include_once("config.inc.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
+include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.news.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.validation.php");
@@ -86,7 +87,13 @@ $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
 $isAdministrator = User::isUserAdministrator($username);
 $tpl->assign("isAdministrator", $isAdministrator);
+// get the 3 most recently added items this week
+$tpl->assign("today", date("l"));
+$list = Collection::browseListing(0, 3, "Created Date");
+$list = $list["list"];
 
+$tpl->assign("list", $list);
+$tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
 $tpl->assign("news", News::getList());
 $tpl->displayTemplate();
 //Auth::redirect(APP_RELATIVE_URL . "list.php" . $extra);

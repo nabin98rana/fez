@@ -2010,7 +2010,7 @@ function getPostedDate($xsdmf_id) {
 	return ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]);
 }
 
-function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_type="", $tagIndent="", $parent_sel_id="", $xdis_id, $pid, $top_xdis_id, $attrib_loop_index="", &$indexArray=array(), $file_downloads=0) {
+function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_type="", $tagIndent="", $parent_sel_id="", $xdis_id, $pid, $top_xdis_id, $attrib_loop_index="", &$indexArray=array(), $file_downloads=0, $created_date, $updated_date) {
 	// @@@ CK - 6/5/2005 - Added xdis_id
 
 //	echo $xdis_id."\n";
@@ -2210,6 +2210,12 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 								if ($xsdmf_details['xsdmf_espace_variable'] == "pid") {
 									$attrib_value = $pid;
 									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $pid));
+								} elseif ($xsdmf_details['xsdmf_espace_variable'] == "created_date") {
+									$attrib_value = $created_date;
+									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $created_date));
+								} elseif ($xsdmf_details['xsdmf_espace_variable'] == "updated_date") {
+									$attrib_value = $updated_date;
+									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $updated_date));
 								} elseif ($xsdmf_details['xsdmf_espace_variable'] == "file_downloads") {
 									$attrib_value = $file_downloads;
 									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $file_downloads));
@@ -2257,6 +2263,12 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 									if ($xsdmf_details['xsdmf_espace_variable'] == "pid") {
 										$attrib_value = $xsdmf_details['xsdmf_value_prefix'] . $pid;
 										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_details['xsdmf_value_prefix'] . $pid));									
+									} elseif ($xsdmf_details['xsdmf_espace_variable'] == "created_date") {
+										$attrib_value = $created_date;
+										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $created_date));
+									} elseif ($xsdmf_details['xsdmf_espace_variable'] == "updated_date") {
+										$attrib_value = $updated_date;
+										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $updated_date));
 									} elseif ($xsdmf_details['xsdmf_espace_variable'] == "file_downloads") {
 										$attrib_value = $xsdmf_details['xsdmf_value_prefix'] . $file_downloads;
 										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $file_downloads));
@@ -2272,6 +2284,12 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 									if ($xsdmf_details['xsdmf_espace_variable'] == "pid") {
 										$attrib_value = $xsdmf_details['xsdmf_value_prefix'] . $pid;
 										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_details['xsdmf_value_prefix'] . $pid));									
+									} elseif ($xsdmf_details['xsdmf_espace_variable'] == "created_date") {
+										$attrib_value = $created_date;
+										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $created_date));
+									} elseif ($xsdmf_details['xsdmf_espace_variable'] == "updated_date") {
+										$attrib_value = $updated_date;
+										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $updated_date));
 									} elseif ($xsdmf_details['xsdmf_espace_variable'] == "file_downloads") {
 										$attrib_value = $xsdmf_details['xsdmf_value_prefix'] . $file_downloads;
 										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $file_downloads));
@@ -2316,7 +2334,7 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 							} else {
 								$xmlObj .= "<".$i;
 							} 
-							$xmlObj .= Misc::array_to_xml_instance($j, "", $element_prefix, "attributes", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, "", $indexArray, $file_downloads);
+							$xmlObj .= Misc::array_to_xml_instance($j, "", $element_prefix, "attributes", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, "", $indexArray, $file_downloads, $created_date, $updated_date);
 							if ($xsdmf_details['xsdmf_valueintag'] == 1) {
 								$xmlObj .= ">\n";
 							} else {
@@ -2540,6 +2558,12 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 						if ($xsdmf_details['xsdmf_espace_variable'] == "pid") {
 							$attrib_value = $pid;
 							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $pid));													
+						} elseif ($xsdmf_details['xsdmf_espace_variable'] == "created_date") {
+							$attrib_value = $created_date;
+							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $created_date));
+						} elseif ($xsdmf_details['xsdmf_espace_variable'] == "updated_date") {
+							$attrib_value = $updated_date;
+							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $updated_date));
 						} elseif ($xsdmf_details['xsdmf_espace_variable'] == "file_downloads") {
 							$attrib_value = $file_downloads;
 							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $file_downloads));
@@ -2601,6 +2625,12 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 							if ($xsdmf_details['xsdmf_espace_variable'] == "pid") {
 								$attrib_value = $xsdmf_details['xsdmf_value_prefix'] . $pid;
 								array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_details['xsdmf_value_prefix'] . $pid));								
+							} elseif ($xsdmf_details['xsdmf_espace_variable'] == "created_date") {
+								$attrib_value = $created_date;
+								array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $created_date));
+							} elseif ($xsdmf_details['xsdmf_espace_variable'] == "updated_date") {
+								$attrib_value = $updated_date;
+								array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $updated_date));
 							} elseif ($xsdmf_details['xsdmf_espace_variable'] == "file_downloads") {
 								$attrib_value = $xsdmf_details['xsdmf_value_prefix'] . $file_downloads;
 								array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $file_downloads));
@@ -2616,6 +2646,12 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 						if ($xsdmf_details['xsdmf_espace_variable'] == "pid") {
 							$attrib_value = $xsdmf_details['xsdmf_value_prefix'] . $pid;
 							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_details['xsdmf_value_prefix'] . $pid));
+						} elseif ($xsdmf_details['xsdmf_espace_variable'] == "created_date") {
+							$attrib_value = $created_date;
+							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $created_date));
+						} elseif ($xsdmf_details['xsdmf_espace_variable'] == "updated_date") {
+							$attrib_value = $updated_date;
+							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $updated_date));
 						} elseif ($xsdmf_details['xsdmf_espace_variable'] == "file_downloads") {
 							$attrib_value = $xsdmf_details['xsdmf_value_prefix'] . $file_downloads;
 							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $file_downloads));
@@ -2652,8 +2688,7 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 										} else {
 											$xmlObj .= "<".$i;
 										} 
-										$xmlObj .= Misc::array_to_xml_instance($j, "", $element_prefix, "attributes", $tagIndent, $sel_record['xsdsel_id'], $xdis_id, $pid, $top_xdis_id, $x, $indexArray, $file_downloads);
-	//									$xmlObj .= Misc::array_to_xml_instance($j, "", $element_prefix, "attributes", $tagIndent, $sel_record['xsdsel_id'], $xsdmf_details['xsdmf_xsdsel_id']);
+										$xmlObj .= Misc::array_to_xml_instance($j, "", $element_prefix, "attributes", $tagIndent, $sel_record['xsdsel_id'], $xdis_id, $pid, $top_xdis_id, $x, $indexArray, $file_downloads, $created_date, $updated_date);
 										if ($xsdmf_details['xsdmf_valueintag'] == 1) {
 											$xmlObj .= ">\n";
 										} else {
@@ -2661,10 +2696,7 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 										}
 	
 	
-	//									$xmlObj .= Misc::array_to_xml_instance($array_ptr, "", $xsd_element_prefix, "", $tagIndent, $sel_record['xsdsel_id']);
-	//									$xmlObj .= Misc::array_to_xml_instance($j, "", $xsd_element_prefix, "", $tagIndent, $sel_record['xsdsel_id']);
-	//									$xmlObj .= Misc::array_to_xml_instance($j, "", $element_prefix, "", $tagIndent, $sel_record['xsdsel_id'], $xsdmf_details['xsdmf_xsdsel_id']);
-										$xmlObj .= Misc::array_to_xml_instance($j, "", $element_prefix, "", $tagIndent, $sel_record['xsdsel_id'], $xdis_id, $pid, $top_xdis_id, "", $indexArray, $file_downloads);
+										$xmlObj .= Misc::array_to_xml_instance($j, "", $element_prefix, "", $tagIndent, $sel_record['xsdsel_id'], $xdis_id, $pid, $top_xdis_id, "", $indexArray, $file_downloads, $created_date, $updated_date);
 										if ($xsdmf_details['xsdmf_valueintag'] == 1) {
 											if (!is_numeric(strpos($i, ":"))) {
 												$xmlObj .= "</".$element_prefix.$i.">\n";
@@ -2711,14 +2743,12 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 								$xmlObj .= $xml_schema;
 								$xmlObj .= ">\n";
 
-								$xmlObj .= Misc::array_to_xml_instance($array_ptr, "", $xsd_element_prefix, "", $tagIndent, "", $rel_record['xsdrel_xdis_id'], $pid, $top_xdis_id, "", $indexArray, $file_downloads);
-//								$xmlObj .= Misc::array_to_xml_instance($array_ptr, "", $xsd_element_prefix, "", $tagIndent, "", $xdis_id);					
-////								$xmlObj .= Misc::array_to_xml_instance($array_ptr, "", $xsd_element_prefix, "", $tagIndent, $parent_sel_id);					
+								$xmlObj .= Misc::array_to_xml_instance($array_ptr, "", $xsd_element_prefix, "", $tagIndent, "", $rel_record['xsdrel_xdis_id'], $pid, $top_xdis_id, "", $indexArray, $file_downloads, $created_date, $updated_date);
 								$xmlObj .= $tagIndent."</".$xsd_element_prefix.$xsd_top_element_name.">\n";
 							}
 						}
 						//}
-						$xmlObj .= Misc::array_to_xml_instance($j, "", $element_prefix, "", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, "", $indexArray, $file_downloads);
+						$xmlObj .= Misc::array_to_xml_instance($j, "", $element_prefix, "", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, "", $indexArray, $file_downloads, $created_date, $updated_date);
 						$xmlObj .= $tagIndent;
 						if ($xsdmf_details['xsdmf_html_input'] != 'xsd_loop_subelement') { // subloop element attributes get treated differently
 							if ($xsdmf_details['xsdmf_valueintag'] == 1) {
@@ -2731,11 +2761,11 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 						}
 					}
 				} else {
-						$xmlObj .= Misc::array_to_xml_instance($j, "", $element_prefix, "", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, "", $indexArray, $file_downloads);
+						$xmlObj .= Misc::array_to_xml_instance($j, "", $element_prefix, "", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, "", $indexArray, $file_downloads, $created_date, $updated_date);
 //						$xmlObj .= $tagIndent;
 				} // new if is numeric
 			} else {
-				$xmlObj = Misc::array_to_xml_instance($j, $xmlObj, $element_prefix, "", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, "", $indexArray, $file_downloads);
+				$xmlObj = Misc::array_to_xml_instance($j, $xmlObj, $element_prefix, "", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, "", $indexArray, $file_downloads, $created_date, $updated_date);
 			}
 		}
 	}	

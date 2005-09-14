@@ -3328,6 +3328,8 @@ class RecordGeneral
 class RecordObject extends RecordGeneral
 {
     var $xdis_id;
+    var $created_date;
+    var $updated_date;	
     var $file_downloads; //for statistics of file datastream downloads from eserv.php
     var $no_xdis_id = false;  // true if we couldn't find the xdis_id
     var $default_xdis_id = 5;
@@ -3353,6 +3355,25 @@ class RecordObject extends RecordGeneral
             return $this->xdis_id;
         }
         return null;
+    }
+
+    /**
+     * getXmlDisplayId
+     * Retrieve the display id for this record
+     */
+    function getObjectDates() {
+		$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'eSpaceMD');
+		if (isset($xdis_array['created_date'][0])) {
+			$this->created_date = $xdis_array['created_date'][0];
+		} else {
+			$this->created_date = NULL;
+		}
+		if (isset($xdis_array['updated_date'][0])) {
+			$this->updated_date = $xdis_array['updated_date'][0];
+		} else {
+			$this->updated_date = NULL;
+		}
+
     }
 
     /**
@@ -3449,8 +3470,17 @@ class RecordObject extends RecordGeneral
         if (empty($this->pid)) {
             $this->pid = Fedora_API::getNextPID();
             $ingestObject = true;
-        }
+			$this->created_date = date("Y-m-d H:i:s");
+			$this->updated_date = $created_date;
+        } else {
+			$this->getObjectDates();
+			if (empty($this->created_date)) {
+				$this->created_date = date("Y-m-d H:i:s");
+			}
+			$this->updated_date = date("Y-m-d H:i:s");
+		}
         $pid = $this->pid;
+
             
         if (empty($this->xdis_id)) {
             $this->xdis_id = $HTTP_POST_VARS["xdis_id"];
@@ -3474,7 +3504,7 @@ class RecordObject extends RecordGeneral
 		} 
 		$file_downloads = $this->file_downloads;
 
-		$xmlObj = Misc::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, $file_downloads);
+		$xmlObj = Misc::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, $file_downloads, $this->created_date, $this->updated_date);
 
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
 		$datastreamTitles = $display->getDatastreamTitles();

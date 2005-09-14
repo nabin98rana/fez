@@ -72,17 +72,85 @@
                     </tr>
                   </table></td>
               </tr>
-              <td class="default"><table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
-                    <tr>
-                      <td><a href='view.php?pid=UQL-fed:24997' ><img align="absmiddle" 
-                        src="http://dev-espace.library.uq.edu.au/eserv.php?pid=UQL-fed:24997&dsID=thumbnail_IMG_0871.jpg" border="0"></a> <a href='view.php?pid=UQL-fed:24997'> Birthday Candles</a> &nbsp;&nbsp;<a href='update.php?pid=UQL-fed:24997'><img title="Edit" align="absmiddle" src="{$rel_url}images/edit.png" border="0"></a> <a href='javascript:void(null);' onClick="javascript:purgeObject('UQL-fed:24997');"><img title="Delete" align="absmiddle" src="{$rel_url}images/delete.png" border="0"></a> </td>
-                    </tr>
-                    <tr>
-                      <td>LTS Personal - Europe 2005<br />
-                        Adrians 25th Birthday Cake<br />
-                        <b>Datastreams:</b> <a href="http://dev-espace.library.uq.edu.au/eserv.php?pid=UQL-fed:24997&dsID=IMG_0871.jpg">IMG_0871.jpg</a> </td>
-                    </tr>
-                  </table></td>
+	        {section name="i" loop=$list}			  
+                {if ($list[i].isViewer==1 || $isAdministrator)}
+                  {assign var="href_view" value="view.php?pid="|cat:$list[i].pid|escape:"html"}
+                {else}
+                  {assign var="href_view" value=""}
+                {/if}
+				{if $list[i].thumbnail != "0" && $list[i].isViewer==1}
+	                {assign var="icon" value=$eserv_url|cat:"?pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].thumbnail}
+				{else}
+	                {assign var="icon" value="images/record.jpg" }
+				{/if}
+                {if $isUser && ($list[i].isEditor==1 || $isAdministrator)} 
+                        {assign var="showEdit" value=true}
+                {else}
+                        {assign var="showEdit" value=false}
+                {/if}
+			{if $list[i].created_date} 
+				{if $day_name}
+					{if ($list[i].created_date|date_format:"%A") != $today}
+						{assign var="day_name" value=$list[i].created_date|date_format:"%A"}						 			
+			  <tr>
+				  <td class="default"><strong>{$day_name}</strong>
+				  </td>
+			  </tr>			  				
+					{/if}
+				{else}
+			  {assign var="day_name" value="Today"}						 			
+			  <tr>
+				  <td class="default"><strong>{$day_name}</strong>
+				  </td>
+			  </tr>		
+				{/if}
+			{/if}
+
+		  <tr>
+
+			  <td>
+			  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
+              <tr>
+
+                  <td>
+                        {if $href_view}<a href='{$href_view}' >{/if}<img align="absmiddle" 
+                        src="{$icon}" border="0">{if $href_view}</a>{/if} 
+
+                    {if $href_view}<a href='{$href_view}'>{/if}
+					{$list[i].title|escape:"html"}{if $href_view}</a>{/if}
+
+					  {if $showEdit || $isAdministrator}
+						{if $showEdit}
+							&nbsp;&nbsp;<a href='update.php?pid={$list[i].pid|escape:"html"}'><img title="Edit" align="absmiddle" src="{$rel_url}images/edit.gif" border="0"></a> 
+						{/if}
+						{if $isAdministrator}
+							 <a href='javascript:void(null);' onClick="javascript:purgeObject('{$list[i].pid|escape:"html"}');"><img title="Delete" align="absmiddle" src="{$rel_url}images/delete.gif" border="0"></a> 
+						{/if}
+
+					  {/if}
+					{if $list[i].file_downloads}({$list[i].file_downloads|escape:"html"} File Downloads){/if}   					   
+					</td>
+				</tr>
+				<tr>
+                    <td>
+                       {if $list[i].creator}{$list[i].creator|escape:"html"}<br />{/if}
+                       {if $list[i].description}{$list[i].description|escape:"html"}...<br />{/if}
+                       {if $list[i].date}Published: {$list[i].date|date_format:"%A, %B %e, %Y"}<br />{/if}
+                       {if $list[i].type}{$list[i].type|escape:"html"}<br />{/if}                          
+					   {if $list[i].ret_id == '3'}<b>Datastreams:</b> {section name="d" loop=$list[i].datastreams}{if $href_view}<a href="{$eserv_url|cat:"?pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].datastreams[d]}">{/if}{$list[i].datastreams[d]}{if $href_view}</a>{/if} {/section}{/if}
+                    </td>
+                  </tr>
+				  </table>
+                <!-- space between rows -->
+	        </td>
+	        </tr>
+			{sectionelse}
+							  <tr>
+				  <td class="default"><strong>(No items added in the last week)</strong>
+				  </td></tr>
+				  
+			{/section}
+
               <tr>
                 <td class="default">&nbsp;</td>
               </tr>

@@ -331,7 +331,7 @@ class Collection
 				 ORDER BY
 				 	r1.rmf_rec_pid";
 */
-		$returnfields = array("file_downloads", "title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
+		$returnfields = array("created_date", "updated_date", "file_downloads", "title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 
 		$return = array();
@@ -535,12 +535,34 @@ class Collection
         }
         $start = $current_row * $max;
 		$restrictSQL = "";
+
 		$middleStmt = "";
 		$termCounter = 2;
+
+		$orderSQL = "r1.rmf_rec_pid"; // default order clause
 		if ($searchKey == "Subject") {				
 			$terms = $_GET['parent_id'];		
 			$data_type = "varchar";
 			$restrictSQL = "AND r".$termCounter.".rmf_".$data_type." = '".$terms."'";
+		} elseif ($searchKey == "Created Date") {
+//			$terms = $_GET['year'];
+			$data_type = "date"; // DATE_SUB(CURDATE(),INTERVAL 56 DAY) > sup_date
+			$restrictSQL = "AND DATE_SUB(CURDATE(), INTERVAL 7 DAY) < r".$termCounter.".rmf_".$data_type."";
+			$extra = ", DAYNAME(r".$termCounter.".rmf_date) as day_name";		
+
+			$middleStmt .= 
+			" LEFT JOIN (
+					SELECT distinct r".$termCounter.".rmf_".$data_type.",  r".$termCounter.".rmf_rec_pid
+					FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r".$termCounter.",
+						  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x".$termCounter.",
+						  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s".$termCounter."  							  
+					WHERE r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id AND s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id AND s".$termCounter.".sek_title = '".$searchKey."' ".$restrictSQL."
+					) as r".$termCounter." on r1.rmf_rec_pid = r".$termCounter.".rmf_rec_pid
+			";
+			$orderSQL = " r".$termCounter.".rmf_".$data_type." DESC";
+			$termCounter++;
+			$restrictSQL = "AND DATE_SUB(CURDATE(), INTERVAL 7 DAY) < r".$termCounter.".rmf_".$data_type."";
+//			$orderSQL = " r".$termCounter.".rmf_".$data_type." DESC";
 		} elseif ($searchKey == "Date") {
 			$terms = $_GET['year'];
 			$data_type = "date";
@@ -564,10 +586,9 @@ class Collection
 		";
 
         $stmt = "SELECT
-                    * 
+                    *".$extra."
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
-
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id) left join
  				    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 on (k1.sek_id = x1.xsdmf_sek_id)
@@ -577,12 +598,11 @@ class Collection
 				$stmt .= 
                 " WHERE
 				    r1.rmf_xsdmf_id = x1.xsdmf_id 
-				 ORDER BY
-				 	r1.rmf_rec_pid";
+				 ORDER BY ".$orderSQL;
 
-		$returnfields = array("file_downloads", "title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
+		$returnfields = array("day_name", "created_date", "updated_date", "file_downloads", "title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-
+//		echo $stmt;
 		$return = array();
 		foreach ($res as $result) {
 			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
