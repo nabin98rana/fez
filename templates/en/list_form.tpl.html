@@ -265,7 +265,13 @@ function purgeObject(pid)
 		{/if}		
 		{if ($browse_heading == "") ||  ($browse_type != "" & $smarty.get.author != "") || ($browse_type != "" & $smarty.get.year != "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)} 
         <tr>
-			<td align="left" class="default"><br />
+			<td>&nbsp;</td>
+		</tr>
+		  <tr>
+			  <td>
+			  <table bgcolor="#FFFFFF" width="100%" cellpadding="3" cellspacing="0">
+        <tr>
+			<td align="left" class="default">
 		{if $list_type == 'all_records_list' || $list_type == 'collection_records_list'}
 			<img src="{$rel_url}images/record_32.jpg" align="absmiddle"/>		
 		{elseif $list_type == 'community_list'}
@@ -278,28 +284,42 @@ function purgeObject(pid)
            &nbsp;<b>{$list_heading}: </b>
 		   
 		   <b>({$list_info.total_rows} results found{if $list_info.end_offset > 0}, {math equation="x + 1" x=$list_info.start_offset} - {$list_info.end_offset} shown{/if}) ({$list_info.hidden_rows} hidden)</b>
-</td>
+			</td>
         </tr>
-
+		</table>
+		</td>
+		</tr>
 
         {section name="i" loop=$list}
 		{if $browse_type == "browse_latest"}
 			{if $list[i].created_date} 
-				{if $day_name}
 					{if ($list[i].created_date|date_format:"%A") != $today}
-						{assign var="day_name" value=$list[i].created_date|date_format:"%A"}						 			
-			  <tr>
-				  <td class="default"><strong>{$day_name}</strong>
-				  </td>
-			  </tr>			  				
+						{if ($list[i].created_date|date_format:"%A") != $day_name}
+							{assign var="day_name" value=$list[i].created_date|date_format:"%A"}
+		  <tr>
+			  <td>
+			  <table bgcolor="#FFFFFF" width="100%" cellpadding="3" cellspacing="0">
+				  <tr>
+					  <td class="default" {$shaded_bar}><strong>{$day_name}</strong>
+					  </td>
+				  </tr>
+			 </table>
+			 </td>
+		  </tr>
+						{/if}				
+					{elseif $day_name != "Today"}
+					  {assign var="day_name" value="Today"}
+		  <tr>
+			  <td>
+			  <table bgcolor="#FFFFFF" width="100%" cellpadding="3" cellspacing="0">
+				  <tr>
+					  <td class="default" {$shaded_bar}><strong>{$day_name}</strong>
+					  </td>
+				  </tr>
+			 </table>
+			 </td>
+		  </tr>
 					{/if}
-				{else}
-			  {assign var="day_name" value="Today"}						 			
-			  <tr>
-				  <td class="default"><strong>{$day_name}</strong>
-				  </td>
-			  </tr>		
-				{/if}
 			{/if}
 		{/if}
 
@@ -343,7 +363,6 @@ function purgeObject(pid)
 			  <td>
 			  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
               <tr>
-
                   <td>
                         {if $href_view}<a href='{$href_view}' >{/if}<img align="absmiddle" 
                         src="{$icon}" border="0">{if $href_view}</a>{/if} 

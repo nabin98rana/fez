@@ -89,22 +89,37 @@
                         {assign var="showEdit" value=false}
                 {/if}
 			{if $list[i].created_date} 
-				{if $day_name}
 					{if ($list[i].created_date|date_format:"%A") != $today}
-						{assign var="day_name" value=$list[i].created_date|date_format:"%A"}						 			
-			  <tr>
-				  <td class="default"><strong>{$day_name}</strong>
-				  </td>
-			  </tr>			  				
+						{if ($list[i].created_date|date_format:"%A") != $day_name}
+							{assign var="day_name" value=$list[i].created_date|date_format:"%A"}
+		  <tr>
+			  <td>
+			  <table bgcolor="#FFFFFF" width="100%" cellpadding="3" cellspacing="0">
+				  <tr>
+					  <td class="default" {$shaded_bar}><strong>{$day_name}</strong>
+					  </td>
+				  </tr>
+			 </table>
+			 </td>
+		  </tr>
+	
+						{/if}				
+					{elseif $day_name != "Today"}
+					  {assign var="day_name" value="Today"}
+		  <tr>
+			  <td>
+			  <table bgcolor="#FFFFFF" width="100%" cellpadding="3" cellspacing="0">
+				  <tr>
+					  <td class="default" {$shaded_bar}><strong>{$day_name}</strong>
+					  </td>
+				  </tr>
+			 </table>
+			 </td>
+		  </tr>
+
 					{/if}
-				{else}
-			  {assign var="day_name" value="Today"}						 			
-			  <tr>
-				  <td class="default"><strong>{$day_name}</strong>
-				  </td>
-			  </tr>		
-				{/if}
 			{/if}
+
 
 		  <tr>
 

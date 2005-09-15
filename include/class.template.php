@@ -218,6 +218,7 @@ class Template_API
         $this->assign("total_queries", $GLOBALS['TOTAL_QUERIES']);
 
         $this->assign(array(
+            "shaded_bar"     => "background='".APP_RELATIVE_URL."images/".APP_SHADED_BAR."'",
             "cell_color"     => APP_CELL_COLOR,
             "light_color"    => APP_LIGHT_COLOR,
             "middle_color"   => APP_MIDDLE_COLOR,
