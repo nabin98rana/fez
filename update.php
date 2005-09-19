@@ -157,24 +157,37 @@ $tpl->assign("xdis_id", $xdis_id);
 //$xdis_id = 5; //will replace with value from the eSpace mysql database after testing
 
 $details = Record::getDetails($pid, $xdis_id);
-
+$controlled_vocabs = Controlled_Vocab::getAssocListAll();
 //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
 foreach ($xsd_display_fields  as $dis_field) {
-	if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'contvocab') {
+	if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'contvocab' || $dis_field["xsdmf_html_input"] == 'contvocab_selector') {
 		if ($details[$dis_field["xsdmf_id"]]) { // if a record detail matches a display field xsdmf entry
-			if (is_array($dis_field["field_options"])) { // if the display field has a list of matching options
-				foreach ($dis_field["field_options"] as $field_key => $field_option) { // for all the matching options match the set the details array the template uses
-					if (is_array($details[$dis_field["xsdmf_id"]])) { // if there are multiple selected options (it will be an array)
-						foreach ($details[$dis_field["xsdmf_id"]] as $detail_key => $detail_value) {
-							if ($field_option == $detail_value) {
-//								echo "field key = ".$field_key."\n";
-								$details[$dis_field["xsdmf_id"]][$detail_key] = $field_key;
+			if ($dis_field["xsdmf_html_input"] == 'contvocab_selector') {			
+				$tempArray = $details[$dis_field["xsdmf_id"]];
+				if (is_array($tempArray)) {
+					$details[$dis_field["xsdmf_id"]] = array();
+					foreach ($tempArray as $cv_key => $cv_value) {
+						$details[$dis_field["xsdmf_id"]][$cv_value] = $controlled_vocabs[$cv_value];
+					}
+				} else {
+					$details[$dis_field["xsdmf_id"]] = $controlled_vocabs[$details[$dis_field["xsdmf_id"]]];
+				}
+			} else {
+				if (is_array($dis_field["field_options"])) { // if the display field has a list of matching options
+	
+					foreach ($dis_field["field_options"] as $field_key => $field_option) { // for all the matching options match the set the details array the template uses
+						if (is_array($details[$dis_field["xsdmf_id"]])) { // if there are multiple selected options (it will be an array)
+							foreach ($details[$dis_field["xsdmf_id"]] as $detail_key => $detail_value) {
+								if ($field_option == $detail_value) {
+	//								echo "field key = ".$field_key."\n";
+									$details[$dis_field["xsdmf_id"]][$detail_key] = $field_key;
+								}
+							}					
+						} else {
+							if ($field_option == $details[$dis_field["xsdmf_id"]]) {
+	//							echo "field key = ".$field_key."\n";
+								$details[$dis_field["xsdmf_id"]] = $field_key;
 							}
-						}					
-					} else {
-						if ($field_option == $details[$dis_field["xsdmf_id"]]) {
-//							echo "field key = ".$field_key."\n";
-							$details[$dis_field["xsdmf_id"]] = $field_key;
 						}
 					}
 				}
@@ -205,7 +218,7 @@ $tpl->assign('triggers', count(WorkflowTrigger::getList($pid)));
 
 $tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");
 $tpl->assign("isEditor", 1);
-//print_r($details);
+
 $tpl->assign("details", $details);
 $setup = Setup::load();
 

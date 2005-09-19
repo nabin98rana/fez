@@ -1,7 +1,7 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
 // +----------------------------------------------------------------------+
-// | eSpace - Digital Repository                                          |
+// | Fez - Digital Repository                                          |
 // +----------------------------------------------------------------------+
 // |                                                                      |
 // | This program is free software; you can redistribute it and/or modify |
@@ -141,7 +141,7 @@ class Auth
 						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
 
 					 WHERE
-						r1.rmf_xsdmf_id = x1.xsdmf_id and ((d1.xdis_id = x1.xsdmf_xdis_id and d1.xdis_title = 'eSpaceACML') or (k1.sek_title = 'isMemberOf' AND r1.rmf_xsdmf_id = x1.xsdmf_id AND k1.sek_id = x1.xsdmf_sek_id)) and
+						r1.rmf_xsdmf_id = x1.xsdmf_id and ((d1.xdis_id = x1.xsdmf_xdis_id and d1.xdis_title = 'FezACML') or (k1.sek_title = 'isMemberOf' AND r1.rmf_xsdmf_id = x1.xsdmf_id AND k1.sek_id = x1.xsdmf_sek_id)) and
 						r1.rmf_rec_pid in (
 							SELECT r2.rmf_varchar 
 							FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
@@ -162,22 +162,22 @@ class Auth
 					$return[$result['rmf_rec_pid']]['exists'] = array();
 				}
 				if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-					if (!is_array(@$return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
-						$return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']] = array();
+					if (!is_array(@$return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
+						$return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']] = array();
 					}
-					if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
-						array_push($return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+					if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
+						array_push($return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
 					}
 				}
 			}
 //		print_r($return);
 			foreach ($return as $key => $record) {
 	
-				if (is_array($record['eSpaceACML'])) {
+				if (is_array($record['FezACML'])) {
 					if (empty($returns[$pid])) {
-						$returns[$pid] = $record['eSpaceACML'];
+						$returns[$pid] = $record['FezACML'];
 					}
-					array_push($ACMLArray, $record['eSpaceACML']); //add it to the acml array and dont go any further up the hierarchy
+					array_push($ACMLArray, $record['FezACML']); //add it to the acml array and dont go any further up the hierarchy
 				} else {
 					Auth::getIndexParentACMLs($ACMLArray, $key);
 				}
@@ -215,7 +215,7 @@ class Auth
 						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
 
 					 WHERE
-						r1.rmf_xsdmf_id = x1.xsdmf_id and ((d1.xdis_id = x1.xsdmf_xdis_id and d1.xdis_title = 'eSpaceACML') or (k1.sek_title = 'isMemberOf' AND r1.rmf_xsdmf_id = x1.xsdmf_id AND k1.sek_id = x1.xsdmf_sek_id)) and
+						r1.rmf_xsdmf_id = x1.xsdmf_id and ((d1.xdis_id = x1.xsdmf_xdis_id and d1.xdis_title = 'FezACML') or (k1.sek_title = 'isMemberOf' AND r1.rmf_xsdmf_id = x1.xsdmf_id AND k1.sek_id = x1.xsdmf_sek_id)) and
 						r1.rmf_rec_pid = '".$pid."'";
 //		echo $stmt."\n\n";
             global $defaultRoles;
@@ -230,22 +230,22 @@ class Auth
 					$return[$result['rmf_rec_pid']]['exists'] = array();
 				}
 				if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-					if (!is_array(@$return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
-						$return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']] = array();
+					if (!is_array(@$return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
+						$return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']] = array();
 					}
-					if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
-						array_push($return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+					if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
+						array_push($return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
 					}
 				}
 			}
 //			print_r($return);
 			foreach ($return as $key => $record) {
 	
-				if (is_array($record['eSpaceACML'])) {
+				if (is_array($record['FezACML'])) {
 					if (!is_array($returns[$pid])) {
-						$returns[$pid] = $record['eSpaceACML'];
+						$returns[$pid] = $record['FezACML'];
 					}
-					array_push($ACMLArray, $record['eSpaceACML']); //add it to the acml array and dont go any further up the hierarchy
+					array_push($ACMLArray, $record['FezACML']); //add it to the acml array and dont go any further up the hierarchy
 				} else {
 					Auth::getIndexParentACMLs($ACMLArray, $key);
 					$returns[$pid] = $ACMLArray;
@@ -263,7 +263,7 @@ class Auth
 //		$ACMLArray = array();
 		foreach ($parents as $parent) {
 
-			$xdis_array = Fedora_API::callGetDatastreamContentsField($parent['pid'], 'eSpaceMD', array('xdis_id'));
+			$xdis_array = Fedora_API::callGetDatastreamContentsField($parent['pid'], 'FezMD', array('xdis_id'));
 			$xdis_id = $xdis_array['xdis_id'][0];
 			$parentACML = Record::getACML($parent['pid'], $xdis_id);
 			
@@ -348,17 +348,17 @@ class Auth
 
 		foreach ($indexArray as $indexKey => $indexRecord) {
 			$userPIDAuthGroups = $NonRestrictedRoles;
-			if (!is_array($indexRecord['eSpaceACML'])) {
+			if (!is_array($indexRecord['FezACML'])) {
 //				return false;
 				// if it doesnt have its own acml record try and get rights from its parents
 //				Auth::getIndexAuthorisationGroups();
-				// 1. get the parents records with their espace acml's
-				// 2. if at least one of them have an espace acml then use it otherwise get the parents parents
+				// 1. get the parents records with their fez acml's
+				// 2. if at least one of them have an fez acml then use it otherwise get the parents parents
 
 			}
 
-			foreach ($indexRecord['eSpaceACML'] as $eSpaceACML) { // can have multiple espace acmls if got from parents
-				foreach ($eSpaceACML as $role_name => $role) {	
+			foreach ($indexRecord['FezACML'] as $FezACML) { // can have multiple fez acmls if got from parents
+				foreach ($FezACML as $role_name => $role) {	
 					if (in_array($role_name, $userPIDAuthGroups)) {
 						$userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role_name, false, true);
 					}
@@ -384,7 +384,7 @@ class Auth
 											array_push($userPIDAuthGroups, $role_name);
 										}
 										break;
-									case '!rule!role!in_eSpace':
+									case '!rule!role!in_Fez':
 										if (($ruleRecord == 'on') && Auth::isValidSession($_SESSION) 
 												&& Auth::isInDB()) {
 											array_push($userPIDAuthGroups, $role_name);
@@ -396,12 +396,12 @@ class Auth
 											array_push($userPIDAuthGroups, $role_name);
 										}
 										break;
-									case '!rule!role!eSpace_Group':
+									case '!rule!role!Fez_Group':
 										if (@in_array($ruleRecord, $_SESSION[APP_INTERNAL_GROUPS_SESSION])) {
 											array_push($userPIDAuthGroups, $role_name);
 										}
 										break;	
-									case '!rule!role!eSpace_User':
+									case '!rule!role!Fez_User':
 										if (Auth::isValidSession($_SESSION)
 												&& $ruleRecord == Auth::getUserID()) {
 											array_push($userPIDAuthGroups, $role_name);
@@ -457,8 +457,8 @@ class Auth
         foreach ($ACMLArray as $acml) {
             // Use XPath to find all the roles that have groups set and loop through them
             $xpath = new DOMXPath($acml);
-//            $roleNodes = $xpath->query('/eSpaceACML/rule/role[string-length(normalize-space(*))>0]');
-            $roleNodes = $xpath->query('/eSpaceACML/rule/role');
+//            $roleNodes = $xpath->query('/FezACML/rule/role[string-length(normalize-space(*))>0]');
+            $roleNodes = $xpath->query('/FezACML/rule/role');
 
             foreach ($roleNodes as $roleNode) {
                 $role = $roleNode->getAttribute('name');
@@ -491,7 +491,7 @@ class Auth
                                         array_push($userPIDAuthGroups, $role);
                                     }
                                     break;
-                                case 'in_eSpace':
+                                case 'in_Fez':
                                     if (($group_value == 'on') && Auth::isValidSession($_SESSION)
                                             && Auth::isInDB()) {
                                         array_push($userPIDAuthGroups, $role);
@@ -503,13 +503,13 @@ class Auth
                                         array_push($userPIDAuthGroups, $role);
                                     }
                                     break;
-                                case 'eSpace_Group':
+                                case 'Fez_Group':
                                     if (@in_array($group_value, $_SESSION[APP_INTERNAL_GROUPS_SESSION])) {
                                         array_push($userPIDAuthGroups, $role);
                                     }
                                     break;
 
-                                case 'eSpace_User':
+                                case 'Fez_User':
                                     if (Auth::isValidSession($_SESSION)
                                             && $group_value == Auth::getUserID()) {
                                         array_push($userPIDAuthGroups, $role);
@@ -748,7 +748,7 @@ class Auth
      */
     function isCorrectPassword($username, $password)
     {
-		// @@@ CK - 9/6/2005 - will have to add extra logic here for non-ldap (espace or other) users. 
+		// @@@ CK - 9/6/2005 - will have to add extra logic here for non-ldap (fez or other) users. 
 
 		if (Auth::userExists($HTTP_POST_VARS["username"])) {
 			$userDetails = User::getDetails($username);
@@ -912,7 +912,7 @@ class Auth
             $fullname = $userDetails['displayname'];
             $email = $userDetails['email'];
             Auth::GetUsersLDAPGroups($username, $password);
-        } else { // if it is a registered eSpace user then get their details from the espace user table
+        } else { // if it is a registered eSpace user then get their details from the fez user table
             $_SESSION['isInDB'] = true;
             $userDetails = User::getDetails($username);			
             $fullname = $userDetails['usr_full_name'];
@@ -925,7 +925,7 @@ class Auth
             }  else {
 	            $_SESSION['isInAD'] = false;			
 			}
-            // get internal espace groups
+            // get internal fez groups
 			Auth::GetUsersInternalGroups($usr_id);
             
         }
@@ -951,7 +951,7 @@ class Auth
 
     function ProcessListResults($details) {
 		foreach ($details as $key => $row) {
-			$xdis_array = Fedora_API::callGetDatastreamContentsField ($row['pid'], 'eSpaceMD', array('xdis_id'));
+			$xdis_array = Fedora_API::callGetDatastreamContentsField ($row['pid'], 'FezMD', array('xdis_id'));
             if (!empty($xdis_array)) {
                 $xdis_id = $xdis_array['xdis_id'][0];
                 $rowAuthGroups = Auth::getAuthorisationGroups($row['pid'], $xdis_id);

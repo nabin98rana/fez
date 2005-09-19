@@ -159,7 +159,8 @@ $tpl->assign("custom_fields", $custom_modified);*/
 //$xsd_display_fields = (XSD_HTML_Match::getListByCollection($col_id, 'report_form'));
 //$xdis_id = 5; // was 5
 $xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id));
-$cvo_list = Controlled_Vocab::getAssocListFullDisplay();
+$cvo_list = Controlled_Vocab::getAssocListFullDisplay(false, "", 0, 2);
+//print_r($cvo_list);
 //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
 foreach ($xsd_display_fields  as $dis_key => $dis_field) {
 	if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple') {
@@ -170,7 +171,7 @@ foreach ($xsd_display_fields  as $dis_key => $dis_field) {
 			eval("\$xsd_display_fields[\$dis_key]['selected_option'] = " . $dis_field["xsdmf_dynamic_selected_option"] . ";");
 		}
 	}
-	if ($dis_field["xsdmf_html_input"] == 'contvocab') {
+	if (($dis_field["xsdmf_html_input"] == 'contvocab') || ($dis_field["xsdmf_html_input"] == 'contvocab_selector')) {
 		$xsd_display_fields[$dis_key]['field_options'] = $cvo_list['data'][$dis_field['xsdmf_cvo_id']];
 	}
 	

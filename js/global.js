@@ -336,7 +336,7 @@ function clearSelectedOptions(field)
 
 function selectAllOptions(f, field_name)
 {
-    var field = getFormElement(f, field_name);
+	var field = getFormElement(f, field_name);
     for (var y = 0; y < field.options.length; y++) {
         field.options[y].selected = true;
     }
@@ -366,6 +366,44 @@ function selectCustomOptions(f, field_name, values)
     }
 }
 
+function small_window(myurl) {
+	var newWindow;
+	var props = 'scrollBars=yes,resizable=yes,toolbar=no,menubar=no,location=no,directories=no,top=50,left=100,width=800,height=550';
+	newWindow = window.open(myurl, "Add_from_Src_to_Dest", props);
+}
+
+// Adds the list of selected items selected in the child
+// window to its list. It is called by child window to do so.
+function addToParentList(sourceList, destinationList) {
+//	destinationList = window.document.report_form.parentList;
+//	destinationList = parentList;
+
+	for(var count = destinationList.options.length - 1; count >= 0; count--) {
+		for(var i = 0; i < sourceList.options.length; i++) {
+			if (destinationList.options[count]) {
+				if ((sourceList.options[i] != null) && (sourceList.options[i].selected) && (destinationList.options[count].value == sourceList.options[i].value)) {
+					destinationList.options[count] = null;
+				}
+			}
+		}
+	} 
+	var len = destinationList.length;
+	for(var i = 0; i < sourceList.options.length; i++) {
+		if ((sourceList.options[i] != null) && (sourceList.options[i].selected)) {
+		   destinationList.options[len] = new Option(sourceList.options[i].text, sourceList.options[i].value );
+		   len++;
+		}
+   	}
+}
+// Deletes the selected items of supplied list.
+function deleteSelectedItemsFromList(sourceList) {
+	var maxCnt = sourceList.options.length;
+	for(var i = maxCnt - 1; i >= 0; i--) {
+		if ((sourceList.options[i] != null) && (sourceList.options[i].selected == true)) {
+			sourceList.options[i] = null;
+      		}
+   	}
+}
 
 function selectOption(f, field_name, value)
 {

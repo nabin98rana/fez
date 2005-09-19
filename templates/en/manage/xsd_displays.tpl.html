@@ -177,7 +177,7 @@
               </tr>
               {/if}
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Title:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -186,7 +186,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Version:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -236,10 +236,10 @@
 			        <input type="hidden" name="id" value="{$xdis_id}">					
                     <tr>
                       <td width="5" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td width="50%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Title</b></td>
-                      <td width="15%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Version</b></td>
-                      <td width="15%" bgcolor="{$cell_color}" class="default_white" nowrap>&nbsp;<b>XSD HTML Matching Editor&nbsp;</b></td>
-                      <td width="15%" bgcolor="{$cell_color}" class="default_white" nowrap>&nbsp;<b>Clone Display&nbsp;</b></td>					  
+                      <td width="50%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b></td>
+                      <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Version</b></td>
+                      <td width="15%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>XSD HTML Matching Editor&nbsp;</b></td>
+                      <td width="15%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>Clone Display&nbsp;</b></td>					  
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}

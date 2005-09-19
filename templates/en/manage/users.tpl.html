@@ -83,7 +83,7 @@
               </tr>
               {/if}
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Username:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -92,7 +92,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>E-mail:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -101,7 +101,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Full Name:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -110,7 +110,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Administrator?:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -118,7 +118,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Use LDAP Authentication?:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -126,7 +126,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Password:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -140,7 +140,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Internal System Groups: *</b>
                 </td>
                 <td bgcolor="{$light_color}" width="80%">
@@ -211,14 +211,14 @@
                     <input type="hidden" name="cat" value="change_status">
                     <tr>
                       <td bgcolor="{$cell_color}" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Name</b></td>
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Username</b></td>
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Administrator?</b></td>
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>LDAP Authentication?</b></td>
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>E-mail</b></td>
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Status</b></td>
-                      <td bgcolor="{$cell_color}" class="default_white" nowrap>&nbsp;<b>Login Count</b></td>
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Last Login Date</b></td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Name</b></td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Username</b></td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Administrator?</b></td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>LDAP Authentication?</b></td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>E-mail</b></td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Status</b></td>
+                      <td bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>Login Count</b></td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Last Login Date</b></td>
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}

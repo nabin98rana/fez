@@ -96,10 +96,10 @@
                     <input type="hidden" name="cat" value="delete">
                     <tr>
                       <td width="4" bgcolor="{$cell_color}" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Title</b></td>
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Primary Collection Manager</b></td>
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Status</b></td>
-                      <td bgcolor="{$cell_color}" nowrap class="default_white" align="center">&nbsp;<b>Actions</b></td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b></td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Primary Collection Manager</b></td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Status</b></td>
+                      <td bgcolor="{$cell_color}" nowrap class="default" align="center">&nbsp;<b>Actions</b></td>
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}

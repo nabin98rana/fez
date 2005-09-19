@@ -1,0 +1,55 @@
+{include file="header.tpl.html"}
+{literal}
+<script language="JavaScript">
+
+<!-- Begin
+function addSelectedItemsToParent() {
+   self.opener.addToParentList(window.document.frmMain.cv_fields, self.opener.document.{/literal}{$form}.{$element}{literal});
+//   window.close();
+}
+function dblClickSubmit() {
+	for(var count = document.frmMain.cv_fields.options.length - 1; count >= 0; count--) {
+		if (document.frmMain.cv_fields.options[count].selected) {
+			document.frmMain.submit();
+		}
+	}
+}
+// End -->
+</script>
+{/literal}
+<table>
+<form name="frmMain" method="GET" action="cv_selector.php">
+	<tr valign="top">
+	  <td class="default">
+		          {if $max_subject_breadcrumb != -1}
+					  {section name="b" loop=$subject_breadcrumb}
+						  {assign var="counter" value=b}
+		                  {if $subject_breadcrumb[b].cvo_image_filename != ""}
+						    <img align="absmiddle" src="{$rel_url}images/{$subject_breadcrumb[b].cvo_image_filename}"/>
+						  {/if}
+                          {if $max_subject_breadcrumb != $smarty.section.b.index}<a href='{$rel_url}cv_selector.php?element={$element}&form={$form}&cvo_id={$subject_breadcrumb[b].cvo_id}'>{else}<b>{/if}{$subject_breadcrumb[b].cvo_title|escape:"html"}{if $max_subject_breadcrumb != $smarty.section.b.index}</a>{else}</b>{/if}
+ 						  {assign var="cvo_id" value=$subject_breadcrumb[b].cvo_id}
+						  {if $subject_count[$cvo_id]}({$subject_count[$cvo_id]}){else}{/if}{if $max_subject_breadcrumb != $smarty.section.b.index}->{else}:{/if}					
+					  {/section}
+				   {else}Subject Classification:{/if}</b>		  
+	  </td>
+	</tr>
+	<tr>
+	  <td bgcolor="{$light_color}">
+		<select size="30" class="default" name="cv_fields" onDblClick="javascript:dblClickSubmit();">
+			  {html_options options=$cvo_list}
+		</select>
+	  </td>
+	</tr>
+	<tr>
+	  <td bgcolor="{$light_color}">
+		<input type="button" value="Add and Continue" onClick = "javascript:addSelectedItemsToParent();">
+		<input type="submit" value="Show Child Controlled Vocabularies">
+		<input type="button" value="Close" onClick = "javascript:window.close()">
+		<input type="hidden" name="form" value="{$form}"/>
+		<input type="hidden" name="element" value="{$element}"/>		
+	 </td>
+	</tr>				
+</form>
+</table>
+{include file="footer.tpl.html"}

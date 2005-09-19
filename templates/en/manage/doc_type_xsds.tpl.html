@@ -170,7 +170,7 @@
               </tr>
               {/if}
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Title:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -179,7 +179,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Version:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -187,7 +187,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white" nowrap>
+                <td width="120" bgcolor="{$cell_color}" class="default" nowrap>
                   <b>Top Element Name:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -195,7 +195,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white" nowrap>
+                <td width="120" bgcolor="{$cell_color}" class="default" nowrap>
                   <b>Element Prefix <i>(not required)</i>:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -203,7 +203,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white" nowrap>
+                <td width="120" bgcolor="{$cell_color}" class="default" nowrap>
                   <b>Extra Namespace Prefixes <i>(comma seperated, not required)</i>:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -211,7 +211,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>XSD Source File:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -259,12 +259,12 @@
                     <input type="hidden" name="cat" value="delete">
                     <tr>
                       <td width="5" bgcolor="{$cell_color}" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td width="50%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Title</b>&nbsp;</td>
-                      <td width="10%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Version</b>&nbsp;</td>
-                      <td width="10%" bgcolor="{$cell_color}" class="default_white" nowrap>&nbsp;<b>Top Element Name</b>&nbsp;</td>
-                      <td width="10%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Element Prefix</b>&nbsp;</td>
-                      <td width="10%" bgcolor="{$cell_color}" class="default_white" nowrap>&nbsp;<b>XSD Source</b>&nbsp;</td>
-                      <td width="10%" bgcolor="{$cell_color}" class="default_white" nowrap>&nbsp;<b>XSD Displays&nbsp;</b></td>
+                      <td width="50%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b>&nbsp;</td>
+                      <td width="10%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Version</b>&nbsp;</td>
+                      <td width="10%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>Top Element Name</b>&nbsp;</td>
+                      <td width="10%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Element Prefix</b>&nbsp;</td>
+                      <td width="10%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>XSD Source</b>&nbsp;</td>
+                      <td width="10%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>XSD Displays&nbsp;</b></td>
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}

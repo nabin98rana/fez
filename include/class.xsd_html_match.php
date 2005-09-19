@@ -322,7 +322,7 @@ class XSD_HTML_Match
      * @param   integer $xdis_id The XSD Display ID
      * @return  array The list of matching fields fields
      */
-    function getListByDisplaySpecify($xdis_id, $specify_titles=array('eSpaceACML'))
+    function getListByDisplaySpecify($xdis_id, $specify_titles=array('FezACML'))
     {
         $stmt = "SELECT
                     xsdmf_id,
@@ -341,7 +341,7 @@ class XSD_HTML_Match
 					xsdmf_smarty_variable,
 					xsdmf_dynamic_selected_option,
 					xsdmf_selected_option,
-					xsdmf_espace_variable,
+					xsdmf_fez_variable,
 					xsdmf_enforced_prefix,
 					xsdmf_data_type,
 					xsdmf_value_prefix,
@@ -436,7 +436,7 @@ class XSD_HTML_Match
      * @param   integer $xdis_id The XSD Display ID
      * @return  array The list of matching fields fields
      */
-    function getListByDisplayExclude($xdis_id, $exclude_titles=array('eSpaceACML'))
+    function getListByDisplayExclude($xdis_id, $exclude_titles=array('FezACML'))
     {
         $stmt = "SELECT
                     xsdmf_id,
@@ -454,7 +454,7 @@ class XSD_HTML_Match
 					xsdmf_smarty_variable,
 					xsdmf_dynamic_selected_option,
 					xsdmf_selected_option,
-					xsdmf_espace_variable,
+					xsdmf_fez_variable,
 					xsdmf_enforced_prefix,
 					xsdmf_data_type,
 					xsdmf_value_prefix,
@@ -557,7 +557,7 @@ class XSD_HTML_Match
 					xsdmf_smarty_variable,
 					xsdmf_dynamic_selected_option,
 					xsdmf_selected_option,
-					xsdmf_espace_variable,
+					xsdmf_fez_variable,
 					xsdmf_enforced_prefix,
 					xsdmf_is_key,
 					xsdmf_data_type,
@@ -1101,8 +1101,8 @@ class XSD_HTML_Match
 		if ($HTTP_POST_VARS["smarty_variable"] != "") {
           $stmt .= "xsdmf_smarty_variable,";
 		}
-		if ($HTTP_POST_VARS["espace_variable"] != "") {
-          $stmt .= "xsdmf_espace_variable,";
+		if ($HTTP_POST_VARS["fez_variable"] != "") {
+          $stmt .= "xsdmf_fez_variable,";
 		}
 		if ($HTTP_POST_VARS["dynamic_selected_option"] != "") {
           $stmt .= "xsdmf_dynamic_selected_option,";
@@ -1154,8 +1154,8 @@ class XSD_HTML_Match
 			if ($HTTP_POST_VARS["smarty_variable"] != "") {
               $stmt .= "'" . Misc::escapeString($HTTP_POST_VARS["smarty_variable"]) . "',";
 			}
-			if ($HTTP_POST_VARS["espace_variable"] != "") {
-              $stmt .= "'" . Misc::escapeString($HTTP_POST_VARS["espace_variable"]) . "',";
+			if ($HTTP_POST_VARS["fez_variable"] != "") {
+              $stmt .= "'" . Misc::escapeString($HTTP_POST_VARS["fez_variable"]) . "',";
 			}
 			if ($HTTP_POST_VARS["dynamic_selected_option"] != "") {
               $stmt .= "'" . Misc::escapeString($HTTP_POST_VARS["dynamic_selected_option"]) . "',";
@@ -1250,8 +1250,8 @@ class XSD_HTML_Match
 		if (!empty($insertArray["xsdmf_smarty_variable"])) {
           $stmt .= "xsdmf_smarty_variable,";
 		}
-		if (!empty($insertArray["xsdmf_espace_variable"])) {
-          $stmt .= "xsdmf_espace_variable,";
+		if (!empty($insertArray["xsdmf_fez_variable"])) {
+          $stmt .= "xsdmf_fez_variable,";
 		}
 		if (!empty($insertArray["xsdmf_dynamic_selected_option"])) {
           $stmt .= "xsdmf_dynamic_selected_option,";
@@ -1320,8 +1320,8 @@ class XSD_HTML_Match
 			if (!empty($insertArray["xsdmf_smarty_variable"])) {
               $stmt .= "'" . Misc::escapeString($insertArray["xsdmf_smarty_variable"]) . "',";
 			}
-			if (!empty($insertArray["xsdmf_espace_variable"])) {
-              $stmt .= "'" . Misc::escapeString($insertArray["xsdmf_espace_variable"]) . "',";
+			if (!empty($insertArray["xsdmf_fez_variable"])) {
+              $stmt .= "'" . Misc::escapeString($insertArray["xsdmf_fez_variable"]) . "',";
 			}
 			if (!empty($insertArray["xsdmf_dynamic_selected_option"])) {
               $stmt .= "'" . Misc::escapeString($insertArray["xsdmf_dynamic_selected_option"]) . "',";
@@ -1422,8 +1422,8 @@ class XSD_HTML_Match
 		if (!empty($insertArray["xsdmf_smarty_variable"])) {
           $stmt .= "xsdmf_smarty_variable,";
 		}
-		if (!empty($insertArray["xsdmf_espace_variable"])) {
-          $stmt .= "xsdmf_espace_variable,";
+		if (!empty($insertArray["xsdmf_fez_variable"])) {
+          $stmt .= "xsdmf_fez_variable,";
 		}
 		if (!empty($insertArray["xsdmf_dynamic_selected_option"])) {
           $stmt .= "xsdmf_dynamic_selected_option,";
@@ -1492,8 +1492,8 @@ class XSD_HTML_Match
 			if (!empty($insertArray["xsdmf_smarty_variable"])) {
               $stmt .= "'" . Misc::escapeString($insertArray["xsdmf_smarty_variable"]) . "',";
 			}
-			if (!empty($insertArray["xsdmf_espace_variable"])) {
-              $stmt .= "'" . Misc::escapeString($insertArray["xsdmf_espace_variable"]) . "',";
+			if (!empty($insertArray["xsdmf_fez_variable"])) {
+              $stmt .= "'" . Misc::escapeString($insertArray["xsdmf_fez_variable"]) . "',";
 			}
 			if (!empty($insertArray["xsdmf_dynamic_selected_option"])) {
               $stmt .= "'" . Misc::escapeString($insertArray["xsdmf_dynamic_selected_option"]) . "',";
@@ -1617,8 +1617,8 @@ class XSD_HTML_Match
 		if ($HTTP_POST_VARS["smarty_variable"] != "") {
         	$stmt .= " xsdmf_smarty_variable = '" . Misc::escapeString($HTTP_POST_VARS["smarty_variable"]) . "',";
 		}
-		if ($HTTP_POST_VARS["espace_variable"] != "") {
-        	$stmt .= " xsdmf_espace_variable = '" . Misc::escapeString($HTTP_POST_VARS["espace_variable"]) . "',";
+		if ($HTTP_POST_VARS["fez_variable"] != "") {
+        	$stmt .= " xsdmf_fez_variable = '" . Misc::escapeString($HTTP_POST_VARS["fez_variable"]) . "',";
 		}
 		if ($HTTP_POST_VARS["dynamic_selected_option"] != "") {
         	$stmt .= " xsdmf_dynamic_selected_option = '" . Misc::escapeString($HTTP_POST_VARS["dynamic_selected_option"]) . "',";
@@ -1715,7 +1715,7 @@ class XSD_HTML_Match
         }
     }
 
-//getXSDMF_ID($j['espace_hyperlink']);
+
 
 
     /**

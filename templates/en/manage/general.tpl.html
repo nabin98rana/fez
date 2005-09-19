@@ -257,7 +257,7 @@
               </tr>
               {/if}
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Tool Caption:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -265,7 +265,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>SMTP (Outgoing Email) Settings:</b>
                 </td>
                 <td bgcolor="{$light_color}" class="default">
@@ -346,13 +346,13 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Open Account Signup:</b>
                 </td>
                 <td bgcolor="{$light_color}" class="default">
                   <table>
                     <tr>
-                      <td colspan="2" class="default_white">
+                      <td colspan="2" class="default">
                         <input type="radio" name="open_signup" value="enabled" {if $setup.open_signup == 'enabled'}checked{/if} onClick="javascript:disableSignupFields(this.form, false);"> 
                         <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('general_setup_form', 'open_signup', 0);disableSignupFields(getForm('general_setup_form'), false);">Enabled</a>&nbsp;&nbsp;
                         <input type="radio" name="open_signup" value="disabled" {if not $setup.open_signup == 'enabled'}checked{/if} onClick="javascript:disableSignupFields(this.form, true);"> 
@@ -385,13 +385,13 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Email Routing Interface:</b>
                 </td>
                 <td bgcolor="{$light_color}" class="default">
                   <table>
                     <tr>
-                      <td colspan="2" class="default_white">
+                      <td colspan="2" class="default">
                         <input type="radio" name="email_routing[status]" value="enabled" {if $setup.email_routing.status == 'enabled'}checked{/if} onClick="javascript:disableEmailRoutingFields(this.form, false);"> 
                         <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('general_setup_form', 'email_routing[status]', 0);disableEmailRoutingFields(getForm('general_setup_form'), false);">Enabled</a>&nbsp;&nbsp;
                         <input type="radio" name="email_routing[status]" value="disabled" {if $setup.email_routing.status != 'enabled'}checked{/if} onClick="javascript:disableEmailRoutingFields(this.form, true);"> 
@@ -457,13 +457,13 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Internal Note Routing Interface:</b>
                 </td>
                 <td bgcolor="{$light_color}" class="default">
                   <table>
                     <tr>
-                      <td colspan="2" class="default_white">
+                      <td colspan="2" class="default">
                         <input type="radio" name="note_routing[status]" value="enabled" {if $setup.note_routing.status == 'enabled'}checked{/if} onClick="javascript:disableNoteRoutingFields(this.form, false);"> 
                         <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('general_setup_form', 'note_routing[status]', 0);disableNoteRoutingFields(getForm('general_setup_form'), false);">Enabled</a>&nbsp;&nbsp;
                         <input type="radio" name="note_routing[status]" value="disabled" {if $setup.note_routing.status != 'enabled'}checked{/if} onClick="javascript:disableNoteRoutingFields(this.form, true);"> 
@@ -508,13 +508,13 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>SCM <br />Integration:</b> {include file="help_link.tpl.html" topic="scm_integration"}
                 </td>
                 <td bgcolor="{$light_color}" class="default">
                   <table>
                     <tr>
-                      <td colspan="2" class="default_white">
+                      <td colspan="2" class="default">
                         <input type="radio" name="scm_integration" value="enabled" {if $setup.scm_integration == 'enabled'}checked{/if} onClick="javascript:disableSCMFields(this.form, false);"> 
                         <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('general_setup_form', 'scm_integration', 0);disableSCMFields(getForm('general_setup_form'), false);">Enabled</a>&nbsp;&nbsp;
                         <input type="radio" name="scm_integration" value="disabled" {if not $setup.scm_integration == 'enabled'}checked{/if} onClick="javascript:disableSCMFields(this.form, true);"> 
@@ -543,7 +543,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Email Integration Feature:</b>
                 </td>
                 <td bgcolor="{$light_color}" class="default">
@@ -554,7 +554,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Daily Tips:</b>
                 </td>
                 <td bgcolor="{$light_color}" class="default">
@@ -565,7 +565,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Email Spell Checker:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -578,7 +578,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>IRC Notifications:</b>
                 </td>
                 <td bgcolor="{$light_color}" class="default">
@@ -589,7 +589,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Allow Un-Assigned Issues?</b>
                 </td>
                 <td bgcolor="{$light_color}" class="default">
@@ -600,7 +600,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Default Options for Notifications:</b>
                 </td>
                 <td bgcolor="{$light_color}" class="default">
@@ -611,13 +611,13 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Email Error Logging System:</b>
                 </td>
                 <td bgcolor="{$light_color}" class="default">
                   <table>
                     <tr>
-                      <td colspan="2" class="default_white">
+                      <td colspan="2" class="default">
                         <input type="radio" name="email_error[status]" value="enabled" {if $setup.email_error.status == 'enabled'}checked{/if} onClick="javascript:disableErrorEmailFields(getForm('general_setup_form'), false);"> 
                         <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('general_setup_form', 'email_error[status]', 0);disableErrorEmailFields(getForm('general_setup_form'), false);">Enabled</a>&nbsp;&nbsp;
                         <input type="radio" name="email_error[status]" value="disabled" {if $setup.email_error.status != 'enabled'}checked{/if} onClick="javascript:disableErrorEmailFields(getForm('general_setup_form'), true);"> 

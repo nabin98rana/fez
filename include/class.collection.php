@@ -1,7 +1,7 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
 // +----------------------------------------------------------------------+
-// | eSpace - Digital Repository                                          |
+// | Fez - Digital Repository                                          |
 // +----------------------------------------------------------------------+
 // |                                                                      |
 // | This program is free software; you can redistribute it and/or modify |
@@ -75,9 +75,9 @@ class Collection
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = array();
 		foreach ($res as $result) {
-			if (in_array($result['xsdmf_espace_title'], $returnfields)) {
+			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				$return[$result['rmf_rec_pid']][$result['xsdmf_espace_title']] = $result['rmf_'.$result['xsdmf_data_type']];
+				$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']] = $result['rmf_'.$result['xsdmf_data_type']];
 			}
 		}
 		$return = array_values($return);
@@ -198,9 +198,9 @@ class Collection
 				}
 				array_push($return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
 			}
-			if (in_array($result['xsdmf_espace_title'], $returnfields)) {
+			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				$return[$result['rmf_rec_pid']][$result['xsdmf_espace_title']] = $result['rmf_'.$result['xsdmf_data_type']];
+				$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']] = $result['rmf_'.$result['xsdmf_data_type']];
 			}
 		}
 
@@ -348,12 +348,12 @@ class Collection
 				}
 				array_push($return[$result['rmf_rec_pid']]['isMemberOf'], $result['rmf_varchar']);
 			}
-			if (in_array($result['xsdmf_espace_title'], $returnfields)) {
+			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				$return[$result['rmf_rec_pid']][$result['xsdmf_espace_title']] = $result['rmf_'.$result['xsdmf_data_type']];
+				$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']] = $result['rmf_'.$result['xsdmf_data_type']];
 			}
 			// get thumbnails
-			if ($result['xsdmf_espace_title'] == "datastream_id") {
+			if ($result['xsdmf_fez_title'] == "datastream_id") {
 				if (is_numeric(strpos($result['rmf_varchar'], "thumbnail_"))) {
 					if (!is_array(@$return[$result['rmf_rec_pid']]['thumbnails'])) {
 						$return[$result['rmf_rec_pid']]['thumbnails'] = array();
@@ -617,12 +617,12 @@ class Collection
 				}
 				array_push($return[$result['rmf_rec_pid']]['isMemberOf'], $result['rmf_varchar']);
 			}
-			if (in_array($result['xsdmf_espace_title'], $returnfields)) {
+			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				$return[$result['rmf_rec_pid']][$result['xsdmf_espace_title']] = $result['rmf_'.$result['xsdmf_data_type']];
+				$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']] = $result['rmf_'.$result['xsdmf_data_type']];
 			}
 			// get thumbnails
-			if ($result['xsdmf_espace_title'] == "datastream_id") {
+			if ($result['xsdmf_fez_title'] == "datastream_id") {
 				if (is_numeric(strpos($result['rmf_varchar'], "thumbnail_"))) {
 					if (!is_array(@$return[$result['rmf_rec_pid']]['thumbnails'])) {
 						$return[$result['rmf_rec_pid']]['thumbnails'] = array();
@@ -946,6 +946,7 @@ class Collection
     {
 //        $isMemberOf_xsdmf_id = 149;
 //        $ret_id_xsd_mf = 236; // eSpaceMD Display, 
+//		print_r($_GET);
 		$terms = $_GET['list'];
 
 		if (empty($terms)) {
@@ -959,6 +960,7 @@ class Collection
 		$middleStmt = "";
 		$foundValue = false;
 		$termCounter = 2;
+
 		foreach ($terms as $tkey => $tdata) {
 			if (!empty($tdata)) {
 				$middleStmt .= 
@@ -996,7 +998,7 @@ class Collection
 				 ORDER BY
 				 	r1.rmf_rec_pid";
 	
-		echo $stmt;
+//		echo $stmt;
 		$returnfields = array("title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		
@@ -1014,12 +1016,12 @@ class Collection
 				}
 				array_push($return[$result['rmf_rec_pid']]['isMemberOf'], $result['rmf_varchar']);
 			}
-			if (in_array($result['xsdmf_espace_title'], $returnfields)) {
+			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				$return[$result['rmf_rec_pid']][$result['xsdmf_espace_title']] = $result['rmf_'.$result['xsdmf_data_type']];
+				$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']] = $result['rmf_'.$result['xsdmf_data_type']];
 			}
 			// get thumbnails
-			if ($result['xsdmf_espace_title'] == "datastream_id") {
+			if ($result['xsdmf_fez_title'] == "datastream_id") {
 				if (is_numeric(strpos($result['rmf_varchar'], "thumbnail_"))) {
 					if (!is_array(@$return[$result['rmf_rec_pid']]['thumbnails'])) {
 						$return[$result['rmf_rec_pid']]['thumbnails'] = array();
@@ -1165,12 +1167,12 @@ class Collection
 				}
 				array_push($return[$result['rmf_rec_pid']]['isMemberOf'], $result['rmf_varchar']);
 			}
-			if (in_array($result['xsdmf_espace_title'], $returnfields)) {
+			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				$return[$result['rmf_rec_pid']][$result['xsdmf_espace_title']] = $result['rmf_'.$result['xsdmf_data_type']];
+				$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']] = $result['rmf_'.$result['xsdmf_data_type']];
 			}
 			// get thumbnails
-			if ($result['xsdmf_espace_title'] == "datastream_id") {
+			if ($result['xsdmf_fez_title'] == "datastream_id") {
 				if (is_numeric(strpos($result['rmf_varchar'], "thumbnail_"))) {
 					if (!is_array(@$return[$result['rmf_rec_pid']]['thumbnails'])) {
 						$return[$result['rmf_rec_pid']]['thumbnails'] = array();
@@ -1288,7 +1290,7 @@ class Collection
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = array();
 		foreach ($res as $result) {
-			if (in_array($result['xsdmf_espace_title'], $returnfields)) {
+			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
 				$return[$result['rmf_rec_pid']] = $result['rmf_'.$result['xsdmf_data_type']];
 			}
 		}

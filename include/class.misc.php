@@ -2044,7 +2044,7 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 							} elseif ($xsdmf_details['xsdmf_html_input'] == 'combo') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple
 								$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]);
 								array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])));
-							} elseif ($xsdmf_details['xsdmf_html_input'] == 'contvocab') {
+							} elseif ($xsdmf_details['xsdmf_html_input'] == 'contvocab' || $xsdmf_details['xsdmf_html_input'] == 'contvocab_selector') {
 									foreach ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] as $contvocab_element) {
 										if ($attrib_value == "") {
 											$attrib_value = $contvocab_element;
@@ -2130,7 +2130,7 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 								} elseif ($xsdmf_details['xsdmf_html_input'] == 'combo') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple
 									$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']]);
 									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']])));									
-								} elseif ($xsdmf_details['xsdmf_html_input'] == 'contvocab') {
+								} elseif ($xsdmf_details['xsdmf_html_input'] == 'contvocab' || $xsdmf_details['xsdmf_html_input'] == 'contvocab_selector') {
 									if (is_array($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) {
 										foreach ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] as $contvocab_element) {
 											if ($attrib_value == "") {
@@ -2350,7 +2350,7 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 						} elseif ($xsdmf_details['xsdmf_html_input'] == 'combo') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple
 							$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]);
 							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])));									
-						} elseif ($xsdmf_details['xsdmf_html_input'] == 'contvocab') {							
+						} elseif ($xsdmf_details['xsdmf_html_input'] == 'contvocab' || $xsdmf_details['xsdmf_html_input'] == 'contvocab_selector') {							
 							if (is_array($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) {
 								foreach ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] as $contvocab_element) {
 									if ($attrib_value == "") {
@@ -2435,7 +2435,7 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 						} elseif ($xsdmf_details['xsdmf_html_input'] == 'combo') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple
 							$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']]);
 							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']])));
-						} elseif ($xsdmf_details['xsdmf_html_input'] == 'contvocab') {
+						} elseif ($xsdmf_details['xsdmf_html_input'] == 'contvocab' || $xsdmf_details['xsdmf_html_input'] == 'contvocab_selector') {
 							if (is_array($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) {
 								foreach ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] as $contvocab_element) {
 									if ($attrib_value == "") {

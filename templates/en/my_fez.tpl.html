@@ -1,4 +1,4 @@
-{include file="header.tpl.html" extra_title="My eSpace"}
+{include file="header.tpl.html" extra_title="My Fez"}
 {include file="navigation.tpl.html"}
 
 <table width="100%">
@@ -17,10 +17,10 @@
 	Recent Items
    <table border="0" width="100%" cellpadding="1" cellspacing="1">
      <tr>
-       <td width="50%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Title</b></td>
-       <td width="15%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Workflow</b></td>
-       <td width="15%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>State</b></td>
-       <td width="15%" bgcolor="{$cell_color}" class="default_white" nowrap>&nbsp;<b>Action</b></td>
+       <td width="50%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b></td>
+       <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Workflow</b></td>
+       <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>State</b></td>
+       <td width="15%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>Action</b></td>
      </tr>
      {section name="i" loop=$list}
      {cycle values=$cycle assign="row_color"}
@@ -60,9 +60,9 @@
     Saved Searches
    <table border="0" width="100%" cellpadding="1" cellspacing="1">
      <tr>
-       <td width="50%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Title</b></td>
-       <td width="15%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Search terms</b></td>
-       <td width="15%" bgcolor="{$cell_color}" class="default_white" nowrap>&nbsp;<b>Action</b></td>
+       <td width="50%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b></td>
+       <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Search terms</b></td>
+       <td width="15%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>Action</b></td>
      </tr>
      {section name="i" loop=$list}
      {cycle values=$cycle assign="row_color"}
@@ -107,8 +107,8 @@
     Bookmarks
    <table border="0" width="100%" cellpadding="1" cellspacing="1">
      <tr>
-       <td width="50%" bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Title</b></td>
-       <td width="15%" bgcolor="{$cell_color}" class="default_white" nowrap>&nbsp;<b>Action</b></td>
+       <td width="50%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b></td>
+       <td width="15%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>Action</b></td>
      </tr>
      {section name="i" loop=$list}
      {cycle values=$cycle assign="row_color"}

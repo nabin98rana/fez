@@ -104,7 +104,7 @@ $tpl->assign("local_eserv_url", APP_RELATIVE_URL."eserv.php?pid=".$pid."&dsID=")
 			$controlled_vocabs = Controlled_Vocab::getAssocListAll();
 			$tpl->assign("details_array", $details);
 			foreach ($xsd_display_fields as $row) {
-				if ($row['xsdmf_html_input'] == "contvocab") {
+				if (($row['xsdmf_html_input'] == "contvocab") || ($row['xsdmf_html_input'] == "contvocab_selector")) {
 					if (!empty($details[$row['xsdmf_id']])) {
 						if (is_array($details[$row['xsdmf_id']])) {
 							foreach ($details[$row['xsdmf_id']] as $ckey => $cdata) {

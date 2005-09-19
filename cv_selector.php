@@ -35,77 +35,47 @@ include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "db_access.php");
+include_once(APP_INC_PATH . "class.controlled_vocab.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 
 $tpl = new Template_API();
-$tpl->setTemplate("popup.tpl.html");
+$tpl->setTemplate("cv_selector.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION, 'index.php?err=5', true);
 $usr_id = Auth::getUserID();
-$cat = @$HTTP_GET_VARS["cat"] ? @$HTTP_GET_VARS["cat"] : @$HTTP_POST_VARS["cat"];
-
-switch ($cat) 
-{
-    case 'purge_datastream':
-        {
-            if (!in_array($HTTP_GET_VARS["ds_id"], Misc::const_array(APP_FEDORA_PROTECTED_DATASTREAMS))) {
-                $ds_id = $HTTP_GET_VARS["ds_id"];
-                $pid = $HTTP_GET_VARS["pid"];		
-                $res = Fedora_API::callPurgeDatastream($pid, $ds_id);
-                Record::removeIndexRecordByValue($pid, $ds_id);
-                $thumbnail = "thumbnail_".str_replace(" ", "_", substr($ds_id, 0, strrpos($ds_id, "."))).".jpg";
-                if (Fedora_API::datastreamExists($pid, $thumbnail)) {
-                    Fedora_API::callPurgeDatastream($pid, $thumbnail);
-                    Record::removeIndexRecordByValue($pid, $thumbnail);
-                }
-                if (count($res) == 1) { $res = 1; } else { $res = -1; }
-            } else {
-                $res = -1;
-            }
-            $tpl->assign("purge_datastream_result", $res);
-            break;
-        }
-    case 'update_form':
-        {
-            $res = Record::update($HTTP_POST_VARS["pid"]);
-            $tpl->assign("update_form_result", $res);
-            break;
-        }
-    case 'purge_object':
-        {
-            // first delete all indexes about this pid
-            Record::removeIndexRecord($HTTP_GET_VARS["pid"]);
-            $res = Fedora_API::callPurgeObject($HTTP_GET_VARS["pid"]);
-             $tpl->assign("purge_object_result", $res);
-            break;
-        }
-    case 'new_workflow_triggers':
-        {
-            $tpl->assign("generic_result",WorkflowTrigger::insert());
-            $tpl->assign("generic_action",'add');
-            $tpl->assign("generic_type",'workflow trigger');
-            break;
-        }
-    case 'edit_workflow_triggers':
-        {
-            $tpl->assign("generic_result",WorkflowTrigger::update());
-            $tpl->assign("generic_action",'update');
-            $tpl->assign("generic_type",'workflow trigger');
-            break;
-        }
-    case 'delete_workflow_triggers':
-        {
-            $tpl->assign("generic_result",WorkflowTrigger::remove());
-            $tpl->assign("generic_action",'delete');
-            $tpl->assign("generic_type",'workflow trigger');
-            break;
-        }
-
-
+$cvo_id = @$HTTP_GET_VARS["cvo_id"] ? @$HTTP_GET_VARS["cvo_id"] : @$HTTP_POST_VARS["cvo_id"];
+$element = @$HTTP_GET_VARS["element"] ? @$HTTP_GET_VARS["element"] : @$HTTP_POST_VARS["element"];
+$form = @$HTTP_GET_VARS["form"] ? @$HTTP_GET_VARS["form"] : @$HTTP_POST_VARS["form"];
+// get one level of the selected cvo_id
+if (!is_numeric($cvo_id)) {
+	$cvo_id = $_GET['cv_fields'];
 }
+$cvo_details = Controlled_Vocab::getDetails($cvo_id);
 
+	$breadcrumb = Controlled_Vocab::getParentAssocListFullDisplay($cvo_id);
+	$breadcrumb = Misc::array_merge_preserve($breadcrumb, Controlled_Vocab::getAssocListByID($cvo_id));
 
+//	print_r(array_values($breadcrumb));
+	$newcrumb = array();
+	foreach ($breadcrumb as $key => $data) {
+		array_push($newcrumb, array("cvo_id" => $key, "cvo_title" => $data));
+	}
+//	print_r($newcrumb);
+//	if (count($newcrumb) > 0) {
+		$max_breadcrumb = (count($newcrumb) -1);
+//	} else {
+//		$max_breadcrumb = -1;
+//	}
 
+	$tpl->assign("max_subject_breadcrumb", $max_breadcrumb);
+	$tpl->assign("subject_breadcrumb", $newcrumb);
+
+$cvo_list = Controlled_Vocab::getAssocListFullDisplay($cvo_id, "", 0, 1);
+//print_r($cvo_list);
+$tpl->assign("cvo_details", $cvo_details);
+$tpl->assign("cvo_list", $cvo_list);
+$tpl->assign("form", $form);
+$tpl->assign("element", $element);
 $tpl->assign("current_user_prefs", Prefs::get($usr_id));
 
 $tpl->displayTemplate();

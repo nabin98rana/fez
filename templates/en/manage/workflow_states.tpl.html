@@ -186,7 +186,7 @@
               </tr>
               {/if}
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Name: </b>
                 </td>
                 <td bgcolor="{$light_color}" width="80%">
@@ -195,7 +195,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Description: </b>
                 </td>
                 <td bgcolor="{$light_color}" width="80%">
@@ -203,7 +203,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white" nowrap>
+                <td width="120" bgcolor="{$cell_color}" class="default" nowrap>
                   <b>Options:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -216,7 +216,7 @@
                 </td>
               </tr>  
               <tr id="tr_wfs_wfb_id">
-                <td width="120" bgcolor="{$cell_color}" class="default_white" nowrap>
+                <td width="120" bgcolor="{$cell_color}" class="default" nowrap>
                   <b>Select Scripted Behaviour:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -230,7 +230,7 @@
               showOrHideElement('tr_wfs_wfb_id','wfs_auto'); 
               //--></script>
                <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white" nowrap>
+                <td width="120" bgcolor="{$cell_color}" class="default" nowrap>
                   <b>Assigned Roles:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -241,7 +241,7 @@
               </tr>
  
                <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white" nowrap>
+                <td width="120" bgcolor="{$cell_color}" class="default" nowrap>
                   <b>Linked States:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -297,12 +297,12 @@
                     <input type="hidden" name="wfl_id" value="{$wfl_id}">
                     <tr>
                       <td width="4" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Name</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Assigned Role</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Auto</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Start</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>End</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Scripted Behaviour</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Name</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Assigned Role</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Auto</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Start</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>End</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Scripted Behaviour</b>&nbsp;</td>
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
@@ -342,7 +342,7 @@
                       <td align="center" bgcolor="{$cell_color}">
                         <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
                       </td>
-                      <td colspan="5" bgcolor="{$cell_color}">
+                      <td colspan="6" bgcolor="{$cell_color}">
                         <input type="submit" value="Delete" class="button">
                       </td>
                     </tr>

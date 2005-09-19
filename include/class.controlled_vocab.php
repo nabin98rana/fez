@@ -58,12 +58,26 @@ class Controlled_Vocab
     function remove()
     {
         global $HTTP_POST_VARS;
+		// first delete all children
+		// get all immediate children
 
-        $items = @implode(", ", $HTTP_POST_VARS["items"]);
+
+        $items = $HTTP_POST_VARS["items"];
+		if (!is_array($items)) { return false; }
+		$all_items = $items;
+		foreach ($items as $item) {
+			$child_items = Controlled_Vocab::getAllTreeIDs($item);
+			if (is_array($child_items)) {
+				$all_items = array_merge($all_items, $child_items);
+			}
+		}
+        $all_items = ltrim(Controlled_Vocab::implode_r(", ", $all_items), ", ");
         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
                  WHERE
-                    cvo_id IN ($items)";
+                    cvo_id IN ($all_items)";
+		Controlled_Vocab::deleteRelationship($all_items);
+//		echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -72,7 +86,32 @@ class Controlled_Vocab
 		  return true;
         }
     }
+	function implode_r ($glue, $pieces){
+		$out = "";
+		foreach ($pieces as $piece) {
+			if (is_array ($piece)) {
+				$out .= Controlled_Vocab::implode_r($glue, $piece); // recurse
+			} else {
+				$out .= $glue.$piece;
+			}
+		}	 
+		return $out;
+	}
+	function deleteRelationship($items) {
+        $stmt = "DELETE FROM 
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab_relationship
+                 WHERE
+                    cvr_parent_cvo_id IN ($items) OR cvr_child_cvo_id IN ($items)";
 
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return false;
+        } else {
+		  return true;
+        }
+	
+	}
 
     /**
      * Method used to add a new controlled vocabulary to the system.
@@ -243,8 +282,9 @@ class Controlled_Vocab
      * @access  public
      * @return  array The list of controlled vocabularies in an associative array (for drop down lists).
      */
-    function getAssocListByID($id)
+    function getAssocListByID($id)	
     {
+	// used by the xsd match forms
         $stmt = "SELECT
                     cvo_id,
 					cvo_title
@@ -327,8 +367,15 @@ class Controlled_Vocab
      * @access  public
      * @return  array The list of controlled vocabularies 
      */
-    function getAssocListFullDisplay($parent_id=false, $indent="")
+    function getAssocListFullDisplay($parent_id=false, $indent="", $level=0, $level_limit=false)
     {
+	
+		if (is_numeric($level_limit)) {
+			if ($level == $level_limit) {
+				return array();
+			}
+		}
+		$level++;
         $stmt = "SELECT
                     cvo_id,
 					concat('".$indent."',cvo_title) as cvo_title
@@ -362,7 +409,7 @@ class Controlled_Vocab
 					if ($parent_id != false) {
 						$newArray[$key] = $data;
 					}
-					$tempArray = Controlled_Vocab::getAssocListFullDisplay($key, $indent);					
+					$tempArray = Controlled_Vocab::getAssocListFullDisplay($key, $indent, $level, $level_limit);					
 					if (count($tempArray) > 0) {
 						if ($parent_id == false) {
 							$newArray['data'][$key] = Misc::array_merge_preserve($newArray[$key], $tempArray);
@@ -377,6 +424,7 @@ class Controlled_Vocab
             }
         }
     }
+
 
 
     /**

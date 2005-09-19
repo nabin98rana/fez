@@ -106,7 +106,7 @@ class Search_Key
 				}
 		$stmt .= "
 					sek_html_input,
-					sek_espace_variable,
+					sek_fez_variable,
 					sek_smarty_variable ";
 				if (is_numeric($HTTP_POST_VARS["sek_cvo_id"])) {
 					$stmt .= " ,sek_cvo_id ";
@@ -121,7 +121,7 @@ class Search_Key
 					}
 					$stmt .= "
                     '" . Misc::escapeString($HTTP_POST_VARS["field_type"]) . "',					
-                    '" . Misc::escapeString($HTTP_POST_VARS["sek_espace_variable"]) . "',					
+                    '" . Misc::escapeString($HTTP_POST_VARS["sek_fez_variable"]) . "',					
                     '" . Misc::escapeString($HTTP_POST_VARS["sek_smarty_variable"]) . "'";
 					if (is_numeric($HTTP_POST_VARS["sek_cvo_id"])) {
 	                    $stmt .=  "," . $HTTP_POST_VARS["sek_cvo_id"];
@@ -171,7 +171,7 @@ class Search_Key
 					$stmt .= "
                     sek_html_input = '" . Misc::escapeString($HTTP_POST_VARS["field_type"]) . "',
                     sek_smarty_variable = '" . Misc::escapeString($HTTP_POST_VARS["sek_smarty_variable"]) . "',
-                    sek_espace_variable = '" . Misc::escapeString($HTTP_POST_VARS["sek_espace_variable"]) . "'";
+                    sek_fez_variable = '" . Misc::escapeString($HTTP_POST_VARS["sek_fez_variable"]) . "'";
 					if (is_numeric($HTTP_POST_VARS["sek_cvo_id"])) {
 						$stmt .= ",sek_cvo_id = ".$HTTP_POST_VARS["sek_cvo_id"];
 					}

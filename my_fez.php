@@ -10,7 +10,7 @@ include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.collection.php");
 
 $tpl = new Template_API();
-$tpl->setTemplate("my_espace.tpl.html");
+$tpl->setTemplate("my_fez.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION);
 $username = Auth::getUsername();

@@ -97,23 +97,24 @@ function calendarCallback_closed(day, month, year) { selectDateField('closed_dat
 function calendarCallback_closed_end(day, month, year) { selectDateField('closed_date_end', day, month, year); }
 function validateForm(f)
 {
-    // need to hack this value in the query string so the saved search options don't override this one
-    if (!f.hide_closed.checked) {
-        var field = getFormElement(f, 'hidden1');
-        field.name = 'hide_closed';
-        field.value = '0';
+{/literal}
+{section name="i" loop=$list}
+{if $list[i].sek_html_input == 'allcontvocab'}
+{section name="z" loop=$list[i].field_options}
+{assign var="loop_num" value=$list[i].cv_ids[z]}
+
+{literal}
+//selectAllOptions(document.report_form, 'xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_1');
+	var field = document.custom_filter_form.list_{/literal}{$list[i].sek_id}_{$loop_num}{literal};
+    for (var y = 0; y < field.options.length; y++) {
+        field.options[y].selected = true;
     }
-    if (!f.show_authorized_issues.checked) {
-        var field = getFormElement(f, 'hidden2');
-        field.name = 'show_authorized_issues';
-        field.value = '';
-    }
-    if (!f.show_notification_list_issues.checked) {
-        var field = getFormElement(f, 'hidden3');
-        field.name = 'show_notification_list_issues';
-        field.value = '';
-    }
-    return true;
+{/literal}
+{/section}
+{/if}
+{/section}
+{literal}
+
 }
 //-->
 </script>
@@ -124,13 +125,10 @@ function validateForm(f)
       
     </td>
     <td>
-      <table bgcolor="#FFFFFF" width="100%" border="0" cellspacing="0" cellpadding="2">
+      <table bgcolor="#FFFFFF" width="100%" border="0" cellspacing="0" cellpadding="1">
         <tr>
-          <td bgcolor="{$light_color}" class="default">
+          <td {$shaded_bar} class="default" colspan="2" height="22">
             <b>Advanced Search</b>
-          </td>
-          <td bgcolor="{$light_color}" align="right">
-            {include file="help_link.tpl.html" topic="adv_search"}
           </td>
         </tr>
         <form name="custom_filter_form" method="get" action="list.php" onSubmit="javascript:return validateForm(this);">
@@ -144,7 +142,7 @@ function validateForm(f)
 					{section name="z" loop=$list[i].multiple_array}
 						{assign var="loop_num" value=$list[i].multiple_array[z]}
 						<tr id="tr_list_{$list[i].sek_id}_{$loop_num}" {if $loop_num != 1}style="display:none"{/if}>
-						  <td width="150" bgcolor="{$cell_color}" class="default_white">
+						  <td width="150" bgcolor="{$cell_color}" class="default">
 							<b>{$list[i].sek_title} {$loop_num}</b><br />{if $loop_num == 1}<i>(More {$list[i].sek_title} input boxes will appears as they are used up)</i>{/if}
 						  </td>
 						  <td bgcolor="{$light_color}">
@@ -154,7 +152,7 @@ function validateForm(f)
 					{/section}
 				{else}
 						<tr id="tr_list_{$list[i].sek_id}_1">
-						  <td width="150" bgcolor="{$cell_color}" class="default_white">
+						  <td width="150" bgcolor="{$cell_color}" class="default">
 							<b>{$list[i].sek_title}</b>
 						  </td>
 						  <td bgcolor="{$light_color}">
@@ -167,7 +165,7 @@ function validateForm(f)
 					{section name="z" loop=$list[i].multiple_array}
 						{assign var="loop_num" value=$list[i].multiple_array[z]}
 						<tr id="tr_list_{$list[i].sek_id}_{$loop_num}" {if $loop_num != 1}style="display:none"{/if}>
-						  <td width="150" bgcolor="{$cell_color}" class="default_white">
+						  <td width="150" bgcolor="{$cell_color}" class="default">
 							<b>{$list[i].sek_title} {$loop_num}</b><br />{if $loop_num == 1}<i>(More {$list[i].sek_title} input boxes will appears as they are used up)</i>{/if}
 						  </td>
 						  <td bgcolor="{$light_color}">
@@ -180,7 +178,7 @@ function validateForm(f)
 					{/section}
 				{else}
 						<tr id="tr_list_{$list[i].sek_id}_1">
-						  <td width="150" bgcolor="{$cell_color}" class="default_white">
+						  <td width="150" bgcolor="{$cell_color}" class="default">
 							<b>{$list[i].sek_title}</b>
 						  </td>
 						  <td bgcolor="{$light_color}">
@@ -193,18 +191,19 @@ function validateForm(f)
 				{/if}
             {elseif $list[i].sek_html_input == 'allcontvocab'}
 					{section name="z" loop=$list[i].field_options}
-					{assign var="loop_num" value=$list[i].field_options[z]}
+					{assign var="loop_num" value=$list[i].cv_ids[z]}
 					<tr id="tr_list_{$list[i].sek_id}_{$loop_num}" valign="top">
-					  <td width="150" bgcolor="{$cell_color}" class="default_white">
+					  <td width="150" bgcolor="{$cell_color}" class="default">
 						<b>{$list[i].sek_title}</b><br />{$list[i].cv_titles[z]}
 					  </td>
 					  <td bgcolor="{$light_color}">
 						<select id="list_{$list[i].sek_id}_{$loop_num}" multiple size="15" class="default" name="list[{$list[i].sek_id}]{if $list[i].sek_html_input == 'multiple'}[]{/if}">
-							  {html_options options=$list[i].field_options[z]}
 						</select>
+						<input class="default" type=button value="Add Subject" onclick = "javascript:small_window('cv_selector.php?cvo_id={$list[i].cv_ids[z]}&form=custom_filter_form&element=list_{$list[i].sek_id}_{$loop_num}');">
+						<input class="default" type=button value="Remove Subject" onclick =" javascript:deleteSelectedItemsFromList(list_{$list[i].sek_id}_{$loop_num});">
 					 </td>
 					</tr>
-				  {/section}
+				  {/section}				  
 		{/if}
 	</table>
 		</td></tr>

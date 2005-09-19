@@ -214,7 +214,7 @@
               </tr>
               {/if}
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Title:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -223,7 +223,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Use in Simple Search?:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -232,7 +232,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Show in Advanced Search Form?:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -241,7 +241,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Display Order:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -249,7 +249,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Multiple?:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -258,7 +258,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Multiple Limit:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -267,7 +267,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Field Type:</b>
                 </td>
                 <td bgcolor="{$light_color}" class="default">
@@ -310,7 +310,7 @@
 
                   {assign var="show_field_options" value=true}
               <tr id="controlled_vocab_tr"  {if $info.sek_html_input != 'contvocab'}style="display:none"{/if} >
-                 <td width="120" bgcolor="{$cell_color}" class="default_white"><b>Controlled Vocabulary:</b></td>
+                 <td width="120" bgcolor="{$cell_color}" class="default"><b>Controlled Vocabulary:</b></td>
  				<td bgcolor="{$light_color}">
 					<select class="default" name="sek_cvo_id">
 					  {html_options options=$controlled_vocab_list}
@@ -318,13 +318,13 @@
 			  	</td>
 		     </tr>
               <tr id="smarty_variable_tr"  {$selectingfield_only} >
-                 <td width="120" bgcolor="{$cell_color}" class="default_white"><b>Dynamic Variable:</b</td>
+                 <td width="120" bgcolor="{$cell_color}" class="default"><b>Dynamic Variable:</b></td>
  				<td bgcolor="{$light_color}">
 					<input class="default" type="text" name="sek_smarty_variable" size="26" value="{$info.sek_smarty_variable}">
 			  	</td>
 		     </tr>
 			 <tr id="sek_espace_variable_tr" {if $info.sek_html_input != 'static' && !$selectingfield}style="display:none"{/if}>
-                 <td width="120" bgcolor="{$cell_color}" class="default_white"><b>eSpace Variable:</b><i>(If an eSpace variable is set it will be used instead of any other options including smarty template variables)</i></td>
+                 <td width="120" bgcolor="{$cell_color}" class="default"><b>eSpace Variable:</b><i>(If an eSpace variable is set it will be used instead of any other options including smarty template variables)</i></td>
 				<td class="default" bgcolor="{$light_color}"><br /><b>OR use one of these eSpace variables: </b> <br />
 					<INPUT TYPE=RADIO NAME="sek_espace_variable" VALUE="none" {if ($info.sek_espace_variable == "" || $info.sek_espace_variable == "none")}checked{/if}/>None<BR>
 					<INPUT TYPE=RADIO NAME="sek_espace_variable" VALUE="pid" {if $info.sek_espace_variable == "pid"}checked{/if}/>Pid (for new records it will get the new Pid and then create this parent datastream)<BR>
@@ -375,13 +375,13 @@
                     <input type="hidden" name="cat" value="delete">
                     <tr>
                       <td width="5" bgcolor="{$cell_color}" align="center" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Title</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>In Simple Search?</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>On Adv Search Page?</b>&nbsp;</td>					  					  
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Multiple?</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Multiple Limit</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Field Type</b>&nbsp;</td>					  
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Order</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>In Simple Search?</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>On Adv Search Page?</b>&nbsp;</td>					  					  
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Multiple?</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Multiple Limit</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Field Type</b>&nbsp;</td>					  
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Order</b>&nbsp;</td>
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}

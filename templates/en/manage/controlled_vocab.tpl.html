@@ -171,7 +171,7 @@
               </tr>
               {/if}
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Title:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -180,7 +180,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Description:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -189,7 +189,7 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default_white">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Image Filename:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -238,10 +238,10 @@
                     <input type="hidden" name="cat" value="delete">
                     <tr>
                       <td width="5" bgcolor="{$cell_color}" align="center" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Title</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Desc</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Image Filename</b>&nbsp;</td>					  
-                      <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Edit Children</b>&nbsp;</td>  
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Desc</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Image Filename</b>&nbsp;</td>					  
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Edit Children</b>&nbsp;</td>  
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}

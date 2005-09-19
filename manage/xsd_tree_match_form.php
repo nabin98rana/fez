@@ -137,7 +137,7 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 		$tpl->assign("xsdsel_title", "N/A");
 	}	
 
-	if (count($parent_subelement_loops) > 0) {	
+	if ((count($parent_subelement_loops) > 0) && is_numeric($xsdsel_id)) {	
 	// It does have parents so 
 		$info_array = XSD_HTML_Match::getDetailsSubelement($xdis_id, $xml_element, $xsdsel_id);
 	} else {
