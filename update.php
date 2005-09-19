@@ -89,7 +89,7 @@ if (!empty($community_pid)) {
 $pid = $record_id;
 //if ($role_id == User::getRoleID('standard user') || ($role_id == User::getRoleID('administrator')) || ($role_id == User::getRoleID('manager'))) {
 $tpl->assign("pid", $pid);
-$xdis_array = Fedora_API::callGetDatastreamContentsField ($pid, 'eSpaceMD', array('xdis_id'));
+$xdis_array = Fedora_API::callGetDatastreamContentsField ($pid, 'FezMD', array('xdis_id'));
 $xdis_id = $xdis_array['xdis_id'][0];
 $xdis_list = XSD_Display::getAssocListDocTypes(); // @@@ CK - 24/8/05 added for collections to be able to select their child document types/xdisplays
 $tpl->assign("pid", $pid);
@@ -209,7 +209,7 @@ $parents = Record::getParents($pid);
 $tpl->assign("parents", $parents);
 
 $tpl->assign("datastreams", $datastreams);
-$tpl->assign("espace_root_dir", APP_PATH);
+$tpl->assign("fez_root_dir", APP_PATH);
 $tpl->assign("eserv_url", APP_BASE_URL."eserv.php?pid=".$pid."&dsID=");
 $tpl->assign("local_eserv_url", APP_RELATIVE_URL."eserv.php?pid=".$pid."&dsID=");
 

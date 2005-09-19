@@ -9,7 +9,7 @@ function at the bottom of this page that can be used with any of the SOAP
 Fedora API functions.
 
 Written by Elly Cramer 2004 - elly@cs.cornell.edu
-Modifiend into PHP 5 Class form for eSpace by Christiaan Kortekaas 2005 - c.kortekaas@library.uq.edu.au
+Modifiend into PHP 5 Class form for Fez by Christiaan Kortekaas 2005 - c.kortekaas@library.uq.edu.au
 */
 //global vars for baseURL, xsl_path, and fedora are set in cms.inc
 // which is included in top.php
@@ -290,7 +290,7 @@ function getITQLQuery($itql, $returnfields) {
 function getListByTypeObjectsXMLAssoc($type) {
 //    $username = 'example_username';
 	$searchPhrase = "";
-	// Type contains eSpace_Collection
+	// Type contains Fez_Collection
 	$searchPhrase = "query=type~".$type;
     $returnfields = array();
     array_push($returnfields, "pid");
@@ -323,7 +323,7 @@ function getListByTypeObjectsXMLAssoc($type) {
 function getListByTypeObjectsXML($type) {
 //    $username = 'example_username';
 	$searchPhrase = "";
-	// Type contains eSpace_Collection
+	// Type contains Fez_Collection
 	$searchPhrase = "query=type~".$type;
     $returnfields = array();
     array_push($returnfields, "pid");
@@ -467,7 +467,7 @@ function callPurgeObject($pid) {
    ********************************************/
 //   global $_REQUEST, $baseURL;
    //purgeObject(PID, logmessage)
-   $logmsg = 'Fedora Object Purged using eSpace';
+   $logmsg = 'Fedora Object Purged using Fez';
    $parms=array('PID' => $pid, 'logMessage' => $logmsg, 'force' => false);
    Fedora_API::openSoapCall('purgeObject', $parms);
    //return to index with pid status.
@@ -512,7 +512,7 @@ function getUploadLocation ($pid, $dsIDName, $file, $dsLabel, $mimetype='text/xm
 			fclose($fp);
 	//	}	
 	   //Send multipart/form-data via curl
-	//   $ch = curl_init("http://dev-espace.library.uq.edu.au/list.php");
+	//   $ch = curl_init("http://dev-fez.library.uq.edu.au/list.php");
 	   $ch = curl_init(APP_FEDORA_UPLOAD_URL);
 	   curl_setopt($ch, CURLOPT_VERBOSE, 1);
 	   curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -620,11 +620,11 @@ function callAddXMLDatastream ($pid, $dsID, $dsContent, $dsLabel, $dsState, $mim
 //    $parms=array('PID' => $pid, 'dsLabel' => $dsLabel, 'MIMEType' => $mimetype, 'formatURI' => 'unknown', new soapval("dsContent","base64Binary",$dsContent), 'controlGroup' => $controlGroup, 'dsState' => $dsState);
 
 //   $parms=array('PID' => $pid, 'dsLabel' => $dsLabel, 'versionable' => true, 'MIMEType' => $mimetype, 'formatURI' => 'unknown', 'dsLocation' => 'http://eprint.uq.edu.au/perl/oai2/?verb=Identify', 'controlGroup' => $controlGroup, 'dsState' => $dsState);
-//   $parms=array('pid' => $pid, 'dsID' => 'eSpaceMD',   'dsState' => $dsState, 'MIMEType' => 'image/jpeg', 'controlGroup' => $controlGroup, 'logMessage' => 'test add of datatstream', 'logMessage' => 'test add of datatstream', 'dsLocation' => 'http://dev-espace.library.uq.edu.au/images/2003/uq_logo.gif');
+//   $parms=array('pid' => $pid, 'dsID' => 'FezMD',   'dsState' => $dsState, 'MIMEType' => 'image/jpeg', 'controlGroup' => $controlGroup, 'logMessage' => 'test add of datatstream', 'logMessage' => 'test add of datatstream', 'dsLocation' => 'http://dev-espace.library.uq.edu.au/images/2003/uq_logo.gif');
 //   $parms=array('pid' => $pid, 'altIDs' => array(), 'dsID' => $dsIDName, 'dsLabel' => $dsLabel, 'versionable' => true, 'MIMEType' => $mimetype, 'formatURI' => 'unknown', new soapval('location', 'string', $uploadLocation), 'controlGroup' => $controlGroup, 'dsState' => 'A', 'logMessage' => 'test add of datatstream');
 //   $parms=array('pid' => $pid, 'dsLabel' => $dsLabel, new soapval('versionable', 'boolean', 'TRUE'), 'MIMEType' => $mimetype, 'formatURI' => 'unknown', 'dsLocation' => 'http://eprint.uq.edu.au/perl/oai2/?verb=Identify', 'controlGroup' => $controlGroup, 'dsState' => $dsState);
 //   $parms=array('pid' => $pid, 'dsLabel' => $dsLabel, new soapval('versionable', 'boolean', 'TRUE'), 'MIMEType' => $mimetype, 'controlGroup' => $controlGroup, 'dsState' => $dsState);
-   $parms=array('PID' => $pid, 'altIDs' => array(), 'dsID' => $dsID, 'dsLabel' => $dsLabel, 'versionable' => true,  'MIMEType' => $mimetype, 'formatURI' => 'unknown', 'dsLocation' => APP_FEDORA_GET_URL."/".$pid."/".$dsID, 'controlGroup' => $controlGroup, 'dsState' => $dsState, 'logMessage' => 'Added new datastream from eSpace');
+   $parms=array('PID' => $pid, 'altIDs' => array(), 'dsID' => $dsID, 'dsLabel' => $dsLabel, 'versionable' => true,  'MIMEType' => $mimetype, 'formatURI' => 'unknown', 'dsLocation' => APP_FEDORA_GET_URL."/".$pid."/".$dsID, 'controlGroup' => $controlGroup, 'dsState' => $dsState, 'logMessage' => 'Added new datastream from Fez');
 //	echo "add xml ds params -> ";
 //	print_r($parms);
    //Call addDatastream
@@ -650,7 +650,7 @@ function callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsLabel, $mime
    ********************************************/
 //   global $_REQUEST;
 //new soapval('dsLocation', 'string', $uploadLocation)
-   $parms=array('PID' => $pid, 'dsID' => $dsIDName, 'altIDs' => array(), 'dsLabel' => $dsLabel, 'versionable' => true, 'MIMEType' => $mimetype, 'formatURI' => 'unknown', 'dsLocation' => $uploadLocation, 'controlGroup' => $controlGroup, 'dsState' => 'A', 'logMessage' => 'Added new datastream from eSpace');
+   $parms=array('PID' => $pid, 'dsID' => $dsIDName, 'altIDs' => array(), 'dsLabel' => $dsLabel, 'versionable' => true, 'MIMEType' => $mimetype, 'formatURI' => 'unknown', 'dsLocation' => $uploadLocation, 'controlGroup' => $controlGroup, 'dsState' => 'A', 'logMessage' => 'Added new datastream from Fez');
 
 
 //   echo "callCreateDS params -> ";
@@ -806,7 +806,7 @@ function callModifyDatastreamByValue ($pid, $dsID, $state, $label, $dsContent, $
 //   $dsContent = base64_encode($dsContent);
 
 //   $dsContent = urlencode(trim($dsContent));
-   $logmsg = 'Modifying datastream from eSpace';
+   $logmsg = 'Modifying datastream from Fez';
 
 	if (empty($versionable)) {
 		$versionable = true;
@@ -841,7 +841,7 @@ function callModifyDatastreamByReference ($pid, $dsID, $dsLabel, $dsLocation=NUL
    Fedora_API::openSoapCall('modifyDatastreamByReference', $parms);
 }
 
-function callPurgeDatastream ($pid, $dsID, $endDT=NULL, $logMessage="Purged Datastream from eSpace", $force=false) {
+function callPurgeDatastream ($pid, $dsID, $endDT=NULL, $logMessage="Purged Datastream from Fez", $force=false) {
    /********************************************
    * This function deletes a datastream
    ********************************************/

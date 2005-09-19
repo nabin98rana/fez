@@ -1213,14 +1213,14 @@ function dom_xml_to_simple_array($domnode, &$array, $top_element_name, $element_
 				// If we still havent got the xsdmf_id then it either doesnt have one or the element doesnt have attributes, so try to find it without the attributes
 
 				if ((is_numeric(strpos(substr($parentContent, 0, 1), "!"))) || ($parentContent == "")) {
-					// @@@ CK - 25/8/2005 - unless it is the below with the parent content, espaceACML doesnt show properley because it needs the !role!rule etc
-					// so any changes to this need to be tested with the espaceACML etc
+					// @@@ CK - 25/8/2005 - unless it is the below with the parent content, FezACML doesnt show properley because it needs the !role!rule etc
+					// so any changes to this need to be tested with the FezACML etc
 					$new_element = $parentContent."!".$clean_nodeName; // @@@ CK 31/5/2005 - Added ! to the front of the string if not there already
 //					$new_element = "!".$clean_nodeName; // @@@ CK 8/8/2005 - Changed to this because batch import was not working
 				} else {
 				
-					// @@@ CK - 25/8/2005 - unless it is the below with the parent content, espaceACML doesnt show properley because it needs the !role!rule etc
-					// so any changes to this need to be tested with the espaceACML etc
+					// @@@ CK - 25/8/2005 - unless it is the below with the parent content, FezACML doesnt show properley because it needs the !role!rule etc
+					// so any changes to this need to be tested with the FezACML etc
 					$new_element = "!".$parentContent."!".$clean_nodeName; // @@@ CK 31/5/2005 - Added ! to the front of the string
 //					$new_element = "!".$clean_nodeName; // @@@ CK 8/8/2005 - Changed to this because batch import was not working
 				}
@@ -1418,7 +1418,7 @@ function dom_xsd_to_simple_array($domnode, &$array, $parentContent="") {
 		   $array_ptr = &$array[$domnode->nodeName.$tmp];
 //		   &$array[$domnode->nodeName.$tmp] = 'hippo';
 			if (!( $domnode->hasChildNodes() )) {
-			   $array_ptr['espace_hyperlink'] = $parentContent."!".$domnode->nodeName.str_replace(" ", "^", $tmp);
+			   $array_ptr['fez_hyperlink'] = $parentContent."!".$domnode->nodeName.str_replace(" ", "^", $tmp);
 			}
 //		   $array_ptr = &$array;
 //		   $array_ptr[$parentContent] = "test";
@@ -1707,11 +1707,11 @@ function dom_xsd_to_referenced_array($domnode, $topelement, &$array, $parentnode
 						}
 						if ($current_name <> $parentnodename) {
 							$array_ptr = &$array[$current_name];
-							$array_ptr['espace_hyperlink'] = $parentContent;
+							$array_ptr['fez_hyperlink'] = $parentContent;
 							if ($shortnodename == 'attribute') {
-								$array_ptr['espace_nodetype'] = 'attribute';
+								$array_ptr['fez_nodetype'] = 'attribute';
 							} elseif ($shortnodename == 'enumeration') {
-								$array_ptr['espace_nodetype'] = 'enumeration';
+								$array_ptr['fez_nodetype'] = 'enumeration';
 							}
 						}
 
@@ -1765,7 +1765,7 @@ function dom_xsd_to_referenced_array($domnode, $topelement, &$array, $parentnode
 					if (($current_name != $supertopelement) && ($current_name != "")) {
 						$array_ptr = &$array[$current_name];
 						$parentContent .= "!".$current_name;
-					    $array_ptr['espace_hyperlink'] = $parentContent;
+					    $array_ptr['fez_hyperlink'] = $parentContent;
 					}
 				}
 
@@ -1833,7 +1833,7 @@ function dom_xsd_to_referenced_array($domnode, $topelement, &$array, $parentnode
 					if (($current_name != $supertopelement) && ($current_name != "")) {					
 						$array_ptr = &$array[$current_name];
 						$parentContent .= "!".$current_name;
-						$array_ptr['espace_hyperlink'] = $parentContent;
+						$array_ptr['fez_hyperlink'] = $parentContent;
 					}
 				}
 			}
@@ -1976,14 +1976,14 @@ function getSchemaSubAttributes($a, $top_element_name, $xdis_id, $pid) {
 	$res = "";
 	foreach ($a[$top_element_name] as $i => $j) {
 		if (is_array($j)) {
-			if (!empty($j['espace_nodetype'])) {
-				if ($j['espace_nodetype'] == 'attribute') {
-					$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement(urldecode($j['espace_hyperlink']), $xdis_id);					
+			if (!empty($j['fez_nodetype'])) {
+				if ($j['fez_nodetype'] == 'attribute') {
+					$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement(urldecode($j['fez_hyperlink']), $xdis_id);					
 					if (is_numeric($xsdmf_id)) {
 						$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
-						if ($xsdmf_details['xsdmf_espace_variable'] == "pid") {
+						if ($xsdmf_details['xsdmf_fez_variable'] == "pid") {
 							$res .= ' '.$i.'="'.$pid.'"';
-						} elseif ($xsdmf_details['xsdmf_espace_variable'] == "xdis_id") {
+						} elseif ($xsdmf_details['xsdmf_fez_variable'] == "xdis_id") {
 							$res .= ' '.$i.'="'.$top_xdis_id.'"';
 						} else {
 							$res .= ' '.$i.'="'.$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id].'"';
@@ -2020,17 +2020,17 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 	foreach ($a as $i => $j) {
 		if (is_array($j)) {
 			if ($sought_node_type == 'attributes') {
-				if ((!empty($j['espace_nodetype'])) && (!empty($j['espace_hyperlink']))) {
-					if ($j['espace_nodetype'] == 'attribute') {
+				if ((!empty($j['fez_nodetype'])) && (!empty($j['fez_hyperlink']))) {
+					if ($j['fez_nodetype'] == 'attribute') {
 						// get Post attribute value if it exists
-//						$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement(urldecode($j['espace_hyperlink']));
+//						$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement(urldecode($j['fez_hyperlink']));
 						if (is_numeric($parent_sel_id)) {
-							$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_ID(urldecode($j['espace_hyperlink']), $parent_sel_id, $xdis_id);
+							$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_ID(urldecode($j['fez_hyperlink']), $parent_sel_id, $xdis_id);
 						} else {
-							$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement(urldecode($j['espace_hyperlink']), $xdis_id);
+							$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement(urldecode($j['fez_hyperlink']), $xdis_id);
 						}
 
-//						echo (urldecode($j['espace_hyperlink']))."=".$xsdmf_id."<br />\n";
+//						echo (urldecode($j['fez_hyperlink']))."=".$xsdmf_id."<br />\n";
 						$attrib_value = "";
 
 						if (is_numeric($xsdmf_id)) { // only add the attribute if there is an xsdmf set against it
@@ -2207,19 +2207,19 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details_ref['xsdmf_id']]));
 								}
 							} elseif ($xsdmf_details['xsdmf_html_input'] == 'static') {
-								if ($xsdmf_details['xsdmf_espace_variable'] == "pid") {
+								if ($xsdmf_details['xsdmf_fez_variable'] == "pid") {
 									$attrib_value = $pid;
 									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $pid));
-								} elseif ($xsdmf_details['xsdmf_espace_variable'] == "created_date") {
+								} elseif ($xsdmf_details['xsdmf_fez_variable'] == "created_date") {
 									$attrib_value = $created_date;
 									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $created_date));
-								} elseif ($xsdmf_details['xsdmf_espace_variable'] == "updated_date") {
+								} elseif ($xsdmf_details['xsdmf_fez_variable'] == "updated_date") {
 									$attrib_value = $updated_date;
 									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $updated_date));
-								} elseif ($xsdmf_details['xsdmf_espace_variable'] == "file_downloads") {
+								} elseif ($xsdmf_details['xsdmf_fez_variable'] == "file_downloads") {
 									$attrib_value = $file_downloads;
 									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $file_downloads));
-								} elseif ($xsdmf_details['xsdmf_espace_variable'] == "xdis_id") {
+								} elseif ($xsdmf_details['xsdmf_fez_variable'] == "xdis_id") {
 									$attrib_value = $top_xdis_id;
 									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $top_xdis_id));
 								} else {
@@ -2260,19 +2260,19 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 										}
 									}
 								} else {
-									if ($xsdmf_details['xsdmf_espace_variable'] == "pid") {
+									if ($xsdmf_details['xsdmf_fez_variable'] == "pid") {
 										$attrib_value = $xsdmf_details['xsdmf_value_prefix'] . $pid;
 										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_details['xsdmf_value_prefix'] . $pid));									
-									} elseif ($xsdmf_details['xsdmf_espace_variable'] == "created_date") {
+									} elseif ($xsdmf_details['xsdmf_fez_variable'] == "created_date") {
 										$attrib_value = $created_date;
 										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $created_date));
-									} elseif ($xsdmf_details['xsdmf_espace_variable'] == "updated_date") {
+									} elseif ($xsdmf_details['xsdmf_fez_variable'] == "updated_date") {
 										$attrib_value = $updated_date;
 										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $updated_date));
-									} elseif ($xsdmf_details['xsdmf_espace_variable'] == "file_downloads") {
+									} elseif ($xsdmf_details['xsdmf_fez_variable'] == "file_downloads") {
 										$attrib_value = $xsdmf_details['xsdmf_value_prefix'] . $file_downloads;
 										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $file_downloads));
-									} elseif ($xsdmf_details['xsdmf_espace_variable'] == "xdis_id") {
+									} elseif ($xsdmf_details['xsdmf_fez_variable'] == "xdis_id") {
 										$attrib_value = $xsdmf_details['xsdmf_value_prefix'] . $top_xdis_id;
 										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_details['xsdmf_value_prefix'] . $top_xdis_id));
 									} else {
@@ -2281,19 +2281,19 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 									}
 								}
 							} else {
-									if ($xsdmf_details['xsdmf_espace_variable'] == "pid") {
+									if ($xsdmf_details['xsdmf_fez_variable'] == "pid") {
 										$attrib_value = $xsdmf_details['xsdmf_value_prefix'] . $pid;
 										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_details['xsdmf_value_prefix'] . $pid));									
-									} elseif ($xsdmf_details['xsdmf_espace_variable'] == "created_date") {
+									} elseif ($xsdmf_details['xsdmf_fez_variable'] == "created_date") {
 										$attrib_value = $created_date;
 										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $created_date));
-									} elseif ($xsdmf_details['xsdmf_espace_variable'] == "updated_date") {
+									} elseif ($xsdmf_details['xsdmf_fez_variable'] == "updated_date") {
 										$attrib_value = $updated_date;
 										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $updated_date));
-									} elseif ($xsdmf_details['xsdmf_espace_variable'] == "file_downloads") {
+									} elseif ($xsdmf_details['xsdmf_fez_variable'] == "file_downloads") {
 										$attrib_value = $xsdmf_details['xsdmf_value_prefix'] . $file_downloads;
 										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $file_downloads));
-									} elseif ($xsdmf_details['xsdmf_espace_variable'] == "xdis_id") {
+									} elseif ($xsdmf_details['xsdmf_fez_variable'] == "xdis_id") {
 										$attrib_value = $xsdmf_details['xsdmf_value_prefix'] . $top_xdis_id;
 										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_details['xsdmf_value_prefix'] . $top_xdis_id));									
 									} else {
@@ -2309,13 +2309,13 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 						}
 					}
 				}
-			} elseif (!empty($j['espace_hyperlink'])) {
-				if (!isset($j['espace_nodetype']) || $j['espace_nodetype'] != 'attribute') {
-//					echo $j['espace_hyperlink']."<br />";
+			} elseif (!empty($j['fez_hyperlink'])) {
+				if (!isset($j['fez_nodetype']) || $j['fez_nodetype'] != 'attribute') {
+//					echo $j['fez_hyperlink']."<br />";
 					if (is_numeric($parent_sel_id)) { //echo "WAF";
-						$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_ID(urldecode($j['espace_hyperlink']), $parent_sel_id, $xdis_id);
+						$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_ID(urldecode($j['fez_hyperlink']), $parent_sel_id, $xdis_id);
 					} else { //echo "KAF";
-						$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement(urldecode($j['espace_hyperlink']), $xdis_id);
+						$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement(urldecode($j['fez_hyperlink']), $xdis_id);
 					}
 //					echo $xsdmf_id." <- ";
 					if (is_numeric($xsdmf_id)) { // if the xsdmf_id exists - then this is the only time we want to add to the xml instance object for non attributes
@@ -2555,19 +2555,19 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 							}
 						}
 					} elseif ($xsdmf_details['xsdmf_html_input'] == 'static') {
-						if ($xsdmf_details['xsdmf_espace_variable'] == "pid") {
+						if ($xsdmf_details['xsdmf_fez_variable'] == "pid") {
 							$attrib_value = $pid;
 							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $pid));													
-						} elseif ($xsdmf_details['xsdmf_espace_variable'] == "created_date") {
+						} elseif ($xsdmf_details['xsdmf_fez_variable'] == "created_date") {
 							$attrib_value = $created_date;
 							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $created_date));
-						} elseif ($xsdmf_details['xsdmf_espace_variable'] == "updated_date") {
+						} elseif ($xsdmf_details['xsdmf_fez_variable'] == "updated_date") {
 							$attrib_value = $updated_date;
 							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $updated_date));
-						} elseif ($xsdmf_details['xsdmf_espace_variable'] == "file_downloads") {
+						} elseif ($xsdmf_details['xsdmf_fez_variable'] == "file_downloads") {
 							$attrib_value = $file_downloads;
 							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $file_downloads));
-						} elseif ($xsdmf_details['xsdmf_espace_variable'] == "xdis_id") {
+						} elseif ($xsdmf_details['xsdmf_fez_variable'] == "xdis_id") {
 							$attrib_value = $top_xdis_id;
 							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $top_xdis_id));													
 //							$attrib_value = $xdis_id;
@@ -2622,19 +2622,19 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 								}
 							}
 						} else {
-							if ($xsdmf_details['xsdmf_espace_variable'] == "pid") {
+							if ($xsdmf_details['xsdmf_fez_variable'] == "pid") {
 								$attrib_value = $xsdmf_details['xsdmf_value_prefix'] . $pid;
 								array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_details['xsdmf_value_prefix'] . $pid));								
-							} elseif ($xsdmf_details['xsdmf_espace_variable'] == "created_date") {
+							} elseif ($xsdmf_details['xsdmf_fez_variable'] == "created_date") {
 								$attrib_value = $created_date;
 								array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $created_date));
-							} elseif ($xsdmf_details['xsdmf_espace_variable'] == "updated_date") {
+							} elseif ($xsdmf_details['xsdmf_fez_variable'] == "updated_date") {
 								$attrib_value = $updated_date;
 								array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $updated_date));
-							} elseif ($xsdmf_details['xsdmf_espace_variable'] == "file_downloads") {
+							} elseif ($xsdmf_details['xsdmf_fez_variable'] == "file_downloads") {
 								$attrib_value = $xsdmf_details['xsdmf_value_prefix'] . $file_downloads;
 								array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $file_downloads));
-							} elseif ($xsdmf_details['xsdmf_espace_variable'] == "xdis_id") {
+							} elseif ($xsdmf_details['xsdmf_fez_variable'] == "xdis_id") {
 								$attrib_value = $xsdmf_details['xsdmf_value_prefix'] . $top_xdis_id;
 								array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_details['xsdmf_value_prefix'] . $top_xdis_id));								
 							} else {
@@ -2643,19 +2643,19 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 							}
 						}
 					} else { // not necessary in this side
-						if ($xsdmf_details['xsdmf_espace_variable'] == "pid") {
+						if ($xsdmf_details['xsdmf_fez_variable'] == "pid") {
 							$attrib_value = $xsdmf_details['xsdmf_value_prefix'] . $pid;
 							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_details['xsdmf_value_prefix'] . $pid));
-						} elseif ($xsdmf_details['xsdmf_espace_variable'] == "created_date") {
+						} elseif ($xsdmf_details['xsdmf_fez_variable'] == "created_date") {
 							$attrib_value = $created_date;
 							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $created_date));
-						} elseif ($xsdmf_details['xsdmf_espace_variable'] == "updated_date") {
+						} elseif ($xsdmf_details['xsdmf_fez_variable'] == "updated_date") {
 							$attrib_value = $updated_date;
 							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $updated_date));
-						} elseif ($xsdmf_details['xsdmf_espace_variable'] == "file_downloads") {
+						} elseif ($xsdmf_details['xsdmf_fez_variable'] == "file_downloads") {
 							$attrib_value = $xsdmf_details['xsdmf_value_prefix'] . $file_downloads;
 							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $file_downloads));
-						} elseif ($xsdmf_details['xsdmf_espace_variable'] == "xdis_id") {
+						} elseif ($xsdmf_details['xsdmf_fez_variable'] == "xdis_id") {
 							$attrib_value = $xsdmf_details['xsdmf_value_prefix'] . $top_xdis_id;
 							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_details['xsdmf_value_prefix'] . $top_xdis_id));
 						} else {
@@ -2789,16 +2789,16 @@ foreach ($a as $i => $j) {
 //				$ret[1] .= "tree.add($counter, $parent_counter, '".$i[0]['display']."');\n";
 //			} else {
 			if (($i != '#text') && ($i != '#comment')) {
-				if (!empty($j['espace_nodetype'])) {
-					if ($j['espace_nodetype'] == 'attribute') {
+				if (!empty($j['fez_nodetype'])) {
+					if ($j['fez_nodetype'] == 'attribute') {
 						$dtree_image = ", '../images/dtree/attribute.gif'";
-					} elseif ($j['espace_nodetype'] == 'enumeration') {
+					} elseif ($j['fez_nodetype'] == 'enumeration') {
 						$dtree_image = ", '../images/dtree/enumeration.gif'";
 					}
 				}
 
-				if 	(isset($j['espace_hyperlink']) && !is_array($j['espace_hyperlink']))  {
-                    $ehref = $j['espace_hyperlink'];
+				if 	(isset($j['fez_hyperlink']) && !is_array($j['fez_hyperlink']))  {
+                    $ehref = $j['fez_hyperlink'];
                     $node_label = $i;
                     // make the tree node bold if there is a matchfields entry (i.e. we are using it)
                     if (in_array($ehref, $element_match_list)) {
@@ -2833,15 +2833,15 @@ foreach ($a as $i => $j) {
 	} else {		
 //		echo "in c";
 //		$ret[1] .= "tree.add($counter, $parent_counter, '$i = $j', '', 'basefrm');\n";
-		if (($i != '#text') && ($i != '#comment') && ($i != 'espace_nodetype') && ($i != 'espace_hyperlink') && (!(is_array($i['espace_hyperlink'])))) {
-			if (!empty($j['espace_nodetype'])) {
-				if ($j['espace_nodetype'] == 'attribute') {
+		if (($i != '#text') && ($i != '#comment') && ($i != 'fez_nodetype') && ($i != 'fez_hyperlink') && (!(is_array($i['fez_hyperlink'])))) {
+			if (!empty($j['fez_nodetype'])) {
+				if ($j['fez_nodetype'] == 'attribute') {
 					$dtree_image = ", '../images/dtree/attribute.gif'";
-				} elseif ($j['espace_nodetype'] == 'enumeration') {
+				} elseif ($j['fez_nodetype'] == 'enumeration') {
 					$dtree_image = ", '../images/dtree/enumeration.gif'";
 				}
 			}
-            $ehref = $j['espace_hyperlink'];
+            $ehref = $j['fez_hyperlink'];
             $ehref = urlencode($ehref);
 			$ret[1] .= "tree.add($counter, $parent_counter, '$i', '".$match_form_url.$ehref."', '', 'basefrm'".$dtree_image.");\n";
 		} 

@@ -93,14 +93,14 @@ class Record
 		
 		foreach ($res as $result) {		
 			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-				if (!is_array($return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
-					$return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']] = array();
+				if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
+					$return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']] = array();
 				}
-				array_push($return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+				array_push($return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
 			}
-			if (in_array($result['xsdmf_espace_title'], $returnfields)) {
+			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				$return[$result['rmf_rec_pid']][$result['xsdmf_espace_title']] = $result['rmf_'.$result['xsdmf_data_type']];
+				$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']] = $result['rmf_'.$result['xsdmf_data_type']];
 			}
 		}
 //		print_r($return);
@@ -2786,9 +2786,9 @@ LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "custom_field_option as 
 //		print_r($res);
 		$return = array();
 		foreach ($res as $result) {
-			if (in_array($result['xsdmf_espace_title'], $returnfields)) {
+			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				$return[$result['rmf_rec_pid']][$result['xsdmf_espace_title']] = $result['rmf_'.$result['xsdmf_data_type']];
+				$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']] = $result['rmf_'.$result['xsdmf_data_type']];
 			}
 		}
 		$return = array_values($return);
@@ -2811,7 +2811,7 @@ LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "custom_field_option as 
 	function getACML($pid, $xdis_id) {
 		$parents_details = Record::getParents($pid);
 
-		$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, 'eSpaceACML');
+		$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, 'FezACML');
 		$xmlACML = @$DSResultArray['stream'];		
 
 		if ($xmlACML != "") {
@@ -3176,9 +3176,9 @@ LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "custom_field_option as 
             WHERE
             rmf1.rmf_varchar='$username'
             AND (xsdmf_element='!rule!role!AD_User'
-                    OR xsdmf_element='!rule!role!eSpace_User')
+                    OR xsdmf_element='!rule!role!Fez_User')
             AND rmf2.rmf_xsdmf_id IN 
-            (SELECT xsdmf_id FROM espace_xsd_display_matchfields
+            (SELECT xsdmf_id FROM fez_xsd_display_matchfields
              WHERE
              xsdmf_element='!description!isMemberOf!resource')
             GROUP BY rmf1.rmf_rec_pid
@@ -3344,7 +3344,7 @@ class RecordObject extends RecordGeneral
     function getXmlDisplayId() {
         if (!$this->no_xdis_id) {
             if (is_null($this->xdis_id)) {
-                $xdis_array = Fedora_API::callGetDatastreamContentsField($this->pid, 'eSpaceMD', array('xdis_id'));
+                $xdis_array = Fedora_API::callGetDatastreamContentsField($this->pid, 'FezMD', array('xdis_id'));
                 if (isset($xdis_array['xdis_id'][0])) {
                     $this->xdis_id = $xdis_array['xdis_id'][0];
                 } else {
@@ -3362,7 +3362,7 @@ class RecordObject extends RecordGeneral
      * Retrieve the display id for this record
      */
     function getObjectDates() {
-		$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'eSpaceMD');
+		$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD');
 		if (isset($xdis_array['created_date'][0])) {
 			$this->created_date = $xdis_array['created_date'][0];
 		} else {
@@ -3381,7 +3381,7 @@ class RecordObject extends RecordGeneral
      * Retrieve the count of file downloads for this record
      */
     function getFileDownloadsCount() {
-		$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'eSpaceMD');
+		$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD');
 //		print_r($xdis_array);
 		if (is_numeric(trim($xdis_array['file_downloads'][0]))) {
 			$this->file_downloads = trim($xdis_array['file_downloads'][0]);
@@ -3395,9 +3395,9 @@ class RecordObject extends RecordGeneral
      * Used to assocaiate a display for this record
      */
     function updateAdminDatastream($xdis_id) {
-		$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'eSpaceMD');
+		$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD');
         $this->xdis_id = $xdis_id;
-		$newXML = '<eSpaceMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">';
+		$newXML = '<FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">';
 		$foundElement = false;
 		foreach ($xdis_array as $xkey => $xdata) {
 			foreach ($xdata as $xinstance) {
@@ -3412,10 +3412,10 @@ class RecordObject extends RecordGeneral
 		if ($foundElement != true) {
 			$newXML .= "<xdis_id>".$this->xdis_id."</xdis_id>";
 		}
-		$newXML .= "</eSpaceMD>";
+		$newXML .= "</FezMD>";
 //		echo $newXML;
 		if ($newXML != "") {
-			Fedora_API::callModifyDatastreamByValue($this->pid, "eSpaceMD", "A", "eSpace extension metadata", $newXML, "text/xml", true);
+			Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez extension metadata", $newXML, "text/xml", true);
 			$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement("!xdis_id", 15);
 			Record::removeIndexRecordByXSDMF_ID($this->pid, $xsdmf_id);
 			Record::insertIndexMatchingField($this->pid, $xsdmf_id, "varchar", $this->xdis_id);
@@ -3423,7 +3423,7 @@ class RecordObject extends RecordGeneral
     }
 
     function incrementFileDownloads() {
-		$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'eSpaceMD');
+		$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD');
 //		print_r($xdis_array);
 		if (isset($xdis_array['file_downloads'][0])) {
 			$this->file_downloads = $xdis_array['file_downloads'][0];
@@ -3431,7 +3431,7 @@ class RecordObject extends RecordGeneral
 			$this->file_downloads = 0;
 		}
 		$this->file_downloads++;
-		$newXML = '<eSpaceMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">';
+		$newXML = '<FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">';
 		$foundElement = false;
 		foreach ($xdis_array as $xkey => $xdata) {
 			foreach ($xdata as $xinstance) {
@@ -3446,10 +3446,10 @@ class RecordObject extends RecordGeneral
 		if ($foundElement != true) {
 			$newXML .= "<file_downloads>".$this->file_downloads."</file_downloads>";
 		}
-		$newXML .= "</eSpaceMD>";
+		$newXML .= "</FezMD>";
 //		echo $newXML;
 		if ($newXML != "") {
-			Fedora_API::callModifyDatastreamByValue($this->pid, "eSpaceMD", "A", "eSpace extension metadata", $newXML, "text/xml", true);
+			Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez extension metadata", $newXML, "text/xml", true);
 			$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement("!file_downloads", 15);
 			Record::removeIndexRecordByXSDMF_ID($this->pid, $xsdmf_id);
 			Record::insertIndexMatchingField($this->pid, $xsdmf_id, "int", $this->file_downloads);
@@ -3560,7 +3560,7 @@ class RecordObject extends RecordGeneral
 					$convert_check = substr($convert_check, strrpos($convert_check, "/")+1); // take out any nasty slashes from the ds name itself
 				}
 				$convert_check = str_replace(" ", "_", $convert_check);
-				Record::insertIndexMatchingField($pid, 122, NULL, NULL, "varchar", $convert_check); // add the thumbnail to the espace index
+				Record::insertIndexMatchingField($pid, 122, NULL, NULL, "varchar", $convert_check); // add the thumbnail to the fez index
 			}
 			$presmd_check = Workflow::checkForPresMD($dsIDName);
 			if ($presmd_check != false) {

@@ -193,10 +193,10 @@ class Collection
 
 		foreach ($res as $result) {		
 			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-				if (!is_array($return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
-					$return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']] = array();
+				if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
+					$return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']] = array();
 				}
-				array_push($return[$result['rmf_rec_pid']]['eSpaceACML'][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+				array_push($return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
 			}
 			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
@@ -205,10 +205,10 @@ class Collection
 		}
 
 		foreach ($return as $pid_key => $row) {
-			if (!is_array(@$row['eSpaceACML'])) {
+			if (!is_array(@$row['FezACML'])) {
 				$parentsACMLs = array();
 				Auth::getIndexParentACMLs(&$parentsACMLs, $pid_key);
-				$return[$pid_key]['eSpaceACML'] = $parentsACMLs;
+				$return[$pid_key]['FezACML'] = $parentsACMLs;
 			}
 		}
 		$return = array_values($return);
@@ -272,7 +272,7 @@ class Collection
     function getListing($collection_pid, $current_row = 0, $max = 25)
     {
 //        $isMemberOf_xsdmf_id = 149;
-//        $ret_id_xsd_mf = 236; // eSpaceMD Display, 
+//        $ret_id_xsd_mf = 236; // FezMD Display, 
 		if ($max == "ALL") {
             $max = 9999999;
         }
@@ -337,10 +337,10 @@ class Collection
 		$return = array();
 		foreach ($res as $result) {
 			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-				if (!is_array($return[$result['rmf_rec_pid']]['eSpaceACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
-					$return[$result['rmf_rec_pid']]['eSpaceACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
+				if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
+					$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
 				}
-				array_push($return[$result['rmf_rec_pid']]['eSpaceACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+				array_push($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
 			}
 			if ($result['sek_title'] == 'isMemberOf') {
 				if (!is_array(@$return[$result['rmf_rec_pid']]['isMemberOf'])) {
@@ -376,11 +376,11 @@ class Collection
 				$return[$pid_key]['thumbnail'] = 0;
 			}
 
-			if (!is_array(@$row['eSpaceACML'])) {
+			if (!is_array(@$row['FezACML'])) {
 				$parentsACMLs = array();
 //				Auth::getIndexParentACMLs(&$parentsACMLs, $pid_key);
 				Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid_key, $row['isMemberOf']);
-				$return[$pid_key]['eSpaceACML'] = $parentsACMLs;
+				$return[$pid_key]['FezACML'] = $parentsACMLs;
 			}
 		}
 		
@@ -523,7 +523,7 @@ class Collection
     function browseListing($current_row = 0, $max = 25, $searchKey="Subject")
     {
 //        $isMemberOf_xsdmf_id = 149;
-//        $ret_id_xsd_mf = 236; // eSpaceMD Display, 
+//        $ret_id_xsd_mf = 236; // FezMD Display, 
 
 
 /*		if (empty($terms)) {
@@ -606,10 +606,10 @@ class Collection
 		$return = array();
 		foreach ($res as $result) {
 			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-				if (!is_array($return[$result['rmf_rec_pid']]['eSpaceACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
-					$return[$result['rmf_rec_pid']]['eSpaceACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
+				if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
+					$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
 				}
-				array_push($return[$result['rmf_rec_pid']]['eSpaceACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+				array_push($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
 			}
 			if ($result['sek_title'] == 'isMemberOf') {
 				if (!is_array(@$return[$result['rmf_rec_pid']]['isMemberOf'])) {
@@ -645,10 +645,10 @@ class Collection
 				$return[$pid_key]['thumbnail'] = 0;
 			}
 
-			if (!is_array(@$row['eSpaceACML'])) {
+			if (!is_array(@$row['FezACML'])) {
 				$parentsACMLs = array();
 				Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid_key, $row['isMemberOf']);
-				$return[$pid_key]['eSpaceACML'] = $parentsACMLs;
+				$return[$pid_key]['FezACML'] = $parentsACMLs;
 			}
 		}
 		
@@ -703,7 +703,7 @@ class Collection
     function listByAttribute($current_row = 0, $max = 25, $searchKey="Date")
     {
 //        $isMemberOf_xsdmf_id = 149;
-//        $ret_id_xsd_mf = 236; // eSpaceMD Display, 
+//        $ret_id_xsd_mf = 236; // FezMD Display, 
 
 
 /*		if (empty($terms)) {
@@ -819,7 +819,7 @@ class Collection
     function statsByAttribute($current_row = 0, $max = 25, $searchKey="Author")
     {
 //        $isMemberOf_xsdmf_id = 149;
-//        $ret_id_xsd_mf = 236; // eSpaceMD Display, 
+//        $ret_id_xsd_mf = 236; // FezMD Display, 
 
 
 /*		if (empty($terms)) {
@@ -945,7 +945,7 @@ class Collection
     function advSearchListing($current_row = 0, $max = 25)
     {
 //        $isMemberOf_xsdmf_id = 149;
-//        $ret_id_xsd_mf = 236; // eSpaceMD Display, 
+//        $ret_id_xsd_mf = 236; // FezMD Display, 
 //		print_r($_GET);
 		$terms = $_GET['list'];
 
@@ -1005,10 +1005,10 @@ class Collection
 		$return = array();
 		foreach ($res as $result) {
 			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-				if (!is_array($return[$result['rmf_rec_pid']]['eSpaceACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
-					$return[$result['rmf_rec_pid']]['eSpaceACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
+				if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
+					$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
 				}
-				array_push($return[$result['rmf_rec_pid']]['eSpaceACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+				array_push($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
 			}
 			if ($result['sek_title'] == 'isMemberOf') {
 				if (!is_array(@$return[$result['rmf_rec_pid']]['isMemberOf'])) {
@@ -1044,10 +1044,10 @@ class Collection
 				$return[$pid_key]['thumbnail'] = 0;
 			}
 
-			if (!is_array(@$row['eSpaceACML'])) {
+			if (!is_array(@$row['FezACML'])) {
 				$parentsACMLs = array();
 				Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid_key, $row['isMemberOf']);
-				$return[$pid_key]['eSpaceACML'] = $parentsACMLs;
+				$return[$pid_key]['FezACML'] = $parentsACMLs;
 			}
 		}
 		
@@ -1103,7 +1103,7 @@ class Collection
     function SearchListing($terms, $current_row = 0, $max = 25)
     {
 //        $isMemberOf_xsdmf_id = 149;
-//        $ret_id_xsd_mf = 236; // eSpaceMD Display, 
+//        $ret_id_xsd_mf = 236; // FezMD Display, 
 		if (empty($terms)) {
 			return array();
 		}
@@ -1156,10 +1156,10 @@ class Collection
 		$return = array();
 		foreach ($res as $result) {
 			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-				if (!is_array($return[$result['rmf_rec_pid']]['eSpaceACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
-					$return[$result['rmf_rec_pid']]['eSpaceACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
+				if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
+					$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
 				}
-				array_push($return[$result['rmf_rec_pid']]['eSpaceACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+				array_push($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
 			}
 			if ($result['sek_title'] == 'isMemberOf') {
 				if (!is_array(@$return[$result['rmf_rec_pid']]['isMemberOf'])) {
@@ -1195,10 +1195,10 @@ class Collection
 				$return[$pid_key]['thumbnail'] = 0;
 			}
 
-			if (!is_array(@$row['eSpaceACML'])) {
+			if (!is_array(@$row['FezACML'])) {
 				$parentsACMLs = array();
 				Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid_key, $row['isMemberOf']);
-				$return[$pid_key]['eSpaceACML'] = $parentsACMLs;
+				$return[$pid_key]['FezACML'] = $parentsACMLs;
 			}
 		}
 		

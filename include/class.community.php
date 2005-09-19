@@ -325,9 +325,9 @@ class Community
 //		print_r($res);
 		$return = array();
 		foreach ($res as $result) {
-			if (in_array($result['xsdmf_espace_title'], $returnfields)) {
+			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				$return[$result['rmf_rec_pid']][$result['xsdmf_espace_title']] = $result['rmf_'.$result['xsdmf_data_type']];
+				$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']] = $result['rmf_'.$result['xsdmf_data_type']];
 			}
 		}
 		$return = array_values($return);
@@ -576,16 +576,16 @@ class Community
 		$return = array();
 
 		foreach ($res as $result) {		
-			$return[$result['rmf_rec_pid']]['eSpaceACML'] = array();
+			$return[$result['rmf_rec_pid']]['FezACML'] = array();
 			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-				if (!is_array(@$return[$result['rmf_rec_pid']]['eSpaceACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
-					$return[$result['rmf_rec_pid']]['eSpaceACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
+				if (!is_array(@$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
+					$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
 				}
-				array_push($return[$result['rmf_rec_pid']]['eSpaceACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+				array_push($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
 			}
-			if (in_array($result['xsdmf_espace_title'], $returnfields)) {
+			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				$return[$result['rmf_rec_pid']][$result['xsdmf_espace_title']] = $result['rmf_'.$result['xsdmf_data_type']];
+				$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']] = $result['rmf_'.$result['xsdmf_data_type']];
 			}
 		}
 //		$return = Auth::getIndexAuthorisationGroups($return);
@@ -637,7 +637,7 @@ class Community
     {
 		$itql = "select \$object \$title \$description \$type from <#ri>
 					where  (\$object <rdf:type> <fedora-model:FedoraObject>) and
-                    (\$object <dc:type> 'eSpace_Community') and
+                    (\$object <dc:type> 'Fez_Community') and
 					(\$object <dc:title> \$title) and 
 					(\$object <dc:description> \$description) and
                     (\$object <dc:type> \$type)";
@@ -688,7 +688,7 @@ class Community
 //		print_r($res);
 		$return = array();
 		foreach ($res as $result) {
-			if (in_array($result['xsdmf_espace_title'], $returnfields)) {
+			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
 				$return[$result['rmf_rec_pid']] = $result['rmf_'.$result['xsdmf_data_type']];
 			}
 		}
@@ -709,7 +709,7 @@ class Community
         }
 
 
-//		$details = Fedora_API::getListByTypeObjectsXMLAssoc("eSpace_Community");
+//		$details = Fedora_API::getListByTypeObjectsXMLAssoc("Fez_Community");
 //		echo "collection details -> ";
 //		print_r($details);
 //		return $details;
