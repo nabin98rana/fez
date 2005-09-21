@@ -83,6 +83,12 @@ if (!empty($pid) && !empty($dsID)) {
 			case 'jpg'  :
 					Header("Content-type: image/jpg\n");
 					break;
+			case 'jpeg'  :
+					Header("Content-type: image/jpg\n");
+					break;
+			case 'ico'  :
+					Header("Content-type: image/ico\n");
+					break;
 			
 			case 'ppt'  :
 					Header("Content-type: application/vnd.ms-powerpoint");
