@@ -33,7 +33,7 @@ $dsID = @$HTTP_POST_VARS["dsID"] ? $HTTP_POST_VARS["dsID"] : $HTTP_GET_VARS["dsI
 $tpl->assign("pid", $pid);
 $tpl->assign("dsID", $dsID);
 if (!empty($pid) && !empty($dsID)) {
-	$xdis_array = Fedora_API::callGetDatastreamContentsField ($pid, 'eSpaceMD', array('xdis_id'));
+	$xdis_array = Fedora_API::callGetDatastreamContentsField ($pid, 'FezMD', array('xdis_id'));
 	$xdis_id = $xdis_array['xdis_id'][0];
 	//echo "XDIS_ID -> ".$xdis_id;
 	if (is_numeric($xdis_id)) {	
@@ -43,7 +43,7 @@ if (!empty($pid) && !empty($dsID)) {
 //				echo $urldata;
 			$urlpath = $urldata;
 			if (!is_numeric(strpos($dsID, "thumbnail"))) {
-				Record::incrementFileDownloads($pid); //increment eSpaceMD.file_downloads counter
+				Record::incrementFileDownloads($pid); //increment FezMD.file_downloads counter
 			}
 			//	returnresource($urlpath);
 			

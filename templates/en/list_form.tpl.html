@@ -233,7 +233,7 @@ function purgeObject(pid)
 						  {/if}
                           {if $max_subject_breadcrumb != $smarty.section.b.index}<a href='{$rel_url}list.php?browse=subject&parent_id={$subject_breadcrumb[b].cvo_id}'>{else}<b>{/if}{$subject_breadcrumb[b].cvo_title|escape:"html"}{if $max_subject_breadcrumb != $smarty.section.b.index}</a>{else}</b>{/if}
  						  {assign var="cvo_id" value=$subject_breadcrumb[b].cvo_id}
-						  {if $subject_count[$cvo_id]}({$subject_count[$cvo_id]}){else}{/if}{if $max_subject_breadcrumb != $smarty.section.b.index}->{else}:{/if}					
+						  {if $max_subject_breadcrumb != $smarty.section.b.index}->{else}:{/if}					
 					  {/section}
 				   {else}Subject Classification:{/if}</b>		  
 			</td>
@@ -248,7 +248,7 @@ function purgeObject(pid)
                   <td>{if $subject_list[i].cvo_image_filename != ""}<img align="absmiddle" src="{$rel_url}images/{$subject_list[i].cvo_image_filename}"/>{/if}
                         <a href='{$rel_url}list.php?browse=subject&parent_id={$subject_list[i].cvo_id}'>{$subject_list[i].cvo_title|escape:"html"}</a>
 						{assign var="cvo_id" value=$subject_list[i].cvo_id}
-						{if $subject_count[$cvo_id]}({$subject_count[$cvo_id]}){else}(0){/if}
+						{if $subject_count[$cvo_id]}({$subject_count[$cvo_id]}){elseif ($smarty.get.parent_id)}(0){/if}
 					</td>
 				</tr>
 				<tr>
@@ -322,7 +322,7 @@ function purgeObject(pid)
 			  <td>
 			  <table bgcolor="#FFFFFF" width="100%" cellpadding="3" cellspacing="0">
 				  <tr>
-					  <td class="default" {$shaded_bar}><strong>{$day_name}</strong>
+					  <td class="default_white" {$shaded_bar}><strong>{$day_name}</strong>
 					  </td>
 				  </tr>
 			 </table>

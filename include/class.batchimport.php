@@ -291,10 +291,10 @@ function handleEntireEprintsImport($pid, $collection_pid, $xmlObj) {
 				</foxml:xmlContent>
 			</foxml:datastreamVersion>
 		  </foxml:datastream>
-		  <foxml:datastream ID="eSpaceMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+		  <foxml:datastream ID="FezMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
 			<foxml:datastreamVersion MIMETYPE="text/xml" ID="eSpace1.0" LABEL="eSpace extension metadata">
 				<foxml:xmlContent>
-					<eSpaceMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+					<FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
 					  <xdis_id>'.$xdis_id.'</xdis_id>
 					  <sta_id>'.$sta_id.'</sta_id>
 					  <ret_id>'.$ret_id.'</ret_id>
@@ -308,7 +308,7 @@ $xmlObj .= '
 						  }
 					  }
 				  $xmlObj .= '
-					</eSpaceMD>
+					</FezMD>
 				</foxml:xmlContent>
 			</foxml:datastreamVersion>
 		  </foxml:datastream>
@@ -649,14 +649,14 @@ function GenerateSingleFOXMLTemplate($pid, $parent_pid, $filename, $xdis_id, $re
 			</foxml:xmlContent>
 		</foxml:datastreamVersion>
 	  </foxml:datastream>
-  	  <foxml:datastream ID="eSpaceMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+  	  <foxml:datastream ID="FezMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
 		<foxml:datastreamVersion MIMETYPE="text/xml" ID="eSpace1.0" LABEL="eSpace extension metadata">
 			<foxml:xmlContent>
-				<eSpaceMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+				<FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
 				  <xdis_id>'.$xdis_id.'</xdis_id>
 				  <sta_id/>'.$sta_id.'
   				  <ret_id>'.$ret_id.'</ret_id>
-				</eSpaceMD>
+				</FezMD>
 			</foxml:xmlContent>
 		</foxml:datastreamVersion>
 	  </foxml:datastream>
@@ -750,14 +750,14 @@ function ConvertMETSToFOXML($pid, $xmlImport, $collection_pid, $short_name, $xdi
 			</foxml:xmlContent>
 		</foxml:datastreamVersion>
 	  </foxml:datastream>
-   	  <foxml:datastream ID="eSpaceMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+   	  <foxml:datastream ID="FezMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
 		<foxml:datastreamVersion MIMETYPE="text/xml" ID="eSpace1.0" LABEL="eSpace extension metadata">
 			<foxml:xmlContent>
-				<eSpaceMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+				<FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
 				  <xdis_id>'.$xdis_id.'</xdis_id>
 				  <sta_id>'.$sta_id.'</sta_id>
   				  <ret_id>'.$ret_id.'</ret_id>
-				</eSpaceMD>
+				</FezMD>
 			</foxml:xmlContent>
 		</foxml:datastreamVersion>
 	  </foxml:datastream>

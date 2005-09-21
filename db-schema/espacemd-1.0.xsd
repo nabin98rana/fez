@@ -2,12 +2,12 @@
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
 	<!--============================================================
 
-	 eSpaceMD: eSpace Metadata Extension Schema
+	 FezMD: eSpace Metadata Extension Schema
 		
 	============================================================-->
-	<xsd:element name="eSpaceMD" type="eSpaceMDType"/>
+	<xsd:element name="FezMD" type="FezMDType"/>
 	<xsd:element name="xdis_id" />
-	<xsd:complexType name="eSpaceMDType">
+	<xsd:complexType name="FezMDType">
 		<xsd:sequence>
 			<xsd:element ref="xdis_id" minOccurs="0" maxOccurs="unbounded"/>
 		</xsd:sequence>

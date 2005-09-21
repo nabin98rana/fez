@@ -78,9 +78,9 @@
   <dd ><i>n.</i> The basic metadata elements belonging to every object in eSpace/Fedora. Eg Title, Author, Publisher etc. </dd>
 
   <a name="E"></a>
-  <dt id="epsaceacml">eSpaceACML</dt>
+  <dt id="epsaceacml">FezACML</dt>
 
-  <dd ><i>n.</i> eSpace Access Control Markup Language. eSpaceACML is an XSD designed for eSpace to describe the security on objects in the system. Each Community, Collection and Record in eSpace has an eSpaceACML datastream. If a Collection or Record does not have an eSpaceACML datastream the system uses the objects parent eSpaceACML datastream to determine security rights. If the Community for a Collection or Record still does not have an eSpaceACML datastream only eSpace Administrators have any access to the object. </dd>
+  <dd ><i>n.</i> eSpace Access Control Markup Language. FezACML is an XSD designed for eSpace to describe the security on objects in the system. Each Community, Collection and Record in eSpace has an FezACML datastream. If a Collection or Record does not have an FezACML datastream the system uses the objects parent FezACML datastream to determine security rights. If the Community for a Collection or Record still does not have an FezACML datastream only eSpace Administrators have any access to the object. </dd>
 
 <a name="F"></a>
   <dt id="foxml">FOXML</dt>
@@ -133,7 +133,7 @@ Find more information on the <a href="http://www.openarchives.org/OAI/openarchiv
 <a name="R"></a>
   <dt id="record">Record</dt>
 
-  <dd ><i>n.</i> The most granular level of object in eSpace. A Record belongs to one or many Collections. An example of an object in the Community 'UQ Library' in Collection 'Digilib Photo Collection' could have the title 'St Lucia Campus Aerial shot 1972'. Each record has Dublin Core metadata that is indexed against the Fedora Resource Index. Records also have datastreams for Preservation Metadata, eSpaceACML for security and RELS-EXT to describe their relationships with other objects. They can also have datastreams of files of images, documents, audio etc. </dd>
+  <dd ><i>n.</i> The most granular level of object in eSpace. A Record belongs to one or many Collections. An example of an object in the Community 'UQ Library' in Collection 'Digilib Photo Collection' could have the title 'St Lucia Campus Aerial shot 1972'. Each record has Dublin Core metadata that is indexed against the Fedora Resource Index. Records also have datastreams for Preservation Metadata, FezACML for security and RELS-EXT to describe their relationships with other objects. They can also have datastreams of files of images, documents, audio etc. </dd>
 
   <dt id="rels-ext">RELS-EXT</dt>
   <dd ><i>n.</i> Each Collection and Record Object in eSpace/Fedora has a RELS-EXT inline xml datastream to describe the relationships between the object and other objects. eSpace currently only uses the 'isMemberOf' attribute of the RELS-EXT XSD to show parent-child relationships. </dd>
@@ -145,7 +145,7 @@ Find more information on the <a href="http://www.openarchives.org/OAI/openarchiv
   <dt> <a name="T"></a> <a name="U"></a> <a name="V"></a> <a name="W"></a> <a name="X"></a> </dt>
   <dt id="xsd">XSD</dt>
 
-  <dd ><i>n.</i> eXtenisbile Schema Definition. XSD's are like Document Type Definitions (DTD), but are expressed in XML. They are templates describing how an XML document or object based on the XSD should conform. eSpace contains XSDs for FOXML, along with FOXML extensions to describe eSpaceACML, Preservation Metadata, RELS-EXT. </dd>
+  <dd ><i>n.</i> eXtenisbile Schema Definition. XSD's are like Document Type Definitions (DTD), but are expressed in XML. They are templates describing how an XML document or object based on the XSD should conform. eSpace contains XSDs for FOXML, along with FOXML extensions to describe FezACML, Preservation Metadata, RELS-EXT. </dd>
 
 <a name="Y"></a>
 

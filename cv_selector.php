@@ -41,8 +41,6 @@ include_once(APP_INC_PATH . "class.workflow_trigger.php");
 $tpl = new Template_API();
 $tpl->setTemplate("cv_selector.tpl.html");
 
-Auth::checkAuthentication(APP_SESSION, 'index.php?err=5', true);
-$usr_id = Auth::getUserID();
 $cvo_id = @$HTTP_GET_VARS["cvo_id"] ? @$HTTP_GET_VARS["cvo_id"] : @$HTTP_POST_VARS["cvo_id"];
 $element = @$HTTP_GET_VARS["element"] ? @$HTTP_GET_VARS["element"] : @$HTTP_POST_VARS["element"];
 $form = @$HTTP_GET_VARS["form"] ? @$HTTP_GET_VARS["form"] : @$HTTP_POST_VARS["form"];
@@ -76,7 +74,6 @@ $tpl->assign("cvo_details", $cvo_details);
 $tpl->assign("cvo_list", $cvo_list);
 $tpl->assign("form", $form);
 $tpl->assign("element", $element);
-$tpl->assign("current_user_prefs", Prefs::get($usr_id));
 
 $tpl->displayTemplate();
 ?>

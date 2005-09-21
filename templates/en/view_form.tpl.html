@@ -169,7 +169,7 @@ function disableFields()
 			  <tr class="default"> 
 
 				{assign var="image_file_name" value=$datastreams[d].MIMEType|replace:"/":"_"|cat:".png"}
-				{assign var="image_name" value=$espace_root_dir|cat:"images/"|cat:$image_file_name} 
+				{assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$image_file_name} 
 				
 				{assign var="image_file_string" value=""}
 

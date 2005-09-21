@@ -402,6 +402,35 @@ class Misc
 		return $return;
 	}
 
+	// @@@ CK - 20/1/2005 - Added from the PHP manual under array_filter comments. Used in newquick.php for filtering AsktIT generic usernames from Logged By list.
+	// Modified to handle associative arrays, eg replace while $i etc with foreach key => data.
+	function array_clean_key ($input, $delete = false, $caseSensitive = false, $matchWholeWords = false)
+	{
+        $return = array();
+		foreach ($input as $aryKey => $aryData) {
+			if($delete)	{
+				if($caseSensitive)	{
+                    if ($matchWholeWords && $aryKey != $delete) {
+						$return[$aryKey] = $aryData;
+                    } elseif(!strstr($aryKey ,$delete)) {
+						$return[$aryKey] = $aryData;
+					}
+				} else {
+                    if ($matchWholeWords && strtolower($aryKey) != strtolower($delete)) {
+						$return[$aryKey] = $aryData;
+                    } elseif(!stristr($aryKey, $delete)) {
+						$return[$aryKey] = $aryData;
+					}
+				}
+			} else {
+				if(!empty($aryData)) {
+					$return[] = $input[$aryKey];
+				}
+			}
+		}
+		return $return;
+	}
+
 	function cleanListResults($input)
 	{
         $return = array();
@@ -1001,7 +1030,8 @@ function getDatastreamXMLHeaders($datastreamTitles, $xmlString) {
 	$return = array();
 	$searchvars = array("ID", "CONTROL_GROUP", "STATE", "VERSIONABLE", "versionID", "LABEL", "MIMETYPE"); // For items which repeat, (like ID (ID and versionID)) make the searchable part uppercase and the name difference lowercase
 	foreach ($datastreamTitles as $dsTitle) {
-		$IDPos = stripos($xmlString, 'id="'.$dsTitle['xsdsel_title'].'"'); // stripos is a php5 function
+//		$IDPos = stripos($xmlString, 'id="'.$dsTitle['xsdsel_title'].'"'); // stripos is a php5 function
+		$IDPos = stripos($xmlString, 'id="'.$dsTitle['xsdsel_title'].''); // stripos is a php5 function
 		if (is_numeric($IDPos)) {
 			$XMLContentStartPos = $IDPos;
 			if (is_numeric(strpos($xmlString, '<foxml:xmlContent>', $IDPos))) {
@@ -1030,14 +1060,40 @@ function getDatastreamXMLHeaders($datastreamTitles, $xmlString) {
 				$file_res = array();
 				$file_res = XSD_Loop_Subelement::getXSDMFInputType($dsTitle['xsdsel_id'], 'file_input');
 //				print_r($file_res);
-				// PROBLEM IS HERE!!
-//				echo "COUNT -> ".count($file_res);
+
 				if (count($file_res) == 1) {
-
-					$return[$dsTitle['xsdsel_title']]['ID'] = str_replace(" ", "_", $HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']]);
-					$return[$dsTitle['xsdsel_title']]['LABEL'] = $HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']];
-					$return[$dsTitle['xsdsel_title']]['MIMETYPE'] = $HTTP_POST_FILES['xsd_display_fields']['type'][$file_res[0]['xsdmf_id']];
-
+					if (is_array($HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']])) {
+//						echo "HERE!!!";
+//						print_r($HTTP_POST_FILES);
+						foreach ($HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']] as $key => $data) {
+							if ($HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key] != "") {
+								$return[$dsTitle['xsdsel_title'].$key]['CONTROL_GROUP'] = $return[$dsTitle['xsdsel_title']]['CONTROL_GROUP'];
+								$return[$dsTitle['xsdsel_title'].$key]['STATE'] = $return[$dsTitle['xsdsel_title']]['STATE'];
+								$return[$dsTitle['xsdsel_title'].$key]['VERSIONABLE'] = $return[$dsTitle['xsdsel_title']]['VERSIONABLE'];
+								$return[$dsTitle['xsdsel_title'].$key]['ID'] = str_replace(" ", "_", $HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key]);
+								if (is_numeric(strpos($return[$dsTitle['xsdsel_title'].$key]['ID'], "."))) {
+									$filename_ext = strtolower(substr($return[$dsTitle['xsdsel_title'].$key]['ID'], (strrpos($return[$dsTitle['xsdsel_title'].$key]['ID'], ".") + 1)));
+									$return[$dsTitle['xsdsel_title'].$key]['ID'] = substr($return[$dsTitle['xsdsel_title'].$key]['ID'], 0, strrpos($return[$dsTitle['xsdsel_title'].$key]['ID'], ".") + 1).$filename_ext;
+								}
+								$return[$dsTitle['xsdsel_title'].$key]['versionID'] = $return[$dsTitle['xsdsel_title'].$key]['ID']."1.0";																
+								$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = $HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key];
+								$return[$dsTitle['xsdsel_title'].$key]['MIMETYPE'] = $HTTP_POST_FILES['xsd_display_fields']['type'][$file_res[0]['xsdmf_id']][$key];
+							}
+						}
+						
+					} else {
+						$return[$dsTitle['xsdsel_title']]['CONTROL_GROUP'] = $return[$dsTitle['xsdsel_title']]['CONTROL_GROUP'];
+						$return[$dsTitle['xsdsel_title']]['STATE'] = $return[$dsTitle['xsdsel_title']]['STATE'];
+						$return[$dsTitle['xsdsel_title']]['VERSIONABLE'] = $return[$dsTitle['xsdsel_title']]['VERSIONABLE'];
+						$return[$dsTitle['xsdsel_title']]['ID'] = str_replace(" ", "_", $HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']]);
+						if (is_numeric(strpos($return[$dsTitle['xsdsel_title']]['ID'], "."))) {
+							$filename_ext = strtolower(substr($return[$dsTitle['xsdsel_title']]['ID'], (strrpos($return[$dsTitle['xsdsel_title']]['ID'], ".") + 1)));
+							$return[$dsTitle['xsdsel_title']]['ID'] = substr($return[$dsTitle['xsdsel_title']]['ID'], 0, strrpos($return[$dsTitle['xsdsel_title']]['ID'], ".") + 1).$filename_ext;
+						}
+						$return[$dsTitle['xsdsel_title']]['versionID'] = $return[$dsTitle['xsdsel_title']]['ID']."1.0";																							
+						$return[$dsTitle['xsdsel_title']]['LABEL'] = $HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']];
+						$return[$dsTitle['xsdsel_title']]['MIMETYPE'] = $HTTP_POST_FILES['xsd_display_fields']['type'][$file_res[0]['xsdmf_id']];
+					}
 				} 
 
 			}
@@ -1056,8 +1112,12 @@ function getDatastreamXMLContent($datastreamTitles, $xmlString) {
 //     - used to pull out the datastream from a created XML object after an update html post.
 	$return = array();
 //	echo $xmlString;
-	foreach ($datastreamTitles as $dsTitle) {
-		$IDPos = stripos($xmlString, 'id="'.$dsTitle['xsdsel_title'].'"'); // stripos is a php5 function
+	foreach ($datastreamTitles as $title => $data) {
+//		$file_res = XSD_Loop_Subelement::getXSDMFInputType($dsTitle['xsdsel_id'], 'file_input');
+//		if (is_array($HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']])) {
+//		echo $title."\n\n\n";
+
+		$IDPos = stripos($xmlString, 'id="'.$title.'"'); // stripos is a php5 function
 		if (is_numeric($IDPos)) {
 			$searchScopeEnd = strpos($xmlString, "</foxml:datastream>", $IDPos);
 			$searchXMLString = substr($xmlString, $IDPos, ($searchScopeEnd - $IDPos));
@@ -1075,7 +1135,8 @@ function getDatastreamXMLContent($datastreamTitles, $xmlString) {
 				$tempXML = substr($searchXMLString, $XMLContentStartPos, ($XMLContentEndPos-$XMLContentStartPos));
 //				echo "\n\nTEMPXML -> ".$tempXML."\n\n";
 //				$tempXML = substr($xmlString, $XMLContentStartPos, ($XMLContentEndPos-$XMLContentStartPos));
-				$return[$dsTitle['xsdsel_title']] = $tempXML;
+//				$return[$dsTitle['xsdsel_title']] = $tempXML;
+				$return[$title] = $tempXML;
 			}
 		}
 	}
@@ -1087,10 +1148,10 @@ function removeNonXMLDatastreams($datastreamTitles, $xmlString) {
 
 	$return = $xmlString;
 //	echo $xmlString;
-	foreach ($datastreamTitles as $dsTitle) {
+	foreach ($datastreamTitles as $title => $data) {
 //		echo "DSTITLE -> ";
 //		echo $dsTitle['xsdsel_title']."\n\n";
-		$IDPos = stripos($xmlString, 'id="'.$dsTitle['xsdsel_title'].'"'); // stripos is a php5 function
+		$IDPos = stripos($xmlString, 'id="'.$title.'"'); // stripos is a php5 function
 		$binaryPos = false;
 		if (is_numeric($IDPos)) {
 			$searchScopeEnd = strpos($xmlString, "</foxml:datastream>", $IDPos);
@@ -1871,10 +1932,12 @@ function in_multi_array($needle, $haystack) {
 function array_flatten(&$a,$pref='') {
    $ret=array();
    foreach ($a as $i => $j)
-       if (is_array($j))
+       if (is_array($j)) {
            $ret=array_merge($ret,Misc::array_flatten($j,$pref.$i."|"));
-       else
+           $ret[$pref.$i] = $i;
+       } else {
            $ret[$pref.$i] = $j;
+		}
    return $ret;
 }
 
@@ -2076,7 +2139,7 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 									}
 							} elseif ($xsdmf_details['xsdmf_html_input'] == 'multiple') {
 //								if (($attrib_loop_index != "") && (is_numeric($attrib_loop_index))) { // if there is an attrib loop then just get that key index of the post variable
-								if (((is_numeric($attrib_loop_index)))) { // if there is an attrib loop then just get that key index of the post variable
+								if (is_numeric($attrib_loop_index)) { // if there is an attrib loop then just get that key index of the post variable
 									$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id][$attrib_loop_index];
 									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id][$attrib_loop_index]));
 								} else {
@@ -2223,8 +2286,18 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 									$attrib_value = $top_xdis_id;
 									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $top_xdis_id));
 								} else {
-									$attrib_value = $xsdmf_details['xsdmf_static_text'];
-									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_details['xsdmf_static_text']));
+									if (is_numeric($xsdmf_details['xsdsel_attribute_loop_xsdmf_id'])) {
+										$loop_attribute_xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_details['xsdsel_attribute_loop_xsdmf_id']);
+										if (($xsdmf_details['xsdmf_element'] == '!datastream!ID') && ($xsdmf_details['xsdsel_title'] == 'File_Attachment') && ($loop_attribute_xsdmf_details['xsdmf_multiple'] == 1)) {
+										  $extra = $attrib_loop_index;
+										} else {
+										  $extra = "";
+										}
+									} else {
+									  $extra = "";
+									}									
+									$attrib_value = $xsdmf_details['xsdmf_static_text'].$extra;
+									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_details['xsdmf_static_text'].$extra));						
 								}
 							} elseif ($xsdmf_details['xsdmf_html_input'] == 'text' || $xsdmf_details['xsdmf_html_input'] == 'textarea') {
 //								if ($xsd_display_fields[i].xsdmf_multiple == 1) {
@@ -2334,7 +2407,8 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 							} else {
 								$xmlObj .= "<".$i;
 							} 
-							$xmlObj .= Misc::array_to_xml_instance($j, "", $element_prefix, "attributes", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, "", $indexArray, $file_downloads, $created_date, $updated_date);
+//							$xmlObj .= Misc::array_to_xml_instance($j, "", $element_prefix, "attributes", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, "", $indexArray, $file_downloads, $created_date, $updated_date);
+							$xmlObj .= Misc::array_to_xml_instance($j, "", $element_prefix, "attributes", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date);
 							if ($xsdmf_details['xsdmf_valueintag'] == 1) {
 								$xmlObj .= ">\n";
 							} else {
@@ -2572,20 +2646,31 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $top_xdis_id));													
 //							$attrib_value = $xdis_id;
 						} else {
-							$attrib_value = $xsdmf_details['xsdmf_static_text'];
-							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_details['xsdmf_static_text']));						
+//							if (($xsdmf_details['xsdmf_element'] == '!datastream!ID') && ($xsdmf_details['xsdsel_title'] == 'File_Attachment')) {
+							if (is_numeric($xsdmf_details['xsdsel_attribute_loop_xsdmf_id'])) {
+								$loop_attribute_xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_details['xsdsel_attribute_loop_xsdmf_id']);
+								if (($xsdmf_details['xsdmf_element'] == '!datastream!ID') && ($xsdmf_details['xsdsel_title'] == 'File_Attachment') && ($loop_attribute_xsdmf_details['xsdmf_multiple'] == 1)) {
+								  $extra = $attrib_loop_index;
+								} else {
+								  $extra = "";
+								}
+							} else {
+							  $extra = "";
+							}							
+							$attrib_value = $xsdmf_details['xsdmf_static_text'].$extra;
+							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_details['xsdmf_static_text'].$extra));						
 						}
 					} elseif (($xsdmf_details['xsdmf_html_input'] == 'file_input' 
                             || $xsdmf_details['xsdmf_html_input'] == 'file_selector')
                             && !empty($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']])) {
-//						echo "POST FILES !!! - >";
 //						print_r($HTTP_POST_FILES);
-//						$attrib_value = base64_encode(fread(fopen($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']], "r"), $HTTP_POST_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']]));
-						$attrib_value = (fread(fopen($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']], "r"), $HTTP_POST_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']]));
+//							echo "LOOP INDEX => ".$attrib_loop_index."<=";
+							if (is_numeric($attrib_loop_index) && is_array($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']])) {
+								$attrib_value = (fread(fopen($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index], "r"), $HTTP_POST_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']][$attrib_loop_index]));						
+							} else {
+								$attrib_value = (fread(fopen($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']], "r"), $HTTP_POST_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']]));													
+							}
 						// put a full text indexer here for pdfs and word docs
-//						echo $attrib_value;
-//							$attrib_value = $HTTP_POST_VARS[
-
 					} elseif ($xsdmf_details['xsdmf_html_input'] == 'text' || $xsdmf_details['xsdmf_html_input'] == 'textarea') {			
 						if ($xsdmf_details['xsdmf_multiple'] == 1) {
 							if (is_array($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) {
@@ -2670,40 +2755,59 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 //						print_r($xsdmf_details);
 						if ($xsdmf_details['xsdmf_html_input'] == 'xsd_loop_subelement') {
 							$sel = XSD_Loop_Subelement::getListByXSDMF($xsdmf_id);
+//							print_r($sel);
 							if (count($sel) > 0) { //if there are xsd sublooping elements attached to it then prepare their headers and go recursive!
 								foreach($sel as $sel_record) {
+//									$attrib_loop_count = 0;
 									if (is_numeric($sel_record['xsdsel_attribute_loop_xsdmf_id']) && ($sel_record['xsdsel_attribute_loop_xsdmf_id'] != 0)) {
-//										$attrib_loop_details = XSD_HTML_Match::getDetailsByXSDMF_ID($sel_record['xsdsel_attribute_loop_xsdmf_id']);
-										if (is_array($HTTP_POST_VARS['xsd_display_fields'][$sel_record['xsdsel_attribute_loop_xsdmf_id']])) {
-											$attrib_loop_count = count($HTTP_POST_VARS['xsd_display_fields'][$sel_record['xsdsel_attribute_loop_xsdmf_id']]);
+										$attrib_loop_details = XSD_HTML_Match::getDetailsByXSDMF_ID($sel_record['xsdsel_attribute_loop_xsdmf_id']);
+
+
+										if ($attrib_loop_details['xsdmf_html_input'] == "file_input") {
+											$attrib_loop_child = $HTTP_POST_FILES['xsd_display_fields']["tmp_name"][$sel_record['xsdsel_attribute_loop_xsdmf_id']];
+										} else {
+										    $attrib_loop_child = $HTTP_POST_VARS['xsd_display_fields'][$sel_record['xsdsel_attribute_loop_xsdmf_id']];
+										}
+//										if (is_array($HTTP_POST_VARS['xsd_display_fields'][$sel_record['xsdsel_attribute_loop_xsdmf_id']])) {
+//											$attrib_loop_count = count($HTTP_POST_VARS['xsd_display_fields'][$sel_record['xsdsel_attribute_loop_xsdmf_id']]);
+										if (is_array($attrib_loop_child)) {
+											$attrib_loop_count = count($attrib_loop_child);
 										} else {
 											$attrib_loop_count = 1;
 										}
 									} else {
 										$attrib_loop_count = 1;
 									}
+//									echo $sel_record['xsdsel_attribute_loop_xsdmf_id']." outside $attrib_loop_count \n\n";
+//											print_r($HTTP_POST_FILES);									
 									for ($x=0;$x<$attrib_loop_count;$x++) { // if this sel id is a loop of attributes then it will loop through each, otherwise it will just go through once
-										if (!is_numeric(strpos($i, ":"))) {
-											$xmlObj .= "<".$element_prefix.$i;
-										} else {
-											$xmlObj .= "<".$i;
-										} 
-										$xmlObj .= Misc::array_to_xml_instance($j, "", $element_prefix, "attributes", $tagIndent, $sel_record['xsdsel_id'], $xdis_id, $pid, $top_xdis_id, $x, $indexArray, $file_downloads, $created_date, $updated_date);
-										if ($xsdmf_details['xsdmf_valueintag'] == 1) {
-											$xmlObj .= ">\n";
-										} else {
-											$xmlObj .= "/>\n";
-										}
-	
-	
-										$xmlObj .= Misc::array_to_xml_instance($j, "", $element_prefix, "", $tagIndent, $sel_record['xsdsel_id'], $xdis_id, $pid, $top_xdis_id, "", $indexArray, $file_downloads, $created_date, $updated_date);
-										if ($xsdmf_details['xsdmf_valueintag'] == 1) {
+										if (($attrib_loop_details['xsdmf_html_input'] != "file_input") 
+										  || (is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "file_input") && ($HTTP_POST_FILES['xsd_display_fields']["tmp_name"][$sel_record['xsdsel_attribute_loop_xsdmf_id']][$x] != ""))
+										  || (!is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "file_input") && ($HTTP_POST_FILES['xsd_display_fields']["tmp_name"][$sel_record['xsdsel_attribute_loop_xsdmf_id']] != ""))																				
+										) {
+//									        echo $sel_record['xsdsel_attribute_loop_xsdmf_id']." inside $attrib_loop_count \n\n";										
+
+//											echo $attrib_loop_count." + ".$sel_record['xsdsel_attribute_loop_xsdmf_id']."HERE! -> ".$HTTP_POST_FILES['xsd_display_fields']["tmp_name"][$sel_record['xsdsel_attribute_loop_xsdmf_id']]."\n\n";
 											if (!is_numeric(strpos($i, ":"))) {
-												$xmlObj .= "</".$element_prefix.$i.">\n";
+												$xmlObj .= "<".$element_prefix.$i;
 											} else {
-												$xmlObj .= "</".$i.">\n";
+												$xmlObj .= "<".$i;
+											} 
+											$xmlObj .= Misc::array_to_xml_instance($j, "", $element_prefix, "attributes", $tagIndent, $sel_record['xsdsel_id'], $xdis_id, $pid, $top_xdis_id, $x, $indexArray, $file_downloads, $created_date, $updated_date);
+											if ($xsdmf_details['xsdmf_valueintag'] == 1) {
+												$xmlObj .= ">\n";
+											} else {
+												$xmlObj .= "/>\n";
+											}			
+											$xmlObj .= Misc::array_to_xml_instance($j, "", $element_prefix, "", $tagIndent, $sel_record['xsdsel_id'], $xdis_id, $pid, $top_xdis_id, $x, $indexArray, $file_downloads, $created_date, $updated_date);
+											if ($xsdmf_details['xsdmf_valueintag'] == 1) {
+												if (!is_numeric(strpos($i, ":"))) {
+													$xmlObj .= "</".$element_prefix.$i.">\n";
+												} else {
+													$xmlObj .= "</".$i.">\n";
+												}
 											}
-										}
+										} // end check for empty file posts
 									} // end attrib for loop
 								}
 							}
@@ -2736,19 +2840,19 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 
 								Misc::dom_xsd_to_referenced_array($xsd, $xsd_top_element_name, &$array_ptr, "", "", $xsd);
 //								print_r($array_ptr);
-
+//								for($multiple_count
 								$xmlObj .= $tagIndent."<".$xsd_element_prefix.$xsd_top_element_name." ";
 
 								$xmlObj .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $pid);
 								$xmlObj .= $xml_schema;
 								$xmlObj .= ">\n";
 
-								$xmlObj .= Misc::array_to_xml_instance($array_ptr, "", $xsd_element_prefix, "", $tagIndent, "", $rel_record['xsdrel_xdis_id'], $pid, $top_xdis_id, "", $indexArray, $file_downloads, $created_date, $updated_date);
+								$xmlObj .= Misc::array_to_xml_instance($array_ptr, "", $xsd_element_prefix, "", $tagIndent, "", $rel_record['xsdrel_xdis_id'], $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date);
 								$xmlObj .= $tagIndent."</".$xsd_element_prefix.$xsd_top_element_name.">\n";
 							}
 						}
 						//}
-						$xmlObj .= Misc::array_to_xml_instance($j, "", $element_prefix, "", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, "", $indexArray, $file_downloads, $created_date, $updated_date);
+						$xmlObj .= Misc::array_to_xml_instance($j, "", $element_prefix, "", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date);
 						$xmlObj .= $tagIndent;
 						if ($xsdmf_details['xsdmf_html_input'] != 'xsd_loop_subelement') { // subloop element attributes get treated differently
 							if ($xsdmf_details['xsdmf_valueintag'] == 1) {
@@ -2761,11 +2865,11 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 						}
 					}
 				} else {
-						$xmlObj .= Misc::array_to_xml_instance($j, "", $element_prefix, "", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, "", $indexArray, $file_downloads, $created_date, $updated_date);
+						$xmlObj .= Misc::array_to_xml_instance($j, "", $element_prefix, "", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date);
 //						$xmlObj .= $tagIndent;
 				} // new if is numeric
 			} else {
-				$xmlObj = Misc::array_to_xml_instance($j, $xmlObj, $element_prefix, "", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, "", $indexArray, $file_downloads, $created_date, $updated_date);
+				$xmlObj = Misc::array_to_xml_instance($j, $xmlObj, $element_prefix, "", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date);
 			}
 		}
 	}	

@@ -176,7 +176,7 @@ function selectDateField(field_name, day, month, year)
 						</tr>
 				{/if}
 			{elseif ($xsd_display_fields[i].xsdmf_html_input == 'static' && $xsd_display_fields[i].xsdmf_show_in_view == 1 && $xsd_display_fields[i].xsdmf_static_text != '')}
-				{assign var="image_name" value=$espace_root_dir|cat:"images/"|cat:$xsd_display_fields[i].xsdmf_image_location} 
+				{assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$xsd_display_fields[i].xsdmf_image_location} 
 				{assign var="image_file_string" value=""}
 				{fetch file=$image_name assign="image_file_string"} 
 						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1">
@@ -188,7 +188,7 @@ function selectDateField(field_name, day, month, year)
 						  </td>
 						</tr>
 			{elseif ($xsd_display_fields[i].xsdmf_html_input == 'xsd_loop_subelement' && $xsd_display_fields[i].xsdmf_show_in_view == 1)}
-				{assign var="image_name" value=$espace_root_dir|cat:"images/"|cat:$xsd_display_fields[i].xsdmf_image_location} 
+				{assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$xsd_display_fields[i].xsdmf_image_location} 
 				{assign var="image_file_string" value=""}
 				{fetch file=$image_name assign="image_file_string"} 
 						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1">

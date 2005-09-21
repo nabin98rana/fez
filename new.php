@@ -160,6 +160,7 @@ $tpl->assign("custom_fields", $custom_modified);*/
 //$xdis_id = 5; // was 5
 $xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id));
 $cvo_list = Controlled_Vocab::getAssocListFullDisplay(false, "", 0, 2);
+$xdis_list = XSD_Display::getAssocListDocTypes(); // @@@ CK - 24/8/05 added for collections to be able to select their child document types/xdisplays
 //print_r($cvo_list);
 //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
 foreach ($xsd_display_fields  as $dis_key => $dis_field) {

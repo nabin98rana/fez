@@ -1593,7 +1593,7 @@ class Record
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field
 				 WHERE rmf_rec_pid = '" . $pid . "'";
 		if ($dsDelete=='keep') {
-			$stmt .= " and rmf_xsdmf_id != 122";
+			$stmt .= " and rmf_xsdmf_id not in (select distinct(xsdmf_id) from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields where xsdmf_fez_title = 'datastream_id')";
 		}
 //		echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -3520,17 +3520,28 @@ class RecordObject extends RecordGeneral
 		$xmlObj = Misc::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, $file_downloads, $this->created_date, $this->updated_date);
 
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
+
 		$datastreamTitles = $display->getDatastreamTitles();
 		$params = array();
-
+//		echo $xmlObj;
 		$datastreamXMLHeaders = Misc::getDatastreamXMLHeaders($datastreamTitles, $xmlObj);
-		$datastreamXMLContent = Misc::getDatastreamXMLContent($datastreamTitles, $xmlObj);
+//		print_r($datastreamTitles);
+//		print_r($datastreamXMLHeaders);
+		if (is_array($datastreamXMLHeaders["File_Attachment0"])) { // it must be a multiple file upload so remove the generic one
+			$datastreamXMLHeaders = Misc::array_clean_key($datastreamXMLHeaders, "File_Attachment", true, true);		
+		}
+
+//		print_r($datastreamXMLHeaders);
+//		echo $xmlObj;
+		$datastreamXMLContent = Misc::getDatastreamXMLContent($datastreamXMLHeaders, $xmlObj);
+//		print_r($datastreamXMLContent);
 
         if ($ingestObject) {
             // Actually Ingest the object Into Fedora
             // will have to exclude the non X control group xml and add the datastreams after the base ingestion.
 
-            $xmlObj = Misc::removeNonXMLDatastreams($datastreamTitles, $xmlObj);
+//            $xmlObj = Misc::removeNonXMLDatastreams($datastreamTitles, $xmlObj);
+            $xmlObj = Misc::removeNonXMLDatastreams($datastreamXMLHeaders, $xmlObj);
 
             $config = array(
                     'indent'         => true,
@@ -3548,32 +3559,38 @@ class RecordObject extends RecordGeneral
 //			echo $xmlObj;        
 		$convert_check = false;
 //		print_r($datastreamXMLHeaders);
+
+//		print_r($datastreamXMLHeaders);
+//		print_r($datastreamXMLContent);
 //		print_r($indexArray);
 		Record::insertIndexBatch($pid, $indexArray, $datastreamXMLHeaders);
 //		echo "INDEX ARRAY -> ";
 //		print_r($indexArray);
+//		print_r($datastreamTitles);
+//		print_r($datastreamXMLHeaders);
+//		foreach ($datastreamTitles as $dsTitle) {
+		foreach ($datastreamXMLHeaders as $dsKey => $dsTitle) {
+			$dsIDName = $dsTitle['ID'];
 
-		foreach ($datastreamTitles as $dsTitle) {
-			$dsIDName = $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['ID'];
 			if (is_numeric(strpos($dsIDName, "."))) {
 				$filename_ext = strtolower(substr($dsIDName, (strrpos($dsIDName, ".") + 1)));
 				$dsIDName = substr($dsIDName, 0, strrpos($dsIDName, ".") + 1).$filename_ext;
 			}
 
-			if (Fedora_API::datastreamExists($pid, $dsTitle['xsdsel_title'])) {
-				Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['STATE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['LABEL'], $datastreamXMLContent[$dsTitle['xsdsel_title']], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['MIMETYPE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['VERSIONABLE']);
+			if (Fedora_API::datastreamExists($pid, $dsTitle['ID'])) {
+				Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, $dsTitle['STATE'], $dsTitle['LABEL'], $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], $dsTitle['VERSIONABLE']);
 			} else {
-				Fedora_API::getUploadLocation($pid, $dsIDName, $datastreamXMLContent[$dsTitle['xsdsel_title']], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['LABEL'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['MIMETYPE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['CONTROL_GROUP']);
+				Fedora_API::getUploadLocation($pid, $dsIDName, $datastreamXMLContent[$dsKey], $dsTitle['LABEL'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
 			}
 			// Now check for post upload workflow events like thumbnail resizing of images
 			$convert_check = Workflow::checkForImageFile($dsIDName);
 			if ($convert_check != false) {
-				Fedora_API::getUploadLocationByLocalRef($pid, $convert_check, $convert_check, $convert_check, $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['MIMETYPE'], $datastreamXMLHeaders[$dsTitle['xsdsel_title']]['CONTROL_GROUP']);
+				Fedora_API::getUploadLocationByLocalRef($pid, $convert_check, $convert_check, $convert_check, $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
 				if (is_numeric(strpos($convert_check, "/"))) {
 					$convert_check = substr($convert_check, strrpos($convert_check, "/")+1); // take out any nasty slashes from the ds name itself
 				}
 				$convert_check = str_replace(" ", "_", $convert_check);
-				Record::insertIndexMatchingField($pid, 122, NULL, NULL, "varchar", $convert_check); // add the thumbnail to the fez index
+				Record::insertIndexMatchingField($pid, 122, "varchar", $convert_check); // add the thumbnail to the fez index
 			}
 			$presmd_check = Workflow::checkForPresMD($dsIDName);
 			if ($presmd_check != false) {

@@ -450,6 +450,7 @@ class Collection
 		$termCounter = 2;
 
 		$stringIDs = implode("', '", Misc::array_flatten($treeIDs));
+
 		$middleStmt = 
 		" INNER JOIN (
 				SELECT distinct r".$termCounter.".rmf_rec_pid 
@@ -475,8 +476,9 @@ class Collection
 				    r1.rmf_xsdmf_id = x1.xsdmf_id and k1.sek_title = 'Subject'
 				 GROUP BY
 				 	r1.rmf_varchar";
-//		echo $stmt;
+
 		$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+//		echo $stmt;
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
@@ -488,9 +490,10 @@ class Collection
 				}
 				Collection::fillTree(&$res, $treeIDs, $key, $data);
 			}
-			if (is_numeric(parent_id)) {
+			if (is_numeric($parent_id)) {
 				$res[$parent_id] = $parent_count;
 			}
+
 			return $res;
 
         }

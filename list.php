@@ -200,14 +200,16 @@ if (!empty($collection_pid)) {
 	if (is_numeric($parent_id)) {	
 		$subject_list = Controlled_Vocab::getList($parent_id);
 		$treeIDs = Controlled_Vocab::getAllTreeIDs($parent_id);
+
 		$subject_count = Collection::getCVCountSearch($treeIDs, $parent_id);
 		$list = Collection::browseListing($pagerRow, $rows, "Subject");	
 		$list_info = $list["info"];
 		$list = $list["list"];		
 	} else {
 		$subject_list = Controlled_Vocab::getList();	
-		$treeIDs = Controlled_Vocab::getAllTreeIDs();
-		$subject_count = Collection::getCVCountSearch($treeIDs);
+//		$treeIDs = Controlled_Vocab::getAllTreeIDs();
+//		$subject_count = Collection::getCVCountSearch($treeIDs);
+//		print_r($subject_count);
 	}
 	$breadcrumb = Controlled_Vocab::getParentAssocListFullDisplay($parent_id);
 	$breadcrumb = Misc::array_merge_preserve($breadcrumb, Controlled_Vocab::getAssocListByID($parent_id));

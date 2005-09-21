@@ -51,7 +51,7 @@
   <dt>What are the most important facts that a developer should know
   about the security of this system?</dt>
 
-  <dd>eSpace uses a highly configurable and granular method for authentication and authorisation named eSpace Access Control Markup Language (eSpaceACML). It is saved as a datastream in objects in eSpace. If an eSpace Record object does not have an eSpaceACML datastream the web application will attempt to find any parent Collection  object's eSpaceACML datastreams and use the access rules in those datastreams. If the eSpace Record has more than only parent Collection then the access logic will try and authenticate and authorise the user against each parent eSpaceACML (using boolean OR logic, not AND logic).</dd>
+  <dd>eSpace uses a highly configurable and granular method for authentication and authorisation named eSpace Access Control Markup Language (FezACML). It is saved as a datastream in objects in eSpace. If an eSpace Record object does not have an FezACML datastream the web application will attempt to find any parent Collection  object's FezACML datastreams and use the access rules in those datastreams. If the eSpace Record has more than only parent Collection then the access logic will try and authenticate and authorise the user against each parent FezACML (using boolean OR logic, not AND logic).</dd>
   <dt>&nbsp;</dt>
   <dt>What are the ranked goals for security in this system?</dt>
 
@@ -168,7 +168,7 @@
 
   <dt>Prevention of abuse: To what extent has this been achieved?</dt>
 
-  <dd>Web application security prevents access to modification of objects to select access groups based on eSpaceACML. </dd>
+  <dd>Web application security prevents access to modification of objects to select access groups based on FezACML. </dd>
 
 
   <dt>Accountability/auditing: To what extent has this been achieved?</dt>

@@ -2,9 +2,9 @@
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
 <!-- the root element for RELS-EXT-->
-<xsd:element name="eSpaceACML" type="eSpaceACMLType"/>
+<xsd:element name="FezACML" type="FezACMLType"/>
 
-<xsd:complexType name="eSpaceACMLType">
+<xsd:complexType name="FezACMLType">
     <xsd:sequence>
       <xsd:element name="rule" type="ruleType" />
     </xsd:sequence>

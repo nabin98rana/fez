@@ -1,7 +1,7 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
 // +----------------------------------------------------------------------+
-// | eSpace - Digital Repository                                          |
+// | Fez - Digital Repository                                          |
 // +----------------------------------------------------------------------+
 // |                                                                      |
 // | This program is free software; you can redistribute it and/or modify |
@@ -540,7 +540,7 @@ class Controlled_Vocab
 		} else {
 			$stmt .= " WHERE cvo_id not in (SELECT cvr_child_cvo_id from  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab_relationship)";
 		}
-
+//		echo $stmt."\n<br />";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -549,7 +549,7 @@ class Controlled_Vocab
 			foreach ($res as $row) {
 				$tempArray = array();			
 				$tempArray = Controlled_Vocab::getAllTreeIDs($row[0]);
-				
+//				$newArray[$parent_id] = $parent_id;	
 				if (count($tempArray) > 0) {
 					$newArray[$row[0]] = $tempArray;
 				} else {
@@ -557,6 +557,7 @@ class Controlled_Vocab
 				}
 
 			}
+
 			return $newArray;
 		}
 	}
