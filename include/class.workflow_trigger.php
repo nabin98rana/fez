@@ -9,10 +9,24 @@ class WorkflowTrigger
     function getTriggerTypes()
     {
         return array(
-            0 => "Ingest",
-            1 => "Update", 
-            3 => "Delete");
+            0 => "Ingest", // for uploading the actual binaries
+            1 => "Update", // updating metadta records
+            3 => "Delete", // deleting a record
+            4 => "Create"  // creating a record
+            );
     }
+    function getTriggerId($trigger)
+    {
+        $triggers = WorkflowTrigger::getTriggerTypes();
+        return array_search(ucfirst($trigger), $triggers);
+    }
+    function getTriggerName($trigger)
+    {
+        $triggers = WorkflowTrigger::getTriggerTypes();
+        return $triggers[$trigger];
+    }
+
+
 
     function update()
     {
@@ -62,7 +76,6 @@ class WorkflowTrigger
               break;
       }
       $stmt = "$actionstr ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."workflow_trigger $set_str $wherestr";
-      echo $stmt;
       $res = $GLOBALS["db_api"]->dbh->query($stmt);
       if (PEAR::isError($res)) {
           Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -71,9 +84,10 @@ class WorkflowTrigger
       return 1;
     }
 
-    function getList($pid)
+    function getList($pid, $wherestr='')
     {
-        $stmt = "SELECT * FROM ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."workflow_trigger WHERE wft_pid='$pid'";
+        $stmt = "SELECT * FROM ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."workflow_trigger WHERE wft_pid='$pid'
+            $wherestr";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -82,7 +96,23 @@ class WorkflowTrigger
         return $res;
     }
 
-    function getDetails($wft_id)
+    function getListByTrigger($pid, $trigger)
+    {
+        if (!Misc::isInt($trigger)) {
+            $trigger = WorkflowTrigger::getTriggerId($trigger);
+        }
+        return WorkflowTrigger::getList($pid, " AND wft_type_id=$trigger ");
+    }
+
+    function getListByTriggerAndXDis_Id($pid, $trigger, $xdis_id)
+    {
+        if (!Misc::isInt($trigger)) {
+            $trigger = WorkflowTrigger::getTriggerId($trigger);
+        }
+        return WorkflowTrigger::getList($pid, " AND wft_type_id=$trigger AND wft_xdis_id=$xdis_id ");
+    }
+
+     function getDetails($wft_id)
     {
         $stmt = "SELECT * FROM ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."workflow_trigger 
             WHERE wft_id=$wft_id";
@@ -92,10 +122,9 @@ class WorkflowTrigger
             $res = array();
         }
         return $res;
-     }
-
-
+    }
     
+
 }
 
 ?>

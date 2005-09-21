@@ -89,10 +89,10 @@ if (!empty($community_pid)) {
 $pid = $record_id;
 //if ($role_id == User::getRoleID('standard user') || ($role_id == User::getRoleID('administrator')) || ($role_id == User::getRoleID('manager'))) {
 $tpl->assign("pid", $pid);
-$xdis_array = Fedora_API::callGetDatastreamContentsField ($pid, 'FezMD', array('xdis_id'));
-$xdis_id = $xdis_array['xdis_id'][0];
+$record = new RecordObject($pid);
+$record->getDisplay();
+$xdis_id = $record->getXmlDisplayId();
 $xdis_list = XSD_Display::getAssocListDocTypes(); // @@@ CK - 24/8/05 added for collections to be able to select their child document types/xdisplays
-$tpl->assign("pid", $pid);
 
 $acceptable_roles = array("Community_Admin", "Editor", "Creator", "Community_Admin");
 if (Auth::checkAuthorisation($pid, $xdis_id, $acceptable_roles, $HTTP_SERVER_VARS['PHP_SELF']."?".$HTTP_SERVER_VARS['QUERY_STRING']) == true) {
@@ -115,14 +115,14 @@ if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for
 //    $res = Record::update($pid);
 //}
 
-
 $jtaskData = "";
 $maxG = 0;
 //$tpl->assign("col_id", $col_id);
 //$tpl->assign("user_id", $user_id);
 //$xdis_id = 5;
 $cvo_list = Controlled_Vocab::getAssocListFullDisplay();
-$xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id));
+$xsd_display_fields = $record->display->getMatchFieldsList();  // XSD_DisplayObject
+//(XSD_HTML_Match::getListByDisplay($xdis_id));
 //$prior = array(''=>array('xsdmf_'=>array('')));
 //$priority = array(''=>array('xsdmf_order'=>''));
 //$priority = array(''=>array('xsdmf_order'=>''));
@@ -156,7 +156,7 @@ $tpl->assign("xdis_id", $xdis_id);
 
 //$xdis_id = 5; //will replace with value from the eSpace mysql database after testing
 
-$details = Record::getDetails($pid, $xdis_id);
+$details = $record->getDetails();
 $controlled_vocabs = Controlled_Vocab::getAssocListAll();
 //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
 foreach ($xsd_display_fields  as $dis_field) {
@@ -205,8 +205,23 @@ $datastreams = Fedora_API::callGetDatastreams($pid);
 
 $datastreams = Misc::cleanDatastreamList($datastreams);
 //print_r($datastreams);
-$parents = Record::getParents($pid);
+$parents = $record->getParents(); // RecordObject
 $tpl->assign("parents", $parents);
+$title = $record->getTitle(); // RecordObject
+$tpl->assign("title", $title);
+if ($record->isCollection()) {
+    $tpl->assign('record_type', 'Collection');
+    $tpl->assign('parent_type', 'Community');
+    $tpl->assign('view_href', APP_RELATIVE_URL."list.php?collection_pid=$pid");
+} elseif ($record->isCommunity()) {
+    $tpl->assign('record_type', 'Community');
+    $tpl->assign('view_href', APP_RELATIVE_URL."list.php?community_pid=$pid");
+} else {
+    $tpl->assign('record_type', 'Record');
+    $tpl->assign('parent_type', 'Collection');
+    $tpl->assign('view_href', APP_RELATIVE_URL."view.php?pid=$pid");
+}
+
 
 $tpl->assign("datastreams", $datastreams);
 $tpl->assign("fez_root_dir", APP_PATH);

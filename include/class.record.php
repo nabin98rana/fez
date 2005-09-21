@@ -3251,8 +3251,11 @@ LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "custom_field_option as 
 class RecordGeneral
 {
     var $pid;
+    var $xdis_id;
+    var $no_xdis_id = false;  // true if we couldn't find the xdis_id
     var $viewer_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator"); 
     var $editor_roles;
+    var $creator_roles;
     var $checked_auth = false;
     var $auth_groups;
 
@@ -3265,6 +3268,7 @@ class RecordGeneral
     {
         $this->pid = $pid;
         $this->editor_roles = Misc::array_clean($this->viewer_roles, "Viewer");
+        $this->creator_roles = $this->editor_roles;
     }
 
     /**
@@ -3277,6 +3281,27 @@ class RecordGeneral
         $this->checked_auth = false;
     }
 
+    /**
+     * getXmlDisplayId
+     * Retrieve the display id for this record
+     */
+    function getXmlDisplayId() {
+        if (!$this->no_xdis_id) {
+            if (is_null($this->xdis_id)) {
+                $xdis_array = Fedora_API::callGetDatastreamContentsField($this->pid, 'FezMD', array('xdis_id'));
+                if (isset($xdis_array['xdis_id'][0])) {
+                    $this->xdis_id = $xdis_array['xdis_id'][0];
+                } else {
+                    $this->no_xdis_id = true;
+                    return null;
+                }
+            }
+            return $this->xdis_id;
+        }
+        return null;
+    }
+
+
 
     /**
      * getAuth
@@ -3284,6 +3309,7 @@ class RecordGeneral
      */
     function getAuth() {
         if (!$this->checked_auth) {
+            $this->getXmlDisplayId();
             $this->auth_groups = Auth::getAuthorisationGroups($this->pid, $this->xdis_id);
             $this->checked_auth = true;
         }
@@ -3318,6 +3344,15 @@ class RecordGeneral
         return $this->checkAuth($this->editor_roles, $redirect);
     }
 
+    /**
+     * canCreate
+     * Find out if the current user can create this record
+     */
+    function canCreate($redirect=false) {
+        return $this->checkAuth($this->creator_roles, $redirect);
+    }
+
+
 }
 
 /**
@@ -3327,36 +3362,14 @@ class RecordGeneral
   */
 class RecordObject extends RecordGeneral
 {
-    var $xdis_id;
     var $created_date;
     var $updated_date;	
     var $file_downloads; //for statistics of file datastream downloads from eserv.php
-    var $no_xdis_id = false;  // true if we couldn't find the xdis_id
     var $default_xdis_id = 5;
     var $display;
     var $details;
+    var $record_parents;
     
-
-    /**
-     * getXmlDisplayId
-     * Retrieve the display id for this record
-     */
-    function getXmlDisplayId() {
-        if (!$this->no_xdis_id) {
-            if (is_null($this->xdis_id)) {
-                $xdis_array = Fedora_API::callGetDatastreamContentsField($this->pid, 'FezMD', array('xdis_id'));
-                if (isset($xdis_array['xdis_id'][0])) {
-                    $this->xdis_id = $xdis_array['xdis_id'][0];
-                } else {
-                    $this->no_xdis_id = true;
-                    return null;
-                }
-            }
-            return $this->xdis_id;
-        }
-        return null;
-    }
-
     /**
      * getXmlDisplayId
      * Retrieve the display id for this record
@@ -3613,7 +3626,43 @@ class RecordObject extends RecordGeneral
         return $this->details[$xsdmf_id];
     }
 
+    function getDCType()
+    {
+        $this->getDetails();
+        $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!dc:type'); 
+        return $this->details[$xsdmf_id];
+    }
 
+    function isCollection()
+    {
+        return ($this->getDCType() == 'Fez_Collection') ? true : false;
+    }
+
+    function isCommunity()
+    {
+        return ($this->getDCType() == 'Fez_Community') ? true : false;
+    }
+
+
+    function getParents()
+    {
+        if (!$this->record_parents) {
+            $this->record_parents = Record::getParents($this->pid);
+        }
+        return $this->record_parents;
+    }
+
+    function getWorkflowsByTrigger($trigger)
+    {
+        $this->getParents();
+        $triggers = WorkflowTrigger::getListByTrigger($this->pid, $trigger);
+        foreach ($this->record_parents as $ppid) {
+            $triggers = array_merge($triggers, WorkflowTrigger::getListByTrigger($ppid, $trigger));
+        }
+        // get defaults
+        $triggers = array_merge($triggers, WorkflowTrigger::getListByTrigger(-1, $trigger));
+        return $triggers;
+    }
 
 }
 

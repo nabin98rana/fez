@@ -62,6 +62,7 @@ if (stristr(PHP_OS, 'darwin')) {
 
 @define("APP_SETUP_PATH", APP_PATH);
 @define("APP_SETUP_FILE", APP_SETUP_PATH . "setup.conf.php");
+@define("APP_WORKFLOW_PATH", APP_PATH.'workflow/');
 
 // FEDORA VARIABLES
 

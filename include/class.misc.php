@@ -2852,6 +2852,14 @@ foreach ($a as $i => $j) {
 return $ret;
 }
 
+    /**
+     * isInt
+     * Robust test of string to make sure it is an integer
+     */
+    function isInt ($x) {
+        return (is_numeric($x) ? intval(0+$x) == $x : false);
+    } 
+
     function collateArray($source, $ifield)
     {
         $dest = array();
@@ -2906,6 +2914,19 @@ return $ret;
         global $HTTP_POST_VARS, $HTTP_GET_VARS;
         return @$HTTP_GET_VARS[$key] ? @$HTTP_GET_VARS[$key] : @$HTTP_POST_VARS[$key];
     }
+    function GETorPOST_prefix($key)
+    {
+        global $HTTP_POST_VARS, $HTTP_GET_VARS;
+        $allvars = array_merge($HTTP_GET_VARS, $HTTP_POST_VARS);
+        foreach ($allvars as $vkey => $value) {
+            $res = strstr($vkey, $key);
+            if ($res) {
+                return substr($res, strlen($key));
+            }
+        }
+        return false;
+    }
+
 
 } // end of Misc class
 

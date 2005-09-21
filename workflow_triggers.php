@@ -59,9 +59,17 @@ $tpl->assign("isAdministrator", $isAdministrator);
 $record_id = Misc::GETorPOST('pid');
 $cat = Misc::GETorPOST('cat');
 $pid = $record_id;
-if (!empty($pid)) {
-    $tpl->assign("pid", $pid);
+$tpl->assign("pid", $pid);
+$xdis_list = array(-1 => 'Any') + XSD_Display::getAssocListDocTypes(); 
+if ($pid == -1) {
+    // setting trigger on the overall repository - default triggers
+    $canEdit = $isAdministrator;
+    $tpl->assign('record_type', 'Default Triggers');
+    $xdis_list += array(Collection::getCollectionXDIS_ID() => 'Collection', 
+            Community::getCommunityXDIS_ID() => 'Community'); 
+} elseif (!empty($pid)) {
     $record = new RecordObject($pid);
+    $canEdit = $record->canEdit();
     $xdis_id = $record->getXmlDisplayId();
 
     //echo "XDIS_ID -> ".$xdis_id;
@@ -76,11 +84,37 @@ if (!empty($pid)) {
         //	echo "redirecting";
         Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=view_form&pid=".$pid.$extra_redirect, false);
     }
+    $parents = $record->getParents(); // RecordObject
+    $tpl->assign("parents", $parents);
+    $title = $record->getTitle(); // RecordObject
+    $tpl->assign("title", $title);
+    if ($record->isCollection()) {
+        $tpl->assign('record_type', 'Collection');
+        $tpl->assign('parent_type', 'Community');
+        $tpl->assign('view_href', APP_RELATIVE_URL."list.php?collection_pid=$pid");
+        $xdis_list += array(Collection::getCollectionXDIS_ID() => 'Collection'); 
+    } elseif ($record->isCommunity()) {
+        $tpl->assign('record_type', 'Community');
+        $tpl->assign('view_href', APP_RELATIVE_URL."list.php?community_pid=$pid");
+        $xdis_list += array(Collection::getCollectionXDIS_ID() => 'Collection', 
+                Community::getCommunityXDIS_ID() => 'Community'); 
+        $tpl->assign('xdis_list', array(-1 => 'Any') + $xdis_list);
+    } else {
+        $tpl->assign('record_type', 'Record');
+        $tpl->assign('parent_type', 'Collection');
+        $tpl->assign('view_href', APP_RELATIVE_URL."view.php?pid=$pid");
+    }
+    $details = $record->getDetails();
+    $tpl->assign("details", $details);
 
-    $tpl->assign("isEditor", $record->canEdit());
+
+} else {
+    $canEdit = false;
 }
-if ($record && $record->canEdit()) {
 
+$tpl->assign("isEditor", $canEdit);
+if ($canEdit) {
+    $tpl->assign('xdis_list', $xdis_list);
     $internal_user_list = User::getAssocList();
     $internal_group_list = Group::getAssocListAll();
     $extra_redirect = "";
@@ -89,11 +123,6 @@ if ($record && $record->canEdit()) {
     $tpl->assign('wfl_list', Misc::keyPairs($wfl_list, 'wfl_id', 'wfl_title'));
     $triggers_list = WorkflowTrigger::getTriggerTypes();
     $tpl->assign('triggers_list', $triggers_list);
-    $xdis_list = XSD_Display::getAssocListDocTypes(); 
-    $tpl->assign('xdis_list', $xdis_list);
-    $details = $record->getDetails();
-    $tpl->assign("details", $details);
-    $tpl->assign('title', $record->getTitle());
     $list = WorkflowTrigger::getList($pid);
     $tpl->assign('list', $list);
 
@@ -103,13 +132,14 @@ if ($record && $record->canEdit()) {
         $tpl->assign('info', $info);
     }
 
-    
     // show number of triggers
     $tpl->assign('triggers', count($list));
     // if user is an espace user then get prefs
     if (Auth::userExists($username)) {
         $prefs = Prefs::get(Auth::getUserID());
     }
+
+
     $tpl->assign("user_prefs", $prefs);
     //$user_details = User::getDetails(Auth::getUserID());
 

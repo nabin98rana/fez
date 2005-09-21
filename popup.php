@@ -93,10 +93,12 @@ switch ($cat)
             $tpl->assign("generic_type",'workflow trigger');
             break;
         }
-    case 'delete_workflow_triggers':
+    case 'list_action_workflow_triggers':
         {
-            $tpl->assign("generic_result",WorkflowTrigger::remove());
-            $tpl->assign("generic_action",'delete');
+            if (Misc::GETorPOST('delete')) {
+                $tpl->assign("generic_result",WorkflowTrigger::remove());
+                $tpl->assign("generic_action",'delete');
+            }
             $tpl->assign("generic_type",'workflow trigger');
             break;
         }

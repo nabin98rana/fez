@@ -230,17 +230,15 @@ function setCustomOptionsField()
                   <textarea name="wfb_description" size="30" class="default">{$info.wfb_description}</textarea>
                 </td>
               </tr>
-{* keep this - i might use it later (MSS)
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default" nowrap>
                   <b>Options:</b>
                 </td>
                 <td bgcolor="{$light_color}">
 
-                  <label class="default"><input type="checkbox" name="wfb_auto" id="wfb_auto" size="30" class="default" {if $info.wfb_auto}checked="checked"{/if} onclick="javascript:showOrHideElement('tr_wfb_script_name','wfb_auto')"/>Scripted</label>
+                  <label class="default"><input type="checkbox" name="wfb_auto" id="wfb_auto" size="30" class="default" {if $info.wfb_auto}checked="checked"{/if} />Auto</label>
                 </td>
               </tr>  
-*}
               <tr id="tr_wfb_script_name">
                 <td width="120" bgcolor="{$cell_color}" class="default" nowrap>
                   <b>Script Filename:</b>
@@ -249,12 +247,6 @@ function setCustomOptionsField()
                   <input type="text" name="wfb_script_name" size="30" class="default" value="{$info.wfb_script_name}" >
                 </td>
               </tr>
-{*
-              <script language="JavaScript"><!-- 
-              // We hide or show the script selection box depending on whether the wfb_auto checkbox is checked.
-              showOrHideElement('tr_wfb_script_name','wfb_auto'); 
-              //--></script>
-*}              
               <tr >
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $smarty.get.cat == 'edit'}
@@ -300,6 +292,7 @@ function setCustomOptionsField()
                       </td>
                       <td bgcolor="{$row_color}" class="default">
                         &nbsp;{$list[i].wfb_script_name}
+                        {if $list[i].wfb_auto}<span style="color:green;">(auto)</span>{/if}
                       </td>
                     </tr>
                     {sectionelse}

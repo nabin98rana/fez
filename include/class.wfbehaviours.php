@@ -116,12 +116,14 @@ class WF_Behaviour
                     wfb_title,
                     wfb_version,
                     wfb_description,
-                    wfb_script_name
+                    wfb_script_name,
+                    wfb_auto
                  ) VALUES (
                     '" . Misc::escapeString($HTTP_POST_VARS["wfb_title"]) . "',
                     '" . Misc::escapeString($HTTP_POST_VARS["wfb_version"]) . "',
                     '" . Misc::escapeString($HTTP_POST_VARS["wfb_description"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["wfb_script_name"]) . "'
+                    '" . Misc::escapeString($HTTP_POST_VARS["wfb_script_name"]) . "',
+                    '" . Misc::checkBox(@$HTTP_POST_VARS["wfb_auto"]) . "'
                  )";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -150,7 +152,8 @@ class WF_Behaviour
                     wfb_title = '" . Misc::escapeString($HTTP_POST_VARS["wfb_title"]) . "',
                     wfb_version = '" . Misc::escapeString($HTTP_POST_VARS["wfb_version"]) . "',
                     wfb_description = '" . Misc::escapeString($HTTP_POST_VARS["wfb_description"]) . "',
-                    wfb_script_name = '" . Misc::escapeString($HTTP_POST_VARS["wfb_script_name"]) . "'
+                    wfb_script_name = '" . Misc::escapeString($HTTP_POST_VARS["wfb_script_name"]) . "',
+                    wfb_auto = '" . Misc::checkBox(@$HTTP_POST_VARS["wfb_auto"]) . "'
                  WHERE wfb_id = $wfb_id";
 //		echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -171,14 +174,15 @@ class WF_Behaviour
      * @access  public
      * @return  array The list of custom fields
      */
-    function getList()
+    function getList($wherestr='')
     {
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "wfbehaviour
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "wfbehaviour wfb
+                    $wherestr
                  ORDER BY
-                    wfb_title ASC";
+                    wfb.wfb_title ASC";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -214,6 +218,15 @@ class WF_Behaviour
     }
 
 
+    function getListAuto()
+    {
+        return WF_Behaviour::getList(" WHERE wfb.wfb_auto='1' ");
+    }
+
+    function getListManual()
+    {
+        return WF_Behaviour::getList(" WHERE wfb.wfb_auto='0' ");
+    }
 
 
 

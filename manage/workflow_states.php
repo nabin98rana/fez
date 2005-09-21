@@ -92,8 +92,10 @@ if ($isAdministrator) {
     $tpl->assign("link_check", $link_check);
 	$tpl->assign("wfl_title", Workflow::getTitle($wfl_id));
 	$tpl->assign("wfl_id", $wfl_id);
-    $behaviours = Misc::keyPairs(WF_Behaviour::getList(), 'wfb_id', 'wfb_title');
+    $behaviours = Misc::keyPairs(WF_Behaviour::getListManual(), 'wfb_id', 'wfb_title');
     $tpl->assign("behaviours_list", $behaviours);
+    $behaviours_auto = Misc::keyPairs(WF_Behaviour::getListAuto(), 'wfb_id', 'wfb_title');
+    $tpl->assign("behaviours_list_auto", $behaviours_auto);
     $tpl->assign("roles_list", Auth::getDefaultRoles());
 } else {
     $tpl->assign("show_not_allowed_msg", true);

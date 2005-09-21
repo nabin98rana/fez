@@ -5,14 +5,14 @@ body {
 
 /************************* Header Tags *************************/
 
-td.header   	{background-image: url("/images/2003/header_background.gif"); background-repeat: repeat; }
+td.header   	{background-image: url("../images/2003/header_background.gif"); background-repeat: repeat; }
 
-td.headersearch { font-size: 11px; height: 21px; background-image: url("/images/2003/gradient.gif"); background-repeat: repeat;}
+td.headersearch { font-size: 11px; height: 21px; background-image: url("../images/2003/gradient.gif"); background-repeat: repeat;}
 
 td.toplinks 	{ background-color: #367FCC; }
 
 td.searchbar	{ 
-	background-image: url("/images/2003/gradient.gif"); background-repeat: repeat;
+	background-image: url("../images/2003/gradient.gif"); background-repeat: repeat;
 	color: #000000;
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-size: 10px;
@@ -47,7 +47,7 @@ a:active.headerlinks {color: #3561C2}
 
 /************************* Footer Tags *************************/
 
-td.feedback 	 { font-size: 11px; height: 21px; background-image: url("/images/2003/gradient2.gif"); background-repeat: repeat;}
+td.feedback 	 { font-size: 11px; height: 21px; background-image: url("../images/2003/gradient2.gif"); background-repeat: repeat;}
 
 .uqfooterfeedback { 
 	font-family: Verdana, Arial, sans-serif;

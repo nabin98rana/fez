@@ -243,8 +243,11 @@ if (!empty($collection_pid)) {
 
 	$tpl->assign("list_type", "community_list");
 	$tpl->assign("list_heading", "List of Communities");
+
 }
 
+$workflows_list = Misc::keyPairs(Workflow::getList(), 'wfl_id', 'wfl_title');
+$tpl->assign('workflows_list', $workflows_list);
 //$list = Record::getListing($options, 1, 100);
 //print_r($list);
 //echo $list; // xslt'ed xml string

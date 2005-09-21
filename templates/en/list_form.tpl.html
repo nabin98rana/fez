@@ -25,10 +25,19 @@ function assignItems(f)
 }
 
 function createRecord(f) {
-    f.action = 'new.php';
+    f.action = 'workflow/new.php';
 	f.submit();
 }
 
+function assignWorkflow(f) {
+    var features = 'width=420,height=200,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
+    var popupWin = window.open('', '_popup', features);
+    popupWin.focus();
+    f.target = '_popup';
+    f.action = 'popup.php';
+    f.submit();
+}
+ 
 function hideClosed(f)
 {
     if (f.hide_closed.checked) {
@@ -376,6 +385,7 @@ function purgeObject(pid)
 						{/if}
 						{if $isAdministrator}
 							 <a href='javascript:void(null);' onClick="javascript:purgeObject('{$list[i].pid|escape:"html"}');"><img title="Delete" align="absmiddle" src="{$rel_url}images/delete.gif" border="0"></a> 
+					           <a href="workflow_triggers.php?pid={$list[i].pid|escape}"><img title="Workflow" align="absmiddle" src="{$rel_url}images/workflow_16.gif" border="0"></a> 
 						{/if}
 
 					  {/if}
@@ -422,9 +432,9 @@ function purgeObject(pid)
         <tr>
           <td align="left" >
 			{if $list_type == 'community_list' && $isAdministrator}
-			<br /> <a class="default" target="_top" title="create a new community" href="{$rel_url}new.php?xdis_id={$xdis_id}"><img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0"><b>Create New Community</b></a>&nbsp;
+			<br /> <a class="default" target="_top" title="create a new community" href="{$rel_url}workflow/new.php?xdis_id={$xdis_id}"><img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0"><b>Create New Community</b></a>&nbsp;
 			{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
-			<br /> <a class="default" target="_top" title="create a new collection" href="{$rel_url}new.php?xdis_id={$xdis_id}{if $community_pid}&community_pid={$community_pid}{/if}"><img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0"><b>Create New Collection</b></a>&nbsp;
+			<br /> <a class="default" target="_top" title="create a new collection" href="{$rel_url}workflow/new.php?xdis_id={$xdis_id}{if $community_pid}&community_pid={$community_pid}{/if}"><img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0"><b>Create New Collection</b></a>&nbsp;
 			{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}
 				{if $childXDisplayOptions != 0}
 			<br /> <img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0">

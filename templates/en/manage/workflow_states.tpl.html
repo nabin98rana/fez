@@ -135,11 +135,11 @@
                       f.anon_form_required.checked = false;
                   }
               }
-              function showOrHideElement(element_name,checkbox_name)
+              function showOrHideElement(element_name,checkbox_name,reverse)
               {
                   var row = document.getElementById(element_name);
                   var checkbox = document.getElementById(checkbox_name);
-                  if (checkbox.checked)
+                  if (checkbox.checked ^ reverse)
                   {
                       row.style.display='';
                   } else {
@@ -208,7 +208,7 @@
                 </td>
                 <td bgcolor="{$light_color}">
 
-                  <label class="default"><input type="checkbox" name="wfs_auto" id="wfs_auto" size="30" class="default" {if $info.wfs_auto}checked="checked"{/if} onclick="javascript:showOrHideElement('tr_wfs_wfb_id','wfs_auto')"/>Scripted</label>
+                  <label class="default"><input type="checkbox" name="wfs_auto" id="wfs_auto" size="30" class="default" {if $info.wfs_auto}checked="checked"{/if} onclick="javascript:showOrHideElement('tr_wfs_wfb_id','wfs_auto',false); showOrHideElement('tr_wfs_wfb_id2','wfs_auto',true)"/>Scripted</label>
                   <label class="default"><input type="checkbox" name="wfs_start" id="wfs_start" size="30" class="default" {if $info.wfs_start}checked="checked"{/if} />Start State</label>
                   <label class="default"><input type="checkbox" name="wfs_end" id="wfs_end" size="30" class="default" {if $info.wfs_end}checked="checked"{/if} />End State</label>
                 </td>
@@ -221,13 +221,24 @@
                 </td>
                 <td bgcolor="{$light_color}">
                   <select name="wfs_wfb_id" class="default" >
+                        {html_options options=$behaviours_list_auto selected=$info.wfs_wfb_id }
+                  </select>
+                </td>
+              </tr>
+              <tr id="tr_wfs_wfb_id2">
+                <td width="120" bgcolor="{$cell_color}" class="default" nowrap>
+                  <b>Select Workflow Form:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <select name="wfs_wfb_id2" class="default" >
                         {html_options options=$behaviours_list selected=$info.wfs_wfb_id }
                   </select>
                 </td>
               </tr>
-              <script language="JavaScript"><!-- 
+               <script language="JavaScript"><!-- 
               // We hide or show the script selection box depending on whether the wfs_auto checkbox is checked.
-              showOrHideElement('tr_wfs_wfb_id','wfs_auto'); 
+              showOrHideElement('tr_wfs_wfb_id','wfs_auto',false); 
+              showOrHideElement('tr_wfs_wfb_id2','wfs_auto',true);
               //--></script>
                <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default" nowrap>
@@ -299,10 +310,9 @@
                       <td width="4" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Name</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Assigned Role</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Auto</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Start</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>End</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Scripted Behaviour</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Behaviour</b>&nbsp;</td>
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
@@ -317,23 +327,19 @@
                         &nbsp;{$list[i].wfs_assigned_role}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
-                        &nbsp;{if $list[i].wfs_auto == 1}<span style="color:green;">yes</span>{/if}
-                      </td>
-                      <td bgcolor="{$row_color}" class="default">
                         &nbsp;{if $list[i].wfs_start == 1}<span style="color:green;">yes</span>{/if}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
                         &nbsp;{if $list[i].wfs_end == 1}<span style="color:green;">yes</span>{/if}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
-{if $list[i].wfs_auto == 1}
                         &nbsp;<a href="{$rel_url}manage/wfbehaviours.php?cat=edit&id={$list[i].wfs_wfb_id}&wfl_id={$wfl_id}">{$list[i].wfb_title}</a>
-{/if}
+                        {if $list[i].wfs_auto == 1}<span style="color:green;">(auto)</span>{/if}
                       </td>
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="6" bgcolor="{$light_color}" align="center" class="default">
+                      <td colspan="7" bgcolor="{$light_color}" align="center" class="default">
                         No workflow states could be found.
                       </td>
                     </tr>

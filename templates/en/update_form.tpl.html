@@ -1,37 +1,24 @@
 
 
 <table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="{$light_color}">
-  <tr>
-    <td valign="top">
-      <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
-        <tr>
-          <td width="100%">
-            <table bgcolor="#FFFFFF" width="100%" border="0" cellspacing="0" cellpadding="4">
-             <tr>
-                <td>
-                  <span class="default"><b>Areas:</b></span>
-                </td>
-              </tr>
-              <tr>
-                <td nowrap class="default">
-                  <ul>
-                    <li><a href="{$rel_url}update.php?pid={$pid}" class="link">Edit Record</a></li>
-                    <li><a href="{$rel_url}workflow_triggers.php?pid={$pid}" class="link">Workflow Triggers 
-                    ({$triggers})</a></li>
-                  </ul>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-      </table>
-    </td>
-    <td>&nbsp;
-      
-    </td>
-    <td width="100%" valign="top">
-      {include file="$type.tpl.html"}
-    </td>
-  </tr>
+<tr><td align="left" class="default" ><b>{$record_type}:</b> <a class="link"
+href="{$view_href}">{$title}</a></td>
+</tr>
+{if $parents}
+<tr>
+<td align="left" class="default" > <b>Parent {$parent_type}: </b>
+{section name="i" loop=$parents}
+<a class="link" 
+href="list.php?{$parent_type|lower}_pid={$parents[i].pid}">{$parents[i].title}</a> &nbsp;
+{/section}
+</td>
+</tr>
+{/if}
+<tr> <td width="100%" valign="top"> &nbsp; </td> </tr>
+<tr>
+<td width="100%" valign="top">
+{include file="$type.tpl.html"}
+</td>
+</tr>
 </table>
 

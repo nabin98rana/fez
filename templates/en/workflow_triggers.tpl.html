@@ -158,7 +158,7 @@
               <input type="hidden" name="wft_pid" value="{$pid}">
               <tr>
                 <td colspan="2" class="default">
-                  <b>Workflow Triggers for {$title}</b> &nbsp;(
+                  <b>Workflow Triggers</b> &nbsp;(
                           <a href="{$rel_url}workflow_triggers.php?pid={$pid}">New</a> )
                 </td>
               </tr>
@@ -227,13 +227,6 @@
                 </td>
               </tr>
               </form>
-              <tr>
-                <td colspan="2" class="default">
-                  <b>Existing Workflow Triggers:</b>
-                </td>
-              </tr>
-              <tr>
-                <td colspan="2">
                   <script language="JavaScript">
                   <!--
                   {literal}
@@ -252,11 +245,18 @@
                   //-->
                   </script>
                   {/literal}
-                  <table border="0" width="100%" cellpadding="1" cellspacing="1">
-                    <form onSubmit="javascript:return checkDelete(this) && updateForm();" 
+                    <form onSubmit="javascript:return updateForm();" 
                     target="_update_record_details" method="post" action="popup.php" enctype="multipart/form-data">
-                    <input type="hidden" name="cat" value="delete_{$type}">
+                    <input type="hidden" name="cat" value="list_action_{$type}">
                     <input type="hidden" name="pid" value="{$pid}">
+              <tr>
+                <td colspan="2" class="default">
+                  <b>Existing Workflow Triggers:</b>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="2">
+                  <table border="0" width="100%" cellpadding="1" cellspacing="1">
                     <tr>
                       <td width="4" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
                       <td bgcolor="{$cell_color}" class="default_white">&nbsp;<b>Trigger</b>&nbsp;</td>
@@ -298,14 +298,14 @@
                         <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
                       </td>
                       <td colspan="5" bgcolor="{$cell_color}">
-                        <input type="submit" value="Delete" class="button">
+                        <input type="submit" name="delete" value="Delete" class="button" onclick="javascript:return checkDelete(this.form);">
                       </td>
                     </tr>
-                    </form>
 
                   </table>
                 </td>
               </tr>
+                    </form>
              </table>
           </td>
         </tr>

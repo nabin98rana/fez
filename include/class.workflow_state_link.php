@@ -143,6 +143,7 @@ class WorkflowStateLink
         $dot = <<<EOT
 digraph States {
   graph [fontpath="/usr/share/fonts/default/Type1/"];
+  rankdir=LR;
   node [color=lightblue, style=filled, fontname=n019003l, fontsize=10];
 EOT;
         //}

@@ -1,0 +1,24 @@
+{if $message}
+<tr>
+<td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
+{$message}
+</td><tr>
+{/if}
+<form method="post" action="{$smarty.server.SCRIPT_NAME}" >
+<input type="hidden" name="cat" value="select_workflow" />
+<input type="hidden" name="pid" value="{$pid}" />
+<tr>
+<td bgcolor="{$cell_color}" class="default">
+<b>Select Action</b>
+</td>
+<td class="default">
+<select name="wft_id">
+{html_options options=$workflows_op}
+</select>
+<input type="submit" value="Go" />
+</td>
+</tr>
+</form>
+<tr><td>This is {$trigger} for {$pid}</td></tr>
+
+
