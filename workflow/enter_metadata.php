@@ -62,11 +62,14 @@ $tpl->assign("pid", $pid);
 $wfs_id = Misc::GETorPOST('wfs_id');
 $wfstatus = WorkflowStatusStatic::getSession($pid); // creates a new WorkflowStatus
 
+// get the xdis_id of what we're creating
+$xdis_id = $wfstatus->getXDIS_ID();
+
 if ($pid == -1 || !$pid) {
-    $xdis_id = Community::getCommunityXDIS_ID();
     $access_ok = $isAdministrator;
 } else {
-    $xdis_id = Collection::getCollectionXDIS_ID();
+    $community_pid = $pid;
+    $collection_pid = $pid;
     $record = new RecordObject($pid);
     $access_ok = $record->canCreate();
 }
@@ -86,6 +89,9 @@ if ($access_ok) {
     $tpl->assign("xdis_id", $xdis_id);
 
 
+    $xdis_list = XSD_Display::getAssocListDocTypes(); 
+    $community_list = Community::getAssocList();
+    $collection_list = Collection::getAssocList();
     $internal_user_list = User::getAssocList();
     $internal_group_list = Group::getAssocListAll();
     $jtaskData = "";

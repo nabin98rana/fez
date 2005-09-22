@@ -267,12 +267,15 @@ class Workflow
         }
     }
 
-    function start($wft_id, $pid)
+    function start($wft_id, $pid, $xdis_id)
     {
-        $wfstatus = new WorkflowStatus($pid, $wft_id);
+        $wfstatus = new WorkflowStatus($pid, $wft_id, $xdis_id);
         $wfstatus->run();
     }
 
+    function processIngestTrigger($pid, $xdis_id, $dsTitle)
+    {
+    }
 
 }
 

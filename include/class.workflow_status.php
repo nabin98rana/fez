@@ -7,30 +7,43 @@ include_once(APP_INC_PATH.'class.workflow_trigger.php');
 class WorkflowStatus {
     var $wfs_id;
     var $pid;
+    var $xdis_id;
     var $wft_id;
     var $wfl_details;
     var $wfs_details;
     var $wft_details;
     var $wfb_details;
     
-    function WorkflowStatus($pid=null, $wft_id=null)
+    function WorkflowStatus($pid=null, $wft_id=null, $xdis_id=null, $dsTitle=null)
     {
         $this->pid = $pid;
         $this->wft_id= $wft_id;
+        $this->xdis_id= $xdis_id;
     }
 
 
     function setSession()
     {
         //put it in the DB too 
-
-        $_SESSION['workflow'][$this->pid] = serialize($this);
+        $this->getTriggerDetails();
+        $wft_type = WorkflowTrigger::getTriggerName($this->wft_details['wft_type_id']);
+        if ($wft_type == 'Ingest') {
+            // we may not need to even save the ingest stuff as we are only allowing auto processes
+            $_SESSION['workflow'][$this->pid]['i'] = serialize($this);
+        } else {
+            $_SESSION['workflow'][$this->pid]['cud'] = serialize($this);
+        }
     }
     function clearSession()
     {
         //clear it in the DB too 
-
-        $_SESSION['workflow'][$this->pid] = null;
+        $this->getTriggerDetails();
+        $wft_type = WorkflowTrigger::getTriggerName($this->wft_details['wft_type_id']);
+        if ($wft_type == 'Ingest') {
+            $_SESSION['workflow'][$this->pid]['i'] = null;
+        } else {
+            $_SESSION['workflow'][$this->pid]['cud'] = null;
+        }
      }
 
 
@@ -118,18 +131,14 @@ class WorkflowStatus {
         $this->getWorkflowDetails();
         $wfl_title = $this->wfl_details['wfl_title'];
         $wft_type = WorkflowTrigger::getTriggerName($this->wft_details['wft_type_id']);
-        $parent_title = '';
+        $parent_pid = null;
         if ($wft_type == 'Create') {
-            $record = new RecordObject($this->created_pid);
-            if ($this->pid && $this->pid != -1) {
-                $precord = new RecordObject($this->pid);
-                $parent_title = $precord->getTitle();
-            } 
+            $pid = $this->created_pid;
+            $parent_pid = $this->pid;
         } else {
-            $record = new RecordObject($this->pid);
+            $pid = $this->pid;
         }
-        $record_title = $record->getTitle();
-        $args = compact('wfl_title','wft_type','parent_title','record_title');
+        $args = compact('wfl_title','wft_type','parent_pid','pid');
         $argstrs = array();
         foreach ($args as $key => $arg) {
             $argstrs[] = "$key=".urlencode($arg);
@@ -180,6 +189,15 @@ class WorkflowStatus {
         return $button_list;
     }
 
+    function getXDIS_ID()
+    {
+        if (!$this->xdis_id) {
+            $record = new RecordObject($this->pid);
+            $this->xdis_id = $record->getXmlDisplayId();
+        }
+        return $this->xdis_id;
+    }
+
 }
 
 class WorkflowStatusStatic
@@ -187,7 +205,7 @@ class WorkflowStatusStatic
     function getSession($pid)
     {
         if (@$_SESSION['workflow'][$pid]) {
-            return unserialize($_SESSION['workflow'][$pid]);
+            return unserialize($_SESSION['workflow'][$pid]['cud']);
         } else {
             // get from DB
         }

@@ -1,7 +1,7 @@
 <tr>
 <td class="default">
 Finished workflow {$wfl_title}, triggered by {$wft_type}.<br/>
-{if $parent_title}Parent: {$parent_title}<br/>{/if}
-Record: {$record_title}<br/>
+{if $parent_title}Parent: <a href="{$view_parent_url}">{$parent_title}</a><br/>{/if}
+Record: <a href="{$view_record_url}">{$record_title}</a><br/>
 </td>
 </tr>

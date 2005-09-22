@@ -50,29 +50,47 @@ $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 
-$xdis_id = @$HTTP_POST_VARS["xdis_id"] ? $HTTP_POST_VARS["xdis_id"] : @$HTTP_GET_VARS["xdis_id"];	
-$collection_pid = @$HTTP_POST_VARS["collection_pid"] ? $HTTP_POST_VARS["collection_pid"] : @$HTTP_GET_VARS["collection_pid"];	
-$community_pid = @$HTTP_POST_VARS["community_pid"] ? $HTTP_POST_VARS["community_pid"] : @$HTTP_GET_VARS["community_pid"];	
+$xdis_id = Misc::GETorPOST('xdis_id');
+$collection_pid = Misc::GETorPOST('collection_pid');
+$community_pid = Misc::GETorPOST('community_pid');
 
 if (@$HTTP_POST_VARS["cat"] == 'select_workflow') {
     $wft_id = $HTTP_POST_VARS["wft_id"];
     $pid = $HTTP_POST_VARS["pid"];
-    Workflow::start($wft_id, $pid);
+    Workflow::start($wft_id, $pid, $xdis_id);
 }
 
-
+$message = '';
 $pid = $collection_pid ? $collection_pid : $community_pid;
 $wfl_list = Misc::keyPairs(Workflow::getList(), 'wfl_id', 'wfl_title');
-if (!empty($pid) && (!Misc::isInt($pid) || $pid != -1)) {
+if (empty($pid) || $pid == -1) {
+    $tpl->assign("pid", '-1');
+    $pid = -1;
+    // community level create 
+    // get defaults triggers
+    $xdis_id = Community::getCommunityXDIS_ID();
+    $workflows = WorkflowTrigger::getListByTriggerAndXDIS_ID(-1, 'Create', $xdis_id, true);
+    $tpl->assign('workflows', $workflows);
+    foreach ($workflows as $wft) {
+        $wfl_title = $wfl_list[$wft['wft_wfl_id']];
+        $workflows_op[$wft['wft_id']] = $wfl_title;
+    }
+    $tpl->assign('workflows_op', $workflows_op);
+} else {
     $tpl->assign("pid", $pid);
 
     $record = new RecordObject($pid);
     if ($record->canCreate()) {
         $tpl->assign("isCreator", 1);
         if ($record->isCommunity()) {
-            $workflows = WorkflowTrigger::getListByTriggerAndXDis_Id(-1, 'Create', Collection::getCollectionXDIS_ID());
+            $xdis_id = Collection::getCollectionXDIS_ID();
+            $workflows = WorkflowTrigger::getListByTriggerAndXDIS_ID(-1, 'Create', $xdis_id, true);
         } elseif ($record->isCollection()) {
-            $workflows = $record->getWorkflowsByTrigger('Create');
+            $workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Create', $xdis_id);
+        } else {
+            $message .= "Error: can't create objects into ordinary records<br/>";
+        }
+        if ($workflows) {
             $xdis_list = array(-1 => 'Any') + XSD_Display::getAssocListDocTypes(); 
             foreach ($workflows as $wft) {
                 $xdis_name = $xdis_list[$wft['wft_xdis_id']];
@@ -80,26 +98,20 @@ if (!empty($pid) && (!Misc::isInt($pid) || $pid != -1)) {
                 $workflows_op[$wft['wft_id']] = "$wfl_title ($xdis_name)";
             }
             $tpl->assign('workflows_op', $workflows_op);
-        } else {
-            $tpl->assign('message', "Error: can't create objects into ordinary records<br/>");
         }
         $tpl->assign('workflows', $workflows);
+    } else {
     }
-} else {
-    $tpl->assign("pid", '-1');
-    // community level create 
-    // get defaults triggers
-    $workflows = WorkflowTrigger::getListByTriggerAndXDis_Id(-1, 'Create', Community::getCommunityXDIS_ID());
-    $tpl->assign('workflows', $workflows);
-    foreach ($workflows as $wft) {
-        $wfl_title = $wfl_list[$wft['wft_wfl_id']];
-        $workflows_op[$wft['wft_id']] = $wfl_title;
-    }
-    $tpl->assign('workflows_op', $workflows_op);
+    $tpl->assign('xdis_id', $xdis_id);
 }
 if (empty($workflows_op)) {
-    $tpl->assign('message', 'Error: No workflows defined for Create');
+    $message .= "Error: No workflows defined for Create<br/>";
+} elseif (count($workflows_op) == 1) {
+    // no need for user to select a workflow - just start the only one available
+    $wft_id = array_keys($workflows_op);
+    Workflow::start($wft_id[0], $pid, $xdis_id);
 }
 
+$tpl->assign('message', $message);
 $tpl->displayTemplate();
 ?>

@@ -104,12 +104,18 @@ class WorkflowTrigger
         return WorkflowTrigger::getList($pid, " AND wft_type_id=$trigger ");
     }
 
-    function getListByTriggerAndXDis_Id($pid, $trigger, $xdis_id)
+    function getListByTriggerAndXDIS_ID($pid, $trigger, $xdis_id, $strict=false)
     {
         if (!Misc::isInt($trigger)) {
             $trigger = WorkflowTrigger::getTriggerId($trigger);
         }
-        return WorkflowTrigger::getList($pid, " AND wft_type_id=$trigger AND wft_xdis_id=$xdis_id ");
+        if (!$strict) {
+            $orstr = " OR wft_xdis_id=-1 ";
+        } else {
+            $orstr = "";
+        }
+        return WorkflowTrigger::getList($pid, " AND wft_type_id=$trigger 
+                AND (wft_xdis_id=$xdis_id $orstr ) ");
     }
 
      function getDetails($wft_id)

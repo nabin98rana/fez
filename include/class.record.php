@@ -1647,6 +1647,7 @@ class Record
  
 //		echo "monkey = ".$initial_status;
         // add new Record
+        $xsdsel_id = '';
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field
                  (
@@ -3538,6 +3539,8 @@ class RecordObject extends RecordGeneral
 
         if ($ingestObject) {
             // Actually Ingest the object Into Fedora
+            // We only have to do this when first creating the object, subsequent updates should just work with the 
+            // datastreams.
             // will have to exclude the non X control group xml and add the datastreams after the base ingestion.
 
 //            $xmlObj = Misc::removeNonXMLDatastreams($datastreamTitles, $xmlObj);
@@ -3582,6 +3585,17 @@ class RecordObject extends RecordGeneral
 			} else {
 				Fedora_API::getUploadLocation($pid, $dsIDName, $datastreamXMLContent[$dsKey], $dsTitle['LABEL'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
 			}
+
+            
+			$presmd_check = Workflow::checkForPresMD($dsIDName);
+			if ($presmd_check != false) {
+				Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, "text/xml", "X");
+			}
+
+
+            Workflow::processIngestTrigger($pid, $xdis_id, $dsTitle);
+            
+            // workflow step 1
 			// Now check for post upload workflow events like thumbnail resizing of images
 			$convert_check = Workflow::checkForImageFile($dsIDName);
 			if ($convert_check != false) {
@@ -3592,10 +3606,8 @@ class RecordObject extends RecordGeneral
 				$convert_check = str_replace(" ", "_", $convert_check);
 				Record::insertIndexMatchingField($pid, 122, "varchar", $convert_check); // add the thumbnail to the fez index
 			}
-			$presmd_check = Workflow::checkForPresMD($dsIDName);
-			if ($presmd_check != false) {
-				Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, "text/xml", "X");
-			}
+
+
 		} 
 		return $pid;
     }
@@ -3680,6 +3692,19 @@ class RecordObject extends RecordGeneral
         $triggers = array_merge($triggers, WorkflowTrigger::getListByTrigger(-1, $trigger));
         return $triggers;
     }
+
+    function getWorkflowsByTriggerAndXDIS_ID($trigger, $xdis_id)
+    {
+        $this->getParents();
+        $triggers = WorkflowTrigger::getListByTriggerAndXDIS_ID($this->pid, $trigger, $xdis_id);
+        foreach ($this->record_parents as $ppid) {
+            $triggers = array_merge($triggers, WorkflowTrigger::getListByTriggerAndXDIS_ID($ppid, $trigger, $xdis_id));
+        }
+        // get defaults
+        $triggers = array_merge($triggers, WorkflowTrigger::getListByTriggerAndXDIS_ID(-1, $trigger, $xdis_id));
+        return $triggers;
+    }
+
 
 }
 

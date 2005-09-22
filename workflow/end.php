@@ -22,9 +22,27 @@ $tpl->assign("isAdministrator", $isAdministrator);
 
 $wfl_title = Misc::GETorPOST('wfl_title');
 $wft_type = Misc::GETorPOST('wft_type');
-$parent_title = Misc::GETorPOST('parent_title');
-$record_title = Misc::GETorPOST('record_title');
-$tpl->assign(compact('wfl_title','wft_type','parent_title','record_title'));
+$parent_pid = Misc::GETorPOST('parent_pid');
+$pid = Misc::GETorPOST('pid');
+$record = new RecordObject($pid);
+$record_title = $record->getTitle();
+$parent_title = '';
+if ($parent_pid) {
+    if ($parent_pid == -1) {
+        $view_parent_url = APP_RELATIVE_URL."list.php";
+        $parent_title = "Repository";
+    } else {
+        $precord = new RecordObject($parent_pid);
+        if ($precord->isCommunity()) {
+            $view_parent_url = APP_RELATIVE_URL."list.php?community_pid=$parent_pid";
+        } else {
+            $view_parent_url = APP_RELATIVE_URL."list.php?collection_pid=$parent_pid";
+        }
+        $parent_title = $precord->getTitle();
+    }
+} 
+$view_record_url = APP_RELATIVE_URL."view.php?pid=$pid";
+$tpl->assign(compact('wfl_title','wft_type','parent_title','record_title', 'view_record_url', 'view_parent_url'));
 
 
 $tpl->displayTemplate();
