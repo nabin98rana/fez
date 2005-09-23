@@ -634,14 +634,19 @@ function callAddXMLDatastream ($pid, $dsID, $dsContent, $dsLabel, $dsState, $mim
 }
 
 
-function callAddDatastream ($pid, $uploadLocation, $dsLabel, $dsState, $mimetype, $controlGroup='M') {
+function callAddDatastream ($pid, $dsID, $uploadLocation, $dsLabel, $dsState, $mimetype, $controlGroup='M') {
    /********************************************
    * This function adds datastreams to object $pid.
    ********************************************/
 //   global $_REQUEST;
+	if ($mimetype == "") {
+		$mimetype = "text/xml";
+	}
+//	echo "upload Loc -> ";
+//	print_r($uploadLocation); echo "<-";
 //   $parms=array('PID' => $pid, 'dsLabel' => $dsLabel, 'MIMEType' => $mimetype, 'formatURI' => 'unknown', new soapval('location', 'string', $uploadLocation), 'controlGroup' => $controlGroup, 'dsState' => 'A');
 //   $parms=array('PID' => $pid, 'dsID' => 'Link_ChangeMe', 'altIDs' => array(), 'dsLabel' => $dsLabel, 'versionable' => false, 'MIMEType' => $mimetype, 'formatURI' => 'unknown', new soapval('location', 'string', $uploadLocation), 'controlGroup' => $controlGroup, 'dsState' => 'A', 'logMessage' => 'Added Datastream');
-   $parms=array('PID' => $pid, 'dsID' => 'link_'.mktime(), 'altIDs' => array(), 'dsLabel' => $dsLabel, 'versionable' => false, 'MIMEType' => $mimetype, 'formatURI' => 'unknown', new soapval('location', 'string', $uploadLocation), 'controlGroup' => $controlGroup, 'dsState' => 'A', 'logMessage' => 'Added Datastream');//
+   $parms=array('PID' => $pid, 'dsID' => $dsID, 'altIDs' => array(), 'dsLabel' => $dsLabel, 'versionable' => false, 'MIMEType' => $mimetype, 'formatURI' => 'unknown', new soapval('location', 'string', $uploadLocation), 'controlGroup' => $controlGroup, 'dsState' => 'A', 'logMessage' => 'Added Datastream');//
 //   $parms= array('pid' => $pid, 'dsID' => $dsID, 'altIDs' => array(), 'dsLabel' => $label, 'versionable' => $versionable, 'MIMEType' => $mimetype, 'formatURI' => 'unknown',  new soapval("dsContent","base64Binary",$dsContent), 'dsState' => $state, 'logMessage' => $logmsg, 'force' => true);
    //Call addDatastream
    Fedora_API::openSoapCall('addDatastream', $parms);

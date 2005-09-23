@@ -3538,10 +3538,7 @@ class RecordObject extends RecordGeneral
 			$datastreamXMLHeaders = Misc::array_clean_key($datastreamXMLHeaders, "Link", true, true);
 		}
 
-//		print_r($datastreamXMLHeaders);
-//		echo $xmlObj;
 		$datastreamXMLContent = Misc::getDatastreamXMLContent($datastreamXMLHeaders, $xmlObj);
-//		print_r($datastreamXMLContent);
 
         if ($ingestObject) {
             // Actually Ingest the object Into Fedora
@@ -3580,7 +3577,7 @@ class RecordObject extends RecordGeneral
 			} else {
 				if ($dsTitle['CONTROL_GROUP'] == "R") { // if its a redirect we don't need to upload the file
 //				    echo "R content = ".$datastreamXMLContent[$dsKey];
-					Fedora_API::callAddDatastream($pid, $datastreamXMLContent[$dsKey], $dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
+					Fedora_API::callAddDatastream($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey], $dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
 				} else {
 					Fedora_API::getUploadLocation($pid, $dsIDName, $datastreamXMLContent[$dsKey], $dsTitle['LABEL'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
 				}

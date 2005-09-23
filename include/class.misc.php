@@ -1078,7 +1078,7 @@ function getDatastreamXMLHeaders($datastreamTitles, $xmlString, $existingDatastr
 									$filename_ext = strtolower(substr($return[$dsTitle['xsdsel_title'].$key]['ID'], (strrpos($return[$dsTitle['xsdsel_title'].$key]['ID'], ".") + 1)));
 									$return[$dsTitle['xsdsel_title'].$key]['ID'] = substr($return[$dsTitle['xsdsel_title'].$key]['ID'], 0, strrpos($return[$dsTitle['xsdsel_title'].$key]['ID'], ".") + 1).$filename_ext;
 								}
-								$return[$dsTitle['xsdsel_title'].$key]['versionID'] = $return[$dsTitle['xsdsel_title'].$key]['ID']."1.0";																
+								$return[$dsTitle['xsdsel_title'].$key]['versionID'] = $return[$dsTitle['xsdsel_title'].$key]['ID'].".0";																
 								if ($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key] != "") {
 									$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = $HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key];
 								} else {
@@ -1097,7 +1097,7 @@ function getDatastreamXMLHeaders($datastreamTitles, $xmlString, $existingDatastr
 							$filename_ext = strtolower(substr($return[$dsTitle['xsdsel_title']]['ID'], (strrpos($return[$dsTitle['xsdsel_title']]['ID'], ".") + 1)));
 							$return[$dsTitle['xsdsel_title']]['ID'] = substr($return[$dsTitle['xsdsel_title']]['ID'], 0, strrpos($return[$dsTitle['xsdsel_title']]['ID'], ".") + 1).$filename_ext;
 						}
-						$return[$dsTitle['xsdsel_title']]['versionID'] = $return[$dsTitle['xsdsel_title']]['ID']."1.0";																							
+						$return[$dsTitle['xsdsel_title']]['versionID'] = $return[$dsTitle['xsdsel_title']]['ID'].".0";																							
 						if ($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']] != "") {
 							$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = $HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']];
 						} else {
@@ -1105,7 +1105,7 @@ function getDatastreamXMLHeaders($datastreamTitles, $xmlString, $existingDatastr
 						}
 						$return[$dsTitle['xsdsel_title']]['MIMETYPE'] = $HTTP_POST_FILES['xsd_display_fields']['type'][$file_res[0]['xsdmf_id']];
 					}
-				} elseif (count($label_res == 1)) {
+				} elseif (count($label_res == 1) && ($dsTitle['xsdsel_title'] == "Link")) {
 					if (is_array($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']])) {
 						foreach ($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']] as $key => $data) {
 							if ($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key] != "") {
@@ -1114,7 +1114,7 @@ function getDatastreamXMLHeaders($datastreamTitles, $xmlString, $existingDatastr
 								$return[$dsTitle['xsdsel_title'].$key]['VERSIONABLE'] = $return[$dsTitle['xsdsel_title']]['VERSIONABLE'];
 								$return[$dsTitle['xsdsel_title'].$key]['ID'] = "link_".$next_link;
 								$next_link++;
-								$return[$dsTitle['xsdsel_title'].$key]['versionID'] = $return[$dsTitle['xsdsel_title'].$key]['ID']."1.0";																
+								$return[$dsTitle['xsdsel_title'].$key]['versionID'] = $return[$dsTitle['xsdsel_title'].$key]['ID'].".0";																
 								if ($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key] != "") {
 									$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = $HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key];
 								} else {
@@ -1127,10 +1127,10 @@ function getDatastreamXMLHeaders($datastreamTitles, $xmlString, $existingDatastr
 					} else {
 						$return[$dsTitle['xsdsel_title']]['CONTROL_GROUP'] = $return[$dsTitle['xsdsel_title']]['CONTROL_GROUP'];
 						$return[$dsTitle['xsdsel_title']]['STATE'] = $return[$dsTitle['xsdsel_title']]['STATE'];
-						$return[$dsTitle['xsdsel_title']]['VERSIONABLE'] = $return[$dsTitle['xsdsel_title']]['VERSIONABLE'];						
+						$return[$dsTitle['xsdsel_title']]['VERSIONABLE'] = $return[$dsTitle['xsdsel_title']]['VERSIONABLE'];
 						$return[$dsTitle['xsdsel_title']]['ID'] = "link_".$next_link;
 						$next_link++;
-						$return[$dsTitle['xsdsel_title']]['versionID'] = $return[$dsTitle['xsdsel_title']]['ID']."1.0";																
+						$return[$dsTitle['xsdsel_title']]['versionID'] = $return[$dsTitle['xsdsel_title']]['ID'].".0";																
 						if (@$HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']] != "") {
 							$return[$dsTitle['xsdsel_title']]['LABEL'] = $HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key];
 						} else {
@@ -1159,7 +1159,7 @@ function getNextLink($existingDatastreams) {
 	foreach ($existingDatastreams as $eds) {
 		$link_pos = strpos($eds['ID'], "link_");
 		if (is_numeric($link_pos)) { // if found a link datatream
-			$new_max_link = substr($eds['ID'], $link_pos); // get its number
+			$new_max_link = substr($eds['ID'], ($link_pos+5)); // get its number
 			if (is_numeric($new_max_link)) {
 				if ($new_max_link > $max_link) {
 					$max_link = $new_max_link;
@@ -1167,10 +1167,15 @@ function getNextLink($existingDatastreams) {
 			}
 		}
 	}
-	if ($max_link == 0) {
+//	if ($max_link == 0) {
 		$max_link++;
+<<<<<<< .mine
+//	}
+	return $max_link;
+=======
 	}
 	return $max_link;
+>>>>>>> .r75
 }
 
 function getDatastreamXMLContent($datastreamTitles, $xmlString) {
@@ -2336,8 +2341,13 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 									}
 								} elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'text' 
                                         || $xsdmf_details_ref['xsdmf_html_input'] == 'textarea') {
-                                    $attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details_ref['xsdmf_id']];
-									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details_ref['xsdmf_id']]));
+									if (is_numeric($attrib_loop_index) && (is_array($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details_ref['xsdmf_id']]))) {
+										$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details_ref['xsdmf_id']][$attrib_loop_index];
+										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details_ref['xsdmf_id']][$attrib_loop_index]));						
+									} else {
+										$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details_ref['xsdmf_id']];
+										array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details_ref['xsdmf_id']]));
+									}
 								}
 							} elseif ($xsdmf_details['xsdmf_html_input'] == 'static') {
 								if ($xsdmf_details['xsdmf_fez_variable'] == "pid") {
@@ -2358,7 +2368,7 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 								} else {
 									if (is_numeric($xsdmf_details['xsdsel_attribute_loop_xsdmf_id'])) {
 										$loop_attribute_xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_details['xsdsel_attribute_loop_xsdmf_id']);
-										if (($xsdmf_details['xsdmf_element'] == '!datastream!ID') && ($xsdmf_details['xsdsel_title'] == 'File_Attachment') && ($loop_attribute_xsdmf_details['xsdmf_multiple'] == 1)) {
+										if (($xsdmf_details['xsdmf_element'] == '!datastream!ID') && (($xsdmf_details['xsdsel_title'] == 'File_Attachment') || ($xsdmf_details['xsdsel_title'] == 'Link')) && ($loop_attribute_xsdmf_details['xsdmf_multiple'] == 1)) {
 										  $extra = $attrib_loop_index;
 										} else {
 										  $extra = "";
@@ -2371,7 +2381,10 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 								}
 							} elseif ($xsdmf_details['xsdmf_html_input'] == 'text' || $xsdmf_details['xsdmf_html_input'] == 'textarea') {
 //								if ($xsd_display_fields[i].xsdmf_multiple == 1) {
-								if ($xsdmf_details['xsdmf_multiple'] == 1) {
+								if (is_numeric($attrib_loop_index) && (is_array($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]))) {
+									$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id][$attrib_loop_index];
+									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id][$attrib_loop_index]));						
+								} elseif ($xsdmf_details['xsdmf_multiple'] == 1) {
 									foreach ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] as $multiple_element) {
 										if (!empty($multiple_element)) {
 											if ($attrib_value == "") {
@@ -2662,7 +2675,10 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 //							print_r($HTTP_POST_FILES);
 //							$attrib_value = $HTTP_POST_FILES['
 						} elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'text' || $xsdmf_details_ref['xsdmf_html_input'] == 'textarea') {
-							if ($xsdmf_details_ref['xsdmf_multiple'] == 1) {
+							if (is_numeric($attrib_loop_index) && (is_array($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]))) {
+								$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id][$attrib_loop_index];
+								array_push($indexArray, array($pid, $xsdmf_details_ref['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id][$attrib_loop_index]));						
+							} elseif ($xsdmf_details_ref['xsdmf_multiple'] == 1) {
 								foreach ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] as $multiple_element) {
 									if (!empty($multiple_element)) {
 										if ($attrib_value == "") {
@@ -2716,10 +2732,10 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $top_xdis_id));													
 //							$attrib_value = $xdis_id;
 						} else {
-//							if (($xsdmf_details['xsdmf_element'] == '!datastream!ID') && ($xsdmf_details['xsdsel_title'] == 'File_Attachment')) {
+//							if (($xsdmf_details['xsdmf_element'] == '!datastream!ID') && ($xsdmf_details['xsdsel_title'] == 'File_Attachment') || ($xsdmf_details['xsdsel_title'] == 'Link')) {
 							if (is_numeric($xsdmf_details['xsdsel_attribute_loop_xsdmf_id'])) {
 								$loop_attribute_xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_details['xsdsel_attribute_loop_xsdmf_id']);
-								if (($xsdmf_details['xsdmf_element'] == '!datastream!ID') && ($xsdmf_details['xsdsel_title'] == 'File_Attachment') && ($loop_attribute_xsdmf_details['xsdmf_multiple'] == 1)) {
+								if (($xsdmf_details['xsdmf_element'] == '!datastream!ID') && (($xsdmf_details['xsdsel_title'] == 'File_Attachment') || ($xsdmf_details['xsdsel_title'] == 'Link')) && ($loop_attribute_xsdmf_details['xsdmf_multiple'] == 1)) {
 								  $extra = $attrib_loop_index;
 								} else {
 								  $extra = "";
@@ -2736,13 +2752,16 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 //						print_r($HTTP_POST_FILES);
 //							echo "LOOP INDEX => ".$attrib_loop_index."<=";
 							if (is_numeric($attrib_loop_index) && is_array($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']])) {
-								$attrib_value = (fread(fopen($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index], "r"), $HTTP_POST_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']][$attrib_loop_index]));						
+								$attrib_value = (fread(fopen($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index], "r"), $HTTP_POST_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']][$attrib_loop_index]));
 							} else {
 								$attrib_value = (fread(fopen($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']], "r"), $HTTP_POST_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']]));													
 							}
 						// put a full text indexer here for pdfs and word docs
 					} elseif ($xsdmf_details['xsdmf_html_input'] == 'text' || $xsdmf_details['xsdmf_html_input'] == 'textarea') {			
-						if ($xsdmf_details['xsdmf_multiple'] == 1) {
+						if (is_numeric($attrib_loop_index) && (is_array($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]))) {
+							$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id][$attrib_loop_index];
+							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id][$attrib_loop_index]));						
+						} elseif ($xsdmf_details['xsdmf_multiple'] == 1) {
 							if (is_array($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) {
 								foreach ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] as $multiple_element) {
 									if (!empty($multiple_element)) {
