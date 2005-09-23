@@ -447,6 +447,12 @@ class XSD_Loop_Subelement
 					SELECT m3.xsdmf_id 
 					FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m3,
 						 " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s3
+					WHERE m3.xsdmf_xsdsel_id = s1.xsdsel_id and m3.xsdmf_element like '!datastream!datastreamVersion!contentLocation' and m3.xsdmf_xdis_id=$xdis_id 				
+				)
+				OR m1.xsdmf_id in (
+					SELECT m3.xsdmf_id 
+					FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m3,
+						 " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s3
 					WHERE m3.xsdmf_xsdsel_id = s1.xsdsel_id and m3.xsdmf_element like '!datastream!datastreamVersion!binaryContent' and m3.xsdmf_xdis_id=$xdis_id 				
 				)";			
 		// @@@ CK - Added order statement to custom fields displayed in a desired order
@@ -1127,7 +1133,7 @@ class XSD_Loop_Subelement
      * @param   string $input_type
      * @return  boolean Whether any xsdmf's in the xsdsel where of the given type
      */
-    function getXSDMFInputType($xsdsel_id, $input_type)
+    function getXSDMFInputType($xsdsel_id, $input_type, $exclude_attrib_loops = false)
     {
         $stmt = "SELECT
                     *
@@ -1135,7 +1141,10 @@ class XSD_Loop_Subelement
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement,
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
                  WHERE
-                    xsdmf_html_input = '$input_type'AND xsdmf_xsdsel_id = xsdsel_id AND xsdsel_id=".$xsdsel_id;
+                    xsdmf_html_input = '$input_type'  AND xsdmf_xsdsel_id = xsdsel_id AND xsdsel_id=".$xsdsel_id;
+		if ($exclude_attrib_loops == true) {
+			$stmt .= " AND xsdmf_id <> xsdsel_attribute_loop_xsdmf_id";
+		} 
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 //        $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {

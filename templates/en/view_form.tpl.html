@@ -156,16 +156,18 @@ function disableFields()
     <td align="center" valign="top"  bgcolor="#FFFFFF" cellspacing="1" cellpadding="2" border="0">
 		<table border="0" cellpadding="2" cellspacing="0"  bgcolor="#FFFFFF" >
 		  <tr>
-			<td class="default" colspan="3"><b>Attached Datastreams</b></td>
+			<td class="default_white" colspan="4" bgcolor="{$heading_color}"><b>Attached Files</b></td>
 		  </tr>
 
 		  <tr class="default">
 			<td bgcolor="{$cell_color}">Name</td>
+			<td bgcolor="{$cell_color}">Description</td>			
 			<td bgcolor="{$cell_color}">MIMEType</td>
 			<td bgcolor="{$cell_color}">Size</td>
 		  </tr>
 
         {section name="d" loop=$datastreams}
+			{if $datastreams[d].controlGroup == "M"}
 			  <tr class="default"> 
 
 				{assign var="image_file_name" value=$datastreams[d].MIMEType|replace:"/":"_"|cat:".png"}
@@ -174,10 +176,33 @@ function disableFields()
 				{assign var="image_file_string" value=""}
 
 				{fetch file=$image_name assign="image_file_string"}
+
 				<td bgcolor="{$light_color}">{if $datastreams[d].thumbnail != "0"}<img align="absmiddle" src="{$eserv_url}{$datastreams[d].thumbnail}">{/if}{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}images/default.png">{/if} <a target="_blank" href="eserv.php?pid={$pid}&dsID={$datastreams[d].ID}">{$datastreams[d].ID}</a> &nbsp;{if $datastreams[d].presmd != "0"}<a target="_blank" href="eserv.php?pid={$pid}&dsID={$datastreams[d].presmd}"><img title="preservation metadata" align="absmiddle" border="0" src="images/presmd_22.gif"></a>{/if}</td>
+				<td bgcolor="{$light_color}">{$datastreams[d].label}</td>
 				<td bgcolor="{$light_color}">{$datastreams[d].MIMEType}</td>
-				<td bgcolor="{$light_color}">{$datastreams[d].size} bytes</td>
+				<td bgcolor="{$light_color}">{$datastreams[d].size} bytes</td>		
 			  </tr>
+			 {/if}
+        {/section}
+		  <tr>
+			<td class="default" colspan="4">&nbsp;</td>
+		  </tr>
+		  <tr>
+			<td class="default_white" colspan="4" bgcolor="{$heading_color}"><b>Related Links</b></td>
+		  </tr>
+
+		  <tr class="default">
+			<td colspan="1" bgcolor="{$cell_color}">Link</td>
+			<td colspan="3" bgcolor="{$cell_color}">Description</td>
+		  </tr>
+
+        {section name="d" loop=$datastreams}
+			{if $datastreams[d].controlGroup == "R"}
+			  <tr class="default"> 
+				<td colspan="1" bgcolor="{$light_color}"><img align="absmiddle" src="{$rel_url}images/text_html.png"> <a target="_blank" href="{$datastreams[d].location}">{$datastreams[d].location}</a> &nbsp;</td>
+				<td colspan="3" bgcolor="{$light_color}">{$datastreams[d].label} &nbsp;</td>
+			  </tr>
+			 {/if}
         {/section}
 
 		</table>

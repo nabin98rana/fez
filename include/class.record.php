@@ -3481,12 +3481,14 @@ class RecordObject extends RecordGeneral
         // If pid is null then we need to ingest the object as well
         // otherwise we are updating an existing object
         $ingestObject = false;
+		$existingDatastreams = array();
         if (empty($this->pid)) {
             $this->pid = Fedora_API::getNextPID();
             $ingestObject = true;
 			$this->created_date = date("Y-m-d H:i:s");
 			$this->updated_date = $created_date;
         } else {
+			$existingDatastreams = Fedora_API::callGetDatastreams($this->pid);
 			$this->getObjectDates();
 			if (empty($this->created_date)) {
 				$this->created_date = date("Y-m-d H:i:s");
@@ -3525,11 +3527,15 @@ class RecordObject extends RecordGeneral
 		$datastreamTitles = $display->getDatastreamTitles();
 		$params = array();
 //		echo $xmlObj;
-		$datastreamXMLHeaders = Misc::getDatastreamXMLHeaders($datastreamTitles, $xmlObj);
+		$datastreamXMLHeaders = Misc::getDatastreamXMLHeaders($datastreamTitles, $xmlObj, $existingDatastreams);
 //		print_r($datastreamTitles);
-//		print_r($datastreamXMLHeaders);
+		
+		print_r($datastreamXMLHeaders);
 		if (is_array($datastreamXMLHeaders["File_Attachment0"])) { // it must be a multiple file upload so remove the generic one
-			$datastreamXMLHeaders = Misc::array_clean_key($datastreamXMLHeaders, "File_Attachment", true, true);		
+			$datastreamXMLHeaders = Misc::array_clean_key($datastreamXMLHeaders, "File_Attachment", true, true);
+		}
+		if (is_array($datastreamXMLHeaders["Link0"])) { // it must be a multiple file upload so remove the generic one
+			$datastreamXMLHeaders = Misc::array_clean_key($datastreamXMLHeaders, "Link", true, true);
 		}
 
 //		print_r($datastreamXMLHeaders);
@@ -3583,7 +3589,12 @@ class RecordObject extends RecordGeneral
 			if (Fedora_API::datastreamExists($pid, $dsTitle['ID'])) {
 				Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, $dsTitle['STATE'], $dsTitle['LABEL'], $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], $dsTitle['VERSIONABLE']);
 			} else {
-				Fedora_API::getUploadLocation($pid, $dsIDName, $datastreamXMLContent[$dsKey], $dsTitle['LABEL'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
+				if ($dsTitle['CONTROL_GROUP'] == "R") { // if its a redirect we don't need to upload the file
+//				    echo "R content = ".$datastreamXMLContent[$dsKey];
+					Fedora_API::callAddDatastream($pid, $datastreamXMLContent[$dsKey], $dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
+				} else {
+					Fedora_API::getUploadLocation($pid, $dsIDName, $datastreamXMLContent[$dsKey], $dsTitle['LABEL'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
+				}
 			}
 
             

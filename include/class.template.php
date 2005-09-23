@@ -219,6 +219,7 @@ class Template_API
 
         $this->assign(array(
             "shaded_bar"     => "background='".APP_RELATIVE_URL."images/".APP_SHADED_BAR."'",
+            "heading_color"     => APP_HEADING_COLOR,
             "value_color"     => APP_VALUE_COLOR,
             "cell_color"     => APP_CELL_COLOR,
             "light_color"    => APP_LIGHT_COLOR,
@@ -303,6 +304,7 @@ class Template_API
 
         $this->assign(array(
             "shaded_bar"     => "background='".APP_RELATIVE_URL."images/".APP_SHADED_BAR."'",
+            "heading_color"     => APP_HEADING_COLOR,
             "cell_color"     => APP_CELL_COLOR,
             "value_color"     => APP_VALUE_COLOR,
             "light_color"    => APP_LIGHT_COLOR,

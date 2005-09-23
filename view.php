@@ -147,7 +147,7 @@ $tpl->assign("local_eserv_url", APP_RELATIVE_URL."eserv.php?pid=".$pid."&dsID=")
 		////	}
 		
 			$datastreams = Fedora_API::callGetDatastreams($pid);
-			//print_r($datastreams);	
+//			print_r($datastreams);	
 			$datastreams = Misc::cleanDatastreamList($datastreams);
 			$tpl->assign("datastreams", $datastreams);
 		

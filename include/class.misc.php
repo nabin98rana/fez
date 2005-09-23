@@ -1024,10 +1024,11 @@ function array_diff_keys()
    return $res;
 }
 
-function getDatastreamXMLHeaders($datastreamTitles, $xmlString) {
+function getDatastreamXMLHeaders($datastreamTitles, $xmlString, $existingDatastreams = array()) {
 	global $HTTP_POST_FILES;
-//	print_r($HTTP_POST_FILES);
+	global $HTTP_POST_VARS;	
 	$return = array();
+	$next_link = Misc::getNextLink($existingDatastreams);
 	$searchvars = array("ID", "CONTROL_GROUP", "STATE", "VERSIONABLE", "versionID", "LABEL", "MIMETYPE"); // For items which repeat, (like ID (ID and versionID)) make the searchable part uppercase and the name difference lowercase
 	foreach ($datastreamTitles as $dsTitle) {
 //		$IDPos = stripos($xmlString, 'id="'.$dsTitle['xsdsel_title'].'"'); // stripos is a php5 function
@@ -1038,7 +1039,10 @@ function getDatastreamXMLHeaders($datastreamTitles, $xmlString) {
 				$XMLContentEndPos = strpos($xmlString, '<foxml:xmlContent>', $XMLContentStartPos);
 			} elseif (is_numeric(strpos($xmlString, '<foxml:binaryContent>', $IDPos))) {
 				$XMLContentEndPos = strpos($xmlString, '<foxml:binaryContent>', $XMLContentStartPos);
+			} elseif (is_numeric(strpos($xmlString, '<foxml:contentLocation>', $IDPos))) {
+				$XMLContentEndPos = strpos($xmlString, '<foxml:contentLocation>', $XMLContentStartPos);
 			}
+
 			if (is_numeric($XMLContentStartPos) && is_numeric($XMLContentEndPos)) {
 				$tempXML = substr($xmlString, $XMLContentStartPos, ($XMLContentEndPos-$XMLContentStartPos));
 				$tempStartPos = 0;
@@ -1058,13 +1062,12 @@ function getDatastreamXMLHeaders($datastreamTitles, $xmlString) {
 				}
 				// Now for file uploads get the Datastream ID and Label (and maybe the MIMEType later?) from the actual file
 				$file_res = array();
+				$label_res = array();				
 				$file_res = XSD_Loop_Subelement::getXSDMFInputType($dsTitle['xsdsel_id'], 'file_input');
-//				print_r($file_res);
-
+				$label_res = XSD_Loop_Subelement::getXSDMFInputType($dsTitle['xsdsel_id'], 'text', true);
+//				echo "label res -> "; print_r($label_res);
 				if (count($file_res) == 1) {
 					if (is_array($HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']])) {
-//						echo "HERE!!!";
-//						print_r($HTTP_POST_FILES);
 						foreach ($HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']] as $key => $data) {
 							if ($HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key] != "") {
 								$return[$dsTitle['xsdsel_title'].$key]['CONTROL_GROUP'] = $return[$dsTitle['xsdsel_title']]['CONTROL_GROUP'];
@@ -1076,7 +1079,11 @@ function getDatastreamXMLHeaders($datastreamTitles, $xmlString) {
 									$return[$dsTitle['xsdsel_title'].$key]['ID'] = substr($return[$dsTitle['xsdsel_title'].$key]['ID'], 0, strrpos($return[$dsTitle['xsdsel_title'].$key]['ID'], ".") + 1).$filename_ext;
 								}
 								$return[$dsTitle['xsdsel_title'].$key]['versionID'] = $return[$dsTitle['xsdsel_title'].$key]['ID']."1.0";																
-								$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = $HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key];
+								if ($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key] != "") {
+									$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = $HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key];
+								} else {
+									$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = $HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key];
+								}
 								$return[$dsTitle['xsdsel_title'].$key]['MIMETYPE'] = $HTTP_POST_FILES['xsd_display_fields']['type'][$file_res[0]['xsdmf_id']][$key];
 							}
 						}
@@ -1091,10 +1098,48 @@ function getDatastreamXMLHeaders($datastreamTitles, $xmlString) {
 							$return[$dsTitle['xsdsel_title']]['ID'] = substr($return[$dsTitle['xsdsel_title']]['ID'], 0, strrpos($return[$dsTitle['xsdsel_title']]['ID'], ".") + 1).$filename_ext;
 						}
 						$return[$dsTitle['xsdsel_title']]['versionID'] = $return[$dsTitle['xsdsel_title']]['ID']."1.0";																							
-						$return[$dsTitle['xsdsel_title']]['LABEL'] = $HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']];
+						if ($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']] != "") {
+							$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = $HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']];
+						} else {
+							$return[$dsTitle['xsdsel_title']]['LABEL'] = $HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']];
+						}
 						$return[$dsTitle['xsdsel_title']]['MIMETYPE'] = $HTTP_POST_FILES['xsd_display_fields']['type'][$file_res[0]['xsdmf_id']];
 					}
-				} 
+				} elseif (count($label_res == 1)) {
+					if (is_array($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']])) {
+						foreach ($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']] as $key => $data) {
+							if ($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key] != "") {
+								$return[$dsTitle['xsdsel_title'].$key]['CONTROL_GROUP'] = $return[$dsTitle['xsdsel_title']]['CONTROL_GROUP'];
+								$return[$dsTitle['xsdsel_title'].$key]['STATE'] = $return[$dsTitle['xsdsel_title']]['STATE'];
+								$return[$dsTitle['xsdsel_title'].$key]['VERSIONABLE'] = $return[$dsTitle['xsdsel_title']]['VERSIONABLE'];
+								$return[$dsTitle['xsdsel_title'].$key]['ID'] = "link_".$next_link;
+								$next_link++;
+								$return[$dsTitle['xsdsel_title'].$key]['versionID'] = $return[$dsTitle['xsdsel_title'].$key]['ID']."1.0";																
+								if ($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key] != "") {
+									$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = $HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key];
+								} else {
+									$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = $return[$dsTitle['xsdsel_title']]['LABEL'];
+								}
+								$return[$dsTitle['xsdsel_title'].$key]['MIMETYPE'] = $return[$dsTitle['xsdsel_title']]['MIMETYPE'];
+							}
+						}
+						
+					} else {
+						$return[$dsTitle['xsdsel_title']]['CONTROL_GROUP'] = $return[$dsTitle['xsdsel_title']]['CONTROL_GROUP'];
+						$return[$dsTitle['xsdsel_title']]['STATE'] = $return[$dsTitle['xsdsel_title']]['STATE'];
+						$return[$dsTitle['xsdsel_title']]['VERSIONABLE'] = $return[$dsTitle['xsdsel_title']]['VERSIONABLE'];						
+						$return[$dsTitle['xsdsel_title']]['ID'] = "link_".$next_link;
+						$next_link++;
+						$return[$dsTitle['xsdsel_title']]['versionID'] = $return[$dsTitle['xsdsel_title']]['ID']."1.0";																
+						if ($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']] != "") {
+							$return[$dsTitle['xsdsel_title']]['LABEL'] = $HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key];
+						} else {
+							$return[$dsTitle['xsdsel_title']]['LABEL'] = $return[$dsTitle['xsdsel_title']]['LABEL'];
+						}
+						$return[$dsTitle['xsdsel_title']]['MIMETYPE'] = $return[$dsTitle['xsdsel_title']]['MIMETYPE'];
+					}
+
+				}
 
 			}
 		}
@@ -1105,6 +1150,27 @@ function getDatastreamXMLHeaders($datastreamTitles, $xmlString) {
 
 
 	return $return;
+}
+
+function getNextLink($existingDatastreams) {
+	$max_link = 0;
+	$new_max_link = 0;	
+
+	foreach ($existingDatastreams as $eds) {
+		$link_pos = strpos($eds['ID'], "link_");
+		if (is_numeric($link_pos)) { // if found a link datatream
+			$new_max_link = substr($eds['ID'], $link_pos); // get its number
+			if (is_numeric($new_max_link)) {
+				if ($new_max_link > $max_link) {
+					$max_link = $new_max_link;
+				}
+			}
+		}
+	}
+	if ($max_link == 0) {
+		$max_link++;
+	}
+	$return max_link;
 }
 
 function getDatastreamXMLContent($datastreamTitles, $xmlString) {
@@ -1130,6 +1196,10 @@ function getDatastreamXMLContent($datastreamTitles, $xmlString) {
 //				$XMLContentStartPos = strpos($searchXMLString, '<foxml:binaryContent>') + 21;
 				$XMLContentStartPos = strpos($searchXMLString, '<foxml:binaryContent>') + 22;
 				$XMLContentEndPos = strpos($searchXMLString, '</foxml:binaryContent>', $XMLContentStartPos);
+			} elseif (is_numeric(strpos($searchXMLString, '<foxml:contentLocation>'))) {
+//				$XMLContentStartPos = strpos($searchXMLString, '<foxml:binaryContent>') + 21;
+				$XMLContentStartPos = strpos($searchXMLString, '<foxml:contentLocation>') + 23;
+				$XMLContentEndPos = strpos($searchXMLString, '</foxml:contentLocation>', $XMLContentStartPos);
 			}
 			if (is_numeric($XMLContentStartPos) && is_numeric($XMLContentEndPos)) {
 				$tempXML = substr($searchXMLString, $XMLContentStartPos, ($XMLContentEndPos-$XMLContentStartPos));
@@ -2781,9 +2851,12 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 //									echo $sel_record['xsdsel_attribute_loop_xsdmf_id']." outside $attrib_loop_count \n\n";
 //											print_r($HTTP_POST_FILES);									
 									for ($x=0;$x<$attrib_loop_count;$x++) { // if this sel id is a loop of attributes then it will loop through each, otherwise it will just go through once
-										if (($attrib_loop_details['xsdmf_html_input'] != "file_input") 
+										if ((($attrib_loop_details['xsdmf_html_input'] != "file_input") && ($attrib_loop_details['xsdmf_html_input'] != "text"))
 										  || (is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "file_input") && ($HTTP_POST_FILES['xsd_display_fields']["tmp_name"][$sel_record['xsdsel_attribute_loop_xsdmf_id']][$x] != ""))
 										  || (!is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "file_input") && ($HTTP_POST_FILES['xsd_display_fields']["tmp_name"][$sel_record['xsdsel_attribute_loop_xsdmf_id']] != ""))																				
+										  || (is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "text") && ($HTTP_POST_VARS['xsd_display_fields'][$sel_record['xsdsel_attribute_loop_xsdmf_id']][$x] != ""))
+										  || (!is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "text") && ($HTTP_POST_VARS['xsd_display_fields'][$sel_record['xsdsel_attribute_loop_xsdmf_id']] != ""))																				
+
 										) {
 //									        echo $sel_record['xsdsel_attribute_loop_xsdmf_id']." inside $attrib_loop_count \n\n";										
 

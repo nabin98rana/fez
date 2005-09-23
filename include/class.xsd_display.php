@@ -587,7 +587,7 @@ class XSD_DisplayObject
         $this->xsd_top_element_name = $xsd_details['xsd_top_element_name'];
 
         $xmlnode = new DomDocument();
-        $xmlnode->loadXML($xmlDatastream);
+        @$xmlnode->loadXML($xmlDatastream);
 
        $cbdata = array('parentContent' => '', 'parent_key' => '');
         $this->mfcb_rootdone = false;

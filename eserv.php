@@ -46,14 +46,11 @@ if (!empty($pid) && !empty($dsID)) {
 				Record::incrementFileDownloads($pid); //increment FezMD.file_downloads counter
 			}
 			//	returnresource($urlpath);
-			
-			
+						
 			//echo "file is $pdfdata<br>";
 			$file_extension = strtolower(substr( strrchr( $urldata, "." ), 1 ));
 			//echo "file_extension is $file_extension<br>";
-			
-			
-			
+								
 			switch( $file_extension ) {
 			
 			case 'pdf'  :
@@ -68,7 +65,7 @@ if (!empty($pid) && !empty($dsID)) {
 					Header("Content-type: application/msword\n");
 					break;
 			
-			case 'ICA'  :
+			case 'ica'  :
 					Header("Content-type: application/x-ica\n");
 					break;
 			
@@ -99,7 +96,7 @@ if (!empty($pid) && !empty($dsID)) {
 			
 			} // end switch field_extension
 			
-			header('Content-Disposition: filename="'.substr($urldata, (strrpos($urldata, '/')+1) ).'"');
+  	 		header('Content-Disposition: filename="'.substr($urldata, (strrpos($urldata, '/')+1) ).'"');
 			$tempDumpFileName = '/tmp/tmpdumpfile.txt';
 			// Read the source OAI repository url or file
 			
@@ -110,9 +107,10 @@ if (!empty($pid) && !empty($dsID)) {
 			$sourceOAIRead .= $tmp;
 			}
 			
-			fclose($sourceOAI);
+//			fclose($sourceOAI);
 	
 			$tempDump = fopen($tempDumpFileName, 'w');
+
 			// Write the source xml to a temporary file to we can get the filesize (required for the content length header)
 			fwrite($tempDump, $sourceOAIRead);
 			
@@ -123,7 +121,7 @@ if (!empty($pid) && !empty($dsID)) {
 			$sourceOAIRead = fread($tempDump, filesize($tempDumpFileName));
 			header("Content-length: " . filesize($tempDumpFileName) . "\n");
 			echo $sourceOAIRead;
-					
+		
 			//	$fileContents =	file_get_contents($urlpath);
 			//	$fileContents =	file_get_contents(urldecode($urlpath));
 			//	echo $fileContents;

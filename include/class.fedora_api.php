@@ -639,9 +639,13 @@ function callAddDatastream ($pid, $uploadLocation, $dsLabel, $dsState, $mimetype
    * This function adds datastreams to object $pid.
    ********************************************/
 //   global $_REQUEST;
-   $parms=array('PID' => $pid, 'dsLabel' => $dsLabel, 'MIMEType' => $mimetype, 'formatURI' => 'unknown', new soapval('location', 'string', $uploadLocation), 'controlGroup' => $controlGroup, 'dsState' => 'A');
+//   $parms=array('PID' => $pid, 'dsLabel' => $dsLabel, 'MIMEType' => $mimetype, 'formatURI' => 'unknown', new soapval('location', 'string', $uploadLocation), 'controlGroup' => $controlGroup, 'dsState' => 'A');
+//   $parms=array('PID' => $pid, 'dsID' => 'Link_ChangeMe', 'altIDs' => array(), 'dsLabel' => $dsLabel, 'versionable' => false, 'MIMEType' => $mimetype, 'formatURI' => 'unknown', new soapval('location', 'string', $uploadLocation), 'controlGroup' => $controlGroup, 'dsState' => 'A', 'logMessage' => 'Added Datastream');
+   $parms=array('PID' => $pid, 'dsID' => 'link_'.mktime(), 'altIDs' => array(), 'dsLabel' => $dsLabel, 'versionable' => false, 'MIMEType' => $mimetype, 'formatURI' => 'unknown', new soapval('location', 'string', $uploadLocation), 'controlGroup' => $controlGroup, 'dsState' => 'A', 'logMessage' => 'Added Datastream');//
+//   $parms= array('pid' => $pid, 'dsID' => $dsID, 'altIDs' => array(), 'dsLabel' => $label, 'versionable' => $versionable, 'MIMEType' => $mimetype, 'formatURI' => 'unknown',  new soapval("dsContent","base64Binary",$dsContent), 'dsState' => $state, 'logMessage' => $logmsg, 'force' => true);
    //Call addDatastream
    Fedora_API::openSoapCall('addDatastream', $parms);
+//   print_r($parms);
 }
 
 function callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsLabel, $mimetype, $controlGroup='M') {
@@ -687,6 +691,20 @@ function callGetDatastreams ($pid) {
    $dsIDListArray = Fedora_API::openSoapCall('getDatastreams', $parms);
    sort($dsIDListArray);
    reset($dsIDListArray);
+   return $dsIDListArray;
+}
+
+function callGetDatastream ($pid, $dsID) {
+   /********************************************
+   * This function creates an array of all
+   * the datastreams for a specific object.
+   ********************************************/
+//   $parms=array('PID' => $pid);
+   $parms=array('pid' => $pid, 'dsID' => $dsID);
+   //Call addDatastream
+   $dsIDListArray = Fedora_API::openSoapCall('getDatastream', $parms);
+//   sort($dsIDListArray);
+//   reset($dsIDListArray);
    return $dsIDListArray;
 }
 
@@ -928,8 +946,8 @@ function openSoapCallAccess ($call, $parms) {
    //comment the return and uncomment the echo and debugInfo
    //to see debug statements.
 
-//   echo $result;
-//   Fedora_API::debugInfo($client);
+//	 echo $result;
+//	 Fedora_API::debugInfo($client);
    return $result;
 
 }
