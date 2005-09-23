@@ -45,7 +45,7 @@ class WorkflowTrigger
 
     function getPostSetStr()
     {
-      $post_fields = array('wft_pid', 'wft_type_id', 'wft_xdis_id', 'wft_wfl_id');
+      $post_fields = array('wft_pid', 'wft_type_id', 'wft_xdis_id', 'wft_wfl_id', 'wft_mimetype');
       $set_str = 'SET ';
       foreach ($post_fields as $post_field) {
           $set_str .= " $post_field='".Misc::escapeString($_POST[$post_field])."', ";
@@ -116,6 +116,26 @@ class WorkflowTrigger
         }
         return WorkflowTrigger::getList($pid, " AND wft_type_id=$trigger 
                 AND (wft_xdis_id=$xdis_id $orstr ) ");
+    }
+
+    function getIngestTrigger($pid, $xdis_id, $mimetype, $strict_xdis_id=false) 
+    {
+        $trigger = WorkflowTrigger::getTriggerId('Ingest');
+        $list = WorkflowTrigger::getList($pid, " AND wft_type_id=$trigger
+                AND wft_xdis_id=$xdis_id AND wft_mimetype LIKE '%$mimetype%' ");
+        if (empty($list) && !$strict_xdis_id) {
+            $list = WorkflowTrigger::getList($pid, " AND wft_type_id=$trigger
+                    AND wft_xdis_id=-1 AND wft_mimetype LIKE '%$mimetype%' ");
+        }
+        if (empty($list)) {
+            $list = WorkflowTrigger::getList($pid, " AND wft_type_id=$trigger
+                    AND wft_xdis_id=$xdis_id AND wft_mimetype='' ");
+        }
+        if (empty($list) && !$strict_xdis_id) {
+            $list = WorkflowTrigger::getList($pid, " AND wft_type_id=$trigger
+                    AND wft_xdis_id=-1 AND wft_mimetype='' ");
+        }
+        return @$list[0];
     }
 
      function getDetails($wft_id)

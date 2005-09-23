@@ -1131,7 +1131,7 @@ function getDatastreamXMLHeaders($datastreamTitles, $xmlString, $existingDatastr
 						$return[$dsTitle['xsdsel_title']]['ID'] = "link_".$next_link;
 						$next_link++;
 						$return[$dsTitle['xsdsel_title']]['versionID'] = $return[$dsTitle['xsdsel_title']]['ID']."1.0";																
-						if ($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']] != "") {
+						if (@$HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']] != "") {
 							$return[$dsTitle['xsdsel_title']]['LABEL'] = $HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key];
 						} else {
 							$return[$dsTitle['xsdsel_title']]['LABEL'] = $return[$dsTitle['xsdsel_title']]['LABEL'];
@@ -1170,7 +1170,7 @@ function getNextLink($existingDatastreams) {
 	if ($max_link == 0) {
 		$max_link++;
 	}
-	$return max_link;
+	return $max_link;
 }
 
 function getDatastreamXMLContent($datastreamTitles, $xmlString) {

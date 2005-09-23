@@ -3530,11 +3530,11 @@ class RecordObject extends RecordGeneral
 		$datastreamXMLHeaders = Misc::getDatastreamXMLHeaders($datastreamTitles, $xmlObj, $existingDatastreams);
 //		print_r($datastreamTitles);
 		
-		print_r($datastreamXMLHeaders);
-		if (is_array($datastreamXMLHeaders["File_Attachment0"])) { // it must be a multiple file upload so remove the generic one
+		//print_r($datastreamXMLHeaders);
+		if (@is_array($datastreamXMLHeaders["File_Attachment0"])) { // it must be a multiple file upload so remove the generic one
 			$datastreamXMLHeaders = Misc::array_clean_key($datastreamXMLHeaders, "File_Attachment", true, true);
 		}
-		if (is_array($datastreamXMLHeaders["Link0"])) { // it must be a multiple file upload so remove the generic one
+		if (@is_array($datastreamXMLHeaders["Link0"])) { // it must be a multiple file upload so remove the generic one
 			$datastreamXMLHeaders = Misc::array_clean_key($datastreamXMLHeaders, "Link", true, true);
 		}
 
@@ -3564,20 +3564,9 @@ class RecordObject extends RecordGeneral
             $xmlObj = $tidy;
             Fedora_API::callIngestObject($xmlObj);
         }
-//		print_r($indexArray);
-//			echo $xmlObj;        
 		$convert_check = false;
-//		print_r($datastreamXMLHeaders);
-
-//		print_r($datastreamXMLHeaders);
-//		print_r($datastreamXMLContent);
-//		print_r($indexArray);
 		Record::insertIndexBatch($pid, $indexArray, $datastreamXMLHeaders);
-//		echo "INDEX ARRAY -> ";
-//		print_r($indexArray);
-//		print_r($datastreamTitles);
-//		print_r($datastreamXMLHeaders);
-//		foreach ($datastreamTitles as $dsTitle) {
+        // ingest the datastreams
 		foreach ($datastreamXMLHeaders as $dsKey => $dsTitle) {
 			$dsIDName = $dsTitle['ID'];
 
@@ -3603,23 +3592,13 @@ class RecordObject extends RecordGeneral
 				Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, "text/xml", "X");
 			}
 
-
-            Workflow::processIngestTrigger($pid, $xdis_id, $dsTitle);
-            
-            // workflow step 1
-			// Now check for post upload workflow events like thumbnail resizing of images
-			$convert_check = Workflow::checkForImageFile($dsIDName);
-			if ($convert_check != false) {
-				Fedora_API::getUploadLocationByLocalRef($pid, $convert_check, $convert_check, $convert_check, $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
-				if (is_numeric(strpos($convert_check, "/"))) {
-					$convert_check = substr($convert_check, strrpos($convert_check, "/")+1); // take out any nasty slashes from the ds name itself
-				}
-				$convert_check = str_replace(" ", "_", $convert_check);
-				Record::insertIndexMatchingField($pid, 122, "varchar", $convert_check); // add the thumbnail to the fez index
-			}
-
-
 		} 
+        // run the workflows on the ingested datastreams.
+        // we do this in a seperate loop so that all the supporting metadata streams are ready to go
+		foreach ($datastreamXMLHeaders as $dsKey => $dsTitle) {
+			$dsIDName = $dsTitle['ID'];
+            Workflow::processIngestTrigger($pid, $dsTitle);
+        }
 		return $pid;
     }
     
@@ -3714,6 +3693,26 @@ class RecordObject extends RecordGeneral
         // get defaults
         $triggers = array_merge($triggers, WorkflowTrigger::getListByTriggerAndXDIS_ID(-1, $trigger, $xdis_id));
         return $triggers;
+    }
+
+    function getIngestTrigger($mimetype)
+    {
+        $this->getXmlDisplayId();
+        $trigger = WorkflowTrigger::getIngestTrigger($this->pid, $this->xdis_id, $mimetype);
+        if (!$trigger) {
+            $this->getParents();
+            foreach ($this->record_parents as $ppid) {
+                $trigger = WorkflowTrigger::getIngestTrigger($ppid, $this->xdis_id, $mimetype);
+                if ($trigger) {
+                    break;
+                }
+            }
+            if (!$trigger) {
+                // get defaults
+                $trigger = WorkflowTrigger::getIngestTrigger(-1, $this->xdis_id, $mimetype);
+            }
+        }
+        return $trigger;
     }
 
 

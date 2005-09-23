@@ -13,12 +13,14 @@ class WorkflowStatus {
     var $wfs_details;
     var $wft_details;
     var $wfb_details;
+    var $dsTitle;
     
     function WorkflowStatus($pid=null, $wft_id=null, $xdis_id=null, $dsTitle=null)
     {
         $this->pid = $pid;
         $this->wft_id= $wft_id;
         $this->xdis_id= $xdis_id;
+        $this->dsTitle = $dsTitle;
     }
 
 
@@ -103,7 +105,8 @@ class WorkflowStatus {
 
     function auto_next()
     {
-        if (!$wfs_details['wfs_end']) {
+        $this->getWorkflowDetails();
+        if (!$this->wfs_details['wfs_end']) {
             $this->setState($wfs_details['next_ids'][0]);
             $this->run();
         } else {
@@ -116,7 +119,7 @@ class WorkflowStatus {
         $this->getBehaviourDetails();
         $this->setSession();
         if ($this->wfb_details['wfb_auto']) {
-            include_once(APP_PATH.'workflow/'.$this->wfb_details['wfb_script_name']);
+            include(APP_PATH.'workflow/'.$this->wfb_details['wfb_script_name']);
             $this->auto_next();
         } else {
             header("Location: ".APP_RELATIVE_URL.'workflow/'.$this->wfb_details['wfb_script_name']
@@ -146,8 +149,10 @@ class WorkflowStatus {
         $querystr=implode('&', $argstrs);
         
         $this->clearSession();
-        header("Location: ".APP_RELATIVE_URL."workflow/end.php?$querystr");
-        exit;
+        if ($wft_type != 'Ingest') {
+            header("Location: ".APP_RELATIVE_URL."workflow/end.php?$querystr");
+            exit;
+        }
     }
 
     function setCreatedPid($pid)
@@ -204,7 +209,7 @@ class WorkflowStatusStatic
 {
     function getSession($pid)
     {
-        if (@$_SESSION['workflow'][$pid]) {
+        if (@$_SESSION['workflow'][$pid]['cud']) {
             return unserialize($_SESSION['workflow'][$pid]['cud']);
         } else {
             // get from DB

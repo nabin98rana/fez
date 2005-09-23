@@ -60,7 +60,7 @@ $tpl->assign("isAdministrator", $isAdministrator);
 $pid = Misc::GETorPOST('pid');
 $tpl->assign("pid", $pid);
 $wfs_id = Misc::GETorPOST('wfs_id');
-$wfstatus = WorkflowStatusStatic::getSession($pid); // creates a new WorkflowStatus
+$wfstatus = WorkflowStatusStatic::getSession($pid); // restores WorkflowStatus object from the session
 
 // get the xdis_id of what we're creating
 $xdis_id = $wfstatus->getXDIS_ID();
