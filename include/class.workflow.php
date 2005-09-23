@@ -186,7 +186,7 @@ class Workflow
 //        $filename_ext = strtolower(substr($filename, (strrpos($filename, ".") + 1))); 	 
         //echo "file -> ".$filename_ext; 	 
         if (is_numeric(strpos($filename, "."))) { 	 
-            $getString = "http://".APP_HOSTNAME."/webservices/wfb.presmd.php?file=".urlencode($filename); 	 
+            $getString = APP_RELATIVE_URL."webservices/wfb.presmd.php?file=".urlencode($filename); 	 
 //            echo $getString; 	 
             $http_req = new HTTP_Request($getString, array("http" => "1.0")); 	 
             $http_req->setMethod("GET"); 	 
