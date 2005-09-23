@@ -1167,15 +1167,8 @@ function getNextLink($existingDatastreams) {
 			}
 		}
 	}
-//	if ($max_link == 0) {
-		$max_link++;
-<<<<<<< .mine
-//	}
+	$max_link++;
 	return $max_link;
-=======
-	}
-	return $max_link;
->>>>>>> .r75
 }
 
 function getDatastreamXMLContent($datastreamTitles, $xmlString) {
