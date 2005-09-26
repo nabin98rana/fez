@@ -302,9 +302,9 @@ function purgeObject(pid)
         {section name="i" loop=$list}
 		{if $browse_type == "browse_latest"}
 			{if $list[i].created_date} 
-					{if ($list[i].created_date|date_format:"%A") != $today}
-						{if ($list[i].created_date|date_format:"%A") != $day_name}
-							{assign var="day_name" value=$list[i].created_date|date_format:"%A"}
+					{if ($list[i].created_date.0|date_format:"%A") != $today}
+						{if ($list[i].created_date.0|date_format:"%A") != $day_name}
+							{assign var="day_name" value=$list[i].created_date.0|date_format:"%A"}
 		  <tr>
 			  <td>
 			  <table bgcolor="#FFFFFF" width="100%" cellpadding="3" cellspacing="0">
@@ -377,7 +377,7 @@ function purgeObject(pid)
                         src="{$icon}" border="0">{if $href_view}</a>{/if} 
 
                     {if $href_view}<a href='{$href_view}'>{/if}
-					{$list[i].title|escape:"html"}{if $href_view}</a>{/if}
+					{$list[i].title.0|escape:"html"}{if $href_view}</a>{/if}
 
 					  {if $showEdit || $isAdministrator}
 						{if $showEdit}
@@ -389,15 +389,15 @@ function purgeObject(pid)
 						{/if}
 
 					  {/if}
-					{if $list[i].file_downloads}({$list[i].file_downloads|escape:"html"} File Downloads){/if}   					   
+					{if $list[i].file_downloads}({$list[i].file_downloads.0|escape:"html"} File Downloads){/if}   					   
 					</td>
 				</tr>
 				<tr>
                     <td>
-                       {if $list[i].creator}{$list[i].creator|escape:"html"}<br />{/if}
-                       {if $list[i].description}{$list[i].description|escape:"html"}...<br />{/if}
-                       {if $list[i].date}Published: {$list[i].date|date_format:"%A, %B %e, %Y"}<br />{/if}
-                       {if $list[i].type}{$list[i].type|escape:"html"}<br />{/if}                          
+                       {if $list[i].creator}{section name="creator_loop" loop=$list[i].creator}{assign var="next_creator" value=$smarty.section.creator_loop.index+1}{$list[i].creator[creator_loop]|escape:"html"}{if $list[i].creator[$next_creator] != ""} and {/if}{/section}<br />{/if}
+                       {if $list[i].description}{$list[i].description.0|escape:"html"}...<br />{/if}
+                       {if $list[i].date}Published: {$list[i].date.0|date_format:"%A, %B %e, %Y"}<br />{/if}
+                       {if $list[i].type}{$list[i].type.0|escape:"html"}<br />{/if}                          
 					   {if $list[i].ret_id == '3'}<b>Files:</b> {section name="d" loop=$list[i].datastreams}{if $href_view}<a href="{$eserv_url|cat:"?pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].datastreams[d]}">{/if}{$list[i].datastreams[d]}{if $href_view}</a>{/if} {/section}{/if}
                     </td>
                   </tr>

@@ -54,6 +54,7 @@ include_once(APP_INC_PATH . "class.workflow.php");
 include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
+include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 include_once(APP_INC_PATH . "class.xsd_loop_subelement.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
@@ -74,6 +75,12 @@ function handleEntireEprintsImport($pid, $collection_pid, $xmlObj) {
 	$xdis_id = 40; // standard fedora object
 	$ret_id = 3; // standard record type id
 	$sta_id = 1; // standard status type id
+    $created_date = date("Y-m-d H:i:s");
+	$updated_date = $created_date;
+    $xsd_id = XSD_Display::getParentXSDID($xdis_id);
+	$xsd_details = Doc_Type_XSD::getDetails($xsd_id);
+	$xsd_element_prefix = $xsd_details['xsd_element_prefix'];
+	$xsd_top_element_name = $xsd_details['xsd_top_element_name'];
 
 
 	$config = array(
@@ -99,7 +106,7 @@ function handleEntireEprintsImport($pid, $collection_pid, $xmlObj) {
 
 		$authorArray = array();
 		$editorArray = array();
-		$keywordArray = array();		
+		$keywordArray = array();
 
 
 	foreach ($recordNodes as $recordNode) {
@@ -298,6 +305,8 @@ function handleEntireEprintsImport($pid, $collection_pid, $xmlObj) {
 					  <xdis_id>'.$xdis_id.'</xdis_id>
 					  <sta_id>'.$sta_id.'</sta_id>
 					  <ret_id>'.$ret_id.'</ret_id>
+					  <created_date>'.$created_date.'</created_date>					  
+					  <updated_date>'.$updated_date.'</updated_date>
 					  <publication>'.$importArray['confpaper'][$key]['publication'][0].'</publication>  
 					  <copyright>'.$importArray['confpaper'][$key]['note'][0].'</copyright> 
 					  ';
@@ -351,7 +360,7 @@ $xmlObj .= '
 					$convert_check = substr($convert_check, strrpos($convert_check, "/")+1); // take out any nasty slashes from the ds name itself
 				}
 				$convert_check = str_replace(" ", "_", $convert_check);
-				Record::insertIndexMatchingField($pid, 122, NULL, NULL, 'varchar', $convert_check); // add the thumbnail to the espace index				
+				Record::insertIndexMatchingField($pid, 122, 'varchar', $convert_check); // add the thumbnail to the espace index				
 			}
 			$presmd_check = Workflow::checkForPresMD($ds); // we are not indexing presMD so just upload the presmd if found
 			if ($presmd_check != false) {
@@ -364,23 +373,47 @@ $xmlObj .= '
 			}
 			$ds = str_replace(" ", "_", $ds);
 	//		echo $ds;
-			Record::insertIndexMatchingField($pid, 122, NULL, NULL, 'varchar', $ds); // add the thumbnail to the espace index				
+			Record::insertIndexMatchingField($pid, 122, 'varchar', $ds); // add the thumbnail to the espace index				
 		}	  
-		$xmlnode = new DomDocument();
-		$xmlnode->loadXML($xmlObj);
+//		$xmlnode = new DomDocument();
+//		$xmlnode->loadXML($xmlObj);
+
 
 		$array_ptr = array();
 		$xsdmf_array = array();
 //			echo $xmlObj;
-		Misc::dom_xml_to_simple_array($xmlnode, $array_ptr, $xsd_top_element_name, $xsd_element_prefix, $xsdmf_array, $xdis_id);
-//			print_r($array_ptr);
-//			print_r($xsdmf_array);
-		
+		// want to do this on a per datastream basis, not the entire xml object
+		$datastreamTitles = XSD_Loop_Subelement::getDatastreamTitles($xdis_id);
+		foreach ($datastreamTitles as $dsValue) {
+			$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title']);
+            if (isset($DSResultArray['stream'])) {
+                $xmlDatastream = $DSResultArray['stream'];
+                $xsd_id = XSD_Display::getParentXSDID($dsValue['xsdmf_xdis_id']);
+                $xsd_details = Doc_Type_XSD::getDetails($xsd_id);
+                $xsd_element_prefix = $xsd_details['xsd_element_prefix'];
+                $xsd_top_element_name = $xsd_details['xsd_top_element_name'];
+
+                $xmlnode = new DomDocument();
+                $xmlnode->loadXML($xmlDatastream);
+                $array_ptr = array();
+                Misc::dom_xml_to_simple_array($xmlnode, $array_ptr, $xsd_top_element_name, $xsd_element_prefix, $xsdmf_array, $xdis_id);
+            }
+		}
 		foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
-			if (!is_array($xsdmf_value) && !empty($xsdmf_value) && (trim($xsdmf_value) != "")) {
-				Record::insertIndexMatchingField($pid, $xsdmf_id, NULL, NULL, 'varchar', $xsdmf_value);
+			if (!is_array($xsdmf_value) && !empty($xsdmf_value) && (trim($xsdmf_value) != "")) {					
+				$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
+				Record::insertIndexMatchingField($pid, $xsdmf_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_value);					
+			} elseif (is_array($xsdmf_value)) {
+				foreach ($xsdmf_value as $xsdmf_child_value) {
+					if ($xsdmf_child_value != "") {
+						$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
+						Record::insertIndexMatchingField($pid, $xsdmf_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_child_value);
+					}
+				}
 			}
 		}
+
+		
 
 
 		$pid = Fedora_API::getNextPID(); // get a new pid for the next loop
@@ -473,7 +506,7 @@ function handleMETSImport($pid, $xmlObj, $xmlBegin) {
 				$convert_check = substr($convert_check, strrpos($convert_check, "/")+1); // take out any nasty slashes from the ds name itself
 			}
 			$convert_check = str_replace(" ", "_", $convert_check);
-			Record::insertIndexMatchingField($pid, 122, NULL, NULL, 'varchar', $convert_check); // add the thumbnail to the espace index				
+			Record::insertIndexMatchingField($pid, 122, 'varchar', $convert_check); // add the thumbnail to the espace index				
 		}
 		$presmd_check = Workflow::checkForPresMD($ds); // we are not indexing presMD so just upload the presmd if found
 		if ($presmd_check != false) {
@@ -486,7 +519,7 @@ function handleMETSImport($pid, $xmlObj, $xmlBegin) {
 		}
 		$ds = str_replace(" ", "_", $ds);
 //		echo $ds;
-		Record::insertIndexMatchingField($pid, 122, NULL, NULL, 'varchar', $ds); // add the thumbnail to the espace index				
+		Record::insertIndexMatchingField($pid, 122, 'varchar', $ds); // add the thumbnail to the espace index				
 	}	  
 
 	return $xmlBegin;
@@ -591,7 +624,7 @@ function insert() {
 			
 			foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
 				if (!is_array($xsdmf_value) && !empty($xsdmf_value) && (trim($xsdmf_value) != "")) {
-					Record::insertIndexMatchingField($pid, $xsdmf_id, NULL, NULL, 'varchar', $xsdmf_value);
+					Record::insertIndexMatchingField($pid, $xsdmf_id, 'varchar', $xsdmf_value);
 				}
 			}
 		}
