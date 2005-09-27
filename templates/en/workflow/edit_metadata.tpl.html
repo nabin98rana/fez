@@ -24,7 +24,11 @@ function updateForm()
 
 
 {if $new_record_id != "" and $smarty.post.report_stays != "yes"}
-       <tr>
+<table width="500" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+  <tr>
+    <td>
+      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+        <tr>
           <td class="default">
             <b>Thank you, the new record was created successfully. Please choose 
             from one of the options below:</b>
@@ -39,6 +43,10 @@ function updateForm()
             <b>Otherwise, you will be automatically redirected to the Record Details Page in 5 seconds.</b>
           </td>
         </tr>
+      </table>
+    </td>
+  </tr>
+</table>
 {literal}
 <script language="JavaScript">
 <!--
@@ -145,6 +153,7 @@ function selectDateField(field_name, day, month, year)
 </script>
 {/literal}
 
+<table width="99%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
 
 
 <form name="report_form"  onSubmit="javascript:return updateForm();" target="_update_record_details" action="{$rel_url}popup.php" method="POST" enctype="multipart/form-data">
@@ -156,7 +165,10 @@ function selectDateField(field_name, day, month, year)
 <input type="hidden" name="state" value="{$xsd_display_fields[i].xsdmf_static_text}">
 	{/if}
 {/section}
-       <tr>
+   <tr>
+    <td>
+      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="0" border="0">
+        <tr>
           <td class="default_white" bgcolor="{$heading_color}">
             &nbsp;<img align="absmiddle" src="{$rel_url}images/edit_32.png"><b>Edit Record</b>
           </td>
@@ -448,4 +460,8 @@ function selectDateField(field_name, day, month, year)
             <b>* Required fields</b>
           </td>
         </tr>
+      </table>
+    </td>
+  </tr>
 </form>
+</table>
