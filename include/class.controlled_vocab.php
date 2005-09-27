@@ -412,7 +412,7 @@ class Controlled_Vocab
 					$tempArray = Controlled_Vocab::getAssocListFullDisplay($key, $indent, $level, $level_limit);					
 					if (count($tempArray) > 0) {
 						if ($parent_id == false) {
-							$newArray['data'][$key] = Misc::array_merge_preserve($newArray[$key], $tempArray);
+							$newArray['data'][$key] = Misc::array_merge_preserve(@$newArray[$key], $tempArray);
 							$newArray['title'][$key] = $data;
 						} else {
 							$newArray = Misc::array_merge_preserve($newArray, $tempArray);
@@ -544,8 +544,9 @@ class Controlled_Vocab
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
+            return array();
         } else {
+            $newArray = array();
 			foreach ($res as $row) {
 				$tempArray = array();			
 				$tempArray = Controlled_Vocab::getAllTreeIDs($row[0]);

@@ -13,14 +13,19 @@ class WorkflowStatus {
     var $wfs_details;
     var $wft_details;
     var $wfb_details;
-    var $dsTitle;
+    var $dsInfo;
+    var $change_on_refresh;
+    var $end_on_refresh;
+    var $parents_list;
+    var $parent_pid;
     
-    function WorkflowStatus($pid=null, $wft_id=null, $xdis_id=null, $dsTitle=null)
+    function WorkflowStatus($pid=null, $wft_id=null, $xdis_id=null, $dsInfo=null)
     {
         $this->pid = $pid;
         $this->wft_id= $wft_id;
         $this->xdis_id= $xdis_id;
-        $this->dsTitle = $dsTitle;
+        $this->dsInfo = $dsInfo;
+
     }
 
 
@@ -67,6 +72,15 @@ class WorkflowStatus {
     {
         if (!$this->wft_details) {
             $this->wft_details = WorkflowTrigger::getDetails($this->wft_id);
+            $wft_type = WorkflowTrigger::getTriggerName($this->wft_details['wft_type_id']);
+            $this->parent_pid = null;
+            $this->parents_list = null;
+            if ($wft_type == 'Create') {
+                $this->parent_pid = $this->pid;
+            } elseif ($wft_type != 'Ingest') {
+                $record = new RecordObject($this->pid);
+                $this->parents_list = $record->getParents();
+            }
         }
         return $this->wft_details;
     }
@@ -117,6 +131,7 @@ class WorkflowStatus {
     function run()
     {
         $this->getBehaviourDetails();
+        $this->getTriggerDetails();
         $this->setSession();
         if ($this->wfb_details['wfb_auto']) {
             include(APP_PATH.'workflow/'.$this->wfb_details['wfb_script_name']);
@@ -134,14 +149,14 @@ class WorkflowStatus {
         $this->getWorkflowDetails();
         $wfl_title = $this->wfl_details['wfl_title'];
         $wft_type = WorkflowTrigger::getTriggerName($this->wft_details['wft_type_id']);
-        $parent_pid = null;
         if ($wft_type == 'Create') {
             $pid = $this->created_pid;
-            $parent_pid = $this->pid;
         } else {
             $pid = $this->pid;
         }
-        $args = compact('wfl_title','wft_type','parent_pid','pid');
+        $parent_pid = $this->parent_pid;
+        $parents_list = serialize($this->parents_list);
+        $args = compact('wfl_title','wft_type','parent_pid','pid', 'parents_list');
         $argstrs = array();
         foreach ($args as $key => $arg) {
             $argstrs[] = "$key=".urlencode($arg);
@@ -160,16 +175,43 @@ class WorkflowStatus {
         $this->created_pid = $pid;
     }
 
-    function checkStateChange()
+    function setStateChangeOnRefresh($end=false)
+    {
+        $this->change_on_refresh = true;
+        if ($end) {
+            $this->end_on_refresh = true;
+        }
+        $this->setSession();
+    }
+
+    function checkStateChange($ispopup=false)
     {
         $button = Misc::GETorPOST_prefix('workflow_button_');
         if ($button) {
             $this->getStateDetails();
             if (!$this->wfs_details['wfs_end']) {
                 $this->setState($button);
-                $this->run();
+                if (!$ispopup) {
+                    $this->run();
+                } else {
+                    $this->setStateChangeOnRefresh();
+                }
             } else {
-                $this->theend();
+                if (!$ispopup) {
+                    $this->theend();
+                } else {
+                    $this->setStateChangeOnRefresh(true);
+                }
+            }
+        } else {
+            if ($this->change_on_refresh) {
+                $this->change_on_refresh = false;
+                if ($this->end_on_refresh) {
+                    $this->end_on_refresh = false;
+                    $this->theend();
+                } else {
+                    $this->run();
+                }
             }
         }
     }

@@ -7,7 +7,7 @@ function purgeDatastream(ds_id)
         return false;
     } else {
         var features = 'width=420,height=200,top=30,left=30,resizable=yes,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
-        var popupWin = window.open('{/literal}{$rel_url}popup.php?cat=purge_datastream&pid={$pid}{literal}&ds_id=' + ds_id, '_popup', features);
+        var popupWin = window.open('popup.php?cat=purge_datastream&pid={/literal}{$pid}{literal}&ds_id=' + ds_id, '_popup', features);
         popupWin.focus();
     }
 }
@@ -24,11 +24,7 @@ function updateForm()
 
 
 {if $new_record_id != "" and $smarty.post.report_stays != "yes"}
-<table width="500" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
-  <tr>
-    <td>
-      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-        <tr>
+       <tr>
           <td class="default">
             <b>Thank you, the new record was created successfully. Please choose 
             from one of the options below:</b>
@@ -43,10 +39,6 @@ function updateForm()
             <b>Otherwise, you will be automatically redirected to the Record Details Page in 5 seconds.</b>
           </td>
         </tr>
-      </table>
-    </td>
-  </tr>
-</table>
 {literal}
 <script language="JavaScript">
 <!--
@@ -153,10 +145,9 @@ function selectDateField(field_name, day, month, year)
 </script>
 {/literal}
 
-<table width="99%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
 
 
-<form name="report_form" onSubmit="javascript:return updateForm();" target="_update_record_details" action="popup.php" method="POST" enctype="multipart/form-data">
+<form name="report_form"  onSubmit="javascript:return updateForm();" target="_update_record_details" action="{$rel_url}popup.php" method="POST" enctype="multipart/form-data">
 <input type="hidden" name="cat" value="update_form">
 <input type="hidden" name="xdis_id" value="{$xdis_id}">
 <input type="hidden" name="pid" value="{$pid}">
@@ -165,10 +156,7 @@ function selectDateField(field_name, day, month, year)
 <input type="hidden" name="state" value="{$xsd_display_fields[i].xsdmf_static_text}">
 	{/if}
 {/section}
-  <tr>
-    <td>
-      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="0" border="0">
-        <tr>
+       <tr>
           <td class="default_white" bgcolor="{$heading_color}">
             &nbsp;<img align="absmiddle" src="{$rel_url}images/edit_32.png"><b>Edit Record</b>
           </td>
@@ -344,7 +332,7 @@ function selectDateField(field_name, day, month, year)
 						<select id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1" multiple size="10" class="default" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]">
 							  {html_options options=$details[$temp_fld_id]}
 						</select>
-						<input class="default" type=button value="Add Subject" onclick = "javascript:small_window('cv_selector.php?cvo_id=1&form=report_form&element=xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1');">
+						<input class="default" type=button value="Add Subject" onclick = "javascript:small_window('{$rel_url}cv_selector.php?cvo_id=1&form=report_form&element=xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1');">
 						<input class="default" type=button value="Remove Subject" onclick =" javascript:deleteSelectedItemsFromList(xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1);">
 					 </td>
 					</tr>						  			  
@@ -444,7 +432,11 @@ function selectDateField(field_name, day, month, year)
                   </nobr> -->
                 </td>
                 <td width="100%" align="center">
-                  <input class="button" type="submit" value="Submit" tabindex="12" onClick="javascript:validateForm();">&nbsp;&nbsp;
+{section name="i" loop=$workflow_buttons}
+                  <input class="button" type="submit" name="workflow_button_{$workflow_buttons[i].wfs_id}" 
+                  value="{$workflow_buttons[i].wfs_title}" tabindex="12" 
+                  onClick="javascript:validateForm();" />&nbsp;&nbsp;
+{/section}
                   <input class="button" type="reset" value="Reset" tabindex="13">
                 </td>
               </tr>
@@ -456,8 +448,4 @@ function selectDateField(field_name, day, month, year)
             <b>* Required fields</b>
           </td>
         </tr>
-      </table>
-    </td>
-  </tr>
 </form>
-</table>

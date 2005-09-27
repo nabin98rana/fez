@@ -4,22 +4,22 @@
 {$message}
 </td><tr>
 {/if}
-<form method="post" action="{$smarty.server.SCRIPT_NAME}" >
-<input type="hidden" name="cat" value="select_workflow" />
-<input type="hidden" name="pid" value="{$pid}" />
-<input type="hidden" name="xdis_id" value="{$xdis_id}" />
 <tr>
 <td bgcolor="{$cell_color}" class="default">
 <b>Select Action</b>
 </td>
+</tr>
+{section name="i" loop=$workflows}
+<tr>
 <td class="default">
-<select name="wft_id">
-{html_options options=$workflows_op}
-</select>
-<input type="submit" value="Go" />
+{assign var="wfl_id" value=$workflows[i].wft_wfl_id}
+{assign var="xdis_id1" value=$workflows[i].wft_xdis_id}
+{if $workflows[i].wft_icon}<img src="{$rel_url}{$workflows[i].wft_icon}" alt="icon" />{/if}
+<a href="{$marty.server.SCRIPT_NAME}?pid={$pid}&cat=select_workflow&xdis_id={$xdis_id}&wft_id={$workflows[i].wft_id}" 
+>{$wfl_list[$wfl_id]}</a>
 </td>
 </tr>
-</form>
-<tr><td>This is {$trigger} for {$pid}</td></tr>
+{/section}
+<tr><td class="default">This is {$trigger} for {$pid}</td></tr>
 
 

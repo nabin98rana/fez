@@ -23,9 +23,20 @@ $tpl->assign("isAdministrator", $isAdministrator);
 $wfl_title = Misc::GETorPOST('wfl_title');
 $wft_type = Misc::GETorPOST('wft_type');
 $parent_pid = Misc::GETorPOST('parent_pid');
+$parents_list = unserialize(Misc::GETorPOST('parents_list'));
+foreach ($parents_list as &$item) {
+    $precord = new RecordObject($item['pid']);
+    if ($precord->isCommunity()) {
+        $item['url'] = APP_RELATIVE_URL."list.php?community_pid={$item['pid']}";
+    } else {
+        $item['url'] = APP_RELATIVE_URL."list.php?collection_pid={$item['pid']}";
+    }
+}
 $pid = Misc::GETorPOST('pid');
-$record = new RecordObject($pid);
-$record_title = $record->getTitle();
+if ($wft_type != 'Delete') {
+    $record = new RecordObject($pid);
+    $record_title = $record->getTitle();
+}
 $parent_title = '';
 if ($parent_pid) {
     if ($parent_pid == -1) {
@@ -42,7 +53,8 @@ if ($parent_pid) {
     }
 } 
 $view_record_url = APP_RELATIVE_URL."view.php?pid=$pid";
-$tpl->assign(compact('wfl_title','wft_type','parent_title','record_title', 'view_record_url', 'view_parent_url'));
+$tpl->assign(compact('wfl_title','wft_type','parent_title','record_title', 'view_record_url', 
+            'view_parent_url', 'parents_list'));
 
 
 $tpl->displayTemplate();

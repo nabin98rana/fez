@@ -29,18 +29,21 @@
 //
 include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
-include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.auth.php");
-include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.record.php");
-include_once(APP_INC_PATH . "class.workflow_trigger.php");
-include_once(APP_INC_PATH . "class.community.php");
+include_once(APP_INC_PATH . "class.batchimport.php");
+include_once(APP_INC_PATH . "class.misc.php");
+include_once(APP_INC_PATH . "class.setup.php");
+include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.collection.php");
+include_once(APP_INC_PATH . "class.community.php");
+include_once(APP_INC_PATH . "class.date.php");
+include_once(APP_INC_PATH . "class.xsd_html_match.php");
+
 
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
-$tpl->assign("trigger", 'Create');
-$tpl->assign("type", 'new');
+$tpl->assign("type", 'batchimport');
 
 Auth::checkAuthentication(APP_SESSION);
 //$user_id = Auth::getUserID();
@@ -49,58 +52,48 @@ $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
+$pid = Misc::GETorPOST('pid');
+$tpl->assign("pid", $pid);
+$wfs_id = Misc::GETorPOST('wfs_id');
+$wfstatus = WorkflowStatusStatic::getSession($pid); // restores WorkflowStatus object from the session
 
-$xdis_id = Misc::GETorPOST('xdis_id');
-$collection_pid = Misc::GETorPOST('collection_pid');
-$community_pid = Misc::GETorPOST('community_pid');
-
-$cat = Misc::GETorPOST('cat');
-if ($cat == 'select_workflow') {
-    $wft_id = Misc::GETorPOST("wft_id");
-    $pid = Misc::GETorPOST("pid");
-    Workflow::start($wft_id, $pid, $xdis_id);
-}
-
-$message = '';
-$pid = $collection_pid ? $collection_pid : $community_pid;
-$wfl_list = Misc::keyPairs(Workflow::getList(), 'wfl_id', 'wfl_title');
-$xdis_list = array(-1 => 'Any') + XSD_Display::getAssocListDocTypes(); 
-$tpl->assign('wfl_list', $wfl_list);
-$tpl->assign('xdis_list', $xdis_list);
-if (empty($pid) || $pid == -1) {
-    $tpl->assign("pid", '-1');
-    $pid = -1;
-    // community level create 
-    // get defaults triggers
-    $xdis_id = Community::getCommunityXDIS_ID();
-    $workflows = WorkflowTrigger::getListByTriggerAndXDIS_ID(-1, 'Create', $xdis_id, true);
-    $tpl->assign('workflows', $workflows);
+// get the xdis_id of what we're creating
+$xdis_id = $wfstatus->getXDIS_ID();
+if ($pid == -1 || !$pid) {
+    $access_ok = $isAdministrator;
 } else {
-    $tpl->assign("pid", $pid);
-
+    $community_pid = $pid;
+    $collection_pid = $pid;
     $record = new RecordObject($pid);
-    if ($record->canCreate()) {
-        $tpl->assign("isCreator", 1);
-        if ($record->isCommunity()) {
-            $xdis_id = Collection::getCollectionXDIS_ID();
-            $workflows = WorkflowTrigger::getListByTriggerAndXDIS_ID(-1, 'Create', $xdis_id, true);
-        } elseif ($record->isCollection()) {
-            $workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Create', $xdis_id);
-        } else {
-            $message .= "Error: can't create objects into ordinary records<br/>";
-        }
-        $tpl->assign('workflows', $workflows);
-    } else {
-    }
-    $tpl->assign('xdis_id', $xdis_id);
+    $access_ok = $record->canCreate();
 }
-if (empty($workflows)) {
-    $message .= "Error: No workflows defined for Create<br/>";
-} elseif (count($workflows) == 1) {
-    // no need for user to select a workflow - just start the only one available
-    Workflow::start($workflows[0]['wft_id'], $pid, $xdis_id);
+if ($access_ok) {
+    if (@$HTTP_POST_VARS["cat"] == "report") {
+        $res = BatchImport::insert();
+        sleep(1); // give fedora some time to update it's indexes or whatever it does.
+        //		Auth::redirect(APP_RELATIVE_URL . "list.php?new_pid=".$res.$extra_redirect, false);
+        $wfstatus->setCreatedPid($pid);
+    }
+    $wfstatus->checkStateChange();
+
+    $tpl->assign('workflow_buttons', $wfstatus->getButtons());
+    $tpl->assign("xdis_id", $xdis_id);
+    $tpl->assign("pid", $pid);
+    $jtaskData = "";
+    $maxG = 0;
+    //open the current directory
+    $directory = opendir(APP_SAN_IMPORT_DIR);
+    while (false !== ($file = readdir($directory))) { 
+        if (!is_numeric(strpos($file, "."))) {
+            $filenames[$file] = $file;
+        }
+    }
+    $tpl->assign("filenames", $filenames);
+    $tpl->assign("form_title", "Batch Import Records");
+    $tpl->assign("form_submit_button", "Batch Import Records");
+
+    $setup = Setup::load();
 }
 
-$tpl->assign('message', $message);
 $tpl->displayTemplate();
 ?>

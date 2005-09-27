@@ -3593,8 +3593,7 @@ class RecordObject extends RecordGeneral
         // run the workflows on the ingested datastreams.
         // we do this in a seperate loop so that all the supporting metadata streams are ready to go
 		foreach ($datastreamXMLHeaders as $dsKey => $dsTitle) {
-			$dsIDName = $dsTitle['ID'];
-            Workflow::processIngestTrigger($pid, $dsTitle);
+            Workflow::processIngestTrigger($pid, $dsTitle['ID'], $dsTitle['MIMETYPE']);
         }
 		return $pid;
     }
@@ -3680,15 +3679,17 @@ class RecordObject extends RecordGeneral
         return $triggers;
     }
 
-    function getWorkflowsByTriggerAndXDIS_ID($trigger, $xdis_id)
+    function getWorkflowsByTriggerAndXDIS_ID($trigger, $xdis_id, $strict=false)
     {
         $this->getParents();
-        $triggers = WorkflowTrigger::getListByTriggerAndXDIS_ID($this->pid, $trigger, $xdis_id);
+        $triggers = WorkflowTrigger::getListByTriggerAndXDIS_ID($this->pid, $trigger, $xdis_id, $strict);
         foreach ($this->record_parents as $ppid) {
-            $triggers = array_merge($triggers, WorkflowTrigger::getListByTriggerAndXDIS_ID($ppid, $trigger, $xdis_id));
+            $triggers = array_merge($triggers, 
+                    WorkflowTrigger::getListByTriggerAndXDIS_ID($ppid, $trigger, $xdis_id, $strict));
         }
         // get defaults
-        $triggers = array_merge($triggers, WorkflowTrigger::getListByTriggerAndXDIS_ID(-1, $trigger, $xdis_id));
+        $triggers = array_merge($triggers, 
+                WorkflowTrigger::getListByTriggerAndXDIS_ID(-1, $trigger, $xdis_id, $strict));
         return $triggers;
     }
 

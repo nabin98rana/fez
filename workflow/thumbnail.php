@@ -5,8 +5,8 @@
 // we are running inside the WorkflowStatus::run function
 
 $pid = $this->pid;
-$dsTitle = $this->dsTitle;
-$dsIDName = $dsTitle['ID'];
+$dsInfo = $this->dsInfo;
+$dsIDName = $dsInfo['ID'];
 $filename=$dsIDName;
 $filename_ext = strtolower(substr($filename, (strrpos($filename, ".") + 1)));
 $getString = APP_RELATIVE_URL."webservices/wfb.thumbnail.php?image="
@@ -23,7 +23,7 @@ if (is_numeric(strpos($filename, "/"))) {
 }
 
 if ($thumbnail) {
-    Fedora_API::getUploadLocationByLocalRef($pid, $thumbnail, $thumbnail, $thumbnail, $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
+    Fedora_API::getUploadLocationByLocalRef($pid, $thumbnail, $thumbnail, $thumbnail, 'image/jpeg', 'M');
     if (is_numeric(strpos($thumbnail, "/"))) {
         $thumbnail = substr($thumbnail, strrpos($thumbnail, "/")+1); // take out any nasty slashes from the ds name itself
     }

@@ -2,6 +2,9 @@
 <td class="default">
 Finished workflow {$wfl_title}, triggered by {$wft_type}.<br/>
 {if $parent_title}Parent: <a href="{$view_parent_url}">{$parent_title}</a><br/>{/if}
-Record: <a href="{$view_record_url}">{$record_title}</a><br/>
+{if $parents_list}Parents: 
+{section name="i" loop=$parents_list}<a href="{$parents_list[i].url}">{$parents_list[i].title}</a> {/section}
+<br/>{/if}
+{if $record_title}Record: <a href="{$view_record_url}">{$record_title}</a><br/>{/if}
 </td>
 </tr>

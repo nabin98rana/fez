@@ -181,6 +181,15 @@
                 </td>
               </tr>
               {/if}
+              <tr>
+                <td  width="120" bgcolor="{$cell_color}" class="default" nowrap>
+                  <b>Icon:</b> (path relative to fez root)
+                </td>
+                <td bgcolor="{$light_color}" class="default">
+                  <input type="textfield" name="wft_icon" value="{$info.wft_icon}" size="64"/>
+                </td>
+              </tr>
+
              <tr>
                 <td bgcolor="{$cell_color}" class="default" nowrap>
                   <b>Trigger:</b>
@@ -282,6 +291,7 @@
                         <input type="checkbox" name="items[]" value="{$list[i].wft_id}" {if $smarty.section.i.total == 0}disabled{/if}>
                       </td>
                       <td bgcolor="{$row_color}" class="default">
+                        <img src="{$rel_url}{$list[i].wft_icon}" alt="icon" />
                         {assign var="type_id" value=$list[i].wft_type_id}
                         &nbsp;{$triggers_list.$type_id}
                       </td>

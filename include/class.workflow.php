@@ -273,14 +273,17 @@ class Workflow
         $wfstatus->run();
     }
 
-    function processIngestTrigger($pid, $dsTitle)
+    function processIngestTrigger($pid, $dsID, $mimetype)
     {
         // find first matching trigger
         $record = new RecordObject($pid);
-        $wft_details = $record->getIngestTrigger($dsTitle['MIMETYPE']);
+        $wft_details = $record->getIngestTrigger($mimetype);
         if (!empty($wft_details)) {
             // run it
-            $wfstatus = new WorkflowStatus($record->pid, $wft_details['wft_id'], $record->xdis_id, $dsTitle);
+            $dsInfo = array(
+                    'ID' => $dsID,
+                    'MIMETYPE' => $mimetype);
+            $wfstatus = new WorkflowStatus($record->pid, $wft_details['wft_id'], $record->xdis_id, $dsInfo);
             $wfstatus->run();
         }
     }

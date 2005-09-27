@@ -45,7 +45,7 @@ class WorkflowTrigger
 
     function getPostSetStr()
     {
-      $post_fields = array('wft_pid', 'wft_type_id', 'wft_xdis_id', 'wft_wfl_id', 'wft_mimetype');
+      $post_fields = array('wft_pid', 'wft_type_id', 'wft_xdis_id', 'wft_wfl_id', 'wft_mimetype', 'wft_icon');
       $set_str = 'SET ';
       foreach ($post_fields as $post_field) {
           $set_str .= " $post_field='".Misc::escapeString($_POST[$post_field])."', ";

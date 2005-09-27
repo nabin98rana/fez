@@ -201,7 +201,7 @@ class Auth
 
 		static $returns;
 
-        if (is_array($returns[$pid])) {		
+        if (is_array(@$returns[$pid])) {		
 //			array_push($ACMLArray, $returns[$pid]); //add it to the acml array and dont go any further up the hierarchy
 			$ACMLArray = $returns[$pid]; //add it to the acml array and dont go any further up the hierarchy
         } else {								
@@ -241,7 +241,7 @@ class Auth
 //			print_r($return);
 			foreach ($return as $key => $record) {
 	
-				if (is_array($record['FezACML'])) {
+				if (is_array(@$record['FezACML'])) {
 					if (!is_array($returns[$pid])) {
 						$returns[$pid] = $record['FezACML'];
 					}
@@ -308,7 +308,7 @@ class Auth
         session_name(APP_SESSION);
         @session_start();
 		$isAdministrator = Auth::isAdministrator();
-		if ($isAdministrator == true) {
+		if ($isAdministrator) {
 			return true;
 		}
 		if (!is_array($acceptable_roles) || empty($pid) || empty($xdis_id)) {

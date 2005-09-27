@@ -67,16 +67,22 @@ switch ($cat)
         }
     case 'update_form':
         {
-            $res = Record::update($HTTP_POST_VARS["pid"]);
+            $pid = Misc::GETorPOST('pid');
+            $res = Record::update($pid);
             $tpl->assign("update_form_result", $res);
+            $wfstatus = WorkflowStatusStatic::getSession($pid); // restores WorkflowStatus object from the session
+            $wfstatus->checkStateChange(true);
             break;
         }
     case 'purge_object':
         {
             // first delete all indexes about this pid
-            Record::removeIndexRecord($HTTP_GET_VARS["pid"]);
-            $res = Fedora_API::callPurgeObject($HTTP_GET_VARS["pid"]);
-             $tpl->assign("purge_object_result", $res);
+            $pid = Misc::GETorPOST('pid');
+            Record::removeIndexRecord($pid);
+            $res = Fedora_API::callPurgeObject($pid);
+            $tpl->assign("purge_object_result", $res);
+            $wfstatus = WorkflowStatusStatic::getSession($pid); // restores WorkflowStatus object from the session
+            $wfstatus->checkStateChange(true);
             break;
         }
     case 'new_workflow_triggers':

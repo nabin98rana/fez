@@ -119,7 +119,7 @@ class Collection
 
 	function getChildXDisplayOptions($collection_pid) {
 	
-		$stmt .= "
+		$stmt = "
 		SELECT d3.xdis_id, d3.xdis_title
 		FROM  
 		  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3,
@@ -329,7 +329,7 @@ class Collection
 			}
 			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				if (!is_array($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']])) {
+				if (@!is_array($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']])) {
 					$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']] = array();
 				}
 				array_push($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']], $result['rmf_'.$result['xsdmf_data_type']]);
@@ -353,7 +353,7 @@ class Collection
 		
 		foreach ($return as $pid_key => $row) {
 			//if there is only one thumbnail DS then use it
-			if (count($row['thumbnails']) == 1) {
+			if (count(@$row['thumbnails']) == 1) {
 				$return[$pid_key]['thumbnail'] = $row['thumbnails'][0];
 			} else {
 				$return[$pid_key]['thumbnail'] = 0;
@@ -526,6 +526,7 @@ class Collection
 		$termCounter = 2;
 
 		$orderSQL = "r1.rmf_rec_pid"; // default order clause
+        $extra = '';
 		if ($searchKey == "Subject") {				
 			$terms = $_GET['parent_id'];		
 			$data_type = "varchar";
@@ -629,7 +630,7 @@ class Collection
 		
 		foreach ($return as $pid_key => $row) {
 			//if there is only one thumbnail DS then use it
-			if (count($row['thumbnails']) == 1) {
+			if (count(@$row['thumbnails']) == 1) {
 				$return[$pid_key]['thumbnail'] = $row['thumbnails'][0];
 			} else {
 				$return[$pid_key]['thumbnail'] = 0;
@@ -637,7 +638,7 @@ class Collection
 
 			if (!is_array(@$row['FezACML'])) {
 				$parentsACMLs = array();
-				Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid_key, $row['isMemberOf']);
+				Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid_key, @$row['isMemberOf']);
 				$return[$pid_key]['FezACML'] = $parentsACMLs;
 			}
 		}

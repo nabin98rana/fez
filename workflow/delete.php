@@ -39,8 +39,8 @@ include_once(APP_INC_PATH . "class.collection.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
-$tpl->assign("trigger", 'Create');
-$tpl->assign("type", 'new');
+$tpl->assign("trigger", 'Delete');
+$tpl->assign("type", 'delete');
 
 Auth::checkAuthentication(APP_SESSION);
 //$user_id = Auth::getUserID();
@@ -51,8 +51,7 @@ $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 
 $xdis_id = Misc::GETorPOST('xdis_id');
-$collection_pid = Misc::GETorPOST('collection_pid');
-$community_pid = Misc::GETorPOST('community_pid');
+$pid = Misc::GETorPOST('pid');
 
 $cat = Misc::GETorPOST('cat');
 if ($cat == 'select_workflow') {
@@ -62,40 +61,32 @@ if ($cat == 'select_workflow') {
 }
 
 $message = '';
-$pid = $collection_pid ? $collection_pid : $community_pid;
 $wfl_list = Misc::keyPairs(Workflow::getList(), 'wfl_id', 'wfl_title');
 $xdis_list = array(-1 => 'Any') + XSD_Display::getAssocListDocTypes(); 
 $tpl->assign('wfl_list', $wfl_list);
 $tpl->assign('xdis_list', $xdis_list);
-if (empty($pid) || $pid == -1) {
-    $tpl->assign("pid", '-1');
-    $pid = -1;
-    // community level create 
-    // get defaults triggers
-    $xdis_id = Community::getCommunityXDIS_ID();
-    $workflows = WorkflowTrigger::getListByTriggerAndXDIS_ID(-1, 'Create', $xdis_id, true);
-    $tpl->assign('workflows', $workflows);
-} else {
+if (!(empty($pid) || $pid == -1)) {
     $tpl->assign("pid", $pid);
 
     $record = new RecordObject($pid);
-    if ($record->canCreate()) {
-        $tpl->assign("isCreator", 1);
-        if ($record->isCommunity()) {
-            $xdis_id = Collection::getCollectionXDIS_ID();
-            $workflows = WorkflowTrigger::getListByTriggerAndXDIS_ID(-1, 'Create', $xdis_id, true);
-        } elseif ($record->isCollection()) {
-            $workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Create', $xdis_id);
+    if ($record->canEdit()) {
+        $tpl->assign("isEditor", 1);
+        $xdis_id = $record->getXmlDisplayId();
+        // don't be flexible on doc types for collection and community
+        if ($record->isCommunity() || $record->isCollection()) {
+            $strict = true;
         } else {
-            $message .= "Error: can't create objects into ordinary records<br/>";
+            $strict = false;
         }
+        $workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Delete', $xdis_id, $strict);
+        print_r($workflows);
         $tpl->assign('workflows', $workflows);
     } else {
     }
     $tpl->assign('xdis_id', $xdis_id);
 }
 if (empty($workflows)) {
-    $message .= "Error: No workflows defined for Create<br/>";
+    $message .= "Error: No workflows defined for Delete<br/>";
 } elseif (count($workflows) == 1) {
     // no need for user to select a workflow - just start the only one available
     Workflow::start($workflows[0]['wft_id'], $pid, $xdis_id);

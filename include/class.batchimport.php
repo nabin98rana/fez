@@ -84,10 +84,10 @@ function handleEntireEprintsImport($pid, $collection_pid, $xmlObj) {
 
 
 	$config = array(
-			'indent'         => true,
+			'indent'      => true,
 			'input-xml'   => true,
-			'output-xml'   => true,
-			'wrap'           => 200);
+			'output-xml'  => true,
+			'wrap'        => 200);
 
 	$tidy = new tidy;
 	$tidy->parseString($xmlObj, $config, 'utf8');
@@ -527,24 +527,15 @@ function handleMETSImport($pid, $xmlObj, $xmlBegin) {
 
 function handleStandardFileImport($pid, $full_name, $short_name, $xmlObj) {
 	//Insert the generated foxml object
-/*	Fedora_API::callIngestObject($xmlObj);
+	Fedora_API::callIngestObject($xmlObj);
+    $mimetype = Misc::mime_content_type($full_name);
 	//Insert the standard file as a datastream to the new object
-	Fedora_API::getUploadLocationByLocalRef($pid, $full_name, $full_name, $full_name, "", "M");	
+	$dsID = Fedora_API::getUploadLocationByLocalRef($pid, $full_name, $full_name, $full_name, $mimetype, "M");	
 	// Now check for post upload workflow events like thumbnail resizing of images and add them as datastreams if required
-	$convert_check = Workflow::checkForImageFile($full_name);
-	if ($convert_check != false) {
-		Fedora_API::getUploadLocationByLocalRef($pid, $convert_check, $convert_check, $convert_check, "", "M");
-		if (is_numeric(strpos($convert_check, "/"))) {
-			$convert_check = substr($convert_check, strrpos($convert_check, "/")+1); // take out any nasty slashes from the ds name itself
-		}
-		$convert_check = str_replace(" ", "_", $convert_check);
-		Record::insertIndexMatchingField($pid, 122, NULL, NULL, 'varchar', $convert_check); // add the thumbnail to the espace index				
-	}
 	$presmd_check = Workflow::checkForPresMD($full_name); // we are not indexing presMD so just upload the presmd if found
 	if ($presmd_check != false) {
 		Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, "text/xml", "X");
 	}
-	
 	
 	// now add a resource index for the datastream file
 	// lowercase the extension if necessary
@@ -553,8 +544,9 @@ function handleStandardFileImport($pid, $full_name, $short_name, $xmlObj) {
 		$short_name = substr($short_name, 0, strrpos($short_name, ".") + 1).$filename_ext;
 	}
 
-	Record::insertIndexMatchingField($pid, 122, NULL, NULL, 'varchar', $short_name);
-*/
+	Record::insertIndexMatchingField($pid, 122,  'varchar', $short_name);
+	
+    Workflow::processIngestTrigger($pid, $dsID, $mimetype);
 	
 }
 
@@ -563,17 +555,17 @@ function insert() {
 	global $HTTP_POST_VARS;	
 	if ((!empty($HTTP_POST_VARS['objectimport'])) && (!empty($HTTP_POST_VARS['directory']))) {
 		//open the current directory
-		$xdis_id = 5; // standard fedora object
+		$xdis_id = $HTTP_POST_VARS['xdis_id']; 
 		$ret_id = 3; // standard record type id
 		$sta_id = 1; // standard status type id
 		$xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id));
-		$xmlDatastream = $DSResultArray['stream'];
 		$xsd_id = XSD_Display::getParentXSDID($xdis_id);
 		$xsd_details = Doc_Type_XSD::getDetails($xsd_id);
 		$xsd_element_prefix = $xsd_details['xsd_element_prefix'];
 		$xsd_top_element_name = $xsd_details['xsd_top_element_name'];
 		$datastreamTitles = XSD_Loop_Subelement::getDatastreamTitles($xdis_id);
 		$collection_pid = @$HTTP_POST_VARS["collection_pid"] ? $HTTP_POST_VARS["collection_pid"] : @$HTTP_GET_VARS["collection_pid"];	
+        $parent_pid = $collection_pid;
 		$dir_name = APP_SAN_IMPORT_DIR."/".$HTTP_POST_VARS['directory'];
 		$directory = opendir($dir_name);
 	    while (false !== ($file = readdir($directory))) { 
@@ -598,14 +590,16 @@ function insert() {
 					$xmlObj = BatchImport::handleMETSImport($pid, $xmlObj, $xmlBegin);
 					
 				} else { // just add it as a normal file if it is not foxml or mets
-//					$xmlObj = BatchImport::GenerateSingleFOXMLTemplate($pid, $parent_pid, $full_name, $xdis_id, $ret_id, $sta_id);
-//					BatchImport::handleStandardFileImport($pid, $full_name, $short_name, $xmlObj);
+                    $xmlObj = BatchImport::GenerateSingleFOXMLTemplate($pid, $parent_pid, $full_name, 
+                            $xdis_id, $ret_id, $sta_id);
+                    BatchImport::handleStandardFileImport($pid, $full_name, $short_name, $xmlObj);
 				}
 			} else {
 
-//				echo "found a standard file";
-//				$xmlObj = BatchImport::GenerateSingleFOXMLTemplate($pid, $parent_pid, $full_name, $xdis_id, $ret_id, $sta_id);
-//				BatchImport::handleStandardFileImport($pid, $full_name, $short_name, $xmlObj);
+				echo "found a standard file $full_name<br/>";
+                $xmlObj = BatchImport::GenerateSingleFOXMLTemplate($pid, $parent_pid, $full_name, 
+                        $xdis_id, $ret_id, $sta_id);
+                BatchImport::handleStandardFileImport($pid, $full_name, $short_name, $xmlObj);
 			}
 
 //			echo $xmlObj;
@@ -632,12 +626,6 @@ function insert() {
 
 
 function GenerateSingleFOXMLTemplate($pid, $parent_pid, $filename, $xdis_id, $ret_id, $sta_id) {
-
-/*	if (empty($this->pid)) {
-		$this->pid = Fedora_API::getNextPID();
-	}*/
-//	$pid = $this->pid;
-
 	
 	$xmlObj = '<?xml version="1.0" ?>	
 	<foxml:digitalObject PID="'.$pid.'"
