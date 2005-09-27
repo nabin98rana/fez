@@ -24,6 +24,7 @@ $temp_file = "thumbnail_".substr($image, 0, strrpos($image, ".")).".".$ext;
 $temp_file = str_replace(" ", "_", $temp_file);
 //echo $temp_file;
 // Some error reporting
+$error = '';
 if(!$image) $error .= "<b>ERROR:</b> no image specified<br>";
 if(!is_file($image_dir."/".$image)) { $error .= "<b>ERROR:</b> given image filename not found or bad filename given<br>"; }
 if(!is_numeric($width) && !is_numeric($height)) $error .= "<b>ERROR:</b> no sizes specified<br>";

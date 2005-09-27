@@ -3242,6 +3242,45 @@ LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "custom_field_option as 
         }
         return $result;
     }
+
+    function setIndexMatchingFields($xdis_id, $pid)
+    {
+        $array_ptr = array();
+        $xsdmf_array = array();
+        //			echo $xmlObj;
+        // want to do this on a per datastream basis, not the entire xml object
+        $datastreamTitles = XSD_Loop_Subelement::getDatastreamTitles($xdis_id);
+        foreach ($datastreamTitles as $dsValue) {
+            $DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title']);
+            if (isset($DSResultArray['stream'])) {
+                $xmlDatastream = $DSResultArray['stream'];
+                $xsd_id = XSD_Display::getParentXSDID($dsValue['xsdmf_xdis_id']);
+                $xsd_details = Doc_Type_XSD::getDetails($xsd_id);
+                $xsd_element_prefix = $xsd_details['xsd_element_prefix'];
+                $xsd_top_element_name = $xsd_details['xsd_top_element_name'];
+
+                $xmlnode = new DomDocument();
+                $xmlnode->loadXML($xmlDatastream);
+                $array_ptr = array();
+                Misc::dom_xml_to_simple_array($xmlnode, $array_ptr, $xsd_top_element_name, $xsd_element_prefix, $xsdmf_array, $xdis_id);
+            }
+        }
+        foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
+            if (!is_array($xsdmf_value) && !empty($xsdmf_value) && (trim($xsdmf_value) != "")) {					
+                $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
+                Record::insertIndexMatchingField($pid, $xsdmf_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_value);					
+            } elseif (is_array($xsdmf_value)) {
+                foreach ($xsdmf_value as $xsdmf_child_value) {
+                    if ($xsdmf_child_value != "") {
+                        $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
+                        Record::insertIndexMatchingField($pid, $xsdmf_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_child_value);
+                    }
+                }
+            }
+        }
+    }
+
+
 }
 
 

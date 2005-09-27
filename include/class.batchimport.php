@@ -190,7 +190,6 @@ function handleEntireEprintsImport($pid, $collection_pid, $xmlObj) {
 	foreach ($importArray['confpaper'] as $key => $data_field) {
 //		echo "key = ".$key;
 //		echo "data field = ".$data_field;
-//		$tempXML = BatchImport::ConvertMETSToFOXML($pid, $xmlImport, $collection_pid, $short_name, $xdis_id, $ret_id, $sta_id) {
 		$oai_dc_url = "http://eprint.uq.edu.au/perl/oai2?verb=GetRecord&metadataPrefix=oai_dc&identifier=oai%3Aeprint.uq.edu.au%3A".$key;
 		$oai_dc_xml = Fedora_API::URLopen($oai_dc_url);
 
@@ -528,25 +527,27 @@ function handleMETSImport($pid, $xmlObj, $xmlBegin) {
 function handleStandardFileImport($pid, $full_name, $short_name, $xmlObj) {
 	//Insert the generated foxml object
 	Fedora_API::callIngestObject($xmlObj);
+
     $mimetype = Misc::mime_content_type($full_name);
 	//Insert the standard file as a datastream to the new object
 	$dsID = Fedora_API::getUploadLocationByLocalRef($pid, $full_name, $full_name, $full_name, $mimetype, "M");	
-	// Now check for post upload workflow events like thumbnail resizing of images and add them as datastreams if required
-	$presmd_check = Workflow::checkForPresMD($full_name); // we are not indexing presMD so just upload the presmd if found
+
+    // we are not indexing presMD so just upload the presmd if found
+	$presmd_check = Workflow::checkForPresMD($full_name); 
 	if ($presmd_check != false) {
 		Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, "text/xml", "X");
 	}
-	
+
 	// now add a resource index for the datastream file
 	// lowercase the extension if necessary
 	if (is_numeric(strpos($short_name, "."))) {
 		$filename_ext = strtolower(substr($short_name, (strrpos($short_name, ".") + 1)));
 		$short_name = substr($short_name, 0, strrpos($short_name, ".") + 1).$filename_ext;
 	}
-
 	Record::insertIndexMatchingField($pid, 122,  'varchar', $short_name);
-	
-    Workflow::processIngestTrigger($pid, $dsID, $mimetype);
+
+	// Now check for post upload workflow events like thumbnail resizing of images and add them as datastreams if required
+    Workflow::processIngestTrigger($pid, $full_name, $mimetype);
 	
 }
 
@@ -583,6 +584,7 @@ function insert() {
 				$xmlObj = file_get_contents($full_name);
 				if (is_numeric(strpos($xmlObj, "foxml:digitalObject"))) {
 					BatchImport::handleFOXMLImport($xmlObj);
+                    Record::setIndexMatchingFields($xdis_id, $pid);
 				} elseif (is_numeric(strpos($xmlObj, "<eprintsdata>"))) {
 					BatchImport::handleEntireEprintsImport($pid, $collection_pid, $xmlObj);
 				} elseif (is_numeric(strpos($xmlObj, "METS:mets"))) {
@@ -590,43 +592,28 @@ function insert() {
 					$xmlObj = BatchImport::handleMETSImport($pid, $xmlObj, $xmlBegin);
 					
 				} else { // just add it as a normal file if it is not foxml or mets
-                    $xmlObj = BatchImport::GenerateSingleFOXMLTemplate($pid, $parent_pid, $full_name, 
+                    $xmlObj = BatchImport::GenerateSingleFOXMLTemplate($pid, $parent_pid, $full_name, $short_name,
                             $xdis_id, $ret_id, $sta_id);
                     BatchImport::handleStandardFileImport($pid, $full_name, $short_name, $xmlObj);
+                    Record::setIndexMatchingFields($xdis_id, $pid);
 				}
 			} else {
 
-				echo "found a standard file $full_name<br/>";
-                $xmlObj = BatchImport::GenerateSingleFOXMLTemplate($pid, $parent_pid, $full_name, 
+                $xmlObj = BatchImport::GenerateSingleFOXMLTemplate($pid, $parent_pid, $full_name, $short_name,
                         $xdis_id, $ret_id, $sta_id);
-                BatchImport::handleStandardFileImport($pid, $full_name, $short_name, $xmlObj);
+               BatchImport::handleStandardFileImport($pid, $full_name, $short_name, $xmlObj);
+               Record::setIndexMatchingFields($xdis_id, $pid);
 			}
 
-//			echo $xmlObj;
-			// @@@ CK - 8/8/2005 - Also need to add details of this record into the espace resource index	
-			// Get the xsdmf details to save in the resource index
-			$xmlnode = new DomDocument();
-			$xmlnode->loadXML($xmlObj);
-
-			$array_ptr = array();
-			$xsdmf_array = array();
-//			echo $xmlObj;
-			Misc::dom_xml_to_simple_array($xmlnode, $array_ptr, $xsd_top_element_name, $xsd_element_prefix, $xsdmf_array, $xdis_id);
-//			print_r($array_ptr);
-//			print_r($xsdmf_array);
-			
-			foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
-				if (!is_array($xsdmf_value) && !empty($xsdmf_value) && (trim($xsdmf_value) != "")) {
-					Record::insertIndexMatchingField($pid, $xsdmf_id, 'varchar', $xsdmf_value);
-				}
-			}
 		}
 	}
 }
 
 
-function GenerateSingleFOXMLTemplate($pid, $parent_pid, $filename, $xdis_id, $ret_id, $sta_id) {
+function GenerateSingleFOXMLTemplate($pid, $parent_pid, $filename, $short_name, $xdis_id, $ret_id, $sta_id) {
 	
+    $created_date = date("Y-m-d H:i:s");
+	$updated_date = $created_date;
 	$xmlObj = '<?xml version="1.0" ?>	
 	<foxml:digitalObject PID="'.$pid.'"
 	  fedoraxsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-0.xsd" xmlns:fedoraxsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -640,7 +627,7 @@ function GenerateSingleFOXMLTemplate($pid, $parent_pid, $filename, $xdis_id, $re
 		<foxml:datastreamVersion MIMETYPE="text/xml" ID="DC1.0" LABEL="Dublin Core Record">
 			<foxml:xmlContent>
 				<oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-				  <dc:title>'.$filename.'</dc:title>
+				  <dc:title>'.$short_name.'</dc:title>
 				  <dc:creator/>
 				  <dc:subject/>
 				  <dc:description/>
@@ -676,6 +663,8 @@ function GenerateSingleFOXMLTemplate($pid, $parent_pid, $filename, $xdis_id, $re
 				  <xdis_id>'.$xdis_id.'</xdis_id>
 				  <sta_id/>'.$sta_id.'
   				  <ret_id>'.$ret_id.'</ret_id>
+					  <created_date>'.$created_date.'</created_date>					  
+					  <updated_date>'.$updated_date.'</updated_date>
 				</FezMD>
 			</foxml:xmlContent>
 		</foxml:datastreamVersion>

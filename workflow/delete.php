@@ -79,7 +79,6 @@ if (!(empty($pid) || $pid == -1)) {
             $strict = false;
         }
         $workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Delete', $xdis_id, $strict);
-        print_r($workflows);
         $tpl->assign('workflows', $workflows);
     } else {
     }
