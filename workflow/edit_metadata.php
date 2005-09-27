@@ -172,7 +172,11 @@ foreach ($xsd_display_fields  as $dis_field) {
 						$details[$dis_field["xsdmf_id"]][$cv_value] = $controlled_vocabs[$cv_value];
 					}
 				} else {
-					$details[$dis_field["xsdmf_id"]] = $controlled_vocabs[$details[$dis_field["xsdmf_id"]]];
+//					$details[$dis_field["xsdmf_id"]] = $controlled_vocabs[$details[$dis_field["xsdmf_id"]]];
+					$tempValue = $details[$dis_field["xsdmf_id"]];
+					$details[$dis_field["xsdmf_id"]] = array();
+					$details[$dis_field["xsdmf_id"]][$tempValue] = $controlled_vocabs[$tempValue];
+
 				}
 			} else {
 				if (is_array($dis_field["field_options"])) { // if the display field has a list of matching options
