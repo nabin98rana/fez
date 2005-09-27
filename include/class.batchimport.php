@@ -180,7 +180,6 @@ function handleEntireEprintsImport($pid, $collection_pid, $xmlObj) {
 					$importArray[$record_type][$eprint_id][$field] = array();
 				}
 				array_push($importArray[$record_type][$eprint_id][$field], $fieldValue);
-
 			}
 		}
 	}

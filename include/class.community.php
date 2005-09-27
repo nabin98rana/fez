@@ -585,7 +585,11 @@ class Community
 			}
 			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']] = $result['rmf_'.$result['xsdmf_data_type']];
+				if (!is_array($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']])) {
+					$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']] = array();
+				}
+				array_push($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']], $result['rmf_'.$result['xsdmf_data_type']]);
+				sort($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']]);
 			}
 		}
 //		$return = Auth::getIndexAuthorisationGroups($return);
