@@ -189,7 +189,7 @@ class WorkflowStatus {
         $button = Misc::GETorPOST_prefix('workflow_button_');
         if ($button) {
             $this->getStateDetails();
-            if (!$this->wfs_details['wfs_end']) {
+            if ($button != -1) {
                 $this->setState($button);
                 if (!$ispopup) {
                     $this->run();
@@ -197,6 +197,7 @@ class WorkflowStatus {
                     $this->setStateChangeOnRefresh();
                 }
             } else {
+                // have reached the end of the workflow
                 if (!$ispopup) {
                     $this->theend();
                 } else {
