@@ -24,12 +24,14 @@ $wfl_title = Misc::GETorPOST('wfl_title');
 $wft_type = Misc::GETorPOST('wft_type');
 $parent_pid = Misc::GETorPOST('parent_pid');
 $parents_list = unserialize(Misc::GETorPOST('parents_list'));
-foreach ($parents_list as &$item) {
-    $precord = new RecordObject($item['pid']);
-    if ($precord->isCommunity()) {
-        $item['url'] = APP_RELATIVE_URL."list.php?community_pid={$item['pid']}";
-    } else {
-        $item['url'] = APP_RELATIVE_URL."list.php?collection_pid={$item['pid']}";
+if (is_array($parents_list)) {
+    foreach ($parents_list as &$item) {
+        $precord = new RecordObject($item['pid']);
+        if ($precord->isCommunity()) {
+            $item['url'] = APP_RELATIVE_URL."list.php?community_pid={$item['pid']}";
+        } else {
+            $item['url'] = APP_RELATIVE_URL."list.php?collection_pid={$item['pid']}";
+        }
     }
 }
 $pid = Misc::GETorPOST('pid');

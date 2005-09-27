@@ -7,7 +7,7 @@ function purgeDatastream(ds_id)
         return false;
     } else {
         var features = 'width=420,height=200,top=30,left=30,resizable=yes,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
-        var popupWin = window.open('popup.php?cat=purge_datastream&pid={/literal}{$pid}{literal}&ds_id=' + ds_id, '_popup', features);
+        var popupWin = window.open('{/literal}{$rel_url}{literal}popup.php?cat=purge_datastream&pid={/literal}{$pid}{literal}&ds_id=' + ds_id, '_popup', features);
         popupWin.focus();
     }
 }
@@ -387,7 +387,7 @@ function selectDateField(field_name, day, month, year)
 				{assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$image_file_name} 			
 				{assign var="image_file_string" value=""}
 				{fetch file=$image_name assign="image_file_string"}
-				<td bgcolor="{$value_color}">{if $datastreams[d].thumbnail != "0"}<img align="absmiddle" src="{$eserv_url}{$datastreams[d].thumbnail}">{/if}{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}images/default.png">{/if} <a target="_blank" href="eserv.php?pid={$pid}&dsID={$datastreams[d].ID}">{$datastreams[d].ID}</a> &nbsp;{if $datastreams[d].presmd != "0"}<a target="_blank" href="eserv.php?pid={$pid}&dsID={$datastreams[d].presmd}"><img title="preservation metadata" align="absmiddle" border="0" src="images/presmd_22.gif"></a>{/if}&nbsp; [ <a class="link" title="purge datastream" href="javascript:void(null);" onClick="javascript:purgeDatastream('{$datastreams[d].ID}');">purge</a> ]</td>
+				<td bgcolor="{$value_color}">{if $datastreams[d].thumbnail != "0"}<img align="absmiddle" src="{$eserv_url}{$datastreams[d].thumbnail}">{/if}{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}images/default.png">{/if} <a target="_blank" href="eserv.php?pid={$pid}&dsID={$datastreams[d].ID}">{$datastreams[d].ID}</a> &nbsp;{if $datastreams[d].presmd != "0"}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].presmd}"><img title="preservation metadata" align="absmiddle" border="0" src="{$rel_url}images/presmd_22.gif"></a>{/if}&nbsp; [ <a class="link" title="purge datastream" href="javascript:void(null);" onClick="javascript:purgeDatastream('{$datastreams[d].ID}');">purge</a> ]</td>
 				<td bgcolor="{$value_color}">{$datastreams[d].label}</td>
 				<td bgcolor="{$value_color}">{$datastreams[d].MIMEType}</td>
 				<td bgcolor="{$value_color}">{$datastreams[d].size} bytes</td>
