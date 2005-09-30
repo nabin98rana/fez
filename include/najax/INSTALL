@@ -1,0 +1,26 @@
+INSTALL
+--------
+
+If you would like to use the Client Event System (NACLES)
+you should run the following SQL code in your database:
+
+CREATE TABLE `najax_events`
+(
+	`id`		BIGINT			UNSIGNED	NOT NULL	AUTO_INCREMENT,
+	`event`		VARCHAR(100)				NOT NULL,
+	`className`	VARCHAR(100)				NOT NULL,
+	`filter`	VARCHAR(100)				NULL,
+	`sender`	TEXT						NULL,
+	`data`		TEXT						NULL,
+	`time`		DOUBLE			UNSIGNED	NOT NULL,
+	`endTime`	DOUBLE			UNSIGNED	NOT NULL,
+
+	PRIMARY KEY(`id`),
+
+	INDEX(`event`, `className`, `filter`, `time`, `endTime`)
+
+);
+
+If you're going to use another provider (not MySQL) please refer to
+the README or INSTALL file included in it. Note, that some providers
+do not require installation.

@@ -27,7 +27,7 @@ if (Auth::userExists($username)) {
 $collection_list = Collection::getList();
 $my_collections = array();
 foreach ($collection_list as $col) {
-    if ($col['isEditor']) {
+    if (@$col['isEditor']) {
         // get parent community name
         $parents = Collection::getParents($col['pid']);
         $p2 = array();

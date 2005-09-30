@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml">
+		<head>
+			<!-- template designed by Marco Von Ballmoos  -->
+			<title></title>
+			<link rel="stylesheet" href="media/stylesheet.css" />
+						<script src="media/lib/classTree.js"></script>
+									<meta http-equiv='Content-Type' content='text/html; charset=iso-8859-1'/>
+									<script language="javascript" type="text/javascript">
+				var imgPlus = new Image();
+				var imgMinus = new Image();
+				imgPlus.src = "media/images/plus.png";
+				imgMinus.src = "media/images/minus.png";
+				
+				function showNode(Node){
+							switch(navigator.family){
+								case 'nn4':
+									// Nav 4.x code fork...
+							var oTable = document.layers["span" + Node];
+							var oImg = document.layers["img" + Node];
+									break;
+								case 'ie4':
+									// IE 4/5 code fork...
+							var oTable = document.all["span" + Node];
+							var oImg = document.all["img" + Node];
+									break;
+								case 'gecko':
+									// Standards Compliant code fork...
+							var oTable = document.getElementById("span" + Node);
+							var oImg = document.getElementById("img" + Node);
+									break;
+							}
+					oImg.src = imgMinus.src;
+					oTable.style.display = "block";
+				}
+				
+				function hideNode(Node){
+							switch(navigator.family){
+								case 'nn4':
+									// Nav 4.x code fork...
+							var oTable = document.layers["span" + Node];
+							var oImg = document.layers["img" + Node];
+									break;
+								case 'ie4':
+									// IE 4/5 code fork...
+							var oTable = document.all["span" + Node];
+							var oImg = document.all["img" + Node];
+									break;
+								case 'gecko':
+									// Standards Compliant code fork...
+							var oTable = document.getElementById("span" + Node);
+							var oImg = document.getElementById("img" + Node);
+									break;
+							}
+					oImg.src = imgPlus.src;
+					oTable.style.display = "none";
+				}
+				
+				function nodeIsVisible(Node){
+							switch(navigator.family){
+								case 'nn4':
+									// Nav 4.x code fork...
+							var oTable = document.layers["span" + Node];
+									break;
+								case 'ie4':
+									// IE 4/5 code fork...
+							var oTable = document.all["span" + Node];
+									break;
+								case 'gecko':
+									// Standards Compliant code fork...
+							var oTable = document.getElementById("span" + Node);
+									break;
+							}
+					return (oTable && oTable.style.display == "block");
+				}
+				
+				function toggleNodeVisibility(Node){
+					if (nodeIsVisible(Node)){
+						hideNode(Node);
+					}else{
+						showNode(Node);
+					}
+				}
+			</script>
+					</head>
+		<body>
+						<h3 class="package-title">NAJAX</h3>
+<div class="tree">
+<script language="Javascript">
+if (document.getElementById) {
+			var tree = new WebFXTree('<span class="package">NAJAX</span>');
+		tree.setBehavior('classic');
+	
+		
+		var class_trees = new WebFXTreeItem('Class trees', 'classtrees_NAJAX.html');
+		tree.add(class_trees);
+
+		var elements = new WebFXTreeItem('Index of elements', 'elementindex_NAJAX.html');
+		tree.add(elements);
+
+		var parent_node;
+
+			
+					var tree_classe = new WebFXTreeItem('Class(es)', '');
+			
+							var classe = new WebFXTreeItem('NAJAX_Client', 'NAJAX/NAJAX_Client.html');
+				tree_classe.add(classe);
+							var classe = new WebFXTreeItem('NAJAX_Meta', 'NAJAX/NAJAX_Meta.html');
+				tree_classe.add(classe);
+							var classe = new WebFXTreeItem('NAJAX_Observable', 'NAJAX/NAJAX_Observable.html');
+				tree_classe.add(classe);
+							var classe = new WebFXTreeItem('NAJAX_Observer', 'NAJAX/NAJAX_Observer.html');
+				tree_classe.add(classe);
+							var classe = new WebFXTreeItem('NAJAX_Serializer', 'NAJAX/NAJAX_Serializer.html');
+				tree_classe.add(classe);
+							var classe = new WebFXTreeItem('NAJAX_Server', 'NAJAX/NAJAX_Server.html');
+				tree_classe.add(classe);
+							var classe = new WebFXTreeItem('NAJAX_Utilities', 'NAJAX/NAJAX_Utilities.html');
+				tree_classe.add(classe);
+				
+			tree.add(tree_classe);
+		
+			
+					var tree_file = new WebFXTreeItem('File(s)', '');
+	
+							var file = new WebFXTreeItem('Client.class.php', 'NAJAX/_classes_Client_class_php.html');
+				tree_file.add(file);
+							var file = new WebFXTreeItem('extensions.config.php', 'NAJAX/_config_extensions_config_php.html');
+				tree_file.add(file);
+							var file = new WebFXTreeItem('Meta.class.php', 'NAJAX/_classes_Meta_class_php.html');
+				tree_file.add(file);
+							var file = new WebFXTreeItem('najax.config.php', 'NAJAX/_config_najax_config_php.html');
+				tree_file.add(file);
+							var file = new WebFXTreeItem('najax.php', 'NAJAX/_najax_php.html');
+				tree_file.add(file);
+							var file = new WebFXTreeItem('Observable.class.php', 'NAJAX/_classes_Observable_class_php.html');
+				tree_file.add(file);
+							var file = new WebFXTreeItem('Observer.class.php', 'NAJAX/_classes_Observer_class_php.html');
+				tree_file.add(file);
+							var file = new WebFXTreeItem('Serializer.class.php', 'NAJAX/_classes_Serializer_class_php.html');
+				tree_file.add(file);
+							var file = new WebFXTreeItem('Server.class.php', 'NAJAX/_classes_Server_class_php.html');
+				tree_file.add(file);
+							var file = new WebFXTreeItem('Utilities.class.php', 'NAJAX/_classes_Utilities_class_php.html');
+				tree_file.add(file);
+				
+			tree.add(tree_file);
+		
+							var subpackagetree = new WebFXTreeItem('<span class="sub-package">NACLES</span>', '');
+		
+			
+					var subpackagetree_classe = new WebFXTreeItem('Class(es)', '');
+			
+							var classe = new WebFXTreeItem('NAJAX_Events_Storage', 'NAJAX/NACLES/NAJAX_Events_Storage.html');
+				subpackagetree_classe.add(classe);
+							var classe = new WebFXTreeItem('NAJAX_Events_Storage_MySQL', 'NAJAX/NACLES/NAJAX_Events_Storage_MySQL.html');
+				subpackagetree_classe.add(classe);
+						
+			subpackagetree.add(subpackagetree_classe);
+		
+				
+					var subpackagetree_file = new WebFXTreeItem('File(s)', '');
+			
+							var file = new WebFXTreeItem('MySQL.class.php', 'NAJAX/NACLES/_classes_events_storage_MySQL_class_php.html');
+				subpackagetree_file.add(file);
+							var file = new WebFXTreeItem('Storage.class.php', 'NAJAX/NACLES/_classes_events_Storage_class_php.html');
+				subpackagetree_file.add(file);
+					
+			subpackagetree.add(subpackagetree_file);
+			
+	  tree.add(subpackagetree);
+							var subpackagetree = new WebFXTreeItem('<span class="sub-package">NAJAX_HTML</span>', '');
+		
+			
+					var subpackagetree_classe = new WebFXTreeItem('Class(es)', '');
+			
+							var classe = new WebFXTreeItem('NAJAX_HTML', 'NAJAX/NAJAX_HTML/NAJAX_HTML.html');
+				subpackagetree_classe.add(classe);
+							var classe = new WebFXTreeItem('NAJAX_HTML_DOM_BaseElement', 'NAJAX/NAJAX_HTML/NAJAX_HTML_DOM_BaseElement.html');
+				subpackagetree_classe.add(classe);
+							var classe = new WebFXTreeItem('NAJAX_HTML_DOM_ElementById', 'NAJAX/NAJAX_HTML/NAJAX_HTML_DOM_ElementById.html');
+				subpackagetree_classe.add(classe);
+							var classe = new WebFXTreeItem('NAJAX_HTML_DOM_ElementsByName', 'NAJAX/NAJAX_HTML/NAJAX_HTML_DOM_ElementsByName.html');
+				subpackagetree_classe.add(classe);
+							var classe = new WebFXTreeItem('NAJAX_HTML_DOM_ElementsByTagName', 'NAJAX/NAJAX_HTML/NAJAX_HTML_DOM_ElementsByTagName.html');
+				subpackagetree_classe.add(classe);
+							var classe = new WebFXTreeItem('NAJAX_HTML_DOM_ScriptBlock', 'NAJAX/NAJAX_HTML/NAJAX_HTML_DOM_ScriptBlock.html');
+				subpackagetree_classe.add(classe);
+							var classe = new WebFXTreeItem('NAJAX_HTML_ServerObserver', 'NAJAX/NAJAX_HTML/NAJAX_HTML_ServerObserver.html');
+				subpackagetree_classe.add(classe);
+						
+			subpackagetree.add(subpackagetree_classe);
+		
+				
+					var subpackagetree_file = new WebFXTreeItem('File(s)', '');
+			
+							var file = new WebFXTreeItem('BaseElement.class.php', 'NAJAX/NAJAX_HTML/_extensions_html_classes_DOM_BaseElement_class_php.html');
+				subpackagetree_file.add(file);
+							var file = new WebFXTreeItem('ElementById.class.php', 'NAJAX/NAJAX_HTML/_extensions_html_classes_DOM_ElementById_class_php.html');
+				subpackagetree_file.add(file);
+							var file = new WebFXTreeItem('ElementsByName.class.php', 'NAJAX/NAJAX_HTML/_extensions_html_classes_DOM_ElementsByName_class_php.html');
+				subpackagetree_file.add(file);
+							var file = new WebFXTreeItem('ElementsByTagName.class.php', 'NAJAX/NAJAX_HTML/_extensions_html_classes_DOM_ElementsByTagName_class_php.html');
+				subpackagetree_file.add(file);
+							var file = new WebFXTreeItem('HTML.class.php', 'NAJAX/NAJAX_HTML/_extensions_html_classes_HTML_class_php.html');
+				subpackagetree_file.add(file);
+							var file = new WebFXTreeItem('html.ext.php', 'NAJAX/NAJAX_HTML/_extensions_html_html_ext_php.html');
+				subpackagetree_file.add(file);
+							var file = new WebFXTreeItem('ScriptBlock.class.php', 'NAJAX/NAJAX_HTML/_extensions_html_classes_DOM_ScriptBlock_class_php.html');
+				subpackagetree_file.add(file);
+							var file = new WebFXTreeItem('ServerObserver.class.php', 'NAJAX/NAJAX_HTML/_extensions_html_classes_ServerObserver_class_php.html');
+				subpackagetree_file.add(file);
+					
+			subpackagetree.add(subpackagetree_file);
+			
+	  tree.add(subpackagetree);
+	
+document.write(tree);
+}
+</script>
+</div>
+<p class="notes">
+	Generated by 
+	<a href="http://www.phpdoc.org" target="_blank">phpDocumentor <span class="field">1.3.0RC3</span></a>
+</p>
+</body>
+</html>

@@ -2863,7 +2863,7 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 //									echo $sel_record['xsdsel_attribute_loop_xsdmf_id']." outside $attrib_loop_count \n\n";
 //											print_r($HTTP_POST_FILES);									
 									for ($x=0;$x<$attrib_loop_count;$x++) { // if this sel id is a loop of attributes then it will loop through each, otherwise it will just go through once
-										if ((($attrib_loop_details['xsdmf_html_input'] != "file_input") && ($attrib_loop_details['xsdmf_html_input'] != "text"))
+										if (((@$attrib_loop_details['xsdmf_html_input'] != "file_input") && (@$attrib_loop_details['xsdmf_html_input'] != "text"))
 										  || (is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "file_input") && ($HTTP_POST_FILES['xsd_display_fields']["tmp_name"][$sel_record['xsdsel_attribute_loop_xsdmf_id']][$x] != ""))
 										  || (!is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "file_input") && ($HTTP_POST_FILES['xsd_display_fields']["tmp_name"][$sel_record['xsdsel_attribute_loop_xsdmf_id']] != ""))																				
 										  || (is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "text") && ($HTTP_POST_VARS['xsd_display_fields'][$sel_record['xsdsel_attribute_loop_xsdmf_id']][$x] != ""))
@@ -3114,6 +3114,47 @@ return $ret;
             }
         }
         return false;
+    }
+
+    /**
+    * stripOneElementArrays
+    * This function takes out nested one element arrays but only non-associative arrays -
+    * The one member arrays have the one member at [0].
+    */
+    function stripOneElementArrays($a) {
+        if (is_array($a)) {
+            $k = array_keys($a);
+            if (count($a) == 0) {
+                return null;
+            } elseif (count($a) == 1 && Misc::isInt($k[0]) && $k[0] == 0) {
+                return Misc::stripOneElementArrays($a[0]);
+            } else {
+                foreach ($a as $key => $item) {
+                    if (is_array($item)) {
+                        $newitem = Misc::stripOneElementArrays($item);
+                    } else {
+                        $newitem = $item;
+                    }
+                    if ($newitem) {
+                        if (Misc::isInt($key) && $key == 0) {
+                            $b[] = $newitem;
+                        } else {
+                            $b[$key] = $newitem;
+                        }
+                    }
+                }
+                $k = array_keys($b);
+                if (is_array($b) && empty($b)) {
+                    return null;
+                } elseif (count($b) == 1 && Misc::isInt($k[0]) && $k[0] == 0) {
+                    return $b[0];
+                } else {
+                    return $b;
+                }
+            }
+        } else {
+            return $a;
+        }
     }
 
 

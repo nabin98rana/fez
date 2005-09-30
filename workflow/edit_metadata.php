@@ -63,9 +63,10 @@ $tpl->assign("isAdministrator", $isAdministrator);
 //$role_id = User::getRoleByUserCollection($user_id, $col_id);
 
 //$record_id = @$HTTP_POST_VARS["record_id"] ? $HTTP_POST_VARS["record_id"] : $HTTP_GET_VARS["pid"];
-$record_id = Misc::GETorPOST('pid');
-$pid = $record_id;
-$wfstatus = WorkflowStatusStatic::getSession($pid); // restores WorkflowStatus object from the session
+$id = Misc::GETorPOST('id');
+$tpl->assign("id", $id);
+$wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
+$pid = $wfstatus->pid;
 $tpl->assign('workflow_buttons', $wfstatus->getButtons());
 $wfstatus->checkStateChange();
  
@@ -88,7 +89,6 @@ if (!empty($community_pid)) {
 	$extra_redirect.="&community_pid=".$community_pid;
 }
 
-$pid = $record_id;
 //if ($role_id == User::getRoleID('standard user') || ($role_id == User::getRoleID('administrator')) || ($role_id == User::getRoleID('manager'))) {
 $tpl->assign("pid", $pid);
 $record = new RecordObject($pid);

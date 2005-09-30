@@ -93,7 +93,7 @@ $list = Collection::browseListing(0, 3, "Created Date");
 $list = $list["list"];
 
 $tpl->assign("list", $list);
-$tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
+$tpl->assign("eserv_url", APP_RELATIVE_URL."eserv.php");
 $tpl->assign("news", News::getList());
 $tpl->displayTemplate();
 //Auth::redirect(APP_RELATIVE_URL . "list.php" . $extra);

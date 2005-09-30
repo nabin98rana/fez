@@ -18,9 +18,11 @@ class WorkflowStatus {
     var $end_on_refresh;
     var $parents_list;
     var $parent_pid;
+    var $vars = array(); // associative array for storing workflow variables between states
     
     function WorkflowStatus($pid=null, $wft_id=null, $xdis_id=null, $dsInfo=null)
     {
+        $this->id = md5(uniqid(rand(), true));
         $this->pid = $pid;
         $this->wft_id= $wft_id;
         $this->xdis_id= $xdis_id;
@@ -34,23 +36,14 @@ class WorkflowStatus {
         //put it in the DB too 
         $this->getTriggerDetails();
         $wft_type = WorkflowTrigger::getTriggerName($this->wft_details['wft_type_id']);
-        if ($wft_type == 'Ingest') {
-            // we may not need to even save the ingest stuff as we are only allowing auto processes
-            $_SESSION['workflow'][$this->pid]['i'] = serialize($this);
-        } else {
-            $_SESSION['workflow'][$this->pid]['cud'] = serialize($this);
-        }
+        $_SESSION['workflow'][$this->id] = serialize($this);
     }
     function clearSession()
     {
         //clear it in the DB too 
         $this->getTriggerDetails();
         $wft_type = WorkflowTrigger::getTriggerName($this->wft_details['wft_type_id']);
-        if ($wft_type == 'Ingest') {
-            $_SESSION['workflow'][$this->pid]['i'] = null;
-        } else {
-            $_SESSION['workflow'][$this->pid]['cud'] = null;
-        }
+        $_SESSION['workflow'][$this->id] = serialize($this);
      }
 
 
@@ -138,7 +131,7 @@ class WorkflowStatus {
             $this->auto_next();
         } else {
             header("Location: ".APP_RELATIVE_URL.'workflow/'.$this->wfb_details['wfb_script_name']
-                    ."?pid={$this->pid}&wfs_id={$this->wfs_id}");
+                    ."?id={$this->id}&wfs_id={$this->wfs_id}");
             exit;
         }
         
@@ -246,14 +239,25 @@ class WorkflowStatus {
         return $this->xdis_id;
     }
 
+    function assign($name, $value)
+    {
+        $this->vars[$name] = $value;
+    }
+
+    function getvar($name)
+    {
+        return $this->vars[$name];
+    }
+
+
 }
 
 class WorkflowStatusStatic
 {
-    function getSession($pid)
+    function getSession($id)
     {
-        if (@$_SESSION['workflow'][$pid]['cud']) {
-            return unserialize($_SESSION['workflow'][$pid]['cud']);
+        if (@$_SESSION['workflow'][$id]) {
+            return unserialize($_SESSION['workflow'][$id]);
         } else {
             // get from DB
         }

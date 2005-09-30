@@ -57,10 +57,12 @@ $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 
-$pid = Misc::GETorPOST('pid');
-$tpl->assign("pid", $pid);
+$id = Misc::GETorPOST('id');
+$tpl->assign("id", $id);
 $wfs_id = Misc::GETorPOST('wfs_id');
-$wfstatus = WorkflowStatusStatic::getSession($pid); // restores WorkflowStatus object from the session
+$wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
+$pid = $wfstatus->pid;
+$tpl->assign("pid", $pid);
 
 // get the xdis_id of what we're creating
 $xdis_id = $wfstatus->getXDIS_ID();

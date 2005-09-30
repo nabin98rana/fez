@@ -53,21 +53,23 @@ $tpl->assign("isAdministrator", $isAdministrator);
 $xdis_id = Misc::GETorPOST('xdis_id');
 $collection_pid = Misc::GETorPOST('collection_pid');
 $community_pid = Misc::GETorPOST('community_pid');
+$pid = Misc::GETorPOST("pid");
 
 $cat = Misc::GETorPOST('cat');
 if ($cat == 'select_workflow') {
     $wft_id = Misc::GETorPOST("wft_id");
-    $pid = Misc::GETorPOST("pid");
     Workflow::start($wft_id, $pid, $xdis_id);
 }
 
 $message = '';
-$pid = $collection_pid ? $collection_pid : $community_pid;
+if (empty($pid)) {
+    $pid = $collection_pid ? $collection_pid : $community_pid;
+}
 $wfl_list = Misc::keyPairs(Workflow::getList(), 'wfl_id', 'wfl_title');
 $xdis_list = array(-1 => 'Any') + XSD_Display::getAssocListDocTypes(); 
 $tpl->assign('wfl_list', $wfl_list);
 $tpl->assign('xdis_list', $xdis_list);
-if (empty($pid) || $pid == -1) {
+if ($pid == -1) {
     $tpl->assign("pid", '-1');
     $pid = -1;
     // community level create 
@@ -75,6 +77,12 @@ if (empty($pid) || $pid == -1) {
     $xdis_id = Community::getCommunityXDIS_ID();
     $workflows = WorkflowTrigger::getListByTriggerAndXDIS_ID(-1, 'Create', $xdis_id, true);
     $tpl->assign('workflows', $workflows);
+} elseif (empty($pid) || $pid == -2) {
+    $pid = -2;
+    // find workflows that select a pid as they go
+    $workflows = WorkflowTrigger::getListByTriggerAndXDIS_ID(-1, 'Create', -2, true);
+    $tpl->assign('workflows', $workflows);
+   $tpl->assign("pid", $pid);
 } else {
     $tpl->assign("pid", $pid);
 
