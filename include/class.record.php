@@ -3281,6 +3281,123 @@ LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "custom_field_option as 
     }
 
 
+    function makeInsertTemplate()
+    {
+        global $HTTP_POST_VARS, $HTTP_POST_FILES;
+
+		$existingDatastreams = array();
+        $created_date = date("Y-m-d H:i:s");
+        $updated_date = $created_date;
+        $pid = '__makeInsertTemplate_PID__';
+        $xdis_id = $HTTP_POST_VARS["xdis_id"];
+        $display = new XSD_DisplayObject($xdis_id);
+        list($array_ptr,$xsd_element_prefix, $xsd_top_element_name, $xml_schema) = $display->getXsdAsReferencedArray();
+		$indexArray = array();
+
+		$xmlObj = '<?xml version="1.0"?>'."\n";
+		$xmlObj .= "<".$xsd_element_prefix.$xsd_top_element_name." ";
+		$xmlObj .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $pid); // for the pid, fedora uri etc
+		$xmlObj .= $xml_schema;
+		$xmlObj .= ">\n";
+
+		$xmlObj = Misc::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, 0, $created_date, $updated_date);
+
+		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
+
+		$datastreamTitles = $display->getDatastreamTitles();
+		
+       return compact('datastreamTitles', 'xmlObj', 'indexArray'); 
+    }
+
+    function insertFromTemplate($pid, $dsarray)
+    {
+        extract($dsarray);
+        // find all instances of '__makeInsertTemplate_PID__' in xmlObj and replace with the correct PID
+        // xmlObj is still a text representation at this stage.
+        $xmlObj = str_replace('__makeInsertTemplate_PID__', $pid, $xmlObj);
+        // fix up the indexArray so that the PIDs are correct
+        foreach ($indexArray as &$item) {
+            $item[0] = $pid;
+        }
+        Record::insertXML($pid, compact('datastreamTitles', 'xmlObj', 'indexArray'), true);
+    }
+   
+    function insertXML($pid, $dsarray, $ingestObject)
+    {
+        extract($dsarray);
+        $params = array();
+
+		$datastreamXMLHeaders = Misc::getDatastreamXMLHeaders($datastreamTitles, $xmlObj, array());
+		//print_r($datastreamXMLHeaders);
+		if (@is_array($datastreamXMLHeaders["File_Attachment0"])) { // it must be a multiple file upload so remove the generic one
+			$datastreamXMLHeaders = Misc::array_clean_key($datastreamXMLHeaders, "File_Attachment", true, true);
+		}
+		if (@is_array($datastreamXMLHeaders["Link0"])) { // it must be a multiple file upload so remove the generic one
+			$datastreamXMLHeaders = Misc::array_clean_key($datastreamXMLHeaders, "Link", true, true);
+		}
+
+		$datastreamXMLContent = Misc::getDatastreamXMLContent($datastreamXMLHeaders, $xmlObj);
+        if ($ingestObject) {
+            // Actually Ingest the object Into Fedora
+            // We only have to do this when first creating the object, subsequent updates should just work with the 
+            // datastreams.
+            // will have to exclude the non X control group xml and add the datastreams after the base ingestion.
+
+            $xmlObj = Misc::removeNonXMLDatastreams($datastreamXMLHeaders, $xmlObj);
+
+            $config = array(
+                    'indent'         => true,
+                    'input-xml'   => true,
+                    'output-xml'   => true,
+                    'wrap'           => 200);
+
+            $tidy = new tidy;
+            $tidy->parseString($xmlObj, $config, 'utf8');
+            $tidy->cleanRepair();
+            $xmlObj = $tidy;
+            Fedora_API::callIngestObject($xmlObj);
+        }
+		$convert_check = false;
+		Record::insertIndexBatch($pid, $indexArray, $datastreamXMLHeaders);
+        // ingest the datastreams
+		foreach ($datastreamXMLHeaders as $dsKey => $dsTitle) {
+			$dsIDName = $dsTitle['ID'];
+
+			if (is_numeric(strpos($dsIDName, "."))) {
+				$filename_ext = strtolower(substr($dsIDName, (strrpos($dsIDName, ".") + 1)));
+				$dsIDName = substr($dsIDName, 0, strrpos($dsIDName, ".") + 1).$filename_ext;
+			}
+
+			if (Fedora_API::datastreamExists($pid, $dsTitle['ID'])) {
+				Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, $dsTitle['STATE'], $dsTitle['LABEL'], 
+                        $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], $dsTitle['VERSIONABLE']);
+			} else {
+				if ($dsTitle['CONTROL_GROUP'] == "R") { // if its a redirect we don't need to upload the file
+//				    echo "R content = ".$datastreamXMLContent[$dsKey];
+					Fedora_API::callAddDatastream($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey], 
+                            $dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
+				} else {
+					Fedora_API::getUploadLocation($pid, $dsIDName, $datastreamXMLContent[$dsKey], $dsTitle['LABEL'], 
+                            $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
+				}
+			}
+
+            
+			$presmd_check = Workflow::checkForPresMD($dsIDName);
+			if ($presmd_check != false) {
+				Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, 
+                        "text/xml", "X");
+			}
+
+		} 
+        // run the workflows on the ingested datastreams.
+        // we do this in a seperate loop so that all the supporting metadata streams are ready to go
+		foreach ($datastreamXMLHeaders as $dsKey => $dsTitle) {
+            Workflow::processIngestTrigger($pid, $dsTitle['ID'], $dsTitle['MIMETYPE']);
+        }
+
+    }
+
 }
 
 
@@ -3564,76 +3681,7 @@ class RecordObject extends RecordGeneral
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
 
 		$datastreamTitles = $display->getDatastreamTitles();
-		$params = array();
-//		echo $xmlObj;
-		$datastreamXMLHeaders = Misc::getDatastreamXMLHeaders($datastreamTitles, $xmlObj, $existingDatastreams);
-//		print_r($datastreamTitles);
-		
-		//print_r($datastreamXMLHeaders);
-		if (@is_array($datastreamXMLHeaders["File_Attachment0"])) { // it must be a multiple file upload so remove the generic one
-			$datastreamXMLHeaders = Misc::array_clean_key($datastreamXMLHeaders, "File_Attachment", true, true);
-		}
-		if (@is_array($datastreamXMLHeaders["Link0"])) { // it must be a multiple file upload so remove the generic one
-			$datastreamXMLHeaders = Misc::array_clean_key($datastreamXMLHeaders, "Link", true, true);
-		}
-
-		$datastreamXMLContent = Misc::getDatastreamXMLContent($datastreamXMLHeaders, $xmlObj);
-
-        if ($ingestObject) {
-            // Actually Ingest the object Into Fedora
-            // We only have to do this when first creating the object, subsequent updates should just work with the 
-            // datastreams.
-            // will have to exclude the non X control group xml and add the datastreams after the base ingestion.
-
-//            $xmlObj = Misc::removeNonXMLDatastreams($datastreamTitles, $xmlObj);
-            $xmlObj = Misc::removeNonXMLDatastreams($datastreamXMLHeaders, $xmlObj);
-
-            $config = array(
-                    'indent'         => true,
-                    'input-xml'   => true,
-                    'output-xml'   => true,
-                    'wrap'           => 200);
-
-            $tidy = new tidy;
-            $tidy->parseString($xmlObj, $config, 'utf8');
-            $tidy->cleanRepair();
-            $xmlObj = $tidy;
-            Fedora_API::callIngestObject($xmlObj);
-        }
-		$convert_check = false;
-		Record::insertIndexBatch($pid, $indexArray, $datastreamXMLHeaders);
-        // ingest the datastreams
-		foreach ($datastreamXMLHeaders as $dsKey => $dsTitle) {
-			$dsIDName = $dsTitle['ID'];
-
-			if (is_numeric(strpos($dsIDName, "."))) {
-				$filename_ext = strtolower(substr($dsIDName, (strrpos($dsIDName, ".") + 1)));
-				$dsIDName = substr($dsIDName, 0, strrpos($dsIDName, ".") + 1).$filename_ext;
-			}
-
-			if (Fedora_API::datastreamExists($pid, $dsTitle['ID'])) {
-				Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, $dsTitle['STATE'], $dsTitle['LABEL'], $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], $dsTitle['VERSIONABLE']);
-			} else {
-				if ($dsTitle['CONTROL_GROUP'] == "R") { // if its a redirect we don't need to upload the file
-//				    echo "R content = ".$datastreamXMLContent[$dsKey];
-					Fedora_API::callAddDatastream($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey], $dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
-				} else {
-					Fedora_API::getUploadLocation($pid, $dsIDName, $datastreamXMLContent[$dsKey], $dsTitle['LABEL'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
-				}
-			}
-
-            
-			$presmd_check = Workflow::checkForPresMD($dsIDName);
-			if ($presmd_check != false) {
-				Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, "text/xml", "X");
-			}
-
-		} 
-        // run the workflows on the ingested datastreams.
-        // we do this in a seperate loop so that all the supporting metadata streams are ready to go
-		foreach ($datastreamXMLHeaders as $dsKey => $dsTitle) {
-            Workflow::processIngestTrigger($pid, $dsTitle['ID'], $dsTitle['MIMETYPE']);
-        }
+        Record::insertXML($pid, compact('datastreamTitles', 'xmlObj', 'indexArray'), $ingestObject);
 		return $pid;
     }
     

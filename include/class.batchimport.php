@@ -524,9 +524,7 @@ function handleMETSImport($pid, $xmlObj, $xmlBegin) {
 
 }
 
-function handleStandardFileImport($pid, $full_name, $short_name, $xmlObj) {
-	//Insert the generated foxml object
-	Fedora_API::callIngestObject($xmlObj);
+function handleStandardFileImport($pid, $full_name, $short_name) {
 
     $mimetype = Misc::mime_content_type($full_name);
 	//Insert the standard file as a datastream to the new object
@@ -552,7 +550,7 @@ function handleStandardFileImport($pid, $full_name, $short_name, $xmlObj) {
 }
 
 
-function insert() {
+function insert($dsarray=null) {
 	global $HTTP_POST_VARS;	
 	if ((!empty($HTTP_POST_VARS['objectimport'])) && (!empty($HTTP_POST_VARS['directory']))) {
 		//open the current directory
@@ -575,6 +573,7 @@ function insert() {
 			}
 		}
 		foreach ($filenames as $full_name => $short_name) {
+            $handled_as_xml = false;
 			$pid = Fedora_API::getNextPID();
 			// Also need to add the espaceMD and RELS-EXT - espaceACML probably not necessary as it can be inhereted
 			// and the espaceMD can have status - 'freshly uploaded' or something.
@@ -585,25 +584,32 @@ function insert() {
 				if (is_numeric(strpos($xmlObj, "foxml:digitalObject"))) {
 					BatchImport::handleFOXMLImport($xmlObj);
                     Record::setIndexMatchingFields($xdis_id, $pid);
+                    $handled_as_xml = true;
 				} elseif (is_numeric(strpos($xmlObj, "<eprintsdata>"))) {
 					BatchImport::handleEntireEprintsImport($pid, $collection_pid, $xmlObj);
+                    $handled_as_xml = true;
 				} elseif (is_numeric(strpos($xmlObj, "METS:mets"))) {
 					$xmlBegin = BatchImport::ConvertMETSToFOXML($pid, $xmlObj, $collection_pid, $short_name, $xdis_id, $ret_id, $sta_id);
 					$xmlObj = BatchImport::handleMETSImport($pid, $xmlObj, $xmlBegin);
-					
-				} else { // just add it as a normal file if it is not foxml or mets
+                    $handled_as_xml = true;
+				}
+			} 
+            if (!$handled_as_xml) {
+                // Create the Record in Fedora 
+                if (empty($dsarray)) {
+                    // use default metadata
                     $xmlObj = BatchImport::GenerateSingleFOXMLTemplate($pid, $parent_pid, $full_name, $short_name,
                             $xdis_id, $ret_id, $sta_id);
-                    BatchImport::handleStandardFileImport($pid, $full_name, $short_name, $xmlObj);
+                    //Insert the generated foxml object
+                    Fedora_API::callIngestObject($xmlObj);
                     Record::setIndexMatchingFields($xdis_id, $pid);
-				}
-			} else {
-
-                $xmlObj = BatchImport::GenerateSingleFOXMLTemplate($pid, $parent_pid, $full_name, $short_name,
-                        $xdis_id, $ret_id, $sta_id);
-               BatchImport::handleStandardFileImport($pid, $full_name, $short_name, $xmlObj);
-               Record::setIndexMatchingFields($xdis_id, $pid);
-			}
+                } else {
+                    // use metadata from a user template
+                    Record::insertFromTemplate($pid, $dsarray);
+                }
+                // add the binary batch import file.
+                BatchImport::handleStandardFileImport($pid, $full_name, $short_name);
+            }
 
 		}
 	}

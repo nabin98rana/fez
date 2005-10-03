@@ -30,20 +30,24 @@
 include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
+include_once(APP_INC_PATH . "class.user.php");
+include_once(APP_INC_PATH . "class.group.php");
 include_once(APP_INC_PATH . "class.record.php");
-include_once(APP_INC_PATH . "class.batchimport.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "db_access.php");
+include_once(APP_INC_PATH . "class.controlled_vocab.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.community.php");
 include_once(APP_INC_PATH . "class.date.php");
+include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
+include_once(APP_INC_PATH . "class.workflow_status.php");
 
 
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
-$tpl->assign("type", 'batchimport');
+$tpl->assign('type', 'set_template');
 
 Auth::checkAuthentication(APP_SESSION);
 //$user_id = Auth::getUserID();
@@ -52,6 +56,7 @@ $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
+
 $id = Misc::GETorPOST('id');
 $tpl->assign("id", $id);
 $wfs_id = Misc::GETorPOST('wfs_id');
@@ -61,6 +66,7 @@ $tpl->assign("pid", $pid);
 
 // get the xdis_id of what we're creating
 $xdis_id = $wfstatus->getXDIS_ID();
+
 if ($pid == -1 || !$pid) {
     $access_ok = $isAdministrator;
 } else {
@@ -70,33 +76,60 @@ if ($pid == -1 || !$pid) {
     $access_ok = $record->canCreate();
 }
 if ($access_ok) {
+    // check for post action
     if (@$HTTP_POST_VARS["cat"] == "report") {
-        $wftpl = $wfstatus->getvar('template');
-        $res = BatchImport::insert($wftpl);
-        sleep(1); // give fedora some time to update it's indexes or whatever it does.
-        //		Auth::redirect(APP_RELATIVE_URL . "list.php?new_pid=".$res.$extra_redirect, false);
-        $wfstatus->setCreatedPid($pid);
+        $res = Record::makeInsertTemplate();
+        $wfstatus->assign('template', $res);
     }
     $wfstatus->checkStateChange();
 
     $tpl->assign('workflow_buttons', $wfstatus->getButtons());
+    $tpl->assign("isCreator", 1);
+    if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for it
+        Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=insert_form".$extra_redirect, false);
+    }
     $tpl->assign("xdis_id", $xdis_id);
-    $tpl->assign("pid", $pid);
+
+
+    $xdis_list = XSD_Display::getAssocListDocTypes(); 
+    $community_list = Community::getAssocList();
+    $collection_list = Collection::getAssocList();
+    $internal_user_list = User::getAssocList();
+    $internal_group_list = Group::getAssocListAll();
     $jtaskData = "";
     $maxG = 0;
-    //open the current directory
-    $directory = opendir(APP_SAN_IMPORT_DIR);
-    while (false !== ($file = readdir($directory))) { 
-        if (!is_numeric(strpos($file, "."))) {
-            $filenames[$file] = $file;
+    $xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id));
+    $cvo_list = Controlled_Vocab::getAssocListFullDisplay(false, "", 0, 2);
+    //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups 
+    // - should probably move this into a function somewhere later
+    foreach ($xsd_display_fields  as $dis_key => $dis_field) {
+        if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple') {
+            if (!empty($dis_field["xsdmf_smarty_variable"]) && $dis_field["xsdmf_smarty_variable"] != "none") {
+                eval("\$xsd_display_fields[\$dis_key]['field_options'] = " . $dis_field["xsdmf_smarty_variable"] . ";");
+            }
+            if (!empty($dis_field["xsdmf_dynamic_selected_option"]) 
+                    && $dis_field["xsdmf_dynamic_selected_option"] != "none") {
+                eval("\$xsd_display_fields[\$dis_key]['selected_option'] = " 
+                        . $dis_field["xsdmf_dynamic_selected_option"] . ";");
+            }
         }
+        if (($dis_field["xsdmf_html_input"] == 'contvocab') 
+                || ($dis_field["xsdmf_html_input"] == 'contvocab_selector')) {
+            $xsd_display_fields[$dis_key]['field_options'] = $cvo_list['data'][$dis_field['xsdmf_cvo_id']];
+        }
+
     }
-    $tpl->assign("filenames", $filenames);
-    $tpl->assign("form_title", "Batch Import Records");
-    $tpl->assign("form_submit_button", "Batch Import Records");
+
+    $tpl->assign("xsd_display_fields", $xsd_display_fields);
+    $tpl->assign("xdis_id", $xdis_id);
+    $tpl->assign("form_title", "Set Template");
+    $tpl->assign("form_description", "These values will be used as the defaults for the batch operation.");
+    $tpl->assign("form_submit_button", "Create Record");
 
     $setup = Setup::load();
+
 }
+
 
 $tpl->displayTemplate();
 ?>
