@@ -65,7 +65,17 @@ $wfl_list = Misc::keyPairs(Workflow::getList(), 'wfl_id', 'wfl_title');
 $xdis_list = array(-1 => 'Any') + XSD_Display::getAssocListDocTypes(); 
 $tpl->assign('wfl_list', $wfl_list);
 $tpl->assign('xdis_list', $xdis_list);
-if (!(empty($pid) || $pid == -1)) {
+if ($pid == -1) {
+    // the -1 thing only works when creating a record, you can't update a non-object.
+
+} elseif (empty($pid) || $pid == -2) {
+    // Update called from my-fez page - look for workflows that allow selection of an object 
+    // (assigned with -2 == None)
+    $pid = -2;
+    $tpl->assign("pid", $pid);
+    $workflows = WorkflowTrigger::getListByTriggerAndXDIS_ID(-1, 'Update', -2, true);
+    $tpl->assign('workflows', $workflows);
+} else {
     $tpl->assign("pid", $pid);
 
     $record = new RecordObject($pid);
@@ -79,7 +89,6 @@ if (!(empty($pid) || $pid == -1)) {
             $strict = false;
         }
         $workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Update', $xdis_id, $strict);
-        print_r($workflows);
         $tpl->assign('workflows', $workflows);
     } else {
     }

@@ -114,7 +114,7 @@ class WorkflowStatus {
     {
         $this->getWorkflowDetails();
         if (!$this->wfs_details['wfs_end']) {
-            $this->setState($wfs_details['next_ids'][0]);
+            $this->setState($this->wfs_details['next_ids'][0]);
             $this->run();
         } else {
             $this->theend();

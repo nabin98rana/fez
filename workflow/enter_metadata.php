@@ -80,12 +80,16 @@ if ($access_ok) {
     if (@$HTTP_POST_VARS["cat"] == "report") {
         $res = Record::insert();
         $wfstatus->setCreatedPid($res);
+        $wfstatus->parent_pid = $wfstatus->pid;
+        $wfstatus->pid = $res;
     }
     $wfstatus->checkStateChange();
 
     $tpl->assign('workflow_buttons', $wfstatus->getButtons());
     $tpl->assign("isCreator", 1);
     if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for it
+        print_r($wfstatus);
+        exit;
         Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=insert_form".$extra_redirect, false);
     }
     $tpl->assign("xdis_id", $xdis_id);

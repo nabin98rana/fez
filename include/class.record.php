@@ -3712,7 +3712,11 @@ class RecordObject extends RecordGeneral
         if (is_null($this->details)) {
             // Get the Datastreams.
             $this->getDisplay();
-            $this->details = $this->display->getXSDMF_Values($this->pid);
+            if ($this->display) {
+                $this->details = $this->display->getXSDMF_Values($this->pid);
+            } else {
+                echo "No display for PID {$this->pid} ".__FILE__.__LINE__."<br/>";
+            }
         }
         return $this->details;
     }

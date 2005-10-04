@@ -65,7 +65,16 @@ $wfl_list = Misc::keyPairs(Workflow::getList(), 'wfl_id', 'wfl_title');
 $xdis_list = array(-1 => 'Any') + XSD_Display::getAssocListDocTypes(); 
 $tpl->assign('wfl_list', $wfl_list);
 $tpl->assign('xdis_list', $xdis_list);
-if (!(empty($pid) || $pid == -1)) {
+if ($pid == -1) {
+    // can't delete 'Any'
+
+} elseif (empty($pid) || $pid == -2) {
+    // Delete 'None' - the workflow selects the object
+    $pid = -2;
+    $tpl->assign("pid", $pid);
+    $workflows = WorkflowTrigger::getListByTriggerAndXDIS_ID(-1, 'Delete', -2, true);
+    $tpl->assign('workflows', $workflows);
+} else {
     $tpl->assign("pid", $pid);
 
     $record = new RecordObject($pid);
