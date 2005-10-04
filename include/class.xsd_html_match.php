@@ -560,6 +560,7 @@ class XSD_HTML_Match
 					xsdmf_fez_variable,
 					xsdmf_enforced_prefix,
 					xsdmf_is_key,
+					xsdmf_required,					
 					xsdmf_data_type,
 					xsdmf_key_match,
 					xsdmf_parent_key_match,

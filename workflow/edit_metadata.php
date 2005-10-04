@@ -124,6 +124,7 @@ $maxG = 0;
 //$xdis_id = 5;
 $cvo_list = Controlled_Vocab::getAssocListFullDisplay();
 $xsd_display_fields = $record->display->getMatchFieldsList();  // XSD_DisplayObject
+//print_r($xsd_display_fields);
 //(XSD_HTML_Match::getListByDisplay($xdis_id));
 //$prior = array(''=>array('xsdmf_'=>array('')));
 //$priority = array(''=>array('xsdmf_order'=>''));

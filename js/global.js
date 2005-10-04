@@ -455,6 +455,7 @@ function getOpenerPageElement(name)
 
 function getFormElement(f, field_name, num)
 {
+//	alert(field_name);
     var y = 0;
     for (var i = 0; i < f.elements.length; i++) {
         if (num != null) {
@@ -465,8 +466,11 @@ function getFormElement(f, field_name, num)
                 y++;
             }
         } else {
-            if (f.elements[i].name == field_name) {
-                return f.elements[i];
+
+			if (f.elements[i].name == field_name) {
+//				alert('found a match'); 
+//				alert(f.elements[i].name); 
+				return f.elements[i];
             }
         }
     }

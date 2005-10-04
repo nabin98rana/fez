@@ -1145,7 +1145,7 @@ class Collection
 				 ORDER BY
 				 	r1.rmf_rec_pid";
 	
-//		echo $stmt;
+
 		$returnfields = array("title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		

@@ -212,7 +212,7 @@ function errorDetails(f, field_name, show)
 {
     var field = getFormElement(f, field_name);
     var icon = getPageElement('error_icon_' + field_name);
-    if (icon == null) {
+	if (icon == null) {
         return false;
     }
     if (show) {
@@ -225,6 +225,15 @@ function errorDetails(f, field_name, show)
         icon.style.visibility = 'hidden';
         icon.width = 1;
         icon.height = 1;
+    }
+}
+
+function getXSD_DisplayFieldTitle(field_name)
+{
+    for (var i = 0; i < xsd_display_fields.length; i++) {
+        if (xsd_display_fields[i].text == field_name) {
+            return xsd_display_fields[i].value;
+        }
     }
 }
 
@@ -261,6 +270,27 @@ function checkRequiredCustomFields(f, required_fields)
         } else if (required_fields[i].value == 'whitespace') {
             if (isWhitespace(field.value)) {
                 errors[errors.length] = new Option(getCustomFieldTitle(required_fields[i].text), required_fields[i].text);
+            }
+        }
+    }
+}
+
+function checkRequiredFields(f, required_fields)
+{
+    for (var i = 0; i < required_fields.length; i++) {
+//		alert(required_fields[i].text);
+		var field = getFormElement(f, required_fields[i].text);		
+		if (required_fields[i].value == 'combo') {
+            if (getSelectedOption(f, field.name) == '-1') {
+                errors[errors.length] = new Option(getXSD_DisplayFieldTitle(required_fields[i].text), required_fields[i].text);
+            }
+        } else if (required_fields[i].value == 'multiple') {
+            if (!hasOneSelected(f, field.name)) {
+                errors[errors.length] = new Option(getXSD_DisplayFieldTitle(required_fields[i].text), required_fields[i].text);
+            }
+        } else if (required_fields[i].value == 'whitespace') {
+            if (isWhitespace(field.value)) {
+                errors[errors.length] = new Option(getXSD_DisplayFieldTitle(required_fields[i].text), required_fields[i].text);
             }
         }
     }
@@ -308,17 +338,22 @@ function checkErrorCondition(form_name, field_name)
 function selectField(f, field_name)
 {
     for (var i = 0; i < f.elements.length; i++) {
-        if (f.elements[i].name == field_name) {
-            if (f.elements[i].type != 'hidden') {
-                f.elements[i].focus();
+		if (f.elements[i].name == field_name) {
+			if ((f.elements[i].type != 'hidden') && (field_name.indexOf("[]") == -1))  {
+				f.elements[i].focus();
             }
             errorDetails(f, field_name, true);
             if (isWhitespace(f.name)) {
                 return false;
             }
-// @@@ CK -  below commented out because it interfered with the JTASK subcat script
-//            f.elements[i].onchange = new Function('checkErrorCondition(\'' + f.name + '\', \'' + field_name + '\');');
-            if (f.elements[i].select) {
+			var newF = new Function('checkErrorCondition(\'' + f.name + '\', \'' + field_name + '\');');
+			if (f.elements[i].onchange) {
+				var oldF = (f.elements[i].onchange);
+				f.elements[i].onchange = function () { oldF(); newF();};
+			} else {
+				f.elements[i].onchange = function () { newF();};				
+			}
+			if (f.elements[i].select) {
                 f.elements[i].select();
             }
         }

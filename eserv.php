@@ -97,7 +97,7 @@ if (!empty($pid) && !empty($dsID)) {
 			} // end switch field_extension
 			
   	 		header('Content-Disposition: filename="'.substr($urldata, (strrpos($urldata, '/')+1) ).'"');
-			$tempDumpFileName = '/tmp/tmpdumpfile.txt';
+			$tempDumpFileName = APP_TEMP_DIR.'tmpdumpfile.txt';
 			// Read the source OAI repository url or file
 			
 			$sourceOAI = fopen($urldata, "r");
