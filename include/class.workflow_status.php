@@ -1,4 +1,5 @@
 <?php
+include_once(APP_INC_PATH.'db_access.php');
 include_once(APP_INC_PATH.'class.wfbehaviours.php');
 include_once(APP_INC_PATH.'class.workflow_state.php');
 include_once(APP_INC_PATH.'class.workflow_trigger.php');
@@ -33,16 +34,10 @@ class WorkflowStatus {
 
     function setSession()
     {
-        //put it in the DB too 
-        $this->getTriggerDetails();
-        $wft_type = WorkflowTrigger::getTriggerName($this->wft_details['wft_type_id']);
         $_SESSION['workflow'][$this->id] = serialize($this);
     }
     function clearSession()
     {
-        //clear it in the DB too 
-        $this->getTriggerDetails();
-        $wft_type = WorkflowTrigger::getTriggerName($this->wft_details['wft_type_id']);
         $_SESSION['workflow'][$this->id] = serialize($this);
      }
 
@@ -95,8 +90,8 @@ class WorkflowStatus {
     function getWorkflowDetails()
     {
         if (!$this->wfl_details) {
-            $this->getStateDetails();
-            $this->wfl_details = Workflow::getDetails($this->wfs_details['wfs_wfl_id']);
+            $this->getTriggerDetails();
+            $this->wfl_details = Workflow::getDetails($this->wft_details['wft_wfl_id']);
         }
         return $this->wfl_details;
     } 
@@ -123,33 +118,43 @@ class WorkflowStatus {
 
     function run()
     {
-        $this->getBehaviourDetails();
-        $this->getTriggerDetails();
-        $this->setSession();
-        if ($this->wfb_details['wfb_auto']) {
-            include(APP_PATH.'workflow/'.$this->wfb_details['wfb_script_name']);
-            $this->auto_next();
+        if ($this->checkAssignment()) {
+            $this->getBehaviourDetails();
+            $this->getTriggerDetails();
+            $this->setSession();
+            if ($this->wfb_details['wfb_auto']) {
+                include(APP_PATH.'workflow/'.$this->wfb_details['wfb_script_name']);
+                $this->auto_next();
+            } else {
+                header("Location: ".APP_RELATIVE_URL.'workflow/'.$this->wfb_details['wfb_script_name']
+                        ."?id={$this->id}&wfs_id={$this->wfs_id}");
+                exit;
+            }
         } else {
-            header("Location: ".APP_RELATIVE_URL.'workflow/'.$this->wfb_details['wfb_script_name']
-                    ."?id={$this->id}&wfs_id={$this->wfs_id}");
-            exit;
+            $this->suspend();
         }
         
     }
 
-    function theend()
+    function suspend()
+    {
+        if (Misc::isValidPid($this->pid)) {
+            $this->saveToDB();
+            $this->theend('suspend');
+        } else {
+            $this->theend('cancel');
+        }
+    }
+
+    function theend($action='end')
     {
         $this->getWorkflowDetails();
         $wfl_title = $this->wfl_details['wfl_title'];
         $wft_type = WorkflowTrigger::getTriggerName($this->wft_details['wft_type_id']);
-        if ($wft_type == 'Create') {
-            $pid = $this->created_pid;
-        } else {
-            $pid = $this->pid;
-        }
+        $pid = $this->pid;
         $parent_pid = $this->parent_pid;
         $parents_list = serialize($this->parents_list);
-        $args = compact('wfl_title','wft_type','parent_pid','pid', 'parents_list');
+        $args = compact('wfl_title','wft_type','parent_pid','pid', 'parents_list', 'action');
         $argstrs = array();
         foreach ($args as $key => $arg) {
             $argstrs[] = "$key=".urlencode($arg);
@@ -157,6 +162,9 @@ class WorkflowStatus {
         $querystr=implode('&', $argstrs);
         
         $this->clearSession();
+        if ($action != 'suspend') {
+            $this->deleteFromDB();
+        }
         if ($wft_type != 'Ingest') {
             header("Location: ".APP_RELATIVE_URL."workflow/end.php?$querystr");
             exit;
@@ -165,7 +173,8 @@ class WorkflowStatus {
 
     function setCreatedPid($pid)
     {
-        $this->created_pid = $pid;
+        $this->parent_pid = $this->pid;
+        $this->pid = $pid;
     }
 
     function setStateChangeOnRefresh($end=false)
@@ -249,6 +258,57 @@ class WorkflowStatus {
         return $this->vars[$name];
     }
 
+    function deleteFromDB()
+    {
+        $dbpre = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $stmt = "DELETE FROM {$dbpre}workflow_status WHERE wf_status_id='{$this->id}'";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+    }
+
+    function saveToDB()
+    {
+        $dbpre = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $stmt = "DELETE FROM {$dbpre}workflow_status WHERE wf_status_id='{$this->id}'";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        $this->getStateDetails();
+        $this->getWorkflowDetails();
+        $blob = serialize($this);
+        $stmt = "INSERT INTO {$dbpre}workflow_status 
+            SET 
+            wf_status_id='{$this->id}', 
+            wf_status_pid='{$this->pid}', 
+            wf_status_role='{$this->wfs_details['wfs_assigned_role_id']}', 
+            wf_status_obj='$blob'";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+    }
+
+    function checkAssignment()
+    {
+        if (Auth::isAdministrator()) {
+            return true;
+        }
+
+        // only administrator can create communities
+        if ($this->pid == -1) {
+            if (Auth::isAdministrator()) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        // If we don't know what the pid is yet then let it through
+        if (!Misc::isValidPid($this->pid)) {
+            return true;
+        }
+        
+        $this->getStateDetails();
+        $roles = Auth::getAuthorisationGroups($this->pid);
+        echo "here $roles".__FILE__.__LINE__.'<br>';
+        return in_array($this->wfs_details['wfs_assigned_role_id'], $roles);
+    }
+
+
 
 }
 
@@ -256,11 +316,47 @@ class WorkflowStatusStatic
 {
     function getSession($id)
     {
+        $obj = null;
         if (@$_SESSION['workflow'][$id]) {
-            return unserialize($_SESSION['workflow'][$id]);
-        } else {
-            // get from DB
+            $obj = unserialize($_SESSION['workflow'][$id]);
         }
+        return $obj;
+    }
+    function getFromDB($id)
+    {
+        $dbpre = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $stmt = "SELECT * FROM {$dbpre}workflow_status WHERE wf_status_id='{$id}'";
+        $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = array();
+        }
+        $obj = unserialize($res['wf_status_obj']);
+        return $obj;
+    }
+
+    function getListByUser()
+    {
+        $dbpre = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $stmt = "SELECT * FROM {$dbpre}workflow_status";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        $result = array();
+        foreach ($res as $row) {
+            $assigned = false;
+            if (Auth::isAdministrator()) {
+                $assigned = true;
+            } else {
+                $roles = Auth::getAuthorisationGroups($row['wf_status_pid']);
+                if (in_array($row['wf_status_role'], $roles)) {
+                    $assigned = true;
+                }
+            }
+            if ($assigned) {
+                $obj = unserialize($row['wf_status_obj']);
+                $result[] = array('row' => $row, 'obj' => $obj);
+            }
+        }
+        return $result;
     }
 }
 

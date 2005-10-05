@@ -44,8 +44,9 @@ foreach ($collection_list as $col) {
 }
 $tpl->assign('my_collections_list', $my_collections);
 
-$workflow_items = Record::getAssigned($username);
+$workflow_items = WorkflowStatusStatic::getListByUser();
 $tpl->assign('my_workflow_items_list', $workflow_items);
+$tpl->assign("roles_list", Auth::getDefaultRoles());
 
 $tpl->displayTemplate();
 

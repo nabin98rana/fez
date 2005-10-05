@@ -2809,8 +2809,7 @@ LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "custom_field_option as 
         }
 	}
 	
-	function getACML($pid, $xdis_id) {
-		$parents_details = Record::getParents($pid);
+	function getACML($pid) {
 
 		$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, 'FezACML');
 		$xmlACML = @$DSResultArray['stream'];		

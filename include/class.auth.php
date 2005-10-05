@@ -304,20 +304,20 @@ class Auth
      * Can the current user access this page?
      * @returns boolean true if access is ok.
      */
-    function checkAuthorisation($pid, $xdis_id, $acceptable_roles, $failed_url, $userPIDAuthGroups=null, $redirect=true) {
+    function checkAuthorisation($pid, $acceptable_roles, $failed_url, $userPIDAuthGroups=null, $redirect=true) {
         session_name(APP_SESSION);
         @session_start();
 		$isAdministrator = Auth::isAdministrator();
 		if ($isAdministrator) {
 			return true;
 		}
-		if (!is_array($acceptable_roles) || empty($pid) || empty($xdis_id)) {
+		if (!is_array($acceptable_roles) || empty($pid) ) {
 			return false;
 		}
 		
         // find out which role groups this user belongs to
         if (is_null($userPIDAuthGroups)) {
-            $userPIDAuthGroups = Auth::getAuthorisationGroups($pid, $xdis_id);
+            $userPIDAuthGroups = Auth::getAuthorisationGroups($pid);
         }
 
 		$auth_ok = false;
@@ -428,11 +428,10 @@ class Auth
 	}
 
 
-   function getAuthorisationGroups ($pid, $xdis_id) {
-//        echo "PID = $pid, xdis_id = $xdis_id\n\n";
+   function getAuthorisationGroups ($pid) {
         $userPIDAuthGroups = array();
 
-        $acmlBase = Record::getACML($pid, $xdis_id);
+        $acmlBase = Record::getACML($pid);
         $ACMLArray = array();
         if ($acmlBase === false) {
 //            echo "GOING IN! with $pid";

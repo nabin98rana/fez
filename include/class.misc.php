@@ -3157,6 +3157,16 @@ return $ret;
         }
     }
 
+    function isValidPid($pid) 
+    {
+        if (!Misc::isInt($pid) || $pid > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }   
+
+
 
 } // end of Misc class
 

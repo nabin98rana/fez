@@ -16,18 +16,17 @@
      {cycle values=$cycle assign="row_color"}
      <tr>
        <td bgcolor="{$row_color}" class="default">
-         &nbsp;{$list[i].title|escape}
+         &nbsp;{$list[i].obj->wfl_details.wfl_title|escape}
        </td>
        <td bgcolor="{$row_color}" class="default">
-         &nbsp;{$list[i].sta_title|escape}
+         &nbsp;{$list[i].obj->wfs_details.wfs_title|escape}
        </td>
        <td bgcolor="{$row_color}" class="default">
-         &nbsp;{$list[i].role|escape}
+         {assign var="role_id" value=$list[i].row.wf_status_role }
+         &nbsp;{$roles_list[$role_id]|escape}
        </td>
        <td bgcolor="{$row_color}" class="default">
-       <a href='update.php?pid={$list[i].pid|escape}'><img title="Edit" align="absmiddle" 
-       src="{$rel_url}images/edit.png" border="0"></a> 
-         <a href="{$rel_url}view.php?pid={$list[i].pid|escape}">[view]</a>
+         <a href="{$rel_url}workflow/resume.php?id={$list[i].row.wf_status_id|escape}">[Go]</a>
        </td>
      </tr>
      {sectionelse}

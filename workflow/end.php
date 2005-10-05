@@ -23,6 +23,7 @@ $tpl->assign("isAdministrator", $isAdministrator);
 $wfl_title = Misc::GETorPOST('wfl_title');
 $wft_type = Misc::GETorPOST('wft_type');
 $parent_pid = Misc::GETorPOST('parent_pid');
+$action = Misc::GETorPOST('action');
 $parents_list = unserialize(Misc::GETorPOST('parents_list'));
 if (is_array($parents_list)) {
     foreach ($parents_list as &$item) {
@@ -69,7 +70,7 @@ if ($parent_pid) {
     }
 } 
 $tpl->assign(compact('wfl_title','wft_type','parent_title','record_title', 'view_record_url', 
-            'view_parent_url', 'parents_list'));
+            'view_parent_url', 'parents_list', 'action'));
 
 
 $tpl->displayTemplate();
