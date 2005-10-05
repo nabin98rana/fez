@@ -95,7 +95,7 @@ if (!empty($collection_pid)) {
 	$parents = Collection::getParents($collection_pid);
 	$tpl->assign("parents", $parents);
 	$collection_xdis_id = Collection::getCollectionXDIS_ID();
-	$userPIDAuthGroups = Auth::getAuthorisationGroups($collection_pid, $collection_xdis_id);
+	$userPIDAuthGroups = Auth::getAuthorisationGroups($collection_pid);
 	$isCreator = (in_array("Creator", $userPIDAuthGroups) || in_array("Community Administrator", $userPIDAuthGroups) || in_array("Collection Administrator", $userPIDAuthGroups));
 	$tpl->assign("isCreator", $isCreator);
 	$isEditor = (in_array("Creator", $userPIDAuthGroups) || in_array("Community Administrator", $userPIDAuthGroups) || in_array("Editor", $userPIDAuthGroups) || in_array("Collection Administrator", $userPIDAuthGroups));
@@ -122,7 +122,7 @@ if (!empty($collection_pid)) {
 	$xdis_id = Collection::getCollectionXDIS_ID();
 	$community_xdis_id = Community::getCommunityXDIS_ID();
 
-	$userPIDAuthGroups = Auth::getAuthorisationGroups($community_pid, $community_xdis_id);
+	$userPIDAuthGroups = Auth::getAuthorisationGroups($community_pid);
 
 	$isCreator = (in_array("Creator", $userPIDAuthGroups));
 	$tpl->assign("isCreator", $isCreator);

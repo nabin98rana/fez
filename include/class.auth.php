@@ -265,7 +265,7 @@ class Auth
 
 			$xdis_array = Fedora_API::callGetDatastreamContentsField($parent['pid'], 'FezMD', array('xdis_id'));
 			$xdis_id = $xdis_array['xdis_id'][0];
-			$parentACML = Record::getACML($parent['pid'], $xdis_id);
+			$parentACML = Record::getACML($parent['pid']);
 			
 
 //			echo $parent['pid'] ." - ".$xdis_id. " -> "; print_r($parentACML); echo "\n\n";
@@ -953,7 +953,7 @@ class Auth
 			$xdis_array = Fedora_API::callGetDatastreamContentsField ($row['pid'], 'FezMD', array('xdis_id'));
             if (!empty($xdis_array)) {
                 $xdis_id = $xdis_array['xdis_id'][0];
-                $rowAuthGroups = Auth::getAuthorisationGroups($row['pid'], $xdis_id);
+                $rowAuthGroups = Auth::getAuthorisationGroups($row['pid']);
                 // get only the roles which are of relevance/use on the listing screen. This logic may be changed later.
                 $details[$key]['isCommunityAdministrator'] = in_array('Community Administrator', $rowAuthGroups); //editor is only for the children. To edit the actual community record details you need to be a community admin
                 $details[$key]['isEditor'] = in_array('Editor', $rowAuthGroups);

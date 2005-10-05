@@ -3466,7 +3466,7 @@ class RecordGeneral
     function getAuth() {
         if (!$this->checked_auth) {
             $this->getXmlDisplayId();
-            $this->auth_groups = Auth::getAuthorisationGroups($this->pid, $this->xdis_id);
+            $this->auth_groups = Auth::getAuthorisationGroups($this->pid);
             $this->checked_auth = true;
         }
 		
@@ -3480,7 +3480,7 @@ class RecordGeneral
     function checkAuth($roles, $redirect=true) {
         global $HTTP_SERVER_VARS;
         $this->getAuth();
-		return Auth::checkAuthorisation($this->pid, $this->xdis_id, $roles, 
+		return Auth::checkAuthorisation($this->pid, $roles, 
                     $HTTP_SERVER_VARS['PHP_SELF']."?".$HTTP_SERVER_VARS['QUERY_STRING'], $this->auth_groups, $redirect); 
     }
     
