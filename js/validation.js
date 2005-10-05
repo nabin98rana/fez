@@ -267,7 +267,11 @@ function checkRequiredCustomFields(f, required_fields)
             if (!hasOneSelected(f, field.name)) {
                 errors[errors.length] = new Option(getCustomFieldTitle(required_fields[i].text), required_fields[i].text);
             }
-        } else if (required_fields[i].value == 'whitespace') {
+        } else if (required_fields[i].value == 'checkbox') {
+            if (!hasOnlyOneChecked(f, field.name)) {
+                errors[errors.length] = new Option(getCustomFieldTitle(required_fields[i].text), required_fields[i].text);
+            }
+		} else if (required_fields[i].value == 'whitespace') {
             if (isWhitespace(field.value)) {
                 errors[errors.length] = new Option(getCustomFieldTitle(required_fields[i].text), required_fields[i].text);
             }
@@ -278,7 +282,7 @@ function checkRequiredCustomFields(f, required_fields)
 function checkRequiredFields(f, required_fields)
 {
     for (var i = 0; i < required_fields.length; i++) {
-//		alert(required_fields[i].text);
+
 		var field = getFormElement(f, required_fields[i].text);		
 		if (required_fields[i].value == 'combo') {
             if (getSelectedOption(f, field.name) == '-1') {
@@ -287,9 +291,13 @@ function checkRequiredFields(f, required_fields)
         } else if (required_fields[i].value == 'multiple') {
             if (!hasOneSelected(f, field.name)) {
                 errors[errors.length] = new Option(getXSD_DisplayFieldTitle(required_fields[i].text), required_fields[i].text);
+			}
+        } else if (required_fields[i].value == 'checkbox') {
+            if (!hasOnlyOneChecked(f, field.name)) {
+                errors[errors.length] = new Option(getXSD_DisplayFieldTitle(required_fields[i].text), required_fields[i].text);
             }
-        } else if (required_fields[i].value == 'whitespace') {
-            if (isWhitespace(field.value)) {
+		} else if (required_fields[i].value == 'whitespace') {
+			if (isWhitespace(field.value)) {
                 errors[errors.length] = new Option(getXSD_DisplayFieldTitle(required_fields[i].text), required_fields[i].text);
             }
         }

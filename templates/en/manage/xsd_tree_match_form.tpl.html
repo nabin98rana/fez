@@ -443,10 +443,19 @@
               </tr>
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default">
-                  <b>Short Description:</b>
+                  <b>Label Description:</b>
                 </td>
                 <td bgcolor="{$light_color}">
                   <input type="text" name="description" size="30" class="default" value="{$info.xsdmf_description}">
+                  <span class="small_default">(it will show up by the side of the label)</span>
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Field Description:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <textarea name="long_description" rows="10" cols="60" class="default">{$info.xsdmf_long_description}</textarea>
                   <span class="small_default">(it will show up by the side of the field)</span>
                 </td>
               </tr>
