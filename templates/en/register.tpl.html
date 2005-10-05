@@ -1,0 +1,195 @@
+{include file="header.tpl.html" extra_title="Register"}
+{include file="navigation.tpl.html"}
+
+{literal}
+<script language="JavaScript">
+<!--
+
+function validateLDAP(f)
+{
+	if (isWhitespace(f.username.value)) {
+	  alert('Please enter your UQ username or Student ID.');
+	  selectField(f, 'ldap_username');
+	  return false;
+	}
+    return true;
+}
+function validateNew(f)
+{
+	if (isWhitespace(f.fullname.value)) {
+	  alert('Please enter your full name.');
+	  selectField(f, 'fullname');
+	  return false;
+	}
+
+	if (isWhitespace(f.username.value)) {
+	  alert('Please enter the username of this user.');
+	  selectField(f, 'username');
+	  return false;
+	}
+	if (f.username.value.length < 6) {
+	  alert('Please choose a username with at least 6 characters.');
+	  selectField(f, 'username');
+	  return false;
+	}
+
+	if (isWhitespace(f.email.value)) {
+	  alert('Please enter your email address.');
+	  selectField(f, 'email');
+	  return false;
+	}
+	if (!isEmail(f.email.value)) {
+	  alert('Please enter a valid email address.');
+	  selectField(f, 'email');
+	  return false;
+	}
+	if (isWhitespace(f.password1.value)) {
+	  alert('Please choose a password.');
+	  selectField(f, 'password1');
+	  return false;
+	}
+	if (f.password1.value.length < 8) {
+	  alert('Please choose a password with at least 8 characters.');
+	  selectField(f, 'password1');
+	  return false;
+	}
+	if (f.password1.value != f.password2.value) {
+	  alert('The password field values are not the same, please reenter them and try again.');
+	  selectField(f, 'password1');
+	  return false;
+	}
+
+    return true;
+}
+
+//-->
+</script>
+{/literal}
+<table width="99%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+  <tr>
+    <td>
+      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+        <tr bgcolor="{$heading_color}">
+          <td class="default_white" colspan="2">
+            <b>For UQ Staff or Postgraduate Students</b>
+            {include file="help_link.tpl.html" topic="register"}
+          </td>
+        </tr>
+        <form name="ldap_user_form" onSubmit="javascript:return validateLDAP(this);" action="{$smarty.server.PHP_SELF}" method="post">
+        <input type="hidden" name="cat" value="ldap_user">
+        {if $update_name_result}
+        <tr>
+          <td colspan="2" class="error" bgcolor="{$cell_color}" align="center">
+            {if $update_name_result == -1}
+            <b>An error occurred while trying to run your query.</b>
+            {elseif $update_name_result == 1}
+            <b>Thank you, your full name was updated successfully.</b>
+            {/if}
+          </td>
+        </tr>
+        {/if}
+        <tr>
+          <td width="220" bgcolor="{$light_color}" class="default" colspan="2">
+            * If you are a UQ Staff Member or a Postgraduate Student then you can use your UQ username/student number and password rather
+			than having to remember a new username and password for {$application_title}. Your email address and full name details will be extracted
+			from UQ central administration systems, although you can review and modify these later in your {$application_title} preferences area.
+          </td>
+		</tr>
+        <tr>
+          <td width="220" bgcolor="{$cell_color}" class="default">
+            <b>Existing UQ Username or Postgraduate Student ID:</b>
+          </td>
+          <td bgcolor="{$light_color}">
+            <input type="text" name="ldap_username" size="40" class="default">
+            {include file="error_icon.tpl.html" field="ldap_username"}
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" bgcolor="{$cell_color}" align="center">
+            <input class="button" type="submit" value="Register Your User Details">
+            <input class="button" type="reset" value="Reset">
+          </td>
+        </tr>
+		
+		
+        </form>
+      </table>
+    </td>
+  </tr>
+</table>
+<br />
+<table width="99%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+  <tr>
+    <td>
+      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+        <form name="new_user_form" onSubmit="javascript:return validateNew(this);" action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="cat" value="new_user">
+        <tr bgcolor="{$heading_color}">
+          <td class="default_white" colspan="2">
+            <b>For Users who are not UQ Staff and are not UQ Postgraduate Students</b>
+            {include file="help_link.tpl.html" topic="register"}
+          </td>
+        </tr>
+        <tr>
+          <td width="220" bgcolor="{$cell_color}" class="default">
+            <b>Your Full Name:</b>
+          </td>
+          <td bgcolor="{$light_color}">
+            <input type="text" name="fullname" size="40" class="default">
+            {include file="error_icon.tpl.html" field="fullname"}
+          </td>
+        </tr>
+        <tr>
+          <td width="220" bgcolor="{$cell_color}" class="default">
+            <b>Please Pick a New Fez Username:</b>
+          </td>
+          <td bgcolor="{$light_color}">
+            <input type="text" name="username" size="40" class="default"> <span class="default"><i>(Min 6 Characters)</i></span>
+            {include file="error_icon.tpl.html" field="username"}
+          </td>
+        </tr>
+        <tr>
+          <td width="220" bgcolor="{$cell_color}" class="default">
+            <b>Email Address:</b>
+          </td>
+          <td bgcolor="{$light_color}">
+            <input type="text" name="email" size="40" class="default" value="{$current_email}">
+            {include file="error_icon.tpl.html" field="email"}
+          </td>
+        </tr>
+        <tr>
+		
+       <tr>
+          <td width="220" bgcolor="{$cell_color}" class="default">
+            <b>New Password:</b>
+          </td>
+          <td bgcolor="{$light_color}">
+              <input type="password" name="password1" size="40" class="default">  <span class="default"><i>(Min 8 Characters, can't be the same as username)</i></span>
+              {include file="error_icon.tpl.html" field="password1"}
+          </td>
+        </tr>
+       <tr>
+          <td width="220" bgcolor="{$cell_color}" class="default">
+            <b>Type your New Password Again:</b>
+          </td>
+          <td bgcolor="{$light_color}">
+              <input type="password" name="password2" size="40" class="default"> 
+              {include file="error_icon.tpl.html" field="password2"}
+          </td>
+        </tr>
+		
+          <td colspan="2" bgcolor="{$cell_color}" align="center">
+            <input class="button" type="submit" value="Register Your User Details">
+            <input class="button" type="reset" value="Reset">
+          </td>
+        </tr>
+        </form>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<br />
+
+{include file="app_info.tpl.html"}
+{include file="footer.tpl.html"}
