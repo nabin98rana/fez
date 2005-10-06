@@ -1,14 +1,6 @@
 <tr>
 <td class="default">
-{if $action=='end'}
 Finished workflow {$wfl_title}, triggered by {$wft_type}.<br/>
-{elseif $action=='suspend'}
-Suspended workflow {$wfl_title}, triggered by {$wft_type}.<br/>
-This record has been re-assigned to complete the processing<br/>
-{elseif $action=='cancel'}
-Cancelled workflow {$wfl_title}, triggered by {$wft_type}.<br/>
-You don't have the correct access permissions to run this process<br/>
-{/if}
 {if $parent_title}Parent: <a href="{$view_parent_url}">{$parent_title}</a><br/>{/if}
 {if $parents_list}Parents: 
 {section name="i" loop=$parents_list}<a href="{$parents_list[i].url}">{$parents_list[i].title}</a> {/section}

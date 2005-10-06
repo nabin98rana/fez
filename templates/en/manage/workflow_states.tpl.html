@@ -240,17 +240,7 @@
               showOrHideElement('tr_wfs_wfb_id','wfs_auto',false); 
               showOrHideElement('tr_wfs_wfb_id2','wfs_auto',true);
               //--></script>
-               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default" nowrap>
-                  <b>Assigned Roles:</b>
-                </td>
-                <td bgcolor="{$light_color}">
-                  <select name="wfs_assigned_role_id" >
-                        {html_options options=$roles_list selected=$info.wfs_assigned_role_id}
-                  </select>
-                </td>
-              </tr>
- 
+
                <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default" nowrap>
                   <b>Linked States:</b>

@@ -102,6 +102,7 @@ if ($pid == -1) {
     }
     $tpl->assign('xdis_id', $xdis_id);
 }
+
 if (empty($workflows)) {
     $message .= "Error: No workflows defined for Create<br/>";
 } elseif (count($workflows) == 1) {

@@ -2372,7 +2372,10 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 									$attrib_value = $xsdmf_details['xsdmf_static_text'].$extra;
 									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_details['xsdmf_static_text'].$extra));						
 								}
-							} elseif ($xsdmf_details['xsdmf_html_input'] == 'text' || $xsdmf_details['xsdmf_html_input'] == 'textarea') {
+							} elseif ($xsdmf_details['xsdmf_html_input'] == 'dynamic') {
+                                $attrib_value = $HTTP_POST_VARS[$xsdmf_details['xsdmf_dynamic_text']];
+                                array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
+                            } elseif ($xsdmf_details['xsdmf_html_input'] == 'text' || $xsdmf_details['xsdmf_html_input'] == 'textarea') {
 //								if ($xsd_display_fields[i].xsdmf_multiple == 1) {
 								if (is_numeric($attrib_loop_index) && (is_array($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]))) {
 									$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id][$attrib_loop_index];
@@ -2739,6 +2742,10 @@ function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_typ
 							$attrib_value = $xsdmf_details['xsdmf_static_text'].$extra;
 							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_details['xsdmf_static_text'].$extra));						
 						}
+					} elseif ($xsdmf_details['xsdmf_html_input'] == 'dynamic') {
+                                $attrib_value = $HTTP_POST_VARS[$xsdmf_details['xsdmf_dynamic_text']];
+                                array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
+
 					} elseif (($xsdmf_details['xsdmf_html_input'] == 'file_input' 
                             || $xsdmf_details['xsdmf_html_input'] == 'file_selector')
                             && !empty($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']])) {

@@ -161,6 +161,7 @@ function selectDateField(field_name, day, month, year)
 <form name="report_form"  onSubmit="javascript:return (checkFormSubmission(this, 'validateForm') && updateForm());" target="_update_record_details" action="{$rel_url}popup.php" method="POST" enctype="multipart/form-data">
 <input type="hidden" name="cat" value="update_form">
 <input type="hidden" name="xdis_id" value="{$xdis_id}">
+<input type="hidden" name="sta_id" value="{$sta_id}">
 <input type="hidden" name="pid" value="{$pid}">
 <input type="hidden" name="id" value="{$id}">
 {section name="i" loop=$xsd_display_fields}

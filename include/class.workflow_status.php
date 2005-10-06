@@ -20,6 +20,7 @@ class WorkflowStatus {
     var $parents_list;
     var $parent_pid;
     var $vars = array(); // associative array for storing workflow variables between states
+    var $rec_obj;
     
     function WorkflowStatus($pid=null, $wft_id=null, $xdis_id=null, $dsInfo=null)
     {
@@ -31,6 +32,13 @@ class WorkflowStatus {
 
     }
 
+    function getRecordObject()
+    {
+        if (!$this->rec_obj) {
+            $this->rec_obj = new RecordObject($this->pid);
+        }
+        return $this->rec_obj;
+    }
 
     function setSession()
     {
@@ -66,8 +74,8 @@ class WorkflowStatus {
             if ($wft_type == 'Create') {
                 $this->parent_pid = $this->pid;
             } elseif ($wft_type != 'Ingest') {
-                $record = new RecordObject($this->pid);
-                $this->parents_list = $record->getParents();
+                $this->getRecordObject();
+                $this->parents_list = $this->rec_obj->getParents();
             }
         }
         return $this->wft_details;
@@ -118,35 +126,20 @@ class WorkflowStatus {
 
     function run()
     {
-        if ($this->checkAssignment()) {
-            $this->getBehaviourDetails();
-            $this->getTriggerDetails();
-            $this->setSession();
-            if ($this->wfb_details['wfb_auto']) {
-                include(APP_PATH.'workflow/'.$this->wfb_details['wfb_script_name']);
-                $this->auto_next();
-            } else {
-                header("Location: ".APP_RELATIVE_URL.'workflow/'.$this->wfb_details['wfb_script_name']
-                        ."?id={$this->id}&wfs_id={$this->wfs_id}");
-                exit;
-            }
+        $this->getBehaviourDetails();
+        $this->getTriggerDetails();
+        $this->setSession();
+        if ($this->wfb_details['wfb_auto']) {
+            include(APP_PATH.'workflow/'.$this->wfb_details['wfb_script_name']);
+            $this->auto_next();
         } else {
-            $this->suspend();
-        }
-        
-    }
-
-    function suspend()
-    {
-        if (Misc::isValidPid($this->pid)) {
-            $this->saveToDB();
-            $this->theend('suspend');
-        } else {
-            $this->theend('cancel');
+            header("Location: ".APP_RELATIVE_URL.'workflow/'.$this->wfb_details['wfb_script_name']
+                    ."?id={$this->id}&wfs_id={$this->wfs_id}");
+            exit;
         }
     }
 
-    function theend($action='end')
+    function theend()
     {
         $this->getWorkflowDetails();
         $wfl_title = $this->wfl_details['wfl_title'];
@@ -162,9 +155,6 @@ class WorkflowStatus {
         $querystr=implode('&', $argstrs);
         
         $this->clearSession();
-        if ($action != 'suspend') {
-            $this->deleteFromDB();
-        }
         if ($wft_type != 'Ingest') {
             header("Location: ".APP_RELATIVE_URL."workflow/end.php?$querystr");
             exit;
@@ -242,8 +232,8 @@ class WorkflowStatus {
     function getXDIS_ID()
     {
         if (!$this->xdis_id) {
-            $record = new RecordObject($this->pid);
-            $this->xdis_id = $record->getXmlDisplayId();
+            $this->getRecordObject();
+            $this->xdis_id = $this->rec_obj->getXmlDisplayId();
         }
         return $this->xdis_id;
     }
@@ -258,58 +248,6 @@ class WorkflowStatus {
         return $this->vars[$name];
     }
 
-    function deleteFromDB()
-    {
-        $dbpre = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
-        $stmt = "DELETE FROM {$dbpre}workflow_status WHERE wf_status_id='{$this->id}'";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-    }
-
-    function saveToDB()
-    {
-        $dbpre = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
-        $stmt = "DELETE FROM {$dbpre}workflow_status WHERE wf_status_id='{$this->id}'";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        $this->getStateDetails();
-        $this->getWorkflowDetails();
-        $blob = serialize($this);
-        $stmt = "INSERT INTO {$dbpre}workflow_status 
-            SET 
-            wf_status_id='{$this->id}', 
-            wf_status_pid='{$this->pid}', 
-            wf_status_role='{$this->wfs_details['wfs_assigned_role_id']}', 
-            wf_status_obj='$blob'";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-    }
-
-    function checkAssignment()
-    {
-        if (Auth::isAdministrator()) {
-            return true;
-        }
-
-        // only administrator can create communities
-        if ($this->pid == -1) {
-            if (Auth::isAdministrator()) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        // If we don't know what the pid is yet then let it through
-        if (!Misc::isValidPid($this->pid)) {
-            return true;
-        }
-        
-        $this->getStateDetails();
-        $roles = Auth::getAuthorisationGroups($this->pid);
-        echo "here $roles".__FILE__.__LINE__.'<br>';
-        return in_array($this->wfs_details['wfs_assigned_role_id'], $roles);
-    }
-
-
-
 }
 
 class WorkflowStatusStatic
@@ -322,42 +260,7 @@ class WorkflowStatusStatic
         }
         return $obj;
     }
-    function getFromDB($id)
-    {
-        $dbpre = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
-        $stmt = "SELECT * FROM {$dbpre}workflow_status WHERE wf_status_id='{$id}'";
-        $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            $res = array();
-        }
-        $obj = unserialize($res['wf_status_obj']);
-        return $obj;
-    }
 
-    function getListByUser()
-    {
-        $dbpre = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
-        $stmt = "SELECT * FROM {$dbpre}workflow_status";
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        $result = array();
-        foreach ($res as $row) {
-            $assigned = false;
-            if (Auth::isAdministrator()) {
-                $assigned = true;
-            } else {
-                $roles = Auth::getAuthorisationGroups($row['wf_status_pid']);
-                if (in_array($row['wf_status_role'], $roles)) {
-                    $assigned = true;
-                }
-            }
-            if ($assigned) {
-                $obj = unserialize($row['wf_status_obj']);
-                $result[] = array('row' => $row, 'obj' => $obj);
-            }
-        }
-        return $result;
-    }
 }
 
 

@@ -94,6 +94,8 @@ if ($access_ok) {
     }
     $tpl->assign("xdis_id", $xdis_id);
 
+    $sta_id = 1; // set to unpublished to start with
+    $tpl->assign('sta_id', $sta_id); 
 
     $xdis_list = XSD_Display::getAssocListDocTypes(); 
     $community_list = Community::getAssocList();
