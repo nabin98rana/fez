@@ -31,12 +31,6 @@
 
 include_once("config.inc.php");
 
-// @@@ Added by Christiaan 29/6/2004 - if not on secure https, redirect to it.
-/*if ($_SERVER["SERVER_PORT"] != 443) {
-   header ("HTTP 302 Redirect");
-   header ("Location: https://".$_SERVER['HTTP_HOST'].APP_RELATIVE_URL."login.php");
-}*/
-
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "db_access.php");
@@ -57,7 +51,6 @@ if (Auth::hasValidSession(APP_SESSION)) {
         } else {
             $extra = '';
         }
-//        Auth::redirect(APP_RELATIVE_URL . "select_project.php" . $extra);
         Auth::redirect(APP_RELATIVE_URL . "list.php" . $extra);
     } else {
         $tpl->assign("username", $session["username"]);
@@ -65,12 +58,5 @@ if (Auth::hasValidSession(APP_SESSION)) {
 } else {
 //	Auth::redirect(APP_RELATIVE_URL . "list.php" . $extra);
 }
-/*$projects = Project::getAnonymousList();
-if (empty($projects)) {
-    $tpl->assign("anonymous_post", 0);
-} else {
-    $tpl->assign("anonymous_post", 1);
-}
-*/
 $tpl->displayTemplate();
 ?>

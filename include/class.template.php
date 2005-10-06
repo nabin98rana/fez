@@ -198,7 +198,7 @@ class Template_API
         $this->assign("app_setup", Setup::load());
         $this->assign("app_setup_path", APP_SETUP_PATH);
         $this->assign("app_setup_file", APP_SETUP_FILE);
-
+        $this->assign("ldap_switch", LDAP_SWITCH);
         $this->assign("application_version", APP_VERSION);
         $this->assign("application_title", APP_NAME);
         $this->assign("org_name", APP_ORG_NAME);
@@ -283,7 +283,7 @@ class Template_API
         $this->assign("app_setup", Setup::load());
         $this->assign("app_setup_path", APP_SETUP_PATH);
         $this->assign("app_setup_file", APP_SETUP_FILE);
-
+        $this->assign("ldap_switch", LDAP_SWITCH);
         $this->assign("application_version", APP_VERSION);
         $this->assign("application_title", APP_NAME);
         $this->assign("org_name", APP_ORG_NAME);

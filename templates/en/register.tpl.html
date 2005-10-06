@@ -106,7 +106,7 @@ function validateNew(f)
           </td>
         </tr>
         {/if}
-
+{if $ldap_switch == "ON"}
   <tr>
     <td>
       <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
@@ -156,6 +156,7 @@ function validateNew(f)
   </tr>
 </table>
 <br />
+{/if}
 <table width="99%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
   <tr>
     <td>
@@ -164,7 +165,11 @@ function validateNew(f)
         <input type="hidden" name="cat" value="new_user">
         <tr bgcolor="{$heading_color}">
           <td class="default_white" colspan="2">
+			{if $ldap_switch == "ON"}
             <b>For Users who are not {$org_short_name} Staff and are not {$org_short_name} Postgraduate Students</b>
+			{else}
+            <b>User Registration</b>			
+			{/if}
             {include file="help_link.tpl.html" topic="register"}
           </td>
         </tr>

@@ -99,32 +99,12 @@ class Auth
             Auth::redirect($failed_url, $is_popup);
         }
 
-/*        if (Auth::isPendingUser($_SESSION["username"])) {
-            Auth::removeSession($session_name);
-            Auth::redirect($failed_url, $is_popup);
-        }
-        if (!Auth::isActiveUser($_SESSION["username"])) {
-            Auth::removeSession($session_name);
-            Auth::redirect($failed_url, $is_popup);
-        }
-*/
-        // check whether the collection selection is set or not
-/*        $col_id = Auth::getCurrentCollection();
-        if (empty($col_id)) {
-            Auth::removesession($session_name);
-            Auth::redirect(APP_RELATIVE_URL . "login.php?err=12&username=" . $session['username'], $is_popup);
-        }
-*/
         // if the current session is still valid, then renew the expiration
         Auth::createLoginSession($_SESSION['username'], $_SESSION['fullname'], $_SESSION['email'], $_SESSION['autologin']);
-        // renew the collection session as well
-//        $col_session = Auth::getSessionInfo(APP_COLLECTION_session);
-//        Auth::setCurrentCollection($col_id, $col_session["remember"]);
     }
 	
 	function getIndexParentACMLs(&$array, $pid) {
 		$ACMLArray = &$array;
-//		$ACMLArray = array();
 
 		static $returns;
 
@@ -434,19 +414,11 @@ class Auth
         $acmlBase = Record::getACML($pid);
         $ACMLArray = array();
         if ($acmlBase === false) {
-//            echo "GOING IN! with $pid";
             $parents = Record::getParents($pid);
-//            print_r($parents);
-//            echo "GOING IN!";
             Auth::getParentACMLs(&$ACMLArray, $parents);
         } else {
             $ACMLArray[0] = $acmlBase;
         }
-/*        echo "\n\nACML Array -> ";
-        print_r($ACMLArray);
-        echo "<- \n\n";   */
-//        echo "LDAP GROUPS -> ";
-//        print_r($HTTP_SESSION_VARS['ESPACE_GROUPS']['LDAP_GROUPS']);
 
         // Usually everyone can list, view and view comments
         global $NonRestrictedRoles;
@@ -751,17 +723,21 @@ class Auth
 
 		if (Auth::userExists($HTTP_POST_VARS["username"])) {
 			$userDetails = User::getDetails($username);
-			if ($userDetails['usr_ldap_authentication'] == 1) {
+			if (($userDetails['usr_ldap_authentication'] == 1) && (LDAP_SWITCH == "ON")) {
 				return Auth::ldap_authenticate($username, $password);
 			} else {
-				if ($userDetails['usr_password'] != md5($password)) {
+				if ($userDetails['usr_password'] != md5($password) || (trim($password) == "")) {
 					return false;
 				} else {
 					return true;
 				}
 			}
 		} else {
-			return Auth::ldap_authenticate($username, $password);
+			if (LDAP_SWITCH == "ON") { 
+				return Auth::ldap_authenticate($username, $password);
+			} else {
+				return false;
+			}
 		}
     }
 
@@ -904,7 +880,7 @@ class Auth
     function LoginAuthenticatedUser($username, $password) {	
         session_name(APP_SESSION);
         @session_start();
-        if (!Auth::userExists($username)) { // If the user isn't a registered eSpace user, get their details elsewhere (The AD/LDAP)
+        if (!Auth::userExists($username)) { // If the user isn't a registered fez user, get their details elsewhere (The AD/LDAP) as they must have logged in with LDAP
             $_SESSION['isInAD'] = true;
             $_SESSION['isInDB'] = false;
             $userDetails = User::GetUserLDAPDetails($username, $password);
