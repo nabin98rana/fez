@@ -28,5 +28,5 @@
 // @(#) $Id: s.index.php 1.5 03/01/16 01:47:32-00:00 jpm $
 //
 
-header("Location: general.php");
+header("Location: doctypexsds.php");
 ?>

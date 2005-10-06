@@ -50,29 +50,10 @@ if ($isAdministrator) {
 
     if (@$HTTP_POST_VARS["cat"] == "update") {
         $setup = array();
-        $setup["tool_caption"] = $HTTP_POST_VARS["tool_caption"];
-        $setup["support_email"] = $HTTP_POST_VARS["support_email"];
-        $setup["daily_tips"] = $HTTP_POST_VARS["daily_tips"];
-        $setup["spell_checker"] = $HTTP_POST_VARS["spell_checker"];
-        $setup["irc_notification"] = $HTTP_POST_VARS["irc_notification"];
-        $setup["allow_unassigned_issues"] = $HTTP_POST_VARS["allow_unassigned_issues"];
-        @$setup["update"] = $HTTP_POST_VARS["update"];
-        @$setup["closed"] = $HTTP_POST_VARS["closed"];
-        @$setup["notes"] = $HTTP_POST_VARS["notes"];
-        @$setup["emails"] = $HTTP_POST_VARS["emails"];
-        @$setup["files"] = $HTTP_POST_VARS["files"];
-        @$setup["smtp"] = $HTTP_POST_VARS["smtp"];
-        @$setup["scm_integration"] = $HTTP_POST_VARS["scm_integration"];
-        @$setup["checkout_url"] = $HTTP_POST_VARS["checkout_url"];
-        @$setup["diff_url"] = $HTTP_POST_VARS["diff_url"];
-        @$setup["open_signup"] = $HTTP_POST_VARS["open_signup"];
-        @$setup["accounts_collections"] = $HTTP_POST_VARS["accounts_collections"];
-        @$setup["accounts_role"] = $HTTP_POST_VARS["accounts_role"];
-        @$setup['email_routing'] = $HTTP_POST_VARS['email_routing'];
-        @$setup['note_routing'] = $HTTP_POST_VARS['note_routing'];
-        @$setup['email_error'] = $HTTP_POST_VARS['email_error'];
-        $options = Setup::load();
-        @$setup['downloading_emails'] = $options['downloading_emails'];
+        @$setup["org_short_name"] = $HTTP_POST_VARS["org_short_name"];
+        @$setup["org_long_name"] = $HTTP_POST_VARS["org_long_name"];				
+//		@$setup['email_error'] = $HTTP_POST_VARS['email_error'];
+
         $res = Setup::save($setup);
         $tpl->assign("result", $res);
     }

@@ -15,7 +15,8 @@ $tpl->assign("isUser", $username);
 $isAdministrator = User::isUserAdministrator($username);
 if (Auth::userExists($username)) { // if the user is registered as a Fez user
 	$tpl->assign("isFezUser", $username);
-}$tpl->assign("isAdministrator", $isAdministrator);
+}
+$tpl->assign("isAdministrator", $isAdministrator);
 
 
 // sometime in the future, this page should display a summary of the process record produced by the 

@@ -48,7 +48,10 @@ include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 
-
+if (($_SERVER["SERVER_PORT"] != 443) && (APP_HTTPS == "ON")) {
+   header ("HTTP 302 Redirect");
+   header ("Location: https://".$_SERVER['HTTP_HOST'].APP_RELATIVE_URL."register.php"."?".$HTTP_SERVER_VARS['QUERY_STRING']);
+}
 $tpl = new Template_API();
 $tpl->setTemplate("register.tpl.html");
 //$tpl->assign("type", "edit_record");

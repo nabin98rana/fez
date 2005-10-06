@@ -201,6 +201,8 @@ class Template_API
 
         $this->assign("application_version", APP_VERSION);
         $this->assign("application_title", APP_NAME);
+        $this->assign("org_name", APP_ORG_NAME);
+        $this->assign("org_short_name", APP_SHORT_ORG_NAME);
         $this->assign("app_base_url", APP_BASE_URL);
         $this->assign("rel_url", APP_RELATIVE_URL);
         $this->assign("lang", APP_CURRENT_LANG);
@@ -284,6 +286,8 @@ class Template_API
 
         $this->assign("application_version", APP_VERSION);
         $this->assign("application_title", APP_NAME);
+        $this->assign("org_name", APP_ORG_NAME);
+        $this->assign("org_short_name", APP_SHORT_ORG_NAME);		
         $this->assign("app_base_url", APP_BASE_URL);
         $this->assign("rel_url", APP_RELATIVE_URL);
         $this->assign("lang", APP_CURRENT_LANG);

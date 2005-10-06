@@ -8,7 +8,7 @@
 function validateLDAP(f)
 {
 	if (isWhitespace(f.ldap_username.value)) {
-	  alert('Please enter your UQ username or Student ID.');
+	  alert('Please enter your {/literal}{$org_short_name}{literal} username or Student ID.');
 	  selectField(f, 'ldap_username');
 	  return false;
 	}
@@ -87,9 +87,9 @@ function validateNew(f)
             {elseif $smarty.get.err == 2}
               Error: Please provide your password.
             {elseif $smarty.get.err == 3}
-              Error: The username {$get_username} is already registered in {$application_title} as a user. <br />If you have forgotten your UQ password go here to reset it: <a target="_blank" href="http://uqconnect.net/index.html?page=28261">http://uqconnect.net/index.html?page=28261</a> and then login to {$application_title} <a href="{$rel_url}login.php?username={$get_username}">here</a>.
+              Error: The username {$get_username} is already registered in {$application_title} as a user. <br />If you have forgotten your {$org_short_name} password go here to reset it: <a target="_blank" href="http://uqconnect.net/index.html?page=28261">http://uqconnect.net/index.html?page=28261</a> and then login to {$application_title} <a href="{$rel_url}login.php?username={$get_username}">here</a>.
             {elseif $smarty.get.err == 4}
-              Error: The username/password combination could not be found in the UQ central authentication systems.
+              Error: The username/password combination could not be found in the {$org_short_name} central authentication systems.
             {elseif $smarty.get.err == 5}
               You are trying to access are area of {$application_title} that requires you to be a registered user. You may register with the forms below:
             {elseif $smarty.get.err == 11}
@@ -112,7 +112,7 @@ function validateNew(f)
       <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
         <tr bgcolor="{$heading_color}">
           <td class="default_white" colspan="2">
-            <b>For UQ Staff or Postgraduate Students</b>
+            <b>For {$org_short_name} Staff or Postgraduate Students</b>
             {include file="help_link.tpl.html" topic="register"}
           </td>
         </tr>
@@ -120,14 +120,14 @@ function validateNew(f)
         <input type="hidden" name="cat" value="ldap_user">
         <tr>
           <td width="220" bgcolor="{$light_color}" class="default" colspan="2">
-            * If you are a UQ Staff Member or a Postgraduate Student then you can use your UQ username/student number and password rather
+            * If you are a {$org_short_name} Staff Member or a Postgraduate Student then you can use your {$org_short_name} username/student number and password rather
 			than having to remember a new username and password for {$application_title}. Your email address and full name details will be extracted
-			from UQ central administration systems, although you can review and modify these later in your {$application_title} preferences area.
+			from {$org_short_name} central administration systems, although you can review and modify these later in your {$application_title} preferences area.
           </td>
 		</tr>
         <tr>
           <td width="220" bgcolor="{$cell_color}" class="default">
-            <b>Existing UQ Username or Postgraduate Student ID:</b>
+            <b>Existing {$org_short_name} Username or Postgraduate Student ID:</b>
           </td>
           <td bgcolor="{$light_color}">
             <input type="text" name="ldap_username" size="40" class="default" value="{$get_username}">
@@ -136,7 +136,7 @@ function validateNew(f)
         </tr>
        <tr>
           <td width="220" bgcolor="{$cell_color}" class="default">
-            <b>Existing UQ Password:</b>
+            <b>Existing {$org_short_name} Password:</b>
           </td>
           <td bgcolor="{$light_color}">
               <input type="password" name="ldap_passwd" size="40" class="default"> 
@@ -164,7 +164,7 @@ function validateNew(f)
         <input type="hidden" name="cat" value="new_user">
         <tr bgcolor="{$heading_color}">
           <td class="default_white" colspan="2">
-            <b>For Users who are not UQ Staff and are not UQ Postgraduate Students</b>
+            <b>For Users who are not {$org_short_name} Staff and are not {$org_short_name} Postgraduate Students</b>
             {include file="help_link.tpl.html" topic="register"}
           </td>
         </tr>

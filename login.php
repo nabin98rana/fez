@@ -41,6 +41,12 @@ include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "db_access.php");
 
+
+if (($_SERVER["SERVER_PORT"] != 443) && (APP_HTTPS == "ON")) {
+   header ("HTTP 302 Redirect");
+   header ("Location: https://".$_SERVER['HTTP_HOST'].APP_RELATIVE_URL."login.php"."?".$HTTP_SERVER_VARS['QUERY_STRING']);
+}
+
 $tpl = new Template_API();
 $tpl->setTemplate("index.tpl.html");
 
