@@ -42,7 +42,7 @@
             {/if}
             <img src="{$rel_url}images/community_16.gif" align="absmiddle"/> <a target="_top" title="list the communities stored in Fez" href="{$rel_url}list.php" class="white_link">Browse Communities</a>&nbsp;|
             <!-- {if $isAdministrator}<img src="{$rel_url}images/adv_search_16.png" align="absmiddle"/> <a target="_top" title="get access to advanced search parameters" href="{$rel_url}adv_search.php" class="white_link">Advanced Search</a>&nbsp;|{/if} -->
-            {if $isAdministrator}
+            {if $isAdministrator || $isFezUser}
             <img src="{$rel_url}images/my_espace_16.gif" align="absmiddle"/> <a target="_top" title="" href="{$rel_url}my_fez.php" class="white_link">My Fez</a>&nbsp;|
             {/if}
             <img src="{$rel_url}images/help.gif" align="absmiddle"/> <a title="help documentation" href="javascript:void(null);" onClick="javascript:openHelp('{$rel_url}', 'main');" class="help">Help</a>&nbsp;
@@ -70,7 +70,7 @@
           {/literal}
 		  {if $isUser}
           <td width="50%" nowrap bgcolor="{$light_color}" class="default">
-            <b>User: {$current_full_name}</b> (<a target="_top" title="modify your account details and preferences" href="{$rel_url}preferences.php" class="link">Preferences</a>)
+            <b>User: {$current_full_name}</b> {if $isFezUser}(<a target="_top" title="modify your account details and preferences" href="{$rel_url}preferences.php" class="link">Preferences</a>){/if}
           </td>
 		  {/if}
           <form target="_top" method="get" action="{$rel_url}list.php">

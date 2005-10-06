@@ -1189,7 +1189,6 @@ class User
         }
     }
 
-
     /**
      * Method used to add a new user to the system.
      *
@@ -1202,8 +1201,60 @@ class User
 
 		$usr_administrator = 0;
 
+		$ldap_authentication = 0;
+
+        $prefs = Prefs::getDefaults();
+        $stmt = "INSERT INTO
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                 (
+                    usr_created_date,
+                    usr_full_name,
+                    usr_email,
+                    usr_administrator,
+                    usr_ldap_authentication,
+                    usr_preferences,
+                    usr_username,
+                    usr_password,					
+                    usr_login_count,
+                    usr_last_login_date
+                 ) VALUES (
+                    '" . Date_API::getCurrentDateGMT() . "',
+                    '" . ucwords(Misc::escapeString($HTTP_POST_VARS["fullname"])) . "',
+                    '" . Misc::escapeString($HTTP_POST_VARS["email"]) . "',
+                    " . $usr_administrator . ",
+                    " . $ldap_authentication . ",
+                    '" . Misc::escapeString($prefs) . "',
+                    '" . Misc::escapeString($HTTP_POST_VARS["username"]) . "',
+                    '" . md5(Misc::escapeString($HTTP_POST_VARS["passwd"])) . "',
+					1,
+                    '" . Date_API::getCurrentDateGMT() . "'
+                 )";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+            $new_usr_id = $GLOBALS["db_api"]->get_last_insert_id();
+            // send email to user
+//            Notification::notifyNewUser($new_usr_id, "");
+            return 1;
+        }
+    }
+
+    /**
+     * Method used to add a new user to the system.
+     *
+     * @access  public
+     * @return  integer 1 if the update worked, -1 otherwise
+     */
+    function insertFromLDAPLogin()
+    {
+        global $HTTP_POST_VARS;
+
+		$usr_administrator = 0;
+
 		$ldap_authentication = 1;
-		$userDetails = User::GetUserLDAPDetails($HTTP_POST_VARS["username"], $HTTP_POST_VARS["passwd"]);
+		$userDetails = User::GetUserLDAPDetails($HTTP_POST_VARS["ldap_username"], $HTTP_POST_VARS["ldap_passwd"]);
 
         $prefs = Prefs::getDefaults();
         $stmt = "INSERT INTO
@@ -1225,7 +1276,7 @@ class User
                     " . $usr_administrator . ",
                     " . $ldap_authentication . ",
                     '" . Misc::escapeString($prefs) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["username"]) . "',
+                    '" . Misc::escapeString($HTTP_POST_VARS["ldap_username"]) . "',
 					1,
                     '" . Date_API::getCurrentDateGMT() . "'
                  )";
@@ -1235,10 +1286,6 @@ class User
             return -1;
         } else {
             $new_usr_id = $GLOBALS["db_api"]->get_last_insert_id();
-            // add the group associations!
-/*            for ($i = 0; $i < count($HTTP_POST_VARS["collections"]); $i++) {
-                Collection::associateUser($HTTP_POST_VARS["collections"][$i], $new_usr_id);
-            } */
             // send email to user
 //            Notification::notifyNewUser($new_usr_id, "");
             return 1;

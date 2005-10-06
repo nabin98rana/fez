@@ -16,12 +16,13 @@ Auth::checkAuthentication(APP_SESSION);
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
 $isAdministrator = User::isUserAdministrator($username);
-$tpl->assign("isAdministrator", $isAdministrator);
-
-
-if (Auth::userExists($username)) {
+if (Auth::userExists($username)) { // if the user is registered as a Fez user
+	$tpl->assign("isFezUser", $username);
 	$prefs = Prefs::get(Auth::getUserID());
+} else {
+	Auth::redirect(APP_RELATIVE_URL . "register.php?err=5&username=" . $username);	
 }
+$tpl->assign("isAdministrator", $isAdministrator);
 
 
 $collection_list = Collection::getList();

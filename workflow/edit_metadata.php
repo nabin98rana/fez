@@ -57,6 +57,9 @@ Auth::checkAuthentication(APP_SESSION, $HTTP_SERVER_VARS['PHP_SELF']."?".$HTTP_S
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
 $isAdministrator = User::isUserAdministrator($username);
+if (Auth::userExists($username)) { // if the user is registered as a Fez user
+	$tpl->assign("isFezUser", $username);
+}
 $tpl->assign("isAdministrator", $isAdministrator);
 
 //$col_id = Auth::getCurrentCollection();

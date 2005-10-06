@@ -57,12 +57,63 @@ $tpl->setTemplate("register.tpl.html");
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
 $isAdministrator = User::isUserAdministrator($username);
+if (Auth::userExists($username)) { // if the user is registered as a Fez user
+	$tpl->assign("isFezUser", $username);
+}
 $tpl->assign("isAdministrator", $isAdministrator);
-
+$cat = @$HTTP_POST_VARS["cat"] ? $HTTP_POST_VARS["cat"] : $HTTP_GET_VARS["cat"];
 
 // if user is already a registered user then redirect to their my fez page with an "error" message
 if (Auth::userExists($username)) {
 	Auth::redirect("my_fez.php?from=register");
+} elseif ($cat == "ldap_user") {
+	if (count($HTTP_POST_VARS) > 0) {
+		if (Validation::isWhitespace($HTTP_POST_VARS["ldap_username"])) {
+			Auth::redirect(APP_RELATIVE_URL . "register.php?err=1&ldap_username=" . $HTTP_POST_VARS["ldap_username"]);
+		}
+		if (Validation::isWhitespace($HTTP_POST_VARS["ldap_passwd"])) {
+			Auth::redirect(APP_RELATIVE_URL . "register.php?err=2&ldap_username=" . $HTTP_POST_VARS["ldap_username"]);
+		}
+		
+		// check if user exists - if it does then we need to tell them
+		if (Auth::userExists($HTTP_POST_VARS["ldap_username"])) {
+			Auth::redirect(APP_RELATIVE_URL . "register.php?err=3&ldap_username=" . $HTTP_POST_VARS["ldap_username"]);
+		}		
+		// check if the password matches
+		if (!Auth::isCorrectPassword($HTTP_POST_VARS["ldap_username"], $HTTP_POST_VARS["ldap_passwd"])) {
+			Auth::redirect(APP_RELATIVE_URL . "register.php?err=4&ldap_username=" . $HTTP_POST_VARS["ldap_username"]);
+		}
+		User::insertFromLDAPLogin(); // create the user account and get details from the 
+
+		Auth::loginAuthenticatedUser($HTTP_POST_VARS["ldap_username"], $HTTP_POST_VARS["ldap_passwd"]); 
+		
+		Auth::redirect(APP_RELATIVE_URL."preferences.php?from=ldap_registration"); // redirect to the preferences page so the user can check the ldap details are ok
+	}
+} elseif ($cat == "new_user") {
+	if (count($HTTP_POST_VARS) > 0) {
+		if (Validation::isWhitespace($HTTP_POST_VARS["username"])) {
+			Auth::redirect(APP_RELATIVE_URL . "register.php?err=1&username=" . $HTTP_POST_VARS["username"]);
+		}
+		if (Validation::isWhitespace($HTTP_POST_VARS["passwd"])) {
+			Auth::redirect(APP_RELATIVE_URL . "register.php?err=2&username=" . $HTTP_POST_VARS["username"]);
+		}
+		
+		// check if user exists - if it does then we need to tell them
+		if (Auth::userExists($HTTP_POST_VARS["username"])) {
+			Auth::redirect(APP_RELATIVE_URL . "register.php?err=3&username=" . $HTTP_POST_VARS["username"]);
+		}		
+
+		User::insertFromLogin(); // create the user account and get details from the 
+
+		Auth::loginAuthenticatedUser($HTTP_POST_VARS["username"], $HTTP_POST_VARS["passwd"]); 
+		
+		Auth::redirect(APP_RELATIVE_URL."preferences.php?from=new_registration"); // redirect to the preferences page so the user can check the ldap details are ok
+	}
+} else {
+	$get_username = $_GET['username'];
+	if ($get_username != "") {
+		$tpl->assign("get_username", $get_username);
+	}
 }
 
 $tpl->displayTemplate();

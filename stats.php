@@ -58,6 +58,9 @@ $tpl->setTemplate("stats.tpl.html");
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
 $isAdministrator = User::isUserAdministrator($username);
+if (Auth::userExists($username)) { // if the user is registered as a Fez user
+	$tpl->assign("isFezUser", $username);
+}
 $tpl->assign("isAdministrator", $isAdministrator);
 
 

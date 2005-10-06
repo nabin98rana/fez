@@ -30,6 +30,21 @@ function validateAccount(f)
 </script>
 {/literal}
 <table width="99%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+        {if $smarty.get.from != ""}
+        <tr>
+          <td align="center" class="error" bgcolor="{$cell_color}">
+            <b>
+            {if $smarty.get.from == "ldap_registration"}
+              Please check these details provided by the UQ central authentication systems <br />are correct and proceed to your <a href="{$rel_url}my_fez.php">My {$application_title}</a> area to
+			  indicate communities and collections you wish to join to deposit material.
+            {elseif $smarty.get.from == "new_registration"}
+              Please check these details you provided are correct and proceed to your <a href="{$rel_url}my_fez.php">My {$application_title}</a> area to
+			  indicate communities and collections you wish to join to deposit material.
+            {/if}
+            </b>
+          </td>
+        </tr>
+        {/if}
   <tr>
     <td>
       <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">

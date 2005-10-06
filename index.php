@@ -85,6 +85,9 @@ $tpl->setTemplate("front_page.tpl.html");
 
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
+if (Auth::userExists($username)) { // if the user is registered as a Fez user
+	$tpl->assign("isFezUser", $username);
+}
 $isAdministrator = User::isUserAdministrator($username);
 $tpl->assign("isAdministrator", $isAdministrator);
 // get the 3 most recently added items this week
