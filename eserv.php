@@ -93,6 +93,10 @@ if (!empty($pid) && !empty($dsID)) {
 			case 'ppt'  :
 					Header("Content-type: application/vnd.ms-powerpoint");
 					break;
+			case 'txt'  :
+					Header("Content-type: text/plain");
+					break;
+
 			default		:
 					Header("Content-type: text/xml");
 					break;

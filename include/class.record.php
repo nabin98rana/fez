@@ -1170,7 +1170,6 @@ class RecordObject extends RecordGeneral
 		$xmlObj = Misc::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, $file_downloads, $this->created_date, $this->updated_date);
 
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
-
 		$datastreamTitles = $display->getDatastreamTitles();
         Record::insertXML($pid, compact('datastreamTitles', 'xmlObj', 'indexArray'), $ingestObject);
 		return $pid;
