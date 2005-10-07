@@ -552,22 +552,30 @@ class Community
         $start = $current_row * $max;
 
         $stmt = "SELECT
-                    * 
-                 FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
-                 WHERE
-				    r1.rmf_xsdmf_id = x1.xsdmf_id and 
-                    rmf_rec_pid in (
-						SELECT r2.rmf_rec_pid 
-						FROM
-						  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
-						  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2,
-					      " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2  						
-						WHERE s2.sek_title = 'Object Type' AND x2.xsdmf_id = r2.rmf_xsdmf_id
-							AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_varchar = '1')		
-					";
+            * 
+            FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1
+            inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 
+            ON r1.rmf_xsdmf_id = x1.xsdmf_id  
+            left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 
+            on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+            WHERE
+            rmf_rec_pid in (
+                    SELECT r2.rmf_rec_pid 
+                    FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2,
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2  						
+                    WHERE s2.sek_title = 'Object Type' AND x2.xsdmf_id = r2.rmf_xsdmf_id
+                    AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_varchar = '1')		
+            AND rmf_rec_pid IN (
+                    SELECT rmf_rec_pid FROM 
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS rmf
+                    INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields AS xdm
+                    ON rmf.rmf_xsdmf_id = xdm.xsdmf_id
+                    WHERE rmf.rmf_varchar=2
+                    AND xdm.xsdmf_element='!sta_id'
+                    )
+            ";
 	
 		$returnfields = array("title", "description", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);

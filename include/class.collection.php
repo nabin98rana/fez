@@ -156,7 +156,7 @@ class Collection
 
         // Should we restrict the list to a community.
         if ($community_pid) {
-            $community_where = "	and r2.rmf_rec_pid in (
+            $community_where = "	and r1.rmf_rec_pid in (
 	 						SELECT r3.rmf_rec_pid 
 							FROM  
 							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3,
@@ -171,21 +171,35 @@ class Collection
         }
 
         $stmt = "SELECT
-                    * 
-                 FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
-                 WHERE
-				    r1.rmf_xsdmf_id = x1.xsdmf_id and
-                    r1.rmf_rec_pid in (
-						SELECT r2.rmf_rec_pid 
-						FROM  
-						  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
-						  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,
- 						  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2				  
-						WHERE r2.rmf_xsdmf_id = x2.xsdmf_id AND x2.xsdmf_sek_id = s2.sek_id AND s2.sek_title = 'Object Type' AND r2.rmf_varchar = '2' $community_where )
-					";
+            * 
+            FROM
+            " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1
+            inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 
+            ON r1.rmf_xsdmf_id = x1.xsdmf_id 
+            left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 
+            on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+            WHERE
+            r1.rmf_rec_pid in (
+                    SELECT r2.rmf_rec_pid 
+                    FROM  
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2				  
+                    WHERE r2.rmf_xsdmf_id = x2.xsdmf_id 
+                    AND x2.xsdmf_sek_id = s2.sek_id 
+                    AND s2.sek_title = 'Object Type' 
+                    AND r2.rmf_varchar = '2' 
+                    )
+            $community_where 
+            AND r1.rmf_rec_pid in (
+                    SELECT rmf_rec_pid FROM 
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS rmf
+                    INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields AS xdm
+                    ON rmf.rmf_xsdmf_id = xdm.xsdmf_id
+                    WHERE rmf.rmf_varchar=2
+                    AND xdm.xsdmf_element='!sta_id'
+                    )
+            ";
 
 		$returnfields = array("title", "description", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -284,29 +298,46 @@ class Collection
 
 
         $stmt = "SELECT
-                    * 
-                 FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
-
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id) left join
- 				    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 on (k1.sek_id = x1.xsdmf_sek_id)
-				INNER JOIN (
-						SELECT distinct r2.rmf_rec_pid 
-						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
-							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,
-							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2  							  
-						WHERE r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND s2.sek_title = 'Object Type' AND r2.rmf_varchar = '3' and r2.rmf_rec_pid in (
-	 						SELECT distinct r3.rmf_rec_pid 
-							FROM  
-							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3,
-							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x3,
-							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s3							  							  
-							WHERE r3.rmf_xsdmf_id = x3.xsdmf_id AND s3.sek_id = x3.xsdmf_sek_id AND s3.sek_title = 'isMemberOf' AND r3.rmf_varchar = '".$collection_pid."'
-						 	) 
-						) as r2 on r1.rmf_rec_pid = r2.rmf_rec_pid
-                 WHERE
-				    r1.rmf_xsdmf_id = x1.xsdmf_id 
+            * 
+            FROM
+            " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1
+            inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1
+            on  (r1.rmf_xsdmf_id = x1.xsdmf_id) 
+            left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 
+            on (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
+            left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 
+            on (k1.sek_id = x1.xsdmf_sek_id)
+            INNER JOIN (
+                    SELECT distinct r2.rmf_rec_pid 
+                    FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2  							  
+                    WHERE r2.rmf_xsdmf_id = x2.xsdmf_id 
+                    AND s2.sek_id = x2.xsdmf_sek_id 
+                    AND s2.sek_title = 'Object Type' 
+                    AND r2.rmf_varchar = '3' 
+                    and r2.rmf_rec_pid in (
+                        SELECT distinct r3.rmf_rec_pid 
+                        FROM  
+                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3,
+                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x3,
+                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s3							  							  
+                        WHERE r3.rmf_xsdmf_id = x3.xsdmf_id 
+                        AND s3.sek_id = x3.xsdmf_sek_id 
+                        AND s3.sek_title = 'isMemberOf' 
+                        AND r3.rmf_varchar = '".$collection_pid."'
+                        ) 
+                    ) as r2 
+            on r1.rmf_rec_pid = r2.rmf_rec_pid
+            INNER JOIN (
+                    SELECT rmf_rec_pid FROM 
+                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS rmf
+                        INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields AS xdm
+                        ON rmf.rmf_xsdmf_id = xdm.xsdmf_id
+                        WHERE rmf.rmf_varchar=2
+                        AND xdm.xsdmf_element='!sta_id'
+                    ) as r3
+            ON r3.rmf_rec_pid=r2.rmf_rec_pid
 				 ORDER BY
 				 	r1.rmf_rec_pid";
 //		echo $stmt;

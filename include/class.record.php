@@ -676,10 +676,13 @@ class Record
     function getAssigned($username)
     {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX; // Database and table prefix
-        $stmt = "SELECT * FROM 
-        {$dbtp}record_matching_field AS rmf
-        INNER JOIN {$dbtp}xsd_display_matchfields AS xdmf ON xdmf.xsdmf_id=rmf.rmf_xsdmf_id
-            WHERE xdmf.xsdmf_element='!sta_id' AND rmf.rmf_varchar='1'";
+        $stmt = "SELECT rmf.rmf_rec_pid FROM
+                {$dbtp}record_matching_field AS rmf
+                INNER JOIN {$dbtp}xsd_display_matchfields AS xdmf 
+                ON xdmf.xsdmf_id=rmf.rmf_xsdmf_id
+                WHERE xdmf.xsdmf_element='!sta_id' 
+                AND rmf.rmf_varchar='1'
+                ";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         $res1 = array();
         if (User::isUserAdministrator($username)) {
@@ -690,14 +693,39 @@ class Record
         $res2 = array();
         foreach ($res1 as $row) {
             $r = new RecordObject($row['rmf_rec_pid']);
-            $res2[] = array(
-                    'pid' => $row['rmf_rec_pid'],
-                    'title' => $r->getTitle(),
-                    'type' => $r->getDCType()
-                    ); 
+            if ($r->getXmlDisplayId()) {
+                $res2[] = array(
+                        'pid' => $row['rmf_rec_pid'],
+                        'title' => $r->getTitle(),
+                        'type' => $r->getDCType()
+                        ); 
+            }
         }
         return $res2;
-   }
+    }
+
+    function publishAllUnsetStatusPids()
+    {
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX; // Database and table prefix
+        $stmt = "SELECT distinct rmf_rec_pid FROM 
+        {$dbtp}record_matching_field 
+        WHERE rmf_rec_pid NOT IN (
+                SELECT rmf.rmf_rec_pid FROM
+                {$dbtp}record_matching_field AS rmf
+                INNER JOIN {$dbtp}xsd_display_matchfields AS xdmf 
+                ON xdmf.xsdmf_id=rmf.rmf_xsdmf_id
+                WHERE xdmf.xsdmf_element='!sta_id' 
+                )";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        foreach ($res as $row) {
+            $r = new RecordObject($row['rmf_rec_pid']);
+            if ($r->getXmlDisplayId()) {
+                echo $r->getTitle()."<br/>\n";
+                $r->setStatusId(2);
+            }
+        }
+    }
+
 
     function setIndexMatchingFields($xdis_id, $pid)
     {
@@ -1052,7 +1080,7 @@ class RecordObject extends RecordGeneral
     {
         $this->setFezMD_Datastream('sta_id', $sta_id);
         $this->getDisplay();
-        $this->display->processXSDMF($pid); 
+        $this->display->processXSDMF($this->pid); 
         $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!sta_id'); 
         Record::removeIndexRecordByXSDMF_ID($this->pid, $xsdmf_id);
         Record::insertIndexMatchingField($this->pid, $xsdmf_id, "varchar", $sta_id);
