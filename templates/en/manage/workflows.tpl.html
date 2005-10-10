@@ -194,7 +194,15 @@
                   <textarea name="wfl_description" size="30" class="default">{$info.wfl_description}</textarea>
                 </td>
               </tr>
-             <tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default" nowrap>
+                  <b>Roles:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="textfield" name="wfl_roles" size="30" class="default" value="{$info.wfl_roles}" />
+                </td>
+              </tr>
+              <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $smarty.get.cat == 'edit'}
                   <input class="button" type="submit" value="Update Workflow Template">
@@ -238,6 +246,7 @@
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Version</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>Description</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>Roles</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>Workflow States</b>&nbsp;</td>
                     </tr>
                     {section name="i" loop=$list}
@@ -254,6 +263,9 @@
                       </td>
                       <td bgcolor="{$row_color}" class="default">
                         &nbsp;{$list[i].wfl_description}
+                      </td>
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{$list[i].wfl_roles}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
                         &nbsp;<a href="workflow_states.php?wfl_id={$list[i].wfl_id}" class="link">{$list[i].total_states} State{if $list[i].total_states != 1}s{/if}</a>

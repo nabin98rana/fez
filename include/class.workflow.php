@@ -94,11 +94,13 @@ class Workflow
                  (
                     wfl_title,
                     wfl_version,
-                    wfl_description
+                    wfl_description,
+                    wfl_roles
                  ) VALUES (
                     '" . Misc::escapeString($HTTP_POST_VARS["wfl_title"]) . "',
                     '" . Misc::escapeString($HTTP_POST_VARS["wfl_version"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["wfl_description"]) . "'
+                    '" . Misc::escapeString($HTTP_POST_VARS["wfl_description"]) . "',
+                    '" . Misc::escapeString($HTTP_POST_VARS["wfl_roles"]) . "'
                  )";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -126,7 +128,8 @@ class Workflow
                  SET 
                     wfl_title = '" . Misc::escapeString($HTTP_POST_VARS["wfl_title"]) . "',
                     wfl_version = '" . Misc::escapeString($HTTP_POST_VARS["wfl_version"]) . "',
-                    wfl_description = '" . Misc::escapeString($HTTP_POST_VARS["wfl_description"]) . "'
+                    wfl_description = '" . Misc::escapeString($HTTP_POST_VARS["wfl_description"]) . "',
+                    wfl_roles = '" . Misc::escapeString($HTTP_POST_VARS["wfl_roles"]) . "'
                  WHERE wfl_id = $wfl_id";
 //		echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -291,6 +294,26 @@ class Workflow
             $wfstatus->run();
         }
     }
+
+
+    function canTrigger($wfl_id, $pid)
+    {
+        $wfl = Workflow::getDetails($wfl_id);
+        if (!empty($wfl['wfl_roles'])) {
+            $wfl_roles = preg_split("/[\s,]+/", $wfl['wfl_roles']);
+            $pid_roles = Auth::getAuthorisationGroups($pid);
+            foreach ($wfl_roles as $wfl_role) {
+                if (in_array($wfl_role, $pid_roles)) {
+                    return true;
+                }
+            }
+        } else {
+            return true;
+        }
+        return false;
+    }
+
+
 
 }
 

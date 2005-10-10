@@ -584,29 +584,25 @@ class Community
 		$returnfields = array("title", "description", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         //$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-//		print_r($res);
 		$return = array();
 
 		foreach ($res as $result) {		
-			$return[$result['rmf_rec_pid']]['FezACML'] = array();
-			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-				if (!is_array(@$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
-					$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
-				}
-				array_push($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+			if (in_array($result['xsdsel_title'], $returnfields) 
+                    && ($result['xsdmf_element'] != '!rule!role!name') 
+                    && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
+				$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']][]
+                   = $result['rmf_'.$result['xsdmf_data_type']]; // need to array_push because there can be multiple groups/users for a role
 			}
 			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				if (@!is_array($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']])) {
-					$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']] = array();
-				}
-				array_push($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']], $result['rmf_'.$result['xsdmf_data_type']]);
+				$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']][]
+                   =  $result['rmf_'.$result['xsdmf_data_type']];
 				sort($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']]);
 			}
 		}
 //		$return = Auth::getIndexAuthorisationGroups($return);
 
-		$return = array_values($return);
+        $return = array_values($return);
 
 		$return = Auth::getIndexAuthorisationGroups($return);
 //		print_r($roles);

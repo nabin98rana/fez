@@ -99,6 +99,17 @@ if ($pid == -1) {
     }
     $tpl->assign('xdis_id', $xdis_id);
 }
+// check which workflows can be triggered
+if (!empty($pid) && !$isAdministrator) {
+    foreach ($workflows as $trigger) {
+        if (Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
+            $workflows1[] = $trigger;
+        }
+    }
+    $workflows = $workflows1;
+}
+
+
 if (empty($workflows)) {
     $message .= "Error: No workflows defined for Update<br/>";
 } elseif (count($workflows) == 1) {
