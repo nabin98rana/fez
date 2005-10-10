@@ -1271,17 +1271,13 @@ function dom_xml_to_simple_array($domnode, &$array, $top_element_name, $element_
 			$xsdmf_id = false;
 			if ($domnode->hasAttributes() ) {
     	    	$attributes = $domnode->attributes; 
-//				$array_ptr = &$array[$clean_nodeName];
-
 			    foreach ($attributes as $index => $domobj) {
 					 if (is_numeric(strpos($domobj->nodeName, ":"))) {
 				   		$new_element = "!".$parentContent."!".$clean_nodeName."!".substr($domobj->nodeName, strpos($domobj->nodeName, ":") +1);
 					 } else {
 				   		$new_element = "!".$parentContent."!".$clean_nodeName."!".$domobj->nodeName;
 					 }
-//					echo "NEW ATTRIBUTE - ".$parent_key." - ".$top_element_name." ".$element_prefix." -> ".$new_element."\n\n";
 					if ($parent_key != "") { // if there are passed parent keys then use them in the search
-//						$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByParentKeyXDIS_ID($new_element, $parent_key, $xdis_str);
 						$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByKeyXDIS_ID($new_element, $domobj->nodeValue, $xdis_str); // try to match on a sel key
 					} else {
 						$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByKeyXDIS_ID($new_element, $domobj->nodeValue, $xdis_str); // try to match on a sel key
@@ -1318,159 +1314,93 @@ function dom_xml_to_simple_array($domnode, &$array, $top_element_name, $element_
 								$xsdmf_ptr[$xsdmf_id] = $ptr_value;
 							}
 						}
-
 					} 
-
 					if (!empty($xsdmf_details) && $xsdmf_details['xsdmf_parent_key_match'] != "") {
 						$array_ptr = &$array["!".$xsdmf_details['xsdmf_parent_key_match']."!".$clean_nodeName];
 					} else {
 						$array_ptr = &$array[$clean_nodeName];
 					}
-
 					$array_ptr[$while_count][$new_element] = $domobj->nodeValue;
-
-
 				} // end foreach
 			} // replaced the else statement below because even if it has attributes we want it to check the basic element especially for xsd loop sublelement elements
-//			 else  // else for HasAttributes (so has none)
-//			echo "\n ATTRIB XSDMFID!!! -> "." $xsdmf_id"."\n\n";
-
-
-////			$array_ptr = &$array[$clean_nodeName];
-
-
-				// If we still havent got the xsdmf_id then it either doesnt have one or the element doesnt have attributes, so try to find it without the attributes
-
-				if ((is_numeric(strpos(substr($parentContent, 0, 1), "!"))) || ($parentContent == "")) {
-					// @@@ CK - 25/8/2005 - unless it is the below with the parent content, FezACML doesnt show properley because it needs the !role!rule etc
-					// so any changes to this need to be tested with the FezACML etc
-					$new_element = $parentContent."!".$clean_nodeName; // @@@ CK 31/5/2005 - Added ! to the front of the string if not there already
-//					$new_element = "!".$clean_nodeName; // @@@ CK 8/8/2005 - Changed to this because batch import was not working
+			// If we still havent got the xsdmf_id then it either doesnt have one or the element doesnt have attributes, so try to find it without the attributes
+			if ((is_numeric(strpos(substr($parentContent, 0, 1), "!"))) || ($parentContent == "")) {
+				// @@@ CK - 25/8/2005 - unless it is the below with the parent content, FezACML doesnt show properley because it needs the !role!rule etc
+				// so any changes to this need to be tested with the FezACML etc
+				$new_element = $parentContent."!".$clean_nodeName; // @@@ CK 31/5/2005 - Added ! to the front of the string if not there already
+			} else {			
+				// @@@ CK - 25/8/2005 - unless it is the below with the parent content, FezACML doesnt show properley because it needs the !role!rule etc
+				// so any changes to this need to be tested with the FezACML etc
+				$new_element = "!".$parentContent."!".$clean_nodeName; // @@@ CK 31/5/2005 - Added ! to the front of the string
+			}
+			if (!is_numeric($xsdmf_id)) {
+				if ($parent_key != "") { // if there are passed parent keys then use them in the search
+					$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByParentKeyXDIS_ID($new_element, $parent_key, $xdis_str);		
 				} else {
-				
-					// @@@ CK - 25/8/2005 - unless it is the below with the parent content, FezACML doesnt show properley because it needs the !role!rule etc
-					// so any changes to this need to be tested with the FezACML etc
-					$new_element = "!".$parentContent."!".$clean_nodeName; // @@@ CK 31/5/2005 - Added ! to the front of the string
-//					$new_element = "!".$clean_nodeName; // @@@ CK 8/8/2005 - Changed to this because batch import was not working
+					$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByXDIS_ID($new_element, $xdis_str);
 				}
-	
-				if (!is_numeric($xsdmf_id)) {
-
-					if ($parent_key != "") { // if there are passed parent keys then use them in the search
-//					echo "NEW ELEMENT  ".$parent_key." ".$top_element_name." ".$element_prefix." -> ".$new_element."\n\n";
-						$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByParentKeyXDIS_ID($new_element, $parent_key, $xdis_str);		
-//						$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_ID($new_element, $xsd_sel_id, $xdis_str);
-//						echo "FOUND XSDMF_ID -> ".$xsdmf_id."\n\n";
+				if (is_numeric($xsdmf_id)) {
+					$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
+					if (strlen($xsdmf_details['xsdmf_value_prefix']) > 0) {
+						$ptr_value = str_replace($xsdmf_details['xsdmf_value_prefix'], "", $domnode->nodeValue);
 					} else {
-						$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByXDIS_ID($new_element, $xdis_str);
+						$ptr_value = $domnode->nodeValue;
 					}
-
-					if (is_numeric($xsdmf_id)) {
-
-						$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
-						if (strlen($xsdmf_details['xsdmf_value_prefix']) > 0) {
-							$ptr_value = str_replace($xsdmf_details['xsdmf_value_prefix'], "", $domnode->nodeValue);
-						} else {
-							$ptr_value = $domnode->nodeValue;
-//							$ptr_value = $clean_nodeName;
-						}
-						if (!empty($xsdmf_ptr) && (array_key_exists($xsdmf_id, $xsdmf_ptr)) 
-                                && (!is_array($xsdmf_ptr[$xsdmf_id]) || !array_key_exists(0, $xsdmf_ptr[$xsdmf_id]))) {
-							$tmp_value = $xsdmf_ptr[$xsdmf_id];
-							$xsdmf_ptr[$xsdmf_id] = array();
-							$xsdmf_ptr[$xsdmf_id][0] = $tmp_value;
-							$next_array_key = 0;
-							$next_array_key = Misc::getNextArrayKey($xsdmf_ptr[$xsdmf_id]);
-							$xsdmf_ptr[$xsdmf_id][$next_array_key] = $ptr_value;
-						} elseif (!empty($xsdmf_ptr[$xsdmf_id]) && array_key_exists(0, $xsdmf_ptr[$xsdmf_id])) {
-							$next_array_key = 0;
-							$next_array_key = Misc::getNextArrayKey($xsdmf_ptr[$xsdmf_id]);
-							$xsdmf_ptr[$xsdmf_id][$next_array_key] = $ptr_value;
-						} else {
-							$xsdmf_ptr[$xsdmf_id] = $ptr_value;
-						}
+					if (!empty($xsdmf_ptr) && (array_key_exists($xsdmf_id, $xsdmf_ptr)) 
+                           && (!is_array($xsdmf_ptr[$xsdmf_id]) || !array_key_exists(0, $xsdmf_ptr[$xsdmf_id]))) {
+						$tmp_value = $xsdmf_ptr[$xsdmf_id];
+						$xsdmf_ptr[$xsdmf_id] = array();
+						$xsdmf_ptr[$xsdmf_id][0] = $tmp_value;
+						$next_array_key = 0;
+						$next_array_key = Misc::getNextArrayKey($xsdmf_ptr[$xsdmf_id]);
+						$xsdmf_ptr[$xsdmf_id][$next_array_key] = $ptr_value;
+					} elseif (!empty($xsdmf_ptr[$xsdmf_id]) && array_key_exists(0, $xsdmf_ptr[$xsdmf_id])) {
+						$next_array_key = 0;
+						$next_array_key = Misc::getNextArrayKey($xsdmf_ptr[$xsdmf_id]);
+						$xsdmf_ptr[$xsdmf_id][$next_array_key] = $ptr_value;
+					} else {
+						$xsdmf_ptr[$xsdmf_id] = $ptr_value;
 					}
 				}
-//				print_r($xsdmf_details);
-				if (!empty($xsdmf_details['xsdmf_parent_key_match'])) {
-
-//						echo "WAKO -> "."!".$xsdmf_details['xsdmf_parent_key_match'].$clean_nodeName;
+			}
+			if (!empty($xsdmf_details['xsdmf_parent_key_match'])) {
 					$array_ptr = &$array["!".$xsdmf_details['xsdmf_parent_key_match']."!".$clean_nodeName];
-//					$array_ptr[$while_count]["!".$xsdmf_details['xsdmf_parent_key_match']."!".$new_element] = $domobj->nodeValue;
-//					$array_ptr[$while_count]["!".$xsdmf_details['xsdmf_parent_key_match']."!".$new_element] = $domobj->nodeValue;
-				} else {
-					$array_ptr = &$array[$clean_nodeName];
-					$array_ptr[$while_count][$new_element] = $domnode->nodeValue;
-				}
-//				$array_ptr[$while_count][$new_element] = $domobj->nodeValue;
-
-/*				if ($parent_key != "") {
-					$array_ptr[$while_count][$new_element] = $domobj->nodeValue;
-				} else {
-					$array_ptr[$while_count][$new_element] = $domobj->nodeValue;
-				} */
-
-		       	$array_ptr[$while_count][$new_element] = $domnode->nodeValue;
-                // IF is a SEL then go recursive
-                // @@@ CK - 31/5/2005 - Added to handle the subelement loops
-                if (!empty($xsdmf_details)) {
-                    if (($xsdmf_details['xsdmf_is_key'] == 1) && ($xsdmf_details['xsdmf_key_match'] != '')) {
-                        $parent_key = $xsdmf_details['xsdmf_key_match'];
-                    }
-                    if ($xsdmf_details['xsdmf_html_input'] == 'xsd_loop_subelement') {
-                        $xsd_sel_ids = "";
-                        $xsd_sel_ids = XSD_Loop_Subelement::getSELIDsByXSDMF($xsdmf_id);
-                    } 
+			} else {
+				$array_ptr = &$array[$clean_nodeName];
+				$array_ptr[$while_count][$new_element] = $domnode->nodeValue;
+			}
+	       	$array_ptr[$while_count][$new_element] = $domnode->nodeValue;
+            // IF is a SEL then go recursive
+            // @@@ CK - 31/5/2005 - Added to handle the subelement loops
+            if (!empty($xsdmf_details)) {
+	            if (($xsdmf_details['xsdmf_is_key'] == 1) && ($xsdmf_details['xsdmf_key_match'] != '')) {
+     	           $parent_key = $xsdmf_details['xsdmf_key_match'];
                 }
-
-
+                if ($xsdmf_details['xsdmf_html_input'] == 'xsd_loop_subelement') {
+                    $xsd_sel_ids = "";
+                    $xsd_sel_ids = XSD_Loop_Subelement::getSELIDsByXSDMF($xsdmf_id);
+                } 
+            }
 //			 // end of if has attributes // commented out for now, see else statement above
 			$while_count++;
-
-		} // End of if #text or other non desc
-       
+		} // End of if #text or other non desc      
 		// Now see if it has any chidren nodes and go recursive into those
 		if ( $domnode->hasChildNodes() ) {
 			// if the current field is a loop sublelement then get its child sel_ids and pass them down in a for loop
-
-/*			if (is_array($xsd_sel_ids) && (count($xsd_sel_ids) > 0)) {
-
-				foreach ($xsd_sel_ids as $new_xsd_sel_id) {
-					if ((strpos($domnode->nodeName, $element_prefix.":".$top_element_name) === 0) || (strpos($domnode->nodeName, $top_element_name) === 0)) {
-						$newParentContent = "";
-						Misc::dom_xml_to_simple_array($domnode, $array_ptr, $top_element_name, $element_prefix, $xsdmf_ptr, $xdis_id, $newParentContent, $new_xsd_sel_id);
-					} else {
-						if ($parentContent != "") {
-							$newParentContent = Misc::strip_element_name($parentContent."!".$domnode->nodeName, $top_element_name, $element_prefix, $new_xsd_sel_id);
-						} else {
-							$newParentContent = Misc::strip_element_name($domnode->nodeName, $top_element_name, $element_prefix, $new_xsd_sel_id);
-						}
-						Misc::dom_xml_to_simple_array($domnode, $array_ptr, $top_element_name, $element_prefix, $xsdmf_ptr, $xdis_id, $newParentContent, $new_xsd_sel_id);
-					}
-					$domnode = $domnode->nextSibling;
-				}
+			// FOR very first element we don't want to carry that parentContent down to the children, for the rest we do
+			if ((strpos($domnode->nodeName, $element_prefix.":".$top_element_name) === 0) || (strpos($domnode->nodeName, $top_element_name) === 0)) {
+				$newParentContent = "";
+				Misc::dom_xml_to_simple_array($domnode, $array_ptr, $top_element_name, $element_prefix, $xsdmf_ptr, $xdis_id, $newParentContent, $parent_key);
 			} else {
-*/
-				// FOR very first element we don't want to carry that parentContent down to the children, for the rest we do
-				if ((strpos($domnode->nodeName, $element_prefix.":".$top_element_name) === 0) || (strpos($domnode->nodeName, $top_element_name) === 0)) {
-					$newParentContent = "";
-					Misc::dom_xml_to_simple_array($domnode, $array_ptr, $top_element_name, $element_prefix, $xsdmf_ptr, $xdis_id, $newParentContent, $parent_key);
+				if ($parentContent != "") {
+					$newParentContent = Misc::strip_element_name($parentContent."!".$domnode->nodeName, $top_element_name, $element_prefix, $parent_key);
 				} else {
-					if ($parentContent != "") {
-						$newParentContent = Misc::strip_element_name($parentContent."!".$domnode->nodeName, $top_element_name, $element_prefix, $parent_key);
-					} else {
-						$newParentContent = Misc::strip_element_name($domnode->nodeName, $top_element_name, $element_prefix, $parent_key);
-					}
-					Misc::dom_xml_to_simple_array($domnode, $array_ptr, $top_element_name, $element_prefix, $xsdmf_ptr, $xdis_id, $newParentContent, $parent_key);
-//					print_r($array_ptr);
+					$newParentContent = Misc::strip_element_name($domnode->nodeName, $top_element_name, $element_prefix, $parent_key);
 				}
-//			}
-
+				Misc::dom_xml_to_simple_array($domnode, $array_ptr, $top_element_name, $element_prefix, $xsdmf_ptr, $xdis_id, $newParentContent, $parent_key);
+			}
 		}
 		$domnode = $domnode->nextSibling;
-		// test this below
-
-
 	} // End of while loop
 }
 
@@ -2236,10 +2166,11 @@ function handleStaticInstance(&$attrib_value, &$indexArray, $pid, $parent_sel_id
 
 function handleMultipleInstance(&$attrib_value, &$indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $xsdmf_details_ref, $attrib_loop_index, $element_prefix, $i) {
 	global $HTTP_POST_VARS;
-	if (is_numeric($attrib_loop_index)) { // if there is an attrib loop then just get that key index of the post variable
+/*	if (is_numeric($attrib_loop_index)) { // if there is an attrib loop then just get that key index of the post variable
+		print_r($xsdmf_details);
 		$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id][$attrib_loop_index];
 		array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id][$attrib_loop_index]));
-	} else {
+	} else { */
 		foreach ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] as $multiple_element) {
 			if ($attrib_value == "") {
 				if ($xsdmf_details['xsdmf_smarty_variable'] == "") {									
@@ -2277,7 +2208,7 @@ function handleMultipleInstance(&$attrib_value, &$indexArray, $pid, $parent_sel_
 				}	
 			}
 		} // end of foreach loop
-	} // end of if attribute loop check
+//	} // end of if attribute loop check
 }
 
 function array_to_xml_instance($a, $xmlObj="", $element_prefix, $sought_node_type="", $tagIndent="", $parent_sel_id="", $xdis_id, $pid, $top_xdis_id, $attrib_loop_index="", &$indexArray=array(), $file_downloads=0, $created_date, $updated_date) {

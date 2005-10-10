@@ -168,6 +168,7 @@ $tpl->assign("xdis_id", $xdis_id);
 //$xdis_id = 5; //will replace with value from the eSpace mysql database after testing
 
 $details = $record->getDetails();
+//print_r($details);
 $controlled_vocabs = Controlled_Vocab::getAssocListAll();
 //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
 foreach ($xsd_display_fields  as $dis_field) {

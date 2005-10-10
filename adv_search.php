@@ -14,11 +14,8 @@ $tpl->setTemplate("adv_search.tpl.html");
 $list = Search_Key::getAdvSearchList();
 $sta_list = Status::getAssocList();
 $ret_list = Object_Type::getAssocList();
-//$cvo_list = Controlled_Vocab::getAssocListFullDisplay();
 $cvo_list = Controlled_Vocab::getAssocListFullDisplay(false, "", 0, 2);
-//print_r($cvo_list);
 $xdis_list = XSD_Display::getAssocListDocTypes();
-//print_r($list);
 
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
@@ -46,7 +43,6 @@ foreach ($list as $list_key => $list_field) {
 }
 
 $tpl->assign("list", $list);
-//$tpl->assign("list", $list);
 $tpl->displayTemplate();
 ?>
 
