@@ -1,9 +1,14 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
 // +----------------------------------------------------------------------+
-// | Eventum - Record Tracking System                                      |
+// | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2003, 2004 MySQL AB                                    |
+// | Copyright (c) 2005, 2006 The University of Queensland,               |
+// | Australian Partnership for Sustainable Repositories,                 |
+// | eScholarship Project                                                 |
+// |                                                                      |
+// | Some of the Fez code was derived from Eventum (Copyright 2003, 2004  |
+// | MySQL AB - http://dev.mysql.com/downloads/other/eventum/ - GPL)      |
 // |                                                                      |
 // | This program is free software; you can redistribute it and/or modify |
 // | it under the terms of the GNU General Public License as published by |
@@ -22,27 +27,19 @@
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
-// | Authors: João Prado Maia <jpm@mysql.com>                             |
+// | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
+// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
 //
-// @(#) $Id: s.view.php 1.27 04/01/23 03:42:02-00:00 jpradomaia $
 //
 include_once("config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.record.php");
-//include_once(APP_INC_PATH . "class.support.php");
-//include_once(APP_INC_PATH . "class.notification.php");
-//include_once(APP_INC_PATH . "class.attachment.php");
-//include_once(APP_INC_PATH . "class.custom_field.php");
-//include_once(APP_INC_PATH . "class.phone_support.php");
-//include_once(APP_INC_PATH . "class.scm.php");
 include_once(APP_INC_PATH . "class.controlled_vocab.php");
 include_once(APP_INC_PATH . "class.collection.php");
-//include_once(APP_INC_PATH . "class.draft.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "db_access.php");
-//include_once(APP_INC_PATH . "class.mail_forward_list.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 
@@ -50,7 +47,6 @@ include_once(APP_INC_PATH . "class.fedora_api.php");
 $tpl = new Template_API();
 $tpl->setTemplate("view.tpl.html");
 
-//Auth::checkAuthentication(APP_SESSION);
 
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);

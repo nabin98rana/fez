@@ -1,9 +1,14 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
 // +----------------------------------------------------------------------+
-// | eSpace - Issue Tracking System                                      |
+// | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2003, 2004 MySQL AB                                    |
+// | Copyright (c) 2005, 2006 The University of Queensland,               |
+// | Australian Partnership for Sustainable Repositories,                 |
+// | eScholarship Project                                                 |
+// |                                                                      |
+// | Some of the Fez code was derived from Eventum (Copyright 2003, 2004  |
+// | MySQL AB - http://dev.mysql.com/downloads/other/eventum/ - GPL)      |
 // |                                                                      |
 // | This program is free software; you can redistribute it and/or modify |
 // | it under the terms of the GNU General Public License as published by |
@@ -22,12 +27,11 @@
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
-// | Authors: João Prado Maia <jpm@mysql.com>                             |
+// | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
+// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
 //
-// @(#) $Id: s.index.php 1.24 04/01/26 20:37:04-06:00 joao@kickass. $
 //
-
 // XXX: try reading $_ENV['HOSTNAME'] and then ask the user if nothing could be found
 // XXX: don't use array_map() when possible, but array_walk instead. array_walk() doesn't create a copy
 // XXX: dynamically check the email blob and skips the email if it is bigger than 16mb on PHP4 versions

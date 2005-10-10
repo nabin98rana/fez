@@ -1,5 +1,4 @@
 <!--
-// @(#) $Id: s.global.js 1.49 03/10/20 21:24:54-00:00 jpradomaia $
 var today = new Date();
 var expires = new Date(today.getTime() + (56 * 86400000));
 

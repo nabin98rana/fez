@@ -1,9 +1,14 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
 // +----------------------------------------------------------------------+
-// | Eventum - Issue Tracking System                                      |
+// | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2003, 2004 MySQL AB                                    |
+// | Copyright (c) 2005, 2006 The University of Queensland,               |
+// | Australian Partnership for Sustainable Repositories,                 |
+// | eScholarship Project                                                 |
+// |                                                                      |
+// | Some of the Fez code was derived from Eventum (Copyright 2003, 2004  |
+// | MySQL AB - http://dev.mysql.com/downloads/other/eventum/ - GPL)      |
 // |                                                                      |
 // | This program is free software; you can redistribute it and/or modify |
 // | it under the terms of the GNU General Public License as published by |
@@ -22,10 +27,10 @@
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
-// | Authors: João Prado Maia <jpm@mysql.com>                             |
+// | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
+// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
 //
-// @(#) $Id: s.popup.php 1.25 04/01/23 03:42:02-00:00 jpradomaia $
 //
 include_once("config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
@@ -53,23 +58,16 @@ $cvo_details = Controlled_Vocab::getDetails($cvo_id);
 	$breadcrumb = Controlled_Vocab::getParentAssocListFullDisplay($cvo_id);
 	$breadcrumb = Misc::array_merge_preserve($breadcrumb, Controlled_Vocab::getAssocListByID($cvo_id));
 
-//	print_r(array_values($breadcrumb));
 	$newcrumb = array();
 	foreach ($breadcrumb as $key => $data) {
 		array_push($newcrumb, array("cvo_id" => $key, "cvo_title" => $data));
 	}
-//	print_r($newcrumb);
-//	if (count($newcrumb) > 0) {
-		$max_breadcrumb = (count($newcrumb) -1);
-//	} else {
-//		$max_breadcrumb = -1;
-//	}
+	$max_breadcrumb = (count($newcrumb) -1);
 
 	$tpl->assign("max_subject_breadcrumb", $max_breadcrumb);
 	$tpl->assign("subject_breadcrumb", $newcrumb);
 
 $cvo_list = Controlled_Vocab::getAssocListFullDisplay($cvo_id, "", 0, 1);
-//print_r($cvo_list);
 $tpl->assign("cvo_details", $cvo_details);
 $tpl->assign("cvo_list", $cvo_list);
 $tpl->assign("form", $form);

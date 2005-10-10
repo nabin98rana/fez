@@ -1,8 +1,14 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
 // +----------------------------------------------------------------------+
-// | eSpace - Digital Repository                                          |
+// | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
+// | Copyright (c) 2005, 2006 The University of Queensland,               |
+// | Australian Partnership for Sustainable Repositories,                 |
+// | eScholarship Project                                                 |
+// |                                                                      |
+// | Some of the Fez code was derived from Eventum (Copyright 2003, 2004  |
+// | MySQL AB - http://dev.mysql.com/downloads/other/eventum/ - GPL)      |
 // |                                                                      |
 // | This program is free software; you can redistribute it and/or modify |
 // | it under the terms of the GNU General Public License as published by |
@@ -20,17 +26,12 @@
 // | Free Software Foundation, Inc.                                       |
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
-// |																	  |
-// | Some code and structure is derived from Eventum (GNU GPL - MySQL AB) |
-// | http://dev.mysql.com/downloads/other/eventum/index.html			  |
-// | Eventum is primarily authored by João Prado Maia <jpm@mysql.com>     |
 // +----------------------------------------------------------------------+
-// | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>        |
+// | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
 // |          Matthew Smith <m.smith@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
 //
 //
-
 
 /**
  * Class designed to handle all business logic related to the batch importing of records in the
