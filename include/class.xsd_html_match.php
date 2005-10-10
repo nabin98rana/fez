@@ -2585,7 +2585,7 @@ class XSD_HTML_MatchObject
         $this->getMatchCols();
         foreach ($this->matchCols as $xsdmf) {
             if (($xsdmf['xsdmf_element'] == $xsdmf_element) 
-                    && ($xsdmf['xsdmf_parent_key'] == $parent_key) 
+                    && ($xsdmf['xsdmf_parent_key_match'] == $parent_key) 
                     && !empty($xsdmf['xsdmf_id'])) {
                 return $xsdmf['xsdmf_id'];
             }

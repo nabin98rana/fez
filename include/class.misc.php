@@ -1420,7 +1420,7 @@ function XML_Walk($domnode, $callbackobject, $callbackmethod, $callbackdata) {
     if ($domnode->hasAttributes() ) {
         $attributes = $domnode->attributes; 
         foreach ($attributes as $index => $domobj) {
-            $callbackobject->$callbackmethod($domobj, $newcallbackdata);
+            $newcallbackdata = $callbackobject->$callbackmethod($domobj, $newcallbackdata);
         }
     }
     $newcallbackdata = $callbackobject->$callbackmethod($domnode, $newcallbackdata, 'endopen');

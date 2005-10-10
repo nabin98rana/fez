@@ -591,7 +591,6 @@ class XSD_DisplayObject
         $cbdata = array('parentContent' => '', 'parent_key' => '');
         $this->mfcb_rootdone = false;
         Misc::XML_Walk($xmlnode, $this, 'matchFieldsCallback', $cbdata);
-		print_r($this->xsdmf_ptr);
     }
 
     /**
@@ -607,7 +606,6 @@ class XSD_DisplayObject
         $xsdmf_ptr = &$this->xsdmf_current;
         $xsdmf_id = null;
         // look for the xsdmf_id
-		echo "CNN -> ".$clean_nodeName."\n\n<br />";
         switch ($domNode->nodeType)
         {
             case XML_ELEMENT_NODE:
@@ -616,7 +614,6 @@ class XSD_DisplayObject
                         // this is processed before we have walked the attributes for this element
                         // Store the current node name for use when called back for the attributes.
                         $cbdata['clean_nodeName'] = $clean_nodeName;
-
                         break;
                     case 'endopen':
                         // this is processed after we have walked the attributes for this element
@@ -627,7 +624,6 @@ class XSD_DisplayObject
                             } else {
                                 $new_element = "!".$parentContent."!".$clean_nodeName; 
                             }
-							echo "xml element -> ".$new_element." parent key -> ".$cbdata['parent_key']."\n\n<br />";
                             if ($cbdata['parent_key'] != "") { 
                                 // if there are passed parent keys then use them in the search
                                 $xsdmf_id = $this->xsd_html_match->getXSDMF_IDByParentKeyXDIS_ID($new_element, 
@@ -653,6 +649,10 @@ class XSD_DisplayObject
                     // look for a straight attribute match
                     $xsdmf_id = $this->xsd_html_match->getXSDMF_IDByXDIS_ID($new_element);
                 }	
+
+
+
+
                 break;
             default:
                 break; 
@@ -666,6 +666,7 @@ class XSD_DisplayObject
             } else {
                 $ptr_value = $domNode->nodeValue;
             }
+
             // Store the matchfields value against the matchfield id in the result array.
             // If there's already a value for this match field, then make an array for the value.
             if (isset($xsdmf_ptr[$xsdmf_id])) {
@@ -682,17 +683,16 @@ class XSD_DisplayObject
             }
         }
 
-        if (($domNode->nodeType == XML_ELEMENT_NODE) && ($context == 'endopen')) {
-
+        if ((($domNode->nodeType == XML_ELEMENT_NODE) && ($context == 'endopen'))
+               || $domNode->nodeType == XML_ATTRIBUTE_NODE) {
             // Store the parent key for key match fields.
             if (!empty($xsdmf_details)) {
-				echo "xsdmf details -> "; print_r($xsdmf_details); echo "\n\n<br />";
                 if (($xsdmf_details['xsdmf_is_key'] == 1) && ($xsdmf_details['xsdmf_key_match'] != '')) {
                     $cbdata['parent_key'] = $xsdmf_details['xsdmf_key_match'];
-                } elseif (($xsdmf_details['xsdmf_parent_key_match'] != ''))  {
-                    $cbdata['parent_key'] = $xsdmf_details['xsdmf_parent_key_match'];
-				} 
+                }
             }			
+        }
+        if (($domNode->nodeType == XML_ELEMENT_NODE) && ($context == 'endopen')) {
 
             // update the parentContent match path
             if (!$this->mfcb_rootdone) {
