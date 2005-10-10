@@ -33,9 +33,8 @@
 //
 //
 
-
 /**
- * Class to handle authentication issues.
+ * Class to handle authentication and authorisation issues.
  *
  * @version 1.0
  * @author Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>
@@ -71,7 +70,6 @@ class Auth
         return $HTTP_SERVER_VARS["REQUEST_URI"];
     }
 
-
     /**
      * Method used to check for the appropriate authentication for a specific
      * page. It will check for the session name provided and redirect the user
@@ -104,13 +102,22 @@ class Auth
         // if the current session is still valid, then renew the expiration
         Auth::createLoginSession($_SESSION['username'], $_SESSION['fullname'], $_SESSION['email'], $_SESSION['autologin']);
     }
-	
+
+    /**
+     * Method used to get the ACML details for a records parent objects, using the Fez index.
+	 * This method is usually only triggered when an object does not have its own ACML set against it.
+     *
+     * NOTE: This is a RECURSIVE function, as it keeps going up the record hierarchy if it can't find an ACML at each level.
+     *	 
+     * @access  public
+     * @param   array $array The array of ACMLs that will be built and passed back by reference to the calling function.
+     * @param   string $pid The persistant identifier of the object
+     * @return  void (returns array by reference).
+     */	
 	function getIndexParentACMLs(&$array, $pid) {
 		$ACMLArray = &$array;
-
 		static $returns;
-
-        if (!empty($returns[$pid])) {		
+        if (!empty($returns[$pid])) { // check if this has already been found and set to a static variable		
 			array_push($ACMLArray, $returns[$pid]); //add it to the acml array and dont go any further up the hierarchy
         } else {								
 			$stmt = "SELECT 
@@ -132,13 +139,9 @@ class Auth
 							WHERE (s2.sek_title = 'isMemberOf' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid = '".$pid."')
 							)
 						";
-//		echo $stmt."\n\n";
 			$returnfields = array("Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-			//$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-	//		print_r($res);
-			$return = array();
-			
+			$return = array();	
 			foreach ($res as $result) {
 				if (!is_array(@$return[$result['rmf_rec_pid']])) {
 					$return[$result['rmf_rec_pid']]['exists'] = array();
@@ -152,22 +155,29 @@ class Auth
 					}
 				}
 			}
-//		print_r($return);
 			foreach ($return as $key => $record) {
-	
 				if (is_array($record['FezACML'])) {
 					if (empty($returns[$pid])) {
 						$returns[$pid] = $record['FezACML'];
 					}
 					array_push($ACMLArray, $record['FezACML']); //add it to the acml array and dont go any further up the hierarchy
 				} else {
-					Auth::getIndexParentACMLs($ACMLArray, $key);
+					Auth::getIndexParentACMLs($ACMLArray, $key); //otherwise go up the hierarchy recursively
 				}
 			}
 		}
-//		return $ACMLArray; // now we pass the var by reference so dont need to return anything
 	}
 
+    /**
+     * Method used to loop over a set of known parents of an object to get the ACML details.
+	 * This method is usually only triggered when an object does not have its own ACML set against it.
+     *
+     * @access  public
+     * @param   array $array The array of ACMLs that will be built and passed back by reference to the calling function.
+     * @param   string $pid The persistant identifier of the object
+     * @param   array $parents The array of parent PIDS to loop over
+     * @return  false if an array of parents is not set in the parameter, returns array by reference.
+     */	
 	function getIndexParentACMLMemberList(&$array, $pid, $parents) {
 		if (!is_array($parents)) {
 			return false;
@@ -177,14 +187,22 @@ class Auth
 		}
 	}
 
+    /**
+     * Method used to get the ACML details for a records parent objects, using the Fez index.
+	 * This method is usually only triggered when an object does not have its own ACML set against it.
+	 * Differs from the "non-member" version as you already know the pids of the member parents when using this function.
+     *
+     * NOTE: This is a RECURSIVE function, as it keeps going up the record hierarchy if it can't find an ACML at each level.
+     *	 
+     * @access  public
+     * @param   array $array The array of ACMLs that will be built and passed back by reference to the calling function.
+     * @param   string $pid The persistant identifier of the object
+     * @return  void (returns array by reference).
+     */	
 	function getIndexParentACMLMember(&$array, $pid) {
 		$ACMLArray = &$array;
-//		$ACMLArray = array();
-
 		static $returns;
-
         if (is_array(@$returns[$pid])) {		
-//			array_push($ACMLArray, $returns[$pid]); //add it to the acml array and dont go any further up the hierarchy
 			$ACMLArray = $returns[$pid]; //add it to the acml array and dont go any further up the hierarchy
         } else {								
 			$stmt = "SELECT 
@@ -199,14 +217,10 @@ class Auth
 					 WHERE
 						r1.rmf_xsdmf_id = x1.xsdmf_id and ((d1.xdis_id = x1.xsdmf_xdis_id and d1.xdis_title = 'FezACML') or (k1.sek_title = 'isMemberOf' AND r1.rmf_xsdmf_id = x1.xsdmf_id AND k1.sek_id = x1.xsdmf_sek_id)) and
 						r1.rmf_rec_pid = '".$pid."'";
-//		echo $stmt."\n\n";
             global $defaultRoles;
 			$returnfields = $defaultRoles;
 			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-			//$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-	//		print_r($res);
 			$return = array();
-
 			foreach ($res as $result) {
 				if (!is_array(@$return[$result['rmf_rec_pid']])) {
 					$return[$result['rmf_rec_pid']]['exists'] = array();
@@ -220,9 +234,7 @@ class Auth
 					}
 				}
 			}
-//			print_r($return);
-			foreach ($return as $key => $record) {
-	
+			foreach ($return as $key => $record) {	
 				if (is_array(@$record['FezACML'])) {
 					if (!is_array($returns[$pid])) {
 						$returns[$pid] = $record['FezACML'];
@@ -234,41 +246,48 @@ class Auth
 				}
 			}
 		}
-//		return $ACMLArray; // now we pass the var by reference so dont need to return anything
 	}
 
+    /**
+     * Method used to get the ACML details for a records parent objects, using the Fez Fedora connection.
+	 * This method is usually only triggered when an object does not have its own ACML set against it.
+	 * This way of getting the security directly from the Fedora connection is only called when a user
+	 * directly accessed the object, eg with update and view, otherwise they will use the index.
+     *
+     * NOTE: This is a RECURSIVE function, as it keeps going up the record hierarchy if it can't find an ACML at each level.
+     *	 
+     * @access  public
+     * @param   array $array The array of ACMLs that will be built and passed back by reference to the calling function.
+     * @param   array $parents The array of parent PIDS to loop over
+     * @return  void (returns array by reference).
+     */	
 	function getParentACMLs($array, $parents) {
 		if (!is_array($parents)) {
 			return false;
 		}
 		$ACMLArray = &$array;
-//		$ACMLArray = array();
 		foreach ($parents as $parent) {
-
 			$xdis_array = Fedora_API::callGetDatastreamContentsField($parent['pid'], 'FezMD', array('xdis_id'));
 			$xdis_id = $xdis_array['xdis_id'][0];
 			$parentACML = Record::getACML($parent['pid']);
-			
-
-//			echo $parent['pid'] ." - ".$xdis_id. " -> "; print_r($parentACML); echo "\n\n";
+		
 			if ($parentACML != false) {
 				array_push($ACMLArray, $parentACML);
 			} else {
 				$superParents = Record::getParents($parent['pid']);
-//				print_r($superParents); echo "\n\n";
 				if ($superParents != false) {
 					Auth::getParentACMLs(&$ACMLArray, $superParents);
 				}
 			}
 		}
-//		return $ACMLArray;
 	}
 	
 
-    /**
-      * isAdministrator
-      * Checks if the current user is the administrator.
-      */
+   /**
+     * isAdministrator
+     * Checks if the current user is the administrator.
+     * @returns boolean true if access is ok.
+     */
     function isAdministrator()
     {
         $answer = false;
@@ -280,12 +299,18 @@ class Auth
         }
         return $answer;
     }
-
-    /**
-     * checkAuthorisation
-     * Can the current user access this page?
-     * @returns boolean true if access is ok.
-     */
+   /**
+    * checkAuthorisation
+	* Can the user access the object?
+    *
+    * @access  public
+    * @param   string $pid The persistant identifier of the object
+    * @param   array $acceptable_roles The array of roles that will be accepted to access the object.
+    * @param   string $failed_url The URL to redirect back to once the user has logged in, if they are not logged in.
+    * @param   array $userPIDAuthGroups The array of groups this user belongs to.
+    * @param   boolean $userPIDAuthGroups OPTIONAL (default is true) whether to redirect to the login page or not.
+    * @returns boolean true if access is ok.
+    */
     function checkAuthorisation($pid, $acceptable_roles, $failed_url, $userPIDAuthGroups=null, $redirect=true) {
         session_name(APP_SESSION);
         @session_start();
@@ -295,15 +320,12 @@ class Auth
 		}
 		if (!is_array($acceptable_roles) || empty($pid) ) {
 			return false;
-		}
-		
+		}		
         // find out which role groups this user belongs to
         if (is_null($userPIDAuthGroups)) {
             $userPIDAuthGroups = Auth::getAuthorisationGroups($pid);
         }
-
 		$auth_ok = false;
-//		if $userPIDAuthGroups 
 		foreach ($acceptable_roles as $role) {
 			if (in_array($role, $userPIDAuthGroups)) {
 				$auth_ok = true;
@@ -321,13 +343,20 @@ class Auth
 		} else {
 			return true;
 		}
-
 	}
 
-	function getIndexAuthorisationGroups($indexArray, $return_type='groups') {
-        // Usually everyone can list, view and view comments
+    /**
+     * getIndexAuthorisationGroups
+	 * This method gets the roles (or authorisation groups) the user has, based on the given ACMLs using the Fez Index.
+	 * This is usually used when the user is searching, listing, browsing when an index would speed up the process.
+     *
+     * @access  public
+     * @param   array $indexArray The array of ACMLs found for the object.
+     * @returns array $indexArray The input array, but with results of the security check for roles.
+     */
+	function getIndexAuthorisationGroups($indexArray) {
+        // Usually everyone can list, view and view comments, this is set in the global "non restricted roles".
 		global $NonRestrictedRoles;
-
 		foreach ($indexArray as $indexKey => $indexRecord) {
 			$userPIDAuthGroups = $NonRestrictedRoles;
 			if (!is_array($indexRecord['FezACML'])) {
@@ -338,15 +367,12 @@ class Auth
 				// 2. if at least one of them have an fez acml then use it otherwise get the parents parents
 
 			}
-
 			foreach ($indexRecord['FezACML'] as $FezACML) { // can have multiple fez acmls if got from parents
 				foreach ($FezACML as $role_name => $role) {	
 					if (in_array($role_name, $userPIDAuthGroups)) {
 						$userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role_name, false, true);
 					}
-
 					foreach ($role as $rule_name => $rule) {
-//						echo $rule_name; print_r($role);
 						foreach ($rule as $ruleRecord) {
 							// if the role is in the ACML then it is restricted so remove it
 
@@ -402,15 +428,20 @@ class Auth
 			$indexArray[$indexKey]['isViewer'] = in_array('Viewer', $userPIDAuthGroups);
 			$indexArray[$indexKey]['isLister'] = in_array('Lister', $userPIDAuthGroups);
 		}
-
-		
-		
-//		return $userPIDAuthGroups;		
 		return $indexArray;		
 	}
 
-
-   function getAuthorisationGroups ($pid) {
+    /**
+     * getAuthorisationGroups
+	 * This method gets the roles (or authorisation groups) the user has, based on the given ACMLs using the Fez Fedora connection.
+	 * It performs some of the lookups using XPATH searches. This is called when the user is working directly with the object
+	 * eg view, update, edit etc.
+     *
+     * @access  public
+     * @param   string $pid The persistent identifier of the object
+     * @returns array $userPIDAuthGroups The authorisation groups (roles) the user belongs to against this object.
+    */
+	function getAuthorisationGroups ($pid) {
         $userPIDAuthGroups = array();
 
         $acmlBase = Record::getACML($pid);
@@ -421,32 +452,26 @@ class Auth
         } else {
             $ACMLArray[0] = $acmlBase;
         }
-
         // Usually everyone can list, view and view comments
         global $NonRestrictedRoles;
         $userPIDAuthGroups = $NonRestrictedRoles;
         // loop through the ACML docs found for the current pid or in the eSpace ancestry
-
         foreach ($ACMLArray as $acml) {
             // Use XPath to find all the roles that have groups set and loop through them
             $xpath = new DOMXPath($acml);
-//            $roleNodes = $xpath->query('/FezACML/rule/role[string-length(normalize-space(*))>0]');
+			//$roleNodes = $xpath->query('/FezACML/rule/role[string-length(normalize-space(*))>0]');
             $roleNodes = $xpath->query('/FezACML/rule/role');
-
             foreach ($roleNodes as $roleNode) {
                 $role = $roleNode->getAttribute('name');
-//				echo $role;
                 // Use XPath to get the sub groups that have values
                 $groupNodes = $xpath->query('./*[string-length(normalize-space())>0]', $roleNode); /**/
                 foreach ($groupNodes as $groupNode) {
-
 					// if the role is in the ACML then it is restricted so remove it
 					if (in_array($role, $userPIDAuthGroups)) {
 						$userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role, false, true);
 					}
                     $group_type = $groupNode->nodeName;
                     $group_values = explode(',', $groupNode->nodeValue);
-//                    echo "$role : $group_name : {$groupNode->nodeValue}<br/>\n";
                     foreach ($group_values as $group_value) {
                         $group_value = trim($group_value, ' ');
                         // @@@ CK - if the role has already been
@@ -496,49 +521,8 @@ class Auth
                 }
             }
         }
-
         return $userPIDAuthGroups;
     } 
-
-    /**
-     * Method to check whether an user is pending its confirmation 
-     * or not.
-     *
-     * @access  public
-     * @param   string $email The email address to be checked
-     * @return  boolean
-     */
-    function isPendingUser($username)
-    {
-// OLD        $status = User::getStatusByEmail($email);
-
-        $status = User::getStatusByUsername($username);
-
-        if ($status != 'pending') {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-
-    /**
-     * Method to check whether an user is active or not.
-     *
-     * @access  public
-     * @param   string $email The email address to be checked
-     * @return  boolean
-     */
-    function isActiveUser($username)
-    {
-        $status = User::getStatusByUsername($username);
-        if ($status != 'active') {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
 
     /**
      * Method to check if the user has session support enabled in his browser or
@@ -570,7 +554,6 @@ class Auth
     {
         session_name($session_name);
         @session_start();
-
         return Auth::isValidSession($_SESSION);
     }
 
@@ -586,21 +569,12 @@ class Auth
     function isValidSession($session)
     {
         global $HTTP_SERVER_VARS;
-
         if ((empty($session["username"])) || (empty($session["hash"])) 
                 || ($session["hash"] != md5($GLOBALS["private_key"] . md5($session["login_time"]) 
                         . $session["username"]))
                 || ($session['ipaddress'] != $HTTP_SERVER_VARS['REMOTE_ADDR'])) {
-//            echo "isvalisession about to return false";
             return false;
         } else {
-			// @@@ CK - 6/6/2005 - Removed check for eSpace UserID because we wan't to authenticate against AD users that are not eSpace users
-            //$usr_id = User::getUserIDByUsername(@$session["username"]);
-/*            if (empty($usr_id)) {
-                return false;
-            } else {
-                return true;
-            } */
 			return true;
         }
     }
@@ -610,6 +584,8 @@ class Auth
      * Method used to create the login session in the user's machine.
      *
      * @access  public
+     * @param   string $username The username to be stored in the session
+     * @param   string $fullname The user full name to be stored in the session
      * @param   string $email The email address to be stored in the session
      * @param   integer $autologin Flag to indicate whether this user should be automatically logged in or not
      * @return  void
@@ -668,17 +644,14 @@ class Auth
 		// Initialize the session.
 		// If you are using session_name("something"), don't forget it now!
         session_name($session_name);
-		@session_start();
-		
+		@session_start();		
 		// Unset all of the session variables.
 		$_SESSION = array();
-		
 		// If it's desired to kill the session, also delete the session cookie.
 		// Note: This will destroy the session, and not just the session data!
 		if (isset($_COOKIE[session_name()])) {
 		   setcookie(session_name(), '', time()-42000, '/');
 		}
-		
 		// Finally, destroy the session.
 		session_destroy();
     }
@@ -711,8 +684,7 @@ class Auth
 
 
     /**
-     * Checks whether the provided password match against the email 
-     * address provided.
+     * Checks whether the provided password match against the username.
      *
      * @access  public
      * @param   string $email The email address to check for
@@ -721,8 +693,6 @@ class Auth
      */
     function isCorrectPassword($username, $password)
     {
-		// @@@ CK - 9/6/2005 - will have to add extra logic here for non-ldap (fez or other) users. 
-
 		if (Auth::userExists($HTTP_POST_VARS["username"])) {
 			$userDetails = User::getDetails($username);
 			if (($userDetails['usr_ldap_authentication'] == 1) && (LDAP_SWITCH == "ON")) {
@@ -803,12 +773,15 @@ class Auth
         }
     }
 
+    /**
+     * Gets the LDAP groups the user belongs to. 
+     *
+     * @access  public
+     * @param   string $username The username of the user (in ldap)
+     * @param   string $password The password of the user (in ldap)
+     * @return  array $usersgroups, plus saves them to the LDAP groups session variable
+     */
     function GetUsersLDAPGroups($username, $password)  {
-	//PRE:
-	// - $group, $username Parameters are set.
-	//POST:
-	// - Returns an array of groups the user belongs to
-
 		$memberships = array();
 		$success;
 		$useringroupcount;
@@ -856,29 +829,36 @@ class Auth
     } //end of GetUserGroups function.
 
 
-        # --------------------
-        # Added by Christiaan 28/6/2004
-        # Attempt to bind/authenticate the user against the LDAP directory
-        # return true on successful authentication, false otherwise
-        function ldap_authenticate( $p_user_id, $p_password ) {
-                $t_authenticated 		= false;
-				$t_username             = $p_user_id;
+    /**
+     * Checks if the user can authentication off the LDAP server. 
+     *
+     * @access  public
+     * @param   string $p_user_id The username of the user (in ldap)
+     * @param   string $p_password The password of the user (in ldap)
+     * @return  boolean true if the user successfully binds to the LDAP server
+     */
+	function ldap_authenticate($p_user_id, $p_password) {
+		$t_authenticated 		= false;
+		$t_username             = $p_user_id;
+		$t_ds                   = ldap_connect(LDAP_SERVER, LDAP_PORT);
+		# Attempt to bind with the DN and password
+		$t_br = @ldap_bind( $t_ds, LDAP_PREFIX."\\".$t_username, $p_password );
+		if ($t_br) {
+		  $t_authenticated = true;
+		}
+		@ldap_unbind( $t_ds );
+		return $t_authenticated; 
+		// return true; // switch this on and comment the rest out for debugging/development
+	}
 
-/*              $t_search_filter        = "(&(samaccountname=$t_username))";
-                $t_search_attrs         = array( 'samaccountname', 'dn' ); */
-                $t_ds                   = ldap_connect(LDAP_SERVER, LDAP_PORT);
-
-                # Attempt to bind with the DN and password
-                $t_br = @ldap_bind( $t_ds, LDAP_PREFIX."\\".$t_username, $p_password );
-                if ($t_br) {
-                  $t_authenticated = true;
-                }
-                @ldap_unbind( $t_ds );
-                return $t_authenticated; 
-//                return true; // switch this on and comment the rest out for debugging/development
-
-        }
-
+    /**
+     * Logs the user in with session variables for user groups etc. 
+     *
+     * @access  public
+     * @param   string $username The username of the user (in ldap)
+     * @param   string $password The password of the user (in ldap)
+     * @return  boolean true if the user successfully binds to the LDAP server
+     */
     function LoginAuthenticatedUser($username, $password) {	
         session_name(APP_SESSION);
         @session_start();
@@ -889,7 +869,7 @@ class Auth
             $fullname = $userDetails['displayname'];
             $email = $userDetails['email'];
             Auth::GetUsersLDAPGroups($username, $password);
-        } else { // if it is a registered eSpace user then get their details from the fez user table
+        } else { // if it is a registered Fez user then get their details from the fez user table
             $_SESSION['isInDB'] = true;
             $userDetails = User::getDetails($username);			
             $fullname = $userDetails['usr_full_name'];
@@ -909,6 +889,13 @@ class Auth
         Auth::createLoginSession($username, $fullname, $email, $HTTP_POST_VARS["remember_login"]);
     }
 
+    /**
+     * Gets the internal Fez system groups the user belongs to. 
+     *
+     * @access  public
+     * @param   string $usr_id The Fez internal user id of the user
+     * @return  void Sets the internal groups session to the found internal groups
+     */
 	function GetUsersInternalGroups($usr_id) {
         session_name(APP_SESSION);
         @session_start();
@@ -916,16 +903,35 @@ class Auth
 		$_SESSION[APP_INTERNAL_GROUPS_SESSION] = $internal_groups;
 	}
 
+    /**
+     * Is the user in the institutions AD/LDAP system?
+     *
+     * @access  public
+     * @return  boolean true if in the AD/LDAP, false otherwise.
+     */
     function isInAD()
     {
         return @$_SESSION['isInAD'];
     }
 
+    /**
+     * Is the user in the internal Fez system?
+     *
+     * @access  public
+     * @return  boolean true if in the internal Fez system, false otherwise.
+     */
     function isInDB()
     {
         return @$_SESSION['isInDB'];
     }
 
+    /**
+     * Checks and appends the security roles (authorisation groups) the user has over the object for the listing/search screens. 
+     *
+     * @access  public
+     * @param   array $details The details returned from and index lookup
+     * @return  array $details The details returned from and index lookup with appended security role checks
+     */
     function ProcessListResults($details) {
 		foreach ($details as $key => $row) {
 			$xdis_array = Fedora_API::callGetDatastreamContentsField ($row['pid'], 'FezMD', array('xdis_id'));
@@ -943,20 +949,29 @@ class Auth
         return $details;
     }
 
+    /**
+     * Return the global default security roles
+     *
+     * @access  public
+     * @return  array $defaultRoles
+     */
     function getDefaultRoles() {
         global $defaultRoles;
         return $defaultRoles;
     }
+
+    /**
+     * Return the global default security role name of the given role id
+     *
+     * @access  public
+     * @param integer $role_id
+     * @return array $defaultRoles
+     */
     function getDefaultRoleName($role_id) {
         global $defaultRoles;
         return $defaultRoles[$role_id];
     }
-
-
 }
-
-//session_name(APP_SESSION);
-//@session_start();
 
 // benchmarking the included file (aka setup time)
 if (APP_BENCHMARK) {
