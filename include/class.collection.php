@@ -60,7 +60,7 @@ class Collection
      * Method used to get the details for a given collection ID.
      *
      * @access  public
-     * @param   integer $collection_pid The collection persistant identifier
+     * @param   string $collection_pid The collection persistant identifier
      * @return  array The collection details
      */
     function getDetails($collection_pid)
@@ -93,9 +93,10 @@ class Collection
 
     /**
      * Method used to get the parents of a given collection available in the 
-     * system.
+     * system. This lookup is done via ITQL direct to the Fedora connection Kowari Index.
      *
      * @access  public
+     * @param   string $collection_pid The collection persistant identifier	 
      * @return  array The list of parent communities
      */
     function getParents($collection_pid)
@@ -119,6 +120,13 @@ class Collection
 		return $details;
     }
 
+    /**
+     * Method used to get the XSD Display document types the collection supports, from the Fez Index.
+     *
+     * @access  public
+     * @param   string $collection_pid The collection persistant identifier	 	 
+     * @return  array The list of parent communities
+     */
 	function getChildXDisplayOptions($collection_pid) {
 	
 		$stmt = "
@@ -138,8 +146,6 @@ class Collection
         } else {
             return $res;
         }
-
-
 	}
 
 
@@ -150,6 +156,9 @@ class Collection
      * system.
      *
      * @access  public
+     * @param   string $community_pid The parent community to get the collections from, if not set then all collection will be returned. 	 	 
+     * @param   integer $current_row The point in the returned results to start from.
+     * @param   integer $max The maximum number of records to return
      * @return  array The list of collections
      */
     function getList($community_pid=false, $current_row = 0, $max = 25)
@@ -171,7 +180,6 @@ class Collection
             // list all collections 
             $community_where = "";
         }
-
         $stmt = "SELECT
             * 
             FROM
@@ -202,11 +210,9 @@ class Collection
                     AND xdm.xsdmf_element='!sta_id'
                     )
             ";
-
 		$returnfields = array("title", "description", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = array();
-
 		foreach ($res as $result) {		
 			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
 				if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
@@ -223,7 +229,6 @@ class Collection
 				sort($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']]);
 			}
 		}
-
 		foreach ($return as $pid_key => $row) {
 			if (!is_array(@$row['FezACML'])) {
 				$parentsACMLs = array();
@@ -235,8 +240,6 @@ class Collection
 		$return = Auth::getIndexAuthorisationGroups($return);
 		$hidden_rows = count($return);
 		$return = Misc::cleanListResults($return);
-
-//		print_r($return);
 		$total_rows = count($return);
 		if (($start + $max) < $total_rows) {
 	        $total_rows_limit = $start + $max;
@@ -246,7 +249,6 @@ class Collection
 		$total_pages = ceil($total_rows / $max);
         $last_page = $total_pages - 1;
 		$return = Misc::limitListResults($return, $start, ($start + $max));
-
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
@@ -269,8 +271,10 @@ class Collection
     }
 
     /**
-     * Method used to get the list of collections available in the 
+     * Method used to get the XSD Display ID of a collection object
      * system.
+     *
+     * Developer Note: Need to make this come from the admin interface and stored in the Fez database, rather than being hardset.	 
      *
      * @access  public
      * @return  array The list of collections
@@ -283,21 +287,21 @@ class Collection
     }
 
     /**
-     * Method used to get the list of collection records available in the 
+     * Method used to get the list of records belonging to a specified collection available in the 
      * system.
      *
      * @access  public
+     * @param   string $collection_pid The parent collection to get the records from. 	 	 
+     * @param   integer $current_row The point in the returned results to start from.
+     * @param   integer $max The maximum number of records to return	 
      * @return  array The list of collection records with the given collection pid
      */
     function getListing($collection_pid, $current_row = 0, $max = 25)
     {
-//        $isMemberOf_xsdmf_id = 149;
-//        $ret_id_xsd_mf = 236; // FezMD Display, 
 		if ($max == "ALL") {
             $max = 9999999;
         }
         $start = $current_row * $max;
-
 
         $stmt = "SELECT
             * 
@@ -342,7 +346,6 @@ class Collection
             ON r3.rmf_rec_pid=r2.rmf_rec_pid
 				 ORDER BY
 				 	r1.rmf_rec_pid";
-//		echo $stmt;
 		$returnfields = array("created_date", "updated_date", "file_downloads", "title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 
@@ -382,8 +385,7 @@ class Collection
 					array_push($return[$result['rmf_rec_pid']]['datastreams'], $result['rmf_varchar']);
 				}
 			}
-		}
-		
+		}	
 		foreach ($return as $pid_key => $row) {
 			//if there is only one thumbnail DS then use it
 			if (count(@$row['thumbnails']) == 1) {
@@ -391,45 +393,30 @@ class Collection
 			} else {
 				$return[$pid_key]['thumbnail'] = 0;
 			}
-
 			if (!is_array(@$row['FezACML'])) {
 				$parentsACMLs = array();
-//				Auth::getIndexParentACMLs(&$parentsACMLs, $pid_key);
 				Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid_key, $row['isMemberOf']);
 				$return[$pid_key]['FezACML'] = $parentsACMLs;
 			}
 		}
-//		print_r($return);
 		$return = array_values($return);
 		$return = Auth::getIndexAuthorisationGroups($return);
-//		foreach ($return as $key => $row) {
-//			if ($row['isLister'] != 1) {
-				
-//		Misc::array_clean ($return, $delete = false, $caseSensitive = false
-//			}
-//		}
 		$hidden_rows = count($return);
 		$return = Misc::cleanListResults($return);
-
-//		print_r($return);
 		$total_rows = count($return);
 		if (($start + $max) < $total_rows) {
 	        $total_rows_limit = $start + $max;
 		} else {
 		   $total_rows_limit = $total_rows;
 		}
-
 		$total_pages = ceil($total_rows / $max);
         $last_page = $total_pages - 1;
 		$hidden_rows = count($return);
-		$return = Misc::limitListResults($return, $start, ($start + $max));
-
-		
+		$return = Misc::limitListResults($return, $start, ($start + $max));		
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-
             return array(
                 "list" => $return,
                 "info" => array(
@@ -444,29 +431,26 @@ class Collection
                     "hidden_rows"     => $hidden_rows - $total_rows
                 )
             );
-
-
         }
     }
 
     /**
-     * Method used to get the list of collection records available in the 
-     * system.
+     * Method used to get the count of a list of object IDs against the controlled vocabularies they belong to.
      *
      * @access  public
+     * @param   array $tree_ids The list of Controlled Vocabulary IDs in a CV tree to search against.
+     * @param   integer $parent_id The top level hierarchy CV ID of the controlled vocabulary.
+     * @param   string $searchKey The search key to search for the controlled vocabulary, defaulting to the Subject.
      * @return  array The list of collection records with the given collection pid
      */
     function getCVCountSearch($treeIDs, $parent_id=false, $searchKey="Subject")
     {
-
 		// get the count of everything in the tree, but the display will only show what is need at each branch
 		if (empty($treeIDs)) {
 			return array();
 		}
 		$termCounter = 2;
-
 		$stringIDs = implode("', '", Misc::array_flatten($treeIDs));
-
 		$middleStmt = 
 		" INNER JOIN (
 				SELECT distinct r".$termCounter.".rmf_rec_pid 
@@ -476,7 +460,6 @@ class Collection
 				WHERE r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id AND s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id AND s".$termCounter.".sek_title = '".$searchKey."' AND r".$termCounter.".rmf_varchar in ('".$stringIDs."') 
 				) as r".$termCounter." on r1.rmf_rec_pid = r".$termCounter.".rmf_rec_pid
 		";
-
         $stmt = "SELECT
                     r1.rmf_varchar, count(distinct r1.rmf_rec_pid) as cv_count
                  FROM
@@ -484,17 +467,14 @@ class Collection
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id) left join
  				    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 on (k1.sek_id = x1.xsdmf_sek_id)
-				";
-				
+				";				
 				$stmt .= $middleStmt;
 				$stmt .= 
                 " WHERE
 				    r1.rmf_xsdmf_id = x1.xsdmf_id and k1.sek_title = 'Subject'
 				 GROUP BY
 				 	r1.rmf_varchar";
-
 		$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-//		echo $stmt;
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
@@ -516,6 +496,18 @@ class Collection
 
     }
 
+    /**
+     * Method used to add up all the 
+     *
+     * Developer Note: This is a recursive function to find the count of all the objects with the given controlled vocabulary IDs
+     *	 
+     * @access  public
+     * @param   array $res The list of all the controlled vocabularies with they given counts. Passed by reference recursively.
+     * @param   array $tree_ids  The list of Controlled Vocabulary IDs in a CV tree to search against.
+     * @param   integer $key The current controlled vocabulary key to search for.
+     * @param   integer $data The count of the controlled vocabulary currently being searched for.
+     * @return  void (Returns $res by reference).
+     */
 	function fillTree(&$res, $treeIDs, $key, $data) {
 		foreach ($treeIDs as $tkey => $tdata) {		
 			if (is_array($tdata)) {
@@ -533,31 +525,24 @@ class Collection
 	}
 
     /**
-     * Method used to get the list of collection records available in the 
+     * Method used to get the list of records in browse view by a browsing category available in the 
      * system.
      *
      * @access  public
-     * @return  array The list of collection records with the given collection pid
+     * @param   integer $current_row The point in the returned results to start from.
+     * @param   integer $max The maximum number of records to return	 
+     * @param   string $searchKey The search key the records are being browsed by eg Subject, Created Date (latest additions).
+     * @return  array The list of records 
      */
     function browseListing($current_row = 0, $max = 25, $searchKey="Subject")
     {
-//        $isMemberOf_xsdmf_id = 149;
-//        $ret_id_xsd_mf = 236; // FezMD Display, 
-
-
-/*		if (empty($terms)) {
-			return array();
-		} */
-
 		if ($max == "ALL") {
             $max = 9999999;
         }
         $start = $current_row * $max;
 		$restrictSQL = "";
-
 		$middleStmt = "";
 		$termCounter = 2;
-
 		$orderSQL = "r1.rmf_rec_pid"; // default order clause
         $extra = '';
 		if ($searchKey == "Subject") {				
@@ -565,11 +550,9 @@ class Collection
 			$data_type = "varchar";
 			$restrictSQL = "AND r".$termCounter.".rmf_".$data_type." = '".$terms."'";
 		} elseif ($searchKey == "Created Date") {
-//			$terms = $_GET['year'];
-			$data_type = "date"; // DATE_SUB(CURDATE(),INTERVAL 56 DAY) > sup_date
+			$data_type = "date";
 			$restrictSQL = "AND DATE_SUB(CURDATE(), INTERVAL 7 DAY) < r".$termCounter.".rmf_".$data_type."";
 			$extra = ", DAYNAME(r".$termCounter.".rmf_date) as day_name";		
-
 			$middleStmt .= 
 			" LEFT JOIN (
 					SELECT distinct r".$termCounter.".rmf_".$data_type.",  r".$termCounter.".rmf_rec_pid
@@ -582,7 +565,6 @@ class Collection
 			$orderSQL = " r".$termCounter.".rmf_".$data_type." DESC";
 			$termCounter++;
 			$restrictSQL = "AND DATE_SUB(CURDATE(), INTERVAL 7 DAY) < r".$termCounter.".rmf_".$data_type."";
-//			$orderSQL = " r".$termCounter.".rmf_".$data_type." DESC";
 		} elseif ($searchKey == "Date") {
 			$terms = $_GET['year'];
 			$data_type = "date";
@@ -594,7 +576,6 @@ class Collection
 		} else {
 			$data_type = "varchar";		
 		}
-
 		$middleStmt .= 
 		" INNER JOIN (
 				SELECT distinct r".$termCounter.".rmf_rec_pid 
@@ -604,7 +585,6 @@ class Collection
 				WHERE r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id AND s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id AND s".$termCounter.".sek_title = '".$searchKey."' ".$restrictSQL."
 				) as r".$termCounter." on r1.rmf_rec_pid = r".$termCounter.".rmf_rec_pid
 		";
-
         $stmt = "SELECT
                     *".$extra."
                  FROM
@@ -622,7 +602,6 @@ class Collection
 
 		$returnfields = array("day_name", "created_date", "updated_date", "file_downloads", "title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-//		echo $stmt;
 		$return = array();
 		foreach ($res as $result) {
 			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
@@ -660,7 +639,6 @@ class Collection
 				}
 			}
 		}
-		
 		foreach ($return as $pid_key => $row) {
 			//if there is only one thumbnail DS then use it
 			if (count(@$row['thumbnails']) == 1) {
@@ -674,31 +652,24 @@ class Collection
 				Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid_key, @$row['isMemberOf']);
 				$return[$pid_key]['FezACML'] = $parentsACMLs;
 			}
-		}
-		
+		}		
 		$return = array_values($return);
 		$hidden_rows = count($return);
-//		print_r($return);
 		$return = Auth::getIndexAuthorisationGroups($return);
 		$return = Misc::cleanListResults($return);
-
 		$total_rows = count($return);
 		if (($start + $max) < $total_rows) {
 	        $total_rows_limit = $start + $max;
 		} else {
 		   $total_rows_limit = $total_rows;
 		}
-
 		$total_pages = ceil($total_rows / $max);
         $last_page = $total_pages - 1;
-//		$hidden_rows = count($return);
 		$return = Misc::limitListResults($return, $start, ($start + $max));
-
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-
             return array(
                 "list" => $return,
                 "info" => array(
@@ -718,11 +689,13 @@ class Collection
 
 
     /**
-     * Method used to get the list of collection records available in the 
-     * system.
+     * Method used to get the list of records in browse view year (date). This needed to be differently setup to browseListing for dates, authors etc.
      *
      * @access  public
-     * @return  array The list of collection records with the given collection pid
+     * @param   integer $current_row The point in the returned results to start from.
+     * @param   integer $max The maximum number of records to return	 
+     * @param   string $searchKey The search key the records are being browsed by  Date (Year) or Author
+     * @return  array The list of records 
      */
     function listByAttribute($current_row = 0, $max = 25, $searchKey="Date")
     {
@@ -756,9 +729,6 @@ class Collection
 			$data_type = "varchar";
 			$group_field = "(r1.rmf_".$data_type.")";		
 			$as_field = "record_author";
-		}
-		if ($terms != "") {
-//			$restrictSQL = "AND r".$termCounter.".rmf_".$data_type." = '".$terms."'";
 		}
 		$middleStmt .= 
 		" INNER JOIN (
@@ -794,9 +764,6 @@ class Collection
 				$return[$key]['record_count'] = $row['record_count'];
 			}
 		}
-
-//		print_r($res);
-
 		$hidden_rows = count($return);
 		$total_rows = count($return);
 		if (($start + $max) < $total_rows) {
@@ -804,17 +771,13 @@ class Collection
 		} else {
 		   $total_rows_limit = $total_rows;
 		}
-
 		$total_pages = ceil($total_rows / $max);
         $last_page = $total_pages - 1;
-//		$hidden_rows = count($return);
 		$return = Misc::limitListResults($return, $start, ($start + $max));
-
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-
             return array(
                 "list" => $return,
                 "info" => array(
@@ -834,22 +797,16 @@ class Collection
 
 
     /**
-     * Method used to get the list of collection records available in the 
-     * system.
+     * Method used to get the statistics by a specified searchKey like Author or Title of the paper
      *
      * @access  public
-     * @return  array The list of collection records with the given collection pid
+     * @param   integer $current_row The point in the returned results to start from.
+     * @param   integer $max The maximum number of records to return	 
+     * @param   string $searchKey The search key of the stats eg Title or Author, or any other search key
+     * @return  array The list of records 
      */
     function statsByAttribute($current_row = 0, $max = 25, $searchKey="Author")
     {
-//        $isMemberOf_xsdmf_id = 149;
-//        $ret_id_xsd_mf = 236; // FezMD Display, 
-
-
-/*		if (empty($terms)) {
-			return array();
-		} */
-
 		if ($max == "ALL") {
             $max = 9999999;
         }
@@ -871,9 +828,6 @@ class Collection
 			$data_type = "varchar";
 			$group_field = "(r1.rmf_".$data_type.")";		
 			$as_field = "record_author";
-		}
-		if ($terms != "") {
-//			$restrictSQL = "AND r".$termCounter.".rmf_".$data_type." = '".$terms."'";
 		}
 		$middleStmt .= 
 		" INNER JOIN (
@@ -912,7 +866,6 @@ class Collection
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id) left join
  				    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 on (k1.sek_id = x1.xsdmf_sek_id)
 				";
-				
 				$stmt .= $middleStmt;
 				$stmt .= 
                 " WHERE
@@ -921,26 +874,14 @@ class Collection
 				    ".$group_field."
 				  ORDER BY
 				     file_downloads DESC, r1.rmf_".$data_type."
-				  LIMIT 0,50";
+				  LIMIT 0,50"; // only get the top 50
 	
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-/*		foreach ($res as $key => $row) {
-			if (trim($row[$as_field]) != "") {
-				$return[$key][$as_field] = $row[$as_field];
-				$return[$key]['record_count'] = $row['record_count'];
-			}
-		} */
-
-//		print_r($res);
 		$return = $res;
-//		$hidden_rows = count($return);
-//		$return = Misc::limitListResults($return, $start, ($start + $max));
-
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-
             return array(
                 "list" => $return,
                 "info" => array(
@@ -960,17 +901,15 @@ class Collection
 
 
     /**
-     * Method used to get the list of collection records available in the 
-     * system.
+     * Method used to perform advanced searching of objects in Fez. Gets the search criteria from a querystring 'list'.
      *
      * @access  public
-     * @return  array The list of collection records with the given collection pid
+     * @param   integer $current_row The point in the returned results to start from.
+     * @param   integer $max The maximum number of records to return	 
+     * @return  array The list of Fez objects matching the search criteria
      */
     function advSearchListing($current_row = 0, $max = 25)
     {
-//        $isMemberOf_xsdmf_id = 149;
-//        $ret_id_xsd_mf = 236; // FezMD Display, 
-//		print_r($_GET);
 		$terms = $_GET['list'];
 
 		if (empty($terms)) {
@@ -1021,11 +960,8 @@ class Collection
 				    r1.rmf_xsdmf_id = x1.xsdmf_id 
 				 ORDER BY
 				 	r1.rmf_rec_pid";
-	
-//		echo $stmt;
 		$returnfields = array("title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-		
 		$return = array();
 		foreach ($res as $result) {
 			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
@@ -1062,8 +998,7 @@ class Collection
 					array_push($return[$result['rmf_rec_pid']]['datastreams'], $result['rmf_varchar']);
 				}
 			}
-		}
-		
+		}		
 		foreach ($return as $pid_key => $row) {
 			//if there is only one thumbnail DS then use it
 			if (count($row['thumbnails']) == 1) {
@@ -1078,29 +1013,23 @@ class Collection
 				$return[$pid_key]['FezACML'] = $parentsACMLs;
 			}
 		}
-		
 		$return = array_values($return);
 		$hidden_rows = count($return);
 		$return = Auth::getIndexAuthorisationGroups($return);
 		$return = Misc::cleanListResults($return);
-
 		$total_rows = count($return);
 		if (($start + $max) < $total_rows) {
 	        $total_rows_limit = $start + $max;
 		} else {
 		   $total_rows_limit = $total_rows;
 		}
-
 		$total_pages = ceil($total_rows / $max);
         $last_page = $total_pages - 1;
-//		$hidden_rows = count($return);
 		$return = Misc::limitListResults($return, $start, ($start + $max));
-
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-
             return array(
                 "list" => $return,
                 "info" => array(
@@ -1115,23 +1044,20 @@ class Collection
                     "hidden_rows"     => $hidden_rows - $total_rows
                 )
             );
-
-
         }
-
     }
 
     /**
-     * Method used to get the list of collection records available in the 
-     * system.
+     * Method used to perform basic searching on searchkeys specified to be searched in a simple search.
      *
      * @access  public
-     * @return  array The list of collection records with the given collection pid
+     * @param   string $terms The list of search terms.
+     * @param   integer $current_row The point in the returned results to start from.
+     * @param   integer $max The maximum number of records to return	 
+     * @return  array The list of Fez objects matching the search criteria
      */
     function SearchListing($terms, $current_row = 0, $max = 25)
     {
-//        $isMemberOf_xsdmf_id = 149;
-//        $ret_id_xsd_mf = 236; // FezMD Display, 
 		if (empty($terms)) {
 			return array();
 		}
@@ -1245,19 +1171,13 @@ class Collection
 		} else {
 		   $total_rows_limit = $total_rows;
 		}
-
 		$total_pages = ceil($total_rows / $max);
-//        $last_page = $total_pages;
-//		echo "total pages = ".$total_pages;
         $last_page = $total_pages - 1;
-//		$hidden_rows = count($return);
 		$return = Misc::limitListResults($return, $start, ($start + $max));
-
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-
             return array(
                 "list" => $return,
                 "info" => array(
@@ -1272,12 +1192,17 @@ class Collection
                     "hidden_rows"     => $hidden_rows - $total_rows
                 )
             );
-
-
         }
-
     }
 
+
+    /**
+     * Method used to get the count of records in a collection.
+     *
+     * @access  public
+     * @param   integer $collection_pid The collection pid to search for the .
+     * @return  integer $res The count of the records in the collection, 0 if none were found.
+     */
     function getCount($collection_pid)
     {
         // Member of Collections, Fedora Records RELS-EXT Display, /RDF/description/isMemberOf/resource
@@ -1299,8 +1224,7 @@ class Collection
      * of all collections available in the system.
      *
      * @access  public
-     * @param   integer $usr_id The user ID
-     * @return  array The list of collections
+     * @return  array $return The list of collections
      */
     function getAssocList()
     {
@@ -1337,13 +1261,6 @@ class Collection
 
 
 }
-
-/*class CollectionObject extends RecordGeneral
-{
-
-}
-*/
-
 
 // benchmarking the included file (aka setup time)
 if (APP_BENCHMARK) {
