@@ -62,8 +62,6 @@ class Controlled_Vocab
         global $HTTP_POST_VARS;
 		// first delete all children
 		// get all immediate children
-
-
         $items = $HTTP_POST_VARS["items"];
 		if (!is_array($items)) { return false; }
 		$all_items = $items;
@@ -79,7 +77,6 @@ class Controlled_Vocab
                  WHERE
                     cvo_id IN ($all_items)";
 		Controlled_Vocab::deleteRelationship($all_items);
-//		echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -88,6 +85,15 @@ class Controlled_Vocab
 		  return true;
         }
     }
+
+    /**
+     * Utility function to implode a multi-dimensional array recursively.
+     *
+     * @access  public
+	 * @param string $glue The joining string for the result to glue the pieces together.
+	 * @param array $pieces The array to implode.
+     * @return string $out The resulting imploded string from the given multi-dimensional array.
+     */	
 	function implode_r ($glue, $pieces){
 		$out = "";
 		foreach ($pieces as $piece) {
@@ -99,6 +105,14 @@ class Controlled_Vocab
 		}	 
 		return $out;
 	}
+
+    /**
+     * Method using to delete a controlled vocabulary parent-child relationship in Fez.
+     *
+     * @access  public
+	 * @param string $items The string comma separated list of CV ids to remove from parent or child relationships
+     * @return boolean
+     */		
 	function deleteRelationship($items) {
         $stmt = "DELETE FROM 
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab_relationship
@@ -140,16 +154,17 @@ class Controlled_Vocab
 			// get last db entered id
 			$new_id = $GLOBALS["db_api"]->get_last_insert_id();
 			Controlled_Vocab::associateParent($HTTP_POST_VARS["parent_id"], $new_id);
-
 			return 1;
         }
     }
 
 
     /**
-     * Method used to add a new controlled vocabulary to the system.
+     * Method used to add a new controlled vocabulary parent-child relationship to the system.
      *
      * @access  public
+	 * @param string $parent_id The parent ID to add to the relationship
+	 * @param array $child_id The child ID to add to the relationship
      * @return  integer 1 if the insert worked, -1 otherwise
      */
     function associateParent($parent_id, $child_id)
@@ -430,7 +445,7 @@ class Controlled_Vocab
 
 
     /**
-     * Method used to get the list of controlled vocabularies available in the 
+     * Method used to get the associative list of controlled vocabularies available in the 
      * system.
      *
      * @access  public
@@ -529,9 +544,14 @@ class Controlled_Vocab
         }
     }
 
-
+    /**
+     * Recursive function to get all the IDs in a CV tree (to be used in counts for entire CV parents including children).
+     *
+     * @access  public
+	 * @param string $parent_id 
+     * @return  array The list of controlled vocabularies 
+     */
 	function getAllTreeIDs($parent_id=false) {
-	// recursive function to get all the IDs in a CV tree (to be used in counts for entire CV parents including children).
         $stmt = "SELECT
                     cvo_id
                  FROM
@@ -542,7 +562,6 @@ class Controlled_Vocab
 		} else {
 			$stmt .= " WHERE cvo_id not in (SELECT cvr_child_cvo_id from  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab_relationship)";
 		}
-//		echo $stmt."\n<br />";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -552,15 +571,12 @@ class Controlled_Vocab
 			foreach ($res as $row) {
 				$tempArray = array();			
 				$tempArray = Controlled_Vocab::getAllTreeIDs($row[0]);
-//				$newArray[$parent_id] = $parent_id;	
 				if (count($tempArray) > 0) {
 					$newArray[$row[0]] = $tempArray;
 				} else {
 					$newArray[$row[0]] = $row[0];
 				}
-
 			}
-
 			return $newArray;
 		}
 	}

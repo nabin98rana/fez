@@ -696,14 +696,6 @@ class Collection
      */
     function listByAttribute($current_row = 0, $max = 25, $searchKey="Date")
     {
-//        $isMemberOf_xsdmf_id = 149;
-//        $ret_id_xsd_mf = 236; // FezMD Display, 
-
-
-/*		if (empty($terms)) {
-			return array();
-		} */
-
 		if ($max == "ALL") {
             $max = 9999999;
         }
@@ -1209,7 +1201,7 @@ class Collection
     function getCount($collection_pid)
     {
         // Member of Collections, Fedora Records RELS-EXT Display, /RDF/description/isMemberOf/resource
-        $isMemberOf_xsdmf_id = 149; 
+        $isMemberOf_xsdmf_id = 149; //need to make this dynamic
         $stmt = "SELECT count(distinct rmf_rec_pid) as items
             FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3
             WHERE r3.rmf_xsdmf_id = $isMemberOf_xsdmf_id AND r3.rmf_varchar = '$collection_pid'	";

@@ -54,8 +54,7 @@ include_once(APP_INC_PATH . "class.status.php");
 class Community
 {
     /**
-     * Method used to get the list of communities available in the 
-     * system.
+     * Method used to get the default community XDIS_ID
      *
      * Developer Note: Need to make this able to be set in Administrative interface and stored in the Fez database.
      *	 

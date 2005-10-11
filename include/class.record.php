@@ -37,8 +37,9 @@
  * Class designed to handle all business logic related to the Records in the
  * system, such as adding or updating them or listing them in the grid mode.
  *
- * @author  João Prado Maia <jpm@mysql.com>
- * @version $Revision: 1.114 $
+ * @version 1.0
+ * @author Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>
+ * @author Matthew Smith <m.smith@library.uq.edu.au>
  */
 
 include_once(APP_INC_PATH . "class.validation.php");
@@ -69,60 +70,16 @@ $list_headings = array(
 class Record
 {
 
-
-    function getIndexParents($pid)
-    {
-
-        $stmt = "SELECT
-                    * 
-                 FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
-                 WHERE
-				    r1.rmf_xsdmf_id = x1.xsdmf_id and 
-                    rmf_rec_pid in (
-						SELECT r2.rmf_varchar 
-						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
-						WHERE (rmf_xsdmf_id = 91 AND rmf_varchar = '2' AND r2.rmf_rec_pid = '".$pid."') OR
-							(rmf_xsdmf_id = 149 AND rmf_varchar = '3' AND r2.rmf_rec_pid = '".$pid."')
-						)
-					";
-//		echo $stmt;			
-		$returnfields = array("title", "description", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        //$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-//		print_r($res);
-		$return = array();
-		
-		foreach ($res as $result) {		
-			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-				if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
-					$return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']] = array();
-				}
-				array_push($return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
-			}
-			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
-				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']] = $result['rmf_'.$result['xsdmf_data_type']];
-			}
-		}
-//		print_r($return);
-//		$return = Auth::getIndexAuthorisationGroups($return);
-		
-		
-		//get groups after you get all the acmls? yeah probably
-//		$return = array_values($return);
-//		$return = Auth::getIndexAuthorisationGroups($return);
-
-		return $return;
-		
-
-    }
-
+   /**
+    * Method used to get the parents of a given record available in the 
+    * system. This lookup is done via ITQL direct to the Fedora connection Kowari Index.
+    *
+    * @access  public
+    * @param   string $collection_pid The collection persistant identifier	 
+    * @return  array The list of parent communities
+    */
     function getParents($pid)
     {
-
 		$itql = "select \$collTitle \$collDesc \$title \$description \$object from <#ri>
 					where  (<info:fedora/".$pid."> <dc:title> \$collTitle) and
                     (<info:fedora/".$pid."> <dc:description> \$collDesc) and
@@ -130,26 +87,22 @@ class Record
 					((\$object <dc:title> \$title) or
 					(\$object <dc:description> \$description))
 					order by \$title asc";
-
-//		echo $itql;
 		$returnfields = array();
 		array_push($returnfields, "pid"); 
 		array_push($returnfields, "title");
 		array_push($returnfields, "identifier");
 		array_push($returnfields, "description");
-
 		$details = Fedora_API::getITQLQuery($itql, $returnfields);
-//		print_r($details);
 		return $details;
     }
 
 
     /**
-     * Method used to update the details of a specific Record.
+     * Method used to update the details of a specific Record. Now calls the class.
      *
      * @access  public
-     * @param   integer $record_id The Record ID
-     * @return  integer 1 if the update worked, -1 or -2 otherwise
+     * @param   string $pid The persistent identifier of the record
+     * @return  integer 1 if the update worked, -1 otherwise
      */
     function update($pid)
     {
@@ -162,11 +115,12 @@ class Record
     }
 
    /**
-     * Method used to update the details of a specific Record.
+     * Method used to update the Admin details (FezMD) of a specific Record.
      *
      * @access  public
-     * @param   integer $record_id The Record ID
-     * @return  integer 1 if the update worked, -1 or -2 otherwise
+     * @param   string $pid The persistent identifier of the record
+     * @param   integer $xdis_id The XSD Display ID of the record
+     * @return  integer 1 if the update worked, -1 otherwise
      */
     function updateAdminDatastream($pid, $xdis_id)
     {
@@ -178,7 +132,13 @@ class Record
         }
     }
 
-
+   /**
+     * Method used to increment the file download counter of a specific Record.
+     *
+     * @access  public
+     * @param   string $pid The persistent identifier of the record
+     * @return  integer 1 if the update worked, -1 otherwise
+     */
     function incrementFileDownloads($pid)
     {
         $record = new RecordObject($pid);
@@ -203,21 +163,20 @@ class Record
     }
 
     /**
-     * Method used to add a new quick Record using the quick report form.
+     * Method used to add to the Fez Index in a batch.
      *
      * @access  public
-     * @return  integer The new Record ID
+     * @param   string $pid The persistent identifier of the record
+     * @param   array $indexArray The array of XSDMF entries to the Fez index
+     * @param   string $datastreamXMLHeaders 
+     * @return  void
      */
-
 	function insertIndexBatch($pid, $indexArray, $datastreamXMLHeaders) {
-
 		// first delete all indexes about this pid
 		Record::removeIndexRecord($pid, 'keep');
 		if (!is_array($indexArray)) {
 			return false;
 		}
-
-//		array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $value)
 		foreach ($indexArray as $index) {
 			if ($index[1] == 1)  { // if this xsdmf is designated to be indexed then insert it as long as it has a value
 				foreach ($datastreamXMLHeaders as $dsKey => $dsHeader) { // get the real ds names for the file uploads
@@ -229,25 +188,24 @@ class Record
 					Record::insertIndexMatchingField($index[0], $index[2], $index[5], $index[6]);
 				}
 			}
-		}
-	
+		}	
 	}
 
-
-
-
-    function removeIndexRecord($pid, $dsDelete='all')
-    {
- 
-//		echo "monkey = ".$initial_status;
-        // add new Record
+    /**
+     * Method used to remove an entry in the Fez Index.
+     *
+     * @access  public
+     * @param   string $pid The persistent identifier of the record
+     * @param   string $dsDelete A flag to check if the datastream_id should be kept 
+     * @return  void
+     */
+    function removeIndexRecord($pid, $dsDelete='all') {
         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field
 				 WHERE rmf_rec_pid = '" . $pid . "'";
 		if ($dsDelete=='keep') {
 			$stmt .= " and rmf_xsdmf_id not in (select distinct(xsdmf_id) from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields where xsdmf_fez_title = 'datastream_id')";
 		}
-//		echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -257,15 +215,20 @@ class Record
         }
     }
 
+    /**
+     * Method used to remove an entry in the Fez Index by its value
+     *
+     * @access  public
+     * @param   string $pid The persistent identifier of the record
+     * @param   string $value The value to check for when deleting
+     * @param   string $data_type defaults to varchar, but can be date, int, text etc
+     * @return  string The $pid if successful, otherwise -1
+     */
     function removeIndexRecordByValue($pid, $value, $data_type='varchar')
     {
- 
-//		echo "monkey = ".$initial_status;
-        // add new Record
-        $stmt = "DELETE FROM
+         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field
 				 WHERE rmf_rec_pid = '" . $pid . "' and rmf_".$data_type."='".$value."'";
-//		echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -275,15 +238,19 @@ class Record
         }
     }
 
+    /**
+     * Method used to remove an entry in the Fez Index by its XSD Matching Field ID
+     *
+     * @access  public
+     * @param   string $pid The persistent identifier of the record
+     * @param   string $xsdmf_id The XSD Matching Field ID to check for when deleting
+     * @return  string The $pid if successful, otherwise -1
+     */
     function removeIndexRecordByXSDMF_ID($pid, $xsdmf_id)
     {
- 
-//		echo "monkey = ".$initial_status;
-        // add new Record
         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field
 				 WHERE rmf_rec_pid = '" . $pid . "' and rmf_xsdmf_id=".$xsdmf_id;
-//		echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -293,35 +260,40 @@ class Record
         }
     }
 
-
+    /**
+     * Method used to insert an entry in the Fez Index.
+     *
+     * @access  public
+     * @param   string $pid The persistent identifier of the record
+     * @param   integer $xsdmf_id The XSD Matching Field ID 
+     * @param   string $data_type The data_type of the index to save the value into
+     * @param   string $value The value of the index to be saved
+     * @return  string The $pid if successful, otherwise -1
+     */
     function insertIndexMatchingField($pid, $xsdmf_id, $data_type, $value)
     {
- 
-//		echo "monkey = ".$initial_status;
-        // add new Record
         $xsdsel_id = '';
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field
                  (
 				 	rmf_rec_pid,
                     rmf_xsdmf_id,";
-				if ($xsdsel_id != "") {
-				  $stmt .= "rmf_xsdsel_id,";
-				}
-				$stmt .= "                    
-					rmf_".$data_type."
-                 ) VALUES (
-                    '" . $pid . "',
-                    " . $xsdmf_id . ",";
-				if ($xsdsel_id != "") {
-                	$stmt .= $xsdsel_id . ", ";
-				}
-					if ($data_type != "int") {
-            			$stmt .= "'".Misc::escapeString($value) . "')";
-					} else {
-            			$stmt .= $value . ")";
-					}
-//		echo $stmt;
+		if ($xsdsel_id != "") {
+		  $stmt .= "rmf_xsdsel_id,";
+		}
+		$stmt .= "                    
+			rmf_".$data_type."
+		 ) VALUES (
+			'" . $pid . "',
+			" . $xsdmf_id . ",";
+		if ($xsdsel_id != "") {
+			$stmt .= $xsdsel_id . ", ";
+		}
+		if ($data_type != "int") {
+			$stmt .= "'".Misc::escapeString($value) . "')";
+		} else {
+			$stmt .= $value . ")";
+		}
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -383,107 +355,15 @@ class Record
         $rows = Record::getParam('rows');
         $cookie = array(
             'rows'           => $rows ? $rows : APP_DEFAULT_PAGER_SIZE,
-//            'pagerRow'       => Record::getParam('pagerRow'), //stop saving the page in the cookie..
-            'hide_closed'    => Record::getParam('hide_closed'),
             "sort_by"        => $sort_by ? $sort_by : "rec_id",
             "sort_order"     => $sort_order ? $sort_order : "DESC",
             // quick filter form
-            'keywords'       => Record::getParam('keywords'),
-            'collections'       => Record::getParam('collections'),
-//            'time_tracking_category' => Record::getParam('time_tracking_category'),
-            'users'          => Record::getParam('users'),
-            'status'         => Record::getParam('status'),
-//            'has_attachments' => Record::getParam('has_attachments'), // @@@ CK - added 7/9/2004
-//            'priority'       => Record::getParam('priority'),
-//            'category'       => Record::getParam('category'),
-            // advanced search form
-            'show_authorized_Records'        => Record::getParam('show_authorized_records'),
-            'show_notification_list_Records' => Record::getParam('show_notification_list_records'),
+            'keywords'       => Record::getParam('keywords')
         );
-			$existing_cookie = Record::getCookieParams();
-						//print_r($existing_cookie);
-
-			global $HTTP_POST_VARS, $HTTP_GET_VARS;
-            // need to process any custom fields ?
-/*            $custom_count = Record::getParam('custom_count');
-			if (empty($custom_count) || !is_numeric($custom_count)) {
-	            $custom_count = @count($HTTP_GET_VARS["custom_fields"]);
-			}
-			for($x=0;$x<$custom_count;$x++) {
-				
-			}
-*/
-//			$custom_count = Custom_Field::getMaxID();
-//			$tempArray = array('custom_count' => $custom_count);
-//			$cookie = array_merge ($cookie, $tempArray);
-
-/*            if ($custom_count > 0) {
-				$from_cookie = false;		
-		    	if (isset($HTTP_GET_VARS['custom_fields'])) {
-					$customArray = $HTTP_GET_VARS['custom_fields'];
-  				} elseif (isset($HTTP_POST_VARS['custom_fields'])) {
-					$customArray = $HTTP_POST_VARS['custom_fields'];
-				} else {
-					$from_cookie = true;
-					for($x=0;$x<$custom_count;$x++) {
-						$existing_cookie = Record::getCookieParams();
-						if (isset($existing_cookie['custom'.$x])) {
-							$customArray = array_merge($customArray, array('custom'.$x => $existing_cookie['custom'.$x]));
-						}
-					}   
-			    }
-                foreach ($customArray as $fld_id => $value) {				
-					if ($from_cookie == true) {
-/*						if ($fld_id == 2) {
-							foreach ($value as $branch => $branchValue) {
-								
-							}
-						} else { */ 
-/*
-							$tempArray = array($fld_id => $value);				
-//						}
-					} else {
-						$tempArray = array('custom'.$fld_id => $value);				
-					}
-					$cookie = array_merge ($cookie, $tempArray);
-					if (!empty($fld_id)) {
-
-					}
-                }
-			}
-*/
-        // now do some magic to properly format the date fields
-/*        $date_fields = array(
-            'created_date',
-            'updated_date',
-            'last_response_date',
-            'first_response_date',
-            'closed_date'
-        );
-        foreach ($date_fields as $field_name) {
-            $field = Record::getParam($field_name);
-            if (empty($field)) {
-                continue;
-            }
-            $end_field_name = $field_name . '_end';
-            $end_field = Record::getParam($end_field_name);
-            @$cookie[$field_name] = array(
-                'Year'        => $field['Year'],
-                'Month'       => $field['Month'],
-                'Day'         => $field['Day'],
-                'start'       => $field['Year'] . '-' . $field['Month'] . '-' . $field['Day'],
-                'filter_type' => $field['filter_type'],
-                'end'         => $end_field['Year'] . '-' . $end_field['Month'] . '-' . $end_field['Day']
-            );
-            @$cookie[$end_field_name] = array(
-                'Year'        => $end_field['Year'],
-                'Month'       => $end_field['Month'],
-                'Day'         => $end_field['Day']
-            );
-        }*/
+		$existing_cookie = Record::getCookieParams();
+		global $HTTP_POST_VARS, $HTTP_GET_VARS;
         $encoded = base64_encode(serialize($cookie));
         setcookie(APP_LIST_COOKIE, $encoded, APP_LIST_COOKIE_EXPIRE);
-		//print_r($cookie);
         return $cookie;
     }
 
@@ -492,8 +372,8 @@ class Record
      * Method used to get the current sorting options used in the grid layout
      * of the Record listing page.
      *
-     * @@@ CK - 28/10/2004 - Added library branch sorting
-     *
+	 * Developer Note: Not used yet..
+	 * 
      * @access  public
      * @param   array $options The current search parameters
      * @return  array The sorting options
@@ -501,7 +381,6 @@ class Record
     function getSortingInfo($options)
     {
         global $HTTP_SERVER_VARS;
-		// @@@ CK - 18/1/2005 - need to work in assigned_users somehow.
         $fields = array(
             "rec_id",
             "rec_date",
@@ -524,81 +403,19 @@ class Record
                 $items["links"][$fields[$i]] = $HTTP_SERVER_VARS["PHP_SELF"] . "?sort_by=" . $fields[$i] . "&sort_order=asc";
             }
         }
-//		print_r($items);
         return $items;
     }
 
-
     /**
-     * Method used to get the list of Records to be displayed in the grid layout.
-     *
+     * Method used to get the FezACML datastream XML content of the record
+	 * 
      * @access  public
-     * @param   integer $col_id The current project ID
-     * @param   array $options The search parameters
-     * @param   integer $current_row The current page number
-     * @param   integer $max The maximum number of rows per page
-     * @return  array The list of Records to be displayed
+     * @param   string $pid The persistent identifier of the object
+     * @return  domdocument $xmldoc A Dom Document of the XML or false if not found
      */
-    function getListing($options, $current_row = 0, $max = 5, $get_reporter = FALSE)
-    {
-		$details = Fedora_API::getListObjectsXML($options, $max);
-
-		foreach ($details as $darray_key => $darray) {
-			foreach ($darray as $dkey => $dvalue) { // turn any array values into a comma seperated string value
-				if (is_array($dvalue)) {
-					$details[$darray_key][$dkey] = implode(", ", $dvalue);
-				}
-			}
-		}	
-        $details = Auth::ProcessListResults($details);
-		return $details;
-    }
-
-
-
-	function getIndexACML($pid, $xdis_id) {
-    $stmt = "SELECT
-				* 
-			 FROM
-				" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
-				" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1,
-				" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1
-			 WHERE
-				r1.rmf_rec_pid = '".$pid."'";
-//		echo $stmt;
-		$returnfields = array("title", "description", "ret_id", "xdis_id", "sta_id");
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        //$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-//		print_r($res);
-		$return = array();
-		foreach ($res as $result) {
-			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
-				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']] = $result['rmf_'.$result['xsdmf_data_type']];
-			}
-		}
-		$return = array_values($return);
-//		print_r($return);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-/*            for ($i = 0; $i < count($res); $i++) {
-                $res[$i]["projects"] = @implode(", ", array_values(XSD_HTML_Match::getAssociatedCollections($res[$i]["fld_id"])));
-                if (($res[$i]["fld_type"] == "combo") || ($res[$i]["fld_type"] == "multiple")) {
-                    $res[$i]["field_options"] = @implode(", ", array_values(XSD_HTML_Match::getOptions($res[$i]["fld_id"])));
-                }
-            }
-*/
-            return $return;
-        }
-	}
-	
 	function getACML($pid) {
-
 		$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, 'FezACML');
 		$xmlACML = @$DSResultArray['stream'];		
-
 		if ($xmlACML != "") {
 			$xmldoc= new DomDocument();
 			$xmldoc->preserveWhiteSpace = false;
@@ -611,15 +428,15 @@ class Record
 
 
     /**
-     * Method used to get the details for a specific Record.
+     * Method used to get the details for a specific Record gotten directly from the Fedora repository.
      *
      * @access  public
-     * @param   integer $record_id The Record ID
-     * @return  array The details for the specified Record
+     * @param   string $pid The persistent identifier of the object
+     * @param   string $xdis_id  The XSD Display ID of the object
+     * @return  array $xsdmf_array The details for the XML object against its XSD Matching Field IDs
      */
     function getDetails($pid, $xdis_id)
     {
-
 		// Get the Datastreams.
 		$datastreamTitles = XSD_Loop_Subelement::getDatastreamTitles($xdis_id);
 		foreach ($datastreamTitles as $dsValue) {
@@ -637,10 +454,18 @@ class Record
                 Misc::dom_xml_to_simple_array($xmlnode, $array_ptr, $xsd_top_element_name, $xsd_element_prefix, $xsdmf_array, $xdis_id);
             }
 		}
-
 		return $xsdmf_array;
     }
 
+    /**
+     * Method used to get the default record XDIS_ID
+     *
+     * Developer Note: Need to make this able to be set in Administrative interface and stored in the Fez database,
+	 * although this is not really much used anymore.
+     *	 
+     * @access  public
+     * @return  integer $xdis_id The XSD Display ID of a generic Fez record
+     */
     function getRecordXDIS_ID() {
 		// will make this more dynamic later. (probably feed from a mysql table which can be configured in the gui admin interface).
 		$xdis_id = 5;
@@ -648,34 +473,11 @@ class Record
     }
 
     /**
-     * getAssociated
-     * Find any records that the user has a role on
-     */
-    function getAssociated($username)
-    {
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX; // Database and table prefix
-        $stmt = "SELECT * FROM 
-        {$dbtp}record_matching_field AS rmf
-        INNER JOIN {$dbtp}xsd_display_matchfields AS xdmf ON xdmf.xsdmf_id=rmf.rmf_xsdmf_id
-            WHERE xdmf.xsdmf_element='!sta_id' AND rmf.rmf_varchar='1'";
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        $res1 = $res;
-        $res2 = array();
-        foreach ($res1 as $row) {
-            $r = new RecordObject($row['rmf_rec_pid']);
-            $res2[] = array(
-                    'pid' => $row['rmf_rec_pid'],
-                    'title' => $r->getTitle(),
-                    'type' => $r->getDCType()
-                    ); 
-        }
-        return $res2;
-   }
-
-
-    /**
-     * getAssigned
-     * Find unpublished records that the user has a role on
+     * Find unpublished records that the user has a role on.
+     *
+     * @access  public
+     * @param string $username The username of the search is performed on
+     * @return array $res2 The index details of records associated with the user
      */
     function getAssigned($username)
     {
@@ -708,6 +510,12 @@ class Record
         return $res2;
     }
 
+    /**
+     * Publishs all objects that don't have a status ID set, really only used for development testing, but left in for now
+     *
+     * @access  public
+     * @return void
+     */
     function publishAllUnsetStatusPids()
     {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX; // Database and table prefix
@@ -730,9 +538,16 @@ class Record
         }
     }
 
-
-    function setIndexMatchingFields($xdis_id, $pid)
-    {
+    /**
+     * Sets the index during batch import. Could also be used in future versions for objects in Fedora that are not in the index yet.
+	 * EG a "Re-index Fedora" type of admin function.
+     *
+     * @access  public
+     * @param   string $xdis_id  The XSD Display ID of the object
+     * @param   string $pid The persistent identifier of the object
+     * @return  void
+     */
+    function setIndexMatchingFields($xdis_id, $pid) {
         $array_ptr = array();
         $xsdmf_array = array();
         //			echo $xmlObj;
@@ -768,11 +583,15 @@ class Record
         }
     }
 
-
+    /**
+	 * Sets up a template for insertion into Fedora. Used in workflows. 
+     *
+     * @access  public
+     * @return  array Array of datastreamTitles, xmlObj and indexArray
+     */
     function makeInsertTemplate()
     {
         global $HTTP_POST_VARS, $HTTP_POST_FILES;
-
 		$existingDatastreams = array();
         $created_date = date("Y-m-d H:i:s");
         $updated_date = $created_date;
@@ -781,22 +600,25 @@ class Record
         $display = new XSD_DisplayObject($xdis_id);
         list($array_ptr,$xsd_element_prefix, $xsd_top_element_name, $xml_schema) = $display->getXsdAsReferencedArray();
 		$indexArray = array();
-
 		$xmlObj = '<?xml version="1.0"?>'."\n";
 		$xmlObj .= "<".$xsd_element_prefix.$xsd_top_element_name." ";
 		$xmlObj .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $pid); // for the pid, fedora uri etc
 		$xmlObj .= $xml_schema;
 		$xmlObj .= ">\n";
-
 		$xmlObj = Misc::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, 0, $created_date, $updated_date);
-
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
-
 		$datastreamTitles = $display->getDatastreamTitles();
-		
-       return compact('datastreamTitles', 'xmlObj', 'indexArray'); 
+        return compact('datastreamTitles', 'xmlObj', 'indexArray'); 
     }
 
+    /**
+	 * Inserts an object template into Fedora. Used in workflows. 
+     *
+     * @access  public
+     * @param   string $pid The persistant identifier of the object
+     * @param   array $dsarray The array of datastreams
+     * @return  void
+     */
     function insertFromTemplate($pid, $dsarray)
     {
         extract($dsarray);
@@ -809,7 +631,15 @@ class Record
         }
         Record::insertXML($pid, compact('datastreamTitles', 'xmlObj', 'indexArray'), true);
     }
-   
+
+    /**
+	 * Inserts an object xml into Fedora. Used in workflows. 
+     *
+     * @access  public
+     * @param   string $pid The persistant identifier of the object
+     * @param   array $dsarray The array of datastreams	 
+     * @return  void
+     */   
     function insertXML($pid, $dsarray, $ingestObject)
     {
         extract($dsarray);
@@ -861,7 +691,6 @@ class Record
                         $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], $dsTitle['VERSIONABLE']);
 			} else {
 				if ($dsTitle['CONTROL_GROUP'] == "R") { // if its a redirect we don't need to upload the file
-//				    echo "R content = ".$datastreamXMLContent[$dsKey];
 					Fedora_API::callAddDatastream($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey], 
                             $dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
 				} else {
@@ -905,9 +734,13 @@ class RecordGeneral
     var $auth_groups;
 
     /**
-     * RecordObject
+     * RecordGeneral
      * If instantiated with a pid, then this object is linked with the record with the pid, otherwise we are inserting
      * a record.
+	 * 
+     * @access  public
+     * @param   string $pid The persistant identifier of the object
+     * @return  void
      */
     function RecordGeneral($pid=null)
     {
@@ -920,6 +753,9 @@ class RecordGeneral
       * refresh
       * Reset the status of the record object so that all values will be re-queried from the database.
       * Call this function if the database is expected to have changed in relation to this record.
+	  * 
+      * @access  public
+      * @return  void
       */
     function refresh()
     {
@@ -929,6 +765,9 @@ class RecordGeneral
     /**
      * getXmlDisplayId
      * Retrieve the display id for this record
+	 * 
+     * @access  public
+     * @return  void
      */
     function getXmlDisplayId() {
         if (!$this->no_xdis_id) {
@@ -951,6 +790,9 @@ class RecordGeneral
     /**
      * getAuth
      * Retrieve the authroisation groups allowed for this record with the current user.
+	 * 
+     * @access  public
+     * @return  void
      */
     function getAuth() {
         if (!$this->checked_auth) {
@@ -965,6 +807,11 @@ class RecordGeneral
     /**
      * checkAuth
      * Find out if the current user can perform the given roles for this record
+	 * 
+	 * @param  array $roles The allowed roles to access the object
+	 * @param  $redirect
+     * @access  public
+     * @return  void	 
      */
     function checkAuth($roles, $redirect=true) {
         global $HTTP_SERVER_VARS;
@@ -976,6 +823,10 @@ class RecordGeneral
     /**
      * canView 
      * Find out if the current user can view this record
+	 * 
+     * @access  public
+	 * @param  $redirect
+     * @return  void	 	 
      */
     function canView($redirect=true) {
         return $this->checkAuth($this->viewer_roles, $redirect);
@@ -984,6 +835,10 @@ class RecordGeneral
     /**
      * canEdit
      * Find out if the current user can edit this record
+	 * 
+     * @access  public
+	 * @param  $redirect
+     * @return  void	
      */
     function canEdit($redirect=false) {
         return $this->checkAuth($this->editor_roles, $redirect);
@@ -992,6 +847,10 @@ class RecordGeneral
     /**
      * canCreate
      * Find out if the current user can create this record
+	 * 
+     * @access  public
+	 * @param  $redirect
+     * @return  void	
      */
     function canCreate($redirect=false) {
         return $this->checkAuth($this->creator_roles, $redirect);
@@ -1051,6 +910,10 @@ class RecordObject extends RecordGeneral
     /**
      * updateAdminDatastream
      * Used to assocaiate a display for this record
+	 * 
+     * @access  public
+	 * @param  integer $xdis_id The XSD Display ID of the object
+     * @return  void	
      */
     function updateAdminDatastream($xdis_id) {
 		$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD');
@@ -1071,7 +934,6 @@ class RecordObject extends RecordGeneral
 			$newXML .= "<xdis_id>".$this->xdis_id."</xdis_id>";
 		}
 		$newXML .= "</FezMD>";
-//		echo $newXML;
 		if ($newXML != "") {
 			Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez extension metadata", $newXML, "text/xml", true);
 			$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement("!xdis_id", 15);
@@ -1080,6 +942,14 @@ class RecordObject extends RecordGeneral
 		}
     }
 
+    /**
+     * setStatusID
+     * Used to assocaiate a display for this record
+	 * 
+     * @access  public
+	 * @param  integer $sta_id The new Status ID of the object 
+     * @return  void	
+     */
     function setStatusId($sta_id)
     {
         $this->setFezMD_Datastream('sta_id', $sta_id);
@@ -1090,6 +960,15 @@ class RecordObject extends RecordGeneral
         Record::insertIndexMatchingField($this->pid, $xsdmf_id, "varchar", $sta_id);
     }
 
+    /**
+     * setFezMD_Datastream
+     * Used to associate a display for this record
+	 * 
+     * @access  public
+	 * @param  $key 
+	 * @param  $value 	 
+     * @return  void	
+     */
     function setFezMD_Datastream($key, $value) 
     {
         $items = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD');
@@ -1109,15 +988,19 @@ class RecordObject extends RecordGeneral
             $newXML .= "<$key>".$value."</$key>";
         }
         $newXML .= "</FezMD>";
-        //		echo $newXML;
         if ($newXML != "") {
             Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez extension metadata", $newXML, "text/xml", true);
         }
     }
 
+   /**
+     * Method used to increment the file download counter of a specific Record.
+     *
+     * @access  public
+     * @return  void
+     */
     function incrementFileDownloads() {
 		$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD');
-//		print_r($xdis_array);
 		if (isset($xdis_array['file_downloads'][0])) {
 			$this->file_downloads = $xdis_array['file_downloads'][0];
 		} else {
@@ -1140,7 +1023,6 @@ class RecordObject extends RecordGeneral
 			$newXML .= "<file_downloads>".$this->file_downloads."</file_downloads>";
 		}
 		$newXML .= "</FezMD>";
-//		echo $newXML;
 		if ($newXML != "") {
 			Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez extension metadata", $newXML, "text/xml", true);
 			$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement("!file_downloads", 15);
@@ -1152,6 +1034,9 @@ class RecordObject extends RecordGeneral
     /**
      * fedoraInsertUpdate 
      * Process a submitted record insert or update form
+     *
+     * @access  public
+     * @return  void
      */
     function fedoraInsertUpdate()
     {
@@ -1211,6 +1096,9 @@ class RecordObject extends RecordGeneral
     /**
      * getDisplay
      * Get a display object for this record
+     *
+     * @access  public
+     * @return  array $this->details The display of the object, or null
      */ 
     function getDisplay()
     {
@@ -1229,6 +1117,9 @@ class RecordObject extends RecordGeneral
      * getDetails
      * Users a more object oriented approach with the goal of storing query results so that we don't need to make 
      * so many queries to view a record.
+     *
+     * @access  public
+     * @return  array $this->details The details of the object
      */
     function getDetails()
     {
@@ -1247,6 +1138,9 @@ class RecordObject extends RecordGeneral
     /**
       * getTitle
       * Get the dc:title for the record
+      *
+      * @access  public
+      * @return  array $this->details[$xsdmf_id] The Dublin Core title of the object
       */
     function getTitle()
     {
@@ -1255,6 +1149,13 @@ class RecordObject extends RecordGeneral
         return $this->details[$xsdmf_id];
     }
 
+    /**
+      * getDCType
+      * Get the dc:type for the record
+      *
+      * @access  public
+      * @return  array $this->details[$xsdmf_id] The Dublin Core type of the object
+      */
     function getDCType()
     {
         $this->getDetails();
@@ -1262,17 +1163,37 @@ class RecordObject extends RecordGeneral
         return $this->details[$xsdmf_id];
     }
 
+    /**
+      * isCollection
+      * Is the record a Collection
+      *
+      * @access  public
+      * @return  boolean
+      */
     function isCollection()
     {
         return ($this->getDCType() == 'Fez_Collection') ? true : false;
     }
 
+    /**
+      * isCommunity
+      * Is the record a Community
+      *
+      * @access  public
+      * @return  boolean
+      */
     function isCommunity()
     {
         return ($this->getDCType() == 'Fez_Community') ? true : false;
     }
 
-
+    /**
+      * getParents
+      * Get the parent pids of an object
+      *
+      * @access  public
+      * @return  array list of parents
+      */
     function getParents()
     {
         if (!$this->record_parents) {
