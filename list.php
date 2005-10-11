@@ -187,7 +187,7 @@ if (!empty($collection_pid)) {
 	$tpl->assign("browse_type", "browse_year");
 } elseif ($browse == "author") {
     // browse by year
-	$author = $_GET['author'];
+	$author = @$_GET['author'];
 	if (!empty($author)) {	
 		$list = Collection::browseListing($pagerRow, $rows, "Author");
 		$list_info = $list["info"];

@@ -120,10 +120,10 @@ if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for
 	Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=update_form&pid=".$pid.$extra_redirect, false);
 }
 
-//$sta_id = $record->getPublishedStatus();
-//if (!$sta_id) {
+$sta_id = $record->getPublishedStatus();
+if (!$sta_id) {
     $sta_id = 1;
-//}
+}
 $tpl->assign('sta_id', $sta_id); 
 //if (@$HTTP_POST_VARS["cat"] == "report") {
 //    $res = Record::update($pid);

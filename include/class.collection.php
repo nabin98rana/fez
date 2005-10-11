@@ -543,6 +543,8 @@ class Collection
 		$restrictSQL = "";
 		$middleStmt = "";
 		$termCounter = 2;
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+
 		$orderSQL = "r1.rmf_rec_pid"; // default order clause
         $extra = '';
 		if ($searchKey == "Subject") {				
@@ -553,15 +555,17 @@ class Collection
 			$data_type = "date";
 			$restrictSQL = "AND DATE_SUB(CURDATE(), INTERVAL 7 DAY) < r".$termCounter.".rmf_".$data_type."";
 			$extra = ", DAYNAME(r".$termCounter.".rmf_date) as day_name";		
-			$middleStmt .= 
-			" LEFT JOIN (
-					SELECT distinct r".$termCounter.".rmf_".$data_type.",  r".$termCounter.".rmf_rec_pid
-					FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r".$termCounter.",
-						  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x".$termCounter.",
-						  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s".$termCounter."  							  
-					WHERE r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id AND s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id AND s".$termCounter.".sek_title = '".$searchKey."' ".$restrictSQL."
-					) as r".$termCounter." on r1.rmf_rec_pid = r".$termCounter.".rmf_rec_pid
-			";
+            $middleStmt .= " 
+                LEFT JOIN (
+                        SELECT distinct r".$termCounter.".rmf_".$data_type.",  r".$termCounter.".rmf_rec_pid
+                        FROM  {$dbtp}record_matching_field r".$termCounter."
+                        INNER JOIN {$dbtp}xsd_display_matchfields x".$termCounter."
+                        ON r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id 
+                        INNER JOIN {$dbtp}search_key s".$termCounter."  							  
+                        ON s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id 
+                        WHERE s".$termCounter.".sek_title = '".$searchKey."' ".$restrictSQL."
+                        ) AS r".$termCounter." 
+                ON r1.rmf_rec_pid = r".$termCounter.".rmf_rec_pid ";
 			$orderSQL = " r".$termCounter.".rmf_".$data_type." DESC";
 			$termCounter++;
 			$restrictSQL = "AND DATE_SUB(CURDATE(), INTERVAL 7 DAY) < r".$termCounter.".rmf_".$data_type."";
@@ -576,66 +580,59 @@ class Collection
 		} else {
 			$data_type = "varchar";		
 		}
-		$middleStmt .= 
-		" INNER JOIN (
-				SELECT distinct r".$termCounter.".rmf_rec_pid 
-				FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r".$termCounter.",
-					  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x".$termCounter.",
-					  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s".$termCounter."  							  
-				WHERE r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id AND s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id AND s".$termCounter.".sek_title = '".$searchKey."' ".$restrictSQL."
-				) as r".$termCounter." on r1.rmf_rec_pid = r".$termCounter.".rmf_rec_pid
-		";
-        $stmt = "SELECT
-                    *".$extra."
-                 FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id) left join
- 				    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 on (k1.sek_id = x1.xsdmf_sek_id)
-				";
-				
-				$stmt .= $middleStmt;
-				$stmt .= 
-                " WHERE
-				    r1.rmf_xsdmf_id = x1.xsdmf_id 
-				 ORDER BY ".$orderSQL;
+		$middleStmt .= " 
+            INNER JOIN (
+                    SELECT distinct r".$termCounter.".rmf_rec_pid 
+                    FROM  {$dbtp}record_matching_field AS r".$termCounter."
+                    INNER JOIN {$dbtp}xsd_display_matchfields AS x".$termCounter."
+                    ON r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id 
+                    INNER JOIN {$dbtp}search_key AS s".$termCounter."
+                    ON s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id
+                    WHERE s".$termCounter.".sek_title = '".$searchKey."' ".$restrictSQL."
+				) AS r".$termCounter." 
+            ON r1.rmf_rec_pid = r".$termCounter.".rmf_rec_pid ";
+        $stmt = "SELECT * ".$extra."
+                 FROM {$dbtp}record_matching_field AS r1
+                 INNER JOIN {$dbtp}xsd_display_matchfields AS x1 
+                 ON r1.rmf_xsdmf_id = x1.xsdmf_id 
+                 LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 
+                 ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
+                 LEFT JOIN {$dbtp}search_key AS k1 
+                 ON (k1.sek_id = x1.xsdmf_sek_id)
+                 $middleStmt
+                 WHERE r1.rmf_rec_pid IN (
+                         SELECT rmf_rec_pid FROM 
+                         {$dbtp}record_matching_field AS rmf
+                         INNER JOIN {$dbtp}xsd_display_matchfields AS xdm
+                         ON rmf.rmf_xsdmf_id = xdm.xsdmf_id
+                         WHERE rmf.rmf_varchar=2
+                         AND xdm.xsdmf_element='!sta_id'
+                         )
+                 ORDER BY ".$orderSQL;
 
 		$returnfields = array("day_name", "created_date", "updated_date", "file_downloads", "title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = array();
 		foreach ($res as $result) {
 			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-				if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
-					$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
-				}
-				array_push($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+				$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']][]
+                   = $result['rmf_'.$result['xsdmf_data_type']]; // need to array_push because there can be multiple groups/users for a role
 			}
 			if ($result['sek_title'] == 'isMemberOf') {
-				if (!is_array(@$return[$result['rmf_rec_pid']]['isMemberOf'])) {
-					$return[$result['rmf_rec_pid']]['isMemberOf'] = array();
-				}
-				array_push($return[$result['rmf_rec_pid']]['isMemberOf'], $result['rmf_varchar']);
+				$return[$result['rmf_rec_pid']]['isMemberOf'][] = $result['rmf_varchar'];
 			}
 			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				if (@!is_array($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']])) {
-					$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']] = array();
-				}
-				array_push($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']], $result['rmf_'.$result['xsdmf_data_type']]);
+				$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']][]
+                   = $result['rmf_'.$result['xsdmf_data_type']];
 				sort($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']]);
 			}
 			// get thumbnails
 			if ($result['xsdmf_fez_title'] == "datastream_id") {
 				if (is_numeric(strpos($result['rmf_varchar'], "thumbnail_"))) {
-					if (!is_array(@$return[$result['rmf_rec_pid']]['thumbnails'])) {
-						$return[$result['rmf_rec_pid']]['thumbnails'] = array();
-					}
-					array_push($return[$result['rmf_rec_pid']]['thumbnails'], $result['rmf_varchar']);
+					$return[$result['rmf_rec_pid']]['thumbnails'][] = $result['rmf_varchar'];
 				} else {
-					if (!is_array(@$return[$result['rmf_rec_pid']]['datastreams'])) {
-						$return[$result['rmf_rec_pid']]['datastreams'] = array();
-					}
-					array_push($return[$result['rmf_rec_pid']]['datastreams'], $result['rmf_varchar']);
+					$return[$result['rmf_rec_pid']]['datastreams'][] = $result['rmf_varchar'];
 				}
 			}
 		}
@@ -730,28 +727,38 @@ class Collection
 			$group_field = "(r1.rmf_".$data_type.")";		
 			$as_field = "record_author";
 		}
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
 		$middleStmt .= 
 		" INNER JOIN (
 				SELECT distinct r".$termCounter.".rmf_id 
-				FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r".$termCounter.",
-					  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x".$termCounter.",
-					  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s".$termCounter."  							  
-				WHERE r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id AND s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id AND s".$termCounter.".sek_title = '".$searchKey."' ".$restrictSQL."
-				) as r".$termCounter." on r1.rmf_id = r".$termCounter.".rmf_id
+				FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS r".$termCounter."
+                INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields AS x".$termCounter."
+                ON r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id
+                INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key AS s".$termCounter."  
+                ON s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id
+				WHERE  s".$termCounter.".sek_title = '".$searchKey."' ".$restrictSQL."
+				) AS r".$termCounter." 
+                ON r1.rmf_id = r".$termCounter.".rmf_id
 		";
         $stmt = "SELECT
                     count(*) as record_count, ".$group_field." as ".$as_field."
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id) left join
- 				    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 on (k1.sek_id = x1.xsdmf_sek_id)
-				";
-				
-				$stmt .= $middleStmt;
-				$stmt .= 
-                " WHERE
-				    r1.rmf_xsdmf_id = x1.xsdmf_id 
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS r1
+                    INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields AS x1
+                    ON r1.rmf_xsdmf_id = x1.xsdmf_id 
+                    LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement AS s1
+                    ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+                    LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key AS k1
+                    ON (k1.sek_id = x1.xsdmf_sek_id)
+				$middleStmt
+                 WHERE r1.rmf_rec_pid IN (
+                         SELECT rmf_rec_pid FROM 
+                         {$dbtp}record_matching_field AS rmf
+                         INNER JOIN {$dbtp}xsd_display_matchfields AS xdm
+                         ON rmf.rmf_xsdmf_id = xdm.xsdmf_id
+                         WHERE rmf.rmf_varchar=2
+                         AND xdm.xsdmf_element='!sta_id'
+                         )
 				 GROUP BY
 				 	".$group_field."
 				 ORDER BY
@@ -924,17 +931,24 @@ class Collection
 		$foundValue = false;
 		$termCounter = 2;
 
-		foreach ($terms as $tkey => $tdata) {
-			if (!empty($tdata)) {
-				$middleStmt .= 
-				" INNER JOIN (
-						SELECT distinct r".$termCounter.".rmf_rec_pid 
-						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r".$termCounter.",
-							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x".$termCounter.",
-							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s".$termCounter."  							  
-						WHERE r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id AND s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id AND ".$termLike." s".$termCounter.".sek_id = ".$tkey." AND r".$termCounter.".rmf_varchar like '%".$tdata."%' 
-						) as r".$termCounter." on r1.rmf_rec_pid = r".$termCounter.".rmf_rec_pid
-				";
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+
+        foreach ($terms as $tkey => $tdata) {
+            if (!empty($tdata)) {
+                $middleStmt .= 
+                    " INNER JOIN 
+                    (
+                     SELECT distinct r{$termCounter}.rmf_rec_pid 
+                     FROM  {$dbtp}record_matching_field AS r{$termCounter}
+                     INNER JOIN {$dbtp}xsd_display_matchfields AS x{$termCounter}
+                     ON r{$termCounter}.rmf_xsdmf_id = x{$termCounter}.xsdmf_id 
+                     INNER JOIN {$dbtp}search_key AS s{$termCounter} 
+                     ON s{$termCounter}.sek_id = x{$termCounter}.xsdmf_sek_id 
+                     WHERE s{$termCounter}.sek_id = {$tkey} 
+                     AND r{$termCounter}.rmf_varchar like '%{$tdata}%' 
+                    ) AS r{$termCounter} 
+                ON r1.rmf_rec_pid = r{$termCounter}.rmf_rec_pid
+                    ";
 				$termCounter++;
 				$foundValue = true;
 			}
@@ -944,64 +958,57 @@ class Collection
 			return array();
 		}
 
-        $stmt = "SELECT
-                    * 
-                 FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
+        $stmt = "SELECT * 
+            FROM {$dbtp}record_matching_field r1
+            INNER JOIN {$dbtp}xsd_display_matchfields x1 
+            ON r1.rmf_xsdmf_id = x1.xsdmf_id 
+            LEFT JOIN {$dbtp}xsd_loop_subelement s1 
+            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
+            LEFT JOIN {$dbtp}search_key k1 
+            ON (k1.sek_id = x1.xsdmf_sek_id)
+            $middleStmt
+            WHERE
+            r1.rmf_rec_pid IN (
+                    SELECT rmf_rec_pid FROM 
+                    {$dbtp}record_matching_field AS rmf
+                    INNER JOIN {$dbtp}xsd_display_matchfields AS xdm
+                    ON rmf.rmf_xsdmf_id = xdm.xsdmf_id
+                    WHERE rmf.rmf_varchar=2
+                    AND xdm.xsdmf_element='!sta_id'
+                    )
+            ORDER BY
+            r1.rmf_rec_pid";
 
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id) left join
- 				    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 on (k1.sek_id = x1.xsdmf_sek_id)
-				";
-				
-				$stmt .= $middleStmt;
-				$stmt .= 
-                " WHERE
-				    r1.rmf_xsdmf_id = x1.xsdmf_id 
-				 ORDER BY
-				 	r1.rmf_rec_pid";
+//		echo $stmt;
 		$returnfields = array("title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = array();
 		foreach ($res as $result) {
 			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-				if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
-					$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
-				}
-				array_push($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+				$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']][] 
+                    = $result['rmf_'.$result['xsdmf_data_type']]; // need to array_push because there can be multiple groups/users for a role
 			}
 			if ($result['sek_title'] == 'isMemberOf') {
-				if (!is_array(@$return[$result['rmf_rec_pid']]['isMemberOf'])) {
-					$return[$result['rmf_rec_pid']]['isMemberOf'] = array();
-				}
-				array_push($return[$result['rmf_rec_pid']]['isMemberOf'], $result['rmf_varchar']);
+				$return[$result['rmf_rec_pid']]['isMemberOf'][] = $result['rmf_varchar'];
 			}
 			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				if (!is_array($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']])) {
-					$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']] = array();
-				}
-				array_push($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']], $result['rmf_'.$result['xsdmf_data_type']]);
+				$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']][] 
+                    = $result['rmf_'.$result['xsdmf_data_type']];
 				sort($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']]);
 			}
 			// get thumbnails
 			if ($result['xsdmf_fez_title'] == "datastream_id") {
 				if (is_numeric(strpos($result['rmf_varchar'], "thumbnail_"))) {
-					if (!is_array(@$return[$result['rmf_rec_pid']]['thumbnails'])) {
-						$return[$result['rmf_rec_pid']]['thumbnails'] = array();
-					}
-					array_push($return[$result['rmf_rec_pid']]['thumbnails'], $result['rmf_varchar']);
+					$return[$result['rmf_rec_pid']]['thumbnails'][] = $result['rmf_varchar'];
 				} else {
-					if (!is_array(@$return[$result['rmf_rec_pid']]['datastreams'])) {
-						$return[$result['rmf_rec_pid']]['datastreams'] = array();
-					}
-					array_push($return[$result['rmf_rec_pid']]['datastreams'], $result['rmf_varchar']);
+					$return[$result['rmf_rec_pid']]['datastreams'][] = $result['rmf_varchar'];
 				}
 			}
 		}		
 		foreach ($return as $pid_key => $row) {
 			//if there is only one thumbnail DS then use it
-			if (count($row['thumbnails']) == 1) {
+			if (count(@$row['thumbnails']) == 1) {
 				$return[$pid_key]['thumbnail'] = $row['thumbnails'][0];
 			} else {
 				$return[$pid_key]['thumbnail'] = 0;
@@ -1056,7 +1063,7 @@ class Collection
      * @param   integer $max The maximum number of records to return	 
      * @return  array The list of Fez objects matching the search criteria
      */
-    function SearchListing($terms, $current_row = 0, $max = 25)
+    function searchListing($terms, $current_row = 0, $max = 25)
     {
 		if (empty($terms)) {
 			return array();
@@ -1079,68 +1086,64 @@ class Collection
 			
 		}
 		$termLike .= ") AND ";
-        $stmt = "SELECT
-                    * 
-                 FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
-
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id) left join
- 				    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 on (k1.sek_id = x1.xsdmf_sek_id)
-				";
-				
-				$stmt .= 
-				" INNER JOIN (
-						SELECT distinct r2.rmf_rec_pid 
-						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
-							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,
-							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2  							  
-						WHERE r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND ".$termLike." s2.sek_simple_used = 1
-						) as r2 on r1.rmf_rec_pid = r2.rmf_rec_pid
-				";
-				$stmt .= 
-                " WHERE
-				    r1.rmf_xsdmf_id = x1.xsdmf_id 
-				 ORDER BY
-				 	r1.rmf_rec_pid";
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $stmt = "SELECT * 
+            FROM {$dbtp}record_matching_field AS r1
+            INNER JOIN {$dbtp}xsd_display_matchfields AS x1 
+            ON r1.rmf_xsdmf_id = x1.xsdmf_id 
+            LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 
+            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
+            LEFT JOIN {$dbtp}search_key AS k1 
+            ON (k1.sek_id = x1.xsdmf_sek_id)
+            INNER JOIN (
+                    SELECT distinct r2.rmf_rec_pid 
+                    FROM  {$dbtp}record_matching_field AS r2
+                    INNER JOIN {$dbtp}xsd_display_matchfields AS x2
+                    ON r2.rmf_xsdmf_id = x2.xsdmf_id 
+                    INNER JOIN {$dbtp}search_key AS s2  							  
+                    ON s2.sek_id = x2.xsdmf_sek_id 
+                    WHERE $termLike s2.sek_simple_used = 1
+                    ) AS r2 
+            ON r1.rmf_rec_pid = r2.rmf_rec_pid
+            WHERE r1.rmf_rec_pid IN (
+                    SELECT rmf_rec_pid FROM 
+                    {$dbtp}record_matching_field AS rmf
+                    INNER JOIN {$dbtp}xsd_display_matchfields AS xdm
+                    ON rmf.rmf_xsdmf_id = xdm.xsdmf_id
+                    WHERE rmf.rmf_varchar=2
+                    AND xdm.xsdmf_element='!sta_id'
+                    )
+            ORDER BY r1.rmf_rec_pid";
 	
 
-		$returnfields = array("title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
+		$returnfields = array("title", "date", "type", "description", "identifier", "creator", "ret_id", 
+                "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", 
+                "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		
 		$return = array();
 		foreach ($res as $result) {
-			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-				if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
-					$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
-				}
-				array_push($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+			if (in_array($result['xsdsel_title'], $returnfields) 
+                    && ($result['xsdmf_element'] != '!rule!role!name') 
+                    && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
+                // need to array_push because there can be multiple groups/users for a role
+				$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']][] 
+                    = $result['rmf_'.$result['xsdmf_data_type']]; 
 			}
 			if ($result['sek_title'] == 'isMemberOf') {
-				if (!is_array(@$return[$result['rmf_rec_pid']]['isMemberOf'])) {
-					$return[$result['rmf_rec_pid']]['isMemberOf'] = array();
-				}
-				array_push($return[$result['rmf_rec_pid']]['isMemberOf'], $result['rmf_varchar']);
+                $return[$result['rmf_rec_pid']]['isMemberOf'][] = $result['rmf_varchar'];
 			}
 			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				if (@!is_array($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']])) {
-					$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']] = array();
-				}
-				array_push($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']], $result['rmf_'.$result['xsdmf_data_type']]);
+				$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']][] 
+                    = $result['rmf_'.$result['xsdmf_data_type']];
 				sort($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']]);
 			}			// get thumbnails
 			if ($result['xsdmf_fez_title'] == "datastream_id") {
 				if (is_numeric(strpos($result['rmf_varchar'], "thumbnail_"))) {
-					if (!is_array(@$return[$result['rmf_rec_pid']]['thumbnails'])) {
-						$return[$result['rmf_rec_pid']]['thumbnails'] = array();
-					}
-					array_push($return[$result['rmf_rec_pid']]['thumbnails'], $result['rmf_varchar']);
+					$return[$result['rmf_rec_pid']]['thumbnails'][] = $result['rmf_varchar'];
 				} else {
-					if (!is_array(@$return[$result['rmf_rec_pid']]['datastreams'])) {
-						$return[$result['rmf_rec_pid']]['datastreams'] = array();
-					}
-					array_push($return[$result['rmf_rec_pid']]['datastreams'], $result['rmf_varchar']);
+					$return[$result['rmf_rec_pid']]['datastreams'][] = $result['rmf_varchar'];
 				}
 			}
 		}

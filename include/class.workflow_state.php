@@ -101,7 +101,8 @@ class Workflow_State
                     wfs_auto,
                     wfs_wfb_id,
                     wfs_start,
-                    wfs_end
+                    wfs_end,
+                    wfs_transparent
                  ) VALUES (
                     '" . $HTTP_POST_VARS['wfs_wfl_id'] . "',
                     '" . Misc::escapeString($HTTP_POST_VARS['wfs_title']) . "',
@@ -109,7 +110,8 @@ class Workflow_State
                     '$wfs_auto',
                     '$wfs_wfb_id',
                     '" . Misc::checkBox(@$HTTP_POST_VARS['wfs_start']) . "',
-                    '" . Misc::checkBox(@$HTTP_POST_VARS['wfs_end']) . "'
+                    '" . Misc::checkBox(@$HTTP_POST_VARS['wfs_end']) . "',
+                    '" . Misc::checkBox(@$HTTP_POST_VARS['wfs_transparent']) . "'
                  )";		
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -141,7 +143,8 @@ class Workflow_State
                     wfs_auto='$wfs_auto',
                     wfs_wfb_id='$wfs_wfb_id',
                     wfs_start='".Misc::checkBox(@$HTTP_POST_VARS['wfs_start'])."',
-                    wfs_end='".Misc::checkBox(@$HTTP_POST_VARS['wfs_end'])."'
+                    wfs_end='".Misc::checkBox(@$HTTP_POST_VARS['wfs_end'])."',
+                    wfs_transparent='".Misc::checkBox(@$HTTP_POST_VARS['wfs_transparent'])."'
                  WHERE
                     wfs_id=" . $HTTP_POST_VARS['id'];
         $res = $GLOBALS["db_api"]->dbh->query($stmt);

@@ -248,10 +248,31 @@ class WorkflowStatus {
         $next_states = Workflow_State::getDetailsNext($this->wfs_id);
         $button_list = array();
         foreach ($next_states as $next) {
-            $button_list[] = array(
-                    'wfs_id' => $next['wfs_id'],
-                    'wfs_title' => $next['wfs_title']
-                    );
+            // transparent states are hidden fromt he user so we make the button have the text of
+            // the next non-transparent state.  Only auto states can be transparent.
+            if ($next['wfs_auto'] && $next['wfs_transparent']) {
+                $next2 = $next;
+                while ($next2['wfs_id'] != -1 && $next2['wfs_auto'] && $next2['wfs_transparent']) {
+                    $next2_list = Workflow_State::getDetailsNext($next2['wfs_id']);
+                    // this list should only have one item since an auto state can only have one next state
+                    $next2 = $next2_list[0];
+                }
+                if ($next2['wfs_id'] == -1) {
+                    $title = 'Done';
+                } else {
+                    $title = $next2['wfs_title'];
+                }
+                // note the wfs_id is that of the transparent state - only the title is treated differently
+                $button_list[] = array(
+                        'wfs_id' => $next['wfs_id'],
+                        'wfs_title' => $title
+                        );
+            } else {
+                $button_list[] = array(
+                        'wfs_id' => $next['wfs_id'],
+                        'wfs_title' => $next['wfs_title']
+                        );
+            }
         }
         if ($this->wfs_details['wfs_end']) {
             $button_list[] = array(
