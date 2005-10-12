@@ -13,7 +13,11 @@
      {cycle values=$cycle assign="row_color"}
      <tr>
        <td bgcolor="{$row_color}" class="default">
-         &nbsp;<a href="{$rel_url}workflow/update.php?pid={$list[i].pid}">{$list[i].title|escape}</a>
+         &nbsp;<a href="{$rel_url}view.php?pid={$list[i].pid|escape}">{$list[i].title|escape}</a>
+         &nbsp;&nbsp;<a href='{$rel_url}workflow/update.php?pid={$list[i].pid|escape}'
+         ><img title="Edit" align="absmiddle" src="{$rel_url}images/edit.gif" border="0"></a> 
+         <a href="javascript:void(null);" onclick="javascript: purgeObject('{$list[i].pid|escape}');" 
+         ><img title="Delete" align="absmiddle" src="{$rel_url}images/delete.gif" border="0"></a> 
        </td>
      </tr>
      {sectionelse}

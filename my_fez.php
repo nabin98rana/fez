@@ -41,6 +41,10 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.collection.php");
 
+
+//Record::publishAllUnsetStatusPids(1);
+
+
 $tpl = new Template_API();
 $tpl->setTemplate("my_fez.tpl.html");
 
@@ -57,25 +61,12 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
 $tpl->assign("isAdministrator", $isAdministrator);
 
 
-$collection_list = Collection::getList();
-$my_collections = array();
-foreach ($collection_list as $col) {
-    if (@$col['isEditor']) {
-        // get parent community name
-        $parents = Collection::getParents($col['pid']);
-        $p2 = array();
-        foreach ($parents as $p) {
-            $p2[$p['pid']] = $p['title'];
-        }
-        $parents = implode(', ',array_values($p2));
-        $col['community'] = $parents;
-        // get the roles
-        // get the number of records
-        $col['items'] = Collection::getCount($col['pid']);
-        $my_collections[] = $col;
-    }
+$collection_list = Collection::getEditList();
+foreach ($collection_list as &$item) {
+    $item['community'] = implode(',',Misc::keyPairs(Collection::getParents2($item['pid']),'pid','title'));
+    $item['count'] = count(Collection::getEditListing($item['pid']));
 }
-$tpl->assign('my_collections_list', $my_collections);
+$tpl->assign('my_collections_list', $collection_list);
 
 $assigned_items= Record::getAssigned(Auth::getUsername());
 $tpl->assign('my_assigned_items_list', $assigned_items);

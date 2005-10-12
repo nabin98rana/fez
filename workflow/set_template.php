@@ -68,6 +68,7 @@ $wfs_id = Misc::GETorPOST('wfs_id');
 $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
 $pid = $wfstatus->pid;
 $tpl->assign("pid", $pid);
+$tpl->assign("sta_id", 1);
 
 // get the xdis_id of what we're creating
 $xdis_id = $wfstatus->getXDIS_ID();

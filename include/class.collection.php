@@ -121,6 +121,43 @@ class Collection
     }
 
     /**
+      * gets the parents of a collection using the Fez index (faster than fedora query)
+      * @param integer $collection_pid The collection to get the parents for.
+      * @return array Associative list of communities - pid, title
+      */
+    function getparents2($collection_pid)
+    {
+        $stmt = "SELECT r1.rmf_rec_pid, r1.rmf_varchar 
+            FROM fez_record_matching_field AS r1
+            INNER JOIN fez_xsd_display_matchfields AS x1
+            ON r1.rmf_xsdmf_id=x1.xsdmf_id
+            WHERE x1.xsdmf_element='!dc:title'
+            AND r1.rmf_rec_pid in ( SELECT r3.rmf_varchar
+                    FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3
+                    INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x3
+                    ON x3.xsdmf_sek_id = s3.sek_id
+                    INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s3
+                    ON x3.xsdmf_id = r3.rmf_xsdmf_id 
+                    WHERE s3.sek_title = 'isMemberOf' 
+                    AND r3.rmf_rec_pid='$collection_pid')";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = array();
+        }
+        $res2 = array();
+        foreach ($res as $item) {
+            $res2[] = array('pid' => $item['rmf_rec_pid'], 'title' => $item['rmf_varchar']);
+        }
+        return $res2;
+    }
+
+    function getItemsCount($collection_pid)
+    {
+
+    }
+
+    /**
      * Method used to get the XSD Display document types the collection supports, from the Fez Index.
      *
      * @access  public
@@ -269,6 +306,123 @@ class Collection
             );
         }
     }
+
+    /**
+      * List the collections in a community that can be edited by the current user
+      * @param integer $community_pid The pid of the community to restrict the list to
+      * @return array Associative array of collections - (pid, title)
+      */
+    function getEditList($community_pid=null) {
+        // get list of collections that 
+        // parent is community_pid
+        // has ACMLs set
+        //     AND user is in the roles for the ACML (group, user, combos)
+        // OR parents of the collection have ACML set
+        //     AND user is in the roles for the ACML
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $restrict_community = '';
+        if ($community_pid) {
+            $restrict_community = " AND r1.rmf_rec_pid IN (
+                SELECT r3.rmf_rec_pid 
+                FROM  {$dbtp}record_matching_field AS r3
+                INNER JOIN {$dbtp}xsd_display_matchfields AS x3
+                ON x3.xsdmf_id = r3.rmf_xsdmf_id
+                INNER JOIN {$dbtp}search_key AS s3
+                ON x3.xsdmf_sek_id = s3.sek_id
+                WHERE s3.sek_title = 'isMemberOf'   
+                AND r3.rmf_varchar = '$community_pid'
+                )";
+        }
+        $stmt = " SELECT r1.rmf_rec_pid, r1.rmf_varchar 
+            FROM fez_record_matching_field AS r1
+            INNER JOIN fez_xsd_display_matchfields AS x1
+            ON r1.rmf_xsdmf_id=x1.xsdmf_id
+            WHERE x1.xsdmf_element='!dc:title'
+            AND  r1.rmf_rec_pid in (
+                    SELECT r2.rmf_rec_pid 
+                    FROM  {$dbtp}record_matching_field r2
+                    INNER JOIN {$dbtp}xsd_display_matchfields x2
+                    ON r2.rmf_xsdmf_id = x2.xsdmf_id 
+                    INNER JOIN {$dbtp}search_key s2				  
+                    ON x2.xsdmf_sek_id = s2.sek_id 
+                    WHERE s2.sek_title = 'Object Type' 
+                    AND r2.rmf_varchar = '2' 
+                    )
+           $restrict_community
+           ";
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = array();
+        }
+        $res2 = array();
+        foreach ($res as $item) {
+            $auth_roles = Auth::getAuthorisationGroups($item['rmf_rec_pid']);
+            if (in_array('Editor', $auth_roles)) {
+                $res2[] = array('pid' => $item['rmf_rec_pid'], 'title' => $item['rmf_varchar']);
+            }
+        }
+        return $res2;
+    }
+
+    /**
+      * List the records in a collection that can be edited by the current user
+      * @param integer $collection_pid The pid of the collection to restrict the list to
+      * @return array Associative array of records - (pid, title)
+      */
+    function getEditListing($collection_pid=null) {
+        // get list of collections that 
+        // parent is collection_pid
+        // has ACMLs set
+        //     AND user is in the roles for the ACML (group, user, combos)
+        // OR parents of the collection have ACML set
+        //     AND user is in the roles for the ACML
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $restrict_collection = '';
+        if ($collection_pid) {
+            $restrict_collection = " AND r1.rmf_rec_pid IN (
+                SELECT r3.rmf_rec_pid 
+                FROM  {$dbtp}record_matching_field AS r3
+                INNER JOIN {$dbtp}xsd_display_matchfields AS x3
+                ON x3.xsdmf_id = r3.rmf_xsdmf_id
+                INNER JOIN {$dbtp}search_key AS s3
+                ON x3.xsdmf_sek_id = s3.sek_id
+                WHERE s3.sek_title = 'isMemberOf'   
+                AND r3.rmf_varchar = '$collection_pid'
+                )";
+        }
+        $stmt = " SELECT r1.rmf_rec_pid, r1.rmf_varchar 
+            FROM fez_record_matching_field AS r1
+            INNER JOIN fez_xsd_display_matchfields AS x1
+            ON r1.rmf_xsdmf_id=x1.xsdmf_id
+            WHERE x1.xsdmf_element='!dc:title'
+            AND  r1.rmf_rec_pid in (
+                    SELECT r2.rmf_rec_pid 
+                    FROM  {$dbtp}record_matching_field r2
+                    INNER JOIN {$dbtp}xsd_display_matchfields x2
+                    ON r2.rmf_xsdmf_id = x2.xsdmf_id 
+                    INNER JOIN {$dbtp}search_key s2				  
+                    ON x2.xsdmf_sek_id = s2.sek_id 
+                    WHERE s2.sek_title = 'Object Type' 
+                    AND r2.rmf_varchar = '3' 
+                    )
+           $restrict_collection
+           ";
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = array();
+        }
+        $res2 = array();
+        foreach ($res as $item) {
+            $auth_roles = Auth::getAuthorisationGroups($item['rmf_rec_pid']);
+            if (in_array('Editor', $auth_roles)) {
+                $res2[] = array('pid' => $item['rmf_rec_pid'], 'title' => $item['rmf_varchar']);
+            }
+        }
+        return $res2;
+    }
+
 
     /**
      * Method used to get the XSD Display ID of a collection object

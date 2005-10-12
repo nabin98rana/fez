@@ -59,11 +59,11 @@ class SelectCollection {
 
     function getCollections($community_pid)
     {
-        $collections = Collection::getList($community_pid);
+        $collections = Collection::getEditList($community_pid);
         $list = array();
         foreach($collections['list'] as $item) {
             $pid = $item['pid'];
-            $list[] = array('value' => $pid, 'text' => Misc::stripOneElementArrays($item['title']));
+            $list[] = array('value' => $pid, 'text' => $item['title']);
         }
         return $list;
     }

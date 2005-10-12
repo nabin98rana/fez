@@ -516,7 +516,7 @@ class Record
      * @access  public
      * @return void
      */
-    function publishAllUnsetStatusPids()
+    function publishAllUnsetStatusPids($sta_id=2)
     {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX; // Database and table prefix
         $stmt = "SELECT distinct rmf_rec_pid FROM 
@@ -533,7 +533,7 @@ class Record
             $r = new RecordObject($row['rmf_rec_pid']);
             if ($r->getXmlDisplayId()) {
                 echo $r->getTitle()."<br/>\n";
-                $r->setStatusId(2);
+                $r->setStatusId($sta_id);
             }
         }
     }
@@ -732,7 +732,10 @@ class RecordGeneral
     var $creator_roles;
     var $checked_auth = false;
     var $auth_groups;
-
+    var $display;
+    var $details;
+    var $record_parents;
+ 
     /**
      * RecordGeneral
      * If instantiated with a pid, then this object is linked with the record with the pid, otherwise we are inserting
@@ -829,7 +832,11 @@ class RecordGeneral
      * @return  void	 	 
      */
     function canView($redirect=true) {
-        return $this->checkAuth($this->viewer_roles, $redirect);
+        if ($this->getPublishedStatus() == 2) {
+            return $this->checkAuth($this->viewer_roles, $redirect);
+        } else {
+            return $this->canEdit($redirect);
+        }
     }
     
     /**
@@ -856,6 +863,183 @@ class RecordGeneral
         return $this->checkAuth($this->creator_roles, $redirect);
     }
 
+    function getPublishedStatus()
+    {
+        $this->getDetails();
+        $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!sta_id'); 
+        return $this->details[$xsdmf_id];
+    }
+
+
+    /**
+     * setStatusID
+     * Used to assocaiate a display for this record
+     *
+     * @access  public
+     * @param  integer $sta_id The new Status ID of the object
+     * @return  void    
+     */
+    function setStatusId($sta_id)
+    {
+        $this->setFezMD_Datastream('sta_id', $sta_id);
+        $this->getDisplay();
+        $this->display->processXSDMF($this->pid); 
+        $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!sta_id'); 
+        Record::removeIndexRecordByXSDMF_ID($this->pid, $xsdmf_id);
+        Record::insertIndexMatchingField($this->pid, $xsdmf_id, "varchar", $sta_id);
+    }
+
+    /**
+     * setFezMD_Datastream
+     * Used to associate a display for this record
+     *
+     * @access  public
+     * @param  $key
+     * @param  $value     
+     * @return  void    
+     */
+    function setFezMD_Datastream($key, $value) 
+    {
+        $items = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD');
+        $newXML = '<FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">';
+        $foundElement = false;
+        foreach ($items as $xkey => $xdata) {
+            foreach ($xdata as $xinstance) {
+                if ($xkey == $key) {
+                    $foundElement = true;
+                    $newXML .= "<".$xkey.">".$value."</".$xkey.">";				
+                } elseif ($xinstance != "") {
+                    $newXML .= "<".$xkey.">".$xinstance."</".$xkey.">";
+                }
+            }
+        }
+        if ($foundElement != true) {
+            $newXML .= "<$key>".$value."</$key>";
+        }
+        $newXML .= "</FezMD>";
+        //		echo $newXML;
+        if ($newXML != "") {
+            Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez extension metadata", $newXML, "text/xml", true);
+        }
+    }
+
+    /**
+     * getDisplay
+     * Get a display object for this record
+     *
+     * @access  public
+     * @return  array $this->details The display of the object, or null
+     */ 
+    function getDisplay()
+    {
+        $this->getXmlDisplayId();
+        if (!empty($this->xdis_id)) {
+            if (is_null($this->display)) {
+                $this->display = new XSD_DisplayObject($this->xdis_id);
+            }
+            return $this->display;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * getDetails
+     * Users a more object oriented approach with the goal of storing query results so that we don't need to make 
+     * so many queries to view a record.
+     *
+     * @access  public
+     * @return  array $this->details The details of the object
+     */
+    function getDetails()
+    {
+        if (is_null($this->details)) {
+            // Get the Datastreams.
+            $this->getDisplay();
+            if ($this->display) {
+                $this->details = $this->display->getXSDMF_Values($this->pid);
+            } else {
+                echo "No display for PID {$this->pid} ".__FILE__.__LINE__."<br/>";
+            }
+        }
+        return $this->details;
+    }
+
+    /**
+     * getTitle
+     * Get the dc:title for the record
+     *
+     * @access  public
+     * @return  array $this->details[$xsdmf_id] The Dublin Core title of the object
+     */
+    function getTitle()
+    {
+        $this->getDetails();
+        $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!dc:title'); 
+        return $this->details[$xsdmf_id];
+    }
+
+    /**
+     * getDCType
+     * Get the dc:type for the record
+     *
+     * @access  public
+     * @return  array $this->details[$xsdmf_id] The Dublin Core type of the object
+     */
+    function getDCType()
+    {
+        $this->getDetails();
+        $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!dc:type'); 
+        return $this->details[$xsdmf_id];
+    }
+
+    function isCollection()
+    {
+        return ($this->getDCType() == 'Fez_Collection') ? true : false;
+    }
+
+    function isCommunity()
+    {
+        return ($this->getDCType() == 'Fez_Community') ? true : false;
+    }
+
+
+    function getParents()
+    {
+        if (!$this->record_parents) {
+            $this->record_parents = Record::getParents($this->pid);
+        }
+        return $this->record_parents;
+    }
+
+    function getWorkflowsByTrigger($trigger)
+    {
+        $this->getParents();
+        $triggers = WorkflowTrigger::getListByTrigger($this->pid, $trigger);
+        foreach ($this->record_parents as $ppid) {
+            $triggers = array_merge($triggers, WorkflowTrigger::getListByTrigger($ppid, $trigger));
+        }
+        // get defaults
+        $triggers = array_merge($triggers, WorkflowTrigger::getListByTrigger(-1, $trigger));
+        return $triggers;
+    }
+
+    function getWorkflowsByTriggerAndXDIS_ID($trigger, $xdis_id, $strict=false)
+    {
+        $this->getParents();
+        $triggers = WorkflowTrigger::getListByTriggerAndXDIS_ID($this->pid, $trigger, $xdis_id, $strict);
+        foreach ($this->record_parents as $ppid) {
+            $triggers = array_merge($triggers, 
+                    WorkflowTrigger::getListByTriggerAndXDIS_ID($ppid, $trigger, $xdis_id, $strict));
+        }
+        // get defaults
+        $triggers = array_merge($triggers, 
+                WorkflowTrigger::getListByTriggerAndXDIS_ID(-1, $trigger, $xdis_id, $strict));
+        return $triggers;
+    }
+
+
+
 
 }
 
@@ -870,10 +1054,7 @@ class RecordObject extends RecordGeneral
     var $updated_date;	
     var $file_downloads; //for statistics of file datastream downloads from eserv.php
     var $default_xdis_id = 5;
-    var $display;
-    var $details;
-    var $record_parents;
-    
+   
     /**
      * getXmlDisplayId
      * Retrieve the display id for this record
@@ -941,58 +1122,6 @@ class RecordObject extends RecordGeneral
 			Record::insertIndexMatchingField($this->pid, $xsdmf_id, "varchar", $this->xdis_id);
 		}
     }
-
-    /**
-     * setStatusID
-     * Used to assocaiate a display for this record
-	 * 
-     * @access  public
-	 * @param  integer $sta_id The new Status ID of the object 
-     * @return  void	
-     */
-    function setStatusId($sta_id)
-    {
-        $this->setFezMD_Datastream('sta_id', $sta_id);
-        $this->getDisplay();
-        $this->display->processXSDMF($this->pid); 
-        $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!sta_id'); 
-        Record::removeIndexRecordByXSDMF_ID($this->pid, $xsdmf_id);
-        Record::insertIndexMatchingField($this->pid, $xsdmf_id, "varchar", $sta_id);
-    }
-
-    /**
-     * setFezMD_Datastream
-     * Used to associate a display for this record
-	 * 
-     * @access  public
-	 * @param  $key 
-	 * @param  $value 	 
-     * @return  void	
-     */
-    function setFezMD_Datastream($key, $value) 
-    {
-        $items = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD');
-        $newXML = '<FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">';
-        $foundElement = false;
-        foreach ($items as $xkey => $xdata) {
-            foreach ($xdata as $xinstance) {
-                if ($xkey == $key) {
-                    $foundElement = true;
-                    $newXML .= "<".$xkey.">".$value."</".$xkey.">";				
-                } elseif ($xinstance != "") {
-                    $newXML .= "<".$xkey.">".$xinstance."</".$xkey.">";
-                }
-            }
-        }
-        if ($foundElement != true) {
-            $newXML .= "<$key>".$value."</$key>";
-        }
-        $newXML .= "</FezMD>";
-        if ($newXML != "") {
-            Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez extension metadata", $newXML, "text/xml", true);
-        }
-    }
-
    /**
      * Method used to increment the file download counter of a specific Record.
      *
@@ -1093,141 +1222,6 @@ class RecordObject extends RecordGeneral
 		return $pid;
     }
     
-    /**
-     * getDisplay
-     * Get a display object for this record
-     *
-     * @access  public
-     * @return  array $this->details The display of the object, or null
-     */ 
-    function getDisplay()
-    {
-        $this->getXmlDisplayId();
-        if (!empty($this->xdis_id)) {
-            if (is_null($this->display)) {
-                $this->display = new XSD_DisplayObject($this->xdis_id);
-            }
-            return $this->display;
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * getDetails
-     * Users a more object oriented approach with the goal of storing query results so that we don't need to make 
-     * so many queries to view a record.
-     *
-     * @access  public
-     * @return  array $this->details The details of the object
-     */
-    function getDetails()
-    {
-        if (is_null($this->details)) {
-            // Get the Datastreams.
-            $this->getDisplay();
-            if ($this->display) {
-                $this->details = $this->display->getXSDMF_Values($this->pid);
-            } else {
-                echo "No display for PID {$this->pid} ".__FILE__.__LINE__."<br/>";
-            }
-        }
-        return $this->details;
-    }
-
-    /**
-      * getTitle
-      * Get the dc:title for the record
-      *
-      * @access  public
-      * @return  array $this->details[$xsdmf_id] The Dublin Core title of the object
-      */
-    function getTitle()
-    {
-        $this->getDetails();
-        $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!dc:title'); 
-        return $this->details[$xsdmf_id];
-    }
-
-    /**
-      * getDCType
-      * Get the dc:type for the record
-      *
-      * @access  public
-      * @return  array $this->details[$xsdmf_id] The Dublin Core type of the object
-      */
-    function getDCType()
-    {
-        $this->getDetails();
-        $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!dc:type'); 
-        return $this->details[$xsdmf_id];
-    }
-
-    /**
-      * isCollection
-      * Is the record a Collection
-      *
-      * @access  public
-      * @return  boolean
-      */
-    function isCollection()
-    {
-        return ($this->getDCType() == 'Fez_Collection') ? true : false;
-    }
-
-    /**
-      * isCommunity
-      * Is the record a Community
-      *
-      * @access  public
-      * @return  boolean
-      */
-    function isCommunity()
-    {
-        return ($this->getDCType() == 'Fez_Community') ? true : false;
-    }
-
-    /**
-      * getParents
-      * Get the parent pids of an object
-      *
-      * @access  public
-      * @return  array list of parents
-      */
-    function getParents()
-    {
-        if (!$this->record_parents) {
-            $this->record_parents = Record::getParents($this->pid);
-        }
-        return $this->record_parents;
-    }
-
-    function getWorkflowsByTrigger($trigger)
-    {
-        $this->getParents();
-        $triggers = WorkflowTrigger::getListByTrigger($this->pid, $trigger);
-        foreach ($this->record_parents as $ppid) {
-            $triggers = array_merge($triggers, WorkflowTrigger::getListByTrigger($ppid, $trigger));
-        }
-        // get defaults
-        $triggers = array_merge($triggers, WorkflowTrigger::getListByTrigger(-1, $trigger));
-        return $triggers;
-    }
-
-    function getWorkflowsByTriggerAndXDIS_ID($trigger, $xdis_id, $strict=false)
-    {
-        $this->getParents();
-        $triggers = WorkflowTrigger::getListByTriggerAndXDIS_ID($this->pid, $trigger, $xdis_id, $strict);
-        foreach ($this->record_parents as $ppid) {
-            $triggers = array_merge($triggers, 
-                    WorkflowTrigger::getListByTriggerAndXDIS_ID($ppid, $trigger, $xdis_id, $strict));
-        }
-        // get defaults
-        $triggers = array_merge($triggers, 
-                WorkflowTrigger::getListByTriggerAndXDIS_ID(-1, $trigger, $xdis_id, $strict));
-        return $triggers;
-    }
-
     function getIngestTrigger($mimetype)
     {
         $this->getXmlDisplayId();
@@ -1246,13 +1240,6 @@ class RecordObject extends RecordGeneral
             }
         }
         return $trigger;
-    }
-
-    function getPublishedStatus()
-    {
-        $this->getDetails();
-        $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!sta_id'); 
-        return $this->details[$xsdmf_id];
     }
 
 }

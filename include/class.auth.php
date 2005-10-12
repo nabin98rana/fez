@@ -261,7 +261,7 @@ class Auth
      * @param   array $parents The array of parent PIDS to loop over
      * @return  void (returns array by reference).
      */	
-	function getParentACMLs($array, $parents) {
+	function getParentACMLs(&$array, $parents) {
 		if (!is_array($parents)) {
 			return false;
 		}
@@ -441,12 +441,12 @@ class Auth
      * @param   string $pid The persistent identifier of the object
      * @returns array $userPIDAuthGroups The authorisation groups (roles) the user belongs to against this object.
     */
-	function getAuthorisationGroups ($pid) {
+	function getAuthorisationGroups($pid) {
         $userPIDAuthGroups = array();
 
         $acmlBase = Record::getACML($pid);
         $ACMLArray = array();
-        if ($acmlBase === false) {
+        if ($acmlBase == false) {
             $parents = Record::getParents($pid);
             Auth::getParentACMLs(&$ACMLArray, $parents);
         } else {
@@ -456,21 +456,21 @@ class Auth
         global $NonRestrictedRoles;
         $userPIDAuthGroups = $NonRestrictedRoles;
         // loop through the ACML docs found for the current pid or in the eSpace ancestry
-        foreach ($ACMLArray as $acml) {
+        foreach ($ACMLArray as &$acml) {
             // Use XPath to find all the roles that have groups set and loop through them
             $xpath = new DOMXPath($acml);
 			//$roleNodes = $xpath->query('/FezACML/rule/role[string-length(normalize-space(*))>0]');
             $roleNodes = $xpath->query('/FezACML/rule/role');
             foreach ($roleNodes as $roleNode) {
                 $role = $roleNode->getAttribute('name');
+                // if the role is in the ACML then it is restricted so remove it
+                if (in_array($role, $userPIDAuthGroups)) {
+                    $userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role, false, true);
+                }
                 // Use XPath to get the sub groups that have values
                 $groupNodes = $xpath->query('./*[string-length(normalize-space())>0]', $roleNode); /**/
                 foreach ($groupNodes as $groupNode) {
-					// if the role is in the ACML then it is restricted so remove it
-					if (in_array($role, $userPIDAuthGroups)) {
-						$userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role, false, true);
-					}
-                    $group_type = $groupNode->nodeName;
+                   $group_type = $groupNode->nodeName;
                     $group_values = explode(',', $groupNode->nodeValue);
                     foreach ($group_values as $group_value) {
                         $group_value = trim($group_value, ' ');

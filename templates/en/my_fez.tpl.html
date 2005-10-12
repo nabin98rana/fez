@@ -1,6 +1,22 @@
 {include file="header.tpl.html" extra_title="My Fez"}
 {include file="navigation.tpl.html"}
 
+{literal}
+<script language="JavaScript">
+<!--
+function purgeObject(pid)
+{
+    if (!confirm('This action will permanently delete the selected object.')) {
+        return false;
+    } else {
+        window.location.replace('{/literal}{$rel_url}{literal}workflow/delete.php?pid=' + pid);
+        return true;
+    }
+}
+//-->
+</script>
+{/literal}
+
 <table width="100%">
 <tr>
   <td colspan="2" class="contentheader">Actions 
