@@ -63,6 +63,7 @@ if ($isAdministrator) {
 	$xsd_str = Doc_Type_XSD::getXSDSource($xsd_id);
 	$xsd_str = $xsd_str[0]['xsd_file'];
 	$xsd = new DomDocument();
+    $xsd->loadXML($xsd_str);
 	$array_ptr = array();
 	$temp = array();
 	Misc::dom_xsd_to_referenced_array($xsd, $top_element_name, &$array_ptr, "", "", $xsd);
