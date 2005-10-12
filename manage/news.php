@@ -41,7 +41,7 @@ include_once(APP_INC_PATH . "db_access.php");
 $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");
 
-//Auth::checkAuthentication(APP_SESSION);
+Auth::checkAuthentication(APP_SESSION);
 
 $tpl->assign("type", "news");
 $isUser = Auth::getUsername();
@@ -50,10 +50,6 @@ $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 
 if ($isAdministrator) {
-    if ($role_id == User::getRoleID('administrator')) {
-        $tpl->assign("show_setup_links", true);
-    }
-
     if (@$HTTP_POST_VARS["cat"] == "new") {
         $tpl->assign("result", News::insert());
     } elseif (@$HTTP_POST_VARS["cat"] == "update") {
@@ -67,7 +63,6 @@ if ($isAdministrator) {
     }
 
     $tpl->assign("list", News::getListAll());
-//    $tpl->assign("project_list", Project::getAll());
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }

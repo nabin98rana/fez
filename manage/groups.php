@@ -54,10 +54,6 @@ $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 
 if ($isAdministrator) {
-    if ($role_id == User::getRoleID('administrator')) {
-        $tpl->assign("show_setup_links", true);
-    }
-
     if (@$HTTP_POST_VARS["cat"] == "new") {
         $tpl->assign("result", Group::insert());
     } elseif (@$HTTP_POST_VARS["cat"] == "update") {

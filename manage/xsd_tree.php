@@ -38,7 +38,6 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
-//include_once(APP_INC_PATH . "class.xsd_xsl_transform.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "db_access.php");
 
@@ -56,47 +55,20 @@ $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 
 if ($isAdministrator) {
-
-//echo $_POST['xsd_source'];
-//$role_id = User::getRoleByUserCollection(Auth::getUserID(), $col_id);
-$xdis_id = @$HTTP_POST_VARS["xdis_id"] ? $HTTP_POST_VARS["xdis_id"] : @$HTTP_GET_VARS["xdis_id"];
-// TEST
-//$xdis_id = 3;
-$xsd_id = XSD_HTML_Match::getXSD_ID($xdis_id);
-
-$top_element_name = Doc_Type_XSD::getDetails($xsd_id);
-//print_r($top_element_name);
-$top_element_name = $top_element_name['xsd_top_element_name'];
-
-
-/*    if (@$HTTP_POST_VARS["cat"] == "update") {
-        $tpl->assign("result", XSD_XSL_Transform::update($xsl_id));
-    }
-*/
-
+	$xdis_id = @$HTTP_POST_VARS["xdis_id"] ? $HTTP_POST_VARS["xdis_id"] : @$HTTP_GET_VARS["xdis_id"];
+	$xsd_id = XSD_HTML_Match::getXSD_ID($xdis_id);
+	$top_element_name = Doc_Type_XSD::getDetails($xsd_id);
+	$top_element_name = $top_element_name['xsd_top_element_name'];
 	$xsd_str = array();
 	$xsd_str = Doc_Type_XSD::getXSDSource($xsd_id);
-
 	$xsd_str = $xsd_str[0]['xsd_file'];
-
-    $xsd = new DomDocument();
-if ($xsd->loadXML($xsd_str) === true) {
-//  echo "It loaded ok (true)!!";
-}
-$array_ptr = array();
-//Misc::dom_xsd_to_simple_array($xsd, &$array_ptr);
-//print_r($array_ptr);
-$temp = array();
-//$temp = (Misc::array_to_dtree($array_ptr, $xdis_id));
-
-Misc::dom_xsd_to_referenced_array($xsd, $top_element_name, &$array_ptr, "", "", $xsd);
-//print_r($array_ptr);
-$element_match_list = XSD_HTML_Match::getElementMatchList($xdis_id);
-$temp = (Misc::array_to_dtree($array_ptr, $xdis_id, $element_match_list));
-//var_dump($array_ptr);
-
-$tpl->assign("xsd_tree", $temp[1]);
-   
+	$xsd = new DomDocument();
+	$array_ptr = array();
+	$temp = array();
+	Misc::dom_xsd_to_referenced_array($xsd, $top_element_name, &$array_ptr, "", "", $xsd);
+	$element_match_list = XSD_HTML_Match::getElementMatchList($xdis_id);
+	$temp = (Misc::array_to_dtree($array_ptr, $xdis_id, $element_match_list));
+	$tpl->assign("xsd_tree", $temp[1]);   
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }

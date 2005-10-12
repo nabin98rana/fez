@@ -33,7 +33,6 @@
 //
 //
 include_once("../config.inc.php");
-
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
@@ -47,11 +46,9 @@ include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.community.php");
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
-
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
-
 
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
@@ -66,10 +63,6 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
 }
 $tpl->assign("isAdministrator", $isAdministrator);
 
-//$col_id = Auth::getCurrentCollection();
-//$role_id = User::getRoleByUserCollection($user_id, $col_id);
-
-//$record_id = @$HTTP_POST_VARS["record_id"] ? $HTTP_POST_VARS["record_id"] : $HTTP_GET_VARS["pid"];
 $id = Misc::GETorPOST('id');
 $tpl->assign("id", $id);
 $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
@@ -96,7 +89,6 @@ if (!empty($community_pid)) {
 	$extra_redirect.="&community_pid=".$community_pid;
 }
 
-//if ($role_id == User::getRoleID('standard user') || ($role_id == User::getRoleID('administrator')) || ($role_id == User::getRoleID('manager'))) {
 $tpl->assign("pid", $pid);
 $record = new RecordObject($pid);
 $record->getDisplay();
@@ -106,7 +98,6 @@ $xdis_list = XSD_Display::getAssocListDocTypes(); // @@@ CK - 24/8/05 added for 
 $acceptable_roles = array("Community_Admin", "Editor", "Creator", "Community_Admin");
 if (Auth::checkAuthorisation($pid, $acceptable_roles, $HTTP_SERVER_VARS['PHP_SELF']."?".$HTTP_SERVER_VARS['QUERY_STRING']) == true) {
 
-//echo "XDIS_ID -> ".$xdis_id;
 if (!is_numeric($xdis_id)) {
 	$xdis_id = @$HTTP_POST_VARS["xdis_id"] ? $HTTP_POST_VARS["xdis_id"] : $HTTP_GET_VARS["xdis_id"];	
 	if (is_numeric($xdis_id)) { // must have come from select xdis so save xdis in the eSpace MD
@@ -115,8 +106,6 @@ if (!is_numeric($xdis_id)) {
 }
 
 if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for it
-//	echo "XDIS_ID -> ".$xdis_id;
-//	echo "redirecting";
 	Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=update_form&pid=".$pid.$extra_redirect, false);
 }
 
@@ -125,28 +114,11 @@ if (!$sta_id) {
     $sta_id = 1;
 }
 $tpl->assign('sta_id', $sta_id); 
-//if (@$HTTP_POST_VARS["cat"] == "report") {
-//    $res = Record::update($pid);
-//}
 
 $jtaskData = "";
 $maxG = 0;
-//$tpl->assign("col_id", $col_id);
-//$tpl->assign("user_id", $user_id);
-//$xdis_id = 5;
 $cvo_list = Controlled_Vocab::getAssocListFullDisplay();
 $xsd_display_fields = $record->display->getMatchFieldsList();  // XSD_DisplayObject
-//print_r($xsd_display_fields);
-//(XSD_HTML_Match::getListByDisplay($xdis_id));
-//$prior = array(''=>array('xsdmf_'=>array('')));
-//$priority = array(''=>array('xsdmf_order'=>''));
-//$priority = array(''=>array('xsdmf_order'=>''));
-//$priority = array(''=>array('xsdmf_order'=>''));
-//$new_fields = Misc::multiSortAssocR($xsd_display_fields, $priority);
-//print_r($new_fields);
-//$xsd_display_fields = $new_fields;
-//$xsd_auth_display_fields = (XSD_HTML_Match::getListByDisplaySpecify($xdis_id));
-//print_r($xsd_display_fields);
 //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
 foreach ($xsd_display_fields  as $dis_key => $dis_field) {
 	if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple') {
@@ -167,12 +139,8 @@ foreach ($xsd_display_fields  as $dis_key => $dis_field) {
 $tpl->assign("xsd_display_fields", $xsd_display_fields);
 
 $tpl->assign("xdis_id", $xdis_id);
-//$pid = 'UQL-fed:32'; // will replace with a value from Get or Post after testing
-
-//$xdis_id = 5; //will replace with value from the eSpace mysql database after testing
 
 $details = $record->getDetails();
-//print_r($details);
 $controlled_vocabs = Controlled_Vocab::getAssocListAll();
 //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
 foreach ($xsd_display_fields  as $dis_field) {
@@ -186,7 +154,6 @@ foreach ($xsd_display_fields  as $dis_field) {
 						$details[$dis_field["xsdmf_id"]][$cv_value] = $controlled_vocabs[$cv_value];
 					}
 				} else {
-//					$details[$dis_field["xsdmf_id"]] = $controlled_vocabs[$details[$dis_field["xsdmf_id"]]];
 					$tempValue = $details[$dis_field["xsdmf_id"]];
 					$details[$dis_field["xsdmf_id"]] = array();
 					$details[$dis_field["xsdmf_id"]][$tempValue] = $controlled_vocabs[$tempValue];
@@ -199,13 +166,11 @@ foreach ($xsd_display_fields  as $dis_field) {
 						if (is_array($details[$dis_field["xsdmf_id"]])) { // if there are multiple selected options (it will be an array)
 							foreach ($details[$dis_field["xsdmf_id"]] as $detail_key => $detail_value) {
 								if ($field_option == $detail_value) {
-	//								echo "field key = ".$field_key."\n";
 									$details[$dis_field["xsdmf_id"]][$detail_key] = $field_key;
 								}
 							}					
 						} else {
 							if ($field_option == $details[$dis_field["xsdmf_id"]]) {
-	//							echo "field key = ".$field_key."\n";
 								$details[$dis_field["xsdmf_id"]] = $field_key;
 							}
 						}
@@ -221,10 +186,7 @@ foreach ($xsd_display_fields  as $dis_field) {
 }
 
 $datastreams = Fedora_API::callGetDatastreams($pid);
-//print_r($datastreams);
-
 $datastreams = Misc::cleanDatastreamList($datastreams);
-//print_r($datastreams);
 $parents = $record->getParents(); // RecordObject
 $tpl->assign("parents", $parents);
 $title = $record->getTitle(); // RecordObject
@@ -242,34 +204,24 @@ if ($record->isCollection()) {
     $tpl->assign('view_href', APP_RELATIVE_URL."view.php?pid=$pid");
 }
 
-
 $tpl->assign("datastreams", $datastreams);
 $tpl->assign("fez_root_dir", APP_PATH);
 $tpl->assign("eserv_url", APP_BASE_URL."eserv.php?pid=".$pid."&dsID=");
 $tpl->assign("local_eserv_url", APP_RELATIVE_URL."eserv.php?pid=".$pid."&dsID=");
-
 $tpl->assign('triggers', count(WorkflowTrigger::getList($pid)));
-
-
 $tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");
 $tpl->assign("isEditor", 1);
 
 $tpl->assign("details", $details);
 $setup = Setup::load();
 
-// if user is an espace user then get prefs
+// if user is a fez user then get prefs
 if (Auth::userExists($username)) {
 	$prefs = Prefs::get(Auth::getUserID());
 }
 $tpl->assign("user_prefs", $prefs);
-//$user_details = User::getDetails(Auth::getUserID());
-
 } else {
-//	Auth::redirect(APP_RELATIVE_URL . "list.php", false);
     $tpl->assign("show_not_allowed_msg", true);
 }
-
 $tpl->displayTemplate();
-
-
 ?>

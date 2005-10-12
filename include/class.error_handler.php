@@ -43,7 +43,6 @@
  */
 
 include_once(APP_INC_PATH . "class.misc.php");
-include_once(APP_INC_PATH . "class.mail.php");
 include_once(APP_INC_PATH . "class.setup.php");
 
 @define("REPORT_ERROR_FILE", true);

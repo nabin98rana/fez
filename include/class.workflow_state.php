@@ -42,12 +42,7 @@
  */
 
 include_once(APP_INC_PATH . "class.error_handler.php");
-//include_once(APP_INC_PATH . "class.reminder_condition.php");
-//include_once(APP_INC_PATH . "class.notification.php");
 include_once(APP_INC_PATH . "class.user.php");
-include_once(APP_INC_PATH . "class.mail.php");
-//include_once(APP_INC_PATH . "class.issue.php");
-//include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "class.workflow_state_link.php");
 
 class Workflow_State

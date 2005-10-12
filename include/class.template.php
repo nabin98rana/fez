@@ -183,20 +183,8 @@ class Template_API
         // create the list of collections
         $username = Auth::getUsername();
         if ($username != '') {
-//            $this->assign("active_collections", Collection::getAssocList($usr_id));
-//            $this->assign("current_collection", Auth::getCurrentCollection());
-//            $this->assign("current_collection_name", Auth::getCurrentCollectionName());
             $this->assign("current_full_name", Auth::getUserFullName());
             $this->assign("current_email", Auth::getUserEmail());
-//            $this->assign("current_user_id", $usr_id);
-			// @@@ CK - Changed so that the role was determined by primary team
-//			$col_id = Auth::getCurrentCollection();
-//            $role_id = User::getRoleByUserCollection($usr_id, $col_id);
-//			echo $role_id;
-//            $this->assign("current_role", (integer) $role_id);
-//            $this->assign("current_role_collection", (integer) $role_id);
-//            $this->assign("current_role_name", User::getRole($role_id));
-//            $this->assign("roles", User::getAssocRoleIDs());
         }
         $this->assign("app_path", APP_PATH);
         $this->assign("app_setup", Setup::load());
@@ -257,31 +245,8 @@ class Template_API
         // create the list of collections
         $username = Auth::getUsername();
         if ($username != '') {
-//            $info = User::getNameEmail($usr_id);
-/*            $this->assign("active_collections", Collection::getAssocList($usr_id));
-            $this->assign("current_collection", Auth::getCurrentCollection());
-            $this->assign("current_collection_name", Auth::getCurrentCollectionName());
-*/
             $this->assign("current_full_name", Auth::getUserFullName());
             $this->assign("current_email", Auth::getUserEmail());
-
-//            $this->assign("current_full_name", $info["usr_full_name"]);
-//            $this->assign("current_email", $info["usr_email"]);
-//            $this->assign("current_user_id", $usr_id);
-			// @@@ CK - Changed so that the role was determined by primary team
-//			$col_id = Auth::getCurrentCollection();
-			// @@@ CK - 24/8/2004  Main Difference between the two functions. Added due to the new ability to open records when you are in any collection/team
-//            $role_id = User::getRoleByUserCollectionRecord($usr_id, $col_id, $record_id);
-//            $role_id_collection = User::getRoleByUserCollection($usr_id, $col_id);
-//			echo $role_id;
-/*            if (($role_id == User::getRoleID('administrator')) || ($role_id == User::getRoleID('manager'))) {
-                $this->assign("show_admin_link", true);
-            }
-            $this->assign("current_role", (integer) $role_id);
-            $this->assign("current_role_collection", (integer) $role_id_collection);
-            $this->assign("current_role_name", User::getRole($role_id));
-            $this->assign("roles", User::getAssocRoleIDs());
-*/
         }
         $this->assign("app_path", APP_PATH);
         $this->assign("app_setup", Setup::load());

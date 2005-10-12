@@ -50,13 +50,11 @@ include_once(APP_INC_PATH . "class.xsd_relationship.php");
 include_once(APP_INC_PATH . "class.xsd_loop_subelement.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 
-
-
 class XSD_Display
 {
 
     /**
-     * Method used to remove a given list of custom fields.
+     * Method used to remove a given list of XSD Displays, cascading to all their child dependant XSD matchings.
      *
      * @access  public
      * @return  boolean
@@ -103,6 +101,7 @@ class XSD_Display
      * Method used to clone an existing display in the system.
      *
      * @access  public
+	 * @param   integer $xdis_id The XSD Display ID to clone
      * @return  integer 1 if the insert worked, -1 otherwise
      */
     function cloneDisplay($xdis_id) {
@@ -121,7 +120,6 @@ class XSD_Display
                     " .$master_res["xdis_xsd_id"] . ",
                     '1.0'
                  )";
-//		echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -167,9 +165,10 @@ class XSD_Display
 
 
     /**
-     * Method used to add a new custom field to the system.
+     * Method used to add a new XSD Display to the system.
      *
      * @access  public
+	 * @param   integer $xsd_id The XSD ID the display will be based on.
      * @return  integer 1 if the insert worked, -1 otherwise
      */
     function insert($xsd_id)
@@ -187,7 +186,6 @@ class XSD_Display
                     $xsd_id,
                     '" . Misc::escapeString($HTTP_POST_VARS["xdis_version"]) . "'
                  )";
-//		echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -198,14 +196,14 @@ class XSD_Display
     }
 
     /**
-     * Method used to add a new custom field to the system.
+     * Method used to update a XSD Display in the system.
      *
      * @access  public
+	 * @param   integer $xdis_id The XSD Display ID to clone	 
      * @return  integer 1 if the insert worked, -1 otherwise
      */
     function update($xdis_id)
     {
-//		echo $HTTP_POST_VARS["xsd_source"];
         global $HTTP_POST_VARS;
 		
         $stmt = "UPDATE
@@ -226,11 +224,11 @@ class XSD_Display
 
 
     /**
-     * Method used to get the list of custom fields available in the 
-     * system.
+     * Method used to get the list of XSD Displays for a given XSD.
      *
      * @access  public
-     * @return  array The list of custom fields
+	 * @param   integer $xsd_id The XSD ID to search the list for. 
+     * @return  array The list of XSD Displays
      */
     function getList($xsd_id)
     {
@@ -243,28 +241,20 @@ class XSD_Display
                  ORDER BY
                     xdis_title ASC";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-//		echo $stmt;
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-/*            for ($i = 0; $i < count($res); $i++) {
-                $res[$i]["projects"] = @implode(", ", array_values(XSD_XSL_Transform::getAssociatedCollections($res[$i]["fld_id"])));
-                if (($res[$i]["fld_type"] == "combo") || ($res[$i]["fld_type"] == "multiple")) {
-                    $res[$i]["field_options"] = @implode(", ", array_values(XSD_XSL_Transform::getOptions($res[$i]["fld_id"])));
-                }
-            }
-*/
             return $res;
         }
     }
 
     /**
-     * Method used to get the list of custom fields available in the 
+     * Method used to get the associative list of XSD Displays available in the 
      * system.
      *
      * @access  public
-     * @return  array The list of custom fields
+     * @return  array The associative list of XSD Displays
      */
     function getAssocList()
     {
@@ -276,7 +266,6 @@ class XSD_Display
                  ORDER BY
                     xdis_title, xdis_version ASC";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-//		echo $stmt;
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
@@ -286,7 +275,7 @@ class XSD_Display
     }
 
     /**
-     * Method used to get the list of custom fields available in the 
+     * Method used to get the associative list of document types available in the 
      * system.
      *
      * @access  public
@@ -303,7 +292,6 @@ class XSD_Display
                  ORDER BY
                     xdis_title, xdis_version ASC";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-//		echo $stmt;
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
@@ -313,10 +301,10 @@ class XSD_Display
     }
 
     /**
-     * Method used to get the details of a specific custom field.
+     * Method used to get the parent XSD ID of an XSD Display
      *
      * @access  public
-     * @param   integer $fld_id The custom field ID
+	 * @param   integer $xdis_id The XSD Display ID 
      * @return  array The custom field details
      */
     function getParentXSDID($xdis_id)
@@ -337,13 +325,11 @@ class XSD_Display
     }
 
     /**
-     * Method used to get the details of a specific custom field.
-     *
-     * @@@ CK - 13/8/2004 - added so custom field reports could use the getGridCustomFieldReport function and get the ID from this function
+     * Method used to get the XSD Display IDs of a list of XSD Display titles
      *
      * @access  public
-     * @param   integer $fld_id The custom field ID
-     * @return  array The custom field details
+	 * @param   integer $xdis_titles The XSD titles to search by.
+     * @return  array $res An array of IDs 
      */
     function getIDs($xdis_titles)
     {
@@ -354,8 +340,6 @@ class XSD_Display
                  WHERE
                     xdis_title in ('".implode("','", $xdis_titles)."')";
         $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
-//		echo $stmt;
-//		print_r($res);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
@@ -365,12 +349,10 @@ class XSD_Display
     }
 
     /**
-     * Method used to get the details of a specific custom field.
-     *
-     * @@@ CK - 27/10/2004 - added so issue:savesearchparam would be able to loop through all possible custom fields
+     * Method used to get the maximum XSD Display ID
      *
      * @access  public
-     * @return  array The custom field max fld id
+     * @return  array The XSD Display max id
      */
     function getMaxID()
     {
@@ -388,11 +370,11 @@ class XSD_Display
     }
 
     /**
-     * Method used to get the details of a specific custom field.
+     * Method used to get the details of a specific XSD Display.
      *
      * @access  public
-     * @param   integer $fld_id The custom field ID
-     * @return  array The custom field details
+	 * @param   integer $xdis_id The XSD Display ID 
+     * @return  array The details of the XSD Display 
      */
     function getDetails($xdis_id)
     {
@@ -402,7 +384,6 @@ class XSD_Display
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
                  WHERE
                     xdis_id=$xdis_id";
-
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -411,35 +392,6 @@ class XSD_Display
             return $res;
         }
     }
-
-
-    /**
-     * Method used to parse the special format used in the combo boxes
-     * in the administration section of the system, in order to be 
-     * used as a way to flag the system for whether the custom field
-     * option is a new one or one that should be updated.
-     *
-     * @access  private
-     * @param   string $value The custom field option format string
-     * @return  array Parameters used by the update/insert methods
-     */
-    function parseParameters($value)
-    {
-        if (substr($value, 0, 4) == 'new:') {
-            return array(
-                "type"  => "new",
-                "value" => substr($value, 4)
-            );
-        } else {
-            $value = substr($value, strlen("existing:"));
-            return array(
-                "type"  => "existing",
-                "id"    => substr($value, 0, strpos($value, ":")),
-                "value" => substr($value, strpos($value, ":")+1)
-            );
-        }
-    }
-
 }
 
 /**
@@ -455,6 +407,10 @@ class XSD_DisplayObject
     /**
      * XSD_DisplayObject
      * Instantiate with a display id
+	 * 
+     * @access  public
+     * @param   integer $xdis_id The XSD Display of the object
+     * @return  void	 
      */
     function XSD_DisplayObject($xdis_id)
     {
@@ -464,6 +420,9 @@ class XSD_DisplayObject
     /**
      * refresh
      * Clear the local copies of query results.  Use to make the object requery the database if it has changed.
+	 * 
+     * @access  public
+     * @return  void	 
      */
     function refresh()
     {
@@ -474,6 +433,9 @@ class XSD_DisplayObject
     /**
      * getMatchFieldsList
      * Get the list of fields that can be matched for this display.
+	 * 
+     * @access  public
+     * @return  array $res The list of fields that can be matched by the display 
      */ 
     function getMatchFieldsList()
     {
@@ -507,6 +469,9 @@ class XSD_DisplayObject
     /**
      * getXsdAsReferencedArray
      * Converts an XSD specification file to an array  
+	 * 
+     * @access  public
+     * @return  array An array of XSD details
      */
     function getXsdAsReferencedArray()
     {
@@ -534,6 +499,9 @@ class XSD_DisplayObject
     /**
      * getDatastreamTitles
      * Get the datastreams that are used with this display.
+	 * 
+     * @access  public
+     * @return  array A list of datastream titles used with the display
      */ 
     function getDatastreamTitles()
     {
@@ -544,6 +512,9 @@ class XSD_DisplayObject
      * getXSDMF_Values
      * Return a list of match fields with the values from the datastream for the record with the
      * given pid.
+	 * 
+     * @access  public
+     * @return  array The list of match fields with the values from the datastream	 
      */  
     function getXSDMF_Values($pid)
     {
@@ -555,6 +526,10 @@ class XSD_DisplayObject
      * processXSDMF
      * Get the values from elements in the datastreams that match against the match fields
      * for this display
+	 * 
+     * @access  public
+     * @param   string $pid The persistent identifier of the record
+     * @return  void	 
      */ 
     function processXSDMF($pid) 
     {
@@ -579,17 +554,19 @@ class XSD_DisplayObject
         }
     }
 
-    /**
-      * processXSDMFDatastream
-      * Find values for all the matchfields on a given Datastream and xdis_id
-      */
+   /**
+     * processXSDMFDatastream
+     * Find values for all the matchfields on a given Datastream and xdis_id
+	 * 
+     * @access  public
+     * @return  void	 
+     */
     function processXSDMFDatastream($xmlDatastream, $xsdmf_xdis_id) 
     {
         $xsd_id = XSD_Display::getParentXSDID($xsdmf_xdis_id);
         $xsd_details = Doc_Type_XSD::getDetails($xsd_id);
         $this->xsd_element_prefix = $xsd_details['xsd_element_prefix'];
         $this->xsd_top_element_name = $xsd_details['xsd_top_element_name'];
-
         $xmlnode = new DomDocument();
         @$xmlnode->loadXML($xmlDatastream);
         $cbdata = array('parentContent' => '', 'parent_key' => '');
@@ -603,6 +580,12 @@ class XSD_DisplayObject
       *
       * @param array $cbdata - data that is passed to each callback but is part of the recursive data - i.e. it is 
       * not remembered when recursing out.  The record object itself stores data that should persist while recursing.
+	  * 
+      * @access  public
+	  * @param DomNode $domNode The node of the dom document
+	  * @param array $cbdata The XSD array to be filled
+	  * @param string $context The callback context
+      * @return  array $cbdata The XSD array being filled.	 
       */
     function matchFieldsCallback($domNode, $cbdata, $context=null)
     {
@@ -653,10 +636,6 @@ class XSD_DisplayObject
                     // look for a straight attribute match
                     $xsdmf_id = $this->xsd_html_match->getXSDMF_IDByXDIS_ID($new_element);
                 }	
-
-
-
-
                 break;
             default:
                 break; 
@@ -670,7 +649,6 @@ class XSD_DisplayObject
             } else {
                 $ptr_value = $domNode->nodeValue;
             }
-
             // Store the matchfields value against the matchfield id in the result array.
             // If there's already a value for this match field, then make an array for the value.
             if (isset($xsdmf_ptr[$xsdmf_id])) {
@@ -686,7 +664,6 @@ class XSD_DisplayObject
                 $xsdmf_ptr[$xsdmf_id] = $ptr_value;
             }
         }
-
         if ((($domNode->nodeType == XML_ELEMENT_NODE) && ($context == 'endopen'))
                || $domNode->nodeType == XML_ATTRIBUTE_NODE) {
             // Store the parent key for key match fields.
@@ -697,7 +674,6 @@ class XSD_DisplayObject
             }			
         }
         if (($domNode->nodeType == XML_ELEMENT_NODE) && ($context == 'endopen')) {
-
             // update the parentContent match path
             if (!$this->mfcb_rootdone) {
                 $cbdata['parentContent'] = "";
@@ -711,11 +687,8 @@ class XSD_DisplayObject
             }
 
         }
-
         return $cbdata;
-
     }
-
 }
 
 // benchmarking the included file (aka setup time)

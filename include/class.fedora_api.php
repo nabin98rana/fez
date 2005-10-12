@@ -48,7 +48,6 @@ include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "class.misc.php");
 require_once(APP_INC_PATH . "nusoap.php");
-include_once(APP_INC_PATH . "class.foxml_template.php");
 include_once(APP_PEAR_PATH . "/HTTP/Request.php");
 
 class Fedora_API {

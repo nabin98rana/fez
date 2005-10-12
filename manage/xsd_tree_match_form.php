@@ -35,7 +35,6 @@
 include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
-//include_once(APP_INC_PATH . "class.custom_field.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
@@ -61,23 +60,15 @@ $tpl->assign("isAdministrator", $isAdministrator);
 
 if ($isAdministrator) {
 
-// @@@ CK - changed to check role by primary project
-//$role_id = User::getRoleByUser(Auth::getUserID());
-//$col_id = Auth::getCurrentCollection();
-//$role_id = User::getRoleByUserCollection(Auth::getUserID(), $col_id);
 $xdis_id = @$HTTP_POST_VARS["xdis_id"] ? $HTTP_POST_VARS["xdis_id"] : @$HTTP_GET_VARS["xdis_id"];
 $xsdsel_id = @$HTTP_POST_VARS["xsdsel_id"] ? $HTTP_POST_VARS["xsdsel_id"] : @$HTTP_GET_VARS["xsdsel_id"];
 $xml_element = @$HTTP_POST_VARS["xml_element"] ? $HTTP_POST_VARS["xml_element"] : @$HTTP_GET_VARS["xml_element"];
 $xml_element_clean = str_replace("!", " -> ", $xml_element);
 $xml_element_clean = str_replace("^", " ", $xml_element_clean);
 $xml_element_clean = substr($xml_element_clean, 4);
-//echo $xml_element;
-//print_r($HTTP_POST_VARS);
 
 $parent_subelement_loops = XSD_Loop_Subelement::getTopParentLoopList($xml_element, $xdis_id);
 
-//print_r($parent_subelement_loops);
-//echo "COUNT -> ".count($parent_subelement_loops);
 if (count($parent_subelement_loops) > 0) {
 	if (empty($xsdsel_id)) { 
 		$tpl->assign("xsdsel_loop_list", $parent_subelement_loops);
@@ -102,10 +93,8 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 			$tpl->assign("result", XSD_HTML_Match::insert($xdis_id, $xml_element));
 		} elseif ($form_cat == "update") {
 			$tpl->assign("result", XSD_HTML_Match::update($xdis_id, $xml_element));
-	//        $tpl->assign("result", Custom_Field::update());
 		} elseif ($form_cat == "delete") { // is this actually used? no I don't think so - CK
 			$tpl->assign("result", XSD_HTML_Match::remove($xdis_id, $xml_element));
-	//        Custom_Field::remove();
 		}
 
 	} elseif (is_numeric(strpos(@$HTTP_POST_VARS["form_name"], "xsdrel_main"))) {
@@ -126,11 +115,6 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 		$tpl->assign("result", XSD_Loop_Subelement::remove());
 	}
 
-//    if (@$HTTP_GET_VARS["cat"] == "edit") {
-//        $tpl->assign("info", Custom_Field::getDetails($HTTP_GET_VARS["id"]));
-//    }
-
-
     $tpl->assign("xdis_id", $xdis_id);
     $tpl->assign("xml_element", $xml_element);
     $tpl->assign("xml_element_clean", $xml_element_clean);
@@ -148,15 +132,12 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 	} else {
 		$info_array = XSD_HTML_Match::getDetails($xdis_id, $xml_element);
 	}
-//	print_r($info_array);
 	$xsd_display_list = XSD_Display::getAssocList();
 	$tpl->assign("xsd_displays", $xsd_display_list);
 
 	$search_key_list = Search_Key::getAssocList();
 	$tpl->assign("search_key_list", $search_key_list);
 
-
-//	print_r($info_array);
 	if (is_array($info_array)) {
 	    $tpl->assign("form_cat", "edit");
 		$tpl->assign("xsdmf_id", $info_array['xsdmf_id']);
@@ -173,8 +154,6 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 		$tpl->assign("xsd_display_count", 0);
 	}
     $tpl->assign("info", $info_array);
-//	print_r($info_array);
-//    $tpl->assign("project_list", Project::getAll());
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }

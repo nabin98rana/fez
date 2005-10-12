@@ -43,12 +43,9 @@ include_once(APP_INC_PATH . "db_access.php");
 $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");
 
-
 Auth::checkAuthentication(APP_SESSION);
 $tpl->assign("type", "xsd_displays");
 
-
-//$role_id = User::getRoleByUserCollection(Auth::getUserID(), $col_id);
 $xsd_id = @$HTTP_POST_VARS["xsd_id"] ? $HTTP_POST_VARS["xsd_id"] : $HTTP_GET_VARS["xsd_id"];
 $xdis_id = @$HTTP_POST_VARS["id"] ? $HTTP_POST_VARS["id"] : $HTTP_GET_VARS["id"];
 $isUser = Auth::getUsername();
@@ -57,7 +54,6 @@ $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 
 if ($isAdministrator) {
-
     if (@$HTTP_POST_VARS["cat"] == "new") {
         $tpl->assign("result", XSD_Display::insert($xsd_id));
     } elseif (@$HTTP_POST_VARS["cat"] == "update") {
@@ -65,17 +61,14 @@ if ($isAdministrator) {
     } elseif (@$HTTP_POST_VARS["cat"] == "delete") {
         XSD_Display::remove();
     }
-
     if (@$HTTP_GET_VARS["cat"] == "edit") {
         $tpl->assign("info", XSD_Display::getDetails($xdis_id));
     }
     if (@$HTTP_GET_VARS["cat"] == "clone") {
         $tpl->assign("info", XSD_Display::cloneDisplay($xdis_id));
     }
-
 	$tpl->assign("xsd_id", ($xsd_id));
 	$tpl->assign("xdis_id", ($xdis_id));	
-//	print_r(XSD_XSL_Transform::getList($xsd_id));
     $tpl->assign("list", XSD_Display::getList($xsd_id));
 } else {
     $tpl->assign("show_not_allowed_msg", true);
