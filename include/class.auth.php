@@ -442,6 +442,12 @@ class Auth
      * @returns array $userPIDAuthGroups The authorisation groups (roles) the user belongs to against this object.
     */
 	function getAuthorisationGroups($pid) {
+        static $roles_cache;
+
+        if (isset($roles_cache[$pid])) {
+            return $roles_cache[$pid];
+        }
+
         $userPIDAuthGroups = array();
 
         $acmlBase = Record::getACML($pid);
@@ -459,16 +465,17 @@ class Auth
         foreach ($ACMLArray as &$acml) {
             // Use XPath to find all the roles that have groups set and loop through them
             $xpath = new DOMXPath($acml);
-			//$roleNodes = $xpath->query('/FezACML/rule/role[string-length(normalize-space(*))>0]');
             $roleNodes = $xpath->query('/FezACML/rule/role');
             foreach ($roleNodes as $roleNode) {
                 $role = $roleNode->getAttribute('name');
-                // if the role is in the ACML then it is restricted so remove it
-                if (in_array($role, $userPIDAuthGroups)) {
-                    $userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role, false, true);
-                }
                 // Use XPath to get the sub groups that have values
-                $groupNodes = $xpath->query('./*[string-length(normalize-space())>0]', $roleNode); /**/
+                $groupNodes = $xpath->query('./*[string-length(normalize-space())>0]', $roleNode); /* */
+                if ($groupNodes) {
+                    // if the role is in the ACML then it is restricted so remove it
+                    if (in_array($role, $userPIDAuthGroups)) {
+                        $userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role, false, true);
+                    }
+                }
                 foreach ($groupNodes as $groupNode) {
                    $group_type = $groupNode->nodeName;
                     $group_values = explode(',', $groupNode->nodeValue);
@@ -521,6 +528,7 @@ class Auth
                 }
             }
         }
+        $roles_cache[$pid] = $userPIDAuthGroups;
         return $userPIDAuthGroups;
     } 
 
