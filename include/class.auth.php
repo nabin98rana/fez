@@ -468,16 +468,19 @@ class Auth
             $roleNodes = $xpath->query('/FezACML/rule/role');
             foreach ($roleNodes as $roleNode) {
                 $role = $roleNode->getAttribute('name');
+                //echo $acml->saveXML($roleNode);
                 // Use XPath to get the sub groups that have values
-                $groupNodes = $xpath->query('./*[string-length(normalize-space())>0]', $roleNode); /* */
-                if ($groupNodes) {
+                $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $roleNode); /* */
+                if ($groupNodes->length) {
+                    //echo $role;
                     // if the role is in the ACML then it is restricted so remove it
                     if (in_array($role, $userPIDAuthGroups)) {
                         $userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role, false, true);
                     }
                 }
                 foreach ($groupNodes as $groupNode) {
-                   $group_type = $groupNode->nodeName;
+                    $group_type = $groupNode->nodeName;
+                    //echo $group_type;
                     $group_values = explode(',', $groupNode->nodeValue);
                     foreach ($group_values as $group_value) {
                         $group_value = trim($group_value, ' ');
