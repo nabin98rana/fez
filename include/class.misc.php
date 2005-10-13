@@ -49,8 +49,6 @@ include_once(APP_INC_PATH . "class.xsd_html_match.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
 include_once(APP_INC_PATH . "class.xsd_loop_subelement.php");
-include_once(APP_PEAR_PATH . "XML/Serializer.php");
-include_once(APP_PEAR_PATH . "XML/Unserializer.php");
 
 class Misc
 {
