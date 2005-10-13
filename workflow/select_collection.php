@@ -61,7 +61,7 @@ class SelectCollection {
     {
         $collections = Collection::getEditList($community_pid);
         $list = array();
-        foreach($collections['list'] as $item) {
+        foreach($collections as $item) {
             $pid = $item['pid'];
             $list[] = array('value' => $pid, 'text' => $item['title']);
         }

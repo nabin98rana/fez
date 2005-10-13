@@ -67,7 +67,7 @@ class WorkflowStatus {
 
     function getRecordObject()
     {
-        if (!$this->rec_obj) {
+        if (!$this->rec_obj || $this->rec_obj->pid != $this->pid) {
             $this->rec_obj = new RecordObject($this->pid);
         }
         return $this->rec_obj;

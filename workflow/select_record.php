@@ -59,20 +59,20 @@ class SelectRecord {
 
     function getCollections($community_pid)
     {
-        $collections = Collection::getList($community_pid);
+        $collections = Collection::getEditList($community_pid);
         $list = array();
-        foreach($collections['list'] as $item) {
+        foreach($collections as $item) {
             $pid = $item['pid'];
-            $list[] = array('value' => $pid, 'text' => Misc::stripOneElementArrays($item['title']));
+            $list[] = array('value' => $pid, 'text' => $item['title']);
         }
         return $list;
     }
 
     function getRecords($collection_pid)
     {
-	$listing = Collection::getListing($collection_pid);
+	$listing = Collection::getEditListing($collection_pid);
         $list = array();
-        foreach ($listing['list'] as $item) {
+        foreach ($listing as $item) {
             $list[] = array('text' => Misc::stripOneElementArrays($item['title']), 'value' => $item['pid']);
         }
         return $list;

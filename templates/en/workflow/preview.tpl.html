@@ -1,0 +1,10 @@
+{include file='view_form.tpl.html'}
+<form name="form1" action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
+<input type="hidden" name="id" value="{$id}">
+{section name="i" loop=$workflow_buttons}
+                  <input class="button" type="submit" name="workflow_button_{$workflow_buttons[i].wfs_id}" 
+                  value="{$workflow_buttons[i].wfs_title}" tabindex="12" 
+                  />&nbsp;&nbsp;
+{/section}
+</form>
+ 

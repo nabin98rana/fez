@@ -109,7 +109,7 @@ function disableFields()
 				  <td align="left" class="default" nowrap> <b>Parent Collections: </b></td>
 				  <td align="left" class="default" nowrap> &nbsp;
 					{section name="i" loop=$parents}
-						<a href="list.php?collection_pid={$parents[i].pid}">{$parents[i].title}</a> &nbsp;
+						<a href="{$rel_url}list.php?collection_pid={$parents[i].pid}">{$parents[i].title}</a> &nbsp;
 					{/section}
 				  </td>
 				</tr>
@@ -177,7 +177,7 @@ function disableFields()
 
 				{fetch file=$image_name assign="image_file_string"}
 
-				<td bgcolor="{$light_color}">{if $datastreams[d].thumbnail != "0"}<img align="absmiddle" src="{$eserv_url}{$datastreams[d].thumbnail}">{/if}{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}images/default.png">{/if} <a target="_blank" href="eserv.php?pid={$pid}&dsID={$datastreams[d].ID}">{$datastreams[d].ID}</a> &nbsp;{if $datastreams[d].presmd != "0"}<a target="_blank" href="eserv.php?pid={$pid}&dsID={$datastreams[d].presmd}"><img title="preservation metadata" align="absmiddle" border="0" src="images/presmd_22.gif"></a>{/if}</td>
+				<td bgcolor="{$light_color}">{if $datastreams[d].thumbnail != "0"}<img align="absmiddle" src="{$eserv_url}{$datastreams[d].thumbnail}">{/if}{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}images/default.png">{/if} <a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].ID}">{$datastreams[d].ID}</a> &nbsp;{if $datastreams[d].presmd != "0"}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].presmd}"><img title="preservation metadata" align="absmiddle" border="0" src="{$rel_url}images/presmd_22.gif"></a>{/if}</td>
 				<td bgcolor="{$light_color}">{$datastreams[d].label}</td>
 				<td bgcolor="{$light_color}">{$datastreams[d].MIMEType}</td>
 				<td bgcolor="{$light_color}">{$datastreams[d].size} bytes</td>		
