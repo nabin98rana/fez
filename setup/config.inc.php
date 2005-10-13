@@ -104,10 +104,10 @@ if (stristr(PHP_OS, 'darwin')) {
 
 @define("APP_ERROR_LOG", APP_PATH . "error_handler.log");
 
-@define("APP_NAME", "eSpace");
+@define("APP_NAME", "Fez");
 @define("APP_SHORT_NAME", APP_NAME); // used in the subject of notification emails
 @define("APP_URL", "http://www.library.uq.edu.au/escholarship/");
-@define("APP_HOSTNAME", "dev-espace.library.uq.edu.au");
+@define("APP_HOSTNAME", "dev-fez.library.uq.edu.au");
 @define("APP_SITE_NAME", APP_NAME);
 @define("APP_RELATIVE_URL", "/");
 @define("APP_BASE_URL", "https://" . APP_HOSTNAME . APP_RELATIVE_URL);

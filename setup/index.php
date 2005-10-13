@@ -106,18 +106,18 @@ function checkRequirements()
     $contents = ob_get_contents();
     ob_end_clean();
     if (!preg_match("/GD Support.*<\/td><td.*>enabled/U", $contents)) {
-        $errors[] = "The GD extension needs to be enabled in your PHP.INI file in order for eSpace to work properly.";
+        $errors[] = "The GD extension needs to be enabled in your PHP.INI file in order for Fez to work properly.";
     }
     // check for MySQL support
     if (!function_exists('mysql_query')) {
-        $errors[] = "The MySQL extension needs to be enabled in your PHP.INI file in order for eSpace to work properly.";
+        $errors[] = "The MySQL extension needs to be enabled in your PHP.INI file in order for Fez to work properly.";
     }
     // check for the file_uploads php.ini directive
     if (ini_get('file_uploads') != "1") {
-        $errors[] = "The 'file_uploads' directive needs to be enabled in your PHP.INI file in order for eSpace to work properly.";
+        $errors[] = "The 'file_uploads' directive needs to be enabled in your PHP.INI file in order for Fez to work properly.";
     }
     if (ini_get('allow_call_time_pass_reference') != "1") {
-        $errors[] = "The 'allow_call_time_pass_reference' directive needs to be enabled in your PHP.INI file in order for eSpace to work properly.";
+        $errors[] = "The 'allow_call_time_pass_reference' directive needs to be enabled in your PHP.INI file in order for Fez to work properly.";
     }
     $error = checkPermissions('../templates_c', "Directory 'templates_c'", TRUE);
     if (!empty($error)) {
@@ -270,7 +270,7 @@ function install()
     clearstatcache();
     // check if config.inc.php in the root directory is writable
     if (!is_writable('../config.inc.php')) {
-        return "The file 'config.inc.php' in eSpace's root directory needs to be writable by the web server user. Please correct this problem and try again.";
+        return "The file 'config.inc.php' in Fez's root directory needs to be writable by the web server user. Please correct this problem and try again.";
     }
     // gotta check and see if the provided installation path really exists...
     if (!file_exists($HTTP_POST_VARS['path'])) {

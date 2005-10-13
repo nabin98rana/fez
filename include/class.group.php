@@ -39,7 +39,8 @@
  * of groups in the system.
  *
  * @version 1.0
- * @author João Prado Maia <jpm@mysql.com>
+ * @author Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>
+ * @author Matthew Smith <m.smith@library.uq.edu.au>
  */
 
 include_once(APP_INC_PATH . "class.error_handler.php");

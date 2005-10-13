@@ -83,7 +83,7 @@ if ($pid == -1) {
     //echo "XDIS_ID -> ".$xdis_id;
     if (!is_numeric($xdis_id)) {
         $xdis_id = Misc::GETorPOST('xdis_id');
-        if (is_numeric($xdis_id)) { // must have come from select xdis so save xdis in the eSpace MD
+        if (is_numeric($xdis_id)) { // must have come from select xdis so save xdis in the Fez MD
             $record->updateAdminDatastream($xdis_id);
         }
     }

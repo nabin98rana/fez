@@ -91,6 +91,7 @@ $maxG = 0;
 //open the current directory
 $directory = opendir(APP_SAN_IMPORT_DIR);
 while (false !== ($file = readdir($directory))) { 
+	// just get the directories
 	if (!is_numeric(strpos($file, "."))) {
 		$filenames[$file] = $file;
 	}

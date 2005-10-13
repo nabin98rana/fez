@@ -324,12 +324,12 @@
 			  	</td>
 		     </tr>
 			 <tr id="sek_fez_variable_tr" {if $info.sek_html_input != 'static' && !$selectingfield}style="display:none"{/if}>
-                 <td width="120" bgcolor="{$cell_color}" class="default"><b>eSpace Variable:</b><i>(If an eSpace variable is set it will be used instead of any other options including smarty template variables)</i></td>
-				<td class="default" bgcolor="{$light_color}"><br /><b>OR use one of these eSpace variables: </b> <br />
+                 <td width="120" bgcolor="{$cell_color}" class="default"><b>Fez Variable:</b><i>(If a Fez variable is set it will be used instead of any other options including smarty template variables)</i></td>
+				<td class="default" bgcolor="{$light_color}"><br /><b>OR use one of these Fez variables: </b> <br />
 					<INPUT TYPE=RADIO NAME="sek_fez_variable" VALUE="none" {if ($info.sek_fez_variable == "" || $info.sek_fez_variable == "none")}checked{/if}/>None<BR>
 					<INPUT TYPE=RADIO NAME="sek_fez_variable" VALUE="pid" {if $info.sek_fez_variable == "pid"}checked{/if}/>Pid (for new records it will get the new Pid and then create this parent datastream)<BR>
 					<INPUT TYPE=RADIO NAME="sek_fez_variable" VALUE="xdis_id" {if $info.sek_fez_variable == "xdis_id"}checked{/if}/>XSD Display ID<BR>
-					<INPUT TYPE=RADIO NAME="sek_fez_variable" VALUE="sta_id" {if $info.sek_fez_variable == "sta_id"}checked{/if}/>eSpace Object Status ID<BR>
+					<INPUT TYPE=RADIO NAME="sek_fez_variable" VALUE="sta_id" {if $info.sek_fez_variable == "sta_id"}checked{/if}/>Fez Object Status ID<BR>
 				</td>
  			  </tr> 
 

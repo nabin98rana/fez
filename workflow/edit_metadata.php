@@ -100,7 +100,7 @@ if (Auth::checkAuthorisation($pid, $acceptable_roles, $HTTP_SERVER_VARS['PHP_SEL
 
 if (!is_numeric($xdis_id)) {
 	$xdis_id = @$HTTP_POST_VARS["xdis_id"] ? $HTTP_POST_VARS["xdis_id"] : $HTTP_GET_VARS["xdis_id"];	
-	if (is_numeric($xdis_id)) { // must have come from select xdis so save xdis in the eSpace MD
+	if (is_numeric($xdis_id)) { // must have come from select xdis so save xdis in the FezMD
 		Record::updateAdminDatastream($pid, $xdis_id);
 	}
 }

@@ -57,8 +57,6 @@ include_once(APP_INC_PATH . "class.user.php");
 $tpl = new Template_API();
 $tpl->setTemplate("stats.tpl.html");
 
-// CK turned authentication off for now for eSpace, now back on for testing
-// Auth::checkAuthentication(APP_SESSION);
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
 $isAdministrator = User::isUserAdministrator($username);

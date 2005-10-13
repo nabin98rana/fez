@@ -34,7 +34,7 @@
 //
 // @@@ CK - 28/7/05
 // Image resize webservice
-// - Takes url parameters to convert an image file in the eSpace /tmp directory into a image file of the given format and size
+// - Takes url parameters to convert an image file in the Fez temp directory into a image file of the given format and size
 
 include_once("../config.inc.php");
 $file = urldecode($_GET['file']);

@@ -114,7 +114,7 @@ if (!empty($collection_pid)) {
 	$tpl->assign("list_heading", "List of Collections in ".$community_details[0]['title']." Community");
 	$tpl->assign("list_type", "collection_list");
 } elseif (!empty($terms)) {
-    // search eSpace
+    // search Fez
 	$list = Collection::searchListing($terms, $pagerRow, $rows);	
 	$list_info = $list["info"];
 	$list = $list["list"];
