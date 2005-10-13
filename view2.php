@@ -25,6 +25,7 @@ if (!empty($pid)) {
 	$tpl->assign("isViewer", $record->canView(true));
 	if ($record->canView()) {
 		$tpl->assign("isEditor", $record->canEdit(false));
+		$tpl->assign("sta_id", $record->getPublishedStatus());
 		$display = new XSD_DisplayObject($xdis_id);
 		$xsd_display_fields = $display->getMatchFieldsList();
 		$tpl->assign("xsd_display_fields", $xsd_display_fields);

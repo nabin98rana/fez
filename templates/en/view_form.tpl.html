@@ -101,7 +101,6 @@ function disableFields()
         <tr>
           <td align="left" class="default" nowrap colspan="2"><br /><img align="absmiddle" src="{$rel_url}images/record_view_32.jpg"/> <b>View Details: </b> <br /><br /></td>
         </tr>
-
 		<tr>
 		  <td align="left"> 
 			<table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="1">
@@ -116,6 +115,12 @@ function disableFields()
 			</table><br />
 		  </td>
 		</tr> 
+{if $sta_id != 2}
+<tr><td class="error" bgcolor="{$heading_color}" align="center">
+<b>NOTE: This record is not published.</b>
+</td></tr>
+{/if}
+
 
                 <tr>
                 <td>

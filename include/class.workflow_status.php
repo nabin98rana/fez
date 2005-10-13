@@ -252,12 +252,12 @@ class WorkflowStatus {
             // the next non-transparent state.  Only auto states can be transparent.
             if ($next['wfs_auto'] && $next['wfs_transparent']) {
                 $next2 = $next;
-                while ($next2['wfs_id'] != -1 && $next2['wfs_auto'] && $next2['wfs_transparent']) {
+                while (!$next2['wfs_end'] && $next2['wfs_auto'] && $next2['wfs_transparent']) {
                     $next2_list = Workflow_State::getDetailsNext($next2['wfs_id']);
                     // this list should only have one item since an auto state can only have one next state
                     $next2 = $next2_list[0];
                 }
-                if ($next2['wfs_id'] == -1) {
+                if ($next2['wfs_end'] && $next2['wfs_auto'] && $next2['wfs_transparent']) {
                     $title = 'Done';
                 } else {
                     $title = $next2['wfs_title'];
