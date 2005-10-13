@@ -38,7 +38,7 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "db_access.php");
 
 $tpl = new Template_API();
-$tpl->setTemplate("reports/top.tpl.html");
+$tpl->setTemplate("manage/top.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION);
 $isUser = Auth::getUsername();

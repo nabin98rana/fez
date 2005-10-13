@@ -414,15 +414,22 @@ class Record
      * @return  domdocument $xmldoc A Dom Document of the XML or false if not found
      */
 	function getACML($pid) {
+        static $acml_cache;
+        if (isset($acml_cache[$pid])) {
+            return $acml_cache[$pid];
+        }
+                
 		$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, 'FezACML');
 		$xmlACML = @$DSResultArray['stream'];		
 		if ($xmlACML != "") {
 			$xmldoc= new DomDocument();
 			$xmldoc->preserveWhiteSpace = false;
 			$xmldoc->loadXML($xmlACML);
+            $acml_cache[$pid] = $xmldoc;
             return $xmldoc;
 		} else {
-			return false;
+            $acml_cache[$pid] = false;
+            return false;
 		}
 	}
 
@@ -774,7 +781,7 @@ class RecordGeneral
      */
     function getXmlDisplayId() {
         if (!$this->no_xdis_id) {
-            if (is_null($this->xdis_id)) {
+            if (empty($this->xdis_id)) {
                 $xdis_array = Fedora_API::callGetDatastreamContentsField($this->pid, 'FezMD', array('xdis_id'));
                 if (isset($xdis_array['xdis_id'][0])) {
                     $this->xdis_id = $xdis_array['xdis_id'][0];
@@ -993,17 +1000,38 @@ class RecordGeneral
         return $this->details[$xsdmf_id];
     }
 
+    /**
+     * isCollection
+     * Is the record a Collection
+     *
+     * @access  public
+     * @return  boolean
+     */
     function isCollection()
     {
         return ($this->getDCType() == 'Fez_Collection') ? true : false;
     }
 
+    /**
+     * isCommunity
+     * Is the record a Community
+     *
+     * @access  public
+     * @return  boolean
+     */
     function isCommunity()
     {
         return ($this->getDCType() == 'Fez_Community') ? true : false;
     }
 
 
+    /**
+      function getParents() 	      * getParents
+     * Get the parent pids of an object
+     *
+     * @access  public
+     * @return  array list of parents
+     */
     function getParents()
     {
         if (!$this->record_parents) {
