@@ -57,7 +57,6 @@ if ($isAdministrator) {
         $setup = array();
         @$setup["org_short_name"] = $HTTP_POST_VARS["org_short_name"];
         @$setup["org_long_name"] = $HTTP_POST_VARS["org_long_name"];				
-//		@$setup['email_error'] = $HTTP_POST_VARS['email_error'];
 
         $res = Setup::save($setup);
         $tpl->assign("result", $res);

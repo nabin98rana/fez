@@ -38,7 +38,6 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.group.php");
 include_once(APP_INC_PATH . "db_access.php");
-//include_once(APP_INC_PATH . "class.custom_field.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");
@@ -65,12 +64,9 @@ if ($isAdministrator) {
     if (@$HTTP_GET_VARS["cat"] == "edit") {
         $tpl->assign("info", User::getDetailsByID($HTTP_GET_VARS["id"]));
     }
-	// @@@ CK - 20/1/2005 - Added to get the list of campus's from the 
-//	$tpl->assign("campus_list", Custom_Field::getOptions(3));
 
     $tpl->assign("list", User::getList());
     $tpl->assign("group_options", Group::getActiveAssocList());
-//    $tpl->assign("user_roles", User::getRoles($excluded_roles));
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }

@@ -69,7 +69,6 @@ if ($isAdministrator) {
 
     $tpl->assign("list", WF_Behaviour::getList());
     $tpl->assign("wfl_id", $wfl_id);
-//    $tpl->assign("collection_list", Collection::getAll());
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }

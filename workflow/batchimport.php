@@ -51,7 +51,6 @@ $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", 'batchimport');
 
 Auth::checkAuthentication(APP_SESSION);
-//$user_id = Auth::getUserID();
 
 $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
@@ -79,7 +78,6 @@ if ($access_ok) {
         $wftpl = $wfstatus->getvar('template');
         $res = BatchImport::insert($wftpl);
         sleep(1); // give fedora some time to update it's indexes or whatever it does.
-        //		Auth::redirect(APP_RELATIVE_URL . "list.php?new_pid=".$res.$extra_redirect, false);
         $wfstatus->setCreatedPid($pid);
     }
     $wfstatus->checkStateChange();

@@ -73,7 +73,6 @@ if (@$HTTP_POST_VARS["cat"] == "update_account") {
 }
 
 $prefs = Prefs::get($usr_id);
-//$prefs['sms_email'] = User::getSMS($usr_id);
 // if the user has no preferences set yet, get it from the system-wide options
 if (empty($prefs)) {
     $prefs = Setup::load();

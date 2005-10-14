@@ -48,7 +48,6 @@ $tpl->assign("trigger", 'Delete');
 $tpl->assign("type", 'delete');
 
 Auth::checkAuthentication(APP_SESSION);
-//$user_id = Auth::getUserID();
 
 $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);

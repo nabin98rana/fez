@@ -40,11 +40,9 @@ include_once("../config.inc.php");
 
 // Get image and size
 $image = urldecode($_GET["image"]);
-//$size = $_GET["size"]; //maximum width or height
 $width = $_GET["width"]; //maximum width
 $height = $_GET["height"]; //maximum height
 $ext = strtolower($_GET["ext"]); //the file type extension to convert the image to
-//echo $image;
 $image_dir = "";
 if (is_numeric(strpos($image, "/"))) {
 	$image_dir = substr($image, 0, strrpos($image, "/"));
@@ -55,8 +53,6 @@ if (trim($image_dir) == "") { $image_dir = APP_TEMP_DIR; }
 
 $temp_file = "thumbnail_".substr($image, 0, strrpos($image, ".")).".".$ext;
 $temp_file = str_replace(" ", "_", $temp_file);
-//echo $temp_file;
-// Some error reporting
 $error = '';
 if(!$image) $error .= "<b>ERROR:</b> no image specified<br>";
 if(!is_file($image_dir."/".$image)) { $error .= "<b>ERROR:</b> given image filename not found or bad filename given<br>"; }
@@ -75,21 +71,6 @@ else{ echo "<b>ERROR:</b> unknown file type<br>"; die; }
 // Create the output file if it does not exist
 if(!is_file(APP_TEMP_DIR.$temp_file)) {
   $command = APP_CONVERT_CMD." -resize ".$width."x".$height." '".$image_dir."/".$image."' ".APP_TEMP_DIR.$temp_file;
-//	echo escapeshellcmd($command); echo "<br /><br />";
-//  exec($command);
 	exec(escapeshellcmd($command));
 } 
-// Output the image
-//header("Content-type: ".$content_type);
-//readfile(APP_TEMP_DIR.$temp_file);
-
-
-
-
-
-
-
-
-
-
 ?>

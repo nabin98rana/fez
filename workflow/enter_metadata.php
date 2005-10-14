@@ -55,7 +55,6 @@ $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign('type', 'enter_metadata');
 
 Auth::checkAuthentication(APP_SESSION);
-//$user_id = Auth::getUserID();
 
 $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);

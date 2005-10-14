@@ -69,15 +69,9 @@ if ((@$HTTP_GET_VARS["err"] == '') && (Auth::hasValidCookie(APP_SESSION))) {
         if (!empty($HTTP_GET_VARS["url"])) {
             Auth::redirect($HTTP_GET_VARS["url"]);
         } else {
-            //Auth::redirect(APP_RELATIVE_URL . "main.php");  @@@ CK - changed default to listing
             Auth::redirect(APP_RELATIVE_URL . "list.php");
         }
     }
-
-    // check if the user has a primary collection, 
-    // and redirect the user to the main page of the 
-    // application on that case
-//    $assigned_collections = Collection::getAssocList(Auth::getUserID());
 
 	$user_details = User::getDetails(Auth::getUserID());
 	$primary_collection = $user_details['usr_primary_col_id'];
@@ -86,17 +80,7 @@ if ((@$HTTP_GET_VARS["err"] == '') && (Auth::hasValidCookie(APP_SESSION))) {
         if (!empty($HTTP_GET_VARS["url"])) {
             Auth::redirect($HTTP_GET_VARS["url"]);
         } else {
-//	            Auth::redirect(APP_RELATIVE_URL . "list.php");
-/*            //Auth::redirect(APP_RELATIVE_URL . "main.php");  @@@ CK - changed default to listing
-			if ($primary_collection == 2) { //askit
-	            Auth::redirect(APP_RELATIVE_URL . "newquick.php");
-			} elseif ($primary_collection == 4) { // server team
-	            Auth::redirect(APP_RELATIVE_URL . "list.php");		
-			} else { //wss and others goto normal create issue
-	            //Auth::redirect(APP_RELATIVE_URL . "new.php");
-	            Auth::redirect(APP_RELATIVE_URL . "list.php");
-			}
-*/
+
         }
     }
 
@@ -112,7 +96,6 @@ if (@$HTTP_POST_VARS["cat"] == "select") {
     $collections = Collection::getAssocList($usr_id);
 	print_r($collections);
     if (!in_array($HTTP_POST_VARS["collection"], array_keys($collections))) {
-		echo "WHAHAHAHHAHA";
         // show error message
         $tpl->assign("err", 1);
     } else {
@@ -124,7 +107,6 @@ if (@$HTTP_POST_VARS["cat"] == "select") {
         if (!empty($HTTP_POST_VARS["url"])) {
             Auth::redirect($HTTP_POST_VARS["url"]);
         } else {
-            //Auth::redirect(APP_RELATIVE_URL . "main.php");  @@@ CK - changed default to listing
             Auth::redirect(APP_RELATIVE_URL . "list.php");
         }
     }

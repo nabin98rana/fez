@@ -41,10 +41,6 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.collection.php");
 
-
-//Record::publishAllUnsetStatusPids(1);
-
-
 $tpl = new Template_API();
 $tpl->setTemplate("my_fez.tpl.html");
 
@@ -59,7 +55,6 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
 	Auth::redirect(APP_RELATIVE_URL . "register.php?err=5&username=" . $username);	
 }
 $tpl->assign("isAdministrator", $isAdministrator);
-
 
 $collection_list = Collection::getEditList();
 foreach ($collection_list as &$item) {

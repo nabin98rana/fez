@@ -49,36 +49,15 @@ if (count($HTTP_POST_VARS) > 0) {
 	if (Validation::isWhitespace($HTTP_POST_VARS["passwd"])) {
 		Auth::redirect(APP_RELATIVE_URL . "login.php?err=2&username=" . $HTTP_POST_VARS["username"]);
 	}
-	
-	// check if user exists
-/*	if (!Auth::userExists($HTTP_POST_VARS["username"])) {
-		Auth::redirect(APP_RELATIVE_URL . "login.php?err=3");
-	}
-*/
 
 	// check if the password matches
 	if (!Auth::isCorrectPassword($HTTP_POST_VARS["username"], $HTTP_POST_VARS["passwd"])) {
 		Auth::redirect(APP_RELATIVE_URL . "login.php?err=3&username=" . $HTTP_POST_VARS["username"]);
 	}
-
-	// check if this user did already confirm his account
-/*	if (Auth::isPendingUser($HTTP_POST_VARS["username"])) {
-		Auth::redirect(APP_RELATIVE_URL . "login.php?err=9", $is_popup);
-	}
-*/	
-	// check if this user is really an active one
-/*	if (!Auth::isActiveUser($HTTP_POST_VARS["username"])) {
-		Auth::redirect(APP_RELATIVE_URL . "login.php?err=7", $is_popup);
-	}
-*/	
-
-	// redirect to the initial page
-//	Auth::createLoginSession(APP_SESSION, $HTTP_POST_VARS["username"], $HTTP_POST_VARS["remember_login"]);
     Auth::LoginAuthenticatedUser($HTTP_POST_VARS["username"], $HTTP_POST_VARS["passwd"]); 
 	
 	if (!empty($HTTP_POST_VARS["url"])) {
-	//    $extra = '?url=' . $HTTP_POST_VARS["url"];
-		Auth::redirect(urldecode($HTTP_POST_VARS["url"])); // @@@ CK - 2/6/2005 - Added this in so url redirects could work again
+		Auth::redirect(urldecode($HTTP_POST_VARS["url"])); 
 	} else {
 		Auth::redirect(APP_RELATIVE_URL); // even though its the same page redirect so if they refresh it doesnt have the post vars
 		$extra = '';
@@ -103,6 +82,4 @@ $tpl->assign("list", $list);
 $tpl->assign("eserv_url", APP_RELATIVE_URL."eserv.php");
 $tpl->assign("news", News::getList());
 $tpl->displayTemplate();
-//Auth::redirect(APP_RELATIVE_URL . "list.php" . $extra);
-//Auth::redirect(APP_RELATIVE_URL . "select_collection.php" . $extra);
 ?>

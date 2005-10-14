@@ -59,9 +59,6 @@ if (($_SERVER["SERVER_PORT"] != 443) && (APP_HTTPS == "ON")) {
 }
 $tpl = new Template_API();
 $tpl->setTemplate("register.tpl.html");
-//$tpl->assign("type", "edit_record");
-
-//Auth::checkAuthentication(APP_SESSION, $HTTP_SERVER_VARS['PHP_SELF']."?".$HTTP_SERVER_VARS['QUERY_STRING']);
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
 $isAdministrator = User::isUserAdministrator($username);

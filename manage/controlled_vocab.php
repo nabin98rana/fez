@@ -36,8 +36,6 @@ include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.controlled_vocab.php");
-//include_once(APP_INC_PATH . "class.wfbehaviours.php");
-//include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "db_access.php");
 
 $tpl = new Template_API();
@@ -73,7 +71,6 @@ if ($isAdministrator) {
 		$tpl->assign("parent_title", "0");
 	}
     $tpl->assign("list", Controlled_Vocab::getList($parent_id));
-//    $tpl->assign("collection_list", Collection::getAll());
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }

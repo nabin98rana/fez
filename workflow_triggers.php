@@ -50,7 +50,6 @@ include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 
-
 $tpl = new Template_API();
 $tpl->setTemplate("update.tpl.html");
 $tpl->assign("type", "workflow_triggers");
@@ -79,8 +78,6 @@ if ($pid == -1) {
     $record = new RecordObject($pid);
     $canEdit = $record->canEdit();
     $xdis_id = $record->getXmlDisplayId();
-
-    //echo "XDIS_ID -> ".$xdis_id;
     if (!is_numeric($xdis_id)) {
         $xdis_id = Misc::GETorPOST('xdis_id');
         if (is_numeric($xdis_id)) { // must have come from select xdis so save xdis in the Fez MD
@@ -88,8 +85,6 @@ if ($pid == -1) {
         }
     }
     if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for it
-        //	echo "XDIS_ID -> ".$xdis_id;
-        //	echo "redirecting";
         Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=view_form&pid=".$pid.$extra_redirect, false);
     }
     $parents = $record->getParents(); // RecordObject
@@ -149,10 +144,7 @@ if ($canEdit) {
 
 
     $tpl->assign("user_prefs", $prefs);
-    //$user_details = User::getDetails(Auth::getUserID());
-
 } else {
-//	Auth::redirect(APP_RELATIVE_URL . "list.php", false);
     $tpl->assign("show_not_allowed_msg", true);
 }
 

@@ -73,14 +73,11 @@ if ($isAdministrator) {
 
     $tpl->assign("list", Workflow_Event_Action::getList($wfe_id));
 	$tpl->assign("event_actions", WF_Behaviour::getTitles());
-//	$tpl->assign("event_types", Workflow_Event::getEventTypeList());
 	$tpl->assign("wfe_title", Workflow_Event::getTitle($wfe_id));
 	$tpl->assign("wfl_title", Workflow::getTitle($wfl_id));
 	$tpl->assign("wfl_id", $wfl_id);
 	$tpl->assign("wfe_id", $wfe_id);
 	$tpl->assign("wfa_id", $wfa_id);
-
-//    $tpl->assign("collection_list", Collection::getAll());
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }

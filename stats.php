@@ -36,23 +36,16 @@
 include_once("config.inc.php");
 
 include_once(APP_INC_PATH . "db_access.php");
-
 include_once(APP_INC_PATH . "class.template.php");
-
 include_once(APP_INC_PATH . "class.auth.php");
-
 include_once(APP_INC_PATH . "class.misc.php");
-
 include_once(APP_INC_PATH . "class.record.php");
-
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.community.php");
 include_once(APP_INC_PATH . "class.controlled_vocab.php");
-
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "class.user.php");
-//include_once(APP_INC_PATH . "class.news.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("stats.tpl.html");
@@ -65,8 +58,6 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
 }
 $tpl->assign("isAdministrator", $isAdministrator);
 
-
-
 $pagerRow = Record::getParam('pagerRow');
 if (empty($pagerRow)) {
     $pagerRow = 0;
@@ -75,15 +66,9 @@ $rows = Record::getParam('rows');
 if (empty($rows)) {
     $rows = APP_DEFAULT_PAGER_SIZE;
 }
-//$usr_id = Auth::getUserID();
-
 $options = Record::saveSearchParams();
-
 $tpl->assign("options", $options);
-
 $browse = @$_REQUEST['browse'];
-
-
 if ($browse == "top50authors") {
 	$rows = 50;
 	$list = Collection::statsByAttribute($pagerRow, $rows, "Author");

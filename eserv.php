@@ -65,22 +65,15 @@ $tpl->assign("dsID", $dsID);
 if (!empty($pid) && !empty($dsID)) {
 	$xdis_array = Fedora_API::callGetDatastreamContentsField ($pid, 'FezMD', array('xdis_id'));
 	$xdis_id = $xdis_array['xdis_id'][0];
-	//echo "XDIS_ID -> ".$xdis_id;
 	if (is_numeric($xdis_id)) {	
 		$acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
 		if (Auth::checkAuthorisation($pid, $acceptable_roles, $HTTP_SERVER_VARS['PHP_SELF']."?".urlencode($HTTP_SERVER_VARS['QUERY_STRING'])) == true) {
 			$urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsID; // this should stop them dang haxors (forces the http on the front for starters)
-//				echo $urldata;
 			$urlpath = $urldata;
 			if (!is_numeric(strpos($dsID, "thumbnail"))) {
 				Record::incrementFileDownloads($pid); //increment FezMD.file_downloads counter
 			}
-			//	returnresource($urlpath);
-						
-			//echo "file is $pdfdata<br>";
 			$file_extension = strtolower(substr( strrchr( $urldata, "." ), 1 ));
-			//echo "file_extension is $file_extension<br>";
-								
 			switch( $file_extension ) {
 			
 			case 'pdf'  :
@@ -141,8 +134,6 @@ if (!empty($pid) && !empty($dsID)) {
 			$sourceOAIRead .= $tmp;
 			}
 			
-//			fclose($sourceOAI);
-	
 			$tempDump = fopen($tempDumpFileName, 'w');
 
 			// Write the source xml to a temporary file to we can get the filesize (required for the content length header)
@@ -155,16 +146,7 @@ if (!empty($pid) && !empty($dsID)) {
 			$sourceOAIRead = fread($tempDump, filesize($tempDumpFileName));
 			header("Content-length: " . filesize($tempDumpFileName) . "\n");
 			echo $sourceOAIRead;
-		
-			//	$fileContents =	file_get_contents($urlpath);
-			//	$fileContents =	file_get_contents(urldecode($urlpath));
-			//	echo $fileContents;
-			
-			
 			die;
-			// } else {
-			//	Auth::redirect(APP_RELATIVE_URL . "list.php", false);
-			//}
 		} else {
 			$tpl->assign("show_not_allowed_msg", true);
 			$tpl->displayTemplate();

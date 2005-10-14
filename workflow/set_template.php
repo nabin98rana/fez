@@ -55,7 +55,6 @@ $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign('type', 'set_template');
 
 Auth::checkAuthentication(APP_SESSION);
-//$user_id = Auth::getUserID();
 
 $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
@@ -95,7 +94,6 @@ if ($access_ok) {
         Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=insert_form".$extra_redirect, false);
     }
     $tpl->assign("xdis_id", $xdis_id);
-
 
     $xdis_list = XSD_Display::getAssocListDocTypes(); 
     $community_list = Community::getAssocList();
