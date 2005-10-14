@@ -5,21 +5,30 @@
 </td><tr>
 {/if}
 <tr>
-<td bgcolor="{$cell_color}" class="default">
+<td   class="contentheader" >
 <b>Select Action</b>
 </td>
 </tr>
 {section name="i" loop=$workflows}
+<tr><td>
+<table width="100%" bgcolor="{$cell_color}" cellspacing="0" cellpadding="1" align="center">
+<tr><td>
+  <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" >
 <tr>
-<td class="default">
+<td  class="default">
 {assign var="wfl_id" value=$workflows[i].wft_wfl_id}
 {assign var="xdis_id1" value=$workflows[i].wft_xdis_id}
-{if $workflows[i].wft_icon}<img src="{$rel_url}{$workflows[i].wft_icon}" alt="icon" />{/if}
-<a href="{$marty.server.SCRIPT_NAME}?pid={$pid}&cat=select_workflow&xdis_id={$xdis_id}&wft_id={$workflows[i].wft_id}" 
->{$wfl_list[$wfl_id]}</a>
+{if $workflows[i].wft_icon}<img src="{$rel_url}{$workflows[i].wft_icon}" alt="icon" align="center"/>{/if}
+<a href="{$marty.server.SCRIPT_NAME}?pid={$pid}&cat=select_workflow&xdis_id={$xdis_id}&wft_id={$workflows[i].wft_id}&href={$href}" 
+>{$wfl_list[$wfl_id].wfl_title|escape}</a> 
+{if $wfl_list[$wfl_id].wfl_description}<br/>{$wfl_list[$wfl_id].wfl_description|escape}{/if}
 </td>
 </tr>
+ </table>
+</td></tr></table>
+</td></tr>
+<tr><td class="default"><br/></td></tr>
 {/section}
-<tr><td class="default">This is {$trigger} for {$pid}</td></tr>
+<tr><td class="default"><br/>This is {$trigger} for {$pid}</td></tr>
 
 

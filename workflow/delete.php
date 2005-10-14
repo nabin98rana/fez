@@ -65,7 +65,7 @@ if ($cat == 'select_workflow') {
 }
 
 $message = '';
-$wfl_list = Misc::keyPairs(Workflow::getList(), 'wfl_id', 'wfl_title');
+$wfl_list = Misc::keyArray(Workflow::getList(), 'wfl_id');
 $xdis_list = array(-1 => 'Any') + XSD_Display::getAssocListDocTypes(); 
 $tpl->assign('wfl_list', $wfl_list);
 $tpl->assign('xdis_list', $xdis_list);

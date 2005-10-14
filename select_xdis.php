@@ -78,11 +78,11 @@ if (@$HTTP_POST_VARS["cat"] == "select") {
 	}
 	
 	if ((is_numeric($xdis_id)) && ($return == 'update_form') && (!empty($pid))) {
-		Auth::redirect(APP_RELATIVE_URL . "update.php?xdis_id=".$xdis_id."&pid=".$pid, false);
+		Auth::redirect(APP_RELATIVE_URL . "workflow/update.php?xdis_id=".$xdis_id."&pid=".$pid, false);
 	} elseif ((is_numeric($xdis_id)) && ($return == 'view_form')) {
 		Auth::redirect(APP_RELATIVE_URL . "view.php?xdis_id=".$xdis_id."&pid=".$pid, false);
 	} elseif ((is_numeric($xdis_id)) && ($return == 'insert_form')) {
-		Auth::redirect(APP_RELATIVE_URL . "new.php?xdis_id=".$xdis_id.$extra_redirect, false);
+		Auth::redirect(APP_RELATIVE_URL . "workflow/new.php?xdis_id=".$xdis_id.$extra_redirect, false);
 	} else { // don't know where they wanted to go so redirect to the list page
 		Auth::redirect(APP_RELATIVE_URL . "list.php", false);
 	}

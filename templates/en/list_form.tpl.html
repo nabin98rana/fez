@@ -25,7 +25,7 @@ function assignItems(f)
 }
 
 function createRecord(f) {
-    f.action = 'workflow/new.php';
+    f.action = 'workflow/new.php?href={/literal}{$smarty.server.REQUEST_URI}{literal}';
 	f.submit();
 }
 
@@ -114,7 +114,7 @@ function purgeObject(pid)
     if (!confirm('This action will permanently delete the selected object.')) {
         return false;
     } else {
-        window.location.replace('{/literal}{$rel_url}{literal}workflow/delete.php?pid=' + pid);
+        window.location.replace('{/literal}{$rel_url}workflow/delete.php?pid=' + pid + '&href={$smarty.server.REQUEST_URI}{literal}');
         return true;
     }
 }
@@ -380,7 +380,7 @@ function purgeObject(pid)
 
 					  {if $showEdit || $isAdministrator}
 						{if $showEdit}
-							&nbsp;&nbsp;<a href='{$rel_url}workflow/update.php?pid={$list[i].pid|escape:"html"}'><img title="Edit" align="absmiddle" src="{$rel_url}images/edit.gif" border="0"></a> 
+							&nbsp;&nbsp;<a href='{$rel_url}workflow/update.php?pid={$list[i].pid|escape:"html"}&href={$smarty.server.REQUEST_URI}'><img title="Edit" align="absmiddle" src="{$rel_url}images/edit.gif" border="0"></a> 
 						{/if}
 						{if $isAdministrator}
 							 <a href="javascript:void(null);" onclick="javascript: purgeObject('{$list[i].pid|escape}');" ><img title="Delete" align="absmiddle" src="{$rel_url}images/delete.gif" border="0"></a> 
@@ -431,9 +431,9 @@ function purgeObject(pid)
         <tr>
           <td align="left" >
 			{if $list_type == 'community_list' && $isAdministrator}
-			<br /> <a class="default" target="_top" title="create a new community" href="{$rel_url}workflow/new.php?pid=-1&xdis_id={$xdis_id}"><img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0"><b>Create New Community</b></a>&nbsp;
+			<br /> <a class="default" target="_top" title="create a new community" href="{$rel_url}workflow/new.php?pid=-1&xdis_id={$xdis_id}&href={$smarty.server.REQUEST_URI}"><img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0"><b>Create New Community</b></a>&nbsp;
 			{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
-			<br /> <a class="default" target="_top" title="create a new collection" href="{$rel_url}workflow/new.php?xdis_id={$xdis_id}{if $community_pid}&community_pid={$community_pid}{/if}"><img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0"><b>Create New Collection</b></a>&nbsp;
+			<br /> <a class="default" target="_top" title="create a new collection" href="{$rel_url}workflow/new.php?xdis_id={$xdis_id}{if $community_pid}&community_pid={$community_pid}&href={$smarty.server.REQUEST_URI}{/if}"><img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0"><b>Create New Collection</b></a>&nbsp;
 			{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}
 				{if $childXDisplayOptions != 0}
 			<br /> <img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0">

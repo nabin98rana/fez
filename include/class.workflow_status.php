@@ -54,6 +54,7 @@ class WorkflowStatus {
     var $parent_pid;
     var $vars = array(); // associative array for storing workflow variables between states
     var $rec_obj;
+    var $href;
     
     function WorkflowStatus($pid=null, $wft_id=null, $xdis_id=null, $dsInfo=null)
     {
@@ -180,7 +181,8 @@ class WorkflowStatus {
         $pid = $this->pid;
         $parent_pid = $this->parent_pid;
         $parents_list = serialize($this->parents_list);
-        $args = compact('wfl_title','wft_type','parent_pid','pid', 'parents_list', 'action');
+        $href= $this->href;
+        $args = compact('wfl_title','wft_type','parent_pid','pid', 'parents_list', 'action', 'href');
         $argstrs = array();
         foreach ($args as $key => $arg) {
             $argstrs[] = "$key=".urlencode($arg);

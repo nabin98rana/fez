@@ -1,10 +1,12 @@
 <tr>
-<td class="default">
+<td class="default" align="center">
 Finished workflow {$wfl_title}, triggered by {$wft_type}.<br/>
 {if $parent_title}Parent: <a href="{$view_parent_url}">{$parent_title}</a><br/>{/if}
 {if $parents_list}Parents: 
 {section name="i" loop=$parents_list}<a href="{$parents_list[i].url}">{$parents_list[i].title}</a> {/section}
 <br/>{/if}
 {if $record_title}Record: <a href="{$view_record_url}">{$record_title}</a><br/>{/if}
+<br/>
+{if $refresh_page}<b>You will be redirected to <a href="{$refresh_page}">{$refresh_page}</a> in a few seconds</b><br/>{/if}
 </td>
 </tr>

@@ -57,16 +57,17 @@ $tpl->assign("isAdministrator", $isAdministrator);
 
 $xdis_id = Misc::GETorPOST('xdis_id');
 $pid = Misc::GETorPOST('pid');
-
+$href= Misc::GETorPOST('href');
+$tpl->assign("href", $href);
 $cat = Misc::GETorPOST('cat');
 if ($cat == 'select_workflow') {
     $wft_id = Misc::GETorPOST("wft_id");
     $pid = Misc::GETorPOST("pid");
-    Workflow::start($wft_id, $pid, $xdis_id);
+    Workflow::start($wft_id, $pid, $xdis_id, $href);
 }
 
 $message = '';
-$wfl_list = Misc::keyPairs(Workflow::getList(), 'wfl_id', 'wfl_title');
+$wfl_list = Misc::keyArray(Workflow::getList(), 'wfl_id');
 $xdis_list = array(-1 => 'Any') + XSD_Display::getAssocListDocTypes(); 
 $tpl->assign('wfl_list', $wfl_list);
 $tpl->assign('xdis_list', $xdis_list);

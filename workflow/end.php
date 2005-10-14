@@ -60,6 +60,13 @@ $wfl_title = Misc::GETorPOST('wfl_title');
 $wft_type = Misc::GETorPOST('wft_type');
 $parent_pid = Misc::GETorPOST('parent_pid');
 $action = Misc::GETorPOST('action');
+$href = Misc::GETorPOST('href');
+$tpl->assign('href',$href);
+if ($href) {
+    $tpl->assign('refresh_rate', 5);
+    $tpl->assign('refresh_page', substr($href,strlen(APP_RELATIVE_URL)));
+}
+
 $parents_list = unserialize(Misc::GETorPOST('parents_list'));
 if (is_array($parents_list)) {
     foreach ($parents_list as &$item) {
