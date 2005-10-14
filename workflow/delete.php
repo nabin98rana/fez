@@ -56,12 +56,14 @@ $tpl->assign("isAdministrator", $isAdministrator);
 
 $xdis_id = Misc::GETorPOST('xdis_id');
 $pid = Misc::GETorPOST('pid');
+$href= Misc::GETorPOST('href');
+$tpl->assign("href", $href);
 
 $cat = Misc::GETorPOST('cat');
 if ($cat == 'select_workflow') {
     $wft_id = Misc::GETorPOST("wft_id");
     $pid = Misc::GETorPOST("pid");
-    Workflow::start($wft_id, $pid, $xdis_id);
+    Workflow::start($wft_id, $pid, $xdis_id, $href);
 }
 
 $message = '';
@@ -112,7 +114,7 @@ if (empty($workflows)) {
     $message .= "Error: No workflows defined for Delete<br/>";
 } elseif (count($workflows) == 1) {
     // no need for user to select a workflow - just start the only one available
-    Workflow::start($workflows[0]['wft_id'], $pid, $xdis_id);
+    Workflow::start($workflows[0]['wft_id'], $pid, $xdis_id, $href);
 }
 
 $tpl->assign('message', $message);

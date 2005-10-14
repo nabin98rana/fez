@@ -67,7 +67,8 @@ $id = Misc::GETorPOST('id');
 $tpl->assign("id", $id);
 $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
 $pid = $wfstatus->pid;
-$tpl->assign('workflow_buttons', $wfstatus->getButtons());
+$wfstatus->setTemplateVars($tpl);
+$tpl->assign("submit_to_popup", true);
 $wfstatus->checkStateChange();
  
 $collection_pid = @$HTTP_POST_VARS["collection_pid"] ? $HTTP_POST_VARS["collection_pid"] : @$HTTP_GET_VARS["collection_pid"];	

@@ -68,6 +68,7 @@ $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus ob
 $pid = $wfstatus->pid;
 $tpl->assign("pid", $pid);
 
+$wfstatus->setTemplateVars($tpl);
 // get the xdis_id of what we're creating
 $xdis_id = $wfstatus->getXDIS_ID();
 
@@ -89,7 +90,6 @@ if ($access_ok) {
     }
     $wfstatus->checkStateChange();
 
-    $tpl->assign('workflow_buttons', $wfstatus->getButtons());
     $tpl->assign("isCreator", 1);
     if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for it
         print_r($wfstatus);

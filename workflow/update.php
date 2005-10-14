@@ -115,7 +115,7 @@ if (empty($workflows)) {
     $message .= "Error: No workflows defined for Update<br/>";
 } elseif (count($workflows) == 1) {
     // no need for user to select a workflow - just start the only one available
-    Workflow::start($workflows[0]['wft_id'], $pid, $xdis_id);
+    Workflow::start($workflows[0]['wft_id'], $pid, $xdis_id, $href);
 }
 
 $tpl->assign('message', $message);

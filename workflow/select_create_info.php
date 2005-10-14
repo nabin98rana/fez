@@ -106,7 +106,7 @@ $tpl->assign("id", $id);
 $wfs_id = Misc::GETorPOST('wfs_id');
 $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
 
-$tpl->assign('workflow_buttons', $wfstatus->getButtons());
+$wfstatus->setTemplateVars($tpl);
 $cat = Misc::GETorPOST('cat');
 if ($cat == 'submit') {
     $wfstatus->pid = Misc::GETorPOST('collection_pid');

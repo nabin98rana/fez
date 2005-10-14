@@ -25,7 +25,7 @@ function assignItems(f)
 }
 
 function createRecord(f) {
-    f.action = 'workflow/new.php?href={/literal}{$smarty.server.REQUEST_URI}{literal}';
+    f.action = 'workflow/new.php';
 	f.submit();
 }
 
@@ -124,6 +124,7 @@ function purgeObject(pid)
 <table width="100%" bgcolor="{$cell_color}" cellspacing="0" cellpadding="1" align="center">
   <form name="list_form" method="get" action="{$smarty.server.PHP_SELF}">
   <input type="hidden" name="cat" value="assign">
+  <input type="hidden" name="href" value="{$smarty.server.REQUEST_URI}">
   <tr>
     <td>
       <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" >

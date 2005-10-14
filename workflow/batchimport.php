@@ -62,6 +62,7 @@ $wfs_id = Misc::GETorPOST('wfs_id');
 $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
 $pid = $wfstatus->pid;
 $tpl->assign("pid", $pid);
+$wfstatus->setTemplateVars($tpl);
 
 // get the xdis_id of what we're creating
 $xdis_id = $wfstatus->getXDIS_ID();
@@ -74,7 +75,7 @@ if ($pid == -1 || !$pid) {
     $access_ok = $record->canCreate();
 }
 if ($access_ok) {
-    if (@$HTTP_POST_VARS["cat"] == "report") {
+    if (@$HTTP_POST_VARS["cat"] == "submit") {
         $wftpl = $wfstatus->getvar('template');
         $res = BatchImport::insert($wftpl);
         sleep(1); // give fedora some time to update it's indexes or whatever it does.
@@ -82,7 +83,6 @@ if ($access_ok) {
     }
     $wfstatus->checkStateChange();
 
-    $tpl->assign('workflow_buttons', $wfstatus->getButtons());
     $tpl->assign("xdis_id", $xdis_id);
     $tpl->assign("pid", $pid);
     $jtaskData = "";

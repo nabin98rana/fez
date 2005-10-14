@@ -69,6 +69,7 @@ $pid = $wfstatus->pid;
 $tpl->assign("pid", $pid);
 $tpl->assign("sta_id", 1);
 
+$wfstatus->setTemplateVars($tpl);
 // get the xdis_id of what we're creating
 $xdis_id = $wfstatus->getXDIS_ID();
 
@@ -88,7 +89,6 @@ if ($access_ok) {
     }
     $wfstatus->checkStateChange();
 
-    $tpl->assign('workflow_buttons', $wfstatus->getButtons());
     $tpl->assign("isCreator", 1);
     if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for it
         Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=insert_form".$extra_redirect, false);

@@ -55,6 +55,7 @@ class WorkflowStatus {
     var $vars = array(); // associative array for storing workflow variables between states
     var $rec_obj;
     var $href;
+    var $states_done = array();
     
     function WorkflowStatus($pid=null, $wft_id=null, $xdis_id=null, $dsInfo=null)
     {
@@ -162,6 +163,8 @@ class WorkflowStatus {
     {
         $this->getBehaviourDetails();
         $this->getTriggerDetails();
+        $this->getStateDetails();
+        $this->states_done[] = $this->wfs_details;
         $this->setSession();
         if ($this->wfb_details['wfb_auto']) {
             include(APP_PATH.'workflow/'.$this->wfb_details['wfb_script_name']);
@@ -302,6 +305,14 @@ class WorkflowStatus {
     function getvar($name)
     {
         return $this->vars[$name];
+    }
+
+    function setTemplateVars(&$tpl)
+    {
+        $tpl->assign('workflow_buttons', $this->getButtons());
+        $this->getWorkflowDetails();
+        $tpl->assign('wfl_title', $this->wfl_details['wfl_title']);
+        $tpl->assign('states_done', $this->states_done);
     }
 
 }

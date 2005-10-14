@@ -1,11 +1,79 @@
+{literal}
+<script language="JavaScript">
+<!--
+
+function updateForm()
+{
+  var features = 'width=420,height=200,top=30,left=30,resizable=yes,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
+  var updateWin = window.open('', '_popup_window', features);
+  updateWin.focus();
+  return true;
+}
+//-->
+</script>
+{/literal}
+
 <table bgcolor="{$light_color}" border="0" cellspacing="0" cellpadding="1" align="center"  width="100%">
   <tr>
     <td>
       <table bgcolor="#FFFFFF" width="100%" cellspacing="0" cellpadding="0" border="0">
+<tr><td class="default">
+<b>{$wfl_title}</b><br/>
+{section name="i" loop=$states_done}
+{$states_done[i].wfs_title} <img src="{$rel_url}images/arrow_16.gif" alt=" -> " />
+{/section}
+{$wfs_title}<br/>
+{if $submit_to_popup}
+<form name="wfl_form1"  onSubmit="javascript:return (checkFormSubmission(this, 'validateForm') && updateForm());" target="_popup_window" action="{$rel_url}popup.php" method="POST" enctype="multipart/form-data">
+{else}
+<form name="wfl_form1" action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
+{/if}
+<input type="hidden" name="id" value="{$id}">
+</td></tr>
+<tr>
+ <td colspan="2" bgcolor="{$cell_color}">
+  <table border="0" cellpadding="0" cellspacing="0" width="100%">
+   <tr>
+    <td   width="100%" align="center">
+     <span class="default"><b>Next State:</b> </span>
+   {section name="i" loop=$workflow_buttons}
+     <input class="button" type="submit" name="workflow_button_{$workflow_buttons[i].wfs_id}" 
+      value="{$workflow_buttons[i].wfs_title}" 
+      />&nbsp;&nbsp;
+     {/section}
+     <input class="button" type="reset" value="Reset" tabindex="13">
+    </td>
+   </tr>
+  </table>
+ </td>
+</tr>
 
 {include file="workflow/$type.tpl.html"}
 
-
+<tr>
+ <td colspan="2" bgcolor="{$cell_color}">
+  <table border="0" cellpadding="0" cellspacing="0" width="100%">
+   <tr>
+    <td   width="100%" align="center">
+     <span class="default"><b>Next State:</b> </span>
+   {section name="i" loop=$workflow_buttons}
+     <input class="button" type="submit" name="workflow_button_{$workflow_buttons[i].wfs_id}" 
+      value="{$workflow_buttons[i].wfs_title}" 
+      />&nbsp;&nbsp;
+     {/section}
+     <input class="button" type="reset" value="Reset" tabindex="13">
+    </td>
+   </tr>
+  </table>
+ </td>
+</tr>
+        <tr>
+          <td colspan="2" class="default">
+            <b>* Required fields</b>
+          </td>
+        </tr>
+</form>
+ 
       </table>
     </td>
   </tr>

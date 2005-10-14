@@ -46,11 +46,14 @@ include_once(APP_INC_PATH . "class.fedora_api.php");
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign('type',"preview");
+
 $id = Misc::GETorPOST('id');
 $tpl->assign("id", $id);
 $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
 $pid = $wfstatus->pid;
-$tpl->assign('workflow_buttons', $wfstatus->getButtons());
+
+$wfstatus->setTemplateVars($tpl);
+
 $wfstatus->checkStateChange();
 include_once('../view2.php');
 $tpl->displayTemplateRecord($pid);
