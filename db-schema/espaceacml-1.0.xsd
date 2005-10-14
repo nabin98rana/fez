@@ -23,8 +23,8 @@
         <xsd:element name="in_AD"/>
         <xsd:element name="AD_Group"/>
         <xsd:element name="AD_User"/>        
-        <xsd:element name="eSpace_Group"/>        
-        <xsd:element name="eSpace_User"/>
+        <xsd:element name="Fez_Group"/>        
+        <xsd:element name="Fez_User"/>
   </xsd:sequence>
 </xsd:complexType>
 

@@ -2,7 +2,7 @@
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
 	<!--============================================================
 
-	 FezMD: eSpace Metadata Extension Schema
+	 FezMD: Fez Metadata Extension Schema
 		
 	============================================================-->
 	<xsd:element name="FezMD" type="FezMDType"/>

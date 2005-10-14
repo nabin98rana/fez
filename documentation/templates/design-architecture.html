@@ -24,7 +24,7 @@
  <table border="1" cellpadding="3" cellspacing="2" class="axial">
   <tr>
    <th>Project:</th> 
-   <td><a href="index.html">eSpace</a></td> 
+   <td><a href="index.html">Fez</a></td> 
   </tr>
   <tr>
    <th>Internal Release Number:</th> 
@@ -58,7 +58,7 @@
   <dt>What are the most important facts that a developer should know
   about this system architecture?</dt>
 
-  <dd>It is based around the same programming model as the Eventum helpdesk software, however the system data content is stored in the Fedora system instead of a purely relational database system like MySQL. Fedora itself is a middle layer between eSpace and Fedora's own relational database (which is MySQL, but could be Oracle etc). eSpace communicates with the Fedora middle layer through Fedora webservices using basic web service calls to URLs and also using SOAP communications with the PHP NuSOAP classes. </dd>
+  <dd>It is based around the same programming model as the Eventum helpdesk software, however the system data content is stored in the Fedora system instead of a purely relational database system like MySQL. Fedora itself is a middle layer between Fez and Fedora's own relational database (which is MySQL, but could be Oracle etc). Fez communicates with the Fedora middle layer through Fedora webservices using basic web service calls to URLs and also using SOAP communications with the PHP NuSOAP classes. </dd>
 
 
   <dt>What software architecture style is being used?</dt>
@@ -92,7 +92,7 @@
  <dl>
   <dt>What are the components of this system?</dt>
 
-  <dd class="sample1">The components of this system are clearly defined in this diagram: <img src="../images/eSpaceTopLevel.jpg" width="720" height="825" /></dd>
+  <dd class="sample1">The components of this system are clearly defined in this diagram: <img src="../images/FezTopLevel.jpg" width="720" height="825" /></dd>
   </dl>
  <p>&nbsp;</p>
  <dl>
@@ -101,7 +101,7 @@
        <ul>
         <li>Presentation/UI/Workflow/Management Components
           <ul>
-          <li><a href="design-components.html#C-00">C-00: eSpace Web Application</a></li>
+          <li><a href="design-components.html#C-00">C-00: Fez Web Application</a></li>
          </ul>
         </li>
         <li>Digital Object Storage Management Components
@@ -139,7 +139,7 @@
       <li>IIS/Apache
 PHP Service on port 80    
         <ul>
-        <li><a href="design-components.html#C-00">C-00: eSpace Web Application</a></li>
+        <li><a href="design-components.html#C-00">C-00: Fez Web Application</a></li>
         </ul>
       </li>
       <li>Fedora Tomcat Service
@@ -160,12 +160,12 @@ on port 8080
   </dd>
 
   <dd class="sample3">
-   The deployment of components to processes and machines is clearly defined below (This is how UQ Library has setup eSpace - recommended):
+   The deployment of components to processes and machines is clearly defined below (This is how UQ Library has setup Fez - recommended):
      <ul>
 
     <li>Load-balanced front-end IIS/Apache servers
       <ul>
-      <li><a href="design-components.html#C-00">C-00: eSpace Web Application</a></li>
+      <li><a href="design-components.html#C-00">C-00: Fez Web Application</a></li>
      </ul>
     </li>
     <li>Back-end Fedora Tomcat server

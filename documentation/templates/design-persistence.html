@@ -24,7 +24,7 @@
  <table border="1" cellpadding="3" cellspacing="2" class="axial">
   <tr>
    <th>Project:</th> 
-   <td><a href="index.html">eSpace</a></td> 
+   <td><a href="index.html">Fez</a></td> 
   </tr>
   <tr>
    <th>Internal Release Number:</th> 
@@ -55,7 +55,7 @@
   <dt>What are the most important facts that a developer should know
   about persistent data storage in this system?</dt>
 
-  <dd>The FEDORA backend system manages the persistance storages of digital objects for eSpace. eSpace has its own MySQL database to handle eSpace workflow and document type mappings, but the actual digital objects are all stored in Fedora. </dd>
+  <dd>The FEDORA backend system manages the persistance storages of digital objects for Fez. Fez has its own MySQL database to handle Fez workflow and document type mappings, but the actual digital objects are all stored in Fedora. </dd>
 
  
   <dt>What are the ranked goals for persistence in this system?</dt>
@@ -89,13 +89,13 @@
 
   <dt>What is the logical database design?</dt>
 
-  <dd class="sample1">The eSpace logical database design is described in this UML model. (<a href="../visio_diagrams/eSpaceLogicalDatabase.vsd">Here is the Visio 2003 source diagram</a>).<img src="../images/eSpaceLogicalDatabase.jpg"  /></dd>
+  <dd class="sample1">The Fez logical database design is described in this UML model. (<a href="../visio_diagrams/FezLogicalDatabase.vsd">Here is the Visio 2003 source diagram</a>).<img src="../images/FezLogicalDatabase.jpg"  /></dd>
 
 
   <dt>What are the physical tables and views?</dt>
 
-  <dd class="sample1">The eSpace specific physical database design is described in
-  this UML model. (<a href="../visio_diagrams/eSpaceDatabaseSchema.vsd">Here is the Visio 2003 source diagram</a>).<img src="../images/eSpaceDatabaseSchema.jpg" width="881" height="976" /></dd>
+  <dd class="sample1">The Fez specific physical database design is described in
+  this UML model. (<a href="../visio_diagrams/FezDatabaseSchema.vsd">Here is the Visio 2003 source diagram</a>).<img src="../images/FezDatabaseSchema.jpg" width="881" height="976" /></dd>
 
 
   <dt>How will objects in the application be stored in the database?</dt>
@@ -104,13 +104,13 @@
 
   <dt>What database access controls will be used?</dt>
 
-  <dd class="sample1">Access to the FEDORA digital repository is based on IP and Fedora administrator username and password. The eSpace web application connects to the FEDORA system via exposed webservices restricted by these IP and username/password restrictions. eSpace web application security then controls what users can see.</dd>
+  <dd class="sample1">Access to the FEDORA digital repository is based on IP and Fedora administrator username and password. The Fez web application connects to the FEDORA system via exposed webservices restricted by these IP and username/password restrictions. Fez web application security then controls what users can see.</dd>
 
   
   <dt>Is this application's central database accessible to other
   applications?</dt>
 
-  <dd class="sample1">The FEDORA backend database can only be accessed by the eSpace web application or by system administrators via the Fedora Administrator GUI or the exposed web services. The database Fedora uses is MySQL so it can also be accessed directly by system adminsitrators with appropriate access, but all administration should be possible either through eSpace or the Fedora Admin client GUI.</dd>
+  <dd class="sample1">The FEDORA backend database can only be accessed by the Fez web application or by system administrators via the Fedora Administrator GUI or the exposed web services. The database Fedora uses is MySQL so it can also be accessed directly by system adminsitrators with appropriate access, but all administration should be possible either through Fez or the Fedora Admin client GUI.</dd>
 
   </dl>
  </div> 

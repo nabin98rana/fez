@@ -26,7 +26,7 @@
  <table border="1" cellpadding="3" cellspacing="2" class="axial">
   <tr>
    <th>Project:</th> 
-   <td><a href="index.html">eSpace</a></td> 
+   <td><a href="index.html">Fez</a></td> 
   </tr>
   <tr>
    <th>Internal Release Number:</th> 
@@ -68,13 +68,13 @@
 
 
 <div id="UC-00-00">
-<h3>UC-00-00: Install eSpace </h3>
+<h3>UC-00-00: Install Fez </h3>
 <div>
 <table border="1" cellpadding="3" cellspacing="2"  class="axial">
  <tr>
   <th>Summary:</th>
 
-  <td>The Administrator install pre-requisite packages and copies the eSpace file to the webserver. Initially, the php scripts will need write access to the eSpace directories. A setup PHP script is run which writes some files to store inital settings such as the location of the databases and applications on which it depends.</td>
+  <td>The Administrator install pre-requisite packages and copies the Fez file to the webserver. Initially, the php scripts will need write access to the Fez directories. A setup PHP script is run which writes some files to store inital settings such as the location of the databases and applications on which it depends.</td>
 
  </tr>
  <tr>
@@ -97,7 +97,7 @@
    <ol>
     <li>visit site configuration page</li>
     <li>see site configuration options</li>
-    <li>enter inital eSpace settings </li>
+    <li>enter inital Fez settings </li>
     <li>submit form</li>
     <li>see message advising of success </li>
     </ol>
@@ -106,7 +106,7 @@
  <tr>
   <th><div>Alternative</div> Scenario Extensions:</th>
   <td>
-   <p>If eSpace can't write the configuration files or there is an invalid setting:</p>   <ol>
+   <p>If Fez can't write the configuration files or there is an invalid setting:</p>   <ol>
      <li>see Error message explaining problem and suggesting solution</li>
      <li>return to step 2 of Main Success Scenario  </li>
    </ol></td>
@@ -125,7 +125,7 @@
 <table border="1" cellpadding="3" cellspacing="2" class="axial">
  <tr>
   <th>Summary:</th>
-  <td>The Administrator usually doesn't have to add users to the system as they are authenticated through Active Directory. If a user is to have special privileges, they can be added to the eSpace user list. They can then be put into certain priviledged groups used within eSpace.</td>
+  <td>The Administrator usually doesn't have to add users to the system as they are authenticated through Active Directory. If a user is to have special privileges, they can be added to the Fez user list. They can then be put into certain priviledged groups used within Fez.</td>
  </tr>
  <tr>
   <th>Priority:</th>
@@ -155,7 +155,7 @@
    <ol>
     <li>Visit the User Administration page </li>
     <li>See a user details form to add a new user followed by a list of existing users </li>
-    <li>Enter the user details and select the eSpace groups to which they will belong </li>
+    <li>Enter the user details and select the Fez groups to which they will belong </li>
     <li>Submit the form </li>
     <li>See message stating success and the user details form with pre-entered details of the new user </li>
    </ol>
@@ -164,7 +164,7 @@
  <tr>
   <th>Alternative Scenario Extensions:</th>
   <td>
-    <p>If the user is already in eSpace</p>
+    <p>If the user is already in Fez</p>
     <ol>
       <li>See a message stating that the user already exists</li>
       <li>See the user's details pre-entered in the user details form</li>
@@ -185,7 +185,7 @@
 <table border="1" cellpadding="3" cellspacing="2" class="axial">
  <tr>
   <th>Summary:</th>
-  <td>An eSpace user group can be made to provide authorisation for a group of eSpace users. The users may still be authenticated from AD. </td>
+  <td>An Fez user group can be made to provide authorisation for a group of Fez users. The users may still be authenticated from AD. </td>
  </tr>
  <tr>
   <th>Priority:</th>
@@ -224,7 +224,7 @@
  <tr>
   <th>Alternative Scenario Extensions:</th>
   <td>
-    <p>If the user group is already in eSpace</p>
+    <p>If the user group is already in Fez</p>
     <ol>
       <li>See a message stating that the user group already exists</li>
       <li>See the user groups details pre-entered in the user details form</li>
@@ -246,7 +246,7 @@
 <table border="1" cellpadding="3" cellspacing="2" class="axial">
  <tr>
   <th>Summary:</th>
-  <td>Some users of eSpace may want to have an eSpace account so they can save searches they have made, comment on research and make annotations. </td>
+  <td>Some users of Fez may want to have an Fez account so they can save searches they have made, comment on research and make annotations. </td>
  </tr>
  <tr>
   <th>Priority:</th>
@@ -316,7 +316,7 @@
   <th>Notes and Questions</th>
   <td>
     <p>The confirmation URL should time out after a few hours.</p>
-    <p>The eSpace user created will belong to a default set of eSpace groups </p></td>
+    <p>The Fez user created will belong to a default set of Fez groups </p></td>
  </tr>
 </table>
 </div>
@@ -326,7 +326,7 @@
 <table border="1" cellpadding="3" cellspacing="2" class="axial">
  <tr>
   <th>Summary:</th>
-  <td>When a user forgets their eSpace password, they can re-register using their ability to read their email as a security check. This only works for eSpace users - not UQ AD. </td>
+  <td>When a user forgets their Fez password, they can re-register using their ability to read their email as a security check. This only works for Fez users - not UQ AD. </td>
  </tr>
  <tr>
   <th>Priority:</th>
@@ -348,8 +348,8 @@
  <th>Prereq:</th>
   <td>
    <div>
-     <p>User is registered with eSpace - it can't obtain their UQ AD password. </p>
-     <p>Logged out of eSpace.</p>
+     <p>User is registered with Fez - it can't obtain their UQ AD password. </p>
+     <p>Logged out of Fez.</p>
    </div>
    </td>
  </tr>
@@ -363,20 +363,20 @@
     <li>Submit form</li>
     <li>See confirmation message that an email has been sent</li>
     <li>Receive email</li>
-    <li>See link in email to eSpace password reset page (with unique id)</li>
+    <li>See link in email to Fez password reset page (with unique id)</li>
     <li>Visit link</li>
     <li>See form displaying username and requesting to enter a new password</li>
     <li>Enter password</li>
     <li>Enter confirmation password</li>
     <li>Submit form</li>
-    <li>See eSpace login page</li>
+    <li>See Fez login page</li>
     </ol>
   </td>
  </tr>
  <tr>
   <th>Alternative Scenario Extensions:</th>
   <td>
-    <p>If at step 4, the email or username is not in the eSpace database </p>
+    <p>If at step 4, the email or username is not in the Fez database </p>
     
        <ol>
          <li>See error message advising that the account is unknown</li>
@@ -401,7 +401,7 @@
   <table border="1" cellpadding="3" cellspacing="2" class="axial">
     <tr>
       <th>Summary:</th>
-      <td>All items in eSpace including collections and communities can have access restrictions. The restrictions are inherited from parent collections and communities. This is needed so that the repository can have different staff with control of different parts of the repository. </td>
+      <td>All items in Fez including collections and communities can have access restrictions. The restrictions are inherited from parent collections and communities. This is needed so that the repository can have different staff with control of different parts of the repository. </td>
     </tr>
     <tr>
       <th>Priority:</th>
@@ -427,12 +427,12 @@
     <tr>
       <th>Main Success Scenario:</th>
       <td><ol>
-          <li>Visit the item view page in eSpace </li>
+          <li>Visit the item view page in Fez </li>
           <li>See the item details and an icon for editing the item </li>
           <li>Click on the edit icon</li>
           <li>See the form for editing the item properties</li>
           <li>See the section for editing security properties</li>
-          <li>Enter the security restrictions - there are several categories of actions that can be performed on the object. For each of the actions, a set of credentials can be selected as to who can do the action according to user name, AD group, eSpace group etc...</li>
+          <li>Enter the security restrictions - there are several categories of actions that can be performed on the object. For each of the actions, a set of credentials can be selected as to who can do the action according to user name, AD group, Fez group etc...</li>
           <li>Submit the form</li>
           <li>A message advises that the permissions have been changed</li>
           <li>See the security details with the pre-entered values that you submitted </li>
@@ -451,7 +451,7 @@
           </ul>
         <p>Possible credentials </p>
         <ul>
-          <li>User in AD, user in AD group(s), user in eSpace, user in eSpace group(s)</li>
+          <li>User in AD, user in AD group(s), user in Fez, user in Fez group(s)</li>
           <li>If there are no credentials set, then the ancestor objects credentials are used</li>
           <li>If there are no ancestor credentials, then a default set of credentials is used - set in the administrator interface </li>
         </ul></td>
@@ -496,7 +496,7 @@
     <li>See blank User Details Form and list of existing users </li>
     <li>Select user from list</li>
     <li>See user details form with pre-entered details for the selected user </li>
-    <li>Select groups (eSpace and AD groups listed) that the user should belong to</li>
+    <li>Select groups (Fez and AD groups listed) that the user should belong to</li>
     <li>Submit form</li>
     <li>See message stating success</li>
     <li>See user details form with the pre-entered details including the groups selected </li>
@@ -513,8 +513,8 @@
  <tr>
   <th>Notes and Questions</th>
   <td>
-    <p>There will need to be a list of eSpace users but what about AD users - there are a great many AD users, perhaps this feature can only work for eSpace users.</p>
-    <p>If the eSpace user is also in the AD then you can add AD groups as well as eSpace groups, otherwise only eSpace groups can be used. </p></td>
+    <p>There will need to be a list of Fez users but what about AD users - there are a great many AD users, perhaps this feature can only work for Fez users.</p>
+    <p>If the Fez user is also in the AD then you can add AD groups as well as Fez groups, otherwise only Fez groups can be used. </p></td>
  </tr>
 </table>
 </div>
@@ -554,7 +554,7 @@
   <td>
    <ol>
     <li>Visit Defaults Administration page </li>
-    <li>See filled form that shows the default values for eSpace </li>
+    <li>See filled form that shows the default values for Fez </li>
     <li>Enter the credentials required by default for the roles that can access the repository</li>
     <li>Submit the form</li>
     <li>See confirmation message</li>
@@ -612,7 +612,7 @@
   <td>
    <ol>
     <li>Visit Defaults Administration Page </li>
-    <li>See filled form with defaults for eSpace, including user defaults </li>
+    <li>See filled form with defaults for Fez, including user defaults </li>
     <li>Enter desired default user options, including the default group(s)</li>
     <li>Submit form</li>
     <li>See confirmation message</li>
@@ -641,7 +641,7 @@
 <table border="1" cellpadding="3" cellspacing="2" class="axial">
  <tr>
   <th>Summary:</th>
-  <td>The document type XSDs describe metadata formats that are used in eSpace. The are formats used for all items and formats used for specialised items such as audio files. </td>
+  <td>The document type XSDs describe metadata formats that are used in Fez. The are formats used for all items and formats used for specialised items such as audio files. </td>
  </tr>
  <tr>
   <th>Priority:</th>
@@ -712,7 +712,7 @@
 <table border="1" cellpadding="3" cellspacing="2" class="axial">
  <tr>
   <th>Summary:</th>
-  <td>The Administrator can control how metadata is entered into forms in eSpace. XSD documents describe the metadata files. eSpace makes a mapping between the XSD files and HTML form elements such as text boxes.</td>
+  <td>The Administrator can control how metadata is entered into forms in Fez. XSD documents describe the metadata files. Fez makes a mapping between the XSD files and HTML form elements such as text boxes.</td>
  </tr>
  <tr>
   <th>Priority:</th>
@@ -786,7 +786,7 @@
 <table border="1" cellpadding="3" cellspacing="2" class="axial">
  <tr>
   <th>Summary:</th>
-  <td><p>An adapter is used to extract metadata from an object automatically. In eSpace, instructions for running the adapter are entered into the system along with information about the file format that it works on such as any documentation that defines it or names of organisations that provide the information. </p>
+  <td><p>An adapter is used to extract metadata from an object automatically. In Fez, instructions for running the adapter are entered into the system along with information about the file format that it works on such as any documentation that defines it or names of organisations that provide the information. </p>
     <p>The instructions will be used to run an external application (or call a PHP script if possible) to extract the metadata and associate it with objects as they are ingested.</p></td>
  </tr>
  <tr>
@@ -840,8 +840,8 @@
  <tr>
   <th>Notes and Questions:</th>
   <td>
-    <p>eSpace will check that the script exists and notify user but doesn't need to take action.</p>
-    <p>What if the extraction will take a long time? Should there be the option to do it in a cron job? Same problem if the extraction can't happen on eSpace's platform, can metadata be extracted manually and submitted manually in one piece? </p></td>
+    <p>Fez will check that the script exists and notify user but doesn't need to take action.</p>
+    <p>What if the extraction will take a long time? Should there be the option to do it in a cron job? Same problem if the extraction can't happen on Fez's platform, can metadata be extracted manually and submitted manually in one piece? </p></td>
  </tr>
 </table>
 </div>
@@ -854,7 +854,7 @@
   <th>Summary:</th>
   <td><p>Process records are used to record any changes to the data after it has been put in the repository. Perhaps items were upgraded to a new file format or transformed in some way. The Adminsitrator will perform these operations on the items and record their actions in a process record. </p>
     <p>The Process Records are stored as objects in the repository themselves and describe a generalised process. If all WAV files in the archive are to have their header format changed, then only one change record describing the generalised case needs to be created. </p>
-    <p>Process records are likely to be used by the eSpace workflows to describe standard steps to perform. For this reason, they might also be automated so that a workflow could specify an automatic operation to be performed. </p></td>
+    <p>Process records are likely to be used by the Fez workflows to describe standard steps to perform. For this reason, they might also be automated so that a workflow could specify an automatic operation to be performed. </p></td>
  </tr>
  <tr>
   <th>Priority:</th>
@@ -909,7 +909,7 @@
  <tr>
   <th>Notes and Questions:</th>
   <td>
-    <p>There is a risk that large scale automated changes within eSpace could corrupt data if the script has a bug. We'll need a procedure for testing eSpace processes to make sure they are correct before we apply them to a large set of data. </p>
+    <p>There is a risk that large scale automated changes within Fez could corrupt data if the script has a bug. We'll need a procedure for testing Fez processes to make sure they are correct before we apply them to a large set of data. </p>
     </td>
  </tr>
 </table>
@@ -1045,7 +1045,7 @@
 <table border="1" cellpadding="3" cellspacing="2" class="axial">
  <tr>
   <th>Summary:</th>
-  <td><p>Workflows are used to describe how users interact with a piece of software. In this context, an eSpace workflow defines the states an item proceeds through to acheive a task - e.g. ingesting or extracting. This eSpace workflow is configurable so that it can be adapted to suit a variety of organisations.</p>
+  <td><p>Workflows are used to describe how users interact with a piece of software. In this context, an Fez workflow defines the states an item proceeds through to acheive a task - e.g. ingesting or extracting. This Fez workflow is configurable so that it can be adapted to suit a variety of organisations.</p>
     <p>The workflow defines a set of roles that will be associated with each object. When an object is submitted, these roles are inherited from the parent object or can be over-ridden by the archiver.</p>
     </td>
  </tr>
@@ -1110,8 +1110,8 @@
 <table border="1" cellpadding="3" cellspacing="2" class="axial">
  <tr>
   <th>Summary:</th>
-  <td><p>The eSpace workflow  defines a network of states that the eSpace item must progress through. Each state has a set of instructions (in a <a href="#UC-03-03">process record</a>) and is associated with a <a href="#UC-0402">configured role</a>. The state of each item is stored in it's metadata. </p>
-    <p>Each Workflow has a start state and a way of triggering it. For example there may be a workflow configured to trigger on the ingesting of a slide image. There is another workflow that is triggered when a user self registers. Making the workflows configurable creates a lot of flexibility about how eSpace interacts with all users. </p></td>
+  <td><p>The Fez workflow  defines a network of states that the Fez item must progress through. Each state has a set of instructions (in a <a href="#UC-03-03">process record</a>) and is associated with a <a href="#UC-0402">configured role</a>. The state of each item is stored in it's metadata. </p>
+    <p>Each Workflow has a start state and a way of triggering it. For example there may be a workflow configured to trigger on the ingesting of a slide image. There is another workflow that is triggered when a user self registers. Making the workflows configurable creates a lot of flexibility about how Fez interacts with all users. </p></td>
  </tr>
  <tr>
   <th>Priority:</th>
@@ -1173,11 +1173,11 @@
 
 
 <div id="UC-05-00">
-<h3>UC-05-00: Login to eSpace</h3>
+<h3>UC-05-00: Login to Fez</h3>
 <table border="1" cellpadding="3" cellspacing="2" class="axial">
  <tr>
   <th>Summary:</th>
-  <td>To access certain parts of eSpace, the user must log into eSpace. </td>
+  <td>To access certain parts of Fez, the user must log into Fez. </td>
  </tr>
  <tr>
   <th>Priority:</th>
@@ -1199,8 +1199,8 @@
  <th>Prereq:</th>
   <td>
    <div>
-     <p>Not logged into eSpace</p>
-     <p>User exists in eSpace or AD</p>
+     <p>Not logged into Fez</p>
+     <p>User exists in Fez or AD</p>
    </div>
    <div></div>
    </td>
@@ -1209,11 +1209,11 @@
   <th>Main Success Scenario:</th>
   <td>
    <ol>
-    <li>See eSpace page header shows user is logged out and a link to login </li>
-    <li>Visit eSpace Login Page</li>
+    <li>See Fez page header shows user is logged out and a link to login </li>
+    <li>Visit Fez Login Page</li>
     <li>See form requesting username and password</li>
     <li>Enter user name and password</li>
-    <li>See eSpace communities listing page</li>
+    <li>See Fez communities listing page</li>
     <li>See page header shows user name and link to logout</li>
    </ol>
   </td>
@@ -1379,7 +1379,7 @@
     <p>The items should only be marked as deleted in fedora - i.e. they can be recovered.</p>
     <p>non-archivers can't see the deleted items, only the archiver sees them. </p>
     <p>You could have an extra step for purging deleted items over a month old or something. </p>
-    <p>The unique item identifiers should not be re-used. Even after items are purged, eSpace will keep track that the item has been deleted and won't re-use the item id. Perhaps a deletion record will be kept or maybe eSpace will just hang onto the metadata and just the actual data will be gone. </p></td>
+    <p>The unique item identifiers should not be re-used. Even after items are purged, Fez will keep track that the item has been deleted and won't re-use the item id. Perhaps a deletion record will be kept or maybe Fez will just hang onto the metadata and just the actual data will be gone. </p></td>
  </tr>
 </table>
 </div>
@@ -1389,7 +1389,7 @@
 <table border="1" cellpadding="3" cellspacing="2" class="axial">
  <tr>
   <th>Summary:</th>
-  <td>When item data needs to be changed, an eSpace process is used to record the changes made. The eSpace process is an item itself that describes how to transform an item type to another form. e.g. perhaps the .au sound format will become awkward to handle but the .wav format is prefferred, so we write a process for converting .au to .wav. </td>
+  <td>When item data needs to be changed, an Fez process is used to record the changes made. The Fez process is an item itself that describes how to transform an item type to another form. e.g. perhaps the .au sound format will become awkward to handle but the .wav format is prefferred, so we write a process for converting .au to .wav. </td>
  </tr>
  <tr>
   <th>Priority:</th>

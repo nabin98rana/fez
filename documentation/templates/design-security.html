@@ -24,7 +24,7 @@
  <table border="1" cellpadding="3" cellspacing="2" class="axial">
   <tr>
    <th>Project:</th> 
-   <td><a href="index.html">eSpace</a></td> 
+   <td><a href="index.html">Fez</a></td> 
   </tr>
   <tr>
    <th>Internal Release Number:</th> 
@@ -51,7 +51,7 @@
   <dt>What are the most important facts that a developer should know
   about the security of this system?</dt>
 
-  <dd>eSpace uses a highly configurable and granular method for authentication and authorisation named eSpace Access Control Markup Language (FezACML). It is saved as a datastream in objects in eSpace. If an eSpace Record object does not have an FezACML datastream the web application will attempt to find any parent Collection  object's FezACML datastreams and use the access rules in those datastreams. If the eSpace Record has more than only parent Collection then the access logic will try and authenticate and authorise the user against each parent FezACML (using boolean OR logic, not AND logic).</dd>
+  <dd>Fez uses a highly configurable and granular method for authentication and authorisation named Fez Access Control Markup Language (FezACML). It is saved as a datastream in objects in Fez. If an Fez Record object does not have an FezACML datastream the web application will attempt to find any parent Collection  object's FezACML datastreams and use the access rules in those datastreams. If the Fez Record has more than only parent Collection then the access logic will try and authenticate and authorise the user against each parent FezACML (using boolean OR logic, not AND logic).</dd>
   <dt>&nbsp;</dt>
   <dt>What are the ranked goals for security in this system?</dt>
 
@@ -134,7 +134,7 @@
 
   <dd class="sample1">
    <ul>
-    <li>Access and Authorisaion to objects in eSpace is controlled by eSpace Access Control Markup Language, saved as a datastream in eSpace objects. It is highly configurable and can be set on the community, collection or as granular as the per object level. </li>
+    <li>Access and Authorisaion to objects in Fez is controlled by Fez Access Control Markup Language, saved as a datastream in Fez objects. It is highly configurable and can be set on the community, collection or as granular as the per object level. </li>
 
     <li>Sessions are tied to a particular client IP-address so that
       stolen cookies cannot be used.</li>
@@ -158,12 +158,12 @@
  <dl>
   <dt>Protection of data: To what extent has this been achieved?</dt>
 
-  <dd>All the servers in the eSpace environment are backed up to tape nightly. </dd>
+  <dd>All the servers in the Fez environment are backed up to tape nightly. </dd>
 
 
   <dt>Prevention of intrusion: To what extent has this been achieved?</dt>
 
-  <dd>The servers eSpace runs on are firewalled to allow administrator access only from certain IPs and requires an SSH Key and password. </dd>
+  <dd>The servers Fez runs on are firewalled to allow administrator access only from certain IPs and requires an SSH Key and password. </dd>
 
 
   <dt>Prevention of abuse: To what extent has this been achieved?</dt>
@@ -173,7 +173,7 @@
 
   <dt>Accountability/auditing: To what extent has this been achieved?</dt>
 
-  <dd>Access and error logging on the Apache webserver is enabled so track suspicious network traffic. The eSpace inbuilt Fedora version control system will track changes to objects.</dd>
+  <dd>Access and error logging on the Apache webserver is enabled so track suspicious network traffic. The Fez inbuilt Fedora version control system will track changes to objects.</dd>
 
 
   <dt>Have these security mechanisms been communicated to the

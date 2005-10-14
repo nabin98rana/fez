@@ -27,7 +27,7 @@
  </div>
 
  <div id="processimpact">
-  <strong>Note:</strong> These eSpace specific terms are based around terms used in Fedora. If the descriptions below are not sufficient please see <a href="http://www.fedora.info/">http://www.fedora.info/</a> for more details </div> 
+  <strong>Note:</strong> These Fez specific terms are based around terms used in Fedora. If the descriptions below are not sufficient please see <a href="http://www.fedora.info/">http://www.fedora.info/</a> for more details </div> 
  <!-- /processimpact -->
 
  <div>Jump to: <a href="#A">A</a> | <a href="#B">B</a> | <a
@@ -75,12 +75,12 @@
   <dd ><i>n.</i> A method of transforming a Datastream into a desired method of output. For example an image datastream might have a 'getThumbnail' disseminator which will return the image in a thumbnail size. Disseminators can also be used to transform XML via XSLT. See the fedora object model documentation for further detail <a href="http://www.fedora.info/download/2.0/userdocs/digitalobjects/objectModel.html">here</a>.</dd>
   <dt id="dublincore">Dublin Core</dt>
 
-  <dd ><i>n.</i> The basic metadata elements belonging to every object in eSpace/Fedora. Eg Title, Author, Publisher etc. </dd>
+  <dd ><i>n.</i> The basic metadata elements belonging to every object in Fez/Fedora. Eg Title, Author, Publisher etc. </dd>
 
   <a name="E"></a>
   <dt id="epsaceacml">FezACML</dt>
 
-  <dd ><i>n.</i> eSpace Access Control Markup Language. FezACML is an XSD designed for eSpace to describe the security on objects in the system. Each Community, Collection and Record in eSpace has an FezACML datastream. If a Collection or Record does not have an FezACML datastream the system uses the objects parent FezACML datastream to determine security rights. If the Community for a Collection or Record still does not have an FezACML datastream only eSpace Administrators have any access to the object. </dd>
+  <dd ><i>n.</i> Fez Access Control Markup Language. FezACML is an XSD designed for Fez to describe the security on objects in the system. Each Community, Collection and Record in Fez has an FezACML datastream. If a Collection or Record does not have an FezACML datastream the system uses the objects parent FezACML datastream to determine security rights. If the Community for a Collection or Record still does not have an FezACML datastream only Fez Administrators have any access to the object. </dd>
 
 <a name="F"></a>
   <dt id="foxml">FOXML</dt>
@@ -126,17 +126,17 @@ Find more information on the <a href="http://www.openarchives.org/OAI/openarchiv
 <a name="P"></a>
   <dt id="preservationmetadata">Preservation Metadata</dt>
 
-  <dd ><i>n.</i> Metadata to describe aspects of an object to allow the object to be able to be viewed, understood and useful when the viewers for an object might not be common or even exist. For example for an Audio based object there would be preservation metadata to describe aspects of the audio such as 'bit rate', 'frequency', 'length', plus other metadata like links to software capable of playing the audio and the hardware and software requirements for the audio player. eSpace will use a tool to automatically extract most of the preservation metadata from uploaded files. Eg if a jpeg image is uploaded the automatic extraction tool will record things like 'image size', 'colour depth' etc. </dd>
+  <dd ><i>n.</i> Metadata to describe aspects of an object to allow the object to be able to be viewed, understood and useful when the viewers for an object might not be common or even exist. For example for an Audio based object there would be preservation metadata to describe aspects of the audio such as 'bit rate', 'frequency', 'length', plus other metadata like links to software capable of playing the audio and the hardware and software requirements for the audio player. Fez will use a tool to automatically extract most of the preservation metadata from uploaded files. Eg if a jpeg image is uploaded the automatic extraction tool will record things like 'image size', 'colour depth' etc. </dd>
 
   <a name="Q"></a>
 
 <a name="R"></a>
   <dt id="record">Record</dt>
 
-  <dd ><i>n.</i> The most granular level of object in eSpace. A Record belongs to one or many Collections. An example of an object in the Community 'UQ Library' in Collection 'Digilib Photo Collection' could have the title 'St Lucia Campus Aerial shot 1972'. Each record has Dublin Core metadata that is indexed against the Fedora Resource Index. Records also have datastreams for Preservation Metadata, FezACML for security and RELS-EXT to describe their relationships with other objects. They can also have datastreams of files of images, documents, audio etc. </dd>
+  <dd ><i>n.</i> The most granular level of object in Fez. A Record belongs to one or many Collections. An example of an object in the Community 'UQ Library' in Collection 'Digilib Photo Collection' could have the title 'St Lucia Campus Aerial shot 1972'. Each record has Dublin Core metadata that is indexed against the Fedora Resource Index. Records also have datastreams for Preservation Metadata, FezACML for security and RELS-EXT to describe their relationships with other objects. They can also have datastreams of files of images, documents, audio etc. </dd>
 
   <dt id="rels-ext">RELS-EXT</dt>
-  <dd ><i>n.</i> Each Collection and Record Object in eSpace/Fedora has a RELS-EXT inline xml datastream to describe the relationships between the object and other objects. eSpace currently only uses the 'isMemberOf' attribute of the RELS-EXT XSD to show parent-child relationships. </dd>
+  <dd ><i>n.</i> Each Collection and Record Object in Fez/Fedora has a RELS-EXT inline xml datastream to describe the relationships between the object and other objects. Fez currently only uses the 'isMemberOf' attribute of the RELS-EXT XSD to show parent-child relationships. </dd>
 
   <a name="S"></a>
   <dt id="san">SAN</dt>
@@ -145,7 +145,7 @@ Find more information on the <a href="http://www.openarchives.org/OAI/openarchiv
   <dt> <a name="T"></a> <a name="U"></a> <a name="V"></a> <a name="W"></a> <a name="X"></a> </dt>
   <dt id="xsd">XSD</dt>
 
-  <dd ><i>n.</i> eXtenisbile Schema Definition. XSD's are like Document Type Definitions (DTD), but are expressed in XML. They are templates describing how an XML document or object based on the XSD should conform. eSpace contains XSDs for FOXML, along with FOXML extensions to describe FezACML, Preservation Metadata, RELS-EXT. </dd>
+  <dd ><i>n.</i> eXtenisbile Schema Definition. XSD's are like Document Type Definitions (DTD), but are expressed in XML. They are templates describing how an XML document or object based on the XSD should conform. Fez contains XSDs for FOXML, along with FOXML extensions to describe FezACML, Preservation Metadata, RELS-EXT. </dd>
 
 <a name="Y"></a>
 
