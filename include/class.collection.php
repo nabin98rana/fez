@@ -152,10 +152,6 @@ class Collection
         return $res2;
     }
 
-    function getItemsCount($collection_pid)
-    {
-
-    }
 
     /**
      * Method used to get the XSD Display document types the collection supports, from the Fez Index.
@@ -252,10 +248,9 @@ class Collection
 		$return = array();
 		foreach ($res as $result) {		
 			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-				if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
-					$return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']] = array();
-				}
-				array_push($return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+                // need to array_push because there can be multiple groups/users for a role
+				$return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']][] 
+                    = $result['rmf_'.$result['xsdmf_data_type']]; 
 			}
 			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
@@ -319,6 +314,8 @@ class Collection
         //     AND user is in the roles for the ACML (group, user, combos)
         // OR parents of the collection have ACML set
         //     AND user is in the roles for the ACML
+        $returnfields = array("title", "description", "ret_id", "xdis_id", "sta_id"); 
+        $returnfield_query = Misc::array_to_sql_string($returnfields);
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $restrict_community = '';
         if ($community_pid) {
@@ -333,12 +330,15 @@ class Collection
                 AND r3.rmf_varchar = '$community_pid'
                 )";
         }
-        $stmt = " SELECT r1.rmf_rec_pid, r1.rmf_varchar 
-            FROM fez_record_matching_field AS r1
-            INNER JOIN fez_xsd_display_matchfields AS x1
+        $stmt = " SELECT *
+            FROM {$dbtp}record_matching_field AS r1
+            INNER JOIN {$dbtp}xsd_display_matchfields AS x1
             ON r1.rmf_xsdmf_id=x1.xsdmf_id
-            WHERE x1.xsdmf_element='!dc:title'
-            AND  r1.rmf_rec_pid in (
+            LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 
+            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+            WHERE (x1.xsdmf_fez_title IN ($returnfield_query)
+                    OR x1.xsdmf_element LIKE '!rule!role%')
+            AND r1.rmf_rec_pid in (
                     SELECT r2.rmf_rec_pid 
                     FROM  {$dbtp}record_matching_field r2
                     INNER JOIN {$dbtp}xsd_display_matchfields x2
@@ -355,14 +355,42 @@ class Collection
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             $res = array();
         }
-        $res2 = array();
-        foreach ($res as $item) {
-            $auth_roles = Auth::getAuthorisationGroups($item['rmf_rec_pid']);
-            if (in_array('Editor', $auth_roles)) {
-                $res2[] = array('pid' => $item['rmf_rec_pid'], 'title' => $item['rmf_varchar']);
+        $list = Collection::makeReturnList($returnfields, $res);
+        $list2 = array();
+        foreach ($list as $item) {
+            if ($item['isEditor']) {
+                $list2[] = $item;
             }
         }
-        return $res2;
+        return $list2;
+    }
+
+    function makeReturnList($returnfields, $res) {
+        $return = array();
+        foreach ($res as $result) {		
+            if (in_array($result['xsdsel_title'], $returnfields) 
+                    && ($result['xsdmf_element'] != '!rule!role!name') 
+                    && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
+                // need to array_push because there can be multiple groups/users for a role
+                $return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']][] 
+                    = $result['rmf_'.$result['xsdmf_data_type']]; 
+            }
+            if (in_array($result['xsdmf_fez_title'], $returnfields)) {
+                $return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
+                $return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']] 
+                    = $result['rmf_'.$result['xsdmf_data_type']];
+            }
+        }
+        foreach ($return as $pid_key => $row) {
+            if (!is_array(@$row['FezACML'])) {
+                $parentsACMLs = array();
+                Auth::getIndexParentACMLs(&$parentsACMLs, $pid_key);
+                $return[$pid_key]['FezACML'] = $parentsACMLs;
+            }
+        }
+        $return = array_values($return);
+        $return = Auth::getIndexAuthorisationGroups($return);
+        return $return;
     }
 
     /**
@@ -378,6 +406,8 @@ class Collection
         // OR parents of the collection have ACML set
         //     AND user is in the roles for the ACML
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $returnfields = array("title", "description", "ret_id", "xdis_id", "sta_id"); 
+        $returnfield_query = Misc::array_to_sql_string($returnfields);
         $restrict_collection = '';
         if ($collection_pid) {
             $restrict_collection = " AND r1.rmf_rec_pid IN (
@@ -391,12 +421,15 @@ class Collection
                 AND r3.rmf_varchar = '$collection_pid'
                 )";
         }
-        $stmt = " SELECT r1.rmf_rec_pid, r1.rmf_varchar 
-            FROM fez_record_matching_field AS r1
-            INNER JOIN fez_xsd_display_matchfields AS x1
+        $stmt = " SELECT *
+            FROM {$dbtp}record_matching_field AS r1
+            INNER JOIN {$dbtp}xsd_display_matchfields AS x1
             ON r1.rmf_xsdmf_id=x1.xsdmf_id
-            WHERE x1.xsdmf_element='!dc:title'
-            AND  r1.rmf_rec_pid in (
+            LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 
+            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+            WHERE (x1.xsdmf_fez_title IN ($returnfield_query)
+                    OR x1.xsdmf_element LIKE '!rule!role%')
+            AND r1.rmf_rec_pid in (
                     SELECT r2.rmf_rec_pid 
                     FROM  {$dbtp}record_matching_field r2
                     INNER JOIN {$dbtp}xsd_display_matchfields x2
@@ -413,14 +446,15 @@ class Collection
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             $res = array();
         }
-        $res2 = array();
-        foreach ($res as $item) {
-            $auth_roles = Auth::getAuthorisationGroups($item['rmf_rec_pid']);
-            if (in_array('Editor', $auth_roles)) {
-                $res2[] = array('pid' => $item['rmf_rec_pid'], 'title' => $item['rmf_varchar']);
+        $returnfields = array("title", "description", "ret_id", "xdis_id", "sta_id"); 
+        $list = Collection::makeReturnList($returnfields, $res);
+        $list2 = array();
+        foreach ($list as $item) {
+            if ($item['isEditor']) {
+                $list2[] = $item;
             }
         }
-        return $res2;
+        return $list2;
     }
 
 

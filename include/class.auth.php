@@ -156,7 +156,7 @@ class Auth
 				}
 			}
 			foreach ($return as $key => $record) {
-				if (is_array($record['FezACML'])) {
+				if (is_array(@$record['FezACML'])) {
 					if (empty($returns[$pid])) {
 						$returns[$pid] = $record['FezACML'];
 					}

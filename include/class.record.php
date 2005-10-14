@@ -488,37 +488,42 @@ class Record
      */
     function getAssigned($username)
     {
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX; // Database and table prefix
-        $stmt = "SELECT rmf.rmf_rec_pid FROM
+        $returnfields = array("title", "type", "ret_id", "xdis_id", "sta_id"); 
+        $returnfield_query = Misc::array_to_sql_string($returnfields);
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $stmt = " SELECT *
+            FROM {$dbtp}record_matching_field AS r1
+            INNER JOIN {$dbtp}xsd_display_matchfields AS x1
+            ON r1.rmf_xsdmf_id=x1.xsdmf_id
+            LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 
+            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+            WHERE (x1.xsdmf_fez_title IN ($returnfield_query)
+                    OR x1.xsdmf_element LIKE '!rule!role%')
+            AND r1.rmf_rec_pid IN (SELECT rmf.rmf_rec_pid FROM
                 {$dbtp}record_matching_field AS rmf
                 INNER JOIN {$dbtp}xsd_display_matchfields AS xdmf 
                 ON xdmf.xsdmf_id=rmf.rmf_xsdmf_id
                 WHERE xdmf.xsdmf_element='!sta_id' 
-                AND rmf.rmf_varchar='1'
-                ";
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        $res1 = array();
-        if (User::isUserAdministrator($username)) {
-            $res1 = $res;
-        } else {
-            // reject records that current user can't edit
+                AND rmf.rmf_varchar!='2')
+          ";
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = array();
         }
-        $res2 = array();
-        foreach ($res1 as $row) {
-            $r = new RecordObject($row['rmf_rec_pid']);
-            if ($r->getXmlDisplayId()) {
-                $res2[] = array(
-                        'pid' => $row['rmf_rec_pid'],
-                        'title' => $r->getTitle(),
-                        'type' => $r->getDCType()
-                        ); 
+        $list = Collection::makeReturnList($returnfields, $res);
+        $list2 = array();
+        foreach ($list as $item) {
+            if ($item['isEditor']) {
+                $list2[] = $item;
             }
         }
-        return $res2;
+        return $list2;
     }
 
     /**
-     * Publishs all objects that don't have a status ID set, really only used for development testing, but left in for now
+     * Publishs all objects that don't have a status ID set, really only used for 
+     * development testing, but left in for now
      *
      * @access  public
      * @return void
