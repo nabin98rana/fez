@@ -32,9 +32,20 @@
 // +----------------------------------------------------------------------+
 //
 //
+
+
+/**
+ * Workflow State Link
+ * Manages the links between workflow states.  A simple prev / next relationship.
+ */
 class WorkflowStateLink 
 {
 
+    /**
+      * Insert links from a form post.  The $_POST var has the prev and next states to be inserted
+      * @param integer $id current state id
+      * @return integer 1 for success, -1 for error.
+      */
     function insertPost($id)
     {
         $wfl_id = $_POST['wfl_id'];
@@ -64,17 +75,26 @@ class WorkflowStateLink
         return 1;
     }
 
+    /**
+     * Update states links from a form post.  Same as insertPost
+     * 
+     * @return integer 1 for success, -1 for error.
+     */
     function updatePost()
     {
         $id = $_POST['id'];
         return WorkflowStateLink::insertPost($id);
     }
 
+    /**
+     * Delete state links from a form post.  $_POST has the list of link ids to delete
+     * @return 1 for success, -1 for failure.
+     */ 
     function removePost()
     {
         return WorkflowStateLink::removeAll($_POST["items"]);
     }
-  
+
     function insert($from, $to) 
     {
     }
@@ -83,6 +103,11 @@ class WorkflowStateLink
     {
     }
 
+    /**
+     * Remove state links.
+     * @param array $items - list of workflow state link ids to be deleted
+     * @return 1 on success, -1 on failure.
+     */
     function removeAll($items)
     {
         if (is_array($items)) {
@@ -98,6 +123,11 @@ class WorkflowStateLink
         }
     }
 
+    /**
+     * Get the list of next states.
+     * @param integer $state The id of the state
+     * @return array List of next states
+     */
     function getListNext($state)
     {
         $stmt = "SELECT wfsl_to_id FROM 
@@ -111,6 +141,11 @@ class WorkflowStateLink
         return $res1;
      }
     
+    /**
+     * Get the list of previous states.
+     * @param integer $state The id of the state
+     * @return array List of previous states
+     */
     function getListPrev($state)
     {
         $stmt = "SELECT wfsl_from_id FROM 
@@ -125,6 +160,11 @@ class WorkflowStateLink
 
     }
     
+    /**
+      * Get list of next states per state for a workflow
+      * @param integer $wfl_id workflow id
+      * @return Array Keys of the array are the originating states and the values are arrays of next states
+      */
     function getNextByWkFlow($wfl_id)
     {
         $stmt = "SELECT * FROM 
@@ -138,6 +178,12 @@ class WorkflowStateLink
         $nexts = Misc::collate2ColArray($res1, 'wfsl_from_id','wfsl_to_id');
         return $nexts;
     }
+
+    /**
+     * Get list of prev states per state for a workflow
+     * @param integer $wfl_id workflow id
+     * @return Array Keys of the array are the destination states and the values are arrays of prev states
+     */
     function getPrevByWkFlow($wfl_id)
     {
         $stmt = "SELECT * FROM 
@@ -152,6 +198,10 @@ class WorkflowStateLink
         return $prevs;
     }
 
+    /**
+     * Get a list of state links for a workflow.
+     * @return Array The list of state links fo rhte workflow - each link record is a from / to pair.
+     */
     function getList($wfl_id)
     {
         $stmt = "SELECT * FROM 
@@ -163,8 +213,17 @@ class WorkflowStateLink
             $res1 = array();
         }
         return $res1;
-     }
+    }
 
+    
+    /**
+     * Get the graphviz dot script to draw a representation of the workflow states as clickable diagram.
+     * See http://www.graphviz.org/
+     * @param integer $wfl_id The workflow id
+     * @param string $url - the base URL used as the href for each of the states.  The URL should have a 
+     * '@id@' substring which will be replaced by the workflow state id for each state.
+     * @return string The dot script to draw the diagram
+     */
     function getDot($wfl_id, $url)
     {
         $res1 = WorkflowStateLink::getList($wfl_id);
@@ -209,6 +268,11 @@ EOT;
         return $dot;
      }
 
+    /**
+      * Determines if the way the states are linked can be run as a workflow.  Some combinations are not allowed.
+      * @param integer $wfl_id The workflow Id.
+      * @return true if the workflow states are valid.
+      */
     function checkLinks($wfl_id) 
     {
         $res1 = WorkflowStateLink::getList($wfl_id);

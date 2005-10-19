@@ -33,14 +33,6 @@
 //
 //
 
-/**
- * Class to handle the business logic related to the administration
- * of custom fields in the system.
- *
- * @version 1.0
- * @author João Prado Maia <jpm@mysql.com>
- */
-
 include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.workflow_state.php");
@@ -50,6 +42,10 @@ include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.auth.php");
 
 
+/**
+ * Class handle the workflow definitions.  This is just the high level stuff like name of the workflow and
+ *  few other settings that apply to the whol workflow
+ */
 class Workflow
 {
     /**
@@ -166,35 +162,18 @@ class Workflow
         }
     }
 
-    function checkForImageFile($filename) {  	 
-        $image_extensions = array("tiff", "tif", "jpg", "jpeg", "gif", "png"); 	 
-        $filename_ext = strtolower(substr($filename, (strrpos($filename, ".") + 1))); 	 
-        //echo "file -> ".$filename_ext; 	 
-        if (in_array($filename_ext, $image_extensions)) { 	 
-            $getString = "http://".APP_HOSTNAME."/webservices/wfb.thumbnail.php?image=".urlencode($filename)."&height=50&width=50&ext=jpg"; 	 
-//            echo $getString; 	 
-            $http_req = new HTTP_Request($getString, array("http" => "1.0")); 	 
-            $http_req->setMethod("GET"); 	 
-            $http_req->sendRequest(); 	 
-            $xml = $http_req->getResponseBody(); 	 
-//            return "thumbnail_".substr($filename, 0, strrpos($filename, ".")).".jpg"; 	 
-            if (is_numeric(strpos($filename, "/"))) { 	 
-                return APP_TEMP_DIR."thumbnail_".str_replace(" ", "_", substr(substr($filename, 0, strrpos($filename, ".")), strrpos($filename, "/")+1)).".jpg"; 	 
-            } else { 	 
-                return APP_TEMP_DIR."thumbnail_".str_replace(" ", "_", substr($filename, 0, strrpos($filename, "."))).".jpg"; 	 
-            } 	 
-        } else { 	 
-            return false; 	 
-        }         	 
-    } 	 
-  	 
+ 	 
+    /**
+     * Extracts preservation metadata for a datastream.
+     * This is hardcoded as an ingest trigger for all workflows.
+     * The file is read and preservation metadata saved as a tmp file with presmd_ prefix
+     *
+     * @param string filename - the name of the file being ingested as a datastream
+     * @return name of preservation metadata temporary file (it is not automatically ingested as a datastream).
+     */
     function checkForPresMD($filename) { 	 
-//        $image_extensions = array("tiff", "tif", "jpg", "jpeg", "gif", "png"); 	 
-//        $filename_ext = strtolower(substr($filename, (strrpos($filename, ".") + 1))); 	 
-        //echo "file -> ".$filename_ext; 	 
         if (is_numeric(strpos($filename, "."))) { 	 
             $getString = APP_RELATIVE_URL."webservices/wfb.presmd.php?file=".urlencode($filename); 	 
-//            echo $getString; 	 
             $http_req = new HTTP_Request($getString, array("http" => "1.0")); 	 
             $http_req->setMethod("GET"); 	 
             $http_req->sendRequest(); 	 
@@ -274,6 +253,13 @@ class Workflow
         }
     }
 
+    /**
+     * starts a workflow running.
+     * @param string pid the PID of the record that workflow runs on.
+     * @param integer wft_id the workflow trigger that kicked off this workflow
+     * @param integer xdis_id the display id for the record - used for the create trigger
+     * @param string href - the originating web page stored so we can return to it later.
+     */
     function start($wft_id, $pid, $xdis_id, $href='')
     {
         $wfstatus = new WorkflowStatus($pid, $wft_id, $xdis_id);
@@ -281,6 +267,15 @@ class Workflow
         $wfstatus->run();
     }
 
+    /**
+      * This is called for each ingest of a datastream.  The list of triggers for 
+      * the pid and mimetype are searched to see if there is an ingest trigger that needs to run.
+      * If a match is found, then the ingest trigger is run with the dsID as the parameter.
+      *
+      * @param string pid - the record id to look for a trigger match
+      * @param string dsID - the datastream id (usually a filename)
+      * @param string mimetype - the mimetype of the datastream
+      */
     function processIngestTrigger($pid, $dsID, $mimetype)
     {
         // find first matching trigger
@@ -297,10 +292,21 @@ class Workflow
     }
 
 
+    /**
+     * Used to find out if the current user can trigger a workflow.
+     * This is used to restrict the list of workflow triggers for the user to workflows that
+     * they can actually run.  The workflow has a list of roles that the user must have on an object in
+     * order to be able to run the workflow on it.  This function checks that the user has the roles listed in 
+     * the workflow on the given pid.
+     * 
+     * @param integer wfl_id - The id of the workflow
+     * @param integer pid - the pidof the record that the user wants to run the workflow on
+      */
     function canTrigger($wfl_id, $pid)
     {
         $wfl = Workflow::getDetails($wfl_id);
         if (!empty($wfl['wfl_roles'])) {
+            // the roles may be space or comma separated
             $wfl_roles = preg_split("/[\s,]+/", $wfl['wfl_roles']);
             $pid_roles = Auth::getAuthorisationGroups($pid);
             foreach ($wfl_roles as $wfl_role) {

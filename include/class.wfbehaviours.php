@@ -33,14 +33,6 @@
 //
 //
 
-/**
- * Class to handle the business logic related to the administration
- * of custom fields in the system.
- *
- * @version 1.0
- * @author João Prado Maia <jpm@mysql.com>
- */
-
 include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.record.php");
@@ -48,6 +40,10 @@ include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.auth.php");
 
 
+/**
+ * Definitions of scripts that the workflow states can run.
+ * This is just a mapping of scripts into the database with a few flags to say how they must be run
+ */
 class WF_Behaviour
 {
 
@@ -104,7 +100,7 @@ class WF_Behaviour
 
 
     /**
-     * Method used to add a new custom field to the system.
+     * Insert a workflow behaviour
      *
      * @access  public
      * @return  integer 1 if the insert worked, -1 otherwise
@@ -139,7 +135,7 @@ class WF_Behaviour
     }
 
     /**
-     * Method used to add a new custom field to the system.
+     * Update a workflow behaviour
      *
      * @access  public
      * @return  integer 1 if the insert worked, -1 otherwise
@@ -172,8 +168,7 @@ class WF_Behaviour
 
 
     /**
-     * Method used to get the list of custom fields available in the 
-     * system.
+     * get a list of workflow behaviours
      *
      * @access  public
      * @return  array The list of custom fields
@@ -199,11 +194,11 @@ class WF_Behaviour
 
 
     /**
-     * Method used to get the details of a specific custom field.
+     * get details of a workflow behaviour
      *
      * @access  public
-     * @param   integer $fld_id The custom field ID
-     * @return  array The custom field details
+     * @param   integer $wfb_id The workflow behaviour id
+     * @return  array The workflow behaviour details
      */
     function getDetails($wfb_id)
     {
@@ -222,11 +217,17 @@ class WF_Behaviour
     }
 
 
+    /**
+     * get the list of automatic behaviours
+     */
     function getListAuto()
     {
         return WF_Behaviour::getList(" WHERE wfb.wfb_auto='1' ");
     }
 
+    /**
+     * get the list of manual behaviours
+     */
     function getListManual()
     {
         return WF_Behaviour::getList(" WHERE wfb.wfb_auto='0' ");

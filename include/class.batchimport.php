@@ -346,15 +346,6 @@ var $externalDatastreams;
 	
 			Fedora_API::callIngestObject($xmlObj);
 			foreach($oai_ds as $ds) {
-				$convert_check = Workflow::checkForImageFile($ds);
-				if ($convert_check != false) {
-					Fedora_API::getUploadLocationByLocalRef($pid, $convert_check, $convert_check, $convert_check, "", "M");
-					if (is_numeric(strpos($convert_check, "/"))) {
-						$convert_check = substr($convert_check, strrpos($convert_check, "/")+1); // take out any nasty slashes from the ds name itself
-					}
-					$convert_check = str_replace(" ", "_", $convert_check);
-					Record::insertIndexMatchingField($pid, 122, 'varchar', $convert_check); // add the thumbnail to the fez index				
-				}
 				$presmd_check = Workflow::checkForPresMD($ds); // we are not indexing presMD so just upload the presmd if found
 				if ($presmd_check != false) {
 					Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, "text/xml", "X");
@@ -366,6 +357,9 @@ var $externalDatastreams;
 				}
 				$ds = str_replace(" ", "_", $ds);
 				Record::insertIndexMatchingField($pid, 122, 'varchar', $ds); // add the thumbnail to the fez index				
+                // Now check for post upload workflow events like thumbnail resizing of images and add them as datastreams if required
+                $mimetype = mime_content_type($ds);
+                Workflow::processIngestTrigger($pid, $ds, $mimetype);
 			}	  
 	
 			$array_ptr = array();
@@ -492,16 +486,7 @@ var $externalDatastreams;
 	
 		Fedora_API::callIngestObject($xmlBegin);
 		foreach($externalDatastreams as $ds) {
-			$convert_check = Workflow::checkForImageFile($ds);
-			if ($convert_check != false) {
-				Fedora_API::getUploadLocationByLocalRef($pid, $convert_check, $convert_check, $convert_check, "", "M");
-				if (is_numeric(strpos($convert_check, "/"))) {
-					$convert_check = substr($convert_check, strrpos($convert_check, "/")+1); // take out any nasty slashes from the ds name itself
-				}
-				$convert_check = str_replace(" ", "_", $convert_check);
-				Record::insertIndexMatchingField($pid, 122, 'varchar', $convert_check); // add the thumbnail to the fez index				
-			}
-			$presmd_check = Workflow::checkForPresMD($ds); // we are not indexing presMD so just upload the presmd if found
+            $presmd_check = Workflow::checkForPresMD($ds); // we are not indexing presMD so just upload the presmd if found
 			if ($presmd_check != false) {
 				Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, "text/xml", "X");
 			}		
@@ -510,6 +495,8 @@ var $externalDatastreams;
 			}
 			$ds = str_replace(" ", "_", $ds);
 			Record::insertIndexMatchingField($pid, 122, 'varchar', $ds); // add the thumbnail to the Fez index				
+            $mimetype = mime_content_type($ds);
+            Workflow::processIngestTrigger($pid, $ds, $mimetype);
 		}	  	
 		return $xmlBegin;
 	}

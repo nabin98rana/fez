@@ -33,27 +33,23 @@
 //
 //
 
-/**
- * Class to handle the business logic related to the reminder emails
- * that the system sends out.
- *
- * @version 1.0
- * @author João Prado Maia <jpm@mysql.com>
- */
-
 include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.workflow_state_link.php");
 
+/**
+  * Manages the the states that make up a workflow.  Each state stores the action to
+  * be performed while in that state and how those actions happen.
+  */
 class Workflow_State
 {
  
     /**
-     * Method used to get the details for a specific reminder action.
+     * Method used to get the details for a state
      *
      * @access  public
-     * @param   integer $wfe_id The reminder action ID
-     * @return  array The details for the specified reminder action
+     * @param   integer $wfs_id The state
+     * @return  array The details for the specified workflow state
      */
     function getDetails($wfs_id)
     {
@@ -76,7 +72,7 @@ class Workflow_State
 
 
     /**
-     * Method used to create a new reminder action.
+     * Method used to create a new workflow state.
      *
      * @access  public
      * @return  integer 1 if the insert worked, -1 or -2 otherwise
@@ -119,7 +115,7 @@ class Workflow_State
 
 
     /**
-     * Method used to update the details of a specific reminder action.
+     * Method used to update the details of a specific workflow state.
      *
      * @access  public
      * @return  integer 1 if the update worked, -1 or -2 otherwise
@@ -152,7 +148,7 @@ class Workflow_State
     }
 
     /**
-     * Method used to remove a given list of custom fields.
+     * Method used to remove a given list of workflow states.
      *
      * @access  public
      * @return  boolean
@@ -176,12 +172,13 @@ class Workflow_State
     }
 
    /**
-     * Method used to get the list of reminder actions associated with a given
+     * Method used to get the list of workflow states associated with a given
      * reminder ID.
      *
      * @access  public
-     * @param   integer $reminder_id The reminder ID
-     * @return  array The list of reminder actions
+     * @param   integer $wfl_id The workflow state ID
+     * @param   string $andstr an optional query to refine the search
+     * @return  array The list of workflow states
      */
     function getList($wfl_id, $andstr='')
     {
@@ -222,12 +219,22 @@ class Workflow_State
         }
     }
 
+    /**
+     * Find the first state for a workflow
+     * @param integer $wfl_id The workflow id
+     * @return integer $wfs_id the id of the workflowstate
+     */
     function getStartState($wfl_id)
     {
         $states = Workflow_State::getList($wfl_id, " AND wfs_start=1 ");
         return $states[0];
     }
 
+    /**
+     * Get the state details of the next workflow states
+     * @param integer wfs_id The current workflow state
+     * @return array List if workflow states details for the next possibel states
+     */
     function getDetailsNext($wfs_id)
     {
         $ids = WorkflowStateLink::getListNext($wfs_id);

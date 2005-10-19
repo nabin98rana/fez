@@ -37,7 +37,9 @@ include_once(APP_INC_PATH.'class.wfbehaviours.php');
 include_once(APP_INC_PATH.'class.workflow_state.php');
 include_once(APP_INC_PATH.'class.workflow_trigger.php');
 
-// for tracking status of objects in workflows
+/**
+ * for tracking status of objects in workflows.  This is like the runtime part of the workflows.
+ */
 class WorkflowStatus {
     var $wfs_id;
     var $pid;
@@ -57,6 +59,11 @@ class WorkflowStatus {
     var $href;
     var $states_done = array();
     
+    /**
+     * Constructor.   These variables don't really need to be set depending on 
+     * how the workflow is triggered.  Sometimes nothing is known at the start of the
+     * workflow lik ehwen the user clicks 'create' on the My_Fez page.
+     */
     function WorkflowStatus($pid=null, $wft_id=null, $xdis_id=null, $dsInfo=null)
     {
         $this->id = md5(uniqid(rand(), true));
@@ -67,6 +74,9 @@ class WorkflowStatus {
 
     }
 
+    /**
+     * Get an object for the pid that the workflow is working on
+     */
     function getRecordObject()
     {
         if (!$this->rec_obj || $this->rec_obj->pid != $this->pid) {
@@ -75,22 +85,35 @@ class WorkflowStatus {
         return $this->rec_obj;
     }
 
+    /**
+     * Saves this object in a session variable.
+     */
     function setSession()
     {
         $_SESSION['workflow'][$this->id] = serialize($this);
     }
+
+    /**
+     * Deletes this object from the session variable
+     */
     function clearSession()
     {
         $_SESSION['workflow'][$this->id] = serialize($this);
-     }
+    }
 
-
+    /**
+     * Clear member copies of the workflow state details
+     */
     function clearStateDetails()
     {
         $this->wfs_details = null;
         $this->wfb_details = null;
     }
 
+    /**
+     * Sets the currently executing state
+     * @param integer $wfs_id The new state to be in
+     */
     function setState($wfs_id)
     {
         if ($this->wfs_id != $wfs_id) {
@@ -99,6 +122,9 @@ class WorkflowStatus {
         }
     }
 
+    /**
+     * Get a member copy of the trigger that started the workflow. 
+     */
     function getTriggerDetails()
     {
         if (!$this->wft_details) {
@@ -116,6 +142,9 @@ class WorkflowStatus {
         return $this->wft_details;
     }
 
+    /**
+     * get a member of copy fo the current state
+     */
     function getStateDetails()
     {
         if (!$this->wfs_details) {
@@ -130,6 +159,9 @@ class WorkflowStatus {
         return $this->wfs_details;
     }
 
+    /**
+     * get a member copy of the current workflow
+     */
     function getWorkflowDetails()
     {
         if (!$this->wfl_details) {
@@ -139,6 +171,9 @@ class WorkflowStatus {
         return $this->wfl_details;
     } 
 
+    /**
+     * Get a member copy of the behaviour details for the current state
+     */
     function getBehaviourDetails()
     {
         if (!$this->wfb_details) {
@@ -148,6 +183,10 @@ class WorkflowStatus {
         return $this->wfb_details;
     } 
 
+    /**
+     * Move to the next state from an automatic state.  Automatic states can only go to one
+     * proceeding state.  
+     */
     function auto_next()
     {
         $this->getWorkflowDetails();
@@ -159,6 +198,9 @@ class WorkflowStatus {
         }
     }
 
+    /**
+     * Perform the action for the current state.  This will be either displaying a form or running a script.
+     */
     function run()
     {
         $this->getBehaviourDetails();
@@ -176,6 +218,9 @@ class WorkflowStatus {
         }
     }
 
+    /**
+     * The end of the workflow has been reached.  Tidy up some variables and display a summary page.
+     */
     function theend()
     {
         $this->getWorkflowDetails();
@@ -199,12 +244,21 @@ class WorkflowStatus {
         }
     }
 
+    /**
+     * Set the pid of the record created as part of this workflow
+     */
     function setCreatedPid($pid)
     {
         $this->parent_pid = $this->pid;
         $this->pid = $pid;
     }
 
+    /**
+     * When the current page refreshes, the workflow state should go to a new state.
+     * This is used when the workflow form has done soemthing in a popup and needs to 
+     * make the workflow progress.  When the popup finishes, it refreshes the main window and 
+     * the workflow state changes.
+     */
     function setStateChangeOnRefresh($end=false)
     {
         $this->change_on_refresh = true;
@@ -214,6 +268,11 @@ class WorkflowStatus {
         $this->setSession();
     }
 
+    /**
+     * Check if a button to move to the next state has been clicked or in the case of a refresh,
+     * whether there is to be a state change on refresh.
+     * This method causes the next state to run.
+     */
     function checkStateChange($ispopup=false)
     {
         $button = Misc::GETorPOST_prefix('workflow_button_');
@@ -247,6 +306,10 @@ class WorkflowStatus {
         }
     }
     
+    /**
+     * Gets the list of next states as a list of wfs_id and label pairs.  The list is used to make 
+     * buttons that will allow the user to choose the next state in the workflow
+     */
     function getButtons()
     {
         $this->getStateDetails();
@@ -288,6 +351,9 @@ class WorkflowStatus {
         return $button_list;
     }
 
+    /**
+     * Get the display id for the record currently being worked on
+     */
     function getXDIS_ID()
     {
         if (!$this->xdis_id) {
@@ -297,16 +363,27 @@ class WorkflowStatus {
         return $this->xdis_id;
     }
 
+    /**
+     * Assign a workflow variable.  This is a mechanism for saving variables in one part of a 
+     * workflow to be used in another.  The variables are saved inthe workflow which persists through the session.
+     */
     function assign($name, $value)
     {
         $this->vars[$name] = $value;
     }
 
+    /**
+     * Retrieve a variable set with the assign method.
+     */
     function getvar($name)
     {
         return $this->vars[$name];
     }
 
+    /** 
+     * Set a standard set of variables used by the workflow template.  This includes the next state buttons
+     * progress lists.
+     */
     function setTemplateVars(&$tpl)
     {
         $tpl->assign('workflow_buttons', $this->getButtons());
@@ -317,8 +394,16 @@ class WorkflowStatus {
 
 }
 
+/**
+ * Manages the instantiation of a worflow status from the session
+ */
 class WorkflowStatusStatic
 {
+    /**
+     * Get an instance of a workflow runtime from the session.
+     * @param string $id The workflow id to be retrieved.
+     * @return object WorkflowStatus object.
+     */
     function getSession($id)
     {
         $obj = null;
