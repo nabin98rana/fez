@@ -707,11 +707,19 @@ class Misc
 			$IDPos = stripos($xmlString, 'id="'.$title.'"'); // stripos is a php5 function
 			$binaryPos = false;
 			if (is_numeric($IDPos)) {
+				// Find first close datastream tag after the ID tag
 				$searchScopeEnd = strpos($xmlString, "</foxml:datastream>", $IDPos);
-				$searchXMLString = substr($xmlString, 0, ($searchScopeEnd - $IDPos));
-				$binaryPos = strrpos($searchXMLString, '<foxml:binaryContent>', $IDPos); // get the last binaryContent position in the xml after ds title, but before a /datastream (close tag)
+				// Get the cut down datastream XML to search for binary content
+				$searchXMLString = substr($xmlString, 0, ($searchScopeEnd));
+				$binaryPos = strpos($searchXMLString, '<foxml:binaryContent>', $IDPos); // get the first opening binaryContent tag position in the xml after ds title, but before a /datastream (close tag)
+//				$binaryPos = strrpos($searchXMLString, '<foxml:binaryContent>', $IDPos); // get the last opening binaryContent tag position in the xml after ds title, but before a /datastream (close tag)
+				if (!is_numeric($binaryPos)) { // check for contentLocation as well as this is now being added after ingest
+					$binaryPos = strpos($searchXMLString, '<foxml:contentLocation>', $IDPos); // get the first opening contentLocation tag position in the xml after ds title, but before a /datastream (close tag)
+//					$binaryPos = strrpos($searchXMLString, '<foxml:contentLocation>', $IDPos); // get the last opening contentLocation tag position in the xml after ds title, but before a /datastream (close tag)
+				}
 				if (is_numeric($binaryPos)) { // if you find binaryContent after this tag
 					$XMLContentStartPos = strrpos(substr($xmlString, 0, $binaryPos), '<foxml:datastream '); // the space is essential or it will pick '<foxml:datastreamVersion
+//					$XMLContentEndPos = strrpos($xmlString, '</foxml:datastream>', $XMLContentStartPos) + 19; // get the last one
 					$XMLContentEndPos = strpos($xmlString, '</foxml:datastream>', $XMLContentStartPos) + 19;
 					if (is_numeric($XMLContentStartPos) && is_numeric($XMLContentEndPos)) {
 						$tempXML = substr($xmlString, $XMLContentStartPos, ($XMLContentEndPos-$XMLContentStartPos));
@@ -719,8 +727,9 @@ class Misc
 					}
 				}
 			}
+			$xmlString = $return;
 		}
-		return $return;
+		return $return;		
 	}
 
     /**
@@ -1787,7 +1796,9 @@ class Misc
 								array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
 							} elseif (($xsdmf_details['xsdmf_html_input'] == 'file_input' || $xsdmf_details['xsdmf_html_input'] == 'file_selector') && !empty($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']])) {
 								if (is_numeric($attrib_loop_index) && is_array($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']])) {
-									$attrib_value = (fread(fopen($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index], "r"), $HTTP_POST_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']][$attrib_loop_index]));
+									if (!empty($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index])) {
+										$attrib_value = (fread(fopen($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index], "r"), $HTTP_POST_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']][$attrib_loop_index]));
+									}										
 								} else {
 									$attrib_value = (fread(fopen($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']], "r"), $HTTP_POST_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']]));													
 								}

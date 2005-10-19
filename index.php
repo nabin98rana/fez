@@ -78,6 +78,8 @@ $tpl->assign("today", date("l"));
 $list = Collection::browseListing(0, 3, "Created Date");
 $list = $list["list"];
 
+
+
 $tpl->assign("list", $list);
 $tpl->assign("eserv_url", APP_RELATIVE_URL."eserv.php");
 $tpl->assign("news", News::getList());

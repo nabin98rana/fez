@@ -42,7 +42,7 @@
  * @author Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>
  * @author Matthew Smith <m.smith@library.uq.edu.au>
  */
-
+include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.validation.php");
@@ -800,61 +800,62 @@ class Collection
 
 		$returnfields = array("day_name", "created_date", "updated_date", "file_downloads", "title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-		$return = array();
-		foreach ($res as $result) {
-			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-				$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']][]
-                   = $result['rmf_'.$result['xsdmf_data_type']]; // need to array_push because there can be multiple groups/users for a role
-			}
-			if ($result['sek_title'] == 'isMemberOf') {
-				$return[$result['rmf_rec_pid']]['isMemberOf'][] = $result['rmf_varchar'];
-			}
-			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
-				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']][]
-                   = $result['rmf_'.$result['xsdmf_data_type']];
-				sort($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']]);
-			}
-			// get thumbnails
-			if ($result['xsdmf_fez_title'] == "datastream_id") {
-				if (is_numeric(strpos($result['rmf_varchar'], "thumbnail_"))) {
-					$return[$result['rmf_rec_pid']]['thumbnails'][] = $result['rmf_varchar'];
-				} else {
-					$return[$result['rmf_rec_pid']]['datastreams'][] = $result['rmf_varchar'];
-				}
-			}
-		}
-		foreach ($return as $pid_key => $row) {
-			//if there is only one thumbnail DS then use it
-			if (count(@$row['thumbnails']) == 1) {
-				$return[$pid_key]['thumbnail'] = $row['thumbnails'][0];
-			} else {
-				$return[$pid_key]['thumbnail'] = 0;
-			}
-
-			if (!is_array(@$row['FezACML'])) {
-				$parentsACMLs = array();
-				Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid_key, @$row['isMemberOf']);
-				$return[$pid_key]['FezACML'] = $parentsACMLs;
-			}
-		}		
-		$return = array_values($return);
-		$hidden_rows = count($return);
-		$return = Auth::getIndexAuthorisationGroups($return);
-		$return = Misc::cleanListResults($return);
-		$total_rows = count($return);
-		if (($start + $max) < $total_rows) {
-	        $total_rows_limit = $start + $max;
-		} else {
-		   $total_rows_limit = $total_rows;
-		}
-		$total_pages = ceil($total_rows / $max);
-        $last_page = $total_pages - 1;
-		$return = Misc::limitListResults($return, $start, ($start + $max));
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
+	
+			$return = array();
+			foreach ($res as $result) {
+				if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
+					$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']][]
+					   = $result['rmf_'.$result['xsdmf_data_type']]; // need to array_push because there can be multiple groups/users for a role
+				}
+				if ($result['sek_title'] == 'isMemberOf') {
+					$return[$result['rmf_rec_pid']]['isMemberOf'][] = $result['rmf_varchar'];
+				}
+				if (in_array($result['xsdmf_fez_title'], $returnfields)) {
+					$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
+					$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']][]
+					   = $result['rmf_'.$result['xsdmf_data_type']];
+					sort($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']]);
+				}
+				// get thumbnails
+				if ($result['xsdmf_fez_title'] == "datastream_id") {
+					if (is_numeric(strpos($result['rmf_varchar'], "thumbnail_"))) {
+						$return[$result['rmf_rec_pid']]['thumbnails'][] = $result['rmf_varchar'];
+					} else {
+						$return[$result['rmf_rec_pid']]['datastreams'][] = $result['rmf_varchar'];
+					}
+				}
+			}
+			foreach ($return as $pid_key => $row) {
+				//if there is only one thumbnail DS then use it
+				if (count(@$row['thumbnails']) == 1) {
+					$return[$pid_key]['thumbnail'] = $row['thumbnails'][0];
+				} else {
+					$return[$pid_key]['thumbnail'] = 0;
+				}
+	
+				if (!is_array(@$row['FezACML'])) {
+					$parentsACMLs = array();
+					Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid_key, @$row['isMemberOf']);
+					$return[$pid_key]['FezACML'] = $parentsACMLs;
+				}
+			}		
+			$return = array_values($return);
+			$hidden_rows = count($return);
+			$return = Auth::getIndexAuthorisationGroups($return);
+			$return = Misc::cleanListResults($return);
+			$total_rows = count($return);
+			if (($start + $max) < $total_rows) {
+				$total_rows_limit = $start + $max;
+			} else {
+			   $total_rows_limit = $total_rows;
+			}
+			$total_pages = ceil($total_rows / $max);
+			$last_page = $total_pages - 1;
+			$return = Misc::limitListResults($return, $start, ($start + $max));
             return array(
                 "list" => $return,
                 "info" => array(

@@ -402,7 +402,7 @@ class XSD_Loop_Subelement
 
 
     /**
-     * Method used to remove a given list of sublooping elements.
+     * Method used to remove a given list of sublooping elements, and any child matching fields under that element.
      *
      * @access  public
      * @return  boolean
@@ -418,6 +418,12 @@ class XSD_Loop_Subelement
                  WHERE
                     xsdsel_id  IN (" . $items . ")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        $stmt = "DELETE FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+                 WHERE
+                    xsdmf_xsdsel_id  IN (" . $items . ")";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return false;
@@ -484,7 +490,7 @@ class XSD_Loop_Subelement
                     xsdsel_title,
                     xsdsel_type,";
 			if (is_numeric($insertArray["xsdsel_attribute_loop_xsdmf_id"])) {
-//                $stmt .= "xsdsel_attribute_loop_xsdmf_id,";
+                $stmt .= "xsdsel_attribute_loop_xsdmf_id,";
 			}
 				$stmt .="
 					xsdsel_order
@@ -492,6 +498,9 @@ class XSD_Loop_Subelement
                     " . $xsdmf_id . ",
                     '" . Misc::escapeString($insertArray["xsdsel_title"]) . "',
                     '" . Misc::escapeString($insertArray["xsdsel_type"]) . "',";
+			if (is_numeric($insertArray["xsdsel_attribute_loop_xsdmf_id"])) {
+               $stmt .= Misc::escapeString($insertArray["xsdsel_attribute_loop_xsdmf_id"]);
+			}
                $stmt .=
                     Misc::escapeString($insertArray["xsdsel_order"]) . "
                  )";
@@ -515,7 +524,7 @@ class XSD_Loop_Subelement
         global $HTTP_POST_VARS;
 
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement
                  SET 
                     xsdsel_xsdmf_id = " . Misc::escapeString($HTTP_POST_VARS["xsdsel_xsdmf_id"]) . ",
                     xsdsel_xsd_id = " . Misc::escapeString($HTTP_POST_VARS["xsdsel_xsd_id"]) . ",
@@ -534,6 +543,28 @@ class XSD_Loop_Subelement
 			//
         }
     }
+	
+    /**
+     * Method used to add a new sublooping element to the system.
+     *
+     * @access  public
+     * @return  integer 1 if the insert worked, -1 otherwise
+     */
+    function updateAttributeLoopCandidate($xsdsel_id, $attribute_loop_candidate)
+    {
+        $stmt = "UPDATE
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement
+                 SET 
+                    xsdsel_attribute_loop_xsdmf_id = ".$attribute_loop_candidate."
+                 WHERE xsdsel_id = " . $xsdsel_id;
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+			return 1;
+        }
+    }	
 
 
     /**

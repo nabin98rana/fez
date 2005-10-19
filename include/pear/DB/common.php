@@ -1108,66 +1108,6 @@ class DB_common extends PEAR
      */
 
     function &getAll($query,
-                     $params = array(),
-                     $fetchmode = DB_FETCHMODE_DEFAULT)
-    {
-        // compat check, the params and fetchmode parameters used to
-        // have the opposite order
-        if (!is_array($params)) {
-            if (is_array($fetchmode)) {
-                if ($params === null) {
-                    $tmp = DB_FETCHMODE_DEFAULT;
-                } else {
-                    $tmp = $params;
-                }
-                $params = $fetchmode;
-                $fetchmode = $tmp;
-            } elseif ($params !== null) {
-                $fetchmode = $params;
-                $params = array();
-            }
-        }
-
-        if (sizeof($params) > 0) {
-            $sth = $this->prepare($query);
-            if (DB::isError($sth)) {
-                return $sth;
-            }
-
-            $res =& $this->execute($sth, $params);
-            $this->freePrepared($sth);
-        } else {
-            $res =& $this->query($query);
-        }
-
-        if (DB::isError($res) || $res === DB_OK) {
-            return $res;
-        }
-
-        $results = array();
-        while (DB_OK === $res->fetchInto($row, $fetchmode)) {
-            if ($fetchmode & DB_FETCHMODE_FLIPPED) {
-                foreach ($row as $key => $val) {
-                    $results[$key][] = $val;
-                }
-            } else {
-                $results[] = $row;
-            }
-        }
-
-        $res->free();
-
-        if (DB::isError($row)) {
-            $tmp =& $this->raiseError($row);
-            return $tmp;
-        }
-        return $results;
-    }
-
-
-
-
-/*    function &getAll($query,
                      $params = null,
                      $fetchmode = DB_FETCHMODE_DEFAULT)
     {
@@ -1225,7 +1165,7 @@ class DB_common extends PEAR
         }
         return $results;
     }
-*/
+
     // }}}
     // {{{ autoCommit()
     /**

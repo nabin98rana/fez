@@ -36,7 +36,7 @@ align="center" alt=" -> " />
 {if $submit_to_popup}
 <form name="wfl_form1"  onSubmit="javascript:return (checkFormSubmission(this, 'validateForm') && updateForm());" target="_popup_window" action="{$rel_url}popup.php" method="POST" enctype="multipart/form-data">
 {else}
-<form name="wfl_form1" action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
+<form name="wfl_form1" onSubmit="javascript:return (checkFormSubmission(this, 'validateForm'));"  action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
 {/if}
 <input type="hidden" name="id" value="{$id}">
 </td></tr>

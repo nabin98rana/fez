@@ -177,7 +177,7 @@
               </tr>
               {/if}
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td width="150" bgcolor="{$cell_color}" class="default">
                   <b>Title:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -186,13 +186,24 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td width="150" bgcolor="{$cell_color}" class="default">
                   <b>Version:</b>
                 </td>
                 <td bgcolor="{$light_color}">
                   <input type="text" name="xdis_version" size="30" class="default" value="{$info.xdis_version}">
                 </td>
               </tr>
+              <tr>
+                <td width="150" bgcolor="{$cell_color}" class="default" nowrap>
+                  <b>Is Document Type?:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="checkbox" name="xdis_is_doc_type" class="default" {if ($info.xdis_is_doc_type == 1)}checked{/if}><br />
+                </td>
+              </tr>
+
+
+
               <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $smarty.get.cat == 'edit'}
@@ -236,8 +247,9 @@
 			        <input type="hidden" name="id" value="{$xdis_id}">					
                     <tr>
                       <td width="5" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td width="50%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b></td>
+                      <td width="35%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b></td>
                       <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Version</b></td>
+                      <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Is Doc Type?</b></td>
                       <td width="15%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>XSD HTML Matching Editor&nbsp;</b></td>
                       <td width="15%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>Clone Display&nbsp;</b></td>					  
                     </tr>
@@ -247,12 +259,17 @@
                       <td width="4" nowrap bgcolor="{$row_color}" align="center">
                         <input type="checkbox" name="items[]" value="{$list[i].xdis_id}" {if $smarty.section.i.total == 0}disabled{/if}>
                       </td>
-                      <td width="50%" bgcolor="{$row_color}" class="default">
+                      <td width="35%" bgcolor="{$row_color}" class="default">
                         &nbsp;<a href="xsd_displays.php?cat=edit&id={$list[i].xdis_id}&xsd_id={$list[i].xdis_xsd_id}">{$list[i].xdis_title}</a>
                       </td>
+
                       <td width="15%" bgcolor="{$row_color}" class="default">
                         &nbsp;{$list[i].xdis_version}
                       </td>
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{if $list[i].xdis_is_doc_type == 1}Yes{else}No{/if}
+                      </td>
+
                       <td width="15%" bgcolor="{$row_color}" class="default">
                         &nbsp;<a class="link" href="xsd_tree_match.php?&xdis_id={$list[i].xdis_id}" title="match this XSD Display against HTML elements">Edit</a>
                       </td>
@@ -263,7 +280,7 @@
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="5" bgcolor="{$light_color}" align="center" class="default">
+                      <td colspan="6" bgcolor="{$light_color}" align="center" class="default">
                         No xsd displays could be found.
                       </td>
                     </tr>

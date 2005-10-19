@@ -488,7 +488,7 @@ class Record
      */
     function getAssigned($username)
     {
-        $returnfields = array("title", "type", "ret_id", "xdis_id", "sta_id"); 
+        $returnfields = array("title", "type", "ret_id", "sta_id", "xdis_id", "sta_id"); 
         $returnfield_query = Misc::array_to_sql_string($returnfields);
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $stmt = " SELECT *
@@ -656,9 +656,8 @@ class Record
     {
         extract($dsarray);
         $params = array();
-
 		$datastreamXMLHeaders = Misc::getDatastreamXMLHeaders($datastreamTitles, $xmlObj, array());
-		//print_r($datastreamXMLHeaders);
+		$datastreamXMLContent = Misc::getDatastreamXMLContent($datastreamXMLHeaders, $xmlObj);
 		if (@is_array($datastreamXMLHeaders["File_Attachment0"])) { // it must be a multiple file upload so remove the generic one
 			$datastreamXMLHeaders = Misc::array_clean_key($datastreamXMLHeaders, "File_Attachment", true, true);
 		}
@@ -666,13 +665,11 @@ class Record
 			$datastreamXMLHeaders = Misc::array_clean_key($datastreamXMLHeaders, "Link", true, true);
 		}
 
-		$datastreamXMLContent = Misc::getDatastreamXMLContent($datastreamXMLHeaders, $xmlObj);
         if ($ingestObject) {
             // Actually Ingest the object Into Fedora
             // We only have to do this when first creating the object, subsequent updates should just work with the 
             // datastreams.
             // will have to exclude the non X control group xml and add the datastreams after the base ingestion.
-
             $xmlObj = Misc::removeNonXMLDatastreams($datastreamXMLHeaders, $xmlObj);
 
             $config = array(
@@ -1247,7 +1244,6 @@ class RecordObject extends RecordGeneral
 		$xmlObj = Misc::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, $file_downloads, $this->created_date, $this->updated_date);
 
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
-		//echo $xmlObj;
 		$datastreamTitles = $display->getDatastreamTitles();
         Record::insertXML($pid, compact('datastreamTitles', 'xmlObj', 'indexArray'), $ingestObject);
 		return $pid;

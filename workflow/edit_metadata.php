@@ -94,6 +94,8 @@ $tpl->assign("pid", $pid);
 $record = new RecordObject($pid);
 $record->getDisplay();
 $xdis_id = $record->getXmlDisplayId();
+$xdis_title = XSD_Display::getTitle($xdis_id);
+$tpl->assign("xdis_title", $xdis_title);
 $xdis_list = XSD_Display::getAssocListDocTypes(); // @@@ CK - 24/8/05 added for collections to be able to select their child document types/xdisplays
 
 $acceptable_roles = array("Community_Admin", "Editor", "Creator", "Community_Admin");

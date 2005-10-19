@@ -390,6 +390,7 @@ function addToParentList(sourceList, destinationList) {
 	for(var i = 0; i < sourceList.options.length; i++) {
 		if ((sourceList.options[i] != null) && (sourceList.options[i].selected)) {
 		   destinationList.options[len] = new Option(sourceList.options[i].text, sourceList.options[i].value );
+		   destinationList.options[len].selected = true;
 		   len++;
 		}
    	}

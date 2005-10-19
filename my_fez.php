@@ -58,8 +58,8 @@ $tpl->assign("isAdministrator", $isAdministrator);
 
 $collection_list = Collection::getEditList();
 foreach ($collection_list as &$item) {
-    $item['community'] = implode(',',Misc::keyPairs(Collection::getParents2($item['pid']),'pid','title'));
-    $item['count'] = count(Collection::getEditListing($item['pid']));
+   $item['community'] = implode(',',Misc::keyPairs(Collection::getParents2($item['pid']),'pid','title'));
+   $item['count'] = count(Collection::getEditListing($item['pid']));
 }
 $tpl->assign('my_collections_list', $collection_list);
 

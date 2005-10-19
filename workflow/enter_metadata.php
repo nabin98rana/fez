@@ -71,7 +71,7 @@ $tpl->assign("pid", $pid);
 $wfstatus->setTemplateVars($tpl);
 // get the xdis_id of what we're creating
 $xdis_id = $wfstatus->getXDIS_ID();
-
+$xdis_title = XSD_Display::getTitle($xdis_id);
 if ($pid == -1 || !$pid) {
     $access_ok = $isAdministrator;
 } else {
@@ -97,7 +97,7 @@ if ($access_ok) {
         Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=insert_form".$extra_redirect, false);
     }
     $tpl->assign("xdis_id", $xdis_id);
-
+    $tpl->assign("xdis_title", $xdis_title);
     $sta_id = 1; // set to unpublished to start with
     $tpl->assign('sta_id', $sta_id); 
 

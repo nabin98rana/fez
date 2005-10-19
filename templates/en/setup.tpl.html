@@ -1,4 +1,4 @@
-{include file="header.tpl.html" application_title="Eventum Installation"}
+{include file="header.tpl.html" application_title="Fez Installation"}
 
 {literal}
 <script language="JavaScript">
@@ -7,38 +7,38 @@ function validateForm(f)
 {
     if (isWhitespace(f.hostname.value)) {
         selectField(f, 'hostname');
-        alert('Please enter the hostname for the server of this installation of Eventum.');
+        alert('Please enter the hostname for the server of this installation of Fez.');
         return false;
     }
     if (isWhitespace(f.relative_url.value)) {
         selectField(f, 'relative_url');
-        alert('Please enter the relative URL of this installation of Eventum.');
+        alert('Please enter the relative URL of this installation of Fez.');
         return false;
     }
     if (isWhitespace(f.path.value)) {
         selectField(f, 'path');
-        alert('Please enter the full path in the server of this installation of Eventum.');
+        alert('Please enter the full path in the server of this installation of Fez.');
         return false;
     }
     if (isWhitespace(f.db_hostname.value)) {
         selectField(f, 'db_hostname');
-        alert('Please enter the database hostname for this installation of Eventum.');
+        alert('Please enter the database hostname for this installation of Fez.');
         return false;
     }
     if (isWhitespace(f.db_name.value)) {
         selectField(f, 'db_name');
-        alert('Please enter the database name for this installation of Eventum.');
+        alert('Please enter the database name for this installation of Fez.');
         return false;
     }
     if (isWhitespace(f.db_username.value)) {
         selectField(f, 'db_username');
-        alert('Please enter the database username for this installation of Eventum.');
+        alert('Please enter the database username for this installation of Fez.');
         return false;
     }
     if (f.alternate_user.checked) {
-        if (isWhitespace(f.eventum_user.value)) {
-            selectField(f, 'eventum_user');
-            alert('Please enter the alternate username for this installation of Eventum.');
+        if (isWhitespace(f.fez_user.value)) {
+            selectField(f, 'fez_user');
+            alert('Please enter the alternate username for this installation of Fez.');
             return false;
         }
     }
@@ -50,7 +50,7 @@ function toggleAlternateUserFields()
     var element = getPageElement('alternate_user_row');
     if (f.alternate_user.checked) {
         element.style.display = '';
-        f.eventum_user.focus();
+        f.fez_user.focus();
     } else {
         element.style.display = 'none';
         f.alternate_user.focus();
@@ -95,7 +95,7 @@ function toggleAlternateUserFields()
         <tr>
           <td class="default">
             <br />
-            <b>Thank You, Eventum is now properly setup and ready to be used. Open the following URL to login on it for the first time:</b>
+            <b>Thank You, Fez is now properly setup and ready to be used. Open the following URL to login on it for the first time:</b>
             <br />
             <a class="link" href="{if $smarty.post.is_ssl == 'yes'}https://{else}http://{/if}{$smarty.post.hostname}{$smarty.post.relative_url}">{if $smarty.post.is_ssl == 'yes'}https://{else}http://{/if}{$smarty.post.hostname}{$smarty.post.relative_url}</a>
             <br /><br />
@@ -119,7 +119,7 @@ function toggleAlternateUserFields()
       <table bgcolor="#CCCCCC" width="100%" cellspacing="1" cellpadding="2" border="0">
         <tr>
           <td colspan="2" align="center">
-            <h1>Eventum Installation</h1>
+            <h1>Fez Installation</h1>
             <hr size="1" noshade color="#000000">
           </td>
         </tr>
@@ -135,7 +135,7 @@ function toggleAlternateUserFields()
         </tr>
         <tr>
           <td width="180" class="default" align="right">
-            <b>Eventum Relative URL: *</b>
+            <b>Fez Relative URL: *</b>
           </td>
           <td>
             <input type="text" name="relative_url" value="{$smarty.post.rel_url|default:$rel_url}" class="default" size="30" tabindex="1">
@@ -175,7 +175,7 @@ function toggleAlternateUserFields()
             <b>MySQL Table Prefix:</b>
           </td>
           <td>
-            <input type="text" name="db_table_prefix" value="{$smarty.post.db_table_prefix|default:'eventum_'}" class="default" size="30" tabindex="4">
+            <input type="text" name="db_table_prefix" value="{$smarty.post.db_table_prefix|default:'fez_'}" class="default" size="30" tabindex="4">
           </td>
         </tr>
         <tr>
@@ -207,7 +207,7 @@ function toggleAlternateUserFields()
         </tr>
         <tr>
           <td colspan="2" class="default" align="center">
-            <input type="checkbox" name="alternate_user" value="yes" onClick="javascript:toggleAlternateUserFields();" {if $smarty.post.alternate_user == 'yes'}checked{/if}> <b><a id="link" class="link" href="javascript:void(null);" onClick="javascript:toggleCheckbox('install_form', 'alternate_user');toggleAlternateUserFields();">Use a Separate MySQL User for Normal Eventum Use</a></b>
+            <input type="checkbox" name="alternate_user" value="yes" onClick="javascript:toggleAlternateUserFields();" {if $smarty.post.alternate_user == 'yes'}checked{/if}> <b><a id="link" class="link" href="javascript:void(null);" onClick="javascript:toggleCheckbox('install_form', 'alternate_user');toggleAlternateUserFields();">Use a Separate MySQL User for Normal Fez Use</a></b>
           </td>
         </tr>
         <tr id="alternate_user_row">
@@ -229,8 +229,8 @@ function toggleAlternateUserFields()
                               <nobr>&nbsp;<b>Username: *</b>&nbsp;</nobr>
                             </td>
                             <td>
-                              <nobr><input type="text" class="default" name="eventum_user" size="20" value="{$smarty.post.eventum_user}">&nbsp;</nobr>
-                              {include file="error_icon.tpl.html" field="eventum_user"}
+                              <nobr><input type="text" class="default" name="fez_user" size="20" value="{$smarty.post.fez_user}">&nbsp;</nobr>
+                              {include file="error_icon.tpl.html" field="fez_user"}
                             </td>
                           </tr>
                           <tr>
@@ -238,7 +238,7 @@ function toggleAlternateUserFields()
                               <nobr>&nbsp;<b>Password:</b>&nbsp;</nobr>
                             </td>
                             <td>
-                              <nobr><input type="password" class="default" name="eventum_password" size="20" value="{$smarty.post.eventum_password}">&nbsp;</nobr>
+                              <nobr><input type="password" class="default" name="fez_password" size="20" value="{$smarty.post.fez_password}">&nbsp;</nobr>
                             </td>
                           </tr>
                           <tr>
@@ -256,8 +256,8 @@ function toggleAlternateUserFields()
           </td>
         </tr>
         <tr>
-          <td colspan="2" class="default" align="right">
-            &nbsp;
+          <td colspan="2" class="default" align="right">&nbsp;
+            
           </td>
         </tr>
         <tr>

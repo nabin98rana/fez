@@ -876,7 +876,8 @@ class XSD_HTML_Match
 					xsdmf_value_prefix,
 					xsdmf_image_location,
 					xsdmf_static_text,
-					xsdmf_dynamic_text";
+					xsdmf_dynamic_text,
+					xsdmf_original_xsdmf_id";
 		if (is_numeric($xsdsel_id)) {
 			$stmt .= ", xsdmf_xsdsel_id";
 		}
@@ -948,7 +949,8 @@ class XSD_HTML_Match
                     '" . Misc::escapeString($insertArray["xsdmf_value_prefix"]) . "',
                     '" . Misc::escapeString($insertArray["xsdmf_image_location"]) . "',
                     '" . Misc::escapeString($insertArray["xsdmf_static_text"]) . "',
-                    '" . Misc::escapeString($insertArray["xsdmf_dynamic_text"]) . "'";
+                    '" . Misc::escapeString($insertArray["xsdmf_dynamic_text"]) . "',
+					".$insertArray["xsdmf_id"];
 
 		if (is_numeric($xsdsel_id)) {
 			$stmt .= ", " . $xsdsel_id;
@@ -1343,6 +1345,39 @@ class XSD_HTML_Match
 			}
         }
     }
+
+
+   /**
+     * getXSDMF_IDByOriginalXSDMF_ID
+     * Returns the new xsdmf_id of an entry by its previous (original from a clone) xsdmf_id. Mainly used by the XSD Display clone function.
+	 *
+     * @access  public
+	 * @param   integer $original_xsdmf_id The xsdmf id element to search for
+     * @return  integer The new XSDMF ID, or false if not found or more than one was found.
+     */
+	function getXSDMF_IDByOriginalXSDMF_ID($original_xsdmf_id) {
+		if (!is_array($original_xsdmf_id)) {
+			return false;
+		}
+        $stmt = "SELECT
+                    xsdmf_id
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+                 WHERE
+                    xsdmf_original_xsdmf_id = ".$original_xsdmf_id; 
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+			if (count($res) != 1) {
+				return false;
+			} else {
+	            return $res[0][0];
+			}
+        }
+    }	
+	
 
     /**
      * Method used to get the list of XSD HTML Matching fields available in the 

@@ -200,9 +200,6 @@ class DB_mysql extends DB_common
      */
     function simpleQuery($query)
     {
-//		echo date("H:i:s");
-//		echo $query."<br/><br/>\n\n";
-
         // increments the total number of queries
         global $TOTAL_QUERIES;
         $TOTAL_QUERIES++;
@@ -338,8 +335,29 @@ class DB_mysql extends DB_common
      */
     function freeResult($result)
     {
-        //unset($this->num_rows[(int)$result]);
-        return @mysql_free_result($result);
+        if (is_resource($result)) {
+            return mysql_free_result($result);
+        }
+
+        $result = (int)$result; // $result is a prepared query handle
+        if (!@isset($this->prepare_tokens[$result])) {
+            return false;
+        }
+
+        // [ssb]: WTF? unset($this->prepare_types[$result]) makes PHP
+        // crash on my laptop (4.1.2 as well as 4.3.0-dev)
+
+        $copy = $this->prepare_types;
+        unset($copy[$result]);
+        $this->prepare_types = $copy;
+//        unset($this->prepare_types[$result]);
+
+        $copy = $this->prepare_tokens;
+        unset($copy[$result]);
+        $this->prepare_tokens = $copy;
+//        unset($this->prepare_tokens[$result]);
+
+        return true;
     }
 
     // }}}

@@ -149,8 +149,16 @@ class XSD_Display
 							$xsdrel_res = XSD_Relationship::getSimpleListByXSDMF($child_xsdmf_sel_row['xsdmf_id']);
 							foreach ($xsdrel_res as $xsdrel_row) {
 								XSD_Relationship::insertFromArray($new_child_xsdmf_id, $xsdrel_row);
+							}						 
+						}
+						// does the sel loop over an attribute loop candidate? if so then point to the new cloned versions xsdmf_id of it.
+						if (is_numeric($xsd_sel_row['xsdsel_attribute_loop_xsdmf_id'])) {
+							$new_attribute_loop_candidate = XSD_HTML_Match::getXSDMF_IDByOriginalXSDMF_ID($xsd_sel_row['xsdsel_attribute_loop_xsdmf_id']);
+							if (is_numeric($new_attribute_loop_candidate)) {
+								XSD_Loop_Subelement::updateAttributeLoopCandidate($xsd_sel_row['xsdsel_id'], $new_attribute_loop_candidate);
 							}
 						}
+
 					}						
 				}
 				// does the clone parent SEL have any xsd relationships? if so insert them
@@ -175,16 +183,24 @@ class XSD_Display
     {
         global $HTTP_POST_VARS;
 
+		if (@$HTTP_POST_VARS["xdis_is_doc_type"]) {
+			$is_doc_type = 1;
+		} else {
+			$is_doc_type = 0;
+		}
+		
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
                  (
                     xdis_title,
                     xdis_xsd_id,
-                    xdis_version
+                    xdis_version,
+                    xdis_is_doc_type					
                  ) VALUES (
                     '" . Misc::escapeString($HTTP_POST_VARS["xdis_title"]) . "',
                     $xsd_id,
-                    '" . Misc::escapeString($HTTP_POST_VARS["xdis_version"]) . "'
+                    '" . Misc::escapeString($HTTP_POST_VARS["xdis_version"]) . "',
+					$is_doc_type
                  )";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -205,12 +221,19 @@ class XSD_Display
     function update($xdis_id)
     {
         global $HTTP_POST_VARS;
+		if (@$HTTP_POST_VARS["xdis_is_doc_type"]) {
+			$is_doc_type = 1;
+		} else {
+			$is_doc_type = 0;
+		}
+		
 		
         $stmt = "UPDATE
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
                  SET 
                     xdis_title = '" . Misc::escapeString($HTTP_POST_VARS["xdis_title"]) . "',
-                    xdis_version = '" . Misc::escapeString($HTTP_POST_VARS["xdis_version"]) . "'
+                    xdis_version = '" . Misc::escapeString($HTTP_POST_VARS["xdis_version"]) . "',
+					xdis_is_doc_type = $is_doc_type
                  WHERE xdis_id = $xdis_id";
 
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -340,6 +363,31 @@ class XSD_Display
                  WHERE
                     xdis_title in ('".implode("','", $xdis_titles)."')";
         $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
+
+
+    /**
+     * Method used to get the XSD Display title when given a 
+     *
+     * @access  public
+	 * @param   integer $xdis_id The XSD ID to search by.
+     * @return  array $res The title 
+     */
+    function getTitle($xdis_id)
+    {
+        $stmt = "SELECT
+                   xdis_title
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
+                 WHERE
+                    xdis_id = $xdis_id";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";

@@ -226,6 +226,10 @@ class PEAR
      * @return  bool    true if parameter is an error
      */
     function isError($data) {
+//		echo "in iserror"; print_r($data);
+//		echo get_class($data);
+//		echo "|";
+//		echo is_subclass_of($data, 'pear_error');
         return (bool)(is_object($data) &&
                       (get_class($data) == 'pear_error' ||
                       is_subclass_of($data, 'pear_error')));

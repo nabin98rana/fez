@@ -108,10 +108,21 @@ function checkRequirements()
     if (!preg_match("/GD Support.*<\/td><td.*>enabled/U", $contents)) {
         $errors[] = "The GD extension needs to be enabled in your PHP.INI file in order for Fez to work properly.";
     }
+    if (!preg_match("/Tidy support.*<\/td><td.*>enabled/U", $contents)) {
+        $errors[] = "The Tidy extension needs to be enabled in your PHP.INI file in order for Fez to work properly.";
+    }
+    if (!preg_match("/CURL support.*<\/td><td.*>enabled/U", $contents)) {
+        $errors[] = "The CURL extension needs to be enabled in your PHP.INI file in order for Fez to work properly.";
+    }
+    if (!preg_match("/DOM\/XML support.*<\/td><td.*>enabled/U", $contents)) {
+        $errors[] = "The DOM extension needs to be enabled in your PHP.INI file in order for Fez to work properly.";
+    }
+
     // check for MySQL support
     if (!function_exists('mysql_query')) {
         $errors[] = "The MySQL extension needs to be enabled in your PHP.INI file in order for Fez to work properly.";
     }
+
     // check for the file_uploads php.ini directive
     if (ini_get('file_uploads') != "1") {
         $errors[] = "The 'file_uploads' directive needs to be enabled in your PHP.INI file in order for Fez to work properly.";
@@ -316,14 +327,14 @@ $private_key = "' . md5(microtime()) . '";
         if (count($user_list) > 0) {
             $user_list = array_map('strtolower', $user_list);
             if (@$HTTP_POST_VARS["create_user"] == 'yes') {
-                if (!in_array(strtolower(@$HTTP_POST_VARS['eventum_user']), $user_list)) {
-                    $stmt = "GRANT SELECT, UPDATE, DELETE, INSERT ON " . $HTTP_POST_VARS['db_name'] . ".* TO '" . $HTTP_POST_VARS["eventum_user"] . "'@'%' IDENTIFIED BY '" . $HTTP_POST_VARS["eventum_password"] . "'";
+                if (!in_array(strtolower(@$HTTP_POST_VARS['fez_user']), $user_list)) {
+                    $stmt = "GRANT SELECT, UPDATE, DELETE, INSERT ON " . $HTTP_POST_VARS['db_name'] . ".* TO '" . $HTTP_POST_VARS["fez_user"] . "'@'%' IDENTIFIED BY '" . $HTTP_POST_VARS["fez_password"] . "'";
                     if (!mysql_query($stmt, $conn)) {
                         return getErrorMessage('create_user', mysql_error());
                     }
                 }
             } else {
-                if (!in_array(strtolower(@$HTTP_POST_VARS['eventum_user']), $user_list)) {
+                if (!in_array(strtolower(@$HTTP_POST_VARS['fez_user']), $user_list)) {
                     return "The provided MySQL username could not be found. Review your information or specify that the username should be created in the form below.";
                 }
             }
@@ -337,12 +348,12 @@ $private_key = "' . md5(microtime()) . '";
     $table_list = getTableList($conn);
     $table_list = array_map('strtolower', $table_list);
 // CK - Temporarily remove the sql statements from running just so I could make a key
-/*    if (!in_array('eventum_test', $table_list)) {
-        if (!mysql_query('CREATE TABLE eventum_test (test char(1))', $conn)) {
+/*    if (!in_array('fez_test', $table_list)) {
+        if (!mysql_query('CREATE TABLE fez_test (test char(1))', $conn)) {
             return getErrorMessage('create_test', mysql_error());
         }
     }
-    if (!mysql_query('DROP TABLE eventum_test', $conn)) {
+    if (!mysql_query('DROP TABLE fez_test', $conn)) {
         return getErrorMessage('drop_test', mysql_error());
     }
 */
@@ -370,8 +381,8 @@ $private_key = "' . md5(microtime()) . '";
     } */
     // substitute the appropriate values in config.inc.php!!!
     if (@$HTTP_POST_VARS['alternate_user'] == 'yes') {
-        $HTTP_POST_VARS['db_username'] = $HTTP_POST_VARS['eventum_user'];
-        $HTTP_POST_VARS['db_password'] = $HTTP_POST_VARS['eventum_password'];
+        $HTTP_POST_VARS['db_username'] = $HTTP_POST_VARS['fez_user'];
+        $HTTP_POST_VARS['db_password'] = $HTTP_POST_VARS['fez_password'];
     }
     $config_contents = implode("", file("config.inc.php"));
     $config_contents = str_replace("%{APP_PATH}%", $HTTP_POST_VARS['path'], $config_contents);

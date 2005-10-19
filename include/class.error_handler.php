@@ -126,12 +126,14 @@ class Error_Handler
     function _logToFile($error_msg = "unknown", $script = "unknown", $line = "unknown")
     {
         global $HTTP_SERVER_VARS;
-
+		echo "IN Log to file!";
         if (is_array($error_msg)) {
             $msg = "[" . date("D M d H:i:s Y") . "] Found error '" . $error_msg[0] . "/" . $error_msg[1] . "' on line '" . $line . "' of script '" . $script . "' on page '" . $HTTP_SERVER_VARS["PHP_SELF"] . "'.\n";
         } else {
             $msg = "[" . date("D M d H:i:s Y") . "] Found error '" . $error_msg . "' on line '" . $line . "' of script '" . $script . "' on page '" . $HTTP_SERVER_VARS["PHP_SELF"] . "'.\n";
         }
+		echo $msg;
+		echo APP_ERROR_LOG;
         $fp = @fopen(APP_ERROR_LOG, "a");
         @fwrite($fp, $msg);
         @fclose($fp);
