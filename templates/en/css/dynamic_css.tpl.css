@@ -1,0 +1,7 @@
+
+.wfl_progress {
+padding: 5px;
+margin: 5px 5px 5px 5px;
+border: 1px solid [[$smarty.const.APP_DARK_COLOR]];
+background-color: [[$smarty.const.APP_LIGHT_COLOR]];
+}
