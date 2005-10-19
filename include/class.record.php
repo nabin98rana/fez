@@ -970,8 +970,6 @@ class RecordGeneral
             $this->getDisplay();
             if ($this->display) {
                 $this->details = $this->display->getXSDMF_Values($this->pid);
-            } else {
-                echo "No display for PID {$this->pid} ".__FILE__.__LINE__."<br/>";
             }
         }
         return $this->details;
