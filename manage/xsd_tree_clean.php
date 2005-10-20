@@ -44,11 +44,9 @@ include_once(APP_INC_PATH . "db_access.php");
 
 $tpl = new Template_API();
 
-$tpl->setTemplate("manage/xsd_tree.tpl.html");
+$tpl->setTemplate("manage/xsd_tree_clean.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION);
-
-$tpl->assign("type", "xsd_tree");
 
 $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
@@ -58,8 +56,13 @@ $tpl->assign("isAdministrator", $isAdministrator);
 if ($isAdministrator) {
 	$xdis_id = @$HTTP_POST_VARS["xdis_id"] ? $HTTP_POST_VARS["xdis_id"] : @$HTTP_GET_VARS["xdis_id"];
 	$xsd_id = XSD_HTML_Match::getXSD_ID($xdis_id);
+	$form_cat = @$HTTP_POST_VARS["form_cat"];
+
+	if ($form_cat == "delete") { 
+		$tpl->assign("result", XSD_HTML_Match::removeByXSDMF_IDs());
+	}
+
 	$xdis_title = XSD_Display::getTitle($xdis_id);
-	$tpl->assign("xdis_id", $xdis_id);   
 	$tpl->assign("xdis_title", $xdis_title);   
 	$top_element_name = Doc_Type_XSD::getDetails($xsd_id);
 	$top_element_name = $top_element_name['xsd_top_element_name'];
@@ -69,13 +72,13 @@ if ($isAdministrator) {
 	$xsd = new DomDocument();
     $xsd->loadXML($xsd_str);
 	$array_ptr = array();
-	$temp = array();
 	Misc::dom_xsd_to_referenced_array($xsd, $top_element_name, &$array_ptr, "", "", $xsd);
 	$element_match_list = XSD_HTML_Match::getElementMatchList($xdis_id);
-	$orphan_count = XSD_HTML_Match::getElementOrphanCount($xdis_id, $array_ptr);
-	$tpl->assign("orphan_count", $orphan_count);   	
-	$temp = (Misc::array_to_dtree($array_ptr, $xdis_id, $element_match_list));
-	$tpl->assign("xsd_tree", $temp[1]);   
+	$orphan_list = XSD_HTML_Match::getElementOrphanList($xdis_id, $array_ptr);
+	$orphan_count = count($orphan_list);
+	$tpl->assign("xdis_id", $xdis_id);   
+	$tpl->assign("orphan_count", $orphan_count);   
+	$tpl->assign("orphan_list", $orphan_list);   			
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }

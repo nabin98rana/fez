@@ -248,8 +248,8 @@
 				  var elementCheck = getPageElement('no_xsd_refs');
 				  if (!(elementCheck) && (show_field == true)) {
 					  var f = getForm('xsd_tree_match_form');
-					  for (var x=0; x < 7; x++) {
-						if (x != 5) {
+					  for (var x=0; x < 17; x++) {
+						if (x != 8) {
 						  var field = getFormElement(f, 'field_type', x);
 						  field.disabled = true;
 						}
@@ -285,8 +285,8 @@
 				  var elementCheck = getPageElement('no_xsd_looping_subelements');
 				  if (!(elementCheck) && (show_field == true)) {
 					  var f = getForm('xsd_tree_match_form');
-					  for (var x=0; x < 7; x++) {
-						if (x != 6) {
+					  for (var x=0; x < 17; x++) {
+						if (x != 9) {
 						  var field = getFormElement(f, 'field_type', x);
 						  field.disabled = true;
 						}
@@ -497,15 +497,6 @@
               </tr>
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default">
-                  <b>XML Instance Order:</b>
-                </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="xml_order" size="30" class="default" value="{if $info.xsdmf_xml_order}{$info.xsdmf_xml_order}{else}0{/if}"><br />
-                  <span class="small_default">(The order the field will feed into the xml object, 0 is highest priority, 1, 2 next etc.)</span>
-                </td>
-              </tr>
-              <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Enabled?:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -639,28 +630,18 @@
                   <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) {checkRadio('xsd_tree_match_form', 'field_type', 6);  toggleControlledVocab(false);toggleFezVarText(true);toggleSmartyVarText(false);toggleXSDMatchField(false);toggleStaticText(true);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">Hidden Static Text</a>
        			  <input type="radio" name="field_type" value="dynamic" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'dynamic'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleControlledVocab(false);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(false);toggleStaticText(false);toggleDynamicText(true);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">
                   <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) {checkRadio('xsd_tree_match_form', 'field_type', 7);  toggleControlledVocab(false);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(false);toggleStaticText(false);toggleDynamicText(true);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">Hidden Dynamic Text</a>
-<br />            <input type="radio" name="field_type" value="xsd_ref" {/literal}{if $info.xsdmf_html_input == 'xsd_ref'}checked{/if} {if ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if}{literal} onClick="javascript: if (toggleXSDRef(true) && toggleXSDLoopSubelement(false)) { toggleControlledVocab(false);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(false);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">
-                  <a id="link" class="link" href="javascript:void(null);" onClick="if (toggleXSDRef(true) && toggleXSDLoopSubelement(false)) { javascript:checkRadio('xsd_tree_match_form', 'field_type', 8); toggleControlledVocab(false);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(false);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">XSD Reference(s)</a>
+<br />            <input type="radio" name="field_type" value="xsd_ref" {/literal}{if $info.xsdmf_html_input == 'xsd_ref'}checked{/if} {if ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if}{literal} onClick="javascript: if (toggleXSDLoopSubelement(false) && toggleXSDRef(true)) { toggleControlledVocab(false);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(false);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="if (toggleXSDLoopSubelement(false) && toggleXSDRef(true)) { javascript:checkRadio('xsd_tree_match_form', 'field_type', 8); toggleControlledVocab(false);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(false);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">XSD Reference(s)</a>
 		          <input type="radio" name="field_type" value="xsd_loop_subelement" {/literal}{if $info.xsdmf_html_input == 'xsd_loop_subelement'}checked{/if} {if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0)}disabled{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(true)) { toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(false);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">
                   <a id="link" class="link" href="javascript:void(null);" onClick="if (toggleXSDRef(false) && toggleXSDLoopSubelement(true)) { javascript:checkRadio('xsd_tree_match_form', 'field_type', 9); toggleControlledVocab(false);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(false);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">XSD Loop Subelement(s)</a>
                   <input type="radio" name="field_type" value="xsdmf_id_ref" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'xsdmf_id_ref'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleControlledVocab(false);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(true);}">
                   <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { checkRadio('xsd_tree_match_form', 'field_type', 10);  toggleControlledVocab(false);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(true);}">XSDMF ID Reference</a>&nbsp;
 <br />            <input type="radio" name="field_type" value="file_input" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'file_input'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleControlledVocab(false);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">
                   <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { checkRadio('xsd_tree_match_form', 'field_type', 11);  toggleControlledVocab(false);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">File Upload Input</a>&nbsp;
-                  <input type="radio" name="field_type" value="file_selector" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'file_selector'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleControlledVocab(false);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">
-                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { checkRadio('xsd_tree_match_form', 'field_type', 12);  toggleControlledVocab(false);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">File Selector</a>&nbsp;
-                  <input type="radio" name="field_type" value="contvocab" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'contvocab'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleControlledVocab(true);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">
-                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { checkRadio('xsd_tree_match_form', 'field_type', 13);  toggleControlledVocab(true);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">Entire Controlled Vocabulary</a>&nbsp;
-<br />            <input type="radio" name="field_type" value="contvocab_selector" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'contvocab_selector'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleControlledVocab(true);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">
-                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { checkRadio('xsd_tree_match_form', 'field_type', 14);  toggleControlledVocab(true);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">Controlled Vocabulary Selector</a>&nbsp;
+	              <input type="radio" name="field_type" value="contvocab_selector" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'contvocab_selector'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleControlledVocab(true);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { checkRadio('xsd_tree_match_form', 'field_type', 12);  toggleControlledVocab(true);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}">Controlled Vocabulary Selector</a>&nbsp;
 
                 {/literal}
-                {capture name="tree_onclick" assign="tree_onclick" }
-                        {literal}javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleControlledVocab(false);toggleFezVarText(true);toggleSmartyVarText(true);toggleXSDMatchField(false);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);}{/literal}
-                {/capture}
-                  <input type="radio" name="field_type" value="tree" {if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'tree'}checked{/if} onClick="{$tree_onclick}">
-	              <a id="link" class="link" href="javascript:void(null);" onClick="{$tree_onlcick}">Tree</a>
-
                 </td>
               </tr>
 
@@ -686,7 +667,7 @@
                   <b>Field Options:</b><i>(If a dynamic variable is set it will be used instead of the entered values)</i>
                 </td>
                 <td bgcolor="{$light_color}">
-                  <table bgcolor="{$dark_color}" cellspacing="0" cellpadding="0" border="0">
+                  <table bgcolor="{$light_color}" cellspacing="0" cellpadding="0" border="0">
                     <tr>
                       <td rowspan="2"><img src="{$rel_url}images/blank.gif" width="30" height="1"></td>
                       <td>
@@ -745,7 +726,7 @@
                  <td width="120" bgcolor="{$cell_color}" class="default"><b>Fez Variable:</b><i>(If a Fez variable is set it will be used instead of any other options including smarty template variables)</i></td>
 				<td class="default" bgcolor="{$light_color}"><br /><b>OR use one of these Fez variables: </b> <br />
 					<INPUT TYPE=RADIO NAME="fez_variable" VALUE="none" {if ($info.xsdmf_fez_variable == "" || $info.xsdmf_fez_variable == "none")}checked{/if}/>None<BR>
-					<INPUT TYPE=RADIO NAME="fez_variable" VALUE="pid" {if $info.xsdmf_fez_variable == "pid"}checked{/if}/>Pid (for new records it will get the new Pid and then create this parent datastream)<BR>
+					<INPUT TYPE=RADIO NAME="fez_variable" VALUE="pid" {if $info.xsdmf_fez_variable == "pid"}checked{/if}/>Pid (for new records it will get the new Pid)<BR>
 					<INPUT TYPE=RADIO NAME="fez_variable" VALUE="xdis_id" {if $info.xsdmf_fez_variable == "xdis_id"}checked{/if}/>XSD Display ID<BR>
 					<INPUT TYPE=RADIO NAME="fez_variable" VALUE="sta_id" {if $info.xsdmf_fez_variable == "sta_id"}checked{/if}/>Fez Object Status ID<BR>
 					<INPUT TYPE=RADIO NAME="fez_variable" VALUE="file_downloads" {if $info.xsdmf_fez_variable == "file_downloads"}checked{/if}/>File Downloads Statistics<BR>
@@ -756,7 +737,7 @@
 
               <tr id="xsdmf_id_ref_tr" {if $info.xsdmf_html_input != 'xsdmf_id_ref'}style="display:none"{/if}>
                 <td width="120" bgcolor="{$cell_color}" class="default">
-                  <b>XSD ID Reference:</b>
+                  <b>XSDMF ID Reference:</b>
                 </td>
                 <td bgcolor="{$light_color}">
 					<select name="xsdmf_id_ref" class="default">
@@ -823,6 +804,7 @@
 
 		<tr id="xsd_display_ref_tr" {if $info.xsdmf_html_input != 'xsd_ref'}style="display:none"{/if}>
 			<td>
+		    {if $form_cat == 'edit'}		
 			  <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
 				<tr>
 				  <td>
@@ -834,7 +816,7 @@
  					  <input type="hidden" name="form_name" value="xsdrel_main">
  					  <input type="hidden" name="xsdrel_xsdmf_id" value="{$xsdmf_id}">
  					  <input type="hidden" name="xsdrel_xdis_id" value="{$xdis_id}">
-					  {if $smarty.get.form_cat == 'edit'}
+					  {if $smarty.get.xsdref_cat == 'edit'}
 					  <input type="hidden" name="form_cat" value="update">
 					  {else}
 					  <input type="hidden" name="form_cat" value="new">
@@ -887,7 +869,7 @@
 					  </tr>
 					  <tr>
 						<td colspan="2" bgcolor="{$cell_color}" align="center">
-						  {if $smarty.get.form_cat == 'edit'}
+						  {if $smarty.get.xsdref_cat == 'edit'}
 						  <input class="button" type="submit" value="Update XSD Display Reference">
 						  {else}
 						  <input class="button" type="submit" value="Add XSD Display Reference">
@@ -925,7 +907,7 @@
 								<input type="checkbox" name="items[]" value="{$xsd_display_ref_list[i].xsdrel_id}" {if $smarty.section.i.total == 0}disabled{/if}>
 							  </td>
 							  <td width="50%" bgcolor="{$row_color}" class="default">
-								&nbsp;{$xsd_display_ref_list[i].xdis_title}
+								&nbsp;<a href="xsd_tree_match_form.php?xdis_id={$xdis_id}&xml_element={$xml_element}&xsdsel_id={$xsdsel_id}&xsdref_cat=edit&xsdrel_id={$xsd_display_ref_list[i].xsdrel_id}">{$xsd_display_ref_list[i].xdis_title}</a>
 							  </td>
 							  <td width="15%" bgcolor="{$row_color}" class="default">
 								&nbsp;{$xsd_display_ref_list[i].xdis_version}
@@ -961,11 +943,16 @@
 				  </td>
 				</tr>
 					</table>
+				  {else}
+					  <input type="hidden" id="no_xsd_refs" name="no_xsd_refs" value="true">
+					  <font color="green" class="default"><strong>When you create this matching field entry a XSD References management panel will appear here for you to chose the XSD References.</strong></font>
+				  {/if}
 				  </td>
 				</tr>
 
 				<tr id="xsd_loop_subelement_tr" {if $info.xsdmf_html_input != 'xsd_loop_subelement'}style="display:none"{/if}>
 					<td>
+					 {if $form_cat == 'edit'}
 					  <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
 						<tr>
 						  <td>
@@ -977,7 +964,7 @@
 							  <input type="hidden" name="form_name" value="xsdsel_main">
 							  <input type="hidden" name="xsdsel_xsdmf_id" value="{$xsdmf_id}">
 							  <input type="hidden" name="xsdsel_xdis_id" value="{$xdis_id}">
-							  {if $smarty.get.form_cat == 'edit'}
+							  {if $smarty.get.xsdsel_cat == 'edit'}
 							  <input type="hidden" name="form_cat" value="update">
 							  {else}
 							  <input type="hidden" name="form_cat" value="new">
@@ -1011,9 +998,7 @@
 								  <b>XSD Subelement Loop Title:</b>
 								</td>
 								<td bgcolor="{$light_color}">
-								 <input type="text" name="xsdsel_title" size="20" class="default">
-		
-								 <!-- <input type="text" name="xdis_title" size="40" class="default" value="{$info.xdis_title}"> -->
+								 <input type="text" name="xsdsel_title" size="20" class="default" value="{$xsd_loop_subelement_details.xsdsel_title}">		
 								  {include file="error_icon.tpl.html" field="title"}
 								</td>
 							  </tr>
@@ -1023,12 +1008,8 @@
 								</td>
 								<td bgcolor="{$light_color}">
 								<select class="default" name="xsdsel_type">
-								  <option value="hardset">Hardset</option>
-								  <option value="hardsetplus">Hardset Plus Unlimited</option>
-								  <option value="hardsetplusrestricted">Hardset Plus Unlimited Restricted</option>
-								  <option value="unlimited">Unlimited</option>
-								  <option value="restrictedunlimited">Restricted Unlimited</option>
-								  <option value="attributeloop">Loop on Element Attribute</option>
+								  <option value="hardset" {if $xsd_loop_subelement_details.xsdsel_type == 'hardset'}selected{/if}>Hardset (One Loop)</option>
+								  <option value="attributeloop"  {if $xsd_loop_subelement_details.xsdsel_type == 'attributeloop'}selected{/if}>Loop on Element Attribute</option>
 								</select>
 								</td>
 							  </tr>
@@ -1039,7 +1020,7 @@
 								<td bgcolor="{$light_color}">
 									<select class="default" name="xsdsel_attribute_loop_xsdmf_id">
 									  <option value=0>none</option>
-									  {html_options options=$xsdmf_id_ref_list}
+									  {html_options options=$xsdmf_id_ref_list selected=$xsd_loop_subelement_details.xsdsel_attribute_loop_xsdmf_id}
 									</select>
 								</td>
 							  </tr>
@@ -1048,13 +1029,13 @@
 								  <b>Order:</b>
 								</td>
 								<td bgcolor="{$light_color}">
-								  <input type="text" name="xsdsel_order" size="20" class="default">
+								  <input type="text" name="xsdsel_order" size="20" class="default" value="{$xsd_loop_subelement_details.xsdsel_order}">
 								  {include file="error_icon.tpl.html" field="xsdsel_order"}
 								</td>
 							  </tr>
 							  <tr>
 								<td colspan="2" bgcolor="{$cell_color}" align="center">
-								  {if $smarty.get.form_cat == 'edit'}
+								  {if $smarty.get.xsdsel_cat == 'edit'}
 								  <input class="button" type="submit" value="Update XSD Looping Subelement">
 								  {else}
 								  <input class="button" type="submit" value="Add XSD Looping Subelement">
@@ -1092,7 +1073,7 @@
 										<input type="checkbox" name="items[]" value="{$xsd_loop_subelement_list[i].xsdsel_id}" {if $smarty.section.i.total == 0}disabled{/if}>
 									  </td>
 									  <td width="50%" bgcolor="{$row_color}" class="default">
-										&nbsp;{$xsd_loop_subelement_list[i].xsdsel_title}
+										&nbsp;<a href="xsd_tree_match_form.php?xdis_id={$xdis_id}&xml_element={$xml_element}&xsdsel_id={$xsdsel_id}&xsdsel_cat=edit&xsdsel_id={$xsd_loop_subelement_list[i].xsdsel_id}">{$xsd_loop_subelement_list[i].xsdsel_title}</a>
 									  </td>
 									  <td width="15%" bgcolor="{$row_color}" class="default">
 										&nbsp;{$xsd_loop_subelement_list[i].xsdsel_type}
@@ -1123,16 +1104,23 @@
 									</tr>
 									</form>
 								  </table>
+
 								</td>
 							  </tr>
 
 							</table>
+				  {else}
+					  <input type="hidden" id="no_xsd_looping_subelements" name="no_xsd_looping_subelements" value="true">
+					  <font color="green" class="default"><strong>When you create this matching field entry a XSD Looping Subelements management panel will appear here for you to chose the XSD Looping Subelements.</strong></font>
+				  {/if}
 						  </td>
 					    </tr>
 
 
 					  </table>
+
 				    </td>
+
 				  </tr>
 
 			    </table>

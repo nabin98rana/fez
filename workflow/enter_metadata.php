@@ -110,6 +110,7 @@ if ($access_ok) {
     $maxG = 0;
     $xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id));
     $cvo_list = Controlled_Vocab::getAssocListFullDisplay(false, "", 0, 2);
+
     //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups 
     // - should probably move this into a function somewhere later
     foreach ($xsd_display_fields  as $dis_key => $dis_field) {

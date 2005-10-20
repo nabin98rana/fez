@@ -490,25 +490,8 @@ class XSD_DisplayObject
         if ($this->retrieved_mf) {
             return $this->matchfields;
         }
-        $res = XSD_HTML_Match::getBasicListByDisplay($this->xdis_id);
+        $res = XSD_HTML_Match::getListByDisplay($this->xdis_id);
 
-
-        if (count($res) > 0) {
-            // make a list of mf_ids so we can get the options in one query
-            foreach ($res as $r) {
-                $xsdmf_ids[] = $r['xsdmf_id'];
-            }
-            $xsdmf_options = XSD_HTML_Match::getOptions($xsdmf_ids);
-            // reformat the options for smarty
-            foreach ($res as &$r) {
-                if (isset($xsdmf_options[$r['xsdmf_id']][0])) {
-                    $r["field_options"] 
-                        = array($xsdmf_options[$r['xsdmf_id']][0] => $xsdmf_options[$r['xsdmf_id']][1]);
-                    $r["field_options_value_only"] 
-                        = array($xsdmf_options[$r['xsdmf_id']][1] => $xsdmf_options[$r['xsdmf_id']][1]);
-                }
-            }
-        }
         $this->retrieved_mf = true;
         $this->matchfields = $res;
         return $res;

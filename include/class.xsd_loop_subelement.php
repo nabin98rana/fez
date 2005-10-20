@@ -254,154 +254,6 @@ class XSD_Loop_Subelement
     }
 
     /**
-     * Method used to get the list of sublooping elements and sublooping element
-     * values associated with a given issue ID.
-     *
-     * @access  public
-     * @param   integer $prj_id The project ID
-     * @param   integer $iss_id The issue ID
-     * @return  array The list of sublooping elements
-     */
-    function getListBy($prj_id, $iss_id)
-    {
-        $stmt = "SELECT
-                    fld_id,
-                    fld_title,
-                    fld_type,
-                    fld_report_form_required,
-                    fld_anonymous_form_required,
-                    icf_value
-                 FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "custom_field,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "project_custom_field
-                 LEFT JOIN
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "issue_custom_field
-                 ON
-                    pcf_fld_id=icf_fld_id AND
-                    icf_iss_id=$iss_id
-                 WHERE
-                    pcf_fld_id=fld_id AND
-                    pcf_prj_id=$prj_id";
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            if (count($res) == 0) {
-                return "";
-            } else {
-                $fields = array();
-                for ($i = 0; $i < count($res); $i++) {
-                    if (($res[$i]['fld_type'] == 'text') || ($res[$i]['fld_type'] == 'textarea')) {
-                        $fields[] = $res[$i];
-                    } elseif ($res[$i]["fld_type"] == "combo") {
-                        $res[$i]["selected_cfo_id"] = $res[$i]["icf_value"];
-                        $res[$i]["icf_value"] = XSD_HTML_Match::getOptionValue($res[$i]["fld_id"], $res[$i]["icf_value"]);
-                        $res[$i]["field_options"] = XSD_HTML_Match::getOptions($res[$i]["fld_id"]);
-                        $fields[] = $res[$i];
-                    } elseif ($res[$i]['fld_type'] == 'multiple') {
-                        // check whether this field is already in the array
-                        $found = 0;
-                        for ($y = 0; $y < count($fields); $y++) {
-                            if ($fields[$y]['fld_id'] == $res[$i]['fld_id']) {
-                                $found = 1;
-                                $found_index = $y;
-                            }
-                        }
-                        if (!$found) {
-                            $res[$i]["selected_cfo_id"] = array($res[$i]["icf_value"]);
-                            $res[$i]["icf_value"] = XSD_HTML_Match::getOptionValue($res[$i]["fld_id"], $res[$i]["icf_value"]);
-                            $res[$i]["field_options"] = XSD_HTML_Match::getOptions($res[$i]["fld_id"]);
-                            $fields[] = $res[$i];
-                        } else {
-                            $fields[$found_index]['icf_value'] .= ', ' . XSD_HTML_Match::getOptionValue($res[$i]["fld_id"], $res[$i]["icf_value"]);
-                            $fields[$found_index]['selected_cfo_id'][] = $res[$i]["icf_value"];
-                        }
-                    }
-                }
-                return $fields;
-            }
-        }
-    }
-
-
-    /**
-     * Method used to get the list of sublooping elements and sublooping element
-     * values associated with a given issue ID, and a given sublooping element
-     *
-     * @@@ CK - 21/10/2004 - Created this function
-     *
-     * @access  public
-     * @param   integer $prj_id The project ID
-     * @param   integer $iss_id The issue ID
-     * @param   integer $fld_id The sublooping element ID
-     * @return  array The list of sublooping elements
-     */
-    function getValueByRecordField($prj_id, $iss_id, $fld_id)
-    {
-        $stmt = "SELECT
-                    fld_id,
-                    fld_title,
-                    fld_type,
-                    fld_report_form_required,
-                    fld_anonymous_form_required,
-                    icf_value
-                 FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "custom_field,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "project_custom_field
-                 LEFT JOIN
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "issue_custom_field
-                 ON
-                    pcf_fld_id=icf_fld_id AND
-                    icf_iss_id=$iss_id
-                 WHERE
-                    pcf_fld_id=fld_id AND
-					pcf_fld_id=".$fld_id." AND
-                    pcf_prj_id=$prj_id";
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            if (count($res) == 0) {
-                return "";
-            } else {
-                $fields = array();
-                for ($i = 0; $i < count($res); $i++) {
-                    if (($res[$i]['fld_type'] == 'text') || ($res[$i]['fld_type'] == 'textarea')) {
-                        $fields[] = $res[$i];
-                    } elseif ($res[$i]["fld_type"] == "combo") {
-                        $res[$i]["selected_cfo_id"] = $res[$i]["icf_value"];
-                        $res[$i]["icf_value"] = XSD_HTML_Match::getOptionValue($res[$i]["fld_id"], $res[$i]["icf_value"]);
-                        $res[$i]["field_options"] = XSD_HTML_Match::getOptions($res[$i]["fld_id"]);
-                        $fields[] = $res[$i];
-                    } elseif ($res[$i]['fld_type'] == 'multiple') {
-                        // check whether this field is already in the array
-                        $found = 0;
-                        for ($y = 0; $y < count($fields); $y++) {
-                            if ($fields[$y]['fld_id'] == $res[$i]['fld_id']) {
-                                $found = 1;
-                                $found_index = $y;
-                            }
-                        }
-                        if (!$found) {
-                            $res[$i]["selected_cfo_id"] = array($res[$i]["icf_value"]);
-                            $res[$i]["icf_value"] = XSD_HTML_Match::getOptionValue($res[$i]["fld_id"], $res[$i]["icf_value"]);
-                            $res[$i]["field_options"] = XSD_HTML_Match::getOptions($res[$i]["fld_id"]);
-                            $fields[] = $res[$i];
-                        } else {
-                            $fields[$found_index]['icf_value'] .= ', ' . XSD_HTML_Match::getOptionValue($res[$i]["fld_id"], $res[$i]["icf_value"]);
-                            $fields[$found_index]['selected_cfo_id'][] = $res[$i]["icf_value"];
-                        }
-                    }
-                }
-                return $fields;
-            }
-        }
-    }
-
-
-    /**
      * Method used to remove a given list of sublooping elements, and any child matching fields under that element.
      *
      * @access  public
@@ -514,7 +366,7 @@ class XSD_Loop_Subelement
     }
 
     /**
-     * Method used to add a new sublooping element to the system.
+     * Method used to update a sublooping element in the system.
      *
      * @access  public
      * @return  integer 1 if the insert worked, -1 otherwise
@@ -526,26 +378,25 @@ class XSD_Loop_Subelement
         $stmt = "UPDATE
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement
                  SET 
-                    xsdsel_xsdmf_id = " . Misc::escapeString($HTTP_POST_VARS["xsdsel_xsdmf_id"]) . ",
-                    xsdsel_xsd_id = " . Misc::escapeString($HTTP_POST_VARS["xsdsel_xsd_id"]) . ",
+                    xsdsel_title = '" . Misc::escapeString($HTTP_POST_VARS["xsdsel_title"]) . "',
                     xsdsel_order = " . Misc::escapeString($HTTP_POST_VARS["xsdsel_order"]) . ",";
 				if (is_numeric($HTTP_POST_VARS["xsdsel_attribute_loop_xsdmf_id"])) {
                  	$stmt .= "   xsdsel_attribute_loop_xsdmf_id = " . Misc::escapeString($HTTP_POST_VARS["xsdsel_attribute_loop_xsdmf_id"]) . ",";
 				}
 					$stmt .= "
-                    xsdsel_control_group = '" . Misc::escapeString($HTTP_POST_VARS["xsdsel_control_group"]) . "'
+                    xsdsel_type = '" . Misc::escapeString($HTTP_POST_VARS["xsdsel_type"]) . "'
                  WHERE xsdsel_id = " . Misc::escapeString($HTTP_POST_VARS["xsdsel_id"]) . "";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-			//
+			return 1;
         }
     }
 	
     /**
-     * Method used to add a new sublooping element to the system.
+     * Method used to update a sublooping element attribute loop candidate.
      *
      * @access  public
      * @return  integer 1 if the insert worked, -1 otherwise
@@ -565,62 +416,6 @@ class XSD_Loop_Subelement
 			return 1;
         }
     }	
-
-
-    /**
-     * Method used to associate a sublooping element to a project.
-     *
-     * @access  public
-     * @param   integer $prj_id The project ID
-     * @param   integer $fld_id The sublooping element ID
-     * @return  boolean
-     */
-    function associateCollection($prj_id, $fld_id)
-    {
-        $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "project_custom_field
-                 (
-                    pcf_prj_id,
-                    pcf_fld_id
-                 ) VALUES (
-                    $prj_id,
-                    $fld_id
-                 )";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-
-    /**
-     * Method used to get the list of sublooping elements available in the 
-     * system.
-     *
-     * @access  public
-     * @return  array The list of sublooping elements
-     */
-    function getList($xsd_id)
-    {
-        $stmt = "SELECT
-                    *
-                 FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_xsl
-                 WHERE
-                    xsl_xsd_id = $xsd_id
-                 ORDER BY
-                    xsl_title ASC";
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }
 
     /**
      * Method used to get the details of a specific sublooping element.
@@ -668,32 +463,6 @@ class XSD_Loop_Subelement
 			$stmt .= " AND xsdmf_id <> xsdsel_attribute_loop_xsdmf_id";
 		} 
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }
-
-    /**
-     * Method used to get the details of a specific sublooping element.
-     *
-     * @@@ CK - 13/8/2004 - added so sublooping element reports could use the getGridCustomFieldReport function and get the ID from this function
-     *
-     * @access  public
-     * @param   integer $fld_id The sublooping element ID
-     * @return  array The sublooping element details
-     */
-    function getXSD_ID($xdis_id)
-    {
-        $stmt = "SELECT
-                    xdis_xsd_id
-                 FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
-                 WHERE
-                    xdis_id=$xdis_id";
-        $res = $GLOBALS["db_api"]->dbh->getOne($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";

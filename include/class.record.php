@@ -707,7 +707,6 @@ class Record
                             $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
 				}
 			}
-
             
 			$presmd_check = Workflow::checkForPresMD($dsIDName);
 			if ($presmd_check != false) {

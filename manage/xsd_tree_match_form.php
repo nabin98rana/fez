@@ -106,6 +106,8 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 		$form_cat = @$HTTP_POST_VARS["form_cat"];
 		if ($form_cat == "new") {
 			$tpl->assign("result", XSD_Loop_Subelement::insert());
+		} elseif ($form_cat == "update") {
+			$tpl->assign("result", XSD_Loop_Subelement::update());		
 		}
 	} elseif (is_numeric(strpos(@$HTTP_POST_VARS["form_name"], "xsdrel_delete"))) {
 		$form_cat = "delete";
@@ -143,6 +145,10 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 		$tpl->assign("xsdmf_id", $info_array['xsdmf_id']);
 		$xsd_display_ref_list = XSD_Relationship::getListByXSDMF($info_array['xsdmf_id']);
 		$xsd_loop_subelement_list = XSD_Loop_Subelement::getListByXSDMF($info_array['xsdmf_id']);
+		if ((is_numeric($xsdsel_id)) && ($HTTP_GET_VARS['xsdsel_cat'] == "edit")) {
+			$xsd_loop_subelement_details = XSD_Loop_Subelement::getDetails($xsdsel_id);
+			$tpl->assign("xsd_loop_subelement_details", $xsd_loop_subelement_details);
+		}
 		$xsdmf_id_ref_list = XSD_HTML_Match::getListAssoc();
 		$tpl->assign("xsdmf_id_ref_list", $xsdmf_id_ref_list);
 		$tpl->assign("xsd_display_ref_list", $xsd_display_ref_list);

@@ -467,6 +467,34 @@ class XSD_HTML_Match
         }
     }
 
+    /**
+     * Method used to remove a XSD matching fields by their XSDMF IDs.
+     *
+     * @access  public
+     * @return  boolean
+     */
+    function removeByXSDMF_IDs()
+    {
+        global $HTTP_POST_VARS;
+
+        $items = @implode(", ", $HTTP_POST_VARS["items"]);
+		if (@strlen($items) < 1) {
+			return false;
+		}
+	
+        $stmt = "DELETE FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+                 WHERE
+                    xsdmf_id in ($items)";
+
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+		  return 1;
+        }
+    }
 
     /**
      * Method used to add a new XSD matching field to the system, from form post variables.
@@ -524,7 +552,6 @@ class XSD_HTML_Match
                     xsdmf_description,
                     xsdmf_long_description,					
                     xsdmf_html_input,
-                    xsdmf_xml_order,
                     xsdmf_order,
                     xsdmf_validation_type,
                     xsdmf_enabled,
@@ -578,7 +605,6 @@ class XSD_HTML_Match
                     '" . Misc::escapeString($HTTP_POST_VARS["description"]) . "',
                     '" . Misc::escapeString($HTTP_POST_VARS["long_description"]) . "',					
                     '" . Misc::escapeString($HTTP_POST_VARS["field_type"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["xml_order"]) . "',
                     '" . Misc::escapeString($HTTP_POST_VARS["order"]) . "',
                     '" . Misc::escapeString($HTTP_POST_VARS["validation_types"]) . "',
                     " . $enabled . ",
@@ -663,7 +689,6 @@ class XSD_HTML_Match
                     xsdmf_title,
                     xsdmf_description,
                     xsdmf_html_input,
-                    xsdmf_xml_order,
                     xsdmf_order,
                     xsdmf_validation_type,";
 		if (!empty($insertArray["xsdmf_enabled"])) {
@@ -728,7 +753,6 @@ class XSD_HTML_Match
                     '" . Misc::escapeString($insertArray["xsdmf_title"]) . "',
                     '" . Misc::escapeString($insertArray["xsdmf_description"]) . "',
                     '" . Misc::escapeString($insertArray["xsdmf_html_input"]) . "',
-                    '" . Misc::escapeString($insertArray["xsdmf_xml_order"]) . "',
                     '" . Misc::escapeString($insertArray["xsdmf_order"]) . "',
                     '" . Misc::escapeString($insertArray["xsdmf_validation_type"]) . "',";
 
@@ -820,7 +844,6 @@ class XSD_HTML_Match
                     xsdmf_title,
                     xsdmf_description,
                     xsdmf_html_input,
-                    xsdmf_xml_order,
                     xsdmf_order,
                     xsdmf_validation_type,";
 		if (!empty($insertArray["xsdmf_enabled"])) {
@@ -888,7 +911,6 @@ class XSD_HTML_Match
                     '" . Misc::escapeString($insertArray["xsdmf_title"]) . "',
                     '" . Misc::escapeString($insertArray["xsdmf_description"]) . "',
                     '" . Misc::escapeString($insertArray["xsdmf_html_input"]) . "',
-                    '" . Misc::escapeString($insertArray["xsdmf_xml_order"]) . "',
                     '" . Misc::escapeString($insertArray["xsdmf_order"]) . "',
                     '" . Misc::escapeString($insertArray["xsdmf_validation_type"]) . "',";
 
@@ -1032,7 +1054,6 @@ class XSD_HTML_Match
                     xsdmf_description = '" . Misc::escapeString($HTTP_POST_VARS["description"]) . "',
                     xsdmf_long_description = '" . Misc::escapeString($HTTP_POST_VARS["long_description"]) . "',
                     xsdmf_html_input = '" . Misc::escapeString($HTTP_POST_VARS["field_type"]) . "',
-                    xsdmf_xml_order = " . Misc::escapeString($HTTP_POST_VARS["xml_order"]) . ",
                     xsdmf_validation_type = '" . Misc::escapeString($HTTP_POST_VARS["validation_types"]) . "',
                     xsdmf_order = " . Misc::escapeString($HTTP_POST_VARS["order"]) . ",
                     xsdmf_cvo_id = " . $HTTP_POST_VARS["xsdmf_cvo_id"] . ",					
@@ -1425,8 +1446,6 @@ class XSD_HTML_Match
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-//            $res["projects"] = @array_keys(XSD_HTML_Match::getAssociatedCollections($fld_id));
-//            $t = array();
 			if (is_array($res)) {
 				$options = XSD_HTML_Match::getOptions($res['xsdmf_id']);
 				foreach ($options as $mfo_id => $mfo_value) {
@@ -1542,9 +1561,8 @@ class XSD_HTML_Match
         if (is_array($fld_id)) {
             $fld_id_str = implode(',',$fld_id);
             $stmt = "SELECT
-                    fld_id,
                     mfo_id,
-                    mfo_value,
+                    mfo_value
                 FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_mf_option
                 WHERE
@@ -1555,7 +1573,7 @@ class XSD_HTML_Match
         } else {
             $stmt = "SELECT
                 mfo_id,
-                mfo_value,
+                mfo_value
                 FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_mf_option
                     WHERE
@@ -1658,9 +1676,74 @@ class XSD_HTML_Match
             return $ret;
         }
     }
+
+    /**
+     * Method used to get list of XSDMF elements belonging to a XSD Display, but not found in the XSD Source itself.
+     *
+     * @access  public
+     * @param   integer $xdis_id The XSD Display ID to search by.
+     * @return  array The list of orphaned XSDMF elements (for deletion usually).
+     */
+    function getElementOrphanList($xdis_id, $xsd_array)
+    {
+		$xsd_list = Misc::array_flatten($xsd_array);
+		$xsd_list = implode("', '", $xsd_list);
+        $stmt = "SELECT 
+                    *
+                 FROM
+                    ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."xsd_display_matchfields x1 left join
+					".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+                 WHERE
+                    x1.xsdmf_xdis_id=$xdis_id and (x1.xsdmf_element not in ('$xsd_list') or x1.xsdmf_xsdsel_id not in (
+					     SELECT distinct(s2.xsdsel_id) FROM
+							 ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."xsd_loop_subelement s2 left join
+							 ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."xsd_display_matchfields x2 on (x2.xsdmf_xsdsel_id = s2.xsdsel_id)
+						  WHERE x2.xsdmf_xdis_id = $xdis_id
+						))
+                    ";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        } else {
+			return $res;
+        }
+    }
+
+    /**
+     * Method used to get the count of XSDMF elements belonging to a XSD Display, but not found in the XSD Source itself.
+     *
+     * @access  public
+     * @param   integer $xdis_id The XSD Display ID to search by.
+     * @return  integer The count of orphaned XSDMF elements (for deletion usually).
+     */
+    function getElementOrphanCount($xdis_id, $xsd_array)
+    {
+		$xsd_list = Misc::array_flatten($xsd_array);
+		$xsd_list = implode("', '", $xsd_list);
+        $stmt = "SELECT 
+                    count(*) as orphan_count
+                 FROM
+                    ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."xsd_display_matchfields x1 left join
+					".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+                 WHERE
+                    x1.xsdmf_xdis_id=$xdis_id and (x1.xsdmf_element not in ('$xsd_list') or x1.xsdmf_xsdsel_id not in (
+					     SELECT distinct(s2.xsdsel_id) FROM
+							 ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."xsd_loop_subelement s2 left join
+							 ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."xsd_display_matchfields x2 on (x2.xsdmf_xsdsel_id = s2.xsdsel_id)
+						  WHERE x2.xsdmf_xdis_id = $xdis_id
+						))
+                    ";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        } else {
+            return $res['orphan_count'];
+        }
+    }
+
 }
-
-
 
 
 /**

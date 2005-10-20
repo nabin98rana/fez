@@ -1,11 +1,13 @@
 <html>
 <head>
+<link rel="StyleSheet" href="{$rel_url}css/other.css" type="text/css" />
 <link rel="StyleSheet" href="{$rel_url}css/dtree.css" type="text/css" />
 <script type="text/javascript" src="{$rel_url}js/dtree.js"></script>
 </head>
 
 <body topmargin="5" marginheight="5">
-
+<span class="default">&nbsp;<b>{$xdis_title}</b> XSD Display<br /><br /></span>
+<span class="default">&nbsp;<a target="basefrm" href="xsd_tree_clean.php?xdis_id={$xdis_id}">Orphaned XSDMF entries</a> (<font color="{if $ophan_count > 0}red{else}green{/if}">{$orphan_count}</font>)<br /><br /></span>
 <div class="dtree">
 <script type="text/javascript">
 <!--
