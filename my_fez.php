@@ -68,6 +68,4 @@ $tpl->assign('my_assigned_items_list', $assigned_items);
 $tpl->assign("roles_list", Auth::getDefaultRoles());
 
 $tpl->displayTemplate();
-
-
 ?>

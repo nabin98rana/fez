@@ -127,29 +127,36 @@ class Collection
       */
     function getparents2($collection_pid)
     {
-        $stmt = "SELECT r1.rmf_rec_pid, r1.rmf_varchar 
-            FROM fez_record_matching_field AS r1
-            INNER JOIN fez_xsd_display_matchfields AS x1
-            ON r1.rmf_xsdmf_id=x1.xsdmf_id
-            WHERE x1.xsdmf_element='!dc:title'
-            AND r1.rmf_rec_pid in ( SELECT r3.rmf_varchar
-                    FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3
-                    INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x3
-                    ON x3.xsdmf_sek_id = s3.sek_id
-                    INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s3
-                    ON x3.xsdmf_id = r3.rmf_xsdmf_id 
-                    WHERE s3.sek_title = 'isMemberOf' 
-                    AND r3.rmf_rec_pid='$collection_pid')";
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            $res = array();
-        }
-        $res2 = array();
-        foreach ($res as $item) {
-            $res2[] = array('pid' => $item['rmf_rec_pid'], 'title' => $item['rmf_varchar']);
-        }
-        return $res2;
+		static $returns;
+		
+        if (!empty($returns[$collection_pid])) { // check if this has already been found and set to a static variable		
+			return $returns[$collection_pid];
+		} else {
+			$stmt = "SELECT r1.rmf_rec_pid, r1.rmf_varchar 
+				FROM fez_record_matching_field AS r1
+				INNER JOIN fez_xsd_display_matchfields AS x1
+				ON r1.rmf_xsdmf_id=x1.xsdmf_id
+				WHERE x1.xsdmf_element='!dc:title'
+				AND r1.rmf_rec_pid in ( SELECT r3.rmf_varchar
+						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3
+						INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x3
+						ON x3.xsdmf_sek_id = s3.sek_id
+						INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s3
+						ON x3.xsdmf_id = r3.rmf_xsdmf_id 
+						WHERE s3.sek_title = 'isMemberOf' 
+						AND r3.rmf_rec_pid='$collection_pid')";
+			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+			if (PEAR::isError($res)) {
+				Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+				$res = array();
+			}
+			$res2 = array();
+			foreach ($res as $item) {
+				$res2[] = array('pid' => $item['rmf_rec_pid'], 'title' => $item['rmf_varchar']);
+			}
+			$returns[$collection_pid] = $res2;
+			return $res2;
+		}
     }
 
 
@@ -501,11 +508,13 @@ class Collection
             on (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
             left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 
             on (k1.sek_id = x1.xsdmf_sek_id)
+            join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 
+			
             INNER JOIN (
                     SELECT distinct r2.rmf_rec_pid 
                     FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2  							  
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
                     WHERE r2.rmf_xsdmf_id = x2.xsdmf_id 
                     AND s2.sek_id = x2.xsdmf_sek_id 
                     AND s2.sek_title = 'Object Type' 
@@ -521,8 +530,29 @@ class Collection
                         AND s3.sek_title = 'isMemberOf' 
                         AND r3.rmf_varchar = '".$collection_pid."'
                         ) 
-                    ) as r2 
-            on r1.rmf_rec_pid = r2.rmf_rec_pid
+                    ) as r2 					
+            on r1.rmf_rec_pid = r2.rmf_rec_pid 
+            INNER JOIN (
+                    SELECT distinct r2.rmf_rec_pid, r2.rmf_varchar as display_id
+                    FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+                    WHERE r2.rmf_xsdmf_id = x2.xsdmf_id 
+                    AND s2.sek_id = x2.xsdmf_sek_id 
+                    AND s2.sek_title = 'Display Type' 
+                    and r2.rmf_rec_pid in (
+                        SELECT distinct r3.rmf_rec_pid 
+                        FROM  
+                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3,
+                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x3,
+                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s3							  							  
+                        WHERE r3.rmf_xsdmf_id = x3.xsdmf_id 
+                        AND s3.sek_id = x3.xsdmf_sek_id 
+                        AND s3.sek_title = 'isMemberOf' 
+                        AND r3.rmf_varchar = '".$collection_pid."'
+                        ) 
+                    ) as d2
+            on r1.rmf_rec_pid = d2.rmf_rec_pid and d2.display_id = d1.xdis_id			
             INNER JOIN (
                     SELECT rmf_rec_pid FROM 
                         " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS rmf
@@ -534,7 +564,7 @@ class Collection
             ON r3.rmf_rec_pid=r2.rmf_rec_pid
 				 ORDER BY
 				 	r1.rmf_rec_pid";
-		$returnfields = array("created_date", "updated_date", "file_downloads", "title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
+		$returnfields = array("created_date", "updated_date", "file_downloads", "xdis_title", "title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 
 		$return = array();
@@ -551,6 +581,12 @@ class Collection
 				}
 				array_push($return[$result['rmf_rec_pid']]['isMemberOf'], $result['rmf_varchar']);
 			}
+			// get the document type
+			if (!is_array(@$return[$result['rmf_rec_pid']]['xdis_title'])) {
+				$return[$result['rmf_rec_pid']]['xdis_title'] = array();
+				array_push($return[$result['rmf_rec_pid']]['xdis_title'], $result['xdis_title']);
+			}
+
 			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
 				if (@!is_array($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']])) {
@@ -587,6 +623,7 @@ class Collection
 				$return[$pid_key]['FezACML'] = $parentsACMLs;
 			}
 		}
+
 		$return = array_values($return);
 		$return = Auth::getIndexAuthorisationGroups($return);
 		$hidden_rows = count($return);
@@ -783,6 +820,8 @@ class Collection
                  FROM {$dbtp}record_matching_field AS r1
                  INNER JOIN {$dbtp}xsd_display_matchfields AS x1 
                  ON r1.rmf_xsdmf_id = x1.xsdmf_id 
+                 LEFT JOIN {$dbtp}xsd_display AS d1
+                 ON (x1.xsdmf_xdis_id = d1.xdis_id) 
                  LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 
                  ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
                  LEFT JOIN {$dbtp}search_key AS k1 
@@ -798,7 +837,7 @@ class Collection
                          )
                  ORDER BY ".$orderSQL;
 
-		$returnfields = array("day_name", "created_date", "updated_date", "file_downloads", "title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
+		$returnfields = array("day_name", "created_date", "updated_date", "file_downloads", "xdis_title", "title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -1276,6 +1315,7 @@ class Collection
             ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
             LEFT JOIN {$dbtp}search_key AS k1 
             ON (k1.sek_id = x1.xsdmf_sek_id)
+			join {$dbtp}xsd_display AS d1 
             INNER JOIN (
                     SELECT distinct r2.rmf_rec_pid 
                     FROM  {$dbtp}record_matching_field AS r2
@@ -1286,6 +1326,17 @@ class Collection
                     WHERE $termLike s2.sek_simple_used = 1
                     ) AS r2 
             ON r1.rmf_rec_pid = r2.rmf_rec_pid
+			INNER JOIN (
+			SELECT distinct r2.rmf_rec_pid, r2.rmf_varchar as display_id
+			FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
+			" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,
+			" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+			WHERE r2.rmf_xsdmf_id = x2.xsdmf_id 
+			AND s2.sek_id = x2.xsdmf_sek_id 
+			AND s2.sek_title = 'Display Type' 
+			) as d2
+            on r1.rmf_rec_pid = d2.rmf_rec_pid and d2.display_id = d1.xdis_id						
+			
             WHERE r1.rmf_rec_pid IN (
                     SELECT rmf_rec_pid FROM 
                     {$dbtp}record_matching_field AS rmf
@@ -1295,9 +1346,7 @@ class Collection
                     AND xdm.xsdmf_element='!sta_id'
                     )
             ORDER BY r1.rmf_rec_pid";
-	
-
-		$returnfields = array("title", "date", "type", "description", "identifier", "creator", "ret_id", 
+		$returnfields = array("title", "date", "xdis_title", "type", "description", "identifier", "creator", "ret_id", 
                 "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", 
                 "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -1314,6 +1363,11 @@ class Collection
 			if ($result['sek_title'] == 'isMemberOf') {
                 $return[$result['rmf_rec_pid']]['isMemberOf'][] = $result['rmf_varchar'];
 			}
+			// get the document type
+			if (!is_array(@$return[$result['rmf_rec_pid']]['xdis_title'])) {
+				$return[$result['rmf_rec_pid']]['xdis_title'] = array();
+				array_push($return[$result['rmf_rec_pid']]['xdis_title'], $result['xdis_title']);
+			}			
 			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
 				$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']][] 

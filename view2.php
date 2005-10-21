@@ -46,6 +46,8 @@ if (!empty($pid)) {
 	$tpl->assign("pid", $pid);
 	$record = new RecordObject($pid);
 	$xdis_id = $record->getXmlDisplayId();
+	$xdis_title = XSD_Display::getTitle($xdis_id);	
+    $tpl->assign("xdis_title", $xdis_title);
 	if (!is_numeric($xdis_id)) {
 		$xdis_id = @$HTTP_POST_VARS["xdis_id"] ? $HTTP_POST_VARS["xdis_id"] : @$HTTP_GET_VARS["xdis_id"];	
 		if (is_numeric($xdis_id)) { // must have come from select xdis so save xdis in the Fez MD

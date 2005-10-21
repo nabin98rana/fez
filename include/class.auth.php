@@ -119,7 +119,15 @@ class Auth
 		static $returns;
         if (!empty($returns[$pid])) { // check if this has already been found and set to a static variable		
 			array_push($ACMLArray, $returns[$pid]); //add it to the acml array and dont go any further up the hierarchy
-        } else {								
+        } else {
+		
+			$pre_stmt =  "SELECT r2.rmf_varchar 
+							FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
+								  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,							
+								  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+							WHERE (s2.sek_title = 'isMemberOf' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid = '".$pid."')";
+			$res = $GLOBALS["db_api"]->dbh->getCol($pre_stmt);							
+			$parent_pid_string = implode("', '", $res);
 			$stmt = "SELECT 
 						* 
 					 FROM
@@ -131,13 +139,7 @@ class Auth
 
 					 WHERE
 						r1.rmf_xsdmf_id = x1.xsdmf_id and ((d1.xdis_id = x1.xsdmf_xdis_id and d1.xdis_title = 'FezACML') or (k1.sek_title = 'isMemberOf' AND r1.rmf_xsdmf_id = x1.xsdmf_id AND k1.sek_id = x1.xsdmf_sek_id)) and
-						r1.rmf_rec_pid in (
-							SELECT r2.rmf_varchar 
-							FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
-								  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,							
-								  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
-							WHERE (s2.sek_title = 'isMemberOf' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid = '".$pid."')
-							)
+						r1.rmf_rec_pid in ('$parent_pid_string')
 						";
 			$returnfields = array("Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);

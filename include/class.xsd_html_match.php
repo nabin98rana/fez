@@ -1558,35 +1558,45 @@ class XSD_HTML_Match
      */
     function getOptions($fld_id)
     {
-        if (is_array($fld_id)) {
-            $fld_id_str = implode(',',$fld_id);
-            $stmt = "SELECT
-                    mfo_id,
-                    mfo_value
-                FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_mf_option
-                WHERE
-                    mfo_fld_id IN ($fld_id_str)
-                ORDER BY
-                    mfo_value ASC";
-            $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-        } else {
-            $stmt = "SELECT
-                mfo_id,
-                mfo_value
-                FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_mf_option
-                    WHERE
-                    mfo_fld_id=$fld_id
-                    ORDER BY
-                    mfo_value ASC";
-            $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-        }
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return array();
-        }
-        return $res;
+		static $mfo_returns;			
+        if (!empty($mfo_returns[$fld_id])) { // check if this has already been found and set to a static variable		
+			return $mfo_returns[$fld_id];
+		} else {
+			
+			if (is_array($fld_id)) {
+				$fld_id_str = implode(',',$fld_id);
+				$stmt = "SELECT
+						mfo_id,
+						mfo_value
+					FROM
+						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_mf_option
+					WHERE
+						mfo_fld_id IN ($fld_id_str)
+					ORDER BY
+						mfo_value ASC";
+				$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+			} else {
+	
+				$stmt = "SELECT
+					mfo_id,
+					mfo_value
+					FROM
+						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_mf_option
+						WHERE
+						mfo_fld_id=$fld_id
+						ORDER BY
+						mfo_value ASC";
+				$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+				if (!PEAR::isError($res)) {			
+					$mfo_returns[$fld_id] = $res;
+				}
+			}
+			if (PEAR::isError($res)) {
+				Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+				return array();
+			}
+			return $res;
+		}
     }
 
     /**

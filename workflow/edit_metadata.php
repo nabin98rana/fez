@@ -227,4 +227,5 @@ $tpl->assign("user_prefs", $prefs);
     $tpl->assign("show_not_allowed_msg", true);
 }
 $tpl->displayTemplate();
+
 ?>
