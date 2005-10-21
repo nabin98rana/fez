@@ -170,7 +170,7 @@ function validateForm(f)
 						  </td>
 						  <td bgcolor="{$light_color}">
 							<select id="list_{$list[i].sek_id}_{$loop_num}" {if $list[i].sek_html_input == 'multiple'}multiple size="3"{/if} class="default" name="list[{$list[i].sek_id}]{if $list[i].sek_html_input == 'multiple'}[]{/if}" onChange="javascript:unhideRow('list_{$list[i].sek_id}', 'choicelist_{$list[i].sek_id}');">
-							  {if $list[i].sek_html_input != 'multiple'}<option value="-1">Please choose an option</option>{/if}
+							  {if $list[i].sek_html_input != 'multiple'}<option value="-1">Any</option>{/if}
 							  {html_options options=$list[i].field_options  selected=$list[i].selected_option}
 							</select>
 						 </td>
@@ -183,7 +183,7 @@ function validateForm(f)
 						  </td>
 						  <td bgcolor="{$light_color}">
 							<select id="list_{$list[i].sek_id}_1" {if $list[i].sek_html_input == 'multiple'}multiple size="3"{/if} class="default" name="list[{$list[i].sek_id}]{if $list[i].sek_html_input == 'multiple'}[]{/if}">
-							  {if $list[i].sek_html_input != 'multiple'}<option value="-1">Please choose an option</option>{/if}
+							  {if $list[i].sek_html_input != 'multiple'}<option value="-1">Any</option>{/if}
 								  {html_options options=$list[i].field_options selected=$list[i].selected_option}
 							</select>
 						 </td>

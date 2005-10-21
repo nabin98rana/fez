@@ -826,7 +826,18 @@ class Collection
                  ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
                  LEFT JOIN {$dbtp}search_key AS k1 
                  ON (k1.sek_id = x1.xsdmf_sek_id)
+                 JOIN {$dbtp}xsd_display AS d3 				 
                  $middleStmt
+	             INNER JOIN (
+				SELECT distinct r2.rmf_rec_pid, r2.rmf_varchar as display_id
+				FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
+				" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,
+				" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+				WHERE r2.rmf_xsdmf_id = x2.xsdmf_id 
+				AND s2.sek_id = x2.xsdmf_sek_id 
+				AND s2.sek_title = 'Display Type' 
+				) as d2
+            on r1.rmf_rec_pid = d2.rmf_rec_pid and d2.display_id = d3.xdis_id			
                  WHERE r1.rmf_rec_pid IN (
                          SELECT rmf_rec_pid FROM 
                          {$dbtp}record_matching_field AS rmf
@@ -853,6 +864,12 @@ class Collection
 				if ($result['sek_title'] == 'isMemberOf') {
 					$return[$result['rmf_rec_pid']]['isMemberOf'][] = $result['rmf_varchar'];
 				}
+				// get the document type
+				if (!is_array(@$return[$result['rmf_rec_pid']]['xdis_title'])) {
+					$return[$result['rmf_rec_pid']]['xdis_title'] = array();
+					array_push($return[$result['rmf_rec_pid']]['xdis_title'], $result['xdis_title']);
+				}						
+				
 				if (in_array($result['xsdmf_fez_title'], $returnfields)) {
 					$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
 					$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']][]
@@ -1154,22 +1171,44 @@ class Collection
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
 
         foreach ($terms as $tkey => $tdata) {
-            if (!empty($tdata)) {
-                $middleStmt .= 
-                    " INNER JOIN 
-                    (
-                     SELECT distinct r{$termCounter}.rmf_rec_pid 
-                     FROM  {$dbtp}record_matching_field AS r{$termCounter}
-                     INNER JOIN {$dbtp}xsd_display_matchfields AS x{$termCounter}
-                     ON r{$termCounter}.rmf_xsdmf_id = x{$termCounter}.xsdmf_id 
-                     INNER JOIN {$dbtp}search_key AS s{$termCounter} 
-                     ON s{$termCounter}.sek_id = x{$termCounter}.xsdmf_sek_id 
-                     WHERE s{$termCounter}.sek_id = {$tkey} 
-                     AND r{$termCounter}.rmf_varchar like '%{$tdata}%' 
-                    ) AS r{$termCounter} 
-                ON r1.rmf_rec_pid = r{$termCounter}.rmf_rec_pid
-                    ";
-				$termCounter++;
+            if (!empty($tdata) && ($tdata != "-1")) {
+				if (is_array($tdata)) {
+					 foreach ($tdata as $tsubkey => $tsubdata) {
+						if (!empty($tsubdata) && ($tsubdata != "-1")) {
+							$middleStmt .= 
+								" INNER JOIN 
+								(
+								 SELECT distinct r{$termCounter}.rmf_rec_pid 
+								 FROM  {$dbtp}record_matching_field AS r{$termCounter}
+								 INNER JOIN {$dbtp}xsd_display_matchfields AS x{$termCounter}
+								 ON r{$termCounter}.rmf_xsdmf_id = x{$termCounter}.xsdmf_id 
+								 INNER JOIN {$dbtp}search_key AS s{$termCounter} 
+								 ON s{$termCounter}.sek_id = x{$termCounter}.xsdmf_sek_id 
+								 WHERE s{$termCounter}.sek_id = {$tkey} 
+								 AND r{$termCounter}.rmf_varchar like '%{$tsubdata}%' 
+								) AS r{$termCounter} 
+							ON r1.rmf_rec_pid = r{$termCounter}.rmf_rec_pid
+								";
+							$termCounter++;
+						}
+					 }
+				} else {
+					$middleStmt .= 
+						" INNER JOIN 
+						(
+						 SELECT distinct r{$termCounter}.rmf_rec_pid 
+						 FROM  {$dbtp}record_matching_field AS r{$termCounter}
+						 INNER JOIN {$dbtp}xsd_display_matchfields AS x{$termCounter}
+						 ON r{$termCounter}.rmf_xsdmf_id = x{$termCounter}.xsdmf_id 
+						 INNER JOIN {$dbtp}search_key AS s{$termCounter} 
+						 ON s{$termCounter}.sek_id = x{$termCounter}.xsdmf_sek_id 
+						 WHERE s{$termCounter}.sek_id = {$tkey} 
+						 AND r{$termCounter}.rmf_varchar like '%{$tdata}%' 
+						) AS r{$termCounter} 
+					ON r1.rmf_rec_pid = r{$termCounter}.rmf_rec_pid
+						";
+					$termCounter++;
+				}
 				$foundValue = true;
 			}
 		}
@@ -1186,7 +1225,18 @@ class Collection
             ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
             LEFT JOIN {$dbtp}search_key k1 
             ON (k1.sek_id = x1.xsdmf_sek_id)
+            JOIN {$dbtp}xsd_display d1 			
             $middleStmt
+			 INNER JOIN (
+			SELECT distinct r2.rmf_rec_pid, r2.rmf_varchar as display_id
+			FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
+			" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,
+			" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+			WHERE r2.rmf_xsdmf_id = x2.xsdmf_id 
+			AND s2.sek_id = x2.xsdmf_sek_id 
+			AND s2.sek_title = 'Display Type' 
+			) as d2
+            on r1.rmf_rec_pid = d2.rmf_rec_pid and d2.display_id = d1.xdis_id
             WHERE
             r1.rmf_rec_pid IN (
                     SELECT rmf_rec_pid FROM 
@@ -1199,8 +1249,7 @@ class Collection
             ORDER BY
             r1.rmf_rec_pid";
 
-//		echo $stmt;
-		$returnfields = array("title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
+		$returnfields = array("title", "date", "type", "xdis_title", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = array();
 		foreach ($res as $result) {
@@ -1211,6 +1260,12 @@ class Collection
 			if ($result['sek_title'] == 'isMemberOf') {
 				$return[$result['rmf_rec_pid']]['isMemberOf'][] = $result['rmf_varchar'];
 			}
+			// get the document type
+			if (!is_array(@$return[$result['rmf_rec_pid']]['xdis_title'])) {
+				$return[$result['rmf_rec_pid']]['xdis_title'] = array();
+				array_push($return[$result['rmf_rec_pid']]['xdis_title'], $result['xdis_title']);
+			}			
+
 			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
 				$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']][] 
