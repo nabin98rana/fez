@@ -358,6 +358,7 @@ class Auth
      */
 	function getIndexAuthorisationGroups($indexArray) {
         // Usually everyone can list, view and view comments, this is set in the global "non restricted roles".
+
 		global $NonRestrictedRoles;
 		foreach ($indexArray as $indexKey => $indexRecord) {
 			$userPIDAuthGroups = $NonRestrictedRoles;

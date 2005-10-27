@@ -374,12 +374,13 @@ class Collection
 
     function makeReturnList($returnfields, $res) {
         $return = array();
+//		print_r($returnfields);
+//		print_r($res); 
         foreach ($res as $result) {		
-            if (in_array($result['xsdsel_title'], $returnfields) 
-                    && ($result['xsdmf_element'] != '!rule!role!name') 
+            if (($result['xsdmf_element'] != '!rule!role!name') 
                     && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
                 // need to array_push because there can be multiple groups/users for a role
-                $return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']][] 
+                $return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']][] 
                     = $result['rmf_'.$result['xsdmf_data_type']]; 
             }
             if (in_array($result['xsdmf_fez_title'], $returnfields)) {
@@ -388,6 +389,7 @@ class Collection
                     = $result['rmf_'.$result['xsdmf_data_type']];
             }
         }
+
         foreach ($return as $pid_key => $row) {
             if (!is_array(@$row['FezACML'])) {
                 $parentsACMLs = array();
@@ -395,6 +397,7 @@ class Collection
                 $return[$pid_key]['FezACML'] = $parentsACMLs;
             }
         }
+
         $return = array_values($return);
         $return = Auth::getIndexAuthorisationGroups($return);
         return $return;
