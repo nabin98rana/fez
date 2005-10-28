@@ -245,6 +245,7 @@ class Misc
 	function limitListResults($input, $start, $end)
 	{
         $return = array();
+		if (!is_array($input)) { return array(); }
 		foreach ($input as $aryKey => $aryData) {
 			if (($aryKey >= $start) && ($aryKey < $end)) {
 				$return["'".$aryKey."'"] = $aryData;

@@ -153,9 +153,9 @@ class XSD_Display
 						}
 						// does the sel loop over an attribute loop candidate? if so then point to the new cloned versions xsdmf_id of it.
 						if (is_numeric($xsd_sel_row['xsdsel_attribute_loop_xsdmf_id'])) {
-							$new_attribute_loop_candidate = XSD_HTML_Match::getXSDMF_IDByOriginalXSDMF_ID($xsd_sel_row['xsdsel_attribute_loop_xsdmf_id']);
+							$new_attribute_loop_candidate = XSD_HTML_Match::getXSDMF_IDByOriginalXSDMF_ID($xsd_sel_row['xsdsel_attribute_loop_xsdmf_id'], $new_xdis_id);
 							if (is_numeric($new_attribute_loop_candidate)) {
-								XSD_Loop_Subelement::updateAttributeLoopCandidate($xsd_sel_row['xsdsel_id'], $new_attribute_loop_candidate);
+								XSD_Loop_Subelement::updateAttributeLoopCandidate($new_sel_id, $new_attribute_loop_candidate);
 							}
 						}
 

@@ -250,6 +250,31 @@ class Doc_Type_XSD
             return $res;
         }
     }
+
+    /**
+     * Method used to get the XSD title when given an ID
+     *
+     * @access  public
+	 * @param   integer $xdis_id The XSD ID to search by.
+     * @return  array $res The title 
+     */
+    function getTitle($xsd_id)
+    {
+        $stmt = "SELECT
+                   xsd_title
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd
+                 WHERE
+                    xsd_id = $xsd_id";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
+
 }
 
 // benchmarking the included file (aka setup time)

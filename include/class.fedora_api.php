@@ -107,12 +107,6 @@ class Fedora_API {
 		$dom = new DomDocument; 
 		$dom->loadXML($xml); // Now this works with php5 - CK 7/4/2005
 		$result = $dom->getElementsByTagName("pid");
-		$getString = "http://".APP_BASE_FEDORA_DOMAIN."/mgmt/getNextPID?xml=true";
-		$http_req = new HTTP_Request($getString, array("http" => "1.0"));
-		$http_req->setBasicAuth(APP_FEDORA_USERNAME, APP_FEDORA_PWD);
-		$http_req->setMethod("GET");
-		$http_req->sendRequest();
-		$xml = $http_req->getResponseBody();	
 		foreach($result as $item) {
 			$pid = $item->nodeValue;
 			break;

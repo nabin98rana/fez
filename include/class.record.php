@@ -72,7 +72,7 @@ class Record
 
    /**
     * Method used to get the parents of a given record available in the 
-    * system. This lookup is done via ITQL direct to the Fedora connection Kowari Index.
+    * system. 
     *
     * @access  public
     * @param   string $collection_pid The collection persistant identifier	 
@@ -80,20 +80,43 @@ class Record
     */
     function getParents($pid)
     {
-		$itql = "select \$collTitle \$collDesc \$title \$description \$object from <#ri>
-					where  (<info:fedora/".$pid."> <dc:title> \$collTitle) and
-                    (<info:fedora/".$pid."> <dc:description> \$collDesc) and
-					(<info:fedora/".$pid."> <fedora-rels-ext:isMemberOf> \$object ) and
-					((\$object <dc:title> \$title) or
-					(\$object <dc:description> \$description))
-					order by \$title asc";
+
 		$returnfields = array();
 		array_push($returnfields, "pid"); 
 		array_push($returnfields, "title");
 		array_push($returnfields, "identifier");
 		array_push($returnfields, "description");
-		$details = Fedora_API::getITQLQuery($itql, $returnfields);
-		return $details;
+
+			$pre_stmt =  "SELECT r2.rmf_varchar 
+							FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
+								  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,							
+								  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+							WHERE (s2.sek_title = 'isMemberOf' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid = '".$pid."')";
+			$res = $GLOBALS["db_api"]->dbh->getCol($pre_stmt);							
+			$parent_pid_string = implode("', '", $res);
+			$stmt = "SELECT 
+						* 
+					 FROM
+						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
+						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
+						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+
+					 WHERE
+						r1.rmf_xsdmf_id = x1.xsdmf_id and
+						r1.rmf_rec_pid in ('$parent_pid_string')
+						";
+			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);						
+			$return = array();
+			foreach ($res as $result) {
+				if (!is_array(@$return[$result['rmf_rec_pid']])) {
+					$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
+				}
+				if (in_array($result['xsdmf_fez_title'], $returnfields)) {
+					$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']] = $result['rmf_'.$result['xsdmf_data_type']]; // need to array_push because there can be multiple groups/users for a role
+				}
+			}
+			$details = array_values($return);			
+			return $details; 
     }
 
 

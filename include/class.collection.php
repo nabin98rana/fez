@@ -93,7 +93,7 @@ class Collection
 
     /**
      * Method used to get the parents of a given collection available in the 
-     * system. This lookup is done via ITQL direct to the Fedora connection Kowari Index.
+     * system. 
      *
      * @access  public
      * @param   string $collection_pid The collection persistant identifier	 
@@ -102,22 +102,7 @@ class Collection
     function getParents($collection_pid)
     {
 
-		$itql = "select \$collTitle \$collDesc \$title \$description \$object from <#ri>
-					where  (<info:fedora/".$collection_pid."> <dc:title> \$collTitle) and
-                    (<info:fedora/".$collection_pid."> <dc:description> \$collDesc) and
-					(<info:fedora/".$collection_pid."> <fedora-rels-ext:isMemberOf> \$object ) and
-					((\$object <dc:title> \$title) or
-					(\$object <dc:description> \$description))
-					order by \$title asc";
-
-		$returnfields = array();
-		array_push($returnfields, "pid"); 
-		array_push($returnfields, "title");
-		array_push($returnfields, "identifier");
-		array_push($returnfields, "description");
-
-		$details = Fedora_API::getITQLQuery($itql, $returnfields);
-		return $details;
+		return Record::getParents($collection_pid);
     }
 
     /**

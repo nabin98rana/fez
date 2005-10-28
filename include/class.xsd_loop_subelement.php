@@ -351,11 +351,13 @@ class XSD_Loop_Subelement
                     '" . Misc::escapeString($insertArray["xsdsel_title"]) . "',
                     '" . Misc::escapeString($insertArray["xsdsel_type"]) . "',";
 			if (is_numeric($insertArray["xsdsel_attribute_loop_xsdmf_id"])) {
-               $stmt .= Misc::escapeString($insertArray["xsdsel_attribute_loop_xsdmf_id"]);
+               $stmt .= Misc::escapeString($insertArray["xsdsel_attribute_loop_xsdmf_id"]).",";
 			}
                $stmt .=
                     Misc::escapeString($insertArray["xsdsel_order"]) . "
                  )";
+				 
+
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

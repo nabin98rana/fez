@@ -891,7 +891,7 @@ class XSD_HTML_Match
 		if (!empty($insertArray["xsdmf_selected_option"])) {
           $stmt .= "xsdmf_selected_option,";
 		}
-		if (!empty($insertArray["xsdmf_show_in_view"])) {
+		if (is_numeric($insertArray["xsdmf_show_in_view"])) {
           $stmt .= "xsdmf_show_in_view,";
 		}
 					
@@ -961,10 +961,9 @@ class XSD_HTML_Match
 			if (!empty($insertArray["xsdmf_selected_option"])) {
               $stmt .= "'" . Misc::escapeString($insertArray["xsdmf_selected_option"]) . "',";
 			}
-			if (!empty($insertArray["xsdmf_show_in_view"])) {
-              $stmt .= "'" . Misc::escapeString($insertArray["xsdmf_show_in_view"]) . "',";
+			if (is_numeric($insertArray["xsdmf_show_in_view"])) {
+              $stmt .= $insertArray["xsdmf_show_in_view"] . ",";
 			}
-
 
 			$stmt .= "
                     '" . Misc::escapeString($insertArray["xsdmf_enforced_prefix"]) . "',
@@ -1374,10 +1373,11 @@ class XSD_HTML_Match
 	 *
      * @access  public
 	 * @param   integer $original_xsdmf_id The xsdmf id element to search for
+	 * @param   integer $xdis_id The xdis_id display ID to search in
      * @return  integer The new XSDMF ID, or false if not found or more than one was found.
      */
-	function getXSDMF_IDByOriginalXSDMF_ID($original_xsdmf_id) {
-		if (!is_array($original_xsdmf_id)) {
+	function getXSDMF_IDByOriginalXSDMF_ID($original_xsdmf_id, $xdis_id) {
+		if (!is_numeric($original_xsdmf_id)) {
 			return false;
 		}
         $stmt = "SELECT
@@ -1385,7 +1385,7 @@ class XSD_HTML_Match
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
                  WHERE
-                    xsdmf_original_xsdmf_id = ".$original_xsdmf_id; 
+                    xsdmf_original_xsdmf_id = ".$original_xsdmf_id." AND xsdmf_xdis_id = ".$xdis_id; 
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
