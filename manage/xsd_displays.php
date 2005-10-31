@@ -69,6 +69,8 @@ if ($isAdministrator) {
     }
 	$tpl->assign("xsd_id", ($xsd_id));
 	$tpl->assign("xdis_id", ($xdis_id));	
+	$xsd_title = Doc_Type_XSD::getTitle($xsd_id);
+	$tpl->assign("xsd_title", ($xsd_title));
     $tpl->assign("list", XSD_Display::getList($xsd_id));
 } else {
     $tpl->assign("show_not_allowed_msg", true);

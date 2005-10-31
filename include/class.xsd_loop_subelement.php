@@ -144,33 +144,18 @@ class XSD_Loop_Subelement
      */
     function getDatastreamTitles($xdis_id)
     {
-
 		// Get the datastream titles and xdisplay ids that are references to other display ids, and also get any binary content (file upload/select) datastreams
-        $stmt = "SELECT DISTINCT
-					m1.xsdmf_xdis_id,
-					s1.xsdsel_title,
-					s1.xsdsel_id
-                 FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m1
-				WHERE m1.xsdmf_xdis_id in (
-					SELECT r2.xsdrel_xdis_id
-					FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d2,
-						 " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m2, 
-						 " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship r2
-					WHERE m2.xsdmf_xsdsel_id = s1.xsdsel_id and m2.xsdmf_xdis_id = d2.xdis_id and m2.xsdmf_element like '!datastream!datastreamVersion!xmlContent' and r2.xsdrel_xsdmf_id = m2.xsdmf_id and m2.xsdmf_xdis_id=$xdis_id )
-				OR m1.xsdmf_id in (
-					SELECT m3.xsdmf_id 
-					FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m3,
-						 " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s3
-					WHERE m3.xsdmf_xsdsel_id = s1.xsdsel_id and m3.xsdmf_element like '!datastream!datastreamVersion!contentLocation' and m3.xsdmf_xdis_id=$xdis_id 				
-				)
-				OR m1.xsdmf_id in (
-					SELECT m3.xsdmf_id 
-					FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m3,
-						 " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s3
-					WHERE m3.xsdmf_xsdsel_id = s1.xsdsel_id and m3.xsdmf_element like '!datastream!datastreamVersion!binaryContent' and m3.xsdmf_xdis_id=$xdis_id 				
-				)";			
+		$stmt = "SELECT	m1.xsdmf_xdis_id,
+			s1.xsdsel_title,
+			s1.xsdsel_id
+						 FROM
+							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1,
+							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m1
+		WHERE 
+		m1.xsdmf_element in ('!datastream!datastreamVersion!xmlContent', '!datastream!datastreamVersion!contentLocation', '!datastream!datastreamVersion!binaryContent') 	
+		AND m1.xsdmf_xdis_id=".$xdis_id."	and s1.xsdsel_id = m1.xsdmf_xsdsel_id";
+				
+				
 		// @@@ CK - Added order statement to sublooping elements displayed in a desired order
 		$stmt .= " ORDER BY xsdsel_order ASC";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -194,25 +179,16 @@ class XSD_Loop_Subelement
     {
 
 		// Get the datastream titles and xdisplay ids that are references to other display ids, and also get any binary content (file upload/select) datastreams
-        $stmt = "SELECT DISTINCT
-					m1.xsdmf_xdis_id,
-					s1.xsdsel_title,
-					s1.xsdsel_id
-                 FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m1
-				WHERE s1.xsdsel_title = '$dsTitle' and m1.xsdmf_xdis_id in (
-					SELECT r2.xsdrel_xdis_id
-					FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d2,
-						 " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m2, 
-						 " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship r2
-					WHERE m2.xsdmf_xsdsel_id = s1.xsdsel_id and m2.xsdmf_xdis_id = d2.xdis_id and m2.xsdmf_element like '!datastream!datastreamVersion!xmlContent' and r2.xsdrel_xsdmf_id = m2.xsdmf_id and m2.xsdmf_xdis_id=$xdis_id )
-				OR m1.xsdmf_id in (
-					SELECT m3.xsdmf_id 
-					FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m3,
-						 " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s3
-					WHERE m3.xsdmf_xsdsel_id = s1.xsdsel_id and m3.xsdmf_element like '!datastream!datastreamVersion!binaryContent' and m3.xsdmf_xdis_id=$xdis_id 				
-				)";			
+		$stmt = "SELECT	m1.xsdmf_xdis_id,
+			s1.xsdsel_title,
+			s1.xsdsel_id
+						 FROM
+							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1,
+							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m1
+		WHERE 
+		m1.xsdmf_element in ('!datastream!datastreamVersion!xmlContent', '!datastream!datastreamVersion!contentLocation', '!datastream!datastreamVersion!binaryContent') 	
+		AND m1.xsdmf_xdis_id=".$xdis_id."	and s1.xsdsel_id = m1.xsdmf_xsdsel_id and s1.xsdsel_title = '".$dsTitle."'";
+
 		// @@@ CK - Added order statement to sublooping elements displayed in a desired order
 		$stmt .= " ORDER BY xsdsel_order ASC";
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);

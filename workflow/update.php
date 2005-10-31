@@ -120,4 +120,5 @@ if (empty($workflows)) {
 
 $tpl->assign('message', $message);
 $tpl->displayTemplate();
+
 ?>

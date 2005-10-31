@@ -103,5 +103,5 @@ if (!empty($pid)) {
 } else {
 	$tpl->assign("show_not_allowed_msg", true);
 }
-
+//print_r($GLOBALS['bench']->getProfiling());
 ?>

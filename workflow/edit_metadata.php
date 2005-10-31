@@ -53,7 +53,6 @@ include_once(APP_INC_PATH . "class.workflow_trigger.php");
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", "edit_metadata");
-
 Auth::checkAuthentication(APP_SESSION, $HTTP_SERVER_VARS['PHP_SELF']."?".$HTTP_SERVER_VARS['QUERY_STRING']);
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
@@ -120,7 +119,6 @@ $tpl->assign('sta_id', $sta_id);
 
 $jtaskData = "";
 $maxG = 0;
-$cvo_list = Controlled_Vocab::getAssocListFullDisplay();
 $xsd_display_fields = $record->display->getMatchFieldsList();  // XSD_DisplayObject
 //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
 foreach ($xsd_display_fields  as $dis_key => $dis_field) {

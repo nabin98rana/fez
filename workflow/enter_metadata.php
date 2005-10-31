@@ -109,7 +109,7 @@ if ($access_ok) {
     $jtaskData = "";
     $maxG = 0;
     $xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id));
-    $cvo_list = Controlled_Vocab::getAssocListFullDisplay(false, "", 0, 2);
+//    $cvo_list = Controlled_Vocab::getAssocListFullDisplay(false, "", 0, 2);
 
     //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups 
     // - should probably move this into a function somewhere later
