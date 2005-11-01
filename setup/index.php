@@ -108,13 +108,13 @@ function checkRequirements()
     if (!preg_match("/GD Support.*<\/td><td.*>enabled/U", $contents)) {
         $errors[] = "The GD extension needs to be enabled in your PHP.INI file in order for Fez to work properly.";
     }
-    if (!preg_match("/Tidy support.*<\/td><td.*>enabled/U", $contents)) {
+    if (!preg_match("/Tidy support.*<\/th><th.*>enabled/U", $contents)) {
         $errors[] = "The Tidy extension needs to be enabled in your PHP.INI file in order for Fez to work properly.";
     }
     if (!preg_match("/CURL support.*<\/td><td.*>enabled/U", $contents)) {
         $errors[] = "The CURL extension needs to be enabled in your PHP.INI file in order for Fez to work properly.";
     }
-    if (!preg_match("/DOM\/XML support.*<\/td><td.*>enabled/U", $contents)) {
+    if (!preg_match("/DOM\/XML.*<\/td><td.*>enabled/U", $contents)) {
         $errors[] = "The DOM extension needs to be enabled in your PHP.INI file in order for Fez to work properly.";
     }
 
@@ -385,6 +385,21 @@ $private_key = "' . md5(microtime()) . '";
         $HTTP_POST_VARS['db_password'] = $HTTP_POST_VARS['fez_password'];
     }
     $config_contents = implode("", file("config.inc.php"));
+    if (@$HTTP_POST_VARS['ldap'] == 'yes') {
+    	$config_contents = str_replace("%{LDAP_ORGANISATION}%", $HTTP_POST_VARS['ldap_org'], $config_contents);
+    	$config_contents = str_replace("%{LDAP_ROOT_DN}%", $HTTP_POST_VARS['ldap_root_dn'], $config_contents);
+    	$config_contents = str_replace("%{LDAP_PREFIX}%", $HTTP_POST_VARS['ldap_prefix'], $config_contents);
+    	$config_contents = str_replace("%{LDAP_SERVER}%", $HTTP_POST_VARS['ldap_server'], $config_contents);		
+    	$config_contents = str_replace("%{LDAP_PORT}%", $HTTP_POST_VARS['ldap_port'], $config_contents);		
+    	$config_contents = str_replace("%{LDAP_SWITCH}%", "ON", $config_contents);		
+    } else {
+    	$config_contents = str_replace("%{LDAP_SWITCH}%", "OFF", $config_contents);		
+	}
+    $config_contents = str_replace("%{APP_FEDORA_USERNAME}%", $HTTP_POST_VARS['fedora_username'], $config_contents);
+    $config_contents = str_replace("%{APP_FEDORA_PASSWD}%", $HTTP_POST_VARS['fedora_password'], $config_contents);	
+    $config_contents = str_replace("%{APP_ORG_NAME}%", $HTTP_POST_VARS['organisation'], $config_contents);
+    $config_contents = str_replace("%{APP_SHORT_ORG_NAME}%", $HTTP_POST_VARS['short_org'], $config_contents);
+    $config_contents = str_replace("%{APP_NAME}%", $HTTP_POST_VARS['app_name'], $config_contents);		
     $config_contents = str_replace("%{APP_PATH}%", $HTTP_POST_VARS['path'], $config_contents);
     $config_contents = str_replace("%{APP_SQL_DBHOST}%", $HTTP_POST_VARS['db_hostname'], $config_contents);
     $config_contents = str_replace("%{APP_SQL_DBNAME}%", $HTTP_POST_VARS['db_name'], $config_contents);
@@ -395,10 +410,20 @@ $private_key = "' . md5(microtime()) . '";
     $config_contents = str_replace("%{APP_RELATIVE_URL}%", $HTTP_POST_VARS['relative_url'], $config_contents);
     if (@$HTTP_POST_VARS['is_ssl'] == 'yes') {
         $protocol_type = 'https://';
+		$app_https = "ON";
     } else {
         $protocol_type = 'http://';
+		$app_https = "OFF";		
     }
+    if (@$HTTP_POST_VARS['is_fedora_ssl'] == 'yes') {
+        $fedora_protocol_type = 'https://';
+    } else {
+        $fedora_protocol_type = 'http://';
+    }
+
     $config_contents = str_replace("%{PROTOCOL_TYPE}%", $protocol_type, $config_contents);
+    $config_contents = str_replace("%{FEDORA_PROTOCOL_TYPE}%", $fedora_protocol_type, $config_contents);
+    $config_contents = str_replace("%{APP_HTTPS}%", $app_https, $config_contents);
     $fp = fopen('../config.inc.php', 'w');
     if ($fp === FALSE) {
         return "Could not open the file 'config.inc.php' for writing. The permissions on the file should be set as to allow the user that the web server runs as to open it. Please correct this problem and try again.";

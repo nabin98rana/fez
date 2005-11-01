@@ -5,6 +5,21 @@
 <!--
 function validateForm(f)
 {
+    if (isWhitespace(f.app_name.value)) {
+        selectField(f, 'app_name');
+        alert('Please a name for the application.');
+        return false;
+    }
+    if (isWhitespace(f.organisation.value)) {
+        selectField(f, 'organisation');
+        alert('Please enter the your organisation name.');
+        return false;
+    }
+    if (isWhitespace(f.short_org.value)) {
+        selectField(f, 'short_org');
+        alert('Please enter the organisation name initials.');
+        return false;
+    }
     if (isWhitespace(f.hostname.value)) {
         selectField(f, 'hostname');
         alert('Please enter the hostname for the server of this installation of Fez.');
@@ -56,6 +71,18 @@ function toggleAlternateUserFields()
         f.alternate_user.focus();
     }
 }
+function toggleLDAPFields()
+{
+    var f = getForm('install_form');
+    var element = getPageElement('ldap_row');
+    if (f.ldap.checked) {
+        element.style.display = '';
+        f.ldap_org.focus();
+    } else {
+        element.style.display = 'none';
+        f.ldap.focus();
+    }
+}
 //-->
 </script>
 {/literal}
@@ -99,7 +126,7 @@ function toggleAlternateUserFields()
             <br />
             <a class="link" href="{if $smarty.post.is_ssl == 'yes'}https://{else}http://{/if}{$smarty.post.hostname}{$smarty.post.relative_url}">{if $smarty.post.is_ssl == 'yes'}https://{else}http://{/if}{$smarty.post.hostname}{$smarty.post.relative_url}</a>
             <br /><br />
-            Email Address: admin@example.com (literally)<br />
+            Username: admin<br />
             Password: admin<br />
             <br />
             <b>NOTE: For security reasons it is highly recommended that the default password be changed as soon as possible.</b>
@@ -111,7 +138,7 @@ function toggleAlternateUserFields()
 </table>
 {else}
 <br />
-<table width="600" bgcolor="#000000" border="0" cellspacing="0" cellpadding="1" align="center">
+<table width="700" bgcolor="#000000" border="0" cellspacing="0" cellpadding="1" align="center">
 <form name="install_form" action="{$smarty.server.PHP_SELF}" method="post" onSubmit="javascript:return validateForm(this);">
 <input type="hidden" name="cat" value="install">
   <tr>
@@ -124,7 +151,34 @@ function toggleAlternateUserFields()
           </td>
         </tr>
         <tr>
-          <td width="180" class="default" align="right">
+          <td width="200" class="default" align="right">
+            <b>Your Organisation: *</b>
+          </td>
+          <td>
+            <input type="text" name="organisation" value="{$smarty.post.organisation|default:'University of Fez'}" class="default" size="30" tabindex="1">
+            {include file="error_icon.tpl.html" field="organisation"}
+          </td>
+        </tr>
+        <tr>
+          <td width="200" class="default" align="right">
+            <b>Your Organisation (Initials): *</b>
+          </td>
+          <td>
+            <input type="text" name="short_org" value="{$smarty.post.short_org|default:'UF'}" class="default" size="30" tabindex="1">
+            {include file="error_icon.tpl.html" field="short_org"}
+          </td>
+        </tr>
+       <tr>
+          <td width="200" class="default" align="right">
+            <b>Application Name: *</b>
+          </td>
+          <td>
+            <input type="text" name="app_name" value="{$smarty.post.app_name|default:'Fez'}" class="default" size="30" tabindex="1">
+            {include file="error_icon.tpl.html" field="app_name"}
+          </td>
+        </tr>
+        <tr>
+          <td width="200" class="default" align="right">
             <b>Server Hostname: *</b>
           </td>
           <td>
@@ -134,7 +188,7 @@ function toggleAlternateUserFields()
           </td>
         </tr>
         <tr>
-          <td width="180" class="default" align="right">
+          <td width="200" class="default" align="right">
             <b>Fez Relative URL: *</b>
           </td>
           <td>
@@ -143,7 +197,7 @@ function toggleAlternateUserFields()
           </td>
         </tr>
         <tr>
-          <td width="180" class="default" align="right">
+          <td width="200" class="default" align="right">
             <b>Installation Path: *</b>
           </td>
           <td>
@@ -152,7 +206,42 @@ function toggleAlternateUserFields()
           </td>
         </tr>
         <tr>
-          <td width="180" class="default" align="right">
+          <td width="200" class="default" align="right">
+            <b>Fedora Server Base Location: *</b>
+          </td>
+          <td>
+            <input type="text" name="fedora_location" class="default" size="30" tabindex="5" value="{$smarty.post.fedora_location|default:'localhost:8080/fedora'}">
+            {include file="error_icon.tpl.html" field="fedora_location"}
+            <input type="checkbox" name="is_fedora_ssl" value="yes"> <span class="default"><b><a id="link" class="link" href="javascript:void(null);" onClick="javascript:toggleCheckbox('install_form', 'is_fedora_ssl');">Fedora SSL Server</a></b></span>
+          </td>
+        </tr>
+
+        <tr>
+          <td colspan="2" class="default" align="center">
+            <b>Note:</b> The Fedora username and password default to 'fedoraAdmin' but if you changed them in your fedora.fcfg (which you should for security) then tell Fez what they are here.
+          </td>
+        </tr>
+
+        <tr>
+          <td width="200" class="default" align="right">
+            <b>Fedora Username: *</b>
+          </td>
+          <td>
+            <input type="text" name="fedora_username" class="default" size="20" tabindex="5" value="{$smarty.post.fedora_username|default:'fedoraAdmin'}">
+            {include file="error_icon.tpl.html" field="fedora_username"}
+          </td>
+        </tr>
+        <tr>
+          <td width="200" class="default" align="right">
+            <b>Fedora Password: *</b>
+          </td>
+          <td>
+            <input type="password" name="fedora_password" class="default" size="20" tabindex="5" value="{$smarty.post.fedora_password|default:'fedoraAdmin'}">
+            {include file="error_icon.tpl.html" field="fedora_password"}
+          </td>
+        </tr>
+        <tr>
+          <td width="200" class="default" align="right">
             <nobr>&nbsp;<b>MySQL Server Hostname: *</b></nobr>
           </td>
           <td>
@@ -161,7 +250,7 @@ function toggleAlternateUserFields()
           </td>
         </tr>
         <tr>
-          <td width="180" class="default" align="right">
+          <td width="200" class="default" align="right">
             <b>MySQL Database: *</b>
           </td>
           <td>
@@ -171,7 +260,7 @@ function toggleAlternateUserFields()
           </td>
         </tr>
         <tr>
-          <td width="180" class="default" align="right">
+          <td width="200" class="default" align="right">
             <b>MySQL Table Prefix:</b>
           </td>
           <td>
@@ -184,7 +273,7 @@ function toggleAlternateUserFields()
           </td>
         </tr>
         <tr>
-          <td width="180" class="default" align="right">
+          <td width="200" class="default" align="right">
             <b>MySQL Username: *</b>
           </td>
           <td>
@@ -198,7 +287,7 @@ function toggleAlternateUserFields()
           </td>
         </tr>
         <tr>
-          <td width="180" class="default" align="right">
+          <td width="200" class="default" align="right">
             <b>MySQL Password:</b>
           </td>
           <td>
@@ -256,6 +345,86 @@ function toggleAlternateUserFields()
           </td>
         </tr>
         <tr>
+          <td colspan="2" class="default" align="center">
+            <input type="checkbox" name="ldap" value="yes" onClick="javascript:toggleLDAPFields();" {if $smarty.post.ldap == 'yes'}checked{/if}> <b><a id="link" class="link" href="javascript:void(null);" onClick="javascript:toggleCheckbox('install_form', 'ldap');toggleLDAPFields();">Use a LDAP Server for Authentication (together with Fez Authentication)</a></b>
+          </td>
+        </tr>		
+        <tr id="ldap_row">
+          <td colspan="2" align="center">
+            <table>
+              <tr>
+                <td>
+                  <table width="300" cellpadding="1" cellspacing="0" bgcolor="white" border="0">
+                    <tr>
+                      <td>
+                        <table width="100%" border="0" cellspacing="0" cellpadding="1" bgcolor="#C0C0C0">
+                          <tr>
+                            <td colspan="2" class="default">
+                              <b>Enter the details below:</b>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="default" align="right">
+                              <nobr>&nbsp;<b>LDAP Organisation: </b>&nbsp;</nobr>
+                            </td>
+                            <td nowrap>
+                              <nobr><input type="text" class="default" name="ldap_org" size="20" value="{$smarty.post.ldap_org}">&nbsp;</nobr>
+								<span class="default">eg o=The University of Fez, c=AU</span>
+                              {include file="error_icon.tpl.html" field="ldap_org"}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="default" align="right">
+                              <nobr>&nbsp;<b>LDAP Root DN:</b>&nbsp;</nobr>
+                            </td>
+                            <td nowrap>
+                              <nobr><input type="text" class="default" name="ldap_root_dn" size="20" value="{$smarty.post.ldap_root_dn}">&nbsp;</nobr>
+								<span class="default">eg DC=uq,DC=edu,DC=au</span>
+                              {include file="error_icon.tpl.html" field="ldap_root_dn"}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="default" align="right">
+                              <nobr>&nbsp;<b>LDAP Prefix:</b>&nbsp;</nobr>
+                            </td>
+                            <td nowrap>
+                              <nobr><input type="text" class="default" name="ldap_prefix" size="20" value="{$smarty.post.ldap_prefix}">&nbsp;</nobr>
+								<span class="default">eg UQ</span>
+                              {include file="error_icon.tpl.html" field="ldap_prefix"}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="default" align="right">
+                              <nobr>&nbsp;<b>LDAP Server:</b>&nbsp;</nobr>
+                            </td>
+                            <td nowrap>
+                              <nobr><input type="text" class="default" name="ldap_server" size="20" value="{$smarty.post.ldap_server}">&nbsp;</nobr>
+								<span class="default">yourldapserver.yourdomain.edu</span>
+                              {include file="error_icon.tpl.html" field="ldap_server"}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="default" align="right">
+                              <nobr>&nbsp;<b>LDAP Port:</b>&nbsp;</nobr>
+                            </td>
+                            <td nowrap>
+                              <nobr><input type="text" class="default" name="ldap_port" size="20" value="{$smarty.post.ldap_port|default:'389'}">&nbsp;</nobr>
+								<span class="default">Usually 389</span>
+                              {include file="error_icon.tpl.html" field="ldap_port"}
+                            </td>
+                          </tr>
+
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>		
+		
+        <tr>
           <td colspan="2" class="default" align="right">&nbsp;
             
           </td>
@@ -284,6 +453,7 @@ function setFocus()
 {
     document.install_form.hostname.focus();
     toggleAlternateUserFields();
+    toggleLDAPFields();	
 }
 //-->
 </script>

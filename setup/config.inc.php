@@ -31,105 +31,123 @@
 // |          Matthew Smith <m.smith@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
 //
-//
-//ini_set('allow_url_fopen', 0);
+ini_set('allow_url_fopen', 0);
 ini_set("display_errors", 1);
 error_reporting(1);
-//error_reporting(E_WARNING);
+error_reporting(E_WARNING);
 set_time_limit(0);
-// only needed for older PHP versions
-/*if (!function_exists('is_a')) {
-    function is_a($object, $class_name)
-    {
-        $class_name = strtolower($class_name);
-        if (get_class($object) == $class_name) {
-            return TRUE;
-        } else {
-            return is_subclass_of($object, $class_name);
-        }
-    }
-}
-*/
+
+// definitions of Organisation LDAP related variables. You may need to query your Org's LDAP expert for help on these settings.
+@define("LDAP_SWITCH", "%{LDAP_SWITCH}%");  // Set to OFF or ON depending on whether you want to use LDAP authentication
+@define("LDAP_ORGANISATION", "%{LDAP_ORGANISATION}%"); //eg o=The University of Fez, c=AU
+@define("LDAP_ROOT_DN", "%{LDAP_ROOT_DN}%"); //eg DC=uq,DC=edu,DC=au
+@define("LDAP_PREFIX", "%{LDAP_PREFIX}%");  //eg UQ
+@define("LDAP_SERVER", "%{LDAP_SERVER}%"); // yourldapserver.yourdomain.edu
+@define("LDAP_PORT", "%{LDAP_PORT}%"); // Usually 389
+
 // definitions of path related variables
-@define("APP_PATH", '/usr/local/apache/htdocs/dev-espace/');
+@define("APP_SAN_IMPORT_DIR", ""); //eg /fez/incoming or c:\\fez\\incoming
+
+@define("APP_PATH", '%{APP_PATH}%');  //eg /usr/local/apache/htdocs/fez/ or C:\\Program Files\\Apache Group\\Apache\\htdocs\\dev-fez\\
 @define("APP_INC_PATH", APP_PATH . "include/");
 @define("APP_PEAR_PATH", APP_INC_PATH . "pear/");
 @define("APP_TPL_PATH", APP_PATH . "templates/");
 @define("APP_SMARTY_PATH", APP_INC_PATH . "Smarty/");
+@define("APP_THUMBS_PATH", APP_INC_PATH . "thumbs/");
 @define("APP_JPGRAPH_PATH", APP_INC_PATH . "jpgraph/");
-if (stristr(PHP_OS, 'darwin')) {
-    ini_set("include_path", ".:" . APP_PEAR_PATH);
-} elseif (stristr(PHP_OS, 'win')) {
+
+// Bill vs Linus
+if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
+	@define("APP_TEMP_DIR", 'c:\\temp\'); 
+	@define("APP_CONVERT_CMD", "convert");   // To convert image (part of ImageMagick)
+	@define("APP_IDENTIFY_CMD", "identify"); // To get image information (part of ImageMagick)
     ini_set("include_path", ".;" . APP_PEAR_PATH);
-} else {
+} else { //  Linux Server
+	@define("APP_TEMP_DIR", "/tmp/"); 
+	@define("APP_CONVERT_CMD", "/usr/bin/convert");   // To convert image (part of ImageMagick)
+	//@define("APP_CONVERT_CMD", "/usr/X11R6/bin/convert");   // convert could be in here for some Linux distros
+	@define("APP_IDENTIFY_CMD", "/usr/X11R6/bin/identify"); // To get image information (part of ImageMagick)
     ini_set("include_path", ".:" . APP_PEAR_PATH);
 }
-
 @define("APP_SETUP_PATH", APP_PATH);
 @define("APP_SETUP_FILE", APP_SETUP_PATH . "setup.conf.php");
-@define("APP_WORKFLOW_PATH", APP_PATH.'workflow/');
+
 
 // FEDORA VARIABLES
 
-//base fedora server domain 
-// example:  fedora.nsdlib.org:8080/fedora
-@define("APP_BASE_FEDORA_DOMAIN", "130.102.44.8:8080/fedora");
+//base fedora server domain
+@define("APP_BASE_FEDORA_DOMAIN", "%{FEDORA_PROTOCOL_TYPE}%"."%{APP_BASE_FEDORA_DOMAIN}%"); // the location of your fedora server
 
 // Setup reusable Fedora API variables
-@define("APP_FEDORA_USERNAME", "fedoraAdmin");
-@define("APP_FEDORA_PWD", "fedoraAdmin");
+@define("APP_FEDORA_USERNAME", "%{APP_FEDORA_USERNAME}%"); 
+@define("APP_FEDORA_PWD", "%{APP_FEDORA_PWD}%");
 
 // Should be ok in routine installations
-@define("APP_FEDORA_ACCESS_API", "http://".APP_BASE_FEDORA_DOMAIN."/access/soap");
-@define("APP_FEDORA_MANAGEMENT_API", "http://".APP_BASE_FEDORA_DOMAIN."/management/soap");
+@define("APP_FEDORA_ACCESS_API", APP_BASE_FEDORA_DOMAIN."/services/access"); // for Fedora 2.1
+@define("APP_FEDORA_MANAGEMENT_API", APP_BASE_FEDORA_DOMAIN."/services/management"); // for Fedora 2.1
+//@define("APP_FEDORA_MANAGEMENT_API", APP_BASE_FEDORA_DOMAIN."/management/soap"); // for Fedora 2.0
+//@define("APP_FEDORA_MANAGEMENT_API", APP_BASE_FEDORA_DOMAIN."/access/soap"); // for Fedora 2.0
+
+//fedora get datastream url
+@define("APP_FEDORA_GET_URL", APP_BASE_FEDORA_DOMAIN."/get");
 
 //fedora server search url
-@define("APP_FEDORA_SEARCH_URL", "http://".APP_BASE_FEDORA_DOMAIN."/search");
+@define("APP_FEDORA_SEARCH_URL", APP_BASE_FEDORA_DOMAIN."/search");
+
+//fedora server resource index search url
+@define("APP_FEDORA_RISEARCH_URL", APP_BASE_FEDORA_DOMAIN."/risearch");
 
 //upload url
-@define("APP_FEDORA_UPLOAD_URL", "http://".APP_FEDORA_USERNAME.":".APP_FEDORA_PWD."@".APP_BASE_FEDORA_DOMAIN."/management/upload");
+@define("APP_FEDORA_UPLOAD_URL", APP_FEDORA_USERNAME.":".APP_FEDORA_PWD."@".APP_BASE_FEDORA_DOMAIN."/management/upload");
 
-// XSL directory
-@define("APP_XSL_PATH", APP_PATH . "xsl/");
+//upload url
+@define("APP_FEDORA_OAI_URL", APP_BASE_FEDORA_DOMAIN."/oai");
 
 // definitions of SQL variables
 @define("APP_SQL_DBTYPE", "mysql");
-@define("APP_SQL_DBHOST", "db2.library.uq.edu.au");
-@define("APP_SQL_DBNAME", "dev_espace");
-@define("APP_SQL_DBUSER", "espace");
-@define("APP_SQL_DBPASS", "3sp@c3r0x");
+@define("APP_SQL_DBHOST", "%{APP_SQL_DBHOST}%");
+@define("APP_SQL_DBNAME", "%{APP_SQL_DBNAME}%");
+@define("APP_SQL_DBUSER", "%{APP_SQL_DBUSER}%");
+@define("APP_SQL_DBPASS", "%{APP_SQL_DBPASS}%");
 
 @define("APP_DEFAULT_DB", APP_SQL_DBNAME);
-@define("APP_TABLE_PREFIX", "espace_");
+@define("APP_TABLE_PREFIX", "%{APP_TABLE_PREFIX}%");
 
 @define("APP_ERROR_LOG", APP_PATH . "error_handler.log");
 
-@define("APP_NAME", "Fez");
-@define("APP_SHORT_NAME", APP_NAME); // used in the subject of notification emails
+@define("APP_NAME", "%{APP_NAME}%");
+@define("APP_ORG_NAME", "%{APP_ORG_NAME}%");
+@define("APP_SHORT_ORG_NAME", "%{APP_SHORT_ORG_NAME}%");
+@define("APP_SHORT_NAME", APP_NAME);
 @define("APP_URL", "http://www.library.uq.edu.au/escholarship/");
-@define("APP_HOSTNAME", "dev-fez.library.uq.edu.au");
+@define("APP_HOSTNAME", "%{APP_HOSTNAME}%");
 @define("APP_SITE_NAME", APP_NAME);
-@define("APP_RELATIVE_URL", "/");
-@define("APP_BASE_URL", "https://" . APP_HOSTNAME . APP_RELATIVE_URL);
-@define("APP_SESSION", "espace");
+@define("APP_RELATIVE_URL", "%{APP_RELATIVE_URL}%");
+
+
+@define("APP_HTTPS", "%{APP_HTTPS}%"); // if you don't want to redirect to SSL/HTTPS for login/password screens then turn this to OFF
+@define("APP_BASE_URL", "%{PROTOCOL_TYPE}%" . APP_HOSTNAME . APP_RELATIVE_URL);
+@define("APP_COOKIE", "fez");
+@define("APP_COOKIE_EXPIRE", time() + (60 * 60 * 8));
+
+@define("APP_SESSION", "fez");
+@define("APP_INTERNAL_GROUPS_SESSION", APP_SESSION."_internal_groups");
+@define("APP_LDAP_GROUPS_SESSION", APP_SESSION."_ldap_groups");
+
 @define("APP_SESSION_EXPIRE", time() + (60 * 60 * 8));
-@define("APP_COLLECTION_COOKIE", "espace");
-@define("APP_COLLECTION_COOKIE_EXPIRE", time() + (60 * 60 * 24));
 
-@define("APP_VERSION", "0.0.1");
+@define("APP_VERSION", "0.1.0");
 
-@define("APP_LIST_COOKIE", 'espace_list');
-@define("APP_LIST_COOKIE_EXPIRE", time() + (60 * 60 * 24 * 30 * 48));
-@define("APP_EMAIL_LIST_COOKIE", 'espace_email_list');
-@define("APP_EMAIL_LIST_COOKIE_EXPIRE", time() + (60 * 60 * 24 * 30 * 48));
 @define("APP_DEFAULT_PAGER_SIZE", 5);
 @define("APP_DEFAULT_REFRESH_RATE", 5); // in minutes
 
-// define colors used by eventum
-@define("APP_CELL_COLOR", "#255282");
-@define("APP_LIGHT_COLOR", "#DDDDDD");
+@define("APP_SHADED_BAR", "gradient.gif");
+@define("APP_CELL_COLOR", "#A7C1DF");
+@define("APP_VALUE_COLOR", "#EFF6FF");
+@define("APP_LIGHT_COLOR", "#EFF6FF");
 @define("APP_MIDDLE_COLOR", "#CACACA");
-@define("APP_DARK_COLOR", "#CACACA");
+@define("APP_DARK_COLOR", "#003399");
+@define("APP_HEADING_COLOR", "#367FCC");
 @define("APP_CYCLE_COLORS", "#DDDDDD,#CACACA");
 @define("APP_INTERNAL_COLOR", APP_CELL_COLOR);
 
@@ -156,14 +174,13 @@ if (isset($_GET)) {
     if (isset($_SESSION)) {
         $HTTP_SESSION_VARS = $_SESSION;
     }
+//    $HTTP_SESSION_VARS = $_SESSION;
     $HTTP_COOKIE_VARS = $_COOKIE;
 }
 
-// fix magic_quote_gpc'ed values (i wish i knew who is the person behind this)
+// fix magic_quote_gpc'ed values (i wish i knew who is the person behind this - i would shout their name from the tallest mountain)
 $HTTP_GET_VARS =& Misc::dispelMagicQuotes($HTTP_GET_VARS);
 $HTTP_POST_VARS =& Misc::dispelMagicQuotes($HTTP_POST_VARS);
-$_GET =& Misc::dispelMagicQuotes($_GET);
-$_POST =& Misc::dispelMagicQuotes($_POST);
 
 // handle the language preferences now
 @include_once(APP_INC_PATH . "class.language.php");
