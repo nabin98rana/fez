@@ -363,9 +363,8 @@ $private_key = "' . md5(microtime()) . '";
     // COMPAT: the next line requires PHP >= 4.0.6
     $queries = array_map("trim", $queries);
     $queries = array_map("replace_table_prefix", $queries);
-// CK - Temporarily remove the sql statements from running just so I could make a key
 
-/*    foreach ($queries as $stmt) {
+    foreach ($queries as $stmt) {
         if ((stristr($stmt, 'DROP TABLE')) && (@$HTTP_POST_VARS['drop_tables'] != 'yes')) {
             continue;
         }
@@ -378,7 +377,7 @@ $private_key = "' . md5(microtime()) . '";
             }
             return getErrorMessage($type, mysql_error());
         }
-    } */
+    } 
     // substitute the appropriate values in config.inc.php!!!
     if (@$HTTP_POST_VARS['alternate_user'] == 'yes') {
         $HTTP_POST_VARS['db_username'] = $HTTP_POST_VARS['fez_user'];
