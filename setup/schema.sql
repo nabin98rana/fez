@@ -201,7 +201,7 @@ CREATE TABLE `%TABLE_PREFIX%user` (
 
 /*!40000 ALTER TABLE `%TABLE_PREFIX%user` DISABLE KEYS */;
 LOCK TABLES `%TABLE_PREFIX%user` WRITE;
-INSERT INTO `%TABLE_PREFIX%user` VALUES (1,'2005-01-01 00:00:00','active','21232f297a57a5a743894a0e4a801fc3','Administrator','admin@localhost','a:12:{s:7:\"updated\";N;s:6:\"closed\";N;s:6:\"emails\";s:1:\"1\";s:5:\"files\";N;s:19:\"close_popup_windows\";s:1:\"1\";s:23:\"receive_assigned_emails\";s:1:\"1\";s:18:\"receive_new_emails\";s:1:\"0\";s:8:\"timezone\";s:18:\"Australia/Brisbane\";s:17:\"list_refresh_rate\";s:1:\"5\";s:19:\"emails_refresh_rate\";s:1:\"5\";s:15:\"email_signature\";s:0:\"\";s:15:\"auto_append_sig\";N;}','','admin',1,0,0,null);
+INSERT INTO `%TABLE_PREFIX%user` VALUES (1,'2005-01-01 00:00:00','active','21232f297a57a5a743894a0e4a801fc3','Administrator','admin@localhost','','','admin',1,0,0,null);
 UNLOCK TABLES;
 /*!40000 ALTER TABLE `%TABLE_PREFIX%user` ENABLE KEYS */;
 
