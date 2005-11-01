@@ -347,8 +347,8 @@ $private_key = "' . md5(microtime()) . '";
     // check the CREATE and DROP privileges by trying to create and drop a test table
     $table_list = getTableList($conn);
     $table_list = array_map('strtolower', $table_list);
-// CK - Temporarily remove the sql statements from running just so I could make a key
-/*    if (!in_array('fez_test', $table_list)) {
+
+    if (!in_array('fez_test', $table_list)) {
         if (!mysql_query('CREATE TABLE fez_test (test char(1))', $conn)) {
             return getErrorMessage('create_test', mysql_error());
         }
@@ -356,7 +356,7 @@ $private_key = "' . md5(microtime()) . '";
     if (!mysql_query('DROP TABLE fez_test', $conn)) {
         return getErrorMessage('drop_test', mysql_error());
     }
-*/
+
     $contents = implode("", file("schema.sql"));
     $queries = explode(";", $contents);
     unset($queries[count($queries)-1]);
@@ -369,12 +369,13 @@ $private_key = "' . md5(microtime()) . '";
             continue;
         }
         // need to check if a CREATE TABLE on an existing table throws an error
-        if (!mysql_query($stmt, $conn)) {
+        if (!mysql_query(($stmt), $conn)) {
             if (stristr($stmt, 'DROP TABLE')) {
                 $type = 'drop_table';
             } else {
                 $type = 'create_table';
             }
+			
             return getErrorMessage($type, mysql_error());
         }
     } 
