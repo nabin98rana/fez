@@ -369,7 +369,7 @@ $private_key = "' . md5(microtime()) . '";
             continue;
         }
         // need to check if a CREATE TABLE on an existing table throws an error
-        if (!mysql_query(($stmt), $conn)) {
+        if (!mysql_query($stmt, $conn)) {
             if (stristr($stmt, 'DROP TABLE')) {
                 $type = 'drop_table';
             } else {
