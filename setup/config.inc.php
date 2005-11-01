@@ -34,7 +34,7 @@
 ini_set('allow_url_fopen', 0);
 ini_set("display_errors", 1);
 error_reporting(1);
-error_reporting(E_WARNING);
+error_reporting(E_FATAL);
 set_time_limit(0);
 
 // definitions of Organisation LDAP related variables. You may need to query your Org's LDAP expert for help on these settings.
@@ -58,7 +58,7 @@ set_time_limit(0);
 
 // Bill vs Linus
 if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
-	@define("APP_TEMP_DIR", 'c:\\temp\'); 
+	@define("APP_TEMP_DIR", 'c:/temp/'); 
 	@define("APP_CONVERT_CMD", "convert");   // To convert image (part of ImageMagick)
 	@define("APP_IDENTIFY_CMD", "identify"); // To get image information (part of ImageMagick)
     ini_set("include_path", ".;" . APP_PEAR_PATH);

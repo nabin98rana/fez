@@ -29,18 +29,11 @@
   </span>
 </center>
 
-
-{if $current_user_prefs.close_popup_windows == '1'}
 <script language="JavaScript">
 <!--
-setTimeout('closeAndRefresh()', 1500);
+setTimeout('closeAndRefresh()', 1000);
 //-->
 </script>
 <br />
-{else}
-<center>
-  <span class="default"><a class="link" href="javascript:void(null);" onClick="{if $new_project_result == 1}javascript:closeAndGotoList();{else}javascript:closeAndRefresh();{/if}">Continue</a></span>
-</center>
-{/if}
 
 {include file="footer.tpl.html"}
