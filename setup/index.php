@@ -395,7 +395,7 @@ $private_key = "' . md5(microtime()) . '";
 	$config_contents = str_replace("%{LDAP_PREFIX}%", $HTTP_POST_VARS['ldap_prefix'], $config_contents);
 	$config_contents = str_replace("%{LDAP_SERVER}%", $HTTP_POST_VARS['ldap_server'], $config_contents);		
 	$config_contents = str_replace("%{LDAP_PORT}%", $HTTP_POST_VARS['ldap_port'], $config_contents);		
-    $config_contents = str_replace("%{APP_BASE_FEDORA_DOMAIN}%", $HTTP_POST_VARS['fedora_location'], $config_contents);
+    $config_contents = str_replace("%{APP_FEDORA_LOCATION}%", $HTTP_POST_VARS['fedora_location'], $config_contents);
     $config_contents = str_replace("%{APP_FEDORA_USERNAME}%", $HTTP_POST_VARS['fedora_username'], $config_contents);
     $config_contents = str_replace("%{APP_FEDORA_PWD}%", $HTTP_POST_VARS['fedora_password'], $config_contents);	
     $config_contents = str_replace("%{APP_ORG_NAME}%", $HTTP_POST_VARS['organisation'], $config_contents);
@@ -423,7 +423,7 @@ $private_key = "' . md5(microtime()) . '";
     }
 
     $config_contents = str_replace("%{PROTOCOL_TYPE}%", $protocol_type, $config_contents);
-    $config_contents = str_replace("%{FEDORA_PROTOCOL_TYPE}%", $fedora_protocol_type, $config_contents);
+    $config_contents = str_replace("%{APP_FEDORA_PROTOCOL_TYPE}%", $fedora_protocol_type, $config_contents);
     $config_contents = str_replace("%{APP_HTTPS}%", $app_https, $config_contents);
     $fp = fopen('../config.inc.php', 'w');
     if ($fp === FALSE) {

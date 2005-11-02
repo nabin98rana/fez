@@ -61,12 +61,14 @@ if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Serve
 	@define("APP_TEMP_DIR", 'c:/temp/'); 
 	@define("APP_CONVERT_CMD", "convert");   // To convert image (part of ImageMagick)
 	@define("APP_IDENTIFY_CMD", "identify"); // To get image information (part of ImageMagick)
+	@define("APP_JHOVE_TEMP_DIR", 'c:\temp/'); // jhove needs windows style dir names when run on a win server
     ini_set("include_path", ".;" . APP_PEAR_PATH);
 } else { //  Linux Server
 	@define("APP_TEMP_DIR", "/tmp/"); 
 	@define("APP_CONVERT_CMD", "/usr/bin/convert");   // To convert image (part of ImageMagick)
 	//@define("APP_CONVERT_CMD", "/usr/X11R6/bin/convert");   // convert could be in here for some Linux distros
 	@define("APP_IDENTIFY_CMD", "/usr/X11R6/bin/identify"); // To get image information (part of ImageMagick)
+	@define("APP_JHOVE_TEMP_DIR", APP_TEMP_DIR);
     ini_set("include_path", ".:" . APP_PEAR_PATH);
 }
 @define("APP_SETUP_PATH", APP_PATH);
@@ -76,7 +78,9 @@ if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Serve
 // FEDORA VARIABLES
 
 //base fedora server domain
-@define("APP_BASE_FEDORA_DOMAIN", "%{FEDORA_PROTOCOL_TYPE}%"."%{APP_BASE_FEDORA_DOMAIN}%"); // the location of your fedora server
+@define("APP_FEDORA_LOCATION", "%{APP_FEDORA_LOCATION}%"); // the location of your fedora server without the http or https protocol
+@define("APP_FEDORA_PROTOCOL_TYPE", "%{APP_FEDORA_PROTOCOL_TYPE}%");
+@define("APP_BASE_FEDORA_DOMAIN", APP_FEDORA_PROTOCOL_TYPE.APP_FEDORA_LOCATION); // the location of your fedora server
 
 // Setup reusable Fedora API variables
 @define("APP_FEDORA_USERNAME", "%{APP_FEDORA_USERNAME}%"); 
@@ -98,9 +102,9 @@ if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Serve
 @define("APP_FEDORA_RISEARCH_URL", APP_BASE_FEDORA_DOMAIN."/risearch");
 
 //upload url
-@define("APP_FEDORA_UPLOAD_URL", APP_FEDORA_USERNAME.":".APP_FEDORA_PWD."@".APP_BASE_FEDORA_DOMAIN."/management/upload");
+@define("APP_FEDORA_UPLOAD_URL", APP_FEDORA_PROTOCOL_TYPE.APP_FEDORA_USERNAME.":".APP_FEDORA_PWD."@".APP_FEDORA_LOCATION."/management/upload");
 
-//upload url
+//oai url
 @define("APP_FEDORA_OAI_URL", APP_BASE_FEDORA_DOMAIN."/oai");
 
 // definitions of SQL variables
@@ -124,11 +128,12 @@ if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Serve
 @define("APP_SITE_NAME", APP_NAME);
 @define("APP_RELATIVE_URL", "%{APP_RELATIVE_URL}%");
 
-
 @define("APP_HTTPS", "%{APP_HTTPS}%"); // if you don't want to redirect to SSL/HTTPS for login/password screens then turn this to OFF
 @define("APP_BASE_URL", "%{PROTOCOL_TYPE}%" . APP_HOSTNAME . APP_RELATIVE_URL);
 @define("APP_COOKIE", "fez");
 @define("APP_COOKIE_EXPIRE", time() + (60 * 60 * 8));
+@define("APP_LIST_COOKIE", 'fez_list');
+@define("APP_LIST_COOKIE_EXPIRE", time() + (60 * 60 * 24 * 30 * 48));
 
 @define("APP_SESSION", "fez");
 @define("APP_INTERNAL_GROUPS_SESSION", APP_SESSION."_internal_groups");

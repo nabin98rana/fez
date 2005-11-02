@@ -707,6 +707,7 @@ class Auth
      */
     function isCorrectPassword($username, $password)
     {
+		global $HTTP_POST_VARS;
 		if (Auth::userExists($HTTP_POST_VARS["username"])) {
 			$userDetails = User::getDetails($username);
 			if (($userDetails['usr_ldap_authentication'] == 1) && (LDAP_SWITCH == "ON")) {

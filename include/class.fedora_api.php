@@ -61,7 +61,7 @@ class Fedora_API {
      * @return  void (Logs an error message)
      */
 	function checkFedoraServer() {
-		$ch = curl_init("http://".APP_BASE_FEDORA_DOMAIN."/search");
+		$ch = curl_init(APP_BASE_FEDORA_DOMAIN."/search");
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		$results = curl_exec($ch);
 		$info = curl_getinfo($ch);
@@ -98,7 +98,7 @@ class Fedora_API {
      */
 	function getNextPID() {
 		$pid = false;
-		$getString = "http://".APP_BASE_FEDORA_DOMAIN."/mgmt/getNextPID?xml=true";
+		$getString = APP_BASE_FEDORA_DOMAIN."/mgmt/getNextPID?xml=true";
 		$http_req = new HTTP_Request($getString, array("http" => "1.0"));
 		$http_req->setBasicAuth(APP_FEDORA_USERNAME, APP_FEDORA_PWD);
 		$http_req->setMethod("GET");
