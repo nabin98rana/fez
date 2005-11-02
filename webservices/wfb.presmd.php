@@ -45,10 +45,10 @@ if (is_numeric(strpos($file, "/"))) {
 	$file = substr($file, strrpos($file, "/")+1);
 
 }
-if (trim($file_dir) == "") { $file_dir = APP_TEMP_DIR; }
+if (trim($file_dir) == "") { $file_dir = APP_JHOVE_TEMP_DIR; }
 if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) { // check for command hax
-	$APP_JHOVE_DIR = "/usr/local/jhove";
-	$APP_JHOVE_CMD = $APP_JHOVE_DIR.'/jhove -h xml -o '.APP_TEMP_DIR.'presmd_'.str_replace(' ', '_', substr($file, 0, strrpos($file, '.'))).'.xml';
+	
+	$APP_JHOVE_CMD = APP_JHOVE_DIR.'/jhove -h xml -o '.APP_JHOVE_TEMP_DIR.'presmd_'.str_replace(' ', '_', substr($file, 0, strrpos($file, '.'))).'.xml';
 	$APP_JHOVE_CMD = escapeshellcmd($APP_JHOVE_CMD);
 	if (is_numeric(strpos($file, " "))) {
 		$APP_JHOVE_CMD .= ' \"'.$file_dir.'/'.$file.'\"';

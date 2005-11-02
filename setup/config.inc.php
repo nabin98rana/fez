@@ -61,6 +61,7 @@ if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Serve
 	@define("APP_TEMP_DIR", 'c:/temp/'); 
 	@define("APP_CONVERT_CMD", "convert");   // To convert image (part of ImageMagick)
 	@define("APP_IDENTIFY_CMD", "identify"); // To get image information (part of ImageMagick)
+	@define("APP_JHOVE_DIR", "c:/jhove");
 	@define("APP_JHOVE_TEMP_DIR", 'c:\temp/'); // jhove needs windows style dir names when run on a win server
     ini_set("include_path", ".;" . APP_PEAR_PATH);
 } else { //  Linux Server
@@ -68,6 +69,7 @@ if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Serve
 	@define("APP_CONVERT_CMD", "/usr/bin/convert");   // To convert image (part of ImageMagick)
 	//@define("APP_CONVERT_CMD", "/usr/X11R6/bin/convert");   // convert could be in here for some Linux distros
 	@define("APP_IDENTIFY_CMD", "/usr/X11R6/bin/identify"); // To get image information (part of ImageMagick)
+	@define("APP_JHOVE_DIR", "/usr/local/jhove");
 	@define("APP_JHOVE_TEMP_DIR", APP_TEMP_DIR);
     ini_set("include_path", ".:" . APP_PEAR_PATH);
 }
