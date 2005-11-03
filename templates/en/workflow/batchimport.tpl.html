@@ -33,6 +33,7 @@ function openDetailPage()
 <input type="hidden" name="cat" value="submit">
 <input type="hidden" name="pid" value="{$pid}">
 <input type="hidden" name="collection_pid" value="{$pid}">
+  <table>
        <tr>
           <td class="contentheader" colspan="2">
             <b><img align="absmiddle" src="{$rel_url}images/scanner_32.jpg" border="0"> {$form_title}</b>
@@ -43,14 +44,14 @@ function openDetailPage()
 				  <td width="150" bgcolor="{$cell_color}" class="default">
 					<b>Choose the SAN Directory to Import into this Collection</b>
 				  </td>
-				  <td bgcolor="{$light_color}">
+				  <td width="90%" bgcolor="{$light_color}">
 					<select size="10" class="default" name="directory">
 					  {html_options options=$filenames}
 					</select>
 				</td>
 		</tr>
 		<tr id="directory">
-		  <td width="150" bgcolor="{$cell_color}" class="default">
+		  <td  bgcolor="{$cell_color}" class="default">
 			<b>Object Creation Options:</b>
 		  </td>
 		  <td class="default" bgcolor="{$light_color}">				
@@ -58,5 +59,6 @@ function openDetailPage()
 			  <input type="radio" name="objectimport" value="one">One record with all the files attached
 		</td>
 		</tr>
+   </table>             
 
 

@@ -599,7 +599,7 @@ var $externalDatastreams;
 						Record::setIndexMatchingFields($xdis_id, $pid);
 					} else {
 						// use metadata from a user template
-						Record::insertFromTemplate($pid, $dsarray);
+						Record::insertFromTemplate($pid, $xdis_id, $short_name, $dsarray);
 					}
 					// add the binary batch import file.
 					BatchImport::handleStandardFileImport($pid, $full_name, $short_name);

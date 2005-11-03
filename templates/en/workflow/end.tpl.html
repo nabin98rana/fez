@@ -1,6 +1,6 @@
 <tr>
 <td class="default" align="center">
-Finished workflow {$wfl_title}, triggered by {$wft_type}.<br/>
+Finished {$wft_type} {$wfl_title}<br/>
 {if $parent_title}Parent: <a href="{$view_parent_url}">{$parent_title}</a><br/>{/if}
 {if $parents_list}Parents: 
 {section name="i" loop=$parents_list}<a href="{$parents_list[i].url}">{$parents_list[i].title}</a> {/section}

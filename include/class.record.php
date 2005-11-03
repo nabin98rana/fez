@@ -53,6 +53,7 @@ include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
+include_once(APP_INC_PATH . "class.foxml.php");
 
 
 //@@@ CK - 28/10/2004 - Modified the list headings to be like the actual list headings so the CSV would show the same thing
@@ -208,6 +209,7 @@ class Record
 					}
 				}
 				if ($index[6] != "") {
+                    // pid, xsdmf_id, data_type, value
 					Record::insertIndexMatchingField($index[0], $index[2], $index[5], $index[6]);
 				}
 			}
@@ -574,7 +576,8 @@ class Record
     }
 
     /**
-     * Sets the index during batch import. Could also be used in future versions for objects in Fedora that are not in the index yet.
+     * Sets the index during batch import. Could also be used in future versions for objects in 
+     * Fedora that are not in the index yet.
 	 * EG a "Re-index Fedora" type of admin function.
      *
      * @access  public
@@ -583,26 +586,10 @@ class Record
      * @return  void
      */
     function setIndexMatchingFields($xdis_id, $pid) {
-        $array_ptr = array();
-        $xsdmf_array = array();
-        //			echo $xmlObj;
-        // want to do this on a per datastream basis, not the entire xml object
-        $datastreamTitles = XSD_Loop_Subelement::getDatastreamTitles($xdis_id);
-        foreach ($datastreamTitles as $dsValue) {
-            $DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title']);
-            if (isset($DSResultArray['stream'])) {
-                $xmlDatastream = $DSResultArray['stream'];
-                $xsd_id = XSD_Display::getParentXSDID($dsValue['xsdmf_xdis_id']);
-                $xsd_details = Doc_Type_XSD::getDetails($xsd_id);
-                $xsd_element_prefix = $xsd_details['xsd_element_prefix'];
-                $xsd_top_element_name = $xsd_details['xsd_top_element_name'];
 
-                $xmlnode = new DomDocument();
-                $xmlnode->loadXML($xmlDatastream);
-                $array_ptr = array();
-                Misc::dom_xml_to_simple_array($xmlnode, $array_ptr, $xsd_top_element_name, $xsd_element_prefix, $xsdmf_array, $xdis_id);
-            }
-        }
+        $display = new XSD_DisplayObject($xdis_id);
+        $array_ptr = array();
+        $xsdmf_array = $display->getXSDMF_Values($pid);
         foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
             if (!is_array($xsdmf_value) && !empty($xsdmf_value) && (trim($xsdmf_value) != "")) {					
                 $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
@@ -640,8 +627,11 @@ class Record
 		$xmlObj .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $pid); // for the pid, fedora uri etc
 		$xmlObj .= $xml_schema;
 		$xmlObj .= ">\n";
-		$xmlObj = Misc::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, 0, $created_date, $updated_date);
+		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, 0, $created_date, $updated_date);
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
+        $xmlObj = Foxml::setDCTitle('__makeInsertTemplate_DCTitle__', $xmlObj);
+        // hose the index array as we'll generate it from the ingested object later
+        $indexArray = array();
 		$datastreamTitles = $display->getDatastreamTitles();
         return compact('datastreamTitles', 'xmlObj', 'indexArray'); 
     }
@@ -654,17 +644,18 @@ class Record
      * @param   array $dsarray The array of datastreams
      * @return  void
      */
-    function insertFromTemplate($pid, $dsarray)
+    function insertFromTemplate($pid, $xdis_id, $title, $dsarray)
     {
         extract($dsarray);
         // find all instances of '__makeInsertTemplate_PID__' in xmlObj and replace with the correct PID
         // xmlObj is still a text representation at this stage.
         $xmlObj = str_replace('__makeInsertTemplate_PID__', $pid, $xmlObj);
-        // fix up the indexArray so that the PIDs are correct
-        foreach ($indexArray as &$item) {
-            $item[0] = $pid;
-        }
+        $xmlObj = str_replace('__makeInsertTemplate_DCTitle__', $title, $xmlObj);
         Record::insertXML($pid, compact('datastreamTitles', 'xmlObj', 'indexArray'), true);
+        // take out any indexes we might have added - we are about to generate from the fedora object so we pick up 
+        // the correct title.
+        Record::removeIndexRecord($pid);
+        Record::setIndexMatchingFields($xdis_id, $pid);
     }
 
     /**
@@ -1263,7 +1254,7 @@ class RecordObject extends RecordGeneral
 		} 
 		$file_downloads = $this->file_downloads;
 
-		$xmlObj = Misc::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, $file_downloads, $this->created_date, $this->updated_date);
+		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, $file_downloads, $this->created_date, $this->updated_date);
 
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
 		$datastreamTitles = $display->getDatastreamTitles();

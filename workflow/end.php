@@ -70,11 +70,13 @@ if ($href) {
 $parents_list = unserialize(Misc::GETorPOST('parents_list'));
 if (is_array($parents_list)) {
     foreach ($parents_list as &$item) {
-        $precord = new RecordObject($item['pid']);
-        if ($precord->isCommunity()) {
-            $item['url'] = APP_RELATIVE_URL."list.php?community_pid={$item['pid']}";
-        } else {
-            $item['url'] = APP_RELATIVE_URL."list.php?collection_pid={$item['pid']}";
+        if (Misc::isValidPid($item['pid'])) {
+            $precord = new RecordObject($item['pid']);
+            if ($precord->isCommunity()) {
+                $item['url'] = APP_RELATIVE_URL."list.php?community_pid={$item['pid']}";
+            } else {
+                $item['url'] = APP_RELATIVE_URL."list.php?collection_pid={$item['pid']}";
+            }
         }
     }
 }
@@ -99,16 +101,18 @@ if ($parent_pid) {
         $view_parent_url = APP_RELATIVE_URL."list.php";
         $parent_title = "Repository";
     } else {
-        $precord = new RecordObject($parent_pid);
-        if ($precord) {
-            if ($precord->isCommunity()) {
-                $view_parent_url = APP_RELATIVE_URL."list.php?community_pid=$parent_pid";
+        if (Misc::isValidPid($parent_pid)) {
+            $precord = new RecordObject($parent_pid);
+            if ($precord) {
+                if ($precord->isCommunity()) {
+                    $view_parent_url = APP_RELATIVE_URL."list.php?community_pid=$parent_pid";
+                } else {
+                    $view_parent_url = APP_RELATIVE_URL."list.php?collection_pid=$parent_pid";
+                }
+                $parent_title = $precord->getTitle();
             } else {
-                $view_parent_url = APP_RELATIVE_URL."list.php?collection_pid=$parent_pid";
+                $parent_title = $parent_pid;
             }
-            $parent_title = $precord->getTitle();
-        } else {
-            $parent_title = $parent_pid;
         }
     }
 } 
