@@ -20,95 +20,39 @@
  <h2>User Guide</h2>
 
 
- <div class="todo">
-  TODO: Fill in information on this product. Make sure to use the
-  <strong>product</strong> name and <strong>external</strong> release
-  number, not internal information.
- </div>
-
  <div id="projectinfo">
  <h3>Product Release Information</h3>
  <div class="axial">
  <table border="1" cellpadding="3" cellspacing="2">
   <tr>
    <th>Product:</th> 
-   <td><a href="http://www.COMPANY.com/products/PRODUCTNAME/">PRODUCTNAME</a></td> 
+   <td>Fez</td> 
   </tr>
   <tr>
    <th>Release Number:</th> 
    <td>
-     X.Y.Z
+     1.0.0 BETA
    </td> 
   </tr>
   <tr>
    <th>Release Date:</th> 
    <td>
-     YEAR/MONTH/DAY
+     2005/11/04
    </td> 
   </tr>
-  <tr>
-   <th>Customer Support:</th> 
-   <td class="sample1">For more information or support, please visit our 
-      <a href="http://www.COMPANY.com/products/PRODUCTNAME/">website</a>
-       or email us at
-       <a href="mailto:support&#064;COMPANY.com">support&#064;COMPANY.com</a>
+
+    <tr>
+   <th>Support:</th> 
+   <td class="sample1">For more information or support, please join the fez users email list at
+       <a href="http://lists.sourceforge.net/lists/listinfo/fez-users">http://lists.sourceforge.net/lists/listinfo/fez-users</a>
    </td> 
   </tr>
  </table>
  </div>
  </div> <!-- /projectinfo -->
 
- <div id="toc">
- <h3>Table of Contents</h3>
- <div class="todo">
-  TODO: Fill in the user guide outline below.
- </div>
-
- <div class="tip">
-  TIP: Consider providing both tutorial (step-by-step) and reference
-  material.  You can organize the user guide by features, by use
-  cases, by roles, or in other ways.
- </div>
-
-
- <ol class="sample1">
-  <li>Introduction
-   <ul>
-    <li>What is PRODUCT-NAME?</li>
-    <li>About this user guide</li>
-   </ul>
-  </li>
-  <li>SECTION-NAME
-   <ul>
-    <li>SUB-SECTION-NAME</li>
-    <li>SUB-SECTION-NAME</li>
-    <li>SUB-SECTION-NAME</li>
-   </ul>
-  </li>
-  <li>SECTION-NAME
-   <ul>
-    <li>SUB-SECTION-NAME</li>
-    <li>SUB-SECTION-NAME</li>
-    <li>SUB-SECTION-NAME</li>
-    <li>SUB-SECTION-NAME</li>
-    <li>SUB-SECTION-NAME</li>
-    <li>SUB-SECTION-NAME</li>
-    <li>SUB-SECTION-NAME</li>
-   </ul>
-  </li>
-  <li>SECTION-NAME
-   <ul>
-    <li>SUB-SECTION-NAME</li>
-    <li>SUB-SECTION-NAME</li>
-    <li>SUB-SECTION-NAME</li>
-    <li>
-    
-    </li>
-   </ul>
-  </li>
- </ol>
-
- </div> <!-- toc -->
+ <div id="toc"></div> 
+ <!-- toc -->
 <div>
 <h3>System Requirements</h3>
   <dl>
@@ -118,16 +62,16 @@
         </dd>
         <dt>What are the system software requirements?</dt>
         <dd class="sample1">
-          <p>Fedora 2.0+ must be installed on a server. Visit the Fedora website for details on how to install Fedora. </p>
+          <p>Fedora 2.1b+ must be installed on a server (2.0 will work if you change two Fedora API lines in the Fez config.inc.php file). Visit the Fedora website for details on how to install Fedora. </p>
           <p>The Fez PHP code must be setup on a webserver with PHP 5+. PHP 4 will not be sufficient as Fez uses the DOMDocument object which is only in PHP 5 and upwards. MySQL 4.1+ must also be setup on a server. MySQL 4.0 or lower will not be sufficient as Fez takes advantage of subqueries and other features that were introduced in MySQL 4.1. At UQ Library we run Fedora on its own Linux server with a samba mapped drive to a SAN (storage area network) for storage of non-xml objects like large files. We run the Fez and the Fedora MySQL database on our central MySQL database server. The Fez PHP code is run from a specific web application server (with Apache 1.3.x and PHP 5.0.4). </p>
         </dd>
         <dt>&nbsp;</dt>
         <dd class="sample1">
-          <p>&nbsp;</p>
+          <p><strong>NOTE: See the <a href="install.html">Installation Instructions</a> for full details </strong></p>
           <p>PHP 5 Configuration Details:</p>
           <ul>
             <li>The NuSOAP classes come with the Fez code, so the 'soap' extension to PHP does not need to be installed (it hasn't even been tested with Fez, although it may work).</li>
-            <li>The php max_file_upload parameter in php.ini should be changed to at least 12megs instead of the default 2megs for file uploads. The higher the max_file_upload parameter the bigger the size of file you can upload into Fez.</li>
+            <li>The php max_file_upload parameter in php.ini should be changed to at least 10megs instead of the default 2megs for file uploads. The higher the max_file_upload parameter the bigger the size of file you can upload into Fez.</li>
             <li>The CURL PHP extenstion must be enabled </li>
             <li>The DOMXML PHP extenstion must be enabled</li>
             <li>The LDAP PHP extenstion must be enabled</li>
@@ -141,14 +85,6 @@
 
 </div>
 
-
-<div class="todo">
-  TODO:  Check for <a
-  href="http://readyset.tigris.org/words-of-wisdom/userguide.html">words
-  of wisdom</a> and discuss ways to improve this template.
-  Or, evaluate the ReadySET Pro <a
-  href="http://www.readysetpro.com/">professional user guide template</a>.
-</div>
 
 <div class="legal1">Company Proprietary</div>
 

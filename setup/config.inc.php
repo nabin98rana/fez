@@ -143,7 +143,7 @@ if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Serve
 
 @define("APP_SESSION_EXPIRE", time() + (60 * 60 * 8));
 
-@define("APP_VERSION", "0.1.0");
+@define("APP_VERSION", "1.0 BETA");
 
 @define("APP_DEFAULT_PAGER_SIZE", 5);
 @define("APP_DEFAULT_REFRESH_RATE", 5); // in minutes
