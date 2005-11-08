@@ -1,0 +1,72 @@
+
+      <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+        <tr>
+          <td>
+            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+              {literal}
+              <script language="JavaScript">
+              <!--
+              function validateForm(f)
+              {
+                  if (isWhitespace(f.title.value)) {
+                      alert('Please enter the title of this news entry.');
+                      selectField(f, 'title');
+                      return false;
+                  }
+                  return true;
+              }
+              //-->
+              </script>
+              {/literal}
+              <form name="news_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}">
+              <input type="hidden" name="cat" value="go">
+              <input type="hidden" name="id" value="{$smarty.get.id}">
+              <tr>
+                <td colspan="2" class="default">
+                  <b>Reindex</b>
+                </td>
+              </tr>
+              {if $result != ""}
+              <tr>
+                <td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
+                  {if $smarty.post.cat == "new"}
+                    {if $result == -1}
+                      An error occurred while trying to add the news entry.
+                    {elseif $result == -2}
+                      Please enter the title for this news entry.
+                    {elseif $result == -3}
+                      Please enter the message for this news entry.
+                    {elseif $result == 1}
+                      Thank you, the news entry was added successfully.
+                    {/if}
+                  {elseif $smarty.post.cat == "update"}
+                    {if $result == -1}
+                      An error occurred while trying to update the news entry information.
+                    {elseif $result == -2}
+                      Please enter the title for this news entry.
+                    {elseif $result == -3}
+                      Please enter the message for this news entry.
+                    {elseif $result == 1}
+                      Thank you, the news entry was updated successfully.
+                    {/if}
+                  {/if}
+                </td>
+              </tr>
+              {/if}
+             <tr>
+                <td bgcolor="{$light_color}" class="default">
+                Reindexing will find items in the fedora database that are not indexed in the 
+                fez database.
+                </td>
+              </tr>
+              <tr>
+                <td colspan="2" bgcolor="{$cell_color}" align="center">
+                  <input class="button" type="submit" value="Reindex">
+                </td>
+              </tr>
+              </form>
+            </table>
+          </td>
+        </tr>
+      </table>
+
