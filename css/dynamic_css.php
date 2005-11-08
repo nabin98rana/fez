@@ -2,6 +2,8 @@
 include_once('../config.inc.php');
 include_once(APP_INC_PATH.'class.template.php');
 
+header("Content-type: text/css");
+
 $tpl = new Template_API();
 $tpl->setTemplate("css/dynamic_css.tpl.css");
 $tpl->smarty->left_delimiter = '[[';
