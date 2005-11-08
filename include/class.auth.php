@@ -730,6 +730,23 @@ class Auth
 
 
     /**
+     * Method to check whether an user is active or not.
+     *
+     * @access  public
+     * @param   string $username The username to be checked
+     * @return  boolean
+     */
+    function isActiveUser($username)
+    {
+        $status = User::getStatusByUsername($username);
+        if ($status != 'active') {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
      * Gets the current user ID.
      *
      * @access  public

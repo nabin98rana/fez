@@ -50,6 +50,12 @@ if (count($HTTP_POST_VARS) > 0) {
 		Auth::redirect(APP_RELATIVE_URL . "login.php?err=2&username=" . $HTTP_POST_VARS["username"]);
 	}
 
+
+	// check if this user is really an active one
+	if (!Auth::isActiveUser($HTTP_POST_VARS["username"])) {
+		Auth::redirect(APP_RELATIVE_URL . "login.php?err=7&username=" . $HTTP_POST_VARS["username"]);
+	}
+
 	// check if the password matches
 	if (!Auth::isCorrectPassword($HTTP_POST_VARS["username"], $HTTP_POST_VARS["passwd"])) {
 		Auth::redirect(APP_RELATIVE_URL . "login.php?err=3&username=" . $HTTP_POST_VARS["username"]);

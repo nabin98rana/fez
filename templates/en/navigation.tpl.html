@@ -11,7 +11,7 @@
             <tr>
                 <td width=100% height="55">
 <!-- -------------- Put your page heading below here --------------- -->
-<a href="{$app_base_url}" target="_top"><img title="Click here to go the the Fez homepage" border="0" align="top" src="{$rel_url}images/Fez_Header.gif"/></a>
+<a href="{$app_base_url}" target="_top"><img title="Click here to go the the {$application_title} homepage" border="0" align="top" src="{$rel_url}images/Fez_Header.gif"/></a>
 <!-- -------------- Put your page heading above here --------------- -->
               </td></tr>
           </table></td></tr>
@@ -28,16 +28,16 @@
         <tr height="21" valign="middle">
 		  
           <td class="default_white">
-            &nbsp;<b>{$app_setup.tool_caption|default:$application_title}</b> {if $isUser}(<a title="logout from {$app_setup.tool_caption|default:$application_title}" target="_top" href="{$rel_url}logout.php" class="white_link">Logout</a>){else}(<a title="login to {$app_setup.tool_caption|default:$application_title}" target="_top" href="{$rel_url}login.php" class="white_link">Login</a>){/if}
+            &nbsp;<b>{$application_title}</b> {if $isUser}(<a title="logout from {$application_title}" target="_top" href="{$rel_url}logout.php" class="white_link">Logout</a>){else}(<a title="login to {$application_title}" target="_top" href="{$rel_url}login.php" class="white_link">Login</a>){/if}
           </td>
           
           <td align="right" class="default">
             {if $isAdministrator}
             <img src="{$rel_url}images/administrator_16.gif" align="absmiddle"/> <a target="_top" title="manage the application settings, users, etc" href="{$rel_url}manage/" class="white_link">Administration</a>&nbsp;|
             {/if}
-            <img src="{$rel_url}images/community_16.gif" align="absmiddle"/> <a target="_top" title="list the communities stored in Fez" href="{$rel_url}list.php" class="white_link">Browse Communities</a>&nbsp;|
+            <img src="{$rel_url}images/community_16.gif" align="absmiddle"/> <a target="_top" title="list the communities stored in {$application_title}" href="{$rel_url}list.php" class="white_link">Browse Communities</a>&nbsp;|
             {if $isAdministrator || $isFezUser}
-            <img src="{$rel_url}images/my_fez_16.gif" align="absmiddle"/> <a target="_top" title="" href="{$rel_url}my_fez.php" class="white_link">My Fez</a>&nbsp;|
+            <img src="{$rel_url}images/my_fez_16.gif" align="absmiddle"/> <a target="_top" title="" href="{$rel_url}my_fez.php" class="white_link">My {$application_title}</a>&nbsp;|
             {/if}
             <img src="{$rel_url}images/help.gif" align="absmiddle"/> <a title="help documentation" href="javascript:void(null);" onClick="javascript:openHelp('{$rel_url}', 'main');" class="help">Help</a>&nbsp;
           </td>

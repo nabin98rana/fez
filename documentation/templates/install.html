@@ -76,20 +76,10 @@ BETA</td>
   <dt>What other software must be installed first?</dt>
 
   <dd class="sample1">Fez has been tested successfully on Windows and Linux servers. Before you can install this product, you must install the
-  following packages:
-    <ul>
-    <li><a href="http://java.sun.com/">Java SDK</a>
+  following packages. This can all be installed on the one server, or separate servers for mysql, apache, fedora if you wish.
+    <ul><li><a href="http://www.fedora.info/">Fedora 2.1 Digital Repository</a>
       <ul>
-        <li><strong>Notes:</strong>
-          <ul>
-            <li>The Java SDK is required by Fedora and JHOVE (for the JRE). Setup the JAVA_HOME, FEDORA_HOME and other environment variables as per the Fedora <a href="http://www.fedora.info/download/2.1b/userdocs/distribution/installation.html">installation instructions</a>.</li>
-          </ul>
-        </li>
-        </ul>
-    </li>
-    <li><a href="http://www.fedora.info/">Fedora 2.1 Digital Repository</a>
-      <ul>
-        <li><strong>Note</strong>: You can also use Fedora 2.0 instead by  modfying the Fez generated <strong>config.inc.php</strong> by commenting out the 2.1 API-M and API-A soap locations and uncommenting the 2.0 locations (2 lines each).<br /> <br /></li>
+        <li><strong>Note</strong>: You can also use Fedora 2.0 instead by  modfying the Fez generated <strong>config.inc.php</strong> by commenting out the 2.1 API-M and API-A soap locations and uncommenting the 2.0 locations (2 lines each). This is due to the fact the API soap locations were changed from 2.0 to 2.1.<br /> <br /></li>
         <li><strong>Recommendations:
           </strong>          
             <ul>
@@ -99,25 +89,34 @@ BETA</td>
         </li>
       </ul>
     </li>	
-    <li><a href="http://jakarta.apache.org/">Apache Web Server</a>
+    <li><a href="http://java.sun.com/">Java SDK</a>
       <ul>
-        <li><strong>Notes:</strong>          
-          <ul>
-            <li>We have only tested using Apache 1.3.x, however there should be no reason Fez won't run on Apache 2.x. Fez should also be able to run on any webserver that will support PHP5 (eg Microsoft IIS etc) but we have not tested this yet. </li>
-            <li>We recommend setting apache to recognise &quot;index.php&quot; as a &quot;Directory Index&quot; so that the Fez index file is loaded immediately eg: 
-              <ul>
-                <li>&lt;IfModule mod_dir.c&gt;<br />
-DirectoryIndex <strong>index.php</strong> index.html<br />
-&lt;/IfModule&gt;</li>
-              </ul>
-            </li>
+        <li><strong>Notes:</strong>
+            <ul>
+              <li>The Java SDK 1.4.2 is required by Fedora and JHOVE (for the JRE). Setup the JAVA_HOME, FEDORA_HOME and other environment variables as per the Fedora <a href="http://www.fedora.info/download/2.1b/userdocs/distribution/installation.html">installation instructions</a>. According to the Fedora mailing list there are problems with using Java version 1.5, so it is preferable to use version 1.4.2. </li>
             </ul>
         </li>
-        </ul>
+      </ul>
+    </li>
+    <li><a href="http://jakarta.apache.org/">Apache Web Server</a>
+        <ul>
+            <li><strong>Notes:</strong>          
+              <ul>
+                <li>We have only tested using Apache 1.3.x, however there should be no reason Fez won't run on Apache 2.x. Fez should also be able to run on any webserver that will support PHP5 (eg Microsoft IIS etc) but we have not tested this yet. </li>
+                <li>We recommend setting apache to recognise &quot;index.php&quot; as a &quot;Directory Index&quot; so that the Fez index file is loaded immediately eg: 
+                  <ul>
+                    <li>&lt;IfModule mod_dir.c&gt;<br />
+    DirectoryIndex <strong>index.php</strong> index.html<br />
+&lt;/IfModule&gt;</li>
+                  </ul>
+                </li>
+                </ul>
+            </li>
+          </ul>
     </li>
     <li><a href="http://dev.mysql.com/">MySQL 4.1 database</a>
       <ul>
-        <li><strong>Note:</strong> We are still sorting out some bugs with MySQL 5, but hope to support it soon (sooner if MySQL fixes the 'join' bug). </li>
+        <li><strong>Note:</strong> We are still sorting out some bugs with MySQL 5, but hope to support it soon, but for now <strong>Fez will not run on MySQL 5</strong>. </li>
       </ul>
     </li>
     <li><a href="http://www.php.net/">PHP 5</a>
@@ -125,7 +124,7 @@ DirectoryIndex <strong>index.php</strong> index.html<br />
   <ul>
         <li>These <strong>PHP extensions</strong> must be enabled and the libraries installed where neccessary (the links take you to the php manual with installation instructions for each extension):
           <ul>
-            <li><a href="http://www.php.net/tidy">Tidy</a> </li>
+            <li><a href="http://www.php.net/tidy">Tidy</a></li>
             <li><a href="http://www.php.net/manual/en/ref.ldap.php">LDAP</a></li>
             <li><a href="http://www.php.net/GD">GD</a></li>
             <li><a href="http://www.php.net/mysql">MySQL</a></li>
@@ -134,7 +133,7 @@ DirectoryIndex <strong>index.php</strong> index.html<br />
         </li>
         <li><strong>PHP.ini</strong> configuration requirements:
           <ul>
-            <li>allow_call_time_pass_reference = On (Fez may not need this in future releases)</li>
+            <li>allow_call_time_pass_reference = On (Fez may not need this in future releases, especially since it will probabaly be deprecated in PHP6)</li>
             </ul>
         </li>
         <li><strong>PHP.ini</strong> configuration recommendations:
@@ -146,13 +145,32 @@ DirectoryIndex <strong>index.php</strong> index.html<br />
     </li>
     <li><a href="http://www.imagemagick.com/">Image Magick</a> (for thumbnail resizing and image previewing)
       <ul>
-        <li>For Windows servers you will need to install the dll version available on the Image Magick website </li>
+        <li>For Windows servers you will need to install the dll version available on the Image Magick website 
+          <ul>
+            <li>Make sure you add the Image Magick directory containing the 'identify' and 'convert' executables in the windows environment path </li>
+          </ul>
+        </li>
+        <li>For Linux you can download the source and compile it, or use one of the binaries for your Linux distro
+          <ul>
+            <li>For Linux Fez expects the IM commands 'identify' and 'convert' to be in certain locations set in the Fez config.inc.php. Make sure they are the correct paths and change the config.inc.php settings if necessary.</li>
+          </ul>
+        </li>
+        </ul>
+    </li>
+    <li><a href="http://www.graphviz.org/">Graphviz</a> (for workflow diagrams)
+      <ul>
+        <li>For Windows servers you will need to install the windows install executable version. The windows installer adds the executable directory to the PATH environment variable automatically.</li>
+        <li>For Linux you can install the RPM package on the Graphviz site or install it from source. Make sure the 'dot' executable path is in the PATH environment variable. </li>
       </ul>
     </li>
     <li><a href="http://hul.harvard.edu/jhove/">JHOVE</a> (for preservation metadata extraction) 
       <ul>
-        <li>Be sure to edit the jhove.bat (windows) or jhove command (linux) and set the JHOVE_HOME and other variables inside them as per the JHOVE <a href="http://hul.harvard.edu/jhove/distribution.html">installation instructions</a>. </li>
-      </ul>
+        <li>Be sure to edit the jhove.bat (windows) or jhove command (linux) and set the JHOVE_HOME and other variables inside them as per the JHOVE <a href="http://hul.harvard.edu/jhove/distribution.html">installation instructions</a>. 
+          <ul>
+            <li>Fez expects JHOVE to be in /usr/local/jhove for linux or c:/jhove for windows. If you install jhove to different directories to this then update the Fez config.inc.php with the correct locations. </li>
+          </ul>
+        </li>
+        </ul>
     </li>	
     </ul>
   </dd>
@@ -171,7 +189,7 @@ DirectoryIndex <strong>index.php</strong> index.html<br />
     </li>
     <li>Open your web browser and load the &quot;http://<em>yourserver.com</em>/fez/setup/&quot;. This will load the config setup interface. 
       <ul>
-        <li>Note: If any of the <strong>PHP requirements</strong> are missing the setup script will ask you to install them first, rather than show then config form. </li>
+        <li>Note: If any of the <strong>PHP requirements</strong> are missing the setup script will ask you to install them first, rather than show the config form. </li>
       </ul>
     </li>
     <li>Fill in the setup config details and click &quot;Start Installation&quot;. </li>
@@ -212,7 +230,7 @@ with username &quot;admin&quot;, password &quot;admin&quot;.</li>
    <li>Change the admin user password to something more secure.
      <ul>
                 <li>You can setup other users in here and set them to be Fez Administrators </li>
-                <li>If LDAP is ticked for the user Fez will authenticate against the LDAP server setup in your config.inc.php</li>
+                <li>If LDAP is ticked for a user Fez will authenticate against the LDAP server setup in your config.inc.php</li>
            </ul>
    </li>
    <li>Go to the &quot;browse communities&quot; tab link.</li>
