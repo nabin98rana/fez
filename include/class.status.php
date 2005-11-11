@@ -94,9 +94,9 @@ class Status
 					sta_color
                  ) VALUES (
                     '" . Misc::escapeString($HTTP_POST_VARS["sta_title"]) . "',
-					'" . Misc::escapeString($HTTP_POST_VARS["sta_order"]) . "',
+					" . Misc::escapeString($HTTP_POST_VARS["sta_order"]) . ",
 					'" . Misc::escapeString($HTTP_POST_VARS["sta_color"]) . "'					
-                 )";
+                 )"; 
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

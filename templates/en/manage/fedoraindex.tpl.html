@@ -75,7 +75,7 @@ function selectCollection(f, field_name)
 
     if (selections.length > 0) {
         dt_load_state++;
-        //document.getElementById('tr_xdis_id').style.display = '';
+        document.getElementById('tr_xdis_id').style.display = '';
         showLoading1();
         var obj = new SelectReindexInfo();
         obj.onGetDocTypesError = function() {
@@ -92,65 +92,35 @@ function selectCollection(f, field_name)
                 });
     }
 }
-function showSettings() {
-	document.getElementById('tr_community_pid').style.display = '';
-	document.getElementById('tr_collection_pid').style.display = '';
-	document.getElementById('tr_xdis_id').style.display = '';
-	document.getElementById('tr_sta_id').style.display = '';
-}
-function hideSettings() {
-	document.getElementById('tr_community_pid').style.display = 'none';
-	document.getElementById('tr_collection_pid').style.display = 'none';
-	document.getElementById('tr_sta_id').style.display = 'none';
-	document.getElementById('tr_xdis_id').style.display = 'none';
-}
-function toggleOverride()
-{
-  var f = getForm('reindex_form');
-  if (f.override.checked) {
-	  showSettings();
-  } else {
-	  hideSettings();
-  }
-  return true;
-}
 
 {/literal}
 // -->
 </script>
               <tr>
                 <td colspan="2" class="default">
-                  <b>Reindex Fez Fedora Objects</b>
+                  <b>Index Fedora Objects into Fez</b>
                 </td>
               </tr>
              <tr>
                 <td bgcolor="{$light_color}" class="default">
-                This is a list of items in the fedora database that are already indexed in the 
-                fez database. Check the boxes next to the objects you want Fez to reindex and click 'Reindex'.
+                This is a list of items in the fedora database that are not indexed in the 
+                fez database. Check the boxes next to the objects you want Fez to index and click 'Index Into Fez'.
                 </td>
               </tr>
 		  <tr>
 			<td>
-			  <table width="100%">
+			  <table>
                     <form name="reindex_form" onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
 			<tr>
 			  <td class="default" colspan="2">
 				<b><img align="absmiddle" src="{$rel_url}images/collection.jpg" border="0"> &nbsp; Select Destination Collection</b>
 			  </td>
 			</tr>			
-			  <tr>
-				<td width="200" bgcolor="{$cell_color}" class="default">
-				  <b>Override existing destination and publish settings with new values?:</b>
-				</td>
-				<td bgcolor="{$light_color}">
-				  <input type="checkbox" name="override" onClick="javascript:toggleOverride();">  <span class="default"><i>(If you check this box some override settings will appear)</i></span>
-				</td>
-			  </tr>
-			<tr style="display:none;" id="tr_community_pid">
+			<tr>
 			  <td  bgcolor="{$cell_color}" class="default" nowrap>
 				<b>Parent Community</b>
 			  </td>
-			  <td bgcolor="{$light_color}">
+			  <td width="75%" bgcolor="{$light_color}">
 				<select class="default" name="community_pid" onChange="javascript: selectCommunity(this.form, 'community_pid')" >
 				  {html_options options=$communities_list selected=$communities_list_selected }
 				</select>
@@ -177,7 +147,7 @@ function toggleOverride()
 				</select>
 			  </td>
 			</tr>
-			<tr style="display:none;" id="tr_sta_id">
+			<tr>
 			  <td bgcolor="{$cell_color}" class="default">
 				<b>Publishing Status</b>
 			  </td>
@@ -232,7 +202,7 @@ function toggleOverride()
                         <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
                       </td>
                       <td colspan="3" align="center" bgcolor="{$cell_color}">
-                        <input type="submit" value="Reindex" class="button">
+                        <input type="submit" value="Index Into Fez" class="button">
                       </td>
                     </tr>
                   </table>
@@ -243,7 +213,7 @@ function toggleOverride()
         </tr>
       </table>
 	  </form>
-
 <script type="text/javascript"><!-- 
-hideSettings();
+selectCommunity(getForm('wfl_form1'), 'community_pid'); 
 // --></script>	  
+

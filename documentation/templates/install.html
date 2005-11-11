@@ -36,7 +36,7 @@ BETA</td>
   <tr>
    <th>Release Date:</th> 
    <td>
-     2005/11/4
+     2005/11/8
    </td> 
   </tr>
   <tr>
@@ -185,15 +185,20 @@ BETA</td>
     <li>Uncompress to a folder in your <strong>htdocs</strong> Apache directory
       <ul>
       <li>Note: You may wish to set the Fez directory up as &quot;Virtual Host&quot; or as the &quot;Document Root&quot; in your Apache httpd.conf file. </li>
-     </ul>
-    </li>
+      <li>If you are using Linux then make sure the user that runs the apache service has rights to be able to write files to the fez folders. Apache/PHP will need to write the config.inc.php file, create the templates_c directory, the include/private_key.php file and the error_log.log file. </li>
+      </ul>
+      </li>
     <li>Open your web browser and load the &quot;http://<em>yourserver.com</em>/fez/setup/&quot;. This will load the config setup interface. 
       <ul>
         <li>Note: If any of the <strong>PHP requirements</strong> are missing the setup script will ask you to install them first, rather than show the config form. </li>
       </ul>
     </li>
-    <li>Fill in the setup config details and click &quot;Start Installation&quot;. </li>
-   </ol>
+    <li>Fill in the setup config details and click &quot;Start Installation&quot;.
+      <ul>
+        <li><strong>Note:</strong> We recommended moving the error_log.log and the config.inc.php files below the apache document root to be more secure. </li>
+      </ul>
+    </li>
+    </ol>
   </dd>
 
 

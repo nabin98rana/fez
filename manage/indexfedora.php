@@ -56,7 +56,7 @@ if (NAJAX_Server::runServer()) {
 
 Auth::checkAuthentication(APP_SESSION);
 
-$tpl->assign("type", "reindex");
+$tpl->assign("type", "fedoraindex");
 $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
@@ -72,8 +72,7 @@ if ($isAdministrator) {
     $tpl->assign("show_not_allowed_msg", true);
 }
 
-		$details = Reindex::getFullList();
-//        print_r($details);
+		$details = Reindex::getMissingList();
 		$tpl->assign("list", $details);
 //        return $details; 
 
@@ -85,7 +84,7 @@ $tpl->assign('status_list', $status_list);
 $tpl->assign('communities_list', $communities_list);
 $tpl->assign('communities_list_selected', $communities['list'][0]['pid']);
 $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
-$tpl->assign('najax_register', NAJAX_Client::register('SelectReindexInfo', 'reindex.php'));
+$tpl->assign('najax_register', NAJAX_Client::register('SelectReindexInfo', 'indexfedora.php'));
 
 
 $tpl->displayTemplate();

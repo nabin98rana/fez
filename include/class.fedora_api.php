@@ -199,7 +199,8 @@ class Fedora_API {
 		$searchPhrase = "";	
 		$itql = urlencode($itql); // encode it for url parsing
 		// create the fedora web service URL query string to run the ITQL
-		$searchPhrase = "?type=tuples&lang=itql&format=Sparql&limit=1000&dt=on&query=".$itql;	
+//		$searchPhrase = "?type=tuples&lang=itql&format=Sparql&limit=1000&dt=on&query=".$itql;	
+		$searchPhrase = "?type=tuples&lang=itql&format=Sparql&dt=on&query=".$itql;	
 		// format the return fields URL query string
 		// Should abstract the below for into a function in here
 		$stringfields = array();

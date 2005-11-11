@@ -357,6 +357,63 @@ class Collection
         return $list2;
     }
 
+    /**
+      * List the collections in a community 
+      * @param integer $community_pid The pid of the community to restrict the list to
+      * @return array Associative array of collections - (pid, title)
+      */
+    function getCommunityAssocList($community_pid=null) {
+        // get list of collections that 
+        // parent is community_pid
+        // has ACMLs set
+        //     AND user is in the roles for the ACML (group, user, combos)
+        // OR parents of the collection have ACML set
+        //     AND user is in the roles for the ACML
+        $returnfields = array("title", "description", "ret_id", "xdis_id", "sta_id"); 
+        $returnfield_query = Misc::array_to_sql_string($returnfields);
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $restrict_community = '';
+        if ($community_pid) {
+            $restrict_community = " AND r1.rmf_rec_pid IN (
+                SELECT r3.rmf_rec_pid 
+                FROM  {$dbtp}record_matching_field AS r3
+                INNER JOIN {$dbtp}xsd_display_matchfields AS x3
+                ON x3.xsdmf_id = r3.rmf_xsdmf_id
+                INNER JOIN {$dbtp}search_key AS s3
+                ON x3.xsdmf_sek_id = s3.sek_id
+                WHERE s3.sek_title = 'isMemberOf'   
+                AND r3.rmf_varchar = '$community_pid'
+                )";
+        }
+        $stmt = " SELECT *
+            FROM {$dbtp}record_matching_field AS r1
+            INNER JOIN {$dbtp}xsd_display_matchfields AS x1
+            ON r1.rmf_xsdmf_id=x1.xsdmf_id
+            LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 
+            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+            WHERE (x1.xsdmf_fez_title IN ($returnfield_query)
+                    OR x1.xsdmf_element LIKE '!rule!role%')
+            AND r1.rmf_rec_pid in (
+                    SELECT r2.rmf_rec_pid 
+                    FROM  {$dbtp}record_matching_field r2
+                    INNER JOIN {$dbtp}xsd_display_matchfields x2
+                    ON r2.rmf_xsdmf_id = x2.xsdmf_id 
+                    INNER JOIN {$dbtp}search_key s2				  
+                    ON x2.xsdmf_sek_id = s2.sek_id 
+                    WHERE s2.sek_title = 'Object Type' 
+                    AND r2.rmf_varchar = '2' 
+                    )
+           $restrict_community
+           ";
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = array();
+        }
+        $list = Collection::makeReturnList($returnfields, $res);
+		return $list;
+    } 
+	
     function makeReturnList($returnfields, $res) {
         $return = array();
 //		print_r($returnfields);

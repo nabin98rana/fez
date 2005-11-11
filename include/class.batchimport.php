@@ -673,7 +673,7 @@ var $externalDatastreams;
 				<foxml:xmlContent>
 					<FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
 					  <xdis_id>'.$xdis_id.'</xdis_id>
-					  <sta_id/>'.$sta_id.'
+					  <sta_id>'.$sta_id.'</sta_id>
 					  <ret_id>'.$ret_id.'</ret_id>
 						  <created_date>'.$created_date.'</created_date>					  
 						  <updated_date>'.$updated_date.'</updated_date>
