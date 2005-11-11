@@ -707,25 +707,29 @@ class Auth
      */
     function isCorrectPassword($username, $password)
     {
-		global $HTTP_POST_VARS;
-		if (Auth::userExists($HTTP_POST_VARS["username"])) {
-			$userDetails = User::getDetails($username);
-			if (($userDetails['usr_ldap_authentication'] == 1) && (LDAP_SWITCH == "ON")) {
-				return Auth::ldap_authenticate($username, $password);
-			} else {
-				if ($userDetails['usr_password'] != md5($password) || (trim($password) == "")) {
-					return false;
-				} else {
-					return true;
-				}
-			}
-		} else {
-			if (LDAP_SWITCH == "ON") { 
-				return Auth::ldap_authenticate($username, $password);
-			} else {
-				return false;
-			}
-		}
+        if (APP_TEST) {
+            return true;
+        } else {
+            global $HTTP_POST_VARS;
+            if (Auth::userExists($HTTP_POST_VARS["username"])) {
+                $userDetails = User::getDetails($username);
+                if (($userDetails['usr_ldap_authentication'] == 1) && (LDAP_SWITCH == "ON")) {
+                    return Auth::ldap_authenticate($username, $password);
+                } else {
+                    if ($userDetails['usr_password'] != md5($password) || (trim($password) == "")) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+            } else {
+                if (LDAP_SWITCH == "ON") { 
+                    return Auth::ldap_authenticate($username, $password);
+                } else {
+                    return false;
+                }
+            }
+        }
     }
 
 
@@ -870,17 +874,20 @@ class Auth
      * @return  boolean true if the user successfully binds to the LDAP server
      */
 	function ldap_authenticate($p_user_id, $p_password) {
-		$t_authenticated 		= false;
-		$t_username             = $p_user_id;
-		$t_ds                   = ldap_connect(LDAP_SERVER, LDAP_PORT);
-		# Attempt to bind with the DN and password
-		$t_br = @ldap_bind( $t_ds, LDAP_PREFIX."\\".$t_username, $p_password );
-		if ($t_br) {
-		  $t_authenticated = true;
-		}
-		@ldap_unbind( $t_ds );
-		return $t_authenticated; 
-		// return true; // switch this on and comment the rest out for debugging/development
+        if (APP_TEST) {
+            return true; // switch this on and comment the rest out for debugging/development
+        } else {
+            $t_authenticated 		= false;
+            $t_username             = $p_user_id;
+            $t_ds                   = ldap_connect(LDAP_SERVER, LDAP_PORT);
+# Attempt to bind with the DN and password
+            $t_br = @ldap_bind( $t_ds, LDAP_PREFIX."\\".$t_username, $p_password );
+            if ($t_br) {
+                $t_authenticated = true;
+            }
+            @ldap_unbind( $t_ds );
+            return $t_authenticated; 
+        }
 	}
 
     /**

@@ -203,6 +203,15 @@
                 </td>
               </tr>
               <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Roles: </b>
+                </td>
+                <td bgcolor="{$light_color}" width="80%">
+                  <input type="text" name="wfs_roles" class="default"
+                  value="{$info.wfs_roles|escape}" />
+                </td>
+              </tr>
+               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default" nowrap>
                   <b>Options:</b>
                 </td>
@@ -300,7 +309,7 @@
                     <tr>
                       <td width="4" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Name</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Assigned Role</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Roles</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Start</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>End</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Behaviour</b>&nbsp;</td>
@@ -316,7 +325,7 @@
                         {if $list[i].wfs_transparent == 1}<span style="color:#555555;">(transparent)</span>{/if}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
-                        &nbsp;{$list[i].wfs_assigned_role}
+                        &nbsp;{$list[i].wfs_roles}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
                         &nbsp;{if $list[i].wfs_start == 1}<span style="color:green;">yes</span>{/if}

@@ -89,6 +89,7 @@ class Workflow_State
                     wfs_wfl_id,
                     wfs_title,
                     wfs_description,
+                    wfs_roles,
                     wfs_auto,
                     wfs_wfb_id,
                     wfs_start,
@@ -98,6 +99,7 @@ class Workflow_State
                     '" . $HTTP_POST_VARS['wfs_wfl_id'] . "',
                     '" . Misc::escapeString($HTTP_POST_VARS['wfs_title']) . "',
                     '" . Misc::escapeString($HTTP_POST_VARS['wfs_description']) . "',
+                    '" . Misc::escapeString($HTTP_POST_VARS['wfs_roles']) . "',
                     '$wfs_auto',
                     '$wfs_wfb_id',
                     '" . Misc::checkBox(@$HTTP_POST_VARS['wfs_start']) . "',
@@ -131,6 +133,7 @@ class Workflow_State
                  SET
                     wfs_title='" . Misc::escapeString($HTTP_POST_VARS['wfs_title']) . "',
                     wfs_description='" . Misc::escapeString($HTTP_POST_VARS['wfs_description']) . "',
+                    wfs_roles='" . Misc::escapeString($HTTP_POST_VARS['wfs_roles']) . "',
                     wfs_auto='$wfs_auto',
                     wfs_wfb_id='$wfs_wfb_id',
                     wfs_start='".Misc::checkBox(@$HTTP_POST_VARS['wfs_start'])."',
@@ -241,6 +244,33 @@ class Workflow_State
         $ids_str = implode(',', $ids);
         $states = Workflow_State::getList(null, " AND wfs_id IN ($ids_str) ");
         return $states;
+    }
+
+    /**
+     * Used to find out if the current user can enter a state.
+     * This is used to restrict the list of next states for the user.  The workflow state has a list of roles 
+     * that the user must have on an object in order to be able to enter the state.  This function checks that 
+     * the user has the roles listed in the workflow state on the given pid.
+     * 
+     * @param integer wfs_id - The id of the workflow state
+     * @param integer pid - the pid of the record that the user wants to run the workflow state on
+      */
+    function canEnter($wfs_id, $pid)
+    {
+        $wfs = Workflow_State::getDetails($wfs_id);
+        if (!empty($wfs['wfs_roles'])) {
+            // the roles may be space or comma separated
+            $wfs_roles = preg_split("/[\s,]+/", $wfs['wfs_roles']);
+            $pid_roles = Auth::getAuthorisationGroups($pid);
+            foreach ($wfs_roles as $wfs_role) {
+                if (in_array($wfs_role, $pid_roles)) {
+                    return true;
+                }
+            }
+        } else {
+            return true;
+        }
+        return false;
     }
 
 
