@@ -377,7 +377,7 @@ class WorkflowStatus {
      */
     function getvar($name)
     {
-        return $this->vars[$name];
+        return @$this->vars[$name];
     }
 
     /** 
