@@ -257,6 +257,9 @@ class Workflow_State
       */
     function canEnter($wfs_id, $pid)
     {
+        if (Auth::isAdministrator()) {
+            return true;
+        }
         $wfs = Workflow_State::getDetails($wfs_id);
         if (!empty($wfs['wfs_roles'])) {
             // the roles may be space or comma separated

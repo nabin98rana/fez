@@ -304,6 +304,9 @@ class Workflow
       */
     function canTrigger($wfl_id, $pid)
     {
+        if (Auth::isAdministrator()) {
+            return true;
+        }
         $wfl = Workflow::getDetails($wfl_id);
         if (!empty($wfl['wfl_roles'])) {
             // the roles may be space or comma separated
