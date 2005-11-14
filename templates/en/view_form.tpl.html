@@ -11,6 +11,7 @@ var max_height = {$smarty.const.APP_IMAGE_PREVIEW_MAX_HEIGHT};
 {literal}
 
 var image_preview_loading = 0;
+var image_preview_current_id = '';
 
 // get an image and put it in the preview image
 function loadPreview(pid,datastreamID, alt)
@@ -37,6 +38,13 @@ function loadPreview(pid,datastreamID, alt)
             pv_img.alt = alt;
             pv_loading.style.display = 'none';
             image_preview_loading = 0;
+            if (image_preview_current_id.length > 0) {
+              tr_list = document.getElementById(image_preview_current_id);
+              tr_list.style.backgroundColor='{/literal}{$light_color}{literal}';
+            }
+            tr_list = document.getElementById('datastream_list_'+datastreamID);
+            tr_list.style.backgroundColor='{/literal}{$cell_color}{literal}';
+            image_preview_current_id = 'datastream_list_'+datastreamID;
             });
     
 }
@@ -197,16 +205,16 @@ function disableFields()
 			<td class="default_white" colspan="4" bgcolor="{$heading_color}"><b>Attached Files</b></td>
 		  </tr>
 
-		  <tr class="default">
-			<td bgcolor="{$cell_color}">Name</td>
-			<td bgcolor="{$cell_color}">Description</td>			
-			<td bgcolor="{$cell_color}">MIMEType</td>
-			<td bgcolor="{$cell_color}">Size</td>
+		  <tr class="default" bgcolor="{$cell_color}">
+			<td>Name</td>
+			<td>Description</td>			
+			<td>MIMEType</td>
+			<td>Size</td>
 		  </tr>
 
         {section name="d" loop=$datastreams}
 			{if $datastreams[d].controlGroup == "M"}
-			  <tr class="default"> 
+			  <tr class="default" id="datastream_list_{$datastreams[d].ID}" bgcolor="{$light_color}"> 
 
 				{assign var="image_file_name" value=$datastreams[d].MIMEType|replace:"/":"_"|cat:".png"}
 				{assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$image_file_name} 
@@ -219,16 +227,16 @@ function disableFields()
                                   {assign var="preview_ds_1" value=$datastreams[d]}
                                 {/if}
 
-				<td bgcolor="{$light_color}">
-          {if $datastreams[d].thumbnail != "0"}<img align="absmiddle" 
+				<td>
+          {if $datastreams[d].thumbnail != "0"}<a href="#"><img align="absmiddle" 
             src="{$eserv_url}{$datastreams[d].thumbnail}"
             border="1"
             onclick="javascript:loadPreview('{$pid}','{$datastreams[d].ID}', '{$datastreams[d].label}');"
-            >{/if}
+            ></a>{/if}
           {if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}images/default.png">{/if} <a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].ID}">{$datastreams[d].ID}</a> &nbsp;{if $datastreams[d].presmd != "0"}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].presmd}"><img title="preservation metadata" align="absmiddle" border="0" src="{$rel_url}images/presmd_22.gif"></a>{/if}</td>
-				<td bgcolor="{$light_color}">{$datastreams[d].label}</td>
-				<td bgcolor="{$light_color}">{$datastreams[d].MIMEType}</td>
-				<td bgcolor="{$light_color}">{$datastreams[d].size} bytes</td>		
+				<td>{$datastreams[d].label}</td>
+				<td>{$datastreams[d].MIMEType}</td>
+				<td>{$datastreams[d].size} bytes</td>		
 			  </tr>
 			 {/if}
         {/section}
