@@ -81,15 +81,8 @@ var $externalDatastreams;
     */
 	function handleEntireEprintsImport($pid, $collection_pid, $xmlObj) {
 		$importArray = array();
-		$xdis_id = 40; // standard fedora object
-		$ret_id = 3; // standard record type id
-		$sta_id = 1; // standard status type id
 		$created_date = date("Y-m-d H:i:s");
 		$updated_date = $created_date;
-		$xsd_id = XSD_Display::getParentXSDID($xdis_id);
-		$xsd_details = Doc_Type_XSD::getDetails($xsd_id);
-		$xsd_element_prefix = $xsd_details['xsd_element_prefix'];
-		$xsd_top_element_name = $xsd_details['xsd_top_element_name'];
 		
 		$config = array(
 				'indent'      => true,
@@ -155,9 +148,7 @@ var $externalDatastreams;
 				}
 				
 				array_push($editorArray[$eprint_id], $family.", ".$given);
-			}
-	
-			
+			}				
 			$authorArray[$eprint_id] = array();
 			$author_fields = $xpath->query("./*[contains(@name, 'authors')]", $recordNode);
 			foreach ($author_fields as $author_field) {
@@ -168,9 +159,8 @@ var $externalDatastreams;
 	
 				$given_name = $xpath->query("./*[contains(@name, 'given')]", $author_field);
 				foreach ($given_name as $gname) {
-					$given = $gname->nodeValue;			
-				}
-				
+					$given = $gname->nodeValue;
+				}				
 				array_push($authorArray[$eprint_id], $family.", ".$given);
 			}
 			
@@ -188,213 +178,375 @@ var $externalDatastreams;
 				}
 			}
 		}
-		foreach ($importArray['confpaper'] as $key => $data_field) {
-			$oai_dc_url = "http://eprint.uq.edu.au/perl/oai2?verb=GetRecord&metadataPrefix=oai_dc&identifier=oai%3Aeprint.uq.edu.au%3A".$key;
-			$oai_dc_xml = Fedora_API::URLopen($oai_dc_url);
-	
-	
-			$config = array(
-					'indent'         => true,
-					'input-xml'   => true,
-					'output-xml'   => true,
-					'wrap'           => 200);
-		
-			$tidy = new tidy;
-			$tidy->parseString($oai_dc_xml, $config, 'utf8');
-			$tidy->cleanRepair();
-			$oai_dc_xml = $tidy;
-		
-			$xmlOAIDoc= new DomDocument();
-			$xmlOAIDoc->preserveWhiteSpace = false;
-			$xmlOAIDoc->loadXML($oai_dc_xml);
-		
-			$oai_xpath = new DOMXPath($xmlOAIDoc);
-			$oai_xpath->registerNamespace('oai_dc', 'http://www.openarchives.org/OAI/2.0/oai_dc/');
-			$oai_xpath->registerNamespace('dc', 'http://purl.org/dc/elements/1.1/');
-			$oai_xpath->registerNamespace('d', 'http://www.openarchives.org/OAI/2.0/');
-	
-			$formatNodes = $oai_xpath->query('//d:OAI-PMH/d:GetRecord/d:record/d:metadata/oai_dc:dc/dc:format');
-			$oai_ds = array();
-			foreach ($formatNodes as $format) {
-				$httpFind = "http://";
-				if (is_numeric(strpos($format->nodeValue, $httpFind))) {
-					array_push($oai_ds, substr($format->nodeValue, strpos($format->nodeValue, $httpFind)));
+		foreach ($importArray as $document_type => $eprint_record) {	
+			foreach ($importArray[$document_type] as $key => $data_field) {
+				$xmlDocumentType = '';
+				switch ($document_type) {
+					case 'confpaper':
+						$xdis_title = "Conference Paper";
+$xmlDocumentType = '<foxml:datastream ID="ConferencePaperMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+						<foxml:datastreamVersion MIMETYPE="text/xml" ID="ConferencePaperMD1.0" LABEL="Fez extension metadata for Conference Papers">
+							<foxml:xmlContent>
+								<ConferencePaperMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+								  <conference>'.$importArray[$document_type][$key]['conference'][0].'</conference>
+								  <conf_start_date/>
+								  <conf_end_date/>
+								  <confloc>'.$importArray[$document_type][$key]['confloc'][0].'</confloc>
+								  <conf_details>'.$importArray[$document_type][$key]['confdates'][0].'</conf_details>
+								</ConferencePaperMD>
+							</foxml:xmlContent>
+						</foxml:datastreamVersion>
+					  </foxml:datastream>'; 
+						break;
+					case 'journale':
+						$xdis_title = "Online Journal Article";
+$xmlDocumentType = '<foxml:datastream ID="OnlineJournalArticleMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+						<foxml:datastreamVersion MIMETYPE="text/xml" ID="OnlineJournalArticleMD1.0" LABEL="Fez extension metadata for Online Journal Articles">
+							<foxml:xmlContent>
+								<OnlineJournalArticleMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+								  <journal>'.$importArray[$document_type][$key]['publication'][0].'</journal>
+								  <volume>'.$importArray[$document_type][$key]['volume'][0].'</volume>
+								  <number>'.$importArray[$document_type][$key]['number'][0].'</number>
+								</OnlineJournalArticleMD>
+							</foxml:xmlContent>
+						</foxml:datastreamVersion>
+					  </foxml:datastream>'; 
+						break;
+					case 'journalp':
+						$xdis_title = "Journal Article";
+$xmlDocumentType = '<foxml:datastream ID="JournalArticleMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+						<foxml:datastreamVersion MIMETYPE="text/xml" ID="JournalArticleMD1.0" LABEL="Fez extension metadata for Journal Articles">
+							<foxml:xmlContent>
+								<JournalArticleMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+								  <journal>'.$importArray[$document_type][$key]['publication'][0].'</journal>
+								  <volume>'.$importArray[$document_type][$key]['volume'][0].'</volume>
+								  <number>'.$importArray[$document_type][$key]['number'][0].'</number>
+								  <pages>'.$importArray[$document_type][$key]['pages'][0].'</pages>
+								</JournalArticleMD>
+							</foxml:xmlContent>
+						</foxml:datastreamVersion>
+					  </foxml:datastream>'; 
+						break;
+					case 'other':
+						$xdis_title = "Generic Document";
+						break;
+					case 'preprint':
+						$xdis_title = "Generic Document";
+						break;
+					case 'thesis':
+						$xdis_title = "Thesis";
+$xmlDocumentType = '<foxml:datastream ID="ThesisMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+						<foxml:datastreamVersion MIMETYPE="text/xml" ID="ThesisMD1.0" LABEL="Fez extension metadata for Theses">
+							<foxml:xmlContent>
+								<ThesisMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+								  <schooldeptcentre>'.$importArray[$document_type][$key]['department'][0].'</schooldeptcentre>
+								  <institution>'.$importArray[$document_type][$key]['institution'][0].'</institution>
+								  <thesis_type>'.$importArray[$document_type][$key]['thesis_type'][0].'</thesis_type>
+								</ThesisMD>
+							</foxml:xmlContent>
+						</foxml:datastreamVersion>
+					  </foxml:datastream>'; 
+						break;
+					case 'newsarticle':
+						$xdis_title = "Newspaper Article";
+$xmlDocumentType = '<foxml:datastream ID="NewspaperArticleMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+						<foxml:datastreamVersion MIMETYPE="text/xml" ID="NewspaperArticleMD1.0" LABEL="Fez extension metadata for Newspaper Articles">
+							<foxml:xmlContent>
+								<NewspaperArticleMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+								  <newspaper>'.$importArray[$document_type][$key]['publication'][0].'</newspaper>
+								  <edition>'.$importArray[$document_type][$key]['volume'][0].'</edition>
+								  <number>'.$importArray[$document_type][$key]['number'][0].'</number>
+								  <pages>'.$importArray[$document_type][$key]['pages'][0].'</pages>
+								</NewspaperArticleMD>
+							</foxml:xmlContent>
+						</foxml:datastreamVersion>
+					  </foxml:datastream>'; 
+						break;
+					case 'book':
+						$xdis_title = "Book";
+$xmlDocumentType = '<foxml:datastream ID="BookMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+						<foxml:datastreamVersion MIMETYPE="text/xml" ID="BookMD1.0" LABEL="Fez extension metadata for Books">
+							<foxml:xmlContent>
+								<BookMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+								  <edition>'.$importArray[$document_type][$key]['volume'][0].'</edition>
+								  <series>'.$importArray[$document_type][$key]['series'][0].'</series>
+								  <place_of_publication>'.$importArray[$document_type][$key]['pages'][0].'</place_of_publication>
+								</BookMD>
+							</foxml:xmlContent>
+						</foxml:datastreamVersion>
+					  </foxml:datastream>'; 						
+						break;
+					case 'bookchapter':
+						$xdis_title = "Book Chapter";
+$xmlDocumentType = '<foxml:datastream ID="BookChapterMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+						<foxml:datastreamVersion MIMETYPE="text/xml" ID="BookChapterMD1.0" LABEL="Fez extension metadata for Book Chapters">
+							<foxml:xmlContent>
+								<BookChapterMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+								  <edition>'.$importArray[$document_type][$key]['volume'][0].'</edition>
+								  <series>'.$importArray[$document_type][$key]['series'][0].'</series>
+								  <place_of_publication/>
+								</BookChapterMD>
+							</foxml:xmlContent>
+						</foxml:datastreamVersion>
+					  </foxml:datastream>'; 						
+						break;
+					case 'techreport':
+						$xdis_title = "Department Technical Report";
+$xmlDocumentType = '<foxml:datastream ID="DeptTechReportMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+						<foxml:datastreamVersion MIMETYPE="text/xml" ID="DeptTechReportMD1.0" LABEL="Fez extension metadata for Departmental Technical Reports">
+							<foxml:xmlContent>
+								<DeptTechReportMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+								  <schooldeptcentre>'.$importArray[$document_type][$key]['department'][0].'</schooldeptcentre>
+								  <institution>'.$importArray[$document_type][$key]['institution'][0].'</institution>								  
+								  <edition>'.$importArray[$document_type][$key]['volume'][0].'</edition>
+								  <series>'.$importArray[$document_type][$key]['series'][0].'</series>
+								</DeptTechReportMD>
+							</foxml:xmlContent>
+						</foxml:datastreamVersion>
+					  </foxml:datastream>'; 						
+						break;
+					case 'proceedings':
+						$xdis_title = "Conference Proceedings";
+$xmlDocumentType = '<foxml:datastream ID="ConferenceProceedingsMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+						<foxml:datastreamVersion MIMETYPE="text/xml" ID="ConferenceProceedingsMD1.0" LABEL="Fez extension metadata for Conference Proceedings">
+							<foxml:xmlContent>
+								<ConferenceProceedingsMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+								  <conference>'.$importArray[$document_type][$key]['conference'][0].'</conference>
+								  <conf_start_date/>
+								  <conf_end_date/>
+								  <confloc>'.$importArray[$document_type][$key]['confloc'][0].'</confloc>
+								  <conf_details>'.$importArray[$document_type][$key]['confdates'][0].'</conf_details>
+								  <paper_presentation_date/>
+								  <page_numbers>'.$importArray[$document_type][$key]['pages'][0].'</page_numbers>
+								</ConferenceProceedingsMD>
+							</foxml:xmlContent>
+						</foxml:datastreamVersion>
+					  </foxml:datastream>'; 
+						break;
+					case 'confposter':
+						$xdis_title = "Conference Poster";
+$xmlDocumentType = '<foxml:datastream ID="ConferencePostersMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+						<foxml:datastreamVersion MIMETYPE="text/xml" ID="ConferencePostersMD1.0" LABEL="Fez extension metadata for Conference Posters">
+							<foxml:xmlContent>
+								<ConferencePostersMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+								  <conference>'.$importArray[$document_type][$key]['conference'][0].'</conference>
+								  <conf_start_date/>
+								  <conf_end_date/>
+								  <confloc>'.$importArray[$document_type][$key]['confloc'][0].'</confloc>
+								  <conf_details>'.$importArray[$document_type][$key]['confdates'][0].'</conf_details>
+								  <poster_presentation_date/>
+								</ConferencePostersMD>
+							</foxml:xmlContent>
+						</foxml:datastreamVersion>
+					  </foxml:datastream>'; 
+						break;
+					default:
+						$xdis_title = "Generic Document";	
+						break;
 				}
-			} 
-		  $xmlEnd = "";
-		  foreach($oai_ds as $ds) {
-				if (is_numeric(strpos($ds, "/"))) {
-					$short_ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
-				}
-				$short_ds = str_replace(" ", "_", $short_ds);
-				$mimetype = Misc::get_content_type($ds);
+				$xdis_id = XSD_Display::getXDIS_IDByTitle($xdis_title);
 	
-				$xmlEnd.= '
-			<foxml:datastream ID="'.$short_ds.'" CONTROL_GROUP="M" STATE="A">
-				<foxml:datastreamVersion ID="'.$short_ds.'.0" MIMETYPE="'.$mimetype.'" LABEL="'.$short_ds.'">
-					<foxml:contentLocation REF="'.$ds.'" TYPE="URL"/>
-				</foxml:datastreamVersion>
-			</foxml:datastream>';
-		  }	  
-		
-			$xmlObj = '<?xml version="1.0" ?>
-			<foxml:digitalObject PID="'.$pid.'"
-			  fedoraxsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-0.xsd" xmlns:fedoraxsi="http://www.w3.org/2001/XMLSchema-instance"
-			  xmlns:foxml="info:fedora/fedora-system:def/foxml#" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-			  <foxml:objectProperties>
-				<foxml:property NAME="http://www.w3.org/1999/02/22-rdf-syntax-ns#type" VALUE="FedoraObject"/>
-				<foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
-				<foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Batch Import ePrint Record '.$key.'"/>
-			  </foxml:objectProperties>
-			  <foxml:datastream ID="DC" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-				<foxml:datastreamVersion MIMETYPE="text/xml" ID="DC1.0" LABEL="Dublin Core Record">
-					<foxml:xmlContent>
-						<oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-						  <dc:title>'.$importArray['confpaper'][$key]['title'][0].'</dc:title>
-						  ';
-						  if (is_array($authorArray[$key])) {
-							  foreach ($authorArray[$key] as $author) {
-				$xmlObj .= '<dc:creator>'.$author.'</dc:creator>
-							';					    
-							  }
-						   }
-						  if (is_array($importArray['confpaper'][$key]['subjects'])) {
-							  foreach ($importArray['confpaper'][$key]['subjects'] as $subject) {
-								  $xmlObj .= '
-						  <dc:subject>'.$subject.'</dc:subject>
-						  ';	    
-							  }
-						  }
-	
-			  $xmlObj .= '<dc:description>'.$importArray['confpaper'][$key]['abstract'][0].'</dc:description>
-						  <dc:publisher>'.$importArray['confpaper'][$key]['publisher'][0].'</dc:publisher>
-						  <dc:contributor/>
-						  <dc:date>'.$importArray['confpaper'][$key]['datestamp'][0].'</dc:date>
-						  <dc:type>Conference Paper</dc:type>
-						  <dc:source/>
-						  <dc:language>English</dc:language>
-						  <dc:relation/>
-						  <dc:coverage/>
-						  <dc:rights/>
-						</oai_dc:dc>
-					</foxml:xmlContent>			
-				</foxml:datastreamVersion>
-			  </foxml:datastream>
-			  <foxml:datastream ID="RELS-EXT" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-				<foxml:datastreamVersion MIMETYPE="text/xml" ID="RELS-EXT.0" LABEL="Relationships to other objects">
-					<foxml:xmlContent>
-						<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-						  xmlns:rel="info:fedora/fedora-system:def/relations-external#" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-						  <rdf:description rdf:about="info:fedora/'.$pid.'">
-							<rel:isMemberOf rdf:resource="info:fedora/'.$collection_pid.'"/>
-						  </rdf:description>
-						</rdf:RDF>
-					</foxml:xmlContent>
-				</foxml:datastreamVersion>
-			  </foxml:datastream>
-			  <foxml:datastream ID="FezMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-				<foxml:datastreamVersion MIMETYPE="text/xml" ID="Fez1.0" LABEL="Fez extension metadata">
-					<foxml:xmlContent>
-						<FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-						  <xdis_id>'.$xdis_id.'</xdis_id>
-						  <sta_id>'.$sta_id.'</sta_id>
-						  <ret_id>'.$ret_id.'</ret_id>
-						  <created_date>'.$created_date.'</created_date>					  
-						  <updated_date>'.$updated_date.'</updated_date>
-						  <publication>'.$importArray['confpaper'][$key]['publication'][0].'</publication>  
-						  <copyright>'.$importArray['confpaper'][$key]['note'][0].'</copyright> 
-						  ';
-						  if (is_array($keywordArray[$key])) {
-							  foreach ($keywordArray[$key] as $keyword) {
-	$xmlObj .= '
-						   <keyword>'.$keyword.'</keyword>';
-							  }
-						  }
-					  $xmlObj .= '
-						</FezMD>
-					</foxml:xmlContent>
-				</foxml:datastreamVersion>
-			  </foxml:datastream>
-			  <foxml:datastream ID="ConferencePaperMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-				<foxml:datastreamVersion MIMETYPE="text/xml" ID="ConferencePaperMD1.0" LABEL="Fez extension metadata for Conference Papers">
-					<foxml:xmlContent>
-						<ConferencePaperMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-						  <conference>'.$importArray['confpaper'][$key]['conference'][0].'</conference>
-						  <conf_start_date/>
-						  <conf_end_date/>
-						  <confloc>'.$importArray['confpaper'][$key]['confloc'][0].'</confloc>
-						  <conf_details>'.$importArray['confpaper'][$key]['confdates'][0].'</conf_details>
-						</ConferencePaperMD>
-					</foxml:xmlContent>
-				</foxml:datastreamVersion>
-			  </foxml:datastream>';
-			$xmlObj .= $xmlEnd;
-	
-			  $xmlObj .= '
-			</foxml:digitalObject>
-			';
-			$config = array(
-					'indent'         => true,
-					'input-xml'   => true,
-					'output-xml'   => true,
-					'wrap'           => 200);
-		
-			$tidy = new tidy;
-			$tidy->parseString($xmlObj, $config, 'utf8');
-			$tidy->cleanRepair();
-			$xmlObj = $tidy;
-	
-			Fedora_API::callIngestObject($xmlObj);
-			foreach($oai_ds as $ds) {
-				$presmd_check = Workflow::checkForPresMD($ds); // we are not indexing presMD so just upload the presmd if found
-				if ($presmd_check != false) {
-					Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, "text/xml", "X");
-				}
+				$ret_id = 3; // standard record type id
+				$sta_id = 1; // unpublished status type id
+				$xsd_id = XSD_Display::getParentXSDID($xdis_id);
+				$xsd_details = Doc_Type_XSD::getDetails($xsd_id);
+				$xsd_element_prefix = $xsd_details['xsd_element_prefix'];
+				$xsd_top_element_name = $xsd_details['xsd_top_element_name'];
+
+				$oai_dc_url = "http://eprint.uq.edu.au/perl/oai2?verb=GetRecord&metadataPrefix=oai_dc&identifier=oai%3Aeprint.uq.edu.au%3A".$key;
+				$oai_dc_xml = Fedora_API::URLopen($oai_dc_url);				
+				$config = array(
+						'indent'         => true,
+						'input-xml'   => true,
+						'output-xml'   => true,
+						'wrap'           => 200);
 			
+				$tidy = new tidy;
+				$tidy->parseString($oai_dc_xml, $config, 'utf8');
+				$tidy->cleanRepair();
+				$oai_dc_xml = $tidy;
 			
-				if (is_numeric(strpos($ds, "/"))) {
-					$ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
-				}
-				$ds = str_replace(" ", "_", $ds);
-				Record::insertIndexMatchingField($pid, 122, 'varchar', $ds); // add the thumbnail to the fez index				
-                // Now check for post upload workflow events like thumbnail resizing of images and add them as datastreams if required
-                $mimetype = mime_content_type($ds);
-                Workflow::processIngestTrigger($pid, $ds, $mimetype);
-			}	  
-	
-			$array_ptr = array();
-			$xsdmf_array = array();
-			// want to do this on a per datastream basis, not the entire xml object
-			$datastreamTitles = XSD_Loop_Subelement::getDatastreamTitles($xdis_id);
-			foreach ($datastreamTitles as $dsValue) {
-				$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title']);
-				if (isset($DSResultArray['stream'])) {
-					$xmlDatastream = $DSResultArray['stream'];
-					$xsd_id = XSD_Display::getParentXSDID($dsValue['xsdmf_xdis_id']);
-					$xsd_details = Doc_Type_XSD::getDetails($xsd_id);
-					$xsd_element_prefix = $xsd_details['xsd_element_prefix'];
-					$xsd_top_element_name = $xsd_details['xsd_top_element_name'];
-	
-					$xmlnode = new DomDocument();
-					$xmlnode->loadXML($xmlDatastream);
-					$array_ptr = array();
-					Misc::dom_xml_to_simple_array($xmlnode, $array_ptr, $xsd_top_element_name, $xsd_element_prefix, $xsdmf_array, $xdis_id);
-				}
-			}
-			foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
-				if (!is_array($xsdmf_value) && !empty($xsdmf_value) && (trim($xsdmf_value) != "")) {					
-					$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
-					Record::insertIndexMatchingField($pid, $xsdmf_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_value);					
-				} elseif (is_array($xsdmf_value)) {
-					foreach ($xsdmf_value as $xsdmf_child_value) {
-						if ($xsdmf_child_value != "") {
-							$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
-							Record::insertIndexMatchingField($pid, $xsdmf_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_child_value);
-						}
+				$xmlOAIDoc= new DomDocument();
+				$xmlOAIDoc->preserveWhiteSpace = false;
+				$xmlOAIDoc->loadXML($oai_dc_xml);
+			
+				$oai_xpath = new DOMXPath($xmlOAIDoc);
+				$oai_xpath->registerNamespace('oai_dc', 'http://www.openarchives.org/OAI/2.0/oai_dc/');
+				$oai_xpath->registerNamespace('dc', 'http://purl.org/dc/elements/1.1/');
+				$oai_xpath->registerNamespace('d', 'http://www.openarchives.org/OAI/2.0/');
+		
+				$formatNodes = $oai_xpath->query('//d:OAI-PMH/d:GetRecord/d:record/d:metadata/oai_dc:dc/dc:format');
+				$oai_ds = array();
+				foreach ($formatNodes as $format) {
+					$httpFind = "http://";
+					if (is_numeric(strpos($format->nodeValue, $httpFind))) {
+						array_push($oai_ds, substr($format->nodeValue, strpos($format->nodeValue, $httpFind)));
+					}
+				} 
+				$xmlEnd = "";
+				foreach($oai_ds as $ds) {
+					if (is_numeric(strpos($ds, "/"))) {
+						$short_ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
+					}
+					$short_ds = str_replace(" ", "_", $short_ds);
+					$mimetype = Misc::get_content_type($ds);
+				
+					$xmlEnd.= '
+					<foxml:datastream ID="'.$short_ds.'" CONTROL_GROUP="M" STATE="A">
+						<foxml:datastreamVersion ID="'.$short_ds.'.0" MIMETYPE="'.$mimetype.'" LABEL="'.$short_ds.'">
+							<foxml:contentLocation REF="'.$ds.'" TYPE="URL"/>
+						</foxml:datastreamVersion>
+					</foxml:datastream>';
+				}	  
+			
+				$xmlObj = '<?xml version="1.0" ?>
+				<foxml:digitalObject PID="'.$pid.'"
+				  fedoraxsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-0.xsd" xmlns:fedoraxsi="http://www.w3.org/2001/XMLSchema-instance"
+				  xmlns:foxml="info:fedora/fedora-system:def/foxml#" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+				  <foxml:objectProperties>
+					<foxml:property NAME="http://www.w3.org/1999/02/22-rdf-syntax-ns#type" VALUE="FedoraObject"/>
+					<foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
+					<foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Batch Import ePrint Record '.$key.'"/>
+				  </foxml:objectProperties>
+				  <foxml:datastream ID="DC" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+					<foxml:datastreamVersion MIMETYPE="text/xml" ID="DC1.0" LABEL="Dublin Core Record">
+						<foxml:xmlContent>
+							<oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+							  <dc:title>'.$importArray['confpaper'][$key]['title'][0].'</dc:title>
+							  ';
+							  if (is_array($authorArray[$key])) {
+								  foreach ($authorArray[$key] as $author) {
+					$xmlObj .= '<dc:creator>'.$author.'</dc:creator>
+								';					    
+								  }
+							   }
+							  if (is_array($importArray[$document_type][$key]['subjects'])) {
+								  foreach ($importArray[$document_type][$key]['subjects'] as $subject) {
+									  $xmlObj .= '
+							  <dc:subject>'.$subject.'</dc:subject>
+							  ';	    
+								  }
+							  }
+		
+				  $xmlObj .= '<dc:description>'.$importArray[$document_type][$key]['abstract'][0].'</dc:description>
+							  <dc:publisher>'.$importArray[$document_type][$key]['publisher'][0].'</dc:publisher>
+							  <dc:contributor/>
+							  <dc:date>'.$importArray[$document_type][$key]['datestamp'][0].'</dc:date>
+							  <dc:type>'.$xdis_title.'</dc:type>
+							  <dc:source/>
+							  <dc:language/>
+							  <dc:relation/>
+							  <dc:coverage/>
+							  <dc:rights/>
+							</oai_dc:dc>
+						</foxml:xmlContent>			
+					</foxml:datastreamVersion>
+				  </foxml:datastream>
+				  <foxml:datastream ID="RELS-EXT" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+					<foxml:datastreamVersion MIMETYPE="text/xml" ID="RELS-EXT.0" LABEL="Relationships to other objects">
+						<foxml:xmlContent>
+							<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+							  xmlns:rel="info:fedora/fedora-system:def/relations-external#" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+							  <rdf:description rdf:about="info:fedora/'.$pid.'">
+								<rel:isMemberOf rdf:resource="info:fedora/'.$collection_pid.'"/>
+							  </rdf:description>
+							</rdf:RDF>
+						</foxml:xmlContent>
+					</foxml:datastreamVersion>
+				  </foxml:datastream>
+				  <foxml:datastream ID="FezMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+					<foxml:datastreamVersion MIMETYPE="text/xml" ID="Fez1.0" LABEL="Fez extension metadata">
+						<foxml:xmlContent>
+							<FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+							  <xdis_id>'.$xdis_id.'</xdis_id>
+							  <sta_id>'.$sta_id.'</sta_id>
+							  <ret_id>'.$ret_id.'</ret_id>
+							  <created_date>'.$created_date.'</created_date>                      
+							  <updated_date>'.$updated_date.'</updated_date>
+							  <publication>'.$importArray[$document_type][$key]['publication'][0].'</publication>  
+							  <copyright>'.$importArray[$document_type][$key]['note'][0].'</copyright>
+							  ';
+							  if (is_array($keywordArray[$key])) {
+								  foreach ($keywordArray[$key] as $keyword) {
+		$xmlObj .= '
+							   <keyword>'.$keyword.'</keyword>';
+								  }
+							  }
+						  $xmlObj .= '
+							</FezMD>
+						</foxml:xmlContent>
+					</foxml:datastreamVersion>
+				  </foxml:datastream>';
+				 
+				 
+
+				$xmlObj .= $xmlEnd;
+		
+				  $xmlObj .= '
+				</foxml:digitalObject>
+				';
+				$config = array(
+						'indent'         => true,
+						'input-xml'   => true,
+						'output-xml'   => true,
+						'wrap'           => 200);
+			
+				$tidy = new tidy;
+				$tidy->parseString($xmlObj, $config, 'utf8');
+				$tidy->cleanRepair();
+				$xmlObj = $tidy;
+		
+				Fedora_API::callIngestObject($xmlObj);
+				foreach($oai_ds as $ds) {
+					$presmd_check = Workflow::checkForPresMD($ds); // we are not indexing presMD so just upload the presmd if found
+					if ($presmd_check != false) {
+						Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, "text/xml", "X");
+					}			
+				
+					if (is_numeric(strpos($ds, "/"))) {
+						$ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
+					}
+					$ds = str_replace(" ", "_", $ds);
+					Record::insertIndexMatchingField($pid, 122, 'varchar', $ds); // add the thumbnail to the fez index				
+					// Now check for post upload workflow events like thumbnail resizing of images and add them as datastreams if required
+					$mimetype = mime_content_type($ds);
+					Workflow::processIngestTrigger($pid, $ds, $mimetype);
+				}	  
+		
+				$array_ptr = array();
+				$xsdmf_array = array();
+				// want to do this on a per datastream basis, not the entire xml object
+				$datastreamTitles = XSD_Loop_Subelement::getDatastreamTitles($xdis_id);
+				foreach ($datastreamTitles as $dsValue) {
+					$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title']);
+					if (isset($DSResultArray['stream'])) {
+						$xmlDatastream = $DSResultArray['stream'];
+						$xsd_id = XSD_Display::getParentXSDID($dsValue['xsdmf_xdis_id']);
+						$xsd_details = Doc_Type_XSD::getDetails($xsd_id);
+						$xsd_element_prefix = $xsd_details['xsd_element_prefix'];
+						$xsd_top_element_name = $xsd_details['xsd_top_element_name'];
+		
+						$xmlnode = new DomDocument();
+						$xmlnode->loadXML($xmlDatastream);
+						$array_ptr = array();
+						Misc::dom_xml_to_simple_array($xmlnode, $array_ptr, $xsd_top_element_name, $xsd_element_prefix, $xsdmf_array, $xdis_id);
 					}
 				}
-			}	
-			$pid = Fedora_API::getNextPID(); // get a new pid for the next loop
+				foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
+					if (!is_array($xsdmf_value) && !empty($xsdmf_value) && (trim($xsdmf_value) != "")) {					
+						$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
+						Record::insertIndexMatchingField($pid, $xsdmf_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_value);					
+					} elseif (is_array($xsdmf_value)) {
+						foreach ($xsdmf_value as $xsdmf_child_value) {
+							if ($xsdmf_child_value != "") {
+								$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
+								Record::insertIndexMatchingField($pid, $xsdmf_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_child_value);
+							}
+						}
+					}
+				}	
+				$pid = Fedora_API::getNextPID(); // get a new pid for the next loop
+			}
 		}
 		exit(); // just stop here now
 	}

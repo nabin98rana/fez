@@ -416,15 +416,22 @@ $private_key = "' . md5(microtime()) . '";
         $protocol_type = 'http://';
 		$app_https = "OFF";		
     }
-    if (@$HTTP_POST_VARS['is_fedora_ssl'] == 'yes') {
-        $fedora_protocol_type = 'https://';
-    } else {
-        $fedora_protocol_type = 'http://';
-    }
-
-    $config_contents = str_replace("%{PROTOCOL_TYPE}%", $protocol_type, $config_contents);
-    $config_contents = str_replace("%{APP_FEDORA_PROTOCOL_TYPE}%", $fedora_protocol_type, $config_contents);
     $config_contents = str_replace("%{APP_HTTPS}%", $app_https, $config_contents);
+    $config_contents = str_replace("%{PROTOCOL_TYPE}%", $protocol_type, $config_contents);
+    $config_contents = str_replace("%{APP_FEDORA_SETUP}%", $HTTP_POST_VARS['fedora_setup'], $config_contents);	
+	if (@$HTTP_POST_VARS['fedora_setup'] == 'sslall') { 
+		$fedora_apim_protocol_type == 'https://';
+		$fedora_apia_protocol_type == 'https://';				
+	} else {
+		if (@$HTTP_POST_VARS['fedora_setup'] == 'sslapim') { 
+			$fedora_apim_protocol_type == 'https://';
+		} else {
+			$fedora_apim_protocol_type == 'http://';
+		}
+		$fedora_apia_protocol_type == 'http://';				
+	}
+    $config_contents = str_replace("%{APP_FEDORA_APIM_PROTOCOL_TYPE}%", $fedora_apim_protocol_type, $config_contents);
+    $config_contents = str_replace("%{APP_FEDORA_APIA_PROTOCOL_TYPE}%", $fedora_apia_protocol_type, $config_contents);	
     $fp = fopen('../config.inc.php', 'w');
     if ($fp === FALSE) {
         return "Could not open the file 'config.inc.php' for writing. The permissions on the file should be set as to allow the user that the web server runs as to open it. Please correct this problem and try again.";

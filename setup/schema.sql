@@ -153,8 +153,28 @@ CREATE TABLE `%TABLE_PREFIX%search_key` (
 --
 
 
+--
+-- Table structure for table `%TABLE_PREFIX%status`
+--
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%status`;
+CREATE TABLE `%TABLE_PREFIX%status` (
+  `sta_id` int(11) unsigned NOT NULL auto_increment,
+  `sta_title` varchar(255) default NULL,
+  `sta_order` int(11) unsigned default NULL,
+  `sta_color` varchar(255) default NULL,
+  PRIMARY KEY  (`sta_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `%TABLE_PREFIX%status`
+--
+
+
+INSERT INTO `%TABLE_PREFIX%status` VALUES (1,'Unpublished',1,'#003399'),(2,'Published',2,'#EFF6FF');
+
+
 INSERT INTO `%TABLE_PREFIX%search_key` VALUES (2,'Title',1,1,0,'text','','',1),(3,'Author',1,1,1,'text','','',1),(4,'Subject',1,1,4,'allcontvocab','','',1),(5,'Description',1,1,2,'text','','',1),(6,'File Attachment Name',1,1,9,'text','none','',1),(7,'File Attachment Content',0,0,999,'text','none','',1),(8,'isMemberOf',0,0,999,'','','',1),(9,'Status',0,0,6,'multiple','none','$sta_list',1),(10,'Object Type',1,0,8,'multiple','none','$ret_list',1),(11,'Display Type',1,0,5,'combo','none','$xdis_list',1),(12,'Keywords',1,1,3,'text','','',1),(13,'Notes',0,0,999,'','','',1),(14,'Date',1,0,7,'date','','',1),(15,'XSD Display Option',0,0,999,'','','',1),(16,'File Downloads',0,0,999,'text','none','',1),(17,'Created Date',0,0,999,'text','none','',1),(18,'Updated Date',0,0,999,'text','none','',1);
-UNLOCK TABLES;
 
 --
 -- Table structure for table `%TABLE_PREFIX%user`
