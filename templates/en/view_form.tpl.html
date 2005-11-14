@@ -4,7 +4,44 @@
 //var page_url = '{$smarty.server.PHP_SELF}';
 //var current_page = {$details_info.current_page};
 //var last_page = {$details_info.last_page};
+{$najax_register}
+var rel_url = '{$rel_url}';
+var max_width = {$smarty.const.APP_IMAGE_PREVIEW_MAX_WIDTH};
+var max_height = {$smarty.const.APP_IMAGE_PREVIEW_MAX_HEIGHT};
 {literal}
+
+var image_preview_loading = 0;
+
+// get an image and put it in the preview image
+function loadPreview(pid,datastreamID, alt)
+{
+    if (image_preview_loading > 0) {
+        return;
+    }
+    image_preview_loading = 1;
+    // display the 'loading...' text. (unhide it)
+    pv_loading = document.getElementById('datastream_preview_loading');
+    pv_loading.innerHTML = 'Loading...';
+    pv_loading.style.display = '';
+    // get the resized image
+    pv_img = document.getElementById('datastream_preview');
+    ip_obj = new NajaxImagePreview();
+    ip_obj.onGetPreviewError = function () {
+        pv_loading.innerHTML = 'Couldn\'t load preview';
+        image_preview_loading = 0;
+        pv_img.alt = 'Image Preview';
+    };
+    ip_obj.setTimeout(10000);
+    ip_obj.getPreview(pid, datastreamID, max_width, max_height, false, function() {
+            pv_img.src = rel_url+'webservices/image_resize_cache.php?pid='+pid+'&dsID='+datastreamID+'&width='+max_width+'&height='+max_height;
+            pv_img.alt = alt;
+            pv_loading.style.display = 'none';
+            image_preview_loading = 0;
+            });
+    
+}
+
+
 function assignItems(f)
 {
     if (!hasOneChecked(f, 'item[]')) {
@@ -155,9 +192,7 @@ function disableFields()
                 </td>
                 </tr>
       </table>
-    </td>
-    <td align="center" valign="top"  bgcolor="#FFFFFF" cellspacing="1" cellpadding="2" border="0">
-		<table border="0" cellpadding="2" cellspacing="0"  bgcolor="#FFFFFF" >
+		<table width="100%" border="0" cellpadding="2" cellspacing="0"  bgcolor="#FFFFFF" >
 		  <tr>
 			<td class="default_white" colspan="4" bgcolor="{$heading_color}"><b>Attached Files</b></td>
 		  </tr>
@@ -180,7 +215,17 @@ function disableFields()
 
 				{fetch file=$image_name assign="image_file_string"}
 
-				<td bgcolor="{$light_color}">{if $datastreams[d].thumbnail != "0"}<img align="absmiddle" src="{$eserv_url}{$datastreams[d].thumbnail}">{/if}{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}images/default.png">{/if} <a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].ID}">{$datastreams[d].ID}</a> &nbsp;{if $datastreams[d].presmd != "0"}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].presmd}"><img title="preservation metadata" align="absmiddle" border="0" src="{$rel_url}images/presmd_22.gif"></a>{/if}</td>
+                                {if !$preview_ds_1}
+                                  {assign var="preview_ds_1" value=$datastreams[d]}
+                                {/if}
+
+				<td bgcolor="{$light_color}">
+          {if $datastreams[d].thumbnail != "0"}<img align="absmiddle" 
+            src="{$eserv_url}{$datastreams[d].thumbnail}"
+            border="1"
+            onclick="javascript:loadPreview('{$pid}','{$datastreams[d].ID}', '{$datastreams[d].label}');"
+            >{/if}
+          {if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}images/default.png">{/if} <a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].ID}">{$datastreams[d].ID}</a> &nbsp;{if $datastreams[d].presmd != "0"}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].presmd}"><img title="preservation metadata" align="absmiddle" border="0" src="{$rel_url}images/presmd_22.gif"></a>{/if}</td>
 				<td bgcolor="{$light_color}">{$datastreams[d].label}</td>
 				<td bgcolor="{$light_color}">{$datastreams[d].MIMEType}</td>
 				<td bgcolor="{$light_color}">{$datastreams[d].size} bytes</td>		
@@ -209,6 +254,22 @@ function disableFields()
         {/section}
 
 		</table>
+    </td>
+    <td align="center" valign="top"  bgcolor="#FFFFFF" cellspacing="1" cellpadding="2" border="0">
+      <table width="100%" border="0" cellpadding="2" cellspacing="0"  bgcolor="#FFFFFF" >
+        <tr>
+          <td class="default_white" colspan="4" bgcolor="{$heading_color}"><b>Datastream Preview</b></td>
+        </tr>
+        <tr id="datastream_preview_loading" style="display:none;">
+          <td>Loading...</td>
+        </tr>
+        <tr>
+        <td class="default">
+          <img id="datastream_preview" alt="Datastream Preview"/>
+          <script language="JavaScript">loadPreview('{$pid}','{$preview_ds_1.ID}','{$preview_ds_1.label}');</script>
+        </td>
+        </tr>
+      </table>
     </td>
   </tr>			
   </table>

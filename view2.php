@@ -32,6 +32,10 @@
 // +----------------------------------------------------------------------+
 //
 //
+
+include_once(APP_INC_PATH . "najax/najax.php");
+include_once(APP_INC_PATH . "najax_objects/class.image_preview.php");
+
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
 $isAdministrator = Auth::isAdministrator();
@@ -85,6 +89,9 @@ if (!empty($pid)) {
 				$details[$dkey] = implode("<br /> ", $dvalue);
 			}
 		}
+        // Setup the Najax Image Preview object.
+        $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
+        $tpl->assign('najax_register', NAJAX_Client::register('NajaxImagePreview', APP_RELATIVE_URL.'najax_services/image_preview.php'));
 	} else {
 		$tpl->assign("show_not_allowed_msg", true);
 	}
