@@ -396,6 +396,7 @@ $private_key = "' . md5(microtime()) . '";
 	$config_contents = str_replace("%{LDAP_SERVER}%", $HTTP_POST_VARS['ldap_server'], $config_contents);		
 	$config_contents = str_replace("%{LDAP_PORT}%", $HTTP_POST_VARS['ldap_port'], $config_contents);		
     $config_contents = str_replace("%{APP_FEDORA_LOCATION}%", $HTTP_POST_VARS['fedora_location'], $config_contents);
+    $config_contents = str_replace("%{APP_FEDORA_SSL_LOCATION}%", $HTTP_POST_VARS['fedora_ssl_location'], $config_contents);
     $config_contents = str_replace("%{APP_FEDORA_USERNAME}%", $HTTP_POST_VARS['fedora_username'], $config_contents);
     $config_contents = str_replace("%{APP_FEDORA_PWD}%", $HTTP_POST_VARS['fedora_password'], $config_contents);	
     $config_contents = str_replace("%{APP_ORG_NAME}%", $HTTP_POST_VARS['organisation'], $config_contents);
@@ -420,15 +421,15 @@ $private_key = "' . md5(microtime()) . '";
     $config_contents = str_replace("%{PROTOCOL_TYPE}%", $protocol_type, $config_contents);
     $config_contents = str_replace("%{APP_FEDORA_SETUP}%", $HTTP_POST_VARS['fedora_setup'], $config_contents);	
 	if (@$HTTP_POST_VARS['fedora_setup'] == 'sslall') { 
-		$fedora_apim_protocol_type == 'https://';
-		$fedora_apia_protocol_type == 'https://';				
+		$fedora_apim_protocol_type = 'https://';
+		$fedora_apia_protocol_type = 'https://';				
 	} else {
 		if (@$HTTP_POST_VARS['fedora_setup'] == 'sslapim') { 
-			$fedora_apim_protocol_type == 'https://';
+			$fedora_apim_protocol_type = 'https://';
 		} else {
-			$fedora_apim_protocol_type == 'http://';
+			$fedora_apim_protocol_type = 'http://';
 		}
-		$fedora_apia_protocol_type == 'http://';				
+		$fedora_apia_protocol_type = 'http://';				
 	}
     $config_contents = str_replace("%{APP_FEDORA_APIM_PROTOCOL_TYPE}%", $fedora_apim_protocol_type, $config_contents);
     $config_contents = str_replace("%{APP_FEDORA_APIA_PROTOCOL_TYPE}%", $fedora_apia_protocol_type, $config_contents);	
