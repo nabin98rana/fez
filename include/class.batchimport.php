@@ -353,8 +353,8 @@ $xmlDocumentType = '<foxml:datastream ID="ConferencePostersMD" VERSIONABLE="true
 				$xsd_element_prefix = $xsd_details['xsd_element_prefix'];
 				$xsd_top_element_name = $xsd_details['xsd_top_element_name'];
 
-				$oai_dc_url = "http://eprint.uq.edu.au/perl/oai2?verb=GetRecord&metadataPrefix=oai_dc&identifier=oai%3Aeprint.uq.edu.au%3A".$key;
-				$oai_dc_xml = Fedora_API::URLopen($oai_dc_url);				
+				$oai_dc_url = EPRINTS_OAI.$key; // This gets the EPRINTS OAI DC feed for the Eprints DC record. This is neccessary because the Eprints export_xml does not give the URL for the attached PDFs etc
+				$oai_dc_xml = Fedora_API::URLopen($oai_dc_url);
 				$config = array(
 						'indent'         => true,
 						'input-xml'   => true,

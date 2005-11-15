@@ -45,6 +45,8 @@ set_time_limit(0);
 @define("LDAP_SERVER", "%{LDAP_SERVER}%"); // yourldapserver.yourdomain.edu
 @define("LDAP_PORT", "%{LDAP_PORT}%"); // Usually 389
 
+@define("EPRINTS_OAI", "http://eprint.uq.edu.au/perl/oai2?verb=GetRecord&metadataPrefix=oai_dc&identifier=oai%3Aeprint.uq.edu.au%3A"); // ePrints OAI service provider for batch importing of ePrints records
+
 // definitions of path related variables
 @define("APP_SAN_IMPORT_DIR", ""); //eg /fez/incoming or c:\\fez\\incoming
 
@@ -76,7 +78,6 @@ if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Serve
 @define("APP_SETUP_PATH", APP_PATH);
 @define("APP_SETUP_FILE", APP_SETUP_PATH . "setup.conf.php");
 
-
 // FEDORA VARIABLES
 
 //base fedora server domain - note SSL/HTTPS was only available from Fedora 2.1 onwards. Fedora 2.0 and previous only offered HTTP
@@ -94,7 +95,7 @@ if (APP_FEDORA_SETUP == 'sslall') {
 		//upload url
 		@define("APP_FEDORA_UPLOAD_URL", APP_FEDORA_APIM_PROTOCOL_TYPE.APP_FEDORA_USERNAME.":".APP_FEDORA_PWD."@".APP_FEDORA_SSL_LOCATION."/management/upload");
 	} else {
-		@define("APP_BASE_FEDORA_APIM_DOMAIN", APP_FEDORA_APIM_PROTOCOL_TYPE.APP_FEDORA_LOCATION); // the location of your fedora server for apim		
+		@define("APP_BASE_FEDORA_APIM_DOMAIN", APP_FEDORA_APIM_PROTOCOL_TYPE.APP_FEDORA_LOCATION); // the location of your fedora server for apim
 		//upload url
 		@define("APP_FEDORA_UPLOAD_URL", APP_FEDORA_APIM_PROTOCOL_TYPE.APP_FEDORA_USERNAME.":".APP_FEDORA_PWD."@".APP_FEDORA_LOCATION."/management/upload");
 	}
@@ -157,7 +158,7 @@ if (APP_FEDORA_SETUP == 'sslall') {
 
 @define("APP_SESSION_EXPIRE", time() + (60 * 60 * 8));
 
-@define("APP_VERSION", "1.0 BETA");
+@define("APP_VERSION", "1.1 BETA");
 
 @define("APP_DEFAULT_PAGER_SIZE", 5);
 @define("APP_DEFAULT_REFRESH_RATE", 5); // in minutes
