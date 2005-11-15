@@ -51,11 +51,6 @@ CREATE TABLE `%TABLE_PREFIX%group` (
   PRIMARY KEY  (`grp_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
---
--- Dumping data for table `%TABLE_PREFIX%group`
---
-
-INSERT INTO `%TABLE_PREFIX%group` VALUES (1,'Herston Hospital','active','2005-08-25 04:05:09');
 
 --
 -- Table structure for table `%TABLE_PREFIX%group_user`
