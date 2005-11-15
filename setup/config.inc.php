@@ -79,6 +79,9 @@ if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Serve
 @define("APP_SETUP_FILE", APP_SETUP_PATH . "setup.conf.php");
 
 // FEDORA VARIABLES
+// Setup reusable Fedora API variables
+@define("APP_FEDORA_USERNAME", "%{APP_FEDORA_USERNAME}%"); 
+@define("APP_FEDORA_PWD", "%{APP_FEDORA_PWD}%");
 
 //base fedora server domain - note SSL/HTTPS was only available from Fedora 2.1 onwards. Fedora 2.0 and previous only offered HTTP
 @define("APP_FEDORA_SETUP", "%{APP_FEDORA_SETUP}%");
@@ -86,25 +89,31 @@ if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Serve
 @define("APP_FEDORA_SSL_LOCATION", "%{APP_FEDORA_SSL_LOCATION}%"); // the location of your fedora ssl server without the http or https protocol usually with port 8443
 @define("APP_FEDORA_APIA_PROTOCOL_TYPE", "%{APP_FEDORA_APIA_PROTOCOL_TYPE}%");
 @define("APP_FEDORA_APIM_PROTOCOL_TYPE", "%{APP_FEDORA_APIM_PROTOCOL_TYPE}%");
-if (APP_FEDORA_SETUP == 'sslall') {
-	@define("APP_BASE_FEDORA_APIA_DOMAIN", APP_FEDORA_APIA_PROTOCOL_TYPE.APP_FEDORA_SSL_LOCATION); // the location of your fedora ssl server for apia
-	@define("APP_BASE_FEDORA_APIM_DOMAIN", APP_FEDORA_APIM_PROTOCOL_TYPE.APP_FEDORA_SSL_LOCATION); // the location of your fedora ssl server for apim
-} else {
-	if (APP_FEDORA_SETUP == 'sslapim') {
-		@define("APP_BASE_FEDORA_APIM_DOMAIN", APP_FEDORA_APIM_PROTOCOL_TYPE.APP_FEDORA_SSL_LOCATION); // the location of your fedora ssl server for apim	
-		//upload url
-		@define("APP_FEDORA_UPLOAD_URL", APP_FEDORA_APIM_PROTOCOL_TYPE.APP_FEDORA_USERNAME.":".APP_FEDORA_PWD."@".APP_FEDORA_SSL_LOCATION."/management/upload");
-	} else {
-		@define("APP_BASE_FEDORA_APIM_DOMAIN", APP_FEDORA_APIM_PROTOCOL_TYPE.APP_FEDORA_LOCATION); // the location of your fedora server for apim
-		//upload url
-		@define("APP_FEDORA_UPLOAD_URL", APP_FEDORA_APIM_PROTOCOL_TYPE.APP_FEDORA_USERNAME.":".APP_FEDORA_PWD."@".APP_FEDORA_LOCATION."/management/upload");
-	}
-	@define("APP_BASE_FEDORA_APIA_DOMAIN", APP_FEDORA_APIA_PROTOCOL_TYPE.APP_FEDORA_LOCATION); // the location of your fedora server for apia
-}
 
-// Setup reusable Fedora API variables
-@define("APP_FEDORA_USERNAME", "%{APP_FEDORA_USERNAME}%"); 
-@define("APP_FEDORA_PWD", "%{APP_FEDORA_PWD}%");
+if (APP_FEDORA_SETUP == 'sslall') {
+	@define("APP_BASE_FEDORA_APIA_DOMAIN", APP_FEDORA_APIA_PROTOCOL_TYPE.APP_FEDORA_USERNAME.":".APP_FEDORA_PWD."@".APP_FEDORA_SSL_LOCATION); // the location of your fedora ssl server for apia
+	@define("APP_BASE_FEDORA_APIM_DOMAIN", APP_FEDORA_APIM_PROTOCOL_TYPE.APP_FEDORA_USERNAME.":".APP_FEDORA_PWD."@".APP_FEDORA_SSL_LOCATION); // the location of your fedora ssl server for apim
+} elseif (APP_FEDORA_SETUP == 'sslapim') {
+	@define("APP_BASE_FEDORA_APIA_DOMAIN", APP_FEDORA_APIA_PROTOCOL_TYPE.APP_FEDORA_SSL_LOCATION); // the location of your fedora ssl server for apia
+	@define("APP_BASE_FEDORA_APIM_DOMAIN", APP_FEDORA_APIM_PROTOCOL_TYPE.APP_FEDORA_USERNAME.":".APP_FEDORA_PWD."@".APP_FEDORA_SSL_LOCATION); // the location of your fedora ssl server for apim
+} elseif (APP_FEDORA_SETUP == 'nosslall') {
+	@define("APP_BASE_FEDORA_APIA_DOMAIN", APP_FEDORA_APIA_PROTOCOL_TYPE.APP_FEDORA_USERNAME.":".APP_FEDORA_PWD."@".APP_FEDORA_LOCATION); // the location of your fedora ssl server for apia
+	@define("APP_BASE_FEDORA_APIM_DOMAIN", APP_FEDORA_APIM_PROTOCOL_TYPE.APP_FEDORA_USERNAME.":".APP_FEDORA_PWD."@".APP_FEDORA_LOCATION); // the location of your fedora ssl server for apim
+} elseif (APP_FEDORA_SETUP == 'nosslapim') {
+	@define("APP_BASE_FEDORA_APIA_DOMAIN", APP_FEDORA_APIA_PROTOCOL_TYPE.APP_FEDORA_LOCATION); // the location of your fedora ssl server for apia
+	@define("APP_BASE_FEDORA_APIM_DOMAIN", APP_FEDORA_APIM_PROTOCOL_TYPE.APP_FEDORA_USERNAME.":".APP_FEDORA_PWD."@".APP_FEDORA_LOCATION); // the location of your fedora ssl server for apim
+}
+//upload url
+@define("APP_FEDORA_UPLOAD_URL", APP_BASE_FEDORA_APIM_DOMAIN."/management/upload");
+//fedora get datastream url
+@define("APP_FEDORA_GET_URL", APP_BASE_FEDORA_APIA_DOMAIN.."/get");
+//fedora server search url
+@define("APP_FEDORA_SEARCH_URL", APP_BASE_FEDORA_APIA_DOMAIN."/search");	
+//fedora server resource index search url
+@define("APP_FEDORA_RISEARCH_URL", APP_BASE_FEDORA_APIA_DOMAIN."/risearch");	
+//oai url
+@define("APP_FEDORA_OAI_URL", APP_BASE_FEDORA_APIA_DOMAIN."/oai");
+
 
 // Fedora SOAP Services API-A and API-M
 @define("APP_FEDORA_ACCESS_API", APP_BASE_FEDORA_APIA_DOMAIN."/services/access"); // for Fedora 2.1
@@ -112,17 +121,6 @@ if (APP_FEDORA_SETUP == 'sslall') {
 //@define("APP_FEDORA_MANAGEMENT_API", APP_BASE_FEDORA_APIA_DOMAIN."/management/soap"); // for Fedora 2.0
 //@define("APP_FEDORA_MANAGEMENT_API", APP_BASE_FEDORA_APIM_DOMAIN."/access/soap"); // for Fedora 2.0
 
-//fedora get datastream url
-@define("APP_FEDORA_GET_URL", APP_BASE_FEDORA_APIA_DOMAIN."/get");
-
-//fedora server search url
-@define("APP_FEDORA_SEARCH_URL", APP_BASE_FEDORA_APIA_DOMAIN."/search");
-
-//fedora server resource index search url
-@define("APP_FEDORA_RISEARCH_URL", APP_BASE_FEDORA_APIA_DOMAIN."/risearch");
-
-//oai url
-@define("APP_FEDORA_OAI_URL", APP_BASE_FEDORA_APIA_DOMAIN."/oai");
 
 // definitions of SQL variables
 @define("APP_SQL_DBTYPE", "mysql");
