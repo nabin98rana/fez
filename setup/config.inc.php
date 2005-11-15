@@ -134,6 +134,9 @@ if (APP_FEDORA_SETUP == 'sslall') {
 @define("APP_DEFAULT_DB", APP_SQL_DBNAME);
 @define("APP_TABLE_PREFIX", "%{APP_TABLE_PREFIX}%");
 
+@define("APP_IMAGE_PREVIEW_MAX_WIDTH", 500);
+@define("APP_IMAGE_PREVIEW_MAX_HEIGHT", 1000);
+
 @define("APP_ERROR_LOG", APP_PATH . "error_handler.log");
 
 @define("APP_NAME", "%{APP_NAME}%");
