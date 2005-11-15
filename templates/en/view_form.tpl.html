@@ -20,15 +20,15 @@ function loadPreview(pid,datastreamID, alt)
         return;
     }
     image_preview_loading = 1;
+    pv_img = document.getElementById('datastream_preview');
     // display the 'loading...' text. (unhide it)
     pv_loading = document.getElementById('datastream_preview_loading');
-    pv_loading.innerHTML = 'Loading...';
+    pv_loading.innerHTML = ' - Loading...';
     pv_loading.style.display = '';
     // get the resized image
-    pv_img = document.getElementById('datastream_preview');
     ip_obj = new NajaxImagePreview();
     ip_obj.onGetPreviewError = function () {
-        pv_loading.innerHTML = 'Couldn\'t load preview';
+        pv_loading.innerHTML = ' - Couldn\'t load preview';
         image_preview_loading = 0;
         pv_img.alt = 'Image Preview';
     };
@@ -266,10 +266,9 @@ function disableFields()
     <td align="center" valign="top"  bgcolor="#FFFFFF" cellspacing="1" cellpadding="2" border="0">
       <table width="100%" border="0" cellpadding="2" cellspacing="0"  bgcolor="#FFFFFF" >
         <tr>
-          <td class="default_white" colspan="4" bgcolor="{$heading_color}"><b>Datastream Preview</b></td>
-        </tr>
-        <tr id="datastream_preview_loading" style="display:none;">
-          <td>Loading...</td>
+          <td class="default_white" colspan="4" bgcolor="{$heading_color}"><b>Datastream Preview</b>
+          <span id="datastream_preview_loading" style="display:none;"></span>
+          </td>
         </tr>
         <tr>
         <td class="default">
