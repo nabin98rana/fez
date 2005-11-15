@@ -106,7 +106,7 @@ if (APP_FEDORA_SETUP == 'sslall') {
 //upload url
 @define("APP_FEDORA_UPLOAD_URL", APP_BASE_FEDORA_APIM_DOMAIN."/management/upload");
 //fedora get datastream url
-@define("APP_FEDORA_GET_URL", APP_BASE_FEDORA_APIA_DOMAIN.."/get");
+@define("APP_FEDORA_GET_URL", APP_BASE_FEDORA_APIA_DOMAIN."/get");
 //fedora server search url
 @define("APP_FEDORA_SEARCH_URL", APP_BASE_FEDORA_APIA_DOMAIN."/search");	
 //fedora server resource index search url
