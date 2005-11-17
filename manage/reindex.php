@@ -64,7 +64,7 @@ $tpl->assign("isAdministrator", $isAdministrator);
 
 if ($isAdministrator) {
     if (@$HTTP_POST_VARS["cat"] == "go") {
-		Reindex::indexFedoraObjects();
+		Reindex::indexFezFedoraObjects();
 
 
     }

@@ -86,7 +86,12 @@ class Fedora_API {
        // Fake the browser type
        ini_set('user_agent','MSIE 4\.0b2;');
        $dh = fopen("$url",'r');
-       $result = fread($dh,8192);                                                                                                                             
+       $result = "";
+       $temp_result = "";
+       while ($temp_result = fread($dh,8192)) {
+	       $result .= $temp_result;
+	   }
+	   fclose($dh);
        return $result;
 	}
 

@@ -410,7 +410,7 @@ class XSD_Display
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
                  WHERE
-                    xdis_title = $xdis_title";
+                    xdis_title = '$xdis_title'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

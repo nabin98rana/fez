@@ -15,7 +15,7 @@
 </head>
 
 <body>
- <h2>Fez 1.0 BETA: Release Notes</h2>
+ <h2>Fez 1.1 Beta: Release Notes</h2>
 
  <div class="app">
 <div class="readyset">
@@ -30,12 +30,12 @@
   <tr>
    <th>Release Number:</th> 
    <td>
-     1.0 BETA </td> 
+     1.1 Beta </td> 
   </tr>
   <tr>
    <th>Release Date:</th> 
    <td>
-     2005/11/8</td> 
+     2005/11/17</td> 
   </tr>
   <tr>
    <th>Support:</th> 
@@ -51,7 +51,7 @@
  <h3>Introduction</h3>
 
  <p>This document contains the release notes for Fez version
- 1.0 BETA.  The following sections describe the release in detail and
+ 1.1 Beta.  The following sections describe the release in detail and
  provide late-breaking or other information that supplements the
  main documentation.</p>
 
@@ -60,7 +60,7 @@
  Fedora web mangement interface possible.  Keep in mind that we are continuing to work on
  Fez and things may change in the future.</p>
 
- <p class="sample4">This is the first full release of this product.  See the <a href="../index.html">documentation</a>  for a complete description.</p>
+ <p class="sample4">  See the <a href="../index.html">documentation</a>  for a complete description.</p>
 
  </div> 
  <!-- /whatsnew -->
@@ -77,23 +77,43 @@ Please use our <a href="http://sourceforge.net/projects/fez">Sourceforge site</a
  <dd>See the <a href="install.html">installation instructions</a> for
  full details.  Please note that this is the first release.</dd>
 
- <dd>&nbsp;</dd>
-
- <dt>Manifest</dt>
-
- <dd>This release consists of the following items:
- <ul>
-  <li>Release notes (this file)</li>
-  <li>Installation instructions / Quick start guide &amp; Documentation </li>
-  <li>Source code</li>
- </ul>
- </dd>
-
- <dt>&nbsp;</dt>
-
  </dl>
 
- </div> <!-- /installation -->
+ <dl class="sample1">
+   <dt>New Features </dt>
+   </dl>
+ <ul>
+   <li> ePrints Batch Import into a Fez collection </li>
+   <li>Fez/Fedora object reindexer (indexes into a Fez collection)</li>
+   <li>AJAX based Image datastream previewer (click on the thumbnails in View Details and the image will load in the preview pane)</li>
+ </ul>
+ <dl class="sample1">
+   <dt>Improvements/Bugfixes</dt>
+ </dl>
+ <ul>
+   <li> Support for Fedora 2.1 SSL server through setup scripts (thanks to support from the fez-users mailing list - specifically Eric Jutrzenka)</li>
+   <li>Default workflows now preset to allow Adminstrators to publish objects immediately on creation</li>
+   <li>AJAX (NAJAX/XOAD) PHP parse error with some versions of PHP 5 fixed (was in Najax Serializer class)</li>
+ </ul>
+ <dl class="sample1">
+   <dt>Remaining Fez Issues/Bugs </dt>
+ </dl>
+ <ul>
+   <li>Fez still only works with MySQL 4.1, and not MySQL 5 yet. </li>
+   </ul>
+ <dl class="sample1">
+   <dt>Manifest</dt>
+   <dd>&nbsp;</dd>
+   <dd>This release consists of the following items:
+     <ul>
+      <li>Release notes (this file)</li>
+      <li>Installation instructions / Quick start guide &amp; Documentation </li>
+      <li>Source code</li>
+     </ul>
+   </dd>
+   <dt>&nbsp;</dt>
+ </dl>
+</div> <!-- /installation -->
 
 
  <div id="recentchanges"></div> 

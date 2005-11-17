@@ -171,6 +171,7 @@ class Reindex
 			} else {
 				Fedora_API::callAddDatastream($pid, "FezMD", $fezmd, "Fez extension metadata", "A", "text/xml", "X");
 			}
+			Record::removeIndexRecord($pid); // remove any existing index entry for that PID
 			Record::setIndexMatchingFields($xdis_id, $pid);
 		}
         if (PEAR::isError($res)) {
@@ -215,7 +216,14 @@ class Reindex
 				} else {
 					Fedora_API::callAddDatastream($pid, "FezMD", $fezmd, "Fez extension metadata", "A", "text/xml", "X");
 				}
+			} else {
+				$record = new RecordObject($pid);
+				$xdis_id = $record->getXmlDisplayId();
+				if (!is_numeric($xdis_id)) {
+					$xdis_id = XSD_Display::getXDIS_IDByTitle('Generic Document');
+				}
 			}
+			Record::removeIndexRecord($pid); // remove any existing index entry for that PID			
 			Record::setIndexMatchingFields($xdis_id, $pid);
 		}
         if (PEAR::isError($res)) {

@@ -179,7 +179,7 @@ var $externalDatastreams;
 			}
 		}
 		foreach ($importArray as $document_type => $eprint_record) {	
-			foreach ($importArray[$document_type] as $key => $data_field) {
+			foreach ($eprint_record as $key => $data_field) {			
 				$xmlDocumentType = '';
 				switch ($document_type) {
 					case 'confpaper':
@@ -412,7 +412,7 @@ $xmlDocumentType = '<foxml:datastream ID="ConferencePostersMD" VERSIONABLE="true
 					<foxml:datastreamVersion MIMETYPE="text/xml" ID="DC1.0" LABEL="Dublin Core Record">
 						<foxml:xmlContent>
 							<oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-							  <dc:title>'.$importArray['confpaper'][$key]['title'][0].'</dc:title>
+							  <dc:title>'.$importArray[$document_type][$key]['title'][0].'</dc:title>
 							  ';
 							  if (is_array($authorArray[$key])) {
 								  foreach ($authorArray[$key] as $author) {
@@ -509,42 +509,15 @@ $xmlDocumentType = '<foxml:datastream ID="ConferencePostersMD" VERSIONABLE="true
 					$ds = str_replace(" ", "_", $ds);
 					Record::insertIndexMatchingField($pid, 122, 'varchar', $ds); // add the thumbnail to the fez index				
 					// Now check for post upload workflow events like thumbnail resizing of images and add them as datastreams if required
-					$mimetype = mime_content_type($ds);
+					$mimetype = Misc::get_content_type($ds);
 					Workflow::processIngestTrigger($pid, $ds, $mimetype);
 				}	  
 		
 				$array_ptr = array();
 				$xsdmf_array = array();
-				// want to do this on a per datastream basis, not the entire xml object
-				$datastreamTitles = XSD_Loop_Subelement::getDatastreamTitles($xdis_id);
-				foreach ($datastreamTitles as $dsValue) {
-					$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title']);
-					if (isset($DSResultArray['stream'])) {
-						$xmlDatastream = $DSResultArray['stream'];
-						$xsd_id = XSD_Display::getParentXSDID($dsValue['xsdmf_xdis_id']);
-						$xsd_details = Doc_Type_XSD::getDetails($xsd_id);
-						$xsd_element_prefix = $xsd_details['xsd_element_prefix'];
-						$xsd_top_element_name = $xsd_details['xsd_top_element_name'];
-		
-						$xmlnode = new DomDocument();
-						$xmlnode->loadXML($xmlDatastream);
-						$array_ptr = array();
-						Misc::dom_xml_to_simple_array($xmlnode, $array_ptr, $xsd_top_element_name, $xsd_element_prefix, $xsdmf_array, $xdis_id);
-					}
-				}
-				foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
-					if (!is_array($xsdmf_value) && !empty($xsdmf_value) && (trim($xsdmf_value) != "")) {					
-						$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
-						Record::insertIndexMatchingField($pid, $xsdmf_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_value);					
-					} elseif (is_array($xsdmf_value)) {
-						foreach ($xsdmf_value as $xsdmf_child_value) {
-							if ($xsdmf_child_value != "") {
-								$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
-								Record::insertIndexMatchingField($pid, $xsdmf_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_child_value);
-							}
-						}
-					}
-				}	
+
+				Record::removeIndexRecord($pid); // remove any existing index entry for that PID			
+				Record::setIndexMatchingFields($xdis_id, $pid);
 				$pid = Fedora_API::getNextPID(); // get a new pid for the next loop
 			}
 		}
@@ -647,7 +620,7 @@ $xmlDocumentType = '<foxml:datastream ID="ConferencePostersMD" VERSIONABLE="true
 			}
 			$ds = str_replace(" ", "_", $ds);
 			Record::insertIndexMatchingField($pid, 122, 'varchar', $ds); // add the thumbnail to the Fez index				
-            $mimetype = mime_content_type($ds);
+            $mimetype = Misc:get_content_type($ds);
             Workflow::processIngestTrigger($pid, $ds, $mimetype);
 		}	  	
 		return $xmlBegin;
@@ -666,7 +639,7 @@ $xmlDocumentType = '<foxml:datastream ID="ConferencePostersMD" VERSIONABLE="true
     */
 	function handleStandardFileImport($pid, $full_name, $short_name) {
 	
-		$mimetype = Misc::mime_content_type($full_name);
+		$mimetype = Misc::get_content_type($full_name);
 		//Insert the standard file as a datastream to the new object
 		$dsID = Fedora_API::getUploadLocationByLocalRef($pid, $full_name, $full_name, $full_name, $mimetype, "M");	
 	
