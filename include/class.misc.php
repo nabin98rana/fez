@@ -286,6 +286,12 @@ class Misc
 					$ds['presmd'] = $presmd;
 				}
 			}
+            if (is_numeric(strpos(@$ds['MIMEType'],'image/'))) {
+                $ds['canPreview'] = true;
+            } else {
+                $ds['canPreview'] = false;
+            }
+                
 			if ($keep == true) {
 				$return[$key] = $ds;
 			}

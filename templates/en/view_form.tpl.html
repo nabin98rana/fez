@@ -223,16 +223,16 @@ function disableFields()
 
 				{fetch file=$image_name assign="image_file_string"}
 
-                                {if !$preview_ds_1}
+                                {if $datastreams[d].canPreview && !$preview_ds_1}
                                   {assign var="preview_ds_1" value=$datastreams[d]}
                                 {/if}
 
 				<td>
-          {if $datastreams[d].thumbnail != "0"}<a href="#"><img align="absmiddle" 
+          {if $datastreams[d].thumbnail != "0"}{if $datastreams[d].canPreview}<a href="#">{/if}<img align="absmiddle" 
             src="{$eserv_url}{$datastreams[d].thumbnail}"
             border="1"
-            onclick="javascript:loadPreview('{$pid}','{$datastreams[d].ID}', '{$datastreams[d].label}');"
-            ></a>{/if}
+            {if $datastreams[d].canPreview}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].ID}', '{$datastreams[d].label}');"{/if}
+            >{if $datastreams[d].canPreview}</a>{/if}{/if}
           {if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}images/default.png">{/if} <a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].ID}">{$datastreams[d].ID}</a> &nbsp;{if $datastreams[d].presmd != "0"}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].presmd}"><img title="preservation metadata" align="absmiddle" border="0" src="{$rel_url}images/presmd_22.gif"></a>{/if}</td>
 				<td>{$datastreams[d].label}</td>
 				<td>{$datastreams[d].MIMEType}</td>
