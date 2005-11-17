@@ -265,14 +265,11 @@ class Misc
 	function cleanDatastreamList($dsList) {
 		$original_dsList = $dsList;		
 		$return = array();
-		$p_ds = Misc::const_array(APP_FEDORA_PROTECTED_DATASTREAMS);
 		foreach ($dsList as $key => $ds) {		
 			$keep = true;
-			foreach ($p_ds as $protected_ds) {
-				if (($ds['ID'] == $protected_ds) || (is_numeric(strpos($ds['ID'], "thumbnail_"))) || (is_numeric(strpos($ds['ID'], "presmd_"))) )   {
-					$keep = false;
-				}
-			}
+            if ((is_numeric(strpos($ds['ID'], "thumbnail_"))) || (is_numeric(strpos($ds['ID'], "presmd_"))) )   {
+                $keep = false;
+            }
 			// now try and find a thumbnail datastream of this datastream
 			$thumbnail = "thumbnail_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."jpg";
 			$ds['thumbnail'] = 0;
