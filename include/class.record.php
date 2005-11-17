@@ -668,9 +668,10 @@ class Record
      */   
     function insertXML($pid, $dsarray, $ingestObject)
     {
+        $existingDatastreams = array();  // may be overwritten by extract
         extract($dsarray);
         $params = array();
-		$datastreamXMLHeaders = Misc::getDatastreamXMLHeaders($datastreamTitles, $xmlObj, array());
+		$datastreamXMLHeaders = Misc::getDatastreamXMLHeaders($datastreamTitles, $xmlObj, $existingDatastreams);
 		$datastreamXMLContent = Misc::getDatastreamXMLContent($datastreamXMLHeaders, $xmlObj);
 		if (@is_array($datastreamXMLHeaders["File_Attachment0"])) { // it must be a multiple file upload so remove the generic one
 			$datastreamXMLHeaders = Misc::array_clean_key($datastreamXMLHeaders, "File_Attachment", true, true);
@@ -1221,6 +1222,7 @@ class RecordObject extends RecordGeneral
             $ingestObject = true;
 			$this->created_date = date("Y-m-d H:i:s");
 			$this->updated_date = $created_date;
+			$existingDatastreams = array();
         } else {
 			$existingDatastreams = Fedora_API::callGetDatastreams($this->pid);
 			$this->getObjectDates();
@@ -1258,7 +1260,7 @@ class RecordObject extends RecordGeneral
 
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
 		$datastreamTitles = $display->getDatastreamTitles();
-        Record::insertXML($pid, compact('datastreamTitles', 'xmlObj', 'indexArray'), $ingestObject);
+        Record::insertXML($pid, compact('datastreamTitles', 'xmlObj', 'indexArray', 'existingDatastreams' ), $ingestObject);
 		return $pid;
     }
     
