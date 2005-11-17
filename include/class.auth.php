@@ -51,7 +51,7 @@ include_once(APP_INC_PATH . "private_key.php");
 
 global $NonRestrictedRoles;
 $NonRestrictedRoles = array("Viewer","Lister","Comment_Viewer");
-global $defaultRoles ;
+global $defaultRoles;
 $defaultRoles = array("Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 
 class Auth

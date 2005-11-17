@@ -290,8 +290,8 @@ class NAJAX_Serializer extends NAJAX_Observable
 			return $returnValue;
 
 		} else if ($type == 'object') {
-
-			return NAJAX_Serializer::serialize(get_object_vars($var));
+			$object_var = get_object_vars($var);
+			return NAJAX_Serializer::serialize($object_var);
 		}
 
 		return "null";
