@@ -71,10 +71,20 @@ if ($isAdministrator) {
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }
-
-		$details = Reindex::getFullList();
+$pagerRow = Record::getParam('pagerRow');
+if (empty($pagerRow)) {
+    $pagerRow = 0;
+}
+$rows = Record::getParam('rows');
+if (empty($rows)) {
+	   $rows = APP_DEFAULT_PAGER_SIZE;
+}
+$options = Record::saveSearchParams();
+$tpl->assign("options", $options);
+		$details = Reindex::getFullList($pagerRow, $rows);
 //        print_r($details);
-		$tpl->assign("list", $details);
+		$tpl->assign("list", $details['list']);
+		$tpl->assign("list_info", $details['info']);		
 //        return $details; 
 
 $status_list = Status::getAssocList();

@@ -328,7 +328,12 @@ $private_key = "' . md5(microtime()) . '";
             $user_list = array_map('strtolower', $user_list);
             if (@$HTTP_POST_VARS["create_user"] == 'yes') {
                 if (!in_array(strtolower(@$HTTP_POST_VARS['fez_user']), $user_list)) {
-                    $stmt = "GRANT SELECT, UPDATE, DELETE, INSERT ON " . $HTTP_POST_VARS['db_name'] . ".* TO '" . $HTTP_POST_VARS["fez_user"] . "'@'%' IDENTIFIED BY '" . $HTTP_POST_VARS["fez_password"] . "'";
+                    if ($HTTP_POST_VARS['db_hostname'] == 'localhost') {
+                        $stmt = "GRANT SELECT, UPDATE, DELETE, INSERT ON " . $HTTP_POST_VARS['db_name'] . ".* TO '" . $HTTP_POST_VARS["fez_user"] . "'@localhost IDENTIFIED BY '" . $HTTP_POST_VARS["fez_password"] . "'";
+                    } else {
+                        $stmt = "GRANT SELECT, UPDATE, DELETE, INSERT ON " . $HTTP_POST_VARS['db_name'] . ".* TO '" . $HTTP_POST_VARS["fez_user"] . "'@'%' IDENTIFIED BY '" . $HTTP_POST_VARS["fez_password"] . "'";
+                    }
+
                     if (!mysql_query($stmt, $conn)) {
                         return getErrorMessage('create_user', mysql_error());
                     }

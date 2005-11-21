@@ -37,6 +37,7 @@ include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.reindex.php");
+include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.community.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.misc.php");
@@ -71,9 +72,19 @@ if ($isAdministrator) {
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }
-
-		$details = Reindex::getMissingList();
-		$tpl->assign("list", $details);
+$pagerRow = Record::getParam('pagerRow');
+if (empty($pagerRow)) {
+    $pagerRow = 0;
+}
+$rows = Record::getParam('rows');
+if (empty($rows)) {
+	   $rows = APP_DEFAULT_PAGER_SIZE;
+}
+$options = Record::saveSearchParams();
+$tpl->assign("options", $options);
+$details = Reindex::getMissingList($pagerRow, $rows);
+$tpl->assign("list", $details['list']);
+$tpl->assign("list_info", $details['info']);		
 //        return $details; 
 
 $status_list = Status::getAssocList();

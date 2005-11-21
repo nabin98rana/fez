@@ -90,8 +90,9 @@ class Reindex
      * @access  public
      * @return  array The list.
      */
-    function getMissingList()
-    {	
+    function getMissingList($current_row = 0, $max = 5)
+    {
+        $start = $current_row * $max;
 		$fezIndexPIDs = Reindex::getIndexPIDList();
         $itql = "select \$title \$description \$object from <#ri>
                  where ((\$object <dc:title> \$title) and
@@ -109,7 +110,29 @@ class Reindex
 				array_push($return, $detail);
 			}
 		}
-		return $return;		
+
+		$total_rows = count($return);		
+		$return = Misc::limitListResults($return, $start, ($start + $max)); 
+		if (($start + $max) < $total_rows) {
+	        $total_rows_limit = $start + $max;
+		} else {
+		   $total_rows_limit = $total_rows;
+		}
+		$total_pages = ceil($total_rows / $max);
+        $last_page = $total_pages - 1;
+        return array(
+            "list" => $return,
+            "info" => array(
+                "current_page"  => $current_row,
+                "start_offset"  => $start,
+                "end_offset"    => $start + ($total_rows_limit),
+                "total_rows"    => $total_rows,
+                "total_pages"   => $total_pages,
+                "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+                "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
+                "last_page"     => $last_page
+            )
+        );	
 	}
 
     /**
@@ -118,8 +141,10 @@ class Reindex
      * @access  public
      * @return  array The list.
      */
-    function getFullList()
-    {	
+    function getFullList($current_row = 0, $max = 5)
+    {
+        $start = $current_row * $max;
+    
 		$fezIndexPIDs = Reindex::getIndexPIDList();
         $itql = "select \$title \$description \$object from <#ri>
                  where ((\$object <dc:title> \$title) and
@@ -138,7 +163,28 @@ class Reindex
 				array_push($return, $detail);
 			}
 		}
-		return $return; 
+		$total_rows = count($return);
+		if (($start + $max) < $total_rows) {
+	        $total_rows_limit = $start + $max;
+		} else {
+		   $total_rows_limit = $total_rows;
+		}
+		$total_pages = ceil($total_rows / $max);
+        $last_page = $total_pages - 1;
+		$return = Misc::limitListResults($return, $start, ($start + $max));
+        return array(
+            "list" => $return,
+            "info" => array(
+                "current_page"  => $current_row,
+                "start_offset"  => $start,
+                "end_offset"    => $start + ($total_rows_limit),
+                "total_rows"    => $total_rows,
+                "total_pages"   => $total_pages,
+                "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+                "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
+                "last_page"     => $last_page
+            )
+        );
 	}
 
     /**
@@ -162,7 +208,7 @@ class Reindex
 			$relsext = Reindex::buildRELSEXT($collection_pid, $pid);
 			$fezmd = Reindex::buildFezMD($xdis_id);			
 			if (Fedora_API::datastreamExists($pid, "RELS-EXT")) {
-				Fedora_API::callModifyDatastreamByValue($pid, "RELS-EXT", "A", "Relationships to other objects", $rels-ext, "text/xml", true);
+				Fedora_API::callModifyDatastreamByValue($pid, "RELS-EXT", "A", "Relationships to other objects", $relsext, "text/xml", true);
 			} else {
 				Fedora_API::callAddDatastream($pid, "RELS-EXT", $relsext, "Relationships to other objects", "A", "text/xml", "X");
 			}
@@ -205,9 +251,9 @@ class Reindex
 			// even if the Fedora object has a RELS-EXT record replace it with a new one based on the chosen destination collection.
 			if (@$HTTP_POST_VARS["override"]) {
 				$relsext = Reindex::buildRELSEXT($collection_pid, $pid);
-				$fezmd = Reindex::buildFezMD($xdis_id);			
+				$fezmd = Reindex::buildFezMD($xdis_id, $sta_id);			
 				if (Fedora_API::datastreamExists($pid, "RELS-EXT")) {
-					Fedora_API::callModifyDatastreamByValue($pid, "RELS-EXT", "A", "Relationships to other objects", $rels-ext, "text/xml", true);
+					Fedora_API::callModifyDatastreamByValue($pid, "RELS-EXT", "A", "Relationships to other objects", $relsext, "text/xml", true);
 				} else {
 					Fedora_API::callAddDatastream($pid, "RELS-EXT", $relsext, "Relationships to other objects", "A", "text/xml", "X");
 				}
