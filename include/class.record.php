@@ -513,7 +513,7 @@ class Record
      */
     function getAssigned($username)
     {
-        $returnfields = array("title", "type", "ret_id", "sta_id", "xdis_id", "sta_id"); 
+        $returnfields = array("title", "type", "ret_id", "sta_id", "xdis_id", "sta_id", "datastream_id"); 
         $returnfield_query = Misc::array_to_sql_string($returnfields);
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $stmt = " SELECT *
@@ -531,6 +531,7 @@ class Record
                 WHERE xdmf.xsdmf_element='!sta_id' 
                 AND rmf.rmf_varchar!='2')
           ";
+
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

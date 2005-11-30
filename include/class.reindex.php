@@ -206,7 +206,7 @@ class Reindex
 		foreach ($items as $pid) {
 			// even if the Fedora object has a RELS-EXT record replace it with a new one based on the chosen destination collection.
 			$relsext = Reindex::buildRELSEXT($collection_pid, $pid);
-			$fezmd = Reindex::buildFezMD($xdis_id);			
+			$fezmd = Reindex::buildFezMD($xdis_id, $sta_id);			
 			if (Fedora_API::datastreamExists($pid, "RELS-EXT")) {
 				Fedora_API::callModifyDatastreamByValue($pid, "RELS-EXT", "A", "Relationships to other objects", $relsext, "text/xml", true);
 			} else {

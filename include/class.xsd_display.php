@@ -597,14 +597,29 @@ class XSD_DisplayObject
             array_push($xdis_list, array("0" => $this->xdis_id));
             $xdis_str = Misc::sql_array_to_string($xdis_list);
             $this->xsd_html_match = new XSD_HTML_MatchObject($xdis_str);
-             foreach ($datastreamTitles as $dsValue) {
-                // find out if this record has the datastream 
-                $DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title']);
-                if (isset($DSResultArray['stream'])) {
-                    $xmlDatastream = $DSResultArray['stream'];
-                    // get the matchfields for the datastream (using the sub-display for this stream)
-                    $this->processXSDMFDatastream($xmlDatastream, $dsValue['xsdmf_xdis_id']);
-                }
+			$datastreams = Fedora_API::callGetDatastreams($pid);
+            foreach ($datastreamTitles as $dsValue) {
+				// first check if the XSD Display datastream is a template for a file attachment or a link as these are handled differently
+				if ($dsValue['xsdsel_title'] == "File_Attachment") {
+					// get all the binary managed content datastream details and add an index record for each
+					foreach ($datastreams as $ds) {
+						if ($ds['controlGroup'] == 'M') {						
+							$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_ID("!datastream!ID", $dsValue['xsdsel_id'], $dsValue['xsdmf_xdis_id']);
+							if (!is_array($this->xsdmf_current[$xsdmf_id])) {
+								$this->xsdmf_current[$xsdmf_id] = array();
+							}
+							array_push($this->xsdmf_current[$xsdmf_id], $ds['ID']); 
+						}
+					}
+				} else {
+					// find out if this record has the xml based datastream 
+					$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title']);
+					if (isset($DSResultArray['stream'])) {
+						$xmlDatastream = $DSResultArray['stream'];
+						// get the matchfields for the datastream (using the sub-display for this stream)
+						$this->processXSDMFDatastream($xmlDatastream, $dsValue['xsdmf_xdis_id']);
+					}
+				}
             }
         }
     }

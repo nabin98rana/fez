@@ -64,6 +64,8 @@ foreach ($collection_list as &$item) {
 $tpl->assign('my_collections_list', $collection_list);
 
 $assigned_items= Record::getAssigned(Auth::getUsername());
+
+$tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
 $tpl->assign('my_assigned_items_list', $assigned_items);
 $tpl->assign("roles_list", Auth::getDefaultRoles());
 

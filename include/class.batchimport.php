@@ -507,7 +507,7 @@ $xmlDocumentType = '<foxml:datastream ID="ConferencePostersMD" VERSIONABLE="true
 						$ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
 					}
 					$ds = str_replace(" ", "_", $ds);
-					Record::insertIndexMatchingField($pid, 122, 'varchar', $ds); // add the thumbnail to the fez index				
+					//Record::insertIndexMatchingField($pid, 122, 'varchar', $ds); // add the file attachment to the fez index	// this is now done in Record::setIndexMatchingFields more dynamically
 					// Now check for post upload workflow events like thumbnail resizing of images and add them as datastreams if required
 					$mimetype = Misc::get_content_type($ds);
 					Workflow::processIngestTrigger($pid, $ds, $mimetype);
@@ -548,9 +548,10 @@ $xmlDocumentType = '<foxml:datastream ID="ConferencePostersMD" VERSIONABLE="true
     * @param   string $pid The current persistent identifier
     * @param   string $xmlObj The string read from the eprints export_xml xml file
     * @param   string $xmlBegin The already started xml string for ingestion (the FOXML headers already generated).
+    * @param   string $xdis_id The XSD Display ID
     * @return  void
     */
-	function handleMETSImport($pid, $xmlObj, $xmlBegin) {
+	function handleMETSImport($pid, $xmlObj, $xmlBegin, $xdis_id) {
 		$externalDatastreams = array();
 		// check for oai_dc, if so add it	  
 		$oai_dc = BatchImport::getOAI_DC($xmlObj);
@@ -619,10 +620,13 @@ $xmlDocumentType = '<foxml:datastream ID="ConferencePostersMD" VERSIONABLE="true
 				$ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
 			}
 			$ds = str_replace(" ", "_", $ds);
-			Record::insertIndexMatchingField($pid, 122, 'varchar', $ds); // add the thumbnail to the Fez index				
+			//Record::insertIndexMatchingField($pid, 122, 'varchar', $ds); // add the thumbnail to the Fez index				
             $mimetype = Misc:get_content_type($ds);
             Workflow::processIngestTrigger($pid, $ds, $mimetype);
 		}	  	
+		Record::removeIndexRecord($pid); // remove any existing index entry for that PID			
+		Record::setIndexMatchingFields($xdis_id, $pid);
+		
 		return $xmlBegin;
 	}
 
@@ -655,7 +659,10 @@ $xmlDocumentType = '<foxml:datastream ID="ConferencePostersMD" VERSIONABLE="true
 			$filename_ext = strtolower(substr($short_name, (strrpos($short_name, ".") + 1)));
 			$short_name = substr($short_name, 0, strrpos($short_name, ".") + 1).$filename_ext;
 		}
-		Record::insertIndexMatchingField($pid, 122,  'varchar', $short_name);
+//		Record::insertIndexMatchingField($pid, 122,  'varchar', $short_name);
+		Record::removeIndexRecord($pid); // remove any existing index entry for that PID			
+		Record::setIndexMatchingFields($xdis_id, $pid);
+
 	
 		// Now check for post upload workflow events like thumbnail resizing of images and add them as datastreams if required
 		Workflow::processIngestTrigger($pid, $full_name, $mimetype);
@@ -706,7 +713,7 @@ $xmlDocumentType = '<foxml:datastream ID="ConferencePostersMD" VERSIONABLE="true
                     $handled_as_xml = true;
                 } elseif (is_numeric(strpos($xmlObj, "METS:mets"))) {
                     $xmlBegin = BatchImport::ConvertMETSToFOXML($pid, $xmlObj, $collection_pid, $short_name, $xdis_id, $ret_id, $sta_id);
-                    $xmlObj = BatchImport::handleMETSImport($pid, $xmlObj, $xmlBegin);
+                    $xmlObj = BatchImport::handleMETSImport($pid, $xmlObj, $xmlBegin, $xdis_id);
                     $handled_as_xml = true;
                 }
             } 

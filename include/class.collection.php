@@ -347,7 +347,10 @@ class Collection
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             $res = array();
         }
+
         $list = Collection::makeReturnList($returnfields, $res);
+
+
         $list2 = array();
         foreach ($list as $item) {
             if ($item['isEditor']) {
@@ -430,9 +433,28 @@ class Collection
                 $return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']] 
                     = $result['rmf_'.$result['xsdmf_data_type']];
             }
+			if ($result['xsdmf_fez_title'] == "datastream_id") {
+				if (is_numeric(strpos($result['rmf_varchar'], "thumbnail_"))) {
+					if (!is_array(@$return[$result['rmf_rec_pid']]['thumbnails'])) {
+						$return[$result['rmf_rec_pid']]['thumbnails'] = array();
+					}
+					array_push($return[$result['rmf_rec_pid']]['thumbnails'], $result['rmf_varchar']);
+				} else {
+					if (!is_array(@$return[$result['rmf_rec_pid']]['datastreams'])) {
+						$return[$result['rmf_rec_pid']]['datastreams'] = array();
+					}
+					array_push($return[$result['rmf_rec_pid']]['datastreams'], $result['rmf_varchar']);
+				}
+			}
         }
 
         foreach ($return as $pid_key => $row) {
+			//if there is only one thumbnail DS then use it
+			if (count(@$row['thumbnails']) == 1) {
+				$return[$pid_key]['thumbnail'] = $row['thumbnails'][0];
+			} else {
+				$return[$pid_key]['thumbnail'] = 0;
+			}
             if (!is_array(@$row['FezACML'])) {
                 $parentsACMLs = array();
                 Auth::getIndexParentACMLs(&$parentsACMLs, $pid_key);

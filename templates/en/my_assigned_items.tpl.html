@@ -10,9 +10,15 @@
      </tr>
 {assign var="list" value=$my_assigned_items_list}
      {section name="i" loop=$list}
-     {cycle values=$cycle assign="row_color"}
+		{if $list[i].thumbnail != "0"}
+			{assign var="icon" value=$eserv_url|cat:"?pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].thumbnail}
+		{else}
+			{assign var="icon" value="images/record.jpg" }
+		{/if}
+	     {cycle values=$cycle assign="row_color"}
      <tr>
        <td bgcolor="{$row_color}" class="default">
+		<a href="{$rel_url}view.php?pid={$list[i].pid|escape}"><img align="absmiddle" src="{$icon}" border="0"></a>
          &nbsp;<a href="{$rel_url}view.php?pid={$list[i].pid|escape}">{$list[i].title|escape}</a>
          &nbsp;&nbsp;<a href='{$rel_url}workflow/update.php?pid={$list[i].pid|escape}&href={$smarty.server.REQUEST_URI}'
          ><img title="Edit" align="absmiddle" src="{$rel_url}images/edit.gif" border="0"></a> 

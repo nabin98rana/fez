@@ -145,7 +145,7 @@ class XSD_Loop_Subelement
     function getDatastreamTitles($xdis_id)
     {
 		// Get the datastream titles and xdisplay ids that are references to other display ids, and also get any binary content (file upload/select) datastreams
-		$stmt = "SELECT	m1.xsdmf_xdis_id,
+		$stmt = "SELECT	m1.xsdmf_id, m1.xsdmf_xdis_id,
 			s1.xsdsel_title,
 			s1.xsdsel_id
 						 FROM
@@ -179,7 +179,7 @@ class XSD_Loop_Subelement
     {
 
 		// Get the datastream titles and xdisplay ids that are references to other display ids, and also get any binary content (file upload/select) datastreams
-		$stmt = "SELECT	m1.xsdmf_xdis_id,
+		$stmt = "SELECT	m1.xsdmf_id, m1.xsdmf_xdis_id,
 			s1.xsdsel_title,
 			s1.xsdsel_id
 						 FROM
