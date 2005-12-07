@@ -1,0 +1,215 @@
+
+      <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+        <tr>
+          <td>
+            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+              {literal}
+              <script language="JavaScript">
+              <!--
+              function validateForm(f)
+              {
+                  if (isWhitespace(f.lname.value)) {
+                      alert('Please enter the last name of this author.');
+                      selectField(f, 'lname');
+                      return false;
+                  }
+                  return true;
+              }
+              //-->
+              </script>
+              {/literal}
+              <form name="author_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}">
+              {if $smarty.get.cat == 'edit'}
+              <input type="hidden" name="cat" value="update">
+              <input type="hidden" name="id" value="{$smarty.get.id}">
+              {else}
+              <input type="hidden" name="cat" value="new">
+              {/if}
+              <tr>
+                <td colspan="2" class="default">
+                  <b>Manage Authors</b>
+                </td>
+              </tr>
+              {if $result != ""}
+              <tr>
+                <td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
+                  {if $smarty.post.cat == "new"}
+                    {if $result == -1}
+                      An error occurred while trying to add the new author.
+                    {elseif $result == -2}
+                      Please enter the title for this new author.
+                    {elseif $result == 1}
+                      Thank you, the author was added successfully.
+                    {/if}
+                  {elseif $smarty.post.cat == "update"}
+                    {if $result == -1}
+                      An error occurred while trying to update the author information.
+                    {elseif $result == -2}
+                      Please enter the title for this author.
+                    {elseif $result == 1}
+                      Thank you, the author was updated successfully.
+                    {/if}
+                  {/if}
+                </td>
+              </tr>
+              {/if}
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Title: </b>
+                </td>
+                <td bgcolor="{$light_color}" width="80%">
+                  <input type="text" name="title" size="40" class="default" value="{$info.aut_title}">
+                  {include file="error_icon.tpl.html" field="title"}
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>First Name: *</b>
+                </td>
+                <td bgcolor="{$light_color}" width="80%">
+                  <input type="text" name="fname" size="40" class="default" value="{$info.aut_fname}">
+                  {include file="error_icon.tpl.html" field="fname"}
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Middle Name: </b>
+                </td>
+                <td bgcolor="{$light_color}" width="80%">
+                  <input type="text" name="mname" size="40" class="default" value="{$info.aut_mname}">
+                  {include file="error_icon.tpl.html" field="mname"}
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Last Name: </b>
+                </td>
+                <td bgcolor="{$light_color}" width="80%">
+                  <input type="text" name="lname" size="40" class="default" value="{$info.aut_lname}">
+                  {include file="error_icon.tpl.html" field="lname"}
+                </td>
+              </tr>			  
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Position: </b>
+                </td>
+                <td bgcolor="{$light_color}" width="80%">
+                  <input type="text" name="position" size="40" class="default" value="{$info.aut_position}">
+                  {include file="error_icon.tpl.html" field="position"}
+                </td>
+              </tr>	
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>CV Link: </b>
+                </td>
+                <td bgcolor="{$light_color}" width="80%">
+                  <input type="text" name="cv_link" size="40" class="default" value="{$info.aut_cv_link}">
+                  {include file="error_icon.tpl.html" field="cv_link"}
+                </td>
+              </tr>						  		
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Homepage Link: </b>
+                </td>
+                <td bgcolor="{$light_color}" width="80%">
+                  <input type="text" name="homepage_link" size="40" class="default" value="{$info.aut_homepage_link}">
+                  {include file="error_icon.tpl.html" field="homepage_link"}
+                </td>
+              </tr>					
+              <tr>
+                <td colspan="2" bgcolor="{$cell_color}" align="center">
+                  {if $smarty.get.cat == 'edit'}
+                  <input class="button" type="submit" value="Update Author">
+                  {else}
+                  <input class="button" type="submit" value="Create Author">
+                  {/if}
+                  <input class="button" type="reset" value="Reset">
+                </td>
+              </tr>
+              </form>
+              <tr>
+                <td colspan="2" class="default">
+                  <b>Existing Authors:</b>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="2">
+                  {literal}
+                  <script language="JavaScript">
+                  <!--
+                  function checkDelete(f)
+                  {
+                      var total_selected = getTotalCheckboxesChecked(f, 'items[]');
+                      var total = getTotalCheckboxes(f, 'items[]');
+                      if (total == total_selected) {
+                          alert('You cannot remove all of the authors in the system.');
+                          return false;
+                      }
+                      if (!hasOneChecked(f, 'items[]')) {
+                          alert('Please select at least one of the authors.');
+                          return false;
+                      }
+                      if (!confirm('WARNING: This action will remove the selected authors permanently.\nPlease click OK to confirm.')) {
+                          return false;
+                      } else {
+                          return true;
+                      }
+                  }
+                  //-->
+                  </script>
+                  {/literal}
+                  <table border="0" width="100%" cellpadding="1" cellspacing="1">
+                    <form onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
+                    <input type="hidden" name="cat" value="delete">
+                    <tr>
+                      <td width="4" bgcolor="{$cell_color}" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>ID</b></td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b></td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>First Name</b></td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Middle Name</b></td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Last Name</b></td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Position</b></td>					  					  
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>CV Link</b></td>					  
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Homepage Link</b></td>					  
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Created Date</b></td>					  
+                    </tr>
+                    {section name="i" loop=$list}
+                    {cycle values=$cycle assign="row_color"}
+                    <tr>
+                      <td width="4" align="center" nowrap bgcolor="{$row_color}"><input type="checkbox" name="items[]" value="{$list[i].aut_id}"></td>
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;<a class="link" href="{$smarty.server.PHP_SELF}?cat=edit&id={$list[i].aut_id}" title="update this entry">{$list[i].aut_id}</a>
+                      </td>
+                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_title}</td>
+                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_fname}</td>					  
+                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_mname}</td>					  
+                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_lname}</td>
+                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_position}</td>
+                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_cv_link}</td>
+                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_homepage_link}</td>					  
+                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_created_date}</td>					  
+                    </tr>
+                    {sectionelse}
+                    <tr>
+                      <td colspan="10" bgcolor="{$light_color}" align="center" class="default">
+                        No authors could be found.
+                      </td>
+                    </tr>
+                    {/section}
+                    <tr>
+                      <td width="4" bgcolor="{$cell_color}" align="center">
+                        <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
+                      </td>
+                      <td colspan="9" bgcolor="{$cell_color}" align="center">
+                        <input type="submit" value="Delete" class="button">
+                      </td>
+                    </tr>
+                    </form>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+

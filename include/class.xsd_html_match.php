@@ -177,6 +177,7 @@ class XSD_HTML_Match
 					xsdmf_data_type,
 					xsdmf_value_prefix,
                     xsdmf_id_ref,
+					xsdmf_attached_xsdmf_id,
 					xsdsel_order
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields left join
@@ -271,6 +272,7 @@ class XSD_HTML_Match
 					xsdmf_image_location,
                     xsdmf_id_ref,
 					xsdsel_order,
+					xsdmf_attached_xsdmf_id,					
 					xsdmf_cvo_id
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields as m1 left join
@@ -594,6 +596,9 @@ class XSD_HTML_Match
 					xsdmf_static_text,
 					xsdmf_dynamic_text,
 					xsdmf_cvo_id";
+		if (is_numeric($HTTP_POST_VARS["attached_xsdmf_id"])) {
+			$stmt .= ", xsdmf_attached_xsdmf_id";
+		}
 		if (is_numeric($HTTP_POST_VARS["xsdsel_id"])) {
 			$stmt .= ", xsdmf_xsdsel_id";
 		}
@@ -647,6 +652,10 @@ class XSD_HTML_Match
                     '" . Misc::escapeString($HTTP_POST_VARS["static_text"]) . "',
                     '" . Misc::escapeString($HTTP_POST_VARS["dynamic_text"]) . "',
                     " . $HTTP_POST_VARS["xsdmf_cvo_id"];
+
+		if (is_numeric($HTTP_POST_VARS["attached_xsdmf_id"])) {
+			$stmt .= ", " . Misc::escapeString($HTTP_POST_VARS["attached_xsdmf_id"]);
+		}
 
 		if (is_numeric($HTTP_POST_VARS["xsdsel_id"])) {
 			$stmt .= ", " . Misc::escapeString($HTTP_POST_VARS["xsdsel_id"]);
@@ -743,6 +752,9 @@ class XSD_HTML_Match
 					xsdmf_image_location,
 					xsdmf_static_text,
 					xsdmf_dynamic_text";
+		if (is_numeric($insertArray["xsdmf_attached_xsdmf_id"])) {
+			$stmt .= ", xsdmf_attached_xsdmf_id";
+		}
 		if (is_numeric($insertArray["xsdmf_xsdsel_id"])) {
 			$stmt .= ", xsdmf_xsdsel_id";
 		}
@@ -810,6 +822,10 @@ class XSD_HTML_Match
                     '" . Misc::escapeString($insertArray["xsdmf_image_location"]) . "',
                     '" . Misc::escapeString($insertArray["xsdmf_static_text"]) . "',
                     '" . Misc::escapeString($insertArray["xsdmf_dynamic_text"]) . "'";
+
+		if (is_numeric($insertArray["xsdmf_attached_xsdmf_id"])) {
+			$stmt .= ", " .$insertArray["xsdmf_attached_xsdmf_id"];
+		}
 
 		if (is_numeric($insertArray["xsdmf_xsdsel_id"])) {
 			$stmt .= ", " .$insertArray["xsdmf_xsdsel_id"];
@@ -1086,7 +1102,11 @@ class XSD_HTML_Match
                     xsdmf_show_in_view = " . $show_in_view . ",
                     xsdmf_key_match = '" . Misc::escapeString($HTTP_POST_VARS["key_match"]) . "',
                     xsdmf_parent_key_match = '" . Misc::escapeString($HTTP_POST_VARS["parent_key_match"]) . "',
-                    xsdmf_data_type = '" . Misc::escapeString($HTTP_POST_VARS["xsdmf_data_type"]) . "',					
+                    xsdmf_data_type = '" . Misc::escapeString($HTTP_POST_VARS["xsdmf_data_type"]) . "',";
+					if (is_numeric($HTTP_POST_VARS["attached_xsdmf_id"])) {
+	                  $stmt .= "   xsdmf_attached_xsdmf_id = " . Misc::escapeString($HTTP_POST_VARS["attached_xsdmf_id"]) . ",";
+					}
+					$stmt .= "
                     xsdmf_id_ref = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_id_ref"]) . ",
                     xsdmf_enforced_prefix = '" . Misc::escapeString($HTTP_POST_VARS["enforced_prefix"]) . "',
                     xsdmf_value_prefix = '" . Misc::escapeString($HTTP_POST_VARS["value_prefix"]) . "',
@@ -1094,7 +1114,7 @@ class XSD_HTML_Match
                     xsdmf_dynamic_text = '" . Misc::escapeString($HTTP_POST_VARS["dynamic_text"]) . "',
                     xsdmf_static_text = '" . Misc::escapeString($HTTP_POST_VARS["static_text"]) . "'";
 		$stmt .= " WHERE xsdmf_xdis_id = $xdis_id AND xsdmf_element = '".$xml_element."'".$extra_where;
-//		echo $stmt;
+		//echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -1544,6 +1564,33 @@ class XSD_HTML_Match
         }
     }
 
+    /**
+     * Method used to check if the XSD matching field is attached to other fields, therefore gets handled differently in FOXML::array_to_xml_instance
+     *
+     * @access  public
+     * @param   integer $xsdmf_id The XSD matching field ID to search for
+     * @return  boolean true or false
+     */
+    function isAttachedXSDMF($xsdmf_id)
+    {
+        $stmt = "SELECT count(*) as 
+                    attach_count
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+                 WHERE
+                    xsdmf_attached_xsdmf_id=$xsdmf_id";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+			if (is_numeric($res) && ($res > 0)) {
+	            return true;
+			} else {
+				return false;
+			}
+        }
+    }
 
     /**
      * Method used to get the list of matching field options associated

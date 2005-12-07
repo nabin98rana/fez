@@ -6,7 +6,7 @@
  */
 class NajaxImagePreview {
 
-    function getPreview($pid, $dsID, $width, $height, $regen)
+    function getPreview($pid, $dsID, $width, $height, $regen, $copyright_message="", $watermark=false)
     {
         $hash = md5("$pid$dsID$width$height");
 
@@ -18,8 +18,16 @@ class NajaxImagePreview {
             $imagebin = file_get_contents(APP_BASE_URL.'eserv.php?pid='.$pid.'&dsID='.$dsID);
             file_put_contents($imagefname, $imagebin);
 
-            $command = APP_CONVERT_CMD." -resize {$width}x{$height} '$imagefname' '$fname'";
-            exec(escapeshellcmd($command));
+            $command = APP_CONVERT_CMD." -resize {$width}x{$height}\> '".escapeshellcmd($imagefname)."' '".escapeshellcmd($fname)."'";
+            exec($command);			
+			if ($copyright != "") {
+				$command = APP_CONVERT_CMD.' '.escapeshellcmd($fname).' -font Arial -pointsize 20 -draw "gravity center fill black text 0,12 \'Copyright'.$copyright_message.'\' fill white  text 1,11 \'Copyright\'" '.escapeshellcmd($fname).'';
+				exec($command);
+			}
+			if ($watermark == true) {
+				$command = APP_COMPOSITE_CMD." -dissolve 15 -tile ".escapeshellcmd(APP_PATH)."/images/".APP_WATERMARK." ".escapeshellcmd($fname)." ".escapeshellcmd($fname)."";
+				exec($command);			
+			}
             unlink($imagefname);
 
         }

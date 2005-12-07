@@ -47,6 +47,7 @@ set_time_limit(0);
 
 @define("EPRINTS_OAI", "http://eprint.uq.edu.au/perl/oai2?verb=GetRecord&metadataPrefix=oai_dc&identifier=oai%3Aeprint.uq.edu.au%3A"); // ePrints OAI service provider for batch importing of ePrints records
 
+@define("APP_WATERMARK", "watermark.gif"); // The image to be used for watermarking of copyright images
 // definitions of path related variables
 @define("APP_SAN_IMPORT_DIR", ""); //eg /fez/incoming or c:\\fez\\incoming
 
@@ -62,6 +63,7 @@ set_time_limit(0);
 if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
 	@define("APP_TEMP_DIR", 'c:/temp/'); 
 	@define("APP_CONVERT_CMD", "convert");   // To convert image (part of ImageMagick)
+	@define("APP_COMPOSITE_CMD", "composite");   // To watermark image (part of ImageMagick)
 	@define("APP_IDENTIFY_CMD", "identify"); // To get image information (part of ImageMagick)
 	@define("APP_JHOVE_DIR", "c:/jhove");
 	@define("APP_JHOVE_TEMP_DIR", 'c:\temp/'); // jhove needs windows style dir names when run on a win server
@@ -69,6 +71,7 @@ if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Serve
 } else { //  Linux Server
 	@define("APP_TEMP_DIR", "/tmp/"); 
 	@define("APP_CONVERT_CMD", "/usr/bin/convert");   // To convert image (part of ImageMagick)
+	@define("APP_COMPOSITE_CMD", "/usr/bin/composite");   // To watermark image (part of ImageMagick)
 	//@define("APP_CONVERT_CMD", "/usr/X11R6/bin/convert");   // convert could be in here for some Linux distros
 	@define("APP_IDENTIFY_CMD", "/usr/X11R6/bin/identify"); // To get image information (part of ImageMagick)
 	@define("APP_JHOVE_DIR", "/usr/local/jhove");

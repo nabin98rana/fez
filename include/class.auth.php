@@ -832,7 +832,7 @@ class Auth
 		$ldap_conn = ldap_connect(LDAP_SERVER, LDAP_PORT);
 	    ldap_set_option($ldap_conn, LDAP_OPT_PROTOCOL_VERSION, 3);
     	ldap_set_option($ldap_conn, LDAP_OPT_REFERRALS, 0);
-		$ldap_bind = ldap_bind($ldap_conn, LDAP_PREFIX."\\".$username, $password);
+		$ldap_bind = @ldap_bind($ldap_conn, LDAP_PREFIX."\\".$username, $password);
 		if ($ldap_bind) {
 			$ldap_result = ldap_search($ldap_conn, LDAP_ROOT_DN, $filter);
 			// retrieve all the entries from the search result

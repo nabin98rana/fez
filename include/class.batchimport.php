@@ -621,7 +621,7 @@ $xmlDocumentType = '<foxml:datastream ID="ConferencePostersMD" VERSIONABLE="true
 			}
 			$ds = str_replace(" ", "_", $ds);
 			//Record::insertIndexMatchingField($pid, 122, 'varchar', $ds); // add the thumbnail to the Fez index				
-            $mimetype = Misc:get_content_type($ds);
+            $mimetype = Misc::get_content_type($ds);
             Workflow::processIngestTrigger($pid, $ds, $mimetype);
 		}	  	
 		Record::removeIndexRecord($pid); // remove any existing index entry for that PID			
@@ -639,9 +639,10 @@ $xmlDocumentType = '<foxml:datastream ID="ConferencePostersMD" VERSIONABLE="true
     * @param   string $pid The current persistent identifier
     * @param   string $full_name The full directory path inclusive filename 
     * @param   string $short_name The basic filename without the directory path
+    * @param   string $xdis_id The XSD Display ID the object will have.	
     * @return  void
     */
-	function handleStandardFileImport($pid, $full_name, $short_name) {
+	function handleStandardFileImport($pid, $full_name, $short_name, $xdis_id) {
 	
 		$mimetype = Misc::get_content_type($full_name);
 		//Insert the standard file as a datastream to the new object
@@ -662,7 +663,6 @@ $xmlDocumentType = '<foxml:datastream ID="ConferencePostersMD" VERSIONABLE="true
 //		Record::insertIndexMatchingField($pid, 122,  'varchar', $short_name);
 		Record::removeIndexRecord($pid); // remove any existing index entry for that PID			
 		Record::setIndexMatchingFields($xdis_id, $pid);
-
 	
 		// Now check for post upload workflow events like thumbnail resizing of images and add them as datastreams if required
 		Workflow::processIngestTrigger($pid, $full_name, $mimetype);
@@ -731,7 +731,7 @@ $xmlDocumentType = '<foxml:datastream ID="ConferencePostersMD" VERSIONABLE="true
                     Record::insertFromTemplate($pid, $xdis_id, $short_name, $dsarray);
                 }
                 // add the binary batch import file.
-                BatchImport::handleStandardFileImport($pid, $full_name, $short_name);
+                BatchImport::handleStandardFileImport($pid, $full_name, $short_name, $xdis_id);
             }
 
         }

@@ -32,7 +32,7 @@ function loadPreview(pid,datastreamID, alt)
         image_preview_loading = 0;
         pv_img.alt = 'Image Preview';
     };
-    ip_obj.setTimeout(10000);
+    ip_obj.setTimeout(100000);
     ip_obj.getPreview(pid, datastreamID, max_width, max_height, false, function() {
             pv_img.src = rel_url+'webservices/image_resize_cache.php?pid='+pid+'&dsID='+datastreamID+'&width='+max_width+'&height='+max_height;
             pv_img.alt = alt;

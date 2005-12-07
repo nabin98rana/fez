@@ -37,7 +37,6 @@ include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.group.php");
-include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.setup.php");
@@ -53,7 +52,7 @@ include_once(APP_INC_PATH . "class.workflow_trigger.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
-$tpl->assign("type", "edit_metadata");
+$tpl->assign("type", "edit_security");
 Auth::checkAuthentication(APP_SESSION, $HTTP_SERVER_VARS['PHP_SELF']."?".$HTTP_SERVER_VARS['QUERY_STRING']);
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
@@ -121,9 +120,6 @@ $tpl->assign('sta_id', $sta_id);
 $jtaskData = "";
 $maxG = 0;
 $xsd_display_fields = $record->display->getMatchFieldsList();  // XSD_DisplayObject
-
-$author_ids = Author::getAssocListAll();
-$tpl->assign("author_ids", $author_ids);
 //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
 foreach ($xsd_display_fields  as $dis_key => $dis_field) {
 	if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple') {
@@ -146,7 +142,6 @@ $tpl->assign("xsd_display_fields", $xsd_display_fields);
 $tpl->assign("xdis_id", $xdis_id);
 
 $details = $record->getDetails();
-//print_r($details);
 $controlled_vocabs = Controlled_Vocab::getAssocListAll();
 //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
 foreach ($xsd_display_fields  as $dis_field) {

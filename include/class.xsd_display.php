@@ -602,9 +602,9 @@ class XSD_DisplayObject
 				// first check if the XSD Display datastream is a template for a file attachment or a link as these are handled differently
 				if ($dsValue['xsdsel_title'] == "File_Attachment") {
 					// get all the binary managed content datastream details and add an index record for each
+					$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_ID("!datastream!ID", $dsValue['xsdsel_id'], $dsValue['xsdmf_xdis_id']);
 					foreach ($datastreams as $ds) {
 						if ($ds['controlGroup'] == 'M') {						
-							$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_ID("!datastream!ID", $dsValue['xsdsel_id'], $dsValue['xsdmf_xdis_id']);
 							if (!is_array($this->xsdmf_current[$xsdmf_id])) {
 								$this->xsdmf_current[$xsdmf_id] = array();
 							}
@@ -697,7 +697,11 @@ class XSD_DisplayObject
                 }
                 break;
             case XML_ATTRIBUTE_NODE:
-                $new_element = "!{$cbdata['parentContent']}!{$cbdata['clean_nodeName']}!$clean_nodeName";
+                if ((is_numeric(strpos(substr($cbdata['parentContent'], 0, 1), "!"))) || ($cbdata['parentContent'] == "")) {
+	                $new_element = "{$cbdata['parentContent']}!{$cbdata['clean_nodeName']}!$clean_nodeName";
+				} else {				
+	                $new_element = "!{$cbdata['parentContent']}!{$cbdata['clean_nodeName']}!$clean_nodeName";
+				}
                 // Is there a match field for this attribute?
                 // look for key match on the attribute value first - this is where the matchfield needs the 
                 // attribute to be set to a certain value to match.

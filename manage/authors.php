@@ -32,46 +32,44 @@
 // +----------------------------------------------------------------------+
 //
 //
-// @@@ CK - 28/7/05
-// Image resize webservice
-// - Takes url parameters to convert an image file in the Fez temp directory into a image file of the given format and size
-
+set_time_limit(0);
 include_once("../config.inc.php");
+include_once(APP_INC_PATH . "class.template.php");
+include_once(APP_INC_PATH . "class.auth.php");
+include_once(APP_INC_PATH . "class.author.php");
+include_once(APP_INC_PATH . "class.user.php");
+include_once(APP_INC_PATH . "class.status.php");
+include_once(APP_INC_PATH . "db_access.php");
 
-// Get image and size
-$image = urldecode($_GET["image"]);
-$width = $_GET["width"]; //maximum width
-$height = $_GET["height"]; //maximum height
-$ext = strtolower($_GET["ext"]); //the file type extension to convert the image to
-$image_dir = "";
-if (is_numeric(strpos($image, "/"))) {
-	$image_dir = substr($image, 0, strrpos($image, "/"));
-	$image = substr($image, strrpos($image, "/")+1);
-}	
+$tpl = new Template_API();
+$tpl->setTemplate("manage/index.tpl.html");
 
-if (trim($image_dir) == "") { $image_dir = APP_TEMP_DIR; }
+Auth::checkAuthentication(APP_SESSION);
 
-$temp_file = "thumbnail_".substr($image, 0, strrpos($image, ".")).".".$ext;
-$temp_file = str_replace(" ", "_", $temp_file);
-$error = '';
-if(!$image) $error .= "<b>ERROR:</b> no image specified<br>";
-if(!is_file($image_dir."/".$image)) { $error .= "<b>ERROR:</b> given image filename not found or bad filename given<br>"; }
-if(!is_numeric($width) && !is_numeric($height)) $error .= "<b>ERROR:</b> no sizes specified<br>";
-if($error){ echo $error; die; }
+$tpl->assign("type", "authors");
 
-// Set the header type
-if ($ext=="jpg" || $ext=="jpeg")
-  $content_type="image/jpeg";
-elseif ($ext=="gif")
-  $content_type="image/gif";
-elseif ($ext=="png")
-  $content_type="image/png";
-else{ echo "<b>ERROR:</b> unknown file type<br>"; die; }
+$isUser = Auth::getUsername();
+$tpl->assign("isUser", $isUser);
+$isAdministrator = User::isUserAdministrator($isUser);
+$tpl->assign("isAdministrator", $isAdministrator);
 
-// Create the output file if it does not exist
-if(!is_file(APP_TEMP_DIR.$temp_file)) {
-  $command = escapeshellcmd(APP_CONVERT_CMD)." -resize ".escapeshellcmd($width)."x".escapeshellcmd($height)."\> '".escapeshellcmd($image_dir)."/".escapeshellcmd($image)."' ".escapeshellcmd(APP_TEMP_DIR.$temp_file);
-	exec($command);
-//	exec(escapeshellcmd($command));
-} 
+if ($isAdministrator) {
+    if (@$HTTP_POST_VARS["cat"] == "new") {
+        $tpl->assign("result", Author::insert());
+    } elseif (@$HTTP_POST_VARS["cat"] == "update") {
+        $tpl->assign("result", Author::update());
+    } elseif (@$HTTP_POST_VARS["cat"] == "delete") {
+        Author::remove();
+    }
+
+    if (@$HTTP_GET_VARS["cat"] == "edit") {
+        $tpl->assign("info", Author::getDetails($HTTP_GET_VARS["id"]));
+    }
+
+    $tpl->assign("list", Author::getList());
+} else {
+    $tpl->assign("show_not_allowed_msg", true);
+}
+
+$tpl->displayTemplate();
 ?>
