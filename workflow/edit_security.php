@@ -66,10 +66,12 @@ $id = Misc::GETorPOST('id');
 $tpl->assign("id", $id);
 $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
 $pid = $wfstatus->pid;
+
 $wfstatus->setTemplateVars($tpl);
+
 $tpl->assign("submit_to_popup", true);
 $wfstatus->checkStateChange();
- 
+
 $collection_pid = @$HTTP_POST_VARS["collection_pid"] ? $HTTP_POST_VARS["collection_pid"] : @$HTTP_GET_VARS["collection_pid"];	
 $community_pid = @$HTTP_POST_VARS["community_pid"] ? $HTTP_POST_VARS["community_pid"] : @$HTTP_GET_VARS["community_pid"];	
 
@@ -119,7 +121,7 @@ $tpl->assign('sta_id', $sta_id);
 
 $jtaskData = "";
 $maxG = 0;
-$xsd_display_fields = $record->display->getMatchFieldsList();  // XSD_DisplayObject
+$xsd_display_fields = $record->display->getMatchFieldsList(array(), array("FezACML"));  // Specify FezACML as the only display needed for security
 //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
 foreach ($xsd_display_fields  as $dis_key => $dis_field) {
 	if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple') {

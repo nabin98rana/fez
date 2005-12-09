@@ -507,15 +507,16 @@ class XSD_DisplayObject
      * Get the list of fields that can be matched for this display.
 	 * 
      * @access  public
+     * @param   array optional $exclude_list The list of datastream IDs to exclude, takes preference over the specify list
+     * @param   array optional $specify_list The list of datastream IDs to specify 
      * @return  array $res The list of fields that can be matched by the display 
      */ 
-    function getMatchFieldsList()
+    function getMatchFieldsList($exclude_list=array(), $specify_list=array())
     {
         if ($this->retrieved_mf) {
             return $this->matchfields;
         }
-        $res = XSD_HTML_Match::getListByDisplay($this->xdis_id);
-
+        $res = XSD_HTML_Match::getListByDisplay($this->xdis_id, $exclude_list, $specify_list);
         $this->retrieved_mf = true;
         $this->matchfields = $res;
         return $res;
@@ -569,6 +570,7 @@ class XSD_DisplayObject
      * given pid.
 	 * 
      * @access  public
+     * @param   string $pid The persistent identifier of the record
      * @return  array The list of match fields with the values from the datastream	 
      */  
     function getXSDMF_Values($pid)
@@ -604,7 +606,7 @@ class XSD_DisplayObject
 					// get all the binary managed content datastream details and add an index record for each
 					$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_ID("!datastream!ID", $dsValue['xsdsel_id'], $dsValue['xsdmf_xdis_id']);
 					foreach ($datastreams as $ds) {
-						if ($ds['controlGroup'] == 'M') {						
+						if ($ds['controlGroup'] == 'M') {
 							if (!is_array($this->xsdmf_current[$xsdmf_id])) {
 								$this->xsdmf_current[$xsdmf_id] = array();
 							}

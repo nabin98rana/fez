@@ -79,7 +79,10 @@ BETA</td>
   following packages. This can all be installed on the one server, or separate servers for mysql, apache, fedora if you wish.
     <ul><li><a href="http://www.fedora.info/">Fedora 2.1 Digital Repository</a>
       <ul>
-        <li><strong>Note</strong>: You can also use Fedora 2.0 instead by  modfying the Fez generated <strong>config.inc.php</strong> by commenting out the 2.1 API-M and API-A soap locations and uncommenting the 2.0 locations (2 lines each). This is due to the fact the API soap locations were changed from 2.0 to 2.1.<br /> <br /></li>
+        <li><strong>Note</strong>: You can also use Fedora 2.0 instead by  modfying the Fez generated <strong>config.inc.php</strong> by commenting out the 2.1 API-M and API-A soap locations and uncommenting the 2.0 locations (2 lines each). This is due to the fact the API soap locations were changed from 2.0 to 2.1.</li>
+        <li><strong>IMPORTANT:</strong> Make sure when you setup Fedora that you set the fedora.fcfg <strong>resourceIndex level to at least &quot;1&quot;</strong> as this is required to to reindex Fedora objects into Fez. Also make sure that whatever<strong> PID prefix namespace you choose is also in the &quot;retainPIDS&quot; set of namespaces</strong>. Eg if your PID namespace is &quot;UQ&quot; make sure &quot;UQ&quot; is in the list of retainPIDS in fedora.fcfg. If this is not set then Fez will not be able to create objects in Fedora. <br /> 
+            <br />
+        </li>
         <li><strong>Recommendations:
           </strong>          
             <ul>
@@ -124,7 +127,7 @@ BETA</td>
   <ul>
         <li>These <strong>PHP extensions</strong> must be enabled and the libraries installed where neccessary (the links take you to the php manual with installation instructions for each extension):
           <ul>
-            <li><a href="http://www.php.net/tidy">Tidy</a></li>
+            <li><a href="http://www.php.net/tidy">Tidy</a> - for linux make sure libtidy, libtidy-dev and tidy packages are installed before compiling php </li>
             <li><a href="http://www.php.net/manual/en/ref.ldap.php">LDAP</a></li>
             <li><a href="http://www.php.net/GD">GD</a></li>
             <li><a href="http://www.php.net/mysql">MySQL</a></li>

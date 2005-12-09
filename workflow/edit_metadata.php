@@ -120,7 +120,7 @@ $tpl->assign('sta_id', $sta_id);
 
 $jtaskData = "";
 $maxG = 0;
-$xsd_display_fields = $record->display->getMatchFieldsList();  // XSD_DisplayObject
+$xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array(""));  // XSD_DisplayObject
 
 $author_ids = Author::getAssocListAll();
 $tpl->assign("author_ids", $author_ids);
@@ -133,8 +133,6 @@ foreach ($xsd_display_fields  as $dis_key => $dis_field) {
 		if (!empty($dis_field["xsdmf_dynamic_selected_option"]) && $dis_field["xsdmf_dynamic_selected_option"] != "none") {
 			eval("\$xsd_display_fields[\$dis_key]['selected_option'] = " . $dis_field["xsdmf_dynamic_selected_option"] . ";");
 		}
-
-
 	}
 	if ($dis_field["xsdmf_html_input"] == 'contvocab') {
 		$xsd_display_fields[$dis_key]['field_options'] = $cvo_list['data'][$dis_field['xsdmf_cvo_id']];

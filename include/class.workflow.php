@@ -175,10 +175,10 @@ class Workflow
         if (is_numeric(strpos($filename, "."))) { 	 
             $getString = APP_RELATIVE_URL."webservices/wfb.presmd.php?file=".urlencode($filename); 	 
             $http_req = new HTTP_Request($getString, array("http" => "1.0")); 	 
-            $http_req->setMethod("GET"); 	 
-            $http_req->sendRequest(); 	 
-            $xml = $http_req->getResponseBody(); 	 
-            if (is_numeric(strpos($filename, "/"))) { 	 
+            $http_req->setMethod("GET");
+            $http_req->sendRequest();
+            $xml = $http_req->getResponseBody();
+            if (is_numeric(strpos($filename, "/"))) {
                 return APP_TEMP_DIR."presmd_".str_replace(" ", "_", substr(substr($filename, 0, strrpos($filename, ".")), strrpos($filename, "/")+1)).".xml"; 	 
             } else { 	 
                 return APP_TEMP_DIR."presmd_".str_replace(" ", "_", substr($filename, 0, strrpos($filename, "."))).".xml"; 	 

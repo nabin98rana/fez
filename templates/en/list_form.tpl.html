@@ -380,8 +380,11 @@ function purgeObject(pid)
 					{$list[i].title.0|escape:"html"}{if $href_view}</a>{/if}
 
 					  {if $showEdit || $isAdministrator}
+						&nbsp;&nbsp;
 						{if $showEdit}
-							&nbsp;&nbsp;<a href='{$rel_url}workflow/update.php?pid={$list[i].pid|escape:"html"}&href={$smarty.server.REQUEST_URI}'><img title="Edit" align="absmiddle" src="{$rel_url}images/edit.gif" border="0"></a> 
+					        {section name="w" loop=$list[i].workflows}
+								<a href='{$rel_url}workflow/update.php?pid={$list[i].pid|escape:"html"}&cat=select_workflow&xdis_id={$list[i].xdis_id.0}&wft_id={$list[i].workflows[w].wft_id}&href={$smarty.server.REQUEST_URI}'><img title="{$list[i].workflows[w].wfl_title}" align="absmiddle" src="{$rel_url}{$list[i].workflows[w].wft_icon}" border="0"></a> 
+							{/section}
 						{/if}
 						{if $isAdministrator}
 							 <a href="javascript:void(null);" onclick="javascript: purgeObject('{$list[i].pid|escape}');" ><img title="Delete" align="absmiddle" src="{$rel_url}images/delete.gif" border="0"></a> 

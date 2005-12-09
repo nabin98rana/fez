@@ -172,6 +172,28 @@ class Community
 		$total_pages = ceil($total_rows / $max);
         $last_page = $total_pages - 1;
 		$return = Misc::limitListResults($return, $start, ($start + $max));
+		// add the available workflow trigger buttons
+		foreach ($return as $ret_key => $ret_wf) {
+			$pid = $ret_wf['pid'];
+			$record = new RecordObject($pid);
+			if ($record->canEdit()) {
+				$xdis_id = $ret_wf['xdis_id'][0];
+				$strict = true;
+				$workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Update', $xdis_id, $strict);
+			}
+			// check which workflows can be triggered			
+			$workflows1 = array();
+			if (is_array($workflows)) {
+				foreach ($workflows as $trigger) {
+					if (Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
+						$workflows1[] = $trigger;
+					}
+				}
+				$workflows = $workflows1;				
+			}
+			$return[$ret_key]['workflows'] = $workflows;
+		}
+
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
