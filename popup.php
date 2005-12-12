@@ -70,11 +70,21 @@ switch ($cat)
             $id = Misc::GETorPOST('id');
             $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
             $pid = $wfstatus->pid;
-            $res = Record::update($pid);
+            $res = Record::update($pid, array("FezACML"), array(""));
             $tpl->assign("update_form_result", $res);
             $wfstatus->checkStateChange(true);
             break;
         }
+    case 'update_security':
+        {
+            $id = Misc::GETorPOST('id');
+            $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
+            $pid = $wfstatus->pid;
+            $res = Record::update($pid, array(""), array("FezACML"));
+            $tpl->assign("update_form_result", $res);
+            $wfstatus->checkStateChange(true);
+            break;
+        }		
     case 'purge_object':
         {
             // first delete all indexes about this pid

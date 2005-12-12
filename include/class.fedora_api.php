@@ -562,6 +562,7 @@ class Fedora_API {
     * @return void
     */		
 	function callModifyDatastreamByValue ($pid, $dsID, $state, $label, $dsContent, $mimetype='text/xml', $versionable=true) {
+		echo "\n\n before tidy for modify ".$dsID." "; echo date("l dS of F Y h:i:s A");		
 		if ($mimetype == 'text/xml') {		
 			$config = array(
 			  'indent'         => true,
@@ -585,7 +586,9 @@ class Fedora_API {
 			$versionable = false;
 		}	
 		$parms= array('pid' => $pid, 'dsID' => $dsID, 'altIDs' => array(), 'dsLabel' => $label, 'versionable' => $versionable, 'MIMEType' => $mimetype, 'formatURI' => 'unknown',  new soapval("dsContent","base64Binary",$dsContent), 'dsState' => $state, 'logMessage' => $logmsg, 'force' => true);
+		echo "\n\n before open soap call,after tidy and base64encode for modify ".$dsID." "; echo date("l dS of F Y h:i:s A");		
 	    Fedora_API::openSoapCall('modifyDatastreamByValue', $parms);
+		echo "\n\n after open soal call for modify ".$dsID." "; echo date("l dS of F Y h:i:s A");		
 	}
 
   /**

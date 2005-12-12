@@ -128,10 +128,10 @@ class Record
      * @param   string $pid The persistent identifier of the record
      * @return  integer 1 if the update worked, -1 otherwise
      */
-    function update($pid)
+    function update($pid, $exclude_list=array(), $specify_list=array())
     {
         $record = new RecordObject($pid);
-        if ($record->fedoraInsertUpdate()) {
+        if ($record->fedoraInsertUpdate($exclude_list, $specify_list)) {
             return 1;
         } else {
             return -1;
@@ -195,9 +195,9 @@ class Record
      * @param   string $datastreamXMLHeaders 
      * @return  void
      */
-	function insertIndexBatch($pid, $indexArray, $datastreamXMLHeaders) {
+	function insertIndexBatch($pid, $indexArray, $datastreamXMLHeaders, $exclude_list=array(), $specify_list=array()) {
 		// first delete all indexes about this pid
-		Record::removeIndexRecord($pid, 'keep');
+		Record::removeIndexRecord($pid, 'keep', $exclude_list, $specify_list);
 		if (!is_array($indexArray)) {
 			return false;
 		}
@@ -224,12 +224,20 @@ class Record
      * @param   string $dsDelete A flag to check if the datastream_id should be kept 
      * @return  void
      */
-    function removeIndexRecord($pid, $dsDelete='all') {
+    function removeIndexRecord($pid, $dsDelete='all', $exclude_list=array(), $specify_list=array()) {
+		$exclude_str = implode("', '", $exclude_list);
+		$specify_str = implode("', '", $specify_list);
+
         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field
 				 WHERE rmf_rec_pid = '" . $pid . "'";
 		if ($dsDelete=='keep') {
 			$stmt .= " and rmf_xsdmf_id not in (select distinct(xsdmf_id) from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields where xsdmf_fez_title = 'datastream_id')";
+		}
+		if ($specify_str != "") {				
+			$stmt .= " and rmf_xsdmf_id in (select x2.xsdmf_id from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2 inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s2 on x2.xsdmf_xsdsel_id=s2.xsdsel_id and s2.xsdsel_title in ('".$specify_str."'))";			
+		} elseif ($exclude_str != "") {
+			$stmt .= " and rmf_xsdmf_id in (select x2.xsdmf_id from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2 inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s2 on x2.xsdmf_xsdsel_id=s2.xsdsel_id and s2.xsdsel_title not in ('".$exclude_str."'))";			
 		}
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -701,7 +709,7 @@ class Record
             Fedora_API::callIngestObject($xmlObj);
         }
 		$convert_check = false;
-		Record::insertIndexBatch($pid, $indexArray, $datastreamXMLHeaders);
+		Record::insertIndexBatch($pid, $indexArray, $datastreamXMLHeaders, $exclude_list, $specify_list);
         // ingest the datastreams
 		foreach ($datastreamXMLHeaders as $dsKey => $dsTitle) {
 			$dsIDName = $dsTitle['ID'];
@@ -710,7 +718,6 @@ class Record
 				$filename_ext = strtolower(substr($dsIDName, (strrpos($dsIDName, ".") + 1)));
 				$dsIDName = substr($dsIDName, 0, strrpos($dsIDName, ".") + 1).$filename_ext;
 			}
-
 			if (Fedora_API::datastreamExists($pid, $dsTitle['ID'])) {
 				Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, $dsTitle['STATE'], $dsTitle['LABEL'], 
                         $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], $dsTitle['VERSIONABLE']);
@@ -728,14 +735,12 @@ class Record
 				Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, 
                         "text/xml", "X");
 			}
-
 		} 
         // run the workflows on the ingested datastreams.
         // we do this in a seperate loop so that all the supporting metadata streams are ready to go
 		foreach ($datastreamXMLHeaders as $dsKey => $dsTitle) {
             Workflow::processIngestTrigger($pid, $dsTitle['ID'], $dsTitle['MIMETYPE']);
         }
-
     }
 
 }
@@ -1209,10 +1214,9 @@ class RecordObject extends RecordGeneral
      * @access  public
      * @return  void
      */
-    function fedoraInsertUpdate()
+    function fedoraInsertUpdate($exclude_list=array(), $specify_list=array())
     {
         global $HTTP_POST_VARS, $HTTP_POST_FILES;
-
         // If pid is null then we need to ingest the object as well
         // otherwise we are updating an existing object
         $ingestObject = false;
@@ -1259,9 +1263,8 @@ class RecordObject extends RecordGeneral
 		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, $file_downloads, $this->created_date, $this->updated_date);
 
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
-//		echo $xmlObj;
-		$datastreamTitles = $display->getDatastreamTitles();
-        Record::insertXML($pid, compact('datastreamTitles', 'xmlObj', 'indexArray', 'existingDatastreams' ), $ingestObject);
+		$datastreamTitles = $display->getDatastreamTitles(); 
+        Record::insertXML($pid, compact('datastreamTitles', 'exclude_list', 'specify_list', 'xmlObj', 'indexArray', 'existingDatastreams' ), $ingestObject);
 		return $pid;
     }
     

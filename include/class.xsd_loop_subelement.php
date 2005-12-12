@@ -142,8 +142,12 @@ class XSD_Loop_Subelement
      * @param   integer $xdis_id The XSD Display ID
      * @return  array The list of matching fields 
      */
-    function getDatastreamTitles($xdis_id)
+    function getDatastreamTitles($xdis_id, $exclude_list=array(), $specify_list=array())
     {
+		
+		$exclude_str = implode("', '", $exclude_list);
+		$specify_str = implode("', '", $specify_list);
+
 		// Get the datastream titles and xdisplay ids that are references to other display ids, and also get any binary content (file upload/select) datastreams
 		$stmt = "SELECT	m1.xsdmf_id, m1.xsdmf_xdis_id,
 			s1.xsdsel_title,
@@ -154,8 +158,11 @@ class XSD_Loop_Subelement
 		WHERE 
 		m1.xsdmf_element in ('!datastream!datastreamVersion!xmlContent', '!datastream!datastreamVersion!contentLocation', '!datastream!datastreamVersion!binaryContent') 	
 		AND m1.xsdmf_xdis_id=".$xdis_id."	and s1.xsdsel_id = m1.xsdmf_xsdsel_id";
-				
-				
+		if ($specify_str != "") {				
+			$stmt .= " and s1.xsdsel_title in ('".$specify_str."')";			
+		} elseif ($exclude_str != "") {
+			$stmt .= " and s1.xsdsel_title not in ('".$exclude_str."')";					
+		}
 		// @@@ CK - Added order statement to sublooping elements displayed in a desired order
 		$stmt .= " ORDER BY xsdsel_order ASC";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);

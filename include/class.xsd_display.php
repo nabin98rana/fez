@@ -559,9 +559,9 @@ class XSD_DisplayObject
      * @access  public
      * @return  array A list of datastream titles used with the display
      */ 
-    function getDatastreamTitles()
+    function getDatastreamTitles($exclude_list=array(), $specify_list=array())
     {
-		return XSD_Loop_Subelement::getDatastreamTitles($this->xdis_id);
+		return XSD_Loop_Subelement::getDatastreamTitles($this->xdis_id,$exclude_list, $specify_list);
     }
 
     /**
