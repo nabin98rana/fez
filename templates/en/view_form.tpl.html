@@ -171,7 +171,7 @@ function disableFields()
                 <table cellpadding="3" cellspacing="1">
 
         {section name="i" loop=$xsd_display_fields}
-		{if $xsd_display_fields[i].xsdmf_html_input != 'static' and $xsd_display_fields[i].xsdmf_html_input != 'xsdmf_id_ref' and $xsd_display_fields[i].xsdmf_html_input != 'xsd_ref' and $xsd_display_fields[i].xsdmf_html_input != ''}
+		{if $xsd_display_fields[i].xsdmf_html_input != 'static' and $xsd_display_fields[i].xsdmf_show_in_view == 1 and $xsd_display_fields[i].xsdmf_html_input != 'xsdmf_id_ref' and $xsd_display_fields[i].xsdmf_html_input != 'xsd_ref' and $xsd_display_fields[i].xsdmf_html_input != ''}
 		{assign var="temp_fld_id" value=$xsd_display_fields[i].xsdmf_id}
 		  {if $xsd_display_fields[i].xsdmf_show_in_view == 1}
 			  {if $xsd_display_fields[i].xsdmf_data_type == 'date'}

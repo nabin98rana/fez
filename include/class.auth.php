@@ -464,7 +464,7 @@ class Auth
         // Usually everyone can list, view and view comments
         global $NonRestrictedRoles;
         $userPIDAuthGroups = $NonRestrictedRoles;
-        // loop through the ACML docs found for the current pid or in the eSpace ancestry
+        // loop through the ACML docs found for the current pid or in the ancestry
         foreach ($ACMLArray as &$acml) {
             // Use XPath to find all the roles that have groups set and loop through them
             $xpath = new DOMXPath($acml);

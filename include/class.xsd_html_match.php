@@ -284,20 +284,20 @@ class XSD_HTML_Match
 				if ($specify_str != "") {
 					$stmt .= "
 					inner join
-					(SELECT d1.xdis_id FROM dev_fez.fez_xsd_display d1 WHERE d1.xdis_title in ('".$specify_str."')) as displays on (m1.xsdmf_xdis_id in (displays.xdis_id))";
+					(SELECT d1.xdis_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1, " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd WHERE xsd.xsd_id=d1.xdis_xsd_id AND xsd.xsd_title in ('".$specify_str."')) as displays on (m1.xsdmf_xdis_id in (displays.xdis_id) AND relsall.xsdrel_xdis_id in (displays.xdis_id))";
 				} elseif ($exclude_str != "") {
 					$stmt .= "
 					inner join
-					(SELECT d1.xdis_id FROM dev_fez.fez_xsd_display d1 WHERE d1.xdis_title not in ('".$exclude_str."')) as displays on (m1.xsdmf_xdis_id in (displays.xdis_id))";
+					(SELECT d1.xdis_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1, " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd WHERE xsd.xsd_id=d1.xdis_xsd_id AND xsd.xsd_title not in ('".$exclude_str."')) as displays on (m1.xsdmf_xdis_id in (displays.xdis_id) AND relsall.xsdrel_xdis_id in (displays.xdis_id))";
 				}
-				if ($specify_str == "") { 
+//				if ($specify_str == "") { 
 					$stmt .= "
 					inner join
 					(SELECT r2.xsdrel_xdis_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship r2 inner join
 						(SELECT m3.xsdmf_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields as m3 WHERE m3.xsdmf_xdis_id=".$xdis_id.")
 						as rels on r2.xsdrel_xsdmf_id in (rels.xsdmf_id)) as relsall on ((m1.xsdmf_xdis_id in (relsall.xsdrel_xdis_id))
 						OR (m1.xsdmf_xdis_id = ".$xdis_id." AND xsdmf_enabled=1))";
-				}
+//				}
 				$stmt .= "
 					left join
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement as s1 on (xsdsel_id = xsdmf_xsdsel_id)";

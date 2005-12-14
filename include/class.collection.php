@@ -273,6 +273,28 @@ class Collection
 		$total_pages = ceil($total_rows / $max);
         $last_page = $total_pages - 1;
 		$return = Misc::limitListResults($return, $start, ($start + $max));
+		// add the available workflow trigger buttons
+		foreach ($return as $ret_key => $ret_wf) {
+			$pid = $ret_wf['pid'];
+			$record = new RecordObject($pid);
+			if ($record->canEdit()) {
+				$xdis_id = $ret_wf['xdis_id'][0];
+				$strict = true;
+				$workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Update', $xdis_id, $strict);
+			}
+			// check which workflows can be triggered			
+			$workflows1 = array();
+			if (is_array($workflows)) {
+				foreach ($workflows as $trigger) {
+					if (Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
+						$workflows1[] = $trigger;
+					}
+				}
+				$workflows = $workflows1;				
+			}
+			$return[$ret_key]['workflows'] = $workflows;
+		}
+
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
@@ -633,7 +655,6 @@ class Collection
 				 	r1.rmf_rec_pid";
 		$returnfields = array("created_date", "updated_date", "file_downloads", "xdis_title", "title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-
 		$return = array();
 		foreach ($res as $result) {
 			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
@@ -705,6 +726,27 @@ class Collection
         $last_page = $total_pages - 1;
 		$hidden_rows = count($return);
 		$return = Misc::limitListResults($return, $start, ($start + $max));		
+		// add the available workflow trigger buttons
+		foreach ($return as $ret_key => $ret_wf) {
+			$pid = $ret_wf['pid'];
+			$record = new RecordObject($pid);
+			if ($record->canEdit()) {
+				$xdis_id = $ret_wf['xdis_id'][0];
+				$strict = false;
+				$workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Update', $xdis_id, $strict);
+			}
+			// check which workflows can be triggered			
+			$workflows1 = array();
+			if (is_array($workflows)) {
+				foreach ($workflows as $trigger) {
+					if (Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
+						$workflows1[] = $trigger;
+					}
+				}
+				$workflows = $workflows1;				
+			}
+			$return[$ret_key]['workflows'] = $workflows;
+		}
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";

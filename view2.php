@@ -66,7 +66,8 @@ if (!empty($pid)) {
 		$tpl->assign("isEditor", $record->canEdit(false));
 		$tpl->assign("sta_id", $record->getPublishedStatus());
 		$display = new XSD_DisplayObject($xdis_id);
-		$xsd_display_fields = $display->getMatchFieldsList();
+		//$xsd_display_fields = $display->getMatchFieldsList();
+		$xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array(""));  // XSD_DisplayObject
 		$tpl->assign("xsd_display_fields", $xsd_display_fields);
 		$details = $record->getDetails();
 		$controlled_vocabs = Controlled_Vocab::getAssocListAll();

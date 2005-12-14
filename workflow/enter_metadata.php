@@ -109,6 +109,7 @@ if ($access_ok) {
     $jtaskData = "";
     $maxG = 0;
     $xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id));
+//    $xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id,array("FezACML"), array("")));
 //    $cvo_list = Controlled_Vocab::getAssocListFullDisplay(false, "", 0, 2);
 
     //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups 
@@ -128,7 +129,6 @@ if ($access_ok) {
                 || ($dis_field["xsdmf_html_input"] == 'contvocab_selector')) {
             $xsd_display_fields[$dis_key]['field_options'] = $cvo_list['data'][$dis_field['xsdmf_cvo_id']];
         }
-
     }
 
     $tpl->assign("xsd_display_fields", $xsd_display_fields);
