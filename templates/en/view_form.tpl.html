@@ -130,6 +130,11 @@ function disableFields()
         f.go.disabled = true;
     }
 }
+
+function validateForm(f)
+{
+    return true;
+}
 //-->
 </script>
 {/literal}
@@ -272,8 +277,10 @@ function disableFields()
         </tr>
         <tr>
         <td class="default">
+          {if $preview_ds_1}
           <img id="datastream_preview" alt="Datastream Preview"/>
           <script language="JavaScript">loadPreview('{$pid}','{$preview_ds_1.ID}','{$preview_ds_1.label}');</script>
+          {/if}
         </td>
         </tr>
       </table>
