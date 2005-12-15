@@ -562,7 +562,7 @@ class Fedora_API {
     * @return void
     */		
 	function callModifyDatastreamByValue ($pid, $dsID, $state, $label, $dsContent, $mimetype='text/xml', $versionable=true) {
-		echo "\n\n before tidy for modify ".$dsID." "; echo date("l dS of F Y h:i:s A");		
+		//echo "\n\n before tidy for modify ".$dsID." "; echo date("l dS of F Y h:i:s A");		
 		if ($mimetype == 'text/xml') {		
 			$config = array(
 			  'indent'         => true,

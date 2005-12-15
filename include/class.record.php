@@ -1128,7 +1128,7 @@ class RecordObject extends RecordGeneral
     function getFileDownloadsCount() {
 		$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD');
 //		print_r($xdis_array);
-		if (is_numeric(trim($xdis_array['file_downloads'][0]))) {
+		if (is_numeric(trim(@$xdis_array['file_downloads'][0]))) {
 			$this->file_downloads = trim($xdis_array['file_downloads'][0]);
 		} else {
 			$this->file_downloads = 0;
@@ -1225,7 +1225,7 @@ class RecordObject extends RecordGeneral
             $this->pid = Fedora_API::getNextPID();
             $ingestObject = true;
 			$this->created_date = date("Y-m-d H:i:s");
-			$this->updated_date = $created_date;
+			$this->updated_date = $this->created_date;
 			$existingDatastreams = array();
         } else {
 			$existingDatastreams = Fedora_API::callGetDatastreams($this->pid);

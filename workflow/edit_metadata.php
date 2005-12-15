@@ -71,11 +71,10 @@ $wfstatus->setTemplateVars($tpl);
 $tpl->assign("submit_to_popup", true);
 $wfstatus->checkStateChange();
  
-$collection_pid = @$HTTP_POST_VARS["collection_pid"] ? $HTTP_POST_VARS["collection_pid"] : @$HTTP_GET_VARS["collection_pid"];	
-$community_pid = @$HTTP_POST_VARS["community_pid"] ? $HTTP_POST_VARS["community_pid"] : @$HTTP_GET_VARS["community_pid"];	
-
-$tpl->assign("collection_pid", $collection_pid);
-$tpl->assign("community_pid", $community_pid);
+$collection_pid=$pid;
+$community_pid=$pid;
+$tpl->assign("collection_pid", $pid);
+$tpl->assign("community_pid", $pid);
 
 $community_list = Community::getAssocList();
 $collection_list = Collection::getAssocList();
@@ -84,10 +83,10 @@ $internal_user_list = User::getAssocList();
 $internal_group_list = Group::getAssocListAll();
 $extra_redirect = "";
 if (!empty($collection_pid)) {
-	$extra_redirect.="&collection_pid=".$collection_pid;
+	$extra_redirect.="&collection_pid=".$pid;
 }
 if (!empty($community_pid)) {
-	$extra_redirect.="&community_pid=".$community_pid;
+	$extra_redirect.="&community_pid=".$pid;
 }
 
 $tpl->assign("pid", $pid);
