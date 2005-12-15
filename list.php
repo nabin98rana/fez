@@ -134,7 +134,10 @@ if (!empty($collection_pid)) {
 	$list = $list["list"];
 	$tpl->assign("browse_type", "browse_latest");
 	$tpl->assign("list_heading", "Browse By Latest Additions");
-	$tpl->assign("today", date("l"));
+	$tpl->assign("today", date("Y-m-d"));
+	$tpl->assign("today_day_name", date("l"));
+	$tpl->assign("yesterday", date("Y-m-d", time()-86400));
+	$tpl->assign("last", "Last ");
 	$tpl->assign("list_type", "all_records_list");
 } elseif ($browse == "year") {
     // browse by year

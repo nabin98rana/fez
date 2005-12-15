@@ -80,7 +80,11 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
 $isAdministrator = User::isUserAdministrator($username);
 $tpl->assign("isAdministrator", $isAdministrator);
 // get the 3 most recently added items this week
-$tpl->assign("today", date("l"));
+$tpl->assign("today", date("Y-m-d"));
+$tpl->assign("today_day_name", date("l"));
+$tpl->assign("yesterday", date("Y-m-d", time()-86400));
+$tpl->assign("last", "Last ");
+
 $list = Collection::browseListing(0, 3, "Created Date");
 $list = $list["list"];
 
