@@ -353,7 +353,7 @@ function purgeObject(pid)
                 {else}
                         {assign var="showEdit" value=false}
                 {/if}
-           {elseif $list[i].ret_id.0 == '2'}
+           {elseif $list[i].object_type.0 == '2'}
                 {assign var="href_view" value="list.php?collection_pid="|cat:$list[i].pid|escape:"html"}
                 {assign var="icon" value="images/collection.jpg" }
                 {if $isUser && ($list[i].isEditor==1 || $isAdministrator)}  

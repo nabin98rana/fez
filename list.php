@@ -220,4 +220,5 @@ if (Auth::userExists($username)) {
 	$prefs = Prefs::get(Auth::getUserID());
 }
 $tpl->displayTemplate();
+
 ?>

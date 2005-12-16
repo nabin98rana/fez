@@ -104,6 +104,30 @@ class Auth
     }
 
     /**
+     * Method used to get the list of FezACML roles using in any XSD Display.
+     *
+     * @access  public
+     * @return  array The list of FezACML roles
+     */
+    function getAllRoles()
+    {
+        $stmt = "SELECT distinct xsdsel_title 
+			from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1
+			inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on x1.xsdmf_id = xsdsel_xsdmf_id
+			inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d1.xdis_id = x1.xsdmf_xdis_id
+			inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd x2 on x2.xsd_id = xdis_xsd_id and x2.xsd_title = 'FezACML'";
+        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+			return $res;
+		}
+		
+	}
+		
+
+    /**
      * Method used to get the ACML details for a records parent objects, using the Fez index.
 	 * This method is usually only triggered when an object does not have its own ACML set against it.
      *
@@ -141,7 +165,8 @@ class Auth
 						r1.rmf_xsdmf_id = x1.xsdmf_id and ((d1.xdis_id = x1.xsdmf_xdis_id and d1.xdis_title = 'FezACML') or (k1.sek_title = 'isMemberOf' AND r1.rmf_xsdmf_id = x1.xsdmf_id AND k1.sek_id = x1.xsdmf_sek_id)) and
 						r1.rmf_rec_pid in ('$parent_pid_string')
 						";
-			$returnfields = array("Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
+//			$returnfields = array("Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
+			$returnfields = Auth::getAuthRoles();
 			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 			$return = array();	
 			foreach ($res as $result) {
@@ -210,15 +235,13 @@ class Auth
 			$stmt = "SELECT 
 						* 
 					 FROM
-						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
-					    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1,
-						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1,
-						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
-						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
-
-					 WHERE
-						r1.rmf_xsdmf_id = x1.xsdmf_id and ((d1.xdis_id = x1.xsdmf_xdis_id and d1.xdis_title = 'FezACML') or (k1.sek_title = 'isMemberOf' AND r1.rmf_xsdmf_id = x1.xsdmf_id AND k1.sek_id = x1.xsdmf_sek_id)) and
-						r1.rmf_rec_pid = '".$pid."'";
+						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1
+						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on (d1.xdis_id = x1.xsdmf_xdis_id and r1.rmf_rec_pid ='".$pid."')
+						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd x2 on (x2.xsd_id = d1.xdis_xsd_id and x2.xsd_title = 'FezACML')
+						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on (r1.rmf_xsdmf_id = x1.xsdmf_id)
+						left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+						left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 on (k1.sek_title = 'isMemberOf' AND r1.rmf_xsdmf_id = x1.xsdmf_id AND k1.sek_id = x1.xsdmf_sek_id)";
+//			echo "\n\n".$stmt;
             global $defaultRoles;
 			$returnfields = $defaultRoles;
 			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -683,12 +706,12 @@ class Auth
         if (empty($username)) {
             return false;
           } else {
-            $stmt = "SELECT usr_username FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user WHERE usr_username='$username'";
+            $stmt = "SELECT usr_administrator FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user WHERE usr_username='$username'";
             $info = $GLOBALS["db_api"]->dbh->getOne($stmt);
             if (PEAR::isError($info)) {
                 Error_Handler::logError(array($info->getMessage(), $info->getDebugInfo()), __FILE__, __LINE__);
                 return false;
-            } elseif (empty($info)) {
+            } elseif (count($info) == 1) {
                 return false;
             } else {
                 return true;

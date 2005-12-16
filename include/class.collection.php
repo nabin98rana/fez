@@ -192,18 +192,18 @@ class Collection
 
         // Should we restrict the list to a community.
         if ($community_pid) {
-            $community_where = "	and r1.rmf_rec_pid in (
-	 						SELECT r3.rmf_rec_pid 
+            $community_join = "	inner join (
+	 						SELECT distinct r3.rmf_rec_pid 
 							FROM  
 							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3,
 							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x3,
 							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s3
 							WHERE x3.xsdmf_sek_id = s3.sek_id AND s3.sek_title = 'isMemberOf' AND x3.xsdmf_id = r3.rmf_xsdmf_id 
 							  AND r3.rmf_varchar = '$community_pid'
-							)";
+							) as com1 on com1.rmf_rec_pid = r1.rmf_rec_pid ";
         } else {
             // list all collections 
-            $community_where = "";
+            $community_join = "";
         }
         $stmt = "SELECT
             * 
@@ -211,11 +211,9 @@ class Collection
             " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1
             inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 
             ON r1.rmf_xsdmf_id = x1.xsdmf_id 
-            left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 
-            on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
-            WHERE
-            r1.rmf_rec_pid in (
-                    SELECT r2.rmf_rec_pid 
+           $community_join 
+			inner join (
+                    SELECT distinct r2.rmf_rec_pid 
                     FROM  
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,
@@ -224,42 +222,73 @@ class Collection
                     AND x2.xsdmf_sek_id = s2.sek_id 
                     AND s2.sek_title = 'Object Type' 
                     AND r2.rmf_varchar = '2' 
-                    )
-            $community_where 
-            AND r1.rmf_rec_pid in (
-                    SELECT rmf_rec_pid FROM 
+                    ) as o1 on o1.rmf_rec_pid = r1.rmf_rec_pid
+			inner join (
+                    SELECT distinct rmf_rec_pid FROM 
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS rmf
                     INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields AS xdm
                     ON rmf.rmf_xsdmf_id = xdm.xsdmf_id
                     WHERE rmf.rmf_varchar=2
                     AND xdm.xsdmf_element='!sta_id'
-                    )
+                    ) as sta1 on sta1.rmf_rec_pid = r1.rmf_rec_pid					
+            left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 
+            on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+            left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 
+            on (k1.sek_id = x1.xsdmf_sek_id)
             ";
-		$returnfields = array("title", "description", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
+
+		$securityfields = Auth::getAllRoles();
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = array();
 		foreach ($res as $result) {		
-			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-                // need to array_push because there can be multiple groups/users for a role
-				$return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']][] 
-                    = $result['rmf_'.$result['xsdmf_data_type']]; 
-			}
-			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
-				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				if (@!is_array($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']])) {
-					$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']] = array();
+			if (in_array($result['xsdsel_title'], $securityfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
+				if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
+					$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
 				}
-				array_push($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']], $result['rmf_'.$result['xsdmf_data_type']]);
-				sort($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']]);
+				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
+					array_push($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+				}
 			}
+			// get the document type - turned off for now because we know we are only getting collections.. this may change in the future
+/*			if (!is_array(@$return[$result['rmf_rec_pid']]['xdis_title'])) {
+				$return[$result['rmf_rec_pid']]['xdis_title'] = array();
+				array_push($return[$result['rmf_rec_pid']]['xdis_title'], $result['xdis_title']);
+			} */
+			if (is_numeric($result['sek_id'])) {
+				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
+				$search_var = strtolower(str_replace(" ", "_", $result['sek_title']));
+				if (@!is_array($return[$result['rmf_rec_pid']][$search_var])) {
+					$return[$result['rmf_rec_pid']][$search_var] = array();
+				}
+				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']][$search_var])) {
+					array_push($return[$result['rmf_rec_pid']][$search_var], $result['rmf_'.$result['xsdmf_data_type']]);
+					sort($return[$result['rmf_rec_pid']][$search_var]);
+				}
+			}
+			// get thumbnails
+			if ($result['xsdmf_element'] == "!datastream!ID") {
+				if (is_numeric(strpos($result['rmf_varchar'], "thumbnail_"))) {
+					if (!is_array(@$return[$result['rmf_rec_pid']]['thumbnails'])) {
+						$return[$result['rmf_rec_pid']]['thumbnails'] = array();
+					}
+					array_push($return[$result['rmf_rec_pid']]['thumbnails'], $result['rmf_varchar']);
+				} else {
+					if (!is_array(@$return[$result['rmf_rec_pid']]['datastreams'])) {
+						$return[$result['rmf_rec_pid']]['datastreams'] = array();
+					}
+					array_push($return[$result['rmf_rec_pid']]['datastreams'], $result['rmf_varchar']);
+				}
+			} 
 		}
 		foreach ($return as $pid_key => $row) {
 			if (!is_array(@$row['FezACML'])) {
 				$parentsACMLs = array();
-				Auth::getIndexParentACMLs(&$parentsACMLs, $pid_key);
+//				Auth::getIndexParentACMLs(&$parentsACMLs, $pid_key);
+				Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid_key, $row['ismemberof']);
 				$return[$pid_key]['FezACML'] = $parentsACMLs;
 			}
 		}
+		print_r($return);
 		$return = array_values($return);
 		$return = Auth::getIndexAuthorisationGroups($return);
 		$hidden_rows = count($return);
@@ -273,11 +302,12 @@ class Collection
 		$total_pages = ceil($total_rows / $max);
         $last_page = $total_pages - 1;
 		$return = Misc::limitListResults($return, $start, ($start + $max));
+
 		// add the available workflow trigger buttons
 		foreach ($return as $ret_key => $ret_wf) {
 			$pid = $ret_wf['pid'];
 			$record = new RecordObject($pid);
-			if ($record->canEdit()) {
+			if ($ret_wf['isEditor']) {
 				$xdis_id = $ret_wf['xdis_id'][0];
 				$strict = true;
 				$workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Update', $xdis_id, $strict);
@@ -592,13 +622,7 @@ class Collection
             FROM
             " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1
             inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1
-            on  (r1.rmf_xsdmf_id = x1.xsdmf_id) 
-            left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 
-            on (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
-            left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 
-            on (k1.sek_id = x1.xsdmf_sek_id)
-            join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 
-			
+            on  (r1.rmf_xsdmf_id = x1.xsdmf_id) 	
             INNER JOIN (
                     SELECT distinct r2.rmf_rec_pid 
                     FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
@@ -608,7 +632,10 @@ class Collection
                     AND s2.sek_id = x2.xsdmf_sek_id 
                     AND s2.sek_title = 'Object Type' 
                     AND r2.rmf_varchar = '3' 
-                    and r2.rmf_rec_pid in (
+                    ) as r2 					
+            on r1.rmf_rec_pid = r2.rmf_rec_pid 
+			INNER JOIN 
+						(
                         SELECT distinct r3.rmf_rec_pid 
                         FROM  
                         " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3,
@@ -618,9 +645,9 @@ class Collection
                         AND s3.sek_id = x3.xsdmf_sek_id 
                         AND s3.sek_title = 'isMemberOf' 
                         AND r3.rmf_varchar = '".$collection_pid."'
-                        ) 
-                    ) as r2 					
-            on r1.rmf_rec_pid = r2.rmf_rec_pid 
+                        ) as r4
+						on r4.rmf_rec_pid=r1.rmf_rec_pid
+						
             INNER JOIN (
                     SELECT distinct r2.rmf_rec_pid, r2.rmf_varchar as display_id
                     FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
@@ -629,39 +656,33 @@ class Collection
                     WHERE r2.rmf_xsdmf_id = x2.xsdmf_id 
                     AND s2.sek_id = x2.xsdmf_sek_id 
                     AND s2.sek_title = 'Display Type' 
-                    and r2.rmf_rec_pid in (
-                        SELECT distinct r3.rmf_rec_pid 
-                        FROM  
-                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3,
-                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x3,
-                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s3							  							  
-                        WHERE r3.rmf_xsdmf_id = x3.xsdmf_id 
-                        AND s3.sek_id = x3.xsdmf_sek_id 
-                        AND s3.sek_title = 'isMemberOf' 
-                        AND r3.rmf_varchar = '".$collection_pid."'
-                        ) 
                     ) as d2
-            on r1.rmf_rec_pid = d2.rmf_rec_pid and d2.display_id = d1.xdis_id			
+            on r1.rmf_rec_pid = d2.rmf_rec_pid  		
             INNER JOIN (
-                    SELECT rmf_rec_pid FROM 
+                    SELECT distinct rmf_rec_pid FROM 
                         " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS rmf
-                        INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields AS xdm
-                        ON rmf.rmf_xsdmf_id = xdm.xsdmf_id
-                        WHERE rmf.rmf_varchar=2
-                        AND xdm.xsdmf_element='!sta_id'
+                        INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields AS xdm 
+                        ON rmf.rmf_xsdmf_id = xdm.xsdmf_id AND rmf.rmf_varchar=2 AND xdm.xsdmf_element='!sta_id'
                     ) as r3
             ON r3.rmf_rec_pid=r2.rmf_rec_pid
+            left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 
+            on (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
+            left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 
+            on (k1.sek_id = x1.xsdmf_sek_id)
+            left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d2.display_id = d1.xdis_id	
 				 ORDER BY
 				 	r1.rmf_rec_pid";
-		$returnfields = array("created_date", "updated_date", "file_downloads", "xdis_title", "title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
+		$securityfields = Auth::getAllRoles();
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = array();
 		foreach ($res as $result) {
-			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
+			if (in_array($result['xsdsel_title'], $securityfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
 				if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
 					$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
 				}
-				array_push($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
+					array_push($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+				}
 			}
 			if ($result['sek_title'] == 'isMemberOf') {
 				if (!is_array(@$return[$result['rmf_rec_pid']]['isMemberOf'])) {
@@ -674,17 +695,19 @@ class Collection
 				$return[$result['rmf_rec_pid']]['xdis_title'] = array();
 				array_push($return[$result['rmf_rec_pid']]['xdis_title'], $result['xdis_title']);
 			}
-
-			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
+			if (is_numeric($result['sek_id'])) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				if (@!is_array($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']])) {
-					$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']] = array();
+				$search_var = strtolower(str_replace(" ", "_", $result['sek_title']));
+				if (@!is_array($return[$result['rmf_rec_pid']][$search_var])) {
+					$return[$result['rmf_rec_pid']][$search_var] = array();
 				}
-				array_push($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']], $result['rmf_'.$result['xsdmf_data_type']]);
-				sort($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']]);
+				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']][$search_var])) {
+					array_push($return[$result['rmf_rec_pid']][$search_var], $result['rmf_'.$result['xsdmf_data_type']]);
+					sort($return[$result['rmf_rec_pid']][$search_var]);
+				}
 			}
 			// get thumbnails
-			if ($result['xsdmf_fez_title'] == "datastream_id") {
+			if ($result['xsdmf_element'] == "!datastream!ID") {
 				if (is_numeric(strpos($result['rmf_varchar'], "thumbnail_"))) {
 					if (!is_array(@$return[$result['rmf_rec_pid']]['thumbnails'])) {
 						$return[$result['rmf_rec_pid']]['thumbnails'] = array();
@@ -714,6 +737,7 @@ class Collection
 
 		$return = array_values($return);
 		$return = Auth::getIndexAuthorisationGroups($return);
+
 		$hidden_rows = count($return);
 		$return = Misc::cleanListResults($return);
 		$total_rows = count($return);
@@ -730,7 +754,7 @@ class Collection
 		foreach ($return as $ret_key => $ret_wf) {
 			$pid = $ret_wf['pid'];
 			$record = new RecordObject($pid);
-			if ($record->canEdit()) {
+			if ($ret_wf['isEditor']) {
 				$xdis_id = $ret_wf['xdis_id'][0];
 				$strict = false;
 				$workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Update', $xdis_id, $strict);
@@ -744,9 +768,9 @@ class Collection
 					}
 				}
 				$workflows = $workflows1;				
-			}
-			$return[$ret_key]['workflows'] = $workflows;
-		}
+			} 
+			$return[$ret_key]['workflows'] = $workflows; 
+		}  
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
@@ -956,7 +980,7 @@ class Collection
                          AND xdm.xsdmf_element='!sta_id'
                          )
                  ORDER BY ".$orderSQL;
-
+		$securityfields = Auth::getAllRoles();
 		$returnfields = array("day_name", "created_date", "updated_date", "file_downloads", "xdis_title", "title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
@@ -966,7 +990,7 @@ class Collection
 
 			$return = array();
 			foreach ($res as $result) {
-				if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
+				if (in_array($result['xsdsel_title'], $securityfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
 					$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']][]
 					   = $result['rmf_'.$result['xsdmf_data_type']]; // need to array_push because there can be multiple groups/users for a role
 				}
@@ -1357,12 +1381,12 @@ class Collection
                     )
             ORDER BY
             r1.rmf_rec_pid";
-
+		$securityfields = Auth::getAllRoles();
 		$returnfields = array("title", "date", "type", "xdis_title", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = array();
 		foreach ($res as $result) {
-			if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
+			if (in_array($result['xsdsel_title'], $securityfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
 				$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']][] 
                     = $result['rmf_'.$result['xsdmf_data_type']]; // need to array_push because there can be multiple groups/users for a role
 			}
@@ -1510,6 +1534,7 @@ class Collection
                     AND xdm.xsdmf_element='!sta_id'
                     )
             ORDER BY r1.rmf_rec_pid";
+		$securityfields = Auth::getAllRoles();
 		$returnfields = array("title", "date", "xdis_title", "type", "description", "identifier", "creator", "ret_id", 
                 "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", 
                 "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
@@ -1517,7 +1542,7 @@ class Collection
 		
 		$return = array();
 		foreach ($res as $result) {
-			if (in_array($result['xsdsel_title'], $returnfields) 
+			if (in_array($result['xsdsel_title'], $securityfields) 
                     && ($result['xsdmf_element'] != '!rule!role!name') 
                     && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
                 // need to array_push because there can be multiple groups/users for a role

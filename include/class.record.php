@@ -232,13 +232,24 @@ class Record
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field
 				 WHERE rmf_rec_pid = '" . $pid . "'";
 		if ($dsDelete=='keep') {
-			$stmt .= " and rmf_xsdmf_id not in (select distinct(xsdmf_id) from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields where xsdmf_fez_title = 'datastream_id')";
+			$stmt .= " and (rmf_xsdmf_id not in (select distinct(xsdmf_id) from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields where xsdmf_element = '!datastream!ID')";
 		}
 		if ($specify_str != "") {				
-			$stmt .= " and rmf_xsdmf_id in (select x2.xsdmf_id from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2 inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s2 on x2.xsdmf_xsdsel_id=s2.xsdsel_id and s2.xsdsel_title in ('".$specify_str."'))";			
+			$stmt .= " and rmf_xsdmf_id in (select x2.xsdmf_id from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2 inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on x2.xsdmf_xdis_id=d1.xdis_id inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd1 on (xsd1.xsd_id = d1.xdis_xsd_id and xsd1.xsd_title in ('".$specify_str."'))) ";
+			if ($dsDelete=='keep') {
+				$stmt .= ")";
+			}
 		} elseif ($exclude_str != "") {
-			$stmt .= " and rmf_xsdmf_id in (select x2.xsdmf_id from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2 inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s2 on x2.xsdmf_xsdsel_id=s2.xsdsel_id and s2.xsdsel_title not in ('".$exclude_str."'))";			
+			$stmt .= " and rmf_xsdmf_id in (select x2.xsdmf_id from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2 inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on x2.xsdmf_xdis_id=d1.xdis_id inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd1 on (xsd1.xsd_id = d1.xdis_xsd_id and xsd1.xsd_title not in ('".$exclude_str."'))) ";			
+			if ($dsDelete=='keep') {
+				$stmt .= ")";
+			}
+		} else {
+			if ($dsDelete=='keep') {
+				$stmt .= ")";
+			}
 		}
+
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -1246,7 +1257,6 @@ class RecordObject extends RecordGeneral
         $display = &$this->display;
         list($array_ptr,$xsd_element_prefix, $xsd_top_element_name, $xml_schema) 
             = $display->getXsdAsReferencedArray();
-
 		$xmlObj = '<?xml version="1.0"?>'."\n";
 		$xmlObj .= "<".$xsd_element_prefix.$xsd_top_element_name." ";
 		$xmlObj .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $pid); // for the pid, fedora uri etc
@@ -1263,7 +1273,8 @@ class RecordObject extends RecordGeneral
 		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, $file_downloads, $this->created_date, $this->updated_date);
 
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
-		$datastreamTitles = $display->getDatastreamTitles(); 
+//		$datastreamTitles = $display->getDatastreamTitles(); 
+		$datastreamTitles = $display->getDatastreamTitles($exclude_list, $specify_list); 
         Record::insertXML($pid, compact('datastreamTitles', 'exclude_list', 'specify_list', 'xmlObj', 'indexArray', 'existingDatastreams' ), $ingestObject);
 		return $pid;
     }
