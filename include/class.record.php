@@ -88,23 +88,25 @@ class Record
 		array_push($returnfields, "identifier");
 		array_push($returnfields, "description");
 
-			$pre_stmt =  "SELECT r2.rmf_varchar 
+/*			$pre_stmt =  "SELECT r2.rmf_varchar 
 							FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
 								  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,							
 								  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
 							WHERE (s2.sek_title = 'isMemberOf' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid = '".$pid."')";
 			$res = $GLOBALS["db_api"]->dbh->getCol($pre_stmt);							
-			$parent_pid_string = implode("', '", $res);
+			$parent_pid_string = implode("', '", $res); */
 			$stmt = "SELECT 
 						* 
 					 FROM
-						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
-						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
-						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
-
-					 WHERE
-						r1.rmf_xsdmf_id = x1.xsdmf_id and
-						r1.rmf_rec_pid in ('$parent_pid_string')
+						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1 inner join 
+						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on r1.rmf_xsdmf_id = x1.xsdmf_id inner join
+						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s1 on s1.sek_id = x1.xsdmf_sek_id inner join
+						(SELECT r2.rmf_varchar 
+							FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
+								  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,							
+								  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+							WHERE (s2.sek_title = 'isMemberOf' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid = '".$pid."'))
+						as p1 as p1.rmf_varchar = r1.rmf_rec_pid
 						";
 			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);						
 			$return = array();
@@ -462,18 +464,17 @@ class Record
         if (isset($acml_cache[$pid])) {
             return $acml_cache[$pid];
         }
-                
 		$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, 'FezACML');
-		$xmlACML = @$DSResultArray['stream'];		
+		$xmlACML = @$DSResultArray['stream'];
 		if ($xmlACML != "") {
 			$xmldoc= new DomDocument();
 			$xmldoc->preserveWhiteSpace = false;
 			$xmldoc->loadXML($xmlACML);
-            $acml_cache[$pid] = $xmldoc;
-            return $xmldoc;
+			$acml_cache[$pid] = $xmldoc;
+			return $xmldoc;
 		} else {
-            $acml_cache[$pid] = false;
-            return false;
+			$acml_cache[$pid] = false;
+			return false;
 		}
 	}
 

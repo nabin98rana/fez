@@ -288,7 +288,6 @@ class Collection
 				$return[$pid_key]['FezACML'] = $parentsACMLs;
 			}
 		}
-		print_r($return);
 		$return = array_values($return);
 		$return = Auth::getIndexAuthorisationGroups($return);
 		$hidden_rows = count($return);
@@ -302,13 +301,12 @@ class Collection
 		$total_pages = ceil($total_rows / $max);
         $last_page = $total_pages - 1;
 		$return = Misc::limitListResults($return, $start, ($start + $max));
-
 		// add the available workflow trigger buttons
 		foreach ($return as $ret_key => $ret_wf) {
 			$pid = $ret_wf['pid'];
 			$record = new RecordObject($pid);
-			if ($ret_wf['isEditor']) {
-				$xdis_id = $ret_wf['xdis_id'][0];
+			if ($ret_wf['isEditor'] == 1) {
+				$xdis_id = $ret_wf['display_type'][0];
 				$strict = true;
 				$workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Update', $xdis_id, $strict);
 			}
@@ -755,7 +753,7 @@ class Collection
 			$pid = $ret_wf['pid'];
 			$record = new RecordObject($pid);
 			if ($ret_wf['isEditor']) {
-				$xdis_id = $ret_wf['xdis_id'][0];
+				$xdis_id = $ret_wf['display_type'][0];
 				$strict = false;
 				$workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Update', $xdis_id, $strict);
 			}

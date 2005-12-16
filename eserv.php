@@ -129,12 +129,12 @@ if (!empty($pid) && !empty($dsID)) {
 			
 			$sourceOAI = fopen($urldata, "r");
 			$sourceOAIRead = '';
-			while ($tmp = fread($sourceOAI, 1024))
+			while ($tmp = fread($sourceOAI, 4096))
 			{
 			$sourceOAIRead .= $tmp;
 			}
-			
-			$tempDump = fopen($tempDumpFileName, 'w');
+			echo $sourceOAIRead;			
+/*			$tempDump = fopen($tempDumpFileName, 'w');
 
 			// Write the source xml to a temporary file to we can get the filesize (required for the content length header)
 			fwrite($tempDump, $sourceOAIRead);
@@ -146,7 +146,7 @@ if (!empty($pid) && !empty($dsID)) {
 			$sourceOAIRead = fread($tempDump, filesize($tempDumpFileName));
 			header("Content-length: " . filesize($tempDumpFileName) . "\n");
 			echo $sourceOAIRead;
-			die;
+			die;*/
 		} else {
 			$tpl->assign("show_not_allowed_msg", true);
 			$tpl->displayTemplate();

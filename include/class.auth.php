@@ -241,7 +241,6 @@ class Auth
 						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on (r1.rmf_xsdmf_id = x1.xsdmf_id)
 						left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
 						left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 on (k1.sek_title = 'isMemberOf' AND r1.rmf_xsdmf_id = x1.xsdmf_id AND k1.sek_id = x1.xsdmf_sek_id)";
-//			echo "\n\n".$stmt;
             global $defaultRoles;
 			$returnfields = $defaultRoles;
 			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -259,15 +258,20 @@ class Auth
 					}
 				}
 			}
+
 			foreach ($return as $key => $record) {	
 				if (is_array(@$record['FezACML'])) {
 					if (!is_array($returns[$pid])) {
-						$returns[$pid] = $record['FezACML'];
+						$returns[$pid] = array();
 					}
+					array_push($returns[$pid], $record['FezACML']);
 					array_push($ACMLArray, $record['FezACML']); //add it to the acml array and dont go any further up the hierarchy
 				} else {
 					Auth::getIndexParentACMLs($ACMLArray, $key);
-					$returns[$pid] = $ACMLArray;
+					if (!is_array($returns[$pid])) {
+						$returns[$pid] = array();
+					}
+					array_push($returns[$pid], $ACMLArray);
 				}
 			}
 		}
@@ -473,10 +477,10 @@ class Auth
         if (isset($roles_cache[$pid])) {
             return $roles_cache[$pid];
         }
-
         $userPIDAuthGroups = array();
 
         $acmlBase = Record::getACML($pid);
+
         $ACMLArray = array();
         if ($acmlBase == false) {
             $parents = Record::getParents($pid);
