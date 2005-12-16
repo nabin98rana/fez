@@ -166,7 +166,7 @@ class Auth
 						r1.rmf_rec_pid in ('$parent_pid_string')
 						";
 //			$returnfields = array("Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
-			$returnfields = Auth::getAuthRoles();
+			$returnfields = Auth::getAllRoles();
 			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 			$return = array();	
 			foreach ($res as $result) {
@@ -711,7 +711,7 @@ class Auth
             if (PEAR::isError($info)) {
                 Error_Handler::logError(array($info->getMessage(), $info->getDebugInfo()), __FILE__, __LINE__);
                 return false;
-            } elseif (count($info) == 1) {
+            } elseif (count($info) != 1) {
                 return false;
             } else {
                 return true;

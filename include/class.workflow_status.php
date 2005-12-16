@@ -392,6 +392,9 @@ class WorkflowStatus {
         $this->getWorkflowDetails();
         $tpl->assign('wfl_title', $this->wfl_details['wfl_title']);
         $tpl->assign('states_done', $this->states_done);
+        $this->getStateDetails();
+        $tpl->assign('wfs_title', $this->wfs_details['wfs_title']);
+        $tpl->assign('wfs_description', $this->wfs_details['wfs_description']);
     }
 
 }

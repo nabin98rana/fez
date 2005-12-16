@@ -1,0 +1,31 @@
+<div class="outline">
+<div class="contentheader">
+Running Processes
+</div>
+<table class="listing">
+<tr bgcolor="{$cell_color}" class="default tableheader">
+<td>Started</td>
+<td>Name</td>
+<td>Progress</td>
+<td>Message</td>
+<td>Last Heartbeat</td>
+<td>Status</td>
+</tr>
+{section name="iii" loop=$bgp_list}
+{cycle values=$cycle assign="row_color"}
+<tr bgcolor="{$row_color}" class="default">
+<td>{$bgp_list[iii].bgp_started}</td>
+<td>{$bgp_list[iii].bgp_name}</td>
+<td>{$bgp_list[iii].bgp_progress}</td>
+<td>{$bgp_list[iii].bgp_status_message}</td>
+<td>{$bgp_list[iii].bgp_heartbeat}</td>
+<td>{$bgp_list[iii].bgp_status}</td>
+</tr>
+{sectionelse}
+<tr >
+<td colspan="20">No Items</td>
+</tr>
+{/section}
+</table>
+
+</div>

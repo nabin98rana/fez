@@ -32,46 +32,20 @@
 // +----------------------------------------------------------------------+
 //
 //
-include_once("config.inc.php");
-include_once(APP_INC_PATH . "db_access.php");
-
+include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
-include_once(APP_INC_PATH . "class.auth.php");
-
-include_once(APP_INC_PATH . "class.misc.php");
-include_once(APP_INC_PATH . "class.collection.php");
-include_once(APP_INC_PATH . "class.background_process_list.php");
+include_once(APP_INC_PATH . "class.workflow_trigger.php");
 
 $tpl = new Template_API();
-$tpl->setTemplate("my_fez.tpl.html");
-
-Auth::checkAuthentication(APP_SESSION);
-$username = Auth::getUsername();
-$tpl->assign("isUser", $username);
-$isAdministrator = User::isUserAdministrator($username);
-if (Auth::userExists($username)) { // if the user is registered as a Fez user
-	$tpl->assign("isFezUser", $username);
-	$prefs = Prefs::get(Auth::getUserID());
-} else {
-	Auth::redirect(APP_RELATIVE_URL . "register.php?err=5&username=" . $username);	
-}
-$tpl->assign("isAdministrator", $isAdministrator);
-
-$collection_list = Collection::getEditList();
-foreach ($collection_list as &$item) {
-   $item['community'] = implode(',',Misc::keyPairs(Collection::getParents2($item['pid']),'pid','title'));
-   $item['count'] = count(Collection::getEditListing($item['pid']));
-}
-$tpl->assign('my_collections_list', $collection_list);
-
-$assigned_items= Record::getAssigned(Auth::getUsername());
-
-$bgp_list = new BackgroundProcessList;
-$tpl->assign('bgp_list', $bgp_list->getList(Auth::getUserID()));
-
-$tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
-$tpl->assign('my_assigned_items_list', $assigned_items);
-$tpl->assign("roles_list", Auth::getDefaultRoles());
+$tpl->setTemplate("workflow/index.tpl.html");
+$tpl->assign("type", "no_action");
+$id = Misc::GETorPOST('id');
+$tpl->assign("id", $id);
+$wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
+$pid = $wfstatus->pid;
+$wfstatus->setTemplateVars($tpl);
+$wfstatus->checkStateChange();
 
 $tpl->displayTemplate();
+
 ?>

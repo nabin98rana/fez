@@ -19,20 +19,21 @@ function updateForm()
       <table bgcolor="#FFFFFF" width="100%" cellspacing="0" cellpadding="0" border="0">
 <tr><td class="default">
 <p>
-<b>{$wfl_title}</b>
+<b>{$wfl_title|escape}</b><br/>
+{if $wfs_description}
+{$wfs_title|escape} - 
+{$wfs_description|escape}
+{/if}
 </p>
 {if $states_done}
 <div>
 Workflow Progress:
 {section name="i" loop=$states_done}
-<span class="wfl_progress">{$states_done[i].wfs_title}</span> <img src="{$rel_url}images/1rightarrow_16.gif" 
-align="center" alt=" -> " />
+<span class="wfl_progress">{$states_done[i].wfs_title}</span>
+<img src="{$rel_url}images/1rightarrow_16.gif" alt=" -> " />
 {/section}
 </div>
 {/if}
-<p>
-{$wfs_title}
-</p>
 {if $submit_to_popup}
 <form name="wfl_form1"  onSubmit="javascript:return (checkFormSubmission(this, 'validateForm') && updateForm());" target="_popup_window" action="{$rel_url}popup.php" method="POST" enctype="multipart/form-data">
 {else}
@@ -46,13 +47,13 @@ align="center" alt=" -> " />
   <table border="0" cellpadding="0" cellspacing="0" width="100%">
    <tr>
     <td   width="100%" align="center">
-     <span class="default"><b>Next State:</b> </span>
+     <span class="default"><b>Choose Next State:</b> </span>
    {section name="i" loop=$workflow_buttons}
      <input class="button" type="submit" name="workflow_button_{$workflow_buttons[i].wfs_id}" 
       value="{$workflow_buttons[i].wfs_title}" 
-      />&nbsp;&nbsp;
+      />&nbsp;
      {/section}
-     <input class="button" type="reset" value="Reset" tabindex="13">
+     | <input class="button" type="reset" value="Reset Form" tabindex="13">
     </td>
    </tr>
   </table>
@@ -68,13 +69,13 @@ align="center" alt=" -> " />
   <table border="0" cellpadding="0" cellspacing="0" width="100%">
    <tr>
     <td   width="100%" align="center">
-     <span class="default"><b>Next State:</b> </span>
+     <span class="default"><b>Choose Next State:</b> </span>
    {section name="i" loop=$workflow_buttons}
      <input class="button" type="submit" name="workflow_button_{$workflow_buttons[i].wfs_id}" 
       value="{$workflow_buttons[i].wfs_title}" 
-      />&nbsp;&nbsp;
+      />&nbsp;
      {/section}
-     <input class="button" type="reset" value="Reset" tabindex="13">
+     | <input class="button" type="reset" value="Reset Form" tabindex="13">
     </td>
    </tr>
   </table>

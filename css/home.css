@@ -133,7 +133,12 @@ a:link.footerlinks {color: #999999;}
 
 }
 
-td.contentheader 	 	{ font-family: Arial, Verdana, Helvetica, Sans-Serif; font-size: 18px;	font-weight: bold; color: #333; }
+.contentheader 	 	
+{ 
+    font-family: Arial, Verdana, Helvetica, Sans-Serif; font-size: 18px;
+    font-weight: bold; 
+    color: #333; 
+}
 
 .listrecord .td  {
 	font-size: 5px;
@@ -144,8 +149,22 @@ td.contentheader 	 	{ font-family: Arial, Verdana, Helvetica, Sans-Serif; font-s
     color: white;
 }
 
+.tableheader 
+{
+    font-weight: bold;
+}
 
+table.listing
+{
+width:100%;
+}
 
+table.listing td
+{
+margin:1px 1px 0px 0px;
+padding:1px 1px 1px 5px;
+        border-width: 0px;
+}
 
 
 
