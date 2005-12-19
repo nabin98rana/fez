@@ -191,6 +191,13 @@ foreach ($xsd_display_fields  as $dis_field) {
 }
 
 $datastreams = Fedora_API::callGetDatastreams($pid);
+$FezACML_exists = 0;
+foreach ($datastreams as $security_check) {
+	if ($security_check['ID'] == 'FezACML') {
+		$FezACML_exists = 1;
+	}
+}
+$tpl->assign("FezACML_exists", $FezACML_exists);
 $datastreams = Misc::cleanDatastreamList($datastreams);
 $parents = $record->getParents(); // RecordObject
 $tpl->assign("parents", $parents);

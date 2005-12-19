@@ -140,6 +140,9 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 	$search_key_list = Search_Key::getAssocList();
 	$tpl->assign("search_key_list", $search_key_list);
 
+	$checkbox_options_list = array("" => "not checked", "checked" => "checked");
+	$tpl->assign("checkbox_options_list", $checkbox_options_list);
+
 	if (is_array($info_array)) {
 	    $tpl->assign("form_cat", "edit");
 		$tpl->assign("xsdmf_id", $info_array['xsdmf_id']);

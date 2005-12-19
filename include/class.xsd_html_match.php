@@ -278,7 +278,8 @@ class XSD_HTML_Match
                     xsdmf_id_ref,
 					xsdsel_order,
 					xsdmf_attached_xsdmf_id,					
-					xsdmf_cvo_id
+					xsdmf_cvo_id,
+					xsdmf_cso_value
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields as m1  ";
 				if ($specify_str != "") {
@@ -608,6 +609,9 @@ class XSD_HTML_Match
 		if ($HTTP_POST_VARS["selected_option"] != "") {
           $stmt .= "xsdmf_selected_option,";
 		}
+
+          $stmt .= "xsdmf_cso_value,";
+
 					
 		  $stmt .= "xsdmf_show_in_view,
 					xsdmf_enforced_prefix,
@@ -664,6 +668,9 @@ class XSD_HTML_Match
 			if ($HTTP_POST_VARS["selected_option"] != "") {
               $stmt .= "'" . Misc::escapeString($HTTP_POST_VARS["selected_option"]) . "',";
 			}
+
+            $stmt .= "'" . Misc::escapeString($HTTP_POST_VARS["checkbox_selected_option"]) . "',";
+
 
 			$stmt .=  $show_in_view . ",
                     '" . Misc::escapeString($HTTP_POST_VARS["enforced_prefix"]) . "',

@@ -3,7 +3,7 @@
 Finished {$wft_type} {$wfl_title}<br/>
 {if $parent_title}Parent: <a href="{$view_parent_url}">{$parent_title}</a><br/>{/if}
 {if $parents_list}Parents: 
-{section name="i" loop=$parents_list}<a href="{$parents_list[i].url}">{$parents_list[i].title}</a> {/section}
+{section name="i" loop=$parents_list}<a href="{$parents_list[i].url}">{$parents_list[i].title.0}</a> {/section}
 <br/>{/if}
 {if $record_title}Record: <a href="{$view_record_url}">{$record_title}</a><br/>{/if}
 <br/>

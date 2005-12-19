@@ -327,7 +327,7 @@ class WorkflowStatus {
                         $next2 = $next2_list[0];
                     }
                     if ($next2['wfs_end'] && $next2['wfs_auto'] && $next2['wfs_transparent']) {
-                        $title = 'Done';
+                        $title = 'Save Changes';
                     } else {
                         $title = $next2['wfs_title'];
                     }
@@ -347,7 +347,7 @@ class WorkflowStatus {
         if ($this->wfs_details['wfs_end']) {
             $button_list[] = array(
                     'wfs_id' => -1,
-                    'wfs_title' => 'Done'
+                    'wfs_title' => 'Save Changes'
                     );
         }
         return $button_list;
