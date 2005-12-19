@@ -155,25 +155,23 @@ class Auth
 			$stmt = "SELECT 
 						* 
 					 FROM
-						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
-					    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1,
-						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1,
-						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
-						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
-
+						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1
+						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on (r1.rmf_xsdmf_id = x1.xsdmf_id)
+					    left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 on (k1.sek_title = 'isMemberOf' AND k1.sek_id = x1.xsdmf_sek_id)
+						left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on (x1.xsdmf_xdis_id = d1.xdis_id)
+						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd1 on (xsd1.xsd_id = d1.xdis_xsd_id and xsd1.xsd_title = 'FezACML')
+						left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
 					 WHERE
-						r1.rmf_xsdmf_id = x1.xsdmf_id and ((d1.xdis_id = x1.xsdmf_xdis_id and d1.xdis_title = 'FezACML') or (k1.sek_title = 'isMemberOf' AND r1.rmf_xsdmf_id = x1.xsdmf_id AND k1.sek_id = x1.xsdmf_sek_id)) and
 						r1.rmf_rec_pid in ('$parent_pid_string')
 						";
-//			$returnfields = array("Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
-			$returnfields = Auth::getAllRoles();
+			$securityfields = Auth::getAllRoles();
 			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 			$return = array();	
 			foreach ($res as $result) {
 				if (!is_array(@$return[$result['rmf_rec_pid']])) {
 					$return[$result['rmf_rec_pid']]['exists'] = array();
 				}
-				if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
+				if (in_array($result['xsdsel_title'], $securityfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
 					if (!is_array(@$return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
 						$return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']] = array();
 					}
@@ -237,19 +235,22 @@ class Auth
 					 FROM
 						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1
 						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on (d1.xdis_id = x1.xsdmf_xdis_id and r1.rmf_rec_pid ='".$pid."')
-						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd x2 on (x2.xsd_id = d1.xdis_xsd_id and x2.xsd_title = 'FezACML')
 						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on (r1.rmf_xsdmf_id = x1.xsdmf_id)
+						left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd x2 on (x2.xsd_id = d1.xdis_xsd_id and x2.xsd_title = 'FezACML')
 						left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
 						left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 on (k1.sek_title = 'isMemberOf' AND r1.rmf_xsdmf_id = x1.xsdmf_id AND k1.sek_id = x1.xsdmf_sek_id)";
-            global $defaultRoles;
-			$returnfields = $defaultRoles;
+//            global $defaultRoles;
+//			$returnfields = $defaultRoles;
+			$securityfields = Auth::getAllRoles();
 			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 			$return = array();
+
+
 			foreach ($res as $result) {
 				if (!is_array(@$return[$result['rmf_rec_pid']])) {
 					$return[$result['rmf_rec_pid']]['exists'] = array();
 				}
-				if (in_array($result['xsdsel_title'], $returnfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
+				if (in_array($result['xsdsel_title'], $securityfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
 					if (!is_array(@$return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
 						$return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']] = array();
 					}
@@ -258,9 +259,10 @@ class Auth
 					}
 				}
 			}
-
+	
 			foreach ($return as $key => $record) {	
 				if (is_array(@$record['FezACML'])) {
+					
 					if (!is_array($returns[$pid])) {
 						$returns[$pid] = array();
 					}
@@ -274,6 +276,7 @@ class Auth
 					array_push($returns[$pid], $ACMLArray);
 				}
 			}
+		
 		}
 	}
 

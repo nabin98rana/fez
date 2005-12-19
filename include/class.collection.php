@@ -677,6 +677,7 @@ class Collection
             left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d2.display_id = d1.xdis_id	
 				 ORDER BY
 				 	r1.rmf_rec_pid";
+
 		$securityfields = Auth::getAllRoles();
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = array();
@@ -725,7 +726,8 @@ class Collection
 					array_push($return[$result['rmf_rec_pid']]['datastreams'], $result['rmf_varchar']);
 				}
 			}
-		}	
+		}
+
 		foreach ($return as $pid_key => $row) {
 			//if there is only one thumbnail DS then use it
 			if (count(@$row['thumbnails']) == 1) {
@@ -741,6 +743,7 @@ class Collection
 		}
 
 		$return = array_values($return);
+
 		$return = Auth::getIndexAuthorisationGroups($return);
 
 		$hidden_rows = count($return);

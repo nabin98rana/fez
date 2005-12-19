@@ -94,6 +94,8 @@ if (!empty($community_pid)) {
 $tpl->assign("pid", $pid);
 $record = new RecordObject($pid);
 $record->getDisplay();
+$pid_title = $record->getTitle();
+$tpl->assign("pid_title", $pid_title);
 $xdis_id = $record->getXmlDisplayId();
 $xdis_title = XSD_Display::getTitle($xdis_id);
 $tpl->assign("xdis_title", $xdis_title);
