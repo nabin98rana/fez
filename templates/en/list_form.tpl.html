@@ -137,7 +137,7 @@ function purgeObject(pid)
 				  <td align="left" class="default"> <b>Parent Communities: </b></td>
 				  <td align="left" class="default"> &nbsp;
 					{section name="i" loop=$parents}
-						<a href="list.php?community_pid={$parents[i].pid}">{$parents[i].title}</a> &nbsp;
+						<a href="list.php?community_pid={$parents[i].pid}">{$parents[i].title.0}</a> &nbsp;
 					{/section}
 				  </td>
 				</tr>
@@ -345,7 +345,7 @@ function purgeObject(pid)
 
 
         {if (($list[i].isLister==1 || $isAdministrator) && $list_type != 'browse_subjects_list')}
-	   		{if $list[i].ret_id.0 == '1'}
+	   		{if $list[i].object_type.0 == '1'}
                 {assign var="href_view" value="list.php?community_pid="|cat:$list[i].pid|escape:"html"}
                 {assign var="icon" value="images/community.jpg" }
                 {if ($list[i].isEditor==1 || $isAdministrator)} 

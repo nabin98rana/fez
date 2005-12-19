@@ -80,18 +80,25 @@ class Community
         $stmt = "SELECT
                     * 
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1
-                 WHERE
-				    r1.rmf_xsdmf_id = x1.xsdmf_id and
-                    rmf_rec_pid = '".$community_pid."'";
-		$returnfields = array("title", "description", "ret_id", "xdis_id", "sta_id");
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1
+					
+                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on x1.xsdmf_id = r1.rmf_xsdmf_id
+					and rmf_rec_pid = '".$community_pid."'
+					inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s1 on s1.sek_id = x1.xsdmf_sek_id";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = array();
-		foreach ($res as $result) {
-			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
+
+		foreach ($res as $result) {		
+			if (is_numeric($result['sek_id'])) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']] = $result['rmf_'.$result['xsdmf_data_type']];
+				$search_var = strtolower(str_replace(" ", "_", $result['sek_title']));
+				if (@!is_array($return[$result['rmf_rec_pid']][$search_var])) {
+					$return[$result['rmf_rec_pid']][$search_var] = array();
+				}
+				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']][$search_var])) {
+					array_push($return[$result['rmf_rec_pid']][$search_var], $result['rmf_'.$result['xsdmf_data_type']]);
+					sort($return[$result['rmf_rec_pid']][$search_var]);
+				}
 			}
 		}
 		$return = array_values($return);
@@ -122,41 +129,46 @@ class Community
             FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1
             inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 
             ON r1.rmf_xsdmf_id = x1.xsdmf_id  
-            left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 
-            on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
-            WHERE
-            rmf_rec_pid in (
-                    SELECT r2.rmf_rec_pid 
+			inner join (
+                    SELECT distinct r2.rmf_rec_pid 
                     FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2,
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2  						
                     WHERE s2.sek_title = 'Object Type' AND x2.xsdmf_id = r2.rmf_xsdmf_id
-                    AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_varchar = '1')		
-            AND rmf_rec_pid IN (
-                    SELECT rmf_rec_pid FROM 
+                    AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_varchar = '1') as o1 on o1.rmf_rec_pid = r1.rmf_rec_pid
+			inner join (
+                    SELECT distinct rmf.rmf_rec_pid FROM 
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS rmf
                     INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields AS xdm
                     ON rmf.rmf_xsdmf_id = xdm.xsdmf_id
                     WHERE rmf.rmf_varchar=2
                     AND xdm.xsdmf_element='!sta_id'
-                    )
+                    ) as sta1 on sta1.rmf_rec_pid = r1.rmf_rec_pid
+            left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 
+            on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+			left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key sk1 on sk1.sek_id = x1.xsdmf_sek_id
             ";
-		$returnfields = array("title", "description", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
+		$securityfields = Auth::getAllRoles();
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = array();
 		foreach ($res as $result) {		
-			if (in_array($result['xsdsel_title'], $returnfields) 
+			if (in_array($result['xsdsel_title'], $securityfields) 
                     && ($result['xsdmf_element'] != '!rule!role!name') 
                     && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
 				$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']][]
                    = $result['rmf_'.$result['xsdmf_data_type']]; // need to array_push because there can be multiple groups/users for a role
 			}
-			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
+			if (is_numeric($result['sek_id'])) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']][]
-                   =  $result['rmf_'.$result['xsdmf_data_type']];
-				sort($return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']]);
+				$search_var = strtolower(str_replace(" ", "_", $result['sek_title']));
+				if (@!is_array($return[$result['rmf_rec_pid']][$search_var])) {
+					$return[$result['rmf_rec_pid']][$search_var] = array();
+				}
+				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']][$search_var])) {
+					array_push($return[$result['rmf_rec_pid']][$search_var], $result['rmf_'.$result['xsdmf_data_type']]);
+					sort($return[$result['rmf_rec_pid']][$search_var]);
+				}
 			}
 		}
         $return = array_values($return);
@@ -173,11 +185,12 @@ class Community
         $last_page = $total_pages - 1;
 		$return = Misc::limitListResults($return, $start, ($start + $max));
 		// add the available workflow trigger buttons
+		$isAdministrator = Auth::isAdministrator();
 		foreach ($return as $ret_key => $ret_wf) {
 			$pid = $ret_wf['pid'];
 			$record = new RecordObject($pid);
-			if ($record->canEdit()) {
-				$xdis_id = $ret_wf['xdis_id'][0];
+			if (($ret_wf['isEditor'] == 1) || $isAdministrator) {
+				$xdis_id = $ret_wf['display_type'][0];
 				$strict = true;
 				$workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Update', $xdis_id, $strict);
 			}
@@ -193,7 +206,7 @@ class Community
 			}
 			$return[$ret_key]['workflows'] = $workflows;
 		}
-
+		print_r($return);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
@@ -228,22 +241,26 @@ class Community
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1
-                 WHERE
-				    r1.rmf_xsdmf_id = x1.xsdmf_id and
-                    rmf_rec_pid in (
-						SELECT r2.rmf_rec_pid 
-						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
-						WHERE rmf_xsdmf_id = 239 AND rmf_varchar = '1')
-					
-					
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1 inner join
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on r1.rmf_xsdmf_id = x1.xsdmf_id 
+					inner join  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key sk1 on sk1.sek_id = x1.xsdmf_sek_id
+					inner join (
+							SELECT distinct r2.rmf_rec_pid 
+							FROM  
+							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
+							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,
+							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2				  
+							WHERE r2.rmf_xsdmf_id = x2.xsdmf_id 
+							AND x2.xsdmf_sek_id = s2.sek_id 
+							AND s2.sek_title = 'Object Type' 
+							AND r2.rmf_varchar = '1' 
+							) as o1 on o1.rmf_rec_pid = r1.rmf_rec_pid													
 					";
 		$returnfields = array("title");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = array();
 		foreach ($res as $result) {
-			if (in_array($result['xsdmf_fez_title'], $returnfields)) {
+			if ($result['sek_title'] == "Title") {
 				$return[$result['rmf_rec_pid']] = $result['rmf_'.$result['xsdmf_data_type']];
 			}
 		}

@@ -87,7 +87,7 @@ if (!empty($collection_pid)) {
 	$list = Collection::getListing($collection_pid, $pagerRow, $rows);
 	$list_info = $list["info"];
 	$list = $list["list"];
-	$tpl->assign("list_heading", "List of Records in ".$collection_details[0]['title']." Collection");
+	$tpl->assign("list_heading", "List of Records in ".$collection_details[0]['title'][0]." Collection");
 	$tpl->assign("list_type", "collection_records_list");
 	$tpl->assign("collection_pid", $collection_pid);
 	$childXDisplayOptions = Collection::getChildXDisplayOptions($collection_pid);
@@ -111,7 +111,7 @@ if (!empty($collection_pid)) {
 	$list = Collection::getList($community_pid, $pagerRow, $rows);
 	$list_info = $list["info"];
 	$list = $list["list"];
-	$tpl->assign("list_heading", "List of Collections in ".$community_details[0]['title']." Community");
+	$tpl->assign("list_heading", "List of Collections in ".$community_details[0]['title'][0]." Community");
 	$tpl->assign("list_type", "collection_list");
 } elseif (!empty($terms)) {
     // search Fez

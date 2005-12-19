@@ -55,14 +55,6 @@ include_once(APP_INC_PATH . "class.xsd_display.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.foxml.php");
 
-
-//@@@ CK - 28/10/2004 - Modified the list headings to be like the actual list headings so the CSV would show the same thing
-$list_headings = array(
-    'Date of Issue',
-    'Title',
-    'Authors'
-);
-
 /**
   * Record
   * Static class for accessing record related queries
@@ -82,44 +74,43 @@ class Record
     function getParents($pid)
     {
 
-		$returnfields = array();
-		array_push($returnfields, "pid"); 
-		array_push($returnfields, "title");
-		array_push($returnfields, "identifier");
-		array_push($returnfields, "description");
+		static $returns;
 
-/*			$pre_stmt =  "SELECT r2.rmf_varchar 
-							FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
-								  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,							
-								  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
-							WHERE (s2.sek_title = 'isMemberOf' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid = '".$pid."')";
-			$res = $GLOBALS["db_api"]->dbh->getCol($pre_stmt);							
-			$parent_pid_string = implode("', '", $res); */
-			$stmt = "SELECT 
-						* 
-					 FROM
-						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1 inner join 
-						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on r1.rmf_xsdmf_id = x1.xsdmf_id inner join
-						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s1 on s1.sek_id = x1.xsdmf_sek_id inner join
-						(SELECT r2.rmf_varchar 
-							FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
-								  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,							
-								  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
-							WHERE (s2.sek_title = 'isMemberOf' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid = '".$pid."'))
-						as p1 as p1.rmf_varchar = r1.rmf_rec_pid
-						";
-			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);						
-			$return = array();
-			foreach ($res as $result) {
-				if (!is_array(@$return[$result['rmf_rec_pid']])) {
-					$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
+        if (isset($returns[$pid])) {
+            return $returns[$pid];
+        }
+
+		$stmt = "SELECT 
+					* 
+				 FROM
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1 inner join 
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on r1.rmf_xsdmf_id = x1.xsdmf_id inner join
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s1 on s1.sek_id = x1.xsdmf_sek_id inner join
+					(SELECT r2.rmf_varchar as parent_pid
+						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
+							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,							
+							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+						WHERE (s2.sek_title = 'isMemberOf' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid = '".$pid."'))
+					as p1 on p1.parent_pid = r1.rmf_rec_pid
+					";	
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);						
+		$return = array();
+		foreach ($res as $result) {
+			if (is_numeric($result['sek_id'])) {
+				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
+				$search_var = strtolower(str_replace(" ", "_", $result['sek_title']));
+				if (@!is_array($return[$result['rmf_rec_pid']][$search_var])) {
+					$return[$result['rmf_rec_pid']][$search_var] = array();
 				}
-				if (in_array($result['xsdmf_fez_title'], $returnfields)) {
-					$return[$result['rmf_rec_pid']][$result['xsdmf_fez_title']] = $result['rmf_'.$result['xsdmf_data_type']]; // need to array_push because there can be multiple groups/users for a role
+				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']][$search_var])) {
+					array_push($return[$result['rmf_rec_pid']][$search_var], $result['rmf_'.$result['xsdmf_data_type']]);
+					sort($return[$result['rmf_rec_pid']][$search_var]);
 				}
 			}
-			$details = array_values($return);			
-			return $details; 
+		}
+		$details = array_values($return);			
+		$returns[$pid] = $details;
+		return $details; 
     }
 
 
@@ -533,23 +524,20 @@ class Record
      */
     function getAssigned($username)
     {
-        $returnfields = array("title", "type", "ret_id", "sta_id", "xdis_id", "sta_id", "datastream_id"); 
-        $returnfield_query = Misc::array_to_sql_string($returnfields);
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $stmt = " SELECT *
             FROM {$dbtp}record_matching_field AS r1
             INNER JOIN {$dbtp}xsd_display_matchfields AS x1
             ON r1.rmf_xsdmf_id=x1.xsdmf_id
-            LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 
-            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
-            WHERE (x1.xsdmf_fez_title IN ($returnfield_query)
-                    OR x1.xsdmf_element LIKE '!rule!role%')
-            AND r1.rmf_rec_pid IN (SELECT rmf.rmf_rec_pid FROM
+			INNER JOIN 
+			(SELECT distinct rmf.rmf_rec_pid FROM
                 {$dbtp}record_matching_field AS rmf
                 INNER JOIN {$dbtp}xsd_display_matchfields AS xdmf 
                 ON xdmf.xsdmf_id=rmf.rmf_xsdmf_id
                 WHERE xdmf.xsdmf_element='!sta_id' 
-                AND rmf.rmf_varchar!='2')
+                AND rmf.rmf_varchar!='2') as unpub on unpub.rmf_rec_pid = r1.rmf_rec_pid
+            LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 
+            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
           ";
 
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -557,7 +545,7 @@ class Record
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             $res = array();
         }
-        $list = Collection::makeReturnList($returnfields, $res);
+        $list = Collection::makeReturnList($res);
         $list2 = array();
         foreach ($list as $item) {
             if ($item['isEditor']) {

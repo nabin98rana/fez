@@ -1006,7 +1006,7 @@ class Auth
                 $rowAuthGroups = Auth::getAuthorisationGroups($row['pid']);
                 // get only the roles which are of relevance/use on the listing screen. This logic may be changed later.
                 $details[$key]['isCommunityAdministrator'] = in_array('Community Administrator', $rowAuthGroups); //editor is only for the children. To edit the actual community record details you need to be a community admin
-                $details[$key]['isEditor'] = in_array('Editor', $rowAuthGroups);
+                $details[$key]['isEditor'] = in_array('Editor', $rowAuthGroups) ;
                 $details[$key]['isViewer'] = in_array('Viewer', $rowAuthGroups);
                 $details[$key]['isLister'] = in_array('Lister', $rowAuthGroups);
                 //			$details[$key]['isApprover'] = in_array('Approver', $rowAuthGroups); // probably not necessary at the listing stage

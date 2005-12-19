@@ -157,7 +157,7 @@ function validateForm(f)
 				  <td align="left" class="default" nowrap> <b>Parent Collections: </b></td>
 				  <td align="left" class="default" nowrap> &nbsp;
 					{section name="i" loop=$parents}
-						<a href="{$rel_url}list.php?collection_pid={$parents[i].pid}">{$parents[i].title}</a> &nbsp;
+						<a href="{$rel_url}list.php?collection_pid={$parents[i].pid}">{$parents[i].title.0}</a> &nbsp;
 					{/section}
 				  </td>
 				</tr>
