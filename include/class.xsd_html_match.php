@@ -637,8 +637,8 @@ class XSD_HTML_Match
                     '" . Misc::escapeString($HTTP_POST_VARS["order"]) . "',
                     '" . Misc::escapeString($HTTP_POST_VARS["validation_types"]) . "',
                     " . $enabled . ",
-                    " . $required . ",
                     " . $indexed . ",
+                    " . $required . ",
                     " . $multiple . ",";
 			if ($HTTP_POST_VARS["multiple_limit"] != "") {
                $stmt .= Misc::escapeString($HTTP_POST_VARS["multiple_limit"]) . ",";

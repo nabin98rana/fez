@@ -47,7 +47,8 @@ class WorkflowTrigger
             0 => "Ingest", // for uploading the actual binaries and datastreams
             1 => "Update", // updating metadta records
             3 => "Delete", // deleting a record
-            4 => "Create"  // creating a record
+            4 => "Create",  // creating a record
+            5 => "Datastream"  // triggers on datastreams
             );
     }
 

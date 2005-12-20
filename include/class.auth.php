@@ -250,30 +250,63 @@ class Auth
 				if (!is_array(@$return[$result['rmf_rec_pid']])) {
 					$return[$result['rmf_rec_pid']]['exists'] = array();
 				}
-				if (in_array($result['xsdsel_title'], $securityfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-					if (!is_array(@$return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
-						$return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']] = array();
+				if (in_array($result['xsdsel_title'], $securityfields)  && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) )  {
+					if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
+						$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
 					}
-					if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']])) {
-						array_push($return[$result['rmf_rec_pid']]['FezACML'][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+					if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
+						array_push($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
 					}
 				}
+				if ($result['xsdmf_element'] == '!inherit_security') {
+					if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'])) {
+						$return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'] = array();
+					}
+					if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'])) {
+						array_push($return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'], $result['rmf_'.$result['xsdmf_data_type']]);
+					}
+				}								
 			}
 	
 			foreach ($return as $key => $record) {	
+
+/*				if (!is_array(@$record['FezACML']) || $return[$pid]['FezACML'][0]['!inherit_security'][0] == "on") {
+					// if there is no FezACML set for this row yet, then is it will inherit from above, so show this for the form
+					if ($return[$pid]['FezACML'][0]['!inherit_security'][0] == "on") {
+						$parentsACMLs = $return[$pid]['FezACML'];				
+						$return[$pid]['security'] = "include";
+					} else {
+						$return[$pid]['security'] = "inherit";
+						$parentsACMLs = array();
+					} 
+					Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid, $record['isMemberOf']);
+					$return[$pid]['FezACML'] = $parentsACMLs;
+				} else {
+					$return[$pid]['security'] = "exclude";			
+				}
+*/
+
+
 				if (is_array(@$record['FezACML'])) {
-					
+					//add it to the acml array and dont go further up the hierarchy only if inherity security is set
+					if ($return[$pid]['FezACML'][0]['!inherit_security'][0] == "on") {
+						Auth::getIndexParentACMLs($ACMLArray, $key);
+					}					
 					if (!is_array($returns[$pid])) {
 						$returns[$pid] = array();
 					}
-					array_push($returns[$pid], $record['FezACML']);
-					array_push($ACMLArray, $record['FezACML']); //add it to the acml array and dont go any further up the hierarchy
+					array_push($ACMLArray, $record['FezACML'][0]); 
+//					$returns[$pid] = $ACMLArray;
+					$returns[$pid] = $record['FezACML'];					
+//					$returns[$pid] = $record['FezACML'][0];					
 				} else {
 					Auth::getIndexParentACMLs($ACMLArray, $key);
 					if (!is_array($returns[$pid])) {
 						$returns[$pid] = array();
 					}
-					array_push($returns[$pid], $ACMLArray);
+//					$returns[$pid] = $ACMLArray;
+					$returns[$pid] = $record['FezACML'];		
+//					array_push($returns[$pid], $ACMLArray);
 				}
 			}
 		
@@ -390,6 +423,7 @@ class Auth
         // Usually everyone can list, view and view comments, this is set in the global "non restricted roles".
 
 		global $NonRestrictedRoles;
+		$securityfields = Auth::getAllRoles();
 		foreach ($indexArray as $indexKey => $indexRecord) {
 			$userPIDAuthGroups = $NonRestrictedRoles;
 			if (!is_array($indexRecord['FezACML'])) {
@@ -405,53 +439,57 @@ class Auth
 					if (in_array($role_name, $userPIDAuthGroups)) {
 						$userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role_name, false, true);
 					}
-					foreach ($role as $rule_name => $rule) {
-						foreach ($rule as $ruleRecord) {
-							// if the role is in the ACML then it is restricted so remove it
-
-
-							// @@@ CK - if the role has already been 
-							// found then don't check for it again
-							if (!in_array($role_name, $userPIDAuthGroups)) {
-								switch ($rule_name) {
-									case '!rule!role!AD_Group': 
-										if (@in_array($ruleRecord, $_SESSION[APP_LDAP_GROUPS_SESSION])) {
-											array_push($userPIDAuthGroups, $role_name);
-										}
-										break;
-									case '!rule!role!in_AD':
-										if (($ruleRecord == 'on') && Auth::isValidSession($_SESSION)
-												&& Auth::isInAD()) {
-											array_push($userPIDAuthGroups, $role_name);
-										}
-										break;
-									case '!rule!role!in_Fez':
-										if (($ruleRecord == 'on') && Auth::isValidSession($_SESSION) 
-												&& Auth::isInDB()) {
-											array_push($userPIDAuthGroups, $role_name);
-										}	
-										break;
-									case '!rule!role!AD_User':
-										if (Auth::isValidSession($_SESSION) 
-												&& $ruleRecord == Auth::getUsername()) {
-											array_push($userPIDAuthGroups, $role_name);
-										}
-										break;
-									case '!rule!role!Fez_Group':
-										if (@in_array($ruleRecord, $_SESSION[APP_INTERNAL_GROUPS_SESSION])) {
-											array_push($userPIDAuthGroups, $role_name);
-										}
-										break;	
-									case '!rule!role!Fez_User':
-										if (Auth::isValidSession($_SESSION)
-												&& $ruleRecord == Auth::getUserID()) {
-											array_push($userPIDAuthGroups, $role_name);
-										}
-										break;
-									default:
-										break;
-								}
-							}												
+					if (in_array($role_name, $securityfields) && $role_name != '0') {
+//						print_r($
+//						echo $role_name."<br />";
+						foreach ($role as $rule_name => $rule) {
+							foreach ($rule as $ruleRecord) {
+								// if the role is in the ACML then it is restricted so remove it
+	
+	
+								// @@@ CK - if the role has already been 
+								// found then don't check for it again
+								if (!in_array($role_name, $userPIDAuthGroups)) {
+									switch ($rule_name) {
+										case '!rule!role!AD_Group': 
+											if (@in_array($ruleRecord, $_SESSION[APP_LDAP_GROUPS_SESSION])) {
+												array_push($userPIDAuthGroups, $role_name);
+											}
+											break;
+										case '!rule!role!in_AD':
+											if (($ruleRecord == 'on') && Auth::isValidSession($_SESSION)
+													&& Auth::isInAD()) {
+												array_push($userPIDAuthGroups, $role_name);
+											}
+											break;
+										case '!rule!role!in_Fez':
+											if (($ruleRecord == 'on') && Auth::isValidSession($_SESSION) 
+													&& Auth::isInDB()) {
+												array_push($userPIDAuthGroups, $role_name);
+											}	
+											break;
+										case '!rule!role!AD_User':
+											if (Auth::isValidSession($_SESSION) 
+													&& $ruleRecord == Auth::getUsername()) {
+												array_push($userPIDAuthGroups, $role_name);
+											}
+											break;
+										case '!rule!role!Fez_Group':
+											if (@in_array($ruleRecord, $_SESSION[APP_INTERNAL_GROUPS_SESSION])) {
+												array_push($userPIDAuthGroups, $role_name);
+											}
+											break;	
+										case '!rule!role!Fez_User':
+											if (Auth::isValidSession($_SESSION)
+													&& $ruleRecord == Auth::getUserID()) {
+												array_push($userPIDAuthGroups, $role_name);
+											}
+											break;
+										default:
+											break;
+									}
+								}												
+							}
 						}
 					}
 				}			

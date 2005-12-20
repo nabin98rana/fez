@@ -44,6 +44,7 @@
 
 include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.misc.php");
+include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.record.php");
@@ -152,28 +153,10 @@ class Community
 		$securityfields = Auth::getAllRoles();
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = array();
-		foreach ($res as $result) {		
-			if (in_array($result['xsdsel_title'], $securityfields) 
-                    && ($result['xsdmf_element'] != '!rule!role!name') 
-                    && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-				$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']][]
-                   = $result['rmf_'.$result['xsdmf_data_type']]; // need to array_push because there can be multiple groups/users for a role
-			}
-			if (is_numeric($result['sek_id'])) {
-				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				$search_var = strtolower(str_replace(" ", "_", $result['sek_title']));
-				if (@!is_array($return[$result['rmf_rec_pid']][$search_var])) {
-					$return[$result['rmf_rec_pid']][$search_var] = array();
-				}
-				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']][$search_var])) {
-					array_push($return[$result['rmf_rec_pid']][$search_var], $result['rmf_'.$result['xsdmf_data_type']]);
-					sort($return[$result['rmf_rec_pid']][$search_var]);
-				}
-			}
-		}
-        $return = array_values($return);
-		$return = Auth::getIndexAuthorisationGroups($return);
+		$return = Collection::makeReturnList($res);
+
 		$hidden_rows = count($return);
+		$return = Auth::getIndexAuthorisationGroups($return);
 		$return = Misc::cleanListResults($return);
 		$total_rows = count($return);
 		if (($start + $max) < $total_rows) {

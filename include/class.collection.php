@@ -244,60 +244,11 @@ class Collection
             on (k1.sek_id = x1.xsdmf_sek_id)
             ";
 
-		$securityfields = Auth::getAllRoles();
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = array();
-		foreach ($res as $result) {		
-			if (in_array($result['xsdsel_title'], $securityfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-				if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
-					$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
-				}
-				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
-					array_push($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
-				}
-			}
-			// get the document type - turned off for now because we know we are only getting collections.. this may change in the future
-/*			if (!is_array(@$return[$result['rmf_rec_pid']]['xdis_title'])) {
-				$return[$result['rmf_rec_pid']]['xdis_title'] = array();
-				array_push($return[$result['rmf_rec_pid']]['xdis_title'], $result['xdis_title']);
-			} */
-			if (is_numeric($result['sek_id'])) {
-				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				$search_var = strtolower(str_replace(" ", "_", $result['sek_title']));
-				if (@!is_array($return[$result['rmf_rec_pid']][$search_var])) {
-					$return[$result['rmf_rec_pid']][$search_var] = array();
-				}
-				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']][$search_var])) {
-					array_push($return[$result['rmf_rec_pid']][$search_var], $result['rmf_'.$result['xsdmf_data_type']]);
-					sort($return[$result['rmf_rec_pid']][$search_var]);
-				}
-			}
-			// get thumbnails
-			if ($result['xsdmf_element'] == "!datastream!ID") {
-				if (is_numeric(strpos($result['rmf_varchar'], "thumbnail_"))) {
-					if (!is_array(@$return[$result['rmf_rec_pid']]['thumbnails'])) {
-						$return[$result['rmf_rec_pid']]['thumbnails'] = array();
-					}
-					array_push($return[$result['rmf_rec_pid']]['thumbnails'], $result['rmf_varchar']);
-				} else {
-					if (!is_array(@$return[$result['rmf_rec_pid']]['datastreams'])) {
-						$return[$result['rmf_rec_pid']]['datastreams'] = array();
-					}
-					array_push($return[$result['rmf_rec_pid']]['datastreams'], $result['rmf_varchar']);
-				}
-			} 
-		}
-		foreach ($return as $pid_key => $row) {
-			if (!is_array(@$row['FezACML'])) {
-				$parentsACMLs = array();
-//				Auth::getIndexParentACMLs(&$parentsACMLs, $pid_key);
-				Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid_key, $row['ismemberof']);
-				$return[$pid_key]['FezACML'] = $parentsACMLs;
-			}
-		}
-		$return = array_values($return);
-		$return = Auth::getIndexAuthorisationGroups($return);
+		$return = Collection::makeReturnList($res);
 		$hidden_rows = count($return);
+		$return = Auth::getIndexAuthorisationGroups($return);		
 		$return = Misc::cleanListResults($return);
 		$total_rows = count($return);
 		if (($start + $max) < $total_rows) {
@@ -472,15 +423,36 @@ class Collection
     } 
 	
     function makeReturnList($res) {
+		$securityfields = Auth::getAllRoles();
         $return = array();
-        foreach ($res as $result) {		
-            if (($result['xsdmf_element'] != '!rule!role!name') 
-                    && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-                // need to array_push because there can be multiple groups/users for a role
-                $return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']][] 
-                    = $result['rmf_'.$result['xsdmf_data_type']]; 
-            }
-
+		foreach ($res as $result) {
+			if (in_array($result['xsdsel_title'], $securityfields)  && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) )  {
+				if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
+					$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
+				}
+				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
+					array_push($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+				}
+			}
+			if ($result['xsdmf_element'] == '!inherit_security') {
+				if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'])) {
+					$return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'] = array();
+				}
+				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'])) {
+					array_push($return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'], $result['rmf_'.$result['xsdmf_data_type']]);
+				}
+			}
+			if ($result['sek_title'] == 'isMemberOf') {
+				if (!is_array(@$return[$result['rmf_rec_pid']]['isMemberOf'])) {
+					$return[$result['rmf_rec_pid']]['isMemberOf'] = array();
+				}
+				array_push($return[$result['rmf_rec_pid']]['isMemberOf'], $result['rmf_varchar']);
+			}
+			// get the document type
+			if (!is_array(@$return[$result['rmf_rec_pid']]['xdis_title'])) {
+				$return[$result['rmf_rec_pid']]['xdis_title'] = array();
+				array_push($return[$result['rmf_rec_pid']]['xdis_title'], $result['xdis_title']);
+			}
 			if (is_numeric($result['sek_id'])) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
 				$search_var = strtolower(str_replace(" ", "_", $result['sek_title']));
@@ -492,7 +464,7 @@ class Collection
 					sort($return[$result['rmf_rec_pid']][$search_var]);
 				}
 			}
-			
+			// get thumbnails
 			if ($result['xsdmf_element'] == "!datastream!ID") {
 				if (is_numeric(strpos($result['rmf_varchar'], "thumbnail_"))) {
 					if (!is_array(@$return[$result['rmf_rec_pid']]['thumbnails'])) {
@@ -506,25 +478,32 @@ class Collection
 					array_push($return[$result['rmf_rec_pid']]['datastreams'], $result['rmf_varchar']);
 				}
 			}
-        }
+		}
 
-        foreach ($return as $pid_key => $row) {
+		foreach ($return as $pid_key => $row) {
 			//if there is only one thumbnail DS then use it
 			if (count(@$row['thumbnails']) == 1) {
 				$return[$pid_key]['thumbnail'] = $row['thumbnails'][0];
 			} else {
 				$return[$pid_key]['thumbnail'] = 0;
 			}
-            if (!is_array(@$row['FezACML'])) {
-                $parentsACMLs = array();
-                Auth::getIndexParentACMLs(&$parentsACMLs, $pid_key);
-                $return[$pid_key]['FezACML'] = $parentsACMLs;
-            }
-        }
-
-        $return = array_values($return);
-        $return = Auth::getIndexAuthorisationGroups($return);
-        return $return;
+			if (!is_array(@$row['FezACML']) || $return[$pid_key]['FezACML'][0]['!inherit_security'][0] == "on") {
+				// if there is no FezACML set for this row yet, then is it will inherit from above, so show this for the form
+				if ($return[$pid_key]['FezACML'][0]['!inherit_security'][0] == "on") {
+					$parentsACMLs = $return[$pid_key]['FezACML'];				
+					$return[$pid_key]['security'] = "include";
+				} else {
+					$return[$pid_key]['security'] = "inherit";
+					$parentsACMLs = array();
+				} 
+				Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid_key, $row['isMemberOf']);
+				$return[$pid_key]['FezACML'] = $parentsACMLs;
+			} else {
+				$return[$pid_key]['security'] = "exclude";			
+			}
+		}
+		$return = array_values($return);
+		return $return;
     }
 
     /**
@@ -678,75 +657,11 @@ class Collection
 				 ORDER BY
 				 	r1.rmf_rec_pid";
 
-		$securityfields = Auth::getAllRoles();
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = array();
-		foreach ($res as $result) {
-			if (in_array($result['xsdsel_title'], $securityfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-				if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
-					$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
-				}
-				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
-					array_push($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
-				}
-			}
-			if ($result['sek_title'] == 'isMemberOf') {
-				if (!is_array(@$return[$result['rmf_rec_pid']]['isMemberOf'])) {
-					$return[$result['rmf_rec_pid']]['isMemberOf'] = array();
-				}
-				array_push($return[$result['rmf_rec_pid']]['isMemberOf'], $result['rmf_varchar']);
-			}
-			// get the document type
-			if (!is_array(@$return[$result['rmf_rec_pid']]['xdis_title'])) {
-				$return[$result['rmf_rec_pid']]['xdis_title'] = array();
-				array_push($return[$result['rmf_rec_pid']]['xdis_title'], $result['xdis_title']);
-			}
-			if (is_numeric($result['sek_id'])) {
-				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				$search_var = strtolower(str_replace(" ", "_", $result['sek_title']));
-				if (@!is_array($return[$result['rmf_rec_pid']][$search_var])) {
-					$return[$result['rmf_rec_pid']][$search_var] = array();
-				}
-				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']][$search_var])) {
-					array_push($return[$result['rmf_rec_pid']][$search_var], $result['rmf_'.$result['xsdmf_data_type']]);
-					sort($return[$result['rmf_rec_pid']][$search_var]);
-				}
-			}
-			// get thumbnails
-			if ($result['xsdmf_element'] == "!datastream!ID") {
-				if (is_numeric(strpos($result['rmf_varchar'], "thumbnail_"))) {
-					if (!is_array(@$return[$result['rmf_rec_pid']]['thumbnails'])) {
-						$return[$result['rmf_rec_pid']]['thumbnails'] = array();
-					}
-					array_push($return[$result['rmf_rec_pid']]['thumbnails'], $result['rmf_varchar']);
-				} else {
-					if (!is_array(@$return[$result['rmf_rec_pid']]['datastreams'])) {
-						$return[$result['rmf_rec_pid']]['datastreams'] = array();
-					}
-					array_push($return[$result['rmf_rec_pid']]['datastreams'], $result['rmf_varchar']);
-				}
-			}
-		}
-
-		foreach ($return as $pid_key => $row) {
-			//if there is only one thumbnail DS then use it
-			if (count(@$row['thumbnails']) == 1) {
-				$return[$pid_key]['thumbnail'] = $row['thumbnails'][0];
-			} else {
-				$return[$pid_key]['thumbnail'] = 0;
-			}
-			if (!is_array(@$row['FezACML'])) {
-				$parentsACMLs = array();
-				Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid_key, $row['isMemberOf']);
-				$return[$pid_key]['FezACML'] = $parentsACMLs;
-			}
-		}
-
-		$return = array_values($return);
-
-		$return = Auth::getIndexAuthorisationGroups($return);
-
+		$return = Collection::makeReturnList($res);
 		$hidden_rows = count($return);
+		$return = Auth::getIndexAuthorisationGroups($return);
 		$return = Misc::cleanListResults($return);
 		$total_rows = count($return);
 		if (($start + $max) < $total_rows) {
@@ -756,7 +671,6 @@ class Collection
 		}
 		$total_pages = ceil($total_rows / $max);
         $last_page = $total_pages - 1;
-		$hidden_rows = count($return);
 		$return = Misc::limitListResults($return, $start, ($start + $max));		
 		// add the available workflow trigger buttons
 		foreach ($return as $ret_key => $ret_wf) {
@@ -775,7 +689,7 @@ class Collection
 						$workflows1[] = $trigger;
 					}
 				}
-				$workflows = $workflows1;				
+				$workflows = $workflows1;
 			} 
 			$return[$ret_key]['workflows'] = $workflows; 
 		}  
@@ -997,53 +911,7 @@ class Collection
         } else {
 
 			$return = array();
-			foreach ($res as $result) {
-				if (in_array($result['xsdsel_title'], $securityfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-					$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']][]
-					   = $result['rmf_'.$result['xsdmf_data_type']]; // need to array_push because there can be multiple groups/users for a role
-				}
-				if ($result['sek_title'] == 'isMemberOf') {
-					$return[$result['rmf_rec_pid']]['isMemberOf'][] = $result['rmf_varchar'];
-				}
-				// get the document type
-				if (!is_array(@$return[$result['rmf_rec_pid']]['xdis_title'])) {
-					$return[$result['rmf_rec_pid']]['xdis_title'] = array();
-					array_push($return[$result['rmf_rec_pid']]['xdis_title'], $result['xdis_title']);
-				}						
-				if (is_numeric($result['sek_id'])) {
-					$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-					$search_var = strtolower(str_replace(" ", "_", $result['sek_title']));
-					if (@!is_array($return[$result['rmf_rec_pid']][$search_var])) {
-						$return[$result['rmf_rec_pid']][$search_var] = array();
-					}
-					if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']][$search_var])) {
-						array_push($return[$result['rmf_rec_pid']][$search_var], $result['rmf_'.$result['xsdmf_data_type']]);
-						sort($return[$result['rmf_rec_pid']][$search_var]);
-					}
-				}				// get thumbnails
-				if ($result['xsdmf_element'] == "!datastream!ID") {
-					if (is_numeric(strpos($result['rmf_varchar'], "thumbnail_"))) {
-						$return[$result['rmf_rec_pid']]['thumbnails'][] = $result['rmf_varchar'];
-					} else {
-						$return[$result['rmf_rec_pid']]['datastreams'][] = $result['rmf_varchar'];
-					}
-				}
-			}
-			foreach ($return as $pid_key => $row) {
-				//if there is only one thumbnail DS then use it
-				if (count(@$row['thumbnails']) == 1) {
-					$return[$pid_key]['thumbnail'] = $row['thumbnails'][0];
-				} else {
-					$return[$pid_key]['thumbnail'] = 0;
-				}
-	
-				if (!is_array(@$row['FezACML'])) {
-					$parentsACMLs = array();
-					Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid_key, @$row['isMemberOf']);
-					$return[$pid_key]['FezACML'] = $parentsACMLs;
-				}
-			}		
-			$return = array_values($return);
+			$return = Collection::makeReturnList($res);
 			$hidden_rows = count($return);
 			$return = Auth::getIndexAuthorisationGroups($return);
 			$return = Misc::cleanListResults($return);
@@ -1392,58 +1260,9 @@ class Collection
                     )
             ORDER BY
             r1.rmf_rec_pid";
-		$securityfields = Auth::getAllRoles();
-//		$returnfields = array("title", "date", "type", "xdis_title", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = array();
-		foreach ($res as $result) {
-			if (in_array($result['xsdsel_title'], $securityfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-				$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']][] 
-                    = $result['rmf_'.$result['xsdmf_data_type']]; // need to array_push because there can be multiple groups/users for a role
-			}
-			if ($result['sek_title'] == 'isMemberOf') {
-				$return[$result['rmf_rec_pid']]['isMemberOf'][] = $result['rmf_varchar'];
-			}
-			// get the document type
-			if (!is_array(@$return[$result['rmf_rec_pid']]['xdis_title'])) {
-				$return[$result['rmf_rec_pid']]['xdis_title'] = array();
-				array_push($return[$result['rmf_rec_pid']]['xdis_title'], $result['xdis_title']);
-			}			
-			if (is_numeric($result['sek_id'])) {
-				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				$search_var = strtolower(str_replace(" ", "_", $result['sek_title']));
-				if (@!is_array($return[$result['rmf_rec_pid']][$search_var])) {
-					$return[$result['rmf_rec_pid']][$search_var] = array();
-				}
-				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']][$search_var])) {
-					array_push($return[$result['rmf_rec_pid']][$search_var], $result['rmf_'.$result['xsdmf_data_type']]);
-					sort($return[$result['rmf_rec_pid']][$search_var]);
-				}
-			}
-			// get thumbnails
-			if ($result['xsdmf_element'] == "!datastream!ID") {
-				if (is_numeric(strpos($result['rmf_varchar'], "thumbnail_"))) {
-					$return[$result['rmf_rec_pid']]['thumbnails'][] = $result['rmf_varchar'];
-				} else {
-					$return[$result['rmf_rec_pid']]['datastreams'][] = $result['rmf_varchar'];
-				}
-			}
-		}		
-		foreach ($return as $pid_key => $row) {
-			//if there is only one thumbnail DS then use it
-			if (count(@$row['thumbnails']) == 1) {
-				$return[$pid_key]['thumbnail'] = $row['thumbnails'][0];
-			} else {
-				$return[$pid_key]['thumbnail'] = 0;
-			}
-
-			if (!is_array(@$row['FezACML'])) {
-				$parentsACMLs = array();
-				Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid_key, $row['isMemberOf']);
-				$return[$pid_key]['FezACML'] = $parentsACMLs;
-			}
-		}
-		$return = array_values($return);
+		$return = Collection::makeReturnList($res);
 		$hidden_rows = count($return);
 		$return = Auth::getIndexAuthorisationGroups($return);
 		$return = Misc::cleanListResults($return);

@@ -50,6 +50,7 @@ include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
+include_once(APP_INC_PATH . "class.workflow.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
@@ -96,6 +97,18 @@ $xdis_id = $record->getXmlDisplayId();
 $xdis_title = XSD_Display::getTitle($xdis_id);
 $tpl->assign("xdis_title", $xdis_title);
 $xdis_list = XSD_Display::getAssocListDocTypes(); // @@@ CK - 24/8/05 added for collections to be able to select their child document types/xdisplays
+$strict = false;
+/*$workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Update', $xdis_id, $strict);
+$workflows1 = array();
+if (is_array($workflows)) {
+	foreach ($workflows as $trigger) {
+		if (Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
+			$workflows1[] = $trigger;
+		}
+	}
+	$workflows = $workflows1;
+} 
+*/
 
 $acceptable_roles = array("Community_Admin", "Editor", "Creator", "Community_Admin");
 if (Auth::checkAuthorisation($pid, $acceptable_roles, $HTTP_SERVER_VARS['PHP_SELF']."?".$HTTP_SERVER_VARS['QUERY_STRING']) == true) {
@@ -190,6 +203,11 @@ foreach ($xsd_display_fields  as $dis_field) {
 
 $datastreams = Fedora_API::callGetDatastreams($pid);
 $datastreams = Misc::cleanDatastreamList($datastreams);
+$datastream_workflows = WorkflowTrigger::getListByTrigger('-1', 5);
+
+foreach ($datastreams as $ds_key => $ds) {
+	$datastreams[$ds_key]['workflows'] = $datastream_workflows;
+} 
 $parents = $record->getParents(); // RecordObject
 $tpl->assign("parents", $parents);
 $title = $record->getTitle(); // RecordObject
