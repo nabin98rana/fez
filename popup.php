@@ -80,7 +80,12 @@ switch ($cat)
             $id = Misc::GETorPOST('id');
             $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
             $pid = $wfstatus->pid;
-            $res = Record::update($pid, array(""), array("FezACML"));
+            $dsID = $wfstatus->dsID;
+			if ($dsID != "") {
+	            $res = Record::editDatastreamSecurity($pid, $dsID);			
+			} else {
+	            $res = Record::update($pid, array(""), array("FezACML"));
+			}
             $tpl->assign("update_form_result", $res);
             $wfstatus->checkStateChange(true);
             break;

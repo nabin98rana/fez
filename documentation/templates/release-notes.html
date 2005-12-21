@@ -11,11 +11,11 @@
  </style>
 
 <link rel="stylesheet" type="text/css" href="css/print.css" media="print" />
- <title>PRODUCTNAME 1.0.0 BETA: Release Notes</title>
+ <title>Fez 1.2.0 Beta: Release Notes</title>
 </head>
 
 <body>
- <h2>Fez 1.1 Beta: Release Notes</h2>
+ <h2>Fez 1.2.0 Beta: Release Notes</h2>
 
  <div class="app">
 <div class="readyset">
@@ -30,12 +30,12 @@
   <tr>
    <th>Release Number:</th> 
    <td>
-     1.1 Beta </td> 
+     1.2.0 Beta </td> 
   </tr>
   <tr>
    <th>Release Date:</th> 
    <td>
-     2005/11/17</td> 
+     Not released yet</td> 
   </tr>
   <tr>
    <th>Support:</th> 
@@ -51,7 +51,7 @@
  <h3>Introduction</h3>
 
  <p>This document contains the release notes for Fez version
- 1.1 Beta.  The following sections describe the release in detail and
+ 1.2.0 Beta.  The following sections describe the release in detail and
  provide late-breaking or other information that supplements the
  main documentation.</p>
 
@@ -83,23 +83,33 @@ Please use our <a href="http://sourceforge.net/projects/fez">Sourceforge site</a
    <dt>New Features </dt>
    </dl>
  <ul>
-   <li> ePrints Batch Import into a Fez collection </li>
-   <li>Fez/Fedora object reindexer (indexes into a Fez collection)</li>
-   <li>AJAX based Image datastream previewer (click on the thumbnails in View Details and the image will load in the preview pane)</li>
+   <li>Security able to be set down to the collection, object and datastream level.</li>
+   <li>Batch imports now done in the background and monitored through a progress bar style tracker</li>
+   <li>Added 'Author ID' area so authors can be uniquely identified, even if their names are displayed differently in objects.</li>
  </ul>
  <dl class="sample1">
    <dt>Improvements/Bugfixes</dt>
  </dl>
  <ul>
-   <li> Support for Fedora 2.1 SSL server through setup scripts (thanks to support from the fez-users mailing list - specifically Eric Jutrzenka)</li>
-   <li>Default workflows now preset to allow Adminstrators to publish objects immediately on creation</li>
-   <li>AJAX (NAJAX/XOAD) PHP parse error with some versions of PHP 5 fixed (was in Najax Serializer class)</li>
+   <li>Rewrote much of the SQL to improve listing performance and be compatible with MySQL 5</li>
+   <li>Fixed recently added list to show Today, Yesterday and last thursday if thursday is todays day name</li>
+<li>Fixed a javascript bug in IE
+If there are no images to preview then don't try to run the preview function.</li>
+ <li>Updated nusoap to the latest version 1.95</li>
+ <li>Added thumbnail preview for 'My Fez' records</li>
+ <li>Fixed problem where controlled vocab selector was only saving the first of the multiple selections.</li>
+ <li>Added latest version of PEAR Benchmark/Timer.php</li>
+ <li>Changed 'Done' to 'Save Changes' in the default workflow buttons</li>
+ <li>Added default value for checkboxes in the XSDMF</li>
+ <li>Added extra install notes for retain pids and lib-tidy</li>
+ <li>Removed any reference to xsdmf_fez_title</li>
+ <li>Removed xsdmf_fez_title from sql database</li>
  </ul>
  <dl class="sample1">
    <dt>Remaining Fez Issues/Bugs </dt>
  </dl>
  <ul>
-   <li>Fez still only works with MySQL 4.1, and not MySQL 5 yet. </li>
+   <li>None known.  </li>
    </ul>
  <dl class="sample1">
    <dt>Manifest</dt>

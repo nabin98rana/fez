@@ -57,13 +57,14 @@ $tpl->assign("isAdministrator", $isAdministrator);
 
 $xdis_id = Misc::GETorPOST('xdis_id');
 $pid = Misc::GETorPOST('pid');
+$dsID = Misc::GETorPOST("dsID");
 $href= Misc::GETorPOST('href');
 $tpl->assign("href", $href);
 $cat = Misc::GETorPOST('cat');
 if ($cat == 'select_workflow') {
     $wft_id = Misc::GETorPOST("wft_id");
-    $pid = Misc::GETorPOST("pid");
-    Workflow::start($wft_id, $pid, $xdis_id, $href);
+//    $pid = Misc::GETorPOST("pid");
+    Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID);
 }
 
 $message = '';
@@ -73,7 +74,6 @@ $tpl->assign('wfl_list', $wfl_list);
 $tpl->assign('xdis_list', $xdis_list);
 if ($pid == -1) {
     // the -1 thing only works when creating a record, you can't update a non-object.
-
 } elseif (empty($pid) || $pid == -2) {
     // Update called from my-fez page - look for workflows that allow selection of an object 
     // (assigned with -2 == None)
@@ -81,6 +81,10 @@ if ($pid == -1) {
     $tpl->assign("pid", $pid);
     $workflows = WorkflowTrigger::getListByTriggerAndXDIS_ID(-1, 'Update', -2, true);
     $tpl->assign('workflows', $workflows);
+} elseif (!empty($dsID) && !empty($wft_id) && !empty($pid)) {
+    $tpl->assign("pid", $pid);
+	$tpl->assign("dsID", $dsID);
+	
 } else {
     $tpl->assign("pid", $pid);
 

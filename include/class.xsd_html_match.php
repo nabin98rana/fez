@@ -289,22 +289,22 @@ class XSD_HTML_Match
 				} elseif ($exclude_str != "") {
 					$stmt .= "
 					inner join
-					(SELECT d1.xdis_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1, " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd WHERE xsd.xsd_id=d1.xdis_xsd_id AND xsd.xsd_title not in ('".$exclude_str."')) as displays on (m1.xsdmf_xdis_id in (displays.xdis_id) AND relsall.xsdrel_xdis_id in (displays.xdis_id))";
+					(SELECT d1.xdis_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1, " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd WHERE xsd.xsd_id=d1.xdis_xsd_id AND xsd.xsd_title not in ('".$exclude_str."')) as displays on (m1.xsdmf_xdis_id in (displays.xdis_id) OR relsall.xsdrel_xdis_id in (displays.xdis_id))";
 				}
 //				if ($specify_str == "") { 
 					$stmt .= "
 					inner join
-					(SELECT r2.xsdrel_xdis_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship r2 inner join
+					(SELECT r2.xsdrel_xdis_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship r2 right join
 						(SELECT m3.xsdmf_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields as m3 WHERE m3.xsdmf_xdis_id=".$xdis_id.")
 						as rels on r2.xsdrel_xsdmf_id in (rels.xsdmf_id)) as relsall on ((m1.xsdmf_xdis_id in (relsall.xsdrel_xdis_id))
 						OR (m1.xsdmf_xdis_id = ".$xdis_id." AND xsdmf_enabled=1))";
 //				}
 				$stmt .= "
 					left join
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement as s1 on (xsdsel_id = xsdmf_xsdsel_id)";
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement as s1 on (s1.xsdsel_id = m1.xsdmf_xsdsel_id)";
 		// @@@ CK - Added order statement to custom fields displayed in a desired order
+
 		$stmt .= " ORDER BY xsdmf_order, xsdsel_order ASC";
-//		echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

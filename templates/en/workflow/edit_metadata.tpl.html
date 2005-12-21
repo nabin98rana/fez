@@ -457,10 +457,10 @@ function selectDateField(field_name, day, month, year)
 						{elseif $datastreams[d].security == 'inherit'}
 							{assign var="wf_icon" value="images/security_inherit.gif"}
 						{else}
-							{assign var="wf_icon" value=$datastreams[d].workflows[w].wft_icon}
+							{assign var="wf_icon" value="images/security_inherit.gif"}
 						{/if}
 					{else}
-						{assign var="wf_icon" value=$datastreams[d].workflows[w].wft_icon}
+						{assign var="wf_icon" value="images/security_inherit.gif"}
 					{/if}
 
 					&nbsp;<a href='{$rel_url}workflow/update.php?pid={$pid|escape:"html"}&dsID={$datastreams[d].ID}&cat=select_workflow&wft_id={$datastreams[d].workflows[w].wft_id}&href={$smarty.server.REQUEST_URI}'><img title="{$datastreams[d].workflows[w].wfl_title}" align="absmiddle" src="{$rel_url}{$wf_icon}" border="0"></a>

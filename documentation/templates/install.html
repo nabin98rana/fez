@@ -30,13 +30,13 @@
   <tr>
    <th>Release Number:</th> 
    <td>
-     1.0.0
+     1.2.0
 BETA</td> 
   </tr>
   <tr>
    <th>Release Date:</th> 
    <td>
-     2005/11/17
+     Not released yet
    </td> 
   </tr>
   <tr>
@@ -75,7 +75,7 @@ BETA</td>
  <dl>
   <dt>What other software must be installed first?</dt>
 
-  <dd class="sample1">Fez has been tested successfully on Windows and Linux servers. Before you can install this product, you must install the
+  <dd class="sample1">Fez has been tested successfully on Windows, Linux and Apple OS/X operating systems. Before you can install this product, you must install the
   following packages. This can all be installed on the one server, or separate servers for mysql, apache, fedora if you wish.
     <ul><li><a href="http://www.fedora.info/">Fedora 2.1 Digital Repository</a>
       <ul>
@@ -87,7 +87,7 @@ BETA</td>
           </strong>          
             <ul>
                 <li>We have had performance issues while using the Fedora 2.1b XACML engine, so suggest setting it to &quot;permit-all-requests&quot; (turns it off) until this is fixed with the final 2.1 release. With this setting Fedora still requires authentication for the API-M, but we strongly suggest you firewall the Fedora server to allow access to port 8080 (Fedora tomcat port) to only the Fez webserver. If you do not experience noticable performance degradation with XACML set to &quot;enforce-policies&quot; (turned on) we still reccommend firewalling the Fedora server for added security. </li>
-                <li>Since Fez has its own &quot;index&quot; for searching through Fedora we suggest turning off the Fedora Kowari index as this will improve Fedora performance. </li>
+                <li>Since Fez has its own &quot;index&quot; for searching through Fedora we suggest turning off the Fedora Kowari index as this will improve Fedora performance. Fez only requires the Kowari resource index to be turned on if you wish to reindex Fedora objects back into Fez.</li>
             </ul>
         </li>
       </ul>
@@ -117,9 +117,9 @@ BETA</td>
             </li>
           </ul>
     </li>
-    <li><a href="http://dev.mysql.com/">MySQL 4.1 database</a>
+    <li><a href="http://dev.mysql.com/">MySQL 4.1+ database</a>
       <ul>
-        <li><strong>Note:</strong> We are still sorting out some bugs with MySQL 5, but hope to support it soon, but for now <strong>Fez will not run on MySQL 5</strong>. </li>
+        <li><strong>Note:</strong> We think we have sorted out the bugs with Fez and MySQL 5, so Fez 1.2 should work with it now. </li>
       </ul>
     </li>
     <li><a href="http://www.php.net/">PHP 5</a>

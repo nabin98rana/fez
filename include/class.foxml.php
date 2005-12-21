@@ -159,7 +159,6 @@ class Foxml
      */
     function handleMultipleInstance(&$attrib_value, &$indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $attrib_loop_index, $element_prefix, $i) {
         global $HTTP_POST_VARS;
-		
 		if ($xsdmf_details['xsdmf_html_input'] == 'author_selector') {
                     ;
 		} else {

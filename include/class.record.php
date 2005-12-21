@@ -50,6 +50,7 @@ include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.pager.php");
 include_once(APP_INC_PATH . "class.workflow.php");
 include_once(APP_INC_PATH . "class.status.php");
+include_once(APP_INC_PATH . "class.foxml.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
@@ -129,6 +130,40 @@ class Record
         } else {
             return -1;
         }
+    }
+
+    /**
+     * Method used to edit the security (FezACML) details of a specific Datastream. 
+     *
+     * @access  public
+     * @param   string $pid The persistent identifier of the record
+     * @param   string $dsID The datastream ID of the datastream
+     * @return  integer 1 if the update worked, -1 otherwise
+     */
+    function editDatastreamSecurity($pid, $dsID)
+    {
+//        $record = new RecordObject($pid);
+		$xdis_id = XSD_Display::getID('FezACML for Datastreams');
+		$display = new XSD_DisplayObject($xdis_id);
+        list($array_ptr,$xsd_element_prefix, $xsd_top_element_name, $xml_schema) 
+            = $display->getXsdAsReferencedArray();
+		$indexArray = array();
+		$xmlObj .= "<".$xsd_element_prefix.$xsd_top_element_name." ";
+		$xmlObj .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $pid);
+		$xmlObj .= ">\n";
+		$xmlObj .= Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, '', '', '');
+        $xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">\n";
+//		echo $xmlObj;
+		$FezACML_dsID = "FezACML_".$dsID;
+		if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {
+			Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A", "FezACML security for datastream - ".$dsID, 
+					$xmlObj, "text/xml", "true");
+		} else {
+			Fedora_API::getUploadLocation($pid, $FezACML_dsID, $xmlObj, "FezACML security for datastream - ".$dsID, 
+					"text/xml", "X");
+		}	
+		Record::insertIndexBatch($pid, $indexArray, array(), array(), array("FezACML"));
+//		exit;
     }
 
    /**

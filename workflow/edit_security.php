@@ -46,6 +46,7 @@ include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.community.php");
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
+include_once(APP_INC_PATH . "class.xsd_display.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
@@ -66,6 +67,7 @@ $id = Misc::GETorPOST('id');
 $tpl->assign("id", $id);
 $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
 $pid = $wfstatus->pid;
+$dsID = $wfstatus->dsID;
 
 $wfstatus->setTemplateVars($tpl);
 
@@ -92,11 +94,14 @@ if (!empty($community_pid)) {
 }
 
 $tpl->assign("pid", $pid);
+$tpl->assign("dsID", $dsID);
 $record = new RecordObject($pid);
 $record->getDisplay();
 $pid_title = $record->getTitle();
 $tpl->assign("pid_title", $pid_title);
+
 $xdis_id = $record->getXmlDisplayId();
+
 $xdis_title = XSD_Display::getTitle($xdis_id);
 $tpl->assign("xdis_title", $xdis_title);
 $xdis_list = XSD_Display::getAssocListDocTypes(); // @@@ CK - 24/8/05 added for collections to be able to select their child document types/xdisplays
@@ -123,7 +128,13 @@ $tpl->assign('sta_id', $sta_id);
 
 $jtaskData = "";
 $maxG = 0;
-$xsd_display_fields = $record->display->getMatchFieldsList(array(), array("FezACML"));  // Specify FezACML as the only display needed for security
+if ($dsID != "") {
+	$FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
+	$xsd_display_fields = XSD_HTML_Match::getListByDisplay($FezACML_xdis_id);
+} else {
+	$xsd_display_fields = $record->display->getMatchFieldsList(array(), array("FezACML"));  // Specify FezACML as the only display needed for security
+}
+
 //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
 foreach ($xsd_display_fields  as $dis_key => $dis_field) {
 	if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple') {
@@ -133,8 +144,6 @@ foreach ($xsd_display_fields  as $dis_key => $dis_field) {
 		if (!empty($dis_field["xsdmf_dynamic_selected_option"]) && $dis_field["xsdmf_dynamic_selected_option"] != "none") {
 			eval("\$xsd_display_fields[\$dis_key]['selected_option'] = " . $dis_field["xsdmf_dynamic_selected_option"] . ";");
 		}
-
-
 	}
 	if ($dis_field["xsdmf_html_input"] == 'contvocab') {
 		$xsd_display_fields[$dis_key]['field_options'] = $cvo_list['data'][$dis_field['xsdmf_cvo_id']];

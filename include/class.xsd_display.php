@@ -348,6 +348,30 @@ class XSD_Display
     }
 
     /**
+     * Method used to get the XSD Display ID of a XSD Display title
+     *
+     * @access  public
+	 * @param   string $xdis_title The XSD title to search by.
+     * @return  integer $res the xdis_id
+     */
+    function getID($xdis_title)
+    {
+        $stmt = "SELECT
+                   xdis_id
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
+                 WHERE
+                    xdis_title = '".$xdis_title."'";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
+
+    /**
      * Method used to get the XSD Display IDs of a list of XSD Display titles
      *
      * @access  public
