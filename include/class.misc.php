@@ -47,6 +47,7 @@ include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
+include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
 include_once(APP_INC_PATH . "class.xsd_loop_subelement.php");
 
@@ -319,8 +320,9 @@ class Misc
 		$original_dsList = $dsList;		
 		$return = array();
 		foreach ($dsList as $key => $ds) {		
+			$pid = $key;
 			$keep = true;
-            if ((is_numeric(strpos($ds['ID'], "thumbnail_"))) || (is_numeric(strpos($ds['ID'], "presmd_"))) )   {
+            if ((is_numeric(strpos($ds['ID'], "thumbnail_"))) || (is_numeric(strpos($ds['ID'], "presmd_"))) || (is_numeric(strpos($ds['ID'], "FezACML_"))) )   {
                 $keep = false;
             }
 			// now try and find a thumbnail datastream of this datastream
@@ -337,6 +339,32 @@ class Misc
 			foreach ($original_dsList as $o_key => $o_ds) {
 				if ($presmd == $o_ds['ID']) {  // found the presmd datastream so save it against the record
 					$ds['presmd'] = $presmd;
+				}
+			}
+			// now try and find a FezACML metadata datastream of this datastream
+			$fezacml = "FezACML_".$ds['ID'].".xml";
+			$ds['fezacml'] = 0;
+			foreach ($original_dsList as $o_key => $o_ds) {
+				if ($fezacml == $o_ds['ID']) {  // found the fezacml datastream so save it against the record
+					$ds['fezacml'] = $fezacml;
+					// now see if its allowed to show etc
+					$record = new Record($pid);
+					$FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
+					$FezACML_display = new XSD_DisplayObject($FezACML_xdis_id);
+					$FezACML_display->getXSDMF_Values($key);
+/*					echo "PID - ".$pid;
+					echo "XDIS ID - ".$FezACML_xdis_id;
+					echo "HERe -> "; print_r($FezACML_display->matchfields); */
+					if ($return[$key]['FezACML'][0]['!inherit_security'][0] == "on") {
+						$parentsACMLs = $return[$key]['FezACML'];				
+						$return[$key]['security'] = "include";
+					} else {
+						$return[$key]['security'] = "inherit";
+						$parentsACMLs = array();
+					} 
+					Auth::getIndexParentACMLMemberList(&$parentsACMLs, $key, $row['isMemberOf']);
+					$return[$key]['FezACML'] = $parentsACMLs;
+	
 				}
 			}
             if (is_numeric(strpos(@$ds['MIMEType'],'image/'))) {

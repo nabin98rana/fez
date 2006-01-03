@@ -33,6 +33,7 @@
 //
 //
 $pid = $this->pid;
+$xdis_id = $this->xdis_id;
 $dsInfo = $this->dsInfo;
 $dsIDName = $dsInfo['ID'];
 $filename=$dsIDName;
@@ -56,7 +57,9 @@ if ($thumbnail) {
         $thumbnail = substr($thumbnail, strrpos($thumbnail, "/")+1); // take out any nasty slashes from the ds name itself
     }
     $thumbnail = str_replace(" ", "_", $thumbnail);
-    Record::insertIndexMatchingField($pid, 122, "varchar", $thumbnail); // add the thumbnail to the fez index
+//    Record::insertIndexMatchingField($pid, 122, "varchar", $thumbnail); // add the thumbnail to the fez index
+	Record::setIndexMatchingFields($xdis_id, $pid);
+
 }
 
 

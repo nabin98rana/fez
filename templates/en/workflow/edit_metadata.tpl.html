@@ -7,7 +7,7 @@ function purgeDatastream(ds_id)
         return false;
     } else {
         var features = 'width=420,height=200,top=30,left=30,resizable=yes,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
-        var popupWin = window.open('{/literal}{$rel_url}{literal}popup.php?cat=purge_datastream&pid={/literal}{$pid}{literal}&ds_id=' + ds_id, '_popup', features);
+        var popupWin = window.open('{/literal}{$rel_url}{literal}popup.php?cat=purge_datastream&pid={/literal}{$pid}{literal}&dsID=' + ds_id, '_popup', features);
         popupWin.focus();
     }
 }

@@ -153,8 +153,8 @@ foreach ($xsd_display_fields  as $dis_key => $dis_field) {
 $tpl->assign("xsd_display_fields", $xsd_display_fields);
 
 $tpl->assign("xdis_id", $xdis_id);
-
 $details = $record->getDetails();
+
 $controlled_vocabs = Controlled_Vocab::getAssocListAll();
 //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
 foreach ($xsd_display_fields  as $dis_field) {
@@ -198,16 +198,22 @@ foreach ($xsd_display_fields  as $dis_field) {
 		array_push($details[$dis_field["xsdmf_id"]], $tmp_value);
 	}
 }
-
-$datastreams = Fedora_API::callGetDatastreams($pid);
 $FezACML_exists = 0;
-foreach ($datastreams as $security_check) {
-	if ($security_check['ID'] == 'FezACML') {
-		$FezACML_exists = 1;
+if ($dsID == "") {
+	$datastreams = Fedora_API::callGetDatastreams($pid);
+	$datastreams = Misc::cleanDatastreamList($datastreams);
+	foreach ($datastreams as $security_check) {
+		if ($security_check['ID'] == 'FezACML') {
+			$FezACML_exists = 1;
+		}
+	}
+} else {
+	if (count($details) > 0) {
+		$FezACML_exists = 1;		
 	}
 }
+
 $tpl->assign("FezACML_exists", $FezACML_exists);
-$datastreams = Misc::cleanDatastreamList($datastreams);
 $parents = $record->getParents(); // RecordObject
 $tpl->assign("parents", $parents);
 $title = $record->getTitle(); // RecordObject

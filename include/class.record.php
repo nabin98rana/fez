@@ -148,13 +148,13 @@ class Record
         list($array_ptr,$xsd_element_prefix, $xsd_top_element_name, $xml_schema) 
             = $display->getXsdAsReferencedArray();
 		$indexArray = array();
-		$xmlObj .= "<".$xsd_element_prefix.$xsd_top_element_name." ";
-		$xmlObj .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $pid);
-		$xmlObj .= ">\n";
+		$header .= "<".$xsd_element_prefix.$xsd_top_element_name." ";
+		$header .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $pid);
+		$header .= ">\n";    
 		$xmlObj .= Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, '', '', '');
         $xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">\n";
-//		echo $xmlObj;
-		$FezACML_dsID = "FezACML_".$dsID;
+		$xmlObj = $header . $xmlObj;
+		$FezACML_dsID = "FezACML_".$dsID.".xml";
 		if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {
 			Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A", "FezACML security for datastream - ".$dsID, 
 					$xmlObj, "text/xml", "true");
@@ -162,7 +162,7 @@ class Record
 			Fedora_API::getUploadLocation($pid, $FezACML_dsID, $xmlObj, "FezACML security for datastream - ".$dsID, 
 					"text/xml", "X");
 		}	
-		Record::insertIndexBatch($pid, $indexArray, array(), array(), array("FezACML"));
+		Record::insertIndexBatch($pid, $dsID, $indexArray, array(), array(), array("FezACML"));
 //		exit;
     }
 
@@ -219,13 +219,14 @@ class Record
      *
      * @access  public
      * @param   string $pid The persistent identifier of the record
+     * @param   string $dsID The ID of the datastream (optional)
      * @param   array $indexArray The array of XSDMF entries to the Fez index
      * @param   string $datastreamXMLHeaders 
      * @return  void
      */
-	function insertIndexBatch($pid, $indexArray, $datastreamXMLHeaders, $exclude_list=array(), $specify_list=array()) {
+	function insertIndexBatch($pid, $dsID='', $indexArray, $datastreamXMLHeaders, $exclude_list=array(), $specify_list=array()) {
 		// first delete all indexes about this pid
-		Record::removeIndexRecord($pid, 'keep', $exclude_list, $specify_list);
+		Record::removeIndexRecord($pid, $dsID, 'keep', $exclude_list, $specify_list);
 		if (!is_array($indexArray)) {
 			return false;
 		}
@@ -237,8 +238,8 @@ class Record
 					}
 				}
 				if ($index[6] != "") {
-                    // pid, xsdmf_id, data_type, value
-					Record::insertIndexMatchingField($index[0], $index[2], $index[5], $index[6]);
+                    // pid, dsID, xsdmf_id, data_type, value
+					Record::insertIndexMatchingField($index[0], $dsID, $index[2], $index[5], $index[6]);
 				}
 			}
 		}	
@@ -249,16 +250,20 @@ class Record
      *
      * @access  public
      * @param   string $pid The persistent identifier of the record
+     * @param   string $dsID The ID of the datastream (optional)
      * @param   string $dsDelete A flag to check if the datastream_id should be kept 
      * @return  void
      */
-    function removeIndexRecord($pid, $dsDelete='all', $exclude_list=array(), $specify_list=array()) {
+    function removeIndexRecord($pid, $dsID='', $dsDelete='all', $exclude_list=array(), $specify_list=array()) {
 		$exclude_str = implode("', '", $exclude_list);
 		$specify_str = implode("', '", $specify_list);
 
         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field
 				 WHERE rmf_rec_pid = '" . $pid . "'";
+		if ($dsID != '') {
+			$stmt .= " and rmf_dsid = '".$dsID."' ";
+		}
 		if ($dsDelete=='keep') {
 			$stmt .= " and (rmf_xsdmf_id not in (select distinct(xsdmf_id) from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields where xsdmf_element = '!datastream!ID')";
 		}
@@ -337,18 +342,20 @@ class Record
      *
      * @access  public
      * @param   string $pid The persistent identifier of the record
+     * @param   string $dsID The ID of the datastream (optional)
      * @param   integer $xsdmf_id The XSD Matching Field ID 
      * @param   string $data_type The data_type of the index to save the value into
      * @param   string $value The value of the index to be saved
      * @return  string The $pid if successful, otherwise -1
      */
-    function insertIndexMatchingField($pid, $xsdmf_id, $data_type, $value)
+    function insertIndexMatchingField($pid, $dsID='', $xsdmf_id, $data_type, $value)
     {
         $xsdsel_id = '';
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field
                  (
 				 	rmf_rec_pid,
+				 	rmf_dsid,
                     rmf_xsdmf_id,";
 		if ($xsdsel_id != "") {
 		  $stmt .= "rmf_xsdsel_id,";
@@ -357,6 +364,7 @@ class Record
 			rmf_".$data_type."
 		 ) VALUES (
 			'" . $pid . "',
+			'" . $dsID . "',
 			" . $xsdmf_id . ",";
 		if ($xsdsel_id != "") {
 			$stmt .= $xsdsel_id . ", ";
@@ -620,6 +628,29 @@ class Record
     }
 
     /**
+     * Gets the index records for a datastream
+     *
+     * @access  public
+     * @param   string $pid The persistent identifier of the object
+     * @param   string $dsID The datastream ID
+     * @param   string $xsd_title The title of the XSD 
+     * @return array
+     */
+    function getIndexDatastream($pid, $dsID, $xsd_title)
+    {
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX; // Database and table prefix
+        $stmt = "SELECT * FROM 
+        {$dbtp}record_matching_field r1
+		inner join {$dbtp}xsd_display_matchfields x1 on r1.rmf_xsdmf_id = x1.xsdmf_id and rmf_rec_pid = '".$pid."' and rmf_dsid = '".$dsID."'
+        inner join {$dbtp}xsd_display d1 on x1.xsdmf_xdis_id = d1.xdis_id
+		inner join {$dbtp}xsd x2 on x2.xsd_id = d1.xdis_xsd_id and x2.xsd_title = '".$xsd_title."'
+		left join {$dbtp}xsd_loop_subelement s1 on s1.xsdsel_id = x1.xsdmf_xsdsel_id";
+
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+		return $res;
+    }
+
+    /**
      * Sets the index during batch import. Could also be used in future versions for objects in 
      * Fedora that are not in the index yet.
 	 * EG a "Re-index Fedora" type of admin function.
@@ -629,21 +660,21 @@ class Record
      * @param   string $pid The persistent identifier of the object
      * @return  void
      */
-    function setIndexMatchingFields($xdis_id, $pid) 
+    function setIndexMatchingFields($xdis_id, $pid, $dsID='') 
     {
         $display = new XSD_DisplayObject($xdis_id);
         $array_ptr = array();
         $xsdmf_array = $display->getXSDMF_Values($pid);
-        print_r($xsdmf_array);
+//        print_r($xsdmf_array);
         foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
             if (!is_array($xsdmf_value) && !empty($xsdmf_value) && (trim($xsdmf_value) != "")) {					
                 $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
-                Record::insertIndexMatchingField($pid, $xsdmf_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_value);					
+                Record::insertIndexMatchingField($pid, $dsID, $xsdmf_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_value);					
             } elseif (is_array($xsdmf_value)) {
                 foreach ($xsdmf_value as $xsdmf_child_value) {
                     if ($xsdmf_child_value != "") {
                         $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
-                        Record::insertIndexMatchingField($pid, $xsdmf_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_child_value);
+                        Record::insertIndexMatchingField($pid, $dsID, $xsdmf_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_child_value);
                     }
                 }
             }
@@ -745,7 +776,7 @@ class Record
             Fedora_API::callIngestObject($xmlObj);
         }
 		$convert_check = false;
-		Record::insertIndexBatch($pid, $indexArray, $datastreamXMLHeaders, $exclude_list, $specify_list);
+		Record::insertIndexBatch($pid, '', $indexArray, $datastreamXMLHeaders, $exclude_list, $specify_list);
         // ingest the datastreams
 		foreach ($datastreamXMLHeaders as $dsKey => $dsTitle) {
 			$dsIDName = $dsTitle['ID'];
@@ -950,7 +981,7 @@ class RecordGeneral
         $this->display->processXSDMF($this->pid); 
         $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!sta_id'); 
         Record::removeIndexRecordByXSDMF_ID($this->pid, $xsdmf_id);
-        Record::insertIndexMatchingField($this->pid, $xsdmf_id, "varchar", $sta_id);
+        Record::insertIndexMatchingField($this->pid, '', $xsdmf_id, "varchar", $sta_id);
     }
 
     /**
@@ -1202,7 +1233,7 @@ class RecordObject extends RecordGeneral
 			Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez extension metadata", $newXML, "text/xml", true);
 			$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement("!xdis_id", 15);
 			Record::removeIndexRecordByXSDMF_ID($this->pid, $xsdmf_id);
-			Record::insertIndexMatchingField($this->pid, $xsdmf_id, "varchar", $this->xdis_id);
+			Record::insertIndexMatchingField($this->pid, '', $xsdmf_id, "varchar", $this->xdis_id);
 		}
     }
    /**
@@ -1239,7 +1270,7 @@ class RecordObject extends RecordGeneral
 			Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez extension metadata", $newXML, "text/xml", true);
 			$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement("!file_downloads", 15);
 			Record::removeIndexRecordByXSDMF_ID($this->pid, $xsdmf_id);
-			Record::insertIndexMatchingField($this->pid, $xsdmf_id, "int", $this->file_downloads);
+			Record::insertIndexMatchingField($this->pid, '', $xsdmf_id, "int", $this->file_downloads);
 	    }
     }
 
@@ -1298,7 +1329,6 @@ class RecordObject extends RecordGeneral
 		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, $file_downloads, $this->created_date, $this->updated_date);
 
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
-
 //		$datastreamTitles = $display->getDatastreamTitles(); 
 		$datastreamTitles = $display->getDatastreamTitles($exclude_list, $specify_list); 
         Record::insertXML($pid, compact('datastreamTitles', 'exclude_list', 'specify_list', 'xmlObj', 'indexArray', 'existingDatastreams' ), $ingestObject);

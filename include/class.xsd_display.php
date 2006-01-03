@@ -624,6 +624,18 @@ class XSD_DisplayObject
             $xdis_str = Misc::sql_array_to_string($xdis_list);
             $this->xsd_html_match = new XSD_HTML_MatchObject($xdis_str);
 			$datastreams = Fedora_API::callGetDatastreams($pid);
+			foreach ($datastreams as $ds_key => $ds_value) {
+				// get the matchfields for the FezACML of the datastream if any exists
+				if ($ds_value['controlGroup'] == 'M') {
+					$FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
+					$FezACML_DS_name = "FezACML_".$ds_value['ID'].".xml";
+					$FezACML_DS = Fedora_API::callGetDatastreamDissemination($pid, $FezACML_DS_name);
+					if (isset($FezACML_DS['stream'])) {
+						$this->processXSDMFDatastream($FezACML_DS['stream'], $FezACML_xdis_id);
+					}
+				}
+			}
+
             foreach ($datastreamTitles as $dsValue) {
 				// first check if the XSD Display datastream is a template for a file attachment or a link as these are handled differently
 				if ($dsValue['xsdsel_title'] == "File_Attachment") {
@@ -661,6 +673,9 @@ class XSD_DisplayObject
     {
         $xsd_id = XSD_Display::getParentXSDID($xsdmf_xdis_id);
         $xsd_details = Doc_Type_XSD::getDetails($xsd_id);
+		$save_xdis_str = $this->xsd_html_match->xdis_str;
+		$new_xdis_str = $xsd_id;
+		$this->xsd_html_match->xdis_str = $xsdmf_xdis_id;
         $this->xsd_element_prefix = $xsd_details['xsd_element_prefix'];
         $this->xsd_top_element_name = $xsd_details['xsd_top_element_name'];
         $xmlnode = new DomDocument();
@@ -668,6 +683,7 @@ class XSD_DisplayObject
         $cbdata = array('parentContent' => '', 'parent_key' => '');
         $this->mfcb_rootdone = false;
         Misc::XML_Walk($xmlnode, $this, 'matchFieldsCallback', $cbdata);
+		$this->xsd_html_match->xdis_str = $save_xdis_str;
     }
 
     /**

@@ -200,14 +200,54 @@ foreach ($xsd_display_fields  as $dis_field) {
 		array_push($details[$dis_field["xsdmf_id"]], $tmp_value);
 	}
 }
-
+$securityfields = Auth::getAllRoles();
 $datastreams = Fedora_API::callGetDatastreams($pid);
+
 $datastreams = Misc::cleanDatastreamList($datastreams);
 $datastream_workflows = WorkflowTrigger::getListByTrigger('-1', 5);
 
 foreach ($datastreams as $ds_key => $ds) {
-	$datastreams[$ds_key]['workflows'] = $datastream_workflows;
+	if ($datastreams[$ds_key]['controlGroup'] == 'M') {
+		$FezACML_DS = array();
+		$FezACML_DS = Record::getIndexDatastream($pid, $ds['ID'], 'FezACML');
+	
+		$return = array();
+		foreach ($FezACML_DS as $result) {
+			if (in_array($result['xsdsel_title'], $securityfields)  && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) )  {
+				if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
+					$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
+				}
+				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
+					array_push($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+				}
+			}
+			if ($result['xsdmf_element'] == '!inherit_security') {
+				if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'])) {
+					$return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'] = array();
+				}
+				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'])) {
+					array_push($return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'], $result['rmf_'.$result['xsdmf_data_type']]);
+				}
+			}
+		}
+	
+		$datastreams[$ds_key]['FezACML'] = $return[$pid]['FezACML'];
+		$datastreams[$ds_key]['workflows'] = $datastream_workflows;
+	
+		if (count($FezACML_DS) == 0 || $datastreams[$ds_key]['FezACML'][0]['!inherit_security'][0] == "on") {
+			// if there is no FezACML set for this row yet, then is it will inherit from above, so show this for the form
+			if ($datastreams[$ds_key]['FezACML'][0]['!inherit_security'][0] == "on") {
+				$datastreams[$ds_key]['security'] = "include";
+			} else {
+				$datastreams[$ds_key]['security'] = "inherit";
+
+			} 
+		} else {
+			$datastreams[$ds_key]['security'] = "exclude";			
+		}
+	}
 } 
+
 $parents = $record->getParents(); // RecordObject
 $tpl->assign("parents", $parents);
 $title = $record->getTitle(); // RecordObject
