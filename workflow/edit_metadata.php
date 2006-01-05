@@ -111,7 +111,7 @@ if (is_array($workflows)) {
 */
 
 $acceptable_roles = array("Community_Admin", "Editor", "Creator", "Community_Admin");
-if (Auth::checkAuthorisation($pid, $acceptable_roles, $HTTP_SERVER_VARS['PHP_SELF']."?".$HTTP_SERVER_VARS['QUERY_STRING']) == true) {
+if (Auth::checkAuthorisation($pid, "", $acceptable_roles, $HTTP_SERVER_VARS['PHP_SELF']."?".$HTTP_SERVER_VARS['QUERY_STRING']) == true) {
 
 if (!is_numeric($xdis_id)) {
 	$xdis_id = @$HTTP_POST_VARS["xdis_id"] ? $HTTP_POST_VARS["xdis_id"] : $HTTP_GET_VARS["xdis_id"];	
@@ -157,6 +157,7 @@ $tpl->assign("xdis_id", $xdis_id);
 
 $details = $record->getDetails();
 //print_r($details);
+
 $controlled_vocabs = Controlled_Vocab::getAssocListAll();
 //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
 foreach ($xsd_display_fields  as $dis_field) {
@@ -233,21 +234,25 @@ foreach ($datastreams as $ds_key => $ds) {
 	
 		$datastreams[$ds_key]['FezACML'] = $return[$pid]['FezACML'];
 		$datastreams[$ds_key]['workflows'] = $datastream_workflows;
-	
+		$parentsACMLs = array();
 		if (count($FezACML_DS) == 0 || $datastreams[$ds_key]['FezACML'][0]['!inherit_security'][0] == "on") {
 			// if there is no FezACML set for this row yet, then is it will inherit from above, so show this for the form
 			if ($datastreams[$ds_key]['FezACML'][0]['!inherit_security'][0] == "on") {
 				$datastreams[$ds_key]['security'] = "include";
+				$parentsACMLs = $datastreams[$ds_key]['FezACML'];
 			} else {
 				$datastreams[$ds_key]['security'] = "inherit";
-
+				$parentsACMLs = array();
 			} 
+			$parents = Record::getParents($pid_key);
+			Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid_key, $parents);
+			$datastreams[$ds_key]['FezACML'] = $parentsACMLs;			
 		} else {
 			$datastreams[$ds_key]['security'] = "exclude";			
 		}
 	}
 } 
-
+$datastreams = Auth::getIndexAuthorisationGroups($datastreams);
 $parents = $record->getParents(); // RecordObject
 $tpl->assign("parents", $parents);
 $title = $record->getTitle(); // RecordObject
@@ -265,6 +270,7 @@ if ($record->isCollection()) {
     $tpl->assign('view_href', APP_RELATIVE_URL."view.php?pid=$pid");
 }
 
+//print_r($datastreams);
 $tpl->assign("datastreams", $datastreams);
 $tpl->assign("fez_root_dir", APP_PATH);
 $tpl->assign("eserv_url", APP_BASE_URL."eserv.php?pid=".$pid."&dsID=");

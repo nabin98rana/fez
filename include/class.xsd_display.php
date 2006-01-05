@@ -631,7 +631,12 @@ class XSD_DisplayObject
 					$FezACML_DS_name = "FezACML_".$ds_value['ID'].".xml";
 					$FezACML_DS = Fedora_API::callGetDatastreamDissemination($pid, $FezACML_DS_name);
 					if (isset($FezACML_DS['stream'])) {
+						$save_xdis_str = "";
+						$save_xdis_str = $this->xsd_html_match->xdis_str;
+						$this->xsd_html_match->set_xdis_str($FezACML_xdis_id);
 						$this->processXSDMFDatastream($FezACML_DS['stream'], $FezACML_xdis_id);
+						$this->xsd_html_match->xdis_str = $save_xdis_str;
+						$this->xsd_html_match->gotMatchCols = false; // make sure it refreshes for the other xsd displays
 					}
 				}
 			}
@@ -673,9 +678,6 @@ class XSD_DisplayObject
     {
         $xsd_id = XSD_Display::getParentXSDID($xsdmf_xdis_id);
         $xsd_details = Doc_Type_XSD::getDetails($xsd_id);
-		$save_xdis_str = $this->xsd_html_match->xdis_str;
-		$new_xdis_str = $xsd_id;
-		$this->xsd_html_match->xdis_str = $xsdmf_xdis_id;
         $this->xsd_element_prefix = $xsd_details['xsd_element_prefix'];
         $this->xsd_top_element_name = $xsd_details['xsd_top_element_name'];
         $xmlnode = new DomDocument();
@@ -683,7 +685,6 @@ class XSD_DisplayObject
         $cbdata = array('parentContent' => '', 'parent_key' => '');
         $this->mfcb_rootdone = false;
         Misc::XML_Walk($xmlnode, $this, 'matchFieldsCallback', $cbdata);
-		$this->xsd_html_match->xdis_str = $save_xdis_str;
     }
 
     /**

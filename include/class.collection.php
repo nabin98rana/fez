@@ -250,6 +250,7 @@ class Collection
 		$hidden_rows = count($return);
 		$return = Auth::getIndexAuthorisationGroups($return);		
 		$return = Misc::cleanListResults($return);
+
 		$total_rows = count($return);
 		if (($start + $max) < $total_rows) {
 	        $total_rows_limit = $start + $max;
@@ -446,7 +447,9 @@ class Collection
 				if (!is_array(@$return[$result['rmf_rec_pid']]['isMemberOf'])) {
 					$return[$result['rmf_rec_pid']]['isMemberOf'] = array();
 				}
-				array_push($return[$result['rmf_rec_pid']]['isMemberOf'], $result['rmf_varchar']);
+				if (!in_array($result['rmf_varchar'], $return[$result['rmf_rec_pid']]['isMemberOf'])) {
+					array_push($return[$result['rmf_rec_pid']]['isMemberOf'], $result['rmf_varchar']);
+				}
 			}
 			// get the document type
 			if (!is_array(@$return[$result['rmf_rec_pid']]['xdis_title'])) {
@@ -481,6 +484,7 @@ class Collection
 		}
 
 		foreach ($return as $pid_key => $row) {
+			$parentsACMLs = array();		
 			//if there is only one thumbnail DS then use it
 			if (count(@$row['thumbnails']) == 1) {
 				$return[$pid_key]['thumbnail'] = $row['thumbnails'][0];
@@ -490,11 +494,10 @@ class Collection
 			if (!is_array(@$row['FezACML']) || $return[$pid_key]['FezACML'][0]['!inherit_security'][0] == "on") {
 				// if there is no FezACML set for this row yet, then is it will inherit from above, so show this for the form
 				if ($return[$pid_key]['FezACML'][0]['!inherit_security'][0] == "on") {
-					$parentsACMLs = $return[$pid_key]['FezACML'];				
+					$parentsACMLs = $return[$pid_key]['FezACML'];
 					$return[$pid_key]['security'] = "include";
 				} else {
 					$return[$pid_key]['security'] = "inherit";
-					$parentsACMLs = array();
 				} 
 				Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid_key, $row['isMemberOf']);
 				$return[$pid_key]['FezACML'] = $parentsACMLs;
@@ -654,6 +657,7 @@ class Collection
             left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 
             on (k1.sek_id = x1.xsdmf_sek_id)
             left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d2.display_id = d1.xdis_id	
+			WHERE (r1.rmf_dsid IS NULL or r1.rmf_dsid = '')			 
 				 ORDER BY
 				 	r1.rmf_rec_pid";
 
@@ -663,6 +667,7 @@ class Collection
 		$hidden_rows = count($return);
 		$return = Auth::getIndexAuthorisationGroups($return);
 		$return = Misc::cleanListResults($return);
+
 		$total_rows = count($return);
 		if (($start + $max) < $total_rows) {
 	        $total_rows_limit = $start + $max;
@@ -693,6 +698,7 @@ class Collection
 			} 
 			$return[$ret_key]['workflows'] = $workflows; 
 		}  
+//		print_r($return);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";

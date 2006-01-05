@@ -263,6 +263,10 @@ class Record
 				 WHERE rmf_rec_pid = '" . $pid . "'";
 		if ($dsID != '') {
 			$stmt .= " and rmf_dsid = '".$dsID."' ";
+		} else {
+			if ($dsDelete=='keep') {		
+				$stmt .= " and (rmf_dsid IS NULL or rmf_dsid = '') "; // we don't want to delete the datastream fezacml indexes unless we are deleteing the whole object
+			}
 		}
 		if ($dsDelete=='keep') {
 			$stmt .= " and (rmf_xsdmf_id not in (select distinct(xsdmf_id) from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields where xsdmf_element = '!datastream!ID')";
@@ -491,23 +495,42 @@ class Record
 	 * 
      * @access  public
      * @param   string $pid The persistent identifier of the object
+     * @param   string $dsID (optional) The datastream ID
      * @return  domdocument $xmldoc A Dom Document of the XML or false if not found
      */
-	function getACML($pid) {
+	function getACML($pid, $dsID="") {
         static $acml_cache;
-        if (isset($acml_cache[$pid])) {
-            return $acml_cache[$pid];
+		if ($dsID != "") {
+	        if (isset($acml_cache['ds'][$dsID][$pid])) {
+				return $acml_cache['ds'][$dsID][$pid];
+			} else {
+				$ds_search = 'FezACML_'.$dsID.'.xml';
+			}
+		} else {
+			$ds_search = 'FezACML';
+		}
+        if (isset($acml_cache['pid'][$pid])) {
+            return $acml_cache['pid'][$pid];
         }
-		$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, 'FezACML');
+	
+		$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $ds_search);
 		$xmlACML = @$DSResultArray['stream'];
 		if ($xmlACML != "") {
 			$xmldoc= new DomDocument();
 			$xmldoc->preserveWhiteSpace = false;
 			$xmldoc->loadXML($xmlACML);
-			$acml_cache[$pid] = $xmldoc;
+			if ($dsID != "") {
+				$acml_cache['ds'][$dsID][$pid] = $xmldoc;
+			} else {
+				$acml_cache['pid'][$pid] = $xmldoc;
+			}
 			return $xmldoc;
 		} else {
-			$acml_cache[$pid] = false;
+			if ($dsID != "") {
+				$acml_cache['ds'][$dsID][$pid] = false;
+			} else {
+				$acml_cache['pid'][$pid] = false;
+			}
 			return false;
 		}
 	}
@@ -914,7 +937,7 @@ class RecordGeneral
     function checkAuth($roles, $redirect=true) {
         global $HTTP_SERVER_VARS;
         $this->getAuth();
-		return Auth::checkAuthorisation($this->pid, $roles, 
+		return Auth::checkAuthorisation($this->pid, "", $roles, 
                     $HTTP_SERVER_VARS['PHP_SELF']."?".$HTTP_SERVER_VARS['QUERY_STRING'], $this->auth_groups, $redirect); 
     }
     

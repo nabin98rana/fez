@@ -1838,6 +1838,7 @@ class XSD_HTML_MatchObject
 {
     var $gotMatchCols = false;
     var $matchCols;
+	var $xdis_str;
 
     /** 
      * XSD_HTML_MatchObject
@@ -1847,6 +1848,11 @@ class XSD_HTML_MatchObject
     {
         $this->xdis_str = $xdis_str;
     }
+
+    function set_xdis_str($xdis_str)
+    {
+        $this->xdis_str = $xdis_str;
+    }	
 
     /**
      * getMatchCols

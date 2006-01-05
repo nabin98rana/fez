@@ -134,6 +134,29 @@ class Misc
 	}
 
     /**
+     * Method used to merge two arrays based on the values, not the keys.
+     *
+     * @access  public
+     * @param   array $arr1 The first array to merge
+     * @param   array $arr2 The second array to merge
+     * @return  array $ret The merged array with new keys
+     */
+	function array_merge_values($arr1,$arr2) {
+		$newarray = array();
+		foreach($arr1 as $val) {
+			if (!in_array($val, $newarray)) {
+				array_push($newarray, $val);
+			}
+		}
+		foreach($arr2 as $val) {
+			if (!in_array($val, $newarray)) {
+				array_push($newarray, $val);
+			}
+		}
+		return $newarray;
+	}
+
+    /**
      * Method used to get the full contents of the given file.
      *
      * @access  public
