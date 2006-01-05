@@ -444,12 +444,9 @@ class Auth
 
 		global $NonRestrictedRoles;
 		$securityfields = Auth::getAllRoles();
-
-		$userPIDAuthGroups = $NonRestrictedRoles;
-
-		$cleanedArray = array();
 		foreach ($indexArray as $indexKey => $indexRecord) {
-
+			$userPIDAuthGroups = $NonRestrictedRoles;
+			$cleanedArray = array();
 			if (!is_array($indexRecord['FezACML'])) {
 //				return false;
 				// if it doesnt have its own acml record try and get rights from its parents
@@ -457,17 +454,14 @@ class Auth
 				// 1. get the parents records with their fez acml's
 				// 2. if at least one of them have an fez acml then use it otherwise get the parents parents
 
-			} else {
-			
+			} else {		
 				foreach ($indexRecord['FezACML'] as $FezACML) { // can have multiple fez acmls if got from parents
-					foreach ($FezACML as $role_name => $role) {	
+					foreach ($FezACML as $role_name => $role) {						
 						if (in_array($role_name, $userPIDAuthGroups) && in_array($role_name, $NonRestrictedRoles) && ($cleanedArray[$role_name] != 1)) {
 							$userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role_name, false, true);
 							$cleanedArray[$role_name] = 1;
 						}
 						if (in_array($role_name, $securityfields) && $role_name != '0') {
-	//						print_r($
-	//						echo $role_name."<br />";
 							foreach ($role as $rule_name => $rule) {
 								foreach ($rule as $ruleRecord) {
 									// if the role is in the ACML then it is restricted so remove it
