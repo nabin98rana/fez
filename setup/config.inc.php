@@ -171,6 +171,7 @@ if (APP_FEDORA_SETUP == 'sslall') {
 @define("APP_CELL_COLOR", "#A7C1DF");
 @define("APP_VALUE_COLOR", "#EFF6FF");
 @define("APP_LIGHT_COLOR", "#EFF6FF");
+@define("APP_SELECTED_COLOR", "#FFFBD9");
 @define("APP_MIDDLE_COLOR", "#CACACA");
 @define("APP_DARK_COLOR", "#003399");
 @define("APP_HEADING_COLOR", "#367FCC");

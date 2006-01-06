@@ -32,37 +32,47 @@
 // +----------------------------------------------------------------------+
 //
 //
-$pid = $this->pid;
-$xdis_id = $this->xdis_id;
-$dsInfo = $this->dsInfo;
-$dsIDName = $dsInfo['ID'];
-$filename=$dsIDName;
-$file_name_prefix = "thumbnail_";
-$filename_ext = strtolower(substr($filename, (strrpos($filename, ".") + 1)));
-$getString = APP_RELATIVE_URL."webservices/wfb.image_resize.php?image="
-.urlencode($filename)."&height=50&width=50&ext=jpg&prefix=".$file_name_prefix;
-$http_req = new HTTP_Request($getString, array("http" => "1.0"));
-$http_req->setMethod("GET");
-$http_req->sendRequest();
-$xml = $http_req->getResponseBody();
-if (is_numeric(strpos($filename, "/"))) {
-    $new_file = APP_TEMP_DIR.$file_name_prefix.str_replace(" ", "_", 
-            substr(substr($filename, 0, strrpos($filename, ".")), strrpos($filename, "/")+1)).".jpg";
-} else {
-    $new_file = APP_TEMP_DIR.$file_name_prefix.str_replace(" ", "_", substr($filename, 0, strrpos($filename, "."))).".jpg";
-}
+// @@@ CK - 28/7/05
+// Image resize webservice
+// - Takes url parameters to convert an image file in the Fez temp directory into a image file of the given format and size
 
-if ($new_file) {
-    Fedora_API::getUploadLocationByLocalRef($pid, $new_file, $new_file, $new_file, 'image/jpeg', 'M');
-    if (is_numeric(strpos($new_file, "/"))) {
-        $new_file = substr($new_file, strrpos($new_file, "/")+1); // take out any nasty slashes from the ds name itself
-    }
-    $new_file = str_replace(" ", "_", $new_file);
-	Record::setIndexMatchingFields($xdis_id, $pid); // add the thumbnail to the fez index
+include_once("../config.inc.php");
 
-}
+// Get image and size
+$image = urldecode($_GET["image"]);
+$width = $_GET["width"]; //maximum width
+$height = $_GET["height"]; //maximum height
+$ext = strtolower($_GET["ext"]); //the file type extension to convert the image to
+$prefix = strtolower($_GET["prefix"]); //the prefix to add to the filename
+$image_dir = "";
+if (is_numeric(strpos($image, "/"))) {
+	$image_dir = substr($image, 0, strrpos($image, "/"));
+	$image = substr($image, strrpos($image, "/")+1);
+}	
 
+if (trim($image_dir) == "") { $image_dir = APP_TEMP_DIR; }
 
+$temp_file = $prefix.substr($image, 0, strrpos($image, ".")).".".$ext;
+$temp_file = str_replace(" ", "_", $temp_file);
+$error = '';
+if(!$image) $error .= "<b>ERROR:</b> no image specified<br>";
+if(!is_file($image_dir."/".$image)) { $error .= "<b>ERROR:</b> given image filename not found or bad filename given<br>"; }
+if(!is_numeric($width) && !is_numeric($height)) $error .= "<b>ERROR:</b> no sizes specified<br>";
+if($error){ echo $error; die; }
 
+// Set the header type
+if ($ext=="jpg" || $ext=="jpeg")
+  $content_type="image/jpeg";
+elseif ($ext=="gif")
+  $content_type="image/gif";
+elseif ($ext=="png")
+  $content_type="image/png";
+else{ echo "<b>ERROR:</b> unknown file type<br>"; die; }
 
+// Create the output file if it does not exist
+if(!is_file(APP_TEMP_DIR.$temp_file)) {
+  $command = escapeshellcmd(APP_CONVERT_CMD)." -resize ".escapeshellcmd($width)."x".escapeshellcmd($height)."\> '".escapeshellcmd($image_dir)."/".escapeshellcmd($image)."' ".escapeshellcmd(APP_TEMP_DIR.$temp_file);
+	exec($command);
+//	exec(escapeshellcmd($command));
+} 
 ?>

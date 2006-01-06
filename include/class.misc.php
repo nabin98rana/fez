@@ -345,7 +345,7 @@ class Misc
 		foreach ($dsList as $key => $ds) {		
 			$pid = $key;
 			$keep = true;
-            if ((is_numeric(strpos($ds['ID'], "thumbnail_"))) || (is_numeric(strpos($ds['ID'], "presmd_"))) || (is_numeric(strpos($ds['ID'], "FezACML_"))) )   {
+            if ((is_numeric(strpos($ds['ID'], "thumbnail_"))) || (is_numeric(strpos($ds['ID'], "web_"))) || (is_numeric(strpos($ds['ID'], "preview_"))) || (is_numeric(strpos($ds['ID'], "presmd_"))) || (is_numeric(strpos($ds['ID'], "FezACML_"))) )   {
                 $keep = false;
             }
 			// now try and find a thumbnail datastream of this datastream

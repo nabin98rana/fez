@@ -37,10 +37,10 @@ $xdis_id = $this->xdis_id;
 $dsInfo = $this->dsInfo;
 $dsIDName = $dsInfo['ID'];
 $filename=$dsIDName;
-$file_name_prefix = "thumbnail_";
+$file_name_prefix = "preview_";
 $filename_ext = strtolower(substr($filename, (strrpos($filename, ".") + 1)));
 $getString = APP_RELATIVE_URL."webservices/wfb.image_resize.php?image="
-.urlencode($filename)."&height=50&width=50&ext=jpg&prefix=".$file_name_prefix;
+.urlencode($filename)."&height=700&width=400&ext=jpg&prefix=".$file_name_prefix;
 $http_req = new HTTP_Request($getString, array("http" => "1.0"));
 $http_req->setMethod("GET");
 $http_req->sendRequest();

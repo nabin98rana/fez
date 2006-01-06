@@ -253,6 +253,7 @@ foreach ($datastreams as $ds_key => $ds) {
 	}
 } 
 $datastreams = Auth::getIndexAuthorisationGroups($datastreams);
+
 $parents = $record->getParents(); // RecordObject
 $tpl->assign("parents", $parents);
 $title = $record->getTitle(); // RecordObject

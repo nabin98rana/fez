@@ -53,75 +53,91 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
 }
 $tpl->assign("isAdministrator", $isAdministrator);
 
-
-if ( (is_numeric(strpos($_GET['pid'], ".."))) && (is_numeric(strpos($_GET['dsID'], "..")))) { 
-	die; 
-} // to stop haxors snooping our confs
-
 $pid = @$HTTP_POST_VARS["pid"] ? $HTTP_POST_VARS["pid"] : $HTTP_GET_VARS["pid"];
 $dsID = @$HTTP_POST_VARS["dsID"] ? $HTTP_POST_VARS["dsID"] : $HTTP_GET_VARS["dsID"];
-$tpl->assign("pid", $pid);
-$tpl->assign("dsID", $dsID);
+
+if ( (is_numeric(strpos($pid, ".."))) && (is_numeric(strpos($dsID, "..")))) { 
+	die; 
+} // to stop haxors snooping our confs
+$is_image = 0;
 if (!empty($pid) && !empty($dsID)) {
+	$file_extension = strtolower(substr( strrchr( $dsID, "." ), 1 ));
+	switch( $file_extension ) {
+		
+		case 'pdf'  :
+				Header("Content-type: application/pdf\n");
+				break;
+		
+		case 'xls'  :
+				Header("Content-type: application/vnd.ms-excel\n");
+				break;
+		
+		case 'doc'  :
+				Header("Content-type: application/msword\n");
+				break;
+		
+		case 'ica'  :
+				Header("Content-type: application/x-ica\n");
+				break;
+		
+		case 'gif'  :
+				$is_image = 1;
+				Header("Content-type: image/gif\n");
+				break;
+		
+		case 'bmp'  :
+				$is_image = 1;
+				Header("Content-type: image/bmp\n");
+				break;
+		
+		case 'jpg'  :
+				$is_image = 1;
+				Header("Content-type: image/jpg\n");
+				break;
+		case 'jpeg'  :
+				$is_image = 1;
+				Header("Content-type: image/jpg\n");
+				break;
+		case 'ico'  :
+				$is_image = 1;
+				Header("Content-type: image/ico\n");
+				break;
+		
+		case 'ppt'  :
+				Header("Content-type: application/vnd.ms-powerpoint");
+				break;
+		case 'txt'  :
+				Header("Content-type: text/plain");
+				break;
+		
+		default		:
+				Header("Content-type: text/xml");
+				break;
+	
+	} // end switch field_extension
+	
+	if (($is_image == 1) && (is_numeric(strpos($dsID, "archival_"))) ) { // if its trying to find the archival version then check
+		$real_dsID = str_replace("archival_", "", $dsID);
+		$acceptable_roles = array("Community_Admin", "Editor", "Creator", "Archival_Viewer");
+	} elseif (($is_image == 1) && (!is_numeric(strpos($dsID, "web_"))) && (!is_numeric(strpos($dsID, "preview_"))) && (!is_numeric(strpos($dsID, "thumbnail_"))) ) {
+		$real_dsID = "web_".$dsID;
+		$acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
+	} else {
+		$real_dsID = $dsID;
+		$acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");		
+	}
+	$tpl->assign("pid", $pid);
+	$tpl->assign("dsID", $dsID);
+
 	$xdis_array = Fedora_API::callGetDatastreamContentsField ($pid, 'FezMD', array('xdis_id'));
 	$xdis_id = $xdis_array['xdis_id'][0];
 	if (is_numeric($xdis_id)) {	
-		$acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
 		if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $HTTP_SERVER_VARS['PHP_SELF']."?".urlencode($HTTP_SERVER_VARS['QUERY_STRING'])) == true) {
-			$urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsID; // this should stop them dang haxors (forces the http on the front for starters)
+			$urldata = APP_FEDORA_GET_URL."/".$pid."/".$real_dsID; // this should stop them dang haxors (forces the http on the front for starters)
 			$urlpath = $urldata;
-			if (!is_numeric(strpos($dsID, "thumbnail"))) {
+			if ((!is_numeric(strpos($dsID, "thumbnail_"))) && (!is_numeric(strpos($dsID, "web_"))) && (!is_numeric(strpos($dsID, "preview_"))) && (!is_numeric(strpos($dsID, "presmd_"))) && (!is_numeric(strpos($dsID, "FezACML_"))) ) {
 				Record::incrementFileDownloads($pid); //increment FezMD.file_downloads counter
 			}
-			$file_extension = strtolower(substr( strrchr( $urldata, "." ), 1 ));
-			switch( $file_extension ) {
-			
-			case 'pdf'  :
-					Header("Content-type: application/pdf\n");
-					break;
-			
-			case 'xls'  :
-					Header("Content-type: application/vnd.ms-excel\n");
-					break;
-			
-			case 'doc'  :
-					Header("Content-type: application/msword\n");
-					break;
-			
-			case 'ica'  :
-					Header("Content-type: application/x-ica\n");
-					break;
-			
-			case 'gif'  :
-					Header("Content-type: image/gif\n");
-					break;
-			
-			case 'bmp'  :
-					Header("Content-type: image/bmp\n");
-					break;
-			
-			case 'jpg'  :
-					Header("Content-type: image/jpg\n");
-					break;
-			case 'jpeg'  :
-					Header("Content-type: image/jpg\n");
-					break;
-			case 'ico'  :
-					Header("Content-type: image/ico\n");
-					break;
-			
-			case 'ppt'  :
-					Header("Content-type: application/vnd.ms-powerpoint");
-					break;
-			case 'txt'  :
-					Header("Content-type: text/plain");
-					break;
-
-			default		:
-					Header("Content-type: text/xml");
-					break;
-			
-			} // end switch field_extension
 			
   	 		header('Content-Disposition: filename="'.substr($urldata, (strrpos($urldata, '/')+1) ).'"');
 			$tempDumpFileName = APP_TEMP_DIR.'tmpdumpfile.txt';

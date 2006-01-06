@@ -9,8 +9,10 @@ class NajaxImagePreview {
     function getPreview($pid, $dsID, $width, $height, $regen, $copyright_message="", $watermark=false)
     {
         $hash = md5("$pid$dsID$width$height");
-
-        $fname = APP_TEMP_DIR."fez_image_resize_cache_$hash.jpg";
+		$real_dsID = "preview_".$dsID;
+        $imagebin = file_get_contents(APP_BASE_URL.'eserv.php?pid='.$pid.'&dsID='.$real_dsID);
+		return $imagebin;
+/*        $fname = APP_TEMP_DIR."fez_image_resize_cache_$hash.jpg";
 
         // Create the output file if it does not exist
         if(!is_file($fname) || $regen) {
@@ -31,7 +33,8 @@ class NajaxImagePreview {
             unlink($imagefname);
 
         }
-        return $fname;
+		*/
+//        return $fname;
     }
 
     

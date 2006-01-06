@@ -441,13 +441,13 @@ function selectDateField(field_name, day, month, year)
 			  </tr>
 
         {section name="d" loop=$datastreams}
-			{if $datastreams[d].controlGroup == "M" && $datastreams[d].isLister == 1}
+			{if $datastreams[d].controlGroup == "M" && ($datastreams[d].isLister == 1 || $isAdministrator)}
 			  <tr class="default"> 
 				{assign var="image_file_name" value=$datastreams[d].MIMEType|replace:"/":"_"|cat:".png"}
 				{assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$image_file_name} 			
 				{assign var="image_file_string" value=""}
 				{fetch file=$image_name assign="image_file_string"}
-				<td bgcolor="{$value_color}">{if $datastreams[d].thumbnail != "0"}<img align="absmiddle" src="{$eserv_url}{$datastreams[d].thumbnail}">{/if}{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}images/default.png">{/if} {if $datastreams[d].isViewer == 1}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].ID}">{/if}{$datastreams[d].ID}{if $datastreams[d].isViewer == 1}</a>{/if} &nbsp;{if $datastreams[d].presmd != "0" && $datastreams[d].isViewer == 1}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].presmd}"><img title="preservation metadata" align="absmiddle" border="0" src="{$rel_url}images/presmd_22.gif"></a>{/if}&nbsp; {if $datastreams[d].isEditor == 1}[ <a class="link" title="purge datastream" href="javascript:void(null);" onClick="javascript:purgeDatastream('{$datastreams[d].ID}');">purge</a> ]{/if}				
+				<td bgcolor="{$value_color}">{if $datastreams[d].thumbnail != "0"}<img align="absmiddle" src="{$eserv_url}{$datastreams[d].thumbnail}">{/if}{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}images/default.png">{/if} {if $datastreams[d].isViewer == 1 || $isAdministrator}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].ID}">{/if}{$datastreams[d].ID}{if $datastreams[d].isViewer == 1 || $isAdministrator}</a>&nbsp;{/if} {if ($datastreams[d].isArchivalViewer == 1 || $isAdministrator) && $datastreams[d].thumbnail != "0"}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID=archival_{$datastreams[d].ID}"><img title="archival version" align="absmiddle" border="0" src="{$rel_url}images/archival_22.gif"></a>&nbsp;{/if} {if $datastreams[d].presmd != "0" && $datastreams[d].isViewer == 1 || $isAdministrator}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].presmd}"><img title="preservation metadata" align="absmiddle" border="0" src="{$rel_url}images/presmd_22.gif"></a>&nbsp;{/if} {if $datastreams[d].isEditor == 1}[ <a class="link" title="purge datastream" href="javascript:void(null);" onClick="javascript:purgeDatastream('{$datastreams[d].ID}');">purge</a> ]{/if}				
 				{section name="w" loop=$datastreams[d].workflows}
 					{if $datastreams[d].workflows[w].wft_icon == 'images/security.gif'}
 						{if $datastreams[d].security == 'include'}
@@ -463,7 +463,7 @@ function selectDateField(field_name, day, month, year)
 						{assign var="wf_icon" value="images/security_inherit.gif"}
 					{/if}
 
-					&nbsp;{if $datastreams[d].isEditor == 1}<a href='{$rel_url}workflow/update.php?pid={$pid|escape:"html"}&dsID={$datastreams[d].ID}&cat=select_workflow&wft_id={$datastreams[d].workflows[w].wft_id}&href={$smarty.server.REQUEST_URI}'><img title="{$datastreams[d].workflows[w].wfl_title}" align="absmiddle" src="{$rel_url}{$wf_icon}" border="0"></a>{/if}
+					{if $datastreams[d].isEditor == 1 || $isAdministrator}&nbsp;<a href='{$rel_url}workflow/update.php?pid={$pid|escape:"html"}&dsID={$datastreams[d].ID}&cat=select_workflow&wft_id={$datastreams[d].workflows[w].wft_id}&href={$smarty.server.REQUEST_URI}'><img title="{$datastreams[d].workflows[w].wfl_title}" align="absmiddle" src="{$rel_url}{$wf_icon}" border="0"></a>{/if}
 				{/section}
 				</td>
 
