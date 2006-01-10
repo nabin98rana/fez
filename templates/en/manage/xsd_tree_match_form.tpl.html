@@ -64,10 +64,11 @@
       <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
         <tr>
           <td>
-            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-              {literal}
+            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">			  
               <script language="JavaScript">
-              <!--
+              {$najax_register}
+              {literal}
+			  <!--
               var editing_option_id = -1;
               function validateForm(f)
               {
@@ -388,6 +389,49 @@
                       f.anon_form_required.checked = false;
                   }
               }
+			  
+			  
+				var dt_load_state = 0;
+				function showLoading1()
+				{
+					document.body.style.cursor = 'wait';
+					document.getElementById('loading1').style.display = 'block';
+				}
+				
+				function hideLoading1()
+				{
+					document.body.style.cursor = '';
+					document.getElementById('loading1').style.display = 'none';
+				}
+				
+				function selectXSDDisplay(f, field_name)
+				{
+					if (dt_load_state > 0) {
+					   return false;
+					} 
+					var field = getFormElement(f, field_name);
+					var selections = getSelectedItems(field);
+				
+					if (selections.length > 0) {
+						dt_load_state++;
+						document.getElementById('tr_att_child_xsdmf_id').style.display = '';
+						showLoading1();
+						var obj = new SelectXSDDisplay();
+						obj.ongetMatchingFieldsError = function() {
+							removeAllOptions(f, 'att_child_xsdmf_id');
+							hideLoading1();
+							dt_load_state--;
+						}
+						obj.setTimeout(10000);
+						obj.getMatchingFields(selections[0].value, function(dt_list) {
+								removeAllOptions(f, 'att_child_xsdmf_id');
+								addOptions(f, 'att_child_xsdmf_id', dt_list);
+								hideLoading1();
+								dt_load_state--;
+								});
+					}
+				}			  
+			  
               //-->
               </script>
               {/literal}
@@ -722,7 +766,7 @@
                   </table>
                 </td>
               </tr>
-              <tr id="controlled_vocab_tr"  {if $info.xsdmf_html_input != 'contvocab'}style="display:none"{/if} >
+              <tr id="controlled_vocab_tr"  {if $info.xsdmf_html_input != 'contvocab'}style="display:none"{/if}>
                  <td width="120" bgcolor="{$cell_color}" class="default"><b>Controlled Vocabulary:</b></td>
  				<td bgcolor="{$light_color}">
 					<select class="default" name="xsdmf_cvo_id">
@@ -730,19 +774,19 @@
 					</select>
 			  	</td>
 		     </tr>			  
-              <tr id="smarty_variable_tr"  {$selectingfield_only} >
+              <tr id="smarty_variable_tr"  {$selectingfield_only}>
                  <td width="120" bgcolor="{$cell_color}" class="default"><b>Dynamic Variable:</b><i>(If a dynamic variable is set it will be used instead of the entered values, or if this is a combo or multiple html input then the dynamic variable will be used as the field options)</i></td>
  				<td bgcolor="{$light_color}"><span class="default"><br /><b>Use field Options OR use this dynamic variable:</b></span> <br />
 					<input class="default" type="text" name="smarty_variable" size="26" value="{$info.xsdmf_smarty_variable}">
 			  	</td>
 		     </tr>
-		      <tr id="dynamic_selected_option_tr" {$selectingfield_only} >
+		      <tr id="dynamic_selected_option_tr" {$selectingfield_only}>
                  <td width="120" bgcolor="{$cell_color}" class="default"><b>Dynamic Selected Option:</b><i>(If a dynamic variable is set it will be used to preselect the select options for combo boxes and multiple select boxes)</i></td>
  				<td bgcolor="{$light_color}">
 					<input class="default" type="text" name="dynamic_selected_option" size="26" value="{$info.xsdmf_dynamic_selected_option}">
 			  	</td>
 		     </tr>
-		      <tr id="checkbox_selected_option_tr" {if $info.xsdmf_html_input != 'checkbox'}style="display:none"{/if} >
+		      <tr id="checkbox_selected_option_tr" {if $info.xsdmf_html_input != 'checkbox'}style="display:none"{/if}>
                  <td width="120" bgcolor="{$cell_color}" class="default"><b>Checkbox Default Value:</b><i>(The default value of a checkbox input - checked or not checked)</i></td>
  				<td bgcolor="{$light_color}">
 					<select class="default" name="checkbox_selected_option">
@@ -979,6 +1023,162 @@
 				  </td>
 				</tr>
 
+		<tr id="xsd_display_att_tr" {if $xsdmf_id == ''}style="display:none"{/if}>
+			<td>
+		    {if $form_cat == 'edit'}		
+			  <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+				<tr>
+				  <td>
+					<table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+					  <form name="xsd_display_att_form" method="post" action="{$smarty.server.PHP_SELF}">
+		              <input type="hidden" name="xdis_id" value="{$xdis_id}">
+ 		              <input type="hidden" name="xml_element" value="{$xml_element}">
+		              <input type="hidden" name="xsdsel_id" value="{$xsdsel_id}">
+ 					  <input type="hidden" name="form_name" value="att_main">
+ 					  <input type="hidden" name="att_parent_xsdmf_id" value="{$att_parent_xsdmf_id}">
+ 					  <input type="hidden" name="att_child_xdis_id" value="{$att_child_xsdmf_id}">
+					  {if $smarty.get.xsdref_cat == 'edit'}
+					  <input type="hidden" name="form_cat" value="update">
+					  {else}
+					  <input type="hidden" name="form_cat" value="new">
+					  {/if}
+					  <tr>
+						<td colspan="2" class="default">
+						  <b>Manage XSD Display Attachments</b>
+						</td>
+					  </tr>
+					  {if $result != ""}
+					  <tr>
+						<td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
+						  {if $smarty.post.form_cat == "new"}
+							{if $result == -1}
+							  An error occurred while trying to add the new xsd display attachment.
+							{elseif $result == 1}
+							  Thank you, the xsd display attachment was added successfully.
+							{/if}
+						  {elseif $smarty.post.form_cat == "update"}
+							{if $result == -1}
+							  An error occurred while trying to update the xsd display attachment information.
+							{elseif $result == 1}
+							  Thank you, the xsd display attachment was updated successfully.
+							{/if}
+						  {/if}
+						</td>
+					  </tr>
+					  {/if}
+					<tr id="tr_att_xdis_id">
+					  <td bgcolor="{$cell_color}" class="default">
+						<b>XSD Display</b>
+					  </td>
+					  <td bgcolor="{$light_color}">
+						<select class="default" name="att_xdis_id" onChange="javascript: selectXSDDisplay(this.form, 'att_xdis_id')">
+						 {html_options options=$xsd_displays}
+						</select>
+					  </td>
+					</tr>
+					<tr style="display:none;" id="tr_att_child_xsdmf_id">
+					  <td bgcolor="{$cell_color}" class="default">
+						<b>XSD Matching Field</b>
+					  </td>
+					  <td bgcolor="{$light_color}">
+						<div id="loading1" style="display:none;">Loading...</div>
+						<select class="default" name="att_child_xsdmf_id" >
+						</select>
+					  </td>
+					</tr>
+					  <tr>
+						<td width="120" bgcolor="{$cell_color}" class="default">
+						  <b>Order:</b>
+						</td>
+						<td bgcolor="{$light_color}">
+						  <input type="text" name="att_order" size="20" class="default">
+						  {include file="error_icon.tpl.html" field="att_order"}
+						</td>
+					  </tr>
+					  <tr>
+						<td colspan="2" bgcolor="{$cell_color}" align="center">
+						  {if $smarty.get.att_cat == 'edit'}
+						  <input class="button" type="submit" value="Update XSD Display Attachment">
+						  {else}
+						  <input class="button" type="submit" value="Add XSD Display Attachment">
+						  {/if}
+						  <input class="button" type="reset" value="Reset">
+						</td>
+					  </tr>
+					  </form>
+					  <tr>
+						<td colspan="2" class="default">
+						  <b>Existing XSD Display Attachments:</b>
+						</td>
+					  </tr>
+					  <tr>
+						<td colspan="2">
+						  <table border="0" width="100%" cellpadding="1" cellspacing="1">
+							<form onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
+				            <input type="hidden" name="xdis_id" value="{$xdis_id}">
+				            <input type="hidden" name="xml_element" value="{$xml_element}">
+				            <input type="hidden" name="xsdsel_id" value="{$xsdsel_id}">
+						    <input type="hidden" name="form_name" value="att_delete">
+							<input type="hidden" name="form_cat" value="delete">
+							<input type="hidden" name="att_parent_xsdmf_id" value="{$att_parent_xsdmf_id}">
+							<tr>
+							  <td width="5" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
+							  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>XSD Display</b></td>
+							  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Version</b></td>
+							  <td width="35%" bgcolor="{$cell_color}" class="default">&nbsp;<b>XSDMF ID/Element</b></td>
+							  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Order</b></td>
+							  <td width="15%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>XSD HTML Matching Editor&nbsp;</b></td>
+							</tr>
+							{section name="i" loop=$xsd_display_att_list}
+							{cycle values=$cycle assign="row_color"}
+							<tr>
+							  <td width="4" nowrap bgcolor="{$row_color}" align="center">
+								<input type="checkbox" name="items[]" value="{$xsd_display_ref_list[i].att_id}" {if $smarty.section.i.total == 0}disabled{/if}>
+							  </td>
+							  <td width="15%" bgcolor="{$row_color}" class="default">
+								&nbsp;{$xsd_display_att_list[i].xdis_title}
+							  </td>
+							  <td width="15%" bgcolor="{$row_color}" class="default">
+								&nbsp;{$xsd_display_att_list[i].xdis_version}
+							  </td>
+							  <td width="35%" bgcolor="{$row_color}" class="default">
+								&nbsp;<a href="xsd_tree_match_form.php?xdis_id={$xdis_id}&xml_element={$xml_element}&xsdsel_id={$xsdsel_id}&att_cat=edit&att_id={$xsd_display_att_list[i].att_id}">({$xsd_display_ref_list[i].xsdmf_id}){$xsd_display_ref_list[i].xsdmf_element}</a>
+							  </td>
+							  <td width="15%" bgcolor="{$row_color}" class="default">
+								&nbsp;{$xsd_display_att_list[i].att_order}
+							  </td>
+							</tr>
+							{sectionelse}
+							<tr>
+							  <td colspan="5" bgcolor="{$light_color}" align="center" class="default">
+								No xsd display attachments could be found.
+								<input type="hidden" id="no_xsd_atts" name="no_xsd_atts" value="true">
+							  </td>
+							</tr>
+							{/section}
+							<tr>
+							  <td width="4" align="center" bgcolor="{$cell_color}">
+								<input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
+							  </td>
+							  <td colspan="5" bgcolor="{$cell_color}">
+								<input type="submit" value="Delete" class="button">
+							  </td>
+							</tr>
+							</form>
+						  </table>
+						</td>
+					  </tr>
+					</table>
+				  </td>
+				</tr>
+					</table>
+				  {else}
+					  <input type="hidden" id="no_xsd_atts" name="no_xsd_atts" value="true">
+					  <font color="green" class="default"><strong>When you create this matching field entry a XSD Attachments management panel will appear here for you to chose the XSD Attachments.</strong></font>
+				  {/if}
+				  </td>
+				</tr>
+
 				<tr id="xsd_loop_subelement_tr" {if $info.xsdmf_html_input != 'xsd_loop_subelement'}style="display:none"{/if}>
 					<td>
 					 {if $form_cat == 'edit'}
@@ -1157,6 +1357,7 @@
       <script language="JavaScript">
       <!--
       window.onload = setXSDMatchField;
+	  selectXSDDisplay(getForm('xsd_display_att_form'), 'att_xdis_id'); 
       function setXSDMatchField()
       {
           var f = getForm('xsd_tree_match_form');

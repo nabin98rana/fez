@@ -280,6 +280,7 @@ class Workflow
     {
         // find first matching trigger
         $record = new RecordObject($pid);
+		$record->getImageFezACML($dsID); 
         $wft_details = $record->getIngestTrigger($mimetype);
         if (!empty($wft_details)) {
             // run it
@@ -329,6 +330,6 @@ class Workflow
 
 // benchmarking the included file (aka setup time)
 if (APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included Doc_Type_XSD Class');
+    $GLOBALS['bench']->setMarker('Included Workflow Class');
 }
 ?>

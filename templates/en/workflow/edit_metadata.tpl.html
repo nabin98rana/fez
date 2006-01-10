@@ -195,6 +195,27 @@ function selectDateField(field_name, day, month, year)
 						  </td>
 						  <td bgcolor="{$value_color}">
 						<input class="default" type="file" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" maxlength="255" size="50">
+							
+						  {if $xsd_display_fields[i].xsdmf_attached_xsdmf_id != ""}
+								{section name="a" loop=$xsd_display_fields}
+									{assign var="temp_attached_xsdmf_id" value=$xsd_display_fields[a].xsdmf_id}
+									{if $temp_attached_xsdmf_id == $xsd_display_fields[i].xsdmf_attached_xsdmf_id}
+										{if $xsd_display_fields[a].xsdmf_html_input == 'text'}
+											<br /> 
+											<span class="default"><b>{$xsd_display_fields[a].xsdmf_title}:</b></span>
+											{assign var="attached_field_id" value="xsd_display_fields_"|cat:$temp_attached_xsdmf_id|cat:"_"|cat:$loop_num}
+											<input class="default" type="text" id="{$attached_field_id}" name="xsd_display_fields[{$xsd_display_fields[a].xsdmf_id}][]" value="{$details[$temp_fld_id][z]}"  maxlength="255" size="50">
+										{elseif $xsd_display_fields[a].xsdmf_html_input == 'checkbox'}
+											<input class="default" type="checkbox" id="xsd_display_fields_{$xsd_display_fields[a].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[a].xsdmf_id}][]" {if $details[$temp_fld_id][z] =='on'}checked{/if} onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[a].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[a].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[a].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[a].xsdmf_id}');">
+												{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[a].xsdmf_id|cat:"][]"}
+												{if $xsd_display_fields[a].xsdmf_long_description != ""}
+													<span class="default">{$xsd_display_fields[a].xsdmf_long_description}</span>
+												{/if}
+										{/if}
+									{/if}
+								{/section}
+						  {/if}
+
 						 </td>
 						</tr>
 					{/section}
@@ -205,6 +226,17 @@ function selectDateField(field_name, day, month, year)
 						  </td>
 						  <td bgcolor="{$value_color}">
 						<input class="default" type="file" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]"  maxlength="255" size="50">
+						  {if $xsd_display_fields[i].xsdmf_attached_xsdmf_id != ""}
+								{section name="a" loop=$xsd_display_fields}
+									{assign var="temp_attached_xsdmf_id" value=$xsd_display_fields[a].xsdmf_id}
+								  	{if $xsd_display_fields[a].xsdmf_html_input == 'text' AND $temp_attached_xsdmf_id == $xsd_display_fields[i].xsdmf_attached_xsdmf_id}
+										<br />
+										<span class="default"><b>{$xsd_display_fields[a].xsdmf_title}:</b></span>
+									    {assign var="attached_field_id" value="xsd_display_fields_"|cat:$temp_attached_xsdmf_id|cat:"_"|cat:$loop_num}
+										<input class="default" type="text" id="{$attached_field_id}" name="xsd_display_fields[{$xsd_display_fields[a].xsdmf_id}][]" value="{$details[$temp_fld_id][z]}" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" maxlength="255" size="50">
+									{/if}
+								{/section}
+						  {/if}
 						 </td>
 						</tr>
 				{/if}
@@ -447,7 +479,7 @@ function selectDateField(field_name, day, month, year)
 				{assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$image_file_name} 			
 				{assign var="image_file_string" value=""}
 				{fetch file=$image_name assign="image_file_string"}
-				<td bgcolor="{$value_color}">{if $datastreams[d].thumbnail != "0"}<img align="absmiddle" src="{$eserv_url}{$datastreams[d].thumbnail}">{/if}{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}images/default.png">{/if} {if $datastreams[d].isViewer == 1 || $isAdministrator}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].ID}">{/if}{$datastreams[d].ID}{if $datastreams[d].isViewer == 1 || $isAdministrator}</a>&nbsp;{/if} {if ($datastreams[d].isArchivalViewer == 1 || $isAdministrator) && $datastreams[d].thumbnail != "0"}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID=archival_{$datastreams[d].ID}"><img title="archival version" align="absmiddle" border="0" src="{$rel_url}images/archival_22.gif"></a>&nbsp;{/if} {if $datastreams[d].presmd != "0" && $datastreams[d].isViewer == 1 || $isAdministrator}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].presmd}"><img title="preservation metadata" align="absmiddle" border="0" src="{$rel_url}images/presmd_22.gif"></a>&nbsp;{/if} {if $datastreams[d].isEditor == 1}[ <a class="link" title="purge datastream" href="javascript:void(null);" onClick="javascript:purgeDatastream('{$datastreams[d].ID}');">purge</a> ]{/if}				
+				<td bgcolor="{$value_color}">{if $datastreams[d].thumbnail != "0"}<img align="absmiddle" src="{$eserv_url}{$datastreams[d].thumbnail}">{/if}{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}images/default.png">{/if} {if $datastreams[d].isViewer == 1 || $isAdministrator}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].ID}">{/if}{$datastreams[d].ID}{if $datastreams[d].isViewer == 1 || $isAdministrator}</a>&nbsp;{/if} {if ($datastreams[d].isArchivalViewer == 1 || $isAdministrator) && $datastreams[d].thumbnail != "0"}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID=archival_{$datastreams[d].ID}"><img title="archival version" align="absmiddle" border="0" src="{$rel_url}images/archival_22.gif"></a>&nbsp;{/if} {if $datastreams[d].presmd != "0" && $datastreams[d].isViewer == 1 || $isAdministrator}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].presmd}"><img title="preservation metadata" align="absmiddle" border="0" src="{$rel_url}images/presmd_22.gif"></a>&nbsp;{/if} {if $datastreams[d].isEditor == 1 || $isAdministrator}[ <a class="link" title="purge datastream" href="javascript:void(null);" onClick="javascript:purgeDatastream('{$datastreams[d].ID}');">purge</a> ]{/if}				
 				{section name="w" loop=$datastreams[d].workflows}
 					{if $datastreams[d].workflows[w].wft_icon == 'images/security.gif'}
 						{if $datastreams[d].security == 'include'}
@@ -462,7 +494,6 @@ function selectDateField(field_name, day, month, year)
 					{else}
 						{assign var="wf_icon" value="images/security_inherit.gif"}
 					{/if}
-
 					{if $datastreams[d].isEditor == 1 || $isAdministrator}&nbsp;<a href='{$rel_url}workflow/update.php?pid={$pid|escape:"html"}&dsID={$datastreams[d].ID}&cat=select_workflow&wft_id={$datastreams[d].workflows[w].wft_id}&href={$smarty.server.REQUEST_URI}'><img title="{$datastreams[d].workflows[w].wfl_title}" align="absmiddle" src="{$rel_url}{$wf_icon}" border="0"></a>{/if}
 				{/section}
 				</td>

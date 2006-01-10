@@ -35,30 +35,36 @@
 $pid = $this->pid;
 $xdis_id = $this->xdis_id;
 $dsInfo = $this->dsInfo;
+$copyright = $this->copyright;
+$watermark = $this->watermark;
 $dsIDName = $dsInfo['ID'];
 $filename=$dsIDName;
 $file_name_prefix = "web_";
 $filename_ext = strtolower(substr($filename, (strrpos($filename, ".") + 1)));
 $getString = APP_RELATIVE_URL."webservices/wfb.image_resize.php?image="
-.urlencode($filename)."&height=600&width=800&ext=jpg&prefix=".$file_name_prefix;
+.urlencode($filename)."&height=600&width=800&ext=jpg&prefix=".$file_name_prefix."&copyright=".$copyright."&watermark=".$watermark;
 $http_req = new HTTP_Request($getString, array("http" => "1.0"));
 $http_req->setMethod("GET");
 $http_req->sendRequest();
 $xml = $http_req->getResponseBody();
 if (is_numeric(strpos($filename, "/"))) {
-    $new_file = APP_TEMP_DIR.$file_name_prefix.str_replace(" ", "_", 
+    $new_file = $file_name_prefix.str_replace(" ", "_", 
             substr(substr($filename, 0, strrpos($filename, ".")), strrpos($filename, "/")+1)).".jpg";
 } else {
-    $new_file = APP_TEMP_DIR.$file_name_prefix.str_replace(" ", "_", substr($filename, 0, strrpos($filename, "."))).".jpg";
+    $new_file = $file_name_prefix.str_replace(" ", "_", substr($filename, 0, strrpos($filename, "."))).".jpg";
 }
 
 if ($new_file) {
-    Fedora_API::getUploadLocationByLocalRef($pid, $new_file, $new_file, $new_file, 'image/jpeg', 'M');
-    if (is_numeric(strpos($new_file, "/"))) {
-        $new_file = substr($new_file, strrpos($new_file, "/")+1); // take out any nasty slashes from the ds name itself
-    }
-    $new_file = str_replace(" ", "_", $new_file);
-	Record::setIndexMatchingFields($xdis_id, $pid); // add the thumbnail to the fez index
+	if (Fedora_API::datastreamExists($pid, $new_file)) {
+	    Fedora_API::callPurgeDatastream($pid, $new_file);
+	}
+	$new_file = APP_TEMP_DIR.$new_file;
+	Fedora_API::getUploadLocationByLocalRef($pid, $new_file, $new_file, $new_file, 'image/jpeg', 'M');
+	if (is_file($new_file)) {
+		$deleteCommand = APP_DELETE_CMD." ".$new_file;
+		exec($deleteCommand);
+	}
+//	Record::setIndexMatchingFields($xdis_id, $pid); // add the thumbnail to the fez index
 
 }
 

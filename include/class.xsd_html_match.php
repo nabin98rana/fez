@@ -231,6 +231,32 @@ class XSD_HTML_Match
         }
     }
 
+    /**
+     * Method used to get an associative array of the xsdmf id and xsdmf element
+     *
+     * @access  public
+     * @return  array The list of xsd html matches
+     */
+    function getAssocList($xdis_id)
+    {
+  		 $stmt = "SELECT
+                    distinct xsdmf_id, IFNULL(CONCAT('(', xsdmf_id, ') (', xsdsel_title, ') ', xsdmf_element), CONCAT('(', xsdmf_id, ') ', xsdmf_element)) as xsdmf_presentation
+				 FROM 
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields as m1 left join
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement as s1 on s1.xsdsel_id = m1.xsdmf_xsdsel_id
+	 			 WHERE xsdmf_xdis_id = ".$xdis_id." 
+				 ORDER BY xsdsel_title";		
+					
+        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
+
+
 
   /**
     * Method used to get the list of matching fields associated with
@@ -297,7 +323,7 @@ class XSD_HTML_Match
 					(SELECT r2.xsdrel_xdis_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship r2 right join
 						(SELECT m3.xsdmf_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields as m3 WHERE m3.xsdmf_xdis_id=".$xdis_id.")
 						as rels on r2.xsdrel_xsdmf_id in (rels.xsdmf_id)) as relsall on ((m1.xsdmf_xdis_id in (relsall.xsdrel_xdis_id))
-						OR (m1.xsdmf_xdis_id = ".$xdis_id." AND xsdmf_enabled=1))";
+						OR (m1.xsdmf_xdis_id = ".$xdis_id."))";
 //				}
 				$stmt .= "
 					left join
@@ -318,7 +344,9 @@ class XSD_HTML_Match
 						array_push($res[$rkey]['multiple_array'], $x);
 					}
 				}
+//				if ($record['xsdmf_attached_xsdmf_id'] != "")
 			}			
+			
             return $res;
         }
     }

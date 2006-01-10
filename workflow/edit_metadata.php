@@ -134,6 +134,7 @@ $jtaskData = "";
 $maxG = 0;
 $xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array(""));  // XSD_DisplayObject
 
+//print_r($xsd_display_fields);
 $author_ids = Author::getAssocListAll();
 $tpl->assign("author_ids", $author_ids);
 //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
@@ -205,7 +206,7 @@ $securityfields = Auth::getAllRoles();
 $datastreams = Fedora_API::callGetDatastreams($pid);
 
 $datastreams = Misc::cleanDatastreamList($datastreams);
-$datastream_workflows = WorkflowTrigger::getListByTrigger('-1', 5);
+$datastream_workflows = WorkflowTrigger::getListByTrigger('-1', 5); //5 is for datastreams
 
 foreach ($datastreams as $ds_key => $ds) {
 	if ($datastreams[$ds_key]['controlGroup'] == 'M') {

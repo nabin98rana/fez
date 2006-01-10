@@ -57,18 +57,29 @@ switch ($cat)
             $res = Fedora_API::callPurgeDatastream($pid, $dsID);
             Record::removeIndexRecordByValue($pid, $dsID);
             $thumbnail = "thumbnail_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
+            $web = "web_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
+            $preview = "preview_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
             $FezACML_DS = "FezACML_".str_replace(" ", "_", $dsID).".xml";
             $PresMD_DS = "presmd_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".xml";
+			Record::removeIndexRecord($pid, $dsID, 'keep');
             if (Fedora_API::datastreamExists($pid, $thumbnail)) {
                 Fedora_API::callPurgeDatastream($pid, $thumbnail);
                 Record::removeIndexRecordByValue($pid, $thumbnail);
-                Fedora_API::callPurgeDatastream($pid, $FezACML_DS);
-				Record::removeIndexRecord($pid, $dsID, 'keep');
             }
+            if (Fedora_API::datastreamExists($pid, $preview)) {
+				Record::removeIndexRecordByValue($pid, $preview);
+                Fedora_API::callPurgeDatastream($pid, $preview);
+			}
+            if (Fedora_API::datastreamExists($pid, $web)) {
+				Record::removeIndexRecordByValue($pid, $web);
+                Fedora_API::callPurgeDatastream($pid, $web);
+			}
             if (Fedora_API::datastreamExists($pid, $FezACML_DS)) {
+				Record::removeIndexRecordByValue($pid, $FezACML_DS);			
                 Fedora_API::callPurgeDatastream($pid, $FezACML_DS);
 			}
             if (Fedora_API::datastreamExists($pid, $PresMD_DS)) {
+				Record::removeIndexRecordByValue($pid, $PresMD_DS);			
                 Fedora_API::callPurgeDatastream($pid, $PresMD_DS);
 			}
 

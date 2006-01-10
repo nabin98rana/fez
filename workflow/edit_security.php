@@ -199,17 +199,19 @@ foreach ($xsd_display_fields  as $dis_field) {
 	}
 }
 $FezACML_exists = 0;
+$datastreams = Fedora_API::callGetDatastreams($pid);
+$datastreams = Misc::cleanDatastreamList($datastreams);
 if ($dsID == "") {
-	$datastreams = Fedora_API::callGetDatastreams($pid);
-	$datastreams = Misc::cleanDatastreamList($datastreams);
 	foreach ($datastreams as $security_check) {
 		if ($security_check['ID'] == 'FezACML') {
 			$FezACML_exists = 1;
 		}
 	}
 } else {
-	if (count($details) > 0) {
-		$FezACML_exists = 1;		
+	foreach ($datastreams as $security_check) {
+		if ($security_check['ID'] == 'FezACML_'.$dsID.'.xml') {
+			$FezACML_exists = 1;
+		}
 	}
 }
 

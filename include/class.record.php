@@ -272,12 +272,12 @@ class Record
 			$stmt .= " and (rmf_xsdmf_id not in (select distinct(xsdmf_id) from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields where xsdmf_element = '!datastream!ID')";
 		}
 		if ($specify_str != "") {				
-			$stmt .= " and rmf_xsdmf_id in (select x2.xsdmf_id from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2 inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on x2.xsdmf_xdis_id=d1.xdis_id inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd1 on (xsd1.xsd_id = d1.xdis_xsd_id and xsd1.xsd_title in ('".$specify_str."'))) ";
+			$stmt .= " and rmf_xsdmf_id in (select distinct(x2.xsdmf_id) from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2 inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on x2.xsdmf_xdis_id=d1.xdis_id inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd1 on (xsd1.xsd_id = d1.xdis_xsd_id and xsd1.xsd_title in ('".$specify_str."'))) ";
 			if ($dsDelete=='keep') {
 				$stmt .= ")";
 			}
 		} elseif ($exclude_str != "") {
-			$stmt .= " and rmf_xsdmf_id in (select x2.xsdmf_id from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2 inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on x2.xsdmf_xdis_id=d1.xdis_id inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd1 on (xsd1.xsd_id = d1.xdis_xsd_id and xsd1.xsd_title not in ('".$exclude_str."'))) ";			
+			$stmt .= " and rmf_xsdmf_id in (select distinct(x2.xsdmf_id) from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2 inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on x2.xsdmf_xdis_id=d1.xdis_id inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd1 on (xsd1.xsd_id = d1.xdis_xsd_id and xsd1.xsd_title not in ('".$exclude_str."'))) ";			
 			if ($dsDelete=='keep') {
 				$stmt .= ")";
 			}
@@ -688,6 +688,7 @@ class Record
         $display = new XSD_DisplayObject($xdis_id);
         $array_ptr = array();
         $xsdmf_array = $display->getXSDMF_Values($pid);
+		Record::removeIndexRecord($pid); // remove any existing index entry for that PID // CK added 9/1/06 - still working on this
 //        print_r($xsdmf_array);
         foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
             if (!is_array($xsdmf_value) && !empty($xsdmf_value) && (trim($xsdmf_value) != "")) {					
@@ -799,7 +800,8 @@ class Record
             Fedora_API::callIngestObject($xmlObj);
         }
 		$convert_check = false;
-		Record::insertIndexBatch($pid, '', $indexArray, $datastreamXMLHeaders, $exclude_list, $specify_list);
+//		Record::insertIndexBatch($pid, '', $indexArray, $datastreamXMLHeaders, $exclude_list, $specify_list);
+
         // ingest the datastreams
 		foreach ($datastreamXMLHeaders as $dsKey => $dsTitle) {
 			$dsIDName = $dsTitle['ID'];
@@ -808,29 +810,52 @@ class Record
 				$filename_ext = strtolower(substr($dsIDName, (strrpos($dsIDName, ".") + 1)));
 				$dsIDName = substr($dsIDName, 0, strrpos($dsIDName, ".") + 1).$filename_ext;
 			}
-			if (Fedora_API::datastreamExists($pid, $dsTitle['ID'])) {
-				Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, $dsTitle['STATE'], $dsTitle['LABEL'], 
-                        $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], $dsTitle['VERSIONABLE']);
+			if ($dsIDName == "DC") { // Dublic core is special, it cannot be deleted
+		    	Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, $dsTitle['STATE'], $dsTitle['LABEL'],
+                        $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], false); 
 			} else {
-				if ($dsTitle['CONTROL_GROUP'] == "R") { // if its a redirect we don't need to upload the file
-					Fedora_API::callAddDatastream($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey], 
-                            $dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
+				if ($dsTitle['CONTROL_GROUP'] == "R" || $dsTitle['CONTROL_GROUP'] == "X") { // if its a redirect we don't need to upload the file
+			    	Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, $dsTitle['STATE'], $dsTitle['LABEL'],
+                        $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], "false"); 
+				//	Fedora_API::callAddDatastream($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey], 
+						//	$dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
 				} else {
+					if (Fedora_API::datastreamExists($pid, $dsIDName)) {
+						Fedora_API::callPurgeDatastream($pid, $dsIDName);
+					}
 					Fedora_API::getUploadLocation($pid, $dsIDName, $datastreamXMLContent[$dsKey], $dsTitle['LABEL'], 
-                            $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
+							$dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
+					$presmd_check = Workflow::checkForPresMD($dsIDName);
+					if ($presmd_check != false) {
+						if (Fedora_API::datastreamExists($pid, $presmd_check)) {
+							Fedora_API::callPurgeDatastream($pid, $presmd_check);
+							if (is_file(APP_TEMP_DIR.$presmd_check)) {
+								$deleteCommand = APP_DELETE_CMD." ".APP_TEMP_DIR.$presmd_check;
+								exec($deleteCommand);
+							}
+						}
+						Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, 
+								"text/xml", "X");
+					}
 				}
-			}
-			$presmd_check = Workflow::checkForPresMD($dsIDName);
-			if ($presmd_check != false) {
-				Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, 
-                        "text/xml", "X");
-			}
+			}			
 		} 
         // run the workflows on the ingested datastreams.
         // we do this in a seperate loop so that all the supporting metadata streams are ready to go
 		foreach ($datastreamXMLHeaders as $dsKey => $dsTitle) {
             Workflow::processIngestTrigger($pid, $dsTitle['ID'], $dsTitle['MIMETYPE']);
+			//clear the managed content file temporarily saved in the APP_TEMP_DIR
+			if (is_file(APP_TEMP_DIR.$dsTitle['ID'])) {
+				$deleteCommand = APP_DELETE_CMD." ".APP_TEMP_DIR.$dsTitle['ID'];
+				exec($deleteCommand);
+			}
+
         }
+
+		
+		Record::removeIndexRecord($pid); // remove any existing index entry for that PID			
+		Record::setIndexMatchingFields($xdis_id, $pid);
+
     }
 
 }
@@ -906,7 +931,24 @@ class RecordGeneral
         return null;
     }
 
-
+    /**
+     * getImageFezACML
+     * Retrieve the FezACML image details eg copyright message and watermark boolean settings
+	 * 
+     * @access  public
+     * @return  void
+     */
+    function getImageFezACML($dsID) {
+		if (!empty($dsID)) {
+			$xdis_array = Fedora_API::callGetDatastreamContentsField($this->pid, 'FezACML'.$dsID.'.xml', array('image_copyright', 'image_watermark'));
+			if (isset($xdis_array['image_copyright'][0])) {
+				$this->image_copyright[$dsID] = $xdis_array['image_copyright'][0];
+			} 
+			if (isset($xdis_array['image_watermark'][0])) {
+				$this->image_watermark[$dsID] = $xdis_array['image_watermark'][0];
+			} 
+		}
+    }
 
     /**
      * getAuth
@@ -1037,7 +1079,7 @@ class RecordGeneral
         $newXML .= "</FezMD>";
         //		echo $newXML;
         if ($newXML != "") {
-            Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez extension metadata", $newXML, "text/xml", true);
+            Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez extension metadata", $newXML, "text/xml", false);
         }
     }
 
@@ -1354,7 +1396,7 @@ class RecordObject extends RecordGeneral
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
 //		$datastreamTitles = $display->getDatastreamTitles(); 
 		$datastreamTitles = $display->getDatastreamTitles($exclude_list, $specify_list); 
-        Record::insertXML($pid, compact('datastreamTitles', 'exclude_list', 'specify_list', 'xmlObj', 'indexArray', 'existingDatastreams' ), $ingestObject);
+        Record::insertXML($pid, compact('datastreamTitles', 'exclude_list', 'specify_list', 'xmlObj', 'indexArray', 'existingDatastreams', 'xdis_id'), $ingestObject);
 		return $pid;
     }
     

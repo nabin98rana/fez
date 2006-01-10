@@ -41,10 +41,17 @@ include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.controlled_vocab.php");
 include_once(APP_INC_PATH . "class.search_key.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
+include_once(APP_INC_PATH . "class.xsd_display_attach.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 include_once(APP_INC_PATH . "class.xsd_relationship.php");
 include_once(APP_INC_PATH . "class.xsd_loop_subelement.php");
+include_once(APP_INC_PATH . "najax/najax.php");
+include_once(APP_INC_PATH . "najax_objects/class.select_xsd_display.php");
 
+NAJAX_Server::allowClasses('SelectXSDDisplay');
+if (NAJAX_Server::runServer()) {
+	exit;
+}
 
 $tpl = new Template_API();
 $tpl->setTemplate("manage/xsd_tree_match_form.tpl.html");
@@ -97,6 +104,12 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 			$tpl->assign("result", XSD_HTML_Match::remove($xdis_id, $xml_element));
 		}
 
+	} elseif (is_numeric(strpos(@$HTTP_POST_VARS["form_name"], "att_main"))) {
+		$form_cat = @$HTTP_POST_VARS["form_cat"];
+		if ($form_cat == "new") {
+			$tpl->assign("result", XSD_Display_Attach::insert());
+		}
+
 	} elseif (is_numeric(strpos(@$HTTP_POST_VARS["form_name"], "xsdrel_main"))) {
 		$form_cat = @$HTTP_POST_VARS["form_cat"];
 		if ($form_cat == "new") {
@@ -109,6 +122,9 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 		} elseif ($form_cat == "update") {
 			$tpl->assign("result", XSD_Loop_Subelement::update());		
 		}
+	} elseif (is_numeric(strpos(@$HTTP_POST_VARS["form_name"], "att_delete"))) {
+		$form_cat = "delete";
+		$tpl->assign("result", XSD_Display_Attach::remove());
 	} elseif (is_numeric(strpos(@$HTTP_POST_VARS["form_name"], "xsdrel_delete"))) {
 		$form_cat = "delete";
 		$tpl->assign("result", XSD_Relationship::remove());
@@ -147,6 +163,7 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 	    $tpl->assign("form_cat", "edit");
 		$tpl->assign("xsdmf_id", $info_array['xsdmf_id']);
 		$xsd_display_ref_list = XSD_Relationship::getListByXSDMF($info_array['xsdmf_id']);
+		$xsd_display_att_list = XSD_Display_Attach::getListByXSDMF($info_array['xsdmf_id']);
 		$xsd_loop_subelement_list = XSD_Loop_Subelement::getListByXSDMF($info_array['xsdmf_id']);
 		if ((is_numeric($xsdsel_id)) && ($HTTP_GET_VARS['xsdsel_cat'] == "edit")) {
 			$xsd_loop_subelement_details = XSD_Loop_Subelement::getDetails($xsdsel_id);
@@ -154,6 +171,7 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 		}
 		$xsdmf_id_ref_list = XSD_HTML_Match::getListAssoc();
 		$tpl->assign("xsdmf_id_ref_list", $xsdmf_id_ref_list);
+		$tpl->assign("xsd_display_att_list", $xsd_display_att_list);
 		$tpl->assign("xsd_display_ref_list", $xsd_display_ref_list);
 		$tpl->assign("xsd_loop_subelement_list", $xsd_loop_subelement_list);
 		$tpl->assign("xsd_display_count", count($xsd_display_ref_list));
@@ -167,5 +185,7 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
     $tpl->assign("show_not_allowed_msg", true);
 }
 
+$tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
+$tpl->assign('najax_register', NAJAX_Client::register('SelectXSDDisplay', 'xsd_tree_match_form.php'));
 $tpl->displayTemplate();
 ?>

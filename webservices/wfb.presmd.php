@@ -47,8 +47,12 @@ if (is_numeric(strpos($file, "/"))) {
 }
 if (trim($file_dir) == "") { $file_dir = APP_JHOVE_TEMP_DIR; }
 if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) { // check for command hax
-	
-	$APP_JHOVE_CMD = APP_JHOVE_DIR.'/jhove -h xml -o '.APP_JHOVE_TEMP_DIR.'presmd_'.str_replace(' ', '_', substr($file, 0, strrpos($file, '.'))).'.xml';
+	$presmd_file = APP_JHOVE_TEMP_DIR.'presmd_'.str_replace(' ', '_', substr($file, 0, strrpos($file, '.'))).'.xml';
+	if (is_file($presmd_file)) {
+		$deleteCommand = APP_DELETE_CMD." ".$presmd_file;
+		exec($deleteCommand);
+	}
+	$APP_JHOVE_CMD = APP_JHOVE_DIR.'/jhove -h xml -o '.$presmd_file;
 	if (is_numeric(strpos($file, " "))) {
 		$APP_JHOVE_CMD .= ' \"'.$file_dir.'/'.$file.'\"';
 	} else {

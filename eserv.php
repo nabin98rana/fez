@@ -92,11 +92,11 @@ if (!empty($pid) && !empty($dsID)) {
 		
 		case 'jpg'  :
 				$is_image = 1;
-				Header("Content-type: image/jpg\n");
+				Header("Content-type: image/jpeg\n");
 				break;
 		case 'jpeg'  :
 				$is_image = 1;
-				Header("Content-type: image/jpg\n");
+				Header("Content-type: image/jpeg\n");
 				break;
 		case 'ico'  :
 				$is_image = 1;

@@ -538,8 +538,12 @@ class Misc
      * @return  string The formatted time
      */
 	function mime_content_type($f) {
-		$f = escapeshellarg($f);
-		return trim( `file -bi $f` );
+		if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) {
+			return mime_content_type($f);
+		} else {
+			$f = escapeshellarg($f);
+			return trim( `file -bi $f` );
+		}
 	}
 
     /**

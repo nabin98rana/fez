@@ -32,67 +32,61 @@
 // +----------------------------------------------------------------------+
 //
 //
-include_once("../config.inc.php");
-include_once(APP_INC_PATH . "class.template.php");
-include_once(APP_INC_PATH . "class.auth.php");
-include_once(APP_INC_PATH . "class.fedora_api.php");
-include_once(APP_INC_PATH . "class.reindex.php");
-include_once(APP_INC_PATH . "class.record.php");
-include_once(APP_INC_PATH . "class.community.php");
-include_once(APP_INC_PATH . "class.collection.php");
+
+/**
+ * Class designed to handle all business logic related to the resampling of image datastreams in the
+ * system.
+ *
+ * @version 1.0
+ * @author Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>
+ * @author Matthew Smith <m.smith@library.uq.edu.au>
+ */
+
+include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "class.misc.php");
+include_once(APP_INC_PATH . "class.auth.php");
+include_once(APP_INC_PATH . "class.user.php");
+include_once(APP_INC_PATH . "class.date.php");
+include_once(APP_INC_PATH . "class.record.php");
+include_once(APP_INC_PATH . "class.workflow.php");
 include_once(APP_INC_PATH . "class.status.php");
-include_once(APP_INC_PATH . "db_access.php");
-include_once(APP_INC_PATH . "najax/najax.php");
-include_once(APP_INC_PATH . "najax_objects/class.select_reindex_info.php");
+include_once(APP_INC_PATH . "class.fedora_api.php");
+include_once(APP_INC_PATH . "class.xsd_display.php");
+include_once(APP_INC_PATH . "class.doc_type_xsd.php");
+include_once(APP_INC_PATH . "class.xsd_html_match.php");
+include_once(APP_INC_PATH . "class.xsd_loop_subelement.php");
+include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 
-$tpl = new Template_API();
-$tpl->setTemplate("manage/index.tpl.html");
 
-NAJAX_Server::allowClasses('SelectReindexInfo');
-if (NAJAX_Server::runServer()) {
-	exit;
+/**
+  * Image_Resample
+  */
+class Image_Resample 
+{
+    function resample($pid, $dsID, $width, $height, $regen, $copyright_message="", $watermark=false) {
+		$real_dsID = $dsID;
+		$urldata = APP_FEDORA_GET_URL."/".$pid."/".$real_dsID;
+		$tempDumpFileName = APP_TEMP_DIR.$real_dsID;
+		$sourceOAI = fopen($urldata, "r");
+		$sourceOAIRead = '';
+		while ($tmp = fread($sourceOAI, 4096)) {
+			$sourceOAIRead .= $tmp;
+		}
+		$tempDump = fopen($tempDumpFileName, 'w');
+		fwrite($tempDump, $sourceOAIRead);		
+		fclose($tempDump); 
+		$mimetype = Misc::mime_content_type($tempDumpFileName);
+		Workflow::processIngestTrigger($pid, $real_dsID, $mimetype);
+		if (is_file($tempDumpFileName)) { // now remove the file from temp
+			$deleteCommand = APP_DELETE_CMD." ".$tempDumpFileName;
+			exec($deleteCommand);
+		}
+	}
+
+}
+// benchmarking the included file (aka setup time)
+if (APP_BENCHMARK) {
+    $GLOBALS['bench']->setMarker('Included Image_Resample Class');
 }
 
-Auth::checkAuthentication(APP_SESSION);
-
-$tpl->assign("type", "fedoraindex");
-$isUser = Auth::getUsername();
-$tpl->assign("isUser", $isUser);
-$isAdministrator = User::isUserAdministrator($isUser);
-$tpl->assign("isAdministrator", $isAdministrator);
-
-if ($isAdministrator) {
-    if (@$HTTP_POST_VARS["cat"] == "go") {
-		Reindex::indexFedoraObjects();
-    }
-} else {
-    $tpl->assign("show_not_allowed_msg", true);
-}
-$pagerRow = Record::getParam('pagerRow');
-if (empty($pagerRow)) {
-    $pagerRow = 0;
-}
-$rows = Record::getParam('rows');
-if (empty($rows)) {
-	   $rows = APP_DEFAULT_PAGER_SIZE;
-}
-$options = Record::saveSearchParams();
-$tpl->assign("options", $options);
-$details = Reindex::getMissingList($pagerRow, $rows);
-$tpl->assign("list", $details['list']);
-$tpl->assign("list_info", $details['info']);		
-//        return $details; 
-
-$status_list = Status::getAssocList();
-$communities = Community::getList();
-$communities_list = Misc::keyPairs($communities['list'], 'pid', 'title');
-$communities_list = Misc::stripOneElementArrays($communities_list);
-$tpl->assign('status_list', $status_list);
-$tpl->assign('communities_list', $communities_list);
-$tpl->assign('communities_list_selected', $communities['list'][0]['pid']);
-$tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
-$tpl->assign('najax_register', NAJAX_Client::register('SelectReindexInfo', 'indexfedora.php'));
-
-$tpl->displayTemplate();
 ?>
