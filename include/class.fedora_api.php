@@ -55,7 +55,7 @@ class Fedora_API {
     /**
      * Check to be sure the Fedora server is up and running!
      *
-     * Developer Note: This function is not actually used for anything just yet, but will be in future releases.
+     * Developer Note: This function is not actually used for anything just yet, but will be in future releases. Should be in Fez 1.2.
      *	 
      * @access  public
      * @return  void (Logs an error message)
