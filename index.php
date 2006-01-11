@@ -31,7 +31,7 @@
 // |          Matthew Smith <m.smith@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
 //
-//
+///
 include_once("config.inc.php");
 
 include_once(APP_INC_PATH . "db_access.php");
