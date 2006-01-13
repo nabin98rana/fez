@@ -469,7 +469,6 @@ function selectDateField(field_name, day, month, year)
 				<td bgcolor="{$cell_color}">Name</td>
 				<td bgcolor="{$cell_color}">Description</td>
 				<td bgcolor="{$cell_color}">MIMEType</td>
-				<td bgcolor="{$cell_color}">Size</td>
 			  </tr>
 
         {section name="d" loop=$datastreams}
@@ -500,7 +499,6 @@ function selectDateField(field_name, day, month, year)
 
 				<td bgcolor="{$value_color}">{$datastreams[d].label}</td>
 				<td bgcolor="{$value_color}">{$datastreams[d].MIMEType}</td>
-				<td bgcolor="{$value_color}">{$datastreams[d].size} bytes</td>
 			  </tr>
 			 {/if}
         {/section}

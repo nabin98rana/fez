@@ -42,7 +42,7 @@ $filename=$dsIDName;
 $file_name_prefix = "web_";
 $filename_ext = strtolower(substr($filename, (strrpos($filename, ".") + 1)));
 $getString = APP_RELATIVE_URL."webservices/wfb.image_resize.php?image="
-.urlencode($filename)."&height=600&width=800&ext=jpg&prefix=".$file_name_prefix."&copyright=".$copyright."&watermark=".$watermark;
+.urlencode($filename)."&height=600&width=800&ext=jpg&prefix=".$file_name_prefix;
 $http_req = new HTTP_Request($getString, array("http" => "1.0"));
 $http_req->setMethod("GET");
 $http_req->sendRequest();

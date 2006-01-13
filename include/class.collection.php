@@ -354,10 +354,8 @@ class Collection
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             $res = array();
         }
-
         $list = Collection::makeReturnList($res);
-
-
+		$list = Auth::getIndexAuthorisationGroups($list);
         $list2 = array();
         foreach ($list as $item) {
             if ($item['isEditor']) {
@@ -365,6 +363,7 @@ class Collection
             }
         }
         return $list2;
+
     }
 
     /**
@@ -561,13 +560,14 @@ class Collection
             $res = array();
         }
         $list = Collection::makeReturnList($res);
+		$list = Auth::getIndexAuthorisationGroups($list);
         $list2 = array();
         foreach ($list as $item) {
             if ($item['isEditor']) {
                 $list2[] = $item;
             }
         }
-        return $list2;
+        return $list2;	
     }
 
 

@@ -108,7 +108,8 @@ if ($access_ok) {
     $internal_group_list = Group::getAssocListAll();
     $jtaskData = "";
     $maxG = 0;
-    $xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id));
+//    $xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id));
+	$xsd_display_fields = XSD_HTML_Match::getListByDisplay($xdis_id, array("FezACML"), array(""));  // XSD_DisplayObject
 //    $xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id,array("FezACML"), array("")));
 //    $cvo_list = Controlled_Vocab::getAssocListFullDisplay(false, "", 0, 2);
 

@@ -88,7 +88,6 @@ class XSD_Display_Attach
     function remove()
     {
 		global $HTTP_POST_VARS;
-
         $items = @implode(", ", $HTTP_POST_VARS["items"]);
 
         $stmt = "DELETE FROM

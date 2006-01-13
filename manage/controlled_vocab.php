@@ -45,6 +45,20 @@ Auth::checkAuthentication(APP_SESSION);
 
 $tpl->assign("type", "controlled_vocab");
 $parent_id = @$HTTP_POST_VARS["parent_id"] ? $HTTP_POST_VARS["parent_id"] : @$HTTP_GET_VARS["parent_id"];	
+//$parents = Controlled_Vocab::getParentAssocListFullDisplay($parent_id);
+	$cvo_id = $parent_id;
+	$breadcrumb = Controlled_Vocab::getParentAssocListFullDisplay($cvo_id);
+	$breadcrumb = Misc::array_merge_preserve($breadcrumb, Controlled_Vocab::getAssocListByID($cvo_id));
+
+	$newcrumb = array();
+	foreach ($breadcrumb as $key => $data) {
+		array_push($newcrumb, array("cvo_id" => $key, "cvo_title" => $data));
+	}
+	$max_breadcrumb = (count($newcrumb) -1);
+
+	$tpl->assign("max_subject_breadcrumb", $max_breadcrumb);
+	$tpl->assign("subject_breadcrumb", $newcrumb);
+
 $tpl->assign("parent_id", $parent_id);
 $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
@@ -64,7 +78,7 @@ if ($isAdministrator) {
     if (@$HTTP_GET_VARS["cat"] == "edit") {
         $tpl->assign("info", Controlled_Vocab::getDetails($HTTP_GET_VARS["id"]));
     }
-
+//    $tpl->assign("parents", $parents); // for the parents about the very first one
 	if (is_numeric($parent_id)) {
 	    $tpl->assign("parent_title", Controlled_Vocab::getTitle($parent_id));
 	} else {

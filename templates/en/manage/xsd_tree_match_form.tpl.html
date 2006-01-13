@@ -672,6 +672,46 @@
               </tr>			
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Use in Citation?:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="checkbox" name="xsdmf_citation" class="default" {if ($info.xsdmf_citation == 1)}checked{/if}><br />
+                  <span class="small_default">(If this tickbox is ticked the value for this element will be shown in the citation)</span>
+              </tr>			
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Citation Bold?:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="checkbox" name="xsdmf_citation_bold" class="default" {if ($info.xsdmf_citation_bold == 1)}checked{/if}><br />
+                  <span class="small_default">(If this tickbox is ticked the value for this element will be shown in the citation in bold)</span>
+              </tr>			
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Citation Italics?:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="checkbox" name="xsdmf_citation_italics" class="default" {if ($info.xsdmf_citation_italics == 1)}checked{/if}><br />
+                  <span class="small_default">(If this tickbox is ticked the value for this element will be shown in the citation in italics)</span>
+              </tr>	
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Citation Brackets?:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="checkbox" name="xsdmf_citation_brackets" class="default" {if ($info.xsdmf_citation_brackets == 1)}checked{/if}><br />
+                  <span class="small_default">(If this tickbox is ticked the value for this element will be shown in the citation in brackets)</span>
+              </tr>				  
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Citation Order:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="text" name="xsdmf_citation_order" size="30" class="default" value="{if $info.xsdmf_citation_order}{$info.xsdmf_citation_order}{else}0{/if}"><br />
+                  <span class="small_default">(The order the field will display in the citation)</span>
+              </tr>				  
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Field Type:</b>
                 </td>
                 <td bgcolor="{$light_color}" class="default">
@@ -1035,7 +1075,7 @@
  		              <input type="hidden" name="xml_element" value="{$xml_element}">
 		              <input type="hidden" name="xsdsel_id" value="{$xsdsel_id}">
  					  <input type="hidden" name="form_name" value="att_main">
- 					  <input type="hidden" name="att_parent_xsdmf_id" value="{$att_parent_xsdmf_id}">
+ 					  <input type="hidden" name="att_parent_xsdmf_id" value="{$xsdmf_id}">
  					  <input type="hidden" name="att_child_xdis_id" value="{$att_child_xsdmf_id}">
 					  {if $smarty.get.xsdref_cat == 'edit'}
 					  <input type="hidden" name="form_cat" value="update">
@@ -1072,7 +1112,7 @@
 					  </td>
 					  <td bgcolor="{$light_color}">
 						<select class="default" name="att_xdis_id" onChange="javascript: selectXSDDisplay(this.form, 'att_xdis_id')">
-						 {html_options options=$xsd_displays}
+						 {html_options options=$xsd_displays selected=$xdis_id}
 						</select>
 					  </td>
 					</tr>
@@ -1125,15 +1165,14 @@
 							  <td width="5" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
 							  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>XSD Display</b></td>
 							  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Version</b></td>
-							  <td width="35%" bgcolor="{$cell_color}" class="default">&nbsp;<b>XSDMF ID/Element</b></td>
+							  <td width="55%" bgcolor="{$cell_color}" class="default">&nbsp;<b>XSDMF ID/Element</b></td>
 							  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Order</b></td>
-							  <td width="15%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>XSD HTML Matching Editor&nbsp;</b></td>
 							</tr>
 							{section name="i" loop=$xsd_display_att_list}
 							{cycle values=$cycle assign="row_color"}
 							<tr>
 							  <td width="4" nowrap bgcolor="{$row_color}" align="center">
-								<input type="checkbox" name="items[]" value="{$xsd_display_ref_list[i].att_id}" {if $smarty.section.i.total == 0}disabled{/if}>
+								<input type="checkbox" name="items[]" value="{$xsd_display_att_list[i].att_id}" {if $smarty.section.i.total == 0}disabled{/if}>
 							  </td>
 							  <td width="15%" bgcolor="{$row_color}" class="default">
 								&nbsp;{$xsd_display_att_list[i].xdis_title}
@@ -1141,8 +1180,8 @@
 							  <td width="15%" bgcolor="{$row_color}" class="default">
 								&nbsp;{$xsd_display_att_list[i].xdis_version}
 							  </td>
-							  <td width="35%" bgcolor="{$row_color}" class="default">
-								&nbsp;<a href="xsd_tree_match_form.php?xdis_id={$xdis_id}&xml_element={$xml_element}&xsdsel_id={$xsdsel_id}&att_cat=edit&att_id={$xsd_display_att_list[i].att_id}">({$xsd_display_ref_list[i].xsdmf_id}){$xsd_display_ref_list[i].xsdmf_element}</a>
+							  <td width="55%" bgcolor="{$row_color}" class="default">
+								&nbsp;<a href="xsd_tree_match_form.php?xdis_id={$xdis_id}&xml_element={$xml_element}&xsdsel_id={$xsdsel_id}&att_cat=edit&att_id={$xsd_display_att_list[i].att_id}">({$xsd_display_att_list[i].xsdmf_id}){if $xsd_display_att_list[i].xsdsel_title != ""}({$xsd_display_att_list[i].xsdsel_title}){/if}{$xsd_display_att_list[i].xsdmf_element}</a>
 							  </td>
 							  <td width="15%" bgcolor="{$row_color}" class="default">
 								&nbsp;{$xsd_display_att_list[i].att_order}

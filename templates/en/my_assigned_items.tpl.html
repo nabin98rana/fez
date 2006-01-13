@@ -18,8 +18,9 @@
 	     {cycle values=$cycle assign="row_color"}
      <tr>
        <td bgcolor="{$row_color}" class="default">
+		<b>{$list[i].xdis_title.0|escape}</b><br />
 		<a href="{$rel_url}view.php?pid={$list[i].pid|escape}"><img align="absmiddle" src="{$icon}" border="0"></a>
-         &nbsp;<a href="{$rel_url}view.php?pid={$list[i].pid|escape}">{$list[i].title|escape}</a>
+         &nbsp;<a href="{$rel_url}view.php?pid={$list[i].pid|escape}">{$list[i].title.0|escape}</a>
          &nbsp;&nbsp;<a href='{$rel_url}workflow/update.php?pid={$list[i].pid|escape}&href={$smarty.server.REQUEST_URI}'
          ><img title="Edit" align="absmiddle" src="{$rel_url}images/edit.gif" border="0"></a> 
          <a href="javascript:void(null);" onclick="javascript: purgeObject('{$list[i].pid|escape}');" 

@@ -602,19 +602,35 @@ class Record
                 ON xdmf.xsdmf_id=rmf.rmf_xsdmf_id
                 WHERE xdmf.xsdmf_element='!sta_id' 
                 AND rmf.rmf_varchar!='2') as unpub on unpub.rmf_rec_pid = r1.rmf_rec_pid
+            INNER JOIN (
+                    SELECT distinct r2.rmf_rec_pid, r2.rmf_varchar as display_id
+                    FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+                    WHERE r2.rmf_xsdmf_id = x2.xsdmf_id 
+                    AND s2.sek_id = x2.xsdmf_sek_id 
+                    AND s2.sek_title = 'Display Type' 
+                    ) as d2
+            on r1.rmf_rec_pid = d2.rmf_rec_pid  					
             LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 
             ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+            left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 
+            on (k1.sek_id = x1.xsdmf_sek_id)
+            left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d2.display_id = d1.xdis_id	
+			WHERE (r1.rmf_dsid IS NULL or r1.rmf_dsid = '')			 
+
           ";
 
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             $res = array();
-        }
+        }		
         $list = Collection::makeReturnList($res);
+		$list = Auth::getIndexAuthorisationGroups($list);
         $list2 = array();
         foreach ($list as $item) {
-            if ($item['isEditor']) {
+            if ($item['isEditor'] || $item['isApprover']) {
                 $list2[] = $item;
             }
         }

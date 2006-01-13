@@ -58,10 +58,12 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
 $tpl->assign("isAdministrator", $isAdministrator);
 
 $collection_list = Collection::getEditList();
+//print_r($collection_list);
 foreach ($collection_list as &$item) {
    $item['community'] = implode(',',Misc::keyPairs(Collection::getParents2($item['pid']),'pid','title'));
    $item['count'] = count(Collection::getEditListing($item['pid']));
 }
+
 $tpl->assign('my_collections_list', $collection_list);
 
 $assigned_items= Record::getAssigned(Auth::getUsername());
