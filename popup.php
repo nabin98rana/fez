@@ -41,6 +41,7 @@ include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
+include_once(APP_INC_PATH . "class.background_process_list.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("popup.tpl.html");
@@ -145,6 +146,16 @@ switch ($cat)
                 $tpl->assign("generic_action",'delete');
             }
             $tpl->assign("generic_type",'workflow trigger');
+            break;
+        }
+    case 'delete_background_processes':
+        {
+            $items = Misc::GETorPOST('items');
+            $bgpl = new BackgroundProcessList();
+            $res = $bgpl->delete($items);
+            $tpl->assign('generic_result', $res);
+            $tpl->assign("generic_action",'delete');
+            $tpl->assign("generic_type",'background processes');
             break;
         }
 

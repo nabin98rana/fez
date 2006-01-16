@@ -704,8 +704,10 @@ class BatchImport
         closedir($directory_h);
         $counter = 0;
         foreach ($filenames as $full_name => $short_name) {
-            $this->bgp->setProgress(intval($counter*100/count($filenames))); 
-            $this->bgp->setStatus($short_name); 
+            if ($this->bgp) {
+                $this->bgp->setProgress(intval($counter*100/count($filenames))); 
+                $this->bgp->setStatus($short_name); 
+            }
             $counter++;
             $handled_as_xml = false;
             $pid = Fedora_API::getNextPID();
@@ -746,8 +748,10 @@ class BatchImport
             }
 
         }
-        $this->bgp->setProgress(100); 
-        $this->bgp->setStatus('Imported '.count($filenames).' items'); 
+        if ($this->bgp) {
+            $this->bgp->setProgress(100); 
+            $this->bgp->setStatus('Imported '.count($filenames).' items'); 
+        }
     }
 
     /**

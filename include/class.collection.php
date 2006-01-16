@@ -358,7 +358,7 @@ class Collection
 		$list = Auth::getIndexAuthorisationGroups($list);
         $list2 = array();
         foreach ($list as $item) {
-            if ($item['isEditor']) {
+            if (@$item['isEditor']) {
                 $list2[] = $item;
             }
         }
@@ -427,7 +427,7 @@ class Collection
         $return = array();
 		foreach ($res as $result) {
 			if (in_array($result['xsdsel_title'], $securityfields)  && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) )  {
-				if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
+				if (!is_array(@$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
 					$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
 				}
 				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
@@ -435,14 +435,14 @@ class Collection
 				}
 			}
 			if ($result['xsdmf_element'] == '!inherit_security') {
-				if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'])) {
+				if (!is_array(@$return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'])) {
 					$return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'] = array();
 				}
 				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'])) {
 					array_push($return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'], $result['rmf_'.$result['xsdmf_data_type']]);
 				}
 			}
-			if ($result['sek_title'] == 'isMemberOf') {
+			if (@$result['sek_title'] == 'isMemberOf') {
 				if (!is_array(@$return[$result['rmf_rec_pid']]['isMemberOf'])) {
 					$return[$result['rmf_rec_pid']]['isMemberOf'] = array();
 				}
@@ -453,9 +453,9 @@ class Collection
 			// get the document type
 			if (!is_array(@$return[$result['rmf_rec_pid']]['xdis_title'])) {
 				$return[$result['rmf_rec_pid']]['xdis_title'] = array();
-				array_push($return[$result['rmf_rec_pid']]['xdis_title'], $result['xdis_title']);
+				array_push($return[$result['rmf_rec_pid']]['xdis_title'], @$result['xdis_title']);
 			}
-			if (is_numeric($result['sek_id'])) {
+			if (is_numeric(@$result['sek_id'])) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
 				$search_var = strtolower(str_replace(" ", "_", $result['sek_title']));
 				if (@!is_array($return[$result['rmf_rec_pid']][$search_var])) {
@@ -490,15 +490,15 @@ class Collection
 			} else {
 				$return[$pid_key]['thumbnail'] = 0;
 			}
-			if (!is_array(@$row['FezACML']) || $return[$pid_key]['FezACML'][0]['!inherit_security'][0] == "on") {
+			if (!is_array(@$row['FezACML']) || @$return[$pid_key]['FezACML'][0]['!inherit_security'][0] == "on") {
 				// if there is no FezACML set for this row yet, then is it will inherit from above, so show this for the form
-				if ($return[$pid_key]['FezACML'][0]['!inherit_security'][0] == "on") {
+				if (@$return[$pid_key]['FezACML'][0]['!inherit_security'][0] == "on") {
 					$parentsACMLs = $return[$pid_key]['FezACML'];
 					$return[$pid_key]['security'] = "include";
 				} else {
 					$return[$pid_key]['security'] = "inherit";
 				} 
-				Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid_key, $row['isMemberOf']);
+				Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid_key, @$row['isMemberOf']);
 				$return[$pid_key]['FezACML'] = $parentsACMLs;
 			} else {
 				$return[$pid_key]['security'] = "exclude";			
@@ -553,7 +553,7 @@ class Collection
             LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 
             ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id)     
            ";
-
+        
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -563,7 +563,7 @@ class Collection
 		$list = Auth::getIndexAuthorisationGroups($list);
         $list2 = array();
         foreach ($list as $item) {
-            if ($item['isEditor']) {
+            if (@$item['isEditor']) {
                 $list2[] = $item;
             }
         }

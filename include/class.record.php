@@ -630,7 +630,7 @@ class Record
 		$list = Auth::getIndexAuthorisationGroups($list);
         $list2 = array();
         foreach ($list as $item) {
-            if ($item['isEditor'] || $item['isApprover']) {
+            if (@$item['isEditor'] || @$item['isApprover']) {
                 $list2[] = $item;
             }
         }
@@ -768,10 +768,6 @@ class Record
         $xmlObj = str_replace('__makeInsertTemplate_PID__', $pid, $xmlObj);
         $xmlObj = str_replace('__makeInsertTemplate_DCTitle__', $title, $xmlObj);
         Record::insertXML($pid, compact('datastreamTitles', 'xmlObj', 'indexArray'), true);
-        // take out any indexes we might have added - we are about to generate from the fedora object so we pick up 
-        // the correct title.
-        Record::removeIndexRecord($pid);
-        Record::setIndexMatchingFields($xdis_id, $pid);
     }
 
     /**
@@ -780,6 +776,8 @@ class Record
      * @access  public
      * @param   string $pid The persistant identifier of the object
      * @param   array $dsarray The array of datastreams	 
+     * @param   boolean $ingestObject Should we insert as a new object into fedora (false if updating an 
+     *                                exisitng object).
      * @return  void
      */   
     function insertXML($pid, $dsarray, $ingestObject)

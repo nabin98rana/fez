@@ -1,31 +1,67 @@
+<script  type="text/javascript" language="JavaScript">
+<!--
+{literal}
+function checkDelete(f)
+{
+    if (!hasOneChecked(f, 'items[]')) {
+        alert('Please select at least one of the items.');
+        return false;
+    }
+    if (!confirm('This action will permanently remove the selected items.')) {
+        return false;
+    } else {
+    var features = 'width=420,height=200,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
+    var popupWin = window.open('', '_popup', features);
+    popupWin.focus();
+    f.action = 'popup.php';
+    f.target = '_popup';
+    f.submit();
+    return true;
+    }
+}
+{/literal}
+// -->
+</script>
 <div class="outline">
 <div class="contentheader">
 Running Processes
 </div>
+<form name="background_processes" method="post">
+<input type="hidden" name="cat" value="delete_background_processes" />
 <table class="listing">
-<tr bgcolor="{$cell_color}" class="default tableheader">
-<td>Started</td>
-<td>Name</td>
-<td>Progress</td>
-<td>Message</td>
-<td>Last Heartbeat</td>
-<td>Status</td>
+<tr bgcolor="{$cell_color}" class="tableheader">
+<td><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form,'items[]');" class="button"/></td>
+<td class="default" >Started</td>
+<td class="default" >Name</td>
+<td class="default" >Progress</td>
+<td class="default" >Message</td>
+<td class="default" >Last Heartbeat</td>
+<td class="default" >Status</td>
 </tr>
 {section name="iii" loop=$bgp_list}
 {cycle values=$cycle assign="row_color"}
 <tr bgcolor="{$row_color}" class="default">
+<td><input type="checkbox" name="items[]" value="{$bgp_list[iii].bgp_id}"/></td>
 <td>{$bgp_list[iii].bgp_started}</td>
 <td>{$bgp_list[iii].bgp_name}</td>
 <td>{$bgp_list[iii].bgp_progress}</td>
 <td>{$bgp_list[iii].bgp_status_message}</td>
 <td>{$bgp_list[iii].bgp_heartbeat}</td>
-<td>{$bgp_list[iii].bgp_status}</td>
+<td>{assign var="bgp_state" value=$bgp_list[iii].bgp_state}
+{$bgp_states.$bgp_state}</td>
 </tr>
 {sectionelse}
 <tr >
 <td colspan="20">No Items</td>
 </tr>
 {/section}
+<tr bgcolor="{$cell_color}" >
+<td><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form,'items[]');" class="button"/></td>
+<td colspan="10">
+<input type="button" value="Delete" onclick="javascript:return checkDelete(this.form);"  class="button"/>
+</td>
+</tr>
 </table>
+</form>
 
 </div>

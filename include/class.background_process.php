@@ -10,6 +10,11 @@ class BackgroundProcess {
     var $inputs;
     var $include; // set this to the include file where the subclass is declared
     var $name; // set this to the name of the process where the subclass is declared
+    var $states = array(
+            0 => 'Undefined',
+            1 => 'Running',
+            2 => 'Done'
+            );
 
 
     /***** Mixed *****/

@@ -70,6 +70,7 @@ $assigned_items= Record::getAssigned(Auth::getUsername());
 
 $bgp_list = new BackgroundProcessList;
 $tpl->assign('bgp_list', $bgp_list->getList(Auth::getUserID()));
+$tpl->assign('bgp_states', $bgp_list->getStates());
 
 $tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
 $tpl->assign('my_assigned_items_list', $assigned_items);

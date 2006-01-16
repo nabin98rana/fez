@@ -1766,6 +1766,20 @@ class Misc
         return false;
     }
 
+
+    function arrayToSQL($a)
+    {
+        if (is_array($a)) {
+            $b = $a;
+            foreach ($a as $key => $value) {
+                $b[$key] = "'".mysql_escape_string($value)."'";
+            }
+            return implode(',', $b);
+        }
+        return '';
+    } 
+
+
     /**
     * stripOneElementArrays
     * This function takes out nested one element arrays but only non-associative arrays -

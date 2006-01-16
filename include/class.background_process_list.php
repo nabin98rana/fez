@@ -20,6 +20,25 @@ class BackgroundProcessList
         }
         return $res;
     }
+     
+    function getStates()
+    {
+        $bgp = new BackgroundProcess;
+        return $bgp->states;
+    }
+
+    function delete($items) 
+    {
+        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $items_str = Misc::arrayToSQL($items);
+        $stmt = "DELETE FROM {$dbtp}background_process WHERE bgp_id IN ($items_str) ";
+        $res = $GLOBALS['db_api']->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        }
+        return 1;
+    }
 }
 
 ?>

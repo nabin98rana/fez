@@ -185,7 +185,7 @@ class Auth
 			}
 			foreach ($return as $key => $record) {
 				if (is_array(@$record['FezACML'])) {
-					if (!is_array($returns[$pid])) {
+					if (!is_array(@$returns[$pid])) {
 						$returns[$pid] = array();
 					}
 					foreach ($record['FezACML'] as $fezACML_row) {					
@@ -266,7 +266,7 @@ class Auth
 					$return[$result['rmf_rec_pid']]['exists'] = array();
 				}
 				if (in_array($result['xsdsel_title'], $securityfields)  && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) )  {
-					if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
+					if (!is_array(@$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
 						$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
 					}
 					if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
@@ -274,7 +274,7 @@ class Auth
 					}
 				}
 				if ($result['xsdmf_element'] == '!inherit_security') {
-					if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'])) {
+					if (!is_array(@$return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'])) {
 						$return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'] = array();
 					}
 					if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'])) {
@@ -285,7 +285,7 @@ class Auth
 	
 			foreach ($return as $key => $record) {	
 				if (is_array(@$record['FezACML'])) {
-					if (!is_array($returns[$pid])) {
+					if (!is_array(@$returns[$pid])) {
 						$returns[$pid] = array();
 					}
 					foreach ($record['FezACML'] as $fezACML_row) {
@@ -295,7 +295,7 @@ class Auth
 					//add it to the acml array and dont go further up the hierarchy only if inherity security is set
 					$parentACMLs = array();
 					foreach ($record['FezACML'] as $fezACML_row) {
-						if ($fezACML_row['!inherit_security'][0] == "on") {
+						if (@$fezACML_row['!inherit_security'][0] == "on") {
 							Auth::getIndexParentACMLs($parentACMLs, $key);
 						}					
 					}
@@ -304,7 +304,7 @@ class Auth
 						array_push($returns[$pid], $pACML);
 					}
 				} else {
-					if (!is_array($returns[$pid])) {
+					if (!is_array(@$returns[$pid])) {
 						$returns[$pid] = array();
 					}
 					$parentACMLs = array();
@@ -457,7 +457,7 @@ class Auth
 			} else {		
 				foreach ($indexRecord['FezACML'] as $FezACML) { // can have multiple fez acmls if got from parents
 					foreach ($FezACML as $role_name => $role) {						
-						if (in_array($role_name, $userPIDAuthGroups) && in_array($role_name, $NonRestrictedRoles) && ($cleanedArray[$role_name] != 1)) {
+						if (in_array($role_name, $userPIDAuthGroups) && in_array($role_name, $NonRestrictedRoles) && (@$cleanedArray[$role_name] != 1)) {
 							$userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role_name, false, true);
 							$cleanedArray[$role_name] = 1;
 						}
