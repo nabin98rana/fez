@@ -202,8 +202,9 @@ class Community
 			$record = new RecordObject($pid);
 			if (($ret_wf['isEditor'] == 1) || $isAdministrator) {
 				$xdis_id = $ret_wf['display_type'][0];
+				$ret_id = $ret_wf['object_type'][0];
 				$strict = true;
-				$workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Update', $xdis_id, $strict);
+				$workflows = $record->getWorkflowsByTriggerAndRET_ID('Update', $ret_id, $strict);
 			}
 			// check which workflows can be triggered			
 			$workflows1 = array();

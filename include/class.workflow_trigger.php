@@ -208,6 +208,28 @@ class WorkflowTrigger
     }
 
     /**
+     * Get list of triggers for a record that have a given trigger type and ret_id
+     * @param string pid record id
+     * @param string or integer Trigger id
+     * @param integer $ret_id Object Type id
+     * @param boolean $strict If strict is true, then the default ret_id won't be allowed in the list.  
+     * This means that triggers where ret_id = 0 (for Any) won't be allowed in the results.
+     * @return List of triggers
+     */
+    function getListByTriggerAndRET_ID($pid, $trigger, $ret_id, $strict=false)
+    {
+        if (!Misc::isInt($trigger)) {
+            $trigger = WorkflowTrigger::getTriggerId($trigger);
+        }
+        if (!$strict) {
+            $orstr = " OR wft_ret_id=-1 ";
+        } else {
+            $orstr = "";
+        }
+        return WorkflowTrigger::getList($pid, " AND wft_type_id=$trigger 
+                AND (wft_ret_id=$ret_id $orstr ) AND wft_xdis_id!=-2 ");
+    }
+    /**
      * Get an ingest trigger for a datastream based on PID, XDIS_ID and mimetype
      * @param string pid record id
      * @param integer $xdis_id Display id

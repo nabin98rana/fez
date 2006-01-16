@@ -1231,6 +1231,21 @@ class RecordGeneral
         return $triggers;
     }
 
+    function getWorkflowsByTriggerAndRET_ID($trigger, $ret_id, $strict=false)
+    {
+        $this->getParents();
+        $triggers = WorkflowTrigger::getListByTriggerAndRET_ID($this->pid, $trigger, $ret_id, $strict);
+        foreach ($this->record_parents as $ppid) {
+            $triggers = array_merge($triggers, 
+                    WorkflowTrigger::getListByTriggerAndRET_ID($ppid, $trigger, $ret_id, $strict));
+        } 
+        // get defaults
+        $triggers = array_merge($triggers, 
+                WorkflowTrigger::getListByTriggerAndRET_ID(-1, $trigger, $ret_id, $strict));
+        return $triggers;
+    }
+
+
 
 
 

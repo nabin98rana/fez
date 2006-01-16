@@ -266,8 +266,9 @@ class Collection
 			$record = new RecordObject($pid);
 			if ($ret_wf['isEditor'] == 1) {
 				$xdis_id = $ret_wf['display_type'][0];
+				$ret_id = $ret_wf['object_type'][0];
 				$strict = true;
-				$workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Update', $xdis_id, $strict);
+				$workflows = $record->getWorkflowsByTriggerAndRET_ID('Update', $ret_id, $strict);
 			}
 			// check which workflows can be triggered			
 			$workflows1 = array();
@@ -678,13 +679,16 @@ class Collection
         $last_page = $total_pages - 1;
 		$return = Misc::limitListResults($return, $start, ($start + $max));		
 		// add the available workflow trigger buttons
+
 		foreach ($return as $ret_key => $ret_wf) {
 			$pid = $ret_wf['pid'];
 			$record = new RecordObject($pid);
+
 			if ($ret_wf['isEditor']) {
 				$xdis_id = $ret_wf['display_type'][0];
+				$ret_id = $ret_wf['object_type'][0];
 				$strict = false;
-				$workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Update', $xdis_id, $strict);
+				$workflows = $record->getWorkflowsByTriggerAndRET_ID('Update', $ret_id, $strict);
 			}
 			// check which workflows can be triggered			
 			$workflows1 = array();
