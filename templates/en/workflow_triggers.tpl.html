@@ -3,9 +3,12 @@
         <tr>
           <td>
             <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-              {literal}
+
+
               <script language="JavaScript">
               <!--
+			  {$najax_register}
+              {literal}
               var editing_option_id = -1;
               function validateForm(f)
               {return true;}
@@ -143,6 +146,48 @@
                   return true;
               }
 
+				var dt_load_state = 0;
+				function showLoading1()
+				{
+					document.body.style.cursor = 'wait';
+					document.getElementById('loading1').style.display = 'block';
+				}
+				
+				function hideLoading1()
+				{
+					document.body.style.cursor = '';
+					document.getElementById('loading1').style.display = 'none';
+				}
+				
+				function selectObjectXSDDisplay(f, field_name)
+				{
+					if (dt_load_state > 0) {
+					   return false;
+					} 
+					var field = getFormElement(f, field_name);
+					var selections = getSelectedItems(field);
+				
+					if (selections.length > 0) {
+						dt_load_state++;
+						document.getElementById('tr_wft_xdis_id').style.display = '';
+						showLoading1();
+						var obj = new SelectObjectXSDDisplay();
+						obj.onGetXSDDisplaysByObjectTypeError = function() {
+							removeAllOptions(f, 'wft_xdis_id');
+							hideLoading1();
+							dt_load_state--;
+						}
+						obj.setTimeout(10000);
+						obj.getXSDDisplaysByObjectType(selections[0].value, function(dt_list) {
+								removeAllOptions(f, 'wft_xdis_id');
+								addOptions(f, 'wft_xdis_id', dt_list);
+								selectOption(f, 'wft_xdis_id', {/literal}{$info.wft_xdis_id}{literal});
+								hideLoading1();
+								dt_load_state--;
+								});
+					}
+				}
+
               //-->
               </script>
               {/literal}
@@ -185,8 +230,8 @@
                 <td  width="120" bgcolor="{$cell_color}" class="default" nowrap>
                   <b>Icon:</b> (path relative to fez root)
                 </td>
-                <td bgcolor="{$light_color}" class="default">
-                  <input type="textfield" name="wft_icon" value="{$info.wft_icon}" size="64"/>
+                <td bgcolor="{$light_color}">
+                  <input class="default" type="textfield" name="wft_icon" value="{$info.wft_icon}" size="64"/>
                 </td>
               </tr>
 
@@ -195,20 +240,31 @@
                   <b>Trigger:</b>
                 </td>
                 <td bgcolor="{$light_color}">
-                  <select name="wft_type_id" >
+                  <select name="wft_type_id" class="default">
                         {html_options options=$triggers_list selected=$info.wft_type_id}
                   </select>
                 </td>
               </tr>
  
-  
-              <tr>
+				<tr>
+				<td bgcolor="{$cell_color}" class="default" nowrap>
+				  <b>Object Type:</b>
+				</td>
+				<td bgcolor="{$light_color}">
+				  <select name="wft_ret_id" class="default" onChange="javascript: selectObjectXSDDisplay(this.form, 'wft_ret_id')">
+					{html_options options=$object_options selected=$info.wft_ret_id}
+				  </select>
+				  {include file="error_icon.tpl.html" field="wft_ret_id"}			  
+				</td>
+			  </tr>
+
+			  <tr style="display:none;" id="tr_wft_xdis_id">
                 <td  bgcolor="{$cell_color}" class="default" nowrap>
                   <b>XSD Display Document Type:</b>
                 </td>
-                <td bgcolor="{$light_color}" class="default">
-                  <select name="wft_xdis_id" >
-                        {html_options options=$xdis_list selected=$info.wft_xdis_id}
+                <td bgcolor="{$light_color}">
+	 			  <div id="loading1" style="display:none;">Loading...</div>
+                  <select name="wft_xdis_id" class="default">
                   </select>
                 </td>
               </tr>
@@ -218,8 +274,8 @@
                   <b>Mimetype:</b> (Ingest triggers only, leave blank to match all, seperate multiple 
                           mimetypes by spaces)
                 </td>
-                <td bgcolor="{$light_color}" class="default">
-                  <input type="textfield" name="wft_mimetype" value="{$info.wft_mimetype}" size="64"/>
+                <td bgcolor="{$light_color}">
+                  <input class="default" type="textfield" name="wft_mimetype" value="{$info.wft_mimetype}" size="64"/>
                 </td>
               </tr>
 
@@ -228,7 +284,7 @@
                   <b>Workflow:</b>
                 </td>
                 <td bgcolor="{$light_color}">
-                  <select name="wft_wfl_id" >
+                  <select name="wft_wfl_id" class="default">
                         {html_options options=$wfl_list selected=$info.wft_wfl_id}
                   </select>
                 </td>
@@ -279,6 +335,7 @@
                     <tr>
                       <td width="4" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Trigger</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Object Type</b></td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>XSD Display</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Workflow</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Mimetype</b>&nbsp;</td>
@@ -294,6 +351,10 @@
                         <img src="{$rel_url}{$list[i].wft_icon}" alt="icon" />
                         {assign var="type_id" value=$list[i].wft_type_id}
                         &nbsp;{$triggers_list.$type_id}
+                      </td>
+                      <td bgcolor="{$row_color}" class="default">
+                        {assign var="object_type" value=$list[i].wft_ret_id}
+                        &nbsp;{$object_options.$object_type}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
                         {assign var="xdis_id" value=$list[i].wft_xdis_id}
@@ -312,7 +373,7 @@
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="6" bgcolor="{$light_color}" align="center" class="default">
+                      <td colspan="7" bgcolor="{$light_color}" align="center" class="default">
                         No items could be found.
                       </td>
                     </tr>
@@ -321,7 +382,7 @@
                       <td align="center" bgcolor="{$cell_color}">
                         <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
                       </td>
-                      <td colspan="5" bgcolor="{$cell_color}">
+                      <td colspan="6" bgcolor="{$cell_color}">
                         <input type="submit" name="delete" value="Delete" class="button" onclick="javascript:return checkDelete(this.form);">
                       </td>
                     </tr>
@@ -335,21 +396,8 @@
         </tr>
       </table>
       {literal}
-      <script language="JavaScript">
-      <!--
-      //window.onload = setCustomOptionsField;
-      function setCustomOptionsField()
-      {
-          var f = getForm('entry_form');
-          var field1 = getFormElement(f, 'field_type', 0);
-          if (field1.checked) {
-              toggleCustomOptionsField(true);
-          } else {
-              toggleCustomOptionsField(false);
-          }
-          checkRequiredFields();
-      }
-      //-->
-      </script>
+<script type="text/javascript"><!-- 
+selectObjectXSDDisplay(getForm('entry_form'), 'wft_ret_id'); 
+// --></script>	  
       {/literal}
 

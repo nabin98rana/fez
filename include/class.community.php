@@ -70,6 +70,34 @@ class Community
     }
 
     /**
+     * Method used to get the XSD Display document types the community supports, from the Fez Index.
+     *
+     * @access  public
+     * @param   string $community_pid The community persistant identifier	 	 
+     * @return  array The list of collections display types that can be created
+     */
+	function getChildXDisplayOptions($collection_pid) {
+	
+		$stmt = "
+		SELECT d3.xdis_id, d3.xdis_title
+		FROM  
+		  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3,
+		  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x3,
+		  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d3,		  
+		  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s3
+		WHERE x3.xsdmf_sek_id = s3.sek_id AND s3.sek_title = 'XSD Display Option' AND x3.xsdmf_id = r3.rmf_xsdmf_id 
+		  AND r3.rmf_rec_pid ='".$collection_pid."' AND r3.rmf_varchar = d3.xdis_id";
+
+		$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+	}
+
+    /**
      * Method used to get the basic details for a given community from the Fez Index.
      *
      * @access  public

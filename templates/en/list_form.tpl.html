@@ -462,7 +462,15 @@ function purgeObject(pid)
 			{if $list_type == 'community_list' && $isAdministrator}
 			<br /> <a class="default" target="_top" title="create a new community" href="{$rel_url}workflow/new.php?pid=-1&xdis_id={$xdis_id}&href={$smarty.server.REQUEST_URI}"><img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0"><b>Create New Community</b></a>&nbsp;
 			{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
-			<br /> <a class="default" target="_top" title="create a new collection" href="{$rel_url}workflow/new.php?xdis_id={$xdis_id}{if $community_pid}&community_pid={$community_pid}&href={$smarty.server.REQUEST_URI}{/if}"><img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0"><b>Create New Collection</b></a>&nbsp;
+				{if $childXDisplayOptions != 0}
+			<br /> <img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0">
+				<input type="hidden" name="community_pid" value="{$community_pid}">
+				<select name="xdis_id" class="default">
+				  {html_options options=$childXDisplayOptions}
+				</select>
+				<input class="default" type="button" value="Create" onClick="javascript:createRecord(this.form)">
+			&nbsp;<br />
+				{/if}
 			{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}
 				{if $childXDisplayOptions != 0}
 			<br /> <img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0">

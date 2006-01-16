@@ -172,11 +172,12 @@ class Object_Type
     {
         $stmt = "SELECT
                     ret_id,
-					ret_title
+					CONCAT('(',ret_id,') ',ret_title) as ret_title
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "object_type
-                 ORDER BY
-                    ret_title ASC";
+				 WHERE ret_id != 0
+                 ORDER BY				 
+                    ret_id ASC";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -186,6 +187,30 @@ class Object_Type
         }
     }
 
+    /**
+     * Method used to get the list of statuss available in the 
+     * system returned in an associative array for drop down lists.
+     *
+     * @access  public
+     * @return  array The list of statuss in an associative array (for drop down lists).
+     */
+    function getAssocListAll()
+    {
+        $stmt = "SELECT
+                    ret_id,
+					CONCAT('(',ret_id,') ',ret_title) as ret_title
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "object_type
+                 ORDER BY
+                    ret_id ASC";
+        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
     /**
      * Method used to get the list of statuss available in the 
      * system.

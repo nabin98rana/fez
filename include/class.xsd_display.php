@@ -182,12 +182,6 @@ class XSD_Display
     function insert($xsd_id)
     {
         global $HTTP_POST_VARS;
-
-		if (@$HTTP_POST_VARS["xdis_is_doc_type"]) {
-			$is_doc_type = 1;
-		} else {
-			$is_doc_type = 0;
-		}
 		
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
@@ -195,12 +189,12 @@ class XSD_Display
                     xdis_title,
                     xdis_xsd_id,
                     xdis_version,
-                    xdis_is_doc_type					
+                    xdis_object_type
                  ) VALUES (
                     '" . Misc::escapeString($HTTP_POST_VARS["xdis_title"]) . "',
                     $xsd_id,
                     '" . Misc::escapeString($HTTP_POST_VARS["xdis_version"]) . "',
-					$is_doc_type
+                    " .$HTTP_POST_VARS["xdis_object_type"] . "
                  )";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -221,19 +215,13 @@ class XSD_Display
     function update($xdis_id)
     {
         global $HTTP_POST_VARS;
-		if (@$HTTP_POST_VARS["xdis_is_doc_type"]) {
-			$is_doc_type = 1;
-		} else {
-			$is_doc_type = 0;
-		}
-		
 		
         $stmt = "UPDATE
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
                  SET 
                     xdis_title = '" . Misc::escapeString($HTTP_POST_VARS["xdis_title"]) . "',
                     xdis_version = '" . Misc::escapeString($HTTP_POST_VARS["xdis_version"]) . "',
-					xdis_is_doc_type = $is_doc_type
+					xdis_object_type = " .$HTTP_POST_VARS["xdis_object_type"] . "
                  WHERE xdis_id = $xdis_id";
 
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -302,7 +290,60 @@ class XSD_Display
      * system.
      *
      * @access  public
-     * @return  array The list of custom fields
+     * @return  array The list
+     */
+    function getAssocListCollectionDocTypes()
+    {
+        $stmt = "SELECT
+                    xdis_id,
+					concat(xdis_title, ' Version ', xdis_version) as xdis_desc
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display 
+				 WHERE xdis_object_type = 2				 
+                 ORDER BY
+                    xdis_title, xdis_version ASC";
+        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
+
+    /**
+     * Method used to get the associative list of document types available in the 
+     * system.
+     *
+     * @access  public
+	 * @param   integer $ret_id The Object Type ID to search the list for. 	 
+     * @return  array The list 
+     */
+    function getAssocListByObjectType($ret_id)
+    {
+        $stmt = "SELECT
+                    xdis_id,
+					concat(xdis_title, ' Version ', xdis_version) as xdis_desc
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display 
+				 WHERE xdis_object_type = $ret_id			 
+                 ORDER BY
+                    xdis_title, xdis_version ASC";
+        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
+
+    /**
+     * Method used to get the associative list of document types available in the 
+     * system.
+     *
+     * @access  public
+     * @return  array The list
      */
     function getAssocListDocTypes()
     {
@@ -311,7 +352,33 @@ class XSD_Display
 					concat(xdis_title, ' Version ', xdis_version) as xdis_desc
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
-				 WHERE xdis_is_doc_type = 1				 
+				 WHERE xdis_object_type = 3					 
+                 ORDER BY
+                    xdis_title, xdis_version ASC";
+        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
+
+    /**
+     * Method used to get the associative list of document types available in the 
+     * system.
+     *
+     * @access  public
+     * @return  array The list
+     */
+    function getAssocListDocTypesAll()
+    {
+        $stmt = "SELECT
+                    xdis_id,
+					concat(xdis_title, ' Version ', xdis_version) as xdis_desc
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
+				 WHERE xdis_object_type != 4			 
                  ORDER BY
                     xdis_title, xdis_version ASC";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);

@@ -195,10 +195,13 @@
               </tr>
               <tr>
                 <td width="150" bgcolor="{$cell_color}" class="default" nowrap>
-                  <b>Is Document Type?:</b>
+                  <b>Object Type:</b>
                 </td>
                 <td bgcolor="{$light_color}">
-                  <input type="checkbox" name="xdis_is_doc_type" class="default" {if ($info.xdis_is_doc_type == 1)}checked{/if}><br />
+                  <select name="xdis_object_type" class="default">
+                    {html_options options=$object_options selected=$info.xdis_object_type}
+                  </select>
+                  {include file="error_icon.tpl.html" field="xdis_object_type"}			  
                 </td>
               </tr>
 
@@ -248,8 +251,8 @@
                     <tr>
                       <td width="5" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
                       <td width="35%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b></td>
-                      <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Version</b></td>
-                      <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Is Doc Type?</b></td>
+                      <td width="10%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Version</b></td>
+                      <td width="10%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Object Type</b></td>
                       <td width="15%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>XSD HTML Matching Editor&nbsp;</b></td>
                       <td width="15%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>Clone Display&nbsp;</b></td>					  
                     </tr>
@@ -267,9 +270,9 @@
                         &nbsp;{$list[i].xdis_version}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
-                        &nbsp;{if $list[i].xdis_is_doc_type == 1}Yes{else}No{/if}
+						{assign var="temp_fld_id" value=$list[i].xdis_object_type}
+                        &nbsp;{$object_options[$temp_fld_id]}
                       </td>
-
                       <td width="15%" bgcolor="{$row_color}" class="default">
                         &nbsp;<a class="link" href="xsd_tree_match.php?&xdis_id={$list[i].xdis_id}" title="match this XSD Display against HTML elements">Edit</a>
                       </td>

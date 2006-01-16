@@ -113,6 +113,12 @@ if (!empty($collection_pid)) {
 	$list = $list["list"];
 	$tpl->assign("list_heading", "List of Collections in ".$community_details[0]['title'][0]." Community");
 	$tpl->assign("list_type", "collection_list");
+	$childXDisplayOptions = Community::getChildXDisplayOptions($community_pid);
+	if (count($childXDisplayOptions) > 0) {
+		$tpl->assign("childXDisplayOptions", $childXDisplayOptions);
+	} else {
+		$tpl->assign("childXDisplayOptions", 0);
+	}
 } elseif (!empty($terms)) {
     // search Fez
 	$list = Collection::searchListing($terms, $pagerRow, $rows);	

@@ -45,7 +45,7 @@ class WorkflowTrigger
     {
         return array(
             0 => "Ingest", // for uploading the actual binaries and datastreams
-            1 => "Update", // updating metadta records
+            1 => "Update", // updating metadata records
             3 => "Delete", // deleting a record
             4 => "Create",  // creating a record
             5 => "Datastream"  // triggers on datastreams
@@ -107,7 +107,7 @@ class WorkflowTrigger
      */
     function getPostSetStr()
     {
-      $post_fields = array('wft_pid', 'wft_type_id', 'wft_xdis_id', 'wft_wfl_id', 'wft_mimetype', 'wft_icon');
+      $post_fields = array('wft_pid', 'wft_type_id', 'wft_xdis_id', 'wft_wfl_id', 'wft_mimetype', 'wft_icon', 'wft_ret_id');
       $set_str = 'SET ';
       foreach ($post_fields as $post_field) {
           $set_str .= " $post_field='".Misc::escapeString($_POST[$post_field])."', ";
@@ -161,6 +161,7 @@ class WorkflowTrigger
         $stmt = "SELECT * FROM ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."workflow_trigger
 				LEFT JOIN ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."workflow on (wfl_id = wft_wfl_id) WHERE wft_pid='$pid'
             $wherestr ORDER BY wft_type_id, wft_xdis_id";
+
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -242,7 +243,7 @@ class WorkflowTrigger
      */
     function getDetails($wft_id)
     {
-        $stmt = "SELECT * FROM ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."workflow_trigger 
+        $stmt = "SELECT * FROM ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."workflow_trigger 		
             WHERE wft_id=$wft_id";
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {

@@ -97,8 +97,10 @@ if ($pid == -1) {
     if ($record->canCreate()) {
         $tpl->assign("isCreator", 1);
         if ($record->isCommunity()) {
-            $xdis_id = Collection::getCollectionXDIS_ID();
+//            $xdis_id = Collection::getCollectionXDIS_ID();
             $workflows = WorkflowTrigger::getListByTriggerAndXDIS_ID(-1, 'Create', $xdis_id, true);
+//            $workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Create', $xdis_id);
+//            $workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Create', $xdis_id);
         } elseif ($record->isCollection()) {
             $workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Create', $xdis_id);
         } else {

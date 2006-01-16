@@ -36,6 +36,7 @@ include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
+include_once(APP_INC_PATH . "class.object_type.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "db_access.php");
@@ -70,6 +71,7 @@ if ($isAdministrator) {
 	$tpl->assign("xsd_id", ($xsd_id));
 	$tpl->assign("xdis_id", ($xdis_id));	
 	$xsd_title = Doc_Type_XSD::getTitle($xsd_id);
+	$tpl->assign("object_options", Object_Type::getAssocList());
 	$tpl->assign("xsd_title", ($xsd_title));
     $tpl->assign("list", XSD_Display::getList($xsd_id));
 } else {

@@ -100,7 +100,7 @@ if ($access_ok) {
     $tpl->assign("xdis_title", $xdis_title);
     $sta_id = 1; // set to unpublished to start with
     $tpl->assign('sta_id', $sta_id); 
-
+	$xdis_collection_list = XSD_Display::getAssocListCollectionDocTypes(); // @@@ CK - 13/1/06 added for communities to be able to select their collection child document types/xdisplays
     $xdis_list = XSD_Display::getAssocListDocTypes(); 
     $community_list = Community::getAssocList();
     $collection_list = Collection::getAssocList();
@@ -110,6 +110,7 @@ if ($access_ok) {
     $maxG = 0;
 //    $xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id));
 	$xsd_display_fields = XSD_HTML_Match::getListByDisplay($xdis_id, array("FezACML"), array(""));  // XSD_DisplayObject
+//	print_r($xsd_display_fields);
 //    $xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id,array("FezACML"), array("")));
 //    $cvo_list = Controlled_Vocab::getAssocListFullDisplay(false, "", 0, 2);
 

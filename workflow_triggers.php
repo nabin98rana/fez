@@ -45,15 +45,23 @@ include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.community.php");
 include_once(APP_INC_PATH . "class.date.php");
+include_once(APP_INC_PATH . "class.object_type.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
+include_once(APP_INC_PATH . "najax/najax.php");
+include_once(APP_INC_PATH . "najax_objects/class.select_object_xsd_display.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("update.tpl.html");
 $tpl->assign("type", "workflow_triggers");
 $tpl->assign("type_name", "workflow trigger");
+
+NAJAX_Server::allowClasses('SelectObjectXSDDisplay');
+if (NAJAX_Server::runServer()) {
+	exit;
+}
 
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
@@ -114,7 +122,7 @@ if ($pid == -1) {
 } else {
     $canEdit = false;
 }
-
+$tpl->assign("object_options", Object_Type::getAssocListAll());
 $tpl->assign("isEditor", $canEdit);
 if ($canEdit) {
     $tpl->assign('xdis_list', $xdis_list);
@@ -147,6 +155,9 @@ if ($canEdit) {
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }
+
+$tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
+$tpl->assign('najax_register', NAJAX_Client::register('SelectObjectXSDDisplay', 'workflow_triggers.php'));
 
 $tpl->displayTemplate();
 
