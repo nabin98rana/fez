@@ -69,8 +69,8 @@ class Record
     * system. 
     *
     * @access  public
-    * @param   string $collection_pid The collection persistant identifier	 
-    * @return  array The list of parent communities
+    * @param   string $pid The persistant identifier	 
+    * @return  array The list
     */
     function getParents($pid)
     {
@@ -110,6 +110,68 @@ class Record
 			}
 		}
 		$details = array_values($return);			
+		$returns[$pid] = $details;
+		return $details; 
+    }
+
+
+   /**
+    * Method used to get all of the parents of a given record available in the 
+    * system. 
+    *
+    * @access  public
+    * @param   string $pid The persistant identifier	 
+    * @return  array The list
+    */
+    function getParentsAll($pid)
+    {
+
+		static $returns;
+
+        if (isset($returns[$pid])) {
+            return $returns[$pid];
+        }
+
+		$stmt = "SELECT 
+					* 
+				 FROM
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1 inner join 
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on r1.rmf_xsdmf_id = x1.xsdmf_id inner join
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s1 on s1.sek_id = x1.xsdmf_sek_id inner join
+					(SELECT r2.rmf_varchar as parent_pid
+						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
+							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,							
+							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+						WHERE (s2.sek_title = 'isMemberOf' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid = '".$pid."'))
+					as p1 on p1.parent_pid = r1.rmf_rec_pid
+					";	
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);						
+		$return = array();
+		foreach ($res as $result) {
+			if (is_numeric($result['sek_id'])) {
+				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
+				$search_var = strtolower(str_replace(" ", "_", $result['sek_title']));
+				if (@!is_array($return[$result['rmf_rec_pid']][$search_var])) {
+					$return[$result['rmf_rec_pid']][$search_var] = array();
+				}
+				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']][$search_var])) {
+					array_push($return[$result['rmf_rec_pid']][$search_var], $result['rmf_'.$result['xsdmf_data_type']]);
+					sort($return[$result['rmf_rec_pid']][$search_var]);
+				}
+			}
+		}
+		$details = array_values($return);
+		$recursive_details = array();
+		foreach ($details as $key => $row) {
+			$temp = Record::getParents($row['pid']);
+			foreach ($temp as $trow) {
+				array_push($recursive_details, $trow);
+			}
+		}
+		foreach ($recursive_details as $rrow) {
+			array_push($details, $rrow);
+		}
+		$details = array_reverse($details);
 		$returns[$pid] = $details;
 		return $details; 
     }

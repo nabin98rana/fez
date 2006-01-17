@@ -38,6 +38,7 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.group.php");
 include_once(APP_INC_PATH . "class.record.php");
+include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "db_access.php");
@@ -106,6 +107,7 @@ if ($access_ok) {
     $collection_list = Collection::getAssocList();
     $internal_user_list = User::getAssocList();
     $internal_group_list = Group::getAssocListAll();
+	$author_list = Author::getAssocListAll();
     $jtaskData = "";
     $maxG = 0;
 //    $xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id));

@@ -310,7 +310,10 @@ class XSD_HTML_Match
 					xsdmf_citation_bold,					
 					xsdmf_citation_italics,
 					xsdmf_citation_brackets,
-					xsdmf_citation_order
+					xsdmf_citation_order,
+					xsdmf_use_parent_option_list,
+					xsdmf_parent_option_xdis_id,
+					xsdmf_parent_option_child_xsdmf_id
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields as m1  ";
 				if ($specify_str != "") {
@@ -618,7 +621,11 @@ class XSD_HTML_Match
 		} else {
 			$xsdmf_citation_brackets = 0;
 		}
-
+		if (@$HTTP_POST_VARS["xsdmf_use_parent_option_list"]) {
+			$xsdmf_use_parent_option_list = 1;
+		} else {
+			$xsdmf_use_parent_option_list = 0;
+		}
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
                  (
@@ -647,8 +654,15 @@ class XSD_HTML_Match
 		if ($HTTP_POST_VARS["xsdmf_sek_id"] != "") {
           $stmt .= "xsdmf_sek_id,";
 		}
+		if (is_numeric($HTTP_POST_VARS["xsdmf_parent_option_xdis_id"])) {
+          $stmt .= "xsdmf_parent_option_xdis_id,";
+		}
+		if (is_numeric($HTTP_POST_VARS["xsdmf_parent_option_child_xsdmf_id"])) {
+          $stmt .= "xsdmf_parent_option_child_xsdmf_id,";
+		}
 
 		$stmt .= "
+					xsdmf_use_parent_option_list,
                     xsdmf_valueintag,
                     xsdmf_is_key,
                     xsdmf_data_type,
@@ -713,8 +727,15 @@ class XSD_HTML_Match
 			if ($HTTP_POST_VARS["xsdmf_sek_id"] != "") {
                $stmt .= Misc::escapeString($HTTP_POST_VARS["xsdmf_sek_id"]) . ",";
 			}
+			if (is_numeric($HTTP_POST_VARS["xsdmf_parent_option_xdis_id"])) {			
+ 			   $stmt .= Misc::escapeString($HTTP_POST_VARS["xsdmf_parent_option_xdis_id"]) . ",";
+			}
+			if (is_numeric($HTTP_POST_VARS["xsdmf_parent_option_child_xsdmf_id"])) {			
+ 			   $stmt .= Misc::escapeString($HTTP_POST_VARS["xsdmf_parent_option_child_xsdmf_id"]) . ",";
+			}
 			$stmt .=
-                    $valueintag . ",
+					$xsdmf_use_parent_option_list . ",
+                    " . $valueintag . ",
                     " . $is_key . ",
                     '" . Misc::escapeString($HTTP_POST_VARS["xsdmf_data_type"]) . "',
                     '" . Misc::escapeString($HTTP_POST_VARS["parent_key_match"]) . "',
@@ -756,6 +777,7 @@ class XSD_HTML_Match
 		}
 		$stmt .= "
                  )";
+
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -1229,7 +1251,11 @@ class XSD_HTML_Match
 		} else {
 			$xsdmf_citation_brackets = 0;
 		}
-
+		if (@$HTTP_POST_VARS["xsdmf_use_parent_options_list"]) {
+			$xsdmf_use_parent_options_list = 1;
+		} else {
+			$xsdmf_use_parent_options_list = 0;
+		}
 		if (is_numeric($HTTP_POST_VARS["xsdsel_id"])) {
 			$extra_where = " AND xsdmf_xsdsel_id = ".$HTTP_POST_VARS["xsdsel_id"];
 		} else {
@@ -1246,6 +1272,7 @@ class XSD_HTML_Match
                     xsdmf_validation_type = '" . Misc::escapeString($HTTP_POST_VARS["validation_types"]) . "',
                     xsdmf_order = " . Misc::escapeString($HTTP_POST_VARS["order"]) . ",
                     xsdmf_cvo_id = " . $HTTP_POST_VARS["xsdmf_cvo_id"] . ",					
+                    xsdmf_use_parent_options_list = " . $xsdmf_use_parent_options_list . ",
                     xsdmf_required = " . $required . ",
                     xsdmf_indexed = " . $indexed . ",
                     xsdmf_enabled = " . $enabled . ",
@@ -1260,6 +1287,13 @@ class XSD_HTML_Match
 		if (is_numeric($HTTP_POST_VARS["xsdmf_sek_id"])) {
         	$stmt .= " xsdmf_sek_id = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_sek_id"]) . ",";
 		}
+		if (is_numeric($HTTP_POST_VARS["xsdmf_parent_option_xdis_id"])) {
+        	$stmt .= " xsdmf_parent_option_xdis_id = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_parent_option_xdis_id"]) . ",";
+		}
+		if (is_numeric($HTTP_POST_VARS["xsdmf_parent_option_child_xsdmf_id"])) {
+        	$stmt .= " xsdmf_parent_option_child_xsdmf_id = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_parent_option_child_xsdmf_id"]) . ",";
+		}
+
 		if (is_numeric($HTTP_POST_VARS["xsdmf_citation_order"])) {
         	$stmt .= " xsdmf_citation_order = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_citation_order"]) . ",";
 		}

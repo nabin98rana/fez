@@ -38,6 +38,7 @@ include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.record.php");
+include_once(APP_INC_PATH . "class.object_type.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.community.php");
 include_once(APP_INC_PATH . "class.collection.php");
@@ -56,6 +57,7 @@ $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 
 $xdis_id = Misc::GETorPOST('xdis_id');
+$ret_id = Misc::GETorPOST('ret_id');
 $collection_pid = Misc::GETorPOST('collection_pid');
 $community_pid = Misc::GETorPOST('community_pid');
 $pid = Misc::GETorPOST("pid");
@@ -76,6 +78,7 @@ $wfl_list = Misc::keyArray(Workflow::getList(), 'wfl_id');
 $xdis_list = array(-1 => 'Any') + XSD_Display::getAssocListDocTypes(); 
 $tpl->assign('wfl_list', $wfl_list);
 $tpl->assign('xdis_list', $xdis_list);
+
 if ($pid == -1) {
     $tpl->assign("pid", '-1');
     $pid = -1;
@@ -97,12 +100,14 @@ if ($pid == -1) {
     if ($record->canCreate()) {
         $tpl->assign("isCreator", 1);
         if ($record->isCommunity()) {
-//            $xdis_id = Collection::getCollectionXDIS_ID();
-            $workflows = WorkflowTrigger::getListByTriggerAndXDIS_ID(-1, 'Create', $xdis_id, true);
-//            $workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Create', $xdis_id);
-//            $workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Create', $xdis_id);
+            $ret_id = Object_Type::getID('Collection');
+            $workflows = WorkflowTrigger::getListByTriggerAndRET_ID(-1, 'Create', $ret_id, true);
+//			print_r($workflows); exit;
         } elseif ($record->isCollection()) {
-            $workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Create', $xdis_id);
+//            $workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Create', $xdis_id);
+            $ret_id = Object_Type::getID('Record');
+            $workflows = WorkflowTrigger::getListByTriggerAndRET_ID(-1, 'Create', $ret_id, true);
+//            $workflows = $record->getWorkflowsByTriggerAndRET_ID(-1, 'Create', $ret_id, true);
         } else {
             $message .= "Error: can't create objects into ordinary records<br/>";
         }

@@ -374,6 +374,12 @@
 				  } else {
 					elementTitle.style.display = 'none';
 				  }
+				  var elementTitle = getPageElement('tr_parent_option_xdis_id');				  
+				  if (show_field == true) {
+					elementTitle.style.display = '';
+				  } else {
+					elementTitle.style.display = 'none';
+				  }
                   return true;
               }
 
@@ -392,6 +398,7 @@
 			  
 			  
 				var dt_load_state = 0;
+				var dt2_load_state = 0;
 				function showLoading1()
 				{
 					document.body.style.cursor = 'wait';
@@ -403,7 +410,17 @@
 					document.body.style.cursor = '';
 					document.getElementById('loading1').style.display = 'none';
 				}
+				function showLoading2()
+				{
+					document.body.style.cursor = 'wait';
+					document.getElementById('loading2').style.display = 'block';
+				}
 				
+				function hideLoading2()
+				{
+					document.body.style.cursor = '';
+					document.getElementById('loading2').style.display = 'none';
+				}				
 				function selectXSDDisplay(f, field_name)
 				{
 					if (dt_load_state > 0) {
@@ -432,6 +449,34 @@
 					}
 				}			  
 			  
+
+				function selectXSDDisplayList(f, field_name)
+				{
+					if (dt2_load_state > 0) {
+					   return false;
+					} 
+					var field = getFormElement(f, field_name);
+					var selections = getSelectedItems(field);
+					if (selections.length > 0) {
+						dt2_load_state++;
+//						document.getElementById('tr_parent_option_child_xsdmf_id').style.display = '';
+						showLoading2();
+						var obj = new SelectXSDDisplay();
+						obj.ongetMatchingFieldsError = function() {
+							removeAllOptions(f, 'xsdmf_parent_option_child_xsdmf_id');
+							hideLoading2();
+							dt2_load_state--;
+						}
+						obj.setTimeout(10000);
+						obj.getMatchingFields(selections[0].value, function(dt_list) {
+								removeAllOptions(f, 'xsdmf_parent_option_child_xsdmf_id');
+								addOptions(f, 'xsdmf_parent_option_child_xsdmf_id', dt_list);
+								hideLoading2();
+								{/literal}{if $info.xsdmf_parent_option_child_xsdmf_id}selectOption(f, 'xsdmf_parent_option_child_xsdmf_id', {$info.xsdmf_parent_option_child_xsdmf_id});{/if}{literal}
+								dt2_load_state--;
+								});
+					}
+				}			  
               //-->
               </script>
               {/literal}
@@ -491,7 +536,7 @@
                   <b>Title:</b>
                 </td>
                 <td bgcolor="{$light_color}">
-                  <input type="text" name="title" size="80" class="default" value="{if $info.xsdmf_title}{$info.xsdmf_title}{else}{if $xsdsel_title != "N/A"}{$xsdsel_title} - {/if}{$xml_element_clean}{/if}">
+                  <input type="text" name="title" width="120" class="default" value="{if $info.xsdmf_title}{$info.xsdmf_title}{else}{if $xsdsel_title != "N/A"}{$xsdsel_title} - {/if}{$xml_element_clean}{/if}">
                   {include file="error_icon.tpl.html" field="title"}
                 </td>
               </tr>
@@ -500,7 +545,7 @@
                   <b>Label Description:</b>
                 </td>
                 <td bgcolor="{$light_color}">
-                  <input type="text" name="description" size="30" class="default" value="{$info.xsdmf_description}">
+                  <input type="text" name="description" width="30" class="default" value="{$info.xsdmf_description}">
                   <span class="small_default">(it will show up by the side of the label)</span>
                 </td>
               </tr>
@@ -821,11 +866,34 @@
 			  	</td>
 		     </tr>
 		      <tr id="dynamic_selected_option_tr" {$selectingfield_only}>
-                 <td width="120" bgcolor="{$cell_color}" class="default"><b>Dynamic Selected Option:</b><i>(If a dynamic variable is set it will be used to preselect the select options for combo boxes and multiple select boxes)</i></td>
+                 <td width="120" bgcolor="{$cell_color}" class="default" valign="top"><b>Dynamic Selected Option:</b><i>(If a dynamic variable is set it will be used to preselect the select options for combo boxes and multiple select boxes)</i></td>
  				<td bgcolor="{$light_color}">
 					<input class="default" type="text" name="dynamic_selected_option" size="26" value="{$info.xsdmf_dynamic_selected_option}">
 			  	</td>
 		     </tr>
+					<tr id="tr_parent_option_xdis_id" {$selectingfield_only}>
+					  <td bgcolor="{$cell_color}" class="default" valign="top">
+						<b>Parent XSDMF Element list:</b><i>(If this option is checked then the list of options will come from the first parent object of this type and this xsd matching field)</i>
+					  </td>
+					  <td bgcolor="{$light_color}">
+		                <span class="default">Use this list?:</span> <input type="checkbox" name="xsdmf_use_parent_option_list" class="default" {if ($info.xsdmf_use_parent_option_list == 1)}checked{/if}><br />
+						<select class="default" name="xsdmf_parent_option_xdis_id" onChange="javascript: selectXSDDisplayList(this.form, 'xsdmf_parent_option_xdis_id')">
+						 {html_options options=$xsd_displays selected=$info.xsdmf_parent_option_xdis_id}
+						</select><br />
+						<div id="loading2" style="display:none;">Loading...</div>
+						<select class="default" name="xsdmf_parent_option_child_xsdmf_id" >
+						</select>
+					  </td>
+					</tr>
+      {literal}
+      <script language="JavaScript">
+      <!--
+	  selectXSDDisplayList(getForm('xsd_tree_match_form'), 'xsdmf_parent_option_xdis_id'); 
+	  //-->
+      </script>
+      {/literal}
+
+	  
 		      <tr id="checkbox_selected_option_tr" {if $info.xsdmf_html_input != 'checkbox'}style="display:none"{/if}>
                  <td width="120" bgcolor="{$cell_color}" class="default"><b>Checkbox Default Value:</b><i>(The default value of a checkbox input - checked or not checked)</i></td>
  				<td bgcolor="{$light_color}">
@@ -885,7 +953,7 @@
               </tr>
               <tr id="validation_type_tr" style="display:none">
                 <td width="120" bgcolor="{$cell_color}" class="default">
-                  <b>Validation Type:</b>
+                  <b>Validation Type: *note the enforcement of this isn't implemented yet</b>
                 </td>
                 <td bgcolor="{$light_color}">
 				  <select name="validation_types" multiple size="4" class="default">
@@ -1154,7 +1222,7 @@
 					  <tr>
 						<td colspan="2">
 						  <table border="0" width="100%" cellpadding="1" cellspacing="1">
-							<form onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
+							<form name="att_form_delete" onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
 				            <input type="hidden" name="xdis_id" value="{$xdis_id}">
 				            <input type="hidden" name="xml_element" value="{$xml_element}">
 				            <input type="hidden" name="xsdsel_id" value="{$xsdsel_id}">
@@ -1395,18 +1463,16 @@
       {literal}
       <script language="JavaScript">
       <!--
-      window.onload = setXSDMatchField;
 	  selectXSDDisplay(getForm('xsd_display_att_form'), 'att_xdis_id'); 
+	  window.onload = setXSDMatchField();
       function setXSDMatchField()
       {
-          var f = getForm('xsd_tree_match_form');
-          var field1 = getFormElement(f, 'field_type', 0);
+          var field1 = getFormElement(getForm('xsd_tree_match_form'), 'field_type', 0);
           if (field1.checked) {
               toggleXSDMatchField(true);
           } else {
               toggleXSDMatchField(false);
           }
-//          checkRequiredFields();
       }
       //-->
       </script>

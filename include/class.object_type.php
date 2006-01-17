@@ -160,6 +160,30 @@ class Object_Type
         }
     }
 
+    /**
+     * Method used to get the title of a specific status.
+     *
+     * @access  public
+     * @param   integer $ret_id The status ID
+     * @return  string The title of the status
+     */
+    function getID($ret_title)
+    {
+        $stmt = "SELECT
+                    ret_id
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "object_type
+                 WHERE
+                    ret_title='$ret_title'";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return '';
+        } else {
+            return $res;
+        }
+    }
 
     /**
      * Method used to get the list of statuss available in the 

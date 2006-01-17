@@ -114,11 +114,13 @@ class XSD_Display
                  (
                     xdis_title,
                     xdis_xsd_id,
-                    xdis_version
+                    xdis_version,
+					xdis_object_type
                  ) VALUES (
                     'Clone of " .$master_res["xdis_title"] . "',
                     " .$master_res["xdis_xsd_id"] . ",
-                    '1.0'
+                    '1.0',
+			        " .$master_res["xdis_object_type"] . "
                  )";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {

@@ -89,12 +89,14 @@ if (!empty($collection_pid)) {
 if (!empty($community_pid)) {
 	$extra_redirect.="&community_pid=".$pid;
 }
-
+$parents = Record::getParentsAll($pid);
+$tpl->assign("parents", $parents);
 $tpl->assign("pid", $pid);
 $record = new RecordObject($pid);
 $record->getDisplay();
 $xdis_id = $record->getXmlDisplayId();
 $xdis_title = XSD_Display::getTitle($xdis_id);
+$author_list = Author::getAssocListAll();
 $tpl->assign("xdis_title", $xdis_title);
 $xdis_collection_list = XSD_Display::getAssocListCollectionDocTypes(); // @@@ CK - 13/1/06 added for communities to be able to select their collection child document types/xdisplays
 $xdis_list = XSD_Display::getAssocListDocTypes(); // @@@ CK - 24/8/05 added for collections to be able to select their child document types/xdisplays
@@ -178,20 +180,27 @@ foreach ($xsd_display_fields  as $dis_field) {
 					$details[$dis_field["xsdmf_id"]][$tempValue] = $controlled_vocabs[$tempValue];
 
 				}
-			} else {
-				if (is_array($dis_field["field_options"])) { // if the display field has a list of matching options
-	
-					foreach ($dis_field["field_options"] as $field_key => $field_option) { // for all the matching options match the set the details array the template uses
-						if (is_array($details[$dis_field["xsdmf_id"]])) { // if there are multiple selected options (it will be an array)
-							foreach ($details[$dis_field["xsdmf_id"]] as $detail_key => $detail_value) {
-								if ($field_option == $detail_value) {
-									$details[$dis_field["xsdmf_id"]][$detail_key] = $field_key;
-								}
-							}					
-						} else {
-							if ($field_option == $details[$dis_field["xsdmf_id"]]) {
-								$details[$dis_field["xsdmf_id"]] = $field_key;
+			} elseif ($dis_field["xsdmf_use_parent_option_list"] == 1) { // if the display field inherits this list from a parent then get those options
+				// Loop through the parents 
+				foreach ($parents as $parent) {
+					if ($parent['display_type'][0] == $dis_field["xsdmf_parent_option_xdis_id"]) {
+				    	$parent_details = Record::getDetails($parent['pid'], $parent['display_type'][0]);
+						print_r($parent_details);
+					}
+				}
+			
+			
+			} elseif (is_array($dis_field["field_options"])) { // if the display field has a list of matching options
+				foreach ($dis_field["field_options"] as $field_key => $field_option) { // for all the matching options match the set the details array the template uses
+					if (is_array($details[$dis_field["xsdmf_id"]])) { // if there are multiple selected options (it will be an array)
+						foreach ($details[$dis_field["xsdmf_id"]] as $detail_key => $detail_value) {
+							if ($field_option == $detail_value) {
+								$details[$dis_field["xsdmf_id"]][$detail_key] = $field_key;
 							}
+						}					
+					} else {
+						if ($field_option == $details[$dis_field["xsdmf_id"]]) {
+							$details[$dis_field["xsdmf_id"]] = $field_key;
 						}
 					}
 				}
