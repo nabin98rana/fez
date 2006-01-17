@@ -1,11 +1,36 @@
+<script type="text/javascript" language="javascript">
+<!--
+{literal}
+function checkDeleteRecords(f)
+{
+    if (!hasOneChecked(f, 'items[]')) {
+        alert('Please select at least one item.');
+        return false;
+    }
+    if (!confirm('The checked items will be deleted, are you sure?')) {
+        return false;
+    } else {
+        var features = 'width=420,height=200,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
+        var popupWin = window.open('', '_popup', features);
+        popupWin.focus();
+         return true;
+    }
+}
+{/literal}
+// -->
+</script>
 <div class="outline">
 <div class="contentheader">
 Assigned Unpublished Items
 </div>
+<form name="assigned_records" method="post" action="{$rel_url}popup.php" target="_popup">
+<input type="hidden" name="cat" value="purge_objects" />
 
    <table class="listing">
-     <tr>
-       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b></td>
+     <tr bgcolor="{$cell_color}">
+       <td width="10"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form, 'items[]');" 
+       class="button" /></td>
+       <td class="default">&nbsp;<b>Title</b></td>
      </tr>
 {assign var="list" value=$my_assigned_items_list}
      {section name="i" loop=$list}
@@ -15,12 +40,13 @@ Assigned Unpublished Items
 			{assign var="icon" value="images/record.jpg" }
 		{/if}
 	     {cycle values=$cycle assign="row_color"}
-     <tr>
-       <td bgcolor="{$row_color}" class="default">
+     <tr bgcolor="{$row_color}">
+       <td><input type="checkbox" name="items[]" value="{$list[i].pid}" /></td>
+       <td class="default">
 		<b>{$list[i].xdis_title.0|escape}</b><br />
 		<a href="{$rel_url}view.php?pid={$list[i].pid|escape}"><img align="absmiddle" src="{$icon}" border="0"></a>
-         &nbsp;<a href="{$rel_url}view.php?pid={$list[i].pid|escape}">{$list[i].title.0|escape}</a>
-         &nbsp;&nbsp;<a href='{$rel_url}workflow/update.php?pid={$list[i].pid|escape}&href={$smarty.server.REQUEST_URI}'
+         <a href="{$rel_url}view.php?pid={$list[i].pid|escape}">{$list[i].title.0|escape}</a>
+         <a href='{$rel_url}workflow/update.php?pid={$list[i].pid|escape}&href={$smarty.server.REQUEST_URI}'
          ><img title="Edit" align="absmiddle" src="{$rel_url}images/edit.gif" border="0"></a> 
          <a href="javascript:void(null);" onclick="javascript: purgeObject('{$list[i].pid|escape}');" 
          ><img title="Delete" align="absmiddle" src="{$rel_url}images/delete.gif" border="0"></a> 
@@ -33,6 +59,14 @@ Assigned Unpublished Items
        </td>
      </tr>
      {/section}
+     <tr bgcolor="{$cell_color}">
+       <td ><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form, 'items[]');" 
+       class="button" /></td>
+       <td colspan="20">
+       <input type="submit" value="Delete" onclick="javascript:checkDeleteRecords(this.form);" class="button" />
+       </td>
+     </tr>
    </table>
+   </form>
   </div>
 

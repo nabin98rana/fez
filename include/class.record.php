@@ -749,7 +749,7 @@ class Record
         // hose the index array as we'll generate it from the ingested object later
         $indexArray = array();
 		$datastreamTitles = $display->getDatastreamTitles();
-        return compact('datastreamTitles', 'xmlObj', 'indexArray'); 
+        return compact('datastreamTitles', 'xmlObj', 'indexArray', 'xdis_id'); 
     }
 
     /**
@@ -767,7 +767,7 @@ class Record
         // xmlObj is still a text representation at this stage.
         $xmlObj = str_replace('__makeInsertTemplate_PID__', $pid, $xmlObj);
         $xmlObj = str_replace('__makeInsertTemplate_DCTitle__', $title, $xmlObj);
-        Record::insertXML($pid, compact('datastreamTitles', 'xmlObj', 'indexArray'), true);
+        Record::insertXML($pid, compact('datastreamTitles', 'xmlObj', 'indexArray','xdis_id'), true);
     }
 
     /**

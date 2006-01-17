@@ -356,8 +356,10 @@ function selectField(f, field_name)
             }
 			var newF = new Function('checkErrorCondition(\'' + f.name + '\', \'' + field_name + '\');');
 			if (f.elements[i].onchange) {
-				var oldF = (f.elements[i].onchange);
-				f.elements[i].onchange = function () { oldF(); newF();};
+                            // don't muck around with existing onchange stuff because it
+                            // blows away the arguments to the oldF and thigns stop working 
+				//var oldF = (f.elements[i].onchange);
+				//f.elements[i].onchange = function () { oldF(); newF();};
 			} else {
 				f.elements[i].onchange = function () { newF();};				
 			}

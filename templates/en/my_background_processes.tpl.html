@@ -31,12 +31,12 @@ Running Processes
 <table class="listing">
 <tr bgcolor="{$cell_color}" class="tableheader">
 <td><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form,'items[]');" class="button"/></td>
-<td class="default" >Started</td>
-<td class="default" >Name</td>
-<td class="default" >Progress</td>
-<td class="default" >Message</td>
-<td class="default" >Last Heartbeat</td>
-<td class="default" >Status</td>
+<td class="default tableheader" >Started</td>
+<td class="default tableheader" >Name</td>
+<td class="default tableheader" >Progress</td>
+<td class="default tableheader" >Message</td>
+<td class="default tableheader" >Last Heartbeat</td>
+<td class="default tableheader" >Status</td>
 </tr>
 {section name="iii" loop=$bgp_list}
 {cycle values=$cycle assign="row_color"}
@@ -52,7 +52,7 @@ Running Processes
 </tr>
 {sectionelse}
 <tr >
-<td colspan="20">No Items</td>
+<td colspan="20" class="default" bgcolor={$light_color} align="center" >No Items</td>
 </tr>
 {/section}
 <tr bgcolor="{$cell_color}" >

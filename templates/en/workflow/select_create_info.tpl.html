@@ -88,6 +88,19 @@ function selectCollection(f, field_name)
     }
 }
 
+function validateForm(f)
+{
+    if (!hasOneSelected(f, 'community_pid')) {
+        errors[errors.length] = new Option('Community','community_pid');
+    }
+    if (!hasOneSelected(f, 'collection_pid')) {
+        errors[errors.length] = new Option('Collection','collection_pid');
+    }
+    if (!hasOneSelected(f, 'xdis_id')) {
+        errors[errors.length] = new Option('Document Type','xdis_id');
+    }
+}
+
 {/literal}
 // -->
 </script>

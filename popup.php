@@ -158,7 +158,18 @@ switch ($cat)
             $tpl->assign("generic_type",'background processes');
             break;
         }
-
+    case 'purge_objects':
+        {
+            // first delete all indexes about this pid
+            $items = Misc::GETorPOST('items');
+            foreach ($items as $pid) {
+                Record::removeIndexRecord($pid);
+                $res = Fedora_API::callPurgeObject($pid);
+            }
+            $tpl->assign("purge_object_result", $res);
+            break;
+        }
+ 
 
 }
 

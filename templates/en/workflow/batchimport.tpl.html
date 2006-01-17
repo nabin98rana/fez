@@ -29,6 +29,20 @@ function openDetailPage()
 </script>
 {/literal}
 {/if}
+
+<script language="JavaScript">
+<!--
+{literal}
+function validateForm(f)
+{
+    if (!hasOneSelected(f, 'directory')) {
+        errors[errors.length] = new Option('Directory','directory');
+    }
+}
+{/literal}
+// -->
+</script>
+
 <input type="hidden" name="xdis_id" value="{$xdis_id}">
 <input type="hidden" name="cat" value="submit">
 <input type="hidden" name="pid" value="{$pid}">

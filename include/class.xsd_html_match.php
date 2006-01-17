@@ -336,7 +336,6 @@ class XSD_HTML_Match
 		// @@@ CK - Added order statement to custom fields displayed in a desired order
 
 		$stmt .= " ORDER BY xsdmf_order, xsdsel_order ASC";
-		echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
