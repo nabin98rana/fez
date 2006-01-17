@@ -41,6 +41,7 @@ include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.community.php");
 include_once(APP_INC_PATH . "class.collection.php");
+include_once(APP_INC_PATH . "class.object_type.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
@@ -78,7 +79,11 @@ if ($pid == -1) {
     // Delete 'None' - the workflow selects the object
     $pid = -2;
     $tpl->assign("pid", $pid);
-    $workflows = WorkflowTrigger::getListByTriggerAndXDIS_ID(-1, 'Delete', -2, true);
+    $workflows = WorkflowTrigger::getFilteredList(-1, array(
+                'trigger' => 'Delete', 
+                'xdis_id' => -2, 
+                'strict_xdis' => true,
+                'any_ret' => true));
     $tpl->assign('workflows', $workflows);
 } else {
     $tpl->assign("pid", $pid);
@@ -87,13 +92,17 @@ if ($pid == -1) {
     if ($record->canEdit()) {
         $tpl->assign("isEditor", 1);
         $xdis_id = $record->getXmlDisplayId();
-        // don't be flexible on doc types for collection and community
-        if ($record->isCommunity() || $record->isCollection()) {
-            $strict = true;
+        if ($record->isCommunity()) {
+            $ret_id = Object_Type::getID('Community');
+        } elseif ($record->isCollection()) {
+            $ret_id = Object_Type::getID('Collection');
         } else {
-            $strict = false;
+            $ret_id = Object_Type::getID('Record');
         }
-        $workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Delete', $xdis_id, $strict);
+        $workflows = $record->getFilteredWorkflows(array(
+                    'trigger' => 'Delete',
+                    'xdis_id' => $xdis_id, 
+                    'ret_id' => $ret_id));
         $tpl->assign('workflows', $workflows);
     } else {
     }

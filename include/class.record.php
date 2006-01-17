@@ -928,6 +928,7 @@ class Record
 
         }
 
+        sleep(1);
 		
 		Record::removeIndexRecord($pid); // remove any existing index entry for that PID			
 		Record::setIndexMatchingFields($xdis_id, $pid);
@@ -1304,6 +1305,20 @@ class RecordGeneral
         // get defaults
         $triggers = array_merge($triggers, 
                 WorkflowTrigger::getListByTriggerAndRET_ID(-1, $trigger, $ret_id, $strict));
+        return $triggers;
+    }
+
+    function getFilteredWorkflows($options)
+    {
+        $this->getParents();
+        $triggers = WorkflowTrigger::getFilteredList($this->pid, $options);
+        foreach ($this->record_parents as $ppid) {
+            $triggers = array_merge($triggers, 
+                    WorkflowTrigger::getFilteredList($ppid, $options));
+        }
+        // get defaults
+        $triggers = array_merge($triggers, 
+                WorkflowTrigger::getFilteredList(-1, $options));
         return $triggers;
     }
 

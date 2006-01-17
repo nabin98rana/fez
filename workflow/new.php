@@ -84,15 +84,21 @@ if ($pid == -1) {
     $pid = -1;
     // community level create 
     // get defaults triggers
-    $xdis_id = Community::getCommunityXDIS_ID();
-    $workflows = WorkflowTrigger::getListByTriggerAndXDIS_ID(-1, 'Create', $xdis_id, true);
+    $ret_id = Object_Type::getID('Community');
+    $workflows = WorkflowTrigger::getFilteredList(-1, array( 
+                'trigger' => 'Create', 
+                'ret_id' => $ret_id));
     $tpl->assign('workflows', $workflows);
 } elseif (empty($pid) || $pid == -2) {
     $pid = -2;
     // find workflows that select a pid as they go
-    $workflows = WorkflowTrigger::getListByTriggerAndXDIS_ID(-1, 'Create', -2, true);
+    $workflows = WorkflowTrigger::getFilteredList(-1, array(
+            'trigger' => 'Create', 
+            'xdis_id' => -2,
+            'strict_xdis' => true,
+            'any_ret' => true));
     $tpl->assign('workflows', $workflows);
-   $tpl->assign("pid", $pid);
+    $tpl->assign("pid", $pid);
 } else {
     $tpl->assign("pid", $pid);
 
@@ -101,13 +107,15 @@ if ($pid == -1) {
         $tpl->assign("isCreator", 1);
         if ($record->isCommunity()) {
             $ret_id = Object_Type::getID('Collection');
-            $workflows = WorkflowTrigger::getListByTriggerAndRET_ID(-1, 'Create', $ret_id, true);
-//			print_r($workflows); exit;
+            $workflows = WorkflowTrigger::getFilteredList(-1, array(
+                    'trigger' => 'Create', 
+                    'ret_id' => $ret_id));
         } elseif ($record->isCollection()) {
-//            $workflows = $record->getWorkflowsByTriggerAndXDIS_ID('Create', $xdis_id);
             $ret_id = Object_Type::getID('Record');
-            $workflows = WorkflowTrigger::getListByTriggerAndRET_ID(-1, 'Create', $ret_id, true);
-//            $workflows = $record->getWorkflowsByTriggerAndRET_ID(-1, 'Create', $ret_id, true);
+            $workflows = WorkflowTrigger::getFilteredList(-1, array(
+                        'trigger' => 'Create', 
+                        'xdis_id' => $xdis_id,
+                        'ret_id' => $ret_id));
         } else {
             $message .= "Error: can't create objects into ordinary records<br/>";
         }

@@ -229,6 +229,44 @@ class WorkflowTrigger
         return WorkflowTrigger::getList($pid, " AND wft_type_id=$trigger 
                 AND (wft_ret_id=$ret_id $orstr ) AND wft_xdis_id!=-2 ");
     }
+
+    /**
+      * @param array $options Associative array, can have 
+      *                         xdis_id - doctype to match against (-1 for any, -2 workflow selects doctype),
+      *                         ret_id - record type to match against (-1 for any), 
+      *                         strict_xdis - don't allow -1 xdis in results, 
+      *                         strict_ret - don't allow -1 record type in results
+      */
+    function getFilteredList($pid, $options)
+    {
+        // these values may be overwritten by extract
+        $ret_id = 0;
+        $xdis_id = -1;
+        $strict_ret = true;
+        $strict_xdis = false;
+        $any_ret = false;
+        extract($options);
+        if (!Misc::isInt($trigger)) {
+            $trigger = WorkflowTrigger::getTriggerId($trigger);
+        }
+        if (!$strict_ret) {
+            $orstr_ret = " OR wft_ret_id=0 ";
+        } else {
+            $orstr_ret = "";
+        }
+        if (!$strict_xdis) {
+            $orstr_xdis= " OR wft_xdis_id=-1 ";
+        } else {
+            $orstr_xdis = "";
+        }
+        $ret_str = '1';
+        if (!$any_ret) {
+            $ret_str = "wft_ret_id=$ret_id";
+        }
+        return WorkflowTrigger::getList($pid, " AND wft_type_id=$trigger 
+                AND ($ret_str $orstr_ret ) AND (wft_xdis_id=$xdis_id $orstr_xdis) ");
+     }
+    
     /**
      * Get an ingest trigger for a datastream based on PID, XDIS_ID and mimetype
      * @param string pid record id
