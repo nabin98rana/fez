@@ -48,6 +48,7 @@ include_once(APP_INC_PATH . "class.community.php");
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
+include_once(APP_INC_PATH . "class.xsd_relationship.php");
 include_once(APP_INC_PATH . "class.workflow_status.php");
 
 
@@ -68,6 +69,9 @@ $wfs_id = Misc::GETorPOST('wfs_id');
 $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
 $pid = $wfstatus->pid;
 $tpl->assign("pid", $pid);
+
+
+$tpl->assign("parents", $parents);
 
 $wfstatus->setTemplateVars($tpl);
 // get the xdis_id of what we're creating
@@ -113,12 +117,19 @@ if ($access_ok) {
 //    $xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id));
 	$xsd_display_fields = XSD_HTML_Match::getListByDisplay($xdis_id, array("FezACML"), array(""));  // XSD_DisplayObject
 //	print_r($xsd_display_fields);
+//	$parents = Record::getDetails($wfstatus->parent_pid);
+//	print_r($parents);
+//	echo $wfstatus->parent_pid;
+	$parent_record = new RecordObject($wfstatus->parent_pid);
+	$parent_xdis_id = $parent_record->getXmlDisplayId();
+	$parent_relationships = XSD_Relationship::getColListByXDIS($parent_xdis_id);
+    array_push($parent_relationships, $parent_xdis_id);
 //    $xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id,array("FezACML"), array("")));
 //    $cvo_list = Controlled_Vocab::getAssocListFullDisplay(false, "", 0, 2);
 
     //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups 
     // - should probably move this into a function somewhere later
-    foreach ($xsd_display_fields  as $dis_key => $dis_field) {
+    foreach ($xsd_display_fields as $dis_key => $dis_field) {
         if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple') {
             if (!empty($dis_field["xsdmf_smarty_variable"]) && $dis_field["xsdmf_smarty_variable"] != "none") {
                 eval("\$xsd_display_fields[\$dis_key]['field_options'] = " . $dis_field["xsdmf_smarty_variable"] . ";");
@@ -128,6 +139,31 @@ if ($access_ok) {
                 eval("\$xsd_display_fields[\$dis_key]['selected_option'] = " 
                         . $dis_field["xsdmf_dynamic_selected_option"] . ";");
             }
+			if ($dis_field["xsdmf_use_parent_option_list"] == 1) { // if the display field inherits this list from a parent then get those options
+				// Loop through the parents
+				if (in_array($dis_field["xsdmf_parent_option_xdis_id"], $parent_relationships)) {
+					$parent_details = $parent_record->getDetails();
+					if (is_array($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]])) {
+						$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($dis_field["xsdmf_parent_option_child_xsdmf_id"]);
+						if ($xsdmf_details['xsdmf_smarty_variable'] != "" && $xsdmf_details['xsdmf_html_input'] == "multiple") {
+							$temp_parent_options = array();
+							$temp_parent_options_final = array();
+							eval("\$temp_parent_options = ". $xsdmf_details['xsdmf_smarty_variable'].";");
+							$xsd_display_fields[$dis_key]['field_options'] = array();
+							foreach ($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]] as $parent_smarty_option) {
+								if (array_key_exists($parent_smarty_option, $temp_parent_options)) {
+									$xsd_display_fields[$dis_key]['field_options'][$parent_smarty_option] = $temp_parent_options[$parent_smarty_option];
+								}
+							}
+						} else {
+							$xsd_display_fields[$dis_key]['field_options'] = array();
+							foreach ($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]] as $parent_detail_text) {
+								$xsd_display_fields[$dis_key]['field_options'][$parent_detail_text] = $parent_detail_text;
+							}
+						}
+					}
+				}
+			}
         }
         if (($dis_field["xsdmf_html_input"] == 'contvocab') 
                 || ($dis_field["xsdmf_html_input"] == 'contvocab_selector')) {

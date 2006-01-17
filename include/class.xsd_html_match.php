@@ -1251,10 +1251,10 @@ class XSD_HTML_Match
 		} else {
 			$xsdmf_citation_brackets = 0;
 		}
-		if (@$HTTP_POST_VARS["xsdmf_use_parent_options_list"]) {
-			$xsdmf_use_parent_options_list = 1;
+		if (@$HTTP_POST_VARS["xsdmf_use_parent_option_list"]) {
+			$xsdmf_use_parent_option_list = 1;
 		} else {
-			$xsdmf_use_parent_options_list = 0;
+			$xsdmf_use_parent_option_list = 0;
 		}
 		if (is_numeric($HTTP_POST_VARS["xsdsel_id"])) {
 			$extra_where = " AND xsdmf_xsdsel_id = ".$HTTP_POST_VARS["xsdsel_id"];
@@ -1272,7 +1272,7 @@ class XSD_HTML_Match
                     xsdmf_validation_type = '" . Misc::escapeString($HTTP_POST_VARS["validation_types"]) . "',
                     xsdmf_order = " . Misc::escapeString($HTTP_POST_VARS["order"]) . ",
                     xsdmf_cvo_id = " . $HTTP_POST_VARS["xsdmf_cvo_id"] . ",					
-                    xsdmf_use_parent_options_list = " . $xsdmf_use_parent_options_list . ",
+                    xsdmf_use_parent_option_list = " . $xsdmf_use_parent_option_list . ",
                     xsdmf_required = " . $required . ",
                     xsdmf_indexed = " . $indexed . ",
                     xsdmf_enabled = " . $enabled . ",

@@ -48,6 +48,7 @@ include_once(APP_INC_PATH . "class.community.php");
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
+include_once(APP_INC_PATH . "class.xsd_relationship.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.workflow.php");
@@ -136,7 +137,14 @@ $tpl->assign('sta_id', $sta_id);
 $jtaskData = "";
 $maxG = 0;
 $xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array(""));  // XSD_DisplayObject
-
+$parent_relationships = array();
+foreach ($parents as $parent) {
+	$parent_record = new RecordObject($parent['pid']);
+	$parent_xdis_id = $parent_record->getXmlDisplayId();
+	$parent_relationship = XSD_Relationship::getColListByXDIS($parent_xdis_id);
+	array_push($parent_relationship, $parent_xdis_id);
+	$parent_relationships = Misc::array_merge_values($parent_relationships, $parent_relationship);
+}
 //print_r($xsd_display_fields);
 $author_ids = Author::getAssocListAll();
 $tpl->assign("author_ids", $author_ids);
@@ -149,7 +157,33 @@ foreach ($xsd_display_fields  as $dis_key => $dis_field) {
 		if (!empty($dis_field["xsdmf_dynamic_selected_option"]) && $dis_field["xsdmf_dynamic_selected_option"] != "none") {
 			eval("\$xsd_display_fields[\$dis_key]['selected_option'] = " . $dis_field["xsdmf_dynamic_selected_option"] . ";");
 		}
-	}
+
+		if ($dis_field["xsdmf_use_parent_option_list"] == 1) { // if the display field inherits this list from a parent then get those options
+			// Loop through the parents
+			if (in_array($dis_field["xsdmf_parent_option_xdis_id"], $parent_relationships)) {
+				$parent_details = $parent_record->getDetails();
+				if (is_array($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]])) {
+					$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($dis_field["xsdmf_parent_option_child_xsdmf_id"]);
+					if ($xsdmf_details['xsdmf_smarty_variable'] != "" && $xsdmf_details['xsdmf_html_input'] == "multiple") {
+						$temp_parent_options = array();
+						$temp_parent_options_final = array();
+						eval("\$temp_parent_options = ". $xsdmf_details['xsdmf_smarty_variable'].";");
+						$xsd_display_fields[$dis_key]['field_options'] = array();
+						foreach ($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]] as $parent_smarty_option) {
+							if (array_key_exists($parent_smarty_option, $temp_parent_options)) {
+								$xsd_display_fields[$dis_key]['field_options'][$parent_smarty_option] = $temp_parent_options[$parent_smarty_option];
+							}
+						}
+					} else {
+						$xsd_display_fields[$dis_key]['field_options'] = array();
+						foreach ($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]] as $parent_detail_text) {
+							$xsd_display_fields[$dis_key]['field_options'][$parent_detail_text] = $parent_detail_text;
+						}
+					}
+				}
+			}
+		}	
+	}	
 	if ($dis_field["xsdmf_html_input"] == 'contvocab') {
 		$xsd_display_fields[$dis_key]['field_options'] = $cvo_list['data'][$dis_field['xsdmf_cvo_id']];
 	}
@@ -161,7 +195,7 @@ $tpl->assign("xdis_id", $xdis_id);
 
 $details = $record->getDetails();
 //print_r($details);
-
+//print_r($parents);
 $controlled_vocabs = Controlled_Vocab::getAssocListAll();
 //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
 foreach ($xsd_display_fields  as $dis_field) {
@@ -185,7 +219,7 @@ foreach ($xsd_display_fields  as $dis_field) {
 				foreach ($parents as $parent) {
 					if ($parent['display_type'][0] == $dis_field["xsdmf_parent_option_xdis_id"]) {
 				    	$parent_details = Record::getDetails($parent['pid'], $parent['display_type'][0]);
-						print_r($parent_details);
+//						print_r($parent_details);
 					}
 				}
 			

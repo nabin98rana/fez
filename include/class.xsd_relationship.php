@@ -133,6 +133,33 @@ class XSD_Relationship
     }
 
     /**
+     * Method used to get the list of XSD Relationships associated with
+     * a given display id.
+     *
+     * @access  public
+     * @param   integer $xdis_id The XSD Display ID
+     * @return  array The list of matching fields fields
+     */
+    function getColListByXDIS($xdis_id)
+    {
+        $stmt = "SELECT
+					xsdrel_xdis_id
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship,
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display,
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+                 WHERE
+                   xsdmf_xdis_id = $xdis_id and xsdrel_xsdmf_id = xsdmf_id and xsdrel_xdis_id = xdis_id ";
+		$stmt .= " ORDER BY xsdrel_order ASC";
+        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
+    /**
      * Method used to remove a given list of XSD relationships.
      *
      * @access  public

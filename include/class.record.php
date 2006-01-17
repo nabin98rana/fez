@@ -621,6 +621,7 @@ class Record
 
                 $xmlnode = new DomDocument();
                 $xmlnode->loadXML($xmlDatastream);
+				echo $xmlDatastream;
                 $array_ptr = array();
                 Misc::dom_xml_to_simple_array($xmlnode, $array_ptr, $xsd_top_element_name, $xsd_element_prefix, $xsdmf_array, $xdis_id);
             }
@@ -639,6 +640,7 @@ class Record
      */
     function getRecordXDIS_ID() {
 		// will make this more dynamic later. (probably feed from a mysql table which can be configured in the gui admin interface).
+		// this isn't realy used much anymore
 		$xdis_id = 5;
 		return $xdis_id;
     }
