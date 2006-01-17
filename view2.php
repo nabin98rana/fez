@@ -132,7 +132,7 @@ if (!empty($pid)) {
 					}
 				}
 			
-				$datastreams[$ds_key]['FezACML'] = $return[$pid]['FezACML'];
+				$datastreams[$ds_key]['FezACML'] = @$return[$pid]['FezACML'];
 				$datastreams[$ds_key]['workflows'] = $datastream_workflows;
 				$parentsACMLs = array();
 				if (count($FezACML_DS) == 0 || $datastreams[$ds_key]['FezACML'][0]['!inherit_security'][0] == "on") {
@@ -144,8 +144,8 @@ if (!empty($pid)) {
 						$datastreams[$ds_key]['security'] = "inherit";
 						$parentsACMLs = array();
 					} 
-					$parents = Record::getParents($pid_key);
-					Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid_key, $parents);
+					$parents = Record::getParents($pid);
+					Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid, $parents);
 					$datastreams[$ds_key]['FezACML'] = $parentsACMLs;			
 				} else {
 					$datastreams[$ds_key]['security'] = "exclude";			

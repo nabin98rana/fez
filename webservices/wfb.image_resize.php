@@ -46,20 +46,20 @@ $copyright = $_GET["copyright"]; //the copyright message to add (if any)
 $watermark = $_GET["watermark"]; //"true" if the image is to be watermarked
 $ext = strtolower($_GET["ext"]); //the file type extension to convert the image to
 $prefix = strtolower($_GET["prefix"]); //the prefix to add to the filename
-/*$image_dir = "";
+$image_dir = "";
 if (is_numeric(strpos($image, "/"))) {
-	$image_dir = substr($image, 0, strrpos($image, "/"));
+	$image_dir = substr($image, 0, strrpos($image, "/")+1);
 	$image = substr($image, strrpos($image, "/")+1);
 }	
 
 if (trim($image_dir) == "") { $image_dir = APP_TEMP_DIR; }
-*/
+
 $temp_file = $prefix.substr($image, 0, strrpos($image, ".")).".".$ext;
 $temp_file = str_replace(" ", "_", $temp_file);
 $error = '';
 if(!$image) $error .= "<b>ERROR:</b> no image specified<br>";
 //if(!is_file($image_dir."/".$image)) { $error .= "<b>ERROR:</b> given image filename not found or bad filename given<br>"; }
-if(!is_file(APP_TEMP_DIR.$image)) { $error .= "<b>ERROR:</b> given image filename not found or bad filename given<br>"; }
+if(!is_file($image_dir.$image)) { $error .= "<b>ERROR:</b> given image filename not found or bad filename given<br>"; }
 if(!is_numeric($width) && !is_numeric($height)) $error .= "<b>ERROR:</b> no sizes specified<br>";
 if($error){ echo $error; die; }
 
@@ -75,22 +75,22 @@ else{ echo "<b>ERROR:</b> unknown file type<br>"; die; }
 // Create the output file if it does not exist
 if ($watermark == "" && $copyright == "") {
 	if(!is_file(APP_TEMP_DIR.$temp_file)) {
-		$command = escapeshellcmd(APP_CONVERT_CMD)." -resize ".escapeshellcmd($width)."x".escapeshellcmd($height)."\> '".APP_TEMP_DIR.escapeshellcmd($image)."' ".escapeshellcmd(APP_TEMP_DIR.$temp_file);
+		$command = escapeshellcmd(APP_CONVERT_CMD)." -resize ".escapeshellcmd($width)."x".escapeshellcmd($height)."\> '".$image_dir.escapeshellcmd($image)."' ".escapeshellcmd(APP_TEMP_DIR.$temp_file);
 		exec($command);
 	//	exec(escapeshellcmd($command));
 	} 
 } elseif ($watermark == "" && $copyright != "") {
-	$command = escapeshellcmd(APP_CONVERT_CMD)." -resize ".escapeshellcmd($width)."x".escapeshellcmd($height)."\> '".APP_TEMP_DIR.escapeshellcmd($image)."' ".escapeshellcmd(APP_TEMP_DIR.$temp_file);
+	$command = escapeshellcmd(APP_CONVERT_CMD)." -resize ".escapeshellcmd($width)."x".escapeshellcmd($height)."\> '".$image_dir.escapeshellcmd($image)."' ".escapeshellcmd(APP_TEMP_DIR.$temp_file);
 	exec($command);
 	$command = APP_CONVERT_CMD.' '.APP_TEMP_DIR.escapeshellcmd($temp_file).' -font Arial -pointsize 20 -draw "gravity center fill black text 0,12 \'Copyright'.$copyright.'\' fill white  text 1,11 \'Copyright'.$copyright.'\'" '.APP_TEMP_DIR.escapeshellcmd($temp_file).'';
 	exec($command);
 } elseif ($watermark != "" && $copyright == "") {
-	$command = escapeshellcmd(APP_CONVERT_CMD)." -resize ".escapeshellcmd($width)."x".escapeshellcmd($height)."\> '".APP_TEMP_DIR.escapeshellcmd($image)."' ".escapeshellcmd(APP_TEMP_DIR.$temp_file);
+	$command = escapeshellcmd(APP_CONVERT_CMD)." -resize ".escapeshellcmd($width)."x".escapeshellcmd($height)."\> '".$image_dir.escapeshellcmd($image)."' ".escapeshellcmd(APP_TEMP_DIR.$temp_file);
 	exec($command);
 	$command = APP_COMPOSITE_CMD." -dissolve 15 -tile ".escapeshellcmd(APP_PATH)."/images/".APP_WATERMARK." ".APP_TEMP_DIR.escapeshellcmd($temp_file)." ".APP_TEMP_DIR.escapeshellcmd($temp_file)."";
 	exec($command);			
 } elseif ($watermark != "" && $copyright != "") {
-	$command = escapeshellcmd(APP_CONVERT_CMD)." -resize ".escapeshellcmd($width)."x".escapeshellcmd($height)."\> '".APP_TEMP_DIR.escapeshellcmd($image)."' ".escapeshellcmd(APP_TEMP_DIR.$temp_file);
+	$command = escapeshellcmd(APP_CONVERT_CMD)." -resize ".escapeshellcmd($width)."x".escapeshellcmd($height)."\> '".$image_dir.escapeshellcmd($image)."' ".escapeshellcmd(APP_TEMP_DIR.$temp_file);
 	exec($command);
 	$command = APP_CONVERT_CMD.' '.APP_TEMP_DIR.escapeshellcmd($temp_file).' -font Arial -pointsize 20 -draw "gravity center fill black text 0,12 \'Copyright'.$copyright.'\' fill white  text 1,11 \'Copyright'.$copyright.'\'" '.APP_TEMP_DIR.escapeshellcmd($temp_file).'';
 	exec($command);

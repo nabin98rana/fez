@@ -717,7 +717,7 @@ class XSD_DisplayObject
 					$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_ID("!datastream!ID", $dsValue['xsdsel_id'], $dsValue['xsdmf_xdis_id']);
 					foreach ($datastreams as $ds) {
 						if ($ds['controlGroup'] == 'M') {
-							if (!is_array($this->xsdmf_current[$xsdmf_id])) {
+							if (!is_array(@$this->xsdmf_current[$xsdmf_id])) {
 								$this->xsdmf_current[$xsdmf_id] = array();
 							}
 							array_push($this->xsdmf_current[$xsdmf_id], $ds['ID']); 

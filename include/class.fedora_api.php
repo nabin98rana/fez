@@ -350,18 +350,19 @@ class Fedora_API {
     * @return  integer 
     */		
 	function getUploadLocationByLocalRef ($pid, $dsIDName, $local_file_location, $dsLabel, $mimetype, $controlGroup='M', $dsID=NULL) {
-		$loc_dir = "";
+        // take out any nasty slashes from the ds name itself
 		if (is_numeric(strpos($dsIDName, "/"))) {
-			$dsIDName = substr($dsIDName, strrpos($dsIDName, "/")+1); // take out any nasty slashes from the ds name itself
-			if ($mimetype == "") {
-				$mimetype = Misc::mime_content_type($local_file_location);
-			}	
-		} else {
-			$loc_dir = APP_TEMP_DIR;
-			if ($mimetype == "") {
-				$mimetype = Misc::mime_content_type($loc_dir.$dsIDName);
-			}	
+			$dsIDName = substr($dsIDName, strrpos($dsIDName, "/")+1); 
 		}
+        // fix path if local filename has no path already
+        if (!is_numeric(strpos($local_file_location,'/'))) {
+            $local_file_location = APP_TEMP_DIR.$local_file_location;
+        }
+        // get mimetype
+        if ($mimetype == "") {
+            $mimetype = Misc::mime_content_type($local_file_location);
+        }	
+        // convert extension to lowercase on dsIDName
 		$dsIDName = str_replace(" ", "_", $dsIDName);
 		if (is_numeric(strpos($dsIDName, "."))) {
 			$filename_ext = strtolower(substr($dsIDName, (strrpos($dsIDName, ".") + 1)));
@@ -372,7 +373,7 @@ class Fedora_API {
 		   $ch = curl_init(APP_FEDORA_UPLOAD_URL);
 		   curl_setopt($ch, CURLOPT_VERBOSE, 1);
 		   curl_setopt($ch, CURLOPT_HEADER, 0);
-		   curl_setopt($ch, CURLOPT_POSTFIELDS, array('file' => "@".$loc_dir.$local_file_location)); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
+		   curl_setopt($ch, CURLOPT_POSTFIELDS, array('file' => "@".$local_file_location));
 		   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 		   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		   $uploadLocation = curl_exec($ch);

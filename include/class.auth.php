@@ -447,7 +447,7 @@ class Auth
 		foreach ($indexArray as $indexKey => $indexRecord) {
 			$userPIDAuthGroups = $NonRestrictedRoles;
 			$cleanedArray = array();
-			if (!is_array($indexRecord['FezACML'])) {
+			if (!is_array(@$indexRecord['FezACML'])) {
 //				return false;
 				// if it doesnt have its own acml record try and get rights from its parents
 //				Auth::getIndexAuthorisationGroups();
