@@ -213,17 +213,7 @@ foreach ($xsd_display_fields  as $dis_field) {
 					$details[$dis_field["xsdmf_id"]] = array();
 					$details[$dis_field["xsdmf_id"]][$tempValue] = $controlled_vocabs[$tempValue];
 
-				}
-			} elseif ($dis_field["xsdmf_use_parent_option_list"] == 1) { // if the display field inherits this list from a parent then get those options
-				// Loop through the parents 
-				foreach ($parents as $parent) {
-					if ($parent['display_type'][0] == $dis_field["xsdmf_parent_option_xdis_id"]) {
-				    	$parent_details = Record::getDetails($parent['pid'], $parent['display_type'][0]);
-//						print_r($parent_details);
-					}
-				}
-			
-			
+				}				
 			} elseif (is_array($dis_field["field_options"])) { // if the display field has a list of matching options
 				foreach ($dis_field["field_options"] as $field_key => $field_option) { // for all the matching options match the set the details array the template uses
 					if (is_array($details[$dis_field["xsdmf_id"]])) { // if there are multiple selected options (it will be an array)

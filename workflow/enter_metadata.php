@@ -71,7 +71,7 @@ $pid = $wfstatus->pid;
 $tpl->assign("pid", $pid);
 
 
-$tpl->assign("parents", $parents);
+
 
 $wfstatus->setTemplateVars($tpl);
 // get the xdis_id of what we're creating
@@ -118,6 +118,7 @@ if ($access_ok) {
 	$xsd_display_fields = XSD_HTML_Match::getListByDisplay($xdis_id, array("FezACML"), array(""));  // XSD_DisplayObject
 //	print_r($xsd_display_fields);
 //	$parents = Record::getDetails($wfstatus->parent_pid);
+
 //	print_r($parents);
 //	echo $wfstatus->parent_pid;
 	$parent_record = new RecordObject($wfstatus->parent_pid);

@@ -72,18 +72,53 @@ if (!empty($pid)) {
 		$details = $record->getDetails();
 		$controlled_vocabs = Controlled_Vocab::getAssocListAll();
 		$tpl->assign("details_array", $details);
-		foreach ($xsd_display_fields as $row) {
-			if (($row['xsdmf_html_input'] == "contvocab") || ($row['xsdmf_html_input'] == "contvocab_selector")) {
-				if (!empty($details[$row['xsdmf_id']])) {
-					if (is_array($details[$row['xsdmf_id']])) {
-						foreach ($details[$row['xsdmf_id']] as $ckey => $cdata) {
-							$details[$row['xsdmf_id']][$ckey] = $controlled_vocabs[$cdata];
+		$parents = $record->getParents();
+		$author_list = Author::getAssocListAll();
+		$parent_relationships = array();
+		foreach ($parents as $parent) {
+			$parent_rel = XSD_Relationship::getColListByXDIS($parent['display_type'][0]);
+			$parent_relationships[$parent['pid']] = array();
+			foreach ($parent_rel as $prel) {
+				array_push($parent_relationships[$parent['pid']], $prel);
+			}
+			array_push($parent_relationships[$parent['pid']], $parent['display_type'][0]);
+		}
+		foreach ($xsd_display_fields as $dis_key => $dis_field) {
+			if (($dis_field['xsdmf_html_input'] == "contvocab") || ($dis_field['xsdmf_html_input'] == "contvocab_selector")) {
+				if (!empty($details[$dis_field['xsdmf_id']])) {
+					if (is_array($details[$dis_field['xsdmf_id']])) {
+						foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
+							$details[$dis_field['xsdmf_id']][$ckey] = $controlled_vocabs[$cdata];
 						}
 					} else {
-						$details[$row['xsdmf_id']] = $controlled_vocabs[$details[$row['xsdmf_id']]];
+						$details[$dis_field['xsdmf_id']] = $controlled_vocabs[$details[$dis_field['xsdmf_id']]];
 					}
 				}
 			}
+			if ($dis_field["xsdmf_use_parent_option_list"] == 1) { // if the display field inherits this list from a parent then get those options
+				// Loop through the parents
+				foreach ($parent_relationships as $pkey => $prel) {
+					if (in_array($dis_field["xsdmf_parent_option_xdis_id"], $prel)) {
+						$parent_record = new RecordObject($pkey);
+						$parent_details = $parent_record->getDetails();
+						if (is_array($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]])) {
+							$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($dis_field["xsdmf_parent_option_child_xsdmf_id"]);
+							if ($xsdmf_details['xsdmf_smarty_variable'] != "" && $xsdmf_details['xsdmf_html_input'] == "multiple") {
+								$temp_parent_options = array();
+								$temp_parent_options_final = array();
+								eval("\$temp_parent_options = ". $xsdmf_details['xsdmf_smarty_variable'].";");
+								$xsd_display_fields[$dis_key]['field_options'] = array();
+								foreach ($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]] as $parent_smarty_option) {
+									if (array_key_exists($details[$dis_field['xsdmf_id']], $temp_parent_options)) {
+										$details[$dis_field['xsdmf_id']] = $temp_parent_options[$details[$dis_field['xsdmf_id']]];
+									}
+								}
+							}
+						}
+					}
+				}
+			}	
+			
 		}
 		foreach ($details as $dkey => $dvalue) { // turn any array values into a comma seperated string value
 			if (is_array($dvalue)) {

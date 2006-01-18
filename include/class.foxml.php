@@ -159,15 +159,16 @@ class Foxml
      */
     function handleMultipleInstance(&$attrib_value, &$indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $attrib_loop_index, $element_prefix, $i) {
         global $HTTP_POST_VARS;
+
 		if ($xsdmf_details['xsdmf_html_input'] == 'author_selector') {
-                    ;
+
 		} else {
 			$loop_count = 0;
 			if (is_array($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) {
 				foreach ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] as $multiple_element) {
-                                    if (!empty($multiple_element)) {
+                  if (!empty($multiple_element)) {
 					if ($attrib_value == "") {
-						if ($xsdmf_details['xsdmf_smarty_variable'] == "" 
+						if ($xsdmf_details['xsdmf_smarty_variable'] == ""
 								&& $xsdmf_details['xsdmf_html_input'] != 'contvocab_selector') {
 							$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($multiple_element);
 							array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
@@ -258,7 +259,13 @@ class Foxml
                                     $attrib_value = Misc::getPostedDate($xsdmf_id);
                                     array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
                                 } elseif ($xsdmf_details['xsdmf_html_input'] == 'combo') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple
-                                    $attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]);
+									if ($xsdmf_details['xsdmf_smarty_variable'] == "" && $xsdmf_details['xsdmf_use_parent_option_list'] == 0) {
+										$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]);
+									} elseif ($xsdmf_details['xsdmf_use_parent_option_list'] == 1) {
+										$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id];
+									} else {
+										$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id];
+									}
                                     array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])));
                                 } elseif ($xsdmf_details['xsdmf_html_input'] == 'contvocab' || $xsdmf_details['xsdmf_html_input'] == 'contvocab_selector') {
                                     Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $attrib_loop_index, $element_prefix, $i);
@@ -270,7 +277,14 @@ class Foxml
                                         $attrib_value = Misc::getPostedDate($xsdmf_id);
                                         array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
                                     } elseif ($xsdmf_details['xsdmf_html_input'] == 'combo') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple
-                                        $attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']]);
+										if ($xsdmf_details['xsdmf_smarty_variable'] == "" && $xsdmf_details['xsdmf_use_parent_option_list'] == 0) {
+	                                        $attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']]);
+										} elseif ($xsdmf_details['xsdmf_use_parent_option_list'] == 1) {
+											$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']];
+										} else {
+											$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']];
+										}
+//                                        $attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']]);
                                         array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']])));									
                                     } elseif ($xsdmf_details['xsdmf_html_input'] == 'contvocab' || $xsdmf_details['xsdmf_html_input'] == 'contvocab_selector') {
                                         Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $attrib_loop_index, $element_prefix, $i);
@@ -344,7 +358,13 @@ class Foxml
                                 $attrib_value = Misc::getPostedDate($xsdmf_id);
                                 array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
                             } elseif ($xsdmf_details['xsdmf_html_input'] == 'combo') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple
-                                $attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID(@$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]);
+								if ($xsdmf_details['xsdmf_smarty_variable'] == "" && $xsdmf_details['xsdmf_use_parent_option_list'] == 0) {
+									$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]);
+								} elseif ($xsdmf_details['xsdmf_use_parent_option_list'] == 1) {
+									$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id];
+								} else {
+									$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id];
+								}
                                 array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));									
                             } elseif ($xsdmf_details['xsdmf_html_input'] == 'contvocab' || $xsdmf_details['xsdmf_html_input'] == 'contvocab_selector') {							
                                 Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $attrib_loop_index, $element_prefix, $i);
@@ -356,8 +376,16 @@ class Foxml
                                     $attrib_value = Misc::getPostedDate($xsdmf_id);
                                     array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
                                 } elseif ($xsdmf_details['xsdmf_html_input'] == 'combo') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple
-                                    $attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']]);
-                                    array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']])));
+									if ($xsdmf_details['xsdmf_smarty_variable'] == "" && $xsdmf_details['xsdmf_use_parent_option_list'] == 0) {
+										$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']]);
+									} elseif ($xsdmf_details['xsdmf_use_parent_option_list'] == 1) {
+/*										$parent_option_xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_details['xsdmf_parent_option_xsdmf_id']);
+										if ($parent_option_xsdmf_details['xsdmf_html_input'] == 'text') {
+											$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']];
+										} */
+										$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']];
+									}
+									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']])));
                                 } elseif ($xsdmf_details['xsdmf_html_input'] == 'contvocab' || $xsdmf_details['xsdmf_html_input'] == 'contvocab_selector') {
                                     Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $attrib_loop_index, $element_prefix, $i);
                                 } elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'multiple') {
