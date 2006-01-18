@@ -17,7 +17,7 @@ class BackgroundProcess_BatchImport_Insert extends BackgroundProcess
         extract(unserialize($this->inputs));
         $batch = new BatchImport;
         $batch->setBackgroundObject($this);
-        $batch->insert($objectimport, $directory, $xdis_id, $pid, $wftpl);
+        $batch->insert($directory, $xdis_id, $pid, $wftpl);
         $this->setState(2);
     }
 }

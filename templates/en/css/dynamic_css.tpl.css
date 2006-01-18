@@ -1,7 +1,24 @@
+div.wfl_description {
+padding: 1em;
+margin: 1em;
+font-size: 110%;        
+border: 1px solid [[$smarty.const.APP_DARK_COLOR]];
+background-color: [[$smarty.const.APP_LIGHT_COLOR]];
+}
 
-.wfl_progress {
+div.wfl_progress {
 padding: 5px;
-margin: 5px 5px 5px 5px;
+vertical-align: center;
+}
+
+img.wfl_progress {
+margin: 2px;
+position:relative;
+top: 5px;
+}
+
+span.wfl_progress {
+padding: 3px;
 border: 1px solid [[$smarty.const.APP_DARK_COLOR]];
 background-color: [[$smarty.const.APP_LIGHT_COLOR]];
 }

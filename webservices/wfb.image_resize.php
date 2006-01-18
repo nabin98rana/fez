@@ -45,7 +45,7 @@ $height = $_GET["height"]; //maximum height
 $copyright = $_GET["copyright"]; //the copyright message to add (if any)
 $watermark = $_GET["watermark"]; //"true" if the image is to be watermarked
 $ext = strtolower($_GET["ext"]); //the file type extension to convert the image to
-$prefix = strtolower($_GET["prefix"]); //the prefix to add to the filename
+$outfile= $_GET["outfile"]; 
 $image_dir = "";
 if (is_numeric(strpos($image, "/"))) {
 	$image_dir = substr($image, 0, strrpos($image, "/")+1);
@@ -54,11 +54,24 @@ if (is_numeric(strpos($image, "/"))) {
 
 if (trim($image_dir) == "") { $image_dir = APP_TEMP_DIR; }
 
-$temp_file = $prefix.substr($image, 0, strrpos($image, ".")).".".$ext;
+$temp_file = preg_replace('/\.\S*?$/', ".$ext", $outfile);
+if (!strstr($temp_file,$ext)) {
+    $temp_file .= ".$ext";
+}
 $temp_file = str_replace(" ", "_", $temp_file);
 $error = '';
 if(!$image) $error .= "<b>ERROR:</b> no image specified<br>";
-//if(!is_file($image_dir."/".$image)) { $error .= "<b>ERROR:</b> given image filename not found or bad filename given<br>"; }
+
+// get image from an URL 
+$is_url = false;
+if (preg_match('/^https?:\/\//',$image_dir.$image)) {
+  // make a temporary local copy
+  $is_url = true;
+  file_put_contents(APP_TEMP_DIR.$image, file_get_contents($image_dir.$image));
+  $image_dir = APP_TEMP_DIR;
+}
+
+
 if(!is_file($image_dir.$image)) { $error .= "<b>ERROR:</b> given image filename not found or bad filename given<br>"; }
 if(!is_numeric($width) && !is_numeric($height)) $error .= "<b>ERROR:</b> no sizes specified<br>";
 if($error){ echo $error; die; }

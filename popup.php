@@ -169,6 +169,18 @@ switch ($cat)
             $tpl->assign("purge_object_result", $res);
             break;
         }
+    case 'publish_objects':
+        {
+            $items = Misc::GETorPOST('items');
+            foreach ($items as $pid) {
+                $rec_obj = new RecordGeneral($pid);
+                $res = $rec_obj->setStatusId(2);
+            }
+            $tpl->assign('generic_result', $res);
+            $tpl->assign("generic_action",'publish');
+            $tpl->assign("generic_type",'records');
+            break;
+        }
  
 
 }

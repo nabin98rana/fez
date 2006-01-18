@@ -36,6 +36,7 @@ include_once(APP_INC_PATH.'db_access.php');
 include_once(APP_INC_PATH.'class.wfbehaviours.php');
 include_once(APP_INC_PATH.'class.workflow_state.php');
 include_once(APP_INC_PATH.'class.workflow_trigger.php');
+include_once(APP_INC_PATH.'class.foxml.php');
 
 /**
  * for tracking status of objects in workflows.  This is like the runtime part of the workflows.

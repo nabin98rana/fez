@@ -368,6 +368,7 @@ class Fedora_API {
 			$filename_ext = strtolower(substr($dsIDName, (strrpos($dsIDName, ".") + 1)));
 			$dsIDName = substr($dsIDName, 0, strrpos($dsIDName, ".") + 1).$filename_ext;
 		}
+        echo "\nlocal_file_location $local_file_location\n";
 		if (!empty($local_file_location) && (trim($local_file_location) != "")) {
 		   //Send multipart/form-data via curl
 		   $ch = curl_init(APP_FEDORA_UPLOAD_URL);
@@ -379,7 +380,10 @@ class Fedora_API {
 		   $uploadLocation = curl_exec($ch);
 		   curl_close ($ch);		
 		   $uploadLocation = trim(str_replace("\n", "", $uploadLocation));
+           echo "uploadLocation $uploadLocation\n";
+           echo "dsIDName $dsIDName\n";
 		   if (!Fedora_API::datastreamExists($pid, $dsIDName)) {
+               echo "mimetype $mimetype\n";
 			  //Call callAddDatastream
 			  $dsID = Fedora_API::callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsIDName, $mimetype, $controlGroup);
 			  return $dsID;
@@ -687,8 +691,10 @@ class Fedora_API {
 	   //comment the return and uncomment the echo and debugInfo
 	   //to see debug statements.
 	
-	   //echo $result;
-	   //Fedora_API::debugInfo($client);
+       //if ($call =='ingest') {
+       //    echo $result;
+       //    Fedora_API::debugInfo($client);
+       //}
 	   return $result;
 	
 	}

@@ -56,5 +56,6 @@ $wfstatus->setTemplateVars($tpl);
 
 $wfstatus->checkStateChange();
 include_once('../view2.php');
+$tpl->assign("hide_edit", true);
 $tpl->displayTemplateRecord($pid);
 ?>

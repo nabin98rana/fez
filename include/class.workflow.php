@@ -40,6 +40,7 @@ include_once(APP_INC_PATH . "class.workflow_status.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.auth.php");
+include_once(APP_INC_PATH . "class.foxml.php");
 
 
 /**
@@ -179,9 +180,9 @@ class Workflow
             $http_req->sendRequest();
             $xml = $http_req->getResponseBody();
             if (is_numeric(strpos($filename, "/"))) {
-                return APP_TEMP_DIR."presmd_".str_replace(" ", "_", substr(substr($filename, 0, strrpos($filename, ".")), strrpos($filename, "/")+1)).".xml"; 	 
+                return APP_TEMP_DIR."presmd_".Foxml::makeNCName(substr(substr($filename, 0, strrpos($filename, ".")), strrpos($filename, "/")+1)).".xml"; 	 
             } else { 	 
-                return APP_TEMP_DIR."presmd_".str_replace(" ", "_", substr($filename, 0, strrpos($filename, "."))).".xml"; 	 
+                return APP_TEMP_DIR."presmd_".Foxml::makeNCName(substr($filename, 0, strrpos($filename, "."))).".xml"; 	 
             } 	 
         } else { 	 
             return false; 	 

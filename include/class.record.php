@@ -682,6 +682,7 @@ class Record
             on (k1.sek_id = x1.xsdmf_sek_id)
             left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d2.display_id = d1.xdis_id	
 			WHERE (r1.rmf_dsid IS NULL or r1.rmf_dsid = '')			 
+            ORDER BY rmf_id ASC
 
           ";
 
@@ -930,8 +931,6 @@ class Record
 
         }
 
-        sleep(1);
-		
 		Record::removeIndexRecord($pid); // remove any existing index entry for that PID			
 		Record::setIndexMatchingFields($xdis_id, $pid);
 
@@ -1126,6 +1125,7 @@ class RecordGeneral
         $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!sta_id'); 
         Record::removeIndexRecordByXSDMF_ID($this->pid, $xsdmf_id);
         Record::insertIndexMatchingField($this->pid, '', $xsdmf_id, "varchar", $sta_id);
+        return 1;
     }
 
     /**

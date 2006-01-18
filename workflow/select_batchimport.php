@@ -77,8 +77,7 @@ if ($pid == -1 || !$pid) {
 if ($access_ok) {
     if (@$HTTP_POST_VARS["cat"] == "submit") {
         $wftpl = $wfstatus->getvar('template');
-		if ((!empty($HTTP_POST_VARS['objectimport'])) && (!empty($HTTP_POST_VARS['directory']))) {
-            $wfstatus->assign('batch_objectimport', $_POST['objectimport']);
+		if ( !empty($HTTP_POST_VARS['directory'])) {
             $wfstatus->assign('batch_directory', $_POST['directory']);
         }
         $wfstatus->setCreatedPid($pid);

@@ -40,20 +40,20 @@ $watermark = $this->watermark;
 $dsIDName = $dsInfo['ID'];
 $filename=$dsIDName;
 $file_name_prefix = "web_";
+if (is_numeric(strpos($filename, "/"))) {
+    $new_file = $file_name_prefix.Foxml::makeNCName( 
+            substr(substr($filename, 0, strrpos($filename, ".")), strrpos($filename, "/")+1)).".jpg";
+} else {
+    $new_file = $file_name_prefix.Foxml::makeNCName( substr($filename, 0, strrpos($filename, "."))).".jpg";
+}
+
 $filename_ext = strtolower(substr($filename, (strrpos($filename, ".") + 1)));
 $getString = APP_RELATIVE_URL."webservices/wfb.image_resize.php?image="
-.urlencode($filename)."&height=600&width=800&ext=jpg&prefix=".$file_name_prefix;
+.urlencode($filename)."&height=600&width=800&ext=jpg&outfile=".$new_file;
 $http_req = new HTTP_Request($getString, array("http" => "1.0"));
 $http_req->setMethod("GET");
 $http_req->sendRequest();
 $xml = $http_req->getResponseBody();
-if (is_numeric(strpos($filename, "/"))) {
-    $new_file = $file_name_prefix.str_replace(" ", "_", 
-            substr(substr($filename, 0, strrpos($filename, ".")), strrpos($filename, "/")+1)).".jpg";
-} else {
-    $new_file = $file_name_prefix.str_replace(" ", "_", substr($filename, 0, strrpos($filename, "."))).".jpg";
-}
-
 if ($new_file) {
 	if (Fedora_API::datastreamExists($pid, $new_file)) {
 	    Fedora_API::callPurgeDatastream($pid, $new_file);

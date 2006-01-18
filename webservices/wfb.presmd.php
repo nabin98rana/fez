@@ -37,6 +37,7 @@
 // - Takes url parameters to convert an image file in the Fez temp directory into a image file of the given format and size
 
 include_once("../config.inc.php");
+include_once(APP_INC_PATH."class.foxml.php");
 $file = escapeshellcmd(urldecode($_GET['file']));
 $file_dir = "";	
 
@@ -47,7 +48,7 @@ if (is_numeric(strpos($file, "/"))) {
 }
 if (trim($file_dir) == "") { $file_dir = APP_JHOVE_TEMP_DIR; }
 if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) { // check for command hax
-	$presmd_file = APP_JHOVE_TEMP_DIR.'presmd_'.str_replace(' ', '_', substr($file, 0, strrpos($file, '.'))).'.xml';
+	$presmd_file = APP_JHOVE_TEMP_DIR.'presmd_'.Foxml::makeNCName(substr($file, 0, strrpos($file, '.'))).'.xml';
 	if (is_file($presmd_file)) {
 		$deleteCommand = APP_DELETE_CMD." ".$presmd_file;
 		exec($deleteCommand);

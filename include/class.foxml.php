@@ -531,6 +531,95 @@ class Foxml
         $xmlObj = preg_replace('/<dc:title\/>/', "<dc:title>$title</dc:title>", $xmlObj);
         return $xmlObj;
     }
+
+
+    /**
+     * Method used to generate a FOXML template for an imported file.
+     * 
+     * @access  public
+     * @param   string $pid The current persistent identifier
+     * @param   string $parent_pid The pid of the collection this will belong to.
+     * @param   string $filename The filename of the file being imported, including directory path
+     * @param   string $short_name The filename of the file being imported, without the directory path (basic filename)
+     * @param   string $xdis_id The XSD Display ID the object will have.
+     * @param   string $ret_id The object type ID the object will have.
+     * @param   string $sta_id The initial status ID the object will have.
+     * @return  string $xmlObj The xml object 
+     */
+    function GenerateSingleFOXMLTemplate($pid, $parent_pid, $label, $dctitle, $xdis_id, $ret_id, $sta_id) {
+
+        $created_date = date("Y-m-d H:i:s");
+        $updated_date = $created_date;
+        $xmlObj = '<?xml version="1.0" ?>	
+            <foxml:digitalObject PID="'.$pid.'"
+            fedoraxsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-0.xsd" xmlns:fedoraxsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:foxml="info:fedora/fedora-system:def/foxml#" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+            <foxml:objectProperties>
+            <foxml:property NAME="http://www.w3.org/1999/02/22-rdf-syntax-ns#type" VALUE="FedoraObject"/>
+            <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
+            <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="'.$label.'"/>
+            </foxml:objectProperties>
+            <foxml:datastream ID="DC" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+            <foxml:datastreamVersion MIMETYPE="text/xml" ID="DC1.0" LABEL="Dublin Core Record">
+            <foxml:xmlContent>
+            <oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+            <dc:title>'.$dctitle.'</dc:title>
+            <dc:creator/>
+            <dc:subject/>
+            <dc:description/>
+            <dc:publisher/>
+            <dc:contributor/>
+            <dc:date/>
+            <dc:type/>
+            <dc:source/>
+            <dc:language/>
+            <dc:relation/>
+            <dc:coverage/>
+            <dc:rights/>
+            </oai_dc:dc>
+            </foxml:xmlContent>			
+            </foxml:datastreamVersion>
+            </foxml:datastream>
+            <foxml:datastream ID="RELS-EXT" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+            <foxml:datastreamVersion MIMETYPE="text/xml" ID="RELS-EXT.0" LABEL="Relationships to other objects">
+            <foxml:xmlContent>
+            <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+            xmlns:rel="info:fedora/fedora-system:def/relations-external#" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+            <rdf:description rdf:about="info:fedora/'.$pid.'">
+            <rel:isMemberOf rdf:resource="info:fedora/'.$parent_pid.'"/>
+            </rdf:description>
+            </rdf:RDF>
+            </foxml:xmlContent>
+            </foxml:datastreamVersion>
+            </foxml:datastream>
+            <foxml:datastream ID="FezMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+            <foxml:datastreamVersion MIMETYPE="text/xml" ID="Fez1.0" LABEL="Fez extension metadata">
+            <foxml:xmlContent>
+            <FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+            <xdis_id>'.$xdis_id.'</xdis_id>
+            <sta_id>'.$sta_id.'</sta_id>
+            <ret_id>'.$ret_id.'</ret_id>
+            <created_date>'.$created_date.'</created_date>					  
+            <updated_date>'.$updated_date.'</updated_date>
+            </FezMD>
+            </foxml:xmlContent>
+            </foxml:datastreamVersion>
+            </foxml:datastream>
+            </foxml:digitalObject>
+            ';
+        return $xmlObj;		
+    }
+
+    // NCName ::= (Letter | '_') (NCNameChar)
+    // NCNameChar ::= Letter | Digit | '.' | '-' | '_' | CombiningChar | Extender
+    function makeNCName($str) {
+        $str = preg_replace('/[^\w.\-]/', "_", $str);
+        if (!preg_match('/^[a-zA-Z_]/', $str)) {
+            // add an n to the front to make it a valid NCName
+            $str= "n$str";
+        }
+        return $str;
+    }
 }
 
 ?>

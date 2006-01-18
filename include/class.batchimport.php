@@ -57,6 +57,7 @@ include_once(APP_INC_PATH . "class.xsd_html_match.php");
 include_once(APP_INC_PATH . "class.xsd_loop_subelement.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.background_process.php");
+include_once(APP_INC_PATH . "class.foxml.php");
 
 
 
@@ -171,22 +172,25 @@ class BatchImport
                 array_push($authorArray[$eprint_id], $family.", ".$given);
             }
 
-            $fieldNodes = $xpath->query("./*[string-length(normalize-space())>0 and not(contains(@name, 'type'))]", $recordNode); 
+            $fieldNodes = $xpath->query("./field[string-length(normalize-space())>0 and not(contains(@name, 'type'))]", $recordNode); 
             $field = "";
             $fieldValue = "";
             foreach ($fieldNodes as $fieldNode) {
                 $field = $fieldNode->getAttribute('name');
                 $fieldValue = $fieldNode->nodeValue;
                 if ($field != "" && $fieldValue != "" && $record_type != "" && $eprint_id != "") {
-                    if (!is_array($importArray[$record_type][$eprint_id][$field])) {
+                    if (!is_array(@$importArray[$record_type][$eprint_id][$field])) {
                         $importArray[$record_type][$eprint_id][$field] = array();
                     }
                     array_push($importArray[$record_type][$eprint_id][$field], $fieldValue);
                 }
             }
         }
+        $num_records = $recordNodes->length;
+        $eprint_record_counter = 0;
         foreach ($importArray as $document_type => $eprint_record) {	
             foreach ($eprint_record as $key => $data_field) {			
+                $eprint_record_counter++;
                 $xmlDocumentType = '';
                 switch ($document_type) {
                     case 'confpaper':
@@ -195,11 +199,11 @@ class BatchImport
                             <foxml:datastreamVersion MIMETYPE="text/xml" ID="ConferencePaperMD1.0" LABEL="Fez extension metadata for Conference Papers">
                             <foxml:xmlContent>
                             <ConferencePaperMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-                            <conference>'.$importArray[$document_type][$key]['conference'][0].'</conference>
+                            <conference>'.htmlspecialchars($importArray[$document_type][$key]['conference'][0]).'</conference>
                             <conf_start_date/>
                             <conf_end_date/>
-                            <confloc>'.$importArray[$document_type][$key]['confloc'][0].'</confloc>
-                            <conf_details>'.$importArray[$document_type][$key]['confdates'][0].'</conf_details>
+                            <confloc>'.htmlspecialchars($importArray[$document_type][$key]['confloc'][0]).'</confloc>
+                            <conf_details>'.htmlspecialchars($importArray[$document_type][$key]['confdates'][0]).'</conf_details>
                             </ConferencePaperMD>
                             </foxml:xmlContent>
                             </foxml:datastreamVersion>
@@ -211,9 +215,9 @@ class BatchImport
                             <foxml:datastreamVersion MIMETYPE="text/xml" ID="OnlineJournalArticleMD1.0" LABEL="Fez extension metadata for Online Journal Articles">
                             <foxml:xmlContent>
                             <OnlineJournalArticleMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-                            <journal>'.$importArray[$document_type][$key]['publication'][0].'</journal>
-                            <volume>'.$importArray[$document_type][$key]['volume'][0].'</volume>
-                            <number>'.$importArray[$document_type][$key]['number'][0].'</number>
+                            <journal>'.htmlspecialchars($importArray[$document_type][$key]['publication'][0]).'</journal>
+                            <volume>'.htmlspecialchars($importArray[$document_type][$key]['volume'][0]).'</volume>
+                            <number>'.htmlspecialchars($importArray[$document_type][$key]['number'][0]).'</number>
                             </OnlineJournalArticleMD>
                             </foxml:xmlContent>
                             </foxml:datastreamVersion>
@@ -225,10 +229,10 @@ class BatchImport
                             <foxml:datastreamVersion MIMETYPE="text/xml" ID="JournalArticleMD1.0" LABEL="Fez extension metadata for Journal Articles">
                             <foxml:xmlContent>
                             <JournalArticleMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-                            <journal>'.$importArray[$document_type][$key]['publication'][0].'</journal>
-                            <volume>'.$importArray[$document_type][$key]['volume'][0].'</volume>
-                            <number>'.$importArray[$document_type][$key]['number'][0].'</number>
-                            <pages>'.$importArray[$document_type][$key]['pages'][0].'</pages>
+                            <journal>'.htmlspecialchars($importArray[$document_type][$key]['publication'][0]).'</journal>
+                            <volume>'.htmlspecialchars($importArray[$document_type][$key]['volume'][0]).'</volume>
+                            <number>'.htmlspecialchars($importArray[$document_type][$key]['number'][0]).'</number>
+                            <pages>'.htmlspecialchars($importArray[$document_type][$key]['pages'][0]).'</pages>
                             </JournalArticleMD>
                             </foxml:xmlContent>
                             </foxml:datastreamVersion>
@@ -246,9 +250,9 @@ class BatchImport
                             <foxml:datastreamVersion MIMETYPE="text/xml" ID="ThesisMD1.0" LABEL="Fez extension metadata for Theses">
                             <foxml:xmlContent>
                             <ThesisMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-                            <schooldeptcentre>'.$importArray[$document_type][$key]['department'][0].'</schooldeptcentre>
-                            <institution>'.$importArray[$document_type][$key]['institution'][0].'</institution>
-                            <thesis_type>'.$importArray[$document_type][$key]['thesis_type'][0].'</thesis_type>
+                            <schooldeptcentre>'.htmlspecialchars($importArray[$document_type][$key]['department'][0]).'</schooldeptcentre>
+                            <institution>'.htmlspecialchars($importArray[$document_type][$key]['institution'][0]).'</institution>
+                            <thesis_type>'.htmlspecialchars($importArray[$document_type][$key]['thesistype'][0]).'</thesis_type>
                             </ThesisMD>
                             </foxml:xmlContent>
                             </foxml:datastreamVersion>
@@ -260,10 +264,10 @@ class BatchImport
                             <foxml:datastreamVersion MIMETYPE="text/xml" ID="NewspaperArticleMD1.0" LABEL="Fez extension metadata for Newspaper Articles">
                             <foxml:xmlContent>
                             <NewspaperArticleMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-                            <newspaper>'.$importArray[$document_type][$key]['publication'][0].'</newspaper>
-                            <edition>'.$importArray[$document_type][$key]['volume'][0].'</edition>
-                            <number>'.$importArray[$document_type][$key]['number'][0].'</number>
-                            <pages>'.$importArray[$document_type][$key]['pages'][0].'</pages>
+                            <newspaper>'.htmlspecialchars($importArray[$document_type][$key]['publication'][0]).'</newspaper>
+                            <edition>'.htmlspecialchars($importArray[$document_type][$key]['volume'][0]).'</edition>
+                            <number>'.htmlspecialchars($importArray[$document_type][$key]['number'][0]).'</number>
+                            <pages>'.htmlspecialchars($importArray[$document_type][$key]['pages'][0]).'</pages>
                             </NewspaperArticleMD>
                             </foxml:xmlContent>
                             </foxml:datastreamVersion>
@@ -275,9 +279,9 @@ class BatchImport
                             <foxml:datastreamVersion MIMETYPE="text/xml" ID="BookMD1.0" LABEL="Fez extension metadata for Books">
                             <foxml:xmlContent>
                             <BookMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-                            <edition>'.$importArray[$document_type][$key]['volume'][0].'</edition>
-                            <series>'.$importArray[$document_type][$key]['series'][0].'</series>
-                            <place_of_publication>'.$importArray[$document_type][$key]['pages'][0].'</place_of_publication>
+                            <edition>'.htmlspecialchars($importArray[$document_type][$key]['volume'][0]).'</edition>
+                            <series>'.htmlspecialchars($importArray[$document_type][$key]['series'][0]).'</series>
+                            <place_of_publication/>
                             </BookMD>
                             </foxml:xmlContent>
                             </foxml:datastreamVersion>
@@ -289,8 +293,8 @@ class BatchImport
                             <foxml:datastreamVersion MIMETYPE="text/xml" ID="BookChapterMD1.0" LABEL="Fez extension metadata for Book Chapters">
                             <foxml:xmlContent>
                             <BookChapterMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-                            <edition>'.$importArray[$document_type][$key]['volume'][0].'</edition>
-                            <series>'.$importArray[$document_type][$key]['series'][0].'</series>
+                            <edition>'.htmlspecialchars($importArray[$document_type][$key]['volume'][0]).'</edition>
+                            <series>'.htmlspecialchars($importArray[$document_type][$key]['series'][0]).'</series>
                             <place_of_publication/>
                             </BookChapterMD>
                             </foxml:xmlContent>
@@ -303,10 +307,10 @@ class BatchImport
                             <foxml:datastreamVersion MIMETYPE="text/xml" ID="DeptTechReportMD1.0" LABEL="Fez extension metadata for Departmental Technical Reports">
                             <foxml:xmlContent>
                             <DeptTechReportMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-                            <schooldeptcentre>'.$importArray[$document_type][$key]['department'][0].'</schooldeptcentre>
-                            <institution>'.$importArray[$document_type][$key]['institution'][0].'</institution>								  
-                            <edition>'.$importArray[$document_type][$key]['volume'][0].'</edition>
-                            <series>'.$importArray[$document_type][$key]['series'][0].'</series>
+                            <schooldeptcentre>'.htmlspecialchars($importArray[$document_type][$key]['department'][0]).'</schooldeptcentre>
+                            <institution>'.htmlspecialchars($importArray[$document_type][$key]['institution'][0]).'</institution>								  
+                            <edition>'.htmlspecialchars($importArray[$document_type][$key]['volume'][0]).'</edition>
+                            <series>'.htmlspecialchars($importArray[$document_type][$key]['series'][0]).'</series>
                             </DeptTechReportMD>
                             </foxml:xmlContent>
                             </foxml:datastreamVersion>
@@ -318,13 +322,13 @@ class BatchImport
                             <foxml:datastreamVersion MIMETYPE="text/xml" ID="ConferenceProceedingsMD1.0" LABEL="Fez extension metadata for Conference Proceedings">
                             <foxml:xmlContent>
                             <ConferenceProceedingsMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-                            <conference>'.$importArray[$document_type][$key]['conference'][0].'</conference>
+                            <conference>'.htmlspecialchars($importArray[$document_type][$key]['conference'][0]).'</conference>
                             <conf_start_date/>
                             <conf_end_date/>
-                            <confloc>'.$importArray[$document_type][$key]['confloc'][0].'</confloc>
-                            <conf_details>'.$importArray[$document_type][$key]['confdates'][0].'</conf_details>
+                            <confloc>'.htmlspecialchars($importArray[$document_type][$key]['confloc'][0]).'</confloc>
+                            <conf_details>'.htmlspecialchars($importArray[$document_type][$key]['confdates'][0]).'</conf_details>
                             <paper_presentation_date/>
-                            <page_numbers>'.$importArray[$document_type][$key]['pages'][0].'</page_numbers>
+                            <page_numbers>'.htmlspecialchars($importArray[$document_type][$key]['pages'][0]).'</page_numbers>
                             </ConferenceProceedingsMD>
                             </foxml:xmlContent>
                             </foxml:datastreamVersion>
@@ -336,11 +340,11 @@ class BatchImport
                             <foxml:datastreamVersion MIMETYPE="text/xml" ID="ConferencePostersMD1.0" LABEL="Fez extension metadata for Conference Posters">
                             <foxml:xmlContent>
                             <ConferencePostersMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-                            <conference>'.$importArray[$document_type][$key]['conference'][0].'</conference>
+                            <conference>'.htmlspecialchars($importArray[$document_type][$key]['conference'][0]).'</conference>
                             <conf_start_date/>
                             <conf_end_date/>
-                            <confloc>'.$importArray[$document_type][$key]['confloc'][0].'</confloc>
-                            <conf_details>'.$importArray[$document_type][$key]['confdates'][0].'</conf_details>
+                            <confloc>'.htmlspecialchars($importArray[$document_type][$key]['confloc'][0]).'</confloc>
+                            <conf_details>'.htmlspecialchars($importArray[$document_type][$key]['confdates'][0]).'</conf_details>
                             <poster_presentation_date/>
                             </ConferencePostersMD>
                             </foxml:xmlContent>
@@ -363,10 +367,10 @@ class BatchImport
                 $oai_dc_url = EPRINTS_OAI.$key; // This gets the EPRINTS OAI DC feed for the Eprints DC record. This is neccessary because the Eprints export_xml does not give the URL for the attached PDFs etc
                 $oai_dc_xml = Fedora_API::URLopen($oai_dc_url);
                 $config = array(
-                        'indent'         => true,
-                        'input-xml'   => true,
-                        'output-xml'   => true,
-                        'wrap'           => 200);
+                        'indent' => true,
+                        'input-xml' => true,
+                        'output-xml' => true,
+                        'wrap' => 200);
 
                 $tidy = new tidy;
                 $tidy->parseString($oai_dc_xml, $config, 'utf8');
@@ -392,16 +396,18 @@ class BatchImport
                 } 
                 $xmlEnd = "";
                 foreach($oai_ds as $ds) {
+                    $short_ds = $ds;
                     if (is_numeric(strpos($ds, "/"))) {
                         $short_ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
                     }
-                    $short_ds = str_replace(" ", "_", $short_ds);
+                    // ID must start with _ or letter
+                    $short_ds = Foxml::makeNCName($short_ds);
                     $mimetype = Misc::get_content_type($ds);
 
                     $xmlEnd.= '
                         <foxml:datastream ID="'.$short_ds.'" CONTROL_GROUP="M" STATE="A">
                         <foxml:datastreamVersion ID="'.$short_ds.'.0" MIMETYPE="'.$mimetype.'" LABEL="'.$short_ds.'">
-                        <foxml:contentLocation REF="'.$ds.'" TYPE="URL"/>
+                        <foxml:contentLocation REF="'.htmlspecialchars($ds).'" TYPE="URL"/>
                         </foxml:datastreamVersion>
                         </foxml:datastream>';
                 }	  
@@ -419,26 +425,26 @@ class BatchImport
                     <foxml:datastreamVersion MIMETYPE="text/xml" ID="DC1.0" LABEL="Dublin Core Record">
                     <foxml:xmlContent>
                     <oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-                    <dc:title>'.$importArray[$document_type][$key]['title'][0].'</dc:title>
+                    <dc:title>'.htmlspecialchars($importArray[$document_type][$key]['title'][0]).'</dc:title>
                     ';
                 if (is_array($authorArray[$key])) {
                     foreach ($authorArray[$key] as $author) {
-                        $xmlObj .= '<dc:creator>'.$author.'</dc:creator>
+                        $xmlObj .= '<dc:creator>'.htmlspecialchars($author).'</dc:creator>
                             ';					    
                     }
                 }
                 if (is_array($importArray[$document_type][$key]['subjects'])) {
                     foreach ($importArray[$document_type][$key]['subjects'] as $subject) {
                         $xmlObj .= '
-                            <dc:subject>'.$subject.'</dc:subject>
+                            <dc:subject>'.htmlspecialchars($subject).'</dc:subject>
                             ';	    
                     }
                 }
 
-                $xmlObj .= '<dc:description>'.$importArray[$document_type][$key]['abstract'][0].'</dc:description>
-                    <dc:publisher>'.$importArray[$document_type][$key]['publisher'][0].'</dc:publisher>
+                $xmlObj .= '<dc:description>'.htmlspecialchars($importArray[$document_type][$key]['abstract'][0]).'</dc:description>
+                    <dc:publisher>'.htmlspecialchars($importArray[$document_type][$key]['publisher'][0]).'</dc:publisher>
                     <dc:contributor/>
-                    <dc:date>'.$importArray[$document_type][$key]['datestamp'][0].'</dc:date>
+                    <dc:date>'.htmlspecialchars($importArray[$document_type][$key]['datestamp'][0]).'</dc:date>
                     <dc:type>'.$xdis_title.'</dc:type>
                     <dc:source/>
                     <dc:language/>
@@ -470,13 +476,13 @@ class BatchImport
                     <ret_id>'.$ret_id.'</ret_id>
                     <created_date>'.$created_date.'</created_date>                      
                     <updated_date>'.$updated_date.'</updated_date>
-                    <publication>'.$importArray[$document_type][$key]['publication'][0].'</publication>  
-                    <copyright>'.$importArray[$document_type][$key]['note'][0].'</copyright>
+                    <publication>'.htmlspecialchars($importArray[$document_type][$key]['publication'][0]).'</publication>  
+                    <copyright>'.htmlspecialchars($importArray[$document_type][$key]['note'][0]).'</copyright>
                     ';
                 if (is_array($keywordArray[$key])) {
                     foreach ($keywordArray[$key] as $keyword) {
                         $xmlObj .= '
-                            <keyword>'.$keyword.'</keyword>';
+                            <keyword>'.htmlspecialchars($keyword).'</keyword>';
                     }
                 }
                 $xmlObj .= '
@@ -485,7 +491,7 @@ class BatchImport
                     </foxml:datastreamVersion>
                     </foxml:datastream>';
 
-
+                $xmlObj .= $xmlDocumentType; 
 
                 $xmlObj .= $xmlEnd;
 
@@ -503,11 +509,13 @@ class BatchImport
                 $tidy->cleanRepair();
                 $xmlObj = $tidy;
 
+                //echo "\n$xmlObj\n";
                 Fedora_API::callIngestObject($xmlObj);
                 foreach($oai_ds as $ds) {
                     $presmd_check = Workflow::checkForPresMD($ds); // we are not indexing presMD so just upload the presmd if found
                     if ($presmd_check != false) {
-                        Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, "text/xml", "X");
+                       Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, 
+                                $presmd_check, "text/xml", "X");
                     }			
 
                     if (is_numeric(strpos($ds, "/"))) {
@@ -516,19 +524,29 @@ class BatchImport
                     $ds = str_replace(" ", "_", $ds);
                     //Record::insertIndexMatchingField($pid, 122, 'varchar', $ds); // add the file attachment to the fez index	// this is now done in Record::setIndexMatchingFields more dynamically
                     // Now check for post upload workflow events like thumbnail resizing of images and add them as datastreams if required
+                }	  
+
+                // process ingest trigger after all the datastreams are in
+                foreach($oai_ds as $ds) {
                     $mimetype = Misc::get_content_type($ds);
                     Workflow::processIngestTrigger($pid, $ds, $mimetype);
-                }	  
+                }
 
                 $array_ptr = array();
                 $xsdmf_array = array();
 
                 Record::removeIndexRecord($pid); // remove any existing index entry for that PID			
                 Record::setIndexMatchingFields($xdis_id, $pid);
+
+                if ($this->bgp) {
+                    $this->bgp->setProgress(intval(100*$eprint_record_counter/$num_records)); 
+                    $this->bgp->setStatus($importArray[$document_type][$key]['title'][0]); 
+                }
+                
                 $pid = Fedora_API::getNextPID(); // get a new pid for the next loop
             }
         }
-        exit(); // just stop here now
+        $this->bgp->setStatus("Imported $eprint_record_counter Records"); 
     }
 
     /**
@@ -683,7 +701,7 @@ class BatchImport
      * @param   array $dsarray 
      * @return  void
      */
-    function insert($objectimport, $directory, $xdis_id, $collection_pid, $dsarray=null) {
+    function insert($directory, $xdis_id, $collection_pid, $dsarray=null) {
         //open the current directory
         $ret_id = 3; // standard record type id
         $sta_id = 1; // standard status type id
@@ -704,11 +722,7 @@ class BatchImport
         closedir($directory_h);
         $counter = 0;
         foreach ($filenames as $full_name => $short_name) {
-            if ($this->bgp) {
-                $this->bgp->setProgress(intval($counter*100/count($filenames))); 
-                $this->bgp->setStatus($short_name); 
-            }
-            $counter++;
+           $counter++;
             $handled_as_xml = false;
             $pid = Fedora_API::getNextPID();
             // Also need to add the FezMD and RELS-EXT - FezACML probably not necessary as it can be inhereted
@@ -731,10 +745,14 @@ class BatchImport
                 }
             } 
             if (!$handled_as_xml) {
+                if ($this->bgp) {
+                    $this->bgp->setProgress(intval($counter*100/count($filenames))); 
+                    $this->bgp->setStatus($short_name); 
+                }
                 // Create the Record in Fedora 
                 if (empty($dsarray)) {
                     // use default metadata
-                    $xmlObj = $this->GenerateSingleFOXMLTemplate($pid, $parent_pid, $full_name, $short_name,
+                    $xmlObj = Foxml::GenerateSingleFOXMLTemplate($pid, $parent_pid, $full_name, $short_name,
                             $xdis_id, $ret_id, $sta_id);
                     //Insert the generated foxml object
                     Fedora_API::callIngestObject($xmlObj);
@@ -745,91 +763,18 @@ class BatchImport
                 }
                 // add the binary batch import file.
                 $this->handleStandardFileImport($pid, $full_name, $short_name, $xdis_id);
+                if ($this->bgp) {
+                    $this->bgp->setStatus('Imported '.count($filenames).' files'); 
+                }
             }
 
         }
         if ($this->bgp) {
             $this->bgp->setProgress(100); 
-            $this->bgp->setStatus('Imported '.count($filenames).' items'); 
         }
     }
 
-    /**
-     * Method used to generate a FOXML template for an imported file.
-     * 
-     * @access  public
-     * @param   string $pid The current persistent identifier
-     * @param   string $parent_pid The pid of the collection this will belong to.
-     * @param   string $filename The filename of the file being imported, including directory path
-     * @param   string $short_name The filename of the file being imported, without the directory path (basic filename)
-     * @param   string $xdis_id The XSD Display ID the object will have.
-     * @param   string $ret_id The object type ID the object will have.
-     * @param   string $sta_id The initial status ID the object will have.
-     * @return  string $xmlObj The xml object 
-     */
-    function GenerateSingleFOXMLTemplate($pid, $parent_pid, $filename, $short_name, $xdis_id, $ret_id, $sta_id) {
 
-        $created_date = date("Y-m-d H:i:s");
-        $updated_date = $created_date;
-        $xmlObj = '<?xml version="1.0" ?>	
-            <foxml:digitalObject PID="'.$pid.'"
-            fedoraxsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-0.xsd" xmlns:fedoraxsi="http://www.w3.org/2001/XMLSchema-instance"
-            xmlns:foxml="info:fedora/fedora-system:def/foxml#" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-            <foxml:objectProperties>
-            <foxml:property NAME="http://www.w3.org/1999/02/22-rdf-syntax-ns#type" VALUE="FedoraObject"/>
-            <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
-            <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Batch Import '.$filename.'"/>
-            </foxml:objectProperties>
-            <foxml:datastream ID="DC" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-            <foxml:datastreamVersion MIMETYPE="text/xml" ID="DC1.0" LABEL="Dublin Core Record">
-            <foxml:xmlContent>
-            <oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-            <dc:title>'.$short_name.'</dc:title>
-            <dc:creator/>
-            <dc:subject/>
-            <dc:description/>
-            <dc:publisher/>
-            <dc:contributor/>
-            <dc:date/>
-            <dc:type/>
-            <dc:source/>
-            <dc:language/>
-            <dc:relation/>
-            <dc:coverage/>
-            <dc:rights/>
-            </oai_dc:dc>
-            </foxml:xmlContent>			
-            </foxml:datastreamVersion>
-            </foxml:datastream>
-            <foxml:datastream ID="RELS-EXT" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-            <foxml:datastreamVersion MIMETYPE="text/xml" ID="RELS-EXT.0" LABEL="Relationships to other objects">
-            <foxml:xmlContent>
-            <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-            xmlns:rel="info:fedora/fedora-system:def/relations-external#" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-            <rdf:description rdf:about="info:fedora/'.$pid.'">
-            <rel:isMemberOf rdf:resource="info:fedora/'.$parent_pid.'"/>
-            </rdf:description>
-            </rdf:RDF>
-            </foxml:xmlContent>
-            </foxml:datastreamVersion>
-            </foxml:datastream>
-            <foxml:datastream ID="FezMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-            <foxml:datastreamVersion MIMETYPE="text/xml" ID="Fez1.0" LABEL="Fez extension metadata">
-            <foxml:xmlContent>
-            <FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-            <xdis_id>'.$xdis_id.'</xdis_id>
-            <sta_id>'.$sta_id.'</sta_id>
-            <ret_id>'.$ret_id.'</ret_id>
-            <created_date>'.$created_date.'</created_date>					  
-            <updated_date>'.$updated_date.'</updated_date>
-            </FezMD>
-            </foxml:xmlContent>
-            </foxml:datastreamVersion>
-            </foxml:datastream>
-            </foxml:digitalObject>
-            ';
-        return $xmlObj;		
-    }
 
 
     /**
