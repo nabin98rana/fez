@@ -1,6 +1,119 @@
 <script  type="text/javascript" language="JavaScript">
 <!--
+{$najax_register}
+
+var bgp_states = new Array;
+{section name='i' loop=$bgp_states}
+bgp_states[{$smarty.section.i.index}] = '{$bgp_states[i]}';
+{/section}
+
+var updateProcess_mutexes = new Array;
+var timers = new Array;
+var showBgpLog_mutexes = new Array;
 {literal}
+function showBgpUpdated(id)
+{
+    document.getElementById(id+'_progress').style.color = 'black';
+    document.getElementById(id+'_status_message').style.color = 'black';
+    document.getElementById(id+'_heartbeat').style.color = 'black';
+    document.getElementById(id+'_state').style.color = 'black';
+}
+function showBgpUpdating(id)
+{
+    document.getElementById(id+'_progress').style.color = 'gray';
+    document.getElementById(id+'_status_message').style.color = 'gray';
+    document.getElementById(id+'_heartbeat').style.color = 'gray';
+    document.getElementById(id+'_state').style.color = 'gray';
+}
+function showBgpError(id)
+{
+    document.getElementById(id+'_state').innerHTML = bgp_states[0];
+}
+function showBgpValues(id, values)
+{
+    document.getElementById(id+'_progress').innerHTML = values.bgp_progress;
+    document.getElementById(id+'_status_message').innerHTML = values.bgp_status_message;
+    document.getElementById(id+'_heartbeat').innerHTML = values.bgp_heartbeat;
+    document.getElementById(id+'_state').innerHTML = bgp_states[values.bgp_state];
+    showBgpUpdated(id);
+}
+
+function updateProcess(id)
+{
+    if (updateProcess_mutexes[id]++ > 0) {
+        updateProcess_mutexes[id]--;
+        return;
+    } 
+    showBgpUpdating(id);
+    bgp = new NajaxBackgroundProcessList;
+    bgp.onGetDetailsError = function () {
+        showBgpError(id);
+        updateProcess_mutexes[id]--;
+        return;
+    };
+    bgp.setTimeout(10000);
+    bgp.getDetails(id, function(values) {
+            showBgpValues(id, values);
+            if (values.bgp_state == 2) {
+              clearTimeout(timers[id]);
+              timers[id] = 0;
+            }
+            updateProcess_mutexes[id]--;
+            
+            });
+}
+
+function updateBgpTimer(id)
+{
+    if (timers[id]) {
+        clearTimeout(timers[id]);
+        timers[id] = 0;
+    }
+    updateProcess(id);
+    timers[id] = setTimeout("updateBgpTimer('"+id+"')", 5000);
+}
+
+function showBgpLogUpdating(id)
+{
+    document.getElementById('div_log_'+id).innerHTML = 'Loading...';
+    document.getElementById('tr_log_'+id).style.display = '';
+}
+function showBgpLogError(id)
+{
+    document.getElementById('div_log_'+id).innerHTML = 'Not found';
+    document.getElementById('tr_log_'+id).style.display = '';
+}
+function hideBgpLog(id)
+{
+    document.getElementById('tr_log_'+id).style.display = 'none';
+}
+
+function showBgpLog(id)
+{
+    if (showBgpLog_mutexes[id]++ > 0) {
+        showBgpLog_mutexes[id]--;
+        return;
+    } 
+    showBgpLogUpdating(id);
+    bgp = new NajaxBackgroundProcessList;
+    bgp.onGetLogError = function () {
+        showBgpLogError(id);
+        showBgpLog_mutexes[id]--;
+        return;
+    };
+    bgp.setTimeout(10000);
+    bgp.getLog(id, function(log) {
+            if (log.length < 1) {
+            log = '(empty)';
+            }
+            document.getElementById('div_log_'+id).innerHTML = log;
+            showBgpLog_mutexes[id]--;
+            });
+
+}
+// end ajaxy stuff
+
+
 function checkDelete(f)
 {
     if (!hasOneChecked(f, 'items[]')) {
@@ -37,19 +150,38 @@ Running Processes
 <td class="default tableheader" >Message</td>
 <td class="default tableheader" >Last Heartbeat</td>
 <td class="default tableheader" >Status</td>
+<td class="default tableheader" ></td>
 </tr>
 {section name="iii" loop=$bgp_list}
 {cycle values=$cycle assign="row_color"}
 <tr bgcolor="{$row_color}" class="default">
 <td><input type="checkbox" name="items[]" value="{$bgp_list[iii].bgp_id}"/></td>
-<td>{$bgp_list[iii].bgp_started}</td>
-<td>{$bgp_list[iii].bgp_name}</td>
-<td>{$bgp_list[iii].bgp_progress}</td>
-<td>{$bgp_list[iii].bgp_status_message}</td>
-<td>{$bgp_list[iii].bgp_heartbeat}</td>
-<td>{assign var="bgp_state" value=$bgp_list[iii].bgp_state}
-{$bgp_states.$bgp_state}</td>
+<td id="{$bgp_list[iii].bgp_id}_started">{$bgp_list[iii].bgp_started}</td>
+<td id="{$bgp_list[iii].bgp_id}_name">{$bgp_list[iii].bgp_name}</td>
+<td id="{$bgp_list[iii].bgp_id}_progress">{$bgp_list[iii].bgp_progress}</td>
+<td id="{$bgp_list[iii].bgp_id}_status_message">{$bgp_list[iii].bgp_status_message}</td>
+<td id="{$bgp_list[iii].bgp_id}_heartbeat">{$bgp_list[iii].bgp_heartbeat}</td>
+<td id="{$bgp_list[iii].bgp_id}_state">{assign var="bgp_state" value=$bgp_list[iii].bgp_state}
+<td ><a href="javascript:void(0);" onclick="showBgpLog('{$bgp_list[iii].bgp_id}')"
+><img src="{$rel_url}images/system_16.png" alt="log" border="0" /></a> </td>
+
+<script type="text/javascript" language="JavaScript">
+<!--
+updateBgpTimer('{$bgp_list[iii].bgp_id}');
+-->
+</script>
+
 </tr>
+<tr id="tr_log_{$bgp_list[iii].bgp_id}" style="display:none">
+<td colspan="20" >
+<div style="text-align:right">
+<input type="button" value="close" class="button" onclick="hideBgpLog('{$bgp_list[iii].bgp_id}')" />
+</div>
+<div id="div_log_{$bgp_list[iii].bgp_id}" ></div>
+<div style="text-align:right">
+<input type="button" value="close" class="button" onclick="hideBgpLog('{$bgp_list[iii].bgp_id}')" />
+</div>
+</td></tr>
 {sectionelse}
 <tr >
 <td colspan="20" class="default" bgcolor={$light_color} align="center" >No Items</td>

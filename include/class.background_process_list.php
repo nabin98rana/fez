@@ -20,7 +20,21 @@ class BackgroundProcessList
         }
         return $res;
     }
-     
+    
+   function getDetails($id)
+   {
+        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $stmt = "SELECT *
+            FROM {$dbtp}background_process
+            WHERE bgp_id='$id'";
+        $res = $GLOBALS['db_api']->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        }
+        return $res;
+   }
+
     function getStates()
     {
         $bgp = new BackgroundProcess;
@@ -37,8 +51,24 @@ class BackgroundProcessList
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         }
+        foreach ($items as $item) {
+            BackgroundProcessList::deleteLog($item);
+        }
         return 1;
     }
+
+    function getLog($bgp_id)
+    {
+        return file_get_contents(APP_TEMP_DIR."fezbgp_{$bgp_id}.log");
+    }
+
+    function deleteLog($bgp_id)
+    {
+        $deleteCommand = APP_DELETE_CMD." ".APP_TEMP_DIR."fezbgp_{$bgp_id}.log";
+        exec($deleteCommand);
+    }
+
+   
 }
 
 ?>

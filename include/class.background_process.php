@@ -119,7 +119,8 @@ class BackgroundProcess {
         $this->bgp_id = $GLOBALS['db_api']->get_last_insert_id();
         $this->serialize();
         // Windows users may need to get hold of a program called bgrun http://www.jukkis.net/bgrun/
-        exec("php \"".APP_PATH."misc/run_background_process.php\" {$this->bgp_id} \"".APP_PATH."\" > /tmp/fezbg.log &");
+        exec("php \"".APP_PATH."misc/run_background_process.php\" {$this->bgp_id} \""
+                .APP_PATH."\" > ".APP_TEMP_DIR."fezbgp_{$this->bgp_id}.log &");
     } 
 
     

@@ -6,7 +6,7 @@ include_once($base.'config.inc.php');
 include_once(APP_INC_PATH.'class.background_process.php');
 
 $bgp_id = $ARGV[1];
-print_r($ARGV);
+//print_r($ARGV);
 
 $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
 $stmt = "SELECT * FROM {$dbtp}background_process WHERE bgp_id='{$bgp_id}'";

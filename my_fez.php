@@ -41,6 +41,8 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.background_process_list.php");
+include_once(APP_INC_PATH.'najax/najax.php');
+include_once(APP_INC_PATH.'najax_objects/class.background_process_list.php');
 
 $tpl = new Template_API();
 $tpl->setTemplate("my_fez.tpl.html");
@@ -75,6 +77,8 @@ $tpl->assign('bgp_states', $bgp_list->getStates());
 $tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
 $tpl->assign('my_assigned_items_list', $assigned_items);
 $tpl->assign("roles_list", Auth::getDefaultRoles());
+$tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
+$tpl->assign('najax_register', NAJAX_Client::register('NajaxBackgroundProcessList', APP_RELATIVE_URL.'najax_services/generic.php'));
 
 $tpl->displayTemplate();
 ?>

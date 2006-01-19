@@ -35,6 +35,7 @@
 
 include_once(APP_INC_PATH . "najax/najax.php");
 include_once(APP_INC_PATH . "najax_objects/class.image_preview.php");
+include_once(APP_INC_PATH . "class.author.php");
 
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
