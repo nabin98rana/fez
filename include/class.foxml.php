@@ -35,9 +35,9 @@ class Foxml
                 array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details_ref['xsdmf_id']]));
             }
         } else {
-// replaced the if != multiple to see if this would fix the link label - it should - CK
-//            if (is_numeric($attrib_loop_index) && (@is_array($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) && ($xsdmf_details['xsdmf_multiple'] != 1)) {
-            if (is_numeric($attrib_loop_index) && (@is_array($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) && ($xsdmf_details['xsdmf_multiple'] == 1)) {
+// replaced the if != multiple with == 1 and is attributeloop seltype to see if this would fix the link label - it should - CK
+//            if (is_numeric($attrib_loop_index) && (@is_array($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) ) {
+            if (is_numeric($attrib_loop_index) && (@is_array($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) && ($xsdmf_details['xsdmf_multiple'] == 1) && ($xsdmf_details['xsdsel_type'] == 'attributeloop')) {			
 		        $attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id][$attrib_loop_index];
                 array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id][$attrib_loop_index]));						
             } elseif ($xsdmf_details['xsdmf_multiple'] != 1) {
