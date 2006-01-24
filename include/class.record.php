@@ -667,8 +667,6 @@ class Record
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $stmt = " SELECT *
             FROM {$dbtp}record_matching_field AS r1
-            INNER JOIN {$dbtp}xsd_display_matchfields AS x1
-            ON r1.rmf_xsdmf_id=x1.xsdmf_id
 			INNER JOIN 
 			(SELECT distinct rmf.rmf_rec_pid FROM
                 {$dbtp}record_matching_field AS rmf
@@ -714,6 +712,8 @@ class Record
                     AND s2.sek_title = 'Display Type' 
                     ) as d2
             on r1.rmf_rec_pid = d2.rmf_rec_pid  					
+            INNER JOIN {$dbtp}xsd_display_matchfields AS x1
+            ON r1.rmf_xsdmf_id=x1.xsdmf_id
             LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 
             ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
             left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 
@@ -722,6 +722,7 @@ class Record
 			WHERE (r1.rmf_dsid IS NULL or r1.rmf_dsid = '')			 
             ORDER BY rmf_id ASC
             ";
+        //echo $stmt;
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

@@ -76,6 +76,7 @@ $tpl->assign('bgp_states', $bgp_list->getStates());
 $tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
 
 
+
 $tpl->assign("roles_list", Auth::getDefaultRoles());
 $pagerRow = Pager::getParam('pagerRow_my_assigned');
 if (empty($pagerRow)) {
@@ -97,4 +98,6 @@ $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/n
 $tpl->assign('najax_register', NAJAX_Client::register('NajaxBackgroundProcessList', APP_RELATIVE_URL.'najax_services/generic.php'));
 
 $tpl->displayTemplate();
+
+//$bench->display(); // to output html formated
 ?>
