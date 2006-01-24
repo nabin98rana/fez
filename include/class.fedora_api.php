@@ -700,7 +700,7 @@ class Fedora_API {
 	
 	}
    /**
-	* Passes as Soap call to the NUSOAP engine through to the Fedora Management webservice API-A
+	* Passes as Soap call to the NUSOAP engine through to the Fedora Access webservice API-A
 	* 
 	* @access  public
 	* @param array $call The name of the fedora web service to call

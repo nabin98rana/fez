@@ -160,9 +160,9 @@ class Foxml
     function handleMultipleInstance(&$attrib_value, &$indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $attrib_loop_index, $element_prefix, $i) {
         global $HTTP_POST_VARS;
 
-		if ($xsdmf_details['xsdmf_html_input'] == 'author_selector') {
+//		if ($xsdmf_details['xsdmf_html_input'] == 'author_selector') {
 
-		} else {
+//		} else {
 			$loop_count = 0;
 			if (is_array($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) {
 				foreach ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] as $multiple_element) {
@@ -208,7 +208,7 @@ class Foxml
                                     }
 				} // end of foreach loop
 			}
-		}
+//		}
     }
 
     /**

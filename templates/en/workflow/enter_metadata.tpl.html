@@ -30,10 +30,13 @@ function openDetailPage()
 </script>
 {/literal}
 {/if}
-
 {literal}
+
 <script language="JavaScript" src="{/literal}{$rel_url}{literal}js/dynCalendar.js"></script>
+<script language="JavaScript" src="{/literal}{$rel_url}{literal}js/suggestions.js"></script>
+<script language="JavaScript" src="{/literal}{$rel_url}{literal}js/autosuggest.js"></script>
 <script language="JavaScript">
+{/literal}{$najax_register}{literal}
 <!--
 var required_xsd_display_fields = new Array();
 var xsd_display_fields = new Array();
@@ -60,6 +63,51 @@ checkRequiredFields(document.wfl_form1, required_xsd_display_fields);
 {literal}
 function calendarCallback_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}(day, month, year) { selectDateField('xsd_display_fields[{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}]', day, month, year); }
 function calendarCallback_xsd_display_fields_end{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}(day, month, year) { selectDateField('xsd_display_fields_end[{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}]', day, month, year); }
+{/literal}
+{elseif $xsd_display_fields[i].xsdmf_html_input == 'org_selector' && $xsd_display_fields[i].xsdmf_use_org_to_fill == 1}
+{literal}
+
+var dt_load_state_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal} = 0;
+function showLoading_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}()
+{
+	document.body.style.cursor = 'wait';
+	document.getElementById('loading_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}').style.display = 'block';
+}
+
+function hideLoading_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}()
+{
+	document.body.style.cursor = '';
+	document.getElementById('loading_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}').style.display = 'none';
+}
+function selectOrgStructure_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}(f, field_name)
+{
+	if (dt_load_state_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal} > 0) {
+	   return false;
+	} 
+//	var field = getFormElement(f, field_name);
+	var field = document.wfl_form1.xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_1;
+
+	var selections = getSelectedItems(field);
+
+	if (selections.length > 0) {
+		dt_load_state_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}++;
+//		document.getElementById('tr_org_id').style.display = '';
+		showLoading_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}();
+		var obj = new SelectOrgStructure();
+		obj.ongetSubListError = function() {
+			removeAllOptions(f, '{/literal}xsd_display_fields[{$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}]{literal}');
+			hideLoading_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}();
+			dt_load_state_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}--;
+		}
+		obj.setTimeout(10000);
+		obj.getSubList(selections[0].value, function(dt_list) {
+				removeAllOptions(f, '{/literal}xsd_display_fields[{$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}]{literal}');
+				addOptions(f, '{/literal}xsd_display_fields[{$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}]{literal}', dt_list);
+				hideLoading_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}();
+				dt_load_state_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}--;
+				});
+	}
+}		
 {/literal}
 {/if}
 {/section}
@@ -118,6 +166,8 @@ function selectDateField(field_name, day, month, year)
     selectOption(this.document.wfl_form1, field_name + '[Year]', year);
 }
 
+
+
 //-->
 </script>
 {/literal}
@@ -147,7 +197,7 @@ function selectDateField(field_name, day, month, year)
             <script language="JavaScript">
             <!--
             xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab' || $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' || $xsd_display_fields[i].xsdmf_multiple == 1}[]{/if}', '{$xsd_display_fields[i].xsdmf_title}');
-            required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple'|| $xsd_display_fields[i].xsdmf_html_input == 'contvocab' || $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' || $xsd_display_fields[i].xsdmf_multiple == 1}[]{/if}', {if $xsd_display_fields[i].xsdmf_html_input == 'multiple' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab' || $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector'}'multiple'{elseif $xsd_display_fields[i].xsdmf_html_input == 'checkbox'}'checkbox'{elseif $xsd_display_fields[i].xsdmf_html_input == 'combo'}'combo'{else}'whitespace'{/if});
+            required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple'|| $xsd_display_fields[i].xsdmf_html_input == 'contvocab' || $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' || $xsd_display_fields[i].xsdmf_multiple == 1}[]{/if}', {if $xsd_display_fields[i].xsdmf_html_input == 'multiple' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab' || $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector'}'multiple'{elseif $xsd_display_fields[i].xsdmf_html_input == 'checkbox'}'checkbox'{elseif $xsd_display_fields[i].xsdmf_html_input == 'combo' || $xsd_display_fields[i].xsdmf_html_input == 'author_selector'}'combo'{else}'whitespace'{/if});
             //-->
             </script>
             {/if}
@@ -233,17 +283,67 @@ function selectDateField(field_name, day, month, year)
 						  </td>
 						</tr>
 
+			{elseif $xsd_display_fields[i].xsdmf_html_input == 'author_suggestor' && $xsd_display_fields[i].xsdmf_enabled == 1}
+			{elseif $xsd_display_fields[i].xsdmf_html_input == 'author_selector' && $xsd_display_fields[i].xsdmf_enabled == 1}
+				{assign var="field_name" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}						
+			    {assign var="field_id" value="xsd_display_fields_"|cat:$xsd_display_fields[i].xsdmf_id|cat:"_1"}
+				<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1">
+				  <td width="200" bgcolor="{$cell_color}" class="default">
+					<b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
+				  </td>
+				  <td bgcolor="{$light_color}">
+					<select class="default" id="{$field_id}" name="{$field_name}">
+					   <option value="-1">(none)</option>
+					  {html_options options=$xsd_display_fields[i].field_options}
+					</select>
+					{include file="lookup_field.tpl.html" lookup_field_name="search" lookup_field_target=$field_id}
+					{include file="error_icon.tpl.html" field=$field_name}
+				  </td>
+				</tr>
             {elseif $xsd_display_fields[i].xsdmf_html_input == 'text' && $xsd_display_fields[i].xsdmf_enabled == 1}
 				{if $xsd_display_fields[i].xsdmf_multiple == 1}
 					{section name="z" loop=$xsd_display_fields[i].multiple_array}
 						{assign var="loop_num" value=$xsd_display_fields[i].multiple_array[z]}
 						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" {if $loop_num != 1}style="display:none"{/if}>
 						  <td width="200" bgcolor="{$cell_color}" class="default">
-							<b>{$xsd_display_fields[i].xsdmf_title} {$loop_num} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />{if $loop_num == 1}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appears as they are used up)</i>{/if}
+							<b>{$xsd_display_fields[i].xsdmf_title} {$loop_num} {if $xsd_display_fields[i].xsdmf_required == 1 && $loop_num == 1} * {/if}</b><br />{if $loop_num == 1}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appears as they are used up)</i>{/if}
 						  </td>
 						  <td bgcolor="{$light_color}">
 						<input class="default" type="text" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" maxlength="255" size="50">
 						{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
+						  {if $xsd_display_fields[i].xsdmf_attached_xsdmf_id != ""}
+								{section name="a" loop=$xsd_display_fields}
+									{assign var="temp_attached_xsdmf_id" value=$xsd_display_fields[a].xsdmf_id}
+								  	{if $xsd_display_fields[a].xsdmf_html_input == 'author_suggestor' AND $temp_attached_xsdmf_id == $xsd_display_fields[i].xsdmf_attached_xsdmf_id}
+										<br />
+										<span class="default"><b>{$xsd_display_fields[a].xsdmf_title}:</b></span>
+									    {assign var="attached_field_id" value="xsd_display_fields_"|cat:$temp_attached_xsdmf_id|cat:"_"|cat:$loop_num}
+										<select class="default" id="{$attached_field_id}" name="{$attached_field_id}">
+										   <option value="-1">(none)</option>
+
+										</select>
+						                <!-- Google suggest style selection -->
+										<input type="text" name="{$attached_field_id}_lookup" id="{$attached_field_id}_lookup" 
+										autocomplete="off" class="default" />
+										<!-- note there is some javascript in the window.load because IE can't handle it here -->
+									  </td>
+									</tr>
+								  	{elseif $xsd_display_fields[a].xsdmf_html_input == 'author_selector' AND $temp_attached_xsdmf_id == $xsd_display_fields[i].xsdmf_attached_xsdmf_id}
+										<br />
+										<span class="default"><b>{$xsd_display_fields[a].xsdmf_title}:</b></span>
+									    {assign var="attached_field_id" value="xsd_display_fields_"|cat:$temp_attached_xsdmf_id|cat:"_"|cat:$loop_num}
+										<select class="default" id="{$attached_field_id}" name="{$attached_field_id}">
+										   <option value="-1">(none)</option>
+										  {html_options options=$author_ids selected=$details[$temp_attached_xsdmf_id][z]}										   
+										</select>
+										{include file="lookup_field.tpl.html" lookup_field_name="search" lookup_field_target=$attached_field_id}
+									  </td>
+									</tr>
+
+									{/if}
+								{/section}
+						  {/if}
+
 						 </td>
 						</tr>
 					{/section}
@@ -283,6 +383,25 @@ function selectDateField(field_name, day, month, year)
 						 </td>
 						</tr>
 				{/if}
+            {elseif ($xsd_display_fields[i].xsdmf_html_input == 'org_selector') && $xsd_display_fields[i].xsdmf_enabled == 1}
+				{assign var="field_name" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}							
+				{if $xsd_display_fields[i].xsdmf_html_input == 'multiple'}
+					{assign var="field_name" value=$field_name|cat:"[]"}
+				{/if}
+						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1">
+						  <td width="200" bgcolor="{$cell_color}" class="default">
+							<b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
+						  </td>
+						  
+						  <td bgcolor="{$light_color}">
+							<div id="loading_{$xsd_display_fields[i].xsdmf_id}" style="display:none;" class="default">Loading...</div>
+							<select id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1" {if $xsd_display_fields[i].xsdmf_use_org_to_fill == 1}onChange="javascript: selectOrgStructure_{$xsd_display_fields[i].xsdmf_id}(this.form, 'xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]')"{/if} {if $xsd_display_fields[i].xsdmf_html_input == 'multiple'}multiple size="8"{/if} class="default" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple'}[]{/if}">
+							  {if $xsd_display_fields[i].xsdmf_html_input != 'multiple'}<option value="-1">Please choose an option</option>{/if}
+								  {html_options options=$xsd_display_fields[i].field_options}
+							</select>
+							{include file="error_icon.tpl.html" field=$field_name}
+						 </td>
+						</tr>						
             {elseif ($xsd_display_fields[i].xsdmf_html_input == 'multiple' or $xsd_display_fields[i].xsdmf_html_input == 'combo') && $xsd_display_fields[i].xsdmf_enabled == 1}
 				{assign var="field_name" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}							
 				{if $xsd_display_fields[i].xsdmf_html_input == 'multiple'}
@@ -377,5 +496,12 @@ function selectDateField(field_name, day, month, year)
 			{/if}
 		{/if}
         {/section}
-
-       
+{section name="i" loop=$xsd_display_fields}
+	{if $xsd_display_fields[i].xsdmf_html_input == 'org_selector' && $xsd_display_fields[i].xsdmf_use_org_to_fill == 1}
+		<script language="JavaScript">
+		  <!--
+		  selectOrgStructure_{$xsd_display_fields[i].xsdmf_id}(document.wfl_form1, 'xsdmf_display_fields[{$xsd_display_fields[i].xsdmf_id}]'); 	
+		  //-->
+		  </script>
+	{/if}
+{/section}

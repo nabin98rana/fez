@@ -210,6 +210,7 @@ class Template_API
         $this->assign("js_script_name", $js_script_name);
 
         $this->assign("total_queries", $GLOBALS['TOTAL_QUERIES']);
+		$this->assign('headerscript', $this->headerscript);
 
         $this->assign(array(
             "shaded_bar"     => "background='".APP_RELATIVE_URL."images/".APP_SHADED_BAR."'",
@@ -275,7 +276,7 @@ class Template_API
         $this->assign("js_script_name", $js_script_name);
 
         $this->assign("total_queries", $GLOBALS['TOTAL_QUERIES']);
-
+		$this->assign('headerscript', $this->headerscript);
         $this->assign(array(
             "shaded_bar"     => "background='".APP_RELATIVE_URL."images/".APP_SHADED_BAR."'",
             "heading_color"     => APP_HEADING_COLOR,

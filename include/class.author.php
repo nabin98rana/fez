@@ -349,7 +349,7 @@ class Author
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
                  ORDER BY
-                    aut_title";
+                    aut_fullname";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -359,6 +359,30 @@ class Author
         }
     }
  
+
+    /**
+     * Method used to search and suggest all the authors names for a given string.
+     *
+     * @access  public
+     * @return  array List of authors
+     */
+	function suggest($term) {
+		$dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+		$term = Misc::escapeString($term);
+		$stmt = "
+			 SELECT
+				distinct aut_id,
+				concat_ws(' ', aut_title, aut_fname, aut_mname, aut_lname) as aut_fullname FROM {$dbtp}author
+			 WHERE aut_fname like '%$term%' or aut_lname like '%$term%'
+			 ORDER BY aut_fullname ";
+	    $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+	} 
 
     /**
      * Method used to get an associative array of author ID and title

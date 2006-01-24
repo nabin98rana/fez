@@ -96,6 +96,17 @@ if (!empty($pid)) {
 					}
 				}
 			}
+			if ($dis_field['xsdmf_html_input'] == "author_selector") {
+				if (!empty($details[$dis_field['xsdmf_id']])) {
+					if (is_array($details[$dis_field['xsdmf_id']])) {
+						foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
+							$details[$dis_field['xsdmf_id']][$ckey] = $author_list[$cdata];
+						}
+					} else {
+						$details[$dis_field['xsdmf_id']] = $author_list[$details[$dis_field['xsdmf_id']]];
+					}
+				}
+			}
 			if ($dis_field["xsdmf_use_parent_option_list"] == 1) { // if the display field inherits this list from a parent then get those options
 				// Loop through the parents
 				foreach ($parent_relationships as $pkey => $prel) {

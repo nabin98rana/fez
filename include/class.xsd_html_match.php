@@ -313,7 +313,11 @@ class XSD_HTML_Match
 					xsdmf_citation_order,
 					xsdmf_use_parent_option_list,
 					xsdmf_parent_option_xdis_id,
-					xsdmf_parent_option_child_xsdmf_id
+					xsdmf_parent_option_child_xsdmf_id,
+					xsdmf_org_level,
+					xsdmf_use_org_to_fill,
+					xsdmf_org_fill_xdis_id,
+					xsdmf_org_fill_xsdmf_id
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields as m1  ";
 				if ($specify_str != "") {
@@ -626,6 +630,12 @@ class XSD_HTML_Match
 		} else {
 			$xsdmf_use_parent_option_list = 0;
 		}
+		if (@$HTTP_POST_VARS["xsdmf_use_org_to_fill"]) {
+			$xsdmf_use_org_to_fill = 1;
+		} else {
+			$xsdmf_use_org_to_fill = 0;
+		}
+
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
                  (
@@ -654,6 +664,15 @@ class XSD_HTML_Match
 		if ($HTTP_POST_VARS["xsdmf_sek_id"] != "") {
           $stmt .= "xsdmf_sek_id,";
 		}
+		if ($HTTP_POST_VARS["xsdmf_org_level"] != "") {
+          $stmt .= "xsdmf_org_level,";
+		}
+		if (is_numeric($HTTP_POST_VARS["xsdmf_org_fill_xdis_id"])) {
+          $stmt .= "xsdmf_org_fill_xdis_id,";
+		}
+		if (is_numeric($HTTP_POST_VARS["xsdmf_org_fill_xsdmf_id"])) {
+          $stmt .= "xsdmf_org_fill_xsdmf_id,";
+		}
 		if (is_numeric($HTTP_POST_VARS["xsdmf_parent_option_xdis_id"])) {
           $stmt .= "xsdmf_parent_option_xdis_id,";
 		}
@@ -662,6 +681,7 @@ class XSD_HTML_Match
 		}
 
 		$stmt .= "
+					xsdmf_use_org_to_fill,
 					xsdmf_use_parent_option_list,
                     xsdmf_valueintag,
                     xsdmf_is_key,
@@ -727,6 +747,16 @@ class XSD_HTML_Match
 			if ($HTTP_POST_VARS["xsdmf_sek_id"] != "") {
                $stmt .= Misc::escapeString($HTTP_POST_VARS["xsdmf_sek_id"]) . ",";
 			}
+			if ($HTTP_POST_VARS["xsdmf_org_level"] != "") {
+ 			   $stmt .= "'" . Misc::escapeString($HTTP_POST_VARS["xsdmf_org_level"]) . "',";			
+			}
+			if (is_numeric($HTTP_POST_VARS["xsdmf_org_fill_xdis_id"])) {			
+ 			   $stmt .= Misc::escapeString($HTTP_POST_VARS["xsdmf_org_fill_xdis_id"]) . ",";
+			}
+			if (is_numeric($HTTP_POST_VARS["xsdmf_org_fill_xsdmf_id"])) {			
+ 			   $stmt .= Misc::escapeString($HTTP_POST_VARS["xsdmf_org_fill_xsdmf_id"]) . ",";
+			}
+
 			if (is_numeric($HTTP_POST_VARS["xsdmf_parent_option_xdis_id"])) {			
  			   $stmt .= Misc::escapeString($HTTP_POST_VARS["xsdmf_parent_option_xdis_id"]) . ",";
 			}
@@ -734,7 +764,8 @@ class XSD_HTML_Match
  			   $stmt .= Misc::escapeString($HTTP_POST_VARS["xsdmf_parent_option_child_xsdmf_id"]) . ",";
 			}
 			$stmt .=
-					$xsdmf_use_parent_option_list . ",
+					$xsdmf_use_org_to_fill . ",
+					" . $xsdmf_use_parent_option_list . ",					
                     " . $valueintag . ",
                     " . $is_key . ",
                     '" . Misc::escapeString($HTTP_POST_VARS["xsdmf_data_type"]) . "',
@@ -877,7 +908,28 @@ class XSD_HTML_Match
 		if (!empty($insertArray["xsdmf_show_in_view"])) {
           $stmt .= "xsdmf_show_in_view,";
 		}
-					
+		if (!empty($insertArray["xsdmf_use_parent_option_list"])) {
+          $stmt .= "xsdmf_use_parent_option_list,";
+		}
+		if (!empty($insertArray["xsdmf_parent_option_xdis_id"])) {
+          $stmt .= "xsdmf_parent_option_xdis_id,";
+		}
+		if (!empty($insertArray["xsdmf_parent_option_xsdmf_id"])) {
+          $stmt .= "xsdmf_parent_option_xsdmf_id,";
+		}
+		if (!empty($insertArray["xsdmf_org_level"])) {
+          $stmt .= "xsdmf_org_level,";
+		}		
+		if (!empty($insertArray["xsdmf_use_org_to_fill"])) {
+          $stmt .= "xsdmf_use_org_to_fill,";
+		}
+		if (!empty($insertArray["xsdmf_org_fill_xdis_id"])) {
+          $stmt .= "xsdmf_org_fill_xdis_id,";
+		}		
+		if (!empty($insertArray["xsdmf_org_fill_xsdmf_id"])) {
+          $stmt .= "xsdmf_org_fill_xsdmf_id,";
+		}		
+							
 		  $stmt .= "xsdmf_enforced_prefix,
 					xsdmf_value_prefix,
 					xsdmf_image_location,
@@ -961,6 +1013,28 @@ class XSD_HTML_Match
 			if (!empty($insertArray["xsdmf_show_in_view"])) {
               $stmt .= $insertArray["xsdmf_show_in_view"] . ",";
 			}
+			if (!empty($insertArray["xsdmf_use_parent_option_list"])) {
+              $stmt .= $insertArray["xsdmf_use_parent_option_list"] . ",";
+			}			
+			if (!empty($insertArray["xsdmf_parent_option_xdis_id"])) {
+              $stmt .= $insertArray["xsdmf_parent_option_xdis_id"] . ",";
+			}			
+			if (!empty($insertArray["xsdmf_parent_option_xsdmf_id"])) {
+              $stmt .= $insertArray["xsdmf_parent_option_xsdmf_id"] . ",";
+			}			
+
+			if (!empty($insertArray["xsdmf_org_level"])) {
+              $stmt .= "'" . Misc::escapeString($insertArray["xsdmf_org_level"]) . "',";
+			}			
+			if (!empty($insertArray["xsdmf_use_org_to_fill"])) {
+              $stmt .= $insertArray["xsdmf_use_org_to_fill"] . ",";
+			}			
+			if (!empty($insertArray["xsdmf_org_fill_xdis_id"])) {
+              $stmt .= $insertArray["xsdmf_org_fill_xdis_id"] . ",";
+			}			
+			if (!empty($insertArray["xsdmf_org_fill_xsdmf_id"])) {
+              $stmt .= $insertArray["xsdmf_org_fill_xsdmf_id"] . ",";
+			}			
 
 			$stmt .= "
                     '" . Misc::escapeString($insertArray["xsdmf_enforced_prefix"]) . "',
@@ -1256,6 +1330,11 @@ class XSD_HTML_Match
 		} else {
 			$xsdmf_use_parent_option_list = 0;
 		}
+		if (@$HTTP_POST_VARS["xsdmf_use_org_to_fill"]) {
+			$xsdmf_use_org_to_fill = 1;
+		} else {
+			$xsdmf_use_org_to_fill = 0;
+		}
 		if (is_numeric($HTTP_POST_VARS["xsdsel_id"])) {
 			$extra_where = " AND xsdmf_xsdsel_id = ".$HTTP_POST_VARS["xsdsel_id"];
 		} else {
@@ -1272,6 +1351,7 @@ class XSD_HTML_Match
                     xsdmf_validation_type = '" . Misc::escapeString($HTTP_POST_VARS["validation_types"]) . "',
                     xsdmf_order = " . Misc::escapeString($HTTP_POST_VARS["order"]) . ",
                     xsdmf_cvo_id = " . $HTTP_POST_VARS["xsdmf_cvo_id"] . ",					
+                    xsdmf_use_org_to_fill = " . $xsdmf_use_org_to_fill . ",
                     xsdmf_use_parent_option_list = " . $xsdmf_use_parent_option_list . ",
                     xsdmf_required = " . $required . ",
                     xsdmf_indexed = " . $indexed . ",
@@ -1286,6 +1366,15 @@ class XSD_HTML_Match
 		}
 		if (is_numeric($HTTP_POST_VARS["xsdmf_sek_id"])) {
         	$stmt .= " xsdmf_sek_id = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_sek_id"]) . ",";
+		}
+		if ($HTTP_POST_VARS["xsdmf_org_level"] != "") {
+        	$stmt .= " xsdmf_org_level = '" . Misc::escapeString($HTTP_POST_VARS["xsdmf_org_level"]) . "',";
+		}
+		if (is_numeric($HTTP_POST_VARS["xsdmf_org_fill_xdis_id"])) {
+        	$stmt .= " xsdmf_org_fill_xdis_id = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_org_fill_xdis_id"]) . ",";
+		}
+		if (is_numeric($HTTP_POST_VARS["xsdmf_org_fill_xsdmf_id"])) {
+        	$stmt .= " xsdmf_org_fill_xsdmf_id = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_org_fill_xsdmf_id"]) . ",";
 		}
 		if (is_numeric($HTTP_POST_VARS["xsdmf_parent_option_xdis_id"])) {
         	$stmt .= " xsdmf_parent_option_xdis_id = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_parent_option_xdis_id"]) . ",";
@@ -1329,7 +1418,7 @@ class XSD_HTML_Match
                     xsdmf_dynamic_text = '" . Misc::escapeString($HTTP_POST_VARS["dynamic_text"]) . "',
                     xsdmf_static_text = '" . Misc::escapeString($HTTP_POST_VARS["static_text"]) . "'";
 		$stmt .= " WHERE xsdmf_xdis_id = $xdis_id AND xsdmf_element = '".$xml_element."'".$extra_where;
-		//echo $stmt;
+
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

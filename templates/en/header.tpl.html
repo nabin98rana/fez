@@ -20,4 +20,16 @@
 <meta http-equiv="Refresh" content="{$refresh_rate};URL={$app_base_url}{$refresh_page}">
 {/if}
 {$najax_header}
+
+<script language="JavaScript" type="text/javascript">
+{literal}
+window.onload = function () {
+{/literal}
+    // do any other hacks requried by IE mostly
+    {$headerscript}
+{literal}
+}
+{/literal}
+</script>
+
 </head>

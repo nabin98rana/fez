@@ -32,6 +32,7 @@
 // +----------------------------------------------------------------------+
 //
 //
+
 include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
@@ -44,6 +45,7 @@ include_once(APP_INC_PATH . "class.xsd_display.php");
 include_once(APP_INC_PATH . "class.xsd_display_attach.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 include_once(APP_INC_PATH . "class.xsd_relationship.php");
+include_once(APP_INC_PATH . "class.org_structure.php");
 include_once(APP_INC_PATH . "class.xsd_loop_subelement.php");
 include_once(APP_INC_PATH . "najax/najax.php");
 include_once(APP_INC_PATH . "najax_objects/class.select_xsd_display.php");
@@ -165,12 +167,15 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 		$xsd_display_ref_list = XSD_Relationship::getListByXSDMF($info_array['xsdmf_id']);
 		$xsd_display_att_list = XSD_Display_Attach::getListByXSDMF($info_array['xsdmf_id']);
 		$xsd_loop_subelement_list = XSD_Loop_Subelement::getListByXSDMF($info_array['xsdmf_id']);
+		$org_levels = Org_Structure::getAssocListLevels(); 
 		if ((is_numeric($xsdsel_id)) && ($HTTP_GET_VARS['xsdsel_cat'] == "edit")) {
 			$xsd_loop_subelement_details = XSD_Loop_Subelement::getDetails($xsdsel_id);
 			$tpl->assign("xsd_loop_subelement_details", $xsd_loop_subelement_details);
 		}
 		$xsdmf_id_ref_list = XSD_HTML_Match::getListAssoc();
 		$tpl->assign("xsdmf_id_ref_list", $xsdmf_id_ref_list);
+		$tpl->assign("org_levels", $org_levels);
+
 		$tpl->assign("xsd_display_att_list", $xsd_display_att_list);
 		$tpl->assign("xsd_display_ref_list", $xsd_display_ref_list);
 		$tpl->assign("xsd_loop_subelement_list", $xsd_loop_subelement_list);

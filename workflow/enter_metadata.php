@@ -50,7 +50,14 @@ include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 include_once(APP_INC_PATH . "class.xsd_relationship.php");
 include_once(APP_INC_PATH . "class.workflow_status.php");
-
+include_once(APP_INC_PATH . "class.org_structure.php");
+include_once(APP_INC_PATH . "najax/najax.php");
+include_once(APP_INC_PATH . "najax_objects/class.select_org_structure.php");
+include_once(APP_INC_PATH . "najax_objects/class.suggestor.php");
+NAJAX_Server::allowClasses(array('SelectOrgStructure', 'Suggestor'));
+if (NAJAX_Server::runServer()) {
+	exit;
+}
 
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
@@ -112,6 +119,8 @@ if ($access_ok) {
     $internal_user_list = User::getAssocList();
     $internal_group_list = Group::getAssocListAll();
 	$author_list = Author::getAssocListAll();
+	$tpl->assign("author_ids", $author_list);
+
     $jtaskData = "";
     $maxG = 0;
 //    $xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id));
@@ -131,6 +140,31 @@ if ($access_ok) {
     //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups 
     // - should probably move this into a function somewhere later
     foreach ($xsd_display_fields as $dis_key => $dis_field) {
+		if ($dis_field["xsdmf_html_input"] == 'org_selector') {
+			if ($dis_field["xsdmf_org_level"] != "") {
+				$xsd_display_fields[$dis_key]['field_options'] = Org_Structure::getAssocListByLevel($dis_field["xsdmf_org_level"]);
+			}
+		}
+        if ($dis_field["xsdmf_html_input"] == 'author_selector') {
+			if ($dis_field["xsdmf_use_parent_option_list"] == 1) {
+				// Loop through the parents - there is only one parent for entering metadata
+				if (in_array($dis_field["xsdmf_parent_option_xdis_id"], $parent_relationships)) {
+					$parent_details = $parent_record->getDetails();
+					if (is_numeric($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]])) {
+						$authors_sub_list = Org_Structure::getAuthorsByOrgID($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]]);
+						$xsd_display_fields[$dis_key]['field_options'] = $authors_sub_list;
+					}
+				}
+			}
+		}
+		if ($dis_field["xsdmf_html_input"] == 'author_suggestor') {
+
+		     $tpl->headerscript .= "window.oTextbox_xsd_display_fields_{$dis_field['xsdmf_id']}_1_lookup
+                    = new AutoSuggestControl(document.getElementById('xsd_display_fields_{$dis_field['xsdmf_id']}_1_lookup'),
+                            new StateSuggestions('Author',false,
+                                'class.author.php'));
+                    ";  
+		}
         if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple') {
             if (!empty($dis_field["xsdmf_smarty_variable"]) && $dis_field["xsdmf_smarty_variable"] != "none") {
                 eval("\$xsd_display_fields[\$dis_key]['field_options'] = " . $dis_field["xsdmf_smarty_variable"] . ";");
@@ -139,7 +173,7 @@ if ($access_ok) {
                     && $dis_field["xsdmf_dynamic_selected_option"] != "none") {
                 eval("\$xsd_display_fields[\$dis_key]['selected_option'] = " 
                         . $dis_field["xsdmf_dynamic_selected_option"] . ";");
-            }
+            }						
 			if ($dis_field["xsdmf_use_parent_option_list"] == 1) { // if the display field inherits this list from a parent then get those options
 				// Loop through the parents
 				if (in_array($dis_field["xsdmf_parent_option_xdis_id"], $parent_relationships)) {
@@ -181,6 +215,7 @@ if ($access_ok) {
 
 }
 
-
+$tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
+$tpl->assign('najax_register', NAJAX_Client::register('SelectOrgStructure', 'enter_metadata.php')."\n".NAJAX_Client::register('Suggestor', 'enter_metadata.php'));
 $tpl->displayTemplate();
 ?>
