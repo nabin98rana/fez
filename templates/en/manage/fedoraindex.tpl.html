@@ -42,6 +42,7 @@ function setPage(new_page)
     }
     window.location.href = page_url + "?" + replaceParam(window.location.href, 'pagerRow', new_page);
 }
+
 function showLoading()
 {
     document.body.style.cursor = 'wait';
@@ -107,7 +108,7 @@ function selectCollection(f, field_name)
 
     if (selections.length > 0) {
         dt_load_state++;
-        document.getElementById('tr_xdis_id').style.display = '';
+        //document.getElementById('tr_xdis_id').style.display = '';
         showLoading1();
         var obj = new SelectReindexInfo();
         obj.onGetDocTypesError = function() {
@@ -124,6 +125,32 @@ function selectCollection(f, field_name)
                 });
     }
 }
+function showSettings() {
+	document.getElementById('tr_heading').style.display = '';
+	document.getElementById('tr_community_pid').style.display = '';
+	document.getElementById('tr_collection_pid').style.display = '';
+	document.getElementById('tr_xdis_id').style.display = '';
+	document.getElementById('tr_sta_id').style.display = '';
+}
+function hideSettings() {
+	document.getElementById('tr_heading').style.display = 'none';
+	document.getElementById('tr_community_pid').style.display = 'none';
+	document.getElementById('tr_collection_pid').style.display = 'none';
+	document.getElementById('tr_sta_id').style.display = 'none';
+	document.getElementById('tr_xdis_id').style.display = 'none';
+}
+function toggleOverride()
+{
+  var f = getForm('reindex_form');
+  if (f.recover.checked) {
+	  hideSettings();
+  } else {
+	  showSettings();
+  }
+  return true;
+}
+
+
 
 {/literal}
 // -->
@@ -143,16 +170,24 @@ function selectCollection(f, field_name)
 			<td>
 			  <table>
                     <form name="reindex_form" onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
-			<tr>
+		  <tr>
+				<td width="200" bgcolor="{$cell_color}" class="default">
+				  <b>Recover existing fez datastreams?:</b>
+				</td>
+				<td bgcolor="{$light_color}">
+				  <input type="checkbox" name="recover" onClick="javascript:toggleOverride();" >  
+				</td>
+			  </tr>
+			<tr id="tr_heading">
 			  <td class="default" colspan="2">
 				<b><img align="absmiddle" src="{$rel_url}images/collection.jpg" border="0"> &nbsp; Select Destination Collection</b>
 			  </td>
 			</tr>			
-			<tr>
+				<tr style="display:none;" id="tr_community_pid">
 			  <td  bgcolor="{$cell_color}" class="default" nowrap>
 				<b>Parent Community</b>
 			  </td>
-			  <td width="75%" bgcolor="{$light_color}">
+			  <td bgcolor="{$light_color}">
 				<select class="default" name="community_pid" onChange="javascript: selectCommunity(this.form, 'community_pid')" >
 				  {html_options options=$communities_list selected=$communities_list_selected }
 				</select>
@@ -179,7 +214,7 @@ function selectCollection(f, field_name)
 				</select>
 			  </td>
 			</tr>
-			<tr>
+			<tr style="display:none;" id="tr_sta_id">
 			  <td bgcolor="{$cell_color}" class="default">
 				<b>Publishing Status</b>
 			  </td>
@@ -195,6 +230,9 @@ function selectCollection(f, field_name)
 				  </table>
 				</td>
  			  </tr>			
+
+
+
 			  <tr>
 			  	<td>
                   <table border="0" width="100%" cellpadding="1" cellspacing="1">
@@ -280,7 +318,7 @@ function selectCollection(f, field_name)
         </tr>
       </table>
 	  </form>
-<script type="text/javascript"><!-- 
-selectCommunity(getForm('wfl_form1'), 'community_pid'); 
-// --></script>	  
 
+<script type="text/javascript"><!-- 
+showSettings();
+// --></script>	  

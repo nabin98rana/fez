@@ -40,6 +40,7 @@ include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.record.php");
+include_once(APP_INC_PATH . "class.pager.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.community.php");
 include_once(APP_INC_PATH . "class.controlled_vocab.php");
@@ -58,15 +59,15 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
 }
 $tpl->assign("isAdministrator", $isAdministrator);
 
-$pagerRow = Record::getParam('pagerRow');
+$pagerRow = Pager::getParam('pagerRow');
 if (empty($pagerRow)) {
     $pagerRow = 0;
 }
-$rows = Record::getParam('rows');
+$rows = Pager::getParam('rows');
 if (empty($rows)) {
     $rows = APP_DEFAULT_PAGER_SIZE;
 }
-$options = Record::saveSearchParams();
+$options = Pager::saveSearchParams();
 $tpl->assign("options", $options);
 $browse = @$_REQUEST['browse'];
 if ($browse == "top50authors") {

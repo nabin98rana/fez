@@ -63,20 +63,36 @@ $collection_list = Collection::getEditList();
 //print_r($collection_list);
 foreach ($collection_list as &$item) {
    $item['community'] = implode(',',Misc::keyPairs(Collection::getParents2($item['pid']),'pid','title'));
-   $item['count'] = count(Collection::getEditListing($item['pid']));
+   $item['count'] = Collection::getEditListingCount($item['pid']);
 }
 
 $tpl->assign('my_collections_list', $collection_list);
 
-$assigned_items= Record::getAssigned(Auth::getUsername());
 
 $bgp_list = new BackgroundProcessList;
 $tpl->assign('bgp_list', $bgp_list->getList(Auth::getUserID()));
 $tpl->assign('bgp_states', $bgp_list->getStates());
 
 $tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
-$tpl->assign('my_assigned_items_list', $assigned_items);
+
+
 $tpl->assign("roles_list", Auth::getDefaultRoles());
+$pagerRow = Pager::getParam('pagerRow_my_assigned');
+if (empty($pagerRow)) {
+    $pagerRow = 0;
+}
+$rows = Pager::getParam('rows');
+if (empty($rows)) {
+    $rows = APP_DEFAULT_PAGER_SIZE;
+}
+$options = Pager::saveSearchParams();
+$tpl->assign("options", $options);
+$assigned_items= Record::getAssigned(Auth::getUsername(), $pagerRow, $rows);
+$tpl->assign('my_assigned_items_list', $assigned_items['list']);
+$tpl->assign('my_assigned_items_info', $assigned_items['info']);
+
+
+
 $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
 $tpl->assign('najax_register', NAJAX_Client::register('NajaxBackgroundProcessList', APP_RELATIVE_URL.'najax_services/generic.php'));
 

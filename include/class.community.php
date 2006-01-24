@@ -182,6 +182,7 @@ class Community
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = array();
 		$return = Collection::makeReturnList($res);
+        $return = Collection::makeSecurityReturnList($return);
 
 		$hidden_rows = count($return);
 		$return = Auth::getIndexAuthorisationGroups($return);

@@ -224,6 +224,11 @@ class Fedora_API {
 		$xml = preg_replace("'<object uri\=\"info\:fedora\/(.*)\"\/>'", "<pid>\\1</pid>", $xml); // fix the pid tags	
 		// The query has returned XML. Parse the xml into a DOMDocument
 		$doc = DOMDocument::loadXML($xml);
+        if (!$doc) {
+            echo "Problem with ITQL response: ";
+            echo nl2br(htmlspecialchars(print_r($xml,true)));
+            return array();
+        }
 		$resultlist = array();	
 		$xpath = new DOMXPath($doc);
 		$xpath->registerNamespace('r', 'http://www.w3.org/2001/sw/DataAccess/rf1/result');
@@ -687,10 +692,10 @@ class Fedora_API {
 	   //comment the return and uncomment the echo and debugInfo
 	   //to see debug statements.
 	
-       //if ($call =='ingest') {
-       //    echo $result;
-       //    Fedora_API::debugInfo($client);
-       //}
+       if (is_array($result)) {
+           //print_r($result);
+           //Fedora_API::debugInfo($client);
+       }
 	   return $result;
 	
 	}

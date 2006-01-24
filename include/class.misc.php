@@ -1840,6 +1840,17 @@ class Misc
             return false;
         }
     }   
+
+
+    function shortFilename($filename, $maxlen)
+    {
+        $pathstuff = pathinfo($filename);
+        $filename = basename($pathstuff['basename'], ".{$pathstuff['extension']}");
+        $new_filename = substr($filename, 0, $maxlen - strlen($pathstuff['extension']) - 1)
+            .".{$pathstuff['extension']}";
+        return $new_filename;
+    }
+
 } // end of Misc class
 
 // benchmarking the included file (aka setup time)

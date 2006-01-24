@@ -128,15 +128,16 @@ class Collection
 				FROM fez_record_matching_field AS r1
 				INNER JOIN fez_xsd_display_matchfields AS x1
 				ON r1.rmf_xsdmf_id=x1.xsdmf_id
-				WHERE x1.xsdmf_element='!dc:title'
-				AND r1.rmf_rec_pid in ( SELECT r3.rmf_varchar
+                INNER JOIN ( SELECT r3.rmf_varchar
 						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3
 						INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x3
 						ON x3.xsdmf_sek_id = s3.sek_id
 						INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s3
 						ON x3.xsdmf_id = r3.rmf_xsdmf_id 
 						WHERE s3.sek_title = 'isMemberOf' 
-						AND r3.rmf_rec_pid='$collection_pid')";
+						AND r3.rmf_rec_pid='$collection_pid') as s1 ON s1.rmf_varchar=r1.rmf_rec_pid
+				WHERE x1.xsdmf_element='!dc:title'
+				";
 			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 			if (PEAR::isError($res)) {
 				Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -247,6 +248,7 @@ class Collection
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = array();
 		$return = Collection::makeReturnList($res);
+        $return = Collection::makeSecurityReturnList($return);
 		$hidden_rows = count($return);
 		$return = Auth::getIndexAuthorisationGroups($return);		
 		$return = Misc::cleanListResults($return);
@@ -318,6 +320,8 @@ class Collection
         //     AND user is in the roles for the ACML
 //        $returnfields = array("title", "description", "ret_id", "xdis_id", "sta_id"); 
 //        $returnfield_query = Misc::array_to_sql_string($returnfields);
+        $fez_groups_sql = Misc::arrayToSQL($_SESSION[APP_INTERNAL_GROUPS_SESSION]);
+        $ldap_groups_sql = Misc::arrayToSQL($_SESSION[APP_LDAP_GROUPS_SESSION]);
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $restrict_community = '';
         if ($community_pid) {
@@ -334,9 +338,6 @@ class Collection
         }
         $stmt = " SELECT *
             FROM {$dbtp}record_matching_field AS r1
-            INNER JOIN {$dbtp}xsd_display_matchfields AS x1 ON r1.rmf_xsdmf_id=x1.xsdmf_id
-			$restrict_community
-			INNER JOIN {$dbtp}search_key as sk1 on sk1.sek_id = x1.xsdmf_sek_id
 			INNER JOIN (
                     SELECT r2.rmf_rec_pid 
                     FROM  {$dbtp}record_matching_field r2
@@ -347,6 +348,37 @@ class Collection
                     WHERE s2.sek_title = 'Object Type' 
                     AND r2.rmf_varchar = '2' 
                     ) as o1 on o1.rmf_rec_pid = r1.rmf_rec_pid
+			$restrict_community
+            INNER JOIN
+            (SELECT distinct authi_pid FROM {$dbtp}auth_index WHERE
+             (authi_role = 'Editor'
+              OR authi_role = 'Approver')
+             AND (
+                 (authi_rule = '!rule!role!Fez_User' AND authi_value='".Auth::getUserID()."')
+                 OR (authi_rule = '!rule!role!AD_User' AND authi_value='".Auth::getUsername()."') ";
+                 if (!empty($fez_groups_sql)) {
+                   $stmt .="
+                   OR (authi_rule = '!rule!role!Fez_Group' AND authi_value 
+                     IN ($fez_groups_sql) ) ";
+                 }
+                 if (!empty($ldap_groups_sql)) {
+                   $stmt .= "
+                   OR (authi_rule = '!rule!role!AD_Group' AND authi_value 
+                     IN ($ldap_groups_sql) ) ";
+                 }
+                 if (Auth::isInAD())  {
+                   $stmt .= "
+                   OR (authi_rule = '!rule!role!in_AD' ) ";
+                 }
+                 if (Auth::isInDB()) {
+                   $stmt .= "
+                   OR (authi_rule = '!rule!role!in_Fez') ";
+                 }
+                 $stmt .= "
+                 )
+             ) as security1 on security1.authi_pid=r1.rmf_rec_pid
+            INNER JOIN {$dbtp}xsd_display_matchfields AS x1 ON r1.rmf_xsdmf_id=x1.xsdmf_id
+ 			INNER JOIN {$dbtp}search_key as sk1 on sk1.sek_id = x1.xsdmf_sek_id
             LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 
             ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id)               
            ";
@@ -356,14 +388,7 @@ class Collection
             $res = array();
         }
         $list = Collection::makeReturnList($res);
-		$list = Auth::getIndexAuthorisationGroups($list);
-        $list2 = array();
-        foreach ($list as $item) {
-            if (@$item['isEditor']) {
-                $list2[] = $item;
-            }
-        }
-        return $list2;
+        return $list;
 
     }
 
@@ -420,6 +445,7 @@ class Collection
             $res = array();
         }
         $list = Collection::makeReturnList($res);
+        $list = Collection::makeSecurityReturnList($list);
 		return $list;
     } 
 	
@@ -484,29 +510,111 @@ class Collection
 		}
 
 		foreach ($return as $pid_key => $row) {
-			$parentsACMLs = array();		
 			//if there is only one thumbnail DS then use it
 			if (count(@$row['thumbnails']) == 1) {
 				$return[$pid_key]['thumbnail'] = $row['thumbnails'][0];
 			} else {
 				$return[$pid_key]['thumbnail'] = 0;
 			}
-			if (!is_array(@$row['FezACML']) || @$return[$pid_key]['FezACML'][0]['!inherit_security'][0] == "on") {
-				// if there is no FezACML set for this row yet, then is it will inherit from above, so show this for the form
-				if (@$return[$pid_key]['FezACML'][0]['!inherit_security'][0] == "on") {
-					$parentsACMLs = $return[$pid_key]['FezACML'];
-					$return[$pid_key]['security'] = "include";
-				} else {
-					$return[$pid_key]['security'] = "inherit";
-				} 
-				Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid_key, @$row['isMemberOf']);
-				$return[$pid_key]['FezACML'] = $parentsACMLs;
-			} else {
-				$return[$pid_key]['security'] = "exclude";			
-			}
 		}
 		$return = array_values($return);
 		return $return;
+    }
+
+    function makeSecurityReturnList($return)
+    {
+		foreach ($return as $key => $row) {
+            $pid = $row['pid'];
+			$parentsACMLs = array();		
+   			if (!is_array(@$row['FezACML']) || @$return[$key]['FezACML'][0]['!inherit_security'][0] == "on") {
+				// if there is no FezACML set for this row yet, then is it will inherit from above, so show this for the form
+				if (@$return[$key]['FezACML'][0]['!inherit_security'][0] == "on") {
+					$parentsACMLs = $return[$key]['FezACML'];
+					$return[$key]['security'] = "include";
+				} else {
+					$return[$key]['security'] = "inherit";
+				} 
+				Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid, @$row['isMemberOf']);
+				$return[$key]['FezACML'] = $parentsACMLs;
+			} else {
+				$return[$key]['security'] = "exclude";			
+			}
+        }
+		return $return;
+    }
+
+    /**
+      * Count the records in a collection that can be edited by the current user
+      * @param integer $collection_pid The pid of the collection to restrict the list to
+      * @return array Associative array of records - (pid, title)
+      */
+    function getEditListingCount($collection_pid=null) {
+        $fez_groups_sql = Misc::arrayToSQL($_SESSION[APP_INTERNAL_GROUPS_SESSION]);
+        $ldap_groups_sql = Misc::arrayToSQL($_SESSION[APP_LDAP_GROUPS_SESSION]);
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $restrict_collection = '';
+        if ($collection_pid) {
+            $restrict_collection = " INNER JOIN (
+                SELECT r3.rmf_rec_pid 
+                FROM  {$dbtp}record_matching_field AS r3
+                INNER JOIN {$dbtp}xsd_display_matchfields AS x3
+                ON x3.xsdmf_id = r3.rmf_xsdmf_id
+                INNER JOIN {$dbtp}search_key AS s3
+                ON x3.xsdmf_sek_id = s3.sek_id
+                WHERE s3.sek_title = 'isMemberOf'   
+                AND r3.rmf_varchar = '$collection_pid'
+                ) as com1 on com1.rmf_rec_pid = r1.rmf_rec_pid ";
+        }
+        $stmt = " SELECT count(distinct r1.rmf_rec_pid)
+            FROM {$dbtp}record_matching_field AS r1
+           $restrict_collection
+            INNER JOIN
+            (SELECT distinct authi_pid FROM {$dbtp}auth_index WHERE
+             (authi_role = 'Editor'
+              OR authi_role = 'Approver')
+             AND (
+                 (authi_rule = '!rule!role!Fez_User' AND authi_value='".Auth::getUserID()."')
+                 OR (authi_rule = '!rule!role!AD_User' AND authi_value='".Auth::getUsername()."') ";
+                 if (!empty($fez_groups_sql)) {
+                   $stmt .="
+                   OR (authi_rule = '!rule!role!Fez_Group' AND authi_value 
+                     IN ($fez_groups_sql) ) ";
+                 }
+                 if (!empty($ldap_groups_sql)) {
+                   $stmt .= "
+                   OR (authi_rule = '!rule!role!AD_Group' AND authi_value 
+                     IN ($ldap_groups_sql) ) ";
+                 }
+                 if (Auth::isInAD())  {
+                   $stmt .= "
+                   OR (authi_rule = '!rule!role!in_AD' ) ";
+                 }
+                 if (Auth::isInDB()) {
+                   $stmt .= "
+                   OR (authi_rule = '!rule!role!in_Fez') ";
+                 }
+                 $stmt .= "
+                 )
+             ) as security1 on security1.authi_pid=r1.rmf_rec_pid
+			INNER JOIN (
+                    SELECT r2.rmf_rec_pid 
+                    FROM  {$dbtp}record_matching_field r2
+                    INNER JOIN {$dbtp}xsd_display_matchfields x2
+                    ON r2.rmf_xsdmf_id = x2.xsdmf_id 
+                    INNER JOIN {$dbtp}search_key s2				  
+                    ON x2.xsdmf_sek_id = s2.sek_id 
+                    WHERE s2.sek_title = 'Object Type' 
+                    AND r2.rmf_varchar = '3' 
+                    ) as o1 on o1.rmf_rec_pid = r1.rmf_rec_pid
+           ";
+        
+        
+		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = 0;
+        }
+        return $res;	
     }
 
     /**
@@ -521,6 +629,8 @@ class Collection
         //     AND user is in the roles for the ACML (group, user, combos)
         // OR parents of the collection have ACML set
         //     AND user is in the roles for the ACML
+        $fez_groups_sql = Misc::arrayToSQL($_SESSION[APP_INTERNAL_GROUPS_SESSION]);
+        $ldap_groups_sql = Misc::arrayToSQL($_SESSION[APP_LDAP_GROUPS_SESSION]);
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $restrict_collection = '';
         if ($collection_pid) {
@@ -537,10 +647,35 @@ class Collection
         }
         $stmt = " SELECT *
             FROM {$dbtp}record_matching_field AS r1
-            INNER JOIN {$dbtp}xsd_display_matchfields AS x1
-            ON r1.rmf_xsdmf_id=x1.xsdmf_id
-            $restrict_collection
-			INNER JOIN {$dbtp}search_key as sk1 on sk1.sek_id = x1.xsdmf_sek_id
+           $restrict_collection
+            INNER JOIN
+            (SELECT distinct authi_pid FROM {$dbtp}auth_index WHERE
+             (authi_role = 'Editor'
+              OR authi_role = 'Approver')
+             AND (
+                 (authi_rule = '!rule!role!Fez_User' AND authi_value='".Auth::getUserID()."')
+                 OR (authi_rule = '!rule!role!AD_User' AND authi_value='".Auth::getUsername()."') ";
+                 if (!empty($fez_groups_sql)) {
+                   $stmt .="
+                   OR (authi_rule = '!rule!role!Fez_Group' AND authi_value 
+                     IN ($fez_groups_sql) ) ";
+                 }
+                 if (!empty($ldap_groups_sql)) {
+                   $stmt .= "
+                   OR (authi_rule = '!rule!role!AD_Group' AND authi_value 
+                     IN ($ldap_groups_sql) ) ";
+                 }
+                 if (Auth::isInAD())  {
+                   $stmt .= "
+                   OR (authi_rule = '!rule!role!in_AD' ) ";
+                 }
+                 if (Auth::isInDB()) {
+                   $stmt .= "
+                   OR (authi_rule = '!rule!role!in_Fez') ";
+                 }
+                 $stmt .= "
+                 )
+             ) as security1 on security1.authi_pid=r1.rmf_rec_pid
 			INNER JOIN (
                     SELECT r2.rmf_rec_pid 
                     FROM  {$dbtp}record_matching_field r2
@@ -551,9 +686,12 @@ class Collection
                     WHERE s2.sek_title = 'Object Type' 
                     AND r2.rmf_varchar = '3' 
                     ) as o1 on o1.rmf_rec_pid = r1.rmf_rec_pid
+  			INNER JOIN {$dbtp}search_key as sk1 on sk1.sek_id = x1.xsdmf_sek_id
             LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 
             ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id)     
+            INNER JOIN {$dbtp}xsd_display_matchfields AS x1 ON r1.rmf_xsdmf_id=x1.xsdmf_id
            ";
+        
         
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
@@ -561,14 +699,7 @@ class Collection
             $res = array();
         }
         $list = Collection::makeReturnList($res);
-		$list = Auth::getIndexAuthorisationGroups($list);
-        $list2 = array();
-        foreach ($list as $item) {
-            if (@$item['isEditor']) {
-                $list2[] = $item;
-            }
-        }
-        return $list2;	
+        return $list;	
     }
 
 
@@ -665,6 +796,7 @@ class Collection
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = array();
 		$return = Collection::makeReturnList($res);
+        $return = Collection::makeSecurityReturnList($return);
 		$hidden_rows = count($return);
 		$return = Auth::getIndexAuthorisationGroups($return);
 		$return = Misc::cleanListResults($return);
@@ -922,6 +1054,7 @@ class Collection
 
 			$return = array();
 			$return = Collection::makeReturnList($res);
+            $return = Collection::makeSecurityReturnList($return);
 			$hidden_rows = count($return);
 			$return = Auth::getIndexAuthorisationGroups($return);
 			$return = Misc::cleanListResults($return);
@@ -1273,6 +1406,7 @@ class Collection
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = array();
 		$return = Collection::makeReturnList($res);
+        $return = Collection::makeSecurityReturnList($return);
 		$hidden_rows = count($return);
 		$return = Auth::getIndexAuthorisationGroups($return);
 		$return = Misc::cleanListResults($return);

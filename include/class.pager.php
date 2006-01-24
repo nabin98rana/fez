@@ -45,6 +45,70 @@ include_once(APP_INC_PATH . "class.error_handler.php");
 class Pager
 {
     /**
+     * Method used to get the current listing related cookie information.
+     *
+     * @access  public
+     * @return  array The Record listing information
+     */
+    function getCookieParams()
+    {
+        global $HTTP_COOKIE_VARS;
+        return @unserialize(base64_decode($HTTP_COOKIE_VARS[APP_LIST_COOKIE]));
+    }
+
+    /**
+     * Method used to get a specific parameter in the Record listing cookie.
+     *
+     * @access  public
+     * @param   string $name The name of the parameter
+     * @return  mixed The value of the specified parameter
+     */
+    function getParam($name)
+    {
+        global $HTTP_POST_VARS, $HTTP_GET_VARS;
+        $cookie = Pager::getCookieParams();
+
+        if (isset($HTTP_GET_VARS[$name])) {
+            return $HTTP_GET_VARS[$name];
+        } elseif (isset($HTTP_POST_VARS[$name])) {
+            return $HTTP_POST_VARS[$name];
+        } elseif (isset($cookie[$name])) {
+            return $cookie[$name];
+        } else {
+            return "";
+        }
+    }
+
+
+    /**
+     * Method used to save the current search parameters in a cookie.
+     *
+     * @access  public
+     * @return  array The search parameters
+     */
+    function saveSearchParams()
+    {	
+		// @@@ CK 21/7/2004 - Added this global for the custom fields check.
+			
+        $sort_by = Pager::getParam('sort_by');
+        $sort_order = Pager::getParam('sort_order');
+        $rows = Pager::getParam('rows');
+        $cookie = array(
+            'rows'           => $rows ? $rows : APP_DEFAULT_PAGER_SIZE,
+            "sort_by"        => $sort_by ? $sort_by : "rec_id",
+            "sort_order"     => $sort_order ? $sort_order : "DESC",
+            // quick filter form
+            'keywords'       => Pager::getParam('keywords')
+        );
+		$existing_cookie = Record::getCookieParams();
+		global $HTTP_POST_VARS, $HTTP_GET_VARS;
+        $encoded = base64_encode(serialize($cookie));
+        setcookie(APP_LIST_COOKIE, $encoded, APP_LIST_COOKIE_EXPIRE);
+        return $cookie;
+    }
+
+
+    /**
      * Returns the total number of rows for a specific query. It is used to
      * calculate the total number of pages of data.
      *

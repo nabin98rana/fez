@@ -217,8 +217,7 @@ class Reindex
 			} else {
 				Fedora_API::callAddDatastream($pid, "FezMD", $fezmd, "Fez extension metadata", "A", "text/xml", "X");
 			}
-			Record::removeIndexRecord($pid); // remove any existing index entry for that PID
-			Record::setIndexMatchingFields($xdis_id, $pid);
+			Record::setIndexMatchingFields($pid);
 		}
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -249,7 +248,7 @@ class Reindex
 
 		foreach ($items as $pid) {
 			// even if the Fedora object has a RELS-EXT record replace it with a new one based on the chosen destination collection.
-			if (@$HTTP_POST_VARS["override"]) {
+			if (@$HTTP_POST_VARS["override"] && !@$HTTP_POST_VARS["recover"]) {
 				$relsext = Reindex::buildRELSEXT($collection_pid, $pid);
 				$fezmd = Reindex::buildFezMD($xdis_id, $sta_id);			
 				if (Fedora_API::datastreamExists($pid, "RELS-EXT")) {
@@ -262,15 +261,8 @@ class Reindex
 				} else {
 					Fedora_API::callAddDatastream($pid, "FezMD", $fezmd, "Fez extension metadata", "A", "text/xml", "X");
 				}
-			} else {
-				$record = new RecordObject($pid);
-				$xdis_id = $record->getXmlDisplayId();
-				if (!is_numeric($xdis_id)) {
-					$xdis_id = XSD_Display::getXDIS_IDByTitle('Generic Document');
-				}
 			}
-			Record::removeIndexRecord($pid); // remove any existing index entry for that PID			
-			Record::setIndexMatchingFields($xdis_id, $pid);
+			Record::setIndexMatchingFields($pid);
 		}
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

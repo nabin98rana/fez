@@ -317,6 +317,9 @@ class Record
      * @return  void
      */
     function removeIndexRecord($pid, $dsID='', $dsDelete='all', $exclude_list=array(), $specify_list=array()) {
+        if (empty($pid)) {
+            return -1;
+        }
 		$exclude_str = implode("', '", $exclude_list);
 		$specify_str = implode("', '", $specify_list);
 
@@ -652,8 +655,15 @@ class Record
      * @param string $username The username of the search is performed on
      * @return array $res2 The index details of records associated with the user
      */
-    function getAssigned($username)
+    function getAssigned($username,$currentPage=0,$pageRows="ALL")
     {
+        if ($pageRows == "ALL") {
+            $pageRows = 9999999;
+        }
+        $currentRow = $currentPage * $pageRows;
+        $fez_groups_sql = Misc::arrayToSQL($_SESSION[APP_INTERNAL_GROUPS_SESSION]);
+        $ldap_groups_sql = Misc::arrayToSQL($_SESSION[APP_LDAP_GROUPS_SESSION]);
+
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $stmt = " SELECT *
             FROM {$dbtp}record_matching_field AS r1
@@ -666,6 +676,34 @@ class Record
                 ON xdmf.xsdmf_id=rmf.rmf_xsdmf_id
                 WHERE xdmf.xsdmf_element='!sta_id' 
                 AND rmf.rmf_varchar!='2') as unpub on unpub.rmf_rec_pid = r1.rmf_rec_pid
+            INNER JOIN
+            (SELECT distinct authi_pid FROM {$dbtp}auth_index WHERE
+             (authi_role = 'Editor'
+              OR authi_role = 'Approver')
+             AND (
+                 (authi_rule = '!rule!role!Fez_User' AND authi_value='".Auth::getUserID()."')
+                 OR (authi_rule = '!rule!role!AD_User' AND authi_value='".Auth::getUsername()."') ";
+                 if (!empty($fez_groups_sql)) {
+                   $stmt .="
+                   OR (authi_rule = '!rule!role!Fez_Group' AND authi_value 
+                     IN ($fez_groups_sql) ) ";
+                 }
+                 if (!empty($ldap_groups_sql)) {
+                   $stmt .= "
+                   OR (authi_rule = '!rule!role!AD_Group' AND authi_value 
+                     IN ($ldap_groups_sql) ) ";
+                 }
+                 if (Auth::isInAD())  {
+                   $stmt .= "
+                   OR (authi_rule = '!rule!role!in_AD' ) ";
+                 }
+                 if (Auth::isInDB()) {
+                   $stmt .= "
+                   OR (authi_rule = '!rule!role!in_Fez') ";
+                 }
+                 $stmt .= "
+                 )
+             ) as security1 on security1.authi_pid=r1.rmf_rec_pid
             INNER JOIN (
                     SELECT distinct r2.rmf_rec_pid, r2.rmf_varchar as display_id
                     FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
@@ -683,23 +721,26 @@ class Record
             left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d2.display_id = d1.xdis_id	
 			WHERE (r1.rmf_dsid IS NULL or r1.rmf_dsid = '')			 
             ORDER BY rmf_id ASC
-
-          ";
-
+            ";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             $res = array();
         }		
         $list = Collection::makeReturnList($res);
-		$list = Auth::getIndexAuthorisationGroups($list);
-        $list2 = array();
-        foreach ($list as $item) {
-            if (@$item['isEditor'] || @$item['isApprover']) {
-                $list2[] = $item;
-            }
+        $totalRows = count($list);
+        $list = array_slice($list,$currentRow, $pageRows);
+        $totalPages = intval($totalRows / $pageRows);
+        if ($totalRows % $pageRows) {
+            $totalPages++;
         }
-        return $list2;
+        $nextPage = ($currentPage >= $totalPages) ? -1 : $currentPage + 1;
+        $prevPage = ($currentPage <= 0) ? -1 : $currentPage - 1;
+        $lastPage = $totalPages - 1;
+        $currentLastRow = $currentRow + count($list);
+        $info = compact('totalRows', 'pageRows', 'currentRow','currentLastRow','currentPage','totalPages',
+                'nextPage','prevPage','lastPage');
+        return compact('info','list');
     }
 
     /**
@@ -764,8 +805,15 @@ class Record
      * @param   string $pid The persistent identifier of the object
      * @return  void
      */
-    function setIndexMatchingFields($xdis_id, $pid, $dsID='') 
+    function setIndexMatchingFields($pid, $dsID='') 
     {
+        // careful what you do with the record object - don't want to use the index while reindexing 
+        $record = new RecordObject($pid);
+        $xdis_id = $record->getXmlDisplayId();
+        if (!is_numeric($xdis_id)) {
+            $xdis_id = XSD_Display::getXDIS_IDByTitle('Generic Document');
+        }
+
         $display = new XSD_DisplayObject($xdis_id);
         $array_ptr = array();
         $xsdmf_array = $display->getXSDMF_Values($pid);
@@ -784,6 +832,129 @@ class Record
                 }
             }
         }
+        Record::setIndexAuth($pid);
+    }
+
+    function setIndexAuth($pid)
+    {
+        file_put_contents('/tmp/mss.txt',date("Y-m-d H:i:s")/*,FILE_APPEND*/); 
+        $res = Record::getIndexAuth($pid);
+        file_put_contents('/tmp/mss.txt',print_r($res,true),FILE_APPEND); 
+        // find security inherit policy
+        $security = 'inherit';
+        $pid_has_values = false;
+        $values = '';
+        foreach($res as $row) {
+            if ($row['pid'] == $pid && $row['rule'] == '!inherit_security') {
+               if ($row['value'] == 'on') {
+                   $security = 'include';
+               }
+            }
+            if ($row['pid'] == $pid) {
+                $pid_has_values = true;
+            }
+            // build part of the insert statement while we're at it
+            $values .= "('$pid', '{$row['role']}', '{$row['rule']}', '{$row['value']}'),";
+        }
+        if ($pid_has_values && $security != 'include') {
+            $security = 'exclude';
+        }
+        // clear the security index for this pid
+        Record::clearIndexAuth($pid);
+        // make an insert statement
+        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $values .= "('$pid','','security','$security')";
+        $stmt = "INSERT INTO {$dbtp}auth_index (authi_pid,authi_role,authi_rule,authi_value) VALUES $values ";
+        file_put_contents('/tmp/mss.txt',print_r($stmt,true),FILE_APPEND); 
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        }
+        return 1;
+    }
+
+    function getIndexAuth($pids, &$done_pids = array())
+    {
+        if (empty($pids)) {
+            return array();
+        } elseif (!is_array($pids)) {
+            $pids = array($pids);
+        }
+        // don't get the same pids twice
+        $pids = array_diff($pids, $done_pids);
+        if (empty($pids)) {
+            return array();
+        }
+        $done_pids = array_merge($done_pids,$pids);
+
+        $pids_str = Misc::arrayToSQL($pids);
+        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $stmt = "SELECT rmf_rec_pid as pid, xsdmf_parent_key_match as role, xsdmf_element as rule, rmf_varchar as value 
+            FROM {$dbtp}record_matching_field AS r1 
+            INNER JOIN {$dbtp}xsd_display_matchfields AS x1 ON r1.rmf_xsdmf_id=x1.xsdmf_id   
+            WHERE 
+            rmf_rec_pid IN ($pids_str)
+            AND (r1.rmf_dsid IS NULL or r1.rmf_dsid = '') 
+            AND (xsdmf_element ='!rule!role!Fez_User' 
+                    OR xsdmf_element ='!rule!role!AD_Group'
+                    OR xsdmf_element ='!rule!role!AD_User'
+                    OR xsdmf_element ='!rule!role!Fez_Group'
+                    OR xsdmf_element ='!rule!role!in_AD'
+                    OR xsdmf_element ='!rule!role!in_Fez'
+                    OR xsdmf_element ='!inherit_security'
+                )
+            ORDER BY pid ASC ";
+        file_put_contents('/tmp/mss.txt',print_r($stmt,true),FILE_APPEND); 
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = array();
+        }	
+        if (empty($res)) {
+            // get security from parents 
+            $parents = array();
+            foreach ($pids as $pid) {
+                $parents1 = Record::getParents($pid);
+                $parents = array_merge($parents,array_keys(Misc::keyArray($parents1, 'pid')));
+            }
+            file_put_contents('/tmp/mss.txt',print_r($parents,true),FILE_APPEND); 
+            $res = Record::getIndexAuth($parents,$done_pids);
+        } else {
+            // check the inherit flag and merge
+            $res1 = array();
+            foreach ($res as $row) {
+                if ($row['rule'] == '!inherit_security'
+                        && $row['value'] == 'on') {
+                    // get security from parents 
+                    $parents1 = Record::getParents($row['pid']);
+                    $parents = array_keys(Misc::keyArray($parents1, 'pid'));
+                    file_put_contents('/tmp/mss.txt',print_r($parents,true),FILE_APPEND); 
+                    $res1 = array_merge($res1,Record::getIndexAuth($parents,$done_pids));
+                }
+            }
+            $res = array_merge($res, $res1);
+        }
+        return $res;
+    }
+
+    function clearIndexAuth($pids)
+    {
+        if (empty($pids)) {
+            return -1;
+        } elseif (!is_array($pids)) {
+            $pids = array($pids);
+        }
+        $pids_str = Misc::arrayToSQL($pids);
+        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $stmt = "DELETE FROM {$dbtp}auth_index WHERE authi_pid IN ($pids_str) ";
+        file_put_contents('/tmp/mss.txt',print_r($stmt,true),FILE_APPEND); 
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        }	
+        return 1;
     }
 
     /**
@@ -931,8 +1102,7 @@ class Record
 
         }
 
-		Record::removeIndexRecord($pid); // remove any existing index entry for that PID			
-		Record::setIndexMatchingFields($xdis_id, $pid);
+		Record::setIndexMatchingFields($pid);
 
     }
 

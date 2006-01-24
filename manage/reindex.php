@@ -44,6 +44,7 @@ include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "najax/najax.php");
 include_once(APP_INC_PATH . "najax_objects/class.select_reindex_info.php");
+include_once(APP_INC_PATH . "class.pager.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");
@@ -65,26 +66,24 @@ $tpl->assign("isAdministrator", $isAdministrator);
 if ($isAdministrator) {
     if (@$HTTP_POST_VARS["cat"] == "go") {
 		Reindex::indexFezFedoraObjects();
-
-
     }
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }
-$pagerRow = Record::getParam('pagerRow');
+$pagerRow = Pager::getParam('pagerRow');
 if (empty($pagerRow)) {
     $pagerRow = 0;
 }
-$rows = Record::getParam('rows');
+$rows = Pager::getParam('rows');
 if (empty($rows)) {
 	   $rows = APP_DEFAULT_PAGER_SIZE;
 }
-$options = Record::saveSearchParams();
+$options = Pager::saveSearchParams();
 $tpl->assign("options", $options);
-		$details = Reindex::getFullList($pagerRow, $rows);
+$details = Reindex::getFullList($pagerRow, $rows);
 //        print_r($details);
-		$tpl->assign("list", $details['list']);
-		$tpl->assign("list_info", $details['info']);		
+$tpl->assign("list", $details['list']);
+$tpl->assign("list_info", $details['info']);		
 //        return $details; 
 
 $status_list = Status::getAssocList();

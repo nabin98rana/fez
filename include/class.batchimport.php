@@ -402,7 +402,7 @@ class BatchImport
                         $short_ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
                     }
                     // ID must start with _ or letter
-                    $short_ds = Foxml::makeNCName($short_ds);
+                    $short_ds = Misc::shortFilename(Foxml::makeNCName($short_ds), 20);
                     $mimetype = Misc::get_content_type($ds);
 
                     $xmlEnd.= '
@@ -515,6 +515,7 @@ class BatchImport
                 if (is_array($result)) {
                     echo "The article \"{$importArray[$document_type][$key]['title'][0]}\" had the following error:\n"
                         .print_r($result,true)."\n";
+                    echo "\n$xmlObj\n";
                 }
                 foreach($oai_ds as $ds) {
                     $presmd_check = Workflow::checkForPresMD($ds); // we are not indexing presMD so just upload the presmd if found
@@ -540,8 +541,7 @@ class BatchImport
                 $array_ptr = array();
                 $xsdmf_array = array();
 
-                Record::removeIndexRecord($pid); // remove any existing index entry for that PID			
-                Record::setIndexMatchingFields($xdis_id, $pid);
+                Record::setIndexMatchingFields($pid);
 
                 if ($this->bgp) {
                     $this->bgp->setProgress(intval(100*$eprint_record_counter/$num_records)); 
@@ -654,8 +654,7 @@ class BatchImport
             $mimetype = Misc::get_content_type($ds);
             Workflow::processIngestTrigger($pid, $ds, $mimetype);
         }	  	
-        Record::removeIndexRecord($pid); // remove any existing index entry for that PID			
-        Record::setIndexMatchingFields($xdis_id, $pid);
+        Record::setIndexMatchingFields($pid);
 
         return $xmlBegin;
     }
@@ -692,7 +691,7 @@ class BatchImport
         }
         //		Record::insertIndexMatchingField($pid, 122,  'varchar', $short_name);
         Record::removeIndexRecord($pid); // remove any existing index entry for that PID			
-        Record::setIndexMatchingFields($xdis_id, $pid);
+        Record::setIndexMatchingFields($pid);
 
         // Now check for post upload workflow events like thumbnail resizing of images and add them as datastreams if required
         Workflow::processIngestTrigger($pid, $full_name, $mimetype);
@@ -738,7 +737,7 @@ class BatchImport
                 $xmlObj = file_get_contents($full_name);
                 if (is_numeric(strpos($xmlObj, "foxml:digitalObject"))) {
                     $this->handleFOXMLImport($xmlObj);
-                    Record::setIndexMatchingFields($xdis_id, $pid);
+                    Record::setIndexMatchingFields($pid);
                     $handled_as_xml = true;
                 } elseif (is_numeric(strpos($xmlObj, "<eprintsdata>"))) {
                     $this->handleEntireEprintsImport($pid, $collection_pid, $xmlObj);
@@ -761,7 +760,7 @@ class BatchImport
                             $xdis_id, $ret_id, $sta_id);
                     //Insert the generated foxml object
                     Fedora_API::callIngestObject($xmlObj);
-                    Record::setIndexMatchingFields($xdis_id, $pid);
+                    Record::setIndexMatchingFields($pid);
                 } else {
                     // use metadata from a user template
                     Record::insertFromTemplate($pid, $xdis_id, $short_name, $dsarray);
