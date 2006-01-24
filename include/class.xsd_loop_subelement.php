@@ -428,12 +428,12 @@ class XSD_Loop_Subelement
 
     /**
      * Method used to check if a sublooping element has any related xsd matching fields of a given html input type
-     * This is mainly used to check if a datastream is a file upload so the label and ID and possibly mimetype can be read from the uploaded file
+     * This is mainly used to check if a datastream is a file upload or a link so the label and ID and possibly mimetype can be read from the uploaded file
      *
      * @access  public
      * @param   integer $xsdsel_id
      * @param   string $input_type
-     * @return  boolean Whether any xsdmf's in the xsdsel where of the given type
+     * @return  boolean Whether any xsdmf's in the xsdsel were of the given type
      */
     function getXSDMFInputType($xsdsel_id, $input_type, $exclude_attrib_loops = false)
     {
@@ -447,11 +447,13 @@ class XSD_Loop_Subelement
 		if ($exclude_attrib_loops == true) {
 			$stmt .= " AND xsdmf_id <> xsdsel_attribute_loop_xsdmf_id";
 		} 
+
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
+			
             return $res;
         }
     }

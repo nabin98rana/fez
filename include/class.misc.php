@@ -662,7 +662,7 @@ class Misc
 					$file_res = array();
 					$label_res = array();				
 					$file_res = XSD_Loop_Subelement::getXSDMFInputType($dsTitle['xsdsel_id'], 'file_input');
-					$label_res = XSD_Loop_Subelement::getXSDMFInputType($dsTitle['xsdsel_id'], 'text', true);
+					$label_res = XSD_Loop_Subelement::getXSDMFInputType($dsTitle['xsdsel_id'], 'text', true); // true for exclude file and link, only want the file and link labels
 					if (count($file_res) == 1) {
 						if (is_array($HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']])) {
 							foreach ($HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']] as $key => $data) {
@@ -684,7 +684,7 @@ class Misc
 									$return[$dsTitle['xsdsel_title'].$key]['MIMETYPE'] = $HTTP_POST_FILES['xsd_display_fields']['type'][$file_res[0]['xsdmf_id']][$key];
 								}
 							}							
-						} else {
+						} else { // file input is not a array, so only just one file
 							$return[$dsTitle['xsdsel_title']]['CONTROL_GROUP'] = $return[$dsTitle['xsdsel_title']]['CONTROL_GROUP'];
 							$return[$dsTitle['xsdsel_title']]['STATE'] = $return[$dsTitle['xsdsel_title']]['STATE'];
 							$return[$dsTitle['xsdsel_title']]['VERSIONABLE'] = $return[$dsTitle['xsdsel_title']]['VERSIONABLE'];
@@ -701,7 +701,7 @@ class Misc
 							}
 							$return[$dsTitle['xsdsel_title']]['MIMETYPE'] = $HTTP_POST_FILES['xsd_display_fields']['type'][$file_res[0]['xsdmf_id']];
 						}
-					} elseif (count($label_res == 1) && ($dsTitle['xsdsel_title'] == "Link")) {
+					} elseif (count($label_res == 1) && ($dsTitle['xsdsel_title'] == "Link")) { // no file inputs are involved so might be a link
 						if (is_array($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']])) {
 							foreach ($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']] as $key => $data) {
 								if ($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key] != "") {

@@ -1066,10 +1066,13 @@ class Record
                         $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], false); 
 			} else {
 				if ($dsTitle['CONTROL_GROUP'] == "R" || $dsTitle['CONTROL_GROUP'] == "X") { // if its a redirect we don't need to upload the file
-			    	Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, $dsTitle['STATE'], $dsTitle['LABEL'],
-                        $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], "false"); 
-				//	Fedora_API::callAddDatastream($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey], 
-						//	$dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
+					if (Fedora_API::datastreamExists($pid, $dsIDName)) {
+				    	Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, $dsTitle['STATE'], $dsTitle['LABEL'],
+    	                    $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], "false"); 
+					} else {
+						Fedora_API::callAddDatastream($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey], 
+							$dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
+					}
 				} else {
 					if (Fedora_API::datastreamExists($pid, $dsIDName)) {
 						Fedora_API::callPurgeDatastream($pid, $dsIDName);
@@ -1662,7 +1665,6 @@ class RecordObject extends RecordGeneral
 		$xmlObj .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $pid); // for the pid, fedora uri etc
 		$xmlObj .= $xml_schema;
 		$xmlObj .= ">\n";
-
  		// @@@ CK - 6/5/2005 - Added xdis so xml building could search using the xml display ids
 		$indexArray = array();
 		if (!is_numeric($this->file_downloads)) {

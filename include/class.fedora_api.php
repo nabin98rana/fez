@@ -692,10 +692,10 @@ class Fedora_API {
 	   //comment the return and uncomment the echo and debugInfo
 	   //to see debug statements.
 	
-       if (is_array($result)) {
-           //print_r($result);
-           //Fedora_API::debugInfo($client);
-       }
+//       if ($call == 'modifyDatastreamByValue') {
+//           print_r($result);
+//           Fedora_API::debugInfo($client);
+//       }
 	   return $result;
 	
 	}
