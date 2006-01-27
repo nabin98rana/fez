@@ -568,10 +568,20 @@ class Auth
 			// If found an ACML then check if it inherits security
 			$xpath = new DOMXPath($acmlBase);
 			$inheritSearch = $xpath->query('/FezACML/inherit_security');
+            $found_inherit_on = false;
+            $found_inherit_off = false;
+            $found_inherit_blank = false;
+            // There shouldn't be more than one inherit_security node, but if there is, then turning inherit off
+            // overrides any that turn it on. 
 			foreach ($inheritSearch as $inheritRow) {
-				if ($inheritRow->nodeValue == "on") {
-					$inherit = true;
-				}
+				if ($inheritRow->nodeValue == "on") { 
+                    $found_inherit_on = true;
+                } elseif ($inheritRow->nodeValue == "") {
+                    $found_inherit_blank = true;
+				} else {
+                    $found_inherit_off = true;
+                }
+                $inherit = !$found_inherit_off && ($found_inherit_on || $found_inherit_blank);
 			}
 			if ($inherit == true) { // if need to inherit, check if at dsID level or not first and then 
 
@@ -622,7 +632,7 @@ class Auth
                 if ($groupNodes->length) {
 //                    echo $role;
                     // if the role is in the ACML then it is restricted so remove it
-                    if (in_array($role, $userPIDAuthGroups) && in_array($role, $NonRestrictedRoles) && ($cleanedArray[$role] != true)) {
+                    if (in_array($role, $userPIDAuthGroups) && in_array($role, $NonRestrictedRoles) && (@$cleanedArray[$role] != true)) {
                         $userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role, false, true);
 						$cleanedArray[$role] = true;
                     }
