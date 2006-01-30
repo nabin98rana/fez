@@ -320,8 +320,8 @@ class Collection
         //     AND user is in the roles for the ACML
 //        $returnfields = array("title", "description", "ret_id", "xdis_id", "sta_id"); 
 //        $returnfield_query = Misc::array_to_sql_string($returnfields);
-        $fez_groups_sql = Misc::arrayToSQL($_SESSION[APP_INTERNAL_GROUPS_SESSION]);
-        $ldap_groups_sql = Misc::arrayToSQL($_SESSION[APP_LDAP_GROUPS_SESSION]);
+        $fez_groups_sql = Misc::arrayToSQL(@$_SESSION[APP_INTERNAL_GROUPS_SESSION]);
+        $ldap_groups_sql = Misc::arrayToSQL(@$_SESSION[APP_LDAP_GROUPS_SESSION]);
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $restrict_community = '';
         if ($community_pid) {
@@ -547,8 +547,8 @@ class Collection
       * @return array Associative array of records - (pid, title)
       */
     function getEditListingCount($collection_pid=null) {
-        $fez_groups_sql = Misc::arrayToSQL($_SESSION[APP_INTERNAL_GROUPS_SESSION]);
-        $ldap_groups_sql = Misc::arrayToSQL($_SESSION[APP_LDAP_GROUPS_SESSION]);
+        $fez_groups_sql = Misc::arrayToSQL(@$_SESSION[APP_INTERNAL_GROUPS_SESSION]);
+        $ldap_groups_sql = Misc::arrayToSQL(@$_SESSION[APP_LDAP_GROUPS_SESSION]);
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $restrict_collection = '';
         if ($collection_pid) {

@@ -72,12 +72,12 @@ class Record
     * @param   string $pid The persistant identifier	 
     * @return  array The list
     */
-    function getParents($pid)
+    function getParents($pid, $nocache=false)
     {
 
 		static $returns;
 
-        if (isset($returns[$pid])) {
+        if ( !$nocache && isset($returns[$pid])) {
             return $returns[$pid];
         }
 
@@ -661,8 +661,8 @@ class Record
             $pageRows = 9999999;
         }
         $currentRow = $currentPage * $pageRows;
-        $fez_groups_sql = Misc::arrayToSQL($_SESSION[APP_INTERNAL_GROUPS_SESSION]);
-        $ldap_groups_sql = Misc::arrayToSQL($_SESSION[APP_LDAP_GROUPS_SESSION]);
+        $fez_groups_sql = Misc::arrayToSQL(@$_SESSION[APP_INTERNAL_GROUPS_SESSION]);
+        $ldap_groups_sql = Misc::arrayToSQL(@$_SESSION[APP_LDAP_GROUPS_SESSION]);
 
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         // This series of queries use to be one query that took ages to run
@@ -901,6 +901,7 @@ class Record
         }
         $done_pids = array_merge($done_pids,$pids);
 
+
         $pids_str = Misc::arrayToSQL($pids);
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
         $stmt = "SELECT rmf_rec_pid as pid, xsdmf_parent_key_match as role, xsdmf_element as rule, rmf_varchar as value 
@@ -927,7 +928,7 @@ class Record
             // get security from parents 
             $parents = array();
             foreach ($pids as $pid) {
-                $parents1 = Record::getParents($pid);
+                $parents1 = Record::getParents($pid, true);
                 $parents = array_merge($parents,array_keys(Misc::keyArray($parents1, 'pid')));
             }
             $res = Record::getIndexAuth($parents,$done_pids);
@@ -935,24 +936,18 @@ class Record
             $items = Misc::collateArray($res, 'pid');
             // check the inherit flag and merge
             $res1 = array();
-            foreach ($items as $item) {
-                $found_inherit_on = false;
+            foreach ($items as $pid => $item) {
                 $found_inherit_off = false;
-                $found_inherit_blank = false;
                 foreach ($item as $row) {
                     if ($row['rule'] == '!inherit_security') {
-                        if ($row['value'] == 'on') {
-                            $found_inherit_on = true;
-                        } elseif ($row['value'] == '') {
-                            $found_inherit_blank = true;
-                        } else {
+                        if (!empty($row['value']) && $row['value'] != 'on') {
                             $found_inherit_off = true;
                         }
                     } 
                 }
-                if (!$found_inherit_off && ($found_inherit_on || $found_inherit_blank)) {
+                if (!$found_inherit_off) {
                     // get security from parents 
-                    $parents1 = Record::getParents($row['pid']);
+                    $parents1 = Record::getParents($pid, true);
                     $parents = array_keys(Misc::keyArray($parents1, 'pid'));
                     $res1 = array_merge($res1,Record::getIndexAuth($parents,$done_pids));
                 }
