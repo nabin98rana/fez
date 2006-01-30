@@ -117,7 +117,7 @@ class Collection
       * @param integer $collection_pid The collection to get the parents for.
       * @return array Associative list of communities - pid, title
       */
-    function getparents2($collection_pid)
+    function getParents2($collection_pid)
     {
 		static $returns;
 		
@@ -343,10 +343,7 @@ class Collection
                     FROM  {$dbtp}record_matching_field r2
                     INNER JOIN {$dbtp}xsd_display_matchfields x2
                     ON r2.rmf_xsdmf_id = x2.xsdmf_id 
-                    INNER JOIN {$dbtp}search_key s2				  
-                    ON x2.xsdmf_sek_id = s2.sek_id 
-                    WHERE s2.sek_title = 'Object Type' 
-                    AND r2.rmf_varchar = '2' 
+                    WHERE x2.xsdmf_element = '!ret_id' AND r2.rmf_varchar = '2' 
                     ) as o1 on o1.rmf_rec_pid = r1.rmf_rec_pid
 			$restrict_community
             INNER JOIN
@@ -382,6 +379,7 @@ class Collection
             LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 
             ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id)               
            ";
+                // echo $stmt;
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -554,7 +552,7 @@ class Collection
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $restrict_collection = '';
         if ($collection_pid) {
-            $restrict_collection = " INNER JOIN (
+            $stmt = " 
                 SELECT r3.rmf_rec_pid 
                 FROM  {$dbtp}record_matching_field AS r3
                 INNER JOIN {$dbtp}xsd_display_matchfields AS x3
@@ -563,13 +561,14 @@ class Collection
                 ON x3.xsdmf_sek_id = s3.sek_id
                 WHERE s3.sek_title = 'isMemberOf'   
                 AND r3.rmf_varchar = '$collection_pid'
-                ) as com1 on com1.rmf_rec_pid = r1.rmf_rec_pid ";
+                ";
+            $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            }
+            $collection_pids = $res;
         }
-        $stmt = " SELECT count(distinct r1.rmf_rec_pid)
-            FROM {$dbtp}record_matching_field AS r1
-           $restrict_collection
-            INNER JOIN
-            (SELECT distinct authi_pid FROM {$dbtp}auth_index WHERE
+        $stmt = "SELECT distinct authi_pid FROM {$dbtp}auth_index WHERE
              (authi_role = 'Editor'
               OR authi_role = 'Approver')
              AND (
@@ -595,26 +594,30 @@ class Collection
                  }
                  $stmt .= "
                  )
-             ) as security1 on security1.authi_pid=r1.rmf_rec_pid
-			INNER JOIN (
-                    SELECT r2.rmf_rec_pid 
-                    FROM  {$dbtp}record_matching_field r2
-                    INNER JOIN {$dbtp}xsd_display_matchfields x2
-                    ON r2.rmf_xsdmf_id = x2.xsdmf_id 
-                    INNER JOIN {$dbtp}search_key s2				  
-                    ON x2.xsdmf_sek_id = s2.sek_id 
-                    WHERE s2.sek_title = 'Object Type' 
-                    AND r2.rmf_varchar = '3' 
-                    ) as o1 on o1.rmf_rec_pid = r1.rmf_rec_pid
-           ";
-        
-        
-		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+                 ";
+        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            $res = 0;
         }
-        return $res;	
+        $canedit_pids = $res;
+                 
+        $stmt = " SELECT r2.rmf_rec_pid 
+            FROM  {$dbtp}record_matching_field r2
+            INNER JOIN {$dbtp}xsd_display_matchfields x2
+            ON r2.rmf_xsdmf_id = x2.xsdmf_id 
+            WHERE x2.xsdmf_element = '!ret_id' 
+            AND r2.rmf_varchar = '3' 
+            ";
+        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        }
+        $records_pids = $res;
+        $pids = array_intersect($canedit_pids,$records_pids);
+        if ($collection_pid) {
+            $pids = array_intersect($pids,$collection_pids);
+        }
+        return count($pids);
     }
 
     /**

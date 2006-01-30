@@ -52,6 +52,7 @@ class Template_API
 {
     var $smarty;
     var $tpl_name = "";
+    var $headerscript;
 
     /**
      * Constructor of the class

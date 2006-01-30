@@ -1659,6 +1659,15 @@ class Misc
     function isInt ($x) {
         return (is_numeric($x) ? intval(0+$x) == $x : false);
     } 
+    
+    function collateArray($source, $ifield)
+    {
+        $dest = array();
+        foreach ($source as $item) {
+            $dest[$item[$ifield]][] = $item;
+        }
+        return $dest;
+    }
 
     /**
      * Collates two arrays.

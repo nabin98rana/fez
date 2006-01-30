@@ -665,17 +665,22 @@ class Record
         $ldap_groups_sql = Misc::arrayToSQL($_SESSION[APP_LDAP_GROUPS_SESSION]);
 
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-        $stmt = " SELECT *
-            FROM {$dbtp}record_matching_field AS r1
-			INNER JOIN 
-			(SELECT distinct rmf.rmf_rec_pid FROM
+        // This series of queries use to be one query that took ages to run
+        // when broken up into seperate queries it is actually faster!
+        $stmt = "SELECT distinct rmf.rmf_rec_pid FROM
                 {$dbtp}record_matching_field AS rmf
                 INNER JOIN {$dbtp}xsd_display_matchfields AS xdmf 
                 ON xdmf.xsdmf_id=rmf.rmf_xsdmf_id
                 WHERE xdmf.xsdmf_element='!sta_id' 
-                AND rmf.rmf_varchar!='2') as unpub on unpub.rmf_rec_pid = r1.rmf_rec_pid
-            INNER JOIN
-            (SELECT distinct authi_pid FROM {$dbtp}auth_index WHERE
+                AND rmf.rmf_varchar!='2'";
+        //echo $stmt;
+		$res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = array();
+        }		
+        $published_ids = $res;
+        $stmt = "SELECT distinct authi_pid FROM {$dbtp}auth_index WHERE
              (authi_role = 'Editor'
               OR authi_role = 'Approver')
              AND (
@@ -701,15 +706,23 @@ class Record
                  }
                  $stmt .= "
                  )
-             ) as security1 on security1.authi_pid=r1.rmf_rec_pid
+                 ";
+        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = array();
+        }		
+        $canedit_ids = $res;
+        $pids = array_intersect($canedit_ids,$published_ids);
+        $pids = Misc::arrayToSQL($pids);
+        $stmt = " SELECT *
+            FROM {$dbtp}record_matching_field AS r1
             INNER JOIN (
                     SELECT distinct r2.rmf_rec_pid, r2.rmf_varchar as display_id
-                    FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
-                    WHERE r2.rmf_xsdmf_id = x2.xsdmf_id 
-                    AND s2.sek_id = x2.xsdmf_sek_id 
-                    AND s2.sek_title = 'Display Type' 
+                    FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
+                    INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
+                    ON r2.rmf_xsdmf_id = x2.xsdmf_id 
+                    where x2.xsdmf_element = '!xdis_id'
                     ) as d2
             on r1.rmf_rec_pid = d2.rmf_rec_pid  					
             INNER JOIN {$dbtp}xsd_display_matchfields AS x1
@@ -720,14 +733,16 @@ class Record
             on (k1.sek_id = x1.xsdmf_sek_id)
             left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d2.display_id = d1.xdis_id	
 			WHERE (r1.rmf_dsid IS NULL or r1.rmf_dsid = '')			 
+            AND r1.rmf_rec_pid IN ($pids)
             ORDER BY rmf_id ASC
             ";
         //echo $stmt;
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             $res = array();
         }		
+          
         $list = Collection::makeReturnList($res);
         $totalRows = count($list);
         $list = array_slice($list,$currentRow, $pageRows);
@@ -838,9 +853,7 @@ class Record
 
     function setIndexAuth($pid)
     {
-        file_put_contents('/tmp/mss.txt',date("Y-m-d H:i:s")/*,FILE_APPEND*/); 
         $res = Record::getIndexAuth($pid);
-        file_put_contents('/tmp/mss.txt',print_r($res,true),FILE_APPEND); 
         // find security inherit policy
         $security = 'inherit';
         $pid_has_values = false;
@@ -866,7 +879,6 @@ class Record
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
         $values .= "('$pid','','security','$security')";
         $stmt = "INSERT INTO {$dbtp}auth_index (authi_pid,authi_role,authi_rule,authi_value) VALUES $values ";
-        file_put_contents('/tmp/mss.txt',print_r($stmt,true),FILE_APPEND); 
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -906,7 +918,6 @@ class Record
                     OR xsdmf_element ='!inherit_security'
                 )
             ORDER BY pid ASC ";
-        file_put_contents('/tmp/mss.txt',print_r($stmt,true),FILE_APPEND); 
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -919,18 +930,30 @@ class Record
                 $parents1 = Record::getParents($pid);
                 $parents = array_merge($parents,array_keys(Misc::keyArray($parents1, 'pid')));
             }
-            file_put_contents('/tmp/mss.txt',print_r($parents,true),FILE_APPEND); 
             $res = Record::getIndexAuth($parents,$done_pids);
         } else {
+            $items = Misc::collateArray($res, 'pid');
             // check the inherit flag and merge
             $res1 = array();
-            foreach ($res as $row) {
-                if ($row['rule'] == '!inherit_security'
-                        && $row['value'] == 'on') {
+            foreach ($items as $item) {
+                $found_inherit_on = false;
+                $found_inherit_off = false;
+                $found_inherit_blank = false;
+                foreach ($item as $row) {
+                    if ($row['rule'] == '!inherit_security') {
+                        if ($row['value'] == 'on') {
+                            $found_inherit_on = true;
+                        } elseif ($row['value'] == '') {
+                            $found_inherit_blank = true;
+                        } else {
+                            $found_inherit_off = true;
+                        }
+                    } 
+                }
+                if (!$found_inherit_off && ($found_inherit_on || $found_inherit_blank)) {
                     // get security from parents 
                     $parents1 = Record::getParents($row['pid']);
                     $parents = array_keys(Misc::keyArray($parents1, 'pid'));
-                    file_put_contents('/tmp/mss.txt',print_r($parents,true),FILE_APPEND); 
                     $res1 = array_merge($res1,Record::getIndexAuth($parents,$done_pids));
                 }
             }
@@ -949,7 +972,6 @@ class Record
         $pids_str = Misc::arrayToSQL($pids);
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
         $stmt = "DELETE FROM {$dbtp}auth_index WHERE authi_pid IN ($pids_str) ";
-        file_put_contents('/tmp/mss.txt',print_r($stmt,true),FILE_APPEND); 
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
