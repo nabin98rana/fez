@@ -126,7 +126,8 @@ function selectOrgStructure_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}
 		obj.getSubList(selections[0].value, function(dt_list) {
 				removeAllOptions(f, '{/literal}xsd_display_fields[{$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}]{literal}');
 				addOptions(f, '{/literal}xsd_display_fields[{$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}]{literal}', dt_list);
-				selectOption(f, '{/literal}xsd_display_fields[{$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}]{literal}', {$details[$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id]});
+				{/literal}{assign var="temp_select_id" value=$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}{literal}
+				selectOption(f, '{/literal}xsd_display_fields[{$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}]{literal}', '{/literal}{$details[$temp_select_id]}{literal}');
 				hideLoading_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}();
 				dt_load_state_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}--;
 				});
