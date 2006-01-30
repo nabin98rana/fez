@@ -291,7 +291,7 @@ function selectDateField(field_name, day, month, year)
 					  <td bgcolor="{$light_color}">
 						<select id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1" multiple size="10" class="default" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]">
 						</select>
-						<input class="default" type=button value="Add Subject" onclick = "javascript:small_window('{$rel_url}cv_selector.php?cvo_id=1&form=wfl_form1&element=xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1');">
+						<input class="default" type=button value="Add Subject" onclick = "javascript:small_window('{$rel_url}cv_selector.php?cvo_id={$xsd_display_fields[i].xsdmf_cvo_id}&form=wfl_form1&element=xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1');">
 						<input class="default" type=button value="Remove Subject" onclick =" javascript:deleteSelectedItemsFromList(xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1);">
 					 </td>
 					</tr>				
