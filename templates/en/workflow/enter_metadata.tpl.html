@@ -296,7 +296,7 @@ function selectDateField(field_name, day, month, year)
 					   <option value="-1">(none)</option>
 					  {html_options options=$xsd_display_fields[i].field_options}
 					</select>
-					{include file="lookup_field.tpl.html" lookup_field_name="search" lookup_field_target=$field_id}
+					{include file="lookup_field.tpl.html" lookup_field_name="search" lookup_field_target=$field_name}
 					{include file="error_icon.tpl.html" field=$field_name}
 				  </td>
 				</tr>

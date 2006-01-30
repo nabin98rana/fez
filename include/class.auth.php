@@ -513,8 +513,8 @@ class Auth
 					}			
 				}		
 			}
-			$indexArray[$indexKey]['isCommunityAdministrator'] = in_array('Community Administrator', $userPIDAuthGroups); //editor is only for the children. To edit the actual community record details you need to be a community admin
-			$indexArray[$indexKey]['isEditor'] = in_array('Editor', $userPIDAuthGroups);
+			$indexArray[$indexKey]['isCommunityAdministrator'] = (in_array('Community Administrator', $userPIDAuthGroups) || Auth::isAdministrator()); //editor is only for the children. To edit the actual community record details you need to be a community admin
+			$indexArray[$indexKey]['isEditor'] = (in_array('Editor', $userPIDAuthGroups) || $indexArray[$indexKey]['isCommunityAdministrator'] == true);
 			$indexArray[$indexKey]['isArchivalViewer'] = (in_array('Archival_Viewer', $userPIDAuthGroups) || ($indexArray[$indexKey]['isEditor'] == true));
 			$indexArray[$indexKey]['isViewer'] = (in_array('Viewer', $userPIDAuthGroups) || ($indexArray[$indexKey]['isEditor'] == true));
 			$indexArray[$indexKey]['isLister'] = (in_array('Lister', $userPIDAuthGroups) || ($indexArray[$indexKey]['isViewer'] == true));
@@ -1139,8 +1139,8 @@ class Auth
                 $xdis_id = $xdis_array['xdis_id'][0];
                 $rowAuthGroups = Auth::getAuthorisationGroups($row['pid']);
                 // get only the roles which are of relevance/use on the listing screen. This logic may be changed later.
-                $details[$key]['isCommunityAdministrator'] = in_array('Community Administrator', $rowAuthGroups); //editor is only for the children. To edit the actual community record details you need to be a community admin
-                $details[$key]['isEditor'] = in_array('Editor', $rowAuthGroups);
+                $details[$key]['isCommunityAdministrator'] = (in_array('Community Administrator', $rowAuthGroups) || Auth::isAdministrator()); //editor is only for the children. To edit the actual community record details you need to be a community admin
+                $details[$key]['isEditor'] = (in_array('Editor', $rowAuthGroups) || $details[$key]['isCommunityAdministrator'] == true);
                 $details[$key]['isArchivalViewer'] = (in_array('Archival_Viewer', $rowAuthGroups) || $details[$key]['isEditor'] == true);
                 $details[$key]['isViewer'] = (in_array('Viewer', $rowAuthGroups) || $details[$key]['isEditor'] == true);
                 $details[$key]['isLister'] = (in_array('Lister', $rowAuthGroups) || $details[$key]['isViewer'] == true);

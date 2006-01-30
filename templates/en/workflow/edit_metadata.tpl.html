@@ -396,6 +396,7 @@ function selectDateField(field_name, day, month, year)
 						 </tr>
 				{/if}
 			{elseif $xsd_display_fields[i].xsdmf_html_input == 'author_selector'}
+				{assign var="field_name" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}						
 			    {assign var="field_id" value="xsd_display_fields_"|cat:$xsd_display_fields[i].xsdmf_id|cat:"_1"}
 				<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1">
 				  <td width="200" bgcolor="{$cell_color}" class="default">
@@ -406,7 +407,7 @@ function selectDateField(field_name, day, month, year)
 					   <option value="-1">(none)</option>
 					  {html_options options=$xsd_display_fields[i].field_options selected=$details[$temp_fld_id]}
 					</select>
-					{include file="lookup_field.tpl.html" lookup_field_name="search" lookup_field_target=$field_id}
+					{include file="lookup_field.tpl.html" lookup_field_name="search" lookup_field_target=$field_name}
 				  </td>
 				</tr>
             {elseif $xsd_display_fields[i].xsdmf_html_input == 'textarea' && $xsd_display_fields[i].xsdmf_enabled == 1}
