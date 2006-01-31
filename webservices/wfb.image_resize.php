@@ -88,22 +88,22 @@ else{ echo "<b>ERROR:</b> unknown file type<br>"; die; }
 // Create the output file if it does not exist
 if ($watermark == "" && $copyright == "") {
 	if(!is_file(APP_TEMP_DIR.$temp_file)) {
-		$command = escapeshellcmd(APP_CONVERT_CMD)." -resize ".escapeshellcmd($width)."x".escapeshellcmd($height)."\> '".$image_dir.escapeshellcmd($image)."' ".escapeshellcmd(APP_TEMP_DIR.$temp_file);
+		$command = escapeshellcmd(APP_CONVERT_CMD)." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" ".$image_dir.escapeshellcmd($image)." ".APP_TEMP_DIR.escapeshellcmd($temp_file);
 		exec($command);
 	//	exec(escapeshellcmd($command));
 	} 
 } elseif ($watermark == "" && $copyright != "") {
-	$command = escapeshellcmd(APP_CONVERT_CMD)." -resize ".escapeshellcmd($width)."x".escapeshellcmd($height)."\> '".$image_dir.escapeshellcmd($image)."' ".escapeshellcmd(APP_TEMP_DIR.$temp_file);
+	$command = escapeshellcmd(APP_CONVERT_CMD)." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" ".$image_dir.escapeshellcmd($image)." ".APP_TEMP_DIR.escapeshellcmd($temp_file);
 	exec($command);
 	$command = APP_CONVERT_CMD.' '.APP_TEMP_DIR.escapeshellcmd($temp_file).' -font Arial -pointsize 20 -draw "gravity center fill black text 0,12 \'Copyright'.$copyright.'\' fill white  text 1,11 \'Copyright'.$copyright.'\'" '.APP_TEMP_DIR.escapeshellcmd($temp_file).'';
 	exec($command);
 } elseif ($watermark != "" && $copyright == "") {
-	$command = escapeshellcmd(APP_CONVERT_CMD)." -resize ".escapeshellcmd($width)."x".escapeshellcmd($height)."\> '".$image_dir.escapeshellcmd($image)."' ".escapeshellcmd(APP_TEMP_DIR.$temp_file);
+	$command = escapeshellcmd(APP_CONVERT_CMD)." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" ".$image_dir.escapeshellcmd($image)." ".APP_TEMP_DIR.escapeshellcmd($temp_file);
 	exec($command);
 	$command = APP_COMPOSITE_CMD." -dissolve 15 -tile ".escapeshellcmd(APP_PATH)."/images/".APP_WATERMARK." ".APP_TEMP_DIR.escapeshellcmd($temp_file)." ".APP_TEMP_DIR.escapeshellcmd($temp_file)."";
 	exec($command);			
 } elseif ($watermark != "" && $copyright != "") {
-	$command = escapeshellcmd(APP_CONVERT_CMD)." -resize ".escapeshellcmd($width)."x".escapeshellcmd($height)."\> '".$image_dir.escapeshellcmd($image)."' ".escapeshellcmd(APP_TEMP_DIR.$temp_file);
+	$command = escapeshellcmd(APP_CONVERT_CMD)." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" ".$image_dir.escapeshellcmd($image)." ".APP_TEMP_DIR.escapeshellcmd($temp_file);
 	exec($command);
 	$command = APP_CONVERT_CMD.' '.APP_TEMP_DIR.escapeshellcmd($temp_file).' -font Arial -pointsize 20 -draw "gravity center fill black text 0,12 \'Copyright'.$copyright.'\' fill white  text 1,11 \'Copyright'.$copyright.'\'" '.APP_TEMP_DIR.escapeshellcmd($temp_file).'';
 	exec($command);

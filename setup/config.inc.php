@@ -34,10 +34,11 @@
 ini_set('allow_url_fopen', 0);
 ini_set("display_errors", 1);
 error_reporting(1);
-error_reporting(E_FATAL);
+error_reporting(E_ALL ^ E_NOTICE);
 set_time_limit(0);
 
 // definitions of Organisation LDAP related variables. You may need to query your Org's LDAP expert for help on these settings.
+@define("SHIB_SWITCH", "OFF");  // Set to OFF or ON depending on whether you want to use Shibboleth authentication
 @define("LDAP_SWITCH", "%{LDAP_SWITCH}%");  // Set to OFF or ON depending on whether you want to use LDAP authentication
 @define("LDAP_ORGANISATION", "%{LDAP_ORGANISATION}%"); //eg o=The University of Fez, c=AU
 @define("LDAP_ROOT_DN", "%{LDAP_ROOT_DN}%"); //eg DC=uq,DC=edu,DC=au
@@ -49,9 +50,9 @@ set_time_limit(0);
 
 @define("APP_WATERMARK", "watermark.gif"); // The image to be used for watermarking of copyright images
 // definitions of path related variables
-@define("APP_SAN_IMPORT_DIR", ""); //eg /fez/incoming or c:\\fez\\incoming
+@define("APP_SAN_IMPORT_DIR", ""); //eg /fez/incoming or c:/fez/incoming
 @define("APP_TEST", "true");
-@define("APP_PATH", '%{APP_PATH}%');  //eg /usr/local/apache/htdocs/fez/ or C:\\Program Files\\Apache Group\\Apache\\htdocs\\dev-fez\\
+@define("APP_PATH", '%{APP_PATH}%');  //eg /usr/local/apache/htdocs/fez/ or C:/Program Files/Apache Group/Apache/htdocs/dev-fez/
 @define("APP_INC_PATH", APP_PATH . "include/");
 @define("APP_PEAR_PATH", APP_INC_PATH . "pear/");
 @define("APP_TPL_PATH", APP_PATH . "templates/");
@@ -62,14 +63,16 @@ set_time_limit(0);
 // Bill vs Linus
 if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
 	@define("APP_TEMP_DIR", 'c:/temp/'); 
-	@define("APP_CONVERT_CMD", "convert");   // To convert image (part of ImageMagick)
-	@define("APP_COMPOSITE_CMD", "composite");   // To watermark image (part of ImageMagick)
-	@define("APP_IDENTIFY_CMD", "identify"); // To get image information (part of ImageMagick)
+    @define("APP_DELETE_CMD", 'del ');
+	@define("APP_CONVERT_CMD", "c:/ImageMagick/convert");   // To convert image (part of ImageMagick)
+	@define("APP_COMPOSITE_CMD", "c:/ImageMagick/composite");   // To watermark image (part of ImageMagick)
+	@define("APP_IDENTIFY_CMD", "c:/ImageMagick/identify"); // To get image information (part of ImageMagick)
 	@define("APP_JHOVE_DIR", "c:/jhove");
 	@define("APP_JHOVE_TEMP_DIR", 'c:\temp/'); // jhove needs windows style dir names when run on a win server
     ini_set("include_path", ".;" . APP_PEAR_PATH);
 } else { //  Linux Server
 	@define("APP_TEMP_DIR", "/tmp/"); 
+    @define("APP_DELETE_CMD", 'rm -f ');
 	@define("APP_CONVERT_CMD", "/usr/bin/convert");   // To convert image (part of ImageMagick)
 	@define("APP_COMPOSITE_CMD", "/usr/bin/composite");   // To watermark image (part of ImageMagick)
 	//@define("APP_CONVERT_CMD", "/usr/X11R6/bin/convert");   // convert could be in here for some Linux distros
@@ -162,7 +165,7 @@ if (APP_FEDORA_SETUP == 'sslall') {
 
 @define("APP_SESSION_EXPIRE", time() + (60 * 60 * 8));
 
-@define("APP_VERSION", "1.1 BETA");
+@define("APP_VERSION", "1.2 BETA");
 
 @define("APP_DEFAULT_PAGER_SIZE", 5);
 @define("APP_DEFAULT_REFRESH_RATE", 5); // in minutes
