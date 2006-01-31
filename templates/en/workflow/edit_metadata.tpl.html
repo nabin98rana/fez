@@ -438,7 +438,7 @@ function selectDateField(field_name, day, month, year)
 							</select>
 							{include file="error_icon.tpl.html" field=$field_name}
 						 </td>
-						</tr>						
+						</tr>
             {elseif ($xsd_display_fields[i].xsdmf_html_input == 'multiple' or $xsd_display_fields[i].xsdmf_html_input == 'combo')  && $xsd_display_fields[i].xsdmf_enabled == 1}
 						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1">
 						  <td width="200" bgcolor="{$cell_color}" class="default" valign="top">

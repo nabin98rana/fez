@@ -50,7 +50,7 @@ set_time_limit(0);
 @define("APP_WATERMARK", "watermark.gif"); // The image to be used for watermarking of copyright images
 // definitions of path related variables
 @define("APP_SAN_IMPORT_DIR", ""); //eg /fez/incoming or c:\\fez\\incoming
-
+@define("APP_TEST", "true");
 @define("APP_PATH", '%{APP_PATH}%');  //eg /usr/local/apache/htdocs/fez/ or C:\\Program Files\\Apache Group\\Apache\\htdocs\\dev-fez\\
 @define("APP_INC_PATH", APP_PATH . "include/");
 @define("APP_PEAR_PATH", APP_INC_PATH . "pear/");

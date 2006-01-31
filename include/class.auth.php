@@ -868,7 +868,7 @@ class Auth
      */
     function isCorrectPassword($username, $password)
     {
-        if (APP_TEST) {
+        if (APP_TEST === "true") {
             return true;
         } else {
             global $HTTP_POST_VARS;
@@ -1035,7 +1035,7 @@ class Auth
      * @return  boolean true if the user successfully binds to the LDAP server
      */
 	function ldap_authenticate($p_user_id, $p_password) {
-        if (APP_TEST) {
+        if (APP_TEST === "true") {
             return true; // switch this on and comment the rest out for debugging/development
         } else {
             $t_authenticated 		= false;
