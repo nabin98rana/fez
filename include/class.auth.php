@@ -342,22 +342,33 @@ class Auth
 			$xdis_array = Fedora_API::callGetDatastreamContentsField($parent['pid'], 'FezMD', array('xdis_id'));
 			$xdis_id = $xdis_array['xdis_id'][0];
 			$parentACML = Record::getACML($parent['pid']);		
-			if ($parentACML != false) {
-				array_push($ACMLArray, $parentACML); // add and then check if need to inherit				
-				$xpath = new DOMXPath($parentACML);
-				$inheritSearch = $xpath->query('/FezACML/inherit_security');
-				foreach ($inheritSearch as $inheritRow) {
-					if ($inheritRow->nodeValue == "on") {
-						$inherit = true;
-					}
-				}
-				if ($inherit == true) { // if need to inherit
-					$superParents = Record::getParents($parent['pid']);
-					if ($superParents != false) {
-						Auth::getParentACMLs(&$ACMLArray, $superParents);
-					}
-				}
-			} else { // if no ACML found then assume inherit
+            if ($parentACML != false) {
+                array_push($ACMLArray, $parentACML); // add and then check if need to inherit				
+                $xpath = new DOMXPath($parentACML);
+                $inheritSearch = $xpath->query('/FezACML/inherit_security');
+                $found_inherit_on = false;
+                $found_inherit_off = false;
+                $found_inherit_blank = false;
+                // There shouldn't be more than one inherit_security node, but if there is, then turning inherit off
+                // overrides any that turn it on. 
+                foreach ($inheritSearch as $inheritRow) {
+                    if ($inheritRow->nodeValue == "on") { 
+                        $found_inherit_on = true;
+                    } elseif (empty($inheritRow->nodeValue)) {
+                        $found_inherit_blank = true;
+                    } else {
+                        $found_inherit_off = true;
+                    }
+                }
+                $inherit = !$found_inherit_off && ($found_inherit_on || $found_inherit_blank);
+
+                if ($inherit == true) { // if need to inherit
+                    $superParents = Record::getParents($parent['pid']);
+                    if ($superParents != false) {
+                        Auth::getParentACMLs(&$ACMLArray, $superParents);
+                    }
+                }
+            } else { // if no ACML found then assume inherit
 				$superParents = Record::getParents($parent['pid']);
 				if ($superParents != false) {
 					Auth::getParentACMLs(&$ACMLArray, $superParents);
@@ -576,13 +587,13 @@ class Auth
 			foreach ($inheritSearch as $inheritRow) {
 				if ($inheritRow->nodeValue == "on") { 
                     $found_inherit_on = true;
-                } elseif ($inheritRow->nodeValue == "") {
+                } elseif (empty($inheritRow->nodeValue)) {
                     $found_inherit_blank = true;
 				} else {
                     $found_inherit_off = true;
                 }
-                $inherit = !$found_inherit_off && ($found_inherit_on || $found_inherit_blank);
 			}
+            $inherit = !$found_inherit_off && ($found_inherit_on || $found_inherit_blank);
 			if ($inherit == true) { // if need to inherit, check if at dsID level or not first and then 
 
 				if ($dsID == "") { // if already at PID level just get parent pids and add them
