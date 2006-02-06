@@ -1124,6 +1124,7 @@ class Record
         }
 
 		Record::setIndexMatchingFields($pid);
+//		exit;
 
     }
 

@@ -146,7 +146,7 @@ class Fedora_API {
      * @return  void
      */
 	function callIngestObject($foxml) {
-		$foxml = base64_encode($foxml);
+		$foxml = base64_encode(trim($foxml));
 		$logmsg = 'Fedora Object ingested';
 		$parms=array(new soapval("XML","base64Binary",$foxml), 'format' => 'foxml1.0', 'logMessage' => $logmsg);
 		$result = Fedora_API::openSoapCall('ingest', $parms);

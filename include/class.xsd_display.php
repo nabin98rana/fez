@@ -879,6 +879,6 @@ class XSD_DisplayObject
 
 // benchmarking the included file (aka setup time)
 if (APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included XSD_XSL_Transform Class');
+    $GLOBALS['bench']->setMarker('Included XSD Display Class');
 }
 ?>
