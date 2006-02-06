@@ -117,11 +117,12 @@ class Collection
       * @param integer $collection_pid The collection to get the parents for.
       * @return array Associative list of communities - pid, title
       */
-    function getParents2($collection_pid)
+    function getParents2($collection_pid, $nocache=false)
     {
 		static $returns;
 		
-        if (!empty($returns[$collection_pid])) { // check if this has already been found and set to a static variable		
+        // check if this has already been found and set to a static variable		
+        if (!empty($returns[$collection_pid]) && !$nocache) { 
 			return $returns[$collection_pid];
 		} else {
 			$stmt = "SELECT r1.rmf_rec_pid, r1.rmf_varchar 
@@ -739,64 +740,83 @@ class Collection
         }
         $start = $current_row * $max;
 
-        $stmt = "SELECT
-            * 
-            FROM
-            " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1
-            inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1
-            on  (r1.rmf_xsdmf_id = x1.xsdmf_id) 	
-            INNER JOIN (
-                    SELECT distinct r2.rmf_rec_pid 
-                    FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
-                    WHERE r2.rmf_xsdmf_id = x2.xsdmf_id 
-                    AND s2.sek_id = x2.xsdmf_sek_id 
-                    AND s2.sek_title = 'Object Type' 
-                    AND r2.rmf_varchar = '3' 
-                    ) as r2 					
-            on r1.rmf_rec_pid = r2.rmf_rec_pid 
-			INNER JOIN 
-						(
-                        SELECT distinct r3.rmf_rec_pid 
-                        FROM  
-                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3,
-                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x3,
-                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s3							  							  
-                        WHERE r3.rmf_xsdmf_id = x3.xsdmf_id 
-                        AND s3.sek_id = x3.xsdmf_sek_id 
-                        AND s3.sek_title = 'isMemberOf' 
-                        AND r3.rmf_varchar = '".$collection_pid."'
-                        ) as r4
-						on r4.rmf_rec_pid=r1.rmf_rec_pid
-						
-            INNER JOIN (
-                    SELECT distinct r2.rmf_rec_pid, r2.rmf_varchar as display_id
-                    FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
-                    WHERE r2.rmf_xsdmf_id = x2.xsdmf_id 
-                    AND s2.sek_id = x2.xsdmf_sek_id 
-                    AND s2.sek_title = 'Display Type' 
-                    ) as d2
-            on r1.rmf_rec_pid = d2.rmf_rec_pid  		
-            INNER JOIN (
-                    SELECT distinct rmf_rec_pid FROM 
+        // this query broken into pieces to try and get some speed.
+
+        $stmt = "SELECT distinct r3.rmf_rec_pid 
+            FROM  
+            " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3
+            inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x3
+            on r3.rmf_xsdmf_id = x3.xsdmf_id 
+            where x3.xsdmf_element = '!description!isMemberOf!resource'
+            AND r3.rmf_varchar = '$collection_pid'";
+        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = array();
+        }
+        $coll_pids = $res;
+        
+        $ret_3_pids = array();
+        if (!empty($coll_pids)) {
+            $stmt = "SELECT distinct r2.rmf_rec_pid 
+                FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
+                      inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
+                          on r2.rmf_xsdmf_id = x2.xsdmf_id 
+                          where x2.xsdmf_element = '!ret_id' 
+                          AND r2.rmf_varchar = '3'
+                          AND r2.rmf_rec_pid IN (".Misc::arrayToSQL($coll_pids).")";
+            $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                $res = array();
+            }
+            $ret_3_pids = $res;
+        }
+        $pub_pids = array();
+        if (!empty($ret_3_pids)) {
+            $stmt = "SELECT distinct rmf_rec_pid FROM 
                         " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS rmf
                         INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields AS xdm 
-                        ON rmf.rmf_xsdmf_id = xdm.xsdmf_id AND rmf.rmf_varchar=2 AND xdm.xsdmf_element='!sta_id'
-                    ) as r3
-            ON r3.rmf_rec_pid=r2.rmf_rec_pid
-            left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 
-            on (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
-            left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 
-            on (k1.sek_id = x1.xsdmf_sek_id)
-            left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d2.display_id = d1.xdis_id	
-			WHERE (r1.rmf_dsid IS NULL or r1.rmf_dsid = '')			 
-				 ORDER BY
-				 	r1.rmf_rec_pid";
+                        ON rmf.rmf_xsdmf_id = xdm.xsdmf_id AND rmf.rmf_varchar=2 AND xdm.xsdmf_element='!sta_id'                          AND rmf.rmf_rec_pid IN (".Misc::arrayToSQL($ret_3_pids).")";
+            $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                $res = array();
+            }
+            $pub_pids = $res;
+        }
 
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (!empty($pub_pids)) {
+            $stmt = " SELECT * 
+                FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1
+                INNER JOIN (
+                        SELECT distinct r2.rmf_rec_pid, r2.rmf_varchar as display_id
+                        FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
+                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,
+                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+                        WHERE r2.rmf_xsdmf_id = x2.xsdmf_id 
+                        AND s2.sek_id = x2.xsdmf_sek_id 
+                        AND s2.sek_title = 'Display Type' 
+                        ) as d2
+                on r1.rmf_rec_pid = d2.rmf_rec_pid  		
+                inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1
+               on x1.xsdmf_id = r1.rmf_xsdmf_id
+                left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 
+                on (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
+                left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 
+                on (k1.sek_id = x1.xsdmf_sek_id)
+                left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d2.display_id = d1.xdis_id	
+                WHERE (r1.rmf_dsid IS NULL or r1.rmf_dsid = '')			 
+                and r1.rmf_rec_pid IN (".Misc::arrayToSQL($pub_pids).")
+                ORDER BY
+                r1.rmf_rec_pid";
+            $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                $res = array();
+            }
+        }
+
 		$return = array();
 		$return = Collection::makeReturnList($res);
         $return = Collection::makeSecurityReturnList($return);

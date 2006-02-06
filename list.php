@@ -81,9 +81,14 @@ if (!empty($collection_pid)) {
 	$tpl->assign("parents", $parents);
 	$collection_xdis_id = Collection::getCollectionXDIS_ID();
 	$userPIDAuthGroups = Auth::getAuthorisationGroups($collection_pid);
-	$isCreator = (in_array("Creator", $userPIDAuthGroups) || in_array("Community Administrator", $userPIDAuthGroups) || in_array("Collection Administrator", $userPIDAuthGroups));
+	$isCreator = (in_array("Creator", $userPIDAuthGroups) 
+            || in_array("Community Administrator", $userPIDAuthGroups) 
+            || in_array("Collection Administrator", $userPIDAuthGroups));
 	$tpl->assign("isCreator", $isCreator);
-	$isEditor = (in_array("Creator", $userPIDAuthGroups) || in_array("Community Administrator", $userPIDAuthGroups) || in_array("Editor", $userPIDAuthGroups) || in_array("Collection Administrator", $userPIDAuthGroups));
+	$isEditor = (in_array("Creator", $userPIDAuthGroups) 
+            || in_array("Community Administrator", $userPIDAuthGroups) 
+            || in_array("Editor", $userPIDAuthGroups) 
+            || in_array("Collection Administrator", $userPIDAuthGroups));
 	$tpl->assign("isEditor", $isEditor);
 	$list = Collection::getListing($collection_pid, $pagerRow, $rows);
 	$list_info = $list["info"];
