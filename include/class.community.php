@@ -148,10 +148,12 @@ class Community
      * @param   integer $max The maximum number of records to return	 
      * @return  array The list of communities
      */
-    function getList($current_row = 0, $max = 25)
+    function getList($current_row = 0, $max = 25, $order_by="Title")
     {
 	
         $start = $current_row * $max;
+        $sekdet = Search_Key::getDetailsByTitle($order_by);
+        $data_type = $sekdet['xsdmf_data_type'];
 
         $stmt = "SELECT
             * 
@@ -174,9 +176,21 @@ class Community
                     WHERE rmf.rmf_varchar=2
                     AND xdm.xsdmf_element='!sta_id'
                     ) as sta1 on sta1.rmf_rec_pid = r1.rmf_rec_pid
+             left JOIN (
+                        SELECT distinct r2.rmf_rec_pid as sort_pid, 
+                        r2.rmf_$data_type as sort_column
+                        FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
+                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
+                        on r2.rmf_xsdmf_id = x2.xsdmf_id 
+                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+                        on s2.sek_id = x2.xsdmf_sek_id
+                        where s2.sek_title = '$order_by'
+                        ) as d3
+                on r1.rmf_rec_pid = d3.sort_pid  
             left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 
             on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
 			left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key sk1 on sk1.sek_id = x1.xsdmf_sek_id
+            order by d3.sort_column
             ";
 		$securityfields = Auth::getAllRoles();
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -201,6 +215,7 @@ class Community
 		foreach ($return as $ret_key => $ret_wf) {
 			$pid = $ret_wf['pid'];
 			$record = new RecordObject($pid);
+            $workflows = array();
 			if (($ret_wf['isEditor'] == 1) || $isAdministrator) {
 				$xdis_id = $ret_wf['display_type'][0];
 				$ret_id = $ret_wf['object_type'][0];

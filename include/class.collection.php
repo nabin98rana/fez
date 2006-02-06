@@ -195,9 +195,11 @@ class Collection
      * @param   integer $max The maximum number of records to return
      * @return  array The list of collections
      */
-    function getList($community_pid=false, $current_row = 0, $max = 25)
+    function getList($community_pid=false, $current_row = 0, $max = 25, $order_by="Title")
     {
         $start = $current_row * $max;
+        $sekdet = Search_Key::getDetailsByTitle($order_by);
+        $data_type = $sekdet['xsdmf_data_type'];
 
         // Should we restrict the list to a community.
         if ($community_pid) {
@@ -240,10 +242,22 @@ class Collection
                     WHERE rmf.rmf_varchar=2
                     AND xdm.xsdmf_element='!sta_id'
                     ) as sta1 on sta1.rmf_rec_pid = r1.rmf_rec_pid					
-            left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 
+             left JOIN (
+                        SELECT distinct r2.rmf_rec_pid as sort_pid, 
+                        r2.rmf_$data_type as sort_column
+                        FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
+                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
+                        on r2.rmf_xsdmf_id = x2.xsdmf_id 
+                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+                        on s2.sek_id = x2.xsdmf_sek_id
+                        where s2.sek_title = '$order_by'
+                        ) as d3
+                on r1.rmf_rec_pid = d3.sort_pid
+                left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 
             on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
             left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 
             on (k1.sek_id = x1.xsdmf_sek_id)
+            order by d3.sort_column
             ";
 
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -267,6 +281,7 @@ class Collection
 		foreach ($return as $ret_key => $ret_wf) {
 			$pid = $ret_wf['pid'];
 			$record = new RecordObject($pid);
+            $workflows = array();				
 			if ($ret_wf['isEditor'] == 1) {
 				$xdis_id = $ret_wf['display_type'][0];
 				$ret_id = $ret_wf['object_type'][0];
@@ -324,6 +339,9 @@ class Collection
         $fez_groups_sql = Misc::arrayToSQL(@$_SESSION[APP_INTERNAL_GROUPS_SESSION]);
         $ldap_groups_sql = Misc::arrayToSQL(@$_SESSION[APP_LDAP_GROUPS_SESSION]);
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $order_by = 'Title';
+        $sekdet = Search_Key::getDetailsByTitle($order_by);
+        $data_type = $sekdet['xsdmf_data_type'];
         $restrict_community = '';
         if ($community_pid) {
             $restrict_community = " INNER JOIN (
@@ -375,10 +393,22 @@ class Collection
                  $stmt .= "
                  )
              ) as security1 on security1.authi_pid=r1.rmf_rec_pid
-            INNER JOIN {$dbtp}xsd_display_matchfields AS x1 ON r1.rmf_xsdmf_id=x1.xsdmf_id
+             left JOIN (
+                        SELECT distinct r2.rmf_rec_pid as sort_pid, 
+                        r2.rmf_$data_type as sort_column
+                        FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
+                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
+                        on r2.rmf_xsdmf_id = x2.xsdmf_id 
+                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+                        on s2.sek_id = x2.xsdmf_sek_id
+                        where s2.sek_title = '$order_by'
+                        ) as d3
+                on r1.rmf_rec_pid = d3.sort_pid
+                INNER JOIN {$dbtp}xsd_display_matchfields AS x1 ON r1.rmf_xsdmf_id=x1.xsdmf_id
  			INNER JOIN {$dbtp}search_key as sk1 on sk1.sek_id = x1.xsdmf_sek_id
             LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 
             ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id)               
+            order by d3.sort_column
            ";
                 // echo $stmt;
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -635,6 +665,9 @@ class Collection
         //     AND user is in the roles for the ACML
         $fez_groups_sql = Misc::arrayToSQL($_SESSION[APP_INTERNAL_GROUPS_SESSION]);
         $ldap_groups_sql = Misc::arrayToSQL($_SESSION[APP_LDAP_GROUPS_SESSION]);
+        $order_by = 'Title';
+        $sekdet = Search_Key::getDetailsByTitle($order_by);
+        $data_type = $sekdet['xsdmf_data_type'];
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $restrict_collection = '';
         if ($collection_pid) {
@@ -690,10 +723,22 @@ class Collection
                     WHERE s2.sek_title = 'Object Type' 
                     AND r2.rmf_varchar = '3' 
                     ) as o1 on o1.rmf_rec_pid = r1.rmf_rec_pid
-  			INNER JOIN {$dbtp}search_key as sk1 on sk1.sek_id = x1.xsdmf_sek_id
+            left JOIN (
+                        SELECT distinct r2.rmf_rec_pid as sort_pid, 
+                        r2.rmf_$data_type as sort_column
+                        FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
+                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
+                        on r2.rmf_xsdmf_id = x2.xsdmf_id 
+                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+                        on s2.sek_id = x2.xsdmf_sek_id
+                        where s2.sek_title = '$order_by'
+                        ) as d3
+                on r1.rmf_rec_pid = d3.sort_pid
+                INNER JOIN {$dbtp}search_key as sk1 on sk1.sek_id = x1.xsdmf_sek_id
             LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 
             ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id)     
             INNER JOIN {$dbtp}xsd_display_matchfields AS x1 ON r1.rmf_xsdmf_id=x1.xsdmf_id
+            order by d3.sort_column
            ";
         
         
@@ -733,12 +778,14 @@ class Collection
      * @param   integer $max The maximum number of records to return	 
      * @return  array The list of collection records with the given collection pid
      */
-    function getListing($collection_pid, $current_row = 0, $max = 25)
+    function getListing($collection_pid, $current_row = 0, $max = 25, $order_by = 'Title')
     {
 		if ($max == "ALL") {
             $max = 9999999;
         }
         $start = $current_row * $max;
+        $sekdet = Search_Key::getDetailsByTitle($order_by);
+        $data_type = $sekdet['xsdmf_data_type'];
 
         // this query broken into pieces to try and get some speed.
 
@@ -791,15 +838,24 @@ class Collection
                 FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1
                 INNER JOIN (
                         SELECT distinct r2.rmf_rec_pid, r2.rmf_varchar as display_id
-                        FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
-                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,
-                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
-                        WHERE r2.rmf_xsdmf_id = x2.xsdmf_id 
-                        AND s2.sek_id = x2.xsdmf_sek_id 
-                        AND s2.sek_title = 'Display Type' 
+                        FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
+                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
+                        on r2.rmf_xsdmf_id = x2.xsdmf_id 
+                        where x2.xsdmf_element = '!xdis_id'
                         ) as d2
                 on r1.rmf_rec_pid = d2.rmf_rec_pid  		
-                inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1
+                left JOIN (
+                        SELECT distinct r2.rmf_rec_pid as sort_pid, 
+                        r2.rmf_$data_type as sort_column
+                        FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
+                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
+                        on r2.rmf_xsdmf_id = x2.xsdmf_id 
+                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+                        on s2.sek_id = x2.xsdmf_sek_id
+                        where s2.sek_title = '$order_by'
+                        ) as d3
+                on r1.rmf_rec_pid = d3.sort_pid
+                 inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1
                on x1.xsdmf_id = r1.rmf_xsdmf_id
                 left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 
                 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
@@ -809,7 +865,7 @@ class Collection
                 WHERE (r1.rmf_dsid IS NULL or r1.rmf_dsid = '')			 
                 and r1.rmf_rec_pid IN (".Misc::arrayToSQL($pub_pids).")
                 ORDER BY
-                r1.rmf_rec_pid";
+                d3.sort_column ";
             $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -838,7 +894,7 @@ class Collection
 		foreach ($return as $ret_key => $ret_wf) {
 			$pid = $ret_wf['pid'];
 			$record = new RecordObject($pid);
-
+            $workflows = array();
 			if ($ret_wf['isEditor']) {
 				$xdis_id = $ret_wf['display_type'][0];
 				$ret_id = $ret_wf['object_type'][0];
@@ -979,30 +1035,38 @@ class Collection
      * @param   string $searchKey The search key the records are being browsed by eg Subject, Created Date (latest additions).
      * @return  array The list of records 
      */
-    function browseListing($current_row = 0, $max = 25, $searchKey="Subject")
+    function browseListing($current_row = 0, $max = 25, $searchKey="Subject", $order_by=null)
     {
+        if (empty($order_by)) {
+            $order_by = $searchKey;
+            if (empty($order_by)) {
+                $order_by = 'Title';
+            }
+        }
 		if ($max == "ALL") {
             $max = 9999999;
         }
         $start = $current_row * $max;
+        $sekdet = Search_Key::getDetailsByTitle($order_by);
+        $data_type = $sekdet['xsdmf_data_type'];
+        $order_dir = ' asc ';
 		$restrictSQL = "";
 		$middleStmt = "";
 		$termCounter = 2;
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
 
-		$orderSQL = "r1.rmf_rec_pid"; // default order clause
         $extra = '';
 		if ($searchKey == "Subject") {				
 			$terms = $_GET['parent_id'];		
-			$data_type = "varchar";
-			$restrictSQL = "AND r".$termCounter.".rmf_".$data_type." = '".$terms."'";
+			$search_data_type = "varchar";
+			$restrictSQL = "AND r".$termCounter.".rmf_".$search_data_type." = '".$terms."'";
 		} elseif ($searchKey == "Created Date") {
-			$data_type = "date";
-			$restrictSQL = "AND DATE_SUB(CURDATE(), INTERVAL 7 DAY) < r".$termCounter.".rmf_".$data_type."";
+			$search_data_type = "date";
+			$restrictSQL = "AND DATE_SUB(CURDATE(), INTERVAL 6 DAY) < r".$termCounter.".rmf_".$search_data_type."";
 			$extra = ", DAYNAME(r".$termCounter.".rmf_date) as day_name";		
             $middleStmt .= " 
                 LEFT JOIN (
-                        SELECT distinct r".$termCounter.".rmf_".$data_type.",  r".$termCounter.".rmf_rec_pid
+                        SELECT distinct r".$termCounter.".rmf_".$search_data_type.",  r".$termCounter.".rmf_rec_pid
                         FROM  {$dbtp}record_matching_field r".$termCounter."
                         INNER JOIN {$dbtp}xsd_display_matchfields x".$termCounter."
                         ON r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id 
@@ -1011,19 +1075,21 @@ class Collection
                         WHERE s".$termCounter.".sek_title = '".$searchKey."' ".$restrictSQL."
                         ) AS r".$termCounter." 
                 ON r1.rmf_rec_pid = r".$termCounter.".rmf_rec_pid ";
-			$orderSQL = " r".$termCounter.".rmf_".$data_type." DESC";
 			$termCounter++;
-			$restrictSQL = "AND DATE_SUB(CURDATE(), INTERVAL 7 DAY) < r".$termCounter.".rmf_".$data_type."";
+			$restrictSQL = "AND DATE_SUB(CURDATE(), INTERVAL 6 DAY) < r".$termCounter.".rmf_".$search_data_type."";
+            if ($order_by == 'Created Date') {
+                $order_dir = " DESC ";
+            }
 		} elseif ($searchKey == "Date") {
 			$terms = $_GET['year'];
-			$data_type = "date";
-			$restrictSQL = "AND YEAR(r".$termCounter.".rmf_".$data_type.") = ".$terms."";
+			$search_data_type = "date";
+			$restrictSQL = "AND YEAR(r".$termCounter.".rmf_".$search_data_type.") = ".$terms."";
 		} elseif ($searchKey == "Author") {
 			$terms = mysql_escape_string($_GET['author']);
-			$data_type = "varchar";
-			$restrictSQL = "AND r".$termCounter.".rmf_".$data_type." = '".$terms."'";
+			$search_data_type = "varchar";
+			$restrictSQL = "AND r".$termCounter.".rmf_".$search_data_type." = '".$terms."'";
 		} else {
-			$data_type = "varchar";		
+			$search_data_type = "varchar";		
 		}
 		$middleStmt .= " 
             INNER JOIN (
@@ -1046,7 +1112,7 @@ class Collection
                  ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
                  LEFT JOIN {$dbtp}search_key AS k1 
                  ON (k1.sek_id = x1.xsdmf_sek_id)
-                 JOIN {$dbtp}xsd_display AS d3 				 
+                 JOIN {$dbtp}xsd_display AS d4 				 
                  $middleStmt
 	             INNER JOIN (
 				SELECT distinct r2.rmf_rec_pid, r2.rmf_varchar as display_id
@@ -1057,8 +1123,19 @@ class Collection
 				AND s2.sek_id = x2.xsdmf_sek_id 
 				AND s2.sek_title = 'Display Type' 
 				) as d2
-            on r1.rmf_rec_pid = d2.rmf_rec_pid and d2.display_id = d3.xdis_id			
-                 WHERE r1.rmf_rec_pid IN (
+            on r1.rmf_rec_pid = d2.rmf_rec_pid and d2.display_id = d4.xdis_id			
+                left JOIN (
+                        SELECT distinct r2.rmf_rec_pid as sort_pid, 
+                        r2.rmf_$data_type as sort_column
+                        FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
+                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
+                        on r2.rmf_xsdmf_id = x2.xsdmf_id 
+                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+                        on s2.sek_id = x2.xsdmf_sek_id
+                        where s2.sek_title = '$order_by'
+                        ) as d3
+                on r1.rmf_rec_pid = d3.sort_pid
+                  WHERE r1.rmf_rec_pid IN (
                          SELECT rmf_rec_pid FROM 
                          {$dbtp}record_matching_field AS rmf
                          INNER JOIN {$dbtp}xsd_display_matchfields AS xdm
@@ -1066,10 +1143,11 @@ class Collection
                          WHERE rmf.rmf_varchar=2
                          AND xdm.xsdmf_element='!sta_id'
                          )
-                 ORDER BY ".$orderSQL;
+                 ORDER BY d3.sort_column $order_dir";
 		$securityfields = Auth::getAllRoles();
 //		$returnfields = array("day_name", "created_date", "updated_date", "file_downloads", "xdis_title", "title", "date", "type", "description", "identifier", "creator", "ret_id", "xdis_id", "sta_id", "Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
@@ -1117,29 +1195,31 @@ class Collection
      * @param   string $searchKey The search key the records are being browsed by  Date (Year) or Author
      * @return  array The list of records 
      */
-    function listByAttribute($current_row = 0, $max = 25, $searchKey="Date")
+    function listByAttribute($current_row = 0, $max = 25, $searchKey="Date",$order_by="Title")
     {
 		if ($max == "ALL") {
             $max = 9999999;
         }
         $start = $current_row * $max;
+        $sekdet = Search_Key::getDetailsByTitle($order_by);
+        $data_type = $sekdet['xsdmf_data_type'];
 		$restrictSQL = "";
 		$middleStmt = "";
 		$termCounter = 2;
 		if ($searchKey == "Subject") {				
 			$terms = $_GET['parent_id'];		
-			$data_type = "varchar";
+			$search_data_type = "varchar";
 		} elseif ($searchKey == "Date") {
-			$data_type = "date";
-			$group_field = "year(r1.rmf_".$data_type.")";
+			$search_data_type = "date";
+			$group_field = "year(r1.rmf_".$search_data_type.")";
 			$as_field = "record_year";
 		} elseif ($searchKey == "Author") {
-			$data_type = "varchar";
-			$group_field = "(r1.rmf_".$data_type.")";
+			$search_data_type = "varchar";
+			$group_field = "(r1.rmf_".$search_data_type.")";
 			$as_field = "record_author";
 		} else {
-			$data_type = "varchar";
-			$group_field = "(r1.rmf_".$data_type.")";		
+			$search_data_type = "varchar";
+			$group_field = "(r1.rmf_".$search_data_type.")";		
 			$as_field = "record_author";
 		}
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
@@ -1166,7 +1246,17 @@ class Collection
                     LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key AS k1
                     ON (k1.sek_id = x1.xsdmf_sek_id)
 				$middleStmt
-                 WHERE r1.rmf_rec_pid IN (
+                left JOIN (
+                        SELECT distinct r2.rmf_rec_pid as sort_pid, 
+                        r2.rmf_$data_type as sort_column
+                        FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
+                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
+                        on r2.rmf_xsdmf_id = x2.xsdmf_id 
+                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+                        on s2.sek_id = x2.xsdmf_sek_id
+                        where s2.sek_title = '$order_by'
+                        ) as d3
+                  WHERE r1.rmf_rec_pid IN (
                          SELECT rmf_rec_pid FROM 
                          {$dbtp}record_matching_field AS rmf
                          INNER JOIN {$dbtp}xsd_display_matchfields AS xdm
@@ -1177,7 +1267,7 @@ class Collection
 				 GROUP BY
 				 	".$group_field."
 				 ORDER BY
-				 	r1.rmf_".$data_type;
+				 	d3.sort_column ";
 
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		foreach ($res as $key => $row) {

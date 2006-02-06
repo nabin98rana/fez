@@ -655,12 +655,14 @@ class Record
      * @param string $username The username of the search is performed on
      * @return array $res2 The index details of records associated with the user
      */
-    function getAssigned($username,$currentPage=0,$pageRows="ALL")
+    function getAssigned($username,$currentPage=0,$pageRows="ALL",$order_by="Created Date")
     {
         if ($pageRows == "ALL") {
             $pageRows = 9999999;
         }
         $currentRow = $currentPage * $pageRows;
+        $sekdet = Search_Key::getDetailsByTitle($order_by);
+        $data_type = $sekdet['xsdmf_data_type'];
         $fez_groups_sql = Misc::arrayToSQL(@$_SESSION[APP_INTERNAL_GROUPS_SESSION]);
         $ldap_groups_sql = Misc::arrayToSQL(@$_SESSION[APP_LDAP_GROUPS_SESSION]);
 
@@ -725,6 +727,17 @@ class Record
                     where x2.xsdmf_element = '!xdis_id'
                     ) as d2
             on r1.rmf_rec_pid = d2.rmf_rec_pid  					
+            left JOIN (
+                        SELECT distinct r2.rmf_rec_pid as sort_pid, 
+                        r2.rmf_$data_type as sort_column
+                        FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
+                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
+                        on r2.rmf_xsdmf_id = x2.xsdmf_id 
+                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+                        on s2.sek_id = x2.xsdmf_sek_id
+                        where s2.sek_title = '$order_by'
+                        ) as d3
+                on r1.rmf_rec_pid = d3.sort_pid
             INNER JOIN {$dbtp}xsd_display_matchfields AS x1
             ON r1.rmf_xsdmf_id=x1.xsdmf_id
             LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 
@@ -734,7 +747,7 @@ class Record
             left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d2.display_id = d1.xdis_id	
 			WHERE (r1.rmf_dsid IS NULL or r1.rmf_dsid = '')			 
             AND r1.rmf_rec_pid IN ($pids)
-            ORDER BY rmf_id ASC
+            ORDER BY d3.sort_column ASC
             ";
         //echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);

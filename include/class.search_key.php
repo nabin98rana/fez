@@ -231,7 +231,7 @@ class Search_Key
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
                  ORDER BY
-                    sek_title ASC";
+                    sek_order ASC";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -341,6 +341,32 @@ class Search_Key
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
                  WHERE
                     sek_id=$sek_id";
+        $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
+
+    /**
+     * Method used to get the details of a specific search key.
+     *
+     * @access  public
+     * @param   string $sek_title The search key title
+     * @return  array The search key details
+     */
+    function getDetailsByTitle($sek_title)
+    {
+        $stmt = "SELECT
+                    *
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
+                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+                    on xsdmf_sek_id=sek_id
+                 WHERE
+                    sek_title='$sek_title'";
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

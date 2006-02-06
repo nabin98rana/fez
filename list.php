@@ -72,6 +72,10 @@ $cat = @$_REQUEST['cat'];
 $browse = @$_REQUEST['browse'];
 $collection_pid = @$HTTP_POST_VARS["collection_pid"] ? $HTTP_POST_VARS["collection_pid"] : @$HTTP_GET_VARS["collection_pid"];	
 $community_pid = @$HTTP_POST_VARS["community_pid"] ? $HTTP_POST_VARS["community_pid"] : @$HTTP_GET_VARS["community_pid"];
+$order_by = Misc::GETorPOST('order_by');
+if (empty($order_by)) {
+    $order_by = 'Title';
+}
 $list_info = array();
 if (!empty($collection_pid)) {
     // list a collection
@@ -90,7 +94,7 @@ if (!empty($collection_pid)) {
             || in_array("Editor", $userPIDAuthGroups) 
             || in_array("Collection Administrator", $userPIDAuthGroups));
 	$tpl->assign("isEditor", $isEditor);
-	$list = Collection::getListing($collection_pid, $pagerRow, $rows);
+	$list = Collection::getListing($collection_pid, $pagerRow, $rows, $order_by);
 	$list_info = $list["info"];
 	$list = $list["list"];
 	$tpl->assign("list_heading", "List of Records in ".$collection_details[0]['title'][0]." Collection");
@@ -114,7 +118,7 @@ if (!empty($collection_pid)) {
 	$tpl->assign("isEditor", $isEditor);
 	$tpl->assign("xdis_id", $xdis_id);	
 	$community_details = Community::getDetails($community_pid);
-	$list = Collection::getList($community_pid, $pagerRow, $rows);
+	$list = Collection::getList($community_pid, $pagerRow, $rows, $order_by);
 	$list_info = $list["info"];
 	$list = $list["list"];
 	$tpl->assign("list_heading", "List of Collections in ".$community_details[0]['title'][0]." Community");
@@ -141,7 +145,12 @@ if (!empty($collection_pid)) {
 	$tpl->assign("list_type", "all_records_list");
 } elseif ($browse == "latest") {
     // browse by latest additions / created date desc
-	$list = Collection::browseListing($pagerRow, $rows, "Created Date");
+    // reget the order by thing so we can change the default
+    $order_by = Misc::GETorPOST('order_by');
+    if (empty($order_by)) {
+        $order_by = 'Created Date';
+    }
+    $list = Collection::browseListing($pagerRow, $rows, "Created Date",$order_by);
 	$list_info = $list["info"];
 	$list = $list["list"];
 	$tpl->assign("browse_type", "browse_latest");
@@ -155,29 +164,29 @@ if (!empty($collection_pid)) {
     // browse by year
 	$year = $_GET['year'];
 	if (is_numeric($year)) {	
-		$list = Collection::browseListing($pagerRow, $rows, "Date");
+		$list = Collection::browseListing($pagerRow, $rows, "Date", $order_by);
 		$list_info = $list["info"];
 		$list = $list["list"];
 		$tpl->assign("browse_heading", "Browse By Year ".$year);
 		$tpl->assign("list_heading", "List of Records");
 	} else {
-		$list = Collection::listByAttribute($pagerRow, $rows);
+		$list = Collection::listByAttribute($pagerRow, $rows,"Date",$order_by);
 		$list_info = $list["info"];
 		$list = $list["list"];
 		$tpl->assign("browse_heading", "Browse By Year");
 	}
 	$tpl->assign("browse_type", "browse_year");
 } elseif ($browse == "author") {
-    // browse by year
+    // browse by author
 	$author = @$_GET['author'];
 	if (!empty($author)) {	
-		$list = Collection::browseListing($pagerRow, $rows, "Author");
+		$list = Collection::browseListing($pagerRow, $rows, "Author",$order_by);
 		$list_info = $list["info"];
 		$list = $list["list"];
 		$tpl->assign("browse_heading", "Browse By Author - ".$author);
 		$tpl->assign("list_heading", "List of Records");
 	} else {
-		$list = Collection::listByAttribute($pagerRow, $rows, "Author");
+		$list = Collection::listByAttribute($pagerRow, $rows, "Author",$order_by);
 		$list_info = $list["info"];
 		$list = $list["list"];
 		$tpl->assign("browse_heading", "Browse By Author");
@@ -191,7 +200,7 @@ if (!empty($collection_pid)) {
 		$treeIDs = Controlled_Vocab::getAllTreeIDs($parent_id);
 
 		$subject_count = Collection::getCVCountSearch($treeIDs, $parent_id);
-		$list = Collection::browseListing($pagerRow, $rows, "Subject");	
+		$list = Collection::browseListing($pagerRow, $rows, "Subject",$order_by);	
 		$list_info = $list["info"];
 		$list = $list["list"];		
 	} else {
@@ -217,12 +226,19 @@ if (!empty($collection_pid)) {
     // list all communities
 	$xdis_id = Community::getCommunityXDIS_ID();
 	$tpl->assign("xdis_id", $xdis_id);	
-	$list = Community::getList($pagerRow, $rows);
+	$list = Community::getList($pagerRow, $rows, $order_by);
 	$list_info = $list["info"];
 	$list = $list["list"];
 	$tpl->assign("list_type", "community_list");
 	$tpl->assign("list_heading", "List of Communities");
 }
+$order_by_list = array();
+foreach (Search_Key::getAssocList() as $key => $value) {
+    $order_by_list[$value] = $value;
+}
+$tpl->assign('order_by_list', $order_by_list);
+
+$tpl->assign('order_by_default', $order_by);
 $workflows_list = Misc::keyPairs(Workflow::getList(), 'wfl_id', 'wfl_title');
 $tpl->assign('workflows_list', $workflows_list);
 $tpl->assign("eserv_url", APP_BASE_URL."eserv.php");

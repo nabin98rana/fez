@@ -100,6 +100,10 @@ function disableFields()
     }
 }
 
+function sortList(f, field) {
+    order_by = getSelectedOption(f, field);
+    window.location.href = page_url + "?" + replaceParam(window.location.href, 'order_by', order_by);
+}
 
 
 //-->
@@ -292,7 +296,11 @@ function purgeObject(pid)
 		{/if}
            &nbsp;<b>{$list_heading}: </b>
 		   
-		   <b>({$list_info.total_rows} results found{if $list_info.end_offset > 0}, {math equation="x + 1" x=$list_info.start_offset} - {$list_info.end_offset} shown{/if}) ({$list_info.hidden_rows} hidden)</b>
+		   <b>({$list_info.total_rows} results found{if $list_info.end_offset > 0}, {math equation="x + 1" x=$list_info.start_offset} - {$list_info.end_offset} shown{/if}) ({$list_info.hidden_rows} hidden)</b> 
+                   Order By 
+                   <select name="order_by" onchange="javascript:sortList(this.form, 'order_by');">
+                       {html_options options=$order_by_list selected=$order_by_default}
+                   </select>
 			</td>
         </tr>
 		</table>
