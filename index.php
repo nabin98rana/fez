@@ -90,6 +90,9 @@ $list = $list["list"];
 
 $tpl->assign("list", $list);
 $tpl->assign("eserv_url", APP_RELATIVE_URL."eserv.php");
-$tpl->assign("news", News::getList());
+$news = News::getList();
+$news_count = count($news);
+$tpl->assign("news", $news);
+$tpl->assign("news_count", $news_count);
 $tpl->displayTemplate();
 ?>

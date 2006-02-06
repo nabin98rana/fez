@@ -196,6 +196,7 @@ function purgeObject(pid)
               </tr>
             </table></td>
           <td valign="top"><table cellpadding="2">
+			{if $news_count > 0}
               <tr>
                 <td><table width=220 cellpadding=2 cellspacing=0 border=0 style="position:relative; left:-10px">
                     <tr>
@@ -219,6 +220,7 @@ function purgeObject(pid)
               <tr>
                 <td class="default">&nbsp;</td>
               </tr>
+			  {/if}
               <tr>
                 <TD VALIGN="top" width="55%"><p class="default"><strong>{$application_title}</strong> is a digital repository for research at {$org_name}. It contains published articles and conference papers, book chapters, theses and other forms of written research output from {$org_short_name} academic staff and postgraduate students. Published material covers a range of subjects and disciplines, both before and after peer-reviewed publication, and much of it is full text. The repository also contains research datasets, sound and image collections and software.</p>
                   <p class="default"><strong>{$application_title}</strong> provides free, searchable access to {$org_short_name} research and manages its long-term archiving. {$org_short_name} staff and students must register to deposit materials. </p>
