@@ -568,6 +568,7 @@ class XSD_DisplayObject
     var $xdis_id;
     var $matchfields;
     var $retrieved_mf = false;
+    var $xsd_html_match;
 
     /**
      * XSD_DisplayObject
@@ -672,6 +673,17 @@ class XSD_DisplayObject
         return $this->xsdmf_array[$pid];
     }
 
+    function getXSD_HTML_Match()
+    {
+        if (!$this->xsd_html_match) {
+            $xdis_list = XSD_Relationship::getListByXDIS($this->xdis_id);
+            array_push($xdis_list, array("0" => $this->xdis_id));
+            $xdis_str = Misc::sql_array_to_string($xdis_list);
+            $this->xsd_html_match = new XSD_HTML_MatchObject($xdis_str);
+        }
+        return $this->xsd_html_match;
+    }
+
     /**
      * processXSDMF
      * Get the values from elements in the datastreams that match against the match fields
@@ -686,12 +698,9 @@ class XSD_DisplayObject
         if (!isset($this->xsdmf_array[$pid])) {
             $this->xsdmf_array[$pid] = array();
             $this->xsdmf_current = &$this->xsdmf_array[$pid];
+            $this->getXSD_HTML_Match();
             // Find datastreams that may be used by this display
             $datastreamTitles = $this->getDatastreamTitles();
-            $xdis_list = XSD_Relationship::getListByXDIS($this->xdis_id);
-            array_push($xdis_list, array("0" => $this->xdis_id));
-            $xdis_str = Misc::sql_array_to_string($xdis_list);
-            $this->xsd_html_match = new XSD_HTML_MatchObject($xdis_str);
 			$datastreams = Fedora_API::callGetDatastreams($pid);
 			foreach ($datastreams as $ds_key => $ds_value) {
 				// get the matchfields for the FezACML of the datastream if any exists

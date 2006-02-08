@@ -705,13 +705,10 @@ class Fedora_API {
 	   $client = new soapclient_internal(APP_FEDORA_MANAGEMENT_API);
 	   $client->setCredentials(APP_FEDORA_USERNAME, APP_FEDORA_PWD);
 	   $result = $client->call($call, $parms);
-	   //comment the return and uncomment the echo and debugInfo
-	   //to see debug statements.
-	
-//       if ($call == 'modifyDatastreamByValue') {
-//           print_r($result);
-//           Fedora_API::debugInfo($client);
-//       }
+       if (is_array($result) && (isset($result['faultcode']) || $call == 'addDatastream')) {
+           Error_Handler::logError(array(print_r($result,true),Fedora_API::debugInfo($client, true)), 
+                   __FILE__,__LINE__);
+       }
 	   return $result;
 	
 	}
@@ -748,11 +745,17 @@ class Fedora_API {
 	* @param array $client The soap object
 	* @return void (Outputs debug info to screen).
 	*/				
-	function debugInfo($client) {
-	   echo '<hr /><b>Debug Information</b><br /><br />';
-	   echo 'Request: <xmp>'.$client->request.'</xmp>';
-	   echo 'Response: <xmp>'.$client->response.'</xmp>';
-	   echo 'Debug log: <pre>'.$client->debug_str.'</pre>';
+	function debugInfo($client, $asString=false) {
+        $str = 
+            '<hr /><b>Debug Information</b><br /><br />'
+            .'Request: <xmp>'.$client->request.'</xmp>'
+            .'Response: <xmp>'.$client->response.'</xmp>'
+            .'Debug log: <pre>'.$client->debug_str.'</pre>';
+        if ($asString) {
+            return $str;
+        } else {
+            echo $str;
+        }
 	}
 } // end of Fedora_API Class
 ?>

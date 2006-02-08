@@ -359,6 +359,8 @@ class Record
         } else {
             return $pid;
         }
+
+        Record::clearIndexAuth($pid);
     }
 
     /**
@@ -897,6 +899,13 @@ class Record
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         }
+        // get children and update their indexes.
+        $rec = new RecordObject($pid);
+        $children = $rec->getChildrenPids();
+        foreach ($children as $child_pid) {
+            Record::setIndexAuth($child_pid);
+        }
+
         return 1;
     }
 
@@ -1077,8 +1086,11 @@ class Record
             $tidy = new tidy;
             $tidy->parseString($xmlObj, $config, 'utf8');
             $tidy->cleanRepair();
-            $xmlObj = $tidy;
-            Fedora_API::callIngestObject($xmlObj);
+            $xmlObj = "$tidy";
+            $result = Fedora_API::callIngestObject($xmlObj);
+            if (is_array($result)) {
+                Error_Handler::logError($xmlObj, __FILE__,__LINE__);
+            }
         }
 		$convert_check = false;
 //		Record::insertIndexBatch($pid, '', $indexArray, $datastreamXMLHeaders, $exclude_list, $specify_list);
@@ -1096,6 +1108,10 @@ class Record
                         $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], false); 
 			} else {
 				if ($dsTitle['CONTROL_GROUP'] == "R" || $dsTitle['CONTROL_GROUP'] == "X") { // if its a redirect we don't need to upload the file
+                    if ($dsIDName == "DOI") {
+                        file_put_contents('/tmp/mss.txt',print_r($dsTitle ,true));
+                        file_put_contents('/tmp/mss.txt',print_r($datastreamXMLContent[$dsKey],true),FILE_APPEND);
+                    }
 					if (Fedora_API::datastreamExists($pid, $dsIDName)) {
 				    	Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, $dsTitle['STATE'], $dsTitle['LABEL'],
     	                    $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], "false"); 
@@ -1335,7 +1351,7 @@ class RecordGeneral
     {
         $this->setFezMD_Datastream('sta_id', $sta_id);
         $this->getDisplay();
-        $this->display->processXSDMF($this->pid); 
+        $this->display->getXSD_HTML_Match(); 
         $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!sta_id'); 
         Record::removeIndexRecordByXSDMF_ID($this->pid, $xsdmf_id);
         Record::insertIndexMatchingField($this->pid, '', $xsdmf_id, "varchar", $sta_id);
@@ -1539,7 +1555,23 @@ class RecordGeneral
     }
 
 
-
+    function getChildrenPids()
+    {
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $stmt = "SELECT rmf_rec_pid 
+            FROM {$dbtp}record_matching_field
+            INNER JOIN {$dbtp}xsd_display_matchfields 
+            ON rmf_xsdmf_id=xsdmf_id
+            WHERE
+            xsdmf_element='!description!isMemberOf!resource'
+            AND rmf_varchar='{$this->pid}' ";
+        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        }
+        return $res;
+    }
 
 
 }
