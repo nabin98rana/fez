@@ -134,10 +134,11 @@ BETA</td>
             <li><a href="http://www.php.net/curl">CURL</a></li>
             </ul>
         </li>
+        <li><strong>WARNING!</strong>: When compiling PHP we have noticed that DOMXPATH does not work with some versions of LIBXML2. We have successfully tested using DOMXPATH with LIBXML2 version 2.6.16 (on Linux Centos) and 2.6.23 (latest version of LIBXML on Redhat Fedora 4), but it causes a failure in PHP with version 2.6.19 (on Linux Red Hat Fedora 4). We have only tested these three versions so others may work or fail as well. </li>
         <li><strong>PHP.ini</strong> configuration requirements:
-          <ul>
-            <li>allow_call_time_pass_reference = On (Fez may not need this in future releases, especially since it will probabaly be deprecated in PHP6)</li>
-            </ul>
+            <ul>
+                <li>allow_call_time_pass_reference = On (Fez may not need this in future releases, especially since it will probabaly be deprecated in PHP6)</li>
+              </ul>
         </li>
         <li><strong>PHP.ini</strong> configuration recommendations:
           <ul>

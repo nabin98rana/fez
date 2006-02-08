@@ -97,11 +97,11 @@ class BatchImport
                 'input-xml'   => true,
                 'output-xml'  => true,
                 'wrap'        => 200);
-
-        $tidy = new tidy;
+// CK 8/2/06 Commented out the tidy up as it doesn't seem to be necessary and also breaks on some installations
+/*        $tidy = new tidy;
         $tidy->parseString($xmlObj, $config, 'utf8');
-        $tidy->cleanRepair();
-        $xmlObj = $tidy;
+        $tidy->cleanRepair(); 
+        $xmlObj = $tidy; */
 
         $xmlDoc= new DomDocument();
         $xmlDoc->preserveWhiteSpace = false;
@@ -739,7 +739,8 @@ class BatchImport
                     $this->handleFOXMLImport($xmlObj);
                     Record::setIndexMatchingFields($pid);
                     $handled_as_xml = true;
-                } elseif (is_numeric(strpos($xmlObj, "<eprintsdata>"))) {
+				// Newer versions of eprints have URIs so took out the ">"
+                } elseif (is_numeric(strpos($xmlObj, "<eprintsdata"))) {
                     $this->handleEntireEprintsImport($pid, $collection_pid, $xmlObj);
                     $handled_as_xml = true;
                 } elseif (is_numeric(strpos($xmlObj, "METS:mets"))) {
