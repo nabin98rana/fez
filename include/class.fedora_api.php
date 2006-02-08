@@ -329,6 +329,10 @@ class Fedora_API {
 		    $uploadLocation = curl_exec($ch);
 		    curl_close ($ch);		
 		    $uploadLocation = trim(str_replace("\n", "", $uploadLocation));		
+			if (is_numeric(strpos($dsIDName, chr(92)))) {
+				$dsIDName = substr($dsIDName, strrpos($dsIDName, chr(92))+1);
+				$dsLabel = $dsIDName;
+			}
 		    if ($dsID == NULL) {
 			  //Call callAddDatastream
 			  $dsID = Fedora_API::callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsLabel, $mimetype, $controlGroup);
@@ -359,6 +363,10 @@ class Fedora_API {
         // take out any nasty slashes from the ds name itself
 		if (is_numeric(strpos($dsIDName, "/"))) {
 			$dsIDName = substr($dsIDName, strrpos($dsIDName, "/")+1); 
+		}
+		if (is_numeric(strpos($dsIDName, chr(92)))) {
+			$dsIDName = substr($dsIDName, strrpos($dsIDName, chr(92))+1);
+			$dsLabel = $dsIDName;
 		}
         // fix path if local filename has no path already
         if (!is_numeric(strpos($local_file_location,'/'))) {
@@ -413,6 +421,10 @@ class Fedora_API {
 		if ($mimetype == "") {
 			$mimetype = "text/xml";
 		}
+		if (is_numeric(strpos($dsID, chr(92)))) {
+			$dsID = substr($dsID, strrpos($dsID, chr(92))+1);
+			$dsLabel = $dsID;
+		}
 	   $versionable = 'false';
 	   $parms=array('PID' => $pid, 'dsID' => $dsID, 'altIDs' => array(), 'dsLabel' => $dsLabel, new soapval('versionable', 'boolean', $versionable), 'MIMEType' => $mimetype, 'formatURI' => 'unknown', new soapval('location', 'string', $uploadLocation), 'controlGroup' => $controlGroup, 'dsState' => 'A', 'logMessage' => 'Added Datastream');//
 	   //Call addDatastream
@@ -434,6 +446,10 @@ class Fedora_API {
     */		
 	function callCreateDatastream($pid, $dsIDName, $uploadLocation, $dsLabel, $mimetype, $controlGroup='M') {
   	   $versionable = 'false';
+  	   	if (is_numeric(strpos($dsIDName, chr(92)))) {
+	   		$dsIDName = substr($dsIDName, strrpos($dsIDName, chr(92))+1);
+	   		$dsLabel = $dsIDName;
+	   	}
 	   $parms=array('PID' => $pid, 'dsID' => $dsIDName, 'altIDs' => array(), 'dsLabel' => $dsLabel, new soapval('versionable', 'boolean', $versionable), 'MIMEType' => $mimetype, 'formatURI' => 'unknown', 'dsLocation' => $uploadLocation, 'controlGroup' => $controlGroup, 'dsState' => 'A', 'logMessage' => 'Added new datastream from Fez');
 	   $dsID = Fedora_API::openSoapCall('addDatastream', $parms);
 	   return $dsID;

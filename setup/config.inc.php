@@ -64,6 +64,7 @@ set_time_limit(0);
 if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
 	@define("APP_TEMP_DIR", 'c:/temp/'); 
     @define("APP_DELETE_CMD", 'del ');
+	@define("APP_DELETE_DIR", 'c:\\temp\\'); //Windows needs the delete path to be forward slashes
 	@define("APP_CONVERT_CMD", "c:/ImageMagick/convert");   // To convert image (part of ImageMagick)
 	@define("APP_COMPOSITE_CMD", "c:/ImageMagick/composite");   // To watermark image (part of ImageMagick)
 	@define("APP_IDENTIFY_CMD", "c:/ImageMagick/identify"); // To get image information (part of ImageMagick)
@@ -72,7 +73,8 @@ if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Serve
     ini_set("include_path", ".;" . APP_PEAR_PATH);
 } else { //  Linux Server
 	@define("APP_TEMP_DIR", "/tmp/"); 
-    @define("APP_DELETE_CMD", 'rm -f ');
+    @define("APP_DELETE_CMD", '/bin/rm -f ');
+	@define("APP_DELETE_DIR", APP_TEMP_DIR); //Windows needs the delete path to be forward slashes, Linux does not
 	@define("APP_CONVERT_CMD", "/usr/bin/convert");   // To convert image (part of ImageMagick)
 	@define("APP_COMPOSITE_CMD", "/usr/bin/composite");   // To watermark image (part of ImageMagick)
 	//@define("APP_CONVERT_CMD", "/usr/X11R6/bin/convert");   // convert could be in here for some Linux distros

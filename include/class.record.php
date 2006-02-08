@@ -1104,6 +1104,12 @@ class Record
 							$dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
 					}
 				} else {
+					if (is_numeric(strpos($dsIDName, chr(92)))) {
+						$dsIDName = substr($dsIDName, strrpos($dsIDName, chr(92))+1);
+					}
+					if (is_numeric(strpos($dsTitle['LABEL'], chr(92)))) {
+						$dsTitle['LABEL'] = substr($dsTitle['LABEL'], strrpos($dsTitle['LABEL'], chr(92))+1);
+					}
 					if (Fedora_API::datastreamExists($pid, $dsIDName)) {
 						Fedora_API::callPurgeDatastream($pid, $dsIDName);
 					}
@@ -1111,10 +1117,13 @@ class Record
 							$dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
 					$presmd_check = Workflow::checkForPresMD($dsIDName);
 					if ($presmd_check != false) {
+						if (is_numeric(strpos($presmd_check, chr(92)))) {
+							$presmd_check = substr($presmd_check, strrpos($presmd_check, chr(92))+1);
+						}
 						if (Fedora_API::datastreamExists($pid, $presmd_check)) {
 							Fedora_API::callPurgeDatastream($pid, $presmd_check);
 							if (is_file(APP_TEMP_DIR.$presmd_check)) {
-								$deleteCommand = APP_DELETE_CMD." ".APP_TEMP_DIR.$presmd_check;
+								$deleteCommand = APP_DELETE_CMD." ".APP_DELETE_DIR.$presmd_check;
 								exec($deleteCommand);
 							}
 						}
