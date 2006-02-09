@@ -65,7 +65,7 @@ if (!empty($pid)) {
 	$tpl->assign("isViewer", $record->canView(true));
 	if ($record->canView()) {
 		$tpl->assign("isEditor", $record->canEdit(false));
-		$tpl->assign("sta_id", $record->getPublishedStatus());
+		$tpl->assign("sta_id", $record->getPublishedStatus()); 
 		$display = new XSD_DisplayObject($xdis_id);
 		//$xsd_display_fields = $display->getMatchFieldsList();
 		$xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array(""));  // XSD_DisplayObject
@@ -84,6 +84,7 @@ if (!empty($pid)) {
 			}
 			array_push($parent_relationships[$parent['pid']], $parent['display_type'][0]);
 		}
+		
 		foreach ($xsd_display_fields as $dis_key => $dis_field) {
 			if (($dis_field['xsdmf_html_input'] == "contvocab") || ($dis_field['xsdmf_html_input'] == "contvocab_selector")) {
 				if (!empty($details[$dis_field['xsdmf_id']])) {
@@ -106,7 +107,7 @@ if (!empty($pid)) {
 						$details[$dis_field['xsdmf_id']] = $author_list[$details[$dis_field['xsdmf_id']]];
 					}
 				}
-			}
+			} 
 			if ($dis_field["xsdmf_use_parent_option_list"] == 1) { // if the display field inherits this list from a parent then get those options
 				// Loop through the parents
 				foreach ($parent_relationships as $pkey => $prel) {
@@ -142,16 +143,13 @@ if (!empty($pid)) {
         $tpl->assign('najax_register', NAJAX_Client::register('NajaxImagePreview', APP_RELATIVE_URL.'najax_services/image_preview.php'));
 	} else {
 		$tpl->assign("show_not_allowed_msg", true);
-	}
+	} 
 	if (empty($details)) {
 		$tpl->assign('details', '');
 	} else {
 		$datastreams = Fedora_API::callGetDatastreams($pid);
 		$datastreams = Misc::cleanDatastreamList($datastreams);
 		$securityfields = Auth::getAllRoles();
-		$datastreams = Fedora_API::callGetDatastreams($pid);
-		
-		$datastreams = Misc::cleanDatastreamList($datastreams);
 		$datastream_workflows = WorkflowTrigger::getListByTrigger('-1', 5);
 		
 		foreach ($datastreams as $ds_key => $ds) {
@@ -206,6 +204,7 @@ if (!empty($pid)) {
 		$tpl->assign("parents", $parents);		
 		$tpl->assign("details", $details);
 		$tpl->assign("controlled_vocabs", $controlled_vocabs);				
+
 	}
 } else {
 	$tpl->assign("show_not_allowed_msg", true);

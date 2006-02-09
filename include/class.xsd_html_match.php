@@ -272,6 +272,16 @@ class XSD_HTML_Match
     {
 		$exclude_str = implode("', '", $exclude_list);
 		$specify_str = implode("', '", $specify_list);
+
+		$stmt = "(SELECT distinct r2.xsdrel_xdis_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship r2 right join
+					(SELECT m3.xsdmf_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields as m3 WHERE m3.xsdmf_xdis_id=".$xdis_id.")
+					as rels on (r2.xsdrel_xsdmf_id = (rels.xsdmf_id)) )";
+	   $xsdrelall = $GLOBALS["db_api"]->dbh->getCol($stmt); 
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+			$res = array();
+		}
+		array_push($xsdrelall, $xdis_id);
 	
         $stmt = "SELECT
                     distinct xsdmf_id,
@@ -320,30 +330,28 @@ class XSD_HTML_Match
 					xsdmf_org_fill_xsdmf_id
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields as m1  ";
+
 				if ($specify_str != "") {
 					$stmt .= "
 					inner join
-					(SELECT d1.xdis_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1, " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd WHERE xsd.xsd_id=d1.xdis_xsd_id AND xsd.xsd_title in ('".$specify_str."')) as displays on (m1.xsdmf_xdis_id in (displays.xdis_id) AND relsall.xsdrel_xdis_id in (displays.xdis_id))";
+					(SELECT d1.xdis_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1, " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd WHERE xsd.xsd_id=d1.xdis_xsd_id AND xsd.xsd_title in ('".$specify_str."')) as displays on (m1.xsdmf_xdis_id in (displays.xdis_id) AND displays.xdis_id in (".Misc::arrayToSQL($xsdrelall)."))";
 				} elseif ($exclude_str != "") {
 					$stmt .= "
 					inner join
-					(SELECT d1.xdis_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1, " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd WHERE xsd.xsd_id=d1.xdis_xsd_id AND xsd.xsd_title not in ('".$exclude_str."')) as displays on (m1.xsdmf_xdis_id in (displays.xdis_id) OR relsall.xsdrel_xdis_id in (displays.xdis_id))";
+					(SELECT d1.xdis_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1, " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd WHERE xsd.xsd_id=d1.xdis_xsd_id AND xsd.xsd_title not in ('".$exclude_str."')) as displays on (m1.xsdmf_xdis_id in (displays.xdis_id) AND displays.xdis_id in (".Misc::arrayToSQL($xsdrelall)."))";
 				}
 //				if ($specify_str == "") { 
-					$stmt .= "
-					inner join
-					(SELECT r2.xsdrel_xdis_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship r2 right join
-						(SELECT m3.xsdmf_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields as m3 WHERE m3.xsdmf_xdis_id=".$xdis_id.")
-						as rels on r2.xsdrel_xsdmf_id in (rels.xsdmf_id)) as relsall on ((m1.xsdmf_xdis_id in (relsall.xsdrel_xdis_id))
-						OR (m1.xsdmf_xdis_id = ".$xdis_id."))";
 //				}
 				$stmt .= "
 					left join
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement as s1 on (s1.xsdsel_id = m1.xsdmf_xsdsel_id)";
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement as s1 on (s1.xsdsel_id = m1.xsdmf_xsdsel_id)
+				WHERE m1.xsdmf_xdis_id in (".Misc::arrayToSQL($xsdrelall).")" ;
 		// @@@ CK - Added order statement to custom fields displayed in a desired order
 
 		$stmt .= " ORDER BY xsdmf_order, xsdsel_order ASC";
+
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return array();
