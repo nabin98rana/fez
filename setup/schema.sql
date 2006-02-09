@@ -26,7 +26,7 @@ CREATE TABLE `%TABLE_PREFIX%auth_index` (
   KEY `authi_role` (`authi_role`),
   KEY `authi_rule` (`authi_rule`),
   KEY `authi_value` (`authi_value`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%auth_index`
@@ -58,7 +58,7 @@ CREATE TABLE `%TABLE_PREFIX%author` (
   `aut_homepage_link` varchar(255) default NULL,
   `aut_created_date` date default NULL,
   PRIMARY KEY  (`aut_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%author`
@@ -79,7 +79,7 @@ CREATE TABLE `%TABLE_PREFIX%author_classification` (
   `cla_id` int(11) unsigned NOT NULL auto_increment,
   `cla_title` varchar(64) default NULL,
   PRIMARY KEY  (`cla_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%author_classification`
@@ -101,7 +101,7 @@ CREATE TABLE `%TABLE_PREFIX%author_function` (
   `fun_id` int(11) unsigned NOT NULL auto_increment,
   `fun_title` varchar(64) default NULL,
   PRIMARY KEY  (`fun_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%author_function`
@@ -126,7 +126,7 @@ CREATE TABLE `%TABLE_PREFIX%author_org_structure` (
   `auo_cla_id` int(11) unsigned default NULL,
   `auo_fun_id` int(11) unsigned default NULL,
   PRIMARY KEY  (`auo_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%author_org_structure`
@@ -155,7 +155,7 @@ CREATE TABLE `%TABLE_PREFIX%background_process` (
   `bgp_name` varchar(255) default NULL,
   `bgp_started` datetime default NULL,
   PRIMARY KEY  (`bgp_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%background_process`
@@ -179,7 +179,7 @@ CREATE TABLE `%TABLE_PREFIX%controlled_vocab` (
   `cvo_image_filename` varchar(64) default NULL,
   PRIMARY KEY  (`cvo_id`),
   UNIQUE KEY `cvo_id` (`cvo_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%controlled_vocab`
@@ -203,7 +203,7 @@ CREATE TABLE `%TABLE_PREFIX%controlled_vocab_relationship` (
   `cvr_child_cvo_id` int(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`cvr_id`),
   UNIQUE KEY `cvr_parent_cvo_id` (`cvr_parent_cvo_id`,`cvr_child_cvo_id`,`cvr_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%controlled_vocab_relationship`
@@ -227,7 +227,7 @@ CREATE TABLE `%TABLE_PREFIX%group` (
   `grp_status` set('active','archived') NOT NULL default 'active',
   `grp_created_date` datetime default '0000-00-00 00:00:00',
   PRIMARY KEY  (`grp_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%group`
@@ -250,7 +250,7 @@ CREATE TABLE `%TABLE_PREFIX%group_user` (
   `gpu_usr_id` int(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`gpu_id`),
   KEY `pru_col_id` (`gpu_grp_id`,`gpu_usr_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%group_user`
@@ -278,7 +278,7 @@ CREATE TABLE `%TABLE_PREFIX%news` (
   `nws_updated_date` datetime default '0000-00-00 00:00:00',
   PRIMARY KEY  (`nws_id`),
   UNIQUE KEY `nws_title` (`nws_title`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%news`
@@ -300,7 +300,7 @@ CREATE TABLE `%TABLE_PREFIX%object_type` (
   `ret_title` varchar(25) NOT NULL default '',
   PRIMARY KEY  (`ret_id`),
   UNIQUE KEY `htt_name` (`ret_title`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%object_type`
@@ -325,7 +325,7 @@ CREATE TABLE `%TABLE_PREFIX%org_structure` (
   `org_title` varchar(255) default NULL,
   `org_is_current` int(1) default '1',
   PRIMARY KEY  (`org_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%org_structure`
@@ -347,7 +347,7 @@ CREATE TABLE `%TABLE_PREFIX%org_structure_relationship` (
   `orr_parent_org_id` int(11) default NULL,
   `orr_child_org_id` int(11) default NULL,
   PRIMARY KEY  (`orr_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%org_structure_relationship`
@@ -377,7 +377,7 @@ CREATE TABLE `%TABLE_PREFIX%record_matching_field` (
   KEY `rmf_xsdmf_id` (`rmf_xsdmf_id`),
   KEY `combo_pid_xsdmf` (`rmf_rec_pid`,`rmf_xsdmf_id`),
   KEY `rmf_varchar` (`rmf_varchar`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%record_matching_field`
@@ -407,7 +407,7 @@ CREATE TABLE `%TABLE_PREFIX%search_key` (
   PRIMARY KEY  (`sek_id`),
   KEY `sek_title` (`sek_id`,`sek_title`),
   KEY `sek_title_alone` (`sek_title`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%search_key`
@@ -431,7 +431,7 @@ CREATE TABLE `%TABLE_PREFIX%status` (
   `sta_order` int(11) unsigned default NULL,
   `sta_color` varchar(255) default NULL,
   PRIMARY KEY  (`sta_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%status`
@@ -465,7 +465,7 @@ CREATE TABLE `%TABLE_PREFIX%user` (
   `usr_last_login_date` datetime default '0000-00-00 00:00:00',
   PRIMARY KEY  (`usr_id`),
   UNIQUE KEY `usr_username` (`usr_username`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%user`
@@ -491,7 +491,7 @@ CREATE TABLE `%TABLE_PREFIX%wfbehaviour` (
   `wfb_script_name` varchar(255) NOT NULL default '',
   `wfb_auto` tinyint(1) NOT NULL default '0',
   PRIMARY KEY  (`wfb_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%wfbehaviour`
@@ -516,7 +516,7 @@ CREATE TABLE `%TABLE_PREFIX%workflow` (
   `wfl_description` text,
   `wfl_roles` varchar(255) default NULL,
   PRIMARY KEY  (`wfl_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%workflow`
@@ -547,7 +547,7 @@ CREATE TABLE `%TABLE_PREFIX%workflow_state` (
   `wfs_transparent` tinyint(1) default '0',
   `wfs_roles` varchar(255) default NULL,
   PRIMARY KEY  (`wfs_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%workflow_state`
@@ -571,7 +571,7 @@ CREATE TABLE `%TABLE_PREFIX%workflow_state_link` (
   `wfsl_from_id` int(11) NOT NULL default '0',
   `wfsl_to_id` int(11) NOT NULL default '0',
   PRIMARY KEY  (`wfsl_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%workflow_state_link`
@@ -600,7 +600,7 @@ CREATE TABLE `%TABLE_PREFIX%workflow_trigger` (
   `wft_icon` varchar(64) NOT NULL default '',
   `wft_ret_id` int(11) NOT NULL default '0',
   PRIMARY KEY  (`wft_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%workflow_trigger`
@@ -627,7 +627,7 @@ CREATE TABLE `%TABLE_PREFIX%xsd` (
   `xsd_element_prefix` varchar(50) default NULL,
   `xsd_extra_ns_prefixes` varchar(255) default NULL,
   PRIMARY KEY  (`xsd_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%xsd`
@@ -652,7 +652,7 @@ CREATE TABLE `%TABLE_PREFIX%xsd_display` (
   `xdis_version` varchar(20) default NULL,
   `xdis_object_type` tinyint(1) unsigned default '0',
   PRIMARY KEY  (`xdis_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%xsd_display`
@@ -676,7 +676,7 @@ CREATE TABLE `%TABLE_PREFIX%xsd_display_attach` (
   `att_child_xsdmf_id` int(11) unsigned NOT NULL default '0',
   `att_order` int(7) default NULL,
   PRIMARY KEY  (`att_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%xsd_display_attach`
@@ -749,7 +749,7 @@ CREATE TABLE `%TABLE_PREFIX%xsd_display_matchfields` (
   KEY `xsdmf_sek_id` (`xsdmf_sek_id`),
   KEY `display_id_combo` (`xsdmf_id`,`xsdmf_xdis_id`,`xsdmf_sek_id`),
   KEY `xsdmf_element` (`xsdmf_element`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%xsd_display_matchfields`
@@ -773,7 +773,7 @@ CREATE TABLE `%TABLE_PREFIX%xsd_display_mf_option` (
   `mfo_value` varchar(64) NOT NULL default '',
   PRIMARY KEY  (`mfo_id`),
   KEY `icf_fld_id` (`mfo_fld_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%xsd_display_mf_option`
@@ -799,7 +799,7 @@ CREATE TABLE `%TABLE_PREFIX%xsd_loop_subelement` (
   `xsdsel_order` int(6) default NULL,
   `xsdsel_attribute_loop_xsdmf_id` int(11) default '0',
   PRIMARY KEY  (`xsdsel_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%xsd_loop_subelement`
@@ -823,7 +823,7 @@ CREATE TABLE `%TABLE_PREFIX%xsd_relationship` (
   `xsdrel_xdis_id` int(11) default NULL,
   `xsdrel_order` int(6) default NULL,
   PRIMARY KEY  (`xsdrel_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `%TABLE_PREFIX%xsd_relationship`
