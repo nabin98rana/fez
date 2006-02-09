@@ -58,7 +58,7 @@ if ($new_file) {
 	if (Fedora_API::datastreamExists($pid, $new_file)) {
 	    Fedora_API::callPurgeDatastream($pid, $new_file);
 	}
-	$delete_file = APP_DELETE_DIR.$new_file;
+	$delete_file = APP_TEMP_DIR.$new_file;
 	$new_file = APP_TEMP_DIR.$new_file;
 	Fedora_API::getUploadLocationByLocalRef($pid, $new_file, $new_file, $new_file, 'image/jpeg', 'M');
 	if (is_file($new_file)) {

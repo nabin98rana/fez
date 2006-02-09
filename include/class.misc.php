@@ -1860,6 +1860,11 @@ class Misc
         return $new_filename;
     }
 
+    function hasPrefix($string, $pre) 
+    {
+        return strpos($string, $pre) === 0;
+    }
+
 } // end of Misc class
 
 // benchmarking the included file (aka setup time)

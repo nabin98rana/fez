@@ -1256,6 +1256,7 @@ class Collection
                         on s2.sek_id = x2.xsdmf_sek_id
                         where s2.sek_title = '$order_by'
                         ) as d3
+                on r1.rmf_rec_pid = d3.sort_pid
                   WHERE r1.rmf_rec_pid IN (
                          SELECT rmf_rec_pid FROM 
                          {$dbtp}record_matching_field AS rmf
@@ -1420,13 +1421,16 @@ class Collection
      * @param   integer $max The maximum number of records to return	 
      * @return  array The list of Fez objects matching the search criteria
      */
-    function advSearchListing($current_row = 0, $max = 25)
+    function advSearchListing($current_row = 0, $max = 25, $order_by = 'Title')
     {
 		$terms = $_GET['list'];
 
 		if (empty($terms)) {
 			return array();
 		}
+
+        $sekdet = Search_Key::getDetailsByTitle($order_by);
+        $data_type = $sekdet['xsdmf_data_type'];
 
 		if ($max == "ALL") {
             $max = 9999999;
@@ -1505,6 +1509,17 @@ class Collection
 			AND s2.sek_title = 'Display Type' 
 			) as d2
             on r1.rmf_rec_pid = d2.rmf_rec_pid and d2.display_id = d1.xdis_id
+            left JOIN (
+                    SELECT distinct r2.rmf_rec_pid as sort_pid, 
+                    r2.rmf_$data_type as sort_column
+                    FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
+                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
+                    on r2.rmf_xsdmf_id = x2.xsdmf_id 
+                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+                    on s2.sek_id = x2.xsdmf_sek_id
+                    where s2.sek_title = '$order_by'
+                    ) as d3
+                on r1.rmf_rec_pid = d3.sort_pid
             WHERE
             r1.rmf_rec_pid IN (
                     SELECT rmf_rec_pid FROM 
@@ -1514,8 +1529,7 @@ class Collection
                     WHERE rmf.rmf_varchar=2
                     AND xdm.xsdmf_element='!sta_id'
                     )
-            ORDER BY
-            r1.rmf_rec_pid";
+            ORDER BY d3.sort_column ";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = array();
 		$return = Collection::makeReturnList($res);
@@ -1562,7 +1576,7 @@ class Collection
      * @param   integer $max The maximum number of records to return	 
      * @return  array The list of Fez objects matching the search criteria
      */
-    function searchListing($terms, $current_row = 0, $max = 25)
+    function searchListing($terms, $current_row = 0, $max = 25, $order_by='Title')
     {
 		if (empty($terms)) {
 			return array();
@@ -1572,6 +1586,9 @@ class Collection
             $max = 9999999;
         }
         $start = $current_row * $max;
+
+        $sekdet = Search_Key::getDetailsByTitle($order_by);
+        $data_type = $sekdet['xsdmf_data_type'];
 
 		$termArray = explode(" ", $terms);
         $termLike = '';
@@ -1615,7 +1632,19 @@ class Collection
 			AND s2.sek_title = 'Display Type' 
 			) as d2
             on r1.rmf_rec_pid = d2.rmf_rec_pid and d2.display_id = d1.xdis_id						
-			
+		
+            left JOIN (
+                    SELECT distinct r2.rmf_rec_pid as sort_pid, 
+                    r2.rmf_$data_type as sort_column
+                    FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
+                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
+                    on r2.rmf_xsdmf_id = x2.xsdmf_id 
+                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+                    on s2.sek_id = x2.xsdmf_sek_id
+                    where s2.sek_title = '$order_by'
+                    ) as d3
+                on r1.rmf_rec_pid = d3.sort_pid
+	
             WHERE r1.rmf_rec_pid IN (
                     SELECT rmf_rec_pid FROM 
                     {$dbtp}record_matching_field AS rmf
@@ -1624,7 +1653,7 @@ class Collection
                     WHERE rmf.rmf_varchar=2
                     AND xdm.xsdmf_element='!sta_id'
                     )
-            ORDER BY r1.rmf_rec_pid";
+            ORDER BY d3.sort_column";
 		$securityfields = Auth::getAllRoles();
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		

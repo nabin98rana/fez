@@ -131,14 +131,14 @@ if (!empty($collection_pid)) {
 	}
 } elseif (!empty($terms)) {
     // search Fez
-	$list = Collection::searchListing($terms, $pagerRow, $rows);	
+	$list = Collection::searchListing($terms, $pagerRow, $rows, $order_by);	
 	$list_info = $list["info"];
 	$list = $list["list"];
 	$tpl->assign("list_heading", "Search Results ($terms)");
 	$tpl->assign("list_type", "all_records_list");
 } elseif ($cat == "search") {
     // search 
-	$list = Collection::advSearchListing($pagerRow, $rows);	
+	$list = Collection::advSearchListing($pagerRow, $rows, $order_by);	
 	$list_info = $list["info"];
 	$list = $list["list"];
 	$tpl->assign("list_heading", "Search Results ($terms)");

@@ -900,12 +900,11 @@ class Record
             return -1;
         }
         // get children and update their indexes.
-        $rec = new RecordObject($pid);
+        $rec = new RecordGeneral($pid);
         $children = $rec->getChildrenPids();
         foreach ($children as $child_pid) {
             Record::setIndexAuth($child_pid);
         }
-
         return 1;
     }
 
@@ -1138,13 +1137,13 @@ class Record
 						}
 						if (Fedora_API::datastreamExists($pid, $presmd_check)) {
 							Fedora_API::callPurgeDatastream($pid, $presmd_check);
-							if (is_file(APP_TEMP_DIR.$presmd_check)) {
-								$deleteCommand = APP_DELETE_CMD." ".APP_DELETE_DIR.$presmd_check;
-								exec($deleteCommand);
-							}
 						}
 						Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, 
 								"text/xml", "X");
+                        if (is_file(APP_TEMP_DIR.$presmd_check)) {
+                            $deleteCommand = APP_DELETE_CMD." ".APP_DELETE_DIR.$presmd_check;
+                            exec($deleteCommand);
+                        }
 					}
 				}
 			}			
@@ -1165,6 +1164,7 @@ class Record
 //		exit;
 
     }
+
 
 }
 
@@ -1773,6 +1773,60 @@ class RecordObject extends RecordGeneral
         return $trigger;
     }
 
+    function regenerateImages()
+    {
+        $pid = $this->pid;
+
+        // get a list of datastreams from the object
+        $ds = Fedora_API::callGetDatastreams($pid);
+        
+        // ingest the datastreams
+        foreach ($ds as $dsKey => $dsTitle) {
+            $dsIDName = $dsTitle['ID'];
+            if ($dsTitle['controlGroup'] == 'M' 
+                    && is_numeric(strpos($dsTitle['MIMEType'],"image/")) 
+                    && !Misc::hasPrefix($dsIDName, 'preview_')
+                    && !Misc::hasPrefix($dsIDName, 'web_')
+                    && !Misc::hasPrefix($dsIDName, 'thumbnail_')
+               ) 
+            {
+
+
+                // first extract the image and save temporary copy
+                $urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsIDName; 
+                copy($urldata,APP_TEMP_DIR.$dsIDName); 
+
+                // now process it's ingest workflows
+                $presmd_check = Workflow::checkForPresMD($dsIDName);
+                if ($presmd_check != false) {
+                    // strip directory off the name
+                    $pres_dsID = basename($presmd_check);
+                    
+                    if (Fedora_API::datastreamExists($pid, $pres_dsID)) {
+                        $xml = file_get_contents($presmd_check);
+                        Fedora_API::callModifyDatastreamByValue($pid, $pres_dsID, "A", 
+                                "Preservation Metadata", $xml, "text/xml", true);
+                    } else {
+                        Fedora_API::getUploadLocationByLocalRef($pid, $pres_dsID, $presmd_check, $presmd_check, 
+                                "text/xml", "X");
+                    }
+                    if (is_file(APP_TEMP_DIR.$presmd_check)) {
+                        $deleteCommand = APP_DELETE_CMD." ".$presmd_check;
+                        exec($deleteCommand);
+                    }
+                }
+                Workflow::processIngestTrigger($pid, $dsTitle['ID'], $dsTitle['MIMEType']);
+                //clear the managed content file temporarily saved in the APP_TEMP_DIR
+                if (is_file(APP_TEMP_DIR.$dsTitle['ID'])) {
+                    $deleteCommand = APP_DELETE_CMD." ".APP_TEMP_DIR.$dsTitle['ID'];
+                    exec($deleteCommand);
+                }
+            }
+        }
+
+		Record::setIndexMatchingFields($pid);
+
+    }
 }
 
 
