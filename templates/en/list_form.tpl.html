@@ -297,8 +297,8 @@ function purgeObject(pid)
            &nbsp;<b>{$list_heading}: </b>
 		   
 		   <b>({$list_info.total_rows} results found{if $list_info.end_offset > 0}, {math equation="x + 1" x=$list_info.start_offset} - {$list_info.end_offset} shown{/if}) ({$list_info.hidden_rows} hidden)</b> 
-                   Order By 
-                   <select name="order_by" onchange="javascript:sortList(this.form, 'order_by');">
+                   </td><td align="right"><span class="default">Order By </span>
+                   <select class="default" name="order_by" onchange="javascript:sortList(this.form, 'order_by');">
                        {html_options options=$order_by_list selected=$order_by_default}
                    </select>
 			</td>
