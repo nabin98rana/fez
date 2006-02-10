@@ -454,6 +454,9 @@ class Controlled_Vocab
      */
     function getParentAssocListFullDisplay($child_id, $indent="")
     {
+	 if (empty($child_id)) {
+            return array();
+	 }
         $stmt = "SELECT
                     cvo_id,
 					concat('".$indent."',cvo_title) as cvo_title

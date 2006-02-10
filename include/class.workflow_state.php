@@ -188,7 +188,7 @@ class Workflow_State
         if ($wfl_id) {
             $wherestr = " wfs_wfl_id=$wfl_id ";
         } else {
-            $wherestr = " 1 ";
+            $wherestr = " 1 ";			
         }
 
         $stmt = "SELECT

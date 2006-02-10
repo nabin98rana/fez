@@ -277,7 +277,7 @@ class XSD_HTML_Match
 					(SELECT m3.xsdmf_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields as m3 WHERE m3.xsdmf_xdis_id=".$xdis_id.")
 					as rels on (r2.xsdrel_xsdmf_id = (rels.xsdmf_id)) )";
 	   $xsdrelall = $GLOBALS["db_api"]->dbh->getCol($stmt); 
-		if (PEAR::isError($res)) {
+		if (PEAR::isError($xsdrelall)) {
 			Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			$res = array();
 		}
@@ -1867,7 +1867,7 @@ class XSD_HTML_Match
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
                  WHERE
                     xdis_id=$xdis_id";
-        $res = $GLOBALS["db_api"]->dbh->getOne($stmt, DB_FETCHMODE_ASSOC);
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
@@ -1891,7 +1891,7 @@ class XSD_HTML_Match
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
                  WHERE
                     xsdmf_attached_xsdmf_id=$xsdmf_id";
-        $res = $GLOBALS["db_api"]->dbh->getOne($stmt, DB_FETCHMODE_ASSOC);
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
