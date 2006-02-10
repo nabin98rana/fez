@@ -671,59 +671,90 @@ class Collection
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $restrict_collection = '';
         if ($collection_pid) {
-            $restrict_collection = " INNER JOIN (
-                SELECT r3.rmf_rec_pid 
+            $stmt = " SELECT r3.rmf_rec_pid 
                 FROM  {$dbtp}record_matching_field AS r3
                 INNER JOIN {$dbtp}xsd_display_matchfields AS x3
                 ON x3.xsdmf_id = r3.rmf_xsdmf_id
                 INNER JOIN {$dbtp}search_key AS s3
                 ON x3.xsdmf_sek_id = s3.sek_id
                 WHERE s3.sek_title = 'isMemberOf'   
-                AND r3.rmf_varchar = '$collection_pid'
-                ) as com1 on com1.rmf_rec_pid = r1.rmf_rec_pid ";
+                AND r3.rmf_varchar = '$collection_pid' ";
+            file_put_contents('/tmp/mss.txt', "getRecords ".$stmt,FILE_APPEND);
+            $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                $res = array();
+            }
+            $collection_pids = $res;
         }
-        $stmt = " SELECT *
-            FROM {$dbtp}record_matching_field AS r1
-           $restrict_collection
-            INNER JOIN
-            (SELECT distinct authi_pid FROM {$dbtp}auth_index WHERE
-             (authi_role = 'Editor'
-              OR authi_role = 'Approver')
-             AND (
-                 (authi_rule = '!rule!role!Fez_User' AND authi_value='".Auth::getUserID()."')
-                 OR (authi_rule = '!rule!role!AD_User' AND authi_value='".Auth::getUsername()."') ";
-                 if (!empty($fez_groups_sql)) {
-                   $stmt .="
-                   OR (authi_rule = '!rule!role!Fez_Group' AND authi_value 
-                     IN ($fez_groups_sql) ) ";
-                 }
-                 if (!empty($ldap_groups_sql)) {
-                   $stmt .= "
-                   OR (authi_rule = '!rule!role!AD_Group' AND authi_value 
-                     IN ($ldap_groups_sql) ) ";
-                 }
-                 if (Auth::isInAD())  {
-                   $stmt .= "
-                   OR (authi_rule = '!rule!role!in_AD' ) ";
-                 }
-                 if (Auth::isInDB()) {
-                   $stmt .= "
-                   OR (authi_rule = '!rule!role!in_Fez') ";
-                 }
-                 $stmt .= "
-                 )
-             ) as security1 on security1.authi_pid=r1.rmf_rec_pid
-			INNER JOIN (
-                    SELECT r2.rmf_rec_pid 
-                    FROM  {$dbtp}record_matching_field r2
-                    INNER JOIN {$dbtp}xsd_display_matchfields x2
-                    ON r2.rmf_xsdmf_id = x2.xsdmf_id 
-                    INNER JOIN {$dbtp}search_key s2				  
-                    ON x2.xsdmf_sek_id = s2.sek_id 
-                    WHERE s2.sek_title = 'Object Type' 
-                    AND r2.rmf_varchar = '3' 
-                    ) as o1 on o1.rmf_rec_pid = r1.rmf_rec_pid
-            left JOIN (
+        $stmt = "SELECT distinct authi_pid FROM {$dbtp}auth_index WHERE
+            (authi_role = 'Editor'
+             OR authi_role = 'Approver')
+            AND (
+                    (authi_rule = '!rule!role!Fez_User' AND authi_value='".Auth::getUserID()."')
+                    OR (authi_rule = '!rule!role!AD_User' AND authi_value='".Auth::getUsername()."') ";
+                    if (!empty($fez_groups_sql)) {
+                    $stmt .="
+                    OR (authi_rule = '!rule!role!Fez_Group' AND authi_value 
+                        IN ($fez_groups_sql) ) ";
+                    }
+                    if (!empty($ldap_groups_sql)) {
+                    $stmt .= "
+                    OR (authi_rule = '!rule!role!AD_Group' AND authi_value 
+                        IN ($ldap_groups_sql) ) ";
+                    }
+                    if (Auth::isInAD())  {
+                    $stmt .= "
+                    OR (authi_rule = '!rule!role!in_AD' ) ";
+                    }
+                    if (Auth::isInDB()) {
+                    $stmt .= "
+                    OR (authi_rule = '!rule!role!in_Fez') ";
+                    }
+                    $stmt .= "
+                        )
+                        ";
+        if ($collection_pid) {
+            if (!empty($collection_pids)) {
+                $stmt .= " AND authi_pid IN (".Misc::arrayToSQL($collection_pids).") ";
+            } else {
+                // make it fail if there's no records in the collection
+                $stmt .= " AND false ";
+            }
+        }
+            file_put_contents('/tmp/mss.txt', "getRecords ".$stmt,FILE_APPEND);
+        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = array();
+        }
+        $auth_pids = $res;
+        $object_type_pids = array();
+        if (!empty($auth_pids)) {
+            $stmt = "SELECT r2.rmf_rec_pid 
+                FROM  {$dbtp}record_matching_field r2
+                INNER JOIN {$dbtp}xsd_display_matchfields x2
+                ON r2.rmf_xsdmf_id = x2.xsdmf_id 
+                INNER JOIN {$dbtp}search_key s2				  
+                ON x2.xsdmf_sek_id = s2.sek_id 
+                WHERE s2.sek_title = 'Object Type' 
+                AND r2.rmf_varchar = '3' 
+                AND r2.rmf_rec_pid IN (".Misc::arrayToSQL($auth_pids).") 
+                ";
+            file_put_contents('/tmp/mss.txt', "getRecords ".$stmt,FILE_APPEND);
+            $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                $res = array();
+            }
+            $object_type_pids = $res;
+        }
+
+        $res = array();
+        if (!empty($object_type_pids)) {
+            $stmt = " SELECT *
+                FROM {$dbtp}record_matching_field AS r1
+                left JOIN (
                         SELECT distinct r2.rmf_rec_pid as sort_pid, 
                         r2.rmf_$data_type as sort_column
                         FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
@@ -734,18 +765,20 @@ class Collection
                         where s2.sek_title = '$order_by'
                         ) as d3
                 on r1.rmf_rec_pid = d3.sort_pid
+                INNER JOIN {$dbtp}xsd_display_matchfields AS x1 ON r1.rmf_xsdmf_id=x1.xsdmf_id
                 INNER JOIN {$dbtp}search_key as sk1 on sk1.sek_id = x1.xsdmf_sek_id
-            LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 
-            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id)     
-            INNER JOIN {$dbtp}xsd_display_matchfields AS x1 ON r1.rmf_xsdmf_id=x1.xsdmf_id
-            order by d3.sort_column
-           ";
-        
-        
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            $res = array();
+                LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id)     
+                WHERE r1.rmf_rec_pid IN (".Misc::arrayToSQL($object_type_pids).")
+                order by d3.sort_column
+                ";
+
+            file_put_contents('/tmp/mss.txt', "getRecords ".$stmt,FILE_APPEND);
+
+            $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                $res = array();
+            }
         }
         $list = Collection::makeReturnList($res);
         return $list;	

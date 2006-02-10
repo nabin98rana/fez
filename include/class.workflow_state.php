@@ -208,14 +208,16 @@ class Workflow_State
             if (empty($res)) {
                 return array();
             } else {
-                // get all the links from these to others
-                $nexts = WorkflowStateLink::getNextByWkFlow($wfl_id);
-                $prevs = WorkflowStateLink::getPrevByWkFlow($wfl_id);
-                foreach ($res as &$row) {
-                    // items that come from this id
-                    $row['next_ids'] = @$nexts[$row['wfs_id']];
-                    // items that go to this id
-                    $row['prev_ids'] = @$prevs[$row['wfs_id']];
+                if ($wfl_id) {
+                    // get all the links from these to others
+                    $nexts = WorkflowStateLink::getNextByWkFlow($wfl_id);
+                    $prevs = WorkflowStateLink::getPrevByWkFlow($wfl_id);
+                    foreach ($res as &$row) {
+                        // items that come from this id
+                        $row['next_ids'] = @$nexts[$row['wfs_id']];
+                        // items that go to this id
+                        $row['prev_ids'] = @$prevs[$row['wfs_id']];
+                    }
                 }
                 return $res;
             }
@@ -241,9 +243,13 @@ class Workflow_State
     function getDetailsNext($wfs_id)
     {
         $ids = WorkflowStateLink::getListNext($wfs_id);
-        $ids_str = implode(',', $ids);
-        $states = Workflow_State::getList(null, " AND wfs_id IN ($ids_str) ");
-        return $states;
+        if (!empty($ids)) {
+            $ids_str = implode(',', $ids);
+            $states = Workflow_State::getList(null, " AND wfs_id IN ($ids_str) ");
+            return $states;
+        } else {
+            return array();
+        }
     }
 
     /**
