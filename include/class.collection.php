@@ -679,7 +679,6 @@ class Collection
                 ON x3.xsdmf_sek_id = s3.sek_id
                 WHERE s3.sek_title = 'isMemberOf'   
                 AND r3.rmf_varchar = '$collection_pid' ";
-            file_put_contents('/tmp/mss.txt', "getRecords ".$stmt,FILE_APPEND);
             $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -722,7 +721,6 @@ class Collection
                 $stmt .= " AND false ";
             }
         }
-            file_put_contents('/tmp/mss.txt', "getRecords ".$stmt,FILE_APPEND);
         $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -741,7 +739,6 @@ class Collection
                 AND r2.rmf_varchar = '3' 
                 AND r2.rmf_rec_pid IN (".Misc::arrayToSQL($auth_pids).") 
                 ";
-            file_put_contents('/tmp/mss.txt', "getRecords ".$stmt,FILE_APPEND);
             $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -772,7 +769,6 @@ class Collection
                 order by d3.sort_column
                 ";
 
-            file_put_contents('/tmp/mss.txt', "getRecords ".$stmt,FILE_APPEND);
 
             $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
             if (PEAR::isError($res)) {
