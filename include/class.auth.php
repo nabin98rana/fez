@@ -234,6 +234,7 @@ class Auth
 	function getIndexParentACMLMember(&$array, $pid) {
 		$ACMLArray = &$array;
 		static $returns;
+		$pid = $pid['pid'];
         if (is_array(@$returns[$pid])) {		
 //			$ACMLArray = $returns[$pid]; //add it to the acml array and dont go any further up the hierarchy
 //			array_push($ACMLArray, $returns[$pid]); //add it to the acml array and dont go any further up the hierarchy			
@@ -260,6 +261,7 @@ class Auth
 			$securityfields = Auth::getAllRoles();
 			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 			$return = array();
+			$returns = array();			
 
 			foreach ($res as $result) {
 				if (!is_array(@$return[$result['rmf_rec_pid']])) {

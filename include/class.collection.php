@@ -132,9 +132,9 @@ class Collection
                 INNER JOIN ( SELECT r3.rmf_varchar
 						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3
 						INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x3
-						ON x3.xsdmf_sek_id = s3.sek_id
-						INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s3
 						ON x3.xsdmf_id = r3.rmf_xsdmf_id 
+						INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s3
+						ON x3.xsdmf_sek_id = s3.sek_id
 						WHERE s3.sek_title = 'isMemberOf' 
 						AND r3.rmf_rec_pid='$collection_pid') as s1 ON s1.rmf_varchar=r1.rmf_rec_pid
 				WHERE x1.xsdmf_element='!dc:title'
