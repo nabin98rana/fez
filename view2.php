@@ -41,7 +41,7 @@ $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
 $isAdministrator = Auth::isAdministrator();
 $tpl->assign("isAdministrator", $isAdministrator);
-
+$pid = @$HTTP_POST_VARS["pid"] ? $HTTP_POST_VARS["pid"] : $HTTP_GET_VARS["pid"];
 
 $tpl->assign("fez_root_dir", APP_PATH);
 $tpl->assign("eserv_url", APP_BASE_URL."eserv.php?pid=".$pid."&dsID=");
@@ -147,6 +147,7 @@ if (!empty($pid)) {
 	if (empty($details)) {
 		$tpl->assign('details', '');
 	} else {
+
 		$datastreams = Fedora_API::callGetDatastreams($pid);
 		$datastreams = Misc::cleanDatastreamList($datastreams);
 		$securityfields = Auth::getAllRoles();

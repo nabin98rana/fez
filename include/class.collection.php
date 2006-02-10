@@ -1388,7 +1388,7 @@ class Collection
 					  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x".$termCounter.",
 					  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s".$termCounter."  							  
 				WHERE r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id AND s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id AND s".$termCounter.".sek_title = 'Object Type' AND r".$termCounter.".rmf_varchar='3'
-				) as r".$termCounter." on r2.rmf_rec_pid = r".$termCounter.".rmf_rec_pid";
+				) as r".$termCounter." on r1.rmf_rec_pid = r".$termCounter.".rmf_rec_pid";
 		$termCounter++;
 		$middleStmt .= 
 		" LEFT JOIN ( 
@@ -1402,22 +1402,19 @@ class Collection
         $stmt = "SELECT
                    r1.rmf_".$data_type." as ".$as_field.$extra.", IFNULL(sum(r2.rmf_int),0) as file_downloads
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,					
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1 INNER JOIN
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 ON (r1.rmf_xsdmf_id = x1.xsdmf_id) left JOIN
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2 ON (r1.rmf_rec_pid = r2.rmf_rec_pid) left join
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id) left join
  				    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 on (k1.sek_id = x1.xsdmf_sek_id)
 				";
 				$stmt .= $middleStmt;
 				$stmt .= 
-                " WHERE
-				    r1.rmf_xsdmf_id = x1.xsdmf_id and r1.rmf_rec_pid = r2.rmf_rec_pid
-				  GROUP BY
+                "  GROUP BY
 				    ".$group_field."
 				  ORDER BY
 				     file_downloads DESC, r1.rmf_".$data_type."
 				  LIMIT 0,50"; // only get the top 50
-	
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = $res;
         if (PEAR::isError($res)) {

@@ -463,11 +463,23 @@ class Fedora_API {
     * @return array $dsIDListArray The list of datastreams in an array.
     */		
 	function callGetDatastreams($pid) {
-	   $parms=array('pid' => $pid);
-	   $dsIDListArray = Fedora_API::openSoapCall('getDatastreams', $parms);
-	   sort($dsIDListArray);
-	   reset($dsIDListArray);
-	   return $dsIDListArray;
+		static $returns;
+	
+        // check if this has already been found and set to a static variable		
+        if (!empty($returns[$pid])) { 
+			return $returns[$pid];
+		} else {
+			if (!is_numeric($pid)) {
+			   $parms=array('pid' => $pid, 'asOfDateTime' => NULL, 'dsState' => NULL);
+			   $dsIDListArray = Fedora_API::openSoapCall('getDatastreams', $parms);
+			   sort($dsIDListArray);
+			   reset($dsIDListArray);
+			   $returns[$pid] = $dsIDListArray;
+			   return $dsIDListArray;
+		   } else {
+			  return array();
+		   }
+	   }
 	}
 
    /**
