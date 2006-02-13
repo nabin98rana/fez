@@ -857,18 +857,44 @@ class Collection
             $pub_pids = $res;
         }
 
-        if (!empty($pub_pids)) {
-            $stmt = " SELECT * 
-                FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1
-                INNER JOIN (
-                        SELECT distinct r2.rmf_rec_pid, r2.rmf_varchar as display_id
+       if (!empty($pub_pids)) {
+            $stmt = "   SELECT distinct r2.rmf_rec_pid
                         FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
                         inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
                         on r2.rmf_xsdmf_id = x2.xsdmf_id 
                         where x2.xsdmf_element = '!xdis_id'
-                        ) as d2
-                on r1.rmf_rec_pid = d2.rmf_rec_pid  		
-                left JOIN (
+						order by r2.rmf_rec_pid";
+            $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                $res = array();
+            }
+            $display_pids = $res;
+			$pids = array_intersect($display_pids,$pub_pids);
+			$pids = Misc::arrayToSQL($pids);
+
+            $stmt = "   SELECT distinct r2.rmf_varchar as display_id
+                        FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
+                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
+                        on r2.rmf_xsdmf_id = x2.xsdmf_id 
+                        where x2.xsdmf_element = '!xdis_id'
+                        and r2.rmf_rec_pid in  (".$pids.")
+						order by r2.rmf_rec_pid";
+            $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                $res = array();
+            }
+            $display_ids = $res;
+        }
+//        $pids = array_intersect($display_pids,$pub_pids);
+//        $pids = Misc::arrayToSQL($pids);
+        if (!empty($pids)) {
+            $stmt = " SELECT * 
+                FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1
+                inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1
+                on x1.xsdmf_id = r1.rmf_xsdmf_id
+                inner JOIN (
                         SELECT distinct r2.rmf_rec_pid as sort_pid, 
                         r2.rmf_$data_type as sort_column
                         FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
@@ -877,19 +903,19 @@ class Collection
                         inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
                         on s2.sek_id = x2.xsdmf_sek_id
                         where s2.sek_title = '$order_by'
+						order by sort_pid
                         ) as d3
                 on r1.rmf_rec_pid = d3.sort_pid
-                 inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1
-               on x1.xsdmf_id = r1.rmf_xsdmf_id
                 left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 
                 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
                 left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 
                 on (k1.sek_id = x1.xsdmf_sek_id)
-                left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d2.display_id = d1.xdis_id	
+                left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d1.xdis_id in (".Misc::arrayToSQL($display_ids).") and d1.xdis_id = x1.xsdmf_xdis_id
                 WHERE (r1.rmf_dsid IS NULL or r1.rmf_dsid = '')			 
-                and r1.rmf_rec_pid IN (".Misc::arrayToSQL($pub_pids).")
+                and r1.rmf_rec_pid IN (".$pids.")
                 ORDER BY
                 d3.sort_column ";
+//			echo $stmt; exit;
             $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
