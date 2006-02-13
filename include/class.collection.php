@@ -343,30 +343,8 @@ class Collection
         $sekdet = Search_Key::getDetailsByTitle($order_by);
         $data_type = $sekdet['xsdmf_data_type'];
         $restrict_community = '';
-        if ($community_pid) {
-            $restrict_community = " INNER JOIN (
-                SELECT r3.rmf_rec_pid 
-                FROM  {$dbtp}record_matching_field AS r3
-                INNER JOIN {$dbtp}xsd_display_matchfields AS x3
-                ON x3.xsdmf_id = r3.rmf_xsdmf_id
-                INNER JOIN {$dbtp}search_key AS s3
-                ON x3.xsdmf_sek_id = s3.sek_id
-                WHERE s3.sek_title = 'isMemberOf'   
-                AND r3.rmf_varchar = '$community_pid'
-                ) as com1 on com1.rmf_rec_pid = r1.rmf_rec_pid ";
-        }
-        $stmt = " SELECT *
-            FROM {$dbtp}record_matching_field AS r1
-			INNER JOIN (
-                    SELECT r2.rmf_rec_pid 
-                    FROM  {$dbtp}record_matching_field r2
-                    INNER JOIN {$dbtp}xsd_display_matchfields x2
-                    ON r2.rmf_xsdmf_id = x2.xsdmf_id 
-                    WHERE x2.xsdmf_element = '!ret_id' AND r2.rmf_varchar = '2' 
-                    ) as o1 on o1.rmf_rec_pid = r1.rmf_rec_pid
-			$restrict_community
-            INNER JOIN
-            (SELECT distinct authi_pid FROM {$dbtp}auth_index WHERE
+
+            $stmt = "SELECT distinct authi_pid FROM {$dbtp}auth_index WHERE
              (authi_role = 'Editor'
               OR authi_role = 'Approver')
              AND (
@@ -391,8 +369,24 @@ class Collection
                    OR (authi_rule = '!rule!role!in_Fez') ";
                  }
                  $stmt .= "
-                 )
-             ) as security1 on security1.authi_pid=r1.rmf_rec_pid
+                 )";
+            $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            }
+            $auth_pids = $res;
+
+
+        $stmt = " SELECT *
+            FROM {$dbtp}record_matching_field AS r1
+			INNER JOIN (
+                    SELECT r2.rmf_rec_pid 
+                    FROM  {$dbtp}record_matching_field r2
+                    INNER JOIN {$dbtp}xsd_display_matchfields x2
+                    ON r2.rmf_xsdmf_id = x2.xsdmf_id 
+                    WHERE x2.xsdmf_element = '!ret_id' AND r2.rmf_varchar = '2' 
+                    ) as o1 on o1.rmf_rec_pid = r1.rmf_rec_pid
+			$restrict_community
              left JOIN (
                         SELECT distinct r2.rmf_rec_pid as sort_pid, 
                         r2.rmf_$data_type as sort_column
@@ -407,10 +401,11 @@ class Collection
                 INNER JOIN {$dbtp}xsd_display_matchfields AS x1 ON r1.rmf_xsdmf_id=x1.xsdmf_id
  			INNER JOIN {$dbtp}search_key as sk1 on sk1.sek_id = x1.xsdmf_sek_id
             LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 
-            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id)               
+            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+            where r1.rmf_rec_pid IN (".Misc::arrayToSQL($auth_pids).")
             order by d3.sort_column
            ";
-                // echo $stmt;
+       
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

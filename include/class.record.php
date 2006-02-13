@@ -677,7 +677,7 @@ class Record
                 ON xdmf.xsdmf_id=rmf.rmf_xsdmf_id
                 WHERE xdmf.xsdmf_element='!sta_id' 
                 AND rmf.rmf_varchar!='2'";
-        //echo $stmt;
+//        echo $stmt;
 		$res = $GLOBALS["db_api"]->dbh->getCol($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -719,44 +719,47 @@ class Record
         $canedit_ids = $res;
         $pids = array_intersect($canedit_ids,$published_ids);
         $pids = Misc::arrayToSQL($pids);
-        $stmt = " SELECT *
-            FROM {$dbtp}record_matching_field AS r1
-            INNER JOIN (
-                    SELECT distinct r2.rmf_rec_pid, r2.rmf_varchar as display_id
-                    FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
-                    INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
-                    ON r2.rmf_xsdmf_id = x2.xsdmf_id 
-                    where x2.xsdmf_element = '!xdis_id'
-                    ) as d2
-            on r1.rmf_rec_pid = d2.rmf_rec_pid  					
-            left JOIN (
-                        SELECT distinct r2.rmf_rec_pid as sort_pid, 
-                        r2.rmf_$data_type as sort_column
-                        FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
-                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
-                        on r2.rmf_xsdmf_id = x2.xsdmf_id 
-                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
-                        on s2.sek_id = x2.xsdmf_sek_id
-                        where s2.sek_title = '$order_by'
-                        ) as d3
-                on r1.rmf_rec_pid = d3.sort_pid
-            INNER JOIN {$dbtp}xsd_display_matchfields AS x1
-            ON r1.rmf_xsdmf_id=x1.xsdmf_id
-            LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 
-            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
-            left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 
-            on (k1.sek_id = x1.xsdmf_sek_id)
-            left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d2.display_id = d1.xdis_id	
-			WHERE (r1.rmf_dsid IS NULL or r1.rmf_dsid = '')			 
-            AND r1.rmf_rec_pid IN ($pids)
-            ORDER BY d3.sort_column ASC
-            ";
-        //echo $stmt;
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            $res = array();
-        }		
+		if ($pids != "") {
+			$stmt = " SELECT *
+				FROM {$dbtp}record_matching_field AS r1
+				INNER JOIN (
+						SELECT distinct r2.rmf_rec_pid, r2.rmf_varchar as display_id
+						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
+						INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
+						ON r2.rmf_xsdmf_id = x2.xsdmf_id 
+						where x2.xsdmf_element = '!xdis_id'
+						) as d2
+				on r1.rmf_rec_pid = d2.rmf_rec_pid  					
+				left JOIN (
+							SELECT distinct r2.rmf_rec_pid as sort_pid, 
+							r2.rmf_$data_type as sort_column
+							FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
+							inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
+							on r2.rmf_xsdmf_id = x2.xsdmf_id 
+							inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+							on s2.sek_id = x2.xsdmf_sek_id
+							where s2.sek_title = '$order_by'
+							) as d3
+					on r1.rmf_rec_pid = d3.sort_pid
+				INNER JOIN {$dbtp}xsd_display_matchfields AS x1
+				ON r1.rmf_xsdmf_id=x1.xsdmf_id
+				LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 
+				ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+				left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 
+				on (k1.sek_id = x1.xsdmf_sek_id)
+				left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d2.display_id = d1.xdis_id	
+				WHERE (r1.rmf_dsid IS NULL or r1.rmf_dsid = '')			 
+				AND r1.rmf_rec_pid IN ($pids)
+				ORDER BY d3.sort_column ASC
+				";
+			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+			if (PEAR::isError($res)) {
+				Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+				$res = array();
+			}
+		} else {
+			$res = array();
+		}
           
         $list = Collection::makeReturnList($res);
         $totalRows = count($list);
