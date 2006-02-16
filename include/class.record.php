@@ -1098,7 +1098,10 @@ class Record
 //		Record::insertIndexBatch($pid, '', $indexArray, $datastreamXMLHeaders, $exclude_list, $specify_list);
 
         // ingest the datastreams
-		foreach ($datastreamXMLHeaders as $dsKey => $dsTitle) {
+//		print_r($datastreamXMLContent); exit;
+//		print_r($datastreamXMLHeaders); exit;
+		foreach ($datastreamXMLHeaders as $dsKey => $dsTitle) {		
+
 			$dsIDName = $dsTitle['ID'];
 
 			if (is_numeric(strpos($dsIDName, "."))) {
@@ -1111,8 +1114,8 @@ class Record
 			} else {
 				if ($dsTitle['CONTROL_GROUP'] == "R" || $dsTitle['CONTROL_GROUP'] == "X") { // if its a redirect we don't need to upload the file
                     if ($dsIDName == "DOI") {
-                        file_put_contents('/tmp/mss.txt',print_r($dsTitle ,true));
-                        file_put_contents('/tmp/mss.txt',print_r($datastreamXMLContent[$dsKey],true),FILE_APPEND);
+                        //file_put_contents('/tmp/mss.txt',print_r($dsTitle ,true));
+                        //file_put_contents('/tmp/mss.txt',print_r($datastreamXMLContent[$dsKey],true),FILE_APPEND);
                     }
 					if (Fedora_API::datastreamExists($pid, $dsIDName)) {
 				    	Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, $dsTitle['STATE'], $dsTitle['LABEL'],
@@ -1151,6 +1154,7 @@ class Record
 				}
 			}			
 		} 
+
         // run the workflows on the ingested datastreams.
         // we do this in a seperate loop so that all the supporting metadata streams are ready to go
 		foreach ($datastreamXMLHeaders as $dsKey => $dsTitle) {
@@ -1164,7 +1168,7 @@ class Record
         }
 
 		Record::setIndexMatchingFields($pid);
-//		exit;
+		
 
     }
 

@@ -147,7 +147,9 @@ if ($access_ok) {
     $maxG = 0;
     $xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array(""));  // XSD_DisplayObject
     $parent_relationships = array();
+	$datastream_isMemberOf = array(0 => $pid);
     foreach ($parents as $parent) {
+		array_push($datastream_isMemberOf, $parent['pid']);
         $parent_record = new RecordObject($parent['pid']);
         $parent_xdis_id = $parent_record->getXmlDisplayId();
         $parent_relationship = XSD_Relationship::getColListByXDIS($parent_xdis_id);
@@ -308,8 +310,9 @@ if ($access_ok) {
                     $datastreams[$ds_key]['security'] = "inherit";
                     $parentsACMLs = array();
                 } 
-                $parents = Record::getParents($pid_key);
-                Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid_key, $parents);
+                $parents = Record::getParents($pid);
+                Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid, $datastream_isMemberOf);
+//				print_r($parentsACMLs);
                 $datastreams[$ds_key]['FezACML'] = $parentsACMLs;			
             } else {
                 $datastreams[$ds_key]['security'] = "exclude";			
@@ -317,7 +320,6 @@ if ($access_ok) {
         }
     } 
     $datastreams = Auth::getIndexAuthorisationGroups($datastreams);
-
     $parents = $record->getParents(); // RecordObject
     $tpl->assign("parents", $parents);
     $title = $record->getTitle(); // RecordObject

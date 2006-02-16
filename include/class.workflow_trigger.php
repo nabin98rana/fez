@@ -279,12 +279,14 @@ class WorkflowTrigger
     function getIngestTrigger($pid, $xdis_id, $mimetype, $strict_xdis_id=false) 
     {
         $trigger = WorkflowTrigger::getTriggerId('Ingest');
-        $list = WorkflowTrigger::getList($pid, " AND wft_type_id=$trigger
-                AND wft_xdis_id=$xdis_id AND wft_mimetype LIKE '%$mimetype%' ");
-        if (empty($list) && !$strict_xdis_id) {
-            $list = WorkflowTrigger::getList($pid, " AND wft_type_id=$trigger
-                    AND wft_xdis_id=-1 AND wft_mimetype LIKE '%$mimetype%' ");
-        }
+		if (!empty($mimetype)) {
+			$list = WorkflowTrigger::getList($pid, " AND wft_type_id=$trigger
+					AND wft_xdis_id=$xdis_id AND wft_mimetype LIKE '%$mimetype%' ");
+			if (empty($list) && !$strict_xdis_id) {
+				$list = WorkflowTrigger::getList($pid, " AND wft_type_id=$trigger
+						AND wft_xdis_id=-1 AND wft_mimetype LIKE '%$mimetype%' ");
+			}
+		}
         if (empty($list)) {
             $list = WorkflowTrigger::getList($pid, " AND wft_type_id=$trigger
                     AND wft_xdis_id=$xdis_id AND wft_mimetype='' ");

@@ -280,10 +280,12 @@ class Workflow
     function processIngestTrigger($pid, $dsID, $mimetype)
     {
         // find first matching trigger
+
         $record = new RecordObject($pid);
 		$record->getImageFezACML($dsID); 
         $wft_details = $record->getIngestTrigger($mimetype);
-        if (!empty($wft_details)) {
+
+	    if (!empty($wft_details)) {
             // run it
             $dsInfo = array(
                     'ID' => $dsID,

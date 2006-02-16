@@ -93,8 +93,9 @@ if (!empty($collection_pid)) {
             || in_array("Community Administrator", $userPIDAuthGroups) 
             || in_array("Editor", $userPIDAuthGroups) 
             || in_array("Collection Administrator", $userPIDAuthGroups));
-	$tpl->assign("isEditor", $isEditor);
+	$tpl->assign("isEditor", $isEditor);		
 	$list = Collection::getListing($collection_pid, $pagerRow, $rows, $order_by);
+
 	$list_info = $list["info"];
 	$list = $list["list"];
 	$tpl->assign("list_heading", "List of Records in ".$collection_details[0]['title'][0]." Collection");

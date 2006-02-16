@@ -234,7 +234,7 @@ class Auth
 	function getIndexParentACMLMember(&$array, $pid) {
 		$ACMLArray = &$array;
 		static $returns;
-		$pid = $pid['pid'];
+//		$pid = $pid['pid'];
         if (is_array(@$returns[$pid])) {		
 //			$ACMLArray = $returns[$pid]; //add it to the acml array and dont go any further up the hierarchy
 //			array_push($ACMLArray, $returns[$pid]); //add it to the acml array and dont go any further up the hierarchy			
@@ -248,16 +248,16 @@ class Auth
 						* 
 					 FROM
 						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1
-						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on (d1.xdis_id = x1.xsdmf_xdis_id and r1.rmf_rec_pid ='".$pid."')
 						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on (r1.rmf_xsdmf_id = x1.xsdmf_id)
+						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on (d1.xdis_id = x1.xsdmf_xdis_id and r1.rmf_rec_pid ='".$pid."')
 						left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd x2 on (x2.xsd_id = d1.xdis_xsd_id and x2.xsd_title = 'FezACML')
 						left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
 						left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 on (k1.sek_title = 'isMemberOf' AND r1.rmf_xsdmf_id = x1.xsdmf_id AND k1.sek_id = x1.xsdmf_sek_id)
 						WHERE (r1.rmf_dsid IS NULL or r1.rmf_dsid = '')";
 	
-//            global $defaultRoles;
+//          global $defaultRoles;
 //			$returnfields = $defaultRoles;
-
+//			echo $stmt;
 			$securityfields = Auth::getAllRoles();
 			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 			$return = array();
