@@ -240,7 +240,9 @@ function validateForm(f)
 			  </tr>
 			 {/if}
         {/section}
-		
+        
+
+	
 		  <tr>
 			<td class="default" colspan="4">&nbsp;</td>
 		  </tr>
@@ -252,9 +254,19 @@ function validateForm(f)
 			<td colspan="1" bgcolor="{$cell_color}">Link</td>
 			<td colspan="3" bgcolor="{$cell_color}">Description</td>
 		  </tr>
+{if $doi}
+<tr>
+<td class="default" bgcolor="{$light_color}" colspan="1">
+<a target="_blank" href="{$doi.location}">{$doi.location}</a> 
+</td>
+<td class="default" bgcolor="{$light_color}" colspan="3">DOI</td>
+</tr>
+
+{/if}
+
 
         {section name="d" loop=$datastreams}
-			{if $datastreams[d].controlGroup == "R"}
+			{if $datastreams[d].controlGroup == "R" && $datastreams[d].ID == "Link"}
 			  <tr class="default"> 
 				<td colspan="1" bgcolor="{$light_color}"><img align="absmiddle" src="{$rel_url}images/text_html.png"> <a target="_blank" href="{$datastreams[d].location}">{$datastreams[d].location}</a> &nbsp;</td>
 				<td colspan="3" bgcolor="{$light_color}">{$datastreams[d].label} &nbsp;</td>

@@ -353,6 +353,7 @@ function selectDateField(field_name, day, month, year)
 							<b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
 						  </td>
 						  <td bgcolor="{$light_color}">
+                                    <span class="default">{$xsd_display_fields[i].xsdmf_value_prefix}</span>
 						<input class="default" type="text" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]"  maxlength="255" size="50">
 						{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
 						 </td>

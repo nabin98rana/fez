@@ -41,7 +41,6 @@ $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
 $isAdministrator = Auth::isAdministrator();
 $tpl->assign("isAdministrator", $isAdministrator);
-$pid = @$HTTP_POST_VARS["pid"] ? $HTTP_POST_VARS["pid"] : $HTTP_GET_VARS["pid"];
 
 $tpl->assign("fez_root_dir", APP_PATH);
 $tpl->assign("eserv_url", APP_BASE_URL."eserv.php?pid=".$pid."&dsID=");
@@ -197,6 +196,10 @@ if (!empty($pid)) {
 					$datastreams[$ds_key]['security'] = "exclude";			
 				}
 			}
+            if ($datastreams[$ds_key]['controlGroup'] == 'R' && $datastreams[$ds_key]['ID'] == 'DOI') {
+                $datastreams[$ds_key]['location'] = trim($datastreams[$ds_key]['location']);
+                $tpl->assign('doi', $datastreams[$ds_key]);
+            }
 		} 
 		$datastreams = Auth::getIndexAuthorisationGroups($datastreams);
 		$tpl->assign("datastreams", $datastreams);	

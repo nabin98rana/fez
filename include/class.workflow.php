@@ -313,11 +313,11 @@ class Workflow
         }
         $wfl = Workflow::getDetails($wfl_id);
         if (!empty($wfl['wfl_roles'])) {
-            // the roles may be space or comma separated
-            $wfl_roles = preg_split("/[\s,]+/", $wfl['wfl_roles']);
+            // the roles must be comma separated
+            $wfl_roles = preg_split("/[\s,;]+/", $wfl['wfl_roles']);
             $pid_roles = Auth::getAuthorisationGroups($pid);
             foreach ($wfl_roles as $wfl_role) {
-                if (in_array($wfl_role, $pid_roles)) {
+                if (in_array(trim($wfl_role), $pid_roles)) {
                     return true;
                 }
             }

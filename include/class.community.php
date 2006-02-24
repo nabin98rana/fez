@@ -216,7 +216,9 @@ class Community
 			$pid = $ret_wf['pid'];
 			$record = new RecordObject($pid);
             $workflows = array();
-			if (($ret_wf['isEditor'] == 1) || $isAdministrator) {
+			if ( ($ret_wf['isEditor'] == 1) 
+                    || ($ret_wf['isCommunityAdministrator'] == 1) 
+                    || $isAdministrator) {
 				$xdis_id = $ret_wf['display_type'][0];
 				$ret_id = $ret_wf['object_type'][0];
 				$strict = true;

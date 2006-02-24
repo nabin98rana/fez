@@ -1112,11 +1112,13 @@ class Record
 		    	Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, $dsTitle['STATE'], $dsTitle['LABEL'],
                         $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], false); 
 			} else {
-				if ($dsTitle['CONTROL_GROUP'] == "R" || $dsTitle['CONTROL_GROUP'] == "X") { // if its a redirect we don't need to upload the file
-                    if ($dsIDName == "DOI") {
-                        //file_put_contents('/tmp/mss.txt',print_r($dsTitle ,true));
-                        //file_put_contents('/tmp/mss.txt',print_r($datastreamXMLContent[$dsKey],true),FILE_APPEND);
-                    }
+				if ($dsTitle['CONTROL_GROUP'] == "R" ) { // if its a redirect we don't need to upload the file
+					if (Fedora_API::datastreamExists($pid, $dsIDName)) {
+						Fedora_API::callPurgeDatastream($pid, $dsIDName);
+					} 
+                    Fedora_API::callAddDatastream($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey], 
+                            $dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
+                } elseif ($dsTitle['CONTROL_GROUP'] == "X") {
 					if (Fedora_API::datastreamExists($pid, $dsIDName)) {
 				    	Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, $dsTitle['STATE'], $dsTitle['LABEL'],
     	                    $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], "false"); 
@@ -1124,7 +1126,7 @@ class Record
 						Fedora_API::callAddDatastream($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey], 
 							$dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
 					}
-				} else {
+ 				} else {
 					if (is_numeric(strpos($dsIDName, chr(92)))) {
 						$dsIDName = substr($dsIDName, strrpos($dsIDName, chr(92))+1);
 					}
@@ -1754,7 +1756,6 @@ class RecordObject extends RecordGeneral
 		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, $file_downloads, $this->created_date, $this->updated_date);
 
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
-//		$datastreamTitles = $display->getDatastreamTitles(); 
 		$datastreamTitles = $display->getDatastreamTitles($exclude_list, $specify_list); 
         Record::insertXML($pid, compact('datastreamTitles', 'exclude_list', 'specify_list', 'xmlObj', 'indexArray', 'existingDatastreams', 'xdis_id'), $ingestObject);
 		return $pid;

@@ -231,6 +231,7 @@ function selectDateField(field_name, day, month, year)
             {/if}
 
             {if $xsd_display_fields[i].xsdmf_html_input == 'file_input' && $xsd_display_fields[i].xsdmf_enabled == 1}
+            <!-- File Input -->
 				{if $xsd_display_fields[i].xsdmf_multiple == 1}
 					{section name="z" loop=$xsd_display_fields[i].multiple_array}
 						{assign var="loop_num" value=$xsd_display_fields[i].multiple_array[z]}
@@ -286,6 +287,7 @@ function selectDateField(field_name, day, month, year)
 						</tr>
 				{/if}
             {elseif $xsd_display_fields[i].xsdmf_html_input == 'checkbox' && $xsd_display_fields[i].xsdmf_enabled == 1}
+            <!-- Checkbox -->
 				{if $xsd_display_fields[i].xsdmf_multiple == 1}
 					{section name="z" loop=$xsd_display_fields[i].multiple_array}
 						{assign var="loop_num" value=$xsd_display_fields[i].multiple_array[z]}
@@ -319,6 +321,7 @@ function selectDateField(field_name, day, month, year)
 						</tr>
 				{/if}
 			{elseif ($xsd_display_fields[i].xsdmf_html_input == 'static' && $xsd_display_fields[i].xsdmf_show_in_view == 1 && $xsd_display_fields[i].xsdmf_static_text != '')}
+                        <!-- static text -->
 				{assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$xsd_display_fields[i].xsdmf_image_location} 
 				{assign var="image_file_string" value=""}
 				{fetch file=$image_name assign="image_file_string"} 
@@ -344,7 +347,9 @@ function selectDateField(field_name, day, month, year)
 						</tr>
 
             {elseif $xsd_display_fields[i].xsdmf_html_input == 'text' && $xsd_display_fields[i].xsdmf_enabled == 1}
+             <!-- text field -->
 				{if $xsd_display_fields[i].xsdmf_multiple == 1}
+                                     <!-- multiple -->
 					{assign var="show_num" value=0}
 					{assign var="check_num" value=0}						
 					{section name="z" loop=$xsd_display_fields[i].multiple_array}
@@ -383,13 +388,15 @@ function selectDateField(field_name, day, month, year)
 						</tr>
 						{assign var="show_num" value=$show_num+1}
 					{/section}
-				{else}
+				    {else}
+                                    <!-- single -->
 						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1">
 						  <td width="200" bgcolor="{$cell_color}" class="default">
 							<b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
 						  </td>
 						  <td bgcolor="{$value_color}">
 					    {assign var="field_id" value="xsd_display_fields_"|cat:$xsd_display_fields[i].xsdmf_id|cat:"_1"}
+                                    <span class="default">{$xsd_display_fields[i].xsdmf_value_prefix}</span>
 						<input class="default" type="text" id="{$field_id}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]" value="{$details[$temp_fld_id]}"  maxlength="255" size="50">
 						{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
 						  </td>
@@ -596,7 +603,7 @@ function selectDateField(field_name, day, month, year)
 		  </tr>
 
         {section name="d" loop=$datastreams}
-			{if $datastreams[d].controlGroup == "R"}
+			{if $datastreams[d].controlGroup == "R" && $datastreams[d].ID == 'Link'}
 			  <tr class="default"> 
 				<td colspan="1" bgcolor="{$light_color}"><img align="absmiddle" src="{$rel_url}images/text_html.png"> <a target="_blank" href="{$datastreams[d].location}">{$datastreams[d].label}</a> &nbsp; </td>
 				<td colspan="3" bgcolor="{$light_color}">{$datastreams[d].label} &nbsp; [ <a class="link" title="purge datastream" href="javascript:void(null);" onClick="javascript:purgeDatastream('{$datastreams[d].ID}');">purge</a> ]</td>

@@ -732,6 +732,19 @@ class XSD_DisplayObject
 							array_push($this->xsdmf_current[$xsdmf_id], $ds['ID']); 
 						}
 					}
+                } elseif ($dsValue['xsdsel_title'] == "DOI") {
+                    // find the datastream for DOI and set it's value 
+                    $xsdmf_id = $dsValue['xsdmf_id'];
+                    $xsdmf_details = $this->xsd_html_match->getDetailsByXSDMF_ID($xsdmf_id);
+                    foreach ($datastreams as $ds) {
+						if ($ds['controlGroup'] == 'R' && $ds['ID'] == 'DOI') {
+                            $value = trim($ds['location']);
+						}
+                        if (strlen($xsdmf_details['xsdmf_value_prefix']) > 0) {
+                            $value = str_replace($xsdmf_details['xsdmf_value_prefix'], "", $value);
+                        }
+                        $this->xsdmf_current[$xsdmf_id] = $value;
+					}
 				} else {
 					// find out if this record has the xml based datastream 
 					$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title']);
