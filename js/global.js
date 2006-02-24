@@ -524,7 +524,8 @@ function addOptions(f, field_name, options)
             field.options.length = field.options.length + 1;
             field.options[field.options.length-1].text = options[i].text;
             field.options[field.options.length-1].value = options[i].value;
-        }
+            field.options[field.options.length-1].selected = options[i].selected;
+		}
     }
 }
 

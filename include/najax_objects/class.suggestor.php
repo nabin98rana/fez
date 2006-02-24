@@ -22,7 +22,7 @@ class Suggestor
         $list = array();
         foreach($res as $key => $item) {
 //            $list[] = array('value' => $key, 'text' => $item);
-            $list[] = array('value' => $item, 'text' => $item);
+            $list[] = array('value' => $item, 'id' => $key);
         }
         return $list; 
 

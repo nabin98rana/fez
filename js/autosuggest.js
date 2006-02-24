@@ -4,7 +4,7 @@
  * @class
  * @scope public
  */
-function AutoSuggestControl(oTextbox /*:HTMLInputElement*/, 
+function AutoSuggestControl(oForm,  oIDbox /*:HTMLSelectBoxInputElement*/, oTextboxCopy /*:HTMLInputElement*/, oTextbox /*:HTMLInputElement*/,
                             oProvider /*:SuggestionProvider*/) {
     
     /**
@@ -18,7 +18,15 @@ function AutoSuggestControl(oTextbox /*:HTMLInputElement*/,
      * @scope private
      */
     this.layer = null;
+
     
+    /**
+     * Form
+     * @scope private.
+     */
+    this.form /*:Form*/ = oForm;
+
+
     /**
      * Suggestion provider for the autosuggest feature.
      * @scope private.
@@ -30,7 +38,21 @@ function AutoSuggestControl(oTextbox /*:HTMLInputElement*/,
      * @scope private
      */
     this.textbox /*:HTMLInputElement*/ = oTextbox;
-    
+
+    /**
+     * The textbox to fill with a copy of the selected data.
+     * @scope private
+     */
+    this.textboxcopy /*:HTMLInputElement*/ = oTextboxCopy;
+
+
+	/**
+     * The select box to fill with ID.
+     * @scope private
+     */
+    this.selectbox /*:HTMLSelectBoxInputElement*/ = oIDbox;
+
+
     //initialize the control
     this.init();
     
@@ -65,7 +87,7 @@ AutoSuggestControl.prototype.autosuggest = function (aSuggestions /*:Array*/,
 AutoSuggestControl.prototype.createDropDown = function () {
 
     var oThis = this;
-
+	var dtList = new Array();
     //create the layer and assign styles
     this.layer = document.createElement("div");
     this.layer.className = "suggestions";
@@ -81,12 +103,23 @@ AutoSuggestControl.prototype.createDropDown = function () {
         oTarget = oEvent.target || oEvent.srcElement;
 
         if (oEvent.type == "mousedown") {
-            oThis.textbox.value = oTarget.firstChild.nodeValue;
-            oThis.hideSuggestions();
-        } else if (oEvent.type == "mouseover") {
+            oThis.textboxcopy.value = oTarget.firstChild.nodeValue;
+			oThis.textbox.value = oTarget.firstChild.nodeValue;
+			dtList[0] = new Option;
+			dtList[0].text = "(none)";
+			dtList[0].value = "-1";
+			dtList[1] = new Option;			
+			dtList[1].value = oTarget.getAttribute('id');
+			dtList[1].text = oTarget.firstChild.nodeValue+" ("+oTarget.getAttribute('id')+")";
+			dtList[1].selected = true;
+			removeAllOptions(oThis.form, oThis.selectbox);
+			addOptions(oThis.form, oThis.selectbox, dtList);
+			oThis.hideSuggestions();
+            oThis.textboxcopy.focus();
+		} else if (oEvent.type == "mouseover") {
             oThis.highlightSuggestion(oTarget);
         } else {
-            oThis.textbox.focus();
+            oThis.textboxcopy.focus();
         }
     };
     
@@ -308,13 +341,15 @@ AutoSuggestControl.prototype.showSuggestions = function (aSuggestions /*:Array*/
     this.layer.innerHTML = "";  //clear contents of the layer
     for (var i=0; i < aSuggestions.length; i++) {
         oDiv = document.createElement("div");
-        oDiv.appendChild(document.createTextNode(aSuggestions[i].value));
-//		oDiv.appendChild(document.createAttribute("ID"));
-		oDiv.setAttribute("ID", aSuggestions[i].id);
-        this.layer.appendChild(oDiv);
+
+		oDiv.appendChild(document.createTextNode(aSuggestions[i].value));
+//		oDiv.appendChild(document.createAttribute("ID")); // not needed
+		oDiv.setAttribute("id", aSuggestions[i].id);
+//		oDiv.id = aSuggestions[i].id; // maybe if IE dies, but it seems to accept lowercase id
+
+		this.layer.appendChild(oDiv);
     }
-    
-    this.layer.style.left = this.getLeft() + "px";
+	this.layer.style.left = this.getLeft() + "px";
     this.layer.style.top = (this.getTop()+this.textbox.offsetHeight) + "px";
     this.layer.style.display = "block";
 

@@ -309,11 +309,12 @@ function selectDateField(field_name, day, month, year)
 							<b>{$xsd_display_fields[i].xsdmf_title} {$loop_num} {if $xsd_display_fields[i].xsdmf_required == 1 && $loop_num == 1} * {/if}</b><br />{if $loop_num == 1}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appears as they are used up)</i>{/if}
 						  </td>
 						  <td bgcolor="{$light_color}">
-						<input class="default" type="text" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" maxlength="255" size="50">
+						<input class="default" type="text" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onFocus="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" maxlength="255" size="50">
 						{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
 						  {if $xsd_display_fields[i].xsdmf_attached_xsdmf_id != ""}
 								{section name="a" loop=$xsd_display_fields}
 									{assign var="temp_attached_xsdmf_id" value=$xsd_display_fields[a].xsdmf_id}
+									{assign var="temp_attached_field_name" value="xsd_display_fields["|cat:$xsd_display_fields[a].xsdmf_id|cat:"]"}						
 								  	{if $xsd_display_fields[a].xsdmf_html_input == 'author_suggestor' AND $temp_attached_xsdmf_id == $xsd_display_fields[i].xsdmf_attached_xsdmf_id}
 										<br />
 										<span class="default"><b>{$xsd_display_fields[a].xsdmf_title}:</b></span>
@@ -323,7 +324,7 @@ function selectDateField(field_name, day, month, year)
 
 										</select>
 						                <!-- Google suggest style selection -->
-										<input type="text" name="{$attached_field_id}_lookup" id="{$attached_field_id}_lookup" 
+										<input type="text" name="{$attached_field_id}_lookup" id="{$attached_field_id}_lookup" size="30"
 										autocomplete="off" class="default" />
 										<!-- note there is some javascript in the window.load because IE can't handle it here -->
 									  </td>
