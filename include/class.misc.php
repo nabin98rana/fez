@@ -1865,6 +1865,15 @@ class Misc
         return strpos($string, $pre) === 0;
     }
 
+    function addPrefix($string, $pre)
+    {
+        if (!empty($string)) {
+            return $pre.$string;
+        } else {
+            return '';
+        }
+    }
+
 } // end of Misc class
 
 // benchmarking the included file (aka setup time)

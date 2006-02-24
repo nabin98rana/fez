@@ -33,14 +33,15 @@ class Foxml
             if (is_numeric($attrib_loop_index) 
                     && (is_array(@$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details_ref['xsdmf_id']]))) {
                 // the value is one of many in an attribute loop
-                $attrib_value = $xsdmf_details['xsdmf_value_prefix']
-                    .$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details_ref['xsdmf_id']][$attrib_loop_index];
+                $attrib_value = Misc::addPrefix(
+                        $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details_ref['xsdmf_id']][$attrib_loop_index],
+                        $xsdmf_details['xsdmf_value_prefix']);
                 array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, 
                             $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
             } else {
                 // lookup the value
-                @$attrib_value = $xsdmf_details['xsdmf_value_prefix']
-                    .$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details_ref['xsdmf_id']];
+                @$attrib_value = Misc::addPrefix($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details_ref['xsdmf_id']],
+                        $xsdmf_details['xsdmf_value_prefix']);
                 array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, 
                             $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
             }
@@ -48,13 +49,14 @@ class Foxml
             if (is_numeric($attrib_loop_index) && (@is_array($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) 
                     && ($xsdmf_details['xsdmf_multiple'] == 1) && ($xsdmf_details['xsdsel_type'] == 'attributeloop')) {	
                 // multiple attribute loop
-                $attrib_value = $xsdmf_details['xsdmf_value_prefix']
-                    .$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id][$attrib_loop_index];
+                $attrib_value = Misc::addPrefix($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id][$attrib_loop_index],
+                        $xsdmf_details['xsdmf_value_prefix']);
                 array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, 
                             $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
             } elseif ($xsdmf_details['xsdmf_multiple'] != 1) {
                 // simple single instance - just get the value
-                $attrib_value = $xsdmf_details['xsdmf_value_prefix'].@$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id];
+                $attrib_value = Misc::addPrefix(@$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id],
+                        $xsdmf_details['xsdmf_value_prefix']);
                 array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], 
                             $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
             } elseif ($xsdmf_details['xsdmf_multiple'] == 1) {
@@ -78,10 +80,11 @@ class Foxml
                         }
                         if (!empty($multiple_element)) {
                             if ($attrib_value == "") {
-                                $attrib_value = $xsdmf_details['xsdmf_value_prefix'].$multiple_element;	
+                                $attrib_value = Misc::addPrefix($multiple_element,
+                                        $xsdmf_details['xsdmf_value_prefix']);
                                 array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], 
                                             $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], 
-                                            $xsdmf_details['xsdmf_value_prefix'].$multiple_element));
+                                            Misc::addPrefix($multiple_element,$xsdmf_details['xsdmf_value_prefix'])));
                             } else {
                                 // Give a tag to each value, eg DC language - english & french need own language tags
                                 // close the previous
@@ -102,10 +105,11 @@ class Foxml
                                 } else {
                                     $attrib_value .= "/>\n";
                                 }
-                                $attrib_value .= $xsdmf_details['xsdmf_value_prefix'].$multiple_element;
+                                $attrib_value .= Misc::addPrefix($multiple_element,
+                                        $xsdmf_details['xsdmf_value_prefix']);
                                 array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], 
                                             $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], 
-                                            $xsdmf_details['xsdmf_value_prefix'].$multiple_element));
+                                            Misc::addPrefix($multiple_element, $xsdmf_details['xsdmf_value_prefix'])));
                             }
                         }
                     }
