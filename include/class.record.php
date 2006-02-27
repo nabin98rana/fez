@@ -1113,11 +1113,14 @@ class Record
                         $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], false); 
 			} else {
 				if ($dsTitle['CONTROL_GROUP'] == "R" ) { // if its a redirect we don't need to upload the file
-					if (Fedora_API::datastreamExists($pid, $dsIDName)) {
-						Fedora_API::callPurgeDatastream($pid, $dsIDName);
-					} 
-                    Fedora_API::callAddDatastream($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey], 
-                            $dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
+                    if (Fedora_API::datastreamExists($pid, $dsIDName)) {
+                        Fedora_API::callPurgeDatastream($pid, $dsIDName);
+                    } 
+                    $location = trim($dsTitle['location']);
+                    if (!empty($location)) {
+                        Fedora_API::callAddDatastream($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey], 
+                                $dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
+                    }
                 } elseif ($dsTitle['CONTROL_GROUP'] == "X") {
 					if (Fedora_API::datastreamExists($pid, $dsIDName)) {
 				    	Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, $dsTitle['STATE'], $dsTitle['LABEL'],
