@@ -737,14 +737,13 @@ class XSD_DisplayObject
                     $xsdmf_id = $dsValue['xsdmf_id'];
                     $xsdmf_details = $this->xsd_html_match->getDetailsByXSDMF_ID($xsdmf_id);
                     foreach ($datastreams as $ds) {
-                        $value = '';
-						if ($ds['controlGroup'] == 'R' && $ds['ID'] == 'DOI') {
+                        if ($ds['controlGroup'] == 'R' && $ds['ID'] == 'DOI') {
                             $value = trim($ds['location']);
-						}
-                        if (!empty($value) && strlen($xsdmf_details['xsdmf_value_prefix']) > 0) {
-                            $value = str_replace($xsdmf_details['xsdmf_value_prefix'], "", $value);
+                            if (!empty($value) && strlen($xsdmf_details['xsdmf_value_prefix']) > 0) {
+                                $value = str_replace($xsdmf_details['xsdmf_value_prefix'], "", $value);
+                            }
+                            $this->xsdmf_current[$xsdmf_id] = $value;
                         }
-                        $this->xsdmf_current[$xsdmf_id] = $value;
 					}
 				} else {
 					// find out if this record has the xml based datastream 

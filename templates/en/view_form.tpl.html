@@ -266,7 +266,7 @@ function validateForm(f)
 
 
         {section name="d" loop=$datastreams}
-			{if $datastreams[d].controlGroup == "R" && $datastreams[d].ID == "Link"}
+			{if $datastreams[d].controlGroup == "R" && $datastreams[d].ID != "DOI"}
 			  <tr class="default"> 
 				<td colspan="1" bgcolor="{$light_color}"><img align="absmiddle" src="{$rel_url}images/text_html.png"> <a target="_blank" href="{$datastreams[d].location}">{$datastreams[d].location}</a> &nbsp;</td>
 				<td colspan="3" bgcolor="{$light_color}">{$datastreams[d].label} &nbsp;</td>

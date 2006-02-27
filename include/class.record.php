@@ -1062,6 +1062,7 @@ class Record
     {
         $existingDatastreams = array();  // may be overwritten by extract
         extract($dsarray);
+        echo "<pre>".htmlspecialchars($xmlObj)."</pre>";
         $params = array();
 		$datastreamXMLHeaders = Misc::getDatastreamXMLHeaders($datastreamTitles, $xmlObj, $existingDatastreams);
 		$datastreamXMLContent = Misc::getDatastreamXMLContent($datastreamXMLHeaders, $xmlObj);
@@ -1116,7 +1117,7 @@ class Record
                     if (Fedora_API::datastreamExists($pid, $dsIDName)) {
                         Fedora_API::callPurgeDatastream($pid, $dsIDName);
                     } 
-                    $location = trim($dsTitle['location']);
+                    $location = trim($datastreamXMLContent[$dsKey]);
                     if (!empty($location)) {
                         Fedora_API::callAddDatastream($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey], 
                                 $dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
