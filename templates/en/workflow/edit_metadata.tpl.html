@@ -363,18 +363,35 @@ function selectDateField(field_name, day, month, year)
 						  </td>
 						  <td bgcolor="{$value_color}">
 					    {assign var="field_id" value="xsd_display_fields_"|cat:$xsd_display_fields[i].xsdmf_id|cat:"_"|cat:$loop_num}
-						<input class="default" type="text" id="{$field_id}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" value="{$details[$temp_fld_id][z]}" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" maxlength="255" size="50">
+						<input class="default" type="text" id="{$field_id}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" value="{$details[$temp_fld_id][z]}" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onFocus="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" maxlength="255" size="50">
 						{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
 						  {if $xsd_display_fields[i].xsdmf_attached_xsdmf_id != ""}
 								{section name="a" loop=$xsd_display_fields}
 									{assign var="temp_attached_xsdmf_id" value=$xsd_display_fields[a].xsdmf_id}
-								  	{if $xsd_display_fields[a].xsdmf_html_input == 'author_selector' AND $temp_attached_xsdmf_id == $xsd_display_fields[i].xsdmf_attached_xsdmf_id}
+									{assign var="temp_attached_field_name" value="xsd_display_fields["|cat:$xsd_display_fields[a].xsdmf_id|cat:"]"}						
+								  	{if $xsd_display_fields[a].xsdmf_html_input == 'author_suggestor' AND $temp_attached_xsdmf_id == $xsd_display_fields[i].xsdmf_attached_xsdmf_id}
 										<br />
 										<span class="default"><b>{$xsd_display_fields[a].xsdmf_title}:</b></span>
 									    {assign var="attached_field_id" value="xsd_display_fields_"|cat:$temp_attached_xsdmf_id|cat:"_"|cat:$loop_num}
 										<select class="default" id="{$attached_field_id}" name="{$attached_field_id}">
 										   <option value="-1">(none)</option>
-										  {html_options options=$author_ids selected=$details[$temp_attached_xsdmf_id][z]}
+											{if $details[$temp_fld_id][z]}
+										   <option value="{$details[$temp_attached_xsdmf_id][z]}" selected>{$details[$temp_fld_id][z]} ({$details[$temp_attached_xsdmf_id][z]})</option>
+										   {/if}
+										</select>
+						                <!-- Google suggest style selection -->
+										<input type="text" name="{$attached_field_id}_lookup" id="{$attached_field_id}_lookup" size="30"
+										autocomplete="off" class="default" />
+										<!-- note there is some javascript in the window.load because IE can't handle it here -->
+									  </td>
+									</tr>
+								  	{elseif $xsd_display_fields[a].xsdmf_html_input == 'author_selector' AND $temp_attached_xsdmf_id == $xsd_display_fields[i].xsdmf_attached_xsdmf_id}
+										<br />
+										<span class="default"><b>{$xsd_display_fields[a].xsdmf_title}:</b></span>
+									    {assign var="attached_field_id" value="xsd_display_fields_"|cat:$temp_attached_xsdmf_id|cat:"_"|cat:$loop_num}
+										<select class="default" id="{$attached_field_id}" name="{$attached_field_id}">
+										   <option value="-1">(none)</option>
+										  {html_options options=$author_ids selected=$details[$temp_attached_xsdmf_id][z]}										   
 										</select>
 										{include file="lookup_field.tpl.html" lookup_field_name="search" lookup_field_target=$attached_field_id}
 									  </td>
@@ -383,7 +400,6 @@ function selectDateField(field_name, day, month, year)
 									{/if}
 								{/section}
 						  {/if}
-
 						 </td>
 						</tr>
 						{assign var="show_num" value=$show_num+1}
@@ -603,7 +619,7 @@ function selectDateField(field_name, day, month, year)
 		  </tr>
 
         {section name="d" loop=$datastreams}
-			{if $datastreams[d].controlGroup == "R" && $datastreams[d].ID == 'Link'}
+			{if $datastreams[d].controlGroup == "R" && $datastreams[d].ID != 'DOI'}
 			  <tr class="default"> 
 				<td colspan="1" bgcolor="{$light_color}"><img align="absmiddle" src="{$rel_url}images/text_html.png"> <a target="_blank" href="{$datastreams[d].location}">{$datastreams[d].label}</a> &nbsp; </td>
 				<td colspan="3" bgcolor="{$light_color}">{$datastreams[d].label} &nbsp; [ <a class="link" title="purge datastream" href="javascript:void(null);" onClick="javascript:purgeDatastream('{$datastreams[d].ID}');">purge</a> ]</td>

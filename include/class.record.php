@@ -1062,7 +1062,7 @@ class Record
     {
         $existingDatastreams = array();  // may be overwritten by extract
         extract($dsarray);
-        echo "<pre>".htmlspecialchars($xmlObj)."</pre>";
+//        echo "<pre>".htmlspecialchars($xmlObj)."</pre>";
         $params = array();
 		$datastreamXMLHeaders = Misc::getDatastreamXMLHeaders($datastreamTitles, $xmlObj, $existingDatastreams);
 		$datastreamXMLContent = Misc::getDatastreamXMLContent($datastreamXMLHeaders, $xmlObj);

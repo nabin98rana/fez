@@ -8,7 +8,6 @@ background-color: [[$smarty.const.APP_LIGHT_COLOR]];
 
 div.wfl_progress {
 padding: 5px;
-vertical-align: center;
 }
 
 img.wfl_progress {

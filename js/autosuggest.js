@@ -6,7 +6,7 @@
  */
 function AutoSuggestControl(oForm,  oIDbox /*:HTMLSelectBoxInputElement*/, oTextboxCopy /*:HTMLInputElement*/, oTextbox /*:HTMLInputElement*/,
                             oProvider /*:SuggestionProvider*/) {
-    
+
     /**
      * The currently selected suggestions.
      * @scope private
@@ -67,7 +67,7 @@ function AutoSuggestControl(oForm,  oIDbox /*:HTMLSelectBoxInputElement*/, oText
  */
 AutoSuggestControl.prototype.autosuggest = function (aSuggestions /*:Array*/,
                                                      bTypeAhead /*:boolean*/) {
-    
+
     //make sure there's at least one suggestion
     if (aSuggestions.length > 0) {
         if (bTypeAhead) {
@@ -339,21 +339,19 @@ AutoSuggestControl.prototype.showSuggestions = function (aSuggestions /*:Array*/
     
     var oDiv = null;
     this.layer.innerHTML = "";  //clear contents of the layer
-    for (var i=0; i < aSuggestions.length; i++) {
+    this.layer.style.width = this.textbox.offsetWidth;
+	for (var i=0; i < aSuggestions.length; i++) {
         oDiv = document.createElement("div");
 
 		oDiv.appendChild(document.createTextNode(aSuggestions[i].value));
 //		oDiv.appendChild(document.createAttribute("ID")); // not needed
 		oDiv.setAttribute("id", aSuggestions[i].id);
 //		oDiv.id = aSuggestions[i].id; // maybe if IE dies, but it seems to accept lowercase id
-
 		this.layer.appendChild(oDiv);
     }
 	this.layer.style.left = this.getLeft() + "px";
-    this.layer.style.top = (this.getTop()+this.textbox.offsetHeight) + "px";
+	this.layer.style.top = (this.getTop()+this.textbox.offsetHeight) + "px";
     this.layer.style.display = "block";
-
-
 };
 
 /**

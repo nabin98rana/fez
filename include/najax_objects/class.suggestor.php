@@ -24,6 +24,7 @@ class Suggestor
 //            $list[] = array('value' => $key, 'text' => $item);
             $list[] = array('value' => $item, 'id' => $key);
         }
+//		file_put_contents('/usr/local/apache/htdocs/dev-fez/error_handler.log', 'monkey', false);		
         return $list; 
 
 //        return array_values($res);
