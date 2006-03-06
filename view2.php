@@ -107,7 +107,8 @@ if (!empty($pid)) {
 					}
 				}
 			} 
-			if ($dis_field["xsdmf_use_parent_option_list"] == 1) { // if the display field inherits this list from a parent then get those options
+			if ($dis_field["xsdmf_use_parent_option_list"] == 1) { 
+                // if the display field inherits this list from a parent then get those options
 				// Loop through the parents
 				foreach ($parent_relationships as $pkey => $prel) {
 					if (in_array($dis_field["xsdmf_parent_option_xdis_id"], $prel)) {
