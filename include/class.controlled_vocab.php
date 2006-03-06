@@ -303,6 +303,10 @@ class Controlled_Vocab
     function getAssocListByID($id)	
     {
 	// used by the xsd match forms
+		if (!is_numeric($id)) {
+			return array();
+		}
+
         $stmt = "SELECT
                     cvo_id,
 					cvo_title

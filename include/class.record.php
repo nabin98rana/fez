@@ -749,7 +749,7 @@ class Record
 				on (k1.sek_id = x1.xsdmf_sek_id)
 				left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d2.display_id = d1.xdis_id	
 				WHERE (r1.rmf_dsid IS NULL or r1.rmf_dsid = '')			 
-				AND r1.rmf_rec_pid IN ($pids)
+				AND r1.rmf_rec_pid IN ($pids)				
 				ORDER BY d3.sort_column ASC
 				";
 			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);

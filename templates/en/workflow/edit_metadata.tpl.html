@@ -374,9 +374,9 @@ function selectDateField(field_name, day, month, year)
 										<span class="default"><b>{$xsd_display_fields[a].xsdmf_title}:</b></span>
 									    {assign var="attached_field_id" value="xsd_display_fields_"|cat:$temp_attached_xsdmf_id|cat:"_"|cat:$loop_num}
 										<select class="default" id="{$attached_field_id}" name="{$attached_field_id}">
-										   <option value="-1">(none)</option>
-											{if $details[$temp_fld_id][z]}
-										   <option value="{$details[$temp_attached_xsdmf_id][z]}" selected>{$details[$temp_fld_id][z]} ({$details[$temp_attached_xsdmf_id][z]})</option>
+										   <option value="0">(none)</option>
+  										   {if $details[$temp_attached_xsdmf_id][z] != 0}
+										   <option value="{$details[$temp_attached_xsdmf_id][z]}" selected> {$details[$temp_fld_id][z]} ({$details[$temp_attached_xsdmf_id][z]})</option>
 										   {/if}
 										</select>
 						                <!-- Google suggest style selection -->
@@ -390,7 +390,7 @@ function selectDateField(field_name, day, month, year)
 										<span class="default"><b>{$xsd_display_fields[a].xsdmf_title}:</b></span>
 									    {assign var="attached_field_id" value="xsd_display_fields_"|cat:$temp_attached_xsdmf_id|cat:"_"|cat:$loop_num}
 										<select class="default" id="{$attached_field_id}" name="{$attached_field_id}">
-										   <option value="-1">(none)</option>
+										   <option value="0">(none)</option>
 										  {html_options options=$author_ids selected=$details[$temp_attached_xsdmf_id][z]}										   
 										</select>
 										{include file="lookup_field.tpl.html" lookup_field_name="search" lookup_field_target=$attached_field_id}
@@ -427,7 +427,7 @@ function selectDateField(field_name, day, month, year)
 				  </td>
 				  <td bgcolor="{$light_color}">
 					<select class="default" id="{$field_id}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]">
-					   <option value="-1">(none)</option>
+					   <option value="0">(none)</option>
 					  {html_options options=$xsd_display_fields[i].field_options selected=$details[$temp_fld_id]}
 					</select>
 					{include file="lookup_field.tpl.html" lookup_field_name="search" lookup_field_target=$field_name}

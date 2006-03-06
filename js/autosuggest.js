@@ -103,11 +103,13 @@ AutoSuggestControl.prototype.createDropDown = function () {
         oTarget = oEvent.target || oEvent.srcElement;
 
         if (oEvent.type == "mousedown") {
-            oThis.textboxcopy.value = oTarget.firstChild.nodeValue;
+			if (isWhitespace(oThis.textboxcopy.value)) {
+				oThis.textboxcopy.value = oTarget.firstChild.nodeValue;
+			}
 			oThis.textbox.value = oTarget.firstChild.nodeValue;
 			dtList[0] = new Option;
 			dtList[0].text = "(none)";
-			dtList[0].value = "-1";
+			dtList[0].value = "0";
 			dtList[1] = new Option;			
 			dtList[1].value = oTarget.getAttribute('id');
 			dtList[1].text = oTarget.firstChild.nodeValue+" ("+oTarget.getAttribute('id')+")";

@@ -320,7 +320,7 @@ function selectDateField(field_name, day, month, year)
 										<span class="default"><b>{$xsd_display_fields[a].xsdmf_title}:</b></span>
 									    {assign var="attached_field_id" value="xsd_display_fields_"|cat:$temp_attached_xsdmf_id|cat:"_"|cat:$loop_num}
 										<select class="default" id="{$attached_field_id}" name="{$attached_field_id}">
-										   <option value="-1">(none)</option>
+										   <option value="0">(none)</option>
 										</select>
 						                <!-- Google suggest style selection -->
 										<input type="text" name="{$attached_field_id}_lookup" id="{$attached_field_id}_lookup" size="30"

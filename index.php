@@ -51,10 +51,6 @@ if (count($HTTP_POST_VARS) > 0) {
 	}
 
 
-	// check if this user is really an active one
-	if (!Auth::isActiveUser($HTTP_POST_VARS["username"])) {
-		Auth::redirect(APP_RELATIVE_URL . "login.php?err=7&username=" . $HTTP_POST_VARS["username"]);
-	}
 
 	// check if the password matches
 	if (!Auth::isCorrectPassword($HTTP_POST_VARS["username"], $HTTP_POST_VARS["passwd"])) {
@@ -85,7 +81,7 @@ $tpl->assign("today_day_name", date("l"));
 $tpl->assign("yesterday", date("Y-m-d", time()-86400));
 $tpl->assign("last", "Last ");
 
-$list = Collection::browseListing(0, 3, "Created Date");
+$list = Collection::browseListing(0, 3, "Created Date", NULL, 0);
 $list = $list["list"];
 
 $tpl->assign("list", $list);

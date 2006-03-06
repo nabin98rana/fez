@@ -518,6 +518,14 @@ class BatchImport
                     echo "\n$xmlObj\n";
                 }
                 foreach($oai_ds as $ds) {
+
+                    $short_ds = $ds;
+                    if (is_numeric(strpos($ds, "/"))) {
+                        $short_ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
+                    }
+                    // ID must start with _ or letter
+                    $short_ds = Misc::shortFilename(Foxml::makeNCName($short_ds), 20);
+					file_put_contents(APP_TEMP_DIR.$short_ds, file_get_contents($ds));
                     $presmd_check = Workflow::checkForPresMD($ds); // we are not indexing presMD so just upload the presmd if found
                     if ($presmd_check != false) {
                        Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, 
@@ -536,6 +544,17 @@ class BatchImport
                 foreach($oai_ds as $ds) {
                     $mimetype = Misc::get_content_type($ds);
                     Workflow::processIngestTrigger($pid, $ds, $mimetype);
+                    $short_ds = $ds;
+                    if (is_numeric(strpos($ds, "/"))) {
+                        $short_ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
+                    }
+                    // ID must start with _ or letter
+                    $short_ds = Misc::shortFilename(Foxml::makeNCName($short_ds), 20);
+					$new_file = APP_TEMP_DIR.$short_ds;
+					if (is_file($new_file)) {
+						$deleteCommand = APP_DELETE_CMD." ".$new_file;
+						exec($deleteCommand);
+					}
                 }
 
                 $array_ptr = array();
@@ -642,9 +661,12 @@ class BatchImport
 
         Fedora_API::callIngestObject($xmlBegin);
         foreach($externalDatastreams as $ds) {
+			 // add directory to the name
             $presmd_check = Workflow::checkForPresMD($ds); // we are not indexing presMD so just upload the presmd if found
             if ($presmd_check != false) {
-                Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, "text/xml", "X");
+				$pres_dsID = basename($presmd_check);
+//				$presmd_check = APP_TEMP_DIR.$presmd_check;
+                Fedora_API::getUploadLocationByLocalRef($pid, $pres_dsID, $presmd_check, $presmd_check, "text/xml", "X");
             }		
             if (is_numeric(strpos($ds, "/"))) {
                 $ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
