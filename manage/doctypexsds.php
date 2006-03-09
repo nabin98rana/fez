@@ -68,6 +68,7 @@ if ($isAdministrator) {
         $tpl->assign("info", Doc_Type_XSD::getDetails($HTTP_GET_VARS["id"]));
     }
     $tpl->assign("list", Doc_Type_XSD::getList());
+    $tpl->assign('extra_title', "Manage Document Type XSDs");
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }

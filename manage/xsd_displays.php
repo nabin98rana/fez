@@ -74,6 +74,7 @@ if ($isAdministrator) {
 	$tpl->assign("object_options", Object_Type::getAssocList());
 	$tpl->assign("xsd_title", ($xsd_title));
     $tpl->assign("list", XSD_Display::getList($xsd_id));
+    $tpl->assign('extra_title', "Manage XSD Displays for XSD {$xsd_title}");
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }

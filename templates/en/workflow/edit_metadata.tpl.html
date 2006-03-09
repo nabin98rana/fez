@@ -406,19 +406,31 @@ function selectDateField(field_name, day, month, year)
 					{/section}
 				    {else}
                                     <!-- single -->
-						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1">
-						  <td width="200" bgcolor="{$cell_color}" class="default">
-							<b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
-						  </td>
-						  <td bgcolor="{$value_color}">
-					    {assign var="field_id" value="xsd_display_fields_"|cat:$xsd_display_fields[i].xsdmf_id|cat:"_1"}
-                                    <span class="default">{$xsd_display_fields[i].xsdmf_value_prefix}</span>
-						<input class="default" type="text" id="{$field_id}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]" value="{$details[$temp_fld_id]}"  maxlength="255" size="50">
-						{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
-						  </td>
-						 </tr>
+                                      <tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1">
+                                        <td width="200" bgcolor="{$cell_color}" class="default">
+                                          <b>{$xsd_display_fields[i].xsdmf_title} 
+                                            {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
+                                          {if $xsd_display_fields[i].xsdmf_description != ""}
+                                          <br/><i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
+                                          {/if}
+                                        </td>
+                                        <td bgcolor="{$value_color}">
+                                          {assign var="field_id" 
+                                              value="xsd_display_fields_"|cat:$xsd_display_fields[i].xsdmf_id|cat:"_1"}
+                                          <span class="default">{$xsd_display_fields[i].xsdmf_value_prefix}</span>
+                                          <input class="default" type="text" id="{$field_id}" 
+                                          name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]" 
+                                          value="{$details[$temp_fld_id]}"  maxlength="255" size="50"/>
+                                          {include file="error_icon.tpl.html" 
+                                              field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
+                                          {if $xsd_display_fields[i].xsdmf_long_description != ""}
+                                          <div class="default">{$xsd_display_fields[i].xsdmf_long_description}</div>
+                                          {/if}
+                                        </td>
+                                      </tr>
 				{/if}
 			{elseif $xsd_display_fields[i].xsdmf_html_input == 'author_selector'}
+                        <!-- author selector -->
 				{assign var="field_name" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}						
 			    {assign var="field_id" value="xsd_display_fields_"|cat:$xsd_display_fields[i].xsdmf_id|cat:"_1"}
 				<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1">

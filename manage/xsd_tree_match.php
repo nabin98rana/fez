@@ -53,10 +53,11 @@ if (!$isAdministrator) {
     exit;
 }
 $xdis_id = @$HTTP_POST_VARS["xdis_id"] ? $HTTP_POST_VARS["xdis_id"] : $HTTP_GET_VARS["xdis_id"];
-
-
 $tpl->assign("xdis_id", $xdis_id);
 
+$xsd_id = XSD_HTML_Match::getXSD_ID($xdis_id);
+$xsd_title = Doc_Type_XSD::getTitle($xsd_id);
+$tpl->assign('extra_title', "Manage XSD Displays for XSD {$xsd_title}");
 
 $tpl->displayTemplate();
 ?>
