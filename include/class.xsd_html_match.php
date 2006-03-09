@@ -329,7 +329,8 @@ class XSD_HTML_Match
 					xsdmf_org_level,
 					xsdmf_use_org_to_fill,
 					xsdmf_org_fill_xdis_id,
-					xsdmf_org_fill_xsdmf_id
+					xsdmf_org_fill_xsdmf_id,
+					xsdmf_date_type					
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields as m1  ";
 
@@ -729,6 +730,7 @@ class XSD_HTML_Match
 					xsdmf_image_location,
 					xsdmf_static_text,
 					xsdmf_dynamic_text,
+					xsdmf_date_type,
 					xsdmf_cvo_id";
 		if (is_numeric($HTTP_POST_VARS["attached_xsdmf_id"])) {
 			$stmt .= ", xsdmf_attached_xsdmf_id";
@@ -820,6 +822,7 @@ class XSD_HTML_Match
                     '" . Misc::escapeString($HTTP_POST_VARS["image_location"]) . "',
                     '" . Misc::escapeString($HTTP_POST_VARS["static_text"]) . "',
                     '" . Misc::escapeString($HTTP_POST_VARS["dynamic_text"]) . "',
+                    " . Misc::escapeString($HTTP_POST_VARS["xsdmf_date_type"]) . ",
                     " . $HTTP_POST_VARS["xsdmf_cvo_id"];
 
 		if (is_numeric($HTTP_POST_VARS["attached_xsdmf_id"])) {
@@ -964,7 +967,8 @@ class XSD_HTML_Match
 					xsdmf_value_prefix,
 					xsdmf_image_location,
 					xsdmf_static_text,
-					xsdmf_dynamic_text";
+					xsdmf_dynamic_text,
+					xsdmf_date_type";
 		if (is_numeric($insertArray["xsdmf_attached_xsdmf_id"])) {
 			$stmt .= ", xsdmf_attached_xsdmf_id";
 		}
@@ -1077,7 +1081,8 @@ class XSD_HTML_Match
                     '" . Misc::escapeString($insertArray["xsdmf_value_prefix"]) . "',
                     '" . Misc::escapeString($insertArray["xsdmf_image_location"]) . "',
                     '" . Misc::escapeString($insertArray["xsdmf_static_text"]) . "',
-                    '" . Misc::escapeString($insertArray["xsdmf_dynamic_text"]) . "'";
+                    '" . Misc::escapeString($insertArray["xsdmf_dynamic_text"]) . "',
+                    " . Misc::escapeString($insertArray["xsdmf_date_type"]);
 
 		if (is_numeric($insertArray["xsdmf_attached_xsdmf_id"])) {
 			$stmt .= ", " .$insertArray["xsdmf_attached_xsdmf_id"];
@@ -1386,6 +1391,7 @@ class XSD_HTML_Match
                     xsdmf_html_input = '" . Misc::escapeString($HTTP_POST_VARS["field_type"]) . "',
                     xsdmf_validation_type = '" . Misc::escapeString($HTTP_POST_VARS["validation_types"]) . "',
                     xsdmf_order = " . Misc::escapeString($HTTP_POST_VARS["order"]) . ",
+                    xsdmf_date_type = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_date_type"]) . ",					
                     xsdmf_cvo_id = " . $HTTP_POST_VARS["xsdmf_cvo_id"] . ",					
                     xsdmf_use_org_to_fill = " . $xsdmf_use_org_to_fill . ",
                     xsdmf_use_parent_option_list = " . $xsdmf_use_parent_option_list . ",
@@ -1451,6 +1457,8 @@ class XSD_HTML_Match
                     xsdmf_data_type = '" . Misc::escapeString($HTTP_POST_VARS["xsdmf_data_type"]) . "',";
 					if (is_numeric($HTTP_POST_VARS["attached_xsdmf_id"])) {
 	                  $stmt .= "   xsdmf_attached_xsdmf_id = " . Misc::escapeString($HTTP_POST_VARS["attached_xsdmf_id"]) . ",";
+					} elseif (trim($HTTP_POST_VARS["attached_xsdmf_id"]) == "") {
+					  $stmt .= "   xsdmf_attached_xsdmf_id = NULL,";
 					}
 					$stmt .= "
                     xsdmf_id_ref = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_id_ref"]) . ",
@@ -1924,7 +1932,9 @@ class XSD_HTML_Match
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
                  WHERE
-                    xsdmf_attached_xsdmf_id=$xsdmf_id";
+                    xsdmf_attached_xsdmf_id=$xsdmf_id and xsdmf_id not in 
+					(select distinct ifnull(xsdmf_attached_xsdmf_id, 0)
+        			   from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields where xsdmf_id = $xsdmf_id);";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

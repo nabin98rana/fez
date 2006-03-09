@@ -154,6 +154,12 @@ class Foxml
         } elseif ($xsdmf_details['xsdmf_fez_variable'] == "xdis_id") {
             $attrib_value = $top_xdis_id;
             array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $top_xdis_id));
+		} elseif ($xsdmf_details['xsdmf_smarty_variable'] != "") {
+			$return = Misc::getPostedDate($xsdmf_details['xsdmf_attached_xsdmf_id']);
+			$dateType = $return['dateType'];
+			eval("\$attrib_value = ".$xsdmf_details['xsdmf_smarty_variable'].";");
+			array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));									
+			$attrib_value = $attrib_value;
         } else {
             if (is_numeric($xsdmf_details['xsdsel_attribute_loop_xsdmf_id'])) {
                 $loop_attribute_xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_details['xsdsel_attribute_loop_xsdmf_id']);
@@ -286,7 +292,8 @@ class Foxml
                                     $element_prefix = $xsdmf_details['xsdmf_enforced_prefix'];
                                 }
                                 if ($xsdmf_details['xsdmf_html_input'] == 'date') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple							
-                                    $attrib_value = Misc::getPostedDate($xsdmf_id);
+									$dateReturn = Misc::getPostedDate($xsdmf_id);
+									$attrib_value = $dateReturn['value'];
                                     array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
                                 } elseif ($xsdmf_details['xsdmf_html_input'] == 'combo') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple
 									if ($xsdmf_details['xsdmf_smarty_variable'] == "" && $xsdmf_details['xsdmf_use_parent_option_list'] == 0) {
@@ -304,7 +311,8 @@ class Foxml
                                 } elseif ($xsdmf_details['xsdmf_html_input'] == 'xsdmf_id_ref') { // this assumes the xsdmf_id_ref will only refer to an xsdmf_id which is a text/textarea/combo/multiple, will have to modify if we need more
                                     $xsdmf_details_ref = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_details['xsdmf_id_ref']);
                                     if ($xsdmf_details['xsdmf_html_input'] == 'date') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple							
-                                        $attrib_value = Misc::getPostedDate($xsdmf_id);
+										$dateReturn = Misc::getPostedDate($xsdmf_id);
+										$attrib_value = $dateReturn['value'];
                                         array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
                                     } elseif ($xsdmf_details['xsdmf_html_input'] == 'combo') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple
 										if ($xsdmf_details['xsdmf_smarty_variable'] == "" && $xsdmf_details['xsdmf_use_parent_option_list'] == 0) {
@@ -326,6 +334,7 @@ class Foxml
                                 } elseif ($xsdmf_details['xsdmf_html_input'] == 'static') {
                                     Foxml::handleStaticInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $attrib_loop_index, $element_prefix, $i, $created_date, $updated_date, $file_downloads, $top_xdis_id);
                                 } elseif ($xsdmf_details['xsdmf_html_input'] == 'dynamic') {
+	//                                 eval("\$attrib_value = \$xsdmf_details['xsdmf_dynamic_text'];");
                                     $attrib_value = $HTTP_POST_VARS[$xsdmf_details['xsdmf_dynamic_text']];
                                     array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
                                 } elseif ($xsdmf_details['xsdmf_html_input'] == 'text' || $xsdmf_details['xsdmf_html_input'] == 'textarea') {
@@ -335,7 +344,8 @@ class Foxml
 //                                    array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_details['xsdmf_value_prefix'] . @$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]));
                                     //								Foxml::handleStaticInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $attrib_loop_index, $element_prefix, $i, $created_date, $updated_date, $file_downloads, $top_xdis_id);
                                 }
-                                if (XSD_HTML_Match::isAttachedXSDMF($xsdmf_details['xsdmf_id']) != true) { // attached matching
+                                if (XSD_HTML_Match::isAttachedXSDMF($xsdmf_details['xsdmf_id']) != true) { // attached matching 
+
                                     if ($xsdmf_details['xsdmf_enforced_prefix']) {
                                         $xmlObj .= ' '.$xsdmf_details['xsdmf_enforced_prefix'].$i.'="'.$xsdmf_details['xsdmf_value_prefix'] . $attrib_value.'"';
                                     } else {
@@ -385,7 +395,8 @@ class Foxml
                             }	
                             $attrib_value = "";
                             if ($xsdmf_details['xsdmf_html_input'] == 'date') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple							
-                                $attrib_value = Misc::getPostedDate($xsdmf_id);
+								$dateReturn = Misc::getPostedDate($xsdmf_id);
+                                $attrib_value = $dateReturn['value'];
                                 array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
                             } elseif ($xsdmf_details['xsdmf_html_input'] == 'combo') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple
 								if ($xsdmf_details['xsdmf_smarty_variable'] == "" && $xsdmf_details['xsdmf_use_parent_option_list'] == 0) {
@@ -403,7 +414,8 @@ class Foxml
                             } elseif ($xsdmf_details['xsdmf_html_input'] == 'xsdmf_id_ref') { // this assumes the xsdmf_id_ref will only refer to an xsdmf_id which is a text/textarea/combo/multiple, will have to modify if we need more
                                 $xsdmf_details_ref = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_details['xsdmf_id_ref']);
                                 if ($xsdmf_details['xsdmf_html_input'] == 'date') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple							
-                                    $attrib_value = Misc::getPostedDate($xsdmf_id);
+									$dateReturn = Misc::getPostedDate($xsdmf_id);
+									$attrib_value = $dateReturn['value'];
                                     array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
                                 } elseif ($xsdmf_details['xsdmf_html_input'] == 'combo') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple
 									if ($xsdmf_details['xsdmf_smarty_variable'] == "" && $xsdmf_details['xsdmf_use_parent_option_list'] == 0) {
@@ -433,7 +445,8 @@ class Foxml
                             } elseif ($xsdmf_details['xsdmf_html_input'] == 'static') {
                                 Foxml::handleStaticInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $attrib_loop_index, $element_prefix, $i, $created_date, $updated_date, $file_downloads, $top_xdis_id);
                             } elseif ($xsdmf_details['xsdmf_html_input'] == 'dynamic') {
-                                $attrib_value = $HTTP_POST_VARS[$xsdmf_details['xsdmf_dynamic_text']];
+    //                            eval("\$attrib_value = \$xsdmf_details['xsdmf_dynamic_text'];");
+	                            $attrib_value = $HTTP_POST_VARS[$xsdmf_details['xsdmf_dynamic_text']];
                                 array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
                             } elseif (($xsdmf_details['xsdmf_html_input'] == 'file_input' || $xsdmf_details['xsdmf_html_input'] == 'file_selector') && !empty($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']])) {
                                 if (is_numeric($attrib_loop_index) && is_array($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']])) {

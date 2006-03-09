@@ -850,7 +850,7 @@ class Record
 
         $display = new XSD_DisplayObject($xdis_id);
         $array_ptr = array();
-        $xsdmf_array = $display->getXSDMF_Values($pid);
+        $xsdmf_array = $display->getXSDMF_Values($pid);		
 		Record::removeIndexRecord($pid); // remove any existing index entry for that PID // CK added 9/1/06 - still working on this
 //        print_r($xsdmf_array);
         foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
@@ -1061,6 +1061,7 @@ class Record
     function insertXML($pid, $dsarray, $ingestObject)
     {
         $existingDatastreams = array();  // may be overwritten by extract
+
         extract($dsarray);
 //        echo "<pre>".htmlspecialchars($xmlObj)."</pre>";
         $params = array();
@@ -1079,7 +1080,7 @@ class Record
             // datastreams.
             // will have to exclude the non X control group xml and add the datastreams after the base ingestion.
             $xmlObj = Misc::removeNonXMLDatastreams($datastreamXMLHeaders, $xmlObj);
-
+			
             $config = array(
                     'indent'         => true,
                     'input-xml'   => true,
@@ -1090,17 +1091,22 @@ class Record
             $tidy->parseString($xmlObj, $config, 'utf8');
             $tidy->cleanRepair();
             $xmlObj = "$tidy";
+//			echo "<pre>".htmlspecialchars($xmlObj)."</pre>";			
             $result = Fedora_API::callIngestObject($xmlObj);
             if (is_array($result)) {
                 Error_Handler::logError($xmlObj, __FILE__,__LINE__);
             }
         }
+		
+/*		if (@is_array($datastreamXMLHeaders["File_Attachment0"])) { // it must be a multiple file upload so remove the generic one
+			$datastreamXMLHeaders = Misc::array_clean_key($datastreamXMLHeaders, "File_Attachment", true, true);
+		}
+*/		
 		$convert_check = false;
+
 //		Record::insertIndexBatch($pid, '', $indexArray, $datastreamXMLHeaders, $exclude_list, $specify_list);
 
         // ingest the datastreams
-//		print_r($datastreamXMLContent); exit;
-//		print_r($datastreamXMLHeaders); exit;
 		foreach ($datastreamXMLHeaders as $dsKey => $dsTitle) {		
 
 			$dsIDName = $dsTitle['ID'];
@@ -1131,6 +1137,7 @@ class Record
 							$dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
 					}
  				} else {
+
 					if (is_numeric(strpos($dsIDName, chr(92)))) {
 						$dsIDName = substr($dsIDName, strrpos($dsIDName, chr(92))+1);
 					}
@@ -1142,6 +1149,7 @@ class Record
 					}
 					Fedora_API::getUploadLocation($pid, $dsIDName, $datastreamXMLContent[$dsKey], $dsTitle['LABEL'], 
 							$dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
+			
 					$presmd_check = Workflow::checkForPresMD($dsIDName);
 					if ($presmd_check != false) {
 						if (is_numeric(strpos($presmd_check, chr(92)))) {

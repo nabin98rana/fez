@@ -356,6 +356,24 @@ class Misc
 					$ds['thumbnail'] = $thumbnail;
 				}
 			}
+			// now try and find a web datastream of this datastream
+			$web = "web_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."jpg";
+			$ds['web'] = 0;
+			foreach ($original_dsList as $o_key => $o_ds) {
+				if ($web == $o_ds['ID']) {  // found the web datastream so save it against the record
+					$ds['web'] = $web;
+				}
+			}
+			// now try and find a preview datastream of this datastream
+			$preview = "preview_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."jpg";
+			$ds['preview'] = 0;
+			foreach ($original_dsList as $o_key => $o_ds) {
+				if ($preview == $o_ds['ID']) {  // found the preview datastream so save it against the record
+					$ds['preview'] = substr($preview, 8);
+				}
+			}
+
+
 			// now try and find a preservation metadata datastream of this datastream
 			$presmd = "presmd_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."xml";
 			$ds['presmd'] = 0;
@@ -780,6 +798,8 @@ class Misc
      */
 	function getDatastreamXMLContent($datastreamTitles, $xmlString) {
 		$return = array();
+//		echo $xmlString;
+//		print_r($datastreamTitles);
 		foreach ($datastreamTitles as $title => $data) {
 			$IDPos = stripos($xmlString, 'id="'.$title.'"'); // stripos is a php5 function
 			if (is_numeric($IDPos)) {
@@ -815,6 +835,7 @@ class Misc
 	function removeNonXMLDatastreams($datastreamTitles, $xmlString) {
 	
 		$return = $xmlString;
+//		print_r($datastreamTitles);
 		foreach ($datastreamTitles as $title => $data) {
 			$IDPos = stripos($xmlString, 'id="'.$title.'"'); // stripos is a php5 function
 			$binaryPos = false;
@@ -1548,7 +1569,7 @@ class Misc
 		}
 		return $res;
 	}
-
+	
     /**
      * Gets a date string from a form's HTTP Post variables date selector.
 	 * 
@@ -1558,16 +1579,28 @@ class Misc
      */
 	function getPostedDate($xsdmf_id) {
 		global $HTTP_POST_VARS;
-		 if ((!empty($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year'])) &&
+		$return = array();
+		$dateType = 0; // full date by default
+		if ((!empty($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year'])) &&
 			 (!empty($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Month'])) &&
 			 (!empty($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Day']))) {
-			$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] = sprintf('%s-%s-%s', $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year'],
+			$return['value'] = sprintf('%s-%s-%s', $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year'],
 												$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Month'],
 												$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Day']);
+		} elseif ((!empty($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year'])) &&
+			 (!empty($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Month']))) {
+			$return['value'] = sprintf('%s-%s-01', $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year'],
+												$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Month']);
+			$dateType = 2;	// year and month
+		} elseif (!empty($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year'])) {
+			$return['value'] = sprintf('%s-01-01',$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year']);
+			$dateType = 1; // year only 
 		} else {
-			$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] = '';
+			$return['value'] = '';
 		}
-		return ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]);
+		$return['dateType'] = $dateType;
+//		$return['value'] = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id];
+		return $return;
 	}
 
 

@@ -65,53 +65,61 @@ if (!empty($pid) && !empty($dsID)) {
 	switch( $file_extension ) {
 		
 		case 'pdf'  :
-				Header("Content-type: application/pdf\n");
+				$header = "Content-type: application/pdf\n";
 				break;
 		
 		case 'xls'  :
-				Header("Content-type: application/vnd.ms-excel\n");
+				$header = "Content-type: application/vnd.ms-excel\n";
 				break;
 		
 		case 'doc'  :
-				Header("Content-type: application/msword\n");
+				$header = "Content-type: application/msword\n";
 				break;
 		
 		case 'ica'  :
-				Header("Content-type: application/x-ica\n");
+				$header = "Content-type: application/x-ica\n";
 				break;
 		
 		case 'gif'  :
 				$is_image = 1;
-				Header("Content-type: image/gif\n");
+				$header = "Content-type: image/gif\n";
 				break;
 		
+		case 'tif'  :
+				$is_image = 1;
+				$header = "Content-type: image/tif\n";
+				break;
+		case 'tiff'  :
+				$is_image = 1;
+				$header = "Content-type: image/tiff\n";
+				break;
 		case 'bmp'  :
 				$is_image = 1;
-				Header("Content-type: image/bmp\n");
+				$header = "Content-type: image/bmp\n";
 				break;
 		
 		case 'jpg'  :
 				$is_image = 1;
-				Header("Content-type: image/jpeg\n");
+				$header = "Content-type: image/jpeg\n";
 				break;
 		case 'jpeg'  :
 				$is_image = 1;
-				Header("Content-type: image/jpeg\n");
+				$header = "Content-type: image/jpeg\n";
 				break;
 		case 'ico'  :
 				$is_image = 1;
-				Header("Content-type: image/ico\n");
+				$header = "Content-type: image/ico\n";
 				break;
 		
 		case 'ppt'  :
-				Header("Content-type: application/vnd.ms-powerpoint");
+				$header = "Content-type: application/vnd.ms-powerpoint";
 				break;
 		case 'txt'  :
-				Header("Content-type: text/plain");
+				$header = "Content-type: text/plain";
 				break;
 		
 		default		:
-				Header("Content-type: text/xml");
+				$header = "Content-type: text/xml";
 				break;
 	
 	} // end switch field_extension
@@ -120,11 +128,12 @@ if (!empty($pid) && !empty($dsID)) {
 		$real_dsID = str_replace("archival_", "", $dsID);
 		$acceptable_roles = array("Community_Admin", "Editor", "Creator", "Archival_Viewer");
 	} elseif (($is_image == 1) && (!is_numeric(strpos($dsID, "web_"))) && (!is_numeric(strpos($dsID, "preview_"))) && (!is_numeric(strpos($dsID, "thumbnail_"))) ) {
-		$real_dsID = "web_".$dsID;
+		$real_dsID = "web_".substr($dsID, 0, strrpos($dsID, ".") + 1)."jpg";
 		$acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
+		$header = "Content-type: image/jpeg\n";
 	} else {
 		$real_dsID = $dsID;
-		$acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");		
+		$acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
 	}
 	$tpl->assign("pid", $pid);
 	$tpl->assign("dsID", $dsID);
@@ -138,8 +147,10 @@ if (!empty($pid) && !empty($dsID)) {
 			if ((!is_numeric(strpos($dsID, "thumbnail_"))) && (!is_numeric(strpos($dsID, "web_"))) && (!is_numeric(strpos($dsID, "preview_"))) && (!is_numeric(strpos($dsID, "presmd_"))) && (!is_numeric(strpos($dsID, "FezACML_"))) ) {
 				Record::incrementFileDownloads($pid); //increment FezMD.file_downloads counter
 			}
-			
+		    header($header);
   	 		header('Content-Disposition: filename="'.substr($urldata, (strrpos($urldata, '/')+1) ).'"');
+		    header('Pragma: private');
+		    header('Cache-control: private, must-revalidate'); 
 			$tempDumpFileName = APP_TEMP_DIR.'tmpdumpfile.txt';
 			// Read the source OAI repository url or file
 			

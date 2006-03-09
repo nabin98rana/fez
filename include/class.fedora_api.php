@@ -315,7 +315,7 @@ class Fedora_API {
 			$tidy->parseString($file, $config, 'utf8');
 			$tidy->cleanRepair();
 			$file = $tidy;
-		}	
+		}
 		if (!empty($file) && (trim($file) != "")) {
 			$fp = fopen($loc_dir.$dsIDName, "w"); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
 			fwrite($fp, $file);
@@ -328,19 +328,21 @@ class Fedora_API {
 		    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		    $uploadLocation = curl_exec($ch);
 		    curl_close ($ch);		
+			
 		    $uploadLocation = trim(str_replace("\n", "", $uploadLocation));		
 			if (is_numeric(strpos($dsIDName, chr(92)))) {
 				$dsIDName = substr($dsIDName, strrpos($dsIDName, chr(92))+1);
 				$dsLabel = $dsIDName;
 			}
-		    if ($dsID == NULL) {
-			  //Call callAddDatastream
-			  $dsID = Fedora_API::callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsLabel, $mimetype, $controlGroup);
-			  return $dsID;
-			  exit;
-		   } elseif ($dsID != NULL) {
-			 // do nothing
-		   }
+           if (!Fedora_API::datastreamExists($pid, $dsIDName)) {
+              //Call callAddDatastream
+              $dsID = Fedora_API::callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsIDName, $mimetype, $controlGroup);
+              return $dsID;
+              exit;
+           } elseif ($dsIDName != NULL) {
+              //Call ModifyDatastreamByReference
+              Fedora_API::callModifyDatastreamByReference ($pid, $dsIDName, $dsLabel, $uploadLocation);
+           } 
 		}
 	}
 
@@ -369,7 +371,8 @@ class Fedora_API {
 			$dsLabel = $dsIDName;
 		}
         // fix path if local filename has no path already
-        if (!is_numeric(strpos($local_file_location,'/'))) {
+//        if (!is_numeric(strpos($local_file_location,'/'))) {
+        if (!is_numeric(strpos($local_file_location,"/"))) {
             $local_file_location = APP_TEMP_DIR.$local_file_location;
         }
         // get mimetype

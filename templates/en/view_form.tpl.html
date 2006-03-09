@@ -179,11 +179,13 @@ function validateForm(f)
         {section name="i" loop=$xsd_display_fields}
 		{if $xsd_display_fields[i].xsdmf_html_input != 'static' and $xsd_display_fields[i].xsdmf_show_in_view == 1 and $xsd_display_fields[i].xsdmf_html_input != 'xsdmf_id_ref' and $xsd_display_fields[i].xsdmf_html_input != 'xsd_ref' and $xsd_display_fields[i].xsdmf_html_input != ''}
 		{assign var="temp_fld_id" value=$xsd_display_fields[i].xsdmf_id}
+		{assign var="attached_temp_fld_id" value=$xsd_display_fields[i].xsdmf_attached_xsdmf_id}
 		  {if $xsd_display_fields[i].xsdmf_show_in_view == 1}
 			  {if $xsd_display_fields[i].xsdmf_data_type == 'date'}
+			  
 			<tr>
 			  <td align="right" bgcolor="{$cell_color}" class="default" width="20%" valign="top" nowrap><b>{$xsd_display_fields[i].xsdmf_title}</b></td>
- 			  <td align="left" bgcolor="{$light_color}" class="default">{$details[$temp_fld_id]|date_format:"%A, %B %e, %Y"}</td>
+ 			  <td align="left" bgcolor="{$light_color}" class="default">{if $details[$attached_temp_fld_id] == 0}{$details[$temp_fld_id]|date_format:"%A, %B %e, %Y"}{else}{$details[$temp_fld_id]}{/if}</td>
 			</tr>		
 			  {else}
 			<tr>
@@ -232,7 +234,7 @@ function validateForm(f)
             {if $datastreams[d].thumbnail != "0"}{if $datastreams[d].canPreview || $isAdministrator}<a href="#">{/if}
 				{assign var="show_preview_pane" value="1"}
 			<img align="absmiddle" src="{$eserv_url}{$datastreams[d].thumbnail}" border="1"
-            {if $datastreams[d].canPreview || $isAdministrator}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].ID}', '{$datastreams[d].label}');"{/if}
+            {if $datastreams[d].canPreview || $isAdministrator}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].preview}', '{$datastreams[d].label}');"{/if}
             >{if $datastreams[d].canPreview || $isAdministrator}</a>{/if}{/if}{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}images/default.png">{/if} {if $datastreams[d].isViewer == 1 || $isAdministrator}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].ID}">{/if}{$datastreams[d].ID}{if $datastreams[d].isViewer == 1 || $isAdministrator}</a> &nbsp;{/if} {if ($datastreams[d].isArchivalViewer == 1 || $isAdministrator) && $datastreams[d].thumbnail != "0"}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID=archival_{$datastreams[d].ID}"><img title="archival version" align="absmiddle" border="0" src="{$rel_url}images/archival_22.gif"></a>&nbsp;{/if} {if $datastreams[d].presmd != "0" && ($datastreams[d].isViewer == 1 || $isAdministrator)}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].presmd}"><img title="preservation metadata" align="absmiddle" border="0" src="{$rel_url}images/presmd_22.gif"></a>&nbsp;{/if} 	
 				</td>
 				<td>{$datastreams[d].label}</td>
@@ -288,7 +290,7 @@ function validateForm(f)
         <td class="default">
           {if $preview_ds_1}
           <img id="datastream_preview" alt="Datastream Preview"/>
-          <script language="JavaScript">loadPreview('{$pid}','{$preview_ds_1.ID}','{$preview_ds_1.label}');</script>
+          <script language="JavaScript">loadPreview('{$pid}','{$preview_ds_1.preview}','{$preview_ds_1.label}');</script>
           {/if}
         </td>
         </tr>

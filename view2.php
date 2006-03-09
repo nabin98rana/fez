@@ -36,6 +36,7 @@
 include_once(APP_INC_PATH . "najax/najax.php");
 include_once(APP_INC_PATH . "najax_objects/class.image_preview.php");
 include_once(APP_INC_PATH . "class.author.php");
+include_once(APP_PEAR_PATH . "Date.php");
 
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
@@ -96,6 +97,23 @@ if (!empty($pid)) {
 					}
 				}
 			}
+			if ($dis_field['xsdmf_data_type'] == "date") {
+				if (!empty($details[$dis_field['xsdmf_id']])) {
+					if (is_array($details[$dis_field['xsdmf_id']])) {
+						foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
+							$details[$dis_field['xsdmf_id']][$ckey] = $details[$cdata];
+						}
+					} else {
+						$tempDate = new Date($details[$dis_field['xsdmf_id']]);
+//						$tempDate->format
+						if ($details[$dis_field['xsdmf_attached_xsdmf_id']] == 1) {
+							$details[$dis_field['xsdmf_id']] = substr($details[$dis_field['xsdmf_id']], 0, 4);
+						} elseif ($details[$dis_field['xsdmf_attached_xsdmf_id']] == 2) {
+							$details[$dis_field['xsdmf_id']] = substr($details[$dis_field['xsdmf_id']], 0, 7);
+						}
+					}
+				}
+			} 
 			if ($dis_field['xsdmf_html_input'] == "author_selector") {
 				if (!empty($details[$dis_field['xsdmf_id']])) {
 					if (is_array($details[$dis_field['xsdmf_id']])) {
@@ -147,12 +165,11 @@ if (!empty($pid)) {
 	if (empty($details)) {
 		$tpl->assign('details', '');
 	} else {
-
 		$datastreams = Fedora_API::callGetDatastreams($pid);
 		$datastreams = Misc::cleanDatastreamList($datastreams);
 		$securityfields = Auth::getAllRoles();
 		$datastream_workflows = WorkflowTrigger::getListByTrigger('-1', 5);
-		
+//		print_r($datastreams);
 		foreach ($datastreams as $ds_key => $ds) {
 			if ($datastreams[$ds_key]['controlGroup'] == 'M') {
 				$FezACML_DS = array();

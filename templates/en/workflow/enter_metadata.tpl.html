@@ -446,15 +446,19 @@ function selectDateField(field_name, day, month, year)
 				  </td>
                 <td nowrap bgcolor="{$light_color}">
                   {assign var="temp_xsdmf_id" value=$xsd_display_fields[i].xsdmf_id}
-                  {html_select_date month_empty='' year_empty='' day_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="-50" end_year="+0" all_extra='class="default" onChange="javascript:checkDateFilterType(this.form, this);"'}
-                                  {literal}
-                  <script language="JavaScript" type="text/javascript">
-                  <!--
-                  tCalendar_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal} = new dynCalendar('tCalendar_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}', 'calendarCallback_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}', '{/literal}{$rel_url}{literal}images/');
-                  tCalendar_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}.setMonthCombo(false);
-                  tCalendar_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}.setYearCombo(false);
-                  //-->
-                  </script>{/literal}&nbsp;&nbsp;
+				  {if $xsd_display_fields[i].xsdmf_date_type == 0}
+					  {html_select_date month_empty='' year_empty='' day_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="-50" end_year="+0" all_extra='class="default" onChange="javascript:checkDateFilterType(this.form, this);"'}
+									  {literal}
+					  <script language="JavaScript" type="text/javascript">
+					  <!--
+					  tCalendar_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal} = new dynCalendar('tCalendar_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}', 'calendarCallback_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}', '{/literal}{$rel_url}{literal}images/');
+					  tCalendar_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}.setMonthCombo(false);
+					  tCalendar_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}.setYearCombo(false);
+					  //-->
+					  </script>{/literal}&nbsp;&nbsp;
+				  {else}
+					  {html_select_date display_days=false display_months=false year_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="-50" end_year="+0" all_extra='class="default" onChange="javascript:checkDateFilterType(this.form, this);"'}
+				  {/if}
                 </td>
               </tr>
             {elseif $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' && $xsd_display_fields[i].xsdmf_enabled == 1}
