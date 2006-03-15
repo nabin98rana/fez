@@ -284,6 +284,9 @@ function selectDateField(field_name, day, month, year)
 					    {assign var="field_id" value="xsd_display_fields_"|cat:$xsd_display_fields[i].xsdmf_id|cat:"_"|cat:$loop_num}
 						<input class="default" type="text" id="{$field_id}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" value="{$details[$temp_fld_id][z]}" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" maxlength="255" size="50">
 						{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
+							{if $xsd_display_fields[i].xsdmf_description != ""}
+								&nbsp;<span class="default"><i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i></span>
+							{/if}
 						 </td>
 						</tr>
 						{assign var="show_num" value=$show_num+1}

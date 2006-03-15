@@ -90,5 +90,6 @@ $news = News::getList();
 $news_count = count($news);
 $tpl->assign("news", $news);
 $tpl->assign("news_count", $news_count);
+//print_r($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]);
 $tpl->displayTemplate();
 ?>

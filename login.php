@@ -63,5 +63,14 @@ if (Auth::hasValidSession(APP_SESSION)) {
 } else {
 
 }
+$tpl->assign("SHIB_SWITCH", SHIB_SWITCH);
+if (SHIB_SWITCH == "ON") {
+	$IDPList = Auth::getIDPList();
+	$tpl->assign("SHIB_IDP_LIST", $IDPList['list']);
+} else {
+	$tpl->assign("SHIB_IDP_LIST", array());
+}
+$tpl->assign("SHIB_HOME_IDP", SHIB_HOME_IDP);
+$tpl->assign("SHIB_FEDERATION_NAME", SHIB_FEDERATION_NAME);
 $tpl->displayTemplate();
 ?>

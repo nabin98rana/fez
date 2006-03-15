@@ -334,14 +334,19 @@ class Fedora_API {
 				$dsIDName = substr($dsIDName, strrpos($dsIDName, chr(92))+1);
 				$dsLabel = $dsIDName;
 			}
-           if (!Fedora_API::datastreamExists($pid, $dsIDName)) {
+		   $dsExists = Fedora_API::datastreamExists($pid, $dsIDName);
+//		   echo "DEE ESS EXISTS = ".$dsExists."<- <br/>";
+		   if ($dsExists !== true) {
               //Call callAddDatastream
               $dsID = Fedora_API::callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsIDName, $mimetype, $controlGroup);
               return $dsID;
               exit;
            } elseif ($dsIDName != NULL) {
               //Call ModifyDatastreamByReference
-              Fedora_API::callModifyDatastreamByReference ($pid, $dsIDName, $dsLabel, $uploadLocation);
+			  Fedora_API::callPurgeDatastream ($pid, $dsIDName);
+			  $dsID = Fedora_API::callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsIDName, $mimetype, $controlGroup);
+			  return $dsID;
+//              Fedora_API::callModifyDatastreamByReference ($pid, $dsIDName, $dsIDName, $uploadLocation, $mimetype);
            } 
 		}
 	}
@@ -396,13 +401,17 @@ class Fedora_API {
 		   $uploadLocation = curl_exec($ch);
 		   curl_close ($ch);		
 		   $uploadLocation = trim(str_replace("\n", "", $uploadLocation));
-		   if (!Fedora_API::datastreamExists($pid, $dsIDName)) {
+		   $dsExists = Fedora_API::datastreamExists($pid, $dsIDName);
+		   if ($dsExists !== true) {
 			  //Call callAddDatastream
 			  $dsID = Fedora_API::callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsIDName, $mimetype, $controlGroup);
 			  return $dsID;
-		   } elseif ($dsIDName != NULL) {
+		   } elseif (!empty($dsIDName)) {
 			  //Call ModifyDatastreamByReference
-			  Fedora_API::callModifyDatastreamByReference ($pid, $dsIDName, $dsLabel, $uploadLocation);
+			  Fedora_API::callPurgeDatastream ($pid, $dsIDName);
+			  $dsID = Fedora_API::callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsIDName, $mimetype, $controlGroup);
+			  return $dsID;
+//			  Fedora_API::callModifyDatastreamByReference ($pid, $dsIDName, $dsIDName, $uploadLocation, $mimetype);
 		   }
 		}
 	}
@@ -641,10 +650,10 @@ class Fedora_API {
 	* @param string $dsLocation The location of the datastream
     * @return void
     */		
-	function callModifyDatastreamByReference ($pid, $dsID, $dsLabel, $dsLocation=NULL) {
+	function callModifyDatastreamByReference ($pid, $dsID, $dsLabel, $dsLocation=NULL, $mimetype) {
 	   $logmsg = 'Modifying datastream by reference';
 	   $versionable = 'false';
-	   $parms= array('PID' => $pid, 'datastreamID' => $dsID, new soapval('versionable', 'boolean', $versionable), 'dsLabel' => $dsLabel, 'logMessage' => $logmsg, 'dsLocation' => $dsLocation, 'dsState' => 'A');
+	   $parms= array('pid' => $pid, 'dsID' => $dsID, 'altIDs' => array(), 'dsLabel' => $dsLabel, new soapval('versionable', 'boolean', $versionable),  'MIMEType' => $mimetype, 'formatURI' => 'unknown', 'dsLocation' => $dsLocation, 'dsState' => 'A', 'logMessage' => $logmsg, 'force' => true);
 	   Fedora_API::openSoapCall('modifyDatastreamByReference', $parms);
 	}
 

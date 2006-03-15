@@ -39,6 +39,9 @@ set_time_limit(0);
 
 // definitions of Organisation LDAP related variables. You may need to query your Org's LDAP expert for help on these settings.
 @define("SHIB_SWITCH", "OFF");  // Set to OFF or ON depending on whether you want to use Shibboleth authentication
+@define("SHIB_FEDERATION_NAME", "MAMS Testbed Federation");  // Change this to the name of your Shibboleth Federation, eg Inqueue, InCommon, MAMS Testbed Federation
+@define("SHIB_HOME_IDP", "urn:mace:federation.org.au:testfed:level-1:idp.test.uq.edu.au");  // Change this to the urn of your home instituition IDP
+@define("SHIB_WAYF_METADATA_LOCATION", "/usr/local/shibboleth-sp/etc/shibboleth/level-1-metadata.xml");  // Change this to path location of the WAYF metadata XML file, you can update this with a cronjob (linux) or a schedulated task (windows)
 @define("LDAP_SWITCH", "%{LDAP_SWITCH}%");  // Set to OFF or ON depending on whether you want to use LDAP authentication
 @define("LDAP_ORGANISATION", "%{LDAP_ORGANISATION}%"); //eg o=The University of Fez, c=AU
 @define("LDAP_ROOT_DN", "%{LDAP_ROOT_DN}%"); //eg DC=uq,DC=edu,DC=au
@@ -164,6 +167,7 @@ if (APP_FEDORA_SETUP == 'sslall') {
 @define("APP_SESSION", "fez");
 @define("APP_INTERNAL_GROUPS_SESSION", APP_SESSION."_internal_groups");
 @define("APP_LDAP_GROUPS_SESSION", APP_SESSION."_ldap_groups");
+@define("APP_SHIB_ATTRIBUTES_SESSION", APP_SESSION."_shib_attributes");
 
 @define("APP_SESSION_EXPIRE", time() + (60 * 60 * 8));
 

@@ -225,7 +225,7 @@ function validateForm(f)
   			  <tr class="default" id="datastream_list_{$datastreams[d].ID}" bgcolor="{$light_color}"> 			  
 				{assign var="image_file_name" value=$datastreams[d].MIMEType|replace:"/":"_"|cat:".png"}
 				{assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$image_file_name} 			
-				{if ($datastreams[d].canPreview || $isAdministrator) && !$preview_ds_1}
+				{if ($datastreams[d].canPreview || $isAdministrator) && !$preview_ds_1 && $datastreams[d].preview != "0"}
 				  {assign var="preview_ds_1" value=$datastreams[d]}
 				{/if}
 				{assign var="image_file_string" value=""}

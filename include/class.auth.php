@@ -1064,6 +1064,69 @@ class Auth
         }
 	}
 
+
+    /**
+     * Retrieves an array of Shibboleth Federation IDPs for display in the Fez WAYF 
+     *
+     * @access  public
+     * @return  array 
+     */
+    function getIDPList() {	
+		if (is_file(SHIB_WAYF_METADATA_LOCATION) == true) {		
+			$sourceXML = fopen(SHIB_WAYF_METADATA_LOCATION, "r");
+			$sourceXMLRead = '';
+			while ($tmp = fread($sourceXML, 4096)) {
+				$sourceXMLRead .= $tmp;
+			}
+			$xmlDoc= new DomDocument();
+			$xmlDoc->preserveWhiteSpace = false;
+			$xmlDoc->loadXML($sourceXMLRead);
+			$xpath = new DOMXPath($xmlDoc);
+			$xpath->registerNamespace("md", "urn:oasis:names:tc:SAML:2.0:metadata");
+			$xpath->registerNamespace("shib","urn:mace:shibboleth:metadata:1.0");
+			$recordNodes = $xpath->query("//md:EntitiesDescriptor/md:EntityDescriptor");
+			$IDPArray = array();
+			foreach ($recordNodes as $recordNode) {
+				$type_fields = $xpath->query("./md:IDPSSODescriptor", $recordNode);
+				$foundIDP = false;
+				foreach ($type_fields as $type_field) {
+					$foundIDP = true;
+				}				
+				if ($foundIDP == true) {
+					$entityID = "";
+					$type_fields = $xpath->query("./@entityID[string-length(.) > 0]", $recordNode);
+					foreach ($type_fields as $type_field) {
+						if  ($entityID == "") {
+							$entityID = $type_field->nodeValue;
+						}
+					}
+					$OrganisationDisplayName = "";
+					$type_fields = $xpath->query("./md:Organization/md:OrganizationDisplayName", $recordNode);
+					foreach ($type_fields as $type_field) {
+						if  ($OrganisationDisplayName == "") {
+							$OrganisationDisplayName = $type_field->nodeValue;
+						}
+					}
+					$SSO = "";
+					$type_fields = $xpath->query("./md:IDPSSODescriptor/md:Extensions/shib:Scope", $recordNode);
+					foreach ($type_fields as $type_field) {
+						if  ($SSO == "") {
+							$SSO = $type_field->nodeValue;
+						}
+					}
+
+					if ($OrganisationDisplayName != "" && $entityID != "" && $SSO != "") {
+						$IDPArray['list'][$entityID] = $OrganisationDisplayName;
+						$IDPArray['SSO'][$entityID] = "https://$SSO/shibboleth-idp/SSO";
+					}
+				}			
+			}
+			return $IDPArray;
+		} else {
+			return array(); //if the file cannot be found return an empty array
+		}
+	}
+
     /**
      * Logs the user in with session variables for user groups etc. 
      *
@@ -1072,18 +1135,44 @@ class Auth
      * @param   string $password The password of the user (in ldap)
      * @return  boolean true if the user successfully binds to the LDAP server
      */
-    function LoginAuthenticatedUser($username, $password) {	
+    function LoginAuthenticatedUser($username, $password, $shib_login=false) {	
         session_name(APP_SESSION);
         @session_start();
         if (!Auth::userExists($username)) { // If the user isn't a registered fez user, get their details elsewhere (The AD/LDAP) as they must have logged in with LDAP
-            $_SESSION['isInAD'] = true;
-            $_SESSION['isInDB'] = false;
-            $userDetails = User::GetUserLDAPDetails($username, $password);
-            $fullname = $userDetails['displayname'];
-            $email = $userDetails['email'];
-            Auth::GetUsersLDAPGroups($username, $password);
+			if ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
+				$_SESSION['isInAD'] = true;
+				$_SESSION['isInDB'] = false;
+				$_SESSION['isInFederation'] = true;			
+				if ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['displayName'] != "") {
+					$fullname =	$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['displayName'];
+				} elseif ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] != "") {
+					$fullname =	$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'];
+				} elseif ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "") {
+					$fullname =	$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'];
+				} elseif ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Nickname'] != "") {
+					$fullname =	$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Nickname'];
+				}
+				if ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-mail'] != "") {
+					$email = $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-mail'];
+				} else {				
+					$email = "";
+				}
+			} else {
+				$_SESSION['isInAD'] = true;
+				$_SESSION['isInDB'] = false;
+				$_SESSION['isInFederation'] = false;
+				$userDetails = User::GetUserLDAPDetails($username, $password);
+				$fullname = $userDetails['displayname'];
+				$email = $userDetails['email'];
+				Auth::GetUsersLDAPGroups($username, $password);
+			}
         } else { // if it is a registered Fez user then get their details from the fez user table
             $_SESSION['isInDB'] = true;
+			if ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
+				$_SESSION['isInFederation'] = true;
+			} else {
+				$_SESSION['isInFederation'] = false;
+			}
             $userDetails = User::getDetails($username);			
             $fullname = $userDetails['usr_full_name'];
             $email = $userDetails['usr_email'];
@@ -1114,6 +1203,21 @@ class Auth
         @session_start();
 		$internal_groups = Group::getGroupColList($usr_id);
 		$_SESSION[APP_INTERNAL_GROUPS_SESSION] = $internal_groups;
+	}
+
+    /**
+     * Gets the Shibboleth attributes. 
+     *
+     * @access  public
+     * @return  void Sets the internal shib attributes session to the found shib attributes
+     */
+	function GetShibAttributes() {
+        session_name(APP_SESSION);
+        @session_start();
+	    $headers = apache_request_headers();
+		//$shib_attributes = $headers['Shib-Attributes'];
+
+		$_SESSION[APP_SHIB_ATTRIBUTES_SESSION] = $headers;
 	}
 
     /**
