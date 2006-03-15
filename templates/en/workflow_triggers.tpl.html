@@ -181,7 +181,11 @@
 						obj.getXSDDisplaysByObjectType(selections[0].value, function(dt_list) {
 								removeAllOptions(f, 'wft_xdis_id');
 								addOptions(f, 'wft_xdis_id', dt_list);
-								selectOption(f, 'wft_xdis_id', {/literal}{$info.wft_xdis_id}{literal});
+                                {/literal}
+                                {if $info.wft_xdis_id}
+								selectOption(f, 'wft_xdis_id', {$info.wft_xdis_id});
+                                {/if}
+                                {literal}
 								hideLoading1();
 								dt_load_state--;
 								});
@@ -251,7 +255,8 @@
 				  <b>Object Type:</b>
 				</td>
 				<td bgcolor="{$light_color}">
-				  <select name="wft_ret_id" class="default" onChange="javascript: selectObjectXSDDisplay(this.form, 'wft_ret_id')">
+				  <select name="wft_ret_id" class="default" 
+                                  onChange="javascript: selectObjectXSDDisplay(this.form, 'wft_ret_id')">
 					{html_options options=$object_options selected=$info.wft_ret_id}
 				  </select>
 				  {include file="error_icon.tpl.html" field="wft_ret_id"}			  
@@ -260,17 +265,20 @@
 
 			  <tr style="display:none;" id="tr_wft_xdis_id">
                 <td  bgcolor="{$cell_color}" class="default" nowrap>
-                  <b>XSD Display Document Type:</b>
-                </td>
+                  <b>XSD Display Document Type:</b>                 </td>
                 <td bgcolor="{$light_color}">
 	 			  <div id="loading1" style="display:none;">Loading...</div>
                   <select name="wft_xdis_id" class="default">
                   </select>
+                  <div class="default">'None' means that the trigger selects the document type as part of
+                  the workflow - 'None' triggers are accessed through the My_Fez page.  'Any' will match 
+                  against any document type.</div>
+
                 </td>
               </tr>
 
               <tr>
-                <td  width="120" bgcolor="{$cell_color}" class="default" nowrap>
+                <td  width="120" bgcolor="{$cell_color}" class="default" >
                   <b>Mimetype:</b> (Ingest triggers only, leave blank to match all, seperate multiple 
                           mimetypes by spaces)
                 </td>

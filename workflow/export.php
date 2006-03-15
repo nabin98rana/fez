@@ -1,5 +1,5 @@
 <?php
-$trigger_type = 'Update';
+
+$trigger_type = 'Export';
 include('list_workflows.php');
-exit;
 ?>

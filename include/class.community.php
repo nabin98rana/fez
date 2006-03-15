@@ -221,8 +221,9 @@ class Community
                     || $isAdministrator) {
 				$xdis_id = $ret_wf['display_type'][0];
 				$ret_id = $ret_wf['object_type'][0];
-				$strict = true;
-				$workflows = $record->getWorkflowsByTriggerAndRET_ID('Update', $ret_id, $strict);
+				$strict = false;
+				$workflows = array_merge($record->getWorkflowsByTriggerAndRET_ID('Update', $ret_id, $strict),
+                        $record->getWorkflowsByTriggerAndRET_ID('Export', $ret_id, $strict));
 			}
 			// check which workflows can be triggered			
 			$workflows1 = array();

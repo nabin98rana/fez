@@ -48,7 +48,8 @@ class WorkflowTrigger
             1 => "Update", // updating metadata records
             3 => "Delete", // deleting a record
             4 => "Create",  // creating a record
-            5 => "Datastream"  // triggers on datastreams
+            5 => "Datastream",  // triggers on datastreams
+            6 => "Export"  // exporting records
             );
     }
 
@@ -222,7 +223,7 @@ class WorkflowTrigger
             $trigger = WorkflowTrigger::getTriggerId($trigger);
         }
         if (!$strict) {
-            $orstr = " OR wft_ret_id=-1 ";
+            $orstr = " OR wft_ret_id=0 ";
         } else {
             $orstr = "";
         }
