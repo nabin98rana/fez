@@ -50,10 +50,7 @@ class WorkflowStateLink
     {
         $wfl_id = $_POST['wfl_id'];
         WorkflowStateLink::removeAll($id);
-        $stmt = "INSERT INTO 
-            ".APP_DEFAULT_DB.".".APP_TABLE_PREFIX."workflow_state_link 
-            (wfsl_wfl_id, wfsl_from_id, wfsl_to_id) VALUES
-            ";
+        $stmt = '';
         foreach ($_POST['wfsl_prev_id'] as $prev_id) {
             if ($prev_id > 0) {
                 $stmt .= "($wfl_id, $prev_id, $id), "; 
@@ -67,10 +64,16 @@ class WorkflowStateLink
             }
         }
         $stmt = rtrim($stmt,', ');
-        $res1 = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res1)) {
-            Error_Handler::logError(array($res1->getMessage(), $res1->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
+        if (!empty($stmt)) {
+            $stmt = "INSERT INTO 
+                ".APP_DEFAULT_DB.".".APP_TABLE_PREFIX."workflow_state_link 
+                (wfsl_wfl_id, wfsl_from_id, wfsl_to_id) VALUES
+                ".$stmt;
+            $res1 = $GLOBALS["db_api"]->dbh->query($stmt);
+            if (PEAR::isError($res1)) {
+                Error_Handler::logError(array($res1->getMessage(), $res1->getDebugInfo()), __FILE__, __LINE__);
+                return -1;
+            }
         }
         return 1;
     }
