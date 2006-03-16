@@ -133,7 +133,7 @@ class Fedora_API {
      * @return  string $result The XML of the object
      */
 	function getObjectXMLByPID($pid) {
-		$parms = array('PID' => $pid);
+		$parms = array('pid' => $pid);
 		$result = Fedora_API::openSoapCall('getObjectXML', $parms);
 		return $result;
 	}
@@ -152,6 +152,12 @@ class Fedora_API {
 		$result = Fedora_API::openSoapCall('ingest', $parms);
         return $result;
 	}
+
+    function export($pid, $format="foxml1.0", $context="migrate") {
+        $parms = compact('pid','format','context');
+		$result = Fedora_API::openSoapCall('export', $parms);
+        return $result;
+    }
 
     /**
      * This function uses Fedora's simple search service which only really works against Dublin Core records,
@@ -474,25 +480,18 @@ class Fedora_API {
 	* @param string $pid The persistant identifier of the object
     * @return array $dsIDListArray The list of datastreams in an array.
     */		
-	function callGetDatastreams($pid) {
-		static $returns;
-	
-        // check if this has already been found and set to a static variable		
-        if (!empty($returns[$pid])) { 
-			return $returns[$pid];
-		} else {
-			if (!is_numeric($pid)) {
-			   $parms=array('pid' => $pid, 'asOfDateTime' => NULL, 'dsState' => NULL);
-			   $dsIDListArray = Fedora_API::openSoapCall('getDatastreams', $parms);
-			   sort($dsIDListArray);
-			   reset($dsIDListArray);
-			   $returns[$pid] = $dsIDListArray;
-			   return $dsIDListArray;
-		   } else {
-			  return array();
-		   }
-	   }
-	}
+    function callGetDatastreams($pid) {
+        if (!is_numeric($pid)) {
+            $parms=array('pid' => $pid, 'asOfDateTime' => NULL, 'dsState' => NULL);
+            $dsIDListArray = Fedora_API::openSoapCall('getDatastreams', $parms);
+            sort($dsIDListArray);
+            reset($dsIDListArray);
+            $returns[$pid] = $dsIDListArray;
+            return $dsIDListArray;
+        } else {
+            return array();
+        }
+    }
 
    /**
     * This function creates an array of a specific datastream of a specific object

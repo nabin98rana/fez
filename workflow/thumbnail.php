@@ -37,32 +37,53 @@ $xdis_id = $this->xdis_id;
 $dsInfo = $this->dsInfo;
 $dsIDName = $dsInfo['ID'];
 $filename=$dsIDName;
-$file_name_prefix = "thumbnail_";
-if (is_numeric(strpos($filename, "/"))) {
-    $new_file = $file_name_prefix.Foxml::makeNCName(substr(substr($filename, 0, strrpos($filename, ".")), 
-                strrpos($filename, "/")+1)).".jpg";
-} else {
-    $new_file = $file_name_prefix.Foxml::makeNCName(substr($filename, 0, strrpos($filename, "."))).".jpg";
-}
-$filename_ext = strtolower(substr($filename, (strrpos($filename, ".") + 1)));
-$getString = APP_RELATIVE_URL."webservices/wfb.image_resize.php?image="
-.urlencode($filename)."&height=50&width=50&ext=jpg&outfile=".$new_file;
-$http_req = new HTTP_Request($getString, array("http" => "1.0"));
-$http_req->setMethod("GET");
-$http_req->sendRequest();
-$xml = $http_req->getResponseBody();
 
-if (!empty($new_file)) {
-	if (Fedora_API::datastreamExists($pid, $new_file)) {
-	    Fedora_API::callPurgeDatastream($pid, $new_file);
-	}
-	$delete_file = APP_TEMP_DIR.$new_file;
-	$new_file = APP_TEMP_DIR.$new_file;
-	Fedora_API::getUploadLocationByLocalRef($pid, $new_file, $new_file, $new_file, 'image/jpeg', 'M');
-	if (is_file($new_file)) {
-		$deleteCommand = APP_DELETE_CMD." ".$delete_file;
-		exec($deleteCommand);
-	}
+
+if (!file_exists(APP_TEMP_DIR.$filename)) {
+    Error_Handler::logError("No base file $filename<br/>\n",__FILE__,__LINE__);
+} else {
+
+    if (empty($file_name_prefix)) {
+        $file_name_prefix = "thumbnail_";
+    }
+    if (empty($height)) {
+        $height = 50;
+    }
+    if (empty($width)) {
+        $width = 50;
+    }
+
+
+    if (is_numeric(strpos($filename, "/"))) {
+        $new_file = $file_name_prefix.Foxml::makeNCName(substr(substr($filename, 0, strrpos($filename, ".")), 
+                    strrpos($filename, "/")+1)).".jpg";
+    } else {
+        $new_file = $file_name_prefix.Foxml::makeNCName(substr($filename, 0, strrpos($filename, "."))).".jpg";
+    }
+    $filename_ext = strtolower(substr($filename, (strrpos($filename, ".") + 1)));
+    $getString = APP_RELATIVE_URL."webservices/wfb.image_resize.php?image="
+        .urlencode($filename)."&height=$height&width=$width&ext=jpg&outfile=".$new_file;
+    $http_req = new HTTP_Request($getString, array("http" => "1.0"));
+    $http_req->setMethod("GET");
+    $http_req->sendRequest();
+    $xml = $http_req->getResponseBody();
+
+    if (!empty($new_file)) {
+        if (Fedora_API::datastreamExists($pid, $new_file)) {
+            Fedora_API::callPurgeDatastream($pid, $new_file);
+        }
+        $delete_file = APP_TEMP_DIR.$new_file;
+        $new_file = APP_TEMP_DIR.$new_file;
+        if (file_exists($new_file)) {
+            Fedora_API::getUploadLocationByLocalRef($pid, $new_file, $new_file, $new_file, 'image/jpeg', 'M');
+            if (is_file($new_file)) {
+                $deleteCommand = APP_DELETE_CMD." ".$delete_file;
+                exec($deleteCommand);
+            }
+        } else {
+            Error_Handler::logError("File not created $new_file<br/>\n", __FILE__,__LINE__);
+        }
+    }
 }
 
 ?>

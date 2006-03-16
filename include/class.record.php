@@ -1136,7 +1136,7 @@ class Record
 						Fedora_API::callAddDatastream($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey], 
 							$dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
 					}
- 				} else {
+ 				} else { // control group == 'M'
 
 					if (is_numeric(strpos($dsIDName, chr(92)))) {
 						$dsIDName = substr($dsIDName, strrpos($dsIDName, chr(92))+1);
@@ -1144,10 +1144,11 @@ class Record
 					if (is_numeric(strpos($dsTitle['LABEL'], chr(92)))) {
 						$dsTitle['LABEL'] = substr($dsTitle['LABEL'], strrpos($dsTitle['LABEL'], chr(92))+1);
 					}
-					if (Fedora_API::datastreamExists($pid, $dsIDName)) {
-						Fedora_API::callPurgeDatastream($pid, $dsIDName);
+                    $ncName = Foxml::makeNCName($dsIDName);
+					if (Fedora_API::datastreamExists($pid, $ncName)) {
+						Fedora_API::callPurgeDatastream($pid, $ncName);
 					}
-					Fedora_API::getUploadLocation($pid, $dsIDName, $datastreamXMLContent[$dsKey], $dsTitle['LABEL'], 
+					Fedora_API::getUploadLocation($pid, $ncName, $datastreamXMLContent[$dsKey], $dsTitle['LABEL'], 
 							$dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
 			
 					$presmd_check = Workflow::checkForPresMD($dsIDName);
@@ -1172,9 +1173,9 @@ class Record
         // run the workflows on the ingested datastreams.
         // we do this in a seperate loop so that all the supporting metadata streams are ready to go
 		foreach ($datastreamXMLHeaders as $dsKey => $dsTitle) {
-            Workflow::processIngestTrigger($pid, $dsTitle['ID'], $dsTitle['MIMETYPE']);
+            Workflow::processIngestTrigger($pid, Foxml::makeNCName($dsTitle['ID']), $dsTitle['MIMETYPE']);
 			//clear the managed content file temporarily saved in the APP_TEMP_DIR
-			if (is_file(APP_TEMP_DIR.$dsTitle['ID'])) {
+			if (is_file(APP_TEMP_DIR.Foxml::makeNCName($dsTitle['ID']))) {
 				$deleteCommand = APP_DELETE_CMD." ".APP_TEMP_DIR.$dsTitle['ID'];
 				exec($deleteCommand);
 			}
@@ -1594,6 +1595,15 @@ class RecordGeneral
         return $res;
     }
 
+    function export()
+    {
+        return Fedora_API::export($this->pid);
+    }
+
+    function getObjectXML()
+    {
+        return Fedora_API::getObjectXMLByPID($this->pid);
+    }
 
 }
 
@@ -1810,14 +1820,20 @@ class RecordObject extends RecordGeneral
                     && !Misc::hasPrefix($dsIDName, 'thumbnail_')
                ) 
             {
-
-
                 // first extract the image and save temporary copy
                 $urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsIDName; 
                 copy($urldata,APP_TEMP_DIR.$dsIDName); 
 
-                // now process it's ingest workflows
-                $presmd_check = Workflow::checkForPresMD($dsIDName);
+                // delete and re-ingest - need to do this because sometimes the object made it
+                // into the repository even though it's dsID is illegal.
+                Fedora_API::callPurgeDatastream($pid, $dsIDName); 
+                $new_dsID = Foxml::makeNCName($dsIDName);
+                Fedora_API::getUploadLocationByLocalRef($pid, $new_dsID, APP_TEMP_DIR.$dsIDName, $dsFilename, 
+                        $dsTitle['MIMEType'], "M");
+
+
+                // preservation metadata
+                $presmd_check = Workflow::checkForPresMD($dsFilename);
                 if ($presmd_check != false) {
                     // strip directory off the name
                     $pres_dsID = basename($presmd_check);
@@ -1835,9 +1851,10 @@ class RecordObject extends RecordGeneral
                         exec($deleteCommand);
                     }
                 }
-                Workflow::processIngestTrigger($pid, $dsTitle['ID'], $dsTitle['MIMEType']);
+                // process it's ingest workflows
+                Workflow::processIngestTrigger($pid, $dsIDName, $dsTitle['MIMEType']);
                 //clear the managed content file temporarily saved in the APP_TEMP_DIR
-                if (is_file(APP_TEMP_DIR.$dsTitle['ID'])) {
+                if (is_file(APP_TEMP_DIR.$dsIDName)) {
                     $deleteCommand = APP_DELETE_CMD." ".APP_TEMP_DIR.$dsTitle['ID'];
                     exec($deleteCommand);
                 }
