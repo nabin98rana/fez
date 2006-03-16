@@ -1151,7 +1151,7 @@ class Record
 					Fedora_API::getUploadLocation($pid, $ncName, $datastreamXMLContent[$dsKey], $dsTitle['LABEL'], 
 							$dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
 			
-					$presmd_check = Workflow::checkForPresMD($dsIDName);
+					$presmd_check = Workflow::checkForPresMD(Foxml::makeNCName($dsIDName));
 					if ($presmd_check != false) {
 						if (is_numeric(strpos($presmd_check, chr(92)))) {
 							$presmd_check = substr($presmd_check, strrpos($presmd_check, chr(92))+1);
@@ -1833,7 +1833,7 @@ class RecordObject extends RecordGeneral
 
 
                 // preservation metadata
-                $presmd_check = Workflow::checkForPresMD($dsFilename);
+                $presmd_check = Workflow::checkForPresMD($new_dsID);
                 if ($presmd_check != false) {
                     // strip directory off the name
                     $pres_dsID = basename($presmd_check);
