@@ -556,8 +556,7 @@ class Collection
 		}
 
 		foreach ($return as $pid_key => $row) {
-			//if there is only one thumbnail DS then use it
-			if (count(@$row['thumbnails']) == 1) {
+			if (count(@$row['thumbnails']) > 0) {
 				$return[$pid_key]['thumbnail'] = $row['thumbnails'][0];
 			} else {
 				$return[$pid_key]['thumbnail'] = 0;
