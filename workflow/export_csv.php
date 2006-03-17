@@ -7,6 +7,8 @@ include_once(APP_INC_PATH . "class.workflow_status.php");
 function pid2csv($pid)
 {
     $csv = '';
+    $exclude_list = array('FezACML','FezMD','RELS-EXT');
+    $exclude_prefix = array('presmd','thumbnail','web','preview');
 
     $record = new RecordGeneral($pid);
     if ($record->canView()) {
@@ -14,10 +16,19 @@ function pid2csv($pid)
         $csv .= "\"PID:{$pid}\"\n";
         // Metadata
         foreach ($datastreams as $ds) {
-            if ($ds['controlGroup'] == 'X') {
+            if ($ds['controlGroup'] == 'X' 
+                    && !in_array($ds['ID'], $exclude_list)
+                    && !in_array(substr($ds['ID'],0,strpos($ds['ID'],'_')), $exclude_prefix)
+               ) {
                 $metaArray = Fedora_API::callGetDatastreamContents($pid, $ds['ID']);
                 $csv .= "\"Metadata:{$ds['ID']}\"\n";
                 $csv .= Misc::arrayToCSV($metaArray);
+            }
+            if ($ds['controlGroup'] == 'R' 
+                    && !in_array($ds['ID'], $exclude_list)
+                    && !in_array(substr($ds['ID'],0,strpos($ds['ID'],'_')), $exclude_prefix)
+               ) {
+                $csv .= "\"{$ds['label']}\",\"{$ds['location']}\"\n";
             }
         }
         $csv .= "\n\n";
