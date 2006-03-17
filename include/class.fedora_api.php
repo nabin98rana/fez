@@ -493,6 +493,16 @@ class Fedora_API {
         }
     }
 
+    function objectExists($pid) {
+		$parms = array('pid' => $pid);
+		$result = Fedora_API::openSoapCall('getObjectXML', $parms, false);
+        if (is_array($result) && isset($result['faultcode'])) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
    /**
     * This function creates an array of a specific datastream of a specific object
 	* 
@@ -723,7 +733,7 @@ class Fedora_API {
 	* @param array $parms The parameters
 	* @return array $result 
 	*/			
-	function openSoapCall ($call, $parms) {
+	function openSoapCall ($call, $parms, $debug_error=true) {
 	   /********************************************
 	   * This is a primary function called by all of
 	   * the preceding functions.
@@ -732,7 +742,7 @@ class Fedora_API {
 	   $client = new soapclient_internal(APP_FEDORA_MANAGEMENT_API);
 	   $client->setCredentials(APP_FEDORA_USERNAME, APP_FEDORA_PWD);
 	   $result = $client->call($call, $parms);
-       if (is_array($result) && (isset($result['faultcode']) || $call == 'addDatastream')) {
+       if ($debug_error && is_array($result) && (isset($result['faultcode']) || $call == 'addDatastream')) {
            Error_Handler::logError(array(print_r($result,true),Fedora_API::debugInfo($client, true)), 
                    __FILE__,__LINE__);
        }

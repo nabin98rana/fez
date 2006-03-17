@@ -11,7 +11,7 @@ function pid2csv($pid)
     $exclude_prefix = array('presmd','thumbnail','web','preview');
 
     $record = new RecordGeneral($pid);
-    if ($record->canView()) {
+    if ($record->checkExists() && $record->canView()) {
         $datastreams = $record->getDatastreams();
         $csv .= "\"PID:{$pid}\"\n";
         // Metadata

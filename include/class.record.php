@@ -1186,8 +1186,7 @@ class Record
 		
 
     }
-
-
+    
 }
 
 
@@ -1609,6 +1608,11 @@ class RecordGeneral
     {
         return Fedora_API::callGetDatastreams($this->pid);
     }
+    function checkExists()
+    {
+        return Fedora_API::objectExists($this->pid);
+    }
+
 
 }
 
