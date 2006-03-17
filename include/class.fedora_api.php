@@ -561,7 +561,7 @@ class Fedora_API {
 		if (!empty($xml)) {
 			$doc = DOMDocument::loadXML($xml);
 			$xpath = new DOMXPath($doc);
-			$fieldNodeList = $xpath->query("/$dsID/*");
+			$fieldNodeList = $xpath->query("/*/*");
 			foreach ($fieldNodeList as $fieldNode) {
 				$resultlist[$fieldNode->nodeName][] = trim($fieldNode->nodeValue);
 			}

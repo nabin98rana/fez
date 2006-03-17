@@ -1907,6 +1907,47 @@ class Misc
         }
     }
 
+    /**
+      * keys are row headings, 
+      */
+    function arrayToCSV($a, $hor = false, $indent='') {
+        $csv = '';
+        if ($hor) {
+            $title = '';
+            $values = '';
+            foreach ($a as $key => $value) {
+                $title .= "\"$key\",";
+                if (is_array($value)) {
+                    if (count($value) > 1) {
+                        $values .= Misc::arrayToCSV($value,!$hor, $indent.',');
+                    } else {
+                        $values .= "\"{$value[0]}\",";
+                    }
+                } else {
+                    $values .= "\"$value\",";
+                }
+            }
+            $title = rtrim($title,',');
+            $values = rtrim($values,',');
+            $csv .= "$indent$title\n";
+            $csv .= "$indent$values\n";
+        } else {
+            foreach ($a as $key => $value) {
+                if (is_array($value)) {
+                    if (count($value) > 1) {
+                        $csv .= "\"$key:\"\n";
+                        $csv .= Misc::arrayToCSV($value,!$hor, $indent.',');
+                    } else {
+                        $csv .= $indent."\"$key\",\"{$value[0]}\"\n";
+                    }
+                } else {
+                    $csv .= $indent."\"$key\",\"$value\"\n";
+                }
+            }
+         }
+        return $csv;
+    }
+
 } // end of Misc class
 
 // benchmarking the included file (aka setup time)

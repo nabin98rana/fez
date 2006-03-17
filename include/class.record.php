@@ -1605,6 +1605,11 @@ class RecordGeneral
         return Fedora_API::getObjectXMLByPID($this->pid);
     }
 
+    function getDatastreams()
+    {
+        return Fedora_API::callGetDatastreams($this->pid);
+    }
+
 }
 
 /**
