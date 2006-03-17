@@ -552,12 +552,16 @@ class Fedora_API {
     * @access  public
 	* @param string $pid The persistant identifier of the object 
 	* @param string $dsID The ID of the datastream
+	* @param boolean $getxml Get as xml
     * @return array $resultlist The requested of datastream in an array.
     */		
-	function callGetDatastreamContents($pid, $dsID) {
+	function callGetDatastreamContents($pid, $dsID, $getxml = false) {
 		$resultlist = array();	
 		$filename = APP_FEDORA_GET_URL."/".$pid."/".$dsID;
 		$xml = @file_get_contents($filename);
+        if ($getxml) {
+            return $xml;
+        }
 		if (!empty($xml)) {
 			$doc = DOMDocument::loadXML($xml);
 			$xpath = new DOMXPath($doc);

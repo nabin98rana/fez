@@ -292,7 +292,8 @@ class Collection
 			$workflows1 = array();
 			if (is_array($workflows)) {
 				foreach ($workflows as $trigger) {
-					if (Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
+                    if (WorkflowTrigger::showInList($trigger['wft_options']) 
+                            && Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
 						$workflows1[] = $trigger;
 					}
 				}
@@ -977,7 +978,8 @@ left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d1.xd
 			$workflows1 = array();
 			if (is_array($workflows)) {
 				foreach ($workflows as $trigger) {
-					if (Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
+                    if (WorkflowTrigger::showInList($trigger['wft_options']) 
+                            && Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
 						$workflows1[] = $trigger;
 					}
 				}

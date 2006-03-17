@@ -54,7 +54,6 @@ class WorkflowTrigger
     }
 
 
-
     /**
      * Maps the trigger name back to a trigger id
      * Uses just the first letter of the trigger name supplied.
@@ -76,6 +75,21 @@ class WorkflowTrigger
     {
         $triggers = WorkflowTrigger::getTriggerTypes();
         return $triggers[$trigger];
+    }
+
+    // wft_options is a bit field
+    // 0x00000001 show in list
+    function showInList($wft_options)
+    {
+        return $wft_options & 0x01 > 0;
+    }
+    function setShowInList($wft_options, $value = true)
+    {
+        if ($value) {
+            return $wft_options | 0x01;
+        } else {
+            return $wft_options & (~0x01);
+        }
     }
 
     /**
@@ -108,12 +122,14 @@ class WorkflowTrigger
      */
     function getPostSetStr()
     {
-      $post_fields = array('wft_pid', 'wft_type_id', 'wft_xdis_id', 'wft_wfl_id', 'wft_mimetype', 'wft_icon', 'wft_ret_id');
+      $post_fields = array('wft_pid', 'wft_type_id', 'wft_xdis_id', 'wft_wfl_id', 
+              'wft_mimetype', 'wft_icon', 'wft_ret_id');
       $set_str = 'SET ';
       foreach ($post_fields as $post_field) {
           $set_str .= " $post_field='".Misc::escapeString($_POST[$post_field])."', ";
       }
-      $set_str = rtrim($set_str,', ');
+      $wft_options = WorkflowTrigger::setShowInList(0, Misc::checkBox($_POST['wft_option_show_in_list']));
+      $set_str .= " wft_options='$wft_options' ";
       return $set_str;
      }
 
@@ -167,6 +183,9 @@ class WorkflowTrigger
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             $res = array();
+        }
+        foreach ($res as $key => $row) {
+            $res[$key]['wft_options_split']['show_in_list'] = WorkflowTrigger::showInList($row['wft_options']);
         }
         return $res;
     }
@@ -313,6 +332,7 @@ class WorkflowTrigger
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             $res = array();
         }
+        $res['wft_options_split']['show_in_list'] = WorkflowTrigger::showInList($res['wft_options']);
         return $res;
     }
     

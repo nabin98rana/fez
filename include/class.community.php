@@ -229,7 +229,8 @@ class Community
 			$workflows1 = array();
 			if (is_array($workflows)) {
 				foreach ($workflows as $trigger) {
-					if (Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
+                    if (WorkflowTrigger::showInList($trigger['wft_options']) 
+                            && Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
 						$workflows1[] = $trigger;
 					}
 				}

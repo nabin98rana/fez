@@ -427,10 +427,11 @@ function purgeObject(pid)
 			  {/if}
 			  {if $isAdministrator}
 			<a href="javascript:void(null);" onclick="javascript: purgeObject('{$list[i].pid|escape}');" 
-                        ><img title="Delete" align="absmiddle" src="{$rel_url}images/delete.gif" border="0"></a> 
-                        <a href="workflow_triggers.php?pid={$list[i].pid|escape}"
-                        ><img title="Workflow" align="absmiddle" src="{$rel_url}images/workflow_16.gif" border="0"></a> 
+                        ><img title="Delete" align="absmiddle" 
+                        src="{$rel_url}images/delete.gif" border="0"></a> 
 		          {/if}
+                        <a href="workflow/list_workflows2.php?pid={$list[i].pid|escape}"
+                        >...</a> 
 
                         {/if}
 		        {if $list[i].file_downloads}({$list[i].file_downloads.0|escape:"html"} File Downloads){/if} 

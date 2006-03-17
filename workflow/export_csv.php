@@ -9,24 +9,24 @@ function pid2csv($pid)
     $csv = '';
 
     $record = new RecordGeneral($pid);
-
-
-    $datastreams = $record->getDatastreams();
-    $csv .= "\"PID:{$pid}\"\n";
-    // Metadata
-    foreach ($datastreams as $ds) {
-        if ($ds['controlGroup'] == 'X') {
-            $metaArray = Fedora_API::callGetDatastreamContents($pid, $ds['ID']);
-            $csv .= "\"Metadata:{$ds['ID']}\"\n";
-            $csv .= Misc::arrayToCSV($metaArray);
+    if ($record->canView()) {
+        $datastreams = $record->getDatastreams();
+        $csv .= "\"PID:{$pid}\"\n";
+        // Metadata
+        foreach ($datastreams as $ds) {
+            if ($ds['controlGroup'] == 'X') {
+                $metaArray = Fedora_API::callGetDatastreamContents($pid, $ds['ID']);
+                $csv .= "\"Metadata:{$ds['ID']}\"\n";
+                $csv .= Misc::arrayToCSV($metaArray);
+            }
         }
-    }
-    $csv .= "\n\n";
+        $csv .= "\n\n";
 
-    $children = $record->getChildrenPids();
-    if ($children) {
-        foreach ($children as $child) {
-            $csv .= pid2csv($child);
+        $children = $record->getChildrenPids();
+        if ($children) {
+            foreach ($children as $child) {
+                $csv .= pid2csv($child);
+            }
         }
     }
     

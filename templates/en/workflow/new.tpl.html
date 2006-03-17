@@ -30,6 +30,22 @@
 </td></tr>
 <tr><td class="default"><br/></td></tr>
 {/section}
+{if $isAdministrator && $showTriggerEdit}
+<tr><td>
+<table width="100%" bgcolor="{$cell_color}" cellspacing="0" cellpadding="1" align="center">
+<tr><td>
+  <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" >
+<tr>
+<td  class="default">
+<a href="{$rel_url}workflow_triggers.php?pid={$list[i].pid|escape}"
+><img title="Workflow" align="absmiddle" src="{$rel_url}images/workflow_16.gif" border="0">Set workflow triggers for selected record</a>
+{/if}
+</td>
+</tr>
+ </table>
+</td></tr></table>
+</td></tr>
+<tr><td class="default"><br/></td></tr>
 {/if}
 <tr><td class="default"><br/>This is {$trigger} for {$pid}</td></tr>
 
