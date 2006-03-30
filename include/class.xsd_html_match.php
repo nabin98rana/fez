@@ -178,6 +178,7 @@ class XSD_HTML_Match
 					xsdmf_value_prefix,
                     xsdmf_id_ref,
 					xsdmf_attached_xsdmf_id,
+					xsdmf_cvo_min_level,
 					xsdsel_order
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields left join
@@ -315,6 +316,7 @@ class XSD_HTML_Match
 					xsdsel_order,
 					xsdmf_attached_xsdmf_id,					
 					xsdmf_cvo_id,
+					xsdmf_cvo_min_level,
 					xsdmf_cso_value,
 					xsdmf_citation,
 					xsdmf_citation_bold,					
@@ -696,6 +698,9 @@ class XSD_HTML_Match
 		if (is_numeric($HTTP_POST_VARS["xsdmf_asuggest_xsdmf_id"])) {
           $stmt .= "xsdmf_asuggest_xsdmf_id,";
 		}
+		if (is_numeric($HTTP_POST_VARS["xsdmf_cvo_min_level"])) {
+          $stmt .= "xsdmf_cvo_min_level,";
+		}		
 
 		$stmt .= "
 					xsdmf_use_org_to_fill,
@@ -787,7 +792,9 @@ class XSD_HTML_Match
 			if (is_numeric($HTTP_POST_VARS["xsdmf_asuggest_xsdmf_id"])) {			
  			   $stmt .= Misc::escapeString($HTTP_POST_VARS["xsdmf_asuggest_xsdmf_id"]) . ",";
 			}
-
+			if (is_numeric($HTTP_POST_VARS["xsdmf_cvo_min_level"])) {			
+ 			   $stmt .= Misc::escapeString($HTTP_POST_VARS["xsdmf_cvo_min_level"]) . ",";
+			}
 			$stmt .=
 					$xsdmf_use_org_to_fill . ",
 					" . $xsdmf_use_parent_option_list . ",					
@@ -949,6 +956,9 @@ class XSD_HTML_Match
 		if (!empty($insertArray["xsdmf_asuggest_xsdmf_id"])) {
           $stmt .= "xsdmf_asuggest_xsdmf_id,";
 		}
+		if (!empty($insertArray["xsdmf_cvo_min_level"])) {
+          $stmt .= "xsdmf_cvo_min_level,";
+		}
 
 		if (!empty($insertArray["xsdmf_org_level"])) {
           $stmt .= "xsdmf_org_level,";
@@ -1062,7 +1072,9 @@ class XSD_HTML_Match
 			if (!empty($insertArray["xsdmf_asuggest_xsdmf_id"])) {
               $stmt .= $insertArray["xsdmf_asuggest_xsdmf_id"] . ",";
 			}			
-
+			if (!empty($insertArray["xsdmf_cvo_min_level"])) {
+              $stmt .= $insertArray["xsdmf_cvo_min_level"] . ",";
+			}		
 			if (!empty($insertArray["xsdmf_org_level"])) {
               $stmt .= "'" . Misc::escapeString($insertArray["xsdmf_org_level"]) . "',";
 			}			
@@ -1186,6 +1198,39 @@ class XSD_HTML_Match
 		if (is_numeric($insertArray["xsdmf_show_in_view"])) {
           $stmt .= "xsdmf_show_in_view,";
 		}
+
+		if (!empty($insertArray["xsdmf_use_parent_option_list"])) {
+          $stmt .= "xsdmf_use_parent_option_list,";
+		}
+		if (!empty($insertArray["xsdmf_parent_option_xdis_id"])) {
+          $stmt .= "xsdmf_parent_option_xdis_id,";
+		}
+		if (!empty($insertArray["xsdmf_parent_option_xsdmf_id"])) {
+          $stmt .= "xsdmf_parent_option_xsdmf_id,";
+		}
+		if (!empty($insertArray["xsdmf_asuggest_xdis_id"])) {
+          $stmt .= "xsdmf_asuggest_xdis_id,";
+		}
+		if (!empty($insertArray["xsdmf_asuggest_xsdmf_id"])) {
+          $stmt .= "xsdmf_asuggest_xsdmf_id,";
+		}
+		if (!empty($insertArray["xsdmf_cvo_min_level"])) {
+          $stmt .= "xsdmf_cvo_min_level,";
+		}
+
+		if (!empty($insertArray["xsdmf_org_level"])) {
+          $stmt .= "xsdmf_org_level,";
+		}		
+		if (!empty($insertArray["xsdmf_use_org_to_fill"])) {
+          $stmt .= "xsdmf_use_org_to_fill,";
+		}
+		if (!empty($insertArray["xsdmf_org_fill_xdis_id"])) {
+          $stmt .= "xsdmf_org_fill_xdis_id,";
+		}		
+		if (!empty($insertArray["xsdmf_org_fill_xsdmf_id"])) {
+          $stmt .= "xsdmf_org_fill_xsdmf_id,";
+		}		
+
 					
 		  $stmt .= "xsdmf_enforced_prefix,
 					xsdmf_value_prefix,
@@ -1270,6 +1315,37 @@ class XSD_HTML_Match
 			if (is_numeric($insertArray["xsdmf_show_in_view"])) {
               $stmt .= $insertArray["xsdmf_show_in_view"] . ",";
 			}
+
+			if (!empty($insertArray["xsdmf_use_parent_option_list"])) {
+              $stmt .= $insertArray["xsdmf_use_parent_option_list"] . ",";
+			}			
+			if (!empty($insertArray["xsdmf_parent_option_xdis_id"])) {
+              $stmt .= $insertArray["xsdmf_parent_option_xdis_id"] . ",";
+			}			
+			if (!empty($insertArray["xsdmf_parent_option_xsdmf_id"])) {
+              $stmt .= $insertArray["xsdmf_parent_option_xsdmf_id"] . ",";
+			}			
+			if (!empty($insertArray["xsdmf_asuggest_xdis_id"])) {
+              $stmt .= $insertArray["xsdmf_asuggest_xdis_id"] . ",";
+			}			
+			if (!empty($insertArray["xsdmf_asuggest_xsdmf_id"])) {
+              $stmt .= $insertArray["xsdmf_asuggest_xsdmf_id"] . ",";
+			}			
+			if (!empty($insertArray["xsdmf_cvo_min_level"])) {
+              $stmt .= $insertArray["xsdmf_cvo_min_level"] . ",";
+			}		
+			if (!empty($insertArray["xsdmf_org_level"])) {
+              $stmt .= "'" . Misc::escapeString($insertArray["xsdmf_org_level"]) . "',";
+			}			
+			if (!empty($insertArray["xsdmf_use_org_to_fill"])) {
+              $stmt .= $insertArray["xsdmf_use_org_to_fill"] . ",";
+			}			
+			if (!empty($insertArray["xsdmf_org_fill_xdis_id"])) {
+              $stmt .= $insertArray["xsdmf_org_fill_xdis_id"] . ",";
+			}			
+			if (!empty($insertArray["xsdmf_org_fill_xsdmf_id"])) {
+              $stmt .= $insertArray["xsdmf_org_fill_xsdmf_id"] . ",";
+			}			
 
 			$stmt .= "
                     '" . Misc::escapeString($insertArray["xsdmf_enforced_prefix"]) . "',
@@ -1429,6 +1505,9 @@ class XSD_HTML_Match
 		}
 		if (is_numeric($HTTP_POST_VARS["xsdmf_asuggest_xsdmf_id"])) {
         	$stmt .= " xsdmf_asuggest_xsdmf_id = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_asuggest_xsdmf_id"]) . ",";
+		}
+		if (is_numeric($HTTP_POST_VARS["xsdmf_cvo_min_level"])) {
+        	$stmt .= " xsdmf_cvo_min_level = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_cvo_min_level"]) . ",";
 		}
 
 		if (is_numeric($HTTP_POST_VARS["xsdmf_citation_order"])) {

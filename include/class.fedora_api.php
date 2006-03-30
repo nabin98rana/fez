@@ -327,7 +327,7 @@ class Fedora_API {
 			fwrite($fp, $file);
 			fclose($fp);
 			$ch = curl_init(APP_FEDORA_UPLOAD_URL);
-		    curl_setopt($ch, CURLOPT_VERBOSE, 1);
+		    curl_setopt($ch, CURLOPT_VERBOSE, 0);
 		    curl_setopt($ch, CURLOPT_HEADER, 0);
  		    curl_setopt($ch, CURLOPT_POSTFIELDS, array('file' => "@".$loc_dir.$dsIDName)); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
 		    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
@@ -341,7 +341,6 @@ class Fedora_API {
 				$dsLabel = $dsIDName;
 			}
 		   $dsExists = Fedora_API::datastreamExists($pid, $dsIDName);
-//		   echo "DEE ESS EXISTS = ".$dsExists."<- <br/>";
 		   if ($dsExists !== true) {
               //Call callAddDatastream
               $dsID = Fedora_API::callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsIDName, $mimetype, $controlGroup);
@@ -399,7 +398,7 @@ class Fedora_API {
 		if (!empty($local_file_location) && (trim($local_file_location) != "")) {
 		   //Send multipart/form-data via curl
 		   $ch = curl_init(APP_FEDORA_UPLOAD_URL);
-		   curl_setopt($ch, CURLOPT_VERBOSE, 1);
+		   curl_setopt($ch, CURLOPT_VERBOSE, 0);
 		   curl_setopt($ch, CURLOPT_HEADER, 0);
 		   curl_setopt($ch, CURLOPT_POSTFIELDS, array('file' => "@".$local_file_location));
 		   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
@@ -444,7 +443,7 @@ class Fedora_API {
 			$dsLabel = $dsID;
 		}
 	   $versionable = 'false';
-	   $parms=array('PID' => $pid, 'dsID' => $dsID, 'altIDs' => array(), 'dsLabel' => $dsLabel, new soapval('versionable', 'boolean', $versionable), 'MIMEType' => $mimetype, 'formatURI' => 'unknown', new soapval('location', 'string', $uploadLocation), 'controlGroup' => $controlGroup, 'dsState' => 'A', 'logMessage' => 'Added Datastream');//
+	   $parms=array('PID' => $pid, 'dsID' => $dsID, 'altIDs' => array(), 'dsLabel' => $dsLabel, new soapval('versionable', 'boolean', $versionable), 'MIMEType' => $mimetype, 'formatURI' => 'unknown', new soapval('dsLocation', 'string', $uploadLocation), 'controlGroup' => $controlGroup, 'dsState' => 'A', 'logMessage' => 'Added Datastream');//
 	   //Call addDatastream
 	   Fedora_API::openSoapCall('addDatastream', $parms);
 	}

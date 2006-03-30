@@ -47,6 +47,7 @@ $tpl = new Template_API();
 $tpl->setTemplate("cv_selector.tpl.html");
 
 $cvo_id = @$HTTP_GET_VARS["cvo_id"] ? @$HTTP_GET_VARS["cvo_id"] : @$HTTP_POST_VARS["cvo_id"];
+$xsdmf_cvo_min_level = @$HTTP_GET_VARS["xsdmf_cvo_min_level"] ? @$HTTP_GET_VARS["xsdmf_cvo_min_level"] : @$HTTP_POST_VARS["xsdmf_cvo_min_level"];
 $element = @$HTTP_GET_VARS["element"] ? @$HTTP_GET_VARS["element"] : @$HTTP_POST_VARS["element"];
 $form = @$HTTP_GET_VARS["form"] ? @$HTTP_GET_VARS["form"] : @$HTTP_POST_VARS["form"];
 // get one level of the selected cvo_id
@@ -68,8 +69,21 @@ $cvo_details = Controlled_Vocab::getDetails($cvo_id);
 	$tpl->assign("subject_breadcrumb", $newcrumb);
 
 $cvo_list = Controlled_Vocab::getAssocListFullDisplay($cvo_id, "", 0, 1);
+$parent_list = Controlled_Vocab::getList();
+
+$show_add = 1;
+if ($xsdmf_cvo_min_level == 1) {
+	foreach ($parent_list as $pdata) {
+		if ($pdata['cvo_id'] == $cvo_id) {
+			$show_add = 0;
+		}
+	}
+}
+
 $tpl->assign("cvo_details", $cvo_details);
 $tpl->assign("cvo_list", $cvo_list);
+$tpl->assign("show_add", $show_add);
+$tpl->assign("xsdmf_cvo_min_level", $xsdmf_cvo_min_level);
 $tpl->assign("form", $form);
 $tpl->assign("element", $element);
 

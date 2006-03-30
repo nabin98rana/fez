@@ -54,8 +54,9 @@ $isAdministrator = User::isUserAdministrator($username);
 if (Auth::userExists($username)) { // if the user is registered as a Fez user
 	$tpl->assign("isFezUser", $username);
 	$prefs = Prefs::get(Auth::getUserID());
-} else {
-	Auth::redirect(APP_RELATIVE_URL . "register.php?err=5&username=" . $username);	
+} elseif ($username != ""){
+// don't require registration now for logged in users, although they can (to get prefs etc) but don't force them
+//	Auth::redirect(APP_RELATIVE_URL . "register.php?err=5&username=" . $username);	
 }
 $tpl->assign("isAdministrator", $isAdministrator);
 

@@ -123,14 +123,23 @@ function selectOrgStructure_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}
 			dt_load_state_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}--;
 		}
 		obj.setTimeout(10000);
-		obj.getSubList(selections[0].value, function(dt_list) {
-				removeAllOptions(f, '{/literal}xsd_display_fields[{$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}]{literal}');
-				addOptions(f, '{/literal}xsd_display_fields[{$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}]{literal}', dt_list);
-				{/literal}{assign var="temp_select_id" value=$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}{literal}
-				selectOption(f, '{/literal}xsd_display_fields[{$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}]{literal}', '{/literal}{$details[$temp_select_id]}{literal}');
-				hideLoading_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}();
-				dt_load_state_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}--;
-				});
+		
+		if ((IsNumeric(selections[0].value) == true) && (selections[0].value != '-1')) {
+			obj.getSubList(selections[0].value, function(dt_list) {
+					removeAllOptions(f, '{/literal}xsd_display_fields[{$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}]{literal}');
+					addOptions(f, '{/literal}xsd_display_fields[{$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}]{literal}', dt_list);
+					{/literal}{assign var="temp_select_id" value=$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}{literal}
+//					selectOption(f, '{/literal}xsd_display_fields[{$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}]{literal}', {/literal}{$details[$temp_select_id]}{literal});
+					hideLoading_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}();
+					dt_load_state_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}--;
+					});		
+		} else {
+			removeAllOptions(f, '{/literal}xsd_display_fields[{$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}]{literal}');		
+			hideLoading_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}();
+			dt_load_state_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}--;
+
+		}
+
 	}
 }		
 {/literal}
@@ -363,7 +372,7 @@ function selectDateField(field_name, day, month, year)
 						  </td>
 						  <td bgcolor="{$value_color}">
 					    {assign var="field_id" value="xsd_display_fields_"|cat:$xsd_display_fields[i].xsdmf_id|cat:"_"|cat:$loop_num}
-						<input class="default" type="text" id="{$field_id}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" value="{$details[$temp_fld_id][z]}" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onFocus="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" maxlength="255" size="50">
+						<input class="default" type="text" id="{$field_id}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" value="{$details[$temp_fld_id][z]}" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onFocus="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" size="50">
 						{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
 						  {if $xsd_display_fields[i].xsdmf_attached_xsdmf_id != ""}
 								{section name="a" loop=$xsd_display_fields}
@@ -549,7 +558,7 @@ function selectDateField(field_name, day, month, year)
 							 {/if}
 						</select>
 						{include file="error_icon.tpl.html" field=$field_name}
-						<input class="default" type=button value="Add Subject" onclick = "javascript:small_window('{$rel_url}cv_selector.php?cvo_id={$xsd_display_fields[i].xsdmf_cvo_id}&form=wfl_form1&element=xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1');">
+						<input class="default" type=button value="Add Subject" onclick = "javascript:small_window('{$rel_url}cv_selector.php?cvo_id={$xsd_display_fields[i].xsdmf_cvo_id}&form=wfl_form1&element=xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1&xsdmf_cvo_min_level={$xsd_display_fields[i].xsdmf_cvo_min_level}');">
 						<input class="default" type=button value="Remove Subject" onclick =" javascript:deleteSelectedItemsFromList(xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1);">
 					 </td>
 					</tr>						  			  
@@ -665,7 +674,7 @@ function selectDateField(field_name, day, month, year)
 	{if $xsd_display_fields[i].xsdmf_html_input == 'org_selector' && $xsd_display_fields[i].xsdmf_use_org_to_fill == 1}
 		<script language="JavaScript">
 		  <!--
-		  selectOrgStructure_{$xsd_display_fields[i].xsdmf_id}(document.wfl_form1, 'xsdmf_display_fields_{$xsd_display_fields[i].xsdmf_id}_1'); 	
+//		  selectOrgStructure_{$xsd_display_fields[i].xsdmf_id}(document.wfl_form1, 'xsdmf_display_fields_{$xsd_display_fields[i].xsdmf_id}_1'); 	
 		  //-->
 		  </script>
 	{/if}

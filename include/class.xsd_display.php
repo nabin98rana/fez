@@ -441,6 +441,35 @@ class XSD_Display
     }
 
     /**
+     * Method used to get the XSD Display ID of a XSD Display title related to another XSD Display
+     *
+     * @access  public
+	 * @param   string $xsdsel_title The XSD sublooping element title to search by.
+	 * @param   string $related_xdis_id The XSD display ID this one must be related to
+     * @return  integer $res the xdis_id
+     */
+    function getIDInRelationship($xdis_title, $related_xdis_id)
+    {
+        $stmt = "SELECT
+                   d1.xdis_id 
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1,
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship r1,
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1,
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields s1
+                 WHERE
+				    r1.xsdrel_xsdmf_id = x1.xsdmf_id AND x1.xsdmf_xdis_id = $related_xdis_id AND s1.xsdsel_id = x1.xsdmf_xsdsel_id and
+                    s1.xsdsel_title = '".$xdis_title."'";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
+
+    /**
      * Method used to get the XSD Display IDs of a list of XSD Display titles
      *
      * @access  public

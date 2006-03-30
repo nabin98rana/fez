@@ -700,6 +700,12 @@ class Record
                    OR (authi_rule = '!rule!role!AD_Group' AND authi_value 
                      IN ($ldap_groups_sql) ) ";
                  }
+                 if (!empty($_SESSION['distinguishedname'])) {
+                   $stmt .= "
+                   OR (authi_rule = '!rule!role!AD_DistinguishedName' AND INSTR('".$_SESSION['distinguishedname']."', authi_value)
+                      ) ";
+                 }
+
                  if (Auth::isInAD())  {
                    $stmt .= "
                    OR (authi_rule = '!rule!role!in_AD' ) ";
@@ -937,6 +943,7 @@ class Record
             AND (xsdmf_element ='!rule!role!Fez_User' 
                     OR xsdmf_element ='!rule!role!AD_Group'
                     OR xsdmf_element ='!rule!role!AD_User'
+                    OR xsdmf_element ='!rule!role!AD_DistinguishedName'
                     OR xsdmf_element ='!rule!role!Fez_Group'
                     OR xsdmf_element ='!rule!role!in_AD'
                     OR xsdmf_element ='!rule!role!in_Fez'
@@ -1065,8 +1072,12 @@ class Record
         extract($dsarray);
 //        echo "<pre>".htmlspecialchars($xmlObj)."</pre>";
         $params = array();
+		
 		$datastreamXMLHeaders = Misc::getDatastreamXMLHeaders($datastreamTitles, $xmlObj, $existingDatastreams);
 		$datastreamXMLContent = Misc::getDatastreamXMLContent($datastreamXMLHeaders, $xmlObj);
+//		print_r($datastreamXMLHeaders);
+//		print_r($datastreamXMLContent);
+
 		if (@is_array($datastreamXMLHeaders["File_Attachment0"])) { // it must be a multiple file upload so remove the generic one
 			$datastreamXMLHeaders = Misc::array_clean_key($datastreamXMLHeaders, "File_Attachment", true, true);
 		}
@@ -1122,9 +1133,14 @@ class Record
 				if ($dsTitle['CONTROL_GROUP'] == "R" ) { // if its a redirect we don't need to upload the file
                     if (Fedora_API::datastreamExists($pid, $dsIDName)) {
                         Fedora_API::callPurgeDatastream($pid, $dsIDName);
+//				    	Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, $dsTitle['STATE'], $dsTitle['LABEL'],
+//    	                    $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], "false"); 
+
                     } 
                     $location = trim($datastreamXMLContent[$dsKey]);
                     if (!empty($location)) {
+//						Fedora_API::getUploadLocation($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey], $dsTitle['LABEL'],
+//							$dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
                         Fedora_API::callAddDatastream($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey], 
                                 $dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
                     }
@@ -1133,8 +1149,8 @@ class Record
 				    	Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, $dsTitle['STATE'], $dsTitle['LABEL'],
     	                    $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], "false"); 
 					} else {
-						Fedora_API::callAddDatastream($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey], 
-							$dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
+						Fedora_API::getUploadLocation($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey], $dsTitle['LABEL'],
+							$dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
 					}
  				} else { // control group == 'M'
 

@@ -142,6 +142,9 @@ class XSD_Relationship
      */
     function getColListByXDIS($xdis_id)
     {
+		if (!is_numeric($xdis_id)) {
+			return array();
+		}
         $stmt = "SELECT
 					xsdrel_xdis_id
                  FROM

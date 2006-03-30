@@ -43,9 +43,9 @@ function loadPreview(pid,datastreamID, alt)
               tr_list = document.getElementById(image_preview_current_id);
               tr_list.style.backgroundColor='{/literal}{$light_color}{literal}';
             }
-            tr_list = document.getElementById('datastream_list_'+datastreamID);
+            tr_list = document.getElementById('datastream_list_'+alt);
             tr_list.style.backgroundColor='{/literal}{$selected_color}{literal}';
-            image_preview_current_id = 'datastream_list_'+datastreamID;
+            image_preview_current_id = 'datastream_list_'+alt;
             });
     
 }

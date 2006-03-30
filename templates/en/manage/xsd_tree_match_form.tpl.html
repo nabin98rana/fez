@@ -979,6 +979,12 @@
 					<select class="default" name="xsdmf_cvo_id">
 					  {html_options options=$controlled_vocab_list selected=$info.xsdmf_cvo_id}
 					</select>
+					<span class="default">Minimum Selectable Branch Level:</span>
+					<select class="default" name="xsdmf_cvo_min_level">
+					  	<option value=0 {if ($info.xsdmf_cvo_min_level == 0) or ($info.xsdmf_cvo_min_level == '')}selected{/if}>Top Parent Branch</option>
+					  	<option value=1 {if ($info.xsdmf_cvo_min_level == 1)}selected{/if}>First Child Branch</option>
+					</select>
+					
 			  	</td>
 		     </tr>			  
               <tr id="smarty_variable_tr"  {if $info.xsdmf_html_input != 'static' && !$selectingfield}style="display:none"{/if}>

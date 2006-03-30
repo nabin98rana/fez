@@ -9,6 +9,9 @@ class SelectOrgStructure {
 
     function getSubList($org_id)
     {
+		if (!is_numeric($org_id)) {
+			return array();
+		}
         $org_list = Org_Structure::getAssocListFullDisplay($org_id);
         $list = array();
         foreach($org_list as $key => $item) {

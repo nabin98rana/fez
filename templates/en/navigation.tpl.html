@@ -36,7 +36,7 @@
             <img src="{$rel_url}images/administrator_16.gif" align="absmiddle"/> <a target="_top" title="manage the application settings, users, etc" href="{$rel_url}manage/" class="white_link">Administration</a>&nbsp;|
             {/if}
             <img src="{$rel_url}images/community_16.gif" align="absmiddle"/> <a target="_top" title="list the communities stored in {$application_title}" href="{$rel_url}list.php" class="white_link">Browse Communities</a>&nbsp;|
-            {if $isAdministrator || $isFezUser}
+            {if $isAdministrator || $isUser}
             <img src="{$rel_url}images/my_fez_16.gif" align="absmiddle"/> <a target="_top" title="" href="{$rel_url}my_fez.php" class="white_link">My {$application_title}</a>&nbsp;|
             {/if}
             <img src="{$rel_url}images/help.gif" align="absmiddle"/> <a title="help documentation" href="javascript:void(null);" onClick="javascript:openHelp('{$rel_url}', 'main');" class="help">Help</a>&nbsp;

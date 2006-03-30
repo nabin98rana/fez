@@ -720,19 +720,23 @@ class Misc
 							$return[$dsTitle['xsdsel_title']]['MIMETYPE'] = $HTTP_POST_FILES['xsd_display_fields']['type'][$file_res[0]['xsdmf_id']];
 						}
 					} elseif (count($label_res == 1) && ($dsTitle['xsdsel_title'] == "Link")) { // no file inputs are involved so might be a link
+//					} elseif (($dsTitle['xsdsel_title'] == "Link")) { // no file inputs are involved so might be a link
 						if (is_array($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']])) {
 							foreach ($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']] as $key => $data) {
-								if ($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key] != "") {
+//								if ($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key] != "") { // was just checking the desc existed
+								// fixed it so that it requires the url, not the description
+								if ($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdsel_attribute_loop_xsdmf_id']][$key] != "") {											
 									$return[$dsTitle['xsdsel_title'].$key]['CONTROL_GROUP'] = $return[$dsTitle['xsdsel_title']]['CONTROL_GROUP'];
 									$return[$dsTitle['xsdsel_title'].$key]['STATE'] = $return[$dsTitle['xsdsel_title']]['STATE'];
 									$return[$dsTitle['xsdsel_title'].$key]['VERSIONABLE'] = $return[$dsTitle['xsdsel_title']]['VERSIONABLE'];
 									$return[$dsTitle['xsdsel_title'].$key]['ID'] = "link_".$next_link;
 									$next_link++;
 									$return[$dsTitle['xsdsel_title'].$key]['versionID'] = $return[$dsTitle['xsdsel_title'].$key]['ID'].".0";																
-									if ($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key] != "") {
+									if ($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key] != "") { // NOW check the desc/label
 										$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = $HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key];
-									} else {
-										$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = $return[$dsTitle['xsdsel_title']]['LABEL'];
+									} else { // if it wasnt saved then just use the default
+										$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = "Link";
+//										$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = $return[$dsTitle['xsdsel_title']]['LABEL'];
 									}
 									$return[$dsTitle['xsdsel_title'].$key]['MIMETYPE'] = $return[$dsTitle['xsdsel_title']]['MIMETYPE'];
 								}
@@ -747,7 +751,8 @@ class Misc
 							if (@$HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']] != "") {
 								$return[$dsTitle['xsdsel_title']]['LABEL'] = $HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key];
 							} else {
-								$return[$dsTitle['xsdsel_title']]['LABEL'] = $return[$dsTitle['xsdsel_title']]['LABEL'];
+								$return[$dsTitle['xsdsel_title']]['LABEL'] = "Link";
+//								$return[$dsTitle['xsdsel_title']]['LABEL'] = $return[$dsTitle['xsdsel_title']]['LABEL'];
 							}
 							$return[$dsTitle['xsdsel_title']]['MIMETYPE'] = $return[$dsTitle['xsdsel_title']]['MIMETYPE'];
 						}

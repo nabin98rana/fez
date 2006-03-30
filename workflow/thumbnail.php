@@ -63,6 +63,7 @@ if (!file_exists(APP_TEMP_DIR.$filename)) {
     $filename_ext = strtolower(substr($filename, (strrpos($filename, ".") + 1)));
     $getString = APP_RELATIVE_URL."webservices/wfb.image_resize.php?image="
         .urlencode($filename)."&height=$height&width=$width&ext=jpg&outfile=".$new_file;
+//	echo $getString;
     $http_req = new HTTP_Request($getString, array("http" => "1.0"));
     $http_req->setMethod("GET");
     $http_req->sendRequest();

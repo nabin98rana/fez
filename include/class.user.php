@@ -750,10 +750,14 @@ class User
 						if( $data == "displayname" ) {
 							$userdetails['displayname'] = $info[$i][$data][$j];
 						}
+						if( $data == "distinguishedname" ) {
+							$userdetails['distinguishedname'] = $info[$i][$data][$j];
+						}
 	
 					}	
 				}		
 			}
+
 		} else {
 			echo ldap_error( $ldap_conn );
 			exit;

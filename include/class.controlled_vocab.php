@@ -502,6 +502,8 @@ class Controlled_Vocab
         }
     }
 
+
+
     /**
      * Method used to get the list of controlled vocabularies available in the 
      * system.

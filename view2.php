@@ -40,12 +40,12 @@ include_once(APP_PEAR_PATH . "Date.php");
 
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
-$isAdministrator = Auth::isAdministrator();
+$isAdministrator = Auth::isAdministrator(); 
 $tpl->assign("isAdministrator", $isAdministrator);
 
 $tpl->assign("fez_root_dir", APP_PATH);
 $tpl->assign("eserv_url", APP_BASE_URL."eserv.php?pid=".$pid."&dsID=");
-$tpl->assign("local_eserv_url", APP_RELATIVE_URL."eserv.php?pid=".$pid."&dsID=");
+$tpl->assign("local_eserv_url", APP_BASE_URL."eserv.php?pid=".$pid."&dsID=");
 $tpl->assign("extra_title", "Record #$pid Details");
 if (!empty($pid)) {
 	$tpl->assign("pid", $pid);
@@ -157,8 +157,8 @@ if (!empty($pid)) {
 			}
 		}
         // Setup the Najax Image Preview object.
-        $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
-        $tpl->assign('najax_register', NAJAX_Client::register('NajaxImagePreview', APP_RELATIVE_URL.'najax_services/image_preview.php'));
+        $tpl->assign('najax_header', NAJAX_Utilities::header(APP_BASE_URL.'include/najax'));
+        $tpl->assign('najax_register', NAJAX_Client::register('NajaxImagePreview', APP_BASE_URL.'najax_services/image_preview.php'));
 	} else {
 		$tpl->assign("show_not_allowed_msg", true);
 	} 
