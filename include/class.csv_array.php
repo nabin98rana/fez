@@ -24,6 +24,14 @@ class CSV_Array {
             $this->columns[] = $colname;
         }
     }
+    
+    function getInheritedRow($row) 
+    {
+        if (!is_numeric($row['__options']['inherit'])) {
+            return false;
+        }
+        return $row['__options']['inherit'];
+    }
 
     /**
       * Used by toCSV to repeat rows where only a few values have changed.
@@ -32,8 +40,9 @@ class CSV_Array {
       */
     function getInheritedValue($row, $col)
     {
-        if (!empty($this->rows[$row['__options']['inherit']][$col])) {
-            return $this->rows[$row['__options']['inherit']][$col];
+        $irow = $this->getInheritedRow($row);
+        if (!is_null(@$this->rows[$irow][$col])) {
+            return $this->rows[$irow][$col];
         } else {
             return '';
         }
@@ -53,7 +62,7 @@ class CSV_Array {
             foreach ($this->columns as $col) {
                 if (isset($row[$col])) {
                     $value = $row[$col];
-                } elseif (!empty($row['__options']['inherit'])) { 
+                } elseif ($this->getInheritedRow($row) !== false) { 
                     $value = $this->getInheritedValue($row, $col);
                 } else {
                     $value = '';
@@ -136,7 +145,24 @@ class CSV_Array {
                     $item = array_values($item);
                     $this->addValue($item[0],$key);
                 } elseif (count($item) > 1) {
-                    $this->addArray($item);
+                    $this->addArrayFlatten($item,$key);
+                }
+            } else {
+                $this->addValue($item,$key);
+            }
+        }
+
+    }
+
+    function addArrayFlatten($a, $key)
+    {
+        foreach ($a as $item) {
+            if (is_array($item)) {
+                if (count($item) == 1) {
+                    $item = array_values($item);
+                    $this->addValue($item[0],$key);
+                } elseif (count($item) > 1) {
+                    $this->addArrayFlatten($item,$key);
                 }
             } else {
                 $this->addValue($item,$key);

@@ -1070,18 +1070,17 @@ class Record
         $existingDatastreams = array();  // may be overwritten by extract
 
         extract($dsarray);
-//        echo "<pre>".htmlspecialchars($xmlObj)."</pre>";
+        //echo "<pre>".htmlspecialchars($xmlObj)."</pre>";
         $params = array();
-		
-		$datastreamXMLHeaders = Misc::getDatastreamXMLHeaders($datastreamTitles, $xmlObj, $existingDatastreams);
-		$datastreamXMLContent = Misc::getDatastreamXMLContent($datastreamXMLHeaders, $xmlObj);
-//		print_r($datastreamXMLHeaders);
-//		print_r($datastreamXMLContent);
 
-		if (@is_array($datastreamXMLHeaders["File_Attachment0"])) { // it must be a multiple file upload so remove the generic one
+		$datastreamXMLHeaders = Misc::getDatastreamXMLHeaders($datastreamTitles, $xmlObj, $existingDatastreams);
+
+		$datastreamXMLContent = Misc::getDatastreamXMLContent($datastreamXMLHeaders, $xmlObj);
+		
+        if (@is_array($datastreamXMLHeaders["File_Attachment0"])) { // it must be a multiple file upload so remove the generic one
 			$datastreamXMLHeaders = Misc::array_clean_key($datastreamXMLHeaders, "File_Attachment", true, true);
 		}
-		if (@is_array($datastreamXMLHeaders["Link0"])) { // it must be a multiple file upload so remove the generic one
+		if (@is_array($datastreamXMLHeaders["Link0"])) { // it must be a multiple link item so remove the generic one
 			$datastreamXMLHeaders = Misc::array_clean_key($datastreamXMLHeaders, "Link", true, true);
 		}
 
@@ -1102,7 +1101,6 @@ class Record
             $tidy->parseString($xmlObj, $config, 'utf8');
             $tidy->cleanRepair();
             $xmlObj = "$tidy";
-//			echo "<pre>".htmlspecialchars($xmlObj)."</pre>";			
             $result = Fedora_API::callIngestObject($xmlObj);
             if (is_array($result)) {
                 Error_Handler::logError($xmlObj, __FILE__,__LINE__);
@@ -1223,6 +1221,11 @@ class RecordGeneral
     var $display;
     var $details;
     var $record_parents;
+    var $status_array = array(
+            0 => 'Undefined',
+            1 => 'Unpublished',
+            2 => 'Published'
+            );
  
     /**
      * RecordGeneral
@@ -1368,11 +1371,16 @@ class RecordGeneral
         return $this->checkAuth($this->creator_roles, $redirect);
     }
 
-    function getPublishedStatus()
+    function getPublishedStatus($astext = false)
     {
         $this->getDetails();
         $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!sta_id'); 
-        return $this->details[$xsdmf_id];
+        $status = $this->details[$xsdmf_id];
+        if (!$astext) {
+            return $status;
+        } else {
+            return $this->status_array[$status];
+        }
     }
 
 

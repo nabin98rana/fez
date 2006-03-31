@@ -4,6 +4,7 @@ include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.workflow_status.php");
 include_once(APP_INC_PATH . "class.csv_array.php");
+include_once(APP_INC_PATH . "class.author.php");
 
 function pid2csv($pid, &$csv)
 {
@@ -16,6 +17,15 @@ function pid2csv($pid, &$csv)
         $datastreams = $record->getDatastreams();
         $csv->addRow();
         $csv->addValue($pid,'PID');
+        $parents = $record->getParents();
+        foreach ($parents as $parent) {
+            foreach ($parent['title'] as $title) {
+                $csv->addValue($title,'Parent Record');
+            }
+        }
+        $status = $record->getPublishedStatus(true);
+        $csv->addValue($status,'Status');
+
         // Metadata
         foreach ($datastreams as $ds) {
             if ($ds['controlGroup'] == 'X' 
@@ -23,8 +33,18 @@ function pid2csv($pid, &$csv)
                     && !in_array(substr($ds['ID'],0,strpos($ds['ID'],'_')), $exclude_prefix)
                     && Auth::checkAuthorisation($pid, $ds['ID'], $acceptable_roles, null, false)
                ) {
-
                 $metaArray = Fedora_API::callGetDatastreamContents($pid, $ds['ID']);
+                // Special case lookup for author id
+                if (isset($metaArray['submitting_author']) && is_array($metaArray['submitting_author'])) {
+                    foreach ($metaArray['submitting_author'] as $key => $sauth) {
+                        if (is_numeric($sauth)) {
+                            $auth_name = Author::getFullname($sauth);
+                            $metaArray['submitting_author'][$key] = $auth_name;
+                            $auth_id = Author::getOrgStaffId($sauth);
+                            $metaArray['submitting_author_org_id'][$key] = $auth_id;
+                        }
+                    }
+                }
                 $csv->addArray($metaArray);
             }
             if ($ds['controlGroup'] == 'R' 

@@ -577,6 +577,11 @@ class Fedora_API {
 			$fieldNodeList = $xpath->query("/*/*");
 			foreach ($fieldNodeList as $fieldNode) {
 				$resultlist[$fieldNode->nodeName][] = trim($fieldNode->nodeValue);
+                // get attributes
+                $fieldAttList = $xpath->query("@*",$fieldNode);
+                foreach ($fieldAttList as $fieldAtt) {
+                    $resultlist[$fieldAtt->nodeName][] = trim($fieldAtt->nodeValue);
+                }
 			}
 		}
 		return $resultlist;
