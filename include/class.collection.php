@@ -1156,42 +1156,42 @@ left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on  d1.x
                      IN ($ldap_groups_sql) ) ";
                  }
                  if (!empty($_SESSION['distinguishedname'])) {
-                   $stmt .= "
+                   $authStmt .= "
                    OR (authi_rule = '!rule!role!AD_DistinguishedName' AND INSTR('".$_SESSION['distinguishedname']."', authi_value)
                       ) ";
                  }
                  if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'])) {
-                   $stmt .= "
+                   $authStmt .= "
                    OR (authi_rule = '!rule!role!eduPersonTargetedID' AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID']."', authi_value)
                       ) ";
                  }
                  if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Affiliation'])) {
-                   $stmt .= "
+                   $authStmt .= "
                    OR (authi_rule = '!rule!role!eduPersonAffiliation' AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Affiliation']."', authi_value)
                       ) ";
                  }
                  if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'])) {
-                   $stmt .= "
+                   $authStmt .= "
                    OR (authi_rule = '!rule!role!eduPersonScopedAffiliation' AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation']."', authi_value)
                       ) ";
                  }
                  if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'])) {
-                   $stmt .= "
+                   $authStmt .= "
                    OR (authi_rule = '!rule!role!eduPersonPrimaryAffiliation' AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation']."', authi_value)
                       ) ";
                  }
                  if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'])) {
-                   $stmt .= "
+                   $authStmt .= "
                    OR (authi_rule = '!rule!role!eduPersonPrincipalName' AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName']."', authi_value)
                       ) ";
                  }
                  if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN'])) {
-                   $stmt .= "
+                   $authStmt .= "
                    OR (authi_rule = '!rule!role!eduPersonOrgUnitDN' AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN']."', authi_value)
                       ) ";
                  }
                  if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgDN'])) {
-                   $stmt .= "
+                   $authStmt .= "
                    OR (authi_rule = '!rule!role!eduPersonPrimaryOrgUnitDN' AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgDN']."', authi_value)
                       ) ";
                  }
@@ -1850,55 +1850,53 @@ left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on  d1.x
 			$termLike .= "r2.rmf_varchar like '%".$data."%' ";
 			
 		}
-		$termLike .= ") AND ";
+		$termLike .= ") ";
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+
+        if (!empty($authStmt)) {
+            $r4_join_field = "ai.authi_pid";
+        } else {
+            $r4_join_field = "r2.rmf_rec_pid";
+        }
 
         $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
                     INNER JOIN {$dbtp}xsd_display_matchfields AS x2
-                      ON r2.rmf_xsdmf_id = x2.xsdmf_id $joinStmt
+                      ON r2.rmf_xsdmf_id = x2.xsdmf_id $joinStmt AND $termLike 
                     INNER JOIN {$dbtp}search_key AS s2  							  
-                      ON s2.sek_id = x2.xsdmf_sek_id 
+                      ON s2.sek_id = x2.xsdmf_sek_id AND s2.sek_simple_used = 1
+
+                    $authStmt
 
                     INNER JOIN {$dbtp}record_matching_field AS r4
-                      ON r4.rmf_rec_pid=r2.rmf_rec_pid
+                      ON r4.rmf_rec_pid=$r4_join_field AND r4.rmf_varchar='2'
                     INNER JOIN {$dbtp}xsd_display_matchfields AS x4
-                      ON r4.rmf_xsdmf_id = x4.xsdmf_id
-                    $authStmt
+                      ON r4.rmf_xsdmf_id = x4.xsdmf_id AND x4.xsdmf_element='!sta_id'
+
                     ";
-        $bodyStmtPart2 = "
-                    $termLike s2.sek_simple_used = 1
-                    AND r4.rmf_varchar=2
-                    AND x4.xsdmf_element='!sta_id'
-";
         $bodyStmt = "$bodyStmtPart1
                      
                     INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3
-                      ON r3.rmf_rec_pid = r2.rmf_rec_pid
+                      ON r3.rmf_rec_pid = r4.rmf_rec_pid
                     INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x3
                       ON r3.rmf_xsdmf_id = x3.xsdmf_id 
                     INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s3
-                      ON s3.sek_id = x3.xsdmf_sek_id 
+                      ON s3.sek_id = x3.xsdmf_sek_id AND s3.sek_title = 'Display Type' 
 
 
                     LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r5
-                    ON r5.rmf_rec_pid=r2.rmf_rec_pid
+                    ON r5.rmf_rec_pid=r3.rmf_rec_pid
                     inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x5
                     on r5.rmf_xsdmf_id = x5.xsdmf_id
                     inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s5
                     on s5.sek_id = x5.xsdmf_sek_id AND s5.sek_title = '$order_by'
                     
-                    WHERE 
-                    $bodyStmtPart2 
-                    AND s3.sek_title = 'Display Type' 
              ";
 
         $countStmt = "
                     SELECT count(distinct r2.rmf_rec_pid)
                     $bodyStmtPart1
-                    WHERE
-                    $bodyStmtPart2 
             ";
-        echo $countStmt;
+        //echo $countStmt;
 
         
         $stmt = "SELECT * 
@@ -1918,7 +1916,7 @@ left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on  d1.x
             left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d1.xdis_id = display.display_id
             ORDER BY $extra_order display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
 		$securityfields = Auth::getAllRoles();
-		//echo $stmt;
+		echo $stmt;
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		
 		$return = array();
