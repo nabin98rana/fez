@@ -1695,7 +1695,7 @@ left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on  d1.x
 								 INNER JOIN {$dbtp}search_key AS s{$termCounter} 
 								 ON s{$termCounter}.sek_id = x{$termCounter}.xsdmf_sek_id 
 								 WHERE s{$termCounter}.sek_id = {$tkey} 
-								 AND r{$termCounter}.rmf_varchar like '%{$tsubdata}%' 
+								 AND match (r{$termCounter}.rmf_varchar) against ('*{$tsubdata}*' IN BOOLEAN MODE) 
 								) AS r{$termCounter} 
 							ON r1.rmf_rec_pid = r{$termCounter}.rmf_rec_pid
 								";
@@ -1713,7 +1713,7 @@ left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on  d1.x
 						 INNER JOIN {$dbtp}search_key AS s{$termCounter} 
 						 ON s{$termCounter}.sek_id = x{$termCounter}.xsdmf_sek_id 
 						 WHERE s{$termCounter}.sek_id = {$tkey} 
-						 AND r{$termCounter}.rmf_varchar like '%{$tdata}%' 
+						 AND match (r{$termCounter}.rmf_varchar) against ('*{$tdata}*' IN BOOLEAN MODE)
 						) AS r{$termCounter} 
 					ON r1.rmf_rec_pid = r{$termCounter}.rmf_rec_pid
 						";
@@ -1847,7 +1847,7 @@ left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on  d1.x
 			} else {
 				$termLike .= " OR ";
 			}
-			$termLike .= "r2.rmf_varchar like '%".$data."%' ";
+			$termLike .= " match (r2.rmf_varchar) against ('*".$data."*' IN BOOLEAN MODE) ";
 			
 		}
 		$termLike .= ") ";
@@ -1909,7 +1909,7 @@ left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on  d1.x
             ON (d1.xdis_id = r1.rmf_varchar and k1.sek_title = 'Display Type')
             ORDER BY display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
 		$securityfields = Auth::getAllRoles();
-		//echo $stmt;
+
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		
 		$return = array();
