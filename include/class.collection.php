@@ -532,18 +532,24 @@ class Collection
 				}
 			}
 			// get the document type
-			if (!is_array(@$return[$result['rmf_rec_pid']]['xdis_title'])) {
-				$return[$result['rmf_rec_pid']]['xdis_title'] = array();
-				array_push($return[$result['rmf_rec_pid']]['xdis_title'], @$result['xdis_title']);
-			}
+            if (!empty($result['xdis_title'])) {
+                if (!is_array(@$return[$result['rmf_rec_pid']]['xdis_title'])) {
+                    $return[$result['rmf_rec_pid']]['xdis_title'] = array();
+                }
+                if (!in_array($result['xdis_title'],$return[$result['rmf_rec_pid']]['xdis_title'])) {
+                    array_push($return[$result['rmf_rec_pid']]['xdis_title'], $result['xdis_title']);
+                }
+            }
 			if (is_numeric(@$result['sek_id'])) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
 				$search_var = strtolower(str_replace(" ", "_", $result['sek_title']));
 				if (@!is_array($return[$result['rmf_rec_pid']][$search_var])) {
 					$return[$result['rmf_rec_pid']][$search_var] = array();
 				}
-				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']][$search_var])) {
-					array_push($return[$result['rmf_rec_pid']][$search_var], $result['rmf_'.$result['xsdmf_data_type']]);
+				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], 
+                            $return[$result['rmf_rec_pid']][$search_var])) {
+					array_push($return[$result['rmf_rec_pid']][$search_var], 
+                            $result['rmf_'.$result['xsdmf_data_type']]);
 					sort($return[$result['rmf_rec_pid']][$search_var]);
 				}
 			}
@@ -952,12 +958,13 @@ class Collection
                 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
                 left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 
                 on (k1.sek_id = x1.xsdmf_sek_id)
-left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d1.xdis_id in (".Misc::arrayToSQL($display_ids).") and d1.xdis_id = x1.xsdmf_xdis_id
+left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on  d1.xdis_id = x1.xsdmf_xdis_id and d1.xdis_id in (".Misc::arrayToSQL($display_ids).")
                 WHERE (r1.rmf_dsid IS NULL or r1.rmf_dsid = '')			 
+                 
                 and r1.rmf_rec_pid IN (".$pids.")
                 ORDER BY
                 d3.sort_column ";
-//			echo $stmt; // exit;
+			//echo $stmt; // exit;
             $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -1130,7 +1137,7 @@ left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d1.xd
         $coll_pids = $res;
         $fez_groups_sql = Misc::arrayToSQL(@$_SESSION[APP_INTERNAL_GROUPS_SESSION]);
         $ldap_groups_sql = Misc::arrayToSQL(@$_SESSION[APP_LDAP_GROUPS_SESSION]);
-		$jointStmt = "";
+		$joinStmt = "";
 
 		if (is_numeric(Auth::getUserID())) {	
 	       	  $authStmt = " join {$dbtp}auth_index ai on
@@ -1200,7 +1207,7 @@ left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d1.xd
 
 				 $authStmt .= " )) ";
 				    if (count($coll_pids) != 0) {
-						$authStmt .= " or ai.authi_pid not in (".Misc::arrayToSQL($coll_pids).")";
+						$authStmt .= " or ai.authi_pid not in ($stmt)";
 					}
 
                  $authStmt .= "
@@ -1210,7 +1217,7 @@ left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d1.xd
 			} else {
 				if (count($coll_pids) != 0) {
 					$authStmt = "";
-					$joinStmt .= "  AND r2.rmf_rec_pid not in (".Misc::arrayToSQL($coll_pids).") ";
+					$joinStmt .= "  AND r2.rmf_rec_pid not in ($stmt) ";
 				}
 			}		
 			return array('authStmt' => $authStmt, 'joinStmt' => $joinStmt);
@@ -1812,6 +1819,13 @@ left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d1.xd
 		if (empty($terms)) {
 			return array();
 		}
+        if (empty($order_by)) {
+            $order_by = $searchKey;
+            if (empty($order_by)) {
+                $order_by = 'Title';
+            }
+        }
+	
 
 		if ($max == "ALL") {
             $max = 9999999;
@@ -1824,7 +1838,7 @@ left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d1.xd
 		$termCounter = 100;
         $sekdet = Search_Key::getDetailsByTitle($order_by);
         $data_type = $sekdet['xsdmf_data_type'];
-
+        $order_dir = ' asc ';
 		$termArray = explode(" ", $terms);
         $termLike = '';
 		foreach ($termArray as $key => $data) {
@@ -1838,105 +1852,73 @@ left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d1.xd
 		}
 		$termLike .= ") AND ";
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+
+        $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
+                    INNER JOIN {$dbtp}xsd_display_matchfields AS x2
+                      ON r2.rmf_xsdmf_id = x2.xsdmf_id $joinStmt
+                    INNER JOIN {$dbtp}search_key AS s2  							  
+                      ON s2.sek_id = x2.xsdmf_sek_id 
+
+                    INNER JOIN {$dbtp}record_matching_field AS r4
+                      ON r4.rmf_rec_pid=r2.rmf_rec_pid
+                    INNER JOIN {$dbtp}xsd_display_matchfields AS x4
+                      ON r4.rmf_xsdmf_id = x4.xsdmf_id
+                    $authStmt
+                    ";
+        $bodyStmtPart2 = "
+                    $termLike s2.sek_simple_used = 1
+                    AND r4.rmf_varchar=2
+                    AND x4.xsdmf_element='!sta_id'
+";
+        $bodyStmt = "$bodyStmtPart1
+                     
+                    INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3
+                      ON r3.rmf_rec_pid = r2.rmf_rec_pid
+                    INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x3
+                      ON r3.rmf_xsdmf_id = x3.xsdmf_id 
+                    INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s3
+                      ON s3.sek_id = x3.xsdmf_sek_id 
+
+
+                    LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r5
+                    ON r5.rmf_rec_pid=r2.rmf_rec_pid
+                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x5
+                    on r5.rmf_xsdmf_id = x5.xsdmf_id
+                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s5
+                    on s5.sek_id = x5.xsdmf_sek_id AND s5.sek_title = '$order_by'
+                    
+                    WHERE 
+                    $bodyStmtPart2 
+                    AND s3.sek_title = 'Display Type' 
+             ";
+
+        $countStmt = "
+                    SELECT count(distinct r2.rmf_rec_pid)
+                    $bodyStmtPart1
+                    WHERE
+                    $bodyStmtPart2 
+            ";
+        echo $countStmt;
+
+        
         $stmt = "SELECT * 
             FROM {$dbtp}record_matching_field AS r1
-            INNER JOIN {$dbtp}xsd_display_matchfields AS x1 
-            ON r1.rmf_xsdmf_id = x1.xsdmf_id 
-
-				 INNER JOIN (
-					 SELECT distinct r2.rmf_varchar as display_id, r2.rmf_rec_pid, r".$termCounter.".rmf_$data_type as sort_column $subqueryExtra
-					FROM  {$dbtp}record_matching_field r2 
-					inner join {$dbtp}xsd_display_matchfields x2 on r2.rmf_xsdmf_id = x2.xsdmf_id $joinStmt
-					inner join {$dbtp}search_key s2 on (s2.sek_id = x2.xsdmf_sek_id AND s2.sek_title = 'Display Type')
-
-					inner join  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r".$termCounter." 
-					on r".$termCounter.".rmf_rec_pid = r2.rmf_rec_pid
-					inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x".$termCounter."
-					on r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id
-					inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s".$termCounter."
-					on s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id
-					and s".$termCounter.".sek_title = '$order_by' 
-                    and $termLike s".$termCounter.".sek_simple_used = 1
-
-					$authStmt
-
-	                $middleStmt
-					
-					inner join {$dbtp}record_matching_field AS r4 on r4.rmf_rec_pid = r2.rmf_rec_pid
-                    inner join {$dbtp}xsd_display_matchfields AS x4 on r4.rmf_xsdmf_id = x4.xsdmf_id and r4.rmf_varchar='2' and x4.xsdmf_element='!sta_id'
-
-					order by $internal_extra_order sort_column $order_dir, r2.rmf_rec_pid desc
-					
-					";
-//					if ($getCount == 0) {
-						$stmt .= " limit $start, $max ";
-//					}
-					$stmt .=
-					 "
-
-
-				) as display on display.rmf_rec_pid = r1.rmf_rec_pid
-
-                 LEFT JOIN {$dbtp}xsd_loop_subelement s1 
-                 ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
-                 LEFT JOIN {$dbtp}search_key k1 
-                 ON (k1.sek_id = x1.xsdmf_sek_id)
-
-				left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d1.xdis_id = display.display_id
-                ORDER BY $extra_order display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
-/*
-
-            LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 
-            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
-            LEFT JOIN {$dbtp}search_key AS k1 
-            ON (k1.sek_id = x1.xsdmf_sek_id)
-			join {$dbtp}xsd_display AS d1 
-
+            INNER JOIN {$dbtp}xsd_display_matchfields AS x1
+            ON r1.rmf_xsdmf_id = x1.xsdmf_id
             INNER JOIN (
-                    SELECT distinct r2.rmf_rec_pid 
-                    FROM  {$dbtp}record_matching_field AS r2
-                    INNER JOIN {$dbtp}xsd_display_matchfields AS x2
-                    ON r2.rmf_xsdmf_id = x2.xsdmf_id 
-                    INNER JOIN {$dbtp}search_key AS s2  							  
-                    ON s2.sek_id = x2.xsdmf_sek_id 
-                    WHERE $termLike s2.sek_simple_used = 1
-                    ) AS r2 
-            ON r1.rmf_rec_pid = r2.rmf_rec_pid
-			INNER JOIN (
-			SELECT distinct r2.rmf_rec_pid, r2.rmf_varchar as display_id
-			FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
-			" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,
-			" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
-			WHERE r2.rmf_xsdmf_id = x2.xsdmf_id 
-			AND s2.sek_id = x2.xsdmf_sek_id 
-			AND s2.sek_title = 'Display Type' 
-			) as d2
-            on r1.rmf_rec_pid = d2.rmf_rec_pid and d2.display_id = d1.xdis_id						
-		
-            left JOIN (
-                    SELECT distinct r2.rmf_rec_pid as sort_pid, 
-                    r2.rmf_$data_type as sort_column
-                    FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
-                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
-                    on r2.rmf_xsdmf_id = x2.xsdmf_id 
-                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
-                    on s2.sek_id = x2.xsdmf_sek_id
-                    where s2.sek_title = '$order_by'
-                    ) as d3
-                on r1.rmf_rec_pid = d3.sort_pid
-	
-            WHERE r1.rmf_rec_pid IN (
-                    SELECT rmf_rec_pid FROM 
-                    {$dbtp}record_matching_field AS rmf
-                    INNER JOIN {$dbtp}xsd_display_matchfields AS xdm
-                    ON rmf.rmf_xsdmf_id = xdm.xsdmf_id
-                    WHERE rmf.rmf_varchar=2
-                    AND xdm.xsdmf_element='!sta_id'
-                    )
-            ORDER BY d3.sort_column";
-*/
+                    SELECT distinct r2.rmf_rec_pid, r3.rmf_varchar as display_id, r5.rmf_$data_type as sort_column
+                    $bodyStmt
+					order by sort_column $order_dir, r2.rmf_rec_pid desc
+                    LIMIT $start, $max
+                    ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid
+            LEFT JOIN {$dbtp}xsd_loop_subelement s1 
+            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
+            LEFT JOIN {$dbtp}search_key k1 
+            ON (k1.sek_id = x1.xsdmf_sek_id)
+            left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d1.xdis_id = display.display_id
+            ORDER BY $extra_order display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
 		$securityfields = Auth::getAllRoles();
-		echo $stmt;
+		//echo $stmt;
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		
 		$return = array();
@@ -1992,11 +1974,10 @@ left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d1.xd
 		}
 		
 		$return = array_values($return);
-		$hidden_rows = count($return);
 		$return = Auth::getIndexAuthorisationGroups($return);
 		$return = Misc::cleanListResults($return);
 
-		$total_rows = count($return);
+		$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
 		if (($start + $max) < $total_rows) {
 	        $total_rows_limit = $start + $max;
 		} else {
@@ -2004,7 +1985,7 @@ left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d1.xd
 		}
 		$total_pages = ceil($total_rows / $max);
         $last_page = $total_pages - 1;
-		$return = Misc::limitListResults($return, $start, ($start + $max));
+		//$return = Misc::limitListResults($return, $start, ($start + $max));
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
@@ -2020,7 +2001,7 @@ left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d1.xd
                     "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
                     "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
                     "last_page"     => $last_page,
-                    "hidden_rows"     => $hidden_rows - $total_rows
+                    "hidden_rows"     => 0
                 )
             );
         }
