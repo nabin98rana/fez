@@ -318,6 +318,7 @@ class XSD_HTML_Match
 					xsdmf_cvo_id,
 					xsdmf_cvo_min_level,
 					xsdmf_cso_value,
+					xsdmf_citation_browse,
 					xsdmf_citation,
 					xsdmf_citation_bold,					
 					xsdmf_citation_italics,
@@ -623,6 +624,12 @@ class XSD_HTML_Match
 		} else {
 			$xsdmf_citation = 0;
 		}
+		if (@$HTTP_POST_VARS["xsdmf_citation_browse"]) {
+			$xsdmf_citation_browse = 1;
+		} else {
+			$xsdmf_citation_browse = 0;
+		}
+
 		if (@$HTTP_POST_VARS["xsdmf_citation_bold"]) {
 			$xsdmf_citation_bold = 1;
 		} else {
@@ -664,6 +671,7 @@ class XSD_HTML_Match
                     xsdmf_indexed,
                     xsdmf_required,
                     xsdmf_multiple,
+					xsdmf_citation_browse,
 					xsdmf_citation,
 					xsdmf_citation_bold,
 					xsdmf_citation_italics,
@@ -757,6 +765,7 @@ class XSD_HTML_Match
                     " . $indexed . ",
                     " . $required . ",
                     " . $multiple . ",
+                    " . $xsdmf_citation_browse . ",
                     " . $xsdmf_citation . ",
                     " . $xsdmf_citation_bold . ",
                     " . $xsdmf_citation_italics . ",
@@ -904,6 +913,9 @@ class XSD_HTML_Match
 		if (!empty($insertArray["xsdmf_is_key"])) {
           $stmt .= "xsdmf_is_key,";
 		}
+		if (!empty($insertArray["xsdmf_citation_browse"])) {
+          $stmt .= "xsdmf_citation_browse,";
+		}
 		if (!empty($insertArray["xsdmf_citation"])) {
           $stmt .= "xsdmf_citation,";
 		}
@@ -1018,6 +1030,9 @@ class XSD_HTML_Match
 			}
 			if (!empty($insertArray["xsdmf_is_key"])) {
                $stmt .= $insertArray["xsdmf_is_key"] . ",";
+			}
+			if (!empty($insertArray["xsdmf_citation_browse"])) {
+               $stmt .= $insertArray["xsdmf_citation_browse"] . ",";
 			}
 			if (!empty($insertArray["xsdmf_citation"])) {
                $stmt .= $insertArray["xsdmf_citation"] . ",";
@@ -1278,6 +1293,9 @@ class XSD_HTML_Match
 			if (!empty($insertArray["xsdmf_is_key"])) {
                $stmt .= $insertArray["xsdmf_is_key"] . ",";
 			}
+			if (!empty($insertArray["xsdmf_citation_browse"])) {
+               $stmt .= $insertArray["xsdmf_citation_browse"] . ",";
+			}
 			if (!empty($insertArray["xsdmf_citation"])) {
                $stmt .= $insertArray["xsdmf_citation"] . ",";
 			}
@@ -1422,6 +1440,11 @@ class XSD_HTML_Match
 			$is_key = 0;
 		}
 
+		if (@$HTTP_POST_VARS["xsdmf_citation_browse"]) {
+			$xsdmf_citation_browse = 1;
+		} else {
+			$xsdmf_citation_browse = 0;
+		}
 		if (@$HTTP_POST_VARS["xsdmf_citation"]) {
 			$xsdmf_citation = 1;
 		} else {
@@ -1474,6 +1497,7 @@ class XSD_HTML_Match
                     xsdmf_required = " . $required . ",
                     xsdmf_indexed = " . $indexed . ",
                     xsdmf_enabled = " . $enabled . ",
+                    xsdmf_citation_browse = " . $xsdmf_citation_browse . ",
                     xsdmf_citation = " . $xsdmf_citation . ",
                     xsdmf_citation_bold = " . $xsdmf_citation_bold . ",
                     xsdmf_citation_italics = " . $xsdmf_citation_italics . ",										

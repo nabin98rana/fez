@@ -560,6 +560,7 @@ class Org_Structure
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author INNER JOIN ".
 			            APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author_org_structure ON (auo_org_id = $org_id AND aut_id = auo_aut_id)
+				 WHERE auo_assessed = 'Y'
                  ORDER BY
                     aut_fullname ASC";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);

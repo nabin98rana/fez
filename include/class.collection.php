@@ -125,8 +125,8 @@ class Collection
 			return $returns[$collection_pid];
 		} else {
 			$stmt = "SELECT r1.rmf_rec_pid, r1.rmf_varchar 
-				FROM fez_record_matching_field AS r1
-				INNER JOIN fez_xsd_display_matchfields AS x1
+				FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS r1
+				INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields AS x1
 				ON r1.rmf_xsdmf_id=x1.xsdmf_id
                 INNER JOIN ( SELECT r3.rmf_varchar
 						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3
@@ -361,6 +361,12 @@ class Collection
                    OR (authi_rule = '!rule!role!AD_Group' AND authi_value 
                      IN ($ldap_groups_sql) ) ";
                  }
+                 if (!empty($_SESSION['distinguishedname'])) {
+                   $stmt .= "
+                   OR (authi_rule = '!rule!role!AD_DistinguishedName' AND INSTR('".$_SESSION['distinguishedname']."', authi_value)
+                      ) ";
+                 }
+
                  if (Auth::isInAD())  {
                    $stmt .= "
                    OR (authi_rule = '!rule!role!in_AD' ) ";
@@ -371,6 +377,7 @@ class Collection
                  }
                  $stmt .= "
                  )";
+
             $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -632,6 +639,12 @@ class Collection
                    OR (authi_rule = '!rule!role!AD_Group' AND authi_value 
                      IN ($ldap_groups_sql) ) ";
                  }
+                 if (!empty($_SESSION['distinguishedname'])) {
+                   $stmt .= "
+                   OR (authi_rule = '!rule!role!AD_DistinguishedName' AND INSTR('".$_SESSION['distinguishedname']."', authi_value)
+                      ) ";
+                 }
+
                  if (Auth::isInAD())  {
                    $stmt .= "
                    OR (authi_rule = '!rule!role!in_AD' ) ";
@@ -719,6 +732,13 @@ class Collection
                     OR (authi_rule = '!rule!role!AD_Group' AND authi_value 
                         IN ($ldap_groups_sql) ) ";
                     }
+
+					 if (!empty($_SESSION['distinguishedname'])) {
+					   $stmt .= "
+					   OR (authi_rule = '!rule!role!AD_DistinguishedName' AND INSTR('".$_SESSION['distinguishedname']."', authi_value)
+						  ) ";
+					 }
+
                     if (Auth::isInAD())  {
                     $stmt .= "
                     OR (authi_rule = '!rule!role!in_AD' ) ";
@@ -1099,6 +1119,102 @@ left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d1.xd
 	
 	}
 
+	function getAuthIndexStmt() {
+		$dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+		$stmt = "select distinct ai3.authi_pid as aip from {$dbtp}auth_index ai3 where (ai3.authi_role in ('Lister', 'Viewer'))";
+		$res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = array();
+        }
+        $coll_pids = $res;
+        $fez_groups_sql = Misc::arrayToSQL(@$_SESSION[APP_INTERNAL_GROUPS_SESSION]);
+        $ldap_groups_sql = Misc::arrayToSQL(@$_SESSION[APP_LDAP_GROUPS_SESSION]);
+		$jointStmt = "";
+
+		if (is_numeric(Auth::getUserID())) {	
+	       	  $authStmt = " join {$dbtp}auth_index ai on
+    		       ( ( (ai.authi_role in ('Lister', 'Viewer', 'Editor', 'Creator', 'Approver'))             
+	             AND (
+                 (ai.authi_rule = '!rule!role!Fez_User' AND ai.authi_value='".Auth::getUserID()."')
+                 OR (ai.authi_rule = '!rule!role!AD_User' AND ai.authi_value='".Auth::getUsername()."') ";
+                 if (!empty($fez_groups_sql)) {
+                   $authStmt .="
+                   OR (ai.authi_rule = '!rule!role!Fez_Group' AND ai.authi_value 
+                     IN ($fez_groups_sql) ) ";
+                 }
+                 if (!empty($ldap_groups_sql)) {
+                   $authStmt .= "
+                   OR (ai.authi_rule = '!rule!role!AD_Group' AND ai.authi_value 
+                     IN ($ldap_groups_sql) ) ";
+                 }
+                 if (!empty($_SESSION['distinguishedname'])) {
+                   $stmt .= "
+                   OR (authi_rule = '!rule!role!AD_DistinguishedName' AND INSTR('".$_SESSION['distinguishedname']."', authi_value)
+                      ) ";
+                 }
+                 if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'])) {
+                   $stmt .= "
+                   OR (authi_rule = '!rule!role!eduPersonTargetedID' AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID']."', authi_value)
+                      ) ";
+                 }
+                 if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Affiliation'])) {
+                   $stmt .= "
+                   OR (authi_rule = '!rule!role!eduPersonAffiliation' AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Affiliation']."', authi_value)
+                      ) ";
+                 }
+                 if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'])) {
+                   $stmt .= "
+                   OR (authi_rule = '!rule!role!eduPersonScopedAffiliation' AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation']."', authi_value)
+                      ) ";
+                 }
+                 if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'])) {
+                   $stmt .= "
+                   OR (authi_rule = '!rule!role!eduPersonPrimaryAffiliation' AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation']."', authi_value)
+                      ) ";
+                 }
+                 if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'])) {
+                   $stmt .= "
+                   OR (authi_rule = '!rule!role!eduPersonPrincipalName' AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName']."', authi_value)
+                      ) ";
+                 }
+                 if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN'])) {
+                   $stmt .= "
+                   OR (authi_rule = '!rule!role!eduPersonOrgUnitDN' AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN']."', authi_value)
+                      ) ";
+                 }
+                 if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgDN'])) {
+                   $stmt .= "
+                   OR (authi_rule = '!rule!role!eduPersonPrimaryOrgUnitDN' AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgDN']."', authi_value)
+                      ) ";
+                 }
+				
+                 if (Auth::isInAD())  {
+                   $authStmt .= "
+                   OR (ai.authi_rule = '!rule!role!in_AD' ) ";
+                 }
+                 if (Auth::isInDB()) {
+                   $authStmt .= "
+                   OR (ai.authi_rule = '!rule!role!in_Fez') ";
+                 }
+
+				 $authStmt .= " )) ";
+				    if (count($coll_pids) != 0) {
+						$authStmt .= " or ai.authi_pid not in (".Misc::arrayToSQL($coll_pids).")";
+					}
+
+                 $authStmt .= "
+                   ) and ai.authi_pid = r2.rmf_rec_pid";
+
+
+			} else {
+				if (count($coll_pids) != 0) {
+					$authStmt = "";
+					$joinStmt .= "  AND r2.rmf_rec_pid not in (".Misc::arrayToSQL($coll_pids).") ";
+				}
+			}		
+			return array('authStmt' => $authStmt, 'joinStmt' => $joinStmt);
+	}
     /**
      * Method used to get the list of records in browse view by a browsing category available in the 
      * system.
@@ -1132,15 +1248,8 @@ left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d1.xd
 		$internal_extra_order = "";
 		$termCounter = 5;
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-		$joinStmt = "";
 
-		$stmt = "select distinct ai3.authi_pid as aip from dev_fez.fez_auth_index ai3 where (ai3.authi_role in ('Lister', 'Viewer'))";
-		$res = $GLOBALS["db_api"]->dbh->getCol($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            $res = array();
-        }
-        $coll_pids = $res;
+
 
         $extra = '';
 		if ($searchKey == "Subject") {				
@@ -1198,52 +1307,10 @@ left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d1.xd
 
 		if ($searchKey == "Created Date") {
 			$search_data_type = "date";
-			}
-        $fez_groups_sql = Misc::arrayToSQL(@$_SESSION[APP_INTERNAL_GROUPS_SESSION]);
-        $ldap_groups_sql = Misc::arrayToSQL(@$_SESSION[APP_LDAP_GROUPS_SESSION]);
-
-
-		if (is_numeric(Auth::getUserID())) {
-		
-        $authStmt = " join {$dbtp}auth_index ai on
-           ( ( (ai.authi_role in ('Lister', 'Viewer', 'Editor', 'Creator', 'Approver'))             
-             AND (
-                 (ai.authi_rule = '!rule!role!Fez_User' AND ai.authi_value='".Auth::getUserID()."')
-                 OR (ai.authi_rule = '!rule!role!AD_User' AND ai.authi_value='".Auth::getUsername()."') ";
-                 if (!empty($fez_groups_sql)) {
-                   $authStmt .="
-                   OR (ai.authi_rule = '!rule!role!Fez_Group' AND ai.authi_value 
-                     IN ($fez_groups_sql) ) ";
-                 }
-                 if (!empty($ldap_groups_sql)) {
-                   $authStmt .= "
-                   OR (ai.authi_rule = '!rule!role!AD_Group' AND ai.authi_value 
-                     IN ($ldap_groups_sql) ) ";
-                 }
-                 if (Auth::isInAD())  {
-                   $authStmt .= "
-                   OR (ai.authi_rule = '!rule!role!in_AD' ) ";
-                 }
-                 if (Auth::isInDB()) {
-                   $authStmt .= "
-                   OR (ai.authi_rule = '!rule!role!in_Fez') ";
-                 }
-
-				 $authStmt .= " )) ";
-				    if (count($coll_pids != 0)) {
-						$authStmt .= " or ai.authi_pid not in (".Misc::arrayToSQL($coll_pids).")";
-					}
-
-                 $authStmt .= "
-                   ) and ai.authi_pid = r2.rmf_rec_pid";
-
-
-			} else {
-				if (count($coll_pids != 0)) {
-					$authStmt = "";
-					$joinStmt .= "  AND r2.rmf_rec_pid not in (".Misc::arrayToSQL($coll_pids).") ";
-				}
-			}
+		}
+		$authArray = Collection::getAuthIndexStmt();
+		$authStmt = $authArray['authStmt'];
+		$joinStmt = $authArray['joinStmt'];
 		
 		$stmtCount = "SELECT count(distinct r2.rmf_rec_pid) as display_count
 					FROM  {$dbtp}record_matching_field r2 
@@ -1751,6 +1818,10 @@ left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d1.xd
         }
         $start = $current_row * $max;
 
+		$authArray = Collection::getAuthIndexStmt();
+		$authStmt = $authArray['authStmt'];
+		$joinStmt = $authArray['joinStmt'];
+		$termCounter = 100;
         $sekdet = Search_Key::getDetailsByTitle($order_by);
         $data_type = $sekdet['xsdmf_data_type'];
 
@@ -1771,11 +1842,56 @@ left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d1.xd
             FROM {$dbtp}record_matching_field AS r1
             INNER JOIN {$dbtp}xsd_display_matchfields AS x1 
             ON r1.rmf_xsdmf_id = x1.xsdmf_id 
+
+				 INNER JOIN (
+					 SELECT distinct r2.rmf_varchar as display_id, r2.rmf_rec_pid, r".$termCounter.".rmf_$data_type as sort_column $subqueryExtra
+					FROM  {$dbtp}record_matching_field r2 
+					inner join {$dbtp}xsd_display_matchfields x2 on r2.rmf_xsdmf_id = x2.xsdmf_id $joinStmt
+					inner join {$dbtp}search_key s2 on (s2.sek_id = x2.xsdmf_sek_id AND s2.sek_title = 'Display Type')
+
+					inner join  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r".$termCounter." 
+					on r".$termCounter.".rmf_rec_pid = r2.rmf_rec_pid
+					inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x".$termCounter."
+					on r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id
+					inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s".$termCounter."
+					on s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id
+					and s".$termCounter.".sek_title = '$order_by' 
+                    and $termLike s".$termCounter.".sek_simple_used = 1
+
+					$authStmt
+
+	                $middleStmt
+					
+					inner join {$dbtp}record_matching_field AS r4 on r4.rmf_rec_pid = r2.rmf_rec_pid
+                    inner join {$dbtp}xsd_display_matchfields AS x4 on r4.rmf_xsdmf_id = x4.xsdmf_id and r4.rmf_varchar='2' and x4.xsdmf_element='!sta_id'
+
+					order by $internal_extra_order sort_column $order_dir, r2.rmf_rec_pid desc
+					
+					";
+//					if ($getCount == 0) {
+						$stmt .= " limit $start, $max ";
+//					}
+					$stmt .=
+					 "
+
+
+				) as display on display.rmf_rec_pid = r1.rmf_rec_pid
+
+                 LEFT JOIN {$dbtp}xsd_loop_subelement s1 
+                 ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
+                 LEFT JOIN {$dbtp}search_key k1 
+                 ON (k1.sek_id = x1.xsdmf_sek_id)
+
+				left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d1.xdis_id = display.display_id
+                ORDER BY $extra_order display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
+/*
+
             LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 
             ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
             LEFT JOIN {$dbtp}search_key AS k1 
             ON (k1.sek_id = x1.xsdmf_sek_id)
 			join {$dbtp}xsd_display AS d1 
+
             INNER JOIN (
                     SELECT distinct r2.rmf_rec_pid 
                     FROM  {$dbtp}record_matching_field AS r2
@@ -1818,7 +1934,9 @@ left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d1.xd
                     AND xdm.xsdmf_element='!sta_id'
                     )
             ORDER BY d3.sort_column";
+*/
 		$securityfields = Auth::getAllRoles();
+		echo $stmt;
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		
 		$return = array();

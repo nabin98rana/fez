@@ -81,7 +81,7 @@ if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Serve
 	@define("APP_CONVERT_CMD", "/usr/bin/convert");   // To convert image (part of ImageMagick)
 	@define("APP_COMPOSITE_CMD", "/usr/bin/composite");   // To watermark image (part of ImageMagick)
 	//@define("APP_CONVERT_CMD", "/usr/X11R6/bin/convert");   // convert could be in here for some Linux distros
-	@define("APP_IDENTIFY_CMD", "/usr/X11R6/bin/identify"); // To get image information (part of ImageMagick)
+	@define("APP_IDENTIFY_CMD", "/usr/bin/identify"); // To get image information (part of ImageMagick)
 	@define("APP_JHOVE_DIR", "/usr/local/jhove");
 	@define("APP_JHOVE_TEMP_DIR", APP_TEMP_DIR);
     ini_set("include_path", ".:" . APP_PEAR_PATH);
@@ -172,6 +172,8 @@ if (APP_FEDORA_SETUP == 'sslall') {
 @define("APP_SESSION_EXPIRE", time() + (60 * 60 * 8));
 
 @define("APP_VERSION", "1.2 BETA");
+
+@define("APP_DEFAULT_TIMEZONE", "UTC"); // Change this to your local timezone eg Australia/Brisbane. Fez will still store dates as UTC but will default display them as this timezone until the user has logged in with their preffered timezone user setting
 
 @define("APP_DEFAULT_PAGER_SIZE", 5);
 @define("APP_DEFAULT_REFRESH_RATE", 5); // in minutes

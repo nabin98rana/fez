@@ -835,11 +835,19 @@
               </tr>			
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default">
-                  <b>Use in Citation?:</b>
+                  <b>Use in Citation Browse Listings Level?:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="checkbox" name="xsdmf_citation_browse" class="default" {if ($info.xsdmf_citation_browse == 1)}checked{/if}><br />
+                  <span class="small_default">(If this tickbox is ticked the value for this element will be shown in the object browsing citation level)</span>
+              </tr>			
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Use in Citation View Level?:</b>
                 </td>
                 <td bgcolor="{$light_color}">
                   <input type="checkbox" name="xsdmf_citation" class="default" {if ($info.xsdmf_citation == 1)}checked{/if}><br />
-                  <span class="small_default">(If this tickbox is ticked the value for this element will be shown in the citation)</span>
+                  <span class="small_default">(If this tickbox is ticked the value for this element will be shown in the object viewing citation level)</span>
               </tr>			
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default">
