@@ -657,119 +657,83 @@ class Record
      * @param string $username The username of the search is performed on
      * @return array $res2 The index details of records associated with the user
      */
-    function getAssigned($username,$currentPage=0,$pageRows="ALL",$order_by="Created Date")
+    function getAssigned($username,$currentPage=0,$pageRows="ALL",$order_by="Title")
     {
         if ($pageRows == "ALL") {
             $pageRows = 9999999;
         }
+        $start = $currentPage * $pageRows;
+
         $currentRow = $currentPage * $pageRows;
         $sekdet = Search_Key::getDetailsByTitle($order_by);
         $data_type = $sekdet['xsdmf_data_type'];
-        $fez_groups_sql = Misc::arrayToSQL(@$_SESSION[APP_INTERNAL_GROUPS_SESSION]);
-        $ldap_groups_sql = Misc::arrayToSQL(@$_SESSION[APP_LDAP_GROUPS_SESSION]);
+		$dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
 
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-        // This series of queries use to be one query that took ages to run
-        // when broken up into seperate queries it is actually faster!
-        $stmt = "SELECT distinct rmf.rmf_rec_pid FROM
-                {$dbtp}record_matching_field AS rmf
-                INNER JOIN {$dbtp}xsd_display_matchfields AS xdmf 
-                ON xdmf.xsdmf_id=rmf.rmf_xsdmf_id
-                WHERE xdmf.xsdmf_element='!sta_id' 
-                AND rmf.rmf_varchar!='2'";
-//        echo $stmt;
-		$res = $GLOBALS["db_api"]->dbh->getCol($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            $res = array();
-        }		
-        $published_ids = $res;
-        $stmt = "SELECT distinct authi_pid FROM {$dbtp}auth_index WHERE
-             (authi_role = 'Editor'
-              OR authi_role = 'Approver')
-             AND (
-                 (authi_rule = '!rule!role!Fez_User' AND authi_value='".Auth::getUserID()."')
-                 OR (authi_rule = '!rule!role!AD_User' AND authi_value='".Auth::getUsername()."') ";
-                 if (!empty($fez_groups_sql)) {
-                   $stmt .="
-                   OR (authi_rule = '!rule!role!Fez_Group' AND authi_value 
-                     IN ($fez_groups_sql) ) ";
-                 }
-                 if (!empty($ldap_groups_sql)) {
-                   $stmt .= "
-                   OR (authi_rule = '!rule!role!AD_Group' AND authi_value 
-                     IN ($ldap_groups_sql) ) ";
-                 }
-                 if (!empty($_SESSION['distinguishedname'])) {
-                   $stmt .= "
-                   OR (authi_rule = '!rule!role!AD_DistinguishedName' AND INSTR('".$_SESSION['distinguishedname']."', authi_value)
-                      ) ";
-                 }
+		$authArray = Collection::getAuthIndexStmt(array("Editor", "Approver"));
+		$authStmt = $authArray['authStmt'];
+		$joinStmt = $authArray['joinStmt'];
+		$order_dir = "ASC";
+        if (!empty($authStmt)) {
+            $r4_join_field = "ai.authi_pid";
+        } else {
+            $r4_join_field = "r2.rmf_rec_pid";
+        }
 
-                 if (Auth::isInAD())  {
-                   $stmt .= "
-                   OR (authi_rule = '!rule!role!in_AD' ) ";
-                 }
-                 if (Auth::isInDB()) {
-                   $stmt .= "
-                   OR (authi_rule = '!rule!role!in_Fez') ";
-                 }
-                 $stmt .= "
-                 )
-                 ";
-        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            $res = array();
-        }		
-        $canedit_ids = $res;
-        $pids = array_intersect($canedit_ids,$published_ids);
-        $pids = Misc::arrayToSQL($pids);
-		if ($pids != "") {
-			$stmt = " SELECT *
-				FROM {$dbtp}record_matching_field AS r1
-				INNER JOIN (
-						SELECT distinct r2.rmf_rec_pid, r2.rmf_varchar as display_id
-						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
-						INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
-						ON r2.rmf_xsdmf_id = x2.xsdmf_id 
-						where x2.xsdmf_element = '!xdis_id'
-						) as d2
-				on r1.rmf_rec_pid = d2.rmf_rec_pid  					
-				left JOIN (
-							SELECT distinct r2.rmf_rec_pid as sort_pid, 
-							r2.rmf_$data_type as sort_column
-							FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
-							inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
-							on r2.rmf_xsdmf_id = x2.xsdmf_id 
-							inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
-							on s2.sek_id = x2.xsdmf_sek_id
-							where s2.sek_title = '$order_by'
-							) as d3
-					on r1.rmf_rec_pid = d3.sort_pid
-				INNER JOIN {$dbtp}xsd_display_matchfields AS x1
-				ON r1.rmf_xsdmf_id=x1.xsdmf_id
-				LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 
-				ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
-				left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 
-				on (k1.sek_id = x1.xsdmf_sek_id)
-				left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d2.display_id = d1.xdis_id	
-				WHERE (r1.rmf_dsid IS NULL or r1.rmf_dsid = '')			 
-				AND r1.rmf_rec_pid IN ($pids)				
-				ORDER BY d3.sort_column ASC
-				";
-			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
+                    INNER JOIN {$dbtp}xsd_display_matchfields AS x2
+                      ON r2.rmf_xsdmf_id = x2.xsdmf_id AND x2.xsdmf_element='!sta_id' and r2.rmf_varchar!='2'
+
+
+                    $authStmt
+
+                    ";
+        $bodyStmt = "$bodyStmtPart1
+                  
+                    LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r5
+                    ON r5.rmf_rec_pid=$r4_join_field
+                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x5
+                    on r5.rmf_xsdmf_id = x5.xsdmf_id
+                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s5
+                    on s5.sek_id = x5.xsdmf_sek_id AND s5.sek_title = '$order_by'
+                    
+             ";
+
+        $countStmt = "
+                    SELECT count(distinct r2.rmf_rec_pid)
+                    $bodyStmtPart1
+            ";
+
+        $stmt = "SELECT  r1.*, x1.*, s1.*, k1.*, d1.* 
+            FROM {$dbtp}record_matching_field AS r1
+            INNER JOIN {$dbtp}xsd_display_matchfields AS x1
+            ON r1.rmf_xsdmf_id = x1.xsdmf_id
+            INNER JOIN (
+                    SELECT distinct r2.rmf_rec_pid, r5.rmf_$data_type as sort_column
+                    $bodyStmt
+					order by sort_column $order_dir, r2.rmf_rec_pid desc
+                    LIMIT $start, $pageRows
+                    ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid 
+            LEFT JOIN {$dbtp}xsd_loop_subelement s1 
+            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
+            LEFT JOIN {$dbtp}search_key k1 
+            ON (k1.sek_id = x1.xsdmf_sek_id)
+            LEFT JOIN {$dbtp}xsd_display d1  
+            ON (d1.xdis_id = r1.rmf_varchar and k1.sek_title = 'Display Type')
+            ORDER BY display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
+
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 			if (PEAR::isError($res)) {
 				Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 				$res = array();
 			}
-		} else {
+		/*} else {
 			$res = array();
-		}
-          
+		}*/
         $list = Collection::makeReturnList($res);
-        $totalRows = count($list);
-        $list = array_slice($list,$currentRow, $pageRows);
+		
+		$totalRows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
+//        $totalRows = count($list);
+//        $list = array_slice($list,$currentRow, $pageRows);
         $totalPages = intval($totalRows / $pageRows);
         if ($totalRows % $pageRows) {
             $totalPages++;

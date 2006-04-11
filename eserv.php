@@ -154,13 +154,16 @@ if (!empty($pid) && !empty($dsID)) {
 			$tempDumpFileName = APP_TEMP_DIR.'tmpdumpfile.txt';
 			// Read the source OAI repository url or file
 			
-			$sourceOAI = fopen($urldata, "r");
+/*			$sourceOAI = fopen($urldata, "r");
 			$sourceOAIRead = '';
 			while ($tmp = fread($sourceOAI, 4096))
 			{
 			$sourceOAIRead .= $tmp;
 			}
-			echo $sourceOAIRead;			
+			echo $sourceOAIRead;
+			*/
+			$data = Misc::processURL($urldata);
+			echo $data;
 /*			$tempDump = fopen($tempDumpFileName, 'w');
 
 			// Write the source xml to a temporary file to we can get the filesize (required for the content length header)

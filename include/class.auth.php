@@ -100,7 +100,7 @@ class Auth
         }
 
         // if the current session is still valid, then renew the expiration
-        Auth::createLoginSession($_SESSION['username'], $_SESSION['fullname'], $_SESSION['email'], $_SESSION['autologin']);
+        Auth::createLoginSession($_SESSION['username'], $_SESSION['fullname'], $_SESSION['email'], $_SESSION['distinguishedname'], $_SESSION['autologin']);
     }
 
     /**
@@ -505,6 +505,46 @@ class Auth
 													array_push($userPIDAuthGroups, $role_name);
 												}
 												break;
+											case '!rule!role!AD_DistinguishedName':
+												if (is_numeric(strpos(@$_SESSION['distinguishedname'], $ruleRecord))) {
+													array_push($userPIDAuthGroups, $role_name);
+												}
+												break;												
+											case '!rule!role!eduPersonTargetedID':
+												if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'], $ruleRecord))) {
+													array_push($userPIDAuthGroups, $role_name);
+												}
+												break;												
+											case '!rule!role!eduPersonAffiliation':
+												if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Shib-EP-UnscopedAffiliation'], $ruleRecord))) {
+													array_push($userPIDAuthGroups, $role_name);
+												}
+												break;															
+											case '!rule!role!eduPersonScopedAffiliation':
+												if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'], $ruleRecord))) {
+													array_push($userPIDAuthGroups, $role_name);
+												}
+												break;												
+											case '!rule!role!eduPersonPrimaryAffiliation':
+												if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'], $ruleRecord))) {
+													array_push($userPIDAuthGroups, $role_name);
+												}
+												break;												
+											case '!rule!role!eduPersonPrinicipalName':
+												if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], $ruleRecord))) {
+													array_push($userPIDAuthGroups, $role_name);
+												}
+												break;		
+											case '!rule!role!eduPersonOrgUnitDN':
+												if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgUnitDN'], $ruleRecord))) {
+													array_push($userPIDAuthGroups, $role_name);
+												}
+												break;		
+											case '!rule!role!eduPersonPrimaryOrgUnitDN':
+												if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN'], $ruleRecord))) {
+													array_push($userPIDAuthGroups, $role_name);
+												}
+												break;		
 											case '!rule!role!Fez_Group':
 												if (@in_array($ruleRecord, $_SESSION[APP_INTERNAL_GROUPS_SESSION])) {
 													array_push($userPIDAuthGroups, $role_name);
@@ -683,6 +723,47 @@ class Auth
                                         array_push($userPIDAuthGroups, $role);
                                     }
                                     break;
+                                case 'AD_DistinguishedName':
+                                    if (is_numeric(strpos(@$_SESSION['distinguishedname'], $group_value))) {
+                                        array_push($userPIDAuthGroups, $role);
+                                    }
+                                    break;
+								case '!rule!role!eduPersonTargetedID':
+									if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'], $group_value))) {
+										array_push($userPIDAuthGroups, $role);
+									}
+									break;												
+								case '!rule!role!eduPersonAffiliation':
+									if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Shib-EP-UnscopedAffiliation'], $group_value))) {
+										array_push($userPIDAuthGroups, $role);
+									}
+									break;												
+								case '!rule!role!eduPersonScopedAffiliation':
+									if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'], $group_value))) {
+										array_push($userPIDAuthGroups, $role);
+									}
+									break;												
+								case '!rule!role!eduPersonPrimaryAffiliation':
+									if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'], $group_value))) {
+										array_push($userPIDAuthGroups, $role);
+									}
+									break;												
+								case '!rule!role!eduPersonPrinicipalName':
+									if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], $group_value))) {
+										array_push($userPIDAuthGroups, $role);
+									}
+									break;		
+								case '!rule!role!eduPersonOrgUnitDN':
+									if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgUnitDN'], $group_value))) {
+										array_push($userPIDAuthGroups, $role);
+									}
+									break;		
+								case '!rule!role!eduPersonPrimaryOrgUnitDN':
+									if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN'], $group_value))) {
+										array_push($userPIDAuthGroups, $role);
+									}
+									break;		
+									
                                 case 'Fez_Group':
                                     if (@in_array($group_value, $_SESSION[APP_INTERNAL_GROUPS_SESSION])) {
                                         array_push($userPIDAuthGroups, $role);
@@ -775,16 +856,18 @@ class Auth
      * @param   string $username The username to be stored in the session
      * @param   string $fullname The user full name to be stored in the session
      * @param   string $email The email address to be stored in the session
+     * @param   string $distinguishedname The user distinguishedname to be stored in the session
      * @param   integer $autologin Flag to indicate whether this user should be automatically logged in or not
      * @return  void
      */
-    function createLoginSession($username, $fullname, $email, $autologin = 0)
+    function createLoginSession($username, $fullname,  $email, $distinguishedname, $autologin = 0)
     {
 		global $HTTP_SERVER_VARS;
 		$ipaddress = $HTTP_SERVER_VARS['REMOTE_ADDR'];
         $time = time();
         $_SESSION["username"] = $username;
         $_SESSION["fullname"] = $fullname;
+        $_SESSION["distinguishedname"] = $distinguishedname;
         $_SESSION["email"] = $email;
         $_SESSION["ipaddress"] = $ipaddress;
         $_SESSION["login_time"] = $time;
@@ -1116,8 +1199,9 @@ class Auth
 					}
 
 					if ($OrganisationDisplayName != "" && $entityID != "" && $SSO != "") {
-						$IDPArray['list'][$entityID] = $OrganisationDisplayName;
-						$IDPArray['SSO'][$entityID] = "https://$SSO/shibboleth-idp/SSO";
+						$IDPArray['List'][$entityID] = $OrganisationDisplayName;
+						$IDPArray['SSO'][$entityID]['SSO'] = "https://$SSO/shibboleth-idp/SSO";
+						$IDPArray['SSO'][$entityID]['Name'] = $OrganisationDisplayName;
 					}
 				}			
 			}
@@ -1140,11 +1224,18 @@ class Auth
         @session_start();
         if (!Auth::userExists($username)) { // If the user isn't a registered fez user, get their details elsewhere (The AD/LDAP) as they must have logged in with LDAP
 			if ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
-				$_SESSION['isInAD'] = true;
+				$_SESSION['isInAD'] = false;
 				$_SESSION['isInDB'] = false;
 				$_SESSION['isInFederation'] = true;			
-				if ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['displayName'] != "") {
-					$fullname =	$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['displayName'];
+				if ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "") {
+					$username = $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'];
+				} else {
+					$username = "Federation User";
+				}
+
+
+				if ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-commonName'] != "") {
+					$fullname =	$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-commonName'];
 				} elseif ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] != "") {
 					$fullname =	$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'];
 				} elseif ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "") {
@@ -1157,6 +1248,7 @@ class Auth
 				} else {				
 					$email = "";
 				}
+				$distinguishedname = "";
 			} else {
 				$_SESSION['isInAD'] = true;
 				$_SESSION['isInDB'] = false;
@@ -1164,6 +1256,7 @@ class Auth
 				$userDetails = User::GetUserLDAPDetails($username, $password);
 				$fullname = $userDetails['displayname'];
 				$email = $userDetails['email'];
+				$distinguishedname = $userDetails['distinguishedname'];
 				Auth::GetUsersLDAPGroups($username, $password);
 			}
         } else { // if it is a registered Fez user then get their details from the fez user table
@@ -1179,6 +1272,8 @@ class Auth
 			$usr_id = User::getUserIDByUsername($username);
             User::updateLoginDetails($usr_id); //incremement login count and last login date
             if ($userDetails['usr_ldap_authentication'] == 1) {
+				$userDetails = User::GetUserLDAPDetails($username, $password);
+				$distinguishedname = $userDetails['distinguishedname'];
 	            $_SESSION['isInAD'] = true;			
                 Auth::GetUsersLDAPGroups($userDetails['usr_username'], $password);
             }  else {
@@ -1188,7 +1283,7 @@ class Auth
 			Auth::GetUsersInternalGroups($usr_id);
             
         }
-        Auth::createLoginSession($username, $fullname, $email, $HTTP_POST_VARS["remember_login"]);
+        Auth::createLoginSession($username, $fullname, $email, $distinguishedname, $HTTP_POST_VARS["remember_login"]);
     }
 
     /**

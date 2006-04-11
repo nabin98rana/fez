@@ -47,6 +47,19 @@ include_once(APP_INC_PATH.'najax_objects/class.background_process_list.php');
 $tpl = new Template_API();
 $tpl->setTemplate("my_fez.tpl.html");
 
+$order_by = Misc::GETorPOST('order_by');
+if (empty($order_by)) {
+    $order_by = 'Title';
+}
+$order_by_list = array();
+foreach (Search_Key::getAssocList() as $key => $value) {
+    $order_by_list[$value] = $value;
+}
+$tpl->assign('order_by_list', $order_by_list);
+
+$tpl->assign('order_by_default', $order_by);
+
+
 Auth::checkAuthentication(APP_SESSION);
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
@@ -89,7 +102,7 @@ if (empty($rows)) {
 }
 $options = Pager::saveSearchParams();
 $tpl->assign("options", $options);
-$assigned_items= Record::getAssigned(Auth::getUsername(), $pagerRow, $rows);
+$assigned_items= Record::getAssigned(Auth::getUsername(), $pagerRow, $rows, $order_by);
 $tpl->assign('my_assigned_items_list', $assigned_items['list']);
 $tpl->assign('my_assigned_items_info', $assigned_items['info']);
 

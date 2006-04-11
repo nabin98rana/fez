@@ -181,7 +181,8 @@ class Fedora_API {
 		}		
 		$searchPhrase = "?xml=true$fieldPhrase&terms=$searchTerms";
 		$filename = APP_FEDORA_SEARCH_URL.$searchPhrase;
-		$xml = file_get_contents($filename);
+//		$xml = file_get_contents($filename);
+		$xml = Misc::processURL($filename);
 		$xml = preg_replace("'<object uri\=\"info\:fedora\/(.*)\"\/>'", "<pid>\\1</pid>", $xml); // fix the pid tags	
 		$doc = DOMDocument::loadXML($xml);
 		$xpath = new DOMXPath($doc);
@@ -226,7 +227,8 @@ class Fedora_API {
 		$stringfields = join("&", $stringfields);	
 		// do the query - we are querying the fedora web service here (need to be able to open an URL as a file)
 		$filename = APP_FEDORA_RISEARCH_URL.$searchPhrase;
-		$xml = file_get_contents($filename);
+//		$xml = file_get_contents($filename);
+		$xml = Misc::processURL($filename);
 		$xml = preg_replace("'<object uri\=\"info\:fedora\/(.*)\"\/>'", "<pid>\\1</pid>", $xml); // fix the pid tags	
 		// The query has returned XML. Parse the xml into a DOMDocument
 		$doc = DOMDocument::loadXML($xml);
@@ -567,7 +569,8 @@ class Fedora_API {
 	function callGetDatastreamContents($pid, $dsID, $getxml = false) {
 		$resultlist = array();	
 		$filename = APP_FEDORA_GET_URL."/".$pid."/".$dsID;
-		$xml = @file_get_contents($filename);
+		$xml = Misc::processURL($filename);
+//		$xml = @file_get_contents($filename);
         if ($getxml) {
             return $xml;
         }
@@ -599,7 +602,8 @@ class Fedora_API {
 	function callGetDatastreamContentsField($pid, $dsID, $returnfields) {
 		$resultlist = array();	
 		$filename = APP_FEDORA_GET_URL."/".$pid."/".$dsID;
-		$xml = @file_get_contents($filename);
+//		$xml = @file_get_contents($filename);
+		$xml = Misc::processURL($filename);
 		if (!empty($xml)) {
 			$doc = DOMDocument::loadXML($xml);
 			$xpath = new DOMXPath($doc);

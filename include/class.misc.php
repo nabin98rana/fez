@@ -55,6 +55,19 @@ class Misc
 {
 
 
+	/*
+	 *  To use instead of php file_get_contents or fopen/fread as curl is much faster
+	 */
+	function processURL($url) {
+	   if (empty($url)) { return ""; }
+	   $url=str_replace('&amp;','&',$url);
+	   $ch=curl_init();
+	   curl_setopt($ch, CURLOPT_URL, $url);
+	   curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
+	   $data = curl_exec ($ch);
+	   curl_close ($ch);
+	   return $data;  
+	}
 
 	/*
 	* (mixed)remote_filesize($uri,$user='',$pw='')

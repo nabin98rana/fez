@@ -83,21 +83,33 @@ function disableFields(f)
     }
 }
 
+function sortList(f, field) {
+    order_by = getSelectedOption(f, field);
+    window.location.href = page_url + "?" + replaceParam(window.location.href, 'order_by', order_by);
+}
 
 
 
 {/literal}
 // -->
 </script>
+<form name="assigned_records" method="post" action="{$rel_url}popup.php" target="_popup">
 <div class="outline">
 <div class="contentheader">
 Assigned Unpublished Items
 </div>
-<div class="default">
+<span class="default">
 Showing items {math equation="x + 1" x=$my_assigned_items_info.currentRow} 
 to {$my_assigned_items_info.currentLastRow} of {$my_assigned_items_info.totalRows}
+</span>
+
+<div><span class="default">Order By </span>
+                   <select class="default" name="order_by" onchange="javascript:sortList(this.form, 'order_by');">
+                       {html_options options=$order_by_list selected=$order_by_default}
+                   </select>
+			</div>
 </div>
-<form name="assigned_records" method="post" action="{$rel_url}popup.php" target="_popup">
+
 <input type="hidden" name="cat" value="purge_objects" />
 
    <table class="listing">
@@ -117,13 +129,14 @@ to {$my_assigned_items_info.currentLastRow} of {$my_assigned_items_info.totalRow
      <tr bgcolor="{$row_color}">
        <td><input type="checkbox" name="items[]" value="{$list[i].pid}" /></td>
        <td class="default">
-		<b>{$list[i].xdis_title.0|escape}</b><br />
+		<b>{$list[i].xdis_title.0|escape}</b> <br />
 		<a href="{$rel_url}view.php?pid={$list[i].pid|escape}"><img align="absmiddle" src="{$icon}" border="0"></a>
          <a href="{$rel_url}view.php?pid={$list[i].pid|escape}">{$list[i].title.0|escape}</a>
          <a href='{$rel_url}workflow/update.php?pid={$list[i].pid|escape}&href={$smarty.server.REQUEST_URI}'
          ><img title="Edit" align="absmiddle" src="{$rel_url}images/edit.gif" border="0"></a> 
          <a href="javascript:void(null);" onclick="javascript: purgeObject('{$list[i].pid|escape}');" 
          ><img title="Delete" align="absmiddle" src="{$rel_url}images/delete.gif" border="0"></a> 
+		 <br /><b>Created:</b> {$list[i].created_date.0|escape} {if $list[i].updated_date.0 <> $list[i].created_date.0}<b>Last Updated:</b> {$list[i].updated_date.0|escape}{/if}
        </td>
      </tr>
      {sectionelse}
