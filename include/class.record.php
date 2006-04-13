@@ -1420,6 +1420,12 @@ class RecordGeneral
             return null;
         }
     }
+    
+    function getDocumentType()
+    {
+        $this->getDisplay();
+        return $this->display->getTitle();
+    }
 
     /**
      * getDetails

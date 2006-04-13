@@ -930,6 +930,11 @@ class XSD_DisplayObject
         }
         return $cbdata;
     }
+
+    function getTitle()
+    {
+        return XSD_Display::getTitle($this->xdis_id);
+    }
 }
 
 // benchmarking the included file (aka setup time)

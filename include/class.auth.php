@@ -424,11 +424,13 @@ class Auth
         }
 
 		$auth_ok = false;
-		foreach ($acceptable_roles as $role) {
-			if (in_array($role, $userPIDAuthGroups)) {
-				$auth_ok = true;
-			}
-		}
+        if (is_array($userPIDAuthGroups)) {
+            foreach ($acceptable_roles as $role) {
+                if (in_array($role, $userPIDAuthGroups)) {
+                    $auth_ok = true;
+                }
+            }
+        }
 		if ($auth_ok != true) {
             // Perhaps the user hasn't logged in
 			if (!Auth::isValidSession($_SESSION)) {

@@ -25,6 +25,8 @@ function pid2csv($pid, &$csv)
         }
         $status = $record->getPublishedStatus(true);
         $csv->addValue($status,'Status');
+        $doctype = $record->getDocumentType();
+        $csv->addValue($doctype,'Document Type');
 
         // Metadata
         foreach ($datastreams as $ds) {
@@ -46,13 +48,17 @@ function pid2csv($pid, &$csv)
                     }
                 }
                 $csv->addArray($metaArray);
-            }
-            if ($ds['controlGroup'] == 'R' 
-                    && !in_array($ds['ID'], $exclude_list)
+            } elseif ($ds['controlGroup'] == 'R' 
                     && !in_array(substr($ds['ID'],0,strpos($ds['ID'],'_')), $exclude_prefix)
                ) {
                 $csv->addValue($ds['label'], 'Link Label');
                 $csv->addValue($ds['location'], 'Link Location');
+            } elseif ($ds['controlGroup'] == 'M' 
+                    && !in_array(substr($ds['ID'],0,strpos($ds['ID'],'_')), $exclude_prefix)) {
+                $csv->addValue($ds['ID'], 'File Datastream ID');
+                $csv->addValue($ds['label'], 'File Label');
+                $csv->addValue($ds['MIMEType'], 'File MIME Type');
+                $csv->addValue($ds['size'], 'File Size');
             }
         }
 
