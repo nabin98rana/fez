@@ -73,64 +73,88 @@ $browse = @$_REQUEST['browse'];
 $collection_pid = @$HTTP_POST_VARS["collection_pid"] ? $HTTP_POST_VARS["collection_pid"] : @$HTTP_GET_VARS["collection_pid"];	
 $community_pid = @$HTTP_POST_VARS["community_pid"] ? $HTTP_POST_VARS["community_pid"] : @$HTTP_GET_VARS["community_pid"];
 $order_by = Misc::GETorPOST('order_by');
-if (empty($order_by)) {
-    $order_by = 'Title';
-}
 $list_info = array();
 if (!empty($collection_pid)) {
+	if (empty($order_by)) {
+		$order_by = 'Author';
+	}
     // list a collection
-	$tpl->assign("xdis_id", Record::getRecordXDIS_ID());
-	$collection_details = Collection::getDetails($collection_pid);
-	$parents = Collection::getParents($collection_pid);
-	$tpl->assign("parents", $parents);
-	$collection_xdis_id = Collection::getCollectionXDIS_ID();
-	$userPIDAuthGroups = Auth::getAuthorisationGroups($collection_pid);
-	$isCreator = (in_array("Creator", $userPIDAuthGroups) 
-            || in_array("Community Administrator", $userPIDAuthGroups) 
-            || in_array("Collection Administrator", $userPIDAuthGroups));
-	$tpl->assign("isCreator", $isCreator);
-	$isEditor = (in_array("Creator", $userPIDAuthGroups) 
-            || in_array("Community Administrator", $userPIDAuthGroups) 
-            || in_array("Editor", $userPIDAuthGroups) 
-            || in_array("Collection Administrator", $userPIDAuthGroups));
-	$tpl->assign("isEditor", $isEditor);		
-	$list = Collection::getListing($collection_pid, $pagerRow, $rows, $order_by);
-
-	$list_info = $list["info"];
-	$list = $list["list"];
-	$tpl->assign("list_heading", "List of Records in ".$collection_details[0]['title'][0]." Collection");
-	$tpl->assign("list_type", "collection_records_list");
-	$tpl->assign("collection_pid", $collection_pid);
-	$childXDisplayOptions = Collection::getChildXDisplayOptions($collection_pid);
-	if (count($childXDisplayOptions) > 0) {
-		$tpl->assign("childXDisplayOptions", $childXDisplayOptions);
+	// first check the user has view rights over the collection object
+	$record = new RecordObject($collection_pid);
+	$tpl->assign("isViewer", $record->canView(true));
+	if ($record->canView()) {
+	
+		$tpl->assign("xdis_id", Record::getRecordXDIS_ID());
+		$collection_details = Collection::getDetails($collection_pid);
+	//	print_r($collection_details);
+		$parents = Collection::getParents($collection_pid);
+		$tpl->assign("parents", $parents);
+		$collection_xdis_id = Collection::getCollectionXDIS_ID();
+		$userPIDAuthGroups = Auth::getAuthorisationGroups($collection_pid);
+		$isCreator = (in_array("Creator", $userPIDAuthGroups) 
+				|| in_array("Community Administrator", $userPIDAuthGroups) 
+				|| in_array("Collection Administrator", $userPIDAuthGroups));
+		$tpl->assign("isCreator", $isCreator);
+		$isEditor = (in_array("Creator", $userPIDAuthGroups) 
+				|| in_array("Community Administrator", $userPIDAuthGroups) 
+				|| in_array("Editor", $userPIDAuthGroups) 
+				|| in_array("Collection Administrator", $userPIDAuthGroups));
+		$tpl->assign("isEditor", $isEditor);		
+		$list = Collection::getListing($collection_pid, $pagerRow, $rows, $order_by);
+	
+		$list_info = $list["info"];
+		$list = $list["list"];
+		$tpl->assign("list_heading", "List of Records in ".$collection_details[0]['title'][0]." Collection");
+		$tpl->assign("list_type", "collection_records_list");
+		$tpl->assign("collection_pid", $collection_pid);
+		$childXDisplayOptions = Collection::getChildXDisplayOptions($collection_pid);
+		if (count($childXDisplayOptions) > 0) {
+			$tpl->assign("childXDisplayOptions", $childXDisplayOptions);
+		} else {
+			$tpl->assign("childXDisplayOptions", 0);
+		}
 	} else {
-		$tpl->assign("childXDisplayOptions", 0);
+		$tpl->assign("show_not_allowed_msg", true);
 	}
 } elseif (!empty($community_pid)) {
+	if (empty($order_by)) {
+		$order_by = 'Title';
+	}
+
     // list collections in a community
-	$tpl->assign("community_pid", $community_pid);
-	$xdis_id = Collection::getCollectionXDIS_ID();
-	$community_xdis_id = Community::getCommunityXDIS_ID();
-	$userPIDAuthGroups = Auth::getAuthorisationGroups($community_pid);
-	$isCreator = (in_array("Creator", $userPIDAuthGroups));
-	$tpl->assign("isCreator", $isCreator);
-	$isEditor = (in_array("Creator", $userPIDAuthGroups) || in_array("Community Administrator", $userPIDAuthGroups) || in_array("Editor", $userPIDAuthGroups));
-	$tpl->assign("isEditor", $isEditor);
-	$tpl->assign("xdis_id", $xdis_id);	
-	$community_details = Community::getDetails($community_pid);
-	$list = Collection::getList($community_pid, $pagerRow, $rows, $order_by);
-	$list_info = $list["info"];
-	$list = $list["list"];
-	$tpl->assign("list_heading", "List of Collections in ".$community_details[0]['title'][0]." Community");
-	$tpl->assign("list_type", "collection_list");
-	$childXDisplayOptions = Community::getChildXDisplayOptions($community_pid);
-	if (count($childXDisplayOptions) > 0) {
-		$tpl->assign("childXDisplayOptions", $childXDisplayOptions);
+	// first check the user has view rights over the collection object
+	$record = new RecordObject($community_pid);
+	$tpl->assign("isViewer", $record->canView(true));
+	if ($record->canView()) {	
+		$tpl->assign("community_pid", $community_pid);
+		$xdis_id = Collection::getCollectionXDIS_ID();
+		$community_xdis_id = Community::getCommunityXDIS_ID();
+		$userPIDAuthGroups = Auth::getAuthorisationGroups($community_pid);
+		$isCreator = (in_array("Creator", $userPIDAuthGroups));
+		$tpl->assign("isCreator", $isCreator);
+		$isEditor = (in_array("Creator", $userPIDAuthGroups) || in_array("Community Administrator", $userPIDAuthGroups) || in_array("Editor", $userPIDAuthGroups));
+		$tpl->assign("isEditor", $isEditor);
+		$tpl->assign("xdis_id", $xdis_id);	
+		$community_details = Community::getDetails($community_pid);
+		$list = Collection::getListing($community_pid, $pagerRow, $rows, $order_by);
+		$list_info = $list["info"];
+		$list = $list["list"];
+		$tpl->assign("list_heading", "List of Collections in ".$community_details[0]['title'][0]." Community");
+		$tpl->assign("list_type", "collection_list");
+		$childXDisplayOptions = Community::getChildXDisplayOptions($community_pid);
+		if (count($childXDisplayOptions) > 0) {
+			$tpl->assign("childXDisplayOptions", $childXDisplayOptions);
+		} else {
+			$tpl->assign("childXDisplayOptions", 0);
+		}
 	} else {
-		$tpl->assign("childXDisplayOptions", 0);
+		$tpl->assign("show_not_allowed_msg", true);
 	}
 } elseif (!empty($terms)) {
+	if (empty($order_by)) {
+		$order_by = 'Title';
+	}
+
     // search Fez
 	$list = Collection::searchListing($terms, $pagerRow, $rows, $order_by);	
 	$list_info = $list["info"];
@@ -138,6 +162,10 @@ if (!empty($collection_pid)) {
 	$tpl->assign("list_heading", "Search Results ($terms)");
 	$tpl->assign("list_type", "all_records_list");
 } elseif ($cat == "search") {
+	if (empty($order_by)) {
+		$order_by = 'Title';
+	}
+
     // search 
 	$list = Collection::advSearchListing($pagerRow, $rows, $order_by);	
 	$list_info = $list["info"];
@@ -164,6 +192,7 @@ if (!empty($collection_pid)) {
 } elseif ($browse == "year") {
     // browse by year
 	$year = $_GET['year'];
+	$order_by = "Date";
 	if (is_numeric($year)) {	
 		$list = Collection::browseListing($pagerRow, $rows, "Date", $order_by);
 		$list_info = $list["info"];
@@ -194,6 +223,9 @@ if (!empty($collection_pid)) {
 	}
 	$tpl->assign("browse_type", "browse_author");
 } elseif ($browse == "subject") {
+	if (empty($order_by)) {
+		$order_by = 'Title';
+	}
     // browse by subject
 	$parent_id = $_GET['parent_id'];
 	if (is_numeric($parent_id)) {	
@@ -225,6 +257,9 @@ if (!empty($collection_pid)) {
 	$tpl->assign("browse_type", "browse_subject");
 } else {
     // list all communities
+	if (empty($order_by)) {
+		$order_by = 'Title';
+	}
 	$xdis_id = Community::getCommunityXDIS_ID();
 	$tpl->assign("xdis_id", $xdis_id);	
 	$list = Community::getList($pagerRow, $rows, $order_by);

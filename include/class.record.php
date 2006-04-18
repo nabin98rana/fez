@@ -255,12 +255,14 @@ class Record
      */
     function incrementFileDownloads($pid)
     {
-        $record = new RecordObject($pid);
-        if ($record->incrementFileDownloads()) {
-            return 1;
-        } else {
-            return -1;
-        }
+		if (!empty($pid)) {					
+			$record = new RecordObject($pid);
+			if ($record->incrementFileDownloads()) {
+				return 1;
+			} else {
+				return -1;
+			}
+		}
     }
 
 
@@ -1702,7 +1704,9 @@ class RecordObject extends RecordGeneral
 		} else {
 			$this->file_downloads = 0;
 		}
+
 		$this->file_downloads++;
+
 		$newXML = '<FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">';
 		$foundElement = false;
 		foreach ($xdis_array as $xkey => $xdata) {
@@ -1724,6 +1728,7 @@ class RecordObject extends RecordGeneral
 			$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement("!file_downloads", 15);
 			Record::removeIndexRecordByXSDMF_ID($this->pid, $xsdmf_id);
 			Record::insertIndexMatchingField($this->pid, '', $xsdmf_id, "int", $this->file_downloads);
+
 	    }
     }
 

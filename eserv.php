@@ -44,7 +44,6 @@ include_once(APP_INC_PATH . "class.fedora_api.php");
 $tpl = new Template_API();
 $tpl->setTemplate("view.tpl.html");
 
-
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
 $isAdministrator = User::isUserAdministrator($username);
@@ -144,9 +143,7 @@ if (!empty($pid) && !empty($dsID)) {
 		if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $HTTP_SERVER_VARS['PHP_SELF']."?".urlencode($HTTP_SERVER_VARS['QUERY_STRING'])) == true) {
 			$urldata = APP_FEDORA_GET_URL."/".$pid."/".$real_dsID; // this should stop them dang haxors (forces the http on the front for starters)
 			$urlpath = $urldata;
-			if ((!is_numeric(strpos($dsID, "thumbnail_"))) && (!is_numeric(strpos($dsID, "web_"))) && (!is_numeric(strpos($dsID, "preview_"))) && (!is_numeric(strpos($dsID, "presmd_"))) && (!is_numeric(strpos($dsID, "FezACML_"))) ) {
-				Record::incrementFileDownloads($pid); //increment FezMD.file_downloads counter
-			}
+			ob_start();
 		    header($header);
   	 		header('Content-Disposition: filename="'.substr($urldata, (strrpos($urldata, '/')+1) ).'"');
 		    header('Pragma: private');
@@ -163,7 +160,13 @@ if (!empty($pid) && !empty($dsID)) {
 			echo $sourceOAIRead;
 			*/
 			$data = Misc::processURL($urldata);
+
 			echo $data;
+			ob_end_flush(); // the incrementFileDownloads takes some (small) time so flush the file content out first
+			if ((!is_numeric(strpos($dsID, "thumbnail_"))) && (!is_numeric(strpos($dsID, "web_"))) && (!is_numeric(strpos($dsID, "preview_"))) && (!is_numeric(strpos($dsID, "presmd_"))) && (!is_numeric(strpos($dsID, "FezACML_"))) ) {
+				Record::incrementFileDownloads($pid); //increment FezMD.file_downloads counter
+			}
+
 /*			$tempDump = fopen($tempDumpFileName, 'w');
 
 			// Write the source xml to a temporary file to we can get the filesize (required for the content length header)

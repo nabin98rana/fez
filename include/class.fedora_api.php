@@ -217,7 +217,7 @@ class Fedora_API {
 		$itql = urlencode($itql); // encode it for url parsing
 		// create the fedora web service URL query string to run the ITQL
 //		$searchPhrase = "?type=tuples&lang=itql&format=Sparql&limit=1000&dt=on&query=".$itql;	
-		$searchPhrase = "?type=tuples&lang=itql&format=Sparql&dt=on&query=".$itql;	
+		$searchPhrase = "?type=tuples&lang=itql&format=Sparql&limit=&dt=on&query=".$itql;	
 		// format the return fields URL query string
 		// Should abstract the below for into a function in here
 		$stringfields = array();
@@ -231,10 +231,15 @@ class Fedora_API {
 		$xml = Misc::processURL($filename);
 		$xml = preg_replace("'<object uri\=\"info\:fedora\/(.*)\"\/>'", "<pid>\\1</pid>", $xml); // fix the pid tags	
 		// The query has returned XML. Parse the xml into a DOMDocument
-		$doc = DOMDocument::loadXML($xml);
+		$doc = @DOMDocument::loadXML($xml);
         if (!$doc) {
-            echo "Problem with ITQL response: ";
+            echo "The ITQL query failed. This is probably due to the Fez Fedora Kowari Resource Index being switched off in the fedora.fcfg config file.
+			<br/> To use the Fez Fedora maintenance reindexer tools the Kowari resource index needs to be turned on. To do this edit fedora.fcfg and change the value of resourceIndex from 0 to 1 then stop fedora. Then run fedora-rebuild
+			and choose option 1. After the Kowari resource index has been rebuilt start fedora. See more about the Kowari resource index config settings at http://www.fedora.info. 
+			<br/><br/> The Error returned from Fedora was: ";
+			echo "<pre>";
             echo nl2br(htmlspecialchars(print_r($xml,true)));
+			echo "</pre>";
             return array();
         }
 		$resultlist = array();	

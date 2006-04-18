@@ -95,7 +95,7 @@ class Reindex
         $start = $current_row * $max;
 		$fezIndexPIDs = Reindex::getIndexPIDList();
         $itql = "select \$title \$description \$object from <#ri>
-                 where ((\$object <dc:title> \$title) and
+                 where ((\$object <dc:title> \$title) or
                     (\$object <dc:description> \$description))
 					order by \$object asc";
 
@@ -147,7 +147,7 @@ class Reindex
     
 		$fezIndexPIDs = Reindex::getIndexPIDList();
         $itql = "select \$title \$description \$object from <#ri>
-                 where ((\$object <dc:title> \$title) and
+                 where ((\$object <dc:title> \$title) or
                     (\$object <dc:description> \$description))
 					order by \$object asc";
 

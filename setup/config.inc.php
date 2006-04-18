@@ -175,7 +175,7 @@ if (APP_FEDORA_SETUP == 'sslall') {
 
 @define("APP_DEFAULT_TIMEZONE", "UTC"); // Change this to your local timezone eg Australia/Brisbane. Fez will still store dates as UTC but will default display them as this timezone until the user has logged in with their preffered timezone user setting
 
-@define("APP_DEFAULT_PAGER_SIZE", 5);
+@define("APP_DEFAULT_PAGER_SIZE", 50);
 @define("APP_DEFAULT_REFRESH_RATE", 5); // in minutes
 
 @define("APP_SHADED_BAR", "gradient.gif");

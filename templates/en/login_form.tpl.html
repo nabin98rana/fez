@@ -17,13 +17,13 @@ function validateForm(f)
 //-->
 </script>
 {/literal}
-<form action="https://www.federation.org.au/level-1-wayf/WAYF" method="get">
-		    <input type="hidden" name="shire" value="https://dev-fez.library.uq.edu.au/Shibboleth.sso/SAML/POST" />
+<form name="IdPList" method="get">
+		    <input type="hidden" name="shire" value="https://dev-repo.library.uq.edu.au/Shibboleth.sso/SAML/POST" />
 		    <input type="hidden" name="target" value="cookie" />
+
+			    <input type="hidden" name="providerId" value="urn:mace:federation.org.au:testfed:level-1:dev-repo.library.uq.edu.au" />
 		    
-			    <input type="hidden" name="providerId" value="urn:mace:federation.org.au:testfed:level-1:dev-fez.library.uq.edu.au" />
-		    
-		    
+			    <input type="hidden" name="getArguments" value="{$getArguments}">
 				<input type="hidden" name="time" value="1142380709" />
 		    
 		    <input type="hidden" name="action" value="selection" />
@@ -190,7 +190,7 @@ function setFocus()
     if (!isWhitespace(document.login_form.username.value)) {
         document.login_form.passwd.focus();
     } else {
-        document.login_form.origin.focus();
+        document.IdPList.origin.focus();
     }
 }
 //-->
