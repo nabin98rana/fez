@@ -1483,6 +1483,13 @@ class RecordGeneral
         return $this->details[$xsdmf_id];
     }
 
+    function getDetailsByXSDMF_element($xsdmf_element)
+    {
+        $this->getDetails();
+        $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID($xsdmf_element); 
+        return @$this->details[$xsdmf_id];
+    }
+
     /**
      * isCollection
      * Is the record a Collection

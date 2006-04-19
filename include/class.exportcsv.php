@@ -74,6 +74,9 @@ class ExportCSV {
             $doctype = $record->getDocumentType();
             $csv->addValue($doctype,'Document Type');
 
+            $additional_notes = $record->getDetailsByXSDMF_element('!additional_notes');
+            $csv->addValue($additional_notes,'Additional Notes');
+
             // Metadata
             foreach ($datastreams as $ds) {
                 if ($ds['controlGroup'] == 'X' 
