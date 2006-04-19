@@ -690,13 +690,15 @@ class Record
 
                     ";
         $bodyStmt = "$bodyStmtPart1
-                  
-                    LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r5
-                    ON r5.rmf_rec_pid=$r4_join_field
+
+                    LEFT JOIN (select r5.rmf_rec_pid, r5.rmf_$data_type as sort_column
+					FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r5
                     inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x5
                     on r5.rmf_xsdmf_id = x5.xsdmf_id
                     inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s5
-                    on s5.sek_id = x5.xsdmf_sek_id AND s5.sek_title = '$order_by'
+                    on s5.sek_id = x5.xsdmf_sek_id AND s5.sek_title = '$order_by' order by r5.rmf_$data_type) as sort_table
+                    ON sort_table.rmf_rec_pid=$r4_join_field
+					group by r2.rmf_rec_pid
                     
              ";
 
@@ -710,7 +712,7 @@ class Record
             INNER JOIN {$dbtp}xsd_display_matchfields AS x1
             ON r1.rmf_xsdmf_id = x1.xsdmf_id
             INNER JOIN (
-                    SELECT distinct r2.rmf_rec_pid, r5.rmf_$data_type as sort_column
+                    SELECT distinct r2.rmf_rec_pid, sort_table.sort_column as sort_column
                     $bodyStmt
 					order by sort_column $order_dir, r2.rmf_rec_pid desc
                     LIMIT $start, $pageRows

@@ -159,82 +159,84 @@ if ($access_ok) {
     $tpl->assign("author_ids", $author_ids);
     //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
     foreach ($xsd_display_fields  as $dis_key => $dis_field) {
-        if ($dis_field["xsdmf_html_input"] == 'org_selector') {
-            if ($dis_field["xsdmf_org_level"] != "") {
-                $xsd_display_fields[$dis_key]['field_options'] = Org_Structure::getAssocListByLevel($dis_field["xsdmf_org_level"]);
-            }
-        }
-        if ($dis_field["xsdmf_html_input"] == 'author_selector') {
-            if ($dis_field["xsdmf_use_parent_option_list"] == 1) {
-                // Loop through the parents - there is only one parent for entering metadata
-                if (in_array($dis_field["xsdmf_parent_option_xdis_id"], $parent_relationships)) {
-                    foreach ($parents as $parent) {
-                        $parent_record = new RecordObject($parent['pid']);
-                        $parent_details = $parent_record->getDetails();
-                        if (is_numeric(@$parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]])) {
-                            $authors_sub_list = Org_Structure::getAuthorsByOrgID($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]]);
-                            $xsd_display_fields[$dis_key]['field_options'] = $authors_sub_list;
-                        }
-                    }
-                }
-            }
-        }
-		if ($dis_field["xsdmf_html_input"] == 'author_suggestor') {
-
-			foreach ($xsd_display_fields as $dis_key2 => $dis_field2) {
-				if ($dis_field2['xsdmf_id'] == $dis_field['xsdmf_asuggest_xsdmf_id']) {
-					$suggestor_count = $dis_field2['xsdmf_multiple_limit'];
+        if ($dis_field["xsdmf_enabled"] == 1) {
+			if ($dis_field["xsdmf_html_input"] == 'org_selector') {
+				if ($dis_field["xsdmf_org_level"] != "") {
+					$xsd_display_fields[$dis_key]['field_options'] = Org_Structure::getAssocListByLevel($dis_field["xsdmf_org_level"]);
 				}
 			}
-			
-			if (!is_numeric($suggestor_count)) {
-				$suggestor_count = 1;
+			if ($dis_field["xsdmf_html_input"] == 'author_selector') {
+				if ($dis_field["xsdmf_use_parent_option_list"] == 1) {
+					// Loop through the parents - there is only one parent for entering metadata
+					if (in_array($dis_field["xsdmf_parent_option_xdis_id"], $parent_relationships)) {
+						foreach ($parents as $parent) {
+							$parent_record = new RecordObject($parent['pid']);
+							$parent_details = $parent_record->getDetails();
+							if (is_numeric(@$parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]])) {
+								$authors_sub_list = Org_Structure::getAuthorsByOrgID($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]]);
+								$xsd_display_fields[$dis_key]['field_options'] = $authors_sub_list;
+							}
+						}
+					}
+				}
 			}
-			for ($x=1;$x<=$suggestor_count;$x++) {
-		     $tpl->headerscript .= "window.oTextbox_xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."_lookup
-                    = new AutoSuggestControl(document.wfl_form1, 'xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."', document.getElementById('xsd_display_fields_{$dis_field['xsdmf_asuggest_xsdmf_id']}_".$x."'), document.getElementById('xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."_lookup'),
-                            new StateSuggestions('Author',false,
-                                'class.author.php'));
-                    ";  			
+			if ($dis_field["xsdmf_html_input"] == 'author_suggestor') {
+	
+				foreach ($xsd_display_fields as $dis_key2 => $dis_field2) {
+					if ($dis_field2['xsdmf_id'] == $dis_field['xsdmf_asuggest_xsdmf_id']) {
+						$suggestor_count = $dis_field2['xsdmf_multiple_limit'];
+					}
+				}
+				
+				if (!is_numeric($suggestor_count)) {
+					$suggestor_count = 1;
+				}
+				for ($x=1;$x<=$suggestor_count;$x++) {
+				 $tpl->headerscript .= "window.oTextbox_xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."_lookup
+						= new AutoSuggestControl(document.wfl_form1, 'xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."', document.getElementById('xsd_display_fields_{$dis_field['xsdmf_asuggest_xsdmf_id']}_".$x."'), document.getElementById('xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."_lookup'),
+								new StateSuggestions('Author',false,
+									'class.author.php'));
+						";  			
+				}
+			}		
+			if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple') {
+				if (!empty($dis_field["xsdmf_smarty_variable"]) && $dis_field["xsdmf_smarty_variable"] != "none") {
+					eval("\$xsd_display_fields[\$dis_key]['field_options'] = " . $dis_field["xsdmf_smarty_variable"] . ";");
+				}
+				if (!empty($dis_field["xsdmf_dynamic_selected_option"]) && $dis_field["xsdmf_dynamic_selected_option"] != "none") {
+					eval("\$xsd_display_fields[\$dis_key]['selected_option'] = " . $dis_field["xsdmf_dynamic_selected_option"] . ";");
+				}
+	
+				if ($dis_field["xsdmf_use_parent_option_list"] == 1) { // if the display field inherits this list from a parent then get those options
+					// Loop through the parents
+					if (in_array($dis_field["xsdmf_parent_option_xdis_id"], $parent_relationships)) {
+						$parent_details = $parent_record->getDetails(); // this only works for one parent for now.. need to loop over them again
+						if (is_array($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]])) {
+							$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($dis_field["xsdmf_parent_option_child_xsdmf_id"]);
+							if ($xsdmf_details['xsdmf_smarty_variable'] != "" && $xsdmf_details['xsdmf_html_input'] == "multiple") {
+								$temp_parent_options = array();
+								$temp_parent_options_final = array();
+								eval("\$temp_parent_options = ". $xsdmf_details['xsdmf_smarty_variable'].";");
+								$xsd_display_fields[$dis_key]['field_options'] = array();
+								foreach ($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]] as $parent_smarty_option) {
+									if (array_key_exists($parent_smarty_option, $temp_parent_options)) {
+										$xsd_display_fields[$dis_key]['field_options'][$parent_smarty_option] = $temp_parent_options[$parent_smarty_option];
+									}
+								}
+							} else {
+								$xsd_display_fields[$dis_key]['field_options'] = array();
+								foreach ($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]] as $parent_detail_text) {
+									$xsd_display_fields[$dis_key]['field_options'][$parent_detail_text] = $parent_detail_text;
+								}
+							}
+						}
+					}
+				}	
+			}	
+			if ($dis_field["xsdmf_html_input"] == 'contvocab') {
+				$xsd_display_fields[$dis_key]['field_options'] = $cvo_list['data'][$dis_field['xsdmf_cvo_id']];
 			}
-		}		
-        if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple') {
-            if (!empty($dis_field["xsdmf_smarty_variable"]) && $dis_field["xsdmf_smarty_variable"] != "none") {
-                eval("\$xsd_display_fields[\$dis_key]['field_options'] = " . $dis_field["xsdmf_smarty_variable"] . ";");
-            }
-            if (!empty($dis_field["xsdmf_dynamic_selected_option"]) && $dis_field["xsdmf_dynamic_selected_option"] != "none") {
-                eval("\$xsd_display_fields[\$dis_key]['selected_option'] = " . $dis_field["xsdmf_dynamic_selected_option"] . ";");
-            }
-
-            if ($dis_field["xsdmf_use_parent_option_list"] == 1) { // if the display field inherits this list from a parent then get those options
-                // Loop through the parents
-                if (in_array($dis_field["xsdmf_parent_option_xdis_id"], $parent_relationships)) {
-                    $parent_details = $parent_record->getDetails(); // this only works for one parent for now.. need to loop over them again
-                    if (is_array($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]])) {
-                        $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($dis_field["xsdmf_parent_option_child_xsdmf_id"]);
-                        if ($xsdmf_details['xsdmf_smarty_variable'] != "" && $xsdmf_details['xsdmf_html_input'] == "multiple") {
-                            $temp_parent_options = array();
-                            $temp_parent_options_final = array();
-                            eval("\$temp_parent_options = ". $xsdmf_details['xsdmf_smarty_variable'].";");
-                            $xsd_display_fields[$dis_key]['field_options'] = array();
-                            foreach ($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]] as $parent_smarty_option) {
-                                if (array_key_exists($parent_smarty_option, $temp_parent_options)) {
-                                    $xsd_display_fields[$dis_key]['field_options'][$parent_smarty_option] = $temp_parent_options[$parent_smarty_option];
-                                }
-                            }
-                        } else {
-                            $xsd_display_fields[$dis_key]['field_options'] = array();
-                            foreach ($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]] as $parent_detail_text) {
-                                $xsd_display_fields[$dis_key]['field_options'][$parent_detail_text] = $parent_detail_text;
-                            }
-                        }
-                    }
-                }
-            }	
-        }	
-        if ($dis_field["xsdmf_html_input"] == 'contvocab') {
-            $xsd_display_fields[$dis_key]['field_options'] = $cvo_list['data'][$dis_field['xsdmf_cvo_id']];
-        }
+		}
     }
 
     $tpl->assign("xsd_display_fields", $xsd_display_fields);
@@ -247,42 +249,44 @@ if ($access_ok) {
     $controlled_vocabs = Controlled_Vocab::getAssocListAll();
     //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
     foreach ($xsd_display_fields  as $dis_field) {
-        if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'contvocab' || $dis_field["xsdmf_html_input"] == 'contvocab_selector') {
-            if (@$details[$dis_field["xsdmf_id"]]) { // if a record detail matches a display field xsdmf entry
-                if ($dis_field["xsdmf_html_input"] == 'contvocab_selector') {			
-                    $tempArray = $details[$dis_field["xsdmf_id"]];
-                    if (is_array($tempArray)) {
-                        $details[$dis_field["xsdmf_id"]] = array();
-                        foreach ($tempArray as $cv_key => $cv_value) {
-                            $details[$dis_field["xsdmf_id"]][$cv_value] = $controlled_vocabs[$cv_value];
-                        }
-                    } else {
-                        $tempValue = $details[$dis_field["xsdmf_id"]];
-                        $details[$dis_field["xsdmf_id"]] = array();
-                        $details[$dis_field["xsdmf_id"]][$tempValue] = $controlled_vocabs[$tempValue];
-
-                    }				
-                } elseif (is_array($dis_field["field_options"])) { // if the display field has a list of matching options
-                    foreach ($dis_field["field_options"] as $field_key => $field_option) { // for all the matching options match the set the details array the template uses
-                        if (is_array($details[$dis_field["xsdmf_id"]])) { // if there are multiple selected options (it will be an array)
-                            foreach ($details[$dis_field["xsdmf_id"]] as $detail_key => $detail_value) {
-                                if ($field_option == $detail_value) {
-                                    $details[$dis_field["xsdmf_id"]][$detail_key] = $field_key;
-                                }
-                            }					
-                        } else {
-                            if ($field_option == $details[$dis_field["xsdmf_id"]]) {
-                                $details[$dis_field["xsdmf_id"]] = $field_key;
-                            }
-                        }
-                    }
-                }
-            }
-        } elseif (($dis_field["xsdmf_multiple"] == 1) && (!@is_array($details[$dis_field["xsdmf_id"]])) ){ // makes the 'is_multiple' tagged display fields into arrays if they are not already so smarty renders them correctly
-            $tmp_value = @$details[$dis_field["xsdmf_id"]];
-            $details[$dis_field["xsdmf_id"]] = array();
-            array_push($details[$dis_field["xsdmf_id"]], $tmp_value);
-        }
+		if ($dis_field["xsdmf_enabled"] == 1) {
+			if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'contvocab' || $dis_field["xsdmf_html_input"] == 'contvocab_selector') {
+				if (@$details[$dis_field["xsdmf_id"]]) { // if a record detail matches a display field xsdmf entry
+					if ($dis_field["xsdmf_html_input"] == 'contvocab_selector') {			
+						$tempArray = $details[$dis_field["xsdmf_id"]];
+						if (is_array($tempArray)) {
+							$details[$dis_field["xsdmf_id"]] = array();
+							foreach ($tempArray as $cv_key => $cv_value) {
+								$details[$dis_field["xsdmf_id"]][$cv_value] = $controlled_vocabs[$cv_value];
+							}
+						} else {
+							$tempValue = $details[$dis_field["xsdmf_id"]];
+							$details[$dis_field["xsdmf_id"]] = array();
+							$details[$dis_field["xsdmf_id"]][$tempValue] = $controlled_vocabs[$tempValue];
+	
+						}				
+					} elseif (is_array($dis_field["field_options"])) { // if the display field has a list of matching options
+						foreach ($dis_field["field_options"] as $field_key => $field_option) { // for all the matching options match the set the details array the template uses
+							if (is_array($details[$dis_field["xsdmf_id"]])) { // if there are multiple selected options (it will be an array)
+								foreach ($details[$dis_field["xsdmf_id"]] as $detail_key => $detail_value) {
+									if ($field_option == $detail_value) {
+										$details[$dis_field["xsdmf_id"]][$detail_key] = $field_key;
+									}
+								}					
+							} else {
+								if ($field_option == $details[$dis_field["xsdmf_id"]]) {
+									$details[$dis_field["xsdmf_id"]] = $field_key;
+								}
+							}
+						}
+					}
+				}		
+			} elseif (($dis_field["xsdmf_multiple"] == 1) && (!@is_array($details[$dis_field["xsdmf_id"]])) ){ // makes the 'is_multiple' tagged display fields into arrays if they are not already so smarty renders them correctly
+				$tmp_value = @$details[$dis_field["xsdmf_id"]];
+				$details[$dis_field["xsdmf_id"]] = array();
+				array_push($details[$dis_field["xsdmf_id"]], $tmp_value);
+			}
+		}
     }
     $securityfields = Auth::getAllRoles();
     $datastreams = Fedora_API::callGetDatastreams($pid);

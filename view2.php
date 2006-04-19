@@ -86,70 +86,71 @@ if (!empty($pid)) {
 		}
 		
 		foreach ($xsd_display_fields as $dis_key => $dis_field) {
-			if (($dis_field['xsdmf_html_input'] == "contvocab") || ($dis_field['xsdmf_html_input'] == "contvocab_selector")) {
-				if (!empty($details[$dis_field['xsdmf_id']])) {
-					if (is_array($details[$dis_field['xsdmf_id']])) {
-						foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
-							$details[$dis_field['xsdmf_id']][$ckey] = $controlled_vocabs[$cdata];
-						}
-					} else {
-						$details[$dis_field['xsdmf_id']] = $controlled_vocabs[$details[$dis_field['xsdmf_id']]];
-					}
-				}
-			}
-			if ($dis_field['xsdmf_data_type'] == "date") {
-				if (!empty($details[$dis_field['xsdmf_id']])) {
-					if (is_array($details[$dis_field['xsdmf_id']])) {
-						foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
-							$details[$dis_field['xsdmf_id']][$ckey] = $details[$cdata];
-						}
-					} else {
-						$tempDate = new Date($details[$dis_field['xsdmf_id']]);
-//						$tempDate->format
-						if ($details[$dis_field['xsdmf_attached_xsdmf_id']] == 1) {
-							$details[$dis_field['xsdmf_id']] = substr($details[$dis_field['xsdmf_id']], 0, 4);
-						} elseif ($details[$dis_field['xsdmf_attached_xsdmf_id']] == 2) {
-							$details[$dis_field['xsdmf_id']] = substr($details[$dis_field['xsdmf_id']], 0, 7);
+			if (($dis_field['xsdmf_enabled'] == 1) && ($dis_field['xsdmf_show_in_view'] == 1)) {
+				if (($dis_field['xsdmf_html_input'] == "contvocab") || ($dis_field['xsdmf_html_input'] == "contvocab_selector")) {
+					if (!empty($details[$dis_field['xsdmf_id']])) {
+						if (is_array($details[$dis_field['xsdmf_id']])) {
+							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
+								$details[$dis_field['xsdmf_id']][$ckey] = $controlled_vocabs[$cdata];
+							}
+						} else {
+							$details[$dis_field['xsdmf_id']] = $controlled_vocabs[$details[$dis_field['xsdmf_id']]];
 						}
 					}
 				}
-			} 
-			if ($dis_field['xsdmf_html_input'] == "author_selector") {
-				if (!empty($details[$dis_field['xsdmf_id']])) {
-					if (is_array($details[$dis_field['xsdmf_id']])) {
-						foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
-							$details[$dis_field['xsdmf_id']][$ckey] = $author_list[$cdata];
+				if ($dis_field['xsdmf_data_type'] == "date") {
+					if (!empty($details[$dis_field['xsdmf_id']])) {
+						if (is_array($details[$dis_field['xsdmf_id']])) {
+							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
+								$details[$dis_field['xsdmf_id']][$ckey] = $details[$cdata];
+							}
+						} else {
+							$tempDate = new Date($details[$dis_field['xsdmf_id']]);
+	//						$tempDate->format
+							if ($details[$dis_field['xsdmf_attached_xsdmf_id']] == 1) {
+								$details[$dis_field['xsdmf_id']] = substr($details[$dis_field['xsdmf_id']], 0, 4);
+							} elseif ($details[$dis_field['xsdmf_attached_xsdmf_id']] == 2) {
+								$details[$dis_field['xsdmf_id']] = substr($details[$dis_field['xsdmf_id']], 0, 7);
+							}
 						}
-					} else {
-						$details[$dis_field['xsdmf_id']] = $author_list[$details[$dis_field['xsdmf_id']]];
 					}
-				}
-			} 
-			if ($dis_field["xsdmf_use_parent_option_list"] == 1) { 
-                // if the display field inherits this list from a parent then get those options
-				// Loop through the parents
-				foreach ($parent_relationships as $pkey => $prel) {
-					if (in_array($dis_field["xsdmf_parent_option_xdis_id"], $prel)) {
-						$parent_record = new RecordObject($pkey);
-						$parent_details = $parent_record->getDetails();
-						if (is_array($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]])) {
-							$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($dis_field["xsdmf_parent_option_child_xsdmf_id"]);
-							if ($xsdmf_details['xsdmf_smarty_variable'] != "" && $xsdmf_details['xsdmf_html_input'] == "multiple") {
-								$temp_parent_options = array();
-								$temp_parent_options_final = array();
-								eval("\$temp_parent_options = ". $xsdmf_details['xsdmf_smarty_variable'].";");
-								$xsd_display_fields[$dis_key]['field_options'] = array();
-								foreach ($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]] as $parent_smarty_option) {
-									if (array_key_exists($details[$dis_field['xsdmf_id']], $temp_parent_options)) {
-										$details[$dis_field['xsdmf_id']] = $temp_parent_options[$details[$dis_field['xsdmf_id']]];
+				} 
+				if ($dis_field['xsdmf_html_input'] == "author_selector") {
+					if (!empty($details[$dis_field['xsdmf_id']])) {
+						if (is_array($details[$dis_field['xsdmf_id']])) {
+							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
+								$details[$dis_field['xsdmf_id']][$ckey] = $author_list[$cdata];
+							}
+						} else {
+							$details[$dis_field['xsdmf_id']] = $author_list[$details[$dis_field['xsdmf_id']]];
+						}
+					}
+				} 
+				if ($dis_field["xsdmf_use_parent_option_list"] == 1) { 
+					// if the display field inherits this list from a parent then get those options
+					// Loop through the parents
+					foreach ($parent_relationships as $pkey => $prel) {
+						if (in_array($dis_field["xsdmf_parent_option_xdis_id"], $prel)) {
+							$parent_record = new RecordObject($pkey);
+							$parent_details = $parent_record->getDetails();
+							if (is_array($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]])) {
+								$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($dis_field["xsdmf_parent_option_child_xsdmf_id"]);
+								if ($xsdmf_details['xsdmf_smarty_variable'] != "" && $xsdmf_details['xsdmf_html_input'] == "multiple") {
+									$temp_parent_options = array();
+									$temp_parent_options_final = array();
+									eval("\$temp_parent_options = ". $xsdmf_details['xsdmf_smarty_variable'].";");
+									$xsd_display_fields[$dis_key]['field_options'] = array();
+									foreach ($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]] as $parent_smarty_option) {
+										if (array_key_exists($details[$dis_field['xsdmf_id']], $temp_parent_options)) {
+											$details[$dis_field['xsdmf_id']] = $temp_parent_options[$details[$dis_field['xsdmf_id']]];
+										}
 									}
 								}
 							}
 						}
 					}
-				}
-			}	
-			
+				}	
+			}
 		}
 		foreach ($details as $dkey => $dvalue) { // turn any array values into a comma seperated string value
 			if (is_array($dvalue)) {

@@ -139,14 +139,14 @@ function validateForm(f)
 //-->
 </script>
 {/literal}
-<table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+<table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="0" align="center">
   <tr>
     <td>
-    <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+    <table bgcolor="#FFFFFF" width="100%" cellspacing="0" cellpadding="0" border="0">
     <tr>
     <td width="50%" valign="top">
       <input type="hidden" name="cat" value="assign">
-      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="1" border="0">
 
         <tr>
           <td align="left" class="default" nowrap colspan="2"><br /><img align="absmiddle" src="{$rel_url}images/record_view_32.jpg"/> <b>View {$xdis_title} Details: </b> <br /><br /></td>
@@ -174,7 +174,7 @@ function validateForm(f)
 
                 <tr>
                 <td>
-                <table cellpadding="3" cellspacing="1">
+                <table cellpadding="3" cellspacing="1" width="100%">
 
         {section name="i" loop=$xsd_display_fields}
 		{if $xsd_display_fields[i].xsdmf_html_input != 'static' and $xsd_display_fields[i].xsdmf_show_in_view == 1 and $xsd_display_fields[i].xsdmf_html_input != 'xsdmf_id_ref' and $xsd_display_fields[i].xsdmf_html_input != 'xsd_ref' and $xsd_display_fields[i].xsdmf_html_input != ''}

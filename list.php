@@ -86,7 +86,6 @@ if (!empty($collection_pid)) {
 	
 		$tpl->assign("xdis_id", Record::getRecordXDIS_ID());
 		$collection_details = Collection::getDetails($collection_pid);
-	//	print_r($collection_details);
 		$parents = Collection::getParents($collection_pid);
 		$tpl->assign("parents", $parents);
 		$collection_xdis_id = Collection::getCollectionXDIS_ID();
@@ -101,7 +100,6 @@ if (!empty($collection_pid)) {
 				|| in_array("Collection Administrator", $userPIDAuthGroups));
 		$tpl->assign("isEditor", $isEditor);		
 		$list = Collection::getListing($collection_pid, $pagerRow, $rows, $order_by);
-	
 		$list_info = $list["info"];
 		$list = $list["list"];
 		$tpl->assign("list_heading", "List of Records in ".$collection_details[0]['title'][0]." Collection");
