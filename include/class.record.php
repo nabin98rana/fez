@@ -1293,8 +1293,12 @@ class RecordGeneral
     function checkAuth($roles, $redirect=true) {
         global $HTTP_SERVER_VARS;
         $this->getAuth();
+        $ret_url = $HTTP_SERVER_VARS['PHP_SELF'];
+        if (!empty($HTTP_SERVER_VARS['QUERY_STRING'])) {
+            $ret_url .= "?".$HTTP_SERVER_VARS['QUERY_STRING'];
+        }
 		return Auth::checkAuthorisation($this->pid, "", $roles, 
-                    $HTTP_SERVER_VARS['PHP_SELF']."?".$HTTP_SERVER_VARS['QUERY_STRING'], $this->auth_groups, $redirect); 
+                    $ret_url, $this->auth_groups, $redirect); 
     }
     
     /**

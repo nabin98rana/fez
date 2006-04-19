@@ -163,7 +163,9 @@ Running Processes
 <td id="{$bgp_list[iii].bgp_id}_heartbeat">{$bgp_list[iii].bgp_heartbeat}</td>
 <td id="{$bgp_list[iii].bgp_id}_state">{assign var="bgp_state" value=$bgp_list[iii].bgp_state}
 <td ><a href="javascript:void(0);" onclick="showBgpLog('{$bgp_list[iii].bgp_id}')"
-><img src="{$rel_url}images/system_16.png" alt="log" border="0" /></a> </td>
+><img src="{$rel_url}images/system_16.png" alt="log" border="0" /></a> 
+<a href="{$rel_url}get_bgp_file.php?bgp_id={$bgp_list[iii].bgp_id}"><img 
+   src="{$rel_url}images/file.gif" alt="Get exported file" border="0"  /></a></td>
 
 <script type="text/javascript" language="JavaScript">
 <!--

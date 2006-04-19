@@ -44,15 +44,29 @@ class BackgroundProcessList
     function delete($items) 
     {
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        foreach ($items as $item) {
+            BackgroundProcessList::deleteLog($item);
+        }
         $items_str = Misc::arrayToSQL($items);
+
+        // get the filenames and delete them
+        $stmt = "SELECT bgp_filename FROM {$dbtp}background_process WHERE bgp_id IN ($items_str) ";
+        $res = $GLOBALS['db_api']->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        }
+        foreach ($res as $filename) {
+            if (!empty($filename)) {
+                $deleteCommand = APP_DELETE_CMD." $filename";
+                exec($deleteCommand);
+            }
+        }
+
         $stmt = "DELETE FROM {$dbtp}background_process WHERE bgp_id IN ($items_str) ";
         $res = $GLOBALS['db_api']->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
-        }
-        foreach ($items as $item) {
-            BackgroundProcessList::deleteLog($item);
         }
         return 1;
     }
@@ -68,7 +82,6 @@ class BackgroundProcessList
         exec($deleteCommand);
     }
 
-   
 }
 
 ?>

@@ -341,6 +341,7 @@ class Collection
 
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $order_by = 'Title';
+        $order_dir = 'asc';
         $sekdet = Search_Key::getDetailsByTitle($order_by);
         $data_type = $sekdet['xsdmf_data_type'];
         $restrict_community = '';
@@ -1068,7 +1069,7 @@ class Collection
 		// If the user is a Fez Administrator then don't check for security, give them everything
 		$isAdministrator = Auth::isAdministrator();  
 		if ($isAdministrator === true) {
-			return array('' => $authStmt, '' => $joinStmt); // turned off for testing
+			return array('authStmt' => '', 'joinStmt' => ''); // turned off for testing
 		}
 
 

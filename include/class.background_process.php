@@ -96,6 +96,38 @@ class BackgroundProcess {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
         }
     }
+
+    function setExportFilename($filename, $headers)
+    {
+        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $filename = Misc::escapeString($filename);
+        $headers = Misc::escapeString($headers);
+        $stmt = "UPDATE {$dbtp}background_process SET 
+            bgp_filename='$filename',
+            bgp_headers='$headers'
+            WHERE bgp_id='{$this->bgp_id}'";
+        $res = $GLOBALS['db_api']->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        }
+    }
+
+    function getExportFile()
+    {
+        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $stmt = "SELECT bgp_filename, bgp_headers FROM {$dbtp}background_process WHERE bgp_id='{$this->bgp_id}'";
+        $res = $GLOBALS['db_api']->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        }
+        $str = file_get_contents($res['bgp_filename']);
+        $headers = explode("\n", $res['bgp_headers']);
+        foreach ($headers as $head) {
+            header($head);
+        }
+        echo $str;
+        exit;
+    }
  
     /***** APACHE SIDE *****/
     
