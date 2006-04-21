@@ -29,7 +29,7 @@ function validateForm(f)
 		    
 		    <input type="hidden" name="action" value="selection" />
 		    <input type="hidden" name="cache" value="false" />
-<table align="center" width="400" border="0" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF">
+<table align="center" width="500" border="0" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF">
   <tr>
     <td>
             <br /><br />
@@ -44,7 +44,7 @@ function validateForm(f)
     </td>
   </tr>
 </table>
-<table align="center" width="400" border="0" cellspacing="0" cellpadding="1" bgcolor="#000000">
+<table align="center" width="500" border="0" cellspacing="0" cellpadding="1" bgcolor="#000000">
   <tr>
     <td>
       <table bgcolor="#FFFFFF" width="100%" border="0" cellspacing="0" cellpadding="4">
@@ -84,7 +84,13 @@ function validateForm(f)
 		{/if}	
 
 
-<table align="center" width="400" border="0" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF">
+
+<form name="login_form" onSubmit="javascript:return checkFormSubmission(this, 'validateForm');" method="post" action="index.php">
+<input type="hidden" name="cat" value="login">
+<input type="hidden" name="url" value="{$smarty.get.url}">
+
+
+<table align="center" width="500" border="0" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF">
   <tr>
     <td>
             <br /><br />
@@ -99,12 +105,7 @@ function validateForm(f)
   </tr>
 </table>
 
-
-<form name="login_form" onSubmit="javascript:return checkFormSubmission(this, 'validateForm');" method="post" action="index.php">
-<input type="hidden" name="cat" value="login">
-<input type="hidden" name="url" value="{$smarty.get.url}">
-
-<table align="center" width="400" border="0" cellspacing="0" cellpadding="1" bgcolor="#000000">
+<table align="center" width="500" border="0" cellspacing="0" cellpadding="1" bgcolor="#000000">
   <tr>
     <td>
       <table bgcolor="#FFFFFF" width="100%" border="0" cellspacing="0" cellpadding="4">
@@ -150,15 +151,15 @@ function validateForm(f)
         </tr>
         {/if}
         <tr>
-          <td align="right" width="40%" class="default" bgcolor="{$cell_color}"><b>{if $SHIB_SWITCH != "ON"}{if $ldap_switch == "ON"}{$org_short_name} or {/if}{$application_title}{/if} <u>U</u>sername:</b></td>
-          <td width="60%" bgcolor="{$cell_color}">
+          <td align="right"  class="default" bgcolor="{$cell_color}" valign="middle" nowrap><b>{if $SHIB_SWITCH != "ON"}{if $ldap_switch == "ON"}{$org_short_name} or {/if}{$application_title}{/if} <u>U</u>sername:</b></td>
+          <td width="60%" bgcolor="{$cell_color}" valign="bottom" nowrap>
             <input accessKey="U" class="default" type="text" name="username" value="{$username|default:$smarty.get.username}" size="30">
             {include file="error_icon.tpl.html" field="username"}
           </td>
         </tr>
         <tr>
-          <td align="right" width="40%" class="default" bgcolor="{$cell_color}"><b><u>P</u>assword:</b></td>
-          <td width="60%" bgcolor="{$cell_color}">
+          <td align="right"  class="default" bgcolor="{$cell_color}" valign="middle"><b><u>P</u>assword:</b></td>
+          <td width="60%" bgcolor="{$cell_color}" valign="middle">
             <input accessKey="p" class="default" type="password" name="passwd" size="30" maxlength="32">
             {include file="error_icon.tpl.html" field="passwd"}
           </td>
@@ -185,7 +186,13 @@ function setFocus()
     if (!isWhitespace(document.login_form.username.value)) {
         document.login_form.passwd.focus();
     } else {
+		{/literal}
+		{if SHIB_SWITCH == "ON"}
         document.IdPList.origin.focus();
+		{else}
+        document.login_form.username.focus();		
+		{/if}
+		{literal}
     }
 }
 //-->

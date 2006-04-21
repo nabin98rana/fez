@@ -87,6 +87,17 @@ h4 {
   font-weight: bold;
   font-size: 60%;
 }
+.author_link {
+  font-weight: bold;
+  color: #000000;
+  text-decoration : none;
+}
+.author_link:hover {
+  text-decoration: underline;
+}
+.author_link#author_link {
+  text-decoration: underline;
+}
 .white_link {
   color: #FFFFFF;
   text-decoration: underline;
