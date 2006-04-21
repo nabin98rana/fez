@@ -1860,7 +1860,7 @@ class Collection
      * @param   integer $max The maximum number of records to return	 
      * @return  array The list of Fez objects matching the search criteria
      */
-    function searchListing($terms, $current_row = 0, $max = 25, $order_by='Title')
+    function searchListing($terms, $current_row = 0, $max = 25, $order_by='Relevance')
     {
 		if (empty($terms)) {
 			return array();
@@ -1868,10 +1868,9 @@ class Collection
         if (empty($order_by)) {
             $order_by = $searchKey;
             if (empty($order_by)) {
-                $order_by = 'Title';
+                $order_by = 'Relevance';
             }
         }
-	
 
 		if ($max == "ALL") {
             $max = 9999999;
@@ -1884,10 +1883,10 @@ class Collection
 		$termCounter = 100;
         $sekdet = Search_Key::getDetailsByTitle($order_by);
         $data_type = $sekdet['xsdmf_data_type'];
-        $order_dir = ' asc ';
-		$termArray = explode(" ", $terms);
-        $termLike = '';
-		foreach ($termArray as $key => $data) {
+
+//		$termArray = explode(" ", $terms);
+//        $termLike = '';
+/*		foreach ($termArray as $key => $data) {
 			if ($termLike == "") {
 				$termLike = "(";
 			} else {
@@ -1896,7 +1895,9 @@ class Collection
 			$termLike .= " match (r2.rmf_varchar) against ('*".$data."*' IN BOOLEAN MODE) ";
 			
 		}
-		$termLike .= ") ";
+		$termLike .= ") ";*/
+		$termLike = " match (r2.rmf_varchar) against ('*".$terms."*' IN BOOLEAN MODE) ";
+		$termRelevance = " match (r2.rmf_varchar) against ('".$terms."') as Relevance";
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
 
         if (!empty($authStmt)) {
@@ -1919,17 +1920,32 @@ class Collection
                       ON r4.rmf_xsdmf_id = x4.xsdmf_id AND x4.xsdmf_element='!sta_id'
 
                     ";
-        $bodyStmt = "$bodyStmtPart1
-                  
-                    LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r5
-                    ON r5.rmf_rec_pid=r4.rmf_rec_pid
-                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x5
-                    on r5.rmf_xsdmf_id = x5.xsdmf_id
-                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s5
-                    on s5.sek_id = x5.xsdmf_sek_id AND s5.sek_title = '$order_by'
-                    
-             ";
 
+		$sortColumn = "";
+		if ($order_by == "Relevance") {
+	        $order_dir = ' desc ';
+			$orderRelevance = " Relevance DESC ";
+			$bodyStmt = $bodyStmtPart1;
+			$sortColumn = "";
+			$sortBy = "";			
+			$sortFinal = "display.Relevance".$order_dir;
+		} else {
+			$sortColumn = " r5.rmf_$data_type as sort_column,";
+	        $order_dir = ' asc ';
+			$sortBy = " sort_column ".$order_dir;
+			$sortFinal = "display.sort_column".$order_dir;
+
+			$bodyStmt = "$bodyStmtPart1
+					  
+						LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r5
+						ON r5.rmf_rec_pid=r4.rmf_rec_pid
+						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x5
+						on r5.rmf_xsdmf_id = x5.xsdmf_id
+						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s5
+						on s5.sek_id = x5.xsdmf_sek_id AND s5.sek_title = '$order_by'
+						
+				 ";
+		}
         $countStmt = "
                     SELECT count(distinct r2.rmf_rec_pid)
                     $bodyStmtPart1
@@ -1937,14 +1953,14 @@ class Collection
         //echo $countStmt;
 
         
-        $stmt = "SELECT  r1.*, x1.*, s1.*, k1.*, d1.* 
+        $stmt = "SELECT  r1.*, x1.*, s1.*, k1.*, d1.*, display.Relevance
             FROM {$dbtp}record_matching_field AS r1
             INNER JOIN {$dbtp}xsd_display_matchfields AS x1
             ON r1.rmf_xsdmf_id = x1.xsdmf_id
             INNER JOIN (
-                    SELECT distinct r2.rmf_rec_pid, r5.rmf_$data_type as sort_column
+                    SELECT distinct r2.rmf_rec_pid, $sortColumn $termRelevance
                     $bodyStmt
-					order by sort_column $order_dir, r2.rmf_rec_pid desc
+					order by $orderRelevance $sortBy 
                     LIMIT $start, $max
                     ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid 
             LEFT JOIN {$dbtp}xsd_loop_subelement s1 
@@ -1953,11 +1969,11 @@ class Collection
             ON (k1.sek_id = x1.xsdmf_sek_id)
             LEFT JOIN {$dbtp}xsd_display d1  
             ON (d1.xdis_id = r1.rmf_varchar and k1.sek_title = 'Display Type')
-            ORDER BY display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
+            ORDER BY $sortFinal ";
 		$securityfields = Auth::getAllRoles();
-//		echo $stmt;
+
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-		
+
 		$return = array();
 		foreach ($res as $result) {
 			if (in_array($result['xsdsel_title'], $securityfields) 
@@ -1966,6 +1982,9 @@ class Collection
                 // need to array_push because there can be multiple groups/users for a role
 				$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']][] 
                     = $result['rmf_'.$result['xsdmf_data_type']]; 
+			}
+			if (!empty($result['Relevance']) && empty($return[$result['rmf_rec_pid']]['Relevance'])) {
+                $return[$result['rmf_rec_pid']]['Relevance'] = round($result['Relevance'], 2);
 			}
 			if ($result['sek_title'] == 'isMemberOf') {
                 $return[$result['rmf_rec_pid']]['isMemberOf'][] = $result['rmf_varchar'];

@@ -434,11 +434,14 @@ function purgeObject(pid)
                         >...</a> 
 
                         {/if}
-		        {if $list[i].file_downloads}({$list[i].file_downloads.0|escape:"html"} File Downloads){/if} 
-		    </td>
+
+
+		    </td><td align="right">{if $list[i].Relevance} (Search Relevance: <b>{$list[i].Relevance}</b>)<br />{/if}
+					        {if $list[i].file_downloads}({$list[i].file_downloads.0|escape:"html"} File Downloads){/if} </td>
+
 		</tr>
 	        <tr>
-                    <td>
+                    <td colspan="2">
                        {if $list[i].author}<b>{section name="author_loop" loop=$list[i].author}{assign var="next_author" value=$smarty.section.author_loop.index+1}{$list[i].author[author_loop]|escape:"html"}{if $list[i].author[$next_author] != ""} and {/if}{/section}</b>{if $list[i].date.0} {else}<br />{/if}{/if}{if $list[i].date.0}({$list[i].date.0|date_format:"%Y"})<br />{/if}
                 	   {if $list[i].research_program.0}{$list[i].research_program.0|escape:"html"}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'} - <i>{$list[i].xdis_title.0|escape:"html"}</i>{/if}<br />{else}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'}<i>{$list[i].xdis_title.0|escape:"html"}</i><br />{/if}{/if}
                        {if $list[i].description.0}{$list[i].description.0|escape:"html"}{if ($list[i].description.0|count_characters > 200)}...{/if}<br />{/if}

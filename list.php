@@ -150,7 +150,7 @@ if (!empty($collection_pid)) {
 	}
 } elseif (!empty($terms)) {
 	if (empty($order_by)) {
-		$order_by = 'Title';
+		$order_by = 'Relevance';
 	}
 
     // search Fez
@@ -274,6 +274,9 @@ if (!empty($collection_pid)) {
 $order_by_list = array();
 foreach (Search_Key::getAssocList() as $key => $value) {
     $order_by_list[$value] = $value;
+}
+if (!empty($terms)) {
+	$order_by_list['Relevance'] = "Search Relevance";
 }
 $tpl->assign('order_by_list', $order_by_list);
 
