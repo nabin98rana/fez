@@ -54,6 +54,11 @@ $NonRestrictedRoles = array("Viewer","Lister","Comment_Viewer");
 global $defaultRoles;
 $defaultRoles = array("Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 
+global $auth_isBGP;
+global $auth_bgp_obj;
+
+$auth_isBGP = false;
+
 class Auth
 {
     /**
@@ -83,24 +88,29 @@ class Auth
      */
     function checkAuthentication($session_name, $failed_url = NULL, $is_popup = false)
     {
-        global $HTTP_SERVER_VARS;
+        global $HTTP_SERVER_VARS, $auth_isBGP, $auth_bgp_obj;
 
-        session_name(APP_SESSION);
-        @session_start();
-
-        if (empty($failed_url)) {
-            $failed_url = APP_RELATIVE_URL . "login.php?err=5";
+        if ($auth_isBGP) {
+            $ses =& $auth_bgp_obj->getSession();
         } else {
-            $failed_url = APP_RELATIVE_URL . "login.php?err=21&url=".$failed_url;
-		}
-        
-        if (!Auth::isValidSession($_SESSION)) {
-            Auth::removeSession($session_name);
-            Auth::redirect($failed_url, $is_popup);
+            session_name(APP_SESSION);
+            @session_start();
+            $ses =& $_SESSION;
+            if (empty($failed_url)) {
+                $failed_url = APP_RELATIVE_URL . "login.php?err=5";
+            } else {
+                $failed_url = APP_RELATIVE_URL . "login.php?err=21&url=".$failed_url;
+            }
+
+            if (!Auth::isValidSession($_SESSION)) {
+                Auth::removeSession($session_name);
+                Auth::redirect($failed_url, $is_popup);
+            }
+
         }
 
         // if the current session is still valid, then renew the expiration
-        Auth::createLoginSession($_SESSION['username'], $_SESSION['fullname'], $_SESSION['email'], $_SESSION['distinguishedname'], $_SESSION['autologin']);
+        Auth::createLoginSession($ses['username'], $ses['fullname'], $ses['email'], $ses['distinguishedname'], $ses['autologin']);
     }
 
     /**
@@ -387,12 +397,21 @@ class Auth
      */
     function isAdministrator()
     {
+        global $auth_isBGP, $auth_bgp_obj;
+        if ($auth_isBGP) {
+            $session =& $auth_bgp_obj->getSession();
+        } else {
+            session_name(APP_SESSION);
+            @session_start();
+            $session =& $_SESSION;
+        }
+
         $answer = false;
-        if (Auth::isValidSession($_SESSION)) {
-            if (!isset($_SESSION['isAdministrator'])) {
-                $_SESSION['isAdministrator'] = User::isUserAdministrator(Auth::getUsername());
+        if (Auth::isValidSession($session)) {
+            if (!isset($session['isAdministrator'])) {
+                $session['isAdministrator'] = User::isUserAdministrator(Auth::getUsername());
             }
-            $answer = $_SESSION['isAdministrator'];
+            $answer = $session['isAdministrator'];
         }
         return $answer;
     }
@@ -409,8 +428,15 @@ class Auth
     * @returns boolean true if access is ok.
     */
     function checkAuthorisation($pid, $dsID, $acceptable_roles, $failed_url, $userPIDAuthGroups=null, $redirect=true) {
-        session_name(APP_SESSION);
-        @session_start();
+        global $auth_isBGP, $auth_bgp_obj;
+        if ($auth_isBGP) {
+            $session =& $auth_bgp_obj->getSession();
+        } else {
+            session_name(APP_SESSION);
+            @session_start();
+            $session =& $_SESSION;
+        }
+
 		$isAdministrator = Auth::isAdministrator();
 		if ($isAdministrator) {
 			return true;
@@ -433,7 +459,7 @@ class Auth
         }
 		if ($auth_ok != true) {
             // Perhaps the user hasn't logged in
-			if (!Auth::isValidSession($_SESSION)) {
+			if (!Auth::isValidSession($session)) {
 				if ($redirect != false) {
 				    Auth::redirect(APP_RELATIVE_URL . "login.php?err=21&url=".$failed_url, $is_popup);
 				}
@@ -458,6 +484,14 @@ class Auth
         // Usually everyone can list, view and view comments, this is set in the global "non restricted roles".
 
 		global $NonRestrictedRoles;
+        global $auth_isBGP, $auth_bgp_obj;
+        if ($auth_isBGP) {
+            $session =& $auth_bgp_obj->getSession();
+        } else {
+            session_name(APP_SESSION);
+            @session_start();
+            $session =& $_SESSION;
+        }
 		$securityfields = Auth::getAllRoles();
 		foreach ($indexArray as $indexKey => $indexRecord) {
 			$userPIDAuthGroups = $NonRestrictedRoles;
@@ -485,75 +519,75 @@ class Auth
 									if (!in_array($role_name, $userPIDAuthGroups)) {
 										switch ($rule_name) {
 											case '!rule!role!AD_Group': 
-												if (@in_array($ruleRecord, $_SESSION[APP_LDAP_GROUPS_SESSION])) {
+												if (@in_array($ruleRecord, $session[APP_LDAP_GROUPS_SESSION])) {
 													array_push($userPIDAuthGroups, $role_name);
 												}
 												break;
 											case '!rule!role!in_AD':
-												if (($ruleRecord == 'on') && Auth::isValidSession($_SESSION)
+												if (($ruleRecord == 'on') && Auth::isValidSession($session)
 														&& Auth::isInAD()) {
 													array_push($userPIDAuthGroups, $role_name);
 												}
 												break;
 											case '!rule!role!in_Fez':
-												if (($ruleRecord == 'on') && Auth::isValidSession($_SESSION) 
+												if (($ruleRecord == 'on') && Auth::isValidSession($session) 
 														&& Auth::isInDB()) {
 													array_push($userPIDAuthGroups, $role_name);
 												}	
 												break;
 											case '!rule!role!AD_User':
-												if (Auth::isValidSession($_SESSION) 
+												if (Auth::isValidSession($session) 
 														&& $ruleRecord == Auth::getUsername()) {
 													array_push($userPIDAuthGroups, $role_name);
 												}
 												break;
 											case '!rule!role!AD_DistinguishedName':
-												if (is_numeric(strpos(@$_SESSION['distinguishedname'], $ruleRecord))) {
+												if (is_numeric(strpos(@$session['distinguishedname'], $ruleRecord))) {
 													array_push($userPIDAuthGroups, $role_name);
 												}
 												break;												
 											case '!rule!role!eduPersonTargetedID':
-												if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'], $ruleRecord))) {
+												if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'], $ruleRecord))) {
 													array_push($userPIDAuthGroups, $role_name);
 												}
 												break;												
 											case '!rule!role!eduPersonAffiliation':
-												if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Shib-EP-UnscopedAffiliation'], $ruleRecord))) {
+												if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Shib-EP-UnscopedAffiliation'], $ruleRecord))) {
 													array_push($userPIDAuthGroups, $role_name);
 												}
 												break;															
 											case '!rule!role!eduPersonScopedAffiliation':
-												if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'], $ruleRecord))) {
+												if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'], $ruleRecord))) {
 													array_push($userPIDAuthGroups, $role_name);
 												}
 												break;												
 											case '!rule!role!eduPersonPrimaryAffiliation':
-												if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'], $ruleRecord))) {
+												if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'], $ruleRecord))) {
 													array_push($userPIDAuthGroups, $role_name);
 												}
 												break;												
 											case '!rule!role!eduPersonPrinicipalName':
-												if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], $ruleRecord))) {
+												if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], $ruleRecord))) {
 													array_push($userPIDAuthGroups, $role_name);
 												}
 												break;		
 											case '!rule!role!eduPersonOrgUnitDN':
-												if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgUnitDN'], $ruleRecord))) {
+												if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgUnitDN'], $ruleRecord))) {
 													array_push($userPIDAuthGroups, $role_name);
 												}
 												break;		
 											case '!rule!role!eduPersonPrimaryOrgUnitDN':
-												if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN'], $ruleRecord))) {
+												if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN'], $ruleRecord))) {
 													array_push($userPIDAuthGroups, $role_name);
 												}
 												break;		
 											case '!rule!role!Fez_Group':
-												if (@in_array($ruleRecord, $_SESSION[APP_INTERNAL_GROUPS_SESSION])) {
+												if (@in_array($ruleRecord, $session[APP_INTERNAL_GROUPS_SESSION])) {
 													array_push($userPIDAuthGroups, $role_name);
 												}
 												break;	
 											case '!rule!role!Fez_User':
-												if (Auth::isValidSession($_SESSION)
+												if (Auth::isValidSession($session)
 														&& $ruleRecord == Auth::getUserID()) {
 													array_push($userPIDAuthGroups, $role_name);
 												}
@@ -589,6 +623,14 @@ class Auth
      * @returns array $userPIDAuthGroups The authorisation groups (roles) the user belongs to against this object.
     */
 	function getAuthorisationGroups($pid, $dsID="") {
+        global $auth_isBGP, $auth_bgp_obj;
+        if ($auth_isBGP) {
+            $session =& $auth_bgp_obj->getSession();
+        } else {
+            session_name(APP_SESSION);
+            @session_start();
+            $session =& $_SESSION;
+        }
         static $roles_cache;
 		$inherit = false;
 		if ($dsID != "") {
@@ -703,77 +745,77 @@ class Auth
                         if (!in_array($role, $userPIDAuthGroups)) {
                             switch ($group_type) {
                                 case 'AD_Group':
-                                    if (@in_array($group_value, $_SESSION[APP_LDAP_GROUPS_SESSION])) {
+                                    if (@in_array($group_value, $session[APP_LDAP_GROUPS_SESSION])) {
                                         array_push($userPIDAuthGroups, $role);
                                     }
                                     break;
                                 case 'in_AD':
-                                    if (($group_value == 'on') && Auth::isValidSession($_SESSION)
+                                    if (($group_value == 'on') && Auth::isValidSession($session)
                                             && Auth::isInAD()) {
                                         array_push($userPIDAuthGroups, $role);
                                     }
                                     break;
                                 case 'in_Fez':
-                                    if (($group_value == 'on') && Auth::isValidSession($_SESSION)
+                                    if (($group_value == 'on') && Auth::isValidSession($session)
                                             && Auth::isInDB()) {
                                         array_push($userPIDAuthGroups, $role);
                                     }    
                                     break;
                                 case 'AD_User':
-                                    if (Auth::isValidSession($_SESSION)
+                                    if (Auth::isValidSession($session)
                                             && $group_value == Auth::getUsername()) {
                                         array_push($userPIDAuthGroups, $role);
                                     }
                                     break;
                                 case 'AD_DistinguishedName':
-                                    if (is_numeric(strpos(@$_SESSION['distinguishedname'], $group_value))) {
+                                    if (is_numeric(strpos(@$session['distinguishedname'], $group_value))) {
                                         array_push($userPIDAuthGroups, $role);
                                     }
                                     break;
 								case '!rule!role!eduPersonTargetedID':
-									if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'], $group_value))) {
+									if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'], $group_value))) {
 										array_push($userPIDAuthGroups, $role);
 									}
 									break;												
 								case '!rule!role!eduPersonAffiliation':
-									if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Shib-EP-UnscopedAffiliation'], $group_value))) {
+									if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Shib-EP-UnscopedAffiliation'], $group_value))) {
 										array_push($userPIDAuthGroups, $role);
 									}
 									break;												
 								case '!rule!role!eduPersonScopedAffiliation':
-									if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'], $group_value))) {
+									if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'], $group_value))) {
 										array_push($userPIDAuthGroups, $role);
 									}
 									break;												
 								case '!rule!role!eduPersonPrimaryAffiliation':
-									if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'], $group_value))) {
+									if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'], $group_value))) {
 										array_push($userPIDAuthGroups, $role);
 									}
 									break;												
 								case '!rule!role!eduPersonPrinicipalName':
-									if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], $group_value))) {
+									if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], $group_value))) {
 										array_push($userPIDAuthGroups, $role);
 									}
 									break;		
 								case '!rule!role!eduPersonOrgUnitDN':
-									if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgUnitDN'], $group_value))) {
+									if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgUnitDN'], $group_value))) {
 										array_push($userPIDAuthGroups, $role);
 									}
 									break;		
 								case '!rule!role!eduPersonPrimaryOrgUnitDN':
-									if (is_numeric(strpos(@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN'], $group_value))) {
+									if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN'], $group_value))) {
 										array_push($userPIDAuthGroups, $role);
 									}
 									break;		
 									
                                 case 'Fez_Group':
-                                    if (@in_array($group_value, $_SESSION[APP_INTERNAL_GROUPS_SESSION])) {
+                                    if (@in_array($group_value, $session[APP_INTERNAL_GROUPS_SESSION])) {
                                         array_push($userPIDAuthGroups, $role);
                                     }
                                     break;
 
                                 case 'Fez_User':
-                                    if (Auth::isValidSession($_SESSION)
+                                    if (Auth::isValidSession($session)
                                             && $group_value == Auth::getUserID()) {
                                         array_push($userPIDAuthGroups, $role);
                                     }
@@ -823,9 +865,16 @@ class Auth
      */
     function hasValidSession($session_name)
     {
-        session_name($session_name);
-        @session_start();
-        return Auth::isValidSession($_SESSION);
+        global $auth_isBGP, $auth_bgp_obj;
+        if ($auth_isBGP) {
+            $session =& $auth_bgp_obj->getSession();
+        } else {
+            session_name(APP_SESSION);
+            @session_start();
+            $session =& $_SESSION;
+        }
+ 
+        return Auth::isValidSession($session);
     }
 
 
@@ -864,17 +913,23 @@ class Auth
      */
     function createLoginSession($username, $fullname,  $email, $distinguishedname, $autologin = 0)
     {
-		global $HTTP_SERVER_VARS;
-		$ipaddress = $HTTP_SERVER_VARS['REMOTE_ADDR'];
+		global $HTTP_SERVER_VARS, $auth_bgp_obj, $auth_isBGP;
+
+        if ($auth_isBGP) {
+            $ses =& $auth_bgp_obj->getSession();
+        } else {
+            $ses =& $_SESSION;
+        }
+		$ipaddress = @$HTTP_SERVER_VARS['REMOTE_ADDR'];
         $time = time();
-        $_SESSION["username"] = $username;
-        $_SESSION["fullname"] = $fullname;
-        $_SESSION["distinguishedname"] = $distinguishedname;
-        $_SESSION["email"] = $email;
-        $_SESSION["ipaddress"] = $ipaddress;
-        $_SESSION["login_time"] = $time;
-        $_SESSION["hash"] = md5($GLOBALS["private_key"] . md5($time) . $username);
-		$_SESSION["autologin"] = $autologin;
+        $ses["username"] = $username;
+        $ses["fullname"] = $fullname;
+        $ses["distinguishedname"] = $distinguishedname;
+        $ses["email"] = $email;
+        $ses["ipaddress"] = $ipaddress;
+        $ses["login_time"] = $time;
+        $ses["hash"] = md5($GLOBALS["private_key"] . md5($time) . $username);
+		$ses["autologin"] = $autologin;
     }
 
 
@@ -1017,10 +1072,17 @@ class Auth
      */
     function getUserID()
     {
-        if (empty($_SESSION['username'])) {
+        global $auth_bgp_obj, $auth_isBGP;
+        if ($auth_isBGP) {
+            $session =& $auth_bgp_obj->getSession();
+        } else {
+            $session =& $_SESSION;
+        }
+	
+        if (empty($session['username'])) {
             return '';
         } else {
-            return @User::getUserIDByUsername($_SESSION["username"]);
+            return @User::getUserIDByUsername($session["username"]);
         }
     }
 
@@ -1033,10 +1095,16 @@ class Auth
      */
     function getUsername()
     {
-        if (empty($_SESSION) || empty($_SESSION['username'])) {
+        global $auth_bgp_obj, $auth_isBGP;
+        if ($auth_isBGP) {
+            $session =& $auth_bgp_obj->getSession();
+        } else {
+            $session =& $_SESSION;
+        }
+        if (empty($session) || empty($session['username'])) {
             return '';
         } else {
-            return $_SESSION['username'];
+            return $session['username'];
         }
     }
     /**
@@ -1047,10 +1115,16 @@ class Auth
      */
     function getUserFullName()
     {
-        if (empty($_SESSION) || empty($_SESSION["fullname"])) {
+        global $auth_bgp_obj, $auth_isBGP;
+        if ($auth_isBGP) {
+            $session =& $auth_bgp_obj->getSession();
+        } else {
+            $session =& $_SESSION;
+        }
+        if (empty($session) || empty($session["fullname"])) {
             return '';
         } else {
-            return $_SESSION["fullname"];
+            return $session["fullname"];
         }
     }
     /**
@@ -1061,10 +1135,16 @@ class Auth
      */
     function getUserEmail()
     {
-        if (empty($_SESSION) || empty($_SESSION["email"])) {
+        global $auth_bgp_obj, $auth_isBGP;
+        if ($auth_isBGP) {
+            $session =& $auth_bgp_obj->getSession();
+        } else {
+            $session =& $_SESSION;
+        }
+        if (empty($session) || empty($session["email"])) {
             return '';
         } else {
-            return $_SESSION["email"];
+            return $session["email"];
         }
     }
 
@@ -1077,6 +1157,12 @@ class Auth
      * @return  array $usersgroups, plus saves them to the LDAP groups session variable
      */
     function GetUsersLDAPGroups($username, $password)  {
+        global $auth_bgp_obj, $auth_isBGP;
+        if ($auth_isBGP) {
+            $session =& $auth_bgp_obj->getSession();
+        } else {
+            $session =& $_SESSION;
+        }
 		$memberships = array();
 		$success;
 		$useringroupcount;
@@ -1119,7 +1205,7 @@ class Auth
 		} 	
 		// close connection to ldap server
 		ldap_close($ldap_conn);
-		$_SESSION[APP_LDAP_GROUPS_SESSION] = $usersgroups;
+		$session[APP_LDAP_GROUPS_SESSION] = $usersgroups;
 		return $usersgroups;
     } //end of GetUserGroups function.
 
@@ -1222,39 +1308,43 @@ class Auth
      * @return  boolean true if the user successfully binds to the LDAP server
      */
     function LoginAuthenticatedUser($username, $password, $shib_login=false) {	
-        session_name(APP_SESSION);
-        @session_start();
+        global $auth_bgp_obj, $auth_isBGP;
+        if ($auth_isBGP) {
+            $session =& $auth_bgp_obj->getSession();
+        } else {
+            $session =& $_SESSION;
+        }
         if (!Auth::userExists($username)) { // If the user isn't a registered fez user, get their details elsewhere (The AD/LDAP) as they must have logged in with LDAP
-			if ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
-				$_SESSION['isInAD'] = false;
-				$_SESSION['isInDB'] = false;
-				$_SESSION['isInFederation'] = true;			
-				if ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "") {
-					$username = $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'];
+			if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
+				$session['isInAD'] = false;
+				$session['isInDB'] = false;
+				$session['isInFederation'] = true;			
+				if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "") {
+					$username = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'];
 				} else {
 					$username = "Federation User";
 				}
 
 
-				if ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-commonName'] != "") {
-					$fullname =	$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-commonName'];
-				} elseif ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] != "") {
-					$fullname =	$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'];
-				} elseif ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "") {
-					$fullname =	$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'];
-				} elseif ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Nickname'] != "") {
-					$fullname =	$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Nickname'];
+				if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-commonName'] != "") {
+					$fullname =	$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-commonName'];
+				} elseif ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] != "") {
+					$fullname =	$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'];
+				} elseif ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "") {
+					$fullname =	$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'];
+				} elseif ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Nickname'] != "") {
+					$fullname =	$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Nickname'];
 				}
-				if ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-mail'] != "") {
-					$email = $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-mail'];
+				if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-mail'] != "") {
+					$email = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-mail'];
 				} else {				
 					$email = "";
 				}
 				$distinguishedname = "";
 			} else {
-				$_SESSION['isInAD'] = true;
-				$_SESSION['isInDB'] = false;
-				$_SESSION['isInFederation'] = false;
+				$session['isInAD'] = true;
+				$session['isInDB'] = false;
+				$session['isInFederation'] = false;
 				$userDetails = User::GetUserLDAPDetails($username, $password);
 				$fullname = $userDetails['displayname'];
 				$email = $userDetails['email'];
@@ -1262,11 +1352,11 @@ class Auth
 				Auth::GetUsersLDAPGroups($username, $password);
 			}
         } else { // if it is a registered Fez user then get their details from the fez user table
-            $_SESSION['isInDB'] = true;
-			if ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
-				$_SESSION['isInFederation'] = true;
+            $session['isInDB'] = true;
+			if (@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
+				$session['isInFederation'] = true;
 			} else {
-				$_SESSION['isInFederation'] = false;
+				$session['isInFederation'] = false;
 			}
             $userDetails = User::getDetails($username);			
             $fullname = $userDetails['usr_full_name'];
@@ -1274,18 +1364,22 @@ class Auth
 			$usr_id = User::getUserIDByUsername($username);
             User::updateLoginDetails($usr_id); //incremement login count and last login date
             if ($userDetails['usr_ldap_authentication'] == 1) {
-				$userDetails = User::GetUserLDAPDetails($username, $password);
-				$distinguishedname = $userDetails['distinguishedname'];
-	            $_SESSION['isInAD'] = true;			
-                Auth::GetUsersLDAPGroups($userDetails['usr_username'], $password);
+                if (!$auth_isBGP) {
+                    $userDetails = User::GetUserLDAPDetails($username, $password);
+                    $distinguishedname = $userDetails['distinguishedname'];
+                    Auth::GetUsersLDAPGroups($userDetails['usr_username'], $password);
+                } else {
+                    $distinguishedname = '';
+                }
+	            $session['isInAD'] = true;			
             }  else {
-	            $_SESSION['isInAD'] = false;			
+	            $session['isInAD'] = false;			
 			}
             // get internal fez groups
 			Auth::GetUsersInternalGroups($usr_id);
             
         }
-        Auth::createLoginSession($username, $fullname, $email, $distinguishedname, $HTTP_POST_VARS["remember_login"]);
+        Auth::createLoginSession($username, $fullname, $email, $distinguishedname, @$HTTP_POST_VARS["remember_login"]);
     }
 
     /**
@@ -1296,10 +1390,14 @@ class Auth
      * @return  void Sets the internal groups session to the found internal groups
      */
 	function GetUsersInternalGroups($usr_id) {
-        session_name(APP_SESSION);
-        @session_start();
+        global $auth_bgp_obj, $auth_isBGP;
+        if ($auth_isBGP) {
+            $session =& $auth_bgp_obj->getSession();
+        } else {
+            $session =& $_SESSION;
+        }
 		$internal_groups = Group::getGroupColList($usr_id);
-		$_SESSION[APP_INTERNAL_GROUPS_SESSION] = $internal_groups;
+		$session[APP_INTERNAL_GROUPS_SESSION] = $internal_groups;
 	}
 
     /**
@@ -1325,7 +1423,13 @@ class Auth
      */
     function isInAD()
     {
-        return @$_SESSION['isInAD'];
+        global $auth_bgp_obj, $auth_isBGP;
+        if ($auth_isBGP) {
+            $session =& $auth_bgp_obj->getSession();
+        } else {
+            $session =& $_SESSION;
+        }
+        return @$session['isInAD'];
     }
 
     /**
@@ -1336,7 +1440,13 @@ class Auth
      */
     function isInDB()
     {
-        return @$_SESSION['isInDB'];
+        global $auth_bgp_obj, $auth_isBGP;
+        if ($auth_isBGP) {
+            $session =& $auth_bgp_obj->getSession();
+        } else {
+            $session =& $_SESSION;
+        }
+        return @$session['isInDB'];
     }
 
     /**

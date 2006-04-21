@@ -17,6 +17,9 @@ if (PEAR::isError($res)) {
 
 include_once(APP_INC_PATH.$res[0]['bgp_include']);
 $bgp = unserialize($res[0]['bgp_serialized']);
+
+$bgp->setAuth();
+
 $bgp->run();
 
 ?>

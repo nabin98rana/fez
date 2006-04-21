@@ -15,6 +15,7 @@ class BackgroundProcess {
             1 => 'Running',
             2 => 'Done'
             );
+    var $local_session = array();
 
 
     /***** Mixed *****/
@@ -165,6 +166,36 @@ class BackgroundProcess {
     {
     }
 
+    /**
+      * Authenticate the background process 
+      */
+    function setAuth()
+    {
+        global $auth_isBGP, $auth_bgp_obj;
+        $auth_isBGP = true;
+        $GLOBALS['auth_bgp_obj'] = &$this;
+
+        $session =& $this->local_session;
+
+        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $stmt = "SELECT * FROM {$dbtp}background_process WHERE bgp_id='{$this->bgp_id}'";
+        $res = $GLOBALS['db_api']->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        }
+        $usr_id = $res['bgp_usr_id'];
+        $usr_obj = new User;
+        $user_det = $usr_obj->getDetailsByID($usr_id);
+        $username = $user_det['usr_username'];
+
+        // the password is not used.  The auth system won't be able to access any AD info
+        Auth::LoginAuthenticatedUser($username, 'blah'); 	
+    }
+
+    function getSession()
+    {
+        return $this->local_session;
+    }
    
 }
 
