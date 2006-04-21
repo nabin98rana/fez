@@ -874,14 +874,13 @@ class Collection
                     ";
         $bodyStmt = "$bodyStmtPart1
                   
-                    LEFT JOIN (select r5.rmf_rec_pid, r5.rmf_$data_type as sort_column
+                    LEFT JOIN (select r5.rmf_rec_pid, min(r5.rmf_$data_type) as sort_column
 					FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r5
                     inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x5
                     on r5.rmf_xsdmf_id = x5.xsdmf_id
                     inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s5
-                    on s5.sek_id = x5.xsdmf_sek_id AND s5.sek_title = '$order_by' order by r5.rmf_$data_type) as sort_table
+                    on s5.sek_id = x5.xsdmf_sek_id AND s5.sek_title = '$order_by' group by r5.rmf_rec_pid) as sort_table
                     ON sort_table.rmf_rec_pid=$r4_join_field
-					group by r2.rmf_rec_pid
              ";
 
         $countStmt = "
@@ -889,7 +888,7 @@ class Collection
                     $bodyStmtPart1
             ";
 
-        $stmt = "SELECT  r1.*, x1.*, s1.*, k1.*, d1.* 
+        $stmt = "SELECT r1.*, x1.*, s1.*, k1.*, d1.* 
             FROM {$dbtp}record_matching_field AS r1
             INNER JOIN {$dbtp}xsd_display_matchfields AS x1
             ON r1.rmf_xsdmf_id = x1.xsdmf_id
@@ -1214,7 +1213,8 @@ class Collection
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
 
 
-
+		$joinNum = $termCounter + 1;
+//		$joinNum = 2;
         $extra = '';
 		if ($searchKey == "Subject") {				
 			$terms = $_GET['parent_id'];		
@@ -1231,12 +1231,16 @@ class Collection
             $order_dir = " ASC ";
 			$internal_extra_order =  "date(r5.rmf_date) desc, ";
             if ($order_by == 'Created Date') {
-                $order_dir = " DESC ";
-				$internal_extra_order =  "preorder desc, ";
-/*				$extra_order = "";
+/*                $order_dir = " DESC ";
+				$internal_extra_order =  "preorder desc, ";*/
+				$extra = ", DAYNAME(display.sort_column) as day_name";		
+				$extra_order = "";
 				$subqueryExtra = "";
-				$internal_extra_order = ""; */
-            }
+				$internal_extra_order = ""; 
+				$joinNum = $termCounter;
+            } else {
+
+			}
 		} elseif ($searchKey == "Date") {
 			$search_data_type = "date";
 			$subqueryExtra = ", r".$termCounter.".rmf_".$search_data_type;
@@ -1254,10 +1258,9 @@ class Collection
 
 		}
 
-//		$subqueryExtra = ", r".$termCounter.".rmf_".$search_data_type;
-
+		$mainJoin = 2;
         $middleStmt .= "
-		            inner join {$dbtp}record_matching_field r".$termCounter." on r".$termCounter.".rmf_rec_pid = r2.rmf_rec_pid
+		            inner join {$dbtp}record_matching_field r".$termCounter." on r".$termCounter.".rmf_rec_pid = r".($mainJoin).".rmf_rec_pid
                     inner join {$dbtp}xsd_display_matchfields x".$termCounter." on r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id 
                     inner join {$dbtp}search_key AS s".$termCounter." on s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id
                     and s".$termCounter.".sek_title = '".$searchKey."' ".$restrictSQL;
@@ -1276,23 +1279,28 @@ class Collection
 		$joinStmt = $authArray['joinStmt'];
 
 		$bodyStmt = " FROM  {$dbtp}record_matching_field r2 
-					inner join {$dbtp}xsd_display_matchfields x2 on r2.rmf_xsdmf_id = x2.xsdmf_id $joinStmt
-					inner join {$dbtp}search_key s2 on (s2.sek_id = x2.xsdmf_sek_id AND s2.sek_title = 'Display Type')
-
+                    inner join {$dbtp}xsd_display_matchfields AS x2 on r2.rmf_xsdmf_id = x2.xsdmf_id and r2.rmf_varchar='2' and x2.xsdmf_element='!sta_id' $joinStmt
+					
+					";
+		
+		if	((($searchKey == 'Created Date') && ($order_by != $searchKey)) || ($searchKey != 'Created Date')) {
+			$bodyStmt .= "
 					inner join  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r".$termCounter." 
-					on r".$termCounter.".rmf_rec_pid = r2.rmf_rec_pid
+					on r".$termCounter.".rmf_rec_pid = r".$mainJoin.".rmf_rec_pid
 					inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x".$termCounter."
 					on r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id
 					inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s".$termCounter."
 					on s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id
-					and s".$termCounter.".sek_title = '$order_by' 
+					and s".$termCounter.".sek_title = '$order_by'  ";
+		} else {
+			$joinNum = 2;
+		}
+		$bodyStmt .= "
 
 					$authStmt
 
-	                $middleStmt
+	                $middleStmt ";
 					
-					inner join {$dbtp}record_matching_field AS r4 on r4.rmf_rec_pid = r2.rmf_rec_pid
-                    inner join {$dbtp}xsd_display_matchfields AS x4 on r4.rmf_xsdmf_id = x4.xsdmf_id and r4.rmf_varchar='2' and x4.xsdmf_element='!sta_id' ";
 
 		
 		$stmtCount = "SELECT count(distinct r2.rmf_rec_pid) as display_count
@@ -1322,7 +1330,7 @@ class Collection
                  INNER JOIN {$dbtp}xsd_display_matchfields x1 
                  ON r1.rmf_xsdmf_id = x1.xsdmf_id 
 				 INNER JOIN (
-					 SELECT distinct r2.rmf_varchar as display_id, r2.rmf_rec_pid, r".$termCounter.".rmf_$data_type as sort_column $subqueryExtra
+					 SELECT  r2.rmf_rec_pid, r".$joinNum.".rmf_$data_type as sort_column $subqueryExtra
 					$bodyStmt
 					order by $internal_extra_order sort_column $order_dir, r2.rmf_rec_pid desc
 					
@@ -1340,8 +1348,8 @@ class Collection
                  ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
                  LEFT JOIN {$dbtp}search_key k1 
                  ON (k1.sek_id = x1.xsdmf_sek_id)
-
-				left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d1.xdis_id = display.display_id
+				LEFT JOIN {$dbtp}xsd_display d1  
+				ON (d1.xdis_id = r1.rmf_varchar and k1.sek_title = 'Display Type')
                 ORDER BY $extra_order display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
 
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);

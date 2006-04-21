@@ -41,8 +41,18 @@ include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.news.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.validation.php");
+if ($_SESSION['IDP_LOGIN_FLAG'] == 1) {
+	Auth::GetShibAttributes();
+	$_SESSION['IDP_LOGIN_FLAG'] = 0;
+}
+if ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
+/*	echo "<pre>";
+	print_r($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]);
+	echo "</pre>"; */
 
-if (count($HTTP_POST_VARS) > 0) {
+  Auth::LoginAuthenticatedUser("", "", true); 
+
+} elseif (count($HTTP_POST_VARS) > 0) {
 	if (Validation::isWhitespace($HTTP_POST_VARS["username"])) {
 		Auth::redirect(APP_RELATIVE_URL . "login.php?err=1");
 	}
@@ -61,7 +71,8 @@ if (count($HTTP_POST_VARS) > 0) {
 	if (!empty($HTTP_POST_VARS["url"])) {
 		Auth::redirect(urldecode($HTTP_POST_VARS["url"])); 
 	} else {
-		Auth::redirect(APP_RELATIVE_URL); // even though its the same page redirect so if they refresh it doesnt have the post vars
+//		Auth::redirect(APP_RELATIVE_URL); // even though its the same page redirect so if they refresh it doesnt have the post vars
+		Auth::redirect(APP_BASE_URL); // even though its the same page redirect so if they refresh it doesnt have the post vars
 		$extra = '';
 	}
 }
@@ -90,6 +101,5 @@ $news = News::getList();
 $news_count = count($news);
 $tpl->assign("news", $news);
 $tpl->assign("news_count", $news_count);
-//print_r($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]);
 $tpl->displayTemplate();
 ?>

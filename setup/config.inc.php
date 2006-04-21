@@ -40,7 +40,7 @@ set_time_limit(0);
 // definitions of Organisation LDAP related variables. You may need to query your Org's LDAP expert for help on these settings.
 @define("SHIB_SWITCH", "OFF");  // Set to OFF or ON depending on whether you want to use Shibboleth authentication
 @define("SHIB_FEDERATION_NAME", "MAMS Testbed Federation");  // Change this to the name of your Shibboleth Federation, eg Inqueue, InCommon, MAMS Testbed Federation
-@define("SHIB_HOME_IDP", "urn:mace:federation.org.au:testfed:level-1:idp.test.uq.edu.au");  // Change this to the urn of your home instituition IDP
+@define("SHIB_HOME_IDP", "urn:mace:federation.org.au:testfed:level-1:idp.youridp.edu");  // Change this to the urn of your home instituition Identity Provider
 @define("SHIB_WAYF_METADATA_LOCATION", "/usr/local/shibboleth-sp/etc/shibboleth/level-1-metadata.xml");  // Change this to path location of the WAYF metadata XML file, you can update this with a cronjob (linux) or a schedulated task (windows)
 @define("LDAP_SWITCH", "%{LDAP_SWITCH}%");  // Set to OFF or ON depending on whether you want to use LDAP authentication
 @define("LDAP_ORGANISATION", "%{LDAP_ORGANISATION}%"); //eg o=The University of Fez, c=AU
@@ -49,8 +49,8 @@ set_time_limit(0);
 @define("LDAP_SERVER", "%{LDAP_SERVER}%"); // yourldapserver.yourdomain.edu
 @define("LDAP_PORT", "%{LDAP_PORT}%"); // Usually 389
 
-@define("EPRINTS_OAI", "http://eprint.uq.edu.au/perl/oai2?verb=GetRecord&metadataPrefix=oai_dc&identifier=oai%3Aeprint.uq.edu.au%3A"); // ePrints OAI service provider for batch importing of ePrints records
-
+@define("EPRINTS_OAI", "http://eprint.uq.edu.au/perl/oai2?verb=GetRecord&metadataPrefix=oai_dc&identifier=oai%3Aeprint.uq.edu.au%3A"); // change this to your ePrints OAI service provider for batch importing of ePrints records
+@define("APP_LINK_PREFIX", ""); // If you want to prepend the way all Fez Link datastreams display with a prefix then put it in this field. Fez will check first to see if the prefix is already there before adding it. Useful for ezproxying of external database resources eg http://ezproxy.library.yourorg.edu/url=
 @define("APP_WATERMARK", "watermark.gif"); // The image to be used for watermarking of copyright images
 // definitions of path related variables
 @define("APP_SAN_IMPORT_DIR", ""); //eg /fez/incoming or c:/fez/incoming

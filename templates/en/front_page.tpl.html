@@ -171,13 +171,11 @@ function purgeObject(pid)
 					</td>
 				</tr>
 				<tr>
-                    <td>
-                       {if $list[i].xdis_title}<b>{$list[i].xdis_title.0|escape:"html"}</b><br />{/if}
-                       {if $list[i].creator}{section name="creator_loop" loop=$list[i].creator}{assign var="next_creator" value=$smarty.section.creator_loop.index+1}{$list[i].creator[creator_loop]|escape:"html"}{if $list[i].creator[$next_creator] != ""} and {/if}{/section}<br />{/if}
-                       {if $list[i].description}{$list[i].description.0|escape:"html"}...<br />{/if}
-                       {if $list[i].date}Published: {$list[i].date.0|date_format:"%A, %B %e, %Y"}<br />{/if}
-                       {if $list[i].type}{$list[i].type.0|escape:"html"}<br />{/if}                          
-					   {if $list[i].ret_id == '3'}<b>Files:</b> {section name="d" loop=$list[i].datastreams}{if $href_view}<a href="{$eserv_url|cat:"?pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].datastreams[d]}">{/if}{$list[i].datastreams[d]}{if $href_view}</a>{/if} {/section}{/if}
+                    <td>				
+                       {if $list[i].author}<b>{section name="author_loop" loop=$list[i].author}{assign var="next_author" value=$smarty.section.author_loop.index+1}{$list[i].author[author_loop]|escape:"html"}{if $list[i].author[$next_author] != ""} and {/if}{/section}</b>{if $list[i].date.0} {else}<br />{/if}{/if}{if $list[i].date.0}({$list[i].date.0|date_format:"%Y"})<br />{/if}
+                	   {if $list[i].research_program.0}{$list[i].research_program.0|escape:"html"}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'} - <i>{$list[i].xdis_title.0|escape:"html"}</i>{/if}<br />{else}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'}<i>{$list[i].xdis_title.0|escape:"html"}</i><br />{/if}{/if}
+                       {if $list[i].description.0}{$list[i].description.0|escape:"html"}{if ($list[i].description.0|count_characters > 200)}...{/if}<br />{/if}
+					   {if $list[i].object_type == '3' && $list[i].datastreams.0}<b>Files:</b> {section name="d" loop=$list[i].datastreams}{if $href_view}<a href="{$eserv_url|cat:"?pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].datastreams[d]}">{/if}{$list[i].datastreams[d]}{if $href_view}</a>{/if} {/section}{/if}
                     </td>
                   </tr>
 				  </table>

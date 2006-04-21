@@ -190,7 +190,9 @@ if (!empty($collection_pid)) {
 } elseif ($browse == "year") {
     // browse by year
 	$year = $_GET['year'];
-	$order_by = "Date";
+	if (empty($order_by)) {
+		$order_by = 'Title';
+	}
 	if (is_numeric($year)) {	
 		$list = Collection::browseListing($pagerRow, $rows, "Date", $order_by);
 		$list_info = $list["info"];
@@ -207,6 +209,9 @@ if (!empty($collection_pid)) {
 } elseif ($browse == "author") {
     // browse by author
 	$author = @$_GET['author'];
+	if (empty($order_by)) {
+		$order_by = 'Title';
+	}
 	if (!empty($author)) {	
 		$list = Collection::browseListing($pagerRow, $rows, "Author",$order_by);
 		$list_info = $list["info"];

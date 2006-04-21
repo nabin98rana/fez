@@ -17,6 +17,7 @@ function validateForm(f)
 //-->
 </script>
 {/literal}
+{if $SHIB_SWITCH == "ON"}
 <form name="IdPList" method="get">
 		    <input type="hidden" name="shire" value="https://dev-repo.library.uq.edu.au/Shibboleth.sso/SAML/POST" />
 		    <input type="hidden" name="target" value="cookie" />
@@ -50,6 +51,63 @@ function validateForm(f)
         <tr>
           <td colspan="2" bgcolor="{$cell_color}"><img src="images/blank.gif" width="1" height="5"></td>
         </tr>
+
+
+
+        <tr>
+          <td align="right" width="40%" class="default" bgcolor="{$cell_color}"><b>Home Institution:</b></td>
+          <td width="60%" bgcolor="{$cell_color}">
+							<select class="default" name="origin">
+							  {html_options options=$SHIB_IDP_LIST selected=$SHIB_HOME_IDP}
+							</select>          </td>
+        </tr>
+		
+
+        <tr>
+          <td align="right" width="40%" class="default" bgcolor="{$cell_color}"><b>Home Institution:</b></td>
+          <td width="60%" bgcolor="{$cell_color}" nowrap>
+							<select class="default" name="origin">
+							  {html_options options=$SHIB_IDP_LIST selected=$SHIB_HOME_IDP}
+							</select>          
+            <input type="submit" name="federation_login" value="Select" class="button">
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" bgcolor="{$cell_color}"><img src="images/blank.gif" width="1" height="5"></td>
+        </tr>		
+
+      </table>
+    </td>
+  </tr>
+</table>
+</form>
+		{/if}	
+
+
+<table align="center" width="400" border="0" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF">
+  <tr>
+    <td>
+            <br /><br />
+      <table bgcolor="{$heading_color}" width="100%" border="0" cellspacing="0" cellpadding="4">
+        <tr>
+          <td colspan="2" align="center" nowrap class="default_white">
+            <img align="absmiddle" src="{$rel_url}images/keys_32.gif" border="0"><b>Login to {$application_title}{if $SHIB_SWITCH == "ON"} with an internal Fez username{/if}</b>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+
+<form name="login_form" onSubmit="javascript:return checkFormSubmission(this, 'validateForm');" method="post" action="index.php">
+<input type="hidden" name="cat" value="login">
+<input type="hidden" name="url" value="{$smarty.get.url}">
+
+<table align="center" width="400" border="0" cellspacing="0" cellpadding="1" bgcolor="#000000">
+  <tr>
+    <td>
+      <table bgcolor="#FFFFFF" width="100%" border="0" cellspacing="0" cellpadding="4">
         {if $smarty.get.err != 0}
         <tr>
           <td colspan="2" align="center" class="error" bgcolor="{$cell_color}">
@@ -91,69 +149,6 @@ function validateForm(f)
           </td>
         </tr>
         {/if}
-
-		{if $SHIB_SWITCH == "WAYF"}		
-        <tr>
-          <td align="right" width="40%" class="default" bgcolor="{$cell_color}"><b>Home Institution:</b></td>
-          <td width="60%" bgcolor="{$cell_color}">
-							<select class="default" name="origin">
-							  {html_options options=$SHIB_IDP_LIST selected=$SHIB_HOME_IDP}
-							</select>          </td>
-        </tr>
-		
-
-		{/if}
-
-		{if $SHIB_SWITCH == "ON"}
-        <tr>
-          <td align="right" width="40%" class="default" bgcolor="{$cell_color}"><b>Home Institution:</b></td>
-          <td width="60%" bgcolor="{$cell_color}" nowrap>
-							<select class="default" name="origin">
-							  {html_options options=$SHIB_IDP_LIST selected=$SHIB_HOME_IDP}
-							</select>          
-            <input type="submit" name="federation_login" value="Select" class="button">
-          </td>
-        </tr>
-        <tr>
-          <td colspan="2" bgcolor="{$cell_color}"><img src="images/blank.gif" width="1" height="5"></td>
-        </tr>		
-		{/if}	
-      </table>
-    </td>
-  </tr>
-</table>
-</form>
-
-
-
-<table align="center" width="400" border="0" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF">
-  <tr>
-    <td>
-            <br /><br />
-      <table bgcolor="{$heading_color}" width="100%" border="0" cellspacing="0" cellpadding="4">
-        <tr>
-
-          <td colspan="2" align="center" nowrap class="default_white">
-            <img align="absmiddle" src="{$rel_url}images/keys_32.gif" border="0"><b>Login to {$application_title} with an internal Fez username</b>
-          </td>
-        </tr>
-
-
-      </table>
-    </td>
-  </tr>
-</table>
-
-
-<form name="login_form" onSubmit="javascript:return checkFormSubmission(this, 'validateForm');" method="post" action="index.php">
-<input type="hidden" name="cat" value="login">
-<input type="hidden" name="url" value="{$smarty.get.url}">
-
-<table align="center" width="400" border="0" cellspacing="0" cellpadding="1" bgcolor="#000000">
-  <tr>
-    <td>
-      <table bgcolor="#FFFFFF" width="100%" border="0" cellspacing="0" cellpadding="4">
-
         <tr>
           <td align="right" width="40%" class="default" bgcolor="{$cell_color}"><b>{if $SHIB_SWITCH != "ON"}{if $ldap_switch == "ON"}{$org_short_name} or {/if}{$application_title}{/if} <u>U</u>sername:</b></td>
           <td width="60%" bgcolor="{$cell_color}">

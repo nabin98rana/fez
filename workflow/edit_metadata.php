@@ -295,7 +295,15 @@ if ($access_ok) {
     $datastream_workflows = WorkflowTrigger::getListByTrigger('-1', 5); //5 is for datastreams
 
     foreach ($datastreams as $ds_key => $ds) {
-        if ($datastreams[$ds_key]['controlGroup'] == 'M') {
+		if ($datastreams[$ds_key]['controlGroup'] == 'R' && $datastreams[$ds_key]['ID'] != 'DOI') {
+			$datastreams[$ds_key]['location'] = trim($datastreams[$ds_key]['location']);
+			// Check for APP_LINK_PREFIX and add if not already there
+			if (APP_LINK_PREFIX != "") {
+				if (!is_numeric(strpos($datastreams[$ds_key]['location'], APP_LINK_PREFIX))) {
+					$datastreams[$ds_key]['location'] = APP_LINK_PREFIX.$datastreams[$ds_key]['location'];
+				}
+			}
+		} elseif ($datastreams[$ds_key]['controlGroup'] == 'M') {
             $FezACML_DS = array();
             $FezACML_DS = Record::getIndexDatastream($pid, $ds['ID'], 'FezACML');
 
