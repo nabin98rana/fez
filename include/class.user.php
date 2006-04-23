@@ -95,7 +95,11 @@ class User
             return "";
         } else {
             $returns[$username] = $res;
-            return $res;
+			if (!is_numeric($res)) {
+				return 0; // added so auth index would continue with other auth parts without a number, this may change with eduPersonTargetedID
+            } else {			
+				return $res;
+			}
         }
     }
 
