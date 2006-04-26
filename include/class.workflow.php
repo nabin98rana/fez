@@ -92,12 +92,14 @@ class Workflow
                     wfl_title,
                     wfl_version,
                     wfl_description,
-                    wfl_roles
+                    wfl_roles,
+                    wfl_end_button_label
                  ) VALUES (
                     '" . Misc::escapeString($HTTP_POST_VARS["wfl_title"]) . "',
                     '" . Misc::escapeString($HTTP_POST_VARS["wfl_version"]) . "',
                     '" . Misc::escapeString($HTTP_POST_VARS["wfl_description"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["wfl_roles"]) . "'
+                    '" . Misc::escapeString($HTTP_POST_VARS["wfl_roles"]) . "',
+                    '" . Misc::escapeString($HTTP_POST_VARS["wfl_end_button_label"]) . "'
                  )";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -126,7 +128,8 @@ class Workflow
                     wfl_title = '" . Misc::escapeString($HTTP_POST_VARS["wfl_title"]) . "',
                     wfl_version = '" . Misc::escapeString($HTTP_POST_VARS["wfl_version"]) . "',
                     wfl_description = '" . Misc::escapeString($HTTP_POST_VARS["wfl_description"]) . "',
-                    wfl_roles = '" . Misc::escapeString($HTTP_POST_VARS["wfl_roles"]) . "'
+                    wfl_roles = '" . Misc::escapeString($HTTP_POST_VARS["wfl_roles"]) . "',
+                    wfl_end_button_label = '" . Misc::escapeString($HTTP_POST_VARS["wfl_end_button_label"]) . "'
                  WHERE wfl_id = $wfl_id";
 //		echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);

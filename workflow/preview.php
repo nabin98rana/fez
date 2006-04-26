@@ -47,9 +47,7 @@ $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign('type',"preview");
 
-$id = Misc::GETorPOST('id');
-$tpl->assign("id", $id);
-$wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
+$wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 $pid = $wfstatus->pid;
 
 $wfstatus->setTemplateVars($tpl);

@@ -30,7 +30,7 @@ function updateForm()
 <div class="wfl_progress">
 Workflow Progress:
 {section name="i" loop=$states_done}
-<span class="wfl_progress">{$states_done[i].wfs_title}</span>
+<span class="wfl_progress">{if !$states_done[i].wfs_auto}<a class="link" href="{$rel_url}workflow/{$states_done[i].wfb_script_name}?id={$id}&wfs_id={$states_done[i].wfs_id}">{/if}{$states_done[i].wfs_title}{if !$states_done[i].wfs_auto}</a>{/if}</span>
 <img src="{$rel_url}images/1rightarrow_16.gif" alt=" -> "  class="wfl_progress"/>
 {/section}
 </div>
@@ -48,10 +48,9 @@ Workflow Progress:
   <table border="0" cellpadding="0" cellspacing="0" width="100%">
    <tr>
     <td   width="100%" align="center">
-     <span class="default"><b>Choose Next State:</b> </span>
    {section name="i" loop=$workflow_buttons}
      <input class="button" type="submit" name="workflow_button_{$workflow_buttons[i].wfs_id}" 
-      value="{$workflow_buttons[i].wfs_title}" 
+      value="{$workflow_buttons[i].wfs_title|default:'Done'}" 
       />&nbsp;
      {/section}
      | <input class="button" type="reset" value="Reset Form" tabindex="13">
@@ -64,13 +63,12 @@ Workflow Progress:
 
 {include file="workflow/$type.tpl.html"}
 
-{if $workflow_buttons}
+{if $workflow_buttons && !$no_bottom_buttons}
 <tr>
  <td colspan="2" bgcolor="{$cell_color}">
   <table border="0" cellpadding="0" cellspacing="0" width="100%">
    <tr>
     <td   width="100%" align="center">
-     <span class="default"><b>Choose Next State:</b> </span>
    {section name="i" loop=$workflow_buttons}
      <input class="button" type="submit" name="workflow_button_{$workflow_buttons[i].wfs_id}" 
       value="{$workflow_buttons[i].wfs_title}" 

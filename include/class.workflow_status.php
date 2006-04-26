@@ -209,7 +209,7 @@ class WorkflowStatus {
         $this->getBehaviourDetails();
         $this->getTriggerDetails();
         $this->getStateDetails();
-        $this->states_done[] = $this->wfs_details;
+        $this->states_done[] = array_merge($this->wfs_details, $this->wfb_details);
         $this->setSession();
         if ($this->wfb_details['wfb_auto']) {
             include(APP_PATH.'workflow/'.$this->wfb_details['wfb_script_name']);
@@ -317,6 +317,7 @@ class WorkflowStatus {
     function getButtons()
     {
         $this->getStateDetails();
+        $this->getWorkflowDetails();
         $next_states = Workflow_State::getDetailsNext($this->wfs_id);
         $button_list = array();
         foreach ($next_states as $next) {
@@ -331,7 +332,7 @@ class WorkflowStatus {
                         $next2 = $next2_list[0];
                     }
                     if ($next2['wfs_end'] && $next2['wfs_auto'] && $next2['wfs_transparent']) {
-                        $title = 'Save Changes';
+                        $title = $this->wfl_details['wfl_end_button_label'];
                     } else {
                         $title = $next2['wfs_title'];
                     }
@@ -351,7 +352,7 @@ class WorkflowStatus {
         if ($this->wfs_details['wfs_end']) {
             $button_list[] = array(
                     'wfs_id' => -1,
-                    'wfs_title' => 'Save Changes'
+                    'wfs_title' => $this->wfl_details['wfl_end_button_label']
                     );
         }
         return $button_list;
@@ -392,6 +393,8 @@ class WorkflowStatus {
      */
     function setTemplateVars(&$tpl)
     {
+
+        $tpl->assign("id", $this->id);
         $tpl->assign('workflow_buttons', $this->getButtons());
         $this->getWorkflowDetails();
         $tpl->assign('wfl_title', $this->wfl_details['wfl_title']);
@@ -413,11 +416,16 @@ class WorkflowStatusStatic
      * @param string $id The workflow id to be retrieved.
      * @return object WorkflowStatus object.
      */
-    function getSession($id)
+    function getSession()
     {
+        $id = Misc::GETorPOST('id');
+        $wfs_id = Misc::GETorPOST('wfs_id');
         $obj = null;
         if (@$_SESSION['workflow'][$id]) {
             $obj = unserialize($_SESSION['workflow'][$id]);
+            if (!$obj->change_on_refresh) {
+                $obj->setState($wfs_id);
+            }
         }
         return $obj;
     }

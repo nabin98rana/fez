@@ -63,9 +63,7 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
 }
 $tpl->assign("isAdministrator", $isAdministrator);
 
-$id = Misc::GETorPOST('id');
-$tpl->assign("id", $id);
-$wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
+$wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 $pid = $wfstatus->pid;
 $dsID = $wfstatus->dsID;
 
