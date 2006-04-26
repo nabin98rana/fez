@@ -116,17 +116,22 @@ class BackgroundProcess {
     function getExportFile()
     {
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
-        $stmt = "SELECT bgp_filename, bgp_headers FROM {$dbtp}background_process WHERE bgp_id='{$this->bgp_id}'";
+        $stmt = "SELECT bgp_filename, bgp_headers, bgp_usr_id 
+            FROM {$dbtp}background_process WHERE bgp_id='{$this->bgp_id}'";
         $res = $GLOBALS['db_api']->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
         }
+        if (Auth::getUserID() == $res['bgp_usr_id']) {
         $str = file_get_contents($res['bgp_filename']);
         $headers = explode("\n", $res['bgp_headers']);
         foreach ($headers as $head) {
             header($head);
         }
         echo $str;
+        } else {
+            echo "Not authorised: Username doesn't match";
+        }
         exit;
     }
  

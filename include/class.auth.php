@@ -55,9 +55,10 @@ global $defaultRoles;
 $defaultRoles = array("Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
 
 global $auth_isBGP;
-global $auth_bgp_obj;
+global $auth_bgp_session;
 
 $auth_isBGP = false;
+$auth_bgp_session = array();
 
 class Auth
 {
@@ -88,10 +89,10 @@ class Auth
      */
     function checkAuthentication($session_name, $failed_url = NULL, $is_popup = false)
     {
-        global $HTTP_SERVER_VARS, $auth_isBGP, $auth_bgp_obj;
+        global $HTTP_SERVER_VARS, $auth_isBGP, $auth_bgp_session;
 
         if ($auth_isBGP) {
-            $ses =& $auth_bgp_obj->getSession();
+            $ses =& $auth_bgp_session;
         } else {
             session_name(APP_SESSION);
             @session_start();
@@ -397,9 +398,9 @@ class Auth
      */
     function isAdministrator()
     {
-        global $auth_isBGP, $auth_bgp_obj;
+        global $auth_isBGP, $auth_bgp_session;
         if ($auth_isBGP) {
-            $session =& $auth_bgp_obj->getSession();
+            $session =& $auth_bgp_session;
         } else {
             session_name(APP_SESSION);
             @session_start();
@@ -428,9 +429,9 @@ class Auth
     * @returns boolean true if access is ok.
     */
     function checkAuthorisation($pid, $dsID, $acceptable_roles, $failed_url, $userPIDAuthGroups=null, $redirect=true) {
-        global $auth_isBGP, $auth_bgp_obj;
+        global $auth_isBGP, $auth_bgp_session;
         if ($auth_isBGP) {
-            $session =& $auth_bgp_obj->getSession();
+            $session =& $auth_bgp_session;
         } else {
             session_name(APP_SESSION);
             @session_start();
@@ -484,9 +485,9 @@ class Auth
         // Usually everyone can list, view and view comments, this is set in the global "non restricted roles".
 
 		global $NonRestrictedRoles;
-        global $auth_isBGP, $auth_bgp_obj;
+        global $auth_isBGP, $auth_bgp_session;
         if ($auth_isBGP) {
-            $session =& $auth_bgp_obj->getSession();
+            $session =& $auth_bgp_session;
         } else {
             session_name(APP_SESSION);
             @session_start();
@@ -623,9 +624,9 @@ class Auth
      * @returns array $userPIDAuthGroups The authorisation groups (roles) the user belongs to against this object.
     */
 	function getAuthorisationGroups($pid, $dsID="") {
-        global $auth_isBGP, $auth_bgp_obj;
+        global $auth_isBGP, $auth_bgp_session;
         if ($auth_isBGP) {
-            $session =& $auth_bgp_obj->getSession();
+            $session =& $auth_bgp_session;
         } else {
             session_name(APP_SESSION);
             @session_start();
@@ -865,9 +866,9 @@ class Auth
      */
     function hasValidSession($session_name)
     {
-        global $auth_isBGP, $auth_bgp_obj;
+        global $auth_isBGP, $auth_bgp_session;
         if ($auth_isBGP) {
-            $session =& $auth_bgp_obj->getSession();
+            $session =& $auth_bgp_session;
         } else {
             session_name(APP_SESSION);
             @session_start();
@@ -892,7 +893,7 @@ class Auth
         if ((empty($session["username"])) || (empty($session["hash"])) 
                 || ($session["hash"] != md5($GLOBALS["private_key"] . md5($session["login_time"]) 
                         . $session["username"]))
-                || ($session['ipaddress'] != $HTTP_SERVER_VARS['REMOTE_ADDR'])) {
+                || ($session['ipaddress'] != @$HTTP_SERVER_VARS['REMOTE_ADDR'])) {
             return false;
         } else {
 			return true;
@@ -913,10 +914,10 @@ class Auth
      */
     function createLoginSession($username, $fullname,  $email, $distinguishedname, $autologin = 0)
     {
-		global $HTTP_SERVER_VARS, $auth_bgp_obj, $auth_isBGP;
+		global $HTTP_SERVER_VARS, $auth_bgp_session, $auth_isBGP;
 
         if ($auth_isBGP) {
-            $ses =& $auth_bgp_obj->getSession();
+            $ses =& $auth_bgp_session;
         } else {
             $ses =& $_SESSION;
         }
@@ -1072,9 +1073,9 @@ class Auth
      */
     function getUserID()
     {
-        global $auth_bgp_obj, $auth_isBGP;
+        global $auth_bgp_session, $auth_isBGP;
         if ($auth_isBGP) {
-            $session =& $auth_bgp_obj->getSession();
+            $session =& $auth_bgp_session;
         } else {
             $session =& $_SESSION;
         }
@@ -1095,9 +1096,9 @@ class Auth
      */
     function getUsername()
     {
-        global $auth_bgp_obj, $auth_isBGP;
+        global $auth_bgp_session, $auth_isBGP;
         if ($auth_isBGP) {
-            $session =& $auth_bgp_obj->getSession();
+            $session =& $auth_bgp_session;
         } else {
             $session =& $_SESSION;
         }
@@ -1115,9 +1116,9 @@ class Auth
      */
     function getUserFullName()
     {
-        global $auth_bgp_obj, $auth_isBGP;
+        global $auth_bgp_session, $auth_isBGP;
         if ($auth_isBGP) {
-            $session =& $auth_bgp_obj->getSession();
+            $session =& $auth_bgp_session;
         } else {
             $session =& $_SESSION;
         }
@@ -1135,9 +1136,9 @@ class Auth
      */
     function getUserEmail()
     {
-        global $auth_bgp_obj, $auth_isBGP;
+        global $auth_bgp_session, $auth_isBGP;
         if ($auth_isBGP) {
-            $session =& $auth_bgp_obj->getSession();
+            $session =& $auth_bgp_session;
         } else {
             $session =& $_SESSION;
         }
@@ -1157,9 +1158,9 @@ class Auth
      * @return  array $usersgroups, plus saves them to the LDAP groups session variable
      */
     function GetUsersLDAPGroups($username, $password)  {
-        global $auth_bgp_obj, $auth_isBGP;
+        global $auth_bgp_session, $auth_isBGP;
         if ($auth_isBGP) {
-            $session =& $auth_bgp_obj->getSession();
+            $session =& $auth_bgp_session;
         } else {
             $session =& $_SESSION;
         }
@@ -1308,9 +1309,9 @@ class Auth
      * @return  boolean true if the user successfully binds to the LDAP server
      */
     function LoginAuthenticatedUser($username, $password, $shib_login=false) {	
-        global $auth_bgp_obj, $auth_isBGP;
+        global $auth_bgp_session, $auth_isBGP;
         if ($auth_isBGP) {
-            $session =& $auth_bgp_obj->getSession();
+            $session =& $auth_bgp_session;
         } else {
             $session =& $_SESSION;
         }
@@ -1390,9 +1391,9 @@ class Auth
      * @return  void Sets the internal groups session to the found internal groups
      */
 	function GetUsersInternalGroups($usr_id) {
-        global $auth_bgp_obj, $auth_isBGP;
+        global $auth_bgp_session, $auth_isBGP;
         if ($auth_isBGP) {
-            $session =& $auth_bgp_obj->getSession();
+            $session =& $auth_bgp_session;
         } else {
             $session =& $_SESSION;
         }
@@ -1423,9 +1424,9 @@ class Auth
      */
     function isInAD()
     {
-        global $auth_bgp_obj, $auth_isBGP;
+        global $auth_bgp_session, $auth_isBGP;
         if ($auth_isBGP) {
-            $session =& $auth_bgp_obj->getSession();
+            $session =& $auth_bgp_session;
         } else {
             $session =& $_SESSION;
         }
@@ -1440,9 +1441,9 @@ class Auth
      */
     function isInDB()
     {
-        global $auth_bgp_obj, $auth_isBGP;
+        global $auth_bgp_session, $auth_isBGP;
         if ($auth_isBGP) {
-            $session =& $auth_bgp_obj->getSession();
+            $session =& $auth_bgp_session;
         } else {
             $session =& $_SESSION;
         }
