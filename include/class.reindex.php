@@ -94,15 +94,14 @@ class Reindex
     {
         $start = $current_row * $max;
 		$fezIndexPIDs = Reindex::getIndexPIDList();
-        $itql = "select \$title \$description \$object from <#ri>
-                 where ((\$object <dc:title> \$title) or
-                    (\$object <dc:description> \$description))
+        $itql = "select \$title \$object from <#ri>
+                 where ((\$object <dc:title> \$title))
 					order by \$object asc";
 
         $returnfields = array();
         array_push($returnfields, "pid");
         array_push($returnfields, "title");
-        array_push($returnfields, "description");
+//        array_push($returnfields, "description");
         $details = Fedora_API::getITQLQuery($itql, $returnfields);
 		$return = array();
 		foreach ($details as $detail) {
@@ -146,15 +145,13 @@ class Reindex
         $start = $current_row * $max;
     
 		$fezIndexPIDs = Reindex::getIndexPIDList();
-        $itql = "select \$title \$description \$object from <#ri>
-                 where ((\$object <dc:title> \$title) or
-                    (\$object <dc:description> \$description))
+        $itql = "select \$title \$object from <#ri>
+                 where ((\$object <dc:title> \$title))
 					order by \$object asc";
 
         $returnfields = array();
         array_push($returnfields, "pid");
         array_push($returnfields, "title");
-        array_push($returnfields, "description");
         $details = Fedora_API::getITQLQuery($itql, $returnfields);
 
 		$return = array();

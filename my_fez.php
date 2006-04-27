@@ -76,7 +76,7 @@ $tpl->assign("isAdministrator", $isAdministrator);
 $collection_list = Collection::getEditList();
 //print_r($collection_list);
 foreach ($collection_list as &$item) {
-   $item['community'] = implode(',',Misc::keyPairs(Collection::getParents2($item['pid']),'pid','title'));
+//   $item['community'] = implode(',',Misc::keyPairs(Collection::getParents2($item['pid']),'pid','title'));
    $item['count'] = Collection::getEditListingCount($item['pid']);
 }
 

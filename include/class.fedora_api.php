@@ -56,7 +56,7 @@ class Fedora_API {
      * Check to be sure the Fedora server is up and running!
      *
      * Developer Note: This function is not actually used for anything just yet, but will be in future releases. Should be in Fez 1.2.
-     *	 
+     *
      * @access  public
      * @return  void (Logs an error message)
      */
@@ -107,13 +107,13 @@ class Fedora_API {
 		if (APP_FEDORA_APIM_PROTOCOL_TYPE == 'https://') {
 			$http_req = new HTTP_Request($getString, array("https" => "1.0"));
 		} else {
-			$http_req = new HTTP_Request($getString, array("http" => "1.0"));		
+			$http_req = new HTTP_Request($getString, array("http" => "1.0"));
 		}
 		$http_req->setBasicAuth(APP_FEDORA_USERNAME, APP_FEDORA_PWD);
 		$http_req->setMethod("GET");
 		$http_req->sendRequest();
-		$xml = $http_req->getResponseBody();	
-		$dom = new DomDocument; 
+		$xml = $http_req->getResponseBody();
+		$dom = new DomDocument;
 		$dom->loadXML($xml); // Now this works with php5 - CK 7/4/2005
 		$result = $dom->getElementsByTagName("pid");
 		foreach($result as $item) {
@@ -127,7 +127,7 @@ class Fedora_API {
      * Gets the XML of a given object by PID.
      *
      * Developer Note: This function is not actually used for anything just yet, but might be in future releases.
-	 * 
+	 *
      * @access  public
 	 * @param string $pid The persistent identifier
      * @return  string $result The XML of the object
@@ -164,13 +164,13 @@ class Fedora_API {
 	 * so is not heavily used. Searches are mostly carried out against Fez's own (much more powerful) index.
      *
      * @access  public
-	 * @param string $searchTerms The terms by which the search will be carried out.	
+	 * @param string $searchTerms The terms by which the search will be carried out.
 	 * @param integer $maxResults The maximum amount of results that will be returned.
-	 * @param array $searchTerms The list of DC and Fedora basic fields to search against.		 
+	 * @param array $searchTerms The list of DC and Fedora basic fields to search against.
      * @return  array $resultList The search results.
      */
 	function getListObjectsXML($searchTerms, $maxResults, $returnfields=null) {
-		$resultlist = array();	
+		$resultlist = array();
 		$searchTerms = urlencode("*$searchTerms*"); // encode it for url parsing
 		if (empty($returnfields)) {
 			$returnfields = array('pid', 'title', 'identifier', 'description', 'type');
@@ -178,12 +178,12 @@ class Fedora_API {
 		$fieldPhrase = '';
 		foreach ($returnfields as $rField) {
 			$fieldPhrase .= "&$rField=true";
-		}		
+		}
 		$searchPhrase = "?xml=true$fieldPhrase&terms=$searchTerms";
 		$filename = APP_FEDORA_SEARCH_URL.$searchPhrase;
 //		$xml = file_get_contents($filename);
 		$xml = Misc::processURL($filename);
-		$xml = preg_replace("'<object uri\=\"info\:fedora\/(.*)\"\/>'", "<pid>\\1</pid>", $xml); // fix the pid tags	
+		$xml = preg_replace("'<object uri\=\"info\:fedora\/(.*)\"\/>'", "<pid>\\1</pid>", $xml); // fix the pid tags
 		$doc = DOMDocument::loadXML($xml);
 		$xpath = new DOMXPath($doc);
 		$xpath->registerNamespace('r', 'http://www.fedora.info/definitions/1/0/types/');
@@ -205,44 +205,44 @@ class Fedora_API {
 
     /**
      * This function uses Fedora's Kowari Index ITQL search service which only really works against Dublin Core records,
-	 * RELS-EXT and basic Fedora information so is not heavily used. Searches are mostly carried out against Fez's own (much more powerful) index. 
+	 * RELS-EXT and basic Fedora information so is not heavily used. Searches are mostly carried out against Fez's own (much more powerful) index.
      *
      * @access  public
 	 * @param string $itql The ITQL query (Kind of like SQL, but for triplestores, and probably more complicated and less powerful..)
 	 * @param array $returnfields The fields you want results to be returned for.
      * @return  array $resultlist The search results.
      */
-	function getITQLQuery($itql, $returnfields) {	
-		$searchPhrase = "";	
+	function getITQLQuery($itql, $returnfields) {
+		$searchPhrase = "";
 		$itql = urlencode($itql); // encode it for url parsing
 		// create the fedora web service URL query string to run the ITQL
-//		$searchPhrase = "?type=tuples&lang=itql&format=Sparql&limit=1000&dt=on&query=".$itql;	
-		$searchPhrase = "?type=tuples&lang=itql&format=Sparql&limit=&dt=on&query=".$itql;	
+//		$searchPhrase = "?type=tuples&lang=itql&format=Sparql&limit=1000&dt=on&query=".$itql;
+		$searchPhrase = "?type=tuples&lang=itql&format=Sparql&limit=&dt=on&query=".$itql;
 		// format the return fields URL query string
 		// Should abstract the below for into a function in here
 		$stringfields = array();
 		for($x=0;$x<count($returnfields);$x++) {
 		 $stringfields[$x] = $returnfields[$x] . "=true";
 		}
-		$stringfields = join("&", $stringfields);	
+		$stringfields = join("&", $stringfields);
 		// do the query - we are querying the fedora web service here (need to be able to open an URL as a file)
 		$filename = APP_FEDORA_RISEARCH_URL.$searchPhrase;
 //		$xml = file_get_contents($filename);
 		$xml = Misc::processURL($filename);
-		$xml = preg_replace("'<object uri\=\"info\:fedora\/(.*)\"\/>'", "<pid>\\1</pid>", $xml); // fix the pid tags	
+		$xml = preg_replace("'<object uri\=\"info\:fedora\/(.*)\"\/>'", "<pid>\\1</pid>", $xml); // fix the pid tags
 		// The query has returned XML. Parse the xml into a DOMDocument
 		$doc = @DOMDocument::loadXML($xml);
         if (!$doc) {
             echo "The ITQL query failed. This is probably due to the Fez Fedora Kowari Resource Index being switched off in the fedora.fcfg config file.
 			<br/> To use the Fez Fedora maintenance reindexer tools the Kowari resource index needs to be turned on. To do this edit fedora.fcfg and change the value of resourceIndex from 0 to 1 then stop fedora. Then run fedora-rebuild
-			and choose option 1. After the Kowari resource index has been rebuilt start fedora. See more about the Kowari resource index config settings at http://www.fedora.info. 
+			and choose option 1. After the Kowari resource index has been rebuilt start fedora. See more about the Kowari resource index config settings at http://www.fedora.info.
 			<br/><br/> The Error returned from Fedora was: ";
 			echo "<pre>";
             echo nl2br(htmlspecialchars(print_r($xml,true)));
 			echo "</pre>";
             return array();
         }
-		$resultlist = array();	
+		$resultlist = array();
 		$xpath = new DOMXPath($doc);
 		$xpath->registerNamespace('r', 'http://www.w3.org/2001/sw/DataAccess/rf1/result');
 		$resultNodeList = $xpath->query('/r:sparql/r:results/r:result');
@@ -270,7 +270,7 @@ class Fedora_API {
 									// if the value isn't the same as the one there, then make an array
 									$prevValue = $rItem[$returnField];
 									$rItem[$returnField] = array($prevValue, $rValue);
-								} 
+								}
 								// else do nothing (item is the same as already found)
 							}
 						} else {
@@ -282,17 +282,17 @@ class Fedora_API {
 			}
 		}
 		// strip the keys out
-		$resultlist = array_values($resultlist);	
+		$resultlist = array_values($resultlist);
 		return $resultlist;
 	}
-		
+
     /**
      * This function removes an object and all its datastreams from Fedora
      *
      * @access  public
 	 * @param string $pid The persistant identifier of the object to be purged
-     * @return  integer 
-     */	
+     * @return  integer
+     */
 	function callPurgeObject($pid) {
 	   $logmsg = 'Fedora Object Purged using Fez';
 	   $parms=array('PID' => $pid, 'logMessage' => $logmsg, 'force' => false);
@@ -310,20 +310,20 @@ class Fedora_API {
 	 * @param string $mimetype The mimetype of the datastream
 	 * @param string $controlGroup The control group of the datastream
 	 * @param string $dsID The ID of the datastream
-     * @return  integer 
-     */		
+     * @return  integer
+     */
 	function getUploadLocation ($pid, $dsIDName, $file, $dsLabel, $mimetype='text/xml', $controlGroup='M', $dsID=NULL) {
 		$loc_dir = "";
 		if (!is_numeric(strpos($dsIDName, "/"))) {
 			$loc_dir = APP_TEMP_DIR;
 		}
-		if ($mimetype == 'text/xml') {		
+		if ($mimetype == 'text/xml') {
 			$config = array(
 			  'indent'         => true,
 			  'input-xml'   => true,
 			  'output-xml'   => true,
 			  'wrap'           => 200);
-	
+
 			$tidy = new tidy;
 			$tidy->parseString($file, $config, 'utf8');
 			$tidy->cleanRepair();
@@ -340,9 +340,9 @@ class Fedora_API {
 		    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 		    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		    $uploadLocation = curl_exec($ch);
-		    curl_close ($ch);		
-			
-		    $uploadLocation = trim(str_replace("\n", "", $uploadLocation));		
+		    curl_close ($ch);
+
+		    $uploadLocation = trim(str_replace("\n", "", $uploadLocation));
 			if (is_numeric(strpos($dsIDName, chr(92)))) {
 				$dsIDName = substr($dsIDName, strrpos($dsIDName, chr(92))+1);
 				$dsLabel = $dsIDName;
@@ -359,13 +359,13 @@ class Fedora_API {
 			  $dsID = Fedora_API::callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsIDName, $mimetype, $controlGroup);
 			  return $dsID;
 //              Fedora_API::callModifyDatastreamByReference ($pid, $dsIDName, $dsIDName, $uploadLocation, $mimetype);
-           } 
+           }
 		}
 	}
 
    /**
     * This function uses curl to geta file from a local file location and upload it into the fedora upload manager and calls the addDatastream or modifyDatastream as needed.
-	* 
+	*
     * Developer Note: Mainly used by batch import of a SAN directory
     *
     * @access  public
@@ -376,12 +376,12 @@ class Fedora_API {
 	* @param string $mimetype The mimetype of the datastream
 	* @param string $controlGroup The control group of the datastream
 	* @param string $dsID The ID of the datastream
-    * @return  integer 
-    */		
+    * @return  integer
+    */
 	function getUploadLocationByLocalRef ($pid, $dsIDName, $local_file_location, $dsLabel, $mimetype, $controlGroup='M', $dsID=NULL) {
         // take out any nasty slashes from the ds name itself
 		if (is_numeric(strpos($dsIDName, "/"))) {
-			$dsIDName = substr($dsIDName, strrpos($dsIDName, "/")+1); 
+			$dsIDName = substr($dsIDName, strrpos($dsIDName, "/")+1);
 		}
 		if (is_numeric(strpos($dsIDName, chr(92)))) {
 			$dsIDName = substr($dsIDName, strrpos($dsIDName, chr(92))+1);
@@ -395,7 +395,7 @@ class Fedora_API {
         // get mimetype
         if ($mimetype == "") {
             $mimetype = Misc::mime_content_type($local_file_location);
-        }	
+        }
         // convert extension to lowercase on dsIDName
 		$dsIDName = str_replace(" ", "_", $dsIDName);
 		if (is_numeric(strpos($dsIDName, "."))) {
@@ -411,7 +411,7 @@ class Fedora_API {
 		   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 		   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		   $uploadLocation = curl_exec($ch);
-		   curl_close ($ch);		
+		   curl_close ($ch);
 		   $uploadLocation = trim(str_replace("\n", "", $uploadLocation));
 		   $dsExists = Fedora_API::datastreamExists($pid, $dsIDName);
 		   if ($dsExists !== true) {
@@ -430,7 +430,7 @@ class Fedora_API {
 
    /**
     * This function adds datastreams to object $pid.
-	* 
+	*
     * @access  public
 	* @param string $pid The persistant identifier of the object to be purged
 	* @param string $dsID The ID of the datastream
@@ -440,7 +440,7 @@ class Fedora_API {
 	* @param string $mimetype The mimetype of the datastream
 	* @param string $controlGroup The control group of the datastream
     * @return void
-    */		
+    */
 	function callAddDatastream ($pid, $dsID, $uploadLocation, $dsLabel, $dsState, $mimetype, $controlGroup='M') {
 		if ($mimetype == "") {
 			$mimetype = "text/xml";
@@ -457,7 +457,7 @@ class Fedora_API {
 
    /**
     * This function adds datastreams to object $pid.
-	* 
+	*
     * @access  public
 	* @param string $pid The persistant identifier of the object to be purged
 	* @param string $dsIDName The name of the datastream
@@ -467,7 +467,7 @@ class Fedora_API {
 	* @param string $mimetype The mimetype of the datastream
 	* @param string $controlGroup The control group of the datastream
     * @return void
-    */		
+    */
 	function callCreateDatastream($pid, $dsIDName, $uploadLocation, $dsLabel, $mimetype, $controlGroup='M') {
   	   $versionable = 'false';
   	   	if (is_numeric(strpos($dsIDName, chr(92)))) {
@@ -481,11 +481,11 @@ class Fedora_API {
 
    /**
     *This function creates an array of all the datastreams for a specific object.
-	* 
+	*
     * @access  public
 	* @param string $pid The persistant identifier of the object
     * @return array $dsIDListArray The list of datastreams in an array.
-    */		
+    */
     function callGetDatastreams($pid) {
         if (!is_numeric($pid)) {
             $parms=array('pid' => $pid, 'asOfDateTime' => NULL, 'dsState' => NULL);
@@ -499,6 +499,27 @@ class Fedora_API {
         }
     }
 
+   /**
+    *This function creates an array of all the datastreams for a specific object.
+	*
+    * @access  public
+	* @param string $pid The persistant identifier of the object
+    * @return array $dsIDListArray The list of datastreams in an array.
+    */
+    function callListDatastreams($pid) {
+        if (!is_numeric($pid)) {
+            $parms=array('pid' => $pid, 'asOfDateTime' => NULL);
+            $dsIDListArray = Fedora_API::openSoapCallAccess('listDatastreams', $parms);
+            sort($dsIDListArray);
+            reset($dsIDListArray);
+            $returns[$pid] = $dsIDListArray;
+            return $dsIDListArray;
+        } else {
+            return array();
+        }
+    }
+
+
     function objectExists($pid) {
 		$parms = array('pid' => $pid);
 		$result = Fedora_API::openSoapCall('getObjectXML', $parms, false);
@@ -511,12 +532,12 @@ class Fedora_API {
 
    /**
     * This function creates an array of a specific datastream of a specific object
-	* 
+	*
     * @access  public
-	* @param string $pid The persistant identifier of the object 
+	* @param string $pid The persistant identifier of the object
 	* @param string $dsID The ID of the datastream
     * @return array $dsIDListArray The requested of datastream in an array.
-    */		
+    */
 	function callGetDatastream($pid, $dsID) {
 	   $parms=array('pid' => $pid, 'dsID' => $dsID);
 	   $dsIDListArray = Fedora_API::openSoapCall('getDatastream', $parms);
@@ -525,71 +546,73 @@ class Fedora_API {
 
    /**
     * Does a datastream with a given ID already exist in an object
-	* 
+	*
     * @access  public
-	* @param string $pid The persistant identifier of the object 
+	* @param string $pid The persistant identifier of the object
 	* @param string $dsID The ID of the datastream to be checked
     * @return boolean
-    */		
+    */
 	function datastreamExists ($pid, $dsID) {
 		$dsExists = false;
-		$rs = Fedora_API::callGetDatastreams($pid, $dsID);
+		$rs = Fedora_API::callListDatastreams($pid, $dsID);
 		foreach ($rs as $row) {
 			if (isset($row['ID']) && $row['ID'] == $dsID) {
 				$dsExists = true;
 			}
-		} 
+		}
 		return $dsExists;
 	}
 
    /**
     * This function creates an array of a specific datastream of a specific object
-	* 
+	*
     * @access  public
-	* @param string $pid The persistant identifier of the object 
+	* @param string $pid The persistant identifier of the object
 	* @param string $dsID The ID of the datastream to be checked
 	* @param string $asofDateTime Optional Gets a specified version at a datetime stamp
     * @return array $dsIDListArray The datastream returned in an array
-    */		
+    */
 	function callGetDatastreamDissemination($pid, $dsID, $asofDateTime="") {
 
 	   if ($asofDateTime == "") {
 		   $parms=array('pid' => $pid, 'dsID' => $dsID);
 		} else {
 		   $parms=array('pid' => $pid, 'dsID' => $dsID, 'asofDateTime' => $asofDateTime);
-		} 
+		}
 	   $dsIDListArray = Fedora_API::openSoapCallAccess('getDatastreamDissemination', $parms);
 	   return $dsIDListArray;
 	}
 
    /**
     * This function creates an array of a specific datastream of a specific object
-	* 
+	*
     * @access  public
-	* @param string $pid The persistant identifier of the object 
+	* @param string $pid The persistant identifier of the object
 	* @param string $dsID The ID of the datastream
 	* @param boolean $getxml Get as xml
     * @return array $resultlist The requested of datastream in an array.
-    */		
+    */
 	function callGetDatastreamContents($pid, $dsID, $getxml = false) {
-		$resultlist = array();	
-		$filename = APP_FEDORA_GET_URL."/".$pid."/".$dsID;
-		$xml = Misc::processURL($filename);
-//		$xml = @file_get_contents($filename);
-        if ($getxml) {
-            return $xml;
-        }
-		if (!empty($xml)) {
-			$doc = DOMDocument::loadXML($xml);
-			$xpath = new DOMXPath($doc);
-			$fieldNodeList = $xpath->query("/*/*");
-			foreach ($fieldNodeList as $fieldNode) {
-				$resultlist[$fieldNode->nodeName][] = trim($fieldNode->nodeValue);
-                // get attributes
-                $fieldAttList = $xpath->query("@*",$fieldNode);
-                foreach ($fieldAttList as $fieldAtt) {
-                    $resultlist[$fieldAtt->nodeName][] = trim($fieldAtt->nodeValue);
-                }
+		$resultlist = array();
+		$dsExists = Fedora_API::datastreamExists($pid, $dsID);
+		if ($dsExists === true) {			
+			$filename = APP_FEDORA_GET_URL."/".$pid."/".$dsID;
+			$xml = Misc::processURL($filename);
+			if ($getxml) {
+				return $xml;
+			}
+			if (!empty($xml) && $xml != false) {
+				$doc = DOMDocument::loadXML($xml);
+				$xpath = new DOMXPath($doc);
+				$fieldNodeList = $xpath->query("/*/*");
+				foreach ($fieldNodeList as $fieldNode) {
+					$resultlist[$fieldNode->nodeName][] = trim($fieldNode->nodeValue);
+					// get attributes
+					$fieldAttList = $xpath->query("@*",$fieldNode);
+					foreach ($fieldAttList as $fieldAtt) {
+						$resultlist[$fieldAtt->nodeName][] = trim($fieldAtt->nodeValue);
+					}
+				}
 			}
 		}
 		return $resultlist;
@@ -597,25 +620,27 @@ class Fedora_API {
 
    /**
     * This function creates an array of specific fields from a specific datastream of a specific object
-	* 
+	*
     * @access  public
-	* @param string $pid The persistant identifier of the object 
+	* @param string $pid The persistant identifier of the object
 	* @param string $dsID The ID of the datastream
-	* @param array $returnfields 
+	* @param array $returnfields
     * @return array $dsIDListArray The requested of datastream in an array.
-    */		
+    */
 	function callGetDatastreamContentsField($pid, $dsID, $returnfields) {
-		$resultlist = array();	
-		$filename = APP_FEDORA_GET_URL."/".$pid."/".$dsID;
-//		$xml = @file_get_contents($filename);
-		$xml = Misc::processURL($filename);
-		if (!empty($xml)) {
-			$doc = DOMDocument::loadXML($xml);
-			$xpath = new DOMXPath($doc);
-			$fieldNodeList = $xpath->query("/$dsID/*");
-			foreach ($fieldNodeList as $fieldNode) {
-				if (in_array($fieldNode->nodeName, $returnfields)) {
-					$resultlist[$fieldNode->nodeName][] = trim($fieldNode->nodeValue);
+		$resultlist = array();
+		$dsExists = Fedora_API::datastreamExists($pid, $dsID);
+		if ($dsExists == true) {
+			$filename = APP_FEDORA_GET_URL."/".$pid."/".$dsID;
+			$xml = Misc::processURL($filename);
+			if (!empty($xml) && $xml != false) {
+				$doc = DOMDocument::loadXML($xml);
+				$xpath = new DOMXPath($doc);
+				$fieldNodeList = $xpath->query("/$dsID/*");
+				foreach ($fieldNodeList as $fieldNode) {
+					if (in_array($fieldNode->nodeName, $returnfields)) {
+						$resultlist[$fieldNode->nodeName][] = trim($fieldNode->nodeValue);
+					}
 				}
 			}
 		}
@@ -624,7 +649,7 @@ class Fedora_API {
 
   /**
     * This function modifies inline xml datastreams (ByValue)
-	* 
+	*
     * @access  public
 	* @param string $pid The persistant identifier of the object
 	* @param string $dsID The name of the datastream
@@ -634,48 +659,48 @@ class Fedora_API {
 	* @param string $mimetype The mimetype of the datastream
 	* @param boolean $versionable Whether to version control this datastream or not
     * @return void
-    */		
+    */
 	function callModifyDatastreamByValue ($pid, $dsID, $state, $label, $dsContent, $mimetype='text/xml', $versionable="false") {
-//		echo "\n\n before tidy for modify ".$dsID." "; echo date("l dS of F Y h:i:s A");		
-		if ($mimetype == 'text/xml') {		
+//		echo "\n\n before tidy for modify ".$dsID." "; echo date("l dS of F Y h:i:s A");
+		if ($mimetype == 'text/xml') {
 			$config = array(
 			  'indent'         => true,
 			  'input-xml'   => true,
 			  'output-xml'   => true,
 			  'wrap'           => 200);
-	
+
 			$tidy = new tidy;
 			$tidy->parseString($dsContent, $config, 'utf8');
 			$tidy->cleanRepair();
 			$dsContent = $tidy;
-		}	
+		}
 	    $dsContent = base64_encode(trim($dsContent));
-	    $logmsg = 'Modifying datastream from Fez';	
+	    $logmsg = 'Modifying datastream from Fez';
 		if (empty($versionable)) {
 			$versionable = 'false';
-		} 
+		}
 		if ($versionable == "true") {
 			$versionable = 'true';
 		} elseif ($versionable == "false") {
 			$versionable = 'false';
-		}	
-		$versionable = 'false'; //overriding this here. 
+		}
+		$versionable = 'false'; //overriding this here.
 		$parms= array('pid' => $pid, 'dsID' => $dsID, 'altIDs' => array(), 'dsLabel' => $label, new soapval('versionable', 'boolean', $versionable), 'MIMEType' => $mimetype, 'formatURI' => 'unknown',  new soapval("dsContent","base64Binary",$dsContent), 'dsState' => $state, 'logMessage' => $logmsg, 'force' => true);
-//		echo "\n\n before open soap call,after tidy and base64encode for modify ".$dsID." "; echo date("l dS of F Y h:i:s A");		
+//		echo "\n\n before open soap call,after tidy and base64encode for modify ".$dsID." "; echo date("l dS of F Y h:i:s A");
 	    Fedora_API::openSoapCall('modifyDatastreamByValue', $parms);
-//		echo "\n\n after open soal call for modify ".$dsID." "; echo date("l dS of F Y h:i:s A");		
+//		echo "\n\n after open soal call for modify ".$dsID." "; echo date("l dS of F Y h:i:s A");
 	}
 
   /**
     * This function modifies non-in-line datastreams, either a chunk o'text, a url, or a file.
-	* 
+	*
     * @access  public
 	* @param string $pid The persistant identifier of the object
 	* @param string $dsID The name of the datastream
 	* @param string $dsLabel The datastream label
 	* @param string $dsLocation The location of the datastream
     * @return void
-    */		
+    */
 	function callModifyDatastreamByReference ($pid, $dsID, $dsLabel, $dsLocation=NULL, $mimetype) {
 	   $logmsg = 'Modifying datastream by reference';
 	   $versionable = 'false';
@@ -685,15 +710,15 @@ class Fedora_API {
 
   /**
     * This function deletes a datastream
-	* 
+	*
     * @access  public
 	* @param string $pid The persistant identifier of the object to be purged
 	* @param string $dsID The name of the datastream
 	* @param string $endDT The end datetime of the purge
-	* @param string $logMessage 
+	* @param string $logMessage
 	* @param boolean $force
     * @return boolean
-    */		
+    */
 	function callPurgeDatastream ($pid, $dsID, $endDT=NULL, $logMessage="Purged Datastream from Fez", $force=false) {
 	   $parms= array('PID' => $pid, 'dsID' => $dsID, 'endDT' => $endDT, 'logMessage' => $logMessage, 'force' => $force);
 	   return Fedora_API::openSoapCall('purgeDatastream', $parms);
@@ -740,12 +765,12 @@ class Fedora_API {
 
    /**
 	* Passes as Soap call to the NUSOAP engine through to the Fedora Management webservice API-M
-	* 
+	*
 	* @access  public
 	* @param array $call The name of the fedora web service to call
 	* @param array $parms The parameters
-	* @return array $result 
-	*/			
+	* @return array $result
+	*/
 	function openSoapCall ($call, $parms, $debug_error=true) {
 	   /********************************************
 	   * This is a primary function called by all of
@@ -756,20 +781,20 @@ class Fedora_API {
 	   $client->setCredentials(APP_FEDORA_USERNAME, APP_FEDORA_PWD);
 	   $result = $client->call($call, $parms);
        if ($debug_error && is_array($result) && (isset($result['faultcode']) || $call == 'addDatastream')) {
-           Error_Handler::logError(array(print_r($result,true),Fedora_API::debugInfo($client, true)), 
+           Error_Handler::logError(array(print_r($result,true),Fedora_API::debugInfo($client, true)),
                    __FILE__,__LINE__);
        }
 	   return $result;
-	
+
 	}
    /**
 	* Passes as Soap call to the NUSOAP engine through to the Fedora Access webservice API-A
-	* 
+	*
 	* @access  public
 	* @param array $call The name of the fedora web service to call
 	* @param array $parms The parameters
-	* @return array $result 
-	*/				
+	* @return array $result
+	*/
 	function openSoapCallAccess ($call, $parms) {
 	   /********************************************
 	   * This is a primary function called by all of
@@ -781,22 +806,22 @@ class Fedora_API {
 	   $result = $client->call($call, $parms);
 	   //comment the return and uncomment the echo and debugInfo
 	   //to see debug statements.
-	
+
 	//	 echo $result;
 	//	 Fedora_API::debugInfo($client);
 	   return $result;
-	
+
 	}
 
    /**
 	* This function provides SOAP debug statements.
-	* 
+	*
 	* @access  public
 	* @param array $client The soap object
 	* @return void (Outputs debug info to screen).
-	*/				
+	*/
 	function debugInfo($client, $asString=false) {
-        $str = 
+        $str =
             '<hr /><b>Debug Information</b><br /><br />'
             .'Request: <xmp>'.$client->request.'</xmp>'
             .'Response: <xmp>'.$client->response.'</xmp>'

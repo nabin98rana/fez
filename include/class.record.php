@@ -821,7 +821,7 @@ class Record
         if (!is_numeric($xdis_id)) {
             $xdis_id = XSD_Display::getXDIS_IDByTitle('Generic Document');
         }
-
+//		echo $xdis_id; exit;
         $display = new XSD_DisplayObject($xdis_id);
         $array_ptr = array();
         $xsdmf_array = $display->getXSDMF_Values($pid);		
@@ -1155,13 +1155,14 @@ class Record
         // run the workflows on the ingested datastreams.
         // we do this in a seperate loop so that all the supporting metadata streams are ready to go
 		foreach ($datastreamXMLHeaders as $dsKey => $dsTitle) {
-            Workflow::processIngestTrigger($pid, Foxml::makeNCName($dsTitle['ID']), $dsTitle['MIMETYPE']);
-			//clear the managed content file temporarily saved in the APP_TEMP_DIR
-			if (is_file(APP_TEMP_DIR.Foxml::makeNCName($dsTitle['ID']))) {
-				$deleteCommand = APP_DELETE_CMD." ".APP_TEMP_DIR.$dsTitle['ID'];
-				exec($deleteCommand);
+			if ($dsTitle['CONTROL_GROUP'] == "M" ) {
+				Workflow::processIngestTrigger($pid, Foxml::makeNCName($dsTitle['ID']), $dsTitle['MIMETYPE']);
+				//clear the managed content file temporarily saved in the APP_TEMP_DIR
+				if (is_file(APP_TEMP_DIR.Foxml::makeNCName($dsTitle['ID']))) {
+					$deleteCommand = APP_DELETE_CMD." ".APP_TEMP_DIR.$dsTitle['ID'];
+					exec($deleteCommand);
+				}
 			}
-
         }
 
 		Record::setIndexMatchingFields($pid);
@@ -1765,6 +1766,7 @@ class RecordObject extends RecordGeneral
 			$this->created_date = date("Y-m-d H:i:s");
 			$this->updated_date = $this->created_date;
 			$existingDatastreams = array();
+			$file_downloads = 0;
         } else {
 			$existingDatastreams = Fedora_API::callGetDatastreams($this->pid);
 			$this->getObjectDates();
@@ -1772,6 +1774,10 @@ class RecordObject extends RecordGeneral
 				$this->created_date = date("Y-m-d H:i:s");
 			}
 			$this->updated_date = date("Y-m-d H:i:s");
+			if (!is_numeric($this->file_downloads)) {
+				$this->getFileDownloadsCount();
+			} 
+			$file_downloads = $this->file_downloads;
 		}
         $pid = $this->pid;
 
@@ -1791,10 +1797,7 @@ class RecordObject extends RecordGeneral
 		$xmlObj .= ">\n";
  		// @@@ CK - 6/5/2005 - Added xdis so xml building could search using the xml display ids
 		$indexArray = array();
-		if (!is_numeric($this->file_downloads)) {
-			$this->getFileDownloadsCount();
-		} 
-		$file_downloads = $this->file_downloads;
+
 
 		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, $file_downloads, $this->created_date, $this->updated_date);
 

@@ -84,8 +84,7 @@ $tpl->assign("collection_pid", $pid);
 $tpl->assign("community_pid", $pid);
 
 $community_list = Community::getAssocList();
-$collection_list = Collection::getAssocList();
-
+$collection_list = Collection::getEditListAssoc();
 $internal_user_list = User::getAssocList();
 $internal_group_list = Group::getAssocListAll();
 $extra_redirect = "";
@@ -288,8 +287,8 @@ if ($access_ok) {
     }
     $securityfields = Auth::getAllRoles();
     $datastreams = Fedora_API::callGetDatastreams($pid);
-
     $datastreams = Misc::cleanDatastreamList($datastreams);
+
     $datastream_workflows = WorkflowTrigger::getListByTrigger('-1', 5); //5 is for datastreams
 
     foreach ($datastreams as $ds_key => $ds) {
@@ -365,7 +364,7 @@ if ($access_ok) {
         $tpl->assign('view_href', APP_RELATIVE_URL."view.php?pid=$pid");
     }
 //	print_r($details);
-    //print_r($datastreams);
+//    print_r($datastreams);
     $tpl->assign("datastreams", $datastreams);
     $tpl->assign("fez_root_dir", APP_PATH);
     $tpl->assign("eserv_url", APP_BASE_URL."eserv.php?pid=".$pid."&dsID=");

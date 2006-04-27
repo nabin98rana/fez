@@ -157,8 +157,8 @@ to {$my_assigned_items_info.currentLastRow} of {$my_assigned_items_info.totalRow
        <td width="10px"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form, 'items[]');" 
        class="button" /></td>
        <td >
-       <input type="submit" value="Delete" onclick="javascript:checkDeleteRecords(this.form);" class="button" />
-       <input type="submit" value="Publish" onclick="javascript:checkPublishRecords(this.form);" class="button" />
+       <input type="submit" value="Delete"  onClick="javascript:return checkDeleteRecords(this.form);" class="button" />
+       <input type="submit" value="Publish" onClick="javascript:return checkPublishRecords(this.form);" class="button" />
        </td>
        <td width="40%" align="center" nowrap>
        <nobr>

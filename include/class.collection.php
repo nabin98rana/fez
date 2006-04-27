@@ -329,6 +329,21 @@ class Collection
       * @param integer $community_pid The pid of the community to restrict the list to
       * @return array Associative array of collections - (pid, title)
       */
+    function getEditListAssoc($community_pid=null) {
+		$list = Collection::getEditList($community_pid);
+		$returnList = array();
+		foreach ($list as $element) {
+			$returnList[$element['pid']] = $element['title'][0];
+		}
+		return $returnList;	
+	}
+
+    /**
+      * List the collections in a community that can be edited by the current user
+	  * - mainly used in NAJAX drop down lists of collections from my fez
+      * @param integer $community_pid The pid of the community to restrict the list to
+      * @return array Associative array of collections - (pid, title)
+      */
     function getEditList($community_pid=null) {
         // get list of collections that 
         // parent is community_pid
@@ -346,7 +361,7 @@ class Collection
         $data_type = $sekdet['xsdmf_data_type'];
         $restrict_community = '';
 
-		$authArray = Collection::getAuthIndexStmt(array("Creator", "Editor"));
+		$authArray = Collection::getAuthIndexStmt(array("Creator", "Editor", "Approver"));
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];
 
