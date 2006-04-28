@@ -367,7 +367,7 @@ class Auth
                 foreach ($inheritSearch as $inheritRow) {
                     if ($inheritRow->nodeValue == "on") { 
                         $found_inherit_on = true;
-                    } elseif (empty($inheritRow->nodeValue)) {
+                    } elseif (trim($inheritRow->nodeValue) == "") {
                         $found_inherit_blank = true;
                     } else {
                         $found_inherit_off = true;
@@ -449,7 +449,6 @@ class Auth
         if (is_null($userPIDAuthGroups)) {
             $userPIDAuthGroups = Auth::getAuthorisationGroups($pid, $dsID);
         }
-
 		$auth_ok = false;
         if (is_array($userPIDAuthGroups)) {
             foreach ($acceptable_roles as $role) {
@@ -609,6 +608,7 @@ class Auth
 			$indexArray[$indexKey]['isViewer'] = (in_array('Viewer', $userPIDAuthGroups) || ($indexArray[$indexKey]['isEditor'] == true));
 			$indexArray[$indexKey]['isLister'] = (in_array('Lister', $userPIDAuthGroups) || ($indexArray[$indexKey]['isViewer'] == true));
 		}
+//		print_r($indexArray);
 		return $indexArray;		
 	}
 
@@ -650,18 +650,17 @@ class Auth
 		if ($dsID != "") {
 	        $acmlBase = Record::getACML($pid, $dsID);
 		}
-
 		// if no FezACML exists for a datastream then it must inherit from the pid object
         if ($acmlBase == false) {
 	        $acmlBase = Record::getACML($pid);
 		}
-
         $ACMLArray = array();
         if ($acmlBase == false) { // no FezACML was found for DS or PID object so go to parents straight away (inherit presumed)
+//			echo "acmlBase not found";
             $parents = Record::getParents($pid);
             Auth::getParentACMLs(&$ACMLArray, $parents);
         } else { // otherwise found something so use that and check if need to inherit
-
+//			echo "acmlBase found $pid";
             $ACMLArray[0] = $acmlBase;
 			// If found an ACML then check if it inherits security
 			$xpath = new DOMXPath($acmlBase);
@@ -674,15 +673,15 @@ class Auth
 			foreach ($inheritSearch as $inheritRow) {
 				if ($inheritRow->nodeValue == "on") { 
                     $found_inherit_on = true;
-                } elseif (empty($inheritRow->nodeValue)) {
+                } elseif (trim($inheritRow->nodeValue) == "") {
                     $found_inherit_blank = true;
 				} else {
                     $found_inherit_off = true;
                 }
 			}
+
             $inherit = !$found_inherit_off && ($found_inherit_on || $found_inherit_blank);
 			if ($inherit == true) { // if need to inherit, check if at dsID level or not first and then 
-
 				if ($dsID == "") { // if already at PID level just get parent pids and add them
 					$parents = Record::getParents($pid);
 					Auth::getParentACMLs(&$ACMLArray, $parents);				
@@ -715,10 +714,11 @@ class Auth
         $userPIDAuthGroups = $NonRestrictedRoles;
         // loop through the ACML docs found for the current pid or in the ancestry
 		$cleanedArray = array();
+
         foreach ($ACMLArray as &$acml) {
 	        // Usually everyone can list, view and view comments - these need to be reset for each ACML loop
 			// because they are presumed ok first
-		    $userPIDAuthGroups = Misc::array_merge_values($userPIDAuthGroups, $NonRestrictedRoles);
+//		    $userPIDAuthGroups = Misc::array_merge_values($userPIDAuthGroups, $NonRestrictedRoles);
             // Use XPath to find all the roles that have groups set and loop through them
             $xpath = new DOMXPath($acml);
             $roleNodes = $xpath->query('/FezACML/rule/role');
