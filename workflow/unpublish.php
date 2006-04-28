@@ -34,7 +34,6 @@
 //
 // set sta_id=1 for not published
 $pid = $this->pid;
-echo "HERE $pid <br/>\n";
 $this->getRecordObject();
 $this->rec_obj->setStatusId(1);
 

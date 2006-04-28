@@ -152,7 +152,8 @@ if ($access_ok) {
         $parent_relationships = Misc::array_merge_values($parent_relationships, $parent_relationship);
     }
     //print_r($xsd_display_fields);
-    $author_ids = Author::getAssocListAll();
+    $author_ids = Author::getAssocListAllBasic();
+
     $tpl->assign("author_ids", $author_ids);
     //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
     foreach ($xsd_display_fields  as $dis_key => $dis_field) {
@@ -277,7 +278,10 @@ if ($access_ok) {
 							}
 						}
 					}
-				}		
+				}
+//			} elseif ($dis_field["xsdmf_html_input"] == 'author_selector') { // fix author id drop down combo if attached
+			
+			
 			} elseif (($dis_field["xsdmf_multiple"] == 1) && (!@is_array($details[$dis_field["xsdmf_id"]])) ){ // makes the 'is_multiple' tagged display fields into arrays if they are not already so smarty renders them correctly
 				$tmp_value = @$details[$dis_field["xsdmf_id"]];
 				$details[$dis_field["xsdmf_id"]] = array();
@@ -372,8 +376,7 @@ if ($access_ok) {
     $tpl->assign('triggers', count(WorkflowTrigger::getList($pid)));
     $tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");
     $tpl->assign("isEditor", 1);
-
-    $tpl->assign("details", $details);
+	$tpl->assign("details", $details);
     $setup = Setup::load();
 
     // if user is a fez user then get prefs

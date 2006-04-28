@@ -332,6 +332,8 @@ class Author
         }
     }
 
+
+
     /**
      * Method used to get an associative array of author ID and title
      * of all authors available in the system.
@@ -359,7 +361,31 @@ class Author
         }
     }
  
+    /**
+     * Method used to get an associative array of author ID and title
+     * of all authors available in the system.
+     *
+     * @access  public
+     * @return  array The list of authors
+     */
+    function getAssocListAllBasic()
+    {
 
+        $stmt = "SELECT
+                    aut_id,
+                    concat_ws(' ',   aut_fname, aut_lname) as aut_fullname
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
+                 ORDER BY
+                    aut_fullname";
+        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
     /**
      * Method used to search and suggest all the authors names for a given string.
      *

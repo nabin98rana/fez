@@ -382,11 +382,21 @@ function selectDateField(field_name, day, month, year)
 										<br />
 										<span class="default"><b>{$xsd_display_fields[a].xsdmf_title}:</b></span>
 									    {assign var="attached_field_id" value="xsd_display_fields_"|cat:$temp_attached_xsdmf_id|cat:"_"|cat:$loop_num}
-										<select class="default" id="{$attached_field_id}" name="{$attached_field_id}">
+										<select class="default" id="{$attached_field_id}" name="{$attached_field_id}">	
 										   <option value="0">(none)</option>
-  										   {if $details[$temp_attached_xsdmf_id][z] != 0}
-										   <option value="{$details[$temp_attached_xsdmf_id][z]}" selected> {$details[$temp_fld_id][z]} ({$details[$temp_attached_xsdmf_id][z]})</option>
-										   {/if}
+										   {if ($details[$temp_fld_id][z] != "")}
+											   {if is_array($details[$temp_attached_xsdmf_id])}
+												 {if $details[$temp_attached_xsdmf_id][z] != ""}
+												   {assign var="author_id" value=$details[$temp_attached_xsdmf_id][z]}
+											   <option value="{$details[$temp_attached_xsdmf_id][z]}" selected>{$author_ids[$author_id]} ({$details[$temp_attached_xsdmf_id][z]})</option>
+												  {/if}
+											   {else}
+												 {if $details[$temp_attached_xsdmf_id] != ""}
+													 {assign var="author_id" value=$details[$temp_attached_xsdmf_id]}
+											   <option value="{$details[$temp_attached_xsdmf_id]}" selected>{$author_ids[$author_id]} ({$details[$temp_attached_xsdmf_id]})</option>										   
+												  {/if}
+											   {/if}
+											{/if}
 										</select>
 						                <!-- Google suggest style selection -->
 										<input type="text" name="{$attached_field_id}_lookup" id="{$attached_field_id}_lookup" size="30"

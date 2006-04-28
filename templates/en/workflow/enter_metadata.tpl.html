@@ -331,10 +331,11 @@ function selectDateField(field_name, day, month, year)
 								  	{elseif $xsd_display_fields[a].xsdmf_html_input == 'author_selector' AND $temp_attached_xsdmf_id == $xsd_display_fields[i].xsdmf_attached_xsdmf_id}
 										<br />
 										<span class="default"><b>{$xsd_display_fields[a].xsdmf_title}:</b></span>
-									    {assign var="attached_field_id" value="xsd_display_fields_"|cat:$temp_attached_xsdmf_id|cat:"_"|cat:$loop_num}
+
+										{assign var="attached_field_id" value="xsd_display_fields_"|cat:$temp_attached_xsdmf_id|cat:"_"|cat:$loop_num}
 										<select class="default" id="{$attached_field_id}" name="{$attached_field_id}">
 										   <option value="-1">(none)</option>
-										  {html_options options=$author_ids selected=$details[$temp_attached_xsdmf_id][z]}										   
+										  {html_options options=$author_ids selected=$selected_author}										   
 										</select>
 										{include file="lookup_field.tpl.html" lookup_field_name="search" lookup_field_target=$attached_field_id}
 									  </td>
