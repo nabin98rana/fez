@@ -29,8 +29,8 @@
                       return false;
                   }
 
-                  if (!(f.ldap_authentication.checked) && (isWhitespace(f.password.value))) {
-                      alert('If you are not using LDAP for authentication you must enter a password for the user.');
+                  if ((f.change_password.checked) && (isWhitespace(f.password.value))) {
+                      alert('If you are changing the user password you must enter a password for the user.');
                       selectField(f, 'password');
                       return false;
                   }

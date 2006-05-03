@@ -62,9 +62,18 @@ if (!empty($pid)) {
 	if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for it
 		Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=view_form&pid=".$pid.$extra_redirect, false);
 	}
-	$tpl->assign("isViewer", $record->canView(true));
-	if ($record->canView()) {
-		$tpl->assign("isEditor", $record->canEdit(false));
+	
+	$canEdit = false;
+	$canView = true;
+	$canEdit = $record->canEdit(false);
+	if ($canEdit == true) {
+		$canView = true;
+	} else {
+		$canView = $record->canView();
+	}
+	$tpl->assign("isViewer", $canView);
+	if ($canView) {
+		$tpl->assign("isEditor", $canEdit);
 		$tpl->assign("sta_id", $record->getPublishedStatus()); 
 		$display = new XSD_DisplayObject($xdis_id);
 		//$xsd_display_fields = $display->getMatchFieldsList();
@@ -75,7 +84,7 @@ if (!empty($pid)) {
 		$tpl->assign("details_array", $details);
 		$parents = $record->getParents();
 		$author_list = Author::getAssocListAll();
-		$parent_relationships = array();
+		$parent_relationships = array(); 
 		foreach ($parents as $parent) {
 			$parent_rel = XSD_Relationship::getColListByXDIS($parent['display_type'][0]);
 			$parent_relationships[$parent['pid']] = array();
@@ -83,7 +92,7 @@ if (!empty($pid)) {
 				array_push($parent_relationships[$parent['pid']], $prel);
 			}
 			array_push($parent_relationships[$parent['pid']], $parent['display_type'][0]);
-		}
+		} 
 		
 		foreach ($xsd_display_fields as $dis_key => $dis_field) {
 			if (($dis_field['xsdmf_enabled'] == 1) && ($dis_field['xsdmf_show_in_view'] == 1)) {
@@ -152,17 +161,41 @@ if (!empty($pid)) {
 				}	
 			}
 		}
+		// Now generate the META Tag headers
+		$meta_head = '<META NAME="DC.Identifier" SCHEMA="URI" CONTENT="'.substr(APP_BASE_URL,0,-1).$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'">';
+		foreach ($xsd_display_fields as $dis_key => $dis_field) {
+			if (($dis_field['xsdmf_enabled'] == 1) && ($dis_field['xsdmf_meta_header'] == 1) && (trim($dis_field['xsdmf_meta_header_name']) != "")) {
+				if (is_array($details[$dis_field['xsdmf_id']])) {
+					foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
+						if ($cdata != "") {
+							$meta_head .= '<META NAME="'.$dis_field['xsdmf_meta_header_name'].'" CONTENT="'.trim($cdata).'">';
+						}
+					}
+				} else {
+					if ($details[$dis_field['xsdmf_id']] != "") {
+						$meta_head .= '<META NAME="'.$dis_field['xsdmf_meta_header_name'].'" CONTENT="'.trim($details[$dis_field['xsdmf_id']]).'">';
+						if ($dis_field['xsdmf_meta_header_name'] == "DC.Title") {
+							$tpl->assign("extra_title", trim($details[$dis_field['xsdmf_id']]));
+						}
+					}
+				}
+			}
+		}
+        $tpl->assign('meta_head', $meta_head);
+
 		foreach ($details as $dkey => $dvalue) { // turn any array values into a comma seperated string value
 			if (is_array($dvalue)) {
 				$details[$dkey] = implode("<br /> ", $dvalue);
 			}
 		}
+
         // Setup the Najax Image Preview object.
         $tpl->assign('najax_header', NAJAX_Utilities::header(APP_BASE_URL.'include/najax'));
         $tpl->assign('najax_register', NAJAX_Client::register('NajaxImagePreview', APP_BASE_URL.'najax_services/image_preview.php'));
 	} else {
 		$tpl->assign("show_not_allowed_msg", true);
 	} 
+
 	if (empty($details)) {
 		$tpl->assign('details', '');
 	} else {

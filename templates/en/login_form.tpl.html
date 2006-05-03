@@ -5,7 +5,7 @@
 function validateForm(f)
 {
     if (isWhitespace(f.username.value)) {
-        errors[errors.length] = new Option('UQ or Fez Username', 'username');
+        errors[errors.length] = new Option('Username', 'username');
     }
     if (isWhitespace(f.passwd.value)) {
         errors[errors.length] = new Option('Password', 'passwd');
@@ -19,10 +19,10 @@ function validateForm(f)
 {/literal}
 {if $SHIB_SWITCH == "ON"}
 <form name="IdPList" method="get">
-		    <input type="hidden" name="shire" value="https://dev-repo.library.uq.edu.au/Shibboleth.sso/SAML/POST" />
+		    <input type="hidden" name="shire" value="https://{$APP_HOSTNAME}/Shibboleth.sso/SAML/POST" />
 		    <input type="hidden" name="target" value="cookie" />
 
-			    <input type="hidden" name="providerId" value="urn:mace:federation.org.au:testfed:level-1:dev-repo.library.uq.edu.au" />
+			    <input type="hidden" name="providerId" value="{$SHIB_HOME_SP}" />
 		    
 			    <input type="hidden" name="getArguments" value="{$getArguments}">
 				<input type="hidden" name="time" value="1142380709" />
@@ -51,18 +51,7 @@ function validateForm(f)
         <tr>
           <td colspan="2" bgcolor="{$cell_color}"><img src="images/blank.gif" width="1" height="5"></td>
         </tr>
-
-
-
-        <tr>
-          <td align="right" width="40%" class="default" bgcolor="{$cell_color}"><b>Home Institution:</b></td>
-          <td width="60%" bgcolor="{$cell_color}">
-							<select class="default" name="origin">
-							  {html_options options=$SHIB_IDP_LIST selected=$SHIB_HOME_IDP}
-							</select>          </td>
-        </tr>
-		
-
+	
         <tr>
           <td align="right" width="40%" class="default" bgcolor="{$cell_color}"><b>Home Institution:</b></td>
           <td width="60%" bgcolor="{$cell_color}" nowrap>
@@ -97,7 +86,7 @@ function validateForm(f)
       <table bgcolor="{$heading_color}" width="100%" border="0" cellspacing="0" cellpadding="4">
         <tr>
           <td colspan="2" align="center" nowrap class="default_white">
-            <img align="absmiddle" src="{$rel_url}images/keys_32.gif" border="0"><b>Login to {$application_title}{if $SHIB_SWITCH == "ON"} with an internal Fez username{/if}</b>
+            <img align="absmiddle" src="{$rel_url}images/keys_32.gif" border="0"><b>{if $SHIB_SWITCH == "ON"}OR {/if}Login to {$application_title}{if $SHIB_SWITCH == "ON"} with an internal Fez username{/if}</b>
           </td>
         </tr>
       </table>
@@ -142,6 +131,9 @@ function validateForm(f)
               this continues to be a problem for you, please contact the {$application_title} webmaster as your ISP may be forcing you through a rotating proxy.
             {elseif $smarty.get.err == 21}
 			  You must first login to access this resource.
+            {elseif $smarty.get.err == 22}
+              Error: In order to login to {$application_title} via Shibboleth federated authentication your home institution's Identity Provider must release your Eduperson Targeted ID, or at least
+			  your Eduperson Principal Name.
             {elseif $smarty.get.err == 12}
               Error: In order for {$application_title} to work properly, you must enable cookie support in your browser. Please login 
               again and accept all cookies coming from it.

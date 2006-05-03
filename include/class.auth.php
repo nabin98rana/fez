@@ -552,7 +552,7 @@ class Auth
 												}
 												break;												
 											case '!rule!role!eduPersonAffiliation':
-												if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Shib-EP-UnscopedAffiliation'], $ruleRecord))) {
+												if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation'], $ruleRecord))) {
 													array_push($userPIDAuthGroups, $role_name);
 												}
 												break;															
@@ -566,7 +566,7 @@ class Auth
 													array_push($userPIDAuthGroups, $role_name);
 												}
 												break;												
-											case '!rule!role!eduPersonPrinicipalName':
+											case '!rule!role!eduPersonPrincipalName':
 												if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], $ruleRecord))) {
 													array_push($userPIDAuthGroups, $role_name);
 												}
@@ -654,6 +654,7 @@ class Auth
         if ($acmlBase == false) {
 	        $acmlBase = Record::getACML($pid);
 		}
+
         $ACMLArray = array();
         if ($acmlBase == false) { // no FezACML was found for DS or PID object so go to parents straight away (inherit presumed)
 //			echo "acmlBase not found";
@@ -773,37 +774,37 @@ class Auth
                                         array_push($userPIDAuthGroups, $role);
                                     }
                                     break;
-								case '!rule!role!eduPersonTargetedID':
+								case 'eduPersonTargetedID':
 									if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'], $group_value))) {
 										array_push($userPIDAuthGroups, $role);
 									}
 									break;												
-								case '!rule!role!eduPersonAffiliation':
-									if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Shib-EP-UnscopedAffiliation'], $group_value))) {
+								case 'eduPersonAffiliation':
+									if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation'], $group_value))) {
 										array_push($userPIDAuthGroups, $role);
 									}
 									break;												
-								case '!rule!role!eduPersonScopedAffiliation':
+								case 'eduPersonScopedAffiliation':
 									if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'], $group_value))) {
 										array_push($userPIDAuthGroups, $role);
 									}
 									break;												
-								case '!rule!role!eduPersonPrimaryAffiliation':
+								case 'eduPersonPrimaryAffiliation':
 									if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'], $group_value))) {
 										array_push($userPIDAuthGroups, $role);
 									}
 									break;												
-								case '!rule!role!eduPersonPrinicipalName':
+								case 'eduPersonPrincipalName':
 									if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], $group_value))) {
 										array_push($userPIDAuthGroups, $role);
 									}
 									break;		
-								case '!rule!role!eduPersonOrgUnitDN':
+								case 'eduPersonOrgUnitDN':
 									if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgUnitDN'], $group_value))) {
 										array_push($userPIDAuthGroups, $role);
 									}
 									break;		
-								case '!rule!role!eduPersonPrimaryOrgUnitDN':
+								case 'eduPersonPrimaryOrgUnitDN':
 									if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN'], $group_value))) {
 										array_push($userPIDAuthGroups, $role);
 									}
@@ -1315,17 +1316,35 @@ class Auth
         } else {
             $session =& $_SESSION;
         }
-        if (!Auth::userExists($username)) { // If the user isn't a registered fez user, get their details elsewhere (The AD/LDAP) as they must have logged in with LDAP
-			if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
+		$alreadyLoggedIn = false;
+		if (!empty($session["login_time"])) {
+			$alreadyLoggedIn = true;
+		} else {
+			$alreadyLoggedIn = false;
+		}
+		
+		if (($shib_login == true) && (@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "")) {
+			// Get the username from eduPerson Targeted ID. If empty then they are (really) anonymous
+			if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "") {
+				$username = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'];
+				if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] != "") { // if user has a principal name already in fez change their account to use targeted id instead
+					if (Auth::userExists($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'])) {
+						User::updateUsername($username, $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName']);
+					}				
+				}
+			} elseif ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] != "") { // if no eptid then try using EP principalname
+				$username = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'];
+			} else {
+				return false; // if trying to login via shib and can't find a username in the IDP attribs then return false to make redirect to login page with message
+			}
+		}
+
+
+        if (!Auth::userExists($username)) { // If the user isn't a registered fez user, get their details elsewhere (The AD/LDAP) as they must have logged in with LDAP or Shibboleth
+			if (($shib_login == true) && ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "")) {
 				$session['isInAD'] = false;
 				$session['isInDB'] = false;
 				$session['isInFederation'] = true;			
-				if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "") {
-					$username = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'];
-				} else {
-					$username = "Federation User";
-				}
-
 
 				if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-commonName'] != "") {
 					$fullname =	$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-commonName'];
@@ -1335,6 +1354,8 @@ class Auth
 					$fullname =	$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'];
 				} elseif ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Nickname'] != "") {
 					$fullname =	$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Nickname'];
+				} else {
+					$fullname = "Anonymous User";
 				}
 				if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-mail'] != "") {
 					$email = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-mail'];
@@ -1342,6 +1363,8 @@ class Auth
 					$email = "";
 				}
 				$distinguishedname = "";
+				// Create the user in Fez
+				User::insertFromShibLogin($username, $fullname, $email);
 			} else {
 				$session['isInAD'] = true;
 				$session['isInDB'] = false;
@@ -1354,33 +1377,37 @@ class Auth
 			}
         } else { // if it is a registered Fez user then get their details from the fez user table
             $session['isInDB'] = true;
-			if (@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
+			if (($shib_login == true) && (@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "")) {
 				$session['isInFederation'] = true;
 			} else {
 				$session['isInFederation'] = false;
+				if ($userDetails['usr_ldap_authentication'] == 1) {
+					if (!$auth_isBGP) {
+						$userDetails = User::GetUserLDAPDetails($username, $password);
+						$distinguishedname = $userDetails['distinguishedname'];
+						Auth::GetUsersLDAPGroups($userDetails['usr_username'], $password);
+					} else {
+						$distinguishedname = '';
+					}
+					$session['isInAD'] = true;			
+				}  else {
+					$session['isInAD'] = false;			
+				}
 			}
             $userDetails = User::getDetails($username);			
             $fullname = $userDetails['usr_full_name'];
             $email = $userDetails['usr_email'];
 			$usr_id = User::getUserIDByUsername($username);
-            User::updateLoginDetails($usr_id); //incremement login count and last login date
-            if ($userDetails['usr_ldap_authentication'] == 1) {
-                if (!$auth_isBGP) {
-                    $userDetails = User::GetUserLDAPDetails($username, $password);
-                    $distinguishedname = $userDetails['distinguishedname'];
-                    Auth::GetUsersLDAPGroups($userDetails['usr_username'], $password);
-                } else {
-                    $distinguishedname = '';
-                }
-	            $session['isInAD'] = true;			
-            }  else {
-	            $session['isInAD'] = false;			
+			if ($alreadyLoggedIn !== true) {
+	            User::updateLoginDetails($usr_id); //incremement login count and last login date
 			}
+
             // get internal fez groups
 			Auth::GetUsersInternalGroups($usr_id);
             
         }
         Auth::createLoginSession($username, $fullname, $email, $distinguishedname, @$HTTP_POST_VARS["remember_login"]);
+		return true;
     }
 
     /**

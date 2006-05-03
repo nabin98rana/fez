@@ -333,7 +333,9 @@ class XSD_HTML_Match
 					xsdmf_use_org_to_fill,
 					xsdmf_org_fill_xdis_id,
 					xsdmf_org_fill_xsdmf_id,
-					xsdmf_date_type					
+					xsdmf_date_type,
+					xsdmf_meta_header,
+					xsdmf_meta_header_name
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields as m1  ";
 
@@ -655,6 +657,11 @@ class XSD_HTML_Match
 		} else {
 			$xsdmf_use_org_to_fill = 0;
 		}
+		if (@$HTTP_POST_VARS["xsdmf_meta_header"]) {
+			$xsdmf_meta_header = 1;
+		} else {
+			$xsdmf_meta_header = 0;
+		}
 
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
@@ -671,6 +678,8 @@ class XSD_HTML_Match
                     xsdmf_indexed,
                     xsdmf_required,
                     xsdmf_multiple,
+					xsdmf_meta_header_name,
+					xsdmf_meta_header,
 					xsdmf_citation_browse,
 					xsdmf_citation,
 					xsdmf_citation_bold,
@@ -765,6 +774,8 @@ class XSD_HTML_Match
                     " . $indexed . ",
                     " . $required . ",
                     " . $multiple . ",
+                    '" . Misc::escapeString($HTTP_POST_VARS["xsdmf_meta_header_name"]) . "',					
+                    " . $xsdmf_meta_header . ",
                     " . $xsdmf_citation_browse . ",
                     " . $xsdmf_citation . ",
                     " . $xsdmf_citation_bold . ",
@@ -913,6 +924,12 @@ class XSD_HTML_Match
 		if (!empty($insertArray["xsdmf_is_key"])) {
           $stmt .= "xsdmf_is_key,";
 		}
+		if (!empty($insertArray["xsdmf_meta_header_name"])) {
+          $stmt .= "xsdmf_meta_header_name,";
+		}
+		if (!empty($insertArray["xsdmf_meta_header"])) {
+          $stmt .= "xsdmf_meta_header,";
+		}
 		if (!empty($insertArray["xsdmf_citation_browse"])) {
           $stmt .= "xsdmf_citation_browse,";
 		}
@@ -1030,6 +1047,12 @@ class XSD_HTML_Match
 			}
 			if (!empty($insertArray["xsdmf_is_key"])) {
                $stmt .= $insertArray["xsdmf_is_key"] . ",";
+			}
+			if (!empty($insertArray["xsdmf_meta_header_name"])) {
+               $stmt .= $insertArray["xsdmf_meta_header_name"] . ",";
+			}
+			if (!empty($insertArray["xsdmf_meta_header"])) {
+               $stmt .= $insertArray["xsdmf_meta_header"] . ",";
 			}
 			if (!empty($insertArray["xsdmf_citation_browse"])) {
                $stmt .= $insertArray["xsdmf_citation_browse"] . ",";
@@ -1175,6 +1198,15 @@ class XSD_HTML_Match
 		if (!empty($insertArray["xsdmf_is_key"])) {
           $stmt .= "xsdmf_is_key,";
 		}
+		if (!empty($insertArray["xsdmf_meta_header_name"])) {
+          $stmt .= "xsdmf_meta_header_name,";
+		}
+		if (!empty($insertArray["xsdmf_meta_header"])) {
+          $stmt .= "xsdmf_meta_header,";
+		}
+		if (!empty($insertArray["xsdmf_citation_browse"])) {
+          $stmt .= "xsdmf_citation_browse,";
+		}
 		if (!empty($insertArray["xsdmf_citation"])) {
           $stmt .= "xsdmf_citation,";
 		}
@@ -1293,6 +1325,14 @@ class XSD_HTML_Match
 			if (!empty($insertArray["xsdmf_is_key"])) {
                $stmt .= $insertArray["xsdmf_is_key"] . ",";
 			}
+			if (!empty($insertArray["xsdmf_meta_header_name"])) {
+               $stmt .= $insertArray["xsdmf_meta_header_name"] . ",";
+			}
+
+			if (!empty($insertArray["xsdmf_meta_header"])) {
+               $stmt .= $insertArray["xsdmf_meta_header"] . ",";
+			}
+
 			if (!empty($insertArray["xsdmf_citation_browse"])) {
                $stmt .= $insertArray["xsdmf_citation_browse"] . ",";
 			}
@@ -1439,6 +1479,12 @@ class XSD_HTML_Match
 		} else {
 			$is_key = 0;
 		}
+		if (@$HTTP_POST_VARS["xsdmf_meta_header"]) {
+			$xsdmf_meta_header = 1;
+		} else {
+			$xsdmf_meta_header = 0;
+		}
+
 
 		if (@$HTTP_POST_VARS["xsdmf_citation_browse"]) {
 			$xsdmf_citation_browse = 1;
@@ -1497,6 +1543,8 @@ class XSD_HTML_Match
                     xsdmf_required = " . $required . ",
                     xsdmf_indexed = " . $indexed . ",
                     xsdmf_enabled = " . $enabled . ",
+                    xsdmf_meta_header_name = '" . Misc::escapeString($HTTP_POST_VARS["xsdmf_meta_header_name"]) . "',
+                    xsdmf_meta_header = " . $xsdmf_meta_header . ",
                     xsdmf_citation_browse = " . $xsdmf_citation_browse . ",
                     xsdmf_citation = " . $xsdmf_citation . ",
                     xsdmf_citation_bold = " . $xsdmf_citation_bold . ",

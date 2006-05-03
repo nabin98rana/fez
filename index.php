@@ -48,9 +48,11 @@ if ($_SESSION['IDP_LOGIN_FLAG'] == 1) {
 if ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
 /*	echo "<pre>";
 	print_r($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]);
-	echo "</pre>"; */
+	echo "</pre>";  */
 
-  Auth::LoginAuthenticatedUser("", "", true); 
+  if (!Auth::LoginAuthenticatedUser("", "", true)) {
+    Auth::redirect(APP_RELATIVE_URL . "login.php?err=22");
+  }
 
 } elseif (count($HTTP_POST_VARS) > 0) {
 	if (Validation::isWhitespace($HTTP_POST_VARS["username"])) {

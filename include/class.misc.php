@@ -1574,11 +1574,11 @@ class Misc
 						if (is_numeric($xsdmf_id)) {
 							$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
 							if ($xsdmf_details['xsdmf_fez_variable'] == "pid") {
-								$res .= ' '.$i.'="'.$pid.'"';
+								$res .= ' '.$i.'="'.$pid.'" ';
 							} elseif ($xsdmf_details['xsdmf_fez_variable'] == "xdis_id") {
-								$res .= ' '.$i.'="'.$top_xdis_id.'"';
+								$res .= ' '.$i.'="'.$top_xdis_id.'" ';
 							} else {
-								$res .= ' '.$i.'="'.$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id].'"';
+								$res .= ' '.$i.'="'.$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id].'" ';
 							}
 						}
 					}

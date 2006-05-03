@@ -126,6 +126,7 @@ class Template_API
             $this->assign(array("benchmark_total" => sprintf("%.4f", $profiling[count($profiling)-1]["total"]),
                                 "benchmark_results" => base64_encode(serialize($profiling))));
         }
+
         $this->processTemplate();
         // finally display the parsed template
         $this->smarty->display($this->tpl_name);

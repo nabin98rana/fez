@@ -339,8 +339,8 @@ if (SHIB_SWITCH == "ON") {
 //		$getArguments = $_SERVER['argv'][0]; 
 		$target = "cookie";
 		$time = "1142380709";
-		$providerId = urlencode("urn:mace:federation.org.au:testfed:level-1:dev-repo.library.uq.edu.au");
-		$shire = urlencode("https://dev-repo.library.uq.edu.au/Shibboleth.sso/SAML/POST");
+		$providerId = urlencode(SHIB_HOME_SP);
+		$shire = urlencode("https://".APP_HOSTNAME."/Shibboleth.sso/SAML/POST");
 		$getArguments = "target=$target&shire=$shire&providerId=$providerId";
 //		$getArguments = "target=$target&shire=$shire&providerId=$providerId&time=$time";
 	}
@@ -350,6 +350,8 @@ if (SHIB_SWITCH == "ON") {
 } else {
 	$tpl->assign("SHIB_IDP_LIST", array());
 }
+$tpl->assign("APP_HOSTNAME", APP_HOSTNAME);
+$tpl->assign("SHIB_HOME_SP", SHIB_HOME_SP);
 $tpl->assign("SHIB_HOME_IDP", SHIB_HOME_IDP);
 $tpl->assign("SHIB_FEDERATION_NAME", SHIB_FEDERATION_NAME);
 $tpl->displayTemplate();

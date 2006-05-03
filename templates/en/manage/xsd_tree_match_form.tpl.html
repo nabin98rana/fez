@@ -835,6 +835,22 @@
               </tr>			
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Use in HTML Meta Header?:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="checkbox" name="xsdmf_meta_header" class="default" {if ($info.xsdmf_meta_header == 1)}checked{/if}><br />
+                  <span class="small_default">(If this tickbox is ticked and a header name given below, the value for this element will be shown in the html head tag as a head meta tag)</span>
+              </tr>			
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>HTML Meta Header Name:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+				  <input type="text" name="xsdmf_meta_header_name" size="40" class="default" value="{$info.xsdmf_meta_header_name}">
+                  <span class="small_default">(If the above tickbox is ticked this string will be used as the header name - eg DC.creator)</span>
+              </tr>			
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Use in Citation Browse Listings Level?:</b>
                 </td>
                 <td bgcolor="{$light_color}">

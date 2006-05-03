@@ -392,6 +392,31 @@ class User
 
 
     /**
+     * Method used to update the account username for a specific user.
+     *
+     * @access  public
+     * @param   string $new_username The new username
+     * @param   string $old_username The old username to search for
+     * @return  integer 1 if the update worked, -1 otherwise
+     */
+    function updateUsername($new_username, $old_username)
+    {
+        $stmt = "UPDATE
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                 SET
+                    usr_username='" . Misc::escapeString($new_username) . "'
+                 WHERE
+                    usr_username='" . Misc::escapeString($old_username) . "'";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+            return 1;
+        }
+    }
+
+    /**
      * Method used to update the account full name for a specific user.
      *
      * @access  public
@@ -413,11 +438,10 @@ class User
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-			$_SESSION['fullname'] = $HTTP_POST_VARS["full_name"];
+            $_SESSION['fullname'] = $HTTP_POST_VARS["full_name"];
             return 1;
         }
-    }
-
+    } 
 
     /**
      * Method used to update the account email for a specific user.
@@ -652,6 +676,56 @@ class User
                     '" . Misc::escapeString($prefs) . "',
                     '" . Misc::escapeString($HTTP_POST_VARS["username"]) . "',
                     '" . md5(Misc::escapeString($HTTP_POST_VARS["passwd"])) . "',
+					1,
+                    '" . Date_API::getCurrentDateGMT() . "'
+                 )";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+            $new_usr_id = $GLOBALS["db_api"]->get_last_insert_id();
+            // send email to user
+//            Notification::notifyNewUser($new_usr_id, "");
+            return 1;
+        }
+    }
+
+    /**
+     * Method used to add a new user to the system from their LDAP details.
+     *
+     * @access  public
+     * @return  integer 1 if the update worked, -1 otherwise
+     */
+    function insertFromShibLogin($usr_username, $usr_full_name, $usr_email)
+    {
+        global $HTTP_POST_VARS;
+
+		$usr_administrator = 0;
+
+		$ldap_authentication = 0;
+
+        $prefs = Prefs::getDefaults();
+        $stmt = "INSERT INTO
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                 (
+                    usr_created_date,
+                    usr_full_name,
+                    usr_email,
+                    usr_administrator,
+                    usr_ldap_authentication,
+                    usr_preferences,
+                    usr_username,
+                    usr_login_count,
+                    usr_last_login_date
+                 ) VALUES (
+                    '" . Date_API::getCurrentDateGMT() . "',
+                    '" . ucwords(strtolower($usr_full_name)) . "',
+                    '" . $usr_email . "',
+                    " . $usr_administrator . ",
+                    " . $ldap_authentication . ",
+                    '" . Misc::escapeString($prefs) . "',
+                    '" . Misc::escapeString($usr_username) . "',
 					1,
                     '" . Date_API::getCurrentDateGMT() . "'
                  )";

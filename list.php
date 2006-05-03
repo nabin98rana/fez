@@ -81,8 +81,9 @@ if (!empty($collection_pid)) {
     // list a collection
 	// first check the user has view rights over the collection object
 	$record = new RecordObject($collection_pid);
-	$tpl->assign("isViewer", $record->canView(true));
-	if ($record->canView()) {
+	$canView = $record->canView(true);
+	$tpl->assign("isViewer", $canView);
+	if ($canView) {
 	
 		$tpl->assign("xdis_id", Record::getRecordXDIS_ID());
 		$collection_details = Collection::getDetails($collection_pid);
@@ -122,8 +123,9 @@ if (!empty($collection_pid)) {
     // list collections in a community
 	// first check the user has view rights over the collection object
 	$record = new RecordObject($community_pid);
-	$tpl->assign("isViewer", $record->canView(true));
-	if ($record->canView()) {	
+	$canView = $record->canView(true);
+	$tpl->assign("isViewer", $canView);
+	if ($canView) {	
 		$tpl->assign("community_pid", $community_pid);
 		$xdis_id = Collection::getCollectionXDIS_ID();
 		$community_xdis_id = Community::getCommunityXDIS_ID();

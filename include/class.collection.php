@@ -423,7 +423,6 @@ class Collection
             LEFT JOIN {$dbtp}xsd_display d1  
             ON (d1.xdis_id = r1.rmf_varchar and k1.sek_title = 'Title')
             ORDER BY display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
-
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 
         if (PEAR::isError($res)) {
@@ -841,6 +840,7 @@ class Collection
      */
     function getListing($collection_pid, $current_row = 0, $max = 25, $order_by = 'Title')
     {
+
 		if ($max == "ALL") {
             $max = 9999999;
         }
@@ -1099,7 +1099,11 @@ class Collection
 		}
 
 		$dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-		$stmt = "select distinct ai3.authi_pid as aip from {$dbtp}auth_index ai3 where (ai3.authi_role in ('Lister', 'Viewer'))";
+		if (in_array("Lister", $roles) || in_array("Viewer", $roles) || count($roles) == 0) {
+			$stmt = "select distinct ai3.authi_pid as aip from {$dbtp}auth_index ai3 where (ai3.authi_role in ('Lister', 'Viewer'))";
+		} else {
+			$stmt = "";
+		}
 /*		$res = $GLOBALS["db_api"]->dbh->getCol($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -1136,9 +1140,9 @@ class Collection
                    OR (authi_rule = '!rule!role!eduPersonTargetedID' AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID']."', authi_value)
                       ) ";
                  }
-                 if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Affiliation'])) {
+                 if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation'])) {
                    $authStmt .= "
-                   OR (authi_rule = '!rule!role!eduPersonAffiliation' AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Affiliation']."', authi_value)
+                   OR (authi_rule = '!rule!role!eduPersonAffiliation' AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation']."', authi_value)
                       ) ";
                  }
                  if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'])) {
@@ -1177,9 +1181,9 @@ class Collection
                  }
 
 				 $authStmt .= " )) ";
-				    if (count($coll_pids) != 0) {
-						$authStmt .= " or ai.authi_pid not in ($stmt)";
-					}
+				if ($stmt != "") {
+					$authStmt .= " or ai.authi_pid not in ($stmt)";
+				}
 
                  $authStmt .= "
                    ) and ai.authi_pid = r2.rmf_rec_pid";

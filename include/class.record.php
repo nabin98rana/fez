@@ -908,14 +908,21 @@ class Record
             WHERE 
             rmf_rec_pid IN ($pids_str)
             AND (r1.rmf_dsid IS NULL or r1.rmf_dsid = '') 
-            AND (xsdmf_element ='!rule!role!Fez_User' 
-                    OR xsdmf_element ='!rule!role!AD_Group'
-                    OR xsdmf_element ='!rule!role!AD_User'
-                    OR xsdmf_element ='!rule!role!AD_DistinguishedName'
-                    OR xsdmf_element ='!rule!role!Fez_Group'
-                    OR xsdmf_element ='!rule!role!in_AD'
-                    OR xsdmf_element ='!rule!role!in_Fez'
-                    OR xsdmf_element ='!inherit_security'
+            AND (xsdmf_element in ('!rule!role!Fez_User',
+                    '!rule!role!AD_Group',
+                    '!rule!role!AD_User',
+                    '!rule!role!AD_DistinguishedName',
+                    '!rule!role!Fez_Group',
+                    '!rule!role!in_AD',
+                    '!rule!role!in_Fez',
+                    '!inherit_security',
+                    '!rule!role!eduPersonTargetedID',
+                    '!rule!role!eduPersonAffiliation',
+                    '!rule!role!eduPersonScopedAffiliation',
+                    '!rule!role!eduPersonPrimaryAffiliation',
+                    '!rule!role!eduPersonPrinicipalName',
+                    '!rule!role!eduPersonOrgUnitDN',
+                    '!rule!role!eduPersonPrimaryOrgUnitDN')
                 )
             ORDER BY pid ASC ";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -1143,8 +1150,8 @@ class Record
 						}
 						Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, 
 								"text/xml", "X");
-                        if (is_file(APP_TEMP_DIR.$presmd_check)) {
-                            $deleteCommand = APP_DELETE_CMD." ".APP_DELETE_DIR.$presmd_check;
+                        if (is_file(APP_DELETE_DIR.basename($presmd_check))) {
+                            $deleteCommand = APP_DELETE_CMD." ".APP_DELETE_DIR.basename($presmd_check);
                             exec($deleteCommand);
                         }
 					}
@@ -1158,8 +1165,9 @@ class Record
 			if ($dsTitle['CONTROL_GROUP'] == "M" ) {
 				Workflow::processIngestTrigger($pid, Foxml::makeNCName($dsTitle['ID']), $dsTitle['MIMETYPE']);
 				//clear the managed content file temporarily saved in the APP_TEMP_DIR
-				if (is_file(APP_TEMP_DIR.Foxml::makeNCName($dsTitle['ID']))) {
-					$deleteCommand = APP_DELETE_CMD." ".APP_TEMP_DIR.$dsTitle['ID'];
+				$ncNameDelete = Foxml::makeNCName($dsTitle['ID']);
+				if (is_file(APP_DELETE_DIR.$ncNameDelete)) {
+					$deleteCommand = APP_DELETE_CMD." ".APP_DELETE_DIR.$ncNameDelete;
 					exec($deleteCommand);
 				}
 			}
@@ -1861,7 +1869,6 @@ class RecordObject extends RecordGeneral
                 if ($presmd_check != false) {
                     // strip directory off the name
                     $pres_dsID = basename($presmd_check);
-                    
                     if (Fedora_API::datastreamExists($pid, $pres_dsID)) {
                         $xml = file_get_contents($presmd_check);
                         Fedora_API::callModifyDatastreamByValue($pid, $pres_dsID, "A", 
@@ -1870,7 +1877,7 @@ class RecordObject extends RecordGeneral
                         Fedora_API::getUploadLocationByLocalRef($pid, $pres_dsID, $presmd_check, $presmd_check, 
                                 "text/xml", "X");
                     }
-                    if (is_file(APP_TEMP_DIR.$presmd_check)) {
+                    if (is_file($presmd_check)) {
                         $deleteCommand = APP_DELETE_CMD." ".$presmd_check;
                         exec($deleteCommand);
                     }
