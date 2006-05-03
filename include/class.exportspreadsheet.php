@@ -1,27 +1,31 @@
 <?php
 
-include_once(APP_INC_PATH . "class.csv_array.php");
+include_once(APP_INC_PATH . "class.spreadsheet_array.php");
 include_once(APP_INC_PATH . "class.author.php");
 
 
-class ExportCSV {
+/**
+* !!! NOTE: This class originally exported Spreadsheet but now it uses the toXMLSS method instead because Spreadsheet doesn't
+* handle UTF-8 consistantly.
+*/
+class ExportSpreadsheet {
 
-    var $csv;
+    var $spreadsheet;
     var $bgp; // background process object for keeping track of status when running in background
     var $record_count;
     
     function export($pid)
     {
-        $this->csv = new CSV_Array();
+        $this->spreadsheet = new Spreadsheet_Array();
         $this->record_count = 0;
-        $this->pid2csv($pid);
-        $csvstr = $this->csv->toCSV();
+        $this->pid2spreadsheet($pid);
+        $spreadsheetstr = $this->spreadsheet->toXMLSS();
 
-        header('Content-type: text/csv');
-        header("Content-Disposition: attachment; filename=\"export.csv\"");
+        header('Content-type: text/xml');
+        header("Content-Disposition: attachment; filename=\"export.xml\"");
         header('Pragma: private');
         header('Cache-control: private, must-revalidate'); 
-        echo $csvstr;
+        echo $spreadsheetstr;
 
         exit;
     }
@@ -31,14 +35,14 @@ class ExportCSV {
       */
     function export2File($pid)
     {
-        $this->csv = new CSV_Array();
+        $this->spreadsheet = new Spreadsheet_Array();
         $this->record_count = 0;
-        $this->pid2csv($pid);
-        $csvstr = $this->csv->toCSV();
-        $filename = APP_PATH."exports/{$this->bgp->bgp_id}.csv";
-        file_put_contents($filename, $csvstr);
-        $headers = "Content-type: text/csv\n"
-            ."Content-Disposition: attachment; filename=\"export.csv\"\n"
+        $this->pid2spreadsheet($pid);
+        $spreadsheetstr = $this->spreadsheet->toXMLSS();
+        $filename = APP_PATH."exports/{$this->bgp->bgp_id}.xml";
+        file_put_contents($filename, $spreadsheetstr);
+        $headers = "Content-type: text/xml\n"
+            ."Content-Disposition: attachment; filename=\"export.xml\"\n"
             ."Pragma: private\n"
             ."Cache-control: private, must-revalidate";
 
@@ -51,9 +55,9 @@ class ExportCSV {
     }
 
 
-    function pid2csv($pid)
+    function pid2spreadsheet($pid)
     {
-        $csv = &$this->csv;
+        $spreadsheet = &$this->spreadsheet;
         $exclude_list = array('FezACML','FezMD','RELS-EXT');
         $exclude_prefix = array('presmd','thumbnail','web','preview');
         $acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
@@ -61,21 +65,21 @@ class ExportCSV {
         $record = new RecordGeneral($pid);
         if ($record->checkExists() && $record->canView(false)) {
             $datastreams = $record->getDatastreams();
-            $csv->addRow();
-            $csv->addValue($pid,'PID');
+            $spreadsheet->addRow();
+            $spreadsheet->addValue($pid,'PID');
             $parents = $record->getParents();
             foreach ($parents as $parent) {
                 foreach ($parent['title'] as $title) {
-                    $csv->addValue($title,'Parent Record');
+                    $spreadsheet->addValue($title,'Parent Record');
                 }
             }
             $status = $record->getPublishedStatus(true);
-            $csv->addValue($status,'Status');
+            $spreadsheet->addValue($status,'Status');
             $doctype = $record->getDocumentType();
-            $csv->addValue($doctype,'Document Type');
+            $spreadsheet->addValue($doctype,'Document Type');
 
             $additional_notes = $record->getDetailsByXSDMF_element('!additional_notes');
-            $csv->addValue($additional_notes,'Additional Notes');
+            $spreadsheet->addValue($additional_notes,'Additional Notes');
 
             // Metadata
             foreach ($datastreams as $ds) {
@@ -96,21 +100,21 @@ class ExportCSV {
                             }
                         }
                     }
-                    $csv->addArray($metaArray);
+                    $spreadsheet->addArray($metaArray);
                 } elseif ($ds['controlGroup'] == 'R' 
                         && !in_array(substr($ds['ID'],0,strpos($ds['ID'],'_')), $exclude_prefix)
                         && Auth::checkAuthorisation($pid, $ds['ID'], $acceptable_roles, '', null, false)
                         ) {
-                    $csv->addValue($ds['label'], 'Link Label');
-                    $csv->addValue($ds['location'], 'Link Location');
+                    $spreadsheet->addValue($ds['label'], 'Link Label');
+                    $spreadsheet->addValue($ds['location'], 'Link Location');
                 } elseif ($ds['controlGroup'] == 'M' 
                         && !in_array(substr($ds['ID'],0,strpos($ds['ID'],'_')), $exclude_prefix)
                         && Auth::checkAuthorisation($pid, $ds['ID'], $acceptable_roles, '', null, false)) {
 
-                    $csv->addValue($ds['ID'], 'File Datastream ID');
-                    $csv->addValue($ds['label'], 'File Label');
-                    $csv->addValue($ds['MIMEType'], 'File MIME Type');
-                    $csv->addValue($ds['size'], 'File Size');
+                    $spreadsheet->addValue($ds['ID'], 'File Datastream ID');
+                    $spreadsheet->addValue($ds['label'], 'File Label');
+                    $spreadsheet->addValue($ds['MIMEType'], 'File MIME Type');
+                    $spreadsheet->addValue($ds['size'], 'File Size');
                 }
             }
             $this->record_count++;
@@ -122,12 +126,12 @@ class ExportCSV {
             $children = $record->getChildrenPids();
             if ($children) {
                 foreach ($children as $child) {
-                    $this->pid2csv($child);
+                    $this->pid2spreadsheet($child);
                 }
             }
         }
 
-        return $csv;
+        return $spreadsheet;
 
     }
 }

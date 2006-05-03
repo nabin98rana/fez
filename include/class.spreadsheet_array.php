@@ -1,21 +1,21 @@
 <?php
 
 /**
-  * Class to help construct a CSV file
+  * Class to help construct a Spreadsheet file
   */
 
-class CSV_Array {
+class Spreadsheet_Array {
 
     var $columns=array();
     var $rows=array();
     var $currentRow=-1;
     
-    function CSV_Array()
+    function Spreadsheet_Array()
     {
     }
 
     /**
-      * Add a column heading to the CSV file.  Only columns added here will be printed.
+      * Add a column heading to the Spreadsheet file.  Only columns added here will be printed.
       * Usually addValue calls this so no need to call it from user code.
       */
     function addColumn($colname)
@@ -34,7 +34,7 @@ class CSV_Array {
     }
 
     /**
-      * Used by toCSV to repeat rows where only a few values have changed.
+      * Used by toSpreadsheet to repeat rows where only a few values have changed.
       * Rows marked to inherit will get values from the inherited rows if the values in the current row are
       * blank.
       */
@@ -78,7 +78,59 @@ class CSV_Array {
     }
 
     /**
-      * Start a new row in the CSV file.  Usually called by user with no options.  The 
+      * Output as a XMLSS string ready to write to a file or stream to browser.
+      */
+    function toXMLSS()
+    {
+        $col_count = count($this->columns);
+        $row_count = count($this->rows) + 1;
+        $xmlss = <<<EOT
+<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <Worksheet ss:Name="Sheet1">
+  <Table ss:ExpandedColumnCount="{$col_count}" ss:ExpandedRowCount="{$row_count}" x:FullColumns="1"
+   x:FullRows="1" >
+
+EOT;
+        $xmlss .= "<Row>\n";
+        foreach ($this->columns as $col) {
+            $xmlss .= "<Cell><Data ss:Type=\"String\">$col</Data></Cell>\n";
+        }
+        $xmlss .= "</Row>\n";
+        foreach ($this->rows as $row) {
+            $xmlss .= "<Row>\n";
+            foreach ($this->columns as $col) {
+                if (isset($row[$col])) {
+                    $value = $row[$col];
+                } elseif ($this->getInheritedRow($row) !== false) { 
+                    $value = $this->getInheritedValue($row, $col);
+                } else {
+                    $value = '';
+                }
+                if (is_numeric($value)) {
+                    $cell_type = 'Number';
+                } else {
+                    $cell_type = 'String';
+                }
+                $xmlss .= "<Cell><Data ss:Type=\"$cell_type\">{$value}</Data></Cell>";
+            }
+            $xmlss .= "</Row>\n";
+        }
+        $xmlss .= <<<EOT
+  </Table>
+ </Worksheet>
+</Workbook>
+EOT;
+        return $xmlss;
+    }
+
+    /**
+      * Start a new row in the Spreadsheet file.  Usually called by user with no options.  The 
       * internal functions may add a row without selecting it so that value will go into the
       * previously added row.  This is used when duplicate columns are found in a row.
       */
