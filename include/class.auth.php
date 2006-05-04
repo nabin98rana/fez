@@ -644,17 +644,17 @@ class Auth
 			}
 		}
         $userPIDAuthGroups = array();
-
+		$usingDS = false;
         $acmlBase = false;
-
 		if ($dsID != "") {
+			$usingDS = true;
 	        $acmlBase = Record::getACML($pid, $dsID);
 		}
 		// if no FezACML exists for a datastream then it must inherit from the pid object
         if ($acmlBase == false) {
+			$usingDS = false;
 	        $acmlBase = Record::getACML($pid);
 		}
-
         $ACMLArray = array();
         if ($acmlBase == false) { // no FezACML was found for DS or PID object so go to parents straight away (inherit presumed)
 //			echo "acmlBase not found";
@@ -683,7 +683,7 @@ class Auth
 
             $inherit = !$found_inherit_off && ($found_inherit_on || $found_inherit_blank);
 			if ($inherit == true) { // if need to inherit, check if at dsID level or not first and then 
-				if ($dsID == "") { // if already at PID level just get parent pids and add them
+				if (($dsID == "") || ($usingDS == false)) { // if already at PID level just get parent pids and add them
 					$parents = Record::getParents($pid);
 					Auth::getParentACMLs(&$ACMLArray, $parents);				
 				} else { // otherwise get the pid object first and check whether to inherit
@@ -1101,6 +1101,8 @@ class Auth
         if ($auth_isBGP) {
             $session =& $auth_bgp_session;
         } else {
+            session_name(APP_SESSION);
+            @session_start();
             $session =& $_SESSION;
         }
         if (empty($session) || empty($session['username'])) {
