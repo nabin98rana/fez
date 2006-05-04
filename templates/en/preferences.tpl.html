@@ -162,6 +162,33 @@ function validateAccount(f)
     </td>
   </tr>
 </table>
+{if $SHIB_SWITCH == "ON"}
+<br />
+<table width="99%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+  <tr>
+    <td>
+      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+        <tr bgcolor="{$heading_color}">
+          <td class="default_white" colspan="2">
+            <b>Shibboleth Attributes</b>
+            {include file="help_link.tpl.html" topic="preferences"}
+          </td>
+        </tr>
+		{section name="i" loop=$shibAttribs}
+        <tr>
+          <td width="190" bgcolor="{$cell_color}" class="default">
+            <b>{$shibAttribs[i].name}:</b>
+          </td>
+          <td bgcolor="{$light_color}" class="default">
+			{$shibAttribs[i].value}
+          </td>
+        </tr>
+		{/section}
+      </table>
+    </td>
+  </tr>
+</table>
+{/if}
 
 <br />
 

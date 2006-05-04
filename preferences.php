@@ -77,7 +77,20 @@ $prefs = Prefs::get($usr_id);
 if (empty($prefs)) {
     $prefs = Setup::load();
 }
+$shibAttribs = array();
 
+if (isset($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]) && is_array($_SESSION[APP_SHIB_ATTRIBUTES_SESSION])) {
+	$counter = 0;
+	foreach ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION] as $name => $value) {
+		if (is_numeric(strpos($name, "Shib-EP"))) {
+			$shibAttribs[$counter]['name'] = $name;
+			$shibAttribs[$counter]['value'] = $value;
+			$counter++;
+		}
+	}
+}
+$tpl->assign("SHIB_SWITCH", SHIB_SWITCH);
+$tpl->assign("shibAttribs", $shibAttribs);
 $tpl->assign("user_prefs", $prefs);
 $tpl->assign("zones", Date_API::getTimezoneList());
 
