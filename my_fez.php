@@ -76,7 +76,7 @@ $tpl->assign("isAdministrator", $isAdministrator);
 $collection_list = Collection::getEditList();
 //print_r($collection_list);
 foreach ($collection_list as &$item) {
-//   $item['community'] = implode(',',Misc::keyPairs(Collection::getParents2($item['pid']),'pid','title'));
+   $item['community'] = implode(',',Misc::keyPairs(Collection::getParents2($item['pid']),'pid','title'));
    $item['count'] = Collection::getEditListingCount($item['pid']);
 }
 
@@ -105,8 +105,6 @@ $tpl->assign("options", $options);
 $assigned_items= Record::getAssigned(Auth::getUsername(), $pagerRow, $rows, $order_by);
 $tpl->assign('my_assigned_items_list', $assigned_items['list']);
 $tpl->assign('my_assigned_items_info', $assigned_items['info']);
-
-
 
 $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
 $tpl->assign('najax_register', NAJAX_Client::register('NajaxBackgroundProcessList', APP_RELATIVE_URL.'najax_services/generic.php'));

@@ -683,7 +683,7 @@ class Record
 
         $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
                     INNER JOIN {$dbtp}xsd_display_matchfields AS x2
-                      ON r2.rmf_xsdmf_id = x2.xsdmf_id AND x2.xsdmf_element='!sta_id' and r2.rmf_varchar!='2'
+                      ON r2.rmf_xsdmf_id = x2.xsdmf_id AND match(x2.xsdmf_element) against ('\"!sta_id\"' in boolean mode) and r2.rmf_varchar!='2'
 
 
                     $authStmt
@@ -691,13 +691,14 @@ class Record
                     ";
         $bodyStmt = "$bodyStmtPart1
 
-                    LEFT JOIN (select r5.rmf_rec_pid, min(r5.rmf_$data_type) as sort_column
-					FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r5
+                    LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r5 on r5.rmf_rec_pid = r2.rmf_rec_pid
                     inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x5
                     on r5.rmf_xsdmf_id = x5.xsdmf_id
-                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s5
-                    on s5.sek_id = x5.xsdmf_sek_id AND s5.sek_title = '$order_by' group by r5.rmf_rec_pid) as sort_table
-                    ON sort_table.rmf_rec_pid=$r4_join_field
+                    left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s5			
+					on (s5.sek_id = x5.xsdmf_sek_id and s5.sek_title = '$order_by')  
+					where (r5.rmf_varchar is null) or s5.sek_title = '$order_by'					
+					group by r5.rmf_rec_pid
+
 					
                     
              ";
@@ -712,7 +713,7 @@ class Record
             INNER JOIN {$dbtp}xsd_display_matchfields AS x1
             ON r1.rmf_xsdmf_id = x1.xsdmf_id
             INNER JOIN (
-                    SELECT distinct r2.rmf_rec_pid, sort_table.sort_column as sort_column
+                    SELECT distinct r2.rmf_rec_pid, min(r5.rmf_$data_type) as sort_column
                     $bodyStmt
 					order by sort_column $order_dir, r2.rmf_rec_pid desc
                     LIMIT $start, $pageRows
@@ -1058,7 +1059,6 @@ class Record
 		if (@is_array($datastreamXMLHeaders["Link0"])) { // it must be a multiple link item so remove the generic one
 			$datastreamXMLHeaders = Misc::array_clean_key($datastreamXMLHeaders, "Link", true, true);
 		}
-
         if ($ingestObject) {
             // Actually Ingest the object Into Fedora
             // We only have to do this when first creating the object, subsequent updates should just work with the 

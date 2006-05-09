@@ -153,7 +153,9 @@ class Controlled_Vocab
         } else {
 			// get last db entered id
 			$new_id = $GLOBALS["db_api"]->get_last_insert_id();
-			Controlled_Vocab::associateParent($HTTP_POST_VARS["parent_id"], $new_id);
+			if (is_numeric($HTTP_POST_VARS["parent_id"])) {
+				Controlled_Vocab::associateParent($HTTP_POST_VARS["parent_id"], $new_id);
+			}
 			return 1;
         }
     }

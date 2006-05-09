@@ -103,7 +103,7 @@ class Pager
 		$existing_cookie = Record::getCookieParams();
 		global $HTTP_POST_VARS, $HTTP_GET_VARS;
         $encoded = base64_encode(serialize($cookie));
-        setcookie(APP_LIST_COOKIE, $encoded, APP_LIST_COOKIE_EXPIRE);
+        @setcookie(APP_LIST_COOKIE, $encoded, APP_LIST_COOKIE_EXPIRE);
         return $cookie;
     }
 
