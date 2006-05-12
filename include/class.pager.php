@@ -63,12 +63,14 @@ class Pager
      * @param   string $name The name of the parameter
      * @return  mixed The value of the specified parameter
      */
-    function getParam($name)
+    function getParam($name, $params=array())
     {
         global $HTTP_POST_VARS, $HTTP_GET_VARS;
         $cookie = Pager::getCookieParams();
 
-        if (isset($HTTP_GET_VARS[$name])) {
+        if (isset($params[$name])) {
+            return $params[$name];
+        } elseif (isset($HTTP_GET_VARS[$name])) {
             return $HTTP_GET_VARS[$name];
         } elseif (isset($HTTP_POST_VARS[$name])) {
             return $HTTP_POST_VARS[$name];
@@ -86,13 +88,13 @@ class Pager
      * @access  public
      * @return  array The search parameters
      */
-    function saveSearchParams()
+    function saveSearchParams($params = array())
     {	
 		// @@@ CK 21/7/2004 - Added this global for the custom fields check.
 			
-        $sort_by = Pager::getParam('sort_by');
-        $sort_order = Pager::getParam('sort_order');
-        $rows = Pager::getParam('rows');
+        $sort_by = Pager::getParam('sort_by',$params);
+        $sort_order = Pager::getParam('sort_order',$params);
+        $rows = Pager::getParam('rows',$params);
         $cookie = array(
             'rows'           => $rows ? $rows : APP_DEFAULT_PAGER_SIZE,
             "sort_by"        => $sort_by ? $sort_by : "rec_id",
@@ -303,6 +305,7 @@ class Pager
             return $temp;
         }
     }
+
 }
 
 // benchmarking the included file (aka setup time)

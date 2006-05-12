@@ -36,6 +36,7 @@
 include_once(APP_INC_PATH . "najax/najax.php");
 include_once(APP_INC_PATH . "najax_objects/class.image_preview.php");
 include_once(APP_INC_PATH . "class.author.php");
+include_once(APP_INC_PATH . "class.lister.php");
 include_once(APP_PEAR_PATH . "Date.php");
 
 $username = Auth::getUsername();
@@ -267,11 +268,93 @@ if (!empty($pid)) {
 		$parents = Record::getParents($pid);
 		$tpl->assign("parents", $parents);		
 		$tpl->assign("details", $details);
+        $tpl->assign('title', $record->getTitle());
 		$tpl->assign("controlled_vocabs", $controlled_vocabs);				
 
+        // get prev / next info
+        
+        // Check if we have moved onto the next listing page
+        if (@$_GET['go_next']) {
+            $res = getNextPage();
+        }
+        if (@$_GET['go_prev']) {
+            $res = getPrevPage();
+        }
+        if (@$_GET['go_next'] || @$_GET['go_prev']) {
+            $_SESSION['list'] = $res['list'];
+            $_SESSION['list_params'] = $res['list_params'];
+            $_SESSION['list_info'] = $res['list_info'];
+            $_SESSION['view_page'] = $res['list_info']['current_page'];
+        }
+
+        // Get the current listing 
+        $list = $_SESSION['list'];
+        $list_info = $_SESSION['list_info'];
+        $view_page = $_SESSION['view_page'];
+
+        // find current position in list
+        foreach ($list as $key => $item) {
+            if ($item['pid'] == $pid) {
+                $list_idx = $key;
+                break;
+            }
+        }
+        $prev = null;  // the next item in the list
+        $next = null;  // the previous item in the list
+        $go_next = null;  // whether we need to page down
+        $go_prev = null;  // whether we need to page up
+        if (!is_null($list_idx)) {
+            if ($list_idx > 0) {
+                $prev = $list[$list_idx-1];
+            } else {
+                $res = getPrevPage();
+                if (!empty($res)) {
+                    $prev = $res['list'][count($res['list'])-1];
+                    $go_prev = true;
+                }
+            }
+            if ($list_idx < count($list)-1) {
+                $next = $list[$list_idx+1];
+            } else {
+                $res = getNextPage();
+                if (!empty($res)) {
+                    $next = $res['list'][0];
+                    $go_next = true;
+                }
+            }
+        }
+        $tpl->assign(compact('prev','next','go_next','go_prev'));
 	}
 } else {
 	$tpl->assign("show_not_allowed_msg", true);
+}
+
+
+function getNextPage()
+{
+    $params = $_SESSION['list_params'];
+    $info = $_SESSION['list_info'];
+    $view_page = $_SESSION['view_page'];
+    if ($view_page < $info['last_page']) {
+        $params['pagerRow'] = $view_page + 1;
+        $res = Lister::getList($params, false);
+        $res['list_params'] = $params;
+        return $res;
+    }
+    return array();
+}
+function getPrevPage()
+{
+    $params = $_SESSION['list_params'];
+    $info = $_SESSION['list_info'];
+    $view_page = $_SESSION['view_page'];
+    if ($view_page > 0) {
+        $params['pagerRow'] = $view_page - 1;
+        $res = Lister::getList($params, false);
+        $res['list_params'] = $params;
+        return $res;
+    }
+    return array();
 }
 //print_r($GLOBALS['bench']->getProfiling());
 ?>

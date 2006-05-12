@@ -149,7 +149,7 @@ function validateForm(f)
       <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="1" border="0">
 
         <tr>
-          <td align="left" class="default" nowrap colspan="2"><br /><img align="absmiddle" src="{$rel_url}images/record_view_32.jpg"/> <b>View {$xdis_title} Details: </b> <br /><br /></td>
+          <td align="left" class="default" nowrap colspan="2"><br /><img align="absmiddle" src="{$rel_url}images/record_view_32.jpg"/> <b>View {$xdis_title}: <i>{$title}</i> </b> <br /><br /></td>
         </tr>
 		<tr>
 		  <td align="left"> 
@@ -162,6 +162,15 @@ function validateForm(f)
 					{/section}
 				  </td>
 				</tr>
+{if $prev || $next}
+				<tr>
+				  <td align="left" class="default" nowrap> <b>Browse Collection:</b></td>
+				  <td align="left" class="default" nowrap> &nbsp;
+{if $prev}<a href="{$rel_url}view.php?pid={$prev.pid}&go_prev={$go_prev}">Prev: <i>{$prev.title.0}</i></a> {if $next}&nbsp;|&nbsp;{/if}{/if}
+{if $next}<a href="{$rel_url}view.php?pid={$next.pid}&go_next={$go_next}">Next: <i>{$next.title.0}</i></a> {/if}
+				  </td>
+				</tr>
+{/if}
 			</table><br />
 		  </td>
 		</tr> 
