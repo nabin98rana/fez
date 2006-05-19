@@ -1048,19 +1048,22 @@ class Collection
             $res = array();
         }
         $coll_pids = $res; */
+		$authStmt = "";
         $fez_groups_sql = Misc::arrayToSQL(@$_SESSION[APP_INTERNAL_GROUPS_SESSION]);
         $ldap_groups_sql = Misc::arrayToSQL(@$_SESSION[APP_LDAP_GROUPS_SESSION]);
 		$joinStmt = "";
 //    		       ( ( (ai.authi_role in ('Lister', 'Viewer', 'Editor', 'Creator', 'Approver'))             
 		if (is_numeric(Auth::getUserID())) {	
-	       	  $authStmt = " join {$dbtp}auth_index ai on
-    		       ( ";
-				   
+				$authStmt .= " inner join ( ";
 				if ($stmt != "") {
-					$authStmt .= " ai.authi_role not in ('Lister', 'Viewer') or ";
+					$authStmt .= "  select distinct authi_pid from {$dbtp}auth_index where authi_role not in ('Lister', 'Viewer')  union ";
 				}
 
+
+	       	  $authStmt .= " select distinct authi_pid from {$dbtp}auth_index ai where
+    		       ";
 				   
+								   
 			   $authStmt .= " 
 				   ( (ai.authi_role in ($rolesStmt) ";
 				   
@@ -1133,7 +1136,7 @@ class Collection
 				 $authStmt .= " )) ";
 
                  $authStmt .= "
-                   ) and ai.authi_pid = r2.rmf_rec_pid";
+                   ) as ai on ai.authi_pid = r2.rmf_rec_pid";
 
 
 			} else {
