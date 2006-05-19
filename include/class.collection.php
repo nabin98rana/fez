@@ -1054,11 +1054,16 @@ class Collection
 //    		       ( ( (ai.authi_role in ('Lister', 'Viewer', 'Editor', 'Creator', 'Approver'))             
 		if (is_numeric(Auth::getUserID())) {	
 	       	  $authStmt = " join {$dbtp}auth_index ai on
-    		       ( ( (ai.authi_role in ($rolesStmt) ";
+    		       ( ";
 				   
 				if ($stmt != "") {
-					$authStmt .= " or ai.authi_role not in ('Lister', 'Viewer')";
+					$authStmt .= " ai.authi_role not in ('Lister', 'Viewer') or ";
 				}
+
+				   
+			   $authStmt .= " 
+				   ( (ai.authi_role in ($rolesStmt) ";
+				   
 
 			  $authStmt .= "				   
 				   )             
