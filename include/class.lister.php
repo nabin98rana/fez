@@ -199,7 +199,7 @@ class Lister
                 $order_by = 'Title';
             }
             // browse by subject
-            $parent_id = Pager::getParam('parent_id',$param);
+            $parent_id = Pager::getParam('parent_id',$params);
             if (is_numeric($parent_id)) {	
                 $subject_list = Controlled_Vocab::getList($parent_id);
                 $treeIDs = Controlled_Vocab::getAllTreeIDs($parent_id);

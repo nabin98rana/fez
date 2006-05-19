@@ -283,7 +283,7 @@ class Collection
             $workflows = array();				
 			if ($ret_wf['isEditor'] == 1) {
 				$xdis_id = $ret_wf['display_type'][0];
-				$ret_id = $ret_wf['object_type'][0];
+				$ret_id = trim($ret_wf['object_type'][0]);
 				$strict = false;
 				$workflows = array_merge($record->getWorkflowsByTriggerAndRET_ID('Update', $ret_id, $strict),
                         $record->getWorkflowsByTriggerAndRET_ID('Export', $ret_id, $strict));
@@ -365,10 +365,15 @@ class Collection
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];
 
+        if (!empty($authStmt)) {
+            $r4_join_field = "ai.authi_pid";
+        } else {
+            $r4_join_field = "r2.rmf_rec_pid";
+        }
 	    if (!empty($community_pid)) {		
 			$memberOfStmt = "
 						INNER JOIN {$dbtp}record_matching_field AS r4
-						  ON r4.rmf_rec_pid = r2.rmf_rec_pid
+						  ON r4.rmf_rec_pid = $r4_join_field
 						INNER JOIN {$dbtp}xsd_display_matchfields AS x4
 						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and match(r4.rmf_varchar) against ('\"$community_pid\"' in boolean mode)
 						INNER JOIN {$dbtp}search_key AS s4  							  
@@ -376,11 +381,6 @@ class Collection
 		} else {
 			$memberOfStmt = "";
 		}
-        if (!empty($authStmt)) {
-            $r4_join_field = "ai.authi_pid";
-        } else {
-            $r4_join_field = "r2.rmf_rec_pid";
-        }
 
         $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
                     INNER JOIN {$dbtp}xsd_display_matchfields AS x2
@@ -601,10 +601,15 @@ class Collection
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];
 
+        if (!empty($authStmt)) {
+            $r4_join_field = "ai.authi_pid";
+        } else {
+            $r4_join_field = "r2.rmf_rec_pid";
+        }
 	    if (!empty($collection_pid)) {		
 			$memberOfStmt = "
 						INNER JOIN {$dbtp}record_matching_field AS r4
-						  ON r4.rmf_rec_pid = r2.rmf_rec_pid
+						  ON r4.rmf_rec_pid = $r4_join_field
 						INNER JOIN {$dbtp}xsd_display_matchfields AS x4
 						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and match(r4.rmf_varchar) against ('\"$collection_pid\"' in boolean mode)
 						INNER JOIN {$dbtp}search_key AS s4  							  
@@ -612,11 +617,6 @@ class Collection
 		} else {
 			$memberOfStmt = "";
 		}
-        if (!empty($authStmt)) {
-            $r4_join_field = "ai.authi_pid";
-        } else {
-            $r4_join_field = "r2.rmf_rec_pid";
-        }
 
         $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
                     INNER JOIN {$dbtp}xsd_display_matchfields AS x2
@@ -658,123 +658,90 @@ class Collection
         $fez_groups_sql = Misc::arrayToSQL($_SESSION[APP_INTERNAL_GROUPS_SESSION]);
         $ldap_groups_sql = Misc::arrayToSQL($_SESSION[APP_LDAP_GROUPS_SESSION]);
         $order_by = 'Title';
+        $start = 0;
+        $max = 100;
         $sekdet = Search_Key::getDetailsByTitle($order_by);
         $data_type = $sekdet['xsdmf_data_type'];
+		$authArray = Collection::getAuthIndexStmt(array( "Editor", "Approver"));
+		$authStmt = $authArray['authStmt'];
+		$joinStmt = $authArray['joinStmt'];
+
+        if (!empty($authStmt)) {
+            $r4_join_field = "ai.authi_pid";
+        } else {
+            $r4_join_field = "r2.rmf_rec_pid";
+        }
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $restrict_collection = '';
-       if ($collection_pid) {
-            $stmt = " SELECT r3.rmf_rec_pid 
-                FROM  {$dbtp}record_matching_field AS r3
-                INNER JOIN {$dbtp}xsd_display_matchfields AS x3
-                ON x3.xsdmf_id = r3.rmf_xsdmf_id
-                INNER JOIN {$dbtp}search_key AS s3
-                ON x3.xsdmf_sek_id = s3.sek_id
-                WHERE s3.sek_title = 'isMemberOf'   
-                AND match(r3.rmf_varchar) against ('\"$collection_pid\"' in boolean mode) ";
-            $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
-            if (PEAR::isError($res)) {
-                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-                $res = array();
-            }
-            $collection_pids = $res;
+        $memberOfStmt = " AND false ";
+       if (!empty($collection_pid)) {
+            $memberOfStmt = "
+                INNER JOIN {$dbtp}record_matching_field AS r4
+                ON r4.rmf_rec_pid = $r4_join_field AND r4.rmf_varchar = '$collection_pid'
+                INNER JOIN {$dbtp}xsd_display_matchfields AS x4
+                ON x4.xsdmf_id = r4.rmf_xsdmf_id
+                INNER JOIN {$dbtp}search_key AS s4
+                ON x4.xsdmf_sek_id = s4.sek_id and s4.sek_title = 'isMemberOf'
+                 ";
         }
-        $stmt = "SELECT distinct authi_pid FROM {$dbtp}auth_index WHERE
-            (authi_role = 'Editor'
-             OR authi_role = 'Approver')
-            AND (
-                    (authi_rule = '!rule!role!Fez_User' AND authi_value='".Auth::getUserID()."')
-                    OR (authi_rule = '!rule!role!AD_User' AND authi_value='".Auth::getUsername()."') ";
-                    if (!empty($fez_groups_sql)) {
-                    $stmt .="
-                    OR (authi_rule = '!rule!role!Fez_Group' AND authi_value 
-                        IN ($fez_groups_sql) ) ";
-                    }
-                    if (!empty($ldap_groups_sql)) {
-                    $stmt .= "
-                    OR (authi_rule = '!rule!role!AD_Group' AND authi_value 
-                        IN ($ldap_groups_sql) ) ";
-                    }
-
-					 if (!empty($_SESSION['distinguishedname'])) {
-					   $stmt .= "
-					   OR (authi_rule = '!rule!role!AD_DistinguishedName' AND INSTR('".$_SESSION['distinguishedname']."', authi_value)
-						  ) ";
-					 }
-
-                    if (Auth::isInAD())  {
-                    $stmt .= "
-                    OR (authi_rule = '!rule!role!in_AD' ) ";
-                    }
-                    if (Auth::isInDB()) {
-                    $stmt .= "
-                    OR (authi_rule = '!rule!role!in_Fez') ";
-                    }
-                    $stmt .= "
-                        )
-                        ";
-        if ($collection_pid) {
-            if (!empty($collection_pids)) {
-                $stmt .= " AND authi_pid IN (".Misc::arrayToSQL($collection_pids).") ";
-            } else {
-                // make it fail if there's no records in the collection
-                $stmt .= " AND false ";
-            }
-        }
-        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            $res = array();
-        }
-        $auth_pids = $res;
-        $object_type_pids = array();
-        if (!empty($auth_pids)) {
-            $stmt = "SELECT r2.rmf_rec_pid 
-                FROM  {$dbtp}record_matching_field r2
-                INNER JOIN {$dbtp}xsd_display_matchfields x2
-                ON r2.rmf_xsdmf_id = x2.xsdmf_id 
-                INNER JOIN {$dbtp}search_key s2				  
-                ON x2.xsdmf_sek_id = s2.sek_id 
-                WHERE s2.sek_title = 'Object Type' 
-                AND r2.rmf_varchar = '3' 
-                AND r2.rmf_rec_pid IN (".Misc::arrayToSQL($auth_pids).") 
-                ";
-            $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
-            if (PEAR::isError($res)) {
-                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-                $res = array();
-            }
-            $object_type_pids = $res;
-        }
-
-        $res = array();
-        if (!empty($object_type_pids)) {
-            $stmt = " SELECT *
-                FROM {$dbtp}record_matching_field AS r1
-                left JOIN (
-                        SELECT distinct r2.rmf_rec_pid as sort_pid, 
-                        r2.rmf_$data_type as sort_column
-                        FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
-                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
-                        on r2.rmf_xsdmf_id = x2.xsdmf_id 
-                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
-                        on s2.sek_id = x2.xsdmf_sek_id
-                        where s2.sek_title = '$order_by'
-                        ) as d3
-                on r1.rmf_rec_pid = d3.sort_pid
-                INNER JOIN {$dbtp}xsd_display_matchfields AS x1 ON r1.rmf_xsdmf_id=x1.xsdmf_id
-                INNER JOIN {$dbtp}search_key as sk1 on sk1.sek_id = x1.xsdmf_sek_id
-                LEFT JOIN {$dbtp}xsd_loop_subelement AS s1 ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id)     
-                WHERE r1.rmf_rec_pid IN (".Misc::arrayToSQL($object_type_pids).")
-                order by d3.sort_column
+            $objectTypestmt = "
+                INNER JOIN {$dbtp}record_matching_field AS r6
+                ON r6.rmf_rec_pid = r4.rmf_rec_pid  AND r6.rmf_varchar = '3' 
+                INNER JOIN {$dbtp}xsd_display_matchfields x6
+                ON r6.rmf_xsdmf_id = x6.xsdmf_id 
+                INNER JOIN {$dbtp}search_key s6				  
+                ON x6.xsdmf_sek_id = s6.sek_id 
+                and  s6.sek_title = 'Object Type' 
+               
                 ";
 
+        
+        $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
+                    INNER JOIN {$dbtp}xsd_display_matchfields AS x2
+                      ON r2.rmf_xsdmf_id = x2.xsdmf_id $joinStmt
+
+                    $authStmt
+
+					$memberOfStmt
+
+                    $objectTypestmt 
+                    ";
+        $bodyStmt = "$bodyStmtPart1
+
+                    LEFT JOIN {$dbtp}record_matching_field r5 on r5.rmf_rec_pid = r2.rmf_rec_pid
+                    inner join {$dbtp}xsd_display_matchfields x5 on r5.rmf_xsdmf_id = x5.xsdmf_id
+                    left join {$dbtp}search_key s5
+                    on (s5.sek_id = x5.xsdmf_sek_id and s5.sek_title = '$order_by')  
+					where (r5.rmf_varchar is null) or s5.sek_title = '$order_by'
+					group by r5.rmf_rec_pid
+             ";
+
+           
+            $stmt = "SELECT r1.*, x1.*, s1.*, k1.*, d1.* 
+            FROM {$dbtp}record_matching_field AS r1
+            INNER JOIN {$dbtp}xsd_display_matchfields AS x1
+            ON r1.rmf_xsdmf_id = x1.xsdmf_id
+            INNER JOIN (
+                    SELECT distinct r2.rmf_rec_pid, min(r5.rmf_$data_type) as sort_column
+                    $bodyStmt
+					order by sort_column $order_dir, r2.rmf_rec_pid desc
+                    LIMIT $start, $max					
+                    ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid 
+            LEFT JOIN {$dbtp}xsd_loop_subelement s1 
+            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
+            LEFT JOIN {$dbtp}search_key k1 
+            ON (k1.sek_id = x1.xsdmf_sek_id)
+            LEFT JOIN {$dbtp}xsd_display d1  
+            ON (d1.xdis_id = r1.rmf_varchar and k1.sek_title = 'Display Type')
+            ORDER BY display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
+
+            Error_Handler::logError($stmt,__FILE__,__LINE__);
 
             $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
                 $res = array();
             }
-        }
         $list = Collection::makeReturnList($res);
         return $list;	
     }
@@ -826,10 +793,15 @@ class Collection
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];
 
+        if (!empty($authStmt)) {
+            $r4_join_field = "ai.authi_pid";
+        } else {
+            $r4_join_field = "r2.rmf_rec_pid";
+        }
 	    if (!empty($collection_pid)) {		
 			$memberOfStmt = "
 						INNER JOIN {$dbtp}record_matching_field AS r4
-						  ON r4.rmf_rec_pid = r2.rmf_rec_pid
+						  ON r4.rmf_rec_pid = $r4_join_field
 						INNER JOIN {$dbtp}xsd_display_matchfields AS x4
 						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and match(r4.rmf_varchar) against ('\"$collection_pid\"' in boolean mode)
 						INNER JOIN {$dbtp}search_key AS s4  							  
@@ -838,11 +810,6 @@ class Collection
 			return array();
 //			$memberOfStmt = "";
 		}
-        if (!empty($authStmt)) {
-            $r4_join_field = "ai.authi_pid";
-        } else {
-            $r4_join_field = "r2.rmf_rec_pid";
-        }
 
         $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
                     INNER JOIN {$dbtp}xsd_display_matchfields AS x2
@@ -897,6 +864,7 @@ class Collection
 		$return = Collection::makeReturnList($res);
 //		print_r($return);
         $return = Collection::makeSecurityReturnList($return);
+//		print_r($return);
 		$hidden_rows = 0;
 		$return = Auth::getIndexAuthorisationGroups($return);
 		$return = Misc::cleanListResults($return);
@@ -1250,10 +1218,18 @@ class Collection
 			$subqueryExtra = ", r".$termCounter.".rmf_".$search_data_type;
 
 		}
+		$authArray = Collection::getAuthIndexStmt();
+		$authStmt = $authArray['authStmt'];
+		$joinStmt = $authArray['joinStmt'];
+        if (!empty($authStmt)) {
+            $mainJoin = "ai.authi_pid";
+        } else {
+            $mainJoin = "r2.rmf_rec_pid";
+        }
 
-		$mainJoin = 2;
+
         $middleStmt .= "
-		            inner join {$dbtp}record_matching_field r".$termCounter." on r".$termCounter.".rmf_rec_pid = r".($mainJoin).".rmf_rec_pid
+		            inner join {$dbtp}record_matching_field r".$termCounter." on r".$termCounter.".rmf_rec_pid = ".($mainJoin)."
                     inner join {$dbtp}xsd_display_matchfields x".$termCounter." on r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id 
                     inner join {$dbtp}search_key AS s".$termCounter." on s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id
                     and s".$termCounter.".sek_title = '".$searchKey."' ".$restrictSQL;
@@ -1267,10 +1243,6 @@ class Collection
 		if ($searchKey == "Created Date") {
 			$search_data_type = "date";
 		}
-		$authArray = Collection::getAuthIndexStmt();
-		$authStmt = $authArray['authStmt'];
-		$joinStmt = $authArray['joinStmt'];
-
 		$bodyStmt = " FROM  {$dbtp}record_matching_field r2 
                     inner join {$dbtp}xsd_display_matchfields AS x2 on r2.rmf_xsdmf_id = x2.xsdmf_id and r2.rmf_varchar='2' and x2.xsdmf_element='!sta_id' $joinStmt
 					
@@ -1279,7 +1251,7 @@ class Collection
 		if	((($searchKey == 'Created Date') && ($order_by != $searchKey)) || ($searchKey != 'Created Date')) {
 			$bodyStmt .= "
 					inner join  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r".$termCounter." 
-					on r".$termCounter.".rmf_rec_pid = r".$mainJoin.".rmf_rec_pid
+					on r".$termCounter.".rmf_rec_pid = r2.rmf_rec_pid 
 					inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x".$termCounter."
 					on r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id
 					inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s".$termCounter."
@@ -1549,22 +1521,22 @@ class Collection
 		$authArray = Collection::getAuthIndexStmt(array("Lister", "Viewer", "Editor", "Creator"));
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];
-		$order_dir = "DESC";
-
-
-			$memberOfStmt = "
-						INNER JOIN {$dbtp}record_matching_field AS r4
-						  ON r4.rmf_rec_pid = r2.rmf_rec_pid
-						INNER JOIN {$dbtp}xsd_display_matchfields AS x4
-						  ON r4.rmf_xsdmf_id = x4.xsdmf_id 
-						INNER JOIN {$dbtp}search_key AS s4  							  
-						  ON s4.sek_id = x4.xsdmf_sek_id AND s4.sek_title = '$searchKey' ";
-
         if (!empty($authStmt)) {
             $r4_join_field = "ai.authi_pid";
         } else {
             $r4_join_field = "r2.rmf_rec_pid";
         }
+		$order_dir = "DESC";
+
+
+			$memberOfStmt = "
+						INNER JOIN {$dbtp}record_matching_field AS r4
+						  ON r4.rmf_rec_pid = $r4_join_field
+						INNER JOIN {$dbtp}xsd_display_matchfields AS x4
+						  ON r4.rmf_xsdmf_id = x4.xsdmf_id 
+						INNER JOIN {$dbtp}search_key AS s4  							  
+						  ON s4.sek_id = x4.xsdmf_sek_id AND s4.sek_title = '$searchKey' ";
+
 
         $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
                     INNER JOIN {$dbtp}xsd_display_matchfields AS x2
@@ -1873,6 +1845,11 @@ class Collection
 		$authArray = Collection::getAuthIndexStmt();
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];
+        if (!empty($authStmt)) {
+            $r4_join_field = "ai.authi_pid";
+        } else {
+            $r4_join_field = "r2.rmf_rec_pid";
+        }
 		$termCounter = 100;
         $sekdet = Search_Key::getDetailsByTitle($order_by);
         $data_type = $sekdet['xsdmf_data_type'];
@@ -1893,11 +1870,6 @@ class Collection
 		$termRelevance = " match (r2.rmf_varchar) against ('".$terms."') as Relevance";
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
 
-        if (!empty($authStmt)) {
-            $r4_join_field = "ai.authi_pid";
-        } else {
-            $r4_join_field = "r2.rmf_rec_pid";
-        }
 
         $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
                     INNER JOIN {$dbtp}xsd_display_matchfields AS x2
