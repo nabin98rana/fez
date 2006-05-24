@@ -365,11 +365,6 @@ class Collection
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];
 
-        if (!empty($authStmt)) {
-            $r4_join_field = "ai.authi_pid";
-        } else {
-            $r4_join_field = "r2.rmf_rec_pid";
-        }
 	    if (!empty($community_pid)) {		
 			$memberOfStmt = "
 						INNER JOIN {$dbtp}record_matching_field AS r4
@@ -601,11 +596,6 @@ class Collection
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];
 
-        if (!empty($authStmt)) {
-            $r4_join_field = "ai.authi_pid";
-        } else {
-            $r4_join_field = "r2.rmf_rec_pid";
-        }
 	    if (!empty($collection_pid)) {		
 			$memberOfStmt = "
 						INNER JOIN {$dbtp}record_matching_field AS r4
@@ -666,11 +656,6 @@ class Collection
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];
 
-        if (!empty($authStmt)) {
-            $r4_join_field = "ai.authi_pid";
-        } else {
-            $r4_join_field = "r2.rmf_rec_pid";
-        }
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $restrict_collection = '';
         $memberOfStmt = " AND false ";
@@ -794,12 +779,7 @@ class Collection
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];
 
-        if (!empty($authStmt)) {
-            $r4_join_field = "ai.authi_pid";
-        } else {
-            $r4_join_field = "r2.rmf_rec_pid";
-        }
-	    if (!empty($collection_pid)) {		
+        if (!empty($collection_pid)) {		
 			$memberOfStmt = "
 						INNER JOIN {$dbtp}record_matching_field AS r4
 						  ON r4.rmf_rec_pid = r2.rmf_rec_pid
@@ -1440,11 +1420,6 @@ class Collection
 		$authArray = Collection::getAuthIndexStmt(array("Lister", "Viewer", "Editor", "Creator"));
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];
-        if (!empty($authStmt)) {
-            $r4_join_field = "ai.authi_pid";
-        } else {
-            $r4_join_field = "r2.rmf_rec_pid";
-        }
 		$order_dir = "DESC";
 
 
@@ -1764,11 +1739,6 @@ class Collection
 		$authArray = Collection::getAuthIndexStmt();
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];
-        if (!empty($authStmt)) {
-            $r4_join_field = "ai.authi_pid";
-        } else {
-            $r4_join_field = "r2.rmf_rec_pid";
-        }
 		$termCounter = 100;
         $sekdet = Search_Key::getDetailsByTitle($order_by);
         $data_type = $sekdet['xsdmf_data_type'];
