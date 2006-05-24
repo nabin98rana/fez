@@ -151,49 +151,59 @@ class Community
     function getList($current_row = 0, $max = 25, $order_by="Title")
     {
 	
+        $order_dir = 'ASC';
         $start = $current_row * $max;
         $sekdet = Search_Key::getDetailsByTitle($order_by);
         $data_type = $sekdet['xsdmf_data_type'];
+        $authStmts = Collection::getAuthIndexStmt(array("Lister","Viewer","Creator","Editor"));
+		$authStmt = $authStmts['authStmt'];
+        $joinStmt = $authStmts['joinStmt'];
+        // body1 is the part of the query that selects which pids will be returned
+        $body1 = "
+            FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
+            inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2  
+            ON x2.xsdmf_id = r2.rmf_xsdmf_id  AND r2.rmf_varchar = '1'
+            inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+            ON s2.sek_id = x2.xsdmf_sek_id AND s2.sek_title = 'Object Type' 
 
-        $stmt = "SELECT
+            INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS rmf
+            ON rmf.rmf_rec_pid = r2.rmf_rec_pid AND rmf.rmf_varchar='2'
+            INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields AS xdm
+            ON rmf.rmf_xsdmf_id = xdm.xsdmf_id AND xdm.xsdmf_element='!sta_id'
+
+            $authStmt
+                    ";
+         $stmt = "SELECT
             * 
             FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1
             inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 
             ON r1.rmf_xsdmf_id = x1.xsdmf_id  
 			inner join (
-                    SELECT distinct r2.rmf_rec_pid 
-                    FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2  						
-                    WHERE s2.sek_title = 'Object Type' AND x2.xsdmf_id = r2.rmf_xsdmf_id
-                    AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_varchar = '1') as o1 on o1.rmf_rec_pid = r1.rmf_rec_pid
-			inner join (
-                    SELECT distinct rmf.rmf_rec_pid FROM 
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS rmf
-                    INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields AS xdm
-                    ON rmf.rmf_xsdmf_id = xdm.xsdmf_id
-                    WHERE rmf.rmf_varchar=2
-                    AND xdm.xsdmf_element='!sta_id'
-                    ) as sta1 on sta1.rmf_rec_pid = r1.rmf_rec_pid
-             left JOIN (
-                        SELECT distinct r2.rmf_rec_pid as sort_pid, 
-                        r2.rmf_$data_type as sort_column
-                        FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
-                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
-                        on r2.rmf_xsdmf_id = x2.xsdmf_id 
-                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
-                        on s2.sek_id = x2.xsdmf_sek_id
-                        where s2.sek_title = '$order_by'
-                        ) as d3
-                on r1.rmf_rec_pid = d3.sort_pid  
+                    SELECT r2.rmf_rec_pid, r4.rmf_rec_pid as sort_pid, r4.rmf_$data_type as sort_column 
+                    $body1
+
+                    left JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r4
+                    on rmf.rmf_rec_pid = r4.rmf_rec_pid  
+                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x4
+                    on r4.rmf_xsdmf_id = x4.xsdmf_id 
+                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s4
+                    on s4.sek_id = x4.xsdmf_sek_id AND s4.sek_title = '$order_by'
+
+                    ORDER BY sort_column $order_dir, r2.rmf_rec_pid desc
+                    LIMIT $start, $max
+                    ) as d3 on d3.rmf_rec_pid = r1.rmf_rec_pid
             left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 
             on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
 			left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key sk1 on sk1.sek_id = x1.xsdmf_sek_id
-            order by d3.sort_column
+            order by d3.sort_column $order_dir, r1.rmf_rec_pid DESC 
             ";
+         //echo $stmt;
+        $countStmt = "SELECT count(distinct r2.rmf_rec_pid) $body1";
 		$securityfields = Auth::getAllRoles();
+        //echo $stmt; 
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+		$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
+
 		$return = array();
 		$return = Collection::makeReturnList($res);
         $return = Collection::makeSecurityReturnList($return);
@@ -201,7 +211,6 @@ class Community
 		$hidden_rows = count($return);
 		$return = Auth::getIndexAuthorisationGroups($return);
 		$return = Misc::cleanListResults($return);
-		$total_rows = count($return);
 		if (($start + $max) < $total_rows) {
 	        $total_rows_limit = $start + $max;
 		} else {
@@ -209,7 +218,6 @@ class Community
 		}
 		$total_pages = ceil($total_rows / $max);
         $last_page = $total_pages - 1;
-		$return = Misc::limitListResults($return, $start, ($start + $max));
 		// add the available workflow trigger buttons
 		$isAdministrator = Auth::isAdministrator();
 		foreach ($return as $ret_key => $ret_wf) {

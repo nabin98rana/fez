@@ -373,7 +373,7 @@ class Collection
 	    if (!empty($community_pid)) {		
 			$memberOfStmt = "
 						INNER JOIN {$dbtp}record_matching_field AS r4
-						  ON r4.rmf_rec_pid = $r4_join_field
+						  ON r4.rmf_rec_pid = r2.rmf_rec_pid
 						INNER JOIN {$dbtp}xsd_display_matchfields AS x4
 						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and match(r4.rmf_varchar) against ('\"$community_pid\"' in boolean mode)
 						INNER JOIN {$dbtp}search_key AS s4  							  
@@ -395,7 +395,7 @@ class Collection
         $bodyStmt = "$bodyStmtPart1
                   
                     LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r5
-                    ON r5.rmf_rec_pid=$r4_join_field
+                    ON r5.rmf_rec_pid=r2.rmf_rec_pid
                     inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x5
                     on r5.rmf_xsdmf_id = x5.xsdmf_id
                     inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s5
@@ -609,7 +609,7 @@ class Collection
 	    if (!empty($collection_pid)) {		
 			$memberOfStmt = "
 						INNER JOIN {$dbtp}record_matching_field AS r4
-						  ON r4.rmf_rec_pid = $r4_join_field
+						  ON r4.rmf_rec_pid = r2.rmf_rec_pid
 						INNER JOIN {$dbtp}xsd_display_matchfields AS x4
 						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and match(r4.rmf_varchar) against ('\"$collection_pid\"' in boolean mode)
 						INNER JOIN {$dbtp}search_key AS s4  							  
@@ -677,7 +677,7 @@ class Collection
        if (!empty($collection_pid)) {
             $memberOfStmt = "
                 INNER JOIN {$dbtp}record_matching_field AS r4
-                ON r4.rmf_rec_pid = $r4_join_field AND r4.rmf_varchar = '$collection_pid'
+                ON r4.rmf_rec_pid = r2.rmf_rec_pid AND r4.rmf_varchar = '$collection_pid'
                 INNER JOIN {$dbtp}xsd_display_matchfields AS x4
                 ON x4.xsdmf_id = r4.rmf_xsdmf_id
                 INNER JOIN {$dbtp}search_key AS s4
@@ -776,6 +776,7 @@ class Collection
     function getListing($collection_pid, $current_row = 0, $max = 25, $order_by = 'Title')
     {
 
+        $order_dir = 'ASC';
 		if ($max == "ALL") {
             $max = 9999999;
         }
@@ -801,9 +802,10 @@ class Collection
 	    if (!empty($collection_pid)) {		
 			$memberOfStmt = "
 						INNER JOIN {$dbtp}record_matching_field AS r4
-						  ON r4.rmf_rec_pid = $r4_join_field
+						  ON r4.rmf_rec_pid = r2.rmf_rec_pid
 						INNER JOIN {$dbtp}xsd_display_matchfields AS x4
-						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and match(r4.rmf_varchar) against ('\"$collection_pid\"' in boolean mode)
+						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and match(r4.rmf_varchar) 
+                          against ('\"$collection_pid\"' in boolean mode)
 						INNER JOIN {$dbtp}search_key AS s4  							  
 						  ON s4.sek_id = x4.xsdmf_sek_id AND s4.sek_title = 'isMemberOf' ";
 		} else {
@@ -813,7 +815,9 @@ class Collection
 
         $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
                     INNER JOIN {$dbtp}xsd_display_matchfields AS x2
-                      ON r2.rmf_xsdmf_id = x2.xsdmf_id AND match(x2.xsdmf_element) against ('\"!sta_id\"' in boolean mode) and r2.rmf_varchar='2' $joinStmt
+                      ON r2.rmf_xsdmf_id = x2.xsdmf_id AND match(x2.xsdmf_element) 
+                      against ('\"!sta_id\"' in boolean mode) 
+                      and r2.rmf_varchar='2' $joinStmt
 
 
                     $authStmt
@@ -825,7 +829,8 @@ class Collection
         $bodyStmt = "$bodyStmtPart1
 
 
-                    LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r5 on r5.rmf_rec_pid = r2.rmf_rec_pid
+                    LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r5 
+                    on r5.rmf_rec_pid = r2.rmf_rec_pid
                     inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x5
                     on r5.rmf_xsdmf_id = x5.xsdmf_id
                     left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s5
@@ -856,6 +861,7 @@ class Collection
             LEFT JOIN {$dbtp}xsd_display d1  
             ON (d1.xdis_id = r1.rmf_varchar and k1.sek_title = 'Display Type')
             ORDER BY display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
+        //echo $stmt; 
 
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
@@ -1017,6 +1023,8 @@ class Collection
 	
 	}
 
+
+
 	function getAuthIndexStmt($roles = array()) {
 		// If the user is a Fez Administrator then don't check for security, give them everything
 		$isAdministrator = Auth::isAdministrator();  
@@ -1028,122 +1036,25 @@ class Collection
 		$rolesStmt = "";
 		if (is_array($roles)) {
 			if (count($roles) == 0) {
-				$rolesStmt = "'Lister', 'Viewer', 'Editor', 'Creator', 'Approver'";
-			} else {
-				$rolesStmt = "'".implode("', '", $roles)."'";
+                $roles = array('Lister','Viewer', 'Editor', 'Creator', 'Approver');
 			}
+            $rolesStmt = "'".implode("', '", $roles)."'";
 		} else {
-			return array('' => $authStmt, '' => $joinStmt);
+			return array('authStmt' => '', 'joinStmt' => '');
 		}
 
 		$dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-		if (in_array("Lister", $roles) || in_array("Viewer", $roles) || count($roles) == 0) {
-			$stmt = "select distinct ai3.authi_pid as aip from {$dbtp}auth_index ai3 where (ai3.authi_role in ('Lister', 'Viewer'))";
-		} else {
-			$stmt = "";
-		}
-/*		$res = $GLOBALS["db_api"]->dbh->getCol($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            $res = array();
-        }
-        $coll_pids = $res; */
 		$authStmt = "";
-        $fez_groups_sql = Misc::arrayToSQL(@$_SESSION[APP_INTERNAL_GROUPS_SESSION]);
-        $ldap_groups_sql = Misc::arrayToSQL(@$_SESSION[APP_LDAP_GROUPS_SESSION]);
 		$joinStmt = "";
-//    		       ( ( (ai.authi_role in ('Lister', 'Viewer', 'Editor', 'Creator', 'Approver'))             
-		if (is_numeric(Auth::getUserID())) {	
-				$authStmt .= " inner join ( ";
-				if ($stmt != "") {
-					$authStmt .= "  select distinct authi_pid from {$dbtp}auth_index where authi_role not in ('Lister', 'Viewer')  union ";
-				}
-
-
-	       	  $authStmt .= " select distinct authi_pid from {$dbtp}auth_index ai where
-    		       ";
-				   
-								   
-			   $authStmt .= " 
-				   ( (ai.authi_role in ($rolesStmt) ";
-				   
-
-			  $authStmt .= "				   
-				   )             
-	             AND (
-                 (ai.authi_rule = '!rule!role!Fez_User' AND ai.authi_value='".Auth::getUserID()."')
-                 OR (ai.authi_rule = '!rule!role!AD_User' AND ai.authi_value='".Auth::getUsername()."') ";
-                 if (!empty($fez_groups_sql)) {
-                   $authStmt .="
-                   OR (ai.authi_rule = '!rule!role!Fez_Group' AND ai.authi_value 
-                     IN ($fez_groups_sql) ) ";
-                 }
-                 if (!empty($ldap_groups_sql)) {
-                   $authStmt .= "
-                   OR (ai.authi_rule = '!rule!role!AD_Group' AND ai.authi_value 
-                     IN ($ldap_groups_sql) ) ";
-                 }
-                 if (!empty($_SESSION['distinguishedname'])) {
-                   $authStmt .= "
-                   OR (authi_rule = '!rule!role!AD_DistinguishedName' AND INSTR('".$_SESSION['distinguishedname']."', authi_value)
-                      ) ";
-                 }
-                 if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'])) {
-                   $authStmt .= "
-                   OR (authi_rule = '!rule!role!eduPersonTargetedID' AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID']."', authi_value)
-                      ) ";
-                 }
-                 if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation'])) {
-                   $authStmt .= "
-                   OR (authi_rule = '!rule!role!eduPersonAffiliation' AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation']."', authi_value)
-                      ) ";
-                 }
-                 if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'])) {
-                   $authStmt .= "
-                   OR (authi_rule = '!rule!role!eduPersonScopedAffiliation' AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation']."', authi_value)
-                      ) ";
-                 }
-                 if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'])) {
-                   $authStmt .= "
-                   OR (authi_rule = '!rule!role!eduPersonPrimaryAffiliation' AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation']."', authi_value)
-                      ) ";
-                 }
-                 if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'])) {
-                   $authStmt .= "
-                   OR (authi_rule = '!rule!role!eduPersonPrincipalName' AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName']."', authi_value)
-                      ) ";
-                 }
-                 if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN'])) {
-                   $authStmt .= "
-                   OR (authi_rule = '!rule!role!eduPersonOrgUnitDN' AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN']."', authi_value)
-                      ) ";
-                 }
-                 if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgDN'])) {
-                   $authStmt .= "
-                   OR (authi_rule = '!rule!role!eduPersonPrimaryOrgUnitDN' AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgDN']."', authi_value)
-                      ) ";
-                 }
-				
-                 if (Auth::isInAD())  {
-                   $authStmt .= "
-                   OR (ai.authi_rule = '!rule!role!in_AD' ) ";
-                 }
-                 if (Auth::isInDB()) {
-                   $authStmt .= "
-                   OR (ai.authi_rule = '!rule!role!in_Fez') ";
-                 }
-
-				 $authStmt .= " )) ";
-
-                 $authStmt .= "
-                   ) as ai on ai.authi_pid = r2.rmf_rec_pid";
-
-
+        $usr_id = Auth::getUserID();
+		if (is_numeric($usr_id)) {	
+            $authStmt .= "INNER JOIN {$dbtp}auth_index2 ai ON ai.authi_pid = r2.rmf_rec_pid   
+                AND authi_role in ($rolesStmt)
+                INNER JOIN {$dbtp}auth_rules_users ON ai.authi_ar_id=aru_ar_id AND aru_usr_id='$usr_id'";
 			} else {
-//				if (count($coll_pids) != 0) {
-					$authStmt = "";
-					$joinStmt .= "  AND r2.rmf_rec_pid not in ($stmt) ";
-//				}
+                $authStmt = " INNER JOIN {$dbtp}auth_index2 ON authi_pid=r2.rmf_rec_pid AND authi_role='Lister'
+                    INNER JOIN {$dbtp}auth_rules ON authi_ar_id=ar_id AND ar_rule='public_list' AND ar_value='1' ";
+                $joinStmt .= "";
 			}		
 			return array('authStmt' => $authStmt, 'joinStmt' => $joinStmt);
 	}
@@ -1237,7 +1148,7 @@ class Collection
 
 
         $middleStmt .= "
-		            inner join {$dbtp}record_matching_field r".$termCounter." on r".$termCounter.".rmf_rec_pid = ".($mainJoin)."
+		            inner join {$dbtp}record_matching_field r".$termCounter." on r".$termCounter.".rmf_rec_pid = r2.rmf_rec_pid
                     inner join {$dbtp}xsd_display_matchfields x".$termCounter." on r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id 
                     inner join {$dbtp}search_key AS s".$termCounter." on s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id
                     and s".$termCounter.".sek_title = '".$searchKey."' ".$restrictSQL;
@@ -1539,7 +1450,7 @@ class Collection
 
 			$memberOfStmt = "
 						INNER JOIN {$dbtp}record_matching_field AS r4
-						  ON r4.rmf_rec_pid = $r4_join_field
+						  ON r4.rmf_rec_pid = r2.rmf_rec_pid
 						INNER JOIN {$dbtp}xsd_display_matchfields AS x4
 						  ON r4.rmf_xsdmf_id = x4.xsdmf_id 
 						INNER JOIN {$dbtp}search_key AS s4  							  
@@ -1560,7 +1471,7 @@ class Collection
         $bodyStmt = "$bodyStmtPart1
                   
                     LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r5
-                    ON r5.rmf_rec_pid=$r4_join_field
+                    ON r5.rmf_rec_pid=r2.rmf_rec_pid
                     inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x5
                     on r5.rmf_xsdmf_id = x5.xsdmf_id
                     inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s5
@@ -1888,7 +1799,7 @@ class Collection
                     $authStmt
 
                     INNER JOIN {$dbtp}record_matching_field AS r4
-                      ON r4.rmf_rec_pid=$r4_join_field AND r4.rmf_varchar='2'
+                      ON r4.rmf_rec_pid=r2.rmf_rec_pid AND r4.rmf_varchar='2'
                     INNER JOIN {$dbtp}xsd_display_matchfields AS x4
                       ON r4.rmf_xsdmf_id = x4.xsdmf_id AND x4.xsdmf_element='!sta_id'
 

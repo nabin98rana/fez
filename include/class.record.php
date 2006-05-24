@@ -55,6 +55,7 @@ include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.foxml.php");
+include_once(APP_INC_PATH . "class.auth_rules.php");
 
 /**
   * Record
@@ -440,13 +441,9 @@ class Record
 			'" . $dsID . "',
 			" . $xsdmf_id . ",";
 		if ($xsdsel_id != "") {
-			$stmt .= $xsdsel_id . ", ";
+			$stmt .= "'$xsdsel_id', ";
 		}
-		if ($data_type != "int") {
-			$stmt .= "'".Misc::escapeString($value) . "')";
-		} else {
-			$stmt .= $value . ")";
-		}
+        $stmt .= "'".Misc::escapeString(trim($value)) . "')";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -850,6 +847,7 @@ class Record
         // find security inherit policy
         $security = 'inherit';
         $pid_has_values = false;
+        $has_list_rules = false;
         $values = '';
         foreach($res as $row) {
             if ($row['pid'] == $pid && $row['rule'] == '!inherit_security') {
@@ -860,18 +858,30 @@ class Record
             if ($row['pid'] == $pid) {
                 $pid_has_values = true;
             }
+            // check for rules on listing to determine if this pid is public or not
+            if ($row['role'] == 'Lister') {
+                $has_list_rules = true;
+            }
             // build part of the insert statement while we're at it
-            $values .= "('$pid', '{$row['role']}', '{$row['rule']}', '{$row['value']}'),";
+            $ar_id = AuthRules::getOrCreateRule($row['rule'], $row['value']);
+            $values .= "('$pid', '{$row['role']}',  '$ar_id'),";
         }
         if ($pid_has_values && $security != 'include') {
             $security = 'exclude';
         }
+        // if no lister rules are found, then this pid is publically listable
+        if (!$has_list_rules) {
+            $ar_id = AuthRules::getOrCreateRule('public_list', 1);
+            $values .= "('$pid', 'Lister',  '$ar_id'),";
+        }
+            
         // clear the security index for this pid
         Record::clearIndexAuth($pid);
         // make an insert statement
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
-        $values .= "('$pid','','security','$security')";
-        $stmt = "INSERT INTO {$dbtp}auth_index (authi_pid,authi_role,authi_rule,authi_value) VALUES $values ";
+            $ar_id = AuthRules::getOrCreateRule('security',$security);
+        $values .= "('$pid','$security','$ar_id')";
+        $stmt = "INSERT INTO {$dbtp}auth_index2 (authi_pid,authi_role,authi_ar_id) VALUES $values ";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -973,7 +983,7 @@ class Record
         }
         $pids_str = Misc::arrayToSQL($pids);
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
-        $stmt = "DELETE FROM {$dbtp}auth_index WHERE authi_pid IN ($pids_str) ";
+        $stmt = "DELETE FROM {$dbtp}auth_index2 WHERE authi_pid IN ($pids_str) ";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -1072,10 +1082,12 @@ class Record
                     'output-xml'   => true,
                     'wrap'           => 200);
 
-            $tidy = new tidy;
-            $tidy->parseString($xmlObj, $config, 'utf8');
-            $tidy->cleanRepair();
-            $xmlObj = "$tidy";
+            if (!defined('APP_NO_TIDY') || !APP_NO_TIDY) {
+                $tidy = new tidy;
+                $tidy->parseString($xmlObj, $config, 'utf8');
+                $tidy->cleanRepair();
+                $xmlObj = "$tidy";
+            }
             $result = Fedora_API::callIngestObject($xmlObj);
             if (is_array($result)) {
                 Error_Handler::logError($xmlObj, __FILE__,__LINE__);
@@ -1412,7 +1424,7 @@ class RecordGeneral
             $newXML .= "<$key>".$value."</$key>";
         }
         $newXML .= "</FezMD>";
-        //		echo $newXML;
+        //Error_handler::logError($newXML,__FILE__,__LINE__);
         if ($newXML != "") {
             Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez extension metadata", $newXML, "text/xml", false);
         }
@@ -1600,10 +1612,9 @@ class RecordGeneral
         $stmt = "SELECT rmf_rec_pid 
             FROM {$dbtp}record_matching_field
             INNER JOIN {$dbtp}xsd_display_matchfields 
-            ON rmf_xsdmf_id=xsdmf_id
-            WHERE
-            xsdmf_element='!description!isMemberOf!resource'
-            AND rmf_varchar='{$this->pid}' ";
+            ON rmf_xsdmf_id=xsdmf_id AND rmf_varchar='{$this->pid}'
+            INNER JOIN {$dbtp}search_key on xsdmf_sek_id=sek_id AND sek_title='isMemberOf'
+             ";
         $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

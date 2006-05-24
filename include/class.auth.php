@@ -350,29 +350,34 @@ class Auth
 			return false;
 		}
 		$ACMLArray = &$array;
-		foreach ($parents as $parent) {
-			$inherit = false;
-			$xdis_array = Fedora_API::callGetDatastreamContentsField($parent['pid'], 'FezMD', array('xdis_id'));
-			$xdis_id = $xdis_array['xdis_id'][0];
-			$parentACML = Record::getACML($parent['pid']);		
+        foreach ($parents as $parent) {
+            $inherit = false;
+            $xdis_array = Fedora_API::callGetDatastreamContentsField($parent['pid'], 'FezMD', array('xdis_id'));
+            $xdis_id = $xdis_array['xdis_id'][0];
+            $parentACML = Record::getACML($parent['pid']);		
             if ($parentACML != false) {
                 array_push($ACMLArray, $parentACML); // add and then check if need to inherit				
-                $xpath = new DOMXPath($parentACML);
-                $inheritSearch = $xpath->query('/FezACML/inherit_security');
-                $found_inherit_on = false;
                 $found_inherit_off = false;
+                $found_inherit_on = false;
                 $found_inherit_blank = false;
-                // There shouldn't be more than one inherit_security node, but if there is, then turning inherit off
-                // overrides any that turn it on. 
-                foreach ($inheritSearch as $inheritRow) {
-                    if ($inheritRow->nodeValue == "on") { 
-                        $found_inherit_on = true;
-                    } elseif (trim($inheritRow->nodeValue) == "") {
+                $xpath = new DOMXPath($parentACML);
+                $anyRuleSearch = $xpath->query('/FezACML/rule/role/*[string-length(normalize-space()) > 0]'); /**/
+                    if ($anyRuleSearch->length == 0) {
                         $found_inherit_blank = true;
-                    } else {
-                        $found_inherit_off = true;
+                    } else {            
+                        $inheritSearch = $xpath->query('/FezACML/inherit_security');
+                        // There shouldn't be more than one inherit_security node, but if there is, then turning inherit off
+                        // overrides any that turn it on. 
+                        foreach ($inheritSearch as $inheritRow) {
+                            if ($inheritRow->nodeValue == "on") { 
+                                $found_inherit_on = true;
+                            } elseif (trim($inheritRow->nodeValue) == "") {
+                                $found_inherit_blank = true;
+                            } else {
+                                $found_inherit_off = true;
+                            }
+                        }
                     }
-                }
                 $inherit = !$found_inherit_off && ($found_inherit_on || $found_inherit_blank);
 
                 if ($inherit == true) { // if need to inherit
@@ -382,12 +387,12 @@ class Auth
                     }
                 }
             } else { // if no ACML found then assume inherit
-				$superParents = Record::getParents($parent['pid']);
-				if ($superParents != false) {
-					Auth::getParentACMLs(&$ACMLArray, $superParents);
-				}
-			}
-		}
+                $superParents = Record::getParents($parent['pid']);
+                if ($superParents != false) {
+                    Auth::getParentACMLs(&$ACMLArray, $superParents);
+                }
+            }
+        }
 	}
 	
 
@@ -664,22 +669,28 @@ class Auth
 //			echo "acmlBase found $pid";
             $ACMLArray[0] = $acmlBase;
 			// If found an ACML then check if it inherits security
-			$xpath = new DOMXPath($acmlBase);
-			$inheritSearch = $xpath->query('/FezACML/inherit_security');
-            $found_inherit_on = false;
             $found_inherit_off = false;
+            $found_inherit_on = false;
             $found_inherit_blank = false;
-            // There shouldn't be more than one inherit_security node, but if there is, then turning inherit off
-            // overrides any that turn it on. 
-			foreach ($inheritSearch as $inheritRow) {
-				if ($inheritRow->nodeValue == "on") { 
-                    $found_inherit_on = true;
+			$xpath = new DOMXPath($acmlBase);
+            $anyRuleSearch = $xpath->query('/FezACML/rule/role/*[string-length(normalize-space()) > 0]');
+            if ($anyRuleSearch->length == 0) {
+              $found_inherit_blank = true;
+            } else {            
+              $inheritSearch = $xpath->query('/FezACML/inherit_security');
+              // There shouldn't be more than one inherit_security node, but if there is, then turning inherit off
+              // overrides any that turn it on. 
+              foreach ($inheritSearch as $inheritRow) {
+                if ($inheritRow->nodeValue == "on") { 
+                  $found_inherit_on = true;
                 } elseif (trim($inheritRow->nodeValue) == "") {
-                    $found_inherit_blank = true;
-				} else {
-                    $found_inherit_off = true;
+                  $found_inherit_blank = true;
+                } else {
+                  $found_inherit_off = true;
                 }
-			}
+              }
+            }
+
 
             $inherit = !$found_inherit_off && ($found_inherit_on || $found_inherit_blank);
 			if ($inherit == true) { // if need to inherit, check if at dsID level or not first and then 
@@ -1377,8 +1388,10 @@ class Auth
 				$distinguishedname = $userDetails['distinguishedname'];
 				Auth::GetUsersLDAPGroups($username, $password);
 			}
+            $usr_id = User::getUserIDByUsername($username);
         } else { // if it is a registered Fez user then get their details from the fez user table
             $session['isInDB'] = true;
+            $userDetails = User::getDetails($username);			
 			if (($shib_login == true) && (@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "")) {
 				$session['isInFederation'] = true;
 			} else {
@@ -1396,7 +1409,6 @@ class Auth
 					$session['isInAD'] = false;			
 				}
 			}
-            $userDetails = User::getDetails($username);			
             $fullname = $userDetails['usr_full_name'];
             $email = $userDetails['usr_email'];
 			$usr_id = User::getUserIDByUsername($username);
@@ -1409,6 +1421,8 @@ class Auth
             
         }
         Auth::createLoginSession($username, $fullname, $email, $distinguishedname, @$HTTP_POST_VARS["remember_login"]);
+        // pre process authorisation rules matches for this user
+        Auth::setAuthRulesUsers();
 		return true;
     }
 
@@ -1525,6 +1539,102 @@ class Auth
     function getDefaultRoleName($role_id) {
         global $defaultRoles;
         return $defaultRoles[$role_id];
+    }
+
+    function setAuthRulesUsers()
+    {
+        $fez_groups_sql = Misc::arrayToSQL(@$_SESSION[APP_INTERNAL_GROUPS_SESSION]);
+        $ldap_groups_sql = Misc::arrayToSQL(@$_SESSION[APP_LDAP_GROUPS_SESSION]);
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $usr_id = Auth::getUserID();
+
+        // clear the rule matches for this user
+        $stmt = "DELETE FROM {$dbtp}auth_rules_users WHERE aru_usr_id='$usr_id'";
+		$res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        }
+        // test and insert matching rules for this user
+        $authStmt = "
+            INSERT INTO {$dbtp}auth_rules_users (aru_ar_id, aru_usr_id)
+            SELECT ar_id, $usr_id FROM {$dbtp}auth_rules
+            WHERE (ar_rule='public_list' AND ar_value='1') 
+            OR  (ar_rule = '!rule!role!Fez_User' AND ar_value='$usr_id') 
+            OR (ar_rule = '!rule!role!AD_User' AND ar_value='".Auth::getUsername()."') ";
+        if (!empty($fez_groups_sql)) {
+            $authStmt .="
+                OR (ar_rule = '!rule!role!Fez_Group' AND ar_value IN ($fez_groups_sql) ) ";
+        }
+        if (!empty($ldap_groups_sql)) {
+            $authStmt .= "
+                OR (ar_rule = '!rule!role!AD_Group' AND ar_value IN ($ldap_groups_sql) ) ";
+        }
+        if (!empty($_SESSION['distinguishedname'])) {
+            $authStmt .= "
+                OR (ar_rule = '!rule!role!AD_DistinguishedName' 
+                        AND INSTR('".$_SESSION['distinguishedname']."', ar_value)
+                   ) ";
+        }
+        if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'])) {
+            $authStmt .= "
+                OR (ar_rule = '!rule!role!eduPersonTargetedID' 
+                        AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID']."', ar_value)
+                   ) ";
+        }
+        if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation'])) {
+            $authStmt .= "
+                OR (ar_rule = '!rule!role!eduPersonAffiliation' 
+                        AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation']."', 
+                            ar_value)
+                   ) ";
+        }
+        if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'])) {
+            $authStmt .= "
+                OR (ar_rule = '!rule!role!eduPersonScopedAffiliation' 
+                        AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation']."', 
+                            ar_value)
+                   ) ";
+        }
+        if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'])) {
+            $authStmt .= "
+                OR (ar_rule = '!rule!role!eduPersonPrimaryAffiliation' 
+                        AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation']."', ar_value)
+                   ) ";
+        }
+        if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'])) {
+            $authStmt .= "
+                OR (ar_rule = '!rule!role!eduPersonPrincipalName' 
+                        AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName']."', ar_value)
+                   ) ";
+        }
+        if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN'])) {
+            $authStmt .= "
+                OR (ar_rule = '!rule!role!eduPersonOrgUnitDN' 
+                        AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN']."', ar_value)
+                   ) ";
+        }
+        if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgDN'])) {
+            $authStmt .= "
+                OR (ar_rule = '!rule!role!eduPersonPrimaryOrgUnitDN' 
+                        AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgDN']."', ar_value)
+                   ) ";
+        }
+
+        if (Auth::isInAD())  {
+            $authStmt .= "
+                OR (ar_rule = '!rule!role!in_AD' ) ";
+        }
+        if (Auth::isInDB()) {
+            $authStmt .= "
+                OR (ar_rule = '!rule!role!in_Fez') ";
+        }
+        //Error_Handler::logError($authStmt, __FILE__,__LINE__);
+		$res = $GLOBALS["db_api"]->dbh->query($authStmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        }
+        return 1;
     }
 }
 

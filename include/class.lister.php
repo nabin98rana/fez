@@ -49,9 +49,9 @@ class Lister
             // list a collection
             // first check the user has view rights over the collection object
             $record = new RecordObject($collection_pid);
-	$canView = $record->canView(true);
-	$tpl->assign("isViewer", $canView);
-	if ($canView) {
+            $canView = $record->canView(true);
+            $tpl->assign("isViewer", $canView);
+            if ($canView) {
 
                 $tpl->assign("xdis_id", Record::getRecordXDIS_ID());
                 $collection_details = Collection::getDetails($collection_pid);
@@ -91,9 +91,9 @@ class Lister
             // list collections in a community
             // first check the user has view rights over the collection object
             $record = new RecordObject($community_pid);
-	$canView = $record->canView(true);
-	$tpl->assign("isViewer", $canView);
-	if ($canView) {	
+            $canView = $record->canView(true);
+            $tpl->assign("isViewer", $canView);
+            if ($canView) {	
                 $tpl->assign("community_pid", $community_pid);
                 $xdis_id = Collection::getCollectionXDIS_ID();
                 $community_xdis_id = Community::getCommunityXDIS_ID();
