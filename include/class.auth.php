@@ -1549,16 +1549,17 @@ class Auth
         $usr_id = Auth::getUserID();
 
         // clear the rule matches for this user
-        $stmt = "DELETE FROM {$dbtp}auth_rules_users WHERE aru_usr_id='$usr_id'";
+        $stmt = "DELETE FROM {$dbtp}auth_rule_group_users WHERE argu_usr_id='$usr_id'";
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
         }
         // test and insert matching rules for this user
         $authStmt = "
-            INSERT INTO {$dbtp}auth_rules_users (aru_ar_id, aru_usr_id)
-            SELECT ar_id, $usr_id FROM {$dbtp}auth_rules
-            WHERE (ar_rule='public_list' AND ar_value='1') 
+            INSERT INTO {$dbtp}auth_rule_group_users (argu_arg_id, argu_usr_id)
+            SELECT distinct argr_arg_id, '$usr_id' FROM {$dbtp}auth_rule_group_rules
+            INNER JOIN {$dbtp}auth_rules ON argr_ar_id=ar_id
+            AND (ar_rule='public_list' AND ar_value='1') 
             OR  (ar_rule = '!rule!role!Fez_User' AND ar_value='$usr_id') 
             OR (ar_rule = '!rule!role!AD_User' AND ar_value='".Auth::getUsername()."') ";
         if (!empty($fez_groups_sql)) {

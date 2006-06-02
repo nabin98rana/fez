@@ -841,51 +841,49 @@ class Record
         Record::setIndexAuth($pid);
     }
 
+
+
     function setIndexAuth($pid)
     {
         $res = Record::getIndexAuth($pid);
-        // find security inherit policy
-        $security = 'inherit';
-        $pid_has_values = false;
-        $has_list_rules = false;
-        $values = '';
-        foreach($res as $row) {
-            if ($row['pid'] == $pid && $row['rule'] == '!inherit_security') {
-               if ($row['value'] == 'on') {
-                   $security = 'include';
-               }
+        if (!empty($res)) {
+            // add some pre-processed special rules
+            foreach ($res as $source_pid => $groups) {
+                $has_list_rules = false;
+                foreach ($groups as $role => $group) {
+                    foreach ($group as $row) {
+                        // check for rules on listing to determine if this pid is public or not
+                        if ($row['role'] == 'Lister') {
+                            $has_list_rules = true;
+                        }
+                    }   
+
+                }
+                // if no lister rules are found, then this pid is publically listable
+                if (!$has_list_rules) {
+                    $res[$source_pid]['Lister'][] = array('pid' => $source_pid, 'role' => 'Lister', 
+                            'rule' => 'public_list', 'value' => 1);
+                }
+ 
             }
-            if ($row['pid'] == $pid) {
-                $pid_has_values = true;
+            // get the group ids
+            $values = '';
+            foreach ($res as $source_pid => $groups) {
+                foreach ($groups as $role => $group) {
+                    $arg_id = AuthRules::getOrCreateRuleGroup($group);
+                    $values .= "('$pid', '$role', '$arg_id'),";
+                }
             }
-            // check for rules on listing to determine if this pid is public or not
-            if ($row['role'] == 'Lister') {
-                $has_list_rules = true;
+            $values = rtrim($values,', ');
+
+            Record::clearIndexAuth($pid);
+            $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+            $stmt = "INSERT INTO {$dbtp}auth_index2 (authi_pid,authi_role,authi_arg_id) VALUES $values ";
+            $res = $GLOBALS["db_api"]->dbh->query($stmt);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                return -1;
             }
-            // build part of the insert statement while we're at it
-            $ar_id = AuthRules::getOrCreateRule($row['rule'], $row['value']);
-            $values .= "('$pid', '{$row['role']}',  '$ar_id'),";
-        }
-        if ($pid_has_values && $security != 'include') {
-            $security = 'exclude';
-        }
-        // if no lister rules are found, then this pid is publically listable
-        if (!$has_list_rules) {
-            $ar_id = AuthRules::getOrCreateRule('public_list', 1);
-            $values .= "('$pid', 'Lister',  '$ar_id'),";
-        }
-            
-        // clear the security index for this pid
-        Record::clearIndexAuth($pid);
-        // make an insert statement
-        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
-            $ar_id = AuthRules::getOrCreateRule('security',$security);
-        $values .= "('$pid','$security','$ar_id')";
-        $stmt = "INSERT INTO {$dbtp}auth_index2 (authi_pid,authi_role,authi_ar_id) VALUES $values ";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
         }
         // get children and update their indexes.
         $rec = new RecordGeneral($pid);
@@ -898,6 +896,7 @@ class Record
 
     function getIndexAuth($pids, &$done_pids = array())
     {
+        $auth_groups = array();
         if (empty($pids)) {
             return array();
         } elseif (!is_array($pids)) {
@@ -909,69 +908,61 @@ class Record
             return array();
         }
         $done_pids = array_merge($done_pids,$pids);
-
-
-        $pids_str = Misc::arrayToSQL($pids);
-        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
-        $stmt = "SELECT rmf_rec_pid as pid, xsdmf_parent_key_match as role, xsdmf_element as rule, rmf_varchar as value 
-            FROM {$dbtp}record_matching_field AS r1 
-            INNER JOIN {$dbtp}xsd_display_matchfields AS x1 ON r1.rmf_xsdmf_id=x1.xsdmf_id   
-            WHERE 
-            rmf_rec_pid IN ($pids_str)
-            AND (r1.rmf_dsid IS NULL or r1.rmf_dsid = '') 
-            AND (xsdmf_element in ('!rule!role!Fez_User',
-                    '!rule!role!AD_Group',
-                    '!rule!role!AD_User',
-                    '!rule!role!AD_DistinguishedName',
-                    '!rule!role!Fez_Group',
-                    '!rule!role!in_AD',
-                    '!rule!role!in_Fez',
-                    '!inherit_security',
-                    '!rule!role!eduPersonTargetedID',
-                    '!rule!role!eduPersonAffiliation',
-                    '!rule!role!eduPersonScopedAffiliation',
-                    '!rule!role!eduPersonPrimaryAffiliation',
-                    '!rule!role!eduPersonPrinicipalName',
-                    '!rule!role!eduPersonOrgUnitDN',
-                    '!rule!role!eduPersonPrimaryOrgUnitDN')
-                )
-            ORDER BY pid ASC ";
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            $res = array();
-        }	
-        if (empty($res)) {
-            // get security from parents 
-            $parents = array();
-            foreach ($pids as $pid) {
-                $parents1 = Record::getParents($pid, true);
-                $parents = array_merge($parents,array_keys(Misc::keyArray($parents1, 'pid')));
-            }
-            $res = Record::getIndexAuth($parents,$done_pids);
-        } else {
-            $items = Misc::collateArray($res, 'pid');
-            // check the inherit flag and merge
-            $res1 = array();
-            foreach ($items as $pid => $item) {
-                $found_inherit_off = false;
-                foreach ($item as $row) {
+        foreach ($pids as $pid) {
+            $pids_str = Misc::arrayToSQL($pids);
+            $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+            $stmt = "SELECT rmf_rec_pid as pid, xsdmf_parent_key_match as role, xsdmf_element as rule, rmf_varchar as value 
+                FROM {$dbtp}record_matching_field AS r1 
+                INNER JOIN {$dbtp}xsd_display_matchfields AS x1 ON r1.rmf_xsdmf_id=x1.xsdmf_id   
+                WHERE 
+                rmf_rec_pid = '$pid'
+                AND (r1.rmf_dsid IS NULL or r1.rmf_dsid = '') 
+                AND (xsdmf_element in ('!rule!role!Fez_User',
+                            '!rule!role!AD_Group',
+                            '!rule!role!AD_User',
+                            '!rule!role!AD_DistinguishedName',
+                            '!rule!role!Fez_Group',
+                            '!rule!role!in_AD',
+                            '!rule!role!in_Fez',
+                            '!inherit_security',
+                            '!rule!role!eduPersonTargetedID',
+                            '!rule!role!eduPersonAffiliation',
+                            '!rule!role!eduPersonScopedAffiliation',
+                            '!rule!role!eduPersonPrimaryAffiliation',
+                            '!rule!role!eduPersonPrinicipalName',
+                            '!rule!role!eduPersonOrgUnitDN',
+                            '!rule!role!eduPersonPrimaryOrgUnitDN')
+                    )
+                ORDER BY pid ASC ";
+            $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                $res = array();
+            }	
+            $found_inherit_off = false;
+            if (!empty($res)) {
+                // split into roles
+                $groups = Misc::collateArray($res, 'role');
+                foreach ($groups as $role => $group) {
+                    $auth_groups[$pid][$role] = $group;
+                }
+                // check the inherit flag and merge
+                foreach ($res as $row) {
                     if ($row['rule'] == '!inherit_security') {
                         if (!empty($row['value']) && $row['value'] != 'on') {
                             $found_inherit_off = true;
                         }
                     } 
                 }
-                if (!$found_inherit_off) {
-                    // get security from parents 
-                    $parents1 = Record::getParents($pid, true);
-                    $parents = array_keys(Misc::keyArray($parents1, 'pid'));
-                    $res1 = array_merge($res1,Record::getIndexAuth($parents,$done_pids));
-                }
             }
-            $res = array_merge($res, $res1);
+            if (!$found_inherit_off) {
+                // get security from parents 
+                $parents1 = Record::getParents($pid, true);
+                $parents = array_keys(Misc::keyArray($parents1, 'pid'));
+                $auth_groups = array_merge_recursive($auth_groups, Record::getIndexAuth($parents,$done_pids));
+            }
         }
-        return $res;
+        return $auth_groups;
     }
 
     function clearIndexAuth($pids)

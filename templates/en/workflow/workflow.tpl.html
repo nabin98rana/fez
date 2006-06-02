@@ -12,7 +12,11 @@ function updateForm()
 //-->
 </script>
 {/literal}
-
+{if $show_not_allowed_msg}
+<div class="msg">
+You don't have permission to access this function
+</div>
+{else}
 <table bgcolor="{$light_color}" border="0" cellspacing="0" cellpadding="1" align="center"  width="100%">
   <tr>
     <td>
@@ -92,3 +96,4 @@ Workflow Progress:
     </td>
   </tr>
 </table>
+{/if}

@@ -29,3 +29,12 @@ padding: 2px 2px 2px 2px;
 margin: 2px 2px 2px 2px;
 border: 1px solid [[$smarty.const.APP_CELL_COLOR]];
 }
+.msg {
+color: black;
+background-color: [[$smarty.const.APP_CELL_COLOR]];
+text-align: center;
+font-weight: bold;
+font-family: Verdana, Arial, Helvetica, sans-serif;
+font-style: normal;
+font-size: 12px;
+}

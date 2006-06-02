@@ -1028,12 +1028,14 @@ class Collection
 		$joinStmt = "";
         $usr_id = Auth::getUserID();
 		if (is_numeric($usr_id)) {	
-            $authStmt .= "INNER JOIN {$dbtp}auth_index2 ai ON ai.authi_pid = r2.rmf_rec_pid   
-                AND authi_role in ($rolesStmt)
-                INNER JOIN {$dbtp}auth_rules_users ON ai.authi_ar_id=aru_ar_id AND aru_usr_id='$usr_id'";
+            $authStmt .= "INNER JOIN {$dbtp}auth_index2 ai 
+                ON authi_role in ($rolesStmt) AND ai.authi_pid = r2.rmf_rec_pid   
+                INNER JOIN {$dbtp}auth_rule_group_users 
+                ON argu_usr_id='$usr_id' AND ai.authi_arg_id=argu_arg_id ";
 			} else {
-                $authStmt = " INNER JOIN {$dbtp}auth_index2 ON authi_pid=r2.rmf_rec_pid AND authi_role='Lister'
-                    INNER JOIN {$dbtp}auth_rules ON authi_ar_id=ar_id AND ar_rule='public_list' AND ar_value='1' ";
+                $authStmt = " INNER JOIN {$dbtp}auth_index2 ON authi_role='Lister' AND authi_pid=r2.rmf_rec_pid 
+                    INNER JOIN {$dbtp}auth_rule_group_rules ON argr_arg_id=authi_arg_id 
+                    INNER JOIN {$dbtp}auth_rules ON ar_rule='public_list' AND ar_value='1' AND argr_ar_id=ar_id ";
                 $joinStmt .= "";
 			}		
 			return array('authStmt' => $authStmt, 'joinStmt' => $joinStmt);

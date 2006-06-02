@@ -32,7 +32,6 @@
 // +----------------------------------------------------------------------+
 //
 //
-
 include_once("config.inc.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.template.php");
@@ -41,16 +40,8 @@ include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 
-$tpl = new Template_API();
-$tpl->setTemplate("view.tpl.html");
-
 $username = Auth::getUsername();
-$tpl->assign("isUser", $username);
 $isAdministrator = User::isUserAdministrator($username);
-if (Auth::userExists($username)) { // if the user is registered as a Fez user
-	$tpl->assign("isFezUser", $username);
-}
-$tpl->assign("isAdministrator", $isAdministrator);
 
 $pid = @$HTTP_POST_VARS["pid"] ? $HTTP_POST_VARS["pid"] : $HTTP_GET_VARS["pid"];
 $dsID = @$HTTP_POST_VARS["dsID"] ? $HTTP_POST_VARS["dsID"] : $HTTP_GET_VARS["dsID"];
@@ -134,8 +125,6 @@ if (!empty($pid) && !empty($dsID)) {
 		$real_dsID = $dsID;
 		$acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
 	}
-	$tpl->assign("pid", $pid);
-	$tpl->assign("dsID", $dsID);
 
 	$xdis_array = Fedora_API::callGetDatastreamContentsField ($pid, 'FezMD', array('xdis_id'));
 	$xdis_id = $xdis_array['xdis_id'][0];
@@ -180,20 +169,15 @@ if (!empty($pid) && !empty($dsID)) {
 			header("Content-length: " . filesize($tempDumpFileName) . "\n");
 			echo $sourceOAIRead;
 			die;*/
-		} else {
-			$tpl->assign("show_not_allowed_msg", true);
-			$tpl->displayTemplate();
+            exit;
 		}
-	} else {
-		$tpl->assign("show_not_allowed_msg", true);
-		$tpl->displayTemplate();
 	}		
-} else {
-	$tpl->assign("show_not_allowed_msg", true);
-	$tpl->displayTemplate();
 }
+$tpl = new Template_API();
+$tpl->setTemplate("view.tpl.html");
+$tpl->assign("show_not_allowed_msg", true);
+$tpl->displayTemplate();
 
 
 
 ?>
-

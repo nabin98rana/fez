@@ -179,7 +179,7 @@ class Community
             inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 
             ON r1.rmf_xsdmf_id = x1.xsdmf_id  
 			inner join (
-                    SELECT r2.rmf_rec_pid, r4.rmf_rec_pid as sort_pid, r4.rmf_$data_type as sort_column 
+                    SELECT distinct r2.rmf_rec_pid, r4.rmf_rec_pid as sort_pid, r4.rmf_$data_type as sort_column 
                     $body1
 
                     left JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r4
