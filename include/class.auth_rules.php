@@ -77,8 +77,7 @@ class AuthRules
     function getMd5($group) {
         $row_strs = array();
         foreach ($group as $row) {
-            ksort($row);
-            $row_strs[] = implode(',',$row);
+            $row_strs[] = trim($row['rule']).trim($row['value']);
         }
         asort($row_strs);
         $row_strs = array_unique($row_strs);
