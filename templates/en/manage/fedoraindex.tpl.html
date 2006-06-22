@@ -170,6 +170,7 @@ function toggleOverride()
 			<td>
 			  <table>
                     <form name="reindex_form" onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
+                    <input type="hidden" name="override" value="on" />
 		  <tr>
 				<td width="200" bgcolor="{$cell_color}" class="default">
 				  <b>Recover existing fez datastreams?:</b>

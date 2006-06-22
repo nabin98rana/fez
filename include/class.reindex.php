@@ -245,18 +245,18 @@ class Reindex
 
 		foreach ($items as $pid) {
 			// even if the Fedora object has a RELS-EXT record replace it with a new one based on the chosen destination collection.
-			if (@$HTTP_POST_VARS["override"] && !@$HTTP_POST_VARS["recover"]) {
+			if (Misc::checkbox(@$HTTP_POST_VARS["override"]) && !Misc::checkBox(@$HTTP_POST_VARS["recover"])) {
 				$relsext = Reindex::buildRELSEXT($collection_pid, $pid);
 				$fezmd = Reindex::buildFezMD($xdis_id, $sta_id);			
 				if (Fedora_API::datastreamExists($pid, "RELS-EXT")) {
 					Fedora_API::callModifyDatastreamByValue($pid, "RELS-EXT", "A", "Relationships to other objects", $relsext, "text/xml", true);
 				} else {
-					Fedora_API::callAddDatastream($pid, "RELS-EXT", $relsext, "Relationships to other objects", "A", "text/xml", "X");
+					Fedora_API::getUploadLocation($pid, "RELS-EXT", $relsext, "Relationships to other objects", "text/xml", "X");
 				}
 				if (Fedora_API::datastreamExists($pid, "FezMD")) {
 					Fedora_API::callModifyDatastreamByValue($pid, "FezMD", "A", "Fez extension metadata", $fezmd, "text/xml", true);
 				} else {
-					Fedora_API::callAddDatastream($pid, "FezMD", $fezmd, "Fez extension metadata", "A", "text/xml", "X");
+					Fedora_API::getUploadLocation($pid, "FezMD", $fezmd, "Fez extension metadata", "text/xml", "X");
 				}
 			}
 			Record::setIndexMatchingFields($pid);
