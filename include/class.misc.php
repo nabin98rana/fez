@@ -1300,6 +1300,7 @@ class Misc
      * @return  void ($array passed as reference recursively)
      */
 	function dom_xsd_to_referenced_array($domnode, $topelement, &$array, $parentnodename="", $searchtype="", $superdomnode, $supertopelement="", $parentContent="") {
+        //echo "Node:(".$domnode->nodeName."), topelement:($topelement), parentnodename:($parentnodename), searchtype:($searchtype), superdomnode:(".$superdomnode->nodeName."), superdomnode:($supertopelement), parentContent:($parentContent)<br/>\n";
 		$array_ptr = &$array;	
 		$standard_types = array("int", "string", "dateTime", "float", "anyURI", "base64Binary", "NMTOKEN", "lang");
 		$current_refs = array();
@@ -1361,7 +1362,8 @@ class Misc
 				} else {
 					$shortnodename = $currentnode->nodeName;
 				}	
-				if (($shortnodename == $searchtype) && ($shortnodename <> "element")) {
+				if (($shortnodename == $searchtype) && ($shortnodename <> "element") 
+                        && ($shortnodename <> "attribute")) {
 					if ($currentnode->hasAttributes() ) {
 						$attributes = $currentnode->attributes;
 						foreach ($attributes as $index => $attrib) {
@@ -1379,12 +1381,18 @@ class Misc
 					if (($shortnodename == "attribute") || ($shortnodename == "extension")) {
 						if ($currentnode->hasAttributes() ) {
 							$attributes = $currentnode->attributes;	
+                            $nextSearch = "complexType";
 							foreach ($attributes as $index => $attrib) {
 								if ($attrib->nodeName == "base") {
-									$shorttypevalue = substr($attrib->nodeValue, (strpos($attrib->nodeValue, ":") + 1));
+                                    if (is_numeric(strpos($attrib->nodeValue, ":"))) {
+                                        $shorttypevalue = substr($attrib->nodeValue, (strpos($attrib->nodeValue, ":") + 1));
+                                    } else {
+                                        $shorttypevalue = $attrib->nodeValue;
+                                    }
 									if (!in_array($shorttypevalue, $standard_types)) {
-										array_push($current_refs, $attrib->nodeValue);
+										array_push($current_refs, $shorttypevalue);
 									}
+                                    $nextSearch = "complexType";
 								}
 								if ($attrib->nodeName == "name") {
 									$current_name = $attrib->nodeValue;
@@ -1394,9 +1402,21 @@ class Misc
 									$current_name = $attrib->nodeValue;
 									$parentContent .= "!".$current_name;
 								}
-							}
+                                if ($attrib->nodeName == "ref") {
+                                    if (is_numeric(strpos($attrib->nodeValue, ":"))) {
+                                        $shortrefvalue = 
+                                            substr($attrib->nodeValue, (strpos($attrib->nodeValue, ":") + 1));
+                                    } else {
+                                        $shortrefvalue = $attrib->nodeValue;
+                                    }
+									if (!in_array($shortrefvalue, $standard_types)) {
+                                        array_push($current_refs, $shortrefvalue);
+									}
+                                    $nextSearch = "attribute";
+                                }
+                            }
 							foreach ($current_refs as $ref) {
-								Misc::dom_xsd_to_referenced_array($currentnode, $ref, $array_ptr, $current_name, "complexType", $superdomnode, $supertopelement, $parentContent);
+								Misc::dom_xsd_to_referenced_array($currentnode, $ref, $array_ptr, $current_name, $nextSearch, $superdomnode, $supertopelement, $parentContent);
 							}
 							if ($current_name <> $parentnodename) {
 								$array_ptr = &$array[$current_name];
@@ -1412,9 +1432,14 @@ class Misc
 					if ($shortnodename == "attributeGroup") {
 						$attributes = $currentnode->attributes;	
 						foreach ($attributes as $index => $attrib) {
-						if ($attrib->nodeName == "ref") {
-								array_push($current_refs, $attrib->nodeValue);
-							}
+                            if ($attrib->nodeName == "ref") {
+                                if (is_numeric(strpos($attrib->nodeValue, ":"))) {
+                                    $shortrefvalue = substr($attrib->nodeValue, (strpos($attrib->nodeValue, ":") + 1));
+                                } else {
+                                    $shortrefvalue = $attrib->nodeValue;
+                                }
+                                array_push($current_refs, $shortrefvalue);
+                            }
 						}					
 						foreach ($current_refs as $ref) {
 							Misc::dom_xsd_to_referenced_array($currentnode, $ref, $array_ptr, $current_name, "attributeGroup", $superdomnode, $supertopelement, $parentContent);
@@ -1439,9 +1464,13 @@ class Misc
 								$current_name = $attrib->nodeValue;							
 							}
 							if ($attrib->nodeName == "type") {
-								$shorttypevalue = substr($attrib->nodeValue, (strpos($attrib->nodeValue, ":") + 1));
+                                if (is_numeric(strpos($attrib->nodeValue, ":"))) {
+                                    $shorttypevalue = substr($attrib->nodeValue, (strpos($attrib->nodeValue, ":") + 1));
+                                } else {
+                                    $shorttypevalue = $attrib->nodeValue;
+                                }
 								if (!in_array($shorttypevalue, $standard_types)) {
-									array_push($current_types, $attrib->nodeValue);
+									array_push($current_types, $shorttypevalue);
 								}
 							}
 						}
