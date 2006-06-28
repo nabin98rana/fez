@@ -73,12 +73,16 @@ class Record
     * @param   string $pid The persistant identifier	 
     * @return  array The list
     */
-    function getParents($pid, $nocache=false)
+    function getParents($pid, $clearcache=false)
     {
 
 		static $returns;
 
-        if ( !$nocache && isset($returns[$pid])) {
+        if ($clearcache) {
+            $returns = array();
+        }
+
+        if (isset($returns[$pid])) {
             return $returns[$pid];
         }
 
@@ -842,14 +846,22 @@ class Record
     }
 
 
-
-    function setIndexAuth($pid)
+    function setIndexAuth($pid, $topcall=true)
     {
-        $res = Record::getIndexAuth($pid);
+        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        // topcall means this is the first call and not a recursion.  We want to clear all our caches at the
+        // start but then use them as we recurse.
+        if ($topcall) {
+            // clear the parent cache
+            Record::getParents($pid, true);
+        }
+        $res = Record::getIndexAuth($pid,$topcall);
+        $rows = array();
+        $values = '';
         if (!empty($res)) {
             // add some pre-processed special rules
+            $has_list_rules = false;
             foreach ($res as $source_pid => $groups) {
-                $has_list_rules = false;
                 foreach ($groups as $role => $group) {
                     foreach ($group as $row) {
                         // check for rules on listing to determine if this pid is public or not
@@ -859,44 +871,93 @@ class Record
                     }   
 
                 }
-                // if no lister rules are found, then this pid is publically listable
-                if (!$has_list_rules) {
-                    $res[$source_pid]['Lister'][] = array('pid' => $source_pid, 'role' => 'Lister', 
-                            'rule' => 'public_list', 'value' => 1);
-                }
- 
+            }
+            // if no lister rules are found, then this pid is publically listable
+            if (!$has_list_rules) {
+                $res[$pid]['Lister'][] = array('pid' => $source_pid, 'role' => 'Lister', 
+                        'rule' => 'public_list', 'value' => 1);
             }
             // get the group ids
-            $values = '';
             foreach ($res as $source_pid => $groups) {
                 foreach ($groups as $role => $group) {
-                    $arg_id = AuthRules::getOrCreateRuleGroup($group);
+                    $arg_id = AuthRules::getOrCreateRuleGroup($group,$topcall);
                     $values .= "('$pid', '$role', '$arg_id'),";
+                    $rows[] = array('authi_pid' => $pid, 'authi_role' => $role, 'authi_arg_id' => $arg_id);
                 }
             }
             $values = rtrim($values,', ');
-
+        }
+        // Only check for change of rules at top of recursion, otherwise it slows things down too much.
+        if ($topcall) {
+            // check if the auth rules have changed for this pid - if they haven't then we don't need to recurse.
+            $stmt = "SELECT * FROM {$dbtp}auth_index2 WHERE authi_pid='$pid' ";
+            $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                return -1;
+            }
+            $rules_changed = false;
+            // check for added rules
+            foreach ($res as $dbrow) {
+                $found = false;
+                foreach ($rows as $crow) {
+                    if ($crow['authi_role'] == $dbrow['authi_role']
+                            && $crow['authi_arg_id'] == $dbrow['authi_arg_id']) {
+                        $found = true;
+                        break;
+                    }
+                }
+                if (!$found) {
+                    $rules_changed = true;
+                    break;
+                }
+            }
+            if (!$rules_changed) {
+                // check for deleted rules
+                foreach ($rows as $crow) {
+                    $found = false;
+                    foreach ($res as $dbrow) {
+                        if ($crow['authi_role'] == $dbrow['authi_role']
+                                && $crow['authi_arg_id'] == $dbrow['authi_arg_id']) {
+                            $found = true;
+                            break;
+                        }
+                    }
+                    if (!$found) {
+                        $rules_changed = true;
+                        break;
+                    }
+                }
+            }
+        } else {
+            // We are already recursing 
+            $rules_changed = true;
+        }
+        if ($rules_changed) {
             Record::clearIndexAuth($pid);
-            $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
             $stmt = "INSERT INTO {$dbtp}auth_index2 (authi_pid,authi_role,authi_arg_id) VALUES $values ";
             $res = $GLOBALS["db_api"]->dbh->query($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
                 return -1;
             }
-        }
-        // get children and update their indexes.
-        $rec = new RecordGeneral($pid);
-        $children = $rec->getChildrenPids();
-        foreach ($children as $child_pid) {
-            Record::setIndexAuth($child_pid);
+            // get children and update their indexes.
+            $rec = new RecordGeneral($pid);
+            $children = $rec->getChildrenPids();
+            foreach ($children as $child_pid) {
+                Record::setIndexAuth($child_pid,false);
+            }
         }
         return 1;
     }
 
-    function getIndexAuth($pids, &$done_pids = array())
+    function getIndexAuth($pids, $clearcache=false, &$done_pids = array())
     {
-        $auth_groups = array();
+        static $pid_cache;
+
+        if ($clearcache) {
+            $pid_cache = array();
+        }
         if (empty($pids)) {
             return array();
         } elseif (!is_array($pids)) {
@@ -907,14 +968,13 @@ class Record
         if (empty($pids)) {
             return array();
         }
-        $done_pids = array_merge($done_pids,$pids);
         foreach ($pids as $pid) {
-            $pids_str = Misc::arrayToSQL($pids);
+            $auth_groups = array();
+            if (!isset($pid_cache[$pid])) {
             $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
             $stmt = "SELECT rmf_rec_pid as pid, xsdmf_parent_key_match as role, xsdmf_element as rule, rmf_varchar as value 
                 FROM {$dbtp}record_matching_field AS r1 
-                INNER JOIN {$dbtp}xsd_display_matchfields AS x1 ON r1.rmf_xsdmf_id=x1.xsdmf_id   
-                WHERE 
+                    INNER JOIN {$dbtp}xsd_display_matchfields AS x1 ON    
                 rmf_rec_pid = '$pid'
                 AND (r1.rmf_dsid IS NULL or r1.rmf_dsid = '') 
                 AND (xsdmf_element in ('!rule!role!Fez_User',
@@ -933,7 +993,8 @@ class Record
                             '!rule!role!eduPersonOrgUnitDN',
                             '!rule!role!eduPersonPrimaryOrgUnitDN')
                     )
-                ORDER BY pid ASC ";
+                    AND r1.rmf_xsdmf_id=x1.xsdmf_id
+                    ";
             $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -946,6 +1007,7 @@ class Record
                 foreach ($groups as $role => $group) {
                     $auth_groups[$pid][$role] = $group;
                 }
+                
                 // check the inherit flag and merge
                 foreach ($res as $row) {
                     if ($row['rule'] == '!inherit_security') {
@@ -955,12 +1017,21 @@ class Record
                     } 
                 }
             }
+
             if (!$found_inherit_off) {
                 // get security from parents 
-                $parents1 = Record::getParents($pid, true);
+                    $parents1 = Record::getParents($pid);
                 $parents = array_keys(Misc::keyArray($parents1, 'pid'));
-                $auth_groups = array_merge_recursive($auth_groups, Record::getIndexAuth($parents,$done_pids));
+                    $auth_groups = array_merge_recursive($auth_groups, 
+                            Record::getIndexAuth($parents,false,$done_pids));
             }
+                $pid_cache[$pid] = $auth_groups;
+            }
+            $done_pids[] = $pid;
+        }
+        $auth_groups = array();
+        foreach ($pids as $pid) {
+            $auth_groups = array_merge_recursive($auth_groups, $pid_cache[$pid]);
         }
         return $auth_groups;
     }

@@ -2,10 +2,19 @@
 
 class AuthRules 
 {
-    function getOrCreateRuleGroup($group)
+    function getOrCreateRuleGroup($group,$clearcache=false)
     {
-        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        static $gcache;
+
+        if ($clearcache) {
+            $gcache = array();
+        }
         $rmd5 = AuthRules::getMd5($group);
+        // check cache for rule group
+        if (isset($gcache[$rmd5])) {
+            return $gcache[$rmd5];
+        }
+        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
         // does rule exist in table
         $stmt = "SELECT arg_id, arg_md5 FROM {$dbtp}auth_rule_groups WHERE arg_md5='$rmd5' ";
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt,DB_FETCHMODE_ASSOC);
@@ -40,6 +49,7 @@ class AuthRules
         } else {
             $arg_id = $res['arg_id'];
         }
+        $gcache[$rmd5] = $arg_id;
         return $arg_id;
     }
 
