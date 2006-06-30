@@ -12,7 +12,7 @@ class NajaxImagePreview {
 		$real_dsID = "preview_".$dsID;
 //        $imagebin = file_get_contents(APP_BASE_URL.'eserv.php?pid='.$pid.'&dsID='.$real_dsID); // http seems to fail for IE. Some bug in IE.
 //        $imagebin = file_get_contents( "https://" . APP_HOSTNAME . APP_RELATIVE_URL . 'eserv.php?pid='.$pid.'&dsID='.$real_dsID);
-		$imagebin = Misc::processURL("https://" . APP_HOSTNAME . APP_RELATIVE_URL . 'eserv.php?pid='.$pid.'&dsID='.$real_dsID);
+		list($imagebin,$info) = Misc::processURL("https://" . APP_HOSTNAME . APP_RELATIVE_URL . 'eserv.php?pid='.$pid.'&dsID='.$real_dsID);
 		return $imagebin;
 
     }

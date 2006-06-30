@@ -109,7 +109,6 @@ if (!empty($pid) && !empty($dsID)) {
 				break;
 		
 		default		:
-				$header = "Content-type: text/xml";
 				break;
 	
 	} // end switch field_extension
@@ -132,11 +131,6 @@ if (!empty($pid) && !empty($dsID)) {
 		if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $HTTP_SERVER_VARS['PHP_SELF']."?".urlencode($HTTP_SERVER_VARS['QUERY_STRING'])) == true) {
 			$urldata = APP_FEDORA_GET_URL."/".$pid."/".$real_dsID; // this should stop them dang haxors (forces the http on the front for starters)
 			$urlpath = $urldata;
-			ob_start();
-		    header($header);
-  	 		header('Content-Disposition: filename="'.substr($urldata, (strrpos($urldata, '/')+1) ).'"');
-		    header('Pragma: private');
-		    header('Cache-control: private, must-revalidate'); 
 			$tempDumpFileName = APP_TEMP_DIR.'tmpdumpfile.txt';
 			// Read the source OAI repository url or file
 			
@@ -148,7 +142,19 @@ if (!empty($pid) && !empty($dsID)) {
 			}
 			echo $sourceOAIRead;
 			*/
-			$data = Misc::processURL($urldata);
+			list($data,$info) = Misc::processURL($urldata);
+
+            ob_start();
+            if (!empty($header)) {
+                header($header);
+            } elseif (!empty($info['content_type'])) {
+                header("Content-type: {$info['content_type']}");
+            } else {
+                header("Content-type: text/xml");
+            }
+            header('Content-Disposition: filename="'.substr($urldata, (strrpos($urldata, '/')+1) ).'"');
+            header('Pragma: private');
+            header('Cache-control: private, must-revalidate');
 
 			echo $data;
 			ob_end_flush(); // the incrementFileDownloads takes some (small) time so flush the file content out first

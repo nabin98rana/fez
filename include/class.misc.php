@@ -65,8 +65,9 @@ class Misc
 	   curl_setopt($ch, CURLOPT_URL, $url);
 	   curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
 	   $data = curl_exec ($ch);
+       $info = curl_getinfo($ch); 
 	   curl_close ($ch);
-	   return $data;  
+	   return array($data,$info);  
 	}
 
 	/*

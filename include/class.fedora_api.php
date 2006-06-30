@@ -182,7 +182,7 @@ class Fedora_API {
 		$searchPhrase = "?xml=true$fieldPhrase&terms=$searchTerms";
 		$filename = APP_FEDORA_SEARCH_URL.$searchPhrase;
 //		$xml = file_get_contents($filename);
-		$xml = Misc::processURL($filename);
+		list($xml,$info) = Misc::processURL($filename);
 		$xml = preg_replace("'<object uri\=\"info\:fedora\/(.*)\"\/>'", "<pid>\\1</pid>", $xml); // fix the pid tags
 		$doc = DOMDocument::loadXML($xml);
 		$xpath = new DOMXPath($doc);
@@ -228,7 +228,7 @@ class Fedora_API {
 		// do the query - we are querying the fedora web service here (need to be able to open an URL as a file)
 		$filename = APP_FEDORA_RISEARCH_URL.$searchPhrase;
 //		$xml = file_get_contents($filename);
-		$xml = Misc::processURL($filename);
+		list($xml,$info) = Misc::processURL($filename);
 		$xml = preg_replace("'<object uri\=\"info\:fedora\/(.*)\"\/>'", "<pid>\\1</pid>", $xml); // fix the pid tags
 		// The query has returned XML. Parse the xml into a DOMDocument
 		$doc = @DOMDocument::loadXML($xml);
@@ -609,7 +609,7 @@ class Fedora_API {
 		$dsExists = Fedora_API::datastreamExists($pid, $dsID);
 		if ($dsExists === true) {			
 			$filename = APP_FEDORA_GET_URL."/".$pid."/".$dsID;
-			$xml = Misc::processURL($filename);
+			list($xml,$info) = Misc::processURL($filename);
 			if ($getxml) {
 				return $xml;
 			}
@@ -644,7 +644,7 @@ class Fedora_API {
 		$dsExists = Fedora_API::datastreamExists($pid, $dsID);
 		if ($dsExists == true) {
 			$filename = APP_FEDORA_GET_URL."/".$pid."/".$dsID;
-			$xml = Misc::processURL($filename);
+			list($xml, $info) = Misc::processURL($filename);
 			if (!empty($xml) && $xml != false) {
 				$doc = DOMDocument::loadXML($xml);
 				$xpath = new DOMXPath($doc);
