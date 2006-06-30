@@ -1559,7 +1559,9 @@ class Auth
             INSERT INTO {$dbtp}auth_rule_group_users (argu_arg_id, argu_usr_id)
             SELECT distinct argr_arg_id, '$usr_id' FROM {$dbtp}auth_rule_group_rules
             INNER JOIN {$dbtp}auth_rules ON argr_ar_id=ar_id
-            AND (ar_rule='public_list' AND ar_value='1') 
+            AND 
+            (
+                (ar_rule='public_list' AND ar_value='1') 
             OR  (ar_rule = '!rule!role!Fez_User' AND ar_value='$usr_id') 
             OR (ar_rule = '!rule!role!AD_User' AND ar_value='".Auth::getUsername()."') ";
         if (!empty($fez_groups_sql)) {
@@ -1629,6 +1631,8 @@ class Auth
             $authStmt .= "
                 OR (ar_rule = '!rule!role!in_Fez') ";
         }
+        $authStmt .= "
+            ) ";
         //Error_Handler::logError($authStmt, __FILE__,__LINE__);
 		$res = $GLOBALS["db_api"]->dbh->query($authStmt);
         if (PEAR::isError($res)) {

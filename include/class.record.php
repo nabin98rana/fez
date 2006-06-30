@@ -858,9 +858,9 @@ class Record
         $res = Record::getIndexAuth($pid,$topcall);
         $rows = array();
         $values = '';
+        $has_list_rules = false;
         if (!empty($res)) {
             // add some pre-processed special rules
-            $has_list_rules = false;
             foreach ($res as $source_pid => $groups) {
                 foreach ($groups as $role => $group) {
                     foreach ($group as $row) {
@@ -872,21 +872,21 @@ class Record
 
                 }
             }
-            // if no lister rules are found, then this pid is publically listable
-            if (!$has_list_rules) {
-                $res[$pid]['Lister'][] = array('pid' => $source_pid, 'role' => 'Lister', 
-                        'rule' => 'public_list', 'value' => 1);
-            }
-            // get the group ids
-            foreach ($res as $source_pid => $groups) {
-                foreach ($groups as $role => $group) {
-                    $arg_id = AuthRules::getOrCreateRuleGroup($group,$topcall);
-                    $values .= "('$pid', '$role', '$arg_id'),";
-                    $rows[] = array('authi_pid' => $pid, 'authi_role' => $role, 'authi_arg_id' => $arg_id);
-                }
-            }
-            $values = rtrim($values,', ');
         }
+        // if no lister rules are found, then this pid is publically listable
+        if (!$has_list_rules) {
+            $res[$pid]['Lister'][] = array('pid' => $pid, 'role' => 'Lister', 
+                    'rule' => 'public_list', 'value' => 1);
+        }
+        // get the group ids
+        foreach ($res as $source_pid => $groups) {
+            foreach ($groups as $role => $group) {
+                $arg_id = AuthRules::getOrCreateRuleGroup($group,$topcall);
+                $values .= "('$pid', '$role', '$arg_id'),";
+                $rows[] = array('authi_pid' => $pid, 'authi_role' => $role, 'authi_arg_id' => $arg_id);
+            }
+        }
+        $values = rtrim($values,', ');
         // Only check for change of rules at top of recursion, otherwise it slows things down too much.
         if ($topcall) {
             // check if the auth rules have changed for this pid - if they haven't then we don't need to recurse.
