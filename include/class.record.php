@@ -50,6 +50,7 @@ include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.pager.php");
 include_once(APP_INC_PATH . "class.workflow.php");
 include_once(APP_INC_PATH . "class.status.php");
+include_once(APP_INC_PATH . "class.history.php");
 include_once(APP_INC_PATH . "class.foxml.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
@@ -800,7 +801,7 @@ class Record
         inner join {$dbtp}xsd_display d1 on x1.xsdmf_xdis_id = d1.xdis_id
 		inner join {$dbtp}xsd x2 on x2.xsd_id = d1.xdis_xsd_id and x2.xsd_title = '".$xsd_title."'
 		left join {$dbtp}xsd_loop_subelement s1 on s1.xsdsel_id = x1.xsdmf_xsdsel_id";
-
+//		echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		return $res;
     }
@@ -827,8 +828,8 @@ class Record
         $display = new XSD_DisplayObject($xdis_id);
         $array_ptr = array();
         $xsdmf_array = $display->getXSDMF_Values($pid);		
-		Record::removeIndexRecord($pid); // remove any existing index entry for that PID // CK added 9/1/06 - still working on this
-//        print_r($xsdmf_array);
+		Record::removeIndexRecord($pid, '', 'keep'); //CK 22/5/06 = added last 2 params to make it keep the dsID indexes for Fezacml on datastreams // remove any existing index entry for that PID // CK added 9/1/06 - still working on this
+
         foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
             if (!is_array($xsdmf_value) && !empty($xsdmf_value) && (trim($xsdmf_value) != "")) {					
                 $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
@@ -842,7 +843,8 @@ class Record
                 }
             }
         }
-        Record::setIndexAuth($pid);
+        Record::setIndexAuth($pid); //set the security index
+//		exit;
     }
 
 
@@ -1118,7 +1120,7 @@ class Record
         $existingDatastreams = array();  // may be overwritten by extract
 
         extract($dsarray);
-        //echo "<pre>".htmlspecialchars($xmlObj)."</pre>";
+
         $params = array();
 
 		$datastreamXMLHeaders = Misc::getDatastreamXMLHeaders($datastreamTitles, $xmlObj, $existingDatastreams);
@@ -1704,7 +1706,6 @@ class RecordGeneral
         return Fedora_API::objectExists($this->pid);
     }
 
-
 }
 
 /**
@@ -1859,6 +1860,7 @@ class RecordObject extends RecordGeneral
 				$this->getFileDownloadsCount();
 			} 
 			$file_downloads = $this->file_downloads;
+//			History::addHistory($this->pid, "", "Wow this might actually work?"); // test for fezhistory
 		}
         $pid = $this->pid;
 

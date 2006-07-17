@@ -106,7 +106,8 @@ AutoSuggestControl.prototype.createDropDown = function () {
 			if (isWhitespace(oThis.textboxcopy.value)) {
 				oThis.textboxcopy.value = oTarget.firstChild.nodeValue;
 			}
-			oThis.textbox.value = oTarget.firstChild.nodeValue;
+//			fixedValue = new Regex(
+			oThis.textbox.value = oTarget.firstChild.nodeValue.replace(/ *(\(.*matches\)) */g, '');
 			dtList[0] = new Option;
 			dtList[0].text = "(none)";
 			dtList[0].value = "0";
@@ -114,10 +115,14 @@ AutoSuggestControl.prototype.createDropDown = function () {
 			dtList[1].value = oTarget.getAttribute('id');
 			dtList[1].text = oTarget.firstChild.nodeValue+" ("+oTarget.getAttribute('id')+")";
 			dtList[1].selected = true;
-			removeAllOptions(oThis.form, oThis.selectbox);
-			addOptions(oThis.form, oThis.selectbox, dtList);
 			oThis.hideSuggestions();
-            oThis.textboxcopy.focus();
+			if (oThis.textboxcopy == null) {
+				oThis.textbox.focus();
+			} else {				
+				oThis.textboxcopy.focus();
+				removeAllOptions(oThis.form, oThis.selectbox);
+				addOptions(oThis.form, oThis.selectbox, dtList);
+			}		
 		} else if (oEvent.type == "mouseover") {
             oThis.highlightSuggestion(oTarget);
         } else {
@@ -288,7 +293,7 @@ AutoSuggestControl.prototype.nextSuggestion = function () {
     if (cSuggestionNodes.length > 0 && this.cur < cSuggestionNodes.length-1) {
         var oNode = cSuggestionNodes[++this.cur];
         this.highlightSuggestion(oNode);
-        this.textbox.value = oNode.firstChild.nodeValue; 
+        this.textbox.value = oNode.firstChild.nodeValue.replace(/ *(\(.*matches\)) */g, '');
     }
 };
 
@@ -303,7 +308,7 @@ AutoSuggestControl.prototype.previousSuggestion = function () {
     if (cSuggestionNodes.length > 0 && this.cur > 0) {
         var oNode = cSuggestionNodes[--this.cur];
         this.highlightSuggestion(oNode);
-        this.textbox.value = oNode.firstChild.nodeValue;   
+        this.textbox.value = oNode.firstChild.nodeValue.replace(/ *(\(.*matches\)) */g, '');   
     }
 };
 
@@ -353,7 +358,8 @@ AutoSuggestControl.prototype.showSuggestions = function (aSuggestions /*:Array*/
     }
 	this.layer.style.left = this.getLeft() + "px";
 	this.layer.style.top = (this.getTop()+this.textbox.offsetHeight) + "px";
-    this.layer.style.display = "block";
+    this.layer.style.width = this.textbox.offsetWidth;
+	this.layer.style.display = "block";
 };
 
 /**

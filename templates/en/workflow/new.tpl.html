@@ -20,7 +20,7 @@
 {assign var="wfl_id" value=$workflows[i].wft_wfl_id}
 {assign var="xdis_id1" value=$workflows[i].wft_xdis_id}
 {if $workflows[i].wft_icon}<img src="{$rel_url}{$workflows[i].wft_icon}" alt="icon" align="center"/>{/if}
-<a href="{$marty.server.SCRIPT_NAME}?pid={$pid}&cat=select_workflow&xdis_id={$xdis_id}&wft_id={$workflows[i].wft_id}&href={$href}" 
+<a href="{$smarty.server.SCRIPT_NAME}?pid={$pid}&cat=select_workflow&xdis_id={$xdis_id}&wft_id={$workflows[i].wft_id}&href={$href}" 
 >{$wfl_list[$wfl_id].wfl_title|escape}</a> 
 {if $wfl_list[$wfl_id].wfl_description}<br/>{$wfl_list[$wfl_id].wfl_description|escape}{/if}
 </td>
@@ -37,7 +37,7 @@
   <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" >
 <tr>
 <td  class="default">
-<a href="{$rel_url}workflow_triggers.php?pid={$list[i].pid|escape}"
+<a href="{$rel_url}workflow_triggers.php?pid={$pid}"
 ><img title="Workflow" align="absmiddle" src="{$rel_url}images/workflow_16.gif" border="0">Set workflow triggers for selected record</a>
 {/if}
 </td>

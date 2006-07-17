@@ -46,6 +46,7 @@ include_once(APP_INC_PATH . "class.community.php");
 include_once(APP_INC_PATH . "class.controlled_vocab.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.status.php");
+include_once(APP_INC_PATH . "class.statistics.php");
 include_once(APP_INC_PATH . "class.user.php");
 
 $tpl = new Template_API();
@@ -59,32 +60,46 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
 }
 $tpl->assign("isAdministrator", $isAdministrator);
 
-$pagerRow = Pager::getParam('pagerRow');
-if (empty($pagerRow)) {
-    $pagerRow = 0;
-}
-$rows = Pager::getParam('rows');
-if (empty($rows)) {
-    $rows = APP_DEFAULT_PAGER_SIZE;
-}
-$options = Pager::saveSearchParams();
-$tpl->assign("options", $options);
+$range = (@$_REQUEST['range'] == "4w") ? "4w" : "all";
+$year = is_numeric(@$_REQUEST['year']) ? $_REQUEST['year'] : 'all';
+$month = (@$_REQUEST['month'] >= 1 && @$_REQUEST['month'] <= 12) ? $_REQUEST['month'] : 'all';
+
 $browse = @$_REQUEST['browse'];
 if ($browse == "top50authors") {
 	$rows = 50;
-	$list = Collection::statsByAttribute($pagerRow, $rows, "Author");
+	$list = Collection::statsByAttribute(0, $rows, "Author");
 	$list_info = $list["info"];
 	$list = $list["list"];
 	$tpl->assign("browse_heading", "Top 50 Authors");
+	$tpl->assign("extra_title", "Top 50 Authors");
 	$tpl->assign("browse_type", "browse_top50authors");
 }  elseif ($browse == "top50papers") {
 	$rows = 50;
-	$list = Collection::statsByAttribute($pagerRow, $rows, "Title");
+	$list = Collection::statsByAttribute(0, $rows, "Title");
 	$list_info = $list["info"];
 	$list = $list["list"];
 	$tpl->assign("browse_heading", "Top 50 Papers");
+	$tpl->assign("extra_title", "Top 50 Papers");
 	$tpl->assign("browse_type", "browse_top50papers");
+}  elseif ($browse == "show_detail_date") {
+	if ($range == "4w") {
+		$dateString = "for past 4 weeks";
+	} elseif (is_numeric($month) && is_numeric($year)) {
+		$dateString = "for ".Statistics::getMonthName($month)." ".$year;		
+	} elseif (is_numeric($year)) {
+		$dateString = "for ".$year;
+	} else { //all time
+		$dateString = "for all years";
+	}
+	$list = Collection::statsByAttribute(0, 100, "Title", $year, $month, $range);
+	$list_info = $list["info"];
+	$list = $list["list"];
+	$tpl->assign("browse_heading", "Document downloads ".$dateString);
+	$tpl->assign("browse_type", "browse_show_detail_date");
+	$tpl->assign("extra_title", "Document downloads ".$dateString);
 }
+$tpl->assign("thisYear", date("Y"));
+$tpl->assign("lastYear", date("Y")-1);
 
 $tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
 $tpl->assign("list", $list);

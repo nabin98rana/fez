@@ -307,7 +307,6 @@ if ($access_ok) {
 		} elseif ($datastreams[$ds_key]['controlGroup'] == 'M') {
             $FezACML_DS = array();
             $FezACML_DS = Record::getIndexDatastream($pid, $ds['ID'], 'FezACML');
-
             $return = array();
             foreach ($FezACML_DS as $result) {
                 if (in_array($result['xsdsel_title'], $securityfields)  && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) )  {

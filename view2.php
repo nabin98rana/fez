@@ -37,6 +37,7 @@ include_once(APP_INC_PATH . "najax/najax.php");
 include_once(APP_INC_PATH . "najax_objects/class.image_preview.php");
 include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.lister.php");
+include_once(APP_INC_PATH . "class.statistics.php");
 include_once(APP_PEAR_PATH . "Date.php");
 
 $username = Auth::getUsername();
@@ -237,7 +238,7 @@ if (!empty($pid)) {
 						}
 					}
 				}
-			
+				$datastreams[$ds_key]['downloads'] = Statistics::getStatsByDatastream($pid, $ds['ID']);			
 				$datastreams[$ds_key]['FezACML'] = @$return[$pid]['FezACML'];
 				$datastreams[$ds_key]['workflows'] = $datastream_workflows;
 				$parentsACMLs = array();
@@ -263,6 +264,7 @@ if (!empty($pid)) {
             }
 		} 
 		$datastreams = Auth::getIndexAuthorisationGroups($datastreams);
+//		print_r($datastreams);
 		$tpl->assign("datastreams", $datastreams);	
 		$tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");		
 		$parents = Record::getParents($pid);
@@ -271,6 +273,8 @@ if (!empty($pid)) {
         $tpl->assign('title', $record->getTitle());
 		$tpl->assign("controlled_vocabs", $controlled_vocabs);				
 
+		$tpl->assign("statsAbstract", Statistics::getStatsByAbstractView($pid));				
+		$tpl->assign("statsFiles", Statistics::getStatsByAllFileDownloads($pid));						
         // get prev / next info
         
         // Check if we have moved onto the next listing page
@@ -293,12 +297,14 @@ if (!empty($pid)) {
         $view_page = $_SESSION['view_page'];
 
         // find current position in list
-        foreach ($list as $key => $item) {
-            if ($item['pid'] == $pid) {
-                $list_idx = $key;
-                break;
-            }
-        }
+		if (is_array($list)) {
+			foreach ($list as $key => $item) {
+				if ($item['pid'] == $pid) {
+					$list_idx = $key;
+					break;
+				}
+			}
+		}
         $prev = null;  // the next item in the list
         $next = null;  // the previous item in the list
         $go_next = null;  // whether we need to page down

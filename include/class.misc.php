@@ -1492,7 +1492,7 @@ class Misc
 							Misc::dom_xsd_to_referenced_array($childnode, '', $array_ptr, $current_name, "", $superdomnode, $supertopelement, $parentContent);
 						}
 					}	
-				} else {				
+				} elseif ($currentnode->nodeName != "") {
 					if ($currentnode->hasAttributes() ) {
 						$attributes = $currentnode->attributes;	
 						foreach ($attributes as $index => $attrib) {

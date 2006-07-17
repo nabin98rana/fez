@@ -134,7 +134,7 @@ function validateForm(f)
         <form name="custom_filter_form" method="get" action="list.php" onSubmit="javascript:return validateForm(this);">
         <input type="hidden" name="cat" value="search">
         {section name="i" loop=$list}
-		{if $list[i].sek_html_input == 'text' ||  $list[i].sek_html_input == 'combo' ||  $list[i].sek_html_input == 'multiple' ||  $list[i].sek_html_input == 'allcontvocab' }
+		{if $list[i].sek_html_input == 'text' ||  $list[i].sek_html_input == 'combo' ||  $list[i].sek_html_input == 'multiple' ||  $list[i].sek_html_input == 'contvocab' ||  $list[i].sek_html_input == 'allcontvocab' }
         <tr><td colspan="2" class="default">
 	<table id="choicelist_{$list[i].sek_id}" border="0" cellpadding="2" cellspacing="0" width="100%">
             {if $list[i].sek_html_input == 'text'}
@@ -189,7 +189,7 @@ function validateForm(f)
 						 </td>
 						</tr>
 				{/if}
-            {elseif $list[i].sek_html_input == 'allcontvocab'}
+            {elseif $list[i].sek_html_input == 'allcontvocab' or $list[i].sek_html_input == 'contvocab'}
 					{section name="z" loop=$list[i].field_options}
 					{assign var="loop_num" value=$list[i].cv_ids[z]}
 					<tr id="tr_list_{$list[i].sek_id}_{$loop_num}" valign="top">

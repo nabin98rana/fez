@@ -35,7 +35,7 @@ function loadPreview(pid,datastreamID, alt)
     ip_obj.setTimeout(100000);
     ip_obj.getPreview(pid, datastreamID, max_width, max_height, false, function() {
 //            pv_img.src = rel_url+'webservices/image_resize_cache.php?pid='+pid+'&dsID='+datastreamID+'&width='+max_width+'&height='+max_height;
-            pv_img.src = rel_url+'eserv.php?pid='+pid+'&dsID=preview_'+datastreamID;
+            pv_img.src = rel_url+'eserv.php?ls=0&pid='+pid+'&dsID=preview_'+datastreamID;
             pv_img.alt = alt;
             pv_loading.style.display = 'none';
             image_preview_loading = 0;
@@ -166,11 +166,17 @@ function validateForm(f)
 				<tr>
 				  <td align="left" class="default" nowrap> <b>Browse Collection:</b></td>
 				  <td align="left" class="default" nowrap> &nbsp;
-{if $prev}<a href="{$rel_url}view.php?pid={$prev.pid}&go_prev={$go_prev}">Prev: <i>{$prev.title.0}</i></a> {if $next}&nbsp;|&nbsp;{/if}{/if}
-{if $next}<a href="{$rel_url}view.php?pid={$next.pid}&go_next={$go_next}">Next: <i>{$next.title.0}</i></a> {/if}
+{if $prev}<a href="{$rel_url}view.php?pid={$prev.pid}&go_prev={$go_prev}">Prev: <i>{$prev.title.0}</i></a> {if $next}<br />{/if}{/if}
+{if $next}&nbsp; <a href="{$rel_url}view.php?pid={$next.pid}&go_next={$go_next}">Next: <i>{$next.title.0}</i></a> {/if}
 				  </td>
 				</tr>
 {/if}
+				<tr>
+				  <td align="left" class="default" nowrap> <b>Download Statistics:</b></td>
+				  <td align="left" class="default" nowrap> &nbsp; {$statsAbstract} Abstract Views, {$statsFiles} File Downloads
+				  <a href="{$rel_url}stat_details.php?action=show_detail&pid={$pid}">Detailed Statistics</a>
+				  </td>
+				</tr>
 			</table><br />
 		  </td>
 		</tr> 
@@ -226,6 +232,7 @@ function validateForm(f)
 			<td>Name</td>
 			<td>Description</td>			
 			<td>MIMEType</td>
+			<td>Downloads</td>			
 		  </tr>
 
 		{assign var="show_preview_pane" value="0"}
@@ -242,12 +249,13 @@ function validateForm(f)
 				<td>
             {if $datastreams[d].thumbnail != "0"}{if $datastreams[d].canPreview || $isAdministrator}<a href="#">{/if}
 				{assign var="show_preview_pane" value="1"}
-			<img align="absmiddle" src="{$eserv_url}{$datastreams[d].thumbnail}" border="1"
-            {if $datastreams[d].canPreview || $isAdministrator}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].preview}', '{$datastreams[d].label}');"{/if}
+			<img align="absmiddle" src="{$eserv_url}{$datastreams[d].thumbnail}&ls=0" border="1"
+            {if $datastreams[d].canPreview || $isAdministrator}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].preview}', '{$datastreams[d].ID}');"{/if}
             >{if $datastreams[d].canPreview || $isAdministrator}</a>{/if}{/if}{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}images/default.png">{/if} {if $datastreams[d].isViewer == 1 || $isAdministrator}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].ID}">{/if}{$datastreams[d].ID}{if $datastreams[d].isViewer == 1 || $isAdministrator}</a> &nbsp;{/if} {if ($datastreams[d].isArchivalViewer == 1 || $isAdministrator) && $datastreams[d].thumbnail != "0"}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID=archival_{$datastreams[d].ID}"><img title="archival version" align="absmiddle" border="0" src="{$rel_url}images/archival_22.gif"></a>&nbsp;{/if} {if $datastreams[d].presmd != "0" && ($datastreams[d].isViewer == 1 || $isAdministrator)}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].presmd}"><img title="preservation metadata" align="absmiddle" border="0" src="{$rel_url}images/presmd_22.gif"></a>&nbsp;{/if} 	
 				</td>
 				<td>{$datastreams[d].label}</td>
 				<td>{$datastreams[d].MIMEType}</td>
+				<td align="right">{$datastreams[d].downloads}</td>				
 			  </tr>
 			 {/if}
         {/section}
@@ -299,7 +307,7 @@ function validateForm(f)
         <td class="default">
           {if $preview_ds_1}
           <img id="datastream_preview" alt="Datastream Preview"/>
-          <script language="JavaScript">loadPreview('{$pid}','{$preview_ds_1.preview}','{$preview_ds_1.label}');</script>
+          <script language="JavaScript">loadPreview('{$pid}','{$preview_ds_1.preview}','{$preview_ds_1.ID}');</script>
           {/if}
         </td>
         </tr>

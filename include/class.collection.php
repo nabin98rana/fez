@@ -52,6 +52,7 @@ include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.status.php");
+include_once(APP_INC_PATH . "class.statistics.php");
 
 class Collection
 {
@@ -486,7 +487,7 @@ class Collection
 		return $list;
     } 
 	
-    function makeReturnList($res) {
+    function makeReturnList($res, $statsFlag = 0) {
 		$securityfields = Auth::getAllRoles();
         $return = array();
 		foreach ($res as $result) {
@@ -506,6 +507,16 @@ class Collection
 					array_push($return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'], $result['rmf_'.$result['xsdmf_data_type']]);
 				}
 			}
+			if (!empty($result['Relevance']) && empty($return[$result['rmf_rec_pid']]['Relevance'])) {
+                $return[$result['rmf_rec_pid']]['Relevance'] = round($result['Relevance'], 2);
+			}
+			if (!empty($result['sort_column']) && empty($return[$result['rmf_rec_pid']]['sort_column'])) {
+                $return[$result['rmf_rec_pid']]['sort_column'] = $result['sort_column'];
+			}
+			if ($result['sek_title'] == 'isMemberOf') {
+                $return[$result['rmf_rec_pid']]['isMemberOf'][] = $result['rmf_varchar'];
+			}			
+			
 			if (@$result['sek_title'] == 'isMemberOf') {
 				if (!is_array(@$return[$result['rmf_rec_pid']]['isMemberOf'])) {
 					$return[$result['rmf_rec_pid']]['isMemberOf'] = array();
@@ -553,10 +564,16 @@ class Collection
 		}
 
 		foreach ($return as $pid_key => $row) {
-			if (count(@$row['thumbnails']) > 0) {
-				$return[$pid_key]['thumbnail'] = $row['thumbnails'][0];
+			if ($statsFlag == 1) {
+				$return[$pid_key]['file_downloads'] = $return[$pid_key]['sort_column'];			
 			} else {
-				$return[$pid_key]['thumbnail'] = 0;
+				$return[$pid_key]['abstract_downloads'] = Statistics::getStatsByAbstractView($pid_key);
+				$return[$pid_key]['file_downloads'] = Statistics::getStatsByAllFileDownloads($pid_key);
+				if (count(@$row['thumbnails']) > 0) {
+					$return[$pid_key]['thumbnail'] = $row['thumbnails'][0];
+				} else {
+					$return[$pid_key]['thumbnail'] = 0;
+				}
 			}
 		}
 		$return = array_values($return);
@@ -1024,7 +1041,6 @@ class Collection
 		}
 
 		$dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-		$authStmt = "";
 		$joinStmt = "";
         $usr_id = Auth::getUserID();
 		if (is_numeric($usr_id)) {	
@@ -1032,6 +1048,9 @@ class Collection
                 ON authi_role in ($rolesStmt) AND ai.authi_pid = r2.rmf_rec_pid   
                 INNER JOIN {$dbtp}auth_rule_group_users 
                 ON argu_usr_id='$usr_id' AND ai.authi_arg_id=argu_arg_id ";
+                 $authStmt .= "
+                   ) and ai.authi_pid = r2.rmf_rec_pid";
+
 			} else {
                 $authStmt = " INNER JOIN {$dbtp}auth_index2 ON authi_role='Lister' AND authi_pid=r2.rmf_rec_pid 
                     INNER JOIN {$dbtp}auth_rule_group_rules ON argr_arg_id=authi_arg_id 
@@ -1071,6 +1090,7 @@ class Collection
 		$middleStmt = "";
 		$extra_order = "";
 		$internal_extra_order = "";
+		$extra_secondary_order = "";
 		$termCounter = 5;
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
 
@@ -1150,14 +1170,23 @@ class Collection
 					";
 		
 		if	((($searchKey == 'Created Date') && ($order_by != $searchKey)) || ($searchKey != 'Created Date')) {
-			$bodyStmt .= "
-					inner join  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r".$termCounter." 
-					on r".$termCounter.".rmf_rec_pid = r2.rmf_rec_pid 
-					inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x".$termCounter."
-					on r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id
-					inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s".$termCounter."
-					on s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id
-					and s".$termCounter.".sek_title = '$order_by'  ";
+					if ($order_by == 'File Downloads') {
+						$extra = ", display.sort_column as file_downloads";
+						$order_dir = "desc";
+						$bodyStmt .= "
+						left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "statistics_all s".$termCounter."
+						on s".$termCounter.".stl_pid = r2.rmf_rec_pid and s".$termCounter.".stl_dsid <> '' ";
+					} else {					
+						$bodyStmt .= "
+						inner join  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r".$termCounter." 
+						on r".$termCounter.".rmf_rec_pid = r2.rmf_rec_pid 
+						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x".$termCounter."
+						on r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id";
+						$bodyStmt .= "
+						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s".$termCounter."
+						on s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id
+						and s".$termCounter.".sek_title = '$order_by'  ";
+					}
 		} else {
 			$joinNum = 2;
 		}
@@ -1166,11 +1195,15 @@ class Collection
 					$authStmt
 
 	                $middleStmt ";
-					
 
-		
 		$stmtCount = "SELECT count(distinct r2.rmf_rec_pid) as display_count
-					  $bodyStmt";
+				  $bodyStmt";
+
+					
+		if ($order_by == 'File Downloads') {					
+			$bodyStmt .= "group by r2.rmf_rec_pid";		
+		}
+		
 /*					FROM  {$dbtp}record_matching_field r2 
 					inner join {$dbtp}xsd_display_matchfields x2 on r2.rmf_xsdmf_id = x2.xsdmf_id $joinStmt
 					inner join {$dbtp}search_key s2 on (s2.sek_id = x2.xsdmf_sek_id AND s2.sek_title = 'Display Type')
@@ -1182,7 +1215,7 @@ class Collection
 					inner join {$dbtp}record_matching_field AS r4 on r4.rmf_rec_pid = r2.rmf_rec_pid
                     inner join {$dbtp}xsd_display_matchfields AS x4 on r4.rmf_xsdmf_id = x4.xsdmf_id and r4.rmf_varchar='2' and x4.xsdmf_element='!sta_id'";
 */
-//		echo $stmtCount;
+
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmtCount);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -1195,10 +1228,15 @@ class Collection
                  FROM {$dbtp}record_matching_field r1
                  INNER JOIN {$dbtp}xsd_display_matchfields x1 
                  ON r1.rmf_xsdmf_id = x1.xsdmf_id 
-				 INNER JOIN (
-					 SELECT  distinct r2.rmf_rec_pid, r".$joinNum.".rmf_$data_type as sort_column $subqueryExtra
+				 INNER JOIN (";
+if ($order_by == 'File Downloads') {
+	$stmt .= "					 SELECT  distinct r2.rmf_rec_pid, count(s6.stl_pid) as sort_column $subqueryExtra ";
+} else {
+	$stmt .= "					 SELECT  distinct r2.rmf_rec_pid, r".$joinNum.".rmf_$data_type as sort_column $subqueryExtra ";
+}
+		$stmt .= "
 					$bodyStmt
-					order by $internal_extra_order sort_column $order_dir, r2.rmf_rec_pid desc
+					order by $internal_extra_order sort_column $order_dir $extra_secondary_order, r2.rmf_rec_pid desc
 					
 					";
 //					if ($getCount == 0) {
@@ -1381,8 +1419,20 @@ class Collection
      * @param   string $searchKey The search key of the stats eg Title or Author, or any other search key
      * @return  array The list of records 
      */
-    function statsByAttribute($current_row = 0, $max = 50, $searchKey="Author")
+    function statsByAttribute($current_row = 0, $max = 50, $searchKey="Author", $year = "all", $month = "all", $range = "all")
     {
+
+		$limit = "";
+		if ($year != 'all' && is_numeric($year)) {
+			$year = Misc::escapeString($year);
+			$limit = " and year(stl_request_date) = $year";
+			if ($month != 'all' && is_numeric($month)) {
+				$month = Misc::escapeString($month);
+				$limit .= " and month(stl_request_date) = $month";
+			}
+		} elseif ($range != 'all' && $range == '4w') {
+			$limit .= " and stl_request_date >= CURDATE()-INTERVAL 1 MONTH";
+		}
 
 		if ($max == "ALL") {
             $max = 9999999;
@@ -1430,7 +1480,7 @@ class Collection
 						  ON r4.rmf_rec_pid = r2.rmf_rec_pid
 						INNER JOIN {$dbtp}xsd_display_matchfields AS x4
 						  ON r4.rmf_xsdmf_id = x4.xsdmf_id 
-						INNER JOIN {$dbtp}search_key AS s4  							  
+						INNER JOIN {$dbtp}search_key AS s4 
 						  ON s4.sek_id = x4.xsdmf_sek_id AND s4.sek_title = '$searchKey' ";
 
 
@@ -1447,12 +1497,8 @@ class Collection
                     ";
         $bodyStmt = "$bodyStmtPart1
                   
-                    LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r5
-                    ON r5.rmf_rec_pid=r2.rmf_rec_pid
-                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x5
-                    on r5.rmf_xsdmf_id = x5.xsdmf_id
-                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s5
-                    on s5.sek_id = x5.xsdmf_sek_id AND s5.sek_title = 'File Downloads'
+                    INNER JOIN {$dbtp}statistics_all stl
+                    ON stl.stl_pid=r2.rmf_rec_pid and stl.stl_dsid <> '' $limit
                     group by $group_field
              ";
 
@@ -1462,7 +1508,7 @@ class Collection
             ";
 	
 		$innerStmt = "
-                    SELECT distinct r4.rmf_varchar $as_field $extra, IFNULL(sum(r5.rmf_$data_type),0) as sort_column
+                    SELECT distinct r4.rmf_varchar $as_field $extra, IFNULL(count(stl_pid),0) as sort_column
                     $bodyStmt
 					order by sort_column $order_dir, r2.rmf_rec_pid desc
                     LIMIT $start, $max					
@@ -1485,9 +1531,13 @@ class Collection
 		} else {
 			$stmt = $innerStmt;
 		}
+
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 
 		if ($searchKey != "Title") {
+			foreach ($res as $key => $result) {
+				$res[$key]['file_downloads'] = $res[$key]['sort_column'];
+			}
 			return array(
                 "list" => $res,
                 "info" => array()
@@ -1497,11 +1547,14 @@ class Collection
 		$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
 
 		$return = array();
-		$return = Collection::makeReturnList($res);
+
+		$return = Collection::makeReturnList($res, 1);
         $return = Collection::makeSecurityReturnList($return);
+
 		$hidden_rows = 0;
 		$return = Auth::getIndexAuthorisationGroups($return);
 		$return = Misc::cleanListResults($return);
+
 		if (($start + $max) < $total_rows) {
 	        $total_rows_limit = $start + $max;
 		} else {
@@ -1592,6 +1645,8 @@ class Collection
 				if (is_array($tdata)) {
 					 foreach ($tdata as $tsubkey => $tsubdata) {
 						if (!empty($tsubdata) && ($tsubdata != "-1")) {
+							$tsubdata = Misc::escapeString($tsubdata);
+							$tkey = Misc::escapeString($tkey);
 							$middleStmt .= 
 								" INNER JOIN 
 								(
@@ -1610,6 +1665,8 @@ class Collection
 						}
 					 }
 				} else {
+					$tdata = Misc::escapeString($tdata);
+					$tkey = Misc::escapeString($tkey);
 					$middleStmt .= 
 						" INNER JOIN 
 						(
@@ -1712,6 +1769,85 @@ class Collection
         }
     }
 
+	function suggest($terms, $current_row = 0, $max = 10) {
+
+		$terms = mysql_real_escape_string($terms);
+// old simple and quick way of doing suggest
+/*        $stmt = "select substring(r1.rmf_varchar, instr(r1.rmf_varchar, 'chr'), char_length(substring_index(substring(r1.rmf_varchar, instr(r1.rmf_varchar, '$terms')), ' ', 2))) as matchword,
+count(substring(r1.rmf_varchar, instr(r1.rmf_varchar, 'chr'), char_length(substring_index(substring(r1.rmf_varchar, instr(r1.rmf_varchar, '$terms')), ' ', 2)))) as matchcount
+            FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS r1
+            WHERE r1.rmf_varchar like '% $terms%' or r1.rmf_varchar like '$terms%'
+            GROUP BY matchword
+            ORDER BY matchcount desc
+            LIMIT $current_row, $max
+            "; */
+		$authArray = Collection::getAuthIndexStmt();
+		$authStmt = $authArray['authStmt'];
+		$joinStmt = $authArray['joinStmt'];
+		$dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+
+        $stmt = "select substring(r2.rmf_varchar, instr(r2.rmf_varchar, '$terms'), char_length(substring_index(substring(r2.rmf_varchar, instr(r2.rmf_varchar, '$terms')), ' ', 1))) as matchword
+            FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS r2
+			$authStmt
+			INNER JOIN {$dbtp}xsd_display_matchfields AS x2
+			  ON r2.rmf_xsdmf_id = x2.xsdmf_id $joinStmt
+			INNER JOIN {$dbtp}search_key AS s2  							  
+			  ON s2.sek_id = x2.xsdmf_sek_id AND s2.sek_simple_used = 1
+
+			INNER JOIN {$dbtp}record_matching_field AS r4
+			  ON r4.rmf_rec_pid=r2.rmf_rec_pid AND r4.rmf_varchar='2'
+			INNER JOIN {$dbtp}xsd_display_matchfields AS x4
+			  ON r4.rmf_xsdmf_id = x4.xsdmf_id AND x4.xsdmf_element='!sta_id'
+
+            WHERE r2.rmf_varchar like '$terms%'
+            GROUP BY matchword
+			limit 0, 10
+            ";
+
+// 		$securityfields = Auth::getAllRoles(); // will need to add security soon
+		$res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+//		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+
+			$termCounter = 100;
+			$sekdet = Search_Key::getDetailsByTitle($order_by);
+			$data_type = $sekdet['xsdmf_data_type'];
+
+$return = array();
+$res_count = array();
+//		$return = array();
+		foreach ($res as $word) {
+			$termLike = " match (r2.rmf_varchar) against ('*".$word."*' IN BOOLEAN MODE) ";
+		
+		
+			$bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
+							INNER JOIN {$dbtp}xsd_display_matchfields AS x2
+							  ON r2.rmf_xsdmf_id = x2.xsdmf_id $joinStmt AND $termLike 
+							INNER JOIN {$dbtp}search_key AS s2  							  
+							  ON s2.sek_id = x2.xsdmf_sek_id AND s2.sek_simple_used = 1
+		
+							$authStmt
+		
+							INNER JOIN {$dbtp}record_matching_field AS r4
+							  ON r4.rmf_rec_pid=r2.rmf_rec_pid AND r4.rmf_varchar='2'
+							INNER JOIN {$dbtp}xsd_display_matchfields AS x4
+							  ON r4.rmf_xsdmf_id = x4.xsdmf_id AND x4.xsdmf_element='!sta_id'
+		
+							";
+		
+
+				$countStmt = "
+							SELECT count(distinct r2.rmf_rec_pid)
+							$bodyStmtPart1
+					";
+				//echo $countStmt;
+
+			$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
+					$return[$word] = $word."        (".$total_rows." matches)";
+
+		}
+		return $return;
+
+	}
     /**
      * Method used to perform basic searching on searchkeys specified to be searched in a simple search.
      *
@@ -1737,7 +1873,7 @@ class Collection
             $max = 9999999;
         }
         $start = $current_row * $max;
-
+		$terms = Misc::escapeString($terms);
 		$authArray = Collection::getAuthIndexStmt();
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];
@@ -1808,7 +1944,7 @@ class Collection
             ";
         //echo $countStmt;
 
-        
+
         $stmt = "SELECT  r1.*, x1.*, s1.*, k1.*, d1.*, display.Relevance
             FROM {$dbtp}record_matching_field AS r1
             INNER JOIN {$dbtp}xsd_display_matchfields AS x1
@@ -1831,6 +1967,8 @@ class Collection
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 
 		$return = array();
+		$return = Collection::makeReturnList($res);
+/*
 		foreach ($res as $result) {
 			if (in_array($result['xsdsel_title'], $securityfields) 
                     && ($result['xsdmf_element'] != '!rule!role!name') 
@@ -1888,7 +2026,7 @@ class Collection
 				$return[$pid_key]['FezACML'] = $parentsACMLs;
 			}
 		}
-		
+		*/
 		$return = array_values($return);
 		$return = Auth::getIndexAuthorisationGroups($return);
 		$return = Misc::cleanListResults($return);

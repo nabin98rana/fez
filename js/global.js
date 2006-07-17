@@ -491,7 +491,8 @@ function getSelectedItems(field)
 function removeAllOptions(f, field_name)
 {
     var field = getFormElement(f, field_name);
-    if (field.options.length > 0) {
+	if (field.options == null) { return false; }
+	if (field.options.length > 0) {
         field.options[0] = null;
         removeAllOptions(f, field_name);
     }
@@ -508,7 +509,8 @@ function getValues(list)
 
 function optionExists(field, option)
 {
-    for (var i = 0; i < field.options.length; i++) {
+	if (field.options == null) { return false; }
+	for (var i = 0; i < field.options.length; i++) {
         if (field.options[i].text == option.text) {
             return true;
         }
@@ -519,7 +521,8 @@ function optionExists(field, option)
 function addOptions(f, field_name, options)
 {
     var field = getFormElement(f, field_name);
-    for (var i = 0; i < options.length; i++) {
+	if (field.options == null) { return false; }
+	for (var i = 0; i < options.length; i++) {
         if (!optionExists(field, options[i])) {
             field.options.length = field.options.length + 1;
             field.options[field.options.length-1].text = options[i].text;

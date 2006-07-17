@@ -1,7 +1,11 @@
-{include file="header.tpl.html" extra_title="Home"} {include file="navigation.tpl.html"}
+
+{include file="header.tpl.html" extra_title="Home"}
+{include file="navigation.tpl.html"}
+
 {literal}
 <script language="JavaScript">
 <!--
+{/literal}{$najax_register}{literal}
 function purgeObject(pid)
 {
     if (!confirm('This action will permanently delete the selected object.')) {
@@ -11,6 +15,49 @@ function purgeObject(pid)
         return true;
     }
 }
+var dt1_load_state = 0;
+function showLoading1()
+{
+	document.body.style.cursor = 'wait';
+	document.getElementById('loading1').style.display = 'block';
+}
+
+function hideLoading1()
+{
+	document.body.style.cursor = '';
+	document.getElementById('loading1').style.display = 'none';
+}
+
+function selectSearchSuggestor(f, field_name)
+{
+
+	if (dt1_load_state > 0) {
+	   return false;
+	}
+	var field = getFormElement(f, field_name);
+	//var selections = getSelectedItems(field);
+	if (field.value != '') {
+		dt1_load_state++;
+
+		showLoading1();
+		var obj = new Suggestor();
+		obj.ongetSuggestionError = function() {
+			removeAllOptions(f, 'front_search');
+			hideLoading1();
+			dt1_load_state--;
+		}
+		obj.setTimeout(10000);
+
+		obj.getSuggestion(field, function(dt_list) {
+				removeAllOptions(f, 'front_search');
+				addOptions(f, 'front_search', dt_list);
+				hideLoading1();
+				//autoComplete(field, dt_list);
+				dt1_load_state--;
+				});
+	}
+}
+
 //-->
 </script>
 {/literal}
@@ -28,13 +75,15 @@ function purgeObject(pid)
                   </table></td>
               </tr>
               <tr>
-                <form target="_top" method="get" action="{$rel_url}list.php">
-                  <td width="5%" nowrap align="left" class="default"><label for="search" accesskey="3"></label>
-                    <input type="text" id="search" name="terms" value="terms" size="40" 
-              onBlur="javascript:if (this.value == '') this.value = 'terms';" onFocus="javascript:if (this.value == 'terms') this.value='';" >
-                    <input type="submit" value="Search">
-                    <a href="#" onClick="javascript:alert( 'Search All Fields\n\n Enter a phrase.  Objects where any field contains the phrase will be returned.\n This is a case-insensitive search, and you may use the * or ? wildcards.\n\n Examples:\n\n li*y\n finds objects that start with li and end with y\n\n b?ts\n finds words that start with b followed by any letter and then ts.  e.g. bits, bats, byts')">help</a> <br />
-                    Use <a href="{$rel_url}adv_search.php">Advanced Search</a> to search by multiple criteria </td>
+                <form name="search_frm" target="_top" method="get" action="{$rel_url}list.php">
+                  <td width="5%" nowrap align="left"><label for="search" accesskey="3"></label>
+                    <input class="default"  type="text" id="front_search" autocomplete="off" name="terms" size="40" onKeyUp="javascript: selectSearchSuggestor(this.form, 'front_search')">
+
+						<div id="loading1" style="display:none;">Loading...</div>
+                    <input class="default" type="submit" value="Search">
+                    <span class="default"><a href="#" onClick="javascript:alert( 'Search All Fields\n\n Enter a phrase.  Objects where any field contains the phrase will be returned.\n This is a case-insensitive search, and you may use the * or ? wildcards.\n\n Examples:\n\n li*y\n finds objects that start with li and end with y\n\n b?ts\n finds words that start with b followed by any letter and then ts.  e.g. bits, bats, byts')">help</a> <br />
+                    Use <a href="{$rel_url}adv_search.php">Advanced Search</a> to search by multiple criteria </span> </td>
+
                 </form>
               </tr>
               <tr>
@@ -62,8 +111,20 @@ function purgeObject(pid)
                     </tr>
                   </table></td>
               </tr>
-              <td class="default"><a href="{$rel_url}stats.php?browse=top50authors
-" class="uqnavigationlink">Top 50 authors</a> | <a href="{$rel_url}stats.php?browse=top50papers" class="uqnavigationlink">Top 50 papers</a></td>
+              <td class="default">
+			<p><strong>Top 50:</strong>
+			[<a href="{$rel_url}stats.php?browse=top50authors">Authors</a>] 
+			[<a href="{$rel_url}stats.php?browse=top50papers">Papers</a>] 
+			<p><strong>Most viewed records:</strong>
+			[<a href="{$rel_url}stats.php?browse=show_detail_date&range=4w">Past four weeks</a>] 
+			[<a href="{$rel_url}stats.php?browse=show_detail_date&year={$thisYear}">This year</a>]
+			[<a href="{$rel_url}stats.php?browse=show_detail_date&year={$lastYear}">Last year</a>]
+			[<a href="{$rel_url}stats.php?browse=show_detail_date">All years</a>]
+			<br /><br /><strong>Repository-wide statistics:</strong>
+			[<a href="{$rel_url}stat_details.php?action=cumulative_usage&range=all">by Year/month</a>] 
+			[<a href="{$rel_url}stat_details.php?action=cumulative_usage_country">by Country</a>] 
+
+			  </td>
               <tr>
                 <td class="default">&nbsp;</td>
               </tr>
@@ -94,7 +155,7 @@ function purgeObject(pid)
                   {assign var="href_view" value=""}
                 {/if}
 				{if $list[i].thumbnail != "0" && $list[i].isViewer==1}
-	                {assign var="icon" value=$eserv_url|cat:"?pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].thumbnail}
+	                {assign var="icon" value=$eserv_url|cat:"?ls=0&pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].thumbnail}
 				{else}
 	                {assign var="icon" value="images/record.jpg" }
 				{/if}
@@ -160,10 +221,10 @@ function purgeObject(pid)
 
 					  {if $showEdit || $isAdministrator}
 						{if $showEdit}
-							&nbsp;&nbsp;<a href='{$rel_url}workflow/update.php?pid={$list[i].pid|escape:"html"}&href={$smarty.server.REQUEST_URI}'><img title="Edit" align="absmiddle" src="{$rel_url}images/edit.gif" border="0"></a> 
+							&nbsp;&nbsp;<a href='{$rel_url}workflow/update.php?pid={$list[i].pid|escape:"html"}&href={$smarty.server.REQUEST_URI}'><img title="Edit" align="absmiddle" src="{$rel_url}images/edit.gif" border="0"></a>
 						{/if}
 						{if $isAdministrator}
-							 <a href='javascript:void(null);' onClick="javascript:purgeObject('{$list[i].pid|escape:"html"}');"><img title="Delete" align="absmiddle" src="{$rel_url}images/delete.gif" border="0"></a> 
+							 <a href='javascript:void(null);' onClick="javascript:purgeObject('{$list[i].pid|escape:"html"}');"><img title="Delete" align="absmiddle" src="{$rel_url}images/delete.gif" border="0"></a>
 						{/if}
 
 					  {/if}

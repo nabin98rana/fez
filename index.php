@@ -41,6 +41,13 @@ include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.news.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.validation.php");
+include_once(APP_INC_PATH . "najax/najax.php");
+include_once(APP_INC_PATH . "najax_objects/class.suggestor.php");
+
+NAJAX_Server::allowClasses('Suggestor');
+if (NAJAX_Server::runServer()) {
+	exit;
+}
 if ($_SESSION['IDP_LOGIN_FLAG'] == 1) {
 	Auth::GetShibAttributes();
 	$_SESSION['IDP_LOGIN_FLAG'] = 0;
@@ -103,5 +110,14 @@ $news = News::getList();
 $news_count = count($news);
 $tpl->assign("news", $news);
 $tpl->assign("news_count", $news_count);
+$tpl->headerscript .= "window.oTextbox_front_search
+	= new AutoSuggestControl(document.search_frm, 'front_search', document.getElementById('front_search'), document.getElementById('front_search'),
+			new StateSuggestions('Collection',false,
+				'class.collection.php'));
+	";
+
+
+$tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
+$tpl->assign('najax_register', NAJAX_Client::register('Suggestor', 'index.php'));
 $tpl->displayTemplate();
 ?>

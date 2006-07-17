@@ -107,6 +107,12 @@ if (!empty($pid) && !empty($dsID)) {
 		case 'txt'  :
 				$header = "Content-type: text/plain";
 				break;
+		case 'zip'  :
+				$header = "Content-type: application/zip";
+				break;
+		case 'mdb'  :
+				$header = "Content-type: application/msaccess";
+				break;
 		
 		default		:
 				break;
@@ -158,10 +164,12 @@ if (!empty($pid) && !empty($dsID)) {
 
 			echo $data;
 			ob_end_flush(); // the incrementFileDownloads takes some (small) time so flush the file content out first
-			if ((!is_numeric(strpos($dsID, "thumbnail_"))) && (!is_numeric(strpos($dsID, "web_"))) && (!is_numeric(strpos($dsID, "preview_"))) && (!is_numeric(strpos($dsID, "presmd_"))) && (!is_numeric(strpos($dsID, "FezACML_"))) ) {
+			// Stats are now handled by a web log scraper in Fez instead of on-the-fly
+/*			if ((!is_numeric(strpos($dsID, "thumbnail_"))) && (!is_numeric(strpos($dsID, "web_"))) && (!is_numeric(strpos($dsID, "preview_"))) && (!is_numeric(strpos($dsID, "presmd_"))) && (!is_numeric(strpos($dsID, "FezACML_"))) ) {
+
 				Record::incrementFileDownloads($pid); //increment FezMD.file_downloads counter
 			}
-
+*/
 /*			$tempDump = fopen($tempDumpFileName, 'w');
 
 			// Write the source xml to a temporary file to we can get the filesize (required for the content length header)

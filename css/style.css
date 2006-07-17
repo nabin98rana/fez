@@ -172,10 +172,10 @@ h4 {
 }
 div.suggestions {
     -moz-box-sizing: border-box;
-    box-sizing: border-box;
     border: 1px solid black;
-/*    position: absolute;   */
+    position: absolute;   
     background-color: white;
+	z-index: 1;
 }
 
 div.suggestions div {
