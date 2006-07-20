@@ -156,9 +156,13 @@ class BackgroundProcess {
         }
         $this->bgp_id = $GLOBALS['db_api']->get_last_insert_id();
         $this->serialize();
-        // Windows users may need to get hold of a program called bgrun http://www.jukkis.net/bgrun/
-        exec("php \"".APP_PATH."misc/run_background_process.php\" {$this->bgp_id} \""
-                .APP_PATH."\" > ".APP_TEMP_DIR."fezbgp_{$this->bgp_id}.log &");
+        $command = "php.exe \"".APP_PATH."misc/run_background_process.php\" {$this->bgp_id} \""
+            .APP_PATH."\" > ".APP_TEMP_DIR."fezbgp_{$this->bgp_id}.log";
+        if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
+            pclose(popen("start /min /b $command",'r'));
+        } else {
+            exec("$command &");
+        }
     } 
 
     
