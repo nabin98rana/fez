@@ -694,24 +694,36 @@ class BatchImport
      * @return  void
      */
     function handleStandardFileImport($pid, $full_name, $short_name, $xdis_id) {
+        $dsIDName = $short_name;
 
-        $mimetype = Misc::get_content_type($full_name);
-        //Insert the standard file as a datastream to the new object
-        $dsID = Fedora_API::getUploadLocationByLocalRef($pid, $full_name, $full_name, $full_name, $mimetype, "M");	
+        $mimetype = Misc::mime_content_type($full_name);
+        if ($mimetype == 'text/xml') {
+            $controlgroup = 'X';
+        } else {
+            $controlgroup = 'M';
+        }
+        $ncName = Foxml::makeNCName($dsIDName);
+        if (Fedora_API::datastreamExists($pid, $ncName)) {
+            Fedora_API::callPurgeDatastream($pid, $ncName);
+        }
+        Fedora_API::getUploadLocation($pid, $ncName, $full_name, "", 
+                $mimetype, $controlgroup);
 
-        // we are not indexing presMD so just upload the presmd if found
-        $presmd_check = Workflow::checkForPresMD($full_name); 
+        $presmd_check = Workflow::checkForPresMD(Foxml::makeNCName($dsIDName));
         if ($presmd_check != false) {
-            Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, "text/xml", "X");
+            if (is_numeric(strpos($presmd_check, chr(92)))) {
+                $presmd_check = substr($presmd_check, strrpos($presmd_check, chr(92))+1);
+            }
+            if (Fedora_API::datastreamExists($pid, $presmd_check)) {
+                Fedora_API::callPurgeDatastream($pid, $presmd_check);
+            }
+            Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, 
+                    "text/xml", "X");
+            if (is_file(APP_TEMP_DIR.$presmd_check)) {
+                $deleteCommand = APP_DELETE_CMD." ".APP_DELETE_DIR.$presmd_check;
+                exec($deleteCommand);
         }
-
-        // now add a resource index for the datastream file
-        // lowercase the extension if necessary
-        if (is_numeric(strpos($short_name, "."))) {
-            $filename_ext = strtolower(substr($short_name, (strrpos($short_name, ".") + 1)));
-            $short_name = substr($short_name, 0, strrpos($short_name, ".") + 1).$filename_ext;
         }
-        //		Record::insertIndexMatchingField($pid, 122,  'varchar', $short_name);
         Record::removeIndexRecord($pid); // remove any existing index entry for that PID			
         Record::setIndexMatchingFields($pid);
 

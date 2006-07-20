@@ -656,7 +656,7 @@ class Foxml
     // NCName ::= (Letter | '_') (NCNameChar)
     // NCNameChar ::= Letter | Digit | '.' | '-' | '_' | CombiningChar | Extender
     function makeNCName($str) {
-        $str = preg_replace('/[^\w.\-\s]/', "_", $str);
+        $str = preg_replace('/[^\w\n\-\.]/', "_", $str);
         if (!preg_match('/^[a-zA-Z_]/', $str)) {
             // add an n to the front to make it a valid NCName
             $str= "n$str";
