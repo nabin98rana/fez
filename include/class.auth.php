@@ -109,7 +109,7 @@ class Auth
             }
 
         }
-
+        Auth::checkRuleGroups();
         // if the current session is still valid, then renew the expiration
         Auth::createLoginSession($ses['username'], $ses['fullname'], $ses['email'], $ses['distinguishedname'], $ses['autologin']);
     }
@@ -1639,8 +1639,33 @@ class Auth
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         }
+        $_SESSION['auth_index_highest_rule_group'] = AuthIndex::highestRuleGroup();
         return 1;
     }
+
+    function checkRuleGroups()
+    {
+        $ses = &Auth::getSession();
+        if (AuthIndex::highestRuleGroup() > $ses['auth_index_highest_rule_group']) {
+            Error_Handler::logError(AuthIndex::highestRuleGroup()." > ".$ses['auth_index_highest_rule_group'],__FILE__,__LINE__);;
+            Auth::setAuthRulesUsers();
+        }
+    }
+
+    function getSession()
+    {
+        global $auth_isBGP, $auth_bgp_session;
+
+        if ($auth_isBGP) {
+            $ses =& $auth_bgp_session;
+        } else {
+            session_name(APP_SESSION);
+            @session_start();
+            $ses =& $_SESSION;
+        }
+        return $ses;
+    }
+
 }
 
 // benchmarking the included file (aka setup time)

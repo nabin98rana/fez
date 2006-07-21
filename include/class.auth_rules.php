@@ -72,9 +72,6 @@ class AuthRules
             } else {
                 return $GLOBALS["db_api"]->get_last_insert_id();
             }
-            // for a new rule, have to check if the user matches it
-            // other users won't match the rule unless they log out and back in
-            Auth::setAuthRulesUsers();
         } else {
             return $res;
         }

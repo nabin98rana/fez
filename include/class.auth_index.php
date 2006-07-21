@@ -237,6 +237,17 @@ class AuthIndex {
         return 1;
     }
 
+    function highestRuleGroup()
+    {
+        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $stmt = "SELECT max(arg_id) FROM {$dbtp}auth_rule_groups";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        }
+        return $res;
+    }
 }
 
 
