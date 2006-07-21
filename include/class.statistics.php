@@ -261,6 +261,7 @@ class Statistics
 	}
 
 	function getStatsByAbstractView($pid, $year='all', $month='all', $range='all') {	
+        $limit = '';
 		if ($year != 'all' && is_numeric($year)) {
 			$year = Misc::escapeString($year);
 			$limit = " and year(stl_request_date) = $year";
