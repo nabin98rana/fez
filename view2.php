@@ -183,7 +183,106 @@ if (!empty($pid)) {
 				}
 			}
 		}
+		$citation = array();
+		// Now generate the Citation View
+		// First get the citation fields in the correct order
+		foreach ($xsd_display_fields as $dis_key => $dis_field) {
+			if (($dis_field['xsdmf_enabled'] == 1) && ($dis_field['xsdmf_citation'] == 1) && (is_numeric($dis_field['xsdmf_citation_order']))) {
+				if ($details[$dis_field['xsdmf_id']] != "") {
+					$citation[$dis_field['xsdmf_citation_order']] = $dis_field;
+				}
+			}
+		}
+		ksort($citation);
+		$citation_html = "";
+		foreach($citation as $cit_key => $cit_field) {
+			if (is_array($details[$cit_field['xsdmf_id']])) {
+				$loop_count = 0;
+				foreach ($details[$cit_field['xsdmf_id']] as $ckey => $cdata) {			
+					if (trim($cit_field['xsdmf_citation_prefix']) != "") {
+						$citation_html .= $cit_field['xsdmf_citation_prefix'];
+					}
+					if ($cdata != "") {
+						if ($loop_count > 0) {
+							$citation_html .= " and ";
+						} else {
+							$citation_html .= " ";						
+						}
+						
+						if ($cit_field['xsdmf_citation_bold'] == 1) {
+							$citation_html .= "<b>";
+						}
+						if ($cit_field['xsdmf_citation_italics'] == 1) {
+							$citation_html .= "<i>";
+						}
+						if ($cit_field['xsdmf_citation_brackets'] == 1) {
+							$citation_html .= "(";
+						}
+						if ($cit_field['xsdmf_html_input'] == 'date') {
+							$citation_html .= date("Y", strtotime($cdata));		
+						} else {
+							$citation_html .= $cdata;						
+						} 
+
+						if ($cit_field['xsdmf_citation_bold'] == 1) {
+							$citation_html .= "</b>";
+						}
+						if ($cit_field['xsdmf_citation_italics'] == 1) {
+							$citation_html .= "</i>";
+						}
+						if ($cit_field['xsdmf_citation_brackets'] == 1) {
+							$citation_html .= ")";
+						}
+						$loop_count++;
+					}
+					if (trim($cit_field['xsdmf_citation_suffix']) != "") {
+						$citation_html .= $cit_field['xsdmf_citation_suffix'];
+					}
+				}
+			} else {
+				if ($citation_html != "") {
+					$citation_html .= " ";
+				}
+				if (trim($cit_field['xsdmf_citation_prefix']) != "") {
+					$citation_html .= $cit_field['xsdmf_citation_prefix'];
+				}			
+				if ($cit_field['xsdmf_citation_bold'] == 1) {
+					$citation_html .= "<b>";
+				}
+				if ($cit_field['xsdmf_citation_italics'] == 1) {
+					$citation_html .= "<i>";
+				}
+				if ($cit_field['xsdmf_citation_brackets'] == 1) {
+					$citation_html .= "(";
+				}
+				if ($cit_field['xsdmf_html_input'] == 'date') {
+					$citation_html .= date("Y", strtotime($details[$cit_field['xsdmf_id']]));
+				} else {
+					$citation_html .= $details[$cit_field['xsdmf_id']];				
+				}
+				if ($cit_field['xsdmf_citation_bold'] == 1) {
+					$citation_html .= "</b>";
+				}
+				if ($cit_field['xsdmf_citation_italics'] == 1) {
+					$citation_html .= "</i>";
+				}
+				if ($cit_field['xsdmf_citation_brackets'] == 1) {
+					$citation_html .= ")";
+				}
+				if (trim($cit_field['xsdmf_citation_suffix']) != "") {
+					$citation_html .= $cit_field['xsdmf_citation_suffix'];
+				}				
+			}		
+		}
+/*						$meta_head .= '<META NAME="'.$dis_field['xsdmf_meta_header_name'].'" CONTENT="'.trim($details[$dis_field['xsdmf_id']]).'">';
+						if ($dis_field['xsdmf_meta_header_name'] == "DC.Title") {
+							$tpl->assign("extra_title", trim($details[$dis_field['xsdmf_id']]));
+						}
+*/
+
+
         $tpl->assign('meta_head', $meta_head);
+        $tpl->assign('citation', $citation_html);
 
 		foreach ($details as $dkey => $dvalue) { // turn any array values into a comma seperated string value
 			if (is_array($dvalue)) {

@@ -155,6 +155,11 @@ function validateForm(f)
 		  <td align="left"> 
 			<table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="1">
 				<tr>
+				  <td align="left" class="default" nowrap> <b>Citation:</b></td>
+				  <td align="left" class="default" nowrap> &nbsp; {$citation}
+				  </td>
+				</tr>
+				<tr>
 				  <td align="left" class="default" nowrap> <b>Parent Collections: </b></td>
 				  <td align="left" class="default" nowrap> &nbsp;
 					{section name="i" loop=$parents}
@@ -163,7 +168,7 @@ function validateForm(f)
 				  </td>
 				</tr>
 {if $prev || $next}
-				<tr>
+				<tr valign="top">
 				  <td align="left" class="default" nowrap> <b>Browse Collection:</b></td>
 				  <td align="left" class="default" nowrap> &nbsp;
 {if $prev}<a href="{$rel_url}view.php?pid={$prev.pid}&go_prev={$go_prev}">Prev: <i>{$prev.title.0}</i></a> {if $next}<br />{/if}{/if}
@@ -177,6 +182,7 @@ function validateForm(f)
 				  <a href="{$rel_url}stat_details.php?action=show_detail&pid={$pid}">Detailed Statistics</a>
 				  </td>
 				</tr>
+
 			</table><br />
 		  </td>
 		</tr> 

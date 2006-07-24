@@ -183,6 +183,29 @@ class User
     }
 
     /**
+     * Method used to check whether an user is an administrator.
+     *
+     * @access  public
+     * @param   string $usr_id The user id in the table
+     * @return  boolean
+     */
+    function getShibLoginCount($usr_id)
+    {
+        $stmt = "SELECT
+                    usr_shib_login_count
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                 WHERE
+                    usr_id='$usr_id'";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            return false;
+        } else {
+			return $res;
+		}
+    }
+
+    /**
      * Method used to get the account details of a specific user.
      *
      * @access  public
@@ -417,6 +440,31 @@ class User
     }
 
     /**
+     * Method used to update the Shibboleth account username for a specific user.
+     *
+     * @access  public
+     * @param   string $new_username The existing un usually based on the prefix of EduPerson PrincipalName (before the @ eg youruser@yourinst.edu)
+     * @param   string $old_username The shib username
+     * @return  integer 1 if the update worked, -1 otherwise
+     */
+    function updateShibUsername($username, $shib_username)
+    {
+        $stmt = "UPDATE
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                 SET
+                    usr_shib_username='" . Misc::escapeString($shib_username) . "'
+                 WHERE
+                    usr_username='" . Misc::escapeString($username) . "'";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+            return 1;
+        }
+    }
+
+    /**
      * Method used to update the account full name for a specific user.
      *
      * @access  public
@@ -485,6 +533,33 @@ class User
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
                  SET
                     usr_login_count=usr_login_count + 1,
+					usr_last_login_date='" . Date_API::getCurrentDateGMT() . "'
+                 WHERE
+                    usr_id=$usr_id";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+            return 1;
+        }
+    }
+
+    /**
+     * Method used to update the login details for shibboleth (login count, last login date) for a specific user.
+     *
+     * @access  public
+     * @param   integer $usr_id The user ID
+     * @return  integer 1 if the update worked, -1 otherwise
+     */
+    function updateShibLoginDetails($usr_id)
+    {
+        global $HTTP_POST_VARS;
+
+        $stmt = "UPDATE
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                 SET
+                    usr_shib_login_count=usr_shib_login_count + 1,
 					usr_last_login_date='" . Date_API::getCurrentDateGMT() . "'
                  WHERE
                     usr_id=$usr_id";
@@ -716,7 +791,9 @@ class User
                     usr_ldap_authentication,
                     usr_preferences,
                     usr_username,
+                    usr_shib_username,
                     usr_login_count,
+                    usr_shib_login_count,
                     usr_last_login_date
                  ) VALUES (
                     '" . Date_API::getCurrentDateGMT() . "',
@@ -726,6 +803,8 @@ class User
                     " . $ldap_authentication . ",
                     '" . Misc::escapeString($prefs) . "',
                     '" . Misc::escapeString($usr_username) . "',
+                    '" . Misc::escapeString($usr_username) . "',
+					1,
 					1,
                     '" . Date_API::getCurrentDateGMT() . "'
                  )";

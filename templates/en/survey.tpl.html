@@ -1,0 +1,167 @@
+{include file="header.tpl.html" extra_title="Federated Shibboleth Login User Survey"}
+{include file="navigation.tpl.html"}
+
+              {literal}
+              <script language="JavaScript">
+              <!--
+              function validateForm(f)
+              {
+                  if (hasOneChecked(f.sur_experience)) {
+                      alert('Please choose an option for Question 1.');
+                      selectField(f, 'sur_experience');
+                      return false;
+                  }
+                  if (hasOneChecked(f.sur_external_freq)) {
+                      alert('Please choose an option for Question 2.');
+                      selectField(f, 'sur_external_freq');
+                      return false;
+                  }
+
+			}
+			-->
+			</script>
+			{/literal}
+<table width="99%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+  <tr>
+    <td>
+      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+        <tr bgcolor="{$heading_color}">
+          <td class="default_white">
+            <b>User Login Survey (MAMS Federated Shibboleth Login)</b>
+          </td>
+        </tr>
+        <tr bgcolor="{$light_color}">
+          <td class="default">
+			By filling out this survey you are helping UQ fulfill its obiligations to the MAMS minigrant funding. We received this funding to integrate federated authentication
+			into UQ eSpace and allow the use of UQ user credentials in other institutions systems. We greatly appreciate your time!
+          </td>
+        </tr>
+        <form name="survey_form"  action="{$smarty.server.PHP_SELF}" method="post">
+        <input type="hidden" name="cat" value="survey">
+        {if $survey_result}
+        <tr>
+          <td class="error" bgcolor="{$cell_color}" align="center">
+            {if $update_name_result == -1}
+            <b>An error occurred while trying to run your query.</b>
+            {elseif $update_name_result == 1}
+            <b>Thank you, your survey input was saved successfully.</b>
+            {/if}
+          </td>
+        </tr>
+        {/if}
+        <tr>
+          <td class="default" bgcolor="{$cell_color}">
+            <b>1. How would you rate your experience logging in via the UQ eSpace federated login service?</b>
+          </td>
+		</tr>
+		<tr>
+          <td class="default" bgcolor="{$light_color}">
+			<optgroup>				
+				(Poor) <input name="sur_experience" type="radio" value="1">1</input>
+				<input name="sur_experience" type="radio"  value="2">2</input>
+				<input name="sur_experience" type="radio" value="3">3</input>
+				<input name="sur_experience" type="radio"  value="4">4</input>
+				<input name="sur_experience" type="radio"  value="5">5</input> (Excellent)
+			</optgroup>
+            {include file="error_icon.tpl.html" field="sur_experience"}
+          </td>
+        </tr>
+        <tr>
+          <td class="default"  bgcolor="{$cell_color}">
+            <b>2. How often do you login to web-based systems owned by institutions other than your home institution?</b><br/>
+			1 = Never <br />
+			2 = Less than once a month <br />
+			3 = Once a month <br />
+			4 = Once a week <br />
+			5 = Every day <br />
+
+
+          </td>
+		</tr>
+		<tr>
+          <td class="default" bgcolor="{$light_color}">
+			<optgroup>				
+				(Never) <input name="sur_external_freq" type="radio" value="1">1</input>
+				<input name="sur_external_freq" type="radio" value="2">2</input>
+				<input name="sur_external_freq" type="radio" value="3">3</input>
+				<input name="sur_external_freq" type="radio" value="4">4</input>
+				<input name="sur_external_freq" type="radio" value="5">5</input> (Every Day) 
+			</optgroup>
+            {include file="error_icon.tpl.html" field="sur_external_freq"}
+          </td>
+        </tr>
+
+
+        <tr>
+          <td class="default" bgcolor="{$cell_color}">
+            <b>3. What services are you currently using?</b>
+          </td>
+	    </tr>
+		 <tr>
+          <td class="default" bgcolor="{$light_color}" valign="top">
+			<input type="checkbox" name="sur_3_cat"> Remote library catalogue <br />
+			<input type="checkbox" name="sur_3_elearn"> e-learning  <br />
+			<input type="checkbox" name="sur_3_journals"> Journals  <br />
+			<input type="checkbox" name="sur_3_blackboard"> Blackboard  <br />
+			<input type="checkbox" name="sur_3_lecture"> Lecture sharing with other universities  <br />
+			<input type="checkbox" name="sur_3_instrumentation"> Instrumentation  <br />
+			<input type="checkbox" name="sur_3_datasets"> Datasets  <br />
+			<input type="checkbox" name="sur_3_remotedb"> Remote databases  <br />
+			<input type="checkbox" name="sur_3_extcom"> External commercial services   <br />
+			<input type="checkbox" name="sur_3_collab"> Collaboration Software, such as wiki, whiteboard, etc <br />															
+          </td>
+	    </tr>
+		 <tr valign="top">
+			<td class="default" bgcolor="{$light_color}" valign="top">
+			Other - Please Specify <textarea name="sur_3_other" rows=8 style="width: 97%"></textarea>
+          </td>
+        </tr>
+        <tr>
+          <td class="default" bgcolor="{$cell_color}">
+            <b>4. What services would you like to have available from other universities?</b>
+          </td>
+	    </tr>
+		 <tr>
+          <td class="default" bgcolor="{$light_color}" valign="top">
+			<input type="checkbox" name="sur_4_cat"> Remote library catalogue <br />
+			<input type="checkbox" name="sur_4_elearn"> e-learning  <br />
+			<input type="checkbox" name="sur_4_journals"> Journals  <br />
+			<input type="checkbox" name="sur_4_blackboard"> Blackboard  <br />
+			<input type="checkbox" name="sur_4_lecture"> Lecture sharing with other universities  <br />
+			<input type="checkbox" name="sur_4_instrumentation"> Instrumentation  <br />
+			<input type="checkbox" name="sur_4_datasets"> Datasets  <br />
+			<input type="checkbox" name="sur_4_remotedb"> Remote databases  <br />
+			<input type="checkbox" name="sur_4_extcom"> External commercial services   <br />
+			<input type="checkbox" name="sur_4_collab"> Collaboration Software, such as wiki, whiteboard, etc <br />															
+          </td>
+	    </tr>
+		 <tr valign="top">
+			<td class="default" bgcolor="{$light_color}" valign="top">
+			Other - Please Specify <textarea name="sur_4_other" rows=8 style="width: 97%"></textarea>
+          </td>
+        </tr>
+     <tr>
+          <td class="default"  bgcolor="{$cell_color}">
+            <b>5. Any Comments? </b><br/>
+		<tr>
+          <td class="default" bgcolor="{$light_color}">		
+			<textarea id="sur_comments" name="sur_comments" rows="8" style="width: 97%"></textarea>
+            {include file="error_icon.tpl.html" field="sur_comments"}
+          </td>
+        </tr>
+
+		<tr>
+          <td class="default" bgcolor="{$light_color}">		
+			<input type="submit" value="Submit your survey results">
+          </td>
+        </tr>
+        </form>
+      </table>
+    </td>
+  </tr>
+</table>
+<br />
+
+
+{include file="app_info.tpl.html"}
+{include file="footer.tpl.html"}

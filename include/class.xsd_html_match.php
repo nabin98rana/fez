@@ -222,7 +222,7 @@ class XSD_HTML_Match
 			if (count($res) == 0) {
 				return "";
 			} else {
-				echo "About to do ".strval(count($res) * 2)." queries on line ".__LINE__."\n";
+//				echo "About to do ".strval(count($res) * 2)." queries on line ".__LINE__."\n";
 				for ($i = 0; $i < count($res); $i++) {
 					$res[$i]["field_options"] = XSD_HTML_Match::getOptions($res[$i]["xsdmf_id"]);
 					$res[$i]["field_options_value_only"] = XSD_HTML_Match::getOptionsValueOnly($res[$i]["xsdmf_id"]);
@@ -324,6 +324,8 @@ class XSD_HTML_Match
 					xsdmf_citation_italics,
 					xsdmf_citation_brackets,
 					xsdmf_citation_order,
+					xsdmf_citation_prefix,
+					xsdmf_citation_suffix,
 					xsdmf_use_parent_option_list,
 					xsdmf_parent_option_xdis_id,
 					xsdmf_parent_option_child_xsdmf_id,
@@ -647,6 +649,7 @@ class XSD_HTML_Match
 		} else {
 			$xsdmf_citation_brackets = 0;
 		}
+
 		if (@$HTTP_POST_VARS["xsdmf_use_parent_option_list"]) {
 			$xsdmf_use_parent_option_list = 1;
 		} else {
@@ -688,6 +691,13 @@ class XSD_HTML_Match
 		if (is_numeric($HTTP_POST_VARS["xsdmf_citation_order"])) {
           $stmt .= "xsdmf_citation_order,";
 		}
+		if ($HTTP_POST_VARS["xsdmf_citation_prefix"] != "") {
+          $stmt .= "xsdmf_citation_prefix,";
+		}		
+		if ($HTTP_POST_VARS["xsdmf_citation_suffix"] != "") {
+          $stmt .= "xsdmf_citation_suffix,";
+		}		
+
 		if ($HTTP_POST_VARS["multiple_limit"] != "") {
           $stmt .= "xsdmf_multiple_limit,";
 		}
@@ -783,6 +793,12 @@ class XSD_HTML_Match
                     " . $xsdmf_citation_brackets . ", ";
 			if (is_numeric($HTTP_POST_VARS["xsdmf_citation_order"])) {
 				$stmt .= Misc::escapeString($HTTP_POST_VARS["xsdmf_citation_order"]) . ", ";
+			}
+			if ($HTTP_POST_VARS["xsdmf_citation_prefix"]) {
+				$stmt .= "'".Misc::escapeString($HTTP_POST_VARS["xsdmf_citation_prefix"]) . "', ";
+			}
+			if ($HTTP_POST_VARS["xsdmf_citation_suffix"]) {
+				$stmt .= "'".Misc::escapeString($HTTP_POST_VARS["xsdmf_citation_suffix"]) . "', ";
 			}
 			if ($HTTP_POST_VARS["multiple_limit"] != "") {
                $stmt .= Misc::escapeString($HTTP_POST_VARS["multiple_limit"]) . ",";
@@ -948,6 +964,12 @@ class XSD_HTML_Match
 		if (!empty($insertArray["xsdmf_citation_order"])) {
           $stmt .= "xsdmf_citation_order,";
 		}		
+		if (!empty($insertArray["xsdmf_citation_prefix"])) {
+          $stmt .= "xsdmf_citation_prefix,";
+		}		
+		if (!empty($insertArray["xsdmf_citation_suffix"])) {
+          $stmt .= "xsdmf_citation_suffix,";
+		}		
 		
 		$stmt .= "
                     xsdmf_parent_key_match,
@@ -1071,6 +1093,12 @@ class XSD_HTML_Match
 			}
 			if (!empty($insertArray["xsdmf_citation_order"])) {
                $stmt .= $insertArray["xsdmf_citation_order"] . ",";
+			}
+			if (!empty($insertArray["xsdmf_citation_prefix"])) {
+               $stmt .= "'".$insertArray["xsdmf_citation_prefix"] . "',";
+			}
+			if (!empty($insertArray["xsdmf_citation_suffix"])) {
+               $stmt .= "'".$insertArray["xsdmf_citation_suffix"] . "',";
 			}
 
 			$stmt .= "
@@ -1222,7 +1250,12 @@ class XSD_HTML_Match
 		if (!empty($insertArray["xsdmf_citation_order"])) {
           $stmt .= "xsdmf_citation_order,";
 		}		
-
+		if (!empty($insertArray["xsdmf_citation_prefix"])) {
+          $stmt .= "xsdmf_citation_prefix,";
+		}				
+		if (!empty($insertArray["xsdmf_citation_suffix"])) {
+          $stmt .= "xsdmf_citation_suffix,";
+		}		
 
 		$stmt .= "
                     xsdmf_parent_key_match,
@@ -1350,6 +1383,12 @@ class XSD_HTML_Match
 			}
 			if (!empty($insertArray["xsdmf_citation_order"])) {
                $stmt .= $insertArray["xsdmf_citation_order"] . ",";
+			}
+			if (!empty($insertArray["xsdmf_citation_prefix"])) {
+               $stmt .= "'".$insertArray["xsdmf_citation_prefix"] . "',";
+			}
+			if (!empty($insertArray["xsdmf_citation_suffix"])) {
+               $stmt .= "'".$insertArray["xsdmf_citation_suffix"] . "',";
 			}
 			$stmt .= "
                     '" . Misc::escapeString($insertArray["xsdmf_parent_key_match"]) . "',
@@ -1550,6 +1589,8 @@ class XSD_HTML_Match
                     xsdmf_citation_bold = " . $xsdmf_citation_bold . ",
                     xsdmf_citation_italics = " . $xsdmf_citation_italics . ",										
                     xsdmf_citation_brackets = " . $xsdmf_citation_brackets . ",
+                    xsdmf_citation_prefix = '" . Misc::escapeString($HTTP_POST_VARS["xsdmf_citation_prefix"]) . "',
+                    xsdmf_citation_suffix = '" . Misc::escapeString($HTTP_POST_VARS["xsdmf_citation_suffix"]) . "',
                     xsdmf_multiple = " . $multiple . ",";
 		if ($HTTP_POST_VARS["multiple_limit"] != "") {
         	$stmt .= " xsdmf_multiple_limit = " . Misc::escapeString($HTTP_POST_VARS["multiple_limit"]) . ",";

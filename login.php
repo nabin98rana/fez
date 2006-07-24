@@ -129,7 +129,7 @@ function parseSSO($string, $IDProviders, $redirectCookieName){
 
 if (($_SERVER["SERVER_PORT"] != 443) && (APP_HTTPS == "ON")) {
    header ("HTTP 302 Redirect");
-   header ("Location: https://".$_SERVER['HTTP_HOST'].APP_RELATIVE_URL."login.php"."?".$HTTP_SERVER_VARS['QUERY_STRING']);
+   header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."login.php"."?".$HTTP_SERVER_VARS['QUERY_STRING']);
 }
 
 $tpl = new Template_API();

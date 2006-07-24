@@ -39,6 +39,7 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.news.php");
+include_once(APP_INC_PATH . "class.survey.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "najax/najax.php");
@@ -52,15 +53,20 @@ if ($_SESSION['IDP_LOGIN_FLAG'] == 1) {
 	Auth::GetShibAttributes();
 	$_SESSION['IDP_LOGIN_FLAG'] = 0;
 }
-if ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
+if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
+// Uncomment this to see a debug output of all the shibboleth attributes in the session
 /*	echo "<pre>";
 	print_r($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]);
 	echo "</pre>";  */
 
-  if (!Auth::LoginAuthenticatedUser("", "", true)) {
-    Auth::redirect(APP_RELATIVE_URL . "login.php?err=22");
-  }
-
+	if (!Auth::LoginAuthenticatedUser("", "", true)) {
+    	Auth::redirect(APP_RELATIVE_URL . "login.php?err=22");
+	}
+	if ((@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") && (SHIB_SURVEY == "ON")) {
+	  if ((!Survey::hasFilledSurvey(Auth::getUserID()) == 1) && (User::getShibLoginCount(Auth::getUserID()) > 1)) { //if they are shib user and they have logged in at least once before send them to the survey
+		  Auth::redirect(APP_RELATIVE_URL . "survey.php");
+	  }
+	}
 } elseif (count($HTTP_POST_VARS) > 0) {
 	if (Validation::isWhitespace($HTTP_POST_VARS["username"])) {
 		Auth::redirect(APP_RELATIVE_URL . "login.php?err=1");
@@ -69,14 +75,11 @@ if ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
 		Auth::redirect(APP_RELATIVE_URL . "login.php?err=2&username=" . $HTTP_POST_VARS["username"]);
 	}
 
-
-
 	// check if the password matches
 	if (!Auth::isCorrectPassword($HTTP_POST_VARS["username"], $HTTP_POST_VARS["passwd"])) {
 		Auth::redirect(APP_RELATIVE_URL . "login.php?err=3&username=" . $HTTP_POST_VARS["username"]);
 	}
-    Auth::LoginAuthenticatedUser($HTTP_POST_VARS["username"], $HTTP_POST_VARS["passwd"]); 
-	
+    Auth::LoginAuthenticatedUser($HTTP_POST_VARS["username"], $HTTP_POST_VARS["passwd"]); 	
 	if (!empty($HTTP_POST_VARS["url"])) {
 		Auth::redirect(urldecode($HTTP_POST_VARS["url"])); 
 	} else {
@@ -85,6 +88,7 @@ if ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
 		$extra = '';
 	}
 }
+
 $tpl = new Template_API();
 $tpl->setTemplate("front_page.tpl.html");
 

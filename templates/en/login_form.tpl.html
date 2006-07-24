@@ -36,7 +36,7 @@ function validateForm(f)
       <table bgcolor="{$heading_color}" width="100%" border="0" cellspacing="0" cellpadding="4">
 		<tr>
           <td align="center" nowrap class="default_white">
-            <img align="absmiddle" src="{$rel_url}images/shibboleth_logo_32.gif" border="0"> <b> Login via a Federation Partner:</b>
+            <img align="absmiddle" src="{$rel_url}images/shibboleth_logo_32.gif" border="0"> <b> Select your home institution:</b>
           </td>
         </tr>
 
@@ -72,7 +72,16 @@ function validateForm(f)
 </form>
 		{/if}	
 
+{if $SHIB_SWITCH == "ON"}
+<table align="center" width="500" border="0" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF">
+  <tr>
+    <td align="center">
 
+<h1>OR</h1>
+</td>
+</tr>
+</table>
+{/if}
 
 <form name="login_form" onSubmit="javascript:return checkFormSubmission(this, 'validateForm');" method="post" action="index.php">
 <input type="hidden" name="cat" value="login">
@@ -82,11 +91,11 @@ function validateForm(f)
 <table align="center" width="500" border="0" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF">
   <tr>
     <td>
-            <br /><br />
+<br />
       <table bgcolor="{$heading_color}" width="100%" border="0" cellspacing="0" cellpadding="4">
         <tr>
-          <td colspan="2" align="center" nowrap class="default_white">
-            <img align="absmiddle" src="{$rel_url}images/keys_32.gif" border="0"><b>{if $SHIB_SWITCH == "ON"}OR {/if}Login to {$application_title}{if $SHIB_SWITCH == "ON"} with an internal Fez username{/if}</b>
+          <td colspan="2" align="center" class="default_white">
+            <img align="absmiddle" src="{$rel_url}images/keys_32.gif" border="0"><b>{if $SHIB_SWITCH == "ON"}Secondary Login Method: {/if}Login to {$application_title}{if $SHIB_SWITCH == "ON"} with a {$org_short_name} username or internal {$application_title} username ONLY if you do not belong to one of the institutions in the above drop down list or if the federated login is down{/if}</b>
           </td>
         </tr>
       </table>

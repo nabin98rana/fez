@@ -188,6 +188,7 @@ class Template_API
             $this->assign("current_full_name", Auth::getUserFullName());
             $this->assign("current_email", Auth::getUserEmail());
         }
+		
         $this->assign("app_path", APP_PATH);
         $this->assign("app_setup", Setup::load());
         $this->assign("app_setup_path", APP_SETUP_PATH);

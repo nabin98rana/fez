@@ -1,0 +1,326 @@
+{literal}
+<script language="JavaScript">
+<!--
+var page_url = '{/literal}{$smarty.server.PHP_SELF}{literal}';
+var current_page = {/literal}{if $list_info.current_page != ""}{$list_info.current_page}{else}0{/if}{literal};
+var last_page = {/literal}{if $list_info.last_page != ""}{$list_info.last_page}{else}0{/if}{literal};
+function assignItems(f)
+{
+    if (!hasOneChecked(f, 'item[]')) {
+        alert('Please choose which entries to assign.');
+        return false;
+    }
+    if (f.users.options[f.users.selectedIndex].value == '') {
+        alert('Please choose the user to assign these entries to.');
+        f.users.focus();
+        selectField(f, 'users');
+        return false;
+    }
+    var features = 'width=420,height=200,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
+    var popupWin = window.open('', '_popup', features);
+    popupWin.focus();
+    f.action = 'popup.php';
+    f.target = '_popup';
+    f.submit();
+}
+
+function createRecord(f) {
+    f.action = 'new.php';
+	f.submit();
+}
+
+function hideClosed(f)
+{
+    if (f.hide_closed.checked) {
+        window.location.href = page_url + "?" + replaceParam(window.location.href, 'hide_closed', '1');
+    } else {
+        window.location.href = page_url + "?" + replaceParam(window.location.href, 'hide_closed', '0');
+    }
+}
+function resizePager(f)
+{
+    var pagesize = f.page_size.options[f.page_size.selectedIndex].value;
+    window.location.href = page_url + "?" + replaceParam(window.location.href, 'rows', pagesize);
+}
+function checkPageField(ev)
+{
+    // check if the user is trying to submit the form by hitting <enter>
+    if (((window.event) && (window.event.keyCode == 13)) ||
+            ((ev) && (ev.which == 13))) {
+        return false;
+    }
+}
+function goPage(f, new_page)
+{
+    if ((new_page > last_page+1) || (new_page <= 0) ||
+            (new_page == current_page+1) || (!isNumberOnly(new_page))) {
+        f.page.value = current_page+1;
+        return false;
+    }
+    setPage(new_page-1);
+}
+function setPage(new_page)
+{
+    if ((new_page > last_page) || (new_page < 0) ||
+            (new_page == current_page)) {
+        return false;
+    }
+    window.location.href = page_url + "?" + replaceParam(window.location.href, 'pagerRow', new_page);
+}
+function downloadCSV()
+{
+    var f = this.document.csv_form;
+    f.submit();
+    return false;
+}
+//window.onload = disableFields;
+function disableFields()
+{
+    var f = document.list_form;
+    if (current_page == 0) {
+        f.first.disabled = true;
+        f.previous.disabled = true;
+    }
+    if ((current_page == last_page) || (last_page <= 0)) {
+        f.next.disabled = true;
+        f.last.disabled = true;
+    }
+    if ((current_page == 0) && (last_page <= 0)) {
+        f.page.disabled = true;
+        f.go.disabled = true;
+    }
+}
+
+
+
+//-->
+</script>
+{/literal}
+
+{literal}
+<script language="JavaScript">
+<!--
+function purgeObject(pid)
+{
+    if (!confirm('This action will permanently delete the selected object.')) {
+        return false;
+    } else {
+        var features = 'width=420,height=200,top=30,left=30,resizable=yes,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
+        var popupWin = window.open('popup.php?cat=purge_object&pid=' + pid, '_popup', features);
+        popupWin.focus();
+    }
+}
+//-->
+</script>
+{/literal}
+<table width="100%" bgcolor="{$cell_color}" cellspacing="0" cellpadding="1" align="center">
+  <form name="list_form" method="get" action="{$smarty.server.PHP_SELF}">
+  <input type="hidden" name="cat" value="assign">
+  <tr>
+    <td>
+      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" >
+
+		{if $list_type == 'collection_records_list'}
+		<tr>
+		  <td align="left"> <br />
+			<table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="1">
+				<tr>
+				  <td align="left" class="default"> <b>Parent Communities: </b></td>
+				  <td align="left" class="default"> &nbsp;
+					{section name="i" loop=$parents}
+						<a href="list.php?community_pid={$parents[i].pid}">{$parents[i].title}</a> &nbsp;
+					{/section}
+				  </td>
+				</tr>
+			</table>
+		  </td>
+		</tr>
+		{/if}
+
+        <tr><td align="center">
+      <table bgcolor="#FFFFFF" width="800" cellpadding="2" cellspacing="1" class="default">
+		 <tr>
+			<td class="contentheader"><img src="{$rel_url}images/statistics_22.gif" alt="" align="absmiddle"> Access Statistics: <a href="{$rel_url}view.php?pid={$pid}">{$title}</a>
+			</td>
+		</tr>
+		 <tr>
+			<td>
+			<p>
+			{if $pid != 'all'}
+			<p><strong>For this record:</strong>
+			[<a href="{$smarty.server.PHP_SELF}?action=show_detail&pid={$pid}&range=4w">Past four weeks</a>]
+			[<a href="{$smarty.server.PHP_SELF}?action=show_detail&pid={$pid}&year={$thisYear}">This year</a>]
+			[<a href="{$smarty.server.PHP_SELF}?action=show_detail&pid={$pid}&year={$lastYear}">Last year</a>]
+			[<a href="{$smarty.server.PHP_SELF}?action=show_detail&pid={$pid}">All years</a>]</p>
+			</p>
+			{/if}
+			<p><strong>Most viewed records:</strong>
+			[<a href="{$rel_url}stats.php?browse=show_detail_date&range=4w">Past four weeks</a>] 
+			[<a href="{$rel_url}stats.php?browse=show_detail_date&year={$thisYear}">This year</a>]
+			[<a href="{$rel_url}stats.php?browse=show_detail_date&year={$lastYear}">Last year</a>]
+			[<a href="{$rel_url}stats.php?browse=show_detail_date">All years</a>]
+			<br /><br /><strong>Repository-wide statistics:</strong>
+			[<a href="{$smarty.server.PHP_SELF}?action=cumulative_usage&range=all">by Year/month</a>] 
+			[<a href="{$smarty.server.PHP_SELF}?action=cumulative_usage_country">by Country</a>] 
+			<p>
+			</td>
+		</tr>
+		{if $action == 'show_detail'}
+	    <tr>
+			<td>
+				<table cellspacing="0" cellpadding="3" width="800">
+					<tr {$shaded_bar}>
+						<td colspan="4" class="default_white"><strong>Abstract views and document downloads {$dateString}</strong></td>
+					</tr>
+					{if $abstractViewsWidth == 0 && $downloadsWidth == 0}
+					<tr class="default">
+						<td colspan="4"><strong>This record has not been viewed during this period</strong></td>
+					</tr>
+					{else}
+					<tr>
+						<td bgcolor="{$light_color}" width="150"></td>
+						<td align="right" bgcolor="{$cell_color}" class="default" width="75">Abstracts</td>
+						<td align="right" bgcolor="{$dark_color}" class="default_white" width="75">Downloads</td>
+						<td bgcolor="{$light_color}" width="500">&nbsp;</td>																							
+					</tr>
+					<tr class="default">
+						<td bgcolor="{$light_color}" width="150" align="left"><strong>Views</strong></td>
+						<td align="right" width="75">{$abstractViews}</td>
+						<td align="right" width="75">{$downloads}</td>
+						<td width="500">
+						{if $abstractViewsWidth > 0}<img src="{$rel_url}images/hh.png" alt="abstracts" height="9" width="{$abstractViewsWidth}">{else}<img src="{$rel_url}images/hh.png" alt="abstracts" height="9" width="1">{/if}<br />
+							{if $downloadsWidth > 0}<img src="{$rel_url}images/hp.png" alt="downloads" height="9" width="{$downloadsWidth}">{else}<img src="{$rel_url}images/hp.png" alt="downloads" height="9" width="1">{/if}
+						</td>																							
+					</tr>
+					{/if}							
+				</table>		
+			</td>
+		</tr>
+
+	    <tr>
+			<td>
+				<table cellspacing="0" cellpadding="3" width="800">
+					<tr {$shaded_bar}>
+						<td colspan="4" class="default_white"><strong>Views by country (derived from IP address of query) {$dateString}</strong></td>
+					</tr>
+					{if $listCountryCount == 0}
+					<tr class="default">
+						<td colspan="4"><strong>This record has not been viewed during this period</strong></td>
+					</tr>
+					{else}
+					<tr>
+						<td bgcolor="{$light_color}" class="default" width="150"><strong>Country</strong></td>
+						<td align="right" bgcolor="{$cell_color}" class="default" width="75">Abstracts</td>
+						<td align="right" bgcolor="{$dark_color}" class="default_white" width="75">Downloads</td>
+						<td bgcolor="{$light_color}" width="500">&nbsp;</td>																							
+					</tr>
+					{section name="i" loop=$listCountry}
+					<tr class="default">
+						<td bgcolor="{$light_color}" nowrap><img src="{$rel_url}{$listCountry[i].flag}" alt="" height="14" width="18" align="absmiddle"> {$listCountry[i].stl_country_name}</td>
+						<td align="right">{$listCountry[i].stl_country_abstracts}</td>
+						<td align="right">{$listCountry[i].stl_country_downloads}</td>
+						<td width="500"><img src="{$rel_url}images/hh.png" alt="abstracts" height="9" width="{$listCountry[i].abstractViewsWidth}"><br />
+							<img src="{$rel_url}images/hp.png" alt="downloads" height="9" width="{$listCountry[i].downloadsWidth}">
+						</td>																							
+					</tr>								
+					{/section}
+					{/if}
+				</table>		
+			</td>
+		</tr>
+
+	    <tr>
+			<td>
+				<table cellspacing="0" cellpadding="3" width="800">
+					<tr {$shaded_bar}>
+						<td colspan="4" class="default_white"><strong>History of views for this record</strong></td>
+					</tr>
+					<tr>
+						<td bgcolor="{$light_color}" class="default" width="150"><strong>Period</strong></td>
+						<td align="right" bgcolor="{$cell_color}" class="default" width="75">Abstracts</td>
+						<td align="right" bgcolor="{$dark_color}" class="default_white" width="75">Downloads</td>
+						<td bgcolor="{$light_color}">&nbsp;</td>																							
+					</tr>
+					{section name="i" loop=$listHistory}
+					<tr class="default">
+						<td bgcolor="{$light_color}" nowrap><a href="{$smarty.server.PHP_SELF}?action=show_detail&pid={$pid}&year={$listHistory[i].year}&month={$listHistory[i].monthnum}">{$listHistory[i].month} {$listHistory[i].year}</a></td>
+						<td align="right">{$listHistory[i].abstracts}</td>
+						<td align="right">{$listHistory[i].downloads}</td>
+						<td><img src="{$rel_url}images/hh.png" alt="abstracts" height="9" width="{$listHistory[i].abstractViewsWidth}"><br />
+							<img src="{$rel_url}images/hp.png" alt="downloads" height="9" width="{$listHistory[i].downloadsWidth}">
+						</td>																							
+					</tr>								
+					{/section}
+				</table>		
+			</td>
+		</tr>
+		{elseif $action == 'cumulative_usage'}
+			    <tr>
+			<td>
+				<table cellspacing="0" cellpadding="3" width="800">
+					<tr {$shaded_bar}>
+						<td colspan="4" class="default_white"><strong>Abstract views and document downloads by month/year</strong></td>
+					</tr>
+					<tr>
+						<td bgcolor="{$light_color}" class="default" width="150"><strong>Period</strong></td>
+						<td align="right" bgcolor="{$cell_color}" class="default" width="75">Abstracts</td>
+						<td align="right" bgcolor="{$dark_color}" class="default_white" width="75">Downloads</td>
+						<td bgcolor="{$light_color}">&nbsp;</td>																							
+					</tr>
+					{section name="i" loop=$listHistory}
+					<tr class="default">
+						<td bgcolor="{$light_color}" nowrap><a href="{$rel_url}stats.php?browse=show_detail_date&pid={$pid}&year={$listHistory[i].year}&month={$listHistory[i].monthnum}">{$listHistory[i].month} {$listHistory[i].year}</a></td>
+						<td align="right">{$listHistory[i].abstracts}</td>
+						<td align="right">{$listHistory[i].downloads}</td>
+						<td><img src="{$rel_url}images/hh.png" alt="abstracts" height="9" width="{$listHistory[i].abstractViewsWidth}"><br />
+							<img src="{$rel_url}images/hp.png" alt="downloads" height="9" width="{$listHistory[i].downloadsWidth}">
+						</td>																							
+					</tr>								
+					{/section}
+				</table>		
+			</td>
+		</tr>
+		{elseif $action == 'cumulative_usage_country'}
+	    <tr>
+			<td>
+				<table cellspacing="0" cellpadding="3" width="800">
+					<tr {$shaded_bar}>
+						<td colspan="4" class="default_white"><strong>Views by country (derived from IP address of query) {$dateString}</strong></td>
+					</tr>
+					{if $listCountryCount == 0}
+					<tr class="default">
+						<td colspan="4"><strong>Records have not been viewed during this period</strong></td>
+					</tr>
+					{else}
+					<tr>
+						<td bgcolor="{$light_color}" class="default" width="150"><strong>Country</strong></td>
+						<td align="right" bgcolor="{$cell_color}" class="default" width="75">Abstracts</td>
+						<td align="right" bgcolor="{$dark_color}" class="default_white" width="75">Downloads</td>
+						<td bgcolor="{$light_color}" width="500">&nbsp;</td>																							
+					</tr>
+					{section name="i" loop=$listCountry}
+					<tr class="default">
+						<td bgcolor="{$light_color}" nowrap><img src="{$rel_url}{$listCountry[i].flag}" alt="" height="14" width="18" align="absmiddle"> {$listCountry[i].stl_country_name}</td>
+						<td align="right">{$listCountry[i].stl_country_abstracts}</td>
+						<td align="right">{$listCountry[i].stl_country_downloads}</td>
+						<td width="500"><img src="{$rel_url}images/hh.png" alt="abstracts" height="9" width="{$listCountry[i].abstractViewsWidth}"><br />
+							<img src="{$rel_url}images/hp.png" alt="downloads" height="9" width="{$listCountry[i].downloadsWidth}">
+						</td>																							
+					</tr>								
+					{/section}
+					{/if}
+				</table>		
+			</td>
+		</tr>
+		{/if}
+      </table>
+    </td>
+  </tr>
+  </form>
+</table>
+  </td>
+  </tr>
+
+</table>
+
+

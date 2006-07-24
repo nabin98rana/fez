@@ -1134,6 +1134,7 @@ class Auth
         if ($auth_isBGP) {
             $session =& $auth_bgp_session;
         } else {
+			@session_start();			
             $session =& $_SESSION;
         }
         if (empty($session) || empty($session["fullname"])) {
@@ -1340,18 +1341,25 @@ class Auth
 			// Get the username from eduPerson Targeted ID. If empty then they are (really) anonymous
 			if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "") {
 				$username = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'];
-				if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] != "") { // if user has a principal name already in fez change their account to use targeted id instead
-					if (Auth::userExists($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'])) {
-						User::updateUsername($username, $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName']);
+
+				if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] != "") { // if user has a principal name already in fez add their shibboleth username, but otherwise their username is their epTid
+					$principal_prefix = substr($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], 0, strpos($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], "@"));
+					if (Auth::userExists($principal_prefix)) { //this is mainly to cater for having login available for both shib and ldap/ad
+						User::updateShibUsername($principal_prefix, $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID']);
+						$username = $principal_prefix;
 					}				
 				}
-			} elseif ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] != "") { // if no eptid then try using EP principalname
-				$username = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'];
+			} elseif ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] != "") { // if no eptid then try using EP principalname - this should be rare
+				$principal_prefix = substr($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], 0, strpos($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], "@"));
+				if (Auth::userExists($principal_prefix)) {
+					$username = $principal_prefix;
+				} else {
+					$username = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'];				
+				}
 			} else {
 				return false; // if trying to login via shib and can't find a username in the IDP attribs then return false to make redirect to login page with message
 			}
 		}
-
 
         if (!Auth::userExists($username)) { // If the user isn't a registered fez user, get their details elsewhere (The AD/LDAP) as they must have logged in with LDAP or Shibboleth
 			if (($shib_login == true) && ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "")) {
@@ -1391,14 +1399,14 @@ class Auth
             $usr_id = User::getUserIDByUsername($username);
         } else { // if it is a registered Fez user then get their details from the fez user table
             $session['isInDB'] = true;
-            $userDetails = User::getDetails($username);			
+            $userDetails = User::getDetails($username);		
 			if (($shib_login == true) && (@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "")) {
 				$session['isInFederation'] = true;
 			} else {
 				$session['isInFederation'] = false;
 				if ($userDetails['usr_ldap_authentication'] == 1) {
 					if (!$auth_isBGP) {
-						$userDetails = User::GetUserLDAPDetails($username, $password);
+//						$userDetails = User::GetUserLDAPDetails($username, $password);
 						$distinguishedname = $userDetails['distinguishedname'];
 						Auth::GetUsersLDAPGroups($userDetails['usr_username'], $password);
 					} else {
@@ -1414,6 +1422,9 @@ class Auth
 			$usr_id = User::getUserIDByUsername($username);
 			if ($alreadyLoggedIn !== true) {
 	            User::updateLoginDetails($usr_id); //incremement login count and last login date
+				if ($shib_login == true) {
+		            User::updateShibLoginDetails($usr_id); //incremement login count for shib logins for this user
+				}
 			}
 
             // get internal fez groups
