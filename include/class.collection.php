@@ -858,7 +858,7 @@ class Collection
             LEFT JOIN {$dbtp}xsd_display d1  
             ON (d1.xdis_id = r1.rmf_varchar and k1.sek_title = 'Display Type')
             ORDER BY display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
-        //echo $stmt; 
+        echo $stmt; 
 
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
@@ -1050,15 +1050,17 @@ class Collection
                 INNER JOIN {$dbtp}auth_rule_group_users 
                 ON argu_usr_id='$usr_id' AND ai.authi_arg_id=argu_arg_id ";
 
-                 $authStmt .= "
-                    and ai.authi_pid = r2.rmf_rec_pid";
-			} else {
-                $authStmt = " INNER JOIN {$dbtp}auth_index2 ON authi_role='Lister' AND authi_pid=r2.rmf_rec_pid 
-                    INNER JOIN {$dbtp}auth_rule_group_rules ON argr_arg_id=authi_arg_id 
-                    INNER JOIN {$dbtp}auth_rules ON ar_rule='public_list' AND ar_value='1' AND argr_ar_id=ar_id ";
-                $joinStmt .= "";
-			}		
-	}
+            $authStmt .= "
+                and ai.authi_pid = r2.rmf_rec_pid";
+        } else {
+            $authStmt = " INNER JOIN {$dbtp}auth_index2 ON authi_role='Lister' AND authi_pid=r2.rmf_rec_pid 
+                INNER JOIN {$dbtp}auth_rule_group_rules ON argr_arg_id=authi_arg_id 
+                INNER JOIN {$dbtp}auth_rules ON ar_rule='public_list' AND ar_value='1' AND argr_ar_id=ar_id ";
+            $joinStmt .= "";
+        }		
+        return array('authStmt' => $authStmt, 'joinStmt' => $joinStmt);
+    }
+
     /**
      * Method used to get the list of records in browse view by a browsing category available in the 
      * system.
