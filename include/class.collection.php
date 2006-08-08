@@ -858,7 +858,7 @@ class Collection
             LEFT JOIN {$dbtp}xsd_display d1  
             ON (d1.xdis_id = r1.rmf_varchar and k1.sek_title = 'Display Type')
             ORDER BY display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
-        echo $stmt; 
+        //echo $stmt; 
 
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
