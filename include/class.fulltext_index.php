@@ -259,22 +259,43 @@ class FulltextIndex {
             $keywords = array_values(array_diff($keywords, $numeric_words));
 
             if (!empty($keywords)) {
-                $ft_stmt = "INNER JOIN (
-                    SELECT fti_pid, sum(fte.fte_weight) as ft_weight FROM {$dbtp}fulltext_index as fti  
-                    INNER JOIN {$dbtp}fulltext_engine as fte ON fte.fte_fti_id=fti.fti_id
-                    INNER JOIN ( ";        // ))
+                // For AND operator, sum up the weights from each of the joins
+                $ft_weight_select = '';
                 foreach ($keywords as $num => $word) {
-                    if ($num > 0) {
-                        $ft_stmt .= " 
-                            UNION ";
-                    }
-                    $ft_stmt .= " 
-                        SELECT ftk_id FROM {$dbtp}fulltext_keywords 
-                        WHERE ftk_twoletters='".Misc::escapeString(substr(str_replace('\\','',$word),0,2))."' 
-                        AND ftk_word like '".Misc::escapeString($word)."%' ";
+                    $ft_weight_select .= "sum(fte$num.fte_weight)+";
                 }
+                $ft_weight_select = rtrim($ft_weight_select,'+');
+                $ft_stmt = "INNER JOIN (
+                    SELECT fti_pid, $ft_weight_select as Relevance FROM {$dbtp}fulltext_index as fti  
+                    ";
+                // Use INNER JOINS to AND the keywords
+                foreach ($keywords as $num => $word) {
+                    $ft_stmt .= "INNER JOIN {$dbtp}fulltext_engine as fte$num ON fte$num.fte_fti_id=fti.fti_id
+                       INNER JOIN {$dbtp}fulltext_keywords as ftk$num 
+                       ON ftk$num.ftk_twoletters='".Misc::escapeString(substr(str_replace('\\','',$word),0,2))."'
+                       AND ftk$num.ftk_word like '".Misc::escapeString($word)."%' 
+                       AND ftk$num.ftk_id=fte$num.fte_key_id ";
+                }
+                /**
+                 *      This works for an OR operator
+                 *  $ft_stmt .= "INNER JOIN (
+                 *   SELECT fti_pid, sum(fte.fte_weight) as Relevance FROM {$dbtp}fulltext_index as fti
+                 *   INNER JOIN {$dbtp}fulltext_engine as fte ON fte.fte_fti_id=fti.fti_id
+                 *   INNER JOIN ( ";        // ))
+                 *  foreach ($keywords as $num => $word) {
+                 *      if ($num > 0) {
+                 *          $ft_stmt .= "
+                 *              UNION ";
+                 *      }
+                 *      $ft_stmt .= "
+                 *          SELECT ftk_id FROM {$dbtp}fulltext_keywords
+                 *          WHERE ftk_twoletters='".Misc::escapeString(substr(str_replace('\\','',$word),0,2))."'
+                 *          AND ftk_word like '".Misc::escapeString($word)."%' ";
+                 *  }
+                 *  $ft_stmt .= "
+                 *      ) as jftk ON jftk.ftk_id=fte.fte_key_id";
+                 */
                 $ft_stmt .= "
-                    ) as jftk ON jftk.ftk_id=fte.fte_key_id
                     GROUP BY fti.fti_pid
                     ) as ft1 ON ft1.fti_pid=r1.rmf_rec_pid";
             }

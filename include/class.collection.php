@@ -1705,7 +1705,7 @@ if ($order_by == 'File Downloads') {
         } 
         if ($order_by_key == 'Relevance') {
             $order_use_key = false;
-            $order_by = 'ft_weight desc';
+            $order_by = 'Relevance desc';
         } else {
             $order_use_key = true;
             $sekdet = Search_Key::getDetailsByTitle($order_by_key);
