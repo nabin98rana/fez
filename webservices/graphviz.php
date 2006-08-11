@@ -35,8 +35,8 @@
 include_once('../config.inc.php');
 include_once(APP_INC_PATH. 'class.graphviz.php');
 
-        $encoded_dot = $_GET['dot'];
-        $dot = base64_decode($encoded_dot);
+        $dot_id = $_GET['dot']; 
+        $dot = $_SESSION['dot'][$dot_id]; 
 
         // do here something
         if (@$_GET['cmapx'] == 1) {

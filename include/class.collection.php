@@ -53,6 +53,7 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "class.statistics.php");
+include_once(APP_INC_PATH . "class.fulltext_index.php");
 
 class Collection
 {
@@ -1621,16 +1622,13 @@ if ($order_by == 'File Downloads') {
      * @param   integer $max The maximum number of records to return	 
      * @return  array The list of Fez objects matching the search criteria
      */
-    function advSearchListing($current_row = 0, $max = 25, $order_by = 'Title')
+    function advSearchListing($current_row = 0, $max = 25, $order_by_key = '')
     {
 		$terms = $_GET['list'];
 
 		if (empty($terms)) {
 			return array();
 		}
-
-        $sekdet = Search_Key::getDetailsByTitle($order_by);
-        $data_type = $sekdet['xsdmf_data_type'];
 
 		if ($max == "ALL") {
             $max = 9999999;
@@ -1689,10 +1687,32 @@ if ($order_by == 'File Downloads') {
 			}
 		}
 
-		if ($foundValue == false) {
+
+        $fulltext_input = @$_GET['full_text'];
+        $ftobj = new FulltextIndex;
+        $ft_stmt = $ftobj->getSearchJoin($fulltext_input);
+
+		if ($foundValue == false && empty($ft_stmt)) {
 			return array();
 		}
 
+        if (empty($order_by_key)) {
+            if (!empty($ft_stmt)) {
+                $order_by_key = 'Relevance';
+            } else {
+                $order_by_key = 'Title';
+            }
+        } 
+        if ($order_by_key == 'Relevance') {
+            $order_use_key = false;
+            $order_by = 'ft_weight desc';
+        } else {
+            $order_use_key = true;
+            $sekdet = Search_Key::getDetailsByTitle($order_by_key);
+            $data_type = $sekdet['xsdmf_data_type'];
+            $order_by = 'd3.sort_column';
+        }
+ 
         $stmt = "SELECT * 
             FROM {$dbtp}record_matching_field r1
             INNER JOIN {$dbtp}xsd_display_matchfields x1 
@@ -1702,6 +1722,7 @@ if ($order_by == 'File Downloads') {
             LEFT JOIN {$dbtp}search_key k1 
             ON (k1.sek_id = x1.xsdmf_sek_id)
             JOIN {$dbtp}xsd_display d1 			
+            $ft_stmt
             $middleStmt
 			 INNER JOIN (
 			SELECT distinct r2.rmf_rec_pid, r2.rmf_varchar as display_id
@@ -1713,17 +1734,22 @@ if ($order_by == 'File Downloads') {
 			AND s2.sek_title = 'Display Type' 
 			) as d2
             on r1.rmf_rec_pid = d2.rmf_rec_pid and d2.display_id = d1.xdis_id
-            left JOIN (
-                    SELECT distinct r2.rmf_rec_pid as sort_pid, 
-                    r2.rmf_$data_type as sort_column
-                    FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
-                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
-                    on r2.rmf_xsdmf_id = x2.xsdmf_id 
-                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
-                    on s2.sek_id = x2.xsdmf_sek_id
-                    where s2.sek_title = '$order_by'
-                    ) as d3
+            ";
+        if ($order_use_key) {
+            $stmt .= "left JOIN (
+                SELECT distinct r2.rmf_rec_pid as sort_pid, 
+                       r2.rmf_$data_type as sort_column
+                FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
+                inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
+                on r2.rmf_xsdmf_id = x2.xsdmf_id 
+                inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+                on s2.sek_id = x2.xsdmf_sek_id
+                where s2.sek_title = '$order_by_key'
+                ) as d3
                 on r1.rmf_rec_pid = d3.sort_pid
+                ";
+        }
+        $stmt .= "
             WHERE
             r1.rmf_rec_pid IN (
                     SELECT rmf_rec_pid FROM 
@@ -1733,7 +1759,8 @@ if ($order_by == 'File Downloads') {
                     WHERE rmf.rmf_varchar=2
                     AND xdm.xsdmf_element='!sta_id'
                     )
-            ORDER BY d3.sort_column ";
+            ORDER BY $order_by ";
+        echo $stmt;
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = array();
 		$return = Collection::makeReturnList($res);

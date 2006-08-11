@@ -43,8 +43,9 @@ $tpl->setTemplate("testgraphviz.tpl.html");
 $dot = @$_POST['dot'];
 $tpl->assign('dot', $dot);
 if ($dot) {
-    $encoded_dot = @base64_encode($_POST['dot']);
-    $tpl->assign('encoded_dot', $encoded_dot);
+    $dot_id = md5($dot);
+    $_SESSION['dot'][$dot_id] = $dot; 
+    $tpl->assign("encoded_dot", $dot_id); 
     $map = Graphviz::getCMAPX($dot);
     $tpl->assign('cmapx', $map); 
     $map_name = Graphviz::getGraphName($dot);

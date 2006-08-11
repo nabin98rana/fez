@@ -131,7 +131,7 @@ class Lister
             $tpl->assign("list_type", "all_records_list");
         } elseif ($cat == "search") {
             if (empty($order_by)) {
-                $order_by = 'Title';
+                $order_by = 'Relevance';
             }
 
             // search 
@@ -244,7 +244,7 @@ class Lister
         foreach (Search_Key::getAssocList() as $key => $value) {
             $order_by_list[$value] = $value;
         }
-        if (!empty($terms)) {
+        if (!empty($terms) || $cat == 'search') {
             $order_by_list['Relevance'] = "Search Relevance";
         }
         $tpl->assign('order_by_list', $order_by_list);

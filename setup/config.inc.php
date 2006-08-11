@@ -74,6 +74,8 @@ if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Serve
 	@define("APP_JHOVE_DIR", "c:/jhove");
 	@define("APP_JHOVE_TEMP_DIR", 'c:\temp/'); // jhove needs windows style dir names when run on a win server
     ini_set("include_path", ".;" . APP_PEAR_PATH);
+    @define("APP_DOT_EXEC", "\"C:/Program Files/ATT/Graphviz/bin/dot.exe\"");
+    @define("APP_PHP_EXEC", "\"C:/php/php.exe\"");
 } else { //  Linux Server
 	@define("APP_TEMP_DIR", "/tmp/"); 
     @define("APP_DELETE_CMD", '/bin/rm -f ');
@@ -85,6 +87,9 @@ if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Serve
 	@define("APP_JHOVE_DIR", "/usr/local/jhove");
 	@define("APP_JHOVE_TEMP_DIR", APP_TEMP_DIR);
     ini_set("include_path", ".:" . APP_PEAR_PATH);
+    @define("APP_DOT_EXEC", "/usr/local/bin/dot");
+    @define("APP_PHP_EXEC", "/usr/local/bin/php");
+    @define("APP_PDFTOTEXT_EXEC", "/usr/bin/pdftotext");
 }
 @define("APP_SETUP_PATH", APP_PATH);
 @define("APP_SETUP_FILE", APP_SETUP_PATH . "setup.conf.php");

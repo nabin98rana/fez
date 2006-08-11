@@ -156,12 +156,12 @@ class BackgroundProcess {
         }
         $this->bgp_id = $GLOBALS['db_api']->get_last_insert_id();
         $this->serialize();
-        $command = "php \"".APP_PATH."misc/run_background_process.php\" {$this->bgp_id} \""
+        $command = APP_PHP_EXEC." \"".APP_PATH."misc/run_background_process.php\" {$this->bgp_id} \""
             .APP_PATH."\" > ".APP_TEMP_DIR."fezbgp_{$this->bgp_id}.log";
         if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
             pclose(popen("start /min /b $command",'r'));
         } else {
-            exec("$command &");
+            exec("$command 2>&1 &");
         }
     } 
 

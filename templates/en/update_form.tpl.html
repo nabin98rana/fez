@@ -1,6 +1,8 @@
 
 
-<table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="{$light_color}">
+<table width="100%" bgcolor="{$cell_color}" cellspacing="0" cellpadding="1" align="center">
+<tr><td>
+<table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="white">
 <tr><td align="left" class="default" ><b>{$record_type}:</b> <a class="link"
 href="{$view_href}">{$title}</a></td>
 </tr>
@@ -24,6 +26,8 @@ href="list.php?{$parent_type|lower}_pid={$parents[i].pid}">{$parents[i].title}</
     <td height="8" valign="top">
     </td>
   </tr>
-
+</table>
+</td>
+</tr>
 </table>
 

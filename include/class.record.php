@@ -845,6 +845,9 @@ class Record
             }
         }
         AuthIndex::setIndexAuth($pid); //set the security index
+        if (!$record->isCommunity() && !$record->isCollection()) { 
+            FulltextIndex::indexPid($pid);
+        }
 //		exit;
     }
     
@@ -1088,6 +1091,11 @@ class RecordGeneral
         $this->creator_roles = $this->editor_roles;
     }
 
+    function getPid()
+    {
+        return $this->pid;
+    }
+
     /**
       * refresh
       * Reset the status of the record object so that all values will be re-queried from the database.
@@ -1230,6 +1238,14 @@ class RecordGeneral
         } else {
             return $this->status_array[$status];
         }
+    }
+
+    function getRecordType()
+    {
+        $this->getDetails();
+        $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!ret_id'); 
+        $ret_id = $this->details[$xsdmf_id];
+        return $ret_id;
     }
 
 
@@ -1376,7 +1392,7 @@ class RecordGeneral
      */
     function isCollection()
     {
-        return ($this->getDCType() == 'Fez_Collection') ? true : false;
+        return ($this->getRecordType() == 2) ? true : false; 
     }
 
     /**
@@ -1388,7 +1404,7 @@ class RecordGeneral
      */
     function isCommunity()
     {
-        return ($this->getDCType() == 'Fez_Community') ? true : false;
+        return ($this->getRecordType() == 1) ? true : false; 
     }
 
 
@@ -1496,6 +1512,9 @@ class RecordGeneral
     function checkExists()
     {
         return Fedora_API::objectExists($this->pid);
+    }
+    function getDatastreamContents($dsID) {
+		return Fedora_API::callGetDatastreamContents($this->pid, $dsID);
     }
 
 }

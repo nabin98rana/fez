@@ -85,8 +85,10 @@ if ($isAdministrator) {
     $states_list = Misc::keyPairs($states, 'wfs_id', 'wfs_title');
     $tpl->assign("list", $states);
     $tpl->assign("states_list", array('-1' => 'None') + $states_list);
-    $dot = WorkflowStateLink::getDot($wfl_id, APP_BASE_URL."manage/workflow_states?cat=edit&wfl_id=$wfl_id&wfs_id=@id@");
-    $tpl->assign("encoded_dot", base64_encode($dot));
+    $dot = WorkflowStateLink::getDot($wfl_id, APP_BASE_URL."manage/workflow_states.php?cat=edit&wfl_id=$wfl_id&wfs_id=@id@");
+    $dot_id = md5($dot);
+    $_SESSION['dot'][$dot_id] = $dot; 
+    $tpl->assign("encoded_dot", $dot_id); 
     $map = Graphviz::getCMAPX($dot);
     $tpl->assign('cmapx', $map); 
     $map_name = Graphviz::getGraphName($dot);

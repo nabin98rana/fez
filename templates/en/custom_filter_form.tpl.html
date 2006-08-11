@@ -133,6 +133,14 @@ function validateForm(f)
         </tr>
         <form name="custom_filter_form" method="get" action="list.php" onSubmit="javascript:return validateForm(this);">
         <input type="hidden" name="cat" value="search">
+
+        <tr><td colspan="2" class="default">
+	<table id="choicelist_{$list[i].sek_id}" border="0" cellpadding="2" cellspacing="0" width="100%">
+        <tr><td width="150" bgcolor="{$cell_color}" class="default"><b>Fulltext Index Search</b></td>
+            <td bgcolor="{$light_color}"><input name="full_text" type="textfield" size="50"  class="default"/></td>
+            </tr>
+            </table>
+            </td></tr>
         {section name="i" loop=$list}
 		{if $list[i].sek_html_input == 'text' ||  $list[i].sek_html_input == 'combo' ||  $list[i].sek_html_input == 'multiple' ||  $list[i].sek_html_input == 'contvocab' ||  $list[i].sek_html_input == 'allcontvocab' }
         <tr><td colspan="2" class="default">

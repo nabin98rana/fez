@@ -42,7 +42,7 @@ class Graphviz
         fwrite($handle, $dot);
         fclose($handle);
 
-        $result = shell_exec("dot -Tcmapx $tmpfname");
+        $result = shell_exec(APP_DOT_EXEC." -Tcmapx $tmpfname");
         unlink($tmpfname);
         return $result;
 
@@ -57,7 +57,7 @@ class Graphviz
         fwrite($handle, $dot);
         fclose($handle);
 
-        passthru("dot -Tpng $tmpfname");
+        passthru(APP_DOT_EXEC." -Tpng $tmpfname");
         unlink($tmpfname);
 
     }

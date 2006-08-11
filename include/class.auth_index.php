@@ -15,9 +15,9 @@ class AuthIndex {
        $bgp->register(serialize(compact('pid')), Auth::getUserID());
     }
 
-    function setBGP($bgp)
+    function setBGP(&$bgp)
     {
-        $this->bgp = $bgp;
+        $this->bgp = &$bgp;
     }
 
     function setIndexAuthBGP($pid, $topcall=true)

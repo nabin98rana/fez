@@ -1658,7 +1658,7 @@ class Auth
     {
         $ses = &Auth::getSession();
         if (AuthIndex::highestRuleGroup() > $ses['auth_index_highest_rule_group']) {
-            Error_Handler::logError(AuthIndex::highestRuleGroup()." > ".$ses['auth_index_highest_rule_group'],__FILE__,__LINE__);;
+            //Error_Handler::logError(AuthIndex::highestRuleGroup()." > ".$ses['auth_index_highest_rule_group'],__FILE__,__LINE__);;
             Auth::setAuthRulesUsers();
         }
     }

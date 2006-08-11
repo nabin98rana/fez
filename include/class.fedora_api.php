@@ -500,6 +500,9 @@ class Fedora_API {
         if (!is_numeric($pid)) {
             $parms=array('pid' => $pid, 'asOfDateTime' => NULL, 'dsState' => NULL);
             $dsIDListArray = Fedora_API::openSoapCall('getDatastreams', $parms);
+            if (empty($dsIDListArray) || (is_array($dsIDListArray) && $dsIDListArray['faultcode'])) {
+                return false;
+            }
             sort($dsIDListArray);
             reset($dsIDListArray);
             $returns[$pid] = $dsIDListArray;
@@ -607,12 +610,14 @@ class Fedora_API {
 		$dsExists = Fedora_API::datastreamExists($pid, $dsID);
 		if ($dsExists === true) {			
 			$filename = APP_FEDORA_GET_URL."/".$pid."/".$dsID;
-			list($xml,$info) = Misc::processURL($filename);
-			if ($getxml) {
-				return $xml;
+			list($blob,$info) = Misc::processURL($filename);
+            // check if this is even XML, it might be binary, in which case we'll just return it.
+            if ($info['content_type'] != 'text/xml' || $getxml) {
+				return $blob;
 			}
-			if (!empty($xml) && $xml != false) {
-				$doc = DOMDocument::loadXML($xml);
+            // We've checked the mimetype is XML so lets parse it and make a simple array
+			if (!empty($blob) && $blob != false) {
+				$doc = DOMDocument::loadXML($blob);
 				$xpath = new DOMXPath($doc);
 				$fieldNodeList = $xpath->query("/*/*");
 				foreach ($fieldNodeList as $fieldNode) {

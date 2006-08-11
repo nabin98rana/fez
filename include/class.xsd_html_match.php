@@ -1062,7 +1062,7 @@ class XSD_HTML_Match
                $stmt .= $insertArray["xsdmf_multiple_limit"] . ",";
 			}
 			if (!empty($insertArray["xsdmf_sek_id"])) {
-               $stmt .= $insertArray["xsdmf_sek_id"] . ",";
+               $stmt .= "'".$insertArray["xsdmf_sek_id"] . "',";
 			}
 			if (!empty($insertArray["xsdmf_valueintag"])) {
                $stmt .= $insertArray["xsdmf_valueintag"] . ",";
@@ -1071,7 +1071,7 @@ class XSD_HTML_Match
                $stmt .= $insertArray["xsdmf_is_key"] . ",";
 			}
 			if (!empty($insertArray["xsdmf_meta_header_name"])) {
-               $stmt .= $insertArray["xsdmf_meta_header_name"] . ",";
+               $stmt .= "'".$insertArray["xsdmf_meta_header_name"] . "',";
 			}
 			if (!empty($insertArray["xsdmf_meta_header"])) {
                $stmt .= $insertArray["xsdmf_meta_header"] . ",";
