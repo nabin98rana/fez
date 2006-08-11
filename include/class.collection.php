@@ -1760,7 +1760,7 @@ if ($order_by == 'File Downloads') {
                     AND xdm.xsdmf_element='!sta_id'
                     )
             ORDER BY $order_by ";
-        echo $stmt;
+        //echo $stmt;
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = array();
 		$return = Collection::makeReturnList($res);
