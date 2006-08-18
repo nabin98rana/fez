@@ -46,6 +46,7 @@ include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
+include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.pager.php");
 include_once(APP_INC_PATH . "class.workflow.php");
@@ -737,8 +738,14 @@ class Record
 		/*} else {
 			$res = array();
 		}*/
-        $list = Collection::makeReturnList($res);
-		
+
+        $return = Collection::makeReturnList($res);
+        $return = Collection::makeSecurityReturnList($return);
+		$return = array_values($return);
+		$return = Auth::getIndexAuthorisationGroups($return);
+		$return = Collection::getWorkflows($return); 
+		$list = $return;
+
 		$totalRows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
 //        $totalRows = count($list);
 //        $list = array_slice($list,$currentRow, $pageRows);
@@ -1741,15 +1748,12 @@ class RecordObject extends RecordGeneral
                 // first extract the image and save temporary copy
                 $urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsIDName; 
                 copy($urldata,APP_TEMP_DIR.$dsIDName); 
-
                 // delete and re-ingest - need to do this because sometimes the object made it
                 // into the repository even though it's dsID is illegal.
                 Fedora_API::callPurgeDatastream($pid, $dsIDName); 
                 $new_dsID = Foxml::makeNCName($dsIDName);
                 Fedora_API::getUploadLocationByLocalRef($pid, $new_dsID, APP_TEMP_DIR.$dsIDName, $dsFilename, 
                         $dsTitle['MIMEType'], "M");
-
-
                 // preservation metadata
                 $presmd_check = Workflow::checkForPresMD($new_dsID);
                 if ($presmd_check != false) {

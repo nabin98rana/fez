@@ -75,16 +75,16 @@ if (empty($pagerRow)) {
     $pagerRow = 0;
 }
 $rows = Pager::getParam('rows');
+
 if (empty($rows)) {
 	   $rows = APP_DEFAULT_PAGER_SIZE;
 }
 $options = Pager::saveSearchParams();
 $tpl->assign("options", $options);
 $details = Reindex::getFullList($pagerRow, $rows);
-//        print_r($details);
+
 $tpl->assign("list", $details['list']);
 $tpl->assign("list_info", $details['info']);		
-//        return $details; 
 
 $status_list = Status::getAssocList();
 $communities = Community::getList();

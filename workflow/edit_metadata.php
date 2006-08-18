@@ -242,7 +242,7 @@ if ($access_ok) {
     $tpl->assign("xdis_id", $xdis_id);
 
     $details = $record->getDetails();
-//    print_r($details);
+
     //print_r($parents);
     $controlled_vocabs = Controlled_Vocab::getAssocListAll();
     //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later

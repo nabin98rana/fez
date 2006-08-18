@@ -40,6 +40,7 @@ include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "db_access.php");
+include_once(APP_INC_PATH . "class.pager.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");
@@ -53,6 +54,18 @@ $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 
+$pagerRow = Pager::getParam('pagerRow',$params);
+if (empty($pagerRow)) {
+	$pagerRow = 0;
+}
+$rows = Pager::getParam('rows',$params);
+if (empty($rows)) {
+	$rows = APP_DEFAULT_PAGER_SIZE;
+}
+$options = Pager::saveSearchParams($params);
+$tpl->assign("options", $options);
+
+
 if ($isAdministrator) {
     if (@$HTTP_POST_VARS["cat"] == "new") {
         $tpl->assign("result", Author::insert());
@@ -65,8 +78,9 @@ if ($isAdministrator) {
     if (@$HTTP_GET_VARS["cat"] == "edit") {
         $tpl->assign("info", Author::getDetails($HTTP_GET_VARS["id"]));
     }
-
-    $tpl->assign("list", Author::getList());
+	$author_list = Author::getList($pagerRow, $rows);
+    $tpl->assign("list", $author_list['list']);
+    $tpl->assign("list_info", $author_list['list_info']);
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }

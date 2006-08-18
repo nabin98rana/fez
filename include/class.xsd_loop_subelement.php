@@ -285,6 +285,9 @@ class XSD_Loop_Subelement
                     xsdsel_xsdmf_id,
                     xsdsel_title,
                     xsdsel_type,";
+			if (is_numeric($HTTP_POST_VARS["xsdsel_attribute_loop_xdis_id"])) {
+                $stmt .= "xsdsel_attribute_loop_xdis_id,";
+			}
 			if (is_numeric($HTTP_POST_VARS["xsdsel_attribute_loop_xsdmf_id"])) {
                 $stmt .= "xsdsel_attribute_loop_xsdmf_id,";
 			}
@@ -294,6 +297,9 @@ class XSD_Loop_Subelement
                     " . Misc::escapeString($HTTP_POST_VARS["xsdsel_xsdmf_id"]) . ",
                     '" . Misc::escapeString($HTTP_POST_VARS["xsdsel_title"]) . "',
                     '" . Misc::escapeString($HTTP_POST_VARS["xsdsel_type"]) . "',";
+			if (is_numeric($HTTP_POST_VARS["xsdsel_attribute_loop_xdis_id"])) {
+               $stmt .=  Misc::escapeString($HTTP_POST_VARS["xsdsel_attribute_loop_xdis_id"]) . ",";
+			}
 			if (is_numeric($HTTP_POST_VARS["xsdsel_attribute_loop_xsdmf_id"])) {
                $stmt .=  Misc::escapeString($HTTP_POST_VARS["xsdsel_attribute_loop_xsdmf_id"]) . ",";
 			}
@@ -325,6 +331,9 @@ class XSD_Loop_Subelement
                     xsdsel_xsdmf_id,
                     xsdsel_title,
                     xsdsel_type,";
+			if (is_numeric($insertArray["xsdsel_attribute_loop_xdis_id"])) {
+                $stmt .= "xsdsel_attribute_loop_xdis_id,";
+			}
 			if (is_numeric($insertArray["xsdsel_attribute_loop_xsdmf_id"])) {
                 $stmt .= "xsdsel_attribute_loop_xsdmf_id,";
 			}
@@ -334,6 +343,9 @@ class XSD_Loop_Subelement
                     " . $xsdmf_id . ",
                     '" . Misc::escapeString($insertArray["xsdsel_title"]) . "',
                     '" . Misc::escapeString($insertArray["xsdsel_type"]) . "',";
+			if (is_numeric($insertArray["xsdsel_attribute_loop_xdis_id"])) {
+               $stmt .= Misc::escapeString($insertArray["xsdsel_attribute_loop_xdis_id"]).",";
+			}
 			if (is_numeric($insertArray["xsdsel_attribute_loop_xsdmf_id"])) {
                $stmt .= Misc::escapeString($insertArray["xsdsel_attribute_loop_xsdmf_id"]).",";
 			}
@@ -366,12 +378,15 @@ class XSD_Loop_Subelement
                  SET 
                     xsdsel_title = '" . Misc::escapeString($HTTP_POST_VARS["xsdsel_title"]) . "',
                     xsdsel_order = " . Misc::escapeString($HTTP_POST_VARS["xsdsel_order"]) . ",";
+				if (is_numeric($HTTP_POST_VARS["xsdsel_attribute_loop_xdis_id"])) {
+                 	$stmt .= "   xsdsel_attribute_loop_xdis_id = " . Misc::escapeString($HTTP_POST_VARS["xsdsel_attribute_loop_xdis_id"]) . ",";
+				}
 				if (is_numeric($HTTP_POST_VARS["xsdsel_attribute_loop_xsdmf_id"])) {
                  	$stmt .= "   xsdsel_attribute_loop_xsdmf_id = " . Misc::escapeString($HTTP_POST_VARS["xsdsel_attribute_loop_xsdmf_id"]) . ",";
 				}
 					$stmt .= "
                     xsdsel_type = '" . Misc::escapeString($HTTP_POST_VARS["xsdsel_type"]) . "'
-                 WHERE xsdsel_id = " . Misc::escapeString($HTTP_POST_VARS["xsdsel_id"]) . "";
+                 WHERE xsdsel_id = " . Misc::escapeString($HTTP_POST_VARS["xsdsel_id_edit"]) . "";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

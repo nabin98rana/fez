@@ -94,7 +94,7 @@ class Reindex
     {
         $start = $current_row * $max;
 		$fezIndexPIDs = Reindex::getIndexPIDList();
-        $itql = "select \$title \$object from <#ri>
+/*        $itql = "select \$title \$object from <#ri>
                  where ((\$object <dc:title> \$title))
 					order by \$object asc";
 
@@ -102,7 +102,8 @@ class Reindex
         array_push($returnfields, "pid");
         array_push($returnfields, "title");
 //        array_push($returnfields, "description");
-        $details = Fedora_API::getITQLQuery($itql, $returnfields);
+        $details = Fedora_API::getITQLQuery($itql, $returnfields); */
+		$details = Fedora_API::getListObjectsXML("*");
 		$return = array();
 		foreach ($details as $detail) {
 			if (!in_array($detail['pid'], $fezIndexPIDs)) {
@@ -110,7 +111,7 @@ class Reindex
 			}
 		}
 
-		$total_rows = count($return);		
+/*		$total_rows = count($return);		
 		$return = Misc::limitListResults($return, $start, ($start + $max)); 
 		if (($start + $max) < $total_rows) {
 	        $total_rows_limit = $start + $max;
@@ -118,7 +119,7 @@ class Reindex
 		   $total_rows_limit = $total_rows;
 		}
 		$total_pages = ceil($total_rows / $max);
-        $last_page = $total_pages - 1;
+        $last_page = $total_pages - 1;*/
         return array(
             "list" => $return,
             "info" => array(
@@ -135,16 +136,17 @@ class Reindex
 	}
 
     /**
-     * Method used to get the list of PIDs in Fedora that are not in the Fez index.
+     * Method used to get the list of PIDs in Fedora that are in the Fez index.
      *
      * @access  public
      * @return  array The list.
      */
     function getFullList($current_row = 0, $max = 5)
     {
+		$fezIndexPIDs = Reindex::getIndexPIDList();
         $start = $current_row * $max;
     
-		$fezIndexPIDs = Reindex::getIndexPIDList();
+/*
         $itql = "select \$title \$object from <#ri>
                  where ((\$object <dc:title> \$title))
 					order by \$object asc";
@@ -153,7 +155,8 @@ class Reindex
         array_push($returnfields, "pid");
         array_push($returnfields, "title");
         $details = Fedora_API::getITQLQuery($itql, $returnfields);
-
+*/
+		$details = Fedora_API::getListObjectsXML("*");
 		$return = array();
 		foreach ($details as $detail) {
 			if (in_array($detail['pid'], $fezIndexPIDs)) {
@@ -161,14 +164,14 @@ class Reindex
 			}
 		}
 		$total_rows = count($return);
-		if (($start + $max) < $total_rows) {
+/*		if (($start + $max) < $total_rows) {
 	        $total_rows_limit = $start + $max;
 		} else {
 		   $total_rows_limit = $total_rows;
-		}
-		$total_pages = ceil($total_rows / $max);
-        $last_page = $total_pages - 1;
-		$return = Misc::limitListResults($return, $start, ($start + $max));
+		}*/
+//		$total_pages = ceil($total_rows / $max);
+//        $last_page = $total_pages - 1;
+//		$return = Misc::limitListResults($return, $start, ($start + $max));
         return array(
             "list" => $return,
             "info" => array(

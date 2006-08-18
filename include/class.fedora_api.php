@@ -167,7 +167,7 @@ class Fedora_API {
 	 * @param array $searchTerms The list of DC and Fedora basic fields to search against.
      * @return  array $resultList The search results.
      */
-	function getListObjectsXML($searchTerms, $maxResults, $returnfields=null) {
+	function getListObjectsXML($searchTerms, $maxResults=2147483647, $returnfields=null) {
 		$resultlist = array();
 		$searchTerms = urlencode("*$searchTerms*"); // encode it for url parsing
 		if (empty($returnfields)) {
@@ -178,6 +178,9 @@ class Fedora_API {
 			$fieldPhrase .= "&$rField=true";
 		}
 		$searchPhrase = "?xml=true$fieldPhrase&terms=$searchTerms";
+		if (is_numeric($maxResults)) {
+			$searchPhrase .= "&maxResults=$maxResults";
+		}
 		$filename = APP_FEDORA_SEARCH_URL.$searchPhrase;
 //		$xml = file_get_contents($filename);
 		list($xml,$info) = Misc::processURL($filename);

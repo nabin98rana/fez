@@ -38,9 +38,15 @@ $dsInfo = $this->dsInfo;
 $dsIDName = $dsInfo['ID'];
 $filename=$dsIDName;
 
+// Added a check to see if the file is coming from a batch import location, therefore don't try to check if it is in the temp directory - which is only really for form uploads
+if ((is_numeric(strpos($filename, "/"))) || (is_numeric(strpos($filename, "\\")))) {
+	$filepath = $filename;
+} else {
+	$filepath = APP_TEMP_DIR.$filename;
+}
 
-if (!file_exists(APP_TEMP_DIR.$filename)) {
-    Error_Handler::logError("No base file $filename<br/>\n",__FILE__,__LINE__);
+if (!file_exists($filepath)) {
+    Error_Handler::logError("No base file $filepath<br/>\n",__FILE__,__LINE__);
 } else {
 
     if (empty($file_name_prefix)) {
@@ -68,7 +74,7 @@ if (!file_exists(APP_TEMP_DIR.$filename)) {
     $http_req->setMethod("GET");
     $http_req->sendRequest();
     $xml = $http_req->getResponseBody();
-
+	
     if (!empty($new_file)) {
         if (Fedora_API::datastreamExists($pid, $new_file)) {
             Fedora_API::callPurgeDatastream($pid, $new_file);

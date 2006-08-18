@@ -63,7 +63,8 @@ if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
     	Auth::redirect(APP_RELATIVE_URL . "login.php?err=22");
 	}
 	if ((@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") && (SHIB_SURVEY == "ON")) {
-	  if ((!Survey::hasFilledSurvey(Auth::getUserID()) == 1) && (User::getShibLoginCount(Auth::getUserID()) > 1)) { //if they are shib user and they have logged in at least once before send them to the survey
+//	  if ((!Survey::hasFilledSurvey(Auth::getUserID()) == 1) && (User::getShibLoginCount(Auth::getUserID()) > 1)) { //if they are shib user and they have logged in at least once before send them to the survey
+	  if (!Survey::hasFilledSurvey(Auth::getUserID()) == 1) { //send them to the survey the first time they login
 		  Auth::redirect(APP_RELATIVE_URL . "survey.php");
 	  }
 	}
@@ -120,6 +121,16 @@ $tpl->headerscript .= "window.oTextbox_front_search
 				'class.collection.php'));
 	";
 
+$tpl->assign("APP_HOSTNAME", APP_HOSTNAME);
+$tpl->assign("SHIB_HOME_SP", SHIB_HOME_SP);
+$tpl->assign("SHIB_HOME_IDP", SHIB_HOME_IDP);
+$tpl->assign("SHIB_FEDERATION_NAME", SHIB_FEDERATION_NAME);
+$target = "cookie";
+$time = "1142380709";
+$providerId = urlencode(SHIB_HOME_SP);
+$shire = urlencode("https://".APP_HOSTNAME."/Shibboleth.sso/SAML/POST");
+$getArguments = "target=$target&shire=$shire&providerId=$providerId";
+$tpl->assign("getArguments", $getArguments);
 
 $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
 $tpl->assign('najax_register', NAJAX_Client::register('Suggestor', 'index.php'));

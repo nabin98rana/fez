@@ -365,6 +365,19 @@
 				  }
                   return true;
               }
+              function toggleXSDSEL_loop(show_field)
+              {
+                  var f = getForm('xsd_loop_subelement_form');
+				  var elementTitle = getPageElement('xsd_loop_subelement_attribute_tr');
+				  if (show_field == true) {
+					elementTitle.style.display = '';
+				  } else {
+					elementTitle.style.display = 'none';
+				  }
+                  return true;
+              }
+
+
               function toggleFieldOptions(show_field)
               {
                   var f = getForm('xsd_tree_match_form');
@@ -439,6 +452,8 @@
 				var dt2_load_state = 0;
 				var dt3_load_state = 0;
 				var dt4_load_state = 0;
+				var dt5_load_state = 0;
+				var dt6_load_state = 0;
 				function showLoading1()
 				{
 					document.body.style.cursor = 'wait';
@@ -465,6 +480,17 @@
 					document.body.style.cursor = 'wait';
 					document.getElementById('loading4').style.display = 'block';
 				}				
+				function showLoading5()
+				{
+					document.body.style.cursor = 'wait';
+					document.getElementById('loading5').style.display = 'block';
+				}				
+				function showLoading6()
+				{
+					document.body.style.cursor = 'wait';
+					document.getElementById('loading6').style.display = 'block';
+				}				
+
 				function hideLoading2()
 				{
 					document.body.style.cursor = '';
@@ -481,6 +507,17 @@
 					document.body.style.cursor = '';
 					document.getElementById('loading4').style.display = 'none';
 				}				
+				function hideLoading5()
+				{
+					document.body.style.cursor = '';
+					document.getElementById('loading5').style.display = 'none';
+				}				
+				function hideLoading6()
+				{
+					document.body.style.cursor = '';
+					document.getElementById('loading6').style.display = 'none';
+				}				
+
 
 				var obj = new SelectXSDDisplay();				
 				function selectXSDDisplay(f, field_name)
@@ -493,7 +530,7 @@
 				
 					if (selections.length > 0) {
 						dt_load_state++;
-						document.getElementById('tr_att_child_xsdmf_id').style.display = '';
+//						document.getElementById('tr_att_child_xsdmf_id').style.display = '';
 						showLoading1();
 						obj.ongetMatchingFieldsError = function() {
 							removeAllOptions(f, 'att_child_xsdmf_id');
@@ -504,12 +541,69 @@
 						obj.getMatchingFields(selections[0].value, function(dt_list) {
 								removeAllOptions(f, 'att_child_xsdmf_id');
 								addOptions(f, 'att_child_xsdmf_id', dt_list);
+								{/literal}{if $xsd_attach_details.att_child_xsdmf_id}selectOption(f, 'att_child_xsdmf_id', {$xsd_attach_details.att_child_xsdmf_id});{/if}{literal}
 								hideLoading1();
 								dt_load_state--;
 								});
 					}
 				}			  
 			  
+
+				function selectXSDDisplay_XSDSEL(f, field_name)
+				{
+					if (dt5_load_state > 0) {
+					   return false;
+					} 
+					var field = getFormElement(f, field_name);
+					var selections = getSelectedItems(field);
+				
+					if (selections.length > 0) {
+						dt5_load_state++;
+//						document.getElementById('xsd_loop_subelement_tr').style.display = '';
+						showLoading5();
+						obj.ongetMatchingFieldsError = function() {
+							removeAllOptions(f, 'xsdsel_attribute_loop_xsdmf_id');
+							hideLoading5();
+							dt5_load_state--;
+						}
+						obj.setTimeout(10000);
+						obj.getMatchingFields(selections[0].value, function(dt_list) {
+								removeAllOptions(f, 'xsdsel_attribute_loop_xsdmf_id');
+								addOptions(f, 'xsdsel_attribute_loop_xsdmf_id', dt_list);
+								{/literal}{if $xsd_loop_subelement_details.xsdsel_attribute_loop_xsdmf_id}selectOption(f, 'xsdsel_attribute_loop_xsdmf_id', {$xsd_loop_subelement_details.xsdsel_attribute_loop_xsdmf_id});{/if}{literal}
+								hideLoading5();
+								dt5_load_state--;
+								});
+					}
+				}			  
+
+				function selectXSDDisplay_IDRef(f, field_name)
+				{
+					if (dt6_load_state > 0) {
+					   return false;
+					} 
+					var field = getFormElement(f, field_name);
+					var selections = getSelectedItems(field);
+				
+					if (selections.length > 0) {
+						dt6_load_state++;
+//						document.getElementById('xsdmf_id_ref_tr').style.display = '';
+						showLoading6();
+						obj.ongetMatchingFieldsError = function() {
+							removeAllOptions(f, 'xsdmf_id_ref');
+							hideLoading6();
+							dt6_load_state--;
+						}
+						obj.setTimeout(10000);
+						obj.getMatchingFields(selections[0].value, function(dt_list) {
+								removeAllOptions(f, 'xsdmf_id_ref');
+								addOptions(f, 'xsdmf_id_ref', dt_list);
+								{/literal}{if $info.xsdmf_id_ref}selectOption(f, 'xsdmf_id_ref', {$info.xsdmf_id_ref});{/if}{literal}
+								hideLoading6();
+								dt6_load_state--;
+								});
+					}
+				}			
 
 				function selectXSDDisplayList(f, field_name)
 				{
@@ -614,10 +708,16 @@
                   <b>XSD Tree Match to HTML Elements Form</b>
                 </td>
               </tr>
-              {if $result != ""}
+              {if $result != ""  && $smarty.post.form_name == "xsdmf"}
               <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
-                  {if $smarty.post.form_cat == "new"}
+                  {if $cat == "delete"}
+                    {if $result == -1}
+                      An error occurred while trying to remove the xsd element to html element match information.
+                    {elseif $result == 1}
+                      Thank you, the xsd element to html element match was removed successfully.
+                    {/if}
+                  {elseif $smarty.post.form_cat == "new"}
                     {if $result == -1}
                       An error occurred while trying to add the new xsd element to html element match.
                     {elseif $result == 1}
@@ -1134,9 +1234,17 @@
                   <b>XSDMF ID Reference:</b>
                 </td>
                 <td bgcolor="{$light_color}">
-					<select name="xsdmf_id_ref" class="default">
-						{html_options options=$xsdmf_id_ref_list selected=$info.xsdmf_id_ref}
-					</select>
+									{if $info.xsdmf_xdis_id_ref_xdis_id == '' ||  $info.xsdmf_xdis_id_ref == 0}
+					                  {assign var="idref_xdis_id" value=$xdis_id}
+									{else}
+									  {assign var="idref_xdis_id" value=$info.xsdmf_xdis_id_ref}
+									{/if}
+									<select class="default" name="xsdmf_xdis_id_ref" onChange="javascript: selectXSDDisplay_IDRef(this.form, 'xsdmf_xdis_id_ref')">
+									 {html_options options=$xsd_displays selected=$idref_xdis_id}
+									</select>
+									<div id="loading6" style="display:none;">Loading...</div>
+									<select class="default" name="xsdmf_id_ref">
+									</select>
                 </td>
               </tr>
               <tr id="static_text_tr" {if $info.xsdmf_html_input != 'static'}style="display:none"{/if}>
@@ -1217,6 +1325,7 @@
 				  <td>
 					<table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
 					  <form name="xsd_display_ref_form" method="post" action="{$smarty.server.PHP_SELF}">
+					  <a id="xsdrel_main"/>
 		              <input type="hidden" name="xdis_id" value="{$xdis_id}">
  		              <input type="hidden" name="xml_element" value="{$xml_element}">
 		              <input type="hidden" name="xsdsel_id" value="{$xsdsel_id}">
@@ -1258,7 +1367,7 @@
 						</td>
 						<td bgcolor="{$light_color}">
 						<select class="default" name="xsd_display_id">
-						  {html_options options=$xsd_displays}
+						  {html_options options=$xsd_reference_displays}
 						</select>
 
 						 <!-- <input type="text" name="xdis_title" size="40" class="default" value="{$info.xdis_title}"> -->
@@ -1365,6 +1474,7 @@
 				  <td>
 					<table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
 					  <form name="xsd_display_att_form" method="post" action="{$smarty.server.PHP_SELF}">
+					  <a id="att_main"/>
 		              <input type="hidden" name="xdis_id" value="{$xdis_id}">
  		              <input type="hidden" name="xml_element" value="{$xml_element}">
 		              <input type="hidden" name="xsdsel_id" value="{$xsdsel_id}">
@@ -1381,7 +1491,7 @@
 						  <b>Manage XSD Display Attachments</b>
 						</td>
 					  </tr>
-					  {if $result != ""}
+					  {if $result != ""  && $smarty.post.form_name == "att_main"}
 					  <tr>
 						<td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
 						  {if $smarty.post.form_cat == "new"}
@@ -1448,7 +1558,7 @@
 					  <tr>
 						<td colspan="2">
 						  <table border="0" width="100%" cellpadding="1" cellspacing="1">
-							<form name="att_form_delete" onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
+							<form name="att_form_delete" onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">							
 				            <input type="hidden" name="xdis_id" value="{$xdis_id}">
 				            <input type="hidden" name="xml_element" value="{$xml_element}">
 				            <input type="hidden" name="xsdsel_id" value="{$xsdsel_id}">
@@ -1475,7 +1585,7 @@
 								&nbsp;{$xsd_display_att_list[i].xdis_version}
 							  </td>
 							  <td width="55%" bgcolor="{$row_color}" class="default">
-								&nbsp;<a href="xsd_tree_match_form.php?xdis_id={$xdis_id}&xml_element={$xml_element}&xsdsel_id={$xsdsel_id}&att_cat=edit&att_id={$xsd_display_att_list[i].att_id}">({$xsd_display_att_list[i].xsdmf_id}){if $xsd_display_att_list[i].xsdsel_title != ""}({$xsd_display_att_list[i].xsdsel_title}){/if}{$xsd_display_att_list[i].xsdmf_element}</a>
+								&nbsp;<a href="xsd_tree_match_form.php?xdis_id={$xdis_id}&xml_element={$xml_element}&xsdsel_id={$xsdsel_id}&att_cat=edit&att_id_edit={$xsd_display_att_list[i].att_id}">({$xsd_display_att_list[i].xsdmf_id}){if $xsd_display_att_list[i].xsdsel_title != ""}({$xsd_display_att_list[i].xsdsel_title}){/if}{$xsd_display_att_list[i].xsdmf_element}</a>
 							  </td>
 							  <td width="15%" bgcolor="{$row_color}" class="default">
 								&nbsp;{$xsd_display_att_list[i].att_order}
@@ -1520,9 +1630,11 @@
 						  <td>
 							<table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
 							  <form name="xsd_loop_subelement_form" method="post" action="{$smarty.server.PHP_SELF}">
+							  <a id="xsd_loop_subelement_form"/>
 							  <input type="hidden" name="xdis_id" value="{$xdis_id}">
 							  <input type="hidden" name="xml_element" value="{$xml_element}">
 				              <input type="hidden" name="xsdsel_id" value="{$xsdsel_id}">
+			                  <input type="hidden" name="xsdsel_id_edit" value="{$xsdsel_id_edit}">
 							  <input type="hidden" name="form_name" value="xsdsel_main">
 							  <input type="hidden" name="xsdsel_xsdmf_id" value="{$xsdmf_id}">
 							  <input type="hidden" name="xsdsel_xdis_id" value="{$xdis_id}">
@@ -1536,7 +1648,7 @@
 								  <b>Manage XSD Looping Subelements</b>
 								</td>
 							  </tr>
-							  {if $result != ""}
+							  {if $result != "" && $smarty.post.form_name == "xsdsel_main"}
 							  <tr>
 								<td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
 								  {if $smarty.post.form_cat == "new"}
@@ -1569,20 +1681,30 @@
 								  <b>Subelement Loop Type:</b>
 								</td>
 								<td bgcolor="{$light_color}">
-								<select class="default" name="xsdsel_type">
+								<select class="default" name="xsdsel_type" {literal}onChange="javascript:if(this.form.xsdsel_type.value=='attributeloop'){toggleXSDSEL_loop(true);}else{toggleXSDSEL_loop(false);}">{/literal}
 								  <option value="hardset" {if $xsd_loop_subelement_details.xsdsel_type == 'hardset'}selected{/if}>Hardset (One Loop)</option>
-								  <option value="attributeloop"  {if $xsd_loop_subelement_details.xsdsel_type == 'attributeloop'}selected{/if}>Loop on Element Attribute</option>
+								  <option value="attributeloop"  {if $xsd_loop_subelement_details.xsdsel_type == 'attributeloop'}selected{/if}>Loop on Element or Attribute</option>
 								</select>
 								</td>
 							  </tr>
-							  <tr>
+							  <tr id="xsd_loop_subelement_attribute_tr" {if $xsd_loop_subelement_details.xsdsel_type != 'attributeloop'}style="display:none"{/if}>
 								<td width="120" bgcolor="{$cell_color}" class="default">
-								  <b>Loop on Element Attribute XSDMF_ID:</b>
+								  <b>Loop on Matching Field:</b>
 								</td>
-								<td bgcolor="{$light_color}">
+								<td bgcolor="{$light_color}" nowrap>
+
+									{if $xsd_loop_subelement_details.xsdsel_attribute_loop_xdis_id == '' ||  $xsd_loop_subelement_details.xsdsel_attribute_loop_xdis_id == 0}
+					                  {assign var="loop_mf_xdis_id" value=$xdis_id}
+									{else}
+									  {assign var="loop_mf_xdis_id" value=$xsd_loop_subelement_details.xsdsel_attribute_loop_xdis_id}
+									{/if}
+									<select class="default" name="xsdsel_attribute_loop_xdis_id" onChange="javascript: selectXSDDisplay_XSDSEL(this.form, 'xsdsel_attribute_loop_xdis_id')">
+									 {html_options options=$xsd_displays selected=$loop_mf_xdis_id}
+									</select>
+
+
+									<div id="loading5" style="display:none;">Loading...</div>
 									<select class="default" name="xsdsel_attribute_loop_xsdmf_id">
-									  <option value=0>none</option>
-									  {html_options options=$xsdmf_id_ref_list selected=$xsd_loop_subelement_details.xsdsel_attribute_loop_xsdmf_id}
 									</select>
 								</td>
 							  </tr>
@@ -1617,7 +1739,7 @@
 									<form onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
 									<input type="hidden" name="xdis_id" value="{$xdis_id}">
 									<input type="hidden" name="xml_element" value="{$xml_element}">
-						            <input type="hidden" name="xsdsel_id" value="{$xsdsel_id}">
+						            <input type="hidden" name="xsdsel_id_edit" value="{$xsdsel_id_edit}">
 									<input type="hidden" name="form_name" value="xsdsel_delete">
 									<input type="hidden" name="form_cat" value="delete">
 									<input type="hidden" name="xsdsel_xsdmf_id" value="{$xsdsel_xsdmf_id}">
@@ -1626,7 +1748,7 @@
 									  <td width="50%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b></td>
 									  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Type</b></td>
 									  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Order</b></td>
-									  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Attribute Loop Candidate</b></td>
+									  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Loop on Matching Field</b></td>
 									</tr>
 									{section name="i" loop=$xsd_loop_subelement_list}
 									{cycle values=$cycle assign="row_color"}
@@ -1635,7 +1757,7 @@
 										<input type="checkbox" name="items[]" value="{$xsd_loop_subelement_list[i].xsdsel_id}" {if $smarty.section.i.total == 0}disabled{/if}>
 									  </td>
 									  <td width="50%" bgcolor="{$row_color}" class="default">
-										&nbsp;<a href="xsd_tree_match_form.php?xdis_id={$xdis_id}&xml_element={$xml_element}&xsdsel_id={$xsdsel_id}&xsdsel_cat=edit&xsdsel_id={$xsd_loop_subelement_list[i].xsdsel_id}">{$xsd_loop_subelement_list[i].xsdsel_title}</a>
+										&nbsp;<a href="xsd_tree_match_form.php?xdis_id={$xdis_id}&xml_element={$xml_element}&xsdsel_id={$xsdsel_id}&xsdsel_cat=edit&xsdsel_id_edit={$xsd_loop_subelement_list[i].xsdsel_id}">{$xsd_loop_subelement_list[i].xsdsel_title}</a>
 									  </td>
 									  <td width="15%" bgcolor="{$row_color}" class="default">
 										&nbsp;{$xsd_loop_subelement_list[i].xsdsel_type}
@@ -1644,7 +1766,7 @@
 										&nbsp;{$xsd_loop_subelement_list[i].xsdsel_order}
 									  </td>
 									  <td width="15%" bgcolor="{$row_color}" class="default">
-										&nbsp;{$xsd_loop_subelement_list[i].xsdsel_attribute_loop_xsdmf_id}
+										&nbsp;{if $xsd_loop_subelement_list[i].xsdsel_type == 'attributeloop'}{$xsd_loop_subelement_list[i].xsdsel_attribute_loop_xsdmf_id}{else}N/A{/if}
 									  </td>
 
 									</tr>
@@ -1689,8 +1811,11 @@
       {literal}
       <script language="JavaScript">
       <!--
-	  selectXSDDisplay(getForm('xsd_display_att_form'), 'att_xdis_id'); 
 	  window.onload = setXSDMatchField();
+	  selectXSDDisplay(getForm('xsd_display_att_form'), 'att_xdis_id'); 
+	  selectXSDDisplay_XSDSEL(getForm('xsd_loop_subelement_form'), 'xsdsel_attribute_loop_xdis_id'); 
+	  selectXSDDisplay_IDRef(getForm('xsd_tree_match_form'), 'xsdmf_xdis_id_ref'); 
+
       function setXSDMatchField()
       {
           var field1 = getFormElement(getForm('xsd_tree_match_form'), 'field_type', 0);
@@ -1700,6 +1825,7 @@
               toggleXSDMatchField(false);
           }
       }
+	  {/literal}{if $anchor != ""}document.location.href='{$anchor}';{/if}{literal}
       //-->
       </script>
       {/literal}

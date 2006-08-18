@@ -279,31 +279,8 @@ class Collection
         $last_page = $total_pages - 1;
 		$return = Misc::limitListResults($return, $start, ($start + $max));
 		// add the available workflow trigger buttons
-		foreach ($return as $ret_key => $ret_wf) {
-			$pid = $ret_wf['pid'];
-			$record = new RecordObject($pid);
-            $workflows = array();				
-			if ($ret_wf['isEditor'] == 1) {
-				$xdis_id = $ret_wf['display_type'][0];
-				$ret_id = trim($ret_wf['object_type'][0]);
-				$strict = false;
-				$workflows = array_merge($record->getWorkflowsByTriggerAndRET_ID('Update', $ret_id, $strict),
-                        $record->getWorkflowsByTriggerAndRET_ID('Export', $ret_id, $strict));
-			}
-			// check which workflows can be triggered			
-			$workflows1 = array();
-			if (is_array($workflows)) {
-				foreach ($workflows as $trigger) {
-                    if (WorkflowTrigger::showInList($trigger['wft_options']) 
-                            && Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
-						$workflows1[] = $trigger;
-					}
-				}
-				$workflows = $workflows1;				
-			}
-			$return[$ret_key]['workflows'] = $workflows;
-		}
-
+		$return = Collection::getWorkflows($return);
+		
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
@@ -863,16 +840,12 @@ class Collection
 
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
-//		echo $countStmt;
 		$return = array();
 		$return = Collection::makeReturnList($res);
-//		print_r($return);
         $return = Collection::makeSecurityReturnList($return);
-//		print_r($return);
 		$hidden_rows = 0;
 		$return = Auth::getIndexAuthorisationGroups($return);
 		$return = Misc::cleanListResults($return);
-
 //		$total_rows = count($return);
 		if (($start + $max) < $total_rows) {
 	        $total_rows_limit = $start + $max;
@@ -885,6 +858,36 @@ class Collection
 //		$return = Misc::limitListResults($return, $start, ($start + $max));		
 		// add the available workflow trigger buttons
 
+		$return = Collection::getWorkflows($return);
+
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return array(
+                "list" => $return,
+                "info" => array(
+                    "current_page"  => $current_row,
+                    "start_offset"  => $start,
+                    "end_offset"    => $total_rows_limit,
+                    "total_rows"    => $total_rows,
+                    "total_pages"   => $total_pages,
+                    "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+                    "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
+                    "last_page"     => $last_page,
+                    "hidden_rows"     => 0
+                )
+            );
+        }
+    }
+
+	function getWorkflows($input) {
+		$return = array();
+		if (!is_array($input)) { 
+			return array(); 
+		} else {
+			$return = $input;
+		}
 		foreach ($return as $ret_key => $ret_wf) {
 			$pid = $ret_wf['pid'];
 			$record = new RecordObject($pid);
@@ -909,27 +912,8 @@ class Collection
 			} 
 			$return[$ret_key]['workflows'] = $workflows; 
 		}  
-
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return array(
-                "list" => $return,
-                "info" => array(
-                    "current_page"  => $current_row,
-                    "start_offset"  => $start,
-                    "end_offset"    => $total_rows_limit,
-                    "total_rows"    => $total_rows,
-                    "total_pages"   => $total_pages,
-                    "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
-                    "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
-                    "last_page"     => $last_page,
-                    "hidden_rows"     => 0
-                )
-            );
-        }
-    }
+		return $return;
+	}
 
     /**
      * Method used to get the count of a list of object IDs against the controlled vocabularies they belong to.
@@ -1276,6 +1260,7 @@ if ($order_by == 'File Downloads') {
 			$hidden_rows = $total_rows;
 			$return = Auth::getIndexAuthorisationGroups($return);
 			$return = Misc::cleanListResults($return);
+			$return = Collection::getWorkflows($return);
 //			print_r($return);
 //			$total_rows = count($return);
 			if (($start + $max) < $total_rows) {
@@ -1390,7 +1375,13 @@ if ($order_by == 'File Downloads') {
 		}
 		$total_pages = ceil($total_rows / $max);
         $last_page = $total_pages - 1;
+
+
+
+
 		$return = Misc::limitListResults($return, $start, ($start + $max));
+
+
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
@@ -1489,7 +1480,7 @@ if ($order_by == 'File Downloads') {
 
         $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
                     INNER JOIN {$dbtp}xsd_display_matchfields AS x2
-                      ON r2.rmf_xsdmf_id = x2.xsdmf_id AND x2.xsdmf_element='!sta_id' and r2.rmf_varchar='2'
+                      ON r2.rmf_xsdmf_id = x2.xsdmf_id AND match(x2.xsdmf_element) against ('!sta_id' in boolean mode) and r2.rmf_varchar='2'
 
 
                     $authStmt
@@ -1504,7 +1495,9 @@ if ($order_by == 'File Downloads') {
                     ON stl.stl_pid=r2.rmf_rec_pid and stl.stl_dsid <> '' $limit
                     group by $group_field
              ";
-
+			 if  ( $authStmt <> "" ) { // so the stats will work even when there are auth rules
+			 	$bodyStmt .= ", ai.authi_id";
+			 }
         $countStmt = "
                     SELECT count(distinct r2.rmf_rec_pid)
                     $bodyStmtPart1
@@ -1534,9 +1527,8 @@ if ($order_by == 'File Downloads') {
 		} else {
 			$stmt = $innerStmt;
 		}
-
+//		echo $stmt;
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-
 		if ($searchKey != "Title") {
 			foreach ($res as $key => $result) {
 				$res[$key]['file_downloads'] = $res[$key]['sort_column'];
@@ -1545,8 +1537,13 @@ if ($order_by == 'File Downloads') {
                 "list" => $res,
                 "info" => array()
 				);
+		} else {
+			foreach ($res as $key => $result) {
+				$res[$key]['file_downloads'] = $res[$key]['sort_column'];
+			}
+		
 		}
-
+		
 		$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
 
 		$return = array();
@@ -1555,9 +1552,9 @@ if ($order_by == 'File Downloads') {
         $return = Collection::makeSecurityReturnList($return);
 
 		$hidden_rows = 0;
-		$return = Auth::getIndexAuthorisationGroups($return);
-		$return = Misc::cleanListResults($return);
-
+//		$return = Auth::getIndexAuthorisationGroups($return);
+//		$return = Misc::cleanListResults($return);
+//		$return = Collection::getWorkflows($return);
 		if (($start + $max) < $total_rows) {
 	        $total_rows_limit = $start + $max;
 		} else {
@@ -1566,31 +1563,7 @@ if ($order_by == 'File Downloads') {
 		$total_pages = ceil($total_rows / $max);
         $last_page = $total_pages - 1;
 
-		// add the available workflow trigger buttons
-		foreach ($return as $ret_key => $ret_wf) {
-			$pid = $ret_wf['pid'];
-			$record = new RecordObject($pid);
-            $workflows = array();
-			if ($ret_wf['isEditor']) {
-				$xdis_id = $ret_wf['display_type'][0];
-				$ret_id = $ret_wf['object_type'][0];
-				$strict = false;
-				$workflows = array_merge($record->getWorkflowsByTriggerAndRET_ID('Update', $ret_id, $strict),
-                        $record->getWorkflowsByTriggerAndRET_ID('Export', $ret_id, $strict));
-			}
-			// check which workflows can be triggered			
-			$workflows1 = array();
-			if (is_array($workflows)) {
-				foreach ($workflows as $trigger) {
-                    if (WorkflowTrigger::showInList($trigger['wft_options']) 
-                            && Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
-						$workflows1[] = $trigger;
-					}
-				}
-				$workflows = $workflows1;
-			} 
-			$return[$ret_key]['workflows'] = $workflows; 
-		}  
+
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
@@ -1765,9 +1738,13 @@ if ($order_by == 'File Downloads') {
 		$return = array();
 		$return = Collection::makeReturnList($res);
         $return = Collection::makeSecurityReturnList($return);
+		$return = array_values($return);
 		$hidden_rows = count($return);
 		$return = Auth::getIndexAuthorisationGroups($return);
 		$return = Misc::cleanListResults($return);
+		$return = Collection::getWorkflows($return);
+		
+		
 		$total_rows = count($return);
 		if (($start + $max) < $total_rows) {
 	        $total_rows_limit = $start + $max;
@@ -1997,69 +1974,11 @@ $res_count = array();
 
 		$return = array();
 		$return = Collection::makeReturnList($res);
-/*
-		foreach ($res as $result) {
-			if (in_array($result['xsdsel_title'], $securityfields) 
-                    && ($result['xsdmf_element'] != '!rule!role!name') 
-                    && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-                // need to array_push because there can be multiple groups/users for a role
-				$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']][] 
-                    = $result['rmf_'.$result['xsdmf_data_type']]; 
-			}
-			if (!empty($result['Relevance']) && empty($return[$result['rmf_rec_pid']]['Relevance'])) {
-                $return[$result['rmf_rec_pid']]['Relevance'] = round($result['Relevance'], 2);
-			}
-			if ($result['sek_title'] == 'isMemberOf') {
-                $return[$result['rmf_rec_pid']]['isMemberOf'][] = $result['rmf_varchar'];
-			}
-			// get the document type
-			if (!empty($result['xdis_title'])) {
-                if (!is_array(@$return[$result['rmf_rec_pid']]['xdis_title'])) {
-                    $return[$result['rmf_rec_pid']]['xdis_title'] = array();
-                }
-                if (!in_array($result['xdis_title'], $return[$result['rmf_rec_pid']]['xdis_title'])) {
-                    array_push($return[$result['rmf_rec_pid']]['xdis_title'], $result['xdis_title']);
-                }
-			}			
-			if (is_numeric($result['sek_id'])) {
-				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				$search_var = strtolower(str_replace(" ", "_", $result['sek_title']));
-				if (@!is_array($return[$result['rmf_rec_pid']][$search_var])) {
-					$return[$result['rmf_rec_pid']][$search_var] = array();
-				}
-				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']][$search_var])) {
-					array_push($return[$result['rmf_rec_pid']][$search_var], $result['rmf_'.$result['xsdmf_data_type']]);
-					sort($return[$result['rmf_rec_pid']][$search_var]);
-				}
-			}
-			if ($result['xsdmf_element'] == "!datastream!ID") {
-				if (is_numeric(strpos($result['rmf_varchar'], "thumbnail_"))) {
-					$return[$result['rmf_rec_pid']]['thumbnails'][] = $result['rmf_varchar'];
-				} else {
-					$return[$result['rmf_rec_pid']]['datastreams'][] = $result['rmf_varchar'];
-				}
-			}
-		}
-		
-		foreach ($return as $pid_key => $row) {
-			//if there is only one thumbnail DS then use it
-			if (count(@$row['thumbnails']) == 1) {
-				$return[$pid_key]['thumbnail'] = $row['thumbnails'][0];
-			} else {
-				$return[$pid_key]['thumbnail'] = 0;
-			}
-
-			if (!is_array(@$row['FezACML'])) {
-				$parentsACMLs = array();
-				Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid_key, @$row['isMemberOf']);
-				$return[$pid_key]['FezACML'] = $parentsACMLs;
-			}
-		}
-		*/
+        $return = Collection::makeSecurityReturnList($return);
 		$return = array_values($return);
 		$return = Auth::getIndexAuthorisationGroups($return);
 		$return = Misc::cleanListResults($return);
-
+		$return = Collection::getWorkflows($return);
 		$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
 		if (($start + $max) < $total_rows) {
 	        $total_rows_limit = $start + $max;

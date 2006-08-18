@@ -268,7 +268,6 @@ class Author
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-//            $new_aut_id = $GLOBALS["db_api"]->get_last_insert_id();
             return 1;
         }
     }
@@ -281,20 +280,48 @@ class Author
      * @access  public
      * @return  array The list of authors
      */
-    function getList()
+    function getList($current_row = 0, $max = 25, $order_by = 'aut_lname')
     {
+		$start = $current_row * $max;
+        $stmt = "SELECT
+					count(*) as aut_count
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+		$total_rows = $res;
         $stmt = "SELECT
 					*
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
                  ORDER BY
-                    aut_lname";
+                    $order_by
+				 LIMIT $start, $max";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-            return $res;
+			if (($start + $max) < $total_rows) {
+				$total_rows_limit = $start + $max;
+			} else {
+			   $total_rows_limit = $total_rows;
+			}
+			$total_pages = ceil($total_rows / $max);
+			$last_page = $total_pages - 1;			
+            return array(
+                "list" => $res,
+                "list_info" => array(
+                    "current_page"  => $current_row,
+                    "start_offset"  => $start,
+                    "end_offset"    => $total_rows_limit,
+                    "total_rows"    => $total_rows,
+                    "total_pages"   => $total_pages,
+                    "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+                    "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
+                    "last_page"     => $last_page
+                )
+            );
+
         }
     }
 

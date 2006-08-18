@@ -186,12 +186,13 @@ class Lister
                 $list_info = $list["info"];
                 $list = $list["list"];
                 $tpl->assign("browse_heading", "Browse By Author - ".$author);
-                $tpl->assign("list_heading", "List of Records");
+			    $tpl->assign("list_heading", "Browse By Author - ".$author);	
             } else {
                 $list = Collection::listByAttribute($pagerRow, $rows, "Author",$order_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
                 $tpl->assign("browse_heading", "Browse By Author");
+			    $tpl->assign("list_heading", "Browse By Author");					
             }
             $tpl->assign("browse_type", "browse_author");
         } elseif ($browse == "subject") {

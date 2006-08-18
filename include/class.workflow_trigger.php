@@ -205,7 +205,7 @@ class WorkflowTrigger
     }
 
     /**
-     * Get list of triggers for a record that have a given trgger type and xdis_id
+     * Get list of triggers for a record that have a given trigger type and xdis_id
      * @param string pid record id
      * @param string or integer Trigger id
      * @param integer $xdis_id Display id

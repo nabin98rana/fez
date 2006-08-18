@@ -58,7 +58,7 @@ include_once(APP_INC_PATH . "class.xsd_loop_subelement.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.background_process.php");
 include_once(APP_INC_PATH . "class.foxml.php");
-
+include_once(APP_INC_PATH . "class.error_handler.php");
 
 
 /**
@@ -352,6 +352,7 @@ class BatchImport
                             </foxml:datastream>'; 
                         break;
                     default:
+
                         echo "Unrecognised record type $document_type\n";
                         $xdis_title = "Generic Document";	
                         break;
@@ -359,7 +360,11 @@ class BatchImport
                 $xdis_id = XSD_Display::getXDIS_IDByTitle($xdis_title);
 
                 $ret_id = 3; // standard record type id
-                $sta_id = 1; // unpublished status type id
+				if (@$importArray[$document_type][$key]['ispublished'][0] == "pub") {
+	                $sta_id = 2; // published status type id				
+				} else {
+	                $sta_id = 1; // unpublished status type id
+				}
                 $xsd_id = XSD_Display::getParentXSDID($xdis_id);
                 $xsd_details = Doc_Type_XSD::getDetails($xsd_id);
                 $xsd_element_prefix = $xsd_details['xsd_element_prefix'];
@@ -445,13 +450,13 @@ class BatchImport
                 $xmlObj .= '<dc:description>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</dc:description>
                     <dc:publisher>'.htmlspecialchars(@$importArray[$document_type][$key]['publisher'][0]).'</dc:publisher>
                     <dc:contributor/>
-                    <dc:date>'.htmlspecialchars(@$importArray[$document_type][$key]['datestamp'][0]).'</dc:date>
+                    <dc:date dateType="1">'.htmlspecialchars(@$importArray[$document_type][$key]['year'][0]).'-01-01</dc:date>
                     <dc:type>'.$xdis_title.'</dc:type>
                     <dc:source/>
                     <dc:language/>
                     <dc:relation/>
                     <dc:coverage/>
-                    <dc:rights/>
+                    <dc:rights>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</dc:rights>
                     </oai_dc:dc>
                     </foxml:xmlContent>			
                     </foxml:datastreamVersion>
@@ -475,10 +480,10 @@ class BatchImport
                     <xdis_id>'.$xdis_id.'</xdis_id>
                     <sta_id>'.$sta_id.'</sta_id>
                     <ret_id>'.$ret_id.'</ret_id>
-                    <created_date>'.$created_date.'</created_date>                      
+                    <created_date>'.htmlspecialchars(@$importArray[$document_type][$key]['datestamp'][0]).'</created_date>                      
                     <updated_date>'.$updated_date.'</updated_date>
                     <publication>'.htmlspecialchars(@$importArray[$document_type][$key]['publication'][0]).'</publication>  
-                    <copyright>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</copyright>
+                    <copyright>on</copyright>
                     ';
                 if (is_array(@$keywordArray[$key])) {
                     foreach ($keywordArray[$key] as $keyword) {
@@ -511,11 +516,14 @@ class BatchImport
                 $xmlObj = $tidy;
 
                 //echo "\n$xmlObj\n";
+				BatchImport::saveEprintPid($eprint_id, $pid); // save the eprint id against its new Fedora/Fez pid so it can be used with a mod-rewrite redirect for the ePrints record
                 $result = Fedora_API::callIngestObject($xmlObj);
                 if (is_array($result)) {
-                    echo "The article \"{$importArray[$document_type][$key]['title'][0]}\" had the following error:\n"
+                    $errMsg =  "The article \"{$importArray[$document_type][$key]['title'][0]}\" had the following error:\n"
                         .print_r($result,true)."\n";
-                    echo "\n$xmlObj\n";
+//                    $errMsg = "\n$xmlObj\n";
+					Error_Handler::logError("$errMsg \n", __FILE__,__LINE__);
+
                 }
                 foreach($oai_ds as $ds) {
 
@@ -525,8 +533,14 @@ class BatchImport
                     }
                     // ID must start with _ or letter
                     $short_ds = Misc::shortFilename(Foxml::makeNCName($short_ds), 20);
-					file_put_contents(APP_TEMP_DIR.$short_ds, file_get_contents($ds));
-                    $presmd_check = Workflow::checkForPresMD($ds); // we are not indexing presMD so just upload the presmd if found
+					if (is_numeric(strpos($ds, "/secure/"))) {
+						file_put_contents(APP_TEMP_DIR.$short_ds, Misc::getFileURL($ds, EPRINTS_USERNAME, EPRINTS_PASSWD));
+					} else {
+						file_put_contents(APP_TEMP_DIR.$short_ds, file_get_contents($ds));
+					}
+
+//                  $presmd_check = Workflow::checkForPresMD($ds);  // try APP_TEMP_DIR.$short_ds
+                    $presmd_check = Workflow::checkForPresMD(APP_TEMP_DIR.$short_ds);  // try APP_TEMP_DIR.$short_ds
                     if ($presmd_check != false) {
                        Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, 
                                 $presmd_check, "text/xml", "X");
@@ -546,21 +560,29 @@ class BatchImport
                     Workflow::processIngestTrigger($pid, $ds, $mimetype);
                     $short_ds = $ds;
                     if (is_numeric(strpos($ds, "/"))) {
-                        $short_ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
+                        $short_ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself (linux paths)
                     }
+                    if (is_numeric(strpos($ds, "\\"))) {
+                        $short_ds = substr($ds, strrpos($ds, "\\")+2); // take out any nasty slashes from the ds name itself (windows paths)
+                    }
+
                     // ID must start with _ or letter
                     $short_ds = Misc::shortFilename(Foxml::makeNCName($short_ds), 20);
 					$new_file = APP_TEMP_DIR.$short_ds;
 					if (is_file($new_file)) {
+						$return_array = array();
 						$deleteCommand = APP_DELETE_CMD." ".$new_file;
-						exec($deleteCommand);
+						exec($deleteCommand, $return_array, $return_status);
+						if ($return_status <> 0) {
+							Error_Handler::logError("Batch Import Delete Error: $deleteCommand: ".implode(",", $return_array).", return status = $return_status \n", __FILE__,__LINE__);
+						}
 					}
                 }
 
                 $array_ptr = array();
                 $xsdmf_array = array();
-
-                Record::setIndexMatchingFields($pid);
+				Record::setIndexMatchingFields($pid);
+        
 
                 if ($this->bgp) {
                     $this->bgp->setProgress(intval(100*$eprint_record_counter/$num_records)); 
@@ -695,7 +717,7 @@ class BatchImport
      */
     function handleStandardFileImport($pid, $full_name, $short_name, $xdis_id) {
         $dsIDName = $short_name;
-
+		$return_array = array();
         $mimetype = Misc::mime_content_type($full_name);
         if ($mimetype == 'text/xml') {
             $controlgroup = 'X';
@@ -706,10 +728,13 @@ class BatchImport
         if (Fedora_API::datastreamExists($pid, $ncName)) {
             Fedora_API::callPurgeDatastream($pid, $ncName);
         }
-        Fedora_API::getUploadLocation($pid, $ncName, $full_name, "", 
-                $mimetype, $controlgroup);
+//        Fedora_API::getUploadLocation($pid, $ncName, $full_name, "", 
+//                $mimetype, $controlgroup);
 
-        $presmd_check = Workflow::checkForPresMD(Foxml::makeNCName($dsIDName));
+        Fedora_API::getUploadLocationByLocalRef($pid, $ncName, $full_name, "", 
+                $mimetype, $controlgroup);
+//        $presmd_check = Workflow::checkForPresMD(Foxml::makeNCName($dsIDName));
+        $presmd_check = Workflow::checkForPresMD($full_name);
         if ($presmd_check != false) {
             if (is_numeric(strpos($presmd_check, chr(92)))) {
                 $presmd_check = substr($presmd_check, strrpos($presmd_check, chr(92))+1);
@@ -721,16 +746,38 @@ class BatchImport
                     "text/xml", "X");
             if (is_file(APP_TEMP_DIR.$presmd_check)) {
                 $deleteCommand = APP_DELETE_CMD." ".APP_DELETE_DIR.$presmd_check;
-                exec($deleteCommand);
+				exec($deleteCommand, $return_array, $return_status);
+				if ($return_status <> 0) {
+					Error_Handler::logError("Batch Import Delete Error: $deleteCommand: ".implode(",", $return_array).", return status = $return_status \n", __FILE__,__LINE__);
+				}
+	        }
         }
-        }
-        Record::removeIndexRecord($pid); // remove any existing index entry for that PID			
-        Record::setIndexMatchingFields($pid);
-
         // Now check for post upload workflow events like thumbnail resizing of images and add them as datastreams if required
         Workflow::processIngestTrigger($pid, $full_name, $mimetype);
-
     }
+	
+	function saveEprintPID($eprint_id, $pid) {
+		$stmt = "INSERT INTO
+				" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "eprints_import_pids
+			 (
+				epr_eprints_id,
+				epr_fez_pid,
+				epr_date_added
+			 ) VALUES (
+				" . Misc::escapeString($eprint_id) . ",
+				'" . Misc::escapeString($pid) . "',
+				NOW()
+			 )"; 
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+			return 1;
+        }
+	}
+
+
 
     /**
      * The main method for batch importing. It opens up each file in the specified directory, scans for content type and imports accordingly.
@@ -795,13 +842,14 @@ class BatchImport
                             $xdis_id, $ret_id, $sta_id);
                     //Insert the generated foxml object
                     Fedora_API::callIngestObject($xmlObj);
-                    Record::setIndexMatchingFields($pid);
                 } else {
                     // use metadata from a user template
                     Record::insertFromTemplate($pid, $xdis_id, $short_name, $dsarray);
                 }
                 // add the binary batch import file.
+		        Record::removeIndexRecord($pid); // remove any existing index entry for that PID			
                 $this->handleStandardFileImport($pid, $full_name, $short_name, $xdis_id);
+                Record::setIndexMatchingFields($pid);
                 if ($this->bgp) {
                     $this->bgp->setStatus('Imported '.count($filenames).' files'); 
                 }

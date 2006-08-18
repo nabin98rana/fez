@@ -147,6 +147,36 @@ class Misc
 		return $ret;
 	}
 
+	/*
+	* (mixed)remote_filesize($uri,$user='',$pw='')
+	* returns the file. Also takes user and pw
+	* incase the site requires authentication to access
+	* the uri
+	*/
+	function getFileURL($uri,$user='',$pw='')
+	{
+	   // start output buffering
+	   ob_start();
+	   // initialize curl with given uri
+	   $ch = curl_init($uri);
+	   // if auth is needed, do it here
+	   if (!empty($user) && !empty($pw))
+	   {
+		   $headers = array('Authorization: Basic ' .  base64_encode($user.':'.$pw)); 
+		   curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+	   }
+	   $content = curl_exec($ch);
+	   curl_close($ch);
+	   // get the output buffer
+//	   $content = ob_get_contents();
+	   // clean the output buffer and return to previous
+	   // buffer settings
+	   ob_end_clean();
+	  
+	  
+	   return $content;
+	}
+
     /**
      * Method used to merge two arrays based on the values, not the keys.
      *
@@ -1378,7 +1408,8 @@ class Misc
 							Misc::dom_xsd_to_referenced_array($childnode, "", $array_ptr, $parentnodename, "", $superdomnode, $supertopelement, $parentContent);
 						}
 					}
-				} elseif (($shortnodename == "extension")  || ($shortnodename == "any") || ($shortnodename == "anyAttribute") || ($shortnodename == "restriction") || ($shortnodename == "group") || ($shortnodename == "simpleContent") || ($shortnodename == "attributeGroup") || ($shortnodename == "attribute") || ($shortnodename == "enumeration"))  {
+				} elseif (($shortnodename == "extension") || ($shortnodename == "any") || ($shortnodename == "anyAttribute") || ($shortnodename == "restriction") || ($shortnodename == "group") || ($shortnodename == "complexContent") || ($shortnodename == "simpleContent") || ($shortnodename == "attributeGroup") || ($shortnodename == "attribute") || ($shortnodename == "enumeration"))  {
+//					echo $parentnodename." - ".$shortnodename."<br />";
 					if (($shortnodename == "attribute") || ($shortnodename == "extension")) {
 						if ($currentnode->hasAttributes() ) {
 							$attributes = $currentnode->attributes;	
@@ -1430,7 +1461,7 @@ class Misc
 							}	
 						}
 					}	
-					if ($shortnodename == "attributeGroup") {
+					if (($shortnodename == "attributeGroup") || ($shortnodename == "group")) { // added group and choice (also to above) to this if to test mods - ck 
 						$attributes = $currentnode->attributes;	
 						foreach ($attributes as $index => $attrib) {
                             if ($attrib->nodeName == "ref") {
@@ -1443,9 +1474,10 @@ class Misc
                             }
 						}					
 						foreach ($current_refs as $ref) {
-							Misc::dom_xsd_to_referenced_array($currentnode, $ref, $array_ptr, $current_name, "attributeGroup", $superdomnode, $supertopelement, $parentContent);
+							Misc::dom_xsd_to_referenced_array($currentnode, $ref, $array_ptr, $current_name, $shortnodename, $superdomnode, $supertopelement, $parentContent);
 						}
 					}
+					
 					if ($currentnode->hasChildNodes() ) {
 						foreach ($currentnode->childNodes as $childnode) {
 							Misc::dom_xsd_to_referenced_array($childnode, '', $array_ptr, $current_name, "", $superdomnode, $supertopelement, $parentContent);

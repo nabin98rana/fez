@@ -162,16 +162,17 @@ class Community
         $body1 = "
             FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
             inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2  
-            ON x2.xsdmf_id = r2.rmf_xsdmf_id  AND r2.rmf_varchar = '1'
-            inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
-            ON s2.sek_id = x2.xsdmf_sek_id AND s2.sek_title = 'Object Type' 
+			ON r2.rmf_xsdmf_id = x2.xsdmf_id AND match(x2.xsdmf_element) 
+            against ('\"!ret_id\"' in boolean mode) and r2.rmf_varchar='1'
+            
+            $authStmt
 
             INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS rmf
             ON rmf.rmf_rec_pid = r2.rmf_rec_pid AND rmf.rmf_varchar='2'
             INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields AS xdm
             ON rmf.rmf_xsdmf_id = xdm.xsdmf_id AND xdm.xsdmf_element='!sta_id'
 
-            $authStmt
+
                     ";
          $stmt = "SELECT
             * 
@@ -197,10 +198,9 @@ class Community
 			left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key sk1 on sk1.sek_id = x1.xsdmf_sek_id
             order by d3.sort_column $order_dir, r1.rmf_rec_pid DESC 
             ";
-         //echo $stmt;
         $countStmt = "SELECT count(distinct r2.rmf_rec_pid) $body1";
 		$securityfields = Auth::getAllRoles();
-        //echo $stmt; 
+
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
 
@@ -220,7 +220,7 @@ class Community
         $last_page = $total_pages - 1;
 		// add the available workflow trigger buttons
 		$isAdministrator = Auth::isAdministrator();
-		foreach ($return as $ret_key => $ret_wf) {
+/*		foreach ($return as $ret_key => $ret_wf) {
 			$pid = $ret_wf['pid'];
 			$record = new RecordObject($pid);
             $workflows = array();
@@ -245,7 +245,7 @@ class Community
 				$workflows = $workflows1;				
 			}
 			$return[$ret_key]['workflows'] = $workflows;
-		}
+		}*/
 
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

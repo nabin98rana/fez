@@ -142,9 +142,15 @@ class Org_Structure
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure
                  (
-                    org_title
+                    org_title,
+					org_desc,
+					org_ext_table,
+					org_image_filename
                  ) VALUES (
-                    '" . Misc::escapeString($HTTP_POST_VARS["org_title"]) . "'
+                    '" . Misc::escapeString($HTTP_POST_VARS["org_title"]) . "',
+                    '" . Misc::escapeString($HTTP_POST_VARS["org_desc"]) . "',
+                    '" . Misc::escapeString($HTTP_POST_VARS["org_ext_table"]) . "',
+                    '" . Misc::escapeString($HTTP_POST_VARS["org_image_filename"]) . "'										
                  )";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -202,7 +208,10 @@ class Org_Structure
         $stmt = "UPDATE
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure
                  SET 
-                    org_title = '" . Misc::escapeString($HTTP_POST_VARS["org_title"]) . "'
+                    org_title = '" . Misc::escapeString($HTTP_POST_VARS["org_title"]) . "',
+                    org_desc = '" . Misc::escapeString($HTTP_POST_VARS["org_desc"]) . "',
+                    org_ext_table = '" . Misc::escapeString($HTTP_POST_VARS["org_ext_table"]) . "',
+                    org_image_filename = '" . Misc::escapeString($HTTP_POST_VARS["org_image_filename"]) . "'
                  WHERE org_id = $org_id";
 
         $res = $GLOBALS["db_api"]->dbh->query($stmt);

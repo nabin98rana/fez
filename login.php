@@ -152,8 +152,9 @@ if (Auth::hasValidSession(APP_SESSION)) {
 $tpl->assign("SHIB_SWITCH", SHIB_SWITCH);
 if (SHIB_SWITCH == "ON") {
 	// Configuration
-	$commonDomain = '.au'; // Must start with a .
-	$RelyingParty = 'urn:mace:federation.org.au:testfed:level-1:'; // Substring of IdP ID
+//	$commonDomain = '.au'; // Must start with a .
+	$commonDomain = '.'; // Must start with a .
+//	$RelyingParty = 'urn:mace:federation.org.au:testfed:level-1:'; // Substring of IdP ID
 //	$languageFile = 'languages.php'; // Language file
 	$redirectCookieName = 'redirect';
 	$SAMLDomainCookieName = '_saml_idp';
@@ -250,7 +251,7 @@ if (SHIB_SWITCH == "ON") {
 				
 				// Go to Identity Provider
 				$_SESSION['IDP_LOGIN_FLAG'] = 1; // set the login flag to that fez will know the next time (only) it goes to index.php it has to get the shib attribs
-				
+				Auth::setHomeIDPCookie($_REQUEST['origin']); // set the origin cookie
 				header(
 					'Location: '.$IDProviders[$_REQUEST['origin']]['SSO'].
 					'?'.$_REQUEST['getArguments']
@@ -333,26 +334,30 @@ if (SHIB_SWITCH == "ON") {
 	
 //	$IDPList = Auth::getIDPList();
 	$tpl->assign("SHIB_IDP_LIST", $IDPList['List']);
-	if ($_REQUEST['getArguments']){
+/*	if ($_REQUEST['getArguments']){ // moved these to class.template.php so it will be on every page for SHIB_DIRECT_LOGIN from any page
 		$getArguments = $_REQUEST['getArguments'];
 	} else {
 //		$getArguments = $_SERVER['argv'][0]; 
-		$target = "cookie";
+		$target = "cookie"; 
 		$time = "1142380709";
 		$providerId = urlencode(SHIB_HOME_SP);
 		$shire = urlencode("https://".APP_HOSTNAME."/Shibboleth.sso/SAML/POST");
-		$getArguments = "target=$target&shire=$shire&providerId=$providerId";
+		$getArguments = "target=$target&shire=$shire&providerId=$providerId"; 
 //		$getArguments = "target=$target&shire=$shire&providerId=$providerId&time=$time";
-	}
+	} 
 
 	
-	$tpl->assign("getArguments", $getArguments);
+//	$tpl->assign("getArguments", $getArguments); */
 } else {
 	$tpl->assign("SHIB_IDP_LIST", array());
 }
+$shib_home_idp = Auth::getHomeIDPCookie();
+if ($shib_home_idp == "") {
+	$shib_home_idp = SHIB_HOME_IDP;
+}
 $tpl->assign("APP_HOSTNAME", APP_HOSTNAME);
 $tpl->assign("SHIB_HOME_SP", SHIB_HOME_SP);
-$tpl->assign("SHIB_HOME_IDP", SHIB_HOME_IDP);
+$tpl->assign("SHIB_HOME_IDP", $shib_home_idp);
 $tpl->assign("SHIB_FEDERATION_NAME", SHIB_FEDERATION_NAME);
 $tpl->displayTemplate();
 ?>

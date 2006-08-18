@@ -777,6 +777,7 @@ class XSD_DisplayObject
 				} else {
 					// find out if this record has the xml based datastream 
 					$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title']);
+
 					if (isset($DSResultArray['stream'])) {
 						$xmlDatastream = $DSResultArray['stream'];
 						// get the matchfields for the datastream (using the sub-display for this stream)
@@ -865,6 +866,7 @@ class XSD_DisplayObject
 				} else {				
 	                $new_element = "!{$cbdata['parentContent']}!{$cbdata['clean_nodeName']}!$clean_nodeName";
 				}
+
                 // Is there a match field for this attribute?
                 // look for key match on the attribute value first - this is where the matchfield needs the 
                 // attribute to be set to a certain value to match.
@@ -872,6 +874,11 @@ class XSD_DisplayObject
                 if (empty($xsdmf_id)) {
                     // look for a straight attribute match
                     $xsdmf_id = $this->xsd_html_match->getXSDMF_IDByXDIS_ID($new_element);
+	                if (empty($xsdmf_id)) {
+						// if still can't find it, try it further up the tree - eg for MODS name|ID looked for in name|namePart
+		                $new_element = "!{$cbdata['parentContent']}!$clean_nodeName";
+						$xsdmf_id = $this->xsd_html_match->getXSDMF_IDByXDIS_ID($new_element);						
+					}
                 }	
                 break;
             default:

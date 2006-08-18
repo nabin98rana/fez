@@ -172,7 +172,7 @@ class AuthIndex {
                             '!rule!role!eduPersonAffiliation',
                             '!rule!role!eduPersonScopedAffiliation',
                             '!rule!role!eduPersonPrimaryAffiliation',
-                            '!rule!role!eduPersonPrinicipalName',
+                            '!rule!role!eduPersonPrincipalName',
                             '!rule!role!eduPersonOrgUnitDN',
                             '!rule!role!eduPersonPrimaryOrgUnitDN')
                     )

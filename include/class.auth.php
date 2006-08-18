@@ -77,6 +77,26 @@ class Auth
     }
 
     /**
+     * Method used to get the current listing related cookie information for the users shibboleth home idp
+     *
+     * @access  public
+     * @return  array The Record listing information
+     */
+   	function getHomeIDPCookie()
+    {
+        global $HTTP_COOKIE_VARS;
+        return @unserialize(base64_decode($HTTP_COOKIE_VARS[APP_SHIB_HOME_IDP_COOKIE]));
+    }
+
+
+	function setHomeIDPCookie($home_idp) {
+		global $HTTP_COOKIE_VARS;
+//        $HTTP_COOKIE_VARS[APP_SHIB_HOME_IDP_COOKIE] = @serialize(base64_decode($home_idp));
+		$encoded = base64_encode(serialize($home_idp));
+        @setcookie(APP_SHIB_HOME_IDP_COOKIE, $encoded, APP_SHIB_HOME_IDP_COOKIE_EXPIRE);
+	}
+
+    /**
      * Method used to check for the appropriate authentication for a specific
      * page. It will check for the session name provided and redirect the user
      * to another page if needed.
@@ -1295,7 +1315,7 @@ class Auth
 						}
 					}
 					$SSO = "";
-					$type_fields = $xpath->query("./md:IDPSSODescriptor/md:Extensions/shib:Scope", $recordNode);
+					$type_fields = $xpath->query("./md:IDPSSODescriptor/md:SingleSignOnService/@Location", $recordNode);
 					foreach ($type_fields as $type_field) {
 						if  ($SSO == "") {
 							$SSO = $type_field->nodeValue;
@@ -1304,11 +1324,13 @@ class Auth
 
 					if ($OrganisationDisplayName != "" && $entityID != "" && $SSO != "") {
 						$IDPArray['List'][$entityID] = $OrganisationDisplayName;
-						$IDPArray['SSO'][$entityID]['SSO'] = "https://$SSO/shibboleth-idp/SSO";
+						$IDPArray['SSO'][$entityID]['SSO'] = $SSO;
+//						$IDPArray['SSO'][$entityID]['SSO'] = "https://$SSO/shibboleth-idp/SSO";
 						$IDPArray['SSO'][$entityID]['Name'] = $OrganisationDisplayName;
 					}
 				}			
 			}
+//			print_r($IDPArray);
 			return $IDPArray;
 		} else {
 			return array(); //if the file cannot be found return an empty array
@@ -1627,10 +1649,10 @@ class Auth
                         AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN']."', ar_value)
                    ) ";
         }
-        if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgDN'])) {
+        if (!empty($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN'])) {
             $authStmt .= "
                 OR (ar_rule = '!rule!role!eduPersonPrimaryOrgUnitDN' 
-                        AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgDN']."', ar_value)
+                        AND INSTR('".$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN']."', ar_value)
                    ) ";
         }
 

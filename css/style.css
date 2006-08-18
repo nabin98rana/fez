@@ -90,6 +90,30 @@ h4 {
 .author_link#author_link {
   text-decoration: underline;
 }
+.silent_link {
+  color: #000000;
+  text-decoration : none;
+}
+.silent_link:hover {
+  text-decoration: underline;
+}
+.silent_link#author_link {
+  text-decoration: underline;
+}
+.submit_link {
+font-family: Verdana, Arial, Helvetica, sans-serif;
+font-style: normal;
+font-weight: normal;
+color: #FFFFFF;
+background-color: transparent;
+border: none;
+cursor: pointer;
+cursor: hand;
+}
+.submit_link:hover {
+  text-decoration: underline;
+}
+
 .white_link {
   color: #FFFFFF;
   text-decoration : none;

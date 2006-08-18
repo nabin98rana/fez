@@ -37,6 +37,8 @@ include_once(APP_INC_PATH . "najax/najax.php");
 include_once(APP_INC_PATH . "najax_objects/class.image_preview.php");
 include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.lister.php");
+include_once(APP_INC_PATH . "class.workflow.php");
+include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.statistics.php");
 include_once(APP_PEAR_PATH . "Date.php");
 
@@ -53,6 +55,7 @@ if (!empty($pid)) {
 	$tpl->assign("pid", $pid);
 	$record = new RecordObject($pid);
 	$xdis_id = $record->getXmlDisplayId();
+	$tpl->assign("xdis_id", $xdis_id);
 	$xdis_title = XSD_Display::getTitle($xdis_id);	
     $tpl->assign("xdis_title", $xdis_title);
 	if (!is_numeric($xdis_id)) {
@@ -69,6 +72,22 @@ if (!empty($pid)) {
 	$canView = true;
 	$canEdit = $record->canEdit(false);
 	if ($canEdit == true) {
+		$ret_id = 3;
+		$strict = false;
+		$workflows = array_merge($record->getWorkflowsByTriggerAndRET_ID('Update', $ret_id, $strict),
+			$record->getWorkflowsByTriggerAndRET_ID('Export', $ret_id, $strict));
+		// check which workflows can be triggered			
+		$workflows1 = array();
+		if (is_array($workflows)) {
+			foreach ($workflows as $trigger) {
+				if (WorkflowTrigger::showInList($trigger['wft_options']) 
+						&& Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
+					$workflows1[] = $trigger;
+				}
+			}
+			$workflows = $workflows1;
+		} 
+		$tpl->assign("workflows", $workflows); 
 		$canView = true;
 	} else {
 		$canView = $record->canView();
@@ -97,15 +116,16 @@ if (!empty($pid)) {
 		} 
 		
 		foreach ($xsd_display_fields as $dis_key => $dis_field) {
-			if (($dis_field['xsdmf_enabled'] == 1) && ($dis_field['xsdmf_show_in_view'] == 1)) {
+			if (($dis_field['xsdmf_enabled'] == 1)) { // CK - took out check for is in view form, as not much is in view form now
 				if (($dis_field['xsdmf_html_input'] == "contvocab") || ($dis_field['xsdmf_html_input'] == "contvocab_selector")) {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
 								$details[$dis_field['xsdmf_id']][$ckey] = $controlled_vocabs[$cdata];
+								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=subject&parent_id=".$cdata."'>".$controlled_vocabs[$cdata]."</a>";
 							}
 						} else {
-							$details[$dis_field['xsdmf_id']] = $controlled_vocabs[$details[$dis_field['xsdmf_id']]];
+							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=subject&parent_id=".$details[$dis_field['xsdmf_id']]."'>".$controlled_vocabs[$details[$dis_field['xsdmf_id']]]."</a>";
 						}
 					}
 				}
@@ -137,6 +157,28 @@ if (!empty($pid)) {
 						}
 					}
 				} 
+				if ($dis_field['sek_title'] == "Author") {
+					if (!empty($details[$dis_field['xsdmf_id']])) {
+						if (is_array($details[$dis_field['xsdmf_id']])) {
+							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {		
+								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=author&author=".$details[$dis_field['xsdmf_id']][$ckey]."'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
+							}
+						} else {
+							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=author&author=".$details[$dis_field['xsdmf_id']]."'>".$details[$dis_field['xsdmf_id']]."</a>";
+						}
+					}
+				}
+				if ($dis_field['sek_title'] == "Keywords") {
+					if (!empty($details[$dis_field['xsdmf_id']])) {
+						if (is_array($details[$dis_field['xsdmf_id']])) {
+							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {		
+								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".$rel_url."list.php?terms=".$details[$dis_field['xsdmf_id']][$ckey]."'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
+							}
+						} else {
+							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".$rel_url."list.php?terms=".$details[$dis_field['xsdmf_id']]."'>".$details[$dis_field['xsdmf_id']]."</a>";
+						}
+					}
+				}				
 				if ($dis_field["xsdmf_use_parent_option_list"] == 1) { 
 					// if the display field inherits this list from a parent then get those options
 					// Loop through the parents
@@ -304,7 +346,6 @@ if (!empty($pid)) {
 		$datastreams = Misc::cleanDatastreamList($datastreams);
 		$securityfields = Auth::getAllRoles();
 		$datastream_workflows = WorkflowTrigger::getListByTrigger('-1', 5);
-//		print_r($datastreams);
 		foreach ($datastreams as $ds_key => $ds) {
 			if ($datastreams[$ds_key]['controlGroup'] == 'R' && $datastreams[$ds_key]['ID'] != 'DOI') {
 				$datastreams[$ds_key]['location'] = trim($datastreams[$ds_key]['location']);

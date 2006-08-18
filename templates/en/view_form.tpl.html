@@ -151,17 +151,55 @@ function validateForm(f)
         <tr>
           <td align="left" class="default" nowrap colspan="2"><br /><img align="absmiddle" src="{$rel_url}images/record_view_32.jpg"/> <b>View {$xdis_title}: <i>{$title}</i> </b> <br /><br /></td>
         </tr>
+
+{if ($isEditor || $isAdministrator) && !$hide_edit}
 		<tr>
 		  <td align="left"> 
 			<table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="1">
-				<tr>
+
+		<tr>
+		 <td align="left" class="default" nowrap> <b>Workflows:</b></td>		
+          <td align="left" class="default" nowrap> &nbsp;
+			  {section name="w" loop=$workflows}
+			    {if $workflows[w].wft_icon == 'images/security.gif'}
+			      {if $list[i].security == 'include'}
+			        {assign var="wf_icon" value="images/security_include.gif"}
+			      {elseif $list[i].security == 'exclude'}
+			        {assign var="wf_icon" value="images/security_exclude.gif"}
+			      {elseif $list[i].security == 'inherit'}
+		                {assign var="wf_icon" value="images/security_inherit.gif"}
+			      {else}
+			        {assign var="wf_icon" value=$workflows[w].wft_icon}
+			      {/if}
+		            {else}
+			      {assign var="wf_icon" value=$workflows[w].wft_icon}
+			    {/if}
+                            {if $workflows[w].wft_type_id == 6}
+                              {assign var='wf_url' value=$rel_url|cat:'workflow/export.php'}
+                            {else}
+                              {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
+			    {/if}
+			<a href='{$wf_url}?pid={$pid|escape:"html"}&cat=select_workflow&xdis_id={$xdis_id}&wft_id={$workflows[w].wft_id}&href={$smarty.server.REQUEST_URI}'><img title="{$workflows[w].wfl_title}" align="absmiddle" src="{$rel_url}{$wf_icon}" border="0"></a> 
+			  {/section}
+			<a href="workflow/list_workflows2.php?pid={$pid|escape}">...</a>             
+			</td>
+		</tr>
+		</table>
+	  </td>
+	</tr> 		
+		{/if}
+		<tr>
+		  <td align="left"> 
+			<table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="2">
+		
+				<tr valign="top">
 				  <td align="left" class="default" nowrap> <b>Citation:</b></td>
-				  <td align="left" class="default" nowrap> &nbsp; {$citation}
+				  <td align="left" class="default"> {$citation}
 				  </td>
 				</tr>
 				<tr>
 				  <td align="left" class="default" nowrap> <b>Parent Collections: </b></td>
-				  <td align="left" class="default" nowrap> &nbsp;
+				  <td align="left" class="default" nowrap> 
 					{section name="i" loop=$parents}
 						<a href="{$rel_url}list.php?collection_pid={$parents[i].pid}">{$parents[i].title.0}</a> &nbsp;
 					{/section}
@@ -170,7 +208,7 @@ function validateForm(f)
 {if $prev || $next}
 				<tr valign="top">
 				  <td align="left" class="default" nowrap> <b>Browse Collection:</b></td>
-				  <td align="left" class="default" nowrap> &nbsp;
+				  <td align="left" class="default" nowrap> 
 {if $prev}<a href="{$rel_url}view.php?pid={$prev.pid}&go_prev={$go_prev}">Prev: <i>{$prev.title.0}</i></a> {if $next}<br />{/if}{/if}
 {if $next}&nbsp; <a href="{$rel_url}view.php?pid={$next.pid}&go_next={$go_next}">Next: <i>{$next.title.0}</i></a> {/if}
 				  </td>
@@ -178,7 +216,7 @@ function validateForm(f)
 {/if}
 				<tr>
 				  <td align="left" class="default" nowrap> <b>Download Statistics:</b></td>
-				  <td align="left" class="default" nowrap> &nbsp; {$statsAbstract} Abstract Views, {$statsFiles} File Downloads
+				  <td align="left" class="default" nowrap>  {$statsAbstract} Abstract Views, {$statsFiles} File Downloads
 				  <a href="{$rel_url}stat_details.php?action=show_detail&pid={$pid}">Detailed Statistics</a>
 				  </td>
 				</tr>
@@ -211,7 +249,9 @@ function validateForm(f)
 			  {else}
 			<tr>
 			  <td align="right" bgcolor="{$cell_color}" class="default" width="20%" valign="top"><b>{$xsd_display_fields[i].xsdmf_title}</b></td>
- 			  <td align="left" bgcolor="{$light_color}" class="default">{$details[$temp_fld_id]} {if ($isEditor || $isAdministrator) && ($xsd_display_fields[i].xsdmf_title == 'Title') && !$hide_edit} <a href='{$rel_url}workflow/update.php?pid={$pid|escape:"html"}&href={$smarty.server.REQUEST_URI}'><img title="Edit" align="absmiddle" src="{$rel_url}images/edit.gif" border="0"></a> {/if}</td>
+ 			  <td align="left" bgcolor="{$light_color}" class="default">
+			  {$details[$temp_fld_id]} 
+			  </td>
 
 			</tr>					  
 			  {/if}
@@ -238,7 +278,7 @@ function validateForm(f)
 			<td>Name</td>
 			<td>Description</td>			
 			<td>MIMEType</td>
-			<td>Downloads</td>			
+			<td align="right">Downloads</td>			
 		  </tr>
 
 		{assign var="show_preview_pane" value="0"}

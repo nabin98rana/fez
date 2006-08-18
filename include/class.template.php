@@ -202,6 +202,18 @@ class Template_API
         $this->assign("rel_url", APP_RELATIVE_URL);
         $this->assign("lang", APP_CURRENT_LANG);
         $this->assign("SID", SID);
+		$this->assign("SHIB_SWITCH", SHIB_SWITCH);
+		$this->assign("SHIB_DIRECT_LOGIN", SHIB_DIRECT_LOGIN);
+		if ($_REQUEST['getArguments']){
+			$getArguments = $_REQUEST['getArguments'];
+		} else {
+			$target = "cookie";
+			$time = "1142380709";
+			$providerId = urlencode(SHIB_HOME_SP);
+			$shire = urlencode("https://".APP_HOSTNAME."/Shibboleth.sso/SAML/POST");
+			$getArguments = "target=$target&shire=$shire&providerId=$providerId";
+		}
+		$this->assign("getArguments", $getArguments);
 
         // now for the browser detection stuff
         Net_UserAgent_Detect::detect();
@@ -266,7 +278,18 @@ class Template_API
         $this->assign("rel_url", APP_RELATIVE_URL);
         $this->assign("lang", APP_CURRENT_LANG);
         $this->assign("SID", SID);
-
+		$this->assign("SHIB_SWITCH", SHIB_SWITCH);
+		$this->assign("SHIB_DIRECT_LOGIN", SHIB_DIRECT_LOGIN);
+		if ($_REQUEST['getArguments']){
+			$getArguments = $_REQUEST['getArguments'];
+		} else {
+			$target = "cookie";
+			$time = "1142380709";
+			$providerId = urlencode(SHIB_HOME_SP);
+			$shire = urlencode("https://".APP_HOSTNAME."/Shibboleth.sso/SAML/POST");
+			$getArguments = "target=$target&shire=$shire&providerId=$providerId";
+		}
+		$this->assign("getArguments", $getArguments);
         // now for the browser detection stuff
 
         Net_UserAgent_Detect::detect();

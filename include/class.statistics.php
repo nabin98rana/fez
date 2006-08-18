@@ -344,11 +344,76 @@ class Statistics
 		return $count; 
 	}	
 
+	function getStatsByCountrySpecificAbstractView($pid, $year='all', $month='all', $range='all',$country) {	
+		if ($pid != 'all') {
+			$limit = "where stl_pid = '$pid' and stl_dsid = ''";
+		} else {
+			$limit = "where stl_dsid = '' ";		
+		}
+		if ($year != 'all' && is_numeric($year)) {
+			$year = Misc::escapeString($year);
+			$limit .= " and year(stl_request_date) = $year";
+			if ($month != 'all' && is_numeric($month)) {
+				$month = Misc::escapeString($month);
+				$limit .= " and month(stl_request_date) = $month";
+			}
+		} elseif ($range != 'all' && $range == '4w') {
+			$limit .= " and stl_request_date >= CURDATE()-INTERVAL 1 MONTH";
+		}
+		$limit .= " and stl_country_name = '".$country."'";
+		$stmt = "select count(*) as stl_country_count, stl_country_name, stl_country_code, stl_region, stl_city
+			 	 from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "statistics_all
+				 $limit
+				 group by stl_country_name, stl_country_code, stl_region, stl_city
+				 order by stl_country_name asc, stl_region asc, stl_city asc, stl_country_count desc";
+
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt,  DB_FETCHMODE_ASSOC);
+		if (!empty($res)) {
+			$count = $res;
+		} else {
+			$count = array();
+		}
+		return $count; 
+	}	
+
 	function getStatsByCountryAbstractsDownloads($pid, $year='all', $month='all', $range='all') {	
 
 		$aa = Statistics::getStatsByCountryAbstractView($pid, $year, $month, $range);	
 		$ad = Statistics::getStatsByCountryAllFileDownloads($pid, $year, $month, $range);	
 		return Statistics::mergeCountries($aa, $ad);
+	}
+
+	function getStatsByCountrySpecificAbstractsDownloads($pid, $year='all', $month='all', $range='all', $country) {	
+
+		$aa = Statistics::getStatsByCountrySpecificAbstractView($pid, $year, $month, $range, $country);	
+		$ad = Statistics::getStatsByCountrySpecificAllFileDownloads($pid, $year, $month, $range, $country);	
+			
+		$return = Statistics::mergeCountriesSpecific($aa, $ad);
+		foreach ($return as $key => &$ret) {
+			if ($ret['stl_country_name'] == 'Australia') {
+				if ($ret['stl_region'] == '02') {
+					$return[$key]['stl_region'] = 'New South Wales';
+				} elseif ($ret['stl_region'] == '07') {
+					$return[$key]['stl_region'] = 'Victoria';
+				} elseif ($ret['stl_region'] == '01') {
+					$return[$key]['stl_region'] = 'Australian Capital Territory';
+				} elseif ($ret['stl_region'] == '06') {
+					$return[$key]['stl_region'] = 'Tasmania';
+				} elseif ($ret['stl_region'] == '04') {
+					$return[$key]['stl_region'] = 'Queensland';
+				} elseif ($ret['stl_region'] == '05') {
+					$return[$key]['stl_region'] = 'South Australia';
+				} elseif ($ret['stl_region'] == '08') {
+					$return[$key]['stl_region'] = 'Western Australia';
+				} elseif ($ret['stl_region'] == '09') {
+					$return[$key]['stl_region'] = 'Northern Territory';
+				} else {
+					$return[$key]['stl_city'] = '';
+					$return[$key]['stl_region'] = APP_SHORT_ORG_NAME.' Intranet';
+				}
+			}
+		} 
+		return $return;
 	}
 
 	function getStatsByCountryAllFileDownloads($pid, $year='all', $month='all', $range='all') {	
@@ -382,6 +447,37 @@ class Statistics
 		return $count; 
 	}	
 
+	function getStatsByCountrySpecificAllFileDownloads($pid, $year='all', $month='all', $range='all', $country) {	
+		if ($pid != 'all') {
+			$limit = "where stl_pid = '$pid' and stl_dsid <> ''";
+		} else {
+			$limit = "where stl_dsid <> '' ";		
+		}
+		if ($year != 'all' && is_numeric($year)) {
+			$year = Misc::escapeString($year);
+			$limit .= " and year(stl_request_date) = $year";
+			if ($month != 'all' && is_numeric($month)) {
+				$month = Misc::escapeString($month);
+				$limit .= " and month(stl_request_date) = $month";
+			}
+		} elseif ($range != 'all' && $range == '4w') {
+			$limit .= " and stl_request_date >= CURDATE()-INTERVAL 1 MONTH";
+		}
+		$limit .= " and stl_country_name = '".$country."'";
+		
+		$stmt = "select count(*) as stl_country_count, stl_country_name, stl_country_code, stl_region, stl_city
+			 	 from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "statistics_all
+				 $limit
+				 group by stl_country_name, stl_country_code, stl_region, stl_city
+				 order by stl_country_name asc, stl_region asc, stl_city asc, stl_country_count desc";
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt,  DB_FETCHMODE_ASSOC);
+		if (!empty($res)) {
+			$count = $res;
+		} else {
+			$count = array();
+		}
+		return $count; 
+	}	
 
 	function getStatsByObject($pid) {	
 		$stmt = "select count(*)  
@@ -628,6 +724,73 @@ class Statistics
 	}
 
 
+	/* ------------------------------------------------------------------------------
+	 This function merges two country arrays, to produce a single consolidated array.
+	 Note that either of the two arrays might be missing a country in the other.
+	 
+	 (c) Copyright 2004 Arthur Sale, University of Tasmania
+	 
+	 Precondition: both arrays are ordered in descending order of views.
+	 Postcondition: result array contains records for every country in $aa and $ad, 
+		and is ordered in descending order of download views.
+	------------------------------------------------------------------------------ */
+	function mergeCountriesSpecific($aa, &$ad)
+	// reference parameter $ad for efficiency, not changed, 
+	//	however the $aa value parameter is altered and is not prapogated back
+	{
+		$merged = array();
+		// Copy acrosss the download array, adding counts from the abstract array as needed.
+		for ($i=0; $i<count($ad); $i++) {
+			$merged[$i] = array(
+				"stl_country_code"      => $ad[$i]["stl_country_code"],
+				"stl_country_name"      => $ad[$i]["stl_country_name"],
+				"stl_region"      => $ad[$i]["stl_region"],
+				"stl_city"      => utf8_encode($ad[$i]["stl_city"]),
+				"stl_country_downloads" => $ad[$i]["stl_country_count"],
+				"stl_country_abstracts" => 0
+				);
+			$c_code = $merged[$i]["stl_country_code"];
+			$region = $merged[$i]["stl_region"];
+			$city = $merged[$i]["stl_city"];			
+			for ($j=0; $j<count($aa); $j++) {
+				if (($c_code == $aa[$j]["stl_country_code"]) && ($region == $aa[$j]["stl_region"]) && ($city == $aa[$j]["stl_city"])) {
+					// matching country in abstracts
+					$merged[$i]["stl_country_abstracts"] = $aa[$j]["stl_country_count"];
+					// render this entry dead in future with reserved country code
+					$aa[$j]["stl_country_code"] = '==';
+					$aa[$j]["stl_region"] = '==';
+					$aa[$j]["stl_city"] = '==';					
+					// and get out of the loop
+					break;
+				}
+			} // for on $j
+		} // for on $i
+		
+		// Copy what is left of the abstract array
+		$i = count($merged);
+		for ($j=0; $j<count($aa); $j++) {
+				if ($aa[$j]["stl_country_code"] != '==') {
+					// country with only abstract views, so copy
+					$merged[$i] = array(
+						"stl_country_code"      => $aa[$j]["stl_country_code"],
+						"stl_country_name"      => $aa[$j]["stl_country_name"],
+						"stl_region"      => $aa[$j]["stl_region"],
+						"stl_city"      => utf8_encode($aa[$j]["stl_city"]),
+						"stl_country_downloads" => 0,
+						"stl_country_abstracts" => $aa[$j]["stl_country_count"]
+						);
+					// and increment $i
+					$i++;
+				}
+		} // for on $j
+		usort($merged, "comparar"); 
+		return $merged;
+	}
+	
+
+}
+function comparar($a, $b) {
+   return strnatcasecmp($a["stl_region"], $b["stl_region"]);
 }
 
 // benchmarking the included file (aka setup time)

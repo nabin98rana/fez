@@ -300,7 +300,7 @@ function purgeObject(pid)
 					</tr>
 					{section name="i" loop=$listCountry}
 					<tr class="default">
-						<td bgcolor="{$light_color}" nowrap><img src="{$rel_url}{$listCountry[i].flag}" alt="" height="14" width="18" align="absmiddle"> {$listCountry[i].stl_country_name}</td>
+						<td bgcolor="{$light_color}" nowrap><img src="{$rel_url}{$listCountry[i].flag}" alt="" height="14" width="18" align="absmiddle"> <a href="{$rel_url}stat_details.php?action=cumulative_usage_country_specific&country={$listCountry[i].stl_country_name}">{$listCountry[i].stl_country_name}</a></td>
 						<td align="right">{$listCountry[i].stl_country_abstracts}</td>
 						<td align="right">{$listCountry[i].stl_country_downloads}</td>
 						<td width="500"><img src="{$rel_url}images/hh.png" alt="abstracts" height="9" width="{$listCountry[i].abstractViewsWidth}"><br />
@@ -312,6 +312,54 @@ function purgeObject(pid)
 				</table>		
 			</td>
 		</tr>
+		{elseif $action == 'cumulative_usage_country_specific'}
+	    <tr>
+			<td>
+				<table cellspacing="0" cellpadding="3" width="800">
+					<tr {$shaded_bar}>
+						<td colspan="5" class="default_white"><strong>Views for {$country_name} by state city/suburb (derived from IP address of query) {$dateString}</strong></td>
+					</tr>
+					{if $listCountryCount == 0}
+					<tr class="default">
+						<td colspan="5"><strong>Records have not been viewed during this period</strong></td>
+					</tr>
+					{else}
+					<tr>
+						<td bgcolor="{$light_color}" class="default" width="150"><strong>State</strong></td>
+						<td bgcolor="{$light_color}" class="default" width="150"><strong>City/Suburb</strong></td>
+						<td align="right" bgcolor="{$cell_color}" class="default" width="75">Abstracts</td>
+						<td align="right" bgcolor="{$dark_color}" class="default_white" width="75">Downloads</td>
+						<td bgcolor="{$light_color}" width="500">&nbsp;</td>																							
+					</tr>
+						{assign var="row_color" value=$light_color}
+					{section name="i" loop=$listCountry}
+						{if ($listCountry[i].stl_region != "" )}
+					<tr class="default">
+
+						{if $listCountry[i].stl_region <> $previous_region}
+							{if $row_color == $light_color}
+								{assign var="row_color" value=$cell_color}
+							{else}
+								{assign var="row_color" value=$light_color}							
+
+							{/if}
+						{/if}
+						<td align="left" bgcolor="{$row_color}" nowrap>{if $listCountry[i].stl_region <> $previous_region}{$listCountry[i].stl_region}{/if}{if $listCountry[i].stl_region == ""}Unknown{/if}</td>
+						<td align="right" bgcolor="{$row_color}" nowrap>{$listCountry[i].stl_city}{if $listCountry[i].stl_city == ""}{/if}</td>
+						<td align="right">{$listCountry[i].stl_country_abstracts}</td>
+						<td align="right">{$listCountry[i].stl_country_downloads}</td>
+						<td width="500"><img src="{$rel_url}images/hh.png" alt="abstracts" height="9" width="{$listCountry[i].abstractViewsWidth}"><br />
+							<img src="{$rel_url}images/hp.png" alt="downloads" height="9" width="{$listCountry[i].downloadsWidth}">
+						</td>																							
+					</tr>
+					{assign var="previous_region" value=$listCountry[i].stl_region}
+					{/if}
+					{/section}
+					{/if}
+				</table>		
+			</td>
+		</tr>
+
 		{/if}
       </table>
     </td>

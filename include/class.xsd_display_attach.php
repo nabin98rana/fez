@@ -80,6 +80,30 @@ class XSD_Display_Attach
     }
 
     /**
+     * Method used to get the details of a specific attached display.
+     *
+     * @access  public
+     * @param   integer $att_id The xsd display attachment ID
+     * @return  array The xsd display attachment details
+     */
+    function getDetails($att_id)
+    {
+        $stmt = "SELECT
+                    *
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_attach
+                 WHERE
+                    att_id=".$att_id;
+        $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
+
+    /**
      * Method used to remove a given list of XSD Display Attachments.
      *
      * @access  public

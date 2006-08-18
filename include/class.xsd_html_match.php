@@ -176,8 +176,10 @@ class XSD_HTML_Match
 					xsdmf_enforced_prefix,
 					xsdmf_data_type,
 					xsdmf_value_prefix,
+                    xsdmf_xdis_id_ref,
                     xsdmf_id_ref,
 					xsdmf_attached_xsdmf_id,
+					xsdmf_cvo_id,
 					xsdmf_cvo_min_level,
 					xsdsel_order
                  FROM
@@ -312,6 +314,7 @@ class XSD_HTML_Match
 					xsdmf_static_text,
 					xsdmf_xsdsel_id,
 					xsdmf_image_location,
+                    xsdmf_xdis_id_ref,
                     xsdmf_id_ref,
 					xsdsel_order,
 					xsdmf_attached_xsdmf_id,					
@@ -337,9 +340,11 @@ class XSD_HTML_Match
 					xsdmf_org_fill_xsdmf_id,
 					xsdmf_date_type,
 					xsdmf_meta_header,
-					xsdmf_meta_header_name
+					xsdmf_meta_header_name,
+					sek_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields as m1  ";
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields as m1
+					left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key as sk1 on sk1.sek_id = m1.xsdmf_sek_id ";
 
 				if ($specify_str != "") {
 					$stmt .= "
@@ -542,9 +547,9 @@ class XSD_HTML_Match
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
+            return -1;
         } else {
-		  return true;
+		  return 1;
         }
     }
 
@@ -737,6 +742,9 @@ class XSD_HTML_Match
                     xsdmf_data_type,
                     xsdmf_parent_key_match,
                     xsdmf_key_match,";
+		if ($HTTP_POST_VARS["xsdmf_xdis_id_ref"] != "") {
+          $stmt .= "xsdmf_xdis_id_ref,";
+		}
 		if ($HTTP_POST_VARS["xsdmf_id_ref"] != "") {
           $stmt .= "xsdmf_id_ref,";
 		}
@@ -840,6 +848,9 @@ class XSD_HTML_Match
                     '" . Misc::escapeString($HTTP_POST_VARS["parent_key_match"]) . "',
                     '" . Misc::escapeString($HTTP_POST_VARS["key_match"]) . "',";
 
+			if ($HTTP_POST_VARS["xsdmf_xdis_id_ref"] != "") {
+              $stmt .=  Misc::escapeString($HTTP_POST_VARS["xsdmf_xdis_id_ref"]) . ",";
+			}
 			if ($HTTP_POST_VARS["xsdmf_id_ref"] != "") {
               $stmt .=  Misc::escapeString($HTTP_POST_VARS["xsdmf_id_ref"]) . ",";
 			}
@@ -974,6 +985,9 @@ class XSD_HTML_Match
 		$stmt .= "
                     xsdmf_parent_key_match,
                     xsdmf_key_match,";
+		if (!empty($insertArray["xsdmf_xdis_id_ref"])) {
+          $stmt .= "xsdmf_xdis_id_ref,";
+		}
 		if (!empty($insertArray["xsdmf_id_ref"])) {
           $stmt .= "xsdmf_id_ref,";
 		}
@@ -1009,6 +1023,9 @@ class XSD_HTML_Match
 		}
 		if (!empty($insertArray["xsdmf_cvo_min_level"])) {
           $stmt .= "xsdmf_cvo_min_level,";
+		}
+		if (!empty($insertArray["xsdmf_cvo_id"])) {
+          $stmt .= "xsdmf_cvo_id,";
 		}
 
 		if (!empty($insertArray["xsdmf_org_level"])) {
@@ -1071,7 +1088,7 @@ class XSD_HTML_Match
                $stmt .= $insertArray["xsdmf_is_key"] . ",";
 			}
 			if (!empty($insertArray["xsdmf_meta_header_name"])) {
-               $stmt .= "'".$insertArray["xsdmf_meta_header_name"] . "',";
+               $stmt .=  "'" . Misc::escapeString($insertArray["xsdmf_meta_header_name"]). "',";
 			}
 			if (!empty($insertArray["xsdmf_meta_header"])) {
                $stmt .= $insertArray["xsdmf_meta_header"] . ",";
@@ -1105,6 +1122,9 @@ class XSD_HTML_Match
                     '" . Misc::escapeString($insertArray["xsdmf_parent_key_match"]) . "',
                     '" . Misc::escapeString($insertArray["xsdmf_key_match"]) . "',";
 
+			if (!empty($insertArray["xsdmf_xdis_id_ref"])) {
+              $stmt .=  Misc::escapeString($insertArray["xsdmf_xdis_id_ref"]) . ",";
+			}
 			if (!empty($insertArray["xsdmf_id_ref"])) {
               $stmt .=  Misc::escapeString($insertArray["xsdmf_id_ref"]) . ",";
 			}
@@ -1141,6 +1161,10 @@ class XSD_HTML_Match
 			if (!empty($insertArray["xsdmf_cvo_min_level"])) {
               $stmt .= $insertArray["xsdmf_cvo_min_level"] . ",";
 			}		
+			if (!empty($insertArray["xsdmf_cvo_id"])) {
+              $stmt .= $insertArray["xsdmf_cvo_id"] . ",";
+			}		
+
 			if (!empty($insertArray["xsdmf_org_level"])) {
               $stmt .= "'" . Misc::escapeString($insertArray["xsdmf_org_level"]) . "',";
 			}			
@@ -1260,6 +1284,9 @@ class XSD_HTML_Match
 		$stmt .= "
                     xsdmf_parent_key_match,
                     xsdmf_key_match,";
+		if (!empty($insertArray["xsdmf_xdis_id_ref"])) {
+          $stmt .= "xsdmf_xdis_id_ref,";
+		}
 		if (!empty($insertArray["xsdmf_id_ref"])) {
           $stmt .= "xsdmf_id_ref,";
 		}
@@ -1296,6 +1323,9 @@ class XSD_HTML_Match
 		}
 		if (!empty($insertArray["xsdmf_cvo_min_level"])) {
           $stmt .= "xsdmf_cvo_min_level,";
+		}
+		if (!empty($insertArray["xsdmf_cvo_id"])) {
+          $stmt .= "xsdmf_cvo_id,";
 		}
 
 		if (!empty($insertArray["xsdmf_org_level"])) {
@@ -1394,6 +1424,9 @@ class XSD_HTML_Match
                     '" . Misc::escapeString($insertArray["xsdmf_parent_key_match"]) . "',
                     '" . Misc::escapeString($insertArray["xsdmf_key_match"]) . "',";
 
+			if (!empty($insertArray["xsdmf_xdis_id_ref"])) {
+              $stmt .=  Misc::escapeString($insertArray["xsdmf_xdis_id_ref"]) . ",";
+			}
 			if (!empty($insertArray["xsdmf_id_ref"])) {
               $stmt .=  Misc::escapeString($insertArray["xsdmf_id_ref"]) . ",";
 			}
@@ -1431,6 +1464,10 @@ class XSD_HTML_Match
 			if (!empty($insertArray["xsdmf_cvo_min_level"])) {
               $stmt .= $insertArray["xsdmf_cvo_min_level"] . ",";
 			}		
+			if (!empty($insertArray["xsdmf_cvo_id"])) {
+              $stmt .= $insertArray["xsdmf_cvo_id"] . ",";
+			}		
+
 			if (!empty($insertArray["xsdmf_org_level"])) {
               $stmt .= "'" . Misc::escapeString($insertArray["xsdmf_org_level"]) . "',";
 			}			
@@ -1653,6 +1690,7 @@ class XSD_HTML_Match
 					  $stmt .= "   xsdmf_attached_xsdmf_id = NULL,";
 					}
 					$stmt .= "
+                    xsdmf_xdis_id_ref = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_xdis_id_ref"]) . ",
                     xsdmf_id_ref = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_id_ref"]) . ",
                     xsdmf_enforced_prefix = '" . Misc::escapeString($HTTP_POST_VARS["enforced_prefix"]) . "',
                     xsdmf_value_prefix = '" . Misc::escapeString($HTTP_POST_VARS["value_prefix"]) . "',

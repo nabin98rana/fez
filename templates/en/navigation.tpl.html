@@ -26,11 +26,36 @@
     <td>
       <table width="100%" border="0" cellspacing="0" cellpadding="0" {$shaded_bar}>
         <tr height="21" valign="middle">
-		  
-          <td class="default_white">
-            &nbsp;<b>{$application_title}</b> {if $isUser}(<a title="logout from {$application_title}" target="_top" href="{$rel_url}logout.php" class="white_link">Logout</a>){else}(<a title="login to {$application_title}" target="_top" href="{$rel_url}login.php" class="white_link">Login</a>){/if}
+				<form name="IdPList" target="_top" method="get" action="{$rel_url}login.php">		  
+          <td nowrap class="default">
+
+			{if $isUser}
+            &nbsp;<b>{$application_title}</b> 
+			(<a title="logout from {$application_title}" target="_top" href="{$rel_url}logout.php" class="white_link">Logout</a>)
+			{else}
+				{if SHIB_SWITCH == "ON" && SHIB_DIRECT_LOGIN == "ON"}
+            &nbsp;<b>{$application_title}</b> 
+
+		    <input type="hidden" name="shire" value="https://{$APP_HOSTNAME}/Shibboleth.sso/SAML/POST" />
+		    <input type="hidden" name="target" value="cookie" />
+
+			    <input type="hidden" name="providerId" value="{$SHIB_HOME_SP}" />
+				<input type="hidden" name="origin" value="{$SHIB_HOME_IDP}" />		    
+			    <input type="hidden" name="getArguments" value="{$getArguments}">
+				<input type="hidden" name="time" value="1142380709" />
+		    
+		    <input type="hidden" name="action" value="selection" />
+		    <input type="hidden" name="cache" value="false" />
+			 (<input type="submit" class="submit_link" value="{$org_short_name} Login"/>) |
+			 (<a title="Non-{$org_short_name} user login, or when {$org_short_name} Login is unavailable {$application_title}" target="_top" href="{$rel_url}login.php" class="white_link">Other Login</a>)
+
+				{else}
+            &nbsp;<b>{$application_title}</b> 
+			(<a title="login to {$application_title}" target="_top" href="{$rel_url}login.php" class="white_link">Login</a>)
+				{/if}
+			{/if}
           </td>
-          
+          				</form>
           <td align="right" class="default">
             {if $isAdministrator}
             <img src="{$rel_url}images/administrator_16.gif" align="absmiddle"/> <a target="_top" title="manage the application settings, users, etc" href="{$rel_url}manage/" class="white_link">Administration</a>&nbsp;|

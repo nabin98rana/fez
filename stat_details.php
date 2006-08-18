@@ -66,6 +66,7 @@ $downloads = 0;
 $pid = @$HTTP_POST_VARS["pid"] ? $HTTP_POST_VARS["pid"] : $HTTP_GET_VARS["pid"];
 $pid = (!empty($pid)) ? $pid : 'all';
 $action = @$_REQUEST['action'];
+$country = @$_REQUEST['country'];
 $range = (@$_REQUEST['range'] == "4w") ? "4w" : "all";
 $year = is_numeric(@$_REQUEST['year']) ? $_REQUEST['year'] : 'all';
 $month = (@$_REQUEST['month'] >= 1 && @$_REQUEST['month'] <= 12) ? $_REQUEST['month'] : 'all';
@@ -136,7 +137,16 @@ if ($action == "show_detail") {
 		}
 		$max_count = max($max_count, $countryAll[$i]['stl_country_downloads'], $countryAll[$i]['stl_country_abstracts']);
 	}
+} elseif (($action == "cumulative_usage_country_specific") && ($country != "")) {
+	
+	$tpl->assign("country_name", $country);
+	$countryAll = Statistics::getStatsByCountrySpecificAbstractsDownloads($pid, $year, $month, $range, $country);	
+	for ($i=0;$i<count($countryAll);$i++) {
+		$max_count = max($max_count, $countryAll[$i]['stl_country_downloads'], $countryAll[$i]['stl_country_abstracts']);
+	}
 }
+
+
 
 
 for ($i=0;$i<count($countryAll);$i++) {	

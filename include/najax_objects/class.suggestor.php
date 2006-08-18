@@ -11,11 +11,13 @@ class Suggestor
     var $include_name = '';
     var $show_all = true;
     
-    function getSuggestion($search)
+    function getSuggestion($search, $min_char = 0)
     {
 //		file_put_contents('/usr/local/apache/htdocs/dev-fez/error_handler.log', 'monkey', false);
 //		exec("echo 'monkey' >> /usr/local/apache/htdocs/dev-fez/error_handler.log");
-
+		if (strlen($search) < $min_char) { // not used but this could limit word searches to be at least 2 characters for the suggest search
+			return array();
+		}
         include_once(APP_INC_PATH.$this->include_name);
         $obj = new $this->class_name;
         $res = $obj->suggest(trim($search));
