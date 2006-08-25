@@ -503,7 +503,7 @@ class Fedora_API {
         if (!is_numeric($pid)) {
             $parms=array('pid' => $pid, 'asOfDateTime' => NULL, 'dsState' => NULL);
             $dsIDListArray = Fedora_API::openSoapCall('getDatastreams', $parms);
-            if (empty($dsIDListArray) || (is_array($dsIDListArray) && $dsIDListArray['faultcode'])) {
+            if (empty($dsIDListArray) || (is_array($dsIDListArray) && isset($dsIDListArray['faultcode']))) {
                 return false;
             }
             sort($dsIDListArray);
@@ -825,8 +825,10 @@ class Fedora_API {
 	   //comment the return and uncomment the echo and debugInfo
 	   //to see debug statements.
 
-	//	 echo $result;
-	//	 Fedora_API::debugInfo($client);
+		 echo "<pre>".$result;
+
+	 Fedora_API::debugInfo($client);
+     echo "</pre>";
 	   return $result;
 
 	}

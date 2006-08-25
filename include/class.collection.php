@@ -1611,6 +1611,8 @@ if ($order_by == 'File Downloads') {
 		$foundValue = false;
 		$termCounter = 2;
 
+        $search_info = '';
+
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
 
         foreach ($terms as $tkey => $tdata) {
@@ -1618,8 +1620,10 @@ if ($order_by == 'File Downloads') {
 				if (is_array($tdata)) {
 					 foreach ($tdata as $tsubkey => $tsubdata) {
 						if (!empty($tsubdata) && ($tsubdata != "-1")) {
-							$tsubdata = Misc::escapeString($tsubdata);
-							$tkey = Misc::escapeString($tkey);
+                            $keydet = Search_Key::getDetails($tkey);
+                            $search_info .= "{$keydet['sek_title']}:\"".trim($tsubdata)."\", ";
+							$tsubdata = Misc::escapeString(trim($tsubdata));
+							$tkey = Misc::escapeString(trim($tkey));
 							$middleStmt .= 
 								" INNER JOIN 
 								(
@@ -1638,8 +1642,10 @@ if ($order_by == 'File Downloads') {
 						}
 					 }
 				} else {
-					$tdata = Misc::escapeString($tdata);
-					$tkey = Misc::escapeString($tkey);
+                    $keydet = Search_Key::getDetails($tkey);
+                    $search_info .= "{$keydet['sek_title']}:\"".trim($tdata)."\", ";
+					$tdata = Misc::escapeString(trim($tdata));
+					$tkey = Misc::escapeString(trim($tkey));
 					$middleStmt .= 
 						" INNER JOIN 
 						(
@@ -1668,6 +1674,10 @@ if ($order_by == 'File Downloads') {
 		if ($foundValue == false && empty($ft_stmt)) {
 			return array();
 		}
+
+        if (!empty($ft_stmt)) {
+            $search_info .= "FullText:\"$fulltext_input\", ";
+        }
 
         if (empty($order_by_key)) {
             if (!empty($ft_stmt)) {
@@ -1770,7 +1780,8 @@ if ($order_by == 'File Downloads') {
                     "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
                     "last_page"     => $last_page,
                     "hidden_rows"     => $hidden_rows - $total_rows
-                )
+                ),
+                'search_info' => rtrim($search_info, ', ')
             );
         }
     }

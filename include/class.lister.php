@@ -137,8 +137,9 @@ class Lister
             // search 
             $list = Collection::advSearchListing($pagerRow, $rows, $order_by);	
             $list_info = $list["info"];
+            $terms = $list['search_info'];
             $list = $list["list"];
-            $tpl->assign("list_heading", "Search Results");
+            $tpl->assign("list_heading", "Search Results ($terms)");
             $tpl->assign("list_type", "all_records_list");
         } elseif ($browse == "latest") {
             // browse by latest additions / created date desc

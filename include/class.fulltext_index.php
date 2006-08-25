@@ -33,13 +33,14 @@ class FulltextIndex {
         $this->bgp = &$bgp;
     }
 
-    function indexPid($pid) {
+    function indexPid($pid, $regen=false) {
        $bgp = new BackgroundProcess_Fulltext_Index; 
-       $bgp->register(serialize(compact('pid')), Auth::getUserID());
+       $bgp->register(serialize(compact('pid','regen')), Auth::getUserID());
     }
 
-    function indexBGP($pid, $topcall=true)
+    function indexBGP($pid, $regen=false,$topcall=true)
     {
+        $this->regen = $regen;
         $this->bgp->setHeartbeat();
         $this->bgp->setProgress(++$this->pid_count);
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
@@ -59,7 +60,7 @@ class FulltextIndex {
             $this->bgp->setStatus("Recursing into ".$rec->getTitle());
         }
         foreach ($children as $child_pid) {
-            $this->indexBGP($child_pid,false);
+            $this->indexBGP($child_pid,$regen,false);
         }
         $this->bgp->setStatus("Finished Fulltext Index for ".$rec->getTitle());
     }
@@ -139,7 +140,13 @@ class FulltextIndex {
 
     function indexPlaintext(&$rec, $dsID, &$plaintext)
     {
-        $fti_id = $this->getItemId($rec, $dsID);
+        list($fti_id, $new_item) = $this->getItemId($rec, $dsID);
+        // If the item has already been indexed, then we'll only regenerate the index if the regen flag was sent.
+        // Otherwise just return from here without doing anything.
+        if (!$this->regen && !$new_item) {
+            return;
+        }
+
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $stmt = "DELETE FROM {$dbtp}fulltext_engine WHERE fte_fti_id='$fti_id' ";
         $res = $GLOBALS['db_api']->dbh->query($stmt);
@@ -223,14 +230,15 @@ class FulltextIndex {
     {
         $pid = $rec->getPid();
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-        $stmt = "SELECT fti_id FROM {$dbtp}fulltext_index WHERE fti_pid='$pid' AND fti_dsid='$dsID'";
-        $res = $GLOBALS['db_api']->dbh->getOne($stmt);
+        $stmt = "SELECT * FROM {$dbtp}fulltext_index WHERE fti_pid='$pid' AND fti_dsid='$dsID'";
+        $res = $GLOBALS['db_api']->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            $res = 0;
+            $res = array();
         }
-        if ($res > 0) {
-            $fti_id = $res;
+        if (!empty($res)) {
+            $fti_id = $res['fti_id'];
+            $new_id = false;
         } else {
             $stmt = "INSERT INTO {$dbtp}fulltext_index (fti_pid, fti_dsid, fti_indexed) 
                 VALUES ('$pid', '$dsID', NOW()) ";
@@ -239,8 +247,9 @@ class FulltextIndex {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             }
             $fti_id = $GLOBALS['db_api']->get_last_insert_id();
+            $new_id = true;
         }
-        return $fti_id;
+        return array($fti_id, $new_id);
     }
 
 

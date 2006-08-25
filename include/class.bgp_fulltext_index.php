@@ -19,7 +19,7 @@ class BackgroundProcess_Fulltext_Index extends BackgroundProcess
 
         $ft_index = new FulltextIndex;
         $ft_index->setBGP($this);
-        $ft_index->indexBGP($pid, true);
+        $ft_index->indexBGP($pid, $regen, true);
         $this->setState(2);
     }
 }
