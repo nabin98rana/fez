@@ -138,9 +138,9 @@ if (!empty($pid)) {
 						} else {
 							$tempDate = new Date($details[$dis_field['xsdmf_id']]);
 	//						$tempDate->format
-							if ($details[$dis_field['xsdmf_attached_xsdmf_id']] == 1) {
+							if (@$details[$dis_field['xsdmf_attached_xsdmf_id']] == 1) {
 								$details[$dis_field['xsdmf_id']] = substr($details[$dis_field['xsdmf_id']], 0, 4);
-							} elseif ($details[$dis_field['xsdmf_attached_xsdmf_id']] == 2) {
+							} elseif (@$details[$dis_field['xsdmf_attached_xsdmf_id']] == 2) {
 								$details[$dis_field['xsdmf_id']] = substr($details[$dis_field['xsdmf_id']], 0, 7);
 							}
 						}
@@ -437,6 +437,7 @@ if (!empty($pid)) {
         $view_page = $_SESSION['view_page'];
 
         // find current position in list
+        $list_idx = null;
 		if (is_array($list)) {
 			foreach ($list as $key => $item) {
 				if ($item['pid'] == $pid) {

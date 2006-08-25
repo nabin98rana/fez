@@ -204,7 +204,7 @@ class Template_API
         $this->assign("SID", SID);
 		$this->assign("SHIB_SWITCH", SHIB_SWITCH);
 		$this->assign("SHIB_DIRECT_LOGIN", SHIB_DIRECT_LOGIN);
-		if ($_REQUEST['getArguments']){
+		if (@$_REQUEST['getArguments']){
 			$getArguments = $_REQUEST['getArguments'];
 		} else {
 			$target = "cookie";
@@ -280,7 +280,7 @@ class Template_API
         $this->assign("SID", SID);
 		$this->assign("SHIB_SWITCH", SHIB_SWITCH);
 		$this->assign("SHIB_DIRECT_LOGIN", SHIB_DIRECT_LOGIN);
-		if ($_REQUEST['getArguments']){
+		if (@$_REQUEST['getArguments']){
 			$getArguments = $_REQUEST['getArguments'];
 		} else {
 			$target = "cookie";

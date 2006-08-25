@@ -904,7 +904,7 @@ class Misc
 //					$XMLContentEndPos = strrpos($xmlString, '</foxml:datastream>', $XMLContentStartPos) + 19; // get the last one
 					$XMLContentEndPos = strpos($xmlString, '</foxml:datastream>', $XMLContentStartPos) + 19;
 					if (is_numeric($XMLContentStartPos) && is_numeric($XMLContentEndPos)) {
-						$tempXML = substr($xmlString, $XMLContentStartPos, ($XMLContentEndPos-$XMLContentStartPos));
+                        $tempXML = substr($xmlString, $XMLContentStartPos, ($XMLContentEndPos-$XMLContentStartPos));
 						$return = str_replace($tempXML, "", $return); // if a binary datastream is found then remove it from the ingest object
 					}
 				}

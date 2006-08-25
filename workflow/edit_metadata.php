@@ -327,7 +327,7 @@ if ($access_ok) {
                 }
             }
 
-            $datastreams[$ds_key]['FezACML'] = $return[$pid]['FezACML'];
+            $datastreams[$ds_key]['FezACML'] = @$return[$pid]['FezACML'];
             $datastreams[$ds_key]['workflows'] = $datastream_workflows;
             $parentsACMLs = array();
             if (count($FezACML_DS) == 0 || $datastreams[$ds_key]['FezACML'][0]['!inherit_security'][0] == "on") {

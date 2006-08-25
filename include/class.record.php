@@ -1028,8 +1028,8 @@ class Record
 						}
 						Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, 
 								"text/xml", "X");
-                        if (is_file(APP_DELETE_DIR.basename($presmd_check))) {
-                            $deleteCommand = APP_DELETE_CMD." ".APP_DELETE_DIR.basename($presmd_check);
+                        if (is_file(APP_TEMP_DIR.basename($presmd_check))) {
+                            $deleteCommand = APP_DELETE_CMD." ".APP_TEMP_DIR.basename($presmd_check);
                             exec($deleteCommand);
                         }
 					}
@@ -1044,8 +1044,8 @@ class Record
 				Workflow::processIngestTrigger($pid, Foxml::makeNCName($dsTitle['ID']), $dsTitle['MIMETYPE']);
 				//clear the managed content file temporarily saved in the APP_TEMP_DIR
 				$ncNameDelete = Foxml::makeNCName($dsTitle['ID']);
-				if (is_file(APP_DELETE_DIR.$ncNameDelete)) {
-					$deleteCommand = APP_DELETE_CMD." ".APP_DELETE_DIR.$ncNameDelete;
+				if (is_file(APP_TEMP_DIR.$ncNameDelete)) {
+					$deleteCommand = APP_DELETE_CMD." ".APP_TEMP_DIR.$ncNameDelete;
 					exec($deleteCommand);
 				}
 			}

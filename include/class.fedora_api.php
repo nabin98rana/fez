@@ -825,10 +825,8 @@ class Fedora_API {
 	   //comment the return and uncomment the echo and debugInfo
 	   //to see debug statements.
 
-		 echo "<pre>".$result;
-
-	 Fedora_API::debugInfo($client);
-     echo "</pre>";
+       //echo $result;
+       //Fedora_API::debugInfo($client);
 	   return $result;
 
 	}

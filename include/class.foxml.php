@@ -199,7 +199,7 @@ class Foxml
 
 //		} else {
 			$loop_count = 0;
-			if (is_array($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) {
+			if (is_array(@$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) {
 				foreach ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] as $multiple_element) {
                   if (!empty($multiple_element)) {
 					if ($attrib_value == "") {
@@ -338,7 +338,7 @@ class Foxml
                                     $attrib_value = $HTTP_POST_VARS[$xsdmf_details['xsdmf_dynamic_text']];
                                     array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
                                 } elseif ($xsdmf_details['xsdmf_html_input'] == 'text' || $xsdmf_details['xsdmf_html_input'] == 'textarea') {
-                                    Foxml::handleTextInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $xsdmf_details_ref, $attrib_loop_index, $element_prefix, $i);
+                                    Foxml::handleTextInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, null, $attrib_loop_index, $element_prefix, $i);
 //                                } elseif ($xsdmf_details['xsdmf_html_input'] == 'text') {									
 //                                    $attrib_value = $xsdmf_details['xsdmf_value_prefix'] . @$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id];
 //                                    array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_details['xsdmf_value_prefix'] . @$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]));

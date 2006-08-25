@@ -130,6 +130,9 @@ class AuthIndex {
                 $this->bgp->setStatus("Finished Index Auth for ".$rec->getTitle());
             }
         }
+        if ($topcall) {
+            $this->cleanIndex();
+        }
         return 1;
     }
 
@@ -248,6 +251,43 @@ class AuthIndex {
         }
         return $res;
     }
+
+    /**
+     *  If there are too many rules in the index that are not used anywhere then delete them.
+     */
+    function cleanIndex()
+    {
+        // check for unused rules
+        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $stmt = "select count(*) from {$dbtp}auth_rule_groups where not exists (
+            select * FROM {$dbtp}auth_index2 where authi_arg_id=arg_id)";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = 0;
+        }
+        if ($res > 1000) {
+            // found a lot of unused rules so lets get rid of them
+            $stmt = "delete from {$dbtp}auth_rule_groups where not exists (
+                select * FROM {$dbtp}auth_index2 where authi_arg_id=arg_id)";
+            $res = $GLOBALS["db_api"]->dbh->query($stmt);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            }
+            $stmt = "delete from {$dbtp}auth_rule_group_rules where not exists (
+                select * FROM {$dbtp}auth_rule_groups where argr_arg_id=arg_id)";
+            $res = $GLOBALS["db_api"]->dbh->query($stmt);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            }
+            $stmt = "delete from {$dbtp}auth_rules where not exists (
+                select * FROM {$dbtp}auth_rule_group_rules where argr_ar_id=ar_id)";
+            $res = $GLOBALS["db_api"]->dbh->query($stmt);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            }
+        }
+     }
 }
 
 

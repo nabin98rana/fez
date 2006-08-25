@@ -1200,13 +1200,13 @@ class Auth
             $session =& $_SESSION;
         }
 		$memberships = array();
-		$success;
-		$useringroupcount;
+		$success = null;
+		$useringroupcount = null;
 		$useringroupcount = 0;
-		$ldap_conn;
-		$ldap_result;
-		$ldap_info;
-		$ldap_infoadmin;
+		$ldap_conn = null;
+		$ldap_result = null;
+		$ldap_info = null;
+		$ldap_infoadmin = null;
 		$usersgroups = array();
 		$success = 'true';
 		$filter = "(samaccountname=".$username.")";
@@ -1429,13 +1429,14 @@ class Auth
 				if ($userDetails['usr_ldap_authentication'] == 1) {
 					if (!$auth_isBGP) {
 //						$userDetails = User::GetUserLDAPDetails($username, $password);
-						$distinguishedname = $userDetails['distinguishedname'];
+						$distinguishedname = @$userDetails['distinguishedname'];
 						Auth::GetUsersLDAPGroups($userDetails['usr_username'], $password);
 					} else {
 						$distinguishedname = '';
 					}
 					$session['isInAD'] = true;			
 				}  else {
+                    $distinguishedname = '';
 					$session['isInAD'] = false;			
 				}
 			}

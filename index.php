@@ -49,7 +49,7 @@ NAJAX_Server::allowClasses('Suggestor');
 if (NAJAX_Server::runServer()) {
 	exit;
 }
-if ($_SESSION['IDP_LOGIN_FLAG'] == 1) {
+if (@$_SESSION['IDP_LOGIN_FLAG'] == 1) {
 	Auth::GetShibAttributes();
 	$_SESSION['IDP_LOGIN_FLAG'] = 0;
 }
