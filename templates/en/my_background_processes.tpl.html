@@ -7,8 +7,18 @@ var bgp_states = new Array;
 bgp_states[{$smarty.section.i.index}] = '{$bgp_states[i]}';
 {/section}
 
-var updateProcess_mutexes = new Array;
-var timers = new Array;
+var bgp_items = new Array;
+var bgp_done = new Array;
+{section name="iii" loop=$bgp_list}
+bgp_items[{$smarty.section.iii.index}] = {$bgp_list[iii].bgp_id};
+{if {$bgp_list[iii].bgp_state == 2}
+bgp_done[{$smarty.section.iii.index}] = 1;
+{else}
+bgp_done[{$smarty.section.iii.index}] = 0;
+{/if}
+{/section}
+
+var updateProcess_mutex;
 var showBgpLog_mutexes = new Array;
 {literal}
 function showBgpUpdated(id)
@@ -37,40 +47,54 @@ function showBgpValues(id, values)
     document.getElementById(id+'_state').innerHTML = bgp_states[values.bgp_state];
     showBgpUpdated(id);
 }
-
-function updateProcess(id)
+next_idx = 0;
+// updateProcesses recursively works through the list of background processes and updates them.
+function updateProcesses()
 {
-    if (updateProcess_mutexes[id]++ > 0) {
-        updateProcess_mutexes[id]--;
+    if (updateProcess_mutex++ > 0) {
+        updateProcess_mutex--;
         return;
     } 
+    good_id = false;
+    while (!good_id) {
+        if (next_idx >= bgp_items.length) {
+            next_idx = 0;
+            updateProcess_mutex--;
+            return;
+        }
+        id = bgp_items[next_idx++];
+        if (bgp_done[id] != 1) {
+            good_id = true;
+        }
+    }
     showBgpUpdating(id);
     bgp = new NajaxBackgroundProcessList;
     bgp.onGetDetailsError = function () {
         showBgpError(id);
-        updateProcess_mutexes[id]--;
+        updateProcess_mutex--;
+        updateProcesses();
         return;
     };
     bgp.setTimeout(10000);
     bgp.getDetails(id, function(values) {
             showBgpValues(id, values);
             if (values.bgp_state == 2) {
-              clearTimeout(timers[id]);
-              timers[id] = 0;
+              bgp_done[id] = 1;
             }
-            updateProcess_mutexes[id]--;
-            
+            updateProcess_mutex--;
+            updateProcesses();
             });
 }
 
-function updateBgpTimer(id)
+var bgp_timer = false;
+function updateBgpTimer()
 {
-    if (timers[id]) {
-        clearTimeout(timers[id]);
-        timers[id] = 0;
+    if (bgp_timer) {
+        clearTimeout(bgp_timer);
+        bgp_timer = 0;
     }
-    updateProcess(id);
-    timers[id] = setTimeout("updateBgpTimer('"+id+"')", 5000);
+    updateProcesses();
+    bgp_timer = setTimeout("updateBgpTimer()", 5000);
 }
 
 function showBgpLogUpdating(id)
@@ -167,12 +191,6 @@ Running Processes
 <a href="{$rel_url}get_bgp_file.php?bgp_id={$bgp_list[iii].bgp_id}"><img 
    src="{$rel_url}images/file.gif" alt="Get exported file" border="0"  /></a></td>
 
-<script type="text/javascript" language="JavaScript">
-<!--
-updateBgpTimer('{$bgp_list[iii].bgp_id}');
--->
-</script>
-
 </tr>
 <tr id="tr_log_{$bgp_list[iii].bgp_id}" style="display:none">
 <td colspan="20" >
@@ -199,3 +217,8 @@ updateBgpTimer('{$bgp_list[iii].bgp_id}');
 </form>
 
 </div>
+<script type="text/javascript">
+<!--
+updateBgpTimer();
+// -->
+</script>
