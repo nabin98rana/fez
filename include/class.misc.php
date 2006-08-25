@@ -1697,7 +1697,7 @@ class Misc
      * @param   integer $parent_counter The current parent tree element counter
      * @return  array $ret The DTree all ready to be implanted into the HTML.
      */
-	function array_to_dtree($a, $xdis_id=0, $element_match_list=array(), $counter=0, $parent_counter=-1) {
+	function array_to_dtree($a, $xdis_id=0, $element_match_list=array(), $counter=0, $parent_counter=-1, &$open_array = array()) {
 		$match_form_url = APP_BASE_URL."manage/xsd_tree_match_form.php?xdis_id=".$xdis_id."&xml_element=";
 		$ret = array();
 		$dtree_image = "";
@@ -1720,8 +1720,67 @@ class Misc
 							$ehref = $j['fez_hyperlink'];
 							$node_label = $i;
 							// make the tree node bold if there is a matchfields entry (i.e. we are using it)
-							if (in_array($ehref, $element_match_list)) {
+							if (array_key_exists($ehref, $element_match_list)) {
 								$node_label = "<b>$node_label</b>";
+								if (array_key_exists(0, $element_match_list[$ehref])) {
+									
+								} else {
+									switch ($element_match_list[$ehref]['xsdmf_html_input']) {
+										case "xsd_loop_subelement":
+										   $node_label .= ' <img title="Sublooping Element" src="'.APP_RELATIVE_URL.'images/sel_16.png" />';										   
+										   break;
+										case "date":
+										   $node_label .= ' <img title="Date Selector" src="'.APP_RELATIVE_URL.'images/date_16.png" />';										   
+										   break;
+										case "text":
+										   $node_label .= ' <img title="Text Input" src="'.APP_RELATIVE_URL.'images/text_16.png" />';										   
+										   break;
+										case "contvocab_selector":
+										   $node_label .= ' <img title="Controlled Vocabulary Selector" src="'.APP_RELATIVE_URL.'images/contvocab_16.png" />';										   
+										   break;
+										case "author_selector":
+										   $node_label .= ' <img title="Author Selector" src="'.APP_RELATIVE_URL.'images/author_selector_16.png" />';										   
+										   break;
+										case "author_suggestor":
+										   $node_label .= ' <img title="Author Suggestor" src="'.APP_RELATIVE_URL.'images/author_suggestor_16.png" />';										   
+										   break;
+										case "static":
+										   $node_label .= ' <img title="Static Text: '.$element_match_list[$ehref]['xsdmf_static_text'].'" src="'.APP_RELATIVE_URL.'images/static_16.png" />';										   
+										   break;
+										case "org_selector":
+										   $node_label .= ' <img title="Organisational Structure Selector" src="'.APP_RELATIVE_URL.'images/org_selector_16.png" />';										   
+										   break;
+										case "file_input":
+										   $node_label .= ' <img title="File Input" src="'.APP_RELATIVE_URL.'images/file_input_16.png" />';										   
+										   break;
+										case "xsdmf_id_ref":
+										   $node_label .= ' <img title="XSDMF ID Reference" src="'.APP_RELATIVE_URL.'images/xsdmf_id_ref_16.png" />';										   
+										   break;
+										case "xsd_ref":
+										   $node_label .= ' <img title="XSD Display Reference" src="'.APP_RELATIVE_URL.'images/xsd_ref_16.png" />';										   
+										   break;
+										case "textarea":
+										   $node_label .= ' <img title="Text Area" src="'.APP_RELATIVE_URL.'images/form_16.png" />';										   
+										   break;
+										case "combo":
+										   $node_label .= ' <img title="Combo Box" src="'.APP_RELATIVE_URL.'images/form_16.png" />';										   
+										   break;
+										case "multiple":
+										   $node_label .= ' <img title="Multiple Combo Box" src="'.APP_RELATIVE_URL.'images/form_16.png" />';										   
+										   break;
+										case "checkbox":
+										   $node_label .= ' <img title="Check Box" src="'.APP_RELATIVE_URL.'images/form_16.png" />';										   
+										   break;
+										case "dynamic":
+										   $node_label .= ' <img title="Dynamic variable value" src="'.APP_RELATIVE_URL.'images/dynamic_16.png" />';										   
+										   break;
+										default:
+											break;
+									}
+								}
+								if (!array_key_exists($parent_counter, $open_array)) {
+								    $open_array[$parent_counter] = "tree.openTo($parent_counter, false, false);\n";
+								}
 							}
 							$ehref = urlencode($ehref);
 						  $ret[1] .= "tree.add($counter, $parent_counter, '$node_label', "
@@ -1731,13 +1790,13 @@ class Misc
 						} 
 					}
 					$tmp = array();
-					$tmp = Misc::array_to_dtree($j, $xdis_id, $element_match_list, $counter + 1, $counter);			
+					$tmp = Misc::array_to_dtree($j, $xdis_id, $element_match_list, $counter + 1, $counter, $open_array);			
 					$counter = $tmp[0];
 					$ret[1] .= $tmp[1];
 					$counter = $counter + 1;
 				} else {
 					$tmp = array();
-					$tmp = Misc::array_to_dtree($j, $xdis_id, $element_match_list, $counter, $parent_counter);
+					$tmp = Misc::array_to_dtree($j, $xdis_id, $element_match_list, $counter, $parent_counter, $open_array);
 					$counter = $tmp[0];
 					$ret[1] .= $tmp[1];
 				}
@@ -1758,6 +1817,7 @@ class Misc
 			}
 			$ret[0] = $counter;
 		}
+		$ret[2] = array_values($open_array);
 		return $ret;
 	}
 

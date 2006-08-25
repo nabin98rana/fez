@@ -357,7 +357,7 @@
               function toggleXSDMF_ID_Refs(show_field)
               {
                   var f = getForm('xsd_tree_match_form');
-				  var elementTitle = getPageElement('xsdmf_id_ref_tr');
+				  var elementTitle = getPageElement('tr_xsdmf_id_ref');
 				  if (show_field == true) {
 					elementTitle.style.display = '';
 				  } else {
@@ -368,7 +368,7 @@
               function toggleXSDSEL_loop(show_field)
               {
                   var f = getForm('xsd_loop_subelement_form');
-				  var elementTitle = getPageElement('xsd_loop_subelement_attribute_tr');
+				  var elementTitle = getPageElement('tr_xsdsel_attribute_loop_xsdmf_id');
 				  if (show_field == true) {
 					elementTitle.style.display = '';
 				  } else {
@@ -447,7 +447,7 @@
                   }
               }
 			  
-			  
+			    var dt_load_array = new Array();
 				var dt_load_state = 0;
 				var dt2_load_state = 0;
 				var dt3_load_state = 0;
@@ -520,90 +520,38 @@
 
 
 				var obj = new SelectXSDDisplay();				
-				function selectXSDDisplay(f, field_name)
+				function selectXSDDisplay(f, field_name, child_field_name, select_value)
 				{
-					if (dt_load_state > 0) {
+					if (dt_load_array[child_field_name] > 0) {
 					   return false;
 					} 
 					var field = getFormElement(f, field_name);
 					var selections = getSelectedItems(field);
 				
 					if (selections.length > 0) {
-						dt_load_state++;
-//						document.getElementById('tr_att_child_xsdmf_id').style.display = '';
-						showLoading1();
+						dt_load_array[child_field_name]++;
+						//document.getElementById('tr_'+child_field_name).style.display = '';
+						//showLoading1();
 						obj.ongetMatchingFieldsError = function() {
-							removeAllOptions(f, 'att_child_xsdmf_id');
-							hideLoading1();
-							dt_load_state--;
+							removeAllOptions(f, child_field_name);
+							//hideLoading1();
+							dt_load_array[child_field_name]--;
 						}
 						obj.setTimeout(10000);
+						if (selections[0].value == '') { return false; }
 						obj.getMatchingFields(selections[0].value, function(dt_list) {
-								removeAllOptions(f, 'att_child_xsdmf_id');
-								addOptions(f, 'att_child_xsdmf_id', dt_list);
-								{/literal}{if $xsd_attach_details.att_child_xsdmf_id}selectOption(f, 'att_child_xsdmf_id', {$xsd_attach_details.att_child_xsdmf_id});{/if}{literal}
-								hideLoading1();
-								dt_load_state--;
+								removeAllOptions(f, child_field_name);
+								addOptions(f, child_field_name, dt_list);
+								if (select_value != 0 && select_value != '') {
+									selectOption(f, child_field_name, select_value);
+								}
+								//hideLoading1();
+								dt_load_array[child_field_name]--;
 								});
 					}
 				}			  
 			  
 
-				function selectXSDDisplay_XSDSEL(f, field_name)
-				{
-					if (dt5_load_state > 0) {
-					   return false;
-					} 
-					var field = getFormElement(f, field_name);
-					var selections = getSelectedItems(field);
-				
-					if (selections.length > 0) {
-						dt5_load_state++;
-//						document.getElementById('xsd_loop_subelement_tr').style.display = '';
-						showLoading5();
-						obj.ongetMatchingFieldsError = function() {
-							removeAllOptions(f, 'xsdsel_attribute_loop_xsdmf_id');
-							hideLoading5();
-							dt5_load_state--;
-						}
-						obj.setTimeout(10000);
-						obj.getMatchingFields(selections[0].value, function(dt_list) {
-								removeAllOptions(f, 'xsdsel_attribute_loop_xsdmf_id');
-								addOptions(f, 'xsdsel_attribute_loop_xsdmf_id', dt_list);
-								{/literal}{if $xsd_loop_subelement_details.xsdsel_attribute_loop_xsdmf_id}selectOption(f, 'xsdsel_attribute_loop_xsdmf_id', {$xsd_loop_subelement_details.xsdsel_attribute_loop_xsdmf_id});{/if}{literal}
-								hideLoading5();
-								dt5_load_state--;
-								});
-					}
-				}			  
-
-				function selectXSDDisplay_IDRef(f, field_name)
-				{
-					if (dt6_load_state > 0) {
-					   return false;
-					} 
-					var field = getFormElement(f, field_name);
-					var selections = getSelectedItems(field);
-				
-					if (selections.length > 0) {
-						dt6_load_state++;
-//						document.getElementById('xsdmf_id_ref_tr').style.display = '';
-						showLoading6();
-						obj.ongetMatchingFieldsError = function() {
-							removeAllOptions(f, 'xsdmf_id_ref');
-							hideLoading6();
-							dt6_load_state--;
-						}
-						obj.setTimeout(10000);
-						obj.getMatchingFields(selections[0].value, function(dt_list) {
-								removeAllOptions(f, 'xsdmf_id_ref');
-								addOptions(f, 'xsdmf_id_ref', dt_list);
-								{/literal}{if $info.xsdmf_id_ref}selectOption(f, 'xsdmf_id_ref', {$info.xsdmf_id_ref});{/if}{literal}
-								hideLoading6();
-								dt6_load_state--;
-								});
-					}
-				}			
 
 				function selectXSDDisplayList(f, field_name)
 				{
@@ -1118,13 +1066,17 @@
  				<td bgcolor="{$light_color}">
 					<select class="default" name="xsdmf_cvo_id">
 					  {html_options options=$controlled_vocab_list selected=$info.xsdmf_cvo_id}
-					</select>
+					</select><br />
 					<span class="default">Minimum Selectable Branch Level:</span>
 					<select class="default" name="xsdmf_cvo_min_level">
 					  	<option value=0 {if ($info.xsdmf_cvo_min_level == 0) or ($info.xsdmf_cvo_min_level == '')}selected{/if}>Top Parent Branch</option>
 					  	<option value=1 {if ($info.xsdmf_cvo_min_level == 1)}selected{/if}>First Child Branch</option>
-					</select>
-					
+					</select><br />
+					<span class="default">Save CVO value or ID?:</span>					
+					<select class="default" name="xsdmf_cvo_save_type">
+						<option value="0" {if ($info.xsdmf_cvo_save_type == 0) or ($info.xsdmf_cvo_save_type == '')}selected{/if}>ID</option>
+						<option value="1" {if ($info.xsdmf_cvo_save_type == 1)}selected{/if}>Value</option>
+					</select>					
 			  	</td>
 		     </tr>			  
               <tr id="smarty_variable_tr"  {if $info.xsdmf_html_input != 'static' && !$selectingfield}style="display:none"{/if}>
@@ -1229,22 +1181,29 @@
 				</td>
  			  </tr> 
 
-              <tr id="xsdmf_id_ref_tr" {if $info.xsdmf_html_input != 'xsdmf_id_ref'}style="display:none"{/if}>
+              <tr id="tr_xsdmf_id_ref" {if $info.xsdmf_html_input != 'xsdmf_id_ref'}style="display:none"{/if}>
                 <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>XSDMF ID Reference:</b>
                 </td>
                 <td bgcolor="{$light_color}">
-									{if $info.xsdmf_xdis_id_ref_xdis_id == '' ||  $info.xsdmf_xdis_id_ref == 0}
+									{if $info.xsdmf_xdis_id_ref == '' ||  $info.xsdmf_xdis_id_ref == 0}
 					                  {assign var="idref_xdis_id" value=$xdis_id}
 									{else}
 									  {assign var="idref_xdis_id" value=$info.xsdmf_xdis_id_ref}
 									{/if}
-									<select class="default" name="xsdmf_xdis_id_ref" onChange="javascript: selectXSDDisplay_IDRef(this.form, 'xsdmf_xdis_id_ref')">
+									<select class="default" name="xsdmf_xdis_id_ref" onChange="javascript: selectXSDDisplay(this.form, 'xsdmf_xdis_id_ref', 'xsdmf_id_ref', {if $info.xsdmf_id_ref}{$info.xsdmf_id_ref}{else}0{/if}); ">
 									 {html_options options=$xsd_displays selected=$idref_xdis_id}
-									</select>
+									</select> <br />
 									<div id="loading6" style="display:none;">Loading...</div>
 									<select class="default" name="xsdmf_id_ref">
 									</select>
+					<br />
+					<span class="default">Save reference value or ID?:</span>					
+					<select class="default" name="xsdmf_id_ref_save_type">
+						<option value="0" {if ($info.xsdmf_id_ref_save_type == 0) or ($info.xsdmf_id_ref_save_type == '')}selected{/if}>ID</option>
+						<option value="1" {if ($info.xsdmf_id_ref_save_type == 1)}selected{/if}>Value</option>  
+					</select>
+					<span class="default">(only used for controlled vocabularies)</span>
                 </td>
               </tr>
               <tr id="static_text_tr" {if $info.xsdmf_html_input != 'static'}style="display:none"{/if}>
@@ -1515,12 +1474,12 @@
 						<b>XSD Display</b>
 					  </td>
 					  <td bgcolor="{$light_color}">
-						<select class="default" name="att_xdis_id" onChange="javascript: selectXSDDisplay(this.form, 'att_xdis_id')">
+						<select class="default" name="att_xdis_id" onChange="javascript: selectXSDDisplay(this.form, 'att_xdis_id', 'att_child_xsdmf_id', 0)">
 						 {html_options options=$xsd_displays selected=$xdis_id}
 						</select>
 					  </td>
 					</tr>
-					<tr style="display:none;" id="tr_att_child_xsdmf_id">
+					<tr id="tr_att_child_xsdmf_id">
 					  <td bgcolor="{$cell_color}" class="default">
 						<b>XSD Matching Field</b>
 					  </td>
@@ -1687,7 +1646,7 @@
 								</select>
 								</td>
 							  </tr>
-							  <tr id="xsd_loop_subelement_attribute_tr" {if $xsd_loop_subelement_details.xsdsel_type != 'attributeloop'}style="display:none"{/if}>
+							  <tr id="tr_xsdsel_attribute_loop_xsdmf_id" {if $xsd_loop_subelement_details.xsdsel_type != 'attributeloop'}style="display:none"{/if}>
 								<td width="120" bgcolor="{$cell_color}" class="default">
 								  <b>Loop on Matching Field:</b>
 								</td>
@@ -1698,7 +1657,7 @@
 									{else}
 									  {assign var="loop_mf_xdis_id" value=$xsd_loop_subelement_details.xsdsel_attribute_loop_xdis_id}
 									{/if}
-									<select class="default" name="xsdsel_attribute_loop_xdis_id" onChange="javascript: selectXSDDisplay_XSDSEL(this.form, 'xsdsel_attribute_loop_xdis_id')">
+									<select class="default" name="xsdsel_attribute_loop_xdis_id" onChange="javascript: selectXSDDisplay(this.form, 'xsdsel_attribute_loop_xdis_id', 'xsdsel_attribute_loop_xsdmf_id', {if $xsd_loop_subelement_details.xsdsel_attribute_loop_xsdmf_id}{$xsd_loop_subelement_details.xsdsel_attribute_loop_xsdmf_id}{else}0{/if}); ">
 									 {html_options options=$xsd_displays selected=$loop_mf_xdis_id}
 									</select>
 
@@ -1788,10 +1747,8 @@
 									</tr>
 									</form>
 								  </table>
-
 								</td>
 							  </tr>
-
 							</table>
 				  {else}
 					  <input type="hidden" id="no_xsd_looping_subelements" name="no_xsd_looping_subelements" value="true">
@@ -1811,11 +1768,15 @@
       {literal}
       <script language="JavaScript">
       <!--
+dt_load_array['att_child_xsdmf_id'] = 0;
+dt_load_array['xsdsel_attribute_loop_xsdmf_id'] = 0;
+dt_load_array['xsdmf_id_ref'] = 0;
+{/literal}{if $form_cat == 'edit'}{literal}
+	  selectXSDDisplay(getForm('xsd_display_att_form'), 'att_xdis_id', 'att_child_xsdmf_id', {/literal}{if $xsd_attach_details.att_child_xsdmf_id}{$xsd_attach_details.att_child_xsdmf_id}{else}0{/if}{literal}); 
+	  selectXSDDisplay(getForm('xsd_loop_subelement_form'), 'xsdsel_attribute_loop_xdis_id', 'xsdsel_attribute_loop_xsdmf_id', {/literal}{if $xsd_loop_subelement_details.xsdsel_attribute_loop_xsdmf_id}{$xsd_loop_subelement_details.xsdsel_attribute_loop_xsdmf_id}{else}0{/if}{literal}); 
+{/literal}{/if}{literal}
+	  selectXSDDisplay(getForm('xsd_tree_match_form'), 'xsdmf_xdis_id_ref', 'xsdmf_id_ref', {/literal}{if $info.xsdmf_id_ref}{$info.xsdmf_id_ref}{else}0{/if}{literal}); 
 	  window.onload = setXSDMatchField();
-	  selectXSDDisplay(getForm('xsd_display_att_form'), 'att_xdis_id'); 
-	  selectXSDDisplay_XSDSEL(getForm('xsd_loop_subelement_form'), 'xsdsel_attribute_loop_xdis_id'); 
-	  selectXSDDisplay_IDRef(getForm('xsd_tree_match_form'), 'xsdmf_xdis_id_ref'); 
-
       function setXSDMatchField()
       {
           var field1 = getFormElement(getForm('xsd_tree_match_form'), 'field_type', 0);

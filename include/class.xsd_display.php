@@ -895,9 +895,6 @@ class XSD_DisplayObject
             }
             // Store the matchfields value against the matchfield id in the result array.
             // If there's already a value for this match field, then make an array for the value.
-			if ($xsdmf_id == 2822) {
-//				echo "HERE - "; print_r($xsdmf_details); 
-			}
             if (isset($xsdmf_ptr[$xsdmf_id])) {
                 if (is_array($xsdmf_ptr[$xsdmf_id])) {
                     // add to the array of values

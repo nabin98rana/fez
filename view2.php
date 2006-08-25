@@ -117,7 +117,7 @@ if (!empty($pid)) {
 		
 		foreach ($xsd_display_fields as $dis_key => $dis_field) {
 			if (($dis_field['xsdmf_enabled'] == 1)) { // CK - took out check for is in view form, as not much is in view form now
-				if (($dis_field['xsdmf_html_input'] == "contvocab") || ($dis_field['xsdmf_html_input'] == "contvocab_selector")) {
+				if ((($dis_field['xsdmf_html_input'] == "contvocab") || ($dis_field['xsdmf_html_input'] == "contvocab_selector")) && ($dis_field['xsdmf_cvo_save_type'] != 1)) {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
@@ -128,6 +128,24 @@ if (!empty($pid)) {
 							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=subject&parent_id=".$details[$dis_field['xsdmf_id']]."'>".$controlled_vocabs[$details[$dis_field['xsdmf_id']]]."</a>";
 						}
 					}
+				}
+				if ($dis_field['xsdmf_html_input'] == "xsdmf_id_ref") {
+
+					$xsdmf_details_ref = XSD_HTML_Match::getDetailsByXSDMF_ID($dis_field['xsdmf_id_ref']);
+					$xsdmf_id_ref = $xsdmf_details_ref['xsdmf_id'];
+					if (($xsdmf_details_ref['xsdmf_html_input'] == 'contvocab') ||($xsdmf_details_ref['xsdmf_html_input'] == 'contvocab_selector')) {
+						if (!empty($details[$dis_field['xsdmf_id']])) {
+							$details[$xsdmf_id_ref] = array(); //clear the existing data
+							if (is_array($details[$dis_field['xsdmf_id']])) {
+								foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
+									$details[$xsdmf_id_ref][$cdata] = $controlled_vocabs[$cdata];
+									$details[$xsdmf_id_ref][$cdata] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=subject&parent_id=".$cdata."'>".$controlled_vocabs[$cdata]."</a>";
+								}
+							} else {
+								$details[$xsdmf_id_ref] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=subject&parent_id=".$details[$dis_field['xsdmf_id']]."'>".$controlled_vocabs[$details[$dis_field['xsdmf_id']]]."</a>";
+							}
+						}				
+					}				
 				}
 				if ($dis_field['xsdmf_data_type'] == "date") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {

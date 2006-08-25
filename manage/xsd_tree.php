@@ -71,11 +71,13 @@ if ($isAdministrator) {
 	$array_ptr = array();
 	$temp = array();
 	Misc::dom_xsd_to_referenced_array($xsd, $top_element_name, &$array_ptr, "", "", $xsd);
-	$element_match_list = XSD_HTML_Match::getElementMatchList($xdis_id);
+	$element_match_list = XSD_HTML_Match::getElementMatchListDetails($xdis_id);
+//	print_r($element_match_list);
 	$orphan_count = XSD_HTML_Match::getElementOrphanCount($xdis_id, $array_ptr);
 	$tpl->assign("orphan_count", $orphan_count);   	
 	$temp = (Misc::array_to_dtree($array_ptr, $xdis_id, $element_match_list));
 	$tpl->assign("xsd_tree", $temp[1]);   
+	$tpl->assign("xsd_tree_open", $temp[2]);
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }

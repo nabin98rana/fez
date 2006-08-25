@@ -163,6 +163,11 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 	} else {
 		$info_array = XSD_HTML_Match::getDetails($xdis_id, $xml_element);
 	}
+	// Make sure the ID Ref XSDMF ID row has a XDIS ID, if not look it up.
+	if (is_numeric($info_array['xsdmf_id_ref']) && !is_numeric($info_array['xsdmf_xdis_id_ref'])) {
+		$id_ref_details = XSD_HTML_Match::getDetailsByXSDMF_ID($info_array['xsdmf_id_ref']);
+		$info_array['xsdmf_xdis_id_ref'] = $id_ref_details['xsdmf_xdis_id'];
+	}
 	$xsd_display_list = XSD_Display::getAssocList();
 	$tpl->assign("xsd_displays", $xsd_display_list);
 

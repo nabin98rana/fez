@@ -409,15 +409,17 @@ function selectOption(f, field_name, value)
 {
     for (var i = 0; i < f.elements.length; i++) {
         if (f.elements[i].name == field_name) {
-            field = f.elements[i];
+			field = f.elements[i];
             for (var i = 0; i < field.options.length; i++) {
                 if (field.options[i].value == value) {
                     field.options[i].selected = true;
                     return true;
                 }
             }
+			return false;
         }
     }
+	return false;
 }
 
 function setHiddenFieldValue(f, field_name, value)

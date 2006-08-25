@@ -32,7 +32,12 @@ tree.icon.nlMinus = '{$rel_url}images/dtree/nolines_minus.gif';
 
 document.write(tree);
 
-tree.openAll();
+{section name="i" loop=$xsd_tree_open}
+{$xsd_tree_open[i]}
+{/section}
+
+//tree.openAll();
+//tree.openAll();
 //-->
 </script>
 </div>
