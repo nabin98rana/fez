@@ -62,15 +62,21 @@ class XSD_Loop_Subelement
     function getListByXSDMF($xsdmf_id)
     {
         $stmt = "SELECT
-					*
+					s1.*, m1.*, d1.*,
+					IFNULL(CONCAT('(', s1.xsdsel_attribute_loop_xsdmf_id, ') (', s2.xsdsel_title, ') ', m2.xsdmf_element), CONCAT('(', m2.xsdmf_id, ') ', m2.xsdmf_element)) as xsdmf_attribute_loop_presentation,
+					IFNULL(CONCAT('(', s1.xsdsel_indicator_xsdmf_id, ') (', s3.xsdsel_title, ') ', m3.xsdmf_element), CONCAT('(', m3.xsdmf_id, ') ', m3.xsdmf_element)) as xsdmf_indicator_presentation
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
-                 WHERE
-                    xsdsel_xsdmf_id=$xsdmf_id and xsdsel_xsdmf_id = xsdmf_id and xsdmf_xdis_id = xdis_id ";
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 inner join
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m1 on (s1.xsdsel_xsdmf_id = m1.xsdmf_id) and (s1.xsdsel_xsdmf_id=$xsdmf_id) inner join
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on (m1.xsdmf_xdis_id = d1.xdis_id) left join
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m2 on (m2.xsdmf_id = s1.xsdsel_attribute_loop_xsdmf_id) left join 
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s2 on (m2.xsdmf_xsdsel_id = s2.xsdsel_id) left join
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m3 on (m3.xsdmf_id = s1.xsdsel_indicator_xsdmf_id) left join 
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s3 on (m3.xsdmf_xsdsel_id = s3.xsdsel_id)
+			
+					";
 		// @@@ CK - Added order statement to sublooping elements displayed in a desired order
-		$stmt .= " ORDER BY xsdsel_order ASC";
+		$stmt .= " ORDER BY s1.xsdsel_order ASC";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -219,13 +225,13 @@ class XSD_Loop_Subelement
     function getTopParentLoopList($xml_element, $xdis_id)
     {
         $stmt = "SELECT
-					*
+					s1.*, m1.*, m2.xsdmf_id as child_xsdmf_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
-                 WHERE
-                    xsdsel_xsdmf_id = xsdmf_id and xsdmf_xdis_id = $xdis_id 
-					and (INSTR('$xml_element', xsdmf_element) > 0) and (xsdmf_element != '$xml_element') and xsdmf_html_input = 'xsd_loop_subelement'";
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 inner join 
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m1 on s1.xsdsel_xsdmf_id = m1.xsdmf_id and m1.xsdmf_xdis_id = $xdis_id 
+					and (INSTR('$xml_element', m1.xsdmf_element) > 0) and (m1.xsdmf_element != '$xml_element') and m1.xsdmf_html_input = 'xsd_loop_subelement' left join
+					 " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m2 on (m2.xsdmf_xsdsel_id = s1.xsdsel_id) and (m2.xsdmf_element = '$xml_element')
+                    ";
 		$stmt .= " ORDER BY xsdsel_order ASC";
 //		echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -291,6 +297,15 @@ class XSD_Loop_Subelement
 			if (is_numeric($HTTP_POST_VARS["xsdsel_attribute_loop_xsdmf_id"])) {
                 $stmt .= "xsdsel_attribute_loop_xsdmf_id,";
 			}
+			if (is_numeric($HTTP_POST_VARS["xsdsel_indicator_xdis_id"])) {
+                $stmt .= "xsdsel_indicator_xdis_id,";
+			}
+			if (is_numeric($HTTP_POST_VARS["xsdsel_indicator_xsdmf_id"])) {
+                $stmt .= "xsdsel_indicator_xsdmf_id,";
+			}
+	        $stmt .= "xsdsel_indicator_value,";
+
+
 				$stmt .="
 					xsdsel_order
                  ) VALUES (
@@ -303,6 +318,15 @@ class XSD_Loop_Subelement
 			if (is_numeric($HTTP_POST_VARS["xsdsel_attribute_loop_xsdmf_id"])) {
                $stmt .=  Misc::escapeString($HTTP_POST_VARS["xsdsel_attribute_loop_xsdmf_id"]) . ",";
 			}
+			if (is_numeric($HTTP_POST_VARS["xsdsel_indicator_xdis_id"])) {
+               $stmt .=  Misc::escapeString($HTTP_POST_VARS["xsdsel_indicator_xdis_id"]) . ",";
+			}
+			if (is_numeric($HTTP_POST_VARS["xsdsel_indicator_xsdmf_id"])) {
+               $stmt .=  Misc::escapeString($HTTP_POST_VARS["xsdsel_indicator_xsdmf_id"]) . ",";
+			}
+               $stmt .=
+                    "'".Misc::escapeString($HTTP_POST_VARS["xsdsel_indicator_value"]) . "',";
+
                $stmt .=
                     Misc::escapeString($HTTP_POST_VARS["xsdsel_order"]) . "
                  )";
@@ -337,6 +361,13 @@ class XSD_Loop_Subelement
 			if (is_numeric($insertArray["xsdsel_attribute_loop_xsdmf_id"])) {
                 $stmt .= "xsdsel_attribute_loop_xsdmf_id,";
 			}
+			if (is_numeric($insertArray["xsdsel_indicator_xdis_id"])) {
+                $stmt .= "xsdsel_indicator_xdis_id,";
+			}
+			if (is_numeric($insertArray["xsdsel_indicator_xsdmf_id"])) {
+                $stmt .= "xsdsel_indicator_xsdmf_id,";
+			}
+				$stmt .= "xsdsel_indicator_value,";
 				$stmt .="
 					xsdsel_order
                  ) VALUES (
@@ -349,7 +380,14 @@ class XSD_Loop_Subelement
 			if (is_numeric($insertArray["xsdsel_attribute_loop_xsdmf_id"])) {
                $stmt .= Misc::escapeString($insertArray["xsdsel_attribute_loop_xsdmf_id"]).",";
 			}
+			if (is_numeric($insertArray["xsdsel_indicator_xdis_id"])) {
+               $stmt .= Misc::escapeString($insertArray["xsdsel_indicator_xdis_id"]).",";
+			}
+			if (is_numeric($insertArray["xsdsel_indicator_xsdmf_id"])) {
+               $stmt .= Misc::escapeString($insertArray["xsdsel_indicator_xsdmf_id"]).",";
+			}
                $stmt .=
+                    "'".Misc::escapeString($insertArray["xsdsel_indicator_value"]) . "', ".
                     Misc::escapeString($insertArray["xsdsel_order"]) . "
                  )";
 				 
@@ -384,7 +422,14 @@ class XSD_Loop_Subelement
 				if (is_numeric($HTTP_POST_VARS["xsdsel_attribute_loop_xsdmf_id"])) {
                  	$stmt .= "   xsdsel_attribute_loop_xsdmf_id = " . Misc::escapeString($HTTP_POST_VARS["xsdsel_attribute_loop_xsdmf_id"]) . ",";
 				}
+				if (is_numeric($HTTP_POST_VARS["xsdsel_indicator_xdis_id"])) {
+                 	$stmt .= "   xsdsel_indicator_xdis_id = " . Misc::escapeString($HTTP_POST_VARS["xsdsel_indicator_xdis_id"]) . ",";
+				}
+				if (is_numeric($HTTP_POST_VARS["xsdsel_indicator_xsdmf_id"])) {
+                 	$stmt .= "   xsdsel_indicator_xsdmf_id = " . Misc::escapeString($HTTP_POST_VARS["xsdsel_indicator_xsdmf_id"]) . ",";
+				}
 					$stmt .= "
+                    xsdsel_indicator_value = '" . Misc::escapeString($HTTP_POST_VARS["xsdsel_indicator_value"]) . "',
                     xsdsel_type = '" . Misc::escapeString($HTTP_POST_VARS["xsdsel_type"]) . "'
                  WHERE xsdsel_id = " . Misc::escapeString($HTTP_POST_VARS["xsdsel_id_edit"]) . "";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);

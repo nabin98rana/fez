@@ -1090,24 +1090,28 @@ class Misc
 	  * @param array $callbackdata Used to store data that will be available to sub nodes but not to siblings.  
 	  * The callback function should return changes to this data for use by child node callbacks.
 	  */
-	function XML_Walk($domnode, $callbackobject, $callbackmethod, $callbackdata) {
+	function XML_Walk($domnode, $callbackobject, $callbackmethod, $callbackdata, $rootnode) {
 		if (is_null($domnode)) {
 			return;
 		}
-		$newcallbackdata = $callbackobject->$callbackmethod($domnode, $callbackdata, 'startopen');
+
+
+		$newcallbackdata = $callbackobject->$callbackmethod($domnode, $callbackdata, 'startopen', $rootnode);
+
 		// process attributes
 		if ($domnode->hasAttributes() ) {
 			$attributes = $domnode->attributes; 
 			foreach ($attributes as $index => $domobj) {
-				$newcallbackdata = $callbackobject->$callbackmethod($domobj, $newcallbackdata);
+				$newcallbackdata = $callbackobject->$callbackmethod($domobj, $newcallbackdata, NULL, $rootnode);
 			}
 		}
-		$newcallbackdata = $callbackobject->$callbackmethod($domnode, $newcallbackdata, 'endopen');
+		$newcallbackdata = $callbackobject->$callbackmethod($domnode, $newcallbackdata, 'endopen', $rootnode);
+//		$newcallbackdata = $callbackobject->$callbackmethod($domnode, $newcallbackdata, 'endopen', $rootnode);
 		// recurse children
-		Misc::XML_Walk($domnode->firstChild, $callbackobject, $callbackmethod, $newcallbackdata);
+		Misc::XML_Walk($domnode->firstChild, $callbackobject, $callbackmethod, $newcallbackdata, $rootnode);
 		// recurse siblings
-		$callbackobject->$callbackmethod($domnode, $newcallbackdata, 'close');
-		Misc::XML_Walk($domnode->nextSibling, $callbackobject, $callbackmethod, $callbackdata);
+		$callbackobject->$callbackmethod($domnode, $newcallbackdata, 'close', $rootnode);
+		Misc::XML_Walk($domnode->nextSibling, $callbackobject, $callbackmethod, $callbackdata, $rootnode);
 	}
 
     /**

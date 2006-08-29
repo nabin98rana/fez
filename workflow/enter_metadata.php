@@ -32,51 +32,29 @@
 // +----------------------------------------------------------------------+
 //
 //
-                        echo "Mem:".xdebug_memory_usage().__FILE__.__LINE__."<br/>\n";
+
 include_once("../config.inc.php");
-                        echo "Mem:".xdebug_memory_usage().__FILE__.__LINE__."<br/>\n";
 include_once(APP_INC_PATH . "class.template.php");
-                        echo "Mem:".xdebug_memory_usage().__FILE__.__LINE__."<br/>\n";
 include_once(APP_INC_PATH . "class.auth.php");
-                        echo "Mem:".xdebug_memory_usage().__FILE__.__LINE__."<br/>\n";
 include_once(APP_INC_PATH . "class.user.php");
-                        echo "Mem:".xdebug_memory_usage().__FILE__.__LINE__."<br/>\n";
 include_once(APP_INC_PATH . "class.group.php");
-                        echo "Mem:".xdebug_memory_usage().__FILE__.__LINE__."<br/>\n";
 include_once(APP_INC_PATH . "class.record.php");
-                        echo "Mem:".xdebug_memory_usage().__FILE__.__LINE__."<br/>\n";
 include_once(APP_INC_PATH . "class.author.php");
-                        echo "Mem:".xdebug_memory_usage().__FILE__.__LINE__."<br/>\n";
 include_once(APP_INC_PATH . "class.misc.php");
-                        echo "Mem:".xdebug_memory_usage().__FILE__.__LINE__."<br/>\n";
 include_once(APP_INC_PATH . "class.setup.php");
-                        echo "Mem:".xdebug_memory_usage().__FILE__.__LINE__."<br/>\n";
 include_once(APP_INC_PATH . "db_access.php");
-                        echo "Mem:".xdebug_memory_usage().__FILE__.__LINE__."<br/>\n";
 include_once(APP_INC_PATH . "class.controlled_vocab.php");
-                        echo "Mem:".xdebug_memory_usage().__FILE__.__LINE__."<br/>\n";
 include_once(APP_INC_PATH . "class.collection.php");
-                        echo "Mem:".xdebug_memory_usage().__FILE__.__LINE__."<br/>\n";
 include_once(APP_INC_PATH . "class.community.php");
-                        echo "Mem:".xdebug_memory_usage().__FILE__.__LINE__."<br/>\n";
 include_once(APP_INC_PATH . "class.date.php");
-                        echo "Mem:".xdebug_memory_usage().__FILE__.__LINE__."<br/>\n";
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
-                        echo "Mem:".xdebug_memory_usage().__FILE__.__LINE__."<br/>\n";
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
-                        echo "Mem:".xdebug_memory_usage().__FILE__.__LINE__."<br/>\n";
 include_once(APP_INC_PATH . "class.xsd_relationship.php");
-                        echo "Mem:".xdebug_memory_usage().__FILE__.__LINE__."<br/>\n";
 include_once(APP_INC_PATH . "class.workflow_status.php");
-                        echo "Mem:".xdebug_memory_usage().__FILE__.__LINE__."<br/>\n";
 include_once(APP_INC_PATH . "class.org_structure.php");
-                        echo "Mem:".xdebug_memory_usage().__FILE__.__LINE__."<br/>\n";
 include_once(APP_INC_PATH . "najax/najax.php");
-                        echo "Mem:".xdebug_memory_usage().__FILE__.__LINE__."<br/>\n";
 include_once(APP_INC_PATH . "najax_objects/class.select_org_structure.php");
-                        echo "Mem:".xdebug_memory_usage().__FILE__.__LINE__."<br/>\n";
 include_once(APP_INC_PATH . "najax_objects/class.suggestor.php");
-                        Error_Handler::logError("Mem:".xdebug_memory_usage(),__FILE__,__LINE__);
 NAJAX_Server::allowClasses(array('SelectOrgStructure', 'Suggestor'));
 if (NAJAX_Server::runServer()) {
 	exit;
@@ -119,7 +97,6 @@ if ($access_ok) {
         $wfstatus->setCreatedPid($res);
         $wfstatus->parent_pid = $wfstatus->pid;
         $wfstatus->pid = $res;
-                        Error_Handler::logError("Mem:".xdebug_memory_usage(),__FILE__,__LINE__);
     }
     $wfstatus->checkStateChange();
 

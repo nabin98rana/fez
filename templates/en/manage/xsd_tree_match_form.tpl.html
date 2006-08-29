@@ -22,8 +22,9 @@
               </tr>
 				<tr>
 				  <td width="5" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-				  <td width="50%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b></td>
+				  <td width="35%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b></td>
 				  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Type</b></td>
+				  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>XSDMF ID</b></td>
 				  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Order</b></td>
 				  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Link to XSD Match Field for this Subelement Instance</b></td>
 				</tr>
@@ -33,11 +34,14 @@
 				  <td width="4" nowrap bgcolor="{$row_color}" align="center">
 					<input type="checkbox" name="items[]" value="{$xsdsel_loop_list[i].xsdsel_id}" {if $smarty.section.i.total == 0}disabled{/if}>
 				  </td>
-				  <td width="50%" bgcolor="{$row_color}" class="default">
+				  <td width="35%" bgcolor="{$row_color}" class="default">
 					&nbsp;{$xsdsel_loop_list[i].xsdsel_title}
 				  </td>
 				  <td width="15%" bgcolor="{$row_color}" class="default">
 					&nbsp;{$xsdsel_loop_list[i].xsdsel_type}
+				  </td>
+				  <td width="15%" bgcolor="{$row_color}" class="default">
+					&nbsp;{$xsdsel_loop_list[i].child_xsdmf_id}
 				  </td>
 				  <td width="15%" bgcolor="{$row_color}" class="default">
 					&nbsp;{$xsdsel_loop_list[i].xsdsel_order}
@@ -1667,6 +1671,37 @@
 									</select>
 								</td>
 							  </tr>
+							  <tr id="tr_xsdsel_indicator_xsdmf_id">
+								<td width="120" bgcolor="{$cell_color}" class="default">
+								  <b>Indicator:</b>
+								</td>
+								<td bgcolor="{$light_color}" nowrap>
+
+									{if $xsd_loop_subelement_details.xsdsel_indicator_xdis_id == '' ||  $xsd_loop_subelement_details.xsdsel_indicator_xdis_id == 0}
+					                  {assign var="indicator_xdis_id" value=0}
+									{else}
+									  {assign var="indicator_xdis_id" value=$xsd_loop_subelement_details.xsdsel_indicator_xdis_id}
+									{/if}
+									<select class="default" name="xsdsel_indicator_xdis_id" onChange="javascript: selectXSDDisplay(this.form, 'xsdsel_indicator_xdis_id', 'xsdsel_indicator_xsdmf_id', {if $xsd_loop_subelement_details.xsdsel_indicator_xsdmf_id}{$xsd_loop_subelement_details.xsdsel_indicator_xsdmf_id}{else}0{/if}); ">
+									  <option value="0">Indicator Off</option>
+									 {html_options options=$xsd_displays selected=$indicator_xdis_id}
+									</select>
+
+
+									<div id="loading5" style="display:none;">Loading...</div>
+									<select class="default" name="xsdsel_indicator_xsdmf_id">
+									</select>
+								</td>
+							  </tr>
+							  <tr>
+								<td width="120" bgcolor="{$cell_color}" class="default">
+								  <b>Indicator Value:</b>
+								</td>
+								<td bgcolor="{$light_color}">
+								  <input type="text" name="xsdsel_indicator_value" size="20" class="default" value="{$xsd_loop_subelement_details.xsdsel_indicator_value}">
+								  {include file="error_icon.tpl.html" field="xsdsel_indicator_value"}
+								</td>
+							  </tr>
 							  <tr>
 								<td width="120" bgcolor="{$cell_color}" class="default">
 								  <b>Order:</b>
@@ -1704,10 +1739,12 @@
 									<input type="hidden" name="xsdsel_xsdmf_id" value="{$xsdsel_xsdmf_id}">
 									<tr>
 									  <td width="5" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-									  <td width="50%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b></td>
+									  <td width="35%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b></td>
 									  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Type</b></td>
 									  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Order</b></td>
 									  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Loop on Matching Field</b></td>
+									  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Indicator</b></td>
+									  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Indicator Value</b></td>
 									</tr>
 									{section name="i" loop=$xsd_loop_subelement_list}
 									{cycle values=$cycle assign="row_color"}
@@ -1715,7 +1752,7 @@
 									  <td width="4" nowrap bgcolor="{$row_color}" align="center">
 										<input type="checkbox" name="items[]" value="{$xsd_loop_subelement_list[i].xsdsel_id}" {if $smarty.section.i.total == 0}disabled{/if}>
 									  </td>
-									  <td width="50%" bgcolor="{$row_color}" class="default">
+									  <td width="35%" bgcolor="{$row_color}" class="default">
 										&nbsp;<a href="xsd_tree_match_form.php?xdis_id={$xdis_id}&xml_element={$xml_element}&xsdsel_id={$xsdsel_id}&xsdsel_cat=edit&xsdsel_id_edit={$xsd_loop_subelement_list[i].xsdsel_id}">{$xsd_loop_subelement_list[i].xsdsel_title}</a>
 									  </td>
 									  <td width="15%" bgcolor="{$row_color}" class="default">
@@ -1725,13 +1762,19 @@
 										&nbsp;{$xsd_loop_subelement_list[i].xsdsel_order}
 									  </td>
 									  <td width="15%" bgcolor="{$row_color}" class="default">
-										&nbsp;{if $xsd_loop_subelement_list[i].xsdsel_type == 'attributeloop'}{$xsd_loop_subelement_list[i].xsdsel_attribute_loop_xsdmf_id}{else}N/A{/if}
+										&nbsp;{if $xsd_loop_subelement_list[i].xsdsel_type == 'attributeloop'}{$xsd_loop_subelement_list[i].xsdmf_attribute_loop_presentation}{else}N/A{/if}
+									  </td>
+									  <td width="15%" bgcolor="{$row_color}" class="default">
+										&nbsp;{if $xsd_loop_subelement_list[i].xsdmf_indicator_presentation != ''}{$xsd_loop_subelement_list[i].xsdmf_indicator_presentation}{/if}
+									  </td>
+									  <td width="15%" bgcolor="{$row_color}" class="default">
+										&nbsp;{if $xsd_loop_subelement_list[i].xsdsel_indicator_value != ''}{$xsd_loop_subelement_list[i].xsdsel_indicator_value}{/if}
 									  </td>
 
 									</tr>
 									{sectionelse}
 									<tr>
-									  <td colspan="6" bgcolor="{$light_color}" align="center" class="default">
+									  <td colspan="8" bgcolor="{$light_color}" align="center" class="default">
 										No xsd looping subelements could be found.
 										<input type="hidden" id="no_xsd_looping_subelements" name="no_xsd_looping_subelements" value="true">
 									  </td>
@@ -1741,7 +1784,7 @@
 									  <td width="4" align="center" bgcolor="{$cell_color}">
 										<input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
 									  </td>
-									  <td colspan="5" bgcolor="{$cell_color}">
+									  <td colspan="7" bgcolor="{$cell_color}">
 										<input type="submit" value="Delete" class="button">
 									  </td>
 									</tr>
@@ -1774,6 +1817,7 @@ dt_load_array['xsdmf_id_ref'] = 0;
 {/literal}{if $form_cat == 'edit'}{literal}
 	  selectXSDDisplay(getForm('xsd_display_att_form'), 'att_xdis_id', 'att_child_xsdmf_id', {/literal}{if $xsd_attach_details.att_child_xsdmf_id}{$xsd_attach_details.att_child_xsdmf_id}{else}0{/if}{literal}); 
 	  selectXSDDisplay(getForm('xsd_loop_subelement_form'), 'xsdsel_attribute_loop_xdis_id', 'xsdsel_attribute_loop_xsdmf_id', {/literal}{if $xsd_loop_subelement_details.xsdsel_attribute_loop_xsdmf_id}{$xsd_loop_subelement_details.xsdsel_attribute_loop_xsdmf_id}{else}0{/if}{literal}); 
+	  selectXSDDisplay(getForm('xsd_loop_subelement_form'), 'xsdsel_indicator_xdis_id', 'xsdsel_indicator_xsdmf_id', {/literal}{if $xsd_loop_subelement_details.xsdsel_indicator_xsdmf_id}{$xsd_loop_subelement_details.xsdsel_indicator_xsdmf_id}{else}0{/if}{literal}); 
 {/literal}{/if}{literal}
 	  selectXSDDisplay(getForm('xsd_tree_match_form'), 'xsdmf_xdis_id_ref', 'xsdmf_id_ref', {/literal}{if $info.xsdmf_id_ref}{$info.xsdmf_id_ref}{else}0{/if}{literal}); 
 	  window.onload = setXSDMatchField();

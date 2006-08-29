@@ -2502,17 +2502,29 @@ class XSD_HTML_MatchObject
         if (!$this->gotMatchCols) {
             // do query to get all the match cols for this display set
             $stmt = "SELECT
-                   xsdmf_element, 
-                   xsdmf_id,  
-                   xsdmf_is_key, 
-                   xsdmf_key_match, 
-                   xsdmf_parent_key_match, 
-                   xsdmf_xsdsel_id,
-                   xsdmf_value_prefix
+                   m1.xsdmf_element, 
+                   m1.xsdmf_id,  
+                   m1.xsdmf_is_key, 
+                   m1.xsdmf_key_match, 
+                   m1.xsdmf_parent_key_match, 
+                   m1.xsdmf_xsdsel_id,
+                   m1.xsdmf_value_prefix,
+				   m1.xsdmf_html_input,
+				   s1.xsdsel_title,
+				   s1.xsdsel_indicator_xsdmf_id,
+				   s1.xsdsel_indicator_value,
+				   x1.xsd_element_prefix,
+				   m2.xsdmf_element as indicator_element,
+   				   m2.xsdmf_xsdsel_id as indicator_xsdsel_id
                 FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m1 left join
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (xsdmf_id = xsdsel_xsdmf_id) left join
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on (xsdmf_xdis_id = xdis_id)  left join
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd x1 on (xdis_xsd_id = xsd_id) left join 
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m2 on (m2.xsdmf_id = s1.xsdsel_indicator_xsdmf_id)
                 WHERE
-                    xsdmf_xdis_id in ({$this->xdis_str})";
+                    m1.xsdmf_xdis_id in ({$this->xdis_str})";
+
             $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -2560,13 +2572,50 @@ class XSD_HTML_MatchObject
     {
         $this->getMatchCols();
         foreach ($this->matchCols as $xsdmf) {
-            if (($xsdmf['xsdmf_element'] == $xsdmf_element) 
-                    && !$xsdmf['xsdmf_is_key']
-                    && !empty($xsdmf['xsdmf_id'])) {
-                return $xsdmf['xsdmf_id'];
+            if (($xsdmf['xsdmf_element'] == $xsdmf_element) && !$xsdmf['xsdmf_is_key'] && !empty($xsdmf['xsdmf_id'])) {
+                return $xsdmf['xsdmf_id']; // just returns the first one if there are many
             }
         }
         return null;
+    }
+
+    /**
+     * getXSDMF_IDByXDIS_ID
+     * Find a match for the given element
+     */
+    function getXSDMF_IDByXDIS_IDAll($xsdmf_element)
+    {
+            $stmt = "SELECT
+                   m1.xsdmf_element, 
+                   m1.xsdmf_id,  
+                   m1.xsdmf_is_key, 
+                   m1.xsdmf_key_match, 
+                   m1.xsdmf_parent_key_match, 
+                   m1.xsdmf_xsdsel_id,
+                   m1.xsdmf_value_prefix,
+				   m1.xsdmf_html_input,
+				   s1.xsdsel_title,
+				   s1.xsdsel_indicator_xsdmf_id,
+				   s1.xsdsel_indicator_value,
+				   x1.xsd_element_prefix,
+				   m2.xsdmf_element as indicator_element,
+   				   m2.xsdmf_xsdsel_id as indicator_xsdsel_id
+                FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m1 left join
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (xsdmf_id = xsdsel_xsdmf_id) left join
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on (xsdmf_xdis_id = xdis_id)  left join
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd x1 on (xdis_xsd_id = xsd_id) left join 
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m2 on (m2.xsdmf_id = s1.xsdsel_indicator_xsdmf_id)
+                WHERE
+                    m1.xsdmf_xdis_id in ({$this->xdis_str}) and m1.xsdmf_element = '$xsdmf_element'";
+
+            $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+         	if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+               return array();
+            } else {
+               return $res;
+            }
     }
 
     /**
@@ -2592,6 +2641,27 @@ class XSD_HTML_MatchObject
         return null;
     }
 
+    /**
+     * getXSDMF_IDByKeyXDIS_ID 
+     * Find a match field for an element that matches a subelement loop on the element value 
+	 *
+     * @access  public
+     * @param   string $xsdmf_element 
+     * @param   string $element_value
+     * @return  integer The xsdmf_id
+     */
+    function getXSDMF_IDBySELXDIS_ID($xsdmf_element, $xsdsel_id)
+    {
+        $this->getMatchCols();
+        foreach ($this->matchCols as $xsdmf) {
+            if (($xsdmf['xsdmf_element'] == $xsdmf_element) 
+                    && ($xsdmf['xsdmf_xsdsel_id'] == $xsdsel_id) 
+                    && !empty($xsdmf['xsdmf_id'])) {
+                return $xsdmf['xsdmf_id'];
+            }
+        }
+        return null;
+    }
     /**
      * getDetailsByXSDMF_ID 
      * Retrieve the details of a match field

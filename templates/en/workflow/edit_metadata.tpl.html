@@ -391,7 +391,7 @@ function selectDateField(field_name, day, month, year)
 											   <option value="{$details[$temp_attached_xsdmf_id][z]}" selected>{$author_ids[$author_id]} ({$details[$temp_attached_xsdmf_id][z]})</option>
 												  {/if}
 											   {else}
-												 {if $details[$temp_attached_xsdmf_id] != ""}
+												 {if $details[$temp_attached_xsdmf_id] != "" && $show_num == 0}
 													 {assign var="author_id" value=$details[$temp_attached_xsdmf_id]}
 											   <option value="{$details[$temp_attached_xsdmf_id]}" selected>{$author_ids[$author_id]} ({$details[$temp_attached_xsdmf_id]})</option>										   
 												  {/if}

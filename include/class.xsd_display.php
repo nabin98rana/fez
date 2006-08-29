@@ -805,7 +805,8 @@ class XSD_DisplayObject
         @$xmlnode->loadXML($xmlDatastream);
         $cbdata = array('parentContent' => '', 'parent_key' => '');
         $this->mfcb_rootdone = false;
-        Misc::XML_Walk($xmlnode, $this, 'matchFieldsCallback', $cbdata);
+        Misc::XML_Walk($xmlnode, $this, 'matchFieldsCallback', $cbdata, $xmlnode);
+//		print_r($this->xsdmf_array);
     }
 
     /**
@@ -819,14 +820,16 @@ class XSD_DisplayObject
 	  * @param DomNode $domNode The node of the dom document
 	  * @param array $cbdata The XSD array to be filled
 	  * @param string $context The callback context
+	  * @param rootNode $domNode The root dom document
       * @return  array $cbdata The XSD array being filled.	 
       */
-    function matchFieldsCallback($domNode, $cbdata, $context=null)
+    function matchFieldsCallback($domNode, $cbdata, $context=NULL, $rootNode)
     {
         $clean_nodeName = Misc::strip_element_name($domNode->nodeName);
         $xsdmf_ptr = &$this->xsdmf_current;
-        $xsdmf_id = null;
-        // look for the xsdmf_id
+        $xsdmf_id = NULL;
+		$currentSEL = "";
+        // look for the xsdmf_id		
         switch ($domNode->nodeType)
         {
             case XML_ELEMENT_NODE:
@@ -835,6 +838,41 @@ class XSD_DisplayObject
                         // this is processed before we have walked the attributes for this element
                         // Store the current node name for use when called back for the attributes.
                         $cbdata['clean_nodeName'] = $clean_nodeName;
+						$parentContent = $cbdata['parentContent'];
+						if ((is_numeric(strpos(substr($parentContent, 0, 1), "!"))) || ($parentContent == "")) {
+							$new_element = $parentContent."!".$clean_nodeName; 
+						} else {
+							$new_element = "!".$parentContent."!".$clean_nodeName; 
+						}
+
+						if (!is_numeric($cbdata['currentSEL'])) {	
+							$xsdmf_id = $this->xsd_html_match->getXSDMF_IDByXDIS_IDAll($new_element);
+							if (is_array($xsdmf_id)) {
+								if (count($xsdmf_id) > 1) {
+									foreach ($xsdmf_id as $row) {
+										if ($row['xsdmf_html_input'] == 'xsd_loop_subelement' && is_numeric($row['xsdsel_indicator_xsdmf_id']) && $row['xsdsel_indicator_xsdmf_id'] != 0 && $row['xsdsel_indicator_value'] != "") {
+											$indicator_xpath = $row['xsd_element_prefix'].":".ltrim(str_replace("!", "/".$row['xsd_element_prefix'].":", $row['indicator_element']), "/");
+											$currentNodeLength = strlen($domNode->nodeName);
+											$currentNodePos = strpos($indicator_xpath, $domNode->nodeName);
+											$indicator_xpath = ".".substr($indicator_xpath, $currentNodePos + $currentNodeLength);
+											$xpath = new DOMXPath($rootNode);
+											$xpath->registerNamespace("mods", "http://www.loc.gov/mods/v3");
+											$indicatorNodes = $xpath->query($indicator_xpath, $domNode);
+											if ($indicatorNodes->length > 0) {
+												$indicatorValue = $indicatorNodes->item(0)->nodeValue; //should only ever be one search result in the array
+												if ($indicatorValue == $row['xsdsel_indicator_value']) {
+													$currentSEL = $row['indicator_xsdsel_id'];
+												}
+											} 												
+										}
+									}
+									if (is_numeric($currentSEL)) {
+										$cbdata['currentSEL'] = $currentSEL;
+									}
+								}
+							}								
+						}
+						$xsdmf_id = NULL;
                         break;
                     case 'endopen':
                         // this is processed after we have walked the attributes for this element
@@ -849,11 +887,38 @@ class XSD_DisplayObject
                                 // if there are passed parent keys then use them in the search
                                 $xsdmf_id = $this->xsd_html_match->getXSDMF_IDByParentKeyXDIS_ID($new_element, 
                                         $cbdata['parent_key']);		
+							} elseif (is_numeric($cbdata['currentSEL'])) {						
+								$xsdmf_id = $this->xsd_html_match->getXSDMF_IDBySELXDIS_ID($new_element, $cbdata['currentSEL']);
                             } else {
-                                $xsdmf_id = $this->xsd_html_match->getXSDMF_IDByXDIS_ID($new_element);
+                                $xsdmf_id = $this->xsd_html_match->getXSDMF_IDByXDIS_IDAll($new_element);
+								if (is_array($xsdmf_id)) {
+									if (count($xsdmf_id) > 1) {
+										foreach ($xsdmf_id as $row) {
+											if ($row['xsdmf_html_input'] == 'xsd_loop_subelement' && is_numeric($row['xsdsel_indicator_xsdmf_id']) && $row['xsdsel_indicator_xsdmf_id'] != 0 && $row['xsdsel_indicator_value'] != "") {
+												$indicator_xpath = $row['xsd_element_prefix'].":".ltrim(str_replace("!", "/".$row['xsd_element_prefix'].":", $row['indicator_element']), "/");
+												$currentNodeLength = strlen($domNode->nodeName);
+												$currentNodePos = strpos($indicator_xpath, $domNode->nodeName);
+												$indicator_xpath = ".".substr($indicator_xpath, $currentNodePos + $currentNodeLength);
+												$xpath = new DOMXPath($rootNode);
+												$xpath->registerNamespace("mods", "http://www.loc.gov/mods/v3");
+												$indicatorNodes = $xpath->query($indicator_xpath, $domNode);
+												if ($indicatorNodes->length > 0) {
+													$indicatorValue = $indicatorNodes->item(0)->nodeValue; //should only ever be one search result in the array
+													if ($indicatorValue == $row['xsdsel_indicator_value']) {
+														$currentSEL = $row['indicator_xsdsel_id'];
+													}
+												} 												
+											}
+										}
+										if (is_numeric($currentSEL)) {
+											$xsdmf_id = $this->xsd_html_match->getXSDMF_IDBySELXDIS_ID($new_element, $currentSEL);
+										}
+									} else {
+										$xsdmf_id = $xsdmf_id[0]['xsdmf_id'];
+									}
+								}								
                             }
                         }
-
                         break;
                     case 'close':
                         // this is processed after have walked the attributes and children for this element
@@ -873,7 +938,37 @@ class XSD_DisplayObject
                 $xsdmf_id = $this->xsd_html_match->getXSDMF_IDByKeyXDIS_ID($new_element, $domNode->nodeValue); 
                 if (empty($xsdmf_id)) {
                     // look for a straight attribute match
-                    $xsdmf_id = $this->xsd_html_match->getXSDMF_IDByXDIS_ID($new_element);
+					if (is_numeric($cbdata['currentSEL'])) {
+						$xsdmf_id = $this->xsd_html_match->getXSDMF_IDBySELXDIS_ID($new_element, $cbdata['currentSEL']);
+					} else {
+						$xsdmf_id = $this->xsd_html_match->getXSDMF_IDByXDIS_IDAll($new_element);
+						if (is_array($xsdmf_id)) {
+							if (count($xsdmf_id) > 1) {
+								foreach ($xsdmf_id as $row) {
+									if ($row['xsdmf_html_input'] == 'xsd_loop_subelement' && is_numeric($row['xsdsel_indicator_xsdmf_id']) && $row['xsdsel_indicator_xsdmf_id'] != 0 && $row['xsdsel_indicator_value'] != "") {
+										$indicator_xpath = $row['xsd_element_prefix'].":".ltrim(str_replace("!", "/".$row['xsd_element_prefix'].":", $row['indicator_element']), "/");
+										$currentNodeLength = strlen($domNode->nodeName);
+										$currentNodePos = strpos($indicator_xpath, $domNode->nodeName);
+										$indicator_xpath = ".".substr($indicator_xpath, $currentNodePos + $currentNodeLength);
+										$xpath = new DOMXPath($rootNode);
+										$xpath->registerNamespace("mods", "http://www.loc.gov/mods/v3");
+										$indicatorNodes = $xpath->query($indicator_xpath, $domNode);
+										if ($indicatorNodes->length > 0) {
+											$indicatorValue = $indicatorNodes->item(0)->nodeValue; //should only ever be one search result in the array
+											if ($indicatorValue == $row['xsdsel_indicator_value']) {
+												$currentSEL = $row['indicator_xsdsel_id'];
+											}
+										} 												
+									}
+								}
+								if (is_numeric($currentSEL)) {
+									$xsdmf_id = $this->xsd_html_match->getXSDMF_IDBySELXDIS_ID($new_element, $currentSEL);
+								}
+							} else {
+								$xsdmf_id = $xsdmf_id[0]['xsdmf_id'];
+							}
+						}								
+					}
 	                if (empty($xsdmf_id)) {
 						// if still can't find it, try it further up the tree - eg for MODS name|ID looked for in name|namePart
 		                $new_element = "!{$cbdata['parentContent']}!$clean_nodeName";
@@ -917,6 +1012,11 @@ class XSD_DisplayObject
                     $cbdata['parent_key'] = $xsdmf_details['xsdmf_key_match'];
                 }
             }			
+            // Store the indicator sublooping element further down the tree.
+            if ($currentSEL != '') {
+	            $cbdata['currentSEL'] = $currentSEL;
+            }			
+
         }
         if (($domNode->nodeType == XML_ELEMENT_NODE) && ($context == 'endopen')) {
             // update the parentContent match path

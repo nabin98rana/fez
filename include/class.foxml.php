@@ -58,7 +58,9 @@ class Foxml
 //							.'_'.$loop_count;
 						$post_idx = 'xsd_display_fields_'.$xsdmf_details['xsdmf_attached_xsdmf_id']
 							.'_'.($attrib_loop_index+1);
+
 						$attached_value = @$HTTP_POST_VARS[$post_idx];
+
 						if (is_numeric($attached_value) && ($attached_value != -1)) {
 							$xsdmf_details_attached = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_details['xsdmf_attached_xsdmf_id']);
                             $attached_xsd_element = substr($xsdmf_details_attached['xsdmf_element'], 
@@ -341,7 +343,8 @@ class Foxml
 	// Go back up the existing XML object string to the last found $parent_element and add the given attribute
 	function addAttributeToParent(&$xmlObj, $parent_element, $full_attached_attibute) {
 		$parent_element = trim(str_replace("!", "", $parent_element));
-		$parentLocation = strrpos($xmlObj, $parent_element.">"); // find the start of the last parent element
+//		$parentLocation = strrpos($xmlObj, $parent_element.">"); // find the start of the last parent element
+		$parentLocation = strrpos($xmlObj, "<".$parent_element); // find the start of the last parent element
 		if (!is_numeric($parentLocation)) { // if you can't find the element with no attributes, see if one exists with an attribute (a space after the element name)
 			$parentLocation = strrpos($xmlObj, $parent_element." "); // find the start of the last parent element
 		}
@@ -386,6 +389,7 @@ class Foxml
                     if ((!empty($j['fez_nodetype'])) && (!empty($j['fez_hyperlink']))) {
                         if ($j['fez_nodetype'] == 'attribute') {
                             if (is_numeric($parent_sel_id)) {
+
                                 $xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_ID(urldecode($j['fez_hyperlink']), $parent_sel_id, $xdis_id);
                             } else {
                                 $xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement(urldecode($j['fez_hyperlink']), $xdis_id);
