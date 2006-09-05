@@ -57,18 +57,41 @@ class Misc
 
 	/*
 	 *  To use instead of php file_get_contents or fopen/fread as curl is much faster
+     * @param string $url
+     * @param bool $passthru - if true, don't return the retreived content, just echo it
 	 */
-	function processURL($url) {
+	function processURL($url,$passthru=false) {
 	   if (empty($url)) { return ""; }
 	   $url=str_replace('&amp;','&',$url);
 	   $ch=curl_init();
 	   curl_setopt($ch, CURLOPT_URL, $url);
-	   curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
-	   $data = curl_exec ($ch);
+       if (!$passthru) {
+           curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
+       }
+       $data = curl_exec ($ch);
        $info = curl_getinfo($ch); 
 	   curl_close ($ch);
 	   return array($data,$info);  
 	}
+
+    /**
+      * Just get the http headers from an URL
+      * Returns the header and the curl info array.
+      */
+	function processURL_info($url) 
+    {
+        if (empty($url)) { return ""; }
+	   $url=str_replace('&amp;','&',$url);
+	   $ch=curl_init();
+	   curl_setopt($ch, CURLOPT_URL, $url);
+       curl_setopt ($ch, CURLOPT_NOBODY, 1);
+       curl_setopt ($ch, CURLOPT_HEADER, 1);
+       curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
+       $data = curl_exec ($ch);
+       $info = curl_getinfo($ch); 
+	   curl_close ($ch);
+	   return array($data,$info);  
+    }
 
 	/*
 	* (mixed)remote_filesize($uri,$user='',$pw='')

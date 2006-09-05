@@ -205,7 +205,7 @@ class FulltextIndex {
     function getKeyId($word) 
     {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-        $stmt = "SELECT ftk_id FROM {$dbtp}fulltext_keywords WHERE ftk_word = '$word'";
+        $stmt = "SELECT ftk_id FROM {$dbtp}fulltext_keywords WHERE ftk_word = '".Misc::escapeString($word)."'";
         $res = $GLOBALS['db_api']->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -231,7 +231,7 @@ class FulltextIndex {
         $pid = $rec->getPid();
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $stmt = "SELECT * FROM {$dbtp}fulltext_index WHERE fti_pid='$pid' AND fti_dsid='$dsID'";
-        $res = $GLOBALS['db_api']->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        $res = $GLOBALS['db_api']->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             $res = array();

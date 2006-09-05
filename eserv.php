@@ -148,9 +148,9 @@ if (!empty($pid) && !empty($dsID)) {
 			}
 			echo $sourceOAIRead;
 			*/
-			list($data,$info) = Misc::processURL($urldata);
+			list($data,$info) = Misc::processURL_info($urldata);
 
-            ob_start();
+            //ob_start();
             if (!empty($header)) {
                 header($header);
             } elseif (!empty($info['content_type'])) {
@@ -162,8 +162,8 @@ if (!empty($pid) && !empty($dsID)) {
             header('Pragma: private');
             header('Cache-control: private, must-revalidate');
 
-			echo $data;
-			ob_end_flush(); // the incrementFileDownloads takes some (small) time so flush the file content out first
+            Misc::processURL($urldata,true);
+			//ob_end_flush(); // the incrementFileDownloads takes some (small) time so flush the file content out first
 			// Stats are now handled by a web log scraper in Fez instead of on-the-fly
 /*			if ((!is_numeric(strpos($dsID, "thumbnail_"))) && (!is_numeric(strpos($dsID, "web_"))) && (!is_numeric(strpos($dsID, "preview_"))) && (!is_numeric(strpos($dsID, "presmd_"))) && (!is_numeric(strpos($dsID, "FezACML_"))) ) {
 

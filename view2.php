@@ -190,10 +190,10 @@ if (!empty($pid)) {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {		
-								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".$rel_url."list.php?terms=".$details[$dis_field['xsdmf_id']][$ckey]."'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
+								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".APP_RELATIVE_URL."list.php?terms=".$details[$dis_field['xsdmf_id']][$ckey]."'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
 							}
 						} else {
-							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".$rel_url."list.php?terms=".$details[$dis_field['xsdmf_id']]."'>".$details[$dis_field['xsdmf_id']]."</a>";
+							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_RELATIVE_URL."list.php?terms=".$details[$dis_field['xsdmf_id']]."'>".$details[$dis_field['xsdmf_id']]."</a>";
 						}
 					}
 				}				

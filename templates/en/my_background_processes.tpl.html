@@ -21,6 +21,16 @@ bgp_done[{$smarty.section.iii.index}] = 0;
 var updateProcess_mutex;
 var showBgpLog_mutexes = new Array;
 {literal}
+
+function getDone(id)
+{
+    return bgp_done[id];
+}
+function setDone(id)
+{
+    bgp_done[id] = 1;
+}
+
 function showBgpUpdated(id)
 {
     document.getElementById(id+'_progress').style.color = 'black';
@@ -63,7 +73,7 @@ function updateProcesses()
             return;
         }
         id = bgp_items[next_idx++];
-        if (bgp_done[id] != 1) {
+        if (getDone(id) != 1) {
             good_id = true;
         }
     }
@@ -72,14 +82,15 @@ function updateProcesses()
     bgp.onGetDetailsError = function () {
         showBgpError(id);
         updateProcess_mutex--;
+        setDone(id);
         updateProcesses();
         return;
     };
     bgp.setTimeout(10000);
     bgp.getDetails(id, function(values) {
             showBgpValues(id, values);
-            if (values.bgp_state == 2) {
-              bgp_done[id] = 1;
+            if (values.bgp_state == 2 || values.bgp_state == 0) {
+              setDone(id);
             }
             updateProcess_mutex--;
             updateProcesses();

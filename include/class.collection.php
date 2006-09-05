@@ -1597,7 +1597,7 @@ if ($order_by == 'File Downloads') {
      */
     function advSearchListing($current_row = 0, $max = 25, $order_by_key = '')
     {
-		$terms = $_GET['list'];
+		$terms = @$_GET['list'];
 
 		if (empty($terms)) {
 			return array();
