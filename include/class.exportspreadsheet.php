@@ -104,7 +104,12 @@ class ExportSpreadsheet {
                         foreach ($metaArray['authorID'] as $key => $sauth) {
                             if (is_numeric($sauth)) {
                                 $auth_id = Author::getOrgStaffId($sauth);
+                                if (empty($auth_id)) {
+                                    $auth_id = 'unknown';
+                                }
                                 $metaArray['authorID'][$key] = $auth_id;
+                            } else {
+                                $metaArray['authorID'][$key] = 'unknown';
                             }
                         }
                     }
