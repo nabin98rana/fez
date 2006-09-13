@@ -100,6 +100,14 @@ class ExportSpreadsheet {
                             }
                         }
                     }
+                    if (isset($metaArray['authorID']) && is_array($metaArray['authorID'])) {
+                        foreach ($metaArray['authorID'] as $key => $sauth) {
+                            if (is_numeric($sauth)) {
+                                $auth_id = Author::getOrgStaffId($sauth);
+                                $metaArray['authorID'][$key] = $auth_id;
+                            }
+                        }
+                    }
                     $spreadsheet->addArray($metaArray);
                 } elseif ($ds['controlGroup'] == 'R' 
                         && !in_array(substr($ds['ID'],0,strpos($ds['ID'],'_')), $exclude_prefix)
