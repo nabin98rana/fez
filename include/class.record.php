@@ -100,7 +100,7 @@ class Record
 							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,							
 							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
 						WHERE (s2.sek_title = 'isMemberOf' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid = '".$pid."'))
-					as p1 on p1.parent_pid = r1.rmf_rec_pid
+					as p1 on p1.parent_pid = r1.rmf_rec_pid 
 					";	
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);						
 		$return = array();
@@ -119,6 +119,7 @@ class Record
 		}
 		$details = array_values($return);			
 		$returns[$pid] = $details;
+
 		return $details; 
     }
 

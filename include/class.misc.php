@@ -65,6 +65,10 @@ class Misc
 	   $url=str_replace('&amp;','&',$url);
 	   $ch=curl_init();
 	   curl_setopt($ch, CURLOPT_URL, $url);
+	   if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
+         curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+         curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+       }
        if (!$passthru) {
            curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
        }
@@ -87,6 +91,10 @@ class Misc
        curl_setopt ($ch, CURLOPT_NOBODY, 1);
        curl_setopt ($ch, CURLOPT_HEADER, 1);
        curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
+	   if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
+         curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+         curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+       }
        $data = curl_exec ($ch);
        $info = curl_getinfo($ch); 
 	   curl_close ($ch);
@@ -110,6 +118,10 @@ class Misc
 	   curl_setopt($ch, CURLOPT_HEADER, 1);
 	   // make it a http HEAD request
 	   curl_setopt($ch, CURLOPT_NOBODY, 1);
+	   if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
+         curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+         curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+       }
 	   // if auth is needed, do it here
 	   if (!empty($user) && !empty($pw))
 	   {
@@ -182,6 +194,10 @@ class Misc
 	   ob_start();
 	   // initialize curl with given uri
 	   $ch = curl_init($uri);
+	   if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
+         curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+         curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+       }
 	   // if auth is needed, do it here
 	   if (!empty($user) && !empty($pw))
 	   {
@@ -674,6 +690,11 @@ class Misc
 		curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
 		curl_setopt($ch, CURLOPT_HEADER, TRUE);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER,TRUE);
+ 	    if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
+			curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+			curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+		}
+
 		curl_exec($ch);
 		if (($c = curl_getinfo($ch,CURLINFO_HTTP_CODE)) < 200 || $c >= 300) {
 			curl_close($ch);
@@ -1357,7 +1378,7 @@ class Misc
      * @param   string $parentContent The front hierarchy of the array element passed by a parent XML element
      * @return  void ($array passed as reference recursively)
      */
-	function dom_xsd_to_referenced_array($domnode, $topelement, &$array, $parentnodename="", $searchtype="", $superdomnode, $supertopelement="", $parentContent="") {
+	function dom_xsd_to_referenced_array($domnode, $topelement, &$array, $parentnodename="", $searchtype="", $superdomnode, $supertopelement="", $parentContent="", $refCount = array()) {
         //echo "Node:(".$domnode->nodeName."), topelement:($topelement), parentnodename:($parentnodename), searchtype:($searchtype), superdomnode:(".$superdomnode->nodeName."), superdomnode:($supertopelement), parentContent:($parentContent)<br/>\n";
 		$array_ptr = &$array;	
 		$standard_types = array("int", "string", "dateTime", "float", "anyURI", "base64Binary", "NMTOKEN", "lang");
@@ -1393,11 +1414,11 @@ class Misc
 						$array_ptr = &$array[$current_name];
 					}
 					foreach ($current_types as $type) {
-						Misc::dom_xsd_to_referenced_array($currentnode, $type, $array_ptr, $current_name, "complexType", $superdomnode, $supertopelement, $parentContent);
+						Misc::dom_xsd_to_referenced_array($currentnode, $type, $array_ptr, $current_name, "complexType", $superdomnode, $supertopelement, $parentContent, $refCount);
 					}	
 					if ($currentnode->hasChildNodes() ) {
 						foreach ($currentnode->childNodes as $childnode) {
-							Misc::dom_xsd_to_referenced_array($childnode, '', $array_ptr, $current_name, "", $superdomnode, $supertopelement, $parentContent);
+							Misc::dom_xsd_to_referenced_array($childnode, '', $array_ptr, $current_name, "", $superdomnode, $supertopelement, $parentContent, $refCount);
 						}
 					}
 				} else {
@@ -1432,7 +1453,7 @@ class Misc
 					}	
 					if ($currentnode->hasChildNodes() ) {
 						foreach ($currentnode->childNodes as $childnode) {
-							Misc::dom_xsd_to_referenced_array($childnode, "", $array_ptr, $parentnodename, "", $superdomnode, $supertopelement, $parentContent);
+							Misc::dom_xsd_to_referenced_array($childnode, "", $array_ptr, $parentnodename, "", $superdomnode, $supertopelement, $parentContent, $refCount);
 						}
 					}
 				} elseif (($shortnodename == "extension") || ($shortnodename == "any") || ($shortnodename == "anyAttribute") || ($shortnodename == "restriction") || ($shortnodename == "group") || ($shortnodename == "complexContent") || ($shortnodename == "simpleContent") || ($shortnodename == "attributeGroup") || ($shortnodename == "attribute") || ($shortnodename == "enumeration"))  {
@@ -1475,7 +1496,7 @@ class Misc
                                 }
                             }
 							foreach ($current_refs as $ref) {
-								Misc::dom_xsd_to_referenced_array($currentnode, $ref, $array_ptr, $current_name, $nextSearch, $superdomnode, $supertopelement, $parentContent);
+								Misc::dom_xsd_to_referenced_array($currentnode, $ref, $array_ptr, $current_name, $nextSearch, $superdomnode, $supertopelement, $parentContent, $refCount);
 							}
 							if ($current_name <> $parentnodename) {
 								$array_ptr = &$array[$current_name];
@@ -1500,14 +1521,24 @@ class Misc
                                 array_push($current_refs, $shortrefvalue);
                             }
 						}					
+
 						foreach ($current_refs as $ref) {
-							Misc::dom_xsd_to_referenced_array($currentnode, $ref, $array_ptr, $current_name, $shortnodename, $superdomnode, $supertopelement, $parentContent);
+							// Flag the ref for child parses so that it only recursives the same ref group once (or it could go in an endless recursive loop) - CK added 13/9/2006
+							if (array_key_exists($ref, $refCount)) {
+								if ($refCount[$ref] == 1) { // 
+									$refCount[$ref] = 2;
+									Misc::dom_xsd_to_referenced_array($currentnode, $ref, $array_ptr, $current_name, $shortnodename, $superdomnode, $supertopelement, $parentContent, $refCount);						
+								} 
+							} else {
+								$refCount[$ref] = 1;
+								Misc::dom_xsd_to_referenced_array($currentnode, $ref, $array_ptr, $current_name, $shortnodename, $superdomnode, $supertopelement, $parentContent, $refCount);
+							}
 						}
 					}
 					
 					if ($currentnode->hasChildNodes() ) {
 						foreach ($currentnode->childNodes as $childnode) {
-							Misc::dom_xsd_to_referenced_array($childnode, '', $array_ptr, $current_name, "", $superdomnode, $supertopelement, $parentContent);
+							Misc::dom_xsd_to_referenced_array($childnode, '', $array_ptr, $current_name, "", $superdomnode, $supertopelement, $parentContent, $refCount);
 						}
 					}
 				} elseif ($shortnodename == "element") {
@@ -1541,14 +1572,14 @@ class Misc
 						}
 					}		
 					foreach ($current_refs as $ref) {
-						Misc::dom_xsd_to_referenced_array($currentnode, $ref, $array_ptr, $current_name, "", $superdomnode, $supertopelement, $parentContent);
+						Misc::dom_xsd_to_referenced_array($currentnode, $ref, $array_ptr, $current_name, "", $superdomnode, $supertopelement, $parentContent, $refCount);
 					}
 					foreach ($current_types as $type) {
-						Misc::dom_xsd_to_referenced_array($currentnode, $type, $array_ptr, $current_name, "complexType", $superdomnode, $supertopelement, $parentContent);
+						Misc::dom_xsd_to_referenced_array($currentnode, $type, $array_ptr, $current_name, "complexType", $superdomnode, $supertopelement, $parentContent, $refCount);
 					}	
 					if ($currentnode->hasChildNodes() ) {
 						foreach ($currentnode->childNodes as $childnode) {
-							Misc::dom_xsd_to_referenced_array($childnode, '', $array_ptr, $current_name, "", $superdomnode, $supertopelement, $parentContent);
+							Misc::dom_xsd_to_referenced_array($childnode, '', $array_ptr, $current_name, "", $superdomnode, $supertopelement, $parentContent, $refCount);
 						}
 					}	
 				} elseif ($currentnode->nodeName != "") {
@@ -1573,14 +1604,14 @@ class Misc
 						}
 					}
 					foreach ($current_refs as $ref) {
-						Misc::dom_xsd_to_referenced_array($currentnode, $ref, $array_ptr, $current_name, "", $superdomnode, $supertopelement, $parentContent);
+						Misc::dom_xsd_to_referenced_array($currentnode, $ref, $array_ptr, $current_name, "", $superdomnode, $supertopelement, $parentContent, $refCount);
 					}
 					foreach ($current_types as $type) {
-						Misc::dom_xsd_to_referenced_array($currentnode, $type, $array_ptr, $current_name, "complexType", $superdomnode, $supertopelement, $parentContent);
+						Misc::dom_xsd_to_referenced_array($currentnode, $type, $array_ptr, $current_name, "complexType", $superdomnode, $supertopelement, $parentContent, $refCount);
 					}	
 					if ($currentnode->hasChildNodes() ) {
 						foreach ($currentnode->childNodes as $childnode) {
-							Misc::dom_xsd_to_referenced_array($childnode, '', $array_ptr, $current_name, "", $superdomnode, $supertopelement, $parentContent);
+							Misc::dom_xsd_to_referenced_array($childnode, '', $array_ptr, $current_name, "", $superdomnode, $supertopelement, $parentContent, $refCount);
 						}
 					} elseif ((count($current_refs) == 0) && (count($current_types) == 0) && ($current_name != $parentnodename)) {
 						if (($current_name != $supertopelement) && ($current_name != "")) {					

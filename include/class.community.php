@@ -246,7 +246,7 @@ class Community
 			}
 			$return[$ret_key]['workflows'] = $workflows;
 		}*/
-
+		$return = Collection::getWorkflows($return);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";

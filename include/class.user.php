@@ -937,8 +937,6 @@ class User
                     *
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user u
-                 WHERE
-                    u.usr_id != " . APP_SYSTEM_USER_ID . " 
                  ORDER BY
                     u.usr_status ASC,
                     u.usr_full_name ASC";

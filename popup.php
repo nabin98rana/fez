@@ -50,7 +50,10 @@ Auth::checkAuthentication(APP_SESSION, 'index.php?err=5', true);
 $usr_id = Auth::getUserID();
 $cat = @$HTTP_GET_VARS["cat"] ? @$HTTP_GET_VARS["cat"] : @$HTTP_POST_VARS["cat"];
 switch ($cat) 
-{
+{	
+
+
+	
     case 'purge_datastream':
         {
             $dsID = $HTTP_GET_VARS["dsID"];

@@ -857,13 +857,29 @@ class XSD_DisplayObject
 											$indicator_xpath = ".".substr($indicator_xpath, $currentNodePos + $currentNodeLength);
 											$xpath = new DOMXPath($rootNode);
 											$xpath->registerNamespace("mods", "http://www.loc.gov/mods/v3");
+//											echo "DEBUG: ".$indicator_xpath."<br />";
 											$indicatorNodes = $xpath->query($indicator_xpath, $domNode);
 											if ($indicatorNodes->length > 0) {
 												$indicatorValue = $indicatorNodes->item(0)->nodeValue; //should only ever be one search result in the array
 												if ($indicatorValue == $row['xsdsel_indicator_value']) {
 													$currentSEL = $row['indicator_xsdsel_id'];
 												}
-											} 												
+											} else { // search for attributes next
+												$attribPos = strrpos($indicator_xpath, "/");
+												if (is_numeric($attribPos)) {
+													$attrib = substr($indicator_xpath, $attribPos+1);
+													$indicator_xpath = substr($indicator_xpath, 0, $attribPos);													
+													$attrib = "@".str_replace($row['xsd_element_prefix'].":", "", $attrib);
+													$indicator_xpath .= "/".$attrib;
+													$indicatorNodes = $xpath->query($indicator_xpath, $domNode);
+													if ($indicatorNodes->length > 0) {
+														$indicatorValue = $indicatorNodes->item(0)->nodeValue; //should only ever be one search result in the array
+														if ($indicatorValue == $row['xsdsel_indicator_value']) {
+															$currentSEL = $row['indicator_xsdsel_id'];
+														}														
+													} 
+												}
+											}												
 										}
 									}
 									if (is_numeric($currentSEL)) {
@@ -907,7 +923,22 @@ class XSD_DisplayObject
 													if ($indicatorValue == $row['xsdsel_indicator_value']) {
 														$currentSEL = $row['indicator_xsdsel_id'];
 													}
-												} 												
+												} else { // search for attributes next
+													$attribPos = strrpos($indicator_xpath, "/");
+													if (is_numeric($attribPos)) {
+														$attrib = substr($indicator_xpath, $attribPos+1);
+														$indicator_xpath = substr($indicator_xpath, 0, $attribPos);													
+														$attrib = "@".str_replace($row['xsd_element_prefix'].":", "", $attrib);
+														$indicator_xpath .= "/".$attrib;
+														$indicatorNodes = $xpath->query($indicator_xpath, $domNode);
+														if ($indicatorNodes->length > 0) {
+															$indicatorValue = $indicatorNodes->item(0)->nodeValue; //should only ever be one search result in the array
+															if ($indicatorValue == $row['xsdsel_indicator_value']) {
+																$currentSEL = $row['indicator_xsdsel_id'];
+															}														
+														} 
+													}
+												}												
 											}
 										}
 										if (is_numeric($currentSEL)) {

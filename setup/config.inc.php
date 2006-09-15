@@ -37,11 +37,21 @@ error_reporting(1);
 error_reporting(E_ALL ^ E_NOTICE);
 set_time_limit(0);
 
-// definitions of Organisation LDAP related variables. You may need to query your Org's LDAP expert for help on these settings.
+@define("APP_HOSTNAME", "%{APP_HOSTNAME}%");
+
+// Web server log files used for statistics scheduled tasks / cron jobs nightly statistics gathering
+@define("WEBSERVER_CONFIG_PATH", "/usr/local/apache/api/fez/"); // the path for files that should be below the document root eg configs, geoip data
+@define("WEBSERVER_LOG_DIR", "/usr/local/apache/logs/"); 
+@define("WEBSERVER_LOG_FILE", "access_log"); //change to the name of your fez access log if different
+
+// definitions of Organisation Shibboleth related variables. You may need to query your Org's Shibboleth expert for help on these settings.
 @define("SHIB_SWITCH", "OFF");  // Set to OFF or ON depending on whether you want to use Shibboleth authentication
 @define("SHIB_FEDERATION_NAME", "MAMS Testbed Federation");  // Change this to the name of your Shibboleth Federation, eg Inqueue, InCommon, MAMS Testbed Federation
-@define("SHIB_HOME_IDP", "urn:mace:federation.org.au:testfed:level-1:idp.youridp.edu");  // Change this to the urn of your home instituition Identity Provider
-@define("SHIB_WAYF_METADATA_LOCATION", "/usr/local/shibboleth-sp/etc/shibboleth/level-1-metadata.xml");  // Change this to path location of the WAYF metadata XML file, you can update this with a cronjob (linux) or a schedulated task (windows)
+@define("SHIB_FEDERATION", "urn:mace:federation.org.au:testfed:level-1:");  // Change this to the base urn of your federation eg Inqueue or InCommon
+@define("SHIB_HOME_SP", SHIB_FEDERATION.APP_HOSTNAME);  // Change this to the urn of your Fez Service Provider if different
+@define("SHIB_HOME_IDP", SHIB_FEDERATION."idp.yourinst.edu");  // Change this to the urn of your home instituition IDP
+@define("SHIB_WAYF_METADATA_LOCATION", "/usr/local/shibboleth-sp/etc/shibboleth/level-1-metadata.xml");  // Change this to path location of the WAYF metadata XML file, you can update this with a cronjob (linux) or a schedulated task (windows). Your WAYF drop down list will fill from this XML file.
+// definitions of Organisation LDAP related variables. You may need to query your Org's LDAP expert for help on these settings.
 @define("LDAP_SWITCH", "%{LDAP_SWITCH}%");  // Set to OFF or ON depending on whether you want to use LDAP authentication
 @define("LDAP_ORGANISATION", "%{LDAP_ORGANISATION}%"); //eg o=The University of Fez, c=AU
 @define("LDAP_ROOT_DN", "%{LDAP_ROOT_DN}%"); //eg DC=uq,DC=edu,DC=au
@@ -49,7 +59,7 @@ set_time_limit(0);
 @define("LDAP_SERVER", "%{LDAP_SERVER}%"); // yourldapserver.yourdomain.edu
 @define("LDAP_PORT", "%{LDAP_PORT}%"); // Usually 389
 
-@define("EPRINTS_OAI", "http://eprint.uq.edu.au/perl/oai2?verb=GetRecord&metadataPrefix=oai_dc&identifier=oai%3Aeprint.uq.edu.au%3A"); // change this to your ePrints OAI service provider for batch importing of ePrints records
+@define("EPRINTS_OAI", "http://eprint.yourinst.edu/perl/oai2?verb=GetRecord&metadataPrefix=oai_dc&identifier=oai%3Aeprint.yourinst.edu.au%3A"); // change this to your ePrints OAI service provider for batch importing of ePrints records
 @define("APP_LINK_PREFIX", ""); // If you want to prepend the way all Fez Link datastreams display with a prefix then put it in this field. Fez will check first to see if the prefix is already there before adding it. Useful for ezproxying of external database resources eg http://ezproxy.library.yourorg.edu/url=
 @define("APP_WATERMARK", "watermark.gif"); // The image to be used for watermarking of copyright images
 // definitions of path related variables
@@ -93,6 +103,8 @@ if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Serve
 }
 @define("APP_SETUP_PATH", APP_PATH);
 @define("APP_SETUP_FILE", APP_SETUP_PATH . "setup.conf.php");
+
+@define("APP_HTTPS_CURL_CHECK_CERT", "OFF"); //if you have a dev. host with an SSL cert. that's not officially signed, set this OFF, otherwise Fedora SSL calls will fail in CURL
 
 // FEDORA VARIABLES
 // Setup reusable Fedora API variables
@@ -158,7 +170,6 @@ if (APP_FEDORA_SETUP == 'sslall') {
 @define("APP_SHORT_ORG_NAME", "%{APP_SHORT_ORG_NAME}%");
 @define("APP_SHORT_NAME", APP_NAME);
 @define("APP_URL", "http://www.library.uq.edu.au/escholarship/");
-@define("APP_HOSTNAME", "%{APP_HOSTNAME}%");
 @define("APP_SITE_NAME", APP_NAME);
 @define("APP_RELATIVE_URL", "%{APP_RELATIVE_URL}%");
 
@@ -176,7 +187,7 @@ if (APP_FEDORA_SETUP == 'sslall') {
 
 @define("APP_SESSION_EXPIRE", time() + (60 * 60 * 8));
 
-@define("APP_VERSION", "1.2 BETA");
+@define("APP_VERSION", "1.3 BETA");
 
 @define("APP_DEFAULT_TIMEZONE", "UTC"); // Change this to your local timezone eg Australia/Brisbane. Fez will still store dates as UTC but will default display them as this timezone until the user has logged in with their preffered timezone user setting
 
@@ -193,6 +204,8 @@ if (APP_FEDORA_SETUP == 'sslall') {
 @define("APP_HEADING_COLOR", "#367FCC");
 @define("APP_CYCLE_COLORS", "#DDDDDD,#CACACA");
 @define("APP_INTERNAL_COLOR", APP_CELL_COLOR);
+
+@define("APP_DEFAULT_TIMEZONE", "Australia/Brisbane"); //Change this to the default timezone for new users. See include/pear/date for other string examples
 
 // define the user_id of system user
 @define("APP_SYSTEM_USER_ID", 1);

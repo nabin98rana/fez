@@ -2518,9 +2518,9 @@ class XSD_HTML_MatchObject
    				   m2.xsdmf_xsdsel_id as indicator_xsdsel_id
                 FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m1 left join
-					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (xsdmf_id = xsdsel_xsdmf_id) left join
-					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on (xsdmf_xdis_id = xdis_id)  left join
-					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd x1 on (xdis_xsd_id = xsd_id) left join 
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (m1.xsdmf_id = s1.xsdsel_xsdmf_id) left join
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on (m1.xsdmf_xdis_id = d1.xdis_id)  left join
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd x1 on (d1.xdis_xsd_id = x1.xsd_id) left join 
 					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m2 on (m2.xsdmf_id = s1.xsdsel_indicator_xsdmf_id)
                 WHERE
                     m1.xsdmf_xdis_id in ({$this->xdis_str})";
@@ -2602,9 +2602,9 @@ class XSD_HTML_MatchObject
    				   m2.xsdmf_xsdsel_id as indicator_xsdsel_id
                 FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m1 left join
-					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (xsdmf_id = xsdsel_xsdmf_id) left join
-					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on (xsdmf_xdis_id = xdis_id)  left join
-					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd x1 on (xdis_xsd_id = xsd_id) left join 
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (m1.xsdmf_id = s1.xsdsel_xsdmf_id) left join
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on (m1.xsdmf_xdis_id = d1.xdis_id)  left join
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd x1 on (d1.xdis_xsd_id = x1.xsd_id) left join 
 					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m2 on (m2.xsdmf_id = s1.xsdsel_indicator_xsdmf_id)
                 WHERE
                     m1.xsdmf_xdis_id in ({$this->xdis_str}) and m1.xsdmf_element = '$xsdmf_element'";
