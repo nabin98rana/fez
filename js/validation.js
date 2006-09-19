@@ -18,6 +18,33 @@ function isWhitespace(s)
     }
 }
 
+function isFloat(s)
+{
+    if (isWhitespace(s)) {
+        return false;
+    }
+
+    var seenDecimalPoint = false;
+    if (s == '.') {
+        return false;
+    }
+    // Search through string's characters one by one
+    // until we find a non-numeric character.
+    // When we do, return false; if we don't, return true.
+    for (var i = 0; i < s.length; i++) {
+        // Check that current character is number.
+        var c = s.charAt(i);
+        if ((c == '.') && !seenDecimalPoint) {
+            seenDecimalPoint = true;
+        } else if (!isDigit(c)) {
+            return false;
+        }
+    }
+
+    // All characters are numbers.
+    return true;
+}
+
 // @@@ CK - Added By CK 3/11/2004
 function trim(inputString) {
    // Removes leading and trailing spaces from the passed string. Also removes

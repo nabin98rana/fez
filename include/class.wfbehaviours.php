@@ -105,10 +105,11 @@ class WF_Behaviour
      * @access  public
      * @return  integer 1 if the insert worked, -1 otherwise
      */
-    function insert()
+    function insert($params = array())
     {
-        global $HTTP_POST_VARS;
-
+        if (empty($params)) {
+        	$params = &$_POST;
+        }
 		
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "wfbehaviour
@@ -119,18 +120,18 @@ class WF_Behaviour
                     wfb_script_name,
                     wfb_auto
                  ) VALUES (
-                    '" . Misc::escapeString($HTTP_POST_VARS["wfb_title"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["wfb_version"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["wfb_description"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["wfb_script_name"]) . "',
-                    '" . Misc::checkBox(@$HTTP_POST_VARS["wfb_auto"]) . "'
+                    '" . Misc::escapeString($params["wfb_title"]) . "',
+                    '" . Misc::escapeString($params["wfb_version"]) . "',
+                    '" . Misc::escapeString($params["wfb_description"]) . "',
+                    '" . Misc::escapeString($params["wfb_script_name"]) . "',
+                    '" . Misc::checkBox(@$params["wfb_auto"]) . "'
                  )";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-			//
+			return $GLOBALS["db_api"]->get_last_insert_id();
         }
     }
 
@@ -234,6 +235,55 @@ class WF_Behaviour
     }
 
 
+    function exportBehaviours(&$bhs_elem)
+    {
+        $behaviours = WF_Behaviour::getList();
+        foreach ($behaviours as $behaviour) {
+            $bh_elem = $bhs_elem->ownerDocument->createElement('WorkflowBehaviour');
+            $bh_elem->setAttribute('wfb_id', $behaviour['wfb_id']);
+            $bh_elem->setAttribute('wfb_title', $behaviour['wfb_title']);
+            $bh_elem->setAttribute('wfb_description', $behaviour['wfb_description']);
+            $bh_elem->setAttribute('wfb_version', $behaviour['wfb_version']);
+            $bh_elem->setAttribute('wfb_script_name', $behaviour['wfb_script_name']);
+            $bh_elem->setAttribute('wfb_auto', $behaviour['wfb_auto']);
+            $bhs_elem->appendChild($bh_elem);
+        }
+    }
+	
+    /**
+	* Get the behaviours and map the exisiting DB id to the ids in the xml doc
+    * If the behaviour script exists, then we map the XML id to the existing DB entry,
+    * otherwise a new behaviour is created from the XML file and the new DB id is mapped 
+    * @returns array $behaviour_ids_map
+	*/
+	function importBehaviours($doc)
+	{
+		$xpath = new DOMXPath($doc);
+		$xbehaviours = $xpath->query('/workflows/WorkflowBehaviour');
+        $behaviour_id_map = array();
+		foreach ($xbehaviours as $xbehaviour) {
+			$xid = $xbehaviour->getAttribute('wfb_id');
+            $xscript = $xbehaviour->getAttribute('wfb_script_name');
+            // see if there's already a behaviour that does this
+            $list = WF_Behaviour::getList($wherestr="WHERE wfb_script_name = '$xscript'");
+            if (empty($list)) {
+                $params = array(
+                    'wfb_title' => $xbehaviour->getAttribute('wfb_title'),
+                    'wfb_description' => $xbehaviour->getAttribute('wfb_description'),
+                    'wfb_version' => $xbehaviour->getAttribute('wfb_version'),
+                    'wfb_script_name' => $xbehaviour->getAttribute('wfb_script_name'),
+                    'wfb_auto' => $xbehaviour->getAttribute('wfb_auto'),
+                );
+            	$dbid = WF_Behaviour::insert($params);
+            } else {
+            	$dbid = $list[0]['wfb_id'];
+            }
+            $behaviour_id_map[$xid] = $dbid;
+		}
+        return $behaviour_id_map;
+	}
+	
+	
 
 }
 

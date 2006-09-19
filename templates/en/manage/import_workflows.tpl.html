@@ -1,0 +1,48 @@
+<script type="text/javascript">
+<!--
+{literal}
+var page_url = '{/literal}{$smarty.server.PHP_SELF}{literal}';
+{/literal}
+// -->
+</script>
+      <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+        <tr>
+          <td>
+            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+
+
+              <tr>
+                <td colspan="2" class="default">
+                  <b>Import Workflows</b>
+                </td>
+              </tr>
+             <tr>
+                <td bgcolor="{$light_color}" class="default">
+                Workflows that have been exported to an XML file can be imported here.  Note that existing workflows
+                will not be changed,  Duplicates will result if you import workflows that already exist in Fez.
+                </td>
+              </tr>
+		  <tr>
+			<td>
+                    <form name="form1"  method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
+                    <input type="hidden" name="cat" value="go"/>
+			  <table width="100%">
+			<tr>
+			  <td class="default" colspan="2">
+				<b><img align="absmiddle" src="{$rel_url}images/collection.jpg" border="0"> &nbsp; Select Import Settings</b>
+			  </td>
+			</tr>			
+			  <tr>
+				<td width="200" bgcolor="{$cell_color}" class="default">
+				  <b>File to import</b>
+				</td>
+				<td bgcolor="{$light_color}">
+				  <input type="file" name="import_xml" class="default" /> 
+				</td>
+			  </tr>
+            <tr><td colspan="2" bgcolor="{$cell_color}"><div align="center"><input type="submit" value="Import" class="button"/></div></td></tr>
+            </table>
+   		  </form>
+   		  </td></tr></table>
+   		  </td></tr></table>
+

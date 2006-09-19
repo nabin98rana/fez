@@ -69,7 +69,8 @@ class Workflow
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return false;
         } else {
-
+          Workflow_State::removeByWorkflow($HTTP_POST_VARS["items"]);
+          WorkflowTrigger::removeByWorkflow($HTTP_POST_VARS["items"]);
 		  return true;
         }
     }
@@ -81,10 +82,11 @@ class Workflow
      * @access  public
      * @return  integer 1 if the insert worked, -1 otherwise
      */
-    function insert()
+    function insert($params = array())
     {
-        global $HTTP_POST_VARS;
-
+    	if (empty($params)) {
+    		$params = &$_POST;
+    	}
 		
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow
@@ -95,18 +97,18 @@ class Workflow
                     wfl_roles,
                     wfl_end_button_label
                  ) VALUES (
-                    '" . Misc::escapeString($HTTP_POST_VARS["wfl_title"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["wfl_version"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["wfl_description"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["wfl_roles"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["wfl_end_button_label"]) . "'
+                    '" . Misc::escapeString($params["wfl_title"]) . "',
+                    '" . Misc::escapeString($params["wfl_version"]) . "',
+                    '" . Misc::escapeString($params["wfl_description"]) . "',
+                    '" . Misc::escapeString($params["wfl_roles"]) . "',
+                    '" . Misc::escapeString($params["wfl_end_button_label"]) . "'
                  )";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-			//
+        	return $GLOBALS['db_api']->get_last_insert_id();
         }
     }
 
@@ -199,12 +201,13 @@ class Workflow
      * @access  public
      * @return  array The list of custom fields
      */
-    function getList()
+    function getList($where='')
     {
         $stmt = "SELECT
                     *
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow
+                        $where    
                     ";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
@@ -330,8 +333,107 @@ class Workflow
         return false;
     }
 
+    function exportWorkflows($wfl_ids)
+    {
+        $doc = new DOMDocument('1.0','utf-8');
+        $doc->formatOutput = true;
+        $doc->appendChild($doc->createElement('workflows'));
+        $root = $doc->documentElement;
+        $root->setAttribute('schema_version','1.0');
+        WF_Behaviour::exportBehaviours($root);
+        foreach ($wfl_ids as $wfl_id) {
+            $workflow = Workflow::getDetails($wfl_id);
+            $workflow_elem = $doc->createElement('workflow');
+            $workflow_elem->setAttribute('wfl_id', $wfl_id);
+            $workflow_elem->setAttribute('wfl_title', $workflow['wfl_title']);
+            $workflow_elem->setAttribute('wfl_version', $workflow['wfl_version']);
+            $workflow_elem->setAttribute('wfl_description', $workflow['wfl_description']);
+            $workflow_elem->setAttribute('wfl_roles', $workflow['wfl_roles']);
+            $workflow_elem->setAttribute('wfl_end_button_label', $workflow['wfl_end_button_label']);
 
+            $states = Workflow_State::getList($wfl_id);
+            if (!empty($states)) {
+                foreach ($states as $state) {
+                    Workflow_State::exportStates($state['wfs_id'], $workflow_elem);
+                }
+            }
+            $links = WorkflowStateLink::getList($workflow['wfl_id']);
+            foreach ($links as $link) {
+                WorkflowStateLink::exportLinks($link['wfsl_id'], $workflow_elem);
+            }
+            WorkflowTrigger::exportTriggers($workflow['wfl_id'],$workflow_elem);
+            $root->appendChild($workflow_elem);
+        }
+       return $doc->saveXML();
 
+    }
+
+    function exportAllWorkflows()
+    {
+        $workflows = Workflow::getList();
+        return Workflow::exportWorkflows(array_keys(Misc::keyArray($workflows, 'wfl_id')));
+    }
+
+    /**
+     * Import workflows from a XML doc that was previously exported
+     */
+    function importWorkflows($filename)
+    {
+    	$doc = DOMDocument::load($filename);
+        // get the behaviours and map the existing DB id to the ids in the xml doc
+        $behaviour_ids_map = WF_Behaviour::importBehaviours($doc);
+        // Now import the workflows
+        $xpath = new DOMXPath($doc);
+        $xworkflows = $xpath->query('/workflows/workflow');
+        foreach ($xworkflows as $xworkflow) {
+            Workflow::importWorkflow($xworkflow, $behaviour_ids_map);
+        }
+    }
+    
+    function importWorkflow($xworkflow, $behaviour_ids_map)
+    {
+        $title = Misc::escapeString(trim($xworkflow->getAttribute('wfl_title')));
+        $version = Misc::escapeString(trim($xworkflow->getAttribute('wfl_version')));
+    
+    	// Does the workflow exist already?
+        $list = Workflow::getList($where="WHERE wfl_title='$title'");
+        if (!is_numeric($version)) {
+            // we don't insert workflows unless they have a version number        	
+            $ok_to_insert = false;
+        } elseif (!empty($list)) {
+            $ok_to_insert = true;
+            // We'll insert the workflow if it has a higher version number than the one in the DB
+            foreach ($list as $item) {
+                if (is_numeric($item['wfl_version'])) {
+                	if (floatval($item['wfl_version']) >= floatval($version)) {
+                        $ok_to_insert = false;
+                	}
+                }	
+            }
+        } else {
+            // import the workflow is it isn't already in the DB
+            $ok_to_insert = true;
+        }
+        if ($ok_to_insert) {
+        	// insert the new workflow from the XML
+            $params = array(
+                'wfl_title' => $xworkflow->getAttribute('wfl_title'),
+                'wfl_version' => $xworkflow->getAttribute('wfl_version'),
+                'wfl_description' => $xworkflow->getAttribute('wfl_description'),
+                'wfl_roles' => $xworkflow->getAttribute('wfl_roles'),
+                'wfl_end_button_label' => $xworkflow->getAttribute('wfl_end_button_label')
+            );
+            $wfl_id = Workflow::insert($params);
+            // Insert the states
+            $state_ids_map = Workflow_State::importStates($xworkflow, $wfl_id, $behaviour_ids_map);
+            
+            // Insert the State Links
+            WorkflowStateLink::importLinks($xworkflow, $wfl_id, $state_ids_map);
+            
+            // Insert the triggers
+            WorkflowTrigger::importTriggers($xworkflow, $wfl_id);
+        } 
+    }
 }
 
 // benchmarking the included file (aka setup time)

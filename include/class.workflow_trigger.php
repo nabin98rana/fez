@@ -103,33 +103,51 @@ class WorkflowTrigger
     /**
      * Inserts a trigger from the POST variables
      */
-    function insert()
+    function insert($params = array())
     {
-        return WorkflowTrigger::edit('insert');
+        return WorkflowTrigger::edit('insert', $params);
     }
 
     /**
      * Removes a trigger from the POST variables
      */
-    function remove()
+    function remove($params = array())
     {
-        return WorkflowTrigger::edit('delete');
+        return WorkflowTrigger::edit('delete',$params);
     }
 
+    function removeByWorkflow($wfl_ids)
+    {
+        $items = Misc::arrayToSQL($wfl_ids);
+        $stmt = "DELETE FROM ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."workflow_trigger WHERE wft_wfl_id IN ($items)";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        }
+    }
+    
     /** 
      * Gets the values for updating or inserting a trigger from the POST variables
      * @return string MySQL style string to be put in the SET part of the query
      */
-    function getPostSetStr()
+    function getPostSetStr($params = array())
     {
+      if (empty($params)) {
+      	$params = &$_POST;
+      }  
       $post_fields = array('wft_pid', 'wft_type_id', 'wft_xdis_id', 'wft_wfl_id', 
               'wft_mimetype', 'wft_icon', 'wft_ret_id');
       $set_str = 'SET ';
       foreach ($post_fields as $post_field) {
-          $set_str .= " $post_field='".Misc::escapeString($_POST[$post_field])."', ";
+          $set_str .= " $post_field='".Misc::escapeString(@$params[$post_field])."', ";
       }
-      $wft_options = WorkflowTrigger::setShowInList(0, Misc::checkBox($_POST['wft_option_show_in_list']));
-      $set_str .= " wft_options='$wft_options' ";
+      if (isset($params['wft_options'])) {
+          $set_str .= " wft_options='".Misc::escapeString(@$params['wft_options'])."' ";
+      } else {
+        $wft_options = WorkflowTrigger::setShowInList(0, Misc::checkBox($params['wft_option_show_in_list']));
+        $set_str .= " wft_options='$wft_options' ";
+      }
       return $set_str;
      }
 
@@ -137,7 +155,7 @@ class WorkflowTrigger
      * Modifies, Creates or Deletes a trigger record (depending on $action).  get's values from the
      * POST variables
      */
-    function edit($action='insert')
+    function edit($action='insert', $params = array())
     {
       switch($action) {
           case 'update':
@@ -149,10 +167,15 @@ class WorkflowTrigger
           case 'insert':
               $wherestr = "";
               $actionstr ="INSERT INTO";
-              $set_str = WorkflowTrigger::getPostSetStr();
+              $set_str = WorkflowTrigger::getPostSetStr($params);
               break;
           case 'delete':
-              $items = @implode(", ", Misc::GETorPOST("items"));
+              if (empty($params)) {
+              	$ids = Misc::GETorPOST("items");
+              } else {
+              	$ids = $params['items'];
+              }
+              $items = arrayToSQL($ids);
               $wherestr = " WHERE wft_id IN ($items)";
               $actionstr ="DELETE FROM";
               $set_str = '';
@@ -186,6 +209,19 @@ class WorkflowTrigger
         }
         foreach ($res as $key => $row) {
             $res[$key]['wft_options_split']['show_in_list'] = WorkflowTrigger::showInList($row['wft_options']);
+        }
+        return $res;
+    }
+
+    function getListByWorkflow($wfl_id, $wherestr='')
+    {
+        $stmt = "SELECT * FROM ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."workflow_trigger
+                WHERE wft_wfl_id='$wfl_id' $wherestr ORDER BY wft_type_id, wft_xdis_id";
+
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = array();
         }
         return $res;
     }
@@ -335,7 +371,44 @@ class WorkflowTrigger
         $res['wft_options_split']['show_in_list'] = WorkflowTrigger::showInList($res['wft_options']);
         return $res;
     }
+
+    function exportTriggers($wfl_id, &$wfs_elem)
+    {
+        $wfts = WorkflowTrigger::getListByWorkflow($wfl_id);
+        foreach ($wfts as $wft) {
+            $wf_elem = $wfs_elem->ownerDocument->createElement('WorkflowTrigger');
+            $wf_elem->setAttribute('wft_id', $wft['wft_id']);
+            $wf_elem->setAttribute('wft_pid', $wft['wft_pid']);
+            $wf_elem->setAttribute('wft_type_id', $wft['wft_type_id']);
+            $wf_elem->setAttribute('wft_xdis_id', $wft['wft_xdis_id']);
+            $wf_elem->setAttribute('wft_order', $wft['wft_order']);
+            $wf_elem->setAttribute('wft_mimetype', $wft['wft_mimetype']);
+            $wf_elem->setAttribute('wft_icon', $wft['wft_icon']);
+            $wf_elem->setAttribute('wft_ret_id', $wft['wft_ret_id']);
+            $wf_elem->setAttribute('wft_options', $wft['wft_options']);
+            $wfs_elem->appendChild($wf_elem);
+        }
+    }
     
+    function importTriggers($xworkflow, $wfl_id)
+    {
+        $xpath = new DOMXPath($xworkflow->ownerDocument);
+        $xtrigs = $xpath->query('WorkflowTrigger', $xworkflow);
+        foreach ($xtrigs as $xtrig) {
+        	$params = array(
+                'wft_pid' => $xtrig->getAttribute('wft_pid'),
+                'wft_type_id' => $xtrig->getAttribute('wft_type_id'),
+                'wft_xdis_id' => $xtrig->getAttribute('wft_xdis_id'),
+                'wft_order' => $xtrig->getAttribute('wft_order'),
+                'wft_mimetype' => $xtrig->getAttribute('wft_mimetype'),
+                'wft_icon' => $xtrig->getAttribute('wft_icon'),
+                'wft_ret_id' => $xtrig->getAttribute('wft_ret_id'),
+                'wft_options' => $xtrig->getAttribute('wft_options'),
+                'wft_wfl_id' => $wfl_id
+            );
+            WorkflowTrigger::insert($params);
+        }
+    }   
 
 }
 

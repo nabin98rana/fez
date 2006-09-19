@@ -77,11 +77,13 @@ class Workflow_State
      * @access  public
      * @return  integer 1 if the insert worked, -1 or -2 otherwise
      */
-    function insert()
+    function insert($params = array())
     {
-        global $HTTP_POST_VARS;
-        $wfs_auto = Misc::checkBox(@$HTTP_POST_VARS['wfs_auto']);
-        $wfs_wfb_id = $wfs_auto ? $HTTP_POST_VARS['wfs_wfb_id'] : $HTTP_POST_VARS['wfs_wfb_id2'];
+    	if (empty($params)) {
+            $params = &$_POST;
+        }
+        $wfs_auto = Misc::checkBox(@$params['wfs_auto']);
+        $wfs_wfb_id = $wfs_auto ? $params['wfs_wfb_id'] : @$params['wfs_wfb_id2'];
 
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow_state
@@ -96,22 +98,24 @@ class Workflow_State
                     wfs_end,
                     wfs_transparent
                  ) VALUES (
-                    '" . $HTTP_POST_VARS['wfs_wfl_id'] . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS['wfs_title']) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS['wfs_description']) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS['wfs_roles']) . "',
+                    '" . $params['wfs_wfl_id'] . "',
+                    '" . Misc::escapeString($params['wfs_title']) . "',
+                    '" . Misc::escapeString($params['wfs_description']) . "',
+                    '" . Misc::escapeString($params['wfs_roles']) . "',
                     '$wfs_auto',
                     '$wfs_wfb_id',
-                    '" . Misc::checkBox(@$HTTP_POST_VARS['wfs_start']) . "',
-                    '" . Misc::checkBox(@$HTTP_POST_VARS['wfs_end']) . "',
-                    '" . Misc::checkBox(@$HTTP_POST_VARS['wfs_transparent']) . "'
+                    '" . Misc::checkBox(@$params['wfs_start']) . "',
+                    '" . Misc::checkBox(@$params['wfs_end']) . "',
+                    '" . Misc::checkBox(@$params['wfs_transparent']) . "'
                  )";		
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-            return WorkflowStateLink::insertPost(mysql_insert_id());
+        	$wfs_id = $GLOBALS['db_api']->get_last_insert_id();
+            WorkflowStateLink::insertPost($wfs_id);
+            return $wfs_id;
         }
     }
 
@@ -171,6 +175,28 @@ class Workflow_State
             return false;
         } else {
 		  return WorkflowStateLink::removePost();
+        }
+    }
+    
+    function removeByWorkflow($wfl_ids)
+    {
+        if (empty($wfl_ids)) {
+    	   return;
+        } 
+    	$items = Misc::arrayToSQL($wfl_ids);
+        $stmt = "SELECT wfs_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow_state" .
+                " WHERE wfs_wfl_id IN ($items)";
+        $wfs_ids = $GLOBALS["db_api"]->dbh->getCol($stmt);        
+        $stmt = "DELETE FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow_state
+                 WHERE
+                    wfs_wfl_id IN ($items)";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return false;
+        } else {
+          return WorkflowStateLink::removeAll($wfs_ids);
         }
     }
 
@@ -283,7 +309,48 @@ class Workflow_State
     }
 
 
-
+    function exportStates($wfs_id, &$workflow_elem)
+    {
+        $wfs_details = Workflow_State::getDetails($wfs_id);
+        $state_elem = $workflow_elem->ownerDocument->createElement('WorkflowState');
+        $state_elem->setAttribute('wfs_id', $wfs_details['wfs_id']);
+        $state_elem->setAttribute('wfs_title', $wfs_details['wfs_title']);
+        $state_elem->setAttribute('wfs_description', $wfs_details['wfs_description']);
+        $state_elem->setAttribute('wfs_auto', $wfs_details['wfs_auto']);
+        $state_elem->setAttribute('wfs_wfb_id', $wfs_details['wfs_wfb_id']);
+        $state_elem->setAttribute('wfs_start', $wfs_details['wfs_start']);
+        $state_elem->setAttribute('wfs_end', $wfs_details['wfs_end']);
+        $state_elem->setAttribute('wfs_assigned_role_id', $wfs_details['wfs_assigned_role_id']);
+        $state_elem->setAttribute('wfs_transparent', $wfs_details['wfs_transparent']);
+        $state_elem->setAttribute('wfs_roles', $wfs_details['wfs_roles']);
+        $workflow_elem->appendChild($state_elem);
+    }
+    /**
+     * @returns array $state_ids_map
+     */
+    function importStates($xworkflow, $wfl_id, $behaviour_ids_map)
+    {
+    	$xpath = new DOMXPath($xworkflow->ownerDocument);
+        $xstates = $xpath->query('WorkflowState', $xworkflow);
+        $state_ids_map = array();
+        foreach ($xstates as $xstate) {
+        	$params = array(
+                'wfs_wfl_id' => $wfl_id,
+                'wfs_title' => $xstate->getAttribute('wfs_title'),
+                'wfs_description' => $xstate->getAttribute('wfs_description'),
+                'wfs_auto' => $xstate->getAttribute('wfs_auto'),
+                'wfs_wfb_id' => $behaviour_ids_map[$xstate->getAttribute('wfs_wfb_id')],
+                'wfs_wfb_id2' => $behaviour_ids_map[$xstate->getAttribute('wfs_wfb_id')],
+                'wfs_start' => $xstate->getAttribute('wfs_start'),
+                'wfs_end' => $xstate->getAttribute('wfs_end'),
+                'wfs_assigned_role_id' => $xstate->getAttribute('wfs_assigned_role_id'),
+                'wfs_transparent' => $xstate->getAttribute('wfs_transparent'),
+                'wfs_roles' => $xstate->getAttribute('wfs_roles'),
+            );
+            $state_ids_map[$xstate->getAttribute('wfs_id')] = Workflow_State::insert($params);
+        }
+        return $state_ids_map;
+    }
 }
 
 // benchmarking the included file (aka setup time)

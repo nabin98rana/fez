@@ -845,7 +845,7 @@ class XSD_DisplayObject
 							$new_element = "!".$parentContent."!".$clean_nodeName; 
 						}
 
-						if (!is_numeric($cbdata['currentSEL'])) {	
+						if (!is_numeric(@$cbdata['currentSEL'])) {	
 							$xsdmf_id = $this->xsd_html_match->getXSDMF_IDByXDIS_IDAll($new_element);
 							if (is_array($xsdmf_id)) {
 								if (count($xsdmf_id) > 1) {
@@ -903,7 +903,7 @@ class XSD_DisplayObject
                                 // if there are passed parent keys then use them in the search
                                 $xsdmf_id = $this->xsd_html_match->getXSDMF_IDByParentKeyXDIS_ID($new_element, 
                                         $cbdata['parent_key']);		
-							} elseif (is_numeric($cbdata['currentSEL'])) {						
+							} elseif (is_numeric(@$cbdata['currentSEL'])) {						
 								$xsdmf_id = $this->xsd_html_match->getXSDMF_IDBySELXDIS_ID($new_element, $cbdata['currentSEL']);
                             } else {
                                 $xsdmf_id = $this->xsd_html_match->getXSDMF_IDByXDIS_IDAll($new_element);
@@ -945,7 +945,7 @@ class XSD_DisplayObject
 											$xsdmf_id = $this->xsd_html_match->getXSDMF_IDBySELXDIS_ID($new_element, $currentSEL);
 										}
 									} else {
-										$xsdmf_id = $xsdmf_id[0]['xsdmf_id'];
+										$xsdmf_id = @$xsdmf_id[0]['xsdmf_id'];
 									}
 								}								
                             }
@@ -969,7 +969,7 @@ class XSD_DisplayObject
                 $xsdmf_id = $this->xsd_html_match->getXSDMF_IDByKeyXDIS_ID($new_element, $domNode->nodeValue); 
                 if (empty($xsdmf_id)) {
                     // look for a straight attribute match
-					if (is_numeric($cbdata['currentSEL'])) {
+					if (is_numeric(@$cbdata['currentSEL'])) {
 						$xsdmf_id = $this->xsd_html_match->getXSDMF_IDBySELXDIS_ID($new_element, $cbdata['currentSEL']);
 					} else {
 						$xsdmf_id = $this->xsd_html_match->getXSDMF_IDByXDIS_IDAll($new_element);

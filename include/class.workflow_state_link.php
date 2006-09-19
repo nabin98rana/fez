@@ -48,7 +48,10 @@ class WorkflowStateLink
       */
     function insertPost($id)
     {
-        $wfl_id = $_POST['wfl_id'];
+        $wfl_id = @$_POST['wfl_id'];
+        if (empty($wfl_id)) {
+        	return;
+        }
         WorkflowStateLink::removeAll($id);
         $stmt = '';
         foreach ($_POST['wfsl_prev_id'] as $prev_id) {
@@ -97,24 +100,51 @@ class WorkflowStateLink
     {
         return WorkflowStateLink::removeAll($_POST["items"]);
     }
-
-    function insert($from, $to) 
+   
+    
+    function insert($from, $to, $wfl_id) 
     {
+    	$stmt = "INSERT INTO 
+                ".APP_DEFAULT_DB.".".APP_TABLE_PREFIX."workflow_state_link 
+                (wfsl_wfl_id, wfsl_from_id, wfsl_to_id) VALUES
+                ('$wfl_id','$from','$to')";
+        $res1 = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res1)) {
+            Error_Handler::logError(array($res1->getMessage(), $res1->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+        	return $GLOBALS['db_api']->get_last_insert_id();
+        }
     }
 
     function remove($from, $to)
     {
     }
 
+    function getDetails($wfsl_id)
+    {
+        $stmt = "SELECT * FROM ".APP_DEFAULT_DB.".".APP_TABLE_PREFIX."workflow_state_link
+            WHERE wfsl_id='$wfsl_id'";
+        $res = $GLOBALS["db_api"]->dbh->getRow($stmt,DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        }
+        return $res;
+    }
+
     /**
      * Remove state links.
-     * @param array $items - list of workflow state link ids to be deleted
+     * @param array $items - list of workflow state ids to be deleted
      * @return 1 on success, -1 on failure.
      */
     function removeAll($items)
     {
         if (is_array($items)) {
             $items = @implode(", ", $items);
+        }
+        if (empty($items)) {
+        	return;
         }
         $stmt = "DELETE FROM 
             ".APP_DEFAULT_DB.".".APP_TABLE_PREFIX."workflow_state_link 
@@ -310,6 +340,28 @@ EOT;
         return $txt;
     }
         
+    function exportLinks($wfsl_id, &$workflow_elem)
+    {
+        $wfsl_details = WorkflowStateLink::getDetails($wfsl_id);
+        $state_elem = $workflow_elem->ownerDocument->createElement('WorkflowStateLinks');
+        $state_elem->setAttribute('wfsl_id', $wfsl_details['wfsl_id']);
+        $state_elem->setAttribute('wfsl_from_id', $wfsl_details['wfsl_from_id']);
+        $state_elem->setAttribute('wfsl_to_id', $wfsl_details['wfsl_to_id']);
+        $workflow_elem->appendChild($state_elem);
+    }
+
+    function importLinks($xworkflow, $wfl_id, $state_ids_map)
+    {
+        $xpath = new DOMXPath($xworkflow->ownerDocument);
+        $xlinks = $xpath->query('WorkflowStateLinks', $xworkflow);
+        foreach ($xlinks as $xlink) {
+        	WorkflowStateLink::insert(
+                $state_ids_map[$xlink->getAttribute('wfsl_from_id')],
+                $state_ids_map[$xlink->getAttribute('wfsl_to_id')],
+                $wfl_id
+            );
+        }
+    }
 
 
 
