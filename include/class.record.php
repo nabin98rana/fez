@@ -1758,7 +1758,7 @@ class RecordObject extends RecordGeneral
                 // into the repository even though it's dsID is illegal.
                 Fedora_API::callPurgeDatastream($pid, $dsIDName); 
                 $new_dsID = Foxml::makeNCName($dsIDName);
-                Fedora_API::getUploadLocationByLocalRef($pid, $new_dsID, APP_TEMP_DIR.$dsIDName, $dsFilename, 
+                Fedora_API::getUploadLocationByLocalRef($pid, $new_dsID, APP_TEMP_DIR.$dsIDName, $dsIDName, 
                         $dsTitle['MIMEType'], "M");
                 // preservation metadata
                 $presmd_check = Workflow::checkForPresMD($new_dsID);

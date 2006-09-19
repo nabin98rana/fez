@@ -21,10 +21,7 @@
               </script>
               {/literal}
 
-      <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
-        <tr>
-          <td>
-            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+     <div class="outline">
               <form name="custom_field_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
               {if $smarty.get.cat == 'edit'}
               <input type="hidden" name="cat" value="update">
@@ -32,6 +29,7 @@
               {else}
               <input type="hidden" name="cat" value="new">
               {/if}
+            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
               <tr>
                 <td colspan="2" class="default">
                   <b>Manage Workflow Templates</b> (<a href="{$rel_url}manage/workflows.php">new</a>)
@@ -107,7 +105,9 @@
                   <input class="button" type="reset" value="Reset">
                 </td>
               </tr>
+              </table>
               </form>
+              <table  bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
               <tr>
                 <td colspan="2" class="default">
                   <b>Existing Workflow Templates:</b>
@@ -190,8 +190,6 @@
                 </td>
               </tr>
             </table>
-          </td>
-        </tr>
-      </table>
+         </div>
       
 
