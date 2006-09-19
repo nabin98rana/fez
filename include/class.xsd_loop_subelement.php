@@ -229,7 +229,7 @@ class XSD_Loop_Subelement
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 inner join 
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m1 on s1.xsdsel_xsdmf_id = m1.xsdmf_id and m1.xsdmf_xdis_id = $xdis_id 
-					and (INSTR('$xml_element', m1.xsdmf_element) > 0) and (m1.xsdmf_element != '$xml_element') and m1.xsdmf_html_input = 'xsd_loop_subelement' left join
+					and (INSTR('$xml_element', m1.xsdmf_element) = 1) and (m1.xsdmf_element != '$xml_element') and m1.xsdmf_html_input = 'xsd_loop_subelement' left join
 					 " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m2 on (m2.xsdmf_xsdsel_id = s1.xsdsel_id) and (m2.xsdmf_element = '$xml_element')
                     ";
 		$stmt .= " ORDER BY xsdsel_order ASC";

@@ -1780,60 +1780,64 @@ class Misc
 							// make the tree node bold if there is a matchfields entry (i.e. we are using it)
 							if (array_key_exists($ehref, $element_match_list)) {
 								$node_label = "<b>$node_label</b>";
-								if (array_key_exists(0, $element_match_list[$ehref])) {
-									
+//								if (array_key_exists(0, $element_match_list[$ehref])) {
+								if (!is_array($element_match_list[$ehref])) {
+
 								} else {
-									switch ($element_match_list[$ehref]['xsdmf_html_input']) {
-										case "xsd_loop_subelement":
-										   $node_label .= ' <img title="Sublooping Element" src="'.APP_RELATIVE_URL.'images/sel_16.png" />';										   
-										   break;
-										case "date":
-										   $node_label .= ' <img title="Date Selector" src="'.APP_RELATIVE_URL.'images/date_16.png" />';										   
-										   break;
-										case "text":
-										   $node_label .= ' <img title="Text Input" src="'.APP_RELATIVE_URL.'images/text_16.png" />';										   
-										   break;
-										case "contvocab_selector":
-										   $node_label .= ' <img title="Controlled Vocabulary Selector" src="'.APP_RELATIVE_URL.'images/contvocab_16.png" />';										   
-										   break;
-										case "author_selector":
-										   $node_label .= ' <img title="Author Selector" src="'.APP_RELATIVE_URL.'images/author_selector_16.png" />';										   
-										   break;
-										case "author_suggestor":
-										   $node_label .= ' <img title="Author Suggestor" src="'.APP_RELATIVE_URL.'images/author_suggestor_16.png" />';										   
-										   break;
-										case "static":
-										   $node_label .= ' <img title="Static Text: '.$element_match_list[$ehref]['xsdmf_static_text'].'" src="'.APP_RELATIVE_URL.'images/static_16.png" />';										   
-										   break;
-										case "org_selector":
-										   $node_label .= ' <img title="Organisational Structure Selector" src="'.APP_RELATIVE_URL.'images/org_selector_16.png" />';										   
-										   break;
-										case "file_input":
-										   $node_label .= ' <img title="File Input" src="'.APP_RELATIVE_URL.'images/file_input_16.png" />';										   
-										   break;
-										case "xsdmf_id_ref":
-										   $node_label .= ' <img title="XSDMF ID Reference" src="'.APP_RELATIVE_URL.'images/xsdmf_id_ref_16.png" />';										   
-										   break;
-										case "xsd_ref":
-										   $node_label .= ' <img title="XSD Display Reference" src="'.APP_RELATIVE_URL.'images/xsd_ref_16.png" />';										   
-										   break;
-										case "textarea":
-										   $node_label .= ' <img title="Text Area" src="'.APP_RELATIVE_URL.'images/form_16.png" />';										   
-										   break;
-										case "combo":
-										   $node_label .= ' <img title="Combo Box" src="'.APP_RELATIVE_URL.'images/form_16.png" />';										   
-										   break;
-										case "multiple":
-										   $node_label .= ' <img title="Multiple Combo Box" src="'.APP_RELATIVE_URL.'images/form_16.png" />';										   
-										   break;
-										case "checkbox":
-										   $node_label .= ' <img title="Check Box" src="'.APP_RELATIVE_URL.'images/form_16.png" />';										   
-										   break;
-										case "dynamic":
-										   $node_label .= ' <img title="Dynamic variable value" src="'.APP_RELATIVE_URL.'images/dynamic_16.png" />';										   
-										   break;
-										default:
-											break;
+									foreach ($element_match_list[$ehref] as $ematch) {
+										switch ($ematch['xsdmf_html_input']) {
+											case "xsd_loop_subelement":
+											   $node_label .= ' <img title="Sublooping Element" src="'.APP_RELATIVE_URL.'images/sel_16.png" />';										   
+											   break;
+											case "date":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note"><b>Date Selector:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'</span><img src="'.APP_RELATIVE_URL.'images/date_16.png" />';										   
+											   break;
+											case "text":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note"><b>Text Input:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'</span><img src="'.APP_RELATIVE_URL.'images/text_16.png" />';										   
+											   break;
+											case "contvocab_selector":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note"><b>Controlled Vocabulary Selector:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'</span><img src="'.APP_RELATIVE_URL.'images/contvocab_16.png" />';										   
+											   break;
+											case "author_selector":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note"><b>Author Selector:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'</span><img src="'.APP_RELATIVE_URL.'images/author_selector_16.png" />';										   
+											   break;
+											case "author_suggestor":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note"><b>Author Suggestor:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'</span><img src="'.APP_RELATIVE_URL.'images/author_suggestor_16.png" />';										   
+											   break;
+											case "static":
+//										   $node_label .= '<img src="'.APP_RELATIVE_URL.'images/static_16.png" />';										   
+											  $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note"><b>Static Text:</b> '.$ematch['xsdmf_static_text'].'<br/>Loop: '.$ematch['xsdsel_title'].'</span><img src="'.APP_RELATIVE_URL.'images/static_16.png" />';										   
+											   break;
+											case "org_selector":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note"><b>Organisational Structure Selector:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'</span><img src="'.APP_RELATIVE_URL.'images/org_selector_16.png" />';										   
+											   break;
+											case "file_input":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note"><b>File Input:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'</span><img src="'.APP_RELATIVE_URL.'images/file_input_16.png" />';										   
+											   break;
+											case "xsdmf_id_ref":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note"><b>XSDMF ID Reference:</b> '.$ematch['xsdmf_id_ref'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'</span> <img src="'.APP_RELATIVE_URL.'images/xsdmf_id_ref_16.png" />';										   
+											   break;
+											case "xsd_ref":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note"><b>XSD Display Reference:</b> <br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'</span> <img src="'.APP_RELATIVE_URL.'images/xsd_ref_16.png" />';										   
+											   break;
+											case "textarea":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note"><b>Text Area:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'</span> <img src="'.APP_RELATIVE_URL.'images/form_16.png" />';										   
+											   break;
+											case "combo":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note"><b>Combo Box:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'</span> <img src="'.APP_RELATIVE_URL.'images/form_16.png" />';										   
+											   break;
+											case "multiple":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note"><b>Multiple Combo Box:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'</span><img src="'.APP_RELATIVE_URL.'images/form_16.png" />';										   
+											   break;
+											case "checkbox":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note"><b>Check Box:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'</span><img src="'.APP_RELATIVE_URL.'images/form_16.png" />';										   
+											   break;
+											case "dynamic":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note"><b>Dynamic variable value:</b> '.$ematch['xsdmf_dyamic_text'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'</span><img src="'.APP_RELATIVE_URL.'images/dynamic_16.png" />';										   
+											   break;
+											default:
+												break;
+										}
 									}
 								}
 								if (!array_key_exists($parent_counter, $open_array)) {

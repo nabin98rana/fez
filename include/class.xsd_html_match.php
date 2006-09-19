@@ -2380,9 +2380,10 @@ class XSD_HTML_Match
     function getElementMatchListDetails($xdis_id)
     {
         $stmt = "SELECT 
-                    xsdmf_element, xsdmf_html_input, xsdmf_enabled, xsdmf_order, xsdmf_static_text
+                    xsdmf_element, xsdmf_title, xsdmf_id_ref, xsdmf_html_input, xsdmf_enabled, xsdmf_order, xsdmf_dynamic_text, xsdmf_static_text, xsdmf_xsdsel_id, xsdsel_title
                  FROM
-                    ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."xsd_display_matchfields
+                    ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."xsd_display_matchfields left join
+                    ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."xsd_loop_subelement on (xsdmf_xsdsel_id = xsdsel_id)
                  WHERE
                     xsdmf_xdis_id='$xdis_id'
                     ";
@@ -2393,9 +2394,9 @@ class XSD_HTML_Match
         } else {
             $ret = array();
             foreach ($res as $record) {
-				$ret[$record['xsdmf_element']] = $record;
+				$ret[$record['xsdmf_element']][] = $record;
             }
-            return $ret;
+            return $ret; 
         }
     }
 

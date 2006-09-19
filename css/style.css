@@ -220,3 +220,32 @@ div.suggestions div.current {
 select.suggest_select {
     width: 50em;
 }
+
+a.form_note {
+text-decoration:none;
+color: black;
+}
+
+a.form_note img {
+border: none;
+}
+
+span.form_note {
+display:none;
+}
+
+a.form_note:hover {
+direction: ltr;
+color: green;
+}
+
+a.form_note:hover span.form_note {
+display: block;
+/*position:absolute;*/
+/*width: 225px;*/
+padding: 5px; margin: 10px; z-index: 100;
+background-color: #ffffee;
+border: solid 1px black;
+color: black;
+text-align: left;
+}

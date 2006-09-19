@@ -225,6 +225,28 @@ div.suggestions div.current {
     background-color: #3366cc;
     color: white; 
 }
+a.form_note {
+text-decoration:none;
+color: black;
+}
+
+a.form_note img {
+border: none;
+}
+
+span.form_note {
+display:none;
+}
+
+a.form_note:hover span.form_note {
+display: block;
+position:absolute;
+/*width: 225px;*/
+padding: 5px; margin: 10px; z-index: 100;
+background-color: #ffffee;
+border: solid 1px black;
+text-align: left;
+}
 
 
 

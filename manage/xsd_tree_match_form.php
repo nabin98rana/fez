@@ -78,6 +78,7 @@ $xml_element_clean = str_replace("!", " -> ", $xml_element);
 $xml_element_clean = str_replace("^", " ", $xml_element_clean);
 $xml_element_clean = substr($xml_element_clean, 4);
 
+
 $parent_subelement_loops = XSD_Loop_Subelement::getTopParentLoopList($xml_element, $xdis_id);
 
 if (count($parent_subelement_loops) > 0) {
