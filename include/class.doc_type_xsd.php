@@ -274,7 +274,31 @@ class Doc_Type_XSD
             return $res;
         }
     }
-
+    
+    function exportXSDs()
+    {
+        $doc = new DOMDocument('1.0','utf-8');
+        $doc->formatOutput = true;
+        $doc->appendChild($doc->createElement('fez_xsds'));
+        $root = $doc->documentElement;
+        $root->setAttribute('schema_version','1.0');
+        $xsds = Doc_Type_XSD::getList();
+        foreach ($xsds as $xsd) {
+        	$xnode = $doc->createElement('fez_xsd');
+            $xnode->setAttribute('xsd_id', $xsd['xsd_id']);                          
+            $xnode->setAttribute('xsd_version', $xsd['xsd_version']);                          
+            $xnode->setAttribute('xsd_top_element_name', $xsd['xsd_top_element_name']);                          
+            $xnode->setAttribute('xsd_element_prefix', $xsd['xsd_element_prefix']);                          
+            $xnode->setAttribute('xsd_extra_ns_prefixes', $xsd['xsd_extra_ns_prefixes']);
+            $xsd_file = $doc->createElement('xsd_file');
+            $xsd_file->appendChild($doc->createCDATASection($xsd['xsd_file']));
+            $xnode->appendChild($xsd_file);
+            XSD_Display::exportDisplays($xnode, $xsd['xsd_id']);
+            
+            $root->appendChild($xnode);                          
+        }
+        return $doc->saveXML();         
+    } 
 }
 
 // benchmarking the included file (aka setup time)

@@ -50,6 +50,69 @@ include_once(APP_INC_PATH . "class.auth.php");
 
 class XSD_HTML_Match
 {
+    public static $xsdmf_columns = array(
+        'xsdmf_id',
+        'xsdmf_xdis_id',
+        'xsdmf_xsdsel_id',
+        'xsdmf_element',
+        'xsdmf_title',
+        'xsdmf_description',
+        'xsdmf_long_description',
+        'xsdmf_html_input',
+        'xsdmf_multiple',
+        'xsdmf_multiple_limit',
+        'xsdmf_valueintag',
+        'xsdmf_enabled',
+        'xsdmf_order',
+        'xsdmf_validation_type',
+        'xsdmf_required',
+        'xsdmf_static_text',
+        'xsdmf_dynamic_text',
+        'xsdmf_xdis_id_ref',
+        'xsdmf_id_ref',
+        'xsdmf_id_ref_save_type',
+        'xsdmf_is_key',
+        'xsdmf_key_match',
+        'xsdmf_show_in_view',
+        'xsdmf_smarty_variable',
+        'xsdmf_fez_variable',
+        'xsdmf_enforced_prefix',
+        'xsdmf_value_prefix',
+        'xsdmf_selected_option',
+        'xsdmf_dynamic_selected_option',
+        'xsdmf_image_location',
+        'xsdmf_parent_key_match',
+        'xsdmf_data_type',
+        'xsdmf_indexed',
+        'xsdmf_sek_id',
+        'xsdmf_cvo_id',
+        'xsdmf_cvo_min_level',
+        'xsdmf_cvo_save_type',
+        'xsdmf_original_xsdmf_id',
+        'xsdmf_attached_xsdmf_id',
+        'xsdmf_cso_value',
+        'xsdmf_citation_browse',
+        'xsdmf_citation',
+        'xsdmf_citation_bold',
+        'xsdmf_citation_italics',
+        'xsdmf_citation_order',
+        'xsdmf_citation_brackets',
+        'xsdmf_citation_prefix',
+        'xsdmf_citation_suffix',
+        'xsdmf_use_parent_option_list',
+        'xsdmf_parent_option_xdis_id',
+        'xsdmf_parent_option_child_xsdmf_id',
+        'xsdmf_org_level',
+        'xsdmf_use_org_to_fill',
+        'xsdmf_org_fill_xdis_id',
+        'xsdmf_org_fill_xsdmf_id',
+        'xsdmf_asuggest_xdis_id',
+        'xsdmf_asuggest_xsdmf_id',
+        'xsdmf_date_type',
+        'xsdmf_meta_header',
+        'xsdmf_meta_header_name'
+    );	
+
     /**
      * Method used to remove a group of matching field options.
      *
@@ -2077,6 +2140,24 @@ class XSD_HTML_Match
             return $res;
         }
     }
+    
+    function getList($xdis_id)
+    {
+    $stmt = "SELECT
+                    *
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+                 WHERE xsdmf_xdis_id='$xdis_id'
+                 ORDER BY
+                    xsdmf_element ASC";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        } else {
+            return $res;
+        }
+    }
 
     /**
      * Method used to get the details of a specific XSD HTML Matching Field.
@@ -2266,7 +2347,7 @@ class XSD_HTML_Match
 					FROM
 						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_mf_option
 						WHERE
-						mfo_fld_id=$fld_id
+						mfo_fld_id='$fld_id'
 						ORDER BY
 						mfo_value ASC";
 				$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
@@ -2313,6 +2394,7 @@ class XSD_HTML_Match
             return $res;
         }
     }
+    
 
     /**
      * Method used to parse the special format used in the combo boxes
@@ -2465,8 +2547,58 @@ class XSD_HTML_Match
             return $res['orphan_count'];
         }
     }
+    
+    function exportMatchFields(&$xdis, $xdis_id)
+    {
+    	$list = XSD_HTML_Match::getList($xdis_id);
+        foreach ($list as $item) {
+            $xmatch = $xdis->ownerDocument->createElement('matchfield');
+            foreach (XSD_HTML_Match::$xsdmf_columns as $field) {
+                $xmatch->setAttribute($field, $item[$field]);
+            }
+            $mfo_list = XSD_HTML_Match::getOptions($item['xsdmf_id']);
+            if (is_array($mfo_list)) {
+                foreach ($mfo_list as $mfo_key => $mfo_value) {
+                	if (!empty($mfo_value)) {
+                        $xmfo = $xdis->ownerDocument->createElement('option');
+                        $xmfo->setAttribute('mfo_id',$mfo_key);
+                        $xmfo->setAttribute('mfo_value',$mfo_value);
+                        $xmatch->appendChild($xmfo);
+                    }
+                }
+            }
+            $subs = XSD_Loop_Subelement::getSimpleListByXSDMF($item['xsdmf_id']);
+            if (!empty($subs)) {
+            	foreach ($subs as $sub) {
+                    $xsub = $xdis->ownerDocument->createElement('loop_subelement');
+                    $xsub->setAttribute('xsdsel_id', $sub['xsdsel_id']);
+                    $xsub->setAttribute('xsdsel_title', $sub['xsdsel_title']);
+                    $xsub->setAttribute('xsdsel_type', $sub['xsdsel_type']);
+                    $xsub->setAttribute('xsdsel_order', $sub['xsdsel_order']);
+                    $xsub->setAttribute('xsdsel_attribute_loop_xdis_id', $sub['xsdsel_attribute_loop_xdis_id']);
+                    $xsub->setAttribute('xsdsel_attribute_loop_xsdmf_id', $sub['xsdsel_attribute_loop_xsdmf_id']);
+                    $xsub->setAttribute('xsdsel_indicator_xdis_id', $sub['xsdsel_indicator_xdis_id']);
+                    $xsub->setAttribute('xsdsel_indicator_xsdmf_id', $sub['xsdsel_indicator_xsdmf_id']);
+                    $xsub->setAttribute('xsdsel_indicator_value', $sub['xsdsel_indicator_value']);
+                    $xmatch->appendChild($xsub);
+            	}
+            }
+            $rels = XSD_Relationship::getSimpleListByXSDMF($item['xsdmf_id']);
+            if (!empty($rels)) {
+            	foreach ($rels as $rel) {
+            		$xrel = $xdis->ownerDocument->createElement('relationship');
+                    $xrel->setAttribute('xsdrel_id', $rel['xsdrel_id']);
+                    $xrel->setAttribute('xsdrel_xdis_id', $rel['xsdrel_xdis_id']);
+                    $xrel->setAttribute('xsdrel_order', $rel['xsdrel_order']);
+                    $xmatch->appendChild($xrel);
+            	}
+            }
+            $xdis->appendChild($xmatch);
+        }
+    }
 
-}
+
+} // end class XSD_HTML_Match
 
 
 /**
