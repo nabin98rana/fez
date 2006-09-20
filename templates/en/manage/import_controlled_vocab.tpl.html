@@ -139,17 +139,12 @@
               </script>
               {/literal}
               <form name="custom_field_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
-              {if $smarty.get.cat == 'edit'}
-              <input type="hidden" name="cat" value="update">
-              <input type="hidden" name="id" value="{$smarty.get.id}">
-              {else}
-              <input type="hidden" name="cat" value="new">
-              {/if}
+              <input type="hidden" name="cat" value="import">
               <input type="hidden" name="parent_id" value="{$parent_id}">			  
               <tr>
                 <td colspan="2" class="default">
-                  <b><a href="controlled_vocab.php">Manage Controlled Vocabularies </a>->
-
+                  <b>Import Controlled Vocabularies into </b>
+                  
 		          {if $max_subject_breadcrumb != -1}
 					  {section name="b" loop=$subject_breadcrumb}
 						  {assign var="counter" value=b}
@@ -160,24 +155,17 @@
  						  {assign var="cvo_id" value=$subject_breadcrumb[b].cvo_id}
 						  {if $subject_count[$cvo_id]}({$subject_count[$cvo_id]}){else}{/if}{if $max_subject_breadcrumb != $smarty.section.b.index}->{else}:{/if}					
 					  {/section}
-				   {else}Subject Classification:{/if}</b>		  
-
+				   {else}Subject Classification:{/if}</b>	
                 </td>
               </tr>
               {if $result != ""}
               <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
-                  {if $smarty.post.cat == "new"}
+                  {if $smarty.post.cat == "import"}
                     {if $result == -1}
-                      An error occurred while trying to add the new Controlled Vocabulary.
+                      An error occurred while trying to import the Controlled Vocabulary.
                     {elseif $result == 1}
-                      Thank you, the Controlled Vocabulary was added successfully.
-                    {/if}
-                  {elseif $smarty.post.cat == "update"}
-                    {if $result == -1}
-                      An error occurred while trying to update the Controlled Vocabulary information.
-                    {elseif $result == 1}
-                      Thank you, the Controlled Vocabulary was updated successfully.
+                      Thank you, the Controlled Vocabulary was imported successfully.
                     {/if}
                   {/if}
                 </td>
@@ -185,133 +173,58 @@
               {/if}
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default">
-                  <b>Title:</b>
+                  <b>XPATH of each Record:</b>
                 </td>
                 <td bgcolor="{$light_color}">
-                  <input type="text" name="cvo_title" size="40" class="default" value="{$info.cvo_title}">
-                  {include file="error_icon.tpl.html" field="title"}
+                  <input type="text" name="cvi_xpath_record" size="100" class="default">
+                  {include file="error_icon.tpl.html" field="cvi_xpath_record"}
                 </td>
               </tr>
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default">
-                  <b>External ID (if applicable):</b>
+                  <b>XPATH of ID:</b>
                 </td>
                 <td bgcolor="{$light_color}">
-                  <input type="text" name="cvo_external_id" size="40" class="default" value="{$info.cvo_external_id}">
-                  {include file="error_icon.tpl.html" field="title"}
+                  <input type="text" name="cvi_xpath_id" size="100" class="default">
+                  {include file="error_icon.tpl.html" field="cvi_xpath_id"}
                 </td>
               </tr>
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default">
-                  <b>Description:</b>
+                  <b>XPATH of Value:</b>
                 </td>
                 <td bgcolor="{$light_color}">
-                  <textarea name="cvo_desc" cols="50" rows="3" class="default">{$info.cvo_desc}</textarea>
-                  {include file="error_icon.tpl.html" field="cvo_desc"}
+                  <input type="text" name="cvi_xpath_title" size="100" class="default">
+                  {include file="error_icon.tpl.html" field="cvi_xpath_title"}
                 </td>
               </tr>
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default">
-                  <b>Image Filename:</b>
+                  <b>XPATH of Parent ID (leave blank if N/A):</b>
                 </td>
                 <td bgcolor="{$light_color}">
-                  <input type="text" name="cvo_image_filename" size="40" class="default" value="{$info.cvo_image_filename}">
-                  {include file="error_icon.tpl.html" field="cvo_image_filename"}
+                  <input type="text" name="cvi_xpath_parent_id" size="100" class="default">
+                  {include file="error_icon.tpl.html" field="cvi_xpath_parent_id"}
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>XML Filename:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input size="50" name="cvi_xml_filename[]" type="file" class="shortcut" />
+                  {include file="error_icon.tpl.html" field="cvi_xml_filename"}
                 </td>
               </tr>			  
               <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
-                  {if $smarty.get.cat == 'edit'}
-                  <input class="button" type="submit" value="Update Controlled Vocabulary">
-                  {else}
-                  <input class="button" type="submit" value="Add Controlled Vocabulary">
-                  {/if}
+
+                  <input class="button" type="submit" value="Import Controlled Vocabulary">
+
                   <input class="button" type="reset" value="Reset">
                 </td>
               </tr>
               </form>
-              <tr>
-                <td colspan="2" class="default">
-                  <b>Existing Controlled Vocabularies:</b>
-                </td>
-              </tr>
-              <tr>
-                <td colspan="2">
-                  <script language="JavaScript">
-                  <!--
-                  {literal}
-                  function checkDelete(f)
-                  {
-                      if (!hasOneChecked(f, 'items[]')) {
-                          alert('Please select at least one of the Controlled Vocabularies.');
-                          return false;
-                      }
-                      if (!confirm('This action will permanently remove the selected Controlled Vocabularies.')) {
-                          return false;
-                      } else {
-                          return true;
-                      }
-                  }
-                  //-->
-                  </script>
-                  {/literal}
-                  <table border="0" width="100%" cellpadding="1" cellspacing="1">
-                    <form onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
-                    <input type="hidden" name="cat" value="delete">
-                    <tr>
-                      <td width="5" bgcolor="{$cell_color}" align="center" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Desc</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Image Filename</b>&nbsp;</td>					  
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>External ID</b>&nbsp;</td>					  
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Edit Children</b>&nbsp;</td>  
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Import Children</b>&nbsp;</td>  
-                    </tr>
-                    {section name="i" loop=$list}
-                    {cycle values=$cycle assign="row_color"}
-                    <tr>
-                      <td width="4" nowrap bgcolor="{$row_color}" align="center">
-                        <input type="checkbox" name="items[]" value="{$list[i].cvo_id}" {if $smarty.section.i.total == 0}disabled{/if}>
-                      </td>
-                      <td bgcolor="{$row_color}" class="default">
-                        &nbsp;<a href="controlled_vocab.php?cat=edit&id={$list[i].cvo_id}">{$list[i].cvo_title}</a>
-                      </td>
-                      <td bgcolor="{$row_color}" class="default">
-                        &nbsp;{$list[i].cvo_desc}
-                      </td>
-                      <td bgcolor="{$row_color}" class="default">
-                        &nbsp;{$list[i].cvo_image_filename}
-                      </td>
-                      <td bgcolor="{$row_color}" class="default">
-                        &nbsp;{$list[i].cvo_external_id}
-                      </td>
-                      <td bgcolor="{$row_color}" class="default">
-                        &nbsp;<a href="controlled_vocab.php?parent_id={$list[i].cvo_id}">Edit {$list[i].cvo_title} Child Items</a>
-                      </td>
-                      <td bgcolor="{$row_color}" class="default">
-                        &nbsp;<a href="import_controlled_vocab.php?parent_id={$list[i].cvo_id}">Import Child Items</a>
-                      </td>
-
-                    </tr>
-                    {sectionelse}
-                    <tr>
-                      <td colspan="7" bgcolor="{$light_color}" align="center" class="default">
-                        No Controlled Vocabularies could be found.
-                      </td>
-                    </tr>
-                    {/section}
-                    <tr>
-                      <td width="4" align="center" bgcolor="{$cell_color}">
-                        <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
-                      </td>
-                      <td colspan="8" bgcolor="{$cell_color}">
-                        <input type="submit" value="Delete" class="button">
-                      </td>
-                    </tr>
-                    </form>
-                  </table>
-                </td>
-              </tr>
             </table>
           </td>
         </tr>

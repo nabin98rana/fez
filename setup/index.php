@@ -106,21 +106,21 @@ function checkRequirements()
     $contents = ob_get_contents();
     ob_end_clean();
     if (!preg_match("/GD Support.*<\/td><td.*>enabled/U", $contents)) {
-        $errors[] = "The GD extension needs to be enabled in your PHP.INI file in order for Fez to work properly.";
+        $errors[] = "The GD extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly.";
     }
     if (!preg_match("/Tidy support.*<\/th><th.*>enabled/U", $contents)) {
-        $errors[] = "The Tidy extension needs to be enabled in your PHP.INI file in order for Fez to work properly.";
+        $errors[] = "The Tidy extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly.";
     }
     if (!preg_match("/CURL support.*<\/td><td.*>enabled/U", $contents)) {
-        $errors[] = "The CURL extension needs to be enabled in your PHP.INI file in order for Fez to work properly.";
+        $errors[] = "The CURL extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly.";
     }
     if (!preg_match("/DOM\/XML.*<\/td><td.*>enabled/U", $contents)) {
-        $errors[] = "The DOM extension needs to be enabled in your PHP.INI file in order for Fez to work properly.";
+        $errors[] = "The DOM extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly.";
     }
 
     // check for MySQL support
     if (!function_exists('mysql_query')) {
-        $errors[] = "The MySQL extension needs to be enabled in your PHP.INI file in order for Fez to work properly.";
+        $errors[] = "The MySQL extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly.";
     }
 
     // check for the file_uploads php.ini directive

@@ -142,9 +142,17 @@ class Controlled_Vocab
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
                  (
-                    cvo_title
+                    cvo_title";
+		if (is_numeric($HTTP_POST_VARS["cvo_external_id"])) {
+			$stmt .= ", cvo_external_id";
+		}
+		$stmt .= "
                  ) VALUES (
-                    '" . Misc::escapeString($HTTP_POST_VARS["cvo_title"]) . "'
+                    '" . Misc::escapeString($HTTP_POST_VARS["cvo_title"]) . "'";
+		if (is_numeric($HTTP_POST_VARS["cvo_external_id"])) {
+            $stmt .=        "," . trim($HTTP_POST_VARS["cvo_external_id"]) . "";
+		}
+			$stmt .="
                  )";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -160,7 +168,108 @@ class Controlled_Vocab
         }
     }
 
+    /**
+     * Method used to add a new controlled vocabulary to the system.
+     *
+     * @access  public
+     * @return  integer 1 if the insert worked, -1 otherwise
+     */
+    function insertDirect($cvo_title, $cvo_external_id="", $parent_id="")
+    {
+		
+        $stmt = "INSERT INTO
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
+                 (
+                    cvo_title";
+		if ($cvo_external_id != "") {
+			$stmt .= ", cvo_external_id";
+		}
+        $stmt .= "     ) VALUES (
+                '" . Misc::escapeString($cvo_title) . "'";
+		if ($cvo_external_id != "") {
+			$stmt .= "," . $cvo_external_id;
+		}
+        $stmt .= "					                    
+             )";
+		echo $stmt."\n";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+			// get last db entered id
+			$new_id = $GLOBALS["db_api"]->get_last_insert_id();
+			if (is_numeric($parent_id)) {
+				Controlled_Vocab::associateParent($parent_id, $new_id);
+			}
+			return 1;
+        }
+    }	
 
+	/**
+     * Method used to import a new controlled vocabulary to the system under a parent.
+     *
+     * @access  public
+     * @return  integer 1 if the insert worked, -1 otherwise
+     */
+    function import($parent_id, $xmlObj)
+    {
+        global $HTTP_POST_VARS;
+
+		$xpath_record = $HTTP_POST_VARS["cvi_xpath_record"];
+		$xpath_id = $HTTP_POST_VARS["cvi_xpath_id"];
+		$xpath_title = $HTTP_POST_VARS["cvi_xpath_title"];
+		$xpath_parent_id = $HTTP_POST_VARS["cvi_xpath_parent_id"];		
+/*		echo "xpath_record = ".$xpath_record."\n";
+		echo "xpath_id = ".$xpath_id."\n";				
+		echo "xpath_title = ".$xpath_title."\n";
+		echo "xpath_parent_id = ".$xpath_parent_id."\n";		
+*/				
+        $xmlDoc= new DomDocument();
+        $xmlDoc->preserveWhiteSpace = false;
+        $xmlDoc->loadXML($xmlObj);
+
+        $xpath = new DOMXPath($xmlDoc);
+
+        $recordNodes = $xpath->query($xpath_record);
+
+        foreach ($recordNodes as $recordNode) {
+			$record_id = "";
+			if ($xpath_id != "") {
+	            $id_fields = $xpath->query($xpath_id, $recordNode);
+			
+	            foreach ($id_fields as $id_field) {
+	                if  ($record_id == "") {
+	                    $record_id = $id_field->nodeValue;
+	                }
+	            }
+			}
+            $title_fields = $xpath->query($xpath_title, $recordNode);
+			$record_title = "";
+            foreach ($title_fields as $title_field) {
+                if  ($record_title == "") {
+                    $record_title = $title_field->nodeValue;
+                }
+            }
+			$record_parent_id = "";
+			if ($xpath_parent_id != "") {
+				$parent_id_fields = $xpath->query($xpath_parent_id, $recordNode);			
+	            foreach ($parent_id_fields as $parent_id_field) {
+	                if  ($parent_id_field == "") {
+	                    $record_parent_id = $parent_id_field->nodeValue;
+	                }
+	            }
+			}
+			if ($record_id != "" && $record_title != "") {
+				if ($record_parent_id == "") {
+					$record_parent_id = $parent_id;
+				}
+				Controlled_Vocab::insertDirect($record_title, $record_id, $record_parent_id);
+			}
+			
+        }
+    }
+	
     /**
      * Method used to add a new controlled vocabulary parent-child relationship to the system.
      *
@@ -205,6 +314,7 @@ class Controlled_Vocab
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
                  SET 
                     cvo_title = '" . Misc::escapeString($HTTP_POST_VARS["cvo_title"]) . "',
+                    cvo_external_id = " . trim($HTTP_POST_VARS["cvo_external_id"]). ",
                     cvo_desc = '" . Misc::escapeString($HTTP_POST_VARS["cvo_desc"]) . "'
                  WHERE cvo_id = $cvo_id";
 
