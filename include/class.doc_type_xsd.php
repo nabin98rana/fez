@@ -82,22 +82,17 @@ class Doc_Type_XSD
      * @access  public
      * @return  integer 1 if the insert worked, -1 otherwise
      */
-    function insert()
+    function insert($params = array())
     {
-        global $HTTP_POST_VARS, $HTTP_POST_FILES;
-
-        $files = array();
-        for ($i = 0; $i < count($HTTP_POST_FILES["xsd_file"]); $i++) {
-            $filename = @$HTTP_POST_FILES["xsd_file"]["name"][$i];
+    	if (empty($params)) {
+            $filename = @$_FILES["xsd_file"]["tmp_name"];
             if (empty($filename)) {
-                continue;
+            	return -1;
             }
-            $blob = Misc::getFileContents($HTTP_POST_FILES["xsd_file"]["tmp_name"][$i]);
-            $files[] = array(
-                "filename"  =>  $filename,
-                "type"      =>  $HTTP_POST_FILES['xsd_file']['type'][$i],
-                "blob"      =>  $blob
-            );
+            $blob = Misc::getFileContents($filename);
+            $params = &$_POST;
+        } else {
+            $blob = $params['xsd_file'];
         }
 		
         $stmt = "INSERT INTO
@@ -110,19 +105,19 @@ class Doc_Type_XSD
                     xsd_extra_ns_prefixes,
                     xsd_file
                  ) VALUES (
-                    '" . Misc::escapeString($HTTP_POST_VARS["xsd_title"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["xsd_version"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["xsd_top_element_name"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["xsd_element_prefix"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["xsd_extra_ns_prefixes"]) . "',
-                    '" . addslashes($blob) . "'
+                    '" . Misc::escapeString($params["xsd_title"]) . "',
+                    '" . Misc::escapeString($params["xsd_version"]) . "',
+                    '" . Misc::escapeString($params["xsd_top_element_name"]) . "',
+                    '" . Misc::escapeString($params["xsd_element_prefix"]) . "',
+                    '" . Misc::escapeString($params["xsd_extra_ns_prefixes"]) . "',
+                    '" . Misc::escapeString($blob) . "'
                  )";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-
+            return $GLOBALS['db_api']->get_last_insert_id();
         }
     }
 
@@ -182,18 +177,19 @@ class Doc_Type_XSD
      * @access  public
      * @return  array The list of Document Type XSDs
      */
-    function getList()
+    function getList($where="")
     {
         $stmt = "SELECT
                     *
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd
-                 ORDER BY
+                 $where
+                        ORDER BY
                     xsd_title ASC";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
+            return array();
         } else {
             return $res;
         }
@@ -286,6 +282,7 @@ class Doc_Type_XSD
         foreach ($xsds as $xsd) {
         	$xnode = $doc->createElement('fez_xsd');
             $xnode->setAttribute('xsd_id', $xsd['xsd_id']);                          
+            $xnode->setAttribute('xsd_title', $xsd['xsd_title']);                          
             $xnode->setAttribute('xsd_version', $xsd['xsd_version']);                          
             $xnode->setAttribute('xsd_top_element_name', $xsd['xsd_top_element_name']);                          
             $xnode->setAttribute('xsd_element_prefix', $xsd['xsd_element_prefix']);                          
@@ -298,7 +295,68 @@ class Doc_Type_XSD
             $root->appendChild($xnode);                          
         }
         return $doc->saveXML();         
-    } 
+    }
+     
+    /**
+     * Import XSDs from a XML doc that was previously exported
+     */
+    function importXSDs($filename)
+    {
+        $doc = DOMDocument::load($filename);
+        $xpath = new DOMXPath($doc);
+        $xdocs = $xpath->query('/fez_xsds/fez_xsd');
+        $maps = array();
+        foreach ($xdocs as $xdoc) {
+        	$title = Misc::escapeString($xdoc->getAttribute('xsd_title'));
+            $version = Misc::escapeString($xdoc->getAttribute('xsd_version'));
+            // reject any XSDs that don't have a version
+            if (!is_numeric($version)) {
+                Error_Handler::logError("Not importing $title $version - the xsd_version must be numeric<br/>\n",__FILE__,__LINE__);
+            	continue;
+            }
+            $exist_list = Doc_Type_XSD::getList("WHERE xsd_title='$title'");
+            $do_import = true;
+            $doc_id = false;
+            if (!empty($exist_list)) {
+                foreach ($exist_list as $exist_item) {
+                	if (floatval($exist_item['xsd_version']) > floatval($version)) {
+                        echo "Not importing $title $version<br/>\n";
+                        $do_import = false;
+                        $doc_id = false;
+                        break;
+                	}
+                    if (floatval($exist_item['xsd_version']) == floatval($version)) {
+                    	$doc_id = $exist_item['xsd_id'];
+                    }
+                }
+            }
+            if ($do_import && !$doc_id) {
+            	$xsd_file_nodelist =  $xpath->query('xsd_file',$xdoc);
+                $xsd_file_node = $xsd_file_nodelist->item(0);
+                $xsd_file = $xsd_file_node->textContent; 
+            
+            	$params = array(
+                    'xsd_title' => $xdoc->getAttribute('xsd_title'),
+                    'xsd_version' => $xdoc->getAttribute('xsd_version'),
+                    'xsd_file' => $xsd_file,
+                    'xsd_top_element_name' => $xdoc->getAttribute('xsd_top_element_name'),
+                    'xsd_element_prefix' => $xdoc->getAttribute('xsd_element_prefix'),
+                    'xsd_extra_ns_prefixes' => $xdoc->getAttribute('xsd_extra_ns_prefixes'),
+                );
+                $doc_id = Doc_Type_XSD::insert($params);
+            } else {
+                //echo "Not importing XSD $title $version<br/>\n";
+            }
+            if ($doc_id) {
+                // check for new displays even if the doc already exists in the DB
+                XSD_Display::importDisplays($xdoc, $doc_id, $maps);
+            }
+        }
+        //print_r($maps);
+        XSD_HTML_Match::remapImport($maps);
+    }
+    
+    
 }
 
 // benchmarking the included file (aka setup time)

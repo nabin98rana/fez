@@ -2156,6 +2156,21 @@ function backtrace()
    return $output;
 }
 
+    function tableSearchAndReplace($table, $fields, $map, $restrict) 
+    {
+        foreach ($map as $xvalue => $dbvalue) {
+            foreach ($fields as $field) { 
+                $stmt = "UPDATE ".APP_DEFAULT_DB . "." . APP_TABLE_PREFIX."$table " .
+                        "set $field='$dbvalue' " .
+                        "WHERE $field='$xvalue' AND $restrict";
+                //echo "$stmt<br/>\n";        
+                $res = $GLOBALS["db_api"]->dbh->query($stmt);
+                if (PEAR::isError($res)) {
+                    Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                }
+            }            
+        }
+    }
   
 } // end of Misc class
 

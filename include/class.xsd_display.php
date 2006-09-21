@@ -181,9 +181,11 @@ class XSD_Display
 	 * @param   integer $xsd_id The XSD ID the display will be based on.
      * @return  integer 1 if the insert worked, -1 otherwise
      */
-    function insert($xsd_id)
+    function insert($xsd_id, $params=array())
     {
-        global $HTTP_POST_VARS;
+    	if (empty($params)) {
+            $params = &$_POST;
+        }
 		
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
@@ -193,17 +195,17 @@ class XSD_Display
                     xdis_version,
                     xdis_object_type
                  ) VALUES (
-                    '" . Misc::escapeString($HTTP_POST_VARS["xdis_title"]) . "',
+                    '" . Misc::escapeString($params["xdis_title"]) . "',
                     $xsd_id,
-                    '" . Misc::escapeString($HTTP_POST_VARS["xdis_version"]) . "',
-                    " .$HTTP_POST_VARS["xdis_object_type"] . "
+                    '" . Misc::escapeString($params["xdis_version"]) . "',
+                    " .$params["xdis_object_type"] . "
                  )";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-			//
+			return $GLOBALS['db_api']->get_last_insert_id();
         }
     }
 
@@ -241,16 +243,17 @@ class XSD_Display
      *
      * @access  public
 	 * @param   integer $xsd_id The XSD ID to search the list for. 
+     * @param   string $where extra SQL on the where clause
      * @return  array The list of XSD Displays
      */
-    function getList($xsd_id)
+    function getList($xsd_id, $where = '')
     {
         $stmt = "SELECT
                     *
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
                  WHERE
-                    xdis_xsd_id = $xsd_id
+                    xdis_xsd_id = $xsd_id $where
                  ORDER BY
                     xdis_title ASC";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -600,6 +603,58 @@ class XSD_Display
             $xnode->appendChild($xdis);
         }
     }
+    
+    /**
+     * Need two passes, first pass inserts everything
+     * Second pass needs to correct links in pretty much all the tables.
+     * A good way to do this would be to keep tables of mapped ids, at the end we go through the tables and
+     * make sure any inserted items point to the right things.  NOTE: queries must ensure that only inserted 
+     * items are updated - we don't want to change exisiting items to point to new items by accident 
+     */
+    function importDisplays($xdoc, $xsd_id, &$maps)
+    {
+    	$xpath = new DOMXPath($xdoc->ownerDocument);
+        $xdisplays = $xpath->query('display', $xdoc);
+        foreach ($xdisplays as $xdis) {
+            $title = Misc::escapeString($xdis->getAttribute('xdis_title'));
+            $version = $xdis->getAttribute('xdis_version');
+            if (!is_numeric($version)) {
+            	Error_Handler::logError("Not importing Display $title $version - xdis_version must be a number",
+                __FILE__,__LINE__);
+                continue;
+            }
+            $list = XSD_Display::getList($xsd_id,"AND xdis_title='$title'");
+            if (!empty($list)) {
+            	foreach($list as $exist_item) {
+            		if (floatval($exist_item['xdis_version']) > floatval($version)) {
+            			$do_import = false;
+                        //echo "Not importing Display $title $version<br/>\n";
+                        break;
+            		} elseif (floatval($exist_item['xdis_version']) == floatval($version)) {
+                        $do_import = false;
+                        $maps['xdis_map'][$xdis->getAttribute('xdis_id')] = $exist_item['xdis_id'];
+                        //echo "Not importing Display $title $version<br/>\n";
+                        break;
+                    }
+            	}
+            } else {
+            	$do_import = true;
+            }
+            if ($do_import) {
+            	//echo "Importing Display $title<br/>\n";
+                $params = array(
+                    'xdis_title' => $xdis->getAttribute('xdis_title'),
+                    'xdis_version' => $xdis->getAttribute('xdis_version'),
+                    'xdis_object_type' => $xdis->getAttribute('xdis_object_type'),
+                );
+                $xdis_id = XSD_Display::insert($xsd_id, $params);
+                $maps['xdis_map'][$xdis->getAttribute('xdis_id')] = $xdis_id;
+                XSD_HTML_Match::importMatchFields($xdis, $xdis_id, $maps);
+            }
+        }
+    }
+    
+    
 }
 
 /**

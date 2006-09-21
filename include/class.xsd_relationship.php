@@ -247,7 +247,7 @@ class XSD_Relationship
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-			return 1;
+			return $GLOBALS['db_api']->get_last_insert_id();
         }
     }
 
@@ -276,6 +276,34 @@ class XSD_Relationship
         } else {
 			return 1;
         }
+    }
+    
+    function importRels($xmatch, $xsdmf_id, &$maps)
+    {
+        $xpath = new DOMXPath($xmatch->ownerDocument);
+        $xrels = $xpath->query('relationship', $xmatch);
+        foreach ($xrels as $xrel) {
+            $params = array(
+                'xsdrel_xsdmf_id' => $xsdmf_id,
+                'xsdrel_xdis_id' => $xrel->getAttribute('xsdrel_xdis_id'),
+                'xsdrel_order' => $xrel->getAttribute('xsdrel_order'),
+            );
+            $xsdrel_id = XSD_Relationship::insertFromArray($xsdmf_id, $params);
+            $maps['xsdrel_map'][$xrel->getAttribute('xsdrel_id')] = $xsdrel_id;
+        }
+    }
+    
+    function remapImport(&$maps)
+    {
+        if (empty($maps['xsdrel_map'])) {
+            return;
+        }    
+        // find all the stuff that references the new displays
+        $xsdrel_ids = array_values($maps['xsdrel_map']);
+        $xsdrel_ids_str = Misc::arrayToSQL($xsdrel_ids);
+        Misc::tableSearchAndReplace('xsd_relationship',
+            array('xsdrel_xdis_id'),
+            $maps['xdis_map'], " xsdrel_id IN ($xsdrel_ids_str)");
     }
 }
 // benchmarking the included file (aka setup time)

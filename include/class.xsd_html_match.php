@@ -1295,7 +1295,7 @@ class XSD_HTML_Match
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-			return 1;
+			return $GLOBALS["db_api"]->get_last_insert_id();
         }
     }
 
@@ -2308,6 +2308,35 @@ class XSD_HTML_Match
 			}
         }
     }
+    
+    function getChildren($xsdmf_id)
+    {
+        $stmt = "SELECT *  
+                 FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_attach
+                 WHERE att_parent_xsdmf_id = '$xsdmf_id'";
+                    
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        } else {
+        	return $res;
+        }    	
+    }
+    
+    function setChild($xsdmf_id, $att_child_xsdmf_id, $att_order) {
+    	$stmt = "INSERT INTO ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_attach" .
+                "(att_parent_xsdmf_id, att_child_xsdmf_id, att_order)" .
+                "VALUES" .
+                "('$xsdmf_id', '$att_child_xsdmf_id', '$att_order')";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+            return $GLOBALS["db_api"]->get_last_insert_id();
+        }       
+    }
 
     /**
      * Method used to get the list of matching field options associated
@@ -2556,6 +2585,16 @@ class XSD_HTML_Match
             foreach (XSD_HTML_Match::$xsdmf_columns as $field) {
                 $xmatch->setAttribute($field, $item[$field]);
             }
+            $att_list = XSD_HTML_Match::getChildren($item['xsdmf_id']);
+            if (!empty($att_list)) {
+            	foreach ($att_list as $att) {
+            		$xatt = $xdis->ownerDocument->createElement('attach');
+                    $xatt->setAttribute('att_id', $att['att_id']);
+                    $xatt->setAttribute('att_child_xsdmf_id', $att['att_child_xsdmf_id']);
+                    $xatt->setAttribute('att_order', $att['att_order']);
+                    $xmatch->appendChild($xatt);
+            	}
+            }
             $mfo_list = XSD_HTML_Match::getOptions($item['xsdmf_id']);
             if (is_array($mfo_list)) {
                 foreach ($mfo_list as $mfo_key => $mfo_value) {
@@ -2596,6 +2635,75 @@ class XSD_HTML_Match
             $xdis->appendChild($xmatch);
         }
     }
+    function importMatchFields($xdis, $xdis_id, &$maps)
+    {
+    	$xpath = new DOMXPath($xdis->ownerDocument);
+        $xmatches = $xpath->query('matchfield', $xdis);
+        foreach ($xmatches as $xmatch) {
+            $params = array();
+        	foreach (XSD_HTML_Match::$xsdmf_columns as $field) {
+                $params[$field] = $xmatch->getAttribute($field);
+            }
+            $params['xsdmf_xdis_id'] = $xdis_id;
+            $xsdmf_id = XSD_HTML_Match::insertFromArray($xdis_id, $params);
+            $maps['xsdmf_map'][$xmatch->getAttribute('xsdmf_id')] = $xsdmf_id;
+            $xpath = new DOMXPath($xmatch->ownerDocument);
+            $xatts = $xpath->query('attach', $xmatch);
+            foreach ($xatts as $xatt) {
+                XSD_HTML_Match::setChild($xsdmf_id, $xatt->getAttribute('att_child_xsdmf_id'), 
+                    $xatt->getAttribute('att_order'));
+            }
+            $xopts = $xpath->query('option', $xmatch);
+            $opts = array();
+            foreach ($xopts as $xopt) {
+                $opts[] = $xopt->getAttribute('mfo_value');
+            }
+            XSD_HTML_Match::addOptions($xsdmf_id, $opts);
+            XSD_Loop_Subelement::importSubelements($xmatch, $xsdmf_id, $maps);
+            XSD_Relationship::importRels($xmatch, $xsdmf_id, $maps);
+        }
+        
+    }
+    
+    /**
+     * This is the second pass of the import which looks for inserted records which reference other records
+     * These references need to be updated to point to the ids used in the DB instead of in the XML file
+     */
+    function remapImport(&$maps)
+    {
+        if (empty($maps['xsdmf_map'])) {
+            return;
+        }
+        // find all the stuff that references the new displays
+        $xsdmf_ids = array_values(@$maps['xsdmf_map']);
+        $xsdmf_ids_str = Misc::arrayToSQL($xsdmf_ids);
+        // Find the fields in the matchfields table that refer to displays 
+        Misc::tableSearchAndReplace('xsd_display_matchfields', 
+            array('xsdmf_xdis_id_ref','xsdmf_parent_option_xdis_id','xsdmf_asuggest_xdis_id'),
+            $maps['xdis_map'], "xsdmf_id IN ($xsdmf_ids_str)");
+        // Find the fields in the matchfields table that refer to other matchfields 
+        Misc::tableSearchAndReplace('xsd_display_matchfields',
+            array('xsdmf_original_xsdmf_id','xsdmf_attached_xsdmf_id','xsdmf_parent_option_child_xsdmf_id',
+                            'xsdmf_org_fill_xsdmf_id','xsdmf_asuggest_xsdmf_id','xsdmf_id_ref'),
+            $maps['xsdmf_map'], " xsdmf_id IN ($xsdmf_ids_str)");                
+        // Find the fields in the attachments table that refer to other matchfields 
+        Misc::tableSearchAndReplace('xsd_display_attach',
+            array('att_child_xsdmf_id'),
+            $maps['xsdmf_map'], " att_parent_xsdmf_id IN ($xsdmf_ids_str)");                
+        // Find the fields in the matchfields table that refer to subloops
+        if (!empty($maps['xsdsel_map'])) { 
+            Misc::tableSearchAndReplace('xsd_display_matchfields',
+                array('xsdmf_xsdsel_id'),
+                $maps['xsdsel_map'], " xsdmf_id IN ($xsdmf_ids_str)");
+        }
+        // remap the sublooping elements
+        XSD_Loop_Subelement::remapImport($maps);
+        //remap the relationships
+        XSD_Relationship::remapImport($maps);
+    }
+    
+ 
+    
 
 
 } // end class XSD_HTML_Match

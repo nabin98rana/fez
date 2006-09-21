@@ -397,7 +397,7 @@ class XSD_Loop_Subelement
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-			//
+			return $GLOBALS["db_api"]->get_last_insert_id();
         }
     }
 
@@ -517,6 +517,43 @@ class XSD_Loop_Subelement
 			
             return $res;
         }
+    }
+    
+    function importSubelements($xmatch, $xsdmf_id, &$maps)
+    {
+    	$xpath = new DOMXPath($xmatch->ownerDocument);
+        $xsubs = $xpath->query('loop_subelement', $xmatch);
+        foreach ($xsubs as $xsub) {
+        	$params = array(
+                'xsdsel_xsdmf_id' => $xsdmf_id,
+                'xsdsel_title' => $xsub->getAttribute('xsdsel_title'),
+                'xsdsel_type' => $xsub->getAttribute('xsdsel_type'),
+                'xsdsel_order' => $xsub->getAttribute('xsdsel_order'),
+                'xsdsel_attribute_loop_xdis_id' => $xsub->getAttribute('xsdsel_attribute_loop_xdis_id'),
+                'xsdsel_attribute_loop_xsdmf_id' => $xsub->getAttribute('xsdsel_attribute_loop_xsdmf_id'),
+                'xsdsel_indicator_xdis_id' => $xsub->getAttribute('xsdsel_indicator_xdis_id'),
+                'xsdsel_indicator_xsdmf_id' => $xsub->getAttribute('xsdsel_indicator_xsdmf_id'),
+                'xsdsel_indicator_value' => $xsub->getAttribute('xsdsel_indicator_value'),
+            );
+            $xsdsel_id = XSD_Loop_Subelement::insertFromArray($xsdmf_id, $params);
+            $maps['xsdsel_map'][$xsub->getAttribute('xsdsel_id')] = $xsdsel_id;
+        }
+    }	
+    
+    function remapImport(&$maps)
+    {
+        if (empty($maps['xsdsel_map'])) {
+        	return;
+        }    
+        // find all the stuff that references the new displays
+        $xsdsel_ids = array_values($maps['xsdsel_map']);
+        $xsdsel_ids_str = Misc::arrayToSQL($xsdsel_ids);
+        Misc::tableSearchAndReplace('xsd_loop_subelement',
+            array('xsdsel_attribute_loop_xdis_id','xsdsel_indicator_xdis_id'),
+            $maps['xdis_map'], " xsdsel_id IN ($xsdsel_ids_str)");
+        Misc::tableSearchAndReplace('xsd_loop_subelement',
+            array('xsdsel_attribute_loop_xsdmf_id','xsdsel_indicator_xsdmf_id'),
+            $maps['xsdmf_map'], " xsdsel_id IN ($xsdsel_ids_str)");
     }
 }
 

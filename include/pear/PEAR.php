@@ -509,9 +509,11 @@ class PEAR
             $ec = 'PEAR_Error';
         }
         if ($skipmsg) {
-            return new $ec($code, $mode, $options, $userinfo);
+            $tmp = new $ec($code, $mode, $options, $userinfo);
+            return $tmp;
         } else {
-            return new $ec($message, $code, $mode, $options, $userinfo);
+            $tmp =  new $ec($message, $code, $mode, $options, $userinfo);
+            return $tmp;
         }
     }
 

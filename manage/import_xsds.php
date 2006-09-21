@@ -36,15 +36,14 @@ include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
-include_once(APP_INC_PATH . "class.workflow.php");
-
+include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION);
 
-$tpl->assign("type", "import_workflows");
+$tpl->assign("type", "import_xsds");
 $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
@@ -57,7 +56,7 @@ if ($isAdministrator) {
         	Error_Handler::logError("Can't import files of type $type", __FILE__,__LINE__);
             exit;
         }
-    	Workflow::importWorkflows($tmp_name);
+    	Doc_Type_XSD::importXSDs($tmp_name);
     }
 } else {
     $tpl->assign("show_not_allowed_msg", true);
