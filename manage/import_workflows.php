@@ -57,7 +57,8 @@ if ($isAdministrator) {
         	Error_Handler::logError("Can't import files of type $type", __FILE__,__LINE__);
             exit;
         }
-    	Workflow::importWorkflows($tmp_name);
+    	$feedback = Workflow::importWorkflows($tmp_name);
+        $tpl->assign('feedback',$feedback);
     }
 } else {
     $tpl->assign("show_not_allowed_msg", true);

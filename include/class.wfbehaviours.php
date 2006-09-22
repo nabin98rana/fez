@@ -256,7 +256,7 @@ class WF_Behaviour
     * otherwise a new behaviour is created from the XML file and the new DB id is mapped 
     * @returns array $behaviour_ids_map
 	*/
-	function importBehaviours($doc)
+	function importBehaviours($doc, &$feedback)
 	{
 		$xpath = new DOMXPath($doc);
 		$xbehaviours = $xpath->query('/workflows/WorkflowBehaviour');
@@ -264,6 +264,7 @@ class WF_Behaviour
 		foreach ($xbehaviours as $xbehaviour) {
 			$xid = $xbehaviour->getAttribute('wfb_id');
             $xscript = $xbehaviour->getAttribute('wfb_script_name');
+            $xtitle = $xbehaviour->getAttribute('wfb_title');
             // see if there's already a behaviour that does this
             $list = WF_Behaviour::getList($wherestr="WHERE wfb_script_name = '$xscript'");
             if (empty($list)) {
@@ -274,9 +275,11 @@ class WF_Behaviour
                     'wfb_script_name' => $xbehaviour->getAttribute('wfb_script_name'),
                     'wfb_auto' => $xbehaviour->getAttribute('wfb_auto'),
                 );
+                $feedback[] = "Importing new behaviour $xtitle";
             	$dbid = WF_Behaviour::insert($params);
             } else {
-            	$dbid = $list[0]['wfb_id'];
+            	$feedback[] = "Not importing existing behaviour $xtitle";
+                $dbid = $list[0]['wfb_id'];
             }
             $behaviour_id_map[$xid] = $dbid;
 		}

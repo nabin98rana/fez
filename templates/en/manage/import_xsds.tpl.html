@@ -9,7 +9,15 @@ var page_url = '{/literal}{$smarty.server.PHP_SELF}{literal}';
         <tr>
           <td>
             <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-
+{if $feedback}
+			<tr>
+				<td colspan="2" class="default">
+				{section name="ff" loop=$feedback}
+					{$feedback[ff]}<br/>
+				{/section}
+				</td>
+			</tr>
+{/if}
 
               <tr>
                 <td colspan="2" class="default">
@@ -18,8 +26,9 @@ var page_url = '{/literal}{$smarty.server.PHP_SELF}{literal}';
               </tr>
              <tr>
                 <td bgcolor="{$light_color}" class="default">
-                XSDs that have been exported to an XML file can be imported here.  Note that existing XSDs
-                will not be changed,  Duplicates will result if you import XSDs that already exist in Fez.
+                XSDs that have been exported to an XML file can be imported here.  Existing XSDs
+                will not be changed.  Version numbers are used to determine whether to import XSDs that are
+                already in Fez.  Only higher versions will be imported.
                 </td>
               </tr>
 		  <tr>

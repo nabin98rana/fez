@@ -9,7 +9,15 @@ var page_url = '{/literal}{$smarty.server.PHP_SELF}{literal}';
         <tr>
           <td>
             <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-
+{if $feedback}
+			<tr>
+				<td colspan="2" class="default">
+				{section name="ff" loop=$feedback}
+					{$feedback[ff]}<br/>
+				{/section}
+				</td>
+			</tr>
+{/if}
 
               <tr>
                 <td colspan="2" class="default">
@@ -18,8 +26,10 @@ var page_url = '{/literal}{$smarty.server.PHP_SELF}{literal}';
               </tr>
              <tr>
                 <td bgcolor="{$light_color}" class="default">
-                Workflows that have been exported to an XML file can be imported here.  Note that existing workflows
-                will not be changed,  Duplicates will result if you import workflows that already exist in Fez.
+                Workflows that have been exported to an XML file can be imported here.  Existing workflows
+                will not be changed.  Version numbers are used to determine whether to import an existing workflow, if 
+                the version in the XML file is higher than that of the existing workflow then it will be imported,
+                otherwise it will be skipped.
                 </td>
               </tr>
 		  <tr>

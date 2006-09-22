@@ -380,17 +380,19 @@ class Workflow
     function importWorkflows($filename)
     {
     	$doc = DOMDocument::load($filename);
+        $feedback = array();
         // get the behaviours and map the existing DB id to the ids in the xml doc
-        $behaviour_ids_map = WF_Behaviour::importBehaviours($doc);
+        $behaviour_ids_map = WF_Behaviour::importBehaviours($doc, $feedback);
         // Now import the workflows
         $xpath = new DOMXPath($doc);
         $xworkflows = $xpath->query('/workflows/workflow');
         foreach ($xworkflows as $xworkflow) {
-            Workflow::importWorkflow($xworkflow, $behaviour_ids_map);
+            Workflow::importWorkflow($xworkflow, $behaviour_ids_map, $feedback);
         }
+        return $feedback;
     }
     
-    function importWorkflow($xworkflow, $behaviour_ids_map)
+    function importWorkflow($xworkflow, $behaviour_ids_map, &$feedback)
     {
         $title = Misc::escapeString(trim($xworkflow->getAttribute('wfl_title')));
         $version = Misc::escapeString(trim($xworkflow->getAttribute('wfl_version')));
@@ -400,6 +402,7 @@ class Workflow
         if (!is_numeric($version)) {
             // we don't insert workflows unless they have a version number        	
             $ok_to_insert = false;
+            $feedback[] = "Not importing workflow $title $version. Version number must be numeric";
         } elseif (!empty($list)) {
             $ok_to_insert = true;
             // We'll insert the workflow if it has a higher version number than the one in the DB
@@ -407,6 +410,7 @@ class Workflow
                 if (is_numeric($item['wfl_version'])) {
                 	if (floatval($item['wfl_version']) >= floatval($version)) {
                         $ok_to_insert = false;
+                        $feedback[] = "Not importing existing workflow $title $version";
                 	}
                 }	
             }
@@ -416,6 +420,7 @@ class Workflow
         }
         if ($ok_to_insert) {
         	// insert the new workflow from the XML
+            $feedback[] = "Importing workflow $title $version";
             $params = array(
                 'wfl_title' => $xworkflow->getAttribute('wfl_title'),
                 'wfl_version' => $xworkflow->getAttribute('wfl_version'),

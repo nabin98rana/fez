@@ -611,7 +611,7 @@ class XSD_Display
      * make sure any inserted items point to the right things.  NOTE: queries must ensure that only inserted 
      * items are updated - we don't want to change exisiting items to point to new items by accident 
      */
-    function importDisplays($xdoc, $xsd_id, &$maps)
+    function importDisplays($xdoc, $xsd_id, &$maps, &$feedback)
     {
     	$xpath = new DOMXPath($xdoc->ownerDocument);
         $xdisplays = $xpath->query('display', $xdoc);
@@ -619,8 +619,7 @@ class XSD_Display
             $title = Misc::escapeString($xdis->getAttribute('xdis_title'));
             $version = $xdis->getAttribute('xdis_version');
             if (!is_numeric($version)) {
-            	Error_Handler::logError("Not importing Display $title $version - xdis_version must be a number",
-                __FILE__,__LINE__);
+            	$feedback[] = "Not importing Display $title $version - xdis_version must be a number";
                 continue;
             }
             $list = XSD_Display::getList($xsd_id,"AND xdis_title='$title'");
@@ -628,12 +627,12 @@ class XSD_Display
             	foreach($list as $exist_item) {
             		if (floatval($exist_item['xdis_version']) > floatval($version)) {
             			$do_import = false;
-                        //echo "Not importing Display $title $version<br/>\n";
+                        $feedback[] =  "Not importing Display $title $version";
                         break;
             		} elseif (floatval($exist_item['xdis_version']) == floatval($version)) {
                         $do_import = false;
                         $maps['xdis_map'][$xdis->getAttribute('xdis_id')] = $exist_item['xdis_id'];
-                        //echo "Not importing Display $title $version<br/>\n";
+                        $feedback[] = "Not importing Display $title $version";
                         break;
                     }
             	}
@@ -641,7 +640,7 @@ class XSD_Display
             	$do_import = true;
             }
             if ($do_import) {
-            	//echo "Importing Display $title<br/>\n";
+            	$feedback[] =  "Importing Display $title";
                 $params = array(
                     'xdis_title' => $xdis->getAttribute('xdis_title'),
                     'xdis_version' => $xdis->getAttribute('xdis_version'),

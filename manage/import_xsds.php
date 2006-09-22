@@ -56,7 +56,8 @@ if ($isAdministrator) {
         	Error_Handler::logError("Can't import files of type $type", __FILE__,__LINE__);
             exit;
         }
-    	Doc_Type_XSD::importXSDs($tmp_name);
+    	$feedback = Doc_Type_XSD::importXSDs($tmp_name);
+        $tpl->assign('feedback',$feedback);
     }
 } else {
     $tpl->assign("show_not_allowed_msg", true);

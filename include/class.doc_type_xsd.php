@@ -306,12 +306,13 @@ class Doc_Type_XSD
         $xpath = new DOMXPath($doc);
         $xdocs = $xpath->query('/fez_xsds/fez_xsd');
         $maps = array();
+        $feedback = array();
         foreach ($xdocs as $xdoc) {
         	$title = Misc::escapeString($xdoc->getAttribute('xsd_title'));
             $version = Misc::escapeString($xdoc->getAttribute('xsd_version'));
             // reject any XSDs that don't have a version
             if (!is_numeric($version)) {
-                Error_Handler::logError("Not importing $title $version - the xsd_version must be numeric<br/>\n",__FILE__,__LINE__);
+                $feedback[] = "Not importing $title $version - the xsd_version must be numeric";
             	continue;
             }
             $exist_list = Doc_Type_XSD::getList("WHERE xsd_title='$title'");
@@ -320,7 +321,6 @@ class Doc_Type_XSD
             if (!empty($exist_list)) {
                 foreach ($exist_list as $exist_item) {
                 	if (floatval($exist_item['xsd_version']) > floatval($version)) {
-                        echo "Not importing $title $version<br/>\n";
                         $do_import = false;
                         $doc_id = false;
                         break;
@@ -345,15 +345,18 @@ class Doc_Type_XSD
                 );
                 $doc_id = Doc_Type_XSD::insert($params);
             } else {
-                //echo "Not importing XSD $title $version<br/>\n";
+                $feedback[] =  "Not importing XSD $title $version";
             }
             if ($doc_id) {
                 // check for new displays even if the doc already exists in the DB
-                XSD_Display::importDisplays($xdoc, $doc_id, $maps);
+                XSD_Display::importDisplays($xdoc, $doc_id, $maps,$feedback);
             }
         }
         //print_r($maps);
+        $feedback[] = "Remapping ids";
         XSD_HTML_Match::remapImport($maps);
+        $feedback[] = "Done";
+        return $feedback;
     }
     
     
