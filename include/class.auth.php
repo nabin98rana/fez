@@ -44,6 +44,7 @@
 include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.user.php");
+include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.date.php");
@@ -372,8 +373,8 @@ class Auth
 		$ACMLArray = &$array;
         foreach ($parents as $parent) {
             $inherit = false;
-            $xdis_array = Fedora_API::callGetDatastreamContentsField($parent['pid'], 'FezMD', array('xdis_id'));
-            $xdis_id = $xdis_array['xdis_id'][0];
+			$xdis_record = new RecordObject($parent['pid']);
+			$xdis_id = $xdis_record->getXmlDisplayId();						
             $parentACML = Record::getACML($parent['pid']);		
             if ($parentACML != false) {
                 array_push($ACMLArray, $parentACML); // add and then check if need to inherit				

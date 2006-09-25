@@ -157,9 +157,16 @@ class XSD_Display
 						if (is_numeric($xsd_sel_row['xsdsel_attribute_loop_xsdmf_id'])) {
 							$new_attribute_loop_candidate = XSD_HTML_Match::getXSDMF_IDByOriginalXSDMF_ID($xsd_sel_row['xsdsel_attribute_loop_xsdmf_id'], $new_xdis_id);
 							if (is_numeric($new_attribute_loop_candidate)) {
-								XSD_Loop_Subelement::updateAttributeLoopCandidate($new_sel_id, $new_attribute_loop_candidate);
+								XSD_Loop_Subelement::updateAttributeLoopCandidate($new_sel_id, $new_attribute_loop_candidate, $new_xdis_id);
 							}
 						}
+						// does the sel have an indicator? if so then point to the new cloned versions xsdmf_id of it.
+						if (is_numeric($xsd_sel_row['xsdsel_indicator_xsdmf_id'])) {
+							$new_indicator = XSD_HTML_Match::getXSDMF_IDByOriginalXSDMF_ID($xsd_sel_row['xsdsel_indicator_xsdmf_id'], $new_xdis_id);
+							if (is_numeric($new_indicator)) {
+								XSD_Loop_Subelement::updateIndicator($new_sel_id, $new_indicator, $new_xdis_id);
+							}
+						}						
 
 					}						
 				}
@@ -167,8 +174,24 @@ class XSD_Display
 				$xsdrel_res = XSD_Relationship::getSimpleListByXSDMF($xsdmf_row['xsdmf_id']);				
 				foreach ($xsdrel_res as $xsdrel_row) {
 					XSD_Relationship::insertFromArray($new_xsdmf_id, $xsdrel_row);
-				}
+				}				
 			 }
+			$new_res = XSD_HTML_Match::getList($new_xdis_id);			 
+			// after everything has been inserted check any id refs that need pointing to a new xsdmf id
+			foreach ($new_res as $new_row) {
+				// is the clone an xsdmf id reference of an xsd display that was the old xsd display (rather than an external one) then we need to make it point to the new version of the xsdmf id in this new xsd display
+				if (is_numeric($new_row['xsdmf_id_ref'])) {
+					$old_id_ref_xdis_id =  XSD_HTML_Match::getXDIS_IDByXSDMF_ID($new_row['xsdmf_id_ref']);
+					echo "OLD REF XDIS ID = ".$old_id_ref_xdis_id."\n";
+					echo "OLD XDIS ID = ".$xdis_id."\n";
+					if ($old_id_ref_xdis_id == $xdis_id) { // if the old one refered to an xsdmfid in its own display than make the new one refer to its new display id version of that xsdmf id as well
+						$new_xsdmf_id_ref = XSD_HTML_Match::getXSDMF_IDByOriginalXSDMF_ID($new_row['xsdmf_id_ref'], $new_xdis_id); //what is the new display version of this old id ref
+						XSD_HTML_Match::updateXSDMF_ID_REF($new_row['xsdmf_id'], $new_xsdmf_id_ref, $new_xdis_id); //save it
+					}
+				}
+			}
+			 
+			 			 
 			 return 1; 
         }
     }
@@ -428,6 +451,11 @@ class XSD_Display
      */
     function getID($xdis_title)
     {
+		static $returns;
+
+        if (isset($returns[$xdis_title])) {
+            return $returns[$xdis_title];
+        }
         $stmt = "SELECT
                    xdis_id
                  FROM
@@ -439,6 +467,7 @@ class XSD_Display
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
+			$returns[$xdis_title] = $res;
             return $res;
         }
     }
@@ -545,6 +574,7 @@ class XSD_Display
         }
     }
 
+	
     /**
      * Method used to get the maximum XSD Display ID
      *
@@ -798,29 +828,33 @@ class XSD_DisplayObject
             $this->getXSD_HTML_Match();
             // Find datastreams that may be used by this display
             $datastreamTitles = $this->getDatastreamTitles();
-			$datastreams = Fedora_API::callGetDatastreams($pid);
+//			$datastreams = Fedora_API::callGetDatastreams($pid);
+			$datastreams = Fedora_API::callListDatastreams($pid);			
 			foreach ($datastreams as $ds_key => $ds_value) {
 				// get the matchfields for the FezACML of the datastream if any exists
 				if ($ds_value['controlGroup'] == 'M') {
 					$FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
 					$FezACML_DS_name = "FezACML_".$ds_value['ID'].".xml";
-					$FezACML_DS = Fedora_API::callGetDatastreamDissemination($pid, $FezACML_DS_name);
-					if (isset($FezACML_DS['stream'])) {
-						$save_xdis_str = "";
-						$save_xdis_str = $this->xsd_html_match->xdis_str;
-						$this->xsd_html_match->set_xdis_str($FezACML_xdis_id);
-						$this->processXSDMFDatastream($FezACML_DS['stream'], $FezACML_xdis_id);
-						$this->xsd_html_match->xdis_str = $save_xdis_str;
-						$this->xsd_html_match->gotMatchCols = false; // make sure it refreshes for the other xsd displays
+					if (Fedora_API::datastreamExistsInArray($datastreams, $FezACML_DS_name)) {
+						$FezACML_DS = Fedora_API::callGetDatastreamDissemination($pid, $FezACML_DS_name);						
+						if (isset($FezACML_DS['stream'])) {
+							$save_xdis_str = "";
+							$save_xdis_str = $this->xsd_html_match->xdis_str;
+							$this->xsd_html_match->set_xdis_str($FezACML_xdis_id);
+							$this->processXSDMFDatastream($FezACML_DS['stream'], $FezACML_xdis_id);
+							$this->xsd_html_match->xdis_str = $save_xdis_str;
+							$this->xsd_html_match->gotMatchCols = false; // make sure it refreshes for the other xsd displays
+						} 
 					}
 				}
 			}
-
+			
             foreach ($datastreamTitles as $dsValue) {
 				// first check if the XSD Display datastream is a template for a file attachment or a link as these are handled differently
 				if ($dsValue['xsdsel_title'] == "File_Attachment") {
-					// get all the binary managed content datastream details and add an index record for each
+					// get all the binary managed content datastream details and add an index record for each									
 					$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_ID("!datastream!ID", $dsValue['xsdsel_id'], $dsValue['xsdmf_xdis_id']);
+					
 					foreach ($datastreams as $ds) {
 						if ($ds['controlGroup'] == 'M') {
 							if (!is_array(@$this->xsdmf_current[$xsdmf_id])) {
@@ -832,7 +866,9 @@ class XSD_DisplayObject
                 } elseif ($dsValue['xsdsel_title'] == "DOI") {
                     // find the datastream for DOI and set it's value 
                     $xsdmf_id = $dsValue['xsdmf_id'];
+				
                     $xsdmf_details = $this->xsd_html_match->getDetailsByXSDMF_ID($xsdmf_id);
+				
                     foreach ($datastreams as $ds) {
                         if ($ds['controlGroup'] == 'R' && $ds['ID'] == 'DOI') {
                             $value = trim($ds['location']);
@@ -844,12 +880,13 @@ class XSD_DisplayObject
 					}
 				} else {
 					// find out if this record has the xml based datastream 
-					$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title']);
-
-					if (isset($DSResultArray['stream'])) {
-						$xmlDatastream = $DSResultArray['stream'];
-						// get the matchfields for the datastream (using the sub-display for this stream)
-						$this->processXSDMFDatastream($xmlDatastream, $dsValue['xsdmf_xdis_id']);
+					if (Fedora_API::datastreamExistsInArray($datastreams, $dsValue['xsdsel_title'])) {
+						$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title']);
+						if (isset($DSResultArray['stream'])) {
+							$xmlDatastream = $DSResultArray['stream'];
+							// get the matchfields for the datastream (using the sub-display for this stream)						
+							$this->processXSDMFDatastream($xmlDatastream, $dsValue['xsdmf_xdis_id']);							
+						}
 					}
 				}
             }

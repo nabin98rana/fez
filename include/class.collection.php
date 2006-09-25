@@ -1153,6 +1153,8 @@ class Collection
 		}
 		$bodyStmt = " FROM  {$dbtp}record_matching_field r2 
                     inner join {$dbtp}xsd_display_matchfields AS x2 on r2.rmf_xsdmf_id = x2.xsdmf_id and r2.rmf_varchar='2' and x2.xsdmf_element='!sta_id' $joinStmt
+
+					$authStmt
 					
 					";
 		
@@ -1179,7 +1181,7 @@ class Collection
 		}
 		$bodyStmt .= "
 
-					$authStmt
+
 
 	                $middleStmt ";
 

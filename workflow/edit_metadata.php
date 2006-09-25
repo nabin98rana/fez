@@ -103,6 +103,7 @@ $xdis_id = $record->getXmlDisplayId();
 $xdis_title = XSD_Display::getTitle($xdis_id);
 $author_list = Author::getAssocListAll();
 $tpl->assign("xdis_title", $xdis_title);
+$tpl->assign($extra_title, "Edit ".$xdis_title);
 $xdis_collection_list = XSD_Display::getAssocListCollectionDocTypes(); // @@@ CK - 13/1/06 added for communities to be able to select their collection child document types/xdisplays
 $xdis_list = XSD_Display::getAssocListDocTypes(); // @@@ CK - 24/8/05 added for collections to be able to select their child document types/xdisplays
 $strict = false;

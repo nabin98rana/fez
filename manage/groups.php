@@ -47,7 +47,7 @@ $tpl->setTemplate("manage/index.tpl.html");
 Auth::checkAuthentication(APP_SESSION);
 
 $tpl->assign("type", "groups");
-
+$tpl->assign("extra_title", "Manage Groups");
 $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);

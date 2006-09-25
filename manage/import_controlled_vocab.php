@@ -43,7 +43,7 @@ $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION);
-
+$tpl->assign("extra_title", "Import Controlled Vocabulary");
 $tpl->assign("type", "import_controlled_vocab");
 $parent_id = @$HTTP_POST_VARS["parent_id"] ? $HTTP_POST_VARS["parent_id"] : @$HTTP_GET_VARS["parent_id"];	
 //$parents = Controlled_Vocab::getParentAssocListFullDisplay($parent_id);

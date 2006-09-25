@@ -535,6 +535,51 @@ class Fedora_API {
         }
     }
 
+   /**
+    *This function creates an array of all the datastreams for a specific object using the API-A-LITE rather than soap
+	*
+    * @access  public
+	* @param string $pid The persistant identifier of the object
+    * @return array $dsIDListArray The list of datastreams in an array.
+    */
+    function callListDatastreamsLite($pid) {
+		static $returns;
+		if (!is_array($returns)) {
+			$returns = array();
+		}
+
+        if (!is_numeric($pid)) {
+		    if (is_array($returns[$pid])) {
+				return $returns[$pid];
+			}
+			$getString = APP_BASE_FEDORA_APIA_DOMAIN."/listDatastreams/".$pid."?xml=true";
+			$ch = curl_init($getString);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+			$results = curl_exec($ch);
+			$info = curl_getinfo($ch);
+			curl_close ($ch);
+			$xml = $results;
+			$dom = new DomDocument;
+			$dom->loadXML($xml);		
+			$xpath = new DOMXPath($dom);
+			$fieldNodeList = $xpath->query("/*/*");
+			$counter = 0;
+			foreach ($fieldNodeList as $fieldNode) {
+				$fieldAttList = $xpath->query("@*",$fieldNode);
+				foreach ($fieldAttList as $fieldAtt) {
+					$resultlist[$counter][$fieldAtt->nodeName] = trim($fieldAtt->nodeValue);
+				}
+				$counter++;
+			}
+			$returns[$pid] = $resultlist;
+			return $resultlist;
+        } else {
+            return array();
+        }
+    }	
+	
+	
 
     function objectExists($pid) {
 		$parms = array('pid' => $pid);
@@ -570,15 +615,36 @@ class Fedora_API {
     */
 	function datastreamExists ($pid, $dsID) {
 		$dsExists = false;
-		$rs = Fedora_API::callListDatastreams($pid, $dsID);
+//		$rs = Fedora_API::callListDatastreams($pid); // old way
+		$rs = Fedora_API::callListDatastreamsLite($pid);
 		foreach ($rs as $row) {
-			if (isset($row['ID']) && $row['ID'] == $dsID) {
+//			if (isset($row['ID']) && $row['ID'] == $dsID) { // old way
+			if (isset($row['dsid']) && $row['dsid'] == $dsID) {				
 				$dsExists = true;
 			}
 		}
 		return $dsExists;
 	}
 
+   /**
+    * Does a datastream with a given ID already exist in existing list array of datastreams 
+	*
+    * @access  public
+	* @param string $existing_list The existing list of datastreams
+	* @param string $dsID The ID of the datastream to be checked
+    * @return boolean
+    */
+	function datastreamExistsInArray ($existing_list, $dsID) {
+		$dsExists = false;
+		$rs = $existing_list;
+		foreach ($rs as $row) {
+			if (isset($row['ID']) && $row['ID'] == $dsID) {
+				$dsExists = true;
+			}
+		}
+		return $dsExists;
+	}	
+	
    /**
     * This function creates an array of a specific datastream of a specific object
 	*
@@ -646,6 +712,13 @@ class Fedora_API {
     * @return array $dsIDListArray The requested of datastream in an array.
     */
 	function callGetDatastreamContentsField($pid, $dsID, $returnfields) {
+
+		static $counter;
+		if (!isset($counter)) {
+			$counter = 0;
+		
+		}
+		$counter++;
 		$resultlist = array();
 		$dsExists = Fedora_API::datastreamExists($pid, $dsID);
 		if ($dsExists == true) {
@@ -661,7 +734,7 @@ class Fedora_API {
 					}
 				}
 			}
-		}
+		}		
 		return $resultlist;
 	}
 

@@ -96,6 +96,25 @@ function checkPermissions($file, $desc, $is_directory = FALSE)
     return "";
 }
 
+
+ function parse_mysql_dump($url, $ignoreerrors = false) {
+   $file_content = file($url);
+   //print_r($file_content);
+   $query = "";
+   foreach($file_content as $sql_line) {
+	 $sql_line = replace_table_prefix($sql_line);
+     $tsl = trim($sql_line);
+     if (($sql_line != "") && (substr($tsl, 0, 2) != "--") && (substr($tsl, 0, 1) != "#")) {
+       $query .= $sql_line;
+       if(preg_match("/;\s*$/", $sql_line)) {
+         $result = mysql_query($query);
+         if (!$result && !$ignoreerrors) die(mysql_error());
+         $query = "";
+       }
+     }
+   }
+  }
+
 function checkRequirements()
 {
     $errors = array();
@@ -361,12 +380,19 @@ $private_key = "' . md5(microtime()) . '";
     if (!mysql_query('DROP TABLE fez_test', $conn)) {
         return getErrorMessage('drop_test', mysql_error());
     }
-
-    $contents = implode("", file("schema.sql"));
-    $queries = explode(";", $contents);
-    unset($queries[count($queries)-1]);
+	parse_mysql_dump("schema.sql");
+/*$contents = file_get_contents("schema.sql");
+//    $contents = implode("", file("schema.sql"));
+//    $queries = preg_split("/\;$/", $contents); //now with this regex we will no longer need to massage the ;'s out of the sql schemas
+//	unset($queries[count($queries)-1]);
     // COMPAT: the next line requires PHP >= 4.0.6
-    $queries = array_map("trim", $queries);
+$contents = replace_table_prefix($contents);
+$stmt = $contents;
+ if (!mysql_query($stmt, $conn)) {
+	 return getErrorMessage('create_table', mysql_error());
+	 
+ }*/
+/*    $queries = array_map("trim", $queries);
     $queries = array_map("replace_table_prefix", $queries);
 
     foreach ($queries as $stmt) {
@@ -381,9 +407,9 @@ $private_key = "' . md5(microtime()) . '";
                 $type = 'create_table';
             }
 			
-            return getErrorMessage($type, mysql_error());
+            return getErrorMessage($type, mysql_error()."<br/>".$stmt);
         }
-    } 
+    } */
     // substitute the appropriate values in config.inc.php!!!
     if (@$HTTP_POST_VARS['alternate_user'] == 'yes') {
         $HTTP_POST_VARS['db_username'] = $HTTP_POST_VARS['fez_user'];

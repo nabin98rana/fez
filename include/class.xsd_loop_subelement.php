@@ -447,12 +447,13 @@ class XSD_Loop_Subelement
      * @access  public
      * @return  integer 1 if the insert worked, -1 otherwise
      */
-    function updateAttributeLoopCandidate($xsdsel_id, $attribute_loop_candidate)
+    function updateAttributeLoopCandidate($xsdsel_id, $attribute_loop_candidate, $attribute_loop_candidate_xdis_id)
     {
         $stmt = "UPDATE
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement
                  SET 
-                    xsdsel_attribute_loop_xsdmf_id = ".$attribute_loop_candidate."
+                    xsdsel_attribute_loop_xsdmf_id = ".$attribute_loop_candidate.",
+                    xsdsel_attribute_loop_xdis_id = ".$attribute_loop_candidate_xdis_id."                    
                  WHERE xsdsel_id = " . $xsdsel_id;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -462,7 +463,29 @@ class XSD_Loop_Subelement
 			return 1;
         }
     }	
-
+	
+    /**
+     * Method used to update a sublooping element indicator.
+     *
+     * @access  public
+     * @return  integer 1 if the insert worked, -1 otherwise
+     */
+    function updateIndicator($xsdsel_id, $indicator_xsdmf_id, $indicator_xdis_id)
+    {
+        $stmt = "UPDATE
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement
+                 SET 
+                    xsdsel_indicator_xsdmf_id = ".$indicator_xsdmf_id.",
+                    xsdsel_indicator_xdis_id = ".$indicator_xdis_id."                    
+                 WHERE xsdsel_id = " . $xsdsel_id;
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+			return 1;
+        }
+    }	
     /**
      * Method used to get the details of a specific sublooping element.
      *

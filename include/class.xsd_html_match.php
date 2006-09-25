@@ -1885,6 +1885,32 @@ class XSD_HTML_Match
     }
 
     /**
+     * Method used to update an idref to a new value for an xsdmf id record
+     *
+     * @access  public
+	 * @param   string $xsdmf_id the XSD MF ID to update
+	 * @param   string $new_xsdmf_id_ref The new id ref to replace the old one with
+     * @return  "" if failed, 1 if success.
+     */
+    function updateXSDMF_ID_REF($xsdmf_id, $new_xsdmf_id_ref, $new_id_ref_xdis_id)
+    {
+        $stmt = "UPDATE
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+                 SET xsdmf_id_ref = $new_xsdmf_id_ref,
+                     xsdmf_xdis_id_ref = $new_id_ref_xdis_id
+                 WHERE
+                    xsdmf_id = $xsdmf_id";
+		echo "$stmt \n";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+			return 1;
+        }
+    }	
+	
+    /**
      * Method used to try and get a XSDMF ID from an xsdmf_element
      *
      * @access  public
@@ -2104,6 +2130,7 @@ class XSD_HTML_Match
                  WHERE
                     xsdmf_original_xsdmf_id = ".$original_xsdmf_id." AND xsdmf_xdis_id = ".$xdis_id; 
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt);
+		echo $stmt."\n";
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
@@ -2222,6 +2249,32 @@ class XSD_HTML_Match
         }
     }
 
+
+    /**
+     * Method used to get the XSD Display ID with a given XSDMFID
+     *
+     * @access  public
+	 * @param   integer $xdis_title The XSD title to search by.
+     * @return  array $res The xdis_id 
+     */
+    function getXDIS_IDByXSDMF_ID($xsdmf_id)
+    {
+        $stmt = "SELECT
+                   xsdmf_xdis_id
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+                 WHERE
+                    xsdmf_id = $xsdmf_id";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+		echo $stmt."\n";
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }		
+	
     /**
      * Method used to get the details of a specific XSD HTML Matching Field, by xml element and sublooping id.
      *

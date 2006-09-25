@@ -41,11 +41,11 @@ include_once(APP_INC_PATH . "class.workflow.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.statistics.php");
 include_once(APP_PEAR_PATH . "Date.php");
-
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
 $isAdministrator = Auth::isAdministrator(); 
 $tpl->assign("isAdministrator", $isAdministrator);
+
 
 $tpl->assign("fez_root_dir", APP_PATH);
 $tpl->assign("eserv_url", APP_BASE_URL."eserv.php?pid=".$pid."&dsID=");
@@ -70,8 +70,8 @@ if (!empty($pid)) {
 	
 	$canEdit = false;
 	$canView = true;
-	$canEdit = $record->canEdit(false);
-	if ($canEdit == true) {
+		$canEdit = $record->canEdit(false);
+		if ($canEdit == true) {
 		$ret_id = 3;
 		$strict = false;
 		$workflows = array_merge($record->getWorkflowsByTriggerAndRET_ID('Update', $ret_id, $strict),
@@ -92,19 +92,20 @@ if (!empty($pid)) {
 	} else {
 		$canView = $record->canView();
 	}
+	
 	$tpl->assign("isViewer", $canView);
 	if ($canView) {
 		$tpl->assign("isEditor", $canEdit);
 		$tpl->assign("sta_id", $record->getPublishedStatus()); 
 		$display = new XSD_DisplayObject($xdis_id);
+		
 		//$xsd_display_fields = $display->getMatchFieldsList();
+
 		$xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array(""));  // XSD_DisplayObject
 		$tpl->assign("xsd_display_fields", $xsd_display_fields);
 		$details = $record->getDetails();
-		$controlled_vocabs = Controlled_Vocab::getAssocListAll();
 		$tpl->assign("details_array", $details);
-		$parents = $record->getParents();
-		$author_list = Author::getAssocListAll();
+		$parents = $record->getParents();				
 		$parent_relationships = array(); 
 		foreach ($parents as $parent) {
 			$parent_rel = XSD_Relationship::getColListByXDIS($parent['display_type'][0]);
@@ -121,11 +122,11 @@ if (!empty($pid)) {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
-								$details[$dis_field['xsdmf_id']][$ckey] = $controlled_vocabs[$cdata];
-								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=subject&parent_id=".$cdata."'>".$controlled_vocabs[$cdata]."</a>";
+								$details[$dis_field['xsdmf_id']][$ckey] = Controlled_Vocab::getTitle($cdata);
+								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=subject&parent_id=".$cdata."'>".Controlled_Vocab::getTitle($cdata)."</a>";
 							}
 						} else {
-							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=subject&parent_id=".$details[$dis_field['xsdmf_id']]."'>".$controlled_vocabs[$details[$dis_field['xsdmf_id']]]."</a>";
+							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=subject&parent_id=".$details[$dis_field['xsdmf_id']]."'>".Controlled_Vocab::getTitle($details[$dis_field['xsdmf_id']])."</a>";
 						}
 					}
 				}
@@ -138,11 +139,11 @@ if (!empty($pid)) {
 							$details[$xsdmf_id_ref] = array(); //clear the existing data
 							if (is_array($details[$dis_field['xsdmf_id']])) {
 								foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
-									$details[$xsdmf_id_ref][$cdata] = $controlled_vocabs[$cdata];
-									$details[$xsdmf_id_ref][$cdata] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=subject&parent_id=".$cdata."'>".$controlled_vocabs[$cdata]."</a>";
+									$details[$xsdmf_id_ref][$cdata] = Controlled_Vocab::getTitle($cdata);
+									$details[$xsdmf_id_ref][$cdata] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=subject&parent_id=".$cdata."'>".Controlled_Vocab::getTitle($cdata)."</a>";
 								}
 							} else {
-								$details[$xsdmf_id_ref] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=subject&parent_id=".$details[$dis_field['xsdmf_id']]."'>".$controlled_vocabs[$details[$dis_field['xsdmf_id']]]."</a>";
+								$details[$xsdmf_id_ref] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=subject&parent_id=".$details[$dis_field['xsdmf_id']]."'>".Controlled_Vocab::getTitle($details[$dis_field['xsdmf_id']])."</a>";
 							}
 						}				
 					}				
@@ -168,10 +169,10 @@ if (!empty($pid)) {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
-								$details[$dis_field['xsdmf_id']][$ckey] = $author_list[$cdata];
+								$details[$dis_field['xsdmf_id']][$ckey] = Author::getFullname($cdata);
 							}
 						} else {
-							$details[$dis_field['xsdmf_id']] = $author_list[$details[$dis_field['xsdmf_id']]];
+							$details[$dis_field['xsdmf_id']] =  Author::getFullname($details[$dis_field['xsdmf_id']]);
 						}
 					}
 				} 
@@ -429,7 +430,7 @@ if (!empty($pid)) {
 		$tpl->assign("parents", $parents);		
 		$tpl->assign("details", $details);
         $tpl->assign('title', $record->getTitle());
-		$tpl->assign("controlled_vocabs", $controlled_vocabs);				
+//		$tpl->assign("controlled_vocabs", $controlled_vocabs);				
 
 		$tpl->assign("statsAbstract", Statistics::getStatsByAbstractView($pid));				
 		$tpl->assign("statsFiles", Statistics::getStatsByAllFileDownloads($pid));						
@@ -521,5 +522,5 @@ function getPrevPage()
     }
     return array();
 }
-//print_r($GLOBALS['bench']->getProfiling());
+//echo ($GLOBALS['bench']->getOutput());
 ?>

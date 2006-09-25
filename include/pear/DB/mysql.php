@@ -299,6 +299,12 @@ class DB_mysql extends DB_common
      */
     function simpleQuery($query)
     {
+		// increments the total number of queries  	 
+        global $TOTAL_QUERIES; 	 
+        $TOTAL_QUERIES++; 	 
+/*        if ((defined('APP_BENCHMARK')) && (APP_BENCHMARK == true)) { 	 
+            $GLOBALS['bench']->setMarker('BEFORE ' . $query); 	 
+        }*/
         $ismanip = DB::isManip($query);
         $this->last_query = $query;
         $query = $this->modifyQuery($query);
@@ -322,6 +328,9 @@ class DB_mysql extends DB_common
         } else {
             $result = @mysql_query($query, $this->connection);
         }
+/*		if ((defined('APP_BENCHMARK')) && (APP_BENCHMARK == true)) { 	 
+            $GLOBALS['bench']->setMarker('AFTER ' . $query); 	 
+        }*/
         if (!$result) {
             return $this->mysqlRaiseError();
         }
