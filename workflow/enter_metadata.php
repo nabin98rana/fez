@@ -114,11 +114,11 @@ if ($access_ok) {
 	$xdis_collection_list = XSD_Display::getAssocListCollectionDocTypes(); // @@@ CK - 13/1/06 added for communities to be able to select their collection child document types/xdisplays
     $xdis_list = XSD_Display::getAssocListDocTypes();
     $community_list = Community::getAssocList();
-    $collection_list = Collection::getEditListAssoc();
-    $internal_user_list = User::getAssocList();
-    $internal_group_list = Group::getAssocListAll();
-	$author_list = Author::getAssocListAll();
-	$tpl->assign("author_ids", $author_list);
+    $collection_list = Collection::getEditListAssoc(); 
+/*    $internal_user_list = User::getAssocList();
+    $internal_group_list = Group::getAssocListAll(); */
+/*	$author_list = Author::getAssocListAll();
+	$tpl->assign("author_ids", $author_list); */
 
     $jtaskData = "";
     $maxG = 0;

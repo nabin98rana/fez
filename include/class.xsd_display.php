@@ -182,13 +182,46 @@ class XSD_Display
 				// is the clone an xsdmf id reference of an xsd display that was the old xsd display (rather than an external one) then we need to make it point to the new version of the xsdmf id in this new xsd display
 				if (is_numeric($new_row['xsdmf_id_ref'])) {
 					$old_id_ref_xdis_id =  XSD_HTML_Match::getXDIS_IDByXSDMF_ID($new_row['xsdmf_id_ref']);
-					echo "OLD REF XDIS ID = ".$old_id_ref_xdis_id."\n";
-					echo "OLD XDIS ID = ".$xdis_id."\n";
 					if ($old_id_ref_xdis_id == $xdis_id) { // if the old one refered to an xsdmfid in its own display than make the new one refer to its new display id version of that xsdmf id as well
 						$new_xsdmf_id_ref = XSD_HTML_Match::getXSDMF_IDByOriginalXSDMF_ID($new_row['xsdmf_id_ref'], $new_xdis_id); //what is the new display version of this old id ref
-						XSD_HTML_Match::updateXSDMF_ID_REF($new_row['xsdmf_id'], $new_xsdmf_id_ref, $new_xdis_id); //save it
+						if (is_numeric($new_xsdmf_id_ref)) {
+							XSD_HTML_Match::updateXSDMF_ID_REF($new_row['xsdmf_id'], $new_xsdmf_id_ref, $new_xdis_id); //save it
+						}
 					}
 				}
+				if (is_numeric($new_row['xsdmf_asuggest_xsdmf_id'])) {
+					$old_xdis_id =  XSD_HTML_Match::getXDIS_IDByXSDMF_ID($new_row['xsdmf_asuggest_xsdmf_id']);
+					if ($old_xdis_id == $xdis_id) { // if the old one refered to an xsdmfid in its own display than make the new one refer to its new display id version of that xsdmf id as well
+						$new_xsdmf_id_asuggest = XSD_HTML_Match::getXSDMF_IDByOriginalXSDMF_ID($new_row['xsdmf_asuggest_xsdmf_id'], $new_xdis_id); //what is the new display version of this old xsdmf id
+						if (is_numeric($new_xsdmf_id_asuggest)) {
+							XSD_HTML_Match::updateAuthorSuggestTarget($new_row['xsdmf_id'], $new_xsdmf_id_asuggest, $new_xdis_id); //save it
+						}
+					}
+				}				
+				if (is_numeric($new_row['xsdmf_org_fill_xsdmf_id'])) {
+					$old_xdis_id =  XSD_HTML_Match::getXDIS_IDByXSDMF_ID($new_row['xsdmf_org_fill_xsdmf_id']);
+					if ($old_xdis_id == $xdis_id) { // if the old one refered to an xsdmfid in its own display than make the new one refer to its new display id version of that xsdmf id as well
+						$new_xsdmf_id_org_fill = XSD_HTML_Match::getXSDMF_IDByOriginalXSDMF_ID($new_row['xsdmf_org_fill_xsdmf_id'], $new_xdis_id); //what is the new display version of this old xsdmf id
+						if (is_numeric($new_xsdmf_id_org_fill)) {
+							XSD_HTML_Match::updateOrgFillTarget($new_row['xsdmf_id'], $new_xsdmf_id_org_fill, $new_xdis_id); //save it
+						}
+					}
+				}				
+				if (is_numeric($new_row['xsdmf_parent_option_child_xsdmf_id'])) {
+					$old_xdis_id =  XSD_HTML_Match::getXDIS_IDByXSDMF_ID($new_row['xsdmf_parent_option_child_xsdmf_id']);
+					if ($old_xdis_id == $xdis_id) { // if the old one refered to an xsdmfid in its own display than make the new one refer to its new display id version of that xsdmf id as well
+						$new_xsdmf_id_parent_option_child = XSD_HTML_Match::getXSDMF_IDByOriginalXSDMF_ID($new_row['xsdmf_parent_option_child_xsdmf_id'], $new_xdis_id); //what is the new display version of this old xsdmf id
+						if (is_numeric($new_xsdmf_id_parent_option_child)) {
+							XSD_HTML_Match::updateParentOptionTarget($new_row['xsdmf_id'], $new_xsdmf_id_parent_option_child, $new_xdis_id); //save it
+						}
+					}
+				}
+				if (is_numeric($new_row['xsdmf_attached_xsdmf_id'])) {
+					$new_xsdmf_id_attached = XSD_HTML_Match::getXSDMF_IDByOriginalXSDMF_ID($new_row['xsdmf_attached_xsdmf_id'], $new_xdis_id); //what is the new display version of this old xsdmf id
+					if (is_numeric($new_xsdmf_id_attached)) {
+						XSD_HTML_Match::updateAttachedTarget($new_row['xsdmf_id'], $new_xsdmf_id_attached); //save it
+					}										
+				}				
 			}
 			 
 			 			 

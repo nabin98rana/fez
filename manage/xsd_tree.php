@@ -76,6 +76,7 @@ if ($isAdministrator) {
 	$orphan_count = XSD_HTML_Match::getElementOrphanCount($xdis_id, $array_ptr);
 	$tpl->assign("orphan_count", $orphan_count);   	
 	$temp = (Misc::array_to_dtree($array_ptr, $xdis_id, $element_match_list));
+	$tpl->assign("xsd_id", $xsd_id);   	
 	$tpl->assign("xsd_tree", $temp[1]);   
 	$tpl->assign("xsd_tree_open", $temp[2]);
 } else {

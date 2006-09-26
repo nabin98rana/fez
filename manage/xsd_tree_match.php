@@ -36,6 +36,10 @@ include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
+include_once(APP_INC_PATH . "class.xsd_html_match.php");
+include_once(APP_INC_PATH . "class.xsd_display.php");
+include_once(APP_INC_PATH . "class.doc_type_xsd.php");
+include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "db_access.php");
 
 $tpl = new Template_API();
@@ -56,8 +60,9 @@ $xdis_id = @$HTTP_POST_VARS["xdis_id"] ? $HTTP_POST_VARS["xdis_id"] : $HTTP_GET_
 $tpl->assign("xdis_id", $xdis_id);
 
 $xsd_id = XSD_HTML_Match::getXSD_ID($xdis_id);
+$xdis_title = XSD_Display::getTitle($xdis_id);
 $xsd_title = Doc_Type_XSD::getTitle($xsd_id);
-$tpl->assign('extra_title', "Manage XSD Displays for XSD {$xsd_title}");
+$tpl->assign('extra_title', " - ".$xdis_title." - Manage XSD Displays for XSD {$xsd_title}");
 
 $tpl->displayTemplate();
 ?>

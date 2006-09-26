@@ -85,8 +85,8 @@ $tpl->assign("community_pid", $pid);
 
 $community_list = Community::getAssocList();
 $collection_list = Collection::getEditListAssoc();
-$internal_user_list = User::getAssocList();
-$internal_group_list = Group::getAssocListAll();
+/* $internal_user_list = User::getAssocList();
+$internal_group_list = Group::getAssocListAll(); */
 $extra_redirect = "";
 if (!empty($collection_pid)) {
 	$extra_redirect.="&collection_pid=".$pid;
@@ -101,9 +101,9 @@ $record = new RecordObject($pid);
 $record->getDisplay();
 $xdis_id = $record->getXmlDisplayId();
 $xdis_title = XSD_Display::getTitle($xdis_id);
-$author_list = Author::getAssocListAll();
+//$author_list = Author::getAssocListAll();
 $tpl->assign("xdis_title", $xdis_title);
-$tpl->assign($extra_title, "Edit ".$xdis_title);
+$tpl->assign("extra_title", "Edit ".$xdis_title);
 $xdis_collection_list = XSD_Display::getAssocListCollectionDocTypes(); // @@@ CK - 13/1/06 added for communities to be able to select their collection child document types/xdisplays
 $xdis_list = XSD_Display::getAssocListDocTypes(); // @@@ CK - 24/8/05 added for collections to be able to select their child document types/xdisplays
 $strict = false;
@@ -246,7 +246,7 @@ if ($access_ok) {
 
     $details = $record->getDetails();
 //    print_r($parents);
-    $controlled_vocabs = Controlled_Vocab::getAssocListAll();
+//    $controlled_vocabs = Controlled_Vocab::getAssocListAll();
     //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
     foreach ($xsd_display_fields  as $dis_field) {
 		if ($dis_field["xsdmf_enabled"] == 1) {
@@ -257,12 +257,12 @@ if ($access_ok) {
 						if (is_array($tempArray)) {
 							$details[$dis_field["xsdmf_id"]] = array();
 							foreach ($tempArray as $cv_key => $cv_value) {
-								$details[$dis_field["xsdmf_id"]][$cv_value] = $controlled_vocabs[$cv_value];
+								$details[$dis_field["xsdmf_id"]][$cv_value] = Controlled_Vocab::getTitle($cv_value);
 							}
 						} else {
 							$tempValue = $details[$dis_field["xsdmf_id"]];
 							$details[$dis_field["xsdmf_id"]] = array();
-							$details[$dis_field["xsdmf_id"]][$tempValue] = $controlled_vocabs[$tempValue];
+							$details[$dis_field["xsdmf_id"]][$tempValue] = Controlled_Vocab::getTitle($tempValue);
 						}
 						
 
@@ -292,11 +292,11 @@ if ($access_ok) {
 						$details[$xsdmf_id_ref] = array(); //clear the existing data
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
-								$details[$xsdmf_id_ref][$cdata] = $controlled_vocabs[$cdata];
+								$details[$xsdmf_id_ref][$cdata] = Controlled_Vocab::getTitle($cdata);
 	//										$details[$xsdmf_id_ref][$ckey] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=subject&parent_id=".$cdata."'>".$controlled_vocabs[$cdata]."</a>";
 							}
 						} else {
-							$details[$xsdmf_id_ref][$details[$dis_field['xsdmf_id']]] = $controlled_vocabs[$details[$dis_field['xsdmf_id']]];
+							$details[$xsdmf_id_ref][$details[$dis_field['xsdmf_id']]] = Controlled_Vocab::getTitle($details[$dis_field['xsdmf_id']]);
 						}
 					}				
 				}					

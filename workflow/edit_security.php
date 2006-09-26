@@ -102,7 +102,8 @@ $xdis_id = $record->getXmlDisplayId();
 
 $xdis_title = XSD_Display::getTitle($xdis_id);
 $tpl->assign("xdis_title", $xdis_title);
-$xdis_list = XSD_Display::getAssocListDocTypes(); // @@@ CK - 24/8/05 added for collections to be able to select their child document types/xdisplays
+$tpl->assign("extra_title", "Edit Security for ".$pid_title." (".$xdis_title.")");
+//$xdis_list = XSD_Display::getAssocListDocTypes(); // @@@ CK - 24/8/05 added for collections to be able to select their child document types/xdisplays
 
 $acceptable_roles = array("Community_Admin", "Editor", "Creator", "Community_Admin");
 if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $HTTP_SERVER_VARS['PHP_SELF']."?".$HTTP_SERVER_VARS['QUERY_STRING']) == true) {
@@ -153,7 +154,7 @@ $tpl->assign("xsd_display_fields", $xsd_display_fields);
 $tpl->assign("xdis_id", $xdis_id);
 $details = $record->getDetails();
 
-$controlled_vocabs = Controlled_Vocab::getAssocListAll();
+//$controlled_vocabs = Controlled_Vocab::getAssocListAll();
 //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
 foreach ($xsd_display_fields  as $dis_field) {
 	if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'contvocab' || $dis_field["xsdmf_html_input"] == 'contvocab_selector') {
@@ -163,12 +164,12 @@ foreach ($xsd_display_fields  as $dis_field) {
 				if (is_array($tempArray)) {
 					$details[$dis_field["xsdmf_id"]] = array();
 					foreach ($tempArray as $cv_key => $cv_value) {
-						$details[$dis_field["xsdmf_id"]][$cv_value] = $controlled_vocabs[$cv_value];
+						$details[$dis_field["xsdmf_id"]][$cv_value] = Controlled_Vocab::getTitle($cv_value);
 					}
 				} else {
 					$tempValue = $details[$dis_field["xsdmf_id"]];
 					$details[$dis_field["xsdmf_id"]] = array();
-					$details[$dis_field["xsdmf_id"]][$tempValue] = $controlled_vocabs[$tempValue];
+					$details[$dis_field["xsdmf_id"]][$tempValue] = Controlled_Vocab::getTitle($tempValue);
 
 				}
 			} else {
@@ -197,17 +198,16 @@ foreach ($xsd_display_fields  as $dis_field) {
 	}
 }
 $FezACML_exists = 0;
-$datastreams = Fedora_API::callGetDatastreams($pid);
-$datastreams = Misc::cleanDatastreamList($datastreams);
+$datastreams = Fedora_API::callListDatastreamsLite($pid);
 if ($dsID == "") {
 	foreach ($datastreams as $security_check) {
-		if ($security_check['ID'] == 'FezACML') {
+		if ($security_check['dsid'] == 'FezACML') {
 			$FezACML_exists = 1;
 		}
 	}
 } else {
 	foreach ($datastreams as $security_check) {
-		if ($security_check['ID'] == 'FezACML_'.$dsID.'.xml') {
+		if ($security_check['dsid'] == 'FezACML_'.$dsID.'.xml') {
 			$FezACML_exists = 1;
 		}
 	}

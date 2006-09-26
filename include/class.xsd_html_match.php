@@ -1442,7 +1442,9 @@ class XSD_HTML_Match
 		if (!empty($insertArray["xsdmf_org_fill_xsdmf_id"])) {
           $stmt .= "xsdmf_org_fill_xsdmf_id,";
 		}		
-
+		if (!empty($insertArray["xsdmf_attached_xsdmf_id"])) {
+          $stmt .= "xsdmf_attached_xsdmf_id,";
+		}	
 					
 		  $stmt .= "xsdmf_enforced_prefix,
 					xsdmf_value_prefix,
@@ -1589,7 +1591,9 @@ class XSD_HTML_Match
 			if (!empty($insertArray["xsdmf_org_fill_xsdmf_id"])) {
               $stmt .= $insertArray["xsdmf_org_fill_xsdmf_id"] . ",";
 			}			
-
+			if (!empty($insertArray["xsdmf_attached_xsdmf_id"])) {
+              $stmt .= $insertArray["xsdmf_attached_xsdmf_id"] . ",";
+			}	
 			$stmt .= "
                     '" . Misc::escapeString($insertArray["xsdmf_enforced_prefix"]) . "',
                     '" . Misc::escapeString($insertArray["xsdmf_value_prefix"]) . "',
@@ -1900,7 +1904,31 @@ class XSD_HTML_Match
                      xsdmf_xdis_id_ref = $new_id_ref_xdis_id
                  WHERE
                     xsdmf_id = $xsdmf_id";
-		echo "$stmt \n";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+			return 1;
+        }
+    }	
+
+	/**
+     * Method used to update an author suggest xdis id and xsdmf id to a new value for an xsdmf id record (mainly for cloning)
+     *
+     * @access  public
+	 * @param   string $xsdmf_id the XSD MF ID to update
+	 * @param   string $new_xsdmf_id_ref The new id ref to replace the old one with
+     * @return  "" if failed, 1 if success.
+     */
+    function updateAuthorSuggestTarget($xsdmf_id, $new_xsdmf_id, $new_xdis_id)
+    {
+        $stmt = "UPDATE
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+                 SET xsdmf_asuggest_xsdmf_id = $new_xsdmf_id,
+                     xsdmf_asuggest_xdis_id = $new_xdis_id
+                 WHERE
+                    xsdmf_id = $xsdmf_id";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -1910,6 +1938,80 @@ class XSD_HTML_Match
         }
     }	
 	
+	/**
+     * Method used to update an organisation struction fill target xdis id and xsdmf id to a new value for an xsdmf id record (mainly for cloning)
+     *
+     * @access  public
+	 * @param   string $xsdmf_id the XSD MF ID to update
+	 * @param   string $new_xsdmf_id The new id to replace the old one with
+     * @return  "" if failed, 1 if success.
+     */
+    function updateOrgFillTarget($xsdmf_id, $new_xsdmf_id, $new_xdis_id)
+    {
+        $stmt = "UPDATE
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+                 SET xsdmf_org_fill_xsdmf_id = $new_xsdmf_id,
+                     xsdmf_org_fill_xdis_id = $new_xdis_id
+                 WHERE
+                    xsdmf_id = $xsdmf_id";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+			return 1;
+        }
+    }	
+
+	/**
+     * Method used to update parent option fill target xdis id and xsdmf id to a new value for an xsdmf id record (mainly for cloning)
+     *
+     * @access  public
+	 * @param   string $xsdmf_id the XSD MF ID to update
+	 * @param   string $new_xsdmf_id The new id to replace the old one with
+     * @return  "" if failed, 1 if success.
+     */
+    function updateParentOptionTarget($xsdmf_id, $new_xsdmf_id, $new_xdis_id)
+    {
+        $stmt = "UPDATE
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+                 SET xsdmf_parent_option_child_xsdmf_id = $new_xsdmf_id,
+                     xsdmf_parent_option_xdis_id = $new_xdis_id
+                 WHERE
+                    xsdmf_id = $xsdmf_id";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+			return 1;
+        }
+    }		
+
+	/**
+     * Method used to update attached xsdmf id targe and xsdmf id to a new value for an xsdmf id record (mainly for cloning)
+     *
+     * @access  public
+	 * @param   string $xsdmf_id the XSD MF ID to update
+	 * @param   string $new_xsdmf_id The new id to replace the old one with
+     * @return  "" if failed, 1 if success.
+     */
+    function updateAttachedTarget($xsdmf_id, $new_xsdmf_id)
+    {
+        $stmt = "UPDATE
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+                 SET xsdmf_attached_xsdmf_id = $new_xsdmf_id,
+                 WHERE
+                    xsdmf_id = $xsdmf_id";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+			return 1;
+        }
+    }		
+					
     /**
      * Method used to try and get a XSDMF ID from an xsdmf_element
      *
@@ -2130,7 +2232,7 @@ class XSD_HTML_Match
                  WHERE
                     xsdmf_original_xsdmf_id = ".$original_xsdmf_id." AND xsdmf_xdis_id = ".$xdis_id; 
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt);
-		echo $stmt."\n";
+
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
@@ -2266,7 +2368,6 @@ class XSD_HTML_Match
                  WHERE
                     xsdmf_id = $xsdmf_id";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
-		echo $stmt."\n";
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
@@ -2544,7 +2645,7 @@ class XSD_HTML_Match
     function getElementMatchListDetails($xdis_id)
     {
         $stmt = "SELECT 
-                    xsdmf_element, xsdmf_title, xsdmf_id_ref, xsdmf_html_input, xsdmf_enabled, xsdmf_order, xsdmf_dynamic_text, xsdmf_static_text, xsdmf_xsdsel_id, xsdsel_title
+                    xsdmf_id, xsdmf_element, xsdmf_title, xsdmf_id_ref, xsdmf_html_input, xsdmf_enabled, xsdmf_order, xsdmf_dynamic_text, xsdmf_static_text, xsdmf_xsdsel_id, xsdsel_title
                  FROM
                     ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."xsd_display_matchfields left join
                     ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."xsd_loop_subelement on (xsdmf_xsdsel_id = xsdsel_id)

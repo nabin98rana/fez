@@ -106,7 +106,7 @@ BETA</td>
         <ul>
             <li><strong>Notes:</strong>          
               <ul>
-                <li>We have only tested using Apache 1.3.x, however there should be no reason Fez won't run on Apache 2.x. Fez should also be able to run on any webserver that will support PHP5 (eg Microsoft IIS etc) but we have not tested this yet. </li>
+                <li>We have only tested using Apache 1.3.x on linux (Apache 1.3.x or 2.x on Windows XP is fine), however there should be no reason Fez won't run on Apache 2.x. Fez should also be able to run on any webserver that will support PHP5 (eg Microsoft IIS etc) but we have not tested this yet. </li>
                 <li>We recommend setting apache to recognise &quot;index.php&quot; as a &quot;Directory Index&quot; so that the Fez index file is loaded immediately eg: 
                   <ul>
                     <li>&lt;IfModule mod_dir.c&gt;<br />
@@ -123,6 +123,10 @@ BETA</td>
   <ul>
         <li><strong>Note:</strong> We have sorted out the bugs with Fez and MySQL 5, and are running our testing and production servers with MySQL 5.0.19. </li>
       </ul>
+  <ul>
+        <li><strong>Important:</strong> Edit your MySQL my.cnf config file. Under [mysqld] add (or change) ft_min_word_len=2. This makes the full text index include two length words which is necessary for Fez to run.</li>
+      </ul>
+
     </li>
     <li><a href="http://www.php.net/">PHP 5+</a>
 (Fez uses the new PHP5 DOM Document XML functions to handle XML objects so PHP4.x will not run Fez).
@@ -179,7 +183,8 @@ BETA</td>
             <li>You will need to change the last line in the jhove executable 'jhove' (not sure why, but it doesn't work otherwise):
               <ul>
                 <li>FROM: ${JAVA} -classpath $CP Jhove $ARGS -c ${JHOVE_HOME}/conf/jhove.conf</li>
-                <li>TO: ${JAVA} -classpath $CP Jhove -c ${JHOVE_HOME}/conf/jhove.conf $ARGS</li>
+                <li>FOR LINUX TO: ${JAVA} -classpath $CP Jhove -c ${JHOVE_HOME}/conf/jhove.conf $ARGS</li>
+                <li>FOR WINDOWS TO: %JAVA% -classpath %CP% Jhove -c %JHOVE_HOME%/conf/jhove.conf %ARGS%</li>
               </ul>
             </li>
             </ul>

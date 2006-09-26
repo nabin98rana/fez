@@ -10,7 +10,7 @@
               function validateForm(f)
               {
                   if (isWhitespace(f.title.value)) {
-                      alert('Please enter the title of this xsd display.');
+                      alert('Please enter the title of this Organisational Unit.');
                       selectField(f, 'title');
                       return false;
                   }
@@ -139,16 +139,29 @@
               </script>
               {/literal}
               <form name="custom_field_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
-              <input type="hidden" name="xsd_id" value="{$xsd_id}">
-              <input type="hidden" name="id" value="{$xdis_id}">			  
               {if $smarty.get.cat == 'edit'}
               <input type="hidden" name="cat" value="update">
+              <input type="hidden" name="id" value="{$smarty.get.id}">
               {else}
               <input type="hidden" name="cat" value="new">
               {/if}
+              <input type="hidden" name="parent_id" value="{$parent_id}">			  
               <tr>
                 <td colspan="2" class="default">
-                  <b>Manage XSD Displays for XSD {$xsd_title}</b>
+                  <b><a href="orgstructure.php">Manage Organisational Units </a>->
+
+		          {if $max_subject_breadcrumb != -1}
+					  {section name="b" loop=$subject_breadcrumb}
+						  {assign var="counter" value=b}
+		                  {if $subject_breadcrumb[b].org_image_filename != ""}
+						    <img align="absmiddle" src="{$rel_url}images/{$subject_breadcrumb[b].org_image_filename}"/>
+						  {/if}
+                          {if $max_subject_breadcrumb != $smarty.section.b.index}<a href='orgstructure.php?parent_id={$subject_breadcrumb[b].org_id}'>{else}<b>{/if}{$subject_breadcrumb[b].org_title|escape:"html"}{if $max_subject_breadcrumb != $smarty.section.b.index}</a>{else}</b>{/if}
+ 						  {assign var="org_id" value=$subject_breadcrumb[b].org_id}
+						  {if $subject_count[$org_id]}({$subject_count[$org_id]}){else}{/if}{if $max_subject_breadcrumb != $smarty.section.b.index}->{else}:{/if}					
+					  {/section}
+				   {else}Subject Classification:{/if}</b>		  
+
                 </td>
               </tr>
               {if $result != ""}
@@ -156,63 +169,62 @@
                 <td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
                   {if $smarty.post.cat == "new"}
                     {if $result == -1}
-                      An error occurred while trying to add the new xsd display.
+                      An error occurred while trying to add the new Organisational Unit.
                     {elseif $result == 1}
-                      Thank you, the xsd display was added successfully.
-                    {/if}
-                  {elseif $smarty.get.cat == "clone"}
-                    {if $result == -1}
-                      An error occurred while trying to clone the xsd display.
-                    {elseif $result == 1}
-                      Thank you, the xsd display was cloned successfully.
+                      Thank you, the Organisational Unit was added successfully.
                     {/if}
                   {elseif $smarty.post.cat == "update"}
                     {if $result == -1}
-                      An error occurred while trying to update the xsd display information.
+                      An error occurred while trying to update the Organisational Unit information.
                     {elseif $result == 1}
-                      Thank you, the xsd display was updated successfully.
+                      Thank you, the Organisational Unit was updated successfully.
                     {/if}
                   {/if}
                 </td>
               </tr>
               {/if}
               <tr>
-                <td width="150" bgcolor="{$cell_color}" class="default">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Title:</b>
                 </td>
                 <td bgcolor="{$light_color}">
-                  <input type="text" name="xdis_title" size="40" class="default" value="{$info.xdis_title}">
+                  <input type="text" name="org_title" size="40" class="default" value="{$info.org_title}">
                   {include file="error_icon.tpl.html" field="title"}
                 </td>
               </tr>
               <tr>
-                <td width="150" bgcolor="{$cell_color}" class="default">
-                  <b>Version:</b>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Unit Type:</b>
                 </td>
                 <td bgcolor="{$light_color}">
-                  <input type="text" name="xdis_version" size="30" class="default" value="{$info.xdis_version}">
+				  <input type="text" name="org_ext_table" size="40" class="default" value="{$info.org_ext_table}">
+                  {include file="error_icon.tpl.html" field="org_ext_table"}
                 </td>
               </tr>
               <tr>
-                <td width="150" bgcolor="{$cell_color}" class="default" nowrap>
-                  <b>Object Type:</b>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Description:</b>
                 </td>
                 <td bgcolor="{$light_color}">
-                  <select name="xdis_object_type" class="default">
-                    {html_options options=$object_options selected=$info.xdis_object_type}
-                  </select>
-                  {include file="error_icon.tpl.html" field="xdis_object_type"}			  
+                  <textarea name="org_desc" cols="50" rows="3" class="default">{$info.org_desc}</textarea>
+                  {include file="error_icon.tpl.html" field="org_desc"}
                 </td>
               </tr>
-
-
-
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Image Filename:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="text" name="org_image_filename" size="40" class="default" value="{$info.org_image_filename}">
+                  {include file="error_icon.tpl.html" field="org_image_filename"}
+                </td>
+              </tr>			  
               <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $smarty.get.cat == 'edit'}
-                  <input class="button" type="submit" value="Update XSD Display">
+                  <input class="button" type="submit" value="Update Organisational Unit">
                   {else}
-                  <input class="button" type="submit" value="Add XSD Display">
+                  <input class="button" type="submit" value="Add Organisational Unit">
                   {/if}
                   <input class="button" type="reset" value="Reset">
                 </td>
@@ -220,7 +232,7 @@
               </form>
               <tr>
                 <td colspan="2" class="default">
-                  <b>Existing XSD Displays:</b>
+                  <b>Existing Organisational Units:</b>
                 </td>
               </tr>
               <tr>
@@ -231,10 +243,10 @@
                   function checkDelete(f)
                   {
                       if (!hasOneChecked(f, 'items[]')) {
-                          alert('Please select at least one of the xsd displays.');
+                          alert('Please select at least one of the Organisational Units.');
                           return false;
                       }
-                      if (!confirm('This action will permanently remove the selected xsd displays.')) {
+                      if (!confirm('This action will permanently remove the selected Organisational Units.')) {
                           return false;
                       } else {
                           return true;
@@ -246,45 +258,40 @@
                   <table border="0" width="100%" cellpadding="1" cellspacing="1">
                     <form onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
                     <input type="hidden" name="cat" value="delete">
-			        <input type="hidden" name="xsd_id" value="{$xsd_id}">
-			        <input type="hidden" name="id" value="{$xdis_id}">					
                     <tr>
-                      <td width="5" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td width="35%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b></td>
-                      <td width="10%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Version</b></td>
-                      <td width="10%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Object Type</b></td>
-                      <td width="15%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>XSD HTML Matching Editor&nbsp;</b></td>
-                      <td width="15%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>Clone Display&nbsp;</b></td>					  
+                      <td width="5" bgcolor="{$cell_color}" align="center" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Type</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Desc</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Image Filename</b>&nbsp;</td>					  
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Edit Children</b>&nbsp;</td>  
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
                     <tr>
                       <td width="4" nowrap bgcolor="{$row_color}" align="center">
-                        <input type="checkbox" name="items[]" value="{$list[i].xdis_id}" {if $smarty.section.i.total == 0}disabled{/if}>
-                      </td>
-                      <td width="35%" bgcolor="{$row_color}" class="default">
-                        &nbsp;<a href="xsd_displays.php?cat=edit&id={$list[i].xdis_id}&xsd_id={$list[i].xdis_xsd_id}">{$list[i].xdis_title}</a>
-                      </td>
-
-                      <td width="15%" bgcolor="{$row_color}" class="default">
-                        &nbsp;{$list[i].xdis_version}
+                        <input type="checkbox" name="items[]" value="{$list[i].org_id}" {if $smarty.section.i.total == 0}disabled{/if}>
                       </td>
                       <td bgcolor="{$row_color}" class="default">
-						{assign var="temp_fld_id" value=$list[i].xdis_object_type}
-                        &nbsp;{$object_options[$temp_fld_id]}
+                        &nbsp;<a href="orgstructure.php?cat=edit&id={$list[i].org_id}">{$list[i].org_title}</a>
                       </td>
-                      <td width="15%" bgcolor="{$row_color}" class="default">
-                        &nbsp;<a class="link" href="xsd_tree_match.php?xdis_id={$list[i].xdis_id}" title="match this XSD Display against HTML elements">Edit</a>
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{$list[i].org_ext_table}
                       </td>
-                      <td width="15%" bgcolor="{$row_color}" class="default">
-                        &nbsp;<a class="link" href="xsd_displays.php?cat=clone&id={$list[i].xdis_id}&xsd_id={$list[i].xdis_xsd_id}" title="Clone this display">Clone</a>
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{$list[i].org_desc}
                       </td>
-
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{$list[i].org_image_filename}
+                      </td>
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;<a href="orgstructure.php?parent_id={$list[i].org_id}">Edit {$list[i].org_title} Child Units</a>
+                      </td>
                     </tr>
                     {sectionelse}
                     <tr>
                       <td colspan="6" bgcolor="{$light_color}" align="center" class="default">
-                        No xsd displays could be found.
+                        No Organisational Units could be found.
                       </td>
                     </tr>
                     {/section}
@@ -292,7 +299,7 @@
                       <td width="4" align="center" bgcolor="{$cell_color}">
                         <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
                       </td>
-                      <td colspan="5" bgcolor="{$cell_color}">
+                      <td colspan="6" bgcolor="{$cell_color}">
                         <input type="submit" value="Delete" class="button">
                       </td>
                     </tr>
