@@ -94,7 +94,7 @@ class Spreadsheet_Array {
         $root->appendChild($wksnode);
         $tableNode = &$doc->createElementNS('urn:schemas-microsoft-com:office:spreadsheet','ss:Table');
         $tableNode->setAttributeNS('urn:schemas-microsoft-com:office:spreadsheet','ss:ExpandedColumnCount',$col_count);
-        $tableNode->setAttributeNS('urn:schemas-microsoft-com:office:spreadsheet','ss:ExpandedRowCount',$col_count);
+        $tableNode->setAttributeNS('urn:schemas-microsoft-com:office:spreadsheet','ss:ExpandedRowCount',$row_count);
         $tableNode->setAttributeNS('urn:schemas-microsoft-com:office:excel','x:FullColumns','1');
         $tableNode->setAttributeNS('urn:schemas-microsoft-com:office:excel','x:FullRows','1');
         $wksnode->appendChild($tableNode);
