@@ -865,7 +865,7 @@ class XSD_DisplayObject
 			$datastreams = Fedora_API::callListDatastreams($pid);			
 			foreach ($datastreams as $ds_key => $ds_value) {
 				// get the matchfields for the FezACML of the datastream if any exists
-				if ($ds_value['controlGroup'] == 'M') {
+				if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M') {
 					$FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
 					$FezACML_DS_name = "FezACML_".$ds_value['ID'].".xml";
 					if (Fedora_API::datastreamExistsInArray($datastreams, $FezACML_DS_name)) {
@@ -889,7 +889,7 @@ class XSD_DisplayObject
 					$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_ID("!datastream!ID", $dsValue['xsdsel_id'], $dsValue['xsdmf_xdis_id']);
 					
 					foreach ($datastreams as $ds) {
-						if ($ds['controlGroup'] == 'M') {
+						if (isset($ds['controlGroup']) && $ds['controlGroup'] == 'M') {
 							if (!is_array(@$this->xsdmf_current[$xsdmf_id])) {
 								$this->xsdmf_current[$xsdmf_id] = array();
 							}
@@ -903,7 +903,7 @@ class XSD_DisplayObject
                     $xsdmf_details = $this->xsd_html_match->getDetailsByXSDMF_ID($xsdmf_id);
 				
                     foreach ($datastreams as $ds) {
-                        if ($ds['controlGroup'] == 'R' && $ds['ID'] == 'DOI') {
+                        if (isset($ds['controlGroup']) && $ds['controlGroup'] == 'R' && $ds['ID'] == 'DOI') {
                             $value = trim($ds['location']);
                             if (!empty($value) && strlen($xsdmf_details['xsdmf_value_prefix']) > 0) {
                                 $value = str_replace($xsdmf_details['xsdmf_value_prefix'], "", $value);

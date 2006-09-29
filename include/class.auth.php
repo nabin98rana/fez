@@ -74,7 +74,7 @@ class Auth
     function getRequestedURL()
     {
         global $HTTP_SERVER_VARS;
-        return $HTTP_SERVER_VARS["REQUEST_URI"].$HTTP_SERVER_VARS["QUERYSTRING"];
+        return $HTTP_SERVER_VARS["REQUEST_URI"].$HTTP_SERVER_VARS["QUERY_STRING"];
     }
 
     /**
@@ -123,10 +123,6 @@ class Auth
             } else {
                 $failed_url = APP_RELATIVE_URL . "login.php?err=21&url=".$failed_url;
             }
-			if (!isset($HTTP_COOKIE_VARS[$cookie_name])) {
-	            $failed_url .= "&url=" . Auth::getRequestedURL();
-//	            Auth::redirect($failed_url, $is_popup);
-	        }
 
 //			echo $failed_url; exit;
             if (!Auth::isValidSession($_SESSION)) {
