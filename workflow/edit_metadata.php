@@ -82,7 +82,12 @@ $collection_pid=$pid;
 $community_pid=$pid;
 $tpl->assign("collection_pid", $pid);
 $tpl->assign("community_pid", $pid);
-
+$debug = @$_REQUEST['debug'];
+if ($debug == 1) {
+	$tpl->assign("debug", "1");
+} else {
+	$tpl->assign("debug", "0");	
+}
 $community_list = Community::getAssocList();
 $collection_list = Collection::getEditListAssoc();
 /* $internal_user_list = User::getAssocList();

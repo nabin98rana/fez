@@ -204,9 +204,14 @@
                   {include file="error_icon.tpl.html" field="xdis_object_type"}			  
                 </td>
               </tr>
-
-
-
+              <tr>
+                <td width="150" bgcolor="{$cell_color}" class="default">
+                  <b>Enabled?:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="checkbox" name="xdis_enabled" class="default" {if ($info.xdis_enabled != 0 || $info.xdis_enabled == "")}checked{/if}>
+                </td>
+              </tr>
               <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $smarty.get.cat == 'edit'}
@@ -253,6 +258,7 @@
                       <td width="35%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b></td>
                       <td width="10%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Version</b></td>
                       <td width="10%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Object Type</b></td>
+                      <td width="10%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Enabled?</b></td>
                       <td width="15%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>XSD HTML Matching Editor&nbsp;</b></td>
                       <td width="15%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>Clone Display&nbsp;</b></td>					  
                     </tr>
@@ -273,6 +279,10 @@
 						{assign var="temp_fld_id" value=$list[i].xdis_object_type}
                         &nbsp;{$object_options[$temp_fld_id]}
                       </td>
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{if $list[i].xdis_enabled == 1}<font color="green">yes</font>{else}<font color="red">no</font>{/if}
+                      </td>
+                      
                       <td width="15%" bgcolor="{$row_color}" class="default">
                         &nbsp;<a class="link" href="xsd_tree_match.php?xdis_id={$list[i].xdis_id}" title="match this XSD Display against HTML elements">Edit</a>
                       </td>
@@ -283,7 +293,7 @@
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="6" bgcolor="{$light_color}" align="center" class="default">
+                      <td colspan="7" bgcolor="{$light_color}" align="center" class="default">
                         No xsd displays could be found.
                       </td>
                     </tr>
@@ -292,7 +302,7 @@
                       <td width="4" align="center" bgcolor="{$cell_color}">
                         <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
                       </td>
-                      <td colspan="5" bgcolor="{$cell_color}">
+                      <td colspan="6" bgcolor="{$cell_color}">
                         <input type="submit" value="Delete" class="button">
                       </td>
                     </tr>

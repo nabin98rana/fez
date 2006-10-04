@@ -142,13 +142,15 @@ class Controlled_Vocab
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
                  (
-                    cvo_title";
+                    cvo_title,
+                    cvo_desc";
 		if (is_numeric($HTTP_POST_VARS["cvo_external_id"])) {
 			$stmt .= ", cvo_external_id";
 		}
 		$stmt .= "
                  ) VALUES (
-                    '" . Misc::escapeString($HTTP_POST_VARS["cvo_title"]) . "'";
+                    '" . Misc::escapeString($HTTP_POST_VARS["cvo_title"]) . "',
+                    '" . Misc::escapeString($HTTP_POST_VARS["cvo_desc"]) . "'";
 		if (is_numeric($HTTP_POST_VARS["cvo_external_id"])) {
             $stmt .=        "," . trim($HTTP_POST_VARS["cvo_external_id"]) . "";
 		}
@@ -353,7 +355,56 @@ class Controlled_Vocab
         }
     }
 
+    /**
+     * Method used to get the title of a specific controlled vocabulary.
+     *
+     * @access  public
+     * @param   integer $cvo_external_id The controlled vocabulary external ID
+     * @return  string The title of the controlled vocabulary
+     */
+    function getTitleByExternalID($cvo_external_id)
+    {
+        $stmt = "SELECT
+                    cvo_title
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
+                 WHERE
+                    cvo_external_id=$cvo_external_id";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return '';
+        } else {
+            return $res;
+        }
+    }
+		
+    /**
+     * Method used to get the title of a specific controlled vocabulary.
+     *
+     * @access  public
+     * @param   string $cvo_title The controlled vocabulary title
+     * @return  string The ID of the controlled vocabulary
+     */
+    function getID($cvo_title)
+    {
+        $stmt = "SELECT
+                    cvo_id
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
+                 WHERE
+                    cvo_title='$cvo_title'";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return '';
+        } else {
+            return $res;
+        }
+    }
+	
     /**
      * Method used to get the list of controlled vocabularies available in the 
      * system returned in an associative array for drop down lists.

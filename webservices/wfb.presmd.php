@@ -62,7 +62,12 @@ if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) 
 	if(!$file) $error .= "<b>ERROR:</b> no file specified<br>";
 	if(!is_file($file_dir.$file)) { $error .= "<b>ERROR:</b> given file filename not found or bad filename given<br>"; }
 	$command = $APP_JHOVE_CMD;
-	exec($command);
+	$return_status = 0;
+	$return_array = array();
+	exec($command, $return_array, $return_status);
+	if ($return_status <> 0) {
+		Error_Handler::logError("JHOVE Error: ".implode(",", $return_array).", return status = $return_status, for command $command \n", __FILE__,__LINE__);
+	}
 } 
 
 

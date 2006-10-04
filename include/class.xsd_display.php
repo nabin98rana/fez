@@ -242,18 +242,26 @@ class XSD_Display
     	if (empty($params)) {
             $params = &$_POST;
         }
-		
+
+		if (@$HTTP_POST_VARS["xdis_enabled"]) {
+			$xdis_enabled = 1;
+		} else {
+			$xdis_enabled = 0;
+		}
+				
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
                  (
                     xdis_title,
                     xdis_xsd_id,
                     xdis_version,
+                    xdis_enabled,
                     xdis_object_type
                  ) VALUES (
                     '" . Misc::escapeString($params["xdis_title"]) . "',
                     $xsd_id,
                     '" . Misc::escapeString($params["xdis_version"]) . "',
+                    " .$xdis_enabled . ",                    
                     " .$params["xdis_object_type"] . "
                  )";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -275,12 +283,19 @@ class XSD_Display
     function update($xdis_id)
     {
         global $HTTP_POST_VARS;
-		
+
+		if (@$HTTP_POST_VARS["xdis_enabled"]) {
+			$xdis_enabled = 1;
+		} else {
+			$xdis_enabled = 0;
+		}
+				
         $stmt = "UPDATE
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
                  SET 
                     xdis_title = '" . Misc::escapeString($HTTP_POST_VARS["xdis_title"]) . "',
                     xdis_version = '" . Misc::escapeString($HTTP_POST_VARS["xdis_version"]) . "',
+					xdis_enabled = " .$xdis_enabled . ",
 					xdis_object_type = " .$HTTP_POST_VARS["xdis_object_type"] . "
                  WHERE xdis_id = $xdis_id";
 
@@ -335,6 +350,7 @@ class XSD_Display
 					concat(xdis_title, ' Version ', xdis_version) as xdis_desc
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
+                 WHERE xdis_enabled = 1
                  ORDER BY
                     xdis_title, xdis_version ASC";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
@@ -360,7 +376,7 @@ class XSD_Display
 					concat(xdis_title, ' Version ', xdis_version) as xdis_desc
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display 
-				 WHERE xdis_object_type = 2				 
+				 WHERE xdis_object_type = 2	and xdis_enabled = 1			 
                  ORDER BY
                     xdis_title, xdis_version ASC";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
@@ -413,7 +429,7 @@ class XSD_Display
 					concat(xdis_title, ' Version ', xdis_version) as xdis_desc
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
-				 WHERE xdis_object_type = 3					 
+				 WHERE xdis_object_type = 3	and xdis_enabled = 1				 
                  ORDER BY
                     xdis_title, xdis_version ASC";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
@@ -424,7 +440,7 @@ class XSD_Display
             return $res;
         }
     }
-
+	
     /**
      * Method used to get the associative list of document types available in the 
      * system.
@@ -439,7 +455,7 @@ class XSD_Display
 					concat(xdis_title, ' Version ', xdis_version) as xdis_desc
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
-				 WHERE xdis_object_type != 4			 
+				 WHERE xdis_object_type != 4 and xdis_enabled = 1		 
                  ORDER BY
                     xdis_title, xdis_version ASC";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
@@ -607,6 +623,30 @@ class XSD_Display
         }
     }
 
+	    /**
+     * Method used to get the XSD Display ID with a given title and version 
+     *
+     * @access  public
+	 * @param   integer $xdis_title The XSD title to search by.
+	 * @param   integer $xdis_version The XSD version to search by.	 * 
+     * @return  array $res The xdis_id 
+     */
+    function getXDIS_IDByTitleVersion($xdis_title, $xdis_version)
+    {
+        $stmt = "SELECT
+                   xdis_id
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
+                 WHERE
+                    xdis_title = '$xdis_title' and xdis_version = '$xdis_version'";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
 	
     /**
      * Method used to get the maximum XSD Display ID
@@ -861,8 +901,8 @@ class XSD_DisplayObject
             $this->getXSD_HTML_Match();
             // Find datastreams that may be used by this display
             $datastreamTitles = $this->getDatastreamTitles();
-//			$datastreams = Fedora_API::callGetDatastreams($pid);
-			$datastreams = Fedora_API::callListDatastreams($pid);			
+			$datastreams = Fedora_API::callGetDatastreams($pid); // need the full get datastreams to get the controlGroup etc
+//			$datastreams = Fedora_API::callListDatastreams($pid);			
 			foreach ($datastreams as $ds_key => $ds_value) {
 				// get the matchfields for the FezACML of the datastream if any exists
 				if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M') {
@@ -881,7 +921,6 @@ class XSD_DisplayObject
 					}
 				}
 			}
-			
             foreach ($datastreamTitles as $dsValue) {
 				// first check if the XSD Display datastream is a template for a file attachment or a link as these are handled differently
 				if ($dsValue['xsdsel_title'] == "File_Attachment") {

@@ -243,7 +243,7 @@ class Lister
             $tpl->assign("list_heading", "List of Communities");
         }
         $order_by_list = array();
-        foreach (Search_Key::getAssocList() as $key => $value) {
+        foreach (Search_Key::getAssocListAdvanced() as $key => $value) {
             $order_by_list[$value] = $value;
         }
         if (!empty($terms) || $cat == 'search') {

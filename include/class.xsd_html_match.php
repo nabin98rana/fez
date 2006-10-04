@@ -2000,7 +2000,7 @@ class XSD_HTML_Match
     {
         $stmt = "UPDATE
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
-                 SET xsdmf_attached_xsdmf_id = $new_xsdmf_id,
+                 SET xsdmf_attached_xsdmf_id = $new_xsdmf_id
                  WHERE
                     xsdmf_id = $xsdmf_id";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);

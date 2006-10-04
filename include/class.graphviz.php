@@ -41,8 +41,14 @@ class Graphviz
         $handle = fopen($tmpfname, "w");
         fwrite($handle, $dot);
         fclose($handle);
-
-        $result = shell_exec(APP_DOT_EXEC." -Tcmapx $tmpfname");
+		$return_status = 0;
+		$return_array = array();
+		$command = APP_DOT_EXEC." -Tcmapx $tmpfname";
+		$result = exec($command, $return_array, $return_status);
+		if ($return_status <> 0) {
+			Error_Handler::logError("GraphViz CMAPX Error: return status = $return_status, for command $command \n", __FILE__,__LINE__);
+			$result = "";
+		} 
         unlink($tmpfname);
         return $result;
 
@@ -56,8 +62,12 @@ class Graphviz
         $handle = fopen($tmpfname, "w");
         fwrite($handle, $dot);
         fclose($handle);
-
-        passthru(APP_DOT_EXEC." -Tpng $tmpfname");
+		$return_status = 0;
+		$command = APP_DOT_EXEC." -Tpng $tmpfname";
+        passthru($command, $return_status);
+		if ($return_status <> 0) {
+			Error_Handler::logError("GraphViz PNG Error: return status = $return_status, for command $command \n", __FILE__,__LINE__);
+		} 
         unlink($tmpfname);
 
     }

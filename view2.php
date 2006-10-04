@@ -51,6 +51,12 @@ $tpl->assign("fez_root_dir", APP_PATH);
 $tpl->assign("eserv_url", APP_BASE_URL."eserv.php?pid=".$pid."&dsID=");
 $tpl->assign("local_eserv_url", APP_BASE_URL."eserv.php?pid=".$pid."&dsID=");
 $tpl->assign("extra_title", "Record #$pid Details");
+$debug = @$_REQUEST['debug'];
+if ($debug == 1) {
+	$tpl->assign("debug", "1");
+} else {
+	$tpl->assign("debug", "0");	
+}
 if (!empty($pid)) {
 	$tpl->assign("pid", $pid);
 	$record = new RecordObject($pid);

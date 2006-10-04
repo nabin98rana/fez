@@ -105,7 +105,31 @@ class Author
             return $res;
         }
     }
-
+	
+    /**
+     * Method used to get the author ID of the given author name. Use carefully as if there are more than one match it will only return the first.
+     *
+     * @access  public
+     * @param   string $aut_fname The author first name
+     * @param   string $aut_lname The author last name
+     * @return  integer The author ID
+     */
+    function getIDByName($aut_fname, $aut_lname)
+    {
+        $stmt = "SELECT
+                    aut_id
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
+                 WHERE
+                    aut_fname='$aut_fname' and aut_lname='$aut_lname'";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
 
     /**
      * Method used to get the title of a given author ID.

@@ -766,8 +766,11 @@ class Collection
 
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
 //        $order_by = 'Title';
-        $sekdet = Search_Key::getDetailsByTitle($order_by);
+        $sekdet = Search_Key::getDetailsByTitle($order_by);		
         $data_type = $sekdet['xsdmf_data_type'];
+		if (empty($data_type)) {
+			$data_type = "varchar";			
+		}
         $restrict_community = '';
 
 		$authArray = Collection::getAuthIndexStmt(array("Lister", "Viewer", "Editor", "Creator"));

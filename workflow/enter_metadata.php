@@ -82,6 +82,12 @@ $wfstatus->setTemplateVars($tpl);
 // get the xdis_id of what we're creating
 $xdis_id = $wfstatus->getXDIS_ID();
 $xdis_title = XSD_Display::getTitle($xdis_id);
+$debug = @$_REQUEST['debug'];
+if ($debug == 1) {
+	$tpl->assign("debug", "1");
+} else {
+	$tpl->assign("debug", "0");	
+}
 $tpl->assign("extra_title", "Create New ".$xdis_title);
 if ($pid == -1 || !$pid) {
     $access_ok = $isAdministrator;

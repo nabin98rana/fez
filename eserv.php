@@ -87,6 +87,10 @@ if (!empty($pid) && !empty($dsID)) {
 				$is_image = 1;
 				$header = "Content-type: image/bmp\n";
 				break;
+		case 'png'  :
+				$is_image = 1;
+				$header = "Content-type: image/png\n";
+				break;
 		
 		case 'jpg'  :
 				$is_image = 1;

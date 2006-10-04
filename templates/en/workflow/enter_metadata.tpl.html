@@ -201,7 +201,9 @@ function selectDateField(field_name, day, month, year)
             //-->
             </script>
             {/if}
-
+			{if $debug == 1}
+				{$xsd_display_fields[i].xsdmf_order}
+			{/if}
             {if $xsd_display_fields[i].xsdmf_html_input == 'file_input' && $xsd_display_fields[i].xsdmf_enabled == 1}
 				{if $xsd_display_fields[i].xsdmf_multiple == 1}
 					{section name="z" loop=$xsd_display_fields[i].multiple_array}

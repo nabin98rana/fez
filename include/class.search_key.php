@@ -243,6 +243,32 @@ class Search_Key
 
     /**
      * Method used to get the list of search keys available in the 
+     * system returned in an associative array for drop down lists.
+     *
+     * @access  public
+     * @return  array The list of search keys in an associative array (for drop down lists).
+     */
+    function getAssocListAdvanced()
+    {
+        $stmt = "SELECT
+                    sek_id,
+					sek_title
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
+				 WHERE sek_adv_visible = 1                    
+                 ORDER BY
+                    sek_order ASC";
+        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }	
+	
+    /**
+     * Method used to get the list of search keys available in the 
      * system.
      *
      * @access  public
