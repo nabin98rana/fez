@@ -240,7 +240,7 @@ class WorkflowStatus {
             $argstrs[] = "$key=".urlencode($arg);
         }
         $querystr=implode('&', $argstrs);
-        
+        History::addHistory($pid, $this->wfl_details['wfl_id'], "", "", true);
         $this->clearSession();
         if ($wft_type != 'Ingest') {
             header("Location: ".APP_RELATIVE_URL."workflow/end.php?$querystr");

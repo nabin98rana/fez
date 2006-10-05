@@ -35,11 +35,11 @@
 
 
 /**
- * Class to handle the business logic related to the history logging
+ * Class to handle the business logic related to the event history logging
  * available in the application.
  *
  * @version 1.0
- * @author João Prado Maia <jpm@mysql.com>
+ * @author Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>
  */
 
 include_once(APP_INC_PATH . "class.error_handler.php");
@@ -51,29 +51,123 @@ include_once(APP_INC_PATH . "class.fedora_api.php");
 class History
 {
    /**
-     * Method used to create an audit part of a FezHistory datastream.
+     * Method used to create a Premis Event datastream.
      *
      * @access  public
      * @return  void
      */
-	function generateHistoryAction($audit_id, $audit_date, $audit_usr_id="", $audit_usr_full_name, $audit_justification, $audit_pid, $audit_dsID="") {
-		$auditXML = "<audit>
-						<audit_id>$audit_id</audit_id>
-						<audit_date>$audit_date</audit_date>
-						<audit_usr_id>$audit_usr_id</audit_usr_id>
-						<audit_usr_full_name>$audit_usr_full_name</audit_usr_full_name>
-						<audit_justification>$audit_justification</audit_justification>
-						<audit_pid>$audit_pid</audit_pid>";
-		if ($audit_dsID != "") {
-			$auditXML .= "	<audit_dsID>$audit_dsID</audit_dsID>";
+	function generateHistoryAction($event_id, $event_type, $event_date, $event_usr_id, $event_usr_fullname, $event_detail, $event_pid, $event_outcome, $event_outcome_detail, $event_dsID="") {
+		$eventXML = "<premis:event>
+						<premis:eventIdentifier>$event_id</premis:eventIdentifier>
+						<premis:eventType>$event_type</premis:eventType>
+						<premis:eventDateTime>$event_date</premis:eventDateTime>
+						<premis:eventDetail>$event_detail</premis:eventDetail>
+						<premis:eventOutcomeInformation>
+							<premis:eventOutcome>$event_outcome</premis:eventOutcome>
+							<premis:eventOutcomeDetail>$event_outcome_detail</premis:eventOutcomeDetail>
+						</premis:eventOutcomeInformation>							
+						<premis:linkingAgentIdentifier>
+							<premis:linkingAgentIdentifierType>ID</premis:linkingAgentIdentifierType>
+							<premis:linkingAgentIdentifierValue>$event_usr_id</premis:linkingAgentIdentifierValue>							
+						</premis:linkingAgentIdentifier>
+						<premis:linkingAgentIdentifier>
+							<premis:linkingAgentIdentifierType>Full Name</premis:linkingAgentIdentifierType>
+							<premis:linkingAgentIdentifierValue>".$event_usr_fullname."</premis:linkingAgentIdentifierValue>							
+						</premis:linkingAgentIdentifier>													
+						<premis:linkingObjectIdentifier>$event_pid</premis:linkingObjectIdentifier>";
+/*		if ($event_dsID != "") {
+			$eventXML .= "	<event_dsID>$event_dsID</event_dsID>";
 		} else {
-			$auditXML .= "	<audit_dsID/>";		
-		}
-		$auditXML .= "		
-					</audit>";
-		return $auditXML;												
+			$eventXML .= "	<event_dsID/>";		
+		} */
+		$eventXML .= "		
+					</premis:event>";
+		return $eventXML;												
 	}
 
+    /**
+     * Method used to get the list of changes made against a specific issue.
+     *
+     * @access  public
+     * @param   integer $pid The PID
+     * @return  array The list of changes
+     */
+    function getList($pid, $show_hidden=false)
+    {
+        $stmt = "SELECT
+                    *
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "premis_event
+                 WHERE ";
+                 if ($show_hidden==false) {
+                    $stmt .= "pre_is_hidden != 1 AND ";
+                 }
+                 $stmt .= "pre_pid='$pid'
+                 ORDER BY
+                    pre_id DESC";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            for ($i = 0; $i < count($res); $i++) {
+                $res[$i]["pre_date"] = Date_API::getFedoraFormattedDate($res[$i]["pre_date"]);
+            }
+            return $res;
+        }
+    }
+	
+	
+    /**
+     * Method used to log the changes made against a specific issue.
+     *
+     * @access  public
+     * @param   integer $pid The object persistent ID
+     * @param   integer $usr_id The ID of the user.
+     * @param   integer $wfl_id The workflow ID of this event.
+     * @param   string $detail The detail of the changes
+     * @param   string $outcome The outcome of the changes
+     * @param   string $outcomeDetail The outcome detail of the changes
+     * @param   boolean $hide If this event item should be hidden.
+     * @return  void
+     */
+    function add($pid, $usr_id, $wfl_id, $detail, $outcome, $outcomeDetail, $hide = false)
+    {
+        $stmt = "INSERT INTO
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "premis_event
+                 (
+                    pre_wfl_id,
+                    pre_date,
+                    pre_detail,
+                    pre_outcome,
+                    pre_outcomeDetail,
+                    pre_usr_id,
+                    pre_pid";
+        if ($hide == true) {
+            $stmt .= ", pre_is_hidden";
+        }
+        $stmt .= ") VALUES (
+                    $wfl_id,
+                    '" . Date_API::getCurrentDateGMT() . "',
+                    '".Misc::escapeString($detail)."',
+                    '".Misc::escapeString($outcome)."',
+                    '".Misc::escapeString($outcomeDetail)."',                                        
+                    $usr_id,
+                    '$pid'";
+        if ($hide == true) {
+            $stmt .= ", 1";
+        }
+        $stmt .= ")";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+	        $pre_id = $GLOBALS["db_api"]->get_last_insert_id();
+			return $pre_id;
+        }
+    }
+	
 
    /**
      * Method used to add a new entry to the object's FezHistory log.
@@ -81,24 +175,40 @@ class History
      * @access  public
      * @return  void
      */
-	function addHistory($pid, $audit_dsID="", $audit_justification) {
-		$dsIDName = "FezHistory";
-		$audit_usr_id = Auth::getUserID();
-		$audit_usr_full_name = User::getFullName($audit_usr_id);
-		$audit_date = date("Y-m-d H:i:s");
-		// First check if a FezHistory datastream exists
-		$dsExists = Fedora_API::datastreamExists($pid, $dsIDName);
-	    if ($dsExists !== true) {
-			$newAudit = History::generateHistoryAction(1, $audit_date, $audit_usr_id, $audit_usr_full_name, $audit_justification, $pid, $audit_dsID);
-			$newXML = "<FezHistory>".$newAudit."</FezHistory>";
-		    Fedora_API::getUploadLocation($pid, $dsIDName, $newXML, "Fez History Datastream", "text/xml", "X");
-		} else {
-			$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'FezHistory');
-			print_r($xdis_array); exit;
-//			Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, "A", "Fez History Datastream", $newXML, "text/xml", true);
+	function addHistory($pid, $wfl_id, $outcome="", $outcomeDetail="", $refreshDatastream=false) {
+		$dsIDName = "PremisEvent";
+		$event_usr_id = Auth::getUserID();
+		$event_usr_full_name = User::getFullName($event_usr_id);
+		$event_date = Date_API::getCurrentDateGMT(); //date("Y-m-d H:i:s");
+		$wfl_title = Workflow::getTitle($wfl_id);
+		$detail = $wfl_title. " by " . $event_usr_full_name;
+		// First add it to the Fez database, then refresh the Fedora datastream
+		History::add($pid, $event_usr_id, $wfl_id, $detail, $outcome, $outcomeDetail);
+		if ($refreshDatastream == true) {
+			// First check if a FezHistory datastream exists		
+			$dsExists = Fedora_API::datastreamExists($pid, $dsIDName);
+			$newXML = "";
+			$eventList = History::getList($pid, true);
+			$newXML .= '<premis:premis xmlns:premis="http://www.loc.gov/standards/premis">';
+			foreach ($eventList as $event) {
+				if ($event["pre_wfl_id"]) {
+					$wfl_title = Workflow::getTitle($event["pre_wfl_id"]);
+				} else {
+					$wfl_title = "";					
+				}
+				$event_usr_full_name = User::getFullName($event_usr_id);
+				$newevent = History::generateHistoryAction($event["pre_id"], $wfl_title, $event["pre_date"], $event["pre_usr_id"], $event_usr_full_name, $event["pre_detail"], $event["pre_pid"], $event["pre_outcome"], $event["pre_outcomedetail"], $event["pre_usr_id"], "");
+				$newXML .= $newevent;
+			}
+			$newXML .= ' </premis:premis>';
+			if ($dsExists !== true) {
+			    Fedora_API::getUploadLocation($pid, $dsIDName, $newXML, "Premis Event Datastream", "text/xml", "X");
+			} else {
+//				$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'PremisEvent');
+//				print_r($xdis_array); exit;
+				Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, "A", "Premis Event Datastream", $newXML, "text/xml", true);
+			}
 		}
-
-
     }
 }
 

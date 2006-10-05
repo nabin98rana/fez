@@ -209,8 +209,20 @@ class Date_API
         return $date->format('%a, %d %b %Y, %H:%M:%S ') . $date->tz->getShortName();
     }
 
-
     /**
+     * Method used to get the formatted date for Fedora in UTC
+     *      
+     * @access  public
+     * @param   string $timestamp The date timestamp to be formatted
+     * @return  string 
+     */
+    function getFedoraFormattedDate($timestamp)
+    {
+        $date = new Date($timestamp);
+        return $date->format('%Y-%m-%dT%H:%M:%SZ');
+    }
+
+	/**
      * Method used to get the formatted date for a specific timestamp
      * and a specific timezone, provided by the user' preference.
      *

@@ -46,6 +46,7 @@ include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
+include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.pager.php");
@@ -838,7 +839,7 @@ class Record
         $array_ptr = array();
         $xsdmf_array = $display->getXSDMF_Values($pid);		
 		Record::removeIndexRecord($pid, '', 'keep'); //CK 22/5/06 = added last 2 params to make it keep the dsID indexes for Fezacml on datastreams // remove any existing index entry for that PID // CK added 9/1/06 - still working on this
-
+//		print_r($xsdmf_array); exit;
         foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
             if (!is_array($xsdmf_value) && !empty($xsdmf_value) && (trim($xsdmf_value) != "")) {					
                 $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
@@ -1684,7 +1685,6 @@ class RecordObject extends RecordGeneral
 				$this->getFileDownloadsCount();
 			} 
 			$file_downloads = $this->file_downloads;
-//			History::addHistory($this->pid, "", "Wow this might actually work?"); // test for fezhistory
 		}
         $pid = $this->pid;
 
@@ -1788,11 +1788,9 @@ class RecordObject extends RecordGeneral
                 }
             }
         }
-
 		Record::setIndexMatchingFields($pid);
-
-    }
-}
+    } // end of function
+} // end of class
 
 
 // benchmarking the included file (aka setup time)
