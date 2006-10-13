@@ -33,10 +33,10 @@ function setDone(id)
 
 function showBgpUpdated(id)
 {
-    document.getElementById(id+'_progress').style.color = 'black';
-    document.getElementById(id+'_status_message').style.color = 'black';
-    document.getElementById(id+'_heartbeat').style.color = 'black';
-    document.getElementById(id+'_state').style.color = 'black';
+    document.getElementById(id+'_progress').style.color = '';
+    document.getElementById(id+'_status_message').style.color = '';
+    document.getElementById(id+'_heartbeat').style.color = '';
+    document.getElementById(id+'_state').style.color = '';
 }
 function showBgpUpdating(id)
 {
@@ -55,6 +55,9 @@ function showBgpValues(id, values)
     document.getElementById(id+'_status_message').innerHTML = values.bgp_status_message;
     document.getElementById(id+'_heartbeat').innerHTML = values.bgp_heartbeat;
     document.getElementById(id+'_state').innerHTML = bgp_states[values.bgp_state];
+    if (values.is_old) {
+      document.getElementById(id+'_heartbeat').class="old_bgp";
+    }
     showBgpUpdated(id);
 }
 next_idx = 0;
@@ -195,7 +198,7 @@ Running Processes
 <td id="{$bgp_list[iii].bgp_id}_name">{$bgp_list[iii].bgp_name}</td>
 <td id="{$bgp_list[iii].bgp_id}_progress">{$bgp_list[iii].bgp_progress}</td>
 <td id="{$bgp_list[iii].bgp_id}_status_message">{$bgp_list[iii].bgp_status_message}</td>
-<td id="{$bgp_list[iii].bgp_id}_heartbeat">{$bgp_list[iii].bgp_heartbeat}</td>
+<td id="{$bgp_list[iii].bgp_id}_heartbeat" {if $bgp_list[iii].is_old}class="old_bgp"{/if}>{$bgp_list[iii].bgp_heartbeat}</td>
 <td id="{$bgp_list[iii].bgp_id}_state">{assign var="bgp_state" value=$bgp_list[iii].bgp_state}
 <td ><a href="javascript:void(0);" onclick="showBgpLog('{$bgp_list[iii].bgp_id}')"
 ><img src="{$rel_url}images/system_16.png" alt="log" border="0" /></a> 

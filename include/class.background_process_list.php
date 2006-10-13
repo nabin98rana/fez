@@ -5,11 +5,14 @@ include_once(APP_INC_PATH.'class.background_process.php');
 class BackgroundProcessList 
 {
 
+    var $auto_delete_names = "'Index Auth','Fulltext Index'";
+    
     function getList($usr_id)
     {
         $usr_id = Misc::escapeString($usr_id);
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
-        $stmt = "SELECT bgp_id, bgp_status_message, bgp_progress, bgp_state, bgp_heartbeat,bgp_name,bgp_started
+        $stmt = "SELECT bgp_id, bgp_status_message, bgp_progress, bgp_state, bgp_heartbeat,bgp_name,bgp_started," .
+                "if (bgp_heartbeat < DATE_SUB(CURDATE(),INTERVAL 1 DAY), 1, 0) as is_old
             FROM {$dbtp}background_process
             WHERE bgp_usr_id='$usr_id'
             ORDER BY bgp_started";
@@ -24,7 +27,7 @@ class BackgroundProcessList
    function getDetails($id)
    {
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
-        $stmt = "SELECT *
+        $stmt = "SELECT *,if (bgp_heartbeat < DATE_SUB(CURDATE(),INTERVAL 1 DAY), 1, 0) as is_old
             FROM {$dbtp}background_process
             WHERE bgp_id='$id'";
         $res = $GLOBALS['db_api']->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
@@ -69,6 +72,27 @@ class BackgroundProcessList
             return -1;
         }
         return 1;
+    }
+    
+    function autoDeleteOld($usr_id)
+    {
+        $auto_delete_names = $this->auto_delete_names;
+    	$usr_id = Misc::escapeString($usr_id);
+        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $stmt = "SELECT bgp_id FROM {$dbtp}background_process 
+                WHERE 
+                    bgp_usr_id='$usr_id'  " .
+                    "AND bgp_name IN ($auto_delete_names) " .
+                    "AND (bgp_state = '0' OR bgp_state = '2') " .
+                    "AND (bgp_heartbeat < DATE_SUB(CURDATE(),INTERVAL 1 DAY))";
+        $res = $GLOBALS['db_api']->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        }
+        if (!empty($res)) {
+            $this->delete($res);
+        }
     }
 
     function getLog($bgp_id)

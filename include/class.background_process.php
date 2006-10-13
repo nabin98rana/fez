@@ -66,6 +66,7 @@ class BackgroundProcess {
 
     function setStatus($msg)
     {
+        echo "$msg\n";
         $msg = Misc::escapeString($msg);
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
         $stmt = "UPDATE {$dbtp}background_process SET bgp_status_message='$msg' WHERE bgp_id='{$this->bgp_id}'";
@@ -139,7 +140,8 @@ class BackgroundProcess {
     
     /**
      * Start a background process
-     * @param string $inputs A serialized array or object that is the inputs to the process to be run.
+     * @param string $inputs A serialized array or object that is the inputs to the process to be run.  
+     *                       e.g. serialize(compact('pid','dsID'))
      * @param int $usr_id The user who will own the process.
      */
     function register($inputs, $usr_id) 

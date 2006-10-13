@@ -48,7 +48,7 @@ if (!$isAdministrator) {
     exit;
 }
 header('Content-Type: text/xml');
-header('Content-Disposition: Filename="workflows.xml"');
+header('Content-Disposition: attachment; Filename="workflows.xml"');
 header('Pragma: private');
 header('Cache-control: private, must-revalidate');
  

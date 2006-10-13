@@ -48,10 +48,9 @@ if (!$isAdministrator) {
     exit;
 }
 header('Content-Type: text/xml');
-header('Content-Disposition: Filename="xsds.xml"');
+header('Content-Disposition: attachment; Filename="xsds.xml"');
 header('Pragma: private');
 header('Cache-control: private, must-revalidate');
  
 echo Doc_Type_XSD::exportXSDs();
-
 ?>

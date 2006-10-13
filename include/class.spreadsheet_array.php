@@ -84,36 +84,30 @@ class Spreadsheet_Array {
     {
         $col_count = count($this->columns);
         $row_count = count($this->rows) + 1;
-        $doc = new DomDocument("1.0", "utf-8");
-        $node = $doc->createProcessingInstruction('mso-application','progid="Excel.Sheet"');
-        $doc->appendChild($node);
-        $root = &$doc->createElementNS('urn:schemas-microsoft-com:office:spreadsheet','ss:Workbook');
-        $doc->appendChild($root);
-        $wksnode = &$doc->createElementNS('urn:schemas-microsoft-com:office:spreadsheet','ss:Worksheet');
-        $wksnode->setAttributeNS('urn:schemas-microsoft-com:office:spreadsheet','ss:Name','Sheet1');
-        $root->appendChild($wksnode);
-        $tableNode = &$doc->createElementNS('urn:schemas-microsoft-com:office:spreadsheet','ss:Table');
-        $tableNode->setAttributeNS('urn:schemas-microsoft-com:office:spreadsheet','ss:ExpandedColumnCount',$col_count);
-        $tableNode->setAttributeNS('urn:schemas-microsoft-com:office:spreadsheet','ss:ExpandedRowCount',$row_count);
-        $tableNode->setAttributeNS('urn:schemas-microsoft-com:office:excel','x:FullColumns','1');
-        $tableNode->setAttributeNS('urn:schemas-microsoft-com:office:excel','x:FullRows','1');
-        $wksnode->appendChild($tableNode);
-        $rowNode = &$doc->createElementNS('urn:schemas-microsoft-com:office:spreadsheet','ss:Row');
-        $tableNode->appendChild($rowNode);
+        $xmlss = <<<EOT
+<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+xmlns:html="http://www.w3.org/TR/REC-html40">
+<Worksheet ss:Name="Sheet1">
+  <Table ss:ExpandedColumnCount="{$col_count}" ss:ExpandedRowCount="{$row_count}" x:FullColumns="1"
+   x:FullRows="1" >
+
+EOT;
+        $xmlss .= "<Row>\n";
         foreach ($this->columns as $col) {
-            $cellNode = &$doc->createElementNS('urn:schemas-microsoft-com:office:spreadsheet','ss:Cell');
-            $rowNode->appendChild($cellNode);
-            $dataNode = &$doc->createElementNS('urn:schemas-microsoft-com:office:spreadsheet','ss:Data',$col);
-            $dataNode->setAttributeNS('urn:schemas-microsoft-com:office:spreadsheet','ss:Type','String');
-            $cellNode->appendChild($dataNode);
+            $xmlss .= "<Cell><Data ss:Type=\"String\">$col</Data></Cell>\n";
         }
+        $xmlss .= "</Row>\n";
         foreach ($this->rows as $row) {
-            $rowNode = &$doc->createElementNS('urn:schemas-microsoft-com:office:spreadsheet','ss:Row');
-            $tableNode->appendChild($rowNode);
+            $xmlss .= "<Row>\n";
             foreach ($this->columns as $col) {
                 if (isset($row[$col])) {
                     $value = $row[$col];
-                } elseif ($this->getInheritedRow($row) !== false) { 
+                } elseif ($this->getInheritedRow($row) !== false) {
                     $value = $this->getInheritedValue($row, $col);
                 } else {
                     $value = '';
@@ -123,17 +117,18 @@ class Spreadsheet_Array {
                 } else {
                     $cell_type = 'String';
                 }
-                $cellNode = &$doc->createElementNS('urn:schemas-microsoft-com:office:spreadsheet','ss:Cell');
-                $rowNode->appendChild($cellNode);
-                $dataNode = &$doc->createElementNS('urn:schemas-microsoft-com:office:spreadsheet','ss:Data',htmlspecialchars($value));
-                $dataNode->setAttributeNS('urn:schemas-microsoft-com:office:spreadsheet','ss:Type',$cell_type);
-                $cellNode->appendChild($dataNode);
+                $value = htmlspecialchars($value);
+                $xmlss .= "<Cell><Data ss:Type=\"$cell_type\">{$value}</Data></Cell>";
             }
+            $xmlss .= "</Row>\n";
         }
-        //$doc->formatOutput = true;
-        $xmlss = $doc->saveXML();
+        $xmlss .= <<<EOT
+  </Table>
+</Worksheet>
+</Workbook>
+EOT;
         return $xmlss;
-    }
+    } 
 
     /**
       * Start a new row in the Spreadsheet file.  Usually called by user with no options.  The 

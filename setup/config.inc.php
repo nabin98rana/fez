@@ -46,7 +46,9 @@ set_time_limit(0);
 
 // definitions of Organisation Shibboleth related variables. You may need to query your Org's Shibboleth expert for help on these settings.
 @define("SHIB_SWITCH", "OFF");  // Set to OFF or ON depending on whether you want to use Shibboleth authentication
+@define("SHIB_DIRECT_LOGIN", "ON");
 @define("SHIB_FEDERATION_NAME", "MAMS Testbed Federation");  // Change this to the name of your Shibboleth Federation, eg Inqueue, InCommon, MAMS Testbed Federation
+@define("SHIB_SURVEY", false);  // Switch to ON to turn the post shibboleth login survey on
 @define("SHIB_FEDERATION", "urn:mace:federation.org.au:testfed:level-1:");  // Change this to the base urn of your federation eg Inqueue or InCommon
 @define("SHIB_HOME_SP", SHIB_FEDERATION.APP_HOSTNAME);  // Change this to the urn of your Fez Service Provider if different
 @define("SHIB_HOME_IDP", SHIB_FEDERATION."idp.yourinst.edu");  // Change this to the urn of your home instituition IDP
@@ -60,10 +62,8 @@ set_time_limit(0);
 @define("LDAP_PORT", "%{LDAP_PORT}%"); // Usually 389
 
 @define("EPRINTS_OAI", "http://eprint.yourinst.edu/perl/oai2?verb=GetRecord&metadataPrefix=oai_dc&identifier=oai%3Aeprint.yourinst.edu.au%3A"); // change this to your ePrints OAI service provider for batch importing of ePrints records
-@define("EPRINTS_USERNAME", ""); //ePrints requires basic auth for the download of secured PDFs and files (for ePrints batch import)
+@define("EPRINTS_USERNAME", ""); //ePrints requires basic auth for the download of secured PDFs and files 
 @define("EPRINTS_PASSWD", "");
-@define("EPRINTS_SUBJECT_AUTHORITY", ""); // (ePrints batch import) for use when your ePrints IR uses a controlled vocabulary eg Australian ASRC use 'asrc', otherwise leave blank
-@define("BATCH_IMPORT_TYPE", "MODS 1.0"); // Either MODS 1.0 or Dublin Core 1.0
 @define("APP_LINK_PREFIX", ""); // If you want to prepend the way all Fez Link datastreams display with a prefix then put it in this field. Fez will check first to see if the prefix is already there before adding it. Useful for ezproxying of external database resources eg http://ezproxy.library.yourorg.edu/url=
 @define("APP_WATERMARK", "watermark.gif"); // The image to be used for watermarking of copyright images
 // definitions of path related variables
@@ -76,6 +76,7 @@ set_time_limit(0);
 @define("APP_SMARTY_PATH", APP_INC_PATH . "Smarty/");
 @define("APP_THUMBS_PATH", APP_INC_PATH . "thumbs/");
 @define("APP_JPGRAPH_PATH", APP_INC_PATH . "jpgraph/");
+
 
 // Bill vs Linus
 if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
@@ -193,7 +194,7 @@ if (APP_FEDORA_SETUP == 'sslall') {
 
 @define("APP_VERSION", "1.3 BETA");
 
-@define("APP_DEFAULT_TIMEZONE", "UTC"); // Change this to your local timezone eg Australia/Brisbane. Fez will still store dates as UTC but will default display them as this timezone until the user has logged in with their preffered timezone user setting
+@define("APP_DEFAULT_TIMEZONE", "UTC"); // Change this to your local timezone eg Australia/Brisbane. Fez will still store dates as UTC but will default display them as this timezone until the user has logged in with their preffered timezone user setting.  See include/pear/date/TimeZone.php (line 402 - 3622) for other string examples
 
 @define("APP_DEFAULT_PAGER_SIZE", 50);
 @define("APP_DEFAULT_REFRESH_RATE", 5); // in minutes
@@ -209,7 +210,6 @@ if (APP_FEDORA_SETUP == 'sslall') {
 @define("APP_CYCLE_COLORS", "#DDDDDD,#CACACA");
 @define("APP_INTERNAL_COLOR", APP_CELL_COLOR);
 
-@define("APP_DEFAULT_TIMEZONE", "Australia/Brisbane"); //Change this to the default timezone for new users. See include/pear/date for other string examples
 
 // define the user_id of system user
 @define("APP_SYSTEM_USER_ID", 1);

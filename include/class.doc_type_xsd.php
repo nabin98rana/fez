@@ -121,50 +121,84 @@ class Doc_Type_XSD
         }
     }
 
+    function insertAtId($xsd_id,$params)
+    {
+        $stmt = "INSERT INTO
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd
+                 (
+                    xsd_id,
+                    xsd_title,
+                    xsd_version,
+                    xsd_top_element_name,
+                    xsd_element_prefix,
+                    xsd_extra_ns_prefixes,
+                    xsd_file
+                 ) VALUES (
+                    '" . Misc::escapeString($xsd_id) . "',
+                    '" . Misc::escapeString($params["xsd_title"]) . "',
+                    '" . Misc::escapeString($params["xsd_version"]) . "',
+                    '" . Misc::escapeString($params["xsd_top_element_name"]) . "',
+                    '" . Misc::escapeString($params["xsd_element_prefix"]) . "',
+                    '" . Misc::escapeString($params["xsd_extra_ns_prefixes"]) . "',
+                    '" . Misc::escapeString($params['xsd_file']) . "'
+                 )";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+        	return 1;
+        }
+    }
+    
     /**
      * Method used to update a Document Type XSD in the system.
      *
      * @access  public
      * @return  integer 1 if the insert worked, -1 otherwise
      */
-    function update($xsd_id)
+    function update($xsd_id, $params = array())
     {
-        global $HTTP_POST_VARS, $HTTP_POST_FILES;
-        $files = array();
-        for ($i = 0; $i < count($HTTP_POST_FILES["xsd_file"]); $i++) {
-            $filename = @$HTTP_POST_FILES["xsd_file"]["name"][$i];
-            if (empty($filename)) {
-                continue;
+        if (empty($params)) {
+            global $HTTP_POST_VARS, $HTTP_POST_FILES;
+            $files = array();
+            for ($i = 0; $i < count($HTTP_POST_FILES["xsd_file"]); $i++) {
+                $filename = @$HTTP_POST_FILES["xsd_file"]["name"][$i];
+                if (empty($filename)) {
+                    continue;
+                }
+                $blob = Misc::getFileContents($HTTP_POST_FILES["xsd_file"]["tmp_name"][$i]);
+                $files[] = array(
+                    "filename"  =>  $filename,
+                    "type"      =>  $HTTP_POST_FILES['xsd_file']['type'][$i],
+                    "blob"      =>  $blob
+                );
             }
-            $blob = Misc::getFileContents($HTTP_POST_FILES["xsd_file"]["tmp_name"][$i]);
-            $files[] = array(
-                "filename"  =>  $filename,
-                "type"      =>  $HTTP_POST_FILES['xsd_file']['type'][$i],
-                "blob"      =>  $blob
-            );
+    		// If no file was uploaded then just use the textarea
+    		if (strlen($blob) == 0) {
+    			$blob = $HTTP_POST_VARS["xsd_source"];
+    		}
+            $params = &$HTTP_POST_VARS;
+        } else {
+        	$blob = $params['xsd_file'];
         }
-
-		// If no file was uploaded then just use the textarea
-		if (strlen($blob) == 0) {
-			$blob = $HTTP_POST_VARS["xsd_source"];
-		}
 		
         $stmt = "UPDATE
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd
                  SET 
-                    xsd_title = '" . Misc::escapeString($HTTP_POST_VARS["xsd_title"]) . "',
-                    xsd_version = '" . Misc::escapeString($HTTP_POST_VARS["xsd_version"]) . "',
-                    xsd_top_element_name = '" . Misc::escapeString($HTTP_POST_VARS["xsd_top_element_name"]) . "',
-                    xsd_element_prefix = '" . Misc::escapeString($HTTP_POST_VARS["xsd_element_prefix"]) . "',
-                    xsd_extra_ns_prefixes = '" . Misc::escapeString($HTTP_POST_VARS["xsd_extra_ns_prefixes"]) . "',
-                    xsd_file = '" . addslashes($blob) . "'
+                    xsd_title = '" . Misc::escapeString($params["xsd_title"]) . "',
+                    xsd_version = '" . Misc::escapeString($params["xsd_version"]) . "',
+                    xsd_top_element_name = '" . Misc::escapeString($params["xsd_top_element_name"]) . "',
+                    xsd_element_prefix = '" . Misc::escapeString($params["xsd_element_prefix"]) . "',
+                    xsd_extra_ns_prefixes = '" . Misc::escapeString($params["xsd_extra_ns_prefixes"]) . "',
+                    xsd_file = '" . Misc::escapeString($blob) . "'
                  WHERE xsd_id = $xsd_id";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-			//
+			return 1;
         }
     }
 
@@ -300,42 +334,54 @@ class Doc_Type_XSD
     /**
      * Import XSDs from a XML doc that was previously exported
      */
-    function importXSDs($filename)
+    function importXSDs($filename, &$bgp)
     {
         $doc = DOMDocument::load($filename);
         $xpath = new DOMXPath($doc);
         $xdocs = $xpath->query('/fez_xsds/fez_xsd');
         $maps = array();
-        $feedback = array();
-        foreach ($xdocs as $xdoc) {
+        foreach ($xdocs as $idx => $xdoc) {
+            $bgp->setProgress(intval(($idx + 1) / count($xdocs) * 100 + 0.5));
         	$title = Misc::escapeString($xdoc->getAttribute('xsd_title'));
             $version = Misc::escapeString($xdoc->getAttribute('xsd_version'));
             // reject any XSDs that don't have a version
             if (!is_numeric($version)) {
-                $feedback[] = "Not importing $title $version - the xsd_version must be numeric";
+                $bgp->setStatus("Not importing $title $version - the xsd_version must be numeric");
             	continue;
             }
+            // There are two things to consider when importing
+            // 1) Upgrade docs which match on xsd_title and have version < import doc .  Remap any references in import doc to xdis)
+            // 2) Insert new doc which don't match title.  Remap references in imported stuff  
+            $found_matching_title = false;
+            $found_smaller_version = false;
+            $found_same_version = false;
             $exist_list = Doc_Type_XSD::getList("WHERE xsd_title='$title'");
-            $do_import = true;
             $doc_id = false;
             if (!empty($exist_list)) {
+                $found_matching_title = true;
+                $found_smaller_version = true;
                 foreach ($exist_list as $exist_item) {
+                    $doc_id = $exist_item['xsd_id'];
                 	if (floatval($exist_item['xsd_version']) > floatval($version)) {
-                        $do_import = false;
-                        $doc_id = false;
+                        $found_smaller_version = false;
                         break;
                 	}
                     if (floatval($exist_item['xsd_version']) == floatval($version)) {
-                    	$doc_id = $exist_item['xsd_id'];
+                        $found_same_version = true;
                     }
                 }
             }
-            if ($do_import && !$doc_id) {
-            	$xsd_file_nodelist =  $xpath->query('xsd_file',$xdoc);
+            if ($found_matching_title && (!$found_smaller_version || $found_same_version)) {
+                $bgp->setStatus("Not importing XSD $title $version");
+                if (!$found_same_version) {
+                	$doc_id = false;
+                }
+            } else {
+                $xsd_file_nodelist =  $xpath->query('xsd_file',$xdoc);
                 $xsd_file_node = $xsd_file_nodelist->item(0);
                 $xsd_file = $xsd_file_node->textContent; 
-            
-            	$params = array(
+                
+                $params = array(
                     'xsd_title' => $xdoc->getAttribute('xsd_title'),
                     'xsd_version' => $xdoc->getAttribute('xsd_version'),
                     'xsd_file' => $xsd_file,
@@ -343,20 +389,29 @@ class Doc_Type_XSD
                     'xsd_element_prefix' => $xdoc->getAttribute('xsd_element_prefix'),
                     'xsd_extra_ns_prefixes' => $xdoc->getAttribute('xsd_extra_ns_prefixes'),
                 );
-                $doc_id = Doc_Type_XSD::insert($params);
-            } else {
-                $feedback[] =  "Not importing XSD $title $version";
+                if ($found_matching_title && $found_smaller_version) {
+                    Doc_Type_XSD::update($doc_id, $params);
+                } else {
+                    // need to try and insert at the doc_id in the XML.  If there's something there already
+                    // then we know it doesn't match so do a insert with new id in that case
+                    $det =  Doc_Type_XSD::getDetails($xdoc->getAttribute('xsd_id'));
+                    if (empty($det)) {
+                    	$doc_id = $xdoc->getAttribute('xsd_id');
+                        Doc_Type_XSD::insertAtId($doc_id,$params);
+                    } else {
+                        $doc_id = Doc_Type_XSD::insert($params);
+                    }
+                }
             }
             if ($doc_id) {
                 // check for new displays even if the doc already exists in the DB
-                XSD_Display::importDisplays($xdoc, $doc_id, $maps,$feedback);
+                XSD_Display::importDisplays($xdoc, $doc_id, $maps,$bgp);
             }
         }
         //print_r($maps);
-        $feedback[] = "Remapping ids";
-        XSD_HTML_Match::remapImport($maps);
-        $feedback[] = "Done";
-        return $feedback;
+        $bgp->setStatus("Remapping ids");
+        XSD_HTML_Match::remapImport($maps, $bgp);
+        $bgp->setStatus("Done");
     }
     
     

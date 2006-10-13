@@ -84,6 +84,7 @@ $tpl->assign('my_collections_list', $collection_list);
 
 
 $bgp_list = new BackgroundProcessList;
+$bgp_list->autoDeleteOld(Auth::getUserID());
 $tpl->assign('bgp_list', $bgp_list->getList(Auth::getUserID()));
 $tpl->assign('bgp_states', $bgp_list->getStates());
 

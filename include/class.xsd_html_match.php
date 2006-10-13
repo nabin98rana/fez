@@ -627,14 +627,59 @@ class XSD_HTML_Match
      * @access  public
      * @return  boolean
      */
-    function removeByXSDMF_IDs()
+    function removeByXSDMF_IDs($xsdmf_ids=array())
     {
-        global $HTTP_POST_VARS;
-
-        $items = @implode(", ", $HTTP_POST_VARS["items"]);
+        if (empty($xsdmf_ids)) {
+           global $HTTP_POST_VARS;
+           $xsdmf_ids = &$HTTP_POST_VARS['items'];
+        }
+        $items = Misc::arrayToSQL($xsdmf_ids);
 		if (@strlen($items) < 1) {
 			return false;
 		}
+        foreach ($xsdmf_ids as $xsdmf_id) {
+            $att_list = XSD_HTML_Match::getChildren($xsdmf_id);
+            if (!empty($att_list)) {
+                $att_ids = Misc::arrayToSQL(array_keys(Misc::keyArray($att_list, 'att_id')));
+                $stmt = "delete from ".APP_DEFAULT_DB . "." . APP_TABLE_PREFIX."xsd_display_attach " .
+                        "where att_id in ($att_ids)"; 
+                $res = $GLOBALS["db_api"]->dbh->query($stmt);
+                if (PEAR::isError($res)) {
+                    Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                }
+            }
+            $mfo_list = XSD_HTML_Match::getOptions($xsdmf_id);
+            if (is_array($mfo_list)) {
+                $mfo_ids = Misc::arrayToSQL(array_keys(Misc::keyArray($mfo_list,'mfo_id')));
+                $stmt = "delete from ".APP_DEFAULT_DB . "." . APP_TABLE_PREFIX."xsd_display_mf_option " .
+                        "where mfo_id in ($mfo_ids)"; 
+                $res = $GLOBALS["db_api"]->dbh->query($stmt);
+                if (PEAR::isError($res)) {
+                    Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                }
+            }
+            $subs = XSD_Loop_Subelement::getSimpleListByXSDMF($xsdmf_id);
+            if (!empty($subs)) {
+                $xsdsel_ids = Misc::arrayToSQL(array_keys(Misc::keyArray($subs,'xsdsel_id')));
+                $stmt = "delete from ".APP_DEFAULT_DB . "." . APP_TABLE_PREFIX."xsd_loop_subelement " .
+                        "where xsdsel_id in ($xsdsel_ids)"; 
+                $res = $GLOBALS["db_api"]->dbh->query($stmt);
+                if (PEAR::isError($res)) {
+                    Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                }
+            }
+            $rels = XSD_Relationship::getSimpleListByXSDMF($xsdmf_id);
+            if (!empty($rels)) {
+                $xsdrel_ids = Misc::arrayToSQL(array_keys(Misc::keyArray($rels,'xsdrel_id')));
+                $stmt = "delete from ".APP_DEFAULT_DB . "." . APP_TABLE_PREFIX."xsd_relationship " .
+                        "where xsdrel_id in ($xsdrel_ids)"; 
+                $res = $GLOBALS["db_api"]->dbh->query($stmt);
+                if (PEAR::isError($res)) {
+                    Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                }
+            }
+        }
+
 	
         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
@@ -648,6 +693,13 @@ class XSD_HTML_Match
         } else {
 		  return 1;
         }
+    }
+    
+    function removeByXDIS_ID($xdis_id)
+    {
+    	$list = XSD_HTML_Match::getList($xdis_id);
+        $xsdmf_ids = array_keys(Misc::keyArray($list, 'xsdmf_id'));
+        return XSD_HTML_Match::removeByXSDMF_IDs($xsdmf_ids);
     }
 
     /**
@@ -2823,7 +2875,7 @@ class XSD_HTML_Match
      * This is the second pass of the import which looks for inserted records which reference other records
      * These references need to be updated to point to the ids used in the DB instead of in the XML file
      */
-    function remapImport(&$maps)
+    function remapImport(&$maps, &$bgp)
     {
         if (empty($maps['xsdmf_map'])) {
             return;
@@ -2831,28 +2883,34 @@ class XSD_HTML_Match
         // find all the stuff that references the new displays
         $xsdmf_ids = array_values(@$maps['xsdmf_map']);
         $xsdmf_ids_str = Misc::arrayToSQL($xsdmf_ids);
-        // Find the fields in the matchfields table that refer to displays 
+        // Find the fields in the matchfields table that refer to displays
+        $bgp->setStatus("Remapping Displays in XSDMF Table"); 
         Misc::tableSearchAndReplace('xsd_display_matchfields', 
             array('xsdmf_xdis_id_ref','xsdmf_parent_option_xdis_id','xsdmf_asuggest_xdis_id'),
             $maps['xdis_map'], "xsdmf_id IN ($xsdmf_ids_str)");
         // Find the fields in the matchfields table that refer to other matchfields 
+        $bgp->setStatus("Remapping XSDMFs in XSDMF Table"); 
         Misc::tableSearchAndReplace('xsd_display_matchfields',
             array('xsdmf_original_xsdmf_id','xsdmf_attached_xsdmf_id','xsdmf_parent_option_child_xsdmf_id',
                             'xsdmf_org_fill_xsdmf_id','xsdmf_asuggest_xsdmf_id','xsdmf_id_ref'),
             $maps['xsdmf_map'], " xsdmf_id IN ($xsdmf_ids_str)");                
         // Find the fields in the attachments table that refer to other matchfields 
+        $bgp->setStatus("Remapping XSDMFs in Attachments Table"); 
         Misc::tableSearchAndReplace('xsd_display_attach',
             array('att_child_xsdmf_id'),
             $maps['xsdmf_map'], " att_parent_xsdmf_id IN ($xsdmf_ids_str)");                
         // Find the fields in the matchfields table that refer to subloops
         if (!empty($maps['xsdsel_map'])) { 
+            $bgp->setStatus("Remapping Sub Looping Elements in XSDMF Table"); 
             Misc::tableSearchAndReplace('xsd_display_matchfields',
                 array('xsdmf_xsdsel_id'),
-                $maps['xsdsel_map'], " xsdmf_id IN ($xsdmf_ids_str)");
+                $maps['xsdsel_map'], " xsdmf_id IN ($xsdmf_ids_str)", true);
         }
         // remap the sublooping elements
+        $bgp->setStatus("Remapping Sub Looping Elements"); 
         XSD_Loop_Subelement::remapImport($maps);
         //remap the relationships
+        $bgp->setStatus("Remapping XSD Relationships"); 
         XSD_Relationship::remapImport($maps);
     }
     

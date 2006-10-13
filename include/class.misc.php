@@ -2248,17 +2248,25 @@ function backtrace()
    return $output;
 }
 
-    function tableSearchAndReplace($table, $fields, $map, $restrict) 
+    function tableSearchAndReplace($table, $fields, $map, $restrict, $debug = false) 
     {
+        if ($debug) {
+            $params = array(print_r($table,true),print_r($fields,true),print_r($map,true),print_r($restrict,true));
+            Error_Handler::logError(print_r($params,true),__FILE__,__LINE__);
+        }        
         foreach ($map as $xvalue => $dbvalue) {
-            foreach ($fields as $field) { 
-                $stmt = "UPDATE ".APP_DEFAULT_DB . "." . APP_TABLE_PREFIX."$table " .
-                        "set $field='$dbvalue' " .
-                        "WHERE $field='$xvalue' AND $restrict";
-                //echo "$stmt<br/>\n";        
-                $res = $GLOBALS["db_api"]->dbh->query($stmt);
-                if (PEAR::isError($res)) {
-                    Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            if ($dbvalue != $xvalue) {
+                foreach ($fields as $field) { 
+                    $stmt = "UPDATE ".APP_DEFAULT_DB . "." . APP_TABLE_PREFIX."$table " .
+                            "set $field='$dbvalue' " .
+                            "WHERE $field='$xvalue' AND $restrict";
+                    if ($debug) {
+                      Error_Handler::logError($stmt,__FILE__,__LINE__);
+                    }        
+                    $res = $GLOBALS["db_api"]->dbh->query($stmt);
+                    if (PEAR::isError($res)) {
+                        Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                    }
                 }
             }            
         }

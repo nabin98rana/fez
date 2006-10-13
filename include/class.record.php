@@ -839,7 +839,7 @@ class Record
         $array_ptr = array();
         $xsdmf_array = $display->getXSDMF_Values($pid);		
 		Record::removeIndexRecord($pid, '', 'keep'); //CK 22/5/06 = added last 2 params to make it keep the dsID indexes for Fezacml on datastreams // remove any existing index entry for that PID // CK added 9/1/06 - still working on this
-//		print_r($xsdmf_array); exit;
+		//print_r($xsdmf_array); exit;
         foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
             if (!is_array($xsdmf_value) && !empty($xsdmf_value) && (trim($xsdmf_value) != "")) {					
                 $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);

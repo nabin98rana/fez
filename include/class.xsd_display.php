@@ -237,27 +237,36 @@ class XSD_Display
 	 * @param   integer $xsd_id The XSD ID the display will be based on.
      * @return  integer 1 if the insert worked, -1 otherwise
      */
-    function insert($xsd_id, $params=array())
+    function insert($xsd_id, $params=array(), $xdis_id=null)
     {
     	if (empty($params)) {
             $params = &$_POST;
         }
 
-		if (@$HTTP_POST_VARS["xdis_enabled"]) {
+		if (@$params["xdis_enabled"]) {
 			$xdis_enabled = 1;
 		} else {
 			$xdis_enabled = 0;
 		}
+        if (!empty($xdis_id)) {
+        	$xdis_field_str = 'xdis_id,';
+            $xdis_value_str = "'" . Misc::escapeString($xdis_id) . "',";
+        } else {
+            $xdis_field_str = '';
+            $xdis_value_str = '';
+        }
 				
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
                  (
+                    $xdis_field_str
                     xdis_title,
                     xdis_xsd_id,
                     xdis_version,
                     xdis_enabled,
                     xdis_object_type
                  ) VALUES (
+                    $xdis_value_str
                     '" . Misc::escapeString($params["xdis_title"]) . "',
                     $xsd_id,
                     '" . Misc::escapeString($params["xdis_version"]) . "',
@@ -273,6 +282,12 @@ class XSD_Display
         }
     }
 
+    function insertAtId($xdis_id,$xsd_id, $params=array())
+    {
+    	return XSD_Display::insert($xsd_id, $params, $xdis_id);
+    }
+
+
     /**
      * Method used to update a XSD Display in the system.
      *
@@ -280,23 +295,26 @@ class XSD_Display
 	 * @param   integer $xdis_id The XSD Display ID to clone	 
      * @return  integer 1 if the insert worked, -1 otherwise
      */
-    function update($xdis_id)
+    function update($xdis_id, $params = array())
     {
-        global $HTTP_POST_VARS;
+        if (empty($params)) {
+            global $HTTP_POST_VARS;
 
-		if (@$HTTP_POST_VARS["xdis_enabled"]) {
-			$xdis_enabled = 1;
-		} else {
-			$xdis_enabled = 0;
-		}
+            $params = &$HTTP_POST_VARS;
+        }
+        if (@$params["xdis_enabled"]) {
+            $xdis_enabled = 1;
+        } else {
+            $xdis_enabled = 0;
+        }
 				
         $stmt = "UPDATE
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
                  SET 
-                    xdis_title = '" . Misc::escapeString($HTTP_POST_VARS["xdis_title"]) . "',
-                    xdis_version = '" . Misc::escapeString($HTTP_POST_VARS["xdis_version"]) . "',
+                    xdis_title = '" . Misc::escapeString($params["xdis_title"]) . "',
+                    xdis_version = '" . Misc::escapeString($params["xdis_version"]) . "',
 					xdis_enabled = " .$xdis_enabled . ",
-					xdis_object_type = " .$HTTP_POST_VARS["xdis_object_type"] . "
+					xdis_object_type = " .$params["xdis_object_type"] . "
                  WHERE xdis_id = $xdis_id";
 
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -701,6 +719,7 @@ class XSD_Display
             $xdis->setAttribute('xdis_id', $item['xdis_id']);
             $xdis->setAttribute('xdis_title', $item['xdis_title']);
             $xdis->setAttribute('xdis_version', $item['xdis_version']);
+            $xdis->setAttribute('xdis_enabled', $item['xdis_enabled']);
             $xdis->setAttribute('xdis_object_type', $item['xdis_object_type']);
             XSD_HTML_Match::exportMatchFields($xdis, $item['xdis_id']);
             $xnode->appendChild($xdis);
@@ -714,7 +733,7 @@ class XSD_Display
      * make sure any inserted items point to the right things.  NOTE: queries must ensure that only inserted 
      * items are updated - we don't want to change exisiting items to point to new items by accident 
      */
-    function importDisplays($xdoc, $xsd_id, &$maps, &$feedback)
+    function importDisplays($xdoc, $xsd_id, &$maps, &$bgp)
     {
     	$xpath = new DOMXPath($xdoc->ownerDocument);
         $xdisplays = $xpath->query('display', $xdoc);
@@ -722,36 +741,55 @@ class XSD_Display
             $title = Misc::escapeString($xdis->getAttribute('xdis_title'));
             $version = $xdis->getAttribute('xdis_version');
             if (!is_numeric($version)) {
-            	$feedback[] = "Not importing Display $title $version - xdis_version must be a number";
+            	$bgp->setStatus("Not importing Display $title $version - xdis_version must be a number");
                 continue;
             }
+            $found_matching_title = false;
+            $found_matching_version = false;
+            $found_smaller_version = false;
             $list = XSD_Display::getList($xsd_id,"AND xdis_title='$title'");
             if (!empty($list)) {
+                $found_matching_title = true;
+                $found_smaller_version = true;
             	foreach($list as $exist_item) {
+                    $xdis_id = $exist_item['xdis_id'];
             		if (floatval($exist_item['xdis_version']) > floatval($version)) {
-            			$do_import = false;
-                        $feedback[] =  "Not importing Display $title $version";
+                        $found_smaller_version = false;
                         break;
             		} elseif (floatval($exist_item['xdis_version']) == floatval($version)) {
-                        $do_import = false;
-                        $maps['xdis_map'][$xdis->getAttribute('xdis_id')] = $exist_item['xdis_id'];
-                        $feedback[] = "Not importing Display $title $version";
+                        $found_matching_version = true;
                         break;
                     }
             	}
-            } else {
-            	$do_import = true;
             }
-            if ($do_import) {
-            	$feedback[] =  "Importing Display $title";
+            if ($found_matching_title && (!$found_smaller_version || $found_matching_version)) {
+                $bgp->setStatus("Not importing Display $title $version");
+            } else {
+            	$bgp->setStatus("Importing Display $title");
                 $params = array(
                     'xdis_title' => $xdis->getAttribute('xdis_title'),
                     'xdis_version' => $xdis->getAttribute('xdis_version'),
+                    'xdis_enabled' => $xdis->getAttribute('xdis_enabled'),
                     'xdis_object_type' => $xdis->getAttribute('xdis_object_type'),
                 );
-                $xdis_id = XSD_Display::insert($xsd_id, $params);
+                if ($found_matching_title && $found_smaller_version) {
+                  XSD_Display::update($xdis_id, $params);
+                  // need to delete any matchfields that refer to this xdis as we are about to bring
+                  // the ones from the XML doc in
+                  XSD_HTML_Match::removeByXDIS_ID($xdis_id);
+                } else {
+                  // need to try and insert at the xdis_id in the XML.  If there's something there already
+                  // then we know it doesn't match so do a insert with new id in that case 
+                  $det = XSD_Display::getDetails($xdis->getAttribute('xdis_id'));
+                  if (empty($det)) {
+                  	$xdis_id = $xdis->getAttribute('xdis_id');
+                    XSD_Display::insertAtId($xdis_id, $xsd_id, $params);
+                  } else {
+                    $xdis_id = XSD_Display::insert($xsd_id, $params);
+                  }
+                }
                 $maps['xdis_map'][$xdis->getAttribute('xdis_id')] = $xdis_id;
-                XSD_HTML_Match::importMatchFields($xdis, $xdis_id, $maps);
+                XSD_HTML_Match::importMatchFields($xdis, $xdis->getAttribute('xdis_id'), $maps);
             }
         }
     }
@@ -902,6 +940,8 @@ class XSD_DisplayObject
             // Find datastreams that may be used by this display
             $datastreamTitles = $this->getDatastreamTitles();
 			$datastreams = Fedora_API::callGetDatastreams($pid); // need the full get datastreams to get the controlGroup etc
+            //print_r($datastreams); 
+            //print_r($datastreamTitles);
 //			$datastreams = Fedora_API::callListDatastreams($pid);			
 			foreach ($datastreams as $ds_key => $ds_value) {
 				// get the matchfields for the FezACML of the datastream if any exists
@@ -951,13 +991,16 @@ class XSD_DisplayObject
                         }
 					}
 				} else {
-					// find out if this record has the xml based datastream 
+					// find out if this record has the xml based datastream
 					if (Fedora_API::datastreamExistsInArray($datastreams, $dsValue['xsdsel_title'])) {
 						$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title']);
 						if (isset($DSResultArray['stream'])) {
 							$xmlDatastream = $DSResultArray['stream'];
 							// get the matchfields for the datastream (using the sub-display for this stream)						
 							$this->processXSDMFDatastream($xmlDatastream, $dsValue['xsdmf_xdis_id']);							
+						} else {
+							Error_Handler::logError("Couldn't get {$dsValue['xsdsel_title']} on $pid",
+                                __FILE__,__LINE__);
 						}
 					}
 				}

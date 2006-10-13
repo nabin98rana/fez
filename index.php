@@ -32,6 +32,10 @@
 // +----------------------------------------------------------------------+
 //
 //
+if (!is_file("config.inc.php")) {
+    header("Location: setup/");
+    exit;
+}
 include_once("config.inc.php");
 
 include_once(APP_INC_PATH . "db_access.php");

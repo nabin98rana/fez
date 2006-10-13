@@ -37,6 +37,7 @@ include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
+include_once(APP_INC_PATH . "class.bgp_import_xsds.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");
@@ -56,7 +57,11 @@ if ($isAdministrator) {
         	Error_Handler::logError("Can't import files of type $type", __FILE__,__LINE__);
             exit;
         }
-    	$feedback = Doc_Type_XSD::importXSDs($tmp_name);
+        $bgp = new BackgroundProcess_Import_XDSs;
+        $filename = APP_TEMP_DIR.'fezxsd'.basename($tmp_name);
+        copy($tmp_name, $filename);
+    	$bgp->register(serialize(compact('filename')), Auth::getUserID());
+        $feedback[] = "The XSDs are being imported as a background process, see My_Fez for progress.";
         $tpl->assign('feedback',$feedback);
     }
 } else {
