@@ -201,9 +201,16 @@ class Template_API
         $this->assign("app_base_url", APP_BASE_URL);
         $this->assign("rel_url", APP_RELATIVE_URL);
         $this->assign("lang", APP_CURRENT_LANG);
+		$this->assign("SELF_REGISTRATION", SELF_REGISTRATION);					
+		$this->assign("WEBSERVER_LOG_STATISTICS", WEBSERVER_LOG_STATISTICS);		
         $this->assign("SID", SID);
 		$this->assign("SHIB_SWITCH", SHIB_SWITCH);
-		$this->assign("SHIB_DIRECT_LOGIN", SHIB_DIRECT_LOGIN);
+		$this->assign("SHIB_DIRECT_LOGIN", SHIB_DIRECT_LOGIN);		
+		$this->assign("APP_HOSTNAME", APP_HOSTNAME);
+		$this->assign("SHIB_HOME_SP", SHIB_HOME_SP);
+		$this->assign("SHIB_HOME_IDP", SHIB_HOME_IDP);
+		$this->assign("SHIB_FEDERATION_NAME", SHIB_FEDERATION_NAME);
+				
 		if (@$_REQUEST['getArguments']){
 			$getArguments = $_REQUEST['getArguments'];
 		} else {
@@ -277,9 +284,16 @@ class Template_API
         $this->assign("app_base_url", APP_BASE_URL);
         $this->assign("rel_url", APP_RELATIVE_URL);
         $this->assign("lang", APP_CURRENT_LANG);
+		$this->assign("SELF_REGISTRATION", SELF_REGISTRATION);				
+		$this->assign("WEBSERVER_LOG_STATISTICS", WEBSERVER_LOG_STATISTICS);				
         $this->assign("SID", SID);
 		$this->assign("SHIB_SWITCH", SHIB_SWITCH);
-		$this->assign("SHIB_DIRECT_LOGIN", SHIB_DIRECT_LOGIN);
+		$this->assign("SHIB_DIRECT_LOGIN", SHIB_DIRECT_LOGIN);		
+		$this->assign("APP_HOSTNAME", APP_HOSTNAME);
+		$this->assign("SHIB_HOME_SP", SHIB_HOME_SP);
+		$this->assign("SHIB_HOME_IDP", SHIB_HOME_IDP);
+		$this->assign("SHIB_FEDERATION_NAME", SHIB_FEDERATION_NAME);
+		
 		if (@$_REQUEST['getArguments']){
 			$getArguments = $_REQUEST['getArguments'];
 		} else {

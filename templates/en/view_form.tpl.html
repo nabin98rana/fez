@@ -136,6 +136,12 @@ function validateForm(f)
 {
     return true;
 }
+function openHistory(pid)
+{
+    var features = 'width=520,height=400,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
+    var popupWin = window.open('{/literal}{$rel_url}{literal}history.php?pid=' + pid, '_impact', features);
+    popupWin.focus();
+}
 //-->
 </script>
 {/literal}
@@ -218,6 +224,13 @@ function validateForm(f)
 				  <td align="left" class="default" nowrap> <b>Download Statistics:</b></td>
 				  <td align="left" class="default" nowrap>  {$statsAbstract} Abstract Views, {$statsFiles} File Downloads
 				  <a href="{$rel_url}stat_details.php?action=show_detail&pid={$pid}">Detailed Statistics</a>
+				  </td>
+				</tr>
+				<tr>
+				  <td align="left" class="default" nowrap> <b>Created:</b></td>
+				  <td align="left" class="default" nowrap>  {$created_date} 
+				  {if $depositor != ""} by <a href="{$rel_url}list.php?browse=depositor&depositor={$depositor_id}" class="silent_link">{$depositor}</a>{/if}
+				  <a title="view the full history of changes on this object" href="javascript:void(null);" onclick="javascript:openHistory('{$pid}');">Detailed History</a>
 				  </td>
 				</tr>
 

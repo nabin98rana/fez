@@ -121,7 +121,28 @@ if (!empty($pid)) {
 			}
 			array_push($parent_relationships[$parent['pid']], $parent['display_type'][0]);
 		} 
-		
+		// Now generate the META Tag headers
+		$meta_head = '<META NAME="DC.Identifier" SCHEMA="URI" CONTENT="'.substr(APP_BASE_URL,0,-1).$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'">'."\n";
+		foreach ($xsd_display_fields as $dis_key => $dis_field) {
+			if (($dis_field['xsdmf_enabled'] == 1) && ($dis_field['xsdmf_meta_header'] == 1) && (trim($dis_field['xsdmf_meta_header_name']) != "")) {
+				if (is_array($details[$dis_field['xsdmf_id']])) {
+					foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
+						if ($cdata != "") {
+							$meta_head .= '<META NAME="'.$dis_field['xsdmf_meta_header_name'].'" CONTENT="'.trim($cdata).'">'."\n";
+						}
+					}
+				} else {
+					if ($details[$dis_field['xsdmf_id']] != "") {
+						$meta_head .= '<META NAME="'.$dis_field['xsdmf_meta_header_name'].'" CONTENT="'.trim($details[$dis_field['xsdmf_id']]).'">'."\n";
+						if ($dis_field['xsdmf_meta_header_name'] == "DC.Title") {
+							$tpl->assign("extra_title", trim($details[$dis_field['xsdmf_id']]));
+						}
+					}
+				}
+			}
+		}
+
+				
 		foreach ($xsd_display_fields as $dis_key => $dis_field) {
 			if (($dis_field['xsdmf_enabled'] == 1)) { // CK - took out check for is in view form, as not much is in view form now
 				if ((($dis_field['xsdmf_html_input'] == "contvocab") || ($dis_field['xsdmf_html_input'] == "contvocab_selector")) && ($dis_field['xsdmf_cvo_save_type'] != 1)) {
@@ -192,7 +213,7 @@ if (!empty($pid)) {
 							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=author&author=".$details[$dis_field['xsdmf_id']]."'>".$details[$dis_field['xsdmf_id']]."</a>";
 						}
 					}
-				}
+				}			
 				if ($dis_field['sek_title'] == "Keywords") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
@@ -201,6 +222,30 @@ if (!empty($pid)) {
 							}
 						} else {
 							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_RELATIVE_URL."list.php?terms=".$details[$dis_field['xsdmf_id']]."'>".$details[$dis_field['xsdmf_id']]."</a>";
+						}
+					}
+				}				
+				if ($dis_field['xsdmf_element'] == "!created_date") {
+					if (!empty($details[$dis_field['xsdmf_id']])) {
+						if (is_array($details[$dis_field['xsdmf_id']])) {
+							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {		
+								$created_date = Date_API::getFormattedDate($cdata);
+							}
+						} else {
+							$created_date = Date_API::getFormattedDate($details[$dis_field['xsdmf_id']]);
+						}
+					}
+				}
+				if ($dis_field['xsdmf_element'] == "!depositor") {
+					if (!empty($details[$dis_field['xsdmf_id']])) {
+						if (is_array($details[$dis_field['xsdmf_id']])) {
+							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {		
+								$depositor_id = $cdata;								
+								$depositor = User::getFullName($cdata);
+							}
+						} else {
+							$depositor_id = $details[$dis_field['xsdmf_id']];
+							$depositor = User::getFullName($details[$dis_field['xsdmf_id']]);
 						}
 					}
 				}				
@@ -228,26 +273,6 @@ if (!empty($pid)) {
 						}
 					}
 				}	
-			}
-		}
-		// Now generate the META Tag headers
-		$meta_head = '<META NAME="DC.Identifier" SCHEMA="URI" CONTENT="'.substr(APP_BASE_URL,0,-1).$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'">';
-		foreach ($xsd_display_fields as $dis_key => $dis_field) {
-			if (($dis_field['xsdmf_enabled'] == 1) && ($dis_field['xsdmf_meta_header'] == 1) && (trim($dis_field['xsdmf_meta_header_name']) != "")) {
-				if (is_array($details[$dis_field['xsdmf_id']])) {
-					foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
-						if ($cdata != "") {
-							$meta_head .= '<META NAME="'.$dis_field['xsdmf_meta_header_name'].'" CONTENT="'.trim($cdata).'">';
-						}
-					}
-				} else {
-					if ($details[$dis_field['xsdmf_id']] != "") {
-						$meta_head .= '<META NAME="'.$dis_field['xsdmf_meta_header_name'].'" CONTENT="'.trim($details[$dis_field['xsdmf_id']]).'">';
-						if ($dis_field['xsdmf_meta_header_name'] == "DC.Title") {
-							$tpl->assign("extra_title", trim($details[$dis_field['xsdmf_id']]));
-						}
-					}
-				}
 			}
 		}
 		$citation = array();
@@ -434,6 +459,9 @@ if (!empty($pid)) {
 		$tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");		
 		$parents = Record::getParents($pid);
 		$tpl->assign("parents", $parents);		
+		$tpl->assign("created_date", $created_date);				
+		$tpl->assign("depositor", $depositor);
+		$tpl->assign("depositor_id", $depositor_id);
 		$tpl->assign("details", $details);
         $tpl->assign('title', $record->getTitle());
 //		$tpl->assign("controlled_vocabs", $controlled_vocabs);				

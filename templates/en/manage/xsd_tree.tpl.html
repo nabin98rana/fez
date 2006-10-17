@@ -6,8 +6,11 @@
 </head>
 
 <body topmargin="5" marginheight="5">
-<span class="default">&nbsp;<a href="xsd_displays.php?xsd_id={$xsd_id}" target="_parent"><img src="{$rel_url}images/back_16.png" border="0" title="Back to XSD Display list" " /></a>&nbsp;<b>{$xdis_title}</b>&nbsp;<a href="xsd_tree.php?xdis_id={$xdis_id}" target="_self"><img src="{$rel_url}images/refresh_16.png" border="0" title="Refresh the XSD Tree" " /></a>&nbsp;<br /><br /></span>
-<span class="default">&nbsp;<a target="basefrm" href="xsd_tree_clean.php?xdis_id={$xdis_id}">Orphaned XSDMF entries</a> (<font color="{if $ophan_count > 0}red{else}green{/if}">{$orphan_count}</font>)<br /><br /></span>
+<a href="xsd_displays.php?xsd_id={$xsd_id}" target="_parent"><img src="{$rel_url}images/back_16.png" border="0" title="Back to XSD Display list" " /></a>
+<span class="default"><strong>{$xdis_title}</strong></span>
+<a href="xsd_tree.php?xdis_id={$xdis_id}" target="_self"><img src="{$rel_url}images/refresh_16.png" border="0" title="Refresh the XSD Tree" " /></a><br /><br />
+<a target="basefrm" href="xsd_tree_clean.php?xdis_id={$xdis_id}"><span class="default">Orphaned XSDMF entries</span></a>
+ (<font color="{if $ophan_count > 0}red{else}green{/if}">{$orphan_count}</font>)<br /><br />
 <div class="dtree">
 <script type="text/javascript">
 <!--

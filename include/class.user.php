@@ -820,6 +820,64 @@ class User
         }
     }
 
+	
+    /**
+     * Method used to add a new user to the system from an ePrints import. 
+     * As we can't use the eprints passwords we make them all ldap accounts and the fez sysadmin will 
+     * have to convert their user names to their inst ldap usernames or regen passwords (fez uses md5 pw's).
+     * If they are turned into ldap accounts then the shibboleth automatic conversion of accounts will work
+     * if they login with shibboleth. A lot easier if the ePrints usernames are the user's LDAP usernames.
+     *
+     * @access  public
+     * @return  integer 1 if the update worked, -1 otherwise
+     */
+    function insertFromEprints($usr_username, $usr_full_name, $usr_email, $eprints_usr_id)
+    {
+
+		$usr_administrator = 0;
+
+		$ldap_authentication = 1;
+
+        $prefs = Prefs::getDefaults();
+        $stmt = "INSERT INTO
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                 (
+                    usr_created_date,
+                    usr_full_name,
+                    usr_email,
+                    usr_administrator,
+                    usr_ldap_authentication,
+                    usr_preferences,
+                    usr_username,
+                    usr_shib_username,
+                    usr_login_count,
+                    usr_external_usr_id,
+                    usr_last_login_date
+                 ) VALUES (
+                    '" . Date_API::getCurrentDateGMT() . "',
+                    '" . ucwords(strtolower($usr_full_name)) . "',
+                    '" . $usr_email . "',
+                    " . $usr_administrator . ",
+                    " . $ldap_authentication . ",
+                    '" . Misc::escapeString($prefs) . "',
+                    '" . Misc::escapeString($usr_username) . "',
+                    '" . Misc::escapeString($usr_username) . "',
+					0,
+					$eprints_usr_id,					
+                    '" . Date_API::getCurrentDateGMT() . "'
+                 )";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+            $new_usr_id = $GLOBALS["db_api"]->get_last_insert_id();
+            // send email to user
+//            Notification::notifyNewUser($new_usr_id, "");
+            return 1;
+        }
+    }	
+	
     /**
      * Method used to add a new user to the system from their LDAP details.
      *
@@ -1011,7 +1069,39 @@ class User
         }
     } 
 
+    /**
+     * Method used to get the full name and email for the specified
+     * user.
+     *
+     * @access  public
+     * @param   integer $usr_id The user ID
+     * @return  array The email and full name
+     */
+    function getIDByExtID($ext_id)
+    {
+        static $returns;
 
+        if (!empty($returns[$ext_id])) {
+            return $returns[$ext_id];
+        }
+
+        $stmt = "SELECT
+                    usr_id
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                 WHERE
+                    usr_external_usr_id=$ext_id";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            $returns[$ext_id] = $res;
+            return $res;
+        }
+    } 
+	
+	
     /**
      * Method used to get the appropriate 'From' header for a 
      * specified user.

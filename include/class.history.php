@@ -86,6 +86,38 @@ class History
 	}
 
     /**
+     * Method used to get the list of changes made against a specific issue for GUI presentation
+     *
+     * @access  public
+     * @param   integer $pid The PID
+     * @return  array The list of changes
+     */
+    function getListing($pid, $show_hidden=false)
+    {
+        $stmt = "SELECT
+                    *
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "premis_event
+                 WHERE ";
+                 if ($show_hidden==false) {
+                    $stmt .= "pre_is_hidden != 1 AND ";
+                 }
+                 $stmt .= "pre_pid='$pid'
+                 ORDER BY
+                    pre_id DESC";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            for ($i = 0; $i < count($res); $i++) {
+                $res[$i]["pre_date"] = Date_API::getFormattedDate($res[$i]["pre_date"]);
+            }
+            return $res;
+        }
+    }
+	
+    /**
      * Method used to get the list of changes made against a specific issue.
      *
      * @access  public
@@ -131,7 +163,7 @@ class History
      * @param   boolean $hide If this event item should be hidden.
      * @return  void
      */
-    function add($pid, $usr_id, $wfl_id, $detail, $outcome, $outcomeDetail, $hide = false)
+    function add($pid, $usr_id, $event_date, $wfl_id, $detail, $outcome, $outcomeDetail, $hide = false)
     {
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "premis_event
@@ -148,7 +180,7 @@ class History
         }
         $stmt .= ") VALUES (
                     $wfl_id,
-                    '" . Date_API::getCurrentDateGMT() . "',
+                    '" . $event_date . "',
                     '".Misc::escapeString($detail)."',
                     '".Misc::escapeString($outcome)."',
                     '".Misc::escapeString($outcomeDetail)."',                                        
@@ -170,7 +202,7 @@ class History
 	
 
    /**
-     * Method used to add a new entry to the object's FezHistory log.
+     * Method used to add a new entry to the object's Premis Event log.
      *
      * @access  public
      * @return  void
@@ -183,7 +215,7 @@ class History
 		$wfl_title = Workflow::getTitle($wfl_id);
 		$detail = $wfl_title. " by " . $event_usr_full_name;
 		// First add it to the Fez database, then refresh the Fedora datastream
-		History::add($pid, $event_usr_id, $wfl_id, $detail, $outcome, $outcomeDetail);
+		History::add($pid, $event_usr_id, $event_date, $wfl_id, $detail, $outcome, $outcomeDetail);
 		if ($refreshDatastream == true) {
 			// First check if a FezHistory datastream exists		
 			$dsExists = Fedora_API::datastreamExists($pid, $dsIDName);

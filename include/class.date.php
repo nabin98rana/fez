@@ -210,18 +210,40 @@ class Date_API
     }
 
     /**
+     * Method used to get the formatted date for Fedora
+     *      
+     * @access  public
+     * @param   string $timestamp The date timestamp to be formatted
+     * @return  string 
+     */
+    function getFedoraFormattedDate($timestamp = null)
+    {
+		if ($timestamp == null) {
+			$timestamp = Date_API::getCurrentUnixTimestampGMT();
+		}
+        $date = new Date($timestamp);
+
+		
+        return $date->format('%Y-%m-%dT%H:%M:%SZ');
+    }
+    /**
      * Method used to get the formatted date for Fedora in UTC
      *      
      * @access  public
      * @param   string $timestamp The date timestamp to be formatted
      * @return  string 
      */
-    function getFedoraFormattedDate($timestamp)
+    function getFedoraFormattedDateUTC($timestamp = null)
     {
+		if ($timestamp == null) {
+			$timestamp = Date_API::getCurrentUnixTimestampGMT();
+		}
         $date = new Date($timestamp);
+        $date->setTZbyID(Date_API::getPreferredTimezone());
+        $date->toUTC();
+		
         return $date->format('%Y-%m-%dT%H:%M:%SZ');
     }
-
 	/**
      * Method used to get the formatted date for a specific timestamp
      * and a specific timezone, provided by the user' preference.

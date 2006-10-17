@@ -1857,10 +1857,24 @@ class XSD_HTML_Match
 					} elseif (trim($HTTP_POST_VARS["attached_xsdmf_id"]) == "") {
 					  $stmt .= "   xsdmf_attached_xsdmf_id = NULL,";
 					}
+					if (is_numeric($HTTP_POST_VARS["xsdmf_xdis_id_ref"])) {
+			        	$stmt .= " xsdmf_xdis_id_ref = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_xdis_id_ref"]) . ",";
+					} elseif (trim($HTTP_POST_VARS["xsdmf_xdis_id_ref"]) == "") {
+						 $stmt .= "   xsdmf_xdis_id_ref = NULL,";
+					}
+					if (is_numeric($HTTP_POST_VARS["xsdmf_id_ref"])) {
+			        	$stmt .= " xsdmf_id_ref = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_id_ref"]) . ",";
+					} elseif (trim($HTTP_POST_VARS["xsdmf_id_ref"]) == "") {
+						 $stmt .= "   xsdmf_id_ref = NULL,";
+					}
+
+					if (is_numeric($HTTP_POST_VARS["xsdmf_id_ref_save_type"])) {
+			        	$stmt .= " xsdmf_id_ref_save_type = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_id_ref_save_type"]) . ",";
+					} elseif (trim($HTTP_POST_VARS["xsdmf_id_ref_save_type"]) == "") {
+						 $stmt .= "   xsdmf_id_ref_save_type = NULL,";
+					}
+
 					$stmt .= "
-                    xsdmf_xdis_id_ref = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_xdis_id_ref"]) . ",
-                    xsdmf_id_ref = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_id_ref"]) . ",
-                    xsdmf_id_ref_save_type = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_id_ref_save_type"]) . ",
                     xsdmf_enforced_prefix = '" . Misc::escapeString($HTTP_POST_VARS["enforced_prefix"]) . "',
                     xsdmf_value_prefix = '" . Misc::escapeString($HTTP_POST_VARS["value_prefix"]) . "',
                     xsdmf_image_location = '" . Misc::escapeString($HTTP_POST_VARS["image_location"]) . "',

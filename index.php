@@ -118,6 +118,7 @@ $tpl->assign("eserv_url", APP_RELATIVE_URL."eserv.php");
 $news = News::getList();
 $news_count = count($news);
 $tpl->assign("news", $news);
+$tpl->assign("isHomePage", "true");
 $tpl->assign("news_count", $news_count);
 $tpl->headerscript .= "window.oTextbox_front_search
 	= new AutoSuggestControl(document.search_frm, 'front_search', document.getElementById('front_search'), document.getElementById('front_search'),
@@ -125,16 +126,6 @@ $tpl->headerscript .= "window.oTextbox_front_search
 				'class.collection.php'));
 	";
 
-$tpl->assign("APP_HOSTNAME", APP_HOSTNAME);
-$tpl->assign("SHIB_HOME_SP", SHIB_HOME_SP);
-$tpl->assign("SHIB_HOME_IDP", SHIB_HOME_IDP);
-$tpl->assign("SHIB_FEDERATION_NAME", SHIB_FEDERATION_NAME);
-$target = "cookie";
-$time = "1142380709";
-$providerId = urlencode(SHIB_HOME_SP);
-$shire = urlencode("https://".APP_HOSTNAME."/Shibboleth.sso/SAML/POST");
-$getArguments = "target=$target&shire=$shire&providerId=$providerId";
-$tpl->assign("getArguments", $getArguments);
 
 $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
 $tpl->assign('najax_register', NAJAX_Client::register('Suggestor', 'index.php'));

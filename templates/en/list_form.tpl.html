@@ -188,6 +188,42 @@ function purgeObject(pid)
 				</tr>
 			{/section}
 			{/if}
+		{elseif ($browse_type == "browse_depositor")} 
+        <tr>
+			<td align="left" class="default"><br />
+			<a href="{$rel_url}list.php?browse=depositor"><img border="0" src="{$rel_url}images/browse_32.jpg" align="absmiddle"/></a>
+           &nbsp;<b>{$browse_heading}:</b>		  
+			</td>
+        </tr>
+		   {if $smarty.get.depositor == ""}
+			{section name="i" loop=$list}
+
+			  <tr>
+				  <td>
+				  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
+				  <tr>
+					  <td>
+							<a href='{$rel_url}list.php?browse=depositor&depositor={$list[i].record_depositor}'>{$list[i].record_desc|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+
+						</td>
+					</tr>
+					  </table>
+					<!-- space between rows -->
+				</td>
+				</tr>
+
+			{sectionelse}
+			<tr>
+			<td>
+			  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
+			<tr><td>
+				No depositors could be found.
+			</td></tr>
+			</table>
+						</td>
+				</tr>
+			{/section}
+			{/if}			
 		{elseif ($browse_type == "browse_year")} 
         <tr>
 			<td align="left" class="default"><br />
@@ -276,7 +312,7 @@ function purgeObject(pid)
 	        </tr>
 		{/section}
 		{/if}		
-		{if ($browse_heading == "") ||  ($browse_type != "" & $smarty.get.author != "") || ($browse_type != "" & $smarty.get.year != "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)} 
+		{if ($browse_heading == "") ||  ($browse_type != "" & $smarty.get.author != "") || ($browse_type != "" & $smarty.get.depositor != "") || ($browse_type != "" & $smarty.get.year != "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)} 
         <tr>
 			<td>&nbsp;</td>
 		</tr>

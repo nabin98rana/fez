@@ -40,9 +40,13 @@ set_time_limit(0);
 @define("APP_HOSTNAME", "%{APP_HOSTNAME}%");
 
 // Web server log files used for statistics scheduled tasks / cron jobs nightly statistics gathering
+@define("WEBSERVER_LOG_STATISTICS", "OFF");
 @define("WEBSERVER_CONFIG_PATH", "/usr/local/apache/api/fez/"); // the path for files that should be below the document root eg configs, geoip data
 @define("WEBSERVER_LOG_DIR", "/usr/local/apache/logs/"); 
 @define("WEBSERVER_LOG_FILE", "access_log"); //change to the name of your fez access log if different
+
+// whether you want users to be able to create their own fez accounts - not necessary for LDAP/AD/Shibboleth enabled sites
+@define("SELF_REGISTRATION", "OFF");
 
 // definitions of Organisation Shibboleth related variables. You may need to query your Org's Shibboleth expert for help on these settings.
 @define("SHIB_SWITCH", "OFF");  // Set to OFF or ON depending on whether you want to use Shibboleth authentication
@@ -54,16 +58,25 @@ set_time_limit(0);
 @define("SHIB_HOME_IDP", SHIB_FEDERATION."idp.yourinst.edu");  // Change this to the urn of your home instituition IDP
 @define("SHIB_WAYF_METADATA_LOCATION", "/usr/local/shibboleth-sp/etc/shibboleth/level-1-metadata.xml");  // Change this to path location of the WAYF metadata XML file, you can update this with a cronjob (linux) or a schedulated task (windows). Your WAYF drop down list will fill from this XML file.
 // definitions of Organisation LDAP related variables. You may need to query your Org's LDAP expert for help on these settings.
+@define("SHIB_DIRECT_LOGIN", "OFF"); // If SHIB_SWITCH is ON and this is ON the front page of Fez will have a link to direct login for Fez home institution shib login and a link to Other for non home institution Shib and Fez logins
 @define("LDAP_SWITCH", "%{LDAP_SWITCH}%");  // Set to OFF or ON depending on whether you want to use LDAP authentication
 @define("LDAP_ORGANISATION", "%{LDAP_ORGANISATION}%"); //eg o=The University of Fez, c=AU
 @define("LDAP_ROOT_DN", "%{LDAP_ROOT_DN}%"); //eg DC=uq,DC=edu,DC=au
 @define("LDAP_PREFIX", "%{LDAP_PREFIX}%");  //eg UQ
 @define("LDAP_SERVER", "%{LDAP_SERVER}%"); // yourldapserver.yourdomain.edu
 @define("LDAP_PORT", "%{LDAP_PORT}%"); // Usually 389
-
+// The below ePrints variables are for batch importing ePrints records. ePrints export XML misses a lot of important things so OAI and Database access are required for a comprehensive migration
 @define("EPRINTS_OAI", "http://eprint.yourinst.edu/perl/oai2?verb=GetRecord&metadataPrefix=oai_dc&identifier=oai%3Aeprint.yourinst.edu.au%3A"); // change this to your ePrints OAI service provider for batch importing of ePrints records
 @define("EPRINTS_USERNAME", ""); //ePrints requires basic auth for the download of secured PDFs and files 
 @define("EPRINTS_PASSWD", "");
+@define("EPRINTS_SUBJECT_AUTHORITY", ""); // (ePrints batch import) for use when your ePrints IR uses a controlled vocabulary eg Australian ASRC use 'asrc', otherwise leave blank
+@define("EPRINTS_DB_HOST", ""); // Used to get things that are not in the ePrints export XML that really should be for migration purposes
+@define("EPRINTS_DB_TYPE", ""); //generally 'mysql' although other will probably work as long as they are support by PEAR DB
+@define("EPRINTS_DB_DATABASE_NAME", "");
+@define("EPRINTS_DB_USERNAME", "");
+@define("EPRINTS_DB_PASSWD", "");
+@define("EPRINTS_IMPORT_USERS", "ON"); //If this is ON then Fez will create usernames for all the ePrints server users so it can match depositor with the imported eprints objects. Passwords cannot be brought across so user account need to move to LDAP/Shibboleth or have passwords reissued
+@define("BATCH_IMPORT_TYPE", "MODS 1.0"); // Either MODS 1.0 or Dublin Core 1.0
 @define("APP_LINK_PREFIX", ""); // If you want to prepend the way all Fez Link datastreams display with a prefix then put it in this field. Fez will check first to see if the prefix is already there before adding it. Useful for ezproxying of external database resources eg http://ezproxy.library.yourorg.edu/url=
 @define("APP_WATERMARK", "watermark.gif"); // The image to be used for watermarking of copyright images
 // definitions of path related variables

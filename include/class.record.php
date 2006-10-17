@@ -689,7 +689,7 @@ class Record
 
         $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
                     INNER JOIN {$dbtp}xsd_display_matchfields AS x2
-                      ON r2.rmf_xsdmf_id = x2.xsdmf_id AND match(x2.xsdmf_element) against ('\"!sta_id\"' in boolean mode) and r2.rmf_varchar!='2'
+                      ON r2.rmf_xsdmf_id = x2.xsdmf_id AND match(x2.xsdmf_element) against ('\"!sta_id\"' in boolean mode) and r2.rmf_int!=2
 
 
                     $authStmt
@@ -702,7 +702,7 @@ class Record
                     on r5.rmf_xsdmf_id = x5.xsdmf_id
                     left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s5			
 					on (s5.sek_id = x5.xsdmf_sek_id and s5.sek_title = '$order_by')  
-					where (r5.rmf_varchar is null) or s5.sek_title = '$order_by'					
+					where (r5.rmf_$data_type is null) or s5.sek_title = '$order_by'					
 					group by r5.rmf_rec_pid
 
 					
@@ -729,7 +729,7 @@ class Record
             LEFT JOIN {$dbtp}search_key k1 
             ON (k1.sek_id = x1.xsdmf_sek_id)
             LEFT JOIN {$dbtp}xsd_display d1  
-            ON (d1.xdis_id = r1.rmf_varchar and k1.sek_title = 'Display Type')
+            ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
             ORDER BY display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
 
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -874,7 +874,7 @@ class Record
     {
         global $HTTP_POST_VARS, $HTTP_POST_FILES;
 		$existingDatastreams = array();
-        $created_date = date("Y-m-d H:i:s");
+        $created_date = Date_API::getFedoraFormattedDateUTC();
         $updated_date = $created_date;
         $pid = '__makeInsertTemplate_PID__';
         $xdis_id = $HTTP_POST_VARS["xdis_id"];
@@ -1291,7 +1291,7 @@ class RecordGeneral
         $this->display->getXSD_HTML_Match(); 
         $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!sta_id'); 
         Record::removeIndexRecordByXSDMF_ID($this->pid, $xsdmf_id);
-        Record::insertIndexMatchingField($this->pid, '', $xsdmf_id, "varchar", $sta_id);
+        Record::insertIndexMatchingField($this->pid, '', $xsdmf_id, "int", $sta_id);
         return 1;
     }
 
@@ -1554,7 +1554,8 @@ class RecordGeneral
 class RecordObject extends RecordGeneral
 {
     var $created_date;
-    var $updated_date;	
+    var $updated_date;
+	var $depositor;
     var $file_downloads; //for statistics of file datastream downloads from eserv.php
     var $default_xdis_id = 5;
    
@@ -1562,7 +1563,7 @@ class RecordObject extends RecordGeneral
      * getXmlDisplayId
      * Retrieve the display id for this record
      */
-    function getObjectDates() {
+    function getObjectAdminMD() {
 		$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD');
 		if (isset($xdis_array['created_date'][0])) {
 			$this->created_date = $xdis_array['created_date'][0];
@@ -1574,6 +1575,12 @@ class RecordObject extends RecordGeneral
 		} else {
 			$this->updated_date = NULL;
 		}
+		if (isset($xdis_array['depositor'][0])) {
+			$this->depositor = $xdis_array['depositor'][0];
+		} else {
+			$this->depositor = NULL;
+		}
+
 
     }
 
@@ -1593,7 +1600,7 @@ class RecordObject extends RecordGeneral
     
     /**
      * updateAdminDatastream
-     * Used to assocaiate a display for this record
+     * Used to associate a display for this record
 	 * 
      * @access  public
 	 * @param  integer $xdis_id The XSD Display ID of the object
@@ -1622,7 +1629,7 @@ class RecordObject extends RecordGeneral
 			Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez extension metadata", $newXML, "text/xml", true);
 			$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement("!xdis_id", 15);
 			Record::removeIndexRecordByXSDMF_ID($this->pid, $xsdmf_id);
-			Record::insertIndexMatchingField($this->pid, '', $xsdmf_id, "varchar", $this->xdis_id);
+			Record::insertIndexMatchingField($this->pid, '', $xsdmf_id, "int", $this->xdis_id);
 		}
     }
    /**
@@ -1675,7 +1682,7 @@ class RecordObject extends RecordGeneral
      */
     function fedoraInsertUpdate($exclude_list=array(), $specify_list=array())
     {
-        global $HTTP_POST_VARS, $HTTP_POST_FILES;
+        global $HTTP_POST_VARS;
         // If pid is null then we need to ingest the object as well
         // otherwise we are updating an existing object
         $ingestObject = false;
@@ -1683,17 +1690,19 @@ class RecordObject extends RecordGeneral
         if (empty($this->pid)) {
             $this->pid = Fedora_API::getNextPID();
             $ingestObject = true;
-			$this->created_date = date("Y-m-d H:i:s");
+			$this->created_date = Date_API::getFedoraFormattedDateUTC();
 			$this->updated_date = $this->created_date;
+			$this->depositor = Auth::getUserID();			
 			$existingDatastreams = array();
 			$file_downloads = 0;
         } else {
 			$existingDatastreams = Fedora_API::callGetDatastreams($this->pid);
-			$this->getObjectDates();
+			$this->getObjectAdminMD();
 			if (empty($this->created_date)) {
-				$this->created_date = date("Y-m-d H:i:s");
+				$this->created_date = Date_API::getFedoraFormattedDateUTC();
 			}
-			$this->updated_date = date("Y-m-d H:i:s");
+			$depositor = $this->depositor;			
+			$this->updated_date = Date_API::getFedoraFormattedDateUTC();
 			if (!is_numeric($this->file_downloads)) {
 				$this->getFileDownloadsCount();
 			} 
@@ -1719,7 +1728,7 @@ class RecordObject extends RecordGeneral
 		$indexArray = array();
 
 
-		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, $file_downloads, $this->created_date, $this->updated_date);
+		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, $file_downloads, $this->created_date, $this->updated_date, $this->depositor);
 		
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
 //		echo $xmlObj;

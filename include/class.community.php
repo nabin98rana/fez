@@ -86,7 +86,7 @@ class Community
 		  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d3,		  
 		  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s3
 		WHERE x3.xsdmf_sek_id = s3.sek_id AND s3.sek_title = 'XSD Display Option' AND x3.xsdmf_id = r3.rmf_xsdmf_id 
-		  AND r3.rmf_rec_pid ='".$collection_pid."' AND r3.rmf_varchar = d3.xdis_id";
+		  AND r3.rmf_rec_pid ='".$collection_pid."' AND r3.rmf_int = d3.xdis_id";
 
 		$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
         if (PEAR::isError($res)) {
@@ -163,12 +163,12 @@ class Community
             FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
             inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2  
 			ON r2.rmf_xsdmf_id = x2.xsdmf_id AND match(x2.xsdmf_element) 
-            against ('\"!ret_id\"' in boolean mode) and r2.rmf_varchar='1'
+            against ('\"!ret_id\"' in boolean mode) and r2.rmf_int=1
             
             $authStmt
 
             INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS rmf
-            ON rmf.rmf_rec_pid = r2.rmf_rec_pid AND rmf.rmf_varchar='2'
+            ON rmf.rmf_rec_pid = r2.rmf_rec_pid AND rmf.rmf_int=2
             INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields AS xdm
             ON rmf.rmf_xsdmf_id = xdm.xsdmf_id AND xdm.xsdmf_element='!sta_id'
 
@@ -293,7 +293,7 @@ class Community
 							WHERE r2.rmf_xsdmf_id = x2.xsdmf_id 
 							AND x2.xsdmf_sek_id = s2.sek_id 
 							AND s2.sek_title = 'Object Type' 
-							AND r2.rmf_varchar = '1' 
+							AND r2.rmf_int = 1
 							) as o1 on o1.rmf_rec_pid = r1.rmf_rec_pid													
 					";
 		$returnfields = array("title");

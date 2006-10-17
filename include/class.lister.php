@@ -131,7 +131,7 @@ class Lister
             $tpl->assign("list_type", "all_records_list");
         } elseif ($cat == "search") {
             if (empty($order_by)) {
-                $order_by = 'Relevance';
+                $order_by = 'Title';
             }
 
             // search 
@@ -196,6 +196,27 @@ class Lister
 			    $tpl->assign("list_heading", "Browse By Author");					
             }
             $tpl->assign("browse_type", "browse_author");
+        } elseif ($browse == "depositor") {
+            // browse by depositor
+            $depositor = Pager::getParam('depositor',$params);
+			$depositor_fullname = User::getFullName($depositor);
+            if (empty($order_by)) {
+                $order_by = 'Title';
+            }
+            if (!empty($depositor)) {	
+                $list = Collection::browseListing($pagerRow, $rows, "Depositor",$order_by);
+                $list_info = $list["info"];
+                $list = $list["list"];
+                $tpl->assign("browse_heading", "Browse By Depositor - ".$depositor_fullname);
+			    $tpl->assign("list_heading", "Browse By Depositor - ".$depositor_fullname);	
+            } else {
+                $list = Collection::listByAttribute($pagerRow, $rows, "Depositor",$order_by);
+                $list_info = $list["info"];
+                $list = $list["list"];		
+                $tpl->assign("browse_heading", "Browse By Depositor");
+			    $tpl->assign("list_heading", "Browse By Depositor");					
+            }
+            $tpl->assign("browse_type", "browse_depositor");			
         } elseif ($browse == "subject") {
             if (empty($order_by)) {
                 $order_by = 'Title';

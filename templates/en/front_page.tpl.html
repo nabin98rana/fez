@@ -100,6 +100,7 @@ function selectSearchSuggestor(f, field_name)
               <tr>
                 <td class="default"><a href="{$rel_url}list.php">by Communities &amp; Collections</a> | <a href="{$rel_url}list.php?browse=subject" class="uqnavigationlink">by Subject</a> | <a href="{$rel_url}list.php?browse=year" class="uqnavigationlink">by Year</a> | <a href="{$rel_url}list.php?browse=author" class="uqnavigationlink">by Author</a> | <a href="{$rel_url}list.php?browse=latest" class="uqnavigationlink">by Latest additions</a> </td>
               </tr>
+{if $WEBSERVER_LOG_STATISTICS == 'ON'}               
               <tr>
                 <td class="default">&nbsp;</td>
               </tr>
@@ -125,6 +126,9 @@ function selectSearchSuggestor(f, field_name)
 			[<a href="{$rel_url}stat_details.php?action=cumulative_usage_country">by Country</a>] 
 
 			  </td>
+			  </tr>
+{/if}
+{if $SELF_REGISTRATION == 'ON'} 
               <tr>
                 <td class="default">&nbsp;</td>
               </tr>
@@ -137,6 +141,8 @@ function selectSearchSuggestor(f, field_name)
                   </table></td>
               </tr>
               <td class="default"><a href="{$rel_url}register.php" class="uqnavigationlink">Register</a> | <a href="{$rel_url}my_fez.php" class="uqnavigationlink">Deposit or manage papers</a> </td>
+              </tr>
+{/if}              
               <tr>
                 <td class="default">&nbsp;</td>
               </tr>
@@ -150,7 +156,11 @@ function selectSearchSuggestor(f, field_name)
               </tr>
 	        {section name="i" loop=$list}			  
                 {if ($list[i].isViewer==1 || $isAdministrator)}
-                  {assign var="href_view" value=$rel_url|cat:"view.php?pid="|cat:$list[i].pid|escape:"html"}
+                  {if ($list[i].object_type == '3')}
+	                  {assign var="href_view" value=$rel_url|cat:"view.php?pid="|cat:$list[i].pid|escape:"html"}
+                  {else}
+	                  {assign var="href_view" value=$rel_url|cat:"list.php?collection_pid="|cat:$list[i].pid|escape:"html"}
+                  {/if}
                 {else}
                   {assign var="href_view" value=""}
                 {/if}

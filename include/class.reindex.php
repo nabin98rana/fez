@@ -283,7 +283,7 @@ class Reindex
 	}
 	
 	function buildFezMD($xdis_id, $sta_id) {
-		$created_date = date("Y-m-d H:i:s");
+		$created_date = Date_API::getFedoraFormattedDateUTC();
 		$updated_date = $created_date;
 		$ret_id = 3; // standard record type id
 

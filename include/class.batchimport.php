@@ -47,6 +47,7 @@ include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.date.php");
+include_once(APP_INC_PATH . "class.eprints.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.workflow.php");
 include_once(APP_INC_PATH . "class.status.php");
@@ -106,11 +107,20 @@ class BatchImport
 		}
 		return $pageArray;
 	}
+	
+	function getEprintsKeywords($keywords) {
+		$keywords = str_replace(",", ";", $keywords);
+		$keywordArray = split(";", $keywords);			
+		return $keywordArray;
+	}	
 				
-	function createMODSSubject($importArray, $document_type, $key) {
+	function createMODSSubject($subjectArray, $document_type, $key) {
 	   $xmlDocumentType = "";
-       if (is_array(@$importArray[$document_type][$key]['subjects'])) {
-            foreach (@$importArray[$document_type][$key]['subjects'] as $subject) {
+       if (is_array(@$subjectArray)) {
+            foreach (@$subjectArray as $subject) {
+				if (is_array($subject)) {
+					$subject = $subject['subjects'];
+				}
 				if ($subject != "") {
 					$cv_title = Controlled_Vocab::getTitleByExternalID($subject);
 				}
@@ -130,7 +140,6 @@ class BatchImport
             }
         }
 		return $xmlDocumentType;
-		
 	}
 
 	function createMODSName($nameArrayExtra, $key, $name_term) {
@@ -138,7 +147,7 @@ class BatchImport
 		if (is_array(@$nameArrayExtra[$key])) {
 		    foreach ($nameArrayExtra[$key] as $name) {
 				if (array_key_exists("id", $name)) {
-					$xmlDocumentType .= '<mods:name ID="'.$name["id"].'" nameity="The University of Queensland">';
+					$xmlDocumentType .= '<mods:name ID="'.$name["id"].'" authority="The University of Queensland">';
 				} else {
 					$xmlDocumentType .= '<mods:name>';
 				}
@@ -168,971 +177,1029 @@ class BatchImport
      * @return  void
      */
     function handleEntireEprintsImport($pid, $collection_pid, $xmlObj, $use_MODS=1) {
-        $importArray = array();		
-        $created_date = date("Y-m-d H:i:s");
-        $updated_date = $created_date;
-
-		if (BATCH_IMPORT_TYPE == "Dublin Core 1.0") {
-			$use_MODS = 0;			
-		} else {			
-			$use_MODS = 1;
-		}
-		
-        $config = array(
-                'indent'      => true,
-                'input-xml'   => true,
-                'output-xml'  => true,
-                'wrap'        => 200);
-// CK 8/2/06 Commented out the tidy up as it doesn't seem to be necessary and also breaks on some installations
-/*        $tidy = new tidy;
-        $tidy->parseString($xmlObj, $config, 'utf8');
-        $tidy->cleanRepair(); 
-        $xmlObj = $tidy; */
-
-        $xmlDoc= new DomDocument();
-        $xmlDoc->preserveWhiteSpace = false;
-        $xmlDoc->loadXML($xmlObj);
-
-        $xpath = new DOMXPath($xmlDoc);
-
-        $recordNodes = $xpath->query('//eprintsdata/record');
-
-        $authorArray = array();
-        $editorArray = array();
-        $keywordArray = array();
-
-        foreach ($recordNodes as $recordNode) {
-            $record_type = "";
-            $eprint_id = "";
-            //get the record type
-            $type_fields = $xpath->query("./*[contains(@name, 'type')]", $recordNode);
-            foreach ($type_fields as $type_field) {
-                if  ($record_type == "") {
-                    $record_type = $type_field->nodeValue;				
-                }
-            }
-            $id_fields = $xpath->query("./*[contains(@name, 'eprintid')]", $recordNode);
-            foreach ($id_fields as $id_field) {
-                if  ($eprint_id == "") {
-                    $eprint_id = $id_field->nodeValue;
-                }
-            }
-
-            $keywordArray[$eprint_id] = array();
-            $keyword_fields = $xpath->query("./*[contains(@name, 'keywords')]", $recordNode);
-            foreach ($keyword_fields as $keyword_field) {
-                $keyword_split = array();
-                $keyword_split = explode(";", $keyword_field->nodeValue);
-                foreach($keyword_split as $kw) {
-                    array_push($keywordArray[$eprint_id], trim($kw));
-                }
-            }
-
-            $editorArray[$eprint_id] = array();
-            $editorArrayExtra[$eprint_id] = array();
-            $editor_fields = $xpath->query("./*[contains(@name, 'editors')]", $recordNode);
-            foreach ($editor_fields as $editor_field) {
-				$fez_editor_id = "";				
-                $family_name = $xpath->query("./*[contains(@name, 'family')]", $editor_field);
-                foreach ($family_name as $fname) {
-                    $family = $fname->nodeValue;
-                }
-
-                $given_name = $xpath->query("./*[contains(@name, 'given')]", $editor_field);
-                foreach ($given_name as $gname) {
-                    $given = $gname->nodeValue;
-                }
-				if ($given != "" && $family != "") {
-					$fez_editor_id = Author::getIDByName($family, $given);				
-				}
-				if ($fez_editor_id != "") {
-					array_push($editorArrayExtra[$eprint_id]["id"], $fez_editor_id);					
-				}
-                array_push($editorArrayExtra[$eprint_id]["fullname"], $family.", ".$given);
-                array_push($editorArray[$eprint_id], $family.", ".$given);
-            }				
-            $authorArray[$eprint_id] = array();
-            $authorArrayExtra[$eprint_id] = array();			
-            $author_fields = $xpath->query("./*[contains(@name, 'authors')]", $recordNode);
-            foreach ($author_fields as $author_field) {
-				$fez_author_id = "";
-                $family_name = $xpath->query("./*[contains(@name, 'family')]", $author_field);
-                foreach ($family_name as $fname) {
-                    $family = $fname->nodeValue;
-                }
-
-                $given_name = $xpath->query("./*[contains(@name, 'given')]", $author_field);
-                foreach ($given_name as $gname) {
-                    $given = $gname->nodeValue;
-                }				
-				if ($given != "" && $family != "") {
-					$fez_author_id = Author::getIDByName($family, $given);				
-				}
-				if ($fez_author_id != "") {
-					array_push($authorArrayExtra[$eprint_id]["id"], $fez_author_id);					
-				}
-                array_push($authorArrayExtra[$eprint_id]["fullname"], $family.", ".$given);
-                array_push($authorArray[$eprint_id], $family.", ".$given);
-            }
-
-            $fieldNodes = $xpath->query("./field[string-length(normalize-space())>0 and not(contains(@name, 'type'))]", $recordNode); 
-            $field = "";
-            $fieldValue = "";
-            foreach ($fieldNodes as $fieldNode) {
-                $field = $fieldNode->getAttribute('name');
-                $fieldValue = $fieldNode->nodeValue;
-                if ($field != "" && $fieldValue != "" && $record_type != "" && $eprint_id != "") {
-                    if (!is_array(@$importArray[$record_type][$eprint_id][$field])) {
-                        $importArray[$record_type][$eprint_id][$field] = array();
-                    }
-                    array_push($importArray[$record_type][$eprint_id][$field], $fieldValue);
-                }
-            }
-        }
-        $num_records = $recordNodes->length;
-        $eprint_record_counter = 0;
-        foreach ($importArray as $document_type => $eprint_record) {	
-            foreach ($eprint_record as $key => $data_field) {			
-                $eprint_record_counter++;
-                $xmlDocumentType = '';
-				$pagesArray = BatchImport::getEprintsPages($importArray[$document_type][$key]['pages'][0]);
-				if ($use_MODS == 1) {
-					$xdis_version = "MODS 1.0";					
-				} else {
-					$xdis_version = "Dublin Core 1.0";					
-				}
-                switch ($document_type) {
-                    case 'confpaper':
-                        $xdis_title = "Conference Paper";
-						if ($use_MODS == 1) {
-	                        $xmlDocumentType = '<foxml:datastream ID="MODS" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="MODS.0" LABEL="Metadata Object Description Schema">
-	                            <foxml:xmlContent>
-								<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-								  <mods:titleInfo>
-								    <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['title'][0]).'</mods:title>
-								  </mods:titleInfo>';	
-				$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $key, "author");						
-				$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $key, "editor");										
-				$xmlDocumentType .= BatchImport::createMODSSubject($importArray, $document_type, $key);								  								  
-				$xmlDocumentType .= '
-								  <mods:genre>Conference Paper</mods:genre>
-								  <mods:originInfo>
-								    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$importArray[$document_type][$key]['year'][0], @$importArray[$document_type][$key]['month'][0])).'</mods:dateIssued>
-								  </mods:originInfo>
-								  <mods:abstract>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</mods:abstract>								  
-								  <mods:note>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</mods:note>
-								  <mods:relatedItem type="host">
-								    <mods:name>
-								      <mods:namePart type="conference">'.htmlspecialchars(@$importArray[$document_type][$key]['conference'][0]).'</mods:namePart>
-								    </mods:name>
-								    <mods:originInfo>
-								      <mods:place>
-								        <mods:placeTerm type="text">'.htmlspecialchars(@$importArray[$document_type][$key]['confloc'][0]).'</mods:placeTerm>
-								      </mods:place>
-								      <mods:dateOther>'.htmlspecialchars(@$importArray[$document_type][$key]['confdates'][0]).'</mods:dateOther>
-								    </mods:originInfo>
-								    <mods:part>
-								      <mods:detail type="issue">
-								        <mods:number>'.htmlspecialchars(@$importArray[$document_type][$key]['number'][0]).'</mods:number>
-								      </mods:detail>
-								      <mods:detail type="volume">
-								        <mods:number>'.htmlspecialchars(@$importArray[$document_type][$key]['volume'][0]).'</mods:number>
-								      </mods:detail>
-								      <mods:extent unit="page">
-								        <mods:start>'.$pagesArray[0].'</mods:start>
-								        <mods:end>'.$pagesArray[1].'</mods:end>
-								      </mods:extent>
-								    </mods:part>
-								  </mods:relatedItem>
-								</mods:mods>								  
-	                            </foxml:xmlContent>
-	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 															
-						} else {
-	                        $xmlDocumentType = '<foxml:datastream ID="ConferencePaperMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="ConferencePaperMD1.0" LABEL="Fez extension metadata for Conference Papers">
-	                            <foxml:xmlContent>
-	                            <ConferencePaperMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-	                            <conference>'.htmlspecialchars(@$importArray[$document_type][$key]['conference'][0]).'</conference>
-	                            <conf_start_date/>
-	                            <conf_end_date/>
-	                            <confloc>'.htmlspecialchars(@$importArray[$document_type][$key]['confloc'][0]).'</confloc>
-	                            <conf_details>'.htmlspecialchars(@$importArray[$document_type][$key]['confdates'][0]).'</conf_details>
-	                            </ConferencePaperMD>
-	                            </foxml:xmlContent>
-	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 																							
-						}
-                        break;
-                    case 'journale':
-                        $xdis_title = "Online Journal Article";
-						if ($use_MODS == 1) {
-	                        $xmlDocumentType = '<foxml:datastream ID="MODS" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="MODS.0" LABEL="Metadata Object Description Schema">
-	                            <foxml:xmlContent>
-								<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-								  <mods:titleInfo>
-								    <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['title'][0]).'</mods:title>
-								  </mods:titleInfo>';	
-				$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $key, "author");						
-				$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $key, "editor");										
-				$xmlDocumentType .= BatchImport::createMODSSubject($importArray, $document_type, $key);								  								  
-				$xmlDocumentType .= '
-								  <mods:genre>Online Journal Article</mods:genre>
-								  <mods:abstract>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</mods:abstract>								  
-								  <mods:note>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</mods:note>
-								  <mods:relatedItem type="host">
-								    <mods:name>
-								      <mods:namePart type="journal">'.htmlspecialchars(@$importArray[$document_type][$key]['publication'][0]).'</mods:namePart>
-								    </mods:name>
-								    <mods:originInfo>
-									    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$importArray[$document_type][$key]['year'][0], @$importArray[$document_type][$key]['month'][0])).'</mods:dateIssued>								    
-								    </mods:originInfo>
-								    <mods:part>
-								      <mods:detail type="issue">
-								        <mods:number>'.htmlspecialchars(@$importArray[$document_type][$key]['number'][0]).'</mods:number>
-								      </mods:detail>
-								      <mods:detail type="volume">
-								        <mods:number>'.htmlspecialchars(@$importArray[$document_type][$key]['volume'][0]).'</mods:number>
-								      </mods:detail>
-								    </mods:part>
-								  </mods:relatedItem>
-								</mods:mods>								  
-	                            </foxml:xmlContent>
-	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 						
-						} else {
-	                        $xmlDocumentType = '<foxml:datastream ID="OnlineJournalArticleMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="OnlineJournalArticleMD1.0" LABEL="Fez extension metadata for Online Journal Articles">
-	                            <foxml:xmlContent>
-	                            <OnlineJournalArticleMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-	                            <journal>'.htmlspecialchars(@$importArray[$document_type][$key]['publication'][0]).'</journal>
-	                            <volume>'.htmlspecialchars(@$importArray[$document_type][$key]['volume'][0]).'</volume>
-	                            <number>'.htmlspecialchars(@$importArray[$document_type][$key]['number'][0]).'</number>
-	                            </OnlineJournalArticleMD>
-	                            </foxml:xmlContent>
-	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>';
-						}
-                        break;
-                    case 'journalp':
-                        $xdis_title = "Journal Article";
-						if ($use_MODS == 1) {
-	                        $xmlDocumentType = '<foxml:datastream ID="MODS" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="MODS.0" LABEL="Metadata Object Description Schema">
-	                            <foxml:xmlContent>
-								<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-								  <mods:titleInfo>
-								    <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['title'][0]).'</mods:title>
-								  </mods:titleInfo>';	
-				$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $key, "author");						
-				$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $key, "editor");										
-				$xmlDocumentType .= BatchImport::createMODSSubject($importArray, $document_type, $key);								  								  
-				$xmlDocumentType .= '
-								  <mods:genre>Online Journal Article</mods:genre>
-								  <mods:abstract>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</mods:abstract>								  
-								  <mods:note>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</mods:note>
-								  <mods:relatedItem type="host">
-								    <mods:name>
-								      <mods:namePart type="journal">'.htmlspecialchars(@$importArray[$document_type][$key]['publication'][0]).'</mods:namePart>
-								    </mods:name>
-								    <mods:originInfo>
-									    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$importArray[$document_type][$key]['year'][0], @$importArray[$document_type][$key]['month'][0])).'</mods:dateIssued>								    
-								    </mods:originInfo>
-								    <mods:part>
-								      <mods:detail type="issue">
-								        <mods:number>'.htmlspecialchars(@$importArray[$document_type][$key]['number'][0]).'</mods:number>
-								      </mods:detail>
-								      <mods:detail type="volume">
-								        <mods:number>'.htmlspecialchars(@$importArray[$document_type][$key]['volume'][0]).'</mods:number>
-								      </mods:detail>
-								      <mods:extent unit="page">
-								        <mods:start>'.$pagesArray[0].'</mods:start>
-								        <mods:end>'.$pagesArray[1].'</mods:end>
-								      </mods:extent>
-								    </mods:part>
-								  </mods:relatedItem>
-								</mods:mods>								  
-	                            </foxml:xmlContent>
-	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 						
-						} else {						
-	                        $xmlDocumentType = '<foxml:datastream ID="JournalArticleMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="JournalArticleMD1.0" LABEL="Fez extension metadata for Journal Articles">
-	                            <foxml:xmlContent>
-	                            <JournalArticleMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-	                            <journal>'.htmlspecialchars(@$importArray[$document_type][$key]['publication'][0]).'</journal>
-	                            <volume>'.htmlspecialchars(@$importArray[$document_type][$key]['volume'][0]).'</volume>
-	                            <number>'.htmlspecialchars(@$importArray[$document_type][$key]['number'][0]).'</number>
-	                            <pages>'.htmlspecialchars(@$importArray[$document_type][$key]['pages'][0]).'</pages>
-	                            </JournalArticleMD>
-	                            </foxml:xmlContent>
-	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 
-						}
-                        break;
-                    case 'other':
-                        $xdis_title = "Generic Document";
-                        break;
-                    case 'preprint':
-                        $xdis_title = "Generic Document";
-                        break;
-                    case 'thesis':
-                        $xdis_title = "Thesis";
-						if ($use_MODS == 1) {
-	                        $xmlDocumentType = '<foxml:datastream ID="MODS" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="MODS.0" LABEL="Metadata Object Description Schema">
-	                            <foxml:xmlContent>
-								<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-								  <mods:titleInfo>
-								    <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['title'][0]).'</mods:title>
-								  </mods:titleInfo>';	
-				$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $key, "author");						
-				$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $key, "editor");										
-				$xmlDocumentType .= BatchImport::createMODSSubject($importArray, $document_type, $key);								  								  
-				$xmlDocumentType .= '
-								  <mods:genre type="'.htmlspecialchars(@$importArray[$document_type][$key]['thesistype'][0]).'">Thesis</mods:genre>
-							      <mods:originInfo>
-								    <mods:publisher>'.htmlspecialchars(@$importArray[$document_type][$key]['publisher'][0]).'</mods:publisher>
-								    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$importArray[$document_type][$key]['year'][0], @$importArray[$document_type][$key]['month'][0])).'</mods:dateIssued>								    
-								  </mods:originInfo>
-								  <mods:abstract>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</mods:abstract>								  
-								  <mods:note>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</mods:note>
-								  <mods:relatedItem type="host">
-								    <mods:name>
-								      <mods:namePart type="school">'.htmlspecialchars(@$importArray[$document_type][$key]['department'][0]).'</mods:namePart>
-								    </mods:name>
-								    <mods:name>
-								      <mods:namePart type="institution">'.htmlspecialchars(@$importArray[$document_type][$key]['institution'][0]).'</mods:namePart>
-								    </mods:name>
-								  </mods:relatedItem>
-								</mods:mods>								  
-	                            </foxml:xmlContent>
-	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 						
-						} else {
-	                        $xmlDocumentType = '<foxml:datastream ID="ThesisMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="ThesisMD1.0" LABEL="Fez extension metadata for Theses">
-	                            <foxml:xmlContent>
-	                            <ThesisMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-	                            <schooldeptcentre>'.htmlspecialchars(@$importArray[$document_type][$key]['department'][0]).'</schooldeptcentre>
-	                            <institution>'.htmlspecialchars(@$importArray[$document_type][$key]['institution'][0]).'</institution>
-	                            <thesis_type>'.htmlspecialchars(@$importArray[$document_type][$key]['thesistype'][0]).'</thesis_type>
-	                            </ThesisMD>
-	                            </foxml:xmlContent>
-	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 
-						}
-                        break;
-                    case 'newsarticle':
-                        $xdis_title = "Newspaper Article";
-						if ($use_MODS == 1) {
-	                        $xmlDocumentType = '<foxml:datastream ID="MODS" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="MODS.0" LABEL="Metadata Object Description Schema">
-	                            <foxml:xmlContent>
-								<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-								  <mods:titleInfo>
-								    <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['title'][0]).'</mods:title>
-								  </mods:titleInfo>';	
-				$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $key, "author");						
-				$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $key, "editor");										
-				$xmlDocumentType .= BatchImport::createMODSSubject($importArray, $document_type, $key);								  								  
-				$xmlDocumentType .= '
-								  <mods:genre>Newspaper Article</mods:genre>
-								  <mods:abstract>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</mods:abstract>								  
-								  <mods:note>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</mods:note>
-								  <mods:relatedItem type="host">
-								    <mods:titleInfo>
-								      <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['publication'][0]).'</mods:title>
-								    </mods:titleInfo>
-								    <mods:originInfo>
-										<mods:publisher>'.htmlspecialchars(@$importArray[$document_type][$key]['publisher'][0]).'</mods:publisher>								    						  
-									    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$importArray[$document_type][$key]['year'][0], @$importArray[$document_type][$key]['month'][0])).'</mods:dateIssued>								    
-								    </mods:originInfo>
-								    <mods:part>
-								      <mods:detail type="newspaper">
-								        <mods:number>'.htmlspecialchars(@$importArray[$document_type][$key]['number'][0]).'</mods:number>
-								      </mods:detail>
-								      <mods:extent unit="page">
-								        <mods:start>'.$pagesArray[0].'</mods:start>
-								        <mods:end>'.$pagesArray[1].'</mods:end>
-								      </mods:extent>
-								    </mods:part>
-								  </mods:relatedItem>
-								</mods:mods>								  
-	                            </foxml:xmlContent>
-	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 						
-						} else {							
-	                        $xmlDocumentType = '<foxml:datastream ID="NewspaperArticleMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="NewspaperArticleMD1.0" LABEL="Fez extension metadata for Newspaper Articles">
-	                            <foxml:xmlContent>
-	                            <NewspaperArticleMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-	                            <newspaper>'.htmlspecialchars(@$importArray[$document_type][$key]['publication'][0]).'</newspaper>
-	                            <edition>'.htmlspecialchars(@$importArray[$document_type][$key]['volume'][0]).'</edition>
-	                            <number>'.htmlspecialchars(@$importArray[$document_type][$key]['number'][0]).'</number>
-	                            <pages>'.htmlspecialchars(@$importArray[$document_type][$key]['pages'][0]).'</pages>
-	                            </NewspaperArticleMD>
-	                            </foxml:xmlContent>
-	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 
-						}
-                        break;
-                    case 'book':
-                        $xdis_title = "Book";
-						if ($use_MODS == 1) {
-	                        $xmlDocumentType = '<foxml:datastream ID="MODS" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="MODS.0" LABEL="Metadata Object Description Schema">
-	                            <foxml:xmlContent>
-								<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-								  <mods:titleInfo>
-								    <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['title'][0]).'</mods:title>
-								  </mods:titleInfo>';	
-				$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $key, "author");						
-				$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $key, "editor");										
-				$xmlDocumentType .= BatchImport::createMODSSubject($importArray, $document_type, $key);								  								  
-				$xmlDocumentType .= '
-								  <mods:genre>Book</mods:genre>
-							      <mods:originInfo>
-								    <mods:publisher>'.htmlspecialchars(@$importArray[$document_type][$key]['publisher'][0]).'</mods:publisher>
-								    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$importArray[$document_type][$key]['year'][0], @$importArray[$document_type][$key]['month'][0])).'</mods:dateIssued>								    
-								  </mods:originInfo>
-								  <mods:abstract>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</mods:abstract>								  
-								  <mods:note>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</mods:note>
-								  <mods:relatedItem type="host">
-								    <mods:name>
-								      <mods:namePart type="series">'.htmlspecialchars(@$importArray[$document_type][$key]['series'][0]).'</mods:namePart>
-								    </mods:name>
-								  </mods:relatedItem>
-								</mods:mods>								  
-	                            </foxml:xmlContent>
-	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 						
-						} else {						
-	                        $xmlDocumentType = '<foxml:datastream ID="BookMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="BookMD1.0" LABEL="Fez extension metadata for Books">
-	                            <foxml:xmlContent>
-	                            <BookMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-	                            <edition>'.htmlspecialchars(@$importArray[$document_type][$key]['volume'][0]).'</edition>
-	                            <series>'.htmlspecialchars(@$importArray[$document_type][$key]['series'][0]).'</series>
-	                            <place_of_publication/>
-	                            </BookMD>
-	                            </foxml:xmlContent>
-	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>';
-						}
-                        break;
-                    case 'bookchapter':
-                        $xdis_title = "Book Chapter";
-						if ($use_MODS == 1) {
-	                        $xmlDocumentType = '<foxml:datastream ID="MODS" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="MODS.0" LABEL="Metadata Object Description Schema">
-	                            <foxml:xmlContent>
-								<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-								  <mods:titleInfo>
-								    <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['title'][0]).'</mods:title>
-								  </mods:titleInfo>';	
-				$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $key, "author");						
-				$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $key, "editor");										
-				$xmlDocumentType .= BatchImport::createMODSSubject($importArray, $document_type, $key);								  								  
-				$xmlDocumentType .= '
-								  <mods:genre>Book Chapter</mods:genre>
-								  <mods:abstract>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</mods:abstract>								  
-								  <mods:note>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</mods:note>
-								  <mods:relatedItem type="host">
-								    <mods:titleInfo>
-								      <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['publication'][0]).'</mods:title>
-								    </mods:titleInfo>								  
-								    <mods:name>
-								      <mods:namePart type="series">'.htmlspecialchars(@$importArray[$document_type][$key]['series'][0]).'</mods:namePart>
-								    </mods:name>
-							      <mods:originInfo>
-								    <mods:publisher>'.htmlspecialchars(@$importArray[$document_type][$key]['publisher'][0]).'</mods:publisher>
-								    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$importArray[$document_type][$key]['year'][0], @$importArray[$document_type][$key]['month'][0])).'</mods:dateIssued>								    
-								  </mods:originInfo>
-								  <mods:part>
-								      <mods:detail type="chapter">
-								        <mods:number>'.htmlspecialchars(@$importArray[$document_type][$key]['chapter'][0]).'</mods:number>
-								      </mods:detail>
-								      <mods:extent unit="page">
-								        <mods:start>'.$pagesArray[0].'</mods:start>
-								        <mods:end>'.$pagesArray[1].'</mods:end>
-								      </mods:extent>
-								    </mods:part>							    
-								  </mods:relatedItem>
-								</mods:mods>								  
-	                            </foxml:xmlContent>
-	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 						
-						} else {						
-	                        $xmlDocumentType = '<foxml:datastream ID="BookChapterMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="BookChapterMD1.0" LABEL="Fez extension metadata for Book Chapters">
-	                            <foxml:xmlContent>
-	                            <BookChapterMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-	                            <edition>'.htmlspecialchars(@$importArray[$document_type][$key]['volume'][0]).'</edition>
-	                            <series>'.htmlspecialchars(@$importArray[$document_type][$key]['series'][0]).'</series>
-	                            <place_of_publication/>
-	                            </BookChapterMD>
-	                            </foxml:xmlContent>
-	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>';
-						}
-                        break;
-                    case 'techreport':
-                        $xdis_title = "Department Technical Report";
-						if ($use_MODS == 1) {
-	                        $xmlDocumentType = '<foxml:datastream ID="MODS" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="MODS.0" LABEL="Metadata Object Description Schema">
-	                            <foxml:xmlContent>
-								<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-								  <mods:titleInfo>
-								    <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['title'][0]).'</mods:title>
-								  </mods:titleInfo>';	
-				$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $key, "author");						
-				$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $key, "editor");										
-				$xmlDocumentType .= BatchImport::createMODSSubject($importArray, $document_type, $key);								  								  
-				$xmlDocumentType .= '
-								  <mods:genre>Department Technical Report</mods:genre>
-								  <mods:abstract>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</mods:abstract>								  
-								  <mods:note>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</mods:note>
-								  <mods:relatedItem type="host">
-								    <mods:name>
-								      <mods:namePart type="series">'.htmlspecialchars(@$importArray[$document_type][$key]['series'][0]).'</mods:namePart>
-								    </mods:name>								  
-								    <mods:name>
-								      <mods:namePart type="school">'.htmlspecialchars(@$importArray[$document_type][$key]['department'][0]).'</mods:namePart>
-								    </mods:name>
-								    <mods:name>
-								      <mods:namePart type="institution">'.htmlspecialchars(@$importArray[$document_type][$key]['institution'][0]).'</mods:namePart>
-								    </mods:name>
-								    <mods:originInfo>
-										<mods:publisher>'.htmlspecialchars(@$importArray[$document_type][$key]['publisher'][0]).'</mods:publisher>								    						  
-								    </mods:originInfo>
-								    <mods:part>
-								      <mods:detail type="report">
-								        <mods:number>'.htmlspecialchars(@$importArray[$document_type][$key]['reportno'][0]).'</mods:number>
-								      </mods:detail>
-									</mods:part>								      
-								  </mods:relatedItem>
-								</mods:mods>								  
-	                            </foxml:xmlContent>
-	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>';
-						} else {
-	                        $xmlDocumentType = '<foxml:datastream ID="DeptTechReportMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="DeptTechReportMD1.0" LABEL="Fez extension metadata for Departmental Technical Reports">
-	                            <foxml:xmlContent>
-	                            <DeptTechReportMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-	                            <schooldeptcentre>'.htmlspecialchars(@$importArray[$document_type][$key]['department'][0]).'</schooldeptcentre>
-	                            <institution>'.htmlspecialchars(@$importArray[$document_type][$key]['institution'][0]).'</institution>								  
-	                            <report_number>'.htmlspecialchars(@$importArray[$document_type][$key]['reportno'][0]).'</report_number>
-	                            <series>'.htmlspecialchars(@$importArray[$document_type][$key]['series'][0]).'</series>
-	                            </DeptTechReportMD>
-	                            </foxml:xmlContent>
-	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>';
-						}
-                        break;
-                    case 'proceedings':
-                        $xdis_title = "Conference Proceedings";
-						if ($use_MODS == 1) {
-	                        $xmlDocumentType = '<foxml:datastream ID="MODS" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="MODS.0" LABEL="Metadata Object Description Schema">
-	                            <foxml:xmlContent>
-								<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-								  <mods:titleInfo>
-								    <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['title'][0]).'</mods:title>
-								  </mods:titleInfo>';	
-				$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $key, "author");						
-				$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $key, "editor");										
-				$xmlDocumentType .= BatchImport::createMODSSubject($importArray, $document_type, $key);								  								  
-				$xmlDocumentType .= '
-								  <mods:genre>Conference Proceedings</mods:genre>
-								  <mods:originInfo>
-								    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$importArray[$document_type][$key]['year'][0], @$importArray[$document_type][$key]['month'][0])).'</mods:dateIssued>
-								  </mods:originInfo>
-								  <mods:abstract>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</mods:abstract>								  
-								  <mods:note>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</mods:note>
-								  <mods:relatedItem type="host">
-								    <mods:name>
-								      <mods:namePart type="conference">'.htmlspecialchars(@$importArray[$document_type][$key]['conference'][0]).'</mods:namePart>
-								    </mods:name>
-								    <mods:originInfo>
-								      <mods:place>
-								        <mods:placeTerm type="text">'.htmlspecialchars(@$importArray[$document_type][$key]['confloc'][0]).'</mods:placeTerm>
-								      </mods:place>
-								      <mods:dateOther>'.htmlspecialchars(@$importArray[$document_type][$key]['confdates'][0]).'</mods:dateOther>
-								    </mods:originInfo>
-								    <mods:part>
-								      <mods:detail type="issue">
-								        <mods:number>'.htmlspecialchars(@$importArray[$document_type][$key]['number'][0]).'</mods:number>
-								      </mods:detail>
-								      <mods:detail type="volume">
-								        <mods:number>'.htmlspecialchars(@$importArray[$document_type][$key]['volume'][0]).'</mods:number>
-								      </mods:detail>
-								      <mods:extent unit="page">
-								        <mods:start>'.$pagesArray[0].'</mods:start>
-								        <mods:end>'.$pagesArray[1].'</mods:end>
-								      </mods:extent>
-								    </mods:part>
-								  </mods:relatedItem>
-								</mods:mods>								  
-	                            </foxml:xmlContent>
-	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 															
-						} else {						
-	                        $xmlDocumentType = '<foxml:datastream ID="ConferenceProceedingsMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="ConferenceProceedingsMD1.0" LABEL="Fez extension metadata for Conference Proceedings">
-	                            <foxml:xmlContent>
-	                            <ConferenceProceedingsMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-	                            <conference>'.htmlspecialchars(@$importArray[$document_type][$key]['conference'][0]).'</conference>
-	                            <conf_start_date/>
-	                            <conf_end_date/>
-	                            <confloc>'.htmlspecialchars(@$importArray[$document_type][$key]['confloc'][0]).'</confloc>
-	                            <conf_details>'.htmlspecialchars(@$importArray[$document_type][$key]['confdates'][0]).'</conf_details>
-	                            <paper_presentation_date/>
-	                            <page_numbers>'.htmlspecialchars(@$importArray[$document_type][$key]['pages'][0]).'</page_numbers>
-	                            </ConferenceProceedingsMD>
-	                            </foxml:xmlContent>
-	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>';
-						}
-                        break;
-                    case 'confposter':
-                        $xdis_title = "Conference Poster";
-						if ($use_MODS == 1) {
-	                        $xmlDocumentType = '<foxml:datastream ID="MODS" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="MODS.0" LABEL="Metadata Object Description Schema">
-	                            <foxml:xmlContent>
-								<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-								  <mods:titleInfo>
-								    <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['title'][0]).'</mods:title>
-								  </mods:titleInfo>';	
-				$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $key, "author");						
-				$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $key, "editor");										
-				$xmlDocumentType .= BatchImport::createMODSSubject($importArray, $document_type, $key);								  								  
-				$xmlDocumentType .= '
-								  <mods:genre>Conference Poster</mods:genre>
-								  <mods:originInfo>
-								    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$importArray[$document_type][$key]['year'][0], @$importArray[$document_type][$key]['month'][0])).'</mods:dateIssued>
-								  </mods:originInfo>
-								  <mods:abstract>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</mods:abstract>								  
-								  <mods:note>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</mods:note>
-								  <mods:relatedItem type="host">
-								    <mods:name>
-								      <mods:namePart type="conference">'.htmlspecialchars(@$importArray[$document_type][$key]['conference'][0]).'</mods:namePart>
-								    </mods:name>
-								    <mods:originInfo>
-								      <mods:place>
-								        <mods:placeTerm type="text">'.htmlspecialchars(@$importArray[$document_type][$key]['confloc'][0]).'</mods:placeTerm>
-								      </mods:place>
-								      <mods:dateOther>'.htmlspecialchars(@$importArray[$document_type][$key]['confdates'][0]).'</mods:dateOther>
-								    </mods:originInfo>
-								    <mods:part>
-								      <mods:detail type="issue">
-								        <mods:number>'.htmlspecialchars(@$importArray[$document_type][$key]['number'][0]).'</mods:number>
-								      </mods:detail>
-								      <mods:detail type="volume">
-								        <mods:number>'.htmlspecialchars(@$importArray[$document_type][$key]['volume'][0]).'</mods:number>
-								      </mods:detail>
-								      <mods:extent unit="page">
-								        <mods:start>'.$pagesArray[0].'</mods:start>
-								        <mods:end>'.$pagesArray[1].'</mods:end>
-								      </mods:extent>
-								    </mods:part>
-								  </mods:relatedItem>
-								</mods:mods>								  
-	                            </foxml:xmlContent>
-	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 															
-						} else {						
-	                        $xmlDocumentType = '<foxml:datastream ID="ConferencePostersMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="ConferencePostersMD1.0" LABEL="Fez extension metadata for Conference Posters">
-	                            <foxml:xmlContent>
-	                            <ConferencePostersMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-	                            <conference>'.htmlspecialchars(@$importArray[$document_type][$key]['conference'][0]).'</conference>
-	                            <conf_start_date/>
-	                            <conf_end_date/>
-	                            <confloc>'.htmlspecialchars(@$importArray[$document_type][$key]['confloc'][0]).'</confloc>
-	                            <conf_details>'.htmlspecialchars(@$importArray[$document_type][$key]['confdates'][0]).'</conf_details>
-	                            <poster_presentation_date/>
-	                            </ConferencePostersMD>
-	                            </foxml:xmlContent>
-	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 
-						}
-                        break;
-                    default:
-                        $xdis_title = "Generic Document";	
-						//echo "Unrecognised record type $document_type\n";
-                        break;
-                }
-				
-				
-				if ($use_MODS == 1 && $xdis_title == "Generic Document") {
-                    $xmlDocumentType = '<foxml:datastream ID="MODS" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-                        <foxml:datastreamVersion MIMETYPE="text/xml" ID="MODS.0" LABEL="Metadata Object Description Schema">
-                        <foxml:xmlContent>
-						<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-						  <mods:titleInfo>
-						    <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['title'][0]).'</mods:title>
-						  </mods:titleInfo>';	
-		$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $key, "author");						
-		$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $key, "editor");										
-		$xmlDocumentType .= BatchImport::createMODSSubject($importArray, $document_type, $key);								  								  
-		$xmlDocumentType .= '
-						  <mods:genre>Generic Document</mods:genre>
-						  <mods:originInfo>
-						    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$importArray[$document_type][$key]['year'][0], @$importArray[$document_type][$key]['month'][0])).'</mods:dateIssued>
-						  </mods:originInfo>
-						  <mods:abstract>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</mods:abstract>								  
-						  <mods:note>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</mods:note>
-						</mods:mods>								  
-                        </foxml:xmlContent>
-                        </foxml:datastreamVersion>
-                        </foxml:datastream>'; 															
-				}
-				
-				
-                $xdis_id = XSD_Display::getXDIS_IDByTitleVersion($xdis_title, $xdis_version);
-
-                $ret_id = 3; // standard record type id
-				if (@$importArray[$document_type][$key]['ispublished'][0] == "pub") {
-	                $sta_id = 2; // published status type id				
-				} else {
-	                $sta_id = 1; // unpublished status type id
-				}
-                $xsd_id = XSD_Display::getParentXSDID($xdis_id);
-                $xsd_details = Doc_Type_XSD::getDetails($xsd_id);
-                $xsd_element_prefix = $xsd_details['xsd_element_prefix'];
-                $xsd_top_element_name = $xsd_details['xsd_top_element_name'];
-
-                $oai_dc_url = EPRINTS_OAI.$key; // This gets the EPRINTS OAI DC feed for the Eprints DC record. This is neccessary because the Eprints export_xml does not give the URL for the attached PDFs etc
-                $oai_dc_xml = Fedora_API::URLopen($oai_dc_url);
-                $config = array(
-                        'indent' => true,
-                        'input-xml' => true,
-                        'output-xml' => true,
-                        'wrap' => 200);
-
-                $tidy = new tidy;
-                $tidy->parseString($oai_dc_xml, $config, 'utf8');
-                $tidy->cleanRepair();
-                $oai_dc_xml = $tidy;
-
-                $xmlOAIDoc= new DomDocument();
-                $xmlOAIDoc->preserveWhiteSpace = false;
-                $xmlOAIDoc->loadXML($oai_dc_xml);
-
-                $oai_xpath = new DOMXPath($xmlOAIDoc);
-                $oai_xpath->registerNamespace('oai_dc', 'http://www.openarchives.org/OAI/2.0/oai_dc/');
-                $oai_xpath->registerNamespace('dc', 'http://purl.org/dc/elements/1.1/');
-                $oai_xpath->registerNamespace('d', 'http://www.openarchives.org/OAI/2.0/');
-
-                $formatNodes = $oai_xpath->query('//d:OAI-PMH/d:GetRecord/d:record/d:metadata/oai_dc:dc/dc:format');
-                $oai_ds = array();
-                foreach ($formatNodes as $format) {
-                    $httpFind = "http://";
-                    if (is_numeric(strpos($format->nodeValue, $httpFind))) {
-                        array_push($oai_ds, substr($format->nodeValue, strpos($format->nodeValue, $httpFind)));
-                    }
-                } 
-                $xmlEnd = "";
-                foreach($oai_ds as $ds) {
-                    $short_ds = $ds;
-                    if (is_numeric(strpos($ds, "/"))) {
-                        $short_ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
-                    }
-                    // ID must start with _ or letter
-                    $short_ds = Misc::shortFilename(Foxml::makeNCName($short_ds), 20);
-                    $mimetype = Misc::get_content_type($ds);
-
-                    $xmlEnd.= '
-                        <foxml:datastream ID="'.$short_ds.'" CONTROL_GROUP="M" STATE="A">
-                        <foxml:datastreamVersion ID="'.$short_ds.'.0" MIMETYPE="'.$mimetype.'" LABEL="'.$short_ds.'">
-                        <foxml:contentLocation REF="'.htmlspecialchars($ds).'" TYPE="URL"/>
-                        </foxml:datastreamVersion>
-                        </foxml:datastream>';
-                }	  
-
-                $xmlObj = '<?xml version="1.0" ?>
-                    <foxml:digitalObject PID="'.$pid.'"
-                    fedoraxsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-0.xsd" xmlns:fedoraxsi="http://www.w3.org/2001/XMLSchema-instance"
-                    xmlns:foxml="info:fedora/fedora-system:def/foxml#" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-                    <foxml:objectProperties>
-                    <foxml:property NAME="http://www.w3.org/1999/02/22-rdf-syntax-ns#type" VALUE="FedoraObject"/>
-                    <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
-                    <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Batch Import ePrint Record '.$key.'"/>
-                    </foxml:objectProperties>';
-					
-				$xmlObj .= '	
-                    <foxml:datastream ID="DC" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-                    <foxml:datastreamVersion MIMETYPE="text/xml" ID="DC1.0" LABEL="Dublin Core Record">
-                    <foxml:xmlContent>
-                    <oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-                    <dc:title>'.htmlspecialchars(@$importArray[$document_type][$key]['title'][0]).'</dc:title>
-                    ';
-                if (is_array(@$authorArray[$key])) {
-                    foreach ($authorArray[$key] as $author) {
-                        $xmlObj .= '<dc:creator>'.htmlspecialchars($author).'</dc:creator>
-                            ';					    
-                    }
-                }
-                if (is_array(@$importArray[$document_type][$key]['subjects'])) {
-                    foreach (@$importArray[$document_type][$key]['subjects'] as $subject) {
-                        $xmlObj .= '
-                            <dc:subject>'.htmlspecialchars($subject).'</dc:subject>
-                            ';	    
-                    }
-                }
-
-                $xmlObj .= '<dc:description>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</dc:description>
-                    <dc:publisher>'.htmlspecialchars(@$importArray[$document_type][$key]['publisher'][0]).'</dc:publisher>
-                    <dc:contributor/>
-                    <dc:date dateType="1">'.htmlspecialchars(@$importArray[$document_type][$key]['year'][0]).'-01-01</dc:date>
-                    <dc:type>'.$xdis_title.'</dc:type>
-                    <dc:source/>
-                    <dc:language/>
-                    <dc:relation/>
-                    <dc:coverage/>
-                    <dc:rights>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</dc:rights>
-                    </oai_dc:dc>
-                    </foxml:xmlContent>			
-                    </foxml:datastreamVersion>
-                    </foxml:datastream>
-                    <foxml:datastream ID="RELS-EXT" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-                    <foxml:datastreamVersion MIMETYPE="text/xml" ID="RELS-EXT.0" LABEL="Relationships to other objects">
-                    <foxml:xmlContent>
-                    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-                    xmlns:rel="info:fedora/fedora-system:def/relations-external#" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-                    <rdf:description rdf:about="info:fedora/'.$pid.'">
-                    <rel:isMemberOf rdf:resource="info:fedora/'.$collection_pid.'"/>
-                    </rdf:description>
-                    </rdf:RDF>
-                    </foxml:xmlContent>
-                    </foxml:datastreamVersion>
-                    </foxml:datastream>
-                    <foxml:datastream ID="FezMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
-                    <foxml:datastreamVersion MIMETYPE="text/xml" ID="Fez1.0" LABEL="Fez extension metadata">
-                    <foxml:xmlContent>
-                    <FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-                    <xdis_id>'.$xdis_id.'</xdis_id>
-                    <sta_id>'.$sta_id.'</sta_id>
-                    <ret_id>'.$ret_id.'</ret_id>
-                    <created_date>'.htmlspecialchars(@$importArray[$document_type][$key]['datestamp'][0]).'</created_date>                      
-                    <updated_date>'.$updated_date.'</updated_date>
-                    <publication>'.htmlspecialchars(@$importArray[$document_type][$key]['publication'][0]).'</publication>  
-                    <copyright>on</copyright>
-                    ';
-                if (is_array(@$keywordArray[$key])) {
-                    foreach ($keywordArray[$key] as $keyword) {
-                        $xmlObj .= '
-                            <keyword>'.htmlspecialchars($keyword).'</keyword>';
-                    }
-                }
-                $xmlObj .= '
-                    </FezMD>
-                    </foxml:xmlContent>
-                    </foxml:datastreamVersion>
-                    </foxml:datastream>';
-
-                $xmlObj .= $xmlDocumentType; 
-
-                $xmlObj .= $xmlEnd;
-
-                $xmlObj .= '
-                    </foxml:digitalObject>
-                    ';
-                $config = array(
-                        'indent'         => true,
-                        'input-xml'   => true,
-                        'output-xml'   => true,
-                        'wrap'           => 200);
-
-                $tidy = new tidy;
-                $tidy->parseString($xmlObj, $config, 'utf8');
-                $tidy->cleanRepair();
-                $xmlObj = $tidy;
-
-                //echo "\n$xmlObj\n";
-				BatchImport::saveEprintPid($eprint_id, $pid); // save the eprint id against its new Fedora/Fez pid so it can be used with a mod-rewrite redirect for the ePrints record and bringing across stats
-                $result = Fedora_API::callIngestObject($xmlObj);
-                if (is_array($result)) {
-                    $errMsg =  "The article \"{$importArray[$document_type][$key]['title'][0]}\" had the following error:\n"
-                        .print_r($result,true)."\n";
-//                    $errMsg = "\n$xmlObj\n";
-					Error_Handler::logError("$errMsg \n", __FILE__,__LINE__);
-
-                }
-                foreach($oai_ds as $ds) {
-
-                    $short_ds = $ds;
-                    if (is_numeric(strpos($ds, "/"))) {
-                        $short_ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
-                    }
-                    // ID must start with _ or letter
-                    $short_ds = Misc::shortFilename(Foxml::makeNCName($short_ds), 20);
-					if (is_numeric(strpos($ds, "/secure/"))) {
-						file_put_contents(APP_TEMP_DIR.$short_ds, Misc::getFileURL($ds, EPRINTS_USERNAME, EPRINTS_PASSWD));
+		$eprints_sql = 1;
+		if ($eprints_sql == 1) {
+			$eprints_object = new ePrints();
+			$eprints_object->importFromSQL($pid, $collection_pid, $xmlObj, $use_MODS);
+		} else {
+			
+			
+			$importArray = array();		
+	        $created_date = Date_API::getFedoraFormattedDateUTC();
+	        $updated_date = $created_date;
+	
+			if (BATCH_IMPORT_TYPE == "Dublin Core 1.0") {
+				$use_MODS = 0;			
+			} else {			
+				$use_MODS = 1;
+			}
+			
+	        $config = array(
+	                'indent'      => true,
+	                'input-xml'   => true,
+	                'output-xml'  => true,
+	                'wrap'        => 200);
+	// CK 8/2/06 Commented out the tidy up as it doesn't seem to be necessary and also breaks on some installations
+	/*        $tidy = new tidy;
+	        $tidy->parseString($xmlObj, $config, 'utf8');
+	        $tidy->cleanRepair(); 
+	        $xmlObj = $tidy; */
+	
+	        $xmlDoc= new DomDocument();
+	        $xmlDoc->preserveWhiteSpace = false;
+	        $xmlDoc->loadXML($xmlObj);
+	
+	        $xpath = new DOMXPath($xmlDoc);
+	
+	        $recordNodes = $xpath->query('//eprintsdata/record');
+	
+	        $authorArray = array();
+	        $editorArray = array();
+	        $keywordArray = array();
+	
+	        foreach ($recordNodes as $recordNode) {
+	            $record_type = "";
+	            $eprint_id = "";
+	            //get the record type
+	            $type_fields = $xpath->query("./*[contains(@name, 'type')]", $recordNode);
+	            foreach ($type_fields as $type_field) {
+	                if  ($record_type == "") {
+	                    $record_type = $type_field->nodeValue;				
+	                }
+	            }
+	            $id_fields = $xpath->query("./*[contains(@name, 'eprintid')]", $recordNode);
+	            foreach ($id_fields as $id_field) {
+	                if  ($eprint_id == "") {
+	                    $eprint_id = $id_field->nodeValue;
+	                }
+	            }
+	
+	            $keywordArray[$eprint_id] = array();
+	            $keyword_fields = $xpath->query("./*[contains(@name, 'keywords')]", $recordNode);
+	            foreach ($keyword_fields as $keyword_field) {
+	                $keyword_split = array();
+	                $keyword_split = explode(";", $keyword_field->nodeValue);
+	                foreach($keyword_split as $kw) {
+	                    array_push($keywordArray[$eprint_id], trim($kw));
+	                }
+	            }
+	
+	            $editorArray[$eprint_id] = array();
+	            $editorArrayExtra[$eprint_id] = array();
+	            $editor_fields = $xpath->query("./*[contains(@name, 'editors')]", $recordNode);
+	            foreach ($editor_fields as $editor_field) {
+					$fez_editor_id = "";				
+	                $family_name = $xpath->query("./*[contains(@name, 'family')]", $editor_field);
+	                foreach ($family_name as $fname) {
+	                    $family = $fname->nodeValue;
+	                }
+	
+	                $given_name = $xpath->query("./*[contains(@name, 'given')]", $editor_field);
+	                foreach ($given_name as $gname) {
+	                    $given = $gname->nodeValue;
+	                }
+					if ($given != "" && $family != "") {
+						$fez_editor_id = Author::getIDByName($family, $given);				
+					}
+					if ($fez_editor_id != "") {
+						array_push($editorArrayExtra[$eprint_id]["id"], $fez_editor_id);					
+					}
+	                array_push($editorArrayExtra[$eprint_id]["fullname"], $family.", ".$given);
+	                array_push($editorArray[$eprint_id], $family.", ".$given);
+	            }				
+	            $authorArray[$eprint_id] = array();
+	            $authorArrayExtra[$eprint_id] = array();			
+	            $author_fields = $xpath->query("./*[contains(@name, 'authors')]", $recordNode);
+	            foreach ($author_fields as $author_field) {
+					$fez_author_id = "";
+	                $family_name = $xpath->query("./*[contains(@name, 'family')]", $author_field);
+	                foreach ($family_name as $fname) {
+	                    $family = $fname->nodeValue;
+	                }
+	
+	                $given_name = $xpath->query("./*[contains(@name, 'given')]", $author_field);
+	                foreach ($given_name as $gname) {
+	                    $given = $gname->nodeValue;
+	                }				
+					if ($given != "" && $family != "") {
+						$fez_author_id = Author::getIDByName($family, $given);				
+					}
+					if ($fez_author_id != "") {
+						array_push($authorArrayExtra[$eprint_id]["id"], $fez_author_id);					
+					}
+	                array_push($authorArrayExtra[$eprint_id]["fullname"], $family.", ".$given);
+	                array_push($authorArray[$eprint_id], $family.", ".$given);
+	            }
+	
+	            $fieldNodes = $xpath->query("./field[string-length(normalize-space())>0 and not(contains(@name, 'type'))]", $recordNode); 
+	            $field = "";
+	            $fieldValue = "";
+	            foreach ($fieldNodes as $fieldNode) {
+	                $field = $fieldNode->getAttribute('name');
+	                $fieldValue = $fieldNode->nodeValue;
+	                if ($field != "" && $fieldValue != "" && $record_type != "" && $eprint_id != "") {
+	                    if (!is_array(@$importArray[$record_type][$eprint_id][$field])) {
+	                        $importArray[$record_type][$eprint_id][$field] = array();
+	                    }
+	                    array_push($importArray[$record_type][$eprint_id][$field], $fieldValue);
+	                }
+	            }
+	        }
+	        $num_records = $recordNodes->length;
+	        $eprint_record_counter = 0;
+	        foreach ($importArray as $document_type => $eprint_record) {	
+	            foreach ($eprint_record as $key => $data_field) {			
+	                $eprint_record_counter++;
+	                $xmlDocumentType = '';
+					$pagesArray = BatchImport::getEprintsPages($importArray[$document_type][$key]['pages'][0]);
+					if ($use_MODS == 1) {
+						$xdis_version = "MODS 1.0";					
 					} else {
-						file_put_contents(APP_TEMP_DIR.$short_ds, file_get_contents($ds));
+						$xdis_version = "Dublin Core 1.0";					
 					}
+	                switch ($document_type) {
+	                    case 'confpaper':
+	                        $xdis_title = "Conference Paper";
+							if ($use_MODS == 1) {
+		                        $xmlDocumentType = '<foxml:datastream ID="MODS" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+		                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="MODS.0" LABEL="Metadata Object Description Schema">
+		                            <foxml:xmlContent>
+									<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+									  <mods:titleInfo>
+									    <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['title'][0]).'</mods:title>
+									  </mods:titleInfo>';	
+					$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $key, "author");						
+					$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $key, "editor");										
+					$xmlDocumentType .= BatchImport::createMODSSubject($importArray[$document_type][$key]['subjects'], $document_type, $key);
+					$xmlDocumentType .= '
+									  <mods:genre>Conference Paper</mods:genre>
+									  <mods:originInfo>
+									    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$importArray[$document_type][$key]['year'][0], @$importArray[$document_type][$key]['month'][0])).'</mods:dateIssued>
+									  </mods:originInfo>
+									  <mods:abstract>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</mods:abstract>								  
+									  <mods:note>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</mods:note>
+									  <mods:relatedItem type="host">
+									    <mods:name>
+									      <mods:namePart type="conference">'.htmlspecialchars(@$importArray[$document_type][$key]['conference'][0]).'</mods:namePart>
+									    </mods:name>
+									    <mods:originInfo>
+									      <mods:place>
+									        <mods:placeTerm type="text">'.htmlspecialchars(@$importArray[$document_type][$key]['confloc'][0]).'</mods:placeTerm>
+									      </mods:place>
+									      <mods:dateOther>'.htmlspecialchars(@$importArray[$document_type][$key]['confdates'][0]).'</mods:dateOther>
+									    </mods:originInfo>
+									    <mods:part>
+									      <mods:detail type="issue">
+									        <mods:number>'.htmlspecialchars(@$importArray[$document_type][$key]['number'][0]).'</mods:number>
+									      </mods:detail>
+									      <mods:detail type="volume">
+									        <mods:number>'.htmlspecialchars(@$importArray[$document_type][$key]['volume'][0]).'</mods:number>
+									      </mods:detail>
+									      <mods:extent unit="page">
+									        <mods:start>'.$pagesArray[0].'</mods:start>
+									        <mods:end>'.$pagesArray[1].'</mods:end>
+									      </mods:extent>
+									    </mods:part>
+									  </mods:relatedItem>
+									</mods:mods>								  
+		                            </foxml:xmlContent>
+		                            </foxml:datastreamVersion>
+		                            </foxml:datastream>'; 															
+							} else {
+		                        $xmlDocumentType = '<foxml:datastream ID="ConferencePaperMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+		                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="ConferencePaperMD1.0" LABEL="Fez extension metadata for Conference Papers">
+		                            <foxml:xmlContent>
+		                            <ConferencePaperMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+		                            <conference>'.htmlspecialchars(@$importArray[$document_type][$key]['conference'][0]).'</conference>
+		                            <conf_start_date/>
+		                            <conf_end_date/>
+		                            <confloc>'.htmlspecialchars(@$importArray[$document_type][$key]['confloc'][0]).'</confloc>
+		                            <conf_details>'.htmlspecialchars(@$importArray[$document_type][$key]['confdates'][0]).'</conf_details>
+		                            </ConferencePaperMD>
+		                            </foxml:xmlContent>
+		                            </foxml:datastreamVersion>
+		                            </foxml:datastream>'; 																							
+							}
+	                        break;
+	                    case 'journale':
+	                        $xdis_title = "Online Journal Article";
+							if ($use_MODS == 1) {
+		                        $xmlDocumentType = '<foxml:datastream ID="MODS" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+		                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="MODS.0" LABEL="Metadata Object Description Schema">
+		                            <foxml:xmlContent>
+									<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+									  <mods:titleInfo>
+									    <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['title'][0]).'</mods:title>
+									  </mods:titleInfo>';	
+					$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $key, "author");						
+					$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $key, "editor");										
+					$xmlDocumentType .= BatchImport::createMODSSubject($importArray[$document_type][$key]['subjects'], $document_type, $key);
+					$xmlDocumentType .= '
+									  <mods:genre>Online Journal Article</mods:genre>
+									  <mods:abstract>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</mods:abstract>								  
+									  <mods:note>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</mods:note>
+									  <mods:relatedItem type="host">
+									    <mods:name>
+									      <mods:namePart type="journal">'.htmlspecialchars(@$importArray[$document_type][$key]['publication'][0]).'</mods:namePart>
+									    </mods:name>
+									    <mods:originInfo>
+										    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$importArray[$document_type][$key]['year'][0], @$importArray[$document_type][$key]['month'][0])).'</mods:dateIssued>								    
+									    </mods:originInfo>
+									    <mods:part>
+									      <mods:detail type="issue">
+									        <mods:number>'.htmlspecialchars(@$importArray[$document_type][$key]['number'][0]).'</mods:number>
+									      </mods:detail>
+									      <mods:detail type="volume">
+									        <mods:number>'.htmlspecialchars(@$importArray[$document_type][$key]['volume'][0]).'</mods:number>
+									      </mods:detail>
+									    </mods:part>
+									  </mods:relatedItem>
+									</mods:mods>								  
+		                            </foxml:xmlContent>
+		                            </foxml:datastreamVersion>
+		                            </foxml:datastream>'; 						
+							} else {
+		                        $xmlDocumentType = '<foxml:datastream ID="OnlineJournalArticleMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+		                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="OnlineJournalArticleMD1.0" LABEL="Fez extension metadata for Online Journal Articles">
+		                            <foxml:xmlContent>
+		                            <OnlineJournalArticleMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+		                            <journal>'.htmlspecialchars(@$importArray[$document_type][$key]['publication'][0]).'</journal>
+		                            <volume>'.htmlspecialchars(@$importArray[$document_type][$key]['volume'][0]).'</volume>
+		                            <number>'.htmlspecialchars(@$importArray[$document_type][$key]['number'][0]).'</number>
+		                            </OnlineJournalArticleMD>
+		                            </foxml:xmlContent>
+		                            </foxml:datastreamVersion>
+		                            </foxml:datastream>';
+							}
+	                        break;
+	                    case 'journalp':
+	                        $xdis_title = "Journal Article";
+							if ($use_MODS == 1) {
+		                        $xmlDocumentType = '<foxml:datastream ID="MODS" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+		                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="MODS.0" LABEL="Metadata Object Description Schema">
+		                            <foxml:xmlContent>
+									<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+									  <mods:titleInfo>
+									    <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['title'][0]).'</mods:title>
+									  </mods:titleInfo>';	
+					$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $key, "author");						
+					$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $key, "editor");										
+					$xmlDocumentType .= BatchImport::createMODSSubject($importArray[$document_type][$key]['subjects'], $document_type, $key);
+					$xmlDocumentType .= '
+									  <mods:genre>Journal Article</mods:genre>
+									  <mods:abstract>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</mods:abstract>								  
+									  <mods:note>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</mods:note>
+									  <mods:relatedItem type="host">
+									    <mods:name>
+									      <mods:namePart type="journal">'.htmlspecialchars(@$importArray[$document_type][$key]['publication'][0]).'</mods:namePart>
+									    </mods:name>
+									    <mods:originInfo>
+										    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$importArray[$document_type][$key]['year'][0], @$importArray[$document_type][$key]['month'][0])).'</mods:dateIssued>								    
+									    </mods:originInfo>
+									    <mods:part>
+									      <mods:detail type="issue">
+									        <mods:number>'.htmlspecialchars(@$importArray[$document_type][$key]['number'][0]).'</mods:number>
+									      </mods:detail>
+									      <mods:detail type="volume">
+									        <mods:number>'.htmlspecialchars(@$importArray[$document_type][$key]['volume'][0]).'</mods:number>
+									      </mods:detail>
+									      <mods:extent unit="page">
+									        <mods:start>'.$pagesArray[0].'</mods:start>
+									        <mods:end>'.$pagesArray[1].'</mods:end>
+									      </mods:extent>
+									    </mods:part>
+									  </mods:relatedItem>
+									</mods:mods>								  
+		                            </foxml:xmlContent>
+		                            </foxml:datastreamVersion>
+		                            </foxml:datastream>'; 						
+							} else {						
+		                        $xmlDocumentType = '<foxml:datastream ID="JournalArticleMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+		                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="JournalArticleMD1.0" LABEL="Fez extension metadata for Journal Articles">
+		                            <foxml:xmlContent>
+		                            <JournalArticleMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+		                            <journal>'.htmlspecialchars(@$importArray[$document_type][$key]['publication'][0]).'</journal>
+		                            <volume>'.htmlspecialchars(@$importArray[$document_type][$key]['volume'][0]).'</volume>
+		                            <number>'.htmlspecialchars(@$importArray[$document_type][$key]['number'][0]).'</number>
+		                            <pages>'.htmlspecialchars(@$importArray[$document_type][$key]['pages'][0]).'</pages>
+		                            </JournalArticleMD>
+		                            </foxml:xmlContent>
+		                            </foxml:datastreamVersion>
+		                            </foxml:datastream>'; 
+							}
+	                        break;
+	                    case 'other':
+	                        $xdis_title = "Generic Document";
+							if ($use_MODS == 1) {
+		                        $xmlDocumentType = '<foxml:datastream ID="MODS" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+		                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="MODS.0" LABEL="Metadata Object Description Schema">
+		                            <foxml:xmlContent>
+									<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+									  <mods:titleInfo>
+									    <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['title'][0]).'</mods:title>
+									  </mods:titleInfo>';	
+					$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $key, "author");						
+					$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $key, "editor");										
+					$xmlDocumentType .= BatchImport::createMODSSubject($importArray[$document_type][$key]['subjects'], $document_type, $key);
+					$xmlDocumentType .= '
+								      <mods:originInfo>
+									    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$importArray[$document_type][$key]['year'][0], @$importArray[$document_type][$key]['month'][0])).'</mods:dateIssued>								    
+								      </mods:originInfo>					
+									  <mods:genre>Generic Document</mods:genre>
+									  <mods:abstract>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</mods:abstract>								  
+									  <mods:note>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</mods:note>
+									</mods:mods>								  
+		                            </foxml:xmlContent>
+		                            </foxml:datastreamVersion>
+		                            </foxml:datastream>'; 						
+							} else {						
+								
+							}							
+	                        break;
+	                    case 'preprint':
+	                        $xdis_title = "Preprint";
+							if ($use_MODS == 1) {
+		                        $xmlDocumentType = '<foxml:datastream ID="MODS" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+		                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="MODS.0" LABEL="Metadata Object Description Schema">
+		                            <foxml:xmlContent>
+									<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+									  <mods:titleInfo>
+									    <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['title'][0]).'</mods:title>
+									  </mods:titleInfo>';	
+					$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $key, "author");						
+					$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $key, "editor");										
+					$xmlDocumentType .= BatchImport::createMODSSubject($importArray[$document_type][$key]['subjects'], $document_type, $key);
+					$xmlDocumentType .= '
+								      <mods:originInfo>
+									    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$importArray[$document_type][$key]['year'][0], @$importArray[$document_type][$key]['month'][0])).'</mods:dateIssued>								    
+								      </mods:originInfo>
+									  <mods:genre>Preprint</mods:genre>
+									  <mods:abstract>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</mods:abstract>								  
+									  <mods:note>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</mods:note>
+									</mods:mods>								  
+		                            </foxml:xmlContent>
+		                            </foxml:datastreamVersion>
+		                            </foxml:datastream>';
+							} else {
 
-//                  $presmd_check = Workflow::checkForPresMD($ds);  // try APP_TEMP_DIR.$short_ds
-                    $presmd_check = Workflow::checkForPresMD(APP_TEMP_DIR.$short_ds);  // try APP_TEMP_DIR.$short_ds
-                    if ($presmd_check != false) {
-                       Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, 
-                                $presmd_check, "text/xml", "X");
-                    }			
-
-                    if (is_numeric(strpos($ds, "/"))) {
-                        $ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
-                    }
-                    $ds = str_replace(" ", "_", $ds);
-                    //Record::insertIndexMatchingField($pid, 122, 'varchar', $ds); // add the file attachment to the fez index	// this is now done in Record::setIndexMatchingFields more dynamically
-                    // Now check for post upload workflow events like thumbnail resizing of images and add them as datastreams if required
-                }	  
-
-                // process ingest trigger after all the datastreams are in
-                foreach($oai_ds as $ds) {
-                    $mimetype = Misc::get_content_type($ds);
-                    Workflow::processIngestTrigger($pid, $ds, $mimetype);
-                    $short_ds = $ds;
-                    if (is_numeric(strpos($ds, "/"))) {
-                        $short_ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself (linux paths)
-                    }
-                    if (is_numeric(strpos($ds, "\\"))) {
-                        $short_ds = substr($ds, strrpos($ds, "\\")+2); // take out any nasty slashes from the ds name itself (windows paths)
-                    }
-
-                    // ID must start with _ or letter
-                    $short_ds = Misc::shortFilename(Foxml::makeNCName($short_ds), 20);
-					$new_file = APP_TEMP_DIR.$short_ds;
-					if (is_file($new_file)) {
-						$return_array = array();
-						$deleteCommand = APP_DELETE_CMD." ".$new_file;
-						exec($deleteCommand, $return_array, $return_status);
-						if ($return_status <> 0) {
-							Error_Handler::logError("Batch Import Delete Error: $deleteCommand: ".implode(",", $return_array).", return status = $return_status \n", __FILE__,__LINE__);
+							}							
+	                        break;
+	                    case 'thesis':
+	                        $xdis_title = "Thesis";
+							if ($use_MODS == 1) {
+		                        $xmlDocumentType = '<foxml:datastream ID="MODS" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+		                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="MODS.0" LABEL="Metadata Object Description Schema">
+		                            <foxml:xmlContent>
+									<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+									  <mods:titleInfo>
+									    <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['title'][0]).'</mods:title>
+									  </mods:titleInfo>';	
+					$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $key, "author");						
+					$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $key, "editor");										
+					$xmlDocumentType .= BatchImport::createMODSSubject($importArray[$document_type][$key]['subjects'], $document_type, $key);
+					$xmlDocumentType .= '
+									  <mods:genre type="'.htmlspecialchars(@$importArray[$document_type][$key]['thesistype'][0]).'">Thesis</mods:genre>
+								      <mods:originInfo>
+									    <mods:publisher>'.htmlspecialchars(@$importArray[$document_type][$key]['publisher'][0]).'</mods:publisher>
+									    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$importArray[$document_type][$key]['year'][0], @$importArray[$document_type][$key]['month'][0])).'</mods:dateIssued>								    
+									  </mods:originInfo>
+									  <mods:abstract>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</mods:abstract>								  
+									  <mods:note>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</mods:note>
+									  <mods:relatedItem type="host">
+									    <mods:name>
+									      <mods:namePart type="school">'.htmlspecialchars(@$importArray[$document_type][$key]['department'][0]).'</mods:namePart>
+									    </mods:name>
+									    <mods:name>
+									      <mods:namePart type="institution">'.htmlspecialchars(@$importArray[$document_type][$key]['institution'][0]).'</mods:namePart>
+									    </mods:name>
+									  </mods:relatedItem>
+									</mods:mods>								  
+		                            </foxml:xmlContent>
+		                            </foxml:datastreamVersion>
+		                            </foxml:datastream>'; 						
+							} else {
+		                        $xmlDocumentType = '<foxml:datastream ID="ThesisMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+		                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="ThesisMD1.0" LABEL="Fez extension metadata for Theses">
+		                            <foxml:xmlContent>
+		                            <ThesisMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+		                            <schooldeptcentre>'.htmlspecialchars(@$importArray[$document_type][$key]['department'][0]).'</schooldeptcentre>
+		                            <institution>'.htmlspecialchars(@$importArray[$document_type][$key]['institution'][0]).'</institution>
+		                            <thesis_type>'.htmlspecialchars(@$importArray[$document_type][$key]['thesistype'][0]).'</thesis_type>
+		                            </ThesisMD>
+		                            </foxml:xmlContent>
+		                            </foxml:datastreamVersion>
+		                            </foxml:datastream>'; 
+							}
+	                        break;
+	                    case 'newsarticle':
+	                        $xdis_title = "Newspaper Article";
+							if ($use_MODS == 1) {
+		                        $xmlDocumentType = '<foxml:datastream ID="MODS" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+		                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="MODS.0" LABEL="Metadata Object Description Schema">
+		                            <foxml:xmlContent>
+									<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+									  <mods:titleInfo>
+									    <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['title'][0]).'</mods:title>
+									  </mods:titleInfo>';	
+					$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $key, "author");						
+					$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $key, "editor");										
+					$xmlDocumentType .= BatchImport::createMODSSubject($importArray[$document_type][$key]['subjects'], $document_type, $key);
+					$xmlDocumentType .= '
+									  <mods:genre>Newspaper Article</mods:genre>
+									  <mods:abstract>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</mods:abstract>								  
+									  <mods:note>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</mods:note>
+									  <mods:relatedItem type="host">
+									    <mods:titleInfo>
+									      <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['publication'][0]).'</mods:title>
+									    </mods:titleInfo>
+									    <mods:originInfo>
+											<mods:publisher>'.htmlspecialchars(@$importArray[$document_type][$key]['publisher'][0]).'</mods:publisher>								    						  
+										    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$importArray[$document_type][$key]['year'][0], @$importArray[$document_type][$key]['month'][0])).'</mods:dateIssued>								    
+									    </mods:originInfo>
+									    <mods:part>
+									      <mods:detail type="newspaper">
+									        <mods:number>'.htmlspecialchars(@$importArray[$document_type][$key]['number'][0]).'</mods:number>
+									      </mods:detail>
+									      <mods:extent unit="page">
+									        <mods:start>'.$pagesArray[0].'</mods:start>
+									        <mods:end>'.$pagesArray[1].'</mods:end>
+									      </mods:extent>
+									    </mods:part>
+									  </mods:relatedItem>
+									</mods:mods>								  
+		                            </foxml:xmlContent>
+		                            </foxml:datastreamVersion>
+		                            </foxml:datastream>'; 						
+							} else {							
+		                        $xmlDocumentType = '<foxml:datastream ID="NewspaperArticleMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+		                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="NewspaperArticleMD1.0" LABEL="Fez extension metadata for Newspaper Articles">
+		                            <foxml:xmlContent>
+		                            <NewspaperArticleMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+		                            <newspaper>'.htmlspecialchars(@$importArray[$document_type][$key]['publication'][0]).'</newspaper>
+		                            <edition>'.htmlspecialchars(@$importArray[$document_type][$key]['volume'][0]).'</edition>
+		                            <number>'.htmlspecialchars(@$importArray[$document_type][$key]['number'][0]).'</number>
+		                            <pages>'.htmlspecialchars(@$importArray[$document_type][$key]['pages'][0]).'</pages>
+		                            </NewspaperArticleMD>
+		                            </foxml:xmlContent>
+		                            </foxml:datastreamVersion>
+		                            </foxml:datastream>'; 
+							}
+	                        break;
+	                    case 'book':
+	                        $xdis_title = "Book";
+							if ($use_MODS == 1) {
+		                        $xmlDocumentType = '<foxml:datastream ID="MODS" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+		                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="MODS.0" LABEL="Metadata Object Description Schema">
+		                            <foxml:xmlContent>
+									<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+									  <mods:titleInfo>
+									    <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['title'][0]).'</mods:title>
+									  </mods:titleInfo>';	
+					$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $key, "author");						
+					$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $key, "editor");										
+					$xmlDocumentType .= BatchImport::createMODSSubject($importArray[$document_type][$key]['subjects'], $document_type, $key);
+					$xmlDocumentType .= '
+									  <mods:genre>Book</mods:genre>
+								      <mods:originInfo>
+									    <mods:publisher>'.htmlspecialchars(@$importArray[$document_type][$key]['publisher'][0]).'</mods:publisher>
+									    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$importArray[$document_type][$key]['year'][0], @$importArray[$document_type][$key]['month'][0])).'</mods:dateIssued>								    
+									  </mods:originInfo>
+									  <mods:abstract>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</mods:abstract>								  
+									  <mods:note>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</mods:note>
+									  <mods:relatedItem type="host">
+									    <mods:name>
+									      <mods:namePart type="series">'.htmlspecialchars(@$importArray[$document_type][$key]['series'][0]).'</mods:namePart>
+									    </mods:name>
+									  </mods:relatedItem>
+									</mods:mods>								  
+		                            </foxml:xmlContent>
+		                            </foxml:datastreamVersion>
+		                            </foxml:datastream>'; 						
+							} else {						
+		                        $xmlDocumentType = '<foxml:datastream ID="BookMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+		                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="BookMD1.0" LABEL="Fez extension metadata for Books">
+		                            <foxml:xmlContent>
+		                            <BookMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+		                            <edition>'.htmlspecialchars(@$importArray[$document_type][$key]['volume'][0]).'</edition>
+		                            <series>'.htmlspecialchars(@$importArray[$document_type][$key]['series'][0]).'</series>
+		                            <place_of_publication/>
+		                            </BookMD>
+		                            </foxml:xmlContent>
+		                            </foxml:datastreamVersion>
+		                            </foxml:datastream>';
+							}
+	                        break;
+	                    case 'bookchapter':
+	                        $xdis_title = "Book Chapter";
+							if ($use_MODS == 1) {
+		                        $xmlDocumentType = '<foxml:datastream ID="MODS" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+		                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="MODS.0" LABEL="Metadata Object Description Schema">
+		                            <foxml:xmlContent>
+									<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+									  <mods:titleInfo>
+									    <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['title'][0]).'</mods:title>
+									  </mods:titleInfo>';	
+					$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $key, "author");						
+					$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $key, "editor");										
+					$xmlDocumentType .= BatchImport::createMODSSubject($importArray[$document_type][$key]['subjects'], $document_type, $key);
+					$xmlDocumentType .= '
+									  <mods:genre>Book Chapter</mods:genre>
+									  <mods:abstract>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</mods:abstract>								  
+									  <mods:note>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</mods:note>
+									  <mods:relatedItem type="host">
+									    <mods:titleInfo>
+									      <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['publication'][0]).'</mods:title>
+									    </mods:titleInfo>								  
+									    <mods:name>
+									      <mods:namePart type="series">'.htmlspecialchars(@$importArray[$document_type][$key]['series'][0]).'</mods:namePart>
+									    </mods:name>
+								      <mods:originInfo>
+									    <mods:publisher>'.htmlspecialchars(@$importArray[$document_type][$key]['publisher'][0]).'</mods:publisher>
+									    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$importArray[$document_type][$key]['year'][0], @$importArray[$document_type][$key]['month'][0])).'</mods:dateIssued>								    
+									  </mods:originInfo>
+									  <mods:part>
+									      <mods:detail type="chapter">
+									        <mods:number>'.htmlspecialchars(@$importArray[$document_type][$key]['chapter'][0]).'</mods:number>
+									      </mods:detail>
+									      <mods:extent unit="page">
+									        <mods:start>'.$pagesArray[0].'</mods:start>
+									        <mods:end>'.$pagesArray[1].'</mods:end>
+									      </mods:extent>
+									    </mods:part>							    
+									  </mods:relatedItem>
+									</mods:mods>								  
+		                            </foxml:xmlContent>
+		                            </foxml:datastreamVersion>
+		                            </foxml:datastream>'; 						
+							} else {						
+		                        $xmlDocumentType = '<foxml:datastream ID="BookChapterMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+		                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="BookChapterMD1.0" LABEL="Fez extension metadata for Book Chapters">
+		                            <foxml:xmlContent>
+		                            <BookChapterMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+		                            <edition>'.htmlspecialchars(@$importArray[$document_type][$key]['volume'][0]).'</edition>
+		                            <series>'.htmlspecialchars(@$importArray[$document_type][$key]['series'][0]).'</series>
+		                            <place_of_publication/>
+		                            </BookChapterMD>
+		                            </foxml:xmlContent>
+		                            </foxml:datastreamVersion>
+		                            </foxml:datastream>';
+							}
+	                        break;
+	                    case 'techreport':
+	                        $xdis_title = "Department Technical Report";
+							if ($use_MODS == 1) {
+		                        $xmlDocumentType = '<foxml:datastream ID="MODS" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+		                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="MODS.0" LABEL="Metadata Object Description Schema">
+		                            <foxml:xmlContent>
+									<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+									  <mods:titleInfo>
+									    <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['title'][0]).'</mods:title>
+									  </mods:titleInfo>';	
+					$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $key, "author");						
+					$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $key, "editor");										
+					$xmlDocumentType .= BatchImport::createMODSSubject($importArray[$document_type][$key]['subjects'], $document_type, $key);
+					$xmlDocumentType .= '
+									  <mods:genre>Department Technical Report</mods:genre>
+									  <mods:abstract>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</mods:abstract>								  
+									  <mods:note>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</mods:note>
+									  <mods:relatedItem type="host">
+									    <mods:name>
+									      <mods:namePart type="series">'.htmlspecialchars(@$importArray[$document_type][$key]['series'][0]).'</mods:namePart>
+									    </mods:name>								  
+									    <mods:name>
+									      <mods:namePart type="school">'.htmlspecialchars(@$importArray[$document_type][$key]['department'][0]).'</mods:namePart>
+									    </mods:name>
+									    <mods:name>
+									      <mods:namePart type="institution">'.htmlspecialchars(@$importArray[$document_type][$key]['institution'][0]).'</mods:namePart>
+									    </mods:name>
+									    <mods:originInfo>
+											<mods:publisher>'.htmlspecialchars(@$importArray[$document_type][$key]['publisher'][0]).'</mods:publisher>								    						  
+									    </mods:originInfo>
+									    <mods:part>
+									      <mods:detail type="report">
+									        <mods:number>'.htmlspecialchars(@$importArray[$document_type][$key]['reportno'][0]).'</mods:number>
+									      </mods:detail>
+										</mods:part>								      
+									  </mods:relatedItem>
+									</mods:mods>								  
+		                            </foxml:xmlContent>
+		                            </foxml:datastreamVersion>
+		                            </foxml:datastream>';
+							} else {
+		                        $xmlDocumentType = '<foxml:datastream ID="DeptTechReportMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+		                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="DeptTechReportMD1.0" LABEL="Fez extension metadata for Departmental Technical Reports">
+		                            <foxml:xmlContent>
+		                            <DeptTechReportMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+		                            <schooldeptcentre>'.htmlspecialchars(@$importArray[$document_type][$key]['department'][0]).'</schooldeptcentre>
+		                            <institution>'.htmlspecialchars(@$importArray[$document_type][$key]['institution'][0]).'</institution>								  
+		                            <report_number>'.htmlspecialchars(@$importArray[$document_type][$key]['reportno'][0]).'</report_number>
+		                            <series>'.htmlspecialchars(@$importArray[$document_type][$key]['series'][0]).'</series>
+		                            </DeptTechReportMD>
+		                            </foxml:xmlContent>
+		                            </foxml:datastreamVersion>
+		                            </foxml:datastream>';
+							}
+	                        break;
+	                    case 'proceedings':
+	                        $xdis_title = "Conference Proceedings";
+							if ($use_MODS == 1) {
+		                        $xmlDocumentType = '<foxml:datastream ID="MODS" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+		                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="MODS.0" LABEL="Metadata Object Description Schema">
+		                            <foxml:xmlContent>
+									<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+									  <mods:titleInfo>
+									    <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['title'][0]).'</mods:title>
+									  </mods:titleInfo>';	
+					$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $key, "author");						
+					$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $key, "editor");										
+					$xmlDocumentType .= BatchImport::createMODSSubject($importArray[$document_type][$key]['subjects'], $document_type, $key);
+					$xmlDocumentType .= '
+									  <mods:genre>Conference Proceedings</mods:genre>
+									  <mods:originInfo>
+									    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$importArray[$document_type][$key]['year'][0], @$importArray[$document_type][$key]['month'][0])).'</mods:dateIssued>
+									  </mods:originInfo>
+									  <mods:abstract>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</mods:abstract>								  
+									  <mods:note>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</mods:note>
+									  <mods:relatedItem type="host">
+									    <mods:name>
+									      <mods:namePart type="conference">'.htmlspecialchars(@$importArray[$document_type][$key]['conference'][0]).'</mods:namePart>
+									    </mods:name>
+									    <mods:originInfo>
+									      <mods:place>
+									        <mods:placeTerm type="text">'.htmlspecialchars(@$importArray[$document_type][$key]['confloc'][0]).'</mods:placeTerm>
+									      </mods:place>
+									      <mods:dateOther>'.htmlspecialchars(@$importArray[$document_type][$key]['confdates'][0]).'</mods:dateOther>
+									    </mods:originInfo>
+									    <mods:part>
+									      <mods:detail type="issue">
+									        <mods:number>'.htmlspecialchars(@$importArray[$document_type][$key]['number'][0]).'</mods:number>
+									      </mods:detail>
+									      <mods:detail type="volume">
+									        <mods:number>'.htmlspecialchars(@$importArray[$document_type][$key]['volume'][0]).'</mods:number>
+									      </mods:detail>
+									      <mods:extent unit="page">
+									        <mods:start>'.$pagesArray[0].'</mods:start>
+									        <mods:end>'.$pagesArray[1].'</mods:end>
+									      </mods:extent>
+									    </mods:part>
+									  </mods:relatedItem>
+									</mods:mods>								  
+		                            </foxml:xmlContent>
+		                            </foxml:datastreamVersion>
+		                            </foxml:datastream>'; 															
+							} else {						
+		                        $xmlDocumentType = '<foxml:datastream ID="ConferenceProceedingsMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+		                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="ConferenceProceedingsMD1.0" LABEL="Fez extension metadata for Conference Proceedings">
+		                            <foxml:xmlContent>
+		                            <ConferenceProceedingsMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+		                            <conference>'.htmlspecialchars(@$importArray[$document_type][$key]['conference'][0]).'</conference>
+		                            <conf_start_date/>
+		                            <conf_end_date/>
+		                            <confloc>'.htmlspecialchars(@$importArray[$document_type][$key]['confloc'][0]).'</confloc>
+		                            <conf_details>'.htmlspecialchars(@$importArray[$document_type][$key]['confdates'][0]).'</conf_details>
+		                            <paper_presentation_date/>
+		                            <page_numbers>'.htmlspecialchars(@$importArray[$document_type][$key]['pages'][0]).'</page_numbers>
+		                            </ConferenceProceedingsMD>
+		                            </foxml:xmlContent>
+		                            </foxml:datastreamVersion>
+		                            </foxml:datastream>';
+							}
+	                        break;
+	                    case 'confposter':
+	                        $xdis_title = "Conference Poster";
+							if ($use_MODS == 1) {
+		                        $xmlDocumentType = '<foxml:datastream ID="MODS" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+		                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="MODS.0" LABEL="Metadata Object Description Schema">
+		                            <foxml:xmlContent>
+									<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+									  <mods:titleInfo>
+									    <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['title'][0]).'</mods:title>
+									  </mods:titleInfo>';	
+					$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $key, "author");						
+					$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $key, "editor");										
+					$xmlDocumentType .= BatchImport::createMODSSubject($importArray[$document_type][$key]['subjects'], $document_type, $key);
+					$xmlDocumentType .= '
+									  <mods:genre>Conference Poster</mods:genre>
+									  <mods:originInfo>
+									    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$importArray[$document_type][$key]['year'][0], @$importArray[$document_type][$key]['month'][0])).'</mods:dateIssued>
+									  </mods:originInfo>
+									  <mods:abstract>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</mods:abstract>								  
+									  <mods:note>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</mods:note>
+									  <mods:relatedItem type="host">
+									    <mods:name>
+									      <mods:namePart type="conference">'.htmlspecialchars(@$importArray[$document_type][$key]['conference'][0]).'</mods:namePart>
+									    </mods:name>
+									    <mods:originInfo>
+									      <mods:place>
+									        <mods:placeTerm type="text">'.htmlspecialchars(@$importArray[$document_type][$key]['confloc'][0]).'</mods:placeTerm>
+									      </mods:place>
+									      <mods:dateOther>'.htmlspecialchars(@$importArray[$document_type][$key]['confdates'][0]).'</mods:dateOther>
+									    </mods:originInfo>
+									    <mods:part>
+									      <mods:detail type="issue">
+									        <mods:number>'.htmlspecialchars(@$importArray[$document_type][$key]['number'][0]).'</mods:number>
+									      </mods:detail>
+									      <mods:detail type="volume">
+									        <mods:number>'.htmlspecialchars(@$importArray[$document_type][$key]['volume'][0]).'</mods:number>
+									      </mods:detail>
+									      <mods:extent unit="page">
+									        <mods:start>'.$pagesArray[0].'</mods:start>
+									        <mods:end>'.$pagesArray[1].'</mods:end>
+									      </mods:extent>
+									    </mods:part>
+									  </mods:relatedItem>
+									</mods:mods>								  
+		                            </foxml:xmlContent>
+		                            </foxml:datastreamVersion>
+		                            </foxml:datastream>'; 															
+							} else {						
+		                        $xmlDocumentType = '<foxml:datastream ID="ConferencePostersMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+		                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="ConferencePostersMD1.0" LABEL="Fez extension metadata for Conference Posters">
+		                            <foxml:xmlContent>
+		                            <ConferencePostersMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+		                            <conference>'.htmlspecialchars(@$importArray[$document_type][$key]['conference'][0]).'</conference>
+		                            <conf_start_date/>
+		                            <conf_end_date/>
+		                            <confloc>'.htmlspecialchars(@$importArray[$document_type][$key]['confloc'][0]).'</confloc>
+		                            <conf_details>'.htmlspecialchars(@$importArray[$document_type][$key]['confdates'][0]).'</conf_details>
+		                            <poster_presentation_date/>
+		                            </ConferencePostersMD>
+		                            </foxml:xmlContent>
+		                            </foxml:datastreamVersion>
+		                            </foxml:datastream>'; 
+							}
+	                        break;
+	                    default:
+	                        $xdis_title = "Generic Document";	
+							//echo "Unrecognised record type $document_type\n";
+	                        break;
+	                }
+					
+					
+					if ($use_MODS == 1 && $xdis_title == "Generic Document") {
+	                    $xmlDocumentType = '<foxml:datastream ID="MODS" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+	                        <foxml:datastreamVersion MIMETYPE="text/xml" ID="MODS.0" LABEL="Metadata Object Description Schema">
+	                        <foxml:xmlContent>
+							<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+							  <mods:titleInfo>
+							    <mods:title>'.htmlspecialchars(@$importArray[$document_type][$key]['title'][0]).'</mods:title>
+							  </mods:titleInfo>';	
+			$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $key, "author");						
+			$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $key, "editor");										
+			$xmlDocumentType .= BatchImport::createMODSSubject($importArray[$document_type][$key]['subjects'], $document_type, $key);
+			$xmlDocumentType .= '
+							  <mods:genre>Generic Document</mods:genre>
+							  <mods:originInfo>
+							    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$importArray[$document_type][$key]['year'][0], @$importArray[$document_type][$key]['month'][0])).'</mods:dateIssued>
+							  </mods:originInfo>
+							  <mods:abstract>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</mods:abstract>								  
+							  <mods:note>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</mods:note>
+							</mods:mods>								  
+	                        </foxml:xmlContent>
+	                        </foxml:datastreamVersion>
+	                        </foxml:datastream>'; 															
+					}
+					
+					
+	                $xdis_id = XSD_Display::getXDIS_IDByTitleVersion($xdis_title, $xdis_version);
+	
+	                $ret_id = 3; // standard record type id
+					if (@$importArray[$document_type][$key]['ispublished'][0] == "pub") {
+		                $sta_id = 2; // published status type id				
+					} else {
+		                $sta_id = 1; // unpublished status type id
+					}
+	                $xsd_id = XSD_Display::getParentXSDID($xdis_id);
+	                $xsd_details = Doc_Type_XSD::getDetails($xsd_id);
+	                $xsd_element_prefix = $xsd_details['xsd_element_prefix'];
+	                $xsd_top_element_name = $xsd_details['xsd_top_element_name'];
+	
+	                $oai_dc_url = EPRINTS_OAI.$key; // This gets the EPRINTS OAI DC feed for the Eprints DC record. This is neccessary because the Eprints export_xml does not give the URL for the attached PDFs etc
+	                $oai_dc_xml = Fedora_API::URLopen($oai_dc_url);
+	                $config = array(
+	                        'indent' => true,
+	                        'input-xml' => true,
+	                        'output-xml' => true,
+	                        'wrap' => 200);
+	
+	                $tidy = new tidy;
+	                $tidy->parseString($oai_dc_xml, $config, 'utf8');
+	                $tidy->cleanRepair();
+	                $oai_dc_xml = $tidy;
+	
+	                $xmlOAIDoc= new DomDocument();
+	                $xmlOAIDoc->preserveWhiteSpace = false;
+	                $xmlOAIDoc->loadXML($oai_dc_xml);
+	
+	                $oai_xpath = new DOMXPath($xmlOAIDoc);
+	                $oai_xpath->registerNamespace('oai_dc', 'http://www.openarchives.org/OAI/2.0/oai_dc/');
+	                $oai_xpath->registerNamespace('dc', 'http://purl.org/dc/elements/1.1/');
+	                $oai_xpath->registerNamespace('d', 'http://www.openarchives.org/OAI/2.0/');
+	
+	                $formatNodes = $oai_xpath->query('//d:OAI-PMH/d:GetRecord/d:record/d:metadata/oai_dc:dc/dc:format');
+	                $oai_ds = array();
+	                foreach ($formatNodes as $format) {
+	                    $httpFind = "http://";
+	                    if (is_numeric(strpos($format->nodeValue, $httpFind))) {
+	                        array_push($oai_ds, substr($format->nodeValue, strpos($format->nodeValue, $httpFind)));
+	                    }
+	                } 
+	                $xmlEnd = "";
+	                foreach($oai_ds as $ds) {
+	                    $short_ds = $ds;
+	                    if (is_numeric(strpos($ds, "/"))) {
+	                        $short_ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
+	                    }
+	                    // ID must start with _ or letter
+	                    $short_ds = Misc::shortFilename(Foxml::makeNCName($short_ds), 20);
+	                    $mimetype = Misc::get_content_type($ds);
+	
+	                    $xmlEnd.= '
+	                        <foxml:datastream ID="'.$short_ds.'" CONTROL_GROUP="M" STATE="A">
+	                        <foxml:datastreamVersion ID="'.$short_ds.'.0" MIMETYPE="'.$mimetype.'" LABEL="'.$short_ds.'">
+	                        <foxml:contentLocation REF="'.htmlspecialchars($ds).'" TYPE="URL"/>
+	                        </foxml:datastreamVersion>
+	                        </foxml:datastream>';
+	                }	  
+	
+	                $xmlObj = '<?xml version="1.0" ?>
+	                    <foxml:digitalObject PID="'.$pid.'"
+	                    fedoraxsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-0.xsd" xmlns:fedoraxsi="http://www.w3.org/2001/XMLSchema-instance"
+	                    xmlns:foxml="info:fedora/fedora-system:def/foxml#" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+	                    <foxml:objectProperties>
+	                    <foxml:property NAME="http://www.w3.org/1999/02/22-rdf-syntax-ns#type" VALUE="FedoraObject"/>
+	                    <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
+	                    <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Batch Import ePrint Record '.$key.'"/>
+	                    </foxml:objectProperties>';
+						
+					$xmlObj .= '	
+	                    <foxml:datastream ID="DC" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+	                    <foxml:datastreamVersion MIMETYPE="text/xml" ID="DC1.0" LABEL="Dublin Core Record">
+	                    <foxml:xmlContent>
+	                    <oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+	                    <dc:title>'.htmlspecialchars(@$importArray[$document_type][$key]['title'][0]).'</dc:title>
+	                    ';
+	                if (is_array(@$authorArray[$key])) {
+	                    foreach ($authorArray[$key] as $author) {
+	                        $xmlObj .= '<dc:creator>'.htmlspecialchars($author).'</dc:creator>
+	                            ';					    
+	                    }
+	                }
+	                if (is_array(@$importArray[$document_type][$key]['subjects'])) {
+	                    foreach (@$importArray[$document_type][$key]['subjects'] as $subject) {
+	                        $xmlObj .= '
+	                            <dc:subject>'.htmlspecialchars($subject).'</dc:subject>
+	                            ';	    
+	                    }
+	                }
+	
+	                $xmlObj .= '<dc:description>'.htmlspecialchars(@$importArray[$document_type][$key]['abstract'][0]).'</dc:description>
+	                    <dc:publisher>'.htmlspecialchars(@$importArray[$document_type][$key]['publisher'][0]).'</dc:publisher>
+	                    <dc:contributor/>
+	                    <dc:date dateType="1">'.htmlspecialchars(@$importArray[$document_type][$key]['year'][0]).'-01-01</dc:date>
+	                    <dc:type>'.$xdis_title.'</dc:type>
+	                    <dc:source/>
+	                    <dc:language/>
+	                    <dc:relation/>
+	                    <dc:coverage/>
+	                    <dc:rights>'.htmlspecialchars(@$importArray[$document_type][$key]['note'][0]).'</dc:rights>
+	                    </oai_dc:dc>
+	                    </foxml:xmlContent>			
+	                    </foxml:datastreamVersion>
+	                    </foxml:datastream>
+	                    <foxml:datastream ID="RELS-EXT" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+	                    <foxml:datastreamVersion MIMETYPE="text/xml" ID="RELS-EXT.0" LABEL="Relationships to other objects">
+	                    <foxml:xmlContent>
+	                    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	                    xmlns:rel="info:fedora/fedora-system:def/relations-external#" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+	                    <rdf:description rdf:about="info:fedora/'.$pid.'">
+	                    <rel:isMemberOf rdf:resource="info:fedora/'.$collection_pid.'"/>
+	                    </rdf:description>
+	                    </rdf:RDF>
+	                    </foxml:xmlContent>
+	                    </foxml:datastreamVersion>
+	                    </foxml:datastream>
+	                    <foxml:datastream ID="FezMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+	                    <foxml:datastreamVersion MIMETYPE="text/xml" ID="Fez1.0" LABEL="Fez extension metadata">
+	                    <foxml:xmlContent>
+	                    <FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+	                    <xdis_id>'.$xdis_id.'</xdis_id>
+	                    <sta_id>'.$sta_id.'</sta_id>
+	                    <ret_id>'.$ret_id.'</ret_id>
+	                    <created_date>'.htmlspecialchars(@$importArray[$document_type][$key]['datestamp'][0]).'</created_date>                      
+	                    <updated_date>'.$updated_date.'</updated_date>
+	                    <publication>'.htmlspecialchars(@$importArray[$document_type][$key]['publication'][0]).'</publication>  
+	                    <copyright>on</copyright>
+	                    ';
+	                if (is_array(@$keywordArray[$key])) {
+	                    foreach ($keywordArray[$key] as $keyword) {
+	                        $xmlObj .= '
+	                            <keyword>'.htmlspecialchars($keyword).'</keyword>';
+	                    }
+	                }
+	                $xmlObj .= '
+	                    </FezMD>
+	                    </foxml:xmlContent>
+	                    </foxml:datastreamVersion>
+	                    </foxml:datastream>';
+	
+	                $xmlObj .= $xmlDocumentType; 
+	
+	                $xmlObj .= $xmlEnd;
+	
+	                $xmlObj .= '
+	                    </foxml:digitalObject>
+	                    ';
+	                $config = array(
+	                        'indent'         => true,
+	                        'input-xml'   => true,
+	                        'output-xml'   => true,
+	                        'wrap'           => 200);
+	
+	                $tidy = new tidy;
+	                $tidy->parseString($xmlObj, $config, 'utf8');
+	                $tidy->cleanRepair();
+	                $xmlObj = $tidy;
+	
+	                //echo "\n$xmlObj\n";
+					BatchImport::saveEprintPid($eprint_id, $pid); // save the eprint id against its new Fedora/Fez pid so it can be used with a mod-rewrite redirect for the ePrints record and bringing across stats
+	                $result = Fedora_API::callIngestObject($xmlObj);
+	                if (is_array($result)) {
+	                    $errMsg =  "The article \"{$importArray[$document_type][$key]['title'][0]}\" had the following error:\n"
+	                        .print_r($result,true)."\n";
+	//                    $errMsg = "\n$xmlObj\n";
+						Error_Handler::logError("$errMsg \n", __FILE__,__LINE__);
+	
+	                }
+	                foreach($oai_ds as $ds) {
+	
+	                    $short_ds = $ds;
+	                    if (is_numeric(strpos($ds, "/"))) {
+	                        $short_ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
+	                    }
+	                    // ID must start with _ or letter
+	                    $short_ds = Misc::shortFilename(Foxml::makeNCName($short_ds), 20);
+						if (is_numeric(strpos($ds, "/secure/"))) {
+							file_put_contents(APP_TEMP_DIR.$short_ds, Misc::getFileURL($ds, EPRINTS_USERNAME, EPRINTS_PASSWD));
+						} else {
+							file_put_contents(APP_TEMP_DIR.$short_ds, file_get_contents($ds));
 						}
-					}
-                }
-
-                $array_ptr = array();
-                $xsdmf_array = array();
-				Record::setIndexMatchingFields($pid);
-        
-
-                if ($this->bgp) {
-                    $this->bgp->setProgress(intval(100*$eprint_record_counter/$num_records)); 
-                    $this->bgp->setStatus($importArray[$document_type][$key]['title'][0]); 
-                }
-                
-                $pid = Fedora_API::getNextPID(); // get a new pid for the next loop
-            }
-        }
-        $this->bgp->setStatus("Imported $eprint_record_counter Records"); 
+	
+	//                  $presmd_check = Workflow::checkForPresMD($ds);  // try APP_TEMP_DIR.$short_ds
+	                    $presmd_check = Workflow::checkForPresMD(APP_TEMP_DIR.$short_ds);  // try APP_TEMP_DIR.$short_ds
+	                    if ($presmd_check != false) {
+	                       Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, 
+	                                $presmd_check, "text/xml", "X");
+	                    }			
+	
+	                    if (is_numeric(strpos($ds, "/"))) {
+	                        $ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
+	                    }
+	                    $ds = str_replace(" ", "_", $ds);
+	                    //Record::insertIndexMatchingField($pid, 122, 'varchar', $ds); // add the file attachment to the fez index	// this is now done in Record::setIndexMatchingFields more dynamically
+	                    // Now check for post upload workflow events like thumbnail resizing of images and add them as datastreams if required
+	                }	  
+	
+	                // process ingest trigger after all the datastreams are in
+	                foreach($oai_ds as $ds) {
+	                    $mimetype = Misc::get_content_type($ds);
+	                    Workflow::processIngestTrigger($pid, $ds, $mimetype);
+	                    $short_ds = $ds;
+	                    if (is_numeric(strpos($ds, "/"))) {
+	                        $short_ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself (linux paths)
+	                    }
+	                    if (is_numeric(strpos($ds, "\\"))) {
+	                        $short_ds = substr($ds, strrpos($ds, "\\")+2); // take out any nasty slashes from the ds name itself (windows paths)
+	                    }
+	
+	                    // ID must start with _ or letter
+	                    $short_ds = Misc::shortFilename(Foxml::makeNCName($short_ds), 20);
+						$new_file = APP_TEMP_DIR.$short_ds;
+						if (is_file($new_file)) {
+							$return_array = array();
+							$deleteCommand = APP_DELETE_CMD." ".$new_file;
+							exec($deleteCommand, $return_array, $return_status);
+							if ($return_status <> 0) {
+								Error_Handler::logError("Batch Import Delete Error: $deleteCommand: ".implode(",", $return_array).", return status = $return_status \n", __FILE__,__LINE__);
+							}
+						}
+	                }
+	
+	                $array_ptr = array();
+	                $xsdmf_array = array();
+					Record::setIndexMatchingFields($pid);
+	        
+	
+	                if ($this->bgp) {
+	                    $this->bgp->setProgress(intval(100*$eprint_record_counter/$num_records)); 
+	                    $this->bgp->setStatus($importArray[$document_type][$key]['title'][0]); 
+	                }
+	                
+	                $pid = Fedora_API::getNextPID(); // get a new pid for the next loop
+	            }
+	        }
+	        $this->bgp->setStatus("Imported $eprint_record_counter Records"); 
+		}
     }
 
     /**
