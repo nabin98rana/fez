@@ -83,14 +83,31 @@ class BackgroundProcessList
                 WHERE 
                     bgp_usr_id='$usr_id'  " .
                     "AND bgp_name IN ($auto_delete_names) " .
-                    "AND (bgp_state = '0' OR bgp_state = '2') " .
-                    "AND (bgp_heartbeat < DATE_SUB(CURDATE(),INTERVAL 1 DAY))";
+                    "AND ((bgp_state = '0' AND bgp_started < DATE_SUB(CURDATE(),INTERVAL 1 DAY) )  " .
+                    "OR ((bgp_state = '2') AND (bgp_heartbeat < DATE_SUB(CURDATE(),INTERVAL 1 DAY) ) ) )";
         $res = $GLOBALS['db_api']->dbh->getCol($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         }
         if (!empty($res)) {
+            $this->delete($res);
+        }
+        $stmt = "SELECT bgp_id FROM {$dbtp}background_process 
+                WHERE 
+                    bgp_usr_id='$usr_id'  " .
+                    "AND bgp_name IN ($auto_delete_names) " .
+                    "AND (bgp_state = '0' OR bgp_state = '2') " .
+                    "ORDER BY bgp_started ASC";
+        $res = $GLOBALS['db_api']->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        }
+        if (count($res) > 3) {
+        	array_pop($res);
+            array_pop($res);
+            array_pop($res);
             $this->delete($res);
         }
     }

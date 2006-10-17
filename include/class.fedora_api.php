@@ -144,10 +144,13 @@ class Fedora_API {
      * @return  void
      */
 	function callIngestObject($foxml) {
-		$foxml = base64_encode(trim($foxml));
+		$foxmlcode = base64_encode(trim($foxml));
 		$logmsg = 'Fedora Object ingested';
-		$parms=array(new soapval("XML","base64Binary",$foxml), 'format' => 'foxml1.0', 'logMessage' => $logmsg);
+		$parms=array(new soapval("XML","base64Binary",$foxmlcode), 'format' => 'foxml1.0', 'logMessage' => $logmsg);
 		$result = Fedora_API::openSoapCall('ingest', $parms);
+        if (!$result) {
+        	Error_Handler::logError($foxml,__FILE__,__LINE__);
+        }
         return $result;
 	}
 
@@ -314,7 +317,11 @@ class Fedora_API {
      * @return  integer
      */
 	function getUploadLocation ($pid, $dsIDName, $file, $dsLabel, $mimetype='text/xml', $controlGroup='M', $dsID=NULL) {
-		$loc_dir = "";
+		if (empty($dsIDName)) {
+          Error_Handler::logError("Blank dsIDName",__FILE__,__LINE__);
+          return false;
+		}
+        $loc_dir = "";
 		if (!is_numeric(strpos($dsIDName, "/"))) {
 			$loc_dir = APP_TEMP_DIR;
 		}
@@ -872,8 +879,7 @@ class Fedora_API {
 	   $client->setCredentials(APP_FEDORA_USERNAME, APP_FEDORA_PWD);
 	   $result = $client->call($call, $parms);
        if ($debug_error && is_array($result) && (isset($result['faultcode']) || $call == 'addDatastream')) {
-           Error_Handler::logError(array(print_r($result,true),Fedora_API::debugInfo($client, true)),
-                   __FILE__,__LINE__);
+           Error_Handler::logError(array(print_r($result,true),Fedora_API::debugInfo($client, true)), __FILE__,__LINE__);
        }
 	   return $result;
 

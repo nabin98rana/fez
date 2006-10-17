@@ -18,6 +18,7 @@ bgp_done[{$smarty.section.iii.index}] = 0;
 {/if}
 {/section}
 
+
 var updateProcess_mutex;
 var showBgpLog_mutexes = new Array;
 {literal}
@@ -38,6 +39,8 @@ function showBgpUpdated(id)
     document.getElementById(id+'_heartbeat').style.color = '';
     document.getElementById(id+'_state').style.color = '';
 }
+
+
 function showBgpUpdating(id)
 {
     document.getElementById(id+'_progress').style.color = 'gray';
@@ -49,6 +52,7 @@ function showBgpError(id)
 {
     document.getElementById(id+'_state').innerHTML = bgp_states[0];
 }
+
 function showBgpValues(id, values)
 {
     document.getElementById(id+'_progress').innerHTML = values.bgp_progress;
@@ -56,10 +60,11 @@ function showBgpValues(id, values)
     document.getElementById(id+'_heartbeat').innerHTML = values.bgp_heartbeat;
     document.getElementById(id+'_state').innerHTML = bgp_states[values.bgp_state];
     if (values.is_old) {
-      document.getElementById(id+'_heartbeat').class="old_bgp";
+      document.getElementById(id+'_heartbeat').className = "old_bgp";
     }
     showBgpUpdated(id);
 }
+
 next_idx = 0;
 // updateProcesses recursively works through the list of background processes and updates them.
 function updateProcesses()
@@ -171,6 +176,7 @@ function checkDelete(f)
     }
 }
 {/literal}
+
 // -->
 </script>
 <div class="outline">

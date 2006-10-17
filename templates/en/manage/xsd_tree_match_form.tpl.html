@@ -1820,7 +1820,7 @@ dt_load_array['xsdmf_id_ref'] = 0;
 	  selectXSDDisplay(getForm('xsd_loop_subelement_form'), 'xsdsel_indicator_xdis_id', 'xsdsel_indicator_xsdmf_id', {/literal}{if $xsd_loop_subelement_details.xsdsel_indicator_xsdmf_id}{$xsd_loop_subelement_details.xsdsel_indicator_xsdmf_id}{else}0{/if}{literal}); 
 {/literal}{/if}{literal}
 	  selectXSDDisplay(getForm('xsd_tree_match_form'), 'xsdmf_xdis_id_ref', 'xsdmf_id_ref', {/literal}{if $info.xsdmf_id_ref}{$info.xsdmf_id_ref}{else}0{/if}{literal}); 
-	  window.onload = setXSDMatchField();
+	  document.onload = setXSDMatchField();
       function setXSDMatchField()
       {
           var field1 = getFormElement(getForm('xsd_tree_match_form'), 'field_type', 0);

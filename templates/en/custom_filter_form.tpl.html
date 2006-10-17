@@ -233,37 +233,3 @@ function validateForm(f)
   </tr>
 </table>
 <br />
-
-<script language="JavaScript">
-<!--
-var f = getForm('custom_filter_form');
-
-var date_fields = new Array();
-date_fields[date_fields.length] = new Option('created_date', '{$options.cst_created_date}');
-date_fields[date_fields.length] = new Option('created_date_end', '{$options.cst_created_date_end}');
-date_fields[date_fields.length] = new Option('updated_date', '{$options.cst_updated_date}');
-date_fields[date_fields.length] = new Option('updated_date_end', '{$options.cst_updated_date_end}');
-date_fields[date_fields.length] = new Option('last_response_date', '{$options.cst_last_response_date}');
-date_fields[date_fields.length] = new Option('last_response_date_end', '{$options.cst_last_response_date_end}');
-date_fields[date_fields.length] = new Option('first_response_date', '{$options.cst_first_response_date}');
-date_fields[date_fields.length] = new Option('first_response_date_end', '{$options.cst_first_response_date_end}');
-date_fields[date_fields.length] = new Option('closed_date', '{$options.cst_closed_date}');
-date_fields[date_fields.length] = new Option('closed_date_end', '{$options.cst_closed_date_end}');
-
-{literal}
-var elements_to_hide = new Array('created_date', 'updated_date', 'last_response_date', 'first_response_date', 'closed_date');
-for (var i = 0; i < elements_to_hide.length; i++) {
-    toggleVisibility(elements_to_hide[i]);
-    toggleDateFields(f, elements_to_hide[i]);
-    var filter_type = getFormElement(f, elements_to_hide[i] + '[filter_type]');
-    checkDateFilterType(f, filter_type);
-}
-
-for (var i = 0; i < date_fields.length; i++) {
-    if (!isWhitespace(date_fields[i].value)) {
-        selectDateOptions(date_fields[i].text, date_fields[i].value);
-    }
-}
-//-->
-</script>
-{/literal}
