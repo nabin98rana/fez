@@ -240,7 +240,11 @@ class WorkflowStatus {
             $argstrs[] = "$key=".urlencode($arg);
         }
         $querystr=implode('&', $argstrs);
-        History::addHistory($pid, $this->wfl_details['wfl_id'], "", "", true);
+        if ($wft_type != 'Delete') {
+            History::addHistory($pid, $this->wfl_details['wfl_id'], "", "", true);
+        } elseif ($parent_pid) {
+            History::addHistory($parent_pid, $this->wfl_details['wfl_id'], "Deleted $pid", "", true);
+        }
         $this->clearSession();
         if ($wft_type != 'Ingest') {
             header("Location: ".APP_RELATIVE_URL."workflow/end.php?$querystr");
