@@ -1391,7 +1391,7 @@ class BatchImport
                 $this->handleStandardFileImport($pid, $full_name, $short_name, $xdis_id);
                 Record::setIndexMatchingFields($pid);
                 if ($this->bgp) {
-                    $this->bgp->setStatus('Imported '.count($filenames).' files'); 
+                    $this->bgp->setStatus('Imported '.$counter.' files'); 
                 }
             }
 

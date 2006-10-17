@@ -880,6 +880,20 @@ class Record
         $xdis_id = $HTTP_POST_VARS["xdis_id"];
         $display = new XSD_DisplayObject($xdis_id);
         list($array_ptr,$xsd_element_prefix, $xsd_top_element_name, $xml_schema) = $display->getXsdAsReferencedArray();
+        // find the title elements for this display (!dc:title or MODS)
+        $display->getXSD_HTML_Match();
+        $xsdmf_id = $display->xsd_html_match->getXSDMF_IDByXDIS_ID('!titleInfo!title');
+        if ($xsdmf_id) {
+            // fake the form input for the object title
+            $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] = '__makeInsertTemplate_DCTitle__';
+        } else {
+            $xsdmf_id = $display->xsd_html_match->getXSDMF_IDByXDIS_ID('!dc:title');
+            if ($xsdmf_id) {
+                // fake the form input for the object title
+                $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] = '__makeInsertTemplate_DCTitle__';
+            }
+        }
+        
 		$indexArray = array();
 		$xmlObj = '<?xml version="1.0"?>'."\n";
 		$xmlObj .= "<".$xsd_element_prefix.$xsd_top_element_name." ";
@@ -888,7 +902,6 @@ class Record
 		$xmlObj .= ">\n";
 		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, 0, $created_date, $updated_date);
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
-        $xmlObj = Foxml::setDCTitle('__makeInsertTemplate_DCTitle__', $xmlObj);
         // hose the index array as we'll generate it from the ingested object later
         $indexArray = array();
 		$datastreamTitles = $display->getDatastreamTitles();

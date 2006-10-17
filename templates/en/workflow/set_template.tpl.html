@@ -42,20 +42,7 @@ var required_xsd_display_fields = new Array();
 var xsd_display_fields = new Array();
 
 function validateForm() {
-{/literal}
-{section name="i" loop=$xsd_display_fields}
-{if $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' && $xsd_display_fields[i].xsdmf_enabled == 1}
-{literal}
-//selectAllOptions(document.wfl_form1, 'xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_1');
-	var field = document.wfl_form1.xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_1;
-    for (var y = 0; y < field.options.length; y++) {
-        field.options[y].selected = true;
-    }
-{/literal}
-{/if}
-{/section}
-{literal}
-checkRequiredFields(document.wfl_form1, required_xsd_display_fields);
+
 }
 {/literal}
 {section name="i" loop=$xsd_display_fields}
