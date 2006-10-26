@@ -966,7 +966,6 @@ class Record
                     'input-xml'   => true,
                     'output-xml'   => true,
                     'wrap'           => 200);
-
             if (!defined('APP_NO_TIDY') || !APP_NO_TIDY) {
                 $tidy = new tidy;
                 $tidy->parseString($xmlObj, $config, 'utf8');
@@ -996,7 +995,7 @@ class Record
 				$filename_ext = strtolower(substr($dsIDName, (strrpos($dsIDName, ".") + 1)));
 				$dsIDName = substr($dsIDName, 0, strrpos($dsIDName, ".") + 1).$filename_ext;
 			}
-			if ($dsIDName == "DC") { // Dublic core is special, it cannot be deleted
+			if (($dsIDName == "DC") && (!$ingestObject)) { // Dublic core is special, it cannot be deleted
 		    	Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, $dsTitle['STATE'], $dsTitle['LABEL'],
                         $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], false); 
 			} else {
@@ -1014,7 +1013,7 @@ class Record
                         Fedora_API::callAddDatastream($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey], 
                                 $dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
                     }
-                } elseif ($dsTitle['CONTROL_GROUP'] == "X") {
+                } elseif (($dsTitle['CONTROL_GROUP'] == "X") && (!$ingestObject)) {
 					if (Fedora_API::datastreamExists($pid, $dsIDName)) {
 				    	Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, $dsTitle['STATE'], $dsTitle['LABEL'],
     	                    $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], "false"); 
@@ -1022,7 +1021,7 @@ class Record
 						Fedora_API::getUploadLocation($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey], $dsTitle['LABEL'],
 							$dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
 					}
- 				} else { // control group == 'M'
+ 				} elseif (($dsTitle['CONTROL_GROUP'] == "M")) { // control group == 'M'
 
 					if (is_numeric(strpos($dsIDName, chr(92)))) {
 						$dsIDName = substr($dsIDName, strrpos($dsIDName, chr(92))+1);

@@ -48,6 +48,13 @@ include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 include_once(APP_INC_PATH . "class.workflow_status.php");
+include_once(APP_INC_PATH . "najax/najax.php");
+include_once(APP_INC_PATH . "najax_objects/class.select_org_structure.php");
+include_once(APP_INC_PATH . "najax_objects/class.suggestor.php");
+NAJAX_Server::allowClasses(array('SelectOrgStructure', 'Suggestor'));
+if (NAJAX_Server::runServer()) {
+	exit;
+}
 
 
 $tpl = new Template_API();
@@ -210,6 +217,8 @@ if ($access_ok) {
     $tpl->assign("xdis_id", $xdis_id);
     $tpl->assign("form_title", "Set Template");
     $tpl->assign("form_description", "These values will be used as the defaults for the batch operation.");
+	$tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
+	$tpl->assign('najax_register', NAJAX_Client::register('SelectOrgStructure', 'set_template.php')."\n".NAJAX_Client::register('Suggestor', 'set_template.php'));
 
     $setup = Setup::load();
 

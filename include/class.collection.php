@@ -1098,9 +1098,9 @@ class Collection
 			$extra = ", DAYNAME(display.preorder) as day_name";		
 //			$extra_order =  "r".$termCounter.".rmf_".$search_data_type.", ";
 			$subqueryExtra = ", r".$termCounter.".rmf_".$search_data_type." as preorder";
-
 			$extra_order =  "date(display.preorder) DESC, ";
-            $order_dir = " ASC ";
+            $order_dir = " DESC ";
+			$joinNum = 5;
 			$internal_extra_order =  "date(r5.rmf_date) desc, ";
             if ($order_by == 'Created Date') {
 /*                $order_dir = " DESC ";
@@ -1149,6 +1149,7 @@ class Collection
                     inner join {$dbtp}xsd_display_matchfields x".$termCounter." on r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id 
                     inner join {$dbtp}search_key AS s".$termCounter." on s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id
                     and s".$termCounter.".sek_title = '".$searchKey."' ".$restrictSQL;
+
 		$termCounter++;
 /*
 					inner join {$dbtp}record_matching_field r3 on r3.rmf_rec_pid = r2.rmf_rec_pid
@@ -1184,6 +1185,8 @@ class Collection
 						on s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id
 						and s".$termCounter.".sek_title = '$order_by'  ";
 					}
+//		} elseif ($searchKey == "Created Date") {
+		
 		} elseif ($searchKey == "Depositor") {
 			$extra = ", s".$termCounter.".usr_full_name";
 			$extra_order = "s".$termCounter.".usr_full_name, ";
@@ -1193,7 +1196,7 @@ class Collection
 			on s".$termCounter.".usr_id = r2.rmf_int  ";
 
 		} else {
-			$joinNum = 2;
+			$joinNum = 5;
 		}
 		$bodyStmt .= "
 
@@ -1488,6 +1491,7 @@ if ($order_by == 'File Downloads') {
 		} else {
 			$sdet = Search_Key::getDetailsByTitle($searchKey);			
 			$data_type = $sdet['xsdmf_data_type'];
+			$data_type = "varchar";
 			$group_field = "(r4.rmf_".$data_type.")";		
 		}
 
@@ -1501,7 +1505,7 @@ if ($order_by == 'File Downloads') {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $order_by = 'File Downloads';
         $sekdet = Search_Key::getDetailsByTitle($order_by);
-        $data_type = $sekdet['xsdmf_data_type'];
+//        $data_type = $sekdet['xsdmf_data_type'];
         $restrict_community = '';
 
 		$authArray = Collection::getAuthIndexStmt(array("Lister", "Viewer", "Editor", "Creator"));

@@ -110,7 +110,7 @@ $tpl->assign("today_day_name", date("l"));
 $tpl->assign("yesterday", date("Y-m-d", time()-86400));
 $tpl->assign("last", "Last ");
 
-$list = Collection::browseListing(0, 3, "Created Date", NULL, 0);
+$list = Collection::browseListing(0, 3, "Created Date", null, 0);
 $list = $list["list"];
 
 $tpl->assign("list", $list);

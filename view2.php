@@ -38,6 +38,7 @@ include_once(APP_INC_PATH . "najax_objects/class.image_preview.php");
 include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.lister.php");
 include_once(APP_INC_PATH . "class.workflow.php");
+include_once(APP_INC_PATH . "class.jhove.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.statistics.php");
 include_once(APP_PEAR_PATH . "Date.php");
@@ -214,6 +215,17 @@ if (!empty($pid)) {
 						}
 					}
 				}			
+				if ($dis_field['sek_title'] == "Description") {
+					if (!empty($details[$dis_field['xsdmf_id']])) {
+						if (is_array($details[$dis_field['xsdmf_id']])) {
+							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {		
+								$details[$dis_field['xsdmf_id']][$ckey] = nl2br(trim($details[$dis_field['xsdmf_id']][$ckey]));
+							}
+						} else {
+							$details[$dis_field['xsdmf_id']] = nl2br(trim($details[$dis_field['xsdmf_id']]));
+						}
+					}
+				}					
 				if ($dis_field['sek_title'] == "Keywords") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
@@ -224,7 +236,18 @@ if (!empty($pid)) {
 							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_RELATIVE_URL."list.php?terms=".$details[$dis_field['xsdmf_id']]."'>".$details[$dis_field['xsdmf_id']]."</a>";
 						}
 					}
-				}				
+				}	
+				if ($dis_field['sek_title'] == "Subject" && (($dis_field['xsdmf_html_input'] != "contvocab_selector")) ) {
+					if (!empty($details[$dis_field['xsdmf_id']])) {
+						if (is_array($details[$dis_field['xsdmf_id']])) {
+							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {		
+								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".APP_RELATIVE_URL."list.php?terms=".$details[$dis_field['xsdmf_id']][$ckey]."'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
+							}
+						} else {
+							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_RELATIVE_URL."list.php?terms=".$details[$dis_field['xsdmf_id']]."'>".$details[$dis_field['xsdmf_id']]."</a>";
+						}
+					}
+				}							
 				if ($dis_field['xsdmf_element'] == "!created_date") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
@@ -392,13 +415,17 @@ if (!empty($pid)) {
 	if (empty($details)) {
 		$tpl->assign('details', '');
 	} else {
+		$linkCount = 0;
+		$fileCount = 0;		
 		$datastreams = Fedora_API::callGetDatastreams($pid);
+		$datastreamsAll = $datastreams;
 		$datastreams = Misc::cleanDatastreamList($datastreams);
 		$securityfields = Auth::getAllRoles();
 		$datastream_workflows = WorkflowTrigger::getListByTrigger('-1', 5);
 		foreach ($datastreams as $ds_key => $ds) {
 			if ($datastreams[$ds_key]['controlGroup'] == 'R' && $datastreams[$ds_key]['ID'] != 'DOI') {
 				$datastreams[$ds_key]['location'] = trim($datastreams[$ds_key]['location']);
+				$linkCount++;
 				// Check for APP_LINK_PREFIX and add if not already there
 				if (APP_LINK_PREFIX != "") {
 					if (!is_numeric(strpos($datastreams[$ds_key]['location'], APP_LINK_PREFIX))) {
@@ -406,6 +433,17 @@ if (!empty($pid)) {
 					}
 				}
 			} elseif ($datastreams[$ds_key]['controlGroup'] == 'M') {
+//				$Jhove_DS =
+				$fileCount++;
+				$Jhove_DS_ID = "presmd_".substr($datastreams[$ds_key]['ID'], 0, strrpos($datastreams[$ds_key]['ID'], ".")).".xml";
+				foreach ($datastreamsAll as $dsa) {
+					if ($dsa['ID'] == $Jhove_DS_ID) {					
+						$Jhove_XML = Fedora_API::callGetDatastreamContents($pid, $Jhove_DS_ID, true);
+						$fileSize = Jhove_Helper::extractFileSize($Jhove_XML);
+						$fileSize = Misc::size_hum_read($fileSize);
+						$datastreams[$ds_key]['archival_size'] = $fileSize;
+					}
+				}
 				$FezACML_DS = array();
 				$FezACML_DS = Record::getIndexDatastream($pid, $ds['ID'], 'FezACML');
 			
@@ -458,7 +496,14 @@ if (!empty($pid)) {
 		$tpl->assign("datastreams", $datastreams);	
 		$tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");		
 		$parents = Record::getParents($pid);
-		$tpl->assign("parents", $parents);		
+		$tpl->assign("parents", $parents);	
+		if (count($parents) > 1) {
+			$tpl->assign("parent_heading", "Collections:");
+		} else {
+			$tpl->assign("parent_heading", "Collection:");				
+		}
+		$tpl->assign("linkCount", $linkCount);		
+		$tpl->assign("fileCount", $fileCount);				
 		$tpl->assign("created_date", $created_date);				
 		$tpl->assign("depositor", $depositor);
 		$tpl->assign("depositor_id", $depositor_id);

@@ -197,14 +197,15 @@ function openHistory(pid)
 		<tr>
 		  <td align="left"> 
 			<table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="2">
-		
+ 		       {if $citation != ""}
 				<tr valign="top">
 				  <td align="left" class="default" nowrap> <b>Citation:</b></td>
 				  <td align="left" class="default"> {$citation}
 				  </td>
 				</tr>
+                {/if}				
 				<tr>
-				  <td align="left" class="default" nowrap> <b>Parent Collections: </b></td>
+				  <td align="left" class="default" nowrap> <b>{$parent_heading} </b></td>
 				  <td align="left" class="default" nowrap> 
 					{section name="i" loop=$parents}
 						<a href="{$rel_url}list.php?collection_pid={$parents[i].pid}">{$parents[i].title.0}</a> &nbsp;
@@ -220,19 +221,6 @@ function openHistory(pid)
 				  </td>
 				</tr>
 {/if}
-				<tr>
-				  <td align="left" class="default" nowrap> <b>Download Statistics:</b></td>
-				  <td align="left" class="default" nowrap>  {$statsAbstract} Abstract Views, {$statsFiles} File Downloads
-				  <a href="{$rel_url}stat_details.php?action=show_detail&pid={$pid}">Detailed Statistics</a>
-				  </td>
-				</tr>
-				<tr>
-				  <td align="left" class="default" nowrap> <b>Created:</b></td>
-				  <td align="left" class="default" nowrap>  {$created_date} 
-				  {if $depositor != ""} by <a href="{$rel_url}list.php?browse=depositor&depositor={$depositor_id}" class="silent_link">{$depositor}</a>{/if}
-				  <a title="view the full history of changes on this object" href="javascript:void(null);" onclick="javascript:openHistory('{$pid}');">Detailed History</a>
-				  </td>
-				</tr>
 
 			</table><br />
 		  </td>
@@ -253,7 +241,7 @@ function openHistory(pid)
 		{assign var="temp_fld_id" value=$xsd_display_fields[i].xsdmf_id}
 		{assign var="attached_temp_fld_id" value=$xsd_display_fields[i].xsdmf_attached_xsdmf_id}
 
-		  {if $xsd_display_fields[i].xsdmf_show_in_view == 1}
+		  {if $xsd_display_fields[i].xsdmf_show_in_view == 1 && $details[$temp_fld_id]}
 			  {if $xsd_display_fields[i].xsdmf_data_type == 'date'}
 			  
 			<tr>			
@@ -299,14 +287,19 @@ function openHistory(pid)
                 </tr>
       </table>
 		<table width="100%" border="0" cellpadding="2" cellspacing="0"  bgcolor="#FFFFFF" >
+{if $fileCount > 0}
 		  <tr>
-			<td class="default_white" colspan="4" bgcolor="{$heading_color}"><b>Attached Files</b></td>
+			<td class="default" colspan="5">&nbsp;</td>
+		  </tr>
+		  <tr>
+			<td class="default_white" colspan="5" bgcolor="{$heading_color}"><b>Attached Files</b></td>
 		  </tr>
 
 		  <tr class="default" bgcolor="{$cell_color}">
 			<td>Name</td>
 			<td>Description</td>			
 			<td>MIMEType</td>
+			<td>Size</td>			
 			<td align="right">Downloads</td>			
 		  </tr>
 
@@ -330,6 +323,7 @@ function openHistory(pid)
 				</td>
 				<td>{$datastreams[d].label}</td>
 				<td>{$datastreams[d].MIMEType}</td>
+				<td>{$datastreams[d].archival_size}</td>				
 				<td align="right">{$datastreams[d].downloads}</td>				
 			  </tr>
 			 {/if}
@@ -337,20 +331,23 @@ function openHistory(pid)
         
 
 	
+    {/if}
+	{if $linkCount > 0}
 		  <tr>
-			<td class="default" colspan="4">&nbsp;</td>
+			<td class="default" colspan="5">&nbsp;</td>
 		  </tr>
+		  
 		  <tr>
-			<td class="default_white" colspan="4" bgcolor="{$heading_color}"><b>Related Links</b></td>
+			<td class="default_white" colspan="5" bgcolor="{$heading_color}"><b>Related Links</b></td>
 		  </tr>
 
 		  <tr class="default">
-			<td colspan="1" bgcolor="{$cell_color}">Link</td>
+			<td colspan="2" bgcolor="{$cell_color}">Link</td>
 			<td colspan="3" bgcolor="{$cell_color}">Description</td>
 		  </tr>
 {if $doi}
 <tr>
-<td class="default" bgcolor="{$light_color}" colspan="1">
+<td class="default" bgcolor="{$light_color}" colspan="2">
 <a target="_blank" href="{$doi.location}">{$doi.location}</a> 
 </td>
 <td class="default" bgcolor="{$light_color}" colspan="3">{$doi.label}</td>
@@ -358,17 +355,42 @@ function openHistory(pid)
 
 {/if}
 
-
-        {section name="d" loop=$datastreams}
+        {section name="d" loop=$datastreams}        
 			{if $datastreams[d].controlGroup == "R" && $datastreams[d].ID != "DOI"}
 			  <tr class="default"> 
-				<td colspan="1" bgcolor="{$light_color}"><img align="absmiddle" src="{$rel_url}images/text_html.png"> <a target="_blank" href="{$datastreams[d].location}">{$datastreams[d].location}</a> &nbsp;</td>
+				<td colspan="2" bgcolor="{$light_color}"><img align="absmiddle" src="{$rel_url}images/text_html.png"> <a target="_blank" href="{$datastreams[d].location}">{$datastreams[d].location}</a> &nbsp;</td>
 				<td colspan="3" bgcolor="{$light_color}">{$datastreams[d].label} &nbsp;</td>
 			  </tr>
 			 {/if}
         {/section}
+    {/if}
+
+		  <tr>
+			<td class="default" colspan="5">&nbsp;</td>
+		  </tr>    
+		  <tr>
+			<td align="left" class="default" colspan="5">
+		<table width="100%" border="0" cellpadding="2" cellspacing="0"  bgcolor="#FFFFFF" >  
+				<tr>
+				  <td align="left" class="default" nowrap> <b>Access Statistics:</b></td>
+				  <td align="left" class="default" nowrap>  {$statsAbstract} Abstract Views{if $fileCount > 0}, {$statsFiles} File Downloads{/if}
+				  <a href="{$rel_url}stat_details.php?action=show_detail&pid={$pid}">Detailed Statistics</a>
+				  </td>
+				</tr>
+				<tr>
+				  <td align="left" class="default" nowrap> <b>Created:</b></td>
+				  <td align="left" class="default" nowrap>  {$created_date} 
+				  {if $depositor != ""} by <a href="{$rel_url}list.php?browse=depositor&depositor={$depositor_id}" class="silent_link">{$depositor}</a>{/if}
+				  <a title="view the full history of changes on this object" href="javascript:void(null);" onclick="javascript:openHistory('{$pid}');">Detailed History</a>
+				  </td>
+				</tr>
 
 		</table>
+			</td>		
+		  </tr>
+    
+	    </table>
+		
     </td>
 	{if $show_preview_pane == "1"} 
     <td align="center" valign="top"  bgcolor="#FFFFFF" cellspacing="1" cellpadding="2" border="0">

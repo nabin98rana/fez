@@ -706,7 +706,7 @@
                   <b>Title:</b>
                 </td>
                 <td bgcolor="{$light_color}">
-                  <input type="text" name="title" width="120" class="default" value="{if $info.xsdmf_title}{$info.xsdmf_title}{else}{if $xsdsel_title != "N/A"}{$xsdsel_title} - {/if}{$xml_element_clean}{/if}">
+                  <input type="text" name="title" size="50" class="default" value="{if $info.xsdmf_title}{$info.xsdmf_title}{else}{if $xsdsel_title != "N/A"}{$xsdsel_title} - {/if}{$xml_element_clean}{/if}">
                   {include file="error_icon.tpl.html" field="title"}
                 </td>
               </tr>
@@ -715,7 +715,7 @@
                   <b>Label Description:</b>
                 </td>
                 <td bgcolor="{$light_color}">
-                  <input type="text" name="description" width="30" class="default" value="{$info.xsdmf_description}">
+                  <input type="text" name="description" size="50" class="default" value="{$info.xsdmf_description}">
                   <span class="small_default">(it will show up by the side of the label)</span>
                 </td>
               </tr>
@@ -1636,7 +1636,7 @@
 								  <b>XSD Subelement Loop Title:</b>
 								</td>
 								<td bgcolor="{$light_color}">
-								 <input type="text" name="xsdsel_title" size="20" class="default" value="{$xsd_loop_subelement_details.xsdsel_title}">		
+								 <input type="text" name="xsdsel_title" size="50" class="default" value="{$xsd_loop_subelement_details.xsdsel_title}">		
 								  {include file="error_icon.tpl.html" field="title"}
 								</td>
 							  </tr>

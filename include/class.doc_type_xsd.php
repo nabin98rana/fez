@@ -87,14 +87,15 @@ class Doc_Type_XSD
     	if (empty($params)) {
             $filename = @$_FILES["xsd_file"]["tmp_name"];
             if (empty($filename)) {
-            	return -1;
+				$blob = "";
+            } else {
+				$blob = Misc::getFileContents($filename);
             }
-            $blob = Misc::getFileContents($filename);
             $params = &$_POST;
         } else {
             $blob = $params['xsd_file'];
         }
-		
+
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd
                  (
@@ -117,7 +118,8 @@ class Doc_Type_XSD
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-            return $GLOBALS['db_api']->get_last_insert_id();
+            return 1;
+//            return $GLOBALS['db_api']->get_last_insert_id();
         }
     }
 

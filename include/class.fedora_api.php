@@ -332,10 +332,12 @@ class Fedora_API {
 			  'output-xml'   => true,
 			  'wrap'           => 200);
 
-			$tidy = new tidy;
-			$tidy->parseString($file, $config, 'utf8');
-			$tidy->cleanRepair();
-			$file = $tidy;
+			if (!defined('APP_NO_TIDY') || !APP_NO_TIDY) {			  
+				$tidy = new tidy;
+				$tidy->parseString($file, $config, 'utf8');
+				$tidy->cleanRepair();
+				$file = $tidy;
+			}
 		}
 		if (!empty($file) && (trim($file) != "")) {
 			$fp = fopen($loc_dir.$dsIDName, "w"); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
@@ -766,11 +768,12 @@ class Fedora_API {
 			  'input-xml'   => true,
 			  'output-xml'   => true,
 			  'wrap'           => 200);
-
-			$tidy = new tidy;
-			$tidy->parseString($dsContent, $config, 'utf8');
-			$tidy->cleanRepair();
-			$dsContent = $tidy;
+			if (!defined('APP_NO_TIDY') || !APP_NO_TIDY) {
+				$tidy = new tidy;
+				$tidy->parseString($dsContent, $config, 'utf8');
+				$tidy->cleanRepair();
+				$dsContent = $tidy;
+			}
 		}
 	    $dsContent = base64_encode(trim($dsContent));
 	    $logmsg = 'Modifying datastream from Fez';

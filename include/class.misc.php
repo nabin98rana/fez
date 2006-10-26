@@ -163,6 +163,21 @@ class Misc
      * @param   array $arr2 The second array to merge
      * @return  array $ret The merged array with the keys intact
      */
+
+
+	function size_hum_read($size){
+   /**
+	* Returns a human readable size
+	*/
+	  $i=0;
+	  $iec = array("Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB");
+	  while (($size/1024)>1) {
+	    $size=$size/1024;
+	    $i++;
+	  }
+	  return substr($size,0,strpos($size,'.')+3).$iec[$i];
+	}
+	 	      
 	function array_merge_preserve($arr1,$arr2) {
 		if(!is_array($arr1))
 			   $arr1 = array();

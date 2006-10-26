@@ -32,28 +32,24 @@
 // +----------------------------------------------------------------------+
 //
 //
-
-include_once("config.inc.php");
-include_once(APP_INC_PATH . "class.template.php");
-include_once(APP_INC_PATH . "class.auth.php");
-include_once(APP_INC_PATH . "class.record.php");
-include_once(APP_INC_PATH . "class.controlled_vocab.php");
-include_once(APP_INC_PATH . "class.collection.php");
-include_once(APP_INC_PATH . "class.user.php");
-include_once(APP_INC_PATH . "class.author.php");
-include_once(APP_INC_PATH . "db_access.php");
-include_once(APP_INC_PATH . "class.xsd_html_match.php");
-include_once(APP_INC_PATH . "class.xsd_relationship.php");
-include_once(APP_INC_PATH . "class.fedora_api.php");
-
-$tpl = new Template_API();
-$tpl->setTemplate("view.tpl.html");
-$pid = @$HTTP_POST_VARS["pid"] ? $HTTP_POST_VARS["pid"] : $HTTP_GET_VARS["pid"];
-if (($_SERVER["SERVER_PORT"] == 443) && (APP_HTTPS == "ON")) {
-   header ("HTTP 302 Redirect");
-   header ("Location: http://".APP_HOSTNAME.APP_RELATIVE_URL."view.php"."?".$HTTP_SERVER_VARS['QUERY_STRING']);
+class Jhove_Helper
+{
+   function extractFileSize($xmlObj) {
+   	    $xmlDoc= new DomDocument();
+        $xmlDoc->preserveWhiteSpace = false;
+        $xmlDoc->loadXML($xmlObj);
+		$fileSize = "";
+        $xpath = new DOMXPath($xmlDoc);
+        $xpath->registerNamespace('a', 'http://hul.harvard.edu/ois/xml/ns/jhove');
+        $recordNodes = $xpath->query('//a:jhove/a:repInfo/a:size');
+		foreach ($recordNodes as $file_field) {
+			if ($fileSize == "") {
+				$fileSize = $file_field->nodeValue;
+	        }
+	    }
+		return $fileSize;
+   }
+    
 }
 
-include_once('view2.php');
-$tpl->displayTemplateRecord($pid);
 ?>

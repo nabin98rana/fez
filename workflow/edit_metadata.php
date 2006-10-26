@@ -237,9 +237,9 @@ if ($access_ok) {
 					}
 				}	
 			}	
-			if (($dis_field["xsdmf_html_input"] == 'contvocab')) {
+/*			if (($dis_field["xsdmf_html_input"] == 'contvocab')) {
 				$xsd_display_fields[$dis_key]['field_options'] = $cvo_list['data'][$dis_field['xsdmf_cvo_id']];
-			}
+			} */
 
 			
 		}
@@ -250,11 +250,22 @@ if ($access_ok) {
     $tpl->assign("xdis_id", $xdis_id);
 
     $details = $record->getDetails();
+
 //    print_r($parents);
 //    $controlled_vocabs = Controlled_Vocab::getAssocListAll();
     //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
     foreach ($xsd_display_fields  as $dis_field) {
 		if ($dis_field["xsdmf_enabled"] == 1) {
+			if ($dis_field["xsdmf_html_input"] == 'text' || $dis_field["xsdmf_html_input"] == 'textarea') {
+				if (is_array($details[$dis_field['xsdmf_id']])) {
+
+					foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
+						$dis_field['xsdmf_id'][$cdata] = trim($cdata);
+					}
+				} else {
+					$details[$dis_field['xsdmf_id']] = trim($details[$dis_field['xsdmf_id']]);
+				}				
+			}
 			if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'contvocab' || $dis_field["xsdmf_html_input"] == 'contvocab_selector') {
 				if (@$details[$dis_field["xsdmf_id"]]) { // if a record detail matches a display field xsdmf entry
 					if (($dis_field["xsdmf_html_input"] == 'contvocab_selector') && ($dis_field['xsdmf_cvo_save_type'] != 1)) {			
@@ -264,7 +275,7 @@ if ($access_ok) {
 							foreach ($tempArray as $cv_key => $cv_value) {
 								$details[$dis_field["xsdmf_id"]][$cv_value] = Controlled_Vocab::getTitle($cv_value);
 							}
-						} else {
+						} elseif  (trim($details[$dis_field["xsdmf_id"]]) != "") {
 							$tempValue = $details[$dis_field["xsdmf_id"]];
 							$details[$dis_field["xsdmf_id"]] = array();
 							$details[$dis_field["xsdmf_id"]][$tempValue] = Controlled_Vocab::getTitle($tempValue);
@@ -297,10 +308,12 @@ if ($access_ok) {
 						$details[$xsdmf_id_ref] = array(); //clear the existing data
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
-								$details[$xsdmf_id_ref][$cdata] = Controlled_Vocab::getTitle($cdata);
+								if (!empty($cdata)) {
+									$details[$xsdmf_id_ref][$cdata] = Controlled_Vocab::getTitle($cdata);
+								}
 	//										$details[$xsdmf_id_ref][$ckey] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=subject&parent_id=".$cdata."'>".$controlled_vocabs[$cdata]."</a>";
 							}
-						} else {
+						} elseif (!empty($details[$dis_field['xsdmf_id']])) {
 							$details[$xsdmf_id_ref][$details[$dis_field['xsdmf_id']]] = Controlled_Vocab::getTitle($details[$dis_field['xsdmf_id']]);
 						}
 					}				
@@ -314,7 +327,6 @@ if ($access_ok) {
 			}
 		}
     }
-
     $securityfields = Auth::getAllRoles();
     $datastreams = Fedora_API::callGetDatastreams($pid);
     $datastreams = Misc::cleanDatastreamList($datastreams);
