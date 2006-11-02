@@ -149,11 +149,6 @@ class AuthIndex {
         } elseif (!is_array($pids)) {
             $pids = array($pids);
         }
-        // don't get the same pids twice
-        $pids = array_diff($pids,$done_pids);
-        if (empty($pids)) {
-            return array();
-        }
         foreach ($pids as $pid) {
             $auth_groups = array();
             if (!isset($pid_cache[$pid])) {
@@ -207,7 +202,7 @@ class AuthIndex {
             if (!$found_inherit_off) {
                 // get security from parents 
                     $parents1 = Record::getParents($pid);
-                $parents = array_keys(Misc::keyArray($parents1, 'pid'));
+                    $parents = array_keys(Misc::keyArray($parents1, 'pid'));
                     $auth_groups = array_merge_recursive($auth_groups, 
                             AuthIndex::getIndexAuth($parents,false));
             }
