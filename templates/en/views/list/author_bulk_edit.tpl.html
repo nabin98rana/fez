@@ -1,0 +1,111 @@
+{include file="header.tpl.html" extra_title="$list_heading"}
+{include file="navigation.tpl.html"}
+
+<style type="text/css">
+{literal}
+
+
+
+
+
+.list_heading {
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 11px;
+  margin: 10px;
+vertical-align: middle;
+}
+
+.list_heading img {
+vertical-align: middle;
+  margin: 2px 5px 2px 2px;
+}
+
+.listing {
+  /*border: 1px solid {/literal}{$smarty.const.APP_CELL_COLOR}{literal};*/
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 11px;
+}
+
+.listing_item {
+  border: 1px solid {/literal}{$smarty.const.APP_CELL_COLOR}{literal};
+  margin: 10px;
+  padding: 2px;
+  clear: both;
+}
+
+.li_pid {
+display:none;
+}
+
+.li_title {
+font-weight:bold;
+}
+
+.li_object_type_1, .li_object_type_2, .li_object_type_3 {
+width: 22px;
+height: 22px;
+float:left;
+margin: 5px;
+text-indent: -100px;
+}
+.li_object_type_1 {
+background-image: url('{/literal}{$rel_url}images/community.jpg{literal}');
+}
+.li_object_type_2 {
+background-image: url('{/literal}{$rel_url}images/collection.jpg{literal}');
+}
+.li_object_type_3 {
+background-image: url('{/literal}{$rel_url}images/record.jpg{literal}');
+}
+
+.li_authors {
+float:left;
+}
+
+.li_clear {
+clear:both;
+}
+
+.updating {
+	margin:2px;
+	padding: 2px;
+}
+
+{/literal}
+</style>
+
+<script type="text/javascript">
+{$najax_register}
+</script>
+
+<div class="list_heading">
+<img src="{$rel_url}images/community_32.jpg"/> Bulk Edit Authors - {$list_heading}
+</div>
+
+<div class="listing">
+{section name="ii" loop=$list}
+{assign var='item' value=$list[ii]}
+	<div class="listing_item">
+	  <div class="li_object_type_{$item.object_type[0]}" >{$item.object_type[0]}</div>
+	  <div class="li_pid">{$item.pid}</div>
+	  <div class="li_title">{$item.title[0]}</div>
+	  <div class="li_description">{$item.description[0]}</div>
+	  <div class="li_submitting_author">{element_editor pid=$item.pid xpath='/NA/submitting_author' 
+	  label='Submitting Author:'}</div>
+	  <div class="li_authors">{element_editor pid=$item.pid xpath='/NA/dc:creator' 
+	  label='Author:'}</div>
+	  <!-- <div class="li_authors">{*element_editor pid=$item.pid xpath='/NA/dc:creator/@authorID' 
+	  label='Author ID:'*}</div> -->
+	  <div class="li_clear">&nbsp;</div>
+	</div>
+{/section}
+</div>
+
+
+
+{include file="app_info.tpl.html"}
+{include file="footer.tpl.html"}
