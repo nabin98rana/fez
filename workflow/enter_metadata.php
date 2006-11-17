@@ -238,6 +238,8 @@ if ($access_ok) {
 }
 
 $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
-$tpl->assign('najax_register', NAJAX_Client::register('SelectOrgStructure', 'enter_metadata.php')."\n".NAJAX_Client::register('Suggestor', 'enter_metadata.php'));
+        $tpl->registerNajax(NAJAX_Client::register('SelectOrgStructure', 'enter_metadata.php')."\n"
+            .NAJAX_Client::register('Suggestor', 'enter_metadata.php'));
+
 $tpl->displayTemplate();
 ?>

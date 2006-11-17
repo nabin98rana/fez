@@ -48,11 +48,14 @@ require_once(APP_INC_PATH . "class.collection.php");
 require_once(APP_INC_PATH . "class.auth.php");
 require_once(APP_INC_PATH . "class.user.php");
 require_once(APP_INC_PATH . "class.setup.php");
+require_once(APP_INC_PATH . "najax/najax.php");
+
 class Template_API
 {
     var $smarty;
     var $tpl_name = "";
     var $headerscript;
+    var $najax_register;
 
     /**
      * Constructor of the class
@@ -246,6 +249,15 @@ class Template_API
             "cycle"          => APP_CYCLE_COLORS,
             "internal_color" => APP_INTERNAL_COLOR
         ));
+        
+        $this->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
+        $this->assign('najax_register', $this->najax_register);
+        
+    }
+    
+    function registerNajax($najax)
+    {
+    	$this->najax_register .= "\n$najax\n";
     }
 
 

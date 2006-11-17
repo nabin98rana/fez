@@ -56,6 +56,7 @@ include_once(APP_INC_PATH . "class.org_structure.php");
 include_once(APP_INC_PATH . "najax/najax.php");
 include_once(APP_INC_PATH . "najax_objects/class.select_org_structure.php");
 include_once(APP_INC_PATH . "najax_objects/class.suggestor.php");
+
 NAJAX_Server::allowClasses(array('SelectOrgStructure', 'Suggestor'));
 if (NAJAX_Server::runServer()) {
 	exit;
@@ -426,7 +427,7 @@ if ($access_ok) {
 }
 
 $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
-$tpl->assign('najax_register', NAJAX_Client::register('SelectOrgStructure', 'edit_metadata.php')."\n".NAJAX_Client::register('Suggestor', 'edit_metadata.php'));
+$tpl->registerNajax( NAJAX_Client::register('SelectOrgStructure', 'edit_metadata.php')."\n".NAJAX_Client::register('Suggestor', 'edit_metadata.php'));
 $tpl->displayTemplate();
 
 ?>

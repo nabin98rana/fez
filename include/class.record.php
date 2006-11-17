@@ -1327,7 +1327,104 @@ class RecordGeneral
             Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez extension metadata", $newXML, "text/xml", false);
         }
     }
+    
+    function setValue($xsdmf_id, $value, $idx)
+    {
+    	$this->getDisplay();
+        $this->display->getXSD_HTML_Match();
+        $cols = $this->display->xsd_html_match->getDetailsByXSDMF_ID($xsdmf_id);
+        // which datastream to get XML for?
+        // first find the xdis id that the xsdmf_id matches in (not the base xdis_id since this will be in a 
+        // refered display)
+        $xdis_id = $cols['xsdmf_xdis_id'];
+        $xsd_id = XSD_Display::getParentXSDID($xdis_id);
+        $xsd_details = Doc_Type_XSD::getDetails($xsd_id);
+        $dsID = $xsd_details['xsd_title'];
+        if ($dsID == 'OAI DC') {
+        	$dsID = 'DC';
+        }
+        //Error_Handler::logError($dsID,__FILE__,__LINE__);
+        $xsdmf_element = $cols['xsdmf_element'];
+        $steps = explode('!',$xsdmf_element);
+        // get rid of blank on the front
+        array_shift($steps);
+        $doc = DOMDocument::loadXML($xsd_details['xsd_file']);
+        $xsd_array = array();
+        Misc::dom_xsd_to_referenced_array($doc, $xsd_details['xsd_top_element_name'], $xsd_array,"","",$doc);
+        $sXml = Fedora_API::callGetDatastreamContents($this->pid, $dsID, true);
+        if (!empty($sXml) && $sXml != false) {
+            $doc = DOMDocument::loadXML($sXml);
+            // it would be good if we could just do a xpath query here but unfortunately, the xsdmf_element
+            // is missing information like namespaces and attribute '@' thing.
+            if ($this->setValueRecurse($value, $doc->documentElement, $steps, 
+                                            $xsd_array[$xsd_details['xsd_top_element_name']], $idx)) {
+                Fedora_API::callModifyDatastreamByValue($this->pid, $dsID, "A", "setValue", $doc->saveXML(), "text/xml", false);
+                Record::setIndexMatchingFields($this->pid);
+            	return true;
+            }
+        } else {
+            return false;
+        }
+    }
 
+    function setValueRecurse($value, $node, $remaining_steps, $xsd_array, $vidx, $current_idx=0)
+    {
+        $next_step = array_shift($remaining_steps);
+        $next_xsd_array = $xsd_array[$next_step];
+        $theNode = null;
+        if (isset($next_xsd_array['fez_nodetype']) && $next_xsd_array['fez_nodetype'] == 'attribute') {
+            $node->setAttribute($next_step, $value);
+            return true;
+        } else {
+            $use_idx = false;  // should we look the element that matches vidx?  Only if this is the end of the path
+            $att_step = $remaining_steps[0];
+            $att_xsd = $next_xsd_array[$att_step];
+            if (isset($att_xsd['fez_nodetype']) && $att_xsd['fez_nodetype'] == 'attribute') {
+            	$use_idx = true;
+            }
+            if (count($remaining_steps) == 0) {
+                $use_idx = true;
+            }
+            $idx = 0;
+            foreach ($node->childNodes as &$childNode) {
+                // remove namespace
+                $next_step_name = $next_step;
+                if (!strstr($next_step_name, '!dc:')) {
+                    $next_step_name = preg_replace('/![^:]+:/', '!', $next_step_name);
+                }
+                if ($childNode->nodeName == $next_step_name) {
+                    if ($use_idx) { 
+                        if ($idx == $vidx) {
+                            $theNode = &$childNode;
+                            break;
+                        }
+                        $idx++;
+                    } else {
+                        $theNode = &$childNode;
+                        break;
+                    }
+                }
+            }   
+        }
+        if (is_null($theNode)) {
+            $theNode = &$node->ownerDocument->createElement($next_step);
+            $node->appendChild($theNode);
+        }
+        if (count($remaining_steps)) {
+            if ($this->setValueRecurse($value, $theNode, $remaining_steps, $next_xsd_array, $vidx, $idx)) {
+        	   return true;
+            }
+        } else {
+        	if (!empty($value)) {
+                $theNode->nodeValue = $value;
+            } else {
+            	$theNode->parentNode->removeChild($theNode);
+            }
+            return true;
+        }
+        return false;	
+    }
+    
     /**
      * getDisplay
      * Get a display object for this record
@@ -1402,12 +1499,51 @@ class RecordGeneral
         return $this->details[$xsdmf_id];
     }
 
+    function getXSDMF_ID_ByElement($xsdmf_element) 
+    {
+    	$this->getDisplay();
+        $this->display->getXSD_HTML_Match();
+    	return $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID($xsdmf_element);
+    }
+
+    /**
+     * getDetailsByXSDMF_element
+     * 
+     * Returns the value of an element in a datastream addressed by element
+     * 
+     * @param string $xsdmf_element - The path to the XML element in a datastream.  
+     *      Use XSD_HTML_Match::escapeXPath to convert an xpath - /oai_dc:dc/dc:title to an xsdmf_element string !dc:title
+     * @returns mixed - Array of values or single value for each element match in XML tree 
+     */
     function getDetailsByXSDMF_element($xsdmf_element)
     {
         $this->getDetails();
         $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID($xsdmf_element); 
         return @$this->details[$xsdmf_id];
     }
+    
+    function getDetailsByXSDMF_ID($xsdmf_id)
+    {
+        $this->getDetails();
+        return @$this->details[$xsdmf_id];
+    }
+    
+    /**    
+     * getXSDMFDetailsByElement
+     * 
+     * Returns XSDMF values to describe how the element should be treated in a HTML form or display
+     * 
+     * @param string $xsdmf_element - The path to the XML element in a datastream.  
+     *      Use XSD_HTML_Match::escapeXPath to convert an xpath - /oai_dc:dc/dc:title to an xsdmf_element string !dc:title
+     * @returns array - Keypairs from the XSDMF table for the element on this record and record type to
+     *      describe how the element should be treated in a HTML form or display.
+     */
+    function getXSDMFDetailsByElement($xsdmf_element)
+    {
+    	$this->getDisplay();
+        $this->display->getXSD_HTML_Match();
+        return $this->display->xsd_html_match->getDetailsByElement($xsdmf_element);
+    } 
 
     /**
      * isCollection
@@ -1558,6 +1694,11 @@ class RecordObject extends RecordGeneral
     var $file_downloads; //for statistics of file datastream downloads from eserv.php
     var $default_xdis_id = 5;
    
+    function RecordObject($pid=null)
+    {
+        RecordGeneral::RecordGeneral($pid);
+    }
+    
     /**
      * getXmlDisplayId
      * Retrieve the display id for this record

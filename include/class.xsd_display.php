@@ -883,6 +883,15 @@ class XSD_DisplayObject
 		Misc::dom_xsd_to_referenced_array($xsd, $xsd_top_element_name, &$array_ptr, "", "", $xsd);
         return array($array_ptr,$xsd_element_prefix, $xsd_top_element_name, $xml_schema);
     }
+    
+    function getXSD()
+    {
+        if (!$this->xsd_id) {
+    	   $this->xsd_id = XSD_Display::getParentXSDID($this->xdis_id);
+           $this->xsd_details = Doc_Type_XSD::getDetails($this->xsd_id);
+        }
+        return $this->xsd_details;
+    }
 
     /**
      * getDatastreamTitles
@@ -1289,6 +1298,17 @@ class XSD_DisplayObject
     function getTitle()
     {
         return XSD_Display::getTitle($this->xdis_id);
+    }
+    
+    function getXSDMFDetailsByElement($xsdmf_element)
+    {
+    	$this->getXSD_HTML_Match();
+    	return $this->xsd_html_match->getDetailsByElement($xsdmf_element);
+    }
+    function getXSDMFDetailsByXSDMF_ID($xsdmf_id)
+    {
+        $this->getXSD_HTML_Match();
+        return $this->xsd_html_match->getDetailsByXSDMF_ID($xsdmf_id);
     }
 }
 

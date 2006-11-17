@@ -37,8 +37,15 @@ include_once("config.inc.php");
 
 include_once(APP_INC_PATH . "class.lister.php");
 
+$tpl_idx = intval($_GET['tpl']);
+$tpls = array(
+    0 => 'list.tpl.html',
+    1 => 'views/list/author_bulk_edit.tpl.html',
+    );
+    
+$tpl_file = $tpls[$tpl_idx];    
 
-$res = Lister::getList($_GET);
+$res = Lister::getList($_GET, true, $tpl_file);
 
 $_SESSION['list'] = $res['list'];
 $_SESSION['list_params'] = $_GET;

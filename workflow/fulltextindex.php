@@ -6,7 +6,7 @@ $pid = $this->pid;
 if (!empty($pid) && !is_numeric($pid)) { 
     FulltextIndex::indexPid($pid);
 } else {
-    $list = Community::getList(0,1000000);
+    $list = Community::getList(0,10000000);
     foreach ($list['list'] as $item) {
         FulltextIndex::indexPid($item['pid']);
     }

@@ -43,3 +43,7 @@ font-size: 12px;
 .old_bgp {
 color:red;
 }
+
+.register_suggest {
+display:none;
+}

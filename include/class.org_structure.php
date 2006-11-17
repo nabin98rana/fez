@@ -572,6 +572,7 @@ class Org_Structure
 				 WHERE auo_assessed = 'Y'
                  ORDER BY
                     aut_fullname ASC";
+                    //echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

@@ -1485,7 +1485,8 @@ class Misc
      * @param   string $parentContent The front hierarchy of the array element passed by a parent XML element
      * @return  void ($array passed as reference recursively)
      */
-	function dom_xsd_to_referenced_array($domnode, $topelement, &$array, $parentnodename="", $searchtype="", $superdomnode, $supertopelement="", $parentContent="", $refCount = array()) {
+	function dom_xsd_to_referenced_array($domnode, $topelement, &$array, $parentnodename="", $searchtype="", 
+                                         $superdomnode, $supertopelement="", $parentContent="", $refCount = array()) {
         //echo "Node:(".$domnode->nodeName."), topelement:($topelement), parentnodename:($parentnodename), searchtype:($searchtype), superdomnode:(".$superdomnode->nodeName."), superdomnode:($supertopelement), parentContent:($parentContent)<br/>\n";
 		$array_ptr = &$array;	
 		$standard_types = array("int", "string", "dateTime", "float", "anyURI", "base64Binary", "NMTOKEN", "lang");

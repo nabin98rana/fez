@@ -11,12 +11,13 @@ include_once(APP_INC_PATH . "class.controlled_vocab.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "class.user.php");
+include_once(APP_INC_PATH . "najax_classes.php");
 
 class Lister
 {
-    function getList($params, $display=true) {
+    function getList($params, $display=true, $tpl_file = 'list.tpl.html') {
         $tpl = new Template_API();
-        $tpl->setTemplate("list.tpl.html");
+        $tpl->setTemplate($tpl_file);
 
         $username = Auth::getUsername();
         $tpl->assign("isUser", $username);
@@ -282,7 +283,11 @@ class Lister
         if (Auth::userExists($username)) {
             $prefs = Prefs::get(Auth::getUserID());
         }
+        $tpl->registerNajax(NAJAX_Client::register('NajaxRecord', APP_RELATIVE_URL.'ajax.php')."\n"
+            .NAJAX_Client::register('Suggestor', APP_RELATIVE_URL.'ajax.php')."\n");
+        
         if ($display) {
+            //print_r($tpl);
             $tpl->displayTemplate();
         } 
         return compact('list','list_info');

@@ -439,7 +439,7 @@ class Auth
             if (!isset($session['isAdministrator'])) {
                 $session['isAdministrator'] = User::isUserAdministrator(Auth::getUsername());
             }
-            $answer = $session['isAdministrator'];
+            $answer = $session['isAdministrator']?true:false;
         }
         return $answer;
     }

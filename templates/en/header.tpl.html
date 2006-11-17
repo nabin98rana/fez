@@ -15,6 +15,7 @@
 <script language="JavaScript" src="{$rel_url}js/browserSniffer.js"></script>
 <script language="JavaScript" src="{$rel_url}js/global.js"></script>
 <script language="JavaScript" src="{$rel_url}js/validation.js"></script>
+<script language="JavaScript" src="{$rel_url}js/common.js"></script>
 {if $refresh_rate}
 <meta http-equiv="Refresh" content="{$refresh_rate};URL={$app_base_url}{$refresh_page}">
 {/if}
@@ -30,6 +31,14 @@ window.onload = function () {
     // do any other hacks requried by IE mostly
     {$headerscript}
 {literal}
+	// find any divs of class register_suggest and eval the code in them to setup their suggest widgets
+	divs = document.getElementsByName('register_suggest');
+	for (ii = 0; ii < divs.length; ii++) { // >
+	  div = divs[ii];
+	  if (div.className == 'register_suggest') {
+	  	eval(div.innerHTML);
+	  }
+	}
 }
 {/literal}
 </script>
