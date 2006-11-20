@@ -138,8 +138,8 @@ class XSD_HTML_Match {
 		                 WHERE
 		                    mfo_id IN (" . implode(",", $mfo_id) . ")";
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return false;
 		} else {
@@ -177,11 +177,11 @@ class XSD_HTML_Match {
 			                        mfo_value
 			                     ) VALUES (
 			                        $fld_id,
-			                        '" . Misc :: escapeString($option) . "'
+			                        '" . Misc::escapeString($option) . "'
 			                     )";
 			$res = $GLOBALS["db_api"]->dbh->query($stmt);
-			if (PEAR :: isError($res)) {
-				Error_Handler :: logError(array (
+			if (PEAR::isError($res)) {
+				Error_Handler::logError(array (
 				$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 				return -1;
 			}
@@ -201,12 +201,12 @@ class XSD_HTML_Match {
 		$stmt = "UPDATE
 		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_mf_option
 		                 SET
-		                    mfo_value='" . Misc :: escapeString($mfo_value) . "'
+		                    mfo_value='" . Misc::escapeString($mfo_value) . "'
 		                 WHERE
 		                    mfo_id=" . $mfo_id;
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return false;
 		} else {
@@ -264,25 +264,25 @@ class XSD_HTML_Match {
 		// @@@ CK - Added order statement to custom fields displayed in a desired order
 		$stmt .= " ORDER BY xsdsel_order, xsdmf_order ASC";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return "";
 		} else {
 			// Add any reference displays
-			$specify_ids = XSD_Display :: getIDs($specify_titles);
+			$specify_ids = XSD_Display::getIDs($specify_titles);
 			foreach ($res as $rkey => $record) {
 				if ($record['xsdmf_html_input'] == 'xsd_ref') {
-					$ref = XSD_Relationship :: getListByXSDMF($record['xsdmf_id']);
+					$ref = XSD_Relationship::getListByXSDMF($record['xsdmf_id']);
 					if (is_array($ref)) {
 						foreach ($ref as $reference) {
 							if (is_array($specify_ids) && (count($specify_ids) > 0)) {
 								if (in_array($reference['xsdrel_xdis_id'], $specify_ids)) {
-									$ref_display = XSD_HTML_Match :: getListByDisplay($reference['xsdrel_xdis_id']);
+									$ref_display = XSD_HTML_Match::getListByDisplay($reference['xsdrel_xdis_id']);
 									$res = array_merge($ref_display, $res);
 								}
 							} else {
-								$ref_display = XSD_HTML_Match :: getListByDisplay($reference['xsdrel_xdis_id']);
+								$ref_display = XSD_HTML_Match::getListByDisplay($reference['xsdrel_xdis_id']);
 								$res = array_merge($ref_display, $res);
 							}
 						}
@@ -301,8 +301,8 @@ class XSD_HTML_Match {
 			} else {
 				//				echo "About to do ".strval(count($res) * 2)." queries on line ".__LINE__."\n";
 				for ($i = 0; $i < count($res); $i++) {
-					$res[$i]["field_options"] = XSD_HTML_Match :: getOptions($res[$i]["xsdmf_id"]);
-					$res[$i]["field_options_value_only"] = XSD_HTML_Match :: getOptionsValueOnly($res[$i]["xsdmf_id"]);
+					$res[$i]["field_options"] = XSD_HTML_Match::getOptions($res[$i]["xsdmf_id"]);
+					$res[$i]["field_options_value_only"] = XSD_HTML_Match::getOptionsValueOnly($res[$i]["xsdmf_id"]);
 				}
 				return $res;
 			}
@@ -325,8 +325,8 @@ class XSD_HTML_Match {
 						 ORDER BY xsdsel_title";
 
 		$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return "";
 		} else {
@@ -352,8 +352,8 @@ class XSD_HTML_Match {
 							(SELECT m3.xsdmf_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields as m3 WHERE m3.xsdmf_xdis_id=" . $xdis_id . ")
 							as rels on (r2.xsdrel_xsdmf_id = (rels.xsdmf_id)) )";
 		$xsdrelall = $GLOBALS["db_api"]->dbh->getCol($stmt);
-		if (PEAR :: isError($xsdrelall)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($xsdrelall)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			$res = array ();
 		}
@@ -424,27 +424,27 @@ class XSD_HTML_Match {
 		if ($specify_str != "") {
 			$stmt .= "
 								inner join
-								(SELECT d1.xdis_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1, " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd WHERE xsd.xsd_id=d1.xdis_xsd_id AND xsd.xsd_title in ('" . $specify_str . "')) as displays on (m1.xsdmf_xdis_id in (displays.xdis_id) AND displays.xdis_id in (" . Misc :: arrayToSQL($xsdrelall) . "))";
+								(SELECT d1.xdis_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1, " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd WHERE xsd.xsd_id=d1.xdis_xsd_id AND xsd.xsd_title in ('" . $specify_str . "')) as displays on (m1.xsdmf_xdis_id in (displays.xdis_id) AND displays.xdis_id in (" . Misc::arrayToSQL($xsdrelall) . "))";
 		}
 		elseif ($exclude_str != "") {
 			$stmt .= "
 								inner join
-								(SELECT d1.xdis_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1, " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd WHERE xsd.xsd_id=d1.xdis_xsd_id AND xsd.xsd_title not in ('" . $exclude_str . "')) as displays on (m1.xsdmf_xdis_id in (displays.xdis_id) AND displays.xdis_id in (" . Misc :: arrayToSQL($xsdrelall) . "))";
+								(SELECT d1.xdis_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1, " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd WHERE xsd.xsd_id=d1.xdis_xsd_id AND xsd.xsd_title not in ('" . $exclude_str . "')) as displays on (m1.xsdmf_xdis_id in (displays.xdis_id) AND displays.xdis_id in (" . Misc::arrayToSQL($xsdrelall) . "))";
 		}
 		//				if ($specify_str == "") { 
 		//				}
 		$stmt .= "
 							left join
 		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement as s1 on (s1.xsdsel_id = m1.xsdmf_xsdsel_id)
-						WHERE m1.xsdmf_xdis_id in (" . Misc :: arrayToSQL($xsdrelall) . ")";
+						WHERE m1.xsdmf_xdis_id in (" . Misc::arrayToSQL($xsdrelall) . ")";
 		// @@@ CK - Added order statement to custom fields displayed in a desired order
 
 		$stmt .= " ORDER BY xsdmf_order, xsdsel_order ASC";
 
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return array ();
 		} else {
@@ -479,8 +479,8 @@ class XSD_HTML_Match {
 						 WHERE ISNULL(m1.xsdmf_xsdsel_id) AND m1.xsdmf_xdis_id = " . $xdis_id;
 		$stmt .= " ORDER BY xsdmf_id ASC";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return array ();
 		} else {
@@ -506,8 +506,8 @@ class XSD_HTML_Match {
 						 WHERE (m1.xsdmf_xsdsel_id = $xsdsel_id) AND m1.xsdmf_xdis_id = " . $xdis_id;
 		$stmt .= " ORDER BY xsdmf_id ASC";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return array ();
 		} else {
@@ -527,14 +527,14 @@ class XSD_HTML_Match {
 	 */
 	function getListByDisplay($xdis_id, $exclude_list = array (), $specify_list = array ()) {
 
-		$res = XSD_HTML_Match :: getBasicListByDisplay($xdis_id, $exclude_list, $specify_list);
+		$res = XSD_HTML_Match::getBasicListByDisplay($xdis_id, $exclude_list, $specify_list);
 
 		if (count($res) == 0) {
 			return array ();
 		} else {
 			for ($i = 0; $i < count($res); $i++) {
-				$res[$i]["field_options"] = XSD_HTML_Match :: getOptions($res[$i]["xsdmf_id"]);
-				$res[$i]["field_options_value_only"] = XSD_HTML_Match :: getOptionsValueOnly($res[$i]["xsdmf_id"]);
+				$res[$i]["field_options"] = XSD_HTML_Match::getOptions($res[$i]["xsdmf_id"]);
+				$res[$i]["field_options_value_only"] = XSD_HTML_Match::getOptionsValueOnly($res[$i]["xsdmf_id"]);
 			}
 			return $res;
 		}
@@ -560,8 +560,8 @@ class XSD_HTML_Match {
 		                    mfo_fld_id=$fld_id AND
 		                    mfo_id=$value";
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return "";
 		} else {
@@ -591,8 +591,8 @@ class XSD_HTML_Match {
 		                 WHERE
 		                    mfo_id=$mfo_id";
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return "";
 		} else {
@@ -618,8 +618,8 @@ class XSD_HTML_Match {
 		                 WHERE
 		                    xsdmf_xdis_id = $xdis_id AND xsdmf_element='" . $xml_element . "'";
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return -1;
 		} else {
@@ -638,52 +638,52 @@ class XSD_HTML_Match {
 			global $HTTP_POST_VARS;
 			$xsdmf_ids = & $HTTP_POST_VARS['items'];
 		}
-		$items = Misc :: arrayToSQL($xsdmf_ids);
+		$items = Misc::arrayToSQL($xsdmf_ids);
 		if (@ strlen($items) < 1) {
 			return false;
 		}
 		foreach ($xsdmf_ids as $xsdmf_id) {
-			$att_list = XSD_HTML_Match :: getChildren($xsdmf_id);
+			$att_list = XSD_HTML_Match::getChildren($xsdmf_id);
 			if (!empty ($att_list)) {
-				$att_ids = Misc :: arrayToSQL(array_keys(Misc :: keyArray($att_list, 'att_id')));
+				$att_ids = Misc::arrayToSQL(array_keys(Misc::keyArray($att_list, 'att_id')));
 				$stmt = "delete from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_attach " .
 				"where att_id in ($att_ids)";
 				$res = $GLOBALS["db_api"]->dbh->query($stmt);
-				if (PEAR :: isError($res)) {
-					Error_Handler :: logError(array (
+				if (PEAR::isError($res)) {
+					Error_Handler::logError(array (
 					$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 				}
 			}
-			$mfo_list = XSD_HTML_Match :: getOptions($xsdmf_id);
-			if (is_array($mfo_list)) {
-				$mfo_ids = Misc :: arrayToSQL(array_keys(Misc :: keyArray($mfo_list, 'mfo_id')));
+			$mfo_list = XSD_HTML_Match::getOptions($xsdmf_id);
+			if (is_array($mfo_list) && !empty($mfo_list)) {
+				$mfo_ids = Misc::arrayToSQL(array_keys(Misc::keyArray($mfo_list, 'mfo_id')));
 				$stmt = "delete from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_mf_option " .
 				"where mfo_id in ($mfo_ids)";
 				$res = $GLOBALS["db_api"]->dbh->query($stmt);
-				if (PEAR :: isError($res)) {
-					Error_Handler :: logError(array (
+				if (PEAR::isError($res)) {
+					Error_Handler::logError(array (
 					$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 				}
 			}
-			$subs = XSD_Loop_Subelement :: getSimpleListByXSDMF($xsdmf_id);
+			$subs = XSD_Loop_Subelement::getSimpleListByXSDMF($xsdmf_id);
 			if (!empty ($subs)) {
-				$xsdsel_ids = Misc :: arrayToSQL(array_keys(Misc :: keyArray($subs, 'xsdsel_id')));
+				$xsdsel_ids = Misc::arrayToSQL(array_keys(Misc::keyArray($subs, 'xsdsel_id')));
 				$stmt = "delete from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement " .
 				"where xsdsel_id in ($xsdsel_ids)";
 				$res = $GLOBALS["db_api"]->dbh->query($stmt);
-				if (PEAR :: isError($res)) {
-					Error_Handler :: logError(array (
+				if (PEAR::isError($res)) {
+					Error_Handler::logError(array (
 					$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 				}
 			}
-			$rels = XSD_Relationship :: getSimpleListByXSDMF($xsdmf_id);
+			$rels = XSD_Relationship::getSimpleListByXSDMF($xsdmf_id);
 			if (!empty ($rels)) {
-				$xsdrel_ids = Misc :: arrayToSQL(array_keys(Misc :: keyArray($rels, 'xsdrel_id')));
+				$xsdrel_ids = Misc::arrayToSQL(array_keys(Misc::keyArray($rels, 'xsdrel_id')));
 				$stmt = "delete from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship " .
 				"where xsdrel_id in ($xsdrel_ids)";
 				$res = $GLOBALS["db_api"]->dbh->query($stmt);
-				if (PEAR :: isError($res)) {
-					Error_Handler :: logError(array (
+				if (PEAR::isError($res)) {
+					Error_Handler::logError(array (
 					$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 				}
 			}
@@ -695,8 +695,8 @@ class XSD_HTML_Match {
 		                    xsdmf_id in ($items)";
 
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return -1;
 		} else {
@@ -705,9 +705,9 @@ class XSD_HTML_Match {
 	}
 
 	function removeByXDIS_ID($xdis_id) {
-		$list = XSD_HTML_Match :: getList($xdis_id);
-		$xsdmf_ids = array_keys(Misc :: keyArray($list, 'xsdmf_id'));
-		return XSD_HTML_Match :: removeByXSDMF_IDs($xsdmf_ids);
+		$list = XSD_HTML_Match::getList($xdis_id);
+		$xsdmf_ids = array_keys(Misc::keyArray($list, 'xsdmf_id'));
+		return XSD_HTML_Match::removeByXSDMF_IDs($xsdmf_ids);
 	}
 
 	/**
@@ -915,17 +915,17 @@ class XSD_HTML_Match {
 		                 ) VALUES (
 		                    $xdis_id,
 		                    '$xml_element',
-		                    '" . Misc :: escapeString($HTTP_POST_VARS["title"]) . "',
-		                    '" . Misc :: escapeString($HTTP_POST_VARS["description"]) . "',
-		                    '" . Misc :: escapeString($HTTP_POST_VARS["long_description"]) . "',					
-		                    '" . Misc :: escapeString($HTTP_POST_VARS["field_type"]) . "',
-		                    '" . Misc :: escapeString($HTTP_POST_VARS["order"]) . "',
-		                    '" . Misc :: escapeString($HTTP_POST_VARS["validation_types"]) . "',
+		                    '" . Misc::escapeString($HTTP_POST_VARS["title"]) . "',
+		                    '" . Misc::escapeString($HTTP_POST_VARS["description"]) . "',
+		                    '" . Misc::escapeString($HTTP_POST_VARS["long_description"]) . "',					
+		                    '" . Misc::escapeString($HTTP_POST_VARS["field_type"]) . "',
+		                    '" . Misc::escapeString($HTTP_POST_VARS["order"]) . "',
+		                    '" . Misc::escapeString($HTTP_POST_VARS["validation_types"]) . "',
 		                    " . $enabled . ",
 		                    " . $indexed . ",
 		                    " . $required . ",
 		                    " . $multiple . ",
-		                    '" . Misc :: escapeString($HTTP_POST_VARS["xsdmf_meta_header_name"]) . "',					
+		                    '" . Misc::escapeString($HTTP_POST_VARS["xsdmf_meta_header_name"]) . "',					
 		                    " . $xsdmf_meta_header . ",
 		                    " . $xsdmf_citation_browse . ",
 		                    " . $xsdmf_citation . ",
@@ -933,103 +933,103 @@ class XSD_HTML_Match {
 		                    " . $xsdmf_citation_italics . ",
 		                    " . $xsdmf_citation_brackets . ", ";
 		if (is_numeric($HTTP_POST_VARS["xsdmf_citation_order"])) {
-			$stmt .= Misc :: escapeString($HTTP_POST_VARS["xsdmf_citation_order"]) . ", ";
+			$stmt .= Misc::escapeString($HTTP_POST_VARS["xsdmf_citation_order"]) . ", ";
 		}
 		if ($HTTP_POST_VARS["xsdmf_citation_prefix"]) {
-			$stmt .= "'" . Misc :: escapeString($HTTP_POST_VARS["xsdmf_citation_prefix"]) . "', ";
+			$stmt .= "'" . Misc::escapeString($HTTP_POST_VARS["xsdmf_citation_prefix"]) . "', ";
 		}
 		if ($HTTP_POST_VARS["xsdmf_citation_suffix"]) {
-			$stmt .= "'" . Misc :: escapeString($HTTP_POST_VARS["xsdmf_citation_suffix"]) . "', ";
+			$stmt .= "'" . Misc::escapeString($HTTP_POST_VARS["xsdmf_citation_suffix"]) . "', ";
 		}
 		if ($HTTP_POST_VARS["multiple_limit"] != "") {
-			$stmt .= Misc :: escapeString($HTTP_POST_VARS["multiple_limit"]) . ",";
+			$stmt .= Misc::escapeString($HTTP_POST_VARS["multiple_limit"]) . ",";
 		}
 		if ($HTTP_POST_VARS["xsdmf_sek_id"] != "") {
-			$stmt .= Misc :: escapeString($HTTP_POST_VARS["xsdmf_sek_id"]) . ",";
+			$stmt .= Misc::escapeString($HTTP_POST_VARS["xsdmf_sek_id"]) . ",";
 		}
 		if ($HTTP_POST_VARS["xsdmf_org_level"] != "") {
-			$stmt .= "'" . Misc :: escapeString($HTTP_POST_VARS["xsdmf_org_level"]) . "',";
+			$stmt .= "'" . Misc::escapeString($HTTP_POST_VARS["xsdmf_org_level"]) . "',";
 		}
 		if (is_numeric($HTTP_POST_VARS["xsdmf_org_fill_xdis_id"])) {
-			$stmt .= Misc :: escapeString($HTTP_POST_VARS["xsdmf_org_fill_xdis_id"]) . ",";
+			$stmt .= Misc::escapeString($HTTP_POST_VARS["xsdmf_org_fill_xdis_id"]) . ",";
 		}
 		if (is_numeric($HTTP_POST_VARS["xsdmf_org_fill_xsdmf_id"])) {
-			$stmt .= Misc :: escapeString($HTTP_POST_VARS["xsdmf_org_fill_xsdmf_id"]) . ",";
+			$stmt .= Misc::escapeString($HTTP_POST_VARS["xsdmf_org_fill_xsdmf_id"]) . ",";
 		}
 
 		if (is_numeric($HTTP_POST_VARS["xsdmf_parent_option_xdis_id"])) {
-			$stmt .= Misc :: escapeString($HTTP_POST_VARS["xsdmf_parent_option_xdis_id"]) . ",";
+			$stmt .= Misc::escapeString($HTTP_POST_VARS["xsdmf_parent_option_xdis_id"]) . ",";
 		}
 		if (is_numeric($HTTP_POST_VARS["xsdmf_parent_option_child_xsdmf_id"])) {
-			$stmt .= Misc :: escapeString($HTTP_POST_VARS["xsdmf_parent_option_child_xsdmf_id"]) . ",";
+			$stmt .= Misc::escapeString($HTTP_POST_VARS["xsdmf_parent_option_child_xsdmf_id"]) . ",";
 		}
 		if (is_numeric($HTTP_POST_VARS["xsdmf_asuggest_xdis_id"])) {
-			$stmt .= Misc :: escapeString($HTTP_POST_VARS["xsdmf_asuggest_xdis_id"]) . ",";
+			$stmt .= Misc::escapeString($HTTP_POST_VARS["xsdmf_asuggest_xdis_id"]) . ",";
 		}
 		if (is_numeric($HTTP_POST_VARS["xsdmf_asuggest_xsdmf_id"])) {
-			$stmt .= Misc :: escapeString($HTTP_POST_VARS["xsdmf_asuggest_xsdmf_id"]) . ",";
+			$stmt .= Misc::escapeString($HTTP_POST_VARS["xsdmf_asuggest_xsdmf_id"]) . ",";
 		}
 		if (is_numeric($HTTP_POST_VARS["xsdmf_cvo_min_level"])) {
-			$stmt .= Misc :: escapeString($HTTP_POST_VARS["xsdmf_cvo_min_level"]) . ",";
+			$stmt .= Misc::escapeString($HTTP_POST_VARS["xsdmf_cvo_min_level"]) . ",";
 		}
 		if (is_numeric($HTTP_POST_VARS["xsdmf_cvo_save_type"])) {
-			$stmt .= Misc :: escapeString($HTTP_POST_VARS["xsdmf_cvo_save_type"]) . ",";
+			$stmt .= Misc::escapeString($HTTP_POST_VARS["xsdmf_cvo_save_type"]) . ",";
 		}
 		$stmt .= $xsdmf_use_org_to_fill . ",
 							" . $xsdmf_use_parent_option_list . ",					
 		                    " . $valueintag . ",
 		                    " . $is_key . ",
-		                    '" . Misc :: escapeString($HTTP_POST_VARS["xsdmf_data_type"]) . "',
-		                    '" . Misc :: escapeString($HTTP_POST_VARS["parent_key_match"]) . "',
-		                    '" . Misc :: escapeString($HTTP_POST_VARS["key_match"]) . "',";
+		                    '" . Misc::escapeString($HTTP_POST_VARS["xsdmf_data_type"]) . "',
+		                    '" . Misc::escapeString($HTTP_POST_VARS["parent_key_match"]) . "',
+		                    '" . Misc::escapeString($HTTP_POST_VARS["key_match"]) . "',";
 
 		if ($HTTP_POST_VARS["xsdmf_xdis_id_ref"] != "") {
-			$stmt .= Misc :: escapeString($HTTP_POST_VARS["xsdmf_xdis_id_ref"]) . ",";
+			$stmt .= Misc::escapeString($HTTP_POST_VARS["xsdmf_xdis_id_ref"]) . ",";
 		}
 		if ($HTTP_POST_VARS["xsdmf_id_ref"] != "") {
-			$stmt .= Misc :: escapeString($HTTP_POST_VARS["xsdmf_id_ref"]) . ",";
+			$stmt .= Misc::escapeString($HTTP_POST_VARS["xsdmf_id_ref"]) . ",";
 		}
 		if ($HTTP_POST_VARS["xsdmf_id_ref_save_type"] != "") {
-			$stmt .= Misc :: escapeString($HTTP_POST_VARS["xsdmf_id_ref_save_type"]) . ",";
+			$stmt .= Misc::escapeString($HTTP_POST_VARS["xsdmf_id_ref_save_type"]) . ",";
 		}
 
 		if ($HTTP_POST_VARS["smarty_variable"] != "") {
-			$stmt .= "'" . Misc :: escapeString($HTTP_POST_VARS["smarty_variable"]) . "',";
+			$stmt .= "'" . Misc::escapeString($HTTP_POST_VARS["smarty_variable"]) . "',";
 		}
 		if ($HTTP_POST_VARS["fez_variable"] != "") {
-			$stmt .= "'" . Misc :: escapeString($HTTP_POST_VARS["fez_variable"]) . "',";
+			$stmt .= "'" . Misc::escapeString($HTTP_POST_VARS["fez_variable"]) . "',";
 		}
 		if ($HTTP_POST_VARS["dynamic_selected_option"] != "") {
-			$stmt .= "'" . Misc :: escapeString($HTTP_POST_VARS["dynamic_selected_option"]) . "',";
+			$stmt .= "'" . Misc::escapeString($HTTP_POST_VARS["dynamic_selected_option"]) . "',";
 		}
 		if ($HTTP_POST_VARS["selected_option"] != "") {
-			$stmt .= "'" . Misc :: escapeString($HTTP_POST_VARS["selected_option"]) . "',";
+			$stmt .= "'" . Misc::escapeString($HTTP_POST_VARS["selected_option"]) . "',";
 		}
 
-		$stmt .= "'" . Misc :: escapeString($HTTP_POST_VARS["checkbox_selected_option"]) . "',";
+		$stmt .= "'" . Misc::escapeString($HTTP_POST_VARS["checkbox_selected_option"]) . "',";
 
 		$stmt .= $show_in_view . ",
-		                    '" . Misc :: escapeString($HTTP_POST_VARS["enforced_prefix"]) . "',
-		                    '" . Misc :: escapeString($HTTP_POST_VARS["value_prefix"]) . "',
-		                    '" . Misc :: escapeString($HTTP_POST_VARS["image_location"]) . "',
-		                    '" . Misc :: escapeString($HTTP_POST_VARS["static_text"]) . "',
-		                    '" . Misc :: escapeString($HTTP_POST_VARS["dynamic_text"]) . "',
-		                    " . Misc :: escapeString($HTTP_POST_VARS["xsdmf_date_type"]) . ",
+		                    '" . Misc::escapeString($HTTP_POST_VARS["enforced_prefix"]) . "',
+		                    '" . Misc::escapeString($HTTP_POST_VARS["value_prefix"]) . "',
+		                    '" . Misc::escapeString($HTTP_POST_VARS["image_location"]) . "',
+		                    '" . Misc::escapeString($HTTP_POST_VARS["static_text"]) . "',
+		                    '" . Misc::escapeString($HTTP_POST_VARS["dynamic_text"]) . "',
+		                    " . Misc::escapeString($HTTP_POST_VARS["xsdmf_date_type"]) . ",
 		                    " . $HTTP_POST_VARS["xsdmf_cvo_id"];
 
 		if (is_numeric($HTTP_POST_VARS["attached_xsdmf_id"])) {
-			$stmt .= ", " . Misc :: escapeString($HTTP_POST_VARS["attached_xsdmf_id"]);
+			$stmt .= ", " . Misc::escapeString($HTTP_POST_VARS["attached_xsdmf_id"]);
 		}
 
 		if (is_numeric($HTTP_POST_VARS["xsdsel_id"])) {
-			$stmt .= ", " . Misc :: escapeString($HTTP_POST_VARS["xsdsel_id"]);
+			$stmt .= ", " . Misc::escapeString($HTTP_POST_VARS["xsdsel_id"]);
 		}
 		$stmt .= "
 		                 )";
 
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return -1;
 		} else {
@@ -1037,8 +1037,8 @@ class XSD_HTML_Match {
 			$new_id = $GLOBALS["db_api"]->get_last_insert_id();
 			if (($HTTP_POST_VARS["field_type"] == 'combo') || ($HTTP_POST_VARS["field_type"] == 'multiple')) {
 				foreach ($HTTP_POST_VARS["field_options"] as $option_value) {
-					$params = XSD_HTML_Match :: parseParameters($option_value);
-					XSD_HTML_Match :: addOptions($new_id, $params["value"]);
+					$params = XSD_HTML_Match::parseParameters($option_value);
+					XSD_HTML_Match::addOptions($new_id, $params["value"]);
 				}
 			}
 		}
@@ -1200,12 +1200,12 @@ class XSD_HTML_Match {
 		$stmt .= "
 		                 ) VALUES (
 		                    $xdis_id,
-		                    '" . Misc :: escapeString($insertArray["xsdmf_element"]) . "',
-		                    '" . Misc :: escapeString($insertArray["xsdmf_title"]) . "',
-		                    '" . Misc :: escapeString($insertArray["xsdmf_description"]) . "',
-		                    '" . Misc :: escapeString($insertArray["xsdmf_html_input"]) . "',
-		                    '" . Misc :: escapeString($insertArray["xsdmf_order"]) . "',
-		                    '" . Misc :: escapeString($insertArray["xsdmf_validation_type"]) . "',";
+		                    '" . Misc::escapeString($insertArray["xsdmf_element"]) . "',
+		                    '" . Misc::escapeString($insertArray["xsdmf_title"]) . "',
+		                    '" . Misc::escapeString($insertArray["xsdmf_description"]) . "',
+		                    '" . Misc::escapeString($insertArray["xsdmf_html_input"]) . "',
+		                    '" . Misc::escapeString($insertArray["xsdmf_order"]) . "',
+		                    '" . Misc::escapeString($insertArray["xsdmf_validation_type"]) . "',";
 
 		if (!empty ($insertArray["xsdmf_enabled"])) {
 			$stmt .= $insertArray["xsdmf_enabled"] . ",";
@@ -1232,7 +1232,7 @@ class XSD_HTML_Match {
 			$stmt .= $insertArray["xsdmf_is_key"] . ",";
 		}
 		if (!empty ($insertArray["xsdmf_meta_header_name"])) {
-			$stmt .= "'" . Misc :: escapeString($insertArray["xsdmf_meta_header_name"]) . "',";
+			$stmt .= "'" . Misc::escapeString($insertArray["xsdmf_meta_header_name"]) . "',";
 		}
 		if (!empty ($insertArray["xsdmf_meta_header"])) {
 			$stmt .= $insertArray["xsdmf_meta_header"] . ",";
@@ -1263,29 +1263,29 @@ class XSD_HTML_Match {
 		}
 
 		$stmt .= "
-		                    '" . Misc :: escapeString($insertArray["xsdmf_parent_key_match"]) . "',
-		                    '" . Misc :: escapeString($insertArray["xsdmf_key_match"]) . "',";
+		                    '" . Misc::escapeString($insertArray["xsdmf_parent_key_match"]) . "',
+		                    '" . Misc::escapeString($insertArray["xsdmf_key_match"]) . "',";
 
 		if (!empty ($insertArray["xsdmf_xdis_id_ref"])) {
-			$stmt .= Misc :: escapeString($insertArray["xsdmf_xdis_id_ref"]) . ",";
+			$stmt .= Misc::escapeString($insertArray["xsdmf_xdis_id_ref"]) . ",";
 		}
 		if (!empty ($insertArray["xsdmf_id_ref"])) {
-			$stmt .= Misc :: escapeString($insertArray["xsdmf_id_ref"]) . ",";
+			$stmt .= Misc::escapeString($insertArray["xsdmf_id_ref"]) . ",";
 		}
 		if (!empty ($insertArray["xsdmf_id_ref_save_type"])) {
-			$stmt .= Misc :: escapeString($insertArray["xsdmf_id_ref_save_type"]) . ",";
+			$stmt .= Misc::escapeString($insertArray["xsdmf_id_ref_save_type"]) . ",";
 		}
 		if (!empty ($insertArray["xsdmf_smarty_variable"])) {
-			$stmt .= "'" . Misc :: escapeString($insertArray["xsdmf_smarty_variable"]) . "',";
+			$stmt .= "'" . Misc::escapeString($insertArray["xsdmf_smarty_variable"]) . "',";
 		}
 		if (!empty ($insertArray["xsdmf_fez_variable"])) {
-			$stmt .= "'" . Misc :: escapeString($insertArray["xsdmf_fez_variable"]) . "',";
+			$stmt .= "'" . Misc::escapeString($insertArray["xsdmf_fez_variable"]) . "',";
 		}
 		if (!empty ($insertArray["xsdmf_dynamic_selected_option"])) {
-			$stmt .= "'" . Misc :: escapeString($insertArray["xsdmf_dynamic_selected_option"]) . "',";
+			$stmt .= "'" . Misc::escapeString($insertArray["xsdmf_dynamic_selected_option"]) . "',";
 		}
 		if (!empty ($insertArray["xsdmf_selected_option"])) {
-			$stmt .= "'" . Misc :: escapeString($insertArray["xsdmf_selected_option"]) . "',";
+			$stmt .= "'" . Misc::escapeString($insertArray["xsdmf_selected_option"]) . "',";
 		}
 		if (!empty ($insertArray["xsdmf_show_in_view"])) {
 			$stmt .= $insertArray["xsdmf_show_in_view"] . ",";
@@ -1316,7 +1316,7 @@ class XSD_HTML_Match {
 		}
 
 		if (!empty ($insertArray["xsdmf_org_level"])) {
-			$stmt .= "'" . Misc :: escapeString($insertArray["xsdmf_org_level"]) . "',";
+			$stmt .= "'" . Misc::escapeString($insertArray["xsdmf_org_level"]) . "',";
 		}
 		if (!empty ($insertArray["xsdmf_use_org_to_fill"])) {
 			$stmt .= $insertArray["xsdmf_use_org_to_fill"] . ",";
@@ -1329,12 +1329,12 @@ class XSD_HTML_Match {
 		}
 
 		$stmt .= "
-		                    '" . Misc :: escapeString($insertArray["xsdmf_enforced_prefix"]) . "',
-		                    '" . Misc :: escapeString($insertArray["xsdmf_value_prefix"]) . "',
-		                    '" . Misc :: escapeString($insertArray["xsdmf_image_location"]) . "',
-		                    '" . Misc :: escapeString($insertArray["xsdmf_static_text"]) . "',
-		                    '" . Misc :: escapeString($insertArray["xsdmf_dynamic_text"]) . "',
-		                    " . Misc :: escapeString($insertArray["xsdmf_date_type"]);
+		                    '" . Misc::escapeString($insertArray["xsdmf_enforced_prefix"]) . "',
+		                    '" . Misc::escapeString($insertArray["xsdmf_value_prefix"]) . "',
+		                    '" . Misc::escapeString($insertArray["xsdmf_image_location"]) . "',
+		                    '" . Misc::escapeString($insertArray["xsdmf_static_text"]) . "',
+		                    '" . Misc::escapeString($insertArray["xsdmf_dynamic_text"]) . "',
+		                    " . Misc::escapeString($insertArray["xsdmf_date_type"]);
 
 		if (is_numeric($insertArray["xsdmf_attached_xsdmf_id"])) {
 			$stmt .= ", " . $insertArray["xsdmf_attached_xsdmf_id"];
@@ -1346,8 +1346,8 @@ class XSD_HTML_Match {
 		$stmt .= "
 		                 )";
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return -1;
 		} else {
@@ -1513,12 +1513,12 @@ class XSD_HTML_Match {
 		$stmt .= "
 		                 ) VALUES (
 		                    $xdis_id,
-		                    '" . Misc :: escapeString($insertArray["xsdmf_element"]) . "',
-		                    '" . Misc :: escapeString($insertArray["xsdmf_title"]) . "',
-		                    '" . Misc :: escapeString($insertArray["xsdmf_description"]) . "',
-		                    '" . Misc :: escapeString($insertArray["xsdmf_html_input"]) . "',
-		                    '" . Misc :: escapeString($insertArray["xsdmf_order"]) . "',
-		                    '" . Misc :: escapeString($insertArray["xsdmf_validation_type"]) . "',";
+		                    '" . Misc::escapeString($insertArray["xsdmf_element"]) . "',
+		                    '" . Misc::escapeString($insertArray["xsdmf_title"]) . "',
+		                    '" . Misc::escapeString($insertArray["xsdmf_description"]) . "',
+		                    '" . Misc::escapeString($insertArray["xsdmf_html_input"]) . "',
+		                    '" . Misc::escapeString($insertArray["xsdmf_order"]) . "',
+		                    '" . Misc::escapeString($insertArray["xsdmf_validation_type"]) . "',";
 
 		if (!empty ($insertArray["xsdmf_enabled"])) {
 			$stmt .= $insertArray["xsdmf_enabled"] . ",";
@@ -1580,30 +1580,30 @@ class XSD_HTML_Match {
 			$stmt .= "'" . $insertArray["xsdmf_citation_suffix"] . "',";
 		}
 		$stmt .= "
-		                    '" . Misc :: escapeString($insertArray["xsdmf_parent_key_match"]) . "',
-		                    '" . Misc :: escapeString($insertArray["xsdmf_key_match"]) . "',";
+		                    '" . Misc::escapeString($insertArray["xsdmf_parent_key_match"]) . "',
+		                    '" . Misc::escapeString($insertArray["xsdmf_key_match"]) . "',";
 
 		if (!empty ($insertArray["xsdmf_xdis_id_ref"])) {
-			$stmt .= Misc :: escapeString($insertArray["xsdmf_xdis_id_ref"]) . ",";
+			$stmt .= Misc::escapeString($insertArray["xsdmf_xdis_id_ref"]) . ",";
 		}
 		if (!empty ($insertArray["xsdmf_id_ref"])) {
-			$stmt .= Misc :: escapeString($insertArray["xsdmf_id_ref"]) . ",";
+			$stmt .= Misc::escapeString($insertArray["xsdmf_id_ref"]) . ",";
 		}
 		if (!empty ($insertArray["xsdmf_id_ref_save_type"])) {
-			$stmt .= Misc :: escapeString($insertArray["xsdmf_id_ref_save_type"]) . ",";
+			$stmt .= Misc::escapeString($insertArray["xsdmf_id_ref_save_type"]) . ",";
 		}
 
 		if (!empty ($insertArray["xsdmf_smarty_variable"])) {
-			$stmt .= "'" . Misc :: escapeString($insertArray["xsdmf_smarty_variable"]) . "',";
+			$stmt .= "'" . Misc::escapeString($insertArray["xsdmf_smarty_variable"]) . "',";
 		}
 		if (!empty ($insertArray["xsdmf_fez_variable"])) {
-			$stmt .= "'" . Misc :: escapeString($insertArray["xsdmf_fez_variable"]) . "',";
+			$stmt .= "'" . Misc::escapeString($insertArray["xsdmf_fez_variable"]) . "',";
 		}
 		if (!empty ($insertArray["xsdmf_dynamic_selected_option"])) {
-			$stmt .= "'" . Misc :: escapeString($insertArray["xsdmf_dynamic_selected_option"]) . "',";
+			$stmt .= "'" . Misc::escapeString($insertArray["xsdmf_dynamic_selected_option"]) . "',";
 		}
 		if (!empty ($insertArray["xsdmf_selected_option"])) {
-			$stmt .= "'" . Misc :: escapeString($insertArray["xsdmf_selected_option"]) . "',";
+			$stmt .= "'" . Misc::escapeString($insertArray["xsdmf_selected_option"]) . "',";
 		}
 		if (is_numeric($insertArray["xsdmf_show_in_view"])) {
 			$stmt .= $insertArray["xsdmf_show_in_view"] . ",";
@@ -1635,7 +1635,7 @@ class XSD_HTML_Match {
 		}
 
 		if (!empty ($insertArray["xsdmf_org_level"])) {
-			$stmt .= "'" . Misc :: escapeString($insertArray["xsdmf_org_level"]) . "',";
+			$stmt .= "'" . Misc::escapeString($insertArray["xsdmf_org_level"]) . "',";
 		}
 		if (!empty ($insertArray["xsdmf_use_org_to_fill"])) {
 			$stmt .= $insertArray["xsdmf_use_org_to_fill"] . ",";
@@ -1650,11 +1650,11 @@ class XSD_HTML_Match {
 			$stmt .= $insertArray["xsdmf_attached_xsdmf_id"] . ",";
 		}
 		$stmt .= "
-		                    '" . Misc :: escapeString($insertArray["xsdmf_enforced_prefix"]) . "',
-		                    '" . Misc :: escapeString($insertArray["xsdmf_value_prefix"]) . "',
-		                    '" . Misc :: escapeString($insertArray["xsdmf_image_location"]) . "',
-		                    '" . Misc :: escapeString($insertArray["xsdmf_static_text"]) . "',
-		                    '" . Misc :: escapeString($insertArray["xsdmf_dynamic_text"]) . "',
+		                    '" . Misc::escapeString($insertArray["xsdmf_enforced_prefix"]) . "',
+		                    '" . Misc::escapeString($insertArray["xsdmf_value_prefix"]) . "',
+		                    '" . Misc::escapeString($insertArray["xsdmf_image_location"]) . "',
+		                    '" . Misc::escapeString($insertArray["xsdmf_static_text"]) . "',
+		                    '" . Misc::escapeString($insertArray["xsdmf_dynamic_text"]) . "',
 							" . $insertArray["xsdmf_id"];
 
 		if (is_numeric($xsdsel_id)) {
@@ -1664,8 +1664,8 @@ class XSD_HTML_Match {
 		                 )";
 
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return -1;
 		} else {
@@ -1772,123 +1772,123 @@ class XSD_HTML_Match {
 		$stmt = "UPDATE
 		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 SET 
-		                    xsdmf_title = '" . Misc :: escapeString($HTTP_POST_VARS["title"]) . "',
-		                    xsdmf_description = '" . Misc :: escapeString($HTTP_POST_VARS["description"]) . "',
-		                    xsdmf_long_description = '" . Misc :: escapeString($HTTP_POST_VARS["long_description"]) . "',
-		                    xsdmf_html_input = '" . Misc :: escapeString($HTTP_POST_VARS["field_type"]) . "',
-		                    xsdmf_validation_type = '" . Misc :: escapeString($HTTP_POST_VARS["validation_types"]) . "',
-		                    xsdmf_order = " . Misc :: escapeString($HTTP_POST_VARS["order"]) . ",
-		                    xsdmf_date_type = " . Misc :: escapeString($HTTP_POST_VARS["xsdmf_date_type"]) . ",					
+		                    xsdmf_title = '" . Misc::escapeString($HTTP_POST_VARS["title"]) . "',
+		                    xsdmf_description = '" . Misc::escapeString($HTTP_POST_VARS["description"]) . "',
+		                    xsdmf_long_description = '" . Misc::escapeString($HTTP_POST_VARS["long_description"]) . "',
+		                    xsdmf_html_input = '" . Misc::escapeString($HTTP_POST_VARS["field_type"]) . "',
+		                    xsdmf_validation_type = '" . Misc::escapeString($HTTP_POST_VARS["validation_types"]) . "',
+		                    xsdmf_order = " . Misc::escapeString($HTTP_POST_VARS["order"]) . ",
+		                    xsdmf_date_type = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_date_type"]) . ",					
 		                    xsdmf_cvo_id = " . $HTTP_POST_VARS["xsdmf_cvo_id"] . ",					
 		                    xsdmf_use_org_to_fill = " . $xsdmf_use_org_to_fill . ",
 		                    xsdmf_use_parent_option_list = " . $xsdmf_use_parent_option_list . ",
 		                    xsdmf_required = " . $required . ",
 		                    xsdmf_indexed = " . $indexed . ",
 		                    xsdmf_enabled = " . $enabled . ",
-		                    xsdmf_meta_header_name = '" . Misc :: escapeString($HTTP_POST_VARS["xsdmf_meta_header_name"]) . "',
+		                    xsdmf_meta_header_name = '" . Misc::escapeString($HTTP_POST_VARS["xsdmf_meta_header_name"]) . "',
 		                    xsdmf_meta_header = " . $xsdmf_meta_header . ",
 		                    xsdmf_citation_browse = " . $xsdmf_citation_browse . ",
 		                    xsdmf_citation = " . $xsdmf_citation . ",
 		                    xsdmf_citation_bold = " . $xsdmf_citation_bold . ",
 		                    xsdmf_citation_italics = " . $xsdmf_citation_italics . ",										
 		                    xsdmf_citation_brackets = " . $xsdmf_citation_brackets . ",
-		                    xsdmf_citation_prefix = '" . Misc :: escapeString($HTTP_POST_VARS["xsdmf_citation_prefix"]) . "',
-		                    xsdmf_citation_suffix = '" . Misc :: escapeString($HTTP_POST_VARS["xsdmf_citation_suffix"]) . "',
+		                    xsdmf_citation_prefix = '" . Misc::escapeString($HTTP_POST_VARS["xsdmf_citation_prefix"]) . "',
+		                    xsdmf_citation_suffix = '" . Misc::escapeString($HTTP_POST_VARS["xsdmf_citation_suffix"]) . "',
 		                    xsdmf_multiple = " . $multiple . ",";
 		if ($HTTP_POST_VARS["multiple_limit"] != "") {
-			$stmt .= " xsdmf_multiple_limit = " . Misc :: escapeString($HTTP_POST_VARS["multiple_limit"]) . ",";
+			$stmt .= " xsdmf_multiple_limit = " . Misc::escapeString($HTTP_POST_VARS["multiple_limit"]) . ",";
 		}
 		if (is_numeric($HTTP_POST_VARS["xsdmf_sek_id"])) {
-			$stmt .= " xsdmf_sek_id = " . Misc :: escapeString($HTTP_POST_VARS["xsdmf_sek_id"]) . ",";
+			$stmt .= " xsdmf_sek_id = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_sek_id"]) . ",";
 		}
 		if ($HTTP_POST_VARS["xsdmf_org_level"] != "") {
-			$stmt .= " xsdmf_org_level = '" . Misc :: escapeString($HTTP_POST_VARS["xsdmf_org_level"]) . "',";
+			$stmt .= " xsdmf_org_level = '" . Misc::escapeString($HTTP_POST_VARS["xsdmf_org_level"]) . "',";
 		}
 		if (is_numeric($HTTP_POST_VARS["xsdmf_org_fill_xdis_id"])) {
-			$stmt .= " xsdmf_org_fill_xdis_id = " . Misc :: escapeString($HTTP_POST_VARS["xsdmf_org_fill_xdis_id"]) . ",";
+			$stmt .= " xsdmf_org_fill_xdis_id = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_org_fill_xdis_id"]) . ",";
 		}
 		if (is_numeric($HTTP_POST_VARS["xsdmf_org_fill_xsdmf_id"])) {
-			$stmt .= " xsdmf_org_fill_xsdmf_id = " . Misc :: escapeString($HTTP_POST_VARS["xsdmf_org_fill_xsdmf_id"]) . ",";
+			$stmt .= " xsdmf_org_fill_xsdmf_id = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_org_fill_xsdmf_id"]) . ",";
 		}
 		if (is_numeric($HTTP_POST_VARS["xsdmf_parent_option_xdis_id"])) {
-			$stmt .= " xsdmf_parent_option_xdis_id = " . Misc :: escapeString($HTTP_POST_VARS["xsdmf_parent_option_xdis_id"]) . ",";
+			$stmt .= " xsdmf_parent_option_xdis_id = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_parent_option_xdis_id"]) . ",";
 		}
 		if (is_numeric($HTTP_POST_VARS["xsdmf_parent_option_child_xsdmf_id"])) {
-			$stmt .= " xsdmf_parent_option_child_xsdmf_id = " . Misc :: escapeString($HTTP_POST_VARS["xsdmf_parent_option_child_xsdmf_id"]) . ",";
+			$stmt .= " xsdmf_parent_option_child_xsdmf_id = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_parent_option_child_xsdmf_id"]) . ",";
 		}
 		if (is_numeric($HTTP_POST_VARS["xsdmf_asuggest_xdis_id"])) {
-			$stmt .= " xsdmf_asuggest_xdis_id = " . Misc :: escapeString($HTTP_POST_VARS["xsdmf_asuggest_xdis_id"]) . ",";
+			$stmt .= " xsdmf_asuggest_xdis_id = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_asuggest_xdis_id"]) . ",";
 		}
 		if (is_numeric($HTTP_POST_VARS["xsdmf_asuggest_xsdmf_id"])) {
-			$stmt .= " xsdmf_asuggest_xsdmf_id = " . Misc :: escapeString($HTTP_POST_VARS["xsdmf_asuggest_xsdmf_id"]) . ",";
+			$stmt .= " xsdmf_asuggest_xsdmf_id = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_asuggest_xsdmf_id"]) . ",";
 		}
 		if (is_numeric($HTTP_POST_VARS["xsdmf_cvo_min_level"])) {
-			$stmt .= " xsdmf_cvo_min_level = " . Misc :: escapeString($HTTP_POST_VARS["xsdmf_cvo_min_level"]) . ",";
+			$stmt .= " xsdmf_cvo_min_level = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_cvo_min_level"]) . ",";
 		}
 		if (is_numeric($HTTP_POST_VARS["xsdmf_cvo_save_type"])) {
-			$stmt .= " xsdmf_cvo_save_type = " . Misc :: escapeString($HTTP_POST_VARS["xsdmf_cvo_save_type"]) . ",";
+			$stmt .= " xsdmf_cvo_save_type = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_cvo_save_type"]) . ",";
 		}
 
 		if (is_numeric($HTTP_POST_VARS["xsdmf_citation_order"])) {
-			$stmt .= " xsdmf_citation_order = " . Misc :: escapeString($HTTP_POST_VARS["xsdmf_citation_order"]) . ",";
+			$stmt .= " xsdmf_citation_order = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_citation_order"]) . ",";
 		}
 		if ($HTTP_POST_VARS["smarty_variable"] != "") {
-			$stmt .= " xsdmf_smarty_variable = '" . Misc :: escapeString($HTTP_POST_VARS["smarty_variable"]) . "',";
+			$stmt .= " xsdmf_smarty_variable = '" . Misc::escapeString($HTTP_POST_VARS["smarty_variable"]) . "',";
 		}
 		if ($HTTP_POST_VARS["fez_variable"] != "") {
-			$stmt .= " xsdmf_fez_variable = '" . Misc :: escapeString($HTTP_POST_VARS["fez_variable"]) . "',";
+			$stmt .= " xsdmf_fez_variable = '" . Misc::escapeString($HTTP_POST_VARS["fez_variable"]) . "',";
 		}
 		if ($HTTP_POST_VARS["dynamic_selected_option"] != "") {
-			$stmt .= " xsdmf_dynamic_selected_option = '" . Misc :: escapeString($HTTP_POST_VARS["dynamic_selected_option"]) . "',";
+			$stmt .= " xsdmf_dynamic_selected_option = '" . Misc::escapeString($HTTP_POST_VARS["dynamic_selected_option"]) . "',";
 		}
 		if (!empty ($HTTP_POST_VARS["selected_option"])) {
-			$stmt .= " xsdmf_selected_option = '" . Misc :: escapeString($HTTP_POST_VARS["selected_option"]) . "',";
+			$stmt .= " xsdmf_selected_option = '" . Misc::escapeString($HTTP_POST_VARS["selected_option"]) . "',";
 		}
 
 		$stmt .= "
 		                    xsdmf_valueintag = " . $valueintag . ",
 		                    xsdmf_is_key = " . $is_key . ",
 		                    xsdmf_show_in_view = " . $show_in_view . ",
-		                    xsdmf_key_match = '" . Misc :: escapeString($HTTP_POST_VARS["key_match"]) . "',
-		                    xsdmf_parent_key_match = '" . Misc :: escapeString($HTTP_POST_VARS["parent_key_match"]) . "',
-		                    xsdmf_data_type = '" . Misc :: escapeString($HTTP_POST_VARS["xsdmf_data_type"]) . "',";
+		                    xsdmf_key_match = '" . Misc::escapeString($HTTP_POST_VARS["key_match"]) . "',
+		                    xsdmf_parent_key_match = '" . Misc::escapeString($HTTP_POST_VARS["parent_key_match"]) . "',
+		                    xsdmf_data_type = '" . Misc::escapeString($HTTP_POST_VARS["xsdmf_data_type"]) . "',";
 		if (is_numeric($HTTP_POST_VARS["attached_xsdmf_id"])) {
-			$stmt .= "   xsdmf_attached_xsdmf_id = " . Misc :: escapeString($HTTP_POST_VARS["attached_xsdmf_id"]) . ",";
+			$stmt .= "   xsdmf_attached_xsdmf_id = " . Misc::escapeString($HTTP_POST_VARS["attached_xsdmf_id"]) . ",";
 		}
 		elseif (trim($HTTP_POST_VARS["attached_xsdmf_id"]) == "") {
 			$stmt .= "   xsdmf_attached_xsdmf_id = NULL,";
 		}
 		if (is_numeric($HTTP_POST_VARS["xsdmf_xdis_id_ref"])) {
-			$stmt .= " xsdmf_xdis_id_ref = " . Misc :: escapeString($HTTP_POST_VARS["xsdmf_xdis_id_ref"]) . ",";
+			$stmt .= " xsdmf_xdis_id_ref = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_xdis_id_ref"]) . ",";
 		}
 		elseif (trim($HTTP_POST_VARS["xsdmf_xdis_id_ref"]) == "") {
 			$stmt .= "   xsdmf_xdis_id_ref = NULL,";
 		}
 		if (is_numeric($HTTP_POST_VARS["xsdmf_id_ref"])) {
-			$stmt .= " xsdmf_id_ref = " . Misc :: escapeString($HTTP_POST_VARS["xsdmf_id_ref"]) . ",";
+			$stmt .= " xsdmf_id_ref = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_id_ref"]) . ",";
 		}
 		elseif (trim($HTTP_POST_VARS["xsdmf_id_ref"]) == "") {
 			$stmt .= "   xsdmf_id_ref = NULL,";
 		}
 
 		if (is_numeric($HTTP_POST_VARS["xsdmf_id_ref_save_type"])) {
-			$stmt .= " xsdmf_id_ref_save_type = " . Misc :: escapeString($HTTP_POST_VARS["xsdmf_id_ref_save_type"]) . ",";
+			$stmt .= " xsdmf_id_ref_save_type = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_id_ref_save_type"]) . ",";
 		}
 		elseif (trim($HTTP_POST_VARS["xsdmf_id_ref_save_type"]) == "") {
 			$stmt .= "   xsdmf_id_ref_save_type = NULL,";
 		}
 
 		$stmt .= "
-		                    xsdmf_enforced_prefix = '" . Misc :: escapeString($HTTP_POST_VARS["enforced_prefix"]) . "',
-		                    xsdmf_value_prefix = '" . Misc :: escapeString($HTTP_POST_VARS["value_prefix"]) . "',
-		                    xsdmf_image_location = '" . Misc :: escapeString($HTTP_POST_VARS["image_location"]) . "',
-		                    xsdmf_dynamic_text = '" . Misc :: escapeString($HTTP_POST_VARS["dynamic_text"]) . "',
-		                    xsdmf_static_text = '" . Misc :: escapeString($HTTP_POST_VARS["static_text"]) . "'";
+		                    xsdmf_enforced_prefix = '" . Misc::escapeString($HTTP_POST_VARS["enforced_prefix"]) . "',
+		                    xsdmf_value_prefix = '" . Misc::escapeString($HTTP_POST_VARS["value_prefix"]) . "',
+		                    xsdmf_image_location = '" . Misc::escapeString($HTTP_POST_VARS["image_location"]) . "',
+		                    xsdmf_dynamic_text = '" . Misc::escapeString($HTTP_POST_VARS["dynamic_text"]) . "',
+		                    xsdmf_static_text = '" . Misc::escapeString($HTTP_POST_VARS["static_text"]) . "'";
 		$stmt .= " WHERE xsdmf_xdis_id = $xdis_id AND xsdmf_element = '" . $xml_element . "'" . $extra_where;
 
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return -1;
 		} else {
@@ -1904,14 +1904,14 @@ class XSD_HTML_Match {
 				$updated_options = array ();
 
 				foreach ($HTTP_POST_VARS["field_options"] as $option_value) {
-					$params = XSD_HTML_Match :: parseParameters($option_value);
+					$params = XSD_HTML_Match::parseParameters($option_value);
 					if ($params["type"] == 'new') {
-						XSD_HTML_Match :: addOptions($HTTP_POST_VARS["xsdmf_id"], $params["value"]);
+						XSD_HTML_Match::addOptions($HTTP_POST_VARS["xsdmf_id"], $params["value"]);
 					} else {
 						$updated_options[] = $params["id"];
 						// check if the user is trying to update the value of this option
-						if ($params["value"] != XSD_HTML_Match :: getOptionValue($HTTP_POST_VARS["xsdmf_id"], $params["id"])) {
-							XSD_HTML_Match :: updateOption($params["id"], $params["value"]);
+						if ($params["value"] != XSD_HTML_Match::getOptionValue($HTTP_POST_VARS["xsdmf_id"], $params["id"])) {
+							XSD_HTML_Match::updateOption($params["id"], $params["value"]);
 						}
 					}
 				}
@@ -1923,10 +1923,10 @@ class XSD_HTML_Match {
 					'combo',
 					'multiple'
 				))) {
-				$params = XSD_HTML_Match :: parseParameters($option_value);
+				$params = XSD_HTML_Match::parseParameters($option_value);
 				$diff_ids = @ array_diff($current_options, $updated_options);
 				if (@ count($diff_ids) > 0) {
-					XSD_HTML_Match :: removeOptions($HTTP_POST_VARS['xsdmf_id'], array_values($diff_ids));
+					XSD_HTML_Match::removeOptions($HTTP_POST_VARS['xsdmf_id'], array_values($diff_ids));
 				}
 			}
 
@@ -1949,8 +1949,8 @@ class XSD_HTML_Match {
 		                 WHERE
 		                    xsdmf_element = '$xsdmf_element' and xsdmf_xdis_id = $xsdmf_xdis_id and xsdmf_xsdsel_id IS NULL";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return "";
 		} else {
@@ -1978,8 +1978,8 @@ class XSD_HTML_Match {
 		                 WHERE
 		                    xsdmf_id = $xsdmf_id";
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return "";
 		} else {
@@ -2003,8 +2003,8 @@ class XSD_HTML_Match {
 		                 WHERE
 		                    xsdmf_id = $xsdmf_id";
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return "";
 		} else {
@@ -2028,8 +2028,8 @@ class XSD_HTML_Match {
 		                 WHERE
 		                    xsdmf_id = $xsdmf_id";
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return "";
 		} else {
@@ -2053,8 +2053,8 @@ class XSD_HTML_Match {
 		                 WHERE
 		                    xsdmf_id = $xsdmf_id";
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return "";
 		} else {
@@ -2077,8 +2077,8 @@ class XSD_HTML_Match {
 		                 WHERE
 		                    xsdmf_id = $xsdmf_id";
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return "";
 		} else {
@@ -2102,8 +2102,8 @@ class XSD_HTML_Match {
 		                 WHERE
 		                     xsdmf_element = '$xsdmf_element' and xsdmf_xdis_id in ($xdis_str) and (xsdmf_is_key != 1 || xsdmf_is_key is null)";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return "";
 		} else {
@@ -2134,8 +2134,8 @@ class XSD_HTML_Match {
 		                 WHERE
 		                    ('$xsdmf_element' = xsdmf_element) and xsdmf_xdis_id in ($xdis_str) and xsdmf_is_key = 1 and ('$element_value' = xsdmf_key_match)";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return "";
 		} else {
@@ -2167,8 +2167,8 @@ class XSD_HTML_Match {
 		                 WHERE
 		                    '$xsdmf_element' = xsdmf_element and xsdmf_xdis_id in ($xdis_str) and xsdmf_parent_key_match = '$parent_key'";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return "";
 		} else {
@@ -2203,8 +2203,8 @@ class XSD_HTML_Match {
 		                 WHERE
 		                    ('$xsdmf_element' = xsdmf_element) and xsdmf_xdis_id in ($xdis_str) and xsdmf_is_key = 1 and ('$key_value' = xsdmf_key_match) and xsdmf_xsdsel_id = $xsdsel_id";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return "";
 		} else {
@@ -2235,8 +2235,8 @@ class XSD_HTML_Match {
 		                    xsdmf_element = '$xsdmf_element' and xsdmf_xdis_id in ($xdis_str) and xsdmf_xsdsel_id=" . $xsdsel_id;
 
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return "";
 		} else {
@@ -2270,8 +2270,8 @@ class XSD_HTML_Match {
 		                 WHERE
 		                    xsdmf_element = '$xsdmf_element' and xsdmf_xdis_id = $xsdmf_xdis_id and xsdmf_xsdsel_id in (" . implode("," . $xsdsel_id) . ")";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return "";
 		} else {
@@ -2304,8 +2304,8 @@ class XSD_HTML_Match {
 		                    xsdmf_original_xsdmf_id = " . $original_xsdmf_id . " AND xsdmf_xdis_id = " . $xdis_id;
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt);
 
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return "";
 		} else {
@@ -2332,8 +2332,8 @@ class XSD_HTML_Match {
 		                 ORDER BY
 		                    xsdmf_element ASC";
 		$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return "";
 		} else {
@@ -2350,8 +2350,8 @@ class XSD_HTML_Match {
 		                 ORDER BY
 		                    xsdmf_element ASC";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return array ();
 		} else {
@@ -2376,13 +2376,13 @@ class XSD_HTML_Match {
 		                 WHERE
 							 xsdmf_element='$xml_element' AND (xsdmf_xsdsel_id IS NULL) AND xsdmf_xdis_id=" . $xdis_id;
 		$res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return "";
 		} else {
 			if (is_array($res)) {
-				$options = XSD_HTML_Match :: getOptions($res['xsdmf_id']);
+				$options = XSD_HTML_Match::getOptions($res['xsdmf_id']);
 				foreach ($options as $mfo_id => $mfo_value) {
 					$res["field_options"]["existing:" . $mfo_id . ":" . $mfo_value] = $mfo_value;
 				}
@@ -2407,13 +2407,13 @@ class XSD_HTML_Match {
 		                 WHERE
 		                    xsdmf_id=" . $xsdmf_id;
 		$res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return "";
 		} else {
 			if (is_array($res)) {
-				$options = XSD_HTML_Match :: getOptions($res['xsdmf_id']);
+				$options = XSD_HTML_Match::getOptions($res['xsdmf_id']);
 				foreach ($options as $mfo_id => $mfo_value) {
 					$res["field_options"]["existing:" . $mfo_id . ":" . $mfo_value] = $mfo_value;
 				}
@@ -2437,8 +2437,8 @@ class XSD_HTML_Match {
 		                 WHERE
 		                    xsdmf_id = $xsdmf_id";
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return "";
 		} else {
@@ -2464,13 +2464,13 @@ class XSD_HTML_Match {
 		                 WHERE
 		                    xsdmf_element='$xml_element' AND xsdmf_xsdsel_id = $xsdsel_id AND xsdmf_xdis_id=" . $xdis_id;
 		$res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return "";
 		} else {
 			if (is_array($res)) {
-				$options = XSD_HTML_Match :: getOptions($res['xsdmf_id']);
+				$options = XSD_HTML_Match::getOptions($res['xsdmf_id']);
 				foreach ($options as $mfo_id => $mfo_value) {
 					$res["field_options"]["existing:" . $mfo_id . ":" . $mfo_value] = $mfo_value;
 				}
@@ -2494,8 +2494,8 @@ class XSD_HTML_Match {
 		                 WHERE
 		                    xdis_id=$xdis_id";
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return "";
 		} else {
@@ -2520,8 +2520,8 @@ class XSD_HTML_Match {
 							(select distinct ifnull(xsdmf_attached_xsdmf_id, 0)
 		        			   from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields where xsdmf_id = $xsdmf_id);";
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return "";
 		} else {
@@ -2539,8 +2539,8 @@ class XSD_HTML_Match {
 		                 WHERE att_parent_xsdmf_id = '$xsdmf_id'";
 
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return array ();
 		} else {
@@ -2554,8 +2554,8 @@ class XSD_HTML_Match {
 		"VALUES" .
 		"('$xsdmf_id', '$att_child_xsdmf_id', '$att_order')";
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return -1;
 		} else {
@@ -2604,12 +2604,12 @@ class XSD_HTML_Match {
 										ORDER BY
 										mfo_value ASC";
 				$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-				if (!PEAR :: isError($res)) {
+				if (!PEAR::isError($res)) {
 					$mfo_returns[$fld_id] = $res;
 				}
 			}
-			if (PEAR :: isError($res)) {
-				Error_Handler :: logError(array (
+			if (PEAR::isError($res)) {
+				Error_Handler::logError(array (
 				$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 				return array ();
 			}
@@ -2636,8 +2636,8 @@ class XSD_HTML_Match {
 		                 ORDER BY
 		                    mfo_value ASC";
 		$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return "";
 		} else {
@@ -2694,8 +2694,8 @@ class XSD_HTML_Match {
 		                    xsdmf_xdis_id='$xdis_id'
 		                    ";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return array ();
 		} else {
@@ -2724,8 +2724,8 @@ class XSD_HTML_Match {
 		                    xsdmf_xdis_id='$xdis_id'
 		                    ";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return array ();
 		} else {
@@ -2745,7 +2745,7 @@ class XSD_HTML_Match {
 	 * @return  array The list of orphaned XSDMF elements (for deletion usually).
 	 */
 	function getElementOrphanList($xdis_id, $xsd_array) {
-		$xsd_list = Misc :: array_flatten($xsd_array);
+		$xsd_list = Misc::array_flatten($xsd_array);
 		$xsd_list = implode("', '", $xsd_list);
 		$stmt = "SELECT 
 		                    *
@@ -2761,8 +2761,8 @@ class XSD_HTML_Match {
 								))
 		                    ";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return array ();
 		} else {
@@ -2778,7 +2778,7 @@ class XSD_HTML_Match {
 	 * @return  integer The count of orphaned XSDMF elements (for deletion usually).
 	 */
 	function getElementOrphanCount($xdis_id, $xsd_array) {
-		$xsd_list = Misc :: array_flatten($xsd_array);
+		$xsd_list = Misc::array_flatten($xsd_array);
 		$xsd_list = implode("', '", $xsd_list);
 		$stmt = "SELECT 
 		                    count(*) as orphan_count
@@ -2794,8 +2794,8 @@ class XSD_HTML_Match {
 								))
 		                    ";
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return array ();
 		} else {
@@ -2804,13 +2804,13 @@ class XSD_HTML_Match {
 	}
 
 	function exportMatchFields(& $xdis, $xdis_id) {
-		$list = XSD_HTML_Match :: getList($xdis_id);
+		$list = XSD_HTML_Match::getList($xdis_id);
 		foreach ($list as $item) {
 			$xmatch = $xdis->ownerDocument->createElement('matchfield');
-			foreach (XSD_HTML_Match :: $xsdmf_columns as $field) {
+			foreach (XSD_HTML_Match::$xsdmf_columns as $field) {
 				$xmatch->setAttribute($field, $item[$field]);
 			}
-			$att_list = XSD_HTML_Match :: getChildren($item['xsdmf_id']);
+			$att_list = XSD_HTML_Match::getChildren($item['xsdmf_id']);
 			if (!empty ($att_list)) {
 				foreach ($att_list as $att) {
 					$xatt = $xdis->ownerDocument->createElement('attach');
@@ -2820,7 +2820,7 @@ class XSD_HTML_Match {
 					$xmatch->appendChild($xatt);
 				}
 			}
-			$mfo_list = XSD_HTML_Match :: getOptions($item['xsdmf_id']);
+			$mfo_list = XSD_HTML_Match::getOptions($item['xsdmf_id']);
 			if (is_array($mfo_list)) {
 				foreach ($mfo_list as $mfo_key => $mfo_value) {
 					if (!empty ($mfo_value)) {
@@ -2831,7 +2831,7 @@ class XSD_HTML_Match {
 					}
 				}
 			}
-			$subs = XSD_Loop_Subelement :: getSimpleListByXSDMF($item['xsdmf_id']);
+			$subs = XSD_Loop_Subelement::getSimpleListByXSDMF($item['xsdmf_id']);
 			if (!empty ($subs)) {
 				foreach ($subs as $sub) {
 					$xsub = $xdis->ownerDocument->createElement('loop_subelement');
@@ -2847,7 +2847,7 @@ class XSD_HTML_Match {
 					$xmatch->appendChild($xsub);
 				}
 			}
-			$rels = XSD_Relationship :: getSimpleListByXSDMF($item['xsdmf_id']);
+			$rels = XSD_Relationship::getSimpleListByXSDMF($item['xsdmf_id']);
 			if (!empty ($rels)) {
 				foreach ($rels as $rel) {
 					$xrel = $xdis->ownerDocument->createElement('relationship');
@@ -2865,25 +2865,25 @@ class XSD_HTML_Match {
 		$xmatches = $xpath->query('matchfield', $xdis);
 		foreach ($xmatches as $xmatch) {
 			$params = array ();
-			foreach (XSD_HTML_Match :: $xsdmf_columns as $field) {
+			foreach (XSD_HTML_Match::$xsdmf_columns as $field) {
 				$params[$field] = $xmatch->getAttribute($field);
 			}
 			$params['xsdmf_xdis_id'] = $xdis_id;
-			$xsdmf_id = XSD_HTML_Match :: insertFromArray($xdis_id, $params);
+			$xsdmf_id = XSD_HTML_Match::insertFromArray($xdis_id, $params);
 			$maps['xsdmf_map'][$xmatch->getAttribute('xsdmf_id')] = $xsdmf_id;
 			$xpath = new DOMXPath($xmatch->ownerDocument);
 			$xatts = $xpath->query('attach', $xmatch);
 			foreach ($xatts as $xatt) {
-				XSD_HTML_Match :: setChild($xsdmf_id, $xatt->getAttribute('att_child_xsdmf_id'), $xatt->getAttribute('att_order'));
+				XSD_HTML_Match::setChild($xsdmf_id, $xatt->getAttribute('att_child_xsdmf_id'), $xatt->getAttribute('att_order'));
 			}
 			$xopts = $xpath->query('option', $xmatch);
 			$opts = array ();
 			foreach ($xopts as $xopt) {
 				$opts[] = $xopt->getAttribute('mfo_value');
 			}
-			XSD_HTML_Match :: addOptions($xsdmf_id, $opts);
-			XSD_Loop_Subelement :: importSubelements($xmatch, $xsdmf_id, $maps);
-			XSD_Relationship :: importRels($xmatch, $xsdmf_id, $maps);
+			XSD_HTML_Match::addOptions($xsdmf_id, $opts);
+			XSD_Loop_Subelement::importSubelements($xmatch, $xsdmf_id, $maps);
+			XSD_Relationship::importRels($xmatch, $xsdmf_id, $maps);
 		}
 
 	}
@@ -2898,17 +2898,17 @@ class XSD_HTML_Match {
 		}
 		// find all the stuff that references the new displays
 		$xsdmf_ids = array_values(@ $maps['xsdmf_map']);
-		$xsdmf_ids_str = Misc :: arrayToSQL($xsdmf_ids);
+		$xsdmf_ids_str = Misc::arrayToSQL($xsdmf_ids);
 		// Find the fields in the matchfields table that refer to displays
 		$bgp->setStatus("Remapping Displays in XSDMF Table");
-		Misc :: tableSearchAndReplace('xsd_display_matchfields', array (
+		Misc::tableSearchAndReplace('xsd_display_matchfields', array (
 			'xsdmf_xdis_id_ref',
 			'xsdmf_parent_option_xdis_id',
 			'xsdmf_asuggest_xdis_id'
 		), $maps['xdis_map'], "xsdmf_id IN ($xsdmf_ids_str)");
 		// Find the fields in the matchfields table that refer to other matchfields 
 		$bgp->setStatus("Remapping XSDMFs in XSDMF Table");
-		Misc :: tableSearchAndReplace('xsd_display_matchfields', array (
+		Misc::tableSearchAndReplace('xsd_display_matchfields', array (
 			'xsdmf_original_xsdmf_id',
 			'xsdmf_attached_xsdmf_id',
 			'xsdmf_parent_option_child_xsdmf_id',
@@ -2918,22 +2918,22 @@ class XSD_HTML_Match {
 		), $maps['xsdmf_map'], " xsdmf_id IN ($xsdmf_ids_str)");
 		// Find the fields in the attachments table that refer to other matchfields 
 		$bgp->setStatus("Remapping XSDMFs in Attachments Table");
-		Misc :: tableSearchAndReplace('xsd_display_attach', array (
+		Misc::tableSearchAndReplace('xsd_display_attach', array (
 			'att_child_xsdmf_id'
 		), $maps['xsdmf_map'], " att_parent_xsdmf_id IN ($xsdmf_ids_str)");
 		// Find the fields in the matchfields table that refer to subloops
 		if (!empty ($maps['xsdsel_map'])) {
 			$bgp->setStatus("Remapping Sub Looping Elements in XSDMF Table");
-			Misc :: tableSearchAndReplace('xsd_display_matchfields', array (
+			Misc::tableSearchAndReplace('xsd_display_matchfields', array (
 				'xsdmf_xsdsel_id'
 			), $maps['xsdsel_map'], " xsdmf_id IN ($xsdmf_ids_str)", true);
 		}
 		// remap the sublooping elements
 		$bgp->setStatus("Remapping Sub Looping Elements");
-		XSD_Loop_Subelement :: remapImport($maps);
+		XSD_Loop_Subelement::remapImport($maps);
 		//remap the relationships
 		$bgp->setStatus("Remapping XSD Relationships");
-		XSD_Relationship :: remapImport($maps);
+		XSD_Relationship::remapImport($maps);
 	}
 
 	function escapeXPath($xpath) {
@@ -2998,8 +2998,8 @@ class XSD_HTML_MatchObject {
 			                    m1.xsdmf_xdis_id in ({$this->xdis_str})";
 
 			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-			if (PEAR :: isError($res)) {
-				Error_Handler :: logError(array (
+			if (PEAR::isError($res)) {
+				Error_Handler::logError(array (
 				$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 				$this->matchCols = array ();
 			} else {
@@ -3077,8 +3077,8 @@ class XSD_HTML_MatchObject {
 		                    m1.xsdmf_xdis_id in ({$this->xdis_str}) and m1.xsdmf_element = '$xsdmf_element'";
 
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-		if (PEAR :: isError($res)) {
-			Error_Handler :: logError(array (
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return array ();
 		} else {
