@@ -223,7 +223,7 @@ form.xsdmf_editor_input_form  {
                     <option value="150" {if $options.rows == 150}selected{/if}>150</option>
                   </select>
                   <input type="button" value="Set" class="shortcut" onClick="javascript:resizePager(this.form);">
-                  <select  name="tpl" onchange="javascript:setTemplate(this.form, 'tpl');">
+                  <span class="default_white">Change View:</span><select  name="tpl" onchange="javascript:setTemplate(this.form, 'tpl');">
                        {html_options options=$tpl_list selected=$smarty.get.tpl}
                    </select>
                   </form>
