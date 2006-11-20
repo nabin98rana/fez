@@ -108,7 +108,7 @@ $tpl->assign('my_assigned_items_list', $assigned_items['list']);
 $tpl->assign('my_assigned_items_info', $assigned_items['info']);
 
 $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
-$tpl->assign('najax_register', NAJAX_Client::register('NajaxBackgroundProcessList', APP_RELATIVE_URL.'najax_services/generic.php'));
+$tpl->registerNajax( NAJAX_Client::register('NajaxBackgroundProcessList', APP_RELATIVE_URL.'najax_services/generic.php'));
 
 $tpl->displayTemplate();
 

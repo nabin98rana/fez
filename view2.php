@@ -407,7 +407,7 @@ if (!empty($pid)) {
 
         // Setup the Najax Image Preview object.
         $tpl->assign('najax_header', NAJAX_Utilities::header(APP_BASE_URL.'include/najax'));
-        $tpl->assign('najax_register', NAJAX_Client::register('NajaxImagePreview', APP_BASE_URL.'najax_services/image_preview.php'));
+        $tpl->registerNajax( NAJAX_Client::register('NajaxImagePreview', APP_BASE_URL.'najax_services/image_preview.php'));
 	} else {
 		$tpl->assign("show_not_allowed_msg", true);
 	} 

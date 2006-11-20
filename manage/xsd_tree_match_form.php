@@ -217,6 +217,6 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 }
 
 $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
-$tpl->assign('najax_register', NAJAX_Client::register('SelectXSDDisplay', 'xsd_tree_match_form.php'));
+$tpl->registerNajax(NAJAX_Client::register('SelectXSDDisplay', 'xsd_tree_match_form.php'));
 $tpl->displayTemplate();
 ?>

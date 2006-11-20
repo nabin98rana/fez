@@ -33,9 +33,11 @@ include_once(APP_INC_PATH.'class.org_structure.php');
                 } else {
                     $hide_div = ' style="display:none" ';
                 }
-                $html_result .= "<div id=\"xsdmf_editor_div_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}\" $hide_div>" .
-                        "<form name=\"wfl_form_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}\">" .
-                        "<label for=\"xsdmf_editor_input_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}\">$label</label>";
+                $html_result .= "<div id=\"xsdmf_editor_div_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}\"" .
+                        " class=\"xsdmf_editor_div\" $hide_div>" .
+                        "<div class=\"xsdmf_editor_label\">$label</div>" .
+                        "<form name=\"wfl_form_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}\"" .
+                        "   class=\"xsdmf_editor_input_form\" >" ;
                 $func_name = XSD_HTML_Match_Generator::getFuncName($xsdmf_cols['xsdmf_html_input']);
                 $html_result .= call_user_func(array('XSD_HTML_Match_Generator',$func_name), $pid, $xsdmf_cols, $vidx, $value, $record_obj);
                 $html_result .= '</form>';
@@ -45,7 +47,8 @@ include_once(APP_INC_PATH.'class.org_structure.php');
                     $xsdmf_cols1 = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id1);
                     $values1 = $record_obj->getDetailsByXSDMF_ID($xsdmf_id1);
                     $func_name = XSD_HTML_Match_Generator::getFuncName($xsdmf_cols1['xsdmf_html_input']);
-                    $html_result .= "<form name=\"wfl_form_{$xsdmf_cols1['xsdmf_id']}_{$safe_pid}_{$vidx}\">" ;
+                    $html_result .= "<form name=\"wfl_form_{$xsdmf_cols1['xsdmf_id']}_{$safe_pid}_{$vidx}\"" .
+                            " class=\"xsdmf_editor_input_form\" >" ;
                     $html_result .= call_user_func(array('XSD_HTML_Match_Generator',$func_name), $pid, $xsdmf_cols1, $vidx, $values1[$vidx], $record_obj);
                     $html_result .= '</form>';
                 }
@@ -84,11 +87,13 @@ include_once(APP_INC_PATH.'class.org_structure.php');
         $safe_pid = str_replace(':','_',$pid);
         return <<<EOT
 
+<div class="xsdmf_editor_input_div">
 <input name="xsdmf_editor_input_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}" 
   id="xsdmf_editor_input_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}" value="$value" $onkeyup/>
 <input type="button" value="Submit" id="xsdmf_editor_submit_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}" 
 onclick="handleXSDMF_Editor('{$pid}','{$xsdmf_cols['xsdmf_id']}','$vidx');"/>
 <span class="updating" style="display:none;" id="xsdmf_editor_mess_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}"></span>
+</div>
 
 EOT;
     }
@@ -135,6 +140,7 @@ EOT;
         $safe_pid = str_replace(':','_',$pid);
         return <<<EOT
 
+<div class="xsdmf_editor_input_div">
 <select name="xsdmf_editor_input_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}" 
 id="xsdmf_editor_input_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}">
  $option_list_html
@@ -142,6 +148,7 @@ id="xsdmf_editor_input_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}">
 <input type="button" value="Submit" id="xsdmf_editor_submit_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}" 
 onclick="handleXSDMF_Editor('{$pid}','{$xsdmf_cols['xsdmf_id']}','$vidx');$onkeyup"/>
 <span class="updating" style="display:none;" id="xsdmf_editor_mess_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}"></span>
+</div>
 
 EOT;
     	
@@ -175,6 +182,7 @@ EOT;
         $safe_pid = str_replace(':','_',$pid);
         return <<<EOT
 
+<div class="xsdmf_editor_input_div">
 <script type="text/javascript">
 function register_suggest_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}() {
     window.oTextbox_xsdmf_editor_input_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}_lookup
@@ -197,6 +205,7 @@ $html_option
 <input type="button" value="Submit" id="xsdmf_editor_submit_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}" 
     onclick="handleXSDMF_Editor('{$pid}','{$xsdmf_cols['xsdmf_id']}','{$vidx}')$onkeyup;"/>
 <span class="updating" style="display:none;" id="xsdmf_editor_mess_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}"></span>
+</div>
 
 EOT;
     }

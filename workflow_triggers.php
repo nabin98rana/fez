@@ -157,7 +157,7 @@ if ($canEdit) {
 }
 
 $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
-$tpl->assign('najax_register', NAJAX_Client::register('SelectObjectXSDDisplay', 'workflow_triggers.php'));
+$tpl->registerNajax( NAJAX_Client::register('SelectObjectXSDDisplay', 'workflow_triggers.php'));
 
 $tpl->displayTemplate();
 

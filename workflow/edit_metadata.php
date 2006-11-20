@@ -427,7 +427,8 @@ if ($access_ok) {
 }
 
 $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
-$tpl->registerNajax( NAJAX_Client::register('SelectOrgStructure', 'edit_metadata.php')."\n".NAJAX_Client::register('Suggestor', 'edit_metadata.php'));
+$tpl->registerNajax( NAJAX_Client::register('SelectOrgStructure', 'edit_metadata.php')."\n"
+                        .NAJAX_Client::register('Suggestor', 'edit_metadata.php'));
 $tpl->displayTemplate();
 
 ?>

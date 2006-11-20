@@ -218,7 +218,8 @@ if ($access_ok) {
     $tpl->assign("form_title", "Set Template");
     $tpl->assign("form_description", "These values will be used as the defaults for the batch operation.");
 	$tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
-	$tpl->assign('najax_register', NAJAX_Client::register('SelectOrgStructure', 'set_template.php')."\n".NAJAX_Client::register('Suggestor', 'set_template.php'));
+	$tpl->registerNajax(NAJAX_Client::register('SelectOrgStructure', 'set_template.php')."\n"
+                        .NAJAX_Client::register('Suggestor', 'set_template.php'));
 
     $setup = Setup::load();
 
