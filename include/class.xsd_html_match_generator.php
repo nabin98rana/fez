@@ -9,50 +9,54 @@ include_once(APP_INC_PATH.'class.org_structure.php');
         // get xsdmf_id
         $record_obj = new RecordGeneral($pid);
         $xsdmf_cols = $record_obj->getXSDMFDetailsByElement($escaped_path);
-        $values = $record_obj->getDetailsByXSDMF_element($escaped_path);
-//        $html_result .= "<a href=\"#\" class=\"form_note\">?<span class=\"form_note\">" 
-//            . print_r($xsdmf_cols, true) 
-//            . print_r($values, true)
-//            . "</span></a>";
-        if (!$record_obj->canEdit()) {
-        	$html_result .= "You are not authorised to edit this record.";
+        if (empty($xsdmf_cols)) {
+            $html_result .= "$label not found";
         } else {
-            if (!is_array($values)) {
-            	$values = array($values);
-            }
-            if ($xsdmf_cols['xsdmf_multiple'] == 1) {
-            	$rows = $xsdmf_cols['xsdmf_multiple_limit'];
+            $values = $record_obj->getDetailsByXSDMF_element($escaped_path);
+    //        $html_result .= "<a href=\"#\" class=\"form_note\">?<span class=\"form_note\">" 
+    //            . print_r($xsdmf_cols, true) 
+    //            . print_r($values, true)
+    //            . "</span></a>";
+            if (!$record_obj->canEdit()) {
+            	$html_result .= "You are not authorised to edit this record.";
             } else {
-            	$rows = 1;
-            }
-            $safe_pid = str_replace(':','_',$pid);
-            for ($vidx = 0; $vidx < $rows; $vidx++) {
-                $value = @$values[$vidx];
-                if ($vidx < 1 || isset($values[$vidx-1])) {
-                    $hide_div = '';
+                if (!is_array($values)) {
+                	$values = array($values);
+                }
+                if ($xsdmf_cols['xsdmf_multiple'] == 1) {
+                	$rows = $xsdmf_cols['xsdmf_multiple_limit'];
                 } else {
-                    $hide_div = ' style="display:none" ';
+                	$rows = 1;
                 }
-                $html_result .= "<div id=\"xsdmf_editor_div_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}\"" .
-                        " class=\"xsdmf_editor_div\" $hide_div>" .
-                        "<div class=\"xsdmf_editor_label\">$label</div>" .
-                        "<form name=\"wfl_form_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}\"" .
-                        "   class=\"xsdmf_editor_input_form\" >" ;
-                $func_name = XSD_HTML_Match_Generator::getFuncName($xsdmf_cols['xsdmf_html_input']);
-                $html_result .= call_user_func(array('XSD_HTML_Match_Generator',$func_name), $pid, $xsdmf_cols, $vidx, $value, $record_obj);
-                $html_result .= '</form>';
-                // handle the side by side pairs thing
-                if (!empty($xsdmf_cols['xsdmf_attached_xsdmf_id'])) {
-                    $xsdmf_id1 = $xsdmf_cols['xsdmf_attached_xsdmf_id'];
-                    $xsdmf_cols1 = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id1);
-                    $values1 = $record_obj->getDetailsByXSDMF_ID($xsdmf_id1);
-                    $func_name = XSD_HTML_Match_Generator::getFuncName($xsdmf_cols1['xsdmf_html_input']);
-                    $html_result .= "<form name=\"wfl_form_{$xsdmf_cols1['xsdmf_id']}_{$safe_pid}_{$vidx}\"" .
-                            " class=\"xsdmf_editor_input_form\" >" ;
-                    $html_result .= call_user_func(array('XSD_HTML_Match_Generator',$func_name), $pid, $xsdmf_cols1, $vidx, $values1[$vidx], $record_obj);
+                $safe_pid = str_replace(':','_',$pid);
+                for ($vidx = 0; $vidx < $rows; $vidx++) {
+                    $value = @$values[$vidx];
+                    if ($vidx < 1 || isset($values[$vidx-1])) {
+                        $hide_div = '';
+                    } else {
+                        $hide_div = ' style="display:none" ';
+                    }
+                    $html_result .= "<div id=\"xsdmf_editor_div_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}\"" .
+                            " class=\"xsdmf_editor_div\" $hide_div>" .
+                            "<div class=\"xsdmf_editor_label\">$label</div>" .
+                            "<form name=\"wfl_form_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}\"" .
+                            "   class=\"xsdmf_editor_input_form\" >" ;
+                    $func_name = XSD_HTML_Match_Generator::getFuncName($xsdmf_cols['xsdmf_html_input']);
+                    $html_result .= call_user_func(array('XSD_HTML_Match_Generator',$func_name), $pid, $xsdmf_cols, $vidx, $value, $record_obj);
                     $html_result .= '</form>';
+                    // handle the side by side pairs thing
+                    if (!empty($xsdmf_cols['xsdmf_attached_xsdmf_id'])) {
+                        $xsdmf_id1 = $xsdmf_cols['xsdmf_attached_xsdmf_id'];
+                        $xsdmf_cols1 = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id1);
+                        $values1 = $record_obj->getDetailsByXSDMF_ID($xsdmf_id1);
+                        $func_name = XSD_HTML_Match_Generator::getFuncName($xsdmf_cols1['xsdmf_html_input']);
+                        $html_result .= "<form name=\"wfl_form_{$xsdmf_cols1['xsdmf_id']}_{$safe_pid}_{$vidx}\"" .
+                                " class=\"xsdmf_editor_input_form\" >" ;
+                        $html_result .= call_user_func(array('XSD_HTML_Match_Generator',$func_name), $pid, $xsdmf_cols1, $vidx, $values1[$vidx], $record_obj);
+                        $html_result .= '</form>';
+                    }
+                    $html_result .= '</div>';
                 }
-                $html_result .= '</div>';
             }
         }
         $html_result .= '</div>';

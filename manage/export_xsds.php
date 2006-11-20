@@ -47,10 +47,29 @@ if (!$isAdministrator) {
     Error_Handler::logError("Administrator Only",__FILE__,__LINE__);
     exit;
 }
+
+
+if ($_POST['go']) {
 header('Content-Type: text/xml');
 header('Content-Disposition: attachment; Filename="xsds.xml"');
 header('Pragma: private');
 header('Cache-control: private, must-revalidate');
  
-echo Doc_Type_XSD::exportXSDs();
+echo Doc_Type_XSD::exportXSDs($_POST['xdis_ids']);
+exit;
+}
+
+$tpl = new Template_API();
+$tpl->setTemplate("manage/index.tpl.html");
+$tpl->assign("type", "export_xsds");
+$tpl->assign("isUser", $isUser);
+$tpl->assign("isAdministrator", $isAdministrator);
+$list = Doc_Type_XSD::getList();
+foreach ($list as $key => $xsd) {
+    $list[$key]['xdis_list'] = XSD_Display::getList($xsd['xsd_id']);
+    $list[$key]['xdis_list_count'] = count($list[$key]['xdis_list']);
+}
+$tpl->assign("list", $list);
+$tpl->displayTemplate();
+
 ?>

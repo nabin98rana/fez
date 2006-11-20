@@ -711,19 +711,24 @@ class XSD_Display
         }
     }
     
-    function exportDisplays(&$xnode, $xsd_id)
+    function exportDisplays(&$xnode, $xsd_id, $xdis_ids)
     {
     	$list = XSD_Display::getList($xsd_id);
+        $xcount = 0;
         foreach ($list as $item) {
             $xdis = $xnode->ownerDocument->createElement('display');
-            $xdis->setAttribute('xdis_id', $item['xdis_id']);
-            $xdis->setAttribute('xdis_title', $item['xdis_title']);
-            $xdis->setAttribute('xdis_version', $item['xdis_version']);
-            $xdis->setAttribute('xdis_enabled', $item['xdis_enabled']);
-            $xdis->setAttribute('xdis_object_type', $item['xdis_object_type']);
-            XSD_HTML_Match::exportMatchFields($xdis, $item['xdis_id']);
-            $xnode->appendChild($xdis);
+            if (in_array($item['xdis_id'], $xdis_ids)) {
+                $xdis->setAttribute('xdis_id', $item['xdis_id']);
+                $xdis->setAttribute('xdis_title', $item['xdis_title']);
+                $xdis->setAttribute('xdis_version', $item['xdis_version']);
+                $xdis->setAttribute('xdis_enabled', $item['xdis_enabled']);
+                $xdis->setAttribute('xdis_object_type', $item['xdis_object_type']);
+                XSD_HTML_Match::exportMatchFields($xdis, $item['xdis_id']);
+                $xnode->appendChild($xdis);
+                $xcount++;
+            }
         }
+        return $xcount;
     }
     
     /**

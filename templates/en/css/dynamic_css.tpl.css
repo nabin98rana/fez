@@ -47,3 +47,13 @@ color:red;
 .register_suggest {
 display:none;
 }
+
+.table_heading_row {
+background-color: [[$smarty.const.APP_CELL_COLOR]];
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 11px;
+  margin: 10px;
+vertical-align: middle;
+}

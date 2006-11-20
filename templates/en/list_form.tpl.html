@@ -584,11 +584,11 @@ function purgeObject(pid)
                   <input type="button" value="Set" class="shortcut" onClick="javascript:resizePager(this.form);">
                 </td>
                 <td width="30%" align="right">
-                {if $isAdministrator}
+                {* if $isAdministrator *}
                    <span class="default_white">Change View:</span><select  name="tpl" onchange="javascript:setTemplate(this.form, 'tpl');">
                        {html_options options=$tpl_list selected=$smarty.get.tpl}
                    </select>
-                   {/if}
+                   {* /if *}
 
                 </td>
               </tr>

@@ -307,7 +307,7 @@ class Doc_Type_XSD
         }
     }
     
-    function exportXSDs()
+    function exportXSDs($xdis_ids)
     {
         $doc = new DOMDocument('1.0','utf-8');
         $doc->formatOutput = true;
@@ -326,9 +326,10 @@ class Doc_Type_XSD
             $xsd_file = $doc->createElement('xsd_file');
             $xsd_file->appendChild($doc->createCDATASection($xsd['xsd_file']));
             $xnode->appendChild($xsd_file);
-            XSD_Display::exportDisplays($xnode, $xsd['xsd_id']);
-            
-            $root->appendChild($xnode);                          
+            $xcount = XSD_Display::exportDisplays($xnode, $xsd['xsd_id'], $xdis_ids);
+            if ($xcount > 0) {
+                $root->appendChild($xnode);
+            }                          
         }
         return $doc->saveXML();         
     }
