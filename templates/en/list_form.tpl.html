@@ -105,6 +105,11 @@ function sortList(f, field) {
     window.location.href = page_url + "?" + replaceParam(window.location.href, 'order_by', order_by);
 }
 
+function setTemplate(f, field) {
+    tpl = getSelectedOption(f, field);
+    window.location.href = page_url + "?" + replaceParam(window.location.href, 'tpl', tpl);
+}
+
 
 //-->
 </script>
@@ -578,8 +583,13 @@ function purgeObject(pid)
                   </select>
                   <input type="button" value="Set" class="shortcut" onClick="javascript:resizePager(this.form);">
                 </td>
-                <td width="30%" class="default_white" align="right">
-                  <input type="checkbox" id="hide_closed" name="hide_closed" {if $options.hide_closed}checked{/if} onClick="javascript:hideClosed(this.form);"> <label for="hide_closed">Hide Inactive Records</label>&nbsp;
+                <td width="30%" align="right">
+                {if $current_role >= $roles.administrator}
+                   <span class="default_white">Change View:</span><select  name="tpl" onchange="javascript:setTemplate(this.form, 'tpl');">
+                       {html_options options=$tpl_list selected=$smarty.get.tpl}
+                   </select>
+                   {/if}
+
                 </td>
               </tr>
 			</table>

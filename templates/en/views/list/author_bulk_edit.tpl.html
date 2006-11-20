@@ -34,7 +34,10 @@ function sortList(f, field) {
     order_by = getSelectedOption(f, field);
     window.location.href = page_url + "?" + replaceParam(window.location.href, 'order_by', order_by);
 }
-
+function setTemplate(f, field) {
+    tpl = getSelectedOption(f, field);
+    window.location.href = page_url + "?" + replaceParam(window.location.href, 'tpl', tpl);
+}
 
 {/literal}
 -->
@@ -220,6 +223,9 @@ form.xsdmf_editor_input_form  {
                     <option value="150" {if $options.rows == 150}selected{/if}>150</option>
                   </select>
                   <input type="button" value="Set" class="shortcut" onClick="javascript:resizePager(this.form);">
+                  <select  name="tpl" onchange="javascript:setTemplate(this.form, 'tpl');">
+                       {html_options options=$tpl_list selected=$smarty.get.tpl}
+                   </select>
                   </form>
                 </div>
 </div>

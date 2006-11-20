@@ -15,9 +15,19 @@ include_once(APP_INC_PATH . "najax_classes.php");
 
 class Lister
 {
-    function getList($params, $display=true, $tpl_file = 'list.tpl.html') {
+    function getList($params, $display=true) {
         $tpl = new Template_API();
+
+        $tpl_idx = intval($_GET['tpl']);
+        $tpls = array(
+            0 => array('file' => 'list.tpl.html', 'title' => 'Default'),
+            1 => array('file' => 'views/list/author_bulk_edit.tpl.html', 'title' => 'Edit Authors'),
+        );
+    
+        $tpl_file = $tpls[$tpl_idx]['file'];    
         $tpl->setTemplate($tpl_file);
+
+        $tpl->assign('tpl_list', array_map(create_function('$a','return $a[\'title\'];'), $tpls));
 
         $username = Auth::getUsername();
         $tpl->assign("isUser", $username);
