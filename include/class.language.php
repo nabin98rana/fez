@@ -60,6 +60,7 @@ class Language
     {
         global $HTTP_GET_VARS, $app_lang, $avail_langs;
 
+            session_name(APP_SESSION);
         @session_start();
         if (!empty($HTTP_GET_VARS["lang"])) {
             session_register("app_lang");
