@@ -328,19 +328,32 @@ class Workflow_State
     /**
      * @returns array $state_ids_map
      */
-    function importStates($xworkflow, $wfl_id, $behaviour_ids_map)
+    function importStates($xworkflow, $wfl_id, $behaviour_ids_map, &$feedback)
     {
     	$xpath = new DOMXPath($xworkflow->ownerDocument);
         $xstates = $xpath->query('WorkflowState', $xworkflow);
         $state_ids_map = array();
         foreach ($xstates as $xstate) {
-        	$params = array(
+            $wfb_id = $xstate->getAttribute('wfs_wfb_id');
+        	if (!isset($behaviour_ids_map[$wfb_id])) {
+                $bNodes = $xpath->query("//WorkflowBehaviour[@wfb_id='$wfb_id']");
+                if ($bNodes->length > 0) {
+                    $btitle = $bNodes->item(0)->getAttribute('wfb_title');
+                    $feedback[] = "This workflow requires behaviour {$btitle}";
+                } else {
+                    $feedback[] = "This workflow requires a behaviour that wasn't found in the XML file ($wfb_id)";
+                }
+                $wfb_remapped = $wfb_id;
+        	} else {
+        		$wfb_remapped = $behaviour_ids_map[$wfb_id];
+        	}
+            $params = array(
                 'wfs_wfl_id' => $wfl_id,
                 'wfs_title' => $xstate->getAttribute('wfs_title'),
                 'wfs_description' => $xstate->getAttribute('wfs_description'),
                 'wfs_auto' => $xstate->getAttribute('wfs_auto'),
-                'wfs_wfb_id' => $behaviour_ids_map[$xstate->getAttribute('wfs_wfb_id')],
-                'wfs_wfb_id2' => $behaviour_ids_map[$xstate->getAttribute('wfs_wfb_id')],
+                'wfs_wfb_id' => $wfb_remapped,
+                'wfs_wfb_id2' => $wfb_remapped,
                 'wfs_start' => $xstate->getAttribute('wfs_start'),
                 'wfs_end' => $xstate->getAttribute('wfs_end'),
                 'wfs_assigned_role_id' => $xstate->getAttribute('wfs_assigned_role_id'),

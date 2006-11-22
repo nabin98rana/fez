@@ -47,11 +47,26 @@ if (!$isAdministrator) {
     Error_Handler::logError("Administrator Only",__FILE__,__LINE__);
     exit;
 }
-header('Content-Type: text/xml');
-header('Content-Disposition: attachment; Filename="workflows.xml"');
-header('Pragma: private');
-header('Cache-control: private, must-revalidate');
+
+if ($_POST['go']) {
+    header('Content-Type: text/xml');
+    header('Content-Disposition: attachment; Filename="workflows.xml"');
+    header('Pragma: private');
+    header('Cache-control: private, must-revalidate');
  
-echo Workflow::exportAllWorkflows();
+    echo Workflow::exportWorkflows($_POST['wfl_ids'], $_POST['wfb_ids']);
+    exit;
+}
+
+$tpl = new Template_API();
+$tpl->setTemplate("manage/index.tpl.html");
+$tpl->assign("type", "export_workflows");
+$tpl->assign("isUser", $isUser);
+$tpl->assign("isAdministrator", $isAdministrator);
+$wfl_list = Workflow::getList();
+$wfb_list = WF_Behaviour::getList();
+$tpl->assign("wfl_list", $wfl_list);
+$tpl->assign("wfb_list", $wfb_list);
+$tpl->displayTemplate();
 
 ?>

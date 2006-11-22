@@ -2926,7 +2926,7 @@ class XSD_HTML_Match {
 			$bgp->setStatus("Remapping Sub Looping Elements in XSDMF Table");
 			Misc::tableSearchAndReplace('xsd_display_matchfields', array (
 				'xsdmf_xsdsel_id'
-			), $maps['xsdsel_map'], " xsdmf_id IN ($xsdmf_ids_str)", true);
+			), $maps['xsdsel_map'], " xsdmf_id IN ($xsdmf_ids_str)");
 		}
 		// remap the sublooping elements
 		$bgp->setStatus("Remapping Sub Looping Elements");

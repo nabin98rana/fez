@@ -5,43 +5,29 @@ var page_url = '{/literal}{$smarty.server.PHP_SELF}{literal}';
 {/literal}
 // -->
 </script>
-      <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
-        <tr>
-          <td>
-            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+<div class="outline">
 {if $feedback}
-			<tr>
-				<td colspan="2" class="default">
-				{section name="ff" loop=$feedback}
-					{$feedback[ff]}<br/>
-				{/section}
-				</td>
-			</tr>
+	<div class="msg">
+		{section name="ff" loop=$feedback}
+			{$feedback[ff]}<br/>
+		{/section}
+	</div>
 {/if}
 
-              <tr>
-                <td colspan="2" class="default">
-                  <b>Import Workflows</b>
-                </td>
-              </tr>
-             <tr>
-                <td bgcolor="{$light_color}" class="default">
-                Workflows that have been exported to an XML file can be imported here.  Existing workflows
-                will not be changed.  Version numbers are used to determine whether to import an existing workflow, if 
-                the version in the XML file is higher than that of the existing workflow then it will be imported,
-                otherwise it will be skipped.
-                </td>
-              </tr>
-		  <tr>
-			<td>
-                    <form name="form1"  method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
-                    <input type="hidden" name="cat" value="go"/>
-			  <table width="100%">
-			<tr>
-			  <td class="default" colspan="2">
-				<b><img align="absmiddle" src="{$rel_url}images/collection.jpg" border="0"> &nbsp; Select Import Settings</b>
-			  </td>
-			</tr>			
+    <div class="contentheader">
+      Import Workflows
+    </div>
+    <div class="default">
+      Workflows that have been exported to an XML file can be imported here.  Existing workflows
+      will not be changed.  Version numbers are used to determine whether to import an existing workflow, if 
+      the version in the XML file is higher than that of the existing workflow then it will be imported,
+      otherwise it will be skipped.
+    </div>
+    <form name="form1"  method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
+            <input type="hidden" name="cat" value="go"/>
+{if $step == 1}            
+            <input type="hidden" name="step" value="2"/>
+			<table width="100%">
 			  <tr>
 				<td width="200" bgcolor="{$cell_color}" class="default">
 				  <b>File to import</b>
@@ -50,9 +36,88 @@ var page_url = '{/literal}{$smarty.server.PHP_SELF}{literal}';
 				  <input type="file" name="import_xml" class="default" /> 
 				</td>
 			  </tr>
-            <tr><td colspan="2" bgcolor="{$cell_color}"><div align="center"><input type="submit" value="Import" class="button"/></div></td></tr>
+              <tr><td colspan="2" bgcolor="{$cell_color}"><div align="center"><input type="submit" value="Import" class="button"/></div></td></tr>
             </table>
-   		  </form>
-   		  </td></tr></table>
-   		  </td></tr></table>
+{elseif $step == 2}
+    <input type="hidden" name="step" value="3"/>
+    <input type="hidden" name="filename" value="{$filename}"/>
+	<table>
+		<tr class="table_heading_row">
+			<td><input type="button" value="All"  onClick="javascript:toggleSelectAll(this.form, 'wfl_ids[]');"></td>
+			<td>Title</td>
+			<td>Version</td>
+			<td>Overwrite</td>
+		</tr>
+	{section name='i' loop=$wfl_list}
+		{assign var="item" value=$wfl_list[i]}
+		{cycle values=$cycle assign="row_color"}
+                    <tr>
+                      <td width="4" nowrap bgcolor="{$row_color}" align="center">
+                        <input type="checkbox" name="wfl_ids[]" value="{$item.wfl_id}">
+                      </td>
+                      <td  bgcolor="{$row_color}" class="default">
+                        {$item.wfl_title}</a>
+                      </td>
+                      <td  bgcolor="{$row_color}" class="default">
+                        {$item.wfl_version}
+                      </td>
+                      <td  bgcolor="{$row_color}" class="default">
+                        {if $item.overwrite}
+                        	<span style="color:red;">Will overwrite {$item.overwrite_details}</span>
+                        {else}
+                        	<span style="color:green;">New</span>
+                        {/if}
+                      </td>
+                    </tr>
+	{sectionelse}
+                    <tr>
+                      <td colspan="7" bgcolor="{$light_color}" align="center" class="default">
+                        No workflows could be found.
+                      </td>
+                    </tr>
+	{/section}
+	    <tr class="table_heading_row">
+			<td><input type="button" value="All"  onClick="javascript:toggleSelectAll(this.form, 'wfl_ids[]');"></td>
+			<td colspan="20"></td></tr>
+		<tr><td colspan="20"><span class="contentheader">Behaviours</span></td></tr>
+	{section name="i" loop=$wfb_list}
+			  {assign var="item" value=$wfb_list[i]}
+			  {cycle values=$cycle assign="row_color"}
+                    <tr>
+                      <td width="4" nowrap bgcolor="{$row_color}" align="center">
+                        <input type="checkbox" name="wfb_ids[]" value="{$item.wfb_id}">
+                      </td>
+                      <td  bgcolor="{$row_color}" class="default">
+                        {$item.wfb_title}</a>
+                      </td>
+                      <td  bgcolor="{$row_color}" class="default">
+                        {$item.wfb_version}
+                      </td>
+                      <td  bgcolor="{$row_color}" class="default">
+                        {if $item.overwrite}
+                        	<span style="color:red;">Will overwrite {$item.overwrite_details}</span>
+                        {else}
+                        	<span style="color:green;">New</span>
+                        {/if}
+                      </td>
+                    </tr>
+	{sectionelse}
+                    <tr>
+                      <td colspan="7" bgcolor="{$light_color}" align="center" class="default">
+                        No behaviours could be found.
+                      </td>
+                    </tr>
+	{/section}
+    <tr class="table_heading_row">
+		<td><input type="button" value="All"  onClick="javascript:toggleSelectAll(this.form, 'wfb_ids[]');"></td>
+		<td colspan="20"></td>
+	</tr>
+	<tr>
+		<td colspan="20" align="center"><input type="submit" value="Import" name="go" /></td>
+	</tr>
+	</table>
+{/if}
+   	</form>
+   		  
+</div>
 
