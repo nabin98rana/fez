@@ -213,10 +213,10 @@ class Doc_Type_XSD
      * @access  public
      * @return  array The list of Document Type XSDs
      */
-    function getList($where="")
+    function getList($select = '*', $where="")
     {
         $stmt = "SELECT
-                    *
+                    $select
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd
                  $where
@@ -334,10 +334,39 @@ class Doc_Type_XSD
         return $doc->saveXML();         
     }
      
+     
+    /**
+     * This lists all the XSDs and accompanying displays in the XML file given. 
+     * The items where the xdis_id and the xdis_title match will be flagged as overwrites.
+     * Same for where the xsd_id and the xsd_title match.
+     */
+    function listImportFile($filename)
+    {
+        $doc = DOMDocument::load($filename);
+        $xpath = new DOMXPath($doc);
+        $xdocs = $xpath->query('/fez_xsds/fez_xsd');
+        $list = array();
+        foreach ($xdocs as $idx => $xdoc) {
+            $item['xsd_id'] = Misc::escapeString($xdoc->getAttribute('xsd_id'));
+            $item['xsd_title'] = Misc::escapeString($xdoc->getAttribute('xsd_title'));
+            $item['xsd_version'] = Misc::escapeString($xdoc->getAttribute('xsd_version'));
+            $item['exist_list'] = Doc_Type_XSD::getList("xsd_id, xsd_title, xsd_version","WHERE xsd_title='{$item['xsd_title']}'");
+            if (!empty($item['exist_list'])) {
+            	$item['overwrite'] = true;
+            } else {
+                $item['overwrite'] = false;
+            }
+            $item['displays'] = XSD_Display::listImportFile($item['xsd_id'], $xdoc);
+            $item['displays_count'] = count($item['displays']);
+            $list[] = $item;
+        }
+        return $list;
+    } 
+
     /**
      * Import XSDs from a XML doc that was previously exported
      */
-    function importXSDs($filename, &$bgp)
+    function importXSDs($filename, $xdis_ids, &$bgp)
     {
         $doc = DOMDocument::load($filename);
         $xpath = new DOMXPath($doc);
@@ -346,56 +375,34 @@ class Doc_Type_XSD
         foreach ($xdocs as $idx => $xdoc) {
             $bgp->setProgress(intval(($idx + 1) / count($xdocs) * 100 + 0.5));
         	$title = Misc::escapeString($xdoc->getAttribute('xsd_title'));
-            $version = Misc::escapeString($xdoc->getAttribute('xsd_version'));
-            // reject any XSDs that don't have a version
-            if (!is_numeric($version)) {
-                $bgp->setStatus("Not importing $title $version - the xsd_version must be numeric");
-            	continue;
-            }
             // There are two things to consider when importing
             // 1) Upgrade docs which match on xsd_title and have version < import doc .  Remap any references in import doc to xdis)
             // 2) Insert new doc which don't match title.  Remap references in imported stuff  
             $found_matching_title = false;
-            $found_smaller_version = false;
-            $found_same_version = false;
-            $exist_list = Doc_Type_XSD::getList("WHERE xsd_title='$title'");
-            $doc_id = false;
+            $exist_list = Doc_Type_XSD::getList("*","WHERE xsd_title='$title'");
+            $doc_id = null;
             if (!empty($exist_list)) {
                 $found_matching_title = true;
-                $found_smaller_version = true;
-                foreach ($exist_list as $exist_item) {
-                    $doc_id = $exist_item['xsd_id'];
-                	if (floatval($exist_item['xsd_version']) > floatval($version)) {
-                        $found_smaller_version = false;
-                        break;
-                	}
-                    if (floatval($exist_item['xsd_version']) == floatval($version)) {
-                        $found_same_version = true;
-                    }
-                }
+                $doc_id = $exist_list[0]['xsd_id'];
             }
-            if ($found_matching_title && (!$found_smaller_version || $found_same_version)) {
-                $bgp->setStatus("Not importing XSD $title $version");
-                if (!$found_same_version) {
-                	$doc_id = false;
-                }
-            } else {
                 $xsd_file_nodelist =  $xpath->query('xsd_file',$xdoc);
                 $xsd_file_node = $xsd_file_nodelist->item(0);
                 $xsd_file = $xsd_file_node->textContent; 
                 
                 $params = array(
-                    'xsd_title' => $xdoc->getAttribute('xsd_title'),
+                    'xsd_title' => $title,
                     'xsd_version' => $xdoc->getAttribute('xsd_version'),
                     'xsd_file' => $xsd_file,
                     'xsd_top_element_name' => $xdoc->getAttribute('xsd_top_element_name'),
                     'xsd_element_prefix' => $xdoc->getAttribute('xsd_element_prefix'),
                     'xsd_extra_ns_prefixes' => $xdoc->getAttribute('xsd_extra_ns_prefixes'),
                 );
-                if ($found_matching_title && $found_smaller_version) {
+                if ($found_matching_title) {
+                    $bgp->setStatus("Overwriting XSD $title");
                     Doc_Type_XSD::update($doc_id, $params);
                 } else {
-                    // need to try and insert at the doc_id in the XML.  If there's something there already
+                    $bgp->setStatus("Inserting XSD $title");
+                    // need to try and insert at the XML doc_id.  If there's something there already
                     // then we know it doesn't match so do a insert with new id in that case
                     $det =  Doc_Type_XSD::getDetails($xdoc->getAttribute('xsd_id'));
                     if (empty($det)) {
@@ -405,10 +412,9 @@ class Doc_Type_XSD
                         $doc_id = Doc_Type_XSD::insert($params);
                     }
                 }
-            }
             if ($doc_id) {
-                // check for new displays even if the doc already exists in the DB
-                XSD_Display::importDisplays($xdoc, $doc_id, $maps,$bgp);
+                // check for new displays 
+                XSD_Display::importDisplays($xdoc, $doc_id, $xdis_ids, $maps,$bgp);
             }
         }
         //print_r($maps);

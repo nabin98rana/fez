@@ -731,6 +731,27 @@ class XSD_Display
         return $xcount;
     }
     
+    function listImportFile($xsd_id, &$xdoc)
+    {
+        $xpath = new DOMXPath($xdoc->ownerDocument);
+        $xdisplays = $xpath->query('display', $xdoc);
+        foreach ($xdisplays as $xdis) {
+            $item = array(
+                'xdis_id' => $xdis->getAttribute('xdis_id'),
+                'xdis_title' => $xdis->getAttribute('xdis_title'),
+                'xdis_version' => $xdis->getAttribute('xdis_version')
+            );
+            $item['exists_list'] = XSD_Display::getList($xsd_id,"AND xdis_title='{$item['xdis_title']}'");
+            if (!empty($item['exists_list'])) {
+            	$item['overwrite'] = true;
+            } else {
+                $item['overwrite'] = false;
+            }
+            $list[] = $item;
+        }
+        return $list;
+    }
+    
     /**
      * Need two passes, first pass inserts everything
      * Second pass needs to correct links in pretty much all the tables.
@@ -738,51 +759,37 @@ class XSD_Display
      * make sure any inserted items point to the right things.  NOTE: queries must ensure that only inserted 
      * items are updated - we don't want to change exisiting items to point to new items by accident 
      */
-    function importDisplays($xdoc, $xsd_id, &$maps, &$bgp)
+    function importDisplays($xdoc, $xsd_id, $xdis_ids, &$maps, &$bgp)
     {
     	$xpath = new DOMXPath($xdoc->ownerDocument);
         $xdisplays = $xpath->query('display', $xdoc);
         foreach ($xdisplays as $xdis) {
             $title = Misc::escapeString($xdis->getAttribute('xdis_title'));
-            $version = $xdis->getAttribute('xdis_version');
-            if (!is_numeric($version)) {
-            	$bgp->setStatus("Not importing Display $title $version - xdis_version must be a number");
-                continue;
+            if (!in_array($xdis->getAttribute('xdis_id'), $xdis_ids)) {
+                $bgp->setStatus("Skipping Display $title");
+            	continue;
             }
             $found_matching_title = false;
-            $found_matching_version = false;
-            $found_smaller_version = false;
             $list = XSD_Display::getList($xsd_id,"AND xdis_title='$title'");
             if (!empty($list)) {
                 $found_matching_title = true;
-                $found_smaller_version = true;
-            	foreach($list as $exist_item) {
-                    $xdis_id = $exist_item['xdis_id'];
-            		if (floatval($exist_item['xdis_version']) > floatval($version)) {
-                        $found_smaller_version = false;
-                        break;
-            		} elseif (floatval($exist_item['xdis_version']) == floatval($version)) {
-                        $found_matching_version = true;
-                        break;
-                    }
-            	}
+                $xdis_id = $list[0]['xdis_id'];
             }
-            if ($found_matching_title && (!$found_smaller_version || $found_matching_version)) {
-                $bgp->setStatus("Not importing Display $title $version");
-            } else {
-            	$bgp->setStatus("Importing Display $title");
                 $params = array(
-                    'xdis_title' => $xdis->getAttribute('xdis_title'),
+                    'xdis_xsd_id' => $xsd_id,
+                    'xdis_title' => $title,
                     'xdis_version' => $xdis->getAttribute('xdis_version'),
                     'xdis_enabled' => $xdis->getAttribute('xdis_enabled'),
                     'xdis_object_type' => $xdis->getAttribute('xdis_object_type'),
                 );
-                if ($found_matching_title && $found_smaller_version) {
+                if ($found_matching_title) {
+                $bgp->setStatus("Overwriting Display $title");
                   XSD_Display::update($xdis_id, $params);
                   // need to delete any matchfields that refer to this xdis as we are about to bring
                   // the ones from the XML doc in
                   XSD_HTML_Match::removeByXDIS_ID($xdis_id);
                 } else {
+                $bgp->setStatus("Inserting Display $title");
                   // need to try and insert at the xdis_id in the XML.  If there's something there already
                   // then we know it doesn't match so do a insert with new id in that case 
                   $det = XSD_Display::getDetails($xdis->getAttribute('xdis_id'));
@@ -794,8 +801,7 @@ class XSD_Display
                   }
                 }
                 $maps['xdis_map'][$xdis->getAttribute('xdis_id')] = $xdis_id;
-                XSD_HTML_Match::importMatchFields($xdis, $xdis->getAttribute('xdis_id'), $maps);
-            }
+                XSD_HTML_Match::importMatchFields($xdis, $xdis_id, $maps);
         }
     }
     

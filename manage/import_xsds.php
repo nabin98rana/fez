@@ -50,23 +50,48 @@ $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 
-if ($isAdministrator) {
-    if (@$HTTP_POST_VARS["cat"] == "go") {
-    	extract($_FILES['import_xml']);
-        if ($type != 'text/xml') {
-        	Error_Handler::logError("Can't import files of type $type", __FILE__,__LINE__);
-            exit;
-        }
-        $bgp = new BackgroundProcess_Import_XDSs;
-        $filename = APP_TEMP_DIR.'fezxsd'.basename($tmp_name);
-        copy($tmp_name, $filename);
-    	$bgp->register(serialize(compact('filename')), Auth::getUserID());
-        $feedback[] = "The XSDs are being imported as a background process, see My_Fez for progress.";
-        $tpl->assign('feedback',$feedback);
-    }
-} else {
+if (!$isAdministrator) {
     $tpl->assign("show_not_allowed_msg", true);
+} else {
+    $step = Misc::GETorPOST('step');
+    if (empty($step)) {
+	   $step = 1;
+    }
+
+    switch ($step) {
+    	case 1:
+          // just show the form
+          break;
+        case 2:
+          if ($_POST['cat'] == 'go') { 
+            extract($_FILES['import_xml']);
+            if ($type != 'text/xml') {
+                Error_Handler::logError("Can't import files of type $type", __FILE__,__LINE__);
+                exit;
+            }
+            $filename = APP_TEMP_DIR.'fezxsd'.basename($tmp_name);
+            copy($tmp_name, $filename);
+          }
+          $list = Doc_Type_XSD::listImportFile($filename);
+          //print_r($list);
+          $tpl->assign('list', $list);
+          $tpl->assign('filename', $filename);
+        break;
+        case 3:
+          if ($_POST['cat'] == 'go') {  
+            $filename = $_POST['filename'];
+            $xdis_ids = $_POST['xdis_ids'];
+            $bgp = new BackgroundProcess_Import_XDSs;
+            $bgp->register(serialize(compact('filename','xdis_ids')), Auth::getUserID());
+            $feedback[] = "The XSDs are being imported as a background process, see My_Fez for progress.";
+            $tpl->assign('feedback',$feedback);
+          }
+        break;
+    }
+
+    $tpl->assign('step',$step);
 }
+
 
 $tpl->displayTemplate();
 ?>

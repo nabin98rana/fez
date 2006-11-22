@@ -1,40 +1,29 @@
-<script type="text/javascript">
+yon com<script type="text/javascript">
 <!--
 {literal}
 var page_url = '{/literal}{$smarty.server.PHP_SELF}{literal}';
 {/literal}
 // -->
 </script>
-      <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
-        <tr>
-          <td>
-            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+<div class="outline">
+
+              <div class="contentheader">
+                  Import XSDs
+              </div>
+             <div class="default">
+                XSDs that have been exported to an XML file can be imported here. 
+              </div>
 {if $feedback}
-			<tr>
-				<td colspan="2" class="default">
+			<div class="msg">
 				{section name="ff" loop=$feedback}
 					{$feedback[ff]}<br/>
 				{/section}
-				</td>
-			</tr>
+			</div>
 {/if}
-
-              <tr>
-                <td colspan="2" class="default">
-                  <b>Import XSDs</b>
-                </td>
-              </tr>
-             <tr>
-                <td bgcolor="{$light_color}" class="default">
-                XSDs that have been exported to an XML file can be imported here.  Existing XSDs
-                will not be changed.  Version numbers are used to determine whether to import XSDs that are
-                already in Fez.  Only higher versions will be imported.
-                </td>
-              </tr>
-		  <tr>
-			<td>
+{if $step == 1}              
                     <form name="form1"  method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
                     <input type="hidden" name="cat" value="go"/>
+                    <input type="hidden" name="step" value="2"/>
 			  <table width="100%">
 			<tr>
 			  <td class="default" colspan="2">
@@ -51,7 +40,69 @@ var page_url = '{/literal}{$smarty.server.PHP_SELF}{literal}';
 			  </tr>
             <tr><td colspan="2" bgcolor="{$cell_color}"><div align="center"><input type="submit" value="Import" class="button"/></div></td></tr>
             </table>
-   		  </form>
-   		  </td></tr></table>
+            </form>
+{elseif $step == 2}
+                    <form name="form1"  method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
+                    <input type="hidden" name="cat" value="go"/>
+                    <input type="hidden" name="step" value="3"/>
+                    <input type="hidden" name="filename" value="{$filename}"/>
+                    
+<table>
+<tr class="table_heading_row">
+<td width="4"><input type="button" value="All"  onClick="javascript:toggleSelectAll(this.form, 'xdis_ids[]');"></td>
+<td>Title</td>
+<td>Version</td>
+<td>Overwrite</td>
+</tr>
+{section name="i" loop=$list}
+<tr><td colspan="20">                    
+                        <span class="contentheader">{$list[i].xsd_title}</span>
+                      <span class="default">
+                        Version: {$list[i].xsd_version}
+                     </span>
+                     </td>
+                     </tr>
+                    
+    {if $list[i].displays_count > 0}
+			{section name="jj" loop=$list[i].displays}
+			  {assign var="xdis" value=$list[i].displays[jj]}
+			  {cycle values=$cycle assign="row_color"}
+                    <tr>
+                      <td width="4" nowrap bgcolor="{$row_color}" align="center">
+                        <input type="checkbox" name="xdis_ids[]" value="{$xdis.xdis_id}">
+                      </td>
+                      <td  bgcolor="{$row_color}" class="default">
+                        {$xdis.xdis_title}</a>
+                      </td>
+
+                      <td  bgcolor="{$row_color}" class="default">
+                        &nbsp;{$xdis.xdis_version}
+                      </td>
+                      <td  bgcolor="{$row_color}" class="default">
+                        {if $xdis.overwrite}<span style="color: red">Will Overwrite
+                        {$xdis.exists_list[0].xdis_title} {$xdis.exists_list[0].xdis_version}
+                        </span>
+                        {else}<span style="color: green">New</span>{/if}
+                      </td>
+
+                    </tr>
+			{/section}
+    {/if}
+{sectionelse}
+                    <tr>
+                      <td colspan="7" bgcolor="{$light_color}" align="center" class="default">
+                        No doc type xsds could be found.
+                      </td>
+                    </tr>
+{/section}
+    <tr class="table_heading_row">
+<td width="4"><input type="button" value="All"  onClick="javascript:toggleSelectAll(this.form, 'xdis_ids[]');"></td>
+<td colspan="20"><input type="submit" value="Import" name="go" /></td>
+</tr>
+</table>
+</form>
+{/if}            
+            </div>
+   		  
    		  </td></tr></table>
 

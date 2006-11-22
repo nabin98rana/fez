@@ -16,7 +16,7 @@ class BackgroundProcess_Import_XDSs extends BackgroundProcess
     {
         $this->setState(1);
         extract(unserialize($this->inputs));
-        Doc_Type_XSD::importXSDs($filename, $this);
+        Doc_Type_XSD::importXSDs($filename, $xdis_ids, $this);
         exec(APP_DELETE_CMD." $filename");
         $this->setState(2);
     }
