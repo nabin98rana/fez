@@ -182,8 +182,18 @@ class Error_Handler
         @fwrite($fp, $msg);
         @fclose($fp);
     }
-}
 
+
+	function simpleBacktrace($backtrace = array()) {
+		$sbt = "";
+		$errorCounter = 0;
+		foreach ($backtrace as $bt) {
+			$errorCounter++;
+			$sbt .= "\n<br/> #".$errorCounter." ".$bt['function']." called at [".$bt['file'].":".$bt['line']."]";			
+		}
+		return $sbt."\n";
+	}
+}
 // benchmarking the included file (aka setup time)
 if (APP_BENCHMARK) {
     $GLOBALS['bench']->setMarker('Included Error_Handler Class');

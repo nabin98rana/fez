@@ -180,7 +180,7 @@ class BatchImport
 		$eprints_sql = 1;
 		if ($eprints_sql == 1) {
 			$eprints_object = new ePrints();
-			$eprints_object->importFromSQL($pid, $collection_pid, $xmlObj, $use_MODS);
+			$eprints_object->importFromSQL($pid, $collection_pid, $xmlObj, $this, $use_MODS);
 		} else {
 			
 			
@@ -1149,9 +1149,12 @@ class BatchImport
 	                    $presmd_check = Workflow::checkForPresMD(APP_TEMP_DIR.$short_ds);  // try APP_TEMP_DIR.$short_ds
 	                    if ($presmd_check != false) {
 	                       Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, 
-	                                $presmd_check, "text/xml", "X");
+	                                $presmd_check, "text/xml", "M");
 	                    }			
-	
+	                    if (is_file(APP_TEMP_DIR.basename($presmd_check))) {
+                            $deleteCommand = APP_DELETE_CMD." ".APP_TEMP_DIR.basename($presmd_check);
+                            exec($deleteCommand);
+                        }
 	                    if (is_numeric(strpos($ds, "/"))) {
 	                        $ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
 	                    }
@@ -1295,7 +1298,7 @@ class BatchImport
             if ($presmd_check != false) {
 				$pres_dsID = basename($presmd_check);
 //				$presmd_check = APP_TEMP_DIR.$presmd_check;
-                Fedora_API::getUploadLocationByLocalRef($pid, $pres_dsID, $presmd_check, $presmd_check, "text/xml", "X");
+                Fedora_API::getUploadLocationByLocalRef($pid, $pres_dsID, $presmd_check, $presmd_check, "text/xml", "M");
             }		
             if (is_numeric(strpos($ds, "/"))) {
                 $ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
@@ -1350,7 +1353,7 @@ class BatchImport
                 Fedora_API::callPurgeDatastream($pid, $presmd_check);
             }
             Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, 
-                    "text/xml", "X");
+                    "text/xml", "M");
             if (is_file(APP_TEMP_DIR.$presmd_check)) {
                 $deleteCommand = APP_DELETE_CMD." ".APP_DELETE_DIR.$presmd_check;
 				exec($deleteCommand, $return_array, $return_status);

@@ -65,15 +65,16 @@ class Collection
      * @param   string $collection_pid The collection persistant identifier
      * @return  array The collection details
      */
+     //				
     function getDetails($collection_pid)
     {
-        $stmt = "SELECT
+        $stmt = "SELECT ".APP_SQL_CACHE."  
                     * 
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1
 					
                     inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on x1.xsdmf_id = r1.rmf_xsdmf_id
-					and rmf_rec_pid = '".$collection_pid."'
+					and rmf_rec_pid_num = ".Misc::numPID($collection_pid)." and rmf_rec_pid = '".$collection_pid."'
 					inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s1 on s1.sek_id = x1.xsdmf_sek_id";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = array();
@@ -126,11 +127,11 @@ class Collection
         if (!empty($returns[$collection_pid]) && !$nocache) { 
 			return $returns[$collection_pid];
 		} else {
-			$stmt = "SELECT r1.rmf_rec_pid, r1.rmf_varchar 
+			$stmt = "SELECT ".APP_SQL_CACHE."  r1.rmf_rec_pid, r1.rmf_varchar 
 				FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS r1
 				INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields AS x1
 				ON r1.rmf_xsdmf_id=x1.xsdmf_id
-                INNER JOIN ( SELECT r3.rmf_varchar
+                INNER JOIN ( SELECT ".APP_SQL_CACHE."  r3.rmf_varchar
 						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3
 						INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x3
 						ON x3.xsdmf_id = r3.rmf_xsdmf_id 
@@ -165,7 +166,7 @@ class Collection
 	function getChildXDisplayOptions($collection_pid) {
 	
 		$stmt = "
-		SELECT d3.xdis_id, d3.xdis_title
+		SELECT ".APP_SQL_CACHE."  d3.xdis_id, d3.xdis_title
 		FROM  
 		  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3,
 		  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x3,
@@ -205,7 +206,7 @@ class Collection
         // Should we restrict the list to a community.
         if ($community_pid) {
             $community_join = "	inner join (
-	 						SELECT distinct r3.rmf_rec_pid 
+	 						SELECT ".APP_SQL_CACHE."  distinct r3.rmf_rec_pid 
 							FROM  
 							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3,
 							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x3,
@@ -217,7 +218,7 @@ class Collection
             // list all collections 
             $community_join = "";
         }
-        $stmt = "SELECT
+        $stmt = "SELECT ".APP_SQL_CACHE." 
             * 
             FROM
             " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1
@@ -225,7 +226,7 @@ class Collection
             ON r1.rmf_xsdmf_id = x1.xsdmf_id 
            $community_join 
 			inner join (
-                    SELECT distinct r2.rmf_rec_pid 
+                    SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid 
                     FROM  
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,
@@ -236,7 +237,7 @@ class Collection
                     AND r2.rmf_int = 2 
                     ) as o1 on o1.rmf_rec_pid = r1.rmf_rec_pid
 			inner join (
-                    SELECT distinct rmf_rec_pid FROM 
+                    SELECT ".APP_SQL_CACHE."  distinct rmf_rec_pid FROM 
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS rmf
                     INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields AS xdm
                     ON rmf.rmf_xsdmf_id = xdm.xsdmf_id
@@ -244,7 +245,7 @@ class Collection
                     AND xdm.xsdmf_element='!sta_id'
                     ) as sta1 on sta1.rmf_rec_pid = r1.rmf_rec_pid					
              left JOIN (
-                        SELECT distinct r2.rmf_rec_pid as sort_pid, 
+                        SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid as sort_pid, 
                         r2.rmf_$data_type as sort_column
                         FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
                         inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
@@ -378,16 +379,16 @@ class Collection
              ";
 
         $countStmt = "
-                    SELECT count(distinct r2.rmf_rec_pid)
+                    SELECT ".APP_SQL_CACHE."  count(distinct r2.rmf_rec_pid)
                     $bodyStmtPart1
             ";
 
-        $stmt = "SELECT  r1.*, x1.*, s1.*, k1.*, d1.* 
+        $stmt = "SELECT ".APP_SQL_CACHE."   r1.*, x1.*, s1.*, k1.*, d1.* 
             FROM {$dbtp}record_matching_field AS r1
             INNER JOIN {$dbtp}xsd_display_matchfields AS x1
             ON r1.rmf_xsdmf_id = x1.xsdmf_id
             INNER JOIN (
-                    SELECT distinct r2.rmf_rec_pid, r5.rmf_$data_type as sort_column
+                    SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid, r5.rmf_$data_type as sort_column
                     $bodyStmt
                     ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid 
             LEFT JOIN {$dbtp}xsd_loop_subelement s1 
@@ -426,7 +427,7 @@ class Collection
         $restrict_community = '';
         if ($community_pid) {
             $restrict_community = " INNER JOIN (
-                SELECT r3.rmf_rec_pid 
+                SELECT ".APP_SQL_CACHE."  r3.rmf_rec_pid 
                 FROM  {$dbtp}record_matching_field AS r3
                 INNER JOIN {$dbtp}xsd_display_matchfields AS x3
                 ON x3.xsdmf_id = r3.rmf_xsdmf_id
@@ -436,14 +437,14 @@ class Collection
                 AND r3.rmf_varchar = '$community_pid'
                 ) as com1 on com1.rmf_rec_pid = r1.rmf_rec_pid ";
         }
-        $stmt = " SELECT *
+        $stmt = " SELECT ".APP_SQL_CACHE."  *
             FROM {$dbtp}record_matching_field AS r1
             INNER JOIN {$dbtp}xsd_display_matchfields AS x1
             ON r1.rmf_xsdmf_id=x1.xsdmf_id
             $restrict_community
 			INNER JOIN {$dbtp}search_key as sk1 on sk1.sek_id = x1.xsdmf_sek_id
 			INNER JOIN (
-                    SELECT r2.rmf_rec_pid 
+                    SELECT ".APP_SQL_CACHE."  r2.rmf_rec_pid 
                     FROM  {$dbtp}record_matching_field r2
                     INNER JOIN {$dbtp}xsd_display_matchfields x2
                     ON r2.rmf_xsdmf_id = x2.xsdmf_id 
@@ -494,7 +495,11 @@ class Collection
 			if ($result['sek_title'] == 'isMemberOf') {
                 $return[$result['rmf_rec_pid']]['isMemberOf'][] = $result['rmf_varchar'];
 			}			
+			if (($result['sek_title'] == 'Created Date' || $result['sek_title'] == 'Updated Date') && !(empty($result['rmf_date']))) {
+                $result['rmf_date'] = Date_API::getFormattedDate($result['rmf_date']);
+            }
 			
+						
 			if (@$result['sek_title'] == 'isMemberOf') {
 				if (!is_array(@$return[$result['rmf_rec_pid']]['isMemberOf'])) {
 					$return[$result['rmf_rec_pid']]['isMemberOf'] = array();
@@ -524,7 +529,7 @@ class Collection
                             $result['rmf_'.$result['xsdmf_data_type']]);
 					sort($return[$result['rmf_rec_pid']][$search_var]);
 				}
-			}
+			} 
 			// get thumbnails
 			if ($result['xsdmf_element'] == "!datastream!ID") {
 				if (is_numeric(strpos($result['rmf_varchar'], "thumbnail_"))) {
@@ -615,7 +620,7 @@ class Collection
                     ";
 
         $countStmt = "
-                    SELECT count(distinct r2.rmf_rec_pid)
+                    SELECT ".APP_SQL_CACHE."  count(distinct r2.rmf_rec_pid)
                     $bodyStmtPart1
             ";
 		$res = $GLOBALS["db_api"]->dbh->getCol($countStmt);
@@ -657,7 +662,7 @@ class Collection
        if (!empty($collection_pid)) {
             $memberOfStmt = "
                 INNER JOIN {$dbtp}record_matching_field AS r4
-                ON r4.rmf_rec_pid = r2.rmf_rec_pid AND r4.rmf_varchar = '$collection_pid'
+                ON r4.rmf_rec_pid_num = r2.rmf_rec_pid_num and r4.rmf_rec_pid = r2.rmf_rec_pid AND r4.rmf_varchar = '$collection_pid'
                 INNER JOIN {$dbtp}xsd_display_matchfields AS x4
                 ON x4.xsdmf_id = r4.rmf_xsdmf_id
                 INNER JOIN {$dbtp}search_key AS s4
@@ -666,7 +671,7 @@ class Collection
         }
             $objectTypestmt = "
                 INNER JOIN {$dbtp}record_matching_field AS r6
-                ON r6.rmf_rec_pid = r4.rmf_rec_pid  AND r6.rmf_int = 3
+                ON r6.rmf_rec_pid_num = r4.rmf_rec_pid_num and r6.rmf_rec_pid = r4.rmf_rec_pid  AND r6.rmf_int = 3
                 INNER JOIN {$dbtp}xsd_display_matchfields x6
                 ON r6.rmf_xsdmf_id = x6.xsdmf_id 
                 INNER JOIN {$dbtp}search_key s6				  
@@ -688,7 +693,7 @@ class Collection
                     ";
         $bodyStmt = "$bodyStmtPart1
 
-                    LEFT JOIN {$dbtp}record_matching_field r5 on r5.rmf_rec_pid = r2.rmf_rec_pid
+                    LEFT JOIN {$dbtp}record_matching_field r5 on r5.rmf_rec_pid_num = r2.rmf_rec_pid_num and r5.rmf_rec_pid = r2.rmf_rec_pid
                     inner join {$dbtp}xsd_display_matchfields x5 on r5.rmf_xsdmf_id = x5.xsdmf_id
                     left join {$dbtp}search_key s5
                     on (s5.sek_id = x5.xsdmf_sek_id and s5.sek_title = '$order_by')  
@@ -697,14 +702,14 @@ class Collection
              ";
 
            
-            $stmt = "SELECT r1.*, x1.*, s1.*, k1.*, d1.* 
+            $stmt = "SELECT ".APP_SQL_CACHE."  r1.*, x1.*, s1.*, k1.*, d1.* 
             FROM {$dbtp}record_matching_field AS r1
             INNER JOIN {$dbtp}xsd_display_matchfields AS x1
             ON r1.rmf_xsdmf_id = x1.xsdmf_id
             INNER JOIN (
-                    SELECT distinct r2.rmf_rec_pid, min(r5.rmf_$data_type) as sort_column
+                    SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid, min(r5.rmf_$data_type) as sort_column
                     $bodyStmt
-					order by sort_column $order_dir, r2.rmf_rec_pid desc
+					order by sort_column $order_dir, r2.rmf_rec_pid_num desc
                     LIMIT $start, $max					
                     ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid 
             LEFT JOIN {$dbtp}xsd_loop_subelement s1 
@@ -715,7 +720,7 @@ class Collection
             ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
             ORDER BY display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
 
-            Error_Handler::logError($stmt,__FILE__,__LINE__);
+           // Error_Handler::logError($stmt,__FILE__,__LINE__);
 
             $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
             if (PEAR::isError($res)) {
@@ -780,7 +785,7 @@ class Collection
         if (!empty($collection_pid)) {		
 			$memberOfStmt = "
 						INNER JOIN {$dbtp}record_matching_field AS r4
-						  ON r4.rmf_rec_pid = r2.rmf_rec_pid
+						  ON r4.rmf_rec_pid_num = r2.rmf_rec_pid_num and r4.rmf_rec_pid = r2.rmf_rec_pid
 						INNER JOIN {$dbtp}xsd_display_matchfields AS x4
 						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and match(r4.rmf_varchar) 
                           against ('\"$collection_pid\"' in boolean mode)
@@ -793,8 +798,7 @@ class Collection
 
         $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
                     INNER JOIN {$dbtp}xsd_display_matchfields AS x2
-                      ON r2.rmf_xsdmf_id = x2.xsdmf_id AND match(x2.xsdmf_element) 
-                      against ('\"!sta_id\"' in boolean mode) 
+                      ON r2.rmf_xsdmf_id = x2.xsdmf_id AND x2.xsdmf_element ='!sta_id' 
                       and r2.rmf_int=2 $joinStmt
 
 
@@ -808,39 +812,39 @@ class Collection
 
 
                     LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r5 
-                    on r5.rmf_rec_pid = r2.rmf_rec_pid
+                    on r5.rmf_rec_pid_num = r2.rmf_rec_pid_num and r5.rmf_rec_pid = r2.rmf_rec_pid
                     inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x5
                     on r5.rmf_xsdmf_id = x5.xsdmf_id
                     left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s5
                     on (s5.sek_id = x5.xsdmf_sek_id and s5.sek_title = '$order_by')  
 					where (r5.rmf_{$data_type} is null) or s5.sek_title = '$order_by'
-					group by r5.rmf_rec_pid
+					group by r5.rmf_rec_pid_num
              ";
 
         $countStmt = "
-                    SELECT count(distinct r2.rmf_rec_pid)
+                    SELECT ".APP_SQL_CACHE."  count(distinct r2.rmf_rec_pid_num)
                     $bodyStmtPart1
             ";
 
-        $stmt = "SELECT r1.*, x1.*, s1.*, k1.*, d1.* 
+        $stmt = "SELECT ".APP_SQL_CACHE."  r1.*, x1.*, s1.*, k1.*, d1.* 
             FROM {$dbtp}record_matching_field AS r1
             INNER JOIN {$dbtp}xsd_display_matchfields AS x1
             ON r1.rmf_xsdmf_id = x1.xsdmf_id
             INNER JOIN (
-                    SELECT distinct r2.rmf_rec_pid, min(r5.rmf_$data_type) as sort_column
+                    SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid, r2.rmf_rec_pid_num, min(r5.rmf_$data_type) as sort_column
                     $bodyStmt
-					order by sort_column $order_dir, r2.rmf_rec_pid desc
+					order by sort_column $order_dir, r2.rmf_rec_pid_num desc
                     LIMIT $start, $max					
-                    ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid 
+                    ) as display ON display.rmf_rec_pid_num=r1.rmf_rec_pid_num and display.rmf_rec_pid=r1.rmf_rec_pid
             LEFT JOIN {$dbtp}xsd_loop_subelement s1 
             ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
             LEFT JOIN {$dbtp}search_key k1 
             ON (k1.sek_id = x1.xsdmf_sek_id)
             LEFT JOIN {$dbtp}xsd_display d1  
             ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
-            ORDER BY display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
-        //echo $stmt; 
+            ";
 
+//echo $stmt;
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
 		$return = array();
@@ -848,7 +852,7 @@ class Collection
         $return = Collection::makeSecurityReturnList($return);
 		$hidden_rows = 0;
 		$return = Auth::getIndexAuthorisationGroups($return);
-		$return = Misc::cleanListResults($return); 
+		$return = Misc::cleanListResults($return);  
 //		$total_rows = count($return);
 		if (($start + $max) < $total_rows) {
 	        $total_rows_limit = $start + $max;
@@ -899,6 +903,7 @@ class Collection
 				$xdis_id = $ret_wf['display_type'][0];
 				$ret_id = $ret_wf['object_type'][0];
 				$strict = false;
+//				$workflows = $record->getWorkflowsByTriggerAndRET_ID('Update', $ret_id, $strict);
 				$workflows = array_merge($record->getWorkflowsByTriggerAndRET_ID('Update', $ret_id, $strict),
                         $record->getWorkflowsByTriggerAndRET_ID('Export', $ret_id, $strict));
 			}
@@ -907,7 +912,7 @@ class Collection
 			if (is_array($workflows)) {
 				foreach ($workflows as $trigger) {
                     if (WorkflowTrigger::showInList($trigger['wft_options']) 
-                            && Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
+                            && Workflow::canTrigger($trigger['wft_wfl_id'], $pid, $input)) {
 						$workflows1[] = $trigger;
 					}
 				}
@@ -937,14 +942,14 @@ class Collection
 		$stringIDs = implode("', '", Misc::array_flatten($treeIDs));
 		$middleStmt = 
 		" INNER JOIN (
-				SELECT distinct r".$termCounter.".rmf_rec_pid 
+				SELECT ".APP_SQL_CACHE."  distinct r".$termCounter.".rmf_rec_pid 
 				FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r".$termCounter.",
 					  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x".$termCounter.",
 					  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s".$termCounter."  							  
 				WHERE r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id AND s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id AND s".$termCounter.".sek_title = '".$searchKey."' AND r".$termCounter.".rmf_varchar in ('".$stringIDs."') 
 				) as r".$termCounter." on r1.rmf_rec_pid = r".$termCounter.".rmf_rec_pid
 		";
-        $stmt = "SELECT
+        $stmt = "SELECT ".APP_SQL_CACHE." 
                     r1.rmf_varchar, count(distinct r1.rmf_rec_pid) as cv_count
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1 inner join 
@@ -1204,7 +1209,7 @@ class Collection
 
 	                $middleStmt ";
 
-		$stmtCount = "SELECT count(distinct r2.rmf_rec_pid) as display_count
+		$stmtCount = "SELECT ".APP_SQL_CACHE."  count(distinct r2.rmf_rec_pid) as display_count
 				  $bodyStmt";
 
 					
@@ -1232,15 +1237,15 @@ class Collection
         $total_rows = $res;			
 			
 			
-        $stmt = "SELECT  r1.*, x1.*, s1.*, k1.*, d1.*  ".$extra."
+        $stmt = "SELECT ".APP_SQL_CACHE."   r1.*, x1.*, s1.*, k1.*, d1.*  ".$extra."
                  FROM {$dbtp}record_matching_field r1
                  INNER JOIN {$dbtp}xsd_display_matchfields x1 
                  ON r1.rmf_xsdmf_id = x1.xsdmf_id 
 				 INNER JOIN (";
 if ($order_by == 'File Downloads') {
-	$stmt .= "					 SELECT  distinct r2.rmf_rec_pid, count(s6.stl_pid) as sort_column $subqueryExtra ";
+	$stmt .= "					 SELECT ".APP_SQL_CACHE."   distinct r2.rmf_rec_pid, count(s6.stl_pid) as sort_column $subqueryExtra ";
 } else {
-	$stmt .= "					 SELECT  distinct r2.rmf_rec_pid, r".$joinNum.".rmf_$data_type as sort_column $subqueryExtra ";
+	$stmt .= "					 SELECT ".APP_SQL_CACHE."   distinct r2.rmf_rec_pid, r".$joinNum.".rmf_$data_type as sort_column $subqueryExtra ";
 }
 		$stmt .= "
 					$bodyStmt
@@ -1372,7 +1377,7 @@ if ($order_by == 'File Downloads') {
                 ON s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id
 				AND s".$termCounter.".sek_title = '".$searchKey."' ".$restrictSQL."
 		";
-        $stmt = "SELECT
+        $stmt = "SELECT ".APP_SQL_CACHE." 
                     count(*) as record_count, ".$show_field." as ".$as_field."
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS r1
@@ -1393,12 +1398,13 @@ if ($order_by == 'File Downloads') {
 
 				 GROUP BY
 				 	".$group_field."
-				 ORDER BY";
+				 ORDER BY ";
 				 if ($order_field != "") {					 
 				 	$stmt .= $order_field;
 				 } else {
 				 	$stmt .= $group_field;					 					 
 				 }
+
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		foreach ($res as $key => $row) {
 			if (trim($row[$as_field]) != "") {
@@ -1523,7 +1529,8 @@ if ($order_by == 'File Downloads') {
 						  ON s4.sek_id = x4.xsdmf_sek_id AND s4.sek_title = '$searchKey' ";
 
 
-        $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
+        $bodyStmtPart1 = " FROM {$dbtp}statistics_all stl
+        				INNER JOIN  {$dbtp}record_matching_field AS r2 on stl.stl_pid_num=r2.rmf_rec_pid_num and stl.stl_pid=r2.rmf_rec_pid and stl.stl_dsid <> ''
                     INNER JOIN {$dbtp}xsd_display_matchfields AS x2
                       ON r2.rmf_xsdmf_id = x2.xsdmf_id AND match(x2.xsdmf_element) against ('!sta_id' in boolean mode) and r2.rmf_int=2
 
@@ -1536,26 +1543,25 @@ if ($order_by == 'File Downloads') {
                     ";
         $bodyStmt = "$bodyStmtPart1
                   
-                    INNER JOIN {$dbtp}statistics_all stl
-                    ON stl.stl_pid=r2.rmf_rec_pid and stl.stl_dsid <> '' $limit
+					 $limit
                     group by $group_field
              ";
 			 if  ( $authStmt <> "" ) { // so the stats will work even when there are auth rules
-			 	$bodyStmt .= ", authi_id";
+//			 	$bodyStmt .= ", authi_id";
 			 }
         $countStmt = "
-                    SELECT count(distinct r2.rmf_rec_pid)
+                    SELECT ".APP_SQL_CACHE."  count(distinct r2.rmf_rec_pid)
                     $bodyStmtPart1
             ";
 	
 		$innerStmt = "
-                    SELECT distinct r4.rmf_$data_type $as_field $extra, IFNULL(count(stl_pid),0) as sort_column
+                    SELECT ".APP_SQL_CACHE."  distinct r4.rmf_$data_type $as_field $extra, IFNULL(count(stl_pid),0) as sort_column
                     $bodyStmt
 					order by sort_column $order_dir, r2.rmf_rec_pid desc
                     LIMIT $start, $max					
 					";
 		if ($searchKey == "Title") {
-			$stmt = "SELECT display.sort_column, r1.*, x1.*, s1.*, k1.*, d1.* 
+			$stmt = "SELECT ".APP_SQL_CACHE."  display.sort_column, r1.*, x1.*, s1.*, k1.*, d1.* 
 				FROM {$dbtp}record_matching_field AS r1
 				INNER JOIN {$dbtp}xsd_display_matchfields AS x1
 				ON r1.rmf_xsdmf_id = x1.xsdmf_id
@@ -1572,7 +1578,7 @@ if ($order_by == 'File Downloads') {
 		} else {
 			$stmt = $innerStmt;
 		}
-//		echo $stmt;
+		//echo $stmt;
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -1690,7 +1696,7 @@ if ($order_by == 'File Downloads') {
 							$middleStmt .= 
 								" INNER JOIN 
 								(
-								 SELECT distinct r{$termCounter}.rmf_rec_pid 
+								 SELECT ".APP_SQL_CACHE."  distinct r{$termCounter}.rmf_rec_pid 
 								 FROM  {$dbtp}record_matching_field AS r{$termCounter}
 								 INNER JOIN {$dbtp}xsd_display_matchfields AS x{$termCounter}
 								 ON r{$termCounter}.rmf_xsdmf_id = x{$termCounter}.xsdmf_id 
@@ -1724,7 +1730,7 @@ if ($order_by == 'File Downloads') {
 					$middleStmt .= 
 						" INNER JOIN 
 						(
-						 SELECT distinct r{$termCounter}.rmf_rec_pid 
+						 SELECT ".APP_SQL_CACHE."  distinct r{$termCounter}.rmf_rec_pid 
 						 FROM  {$dbtp}record_matching_field AS r{$termCounter}
 						 INNER JOIN {$dbtp}xsd_display_matchfields AS x{$termCounter}
 						 ON r{$termCounter}.rmf_xsdmf_id = x{$termCounter}.xsdmf_id 
@@ -1771,7 +1777,7 @@ if ($order_by == 'File Downloads') {
             $order_by = 'd3.sort_column';
         }
  
-        $stmt = "SELECT * 
+        $stmt = "SELECT ".APP_SQL_CACHE."  * 
             FROM {$dbtp}record_matching_field r1
             INNER JOIN {$dbtp}xsd_display_matchfields x1 
             ON r1.rmf_xsdmf_id = x1.xsdmf_id 
@@ -1783,7 +1789,7 @@ if ($order_by == 'File Downloads') {
             $ft_stmt
             $middleStmt
 			 INNER JOIN (
-			SELECT distinct r2.rmf_rec_pid, r2.rmf_int as display_id
+			SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid, r2.rmf_int as display_id
 			FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
 			" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,
 			" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
@@ -1795,7 +1801,7 @@ if ($order_by == 'File Downloads') {
             ";
         if ($order_use_key) {
             $stmt .= "left JOIN (
-                SELECT distinct r2.rmf_rec_pid as sort_pid, 
+                SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid as sort_pid, 
                        r2.rmf_$data_type as sort_column
                 FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
                 inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
@@ -1810,7 +1816,7 @@ if ($order_by == 'File Downloads') {
         $stmt .= "
             WHERE
             r1.rmf_rec_pid IN (
-                    SELECT rmf_rec_pid FROM 
+                    SELECT ".APP_SQL_CACHE."  rmf_rec_pid FROM 
                     {$dbtp}record_matching_field AS rmf
                     INNER JOIN {$dbtp}xsd_display_matchfields AS xdm
                     ON rmf.rmf_xsdmf_id = xdm.xsdmf_id
@@ -1865,7 +1871,7 @@ if ($order_by == 'File Downloads') {
 
 		$terms = mysql_real_escape_string($terms);
 // old simple and quick way of doing suggest
-/*        $stmt = "select substring(r1.rmf_varchar, instr(r1.rmf_varchar, 'chr'), char_length(substring_index(substring(r1.rmf_varchar, instr(r1.rmf_varchar, '$terms')), ' ', 2))) as matchword,
+/*        $stmt = "SELECT ".APP_SQL_CACHE."  substring(r1.rmf_varchar, instr(r1.rmf_varchar, 'chr'), char_length(substring_index(substring(r1.rmf_varchar, instr(r1.rmf_varchar, '$terms')), ' ', 2))) as matchword,
 count(substring(r1.rmf_varchar, instr(r1.rmf_varchar, 'chr'), char_length(substring_index(substring(r1.rmf_varchar, instr(r1.rmf_varchar, '$terms')), ' ', 2)))) as matchcount
             FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS r1
             WHERE r1.rmf_varchar like '% $terms%' or r1.rmf_varchar like '$terms%'
@@ -1878,7 +1884,7 @@ count(substring(r1.rmf_varchar, instr(r1.rmf_varchar, 'chr'), char_length(substr
 		$joinStmt = $authArray['joinStmt'];
 		$dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
 
-        $stmt = "select substring(r2.rmf_varchar, instr(r2.rmf_varchar, '$terms'), char_length(substring_index(substring(r2.rmf_varchar, instr(r2.rmf_varchar, '$terms')), ' ', 1))) as matchword
+        $stmt = "SELECT ".APP_SQL_CACHE."  substring(r2.rmf_varchar, instr(r2.rmf_varchar, '$terms'), char_length(substring_index(substring(r2.rmf_varchar, instr(r2.rmf_varchar, '$terms')), ' ', 1))) as matchword
             FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS r2
 			$authStmt
 			INNER JOIN {$dbtp}xsd_display_matchfields AS x2
@@ -1928,7 +1934,7 @@ $res_count = array();
 		
 
 				$countStmt = "
-							SELECT count(distinct r2.rmf_rec_pid)
+							SELECT ".APP_SQL_CACHE."  count(distinct r2.rmf_rec_pid)
 							$bodyStmtPart1
 					";
 				//echo $countStmt;
@@ -2031,18 +2037,18 @@ $res_count = array();
 				 ";
 		}
         $countStmt = "
-                    SELECT count(distinct r2.rmf_rec_pid)
+                    SELECT ".APP_SQL_CACHE."  count(distinct r2.rmf_rec_pid)
                     $bodyStmtPart1
             ";
         //echo $countStmt;
 
 
-        $stmt = "SELECT  r1.*, x1.*, s1.*, k1.*, d1.*, display.Relevance
+        $stmt = "SELECT ".APP_SQL_CACHE."   r1.*, x1.*, s1.*, k1.*, d1.*, display.Relevance
             FROM {$dbtp}record_matching_field AS r1
             INNER JOIN {$dbtp}xsd_display_matchfields AS x1
             ON r1.rmf_xsdmf_id = x1.xsdmf_id
             INNER JOIN (
-                    SELECT distinct r2.rmf_rec_pid, $sortColumn $termRelevance
+                    SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid, $sortColumn $termRelevance
                     $bodyStmt
 					order by $orderRelevance $sortBy 
                     LIMIT $start, $max
@@ -2053,7 +2059,7 @@ $res_count = array();
             ON (k1.sek_id = x1.xsdmf_sek_id)
             LEFT JOIN {$dbtp}xsd_display d1  
             ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
-            ORDER BY $sortFinal ";
+            ORDER BY $sortFinal ,r1.rmf_rec_pid_num desc";
 		$securityfields = Auth::getAllRoles();
 
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -2107,7 +2113,7 @@ $res_count = array();
     {
         // Member of Collections, Fedora Records RELS-EXT Display, /RDF/description/isMemberOf/resource
 		$dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-        $stmt = "SELECT count(distinct(r3.rmf_rec_pid))
+        $stmt = "SELECT ".APP_SQL_CACHE."  count(distinct(r3.rmf_rec_pid))
                 FROM  {$dbtp}record_matching_field AS r3
                 INNER JOIN {$dbtp}xsd_display_matchfields AS x3
                 ON x3.xsdmf_id = r3.rmf_xsdmf_id
@@ -2134,14 +2140,14 @@ $res_count = array();
      */
     function getAssocList()
     {
-        $stmt = "SELECT
+        $stmt = "SELECT ".APP_SQL_CACHE." 
                     *
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1
                     inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on x1.xsdmf_id = r1.rmf_xsdmf_id
 				    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key sk1 on sk1.sek_id = x1.xsdmf_sek_id
 					inner join (
-							SELECT distinct r2.rmf_rec_pid 
+							SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid 
 							FROM  
 							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
 							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,

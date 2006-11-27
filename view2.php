@@ -113,6 +113,8 @@ if (!empty($pid)) {
 		$details = $record->getDetails();
 		$tpl->assign("details_array", $details);
 		$parents = $record->getParents();				
+//		$parents = Collection::getParents2($pid);
+
 		$parent_relationships = array(); 
 		foreach ($parents as $parent) {
 			$parent_rel = XSD_Relationship::getColListByXDIS($parent['display_type'][0]);
@@ -183,13 +185,13 @@ if (!empty($pid)) {
 								$details[$dis_field['xsdmf_id']][$ckey] = $details[$cdata];
 							}
 						} else {
-							$tempDate = new Date($details[$dis_field['xsdmf_id']]);
+							//$tempDate = new Date($details[$dis_field['xsdmf_id']]);
 	//						$tempDate->format
 							if (@$details[$dis_field['xsdmf_attached_xsdmf_id']] == 1) {
 								$details[$dis_field['xsdmf_id']] = substr($details[$dis_field['xsdmf_id']], 0, 4);
 							} elseif (@$details[$dis_field['xsdmf_attached_xsdmf_id']] == 2) {
 								$details[$dis_field['xsdmf_id']] = substr($details[$dis_field['xsdmf_id']], 0, 7);
-							}
+							} 
 						}
 					}
 				} 
@@ -208,10 +210,10 @@ if (!empty($pid)) {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {		
-								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=author&author=".$details[$dis_field['xsdmf_id']][$ckey]."'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
+								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=author&author=".htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey], ENT_QUOTES)."'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
 							}
 						} else {
-							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=author&author=".$details[$dis_field['xsdmf_id']]."'>".$details[$dis_field['xsdmf_id']]."</a>";
+							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=author&author=".htmlspecialchars($details[$dis_field['xsdmf_id']], ENT_QUOTES)."'>".$details[$dis_field['xsdmf_id']]."</a>";
 						}
 					}
 				}			
@@ -219,21 +221,21 @@ if (!empty($pid)) {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {		
-								$details[$dis_field['xsdmf_id']][$ckey] = nl2br(trim($details[$dis_field['xsdmf_id']][$ckey]));
+								$details[$dis_field['xsdmf_id']][$ckey] = (trim($details[$dis_field['xsdmf_id']][$ckey]));
 							}
 						} else {
-							$details[$dis_field['xsdmf_id']] = nl2br(trim($details[$dis_field['xsdmf_id']]));
+							$details[$dis_field['xsdmf_id']] = (trim($details[$dis_field['xsdmf_id']]));
 						}
 					}
-				}					
+				}	
 				if ($dis_field['sek_title'] == "Keywords") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {		
-								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".APP_RELATIVE_URL."list.php?terms=".$details[$dis_field['xsdmf_id']][$ckey]."'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
+								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".APP_RELATIVE_URL."list.php?terms=".htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey], ENT_QUOTES)."'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
 							}
 						} else {
-							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_RELATIVE_URL."list.php?terms=".$details[$dis_field['xsdmf_id']]."'>".$details[$dis_field['xsdmf_id']]."</a>";
+							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_RELATIVE_URL."list.php?terms=".htmlspecialchars($details[$dis_field['xsdmf_id']], ENT_QUOTES)."'>".$details[$dis_field['xsdmf_id']]."</a>";
 						}
 					}
 				}	
@@ -423,9 +425,12 @@ if (!empty($pid)) {
 		$securityfields = Auth::getAllRoles();
 		$datastream_workflows = WorkflowTrigger::getListByTrigger('-1', 5);
 		foreach ($datastreams as $ds_key => $ds) {
+			if ($datastreams[$ds_key]['controlGroup'] == 'R') {
+				$linkCount++;				
+			}
 			if ($datastreams[$ds_key]['controlGroup'] == 'R' && $datastreams[$ds_key]['ID'] != 'DOI') {
 				$datastreams[$ds_key]['location'] = trim($datastreams[$ds_key]['location']);
-				$linkCount++;
+				
 				// Check for APP_LINK_PREFIX and add if not already there
 				if (APP_LINK_PREFIX != "") {
 					if (!is_numeric(strpos($datastreams[$ds_key]['location'], APP_LINK_PREFIX))) {
@@ -502,8 +507,42 @@ if (!empty($pid)) {
 		} else {
 			$tpl->assign("parent_heading", "Collection:");				
 		}
+		
+		//what does this record succeed?
+		$hasVersions = 0;
+		$derivations = Record::getParentsAll($pid, 'isDerivationOf', true);
+		
+		if (count($derivations) == 0) {
+//			echo "debug";
+			$derivations[0]['title'][0] = $record->getTitle();
+			$derivations[0]['pid'] = $pid;			
+		} else {
+			$hasVersions = 1;
+		}
+//		print_r($derivations);
+		//are there any other records that also succeed this parent
+		foreach ($derivations as $devkey => $dev) { // gone all the way up, now go back down getting ALL the children as we ride the spiral
+			$child_devs = Record::getChildrenAll($derivations[$devkey]['pid'], "isDerivationOf", false);
+			if (count($child_devs) != 0) {
+				$hasVersions = 1;
+			}
+/*			if (!is_array($derivations[$devkey]['children'])) {
+				$derivations[$devkey]['children'] = array();
+			}
+			array_push($derivations[$devkey]['children'], $child_devs);			*/
+			$derivations[$devkey]['children'] = $child_devs;
+//			$derivations[$devkey] = $child_devs;
+		}
+//		print_r($derivations);
+		$derivationTree = "";
+		if ($hasVersions == 1) {
+			Record::generateDerivationTree($pid, $derivations, $derivationTree);
+		}
+				
 		$tpl->assign("linkCount", $linkCount);		
+		$tpl->assign("hasVersions", $hasVersions);				
 		$tpl->assign("fileCount", $fileCount);				
+		$tpl->assign("derivationTree", $derivationTree);						
 		$tpl->assign("created_date", $created_date);				
 		$tpl->assign("depositor", $depositor);
 		$tpl->assign("depositor_id", $depositor_id);

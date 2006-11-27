@@ -8,8 +8,12 @@ class NajaxBackgroundProcessList {
 
     function getDetails($bgp_id)
     {
-        $result = BackgroundProcessList::getDetails($bgp_id);
-        return $result;
+        $res = BackgroundProcessList::getDetails($bgp_id);
+			
+		  $res["bgp_started"] = Date_API::getFormattedDate($res["bgp_started"], APP_DEFAULT_USER_TIMEZONE);
+		  $res["bgp_heartbeat"] = Date_API::getFormattedDate($res["bgp_heartbeat"], APP_DEFAULT_USER_TIMEZONE);
+		
+        return $res;
     }
 
     function getLog($bgp_id)

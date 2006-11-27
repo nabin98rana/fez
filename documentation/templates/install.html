@@ -1,293 +1,382 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE html PUBLIC "-//Tigris//DTD XHTML 1.0 Transitional//EN"
-"http://style.tigris.org/tigris_transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
- <style type="text/css">
+  <style type="text/css">
 /* <![CDATA[ */ 
 @import "css/readyset.css"; 
 @import "css/inst.css";
 /*  ]]> */
 
  </style>
-
-<link rel="stylesheet" type="text/css" href="css/print.css" media="print" />
- <title>Installation / Quick Start Guide</title>
+  <link rel="stylesheet" type="text/css" href="css/print.css"
+ media="print">
+  <title>Installation / Quick Start Guide</title>
 </head>
-
 <body>
 <div class="app">
 <div class="readyset">
- <h2>Installation / Quick Start Guide</h2>
-
- <div id="releaseinfo">
- <h3>Software Release Information</h3>
- <table border="1" cellpadding="3" cellspacing="2" class="axial">
-  <tr>
-   <th>Software:</th> 
-   <td>Fez</td> 
-  </tr>
-  <tr>
-   <th>Release Number:</th> 
-   <td>
-     1.2.0
-BETA</td> 
-  </tr>
-  <tr>
-   <th>Release Date:</th> 
-   <td>
-     Not released yet
-   </td> 
-  </tr>
-  <tr>
-   <th>Support:</th> 
-   <td class="sample1">For more information or support, please join the fez users email list at
-       <a href="http://lists.sourceforge.net/lists/listinfo/fez-users">http://lists.sourceforge.net/lists/listinfo/fez-users</a>
-   </td> 
-  </tr>
- </table>
- </div> <!-- /releaseinfo -->
-
-
-
- <div id="introduction">
- <h3>Introduction</h3>
-
- <p>This document describes how to install and get started with
- Fez.</p>
-
- </div> <!-- /introduction -->
-
-
- <div id="systemrequirements">
- <h3>Minimal System Requirements</h3>
-
- <p class="sample1">System requirements are described in the <a
+<h2>Installation / Quick Start Guide</h2>
+<div id="releaseinfo">
+<h3>Software Release Information</h3>
+<table class="axial" border="1" cellpadding="3" cellspacing="2">
+  <tbody>
+    <tr>
+      <th>Software:</th>
+      <td>Fez</td>
+    </tr>
+    <tr>
+      <th>Release Number:</th>
+      <td> 1.2.0
+BETA</td>
+    </tr>
+    <tr>
+      <th>Release Date:</th>
+      <td> Not released yet </td>
+    </tr>
+    <tr>
+      <th>Support:</th>
+      <td class="sample1">For more information or support, please join
+the fez users email list at <a
+ href="http://lists.sourceforge.net/lists/listinfo/fez-users">http://lists.sourceforge.net/lists/listinfo/fez-users</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<!-- /releaseinfo -->
+<div id="introduction">
+<h3>Introduction</h3>
+<p>This document describes how to install and get started with Fez.</p>
+</div>
+<!-- /introduction -->
+<div id="systemrequirements">
+<h3>Minimal System Requirements</h3>
+<p class="sample1">System requirements are described in the <a
  href="release-notes.html">release notes</a>.</p>
-
- </div> <!-- /systemrequirements -->
-
-
-
- <div id="installation">
- <h3>Installation</h3>
-
- <dl>
+</div>
+<!-- /systemrequirements -->
+<div id="installation">
+<h3>Installation</h3>
+<dl>
   <dt>What other software must be installed first?</dt>
-
-  <dd class="sample1">Fez has been tested successfully on Windows, Linux and Apple OS/X operating systems. Before you can install this product, you must install the
-  following packages. This can all be installed on the one server, or separate servers for mysql, apache, fedora if you wish.
+  <dd class="sample1">Fez has been tested successfully on Windows,
+Linux and Apple OS/X operating systems. Before you can install this
+product, you must install the following packages. This can all be
+installed on the one server, or separate servers for mysql, apache,
+fedora if you wish.
     <ul>
-      <li><a href="http://www.fedora.info/">Fedora 2.1.1 Digital Repository</a>
+      <li><a href="http://www.fedora.info/">Fedora 2.1.1 Digital
+Repository</a>
         <ul>
-        <li><strong>Note</strong>: You can also use Fedora 2.0 instead by  modfying the Fez generated <strong>config.inc.php</strong> by commenting out the 2.1 API-M and API-A soap locations and uncommenting the 2.0 locations (2 lines each). This is due to the fact the API soap locations were changed from 2.0 to 2.1.</li>
-        <li><strong>IMPORTANT:</strong> Make sure that whatever<strong> PID prefix namespace you choose is also in the &quot;retainPIDS&quot; set of namespaces</strong>. Eg if your PID namespace is &quot;UQ&quot; make sure &quot;UQ&quot; is in the list of retainPIDS in fedora.fcfg. If this is not set then Fez will not be able to create objects in Fedora. <br /> 
-            <br />
-        </li>
-        <li><strong>Recommendations:
-          </strong>          
+          <li><strong>Note</strong>: You can also use Fedora 2.0
+instead by modfying the Fez generated <strong>config.inc.php</strong>
+by commenting out the 2.1 API-M and API-A soap locations and
+uncommenting the 2.0 locations (2 lines each). This is due to the fact
+the API soap locations were changed from 2.0 to 2.1.</li>
+          <li><strong>IMPORTANT:</strong> Make sure that whatever<strong>
+PID prefix namespace you choose is also in the "retainPIDS" set of
+namespaces</strong>. Eg if your PID namespace is "UQ" make sure "UQ" is
+in the list of retainPIDS in fedora.fcfg. If this is not set then Fez
+will not be able to create objects in Fedora. <br>
+            <br>
+          </li>
+          <li><strong>Recommendations: </strong>
             <ul>
-                <li>Fez uses its own security engine (FezACML) so suggest setting the Fedora XACML it to &quot;permit-all-requests&quot; (turns it off) as this will increase Fez/Fedora performance. With this setting Fedora still requires authentication for the API-M, but we strongly suggest you firewall the Fedora server to allow access to port 8080 (Fedora tomcat port) to only the Fez webserver. If you do not experience noticable performance degradation with XACML set to &quot;enforce-policies&quot; (turned on) we still reccommend firewalling the Fedora server for added security. </li>
-                <li>Since Fez has its own &quot;index&quot; for searching through Fedora we suggest turning off the Fedora Kowari index as this will improve Fedora performance. Fez only requires the Kowari resource index to be turned on if you wish to reindex Fedora objects back into Fez. If you try to re-index fedora objects into Fez with the Kowari index turned off Fez will give you an error instructing you on how to turn it back on (if temporarily). This is able to be set in the Fedora fedora.fcfg file by setting resourceIndex to 0 for off, 1 for on. </li>
+              <li>Fez uses its own security engine (FezACML) so suggest
+setting the Fedora XACML it to "permit-all-requests" (turns it off) as
+this will increase Fez/Fedora performance. With this setting Fedora
+still requires authentication for the API-M, but we strongly suggest
+you firewall the Fedora server to allow access to port 8080 (Fedora
+tomcat port) to only the Fez webserver. If you do not experience
+noticable performance degradation with XACML set to "enforce-policies"
+(turned on) we still reccommend firewalling the Fedora server for added
+security. </li>
+              <li>Since Fez has its own "index" for searching through
+Fedora we suggest turning off the Fedora Kowari index as this will
+improve Fedora performance. Fez only requires the Kowari resource index
+to be turned on if you wish to reindex Fedora objects back into Fez. If
+you try to re-index fedora objects into Fez with the Kowari index
+turned off Fez will give you an error instructing you on how to turn it
+back on (if temporarily). This is able to be set in the Fedora
+fedora.fcfg file by setting resourceIndex to 0 for off, 1 for on. </li>
             </ul>
-        </li>
-      </ul>
-    </li>	
-    <li><a href="http://java.sun.com/">Java SDK</a>
-      <ul>
-        <li><strong>Notes:</strong>
-            <ul>
-              <li>The Java SDK 1.4.2 is required by Fedora and JHOVE (for the JRE). Setup the JAVA_HOME, FEDORA_HOME and other environment variables as per the Fedora <a href="http://www.fedora.info/download/2.1b/userdocs/distribution/installation.html">installation instructions</a>. According to the Fedora mailing list there are problems with using Java version 1.5, so it is preferable to use version 1.4.2. </li>
-            </ul>
-        </li>
-      </ul>
-    </li>
-    <li><a href="http://jakarta.apache.org/">Apache Web Server</a>
+          </li>
+        </ul>
+      </li>
+      <li><a href="http://java.sun.com/">Java SDK</a>
         <ul>
-            <li><strong>Notes:</strong>          
-              <ul>
-                <li>We have only tested using Apache 1.3.x on linux (Apache 1.3.x or 2.x on Windows XP is fine), however there should be no reason Fez won't run on Apache 2.x. Fez should also be able to run on any webserver that will support PHP5 (eg Microsoft IIS etc) but we have not tested this yet. </li>
-                <li>We recommend setting apache to recognise &quot;index.php&quot; as a &quot;Directory Index&quot; so that the Fez index file is loaded immediately eg: 
-                  <ul>
-                    <li>&lt;IfModule mod_dir.c&gt;<br />
-    DirectoryIndex <strong>index.php</strong> index.html<br />
+          <li><strong>Notes:</strong>
+            <ul>
+              <li>The Java SDK 1.4.2 is required by Fedora and JHOVE
+(for the JRE). Setup the JAVA_HOME, FEDORA_HOME and other environment
+variables as per the Fedora <a
+ href="http://www.fedora.info/download/2.1b/userdocs/distribution/installation.html">installation
+instructions</a>. According to the Fedora mailing list there are
+problems with using Java version 1.5, so it is preferable to use
+version 1.4.2. </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li><a href="http://jakarta.apache.org/">Apache Web Server</a>
+        <ul>
+          <li><strong>Notes:</strong>
+            <ul>
+              <li>We have only tested using Apache 1.3.x on linux
+(Apache 1.3.x or 2.x on Windows XP is fine), however there should be no
+reason Fez won't run on Apache 2.x. Fez should also be able to run on
+any webserver that will support PHP5 (eg Microsoft IIS etc) but we have
+not tested this yet. </li>
+              <li>We recommend setting apache to recognise "index.php"
+as a "Directory Index" so that the Fez index file is loaded immediately
+eg:
+                <ul>
+                  <li>&lt;IfModule mod_dir.c&gt;<br>
+DirectoryIndex <strong>index.php</strong> index.html<br>
 &lt;/IfModule&gt;</li>
-                  </ul>
-                </li>
                 </ul>
-            </li>
-          </ul>
-    </li>
-    <li><a href="http://dev.mysql.com/">MySQL 4.1+ database</a>
-(MySQL 5.0.19+ recommended for better query optimisation and performance)
-  <ul>
-        <li><strong>Note:</strong> We have sorted out the bugs with Fez and MySQL 5, and are running our testing and production servers with MySQL 5.0.19. </li>
-      </ul>
-  <ul>
-        <li><strong>Important:</strong> Edit your MySQL my.cnf config file. Under [mysqld] add (or change) ft_min_word_len=2. This makes the full text index include two length words which is necessary for Fez to run.</li>
-      </ul>
-
-    </li>
-    <li><a href="http://www.php.net/">PHP 5+</a>
-(Fez uses the new PHP5 DOM Document XML functions to handle XML objects so PHP4.x will not run Fez).
-  <ul>
-        <li>PHP 5.1 is also tested to be ok and it is what we use on our test and production servers.</li>
-        <li>These <strong>PHP extensions</strong> must be enabled and the libraries installed where neccessary (the links take you to the php manual with installation instructions for each extension):
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li><a href="http://dev.mysql.com/">MySQL 4.1+ database</a>
+(MySQL 5.0.19+ recommended for better query optimisation and
+performance)
+        <ul>
+          <li><strong>Note:</strong> We have sorted out the bugs with
+Fez and MySQL 5, and are running our testing and production servers
+with MySQL 5.0.19. </li>
+        </ul>
+        <ul>
+          <li><strong>Important:</strong> Edit your MySQL my.cnf config
+file. Under [mysqld] add (or change) ft_min_word_len=2. This makes the
+full text index include two length words which is necessary for Fez to
+run.</li>
+        </ul>
+      </li>
+      <li><a href="http://www.php.net/">PHP 5+</a>
+(Fez uses the new PHP5 DOM Document XML functions to handle XML objects
+so PHP4.x will not run Fez).
+        <ul>
+          <li>PHP 5.1 is also tested to be ok and it is what we use on
+our test and production servers.</li>
+          <li>These <strong>PHP extensions</strong> must be enabled
+and the libraries installed where neccessary (the links take you to the
+php manual with installation instructions for each extension):
             <ul>
-                <li><a href="http://www.php.net/tidy">Tidy</a> - for linux <strong>make sure libtidy, libtidy-dev and tidy</strong> packages are installed before compiling php </li>
-                <li><a href="http://www.php.net/manual/en/ref.ldap.php">LDAP</a> </li>
-                <li><a href="http://www.php.net/GD">GD</a> version 2+ </li>
-                <li><a href="http://www.php.net/mysql">MySQL</a></li>
-                <li><a href="http://www.php.net/curl">CURL</a></li>
-              </ul>
-        </li>
-        <li><strong>WARNING!</strong>: When compiling PHP we have noticed that DOMXPATH does not work with some versions of LIBXML2. We have successfully tested using DOMXPATH with LIBXML2 version 2.6.16 (on Linux Centos) and 2.6.23 (latest version of LIBXML on Redhat Fedora 4), but it causes a failure in PHP with version 2.6.19 (on Linux Red Hat Fedora 4). We have only tested these three versions so others may work or fail as well. </li>
-        <li><strong>NOTE:</strong> We are still ironing out some minor PHP4 to PHP5 changes so you may notice some 'notices' or 'warnings' with the PHP error level set to anything other that 'E_FATAL'. These notices and warnings can be safely ignored and will dissapear in future Fez releases.</li>
-        <li><strong>PHP.ini</strong> configuration requirements:
-              <ul>
-                    <li>allow_call_time_pass_reference = On (Fez may not need this in future releases, especially since it will probabaly be deprecated in PHP6)</li>
+              <li><a href="http://www.php.net/tidy">Tidy</a> - for
+linux <strong>make sure libtidy, libtidy-dev and tidy</strong>
+packages are installed before compiling php </li>
+              <li><a href="http://www.php.net/manual/en/ref.ldap.php">LDAP</a>
+              </li>
+              <li><a href="http://www.php.net/GD">GD</a> version 2+ </li>
+              <li><a href="http://www.php.net/mysql">MySQL</a></li>
+              <li><a href="http://www.php.net/curl">CURL</a></li>
+            </ul>
+          </li>
+          <li><strong>WARNING!</strong>: When compiling PHP we have
+noticed that DOMXPATH does not work with some versions of LIBXML2. We
+have successfully tested using DOMXPATH with LIBXML2 version 2.6.16 (on
+Linux Centos) and 2.6.23 (latest version of LIBXML on Redhat Fedora 4),
+but it causes a failure in PHP with version 2.6.19 (on Linux Red Hat
+Fedora 4). We have only tested these three versions so others may work
+or fail as well. </li>
+          <li><strong>NOTE:</strong> We are still ironing out some
+minor PHP4 to PHP5 changes so you may notice some 'notices' or
+'warnings' with the PHP error level set to anything other that
+'E_FATAL'. These notices and warnings can be safely ignored and will
+dissapear in future Fez releases.</li>
+          <li><strong>PHP.ini</strong> configuration requirements:
+            <ul>
+              <li>allow_call_time_pass_reference = On (Fez may not need
+this in future releases, especially since it will probabaly be
+deprecated in PHP6)</li>
+              <li>date.timezone = <span style="font-style: italic;">your
+timezone eg Australia/Queensland see
+<a href='http://www.php.net/manual/en/timezones.php'>http://www.php.net/manual/en/timezones.php</a></span><br>
+              </li>
+            </ul>
+          </li>
+          <li><strong>PHP.ini</strong> configuration recommendations:
+            <ul>
+              <li>upload_max_filesize = 10M (default is 2M, but if you
+want to upload more than 2 megabyte files then change this so suit).</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li><a href="http://www.imagemagick.com/">Image Magick</a> (for
+thumbnail, webformat and preview format resizing)
+        <ul>
+          <li>For Windows servers you will need to install the dll
+version available on the Image Magick website
+            <ul>
+              <li>Make sure you add the Image Magick directory
+containing the 'identify' and 'convert' executables in the <strong>windows
+environment path</strong>. To do this right click on 'My Computer',
+click 'properties', click the 'Advanced' tab, click 'Environment
+Variables', then edit the system variable 'PATH' and add the image
+magick executable directory to the end. Each directory entry in the
+PATH string is seperated by a semicolon (;). </li>
+            </ul>
+          </li>
+          <li>For Linux you can download the source and compile it, or
+use one of the binaries for your Linux distro
+            <ul>
+              <li>For Linux <strong>Fez expects the IM commands
+'identify' and 'convert' to be in certain locations</strong> set in the
+Fez config.inc.php. Make sure they are the correct paths and change the
+config.inc.php settings if necessary. You can find where identify and
+convert are by doing a 'which convert' command in the linux shell. This
+will give you the correct full path to put into the Fez config.inc.php
+file. </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li><a href="http://www.graphviz.org/">Graphviz</a> (for workflow
+diagrams)
+        <ul>
+          <li>For Windows servers you will need to install the windows
+install executable version. The windows installer adds the executable
+directory to the PATH environment variable automatically.</li>
+          <li>For Linux you can install the RPM package on the Graphviz
+site or install it from source. Make sure the 'dot' executable path is
+in the PATH environment variable. </li>
+        </ul>
+      </li>
+      <li><a href="http://hul.harvard.edu/jhove/">JHOVE</a> (for
+preservation metadata extraction)
+        <ul>
+          <li>Be sure to edit the jhove.bat (windows) or jhove command
+(linux) and set the JHOVE_HOME and other variables inside them as per
+the JHOVE <a href="http://hul.harvard.edu/jhove/distribution.html">installation
+instructions</a>. This can also be done with the configure.pl perl
+script in the JHOVE distribution.
+            <ul>
+              <li>Fez expects JHOVE to be in /usr/local/jhove for linux
+or c:/jhove for windows. If you install jhove to different directories
+to this then update the Fez config.inc.php with the correct locations. </li>
+              <li>You will need to change the last line in the jhove
+executable 'jhove' (so JHOVE can find its configuration file
+correctly):
+                <ul>
+                  <li>FROM: ${JAVA} -classpath $CP Jhove $ARGS -c
+${JHOVE_HOME}/conf/jhove.conf</li>
+                  <li>FOR LINUX TO: ${JAVA} -classpath $CP Jhove -c
+${JHOVE_HOME}/conf/jhove.conf $ARGS</li>
+                  <li>FOR WINDOWS TO: %JAVA% -classpath %CP% Jhove -c
+%JHOVE_HOME%/conf/jhove.conf %ARGS%</li>
                 </ul>
-        </li>
-        <li><strong>PHP.ini</strong> configuration recommendations:
-          <ul>
-            <li>upload_max_filesize = 10M (default is 2M, but if you want to upload more than 2 megabyte files then change this so suit).</li>
+              </li>
             </ul>
-        </li>
+          </li>
         </ul>
-    </li>
-    <li><a href="http://www.imagemagick.com/">Image Magick</a> (for thumbnail, webformat and preview format resizing)
-      <ul>
-        <li>For Windows servers you will need to install the dll version available on the Image Magick website 
-          <ul>
-            <li>Make sure you add the Image Magick directory containing the 'identify' and 'convert' executables in the <strong>windows environment path</strong>. To do this right click on 'My Computer', click 'properties', click the 'Advanced' tab, click 'Environment Variables', then edit the system variable 'PATH' and add the image magick executable directory to the end. Each directory entry in the PATH string is seperated by a semicolon (;). </li>
-          </ul>
-        </li>
-        <li>For Linux you can download the source and compile it, or use one of the binaries for your Linux distro
-          <ul>
-            <li>For Linux <strong>Fez expects the IM commands 'identify' and 'convert' to be in certain locations</strong> set in the Fez config.inc.php. Make sure they are the correct paths and change the config.inc.php settings if necessary. You can find where identify and convert are by doing a 'which convert' command in the linux shell. This will give you the correct full path to put into the Fez config.inc.php file. </li>
-          </ul>
-        </li>
-        </ul>
-    </li>
-    <li><a href="http://www.graphviz.org/">Graphviz</a> (for workflow diagrams)
-      <ul>
-        <li>For Windows servers you will need to install the windows install executable version. The windows installer adds the executable directory to the PATH environment variable automatically.</li>
-        <li>For Linux you can install the RPM package on the Graphviz site or install it from source. Make sure the 'dot' executable path is in the PATH environment variable. </li>
-      </ul>
-    </li>
-    <li><a href="http://hul.harvard.edu/jhove/">JHOVE</a> (for preservation metadata extraction) 
-      <ul>
-        <li>Be sure to edit the jhove.bat (windows) or jhove command (linux) and set the JHOVE_HOME and other variables inside them as per the JHOVE <a href="http://hul.harvard.edu/jhove/distribution.html">installation instructions</a>. This can also be done with the configure.pl perl script in the JHOVE distribution. 
-          <ul>
-            <li>Fez expects JHOVE to be in /usr/local/jhove for linux or c:/jhove for windows. If you install jhove to different directories to this then update the Fez config.inc.php with the correct locations. </li>
-            <li>You will need to change the last line in the jhove executable 'jhove' (not sure why, but it doesn't work otherwise):
-              <ul>
-                <li>FROM: ${JAVA} -classpath $CP Jhove $ARGS -c ${JHOVE_HOME}/conf/jhove.conf</li>
-                <li>FOR LINUX TO: ${JAVA} -classpath $CP Jhove -c ${JHOVE_HOME}/conf/jhove.conf $ARGS</li>
-                <li>FOR WINDOWS TO: %JAVA% -classpath %CP% Jhove -c %JHOVE_HOME%/conf/jhove.conf %ARGS%</li>
-              </ul>
-            </li>
-            </ul>
-        </li>
-        </ul>
-    </li>	
+      </li>
     </ul>
   </dd>
-
-
   <dt>How do I install Fez?</dt>
-
-  <dd class="sample1">
-   Please follow these steps:
-   <ol>
-    <li>Download the latest Fez release from SourceForge <a href="http://sourceforge.net/projects/fez">here</a> </li>
-    <li>Uncompress to a folder in your <strong>htdocs</strong> Apache directory
-      <ul>
-      <li>Note: You may wish to set the Fez directory up as &quot;Virtual Host&quot; or as the &quot;Document Root&quot; in your Apache httpd.conf file. </li>
-      <li>If you are using Linux then make sure the user that runs the apache service has rights to be able to write files to the fez folders. Apache/PHP will need to write the config.inc.php file, create the templates_c directory, the include/private_key.php file and the error_handler.log file. </li>
-      </ul>
+  <dd class="sample1"> Please follow these steps:
+    <ol>
+      <li>Download the latest Fez release from SourceForge <a
+ href="http://sourceforge.net/projects/fez">here</a> </li>
+      <li>Uncompress to a folder in your <strong>htdocs</strong>
+Apache directory
+        <ul>
+          <li>Note: You may wish to set the Fez directory up as
+"Virtual Host" or as the "Document Root" in your Apache httpd.conf
+file. </li>
+          <li>If you are using Linux then make sure the user that runs
+the apache service has rights to be able to write files to the fez
+folders. Apache/PHP will need to write the config.inc.php file, create
+the templates_c directory, the include/private_key.php file and the
+error_handler.log file. </li>
+        </ul>
       </li>
-    <li>Open your web browser and load the &quot;http://<em>yourserver.com</em>/fez/setup/&quot;. This will load the config setup interface. 
-      <ul>
-        <li>Note: If some of the <strong>PHP requirements</strong> are missing the setup script will ask you to install them first, rather than show the config form. This PHP requirements check cannot check for all the above requirements so even if there are no warnings Fez may not work.</li>
-      </ul>
-    </li>
-    <li>Fill in the setup config details and click &quot;Start Installation&quot;.
-      <ul>
-        <li><strong>Note:</strong> We recommended moving the error_handler.log and the config.inc.php files below the apache document root to be more secure. Or at least setting the security error_handler.log to be write only by the web server user. </li>
-      </ul>
-    </li>
+      <li>Open your web browser and load the "http://<em>yourserver.com</em>/fez/setup/".
+This will load the config setup interface.
+        <ul>
+          <li>Note: If some of the <strong>PHP requirements</strong>
+are missing the setup script will ask you to install them first, rather
+than show the config form. This PHP requirements check cannot check for
+all the above requirements so even if there are no warnings Fez may not
+work.</li>
+        </ul>
+      </li>
+      <li>Fill in the setup config details and click "Start
+Installation".
+        <ul>
+          <li><strong>Note:</strong> We recommended moving the
+error_handler.log and the config.inc.php files below the apache
+document root to be more secure. Or at least setting the security
+error_handler.log to be write only by the web server user. </li>
+        </ul>
+      </li>
     </ol>
   </dd>
-
-
   <dt>What if I encounter problems?</dt>
-
-  <dd class="sample1">
-   Please see the troubleshooting section in the <a href="faq.html">FAQ</a>.
-If your problem is not the FAQ you can join and email the fez users email list at
-       <a href="http://lists.sourceforge.net/lists/listinfo/fez-users">http://lists.sourceforge.net/lists/listinfo/fez-users</a> </dd>
-
- </dl>
-
- </div> <!-- /installation -->
-
-
- <div id="gettingstarted">
- <h3>Getting Started</h3>
-
- <dl>
- 
- <dt>&nbsp;</dt>
-
- <dd>&nbsp;</dd>
-
- 
- <dt>How can I quickly get started using Fez?</dt>
- <dd>&nbsp;</dd>
- <dd>
- <ol class="sample1">
-   <li>Open your web browser and load &quot;http://<em>yourserver.com</em>/fez/. It should show the Fez front page.</li>
-   <li>Login
-with username &quot;admin&quot;, password &quot;admin&quot;.</li>
-   <li>Click on the Administration tab, then the Manage Users link.</li>
-   <li>Change the admin user password to something more secure.
-     <ul>
-                <li>You can setup other users in here and set them to be Fez Administrators </li>
-                <li>If LDAP is ticked for a user Fez will authenticate against the LDAP server setup in your config.inc.php</li>
-           </ul>
-   </li>
-   <li>Go to the &quot;browse communities&quot; tab link.</li>
-   <li>Create a new community
-     <ul>
-       <li>Remember to assign yourself as an editor if you want the community to show up in your &quot;My Fez&quot; area. Administrators will see all collections however. </li>
-       <li>In this initial release of Fez security is applied at the community level and inherited by that communities collections and records, it will be made more granular in future releases </li>
-     </ul>
-   </li>
-   <li>Create a new collection under the new community
-     <ul>
-       <li>Remember to add  document types to the collection.</li>
-       </ul>
-   </li>
-   <li>Create records in the collection. </li>
-   </ol>
-<br />
-<strong>	A more detailed user and admin guide for Fez will be will be available soon.</strong>
- </dd>
- 
- </dl>
- </div> 
+  <dd class="sample1"> Please see the troubleshooting section in the <a
+ href="faq.html">FAQ</a>.
+If your problem is not the FAQ you can join and email the fez users
+email list at <a
+ href="http://lists.sourceforge.net/lists/listinfo/fez-users">http://lists.sourceforge.net/lists/listinfo/fez-users</a>
+  </dd>
+</dl>
 </div>
-
-
+<!-- /installation -->
+<div id="gettingstarted">
+<h3>Getting Started</h3>
+<dl>
+  <dt>&nbsp;</dt>
+  <dd>&nbsp;</dd>
+  <dt>How can I quickly get started using Fez?</dt>
+  <dd>&nbsp;</dd>
+  <dd>
+    <ol class="sample1">
+      <li>Open your web browser and load "http://<em>yourserver.com</em>/fez/.
+It should show the Fez front page.</li>
+      <li>Login
+with username "admin", password "admin".</li>
+      <li>Click on the Administration tab, then the Manage Users link.</li>
+      <li>Change the admin user password to something more secure.
+        <ul>
+          <li>You can setup other users in here and set them to be Fez
+Administrators </li>
+          <li>If LDAP is ticked for a user Fez will authenticate
+against the LDAP server setup in your config.inc.php</li>
+        </ul>
+      </li>
+      <li>Go to the "browse communities" tab link.</li>
+      <li>Create a new community
+        <ul>
+          <li>Remember to assign yourself as an editor if you want the
+community to show up in your "My Fez" area. Administrators will see all
+collections however. </li>
+          <li>In this initial release of Fez security is applied at the
+community level and inherited by that communities collections and
+records, it will be made more granular in future releases </li>
+        </ul>
+      </li>
+      <li>Create a new collection under the new community
+        <ul>
+          <li>Remember to add document types to the collection.</li>
+        </ul>
+      </li>
+      <li>Create records in the collection. </li>
+    </ol>
+    <br>
+    <strong> A more detailed user and admin guide for Fez will be will
+be available soon.</strong> </dd>
+</dl>
+</div>
+</div>
 <div class="legal1">Company Proprietary</div>
-
-<div class="footnote">
- Copyright &#169; 2003-2004 Jason Robbins.  All rights reserved. <a href="readyset-license.html">License terms</a>.
- Retain this copyright statement whenever this file is used as a
- template.
+<div class="footnote"> Copyright &copy; 2003-2004 Jason Robbins. All
+rights reserved. <a href="readyset-license.html">License terms</a>.
+Retain this copyright statement whenever this file is used as a
+template.
 </div>
-
 </div>
 </body>
 </html>

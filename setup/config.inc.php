@@ -82,6 +82,7 @@ set_time_limit(0);
 // definitions of path related variables
 @define("APP_SAN_IMPORT_DIR", ""); //eg /fez/incoming or c:/fez/incoming
 @define("APP_TEST", "false");
+@define("APP_SQL_CACHE", ""); // Set this string to SQL_NO_CACHE if you want to test MySQL performance without query caching, keep "" for optimal performance (caching on)
 @define("APP_PATH", '%{APP_PATH}%');  //eg /usr/local/apache/htdocs/fez/ or C:/Program Files/Apache Group/Apache/htdocs/dev-fez/
 @define("APP_INC_PATH", APP_PATH . "include/");
 @define("APP_PEAR_PATH", APP_INC_PATH . "pear/");
@@ -207,8 +208,8 @@ if (APP_FEDORA_SETUP == 'sslall') {
 
 @define("APP_VERSION", "1.3 BETA");
 
-@define("APP_DEFAULT_TIMEZONE", "UTC"); // Change this to your local timezone eg Australia/Brisbane. Fez will still store dates as UTC but will default display them as this timezone until the user has logged in with their preffered timezone user setting.  See include/pear/date/TimeZone.php (line 402 - 3622) for other string examples
-
+@define("APP_DEFAULT_TIMEZONE", "UTC"); 
+@define("APP_DEFAULT_USER_TIMEZONE", "Australia/Brisbane"); // Change this to your local timezone eg Australia/Brisbane. Fez will still store dates as UTC but will default display them as this timezone until the user has logged in with their preffered timezone user setting.  See include/pear/date/TimeZone.php (line 402 - 3622) for other string examples
 @define("APP_DEFAULT_PAGER_SIZE", 50);
 @define("APP_DEFAULT_REFRESH_RATE", 5); // in minutes
 

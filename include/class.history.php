@@ -218,7 +218,7 @@ class History
 		History::add($pid, $event_usr_id, $event_date, $wfl_id, $detail, $outcome, $outcomeDetail);
 		if ($refreshDatastream == true) {
 			// First check if a FezHistory datastream exists		
-			$dsExists = Fedora_API::datastreamExists($pid, $dsIDName);
+			$dsExists = Fedora_API::datastreamExists($pid, $dsIDName, true);
 			$newXML = "";
 			$eventList = History::getList($pid, true);
 			$newXML .= '<premis:premis xmlns:premis="http://www.loc.gov/standards/premis">';

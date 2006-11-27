@@ -59,7 +59,10 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
 	$tpl->assign("isFezUser", $username);
 }
 $tpl->assign("isAdministrator", $isAdministrator);
-
+if (WEBSERVER_LOG_STATISTICS != 'ON') {
+	echo "WEB SERVER STATS CURRENLTY UNAVAILABLE";
+	exit;
+}
 $range = (@$_REQUEST['range'] == "4w") ? "4w" : "all";
 $year = is_numeric(@$_REQUEST['year']) ? $_REQUEST['year'] : 'all';
 $month = (@$_REQUEST['month'] >= 1 && @$_REQUEST['month'] <= 12) ? $_REQUEST['month'] : 'all';

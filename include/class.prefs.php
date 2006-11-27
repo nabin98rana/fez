@@ -64,7 +64,7 @@ class Prefs
             'close_popup_windows'     => 1, //@@@ CK added so default user popup is date
             'receive_assigned_emails' => 1,
             'receive_new_emails'      => 0,
-            'timezone'                => APP_DEFAULT_TIMEZONE,
+            'timezone'                => APP_DEFAULT_USER_TIMEZONE,
 //            'timezone'                => Date_API::getDefaultTimezone(),
             'list_refresh_rate'       => APP_DEFAULT_REFRESH_RATE,
             'emails_refresh_rate'     => APP_DEFAULT_REFRESH_RATE,

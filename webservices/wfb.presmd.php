@@ -49,9 +49,9 @@ if (is_numeric(strpos($file, "/"))) {
 if (trim($file_dir) == "") { $file_dir = APP_JHOVE_TEMP_DIR; }
 if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) { // check for command hax
 	$presmd_file = APP_JHOVE_TEMP_DIR.'presmd_'.Foxml::makeNCName(substr($file, 0, strrpos($file, '.'))).'.xml';
-	if (is_file($presmd_file)) {
+	if (is_file($presmd_file)) { // if already exists, delete it
 		$deleteCommand = APP_DELETE_CMD." ".$presmd_file;
-		exec($deleteCommand);
+		exec($deleteCommand." 2>&1");
 	}
 	$APP_JHOVE_CMD = APP_JHOVE_DIR.'/jhove -h xml -o '.$presmd_file;
 	if (is_numeric(strpos($file, " "))) {
@@ -64,7 +64,7 @@ if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) 
 	$command = $APP_JHOVE_CMD;
 	$return_status = 0;
 	$return_array = array();
-	exec($command, $return_array, $return_status);
+	exec($command." 2>&1", $return_array, $return_status);
 	if ($return_status <> 0) {
 		Error_Handler::logError("JHOVE Error: ".implode(",", $return_array).", return status = $return_status, for command $command \n", __FILE__,__LINE__);
 	}

@@ -243,7 +243,7 @@ function selectSearchSuggestor(f, field_name)
 						{/if}
 
 					  {/if}
-					{if $list[i].file_downloads}({$list[i].file_downloads.0|escape:"html"} File Downloads){/if}   					   
+					{if $list[i].file_downloads}(<a class="silent_link" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}">{$list[i].file_downloads|escape:"html"} File Downloads</a>){/if}   					   
 					</td>
 				</tr>
 				<tr>

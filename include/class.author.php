@@ -116,12 +116,19 @@ class Author
      */
     function getIDByName($aut_fname, $aut_lname)
     {
+//		$aut_fname = str_replace(".", "", $aut_fname);
+
         $stmt = "SELECT
                     aut_id
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
-                 WHERE
-                    aut_fname='$aut_fname' and aut_lname='$aut_lname'";
+                 WHERE ";
+		if (is_numeric(strpos($aut_fname, "."))) {
+			$aut_fname = substr($aut_fname, 0, strpos($aut_fname, "."));			
+			$stmt .= " aut_fname like '".Misc::escapeString($aut_fname)."%' and aut_lname='".Misc::escapeString($aut_lname)."'";
+		} else {
+			$stmt .= " aut_fname = '".Misc::escapeString($aut_fname)."' and aut_lname='".Misc::escapeString($aut_lname)."'";						
+		}
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

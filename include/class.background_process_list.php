@@ -21,6 +21,14 @@ class BackgroundProcessList
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return array();
         }
+		foreach ($res as $key => $row) {			
+//		  $res[$key]["bgp_started"] = Date_API::getFormattedDate($res[$key]["bgp_started"]);
+//		  $res[$key]["bgp_heartbeat"] = Date_API::getFormattedDate($res[$key]["bgp_heartbeat"]);
+			
+			$res[$key]["bgp_started"] = Date_API::getFormattedDate($res[$key]["bgp_started"], APP_DEFAULT_USER_TIMEZONE);
+			$res[$key]["bgp_heartbeat"] = Date_API::getFormattedDate($res[$key]["bgp_heartbeat"], APP_DEFAULT_USER_TIMEZONE);
+		}
+
         return $res;
     }
     

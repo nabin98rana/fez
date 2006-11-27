@@ -107,16 +107,22 @@ class Fedora_API {
 		$ch = curl_init($getString);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);					
 		$results = curl_exec($ch);
-		$info = curl_getinfo($ch);
-		curl_close ($ch);
-		$xml = $results;
-		$dom = new DomDocument;
-		$dom->loadXML($xml); // Now this works with php5 - CK 7/4/2005
-		$result = $dom->getElementsByTagName("pid");
-		foreach($result as $item) {
-			$pid = $item->nodeValue;
-			break;
+		if ($results) {
+			$info = curl_getinfo($ch);
+			curl_close ($ch);
+			$xml = $results;
+			$dom = new DomDocument;
+			$dom->loadXML($xml); // Now this works with php5 - CK 7/4/2005
+			$result = $dom->getElementsByTagName("pid");
+			foreach($result as $item) {
+				$pid = $item->nodeValue;
+				break;
+			}
+		} else {
+			Error_Handler::logError(curl_error($ch),__FILE__,__LINE__);
+			curl_close ($ch);
 		}
 	   return $pid;
 	}
@@ -350,29 +356,33 @@ class Fedora_API {
 		    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 		    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		    $uploadLocation = curl_exec($ch);
-		    curl_close ($ch);
-
-		    $uploadLocation = trim(str_replace("\n", "", $uploadLocation));
-			$dsIDNameOld = $dsIDName;
-			if (is_numeric(strpos($dsIDName, chr(92)))) {
-				$dsIDName = substr($dsIDName, strrpos($dsIDName, chr(92))+1);
-				if ($dsLabel == $dsIDNameOld) {
-					$dsLabel = $dsIDName;
+			if ($uploadLocation) {
+				$uploadLocation = trim(str_replace("\n", "", $uploadLocation));
+				$dsIDNameOld = $dsIDName;
+				if (is_numeric(strpos($dsIDName, chr(92)))) {
+					$dsIDName = substr($dsIDName, strrpos($dsIDName, chr(92))+1);
+					if ($dsLabel == $dsIDNameOld) {
+						$dsLabel = $dsIDName;
+					}
 				}
-			}
-		   $dsExists = Fedora_API::datastreamExists($pid, $dsIDName);
-		   if ($dsExists !== true) {
-              //Call callAddDatastream
-              $dsID = Fedora_API::callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsLabel, $mimetype, $controlGroup);
-              return $dsID;
-              exit;
-           } elseif ($dsIDName != NULL) {
-              //Call ModifyDatastreamByReference
-			  Fedora_API::callPurgeDatastream ($pid, $dsIDName);
-			  $dsID = Fedora_API::callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsLabel, $mimetype, $controlGroup);
-			  return $dsID;
-//              Fedora_API::callModifyDatastreamByReference ($pid, $dsIDName, $dsIDName, $uploadLocation, $mimetype);
-           }
+			   $dsExists = Fedora_API::datastreamExists($pid, $dsIDName);
+			   if ($dsExists !== true) {
+	              //Call callAddDatastream
+	              $dsID = Fedora_API::callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsLabel, $mimetype, $controlGroup);
+	              return $dsID;
+//	              exit;
+	           } elseif ($dsIDName != NULL) {
+	              //Call ModifyDatastreamByReference
+				  Fedora_API::callPurgeDatastream ($pid, $dsIDName);
+				  $dsID = Fedora_API::callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsLabel, $mimetype, $controlGroup);
+				  return $dsID;
+	//              Fedora_API::callModifyDatastreamByReference ($pid, $dsIDName, $dsIDName, $uploadLocation, $mimetype);
+	           }
+			   curl_close ($ch);
+			} else {
+				Error_Handler::logError(curl_error($ch),__FILE__,__LINE__);
+				curl_close ($ch);
+			}			
 		}
 	}
 
@@ -418,6 +428,21 @@ class Fedora_API {
 			$filename_ext = strtolower(substr($dsIDName, (strrpos($dsIDName, ".") + 1)));
 			$dsIDName = substr($dsIDName, 0, strrpos($dsIDName, ".") + 1).$filename_ext;
 		}
+		if ($controlGroup == 'X') { //If the file is xml, Tidy it up. You can't trust your xml creation tools sometimes, although now JHOVE is M content instead of X so no need to worry about jhove
+			$xml = file_get_contents($local_file_location);
+			$config = array(
+			  'indent'         => true,
+			  'input-xml'   => true,
+			  'output-xml'   => true,
+			  'wrap'           => 200);
+			if (!defined('APP_NO_TIDY') || !APP_NO_TIDY) {
+				$tidy = new tidy;
+				$tidy->parseString($xml, $config, 'utf8');
+				$tidy->cleanRepair();
+				$xml = "$tidy";
+				file_put_contents($local_file_location, $xml);
+			}			
+		}
 		if (!empty($local_file_location) && (trim($local_file_location) != "")) {
 		   //Send multipart/form-data via curl
 		   $ch = curl_init(APP_FEDORA_UPLOAD_URL);
@@ -427,20 +452,25 @@ class Fedora_API {
 		   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 		   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		   $uploadLocation = curl_exec($ch);
-		   curl_close ($ch);
-		   $uploadLocation = trim(str_replace("\n", "", $uploadLocation));
-		   $dsExists = Fedora_API::datastreamExists($pid, $dsIDName);
-		   if ($dsExists !== true) {
-			  //Call callAddDatastream
-			  $dsID = Fedora_API::callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsLabel, $mimetype, $controlGroup);
-			  return $dsID;
-		   } elseif (!empty($dsIDName)) {
-			  //Call ModifyDatastreamByReference
-			  Fedora_API::callPurgeDatastream ($pid, $dsIDName);
-			  $dsID = Fedora_API::callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsLabel, $mimetype, $controlGroup);
-			  return $dsID;
-//			  Fedora_API::callModifyDatastreamByReference ($pid, $dsIDName, $dsIDName, $uploadLocation, $mimetype);
-		   }
+		   if ($uploadLocation) {
+			   curl_close ($ch);
+			   $uploadLocation = trim(str_replace("\n", "", $uploadLocation));
+			   $dsExists = Fedora_API::datastreamExists($pid, $dsIDName);
+			   if ($dsExists !== true) {
+				  //Call callAddDatastream
+				  $dsID = Fedora_API::callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsLabel, $mimetype, $controlGroup);
+				  return $dsID;
+			   } elseif (!empty($dsIDName)) {
+				  //Call ModifyDatastreamByReference
+				  Fedora_API::callPurgeDatastream ($pid, $dsIDName);
+				  $dsID = Fedora_API::callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsLabel, $mimetype, $controlGroup);
+				  return $dsID;
+	//			  Fedora_API::callModifyDatastreamByReference ($pid, $dsIDName, $dsIDName, $uploadLocation, $mimetype);
+			   }
+			} else {
+				Error_Handler::logError(curl_error($ch),__FILE__,__LINE__);
+				curl_close ($ch);
+			}			   
 		}
 	}
 
@@ -551,38 +581,44 @@ class Fedora_API {
 	* @param string $pid The persistant identifier of the object
     * @return array $dsIDListArray The list of datastreams in an array.
     */
-    function callListDatastreamsLite($pid) {
+    function callListDatastreamsLite($pid, $refresh=false) {
 		static $returns;
 		if (!is_array($returns)) {
 			$returns = array();
 		}
 
         if (!is_numeric($pid)) {
-		    if (isset($returns[$pid]) && is_array($returns[$pid])) {
+		    if ($refresh != false && isset($returns[$pid]) && is_array($returns[$pid])) {
 				return $returns[$pid];
 			}
 			$getString = APP_BASE_FEDORA_APIA_DOMAIN."/listDatastreams/".$pid."?xml=true";
 			$ch = curl_init($getString);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);			
 			$results = curl_exec($ch);
-			$info = curl_getinfo($ch);
-			curl_close ($ch);
-			$xml = $results;
-			$dom = new DomDocument;
-			$dom->loadXML($xml);		
-			$xpath = new DOMXPath($dom);
-			$fieldNodeList = $xpath->query("/*/*");
-			$counter = 0;
-			foreach ($fieldNodeList as $fieldNode) {
-				$fieldAttList = $xpath->query("@*",$fieldNode);
-				foreach ($fieldAttList as $fieldAtt) {
-					$resultlist[$counter][$fieldAtt->nodeName] = trim($fieldAtt->nodeValue);
+			if ($results) {
+				$info = curl_getinfo($ch);
+				curl_close ($ch);
+				$xml = $results;
+				$dom = new DomDocument;
+				$dom->loadXML($xml);		
+				$xpath = new DOMXPath($dom);
+				$fieldNodeList = $xpath->query("/*/*");
+				$counter = 0;
+				foreach ($fieldNodeList as $fieldNode) {
+					$fieldAttList = $xpath->query("@*",$fieldNode);
+					foreach ($fieldAttList as $fieldAtt) {
+						$resultlist[$counter][$fieldAtt->nodeName] = trim($fieldAtt->nodeValue);
+					}
+					$counter++;
 				}
-				$counter++;
-			}
-			$returns[$pid] = $resultlist;
-			return $resultlist;
+				$returns[$pid] = $resultlist;
+				return $resultlist;
+			} else {
+				Error_Handler::logError(curl_error($ch),__FILE__,__LINE__);
+				curl_close ($ch);
+			}				
         } else {
             return array();
         }
@@ -622,10 +658,10 @@ class Fedora_API {
 	* @param string $dsID The ID of the datastream to be checked
     * @return boolean
     */
-	function datastreamExists ($pid, $dsID) {
+	function datastreamExists ($pid, $dsID, $refresh=false) {
 		$dsExists = false;
 //		$rs = Fedora_API::callListDatastreams($pid); // old way
-		$rs = Fedora_API::callListDatastreamsLite($pid);
+		$rs = Fedora_API::callListDatastreamsLite($pid, $refresh);
 		foreach ($rs as $row) {
 //			if (isset($row['ID']) && $row['ID'] == $dsID) { // old way
 			if (isset($row['dsid']) && $row['dsid'] == $dsID) {				
@@ -882,7 +918,11 @@ class Fedora_API {
 	   $client->setCredentials(APP_FEDORA_USERNAME, APP_FEDORA_PWD);
 	   $result = $client->call($call, $parms);
        if ($debug_error && is_array($result) && (isset($result['faultcode']) || $call == 'addDatastream')) {
-           Error_Handler::logError(array(print_r($result,true),Fedora_API::debugInfo($client, true)), __FILE__,__LINE__);
+//           Error_Handler::logError(array(print_r($result,true),Fedora_API::debugInfo($client, true)), __FILE__,__LINE__);
+//           Error_Handler::logError(array(print_r($result,true)), __FILE__,__LINE__);		   
+			$fedoraError = "Error when calling $call :".$result['faultstring']." <br/>
+			".Error_Handler::simpleBacktrace(debug_backtrace());
+			Error_Handler::logError($fedoraError, __FILE__,__LINE__);		   			
        }
 	   return $result;
 

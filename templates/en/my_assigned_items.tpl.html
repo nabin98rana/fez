@@ -85,7 +85,9 @@ function disableFields(f)
 
 function sortList(f, field) {
     order_by = getSelectedOption(f, field);
-    window.location.href = page_url + "?" + replaceParam(window.location.href, 'order_by', order_by);
+    order_by_dir = getSelectedOption(f, 'order_by_dir');    
+    temp = page_url + "?" + 'order_by=' + order_by;
+    window.location.href = temp + "&" + 'order_by_dir=' + order_by_dir;
 }
 
 
@@ -107,7 +109,13 @@ to {$my_assigned_items_info.currentLastRow} of {$my_assigned_items_info.totalRow
                    <select class="default" name="order_by" onchange="javascript:sortList(this.form, 'order_by');">
                        {html_options options=$order_by_list selected=$order_by_default}
                    </select>
+
+
+                   <select class="default" name="order_by_dir" onchange="javascript:sortList(this.form, 'order_by');">
+                       {html_options options=$order_by_dir_list selected=$order_by_dir_default}
+                   </select>
 			</div>
+			
 </div>
 
 <input type="hidden" name="cat" value="purge_objects" />

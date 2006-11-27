@@ -60,6 +60,11 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
 }
 $tpl->assign("isAdministrator", $isAdministrator);
 
+if (WEBSERVER_LOG_STATISTICS != 'ON') {
+	echo "WEB SERVER STATS CURRENLTY UNAVAILABLE";
+	exit;
+}
+
 $abstractViews = 0;
 $downloads = 0;
 

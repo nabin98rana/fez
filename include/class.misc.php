@@ -61,23 +61,34 @@ class Misc
      * @param bool $passthru - if true, don't return the retreived content, just echo it
 	 */
 	function processURL($url,$passthru=false) {
-	   if (empty($url)) { return ""; }
-	   $url=str_replace('&amp;','&',$url);
-	   $ch=curl_init();
-	   curl_setopt($ch, CURLOPT_URL, $url);
-	   if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
-         curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-         curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-       }
-       if (!$passthru) {
-           curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
-       }
-       $data = curl_exec ($ch);
-       $info = curl_getinfo($ch); 
-	   curl_close ($ch);
-	   return array($data,$info);  
+	    if (empty($url)) { return ""; }
+	    $url=str_replace('&amp;','&',$url);
+	    $ch=curl_init();
+	    curl_setopt($ch, CURLOPT_URL, $url);
+	    if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
+          curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+          curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+        }
+		if (!$passthru) {
+			curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
+		}
+        $data = curl_exec ($ch);
+	    if ($data) {
+		  $info = curl_getinfo($ch); 
+	      curl_close ($ch);
+		} else {
+			$info = array();
+			debug_print_backtrace();
+			Error_Handler::logError(curl_error($ch)." ".$url,__FILE__,__LINE__);
+			curl_close ($ch);
+		}	   
+ 	    return array($data,$info);  
 	}
 
+	function numPID($pid) {
+		return substr($pid, strpos($pid, ":")+1);
+	}
+	
     /**
       * Just get the http headers from an URL
       * Returns the header and the curl info array.
@@ -95,9 +106,15 @@ class Misc
          curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
          curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
        }
-       $data = curl_exec ($ch);
-       $info = curl_getinfo($ch); 
-	   curl_close ($ch);
+       $data = curl_exec ($ch);	 
+	   if ($data) {
+         $info = curl_getinfo($ch); 
+	     curl_close ($ch);
+	   } else {
+			$info = array();
+			Error_Handler::logError(curl_error($ch)." ".$url,__FILE__,__LINE__);
+			curl_close ($ch);
+	   }	   
 	   return array($data,$info);  
     }
 
@@ -206,9 +223,13 @@ class Misc
 	function getFileURL($uri,$user='',$pw='')
 	{
 	   // start output buffering
-	   ob_start();
+//	   ob_start();
 	   // initialize curl with given uri
-	   $ch = curl_init($uri);
+	    $uri=str_replace('&amp;','&',$uri);
+	    $ch=curl_init();
+	    curl_setopt($ch, CURLOPT_URL, $uri);
+        curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
+//	   $ch = curl_init($uri);
 	   if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
          curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
          curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
@@ -220,12 +241,19 @@ class Misc
 		   curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 	   }
 	   $content = curl_exec($ch);
-	   curl_close($ch);
+	   if ($content) {
+			curl_close($ch);	   
+	   } else {
+			$info = array();
+			Error_Handler::logError(curl_error($ch),__FILE__,__LINE__);
+			curl_close($ch);
+	   }		   
+
 	   // get the output buffer
 //	   $content = ob_get_contents();
 	   // clean the output buffer and return to previous
 	   // buffer settings
-	   ob_end_clean();
+	//   ob_end_clean();
 	  
 	  
 	   return $content;
@@ -1549,6 +1577,7 @@ class Misc
 				} else {
 					$shortnodename = $currentnode->nodeName;
 				}	
+
 				if (($shortnodename == $searchtype) && ($shortnodename <> "element") 
                         && ($shortnodename <> "attribute")) {
 					if ($currentnode->hasAttributes() ) {

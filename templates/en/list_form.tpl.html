@@ -146,7 +146,7 @@ function purgeObject(pid)
 				  <td align="left" class="default"> <b>Parent Communities: </b></td>
 				  <td align="left" class="default"> &nbsp;
 					{section name="i" loop=$parents}
-						<a href="list.php?community_pid={$parents[i].pid}">{$parents[i].title.0}</a> &nbsp;
+						<a href="list.php?community_pid={$parents[i].pid}">{$parents[i].title}</a> &nbsp;
 					{/section}
 				  </td>
 				</tr>
@@ -531,7 +531,7 @@ function purgeObject(pid)
 				<input class="default" type="button" value="Create" onClick="javascript:createRecord(this.form)">
 			&nbsp;<br />
 				{/if}
-			{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}
+			{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}			
 				{if $childXDisplayOptions != 0}
 			<br /> <img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0">
 				<input type="hidden" name="collection_pid" value="{$collection_pid}">

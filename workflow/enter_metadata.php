@@ -135,8 +135,10 @@ if ($access_ok) {
 
 //	print_r($parents);
 //	echo $wfstatus->parent_pid;
-	if ($wfstatus->parent_pid != "-1") {
-	  $parent_record = new RecordObject($wfstatus->parent_pid);
+//	if ($wfstatus->parent_pid != "-1") {
+//	  $parent_record = new RecordObject($wfstatus->parent_pid);
+	if ($pid != "-1") {
+	  $parent_record = new RecordObject($pid);	  
 	  $parent_xdis_id = $parent_record->getXmlDisplayId();
 	  $parent_relationships = XSD_Relationship::getColListByXDIS($parent_xdis_id);
       array_push($parent_relationships, $parent_xdis_id);

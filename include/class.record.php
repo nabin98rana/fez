@@ -69,6 +69,55 @@ include_once(APP_INC_PATH . "class.auth_index.php");
 class Record
 {
 
+  /**
+	* Returns the parent details of the . Searches search key representing RELS-EXT "isDerivationOf".
+	*/
+
+	function getParentThreads($pid) {
+		//static stuff
+		$stmt = "SELECT ".APP_SQL_CACHE."  
+					* 
+				 FROM
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1 inner join 
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on r1.rmf_xsdmf_id = x1.xsdmf_id inner join
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s1 on s1.sek_id = x1.xsdmf_sek_id inner join
+					(SELECT ".APP_SQL_CACHE."  r2.rmf_varchar as parent_pid
+						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
+							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,							
+							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+						WHERE (s2.sek_title = 'isDerivationOf' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid = '".$pid."'))
+					as p1 on p1.parent_pid = r1.rmf_rec_pid
+					";	
+						
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);						
+		$return = array();
+	}	
+
+  /**
+   * Returns a list of all the later records in the thread
+   */
+	function laterInThread($pid) {	
+		//static stuff
+		$stmt = "SELECT ".APP_SQL_CACHE."  
+					* 
+				 FROM
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1 inner join 
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on r1.rmf_xsdmf_id = x1.xsdmf_id inner join
+					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s1 on s1.sek_id = x1.xsdmf_sek_id inner join
+					(SELECT ".APP_SQL_CACHE."  r2.rmf_varchar as parent_pid
+						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
+							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,							
+							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+						WHERE (s2.sek_title = 'isDerivationOf' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid = '".$pid."'))
+					as p1 on p1.parent_pid = r1.rmf_rec_pid
+					";	
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);						
+		$return = array();	
+		
+				
+	}
+	
+	
    /**
     * Method used to get the parents of a given record available in the 
     * system. 
@@ -77,7 +126,7 @@ class Record
     * @param   string $pid The persistant identifier	 
     * @return  array The list
     */
-    function getParents($pid, $clearcache=false)
+    function getParents($pid, $clearcache=false, $searchKey='isMemberOf')
     {
 
 		static $returns;
@@ -86,23 +135,24 @@ class Record
             $returns = array();
         }
 
-        if (isset($returns[$pid])) {
-            return $returns[$pid];
+        if (isset($returns[$pid][$searchKey])) {
+            return $returns[$pid][$searchKey];
         }
 
-		$stmt = "SELECT 
+		$stmt = "SELECT ".APP_SQL_CACHE."  
 					* 
 				 FROM
 					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1 inner join 
 					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on r1.rmf_xsdmf_id = x1.xsdmf_id inner join
 					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s1 on s1.sek_id = x1.xsdmf_sek_id inner join
-					(SELECT r2.rmf_varchar as parent_pid
+					(SELECT ".APP_SQL_CACHE."  r2.rmf_varchar as parent_pid
 						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
 							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,							
 							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
-						WHERE (s2.sek_title = 'isMemberOf' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid = '".$pid."'))
+						WHERE (s2.sek_title = '$searchKey' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid_num = ".Misc::numPID($pid)." and r2.rmf_rec_pid = '".$pid."'))
 					as p1 on p1.parent_pid = r1.rmf_rec_pid 
 					";	
+
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);						
 		$return = array();
 		foreach ($res as $result) {
@@ -119,42 +169,142 @@ class Record
 			}
 		}
 		$details = array_values($return);			
-		$returns[$pid] = $details;
+		$returns[$pid][$searchKey] = $details;
 
 		return $details; 
     }
 
-
+	
    /**
-    * Method used to get all of the parents of a given record available in the 
+    * Method used to get the children of a given record available in the 
     * system. 
     *
     * @access  public
     * @param   string $pid The persistant identifier	 
     * @return  array The list
     */
-    function getParentsAll($pid)
+    function getChildren($pid, $clearcache=false, $searchKey='isMemberOf', $flatTree=true)
     {
 
 		static $returns;
 
-        if (isset($returns[$pid])) {
-            return $returns[$pid];
+        if ($clearcache) {
+            $returns = array();
         }
 
-		$stmt = "SELECT 
+        if (isset($returns[$pid][$searchKey])) {
+            return $returns[$pid][$searchKey];
+        }
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+
+		$bodyStmt .= "
+						FROM {$dbtp}record_matching_field AS r4
+						INNER JOIN {$dbtp}xsd_display_matchfields AS x4
+						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and match(r4.rmf_varchar) 
+                          against ('\"$pid\"' in boolean mode)
+						INNER JOIN {$dbtp}search_key AS s4  							  
+						  ON s4.sek_id = x4.xsdmf_sek_id AND s4.sek_title = '$searchKey' ";		
+				
+        $stmt = "SELECT ".APP_SQL_CACHE."  r1.*, x1.*, s1.*, k1.*, d1.* 
+            FROM {$dbtp}record_matching_field AS r1
+            INNER JOIN {$dbtp}xsd_display_matchfields AS x1
+            ON r1.rmf_xsdmf_id = x1.xsdmf_id
+            INNER JOIN (
+                    SELECT ".APP_SQL_CACHE."  distinct r4.rmf_rec_pid
+                    $bodyStmt
+					order by r4.rmf_rec_pid desc
+                    ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid 
+            LEFT JOIN {$dbtp}xsd_loop_subelement s1 
+            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
+            LEFT JOIN {$dbtp}search_key k1 
+            ON (k1.sek_id = x1.xsdmf_sek_id)
+            LEFT JOIN {$dbtp}xsd_display d1  
+            ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
+            ORDER BY r1.rmf_rec_pid DESC ";
+                    
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);						
+		$return = array();
+		foreach ($res as $result) {
+			if (is_numeric($result['sek_id'])) {
+				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
+				$search_var = strtolower(str_replace(" ", "_", $result['sek_title']));
+				if (@!is_array($return[$result['rmf_rec_pid']][$search_var])) {
+					$return[$result['rmf_rec_pid']][$search_var] = array();
+				}
+				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']][$search_var])) {
+					array_push($return[$result['rmf_rec_pid']][$search_var], $result['rmf_'.$result['xsdmf_data_type']]);
+					sort($return[$result['rmf_rec_pid']][$search_var]);
+				}
+			}
+		}
+		$details = array_values($return);			
+		$returns[$pid][$searchKey] = $details;
+
+		return $details; 
+    }
+
+	
+	function generateDerivationTree($pid, $derivations, &$dTree, $shownPids=array()) {
+			if (!array($derivations)) {
+				return;
+			}
+			$dTree .= "<ul>";
+			foreach ($derivations as $devkey => $dev) { // now build HTML of the citation
+				if (!in_array($dev['pid'], $shownPids)) {
+					if ($dev['pid'] != $pid) {
+						$xdis_title = XSD_Display::getTitle($dev['display_type'][0]);
+						$dTree .= "<li>";
+						$dTree .= "<a href='".APP_RELATIVE_URL."view.php?pid=".$dev['pid']."'>".$dev['title'][0]."</a> <i>".$xdis_title."</i> (deposited ".Date_API::getFormattedSimpleDate($dev['created_date'][0]).")";
+						$dTree .= "</li>";
+					} else {
+						$dTree .= "<li>";
+						$dTree .= "".$dev['title'][0]." <b>(Current Record)</b>";
+						$dTree .= "</li>";					
+					}
+					array_push($shownPids, $dev['pid']);					
+					if (is_array($dev['children'])) {
+						Record::generateDerivationTree($pid, $dev['children'], &$dTree, &$shownPids);
+					}
+
+				}
+
+			}
+			$dTree .= "</ul>";
+		
+	}
+		
+   /**
+    * Method used to get all of the parents of a given record available in the 
+    * system. 
+    *
+    * @access  public
+    * @param   string $pid The persistant identifier	 
+    * @param   string $searchKey The search key - defaults to isMemberOf, but can be isDerivationOf or any other similar setup RELS-EXT element
+    * @return  array The list
+    */
+    function getParentsAll($pid, $searchKey="isMemberOf", $flatTree=true)
+    {
+
+		static $returns;
+
+        if (isset($returns[$pid][$searchKey])) {
+            return $returns[$pid][$searchKey];
+        }
+
+		$stmt = "SELECT ".APP_SQL_CACHE."  
 					* 
 				 FROM
 					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1 inner join 
 					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on r1.rmf_xsdmf_id = x1.xsdmf_id inner join
 					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s1 on s1.sek_id = x1.xsdmf_sek_id inner join
-					(SELECT r2.rmf_varchar as parent_pid
+					(SELECT ".APP_SQL_CACHE."  r2.rmf_varchar as parent_pid
 						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
 							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,							
 							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
-						WHERE (s2.sek_title = 'isMemberOf' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid = '".$pid."'))
+						WHERE (s2.sek_title = '$searchKey' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid = '".$pid."'))
 					as p1 on p1.parent_pid = r1.rmf_rec_pid
 					";	
+
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);						
 		$return = array();
 		foreach ($res as $result) {
@@ -172,20 +322,132 @@ class Record
 		}
 		$details = array_values($return);
 		$recursive_details = array();
+		
 		foreach ($details as $key => $row) {
-			$temp = Record::getParents($row['pid']);
+			$temp = Record::getParents($row['pid'], false, "isDerivationOf", $flatTree);
 			foreach ($temp as $trow) {
 				array_push($recursive_details, $trow);
 			}
 		}
 		foreach ($recursive_details as $rrow) {
-			array_push($details, $rrow);
+			if ($flatTree == true) {
+				array_push($details, $rrow);
+			} else {
+				if (!is_array($recursive_details['children'])) {
+					$details['parents'] = array();
+				}
+				array_push($details['parents'], $rrow);
+			} 
 		}
 		$details = array_reverse($details);
-		$returns[$pid] = $details;
+		$returns[$pid][$searchKey] = $details;
 		return $details; 
     }
 
+   /**
+    * Method used to get all of the children of a given record available in the 
+    * system. 
+    *
+    * @access  public
+    * @param   string $pid The persistant identifier	 
+    * @param   string $searchKey The search key - defaults to isMemberOf, but can be isDerivationOf or any other similar setup RELS-EXT element
+    * @return  array The list
+    */
+    function getChildrenAll($pid, $searchKey="isMemberOf", $flatTree=true)
+    {
+
+		static $returns;
+
+        if (isset($returns[$pid][$searchKey])) {
+            return $returns[$pid][$searchKey];
+        }
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+
+		$bodyStmt .= "
+						FROM {$dbtp}record_matching_field AS r4
+						INNER JOIN {$dbtp}xsd_display_matchfields AS x4
+						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and match(r4.rmf_varchar) 
+                          against ('\"$pid\"' in boolean mode)
+						INNER JOIN {$dbtp}search_key AS s4  							  
+						  ON s4.sek_id = x4.xsdmf_sek_id AND s4.sek_title = '$searchKey' ";		
+				
+        $stmt = "SELECT ".APP_SQL_CACHE."  r1.*, x1.*, s1.*, k1.*, d1.* 
+            FROM {$dbtp}record_matching_field AS r1
+            INNER JOIN {$dbtp}xsd_display_matchfields AS x1
+            ON r1.rmf_xsdmf_id = x1.xsdmf_id
+            INNER JOIN (
+                    SELECT ".APP_SQL_CACHE."  distinct r4.rmf_rec_pid
+                    $bodyStmt
+					order by r4.rmf_rec_pid desc
+                    ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid 
+            LEFT JOIN {$dbtp}xsd_loop_subelement s1 
+            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
+            LEFT JOIN {$dbtp}search_key k1 
+            ON (k1.sek_id = x1.xsdmf_sek_id)
+            LEFT JOIN {$dbtp}xsd_display d1  
+            ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
+            ORDER BY r1.rmf_rec_pid DESC ";
+//		echo $stmt;
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);						
+//		print_r($res);
+		$return = array();
+		foreach ($res as $result) {
+			if (is_numeric($result['sek_id'])) {
+				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
+				$search_var = strtolower(str_replace(" ", "_", $result['sek_title']));
+				if (@!is_array($return[$result['rmf_rec_pid']][$search_var])) {
+					$return[$result['rmf_rec_pid']][$search_var] = array();
+				}
+				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']][$search_var])) {
+					array_push($return[$result['rmf_rec_pid']][$search_var], $result['rmf_'.$result['xsdmf_data_type']]);
+					sort($return[$result['rmf_rec_pid']][$search_var]);
+				}
+			}
+		}
+//		print_r($return);
+		$details = array_values($return);
+//		$details = array_values($res);
+//		print_r($details);
+		$recursive_details = array();
+		foreach ($details as $key => $row) {
+
+//			$temp = Record::getChildrenAll($row['pid'], false, $searchKey);			
+			$temp = Record::getChildrenAll($row['pid'], $searchKey, false);
+			foreach ($temp as $trow) {
+//				if ($flatTree == true) {
+//					array_push($recursive_details, $trow);
+/*				} else {
+					if (!is_array($recursive_details['children'])) {
+						$recursive_details['children'] = array();
+					}					
+					array_push($recursive_details['children'], $trow);
+				} */
+				if ($flatTree == true) {
+					array_push($details, $trow);
+				} else {
+					if (!is_array($details[$key]['children'])) {
+						$details[$key]['children'] = array();
+					}					
+					array_push($details[$key]['children'], $trow);
+				} 
+				
+			}
+		}
+//		print_r($recursive_details);
+/*		foreach ($recursive_details as $rrow) {
+			if ($flatTree == true) {
+				array_push($details, $rrow);
+			} else {
+				if (!is_array($recursive_details['children'])) {
+					$details['children'] = array();
+				}
+				array_push($details['children'], $rrow);
+			} 
+		} */
+		$details = array_reverse($details);
+		$returns[$pid][$searchKey] = $details;
+		return $details; 
+    }	
 
     /**
      * Method used to update the details of a specific Record. Now calls the class.
@@ -346,15 +608,15 @@ class Record
 			}
 		}
 		if ($dsDelete=='keep') {
-			$stmt .= " and (rmf_xsdmf_id not in (select distinct(xsdmf_id) from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields where xsdmf_element = '!datastream!ID')";
+			$stmt .= " and (rmf_xsdmf_id not in (SELECT ".APP_SQL_CACHE."  distinct(xsdmf_id) from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields where xsdmf_element = '!datastream!ID')";
 		}
 		if ($specify_str != "") {				
-			$stmt .= " and rmf_xsdmf_id in (select distinct(x2.xsdmf_id) from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2 inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on x2.xsdmf_xdis_id=d1.xdis_id inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd1 on (xsd1.xsd_id = d1.xdis_xsd_id and xsd1.xsd_title in ('".$specify_str."'))) ";
+			$stmt .= " and rmf_xsdmf_id in (SELECT ".APP_SQL_CACHE."  distinct(x2.xsdmf_id) from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2 inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on x2.xsdmf_xdis_id=d1.xdis_id inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd1 on (xsd1.xsd_id = d1.xdis_xsd_id and xsd1.xsd_title in ('".$specify_str."'))) ";
 			if ($dsDelete=='keep') {
 				$stmt .= ")";
 			}
 		} elseif ($exclude_str != "") {
-			$stmt .= " and rmf_xsdmf_id in (select distinct(x2.xsdmf_id) from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2 inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on x2.xsdmf_xdis_id=d1.xdis_id inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd1 on (xsd1.xsd_id = d1.xdis_xsd_id and xsd1.xsd_title not in ('".$exclude_str."'))) ";			
+			$stmt .= " and rmf_xsdmf_id in (SELECT ".APP_SQL_CACHE."  distinct(x2.xsdmf_id) from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2 inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on x2.xsdmf_xdis_id=d1.xdis_id inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd1 on (xsd1.xsd_id = d1.xdis_xsd_id and xsd1.xsd_title not in ('".$exclude_str."'))) ";			
 			if ($dsDelete=='keep') {
 				$stmt .= ")";
 			}
@@ -438,6 +700,7 @@ class Record
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field
                  (
 				 	rmf_rec_pid,
+				 	rmf_rec_pid_num,	 	
 				 	rmf_dsid,
                     rmf_xsdmf_id,";
 		if ($xsdsel_id != "") {
@@ -447,6 +710,7 @@ class Record
 			rmf_".$data_type."
 		 ) VALUES (
 			'" . $pid . "',
+			" . Misc::numPID($pid) . ",			
 			'" . $dsID . "',
 			" . $xsdmf_id . ",";
 		if ($xsdsel_id != "") {
@@ -665,7 +929,7 @@ class Record
      * @param string $username The username of the search is performed on
      * @return array $res2 The index details of records associated with the user
      */
-    function getAssigned($username,$currentPage=0,$pageRows="ALL",$order_by="Title")
+    function getAssigned($username,$currentPage=0,$pageRows="ALL",$order_by="Title", $order_by_dir=0)
     {
         if ($pageRows == "ALL") {
             $pageRows = 9999999;
@@ -680,7 +944,11 @@ class Record
 		$authArray = Collection::getAuthIndexStmt(array("Editor", "Approver"));
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];
-		$order_dir = "ASC";
+		if ($order_by_dir == 0) {
+			$order_dir = "ASC";
+		} else {
+			$order_dir = "DESC";			
+		}
         if (!empty($authStmt)) {
             $r4_join_field = "ai.authi_pid";
         } else {
@@ -710,16 +978,16 @@ class Record
              ";
 
         $countStmt = "
-                    SELECT count(distinct r2.rmf_rec_pid)
+                    SELECT ".APP_SQL_CACHE."  count(distinct r2.rmf_rec_pid)
                     $bodyStmtPart1
             ";
 
-        $stmt = "SELECT  r1.*, x1.*, s1.*, k1.*, d1.* 
+        $stmt = "SELECT ".APP_SQL_CACHE."  r1.*, x1.*, s1.*, k1.*, d1.* 
             FROM {$dbtp}record_matching_field AS r1
             INNER JOIN {$dbtp}xsd_display_matchfields AS x1
             ON r1.rmf_xsdmf_id = x1.xsdmf_id
             INNER JOIN (
-                    SELECT distinct r2.rmf_rec_pid, min(r5.rmf_$data_type) as sort_column
+                    SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid, min(r5.rmf_$data_type) as sort_column
                     $bodyStmt
 					order by sort_column $order_dir, r2.rmf_rec_pid desc
                     LIMIT $start, $pageRows
@@ -731,8 +999,9 @@ class Record
             LEFT JOIN {$dbtp}xsd_display d1  
             ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
             ORDER BY display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
-
+//echo $stmt;
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+
 			if (PEAR::isError($res)) {
 				Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 				$res = array();
@@ -743,10 +1012,12 @@ class Record
 
         $return = Collection::makeReturnList($res);
         $return = Collection::makeSecurityReturnList($return);
-		$return = array_values($return);
+//		$return = array_values($return);
 		$return = Auth::getIndexAuthorisationGroups($return);
+//		print_r($return);		
 		$return = Collection::getWorkflows($return); 
 		$list = $return;
+
 
 		$totalRows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
 //        $totalRows = count($list);
@@ -774,10 +1045,10 @@ class Record
     function publishAllUnsetStatusPids($sta_id=2)
     {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX; // Database and table prefix
-        $stmt = "SELECT distinct rmf_rec_pid FROM 
+        $stmt = "SELECT ".APP_SQL_CACHE."  distinct rmf_rec_pid FROM 
         {$dbtp}record_matching_field 
         WHERE rmf_rec_pid NOT IN (
-                SELECT rmf.rmf_rec_pid FROM
+                SELECT ".APP_SQL_CACHE."  rmf.rmf_rec_pid FROM
                 {$dbtp}record_matching_field AS rmf
                 INNER JOIN {$dbtp}xsd_display_matchfields AS xdmf 
                 ON xdmf.xsdmf_id=rmf.rmf_xsdmf_id
@@ -805,7 +1076,7 @@ class Record
     function getIndexDatastream($pid, $dsID, $xsd_title)
     {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX; // Database and table prefix
-        $stmt = "SELECT * FROM 
+        $stmt = "SELECT ".APP_SQL_CACHE."  * FROM 
         {$dbtp}record_matching_field r1
 		inner join {$dbtp}xsd_display_matchfields x1 on r1.rmf_xsdmf_id = x1.xsdmf_id and rmf_rec_pid = '".$pid."' and rmf_dsid = '".$dsID."'
         inner join {$dbtp}xsd_display d1 on x1.xsdmf_xdis_id = d1.xdis_id
@@ -883,6 +1154,12 @@ class Record
         // find the title elements for this display (!dc:title or MODS)
         $display->getXSD_HTML_Match();
         $xsdmf_id = $display->xsd_html_match->getXSDMF_IDByXDIS_ID('!titleInfo!title');
+        $inherit_xsdmf_id = $display->xsd_html_match->getXSDMF_IDByXDIS_ID('!inherit_security');		
+		if ($inherit_xsdmf_id) {		
+            // fake the form input for inherit security
+            $HTTP_POST_VARS['xsd_display_fields'][$inherit_xsdmf_id] = 'on';
+		}
+		
         if ($xsdmf_id) {
             // fake the form input for the object title
             $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] = '__makeInsertTemplate_DCTitle__';
@@ -954,7 +1231,6 @@ class Record
 		if (@is_array($datastreamXMLHeaders["Link0"])) { // it must be a multiple link item so remove the generic one
 			$datastreamXMLHeaders = Misc::array_clean_key($datastreamXMLHeaders, "Link", true, true);
 		}
-
         if ($ingestObject) {
             // Actually Ingest the object Into Fedora
             // We only have to do this when first creating the object, subsequent updates should just work with the 
@@ -1045,7 +1321,7 @@ class Record
 							Fedora_API::callPurgeDatastream($pid, $presmd_check);
 						}
 						Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, 
-								"text/xml", "X");
+								"text/xml", "M");
                         if (is_file(APP_TEMP_DIR.basename($presmd_check))) {
                             $deleteCommand = APP_DELETE_CMD." ".APP_TEMP_DIR.basename($presmd_check);
                             exec($deleteCommand);
@@ -1223,6 +1499,7 @@ class RecordGeneral
      * @return  void	 	 
      */
     function canView($redirect=true) {
+		if (Auth::isAdministrator()) { return true; }
         if ($this->getPublishedStatus() == 2) {
             return $this->checkAuth($this->viewer_roles, $redirect);
         } else {
@@ -1239,6 +1516,7 @@ class RecordGeneral
      * @return  void	
      */
     function canEdit($redirect=false) {
+		if (Auth::isAdministrator()) { return true; }		
         return $this->checkAuth($this->editor_roles, $redirect);
     }
 
@@ -1643,7 +1921,7 @@ class RecordGeneral
     function getChildrenPids()
     {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-        $stmt = "SELECT rmf_rec_pid 
+        $stmt = "SELECT ".APP_SQL_CACHE."  rmf_rec_pid 
             FROM {$dbtp}record_matching_field
             INNER JOIN {$dbtp}xsd_display_matchfields 
             ON rmf_xsdmf_id=xsdmf_id AND rmf_varchar='{$this->pid}'
@@ -1693,7 +1971,9 @@ class RecordObject extends RecordGeneral
 	var $depositor;
     var $file_downloads; //for statistics of file datastream downloads from eserv.php
     var $default_xdis_id = 5;
-   
+
+	
+	   
     function RecordObject($pid=null)
     {
         RecordGeneral::RecordGeneral($pid);
@@ -1916,7 +2196,11 @@ class RecordObject extends RecordGeneral
             {
                 // first extract the image and save temporary copy
                 $urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsIDName; 
-                copy($urldata,APP_TEMP_DIR.$dsIDName); 
+//              copy($urldata,APP_TEMP_DIR.$dsIDName); 
+				$urlReturn = Misc::ProcessURL($urldata);
+				$handle = fopen(APP_TEMP_DIR.$dsIDName, "w");
+				fwrite($handle, $urlReturn[0]);
+				fclose($handle);
                 // delete and re-ingest - need to do this because sometimes the object made it
                 // into the repository even though it's dsID is illegal.
                 Fedora_API::callPurgeDatastream($pid, $dsIDName); 
@@ -1925,16 +2209,25 @@ class RecordObject extends RecordGeneral
                         $dsTitle['MIMEType'], "M");
                 // preservation metadata
                 $presmd_check = Workflow::checkForPresMD($new_dsID);
+				
                 if ($presmd_check != false) {
                     // strip directory off the name
                     $pres_dsID = basename($presmd_check);
                     if (Fedora_API::datastreamExists($pid, $pres_dsID)) {
-                        $xml = file_get_contents($presmd_check);
-                        Fedora_API::callModifyDatastreamByValue($pid, $pres_dsID, "A", 
-                                "Preservation Metadata", $xml, "text/xml", true);
+						//$presData = Misc::ProcessURL($presmd_check);
+//						$xml = $presData[0];
+						//($pid, $dsID, $dsLabel, $dsLocation=NULL, $mimetype) {						
+//						Fedora_API::callModifyDatastreamByReference($pid, $pres_dsID,  
+//                                "Preservation Metadata", $presmd_check, "text/xml");
+//                        Fedora_API::callModifyDatastreamByValue($pid, $pres_dsID, "A", 
+//                                "Preservation Metadata", $xml, "text/xml", true);
+						Fedora_API::callPurgeDatastream($pid, $pres_dsID);
+                        Fedora_API::getUploadLocationByLocalRef($pid, $pres_dsID, $presmd_check, $presmd_check, 
+                                "text/xml", "M");
+						
                     } else {
                         Fedora_API::getUploadLocationByLocalRef($pid, $pres_dsID, $presmd_check, $presmd_check, 
-                                "text/xml", "X");
+                                "text/xml", "M");
                     }
                     if (is_file($presmd_check)) {
                         $deleteCommand = APP_DELETE_CMD." ".$presmd_check;

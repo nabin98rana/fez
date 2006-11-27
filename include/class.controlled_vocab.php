@@ -339,6 +339,9 @@ class Controlled_Vocab
      */
     function getTitle($cvo_id)
     {
+		if (!is_numeric($cvo_id)) {
+			return "";
+		}
         $stmt = "SELECT
                     cvo_title
                  FROM

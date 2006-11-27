@@ -583,9 +583,9 @@ class User
         global $HTTP_POST_VARS;
 
         // system account should not be updateable
-        if ($HTTP_POST_VARS["id"] == APP_SYSTEM_USER_ID) {
+/*        if ($HTTP_POST_VARS["id"] == APP_SYSTEM_USER_ID) {
             return 1;
-        }
+        }*/
 		if (@$HTTP_POST_VARS["administrator"]) {
 			$usr_administrator = 1;
 		} else {
@@ -855,7 +855,7 @@ class User
                     usr_last_login_date
                  ) VALUES (
                     '" . Date_API::getCurrentDateGMT() . "',
-                    '" . ucwords(strtolower($usr_full_name)) . "',
+                    '" . Misc::escapeString(ucwords(strtolower($usr_full_name))) . "',
                     '" . $usr_email . "',
                     " . $usr_administrator . ",
                     " . $ldap_authentication . ",
@@ -889,9 +889,9 @@ class User
         global $HTTP_POST_VARS;
 
 		$usr_administrator = 0;
-
+//print_r($HTTP_POST_VARS);
 		$ldap_authentication = 1;
-		$userDetails = User::GetUserLDAPDetails($HTTP_POST_VARS["ldap_username"], $HTTP_POST_VARS["ldap_passwd"]);
+		$userDetails = User::GetUserLDAPDetails($HTTP_POST_VARS["username"], $HTTP_POST_VARS["passwd"]);
 
         $prefs = Prefs::getDefaults();
         $stmt = "INSERT INTO
@@ -913,7 +913,7 @@ class User
                     " . $usr_administrator . ",
                     " . $ldap_authentication . ",
                     '" . Misc::escapeString($prefs) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["ldap_username"]) . "',
+                    '" . Misc::escapeString($HTTP_POST_VARS["username"]) . "',
 					1,
                     '" . Date_API::getCurrentDateGMT() . "'
                  )";

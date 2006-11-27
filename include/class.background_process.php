@@ -92,7 +92,9 @@ class BackgroundProcess {
     function setHeartbeat()
     {
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
-        $stmt = "UPDATE {$dbtp}background_process SET bgp_heartbeat=NOW() WHERE bgp_id='{$this->bgp_id}'";
+//		$utc_date = Date_API::getDateGMT(date("Y-m-d H:i:s"));
+		$utc_date = Date_API::getSimpleDateUTC();		
+        $stmt = "UPDATE {$dbtp}background_process SET bgp_heartbeat='$utc_date' WHERE bgp_id='{$this->bgp_id}'";
         $res = $GLOBALS['db_api']->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -149,8 +151,10 @@ class BackgroundProcess {
         $this->inputs = $inputs;
         $usr_id = Misc::escapeString($usr_id);
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+
+		$utc_date = Date_API::getSimpleDateUTC();
         $stmt = "INSERT INTO {$dbtp}background_process (bgp_usr_id,bgp_started,bgp_name,bgp_include) 
-            VALUES ('$usr_id', NOW(), '{$this->name}','{$this->include}')";
+            VALUES ('$usr_id', '$utc_date', '{$this->name}','{$this->include}')";
         $res = $GLOBALS['db_api']->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

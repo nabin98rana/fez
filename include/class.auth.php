@@ -184,7 +184,9 @@ class Auth
 							FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
 								  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,							
 								  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
-							WHERE (s2.sek_title = 'isMemberOf' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid = '".$pid."')";
+							WHERE (s2.sek_title = 'isMemberOf' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid_num = ".Misc::numPid($pid)." and r2.rmf_rec_pid = '".$pid."')";
+//			debug_print_backtrace();
+//			echo $pre_stmt;
 			$res = $GLOBALS["db_api"]->dbh->getCol($pre_stmt);							
 			$parent_pid_string = implode("', '", $res);
 			$stmt = "SELECT 
@@ -198,7 +200,7 @@ class Auth
 						left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
 					 WHERE
 						r1.rmf_rec_pid in ('$parent_pid_string') and (r1.rmf_dsid IS NULL or r1.rmf_dsid = '')
-						";
+						"; 
 
 			$securityfields = Auth::getAllRoles();
 			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -267,7 +269,10 @@ class Auth
 	function getIndexParentACMLMember(&$array, $pid) {
 		$ACMLArray = &$array;
 		static $returns;
-//		$pid = $pid['pid'];
+		if (is_array($pid)) {
+			$pid = $pid['pid'];			
+		}
+
         if (is_array(@$returns[$pid])) {		
 //			$ACMLArray = $returns[$pid]; //add it to the acml array and dont go any further up the hierarchy
 //			array_push($ACMLArray, $returns[$pid]); //add it to the acml array and dont go any further up the hierarchy			
@@ -282,7 +287,7 @@ class Auth
 					 FROM
 						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1
 						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on (r1.rmf_xsdmf_id = x1.xsdmf_id)
-						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on (d1.xdis_id = x1.xsdmf_xdis_id and r1.rmf_rec_pid ='".$pid."')
+						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on (d1.xdis_id = x1.xsdmf_xdis_id and r1.rmf_rec_pid_num=".Misc::numPID($pid)." and r1.rmf_rec_pid ='".$pid."')
 						left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd x2 on (x2.xsd_id = d1.xdis_xsd_id and x2.xsd_title = 'FezACML')
 						left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
 						left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 on (k1.sek_title = 'isMemberOf' AND r1.rmf_xsdmf_id = x1.xsdmf_id AND k1.sek_id = x1.xsdmf_sek_id)
@@ -290,7 +295,7 @@ class Auth
 	
 //          global $defaultRoles;
 //			$returnfields = $defaultRoles;
-//			echo $stmt;
+
 			$securityfields = Auth::getAllRoles();
 			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 			$return = array();
@@ -317,7 +322,6 @@ class Auth
 					}
 				}								
 			}
-	
 			foreach ($return as $key => $record) {	
 				if (is_array(@$record['FezACML'])) {
 					if (!is_array(@$returns[$pid])) {
@@ -1420,6 +1424,8 @@ class Auth
 				$email = $userDetails['email'];
 				$distinguishedname = $userDetails['distinguishedname'];
 				Auth::GetUsersLDAPGroups($username, $password);
+				// Create the user in Fez				
+				User::insertFromLDAPLogin();				
 			}
             $usr_id = User::getUserIDByUsername($username);
         } else { // if it is a registered Fez user then get their details from the fez user table

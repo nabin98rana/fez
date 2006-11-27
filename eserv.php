@@ -135,9 +135,9 @@ if (!empty($pid) && !empty($dsID)) {
 		$acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
 	}
 
-	$xdis_array = Fedora_API::callGetDatastreamContentsField ($pid, 'FezMD', array('xdis_id'));
-	$xdis_id = $xdis_array['xdis_id'][0];
-	if (is_numeric($xdis_id)) {	
+//	$xdis_array = Fedora_API::callGetDatastreamContentsField ($pid, 'FezMD', array('xdis_id'));
+//	$xdis_id = $xdis_array['xdis_id'][0];
+//	if (is_numeric($xdis_id)) {	
 		if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $HTTP_SERVER_VARS['PHP_SELF']."?".urlencode($HTTP_SERVER_VARS['QUERY_STRING'])) == true) {
 			$urldata = APP_FEDORA_GET_URL."/".$pid."/".$real_dsID; // this should stop them dang haxors (forces the http on the front for starters)
 			$urlpath = $urldata;
@@ -152,8 +152,8 @@ if (!empty($pid) && !empty($dsID)) {
 			}
 			echo $sourceOAIRead;
 			*/
-			list($data,$info) = Misc::processURL_info($urldata);
 
+			list($data,$info) = Misc::processURL($urldata);			
             //ob_start();
             if (!empty($header)) {
                 header($header);
@@ -165,8 +165,8 @@ if (!empty($pid) && !empty($dsID)) {
             header('Content-Disposition: filename="'.substr($urldata, (strrpos($urldata, '/')+1) ).'"');
             header('Pragma: private');
             header('Cache-control: private, must-revalidate');
+			echo($data);
 
-            Misc::processURL($urldata,true);
 			//ob_end_flush(); // the incrementFileDownloads takes some (small) time so flush the file content out first
 			// Stats are now handled by a web log scraper in Fez instead of on-the-fly
 /*			if ((!is_numeric(strpos($dsID, "thumbnail_"))) && (!is_numeric(strpos($dsID, "web_"))) && (!is_numeric(strpos($dsID, "preview_"))) && (!is_numeric(strpos($dsID, "presmd_"))) && (!is_numeric(strpos($dsID, "FezACML_"))) ) {
@@ -189,7 +189,7 @@ if (!empty($pid) && !empty($dsID)) {
 			die;*/
             exit;
 		}
-	}		
+//	}		
 }
 $tpl = new Template_API();
 $tpl->setTemplate("view.tpl.html");

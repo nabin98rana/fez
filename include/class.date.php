@@ -61,6 +61,45 @@ define("MONTH", WEEK * 4);
 
 class Date_API
 {
+	
+	
+      function dateDiff($interval,$dateTimeBegin,$dateTimeEnd) {
+        //Parse about any English textual datetime
+        //$dateTimeBegin, $dateTimeEnd
+        $dateTimeBegin=strtotime($dateTimeBegin);
+        if($dateTimeBegin === -1) {
+          return("..begin date Invalid");
+         }
+        $dateTimeEnd=strtotime($dateTimeEnd);
+        if($dateTimeEnd === -1) {
+          return("..end date Invalid");
+         }
+        $dif=$dateTimeEnd - $dateTimeBegin;
+        switch($interval) {
+          case "s"://seconds
+               return($dif);
+          case "n"://minutes
+               return(floor($dif/60)); //60s=1m
+          case "h"://hours
+               return(floor($dif/3600)); //3600s=1h
+          case "d"://days
+               return(floor($dif/86400)); //86400s=1d
+          case "ww"://Week
+               return(floor($dif/604800)); //604800s=1week=1semana
+          case "m": //similar result "m" dateDiff Microsoft
+               $monthBegin=(date("Y",$dateTimeBegin)*12)+
+                 date("n",$dateTimeBegin);
+               $monthEnd=(date("Y",$dateTimeEnd)*12)+
+                 date("n",$dateTimeEnd);
+               $monthDiff=$monthEnd-$monthBegin;
+               return($monthDiff);
+          case "yyyy": //similar result "yyyy" dateDiff Microsoft
+               return(date("Y",$dateTimeEnd) - date("Y",$dateTimeBegin));
+          default:
+               return(floor($dif/86400)); //86400s=1d
+         }
+       }	
+	
     /**
      * Returns whether the given hour is AM or not.
      *
@@ -210,6 +249,26 @@ class Date_API
     }
 
     /**
+     * Method used to get the formatted date for a specific timestamp
+     * and a specific timezone, provided by the user' preference.
+     *
+     * @access  public
+     * @param   string $timestamp The date timestamp to be formatted
+     * @param   string $timezone The timezone name
+     * @return  string 
+     */
+    function getFormattedSimpleDate($timestamp, $timezone = FALSE)
+    {
+        if ($timezone === FALSE) {
+            $timezone = Date_API::getPreferredTimezone();
+        }
+        $date = new Date($timestamp);
+        // now convert to another timezone and return the date
+        $date->convertTZById($timezone);
+        return $date->format('%d-%m-%Y');
+    }	
+	
+    /**
      * Method used to get the formatted date for Fedora
      *      
      * @access  public
@@ -219,7 +278,7 @@ class Date_API
     function getFedoraFormattedDate($timestamp = null)
     {
 		if ($timestamp == null) {
-			$timestamp = Date_API::getCurrentUnixTimestampGMT();
+			$timestamp = Date_API::getUnixTimestamp();
 		}
         $date = new Date($timestamp);
 
@@ -236,7 +295,7 @@ class Date_API
     function getFedoraFormattedDateUTC($timestamp = null)
     {
 		if ($timestamp == null) {
-			$timestamp = Date_API::getCurrentUnixTimestampGMT();
+//			$timestamp = Date_API::getCurrentUnixTimestampGMT();
 		}
         $date = new Date($timestamp);
         $date->setTZbyID(Date_API::getPreferredTimezone());
@@ -244,6 +303,17 @@ class Date_API
 		
         return $date->format('%Y-%m-%dT%H:%M:%SZ');
     }
+
+	function getSimpleDateUTC($timestamp = null)
+    {
+		if ($timestamp == null) {
+			$timestamp = Date_API::getCurrentUnixTimestampGMT();
+		}
+        $date = new Date($timestamp);
+        $date->setTZbyID(Date_API::getPreferredTimezone());
+        $date->toUTC();
+        return $date->format('%Y-%m-%d %H:%M:%S');    }
+	
 	/**
      * Method used to get the formatted date for a specific timestamp
      * and a specific timezone, provided by the user' preference.
@@ -277,6 +347,7 @@ class Date_API
         if (empty($usr_id)) {
             return Date_API::getDefaultTimezone();
         }
+		
         $prefs = Prefs::get($usr_id);
         if (empty($prefs["timezone"])) {
             return Date_API::getDefaultTimezone();
@@ -306,7 +377,7 @@ class Date_API
      * @param   string $date The user based date
      * @return  string The date in the GMT timezone
      */
-    function getDateGMT($date)
+    function getDateGMT($date=null)
     {
         $dt = new Date($date);
         $dt->setTZbyID(Date_API::getPreferredTimezone());

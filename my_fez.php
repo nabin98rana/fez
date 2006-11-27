@@ -49,15 +49,20 @@ $tpl->setTemplate("my_fez.tpl.html");
 
 $order_by = Misc::GETorPOST('order_by');
 if (empty($order_by)) {
-    $order_by = 'Title';
+    $order_by = 'Created Date';
+}
+$order_by_dir = Misc::GETorPOST('order_by_dir');
+if (empty($order_by_dir)) {
+    $order_by_dir = 1;
 }
 $order_by_list = array();
 foreach (Search_Key::getAssocList() as $key => $value) {
     $order_by_list[$value] = $value;
 }
 $tpl->assign('order_by_list', $order_by_list);
-
+$tpl->assign('order_by_dir_list', array("Asc", "Desc"));
 $tpl->assign('order_by_default', $order_by);
+$tpl->assign('order_by_dir_default', $order_by_dir);
 
 
 Auth::checkAuthentication(APP_SESSION);
@@ -103,7 +108,7 @@ if (empty($rows)) {
 }
 $options = Pager::saveSearchParams();
 $tpl->assign("options", $options);
-$assigned_items= Record::getAssigned(Auth::getUsername(), $pagerRow, $rows, $order_by);
+$assigned_items= Record::getAssigned(Auth::getUsername(), $pagerRow, $rows, $order_by, $order_by_dir);
 $tpl->assign('my_assigned_items_list', $assigned_items['list']);
 $tpl->assign('my_assigned_items_info', $assigned_items['info']);
 

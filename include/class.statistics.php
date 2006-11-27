@@ -164,6 +164,7 @@ class Statistics
 								stl_region,
 								stl_city,
 								stl_pid,								
+								stl_pid_num,																
 								stl_dsid
 							 ) VALUES (
 								'" . $archive_name . "',
@@ -175,6 +176,7 @@ class Statistics
 								'" . $region . "',
 								'" . $city . "',
 								'" . $pid . "',
+								" . Misc::numPID($pid) . ",								
 								'" . $dsid . "'
 							 )"; 
 					$res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -250,7 +252,7 @@ class Statistics
 	function getStatsByDatastream($pid, $dsid) {	
 		$stmt = "select count(*)  
 			 	 from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "statistics_all
-				 where stl_pid = '$pid' and stl_dsid = '$dsid'";
+				 where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '$pid' and stl_dsid = '$dsid'";
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 		if ((count($res) == 1) && (!empty($res))) {
 			$count = $res;
@@ -275,7 +277,7 @@ class Statistics
 
 		$stmt = "select count(*)  
 			 	 from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "statistics_all
-				 where stl_pid = '$pid' and stl_dsid = '' $limit";
+				 where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '$pid' and stl_dsid = '' $limit";
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 		if (!empty($res)) {
 			$count = $res;
@@ -301,7 +303,7 @@ class Statistics
 
 		$stmt = "select count(*)  
 			 	 from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "statistics_all
-				 where stl_pid = '$pid' and stl_dsid <> '' $limit";
+				 where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '$pid' and stl_dsid <> '' $limit";
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 		if (!empty($res)) {
 			$count = $res;
@@ -314,7 +316,7 @@ class Statistics
 	
 	function getStatsByCountryAbstractView($pid, $year='all', $month='all', $range='all') {	
 		if ($pid != 'all') {
-			$limit = "where stl_pid = '$pid' and stl_dsid = ''";
+			$limit = "where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '$pid' and stl_dsid = ''";
 		} else {
 			$limit = "where stl_dsid = '' ";		
 		}
@@ -346,7 +348,7 @@ class Statistics
 
 	function getStatsByCountrySpecificAbstractView($pid, $year='all', $month='all', $range='all',$country) {	
 		if ($pid != 'all') {
-			$limit = "where stl_pid = '$pid' and stl_dsid = ''";
+			$limit = "where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '$pid' and stl_dsid = ''";
 		} else {
 			$limit = "where stl_dsid = '' ";		
 		}
@@ -418,7 +420,7 @@ class Statistics
 
 	function getStatsByCountryAllFileDownloads($pid, $year='all', $month='all', $range='all') {	
 		if ($pid != 'all') {
-			$limit = "where stl_pid = '$pid' and stl_dsid <> ''";
+			$limit = "where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '$pid' and stl_dsid <> ''";
 		} else {
 			$limit = "where stl_dsid <> '' ";		
 		}
@@ -449,7 +451,7 @@ class Statistics
 
 	function getStatsByCountrySpecificAllFileDownloads($pid, $year='all', $month='all', $range='all', $country) {	
 		if ($pid != 'all') {
-			$limit = "where stl_pid = '$pid' and stl_dsid <> ''";
+			$limit = "where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '$pid' and stl_dsid <> ''";
 		} else {
 			$limit = "where stl_dsid <> '' ";		
 		}
@@ -482,7 +484,7 @@ class Statistics
 	function getStatsByObject($pid) {	
 		$stmt = "select count(*)  
 			 	 from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "statistics_all
-				 where stl_pid = '$pid'";
+				 where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '$pid'";
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 		if ((count($res) == 1) && (!empty($res))) {
 			$count = $res;
@@ -494,7 +496,7 @@ class Statistics
 
 	function getStatsByAbstractViewHistory($pid) {	
 		if ($pid != 'all') {
-			$limit = "where stl_pid = '$pid' and stl_dsid = ''";
+			$limit = "where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '$pid' and stl_dsid = ''";
 		} else {
 			$limit = "where stl_dsid = ''";		
 		}
@@ -516,7 +518,7 @@ class Statistics
 
 	function getStatsByDownloadHistory($pid) {	
 		if ($pid != 'all') {
-			$limit = "where stl_pid = '$pid' and stl_dsid <> ''";
+			$limit = "where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '$pid' and stl_dsid <> ''";
 		} else {
 			$limit = "where stl_dsid <> ''";		
 		}

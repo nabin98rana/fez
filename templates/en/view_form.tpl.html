@@ -21,21 +21,23 @@ function loadPreview(pid,datastreamID, alt)
     }
     image_preview_loading = 1;
     pv_img = document.getElementById('datastream_preview');
+    pv_img_href = document.getElementById('datastream_preview_href');    
     // display the 'loading...' text. (unhide it)
     pv_loading = document.getElementById('datastream_preview_loading');
     pv_loading.innerHTML = ' - Loading...';
     pv_loading.style.display = '';
     // get the resized image
-    ip_obj = new NajaxImagePreview();
+/*    ip_obj = new NajaxImagePreview();
     ip_obj.onGetPreviewError = function () {
         pv_loading.innerHTML = ' - Couldn\'t load preview';
         image_preview_loading = 0;
         pv_img.alt = 'Image Preview';
     };
     ip_obj.setTimeout(100000);
-    ip_obj.getPreview(pid, datastreamID, max_width, max_height, false, function() {
+    ip_obj.getPreview(pid, datastreamID, max_width, max_height, false, function() { */
 //            pv_img.src = rel_url+'webservices/image_resize_cache.php?pid='+pid+'&dsID='+datastreamID+'&width='+max_width+'&height='+max_height;
             pv_img.src = rel_url+'eserv.php?ls=0&pid='+pid+'&dsID=preview_'+datastreamID;
+			datastream_preview_href.href = rel_url+'eserv.php?pid='+pid+'&dsID='+datastreamID;
             pv_img.alt = alt;
             pv_loading.style.display = 'none';
             image_preview_loading = 0;
@@ -46,7 +48,7 @@ function loadPreview(pid,datastreamID, alt)
             tr_list = document.getElementById('datastream_list_'+alt);
             tr_list.style.backgroundColor='{/literal}{$selected_color}{literal}';
             image_preview_current_id = 'datastream_list_'+alt;
-            });
+//            });
     
 }
 
@@ -155,7 +157,7 @@ function openHistory(pid)
       <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="1" border="0">
 
         <tr>
-          <td align="left" class="default" nowrap colspan="2"><br /><img align="absmiddle" src="{$rel_url}images/record_view_32.jpg"/> <b>View {$xdis_title}: <i>{$title}</i> </b> <br /><br /></td>
+          <td align="left" class="default" colspan="2"><br /><img align="absmiddle" src="{$rel_url}images/record_view_32.jpg"/> <b>View {$xdis_title}: <i>{$title}</i> </b> <br /><br /></td>
         </tr>
 
 {if ($isEditor || $isAdministrator) && !$hide_edit}
@@ -199,14 +201,14 @@ function openHistory(pid)
 			<table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="2">
  		       {if $citation != ""}
 				<tr valign="top">
-				  <td align="left" class="default" nowrap> <b>Citation:</b></td>
+				  <td align="left" class="default"> <b>Citation:</b></td>
 				  <td align="left" class="default"> {$citation}
 				  </td>
 				</tr>
                 {/if}				
 				<tr>
-				  <td align="left" class="default" nowrap> <b>{$parent_heading} </b></td>
-				  <td align="left" class="default" nowrap> 
+				  <td align="left" class="default"> <b>{$parent_heading} </b></td>
+				  <td align="left" class="default"> 
 					{section name="i" loop=$parents}
 						<a href="{$rel_url}list.php?collection_pid={$parents[i].pid}">{$parents[i].title.0}</a> &nbsp;
 					{/section}
@@ -215,7 +217,7 @@ function openHistory(pid)
 {if $prev || $next}
 				<tr valign="top">
 				  <td align="left" class="default" nowrap> <b>Browse Collection:</b></td>
-				  <td align="left" class="default" nowrap> 
+				  <td align="left" class="default"> 
 {if $prev}<a href="{$rel_url}view.php?pid={$prev.pid}&go_prev={$go_prev}">Prev: <i>{$prev.title.0}</i></a> {if $next}<br />{/if}{/if}
 {if $next}&nbsp; <a href="{$rel_url}view.php?pid={$next.pid}&go_next={$go_next}">Next: <i>{$next.title.0}</i></a> {/if}
 				  </td>
@@ -253,6 +255,8 @@ function openHistory(pid)
  			  {if $xsd_display_fields[i].xsdmf_html_input == 'date'}
 	 		    {if $xsd_display_fields[i].xsdmf_date_type == 1}
 	 			    {$details[$temp_fld_id]|date_format:"%Y"}
+ 			    {else}	 			    
+		          {$details[$temp_fld_id]}
 	 			{/if}
  			  {else}
  			  	{if $details[$attached_temp_fld_id] == 0}{$details[$temp_fld_id]|date_format:"%A, %B %e, %Y"}{else}{$details[$temp_fld_id]}{/if}
@@ -317,7 +321,7 @@ function openHistory(pid)
 				<td>
             {if $datastreams[d].thumbnail != "0"}{if $datastreams[d].canPreview || $isAdministrator}<a href="#">{/if}
 				{assign var="show_preview_pane" value="1"}
-			<img align="absmiddle" src="{$eserv_url}{$datastreams[d].thumbnail}&ls=0" border="1"
+			<img align="absmiddle" title="Click on the thumbnail image to show the corresponding preview image" src="{$eserv_url}{$datastreams[d].thumbnail}&ls=0" border="1"
             {if $datastreams[d].canPreview || $isAdministrator}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].preview}', '{$datastreams[d].ID}');"{/if}
             >{if $datastreams[d].canPreview || $isAdministrator}</a>{/if}{/if}{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}images/default.png">{/if} {if $datastreams[d].isViewer == 1 || $isAdministrator}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].ID}">{/if}{$datastreams[d].ID}{if $datastreams[d].isViewer == 1 || $isAdministrator}</a> &nbsp;{/if} {if ($datastreams[d].isArchivalViewer == 1 || $isAdministrator) && $datastreams[d].thumbnail != "0"}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID=archival_{$datastreams[d].ID}"><img title="archival version" align="absmiddle" border="0" src="{$rel_url}images/archival_22.gif"></a>&nbsp;{/if} {if $datastreams[d].presmd != "0" && ($datastreams[d].isViewer == 1 || $isAdministrator)}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].presmd}"><img title="preservation metadata" align="absmiddle" border="0" src="{$rel_url}images/presmd_22.gif"></a>&nbsp;{/if} 	
 				</td>
@@ -364,19 +368,35 @@ function openHistory(pid)
 			 {/if}
         {/section}
     {/if}
+	{if $hasVersions == 1}		  
+		  <tr>
+			<td class="default" colspan="5">&nbsp;</td>
+		  </tr>
 
+		  <tr>
+			<td class="default_white" colspan="5" bgcolor="{$heading_color}"><b>Available Versions of this Record</b></td>
+		  </tr>
+
+		  <tr class="default">
+			<td colspan="5" bgcolor="{$cell_color}">{$derivationTree}</td>
+		  </tr>
+	{/if}		  
+		  
+		  
 		  <tr>
 			<td class="default" colspan="5">&nbsp;</td>
 		  </tr>    
 		  <tr>
 			<td align="left" class="default" colspan="5">
 		<table width="100%" border="0" cellpadding="2" cellspacing="0"  bgcolor="#FFFFFF" >  
+{if $WEBSERVER_LOG_STATISTICS == 'ON'}   		
 				<tr>
 				  <td align="left" class="default" nowrap> <b>Access Statistics:</b></td>
 				  <td align="left" class="default" nowrap>  {$statsAbstract} Abstract Views{if $fileCount > 0}, {$statsFiles} File Downloads{/if}
 				  <a href="{$rel_url}stat_details.php?action=show_detail&pid={$pid}">Detailed Statistics</a>
 				  </td>
 				</tr>
+{/if}				
 				<tr>
 				  <td align="left" class="default" nowrap> <b>Created:</b></td>
 				  <td align="left" class="default" nowrap>  {$created_date} 
@@ -403,7 +423,7 @@ function openHistory(pid)
         <tr>
         <td class="default">
           {if $preview_ds_1}
-          <img id="datastream_preview" alt="Datastream Preview"/>
+          <a id="datastream_preview_href" title="Click on the image to see a larger version"  target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$preview_ds_1.ID}"><img border=0 id="datastream_preview" alt="Datastream Preview"/></a>
           <script language="JavaScript">loadPreview('{$pid}','{$preview_ds_1.preview}','{$preview_ds_1.ID}');</script>
           {/if}
         </td>

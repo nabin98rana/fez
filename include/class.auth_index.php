@@ -58,7 +58,7 @@ class AuthIndex {
         foreach ($res as $source_pid => $groups) {
             foreach ($groups as $role => $group) {
                 $arg_id = AuthRules::getOrCreateRuleGroup($group,$topcall);
-                $values .= "('$pid', '$role', '$arg_id'),";
+                $values .= "('$pid', ".Misc::numPID($pid).", '$role', '$arg_id'),";
                 $rows[] = array('authi_pid' => $pid, 'authi_role' => $role, 'authi_arg_id' => $arg_id);
             }
         }
@@ -111,7 +111,7 @@ class AuthIndex {
         }
         if ($rules_changed) {
             AuthIndex::clearIndexAuth($pid);
-            $stmt = "INSERT INTO {$dbtp}auth_index2 (authi_pid,authi_role,authi_arg_id) VALUES $values ";
+            $stmt = "INSERT INTO {$dbtp}auth_index2 (authi_pid,authi_pid_num,authi_role,authi_arg_id) VALUES $values ";
             $res = $GLOBALS["db_api"]->dbh->query($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

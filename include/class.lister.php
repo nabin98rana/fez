@@ -61,15 +61,19 @@ class Lister
             // first check the user has view rights over the collection object
             $record = new RecordObject($collection_pid);
             $canView = $record->canView(true);
+
             $tpl->assign("isViewer", $canView);
+
             if ($canView) {
 
                 $tpl->assign("xdis_id", Record::getRecordXDIS_ID());
                 $collection_details = Collection::getDetails($collection_pid);
-                $parents = Collection::getParents($collection_pid);
+                $parents = Collection::getParents2($collection_pid);
                 $tpl->assign("parents", $parents);
                 $collection_xdis_id = Collection::getCollectionXDIS_ID();
+//                $userPIDAuthGroups = Auth::getIndexAuthorisationGroups($collection_details);
                 $userPIDAuthGroups = Auth::getAuthorisationGroups($collection_pid);
+//				print_r($userPIDAuthGroups);
                 $isCreator = (in_array("Creator", $userPIDAuthGroups) 
                         || in_array("Community Administrator", $userPIDAuthGroups) 
                         || in_array("Collection Administrator", $userPIDAuthGroups));
@@ -93,7 +97,7 @@ class Lister
                 }
             } else {
                 $tpl->assign("show_not_allowed_msg", true);
-            }
+            } 
         } elseif (!empty($community_pid)) {
             if (empty($order_by)) {
                 $order_by = 'Title';

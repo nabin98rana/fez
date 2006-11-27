@@ -179,11 +179,10 @@ class Workflow
      */
     function checkForPresMD($filename) { 	 
         if (is_numeric(strpos($filename, "."))) { 	 
-            $getString = APP_RELATIVE_URL."webservices/wfb.presmd.php?file=".urlencode($filename); 	 
-            $http_req = new HTTP_Request($getString, array("http" => "1.0")); 	 
-            $http_req->setMethod("GET");
-            $http_req->sendRequest();
-            $xml = $http_req->getResponseBody();
+            $getString = APP_BASE_URL."webservices/wfb.presmd.php?file=".urlencode($filename); 	 
+			$val = Misc::ProcessURL($getString);
+//			print_r($val);
+//			echo $getString; exit;
             if (is_numeric(strpos($filename, "/"))) {
                 return APP_TEMP_DIR."presmd_".Foxml::makeNCName(substr(substr($filename, 0, strrpos($filename, ".")), strrpos($filename, "/")+1)).".xml"; 	 
             } else { 	 
@@ -312,8 +311,9 @@ class Workflow
      * 
      * @param integer wfl_id - The id of the workflow
      * @param integer pid - the pidof the record that the user wants to run the workflow on
+     * @param array indexArray - This function can be passed an array that already has the acml's to increase speed eg for my_fez getassigned and lists and searches in general 
       */
-    function canTrigger($wfl_id, $pid)
+    function canTrigger($wfl_id, $pid, $indexArray="")
     {
         if (Auth::isAdministrator()) {
             return true;
@@ -322,7 +322,11 @@ class Workflow
         if (!empty($wfl['wfl_roles'])) {
             // the roles must be comma separated
             $wfl_roles = preg_split("/[\s,;]+/", $wfl['wfl_roles']);
-            $pid_roles = Auth::getAuthorisationGroups($pid);
+			if (is_array($indexArray)) { 
+	            $pid_roles = Auth::getIndexAuthorisationGroups($indexArray);
+			} else {
+				$pid_roles = Auth::getAuthorisationGroups($pid);							
+			}
             foreach ($wfl_roles as $wfl_role) {
                 if (in_array(trim($wfl_role), $pid_roles)) {
                     return true;

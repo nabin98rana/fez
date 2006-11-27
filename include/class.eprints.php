@@ -51,6 +51,7 @@ include_once(APP_INC_PATH . "class.record.php");
 include_once("DB.php");
 include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.user.php");
+include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.auth.php");
 
 
@@ -88,7 +89,7 @@ class ePrints
 	}
 
 	function getList($table) {
-		$stmt = "select * from ".EPRINTS_DB_DATABASE_NAME.".$table  order by eprintid desc limit 10"	;
+		$stmt = "select * from ".EPRINTS_DB_DATABASE_NAME.".$table order by eprintid desc";
 		$res = $this->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 	    if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);			
@@ -98,15 +99,26 @@ class ePrints
 		}
 	}
 
+	function getUserList($table) {
+		$stmt = "select * from ".EPRINTS_DB_DATABASE_NAME.".$table order by userid asc"	;
+		$res = $this->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+	    if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);			
+			return array();
+		} else {
+			return $res;
+		}
+	}	
+	
 	function getListCount($table) {
-		$stmt = "select count(*) as list_count from ".EPRINTS_DB_DATABASE_NAME.".$table"	;
+		$stmt = "select count(*) as list_count from ".EPRINTS_DB_DATABASE_NAME.".$table";
 		$res = $this->dbh->getOne($stmt);
 	    if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);			
 			return array();
 		} else {
-			return 10;
-//			return $res;
+//			return 10;
+			return $res;
 		}
 	}
 			
@@ -121,6 +133,16 @@ class ePrints
 		}
 	}
 
+	function getPIDfromePrintID($eprint_id) {
+		$stmt = "select epr_fez_pid from  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "eprints_import_pids where epr_eprints_id = ".$eprint_id;
+		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+	    if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);			
+			return "";
+		} else {
+			return $res;
+		}
+	}	
 
 	function getListEprintID($eprintid, $table, $extension) {
 		$stmt = "select * from ".EPRINTS_DB_DATABASE_NAME.".$table$extension where eprintid = ".$eprintid." order by pos asc";
@@ -155,9 +177,12 @@ class ePrints
 		}
 		if (EPRINTS_IMPORT_USERS == "ON") {
 			//Add the ePrint users
-			$epUsers = $this->getList("users");
+			$epUsers = $this->getUserList("users");
 			foreach ($epUsers as $epUser) {
-				User::insertFromEprints($epUser['user'], $epUser['name_given']." ".$epUser['name_family'], $epUser['email'], $epUser['userid']);
+				$fez_usr_id = User::getIDByExtID($epUser['userid']);
+				if (!is_numeric($fez_usr_id)) {
+					User::insertFromEprints($epUser['username'], $epUser['name_given']." ".$epUser['name_family'], $epUser['email'], $epUser['userid']);
+				}
 			}
 		}
 							  							  							  
@@ -168,55 +193,55 @@ class ePrints
 				$document_type = $record["type"];
 				$author_list = $this->getListEprintID($eprintid, $table, "_authors");
 	            $authorArray[$eprintid] = array();
-				$authorArrayExtra[$eprintid] = array();			
+				$authorArrayExtra[$eprintid] = array();
+				$author_counter = 0;
 				foreach ($author_list as $author) {
 					$given = $author["authors_given"];
 					$family = $author["authors_family"];					
-					$fez_author_id = Author::getIDByName($family, $given);	
+					$fez_author_id = "";	
 					if ($given != "" && $family != "") {
-						$fez_author_id = Author::getIDByName($family, $given);				
+						$fez_author_id = Author::getIDByName($given, $family);				
 					}
 					if (!is_array($authorArrayExtra[$eprintid])) {
 						$authorArrayExtra[$eprintid] = array();						
 					}				
-					if (!is_array($authorArrayExtra[$eprintid]["id"])) {
-						$authorArrayExtra[$eprintid]["id"] = array();						
-					}
-					if (!is_array($authorArrayExtra[$eprintid]["fullname"])) {
-						$authorArrayExtra[$eprintid]["fullname"] = array();						
+					if (!is_array($authorArrayExtra[$eprintid][$author_counter])) {						
+						$authorArrayExtra[$eprintid][$author_counter] = array();						
+						
 					}					
+	                $authorArrayExtra[$eprintid][$author_counter]["fullname"] =  $family.", ".$given;
 					if ($fez_author_id != "") {
-						array_push($authorArrayExtra[$eprintid]["id"], $fez_author_id);					
+						$authorArrayExtra[$eprintid][$author_counter]["id"] =  $fez_author_id;					
 					}
-	                array_push($authorArrayExtra[$eprintid]["fullname"], $family.", ".$given);
 					array_push($authorArray[$eprintid], $family.", ".$given);									
+					$author_counter++;
 				}
 				$editor_list = $this->getListEprintID($eprintid, $table, "_editors");
 	            $editorArray[$eprintid] = array();
-				$editorArrayExtra[$eprintid] = array();			
+				$editorArrayExtra[$eprintid] = array();		
+				$author_counter = 0;	
 				foreach ($editor_list as $editor) {
 					$given = $editor["editors_given"];
 					$family = $editor["editors_family"];					
-					$fez_editor_id = Author::getIDByName($family, $given);	
+					$fez_editor_id = "";	
 					if ($given != "" && $family != "") {
-						$fez_editor_id = Author::getIDByName($family, $given);				
+						$fez_editor_id = Author::getIDByName($given, $family);				
 					}
 					if (!is_array($editorArrayExtra[$eprintid])) {
 						$editorArrayExtra[$eprintid] = array();						
 					}				
-					if (!is_array($editorArrayExtra[$eprintid]["id"])) {
-						$editorArrayExtra[$eprintid]["id"] = array();						
-					}
-					if (!is_array($editorArrayExtra[$eprintid]["fullname"])) {
-						$editorArrayExtra[$eprintid]["fullname"] = array();						
+					if (!is_array($editorArrayExtra[$eprintid][$author_counter])) {
+						$editorArrayExtra[$eprintid][$author_counter] = array();						
+					}				
+	                $editorArrayExtra[$eprintid][$author_counter]["fullname"] = $family.", ".$given;
+					if ($fez_editor_id != "") {
+						$editorArrayExtra[$eprintid][$author_counter]["id"] =  $fez_editor_id;					
 					}
 					
-					if ($fez_editor_id != "") {
-						array_push($editorArrayExtra[$eprintid]["id"], $fez_editor_id);					
-					}
-	                array_push($editorArrayExtra[$eprintid]["fullname"], $family.", ".$given);
 					array_push($editorArray[$eprintid], $family.", ".$given);									
+					$author_counter++;
 				}
+//				Error_Handler::logError($authorArrayExtra);
 				$pagesArray = BatchImport::getEprintsPages($record['pages']);
 				$subject_list = $this->getListEprintID($eprintid, $table, "_subjects");
 				$record['subjects'] = $subject_list;
@@ -241,7 +266,7 @@ class ePrints
 				$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $eprintid, "author");						
 				$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $eprintid, "editor");										
 				$xmlDocumentType .= BatchImport::createMODSSubject($record['subjects'], $document_type, $eprintid);
-				$xmlDocumentType .= '$keywordXML
+				$xmlDocumentType .= $keywordXML.'
 								  <mods:genre>Conference Paper</mods:genre>
 								  <mods:originInfo>
 								    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$record['year'], @$record['month'])).'</mods:dateIssued>
@@ -304,7 +329,7 @@ class ePrints
 				$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $eprintid, "author");						
 				$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $eprintid, "editor");										
 				$xmlDocumentType .= BatchImport::createMODSSubject($record['subjects'], $document_type, $eprintid);
-				$xmlDocumentType .= '$keywordXML
+				$xmlDocumentType .= $keywordXML.'
 								  <mods:genre>Online Journal Article</mods:genre>
 								  <mods:abstract>'.htmlspecialchars(@$record['abstract']).'</mods:abstract>								  
 								  <mods:note>'.htmlspecialchars(@$record['note']).'</mods:note>
@@ -355,7 +380,7 @@ class ePrints
 				$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $eprintid, "author");						
 				$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $eprintid, "editor");										
 				$xmlDocumentType .= BatchImport::createMODSSubject($record['subjects'], $document_type, $eprintid);
-				$xmlDocumentType .= '$keywordXML
+				$xmlDocumentType .= $keywordXML.'
 								  <mods:genre>Journal Article</mods:genre>
 								  <mods:abstract>'.htmlspecialchars(@$record['abstract']).'</mods:abstract>								  
 								  <mods:note>'.htmlspecialchars(@$record['note']).'</mods:note>
@@ -411,7 +436,7 @@ class ePrints
 				$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $eprintid, "author");						
 				$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $eprintid, "editor");										
 				$xmlDocumentType .= BatchImport::createMODSSubject($record['subjects'], $document_type, $eprintid);
-				$xmlDocumentType .= '$keywordXML
+				$xmlDocumentType .= $keywordXML.'
 								  <mods:originInfo>
 								    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$record['year'], @$record['month'])).'</mods:dateIssued>
 								  </mods:originInfo>				
@@ -440,7 +465,7 @@ class ePrints
 				$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $eprintid, "author");						
 				$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $eprintid, "editor");										
 				$xmlDocumentType .= BatchImport::createMODSSubject($record['subjects'], $document_type, $eprintid);
-				$xmlDocumentType .= '$keywordXML
+				$xmlDocumentType .= $keywordXML.'
 								  <mods:originInfo>
 								    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$record['year'], @$record['month'])).'</mods:dateIssued>
 								  </mods:originInfo>				
@@ -468,7 +493,7 @@ class ePrints
 				$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $eprintid, "author");						
 				$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $eprintid, "editor");										
 				$xmlDocumentType .= BatchImport::createMODSSubject($record['subjects'], $document_type, $eprintid);
-				$xmlDocumentType .= '$keywordXML
+				$xmlDocumentType .= $keywordXML.'
 								  <mods:genre type="'.htmlspecialchars(@$record['thesistype']).'">Thesis</mods:genre>
 							      <mods:originInfo>
 								    <mods:publisher>'.htmlspecialchars(@$record['publisher']).'</mods:publisher>
@@ -515,7 +540,7 @@ class ePrints
 				$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $eprintid, "author");						
 				$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $eprintid, "editor");										
 				$xmlDocumentType .= BatchImport::createMODSSubject($record['subjects'], $document_type, $eprintid);
-				$xmlDocumentType .= '$keywordXML
+				$xmlDocumentType .= $keywordXML.'
 								  <mods:genre>Newspaper Article</mods:genre>
 								  <mods:abstract>'.htmlspecialchars(@$record['abstract']).'</mods:abstract>								  
 								  <mods:note>'.htmlspecialchars(@$record['note']).'</mods:note>
@@ -569,7 +594,7 @@ class ePrints
 				$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $eprintid, "author");						
 				$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $eprintid, "editor");										
 				$xmlDocumentType .= BatchImport::createMODSSubject($record['subjects'], $document_type, $eprintid);
-				$xmlDocumentType .= '$keywordXML
+				$xmlDocumentType .= $keywordXML.'
 								  <mods:genre>Book</mods:genre>
 							      <mods:originInfo>
 								    <mods:publisher>'.htmlspecialchars(@$record['publisher']).'</mods:publisher>
@@ -613,7 +638,7 @@ class ePrints
 				$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $eprintid, "author");						
 				$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $eprintid, "editor");										
 				$xmlDocumentType .= BatchImport::createMODSSubject($record['subjects'], $document_type, $eprintid);
-				$xmlDocumentType .= '$keywordXML
+				$xmlDocumentType .= $keywordXML.'
 								  <mods:genre>Book Chapter</mods:genre>
 								  <mods:abstract>'.htmlspecialchars(@$record['abstract']).'</mods:abstract>								  
 								  <mods:note>'.htmlspecialchars(@$record['note']).'</mods:note>
@@ -669,7 +694,7 @@ class ePrints
 				$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $eprintid, "author");						
 				$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $eprintid, "editor");										
 				$xmlDocumentType .= BatchImport::createMODSSubject($record['subjects'], $document_type, $eprintid);
-				$xmlDocumentType .= '$keywordXML
+				$xmlDocumentType .= $keywordXML.'
 								  <mods:originInfo>
 								    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$record['year'], @$record['month'])).'</mods:dateIssued>
 								  </mods:originInfo>				
@@ -727,7 +752,7 @@ class ePrints
 				$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $eprintid, "author");						
 				$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $eprintid, "editor");										
 				$xmlDocumentType .= BatchImport::createMODSSubject($record['subjects'], $document_type, $eprintid);
-				$xmlDocumentType .= '$keywordXML
+				$xmlDocumentType .= $keywordXML.'
 								  <mods:genre>Conference Proceedings</mods:genre>
 								  <mods:originInfo>
 								    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$record['year'], @$record['month'])).'</mods:dateIssued>
@@ -792,7 +817,7 @@ class ePrints
 				$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $eprintid, "author");						
 				$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $eprintid, "editor");										
 				$xmlDocumentType .= BatchImport::createMODSSubject($record['subjects'], $document_type, $eprintid);
-				$xmlDocumentType .= '$keywordXML
+				$xmlDocumentType .= $keywordXML.'
 								  <mods:genre>Conference Poster</mods:genre>
 								  <mods:originInfo>
 								    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$record['year'], @$record['month'])).'</mods:dateIssued>
@@ -861,7 +886,7 @@ class ePrints
 		$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $eprintid, "author");						
 		$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $eprintid, "editor");										
 		$xmlDocumentType .= BatchImport::createMODSSubject($record['subjects'], $document_type, $eprintid);
-		$xmlDocumentType .= '$keywordXML
+		$xmlDocumentType .= $keywordXML.'
 						  <mods:genre>Generic Document</mods:genre>
 						  <mods:originInfo>
 						    <mods:dateIssued>'.htmlspecialchars(BatchImport::getEprintsDate(@$record['year'], @$record['month'])).'</mods:dateIssued>
@@ -889,7 +914,9 @@ class ePrints
 			
 
                 $oai_dc_url = EPRINTS_OAI.$eprintid; // This gets the EPRINTS OAI DC feed for the Eprints DC record. This is neccessary because the Eprints export_xml does not give the URL for the attached PDFs etc
-                $oai_dc_xml = Fedora_API::URLopen($oai_dc_url);
+                $oai_dc_xml = Misc::processURL($oai_dc_url);
+				$oai_dc_xml = $oai_dc_xml[0];
+//                $oai_dc_xml = Fedora_API::URLopen($oai_dc_url);
                 $config = array(
                         'indent' => true,
                         'input-xml' => true,
@@ -919,7 +946,8 @@ class ePrints
                     }
                 } 
                 $xmlEnd = "";
-                foreach($oai_ds as $ds) {
+// Don't want to do it like this anymore, add them later so you can controll eg for secure eprints files
+/*                foreach($oai_ds as $ds) {
                     $short_ds = $ds;
                     if (is_numeric(strpos($ds, "/"))) {
                         $short_ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
@@ -935,7 +963,7 @@ class ePrints
                         </foxml:datastreamVersion>
                         </foxml:datastream>';
                 }	  
-
+*/
                 $xmlObj = '<?xml version="1.0" ?>
                     <foxml:digitalObject PID="'.$pid.'"
                     fedoraxsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-0.xsd" xmlns:fedoraxsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -983,12 +1011,17 @@ class ePrints
                     </foxml:datastream>
                     <foxml:datastream ID="RELS-EXT" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
                     <foxml:datastreamVersion MIMETYPE="text/xml" ID="RELS-EXT.0" LABEL="Relationships to other objects">
-                    <foxml:xmlContent>
-                    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+                    <foxml:xmlContent>';		
+							
+	    $relsext[$pid]['eprint_id'] = $eprintid;
+		$relsext[$pid]['succeeds'] = ePrints::getSucceeds($eprintid, $table);
+        $relsext[$pid]['xml'] = '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
                     xmlns:rel="info:fedora/fedora-system:def/relations-external#" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
                     <rdf:description rdf:about="info:fedora/'.$pid.'">
                     <rel:isMemberOf rdf:resource="info:fedora/'.$collection_pid.'"/>
-                    </rdf:description>
+                    ';
+		$xmlObj .= $relsext[$pid]['xml'];
+        $xmlObj .= '</rdf:description>
                     </rdf:RDF>
                     </foxml:xmlContent>
                     </foxml:datastreamVersion>
@@ -1010,8 +1043,8 @@ class ePrints
 					} else {
 						$xmlObj .= "<refereed/>";
 					}
-					if (is_numeric(@$record['depositor'])) {
-						$xmlObj .= "<depositor>".User::getIDByExtID($record['depositor'])."</depositor>";
+					if (is_numeric(@$record['userid'])) {
+						$xmlObj .= "<depositor>".User::getIDByExtID($record['userid'])."</depositor>";
 					} else {
 						$xmlObj .= "<depositor/>";
 					}
@@ -1078,28 +1111,50 @@ class ePrints
 					if (is_numeric(strpos($ds, "/secure/"))) {
 						file_put_contents(APP_TEMP_DIR.$short_ds, Misc::getFileURL($ds, EPRINTS_USERNAME, EPRINTS_PASSWD));
 					} else {
-						file_put_contents(APP_TEMP_DIR.$short_ds, file_get_contents($ds));
+						file_put_contents(APP_TEMP_DIR.$short_ds, Misc::getFileURL($ds));
 					}
+					
+                    $mimetype = Misc::mime_content_type(APP_TEMP_DIR.$short_ds);
 
+                    Fedora_API::getUploadLocationByLocalRef($pid, $short_ds, $short_ds, $short_ds, $mimetype, "M");			
+					
 //                  $presmd_check = Workflow::checkForPresMD($ds);  // try APP_TEMP_DIR.$short_ds
                     $presmd_check = Workflow::checkForPresMD(APP_TEMP_DIR.$short_ds);  // try APP_TEMP_DIR.$short_ds
                     if ($presmd_check != false) {
                        Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, 
-                                $presmd_check, "text/xml", "X");
+                                $presmd_check, "text/xml", "M");
                     }			
+	                if (is_file(APP_TEMP_DIR.basename($presmd_check))) {
+	                    $deleteCommand = APP_DELETE_CMD." ".APP_TEMP_DIR.basename($presmd_check);
+	                    exec($deleteCommand);
+	                }
 
-                    if (is_numeric(strpos($ds, "/"))) {
+					Workflow::processIngestTrigger($pid, $short_ds, $mimetype); 
+                    // ID must start with _ or letter
+//                    $short_ds = Misc::shortFilename(Foxml::makeNCName($short_ds), 20);
+					$new_file = APP_TEMP_DIR.$short_ds;
+					if (is_file($new_file)) {
+						$return_array = array();
+						$deleteCommand = APP_DELETE_CMD." ".$new_file;
+						exec($deleteCommand, $return_array, $return_status);
+						if ($return_status <> 0) {
+							Error_Handler::logError("Batch Import Delete Error: $deleteCommand: ".implode(",", $return_array).", return status = $return_status \n", __FILE__,__LINE__);
+						}
+					}
+					
+										
+/*                    if (is_numeric(strpos($ds, "/"))) {
                         $ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
                     }
-                    $ds = str_replace(" ", "_", $ds);
+                    $ds = str_replace(" ", "_", $ds); */
                     //Record::insertIndexMatchingField($pid, 122, 'varchar', $ds); // add the file attachment to the fez index	// this is now done in Record::setIndexMatchingFields more dynamically
                     // Now check for post upload workflow events like thumbnail resizing of images and add them as datastreams if required
                 }	  
 
                 // process ingest trigger after all the datastreams are in
-                foreach($oai_ds as $ds) {
+/*                foreach($oai_ds as $ds) {
                     $mimetype = Misc::get_content_type($ds);
-                    Workflow::processIngestTrigger($pid, $ds, $mimetype);
+
                     $short_ds = $ds;
                     if (is_numeric(strpos($ds, "/"))) {
                         $short_ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself (linux paths)
@@ -1107,7 +1162,7 @@ class ePrints
                     if (is_numeric(strpos($ds, "\\"))) {
                         $short_ds = substr($ds, strrpos($ds, "\\")+2); // take out any nasty slashes from the ds name itself (windows paths)
                     }
-
+                    Workflow::processIngestTrigger($pid, $short_ds, $mimetype); 
                     // ID must start with _ or letter
                     $short_ds = Misc::shortFilename(Foxml::makeNCName($short_ds), 20);
 					$new_file = APP_TEMP_DIR.$short_ds;
@@ -1119,24 +1174,45 @@ class ePrints
 							Error_Handler::logError("Batch Import Delete Error: $deleteCommand: ".implode(",", $return_array).", return status = $return_status \n", __FILE__,__LINE__);
 						}
 					}
-                }
+                }*/
 
                 $array_ptr = array();
                 $xsdmf_array = array();
 				Record::setIndexMatchingFields($pid);
         
-				$eprint_record_counter =+ 1;
+				$eprint_record_counter++;
                 if ($batch_import_object->bgp) {
+					$bgp_details = $batch_import_object->bgp->getDetails();
+//					$utc_date = Date_API::getDateGMT();
+					$utc_date = Date_API::getSimpleDateUTC();
+					$time_per_object = Date_API::dateDiff("s", $bgp_details['bgp_started'], $utc_date);
+					$date_new = new Date(strtotime($bgp_details['bgp_started']));			
+					$time_per_object = intval($time_per_object / $eprint_record_counter);
+					$expected_finish = Date_API::getFormattedDate($date_new->getTime());	
+					$date_new->addSeconds($time_per_object*$record_count);
+					$expected_finish = Date_API::getFormattedDate($date_new->getTime());
                     $batch_import_object->bgp->setProgress(intval(100*$eprint_record_counter/$record_count)); 
-                    $batch_import_object->bgp->setStatus($record['title']); 
+                    $batch_import_object->bgp->setStatus("Just Ingested: ".$record['title']. " (".$eprint_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")"); 
                 }
                 
                 $pid = Fedora_API::getNextPID(); // get a new pid for the next loop				
-			} //end of list record loop
+			} //end of list record loop			
 										
 		} // end of for object type loop
+		foreach ($relsext as $pid => $re) {
+			if ($re['succeeds'] != "") {
+				$eprintid = $re["succeeds"];
+				$succeedsPID = ePrints::getPIDfromePrintID($eprintid);
+				$newXML = $re['xml'] . '<rel:isDerivationOf rdf:resource="info:fedora/'.$succeedsPID.'"/>
+			  			 	  </rdf:description>
+                              </rdf:RDF>';						  
+				Fedora_API::callModifyDatastreamByValue($pid, "RELS-EXT", "A", "", $newXML, "text/xml", true);
+				Record::setIndexMatchingFields($pid);				
+			}
+		}
 		$batch_import_object->bgp->setStatus("Imported $eprint_record_counter Records"); 
 	} // end of function
+
 		
 } // end of class
 
