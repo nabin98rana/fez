@@ -49,6 +49,7 @@ include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "najax/najax.php");
 include_once(APP_INC_PATH . "najax_objects/class.suggestor.php");
 
+
 NAJAX_Server::allowClasses('Suggestor');
 if (NAJAX_Server::runServer()) {
 	exit;

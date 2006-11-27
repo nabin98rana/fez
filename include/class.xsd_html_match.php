@@ -1056,295 +1056,22 @@ class XSD_HTML_Match {
 
 		$stmt = "INSERT INTO
 		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
-		                 (
-		                    xsdmf_xdis_id,
-		                    xsdmf_element,
-		                    xsdmf_title,
-		                    xsdmf_description,
-		                    xsdmf_html_input,
-		                    xsdmf_order,
-		                    xsdmf_validation_type,";
-		if (!empty ($insertArray["xsdmf_enabled"])) {
-			$stmt .= " xsdmf_enabled,";
-		}
-		if (!empty ($insertArray["xsdmf_indexed"])) {
-			$stmt .= " xsdmf_indexed,";
-		}
-		if (!empty ($insertArray["xsdmf_required"])) {
-			$stmt .= " xsdmf_required,";
-		}
-		if (!empty ($insertArray["xsdmf_multiple"])) {
-			$stmt .= " xsdmf_multiple,";
-		}
-		if (!empty ($insertArray["xsdmf_multiple_limit"])) {
-			$stmt .= "xsdmf_multiple_limit,";
-		}
-		if (!empty ($insertArray["xsdmf_sek_id"])) {
-			$stmt .= "xsdmf_sek_id,";
-		}
-		if (!empty ($insertArray["xsdmf_valueintag"])) {
-			$stmt .= "xsdmf_valueintag,";
-		}
-		if (!empty ($insertArray["xsdmf_is_key"])) {
-			$stmt .= "xsdmf_is_key,";
-		}
-		if (!empty ($insertArray["xsdmf_meta_header_name"])) {
-			$stmt .= "xsdmf_meta_header_name,";
-		}
-		if (!empty ($insertArray["xsdmf_meta_header"])) {
-			$stmt .= "xsdmf_meta_header,";
-		}
-		if (!empty ($insertArray["xsdmf_citation_browse"])) {
-			$stmt .= "xsdmf_citation_browse,";
-		}
-		if (!empty ($insertArray["xsdmf_citation"])) {
-			$stmt .= "xsdmf_citation,";
-		}
-		if (!empty ($insertArray["xsdmf_citation_bold"])) {
-			$stmt .= "xsdmf_citation_bold,";
-		}
-		if (!empty ($insertArray["xsdmf_citation_italics"])) {
-			$stmt .= "xsdmf_citation_italics,";
-		}
-		if (!empty ($insertArray["xsdmf_citation_brackets"])) {
-			$stmt .= "xsdmf_citation_brackets,";
-		}
-		if (!empty ($insertArray["xsdmf_citation_order"])) {
-			$stmt .= "xsdmf_citation_order,";
-		}
-		if (!empty ($insertArray["xsdmf_citation_prefix"])) {
-			$stmt .= "xsdmf_citation_prefix,";
-		}
-		if (!empty ($insertArray["xsdmf_citation_suffix"])) {
-			$stmt .= "xsdmf_citation_suffix,";
-		}
-
-		$stmt .= "
-		                    xsdmf_parent_key_match,
-		                    xsdmf_key_match,";
-		if (!empty ($insertArray["xsdmf_xdis_id_ref"])) {
-			$stmt .= "xsdmf_xdis_id_ref,";
-		}
-		if (!empty ($insertArray["xsdmf_id_ref"])) {
-			$stmt .= "xsdmf_id_ref,";
-		}
-		if (!empty ($insertArray["xsdmf_id_ref_save_type"])) {
-			$stmt .= "xsdmf_id_ref_save_type,";
-		}
-
-		if (!empty ($insertArray["xsdmf_smarty_variable"])) {
-			$stmt .= "xsdmf_smarty_variable,";
-		}
-		if (!empty ($insertArray["xsdmf_fez_variable"])) {
-			$stmt .= "xsdmf_fez_variable,";
-		}
-		if (!empty ($insertArray["xsdmf_dynamic_selected_option"])) {
-			$stmt .= "xsdmf_dynamic_selected_option,";
-		}
-		if (!empty ($insertArray["xsdmf_selected_option"])) {
-			$stmt .= "xsdmf_selected_option,";
-		}
-		if (!empty ($insertArray["xsdmf_show_in_view"])) {
-			$stmt .= "xsdmf_show_in_view,";
-		}
-		if (!empty ($insertArray["xsdmf_use_parent_option_list"])) {
-			$stmt .= "xsdmf_use_parent_option_list,";
-		}
-		if (!empty ($insertArray["xsdmf_parent_option_xdis_id"])) {
-			$stmt .= "xsdmf_parent_option_xdis_id,";
-		}
-		if (!empty ($insertArray["xsdmf_parent_option_xsdmf_id"])) {
-			$stmt .= "xsdmf_parent_option_xsdmf_id,";
-		}
-		if (!empty ($insertArray["xsdmf_asuggest_xdis_id"])) {
-			$stmt .= "xsdmf_asuggest_xdis_id,";
-		}
-		if (!empty ($insertArray["xsdmf_asuggest_xsdmf_id"])) {
-			$stmt .= "xsdmf_asuggest_xsdmf_id,";
-		}
-		if (!empty ($insertArray["xsdmf_cvo_save_type"])) {
-			$stmt .= "xsdmf_cvo_save_type,";
-		}
-		if (!empty ($insertArray["xsdmf_cvo_min_level"])) {
-			$stmt .= "xsdmf_cvo_min_level,";
-		}
-		if (!empty ($insertArray["xsdmf_cvo_id"])) {
-			$stmt .= "xsdmf_cvo_id,";
-		}
-
-		if (!empty ($insertArray["xsdmf_org_level"])) {
-			$stmt .= "xsdmf_org_level,";
-		}
-		if (!empty ($insertArray["xsdmf_use_org_to_fill"])) {
-			$stmt .= "xsdmf_use_org_to_fill,";
-		}
-		if (!empty ($insertArray["xsdmf_org_fill_xdis_id"])) {
-			$stmt .= "xsdmf_org_fill_xdis_id,";
-		}
-		if (!empty ($insertArray["xsdmf_org_fill_xsdmf_id"])) {
-			$stmt .= "xsdmf_org_fill_xsdmf_id,";
-		}
-
-		$stmt .= "xsdmf_enforced_prefix,
-							xsdmf_value_prefix,
-							xsdmf_image_location,
-							xsdmf_static_text,
-							xsdmf_dynamic_text,
-							xsdmf_date_type";
-		if (is_numeric($insertArray["xsdmf_attached_xsdmf_id"])) {
-			$stmt .= ", xsdmf_attached_xsdmf_id";
-		}
-		if (is_numeric($insertArray["xsdmf_xsdsel_id"])) {
-			$stmt .= ", xsdmf_xsdsel_id";
-		}
-		$stmt .= "
-		                 ) VALUES (
-		                    $xdis_id,
-		                    '" . Misc::escapeString($insertArray["xsdmf_element"]) . "',
-		                    '" . Misc::escapeString($insertArray["xsdmf_title"]) . "',
-		                    '" . Misc::escapeString($insertArray["xsdmf_description"]) . "',
-		                    '" . Misc::escapeString($insertArray["xsdmf_html_input"]) . "',
-		                    '" . Misc::escapeString($insertArray["xsdmf_order"]) . "',
-		                    '" . Misc::escapeString($insertArray["xsdmf_validation_type"]) . "',";
-
-		if (!empty ($insertArray["xsdmf_enabled"])) {
-			$stmt .= $insertArray["xsdmf_enabled"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_required"])) {
-			$stmt .= $insertArray["xsdmf_required"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_indexed"])) {
-			$stmt .= $insertArray["xsdmf_indexed"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_multiple"])) {
-			$stmt .= $insertArray["xsdmf_multiple"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_multiple_limit"])) {
-			$stmt .= $insertArray["xsdmf_multiple_limit"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_sek_id"])) {
-			$stmt .= "'" . $insertArray["xsdmf_sek_id"] . "',";
-		}
-		if (!empty ($insertArray["xsdmf_valueintag"])) {
-			$stmt .= $insertArray["xsdmf_valueintag"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_is_key"])) {
-			$stmt .= $insertArray["xsdmf_is_key"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_meta_header_name"])) {
-			$stmt .= "'" . Misc::escapeString($insertArray["xsdmf_meta_header_name"]) . "',";
-		}
-		if (!empty ($insertArray["xsdmf_meta_header"])) {
-			$stmt .= $insertArray["xsdmf_meta_header"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_citation_browse"])) {
-			$stmt .= $insertArray["xsdmf_citation_browse"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_citation"])) {
-			$stmt .= $insertArray["xsdmf_citation"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_citation_bold"])) {
-			$stmt .= $insertArray["xsdmf_citation_bold"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_citation_italics"])) {
-			$stmt .= $insertArray["xsdmf_citation_italics"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_citation_brackets"])) {
-			$stmt .= $insertArray["xsdmf_citation_brackets"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_citation_order"])) {
-			$stmt .= $insertArray["xsdmf_citation_order"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_citation_prefix"])) {
-			$stmt .= "'" . $insertArray["xsdmf_citation_prefix"] . "',";
-		}
-		if (!empty ($insertArray["xsdmf_citation_suffix"])) {
-			$stmt .= "'" . $insertArray["xsdmf_citation_suffix"] . "',";
-		}
-
-		$stmt .= "
-		                    '" . Misc::escapeString($insertArray["xsdmf_parent_key_match"]) . "',
-		                    '" . Misc::escapeString($insertArray["xsdmf_key_match"]) . "',";
-
-		if (!empty ($insertArray["xsdmf_xdis_id_ref"])) {
-			$stmt .= Misc::escapeString($insertArray["xsdmf_xdis_id_ref"]) . ",";
-		}
-		if (!empty ($insertArray["xsdmf_id_ref"])) {
-			$stmt .= Misc::escapeString($insertArray["xsdmf_id_ref"]) . ",";
-		}
-		if (!empty ($insertArray["xsdmf_id_ref_save_type"])) {
-			$stmt .= Misc::escapeString($insertArray["xsdmf_id_ref_save_type"]) . ",";
-		}
-		if (!empty ($insertArray["xsdmf_smarty_variable"])) {
-			$stmt .= "'" . Misc::escapeString($insertArray["xsdmf_smarty_variable"]) . "',";
-		}
-		if (!empty ($insertArray["xsdmf_fez_variable"])) {
-			$stmt .= "'" . Misc::escapeString($insertArray["xsdmf_fez_variable"]) . "',";
-		}
-		if (!empty ($insertArray["xsdmf_dynamic_selected_option"])) {
-			$stmt .= "'" . Misc::escapeString($insertArray["xsdmf_dynamic_selected_option"]) . "',";
-		}
-		if (!empty ($insertArray["xsdmf_selected_option"])) {
-			$stmt .= "'" . Misc::escapeString($insertArray["xsdmf_selected_option"]) . "',";
-		}
-		if (!empty ($insertArray["xsdmf_show_in_view"])) {
-			$stmt .= $insertArray["xsdmf_show_in_view"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_use_parent_option_list"])) {
-			$stmt .= $insertArray["xsdmf_use_parent_option_list"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_parent_option_xdis_id"])) {
-			$stmt .= $insertArray["xsdmf_parent_option_xdis_id"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_parent_option_xsdmf_id"])) {
-			$stmt .= $insertArray["xsdmf_parent_option_xsdmf_id"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_asuggest_xdis_id"])) {
-			$stmt .= $insertArray["xsdmf_asuggest_xdis_id"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_asuggest_xsdmf_id"])) {
-			$stmt .= $insertArray["xsdmf_asuggest_xsdmf_id"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_cvo_save_type"])) {
-			$stmt .= $insertArray["xsdmf_cvo_save_type"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_cvo_min_level"])) {
-			$stmt .= $insertArray["xsdmf_cvo_min_level"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_cvo_id"])) {
-			$stmt .= $insertArray["xsdmf_cvo_id"] . ",";
-		}
-
-		if (!empty ($insertArray["xsdmf_org_level"])) {
-			$stmt .= "'" . Misc::escapeString($insertArray["xsdmf_org_level"]) . "',";
-		}
-		if (!empty ($insertArray["xsdmf_use_org_to_fill"])) {
-			$stmt .= $insertArray["xsdmf_use_org_to_fill"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_org_fill_xdis_id"])) {
-			$stmt .= $insertArray["xsdmf_org_fill_xdis_id"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_org_fill_xsdmf_id"])) {
-			$stmt .= $insertArray["xsdmf_org_fill_xsdmf_id"] . ",";
-		}
-
-		$stmt .= "
-		                    '" . Misc::escapeString($insertArray["xsdmf_enforced_prefix"]) . "',
-		                    '" . Misc::escapeString($insertArray["xsdmf_value_prefix"]) . "',
-		                    '" . Misc::escapeString($insertArray["xsdmf_image_location"]) . "',
-		                    '" . Misc::escapeString($insertArray["xsdmf_static_text"]) . "',
-		                    '" . Misc::escapeString($insertArray["xsdmf_dynamic_text"]) . "',
-		                    " . Misc::escapeString($insertArray["xsdmf_date_type"]);
-
-		if (is_numeric($insertArray["xsdmf_attached_xsdmf_id"])) {
-			$stmt .= ", " . $insertArray["xsdmf_attached_xsdmf_id"];
-		}
-
-		if (is_numeric($insertArray["xsdmf_xsdsel_id"])) {
-			$stmt .= ", " . $insertArray["xsdmf_xsdsel_id"];
-		}
-		$stmt .= "
-		                 )";
+		                 ( ";
+        foreach (XSD_HTML_Match::$xsdmf_columns as $col_name) {
+        	if (!empty($insertArray[$col_name])) {
+                $stmt .= "  $col_name,\n";
+            }
+        }                         
+        $stmt = rtrim($stmt,", \n"); // get rid of trailing comma
+        $stmt .= " ) VALUES ( ";
+        foreach (XSD_HTML_Match::$xsdmf_columns as $col_name) {
+            if (!empty($insertArray[$col_name])) {
+                $value = Misc::escapeString($insertArray[$col_name]);
+                $stmt .= "  '$value',\n";
+            }
+        }                         
+        $stmt = rtrim($stmt,", \n"); // get rid of trailing comma
+        $stmt .= " )";
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
 		if (PEAR::isError($res)) {
 			Error_Handler::logError(array (
@@ -1933,6 +1660,37 @@ class XSD_HTML_Match {
 		}
 	}
 
+    function updateFromArray($xsdmf_id, $params)
+    {
+    	$stmt = "UPDATE " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields " .
+                "SET ";
+        foreach (XSD_HTML_Match::$xsdmf_columns as $col_name) {
+            if ($col_name == 'xsdmf_id') {
+            	// don't set the id
+                continue;
+            }
+            $value = Misc::escapeString(@$params[$col_name]);
+            if (strstr($col_name, '_id') && empty($value)) {
+                $stmt .= " $col_name=null,\n";
+            } else {
+                $stmt .= " $col_name='$value',\n";
+            }
+        }
+        $stmt = rtrim($stmt,", \n"); // get rid of trailing comma
+        $stmt .= " WHERE xsdmf_id='$xsdmf_id' ";
+        if ($xsdmf_id == 523) {
+        	Error_Handler::logError($stmt);
+        }
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array (
+            $res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+            return 1;
+        }
+    }
+    
 	/**
 	 * Method used to try and get a XSDMF ID from an xsdmf_element
 	 *
@@ -2899,35 +2657,58 @@ class XSD_HTML_Match {
 		// find all the stuff that references the new displays
 		$xsdmf_ids = array_values(@ $maps['xsdmf_map']);
 		$xsdmf_ids_str = Misc::arrayToSQL($xsdmf_ids);
-		// Find the fields in the matchfields table that refer to displays
-		$bgp->setStatus("Remapping Displays in XSDMF Table");
-		Misc::tableSearchAndReplace('xsd_display_matchfields', array (
-			'xsdmf_xdis_id_ref',
-			'xsdmf_parent_option_xdis_id',
-			'xsdmf_asuggest_xdis_id'
-		), $maps['xdis_map'], "xsdmf_id IN ($xsdmf_ids_str)");
-		// Find the fields in the matchfields table that refer to other matchfields 
-		$bgp->setStatus("Remapping XSDMFs in XSDMF Table");
-		Misc::tableSearchAndReplace('xsd_display_matchfields', array (
-			'xsdmf_original_xsdmf_id',
-			'xsdmf_attached_xsdmf_id',
-			'xsdmf_parent_option_child_xsdmf_id',
-			'xsdmf_org_fill_xsdmf_id',
-			'xsdmf_asuggest_xsdmf_id',
-			'xsdmf_id_ref'
-		), $maps['xsdmf_map'], " xsdmf_id IN ($xsdmf_ids_str)");
-		// Find the fields in the attachments table that refer to other matchfields 
-		$bgp->setStatus("Remapping XSDMFs in Attachments Table");
-		Misc::tableSearchAndReplace('xsd_display_attach', array (
-			'att_child_xsdmf_id'
-		), $maps['xsdmf_map'], " att_parent_xsdmf_id IN ($xsdmf_ids_str)");
-		// Find the fields in the matchfields table that refer to subloops
-		if (!empty ($maps['xsdsel_map'])) {
-			$bgp->setStatus("Remapping Sub Looping Elements in XSDMF Table");
-			Misc::tableSearchAndReplace('xsd_display_matchfields', array (
-				'xsdmf_xsdsel_id'
-			), $maps['xsdsel_map'], " xsdmf_id IN ($xsdmf_ids_str)");
-		}
+        
+        $bgp->setStatus("Remapping XSDMF ids");
+        foreach ($maps['xsdmf_map'] as $xsdmf_id) {
+        	$stmt = "SELECT * FROM ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX ."xsd_display_matchfields " .
+                    "WHERE xsdmf_id='$xsdmf_id' ";
+            $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            } else {
+                Misc::arraySearchReplace($res, 
+                    array('xsdmf_xdis_id_ref','xsdmf_parent_option_xdis_id','xsdmf_asuggest_xdis_id'),
+                    $maps['xdis_map']);
+                Misc::arraySearchReplace($res, 
+                    array('xsdmf_original_xsdmf_id',
+                    'xsdmf_attached_xsdmf_id',
+                    'xsdmf_parent_option_child_xsdmf_id',
+                    'xsdmf_org_fill_xsdmf_id',
+                    'xsdmf_asuggest_xsdmf_id',
+                    'xsdmf_id_ref'),
+                    $maps['xsdmf_map']);
+                Misc::arraySearchReplace($res, 
+                    array('xsdmf_xsdsel_id'),
+                    $maps['xsdsel_map']);
+                XSD_HTML_Match::updateFromArray($xsdmf_id,$res);
+            }
+            // remap attachments
+            $stmt = "SELECT * FROM ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX ."xsd_display_attach " .
+                    "WHERE att_parent_xsdmf_id='$xsdmf_id' ";
+            $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                $res = array();
+            } else {
+            	if (!empty($res)) {
+                    Misc::arraySearchReplace($res, 
+                        array('att_child_xsdmf_id'),
+                        $maps['xsdmf_map']);
+                    $stmt = "UPDATE ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX ."xsd_display_attach " .
+                            "SET " ;
+                    foreach ($res as $key => $value) {
+                        $stmt .= " $key = '$value', ";        	
+                    }
+                    $stmt = rtrim($stmt, ', ');
+                    $stmt .= " WHERE att_parent_xsdmf_id='$xsdmf_id' ";
+                    $res = $GLOBALS["db_api"]->dbh->query($stmt);
+                    if (PEAR::isError($res)) {
+                        Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                    }
+                }
+            }
+        }
+			
 		// remap the sublooping elements
 		$bgp->setStatus("Remapping Sub Looping Elements");
 		XSD_Loop_Subelement::remapImport($maps);

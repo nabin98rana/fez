@@ -1,0 +1,57 @@
+
+a.app_errors {
+display:block;
+width: 90%;
+background: #660000;
+color: white;
+border: 1px solid #FF3333;
+font-family: Verdana, Arial, Helvetica, sans-serif;
+font-weight: bold;
+font-style: normal;
+font-size: 11px;
+margin: 5px 40px 5px 40px;
+padding: 0px;
+overflow:hidden;
+height: 70px;
+}
+
+a.app_errors:hover {
+height: auto;
+}
+
+.app_error {
+border: 1px solid #FF3333;
+padding: 5px;
+margin: 5px 5px 5px 5px;
+}
+
+.app_error_source {
+	padding: 5px;
+}
+
+.app_error_backtrace_item {
+	background: #993333;
+	padding: 5px;
+}
+.app_error_backtrace_file {
+	padding: 5px;
+	margin-left:100px;
+}
+
+.old_bgp {
+color:red;
+}
+
+.register_suggest {
+display:none;
+}
+
+div.wfl_progress {
+padding: 5px;
+}
+
+img.wfl_progress {
+margin: 2px;
+position:relative;
+top: 5px;
+}

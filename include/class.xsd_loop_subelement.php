@@ -408,31 +408,37 @@ class XSD_Loop_Subelement
      * @access  public
      * @return  integer 1 if the insert worked, -1 otherwise
      */
-    function update()
+    function update($xsdsel_id='', $params=array())
     {
-        global $HTTP_POST_VARS;
+        if (empty($params)) {
+        	$params = &$_POST;
+        }
+        if (empty($xsdsel_id)) {
+            $xsdsel_id = Misc::escapeString($params["xsdsel_id_edit"]);
+        }
 
         $stmt = "UPDATE
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement
                  SET 
-                    xsdsel_title = '" . Misc::escapeString($HTTP_POST_VARS["xsdsel_title"]) . "',
-                    xsdsel_order = " . Misc::escapeString($HTTP_POST_VARS["xsdsel_order"]) . ",";
-				if (is_numeric($HTTP_POST_VARS["xsdsel_attribute_loop_xdis_id"])) {
-                 	$stmt .= "   xsdsel_attribute_loop_xdis_id = " . Misc::escapeString($HTTP_POST_VARS["xsdsel_attribute_loop_xdis_id"]) . ",";
+                    xsdsel_xsdmf_id = '" . Misc::escapeString($params["xsdsel_xsdmf_id"]) . "',
+                    xsdsel_title = '" . Misc::escapeString($params["xsdsel_title"]) . "',
+                    xsdsel_order = '" . Misc::escapeString($params["xsdsel_order"]) . "',";
+				if (is_numeric($params["xsdsel_attribute_loop_xdis_id"])) {
+                 	$stmt .= "   xsdsel_attribute_loop_xdis_id = '" . Misc::escapeString($params["xsdsel_attribute_loop_xdis_id"]) . "',";
 				}
-				if (is_numeric($HTTP_POST_VARS["xsdsel_attribute_loop_xsdmf_id"])) {
-                 	$stmt .= "   xsdsel_attribute_loop_xsdmf_id = " . Misc::escapeString($HTTP_POST_VARS["xsdsel_attribute_loop_xsdmf_id"]) . ",";
+				if (is_numeric($params["xsdsel_attribute_loop_xsdmf_id"])) {
+                 	$stmt .= "   xsdsel_attribute_loop_xsdmf_id = '" . Misc::escapeString($params["xsdsel_attribute_loop_xsdmf_id"]) . "',";
 				}
-				if (is_numeric($HTTP_POST_VARS["xsdsel_indicator_xdis_id"])) {
-                 	$stmt .= "   xsdsel_indicator_xdis_id = " . Misc::escapeString($HTTP_POST_VARS["xsdsel_indicator_xdis_id"]) . ",";
+				if (is_numeric($params["xsdsel_indicator_xdis_id"])) {
+                 	$stmt .= "   xsdsel_indicator_xdis_id = '" . Misc::escapeString($params["xsdsel_indicator_xdis_id"]) . "',";
 				}
-				if (is_numeric($HTTP_POST_VARS["xsdsel_indicator_xsdmf_id"])) {
-                 	$stmt .= "   xsdsel_indicator_xsdmf_id = " . Misc::escapeString($HTTP_POST_VARS["xsdsel_indicator_xsdmf_id"]) . ",";
+				if (is_numeric($params["xsdsel_indicator_xsdmf_id"])) {
+                 	$stmt .= "   xsdsel_indicator_xsdmf_id = '" . Misc::escapeString($params["xsdsel_indicator_xsdmf_id"]) . "',";
 				}
 					$stmt .= "
-                    xsdsel_indicator_value = '" . Misc::escapeString($HTTP_POST_VARS["xsdsel_indicator_value"]) . "',
-                    xsdsel_type = '" . Misc::escapeString($HTTP_POST_VARS["xsdsel_type"]) . "'
-                 WHERE xsdsel_id = " . Misc::escapeString($HTTP_POST_VARS["xsdsel_id_edit"]) . "";
+                    xsdsel_indicator_value = '" . Misc::escapeString($params["xsdsel_indicator_value"]) . "',
+                    xsdsel_type = '" . Misc::escapeString($params["xsdsel_type"]) . "'
+                 WHERE xsdsel_id = '$xsdsel_id' ";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -569,15 +575,22 @@ class XSD_Loop_Subelement
         if (empty($maps['xsdsel_map'])) {
         	return;
         }    
-        // find all the stuff that references the new displays
-        $xsdsel_ids = array_values($maps['xsdsel_map']);
-        $xsdsel_ids_str = Misc::arrayToSQL($xsdsel_ids);
-        Misc::tableSearchAndReplace('xsd_loop_subelement',
-            array('xsdsel_attribute_loop_xdis_id','xsdsel_indicator_xdis_id'),
-            $maps['xdis_map'], " xsdsel_id IN ($xsdsel_ids_str)");
-        Misc::tableSearchAndReplace('xsd_loop_subelement',
-            array('xsdsel_attribute_loop_xsdmf_id','xsdsel_indicator_xsdmf_id'),
-            $maps['xsdmf_map'], " xsdsel_id IN ($xsdsel_ids_str)");
+        foreach ($maps['xsdsel_map'] as $xsdsel_id) {
+            $stmt = "SELECT * FROM ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX ."xsd_loop_subelement " .
+                    "WHERE xsdsel_id='$xsdsel_id' ";
+            $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            } else {
+                Misc::arraySearchReplace($res, 
+                    array('xsdsel_attribute_loop_xdis_id','xsdsel_indicator_xdis_id'),
+                    $maps['xdis_map']);
+                Misc::arraySearchReplace($res, 
+                    array('xsdsel_attribute_loop_xsdmf_id','xsdsel_indicator_xsdmf_id'),
+                    $maps['xsdmf_map']);
+                XSD_Loop_Subelement::update($xsdsel_id, $res);
+            }
+        }
     }
 }
 

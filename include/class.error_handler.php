@@ -47,8 +47,12 @@ include_once(APP_INC_PATH . "class.setup.php");
 
 @define("REPORT_ERROR_FILE", true);
 
+
 class Error_Handler
 {
+ 
+    static $app_errors = array();
+    
     /**
      * Logs the specified error
      *
@@ -62,14 +66,65 @@ class Error_Handler
     {
         if (APP_DEBUG) {
             $txt = print_r($error_msg, true);
-            echo "ERROR: $txt $script $line";
+            $error = array(
+                'txt' => explode("\n",$txt),
+                'script' => $file = str_replace(APP_PATH,'',$script),
+                'line' => $line
+            );
+            $backtrace = debug_backtrace();
+            $output_processed = array();
+           foreach ($backtrace as $bt) {
+               $args = '';
+               foreach ($bt['args'] as $a) {
+                   if (!empty($args)) {
+                       $args .= ', ';
+                   }
+                   switch (gettype($a)) {
+                   case 'integer':
+                   case 'double':
+                       $args .= $a;
+                       break;
+                   case 'string':
+                       $a = htmlspecialchars(substr($a, 0, 64)).((strlen($a) > 64) ? '...' : '');
+                       $args .= "\"$a\"";
+                       break;
+                   case 'array':
+                       $args .= 'Array('.count($a).')';
+                       break;
+                   case 'object':
+                       $args .= 'Object('.get_class($a).')';
+                       break;
+                   case 'resource':
+                       $args .= 'Resource('.strstr($a, '#').')';
+                       break;
+                   case 'boolean':
+                       $args .= $a ? 'True' : 'False';
+                       break;
+                   case 'NULL':
+                       $args .= 'Null';
+                       break;
+                   default:
+                       $args .= 'Unknown';
+                   }
+               }
+               $output_processed_item = array();
+               $file = str_replace(APP_PATH,'',$bt['file']);
+               $output_processed_item['file'] = "{$file}:{$bt['line']}";
+               $output_processed_item['call'] = "{$bt['class']}{$bt['type']}{$bt['function']}($args)";
+               $output_processed[] = $output_processed_item;
+           }
+           $error['backtrace'] = $output_processed;
+            
+            Error_Handler::$app_errors[] = $error; 
+            
+            // echo "<div class=\"app_error\">$txt $script $line</div>";
         }
         if (REPORT_ERROR_FILE) {
-            Error_Handler::_logToFile($error_msg, $script, $line);
+            Error_Handler::_logToFile($error, $script, $line);
         }
         $setup = Setup::load();
         if (@$setup['email_error']['status'] == 'enabled') {
-            Error_Handler::_notify($error_msg, $script, $line);
+            Error_Handler::_notify($error, $script, $line);
         }
     }
 
@@ -98,13 +153,7 @@ class Error_Handler
         $msg = "Hello,\n\n";
         $msg .= "An error was found at " . date("m/d/Y H:i:s") . " (" . time() . ") on line '" . $line . "' of script " . "'$script'.\n\n";
         $msg .= "The error message passed to us was:\n\n";
-        if ((is_array($error_msg)) && (count($error_msg) > 1)) {
-            $msg .= "'" . $error_msg[0] . "'\n\n";
-            $msg .= "A more detailed error message follows:\n\n";
-            $msg .= "'" . $error_msg[1] . "'\n\n";
-        } else {
-            $msg .= "'$error_msg'\n\n";
-        }
+        $msg .= print_r($error_msg,true)."\n";
         $msg .= "That happened on page '" . $HTTP_SERVER_VARS["PHP_SELF"] . "' from IP Address '" . getenv("REMOTE_ADDR") . "' coming from the page (referrer) '" . getenv("HTTP_REFERER") . "'.\n\n";
         $msg .= "Sincerely yours,\nAutomated Error_Handler Class";
         foreach ($notify_list as $notify_email) {
@@ -126,11 +175,7 @@ class Error_Handler
     function _logToFile($error_msg = "unknown", $script = "unknown", $line = "unknown")
     {
         global $HTTP_SERVER_VARS;
-        if (is_array($error_msg)) {
-            $msg = "[" . date("D M d H:i:s Y") . "] Found error '" . $error_msg[0] . "/" . $error_msg[1] . "' on line '" . $line . "' of script '" . $script . "' on page '" . $HTTP_SERVER_VARS["PHP_SELF"] . "'.\n";
-        } else {
-            $msg = "[" . date("D M d H:i:s Y") . "] Found error '" . $error_msg . "' on line '" . $line . "' of script '" . $script . "' on page '" . $HTTP_SERVER_VARS["PHP_SELF"] . "'.\n";
-        }
+        $msg = "[" . date("D M d H:i:s Y") . "] " . print_r($error_msg,true) ."\n";
 //		echo $msg;
 //		echo APP_ERROR_LOG;
         $fp = @fopen(APP_ERROR_LOG, "a");

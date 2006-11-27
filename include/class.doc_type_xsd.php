@@ -57,15 +57,24 @@ class Doc_Type_XSD
      * @access  public
      * @return  boolean
      */
-    function remove()
+    function remove($params = array())
     {
-        global $HTTP_POST_VARS;
-
-        $items = @implode(", ", $HTTP_POST_VARS["items"]);
+        if (empty($params)) {
+        	$params = $_POST;
+        }
+        $items = $params["items"];
+        $items_str = @implode(", ", $items);
+        
+        // delete the displays
+        $xdis_items = array();
+        foreach ($items as $item) {
+            $xdis_items = array_merge(array_keys(Misc::keyArray(XSD_Display::getList($item), 'xdis_id')), $xdis_items);
+        }
+        XSD_Display::remove(array('items' => $xdis_items));
         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd
                  WHERE
-                    xsd_id IN ($items)";
+                    xsd_id IN ($items_str)";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -372,8 +381,9 @@ class Doc_Type_XSD
         $xpath = new DOMXPath($doc);
         $xdocs = $xpath->query('/fez_xsds/fez_xsd');
         $maps = array();
-        foreach ($xdocs as $idx => $xdoc) {
-            $bgp->setProgress(intval(($idx + 1) / count($xdocs) * 100 + 0.5));
+        $idx = 0;
+        foreach ($xdocs as $xdoc) {
+            $bgp->setProgress(intval(++$idx / count($xdocs) * 100 + 0.5));
         	$title = Misc::escapeString($xdoc->getAttribute('xsd_title'));
             // There are two things to consider when importing
             // 1) Upgrade docs which match on xsd_title and have version < import doc .  Remap any references in import doc to xdis)

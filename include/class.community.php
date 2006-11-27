@@ -201,6 +201,7 @@ class Community
         $countStmt = "SELECT count(distinct r2.rmf_rec_pid) $body1";
 		$securityfields = Auth::getAllRoles();
 
+        //Error_Handler::logError($stmt, __FILE__,__LINE__);
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
 

@@ -59,11 +59,13 @@ class XSD_Display
      * @access  public
      * @return  boolean
      */
-    function remove()
+    function remove($params = array())
     {
-        global $HTTP_POST_VARS;
+        if (empty($params)) {
+            $params = $_POST;
+        }
 
-        $items = @implode(", ", $HTTP_POST_VARS["items"]);
+        $items = @implode(", ", $params["items"]);
         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
                  WHERE
@@ -783,13 +785,13 @@ class XSD_Display
                     'xdis_object_type' => $xdis->getAttribute('xdis_object_type'),
                 );
                 if ($found_matching_title) {
-                $bgp->setStatus("Overwriting Display $title");
+                  $bgp->setStatus("Overwriting Display $title");
                   XSD_Display::update($xdis_id, $params);
                   // need to delete any matchfields that refer to this xdis as we are about to bring
                   // the ones from the XML doc in
                   XSD_HTML_Match::removeByXDIS_ID($xdis_id);
                 } else {
-                $bgp->setStatus("Inserting Display $title");
+                  $bgp->setStatus("Inserting Display $title");
                   // need to try and insert at the xdis_id in the XML.  If there's something there already
                   // then we know it doesn't match so do a insert with new id in that case 
                   $det = XSD_Display::getDetails($xdis->getAttribute('xdis_id'));

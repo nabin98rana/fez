@@ -283,7 +283,7 @@ class WorkflowTrigger
             $orstr = "";
         }
         return WorkflowTrigger::getList($pid, " AND wft_type_id=$trigger 
-                AND (wft_ret_id=$ret_id $orstr ) AND wft_xdis_id!=-2 ");
+                AND (wft_ret_id='$ret_id' $orstr ) AND wft_xdis_id != '-2' ");
     }
 
     /**

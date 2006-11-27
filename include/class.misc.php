@@ -2264,15 +2264,30 @@ function backtrace()
    return $output;
 }
 
+    function arraySearchReplace(&$a, $keys, $map)
+    {
+    	foreach ($keys as $field) {
+            if (!empty($a[$field])) {
+                if (!empty($map[$a[$field]])) {
+                    $a[$field] = $map[$a[$field]];
+                }
+            }
+        }
+    }
+    
     function tableSearchAndReplace($table, $fields, $map, $restrict, $debug = false) 
     {
         if ($debug) {
             $params = array(print_r($table,true),print_r($fields,true),print_r($map,true),print_r($restrict,true));
             Error_Handler::logError(print_r($params,true),__FILE__,__LINE__);
-        }        
+        }
+        $wrote = array();        
         foreach ($map as $xvalue => $dbvalue) {
             if ($dbvalue != $xvalue) {
                 foreach ($fields as $field) { 
+                    if (in_array($xvalue, $wrote[$field])) {
+                    	Error_Handler::logError("DOH!!!!",__FILE__,__LINE__);
+                    }
                     $stmt = "UPDATE ".APP_DEFAULT_DB . "." . APP_TABLE_PREFIX."$table " .
                             "set $field='$dbvalue' " .
                             "WHERE $field='$xvalue' AND $restrict";
@@ -2283,6 +2298,7 @@ function backtrace()
                     if (PEAR::isError($res)) {
                         Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
                     }
+                    $wrote[$field][] = $dbvalue;
                 }
             }            
         }

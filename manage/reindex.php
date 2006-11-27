@@ -92,7 +92,9 @@ $communities_list = Misc::keyPairs($communities['list'], 'pid', 'title');
 $communities_list = Misc::stripOneElementArrays($communities_list);
 $tpl->assign('status_list', $status_list);
 $tpl->assign('communities_list', $communities_list);
-$tpl->assign('communities_list_selected', $communities['list'][0]['pid']);
+if (is_array($communities) && isset($communities['list'][0]['pid'])) {
+    $tpl->assign('communities_list_selected', $communities['list'][0]['pid']);
+}
 $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
 $tpl->registerNajax(NAJAX_Client::register('SelectReindexInfo', 'reindex.php'));
 

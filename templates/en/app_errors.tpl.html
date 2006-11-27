@@ -1,0 +1,25 @@
+{if $has_app_errors}
+<a class="app_errors">
+{section name="ii" loop=$app_errors}
+    <div class="app_error">
+		<div class="app_error_txt">
+		{section name="jj" loop=$app_errors[ii].txt}
+			{$app_errors[ii].txt[jj]|wordwrap:80:' ':true|escape}<br/>
+		{/section}
+		</div>
+		<div class="app_error_source">
+			{$app_errors[ii].script} {$app_errors[ii].line}
+		</div>
+		<div class="app_error_backtrace">
+			Backtrace:
+			{section name="bb" loop=$app_errors[ii].backtrace}
+			   <div class="app_error_backtrace_item">
+			   <div class="app_error_backtrace_call">{$app_errors[ii].backtrace[bb].call}</div>
+			   <div class="app_error_backtrace_file">{$app_errors[ii].backtrace[bb].file}</div>
+			   </div>
+			{/section}
+		</div>
+	</div>
+{/section}
+</a>
+{/if}

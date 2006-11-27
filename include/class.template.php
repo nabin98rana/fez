@@ -213,6 +213,11 @@ class Template_API
 		$this->assign("SHIB_HOME_SP", SHIB_HOME_SP);
 		$this->assign("SHIB_HOME_IDP", SHIB_HOME_IDP);
 		$this->assign("SHIB_FEDERATION_NAME", SHIB_FEDERATION_NAME);
+        
+        if (count(Error_Handler::$app_errors) > 0) {
+            $this->assign('app_errors', Error_Handler::$app_errors);
+            $this->assign('has_app_errors', true);
+        }
 				
 		if (@$_REQUEST['getArguments']){
 			$getArguments = $_REQUEST['getArguments'];

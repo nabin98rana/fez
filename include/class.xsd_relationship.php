@@ -258,17 +258,22 @@ class XSD_Relationship
      * @access  public
      * @return  integer 1 if the insert worked, -1 otherwise
      */
-    function update()
+    function update($xsdrel_id='',$params=array())
     {
-        global $HTTP_POST_VARS;
 
+        if (empty($params)) {
+        	$params = &$_POST;
+        }
+        if (empty($xsdrel_id)) {
+        	$xsdrel_id = Misc::escapeString($params["xsdrel_id"]);
+        }
         $stmt = "UPDATE
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship
                  SET 
-                    xsdrel_xsdmf_id = " . Misc::escapeString($HTTP_POST_VARS["xsdrel_xsdmf_id"]) . ",
-                    xsdrel_xsd_id = " . Misc::escapeString($HTTP_POST_VARS["xsdrel_xsd_id"]) . ",
-                    xsdrel_order = " . Misc::escapeString($HTTP_POST_VARS["xsdrel_order"]) . "
-                 WHERE xsdrel_id = " . Misc::escapeString($HTTP_POST_VARS["xsdrel_id"]) . "";
+                    xsdrel_xsdmf_id = '" . Misc::escapeString($params["xsdrel_xsdmf_id"]) . "',
+                    xsdrel_xdis_id = '" . Misc::escapeString($params["xsdrel_xdis_id"]) . "',
+                    xsdrel_order = '" . Misc::escapeString($params["xsdrel_order"]) . "'
+                 WHERE xsdrel_id = '$xsdrel_id' ";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -298,12 +303,19 @@ class XSD_Relationship
         if (empty($maps['xsdrel_map'])) {
             return;
         }    
-        // find all the stuff that references the new displays
-        $xsdrel_ids = array_values($maps['xsdrel_map']);
-        $xsdrel_ids_str = Misc::arrayToSQL($xsdrel_ids);
-        Misc::tableSearchAndReplace('xsd_relationship',
-            array('xsdrel_xdis_id'),
-            $maps['xdis_map'], " xsdrel_id IN ($xsdrel_ids_str)");
+        foreach ($maps['xsdrel_map'] as $xsdrel_id) {
+            $stmt = "SELECT * FROM ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX ."xsd_relationship " .
+                    "WHERE xsdrel_id='$xsdrel_id' ";
+            $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            } else {
+                Misc::arraySearchReplace($res, 
+                    array('xsdrel_xdis_id'),
+                    $maps['xdis_map']);
+                XSD_Relationship::update($xsdrel_id, $res);
+            }
+        }    
     }
 }
 // benchmarking the included file (aka setup time)
