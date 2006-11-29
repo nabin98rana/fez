@@ -39,7 +39,7 @@
  * without having to rewrite all PHP based scripts.
  *
  * @version 1.0
- * @author João Prado Maia <jpm@mysql.com>
+ * @author Joï¿½o Prado Maia <jpm@mysql.com>
  */
 
 require_once(APP_PEAR_PATH . "Net/UserAgent/Detect.php");
@@ -215,10 +215,10 @@ class Template_API
 		$this->assign("SHIB_FEDERATION_NAME", SHIB_FEDERATION_NAME);
         $isAdministrator = Auth::isAdministrator();
         if (count(Error_Handler::$app_errors) > 0) {
-        	if ((APP_DISPLAY_ERRORS_USER == 2) && $isAdminstrator) {
+        	if ((APP_DISPLAY_ERRORS_USER == 1) && ($isAdministrator)) {
 	            $this->assign('app_errors', Error_Handler::$app_errors);
 	            $this->assign('has_app_errors', true);
-        	} elseif (APP_DISPLAY_ERRORS_USER == 1)  {
+        	} elseif (APP_DISPLAY_ERRORS_USER == 2)  {
 	            $this->assign('app_errors', Error_Handler::$app_errors);
 	            $this->assign('has_app_errors', true);        		
         	}
