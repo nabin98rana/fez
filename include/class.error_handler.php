@@ -39,13 +39,11 @@
  * logging facilities or alert notifications to the site administrators.
  *
  * @version 1.0
- * @author João Prado Maia <jpm@mysql.com>
+ * @author Joï¿½o Prado Maia <jpm@mysql.com>
  */
 
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.setup.php");
-
-@define("REPORT_ERROR_FILE", true);
 
 
 class Error_Handler
@@ -64,62 +62,82 @@ class Error_Handler
      */
     function logError($error_msg = "", $script = "", $line = "")
     {
-        if (APP_DEBUG) {
-            $txt = print_r($error_msg, true);
-            $error = array(
-                'txt' => explode("\n",$txt),
-                'script' => $file = str_replace(APP_PATH,'',$script),
-                'line' => $line
-            );
+       
+         $txt = print_r($error_msg, true);
+         $error = array(
+             'txt' => explode("\n",$txt),
+             'script' => $file = str_replace(APP_PATH,'',$script),
+             'line' => $line
+         );
+         $error_display = $error;
+		 if ((APP_DEBUG_LEVEL == 2) || (APP_DEBUG_LEVEL == 3))  { //debug level 2 or 3
             $backtrace = debug_backtrace();
             $output_processed = array();
+            $output_processed_display = array();            
            foreach ($backtrace as $bt) {
                $args = '';
-               foreach ($bt['args'] as $a) {
-                   if (!empty($args)) {
-                       $args .= ', ';
-                   }
-                   switch (gettype($a)) {
-                   case 'integer':
-                   case 'double':
-                       $args .= $a;
-                       break;
-                   case 'string':
-                       $a = htmlspecialchars(substr($a, 0, 64)).((strlen($a) > 64) ? '...' : '');
-                       $args .= "\"$a\"";
-                       break;
-                   case 'array':
-                       $args .= 'Array('.count($a).')';
-                       break;
-                   case 'object':
-                       $args .= 'Object('.get_class($a).')';
-                       break;
-                   case 'resource':
-                       $args .= 'Resource('.strstr($a, '#').')';
-                       break;
-                   case 'boolean':
-                       $args .= $a ? 'True' : 'False';
-                       break;
-                   case 'NULL':
-                       $args .= 'Null';
-                       break;
-                   default:
-                       $args .= 'Unknown';
-                   }
-               }
+			   if (APP_DEBUG_LEVEL == 3) {
+	               foreach ($bt['args'] as $a) {
+	                   if (!empty($args)) {
+	                       $args .= ', ';
+	                   }
+	                   switch (gettype($a)) {
+	                   case 'integer':
+	                   case 'double':
+	                       $args .= $a;
+	                       break;
+	                   case 'string':
+	                       $a = htmlspecialchars(substr($a, 0, 64)).((strlen($a) > 64) ? '...' : '');
+	                       $args .= "\"$a\"";
+	                       break;
+	                   case 'array':
+	                       $args .= 'Array('.count($a).')';
+	                       break;
+	                   case 'object':
+	                       $args .= 'Object('.get_class($a).')';
+	                       break;
+	                   case 'resource':
+	                       $args .= 'Resource('.strstr($a, '#').')';
+	                       break;
+	                   case 'boolean':
+	                       $args .= $a ? 'True' : 'False';
+	                       break;
+	                   case 'NULL':
+	                       $args .= 'Null';
+	                       break;
+	                   default:
+	                       $args .= 'Unknown';
+	                   }
+	               }
+			   }
                $output_processed_item = array();
+               $output_processed_item_display = array();               
                $file = str_replace(APP_PATH,'',$bt['file']);
                $output_processed_item['file'] = "{$file}:{$bt['line']}";
-               $output_processed_item['call'] = "{$bt['class']}{$bt['type']}{$bt['function']}($args)";
+               $output_processed_item['call'] = "{$bt['class']}{$bt['type']}{$bt['function']}($args)";               
+               $output_processed_item_display['file'] = "{$file}:{$bt['line']}";
+               if ((APP_DISPLAY_ERROR_LEVEL == 3) && (APP_DEBUG_LEVEL == 3)){
+	               $output_processed_item_display['call'] = "{$bt['class']}{$bt['type']}{$bt['function']}($args)";
+               } elseif (APP_DISPLAY_ERROR_LEVEL == 2) {
+               	   $output_processed_item_display['call'] = "{$bt['class']}{$bt['type']}{$bt['function']}";
+               }
+               
                $output_processed[] = $output_processed_item;
+			   $output_processed_display[] = $output_processed_item_display;               
            }
-           $error['backtrace'] = $output_processed;
-            
-            Error_Handler::$app_errors[] = $error; 
-            
+           if ((APP_DISPLAY_ERROR_LEVEL == 2) || (APP_DISPLAY_ERROR_LEVEL == 3)) {
+	           $error['backtrace'] = $output_processed_display;            
+	           Error_Handler::$app_errors[] = $error; 
+           } elseif (APP_DISPLAY_ERROR_LEVEL == 1) {
+           	   Error_Handler::$app_errors[] = $error; 
+           }
             // echo "<div class=\"app_error\">$txt $script $line</div>";
+			
+            
+        } else {
+        	$error = $error_msg;        
         }
-        if (REPORT_ERROR_FILE) {
+        if (APP_REPORT_ERROR_FILE) {
             Error_Handler::_logToFile($error, $script, $line);
         }
         $setup = Setup::load();

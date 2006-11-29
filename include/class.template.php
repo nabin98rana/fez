@@ -213,10 +213,15 @@ class Template_API
 		$this->assign("SHIB_HOME_SP", SHIB_HOME_SP);
 		$this->assign("SHIB_HOME_IDP", SHIB_HOME_IDP);
 		$this->assign("SHIB_FEDERATION_NAME", SHIB_FEDERATION_NAME);
-        
+        $isAdministrator = Auth::isAdministrator();
         if (count(Error_Handler::$app_errors) > 0) {
-            $this->assign('app_errors', Error_Handler::$app_errors);
-            $this->assign('has_app_errors', true);
+        	if ((APP_DISPLAY_ERRORS_USER == 2) && $isAdminstrator) {
+	            $this->assign('app_errors', Error_Handler::$app_errors);
+	            $this->assign('has_app_errors', true);
+        	} elseif (APP_DISPLAY_ERRORS_USER == 1)  {
+	            $this->assign('app_errors', Error_Handler::$app_errors);
+	            $this->assign('has_app_errors', true);        		
+        	}
         }
 				
 		if (@$_REQUEST['getArguments']){

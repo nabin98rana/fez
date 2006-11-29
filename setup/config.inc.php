@@ -182,9 +182,12 @@ if (APP_FEDORA_SETUP == 'sslall') {
 @define("APP_IMAGE_PREVIEW_MAX_HEIGHT", 1000);
 
 @define("APP_DISABLE_PASSWORD_CHECKING", false);  // used for testing
-@define("APP_DEBUG", true);  // whether to show error messages on the web pages.
-@define("REPORT_ERROR_FILE", true);  // enable logging to file (file set in APP_ERROR_LOG)
-@define("APP_ERROR_LOG", APP_PATH . "error_handler.log");
+@define("APP_DEBUG_LEVEL", 2); // 0 or 1 is basic error message, 2 is basic + stacktrace, 3 is basic + stacktrace + function arguments passed - recommend level 2 as default, 3 only for heavy debugging
+@define("APP_DISPLAY_ERROR_LEVEL", 1); //  *is always limited by the max of APP_DEBUG_LEVEL* 0 is no display of errors to the browser, 1 is basic error message, 2 is basic + stacktrace, 3 is basic + stacktrace + function arguments passed (highest detail) *recommend to leave this at 0 or 1, 3 may show passwords in the passed args*
+@define("APP_DISPLAY_ERRORS_USER", 2); //  0 is no display of errors to any users, 1 to only show errors to administrators, 2 for show errors for all users - default is 2
+@define("APP_REPORT_ERROR_FILE", true); // set to false if you don't want the error messages saved to a error file to the user/browser
+@define("APP_ERROR_LOG", APP_PATH . "error_handler.log"); // you may want to change this to below the document root, or at least make not readable by apache
+
 
 @define("APP_NAME", "%{APP_NAME}%");
 @define("APP_ORG_NAME", "%{APP_ORG_NAME}%");
