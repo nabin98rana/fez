@@ -125,11 +125,13 @@ class Error_Handler
                $output_processed[] = $output_processed_item;
 			   $output_processed_display[] = $output_processed_item_display;               
            }
+	       $error['backtrace'] = $output_processed;            
+           
            if ((APP_DISPLAY_ERROR_LEVEL == 2) || (APP_DISPLAY_ERROR_LEVEL == 3)) {
-	           $error['backtrace'] = $output_processed_display;            
-	           Error_Handler::$app_errors[] = $error; 
+	           $error_display['backtrace'] = $output_processed_display;            
+	           Error_Handler::$app_errors[] = $error_display; 
            } elseif (APP_DISPLAY_ERROR_LEVEL == 1) {
-           	   Error_Handler::$app_errors[] = $error; 
+           	   Error_Handler::$app_errors[] = $error_display; 
            }
             // echo "<div class=\"app_error\">$txt $script $line</div>";
 			
