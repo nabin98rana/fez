@@ -5,11 +5,11 @@ include_once(APP_INC_PATH . "class.bgp_index_auth.php");
 
 $pid = $this->pid;
 if (!empty($pid) && !is_numeric($pid)) { 
-    AuthIndex::setIndexAuth($pid);
+    AuthIndex::setIndexAuth($pid,true);
 } else {
     $list = Community::getList(0,1000000);
     foreach ($list['list'] as $item) {
-        AuthIndex::setIndexAuth($item['pid']);
+        AuthIndex::setIndexAuth($item['pid'],true);
     }
 }
 

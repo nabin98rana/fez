@@ -279,6 +279,10 @@ class Statistics
 			 	 from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "statistics_all
 				 where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '$pid' and stl_dsid = '' $limit";
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = array();
+        }
 		if (!empty($res)) {
 			$count = $res;
 		} else {
@@ -305,7 +309,11 @@ class Statistics
 			 	 from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "statistics_all
 				 where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '$pid' and stl_dsid <> '' $limit";
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
-		if (!empty($res)) {
+		if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = array();
+        }
+        if (!empty($res)) {
 			$count = $res;
 		} else {
 			$count = 0;
@@ -338,7 +346,11 @@ class Statistics
 				 order by stl_country_count desc, stl_country_name asc";
 
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt,  DB_FETCHMODE_ASSOC);
-		if (!empty($res)) {
+		if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = array();
+        }
+        if (!empty($res)) {
 			$count = $res;
 		} else {
 			$count = array();
@@ -370,7 +382,11 @@ class Statistics
 				 order by stl_country_name asc, stl_region asc, stl_city asc, stl_country_count desc";
 
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt,  DB_FETCHMODE_ASSOC);
-		if (!empty($res)) {
+		if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = array();
+        }
+        if (!empty($res)) {
 			$count = $res;
 		} else {
 			$count = array();

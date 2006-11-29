@@ -146,6 +146,7 @@ function toggleOverride()
 	  hideSettings();
   } else {
 	  showSettings();
+	  selectCommunity(f, 'community_pid');
   }
   return true;
 }
@@ -157,13 +158,18 @@ function toggleOverride()
 </script>
               <tr>
                 <td colspan="2" class="default">
-                  <b>Index Fedora Objects into Fez</b>
+                  <b>{if $index_type == 1}Index Fedora Objects into Fez{else}Reindex Fez Fedora Objects{/if}</b>
                 </td>
               </tr>
              <tr>
                 <td bgcolor="{$light_color}" class="default">
+                {if $index_type == 1}
                 This is a list of items in the fedora database that are not indexed in the 
                 fez database. Check the boxes next to the objects you want Fez to index and click 'Index Into Fez'.
+                {else}
+				This is a list of items in the fedora database that are already indexed in the 
+                fez database. Check the boxes next to the objects you want Fez to reindex and click 'Reindex'.
+                {/if}
                 </td>
               </tr>
 		  <tr>
@@ -173,10 +179,11 @@ function toggleOverride()
                     <input type="hidden" name="override" value="on" />
 		  <tr>
 				<td width="200" bgcolor="{$cell_color}" class="default">
-				  <b>Recover existing fez datastreams?:</b>
+				  <b>Recover existing fez datastreams:</b>
 				</td>
 				<td bgcolor="{$light_color}">
-				  <input type="checkbox" name="recover" onClick="javascript:toggleOverride();" >  
+				  <input type="checkbox" name="recover" onClick="javascript:toggleOverride();" 
+				  		{if $index_type == 2}checked="on"{/if}>  
 				</td>
 			  </tr>
 			<tr id="tr_heading">
@@ -225,9 +232,7 @@ function toggleOverride()
 				</select>
 			  </td>
 			</tr>			
-			<script type="text/javascript"><!-- 
-			selectCommunity(getForm('reindex_form'), 'community_pid'); 
-			// --></script>
+			
 				  </table>
 				</td>
  			  </tr>			
@@ -264,7 +269,8 @@ function toggleOverride()
                     {sectionelse}
                     <tr>
                       <td colspan="4" bgcolor="{$light_color}" align="center" class="default">
-                        No Fedora objects missing from the Fez Index could be found.
+                       {if $index_type == 1} No Fedora objects missing from the Fez Index could be found.
+                       {else}No objects were found in the Fez index{/if}
                       </td>
                     </tr>
                     {/section}
@@ -273,7 +279,7 @@ function toggleOverride()
                         <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
                       </td>
                       <td colspan="3" align="center" bgcolor="{$cell_color}">
-                        <input type="submit" value="Index Into Fez" class="button">
+                        <input type="submit" value="{if $index_type == 1}Index Into Fez{else}Reindex{/if}" class="button">
                       </td>
                     </tr>
                   </table>
@@ -320,6 +326,4 @@ function toggleOverride()
       </table>
 	  </form>
 
-<script type="text/javascript"><!-- 
-showSettings();
-// --></script>	  
+

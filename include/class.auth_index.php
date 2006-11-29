@@ -9,10 +9,10 @@ class AuthIndex {
     var $pid_cache = array();
     var $pid_count = 0;
 
-    function setIndexAuth($pid)
+    function setIndexAuth($pid, $recurse=false)
     {
        $bgp = new BackgroundProcess_Index_Auth; 
-       $bgp->register(serialize(compact('pid')), Auth::getUserID());
+       $bgp->register(serialize(compact('pid','recurse')), Auth::getUserID());
     }
 
     function setBGP(&$bgp)
@@ -20,7 +20,7 @@ class AuthIndex {
         $this->bgp = &$bgp;
     }
 
-    function setIndexAuthBGP($pid, $topcall=true)
+    function setIndexAuthBGP($pid, $recurse = false, $topcall=true)
     {
         $this->bgp->setHeartbeat();
         $this->bgp->setProgress(++$this->pid_count);
@@ -124,7 +124,7 @@ class AuthIndex {
                 $this->bgp->setStatus("Recursing into ".$rec->getTitle());
             }
             foreach ($children as $child_pid) {
-                AuthIndex::setIndexAuthBGP($child_pid,false);
+                AuthIndex::setIndexAuthBGP($child_pid, $recurse, false);
             }
             if (!empty($children)) {
                 $this->bgp->setStatus("Finished Index Auth for ".$rec->getTitle());

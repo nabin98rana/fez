@@ -16,6 +16,7 @@ class BackgroundProcess {
             2 => 'Done'
             );
     var $local_session = array();
+    var $progress = 0;
 
 
     /***** Mixed *****/
@@ -62,6 +63,11 @@ class BackgroundProcess {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
         }
         $this->setHeartbeat();
+    }
+
+    function incrementProgress()
+    {
+    	$this->setProgress(++$this->progress);
     }
 
     function setStatus($msg)

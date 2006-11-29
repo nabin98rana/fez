@@ -264,6 +264,11 @@ class Template_API
     {
     	$this->najax_register .= "\n$najax\n";
     }
+    
+    function onload($onload)
+    {
+    	$this->headerscript .= "\n$onload\n";
+    }
 
 
 
@@ -274,79 +279,9 @@ class Template_API
      */
     function processTemplateRecord($record_id)
     {
-        global $HTTP_SERVER_VARS;
-
-        // determine the correct CSS file to use
-        if (ereg('MSIE ([0-9].[0-9]{1,2})', $HTTP_SERVER_VARS["HTTP_USER_AGENT"], $log_version)) {
-            $user_agent = 'ie';
-        } else {
-            $user_agent = 'other';
-        }
-        $this->assign("user_agent", $user_agent);
-        // create the list of collections
-        $username = Auth::getUsername();
-        if ($username != '') {
-            $this->assign("current_full_name", Auth::getUserFullName());
-            $this->assign("current_email", Auth::getUserEmail());
-        }
-        $this->assign("app_path", APP_PATH);
-        $this->assign("app_setup", Setup::load());
-        $this->assign("app_setup_path", APP_SETUP_PATH);
-        $this->assign("app_setup_file", APP_SETUP_FILE);
-        $this->assign("ldap_switch", LDAP_SWITCH);
-        $this->assign("application_version", APP_VERSION);
-        $this->assign("application_title", APP_NAME);
-        $this->assign("org_name", APP_ORG_NAME);
-        $this->assign("org_short_name", APP_SHORT_ORG_NAME);		
-        $this->assign("app_base_url", APP_BASE_URL);
-        $this->assign("rel_url", APP_RELATIVE_URL);
-        $this->assign("lang", APP_CURRENT_LANG);
-		$this->assign("SELF_REGISTRATION", SELF_REGISTRATION);				
-		$this->assign("WEBSERVER_LOG_STATISTICS", WEBSERVER_LOG_STATISTICS);				
-        $this->assign("SID", SID);
-		$this->assign("SHIB_SWITCH", SHIB_SWITCH);
-		$this->assign("SHIB_DIRECT_LOGIN", SHIB_DIRECT_LOGIN);		
-		$this->assign("APP_HOSTNAME", APP_HOSTNAME);
-		$this->assign("SHIB_HOME_SP", SHIB_HOME_SP);
-		$this->assign("SHIB_HOME_IDP", SHIB_HOME_IDP);
-		$this->assign("SHIB_FEDERATION_NAME", SHIB_FEDERATION_NAME);
-		
-		if (@$_REQUEST['getArguments']){
-			$getArguments = $_REQUEST['getArguments'];
-		} else {
-			$target = "cookie";
-			$time = "1142380709";
-			$providerId = urlencode(SHIB_HOME_SP);
-			$shire = urlencode("https://".APP_HOSTNAME."/Shibboleth.sso/SAML/POST");
-			$getArguments = "target=$target&shire=$shire&providerId=$providerId";
-		}
-		$this->assign("getArguments", $getArguments);
-        // now for the browser detection stuff
-
-        Net_UserAgent_Detect::detect();
-        $this->assign("browser", Net_UserAgent_Detect::_getStaticProperty('browser'));
-        $this->assign("os", Net_UserAgent_Detect::_getStaticProperty('os'));
-
-
-        // this is only used by the textarea resize script
-        $js_script_name = str_replace('/', '_', str_replace('.php', '', $HTTP_SERVER_VARS['PHP_SELF']));
-        $this->assign("js_script_name", $js_script_name);
-
-        $this->assign("total_queries", $GLOBALS['TOTAL_QUERIES']);
-		$this->assign('headerscript', $this->headerscript);
-        $this->assign(array(
-            "shaded_bar"     => "background='".APP_RELATIVE_URL."images/".APP_SHADED_BAR."'",
-            "heading_color"     => APP_HEADING_COLOR,
-            "cell_color"     => APP_CELL_COLOR,
-            "value_color"     => APP_VALUE_COLOR,
-            "light_color"    => APP_LIGHT_COLOR,
-            "selected_color"    => APP_SELECTED_COLOR,
-            "middle_color"   => APP_MIDDLE_COLOR,
-            "dark_color"     => APP_DARK_COLOR,
-            "cycle"          => APP_CYCLE_COLORS,
-            "internal_color" => APP_INTERNAL_COLOR
-        ));
+    	$this->processTemplate();
     }
+
 }
 
 

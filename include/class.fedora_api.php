@@ -113,8 +113,11 @@ class Fedora_API {
 			$info = curl_getinfo($ch);
 			curl_close ($ch);
 			$xml = $results;
-			$dom = new DomDocument;
-			$dom->loadXML($xml); // Now this works with php5 - CK 7/4/2005
+			$dom = @DomDocument::loadXML($xml);
+			if (!$dom) {
+				Error_Handler::logError(array("Problem getting PID from fedora.",$xml,$info),__FILE__,__LINE__);
+                return false;
+			}
 			$result = $dom->getElementsByTagName("pid");
 			foreach($result as $item) {
 				$pid = $item->nodeValue;
@@ -167,6 +170,30 @@ class Fedora_API {
     }
 
     /**
+     * Returns an associative array
+     * listSession - can be used to get the next page of results (see listSession => token, completeListSize, cursor)
+     * The session seems to have a five minute timeout
+     * resultList - the list of items found
+     */
+    function callFindObjects($resultFields = array('pid', 'title', 'identifier', 'description', 'type'),
+                            $maxResults=10,$query_terms="*")
+    {
+    	return Fedora_API::openSoapCallAccess('findObjects', array(
+            'resultFields' => $resultFields,
+            new soapval('maxResults','nonNegativeInteger', $maxResults),
+            new soapval('query','FieldSearchQuery',
+                            array('terms' => $query_terms) 
+                        ,false,'http://www.fedora.info/definitions/1/0/types/')
+        ));
+        
+        //$name='soapval',$type=false,$value=-1,$element_ns=false,$type_ns=false,$attributes=false
+    }
+
+    function callResumeFindObjects($token)
+    {
+    	return Fedora_API::openSoapCallAccess('resumeFindObjects', array('sessionToken' => $token));
+    }
+    /**
      * This function uses Fedora's simple search service which only really works against Dublin Core records,
 	 * so is not heavily used. Searches are mostly carried out against Fez's own (much more powerful) index.
      *
@@ -177,7 +204,7 @@ class Fedora_API {
      * @return  array $resultList The search results.
      */
 	function getListObjectsXML($searchTerms, $maxResults=2147483647, $returnfields=null) {
-		$resultlist = array();
+        $resultlist = array();
 		$searchTerms = urlencode("*$searchTerms*"); // encode it for url parsing
 		if (empty($returnfields)) {
 			$returnfields = array('pid', 'title', 'identifier', 'description', 'type');
@@ -243,13 +270,11 @@ class Fedora_API {
 		// The query has returned XML. Parse the xml into a DOMDocument
 		$doc = @DOMDocument::loadXML($xml);
         if (!$doc) {
-            echo "The ITQL query failed. This is probably due to the Fez Fedora Kowari Resource Index being switched off in the fedora.fcfg config file.
-			<br/> To use the Fez Fedora maintenance reindexer tools the Kowari resource index needs to be turned on. To do this edit fedora.fcfg and change the value of resourceIndex from 0 to 1 then stop fedora. Then run fedora-rebuild
+            Error_Handler::logError("The ITQL query failed. This is probably due to the Fez Fedora Kowari Resource Index being switched off in the fedora.fcfg config file.
+			\nTo use the Fez Fedora maintenance reindexer tools the Kowari resource index needs to be turned on. To do this edit fedora.fcfg and change the value of resourceIndex from 0 to 1 then stop fedora. Then run fedora-rebuild
 			and choose option 1. After the Kowari resource index has been rebuilt start fedora. See more about the Kowari resource index config settings at http://www.fedora.info.
-			<br/><br/> The Error returned from Fedora was: ";
-			echo "<pre>";
-            echo nl2br(htmlspecialchars(print_r($xml,true)));
-			echo "</pre>";
+			\n\n The Error returned from Fedora was: ".
+            print_r($xml,true),__FILE__,__LINE__);
             return array();
         }
 		$resultlist = array();
@@ -597,28 +622,26 @@ class Fedora_API {
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);			
 			$results = curl_exec($ch);
-			if ($results) {
-				$info = curl_getinfo($ch);
-				curl_close ($ch);
-				$xml = $results;
-				$dom = new DomDocument;
-				$dom->loadXML($xml);		
-				$xpath = new DOMXPath($dom);
-				$fieldNodeList = $xpath->query("/*/*");
-				$counter = 0;
-				foreach ($fieldNodeList as $fieldNode) {
-					$fieldAttList = $xpath->query("@*",$fieldNode);
-					foreach ($fieldAttList as $fieldAtt) {
-						$resultlist[$counter][$fieldAtt->nodeName] = trim($fieldAtt->nodeValue);
-					}
-					$counter++;
+			$info = curl_getinfo($ch);
+			curl_close ($ch);
+			$xml = $results;
+			$dom = @DomDocument::loadXML($xml);
+            if (!$dom) {
+            	Error_Handler::logError(array("Couldn't parse datastream XML",$info,$xml));
+                return false;
+            }
+			$xpath = new DOMXPath($dom);
+			$fieldNodeList = $xpath->query("/*/*");
+			$counter = 0;
+			foreach ($fieldNodeList as $fieldNode) {
+				$fieldAttList = $xpath->query("@*",$fieldNode);
+				foreach ($fieldAttList as $fieldAtt) {
+					$resultlist[$counter][$fieldAtt->nodeName] = trim($fieldAtt->nodeValue);
 				}
-				$returns[$pid] = $resultlist;
-				return $resultlist;
-			} else {
-				Error_Handler::logError(curl_error($ch),__FILE__,__LINE__);
-				curl_close ($ch);
-			}				
+				$counter++;
+			}
+			$returns[$pid] = $resultlist;
+			return $resultlist;
         } else {
             return array();
         }
@@ -662,12 +685,14 @@ class Fedora_API {
 		$dsExists = false;
 //		$rs = Fedora_API::callListDatastreams($pid); // old way
 		$rs = Fedora_API::callListDatastreamsLite($pid, $refresh);
+        if (is_array($rs)) {
 		foreach ($rs as $row) {
 //			if (isset($row['ID']) && $row['ID'] == $dsID) { // old way
 			if (isset($row['dsid']) && $row['dsid'] == $dsID) {				
 				$dsExists = true;
 			}
 		}
+        }
 		return $dsExists;
 	}
 
@@ -917,16 +942,14 @@ class Fedora_API {
 	   $client = new soapclient_internal(APP_FEDORA_MANAGEMENT_API);
 	   $client->setCredentials(APP_FEDORA_USERNAME, APP_FEDORA_PWD);
 	   $result = $client->call($call, $parms);
-       if ($debug_error && is_array($result) && (isset($result['faultcode']) || $call == 'addDatastream')) {
-//           Error_Handler::logError(array(print_r($result,true),Fedora_API::debugInfo($client, true)), __FILE__,__LINE__);
-//           Error_Handler::logError(array(print_r($result,true)), __FILE__,__LINE__);		   
-			$fedoraError = "Error when calling $call :".$result['faultstring']." <br/>
-			".Error_Handler::simpleBacktrace(debug_backtrace());
+       if ($debug_error && is_array($result) && isset($result['faultcode'])) {
+			$fedoraError = "Error when calling $call :".$result['faultstring'];
 			Error_Handler::logError($fedoraError, __FILE__,__LINE__);		   			
        }
 	   return $result;
 
 	}
+    
    /**
 	* Passes as Soap call to the NUSOAP engine through to the Fedora Access webservice API-A
 	*
@@ -944,12 +967,11 @@ class Fedora_API {
 	   $client = new soapclient_internal(APP_FEDORA_ACCESS_API);
 	   $client->setCredentials(APP_FEDORA_USERNAME, APP_FEDORA_PWD);
 	   $result = $client->call($call, $parms);
-	   //comment the return and uncomment the echo and debugInfo
-	   //to see debug statements.
-
-       //echo $result;
        //Fedora_API::debugInfo($client);
-	   return $result;
+	   if (is_array($result) && isset($result['faultcode'])) {
+            $fedoraError = "Error when calling $call :".$result['faultstring'];
+            Error_Handler::logError(array($fedoraError,$client->request), __FILE__,__LINE__);                   
+       }return $result;
 
 	}
 

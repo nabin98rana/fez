@@ -81,7 +81,6 @@ set_time_limit(0);
 @define("APP_WATERMARK", "watermark.gif"); // The image to be used for watermarking of copyright images
 // definitions of path related variables
 @define("APP_SAN_IMPORT_DIR", ""); //eg /fez/incoming or c:/fez/incoming
-@define("APP_TEST", "false");
 @define("APP_SQL_CACHE", ""); // Set this string to SQL_NO_CACHE if you want to test MySQL performance without query caching, keep "" for optimal performance (caching on)
 @define("APP_PATH", '%{APP_PATH}%');  //eg /usr/local/apache/htdocs/fez/ or C:/Program Files/Apache Group/Apache/htdocs/dev-fez/
 @define("APP_INC_PATH", APP_PATH . "include/");
@@ -182,6 +181,9 @@ if (APP_FEDORA_SETUP == 'sslall') {
 @define("APP_IMAGE_PREVIEW_MAX_WIDTH", 500);
 @define("APP_IMAGE_PREVIEW_MAX_HEIGHT", 1000);
 
+@define("APP_DISABLE_PASSWORD_CHECKING", false);  // used for testing
+@define("APP_DEBUG", true);  // whether to show error messages on the web pages.
+@define("REPORT_ERROR_FILE", true);  // enable logging to file (file set in APP_ERROR_LOG)
 @define("APP_ERROR_LOG", APP_PATH . "error_handler.log");
 
 @define("APP_NAME", "%{APP_NAME}%");

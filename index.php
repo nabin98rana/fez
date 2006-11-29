@@ -113,7 +113,6 @@ $tpl->assign("last", "Last ");
 
 $list = Collection::browseListing(0, 3, "Created Date", null, 0);
 $list = $list["list"];
-
 $tpl->assign("list", $list);
 $tpl->assign("eserv_url", APP_RELATIVE_URL."eserv.php");
 $news = News::getList();

@@ -179,15 +179,20 @@ class Auth
 				array_push($ACMLArray, $fezACML_row); //add it to the acml array and dont go any further up the hierarchy
 			}
         } else {
-		
 			$pre_stmt =  "SELECT r2.rmf_varchar 
 							FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
 								  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,							
 								  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
-							WHERE (s2.sek_title = 'isMemberOf' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid_num = ".Misc::numPid($pid)." and r2.rmf_rec_pid = '".$pid."')";
+							WHERE (s2.sek_title = 'isMemberOf' AND r2.rmf_xsdmf_id = x2.xsdmf_id " .
+                                    "AND s2.sek_id = x2.xsdmf_sek_id " .
+                                    "AND r2.rmf_rec_pid_num = '".Misc::numPid($pid)."' " .
+                                    "AND r2.rmf_rec_pid = '".$pid."')";
 //			debug_print_backtrace();
 //			echo $pre_stmt;
-			$res = $GLOBALS["db_api"]->dbh->getCol($pre_stmt);							
+			$res = $GLOBALS["db_api"]->dbh->getCol($pre_stmt);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            }
 			$parent_pid_string = implode("', '", $res);
 			$stmt = "SELECT 
 						* 
@@ -204,7 +209,10 @@ class Auth
 
 			$securityfields = Auth::getAllRoles();
 			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-			$return = array();	
+			if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            }
+            $return = array();	
 			foreach ($res as $result) {
 				if (!is_array(@$return[$result['rmf_rec_pid']])) {
 					$return[$result['rmf_rec_pid']]['exists'] = array();
@@ -1060,7 +1068,7 @@ class Auth
      */
     function isCorrectPassword($username, $password)
     {
-        if (APP_TEST === "true") {
+        if (APP_DISABLE_PASSWORD_CHECKING === true) {
             return true;
         } else {
             global $HTTP_POST_VARS;
@@ -1262,7 +1270,7 @@ class Auth
      * @return  boolean true if the user successfully binds to the LDAP server
      */
 	function ldap_authenticate($p_user_id, $p_password) {
-        if (APP_TEST === "true") {
+        if (APP_DISABLE_PASSWORD_CHECKING === true) {
             return true; // switch this on and comment the rest out for debugging/development
         } else {
             $t_authenticated 		= false;

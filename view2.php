@@ -59,6 +59,12 @@ if ($debug == 1) {
 	$tpl->assign("debug", "0");	
 }
 if (!empty($pid)) {
+	$record = new RecordObject($pid);
+    if (!$record->checkExists()) {
+    	Error_Handler::logError("Record ({$pid}) doesn't exist",__FILE__,__LINE__);
+    }
+} 
+if (!empty($pid) && $record->checkExists()) {
 	$tpl->assign("pid", $pid);
 	$record = new RecordObject($pid);
 	$xdis_id = $record->getXmlDisplayId();

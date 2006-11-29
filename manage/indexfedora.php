@@ -43,21 +43,25 @@ include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "db_access.php");
-include_once(APP_INC_PATH . "najax/najax.php");
-include_once(APP_INC_PATH . "najax_objects/class.select_reindex_info.php");
 include_once(APP_INC_PATH . "class.pager.php");
+include_once(APP_INC_PATH . "najax_classes.php");
+
 
 $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");
-
-NAJAX_Server::allowClasses('SelectReindexInfo');
-if (NAJAX_Server::runServer()) {
-	exit;
-}
+$tpl->assign("type", "fedoraindex");
 
 Auth::checkAuthentication(APP_SESSION);
 
-$tpl->assign("type", "fedoraindex");
+@define('INDEX_TYPE_FEDORAINDEX', 1);
+@define('INDEX_TYPE_REINDEX', 2);
+if (strstr($_SERVER['REQUEST_URI'], "indexfedora.php")) {
+    $index_type = INDEX_TYPE_FEDORAINDEX; 
+} else {
+    $index_type = INDEX_TYPE_REINDEX; 
+}
+$tpl->assign("index_type", $index_type);
+
 $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
@@ -80,7 +84,11 @@ if (empty($rows)) {
 }
 $options = Pager::saveSearchParams();
 $tpl->assign("options", $options);
-$details = Reindex::getMissingList($pagerRow, $rows);
+if ($index_type == INDEX_TYPE_FEDORAINDEX) {
+    $details = Reindex::getMissingList($pagerRow, $rows);
+} else {
+	$details = Reindex::getFullList($pagerRow, $rows);
+}
 $tpl->assign("list", $details['list']);
 $tpl->assign("list_info", $details['info']);		
 //        return $details; 
@@ -94,7 +102,13 @@ $tpl->assign('communities_list', $communities_list);
 if (is_array($communities) && isset($communities['list'][0]['pid'])) {
     $tpl->assign('communities_list_selected', $communities['list'][0]['pid']);
 }
-$tpl->registerNajax(NAJAX_Client::register('SelectReindexInfo', 'indexfedora.php'));
+$tpl->registerNajax(NAJAX_Client::register('SelectReindexInfo', APP_RELATIVE_URL.'ajax.php'));
+if ($index_type == INDEX_TYPE_FEDORAINDEX) {
+    $tpl->onload("selectCommunity(getForm('reindex_form'), 'community_pid');");
+    $tpl->onload("showSettings();");
+} else {
+	$tpl->onload("hideSettings();");
+}
 
 $tpl->displayTemplate();
 ?>

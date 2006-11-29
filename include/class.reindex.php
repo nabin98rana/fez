@@ -69,16 +69,25 @@ class Reindex
      * @access  public
      * @return  array The list of pids in the Fez index.
      */
-    function getIndexPIDList()
+    function getIndexPIDList($current_row = 0, $max = null)
     {
+        if (!empty($max)) {
+            if ($max == "ALL") {
+                $max = 9999999;
+            }
+            $start = $current_row * $max;	
+        }
         $stmt = "SELECT
                     distinct rmf_rec_pid
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field";
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field ";
+        if (!empty($max)) {
+            $stmt .= " LIMIT $start, $max";
+        }
         $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
+            return array();
         } else {
             return $res;
         }
@@ -94,15 +103,6 @@ class Reindex
     {
         $start = $current_row * $max;
 		$fezIndexPIDs = Reindex::getIndexPIDList();
-/*        $itql = "select \$title \$object from <#ri>
-                 where ((\$object <dc:title> \$title))
-					order by \$object asc";
-
-        $returnfields = array();
-        array_push($returnfields, "pid");
-        array_push($returnfields, "title");
-//        array_push($returnfields, "description");
-        $details = Fedora_API::getITQLQuery($itql, $returnfields); */
 		$details = Fedora_API::getListObjectsXML("*");
 		$return = array();
 		foreach ($details as $detail) {
@@ -111,7 +111,7 @@ class Reindex
 			}
 		}
 
-/*		$total_rows = count($return);		
+		$total_rows = count($return);		
 		$return = Misc::limitListResults($return, $start, ($start + $max)); 
 		if (($start + $max) < $total_rows) {
 	        $total_rows_limit = $start + $max;
@@ -119,7 +119,7 @@ class Reindex
 		   $total_rows_limit = $total_rows;
 		}
 		$total_pages = ceil($total_rows / $max);
-        $last_page = $total_pages - 1;*/
+        $last_page = $total_pages - 1;
         return array(
             "list" => $return,
             "info" => array(
@@ -135,43 +135,26 @@ class Reindex
         );	
 	}
 
-    /**
-     * Method used to get the list of PIDs in Fedora that are in the Fez index.
-     *
-     * @access  public
-     * @return  array The list.
-     */
-    function getFullList($current_row = 0, $max = 5)
+    function getFullList($current_row, $max)
     {
-		$fezIndexPIDs = Reindex::getIndexPIDList();
+        $fezIndexPIDs = Reindex::getIndexPIDList();
+        $details = Fedora_API::callFindObjects(array('pid', 'title', 'description'), 2000000);
+        $return = array();
+        foreach ($details['resultList'] as $detail) {
+            if (in_array($detail['pid'], $fezIndexPIDs)) {
+                array_push($return, $detail);
+            }
+        }
         $start = $current_row * $max;
-    
-/*
-        $itql = "select \$title \$object from <#ri>
-                 where ((\$object <dc:title> \$title))
-					order by \$object asc";
-
-        $returnfields = array();
-        array_push($returnfields, "pid");
-        array_push($returnfields, "title");
-        $details = Fedora_API::getITQLQuery($itql, $returnfields);
-*/
-		$details = Fedora_API::getListObjectsXML("*");
-		$return = array();
-		foreach ($details as $detail) {
-			if (in_array($detail['pid'], $fezIndexPIDs)) {
-				array_push($return, $detail);
-			}
-		}
-		$total_rows = count($return);
-/*		if (($start + $max) < $total_rows) {
-	        $total_rows_limit = $start + $max;
-		} else {
-		   $total_rows_limit = $total_rows;
-		}*/
-//		$total_pages = ceil($total_rows / $max);
-//        $last_page = $total_pages - 1;
-//		$return = Misc::limitListResults($return, $start, ($start + $max));
+        $total_rows = count($return);       
+        $return = Misc::limitListResults($return, $start, ($start + $max));     
+        if (($start + $max) < $total_rows) {
+            $total_rows_limit = $start + $max;
+        } else {
+           $total_rows_limit = $total_rows;
+        }
+        $total_pages = ceil($total_rows / $max);
+        $last_page = $total_pages - 1;
         return array(
             "list" => $return,
             "info" => array(
@@ -184,8 +167,47 @@ class Reindex
                 "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
                 "last_page"     => $last_page
             )
-        );
-	}
+        );  
+    }
+    
+    function getFedoraObjects($current_row, $max) 
+    {
+        $start = $current_row * $max;
+    	$result = Fedora_API::callFindObjects(array('pid', 'title', 'description'), $max);
+        for ($ii = 0; $ii < $current_row; $ii++) {
+        	$result = Fedora_API::callResumeFindObjects($result['listSession']['token']);
+        }
+        $total_rows = $result['listSession']['completeListSize'];
+        if (empty($total_rows)) {
+        	if (count($result['resultList']) < $max) {
+                $total_rows = $start + count($result['resultList']);
+        	} else {
+                $total_rows = $start + $max + 1;
+            }
+        }
+        //Error_Handler::logError($result);
+        if (($start + $max) < $total_rows) {
+            $total_rows_limit = $start + $max;
+        } else {
+           $total_rows_limit = $total_rows;
+        }
+        $total_pages = ceil($total_rows / $max);
+        $last_page = $total_pages - 1;
+        return array(
+        "list" => $result['resultList'],
+            "info" => array(
+                "current_page"  => $current_row,
+                "start_offset"  => $start,
+                "end_offset"    => $start + ($total_rows_limit),
+                "total_rows"    => $total_rows,
+                "total_pages"   => $total_pages,
+                "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+                "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
+                "last_page"     => $last_page
+                )
+                );
+       
+    }
 
     /**
      * Method used to reindex a batch of pids in fedora into Fez.

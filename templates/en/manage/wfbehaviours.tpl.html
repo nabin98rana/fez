@@ -183,7 +183,9 @@ function setCustomOptionsField()
               {/if}
               <tr>
                 <td colspan="2" class="default">
-                  <b>Manage Workflow Behaviours</b> (<a href="{$rel_url}manage/wfbehaviours.php{if $wfl_id}?wfl_id={$wfl_id}{/if}">New</a>{if $wfl_id} | <a href="{$rel_url}manage/workflow_states?wfl_id={$wfl_id}">Back to Workflow States</a>{/if})
+                  <b>Manage Workflow Behaviours</b> 
+                  (<a href="{$rel_url}manage/wfbehaviours.php{if $wfl_id}?wfl_id={$wfl_id}{/if}">New</a>{if $wfl_id} 
+                  	| <a href="{$rel_url}manage/workflow_states.php?wfl_id={$wfl_id}">Back to Workflow States</a>{/if})
                 </td>
               </tr>
               {if $result != ""}

@@ -1087,6 +1087,8 @@ class Record
 		return $res;
     }
 
+    
+
     /**
      * Sets the index during batch import. Could also be used in future versions for objects in 
      * Fedora that are not in the index yet.
@@ -1099,40 +1101,33 @@ class Record
      */
     function setIndexMatchingFields($pid, $dsID='') 
     {
-        // careful what you do with the record object - don't want to use the index while reindexing 
         $record = new RecordObject($pid);
-        $xdis_id = $record->getXmlDisplayId();
-        if (!is_numeric($xdis_id)) {
-            $xdis_id = XSD_Display::getXDIS_IDByTitle('Generic Document');
-        }
-//		echo $xdis_id; exit;
-        $display = new XSD_DisplayObject($xdis_id);
-        $array_ptr = array();
-        $xsdmf_array = $display->getXSDMF_Values($pid);		
-		Record::removeIndexRecord($pid, '', 'keep'); //CK 22/5/06 = added last 2 params to make it keep the dsID indexes for Fezacml on datastreams // remove any existing index entry for that PID // CK added 9/1/06 - still working on this
-		//print_r($xsdmf_array); exit;
-        foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
-            if (!is_array($xsdmf_value) && !empty($xsdmf_value) && (trim($xsdmf_value) != "")) {					
-                $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
-				if ($xsdmf_details['xsdmf_indexed'] == 1) {
-	                Record::insertIndexMatchingField($pid, $dsID, $xsdmf_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_value);
-				}
-            } elseif (is_array($xsdmf_value)) {
-                foreach ($xsdmf_value as $xsdmf_child_value) {
-                    if ($xsdmf_child_value != "") {
-                        $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
-						if ($xsdmf_details['xsdmf_indexed'] == 1) {
-                        	Record::insertIndexMatchingField($pid, $dsID, $xsdmf_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_child_value);
-						}
-                    }
-                }
-            }
-        }
+        $record->setIndexMatchingFields($dsID);
         AuthIndex::setIndexAuth($pid); //set the security index
         if (!$record->isCommunity() && !$record->isCollection()) { 
             FulltextIndex::indexPid($pid);
         }
 //		exit;
+    }
+    
+    function setIndexMatchingFieldsRecurse($pid, $bgp=null) 
+    {
+    	if (!empty($bgp)) {
+    		$bgp->setStatus("Processing {$pid}");
+            $bgp->incrementProgress();
+    	}
+        $record = new RecordObject($pid);
+        $record->setIndexMatchingFields();
+        if (!$record->isCommunity() && !$record->isCollection()) { 
+            FulltextIndex::indexPid($pid);
+        }
+        // recurse children
+        // NOTE: this only finds objects that are already indexed correctly at least when it comes to
+        //          memberOf
+        $children = $record->getChildrenPids();
+        foreach ($children as $child_pid) {
+            Record::setIndexMatchingFieldsRecurse($child_pid, $bgp);
+        }
     }
     
     /**
@@ -1420,6 +1415,10 @@ class RecordGeneral
     function getXmlDisplayId() {
         if (!$this->no_xdis_id) {
             if (empty($this->xdis_id)) {
+                if (!$this->checkExists()) {
+                	Error_Handler::logError("Record {$this->pid} doesn't exist",__FILE__,__LINE__);
+                    return null;
+                }
                 $xdis_array = Fedora_API::callGetDatastreamContentsField($this->pid, 'FezMD', array('xdis_id'));
                 if (isset($xdis_array['xdis_id'][0])) {
                     $this->xdis_id = $xdis_array['xdis_id'][0];
@@ -1956,7 +1955,40 @@ class RecordGeneral
     function getDatastreamContents($dsID) {
 		return Fedora_API::callGetDatastreamContents($this->pid, $dsID);
     }
-
+    
+    function setIndexMatchingFields($dsID='') 
+    {
+        // careful what you do with the record object - don't want to use the index while reindexing 
+        
+        $pid = $this->pid;
+        $xdis_id = $this->getXmlDisplayId();
+        if (!is_numeric($xdis_id)) {
+            $xdis_id = XSD_Display::getXDIS_IDByTitle('Generic Document');
+        }
+//      echo $xdis_id; exit;
+        $display = new XSD_DisplayObject($xdis_id);
+        $array_ptr = array();
+        $xsdmf_array = $display->getXSDMF_Values($pid);     
+        Record::removeIndexRecord($pid, '', 'keep'); //CK 22/5/06 = added last 2 params to make it keep the dsID indexes for Fezacml on datastreams // remove any existing index entry for that PID // CK added 9/1/06 - still working on this
+        //print_r($xsdmf_array); exit;
+        foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
+            if (!is_array($xsdmf_value) && !empty($xsdmf_value) && (trim($xsdmf_value) != "")) {                    
+                $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
+                if ($xsdmf_details['xsdmf_indexed'] == 1) {
+                    Record::insertIndexMatchingField($pid, $dsID, $xsdmf_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_value);
+                }
+            } elseif (is_array($xsdmf_value)) {
+                foreach ($xsdmf_value as $xsdmf_child_value) {
+                    if ($xsdmf_child_value != "") {
+                        $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
+                        if ($xsdmf_details['xsdmf_indexed'] == 1) {
+                            Record::insertIndexMatchingField($pid, $dsID, $xsdmf_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_child_value);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 /**
