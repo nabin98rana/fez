@@ -175,6 +175,7 @@ class BackgroundProcess {
         } else {
             exec("$command 2>&1 &");
         }
+        return $this->bgp_id;
     } 
 
     

@@ -9,6 +9,8 @@
  *
  */
  
+ include_once(APP_INC_PATH.'class.bgp_test.php');
+ 
  class ConfigResult
  {
  	var $type;
@@ -55,6 +57,7 @@
         $results = array_merge($results, SanityChecks::shib());
         $results = array_merge($results, SanityChecks::ldap());
         $results = array_merge($results, SanityChecks::imageMagick());
+        $results = array_merge($results, SanityChecks::backgroundProcess());
         return $results;
     }   
      
@@ -212,7 +215,25 @@
     
     function backgroundProcess()
     {
-    	
+    	$results = array(ConfigResult::message('Testing backgroundProcess'));
+        $results = array_merge($results, SanityChecks::checkFile('APP_PHP_EXEC', APP_PHP_EXEC, false, true));
+        if (SanityChecks::resultsClean($results)) {
+        	// run a test bgp
+            $bgp = new BackgroundProcess_Test();
+            $id = $bgp->register(serialize(array('test'=>'Hello')),1);
+            sleep(1); // i hope this is long enough
+            $bgp = new BackgroundProcess($id);
+            $det = $bgp->getDetails();
+            if ($det['bgp_status_message'] != "I got Hello") {
+            	$results[] = new ConfigResult('backgroundProcess', "Run Background Process", $id, 
+                        "The background process doesn't seem to have run.  On windows this can be a " .
+                        "problem with the version of apache or php - try different versions.");
+            }
+        } 
+        if (SanityChecks::resultsClean($results)) { 
+            $results[] = ConfigResult::messageOk('All backgroundProcess tests passed');
+        }
+        return $results;
     }
     
     function dot()
