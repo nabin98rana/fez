@@ -78,7 +78,6 @@ class Misc
 	      curl_close ($ch);
 		} else {
 			$info = array();
-			debug_print_backtrace();
 			Error_Handler::logError(curl_error($ch)." ".$url,__FILE__,__LINE__);
 			curl_close ($ch);
 		}	   
