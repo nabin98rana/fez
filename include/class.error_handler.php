@@ -137,7 +137,10 @@ class Error_Handler
 			
             
         } else {
-        	$error = $error_msg;        
+        	$error = $error_msg;
+        	if ((APP_DISPLAY_ERROR_LEVEL == 1) || (APP_DISPLAY_ERROR_LEVEL == 2) || (APP_DISPLAY_ERROR_LEVEL == 3)) {
+        		 Error_Handler::$app_errors[] = $error_display; 
+        	}
         }
         if (APP_REPORT_ERROR_FILE) {
             Error_Handler::_logToFile($error, $script, $line);
