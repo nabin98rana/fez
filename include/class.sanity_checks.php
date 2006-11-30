@@ -10,6 +10,7 @@
  */
  
  include_once(APP_INC_PATH.'class.bgp_test.php');
+ include_once(APP_INC_PATH. 'class.graphviz.php');
  
  class ConfigResult
  {
@@ -47,10 +48,12 @@
     function runAllChecks()
     {
     	$results = array(); // array of ConfigResult objects
+        $results = array_merge($results, SanityChecks::extensions());
         $results = array_merge($results, SanityChecks::checkHTTPConnect('APP_BASE_URL',APP_BASE_URL));
         $results = array_merge($results, SanityChecks::dirs());
         if (!SanityChecks::resultsClean($results)) {
             // no point continuing if the basics aren't met
+            $results[] = ConfigResult::message('Aborting remaining tests');
             return $results;
         }
         $results = array_merge($results, SanityChecks::jhove());
@@ -58,8 +61,74 @@
         $results = array_merge($results, SanityChecks::ldap());
         $results = array_merge($results, SanityChecks::imageMagick());
         $results = array_merge($results, SanityChecks::backgroundProcess());
+        $results = array_merge($results, SanityChecks::dot());
+        $results = array_merge($results, SanityChecks::tidy());
+        $results = array_merge($results, SanityChecks::fedora());
+        $results = array_merge($results, SanityChecks::sql());
+        $results = array_merge($results, SanityChecks::pdftotext());
+        if (SanityChecks::resultsClean($results)) {  
+            $results[] = ConfigResult::messageOk('All tests Passed');
+        }
         return $results;
     }   
+     
+    function extensions() 
+    {
+        $results = array(ConfigResult::message('Testing for PHP extensions'));
+        ob_start();
+        phpinfo();
+        $contents = ob_get_contents();
+        ob_end_clean();
+        if (!preg_match("/GD Support.*<\/td><td.*>enabled/U", $contents)) {
+            $results[] = new ConfigResult('PHP extensions', 'GD Support', '', "The GD extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly.");
+        }
+        if (!preg_match("/Tidy support.*<\/th><th.*>enabled/U", $contents)) {
+            $results[] = new ConfigResult('PHP extensions','Tidy support', '',"The Tidy extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly.");
+        }
+        if (!preg_match("/CURL support.*<\/td><td.*>enabled/i", $contents)) {
+            $results[] = new ConfigResult('PHP extensions','CURL support', '',"The CURL extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly.");
+        }
+        if (!preg_match("/DOM\/XML.*<\/td><td.*>enabled/U", $contents)) {
+            $results[] = new ConfigResult('PHP extensions','DOM XML', '',"The DOM extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly.");
+        }
+        if (LDAP_SWITCH == "ON") {
+        	if (!preg_match("/LDAP Support.*<\/td><td.*>enabled/U", $contents)) {
+                $results[] = new ConfigResult('PHP extensions','LDAP Support', '',"The LDAP Support extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly.");
+            }
+        }
+    
+        // check for MySQL support
+        if (!function_exists('mysql_query')) {
+            $results[] = new ConfigResult('PHP extensions','mysql_query', '',"The MySQL extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly.");
+        }
+    
+        // check for the file_uploads php.ini directive
+        if (ini_get('file_uploads') != "1") {
+            $results[] = new ConfigResult('PHP extensions','file_uploads', '',"The 'file_uploads' directive needs to be enabled in your PHP.INI file in order for Fez to work properly.");
+        }
+        if (ini_get('allow_call_time_pass_reference') != "1") {
+            $results[] = new ConfigResult('PHP extensions','allow_call_time_pass_reference', '',
+                'allow_call_time_pass_reference',"The 'allow_call_time_pass_reference' directive needs to be enabled in your PHP.INI file in order for Fez to work properly.");
+        }
+        $mem = Misc::convertSize(ini_get('memory_limit'));
+        if ($mem > 0 && $mem < 33554432) {
+            $results[] = new ConfigResult('PHP extensions', 'memory_limit',$mem, "The 'memory_limit' directive " .
+                    "should be set higher than 32M in your PHP.INI file in order for Fez to work properly. " .
+                    "This depends somewhat on the size of files that Fez should be handling. ");
+        }
+        $mem = Misc::convertSize(ini_get('upload_max_filesize')); 
+        if ($mem > 0 && $mem < 10485760) {
+            $results[] = new ConfigResult('PHP extensions', 'upload_max_filesize',$mem, "The 'upload_max_filesize' directive " .
+                    "should be set higher than 10M in your PHP.INI file in order for Fez to work properly. " .
+                    "This depends somewhat on the size of files that Fez should be handling. ");
+        }
+
+
+        if (SanityChecks::resultsClean($results)) {  
+            $results[] = ConfigResult::messageOk('Testing PHP extensions');
+        }
+        return $results;
+    } 
      
     function dirs()
     {
@@ -238,22 +307,150 @@
     
     function dot()
     {
-    	
+    	$results = array(ConfigResult::message('Testing graphviz dot'));
+        $results = array_merge($results, SanityChecks::checkFile('APP_DOT_EXEC', APP_DOT_EXEC, false, true));
+        $dot = 'digraph States { graph [fontpath="/usr/share/fonts/default/Type1/"]; rankdir=LR; node [color=lightblue, style=filled, fontname=n019003l, fontsize=10];454 [label="Review Metadata " URL="http://dev-repo.library.uq.edu.au/uqmsmi14/fez_devel/manage/workflow_states.php?cat=edit&wfl_id=114&wfs_id=454" ]; 453 [label="Preview " URL="http://dev-repo.library.uq.edu.au/uqmsmi14/fez_devel/manage/workflow_states.php?cat=edit&wfl_id=114&wfs_id=453" ]; 451 [label="Publish (end|auto)" URL="http://dev-repo.library.uq.edu.au/uqmsmi14/fez_devel/manage/workflow_states.php?cat=edit&wfl_id=114&wfs_id=451" style=bold color="lightgoldenrod1" ]; 452 [label="Submit for Approval (end|auto)" URL="http://dev-repo.library.uq.edu.au/uqmsmi14/fez_devel/manage/workflow_states.php?cat=edit&wfl_id=114&wfs_id=452" style=bold color="lightgoldenrod1" ]; 449 [label="Select Collection (start)" URL="http://dev-repo.library.uq.edu.au/uqmsmi14/fez_devel/manage/workflow_states.php?cat=edit&wfl_id=114&wfs_id=449" shape=box ]; 450 [label="Enter Metadata " URL="http://dev-repo.library.uq.edu.au/uqmsmi14/fez_devel/manage/workflow_states.php?cat=edit&wfl_id=114&wfs_id=450" ]; "450" -> "453"; "454" -> "452"; "454" -> "451"; "454" -> "453"; "453" -> "451"; "449" -> "450"; "450" -> "451"; "453" -> "452"; "450" -> "452"; "453" -> "454"; };';
+        if (SanityChecks::resultsClean($results)) { 
+            ob_start();
+            Graphviz::getPNG($dot);
+            $png = bin2hex(ob_get_contents());
+            ob_end_clean ();
+            $pngsig = "89504E470D0A1A0A";
+            if (strcasecmp(substr($png,0,strlen($pngsig)),$pngsig) != 0) {
+                $results[] = new ConfigResult('Graphviz', "Run Dot", '', 
+                        "The generation of a PNG using Graphviz DOT failed.  This is not critical as DOT is only used for " .
+                        "showing workflow patterns in the admin forms.");
+            }
+        }
+        if (SanityChecks::resultsClean($results)) { 
+            $cmapx = Graphviz::getCMAPX($dot);
+            $mapsig = '<map id="States" name="States">';
+            if (strcasecmp(substr($cmapx,0,strlen($mapsig)),$mapsig) != 0) {
+                $results[] = new ConfigResult('Graphviz', "Run Dot cmapx", '', 
+                        "The generation of an image map using dot didn't work.");
+            }
+        }
+        if (SanityChecks::resultsClean($results)) { 
+            $results[] = ConfigResult::messageOk('All graphviz dot tests passed');
+        }
+        return $results;
     }
     
     function tidy()
     {
-    	
+    	$results = array(ConfigResult::message('Testing Tidy'));
+        $teststr = "<this><is></this>";
+        $config = array(
+            'add-xml-decl' => true,
+              'indent' => true,
+              'input-xml' => true,
+              'output-xml' => true,
+              'wrap' => 200);
+        $tidy = new Tidy;
+        if (!$tidy) {
+        	$results[] = new ConfigResult('Tidy', 'new Tidy', '', 'Tidy object creation failed.');
+        } else {
+            $tidy->parseString($teststr, $config, 'utf8');
+            $tidy->cleanRepair();
+            $xml = "$tidy";
+            $results = array_merge($results, SanityChecks::checkXMLStr('Tidy Result',$xml, '/this/is'));
+        }
+        if (!SanityChecks::resultsClean($results)) {
+        	$results[] = ConfigResult::message('Some common problems with tidy are that the actual' .
+                    'c libraries aren\'t installed properly. ' .
+                    'For linux make sure libtidy, libtidy-dev and tidy packages are installed before compiling php');
+        }
+        if (SanityChecks::resultsClean($results)) { 
+            $results[] = ConfigResult::messageOk('All Tidy tests passed');
+        }
+        return $results;
     } 
     
     function fedora()
     {
-    	
+    	$results = array(ConfigResult::message('Testing Fedora'));
+        $results = array_merge($results, SanityChecks::checkHTTPConnect('APP_BASE_FEDORA_APIA_DOMAIN',APP_BASE_FEDORA_APIA_DOMAIN));
+        $results = array_merge($results, SanityChecks::checkHTTPConnect('APP_BASE_FEDORA_APIM_DOMAIN',APP_BASE_FEDORA_APIM_DOMAIN));
+        $results = array_merge($results, SanityChecks::checkHTTPConnect('APP_FEDORA_ACCESS_API',APP_FEDORA_ACCESS_API));
+        $results = array_merge($results, SanityChecks::checkHTTPConnect('APP_FEDORA_MANAGEMENT_API',APP_FEDORA_MANAGEMENT_API));
+        if (!SanityChecks::resultsClean($results)) {
+        	$results[] = ConfigResult::message('If the fedora server responded with a 401 code, then maybe ' .
+                    'the security settings aren\'t right.  Check that you supplied the correct password in ' .
+                    'the Fez config.  Set fedora.fcfg option <param name="ENFORCE-MODE" value="permit-all-requests"/> ' .
+                    'to allow requests from remote hosts (or taylor to suit your security requirements - default ' .
+                    'seems to let through localhost only)');
+        } else {
+        	// check get next pid is ok
+            $results = array_merge($results, SanityChecks::checkHTTPConnect(
+                'GetNextPid',
+                APP_BASE_FEDORA_APIM_DOMAIN."/mgmt/getNextPID?xml=true"));
+            $getString = APP_BASE_FEDORA_APIM_DOMAIN."/mgmt/getNextPID?xml=true";
+            $ch = curl_init($getString);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);                    
+            $xml = curl_exec($ch);
+            $dom = @DomDocument::loadXML($xml);
+            if (!$dom) {
+             	$results[] = new ConfigResult('Fedora','Get Next PID', '', "Fedora didn't return valid XML.");
+            }
+            curl_close ($ch);
+            if (!SanityChecks::resultsClean($results)) {
+                $results[] = ConfigResult::message('Make sure that whatever PID prefix namespace you choose is also in ' .
+                    'the "retainPIDS" set of namespaces. Eg if your PID namespace is "UQ" make sure "UQ" is in ' .
+                    'the list of retainPIDS in fedora.fcfg. If this is not set then Fez will not be able to create ' .
+                    'objects in Fedora.');
+            }
+        } 
+        if (SanityChecks::resultsClean($results)) { 
+            $results[] = ConfigResult::messageOk('All Fedora tests passed');
+        }
+        return $results;
     } 
     
     function sql()
     {
-    	
+    	$results = array(ConfigResult::message('Testing SQL'));
+        list($server, $port) = explode(':', APP_SQL_DBHOST);
+        if (empty($port)) {
+        	$port = '3306';
+        }
+        $results = array_merge($results, SanityChecks::checkConnect('APP_SQL_DBHOST',$server.':'.$port));
+        if (SanityChecks::resultsClean($results)) {
+            $stmt = "use ".APP_SQL_DBNAME;
+            $res = $GLOBALS["db_api"]->dbh->query($stmt);
+            if (PEAR::isError($res)) {
+                $results[] = new ConfigResult('SQL','APP_SQL_DBNAME',APP_SQL_DBNAME,"Failed to use DB. " .
+                        "Check that the configured APP_SQL_DBUSER has permissions on the DB in SQL. " .
+                        "Check that APP_SQL_DBPASS is correct. " .
+                        "Check that APP_SQL_DBNAME is set correctly. DB Error: " .
+                        "".$res->getMessage().' '.print_r($res->getDebugInfo(),true));
+            }
+        }
+        if (SanityChecks::resultsClean($results)) {
+            $stmt = "SELECT * FROM ".APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement limit 1";
+            $res = $GLOBALS["db_api"]->dbh->getAll($stmt);
+            if (PEAR::isError($res)) {
+                $results[] = new ConfigResult('SQL','APP_TABLE_PREFIX',APP_TABLE_PREFIX,"Failed to query " .
+                        "one of the Fez tables.  Check that APP_TABLE_PREFIX is correct. DB Error: " .
+                        "".$res->getMessage().' '.print_r($res->getDebugInfo(),true));
+            }
+        }
+        if (SanityChecks::resultsClean($results)) { 
+            $results[] = ConfigResult::messageOk('All SQL tests passed');
+        }
+        return $results;
+    }
+    
+    function pdftotext()
+    {
+    	$results = array(ConfigResult::message('Testing PDFtoText'));
+        $results = array_merge($results, SanityChecks::checkFile('APP_PDFTOTEXT_EXEC',APP_PDFTOTEXT_EXEC, false, true));
+        if (SanityChecks::resultsClean($results)) { 
+            $results[] = ConfigResult::messageOk('All PDFtoText tests passed');
+        }
+        return $results;
     }
 
     function resultsClean($results) 
@@ -317,10 +514,21 @@
         if (!empty($results)) {
         	return $results;
         }
-        $dom = DOMDocument::load($value);
+        $xml = file_get_contents($value);
+        return SanityChecks::checkXMLStr($configDefine, $xml, $xpath, $ns_array, $debug);
+    }
+    
+    function checkXMLStr($configDefine, $value, $xpath = '', $ns_array = array(), $debug = false)
+    {
+        $dom = DOMDocument::loadXML($value);
         if (!$dom) {
-            return array(new ConfigResult('XML', $configDefine, $value, "The file must be valid" .
-                    " XML.  Perhaps the application that generated it didn't run correctly."));
+            return array(new ConfigResult('XML', $configDefine, $value, "The xml must be valid. " .
+                    "Perhaps the application that generated it didn't run correctly.  " .
+                    "NOTE: When compiling PHP we have noticed that DOMXPATH does not work with some versions " .
+                    "of LIBXML2. We have successfully tested using DOMXPATH with LIBXML2 version 2.6.16 " .
+                    "(on Linux Centos) and 2.6.23 (latest version of LIBXML on Redhat Fedora 4), but it causes " .
+                    "a failure in PHP with version 2.6.19 (on Linux Red Hat Fedora 4). We have only tested these " .
+                    "three versions so if you are having problems with XML, try different versions."));
         }
         if ($debug) {
             echo "<pre>".print_r($dom->saveXML(),true)."</pre>";
@@ -368,6 +576,7 @@
        curl_setopt ($ch, CURLOPT_NOBODY, 1);
        curl_setopt ($ch, CURLOPT_HEADER, 1);
        curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
+       curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
        if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
          curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
          curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
@@ -378,12 +587,14 @@
             $errstr = curl_error($ch);
             return array(new ConfigResult('ConnectHTTP', $configDefine, $value, "Error: $errstr. " .
                     "The webserver couldn't connect to this address.  Check that the address is correct. " .
-                    "Perhaps it is blocked at a firewall."));
+                    "Perhaps it is blocked at a firewall.  Also check that CURL is correctly installed."));
        }
        curl_close ($ch);
        if ($info['http_code'] != 200) { 
             return array(new ConfigResult('ConnectHTTP', $configDefine, $value, 
+                    "HTTP Result {$info['http_code']} code. ".
                     "The webserver couldn't connect to this address.  Check that the address is correct. " .
+                    "Check that any authorisation needed is correct. " .
                     "Perhaps it is blocked at a firewall."));
        }      
        return array();

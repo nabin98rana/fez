@@ -36,7 +36,7 @@ class Graphviz
 {
     function getCMAPX($dot)
     {
-        $tmpfname = tempnam(APP_TEMP, "espace_gv_");
+        $tmpfname = tempnam(APP_TEMP_DIR, "espace_gv_");
 
         $handle = fopen($tmpfname, "w");
         fwrite($handle, $dot);
@@ -56,7 +56,7 @@ class Graphviz
 
     function getPNG($dot)
     {
-        $tmpfname = tempnam(APP_TEMP, "espace_gv_");
+        $tmpfname = tempnam(APP_TEMP_DIR, "espace_gv_");
 
         $handle = fopen($tmpfname, "w");
         fwrite($handle, $dot);
@@ -66,7 +66,7 @@ class Graphviz
         passthru($command, $return_status);
 		if ($return_status <> 0) {
 			Error_Handler::logError("GraphViz PNG Error: return status = $return_status, for command $command \n", __FILE__,__LINE__);
-		} 
+		}
         unlink($tmpfname);
     }
 

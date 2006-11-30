@@ -2,17 +2,19 @@
 {section name="ii" loop=$sanity_results}
 <div class="sanity_check">
   {if $sanity_results[ii]->type == '_message'}
-	  <span class="sanity_result_message">{$sanity_results[ii]->message}</span>
+	  <span class="sanity_result_message">{$sanity_results[ii]->message|escape}</span>
   {else}
 	  {if $sanity_results[ii]->passed}
 	  <span class="sanity_result_passed">Passed:</span>
-	  <span class="sanity_result_message">{$sanity_results[ii]->message}</span>
+	  <span class="sanity_result_message">{$sanity_results[ii]->message|escape}</span>
 	  {else}
 	  <span class="sanity_result_failed">Failed:</span>
-	  <span class="sanity_result_type">{$sanity_results[ii]->type}</span>
-	  <span class="sanity_result_config">{$sanity_results[ii]->config}</span>
-	  <span class="sanity_result_value"> = '{$sanity_results[ii]->value}'</span>
-	  <span class="sanity_result_message">{$sanity_results[ii]->message}</span>
+	  <span class="sanity_result_type">{$sanity_results[ii]->type|escape}</span>
+	  <span class="sanity_result_config">{$sanity_results[ii]->config|escape}</span>
+	  {if $sanity_results[ii]->value}
+	  <span class="sanity_result_value"> = '{$sanity_results[ii]->value|escape}'</span>
+	  {/if}
+	  <span class="sanity_result_message">{$sanity_results[ii]->message|escape}</span>
 	  {/if}
   {/if}
 </div>

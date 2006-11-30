@@ -107,7 +107,8 @@ class Fedora_API {
 		$ch = curl_init($getString);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);					
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);					
 		$results = curl_exec($ch);
 		if ($results) {
 			$info = curl_getinfo($ch);

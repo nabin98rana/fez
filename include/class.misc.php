@@ -2331,6 +2331,32 @@ function backtrace()
             }            
         }
     }
+    
+    function convertSize($str)
+    {
+    	// str is number followed by letter
+        $res = $str;
+        if (preg_match('/(\d+)([KMG])/i',$str,$matches)) {
+        	$number = $matches[1];
+            $letter = $matches[2];
+            switch (strtoupper($letter)) {
+            	case 'K':
+                    $number *= 1024;
+                    break;
+                case 'M':
+                    $number *= 1048576;
+                    break;
+                case 'G':
+                    $number *= 1048576000;
+                    break;
+                default:
+                    Error_Handler::logError("Can't convert '$letter' to a number",__FILE__,__LINE__);
+                    break;
+            }
+            $res = $number;
+        }
+        return $res;
+    }
   
 } // end of Misc class
 

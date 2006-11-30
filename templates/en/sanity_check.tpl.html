@@ -1,6 +1,16 @@
 {include file="header.tpl.html"}
-{include file="app_errors.tpl.html"}
+{include file="navigation.tpl.html"}
 
-{include file="sanity_check_results.tpl.html"}
+<div class="outline">
+<div class="contentheader">Sanity Check</div>
+<div class="default">This page causes a number of tests to be run and shows the results with suggestions on how to fix any 
+problems.  For more help, see the <a href="http://dev-repo.library.uq.edu.au/wiki/index.php/Troubleshooting">Troubleshooting</a>
+section on the Fez Wiki or search the <a href="http://sourceforge.net/mailarchive/forum.php?forum_id=46814">mailing list archives</a>.</div>
+<br/>
+	<div class="default">
+		{include file="sanity_check_results.tpl.html"}
+	</div>
+</div>
 
+{include file="app_info.tpl.html"}
 {include file="footer.tpl.html"}
