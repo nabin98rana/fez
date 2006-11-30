@@ -1045,7 +1045,7 @@ class XSD_HTML_Match {
 	}
 
 	/**
-	 * Method used to add a new XSD matching field to the system, from and array.
+	 * Method used to add a new XSD matching field to the system, from an array.
 	 *
 	 * @access  public
 	 * @param   integer $xdis_id The XSD Display ID
@@ -1053,7 +1053,7 @@ class XSD_HTML_Match {
 	 * @return  integer 1 if the insert worked, -1 otherwise
 	 */
 	function insertFromArray($xdis_id, $insertArray) {
-
+		$insertArray['xsdmf_xdis_id'] = $xdis_id;
 		$stmt = "INSERT INTO
 		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 ( ";
@@ -2074,6 +2074,43 @@ class XSD_HTML_Match {
 		}
 	}
 
+	
+	/**
+	  * getXSDMF_IDsBySekTitle
+	  * Returns a list of XSDMF_IDs matching a sek title
+	  *
+	  * @access  public
+	  * @param   string $sek_title
+	  * @return  array $res The list of xsdmf_ids
+	  */
+	function getXSDMF_IDsBySekTitle($sek_title, $nocache = false) {
+		static $returns;		
+		if (!$sek_title) {
+			return array();
+		}
+		if (!empty($returns[$sek_title]) && !$nocache) { 
+			return $returns[$sek_title];
+		} else {		
+			$stmt = "SELECT
+	                   xsdmf_id
+	                FROM
+	                   " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1
+					INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key AS s1  	
+	                ON
+	                   x1.xsdmf_sek_id = s1.sek_id and s1.sek_title = '".Misc::escapeString($sek_title)."'";
+			$res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+			if (PEAR::isError($res)) {
+				Error_Handler::logError(array (
+				$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+				return "";
+			} else {
+				$returns[$sek_title] = $res;
+				return $res;
+			}
+		}
+	}
+	
+	
 	/**
 	 * Method used to get the list of XSD HTML Matching fields available in the 
 	 * system.

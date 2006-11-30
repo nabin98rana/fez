@@ -38,7 +38,7 @@
  * of custom fields in the system.
  *
  * @version 1.0
- * @author João Prado Maia <jpm@mysql.com>
+ * @author Joï¿½o Prado Maia <jpm@mysql.com>
  */
 
 include_once(APP_INC_PATH . "class.error_handler.php");
@@ -134,11 +134,13 @@ class XSD_Display
 			 $xsdmf_res = XSD_HTML_Match::getNonSELChildListByDisplay($xdis_id);
 			 foreach ($xsdmf_res as $xsdmf_row) {
 				// insert the record
+				$current_xsdmf_id = $xsdmf_row['xsdmf_id'];
+				$xsdmf_row['xsdmf_id'] = "";
 				XSD_HTML_Match::insertFromArray($new_xdis_id, $xsdmf_row);
 				// get the new xsdmf_id
 				$new_xsdmf_id = $GLOBALS["db_api"]->get_last_insert_id();
 				// get the sels for the current row
-				$xsd_sel_res = XSD_Loop_Subelement::getSimpleListByXSDMF($xsdmf_row['xsdmf_id']);
+				$xsd_sel_res = XSD_Loop_Subelement::getSimpleListByXSDMF($current_xsdmf_id);
 				// is the xsdmf a parent in the xsd_loop_subelement table? if so then create a clone entry for its sel entry
 				if (count($xsd_sel_res) > 0) {
 					foreach ($xsd_sel_res as $xsd_sel_row) {
@@ -173,7 +175,7 @@ class XSD_Display
 					}						
 				}
 				// does the clone parent SEL have any xsd relationships? if so insert them
-				$xsdrel_res = XSD_Relationship::getSimpleListByXSDMF($xsdmf_row['xsdmf_id']);				
+				$xsdrel_res = XSD_Relationship::getSimpleListByXSDMF($current_xsdmf_id);				
 				foreach ($xsdrel_res as $xsdrel_row) {
 					XSD_Relationship::insertFromArray($new_xsdmf_id, $xsdrel_row);
 				}				
