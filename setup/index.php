@@ -479,6 +479,8 @@ $stmt = $contents;
 if (@$HTTP_POST_VARS["cat"] == 'install') {
     $res = install();
     if ($res == 'success') {
+        include_once('../config.inc.php');
+        include_once(APP_INC_PATH.'class.sanity_checks.php');
         $sanity = SanityChecks::runAllChecks();
         $tpl->assign('sanity_results',$sanity);
         if (!SanityChecks::resultsClean($sanity)) {
