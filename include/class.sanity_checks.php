@@ -5,13 +5,13 @@
  * Created by Matthew Smith on 29/11/2006
  * This code is licensed under the GPL, see
  * http://www.gnu.org/copyleft/gpl.html
- * 
+ *
  *
  */
- 
+
  include_once(APP_INC_PATH.'class.bgp_test.php');
  include_once(APP_INC_PATH. 'class.graphviz.php');
- 
+
  class ConfigResult
  {
  	var $type;
@@ -19,7 +19,7 @@
     var $value;
     var $message;
     var $passed;
-    
+
     function __construct($type, $config, $value, $message, $passed=false) {
     	$this->type = $type;
         $this->config = $config;
@@ -27,24 +27,24 @@
         $this->message = $message;
         $this->passed = $passed;
     }
-    
-    function message($msg) 
+
+    function message($msg)
     {
     	$tmp = new ConfigResult('_message', '','',$msg, true);
         return $tmp;
     }
-    
-    function messageOk($msg) 
+
+    function messageOk($msg)
     {
         $tmp = new ConfigResult('Pass', '','',$msg, true);
         return $tmp;
     }
  }
- 
- class SanityChecks 
+
+ class SanityChecks
  {
 
-    
+
     function runAllChecks()
     {
     	$results = array(); // array of ConfigResult objects
@@ -66,13 +66,13 @@
         $results = array_merge($results, SanityChecks::fedora());
         $results = array_merge($results, SanityChecks::sql());
         $results = array_merge($results, SanityChecks::pdftotext());
-        if (SanityChecks::resultsClean($results)) {  
+        if (SanityChecks::resultsClean($results)) {
             $results[] = ConfigResult::messageOk('All tests Passed');
         }
         return $results;
-    }   
-     
-    function extensions() 
+    }
+
+    function extensions()
     {
         $results = array(ConfigResult::message('Testing for PHP extensions'));
         ob_start();
@@ -96,12 +96,12 @@
                 $results[] = new ConfigResult('PHP extensions','LDAP Support', '',"The LDAP Support extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly.");
             }
         }
-    
+
         // check for MySQL support
         if (!function_exists('mysql_query')) {
             $results[] = new ConfigResult('PHP extensions','mysql_query', '',"The MySQL extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly.");
         }
-    
+
         // check for the file_uploads php.ini directive
         if (ini_get('file_uploads') != "1") {
             $results[] = new ConfigResult('PHP extensions','file_uploads', '',"The 'file_uploads' directive needs to be enabled in your PHP.INI file in order for Fez to work properly.");
@@ -116,7 +116,7 @@
                     "should be set higher than 32M in your PHP.INI file in order for Fez to work properly. " .
                     "This depends somewhat on the size of files that Fez should be handling. ");
         }
-        $mem = Misc::convertSize(ini_get('upload_max_filesize')); 
+        $mem = Misc::convertSize(ini_get('upload_max_filesize'));
         if ($mem > 0 && $mem < 10485760) {
             $results[] = new ConfigResult('PHP extensions', 'upload_max_filesize',$mem, "The 'upload_max_filesize' directive " .
                     "should be set higher than 10M in your PHP.INI file in order for Fez to work properly. " .
@@ -124,12 +124,12 @@
         }
 
 
-        if (SanityChecks::resultsClean($results)) {  
+        if (SanityChecks::resultsClean($results)) {
             $results[] = ConfigResult::messageOk('Testing PHP extensions');
         }
         return $results;
-    } 
-     
+    }
+
     function dirs()
     {
     	$results = array(ConfigResult::message('Testing general directories'));
@@ -142,12 +142,12 @@
         if (APP_REPORT_ERROR_FILE) {
         	$results = array_merge($results, SanityChecks::checkFile('APP_ERROR_LOG', APP_ERROR_LOG, true));
         }
-        if (SanityChecks::resultsClean($results)) {  
+        if (SanityChecks::resultsClean($results)) {
             $results[] = ConfigResult::messageOk('Testing general directories');
         }
         return $results;
     }
-    
+
     function jhove()
     {
         $results = array(ConfigResult::message('Testing JHove'));
@@ -164,9 +164,9 @@
         if (SanityChecks::resultsClean($results)) {
         	// if all the other checks have passed, we should be able to run jhove on a file
                 copy(APP_PATH."images/1rightarrow_16.gif", APP_TEMP_DIR."test.gif");
-                Workflow::checkForPresMD(APP_TEMP_DIR."test.gif");
+                Workflow::checkForPresMD("test.gif");
               	$result = SanityChecks::checkXML('Jhove Result',APP_TEMP_DIR."presmd_test.xml",
-                    '/j:jhove/j:repInfo/j:mimeType[\'image/gif\']', 
+                    '/j:jhove/j:repInfo/j:mimeType[\'image/gif\']',
                     array('j' => 'http://hul.harvard.edu/ois/xml/ns/jhove'));
                 $results = array_merge($results, $result);
                 if (!empty($result)) {
@@ -175,16 +175,16 @@
                             'installation mannual, the last line must be changed ' .
                             '# FOR LINUX: ${JAVA} -classpath $CP Jhove -c ${JHOVE_HOME}/conf/jhove.conf $ARGS '.
                             '# FOR WINDOWS: %JAVA% -classpath %CP% Jhove -c %JHOVE_HOME%/conf/jhove.conf %ARGS%');
-                }    
+                }
                 @unlink(APP_TEMP_DIR."presmd_test.xml");
                 @unlink(APP_JHOVE_TEMP_DIR."test.gif");
         }
-        if (SanityChecks::resultsClean($results)) { 
+        if (SanityChecks::resultsClean($results)) {
         	$results[] = ConfigResult::messageOk('All JHove tests passed');
         }
         return $results;
-    }	
-        
+    }
+
     function shib()
     {
     	if (SHIB_SWITCH == "ON") {
@@ -193,7 +193,7 @@
                 SHIB_WAYF_METADATA_LOCATION,"//md:EntitiesDescriptor/md:EntityDescriptor",
                     array("md" => "urn:oasis:names:tc:SAML:2.0:metadata",
                           "shib" => "urn:mace:shibboleth:metadata:1.0")));
-            if (SanityChecks::resultsClean($results)) { 
+            if (SanityChecks::resultsClean($results)) {
                 $results[] = ConfigResult::messageOk('All Shibboleth tests passed');
             }
             return $results;
@@ -201,32 +201,32 @@
     		return array();
     	}
     }
-    
+
     function ldap()
     {
     	if (LDAP_SWITCH == "ON") {
             $results = array(ConfigResult::message('Testing LDAP'));
-            $results = array_merge($results, SanityChecks::checkConnect('LDAP_SERVER:LDAP_PORT', 
+            $results = array_merge($results, SanityChecks::checkConnect('LDAP_SERVER:LDAP_PORT',
                 LDAP_SERVER.':'.LDAP_PORT));
             $ld = @ldap_connect(LDAP_SERVER, LDAP_PORT);
             if (!$ld) {
-            	$results[] = new ConfigResult('LDAP Connect', 'LDAP',LDAP_SERVER.':'.LDAP_PORT, 
+            	$results[] = new ConfigResult('LDAP Connect', 'LDAP',LDAP_SERVER.':'.LDAP_PORT,
                     'Connect failed '.ldap_error($ld).'('.ldap_errno($ld).')');
             }
             $ldb = @ldap_bind($ld);
             if (!$ldb) {
-            	$results[] = new ConfigResult('LDAP Connect', 'LDAP', LDAP_SERVER.':'.LDAP_PORT, 
+            	$results[] = new ConfigResult('LDAP Connect', 'LDAP', LDAP_SERVER.':'.LDAP_PORT,
                     'Connect failed '.ldap_error($ld).'('.ldap_errno($ld).')');
             }
-            if (SanityChecks::resultsClean($results)) { 
+            if (SanityChecks::resultsClean($results)) {
                 $results[] = ConfigResult::messageOk('All LDAP tests passed');
             }
             return $results;
         } else {
         	return array();
         }
-    } 
-    
+    }
+
     function imageMagick()
     {
     	$results = array(ConfigResult::message('Testing imageMagick'));
@@ -236,7 +236,7 @@
         if (strlen(APP_WATERMARK) > 0) {
         	$results = array_merge($results, SanityChecks::checkFile('APP_PATH/images/APP_WATERMARK', APP_PATH."images/".APP_WATERMARK));
         }
-        if (SanityChecks::resultsClean($results)) { 
+        if (SanityChecks::resultsClean($results)) {
             copy(APP_PATH."images/1rightarrow_16.gif", APP_TEMP_DIR."test.gif");
             $getString = APP_BASE_URL."webservices/wfb.image_resize.php?image="
                         .urlencode("test.gif")."&height=20&width=20&ext=jpg&outfile="."thumbnail_test.jpg";
@@ -247,10 +247,10 @@
         if (!SanityChecks::resultsClean($results)) {
         	$results[] = ConfigResult::message('Sometimes a problem with image magick on windows is that ' .
                     'the image magick command \'convert\' needs to be in the path. ');
-        } 
-        
+        }
+
         // check copyright
-        if (SanityChecks::resultsClean($results)) { 
+        if (SanityChecks::resultsClean($results)) {
             copy(APP_PATH."images/1rightarrow_16.gif", APP_TEMP_DIR."test.gif");
             $getString = APP_BASE_URL."webservices/wfb.image_resize.php?image="
                         .urlencode("test.gif")."&height=20&width=20&ext=jpg&outfile="."thumbnail_test.jpg&copyright=hello";
@@ -259,7 +259,7 @@
             @unlink(APP_TEMP_DIR."thumbnail_test.jpg");
         }
         // check watermark
-        if (SanityChecks::resultsClean($results)) { 
+        if (SanityChecks::resultsClean($results)) {
             copy(APP_PATH."images/1rightarrow_16.gif", APP_TEMP_DIR."test.gif");
             $getString = APP_BASE_URL."webservices/wfb.image_resize.php?image="
                         .urlencode("test.gif")."&height=20&width=20&ext=jpg&outfile="."thumbnail_test.jpg&watermark=1";
@@ -268,7 +268,7 @@
             @unlink(APP_TEMP_DIR."thumbnail_test.jpg");
         }
         // check copyright and watermark
-        if (SanityChecks::resultsClean($results)) { 
+        if (SanityChecks::resultsClean($results)) {
             copy(APP_PATH."images/1rightarrow_16.gif", APP_TEMP_DIR."test.gif");
             $getString = APP_BASE_URL."webservices/wfb.image_resize.php?image="
                         .urlencode("test.gif")."&height=20&width=20&ext=jpg&outfile="."thumbnail_test.jpg&watermark=1&copyright=hello";
@@ -276,12 +276,12 @@
             $results = array_merge($results, SanityChecks::checkFile('Run Image Convert', APP_TEMP_DIR."thumbnail_test.jpg"));
             @unlink(APP_TEMP_DIR."thumbnail_test.jpg");
         }
-        if (SanityChecks::resultsClean($results)) { 
+        if (SanityChecks::resultsClean($results)) {
             $results[] = ConfigResult::messageOk('All imageMagick tests passed');
         }
         return $results;
     }
-    
+
     function backgroundProcess()
     {
     	$results = array(ConfigResult::message('Testing backgroundProcess'));
@@ -294,48 +294,48 @@
             $bgp = new BackgroundProcess($id);
             $det = $bgp->getDetails();
             if ($det['bgp_status_message'] != "I got Hello") {
-            	$results[] = new ConfigResult('backgroundProcess', "Run Background Process", $id, 
+            	$results[] = new ConfigResult('backgroundProcess', "Run Background Process", $id,
                         "The background process doesn't seem to have run.  On windows this can be a " .
                         "problem with the version of apache or php - try different versions.");
             }
-        } 
-        if (SanityChecks::resultsClean($results)) { 
+        }
+        if (SanityChecks::resultsClean($results)) {
             $results[] = ConfigResult::messageOk('All backgroundProcess tests passed');
         }
         return $results;
     }
-    
+
     function dot()
     {
     	$results = array(ConfigResult::message('Testing graphviz dot'));
         $results = array_merge($results, SanityChecks::checkFile('APP_DOT_EXEC', APP_DOT_EXEC, false, true));
         $dot = 'digraph States { graph [fontpath="/usr/share/fonts/default/Type1/"]; rankdir=LR; node [color=lightblue, style=filled, fontname=n019003l, fontsize=10];454 [label="Review Metadata " URL="http://dev-repo.library.uq.edu.au/uqmsmi14/fez_devel/manage/workflow_states.php?cat=edit&wfl_id=114&wfs_id=454" ]; 453 [label="Preview " URL="http://dev-repo.library.uq.edu.au/uqmsmi14/fez_devel/manage/workflow_states.php?cat=edit&wfl_id=114&wfs_id=453" ]; 451 [label="Publish (end|auto)" URL="http://dev-repo.library.uq.edu.au/uqmsmi14/fez_devel/manage/workflow_states.php?cat=edit&wfl_id=114&wfs_id=451" style=bold color="lightgoldenrod1" ]; 452 [label="Submit for Approval (end|auto)" URL="http://dev-repo.library.uq.edu.au/uqmsmi14/fez_devel/manage/workflow_states.php?cat=edit&wfl_id=114&wfs_id=452" style=bold color="lightgoldenrod1" ]; 449 [label="Select Collection (start)" URL="http://dev-repo.library.uq.edu.au/uqmsmi14/fez_devel/manage/workflow_states.php?cat=edit&wfl_id=114&wfs_id=449" shape=box ]; 450 [label="Enter Metadata " URL="http://dev-repo.library.uq.edu.au/uqmsmi14/fez_devel/manage/workflow_states.php?cat=edit&wfl_id=114&wfs_id=450" ]; "450" -> "453"; "454" -> "452"; "454" -> "451"; "454" -> "453"; "453" -> "451"; "449" -> "450"; "450" -> "451"; "453" -> "452"; "450" -> "452"; "453" -> "454"; };';
-        if (SanityChecks::resultsClean($results)) { 
+        if (SanityChecks::resultsClean($results)) {
             ob_start();
             Graphviz::getPNG($dot);
             $png = bin2hex(ob_get_contents());
             ob_end_clean ();
             $pngsig = "89504E470D0A1A0A";
             if (strcasecmp(substr($png,0,strlen($pngsig)),$pngsig) != 0) {
-                $results[] = new ConfigResult('Graphviz', "Run Dot", '', 
+                $results[] = new ConfigResult('Graphviz', "Run Dot", '',
                         "The generation of a PNG using Graphviz DOT failed.  This is not critical as DOT is only used for " .
                         "showing workflow patterns in the admin forms.");
             }
         }
-        if (SanityChecks::resultsClean($results)) { 
+        if (SanityChecks::resultsClean($results)) {
             $cmapx = Graphviz::getCMAPX($dot);
             $mapsig = '<map id="States" name="States">';
             if (strcasecmp(substr($cmapx,0,strlen($mapsig)),$mapsig) != 0) {
-                $results[] = new ConfigResult('Graphviz', "Run Dot cmapx", '', 
+                $results[] = new ConfigResult('Graphviz', "Run Dot cmapx", '',
                         "The generation of an image map using dot didn't work.");
             }
         }
-        if (SanityChecks::resultsClean($results)) { 
+        if (SanityChecks::resultsClean($results)) {
             $results[] = ConfigResult::messageOk('All graphviz dot tests passed');
         }
         return $results;
     }
-    
+
     function tidy()
     {
     	$results = array(ConfigResult::message('Testing Tidy'));
@@ -360,12 +360,12 @@
                     'c libraries aren\'t installed properly. ' .
                     'For linux make sure libtidy, libtidy-dev and tidy packages are installed before compiling php');
         }
-        if (SanityChecks::resultsClean($results)) { 
+        if (SanityChecks::resultsClean($results)) {
             $results[] = ConfigResult::messageOk('All Tidy tests passed');
         }
         return $results;
-    } 
-    
+    }
+
     function fedora()
     {
     	$results = array(ConfigResult::message('Testing Fedora'));
@@ -389,7 +389,7 @@
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);                    
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
             $xml = curl_exec($ch);
             $dom = @DomDocument::loadXML($xml);
             if (!$dom) {
@@ -402,13 +402,13 @@
                     'the list of retainPIDS in fedora.fcfg. If this is not set then Fez will not be able to create ' .
                     'objects in Fedora.');
             }
-        } 
-        if (SanityChecks::resultsClean($results)) { 
+        }
+        if (SanityChecks::resultsClean($results)) {
             $results[] = ConfigResult::messageOk('All Fedora tests passed');
         }
         return $results;
-    } 
-    
+    }
+
     function sql()
     {
     	$results = array(ConfigResult::message('Testing SQL'));
@@ -437,23 +437,23 @@
                         "".$res->getMessage().' '.print_r($res->getDebugInfo(),true));
             }
         }
-        if (SanityChecks::resultsClean($results)) { 
+        if (SanityChecks::resultsClean($results)) {
             $results[] = ConfigResult::messageOk('All SQL tests passed');
         }
         return $results;
     }
-    
+
     function pdftotext()
     {
     	$results = array(ConfigResult::message('Testing PDFtoText'));
         $results = array_merge($results, SanityChecks::checkFile('APP_PDFTOTEXT_EXEC',APP_PDFTOTEXT_EXEC, false, true));
-        if (SanityChecks::resultsClean($results)) { 
+        if (SanityChecks::resultsClean($results)) {
             $results[] = ConfigResult::messageOk('All PDFtoText tests passed');
         }
         return $results;
     }
 
-    function resultsClean($results) 
+    function resultsClean($results)
     {
         foreach ($results as $res) {
             if (!$res->passed) {
@@ -470,7 +470,7 @@
         }
         $dh = @opendir($value);
         if (!$dh) {
-            return array(new ConfigResult('Directory', $configDefine, $value, 
+            return array(new ConfigResult('Directory', $configDefine, $value,
                 "Failed opendir (probably a permissions problem)"));
         }
         closedir($dh);
@@ -482,11 +482,11 @@
             }
             unlink($tmpfname);
         }
-        
+
         return array();
     }
-    
-    function checkFile($configDefine, $value, $writeable = false, $exec = false) 
+
+    function checkFile($configDefine, $value, $writeable = false, $exec = false)
     {
         if (!is_file($value)) {
             return array(new ConfigResult('File', $configDefine, $value, "This file doesn't exist, check the path" .
@@ -517,7 +517,7 @@
         $xml = file_get_contents($value);
         return SanityChecks::checkXMLStr($configDefine, $xml, $xpath, $ns_array, $debug);
     }
-    
+
     function checkXMLStr($configDefine, $value, $xpath = '', $ns_array = array(), $debug = false)
     {
         $dom = DOMDocument::loadXML($value);
@@ -547,7 +547,7 @@
         }
         return array();
     }
-    
+
     function checkConnect($configDefine,$value)
     {
     	list($server, $port) = explode(':', $value);
@@ -568,7 +568,7 @@
         fclose($fp);
         return array();
     }
-    
+
     function checkHTTPConnect($configDefine,$value)
     {
        $ch=curl_init();
@@ -581,7 +581,7 @@
          curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
          curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
        }
-       $data = curl_exec ($ch);  
+       $data = curl_exec ($ch);
        $info = curl_getinfo($ch);
        if (curl_errno($ch) != 0) {
             $errstr = curl_error($ch);
@@ -590,13 +590,13 @@
                     "Perhaps it is blocked at a firewall.  Also check that CURL is correctly installed."));
        }
        curl_close ($ch);
-       if ($info['http_code'] != 200) { 
-            return array(new ConfigResult('ConnectHTTP', $configDefine, $value, 
+       if ($info['http_code'] != 200) {
+            return array(new ConfigResult('ConnectHTTP', $configDefine, $value,
                     "HTTP Result {$info['http_code']} code. ".
                     "The webserver couldn't connect to this address.  Check that the address is correct. " .
                     "Check that any authorisation needed is correct. " .
                     "Perhaps it is blocked at a firewall."));
-       }      
+       }
        return array();
     }
 

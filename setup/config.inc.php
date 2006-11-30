@@ -42,7 +42,7 @@ set_time_limit(0);
 // Web server log files used for statistics scheduled tasks / cron jobs nightly statistics gathering
 @define("WEBSERVER_LOG_STATISTICS", "OFF");
 @define("WEBSERVER_CONFIG_PATH", "/usr/local/apache/api/fez/"); // the path for files that should be below the document root eg configs, geoip data
-@define("WEBSERVER_LOG_DIR", "/usr/local/apache/logs/"); 
+@define("WEBSERVER_LOG_DIR", "/usr/local/apache/logs/");
 @define("WEBSERVER_LOG_FILE", "access_log"); //change to the name of your fez access log if different
 
 // whether you want users to be able to create their own fez accounts - not necessary for LDAP/AD/Shibboleth enabled sites
@@ -67,7 +67,7 @@ set_time_limit(0);
 @define("LDAP_PORT", "%{LDAP_PORT}%"); // Usually 389
 // The below ePrints variables are for batch importing ePrints records. ePrints export XML misses a lot of important things so OAI and Database access are required for a comprehensive migration
 @define("EPRINTS_OAI", "http://eprint.yourinst.edu/perl/oai2?verb=GetRecord&metadataPrefix=oai_dc&identifier=oai%3Aeprint.yourinst.edu.au%3A"); // change this to your ePrints OAI service provider for batch importing of ePrints records
-@define("EPRINTS_USERNAME", ""); //ePrints requires basic auth for the download of secured PDFs and files 
+@define("EPRINTS_USERNAME", ""); //ePrints requires basic auth for the download of secured PDFs and files
 @define("EPRINTS_PASSWD", "");
 @define("EPRINTS_SUBJECT_AUTHORITY", ""); // (ePrints batch import) for use when your ePrints IR uses a controlled vocabulary eg Australian ASRC use 'asrc', otherwise leave blank
 @define("EPRINTS_DB_HOST", ""); // Used to get things that are not in the ePrints export XML that really should be for migration purposes
@@ -93,19 +93,20 @@ set_time_limit(0);
 
 // Bill vs Linus
 if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
-	@define("APP_TEMP_DIR", 'c:/temp/'); 
+	@define("APP_TEMP_DIR", 'c:/temp/');
     @define("APP_DELETE_CMD", 'del ');
 	@define("APP_DELETE_DIR", 'c:\\temp\\'); //Windows needs the delete path to be forward slashes
-	@define("APP_CONVERT_CMD", "c:/ImageMagick/convert");   // To convert image (part of ImageMagick)
-	@define("APP_COMPOSITE_CMD", "c:/ImageMagick/composite");   // To watermark image (part of ImageMagick)
-	@define("APP_IDENTIFY_CMD", "c:/ImageMagick/identify"); // To get image information (part of ImageMagick)
+	@define("APP_CONVERT_CMD", "c:/ImageMagick/convert.exe");   // To convert image (part of ImageMagick)
+	@define("APP_COMPOSITE_CMD", "c:/ImageMagick/composite.exe");   // To watermark image (part of ImageMagick)
+	@define("APP_IDENTIFY_CMD", "c:/ImageMagick/identify.exe"); // To get image information (part of ImageMagick)
 	@define("APP_JHOVE_DIR", "c:/jhove");
 	@define("APP_JHOVE_TEMP_DIR", 'c:\temp/'); // jhove needs windows style dir names when run on a win server
     ini_set("include_path", ".;" . APP_PEAR_PATH);
     @define("APP_DOT_EXEC", "\"C:/Program Files/ATT/Graphviz/bin/dot.exe\"");
     @define("APP_PHP_EXEC", "\"C:/php/php.exe\"");
+    @define("APP_PDFTOTEXT_EXEC", "c:/xpdf/pdftotext.exe");
 } else { //  Linux Server
-	@define("APP_TEMP_DIR", "/tmp/"); 
+	@define("APP_TEMP_DIR", "/tmp/");
     @define("APP_DELETE_CMD", '/bin/rm -f ');
 	@define("APP_DELETE_DIR", APP_TEMP_DIR); //Windows needs the delete path to be forward slashes, Linux does not
 	@define("APP_CONVERT_CMD", "/usr/bin/convert");   // To convert image (part of ImageMagick)
@@ -126,7 +127,7 @@ if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Serve
 
 // FEDORA VARIABLES
 // Setup reusable Fedora API variables
-@define("APP_FEDORA_USERNAME", "%{APP_FEDORA_USERNAME}%"); 
+@define("APP_FEDORA_USERNAME", "%{APP_FEDORA_USERNAME}%");
 @define("APP_FEDORA_PWD", "%{APP_FEDORA_PWD}%");
 
 //base fedora server domain - note SSL/HTTPS was only available from Fedora 2.1 onwards. Fedora 2.0 and previous only offered HTTP
@@ -154,9 +155,9 @@ if (APP_FEDORA_SETUP == 'sslall') {
 //fedora get datastream url
 @define("APP_FEDORA_GET_URL", APP_BASE_FEDORA_APIA_DOMAIN."/get");
 //fedora server search url
-@define("APP_FEDORA_SEARCH_URL", APP_BASE_FEDORA_APIA_DOMAIN."/search");	
+@define("APP_FEDORA_SEARCH_URL", APP_BASE_FEDORA_APIA_DOMAIN."/search");
 //fedora server resource index search url
-@define("APP_FEDORA_RISEARCH_URL", APP_BASE_FEDORA_APIA_DOMAIN."/risearch");	
+@define("APP_FEDORA_RISEARCH_URL", APP_BASE_FEDORA_APIA_DOMAIN."/risearch");
 //oai url
 @define("APP_FEDORA_OAI_URL", APP_BASE_FEDORA_APIA_DOMAIN."/oai");
 
@@ -213,7 +214,7 @@ if (APP_FEDORA_SETUP == 'sslall') {
 
 @define("APP_VERSION", "1.3 BETA");
 
-@define("APP_DEFAULT_TIMEZONE", "UTC"); 
+@define("APP_DEFAULT_TIMEZONE", "UTC");
 @define("APP_DEFAULT_USER_TIMEZONE", "Australia/Brisbane"); // Change this to your local timezone eg Australia/Brisbane. Fez will still store dates as UTC but will default display them as this timezone until the user has logged in with their preffered timezone user setting.  See include/pear/date/TimeZone.php (line 402 - 3622) for other string examples
 @define("APP_DEFAULT_PAGER_SIZE", 50);
 @define("APP_DEFAULT_REFRESH_RATE", 5); // in minutes
