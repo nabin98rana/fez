@@ -478,6 +478,13 @@ $stmt = $contents;
 
 if (@$HTTP_POST_VARS["cat"] == 'install') {
     $res = install();
+    if ($res == 'success') {
+        $sanity = SanityChecks::runAllChecks();
+        $tpl->assign('sanity_results',$sanity);
+        if (!SanityChecks::resultsClean($sanity)) {
+            $res = "One or more sanity checks failed.";
+        }
+    }
     $tpl->assign("result", $res);
 }
 
