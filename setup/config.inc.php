@@ -104,7 +104,7 @@ if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Serve
     ini_set("include_path", ".;" . APP_PEAR_PATH);
     @define("APP_DOT_EXEC", "\"C:/Program Files/ATT/Graphviz/bin/dot.exe\"");
     @define("APP_PHP_EXEC", "\"C:/php/php.exe\"");
-    @define("APP_PDFTOTEXT_EXEC", "c:/xpdf/pdftotext.exe");
+    @define("APP_PDFTOTEXT_EXEC", "\"C:/utils/pdftotext.exe\"");
 } else { //  Linux Server
 	@define("APP_TEMP_DIR", "/tmp/");
     @define("APP_DELETE_CMD", '/bin/rm -f ');

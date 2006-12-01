@@ -1,18 +1,117 @@
-<html>
-<body>
+{include file="header.tpl.html"}
+{include file="app_errors.tpl.html"}
+
+<h1>Upgrading Fez</h1>
+
 {if $result}
 <div>{$result}</div>
 {/if}
+{if $step == 1}
 <div>Clicking 'Upgrade' will upgrade your database from the previous version.  You should do this once after unpacking 
-the new version.  Be sure to backup your current DB before clicking.  </div>
+the new version.  Be sure to backup your current DB before clicking.  If you have already done this step, then click 
+'Skip this Step'</div>
 <form action="{$smarty.const.PHP_SELF}" method="post">
+<input type="hidden" name="step" value="2" />
 <input type="submit" name="upgrade" value="Upgrade" />
-<div>The following is a diff between the previous default config.inc.php and the new version.  You may edit it 
-and use the patch command to apply it to your config file or upgrade by hand.  The diff file can be found at 
-fez/upgrade/config.patch</div>
-<pre>
-{$config_diff}
-</pre>
+<input type="submit" name="skip" value="Skip this Step" />
 </form>
-</body>
-</html>
+{elseif $step == 2}
+<form action="{$smarty.const.PHP_SELF}" method="post">
+<input type="hidden" name="step" value="3" />
+<div>You need to update config.inc.php before proceeding to the 'Sanity Check' once you're done 
+editing config.inc.php, click the 'Sanity Check' button at the bottom of the screen.
+</div>
+<div>Edit your config.inc.php file and update these new or changed configuration variables:
+<pre>
+
+*** Edit these existing variables
+
+@define("APP_VERSION", "1.3");
+
+
+
+*** All of the following are New Variables
+
+// Web server log files used for statistics scheduled tasks / cron jobs nightly statistics gathering
+@define("WEBSERVER_LOG_STATISTICS", "OFF");
+@define("WEBSERVER_CONFIG_PATH", "/usr/local/apache/api/fez/"); // the path for files that should be below the document root eg configs, geoip data
+@define("WEBSERVER_LOG_DIR", "/usr/local/apache/logs/");
+@define("WEBSERVER_LOG_FILE", "access_log"); //change to the name of your fez access log if different
+
+// whether you want users to be able to create their own fez accounts - not necessary for LDAP/AD/Shibboleth enabled sites
+@define("SELF_REGISTRATION", "OFF");
+
+// definitions of Organisation Shibboleth related variables. You may need to query your Org's Shibboleth expert for help on these settings.
+@define("SHIB_SWITCH", "OFF");  // Set to OFF or ON depending on whether you want to use Shibboleth authentication
+@define("SHIB_DIRECT_LOGIN", "ON"); // If SHIB_SWITCH is ON and this is ON the front page of Fez will have a link to direct login for Fez home institution shib login and a link to Other for non home institution Shib and Fez logins
+@define("SHIB_FEDERATION_NAME", "MAMS Testbed Federation");  // Change this tothe name of your Shibboleth Federation, eg Inqueue, InCommon, MAMS Testbed Federation
+@define("SHIB_SURVEY", false);  // Switch to ON to turn the post shibboleth login survey on
+@define("SHIB_FEDERATION", "urn:mace:federation.org.au:testfed:level-1:");  //Change this to the base urn of your federation eg Inqueue or InCommon
+@define("SHIB_HOME_SP", SHIB_FEDERATION.APP_HOSTNAME);  // Change this to the urn of your Fez Service Provider if different
+@define("SHIB_HOME_IDP", SHIB_FEDERATION."idp.yourinst.edu");  // Change this to the urn of your home instituition IDP
+@define("SHIB_WAYF_METADATA_LOCATION", "/usr/local/shibboleth-sp/etc/shibboleth/level-1-metadata.xml");  // Change this to path location of the WAYF metadata XML file, you can update this with a cronjob (linux) or a schedulated task (windows). Your WAYF drop down list will fill from this XML file.
+
+// eprints migration
+@define("EPRINTS_OAI", "http://eprint.yourinst.edu/perl/oai2?verb=GetRecord&amp;metadataPrefix=oai_dc&amp;identifier=oai%3Aeprint.yourinst.edu.au%3A"); // change thisto your ePrints OAI service provider for batch importing of ePrints records
+@define("EPRINTS_USERNAME", ""); //ePrints requires basic auth for the download of secured PDFs and files
+@define("EPRINTS_PASSWD", "");
+@define("EPRINTS_SUBJECT_AUTHORITY", ""); // (ePrints batch import) for use when your ePrints IR uses a controlled vocabulary eg Australian ASRC use 'asrc', otherwise leave blank
+@define("EPRINTS_DB_HOST", ""); // Used to get things that are not in the ePrints export XML that really should be for migration purposes
+@define("EPRINTS_DB_TYPE", ""); //generally 'mysql' although other will probably work as long as they are support by PEAR DB
+@define("EPRINTS_DB_DATABASE_NAME", "");
+@define("EPRINTS_DB_USERNAME", "");
+@define("EPRINTS_DB_PASSWD", "");
+@define("EPRINTS_IMPORT_USERS", "ON"); //If this is ON then Fez will create usernames for all the ePrints server users so it can match depositor with the imported eprints objects. Passwords cannot be brought across so user account need tomove to LDAP/Shibboleth or have passwords reissued
+
+@define("BATCH_IMPORT_TYPE", "MODS 1.0"); // Either MODS 1.0 or Dublin Core 1.0
+@define("APP_SQL_CACHE", ""); // Set this string to SQL_NO_CACHE if you want to test MySQL performance without query caching, keep "" for optimal performance (caching on)
+
+*** In the Bill vs Linus section:
+// Windows
+@define("APP_DOT_EXEC", "\"C:/Program Files/ATT/Graphviz/bin/dot.exe\"");
+@define("APP_PHP_EXEC", "\"C:/php/php.exe\"");
+@define("APP_PDFTOTEXT_EXEC", "\"C:/utils/pdftotext.exe\"");
+// Linux
+@define("APP_DOT_EXEC", "/usr/local/bin/dot");
+@define("APP_PHP_EXEC", "/usr/local/bin/php");
+@define("APP_PDFTOTEXT_EXEC", "/usr/bin/pdftotext");
+*** End of Bill vs Linus
+
+@define("APP_HTTPS_CURL_CHECK_CERT", "OFF"); //if you have a dev. host with an SSL cert. that's not officially signed, set this OFF, otherwise Fedora SSL calls will fail in CURL
+
+*** Put this near APP_ERROR_LOG 
+@define("APP_DISABLE_PASSWORD_CHECKING", false);  // used for testing
+@define("APP_DEBUG_LEVEL", 2); // 0 or 1 is basic error message, 2 is basic + stacktrace, 3 is basic + stacktrace + function arguments passed - recommend level 2 as default, 3 only for heavy debugging
+@define("APP_DISPLAY_ERROR_LEVEL", 1); //  *is always limited by the max of APP_DEBUG_LEVEL* 0 is no display of errors to the browser, 1 is basic error message, 2 is basic + stacktrace, 3 is basic + stacktrace + function arguments passed (highest detail) *recommend to leave this at 0 or 1, 3 may show passwords in thepassed args*
+@define("APP_DISPLAY_ERRORS_USER", 2); //  0 is no display of errors to any users, 1 to only show errors to administrators, 2 for show errors for all users - default is 2
+@define("APP_REPORT_ERROR_FILE", true); // set to false if you don't want the error messages saved to a error file to the user/browser
+
+@define("APP_DEFAULT_USER_TIMEZONE", "Australia/Brisbane"); // Change this to your local timezone eg Australia/Brisbane. Fez will still store dates as UTC butwill default display them as this timezone until the user has logged in with their preffered timezone user setting.  See include/pear/date/TimeZone.php (line 402 - 3622) for other string examples
+
+
+</pre>
+</div>
+<div>Edit your config.inc.php file and DELETE these old configuration variables:
+<pre>
+@define("APP_TEST", "false"); // this has changed to be APP_DISABLE_PASSWORD_CHECKING
+</pre>
+</div>
+<input type="submit" name="next" value="Proceed to Sanity Check" />
+</form>
+{elseif $step == 3}
+<div>
+This page causes a number of tests to be run and shows the results with suggestions on how to fix any 
+problems.  For more help, see the <a href="http://dev-repo.library.uq.edu.au/wiki/index.php/Troubleshooting">Troubleshooting</a>
+section on the Fez Wiki or search the <a href="http://sourceforge.net/mailarchive/forum.php?forum_id=46814">mailing list archives</a>.</div>
+<br/>
+{include file="sanity_check_results.tpl.html"}
+<br/>
+<p>Correct any problems and <a href="{$smarty.const.PHP_SELF}?step=3">click here to run checks again.</a></p>
+<p>If all the checks passed, then the upgrade is done, however, you can upgrade you XSDs and Workflows
+to newer bundled versions if you wish.  See the Wiki for more details <a href="http://dev-repo.library.uq.edu.au/wiki/index.php/Upgrading">Fez Wiki: Upgrading</a>
+</p>
+<p> <a href="{$rel_url}">[Home]</a></p>
+</div>
+{/if}
+
+{include file="footer.tpl.html"}
