@@ -128,6 +128,9 @@ section on the Fez Wiki or search the <a href="http://sourceforge.net/mailarchiv
 	<div class="default">
 		{include file="sanity_check_results.tpl.html"}
 	</div>
+	<br/>
+	After making your changes to the config files and restarting apache (if necessary) click on
+	<a href="{$rel_url}setup/check_sanity.php">setup/check_sanity.php</a> to check that the problems are resolved.
 </div>
 {/if}
           </td>
@@ -187,6 +190,20 @@ section on the Fez Wiki or search the <a href="http://sourceforge.net/mailarchiv
   <tr>
     <td>
       <table bgcolor="#CCCCCC" width="100%" cellspacing="1" cellpadding="2" border="0">
+{if $maybe_configured}
+        <tr>
+          <td colspan="2" align="center">
+<h1>Sanity Check</h1>
+<div class="default">
+It appears that you have already configured these values. Click 
+<a href="{$rel_url}setup/check_sanity.php">here to go straight to Sanity Check</a>
+without submitting the following form. <br/> 
+<b>NOTE: Submitting the following form will overwrite config.inc.php</b>
+</div>
+<hr size="1" noshade color="#000000">
+          </td>
+        </tr>
+{/if}
         <tr>
           <td colspan="2" align="center">
             <h1>Fez Installation</h1>

@@ -490,6 +490,17 @@ if (@$HTTP_POST_VARS["cat"] == 'install') {
     $tpl->assign("result", $res);
 }
 
+// check if fez has possibly already been configured.
+if (is_file('../config.inc.php')) {
+	$str = file_get_contents('../config.inc.php');
+    // if we can't find the placeholder for the DBHOST
+    if (!strstr($str,'@define("APP_SQL_DBHOST", "%{APP_SQL_DBHOST}%");')) {
+        // but we can find that it is defined to something
+        if (strstr($str,'@define("APP_SQL_DBHOST"')) {
+        	$tpl->assign('maybe_configured', true);
+        }
+    }
+}
 
 $full_url = dirname($HTTP_SERVER_VARS['PHP_SELF']);
 $pieces = explode("/", $full_url);
