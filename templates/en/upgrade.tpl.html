@@ -1,0 +1,18 @@
+<html>
+<body>
+{if $result}
+<div>{$result}</div>
+{/if}
+<div>Clicking 'Upgrade' will upgrade your database from the previous version.  You should do this once after unpacking 
+the new version.  Be sure to backup your current DB before clicking.  </div>
+<form action="{$smarty.const.PHP_SELF}" method="post">
+<input type="submit" name="upgrade" value="Upgrade" />
+<div>The following is a diff between the previous default config.inc.php and the new version.  You may edit it 
+and use the patch command to apply it to your config file or upgrade by hand.  The diff file can be found at 
+fez/upgrade/config.patch</div>
+<pre>
+{$config_diff}
+</pre>
+</form>
+</body>
+</html>
