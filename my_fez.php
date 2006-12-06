@@ -46,19 +46,15 @@ include_once(APP_INC_PATH.'najax_objects/class.background_process_list.php');
 
 $tpl = new Template_API();
 $tpl->setTemplate("my_fez.tpl.html");
-
-$order_by = Misc::GETorPOST('order_by');
-if (empty($order_by)) {
-    $order_by = 'Created Date';
-}
-$order_by_dir = Misc::GETorPOST('order_by_dir');
-if (empty($order_by_dir)) {
-    $order_by_dir = 1;
-}
+$options = Pager::saveSearchParams();
+$isMemberOf = $options['isMemberOf'];
+$order_by = $options['order_by'];
+$order_by_dir = $options['order_by_dir'];
 $order_by_list = array();
 foreach (Search_Key::getAssocList() as $key => $value) {
     $order_by_list[$value] = $value;
 }
+$tpl->assign('isMemberOf_default', $isMemberOf);
 $tpl->assign('order_by_list', $order_by_list);
 $tpl->assign('order_by_dir_list', array("Asc", "Desc"));
 $tpl->assign('order_by_default', $order_by);
@@ -80,11 +76,15 @@ $tpl->assign("isAdministrator", $isAdministrator);
 
 $collection_list = Collection::getEditList();
 //print_r($collection_list);
+$collection_assoc_list = array();
+$collection_assoc_list['ALL'] = '(All Assigned Collections)';
 foreach ($collection_list as &$item) {
    $item['community'] = implode(',',Misc::keyPairs(Collection::getParents2($item['pid']),'pid','title'));
-   $item['count'] = Collection::getEditListingCount($item['pid']);
+//   $item['count'] = Collection::getEditListingCount($item['pid']);
+   $item['count'] = Collection::getSimpleListingCount($item['pid']);   
+   $collection_assoc_list[$item['pid']] = $item['title'][0];
 }
-
+//print_r($collection_assoc_list);
 $tpl->assign('my_collections_list', $collection_list);
 
 
@@ -106,9 +106,10 @@ $rows = Pager::getParam('rows');
 if (empty($rows)) {
     $rows = APP_DEFAULT_PAGER_SIZE;
 }
-$options = Pager::saveSearchParams();
+
 $tpl->assign("options", $options);
-$assigned_items= Record::getAssigned(Auth::getUsername(), $pagerRow, $rows, $order_by, $order_by_dir);
+$tpl->assign("isMemberOf_list", $collection_assoc_list);
+$assigned_items= Record::getAssigned(Auth::getUsername(), $pagerRow, $rows, $order_by, $order_by_dir, $isMemberOf);
 $tpl->assign('my_assigned_items_list', $assigned_items['list']);
 $tpl->assign('my_assigned_items_info', $assigned_items['info']);
 

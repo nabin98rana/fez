@@ -90,7 +90,11 @@ function sortList(f, field) {
     window.location.href = temp + "&" + 'order_by_dir=' + order_by_dir;
 }
 
-
+function filterList(f, field) {
+    isMemberOf = getSelectedOption(f, field);
+    temp = page_url + "?" + 'isMemberOf=' + isMemberOf;
+    window.location.href = temp;
+}
 
 {/literal}
 // -->
@@ -105,7 +109,16 @@ Showing items {math equation="x + 1" x=$my_assigned_items_info.currentRow}
 to {$my_assigned_items_info.currentLastRow} of {$my_assigned_items_info.totalRows}
 </span>
 
-<div><span class="default">Order By </span>
+
+
+<div>
+
+<span class="default">Filter By </span>
+                   <select class="default" name="isMemberOf" onchange="javascript:filterList(this.form, 'isMemberOf');">
+                       {html_options options=$isMemberOf_list selected=$isMemberOf_default}
+                   </select>
+<br/>
+<span class="default">Order By </span>
                    <select class="default" name="order_by" onchange="javascript:sortList(this.form, 'order_by');">
                        {html_options options=$order_by_list selected=$order_by_default}
                    </select>

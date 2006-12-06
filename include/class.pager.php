@@ -37,7 +37,7 @@
  * Class to manage paginated links on the frontend pages.
  *
  * @version 1.0
- * @author João Prado Maia <jpm@mysql.com>
+ * @author Joï¿½o Prado Maia <jpm@mysql.com>
  */
 
 include_once(APP_INC_PATH . "class.error_handler.php");
@@ -53,7 +53,8 @@ class Pager
     function getCookieParams()
     {
         global $HTTP_COOKIE_VARS;
-        return @unserialize(base64_decode($HTTP_COOKIE_VARS[APP_LIST_COOKIE]));
+		$return = @unserialize(base64_decode($HTTP_COOKIE_VARS[APP_LIST_COOKIE]));
+        return $return;
     }
 
     /**
@@ -67,7 +68,6 @@ class Pager
     {
         global $HTTP_POST_VARS, $HTTP_GET_VARS;
         $cookie = Pager::getCookieParams();
-
         if (isset($params[$name])) {
             return $params[$name];
         } elseif (isset($HTTP_GET_VARS[$name])) {
@@ -91,19 +91,25 @@ class Pager
     function saveSearchParams($params = array())
     {	
 		// @@@ CK 21/7/2004 - Added this global for the custom fields check.
-			
+        $isMemberOf = Pager::getParam('isMemberOf',$params);			
         $sort_by = Pager::getParam('sort_by',$params);
+        $order_by = Pager::getParam('order_by',$params);        
+        $order_by_dir = Pager::getParam('order_by_dir',$params);                
         $sort_order = Pager::getParam('sort_order',$params);
         $rows = Pager::getParam('rows',$params);
         $cookie = array(
             'rows'           => $rows ? $rows : APP_DEFAULT_PAGER_SIZE,
-            "sort_by"        => $sort_by ? $sort_by : "rec_id",
+            "sort_by"        => $sort_by ? $sort_by : "pid",
+            "order_by"       => $order_by ? $order_by : "Created Date",            
+            "order_by_dir"   => $order_by_dir ? $order_by_dir : 1,                        
+            "isMemberOf"     => $isMemberOf != "" ? $isMemberOf : "ALL",            
             "sort_order"     => $sort_order ? $sort_order : "DESC",
             // quick filter form
             'keywords'       => Pager::getParam('keywords')
         );
-		$existing_cookie = Record::getCookieParams();
-		global $HTTP_POST_VARS, $HTTP_GET_VARS;
+
+//		$existing_cookie = Record::getCookieParams(); //Why do we need to get this for? commented out CK 6/12/06
+//		global $HTTP_POST_VARS, $HTTP_GET_VARS; //or this
         $encoded = base64_encode(serialize($cookie));
         @setcookie(APP_LIST_COOKIE, $encoded, APP_LIST_COOKIE_EXPIRE);
         return $cookie;

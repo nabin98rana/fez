@@ -596,27 +596,29 @@ class Collection
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];
 
+		$isMemberOfList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('isMemberOf');
+//		$statusList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Status');		
+		$objectTypeList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Object Type');				
+		
+		
 	    if (!empty($collection_pid)) {		
 			$memberOfStmt = "
 						INNER JOIN {$dbtp}record_matching_field AS r4
-						  ON r4.rmf_rec_pid = r2.rmf_rec_pid
-						INNER JOIN {$dbtp}xsd_display_matchfields AS x4
-						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and match(r4.rmf_varchar) against ('\"$collection_pid\"' in boolean mode)
-						INNER JOIN {$dbtp}search_key AS s4  							  
-						  ON s4.sek_id = x4.xsdmf_sek_id AND s4.sek_title = 'isMemberOf' ";
+						  ON r4.rmf_rec_pid = r2.rmf_rec_pid and r4.rmf_xsdmf_id in 
+					 (".implode(",", $isMemberOfList).") and r4.rmf_varchar = '$collection_pid'";
 		} else {
 			$memberOfStmt = "";
 		}
 
         $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
-                    INNER JOIN {$dbtp}xsd_display_matchfields AS x2
-                      ON r2.rmf_xsdmf_id = x2.xsdmf_id AND x2.xsdmf_element='!ret_id' and r2.rmf_int=3
+                    
+                     
 					
 
                     $authStmt
 
 					$memberOfStmt
-
+					WHERE  r2.rmf_xsdmf_id in (".implode(",", $objectTypeList).") AND r2.rmf_int = 3
                     ";
 
         $countStmt = "
@@ -633,6 +635,34 @@ class Collection
 
     }
 
+	function getSimpleListingCount($pid) {
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+		$authArray = Collection::getAuthIndexStmt(array("Creator", "Editor", "Approver"));
+		$authStmt = $authArray['authStmt'];
+		$joinStmt = $authArray['joinStmt'];
+
+		$isMemberOfList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('isMemberOf');
+		
+
+        $bodyStmtPart1 = " FROM  {$dbtp}record_matching_field AS r2
+					WHERE  r2.rmf_xsdmf_id in (".implode(",", $isMemberOfList).") AND r2.rmf_varchar = '$pid'
+                    ";
+
+        $countStmt = "
+                    SELECT ".APP_SQL_CACHE."  count(distinct r2.rmf_rec_pid)
+                    $bodyStmtPart1
+            ";
+
+		$res = $GLOBALS["db_api"]->dbh->getCol($countStmt);
+
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = array();
+        }
+        return $res[0];		
+		
+	}
+    
     /**
       * List the records in a collection that can be edited by the current user
       * @param integer $collection_pid The pid of the collection to restrict the list to
