@@ -255,7 +255,7 @@
             $getString = APP_BASE_URL."webservices/wfb.image_resize.php?image="
                         .urlencode("test.gif")."&height=20&width=20&ext=jpg&outfile="."thumbnail_test.jpg&copyright=hello";
             Misc::ProcessURL($getString);
-            $results = array_merge($results, SanityChecks::checkFile('Run Image Convert', APP_TEMP_DIR."thumbnail_test.jpg"));
+            $results = array_merge($results, SanityChecks::checkFile('Run Image Convert with copyright', APP_TEMP_DIR."thumbnail_test.jpg"));
             @unlink(APP_TEMP_DIR."thumbnail_test.jpg");
         }
         // check watermark
@@ -264,16 +264,17 @@
             $getString = APP_BASE_URL."webservices/wfb.image_resize.php?image="
                         .urlencode("test.gif")."&height=20&width=20&ext=jpg&outfile="."thumbnail_test.jpg&watermark=1";
             Misc::ProcessURL($getString);
-            $results = array_merge($results, SanityChecks::checkFile('Run Image Convert', APP_TEMP_DIR."thumbnail_test.jpg"));
+            $results = array_merge($results, SanityChecks::checkFile('Run Image Convert with watermark', APP_TEMP_DIR."thumbnail_test.jpg"));
             @unlink(APP_TEMP_DIR."thumbnail_test.jpg");
         }
         // check copyright and watermark
         if (SanityChecks::resultsClean($results)) {
             copy(APP_PATH."images/1rightarrow_16.gif", APP_TEMP_DIR."test.gif");
             $getString = APP_BASE_URL."webservices/wfb.image_resize.php?image="
-                        .urlencode("test.gif")."&height=20&width=20&ext=jpg&outfile="."thumbnail_test.jpg&watermark=1&copyright=hello";
+                        .urlencode("test.gif")."&height=20&width=20&ext=jpg&outfile="
+                        ."thumbnail_test.jpg&watermark=1&copyright=hello";
             Misc::ProcessURL($getString);
-            $results = array_merge($results, SanityChecks::checkFile('Run Image Convert', APP_TEMP_DIR."thumbnail_test.jpg"));
+            $results = array_merge($results, SanityChecks::checkFile('Run Image Convert with watermark and copyright', APP_TEMP_DIR."thumbnail_test.jpg"));
             @unlink(APP_TEMP_DIR."thumbnail_test.jpg");
         }
         if (SanityChecks::resultsClean($results)) {
@@ -376,7 +377,7 @@
         if (!SanityChecks::resultsClean($results)) {
         	$results[] = ConfigResult::message('If the fedora server responded with a 401 code, then maybe ' .
                     'the security settings aren\'t right.  Check that you supplied the correct password in ' .
-                    'the Fez config.  Set fedora.fcfg option <param name="ENFORCE-MODE" value="permit-all-requests"/> ' .
+                    'the Fez config.  Ensure APP_FEDORA_SETUP is correct.  Set fedora.fcfg option <param name="ENFORCE-MODE" value="permit-all-requests"/> ' .
                     'to allow requests from remote hosts (or taylor to suit your security requirements - default ' .
                     'seems to let through localhost only)');
         } else {

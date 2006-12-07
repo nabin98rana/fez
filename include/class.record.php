@@ -727,67 +727,6 @@ class Record
     }
 
 
-    /**
-     * Method used to get the current listing related cookie information.
-     *
-     * @access  public
-     * @return  array The Record listing information
-     */
-    function getCookieParams()
-    {
-        global $HTTP_COOKIE_VARS;
-        return @unserialize(base64_decode($HTTP_COOKIE_VARS[APP_LIST_COOKIE]));
-    }
-
-    /**
-     * Method used to get a specific parameter in the Record listing cookie.
-     *
-     * @access  public
-     * @param   string $name The name of the parameter
-     * @return  mixed The value of the specified parameter
-     */
-    function getParam($name)
-    {
-        global $HTTP_POST_VARS, $HTTP_GET_VARS;
-        $cookie = Record::getCookieParams();
-        if (isset($HTTP_GET_VARS[$name])) {
-            return $HTTP_GET_VARS[$name];
-        } elseif (isset($HTTP_POST_VARS[$name])) {
-            return $HTTP_POST_VARS[$name];
-        } elseif (isset($cookie[$name])) {
-            return $cookie[$name];
-        } else {
-            return "";
-        }
-    }
-
-
-    /**
-     * Method used to save the current search parameters in a cookie.
-     *
-     * @access  public
-     * @return  array The search parameters
-     */
-    function saveSearchParams()
-    {	
-		// @@@ CK 21/7/2004 - Added this global for the custom fields check.
-			
-        $sort_by = Record::getParam('sort_by');
-        $sort_order = Record::getParam('sort_order');
-        $rows = Record::getParam('rows');
-        $cookie = array(
-            'rows'           => $rows ? $rows : APP_DEFAULT_PAGER_SIZE,
-            "sort_by"        => $sort_by ? $sort_by : "rec_id",
-            "sort_order"     => $sort_order ? $sort_order : "DESC",
-            // quick filter form
-            'keywords'       => Record::getParam('keywords')
-        );
-		$existing_cookie = Record::getCookieParams();
-		global $HTTP_POST_VARS, $HTTP_GET_VARS;
-        $encoded = base64_encode(serialize($cookie));
-        setcookie(APP_LIST_COOKIE, $encoded, APP_LIST_COOKIE_EXPIRE);
-        return $cookie;
-    }
 
 
     /**
@@ -850,35 +789,26 @@ class Record
         if (isset($acml_cache['pid'][$pid])) {
             return $acml_cache['pid'][$pid];
         }
-		$dsExists = Fedora_API::datastreamExists($pid, $ds_search, true);
-		if ($dsExists == true) {
-			$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $ds_search);
-			$xmlACML = @$DSResultArray['stream'];
-			if ($xmlACML != "") {
-				$xmldoc= new DomDocument();
-				$xmldoc->preserveWhiteSpace = false;
-				$xmldoc->loadXML($xmlACML);
-				if ($dsID != "") {
-					$acml_cache['ds'][$dsID][$pid] = $xmldoc;
-				} else {
-					$acml_cache['pid'][$pid] = $xmldoc;
-				}
-				return $xmldoc;
+	
+		$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $ds_search);
+		$xmlACML = @$DSResultArray['stream'];
+		if ($xmlACML != "") {
+			$xmldoc= new DomDocument();
+			$xmldoc->preserveWhiteSpace = false;
+			$xmldoc->loadXML($xmlACML);
+			if ($dsID != "") {
+				$acml_cache['ds'][$dsID][$pid] = $xmldoc;
 			} else {
-				if ($dsID != "") {
-					$acml_cache['ds'][$dsID][$pid] = false;
-				} else {
-					$acml_cache['pid'][$pid] = false;
-				}
-				return false;
+				$acml_cache['pid'][$pid] = $xmldoc;
 			}
+			return $xmldoc;
 		} else {
 			if ($dsID != "") {
 				$acml_cache['ds'][$dsID][$pid] = false;
 			} else {
 				$acml_cache['pid'][$pid] = false;
 			}
-			return false;						
+			return false;
 		}
 	}
 
@@ -937,7 +867,7 @@ class Record
      * @param string $username The username of the search is performed on
      * @return array $res2 The index details of records associated with the user
      */
-    function getAssigned($username,$currentPage=0,$pageRows="ALL",$order_by="Title", $order_by_dir=0, $isMemberOf='ALL')
+    function getAssigned($username,$currentPage=0,$pageRows="ALL",$order_by="Title", $order_by_dir=0)
     {
         if ($pageRows == "ALL") {
             $pageRows = 9999999;
@@ -962,23 +892,11 @@ class Record
         } else {
             $r4_join_field = "r2.rmf_rec_pid";
         }
-		$memberOfStmt = "";
-        if ($isMemberOf != "ALL"  && isMemberOf != "") {
-        				$memberOfStmt = "
-						INNER JOIN {$dbtp}record_matching_field AS r4
-						  ON r4.rmf_rec_pid = r2.rmf_rec_pid
-						INNER JOIN {$dbtp}xsd_display_matchfields AS x4
-						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and match(r4.rmf_varchar) against ('\"$isMemberOf\"' in boolean mode)
-						INNER JOIN {$dbtp}search_key AS s4  							  
-						  ON s4.sek_id = x4.xsdmf_sek_id AND s4.sek_title = 'isMemberOf' ";
-        	
-        }
-        
+
         $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
                     INNER JOIN {$dbtp}xsd_display_matchfields AS x2
                       ON r2.rmf_xsdmf_id = x2.xsdmf_id AND match(x2.xsdmf_element) against ('\"!sta_id\"' in boolean mode) and r2.rmf_int!=2
 
-					$memberOfStmt
 
                     $authStmt
 
@@ -1042,11 +960,7 @@ class Record
 		$totalRows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
 //        $totalRows = count($list);
 //        $list = array_slice($list,$currentRow, $pageRows);
-		if ($pageRows > 0) {
-	        $totalPages = intval($totalRows / $pageRows);
-		} else {
-			$totalPages = 1;
-		}
+        $totalPages = intval($totalRows / $pageRows);
         if ($totalRows % $pageRows) {
             $totalPages++;
         }
@@ -1282,7 +1196,6 @@ class Record
 //		Record::insertIndexBatch($pid, '', $indexArray, $datastreamXMLHeaders, $exclude_list, $specify_list);
 
         // ingest the datastreams
-
 		foreach ($datastreamXMLHeaders as $dsKey => $dsTitle) {		
 
 			$dsIDName = $dsTitle['ID'];
@@ -1303,7 +1216,6 @@ class Record
 
                     } 
                     $location = trim($datastreamXMLContent[$dsKey]);
-
                     if (!empty($location)) {
 //						Fedora_API::getUploadLocation($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey], $dsTitle['LABEL'],
 //							$dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);

@@ -9,14 +9,17 @@ font-family: Verdana, Arial, Helvetica, sans-serif;
 font-weight: bold;
 font-style: normal;
 font-size: 11px;
+text-decoration: none;
 margin: 5px 40px 5px 40px;
 padding: 0px;
 overflow:hidden;
 height: 70px;
+cursor: text;
 }
 
 a.app_errors:hover {
 height: auto;
+cursor: text;
 }
 
 .app_error {

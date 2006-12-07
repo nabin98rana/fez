@@ -68,17 +68,18 @@ class Pager
     {
         global $HTTP_POST_VARS, $HTTP_GET_VARS;
         $cookie = Pager::getCookieParams();
+        $result = '';
         if (isset($params[$name])) {
-            return $params[$name];
+             $result =  $params[$name];
         } elseif (isset($HTTP_GET_VARS[$name])) {
-            return $HTTP_GET_VARS[$name];
+             $result =  $HTTP_GET_VARS[$name];
         } elseif (isset($HTTP_POST_VARS[$name])) {
-            return $HTTP_POST_VARS[$name];
+             $result =  $HTTP_POST_VARS[$name];
         } elseif (isset($cookie[$name])) {
-            return $cookie[$name];
-        } else {
-            return "";
+             $result =  $cookie[$name];
         }
+        //echo "$name: ". print_r($result,true) ."<br/>\n";
+        return $result;
     }
 
 
@@ -100,7 +101,7 @@ class Pager
         $cookie = array(
             'rows'           => $rows ? $rows : APP_DEFAULT_PAGER_SIZE,
             "sort_by"        => $sort_by ? $sort_by : "pid",
-            "order_by"       => $order_by ? $order_by : "Created Date",            
+            "order_by"       => $order_by ? $order_by : "Title",            
             "order_by_dir"   => $order_by_dir ? $order_by_dir : 1,                        
             "isMemberOf"     => $isMemberOf != "" ? $isMemberOf : "ALL",            
             "sort_order"     => $sort_order ? $sort_order : "DESC",
