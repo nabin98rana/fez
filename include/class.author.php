@@ -311,23 +311,30 @@ class Author
      * @access  public
      * @return  array The list of authors
      */
-    function getList($current_row = 0, $max = 25, $order_by = 'aut_lname')
+    function getList($current_row = 0, $max = 25, $order_by = 'aut_lname', $filter="")
     {
+    	
+    	$where_stmt = "";
+    	$extra_stmt = "";
+    	$extra_order_stmt = "";    	    	
+    	$filter = Misc::escapeString($filter);
+    	if (!empty($filter)) {
+	    	$where_stmt .= " WHERE match(aut_fname, aut_lname) AGAINST ('*".$filter."*' IN BOOLEAN MODE) ";
+	    	$extra_stmt = " , match(aut_fname, aut_lname) AGAINST ('".$filter."') as Relevance ";
+	    	$extra_order_stmt = " Relevance DESC, ";    	    		    	
+    	}
+    	
 		$start = $current_row * $max;
-        $stmt = "SELECT
-					count(*) as aut_count
-                 FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author";
-        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
-		$total_rows = $res;
-        $stmt = "SELECT
-					*
+        $stmt = "SELECT SQL_CALC_FOUND_ROWS 
+					* $extra_stmt
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
-                 ORDER BY
+				$where_stmt
+                 ORDER BY $extra_order_stmt
                     $order_by
 				 LIMIT $start, $max";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+		$total_rows = $GLOBALS["db_api"]->dbh->getOne('SELECT FOUND_ROWS()');        
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";

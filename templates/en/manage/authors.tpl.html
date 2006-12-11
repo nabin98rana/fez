@@ -51,6 +51,7 @@
               //-->
               </script>
               {/literal}
+              
               <form name="author_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}">
               {if $smarty.get.cat == 'edit'}
               <input type="hidden" name="cat" value="update">
@@ -160,6 +161,26 @@
                 </td>
               </tr>
               </form>
+              
+
+
+              <form name="author_search_form" method="get" action="{$smarty.server.PHP_SELF}">              
+              <input type="hidden" name="cat" value="search">
+              <input type="hidden" name="id" value="{$smarty.get.id}">
+
+              <tr>
+                <td class="default">
+                  <b>{if $search_filter != ""}<font color="red">{/if}Search Authors (by name){if $search_filter != ""}</font>{/if}</b>
+                </td>
+                 <td nowrap bgcolor="{$light_color}" width="80%">
+                  <input type="text" name="search_filter" size="40" class="default" value="{$search_filter}">
+                  {include file="error_icon.tpl.html" field="search_filter"}
+				 <input class="button" type="submit" value="Search">                  
+                </td>
+              </tr>		
+			  </form>              
+
+              
               <tr>
                 <td colspan="2" class="default">
                   <b>Existing Authors:</b>

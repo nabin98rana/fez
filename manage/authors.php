@@ -74,11 +74,17 @@ if ($isAdministrator) {
     } elseif (@$HTTP_POST_VARS["cat"] == "delete") {
         Author::remove();
     }
-
     if (@$HTTP_GET_VARS["cat"] == "edit") {
         $tpl->assign("info", Author::getDetails($HTTP_GET_VARS["id"]));
     }
-	$author_list = Author::getList($pagerRow, $rows);
+	if (@$HTTP_GET_VARS["cat"] == "search") {
+		$filter = Pager::getParam('search_filter',$params);
+		$tpl->assign("search_filter", $filter);
+		$author_list = Author::getList($pagerRow, $rows, 'aut_lname', $filter);		
+	} else {
+		$author_list = Author::getList($pagerRow, $rows);    
+	}
+
     $tpl->assign("list", $author_list['list']);
     $tpl->assign("list_info", $author_list['list_info']);
 } else {
