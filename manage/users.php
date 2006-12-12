@@ -50,6 +50,18 @@ $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
+$pagerRow = Pager::getParam('pagerRow',$params);
+if (empty($pagerRow)) {
+	$pagerRow = 0;
+}
+
+$rows = Pager::getParam('rows',$params);
+if (empty($rows)) {
+	$rows = APP_DEFAULT_PAGER_SIZE;
+}
+$options = Pager::saveSearchParams($params);
+$tpl->assign("options", $options);
+
 
 if ($isAdministrator) {
 
@@ -65,7 +77,17 @@ if ($isAdministrator) {
         $tpl->assign("info", User::getDetailsByID($HTTP_GET_VARS["id"]));
     }
 
-    $tpl->assign("list", User::getList());
+	if (@$HTTP_GET_VARS["cat"] == "search") {
+		$filter = Pager::getParam('search_filter',$params);
+		$tpl->assign("search_filter", $filter);
+		$user_list = User::getList($pagerRow, $rows, 'usr_full_name', $filter);		
+	} else {
+		$user_list = User::getList($pagerRow, $rows);    
+	}
+    
+    $tpl->assign("list", $user_list['list']);
+    $tpl->assign("list_info", $user_list['list_info']);
+	
     $tpl->assign("group_options", Group::getActiveAssocList());
 } else {
     $tpl->assign("show_not_allowed_msg", true);

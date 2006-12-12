@@ -39,7 +39,7 @@
  * of users and permissions in the system.
  *
  * @version 1.0
- * @author João Prado Maia <jpm@mysql.com>
+ * @author Joï¿½o Prado Maia <jpm@mysql.com>
  */
 
 include_once(APP_INC_PATH . "class.error_handler.php");
@@ -989,26 +989,62 @@ class User
      * @access  public
      * @return  array The list of users
      */
-    function getList()
+    function getList($current_row = 0, $max = 25, $order_by = 'usr_full_name', $filter="")
     {
-        $stmt = "SELECT
-                    *
+    	$order_by = "usr_id DESC";    	
+    	$where_stmt = "";
+    	$extra_stmt = "";
+    	$extra_order_stmt = "";    	    	
+    	$filter = Misc::escapeString($filter);
+    	if (!empty($filter)) {
+	    	$where_stmt .= " WHERE match(usr_full_name, usr_given_names, usr_family_name, usr_username, usr_shib_username) AGAINST ('*".$filter."*' IN BOOLEAN MODE) ";
+	    	$extra_stmt = " , match(usr_full_name, usr_given_names, usr_family_name, usr_username, usr_shib_username) AGAINST ('".$filter."') as Relevance ";
+	    	$extra_order_stmt = " Relevance DESC, ";    	    		    	
+    	}
+    	
+		$start = $current_row * $max;
+        $stmt = "SELECT SQL_CALC_FOUND_ROWS 
+					* $extra_stmt
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user u
-                 ORDER BY
-                    u.usr_status ASC,
-                    u.usr_full_name ASC";
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+				$where_stmt
+                 ORDER BY $extra_order_stmt
+                    $order_by
+				 LIMIT $start, $max";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+		$total_rows = $GLOBALS["db_api"]->dbh->getOne('SELECT FOUND_ROWS()');        
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
 			foreach ($res as $key => $row) {
 			  $res[$key]["usr_last_login_date"] = Date_API::getFormattedDate($res[$key]["usr_last_login_date"]);
+			}       	
+			if (($start + $max) < $total_rows) {
+				$total_rows_limit = $start + $max;
+			} else {
+			   $total_rows_limit = $total_rows;
 			}
-            return $res;
+			$total_pages = ceil($total_rows / $max);
+			$last_page = $total_pages - 1;			
+            return array(
+                "list" => $res,
+                "list_info" => array(
+                    "current_page"  => $current_row,
+                    "start_offset"  => $start,
+                    "end_offset"    => $total_rows_limit,
+                    "total_rows"    => $total_rows,
+                    "total_pages"   => $total_pages,
+                    "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+                    "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
+                    "last_page"     => $last_page
+                )
+            );
+
         }
-    }
+    }    
+    
+    
 
     /**
      * Method used to get an associative array of the user ID and 

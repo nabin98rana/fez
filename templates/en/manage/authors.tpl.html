@@ -170,7 +170,7 @@
 
               <tr>
                 <td class="default">
-                  <b>{if $search_filter != ""}<font color="red">{/if}Search Authors (by name){if $search_filter != ""}</font>{/if}</b>
+                  <b>{if $search_filter != ""}<font color="red">{/if}Search Authors (by name, ordered by relevance){if $search_filter != ""}</font>{/if}</b>
                 </td>
                  <td nowrap bgcolor="{$light_color}" width="80%">
                   <input type="text" name="search_filter" size="40" class="default" value="{$search_filter}">
@@ -226,6 +226,7 @@
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>CV Link</b></td>					  
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Homepage Link</b></td>					  
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Created Date</b></td>					  
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Org Membership</b></td>					                        
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
@@ -242,16 +243,17 @@
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_cv_link}</td>
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_homepage_link}</td>					  
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_created_date}</td>					  
+                      <td bgcolor="{$row_color}" class="default">&nbsp;Edit</td>					                        
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="10" bgcolor="{$light_color}" align="center" class="default">
+                      <td colspan="11" bgcolor="{$light_color}" align="center" class="default">
                         No authors could be found.
                       </td>
                     </tr>
                     {/section}
         <tr bgcolor="{$cell_color}">
-          <td colspan="10">
+          <td colspan="11">
             <table width="100%" cellspacing="0" cellpadding="0">
               <tr>
                 <td width="40%" align="center" nowrap>
