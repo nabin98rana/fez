@@ -28,10 +28,10 @@ function checkPublishRecords(f)
     if (!confirm('The checked items will be published, are you sure?')) {
         return false;
     } else {
+        cat = getFormElement(f, 'cat');
+        cat.value = 'publish_objects';  
         var features = 'width=420,height=200,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
         var popupWin = window.open('', '_popup', features);
-        cat = getFormElement(f, 'cat');
-        cat.value = 'publish_objects';
         popupWin.focus();
          return true;
     }
