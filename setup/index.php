@@ -101,14 +101,14 @@ function checkPermissions($file, $desc, $is_directory = FALSE)
    $file_content = file($url);
    //print_r($file_content);
    $query = "";
-   foreach($file_content as $sql_line) {
+   foreach($file_content as $ln => $sql_line) {
 	 $sql_line = replace_table_prefix($sql_line);
      $tsl = trim($sql_line);
      if (($sql_line != "") && (substr($tsl, 0, 2) != "--") && (substr($tsl, 0, 1) != "#")) {
        $query .= $sql_line;
        if(preg_match("/;\s*$/", $sql_line)) {
          $result = mysql_query($query);
-         if (!$result && !$ignoreerrors) die(mysql_error());
+         if (!$result && !$ignoreerrors) die(mysql_error()." Line:$ln\n");
          $query = "";
        }
      }
@@ -352,7 +352,6 @@ $private_key = "' . md5(microtime()) . '";
                     } else {
                         $stmt = "GRANT SELECT, UPDATE, DELETE, INSERT ON " . $HTTP_POST_VARS['db_name'] . ".* TO '" . $HTTP_POST_VARS["fez_user"] . "'@'%' IDENTIFIED BY '" . $HTTP_POST_VARS["fez_password"] . "'";
                     }
-
                     if (!mysql_query($stmt, $conn)) {
                         return getErrorMessage('create_user', mysql_error());
                     }
@@ -478,15 +477,6 @@ $stmt = $contents;
 
 if (@$HTTP_POST_VARS["cat"] == 'install') {
     $res = install();
-    if ($res == 'success') {
-        include_once('../config.inc.php');
-        include_once(APP_INC_PATH.'class.sanity_checks.php');
-        $sanity = SanityChecks::runAllChecks();
-        $tpl->assign('sanity_results',$sanity);
-        if (!SanityChecks::resultsClean($sanity)) {
-            $res = "One or more sanity checks failed.";
-        }
-    }
     $tpl->assign("result", $res);
 }
 

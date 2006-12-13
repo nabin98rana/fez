@@ -359,7 +359,8 @@ class Doc_Type_XSD
             $item['xsd_id'] = Misc::escapeString($xdoc->getAttribute('xsd_id'));
             $item['xsd_title'] = Misc::escapeString($xdoc->getAttribute('xsd_title'));
             $item['xsd_version'] = Misc::escapeString($xdoc->getAttribute('xsd_version'));
-            $item['exist_list'] = Doc_Type_XSD::getList("xsd_id, xsd_title, xsd_version","WHERE xsd_title='{$item['xsd_title']}'");
+            $item['exist_list'] = Doc_Type_XSD::getList("xsd_id, xsd_title, xsd_version",
+                "WHERE xsd_title='{$item['xsd_title']}' AND xsd_version='{$item['xsd_version']}'");
             if (!empty($item['exist_list'])) {
             	$item['overwrite'] = true;
             } else {
@@ -385,11 +386,12 @@ class Doc_Type_XSD
         foreach ($xdocs as $xdoc) {
             $bgp->setProgress(intval(++$idx / count($xdocs) * 100 + 0.5));
         	$title = Misc::escapeString($xdoc->getAttribute('xsd_title'));
+            $version = Misc::escapeString($xdoc->getAttribute('xsd_version'));
             // There are two things to consider when importing
             // 1) Upgrade docs which match on xsd_title and have version < import doc .  Remap any references in import doc to xdis)
             // 2) Insert new doc which don't match title.  Remap references in imported stuff  
             $found_matching_title = false;
-            $exist_list = Doc_Type_XSD::getList("*","WHERE xsd_title='$title'");
+            $exist_list = Doc_Type_XSD::getList("*","WHERE xsd_title='$title' AND xsd_version='$version'");
             $doc_id = null;
             if (!empty($exist_list)) {
                 $found_matching_title = true;
@@ -408,10 +410,10 @@ class Doc_Type_XSD
                     'xsd_extra_ns_prefixes' => $xdoc->getAttribute('xsd_extra_ns_prefixes'),
                 );
                 if ($found_matching_title) {
-                    $bgp->setStatus("Overwriting XSD $title");
+                    $bgp->setStatus("Overwriting XSD $title $version");
                     Doc_Type_XSD::update($doc_id, $params);
                 } else {
-                    $bgp->setStatus("Inserting XSD $title");
+                    $bgp->setStatus("Inserting XSD $title $version");
                     // need to try and insert at the XML doc_id.  If there's something there already
                     // then we know it doesn't match so do a insert with new id in that case
                     $det =  Doc_Type_XSD::getDetails($xdoc->getAttribute('xsd_id'));

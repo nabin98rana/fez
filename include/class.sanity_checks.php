@@ -476,7 +476,8 @@
         }
         closedir($dh);
         if ($writable) {
-            $tmpfname = tempnam($value, "FOO");
+            $value2 = rtrim($value,'/');
+            $tmpfname = "{$value2}/sanity_check_tmpfile";
             $teststr = "This is a test";
             if (@file_put_contents($tmpfname, $teststr) < strlen($teststr)) {
                 return array(new ConfigResult('Directory', $configDefine, $value, "Failed to write a file"));

@@ -7,9 +7,14 @@
 problems.  For more help, see the <a href="http://dev-repo.library.uq.edu.au/wiki/index.php/Troubleshooting">Troubleshooting</a>
 section on the Fez Wiki or search the <a href="http://sourceforge.net/mailarchive/forum.php?forum_id=46814">mailing list archives</a>.</div>
 <br/>
+Configuration varaibles may need to be changed by editing config.inc.php in the base directory of the installation.
+Most error messages will show which configuration variable was the problem.
+<br/>
 	<div class="default">
 		{include file="sanity_check_results.tpl.html"}
 	</div>
+	<br/>
+	Fix any problems then <a href="{$smarty.const.PHP_SELF}">reload this page</a>
 </div>
 
 {include file="app_info.tpl.html"}

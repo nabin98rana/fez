@@ -118,21 +118,7 @@ function toggleSSLBaseLocation(show_field)
             <br />
             <b>Details: {$result}</b>
             <br /><br />
-{if $sanity_results}
-<div class="outline">
-<div class="contentheader">Sanity Check</div>
-<div class="default">The following shows a number of tests that were run and the results with suggestions on how to fix any 
-problems.  For more help, see the <a href="http://dev-repo.library.uq.edu.au/wiki/index.php/Troubleshooting">Troubleshooting</a>
-section on the Fez Wiki or search the <a href="http://sourceforge.net/mailarchive/forum.php?forum_id=46814">mailing list archives</a>.</div>
-<br/>
-	<div class="default">
-		{include file="sanity_check_results.tpl.html"}
-	</div>
-	<br/>
-	After making your changes to the config files and restarting apache (if necessary) click on
-	<a href="{$rel_url}setup/check_sanity.php">setup/check_sanity.php</a> to check that the problems are resolved.
-</div>
-{/if}
+
           </td>
         </tr>
       </table>
@@ -152,30 +138,8 @@ section on the Fez Wiki or search the <a href="http://sourceforge.net/mailarchiv
         </tr>
         <tr>
           <td class="default">
-            <br />
-<div class="outline">
-<div class="contentheader">Sanity Check</div>
-<div class="default">The following shows a number of tests that were run and the results with suggestions on how to fix any 
-problems.  For more help, see the <a href="http://dev-repo.library.uq.edu.au/wiki/index.php/Troubleshooting">Troubleshooting</a>
-section on the Fez Wiki or search the <a href="http://sourceforge.net/mailarchive/forum.php?forum_id=46814">mailing list archives</a>.</div>
-<br/>
-	<div class="default">
-		{include file="sanity_check_results.tpl.html"}
-	</div>
-</div>
-            
-            
-            
-            
-            
-            Open the following URL to login on it for the first time:
-            <br />
-            <a class="link" href="{if $smarty.post.is_ssl == 'yes'}https://{else}http://{/if}{$smarty.post.hostname}{$smarty.post.relative_url}">{if $smarty.post.is_ssl == 'yes'}https://{else}http://{/if}{$smarty.post.hostname}{$smarty.post.relative_url}</a>
-            <br /><br />
-            Username: admin<br />
-            Password: admin<br />
-            <br />
-            <b>NOTE: For security reasons it is highly recommended that the default password be changed as soon as possible.</b>
+            Proceed to the <a href="check_sanity.php">Sanity Check</a> which will confirm the system is correctly
+            configured.
           </td>
         </tr>
       </table>

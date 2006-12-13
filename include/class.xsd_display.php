@@ -745,7 +745,8 @@ class XSD_Display
                 'xdis_title' => $xdis->getAttribute('xdis_title'),
                 'xdis_version' => $xdis->getAttribute('xdis_version')
             );
-            $item['exists_list'] = XSD_Display::getList($xsd_id,"AND xdis_title='{$item['xdis_title']}'");
+            $item['exists_list'] = XSD_Display::getList($xsd_id,
+                "AND xdis_title='{$item['xdis_title']}' AND xdis_version='{$item['xdis_version']}'");
             if (!empty($item['exists_list'])) {
             	$item['overwrite'] = true;
             } else {
@@ -769,12 +770,13 @@ class XSD_Display
         $xdisplays = $xpath->query('display', $xdoc);
         foreach ($xdisplays as $xdis) {
             $title = Misc::escapeString($xdis->getAttribute('xdis_title'));
+            $version = Misc::escapeString($xdis->getAttribute('xdis_version'));
             if (!in_array($xdis->getAttribute('xdis_id'), $xdis_ids)) {
                 $bgp->setStatus("Skipping Display $title");
             	continue;
             }
             $found_matching_title = false;
-            $list = XSD_Display::getList($xsd_id,"AND xdis_title='$title'");
+            $list = XSD_Display::getList($xsd_id,"AND xdis_title='$title' AND xdis_version='$version' ");
             if (!empty($list)) {
                 $found_matching_title = true;
                 $xdis_id = $list[0]['xdis_id'];
@@ -787,13 +789,13 @@ class XSD_Display
                     'xdis_object_type' => $xdis->getAttribute('xdis_object_type'),
                 );
                 if ($found_matching_title) {
-                  $bgp->setStatus("Overwriting Display $title");
+                  $bgp->setStatus("Overwriting Display $title $version");
                   XSD_Display::update($xdis_id, $params);
                   // need to delete any matchfields that refer to this xdis as we are about to bring
                   // the ones from the XML doc in
                   XSD_HTML_Match::removeByXDIS_ID($xdis_id);
                 } else {
-                  $bgp->setStatus("Inserting Display $title");
+                  $bgp->setStatus("Inserting Display $title $version");
                   // need to try and insert at the xdis_id in the XML.  If there's something there already
                   // then we know it doesn't match so do a insert with new id in that case 
                   $det = XSD_Display::getDetails($xdis->getAttribute('xdis_id'));
@@ -964,6 +966,11 @@ class XSD_DisplayObject
             // Find datastreams that may be used by this display
             $datastreamTitles = $this->getDatastreamTitles();
 			$datastreams = Fedora_API::callGetDatastreams($pid); // need the full get datastreams to get the controlGroup etc
+            if (empty($datastreams)) {
+            	Error_Handler::logError("The PID {} doesn't appear to be in the fedora repository - perhaps it was not ingested correctly.  " .
+                        "Please let the Fez admin know so that the Fez index can be repaired.",__FILE__,__LINE__);
+                return;
+            }
             //print_r($datastreams); 
             //print_r($datastreamTitles);
 //			$datastreams = Fedora_API::callListDatastreams($pid);			

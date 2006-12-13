@@ -37,6 +37,10 @@ if (!is_file("config.inc.php")) {
     exit;
 }
 include_once("config.inc.php");
+if (!defined('APP_INC_PATH')) {
+    header("Location: setup/");
+    exit;
+}
 
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.auth.php");

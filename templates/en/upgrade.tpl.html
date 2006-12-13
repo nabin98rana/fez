@@ -4,7 +4,7 @@
 <h1>Upgrading Fez</h1>
 
 {if $result}
-<div>{$result}</div>
+<div class="sanity_result_failed">{$result}</div>
 {/if}
 {if $step == 1}
 <div>Clicking 'Upgrade' will upgrade your database from the previous version.  You should do this once after unpacking 
@@ -26,11 +26,22 @@ editing config.inc.php, click the 'Sanity Check' button at the bottom of the scr
 
 *** Edit these existing variables
 
+Move @define(APP_HOSTNAME... to the top of the config file.
+
 @define("APP_VERSION", "1.3");
 
+// definitions of Organisation Shibboleth related variables. You may need to query your Org's Shibboleth expert for help on these settings.
+@define("SHIB_HOME_IDP", SHIB_FEDERATION."idp.yourinst.edu");  // Change this to the urn of your home instituition IDP
 
 
 *** All of the following are New Variables
+
+// definitions of Organisation Shibboleth related variables. You may need to query your Org's Shibboleth expert for help on these settings.
+@define("SHIB_DIRECT_LOGIN", "ON"); // If SHIB_SWITCH is ON and this is ON the front page of Fez will have a link to direct login for Fez home institution shib login and a link to Other for non home institution Shib and Fez logins
+@define("SHIB_SURVEY", false);  // Switch to ON to turn the post shibboleth login survey on
+@define("SHIB_FEDERATION", "urn:mace:federation.org.au:testfed:level-1:");  //Change this to the base urn of your federation eg Inqueue or InCommon
+@define("SHIB_HOME_SP", SHIB_FEDERATION.APP_HOSTNAME);  // Change this to the urn of your Fez Service Provider if different
+
 
 // Web server log files used for statistics scheduled tasks / cron jobs nightly statistics gathering
 @define("WEBSERVER_LOG_STATISTICS", "OFF");
@@ -41,18 +52,8 @@ editing config.inc.php, click the 'Sanity Check' button at the bottom of the scr
 // whether you want users to be able to create their own fez accounts - not necessary for LDAP/AD/Shibboleth enabled sites
 @define("SELF_REGISTRATION", "OFF");
 
-// definitions of Organisation Shibboleth related variables. You may need to query your Org's Shibboleth expert for help on these settings.
-@define("SHIB_SWITCH", "OFF");  // Set to OFF or ON depending on whether you want to use Shibboleth authentication
-@define("SHIB_DIRECT_LOGIN", "ON"); // If SHIB_SWITCH is ON and this is ON the front page of Fez will have a link to direct login for Fez home institution shib login and a link to Other for non home institution Shib and Fez logins
-@define("SHIB_FEDERATION_NAME", "MAMS Testbed Federation");  // Change this tothe name of your Shibboleth Federation, eg Inqueue, InCommon, MAMS Testbed Federation
-@define("SHIB_SURVEY", false);  // Switch to ON to turn the post shibboleth login survey on
-@define("SHIB_FEDERATION", "urn:mace:federation.org.au:testfed:level-1:");  //Change this to the base urn of your federation eg Inqueue or InCommon
-@define("SHIB_HOME_SP", SHIB_FEDERATION.APP_HOSTNAME);  // Change this to the urn of your Fez Service Provider if different
-@define("SHIB_HOME_IDP", SHIB_FEDERATION."idp.yourinst.edu");  // Change this to the urn of your home instituition IDP
-@define("SHIB_WAYF_METADATA_LOCATION", "/usr/local/shibboleth-sp/etc/shibboleth/level-1-metadata.xml");  // Change this to path location of the WAYF metadata XML file, you can update this with a cronjob (linux) or a schedulated task (windows). Your WAYF drop down list will fill from this XML file.
 
 // eprints migration
-@define("EPRINTS_OAI", "http://eprint.yourinst.edu/perl/oai2?verb=GetRecord&amp;metadataPrefix=oai_dc&amp;identifier=oai%3Aeprint.yourinst.edu.au%3A"); // change thisto your ePrints OAI service provider for batch importing of ePrints records
 @define("EPRINTS_USERNAME", ""); //ePrints requires basic auth for the download of secured PDFs and files
 @define("EPRINTS_PASSWD", "");
 @define("EPRINTS_SUBJECT_AUTHORITY", ""); // (ePrints batch import) for use when your ePrints IR uses a controlled vocabulary eg Australian ASRC use 'asrc', otherwise leave blank
@@ -68,13 +69,13 @@ editing config.inc.php, click the 'Sanity Check' button at the bottom of the scr
 
 *** In the Bill vs Linus section:
 // Windows
-@define("APP_DOT_EXEC", "\"C:/Program Files/ATT/Graphviz/bin/dot.exe\"");
-@define("APP_PHP_EXEC", "\"C:/php/php.exe\"");
-@define("APP_PDFTOTEXT_EXEC", "\"C:/utils/pdftotext.exe\"");
+    @define("APP_DOT_EXEC", "\"C:/Program Files/ATT/Graphviz/bin/dot.exe\"");
+    @define("APP_PHP_EXEC", "\"C:/php/php.exe\"");
+    @define("APP_PDFTOTEXT_EXEC", "\"C:/utils/pdftotext.exe\"");
 // Linux
-@define("APP_DOT_EXEC", "/usr/local/bin/dot");
-@define("APP_PHP_EXEC", "/usr/local/bin/php");
-@define("APP_PDFTOTEXT_EXEC", "/usr/bin/pdftotext");
+    @define("APP_DOT_EXEC", "/usr/local/bin/dot");
+    @define("APP_PHP_EXEC", "/usr/local/bin/php");
+    @define("APP_PDFTOTEXT_EXEC", "/usr/bin/pdftotext");
 *** End of Bill vs Linus
 
 @define("APP_HTTPS_CURL_CHECK_CERT", "OFF"); //if you have a dev. host with an SSL cert. that's not officially signed, set this OFF, otherwise Fedora SSL calls will fail in CURL
