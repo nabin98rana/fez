@@ -138,7 +138,7 @@ class Statistics
 					continue;
 				}
 
-				$gi = geoip_open(WEBSERVER_CONFIG_PATH."GeoLiteCity.dat",GEOIP_STANDARD);
+				$gi = geoip_open(APP_GEOIP_PATH."GeoLiteCity.dat",GEOIP_STANDARD);
 				$record = geoip_record_by_addr($gi,$ip);
 				$country_code = $record->country_code;
 				$country_name = $record->country_name;

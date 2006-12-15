@@ -178,7 +178,7 @@ function purgeObject(pid)
 				  <tr>
 						<td align="right" width="10">{$smarty.section.i.index+1}</td>
 					  <td align="left">
-							<a href='{$rel_url}list.php?browse=author&author={$list[i].record_author}'>{$list[i].record_author|escape:"html"}</a> 
+							<a href='{$rel_url}list.php?browse=author&author={$list[i].record_author|escape:'url'}'>{$list[i].record_author|escape:"html"}</a> 
 
 						</td>
 						<td align="right" nowrap>(<strong>{$list[i].file_downloads|escape:"html"}</strong> File Downloads)</td>
@@ -289,7 +289,7 @@ function purgeObject(pid)
 				  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
 				  <tr>
 					  <td>
-							<a href='{$rel_url}list.php?browse=author&author={$list[i].record_author}'>{$list[i].record_author|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+							<a href='{$rel_url}list.php?browse=author&author={$list[i].record_author|escape:'url'}'>{$list[i].record_author|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
 
 						</td>
 					</tr>

@@ -696,6 +696,12 @@ class Record
     function insertIndexMatchingField($pid, $dsID='', $xsdmf_id, $data_type, $value)
     {
         $xsdsel_id = '';
+        // MySQL doesn't always handle date string conversions so convert to MySQL style date manually 
+        if ($data_type == 'date') {
+        	$date = new Date($value);
+            $value = $date->format('%Y-%m-%d %T');
+            Error_Handler::logError("Setting date $value", __FILE__,__LINE__);
+        }
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field
                  (
@@ -726,6 +732,73 @@ class Record
         }
     }
 
+
+    /**
+     * Gets the index records for a datastream
+     *
+     * @access  public
+     * @param   string $pid The persistent identifier of the object
+     * @param   string $dsID The datastream ID
+     * @param   string $xsd_title The title of the XSD 
+     * @return array
+     */
+    function getIndexDatastream($pid, $dsID, $xsd_title)
+    {
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX; // Database and table prefix
+        $stmt = "SELECT ".APP_SQL_CACHE."  * FROM 
+        {$dbtp}record_matching_field r1
+        inner join {$dbtp}xsd_display_matchfields x1 on r1.rmf_xsdmf_id = x1.xsdmf_id and rmf_rec_pid = '".$pid."' and rmf_dsid = '".$dsID."'
+        inner join {$dbtp}xsd_display d1 on x1.xsdmf_xdis_id = d1.xdis_id
+        inner join {$dbtp}xsd x2 on x2.xsd_id = d1.xdis_xsd_id and x2.xsd_title = '".$xsd_title."'
+        left join {$dbtp}xsd_loop_subelement s1 on s1.xsdsel_id = x1.xsdmf_xsdsel_id";
+//      echo $stmt;
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        return $res;
+    }
+
+    
+
+    /**
+     * Sets the index during batch import. Could also be used in future versions for objects in 
+     * Fedora that are not in the index yet.
+     * EG a "Re-index Fedora" type of admin function.
+     *
+     * @access  public
+     * @param   string $xdis_id  The XSD Display ID of the object
+     * @param   string $pid The persistent identifier of the object
+     * @return  void
+     */
+    function setIndexMatchingFields($pid, $dsID='') 
+    {
+        $record = new RecordObject($pid);
+        $record->setIndexMatchingFields($dsID);
+        AuthIndex::setIndexAuth($pid); //set the security index
+        if (!$record->isCommunity() && !$record->isCollection()) { 
+            FulltextIndex::indexPid($pid);
+        }
+//      exit;
+    }
+    
+    function setIndexMatchingFieldsRecurse($pid, $bgp=null) 
+    {
+        if (!empty($bgp)) {
+            $bgp->setStatus("Processing {$pid}");
+            $bgp->incrementProgress();
+        }
+        $record = new RecordObject($pid);
+        $record->setIndexMatchingFields();
+        if (!$record->isCommunity() && !$record->isCollection()) { 
+            FulltextIndex::indexPid($pid);
+        }
+        // recurse children
+        // NOTE: this only finds objects that are already indexed correctly at least when it comes to
+        //          memberOf
+        $children = $record->getChildrenPids();
+        foreach ($children as $child_pid) {
+            Record::setIndexMatchingFieldsRecurse($child_pid, $bgp);
+        }
+    }
+    
 
 
 
@@ -1001,73 +1074,6 @@ class Record
             }
         }
     }
-
-    /**
-     * Gets the index records for a datastream
-     *
-     * @access  public
-     * @param   string $pid The persistent identifier of the object
-     * @param   string $dsID The datastream ID
-     * @param   string $xsd_title The title of the XSD 
-     * @return array
-     */
-    function getIndexDatastream($pid, $dsID, $xsd_title)
-    {
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX; // Database and table prefix
-        $stmt = "SELECT ".APP_SQL_CACHE."  * FROM 
-        {$dbtp}record_matching_field r1
-		inner join {$dbtp}xsd_display_matchfields x1 on r1.rmf_xsdmf_id = x1.xsdmf_id and rmf_rec_pid = '".$pid."' and rmf_dsid = '".$dsID."'
-        inner join {$dbtp}xsd_display d1 on x1.xsdmf_xdis_id = d1.xdis_id
-		inner join {$dbtp}xsd x2 on x2.xsd_id = d1.xdis_xsd_id and x2.xsd_title = '".$xsd_title."'
-		left join {$dbtp}xsd_loop_subelement s1 on s1.xsdsel_id = x1.xsdmf_xsdsel_id";
-//		echo $stmt;
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-		return $res;
-    }
-
-    
-
-    /**
-     * Sets the index during batch import. Could also be used in future versions for objects in 
-     * Fedora that are not in the index yet.
-	 * EG a "Re-index Fedora" type of admin function.
-     *
-     * @access  public
-     * @param   string $xdis_id  The XSD Display ID of the object
-     * @param   string $pid The persistent identifier of the object
-     * @return  void
-     */
-    function setIndexMatchingFields($pid, $dsID='') 
-    {
-        $record = new RecordObject($pid);
-        $record->setIndexMatchingFields($dsID);
-        AuthIndex::setIndexAuth($pid); //set the security index
-        if (!$record->isCommunity() && !$record->isCollection()) { 
-            FulltextIndex::indexPid($pid);
-        }
-//		exit;
-    }
-    
-    function setIndexMatchingFieldsRecurse($pid, $bgp=null) 
-    {
-    	if (!empty($bgp)) {
-    		$bgp->setStatus("Processing {$pid}");
-            $bgp->incrementProgress();
-    	}
-        $record = new RecordObject($pid);
-        $record->setIndexMatchingFields();
-        if (!$record->isCommunity() && !$record->isCollection()) { 
-            FulltextIndex::indexPid($pid);
-        }
-        // recurse children
-        // NOTE: this only finds objects that are already indexed correctly at least when it comes to
-        //          memberOf
-        $children = $record->getChildrenPids();
-        foreach ($children as $child_pid) {
-            Record::setIndexMatchingFieldsRecurse($child_pid, $bgp);
-        }
-    }
-    
     /**
 	 * Sets up a template for insertion into Fedora. Used in workflows. 
      *

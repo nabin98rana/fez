@@ -80,7 +80,6 @@ set_time_limit(0);
 @define("APP_LINK_PREFIX", ""); // If you want to prepend the way all Fez Link datastreams display with a prefix then put it in this field. Fez will check first to see if the prefix is already there before adding it. Useful for ezproxying of external database resources eg http://ezproxy.library.yourorg.edu/url=
 @define("APP_WATERMARK", "watermark.gif"); // The image to be used for watermarking of copyright images
 // definitions of path related variables
-@define("APP_SAN_IMPORT_DIR", ""); //eg /fez/incoming or c:/fez/incoming
 @define("APP_SQL_CACHE", ""); // Set this string to SQL_NO_CACHE if you want to test MySQL performance without query caching, keep "" for optimal performance (caching on)
 @define("APP_PATH", '%{APP_PATH}%');  //eg /usr/local/apache/htdocs/fez/ or C:/Program Files/Apache Group/Apache/htdocs/dev-fez/
 @define("APP_INC_PATH", APP_PATH . "include/");
@@ -122,6 +121,7 @@ if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Serve
 }
 @define("APP_SETUP_PATH", APP_PATH);
 @define("APP_SETUP_FILE", APP_SETUP_PATH . "setup.conf.php");
+@define("APP_SAN_IMPORT_DIR", APP_TEMP_DIR); //eg /fez/incoming or c:/fez/incoming
 
 @define("APP_HTTPS_CURL_CHECK_CERT", "OFF"); //if you have a dev. host with an SSL cert. that's not officially signed, set this OFF, otherwise Fedora SSL calls will fail in CURL
 

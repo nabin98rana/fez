@@ -137,17 +137,6 @@ function toggleDateFields(f, field_name)
     day_end_field.disabled = bool;
     year_end_field.disabled = bool;
 }
-function checkDateFilterType(f, type_field)
-{
-    var option = getSelectedOption(f, type_field.name);
-    var element_name = type_field.name.substring(0, type_field.name.indexOf('['));
-    var element = getPageElement(element_name + 1);
-    if ((option == 'between') && (!isElementVisible(element))) {
-        toggleVisibility(element_name, false);
-    } else if ((option != 'between') && (isElementVisible(element))) {
-        toggleVisibility(element_name, false);
-    }
-}
 function selectDateOptions(field_prefix, date_str)
 {
     if (date_str.length != 10) {
@@ -462,7 +451,7 @@ function selectDateField(field_name, day, month, year)
                 <td nowrap bgcolor="{$light_color}">
                   {assign var="temp_xsdmf_id" value=$xsd_display_fields[i].xsdmf_id}
 				  {if $xsd_display_fields[i].xsdmf_date_type == 0}
-					  {html_select_date month_empty='' year_empty='' day_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="-50" end_year="+0" all_extra='class="default" onChange="javascript:checkDateFilterType(this.form, this);"'}
+					  {html_select_date month_empty='' year_empty='' day_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="-50" end_year="+10" all_extra='class="default"'}
 									  {literal}
 					  <script language="JavaScript" type="text/javascript">
 					  <!--

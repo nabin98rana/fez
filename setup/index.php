@@ -414,7 +414,7 @@ $stmt = $contents;
         $HTTP_POST_VARS['db_username'] = $HTTP_POST_VARS['fez_user'];
         $HTTP_POST_VARS['db_password'] = $HTTP_POST_VARS['fez_password'];
     }
-    $config_contents = implode("", file("config.inc.php"));
+    $config_contents = implode("", file("config.inc.php-example"));
     if (@$HTTP_POST_VARS['ldap'] == 'yes') {
     	$config_contents = str_replace("%{LDAP_SWITCH}%", "ON", $config_contents);		
     } else {
@@ -517,6 +517,12 @@ if (@$HTTP_SERVER_VARS['HTTPS'] == 'on') {
     $ssl_mode = 'disabled';
 }
 $tpl->assign('ssl_mode', $ssl_mode);
+$tpl->assign('fedora_setup_options', array(
+    'sslall' => 'ssl-authenticate-all',
+    'sslapim' => 'ssl-authenticate-apim',
+    'nosslall' => 'no-ssl-authenticate-all',
+    'nosslapim' => 'no-ssl-authenticate-apim',
+    ));
 
 $tpl->display('setup.tpl.html');
 ?>

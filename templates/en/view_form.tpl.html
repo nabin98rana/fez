@@ -322,7 +322,7 @@ function openHistory(pid)
             {if $datastreams[d].thumbnail != "0"}{if $datastreams[d].canPreview || $isAdministrator}<a href="#">{/if}
 				{assign var="show_preview_pane" value="1"}
 			<img align="absmiddle" title="Click on the thumbnail image to show the corresponding preview image" src="{$eserv_url}{$datastreams[d].thumbnail}&ls=0" border="1"
-            {if $datastreams[d].canPreview || $isAdministrator}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].preview}', '{$datastreams[d].ID}');"{/if}
+            {if $datastreams[d].canPreview || $isAdministrator}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].preview}', '{$datastreams[d].ID|escape:'html'}');"{/if}
             >{if $datastreams[d].canPreview || $isAdministrator}</a>{/if}{/if}{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}images/default.png">{/if} {if $datastreams[d].isViewer == 1 || $isAdministrator}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].ID}">{/if}{$datastreams[d].ID}{if $datastreams[d].isViewer == 1 || $isAdministrator}</a> &nbsp;{/if} {if ($datastreams[d].isArchivalViewer == 1 || $isAdministrator) && $datastreams[d].thumbnail != "0"}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID=archival_{$datastreams[d].ID}"><img title="archival version" align="absmiddle" border="0" src="{$rel_url}images/archival_22.gif"></a>&nbsp;{/if} {if $datastreams[d].presmd != "0" && ($datastreams[d].isViewer == 1 || $isAdministrator)}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].presmd}"><img title="preservation metadata" align="absmiddle" border="0" src="{$rel_url}images/presmd_22.gif"></a>&nbsp;{/if} 	
 				</td>
 				<td>{$datastreams[d].label}</td>
@@ -424,7 +424,7 @@ function openHistory(pid)
         <td class="default">
           {if $preview_ds_1}
           <a id="datastream_preview_href" title="Click on the image to see a larger version"  target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$preview_ds_1.ID}"><img border=0 id="datastream_preview" alt="Datastream Preview"/></a>
-          <script language="JavaScript">loadPreview('{$pid}','{$preview_ds_1.preview}','{$preview_ds_1.ID}');</script>
+          <script language="JavaScript">loadPreview('{$pid}','{$preview_ds_1.preview}','{$preview_ds_1.ID|escape:'html'}');</script>
           {/if}
         </td>
         </tr>

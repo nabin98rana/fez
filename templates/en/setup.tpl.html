@@ -98,6 +98,18 @@ function toggleSSLBaseLocation(show_field)
   return true;
 }
 
+function addClicksToFedoraSetup()
+{
+	var f = getForm('install_form');
+    var field = getFormElement(f, 'fedora_setup', 0); // ssl-authenticate-all
+    field.onclick = function() {toggleSSLBaseLocation(false);toggleBaseLocation(true);};
+    var field = getFormElement(f, 'fedora_setup', 1); // ssl-authenticate-apim
+    field.onclick = function() {toggleSSLBaseLocation(false);toggleBaseLocation(true);};
+    var field = getFormElement(f, 'fedora_setup', 2); // no-ssl-authenticate-all
+    field.onclick = function() {toggleSSLBaseLocation(true);toggleBaseLocation(false);};
+    var field = getFormElement(f, 'fedora_setup', 3); // no-ssl-authenticate-apim
+    field.onclick = function() {toggleSSLBaseLocation(true);toggleBaseLocation(false);};
+}
 
 //-->
 </script>
@@ -236,14 +248,9 @@ without submitting the following form. <br/>
             <b>Fedora Server Setup: *</b>
           </td>
 			<td bgcolor="#DDDDDD" class="default">
-			  <input type="radio" name="fedora_setup" value="sslall"  onClick="javascript:toggleSSLBaseLocation(false);toggleBaseLocation(true);">
-			  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('install_form', 'fedora_setup', 0);toggleSSLBaseLocation(false);toggleBaseLocation(true);">SSL Authenticate ALL</a>&nbsp;<br />
-			  <input type="radio" name="fedora_setup" value="sslapim"  onClick="javascript:toggleSSLBaseLocation(false);toggleBaseLocation(false);">
-			  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('install_form', 'fedora_setup', 1);toggleSSLBaseLocation(false);toggleBaseLocation(false);">SSL Authenticate API-M</a>&nbsp;<br />
-			  <input type="radio" name="fedora_setup" value="nosslall"  onClick="javascript:toggleSSLBaseLocation(true);toggleBaseLocation(false);">
-			  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('install_form', 'fedora_setup', 2);toggleSSLBaseLocation(true);toggleBaseLocation(false);">No SSL, Authenticate ALL</a>&nbsp;<br />
-			  <input type="radio" name="fedora_setup" value="nosslapim"  onClick="javascript:toggleSSLBaseLocation(true);toggleBaseLocation(false);">
-			  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('install_form', 'fedora_setup', 3);toggleSSLBaseLocation(true);toggleBaseLocation(false);">No SSL, Authenticate API-M</a> (matches Fedora 2.0 policies)
+			  {html_radios name='fedora_setup' options=$fedora_setup_options
+			  	selected=$smarty.post.fedora_setup|default:'nosslapim' separator='<br/>'}
+			  <!-- <input type="radio" name="fedora_setup" value="sslall"  onClick="javascript:toggleSSLBaseLocation(false);toggleBaseLocation(true);" {if $smarty.post.fedora_setup == 'sslall'}checked="on"{/if}/> -->
 			</td>
 		</tr>
         <tr>
@@ -502,9 +509,9 @@ function setFocus()
     document.install_form.organisation.focus();
     toggleAlternateUserFields();
     toggleLDAPFields();	
+	toggleSSLBaseLocation(true);toggleBaseLocation(false);
+	addClicksToFedoraSetup();
 }
-checkRadio('install_form', 'fedora_setup', 3);
-toggleSSLBaseLocation(true);toggleBaseLocation(false);
 //-->
 </script>
 {/literal}

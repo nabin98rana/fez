@@ -170,17 +170,7 @@ function toggleDateFields(f, field_name)
     day_end_field.disabled = bool;
     year_end_field.disabled = bool;
 }
-function checkDateFilterType(f, type_field)
-{
-    var option = getSelectedOption(f, type_field.name);
-    var element_name = type_field.name.substring(0, type_field.name.indexOf('['));
-    var element = getPageElement(element_name + 1);
-    if ((option == 'between') && (!isElementVisible(element))) {
-        toggleVisibility(element_name, false);
-    } else if ((option != 'between') && (isElementVisible(element))) {
-        toggleVisibility(element_name, false);
-    }
-}
+
 function selectDateOptions(field_prefix, date_str)
 {
     if (date_str.length != 10) {
@@ -520,13 +510,12 @@ function selectDateField(field_name, day, month, year)
 				  </td>
                 <td nowrap bgcolor="{$value_color}">
                   {assign var="temp_xsdmf_id" value=$xsd_display_fields[i].xsdmf_id}
-					{* Convert reminder date to format usable by html_select_date *}
+					{* Convert date to format usable by html_select_date *}
 					{if $details[$temp_fld_id] == ''}
 						{assign var="full_date" value='0000-00-00'}
 					{else}
 						{assign var="full_date" value=$details[$temp_fld_id]}
 						{assign var="attached_temp_fld_id" value=$xsd_display_fields[i].xsdmf_attached_xsdmf_id}
-						{* Set the start year to be whatever the current reminder date is *}
 						{if $full_date|substr:"7":"2" != '' && $details[$attached_temp_fld_id] == 0}
 							{assign var="full_day" value=$full_date|substr:"8":"2"}
 						{else}
@@ -546,7 +535,7 @@ function selectDateField(field_name, day, month, year)
 					{/if}
 
 
-                  {html_select_date time=$full_date month_empty='' year_empty='' day_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="-50" end_year="+0" all_extra='class="default" onChange="javascript:checkDateFilterType(this.form, this);"'}
+                  {html_select_date time=$full_date month_empty='' year_empty='' day_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="-50" end_year="+10" all_extra='class="default"'}
                                   {literal}
                   <script language="JavaScript" type="text/javascript">
                   <!--
