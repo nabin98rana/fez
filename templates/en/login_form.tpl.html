@@ -146,6 +146,8 @@ function validateForm(f)
             {elseif $smarty.get.err == 12}
               Error: In order for {$application_title} to work properly, you must enable cookie support in your browser. Please login 
               again and accept all cookies coming from it.
+            {elseif $smarty.get.err == 23}
+               Shibboleth can't find a username in the IDP attributes
             {/if}
             </b>
           </td>

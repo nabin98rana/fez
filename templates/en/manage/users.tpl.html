@@ -28,12 +28,30 @@
                       selectField(f, 'full_name');
                       return false;
                   }
-
+				{/literal}
+				{if $smarty.get.cat == 'edit'}
+					{literal}
                   if ((f.change_password.checked) && (isWhitespace(f.password.value))) {
                       alert('If you are changing the user password you must enter a password for the user.');
                       selectField(f, 'password');
                       return false;
                   }
+					{/literal}
+				{else}
+					{literal}
+                if (isWhitespace(f.password.value)) {
+					  alert('Please choose a password.');
+					  selectField(f, 'password');
+					  return false;
+				}
+				if (f.password.value.length < 8) {
+				  alert('Please choose a password with at least 8 characters.');
+				  selectField(f, 'password');
+				  return false;
+				}
+					{/literal}
+				{/if}
+				{literal}
 
                   return true;
               }
@@ -57,15 +75,6 @@
 				var page_url = '{/literal}{$smarty.server.PHP_SELF}{literal}';
 				var current_page = {/literal}{if $list_info.current_page != ""}{$list_info.current_page}{else}0{/if}{literal};
 				var last_page = {/literal}{if $list_info.last_page != ""}{$list_info.last_page}{else}0{/if}{literal};			  
-              function validateForm(f)
-              {
-                  if (isWhitespace(f.lname.value)) {
-                      alert('Please enter the last name of this author.');
-                      selectField(f, 'lname');
-                      return false;
-                  }
-                  return true;
-              }
 			    function resizePager(f)
 				{
 					var pagesize = f.page_size.options[f.page_size.selectedIndex].value;

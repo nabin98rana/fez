@@ -90,7 +90,10 @@ if (Auth::userExists($username)) {
 		}
 		User::insertFromLDAPLogin(); // create the user account and get details from the 
 
-		Auth::loginAuthenticatedUser($HTTP_POST_VARS["ldap_username"], $HTTP_POST_VARS["ldap_passwd"]); 
+        $loginres = Auth::loginAuthenticatedUser($HTTP_POST_VARS["ldap_username"], $HTTP_POST_VARS["ldap_passwd"]); 
+        if ($loginres > 0) {
+            Auth::redirect(APP_RELATIVE_URL . "login.php?err={$loginres}&username=" . $HTTP_POST_VARS["ldap_username"]); 
+        }   
 		
 		Auth::redirect(APP_RELATIVE_URL."preferences.php?from=ldap_registration"); // redirect to the preferences page so the user can check the ldap details are ok
 	}
@@ -110,7 +113,10 @@ if (Auth::userExists($username)) {
 
 		User::insertFromLogin(); // create the user account and get details from the 
 
-		Auth::loginAuthenticatedUser($HTTP_POST_VARS["username"], $HTTP_POST_VARS["passwd"]); 
+        $loginres = Auth::loginAuthenticatedUser($HTTP_POST_VARS["username"], $HTTP_POST_VARS["passwd"]);  
+        if ($loginres > 0) {
+            Auth::redirect(APP_RELATIVE_URL . "register.php?err={$loginres}&username=" . $HTTP_POST_VARS["username"]); 
+        }   
 		
 		Auth::redirect(APP_RELATIVE_URL."preferences.php?from=new_registration"); // redirect to the preferences page so the user can check the ldap details are ok
 	}

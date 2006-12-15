@@ -883,7 +883,33 @@ class Auth
 //		print_r($userPIDAuthGroups);
         return $userPIDAuthGroups;
     } 
-
+    
+    /**
+     * Find all the possible rights that this user has to any records in the system.  For example
+     * if they have admin rights on one record then this will return that role.  Use this function to check if the
+     * user should be allowed to start a workflow which requires a particular role on the objects it selects.
+     * NOTE: This assumes that the user is logged in as the auth_rule_group_users table is only updated when 
+     * a user is logged in.
+     * @return array of strings - each string is a role name that this user has on at least one pid int he system 
+     */
+    function getAllIndexAuthorisationGroups($user_id)
+    {
+    	$stmt = "SELECT distinct authi_role FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "auth_rule_group_users " .
+                "INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "auth_rule_group_rules " .
+                        "ON argr_arg_id=argu_arg_id " .
+                "INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "auth_index2 " .
+                        "ON authi_arg_id=argr_ar_id ";
+        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+        //Error_Handler::logError($stmt, __FILE__,__LINE__);
+        //Error_Handler::logError(print_r($res, true), __FILE__,__LINE__);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        } else {
+            return $res;
+        }                
+    }
+    
     /**
      * Method to check if the user has session support enabled in his browser or
      * not.
@@ -1394,7 +1420,7 @@ class Auth
 					$username = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'];				
 				}
 			} else {
-				return false; // if trying to login via shib and can't find a username in the IDP attribs then return false to make redirect to login page with message
+				return 23; // if trying to login via shib and can't find a username in the IDP attribs then return false to make redirect to login page with message
 			}
 		}
 
@@ -1438,7 +1464,10 @@ class Auth
             $usr_id = User::getUserIDByUsername($username);
         } else { // if it is a registered Fez user then get their details from the fez user table
             $session['isInDB'] = true;
-            $userDetails = User::getDetails($username);		
+            $userDetails = User::getDetails($username);
+            if (!Auth::isActiveUser($username)) {
+            	return 7;
+            }		
 			if (($shib_login == true) && (@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "")) {
 				$session['isInFederation'] = true;
 			} else {
@@ -1474,7 +1503,7 @@ class Auth
         Auth::createLoginSession($username, $fullname, $email, $distinguishedname, @$HTTP_POST_VARS["remember_login"]);
         // pre process authorisation rules matches for this user
         Auth::setAuthRulesUsers();
-		return true;
+		return 0;
     }
 
     /**

@@ -700,7 +700,6 @@ class Record
         if ($data_type == 'date') {
         	$date = new Date($value);
             $value = $date->format('%Y-%m-%d %T');
-            Error_Handler::logError("Setting date $value", __FILE__,__LINE__);
         }
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field

@@ -49,7 +49,7 @@ $tpl->assign("trigger", 'Create');
 $tpl->assign("type", 'new');
 
 Auth::checkAuthentication(APP_SESSION);
-//$user_id = Auth::getUserID();
+$user_id = Auth::getUserID();
 
 $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
@@ -88,6 +88,12 @@ if ($pid == -1) {
     $workflows = WorkflowTrigger::getFilteredList(-1, array( 
                 'trigger' => 'Create', 
                 'ret_id' => $ret_id));
+    foreach ($workflows as $trigger) {
+        if (Workflow::userCanTrigger($trigger['wft_wfl_id'],$user_id, array('Creator'))) {
+            $workflows1[] = $trigger;
+        }
+    }
+    $workflows = $workflows1; 
     $tpl->assign('workflows', $workflows);
 } elseif (empty($pid) || $pid == -2) {
     $pid = -2;
@@ -97,6 +103,12 @@ if ($pid == -1) {
             'xdis_id' => -2,
             'strict_xdis' => true,
             'any_ret' => true));
+    foreach ($workflows as $trigger) {
+        if (Workflow::userCanTrigger($trigger['wft_wfl_id'],$user_id, array('Creator'))) {
+            $workflows1[] = $trigger;
+        }
+    }
+    $workflows = $workflows1; 
     $tpl->assign('workflows', $workflows);
     $tpl->assign("pid", $pid);
 } else {
@@ -119,21 +131,22 @@ if ($pid == -1) {
         } else {
             $message .= "Error: can't create objects into ordinary records<br/>";
         }
-        $tpl->assign('workflows', $workflows);
+        
     } else {
     }
     $tpl->assign('xdis_id', $xdis_id);
+    // check which workflows can be triggered
+    if (!empty($pid) && !$isAdministrator) {
+        foreach ($workflows as $trigger) {
+            if (Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
+                $workflows1[] = $trigger;
+            }
+        }
+        $workflows = $workflows1;
+    }
+    $tpl->assign('workflows', $workflows);
 }
 
-// check which workflows can be triggered
-if (!empty($pid) && !$isAdministrator) {
-    foreach ($workflows as $trigger) {
-        if (Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
-            $workflows1[] = $trigger;
-        }
-    }
-    $workflows = $workflows1;
-}
 
 if (empty($workflows)) {
     $message .= "Error: No workflows defined for Create<br/>";

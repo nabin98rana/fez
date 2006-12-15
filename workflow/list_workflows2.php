@@ -99,19 +99,20 @@ if (($pid != -1)
                             'strict_ret' => false,
                             'any_ret' => false)));
         }
+        // check which workflows can be triggered
+        if (!empty($pid) && !$isAdministrator) {
+            foreach ($workflows as $trigger) {
+                if (Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
+                    $workflows1[] = $trigger;
+                }
+            }
+            $workflows = $workflows1;
+        }
+        
         $tpl->assign('workflows', $workflows);
     } else {
     }
     $tpl->assign('xdis_id', $xdis_id);
-}
-// check which workflows can be triggered
-if (!empty($pid) && !$isAdministrator) {
-    foreach ($workflows as $trigger) {
-        if (Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
-            $workflows1[] = $trigger;
-        }
-    }
-    $workflows = $workflows1;
 }
 
 

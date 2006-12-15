@@ -1400,7 +1400,6 @@ class BatchImport
         //open the current directory
         $ret_id = 3; // standard record type id
         $sta_id = 1; // standard status type id
-        $xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id));
         $xsd_id = XSD_Display::getParentXSDID($xdis_id);
         $xsd_details = Doc_Type_XSD::getDetails($xsd_id);
         $xsd_element_prefix = $xsd_details['xsd_element_prefix'];

@@ -49,6 +49,7 @@ $tpl->assign("trigger", 'Delete');
 $tpl->assign("type", 'delete');
 
 Auth::checkAuthentication(APP_SESSION);
+$user_id = Auth::getUserID();
 
 $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
@@ -84,6 +85,12 @@ if ($pid == -1) {
                 'xdis_id' => -2, 
                 'strict_xdis' => true,
                 'any_ret' => true));
+    foreach ($workflows as $trigger) {
+        if (Workflow::userCanTrigger($trigger['wft_wfl_id'],$user_id)) {
+            $workflows1[] = $trigger;
+        }
+    }
+    $workflows = $workflows1; 
     $tpl->assign('workflows', $workflows);
 } else {
     $tpl->assign("pid", $pid);
@@ -103,19 +110,20 @@ if ($pid == -1) {
                     'trigger' => 'Delete',
                     'xdis_id' => $xdis_id, 
                     'ret_id' => $ret_id));
-        $tpl->assign('workflows', $workflows);
+        
     } else {
     }
     $tpl->assign('xdis_id', $xdis_id);
-}
-// check which workflows can be triggered
-if (!empty($pid) && !$isAdministrator) {
-    foreach ($workflows as $trigger) {
-        if (Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
-            $workflows1[] = $trigger;
+    // check which workflows can be triggered
+    if (!empty($pid) && !$isAdministrator) {
+        foreach ($workflows as $trigger) {
+            if (Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
+                $workflows1[] = $trigger;
+            }
         }
+        $workflows = $workflows1;
     }
-    $workflows = $workflows1;
+    $tpl->assign('workflows', $workflows);
 }
 
 

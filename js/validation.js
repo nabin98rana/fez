@@ -84,6 +84,23 @@ function isValidEmail(strEmail){
     return true; 
 }
 
+function IsNumeric(sText)
+{
+   var ValidChars = "0123456789.";
+   var IsNumber=true;
+   var Char;
+ 
+   for (i = 0; i < sText.length && IsNumber == true; i++) 
+   { 
+      Char = sText.charAt(i); 
+      if (ValidChars.indexOf(Char) == -1) 
+      {
+         IsNumber = false;
+      }
+   }
+   return IsNumber;
+ }
+
 
 function isEmail(s)
 {
@@ -115,6 +132,11 @@ function isEmail(s)
     if ((s.charAt(sLength-1) == ".") || (s.charAt(sLength-1) == "_")) return false;
 
     return true;
+}
+
+function isURL(s) {
+	var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
+	return regexp.test(s);
 }
 
 function hasDeniedChars(s)
@@ -325,6 +347,25 @@ function checkRequiredCustomFields(f, required_fields)
         }
     }
 }
+function xsdmfValidate(field, value, vtype, title, name) {
+	if (vtype == 'numeric') {
+		if (!isWhitespace(value) && !isNumeric(value)) {
+            errors[errors.length] = new Option(title, name);
+		}
+	} else if (vtype == 'date') {
+		if (!isWhitespace(value) && !isDate(value)) {
+            errors[errors.length] = new Option(title, name);
+		}
+	} else if (vtype == 'email') {
+		if (!isWhitespace(value) && !isEmail(value)) {
+            errors[errors.length] = new Option(title, name);
+		}
+	} else if (vtype == 'url') {
+		if (!isWhitespace(value) && !isURL(value)) {
+            errors[errors.length] = new Option(title, name);
+		}
+	}
+}
 
 function checkRequiredFields(f, required_fields)
 {
@@ -450,7 +491,7 @@ function checkFormSubmission(f, callback_func)
             fields += '- ' + errors[i].text + "\n";
         }
         // show a big alert box with the missing information
-        alert("The following required fields need to be filled out:\n\n" + fields + "\nPlease complete the form and try again.");
+        alert("The following fields need to be filled out or corrected:\n\n" + fields + "\nPlease complete the form and try again.");
         return false;
     } else {
         return true;

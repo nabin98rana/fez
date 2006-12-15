@@ -68,7 +68,7 @@ if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
 	print_r($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]);
 	echo "</pre>";  */
 
-	if (!Auth::LoginAuthenticatedUser("", "", true)) {
+	if (Auth::LoginAuthenticatedUser("", "", true) > 0) {
     	Auth::redirect(APP_RELATIVE_URL . "login.php?err=22");
 	}
 	if ((@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") && (SHIB_SURVEY == "ON")) {
@@ -89,7 +89,10 @@ if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
 	if (!Auth::isCorrectPassword($HTTP_POST_VARS["username"], $HTTP_POST_VARS["passwd"])) {
 		Auth::redirect(APP_RELATIVE_URL . "login.php?err=3&username=" . $HTTP_POST_VARS["username"]);
 	}
-    Auth::LoginAuthenticatedUser($HTTP_POST_VARS["username"], $HTTP_POST_VARS["passwd"]); 	
+    $loginres = Auth::LoginAuthenticatedUser($HTTP_POST_VARS["username"], $HTTP_POST_VARS["passwd"]);
+    if ($loginres > 0) {
+        Auth::redirect(APP_RELATIVE_URL . "login.php?err={$loginres}&username=" . $HTTP_POST_VARS["username"]);	
+    } 	
 	if (!empty($HTTP_POST_VARS["url"])) {
 		Auth::redirect(urldecode($HTTP_POST_VARS["url"])); 
 	} else {

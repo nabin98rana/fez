@@ -337,6 +337,38 @@ class Workflow
         }
         return false;
     }
+    
+    /**
+     * Test if a user can run the given workflow based on whether they meet the required role for any 
+     * records in the repository.  This is used when the workflow is a trigger type -1 or -2 so it can't test
+     * against a specific pid.
+     * @param int $wfl_id - The workflow id
+     * @param int $user_id - the user id
+     * @param array of string $trigger_role - the role to test for if the workflow doesn't have any role restrictions
+     * @return boolean - true if the user has the rights to run this workflow on at least one record in the system
+     */
+    function userCanTrigger($wfl_id, $user_id, $trigger_role = array('Editor'))
+    {
+        if (Auth::isAdministrator()) {
+            return true;
+        }
+        $wfl = Workflow::getDetails($wfl_id);
+        // assume roles must include edit
+            if (empty($wfl['wfl_roles'])) {
+            	$wfl_roles = $trigger_role;
+            } else {
+                $wfl_roles = preg_split("/[\s,;]+/", $wfl['wfl_roles']);
+            }
+            $pid_roles = Auth::getAllIndexAuthorisationGroups($user_id);
+            //Error_Handler::logError(print_r($wfl_roles, true), __FILE__,__LINE__);
+            foreach ($wfl_roles as $wfl_role) {
+                if (in_array(trim($wfl_role), $pid_roles)) {
+                    return true;
+                }
+            }
+        
+        return false;
+    }
 
     function exportWorkflows($wfl_ids, $wfb_ids)
     {

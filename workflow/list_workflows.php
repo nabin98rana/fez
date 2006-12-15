@@ -53,7 +53,7 @@ $tpl->assign("trigger", $trigger_type);
 $tpl->assign("type", 'update');
 
 Auth::checkAuthentication(APP_SESSION);
-//$user_id = Auth::getUserID();
+$user_id = Auth::getUserID();
 
 $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
@@ -89,11 +89,16 @@ if ($pid == -1) {
                 'xdis_id' => -2, 
                 'strict_xdis' => true,
                 'any_ret' => true));
+    foreach ($workflows as $trigger) {
+        if (Workflow::userCanTrigger($trigger['wft_wfl_id'],$user_id)) {
+            $workflows1[] = $trigger;
+        }
+    }
+    $workflows = $workflows1;            
     $tpl->assign('workflows', $workflows);
 } elseif (!empty($dsID) && !empty($wft_id) && !empty($pid)) {
     $tpl->assign("pid", $pid);
 	$tpl->assign("dsID", $dsID);
-	
 } else {
     $tpl->assign("pid", $pid);
 
@@ -112,24 +117,24 @@ if ($pid == -1) {
                     'trigger' => $trigger_type,
                     'xdis_id' => $xdis_id, 
                     'ret_id' => $ret_id));
-        $tpl->assign('workflows', $workflows);
     } else {
     }
     $tpl->assign('xdis_id', $xdis_id);
-}
-// check which workflows can be triggered
-if (!empty($pid) && !$isAdministrator) {
-    foreach ($workflows as $trigger) {
-        if (Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
-            $workflows1[] = $trigger;
+    // check which workflows can be triggered
+    if (!empty($pid) && !$isAdministrator) {
+        foreach ($workflows as $trigger) {
+            if (Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
+                $workflows1[] = $trigger;
+            }
         }
+        $workflows = $workflows1;
     }
-    $workflows = $workflows1;
+    $tpl->assign('workflows', $workflows);
 }
 
 
 if (empty($workflows)) {
-    $message .= "Error: No workflows defined for $trigger_type<br/>";
+    $message .= "You don't have permissions to run any '$trigger_type' workflows<br/>";
 } elseif (count($workflows) == 1) {
     // no need for user to select a workflow - just start the only one available
     Workflow::start($workflows[0]['wft_id'], $pid, $xdis_id, $href);

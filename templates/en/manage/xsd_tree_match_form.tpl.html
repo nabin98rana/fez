@@ -1238,7 +1238,7 @@
               </tr>
               <tr id="validation_type_tr" style="display:none">
                 <td width="120" bgcolor="{$cell_color}" class="default">
-                  <b>Validation Type: *note the enforcement of this isn't implemented yet</b>
+                  <b>Validation Type: </b>
                 </td>
                 <td bgcolor="{$light_color}">
 				  <select name="validation_types" class="default">
@@ -1246,6 +1246,7 @@
 				  	<option value="numeric" {if ($info.xsdmf_validation_type == 'numeric')}selected{/if}>Numeric</option>
 				  	<option value="date" {if ($info.xsdmf_validation_type == 'date')}selected{/if}>Date</option>
 				  	<option value="email" {if ($info.xsdmf_validation_type == 'email')}selected{/if}>Email Address</option>
+				  	<option value="url" {if ($info.xsdmf_validation_type == 'url')}selected{/if}>URL</option>
 				  </select>
                   <br /><span class="small_default">(The datatype the javascript will validate input in this field against)</span>
                 </td>
