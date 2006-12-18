@@ -180,19 +180,31 @@ class Community
             inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 
             ON r1.rmf_xsdmf_id = x1.xsdmf_id  
 			inner join (
+                select * from (
                     SELECT distinct r2.rmf_rec_pid, r4.rmf_rec_pid as sort_pid, r4.rmf_$data_type as sort_column 
                     $body1
 
-                    left JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r4
+                    inner JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r4
                     on rmf.rmf_rec_pid = r4.rmf_rec_pid  
                     inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x4
                     on r4.rmf_xsdmf_id = x4.xsdmf_id 
                     inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s4
                     on s4.sek_id = x4.xsdmf_sek_id AND s4.sek_title = '$order_by'
-
-                    ORDER BY sort_column $order_dir, r2.rmf_rec_pid desc
-                    LIMIT $start, $max
-                    ) as d3 on d3.rmf_rec_pid = r1.rmf_rec_pid
+                    
+                    union
+                    SELECT distinct r2.rmf_rec_pid, r2.rmf_rec_pid as sort_pid, null as sort_column 
+                    $body1
+                    where not exists (
+                        select * from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r4  
+                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x4 
+                                on r4.rmf_xsdmf_id = x4.xsdmf_id
+                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s4 
+                                on s4.sek_id = x4.xsdmf_sek_id aND s4.sek_title = '$order_by' 
+                        where rmf.rmf_rec_pid = r4.rmf_rec_pid )
+                ) as r2
+                ORDER BY sort_column $order_dir, r2.rmf_rec_pid desc
+                LIMIT $start, $max
+            ) as d3 on d3.rmf_rec_pid = r1.rmf_rec_pid
             left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 
             on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
 			left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key sk1 on sk1.sek_id = x1.xsdmf_sek_id
