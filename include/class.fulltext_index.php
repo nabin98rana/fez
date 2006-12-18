@@ -204,6 +204,7 @@ class FulltextIndex {
 
     function getKeyId($word) 
     {
+        $word = substr($word, 0, 64); // limit the word to the length of the field in the DB
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $stmt = "SELECT ftk_id FROM {$dbtp}fulltext_keywords WHERE ftk_word = '".Misc::escapeString($word)."'";
         $res = $GLOBALS['db_api']->dbh->getOne($stmt);
