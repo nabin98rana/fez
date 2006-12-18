@@ -312,9 +312,9 @@ class Community
             return $return;
         }
     }
+
 }
 
-// benchmarking the included file (aka setup time)
 if (APP_BENCHMARK) {
     $GLOBALS['bench']->setMarker('Included Community Class');
 }

@@ -324,7 +324,7 @@ class Collection
       * @param integer $community_pid The pid of the community to restrict the list to
       * @return array Associative array of collections - (pid, title)
       */
-    function getEditList($community_pid=null) {
+    function getEditList($community_pid=null, $roles = array("Creator", "Editor", "Approver")) {
         // get list of collections that 
         // parent is community_pid
         // has ACMLs set
@@ -341,7 +341,7 @@ class Collection
         $data_type = $sekdet['xsdmf_data_type'];
         $restrict_community = '';
 
-		$authArray = Collection::getAuthIndexStmt(array("Creator", "Editor", "Approver"));
+		$authArray = Collection::getAuthIndexStmt($roles);
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];
 

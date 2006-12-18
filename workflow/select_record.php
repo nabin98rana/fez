@@ -82,6 +82,18 @@ $wfstatus->checkStateChange();
 $communities = Community::getList();
 $communities_list = Misc::keyPairs($communities['list'], 'pid', 'title');
 $communities_list = Misc::stripOneElementArrays($communities_list);
+$communities_pids = array_keys($communities_list);
+$collection_list = Collection::getEditList();
+$communities_list2 = array();
+foreach ($collection_list as &$item) {
+   $parents = Misc::keyPairs(Collection::getParents2($item['pid']),'pid','title');
+   foreach ($parents as $parent_pid => $parent_title) {
+       if (in_array($parent_pid, $communities_pids)) {
+           $communities_list2[$parent_pid] = $communities_list[$parent_pid];
+       }
+   }
+}
+$communities_list = $communities_list2;
 $tpl->assign('communities_list', $communities_list);
 $tpl->assign('communities_list_selected', $communities['list'][0]['pid']);
 $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));

@@ -626,6 +626,7 @@ function selectDateField(field_name, day, month, year)
 		  </tr>
         <tr>
 		  <td colspan="2" class="default">
+		  {if $fileCount > 0}
 			<table border="0" cellpadding="2" cellspacing="0" width="100%"  bgcolor="#FFFFFF" >
 			  <tr>
 				<td class="default_white" colspan="4" bgcolor="{$heading_color}" height="22"><b>Attached Files</b></td>
@@ -693,6 +694,7 @@ function selectDateField(field_name, day, month, year)
 			<td class="default" colspan="3">&nbsp;</td>
 		  </tr>
 		    </table>
+		  {/if}
 		  </td>
 		</tr>			
 </table>

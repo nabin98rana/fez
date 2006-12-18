@@ -234,7 +234,7 @@ class XSD_HTML_Match {
 		                    xsdmf_html_input,
 		                    xsdmf_order,
 		                    xsdmf_validation_type,
-                            xsdmf_enabled,
+		                    xsdmf_enabled,
 		                    xsdmf_indexed,
 		                    xsdmf_show_in_view,
 		                    xsdmf_multiple,
