@@ -3,56 +3,15 @@
 {$najax_register}
 {literal}
 
-var dt_load_state = 0;
-function showLoading1()
-{
-    document.body.style.cursor = 'wait';
-    document.getElementById('loading').style.display = 'block';
-};
-
-function hideLoading1()
-{
-    document.body.style.cursor = '';
-    document.getElementById('loading').style.display = 'none';
-};
 
 
-function selectCommunity(f, field_name)
-{
-    if (dt_load_state > 0) {
-       return false;
-    } 
-    var field = getFormElement(f, field_name);
-    var selections = getSelectedItems(field);
-
-    if (selections.length > 0) {
-        dt_load_state++;
-        document.getElementById('tr_xdis_id').style.display = '';
-        showLoading1();
-        var obj = new SelectCreateInfo();
-        obj.onGetDocTypesError = function() {
-            removeAllOptions(f, 'xdis_id');
-            hideLoading1();
-            dt_load_state--;
-        }
-        obj.setTimeout(10000);
-        obj.getDocTypes(selections[0].value, function(dt_list) {
-                removeAllOptions(f, 'xdis_id');
-                addOptions(f, 'xdis_id', dt_list);
-                hideLoading1();
-                dt_load_state--;
-                });
-    }
-}
 
 function validateForm(f)
 {
     if (!hasOneSelected(f, 'community_pid')) {
         errors[errors.length] = new Option('Community','community_pid');
     }
-    if (!hasOneSelected(f, 'xdis_id')) {
-        errors[errors.length] = new Option('Document Type','xdis_id');
-    }
+    
 }
 
 
@@ -73,23 +32,11 @@ function validateForm(f)
     <b>Community</b>
   </td>
   <td width="75%" bgcolor="{$light_color}">
-    <select class="default" name="community_pid" onChange="javascript: selectCommunity(this.form, 'community_pid')" >
+    <select class="default" name="community_pid"  >
       {html_options options=$communities_list selected=$communities_list_selected }
     </select>
   </td>
 </tr>
-<tr style="display:none;" id="tr_xdis_id">
-  <td bgcolor="{$cell_color}" class="default">
-    <b>Collection Type</b>
-  </td>
-  <td bgcolor="{$light_color}">
-    <div id="loading" style="display:none;">Loading...</div>
-    <select class="default" name="xdis_id" >
-    </select>
-  </td>
-</tr>
+
 
 </table>
-<script type="text/javascript"><!-- 
-selectCommunity(getForm('wfl_form1'), 'community_pid'); 
-// --></script>

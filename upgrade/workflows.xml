@@ -18,6 +18,7 @@
   <WorkflowBehaviour wfb_id="66" wfb_title="Regenerate Object Index" wfb_description="Regenerates the metadata index for the selected objects in fez. Recurses to any sub-objects. This index is used for searching for and listing objects." wfb_version="1.0" wfb_script_name="regenerate_object_index.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="55" wfb_title="Select Batch Import" wfb_description="Allows user to select a server local directory for a batch import." wfb_version="1.0" wfb_script_name="select_batchimport.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="56" wfb_title="Select Collection" wfb_description="" wfb_version="" wfb_script_name="select_collection.php" wfb_auto="0"/>
+  <WorkflowBehaviour wfb_id="68" wfb_title="Select Collection Create Info" wfb_description="" wfb_version="1.0" wfb_script_name="select_collection_create_info.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="57" wfb_title="Select Community" wfb_description="" wfb_version="" wfb_script_name="select_community.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="58" wfb_title="Select Community, Collection and Doc type" wfb_description="" wfb_version="" wfb_script_name="select_create_info.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="59" wfb_title="Select Record" wfb_description="Select Community, Collection and Record using javascript to drill down." wfb_version="" wfb_script_name="select_record.php" wfb_auto="0"/>
@@ -52,11 +53,11 @@
     <WorkflowTrigger wft_id="120" wft_pid="-1" wft_type_id="4" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/scanner_22.jpg" wft_ret_id="0" wft_options="0"/>
   </workflow>
   <workflow wfl_id="110" wfl_title="Create Collection" wfl_version="1.0" wfl_description="" wfl_roles="Community_Administrator" wfl_end_button_label="Done">
-    <WorkflowState wfs_id="436" wfs_title="Select Community" wfs_description="" wfs_auto="0" wfs_wfb_id="57" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="436" wfs_title="Select Community" wfs_description="" wfs_auto="0" wfs_wfb_id="68" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
     <WorkflowState wfs_id="437" wfs_title="Enter Metadata" wfs_description="" wfs_auto="0" wfs_wfb_id="44" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
     <WorkflowState wfs_id="438" wfs_title="Publish" wfs_description="" wfs_auto="1" wfs_wfb_id="51" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Approver"/>
     <WorkflowState wfs_id="439" wfs_title="Submit for Approval" wfs_description="" wfs_auto="1" wfs_wfb_id="64" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="817" wfsl_from_id="436" wfsl_to_id="437"/>
+    <WorkflowStateLinks wfsl_id="866" wfsl_from_id="436" wfsl_to_id="437"/>
     <WorkflowStateLinks wfsl_id="816" wfsl_from_id="437" wfsl_to_id="438"/>
     <WorkflowStateLinks wfsl_id="815" wfsl_from_id="437" wfsl_to_id="439"/>
     <WorkflowTrigger wft_id="121" wft_pid="-1" wft_type_id="4" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/folder_new.gif" wft_ret_id="2" wft_options="0"/>

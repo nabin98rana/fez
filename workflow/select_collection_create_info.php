@@ -48,17 +48,12 @@ include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
-include_once(APP_INC_PATH . "najax/najax.php");
-include_once(APP_INC_PATH . "najax_objects/class.select_create_info.php");
+include_once(APP_INC_PATH . "najax_classes.php");
 
-NAJAX_Server::allowClasses('SelectCreateInfo');
-if (NAJAX_Server::runServer()) {
-	exit;
-}
 
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
-$tpl->assign("type", "select_community");
+$tpl->assign("type", "select_collection_create_info");
 $tpl->assign("type_name", "Select Community");
 
 Auth::checkAuthentication(APP_SESSION);
@@ -72,6 +67,7 @@ $wfstatus->setTemplateVars($tpl);
 $cat = Misc::GETorPOST('cat');
 if ($cat == 'submit') {
     $wfstatus->pid = Misc::GETorPOST('community_pid');
+    $wfstatus->xdis_id = Misc::GETorPOST('xdis_id');
     $wfstatus->parent_pid = Misc::GETorPOST('-1');
 }
 $wfstatus->checkStateChange();
@@ -82,7 +78,7 @@ $communities_list = Misc::keyPairs($communities['list'], 'pid', 'title');
 $communities_list = Misc::stripOneElementArrays($communities_list);
 $tpl->assign('communities_list', $communities_list);
 $tpl->assign('communities_list_selected', $communities['list'][0]['pid']);
-
+$tpl->registerNajax( NAJAX_Client::register('SelectCreateInfo', APP_RELATIVE_URL.'ajax.php'));
 
 $tpl->displayTemplate();
 ?>
