@@ -6,56 +6,51 @@
 function validateForm(f)
 {
     if (isWhitespace(f.app_name.value)) {
-        selectField(f, 'app_name');
-        alert('Please a name for the application.');
-        return false;
+        errors[errors.length] = new Option('Application Name', 'app_name');
     }
     if (isWhitespace(f.organisation.value)) {
-        selectField(f, 'organisation');
-        alert('Please enter the your organisation name.');
-        return false;
+        errors[errors.length] = new Option('Organisation name', 'organisation');
     }
     if (isWhitespace(f.short_org.value)) {
-        selectField(f, 'short_org');
-        alert('Please enter the organisation name initials.');
-        return false;
+        errors[errors.length] = new Option('Organisation Name Initials', 'short_org');
     }
     if (isWhitespace(f.hostname.value)) {
-        selectField(f, 'hostname');
-        alert('Please enter the hostname for the server of this installation of Fez.');
-        return false;
+        errors[errors.length] = new Option('Hostname for the fez server', 'hostname');
     }
     if (isWhitespace(f.relative_url.value)) {
-        selectField(f, 'relative_url');
-        alert('Please enter the relative URL of this installation of Fez.');
-        return false;
+        errors[errors.length] = new Option('Relative URL of this installation of Fez', 'relative_url');
     }
     if (isWhitespace(f.path.value)) {
-        selectField(f, 'path');
-        alert('Please enter the full path in the server of this installation of Fez.');
-        return false;
+        errors[errors.length] = new Option('Full path to the base of the applciation in the fez server', 'path');
     }
+    if (isWhitespace(f.fedora_username.value)) {
+        errors[errors.length] = new Option('Fedora Username', 'fedora_username');
+    }
+    if (isWhitespace(f.fedora_password.value)) {
+        errors[errors.length] = new Option('Fedora Username', 'fedora_password');
+    }
+    
     if (isWhitespace(f.db_hostname.value)) {
-        selectField(f, 'db_hostname');
-        alert('Please enter the database hostname for this installation of Fez.');
-        return false;
+        errors[errors.length] = new Option('Database hostname', 'db_hostname');
     }
+    if (isWhitespace(f.db_password.value)) {
+        errors[errors.length] = new Option('Database password', 'db_password');
+    }
+    
     if (isWhitespace(f.db_name.value)) {
-        selectField(f, 'db_name');
-        alert('Please enter the database name for this installation of Fez.');
-        return false;
+        errors[errors.length] = new Option('Database name', 'db_name');
     }
     if (isWhitespace(f.db_username.value)) {
-        selectField(f, 'db_username');
-        alert('Please enter the database username for this installation of Fez.');
-        return false;
+        errors[errors.length] = new Option('Database username', 'db_username');
     }
     if (f.alternate_user.checked) {
         if (isWhitespace(f.fez_user.value)) {
-            selectField(f, 'fez_user');
-            alert('Please enter the alternate username for this installation of Fez.');
-            return false;
+	        errors[errors.length] = new Option('Alternate username', 'fez_user');
         }
+        if (isWhitespace(f.fez_password.value)) {
+	        errors[errors.length] = new Option('Alternate password', 'fez_password');
+        }
+        
     }
     return true;
 }
@@ -161,7 +156,7 @@ function addClicksToFedoraSetup()
 {else}
 <br />
 <table width="700" bgcolor="#000000" border="0" cellspacing="0" cellpadding="1" align="center">
-<form name="install_form" action="{$smarty.server.PHP_SELF}" method="post" onSubmit="javascript:return validateForm(this);">
+<form name="install_form" action="{$smarty.server.PHP_SELF}" method="post" onSubmit="javascript:return checkFormSubmission(this,'validateForm');">
 <input type="hidden" name="cat" value="install">
   <tr>
     <td>
@@ -343,10 +338,11 @@ without submitting the following form. <br/>
         </tr>
         <tr>
           <td class="default" align="right">
-            <b>MySQL Password:</b>
+            <b>MySQL Password: *</b>
           </td>
           <td>
             <input type="password" name="db_password" class="default" size="20" value="{$smarty.post.db_password}">
+            {include file="error_icon.tpl.html" field="db_password"}
           </td>
         </tr>
         <tr>
@@ -383,6 +379,7 @@ without submitting the following form. <br/>
                             </td>
                             <td>
                               <nobr><input type="password" class="default" name="fez_password" size="20" value="{$smarty.post.fez_password}">&nbsp;</nobr>
+                              {include file="error_icon.tpl.html" field="fez_password"}
                             </td>
                           </tr>
                           <tr>
