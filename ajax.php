@@ -13,7 +13,7 @@ include_once(APP_INC_PATH . "najax_classes.php");
 
 
 NAJAX_Server::allowClasses(array('SelectOrgStructure', 'Suggestor', 'NajaxRecord',
-    'SelectOrgStructure','SelectReindexInfo','SelectCreateInfo'));
+    'SelectOrgStructure','SelectReindexInfo','SelectCreateInfo','Session'));
 if (NAJAX_Server::runServer()) {
     exit;
 }

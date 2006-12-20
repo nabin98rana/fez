@@ -629,12 +629,14 @@ class Record
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-            return $pid;
         }
 
-        Record::clearIndexAuth($pid);
+        if (empty($dsID)) {
+            AuthIndex::clearIndexAuth($pid);
+            FulltextIndex::removeByPid($pid);
+        } else {
+            FulltextIndex::removeByDS($pid,$dsID);
+        }
     }
 
     /**

@@ -314,6 +314,57 @@ class FulltextIndex {
         return $ft_stmt;
     }
 
+    function removeByPid($pid)
+    {
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $stmt = "SELECT fti_id FROM {$dbtp}fulltext_index WHERE fti_pid='$pid' ";
+        $res = $GLOBALS['db_api']->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = array();
+        }
+        if (!empty($res)) {
+            $ftis = Misc::arrayToSQL($res);
+            $stmt = "DELETE FROM {$dbtp}fulltext_engine WHERE fte_fti_id IN ($ftis) ";
+            $res = $GLOBALS['db_api']->dbh->query($stmt);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                $res = null;
+            }
+            $stmt = "DELETE FROM {$dbtp}fulltext_index WHERE fti_pid='$pid' ";
+            $res = $GLOBALS['db_api']->dbh->query($stmt);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                $res = null;
+            }
+        }
+    }
+    
+    function removeByDS($pid,$dsID)
+    {
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $stmt = "SELECT fti_id FROM {$dbtp}fulltext_index WHERE fti_pid='$pid' AND fti_dsid='$dsID' ";
+        $res = $GLOBALS['db_api']->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = array();
+        }
+        if (!empty($res)) {
+            $ftis = Misc::arrayToSQL($res);
+            $stmt = "DELETE FROM {$dbtp}fulltext_engine WHERE fte_fti_id IN ($ftis) ";
+            $res = $GLOBALS['db_api']->dbh->query($stmt);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                $res = null;
+            }
+            $stmt = "DELETE FROM {$dbtp}fulltext_index WHERE fti_pid='$pid'  AND fti_dsid='$dsID' ";
+            $res = $GLOBALS['db_api']->dbh->query($stmt);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                $res = null;
+            }
+        }
+    }
 
 }
 

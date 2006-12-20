@@ -562,10 +562,25 @@ $tagIndent = "";
                                 } elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'multiple') {
                                     Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_details_ref['xsdmf_id'], $xsdmf_details_ref, $xsdmf_details, $attrib_loop_index, $xsdmf_details_ref['element_prefix'], $i, $xmlObj, $tagIndent);
                                 } elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'file_input' || $xsdmf_details_ref['xsdmf_html_input'] == 'file_selector') {
-                                    if (is_numeric($attrib_loop_index) && is_array($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']])) {
-                                        $attrib_value = (fread(fopen($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index], "r"), $HTTP_POST_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']][$attrib_loop_index]));
+                                    // check for file upload error
+                                    if (is_numeric($attrib_loop_index) 
+                                        && is_array($HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']])
+                                        && $HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']][$attrib_loop_index] > 0) {
+                                        $fu_name = $HTTP_POST_FILES["xsd_display_fields"]["name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index];
+                                        $fu_error = $HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']][$attrib_loop_index];
+                                        Session::setMessage("File upload failed, file: {$fu_name}, Error: ".Misc::fileUploadErr($fu_error));
+                                    } elseif (!is_numeric($attrib_loop_index) 
+                                        && !is_array($HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']])
+                                        && $HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']] > 0) {
+                                        $fu_name = $HTTP_POST_FILES["xsd_display_fields"]["name"][$xsdmf_details['xsdmf_id']];
+                                        $fu_error = $HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']];
+                                        Session::setMessage("File upload failed, file: {$fu_name}, Error: ".Misc::fileUploadErr($fu_error));
                                     } else {
-                                        $attrib_value = (fread(fopen($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']], "r"), $HTTP_POST_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']]));													
+                                        if (is_numeric($attrib_loop_index) && is_array($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']])) {
+                                            $attrib_value = (fread(fopen($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index], "r"), $HTTP_POST_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']][$attrib_loop_index]));
+                                        } else {
+                                            $attrib_value = (fread(fopen($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']], "r"), $HTTP_POST_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']]));													
+                                        }
                                     }
                                 } elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'text' || $xsdmf_details_ref['xsdmf_html_input'] == 'textarea') {
 //                                    $xsdmf_details_ref = array();
@@ -577,15 +592,28 @@ $tagIndent = "";
     //                            eval("\$attrib_value = \$xsdmf_details['xsdmf_dynamic_text'];");
 	                            $attrib_value = $HTTP_POST_VARS[$xsdmf_details['xsdmf_dynamic_text']];
                                 array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
-                            } elseif (($xsdmf_details['xsdmf_html_input'] == 'file_input' || $xsdmf_details['xsdmf_html_input'] == 'file_selector') && !empty($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']])) {
-                                if (is_numeric($attrib_loop_index) && is_array($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']])) {
-                                    if (!empty($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index])) {
-                                        $attrib_value = (fread(fopen($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index], "r"), $HTTP_POST_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']][$attrib_loop_index]));
-                                    }										
-                                } else {
-                                    $attrib_value = (fread(fopen($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']], "r"), $HTTP_POST_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']]));													
-                                }
-                                // put a full text indexer here for pdfs and word docs
+                            } elseif (($xsdmf_details['xsdmf_html_input'] == 'file_input' || $xsdmf_details['xsdmf_html_input'] == 'file_selector') && !empty($HTTP_POST_FILES["xsd_display_fields"]["name"][$xsdmf_details['xsdmf_id']])) {
+                                    if (is_numeric($attrib_loop_index) 
+                                        && is_array($HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']])
+                                        && $HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']][$attrib_loop_index] > 0) {
+                                        $fu_name = $HTTP_POST_FILES["xsd_display_fields"]["name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index];
+                                        $fu_error = $HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']][$attrib_loop_index];
+                                        Session::setMessage("File upload failed, file: {$fu_name}, Error: ".Misc::fileUploadErr($fu_error));
+                                    } elseif (!is_numeric($attrib_loop_index) 
+                                        && !is_array($HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']])
+                                        && $HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']] > 0) {
+                                        $fu_name = $HTTP_POST_FILES["xsd_display_fields"]["name"][$xsdmf_details['xsdmf_id']];
+                                        $fu_error = $HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']];
+                                        Session::setMessage("File upload failed, file: {$fu_name}, Error: ".Misc::fileUploadErr($fu_error));
+                                    } else {
+                                        if (is_numeric($attrib_loop_index) && is_array($HTTP_POST_FILES["xsd_display_fields"]["name"][$xsdmf_details['xsdmf_id']])) {
+                                            if (!empty($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index])) {
+                                                $attrib_value = (fread(fopen($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index], "r"), $HTTP_POST_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']][$attrib_loop_index]));
+                                            }										
+                                        } else {
+                                            $attrib_value = (fread(fopen($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']], "r"), $HTTP_POST_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']]));													
+                                        }
+                                    }
                             } elseif ($xsdmf_details['xsdmf_html_input'] == 'text' || $xsdmf_details['xsdmf_html_input'] == 'textarea') {			
 //                                $xsdmf_details_ref = array();
                                 Foxml::handleTextInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $xsdmf_details_ref, $attrib_loop_index, $element_prefix, $i, $xmlObj, $tagIndent);
@@ -604,7 +632,7 @@ $tagIndent = "";
                                         if (is_numeric($sel_record['xsdsel_attribute_loop_xsdmf_id']) && ($sel_record['xsdsel_attribute_loop_xsdmf_id'] != 0)) {
                                             $attrib_loop_details = XSD_HTML_Match::getDetailsByXSDMF_ID($sel_record['xsdsel_attribute_loop_xsdmf_id']);
                                             if ($attrib_loop_details['xsdmf_html_input'] == "file_input") {
-                                                $attrib_loop_child = @$HTTP_POST_FILES['xsd_display_fields']["tmp_name"][$sel_record['xsdsel_attribute_loop_xsdmf_id']];
+                                                $attrib_loop_child = @$HTTP_POST_FILES['xsd_display_fields']["name"][$sel_record['xsdsel_attribute_loop_xsdmf_id']];
                                             } elseif ($sel_record['xsdsel_type'] == 'attributeloop') {
                                                 $attrib_loop_child = @$HTTP_POST_VARS['xsd_display_fields'][$sel_record['xsdsel_attribute_loop_xsdmf_id']];
                                             } else {
@@ -621,8 +649,8 @@ $tagIndent = "";
 										
                                         for ($x=0;$x<$attrib_loop_count;$x++) { // if this sel id is a loop of attributes then it will loop through each, otherwise it will just go through once
                                             if (((@$attrib_loop_details['xsdmf_html_input'] != "file_input") && (@$attrib_loop_details['xsdmf_html_input'] != "text"))
-                                                    || (is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "file_input") && ($HTTP_POST_FILES['xsd_display_fields']["tmp_name"][$sel_record['xsdsel_attribute_loop_xsdmf_id']][$x] != ""))
-                                                    || (!is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "file_input") && (!empty($HTTP_POST_FILES['xsd_display_fields']["tmp_name"][$sel_record['xsdsel_attribute_loop_xsdmf_id']])))
+                                                    || (is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "file_input") && ($HTTP_POST_FILES['xsd_display_fields']["name"][$sel_record['xsdsel_attribute_loop_xsdmf_id']][$x] != ""))
+                                                    || (!is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "file_input") && (!empty($HTTP_POST_FILES['xsd_display_fields']["name"][$sel_record['xsdsel_attribute_loop_xsdmf_id']])))
                                                     || (is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "text") && (!empty($HTTP_POST_VARS['xsd_display_fields'][$sel_record['xsdsel_attribute_loop_xsdmf_id']][$x])))
                                                     || (!is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "text") && (!empty($HTTP_POST_VARS['xsd_display_fields'][$sel_record['xsdsel_attribute_loop_xsdmf_id']])))
                                                ) {

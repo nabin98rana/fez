@@ -52,6 +52,34 @@ function validateForm() {
         field.options[y].selected = true;
     }
 {/literal}
+{elseif $xsd_display_fields[i].xsdmf_enabled == 1 
+		&& $xsd_display_fields[i].xsdmf_html_input == 'text'
+		&& $xsd_display_fields[i].xsdmf_validation_type != '' 
+		&& $xsd_display_fields[i].xsdmf_validation_type != 'none'}
+	{if $xsd_display_fields[i].xsdmf_multiple == 1}
+		{section name="z" loop=$xsd_display_fields[i].multiple_array}
+			{assign var='loop_num' value=$xsd_display_fields[i].multiple_array[z]}
+			var field = document.wfl_form1.xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num};
+			{literal}
+			if (field != null) {
+				{/literal}
+				xsdmfValidate(field, field.value, '{$xsd_display_fields[i].xsdmf_validation_type}',
+					'{$xsd_display_fields[i].xsdmf_title}', field.name);
+				{literal}
+			}
+	        {/literal}
+		{/section}
+	{else}
+		var field = document.wfl_form1.xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1;
+		{literal}
+		if (field != null) {
+			{/literal}
+			xsdmfValidate(field, field.value, '{$xsd_display_fields[i].xsdmf_validation_type}',
+								'{$xsd_display_fields[i].xsdmf_title}', field.name);
+			{literal}
+		}
+        {/literal}
+	{/if}
 {/if}
 {/section}
 {literal}
@@ -202,6 +230,7 @@ function selectDateField(field_name, day, month, year)
 							<b>{$xsd_display_fields[i].xsdmf_title} {$loop_num}</b><br />{if $loop_num == 1}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appears as they are used up)</i>{/if}
 						  </td>
 						  <td bgcolor="{$light_color}">
+						<input type="hidden" name="MAX_FILE_SIZE" value="{$phpini_upload_max_filesize}" />
 						<input class="default" type="file" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" maxlength="255" size="50">
 						 </td>
 						</tr>

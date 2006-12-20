@@ -54,7 +54,7 @@
   <tr>
     <td>
       <table width="100%" border="0" cellspacing="0" cellpadding="2" >
-        <tr>
+        <tr bgcolor="{$light_color}">
           {literal}
           <script language="JavaScript">
           <!--
@@ -69,9 +69,11 @@
           </script>
           {/literal}
 		  {if $isUser}
-          <td width="50%" nowrap bgcolor="{$light_color}" class="default">
+          <td width="10%" nowrap class="default">
             <b>User: {$current_full_name}</b> {if $isFezUser}(<a target="_top" title="modify your account details and preferences" href="{$rel_url}preferences.php" class="link">Preferences</a>){/if}
           </td>
+          <td width="90%"><div id="flash_message_div" class="flash_message" style="display:none;">
+		  </div></td>
 		  {/if}
           <form target="_top" method="get" action="{$rel_url}list.php">
           <td width="5%" nowrap bgcolor="{$light_color}" align="right" >

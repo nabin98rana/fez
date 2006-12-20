@@ -773,9 +773,10 @@ class Misc
      * @return  string The formatted time
      */
 	function mime_content_type($f) {
-		if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) {
+		if ((stristr(PHP_OS, 'win') && (!stristr(PHP_OS, 'darwin')))
+                || stristr(PHP_OS,'solaris')) {
 			return mime_content_type($f);
-		} else {
+        } else {
 			$f = escapeshellarg($f);
 			return trim( `file -bi $f` );
 		}
@@ -921,7 +922,8 @@ class Misc
 									} else {
 										$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = $HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key];
 									}
-									$return[$dsTitle['xsdsel_title'].$key]['MIMETYPE'] = $HTTP_POST_FILES['xsd_display_fields']['type'][$file_res[0]['xsdmf_id']][$key];
+									$return[$dsTitle['xsdsel_title'].$key]['MIMETYPE'] = 
+                                        Misc::mime_content_type($HTTP_POST_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']][$key]);
 								}
 							}							
 						} else { // file input is not a array, so only just one file
@@ -939,7 +941,8 @@ class Misc
 							} else {
 								$return[$dsTitle['xsdsel_title']]['LABEL'] = $HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']];
 							}
-							$return[$dsTitle['xsdsel_title']]['MIMETYPE'] = $HTTP_POST_FILES['xsd_display_fields']['type'][$file_res[0]['xsdmf_id']];
+							$return[$dsTitle['xsdsel_title']]['MIMETYPE'] = 
+                                Misc::mime_content_type($HTTP_POST_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']]);
 						}
 					} elseif (count($label_res) == 1 && ($dsTitle['xsdsel_title'] == "Link")) { // no file inputs are involved so might be a link
 //					} elseif (($dsTitle['xsdsel_title'] == "Link")) { // no file inputs are involved so might be a link
@@ -2362,6 +2365,22 @@ function backtrace()
             $res = $number;
         }
         return $res;
+    }
+    
+    function fileUploadErr($e)
+    {
+        $errs = array(
+       0=>"There is no error, the file uploaded with success",
+       1=>"The uploaded file was too big",//"The uploaded file exceeds the upload_max_filesize directive in php.ini",
+       2=>"The uploaded file was too big", //"The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form",
+       3=>"The uploaded file was only partially uploaded",
+       4=>"No file was uploaded",
+       6=>"Missing a temporary folder"
+        );
+        if (!isset($errs[$e])) {
+            return "The reason for the failure is unknown";
+        }
+        return @$errs[$e];
     }
   
 } // end of Misc class

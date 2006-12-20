@@ -270,6 +270,7 @@ function selectDateField(field_name, day, month, year)
 							<b>{$xsd_display_fields[i].xsdmf_title} {$loop_num}</b>{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}<br />{if $loop_num == 1}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appears as they are used up)</i>{/if}
 						  </td>
 						  <td bgcolor="{$value_color}">
+						<input type="hidden" name="MAX_FILE_SIZE" value="{$phpini_upload_max_filesize}" />
 						<input class="default" type="file" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" maxlength="255" size="50">
 							
 						  {if $xsd_display_fields[i].xsdmf_attached_xsdmf_id != ""}
@@ -626,7 +627,6 @@ function selectDateField(field_name, day, month, year)
 		  </tr>
         <tr>
 		  <td colspan="2" class="default">
-		  {if $fileCount > 0}
 			<table border="0" cellpadding="2" cellspacing="0" width="100%"  bgcolor="#FFFFFF" >
 			  <tr>
 				<td class="default_white" colspan="4" bgcolor="{$heading_color}" height="22"><b>Attached Files</b></td>
@@ -694,7 +694,7 @@ function selectDateField(field_name, day, month, year)
 			<td class="default" colspan="3">&nbsp;</td>
 		  </tr>
 		    </table>
-		  {/if}
+		  
 		  </td>
 		</tr>			
 </table>

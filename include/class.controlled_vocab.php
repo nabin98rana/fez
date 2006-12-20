@@ -575,10 +575,10 @@ class Controlled_Vocab
 		} else {
 			$stmt .= " WHERE cvo_id not in (SELECT cvr_child_cvo_id from  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab_relationship)";
 		}
-/*		$stmt .= "
+		$stmt .= "
                  ORDER BY
                     cvo_title ASC";
-*/
+
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

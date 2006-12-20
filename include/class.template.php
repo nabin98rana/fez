@@ -48,7 +48,7 @@ require_once(APP_INC_PATH . "class.collection.php");
 require_once(APP_INC_PATH . "class.auth.php");
 require_once(APP_INC_PATH . "class.user.php");
 require_once(APP_INC_PATH . "class.setup.php");
-require_once(APP_INC_PATH . "najax/najax.php");
+require_once(APP_INC_PATH . "najax_classes.php");
 
 class Template_API
 {
@@ -245,7 +245,6 @@ class Template_API
         $this->assign("js_script_name", $js_script_name);
 
         $this->assign("total_queries", $GLOBALS['TOTAL_QUERIES']);
-		$this->assign('headerscript', $this->headerscript);
 
         $this->assign(array(
             "shaded_bar"     => "background='".APP_RELATIVE_URL."images/".APP_SHADED_BAR."'",
@@ -259,9 +258,15 @@ class Template_API
             "cycle"          => APP_CYCLE_COLORS,
             "internal_color" => APP_INTERNAL_COLOR
         ));
+        $this->assign('phpini_upload_max_filesize', Misc::convertSize(ini_get('upload_max_filesize')));
+
+
+        $this->registerNajax(NAJAX_Client::register('Session', APP_RELATIVE_URL.'ajax.php'));
+        $this->onload("getFlashMessage();");
         
         $this->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
         $this->assign('najax_register', $this->najax_register);
+        $this->assign('headerscript', $this->headerscript);
         
     }
     

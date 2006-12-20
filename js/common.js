@@ -43,3 +43,28 @@ function unhideXSDMF_Editor(pid, xsdmf_id, vidx) {
 	}
 }
 
+function showFlashMessage()
+{
+	document.getElementById('flash_message_div').style.display = '';
+	setTimeout('clearFlashMessage()', 30000);
+}
+
+function getFlashMessage(id)
+{
+	wfs = new Session();
+	wfs.getMessage( function(s) {
+		if (s.length > 0) {
+			e = document.getElementById('flash_message_div');
+			e.innerHTML = s;
+			showFlashMessage()
+		}
+	});
+}
+
+function clearFlashMessage()
+{
+	wfs = new Session();
+	wfs.clearMessage();
+	document.getElementById('flash_message_div').style.display = 'none';
+}
+
