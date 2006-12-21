@@ -446,7 +446,11 @@ if (!empty($pid) && $record->checkExists()) {
 			} elseif ($datastreams[$ds_key]['controlGroup'] == 'M') {
 //				$Jhove_DS =
 				$fileCount++;
-				$Jhove_DS_ID = "presmd_".substr($datastreams[$ds_key]['ID'], 0, strrpos($datastreams[$ds_key]['ID'], ".")).".xml";
+                if (is_numeric(strrpos($datastreams[$ds_key]['ID'], "."))) {
+				    $Jhove_DS_ID = "presmd_".substr($datastreams[$ds_key]['ID'], 0, strrpos($datastreams[$ds_key]['ID'], ".")).".xml";
+                } else {
+                    $Jhove_DS_ID = "presmd_".$datastreams[$ds_key]['ID'].".xml";
+                }
 				foreach ($datastreamsAll as $dsa) {
 					if ($dsa['ID'] == $Jhove_DS_ID) {					
 						$Jhove_XML = Fedora_API::callGetDatastreamContents($pid, $Jhove_DS_ID, true);

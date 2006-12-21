@@ -48,7 +48,11 @@ if (is_numeric(strpos($file, "/"))) {
 }
 if (trim($file_dir) == "") { $file_dir = APP_JHOVE_TEMP_DIR; }
 if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) { // check for command hax
-	$presmd_file = APP_JHOVE_TEMP_DIR.'presmd_'.Foxml::makeNCName(substr($file, 0, strrpos($file, '.'))).'.xml';
+	if (is_numeric(strrpos($file, '.'))) {
+        $presmd_file = APP_JHOVE_TEMP_DIR.'presmd_'.Foxml::makeNCName(substr($file, 0, strrpos($file, '.'))).'.xml';
+    } else {
+        $presmd_file = APP_JHOVE_TEMP_DIR.'presmd_'.Foxml::makeNCName($file).'.xml';
+    }
 	if (is_file($presmd_file)) { // if already exists, delete it
 		$deleteCommand = APP_DELETE_CMD." ".$presmd_file;
 		exec($deleteCommand." 2>&1");

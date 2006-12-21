@@ -1251,22 +1251,8 @@ class Record
 					}
 					Fedora_API::getUploadLocation($pid, $ncName, $datastreamXMLContent[$dsKey], $dsTitle['LABEL'], 
 							$dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
-			
-					$presmd_check = Workflow::checkForPresMD(Foxml::makeNCName($dsIDName));
-					if ($presmd_check != false) {
-						if (is_numeric(strpos($presmd_check, chr(92)))) {
-							$presmd_check = substr($presmd_check, strrpos($presmd_check, chr(92))+1);
-						}
-						if (Fedora_API::datastreamExists($pid, $presmd_check)) {
-							Fedora_API::callPurgeDatastream($pid, $presmd_check);
-						}
-						Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, 
-								"text/xml", "M");
-                        if (is_file(APP_TEMP_DIR.basename($presmd_check))) {
-                            $deleteCommand = APP_DELETE_CMD." ".APP_TEMP_DIR.basename($presmd_check);
-                            exec($deleteCommand);
-                        }
-					}
+			         Record::generatePresmd($pid, $dsIDName);
+					
 				}
 			}			
 		} 
@@ -1276,12 +1262,11 @@ class Record
 		foreach ($datastreamXMLHeaders as $dsKey => $dsTitle) {
 			if ($dsTitle['CONTROL_GROUP'] == "M" ) {
 				Workflow::processIngestTrigger($pid, Foxml::makeNCName($dsTitle['ID']), $dsTitle['MIMETYPE']);
-				//clear the managed content file temporarily saved in the APP_TEMP_DIR
-				$ncNameDelete = Foxml::makeNCName($dsTitle['ID']);
-				if (is_file(APP_TEMP_DIR.$ncNameDelete)) {
-					$deleteCommand = APP_DELETE_CMD." ".APP_TEMP_DIR.$ncNameDelete;
-					exec($deleteCommand);
-				}
+                //clear the managed content file temporarily saved in the APP_TEMP_DIR
+                $ncNameDelete = Foxml::makeNCName($dsTitle['ID']);
+                if (is_file(APP_TEMP_DIR.$ncNameDelete)) {
+                    unlink(APP_TEMP_DIR.$ncNameDelete);
+                }
 			}
         }
 
@@ -1290,6 +1275,28 @@ class Record
 
     }
     
+    function generatePresmd($pid, $dsIDName)
+    {
+        $presmd_check = Workflow::checkForPresMD(Foxml::makeNCName($dsIDName));
+        if ($presmd_check != false) {
+            if (is_numeric(strpos($presmd_check, chr(92)))) {
+                $presmd_check = substr($presmd_check, strrpos($presmd_check, chr(92))+1);
+            }
+            if (Fedora_API::datastreamExists($pid, $presmd_check)) {
+                Fedora_API::callPurgeDatastream($pid, $presmd_check);
+            }
+            Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, 
+                    "text/xml", "M");
+            if (is_file(APP_TEMP_DIR.basename($presmd_check))) {
+                unlink(APP_TEMP_DIR.basename($presmd_check));
+            }
+        }
+    }
+    
+    function runIngestTriggers($pid, $dsId, $mimetype)
+    {
+        
+    }
 }
 
 

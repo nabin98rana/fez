@@ -103,9 +103,12 @@ class Reindex
     {
         $start = $current_row * $max;
 		$fezIndexPIDs = Reindex::getIndexPIDList();
-		$details = Fedora_API::getListObjectsXML("*");
+		$details = Fedora_API::getListObjectsXML("");
+        //$details = Fedora_API::callFindObjects(array('pid', 'title', 'description'), 2000000);
+        //Error_Handler::logError(print_r($details, true),__FILE__,__LINE__);
 		$return = array();
-		foreach ($details as $detail) {
+		//foreach ($details["resultList"] as $detail) {
+        foreach ($details as $detail) {
 			if (!in_array($detail['pid'], $fezIndexPIDs)) {
 				array_push($return, $detail);
 			}
@@ -209,46 +212,7 @@ class Reindex
        
     }
 
-    /**
-     * Method used to reindex a batch of pids in fedora into Fez.
-     *
-     * @access  public
-     * @return  boolean
-     */
-    function indexFedoraObjects()
-    {
-        global $HTTP_POST_VARS;
-
-        $items = @$HTTP_POST_VARS["items"];
-		$xdis_id = @$HTTP_POST_VARS["xdis_id"];
-		$sta_id = @$HTTP_POST_VARS["sta_id"];		
-		$community_pid = @$HTTP_POST_VARS["community_pid"];
-		$collection_pid = @$HTTP_POST_VARS["collection_pid"];
-
-		foreach ($items as $pid) {
-			// even if the Fedora object has a RELS-EXT record replace it with a new one based on the chosen destination collection.
-			$relsext = Reindex::buildRELSEXT($collection_pid, $pid);
-			$fezmd = Reindex::buildFezMD($xdis_id, $sta_id);			
-			if (Fedora_API::datastreamExists($pid, "RELS-EXT")) {
-				Fedora_API::callModifyDatastreamByValue($pid, "RELS-EXT", "A", "Relationships to other objects", $relsext, "text/xml", true);
-			} else {
-				Fedora_API::callAddDatastream($pid, "RELS-EXT", $relsext, "Relationships to other objects", "A", "text/xml", "X");
-			}
-			if (Fedora_API::datastreamExists($pid, "FezMD")) {
-				Fedora_API::callModifyDatastreamByValue($pid, "FezMD", "A", "Fez extension metadata", $fezmd, "text/xml", true);
-			} else {
-				Fedora_API::callAddDatastream($pid, "FezMD", $fezmd, "Fez extension metadata", "A", "text/xml", "X");
-			}
-			Record::setIndexMatchingFields($pid);
-		}
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
-            return true; 
-        }
-    }
-	
+    
     /**
      * Method used to reindex a batch of pids in fedora into Fez that appear to already by Fez objects
 	 * eg 1. They have already got a RELS-EXT that points to an existing Fez collection
@@ -262,16 +226,15 @@ class Reindex
         global $HTTP_POST_VARS;
 
         $items = @$HTTP_POST_VARS["items"];
-		$override = @$HTTP_POST_VARS["override"];
 		$xdis_id = @$HTTP_POST_VARS["xdis_id"];
 		$sta_id = @$HTTP_POST_VARS["sta_id"];		
 		$community_pid = @$HTTP_POST_VARS["community_pid"];
 		$collection_pid = @$HTTP_POST_VARS["collection_pid"];
 
 		foreach ($items as $pid) {
-			// even if the Fedora object has a RELS-EXT record replace it with a new one based on the chosen destination collection.
-			if (Misc::checkbox(@$HTTP_POST_VARS["override"]) && !Misc::checkBox(@$HTTP_POST_VARS["recover"])) {
-				$relsext = Reindex::buildRELSEXT($collection_pid, $pid);
+    		// determine if the record is a Fez record
+            if (!Fedora_API::datastreamExists($pid, 'FezMD')) {
+                $relsext = Reindex::buildRELSEXT($collection_pid, $pid);
 				$fezmd = Reindex::buildFezMD($xdis_id, $sta_id);			
 				if (Fedora_API::datastreamExists($pid, "RELS-EXT")) {
 					Fedora_API::callModifyDatastreamByValue($pid, "RELS-EXT", "A", "Relationships to other objects", $relsext, "text/xml", true);
@@ -284,6 +247,35 @@ class Reindex
 					Fedora_API::getUploadLocation($pid, "FezMD", $fezmd, "Fez extension metadata", "text/xml", "X");
 				}
 			}
+            // need to rebuild presmd and image datastreams
+            // get list of datastreams and iterate over them
+            $ds = Fedora_API::callGetDatastreams($pid);
+            foreach ($ds as $dsKey => $dsTitle) {
+                $dsIDName = $dsTitle['ID'];
+                if ($dsTitle['controlGroup'] == "M" 
+                    && !Misc::hasPrefix($dsIDName, 'preview_')
+                    && !Misc::hasPrefix($dsIDName, 'web_')
+                    && !Misc::hasPrefix($dsIDName, 'thumbnail_')
+                    ) {
+                    $new_dsID = Foxml::makeNCName($dsIDName);
+                    // get the datastream into a file where we can do stuff to it
+                    $urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsIDName; 
+                    $urlReturn = Misc::ProcessURL($urldata);
+                    $handle = fopen(APP_TEMP_DIR.$new_dsID, "w");
+                    fwrite($handle, $urlReturn[0]);
+                    fclose($handle);
+                    // delete and re-ingest - need to do this because sometimes the object made it
+                    // into the repository even though its dsID is illegal.
+                    Fedora_API::callPurgeDatastream($pid, $dsIDName);
+                    Fedora_API::getUploadLocationByLocalRef($pid, $new_dsID, APP_TEMP_DIR.$new_dsID, $new_dsID, 
+                        $dsTitle['MIMEType'], "M");
+                    Record::generatePresmd($pid, $new_dsID);
+                    Workflow::processIngestTrigger($pid, $new_dsID, $dsTitle['MIMEType']);
+                    if (is_file(APP_TEMP_DIR.$dsIDName)) {
+                        unlink(APP_TEMP_DIR.$dsIDName);
+                    }
+                }
+            }
 			Record::setIndexMatchingFields($pid);
 		}
         if (PEAR::isError($res)) {

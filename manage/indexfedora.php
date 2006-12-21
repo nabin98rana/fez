@@ -103,12 +103,7 @@ if (is_array($communities) && isset($communities['list'][0]['pid'])) {
     $tpl->assign('communities_list_selected', $communities['list'][0]['pid']);
 }
 $tpl->registerNajax(NAJAX_Client::register('SelectReindexInfo', APP_RELATIVE_URL.'ajax.php'));
-if ($index_type == INDEX_TYPE_FEDORAINDEX) {
-    $tpl->onload("selectCommunity(getForm('reindex_form'), 'community_pid');");
-    $tpl->onload("showSettings();");
-} else {
-	$tpl->onload("hideSettings();");
-}
+$tpl->onload("selectCommunity(getForm('reindex_form'), 'community_pid');");
 
 $tpl->displayTemplate();
 ?>

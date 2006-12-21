@@ -219,6 +219,7 @@ class Fedora_API {
 			$searchPhrase .= "&maxResults=$maxResults";
 		}
 		$filename = APP_FEDORA_SEARCH_URL.$searchPhrase;
+        
 //		$xml = file_get_contents($filename);
 		list($xml,$info) = Misc::processURL($filename);
 		$xml = preg_replace("'<object uri\=\"info\:fedora\/(.*)\"\/>'", "<pid>\\1</pid>", $xml); // fix the pid tags

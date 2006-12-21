@@ -53,7 +53,7 @@ function getFlashMessage(id)
 {
 	wfs = new Session();
 	wfs.getMessage( function(s) {
-		if (s.length > 0) {
+		if (s != null && s.length > 0) {
 			e = document.getElementById('flash_message_div');
 			e.innerHTML = s;
 			showFlashMessage()

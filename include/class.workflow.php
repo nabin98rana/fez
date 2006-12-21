@@ -178,19 +178,21 @@ class Workflow
      * @return name of preservation metadata temporary file (it is not automatically ingested as a datastream).
      */
     function checkForPresMD($filename) { 	 
-        if (is_numeric(strpos($filename, "."))) { 	 
             $getString = APP_BASE_URL."webservices/wfb.presmd.php?file=".urlencode($filename); 	 
 			$val = Misc::ProcessURL($getString);
 //			print_r($val);
 //			echo $getString; exit;
             if (is_numeric(strpos($filename, "/"))) {
-                return APP_TEMP_DIR."presmd_".Foxml::makeNCName(substr(substr($filename, 0, strrpos($filename, ".")), strrpos($filename, "/")+1)).".xml"; 	 
+                $res = APP_TEMP_DIR."presmd_".Foxml::makeNCName(substr($filename, strrpos($filename, "/")+1)); 	 
             } else { 	 
-                return APP_TEMP_DIR."presmd_".Foxml::makeNCName(substr($filename, 0, strrpos($filename, "."))).".xml"; 	 
-            } 	 
-        } else { 	 
-            return false; 	 
-        }         	 
+                $res = APP_TEMP_DIR."presmd_".Foxml::makeNCName($filename); 	 
+            }
+            if (is_numeric(strpos($res, "."))) {
+                $res = substr($res, 0, strrpos($res,'.')).'.xml';
+            } else {
+                $res .= '.xml';
+            }
+            return $res;
     }
 
     /**

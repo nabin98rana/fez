@@ -474,7 +474,11 @@ class Misc
                 $keep = false;
             }
 			// now try and find a thumbnail datastream of this datastream
-			$thumbnail = "thumbnail_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."jpg";
+            if (is_numeric(strrpos($ds['ID'], "."))) {
+			     $thumbnail = "thumbnail_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."jpg";
+            } else {
+                 $thumbnail = "thumbnail_".$ds['ID'].".jpg";
+            }
 			$ds['thumbnail'] = 0;
 			foreach ($original_dsList as $o_key => $o_ds) {
 				if ($thumbnail == $o_ds['ID']) {  // found the thumbnail datastream so save it against the record
@@ -482,7 +486,11 @@ class Misc
 				}
 			}
 			// now try and find a web datastream of this datastream
-			$web = "web_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."jpg";
+            if (is_numeric(strrpos($ds['ID'], "."))) {
+      			$web = "web_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."jpg";
+            } else {
+                $web = "web_".$ds['ID'].".jpg";
+            }
 			$ds['web'] = 0;
 			foreach ($original_dsList as $o_key => $o_ds) {
 				if ($web == $o_ds['ID']) {  // found the web datastream so save it against the record
@@ -490,7 +498,11 @@ class Misc
 				}
 			}
 			// now try and find a preview datastream of this datastream
-			$preview = "preview_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."jpg";
+            if (is_numeric(strrpos($ds['ID'], "."))) {
+    			$preview = "preview_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."jpg";
+            } else {
+                $preview = "preview_".$ds['ID'].".jpg";
+            }
 			$ds['preview'] = 0;
 			foreach ($original_dsList as $o_key => $o_ds) {
 				if ($preview == $o_ds['ID']) {  // found the preview datastream so save it against the record
@@ -500,7 +512,11 @@ class Misc
 
 
 			// now try and find a preservation metadata datastream of this datastream
-			$presmd = "presmd_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."xml";
+            if (is_numeric(strrpos($ds['ID'], "."))) {
+    			$presmd = "presmd_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."xml";
+            } else {
+                $presmd = "presmd_".$ds['ID'].".xml";
+            }
 			$ds['presmd'] = 0;
 			foreach ($original_dsList as $o_key => $o_ds) {
 				if ($presmd == $o_ds['ID']) {  // found the presmd datastream so save it against the record

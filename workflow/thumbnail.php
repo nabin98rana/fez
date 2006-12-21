@@ -62,12 +62,15 @@ if (!file_exists($filepath)) {
 
 
     if (is_numeric(strpos($filename, "/"))) {
-        $new_file = $file_name_prefix.Foxml::makeNCName(substr(substr($filename, 0, strrpos($filename, ".")), 
-                    strrpos($filename, "/")+1)).".jpg";
+        $new_file = $file_name_prefix.Foxml::makeNCName(substr($filename,strrpos($filename,"/")+1));
     } else {
-        $new_file = $file_name_prefix.Foxml::makeNCName(substr($filename, 0, strrpos($filename, "."))).".jpg";
+        $new_file = $file_name_prefix.Foxml::makeNCName($filename);
     }
-    $filename_ext = strtolower(substr($filename, (strrpos($filename, ".") + 1)));
+    if (is_numeric(strpos($new_file, "."))) {
+        $new_file = substr($new_file, 0, strrpos($new_file, ".")).".jpg";
+    } else {
+        $new_file .= ".jpg";
+    }
     $getString = APP_BASE_URL."webservices/wfb.image_resize.php?image="
         .urlencode($filename)."&height=$height&width=$width&ext=jpg&outfile=".$new_file;
 //	echo $getString;

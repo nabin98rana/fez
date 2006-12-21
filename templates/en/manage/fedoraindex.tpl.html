@@ -163,6 +163,7 @@ function toggleOverride()
               </tr>
              <tr>
                 <td bgcolor="{$light_color}" class="default">
+                <p>
                 {if $index_type == 1}
                 This is a list of items in the fedora database that are not indexed in the 
                 fez database. Check the boxes next to the objects you want Fez to index and click 'Index Into Fez'.
@@ -170,28 +171,23 @@ function toggleOverride()
 				This is a list of items in the fedora database that are already indexed in the 
                 fez database. Check the boxes next to the objects you want Fez to reindex and click 'Reindex'.
                 {/if}
+                </p>
+                <p>The reindexer will detect if the objects are already Fez objects and restore them if possible,
+                otherwise the objects will be imported into the collection selected below.</p>
                 </td>
               </tr>
 		  <tr>
 			<td>
 			  <table>
-                    <form name="reindex_form" onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
-                    <input type="hidden" name="override" value="on" />
-		  <tr>
-				<td width="200" bgcolor="{$cell_color}" class="default">
-				  <b>Recover existing fez datastreams:</b>
-				</td>
-				<td bgcolor="{$light_color}">
-				  <input type="checkbox" name="recover" onClick="javascript:toggleOverride();" 
-				  		{if $index_type == 2}checked="on"{/if}>  
-				</td>
-			  </tr>
+                    <form name="reindex_form"  method="post" action="{$smarty.server.PHP_SELF}">
+                    
+		  
 			<tr id="tr_heading">
 			  <td class="default" colspan="2">
 				<b><img align="absmiddle" src="{$rel_url}images/collection.jpg" border="0"> &nbsp; Select Destination Collection</b>
 			  </td>
 			</tr>			
-				<tr style="display:none;" id="tr_community_pid">
+				<tr id="tr_community_pid">
 			  <td  bgcolor="{$cell_color}" class="default" nowrap>
 				<b>Parent Community</b>
 			  </td>
