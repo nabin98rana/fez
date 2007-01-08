@@ -1940,10 +1940,17 @@ class Misc
 								if (!is_array($element_match_list[$ehref])) {
 
 								} else {
+                                    // only make the title red if there is only one xsdmf for this element.
+                                    // Otherwise it is misleading because it suggests that all of the sublooping elements
+                                    // are disabled when it's probably only one. The hover note shows the disabled thing per sublooping element.
+                                    if (count($element_match_list[$ehref]) == 1 
+                                            && $element_match_list[$ehref][0]['xsdmf_enabled'] == 0 
+                                            && is_numeric($element_match_list[$ehref][0]['xsdmf_enabled'])) {
+                                       $node_label = "<font color=\'red\'>$node_label</font>";
+                                    }
 									foreach ($element_match_list[$ehref] as $ematch) {
 										$disabled_msg = "";
 										if ($ematch['xsdmf_enabled'] == 0 && is_numeric($ematch['xsdmf_enabled'])) {
-											$node_label = "<font color=\'red\'>$node_label</font>";
 											$disabled_msg = "<font color=\'red\'><b>DISABLED</b></font><br />";
 										}
 										switch ($ematch['xsdmf_html_input']) {

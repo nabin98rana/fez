@@ -463,6 +463,7 @@ $stmt = $contents;
 	}
     $config_contents = str_replace("%{APP_FEDORA_APIM_PROTOCOL_TYPE}%", $fedora_apim_protocol_type, $config_contents);
     $config_contents = str_replace("%{APP_FEDORA_APIA_PROTOCOL_TYPE}%", $fedora_apia_protocol_type, $config_contents);	
+
     $fp = fopen('../config.inc.php', 'w');
     if ($fp === FALSE) {
         return "Could not open the file 'config.inc.php' for writing. The permissions on the file should be set as to allow the user that the web server runs as to open it. Please correct this problem and try again.";

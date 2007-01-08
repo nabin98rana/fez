@@ -766,11 +766,12 @@
               </tr>
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default">
-                  <b>Enabled?:</b>
+                  <b>Enabled in Form?:</b>
                 </td>
                 <td bgcolor="{$light_color}">
                   <input type="checkbox" name="enabled" class="default" {if (($info.xsdmf_enabled != 0) || ($info.xsdmf_enabled==''))}checked{/if}><br />
-                  <span class="small_default">(If this enabled tickbox is not ticked this element will not be active)</span>
+                  <span class="small_default">This should be checked to make this field appear on the forms for editing metadata.  If the field is static text, 
+                  it will only be shown if the 'Show in View Details' box is also checked (used to make a section heading in the form) .  If this box is unchecked, the resulting XML will have a blank value for this element.</span>
                 </td>
               </tr>
               <tr>

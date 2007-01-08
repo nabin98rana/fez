@@ -70,7 +70,9 @@ class Doc_Type_XSD
         foreach ($items as $item) {
             $xdis_items = array_merge(array_keys(Misc::keyArray(XSD_Display::getList($item), 'xdis_id')), $xdis_items);
         }
-        XSD_Display::remove(array('items' => $xdis_items));
+        if (!empty($xdis_items)) {
+            XSD_Display::remove(array('items' => $xdis_items));
+        }
         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd
                  WHERE

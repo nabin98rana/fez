@@ -135,9 +135,11 @@
     	$results = array(ConfigResult::message('Testing general directories'));
     	$results = array_merge($results, SanityChecks::checkDir('APP_TEMP_DIR', APP_TEMP_DIR, true));
         $results = array_merge($results, SanityChecks::checkDir('APP_SAN_IMPORT_DIR', APP_SAN_IMPORT_DIR));
-        $results = array_merge($results, SanityChecks::checkDir('APP_GEOIP_PATH', APP_GEOIP_PATH));
-        $results = array_merge($results, SanityChecks::checkDir('WEBSERVER_LOG_DIR', WEBSERVER_LOG_DIR));
-        $results = array_merge($results, SanityChecks::checkFile('WEBSERVER_LOG_DIR.WEBSERVER_LOG_FILE', WEBSERVER_LOG_DIR . WEBSERVER_LOG_FILE));
+        if (WEBSERVER_LOG_STATISTICS == "ON") {
+            $results = array_merge($results, SanityChecks::checkDir('APP_GEOIP_PATH', APP_GEOIP_PATH));
+            $results = array_merge($results, SanityChecks::checkDir('WEBSERVER_LOG_DIR', WEBSERVER_LOG_DIR));
+            $results = array_merge($results, SanityChecks::checkFile('WEBSERVER_LOG_DIR.WEBSERVER_LOG_FILE', WEBSERVER_LOG_DIR . WEBSERVER_LOG_FILE));
+        }
         $results = array_merge($results, SanityChecks::checkDir('APP_PATH/templates_c', APP_PATH."templates_c", true));
         if (APP_REPORT_ERROR_FILE) {
         	$results = array_merge($results, SanityChecks::checkFile('APP_ERROR_LOG', APP_ERROR_LOG, true));
