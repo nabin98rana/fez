@@ -54,6 +54,17 @@ include_once(APP_INC_PATH . "class.xsd_loop_subelement.php");
 class Misc
 {
 
+	function parse_str_ext($toparse) {
+		$returnarray = array();
+		$keyvaluepairs = split("&", $toparse);
+		foreach($keyvaluepairs as $pairval) {
+			$splitpair = split("=", $pairval);
+			if(!array_key_exists($splitpair[0], $returnarray)) $returnarray[$splitpair[0]] = array();
+				$returnarray[$splitpair[0]][] = $splitpair[1];
+		}
+		return $returnarray; 
+	}
+	
 
 	/*
 	 *  To use instead of php file_get_contents or fopen/fread as curl is much faster

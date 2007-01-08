@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+<responseDate>{$responseDate}</responseDate>
+{if $verb == "ListSets"} 
+  <request verb="{$verb}" metadataPrefix="{$metadataPrefix}" resumptionToken="{if $resumptionToken != 0}{$resumptionToken}{/if}">{$app_base_url}oai.php</request>
+{/if}
+{if $errorCount == 0}
+  <ListSets>
+{section name="i" loop=$list}
+  <set>
+    <setSpec>{$app_hostname}:{$app_pid_namespace}:cvo_id:{$list[i].cvo_id}</setSpec>
+    <setName>{$list[i].cvo_title}</setName>
+  </set>
+{/section}
+{if $list_count < 100}
+  <resumptionToken>0/{$rows}/oai_dc</resumptionToken>
+{else}
+  <resumptionToken>{$pagerRow+1}/{$rows}/oai_dc</resumptionToken>
+{/if}
+</ListSets>
+{else}
+{section name="e" loop=$errors.code}
+  <error code="{$errors.code[e]}">{$errors.message[e]}</error>
+{/section}
+{/if}
+</OAI-PMH>

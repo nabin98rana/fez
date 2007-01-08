@@ -865,7 +865,7 @@ class User
 					0,
 					$eprints_usr_id,					
                     '" . Date_API::getCurrentDateGMT() . "'
-                 )";
+                 ) on duplicate key update usr_external_usr_id = $eprints_usr_id";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

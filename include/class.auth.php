@@ -1658,49 +1658,50 @@ class Auth
                 OR (ar_rule = '!rule!role!AD_DistinguishedName' 
                         AND INSTR('".$ses['distinguishedname']."', ar_value)
                    ) ";
-        }
-        if (!empty($ses[APP_SHIB_ATTRIBUTESses]['Shib-EP-TargetedID'])) {
+        } 
+
+        if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'])) {
             $authStmt .= "
                 OR (ar_rule = '!rule!role!eduPersonTargetedID' 
-                        AND INSTR('".$ses[APP_SHIB_ATTRIBUTESses]['Shib-EP-TargetedID']."', ar_value)
+                        AND INSTR('".$ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID']."', ar_value)
                    ) ";
         }
-        if (!empty($ses[APP_SHIB_ATTRIBUTESses]['Shib-EP-UnscopedAffiliation'])) {
+        if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation'])) {
             $authStmt .= "
                 OR (ar_rule = '!rule!role!eduPersonAffiliation' 
-                        AND INSTR('".$ses[APP_SHIB_ATTRIBUTESses]['Shib-EP-UnscopedAffiliation']."', 
+                        AND INSTR('".$ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation']."', 
                             ar_value)
                    ) ";
         }
-        if (!empty($ses[APP_SHIB_ATTRIBUTESses]['Shib-EP-ScopedAffiliation'])) {
+        if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'])) {
             $authStmt .= "
                 OR (ar_rule = '!rule!role!eduPersonScopedAffiliation' 
-                        AND INSTR('".$ses[APP_SHIB_ATTRIBUTESses]['Shib-EP-ScopedAffiliation']."', 
+                        AND INSTR('".$ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation']."', 
                             ar_value)
                    ) ";
         }
-        if (!empty($ses[APP_SHIB_ATTRIBUTESses]['Shib-EP-PrimaryAffiliation'])) {
+        if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'])) {
             $authStmt .= "
                 OR (ar_rule = '!rule!role!eduPersonPrimaryAffiliation' 
-                        AND INSTR('".$ses[APP_SHIB_ATTRIBUTESses]['Shib-EP-PrimaryAffiliation']."', ar_value)
+                        AND INSTR('".$ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation']."', ar_value)
                    ) ";
         }
-        if (!empty($ses[APP_SHIB_ATTRIBUTESses]['Shib-EP-PrincipalName'])) {
+        if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'])) {
             $authStmt .= "
                 OR (ar_rule = '!rule!role!eduPersonPrincipalName' 
-                        AND INSTR('".$ses[APP_SHIB_ATTRIBUTESses]['Shib-EP-PrincipalName']."', ar_value)
+                        AND INSTR('".$ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName']."', ar_value)
                    ) ";
         }
-        if (!empty($ses[APP_SHIB_ATTRIBUTESses]['Shib-EP-OrgDN'])) {
+        if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN'])) {
             $authStmt .= "
                 OR (ar_rule = '!rule!role!eduPersonOrgUnitDN' 
-                        AND INSTR('".$ses[APP_SHIB_ATTRIBUTESses]['Shib-EP-OrgDN']."', ar_value)
+                        AND INSTR('".$ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN']."', ar_value)
                    ) ";
         }
-        if (!empty($ses[APP_SHIB_ATTRIBUTESses]['Shib-EP-PrimaryOrgUnitDN'])) {
+        if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN'])) {
             $authStmt .= "
                 OR (ar_rule = '!rule!role!eduPersonPrimaryOrgUnitDN' 
-                        AND INSTR('".$ses[APP_SHIB_ATTRIBUTESses]['Shib-EP-PrimaryOrgUnitDN']."', ar_value)
+                        AND INSTR('".$ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN']."', ar_value)
                    ) ";
         }
 

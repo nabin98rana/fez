@@ -191,8 +191,10 @@ if (APP_FEDORA_SETUP == 'sslall') {
 
 
 @define("APP_NAME", "%{APP_NAME}%");
+@define("APP_ADMIN_EMAIL", "%{APP_ADMIN_EMAL}%"); // used in the OAI identify verb
 @define("APP_ORG_NAME", "%{APP_ORG_NAME}%");
 @define("APP_SHORT_ORG_NAME", "%{APP_SHORT_ORG_NAME}%");
+@define("APP_PID_NAMESPACE", "%{APP_PID_NAMESPACE}%"); // Must be the same as your Fedora fedora.fcfg "namespace" variable
 @define("APP_SHORT_NAME", APP_NAME);
 @define("APP_URL", "http://www.library.uq.edu.au/escholarship/");
 @define("APP_SITE_NAME", APP_NAME);

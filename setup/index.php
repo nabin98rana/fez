@@ -432,6 +432,7 @@ $stmt = $contents;
     $config_contents = str_replace("%{APP_ORG_NAME}%", $HTTP_POST_VARS['organisation'], $config_contents);
     $config_contents = str_replace("%{APP_SHORT_ORG_NAME}%", $HTTP_POST_VARS['short_org'], $config_contents);
     $config_contents = str_replace("%{APP_NAME}%", $HTTP_POST_VARS['app_name'], $config_contents);		
+    $config_contents = str_replace("%{APP_ADMIN_EMAIL}%", $HTTP_POST_VARS['app_admin_email'], $config_contents);		    
     $config_contents = str_replace("%{APP_PATH}%", $HTTP_POST_VARS['path'], $config_contents);
     $config_contents = str_replace("%{APP_SQL_DBHOST}%", $HTTP_POST_VARS['db_hostname'], $config_contents);
     $config_contents = str_replace("%{APP_SQL_DBNAME}%", $HTTP_POST_VARS['db_name'], $config_contents);

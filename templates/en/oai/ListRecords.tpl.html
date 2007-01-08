@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+<responseDate>{$responseDate}</responseDate>
+{if $verb == "ListRecords"} 
+  <request verb="{$verb}" metadataPrefix="{$metadataPrefix}" resumptionToken="{if $resumptionToken != 0}{$resumptionToken}{/if}">{$app_base_url}oai.php</request>
+{/if}
+{if $errorCount == 0}
+  <ListRecords>
+{section name="i" loop=$list}
+  <record>
+    <header>
+      <identifier>oai:{$app_hostname}:{$list[i].pid}</identifier>
+      <datestamp>{$list[i].created_date.0}</datestamp>
+{assign var="loop_parents" value=$list[i].isMemberOf}
+{section name="p" loop=$loop_parents}
+      <setSpec>oai:{$app_hostname}:{$loop_parents[p]}</setSpec>
+{/section}   
+{assign var="loop_subjects" value=$list[i].subject_id}
+{section name="s" loop=$loop_subjects}
+      <setSpec>{$app_hostname}:{$app_pid_namespace}:cvo_id:{$loop_subjects[s]}</setSpec>
+{/section}            
+    </header>
+    <metadata>
+      <oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+        {$list[i].oai_dc}
+      </oai_dc:dc>
+    </metadata>
+  </record>
+{/section}
+{if $list_count < 100}
+  <resumptionToken>0/{$rows}/oai_dc</resumptionToken>
+{else}
+  <resumptionToken>{$pagerRow+1}/{$rows}/oai_dc</resumptionToken>
+{/if}
+</ListRecords>
+{else}
+{section name="e" loop=$errors.code}
+  <error code="{$errors.code[e]}">{$errors.message[e]}</error>
+{/section}
+{/if}
+</OAI-PMH>

@@ -359,6 +359,38 @@ class Controlled_Vocab
     }
 
     /**
+     * Method used to check a cvo_id is in the db.
+     *
+     * @access  public
+     * @param   integer $cvo_id The controlled vocabulary ID
+     * @return  boolean true/false
+     */
+    function exists($cvo_id)
+    {
+		if (!is_numeric($cvo_id)) {
+			return false;
+		}
+        $stmt = "SELECT
+                    cvo_title
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
+                 WHERE
+                    cvo_id=".Misc::escapeString($cvo_id);
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return '';
+        } else {
+        	if (count($res) == 1) {
+        		return true;
+        	} else {
+        		return false;
+        	}
+        }
+    }    
+    
+    /**
      * Method used to get the title of a specific controlled vocabulary.
      *
      * @access  public
@@ -441,7 +473,7 @@ class Controlled_Vocab
      * @access  public
      * @return  array The list of controlled vocabularies in an associative array (for drop down lists).
      */
-    function getAssocListAll()
+    function getAssocListAll($start="", $max="")
     {
         $stmt = "SELECT
                     cvo_id,
@@ -449,6 +481,9 @@ class Controlled_Vocab
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
 ";
+        if (is_numeric($start) && is_numeric($max)) {
+        	$stmt .= " LIMIT $start, $max";
+        }
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -458,6 +493,34 @@ class Controlled_Vocab
         }
     }	
 
+    /**
+     * Method used to get the list of controlled vocabularies available in the 
+     * system returned in an associative array for drop down lists.
+     *
+     * @access  public
+     * @return  array The list of controlled vocabularies in an associative array (for drop down lists).
+     */
+    function getChildListAll($start="", $max="")
+    {
+        $stmt = "SELECT
+                    cvo_id,
+					cvo_title
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
+				 WHERE cvo_id not in (SELECT cvr_parent_cvo_id from  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab_relationship)
+				 ORDER BY cvo_id ASC";
+        if (is_numeric($start) && is_numeric($max)) {
+        	$stmt .= " LIMIT $start, $max";
+        }
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }	    
+    
    /**
      * Method used to get the list of controlled vocabularies available in the 
      * system returned in an associative array for drop down lists.

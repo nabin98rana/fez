@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<OAI-PMH  xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+  <responseDate>{$responseDate}</responseDate>
+  <request {if $verb == "Identify"}verb="{$verb}" {/if}resumptionToken="">{$app_base_url}oai.php</request>
+{if $errorCount == 0}  
+  <Identify >
+    <repositoryName>{$application_title}</repositoryName>
+    <baseURL>{$app_base_url}oai.php</baseURL>
+    <protocolVersion>2.0</protocolVersion>
+    <adminEmail>mailto:{$app_admin_email}</adminEmail>
+    <earliestDatestamp>2001-01-01T00:00:00Z</earliestDatestamp>
+    <deletedRecord>persistent</deletedRecord>
+    <granularity>YYYY-MM-DDThh:mm:ssZ</granularity>
+    <description>
+      <oai-identifier xmlns="http://www.openarchives.org/OAI/2.0/oai-identifier" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai-identifier http://www.openarchives.org/OAI/2.0/oai-identifier.xsd">
+        <scheme>oai</scheme>
+        <repositoryIdentifier>{$app_hostname}</repositoryIdentifier>
+        <delimiter>:</delimiter>
+        <sampleIdentifier>oai:{$app_hostname}:{$app_pid_namespace}:23</sampleIdentifier>
+      </oai-identifier>
+    </description>
+<description>
+  <toolkit xsi:schemaLocation="http://oai.dlib.vt.edu/OAI/metadata/toolkit http://oai.dlib.vt.edu/OAI/metadata/toolkit.xsd">
+    <title>OCLC's OAICat Repository Framework</title>
+  	  <author>
+        <name>Jeffrey A. Young</name>
+        <email>jyoung@oclc.org</email>
+        <institution>OCLC</institution>
+      </author>
+      <version>1.5.41</version>
+      <toolkitIcon>http://alcme.oclc.org/oaicat/oaicat_icon.gif</toolkitIcon>
+      <URL>http://www.oclc.org/research/software/oai/cat.shtm</URL>
+  </toolkit>
+</description>        
+    <description>
+      <eprints xmlns="http://www.openarchives.org/OAI/1.1/eprints" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/1.1/eprints http://www.openarchives.org/OAI/1.1/eprints.xsd">
+        <content>
+<text>        
+{$application_title} is {$org_name}'s institutional digital repository for publications, 
+research, and teaching materials. Deposited material covers a very wide range of subjects and disciplines. 
+The repository holds the full text of many peer-reviewed published articles and conference papers, as well 
+as book chapters, theses and other forms of written research from {$org_short_name} academic staff and 
+postgraduate students. It contains working and discussion papers, technical reports and some preprints. 
+Research datasets, sound and image collections, multimedia, software and other forms of research data are 
+also held. Learning objects and other course-related materials are welcome.
+{$app_base_url} 
+</text>
+        </content>
+        <metadataPolicy >
+          <text>{$app_name} metadata are freely accessible to all, and freely re-useable 
+by all, under the following conditions: (1) The full name(s) of the 
+author(s) and (2) the full bibliographic reference information for 
+the paper (date, title, and, if published, publisher, if any, full 
+name of journal or conference proceedings, volume, issue/number and 
+pages, if any) must always co-appear prominently with any re-use or 
+redisplay of the metadata, in any medium. The metadata may not be 
+offered for sale without the formal permission of the author and 
+publisher. (Note: {$app_name} is NOT the publisher; it is merely the 
+online archive that hosts the papers. Attribution of {$app_name} when 
+re-using any metadata is required.)
+</text></metadataPolicy>
+        <dataPolicy >
+          <text >The repository accepts research output in the following formats: 
+* pre-prints
+* working papers 
+* published articles (post-prints)
+* books and monographs
+* book chapters
+* online journals
+* research reports
+* draft or final conference papers 
+* conference posters
+* data sets
+* theses
+* any other form of research output which can be technically loaded to the 
+repository.
+</text>
+</dataPolicy>
+<submissionPolicy>
+  <text>{$app_name} is a repository for the self-archiving, by their 
+authors (or, by authorised second parties, or, if the papers are in the 
+public domain, by anyone), of research papers in any discipline by 
+academic staff and postgraduate students of the {$app_org_name}. 
+Papers can be (1) refereed, accepted, published final drafts (post-prints) 
+or (2) unrefereed drafts prior to publication (pre-prints). Deposits will 
+be vetted by {$app_name} for provenance and completeness; they will not be 
+otherwise validated or authenticated. Responsibility for the validity and 
+authenticity of the content of these self-archived papers rests entirely 
+with the depositor. Any copyright violations are also entirely the 
+responsibility of the depositor. ({$app_name}, if it receives proof of 
+copyright violation, will immediately remove the paper in question.)
+</text>
+          </submissionPolicy>
+        <comment>This system is running Fez server software (Fez {$application_version}) developed at the University of Queensland. For more information see http://sourceforge.net/projects/fez</comment>
+      </eprints>
+    </description>
+  </Identify>
+{else}
+{section name="e" loop=$errors.code}
+  <error code="{$errors.code[e]}">{$errors.message[e]}</error>
+{/section}
+{/if}
+</OAI-PMH>
+

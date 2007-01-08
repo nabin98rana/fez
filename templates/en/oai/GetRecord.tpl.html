@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+<responseDate>{$responseDate}</responseDate>
+{if $verb == "GetRecord"} 
+  <request verb="{$verb}" metadataPrefix="{$metadataPrefix}" resumptionToken="{if $resumptionToken != 0}{$resumptionToken}{/if}">{$app_base_url}oai.php</request>
+{/if}
+{if $errorCount == 0}
+  <GetRecord>
+    <record>
+      <header>
+	    <identifier>oai:{$app_hostname}:{$list[0].pid}</identifier>
+	    <datestamp>{$list[0].created_date.0}</datestamp>
+	{assign var="loop_subjects" value=$list[0].subject_id}
+	{section name="s" loop=$loop_subjects}
+	    <setSpec>{$app_hostname}:{$app_pid_namespace}:cvo_id:{$loop_subjects[s]}</setSpec>
+	{/section}            
+	  </header>
+	  <metadata>
+	    <oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+	      {$list[0].oai_dc}
+	    </oai_dc:dc>
+      </metadata>
+    </record>
+  </GetRecord>
+{else}
+{section name="e" loop=$errors.code}
+  <error code="{$errors.code[e]}">{$errors.message[e]}</error>
+{/section}
+{/if}
+</OAI-PMH>
