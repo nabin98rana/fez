@@ -45,6 +45,7 @@ $identifier = str_replace("oai:".APP_HOSTNAME.":", "", $originalIdentifier);
 $from = trim($_GET['from']);
 $until = trim($_GET['until']);
 $originalSet = trim($_GET['set']);
+$originalResumptionHash = ($_GET['resumptionToken']);
 if (is_numeric(strpos($originalSet, ":cvo_id:"))) {
 	$setType = "contvocab";
 	$set = substr($originalSet, (strrpos($originalSet, ":")+1));	
@@ -55,9 +56,15 @@ if (is_numeric(strpos($originalSet, ":cvo_id:"))) {
 
 }
 
+/*$test = base64_decode("Jm1ldGFkYXRhUHJlZml4PW9haV9kYw=="); 
+$test = ltrim($test, "&");
+$test = Misc::parse_str_ext($test);
+print_r($test);
+exit;*/
 
 $querystring = $_GET;
 $acceptable_vars = array("verb", "metadataPrefix", "identifier", "from", "until", "resumptionToken", "set");
+$resumption_acceptable_vars = array("metadataPrefix", "from", "until", "set");
 
 $identify_acceptable_vars = array("verb");
 $list_metadata_formats_acceptable_vars = array("verb", "identifier");
@@ -90,21 +97,44 @@ $tpl->setTemplate($tpl_file);
 $tpl->assign('tpl_list', array_map(create_function('$a','return $a[\'title\'];'), $tpls));
 $responseDate = Date_API::getFedoraFormattedDateUTC();
 $rows=100;
-$pagerRow = $HTTP_GET_VARS["resumptionToken"] ? $HTTP_GET_VARS["resumptionToken"] : 0;
-$resumptionToken = $pagerRow;
+$start = $HTTP_GET_VARS["resumptionToken"] ? $HTTP_GET_VARS["resumptionToken"] : 0;
+$resumptionToken = $start;
 //echo $resumptionToken; exit;
 if ($resumptionToken != "") {
-	$matches = preg_match("/^(\d+)\/(\d+)\/(.*)?$/", $resumptionToken);
+	$matches = preg_match("/^(\d+)\/(.*)?$/", $resumptionToken);
 	if (!$matches) {
 		$errors["code"][] = "badResumptionToken";
 		$errors["message"][] = "Token is invalid (does not match regexp)";		
-	} else {
-		$metadataPrefix = substr($pagerRow, strrpos($pagerRow, "/")+1);
-		$pagerRow = substr($pagerRow, 0, strpos($pagerRow, "/"));
+	} else {		
+		$start = substr($start, 0, strpos($start, "/"));		
+		$resumptionToken = ltrim(base64_decode(substr($resumptionToken, strrpos($resumptionToken, "/")+1)), "&");
+		$originalResumptionToken = $resumptionToken;
+		$resumptionArray = Misc::parse_str_ext($resumptionToken);
+		$resumptionToken = "";
+		foreach ($resumptionArray as $rname => $rvalue) {
+			if (in_array($rname, $resumption_acceptable_vars)) {
+				$resumptionToken .= "&".$rname."=".$rvalue[0];
+				eval("$".$rname."=".$rvalue[0].";");
+			}
+		}
+//		$metadataPrefix = substr($start, strrpos($start, "/")+1);
+
 	}
-} elseif ($resumptionToken != 0) {
-	$pagerRow = substr($pagerRow, 0, strpos($pagerRow, "/"));
+//} elseif ($resumptionToken != 0) {
+//	$start = substr($start, 0, strpos($start, "/"));
+//	$start = 0;	
+} else {
+	$start = 0;	
+	$resumptionToken = "";	
+	foreach ($querystring as $rname => $rvalue) {
+		if (in_array($rname, $resumption_acceptable_vars)) {
+			$resumptionToken .= "&".$rname."=".$rvalue[0];				
+//			eval("$".$rname."=".$rvalue.";");
+		}
+	}
 }
+//echo $resumptionToken;
+//exit;
 $collection_pid = "";
 $order_by = "";
 
@@ -121,7 +151,7 @@ if (!empty($verb)) {
 				if ($identifier != "") {
 					if (preg_match("/^oai:[a-zA-Z][a-zA-Z0-9\-]*(\.[a-zA-Z][a-zA-Z0-9\-]+)+:[a-zA-Z0-9\-_\.!~\*'\(\);\/\?:\@\&=\+\$,\%]+$/", $originalIdentifier)) {
 						// then check the record exists
-						$list = OAI::ListRecords($set, $identifier, $pagerRow, $rows, $order_by, $from, $until, $setType);
+						$list = OAI::ListRecords($set, $identifier, $start, $rows, $order_by, $from, $until, $setType);
 						$list = $list["list"];
 						if (count($list) < 1) {
 							$errors["code"][] = "idDoesNotExist";
@@ -136,7 +166,7 @@ if (!empty($verb)) {
 				break;		
 			case "ListSets":
 				foreach ($querystring as $qname => $qvalue) {
-					if (!in_array($qname, $list_sets_acceptable_vars) || ($resumptionToken != "" && $qname == "metadataPrefix")) {
+					if (!in_array($qname, $list_sets_acceptable_vars) || ($OriginalResumptionToken != "" && $qname == "metadataPrefix")) {
 						$errors["code"][] = "badArgument";
 						$errors["message"][] = "Illegal argument: ".$qname;
 					}
@@ -149,7 +179,7 @@ if (!empty($verb)) {
 				if (count($errors) > 0) {
 					break;
 				}
-				$list = OAI::ListSets($pagerRow, $rows, $order_by, $from, $until);
+				$list = OAI::ListSets($start, $rows, $order_by, $from, $until);
 				$list_info = $list["info"];
 				$list = $list["list"];		
 				$tpl->assign("list", $list);
@@ -167,7 +197,7 @@ if (!empty($verb)) {
 					if ($metadataPrefix == "oai_dc") {
 						if ($identifier != "") {
 							if (preg_match("/^oai:[a-zA-Z][a-zA-Z0-9\-]*(\.[a-zA-Z][a-zA-Z0-9\-]+)+:[a-zA-Z0-9\-_\.!~\*'\(\);\/\?:\@\&=\+\$,\%]+$/", $originalIdentifier)) {
-								$list = OAI::ListRecords($set, $identifier, $pagerRow, $rows, $order_by, $from, $until, $setType);
+								$list = OAI::ListRecords($set, $identifier, $start, $rows, $order_by, $from, $until, $setType);
 								$list_info = $list["info"];
 								$list = $list["list"];
 								$tpl->assign("list", $list);
@@ -206,7 +236,7 @@ if (!empty($verb)) {
 				break;
 			case "ListIdentifiers":
 				foreach ($querystring as $qname => $qvalue)  {
-					if (!in_array($qname, $list_identifiers_acceptable_vars) || ($resumptionToken != "" && $qname == "metadataPrefix")) {
+					if (!in_array($qname, $list_identifiers_acceptable_vars) || ($originalResumptionToken != "" && $qname == "metadataPrefix")) {
 						$errors["code"][] = "badArgument";
 						$errors["message"][] = "Illegal argument: ".$qname;
 					}
@@ -217,7 +247,7 @@ if (!empty($verb)) {
 				if ($metadataPrefix != "") {
 					if ($metadataPrefix == "oai_dc") {
 						if (!empty($set)) {
-							if ((!Controlled_Vocab::exists($set) && $setType == "contvocab") || (($setType == "isMemberOf") && ($setObject->checkExists()))) {
+							if ((!Controlled_Vocab::exists($set) && $setType == "contvocab") || (($setType == "isMemberOf") && ((!$setObject->checkExists())) || (!$setObject->isCollection()))) {								
 								$errors["code"][] = "badArgument";
 								$errors["message"][] = "Invalid set parameter; unknown key (".set.")";
 								break;
@@ -236,7 +266,7 @@ if (!empty($verb)) {
 							}
 						}					
 						// probably first need to check that the set exists if not empty					
-						$list = OAI::ListRecords($set, $identifier, $pagerRow, $rows, $order_by, $from, $until, $setType);
+						$list = OAI::ListRecords($set, $identifier, $start, $rows, $order_by, $from, $until, $setType);
 						$list_info = $list["info"];
 						$list = $list["list"];		
 						$tpl->assign("list", $list);
@@ -257,7 +287,7 @@ if (!empty($verb)) {
 				break;					
 			case "ListRecords":
 				foreach ($querystring as $qname => $qvalue) {
-					if (!in_array($qname, $list_records_acceptable_vars) || ($resumptionToken != "" && $qname == "metadataPrefix")) {
+					if (!in_array($qname, $list_records_acceptable_vars) || ($originalResumptionToken != "" && $qname == "metadataPrefix")) {
 						$errors["code"][] = "badArgument";
 						$errors["message"][] = "Illegal argument: ".$qname;
 					}
@@ -268,7 +298,7 @@ if (!empty($verb)) {
 				if ($metadataPrefix != "") {
 					if ($metadataPrefix == "oai_dc") {
 						if (!empty($set)) {
-							if ((!Controlled_Vocab::exists($set) && $setType == "contvocab") || (($setType == "isMemberOf") && (!$setObject->isCollection()))) {
+							if ((!Controlled_Vocab::exists($set) && $setType == "contvocab") || (($setType == "isMemberOf") && ((!$setObject->checkExists())) || (!$setObject->isCollection()))) {
 								$errors["code"][] = "badArgument";
 								$errors["message"][] = "Invalid set parameter; unknown key (".$set.")";
 								break;
@@ -287,7 +317,7 @@ if (!empty($verb)) {
 							}
 						}					
 						// probably first need to check that the set exists if not empty
-						$list = OAI::ListRecords($set, $identifier, $pagerRow, $rows, $order_by, $from, $until, $setType);
+						$list = OAI::ListRecords($set, $identifier, $start, $rows, $order_by, $from, $until, $setType);
 						$list_info = $list["info"];
 						$list = $list["list"];		
 						$tpl->assign("list", $list);
@@ -327,12 +357,14 @@ if (count($errors) == 0) {
 		} 
 	}
 }
-$tpl->assign("pagerRow", $pagerRow);
+$tpl->assign("start", $start);
 $tpl->assign("rows", $rows);
 $tpl->assign("verb", $verb);
 $tpl->assign("app_pid_namespace", APP_PID_NAMESPACE);
 $tpl->assign("app_admin_email", APP_ADMIN_EMAIL);
 $tpl->assign("app_hostname", APP_HOSTNAME);
+$tpl->assign("resumptionToken", ($originalResumptionHash));
+$tpl->assign("resumptionHash", base64_encode($resumptionToken));
 $tpl->assign("metadataPrefix", $metadataPrefix);
 $tpl->assign("errorCount", count($errors["code"]));
 $tpl->assign("errors", $errors);

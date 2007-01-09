@@ -68,7 +68,7 @@ class OAI
      * @param   integer $max The maximum number of records to return	 
      * @return  array The list of records 
      */
-    function ListRecords($set, $identifier="", $current_row = 0, $max = 25, $order_by = 'Title', $from="", $until="", $setType)
+    function ListRecords($set, $identifier="", $current_row = 0, $max = 100, $order_by = 'Title', $from="", $until="", $setType)
     {
 		$from = str_replace("T", " ", $from);
 		$from = str_replace("Z", " ", $from);
@@ -78,7 +78,7 @@ class OAI
 		if ($max == "ALL") {
             $max = 9999999;
         }
-        $start = $current_row * $max;
+        $start = $current_row;
 
         // this query broken into pieces to try and get some speed.
 
@@ -100,6 +100,7 @@ class OAI
 		$createdDateList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Created Date');		
 		$statusList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Status');		
 		$displayTypeList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Display Type');				
+		$objectTypeList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Object Type');
 		$order_byList = XSD_HTML_Match::getXSDMF_IDsBySekTitle($order_by);				
 		$sql_filter = array();
 		$sql_filter['where'] = "";
@@ -124,7 +125,13 @@ class OAI
                     INNER JOIN {$dbtp}record_matching_field AS r3
                       ON r3.rmf_rec_pid_num = r2.rmf_rec_pid_num and r3.rmf_rec_pid = r2.rmf_rec_pid and r3.rmf_xsdmf_id in 
 					 (".implode(",", $statusList).")
-                      and r3.rmf_int=2 $joinStmt
+                      and r3.rmf_int=2 
+		           INNER JOIN {$dbtp}record_matching_field AS r4
+                      ON r4.rmf_rec_pid_num = r2.rmf_rec_pid_num and r4.rmf_rec_pid = r2.rmf_rec_pid and r4.rmf_xsdmf_id in 
+					 (".implode(",", $objectTypeList).")
+                      and r4.rmf_int=3
+        
+                     $joinStmt
 
 
                     $authStmt				
@@ -342,13 +349,13 @@ class OAI
      *
      * @access  public
      * @param   string $community_pid The parent community to get the collections from, if not set then all collection will be returned. 	 	 
-     * @param   integer $current_row The point in the returned results to start from.
+     * @param   integer $start The point in the returned results to start from.
      * @param   integer $max The maximum number of records to return
      * @return  array The list of collections
      */
-    function ListSets($current_row = 0, $max = 100, $order_by="Created Date")
+    function ListSets($start = 0, $max = 100, $order_by="Created Date")
     {
-    	$list = Controlled_Vocab::getChildListAll($current_row, $max);
+    	$list = Controlled_Vocab::getChildListAll($start, $max);
     	foreach ($list as $lid => $lvalue) {
     		$list[$lid]["cvo_title"] = htmlspecialchars($list[$lid]["cvo_title"]);
     	}
