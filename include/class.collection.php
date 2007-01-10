@@ -492,11 +492,17 @@ class Collection
 			if (!empty($result['sort_column']) && empty($return[$result['rmf_rec_pid']]['sort_column'])) {
                 $return[$result['rmf_rec_pid']]['sort_column'] = $result['sort_column'];
 			}
+            if (!empty($result['day_name']) && empty($return[$result['rmf_rec_pid']]['day_name'])) {
+                $return[$result['rmf_rec_pid']]['day_name'] = $result['day_name'];
+            }
 			if ($result['sek_title'] == 'isMemberOf') {
                 $return[$result['rmf_rec_pid']]['isMemberOf'][] = $result['rmf_varchar'];
 			}			
 			if (($result['sek_title'] == 'Created Date' || $result['sek_title'] == 'Updated Date') && !(empty($result['rmf_date']))) {
-                $result['rmf_date'] = Date_API::getFormattedDate($result['rmf_date']);
+                // This gets the date as a unix timestamp but converted to the users timezone.  
+                // The smarty templates should do the conversion to human readable dates but smarty needs to also be able to run the
+                // the dates through the |date_format modifier and unix timestamp is the easiest format for it to parse. 
+                $result['rmf_date'] = Date_API::getUnixTimestamp($result['rmf_date']);
             }
 			
 						
@@ -1129,10 +1135,12 @@ class Collection
 			$restrictSQL = "AND match(r".$termCounter.".rmf_".$search_data_type.") against ('".$terms."')";
 		} elseif ($searchKey == "Created Date") {
 			$search_data_type = "date";
-			$restrictSQL = "AND DATE_SUB(CURDATE(), INTERVAL 6 DAY) < r".$termCounter.".rmf_".$search_data_type."";
-			$extra = ", DAYNAME(display.preorder) as day_name";		
+            $default_tz = Misc::MySQLTZ(APP_DEFAULT_TIMEZONE);
+            $user_tz = Misc::MySQLTZ(Date_API::getPreferredTimezone());
+			$restrictSQL = "AND DATE_SUB(UTC_DATE(), INTERVAL 6 DAY) < r".$termCounter.".rmf_date";
+			$extra = ", DAYNAME(convert_tz(display.preorder,'$default_tz','$user_tz')) as day_name";		
 //			$extra_order =  "r".$termCounter.".rmf_".$search_data_type.", ";
-			$subqueryExtra = ", r".$termCounter.".rmf_".$search_data_type." as preorder";
+			$subqueryExtra = ", r".$termCounter.".rmf_date as preorder";
 			$extra_order =  "date(display.preorder) DESC, ";
             $order_dir = " DESC ";
 			$joinNum = 5;
@@ -1140,7 +1148,7 @@ class Collection
             if ($order_by == 'Created Date') {
 /*                $order_dir = " DESC ";
 				$internal_extra_order =  "preorder desc, ";*/
-				$extra = ", DAYNAME(display.sort_column) as day_name";		
+				$extra = ", DAYNAME(convert_tz(display.sort_column,'$default_tz','$user_tz')) as day_name";		
 				$extra_order = "";
 				$subqueryExtra = "";
 				$internal_extra_order = ""; 
@@ -1301,13 +1309,14 @@ if ($order_by == 'File Downloads') {
 
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 
-//		echo $stmt; //return array();
+		//echo $stmt; //return array();
 		$securityfields = Auth::getAllRoles();
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
 
+            //print_r($res);
 			$return = array();
 			$return = Collection::makeReturnList($res);
 

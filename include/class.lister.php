@@ -163,6 +163,7 @@ class Lister
                 $order_by = 'Created Date';
             }
             $list = Collection::browseListing($pagerRow, $rows, "Created Date",$order_by);
+            print_r($list);
             $list_info = $list["info"];
             $list = $list["list"];
             $tpl->assign("browse_type", "browse_latest");

@@ -181,15 +181,15 @@ function selectSearchSuggestor(f, field_name)
                 {/if}
 			{if $list[i].created_date} 
 					{if ($list[i].created_date.0|date_format:"%Y-%m-%d") != $today}
-						{if (($list[i].created_date.0|date_format:"%A") != $day_name && ($list[i].created_date.0|date_format:"%Y-%m-%d") != $yesterday) || (($list[i].created_date.0|date_format:"%Y-%m-%d") == $yesterday && $day_name != "Yesterday")}
-							{if ($list[i].created_date.0|date_format:"%A") == $today_day_name}
-								{assign var="day_name_pre" value=$list[i].created_date.0|date_format:"%A"}
+						{if (($list[i].day_name) != $day_name && ($list[i].created_date.0|date_format:"%Y-%m-%d") != $yesterday) || (($list[i].created_date.0|date_format:"%Y-%m-%d") == $yesterday && $day_name != "Yesterday")}
+							{if ($list[i].day_name) == $today_day_name}
+								{assign var="day_name_pre" value=$list[i].day_name}
 								{assign var="day_name" value=$last|cat:$day_name_pre}
 							{else}
 								{if ($list[i].created_date.0|date_format:"%Y-%m-%d") == $yesterday}								
 									{assign var="day_name" value="Yesterday"}		
 								{else}
-									{assign var="day_name" value=$list[i].created_date.0|date_format:"%A"}							
+									{assign var="day_name" value=$list[i].day_name}							
 								{/if}
 							{/if}
 		  <tr>

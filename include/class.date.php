@@ -43,15 +43,17 @@
  * @author João Prado Maia <jpm@mysql.com>
  */
 
-// this line needed to make sure PEAR knows all eventum dates are stored as UTC (GMT).
-$_DATE_TIMEZONE_DEFAULT = 'UTC';
+// this line needed to make sure PEAR knows all Fez dates are stored as UTC (GMT).
+// We need to do this before including Pear/Date.php so that it gets the timezone thing right!
+if (!defined('APP_DEFAULT_TIMEZONE')) {
+    define('APP_DEFAULT_TIMEZONE', 'UTC');                                                        
+}
+$GLOBALS['_DATE_TIMEZONE_DEFAULT'] = APP_DEFAULT_TIMEZONE;
+
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.prefs.php");
 include_once(APP_PEAR_PATH . "Date.php");
 
-if (!defined('APP_DEFAULT_TIMEZONE')) {
-    define('APP_DEFAULT_TIMEZONE', 'UTC');                                                        
-}
 define("SECOND", 1);
 define("MINUTE", SECOND * 60);
 define("HOUR", MINUTE * 60);
@@ -176,7 +178,7 @@ class Date_API
      */
     function getUnixTimestamp($timestamp, $timezone = FALSE)
     {
-        if (!$timezone) {
+        if (empty($timezone)) {
             $timezone = Date_API::getPreferredTimezone();
         }
         $date = new Date($timestamp);
@@ -285,6 +287,8 @@ class Date_API
 		
         return $date->format('%Y-%m-%dT%H:%M:%SZ');
     }
+    
+    
     /**
      * Method used to get the formatted date for Fedora in UTC
      *      
@@ -330,6 +334,15 @@ class Date_API
         $date->convertTZById($timezone);
         return $date->format('%d %b %Y');
     }
+    
+    function getSimpleDateTime($timestamp)
+    {
+        $timezone = Date_API::getPreferredTimezone();
+        $date = new Date($timestamp);
+        // now convert to another timezone and return the date
+        $date->convertTZById($timezone);
+        return $date->format('%d %b %Y %H:%M:%S');
+    }
 
 
     /**
@@ -350,7 +363,7 @@ class Date_API
 		
         $prefs = Prefs::get($usr_id);
         if (empty($prefs["timezone"])) {
-            return Date_API::getDefaultTimezone();
+            return APP_DEFAULT_USER_TIMEZONE;
         } else {
             return $prefs["timezone"];
         }

@@ -2416,6 +2416,27 @@ function backtrace()
         }
         return @$errs[$e];
     }
+    
+    function MySQLTZ($s)
+    {
+        $tz = new Date_TimeZone($s);
+        $offset = intval($tz->getRawOffset() / 60000 + 0.5);  // discard the seconds and milliseconds part
+        if ($offset >= 0) {
+            $sign = '+';
+        } else {
+            $sign = '';
+        }
+        return sprintf("%s%02d:%02d", $sign, intval($offset / 60), abs($offset % 60) ); 
+        
+    } 
+    
+    function endsWith($haystack, $needle) 
+    {
+        if (strrpos($haystack, $needle) == (strlen($haystack) - strlen($needle)) ) {
+            return true;
+        }
+        return false;
+    }
   
 } // end of Misc class
 
