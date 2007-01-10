@@ -1406,7 +1406,7 @@ class BatchImport
         $xsd_top_element_name = $xsd_details['xsd_top_element_name'];
         $datastreamTitles = XSD_Loop_Subelement::getDatastreamTitles($xdis_id);
         $parent_pid = $collection_pid;
-        $dir_name = APP_SAN_IMPORT_DIR."/".$directory;
+        $dir_name = APP_SAN_IMPORT_DIR.$directory;
         $directory_h = opendir($dir_name);
         while (false !== ($file = readdir($directory_h))) { 
             if (is_file($dir_name."/".$file)) {

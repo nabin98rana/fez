@@ -57,7 +57,7 @@ if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) 
 		$deleteCommand = APP_DELETE_CMD." ".$presmd_file;
 		exec($deleteCommand." 2>&1");
 	}
-	$APP_JHOVE_CMD = APP_JHOVE_DIR.'/jhove -h xml -o '.$presmd_file;
+	$APP_JHOVE_CMD = APP_JHOVE_DIR.'jhove -h xml -o '.$presmd_file;
 	if (is_numeric(strpos($file, " "))) {
 		$APP_JHOVE_CMD .= ' \"'.$file_dir.'/'.$file.'\"';
 	} else {

@@ -293,6 +293,14 @@ function getTableList($conn)
     return $tables;
 }
 
+function endsWith($haystack, $needle) 
+{
+    if (strrpos($haystack, $needle) == (strlen($haystack) - strlen($needle)) ) {
+        return true;
+    }
+    return false;
+}
+
 function install()
 {
     global $HTTP_POST_VARS;
@@ -433,14 +441,22 @@ $stmt = $contents;
     $config_contents = str_replace("%{APP_SHORT_ORG_NAME}%", $HTTP_POST_VARS['short_org'], $config_contents);
     $config_contents = str_replace("%{APP_NAME}%", $HTTP_POST_VARS['app_name'], $config_contents);		
     $config_contents = str_replace("%{APP_ADMIN_EMAIL}%", $HTTP_POST_VARS['app_admin_email'], $config_contents);		    
-    $config_contents = str_replace("%{APP_PATH}%", $HTTP_POST_VARS['path'], $config_contents);
+    $app_path = trim($HTTP_POST_VARS['path']);
+    if (!endsWith($app_path, '/')) {
+        $app_path .= '/';
+    }
+    $config_contents = str_replace("%{APP_PATH}%", $app_path, $config_contents);
     $config_contents = str_replace("%{APP_SQL_DBHOST}%", $HTTP_POST_VARS['db_hostname'], $config_contents);
     $config_contents = str_replace("%{APP_SQL_DBNAME}%", $HTTP_POST_VARS['db_name'], $config_contents);
     $config_contents = str_replace("%{APP_SQL_DBUSER}%", $HTTP_POST_VARS['db_username'], $config_contents);
     $config_contents = str_replace("%{APP_SQL_DBPASS}%", $HTTP_POST_VARS['db_password'], $config_contents);
     $config_contents = str_replace("%{APP_TABLE_PREFIX}%", $HTTP_POST_VARS['db_table_prefix'], $config_contents);
     $config_contents = str_replace("%{APP_HOSTNAME}%", $HTTP_POST_VARS['hostname'], $config_contents);
-    $config_contents = str_replace("%{APP_RELATIVE_URL}%", $HTTP_POST_VARS['relative_url'], $config_contents);
+    $rel_url = trim($HTTP_POST_VARS['relative_url']);
+    if (!endsWith($rel_url, '/')) {
+        $rel_url .= '/';
+    }
+    $config_contents = str_replace("%{APP_RELATIVE_URL}%", $rel_url, $config_contents);
     if (@$HTTP_POST_VARS['is_ssl'] == 'yes') {
         $protocol_type = 'https://';
 		$app_https = "ON";

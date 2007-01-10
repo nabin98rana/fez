@@ -98,7 +98,7 @@ if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Serve
 	@define("APP_CONVERT_CMD", "c:/ImageMagick/convert.exe");   // To convert image (part of ImageMagick)
 	@define("APP_COMPOSITE_CMD", "c:/ImageMagick/composite.exe");   // To watermark image (part of ImageMagick)
 	@define("APP_IDENTIFY_CMD", "c:/ImageMagick/identify.exe"); // To get image information (part of ImageMagick)
-	@define("APP_JHOVE_DIR", "c:/jhove");
+	@define("APP_JHOVE_DIR", "c:/jhove/");
 	@define("APP_JHOVE_TEMP_DIR", 'c:\temp/'); // jhove needs windows style dir names when run on a win server
     ini_set("include_path", ".;" . APP_PEAR_PATH);
     @define("APP_DOT_EXEC", "\"C:/Program Files/ATT/Graphviz/bin/dot.exe\"");
@@ -112,7 +112,7 @@ if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Serve
 	@define("APP_COMPOSITE_CMD", "/usr/bin/composite");   // To watermark image (part of ImageMagick)
 	//@define("APP_CONVERT_CMD", "/usr/X11R6/bin/convert");   // convert could be in here for some Linux distros
 	@define("APP_IDENTIFY_CMD", "/usr/bin/identify"); // To get image information (part of ImageMagick)
-	@define("APP_JHOVE_DIR", "/usr/local/jhove");
+	@define("APP_JHOVE_DIR", "/usr/local/jhove/");
 	@define("APP_JHOVE_TEMP_DIR", APP_TEMP_DIR);
     ini_set("include_path", ".:" . APP_PEAR_PATH);
     @define("APP_DOT_EXEC", "/usr/local/bin/dot");

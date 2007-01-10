@@ -33,6 +33,11 @@ Move @define(APP_HOSTNAME... to the top of the config file.
 // definitions of Organisation Shibboleth related variables. You may need to query your Org's Shibboleth expert for help on these settings.
 @define("SHIB_HOME_IDP", SHIB_FEDERATION."idp.yourinst.edu");  // Change this to the urn of your home instituition IDP
 
+// Make sure APP_JHOVE_DIR has a trailing slash (Fez 1.2 used these without a trailing slash)
+@define("APP_JHOVE_DIR", "/usr/local/jhove/");
+
+// default San import dir to just be the temp path
+@define("APP_SAN_IMPORT_DIR", APP_TEMP_DIR);
 
 *** All of the following are New Variables
 
@@ -45,9 +50,9 @@ Move @define(APP_HOSTNAME... to the top of the config file.
 
 // Web server log files used for statistics scheduled tasks / cron jobs nightly statistics gathering
 @define("WEBSERVER_LOG_STATISTICS", "OFF");
-@define("WEBSERVER_CONFIG_PATH", "/usr/local/apache/api/fez/"); // the path for files that should be below the document root eg configs, geoip data
 @define("WEBSERVER_LOG_DIR", "/usr/local/apache/logs/");
 @define("WEBSERVER_LOG_FILE", "access_log"); //change to the name of your fez access log if different
+@define("APP_GEOIP_PATH", "/usr/local/apache/api/fez/"); // the path for files that should be below the document root eg configs, geoip data
 
 // whether you want users to be able to create their own fez accounts - not necessary for LDAP/AD/Shibboleth enabled sites
 @define("SELF_REGISTRATION", "OFF");

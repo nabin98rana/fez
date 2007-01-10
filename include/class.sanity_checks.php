@@ -140,7 +140,7 @@
             $results = array_merge($results, SanityChecks::checkDir('WEBSERVER_LOG_DIR', WEBSERVER_LOG_DIR));
             $results = array_merge($results, SanityChecks::checkFile('WEBSERVER_LOG_DIR.WEBSERVER_LOG_FILE', WEBSERVER_LOG_DIR . WEBSERVER_LOG_FILE));
         }
-        $results = array_merge($results, SanityChecks::checkDir('APP_PATH/templates_c', APP_PATH."templates_c", true));
+        $results = array_merge($results, SanityChecks::checkDir('APP_PATH/templates_c', APP_PATH."templates_c/", true));
         if (APP_REPORT_ERROR_FILE) {
         	$results = array_merge($results, SanityChecks::checkFile('APP_ERROR_LOG', APP_ERROR_LOG, true));
         }
@@ -158,10 +158,10 @@
         $results = array_merge($results, SanityChecks::checkDir("APP_JHOVE_TEMP_DIR", APP_JHOVE_TEMP_DIR, true));
         if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
             $results = array_merge($results, SanityChecks::checkFile('APP_JHOVE_DIR/jhove.bat',
-                APP_JHOVE_DIR."/jhove.bat", false, true));
+                APP_JHOVE_DIR."jhove.bat", false, true));
         } else {
         	$results = array_merge($results, SanityChecks::checkFile('APP_JHOVE_DIR/jhove',
-                APP_JHOVE_DIR."/jhove", false, true));
+                APP_JHOVE_DIR."jhove", false, true));
         }
         if (SanityChecks::resultsClean($results)) {
         	// if all the other checks have passed, we should be able to run jhove on a file
@@ -468,8 +468,11 @@
 
     function checkDir($configDefine, $value, $writable = false)
     {
+        if (!Misc::endsWith($value, '/')) {
+            return array(new ConfigResult('Directory', $configDefine, $value, "The directory name should have a trailing slash."));
+        }
         if (!is_dir($value)) {
-            return array(new ConfigResult('Directory', $configDefine, $value, "Failed is_dir"));
+            return array(new ConfigResult('Directory', $configDefine, $value, "This is not a directory, check that it isn't a file."));
         }
         $dh = @opendir($value);
         if (!$dh) {
