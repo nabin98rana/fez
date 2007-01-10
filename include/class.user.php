@@ -379,7 +379,24 @@ class User
         }
     }
 
+    function remove()
+    {
+        global $HTTP_POST_VARS;
 
+        $items = @implode(", ", $HTTP_POST_VARS["items"]);
+        $stmt = "DELETE FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                 WHERE
+                    usr_id IN ($items)";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return false;
+        } else {
+            return true;
+        }
+    }
+    
     /**
      * Method used to update the account password for a specific user.
      *

@@ -69,8 +69,10 @@ if ($isAdministrator) {
         $tpl->assign("result", User::insert());
     } elseif (@$HTTP_POST_VARS["cat"] == "update") {
         $tpl->assign("result", User::update());
-    } elseif (@$HTTP_POST_VARS["cat"] == "change_status") {
+    } elseif (@$HTTP_POST_VARS["cat"] == "change_status" && empty($HTTP_POST_VARS["delete"])) {
         User::changeStatus();
+    } elseif (!empty($HTTP_POST_VARS["delete"])) {
+        User::remove();
     }
 
     if (@$HTTP_GET_VARS["cat"] == "edit") {

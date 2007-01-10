@@ -1,59 +1,36 @@
-
-      <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
-        <tr>
-          <td>
-            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
               {literal}
               <script language="JavaScript">
               <!--
               function validateForm(f)
               {
                   if (isWhitespace(f.username.value)) {
-                      alert('Please enter the username of this user.');
-                      selectField(f, 'username');
-                      return false;
+                      errors[errors.length] = new Option('Username', 'username');
                   }
                   if (isWhitespace(f.email.value)) {
-                      alert('Please enter the email of this user.');
-                      selectField(f, 'email');
-                      return false;
-                  }
-                  if (!isEmail(f.email.value)) {
-                      alert('Please enter a valid email address.');
-                      selectField(f, 'email');
-                      return false;
+                      errors[errors.length] = new Option('E-mail', 'email');
+                  } else if (!isEmail(f.email.value)) {
+                      errors[errors.length] = new Option('E-mail', 'email');
                   }
                   if (isWhitespace(f.full_name.value)) {
-                      alert('Please enter the full name of this user.');
-                      selectField(f, 'full_name');
-                      return false;
+                      errors[errors.length] = new Option('Full Name','full_name');
                   }
 				{/literal}
 				{if $smarty.get.cat == 'edit'}
 					{literal}
                   if ((f.change_password.checked) && (isWhitespace(f.password.value))) {
-                      alert('If you are changing the user password you must enter a password for the user.');
-                      selectField(f, 'password');
-                      return false;
+                      errors[errors.length] = new Option('Password', 'password');
                   }
 					{/literal}
-				{else}
+				{elseif $smarty.const.APP_LDAP_SWITCH == 'ON'}
 					{literal}
                 if (isWhitespace(f.password.value)) {
-					  alert('Please choose a password.');
-					  selectField(f, 'password');
-					  return false;
-				}
-				if (f.password.value.length < 8) {
-				  alert('Please choose a password with at least 8 characters.');
-				  selectField(f, 'password');
-				  return false;
+                      errors[errors.length] = new Option('Password', 'password');
+                } else if (f.password.value.length < 8) {
+                      errors[errors.length] = new Option('Password', 'password');
 				}
 					{/literal}
 				{/if}
 				{literal}
-
-                  return true;
               }
               function togglePasswordText()
               {
@@ -108,7 +85,12 @@
               //-->
               </script>
               {/literal}              
-              <form name="user_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}">
+
+      <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+        <tr>
+          <td>
+            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+              <form name="user_form" onSubmit="javascript:return checkFormSubmission(this, 'validateForm');" method="post" action="{$smarty.server.PHP_SELF}">
               {if $smarty.get.cat == 'edit'}
               <input type="hidden" name="cat" value="update">
               <input type="hidden" name="id" value="{$smarty.get.id}">
@@ -141,7 +123,7 @@
               {/if}
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default">
-                  <b>Username:</b>
+                  <b>Username: *</b>
                 </td>
                 <td bgcolor="{$light_color}">
                   <input type="text" name="username" size="40" class="default" value="{$info.usr_username}">
@@ -150,7 +132,7 @@
               </tr>
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default">
-                  <b>E-mail:</b>
+                  <b>E-mail: *</b>
                 </td>
                 <td bgcolor="{$light_color}">
                   <input type="text" name="email" size="40" class="default" value="{$info.usr_email}">
@@ -159,7 +141,7 @@
               </tr>
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default">
-                  <b>Full Name:</b>
+                  <b>Full Name: *</b>
                 </td>
                 <td bgcolor="{$light_color}">
                   <input type="text" name="full_name" size="40" class="default" value="{$info.usr_full_name}">
@@ -198,7 +180,7 @@
               </tr>
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default">
-                  <b>Internal System Groups: *</b>
+                  <b>Internal System Groups:</b>
                 </td>
                 <td bgcolor="{$light_color}" width="80%">
                   <select name="groups[]" multiple size="10" class="default">
@@ -256,6 +238,19 @@
                   {literal}
                   function checkDelete(f)
                   {
+                      if (!hasOneChecked(f, 'items[]')) {
+                          alert('Please select at least one of the users.');
+                          return false;
+                      }
+                      if (!confirm('This action will delete the selected users.')) {
+                          return false;
+                      } else {
+                          return true;
+                      }
+                  }
+
+                  function checkChange(f)
+                  {
                       var total_selected = getTotalCheckboxesChecked(f, 'items[]');
                       var total = getTotalCheckboxes(f, 'items[]');
                       if (getSelectedOption(f, 'status') == 'inactive') {
@@ -282,7 +277,7 @@
                   </script>
                   {/literal}
                   <table border="0" width="100%" cellpadding="1" cellspacing="1">
-                    <form name="change_status_form" onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
+                    <form name="change_status_form" method="post" action="{$smarty.server.PHP_SELF}">
                     <input type="hidden" name="cat" value="change_status">
                     <tr>
                       <td bgcolor="{$cell_color}" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
@@ -369,7 +364,8 @@
                           <tr>
                             <td>
                               <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
-                              <input type="submit" value="Update Status &gt;&gt;" class="button">
+                              <input type="submit" name = "delete" value="Delete" class="button" onclick="return checkDelete(this.form)">
+                              <input type="submit" value="Update Status &gt;&gt;" class="button" onclick="return checkChange(this.form)">
                               <select name="status" class="default">
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
