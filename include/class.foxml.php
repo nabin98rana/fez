@@ -27,7 +27,10 @@ class Foxml
         global $HTTP_POST_VARS;
    		$loop_count = 0;
 		$full_attached_attribute = "";
-//		echo "attrib_value = $attrib_value and XSDMF = $xsdmf_id AND ID REF = ".$xsdmf_details_ref['xsdmf_id']." AND attrib loop ID = ".$attrib_loop_index."<br />\n";
+        // The attrib value is escaped for XML generically at the end of this function.  Use the following flag
+        // if there is some special case for the escaping
+        $escaped_attrib_value = false;
+        // echo "attrib_value = $attrib_value and XSDMF = $xsdmf_id AND ID REF = ".$xsdmf_details_ref['xsdmf_id']." AND attrib loop ID = ".$attrib_loop_index."<br />\n";
         if ($xsdmf_details['xsdmf_html_input'] == 'xsdmf_id_ref') { 
             // value is a reference that we have to look up
             if (is_numeric($attrib_loop_index) 
@@ -165,8 +168,9 @@ class Foxml
                                 } else {
                                     $attrib_value .= "/>\n";
                                 }
-                                $attrib_value .= Misc::addPrefix($multiple_element,
-                                        $xsdmf_details['xsdmf_value_prefix']);
+                                $attrib_value .= htmlspecialchars(Misc::addPrefix($multiple_element,
+                                        $xsdmf_details['xsdmf_value_prefix']));
+                                $escaped_attrib_value = true;
                                 array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], 
                                             $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], 
                                             Misc::addPrefix($multiple_element, $xsdmf_details['xsdmf_value_prefix'])));
@@ -175,6 +179,10 @@ class Foxml
                     }
                 }
             }
+        }
+        if (!$escaped_attrib_value) {
+            $attrib_value = htmlspecialchars($attrib_value);
+            $escaped_attrib_value = true;
         }
     }
 

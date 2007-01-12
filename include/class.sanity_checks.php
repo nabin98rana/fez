@@ -66,6 +66,7 @@
         $results = array_merge($results, SanityChecks::fedora());
         $results = array_merge($results, SanityChecks::sql());
         $results = array_merge($results, SanityChecks::pdftotext());
+        $results = array_merge($results, SanityChecks::stats());
         if (SanityChecks::resultsClean($results)) {
             $results[] = ConfigResult::messageOk('All tests Passed');
         }
@@ -118,11 +119,15 @@
         }
         $mem = Misc::convertSize(ini_get('upload_max_filesize'));
         if ($mem > 0 && $mem < 10485760) {
-            $results[] = new ConfigResult('PHP extensions', 'upload_max_filesize',$mem, "The 'upload_max_filesize' directive " .
+            $results[] = new ConfigResult('php.ini', 'upload_max_filesize',$mem, "The 'upload_max_filesize' directive " .
                     "should be set higher than 10M in your PHP.INI file in order for Fez to work properly. " .
                     "This depends somewhat on the size of files that Fez should be handling. ");
         }
-
+        $post_max_size = Misc::convertSize(ini_get('post_max_size'));
+        if ($post_max_size > 0 && $post_max_size < $mem) {
+            $results[] = new ConfigResult('php.ini', 'post_max_size',$post_max_size, "The post_max_size setting must be " .
+                    "equal or greater than the upload_max_filesize parameter.");
+        }
 
         if (SanityChecks::resultsClean($results)) {
             $results[] = ConfigResult::messageOk('Testing PHP extensions');
@@ -135,11 +140,6 @@
     	$results = array(ConfigResult::message('Testing general directories'));
     	$results = array_merge($results, SanityChecks::checkDir('APP_TEMP_DIR', APP_TEMP_DIR, true));
         $results = array_merge($results, SanityChecks::checkDir('APP_SAN_IMPORT_DIR', APP_SAN_IMPORT_DIR));
-        if (WEBSERVER_LOG_STATISTICS == "ON") {
-            $results = array_merge($results, SanityChecks::checkDir('APP_GEOIP_PATH', APP_GEOIP_PATH));
-            $results = array_merge($results, SanityChecks::checkDir('WEBSERVER_LOG_DIR', WEBSERVER_LOG_DIR));
-            $results = array_merge($results, SanityChecks::checkFile('WEBSERVER_LOG_DIR.WEBSERVER_LOG_FILE', WEBSERVER_LOG_DIR . WEBSERVER_LOG_FILE));
-        }
         $results = array_merge($results, SanityChecks::checkDir('APP_PATH/templates_c', APP_PATH."templates_c/", true));
         if (APP_REPORT_ERROR_FILE) {
         	$results = array_merge($results, SanityChecks::checkFile('APP_ERROR_LOG', APP_ERROR_LOG, true));
@@ -149,6 +149,37 @@
         }
         return $results;
     }
+    
+    function stats() {
+        if (WEBSERVER_LOG_STATISTICS == "ON") {
+            $results = array(ConfigResult::message('Testing Stats Setup'));
+            $results = array_merge($results, SanityChecks::checkDir('APP_GEOIP_PATH', APP_GEOIP_PATH));
+            $results = array_merge($results, SanityChecks::checkDir('WEBSERVER_LOG_DIR', WEBSERVER_LOG_DIR));
+            $results = array_merge($results, SanityChecks::checkFile('WEBSERVER_LOG_DIR.WEBSERVER_LOG_FILE', WEBSERVER_LOG_DIR . WEBSERVER_LOG_FILE));
+            if (SanityChecks::resultsClean($results)) {
+            $logf = WEBSERVER_LOG_DIR . WEBSERVER_LOG_FILE;
+            $archive_name = APP_HOSTNAME;
+            $handle = fopen($logf, "r");
+            $found_match = false;
+            while (!feof($handle)) {
+                $buffer = fgets($handle, 4096);
+                if (preg_match("/^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) - - \[(.*?)\] \"GET ".preg_quote(APP_RELATIVE_URL,'/')."\/?\S* HTTP\/1..\" 200 .*/i",$buffer,$matches)) {
+                    $found_match = true;
+                    break;
+                }
+            }
+            fclose($handle);
+            if (!$found_match) {
+               $results[] = new ConfigResult('Stats', '', '', 'The apache logfile didn\'t match the expected format. ' .
+                    'The format should be \'combined\'.  See \'Download Statistics setup\' in the Fez Wiki');
+            }
+            }
+            return $results;
+        } else {
+            return array();
+        }
+    }
+
 
     function jhove()
     {

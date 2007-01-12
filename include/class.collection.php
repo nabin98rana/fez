@@ -1865,6 +1865,7 @@ if ($order_by == 'File Downloads') {
             ORDER BY $order_by ";
 
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        //Error_Handler::logError($stmt,__FILE__,__LINE__);
 		$return = array();
 		$return = Collection::makeReturnList($res);
         $return = Collection::makeSecurityReturnList($return);

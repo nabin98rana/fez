@@ -155,6 +155,11 @@ class Community
         $start = $current_row * $max;
         $sekdet = Search_Key::getDetailsByTitle($order_by);
         $data_type = $sekdet['xsdmf_data_type'];
+        if (!$data_type) {
+            $order_by = "Title";
+            $sekdet = Search_Key::getDetailsByTitle($order_by);
+            $data_type = $sekdet['xsdmf_data_type'];
+        }
         $authStmts = Collection::getAuthIndexStmt(array("Lister","Viewer","Creator","Editor"));
 		$authStmt = $authStmts['authStmt'];
         $joinStmt = $authStmts['joinStmt'];

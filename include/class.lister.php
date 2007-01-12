@@ -280,8 +280,20 @@ class Lister
             $tpl->assign("list_heading", "List of Communities");
         }
         $order_by_list = array();
-        foreach (Search_Key::getAssocListAdvanced() as $key => $value) {
-            $order_by_list[$value] = $value;
+        if (!empty($community_pid)) {
+            $order_by_list = array(
+                'Title' => 'Title',
+                'Description' => 'Description'
+            );
+        } elseif (empty($community_pid) && empty($collection_pid) && empty($cat) && empty($browse)) {
+            $order_by_list = array(
+                'Title' => 'Title',
+                'Description' => 'Description'
+            );
+        } else {
+            foreach (Search_Key::getAssocListAdvanced() as $key => $value) {
+                $order_by_list[$value] = $value;
+            }
         }
         if (!empty($terms) || $cat == 'search') {
             $order_by_list['Relevance'] = "Search Relevance";
