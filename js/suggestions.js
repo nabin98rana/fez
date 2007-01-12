@@ -27,23 +27,70 @@ function StateSuggestions(class_name, show_all, include_name) {
  * @param oAutoSuggestControl The autosuggest control to provide suggestions for.
  */
 StateSuggestions.prototype.requestSuggestions = function (oAutoSuggestControl /*:AutoSuggestControl*/,
-                                                          bTypeAhead /*:boolean*/) {
+        bTypeAhead /*:boolean*/       
+        ) {
 
-	var aSuggestions = [];
-    var sTextboxValue = oAutoSuggestControl.textbox.value;
+    // debounce the keypresses so we don't do a search for everykeypress - just when the user stops typing
+    date1 = new Date();
+    this.keyTime = date1.getTime();
+    oSuggestor = this;
+    oAutoSuggestControl_local = oAutoSuggestControl;
+    bTypeAhead_local = bTypeAhead;
+    setTimeout("oSuggestor.requestSuggestions2(oAutoSuggestControl_local,bTypeAhead_local)",500);
+};
 
-    if (sTextboxValue.length > 0){
-        if (this.mutex++ > 0) {
-            najax.getXmlHttp().abort();
-        }
-        oSuggestor = this;
-        this.sugg.getSuggestion(sTextboxValue, function(suggest_list) {				
-				aSuggestions = suggest_list;
-                oSuggestor.mutex--;
-                //provide suggestions to the control
-                oAutoSuggestControl.autosuggest(aSuggestions, false);
-                });
+
+StateSuggestions.prototype.requestSuggestions2 = function (oAutoSuggestControl /*:AutoSuggestControl*/,
+        bTypeAhead /*:boolean*/
+        ) {
+
+    // Don't do search until user has stopped typing.
+    date1 = new Date();
+    keydelay = date1.getTime() - this.keyTime;
+    if (keydelay < 500) {
+      return;
     }
+    // only do one search
+    if (this.mutex++ > 0) {
+        this.mutex--;
+        return;
+    }
+    var aSuggestions = [];
+    var sTextboxValue = oAutoSuggestControl.textbox.value;
+    var sTextboxName = oAutoSuggestControl.textbox.name;
+
+    s = document.getElementById(sTextboxName+'_searching');
+    if (s) {
+        s.style.display = '';
+    }
+    oSuggestor = this;
+    this.sugg.onGetSuggestionError = function() {
+        oAutoSuggestControl_local = oAutoSuggestControl;
+        bTypeAhead_local = bTypeAhead;
+        s = document.getElementById(sTextboxName+'_searching');
+        if (s) {
+            s.style.display = 'none';
+        }
+        // retry a few times
+        if (oSuggestor.err_count++ < 3) {
+            setTimeout("oSuggestor.requestSuggestions2(oAutoSuggestControl_local,bTypeAhead_local)",500);
+        } else {
+            oSuggestor.err_count = 0;
+        }
+        oSuggestor.mutex--;
+    }
+    this.sugg.getSuggestion(sTextboxValue, function(suggest_list) {
+            s = document.getElementById(sTextboxName+'_searching');
+            if (s) {
+              s.style.display = 'none';
+            }
+            aSuggestions = suggest_list;
+            //provide suggestions to the control
+            // never allow type ahead as we are suggesting using a search that 
+            // might match partway through a string
+            oAutoSuggestControl.autosuggest(aSuggestions, false);
+            oSuggestor.mutex--;
+            });
 
 };
 

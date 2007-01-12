@@ -186,8 +186,10 @@ AutoSuggestControl.prototype.handleKeyDown = function (oEvent /*:Event*/) {
             break;
         case 13: //enter
             this.hideSuggestions();
+            return false;
             break;
     }
+    return true;
 
 };
 
@@ -211,6 +213,7 @@ AutoSuggestControl.prototype.handleKeyUp = function (oEvent /*:Event*/) {
         //request suggestions from the suggestion provider with typeahead
 		this.provider.requestSuggestions(this, true);
     }
+    return true;
 };
 
 /**
@@ -220,6 +223,7 @@ AutoSuggestControl.prototype.handleKeyUp = function (oEvent /*:Event*/) {
 AutoSuggestControl.prototype.hideSuggestions = function () {
     this.layer.style.display = "none";
 
+    this.showingSuggestions = false;
     };
 
 /**
@@ -249,6 +253,7 @@ AutoSuggestControl.prototype.init = function () {
     //save a reference to this object
     var oThis = this;
     
+    this.showingSuggestions = false;
     //assign the onkeyup event handler
     this.textbox.onkeyup = function (oEvent) {
     
@@ -258,7 +263,7 @@ AutoSuggestControl.prototype.init = function () {
         }    
         
         //call the handleKeyUp() method with the event object
-        oThis.handleKeyUp(oEvent);
+        return oThis.handleKeyUp(oEvent);
     };
     
     //assign onkeydown event handler
@@ -270,7 +275,7 @@ AutoSuggestControl.prototype.init = function () {
         }    
         
         //call the handleKeyDown() method with the event object
-        oThis.handleKeyDown(oEvent);
+        return oThis.handleKeyDown(oEvent);
     };
     
     //assign onblur event handler (hides suggestions)    
@@ -360,6 +365,7 @@ AutoSuggestControl.prototype.showSuggestions = function (aSuggestions /*:Array*/
 	this.layer.style.top = (this.getTop()+this.textbox.offsetHeight) + "px";
     this.layer.style.width = this.textbox.offsetWidth;
 	this.layer.style.display = "block";
+    this.showingSuggestions = true;
 };
 
 /**
