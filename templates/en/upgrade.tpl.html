@@ -26,7 +26,7 @@ editing config.inc.php, click the 'Sanity Check' button at the bottom of the scr
 
 *** Edit these existing variables
 
-Move @define(APP_HOSTNAME... to the top of the config file.
+Move @define(APP_HOSTNAME... to above all the other defines.
 
 @define("APP_VERSION", "1.3");
 
@@ -36,7 +36,7 @@ Move @define(APP_HOSTNAME... to the top of the config file.
 // Make sure APP_JHOVE_DIR has a trailing slash (Fez 1.2 used these without a trailing slash)
 @define("APP_JHOVE_DIR", "/usr/local/jhove/");
 
-// default San import dir to just be the temp path
+// default San import dir to just be the temp path - move this to a place below where APP_TEMP_DIR is defined
 @define("APP_SAN_IMPORT_DIR", APP_TEMP_DIR);
 
 *** All of the following are New Variables

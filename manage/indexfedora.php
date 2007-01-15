@@ -74,20 +74,23 @@ if ($isAdministrator) {
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }
+$rows = Pager::getParam('rows');
+if (empty($rows)) {
+    $rows = APP_DEFAULT_PAGER_SIZE;
+}
 $pagerRow = Pager::getParam('pagerRow');
 if (empty($pagerRow)) {
     $pagerRow = 0;
 }
-$rows = Pager::getParam('rows');
-if (empty($rows)) {
-	   $rows = APP_DEFAULT_PAGER_SIZE;
-}
+$terms = Pager::getParam('keywords');
+$tpl->assign('keywords', $terms);
 $options = Pager::saveSearchParams();
 $tpl->assign("options", $options);
+$reindex = new Reindex;
 if ($index_type == INDEX_TYPE_FEDORAINDEX) {
-    $details = Reindex::getMissingList($pagerRow, $rows);
+    $details = $reindex->getMissingList($pagerRow, $rows, $terms);
 } else {
-	$details = Reindex::getFullList($pagerRow, $rows);
+	$details = $reindex->getFullList($pagerRow, $rows, $terms);
 }
 $tpl->assign("list", $details['list']);
 $tpl->assign("list_info", $details['info']);		

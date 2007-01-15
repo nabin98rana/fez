@@ -177,14 +177,17 @@ class Fedora_API {
      * resultList - the list of items found
      */
     function callFindObjects($resultFields = array('pid', 'title', 'identifier', 'description', 'type'),
-                            $maxResults=10,$query_terms="*")
+                            $maxResults = 10, $query_terms="")
     {
-    	return Fedora_API::openSoapCallAccess('findObjects', array(
+        return Fedora_API::openSoapCallAccess('findObjects', array(
             'resultFields' => $resultFields,
-            new soapval('maxResults','nonNegativeInteger', $maxResults),
+             new soapval('maxResults','nonNegativeInteger', $maxResults),
+            //new soapval('query','FieldSearchQuery',
+            //                array('terms' => "$query_terms*") 
+            //            ,false,'http://www.fedora.info/definitions/1/0/types/')
             new soapval('query','FieldSearchQuery',
-                            array('terms' => $query_terms) 
-                        ,false,'http://www.fedora.info/definitions/1/0/types/')
+                            array('terms' => "$query_terms*"), 
+                        false,'http://www.fedora.info/definitions/1/0/types/')
         ));
         
         //$name='soapval',$type=false,$value=-1,$element_ns=false,$type_ns=false,$attributes=false
@@ -946,7 +949,8 @@ class Fedora_API {
 	   $result = $client->call($call, $parms);
        if ($debug_error && is_array($result) && isset($result['faultcode'])) {
 			$fedoraError = "Error when calling $call :".$result['faultstring'];
-			Error_Handler::logError($fedoraError, __FILE__,__LINE__);		   			
+			Error_Handler::logError($fedoraError, __FILE__,__LINE__);		
+            return false;
        }
 	   return $result;
 

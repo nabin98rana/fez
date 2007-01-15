@@ -63,6 +63,11 @@ include_once(APP_INC_PATH . "class.doc_type_xsd.php");
   */
 class Reindex
 {
+    var $fedoraObjects = array();
+    var $terms;
+    var $listSession;
+    var $resume = false;
+    
     /**
      * Method used to get the list of PIDs in the Fez index.
      *
@@ -92,6 +97,41 @@ class Reindex
             return $res;
         }
     }
+    
+    function inIndex($pid)
+    {
+        $stmt = "SELECT
+                   count(*)
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field  where rmf_rec_pid='$pid' ";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return false;
+        } else {
+            return ($res > 0) ? true : false;
+        }
+    }
+
+    function getNextFedoraObject()
+    {
+        if (empty($this->fedoraObjects)) {
+            if (!$this->resume) {
+                $res = Fedora_API::callFindObjects(array('pid', 'title', 'description'), 10, $this->terms);
+                $this->resume = true;
+            } else {
+                if (!empty($this->listSession['token'])) {
+                    $res = Fedora_API::callResumeFindObjects($this->listSession['token']);
+                } else {
+                    $res = array();
+                }
+            }
+            //Error_Handler::logError(print_r($res, true));
+            $this->listSession = @$res['listSession'];
+            $this->fedoraObjects = @$res['resultList']; 
+        }
+        return @array_shift($this->fedoraObjects);
+    }
 
     /**
      * Method used to get the list of PIDs in Fedora that are not in the Fez index.
@@ -99,23 +139,21 @@ class Reindex
      * @access  public
      * @return  array The list.
      */
-    function getMissingList($current_row = 0, $max = 5)
+    function getMissingList($page = 0, $max=10, $terms)
     {
-        $start = $current_row * $max;
-		$fezIndexPIDs = Reindex::getIndexPIDList();
-		$details = Fedora_API::getListObjectsXML("");
-        //$details = Fedora_API::callFindObjects(array('pid', 'title', 'description'), 2000000);
-        //Error_Handler::logError(print_r($details, true),__FILE__,__LINE__);
+        $this->terms = $terms;
+		$start = $max * $page;
 		$return = array();
-		//foreach ($details["resultList"] as $detail) {
-        foreach ($details as $detail) {
-			if (!in_array($detail['pid'], $fezIndexPIDs)) {
-				array_push($return, $detail);
+		$detail = $this->getNextFedoraObject();
+        for ($ii = 0; !empty($detail) && count($return) < $max ; $detail = $this->getNextFedoraObject()) {
+			if (!Reindex::inIndex($detail['pid'])) {
+				if (++$ii > $start) {
+                    array_push($return, $detail);
+                }
 			}
 		}
 
 		$total_rows = count($return);		
-		$return = Misc::limitListResults($return, $start, ($start + $max)); 
 		if (($start + $max) < $total_rows) {
 	        $total_rows_limit = $start + $max;
 		} else {
@@ -126,31 +164,37 @@ class Reindex
         return array(
             "list" => $return,
             "info" => array(
-                "current_page"  => $current_row,
+                "current_page"  => $page,
                 "start_offset"  => $start,
                 "end_offset"    => $start + ($total_rows_limit),
                 "total_rows"    => $total_rows,
                 "total_pages"   => $total_pages,
-                "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
-                "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
+                "previous_page" => ($page == 0) ? "-1" : ($page - 1),
+                "next_page"     => ($page == $last_page) ? "-1" : ($page + 1),
                 "last_page"     => $last_page
             )
         );	
 	}
 
-    function getFullList($current_row, $max)
+    function getFullList($page, $max, $terms)
     {
-        $fezIndexPIDs = Reindex::getIndexPIDList();
-        $details = Fedora_API::callFindObjects(array('pid', 'title', 'description'), 2000000);
+        $start = $page * $max;
+        $this->terms = $terms;
+        $start = $max * $page;
         $return = array();
-        foreach ($details['resultList'] as $detail) {
-            if (in_array($detail['pid'], $fezIndexPIDs)) {
-                array_push($return, $detail);
+        $detail = $this->getNextFedoraObject();
+        for ($ii = 0; !empty($detail) && count($return) < $max ; $detail = $this->getNextFedoraObject()) {
+            if (Reindex::inIndex($detail['pid'])) {
+                if (++$ii > $start) {
+                    array_push($return, $detail);
+                }
             }
         }
-        $start = $current_row * $max;
-        $total_rows = count($return);       
-        $return = Misc::limitListResults($return, $start, ($start + $max));     
+        if (count($return) < $max) {
+            $total_rows = $start + count($return);
+        } else {
+            $total_rows = $start+$max+1;
+        }
         if (($start + $max) < $total_rows) {
             $total_rows_limit = $start + $max;
         } else {
@@ -161,13 +205,13 @@ class Reindex
         return array(
             "list" => $return,
             "info" => array(
-                "current_page"  => $current_row,
+                "current_page"  => $page,
                 "start_offset"  => $start,
                 "end_offset"    => $start + ($total_rows_limit),
                 "total_rows"    => $total_rows,
                 "total_pages"   => $total_pages,
-                "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
-                "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
+                "previous_page" => ($page == 0) ? "-1" : ($page - 1),
+                "next_page"     => ($page == $last_page) ? "-1" : ($page + 1),
                 "last_page"     => $last_page
             )
         );  

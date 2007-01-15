@@ -214,7 +214,7 @@ if (APP_FEDORA_SETUP == 'sslall') {
 
 @define("APP_SESSION_EXPIRE", time() + (60 * 60 * 8));
 
-@define("APP_VERSION", "1.3 RC1");
+@define("APP_VERSION", "1.3 RC2");
 
 @define("APP_DEFAULT_TIMEZONE", "UTC");
 @define("APP_DEFAULT_USER_TIMEZONE", "Australia/Brisbane"); // Change this to your local timezone eg Australia/Brisbane. Fez will still store dates as UTC but will default display them as this timezone until the user has logged in with their preffered timezone user setting.  See include/pear/date/TimeZone.php (line 402 - 3622) for other string examples

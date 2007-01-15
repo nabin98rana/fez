@@ -52,6 +52,8 @@ ALTER TABLE `%TABLE_PREFIX%author`
 
 ALTER TABLE `%TABLE_PREFIX%author_org_structure` 
   CHANGE COLUMN `auo_assessed` `auo_assessed` varchar(1) default NULL,
+  ADD COLUMN `auo_assessed_year` varchar(11) default NULL,
+  ADD UNIQUE KEY `support_unique_key` (`auo_org_id`,`auo_aut_id`,`auo_cla_id`,`auo_fun_id`)
   default CHARACTER SET utf8;
 
 ALTER TABLE `%TABLE_PREFIX%controlled_vocab` 
@@ -131,6 +133,7 @@ ALTER TABLE `%TABLE_PREFIX%record_matching_field`
   change column `rmf_dsid` `rmf_dsid` varchar(255) character set utf8 default NULL,
   change column `rmf_varchar` `rmf_varchar` varchar(255) character set utf8 default NULL,
   ADD COLUMN `rmf_rec_pid_num` int(11) NOT NULL,
+  ADD KEY `rmf_date` (`rmf_date`),
   ADD KEY `rmf_rec_pid_num` (`rmf_rec_pid_num`),
   ADD KEY `rmf_int` (`rmf_int`),
   ADD KEY `rmf_rec_pid` (`rmf_rec_pid`),
@@ -222,7 +225,8 @@ ALTER TABLE `%TABLE_PREFIX%user`
   ADD COLUMN `usr_family_name` varchar(255) default NULL after `usr_given_names`,
    add column `usr_shib_username` varchar(50) default NULL after `usr_username`,
   add column `usr_shib_login_count` int(11) default '0' ,
-  ADD COLUMN `usr_external_usr_id` int(11) default NULL ;
+  ADD COLUMN `usr_external_usr_id` int(11) default NULL ,
+  ADD FULLTEXT KEY `usr_fulltext` (`usr_full_name`,`usr_given_names`,`usr_family_name`,`usr_username`,`usr_shib_username`);
 
 ALTER TABLE `%TABLE_PREFIX%xsd_display` 
         add column `xdis_enabled` tinyint(4) default '1';
