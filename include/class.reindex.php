@@ -68,35 +68,6 @@ class Reindex
     var $listSession;
     var $resume = false;
     
-    /**
-     * Method used to get the list of PIDs in the Fez index.
-     *
-     * @access  public
-     * @return  array The list of pids in the Fez index.
-     */
-    function getIndexPIDList($current_row = 0, $max = null)
-    {
-        if (!empty($max)) {
-            if ($max == "ALL") {
-                $max = 9999999;
-            }
-            $start = $current_row * $max;	
-        }
-        $stmt = "SELECT
-                    distinct rmf_rec_pid
-                 FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field ";
-        if (!empty($max)) {
-            $stmt .= " LIMIT $start, $max";
-        }
-        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return array();
-        } else {
-            return $res;
-        }
-    }
     
     function inIndex($pid)
     {
@@ -216,45 +187,32 @@ class Reindex
             )
         );  
     }
-    
-    function getFedoraObjects($current_row, $max) 
+
+    function reindexMissingList($params,$terms)
     {
-        $start = $current_row * $max;
-    	$result = Fedora_API::callFindObjects(array('pid', 'title', 'description'), $max);
-        for ($ii = 0; $ii < $current_row; $ii++) {
-        	$result = Fedora_API::callResumeFindObjects($result['listSession']['token']);
-        }
-        $total_rows = $result['listSession']['completeListSize'];
-        if (empty($total_rows)) {
-        	if (count($result['resultList']) < $max) {
-                $total_rows = $start + count($result['resultList']);
-        	} else {
-                $total_rows = $start + $max + 1;
+        $this->terms = $terms;
+        $detail = $this->getNextFedoraObject();
+        for ($detail = $this->getNextFedoraObject(); !empty($detail); $detail = $this->getNextFedoraObject()) {
+            if (!Reindex::inIndex($detail['pid'])) {
+                $params['items'] = array($detail['pid']);
+                Reindex::indexFezFedoraObjects($params);                
             }
         }
-        //Error_Handler::logError($result);
-        if (($start + $max) < $total_rows) {
-            $total_rows_limit = $start + $max;
-        } else {
-           $total_rows_limit = $total_rows;
-        }
-        $total_pages = ceil($total_rows / $max);
-        $last_page = $total_pages - 1;
-        return array(
-        "list" => $result['resultList'],
-            "info" => array(
-                "current_page"  => $current_row,
-                "start_offset"  => $start,
-                "end_offset"    => $start + ($total_rows_limit),
-                "total_rows"    => $total_rows,
-                "total_pages"   => $total_pages,
-                "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
-                "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
-                "last_page"     => $last_page
-                )
-                );
-       
     }
+
+    function reindexFullList($params,$terms)
+    {
+        $this->terms = $terms;
+        $detail = $this->getNextFedoraObject();
+        for ($detail = $this->getNextFedoraObject(); !empty($detail); $detail = $this->getNextFedoraObject()) {
+            if (Reindex::inIndex($detail['pid'])) {
+                $params['items'] = array($detail['pid']);
+                Reindex::indexFezFedoraObjects($params);                
+            }
+        }
+    }
+
+    
 
     
     /**
@@ -265,15 +223,18 @@ class Reindex
      * @access  public
      * @return  boolean
      */
-    function indexFezFedoraObjects()
+    function indexFezFedoraObjects($params = array())
     {
         global $HTTP_POST_VARS;
 
-        $items = @$HTTP_POST_VARS["items"];
-		$xdis_id = @$HTTP_POST_VARS["xdis_id"];
-		$sta_id = @$HTTP_POST_VARS["sta_id"];		
-		$community_pid = @$HTTP_POST_VARS["community_pid"];
-		$collection_pid = @$HTTP_POST_VARS["collection_pid"];
+        if (empty($params)) {
+            $params = &$HTTP_POST_VARS;
+        }
+        $items = @$params["items"];
+		$xdis_id = @$params["xdis_id"];
+		$sta_id = @$params["sta_id"];		
+		$community_pid = @$params["community_pid"];
+		$collection_pid = @$params["collection_pid"];
 
 		foreach ($items as $pid) {
     		// determine if the record is a Fez record

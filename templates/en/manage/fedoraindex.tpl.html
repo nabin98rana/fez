@@ -284,7 +284,8 @@ function toggleOverride()
                         <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
                       </td>
                       <td colspan="3" align="center" bgcolor="{$cell_color}">
-                        <input type="submit" value="{if $index_type == 1}Index Into Fez{else}Reindex{/if}" class="button" onclick="this.form.method='post' && return true;" />
+                        <input type="submit" name="go_list" value="{if $index_type == 1}Index Selected Items Into Fez{else}Reindex Selected Items{/if}" class="button" onclick="this.form.method='post';return true;" />
+                        <input type="submit" name="do_all" value="{if $index_type == 1}Index All Pages Into Fez{else}Reindex All Pages{/if}" class="button" onclick="this.form.method='post';return true;" />
                       </td>
                     </tr>
                   </table>

@@ -11,6 +11,12 @@
 include_once(APP_INC_PATH.'class.background_process.php');
 include_once(APP_INC_PATH.'class.community.php');
 include_once(APP_INC_PATH.'class.record.php');
+include_once(APP_INC_PATH . "class.reindex.php");
+
+
+@define('INDEX_TYPE_FEDORAINDEX', 1);
+@define('INDEX_TYPE_REINDEX', 2);
+
 
 class BackgroundProcess_Index_Object extends BackgroundProcess
 {
@@ -26,15 +32,21 @@ class BackgroundProcess_Index_Object extends BackgroundProcess
         $this->setState(1);
         extract(unserialize($this->inputs));
 
-        if (!empty($pid) && !is_numeric($pid)) { 
-            Record::setIndexMatchingFieldsRecurse($pid, $this);
-            AuthIndex::setIndexAuth($pid,true);
+        $reindex = new Reindex;
+
+        if (empty($terms)) {
+            $terms = '';
+        }
+        if (empty($params)) {
+            $params = array();
+        }
+        if (empty($index_type)) {
+            $index_type = INDEX_TYPE_REINDEX;
+        }
+        if ($index_type == INDEX_TYPE_FEDORAINDEX) {
+            $reindex->reindexMissingList($params,$terms);
         } else {
-            $list = Community::getList(0,10000000);
-            foreach ($list['list'] as $item) {
-                Record::setIndexMatchingFieldsRecurse($item['pid'], $this);
-                AuthIndex::setIndexAuth($item['pid'],true);
-            }
+            $reindex->reindexFullList($params,$terms);
         }
         $this->setState(2);
     }

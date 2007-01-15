@@ -44,6 +44,7 @@ include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.pager.php");
+include_once(APP_INC_PATH . "class.bgp_index_object.php");
 include_once(APP_INC_PATH . "najax_classes.php");
 
 
@@ -53,8 +54,6 @@ $tpl->assign("type", "fedoraindex");
 
 Auth::checkAuthentication(APP_SESSION);
 
-@define('INDEX_TYPE_FEDORAINDEX', 1);
-@define('INDEX_TYPE_REINDEX', 2);
 if (strstr($_SERVER['REQUEST_URI'], "indexfedora.php")) {
     $index_type = INDEX_TYPE_FEDORAINDEX; 
 } else {
@@ -66,10 +65,17 @@ $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
+$reindex = new Reindex;
+$terms = Pager::getParam('keywords');
 
 if ($isAdministrator) {
-    if (@$HTTP_POST_VARS["cat"] == "go") {
+    if (!empty($HTTP_POST_VARS["go_list"])) {
 		Reindex::indexFezFedoraObjects();
+    }
+    if (!empty($HTTP_POST_VARS["do_all"])) {
+        $params = &$HTTP_POST_VARS;
+        $bgp = new BackgroundProcess_Index_Object();
+        $bgp->register(serialize(compact('params','terms','index_type')), Auth::getUserID());
     }
 } else {
     $tpl->assign("show_not_allowed_msg", true);
@@ -86,7 +92,6 @@ $terms = Pager::getParam('keywords');
 $tpl->assign('keywords', $terms);
 $options = Pager::saveSearchParams();
 $tpl->assign("options", $options);
-$reindex = new Reindex;
 if ($index_type == INDEX_TYPE_FEDORAINDEX) {
     $details = $reindex->getMissingList($pagerRow, $rows, $terms);
 } else {
