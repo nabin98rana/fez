@@ -67,6 +67,7 @@ class Reindex
     var $terms;
     var $listSession;
     var $resume = false;
+    var $bgp;
     
     
     function inIndex($pid)
@@ -192,10 +193,22 @@ class Reindex
     {
         $this->terms = $terms;
         $detail = $this->getNextFedoraObject();
+        $ii = 0;
         for ($detail = $this->getNextFedoraObject(); !empty($detail); $detail = $this->getNextFedoraObject()) {
+            if (!empty($this->bgp)) {
+                $this->bgp->setProgress(++$ii);
+                Error_Handler::logError($this->listSession, __FILE__,__LINE__);
+            }
             if (!Reindex::inIndex($detail['pid'])) {
+                if (!empty($this->bgp)) {
+                    $this->bgp->setStatus("Adding: '{$detail['title']}'");
+                }
                 $params['items'] = array($detail['pid']);
                 Reindex::indexFezFedoraObjects($params);                
+            } else {
+                if (!empty($this->bgp)) {
+                    $this->bgp->setStatus("Skipping: '{$detail['title']}'");
+                }
             }
         }
     }
@@ -204,10 +217,21 @@ class Reindex
     {
         $this->terms = $terms;
         $detail = $this->getNextFedoraObject();
+        $ii = 0;
         for ($detail = $this->getNextFedoraObject(); !empty($detail); $detail = $this->getNextFedoraObject()) {
+            if (!empty($this->bgp)) {
+                $this->bgp->setProgress(++$ii);
+            }
             if (Reindex::inIndex($detail['pid'])) {
+                if (!empty($this->bgp)) {
+                    $this->bgp->setStatus("Reindexing: '{$detail['title']}'");
+                }
                 $params['items'] = array($detail['pid']);
                 Reindex::indexFezFedoraObjects($params);                
+            } else {
+                if (!empty($this->bgp)) {
+                    $this->bgp->setStatus("Skipping: '{$detail['title']}'");
+                }
             }
         }
     }

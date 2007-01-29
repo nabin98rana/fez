@@ -43,6 +43,7 @@ class BackgroundProcess_Index_Object extends BackgroundProcess
         if (empty($index_type)) {
             $index_type = INDEX_TYPE_REINDEX;
         }
+        $reindex->bgp = $this;
         if ($index_type == INDEX_TYPE_FEDORAINDEX) {
             $reindex->reindexMissingList($params,$terms);
         } else {

@@ -76,6 +76,7 @@ if ($isAdministrator) {
         $params = &$HTTP_POST_VARS;
         $bgp = new BackgroundProcess_Index_Object();
         $bgp->register(serialize(compact('params','terms','index_type')), Auth::getUserID());
+        Session::setMessage('The objects are being indexed as a background process (see My Fez to follow progress)');
     }
 } else {
     $tpl->assign("show_not_allowed_msg", true);
