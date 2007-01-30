@@ -167,8 +167,7 @@ class Community
         $body1 = "
             FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
             inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2  
-			ON r2.rmf_xsdmf_id = x2.xsdmf_id AND match(x2.xsdmf_element) 
-            against ('\"!ret_id\"' in boolean mode) and r2.rmf_int=1
+			ON r2.rmf_xsdmf_id = x2.xsdmf_id AND x2.xsdmf_element='!ret_id' and r2.rmf_int=1
             
             $authStmt
 

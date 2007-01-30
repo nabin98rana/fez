@@ -212,7 +212,7 @@ class Collection
 							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x3,
 							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s3
 							WHERE x3.xsdmf_sek_id = s3.sek_id AND s3.sek_title = 'isMemberOf' AND x3.xsdmf_id = r3.rmf_xsdmf_id 
-							  AND match(r3.rmf_varchar) against ('\"$community_pid\"' in boolean mode)
+							  AND r3.rmf_varchar = '$community_pid'
 							) as com1 on com1.rmf_rec_pid = r1.rmf_rec_pid ";
         } else {
             // list all collections 
@@ -350,7 +350,7 @@ class Collection
 						INNER JOIN {$dbtp}record_matching_field AS r4
 						  ON r4.rmf_rec_pid = r2.rmf_rec_pid
 						INNER JOIN {$dbtp}xsd_display_matchfields AS x4
-						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and match(r4.rmf_varchar) against ('\"$community_pid\"' in boolean mode)
+						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and r4.rmf_varchar='$community_pid'
 						INNER JOIN {$dbtp}search_key AS s4  							  
 						  ON s4.sek_id = x4.xsdmf_sek_id AND s4.sek_title = 'isMemberOf' ";
 		} else {
@@ -359,7 +359,7 @@ class Collection
 
         $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
                     INNER JOIN {$dbtp}xsd_display_matchfields AS x2
-                      ON r2.rmf_xsdmf_id = x2.xsdmf_id AND match(x2.xsdmf_element) against ('\"!ret_id\"' in boolean mode) and r2.rmf_int=2
+                      ON r2.rmf_xsdmf_id = x2.xsdmf_id AND x2.xsdmf_element = '!ret_id' and r2.rmf_int=2
 					
 
                     $authStmt
@@ -823,8 +823,7 @@ class Collection
 						INNER JOIN {$dbtp}record_matching_field AS r4
 						  ON r4.rmf_rec_pid_num = r2.rmf_rec_pid_num and r4.rmf_rec_pid = r2.rmf_rec_pid
 						INNER JOIN {$dbtp}xsd_display_matchfields AS x4
-						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and match(r4.rmf_varchar) 
-                          against ('\"$collection_pid\"' in boolean mode)
+						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and r4.rmf_varchar = '$collection_pid'
 						INNER JOIN {$dbtp}search_key AS s4  							  
 						  ON s4.sek_id = x4.xsdmf_sek_id AND s4.sek_title = 'isMemberOf' ";
 		} else {
@@ -1429,7 +1428,7 @@ if ($order_by == 'File Downloads') {
                          INNER JOIN {$dbtp}xsd_display_matchfields AS x3
                          ON r3.rmf_xsdmf_id = x3.xsdmf_id
                          and r3.rmf_int=2
-                         AND match(x3.xsdmf_element) against ('\"!sta_id\"' in boolean mode)
+                         AND x3.xsdmf_element='!sta_id'
 				$extra_join
 
 
@@ -1571,7 +1570,7 @@ if ($order_by == 'File Downloads') {
         $bodyStmtPart1 = " FROM {$dbtp}statistics_all stl
         				INNER JOIN  {$dbtp}record_matching_field AS r2 on stl.stl_pid_num=r2.rmf_rec_pid_num and stl.stl_pid=r2.rmf_rec_pid and stl.stl_dsid <> ''
                     INNER JOIN {$dbtp}xsd_display_matchfields AS x2
-                      ON r2.rmf_xsdmf_id = x2.xsdmf_id AND match(x2.xsdmf_element) against ('!sta_id' in boolean mode) and r2.rmf_int=2
+                      ON r2.rmf_xsdmf_id = x2.xsdmf_id AND x2.xsdmf_element='!sta_id' and r2.rmf_int=2
 
 
                     $authStmt

@@ -62,12 +62,54 @@ function parse_mysql_dump($url, $ignoreerrors = false) {
 }
 
 
+/**
+ * Find all the files in a (optional) relative path that match the
+ * pattern "upgradeYYYYMMDDxx.sql" and return an array of date strings, in
+ * alphabetical order.
+ * 
+ * @param string $lookin_reldir The relative path to look for upgrade scripts.
+ *                              Defaults to "upgrade/local"
+ * @return array                A sorted array of sql upgrade filenames.
+ */
+function getUpdateSqlList($lookin_reldir = 'upgrade/sql_scripts') {
+    $upgrades = array();
+    $path = APP_PATH . $lookin_reldir;
 
-
+    if (file_exists($path) and filetype($path) == 'dir') {
+        $dirhandle = opendir($path);
+        while (false !== ($filename = readdir($dirhandle))) {
+            $tokens = strtok($filename, '.');
+            if (preg_match("/upgrade[0-9]{10}\.sql/", $filename)) {
+                $upgrades[] = substr($filename, 7, 10);
+            }
+        }
+        closedir($dirhandle);
+    }
+    if (!empty($upgrades)) {
+        asort($upgrades);
+    }
+    return $upgrades;
+}
 
 function replace_table_prefix($str)
 {
     return str_replace('%TABLE_PREFIX%', APP_TABLE_PREFIX, $str);
+}
+
+function get_data_model_version()
+{
+    $stmt = "select config_value from " . APP_TABLE_PREFIX . "config " .
+            "where config_name = 'datamodel_version' " .
+            "and config_module = 'core' ";
+    $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
+    if (PEAR::isError($res)) {
+        return 0;
+    }
+    if (is_array($res)) {
+    	return $res['config_value'];
+    } else {
+    	return 0;
+    }
 }
 
 function upgrade()
@@ -79,11 +121,32 @@ function upgrade()
      *      return "The file 'config.inc.php' in Fez's root directory needs to be writable by the web server user. Please correct this problem and try again.";
      *  }
      */
-
-	if (parse_mysql_dump("upgrade.sql")) {
-        return 'success';
+    $path = APP_PATH .  'upgrade/sql_scripts';
+    $sql_upgrades = getUpdateSqlList();
+    $success = true;
+    $dbversion = get_data_model_version();
+    if ($dbversion == 0) {
+        if (parse_mysql_dump("upgrade.sql")) {
+            $success = $success && true;
+        } else {
+            $success = false;
+        }
+    }
+    
+    // go through the upgrades and execute any that are greater than the current version
+    foreach ($sql_upgrades as $sql_upgrade) {
+    	if ($sql_upgrade > $dbversion) {
+            if (parse_mysql_dump("$path/upgrade{$sql_upgrade}.sql")) {
+                $success = $success && true;
+            } else {
+                $success = false;
+            }
+        }
+    }
+    if ($success) {
+        return 'Upgrades succeeded.';
     } else {
-    	return 'The upgrade failed - check error_handler.log';
+        return 'The upgrade failed - check error_handler.log';
     }
 }
 

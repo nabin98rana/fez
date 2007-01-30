@@ -200,8 +200,7 @@ class Record
 		$bodyStmt .= "
 						FROM {$dbtp}record_matching_field AS r4
 						INNER JOIN {$dbtp}xsd_display_matchfields AS x4
-						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and match(r4.rmf_varchar) 
-                          against ('\"$pid\"' in boolean mode)
+						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and r4.rmf_varchar='$pid'
 						INNER JOIN {$dbtp}search_key AS s4  							  
 						  ON s4.sek_id = x4.xsdmf_sek_id AND s4.sek_title = '$searchKey' ";		
 				
@@ -366,8 +365,7 @@ class Record
 		$bodyStmt .= "
 						FROM {$dbtp}record_matching_field AS r4
 						INNER JOIN {$dbtp}xsd_display_matchfields AS x4
-						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and match(r4.rmf_varchar) 
-                          against ('\"$pid\"' in boolean mode)
+						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and r4.rmf_varchar='$pid'
 						INNER JOIN {$dbtp}search_key AS s4  							  
 						  ON s4.sek_id = x4.xsdmf_sek_id AND s4.sek_title = '$searchKey' ";		
 				
@@ -969,7 +967,7 @@ class Record
 
         $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
                     INNER JOIN {$dbtp}xsd_display_matchfields AS x2
-                      ON r2.rmf_xsdmf_id = x2.xsdmf_id AND match(x2.xsdmf_element) against ('\"!sta_id\"' in boolean mode) and r2.rmf_int!=2
+                      ON r2.rmf_xsdmf_id = x2.xsdmf_id AND x2.xsdmf_element='!sta_id' and r2.rmf_int!=2
 
 
                     $authStmt

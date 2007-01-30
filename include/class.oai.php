@@ -375,7 +375,7 @@ class OAI
 							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x3,
 							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s3
 							WHERE x3.xsdmf_sek_id = s3.sek_id AND s3.sek_title = 'isMemberOf' AND x3.xsdmf_id = r3.rmf_xsdmf_id 
-							  AND match(r3.rmf_varchar) against ('\"$community_pid\"' in boolean mode)
+							  AND r3.rmf_varchar='$community_pid'
 							) as com1 on com1.rmf_rec_pid = r1.rmf_rec_pid ";
         } else {
             // list all collections 

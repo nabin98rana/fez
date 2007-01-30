@@ -56,6 +56,20 @@ ALTER TABLE `%TABLE_PREFIX%author_org_structure`
   ADD UNIQUE KEY `support_unique_key` (`auo_org_id`,`auo_aut_id`,`auo_cla_id`,`auo_fun_id`)
   default CHARACTER SET utf8;
 
+
+
+CREATE TABLE `%TABLE_PREFIX%config` (                     
+              `config_id` int(11) NOT NULL auto_increment,  
+              `config_name` varchar(32) NOT NULL,           
+              `config_module` varchar(32) NOT NULL,         
+              `config_value` varchar(256) NOT NULL,         
+              PRIMARY KEY  (`config_id`),                    
+              UNIQUE KEY `config_name` (`config_name`,`config_module`) 
+            ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+INSERT INTO `%TABLE_PREFIX%config` ('config_name', 'config_module', 'config_value') 
+VALUES ('datamodel_version','core','1');
+
 ALTER TABLE `%TABLE_PREFIX%controlled_vocab` 
   ADD COLUMN `cvo_external_id` int(11) default NULL, 
   ADD KEY `cvo_title` (`cvo_title`);
