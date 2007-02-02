@@ -99,7 +99,7 @@ function addClicksToFedoraSetup()
     var field = getFormElement(f, 'fedora_setup', 0); // ssl-authenticate-all
     field.onclick = function() {toggleSSLBaseLocation(false);toggleBaseLocation(true);};
     var field = getFormElement(f, 'fedora_setup', 1); // ssl-authenticate-apim
-    field.onclick = function() {toggleSSLBaseLocation(false);toggleBaseLocation(true);};
+    field.onclick = function() {toggleSSLBaseLocation(false);toggleBaseLocation(false);};
     var field = getFormElement(f, 'fedora_setup', 2); // no-ssl-authenticate-all
     field.onclick = function() {toggleSSLBaseLocation(true);toggleBaseLocation(false);};
     var field = getFormElement(f, 'fedora_setup', 3); // no-ssl-authenticate-apim

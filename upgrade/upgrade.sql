@@ -162,6 +162,8 @@ ALTER TABLE `%TABLE_PREFIX%record_matching_field`
 ALTER TABLE `%TABLE_PREFIX%search_key` 
   drop key `sek_title`;
 
+DROP TABLE `%TABLE_PREFIX%statistics`;
+
 CREATE TABLE `%TABLE_PREFIX%statistics_all` (
   `stl_id` int(11) NOT NULL auto_increment,
   `stl_archive_name` varchar(255) default NULL,

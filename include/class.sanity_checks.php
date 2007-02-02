@@ -403,16 +403,17 @@
     function fedora()
     {
     	$results = array(ConfigResult::message('Testing Fedora'));
-        $results = array_merge($results, SanityChecks::checkHTTPConnect('APP_BASE_FEDORA_APIA_DOMAIN',APP_BASE_FEDORA_APIA_DOMAIN));
+        $results = array_merge($results, SanityChecks::checkHTTPConnect('APP_BASE_FEDORA_APIA_DOMAIN',APP_BASE_FEDORA_APIA_DOMAIN.'/describe'));
         $results = array_merge($results, SanityChecks::checkHTTPConnect('APP_BASE_FEDORA_APIM_DOMAIN',APP_BASE_FEDORA_APIM_DOMAIN));
         $results = array_merge($results, SanityChecks::checkHTTPConnect('APP_FEDORA_ACCESS_API',APP_FEDORA_ACCESS_API));
         $results = array_merge($results, SanityChecks::checkHTTPConnect('APP_FEDORA_MANAGEMENT_API',APP_FEDORA_MANAGEMENT_API));
-        if (!SanityChecks::resultsClean($results)) {
-        	$results[] = ConfigResult::message('If the fedora server responded with a 401 code, then maybe ' .
-                    'the security settings aren\'t right.  Check that you supplied the correct password in ' .
+        $security_advice = 'Check that you supplied the correct password in ' .
                     'the Fez config.  Ensure APP_FEDORA_SETUP is correct.  Set fedora.fcfg option <param name="ENFORCE-MODE" value="permit-all-requests"/> ' .
                     'to allow requests from remote hosts (or taylor to suit your security requirements - default ' .
-                    'seems to let through localhost only)');
+                    'seems to let through localhost only)';
+        if (!SanityChecks::resultsClean($results)) {
+        	$results[] = ConfigResult::message('If the fedora server responded with a 401 code, then maybe ' .
+                    'the security settings aren\'t right. '.$security_advice  );
         } else {
         	// check get next pid is ok
             $results = array_merge($results, SanityChecks::checkHTTPConnect(
@@ -421,20 +422,24 @@
             $getString = APP_BASE_FEDORA_APIM_DOMAIN."/mgmt/getNextPID?xml=true";
             $ch = curl_init($getString);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+            if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
+                curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+                 curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+            }
             $xml = curl_exec($ch);
             $dom = @DomDocument::loadXML($xml);
             if (!$dom) {
-             	$results[] = new ConfigResult('Fedora','Get Next PID', '', "Fedora didn't return valid XML.");
+             	//Error_Handler::logError($xml,__FILE__,__LINE__);
+                $results[] = new ConfigResult('Fedora','Get Next PID', '', "Fedora didn't return valid XML.");
             }
             curl_close ($ch);
             if (!SanityChecks::resultsClean($results)) {
                 $results[] = ConfigResult::message('Make sure that whatever PID prefix namespace you choose is also in ' .
                     'the "retainPIDS" set of namespaces. Eg if your PID namespace is "UQ" make sure "UQ" is in ' .
                     'the list of retainPIDS in fedora.fcfg. If this is not set then Fez will not be able to create ' .
-                    'objects in Fedora.');
+                    'objects in Fedora.  '.$security_advice);
             }
         }
         if (SanityChecks::resultsClean($results)) {
@@ -615,6 +620,7 @@
        curl_setopt ($ch, CURLOPT_HEADER, 1);
        curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+       curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
        if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
          curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
          curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
