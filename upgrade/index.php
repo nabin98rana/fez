@@ -112,6 +112,20 @@ function get_data_model_version()
     }
 }
 
+function set_data_model_version($dbversion)
+{
+    $stmt = "update " . APP_TABLE_PREFIX . "config " .
+            "set config_value = ". $dbversion. " " .
+            "where config_name = 'datamodel_version' " .
+            "and config_module = 'core' ";
+    $res = $GLOBALS["db_api"]->dbh->query($stmt);
+    if (PEAR::isError($res)) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+ 
 function upgrade()
 {
     clearstatcache();
@@ -134,6 +148,7 @@ function upgrade()
     }
     
     // go through the upgrades and execute any that are greater than the current version
+    $sql_upgrade = $dbversion;
     foreach ($sql_upgrades as $sql_upgrade) {
     	if ($sql_upgrade > $dbversion) {
             if (parse_mysql_dump("$path/upgrade{$sql_upgrade}.sql")) {
@@ -143,7 +158,7 @@ function upgrade()
             }
         }
     }
-    if ($success) {
+    if ($success && set_data_model_version($sql_upgrade)) {
         return 'Upgrades succeeded.';
     } else {
         return 'The upgrade failed - check error_handler.log';
