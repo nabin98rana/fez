@@ -529,7 +529,7 @@ $installation_path = $HTTP_SERVER_VARS['DOCUMENT_ROOT'] . $relative_url;
 
 $tpl->assign("rel_url", $relative_url);
 $tpl->assign("installation_path", $installation_path);
-if (@$HTTP_SERVER_VARS['HTTPS'] == 'on') {
+if (!empty($HTTP_SERVER_VARS['HTTPS'])) {
     $ssl_mode = 'enabled';
 } else {
     $ssl_mode = 'disabled';

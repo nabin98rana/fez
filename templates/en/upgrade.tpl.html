@@ -13,7 +13,7 @@ the new version.  Be sure to backup your current DB before clicking.  If you hav
 <form action="{$smarty.const.PHP_SELF}" method="post">
 <input type="hidden" name="step" value="2" />
 <input type="submit" name="upgrade" value="Upgrade" />
-<input type="submit" name="skip" value="Skip this Step" />
+<input type="submit" name="skip" value="Skip this Step / Next" />
 </form>
 {elseif $step == 2}
 <form action="{$smarty.const.PHP_SELF}" method="post">
@@ -38,6 +38,11 @@ Move @define(APP_HOSTNAME... to above all the other defines.
 
 // default San import dir to just be the temp path - move this to a place below where APP_TEMP_DIR is defined
 @define("APP_SAN_IMPORT_DIR", APP_TEMP_DIR);
+
+// Correct the API-A url for the ssl-authenticate-ssl-apim option
+{literal}} elseif (APP_FEDORA_SETUP == 'sslapim') {{/literal}
+    @define("APP_BASE_FEDORA_APIA_DOMAIN", APP_FEDORA_APIA_PROTOCOL_TYPE.APP_FEDORA_LOCATION); // the location of your fedora ssl server for apia
+
 
 *** All of the following are New Variables
 
@@ -93,6 +98,12 @@ Move @define(APP_HOSTNAME... to above all the other defines.
 @define("APP_REPORT_ERROR_FILE", true); // set to false if you don't want the error messages saved to a error file to the user/browser
 
 @define("APP_DEFAULT_USER_TIMEZONE", "Australia/Brisbane"); // Change this to your local timezone eg Australia/Brisbane. Fez will still store dates as UTC butwill default display them as this timezone until the user has logged in with their preffered timezone user setting.  See include/pear/date/TimeZone.php (line 402 - 3622) for other string examples
+
+// these lists of roles control which roles can assume the roles of others, e.g. the
+// Community_Admin role can do all the roles an Editor can do. 
+@define('APP_VIEWER_ROLES',"Viewer,Community_Admin,Editor,Creator,Annotator"); 
+@define('APP_EDITOR_ROLES',"Community_Admin,Editor");
+@define('APP_CREATOR_ROLES',"Creator,Community_Admin,Editor");
 
 
 </pre>

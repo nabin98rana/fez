@@ -236,6 +236,13 @@ if (APP_FEDORA_SETUP == 'sslall') {
 // define the user_id of system user
 @define("APP_SYSTEM_USER_ID", 1);
 
+// these lists of roles control which roles can assume the roles of others, e.g. the
+// Community_Admin role can do all the roles an Editor can do. 
+@define('APP_VIEWER_ROLES',"Viewer,Community_Admin,Editor,Creator,Annotator"); 
+@define('APP_EDITOR_ROLES',"Community_Admin,Editor");
+@define('APP_CREATOR_ROLES',"Creator,Community_Admin,Editor");
+
+
 @define("APP_BENCHMARK", true);
 if (APP_BENCHMARK) {
     // always benchmark the scripts

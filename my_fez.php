@@ -113,6 +113,17 @@ $assigned_items= Record::getAssigned(Auth::getUsername(), $pagerRow, $rows, $ord
 $tpl->assign('my_assigned_items_list', $assigned_items['list']);
 $tpl->assign('my_assigned_items_info', $assigned_items['info']);
 
+$pagerRow_my_created = Pager::getParam('pagerRow_my_created');
+$mci_rows = Pager::getParam('mci_rows');
+if (empty($mci_rows)) {
+    $mci_rows = APP_DEFAULT_PAGER_SIZE;
+}
+$mci_order_by = Pager::getParam('mci_order_by');
+$mci_order_by_dir = Pager::getParam('mci_order_by_dir');
+$created_items= Record::getCreated(Auth::getUserID(), $pagerRow_my_created, $mci_rows, $mci_order_by, $mci_order_by_dir);
+$tpl->assign('my_created_items_list', $created_items['list']);
+$tpl->assign('my_created_items_info', $created_items['info']);
+
 $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
 $tpl->registerNajax( NAJAX_Client::register('NajaxBackgroundProcessList', APP_RELATIVE_URL.'najax_services/generic.php'));
 

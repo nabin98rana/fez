@@ -30,6 +30,10 @@ function purgeObject(pid)
 <tr>
   <td valign="top">
  <!-- Pagelayout Row 1 Column 1 -->
+
+{* records where the current user has role = creator  *}
+{include file="my_created_items.tpl.html"}
+
 {include file="my_assigned_items.tpl.html"}
 {include file="my_background_processes.tpl.html"}
 

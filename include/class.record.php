@@ -68,7 +68,7 @@ include_once(APP_INC_PATH . "class.auth_index.php");
   */
 class Record
 {
-
+    
   /**
 	* Returns the parent details of the . Searches search key representing RELS-EXT "isDerivationOf".
 	*/
@@ -1045,6 +1045,120 @@ class Record
         return compact('info','list');
     }
 
+
+
+    /**
+     * Find all records where the user is creator  (based on getAssigned)
+     *
+     * Note: if user has "create" on a collection and individual
+     * records do not have a specific creator assigned, this may have
+     * unexpected results.
+     *
+     * @access  public
+     * @param string $username The username of the search is performed on
+     * @return array $res2 The index details of records associated with the user
+     */
+    function getCreated($usr_id = '',$currentPage=0,$pageRows="ALL",$order_by="Title", $order_by_dir=0)
+    {
+        if ($pageRows == "ALL") {
+            $pageRows = 9999999;
+        }
+        $start = $currentPage * $pageRows;
+
+        $currentRow = $currentPage * $pageRows;
+        $sekdet = Search_Key::getDetailsByTitle($order_by);
+        $data_type = $sekdet['xsdmf_data_type'];
+		$dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+
+        if (empty($usr_id)) {
+            $usr_id = Auth::getUserID(); 
+        }
+
+		if ($order_by_dir == 0) {
+			$order_dir = "ASC";
+		} else {
+			$order_dir = "DESC";			
+		}
+        $r4_join_field = "r2.rmf_rec_pid";
+
+        $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2" .
+                " INNER JOIN {$dbtp}xsd_display_matchfields AS x2 ON x2.xsdmf_id=r2.rmf_xsdmf_id " .
+                "           AND xsdmf_element='!depositor' AND r2.rmf_int='$usr_id'
+                    ";
+        $bodyStmt = "$bodyStmtPart1
+
+                    LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r5 on r5.rmf_rec_pid = r2.rmf_rec_pid
+                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x5
+                    on r5.rmf_xsdmf_id = x5.xsdmf_id
+                    left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s5			
+					on (s5.sek_id = x5.xsdmf_sek_id and s5.sek_title = '$order_by')  
+					where (r5.rmf_$data_type is null) or s5.sek_title = '$order_by'					
+					group by r5.rmf_rec_pid
+
+					
+                    
+             ";
+
+        $countStmt = "
+                    SELECT ".APP_SQL_CACHE."  count(distinct r2.rmf_rec_pid)
+                    $bodyStmtPart1
+            ";
+
+        $stmt = "SELECT ".APP_SQL_CACHE."  r1.*, x1.*, s1.*, k1.*, d1.* 
+            FROM {$dbtp}record_matching_field AS r1
+            INNER JOIN {$dbtp}xsd_display_matchfields AS x1
+            ON r1.rmf_xsdmf_id = x1.xsdmf_id
+            INNER JOIN (
+                    SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid, min(r5.rmf_$data_type) as sort_column
+                    $bodyStmt
+					order by sort_column $order_dir, r2.rmf_rec_pid desc
+                    LIMIT $start, $pageRows
+                    ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid 
+            LEFT JOIN {$dbtp}xsd_loop_subelement s1 
+            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
+            LEFT JOIN {$dbtp}search_key k1 
+            ON (k1.sek_id = x1.xsdmf_sek_id)
+            LEFT JOIN {$dbtp}xsd_display d1  
+            ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
+            ORDER BY display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
+//echo $stmt;
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+
+			if (PEAR::isError($res)) {
+				Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+				$res = array();
+			}
+		/*} else {
+			$res = array();
+		}*/
+
+        $return = Collection::makeReturnList($res);
+        $return = Collection::makeSecurityReturnList($return);
+//		$return = array_values($return);
+		$return = Auth::getIndexAuthorisationGroups($return);
+//		print_r($return);		
+		$return = Collection::getWorkflows($return); 
+		$list = $return;
+
+
+		$totalRows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
+//        $totalRows = count($list);
+//        $list = array_slice($list,$currentRow, $pageRows);
+        $totalPages = intval($totalRows / $pageRows);
+        if ($totalRows % $pageRows) {
+            $totalPages++;
+        }
+        $nextPage = ($currentPage >= $totalPages) ? -1 : $currentPage + 1;
+        $prevPage = ($currentPage <= 0) ? -1 : $currentPage - 1;
+        $lastPage = $totalPages - 1;
+        $currentLastRow = $currentRow + count($list);
+        $info = compact('totalRows', 'pageRows', 'currentRow','currentLastRow','currentPage','totalPages',
+                'nextPage','prevPage','lastPage');
+        return compact('info','list');
+    }
+
+
+    
     /**
      * Publishs all objects that don't have a status ID set, really only used for 
      * development testing, but left in for now
@@ -1307,7 +1421,7 @@ class RecordGeneral
     var $pid;
     var $xdis_id;
     var $no_xdis_id = false;  // true if we couldn't find the xdis_id
-    var $viewer_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator"); 
+    var $viewer_roles; 
     var $editor_roles;
     var $creator_roles;
     var $checked_auth = false;
@@ -1333,8 +1447,10 @@ class RecordGeneral
     function RecordGeneral($pid=null)
     {
         $this->pid = $pid;
-        $this->editor_roles = Misc::array_clean($this->viewer_roles, "Viewer");
-        $this->creator_roles = $this->editor_roles;
+        $this->viewer_roles = explode(',',APP_VIEWER_ROLES); 
+        $this->editor_roles = explode(',',APP_EDITOR_ROLES);
+        $this->creator_roles = explode(',',APP_CREATOR_ROLES);
+        
     }
 
     function getPid()

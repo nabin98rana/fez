@@ -53,7 +53,7 @@ ALTER TABLE `%TABLE_PREFIX%author`
 ALTER TABLE `%TABLE_PREFIX%author_org_structure` 
   CHANGE COLUMN `auo_assessed` `auo_assessed` varchar(1) default NULL,
   ADD COLUMN `auo_assessed_year` varchar(11) default NULL,
-  ADD UNIQUE KEY `support_unique_key` (`auo_org_id`,`auo_aut_id`,`auo_cla_id`,`auo_fun_id`)
+  ADD UNIQUE KEY `support_unique_key` (`auo_org_id`,`auo_aut_id`,`auo_cla_id`,`auo_fun_id`),
   default CHARACTER SET utf8;
 
 
@@ -67,7 +67,7 @@ CREATE TABLE `%TABLE_PREFIX%config` (
               UNIQUE KEY `config_name` (`config_name`,`config_module`) 
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-INSERT INTO `%TABLE_PREFIX%config` ('config_name', 'config_module', 'config_value') 
+INSERT INTO `%TABLE_PREFIX%config` (config_name, config_module, config_value) 
 VALUES ('datamodel_version','core','1');
 
 ALTER TABLE `%TABLE_PREFIX%controlled_vocab` 
@@ -147,7 +147,6 @@ ALTER TABLE `%TABLE_PREFIX%record_matching_field`
   change column `rmf_dsid` `rmf_dsid` varchar(255) character set utf8 default NULL,
   change column `rmf_varchar` `rmf_varchar` varchar(255) character set utf8 default NULL,
   ADD COLUMN `rmf_rec_pid_num` int(11) NOT NULL,
-  ADD KEY `rmf_date` (`rmf_date`),
   ADD KEY `rmf_rec_pid_num` (`rmf_rec_pid_num`),
   ADD KEY `rmf_int` (`rmf_int`),
   ADD KEY `rmf_rec_pid` (`rmf_rec_pid`),
@@ -155,6 +154,8 @@ ALTER TABLE `%TABLE_PREFIX%record_matching_field`
   ADD KEY `combo_pid_num_xsdmf` (`rmf_rec_pid_num`,`rmf_xsdmf_id`),
   ADD KEY `rmf_varchar_combo` (`rmf_xsdmf_id`,`rmf_varchar`),
   ADD KEY `combo_pid_num_xsdmf_int` (`rmf_rec_pid_num`,`rmf_xsdmf_id`,`rmf_int`),
+  ADD FULLTEXT KEY `rmf_varchar` (`rmf_varchar`),  
+  ADD FULLTEXT KEY `rmf_varchar_combo_full` (`rmf_rec_pid`,`rmf_varchar`) ,
   default CHARACTER SET utf8; 
  
 
@@ -162,7 +163,6 @@ ALTER TABLE `%TABLE_PREFIX%record_matching_field`
 ALTER TABLE `%TABLE_PREFIX%search_key` 
   drop key `sek_title`;
 
-DROP TABLE `%TABLE_PREFIX%statistics`;
 
 CREATE TABLE `%TABLE_PREFIX%statistics_all` (
   `stl_id` int(11) NOT NULL auto_increment,
@@ -268,3 +268,4 @@ ALTER TABLE `%TABLE_PREFIX%xsd_loop_subelement`
 
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%auth_index`;
+DROP TABLE IF EXISTS `%TABLE_PREFIX%statistics`;

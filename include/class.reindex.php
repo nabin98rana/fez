@@ -197,7 +197,6 @@ class Reindex
         for ($detail = $this->getNextFedoraObject(); !empty($detail); $detail = $this->getNextFedoraObject()) {
             if (!empty($this->bgp)) {
                 $this->bgp->setProgress(++$ii);
-                Error_Handler::logError($this->listSession, __FILE__,__LINE__);
             }
             if (!Reindex::inIndex($detail['pid'])) {
                 if (!empty($this->bgp)) {

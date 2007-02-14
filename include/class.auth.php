@@ -641,8 +641,9 @@ class Auth
 					}			
 				}		
 			}
+            $editor_matches = array_intersect(explode(',',APP_EDITOR_ROLES), $userPIDAuthGroups);
 			$indexArray[$indexKey]['isCommunityAdministrator'] = (in_array('Community Administrator', $userPIDAuthGroups) || Auth::isAdministrator()); //editor is only for the children. To edit the actual community record details you need to be a community admin
-			$indexArray[$indexKey]['isEditor'] = (in_array('Editor', $userPIDAuthGroups) || $indexArray[$indexKey]['isCommunityAdministrator'] == true);
+			$indexArray[$indexKey]['isEditor'] = (!empty($editor_matches) || $indexArray[$indexKey]['isCommunityAdministrator'] == true);
 			$indexArray[$indexKey]['isArchivalViewer'] = (in_array('Archival_Viewer', $userPIDAuthGroups) || ($indexArray[$indexKey]['isEditor'] == true));
 			$indexArray[$indexKey]['isViewer'] = (in_array('Viewer', $userPIDAuthGroups) || ($indexArray[$indexKey]['isEditor'] == true));
 			$indexArray[$indexKey]['isLister'] = (in_array('Lister', $userPIDAuthGroups) || ($indexArray[$indexKey]['isViewer'] == true));
