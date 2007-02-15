@@ -119,6 +119,9 @@ if (empty($mci_rows)) {
     $mci_rows = APP_DEFAULT_PAGER_SIZE;
 }
 $mci_order_by = Pager::getParam('mci_order_by');
+if (empty($mci_order_by)) {
+    $mci_order_by = "Title";
+}
 $mci_order_by_dir = Pager::getParam('mci_order_by_dir');
 $created_items= Record::getCreated(Auth::getUserID(), $pagerRow_my_created, $mci_rows, $mci_order_by, $mci_order_by_dir);
 $tpl->assign('my_created_items_list', $created_items['list']);
