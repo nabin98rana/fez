@@ -1,0 +1,221 @@
+<script type="text/javascript" language="javascript">
+<!--
+var page_url = '{$smarty.server.PHP_SELF}';
+var mci_current_page = {if $my_created_items_info.currentPage != ""}{$my_created_items_info.currentPage}{else}0{/if};
+var mci_last_page = {if $my_created_items_info.lastPage != ""}{$my_created_items_info.lastPage}{else}0{/if};
+{literal}
+function mci_checkDeleteRecords(f)
+{
+    if (!hasOneChecked(f, 'items[]')) {
+        alert('Please select at least one item.');
+        return false;
+    }
+    if (!confirm('The checked items will be deleted, are you sure?')) {
+        return false;
+    } else {
+        var features = 'width=420,height=200,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
+        var popupWin = window.open('', '_popup', features);
+        popupWin.focus();
+         return true;
+    }
+}
+function mci_checkPublishRecords(f)
+{
+    if (!hasOneChecked(f, 'items[]')) {
+        alert('Please select at least one item.');
+        return false;
+    }
+    if (!confirm('The checked items will be published, are you sure?')) {
+        return false;
+    } else {
+        cat = getFormElement(f, 'cat');
+        cat.value = 'publish_objects';  
+        var features = 'width=420,height=200,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
+        var popupWin = window.open('', '_popup', features);
+        popupWin.focus();
+         return true;
+    }
+}
+
+
+function mci_checkPageField(ev)
+{
+    // check if the user is trying to submit the form by hitting <enter>
+    if (((window.event) && (window.event.keyCode == 13)) ||
+            ((ev) && (ev.which == 13))) {
+        return false;
+    }
+}
+function mci_goPage(f, new_page)
+{
+    if ((new_page > mci_last_page+1) || (new_page <= 0) ||
+            (new_page == mci_current_page+1) || (!isNumberOnly(new_page))) {
+        f.page.value = mci_current_page+1;
+        return false;
+    }
+    setPage(new_page-1);
+}
+function mci_setPage(new_page)
+{
+    if ((new_page > mci_last_page) || (new_page < 0) ||
+            (new_page == mci_current_page)) {
+        return false;
+    }
+    window.location.href = page_url + "?" + replaceParam(window.location.href, 'pagerRow_my_created', new_page);
+}
+function mci_disableFields(f)
+{
+    if (mci_current_page == 0) {
+        f.first.disabled = true;
+        f.previous.disabled = true;
+    }
+    if ((mci_current_page == mci_last_page) || (mci_last_page <= 0)) {
+        f.next.disabled = true;
+        f.last.disabled = true;
+    }
+    if ((mci_current_page == 0) && (mci_last_page <= 0)) {
+        f.page.disabled = true;
+        f.go.disabled = true;
+    }
+}
+
+function mci_sortList(f, field) {
+    order_by = getSelectedOption(f, field);
+    order_by_dir = getSelectedOption(f, 'mci_order_by_dir');    
+    temp = page_url + "?" + 'mci_order_by=' + order_by;
+    window.location.href = temp + "&" + 'mci_order_by_dir=' + order_by_dir;
+}
+
+
+{/literal}
+// -->
+</script>
+<form name="created_records" method="post" action="{$rel_url}popup.php" target="_popup">
+<div class="outline">
+<div class="contentheader">
+Created Items
+</div>
+<span class="default">
+Showing items {math equation="x + 1" x=$my_created_items_info.currentRow} 
+to {$my_created_items_info.currentLastRow} of {$my_created_items_info.totalRows}
+</span>
+
+
+
+<div>
+
+<span class="default">Order By </span>
+                   <select class="default" name="mci_order_by" onchange="javascript:mci_sortList(this.form, 'mci_order_by');">
+                       {html_options options=$order_by_list selected=$smarty.get.mci_order_by|default:$order_by_default}
+                   </select>
+
+
+                   <select class="default" name="mci_order_by_dir" onchange="javascript:mci_sortList(this.form, 'mci_order_by');">
+                       {html_options options=$order_by_dir_list selected=$smarty.get.mci_order_by_dir|default:$order_by_dir_default}
+                   </select>
+			</div>
+			
+</div>
+
+<input type="hidden" name="cat" value="purge_objects" />
+
+   <table class="listing">
+     <tr bgcolor="{$cell_color}">
+       <td width="10"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form, 'items[]');" 
+       class="button" /></td>
+       <td class="default">&nbsp;<b>Title</b></td>
+     </tr>
+{assign var="list" value=$my_created_items_list}
+     {section name="i" loop=$list}
+		{if $list[i].thumbnail != "0"}
+			{assign var="icon" value=$eserv_url|cat:"?pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].thumbnail}
+		{else}
+			{assign var="icon" value="images/record.jpg" }
+		{/if}
+	     {cycle values=$cycle assign="row_color"}
+     <tr bgcolor="{$row_color}">
+       <td><input type="checkbox" name="items[]" value="{$list[i].pid}" /></td>
+       <td class="default">
+
+
+		<a href="{$rel_url}view.php?pid={$list[i].pid|escape}"><img align="absmiddle" src="{$icon}" border="0"></a>
+         <a href="{$rel_url}view.php?pid={$list[i].pid|escape}">{$list[i].title.0|escape}</a>
+			  {section name="w" loop=$list[i].workflows}
+			    {if $list[i].workflows[w].wft_icon == 'images/security.gif'}
+			      {if $list[i].security == 'include'}
+			        {assign var="wf_icon" value="images/security_include.gif"}
+			      {elseif $list[i].security == 'exclude'}
+			        {assign var="wf_icon" value="images/security_exclude.gif"}
+			      {elseif $list[i].security == 'inherit'}
+		                {assign var="wf_icon" value="images/security_inherit.gif"}
+			      {else}
+			        {assign var="wf_icon" value=$list[i].workflows[w].wft_icon}
+			      {/if}
+		            {else}
+			      {assign var="wf_icon" value=$list[i].workflows[w].wft_icon}
+			    {/if}
+                            {if $list[i].workflows[w].wft_type_id == 6}
+                              {assign var='wf_url' value=$rel_url|cat:'workflow/export.php'}
+                            {else}
+                              {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
+			    {/if}
+			<a href='{$wf_url}?pid={$list[i].pid|escape:"html"}&cat=select_workflow&xdis_id={$list[i].xdis_id.0}&wft_id={$list[i].workflows[w].wft_id}&href={$smarty.server.REQUEST_URI}'
+                        ><img title="{$list[i].workflows[w].wfl_title}" align="absmiddle" 
+                        src="{$rel_url}{$wf_icon}" border="0"></a> 
+			  {/section}
+    <a href="workflow/list_workflows2.php?pid={$list[i].pid|escape}"
+                        >...</a> 
+		<br />
+	   {if $list[i].author}<b>{section name="author_loop" loop=$list[i].author}{assign var="next_author" value=$smarty.section.author_loop.index+1}{$list[i].author[author_loop]|escape:"html"}{if $list[i].author[$next_author] != ""} and {/if}{/section}</b>{if $list[i].date.0} {else}<br />{/if}{/if}{if $list[i].date.0}({$list[i].date.0|date_format:"%Y"})<br />{/if}
+	   {if $list[i].research_program.0}{$list[i].research_program.0|escape:"html"}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'} - <i>{$list[i].xdis_title.0|escape:"html"}</i>{/if}<br />{else}{if $list[i].xdis_title.0}<i>{$list[i].xdis_title.0|escape:"html"}</i><br />{/if}{/if}
+		 (Created: {$list[i].created_date.0|date_format:"%c"}{if $list[i].updated_date.0 <> $list[i].created_date.0} Last Updated: {$list[i].updated_date.0|date_format:"%c"}{/if})
+       </td>
+     </tr>
+     {sectionelse}
+     <tr>
+       <td colspan="5" bgcolor="{$light_color}" align="center" class="default">
+         No workflow items could be found.
+       </td>
+     </tr>
+     {/section}
+     </table>
+
+     <table class="listing">
+     <tr bgcolor="{$cell_color}">
+       <td width="10px"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form, 'items[]');" 
+       class="button" /></td>
+       <td >
+{* no delete or publish, since creator doesn't necessarily have those
+	    permissions *}
+       </td>
+       <td width="40%" align="center" nowrap>
+       <nobr>
+       <input name="first" type="button" value="|&lt;" class="shortcut" onClick="javascript:mci_setPage(0);">
+       <input name="previous" type="button" value="&lt;&lt;" class="shortcut" onClick="javascript:mci_setPage({$my_created_items_info.prevPage});">
+       <input type="text" name="page" size="3" maxlength="3" value="{math equation="x + 1" x=$my_created_items_info.currentPage|default:0}" style="background: {$cell_color};" class="paging_input" onKeyPress="javascript:return mci_checkPageField(event);">
+       <input name="go" type="button" value="Go" class="shortcut" onClick="javascript:mci_goPage(this.form, this.form.page.value);">
+       <input name="next" type="button" value="&gt;&gt;" class="shortcut" onClick="javascript:mci_setPage({$my_created_items_info.nextPage});">
+       <input name="last" type="button" value="&gt;|" class="shortcut" onClick="javascript:mci_setPage({$my_created_items_info.lastPage});">
+                  </nobr>
+                </td>
+                <td nowrap>
+                  <select name="page_size" class="default" onChange="javascript:mci_resizePager(this.form);">
+                    <option value="5" {if $options.rows == 5}selected{/if}>5</option>
+                    <option value="10" {if $options.rows == 10}selected{/if}>10</option>
+                    <option value="15" {if $options.rows == 15}selected{/if}>15</option>
+                    <option value="25" {if $options.rows == 25}selected{/if}>25</option>
+                    <option value="50" {if $options.rows == 50}selected{/if}>50</option>
+                    <option value="100" {if $options.rows == 100}selected{/if}>100</option>
+                    <option value="150" {if $options.rows == 150}selected{/if}>150</option>
+                  </select>
+                  <input type="button" value="Show Rows" class="shortcut" onClick="javascript:mci_resizePager(this.form);">
+                </td>
+                <script type="text/javascript" language="JavaScript">
+                <!--
+                mci_disableFields(getForm('created_records'));
+                // -->
+                </script>
+     </tr>
+   </table>
+   </form>
+  </div>
