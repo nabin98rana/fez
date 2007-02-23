@@ -1307,6 +1307,7 @@ if ($order_by == 'File Downloads') {
                 ORDER BY $extra_order display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
 
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        //Error_Handler::logError($stmt);
 
 		//echo $stmt; //return array();
 		$securityfields = Auth::getAllRoles();
@@ -1370,7 +1371,9 @@ if ($order_by == 'File Downloads') {
         $start = $current_row * $max;
         $sekdet = Search_Key::getDetailsByTitle($order_by);
         $data_type = $sekdet['xsdmf_data_type'];
-		$restrictSQL = "";
+        $authArray = Collection::getAuthIndexStmt();
+        $authStmt = $authArray['authStmt'];
+
 		$middleStmt = "";
 		$order_field = "";
 		$termCounter = 2;
@@ -1405,7 +1408,10 @@ if ($order_by == 'File Downloads') {
 		if ($show_field == "") {
 			$show_field = $group_field;
 		}
+        
+        
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        // 
 		$middleStmt .= 
 		" INNER JOIN 
 				  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS r".$termCounter." on  r".$termCounter.".rmf_id = r1.rmf_id
@@ -1413,8 +1419,8 @@ if ($order_by == 'File Downloads') {
                 ON r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id
                 INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key AS s".$termCounter."  
                 ON s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id
-				AND s".$termCounter.".sek_title = '".$searchKey."' ".$restrictSQL."
-		";
+				AND s".$termCounter.".sek_title = '".$searchKey."' 
+                $authStmt ";
         $stmt = "SELECT ".APP_SQL_CACHE." 
                     count(*) as record_count, ".$show_field." as ".$as_field."
                  FROM
@@ -1442,7 +1448,7 @@ if ($order_by == 'File Downloads') {
 				 } else {
 				 	$stmt .= $group_field;					 					 
 				 }
-
+                 //Error_Handler::logError($stmt);
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		foreach ($res as $key => $row) {
 			if (trim($row[$as_field]) != "") {
