@@ -974,31 +974,22 @@ class Collection
 			return array();
 		}
 		$termCounter = 2;
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $authArray = Collection::getAuthIndexStmt(array("Lister", "Viewer", "Editor", "Creator"));
+        $authStmt = $authArray['authStmt'];
 		$stringIDs = implode("', '", Misc::array_flatten($treeIDs));
-		$middleStmt = 
-		" INNER JOIN (
-				SELECT ".APP_SQL_CACHE."  distinct r".$termCounter.".rmf_rec_pid 
-				FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r".$termCounter.",
-					  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x".$termCounter.",
-					  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s".$termCounter."  							  
-				WHERE r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id AND s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id AND s".$termCounter.".sek_title = '".$searchKey."' AND r".$termCounter.".rmf_varchar in ('".$stringIDs."') 
-				) as r".$termCounter." on r1.rmf_rec_pid = r".$termCounter.".rmf_rec_pid
+		$stmt = "SELECT ".APP_SQL_CACHE." cvo_id, count(distinct r{$termCounter}.rmf_rec_pid) 
+				FROM  {$dbtp}record_matching_field r".$termCounter."
+				INNER JOIN {$dbtp}xsd_display_matchfields x".$termCounter." ON r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id
+				INNER JOIN {$dbtp}search_key s".$termCounter." ON s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id
+                        AND s".$termCounter.".sek_title = '".$searchKey."'  	
+                INNER JOIN {$dbtp}controlled_vocab ON cvo_id IN ('".$stringIDs."') 
+                        AND cvo_title=r".$termCounter.".rmf_varchar
+                $authStmt
+                GROUP BY cvo_id               						  
 		";
-        $stmt = "SELECT ".APP_SQL_CACHE." 
-                    r1.rmf_varchar, count(distinct r1.rmf_rec_pid) as cv_count
-                 FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1 inner join 
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on r1.rmf_xsdmf_id = x1.xsdmf_id left join
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id) left join
- 				    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 on (k1.sek_id = x1.xsdmf_sek_id)
-				";				
-				$stmt .= $middleStmt;
-				$stmt .= 
-                " WHERE
-				    k1.sek_title = 'Subject'
-				 GROUP BY
-				 	r1.rmf_varchar";
-		$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+		//Error_Handler::logError($stmt);
+        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
@@ -1190,7 +1181,8 @@ class Collection
 		            inner join {$dbtp}record_matching_field r".$termCounter." on r".$termCounter.".rmf_rec_pid = r2.rmf_rec_pid
                     inner join {$dbtp}xsd_display_matchfields x".$termCounter." on r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id 
                     inner join {$dbtp}search_key AS s".$termCounter." on s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id
-                    and s".$termCounter.".sek_title = '".$searchKey."' ".$restrictSQL;
+                      and s".$termCounter.".sek_title = '".$searchKey."'  
+                    $restrictSQL";
 
 		$termCounter++;
 /*
@@ -1225,7 +1217,7 @@ class Collection
 						$bodyStmt .= "
 						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s".$termCounter."
 						on s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id
-						and s".$termCounter.".sek_title = '$order_by'  ";
+						and (s".$termCounter.".sek_title = '$order_by' OR r{$termCounter}.rmf_{$data_type} is null) ";
 					}
 //		} elseif ($searchKey == "Created Date") {
 		
