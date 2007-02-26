@@ -72,8 +72,8 @@ class Lister
             $order_by_list['Relevance'] = "Search Relevance";
         }
         $tpl->assign('order_by_list', $order_by_list);
-        if (!in_array($order_by, $order_by_list)) {
-            $orderby_keys = array_keys($order_by_list);
+        $orderby_keys = array_keys($order_by_list);
+        if (!in_array($order_by, $orderby_keys)) {
             $order_by = $orderby_keys[0];
         }
         $list_info = array();
