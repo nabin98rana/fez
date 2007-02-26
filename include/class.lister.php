@@ -52,6 +52,30 @@ class Lister
         $collection_pid = Pager::getParam('collection_pid',$params);
         $community_pid = Pager::getParam("community_pid",$params);
         $order_by = Pager::getParam('order_by',$params);
+        $order_by_list = array();
+        if (!empty($community_pid)) {
+            $order_by_list = array(
+                'Title' => 'Title',
+                'Description' => 'Description'
+            );
+        } elseif (empty($community_pid) && empty($collection_pid) && empty($cat) && empty($browse)) {
+            $order_by_list = array(
+                'Title' => 'Title',
+                'Description' => 'Description'
+            );
+        } else {
+            foreach (Search_Key::getAssocListAdvanced() as $key => $value) {
+                $order_by_list[$value] = $value;
+            }
+        }
+        if (!empty($terms) || $cat == 'search') {
+            $order_by_list['Relevance'] = "Search Relevance";
+        }
+        $tpl->assign('order_by_list', $order_by_list);
+        if (!in_array($order_by, $order_by_list)) {
+            $orderby_keys = array_keys($order_by_list);
+            $order_by = $orderby_keys[0];
+        }
         $list_info = array();
         if (!empty($collection_pid)) {
             if (empty($order_by)) {
@@ -279,27 +303,6 @@ class Lister
             $tpl->assign("list_type", "community_list");
             $tpl->assign("list_heading", "List of Communities");
         }
-        $order_by_list = array();
-        if (!empty($community_pid)) {
-            $order_by_list = array(
-                'Title' => 'Title',
-                'Description' => 'Description'
-            );
-        } elseif (empty($community_pid) && empty($collection_pid) && empty($cat) && empty($browse)) {
-            $order_by_list = array(
-                'Title' => 'Title',
-                'Description' => 'Description'
-            );
-        } else {
-            foreach (Search_Key::getAssocListAdvanced() as $key => $value) {
-                $order_by_list[$value] = $value;
-            }
-        }
-        if (!empty($terms) || $cat == 'search') {
-            $order_by_list['Relevance'] = "Search Relevance";
-        }
-        $tpl->assign('order_by_list', $order_by_list);
-
         $tpl->assign('order_by_default', $order_by);
         $workflows_list = Misc::keyPairs(Workflow::getList(), 'wfl_id', 'wfl_title');
         $tpl->assign('workflows_list', $workflows_list);
