@@ -63,6 +63,10 @@ class Fedora_API {
 	function checkFedoraServer() {
 		$ch = curl_init(APP_BASE_FEDORA_APIA_DOMAIN."/search");
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
+          curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
+          curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        }
 		$results = curl_exec($ch);
 		$info = curl_getinfo($ch);
 		curl_close ($ch);
@@ -106,8 +110,10 @@ class Fedora_API {
 		$getString = APP_BASE_FEDORA_APIM_DOMAIN."/mgmt/getNextPID?xml=true";
 		$ch = curl_init($getString);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
+          curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
+          curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        }
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);					
 		$results = curl_exec($ch);
 		if ($results) {
@@ -179,6 +185,7 @@ class Fedora_API {
     function callFindObjects($resultFields = array('pid', 'title', 'identifier', 'description', 'type'),
                             $maxResults = 10, $query_terms="")
     {
+        //Error_Handler::logError($query_terms);
         return Fedora_API::openSoapCallAccess('findObjects', array(
             'resultFields' => $resultFields,
              new soapval('maxResults','nonNegativeInteger', $maxResults),
@@ -186,7 +193,7 @@ class Fedora_API {
             //                array('terms' => "$query_terms*") 
             //            ,false,'http://www.fedora.info/definitions/1/0/types/')
             new soapval('query','FieldSearchQuery',
-                            array('terms' => "$query_terms*"), 
+                            array('terms' => "$query_terms"), 
                         false,'http://www.fedora.info/definitions/1/0/types/')
         ));
         
@@ -385,6 +392,10 @@ class Fedora_API {
  		    curl_setopt($ch, CURLOPT_POSTFIELDS, array('file' => "@".$loc_dir.$dsIDName)); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
 		    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 		    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
+              curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
+              curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            }
 		    $uploadLocation = curl_exec($ch);
 			if ($uploadLocation) {
 				$uploadLocation = trim(str_replace("\n", "", $uploadLocation));
@@ -481,6 +492,10 @@ class Fedora_API {
 		   curl_setopt($ch, CURLOPT_POSTFIELDS, array('file' => "@".$local_file_location));
 		   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 		   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
+              curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
+              curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            }
 		   $uploadLocation = curl_exec($ch);
 		   if ($uploadLocation) {
 			   curl_close ($ch);
@@ -624,8 +639,10 @@ class Fedora_API {
 			$getString = APP_BASE_FEDORA_APIA_DOMAIN."/listDatastreams/".$pid."?xml=true";
 			$ch = curl_init($getString);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);			
+            if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
+              curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
+              curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            }
 			$results = curl_exec($ch);
 			$info = curl_getinfo($ch);
 			curl_close ($ch);

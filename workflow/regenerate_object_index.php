@@ -11,10 +11,11 @@
 include_once(APP_INC_PATH. 'class.auth.php');
 include_once(APP_INC_PATH . "class.bgp_index_object.php");
 
-$pid = $this->pid;
+$terms = "$this->pid";
+$params = array();
 
 $bgp = new BackgroundProcess_Index_Object;
-$inputs = compact('pid');
+$inputs = compact('params','terms');
 $inputs_str = serialize($inputs);
 $bgp->register($inputs_str, Auth::getUserID());
 

@@ -1,74 +1,5 @@
 {include file="header.tpl.html"}
 
-{if $show_subelement_parents == true}
-
-      <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
-        <tr>
-          <td>
-            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-              <form name="xsdsel_match_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}">
-		      <input type="hidden" name="form_name" value="xsdsel_match_form">
-              {if $form_cat == 'edit'}
-              <input type="hidden" name="form_cat" value="update">
-              {else}
-              <input type="hidden" name="form_cat" value="new">
-              {/if}
-              <input type="hidden" name="xdis_id" value="{$xdis_id}">
-              <input type="hidden" name="xml_element" value="{$xml_element}">
-              <tr>
-                <td colspan="2" class="default">
-                  <b>Choose the Looping Subelement Instance:</b>
-                </td>
-              </tr>
-				<tr>
-				  <td width="5" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-				  <td width="35%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b></td>
-				  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Type</b></td>
-				  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>XSDMF ID</b></td>
-				  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Order</b></td>
-				  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Link to XSD Match Field for this Subelement Instance</b></td>
-				</tr>
-				{section name="i" loop=$xsdsel_loop_list}
-				{cycle values=$cycle assign="row_color"}
-				<tr>
-				  <td width="4" nowrap bgcolor="{$row_color}" align="center">
-					<input type="checkbox" name="items[]" value="{$xsdsel_loop_list[i].xsdsel_id}" {if $smarty.section.i.total == 0}disabled{/if}>
-				  </td>
-				  <td width="35%" bgcolor="{$row_color}" class="default">
-					&nbsp;{$xsdsel_loop_list[i].xsdsel_title}
-				  </td>
-				  <td width="15%" bgcolor="{$row_color}" class="default">
-					&nbsp;{$xsdsel_loop_list[i].xsdsel_type}
-				  </td>
-				  <td width="15%" bgcolor="{$row_color}" class="default">
-					&nbsp;{$xsdsel_loop_list[i].child_xsdmf_id}
-				  </td>
-				  <td width="15%" bgcolor="{$row_color}" class="default">
-					&nbsp;{$xsdsel_loop_list[i].xsdsel_order}
-				  </td>
-				  <td width="15%" bgcolor="{$row_color}" class="default">
-                        &nbsp;<a class="link" href="xsd_tree_match_form.php?&xdis_id={$xdis_id}&xml_element={$xml_element}&xsdsel_id={$xsdsel_loop_list[i].xsdsel_id}" title="match this XSD Display against HTML elements">Link</a>
-				  </td>
-				</tr>
-				{/section}
-				<tr>
-				  <td width="4" align="center" bgcolor="{$cell_color}">
-					<input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
-				  </td>
-				  <td colspan="5" bgcolor="{$cell_color}">
-					<input type="submit" value="Delete" class="button">
-				  </td>
-				</tr>
-				</form>
-			</table>
-		  </td>
-	    </tr>
-	  </table>	
-{else}
-      <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
-        <tr>
-          <td>
-            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">			  
               <script language="JavaScript">
               {$najax_register}
               {literal}
@@ -641,9 +572,93 @@
 					}
 				}			
 				
+				  function checkDelete(f)
+                  {
+                      if (!hasOneChecked(f, 'items[]')) {
+                          alert('Please select at least one of the xsd displays.');
+                          return false;
+                      }
+                      if (!confirm('This action will permanently remove the selected xsd displays.')) {
+                          return false;
+                      } else {
+                          return true;
+                      }
+                  }
+				
+				
               //-->
               </script>
               {/literal}
+
+{if $show_subelement_parents == true}
+
+      <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+        <tr>
+          <td>
+            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+              <form name="xsdsel_match_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}">
+		      <input type="hidden" name="form_name" value="xsdsel_match_form">
+              {if $form_cat == 'edit'}
+              <input type="hidden" name="form_cat" value="update">
+              {else}
+              <input type="hidden" name="form_cat" value="new">
+              {/if}
+              <input type="hidden" name="xdis_id" value="{$xdis_id}">
+              <input type="hidden" name="xml_element" value="{$xml_element}">
+              <tr>
+                <td colspan="2" class="default">
+                  <b>Choose the Looping Subelement Instance:</b>
+                </td>
+              </tr>
+				<tr>
+				  <td width="5" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
+				  <td width="35%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b></td>
+				  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Type</b></td>
+				  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>XSDMF ID</b></td>
+				  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Order</b></td>
+				  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Link to XSD Match Field for this Subelement Instance</b></td>
+				</tr>
+				{section name="i" loop=$xsdsel_loop_list}
+				{cycle values=$cycle assign="row_color"}
+				<tr>
+				  <td width="4" nowrap bgcolor="{$row_color}" align="center">
+					<input type="checkbox" name="items[]" value="{$xsdsel_loop_list[i].xsdsel_id}" {if $smarty.section.i.total == 0}disabled{/if}>
+				  </td>
+				  <td width="35%" bgcolor="{$row_color}" class="default">
+					&nbsp;{$xsdsel_loop_list[i].xsdsel_title}
+				  </td>
+				  <td width="15%" bgcolor="{$row_color}" class="default">
+					&nbsp;{$xsdsel_loop_list[i].xsdsel_type}
+				  </td>
+				  <td width="15%" bgcolor="{$row_color}" class="default">
+					&nbsp;{$xsdsel_loop_list[i].child_xsdmf_id}
+				  </td>
+				  <td width="15%" bgcolor="{$row_color}" class="default">
+					&nbsp;{$xsdsel_loop_list[i].xsdsel_order}
+				  </td>
+				  <td width="15%" bgcolor="{$row_color}" class="default">
+                        &nbsp;<a class="link" href="xsd_tree_match_form.php?&xdis_id={$xdis_id}&xml_element={$xml_element}&xsdsel_id={$xsdsel_loop_list[i].xsdsel_id}" title="match this XSD Display against HTML elements">Link</a>
+				  </td>
+				</tr>
+				{/section}
+				<tr>
+				  <td width="4" align="center" bgcolor="{$cell_color}">
+					<input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
+				  </td>
+				  <td colspan="5" bgcolor="{$cell_color}">
+					<input type="submit" value="Delete" class="button">
+				  </td>
+				</tr>
+				</form>
+			</table>
+		  </td>
+	    </tr>
+	  </table>	
+{else}
+      <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+        <tr>
+          <td>
+            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">			  
               <form name="xsd_tree_match_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}">
 		      <input type="hidden" name="form_name" value="xsdmf">
 			  <input type="hidden" name="xsdmf_id" value="{$xsdmf_id}">
@@ -1002,6 +1017,10 @@
                   <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { checkRadio('xsd_tree_match_form', 'field_type', 13);  toggleControlledVocab(false);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);toggleCheckboxSelectedOption(false);toggleAuthorSelector(true);toggleAuthorSuggestor(false);toggleDateType(false);}">Author Selector</a>&nbsp;
 	              <input type="radio" name="field_type" value="author_suggestor" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'author_suggestor'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleControlledVocab(false);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);toggleCheckboxSelectedOption(false);toggleAuthorSelector(false);toggleAuthorSuggestor(true);toggleDateType(false);}">
                   <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { checkRadio('xsd_tree_match_form', 'field_type', 14);  toggleControlledVocab(false);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);toggleCheckboxSelectedOption(false);toggleAuthorSelector(false);toggleAuthorSuggestor(true);toggleDateType(false);}">Author Suggestor</a>&nbsp;
+                  <input type="radio" name="field_type" value="faculty_suggestor" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'faculty_suggestor'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleControlledVocab(false);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);toggleCheckboxSelectedOption(false);toggleAuthorSelector(false);toggleAuthorSuggestor(true);toggleDateType(false);}">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { checkRadio('xsd_tree_match_form', 'field_type', 14);  toggleControlledVocab(false);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);toggleCheckboxSelectedOption(false);toggleAuthorSelector(false);toggleAuthorSuggestor(true);toggleDateType(false);}">Faculty Suggestor</a>&nbsp;                  
+                  <input type="radio" name="field_type" value="student_suggestor" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'student_suggestor'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleControlledVocab(false);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);toggleCheckboxSelectedOption(false);toggleAuthorSelector(false);toggleAuthorSuggestor(true);toggleDateType(false);}">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { checkRadio('xsd_tree_match_form', 'field_type', 14);  toggleControlledVocab(false);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);toggleCheckboxSelectedOption(false);toggleAuthorSelector(false);toggleAuthorSuggestor(true);toggleDateType(false);}">Student Suggestor</a>&nbsp;                  
 <br />            <input type="radio" name="field_type" value="org_selector" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'org_selector'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleAuthorSelector(false);toggleControlledVocab(false);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);toggleCheckboxSelectedOption(false);toggleAuthorSuggestor(false);toggleDateType(false);}">
                   <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { checkRadio('xsd_tree_match_form', 'field_type', 15);  toggleAuthorSelector(false);toggleControlledVocab(false);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);toggleXSDMF_ID_Refs(false);toggleCheckboxSelectedOption(false);toggleAuthorSuggestor(false);toggleDateType(false);}">Organisational Structure Selector</a>&nbsp;
 
@@ -1076,6 +1095,7 @@
 					<select class="default" name="xsdmf_cvo_min_level">
 					  	<option value=0 {if ($info.xsdmf_cvo_min_level == 0) or ($info.xsdmf_cvo_min_level == '')}selected{/if}>Top Parent Branch</option>
 					  	<option value=1 {if ($info.xsdmf_cvo_min_level == 1)}selected{/if}>First Child Branch</option>
+					  	<option value=2 {if ($info.xsdmf_cvo_min_level == 2)}selected{/if}>Last Child Branch</option>
 					</select><br />
 					<span class="default">Save CVO value or ID?:</span>					
 					<select class="default" name="xsdmf_cvo_save_type">

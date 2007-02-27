@@ -66,7 +66,8 @@ $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 $reindex = new Reindex;
-$terms = Pager::getParam('keywords');
+$terms = Pager::getParam('keywords')."*"; 
+$tpl->assign('keywords', Pager::getParam('keywords'));
 
 if ($isAdministrator) {
     if (!empty($HTTP_POST_VARS["go_list"])) {
@@ -89,8 +90,6 @@ $pagerRow = Pager::getParam('pagerRow');
 if (empty($pagerRow)) {
     $pagerRow = 0;
 }
-$terms = Pager::getParam('keywords');
-$tpl->assign('keywords', $terms);
 $options = Pager::saveSearchParams();
 $tpl->assign("options", $options);
 if ($index_type == INDEX_TYPE_FEDORAINDEX) {

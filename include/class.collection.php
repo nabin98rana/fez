@@ -1122,7 +1122,9 @@ class Collection
 		if ($searchKey == "Subject") {				
 			$terms = $_GET['parent_id'];		
 			$search_data_type = "varchar";
-			$restrictSQL = "AND match(r".$termCounter.".rmf_".$search_data_type.") against ('".$terms."')";
+			$restrictSQL = "INNER JOIN {$dbtp}controlled_vocab cv " .
+                    " ON r{$termCounter}.rmf_{$search_data_type}=cv.cvo_title
+                    AND cv.cvo_id='$terms' ";
 		} elseif ($searchKey == "Created Date") {
 			$search_data_type = "date";
             $default_tz = Misc::MySQLTZ(APP_DEFAULT_TIMEZONE);

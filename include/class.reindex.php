@@ -192,7 +192,6 @@ class Reindex
     function reindexMissingList($params,$terms)
     {
         $this->terms = $terms;
-        $detail = $this->getNextFedoraObject();
         $ii = 0;
         for ($detail = $this->getNextFedoraObject(); !empty($detail); $detail = $this->getNextFedoraObject()) {
             if (!empty($this->bgp)) {
@@ -215,7 +214,6 @@ class Reindex
     function reindexFullList($params,$terms)
     {
         $this->terms = $terms;
-        $detail = $this->getNextFedoraObject();
         $ii = 0;
         for ($detail = $this->getNextFedoraObject(); !empty($detail); $detail = $this->getNextFedoraObject()) {
             if (!empty($this->bgp)) {
