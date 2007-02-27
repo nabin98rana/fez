@@ -316,9 +316,9 @@ class Controlled_Vocab
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
                  SET 
                     cvo_title = '" . Misc::escapeString($HTTP_POST_VARS["cvo_title"]) . "',
-                    cvo_external_id = " . trim($HTTP_POST_VARS["cvo_external_id"]). ",
+                    cvo_external_id = '" . trim($HTTP_POST_VARS["cvo_external_id"]). "',
                     cvo_desc = '" . Misc::escapeString($HTTP_POST_VARS["cvo_desc"]) . "'
-                 WHERE cvo_id = $cvo_id";
+                 WHERE cvo_id = '$cvo_id' ";
 
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {

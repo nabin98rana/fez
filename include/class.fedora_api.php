@@ -185,7 +185,6 @@ class Fedora_API {
     function callFindObjects($resultFields = array('pid', 'title', 'identifier', 'description', 'type'),
                             $maxResults = 10, $query_terms="")
     {
-        //Error_Handler::logError($query_terms);
         return Fedora_API::openSoapCallAccess('findObjects', array(
             'resultFields' => $resultFields,
              new soapval('maxResults','nonNegativeInteger', $maxResults),

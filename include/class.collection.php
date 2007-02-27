@@ -1301,7 +1301,6 @@ if ($order_by == 'File Downloads') {
                 ORDER BY $extra_order display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
 
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        //Error_Handler::logError($stmt);
 
 		//echo $stmt; //return array();
 		$securityfields = Auth::getAllRoles();
@@ -1402,10 +1401,7 @@ if ($order_by == 'File Downloads') {
 		if ($show_field == "") {
 			$show_field = $group_field;
 		}
-        
-        
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-        // 
 		$middleStmt .= 
 		" INNER JOIN 
 				  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS r".$termCounter." on  r".$termCounter.".rmf_id = r1.rmf_id
@@ -1442,7 +1438,7 @@ if ($order_by == 'File Downloads') {
 				 } else {
 				 	$stmt .= $group_field;					 					 
 				 }
-                 //Error_Handler::logError($stmt);
+
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		foreach ($res as $key => $row) {
 			if (trim($row[$as_field]) != "") {

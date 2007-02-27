@@ -68,7 +68,7 @@ include_once(APP_INC_PATH . "class.auth_index.php");
   */
 class Record
 {
-    
+
   /**
 	* Returns the parent details of the . Searches search key representing RELS-EXT "isDerivationOf".
 	*/
