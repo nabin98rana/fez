@@ -60,7 +60,7 @@ class ExportSpreadsheet {
         $spreadsheet = &$this->spreadsheet;
         $exclude_list = array('FezACML','FezMD','RELS-EXT');
         $exclude_prefix = array('presmd','thumbnail','web','preview');
-        $acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
+        $acceptable_roles = array("Viewer", "Community_Administrator", "Editor", "Creator", "Annotator");
 
         $record = new RecordGeneral($pid);
         if ($record->checkExists() && $record->canView(false)) {
