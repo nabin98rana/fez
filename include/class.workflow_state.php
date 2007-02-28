@@ -308,8 +308,15 @@ class Workflow_State
         return false;
     }
 
-
-    function exportStates($wfs_id, &$workflow_elem)
+    /** 
+     * exportStates
+     * Converts a workflow state to XML and appends it to the given node.  It also keeps track of
+     * the workflow behaviours referenced by the state so that the required behaviours are also exported later.
+     * @param integer $wfs_id - the id of the workflow state to export
+     * @param object $workflow_elem - the DOM node to attach the exported state XML to
+     * @param array $wfb_ids - array of behaviour ids to collect any referenced behaviours in.
+     */
+    function exportStates($wfs_id, &$workflow_elem, &$wfb_ids)
     {
         $wfs_details = Workflow_State::getDetails($wfs_id);
         $state_elem = $workflow_elem->ownerDocument->createElement('WorkflowState');
@@ -324,6 +331,10 @@ class Workflow_State
         $state_elem->setAttribute('wfs_transparent', $wfs_details['wfs_transparent']);
         $state_elem->setAttribute('wfs_roles', $wfs_details['wfs_roles']);
         $workflow_elem->appendChild($state_elem);
+        $wfb_id = $wfs_details['wfs_wfb_id'];
+        if (!in_array($wfb_id, $wfb_ids)) {
+            $wfb_ids[] = $wfb_ids;
+        }
     }
     /**
      * @returns array $state_ids_map

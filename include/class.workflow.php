@@ -372,14 +372,14 @@ class Workflow
         return false;
     }
 
-    function exportWorkflows($wfl_ids, $wfb_ids)
+    function exportWorkflows($wfl_ids)
     {
         $doc = new DOMDocument('1.0','utf-8');
         $doc->formatOutput = true;
         $doc->appendChild($doc->createElement('workflows'));
         $root = $doc->documentElement;
         $root->setAttribute('schema_version','1.0');
-        WF_Behaviour::exportBehaviours($root,$wfb_ids);
+        $wfb_ids = array();
         foreach ($wfl_ids as $wfl_id) {
             $workflow = Workflow::getDetails($wfl_id);
             $workflow_elem = $doc->createElement('workflow');
@@ -393,7 +393,7 @@ class Workflow
             $states = Workflow_State::getList($wfl_id);
             if (!empty($states)) {
                 foreach ($states as $state) {
-                    Workflow_State::exportStates($state['wfs_id'], $workflow_elem);
+                    Workflow_State::exportStates($state['wfs_id'], $workflow_elem, $wfb_ids);
                 }
             }
             $links = WorkflowStateLink::getList($workflow['wfl_id']);
@@ -403,6 +403,7 @@ class Workflow
             WorkflowTrigger::exportTriggers($workflow['wfl_id'],$workflow_elem);
             $root->appendChild($workflow_elem);
         }
+       WF_Behaviour::exportBehaviours($root,$wfb_ids);
        return $doc->saveXML();
 
     }
@@ -442,18 +443,26 @@ class Workflow
     /**
      * Import workflows from a XML doc that was previously exported
      */
-    function importWorkflows($filename,$wfl_ids,$wfb_ids)
+    function importWorkflows($filename,$wfl_ids)
     {
     	$doc = DOMDocument::load($filename);
         $feedback = array();
+        $xpath = new DOMXPath($doc);
+        $xworkflows = $xpath->query('/workflows/workflow');
+        // Find referenced behaviours to import
+        $wfb_ids = array();
+        foreach ($xworkflows as $xworkflow) {
+            if (!in_array($xworkflow->getAttribute('wfl_id'), $wfl_ids)) {
+                continue; // only check the workflows that were selected in the form
+            }
+            $wfb_ids = Workflow::collectWorkflowBehaviours($xworkflow, $wfb_ids);
+        }
         // get the behaviours and map the existing DB id to the ids in the xml doc
         $behaviour_ids_map = WF_Behaviour::importBehaviours($doc, $wfb_ids, $feedback);
         // Now import the workflows
-        $xpath = new DOMXPath($doc);
-        $xworkflows = $xpath->query('/workflows/workflow');
         foreach ($xworkflows as $xworkflow) {
             if (!in_array($xworkflow->getAttribute('wfl_id'), $wfl_ids)) {
-            	continue;
+            	continue; // only import the workflows that were selected in the form
             }
             Workflow::importWorkflow($xworkflow, $behaviour_ids_map, $feedback);
         }
@@ -497,6 +506,26 @@ class Workflow
             
             // Insert the triggers
             WorkflowTrigger::importTriggers($xworkflow, $wfl_id);
+    }
+    
+    /**
+     * collectWorkflowBehaviours
+     * Looks at an XML workflow import file and collects any behaviours it references so we 
+     * can import the required behaviours.
+     * @param object $xworkflow - DOM node of the workflow to look for behaviours ids in the workflow states.
+     * @param array $wfb_ids - Array for collecting workflow behaviour ids that we found.
+     */
+    function collectWorkflowBehaviours($xworkflow, &$wfb_ids)
+    {
+        $xpath = new DOMXPath($xworkflow->ownerDocument);
+        $xstates = $xpath->query('WorkflowState', $xworkflow);
+        foreach ($xstates as $xstate) {
+            $wfb_id = $xstate->getAttribute('wfs_wfb_id');
+            if (!in_array($wfb_id,$wfb_ids)) {
+                $wfb_ids[] = $wfb_id;
+            }
+        }
+        return $wfb_ids;
     }
 }
 

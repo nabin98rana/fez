@@ -306,12 +306,13 @@ class WF_Behaviour
                     'wfb_script_name' => $xbehaviour->getAttribute('wfb_script_name'),
                     'wfb_auto' => $xbehaviour->getAttribute('wfb_auto'),
                 );
-                $feedback[] = "Importing new behaviour $xtitle";
             	$elist = WF_Behaviour::getList($where="WHERE wfb_script_name='$xscript'");
                 if (!empty($elist)) {
+                    $feedback[] = "Overwriting behaviour $xtitle";
                     $dbid = $elist[0]['wfb_id'];
                     WF_Behaviour::update($dbid, $params);
                 } else {
+                    $feedback[] = "Importing new behaviour $xtitle";
                     $dbid = WF_Behaviour::insert($params);
                 }
             

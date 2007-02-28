@@ -129,22 +129,10 @@ function removeFieldOption(f, delete_first)
         field.options[0] = new Option('enter a new option above', '-1');
     }
 }
-function toggleCustomOptionsField(show_field)
-{
-    var f = getForm('custom_field_form');
-    f.new_value.disabled = show_field;
-    var field = getFormElement(f, 'field_options[]');
-    field.disabled = show_field;
-    f.add_button.disabled = show_field;
-    f.remove_button.disabled = show_field;
-    if (f.edit_button) {
-        f.edit_button.disabled = show_field;
-    }
-    return true;
-}
+
 function checkRequiredFields()
 {
-    var f = getForm('custom_field_form');
+    var f = getForm('wfb_form');
     f.report_form_required.disabled = !(f.report_form.checked);
     if (f.report_form_required.disabled) {
         f.report_form_required.checked = false;
@@ -154,17 +142,6 @@ function checkRequiredFields()
         f.anon_form_required.checked = false;
     }
 }
-function setCustomOptionsField()
-{
-    var f = getForm('custom_field_form');
-    var field1 = getFormElement(f, 'field_type', 0);
-    if (field1.checked) {
-        toggleCustomOptionsField(true);
-    } else {
-        toggleCustomOptionsField(false);
-    }
-    checkRequiredFields();
-}
  
 //-->
 </script>
@@ -173,14 +150,14 @@ function setCustomOptionsField()
       <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
         <tr>
           <td>
-            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-              <form name="custom_field_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}{if $wfl_id}?wfl_id={$wfl_id}{/if}" enctype="multipart/form-data">
+              <form name="wfb_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}{if $wfl_id}?wfl_id={$wfl_id}{/if}" enctype="multipart/form-data">
               {if $smarty.get.cat == 'edit'}
               <input type="hidden" name="cat" value="update">
               <input type="hidden" name="id" value="{$smarty.get.id}">
               {else}
               <input type="hidden" name="cat" value="new">
               {/if}
+            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
               <tr>
                 <td colspan="2" class="default">
                   <b>Manage Workflow Behaviours</b> 
@@ -312,19 +289,12 @@ function setCustomOptionsField()
                         <input type="submit" value="Delete" class="button">
                       </td>
                     </tr>
-                    </form>
                   </table>
+                  </form>
                 </td>
               </tr>
             </table>
           </td>
         </tr>
       </table>
-      {literal}
-      <script language="JavaScript">
-      <!--
-      window.onload = setCustomOptionsField;
-     //-->
-      </script>
-      {/literal}
 

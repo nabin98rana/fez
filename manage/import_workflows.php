@@ -70,9 +70,7 @@ if ($isAdministrator) {
                 copy($tmp_name, $filename);
                 $tpl->assign('filename', $filename);
                 $wfl_list = Workflow::listXML($filename);
-                $wfb_list = WF_Behaviour::listXML($filename);
                 $tpl->assign("wfl_list", $wfl_list);
-                $tpl->assign("wfb_list", $wfb_list);
             }
         break;
         case 3:
@@ -82,11 +80,7 @@ if ($isAdministrator) {
                if (empty($wfl_ids)) {
                     $wfl_ids = array();
                }
-               $wfb_ids = $_POST['wfb_ids'];
-               if (empty($wfb_ids)) {
-                    $wfb_ids = array();
-               }
-               $feedback = Workflow::importWorkflows($filename,$wfl_ids,$wfb_ids);
+               $feedback = Workflow::importWorkflows($filename,$wfl_ids);
                $feedback[] = "Done";
                unlink($filename);
                $tpl->assign('feedback',$feedback);

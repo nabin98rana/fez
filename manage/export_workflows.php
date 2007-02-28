@@ -54,7 +54,7 @@ if ($_POST['go']) {
     header('Pragma: private');
     header('Cache-control: private, must-revalidate');
  
-    echo Workflow::exportWorkflows($_POST['wfl_ids'], $_POST['wfb_ids']);
+    echo Workflow::exportWorkflows($_POST['wfl_ids']);
     exit;
 }
 
@@ -64,9 +64,7 @@ $tpl->assign("type", "export_workflows");
 $tpl->assign("isUser", $isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 $wfl_list = Workflow::getList();
-$wfb_list = WF_Behaviour::getList();
 $tpl->assign("wfl_list", $wfl_list);
-$tpl->assign("wfb_list", $wfb_list);
 $tpl->displayTemplate();
 
 ?>
