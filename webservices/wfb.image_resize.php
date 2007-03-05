@@ -119,4 +119,6 @@ if ($return_status <> 0) {
 	Error_Handler::logError("Image Magick Error: ".implode(",", $return_array).", return status = $return_status, for command $command \n", __FILE__,__LINE__);
 }
 
+echo ' ';
+
 ?>

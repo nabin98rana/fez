@@ -189,7 +189,7 @@
         $results = array_merge($results, SanityChecks::checkDir("APP_JHOVE_TEMP_DIR", APP_JHOVE_TEMP_DIR, true));
         if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
             $results = array_merge($results, SanityChecks::checkFile('APP_JHOVE_DIR/jhove.bat',
-                APP_JHOVE_DIR."jhove.bat", false, true));
+                APP_JHOVE_DIR."jhove.bat", false, false));
         } else {
         	$results = array_merge($results, SanityChecks::checkFile('APP_JHOVE_DIR/jhove',
                 APP_JHOVE_DIR."jhove", false, true));

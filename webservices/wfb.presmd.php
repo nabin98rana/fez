@@ -63,6 +63,9 @@ if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) 
 	} else {
 		$APP_JHOVE_CMD .= ' '.$file_dir.'/'.$file;	
 	}
+    if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { 
+        $APP_JHOVE_CMD = str_replace('/', '\\', $APP_JHOVE_CMD); // Correct path if Windows
+    }
 	if(!$file) $error .= "<b>ERROR:</b> no file specified<br>";
 	if(!is_file($file_dir.$file)) { $error .= "<b>ERROR:</b> given file filename not found or bad filename given<br>"; }
 	$command = $APP_JHOVE_CMD;
@@ -74,14 +77,6 @@ if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) 
 	}
 } 
 
-
-
-
-
-
-
-
-
-
+echo ' ';
 
 ?>
