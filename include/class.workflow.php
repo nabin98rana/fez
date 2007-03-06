@@ -181,7 +181,7 @@ class Workflow
             $getString = APP_BASE_URL."webservices/wfb.presmd.php?file=".urlencode($filename); 	 
 			$val = Misc::ProcessURL($getString);
 //			print_r($val);
-//			echo $getString; exit;
+//            Error_Handler::logError($getString); 
             if (is_numeric(strpos($filename, "/"))) {
                 $res = APP_TEMP_DIR."presmd_".Foxml::makeNCName(substr($filename, strrpos($filename, "/")+1)); 	 
             } else { 	 

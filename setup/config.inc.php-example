@@ -95,10 +95,8 @@ if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Serve
 	@define("APP_TEMP_DIR", 'c:/temp/');
     @define("APP_DELETE_CMD", 'del ');
 	@define("APP_DELETE_DIR", 'c:/temp/'); //Windows needs the delete path to be forward slashes
-	@define("APP_CONVERT_CMD", "c:/ImageMagick/convert.exe");   // To convert image (part of ImageMagick)
-	@define("APP_COMPOSITE_CMD", "c:/ImageMagick/composite.exe");   // To watermark image (part of ImageMagick)
-	@define("APP_IDENTIFY_CMD", "c:/ImageMagick/identify.exe"); // To get image information (part of ImageMagick)
-	@define("APP_JHOVE_DIR", "c:/jhove/");
+	@define("APP_CONVERT_CMD", "convert.exe");   // To convert image (part of ImageMagick)
+	@define("APP_COMPOSITE_CMD", "composite.exe");   // To watermark image (part of ImageMagick)
 	@define("APP_JHOVE_TEMP_DIR", 'c:/temp/'); // jhove needs windows style dir names when run on a win server
     ini_set("include_path", ".;" . APP_PEAR_PATH);
     @define("APP_DOT_EXEC", "c:/PROGRA~1/ATT/Graphviz/bin/dot.exe");

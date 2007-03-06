@@ -11,6 +11,11 @@
 				var last_page = {/literal}{if $list_info.last_page != ""}{$list_info.last_page}{else}0{/if}{literal};			  
               function validateForm(f)
               {
+                  if (isWhitespace(f.fname.value)) {
+                      alert('Please enter the first name of this author.');
+                      selectField(f, 'fname');
+                      return false;
+                  }
                   if (isWhitespace(f.lname.value)) {
                       alert('Please enter the last name of this author.');
                       selectField(f, 'lname');
@@ -116,7 +121,7 @@
               </tr>
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default">
-                  <b>Last Name: </b>
+                  <b>Last Name: *</b>
                 </td>
                 <td bgcolor="{$light_color}" width="80%">
                   <input type="text" name="lname" size="40" class="default" value="{$info.aut_lname}">

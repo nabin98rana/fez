@@ -965,7 +965,7 @@ class Fedora_API {
 	   $result = $client->call($call, $parms);
        if ($debug_error && is_array($result) && isset($result['faultcode'])) {
 			$fedoraError = "Error when calling $call :".$result['faultstring'];
-			Error_Handler::logError($fedoraError, __FILE__,__LINE__);		
+			Error_Handler::logError(array($fedoraError,$client->request), __FILE__,__LINE__);		
             return false;
        }
 	   return $result;

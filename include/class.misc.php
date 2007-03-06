@@ -800,13 +800,27 @@ class Misc
      * @return  string The formatted time
      */
 	function mime_content_type($f) {
-		if ((stristr(PHP_OS, 'win') && (!stristr(PHP_OS, 'darwin')))
-                || stristr(PHP_OS,'solaris')) {
-			return mime_content_type($f);
+        $ret = '';
+		if (stristr(PHP_OS, 'win') && (!stristr(PHP_OS, 'darwin'))) {
+            $xmlfile = Workflow::checkForPresMD($f);
+            //Error_Handler::logError($xmlfile);
+            $dom = DOMDocument::load($xmlfile);
+            $xp = new DOMXPath($dom);
+            $xp->registerNamespace('j','http://hul.harvard.edu/ois/xml/ns/jhove');
+            $res = $xp->query('/j:jhove/j:repInfo/j:mimeType');
+            if ($res->length > 0) {
+                $node = $res->item(0);
+                $ret = $node->nodeValue;
+            }
+            unlink($xmlfile);
+        } elseif (stristr(PHP_OS,'solaris')) {
+			$ret = mime_content_type($f);
         } else {
 			$f = escapeshellarg($f);
-			return trim( `file -bi $f` );
+			$ret = trim( `file -bi $f` );
 		}
+        //Error_Handler::logError(array($f,$ret));
+        return $ret;
 	}
 
     /**
@@ -939,6 +953,7 @@ class Misc
 									$return[$dsTitle['xsdsel_title'].$key]['STATE'] = $return[$dsTitle['xsdsel_title']]['STATE'];
 									$return[$dsTitle['xsdsel_title'].$key]['VERSIONABLE'] = $return[$dsTitle['xsdsel_title']]['VERSIONABLE'];
 									$return[$dsTitle['xsdsel_title'].$key]['ID'] = str_replace(" ", "_", $HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key]);
+                                    // change file extension to lower case
 									if (is_numeric(strpos($return[$dsTitle['xsdsel_title'].$key]['ID'], "."))) {
 										$filename_ext = strtolower(substr($return[$dsTitle['xsdsel_title'].$key]['ID'], (strrpos($return[$dsTitle['xsdsel_title'].$key]['ID'], ".") + 1)));
 										$return[$dsTitle['xsdsel_title'].$key]['ID'] = substr($return[$dsTitle['xsdsel_title'].$key]['ID'], 0, strrpos($return[$dsTitle['xsdsel_title'].$key]['ID'], ".") + 1).$filename_ext;
@@ -949,15 +964,19 @@ class Misc
 									} else {
 										$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = $HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key];
 									}
-									$return[$dsTitle['xsdsel_title'].$key]['MIMETYPE'] = 
-                                        Misc::mime_content_type($HTTP_POST_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']][$key]);
+                                    // To help determine the MIME type, the file needs to have the correct extension.
+                                    // Some versions of PHP call all uploads <hash>.tmp so we make a copy with the right name before 
+                                    // checking for the MIME type.  Not using file upload 'type' because it is unreliable.
+                                    $temp_store = APP_TEMP_DIR.$HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key];
+                                    copy($HTTP_POST_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']][$key],$temp_store);
+									$return[$dsTitle['xsdsel_title'].$key]['MIMETYPE'] 
+                                        = Misc::mime_content_type($temp_store);
+                                    unlink($temp_store);
 								}
 							}							
 						} else { // file input is not a array, so only just one file
-							$return[$dsTitle['xsdsel_title']]['CONTROL_GROUP'] = $return[$dsTitle['xsdsel_title']]['CONTROL_GROUP'];
-							$return[$dsTitle['xsdsel_title']]['STATE'] = $return[$dsTitle['xsdsel_title']]['STATE'];
-							$return[$dsTitle['xsdsel_title']]['VERSIONABLE'] = $return[$dsTitle['xsdsel_title']]['VERSIONABLE'];
 							$return[$dsTitle['xsdsel_title']]['ID'] = str_replace(" ", "_", $HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']]);
+                            // change file extension to lower case
 							if (is_numeric(strpos($return[$dsTitle['xsdsel_title']]['ID'], "."))) {
 								$filename_ext = strtolower(substr($return[$dsTitle['xsdsel_title']]['ID'], (strrpos($return[$dsTitle['xsdsel_title']]['ID'], ".") + 1)));
 								$return[$dsTitle['xsdsel_title']]['ID'] = substr($return[$dsTitle['xsdsel_title']]['ID'], 0, strrpos($return[$dsTitle['xsdsel_title']]['ID'], ".") + 1).$filename_ext;
@@ -968,8 +987,14 @@ class Misc
 							} else {
 								$return[$dsTitle['xsdsel_title']]['LABEL'] = $HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']];
 							}
+                            // To help determine the MIME type, the file needs to have the correct extension.
+                            // Some versions of PHP call all uploads <hash>.tmp so we make a copy with the right name before 
+                            // checking for the MIME type.  Not using file upload 'type' because it is unreliable.
+                            $temp_store = APP_TEMP_DIR.$HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']];
+                            copy($HTTP_POST_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']],$temp_store);
 							$return[$dsTitle['xsdsel_title']]['MIMETYPE'] = 
-                                Misc::mime_content_type($HTTP_POST_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']]);
+                                Misc::mime_content_type($temp_store);
+                            unlink($temp_store);
 						}
 					} elseif (count($label_res) == 1 && ($dsTitle['xsdsel_title'] == "Link")) { // no file inputs are involved so might be a link
 //					} elseif (($dsTitle['xsdsel_title'] == "Link")) { // no file inputs are involved so might be a link
@@ -1888,16 +1913,16 @@ class Misc
 		if ((!empty($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year'])) &&
 			 (!empty($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Month'])) &&
 			 (!empty($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Day']))) {
-			$return['value'] = sprintf('%s-%s-%s', $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year'],
+			$return['value'] = sprintf('%04d-%02d-%02d', $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year'],
 												$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Month'],
 												$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Day']);
 		} elseif ((!empty($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year'])) &&
 			 (!empty($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Month']))) {
-			$return['value'] = sprintf('%s-%s-01', $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year'],
+			$return['value'] = sprintf('%04d-%02d-01', $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year'],
 												$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Month']);
 			$dateType = 2;	// year and month
 		} elseif (!empty($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year'])) {
-			$return['value'] = sprintf('%s-01-01',$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year']);
+			$return['value'] = sprintf('%04d-01-01',$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year']);
 			$dateType = 1; // year only 
 		} else {
 			$return['value'] = '';

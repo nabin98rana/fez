@@ -263,9 +263,17 @@
     function imageMagick()
     {
     	$results = array(ConfigResult::message('Testing imageMagick'));
-        $results = array_merge($results, SanityChecks::checkFile('APP_CONVERT_CMD', APP_CONVERT_CMD, false, true));
-        $results = array_merge($results, SanityChecks::checkFile('APP_COMPOSITE_CMD', APP_COMPOSITE_CMD, false, true));
-        $results = array_merge($results, SanityChecks::checkFile('APP_IDENTIFY_CMD', APP_IDENTIFY_CMD, false, true));
+        
+        // On windows, the image magick command seem to only work through the path environment variable.
+        // We have a lot of trouble trying to run them using the full path so we don't specifiy it in the 
+        // config file and instead just have the exe name.
+        if (!stristr(PHP_OS, 'win') ||  stristr(PHP_OS, 'darwin')) { // Not Windows Server
+            $results = array_merge($results, SanityChecks::checkFile('APP_CONVERT_CMD', APP_CONVERT_CMD, false, true));
+            $results = array_merge($results, SanityChecks::checkFile('APP_COMPOSITE_CMD', APP_COMPOSITE_CMD, 
+                        false, true));
+            $results = array_merge($results, SanityChecks::checkFile('APP_IDENTIFY_CMD', APP_IDENTIFY_CMD, 
+                        false, true));
+        }
         if (strlen(APP_WATERMARK) > 0) {
         	$results = array_merge($results, SanityChecks::checkFile('APP_PATH/images/APP_WATERMARK', APP_PATH."images/".APP_WATERMARK));
         }
@@ -279,7 +287,8 @@
         }
         if (!SanityChecks::resultsClean($results)) {
         	$results[] = ConfigResult::message('Sometimes a problem with image magick on windows is that ' .
-                    'the image magick command \'convert\' needs to be in the path. ');
+                    'the image magick command \'convert.exe\' needs to be in the path and the config file just ' .
+                    'needs to have \'convert.exe\' and not the full path. ');
         }
 
         // check copyright
@@ -531,6 +540,11 @@
 
     function checkFile($configDefine, $value, $writeable = false, $exec = false)
     {
+        if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
+            $value = str_replace('/','\\',$value);
+            $value = trim($value,'"');
+        }
+
         if (!is_file($value)) {
             return array(new ConfigResult('File', $configDefine, $value, "This file doesn't exist, check the path" .
                     " and the permissions so that webserver user can read the file (the webserver must have 'rx' " .

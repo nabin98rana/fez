@@ -176,6 +176,12 @@ class Org_Structure
     function associateParent($parent_id, $child_id)
     {
         global $HTTP_POST_VARS;
+        
+        // no need to associate null parent
+        if (empty($parent_id)) {
+            return -1;
+        }
+
 		
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure_relationship
@@ -183,8 +189,8 @@ class Org_Structure
                     orr_parent_org_id,
                     orr_child_org_id					
                  ) VALUES (
-                    " .$parent_id. ",
-                    " .$child_id. "					
+                    '" .$parent_id. "',
+                    '" .$child_id. "'					
                  )";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {

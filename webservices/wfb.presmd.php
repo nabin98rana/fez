@@ -54,29 +54,36 @@ if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) 
         $presmd_file = APP_JHOVE_TEMP_DIR.'presmd_'.Foxml::makeNCName($file).'.xml';
     }
 	if (is_file($presmd_file)) { // if already exists, delete it
-		$deleteCommand = APP_DELETE_CMD." ".$presmd_file;
-		exec($deleteCommand." 2>&1");
+		unlink($presmd_file);
 	}
-	$APP_JHOVE_CMD = APP_JHOVE_DIR.'jhove -h xml -o '.$presmd_file;
-	if (is_numeric(strpos($file, " "))) {
-		$APP_JHOVE_CMD .= ' \"'.$file_dir.'/'.$file.'\"';
-	} else {
-		$APP_JHOVE_CMD .= ' '.$file_dir.'/'.$file;	
-	}
-    if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { 
-        $APP_JHOVE_CMD = str_replace('/', '\\', $APP_JHOVE_CMD); // Correct path if Windows
+    $full_file = $file_dir.'/'.$file;
+    if (is_numeric(strpos($full_file, " "))) {
+        $newfile = Foxml::makeNCName($file);
+        copy($full_file, APP_TEMP_DIR.$newfile);
+        $full_file = APP_TEMP_DIR.$newfile;
     }
-	if(!$file) $error .= "<b>ERROR:</b> no file specified<br>";
-	if(!is_file($file_dir.$file)) { $error .= "<b>ERROR:</b> given file filename not found or bad filename given<br>"; }
-	$command = $APP_JHOVE_CMD;
+    if (!stristr(PHP_OS, 'win') || stristr(PHP_OS, 'darwin')) { // Not Windows Server
+        $unix_extra = " 2>&1";
+    } else {
+        $unix_extra = '';
+        $full_file = str_replace('/','\\',$full_file);
+    }
+	$command = APP_JHOVE_DIR.'jhove -h xml -o '."$presmd_file $full_file";
+    if(!$file) $error .= "<b>ERROR:</b> no file specified<br>";
+    if(!is_file($full_file)) { $error .= "<b>ERROR:</b> given file filename not found or bad filename given<br>"; }
+    if (!empty($error)) {
+        Error_Handler::logError($error,__FILE__,__LINE__);
+    }
 	$return_status = 0;
 	$return_array = array();
-	exec($command." 2>&1", $return_array, $return_status);
+	exec($command.$unix_extra , $return_array, $return_status);
 	if ($return_status <> 0) {
 		Error_Handler::logError("JHOVE Error: ".implode(",", $return_array).", return status = $return_status, for command $command \n", __FILE__,__LINE__);
 	}
+        if (!empty($newfile)) {
+            unlink($full_file);
+        }
+        echo $presmd_file;
 } 
-
-echo ' ';
 
 ?>
