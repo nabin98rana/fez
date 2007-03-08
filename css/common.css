@@ -1,4 +1,3 @@
-
 a.app_errors {
 display:block;
 width: 90%;
@@ -18,14 +17,14 @@ cursor: text;
 }
 
 a.app_errors:hover {
-height: auto;
+	height: auto;
 cursor: text;
 }
 
 .app_error {
-border: 1px solid #FF3333;
-padding: 5px;
-margin: 5px 5px 5px 5px;
+	border: 1px solid #FF3333;
+	padding: 5px;
+	margin: 5px 5px 5px 5px;
 }
 
 .app_error_source {
@@ -36,21 +35,22 @@ margin: 5px 5px 5px 5px;
 	background: #993333;
 	padding: 5px;
 }
+
 .app_error_backtrace_file {
 	padding: 5px;
-	margin-left:100px;
+	margin-left: 100px;
 }
 
 .old_bgp {
-color:red;
+	color: red;
 }
 
 .register_suggest {
-display:none;
+	display: none;
 }
 
 div.wfl_progress {
-padding: 5px;
+	padding: 5px;
 }
 
 img.wfl_progress {
@@ -58,7 +58,6 @@ margin: 2px;
 position:relative;
 top: 5px;
 }
-
 .sanity_result_passed {
 color: green;
 }

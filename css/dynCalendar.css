@@ -1,8 +1,9 @@
-.dynCalendar_header{
+.dynCalendar_header {
 	font-family: Arial, Verdana, Helvetica, Sans-Serif;
 	font-size: 10pt;
 	font-weight: bold;
 }
+
 .dynCalendar_dayname {
 	background-color: #eeeeee;
 	border: 1px solid #c0c0c0;

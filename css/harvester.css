@@ -23,15 +23,11 @@
  *
  * include/harvester.css
  * Harvester stylesheet
- */
- 
- 
-/*
+ */ /*
  * Generic styles
  */
-
-html, body {
-	font-family: Verdana,Arial,Geneva,Helvetica,sans-serif;
+html,body {
+	font-family: Verdana, Arial, Geneva, Helvetica, sans-serif;
 	font-size: 12px;
 	background: #FFFFFF;
 }
@@ -56,12 +52,9 @@ hr {
 	border: 0;
 }
 
-
-
 /*
  * Main page layout
  */
-
 div.main {
 	margin-left: 10px;
 	margin-right: 10px;
@@ -93,11 +86,9 @@ div.spacer {
 	clear: both;
 }
 
-
 /*
  * Text styles
  */
-
 .title {
 	color: #183560;
 	font-weight: bold
@@ -148,12 +139,9 @@ input.button:hover {
 	border-right: 1px #999 solid;
 }
 
-
-
 /*
  * Form layout (thanks to alistapart.com)
  */
-
 div.form {
 	width: 750px;
 	border: 1px #000 dashed;

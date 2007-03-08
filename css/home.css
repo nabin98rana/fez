@@ -1,15 +1,13 @@
-body { 	
+body {
 	background-color: #ffffff;
 	margin: 0px;
 }
 
 /************************* Header Tags *************************/
-
-
-/************************* Footer Tags *************************/
-
+	/************************* Footer Tags *************************/
 .feedback {
-	background-image: url("../images/gradient4.gif"); background-repeat: repeat; 
+	background-image: url("../images/gradient4.gif");
+	background-repeat: repeat;
 }
 
 .footerlinks {
@@ -17,25 +15,40 @@ body {
 	font-size: 10px;
 	color: #999999;
 	text-decoration: none
-}	
-a:link.footerlinks {color: #3561C2}
-a:visited.footerlinks {color: #3561C2}
-a:hover.footerlinks {color: #FF0000; text-decoration: underline}
-a:active.footerlinks {color: #3561C2} 
+}
+
+a:link .footerlinks {
+	color: #3561C2
+}
+
+a:visited .footerlinks {
+	color: #3561C2
+}
+
+a:hover .footerlinks {
+	color: #FF0000;
+	text-decoration: underline
+}
+
+a:active .footerlinks {
+	color: #3561C2
+}
 
 /************************* Content Tags *************************/
-
-.table-header
-{background: #003399;}
+.table-header {
+	background: #003399;
+}
 
 .formfield {
-	border-right: #9ab5c3 1px solid; 
-	border-top: #9ab5c3 1px solid; 
-	font-size: 12px; color: #000000;
-	border-left: #9ab5c3 1px solid;  
-	border-bottom: #9ab5c3 1px solid; 
-	font-family: Verdana,Arial,sans-serif;
-	background-color: #ffffff;}	
+	border-right: #9ab5c3 1px solid;
+	border-top: #9ab5c3 1px solid;
+	font-size: 12px;
+	color: #000000;
+	border-left: #9ab5c3 1px solid;
+	border-bottom: #9ab5c3 1px solid;
+	font-family: Verdana, Arial, sans-serif;
+	background-color: #ffffff;
+}
 
 .highlights {
 	font-family: Verdana, Arial, sans-serif;
@@ -50,10 +63,21 @@ a:active.footerlinks {color: #3561C2}
 	text-decoration: none
 }
 
-a:hover.highlightlinks {text-decoration: underline}
-a:visited.highlightlinks {color: #1685DA;}
-a:active.highlightlinks {color: #1685DA;}
-a:link.highlightlinks {color: #1685DA;}
+a:hover .highlightlinks {
+	text-decoration: underline
+}
+
+a:visited .highlightlinks {
+	color: #1685DA;
+}
+
+a:active .highlightlinks {
+	color: #1685DA;
+}
+
+a:link .highlightlinks {
+	color: #1685DA;
+}
 
 .for {
 	font-family: Verdana, Arial, sans-serif;
@@ -68,11 +92,21 @@ a:link.highlightlinks {color: #1685DA;}
 	text-decoration: none
 }
 
-a:hover.forlinks {text-decoration: underline}
-a:visited.forlinks {color: #156DB1;}
-a:active.forlinks {color: #156DB1;}
-a:link.forlinks {color: #156DB1;}
+a:hover .forlinks {
+	text-decoration: underline
+}
 
+a:visited .forlinks {
+	color: #156DB1;
+}
+
+a:active .forlinks {
+	color: #156DB1;
+}
+
+a:link .forlinks {
+	color: #156DB1;
+}
 
 .about {
 	font-family: Verdana, Arial, sans-serif;
@@ -87,87 +121,108 @@ a:link.forlinks {color: #156DB1;}
 	text-decoration: none
 }
 
-a:hover.aboutlinks {text-decoration: underline}
-a:visited.aboutlinks {color: #156DB1;}
-a:active.aboutlinks {color: #156DB1;}
-a:link.aboutlinks {color: #156DB1;}
+a:hover .aboutlinks {
+	text-decoration: underline
+}
 
+a:visited .aboutlinks {
+	color: #156DB1;
+}
+
+a:active .aboutlinks {
+	color: #156DB1;
+}
+
+a:link .aboutlinks {
+	color: #156DB1;
+}
 
 .sidemenulinks {
 	font-family: Verdana, Arial, sans-serif;
 	font-size: 10px;
 	color: #000000;
 	text-decoration: none
-}	
+}
 
-a:hover.sidemenulinks {text-decoration: underline}
-a:visited.sidemenulinks {color: #000000;}
-a:active.sidemenulinks {color: #000000;}
-a:link.sidemenulinks {color: #000000;}	
+a:hover .sidemenulinks {
+	text-decoration: underline
+}
+
+a:visited .sidemenulinks {
+	color: #000000;
+}
+
+a:active .sidemenulinks {
+	color: #000000;
+}
+
+a:link .sidemenulinks {
+	color: #000000;
+}
 
 .footerlinks {
 	font-family: Verdana, Arial, sans-serif;
 	font-size: 10px;
 	color: #999999;
 	text-decoration: none
-}	
+}
 
-a:hover.footerlinks {text-decoration: underline; color: #000000;}
-a:visited.footerlinks {color: #999999;}
-a:active.footerlinks {color: #999999;}
-a:link.footerlinks {color: #999999;}
+a:hover .footerlinks {
+	text-decoration: underline;
+	color: #000000;
+}
 
+a:visited .footerlinks {
+	color: #999999;
+}
 
+a:active .footerlinks {
+	color: #999999;
+}
+
+a:link .footerlinks {
+	color: #999999;
+}
 
 .listrecord {
-  font-family: Verdana, Arial, Helvetica, sans-serif;
-  font-style: normal;
-  font-weight: normal;
-  font-size: 11px;
-  border: 1px solid #255282;  
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-style: normal;
+	font-weight: normal;
+	font-size: 11px;
+	border: 1px solid #255282;
 }
 
 .listrecord .tr {
-    background-color: #255282;
-    color: white;
-
+	background-color: #255282;
+	color: white;
 }
 
-.contentheader 	 	
-{ 
-    font-family: Arial, Verdana, Helvetica, Sans-Serif; font-size: 18px;
-    font-weight: bold; 
-    color: #333; 
+.contentheader {
+	font-family: Arial, Verdana, Helvetica, Sans-Serif;
+	font-size: 18px;
+	font-weight: bold;
+	color: #333;
 }
 
-.listrecord .td  {
+.listrecord .td {
 	font-size: 5px;
-    font-weight: bold;
-    background-color: #255282;
-    padding: 4px 4px 4px 4px;
-    margin: 0px 0px 0px 0px;
-    color: white;
+	font-weight: bold;
+	background-color: #255282;
+	padding: 4px 4px 4px 4px;
+	margin: 0px 0px 0px 0px;
+	color: white;
 }
 
-.tableheader 
-{
-    font-weight: bold;
+.tableheader {
+	font-weight: bold;
 }
 
-table.listing
-{
-width:100%;
+table.listing {
+	width: 100%;
 }
 
-table.listing td
-{
-margin:1px 1px 0px 0px;
-padding:1px 1px 1px 5px;
-        border-width: 0px;
+table.listing td {
+	margin: 1px 1px 0px 0px;
+	padding: 1px 1px 1px 5px;
+	border-width: 0px;
 }
-
-
-
-
-
-
