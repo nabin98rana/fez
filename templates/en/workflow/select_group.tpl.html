@@ -1,0 +1,42 @@
+<script type="text/javascript">
+<!--
+
+{literal}
+
+
+
+
+function validateForm(f)
+{
+    if (!hasOneSelected(f, 'grp_id')) {
+        errors[errors.length] = new Option('Group','grp_id');
+    }
+    
+}
+
+
+{/literal}
+// -->
+</script>
+
+<table width="100%">
+<input type="hidden" name="cat" value="submit">
+<tr>
+  <td class="contentheader" colspan="2">
+    <b>Select Group</b>
+  </td>
+</tr>
+
+<tr >
+  <td width="100" bgcolor="{$cell_color}" class="default">
+    <b>Group</b>
+  </td>
+  <td width="75%" bgcolor="{$light_color}">
+    <select class="default" name="grp_id"  >
+      {html_options options=$group_list}
+    </select>
+  </td>
+</tr>
+
+
+</table>

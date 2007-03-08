@@ -1,0 +1,52 @@
+
+<table class="listing" width="100%" cellpadding=0>
+<tr>
+{section name="i" loop=$search_keys}
+  {if ($smarty.section.i.index==3)}
+   <td nowrap valign="middle">            
+     <input class="button" type="submit" value="Search">
+     <input class="button" type="button" value="Clear" onClick="javascript:clearFilters(this.form);">
+   </td>
+  {/if}
+  {if (($smarty.section.i.index % 3)==0)}
+  </tr>
+  <tr>
+  {/if}
+  {assign var="search_key_name" value='searchKey'|cat:$search_keys[i].sek_id}
+  {assign var ="lastkey" value=$options.$search_key_name}
+  <td class="{if $lastkey != 'ALL' && $lastkey != ''}default-search-used{else}default{/if}">
+  {if $search_keys[i].sek_alt_title}{$search_keys[i].sek_alt_title}{else}{$search_keys[i].sek_title}{/if}:
+  {if $search_keys[i].sek_html_input != 'text' &&  $search_keys[i].sek_html_input != 'textarea'}
+    <script language="JavaScript">
+    <!--
+    //            search_keys[search_keys.length] = new Option('search_keys[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}', '{$search_keys[i].sek_title}');
+    //            required_search_keys[required_search_keys.length] = new Option('search_keys[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}', {if $search_keys[i].sek_html_input == 'multiple'}'multiple'{elseif $search_keys[i].sek_html_input == 'combo'}'combo'{else}'whitespace'{/if});
+    //-->
+    </script>
+  {/if}
+  <br />
+  {if $search_keys[i].sek_html_input == 'text'}
+  <input id="search_keys[{$search_keys[i].sek_id}]" type="text" name="search_keys[{$search_keys[i].sek_id}]" maxlength="255" size="35" value="{$lastkey}">
+  {elseif $search_keys[i].sek_html_input == 'textarea'}
+  <textarea id="search_keys[{$search_keys[i].sek_id}]" name="search_keys[{$search_keys[i].sek_id}]" rows="10" cols="60" value="{$lastkey}"></textarea>
+  {else}
+  <select id="search_keys[{$search_keys[i].sek_id}]" {if $search_keys[i].sek_html_input == 'multiple'}multiple size="8"{/if} name="search_keys[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}">
+    {if $search_keys[i].sek_html_input != 'multiple' && $search_keys[i].sek_smarty_variable != 'Status::getUnpublishedAssocList()'}<option value=""{if $lastkey == ""}{assign var ="lastkey" value=""}selected{/if}>any</option>{/if}
+	{if $search_keys[i].sek_smarty_variable == 'User::getAssocList()'}<option value="-1"{if $lastkey == "-1"}{assign var ="lastkey" value="-1"}selected{/if}>un-assigned</option>
+	<option value="-2"{if $lastkey == "-2"}{assign var ="lastkey" value="-2"}selected{/if}>myself</option>
+	<option value="-3"{if $lastkey == "-3"}{assign var ="lastkey" value="-3"}selected{/if}>myself and un-assigned</option>{/if}	
+	{if $search_keys[i].sek_smarty_variable == 'Status::getUnpublishedAssocList()'}<option value="-4"{if $lastkey == "-4"}{assign var ="lastkey" value="-4"}selected{/if}>any Unpublished</option>{/if}
+    {html_options options=$search_keys[i].field_options selected=$lastkey}
+  </select>
+  {/if}
+  {assign var="search_key_id" value=$search_keys[i].sek_id}
+  {if $search_keys[i].sek_html_input == 'multiple'}
+    {assign var="search_key_sufix" value="[]"}
+  {else}
+    {assign var="search_key_sufix" value=""}
+  {/if}
+  {include file="error_icon.tpl.html" field="search_keys[$search_key_id]$search_key_sufix"}
+  </td>
+{/section}
+</tr>
+</table>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+<channel>
+  <title>{if $list_heading != ""}{$list_heading|escape:'html'} - {/if}{$application_title|escape:'html'}</title>
+  <link>{$app_base_url}</link>
+  <description>{$org_name}</description>
+  <language>{$lang}</language>
+  <generator>Fez {$application_version}</generator>
+  <docs>http://blogs.law.harvard.edu/tech/rss</docs>
+  {section name="i" loop=$list}
+ 		{if $list[i].object_type.0 == '1'}
+          {assign var="href_view" value="list.php?community_pid="|cat:$list[i].pid|escape:"html"}  
+        {elseif $list[i].object_type.0 == '2'}
+	      {assign var="href_view" value="list.php?collection_pid="|cat:$list[i].pid|escape:"html"}
+	    {else}
+		  {assign var="href_view" value="view.php?pid="|cat:$list[i].pid|escape:"html"}	      
+		{/if}
+  <item>
+	  <title>{$list[i].title.0|escape:"html"}</title>
+	  <link>{$app_base_url}{$href_view}</link>
+	  {if $list[i].description.0 != "null"}	
+	  	 <description>{$list[i].description.0|escape:"html"}</description>
+	  {/if}
+	  {if $list[i].created_date.0}
+	  	<pubDate>{$list[i].created_date.0|date_format:"%a, %d %b %Y %H:%M:%S"}</pubDate>
+	  {/if}
+		{if $list[i].author}
+			<author>
+			{section name="author_loop" loop=$list[i].author}
+				{assign var="next_author" value=$smarty.section.author_loop.index+1}
+						{$list[i].author[author_loop]|escape:"html"}
+				{if $list[i].author[$next_author] != ""} og {/if}
+			{/section}
+			</author>
+		{/if}
+  </item>
+  {/section}
+</channel>
+</rss>
