@@ -861,10 +861,10 @@ class Record
         if (isset($acml_cache['pid'][$pid])) {
             return $acml_cache['pid'][$pid];
         }
-	
-		$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $ds_search);
-		$xmlACML = @$DSResultArray['stream'];
-		if ($xmlACML != "") {
+        $dsExists = Fedora_API::datastreamExists($pid, $ds_search, true);  	 	    
+        if ($dsExists == true) {
+			$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $ds_search);
+			$xmlACML = @$DSResultArray['stream'];
 			$xmldoc= new DomDocument();
 			$xmldoc->preserveWhiteSpace = false;
 			$xmldoc->loadXML($xmlACML);
@@ -939,7 +939,7 @@ class Record
      * @param string $username The username of the search is performed on
      * @return array $res2 The index details of records associated with the user
      */
-    function getAssigned($username,$currentPage=0,$pageRows="ALL",$order_by="Title", $order_by_dir=0)
+    function getAssigned($username,$currentPage=0,$pageRows="ALL",$order_by="Title", $order_by_dir=0, $isMemberOf='ALL')
     {
         if ($pageRows == "ALL") {
             $pageRows = 9999999;
@@ -965,11 +965,34 @@ class Record
             $r4_join_field = "r2.rmf_rec_pid";
         }
 
+        
+		$isMemberOfList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('isMemberOf');
+		$statusList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Status');		
+		$displayTypeList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Display Type');				
+		$order_byList = XSD_HTML_Match::getXSDMF_IDsBySekTitle($order_by);				
+		$sql_filter = array();
+		$sql_filter['where'] = "";
+		$sql_filter['elsewhere'] = "";     
+        
+        $memberOfStmt = "";
+        if ($isMemberOf != "ALL"  && isMemberOf != "") {
+        	$sql_filter['where'][] = "r2.rmf_varchar = '".Misc::escapeString($collection_pid)."'";
+			//$sql_filter['where'][] = "r2.rmf_xsdmf_id in (".implode(",", $isMemberOfList).")";      	
+        	
+        	$memberOfStmt = "
+                        INNER JOIN {$dbtp}record_matching_field AS r4
+                          ON r4.rmf_rec_pid = r2.rmf_rec_pid
+                        INNER JOIN {$dbtp}xsd_display_matchfields AS x4
+                          ON r4.rmf_xsdmf_id = x4.xsdmf_id and r4.rmf_varchar = '$isMemberOf'
+                        and r4.rmf_xsdmf_id in  (".implode(",", $isMemberOfList).")";
+
+        }        
+        
         $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
                     INNER JOIN {$dbtp}xsd_display_matchfields AS x2
                       ON r2.rmf_xsdmf_id = x2.xsdmf_id AND x2.xsdmf_element='!sta_id' and r2.rmf_int!=2
 
-
+					$memberOfStmt
                     $authStmt
 
                     ";
@@ -992,6 +1015,15 @@ class Record
                     $bodyStmtPart1
             ";
 
+/*$firstStmt = "SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid, min(r5.rmf_$data_type) as sort_column
+                    $bodyStmt
+					order by sort_column $order_dir, r2.rmf_rec_pid desc
+                    LIMIT $start, $pageRows
+                    ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid";
+                    
+*/                  
+                             
+        
         $stmt = "SELECT ".APP_SQL_CACHE."  r1.*, x1.*, s1.*, k1.*, d1.* 
             FROM {$dbtp}record_matching_field AS r1
             INNER JOIN {$dbtp}xsd_display_matchfields AS x1
@@ -1009,7 +1041,7 @@ class Record
             LEFT JOIN {$dbtp}xsd_display d1  
             ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
             ORDER BY display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
-//echo $stmt;
+//echo $stmt;`
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 
 			if (PEAR::isError($res)) {
@@ -1026,8 +1058,12 @@ class Record
 		$return = Auth::getIndexAuthorisationGroups($return);
 //		print_r($return);		
 		$return = Collection::getWorkflows($return); 
+		foreach ($return as &$result) {
+        	$parents = Record::getParents($result['pid']);
+        	$result['parents'] = $parents;
+		}
 		$list = $return;
-
+		
 
 		$totalRows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
 //        $totalRows = count($list);
@@ -1047,6 +1083,294 @@ class Record
 
 
 
+    /**
+     * .
+     *
+     * @access  public
+     * @param string $options The search parameters
+     * @return array $res2 The index details of records associated with the search params
+     */
+    function getListing($options,$currentPage=0,$pageRows="ALL")
+    {
+        if ($pageRows == "ALL") {
+            $pageRows = 9999999;
+        }
+        $start = $currentPage * $pageRows;
+		$dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX; // Database and table prefix
+        $currentRow = $currentPage * $pageRows;
+		if ($order_by_dir == 0) {
+			$order_dir = "ASC";
+		} else {
+			$order_dir = "DESC";			
+		}
+		/*
+        if (!empty($authStmt)) {
+            $r4_join_field = "ai.authi_pid";
+        } else {
+            $r4_join_field = "r2.rmf_rec_pid";
+        }*/
+
+        $searchKey_join = Record::buildSearchKeyJoins($options);
+		$authArray = Collection::getAuthIndexStmt(array("Editor", "Approver"), "r".$searchKey_join[4]);
+		$authStmt = $authArray['authStmt'];
+		$joinStmt = $authArray['joinStmt'];
+        
+ 
+		
+		$sql_filter = array();
+		$sql_filter['where'] = "";
+		$sql_filter['elsewhere'] = "";     
+        
+        
+/*        $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
+                    INNER JOIN {$dbtp}xsd_display_matchfields AS x2
+                      ON r2.rmf_xsdmf_id = x2.xsdmf_id AND x2.xsdmf_element='!sta_id' and r2.rmf_int!=2
+
+                    $authStmt
+
+                    ";
+*/
+
+		$bodyStmt = $searchKey_join[0].$searchKey_join[1].$authStmt;	
+		
+// ORDERING!! left joins, not required for count
+/*        $bodyStmt = "$bodyStmtPart1
+
+                    LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r5 on r5.rmf_rec_pid = r2.rmf_rec_pid
+                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x5
+                    on r5.rmf_xsdmf_id = x5.xsdmf_id
+                    left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s5			
+					on (s5.sek_id = x5.xsdmf_sek_id and s5.sek_title = '$order_by')  
+					where (r5.rmf_$data_type is null) or s5.sek_title = '$order_by'					
+					group by r5.rmf_rec_pid		                    
+             ";*/
+
+        $countStmt = "
+                    SELECT ".APP_SQL_CACHE."  count(distinct r".$searchKey_join[4].".rmf_rec_pid) ".
+                    $searchKey_join[0].$authStmt.$searchKey_join[2];
+            
+
+/*$firstStmt = "SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid, min(r5.rmf_$data_type) as sort_column
+                    $bodyStmt
+					order by sort_column $order_dir, r2.rmf_rec_pid desc
+                    LIMIT $start, $pageRows
+                    ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid";
+                    
+*/                  
+                             
+        
+        $stmt = "SELECT ".APP_SQL_CACHE."  r1.*, x1.*, s1.*, k1.*, d1.*, st1.*
+            FROM {$dbtp}record_matching_field AS r1
+            INNER JOIN {$dbtp}xsd_display_matchfields AS x1
+            ON r1.rmf_xsdmf_id = x1.xsdmf_id
+            INNER JOIN (
+                    SELECT ".APP_SQL_CACHE."  distinct r".$searchKey_join[4].".rmf_rec_pid
+					$bodyStmt
+					".$searchKey_join[2]."
+					order by ".$searchKey_join[3]." r".$searchKey_join[4].".rmf_rec_pid desc
+                    LIMIT $pageRows OFFSET $start
+                    ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid 
+            LEFT JOIN {$dbtp}xsd_loop_subelement s1 
+            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
+            LEFT JOIN {$dbtp}search_key k1 
+            ON (k1.sek_id = x1.xsdmf_sek_id)
+            LEFT JOIN {$dbtp}xsd_display d1  
+            ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
+            LEFT JOIN {$dbtp}status st1  
+            ON (st1.sta_id = r1.rmf_int and k1.sek_title = 'Status')
+
+             ";
+ //echo $stmt;
+//exit;
+/*                    
+        $stmt = "SELECT ".APP_SQL_CACHE."  r1.*, x1.*, s1.*, k1.*, d1.* 
+            FROM {$dbtp}record_matching_field AS r1
+            INNER JOIN {$dbtp}xsd_display_matchfields AS x1
+            ON r1.rmf_xsdmf_id = x1.xsdmf_id   
+			$bodyStmt
+			LEFT JOIN {$dbtp}xsd_loop_subelement s1 
+            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
+            LEFT JOIN {$dbtp}search_key k1 
+            ON (k1.sek_id = x1.xsdmf_sek_id)
+            LEFT JOIN {$dbtp}xsd_display d1  
+            ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
+			order by ".$searchKey_join[1].", r1.rmf_rec_pid desc
+            LIMIT $start, $pageRows ";
+*/			
+        
+		$totalRows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
+		if ($totalRows > 0) {
+			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+
+			if (PEAR::isError($res)) {
+				Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+				$res = array();
+			}
+		} else {
+			$res = array();
+		}
+
+        $return = Collection::makeReturnList($res);
+        $return = Collection::makeSecurityReturnList($return);
+//		$return = array_values($return);
+		$return = Auth::getIndexAuthorisationGroups($return);
+//		print_r($return);		
+		$return = Collection::getWorkflows($return); 
+		foreach ($return as &$result) {
+        	$parents = Record::getParents($result['pid']);
+        	$result['parents'] = $parents;
+		}
+		$list = $return;
+		
+//echo $countStmt;
+
+//        $totalRows = count($list);
+//        $list = array_slice($list,$currentRow, $pageRows);
+        $totalPages = intval($totalRows / $pageRows);
+        if ($totalRows % $pageRows) {
+            $totalPages++;
+        }
+        if ($searchKey_join[2] == "") {
+        	$noOrder = 1;
+        } else {
+        	$noOrder = 0;
+        }
+        $nextPage = ($currentPage >= $totalPages) ? -1 : $currentPage + 1;
+        $prevPage = ($currentPage <= 0) ? -1 : $currentPage - 1;
+        $lastPage = $totalPages - 1;
+        $currentLastRow = $currentRow + count($list);
+        $info = compact('totalRows', 'pageRows', 'currentRow','currentLastRow','currentPage','totalPages',
+                'nextPage','prevPage','lastPage', 'noOrder');
+       // print_r($info); exit;
+        return compact('info','list');
+    }    
+
+    function buildSearchKeyJoins($options) {
+    	$searchKey_join = array();
+        $searchKey_join[0] = ""; // initialise the return sql searchKey fields join string
+		$searchKey_join[1] = ""; // initialise the return sql where string
+		$searchKey_join[2] = ""; // initialise the return sql left joins string - so count doesnt need to do it
+
+        $searchKey_join[3] = ""; // initialise the return sql searchKey Order/Sort by join string
+        $searchKey_join[4] = 0; // initialise the first join searchKey ID
+        $searchKey_join[5] = 0; // initialise the max count of extra searchKey field joins
+		$joinType = "";
+		$x = 0;
+		$firstX = 0;
+		$firstLoop = true; 
+		$sortRestriction = "";
+		//print_r($options);
+        if (!empty($options["searchKey_count"])) {
+            if ($options["searchKey_count"] > 0) {
+            	
+            	for($x=1;$x < ($options["searchKey_count"] + 1);$x++) {
+            	 	 if (!empty($options["searchKey".$x]) && trim($options["searchKey".$x]) != "") {            	 	 	
+            	 	    $sekdet = Search_Key::getDetails($x);
+            	 	    $sek_xsdmfs = array();
+            	 	    $sek_xsdmfs = XSD_HTML_Match::getXSDMF_IDsBySekTitle($sekdet['sek_title']);            	 	    
+            	 	    if (count($sek_xsdmfs) > 0) {         
+            	 	    	if ($firstLoop === true) {
+            	 	    		$joinType = " FROM ";   	
+            	 	    		$searchKey_join[4] = $x; 	            	 	    		   	
+            	 	    	} else {
+            	 	    		$joinType = " INNER JOIN ";
+            	 	    	}
+            	 	        if ($sekdet['sek_html_input'] == 'text') {
+            	 	        	
+            	 	        	
+            	 	        	if ($firstLoop === true) {  
+            	 	        		$firstX = $x;          	 	        
+            	 	 				$searchKey_join[0] .= $joinType." 
+											     ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field as r".$x;
+									Misc::addToWhere(&$searchKey_join[2], 
+											  " r".$x.".rmf_".$sekdet['xsdmf_data_type']." like '%".$options["searchKey".$x]."%' ".
+            	 	 						 " and r".$x.".rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).")");
+            	 	        	} else {
+            	 	 				$searchKey_join[0] .= $joinType." 
+											     ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field as r".$x." on r".$x.".rmf_rec_pid = r".$searchKey_join[4].".rmf_rec_pid ".
+											  " and r".$x.".rmf_".$sekdet['xsdmf_data_type']." like '%".$options["searchKey".$x]."%' ".
+            	 	 						 " and r".$x.".rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).")";            	 	        		
+            	 	        	}
+            	 	        } else {     
+            	 	          	if ($firstLoop === true) {
+            	 	          		$firstX = $x;  
+            	 	          	}	        	
+            	 	        	$restriction = "";
+            	 	        	if ($options["searchKey".$x] == "-1") {
+            	 	        		if ($firstLoop === true) {
+            	 	        			 $joinType = " FROM ";
+            	 	        			 Misc::addToWhere(&$searchKey_join[2], "not exists 
+										(select * from ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field as sr where sr.rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).") and sr.rmf_rec_pid = r".$x.".rmf_rec_pid)");            	 	        			 
+            	 	        		} else {
+            	 	        			$joinType = " LEFT JOIN ";
+            	 	        			Misc::addToWhere(&$searchKey_join[2], "r".$x.".rmf_".$sekdet['xsdmf_data_type']." is null ");
+            	 	        			$restriction = " and r".$x.".rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).")";            	 	        			
+            	 	        		}            	 	        	                   	 	        		  	 	        		            	 	        	            	 	        	
+
+            	 	   	    	} elseif ($options["searchKey".$x] == "-2") {
+            	 	        		$usr_id = Auth::getUserID();
+            	 	        		$restriction = " and r".$x.".rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).")"." and r".$x.".rmf_".$sekdet['xsdmf_data_type']." = ".$usr_id;
+            	 	   	    	} elseif ($options["searchKey".$x] == "-4") {
+            	 	        		$published_id = Status::getID("Published");
+            	 	        		$restriction = " and r".$x.".rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).")"." and r".$x.".rmf_".$sekdet['xsdmf_data_type']." != ".$published_id;            	 	        		
+            	 	   	    	} elseif ($options["searchKey".$x] == "-3") {            	 	        		
+            	 	        		$usr_id = Auth::getUserID();
+            	 	        		if ($firstLoop === true) {            	 	        			
+            	 	        			$firstX = $x;
+            	 	        			$joinType = " FROM ";
+	            	 	        		//$sortRestriction = " and (r".$x.".rmf_".$sekdet['xsdmf_data_type']." is null or r".$x.".rmf_".$sekdet['xsdmf_data_type']." = '".$usr_id."')";
+            	 	        		} else {
+            	 	        			$joinType = " LEFT JOIN ";
+            	 	        			            	 	        			            	 	        				
+            	 	        		}           	 	        		
+            	 	        		Misc::addToWhere(&$searchKey_join[2], " ((r".$x.".rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).") and r".$x.".rmf_".$sekdet['xsdmf_data_type']." = '".$usr_id."') or not exists 
+										(select * from ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field as sr where sr.rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).") and sr.rmf_rec_pid = r".$x.".rmf_rec_pid))");
+            	 	        	} else {            	 	        
+            	 	        		$restriction = " and r".$x.".rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).")"." and r".$x.".rmf_".$sekdet['xsdmf_data_type']." = '".$options["searchKey".$x]."' ";
+            	 	        	}
+            	 	        	if ($firstLoop === true) {
+            	 	 				$searchKey_join[0] .= $joinType." 
+											     ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field as r".$x;
+            	 	 				Misc::addToWhere(&$searchKey_join[2],											  
+            	 	 						 $restriction);
+            	 	        	} else {
+            	 	 				$searchKey_join[0] .= $joinType." 
+											     ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field as r".$x." on r".$x.".rmf_rec_pid = r".$searchKey_join[4].".rmf_rec_pid ".											 
+            	 	 						 $restriction;
+            	 	 				//$searchKey
+            	 	        		
+            	 	        	}
+            	 	        }
+            	 	        $firstLoop = false; 
+            	 	    }
+            	  	}
+            	}                        	           
+            }
+        }       
+        if ($firstLoop === true) {
+        	$x = 0;        
+    	  	$searchKey_join[0] = "FROM ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field as r".$x;	
+        }
+        if (!empty($options["sort_by"]) && $x != 0) { // only do a sort if the query has be limited in some way, otherwise it is far too slow        	
+             $x = ltrim($options["sort_by"], "searchKey");
+             if (is_numeric($x)) { 
+	        	 $sekdet = Search_Key::getDetails($x);
+	             $sek_xsdmfs = XSD_HTML_Match::getXSDMF_IDsBySekTitle($sekdet['sek_title']);             
+	             if (count($sek_xsdmfs) > 0) {
+	        		$searchKey_join[1] .= " 
+					    LEFT JOIN ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field as rsort".$x." on rsort".$x.".rmf_rec_pid = r".$searchKey_join[4].".rmf_rec_pid ".
+					  " and rsort".$x.".rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).")".$sortRestriction;
+	             	if ($options["sort_order"] == "1") {
+	             		$searchKey_join[3] .= " rsort".$x.".rmf_".$sekdet['xsdmf_data_type']." DESC, ";
+	             	} else {
+	             		$searchKey_join[3] .= " rsort".$x.".rmf_".$sekdet['xsdmf_data_type']." ASC, ";         
+	             	}
+	             }
+             }
+        }      
+        return $searchKey_join;   	
+    }
+    
     /**
      * Find all records where the user is creator  (based on getAssigned)
      *
@@ -1671,6 +1995,114 @@ class RecordGeneral
         }
     }
     
+    /**
+     * _Datastream
+     * Used to associate a display for this record
+     *
+     * @access  public
+     * @param  $key
+     * @param  $value     
+     * @return  void    
+     */
+    function updateRELSEXT($key, $value) 
+    {
+    		
+		$newXML = "";
+        $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'RELS-EXT', true);
+		$doc = DOMDocument::loadXML($xmlString);
+		$xpath = new DOMXPath($doc);
+		$fieldNodeList = $xpath->query("/*[local-name()='RDF' and namespace-uri()='http://www.w3.org/1999/02/22-rdf-syntax-ns#']/*[local-name()='description' and namespace-uri()='http://www.w3.org/1999/02/22-rdf-syntax-ns#'][1]/*[local-name()='isMemberOf' and namespace-uri()='info:fedora/fedora-system:def/relations-external#']");
+		foreach ($fieldNodeList as $fieldNode) { // first delete all the isMemberOfs
+			$parentNode = $fieldNode->parentNode;
+			Error_Handler::logError($fieldNode->nodeName.$fieldNode->nodeValue,__FILE__,__LINE__);			
+			$parentNode->removeChild($fieldNode);
+		} 
+		$newNode = $doc->createElementNS('info:fedora/fedora-system:def/relations-external#', 'rel:isMemberOf');
+	    $newNode->setAttribute('rdf:resource', 'info:fedora/'.$value);
+		$parentNode->appendChild($newNode);
+//		Error_Handler::logError($doc->SaveXML(),__FILE__,__LINE__);		
+		$newXML = $doc->SaveXML();
+        if ($newXML != "") {
+            Fedora_API::callModifyDatastreamByValue($this->pid, "RELS-EXT", "A", "Relationships to other objects", $newXML, "text/xml", false);
+			Record::setIndexMatchingFields($this->pid);            
+        }
+    }    
+    
+    /**
+     * updateFezMD_User
+     * Used to assign this record to a user
+     * 
+     * @access  public
+     * @param  $key
+     * @param  $value     
+     * @return  void    
+     */
+    function updateFezMD_User($key, $value) 
+    {
+    		
+		$newXML = "";
+        $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD', true);
+		$doc = DOMDocument::loadXML($xmlString);
+		$xpath = new DOMXPath($doc);
+		$fieldNodeList = $xpath->query("//usr_id");
+		if ($fieldNodeList->length > 0) {
+			foreach ($fieldNodeList as $fieldNode) { // first delete all the existing user associations
+				$parentNode = $fieldNode->parentNode;
+				Error_Handler::logError($fieldNode->nodeName.$fieldNode->nodeValue,__FILE__,__LINE__);			
+				$parentNode->removeChild($fieldNode);
+			}
+		} else { 
+			$parentNode = $doc->lastChild;
+		}
+		$newNode = $doc->createElement('usr_id');
+	    $newNode->nodeValue = $value;
+		$parentNode->insertBefore($newNode);
+//		Error_Handler::logError($doc->SaveXML(),__FILE__,__LINE__);		
+		$newXML = $doc->SaveXML();
+        if ($newXML != "") {
+            Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez Admin Metadata", $newXML, "text/xml", false);
+			Record::setIndexMatchingFields($this->pid);            
+        }
+    }   
+    
+    /**
+     * assignGroupFezMD
+     * Used to assign this record to a group
+     * 
+     * @access  public
+     * @param  $key
+     * @param  $value     
+     * @return  void    
+     */
+    function updateFezMD_Group($key, $value) 
+    {
+    		
+		$newXML = "";
+        $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD', true);
+		$doc = DOMDocument::loadXML($xmlString);
+		$xpath = new DOMXPath($doc);
+		$fieldNodeList = $xpath->query("//grp_id");
+		if ($fieldNodeList->length > 0) {
+			foreach ($fieldNodeList as $fieldNode) { // first delete all the existing group associations
+				$parentNode = $fieldNode->parentNode;
+				Error_Handler::logError($fieldNode->nodeName.$fieldNode->nodeValue,__FILE__,__LINE__);			
+				$parentNode->removeChild($fieldNode);
+			}
+		} else { 
+			$parentNode = $doc->lastChild;
+		}
+		$newNode = $doc->createElement('grp_id');
+	    $newNode->nodeValue = $value;
+		$parentNode->insertBefore($newNode);
+//		Error_Handler::logError($doc->SaveXML(),__FILE__,__LINE__);		
+		$newXML = $doc->SaveXML();
+        if ($newXML != "") {
+            Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez Admin Metadata", $newXML, "text/xml", false);
+			Record::setIndexMatchingFields($this->pid);            
+        }
+    }    
+        
+    
     function setValue($xsdmf_id, $value, $idx)
     {
     	$this->getDisplay();
@@ -2067,6 +2499,8 @@ class RecordObject extends RecordGeneral
     var $created_date;
     var $updated_date;
 	var $depositor;
+	var $assign_grp_id;
+	var $assign_usr_id;
     var $file_downloads; //for statistics of file datastream downloads from eserv.php
     var $default_xdis_id = 5;
 
@@ -2098,6 +2532,19 @@ class RecordObject extends RecordGeneral
 		} else {
 			$this->depositor = NULL;
 		}
+    	if (isset($xdis_array['grp_id'][0])) {
+			$this->assign_grp_id = $xdis_array['grp_id'][0];
+		} else {
+			$this->assign_grp_id = NULL;
+		}		
+		if (isset($xdis_array['usr_id'][0])) {
+			foreach ($xdis_array['usr_id'] as $assign_usr_id) {
+				array_push($this->assign_usr_id, $assign_usr_id);
+			}
+		} else {
+			$this->assign_usr_id = array();
+		}
+			
 
 
     }
@@ -2233,6 +2680,8 @@ class RecordObject extends RecordGeneral
             $this->xdis_id = $HTTP_POST_VARS["xdis_id"];
         }
         $xdis_id = $this->xdis_id;
+        $assign_usr_id = $this->assign_usr_id;
+        $assign_grp_id = $this->assign_grp_id;
         $this->getDisplay();
         $display = &$this->display;
         list($array_ptr,$xsd_element_prefix, $xsd_top_element_name, $xml_schema) 
@@ -2246,7 +2695,7 @@ class RecordObject extends RecordGeneral
 		$indexArray = array();
 
 
-		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, $file_downloads, $this->created_date, $this->updated_date, $this->depositor);
+		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, $file_downloads, $this->created_date, $this->updated_date, $this->depositor, $this->assign_usr_id, $this->assign_grp_id);
 		
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
 //		echo $xmlObj;

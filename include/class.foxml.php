@@ -112,8 +112,9 @@ class Foxml
 					
             } elseif ($xsdmf_details['xsdmf_multiple'] != 1) {
                 // simple single instance - just get the value
-                $attrib_value = Misc::addPrefix(@$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id],
-                        $xsdmf_details['xsdmf_value_prefix']);
+//                $attrib_value = Misc::addPrefix(@$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id],
+//                        $xsdmf_details['xsdmf_value_prefix']);
+				$attrib_value = @$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id];
                 array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], 
                             $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
             } elseif ($xsdmf_details['xsdmf_multiple'] == 1) {
@@ -206,7 +207,7 @@ class Foxml
      * @param   integer $top_xdis_id
      * @return  string $xmlObj The xml object, plus the indexArray is passed back by reference
      */
-    function handleStaticInstance(&$attrib_value, &$indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details,  $attrib_loop_index, $element_prefix, $i, $created_date, $updated_date, $depositor, $file_downloads, $top_xdis_id) {
+    function handleStaticInstance(&$attrib_value, &$indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details,  $attrib_loop_index, $element_prefix, $i, $created_date, $updated_date, $depositor, $file_downloads, $top_xdis_id, $assign_usr_id, $assign_grp_id) {
         if ($xsdmf_details['xsdmf_fez_variable'] == "pid") {
             $attrib_value = $pid;
             array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $pid));
@@ -225,7 +226,13 @@ class Foxml
         } elseif ($xsdmf_details['xsdmf_fez_variable'] == "xdis_id") {
             $attrib_value = $top_xdis_id;
             array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $top_xdis_id));
-		} elseif ($xsdmf_details['xsdmf_smarty_variable'] != "") {
+        } elseif ($xsdmf_details['xsdmf_fez_variable'] == "assigned_usr_id") {
+            $attrib_value = $assign_usr_id[0];
+            array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $assign_usr_id[0]));            
+        } elseif ($xsdmf_details['xsdmf_fez_variable'] == "assigned_grp_id") {
+            $attrib_value = $assign_grp_id;
+            array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $assign_grp_id));         
+        } elseif ($xsdmf_details['xsdmf_smarty_variable'] != "") {
 			$return = Misc::getPostedDate($xsdmf_details['xsdmf_attached_xsdmf_id']);
 			$dateType = $return['dateType'];
 			eval("\$attrib_value = ".$xsdmf_details['xsdmf_smarty_variable'].";");
@@ -390,7 +397,7 @@ class Foxml
      * @param   string $updated_date 	 	 
      * @return  string $xmlObj The xml object, plus the indexArray is passed back by reference
      */
-    function array_to_xml_instance($a, &$xmlObj="", $element_prefix, $sought_node_type="", $tagIndent="", $parent_sel_id="", $xdis_id, $pid, $top_xdis_id, $attrib_loop_index="", &$indexArray=array(), $file_downloads=0, $created_date, $updated_date, $depositor) {
+    function array_to_xml_instance($a, &$xmlObj="", $element_prefix, $sought_node_type="", $tagIndent="", $parent_sel_id="", $xdis_id, $pid, $top_xdis_id, $attrib_loop_index="", &$indexArray=array(), $file_downloads=0, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id) {
         global $HTTP_POST_VARS, $HTTP_POST_FILES; 
 //        $tagIndent .= "    ";
 $tagIndent = "";
@@ -523,7 +530,7 @@ $tagIndent = "";
                                 } else {
                                     $xmlObj .= "\n".$tagIndent."<".$i.$full_attached_attribute;
                                 } 
-                                Foxml::array_to_xml_instance($j, $xmlObj, $element_prefix, "attributes", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date, $depositor);
+                                Foxml::array_to_xml_instance($j, $xmlObj, $element_prefix, "attributes", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
                                 if ($xsdmf_details['xsdmf_valueintag'] == 1) {
                                     $xmlObj .= ">\n";
                                 } else {
@@ -630,8 +637,15 @@ $tagIndent = "";
                                 array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_details['xsdmf_value_prefix'] . @$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]));
                             }
 							if (trim($attrib_value) != "") { 
-	                            $xmlObj .= $attrib_value; // The actual value to store inside the element tags, if one exists
+								if ($xsdmf_details['xsdmf_value_prefix'] != "") {
+		                            $xmlObj .= $xsdmf_details['xsdmf_value_prefix'].$attrib_value; // The actual value to store inside the element tags, if one exists
+								} else {
+									$xmlObj .= $attrib_value; // The actual value to store inside the element tags, if one exists									
+								}
 							}
+							
+							
+							
                             // *** IF IT IS A LOOPING SUBELEMENT THEN GO RECURSIVE
                             if ($xsdmf_details['xsdmf_html_input'] == 'xsd_loop_subelement') {
                                 $sel = XSD_Loop_Subelement::getListByXSDMF($xsdmf_id);
@@ -668,14 +682,14 @@ $tagIndent = "";
                                                     $xmlObj .= "\n".$tagIndent."<".$i;
                                                 } 
 												// get the attributes
-                                                Foxml::array_to_xml_instance($j, $xmlObj, $element_prefix, "attributes", $tagIndent, $sel_record['xsdsel_id'], $xdis_id, $pid, $top_xdis_id, $x, $indexArray, $file_downloads, $created_date, $updated_date, $depositor);
+                                                Foxml::array_to_xml_instance($j, $xmlObj, $element_prefix, "attributes", $tagIndent, $sel_record['xsdsel_id'], $xdis_id, $pid, $top_xdis_id, $x, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
                                                 if ($xsdmf_details['xsdmf_valueintag'] == 1) {
                                                     $xmlObj .= ">\n";
                                                 } else {
                                                     $xmlObj .= "/>\n";
                                                 }
 												//get the elements and recurse further
-                                                Foxml::array_to_xml_instance($j, $xmlObj, $element_prefix, "", $tagIndent, $sel_record['xsdsel_id'], $xdis_id, $pid, $top_xdis_id, $x, $indexArray, $file_downloads, $created_date, $updated_date, $depositor);
+                                                Foxml::array_to_xml_instance($j, $xmlObj, $element_prefix, "", $tagIndent, $sel_record['xsdsel_id'], $xdis_id, $pid, $top_xdis_id, $x, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
                                                 if ($xsdmf_details['xsdmf_valueintag'] == 1) {
                                                     if (!is_numeric(strpos($i, ":"))) {
                                                         $xmlObj .= "\n".$tagIndent."</".$element_prefix.$i.">\n";
@@ -714,11 +728,11 @@ $tagIndent = "";
 	                                    $xmlObj .= $xml_schema;
 									}
                                     $xmlObj .= ">\n";
-                                    Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", $tagIndent, "", $rel_record['xsdrel_xdis_id'], $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date, $depositor);
+                                    Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", $tagIndent, "", $rel_record['xsdrel_xdis_id'], $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
                                     $xmlObj .= "\n".$tagIndent."</".$xsd_element_prefix.$xsd_top_element_name.">\n";
                                 }
                             }
-                            Foxml::array_to_xml_instance($j, $xmlObj, $element_prefix, "", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date, $depositor);
+                            Foxml::array_to_xml_instance($j, $xmlObj, $element_prefix, "", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
                             $xmlObj .= $tagIndent;
                             if ($xsdmf_details['xsdmf_html_input'] != 'xsd_loop_subelement') { // subloop element attributes get treated differently
                                 if ($xsdmf_details['xsdmf_valueintag'] == 1) {
@@ -731,10 +745,10 @@ $tagIndent = "";
                             }
                         }
                     } else {
-                        Foxml::array_to_xml_instance($j, $xmlObj, $element_prefix, "", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date, $depositor);
+                        Foxml::array_to_xml_instance($j, $xmlObj, $element_prefix, "", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
                     } // new if is numeric
                 } else {
-                    Foxml::array_to_xml_instance($j, $xmlObj, $element_prefix, "", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date, $depositor);
+                    Foxml::array_to_xml_instance($j, $xmlObj, $element_prefix, "", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
                 }
             }
         }	

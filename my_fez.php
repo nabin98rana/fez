@@ -39,6 +39,10 @@ include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 
 include_once(APP_INC_PATH . "class.misc.php");
+include_once(APP_INC_PATH . "class.user.php");
+include_once(APP_INC_PATH . "class.workflow_trigger.php");
+include_once(APP_INC_PATH . "class.group.php");
+include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.background_process_list.php");
 include_once(APP_INC_PATH.'najax/najax.php');
@@ -48,17 +52,37 @@ $tpl = new Template_API();
 $tpl->setTemplate("my_fez.tpl.html");
 $options = Pager::saveSearchParams();
 $isMemberOf = $options['isMemberOf'];
+
+if (!array_key_exists("searchKey9", $options)) { // for the my fez unpublished items page need to set the default to any non-published items 
+	$options["searchKey9"] = "-4"; 
+	$options["noOrder"] = 0;
+}
+$assign_grp_id = $options['grp_id'];
+$sta_id = $options['sta_id'];
+$assign_usr_id = $options['usr_id'];
+//echo $assign_usr_id." ". $sta_id." ".$assign_grp_id;
+
 $order_by = $options['order_by'];
+if (empty($order_by)) {
+	$order_by = "Title";	
+}
+
 $order_by_dir = $options['order_by_dir'];
 $order_by_list = array();
 foreach (Search_Key::getAssocList() as $key => $value) {
     $order_by_list[$value] = $value;
 }
 $tpl->assign('isMemberOf_default', $isMemberOf);
+$tpl->assign('myFezView', "MAI");
+$tpl->assign('extra_title', "Assigned Unpublished Items");
 $tpl->assign('order_by_list', $order_by_list);
 $tpl->assign('order_by_dir_list', array("Asc", "Desc"));
 $tpl->assign('order_by_default', $order_by);
 $tpl->assign('order_by_dir_default', $order_by_dir);
+
+$search_keys = Search_Key::getMyFezSearchList();
+
+
 
 
 Auth::checkAuthentication(APP_SESSION);
@@ -77,25 +101,27 @@ $tpl->assign("isAdministrator", $isAdministrator);
 $collection_list = Collection::getEditList();
 //print_r($collection_list);
 $collection_assoc_list = array();
-$collection_assoc_list['ALL'] = '(All Assigned Collections)';
+//$collection_assoc_list['ALL'] = '(All Assigned Collections)';
 foreach ($collection_list as &$item) {
-   $item['community'] = implode(',',Misc::keyPairs(Collection::getParents2($item['pid']),'pid','title'));
-//   $item['count'] = Collection::getEditListingCount($item['pid']);
-   $item['count'] = Collection::getSimpleListingCount($item['pid']);   
+//   $item['community'] = implode(',',Misc::keyPairs(Collection::getParents2($item['pid']),'pid','title'));
+  //$item['count'] = Collection::getEditListingCount($item['pid']);
+//   $item['count'] = Collection::getSimpleListingCount($item['pid']);   
    $collection_assoc_list[$item['pid']] = $item['title'][0];
 }
-//print_r($collection_assoc_list);
+
+//print_r($search_keys);
+foreach ($search_keys as $skey => $svalue) {
+	if ($svalue["sek_id"] == 8) {
+		$search_keys[$skey]["field_options"] = $collection_assoc_list;
+	}	
+}
+
+
 $tpl->assign('my_collections_list', $collection_list);
-
-
-$bgp_list = new BackgroundProcessList;
-$bgp_list->autoDeleteOld(Auth::getUserID());
-$tpl->assign('bgp_list', $bgp_list->getList(Auth::getUserID()));
-$tpl->assign('bgp_states', $bgp_list->getStates());
 
 $tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
 
-
+$tpl->assign('search_keys', $search_keys);
 
 $tpl->assign("roles_list", Auth::getDefaultRoles());
 $pagerRow = Pager::getParam('pagerRow_my_assigned');
@@ -107,9 +133,27 @@ if (empty($rows)) {
     $rows = APP_DEFAULT_PAGER_SIZE;
 }
 
+$status_list = Status::getAssocList();
+
+$grp_list = Group::getAssocListAll();
+if (is_numeric($grp_id)) {
+	$usr_list = Group::getUserAssocList($usr_id);
+} else {
+	$usr_list = User::getAssocList();
+}
+$bulk_workflows = WorkflowTrigger::getAssocListByTrigger("-1", 7); //get the bulk change workflows
+$tpl->assign("bulk_workflows", $bulk_workflows);
+
+
+
 $tpl->assign("options", $options);
+$tpl->assign("grp_list", $grp_list);
+$tpl->assign("status_list", $status_list);
+$tpl->assign("usr_list", $usr_list);
 $tpl->assign("isMemberOf_list", $collection_assoc_list);
-$assigned_items= Record::getAssigned(Auth::getUsername(), $pagerRow, $rows, $order_by, $order_by_dir, $isMemberOf);
+//$assigned_items= Record::getAssigned(Auth::getUsername(), $pagerRow, $rows, $order_by, $order_by_dir, $isMemberOf);
+$assigned_items = Record::getListing($options, $pagerRow, $rows);
+
 $tpl->assign('my_assigned_items_list', $assigned_items['list']);
 $tpl->assign('my_assigned_items_info', $assigned_items['info']);
 
@@ -123,7 +167,8 @@ if (empty($mci_order_by)) {
     $mci_order_by = "Title";
 }
 $mci_order_by_dir = Pager::getParam('mci_order_by_dir');
-$created_items= Record::getCreated(Auth::getUserID(), $pagerRow_my_created, $mci_rows, $mci_order_by, $mci_order_by_dir);
+//$created_items= Record::getCreated(Auth::getUserID(), $pagerRow_my_created, $mci_rows, $mci_order_by, $mci_order_by_dir);
+
 $tpl->assign('my_created_items_list', $created_items['list']);
 $tpl->assign('my_created_items_info', $created_items['info']);
 
