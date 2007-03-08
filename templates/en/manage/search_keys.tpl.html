@@ -224,6 +224,15 @@
               </tr>
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Alternative Title (if empty Title will be used, useful for language translations of Fez):</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="text" name="sek_alt_title" size="40" class="default" value="{$info.sek_alt_title}">
+                  {include file="error_icon.tpl.html" field="alt_title"}
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Use in Simple Search?:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -238,6 +247,15 @@
                 <td bgcolor="{$light_color}">
                   <input type="checkbox" name="sek_adv_visible" class="default" {if ($info.sek_adv_visible != 0)}checked{/if}><br />
                   <span class="small_default">(If this tickbox is enabled this search key will show up as an option checkbox in the advanced search form)</span>
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Show in My Fez Search Form?:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="checkbox" name="sek_myfez_visible" class="default" {if ($info.sek_myfez_visible != 0)}checked{/if}><br />
+                  <span class="small_default">(If this tickbox is enabled this search key will show up as an option checkbox in the My Fez search form)</span>
                 </td>
               </tr>
               <tr>
@@ -376,8 +394,10 @@
                     <tr>
                       <td width="5" bgcolor="{$cell_color}" align="center" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Alt Title</b>&nbsp;</td>                      
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>In Simple Search?</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>On Adv Search Page?</b>&nbsp;</td>					  					  
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>On MyFez Search Page?</b>&nbsp;</td>					  					                        
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Multiple?</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Multiple Limit</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Field Type</b>&nbsp;</td>					  
@@ -393,10 +413,16 @@
                         &nbsp;<a href="search_keys.php?cat=edit&id={$list[i].sek_id}">{$list[i].sek_title}</a>
                       </td>
                       <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{$list[i].sek_alt_title}
+                      </td>
+                      <td bgcolor="{$row_color}" class="default">
                         &nbsp;{if $list[i].sek_simple_used == 1}<font color="green">yes</font>{else}<font color="red">no</font>{/if}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
                         &nbsp;{if $list[i].sek_adv_visible == 1}<font color="green">yes</font>{else}<font color="red">no</font>{/if}
+                      </td>
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{if $list[i].sek_myfez_visible == 1}<font color="green">yes</font>{else}<font color="red">no</font>{/if}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
                         &nbsp;{if $list[i].sek_multiple == 1}<font color="green">yes</font>{else}<font color="red">no</font>{/if}
@@ -413,7 +439,7 @@
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="8" bgcolor="{$light_color}" align="center" class="default">
+                      <td colspan="10" bgcolor="{$light_color}" align="center" class="default">
                         No search keys could be found.
                       </td>
                     </tr>
@@ -422,7 +448,7 @@
                       <td width="4" align="center" bgcolor="{$cell_color}">
                         <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
                       </td>
-                      <td colspan="7" bgcolor="{$cell_color}">
+                      <td colspan="9" bgcolor="{$cell_color}">
                         <input type="submit" value="Delete" class="button">
                       </td>
                     </tr>

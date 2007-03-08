@@ -44,7 +44,10 @@ include_once(APP_INC_PATH.'class.foxml.php');
 class WorkflowStatus {
     var $wfs_id;
     var $pid;
+    var $pids = array();    
     var $dsID;
+    var $assign_usr_ids = array();
+    var $assign_grp_id;
     var $xdis_id;
     var $wft_id;
     var $wfl_details;
@@ -66,11 +69,14 @@ class WorkflowStatus {
      * how the workflow is triggered.  Sometimes nothing is known at the start of the
      * workflow lik ehwen the user clicks 'create' on the My_Fez page.
      */
-    function WorkflowStatus($pid=null, $wft_id=null, $xdis_id=null, $dsInfo=null, $dsID='')
+    function WorkflowStatus($pid=null, $wft_id=null, $xdis_id=null, $dsInfo=null, $dsID='', $pids=array(), $assign_usr_ids=array(), $assign_grp_id=null)
     {
         $this->id = md5(uniqid(rand(), true));
         $this->pid = $pid;
+        $this->pids = $pids;        
         $this->dsID = $dsID;
+        $this->assign_usr_ids = $assign_usr_ids;
+        $this->assign_grp_id = $assign_grp_id;
         $this->wft_id= $wft_id;
         $this->xdis_id= $xdis_id;
         $this->dsInfo = $dsInfo;
@@ -231,10 +237,12 @@ class WorkflowStatus {
         $wft_type = WorkflowTrigger::getTriggerName($this->wft_details['wft_type_id']);
         $dsID = $this->dsID;
         $pid = $this->pid;
+        //$assign_usr_ids = $this->assign_usr_ids;
+        $assign_grp_id = $this->assign_grp_id;
         $parent_pid = $this->parent_pid;
         $parents_list = serialize($this->parents_list);
         $href= $this->href;
-        $args = compact('wfl_title','wft_type','parent_pid','pid', 'dsID', 'parents_list', 'action', 'href');
+        $args = compact('wfl_title','wft_type','parent_pid','pid', 'dsID', 'assign_grp_id', 'parents_list', 'action', 'href');
         $argstrs = array();
         foreach ($args as $key => $arg) {
             $argstrs[] = "$key=".urlencode($arg);

@@ -11,6 +11,7 @@ include_once(APP_INC_PATH . "class.controlled_vocab.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "class.user.php");
+include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "najax_classes.php");
 
 class Lister
@@ -22,6 +23,7 @@ class Lister
         $tpls = array(
             0 => array('file' => 'list.tpl.html', 'title' => 'Default'),
             1 => array('file' => 'views/list/author_bulk_edit.tpl.html', 'title' => 'Edit Authors'),
+            2 => array('file' => 'rss.tpl.html', 'title' => 'RSS Feed')
         );
     
         $tpl_file = $tpls[$tpl_idx]['file'];    
@@ -77,9 +79,13 @@ class Lister
             $order_by = $orderby_keys[0];
         }
         $list_info = array();
+        
+		$bulk_workflows = WorkflowTrigger::getAssocListByTrigger("-1", 7); //get the bulk change workflows
+//		print_r($bulk_workflows);
+        $tpl->assign("bulk_workflows", $bulk_workflows);
         if (!empty($collection_pid)) {
             if (empty($order_by)) {
-                $order_by = 'Author';
+                $order_by = 'Title';
             }
             // list a collection
             // first check the user has view rights over the collection object
@@ -107,6 +113,7 @@ class Lister
                         || in_array("Editor", $userPIDAuthGroups) 
                         || in_array("Collection Administrator", $userPIDAuthGroups));
                 $tpl->assign("isEditor", $isEditor);		
+                
                 $list = Collection::getListing($collection_pid, $pagerRow, $rows, $order_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
@@ -118,15 +125,15 @@ class Lister
                     $tpl->assign("childXDisplayOptions", $childXDisplayOptions);
                 } else {
                     $tpl->assign("childXDisplayOptions", 0);
-                }
+                } 
             } else {
                 $tpl->assign("show_not_allowed_msg", true);
             } 
         } elseif (!empty($community_pid)) {
-            if (empty($order_by)) {
+            /*if (empty($order_by)) {
                 $order_by = 'Title';
-            }
-
+            }*/
+			$order_by = 'Title';
             // list collections in a community
             // first check the user has view rights over the collection object
             $record = new RecordObject($community_pid);
@@ -200,9 +207,8 @@ class Lister
         } elseif ($browse == "year") {
             // browse by year
             $year = Pager::getParam('year',$params);
-            if (empty($order_by)) {
-                $order_by = 'Title';
-            }
+            $order_by = 'Title';
+
             if (is_numeric($year)) {	
                 $list = Collection::browseListing($pagerRow, $rows, "Date", $order_by);
                 $list_info = $list["info"];
@@ -240,9 +246,8 @@ class Lister
             // browse by depositor
             $depositor = Pager::getParam('depositor',$params);
 			$depositor_fullname = User::getFullName($depositor);
-            if (empty($order_by)) {
-                $order_by = 'Title';
-            }
+            $order_by = 'Title';
+
             if (!empty($depositor)) {	
                 $list = Collection::browseListing($pagerRow, $rows, "Depositor",$order_by);
                 $list_info = $list["info"];
@@ -292,9 +297,9 @@ class Lister
             $tpl->assign("browse_type", "browse_subject");
         } else {
             // list all communities
-            if (empty($order_by)) {
+//            if (empty($order_by)) {
                 $order_by = 'Title';
-            }
+//            }
             $xdis_id = Community::getCommunityXDIS_ID();
             $tpl->assign("xdis_id", $xdis_id);	
             $list = Community::getList($pagerRow, $rows, $order_by);

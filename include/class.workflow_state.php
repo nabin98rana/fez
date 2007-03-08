@@ -379,6 +379,6 @@ class Workflow_State
 
 // benchmarking the included file (aka setup time)
 if (APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included Reminder_Action Class');
+    $GLOBALS['bench']->setMarker('Included Workflow State Class');
 }
 ?>

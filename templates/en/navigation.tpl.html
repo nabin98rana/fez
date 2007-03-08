@@ -53,7 +53,7 @@
   </tr>
   <tr>
     <td>
-      <table width="100%" border="0" cellspacing="0" cellpadding="2" >
+      <table width="100%" border="0" cellspacing="0" cellpadding="2">
         <tr bgcolor="{$light_color}">
           {literal}
           <script language="JavaScript">
@@ -72,11 +72,11 @@
           <td width="10%" nowrap class="default">
             <b>User: {$current_full_name}</b> {if $isFezUser}(<a target="_top" title="modify your account details and preferences" href="{$rel_url}preferences.php" class="link">Preferences</a>){/if}
           </td>
-          <td width="90%"><div id="flash_message_div" class="flash_message" style="display:none;">
+          <td><div id="flash_message_div" class="flash_message" style="display:none;">
 		  </div></td>
 		  {/if}
           <form target="_top" method="get" action="{$rel_url}list.php">
-          <td width="5%" nowrap bgcolor="{$light_color}" align="right" >
+          <td nowrap bgcolor="{$light_color}" align="right" >
             <a href="{$rel_url}adv_search.php"><img border="0" title="Click Here for Advanced Search page" src="{$rel_url}images/search_16.gif" align="absmiddle"/></a> <label for="search" accesskey="3"></label>
             <input type="text" id="search" name="terms" value="terms" size="15" 
               onBlur="javascript:if (this.value == '') this.value = 'terms';" onFocus="javascript:if (this.value == 'terms') this.value='';" class="shortcut">

@@ -49,7 +49,8 @@ class WorkflowTrigger
             3 => "Delete", // deleting a record
             4 => "Create",  // creating a record
             5 => "Datastream",  // triggers on datastreams
-            6 => "Export"  // exporting records
+            6 => "Export",  // exporting records
+            7 => "Bulk Change"  // Bulk/Mass changes to many objects at once            
             );
     }
 
@@ -213,6 +214,29 @@ class WorkflowTrigger
         return $res;
     }
 
+    /**
+     * Get a list of workflow triggers
+     * @param string $pid Record that triggers are associcated with
+     * @param string  wherestr extra query refinement
+     * @return array List of trigger items.
+     */
+    function getAssocList($pid, $wherestr='')
+    {
+        $stmt = "SELECT wft_id, wfl_title FROM ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."workflow_trigger
+				LEFT JOIN ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."workflow on (wfl_id = wft_wfl_id) WHERE wft_pid='$pid'
+            $wherestr ORDER BY wft_type_id, wft_xdis_id";
+
+        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = array();
+        }
+/*        foreach ($res as $key => $row) {
+            $res[$key]['wft_options_split']['show_in_list'] = WorkflowTrigger::showInList($row['wft_options']);
+        } */
+        return $res;
+    }    
+    
     function getListByWorkflow($wfl_id, $wherestr='')
     {
         $stmt = "SELECT * FROM ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."workflow_trigger
@@ -240,6 +264,21 @@ class WorkflowTrigger
         return WorkflowTrigger::getList($pid, " AND wft_type_id=$trigger ");
     }
 
+    /**
+     * get list of triggers for a pid of a certain trigger type
+     * @param string pid Record that has the triggers
+     * @param string or integer $trigger The trigger id
+     * @return list of trigger items
+     */
+    function getAssocListByTrigger($pid, $trigger)
+    {
+        if (!Misc::isInt($trigger)) {
+            $trigger = WorkflowTrigger::getTriggerId($trigger);
+        }
+        return WorkflowTrigger::getAssocList($pid, " AND wft_type_id=$trigger ");
+    }    
+    
+    
     /**
      * Get list of triggers for a record that have a given trigger type and xdis_id
      * @param string pid record id

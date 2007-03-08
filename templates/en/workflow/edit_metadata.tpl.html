@@ -157,7 +157,6 @@ function selectOrgStructure_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}
 					removeAllOptions(f, '{/literal}xsd_display_fields[{$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}]{literal}');
 					addOptions(f, '{/literal}xsd_display_fields[{$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}]{literal}', dt_list);
 					{/literal}{assign var="temp_select_id" value=$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}{literal}
-//					selectOption(f, '{/literal}xsd_display_fields[{$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}]{literal}', {/literal}{$details[$temp_select_id]}{literal});
 					hideLoading_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}();
 					dt_load_state_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}--;
 					});		
@@ -394,7 +393,7 @@ function selectDateField(field_name, day, month, year)
 						  </td>
 						  <td bgcolor="{$value_color}">
 					    {assign var="field_id" value="xsd_display_fields_"|cat:$xsd_display_fields[i].xsdmf_id|cat:"_"|cat:$loop_num}
-						<input class="default" type="text" id="{$field_id}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" value="{$details[$temp_fld_id][z]}" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onFocus="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" size="50">
+						<input class="default" type="text" id="{$field_id}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" value="{$details[$temp_fld_id][z]|escape:"html"}" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onFocus="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" size="50">
 						{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
 						  {if $xsd_display_fields[i].xsdmf_attached_xsdmf_id != ""}
 								{section name="a" loop=$xsd_display_fields}
@@ -461,7 +460,7 @@ function selectDateField(field_name, day, month, year)
                                           <span class="default">{$xsd_display_fields[i].xsdmf_value_prefix}</span>
                                           <input class="default" type="text" id="{$field_id}" 
                                           name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]" 
-                                          value="{$details[$temp_fld_id]}"  size="50"/>
+                                          value="{$details[$temp_fld_id]|escape:"html"}"  size="50"/>
                                           {include file="error_icon.tpl.html" 
                                               field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
                                           {if $xsd_display_fields[i].xsdmf_long_description != ""}
@@ -669,7 +668,12 @@ function selectDateField(field_name, day, month, year)
 			  </tr>
 			 {/if}
         {/section}
-		
+        
+		  <tr>
+			<td class="default" colspan="4">&nbsp;</td>
+		  </tr>
+        
+	    {if $linkCount > 0}		
 		  <tr>
 			<td class="default" colspan="4">&nbsp;</td>
 		  </tr>
@@ -690,11 +694,12 @@ function selectDateField(field_name, day, month, year)
 			  </tr>
 			 {/if}
         {/section}		
+        {/if}
 		  <tr>
 			<td class="default" colspan="3">&nbsp;</td>
 		  </tr>
 		    </table>
-		  
+				  
 		  </td>
 		</tr>			
 </table>

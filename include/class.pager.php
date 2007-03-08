@@ -94,24 +94,59 @@ class Pager
 		// @@@ CK 21/7/2004 - Added this global for the custom fields check.
         $isMemberOf = Pager::getParam('isMemberOf',$params);			
         $sort_by = Pager::getParam('sort_by',$params);
-        $order_by = Pager::getParam('order_by',$params);        
+//        $order_by = Pager::getParam('order_by',$params);        
         $order_by_dir = Pager::getParam('order_by_dir',$params);                
         $sort_order = Pager::getParam('sort_order',$params);
+        
+        
         $rows = Pager::getParam('rows',$params);
         $cookie = array(
             'rows'           => $rows ? $rows : APP_DEFAULT_PAGER_SIZE,
-            "sort_by"        => $sort_by ? $sort_by : "pid",
-            "order_by"       => $order_by ? $order_by : "Title",            
+            "sort_by"        => $sort_by ? $sort_by : "title",
+//            "order_by"       => $order_by ? $order_by : "Title",            
             "order_by_dir"   => $order_by_dir ? $order_by_dir : 1,                        
             "isMemberOf"     => $isMemberOf != "" ? $isMemberOf : "ALL",            
-            "sort_order"     => $sort_order ? $sort_order : "DESC",
+            "sort_order"     => is_numeric($sort_order) ? $sort_order : 1,
             // quick filter form
             'keywords'       => Pager::getParam('keywords')
         );
 
-//		$existing_cookie = Record::getCookieParams(); //Why do we need to get this for? commented out CK 6/12/06
-//		global $HTTP_POST_VARS, $HTTP_GET_VARS; //or this
-        $encoded = base64_encode(serialize($cookie));
+		$existing_cookie = Pager::getCookieParams(); //Why do we need to get this for? commented out CK 6/12/06 // uncommented for search_key expansion by CK 27/2/07
+		global $HTTP_POST_VARS, $HTTP_GET_VARS; //or this // as above
+
+		$sek_count = Search_Key::getMaxID();
+        $tempArray = array('searchKey_count' => $sek_count);
+        $cookie = array_merge ($cookie, $tempArray);
+
+        if ($sek_count > 0) {
+            $searchKeyArray = array();
+            $from_cookie = false;
+            if (isset($HTTP_GET_VARS['search_keys'])) {
+                $searchKeyArray = $HTTP_GET_VARS['search_keys'];
+            } elseif (isset($HTTP_POST_VARS['search_keys'])) {
+                $searchKeyArray = $HTTP_POST_VARS['search_keys'];
+            } else {
+                $from_cookie = true;
+                for($x=0;$x<$sek_count;$x++) {
+                    $existing_cookie = Pager::getCookieParams();
+                    if (isset($existing_cookie['searchKey'.$x])) {
+                        $searchKeyArray = array_merge($searchKeyArray, array('searchKey'.$x => $existing_cookie['searchKey'.$x]));
+                    }
+                }
+            }
+            foreach ($searchKeyArray as $sek_id => $value) {
+                if ($from_cookie == true) {
+                    $tempArray = array($sek_id => $value);
+                } else {
+                    $tempArray = array('searchKey'.$sek_id => $value);
+                }
+                $cookie = array_merge ($cookie, $tempArray);
+                if (!empty($sek_id)) {
+
+                }
+            }
+        }		
+		$encoded = base64_encode(serialize($cookie));
         @setcookie(APP_LIST_COOKIE, $encoded, APP_LIST_COOKIE_EXPIRE);
         return $cookie;
     }
@@ -223,7 +258,7 @@ class Pager
             if (APP_CURRENT_LANG == "br") {
                 $link_str = array(
                     "previous" => "&lt;&lt; Anterior",
-                    "next"     => "Próxima &gt;&gt;"
+                    "next"     => "Prï¿½xima &gt;&gt;"
                 );
             } else {
                 $link_str = array(

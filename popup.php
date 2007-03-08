@@ -165,6 +165,9 @@ switch ($cat)
         {
             // first delete all indexes about this pid
             $items = Misc::GETorPOST('items');
+            if (empty($items)) { // is named pids on the list form
+	            $items = Misc::GETorPOST('pids');
+            }
             foreach ($items as $pid) {
                 Record::removeIndexRecord($pid);
                 $res = Fedora_API::callPurgeObject($pid);
@@ -184,7 +187,6 @@ switch ($cat)
             $tpl->assign("generic_type",'records');
             break;
         }
- 
 
 }
 

@@ -100,7 +100,7 @@ class ePrints
 	}
 
 	function getUserList($table) {
-		$stmt = "select * from ".EPRINTS_DB_DATABASE_NAME.".$table order by userid asc"	;
+		$stmt = "select distinct u.* from ".EPRINTS_DB_DATABASE_NAME.".$table u, archive a where a.userid = u.userid and a.userid is not null order by u.userid asc";
 		$res = $this->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 	    if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);			

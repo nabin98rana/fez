@@ -350,19 +350,19 @@ function checkRequiredCustomFields(f, required_fields)
 function xsdmfValidate(field, value, vtype, title, name) {
 	if (vtype == 'numeric') {
 		if (!isWhitespace(value) && !isNumeric(value)) {
-            errors[errors.length] = new Option(title, name);
+            errors[errors.length] = new Option(title+' (needs to be in numeric format)', name);
 		}
 	} else if (vtype == 'date') {
 		if (!isWhitespace(value) && !isDate(value)) {
-            errors[errors.length] = new Option(title, name);
+            errors[errors.length] = new Option(title+' (needs to be in date format)', name);
 		}
 	} else if (vtype == 'email') {
 		if (!isWhitespace(value) && !isEmail(value)) {
-            errors[errors.length] = new Option(title, name);
+            errors[errors.length] = new Option(title+' (needs to be in email format)', name);
 		}
 	} else if (vtype == 'url') {
 		if (!isWhitespace(value) && !isURL(value)) {
-            errors[errors.length] = new Option(title, name);
+            errors[errors.length] = new Option(title+' (needs to be in URL format)', name);
 		}
 	}
 }

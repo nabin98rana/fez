@@ -8,6 +8,9 @@ function validateForm(f)
     if (isWhitespace(f.app_name.value)) {
         errors[errors.length] = new Option('Application Name', 'app_name');
     }
+    if (isWhitespace(f.app_admin_email.value)) {
+        errors[errors.length] = new Option('Application Administrator Email Address', 'app_admin_email');
+    }     
     if (isWhitespace(f.organisation.value)) {
         errors[errors.length] = new Option('Organisation name', 'organisation');
     }
@@ -27,7 +30,10 @@ function validateForm(f)
         errors[errors.length] = new Option('Fedora Username', 'fedora_username');
     }
     if (isWhitespace(f.fedora_password.value)) {
-        errors[errors.length] = new Option('Fedora Username', 'fedora_password');
+        errors[errors.length] = new Option('Fedora Password', 'fedora_password');
+    }
+    if (isWhitespace(f.fedora_pid_namespace.value)) {
+        errors[errors.length] = new Option('Fedora PID Namespace (the fedora.fcfg pidNamespace value)', 'fedora_pid_namespace');
     }
     
     if (isWhitespace(f.db_hostname.value)) {
@@ -210,6 +216,15 @@ without submitting the following form. <br/>
             {include file="error_icon.tpl.html" field="app_name"}
           </td>
         </tr>
+       <tr>
+          <td class="default" align="right">
+            <b>Application Administrator Email Address: *</b>
+          </td>
+          <td>
+            <input type="text" name="app_admin_email" value="{$smarty.post.app_admin_email|default:'fez@localhost'}" class="default" size="30">
+            {include file="error_icon.tpl.html" field="app_admin_email"}
+          </td>
+        </tr>      
         <tr>
           <td class="default" align="right">
             <b>Server Hostname: *</b>
@@ -290,6 +305,15 @@ without submitting the following form. <br/>
             {include file="error_icon.tpl.html" field="fedora_password"}
           </td>
         </tr>
+        <tr>
+          <td class="default" align="right">
+            <b>Fedora PID Namespace (must match fedora.fcfg pidNamespace value): *</b>
+          </td>
+          <td>
+            <input type="text" name="fedora_pid_namespace" class="default" size="20" value="{$smarty.post.fedora_pid_namespace}">
+            {include file="error_icon.tpl.html" field="fedora_pid_namespace"}
+          </td>
+        </tr>        
         <tr>
           <td class="default" align="right">
             <nobr>&nbsp;<b>MySQL Server Hostname: *</b></nobr>

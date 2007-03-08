@@ -54,6 +54,25 @@ include_once(APP_INC_PATH . "class.xsd_loop_subelement.php");
 class Misc
 {
 
+	function addToWhere($sql, $newString) {
+		if ((trim($newString) != "") && (!empty($newString))) {
+			if (is_numeric(stripos($sql, "WHERE"))) { 
+				if (strtolower(substr((trim($newString)), 0, 3)) == "and") {
+					$sql .= $newString;
+				} else {
+					$sql .= " and ".$newString;
+				}
+			} else {
+				if (strtolower(substr((trim($newString)), 0, 3)) == "and") {
+					$sql = " WHERE ".substr((trim($newString)), 3);
+				} else {
+					$sql = " WHERE ".$newString;
+				}
+			}
+		}
+		return $sql;
+	}
+	
 	function parse_str_ext($toparse) {
 		$returnarray = array();
 		$keyvaluepairs = split("&", $toparse);

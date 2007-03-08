@@ -46,6 +46,7 @@ include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.auth.php");
+include_once(APP_INC_PATH . "class.status.php");
 
 
 class Search_Key
@@ -96,13 +97,21 @@ class Search_Key
 		} else {
 			$sek_adv_visible = 0;
 		}
+		if (@$HTTP_POST_VARS["sek_myfez_visible"]) {
+			$sek_myfez_visible = 1;
+		} else {
+			$sek_myfez_visible = 0;
+		}
+		
 		
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
                  (
                     sek_title,
+					sek_alt_title,
 					sek_simple_used,
-					sek_adv_visible,";
+					sek_adv_visible,
+					sek_myfez_visible,";
 				if (is_numeric($HTTP_POST_VARS["sek_order"])) {
 					$stmt .= " sek_order, ";
 				}
@@ -116,8 +125,10 @@ class Search_Key
 		$stmt .= "				
                  ) VALUES (
                     '" . Misc::escapeString($HTTP_POST_VARS["sek_title"]) . "',
+					'" . Misc::escapeString($HTTP_POST_VARS["sek_alt_title"]) . "',
 					" . $sek_simple_used .",
-					" . $sek_adv_visible .",";
+					" . $sek_adv_visible .",
+					" . $sek_myfez_visible .",";
 					if (is_numeric($HTTP_POST_VARS["sek_order"])) {
 	                    $stmt .=  $HTTP_POST_VARS["sek_order"] . ",";
 					}
@@ -160,12 +171,20 @@ class Search_Key
 		} else {
 			$sek_adv_visible = 0;
 		}
-
+		if (@$HTTP_POST_VARS["sek_myfez_visible"]) {
+			$sek_myfez_visible = 1;
+		} else {
+			$sek_myfez_visible = 0;
+		}
+		
+		
         $stmt = "UPDATE
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
                  SET 
                     sek_title = '" . Misc::escapeString($HTTP_POST_VARS["sek_title"]) . "',
+					sek_alt_title = '" . Misc::escapeString($HTTP_POST_VARS["sek_alt_title"]) . "',
 					sek_simple_used = ".$sek_simple_used.",
+					sek_myfez_visible = ".$sek_myfez_visible.",
 					sek_adv_visible = ".$sek_adv_visible.",";
 					if ($HTTP_POST_VARS["sek_order"]) {
 						$stmt .= "sek_order = ".$HTTP_POST_VARS["sek_order"].",";
@@ -200,7 +219,7 @@ class Search_Key
     function getTitle($sek_id)
     {
         $stmt = "SELECT
-                    sek_title
+                     IFNULL(sek_alt_title, sek_title)
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
                  WHERE
@@ -215,7 +234,53 @@ class Search_Key
         }
     }
 
+    /**
+     * Method used to get the fez variable of a specific search key.
+     *
+     * @access  public
+     * @param   integer $sek_id The search key ID
+     * @return  string The fez variable of the search key
+     */
+    function getFezVariable($sek_id)
+    {
+        $stmt = "SELECT
+                    sek_fez_variable
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
+                 WHERE
+                    sek_id=$sek_id";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return '';
+        } else {
+            return $res;
+        }
+    }    
+
+    /**
+     * Method used to get the max sek_id.
+     *
+     * @access  public
+     * @return  array The search keys max sek id
+     */
+    function getMaxID()
+    {
+        $stmt = "SELECT
+                    max(sek_id)
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
+    
+    
     /**
      * Method used to get the list of search keys available in the 
      * system returned in an associative array for drop down lists.
@@ -227,7 +292,7 @@ class Search_Key
     {
         $stmt = "SELECT
                     sek_id,
-					sek_title
+					IFNULL(sek_alt_title, sek_title)
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
                  ORDER BY
@@ -252,7 +317,7 @@ class Search_Key
     {
         $stmt = "SELECT
                     sek_id,
-					sek_title
+					IFNULL(sek_alt_title, sek_title)
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
 				 WHERE sek_adv_visible = 1                    
@@ -263,10 +328,63 @@ class Search_Key
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-            return $res;
+          return $res;
         }
     }	
-	
+
+    /**
+     * Method used to get the list of search keys available in the 
+     * system returned in an associative array for drop down lists.
+     *
+     * @access  public
+     * @return  array The list of search keys in an associative array (for drop down lists).
+     */
+    function getListAdvanced()
+    {
+        $stmt = "SELECT
+                    sek_id,
+					IFNULL(sek_alt_title, sek_title),
+					sek_fez_variable
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
+				 WHERE sek_adv_visible = 1                    
+                 ORDER BY
+                    sek_order ASC";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC); 
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+          for ($i = 0; $i < count($res); $i++) {
+          	$res[$i]["field_options"] = Search_Key::getOptions($res[$i]["sek_smarty_variable"]);
+          }	
+          return $res;
+        }
+    }	
+    
+    
+   
+    
+    
+    /**
+     * Method used to get the list of search key options associated
+     * with a given search key ID.
+     *          
+     * @access  public
+     * @param   integer $sek_smarty_variable The search key variable
+     * @return  array The list of search key options
+     */
+    function getOptions($sek_smarty_variable)
+    {    	
+    	$return = array();
+    	if (!empty($sek_smarty_variable)) {
+    		eval("\$return = ". $sek_smarty_variable.";");
+    		
+    	}
+    	return $return;
+    		
+    }    
+    
     /**
      * Method used to get the list of search keys available in the 
      * system.
@@ -290,7 +408,10 @@ class Search_Key
             if (empty($res)) {
                 return array();
             } else {
-                return $res;
+/*	          for ($i = 0; $i < count($res); $i++) {
+	          	$res[$i]["field_options"] = Search_Key::getOptions($res[$i]["sek_smarty_variable"]);
+	          }*/	
+	          return $res;	            	
             }
         }
     }
@@ -319,11 +440,46 @@ class Search_Key
             if (empty($res)) {
                 return array();
             } else {
-                return $res;
+	          for ($i = 0; $i < count($res); $i++) {
+	          	$res[$i]["field_options"] = Search_Key::getOptions($res[$i]["sek_smarty_variable"]);
+	          }	
+	          return $res;            	
             }
         }
     }
 
+    /**
+     * Method used to get the list of search keys available in the 
+     * system for the my fez search page.
+     *
+     * @access  public
+     * @return  array The list of search keys 
+     */
+    function getMyFezSearchList()
+    {
+        $stmt = "SELECT
+                    *
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
+				 WHERE sek_myfez_visible = 1
+                 ORDER BY
+                    sek_order ASC";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            if (empty($res)) {
+                return array();
+            } else {
+	          for ($i = 0; $i < count($res); $i++) {
+	          	$res[$i]["field_options"] = Search_Key::getOptions($res[$i]["sek_smarty_variable"]);
+	          }	            	
+	          return $res;
+            }
+        }
+    }    
+    
     /**
      * Method used to get the list of search keys available in the 
      * system.

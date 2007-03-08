@@ -53,6 +53,11 @@ include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "najax/najax.php");
 include_once(APP_INC_PATH . "najax_objects/class.suggestor.php");
 
+// Redirect if sent from an alias or IP as shibboleth and sessions won't like it otherwise
+if ($_SERVER['HTTP_HOST'] != APP_HOSTNAME)  {
+	   header ("HTTP 302 Redirect");
+       header ("Location: http://".APP_HOSTNAME);
+}
 
 NAJAX_Server::allowClasses('Suggestor');
 if (NAJAX_Server::runServer()) {

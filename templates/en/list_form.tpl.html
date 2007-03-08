@@ -24,6 +24,28 @@ function assignItems(f)
     f.submit();
 }
 
+function workflowItems(f)
+{
+    if (!hasOneChecked(f, 'pids[]')) {
+        alert('Please choose which entries to run this workflow against.');
+        return false;
+    }
+    if (f.wft_id.options[f.wft_id.selectedIndex].value == '') {
+        alert('Please choose the bulk workflow to use these objects.');
+        f.users.focus();
+        selectField(f, 'wft_id');
+        return false;
+    }
+    f.wft_id = f.wft_id.selectedIndex;
+//    var features = 'width=420,height=200,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
+//    var popupWin = window.open('', '_popup', features);
+//    popupWin.focus();
+    f.cat.value = 'select_workflow';
+    f.action = '{/literal}{$rel_url}{literal}workflow/bulk_change.php';
+//    f.target = '_popup';
+    f.submit();
+}
+
 function createRecord(f) {
     f.action = 'workflow/new.php';
 	f.submit();
@@ -127,13 +149,32 @@ function purgeObject(pid)
         return true;
     }
 }
+function checkDeleteRecords(f)
+{
+    if (!hasOneChecked(f, 'pids[]')) {
+        alert('Please select at least one item.');
+        return false;
+    }
+    if (!confirm('The checked items will be deleted, are you sure?')) {
+        return false;
+    } else {
+	f.cat = 'purge_objects';
+    f.action = 'popup.php';
+    f.target = '_popup';
+	f.method = 'post';
+        var features = 'width=420,height=200,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
+        var popupWin = window.open('', '_popup', features);
+        popupWin.focus();
+
+    f.submit();        
+        
+    }
+}
 //-->
 </script>
 {/literal}
 <table width="100%" bgcolor="{$cell_color}" cellspacing="0" cellpadding="1" align="center">
-  <form name="list_form" method="get" action="{$smarty.server.PHP_SELF}">
-  <input type="hidden" name="cat" value="assign">
-  <input type="hidden" name="href" value="{$smarty.server.REQUEST_URI}">
+  
   <tr>
     <td>
       <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" >
@@ -154,12 +195,47 @@ function purgeObject(pid)
 		  </td>
 		</tr>
 		{/if}
+		{if $isUser}
+  <form name="top_create_form">		
+        <tr>
+          <td align="left" >
+			{if $list_type == 'community_list' && $isAdministrator}
+			<br /> <a class="default" target="_top" title="create a new community" href="{$rel_url}workflow/new.php?pid=-1&xdis_id={$xdis_id}&href={$smarty.server.REQUEST_URI}"><img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0"><b>Create New Community</b></a>&nbsp;
+			{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
+				{if $childXDisplayOptions != 0}
+			<br /> <img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0">
+				<input type="hidden" name="community_pid" value="{$community_pid}">
+				<select name="xdis_id" class="default">
+				  {html_options options=$childXDisplayOptions}
+				</select>
+				<input class="default" type="button" value="Create" onClick="javascript:createRecord(this.form)">
+			&nbsp;<br />
+				{/if}
+			{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}			
+				{if $childXDisplayOptions != 0}
+			<br /> <img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0">
+				<input type="hidden" name="collection_pid" value="{$collection_pid}">
+				<select name="xdis_id" class="default">
+				  {html_options options=$childXDisplayOptions}
+				</select>
+				<input class="default" type="button" value="Create" onClick="javascript:createRecord(this.form)">
+			&nbsp;
+				{/if}
+			{/if}
+		  </td>
+        </tr>
+  </form>
+		{/if}
 
+  <form name="list_form" method="get" action="{$smarty.server.PHP_SELF}">
+  <input type="hidden" name="cat" value="assign">
+  <input type="hidden" name="href" value="{$smarty.server.REQUEST_URI}">
+		
         <tr><td>
       <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1">
-		{if ($browse_type == "browse_author")} 
+		{if ($browse_type == "browse_author") && !$smarty.get.author} 
         <tr>
-			<td align="left" class="default"><br />
+			<td align="left" class="default">
 			<a href="{$rel_url}list.php?browse=author"><img border="0" src="{$rel_url}images/browse_32.jpg" align="absmiddle"/></a>
            &nbsp;<b>{$browse_heading}:</b>		  
 			</td>
@@ -195,7 +271,7 @@ function purgeObject(pid)
 			{/if}
 		{elseif ($browse_type == "browse_depositor")} 
         <tr>
-			<td align="left" class="default"><br />
+			<td align="left" class="default" colspan="2"><br />
 			<a href="{$rel_url}list.php?browse=depositor"><img border="0" src="{$rel_url}images/browse_32.jpg" align="absmiddle"/></a>
            &nbsp;<b>{$browse_heading}:</b>		  
 			</td>
@@ -204,7 +280,7 @@ function purgeObject(pid)
 			{section name="i" loop=$list}
 
 			  <tr>
-				  <td>
+				  <td colspan="2">
 				  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
 				  <tr>
 					  <td>
@@ -231,7 +307,7 @@ function purgeObject(pid)
 			{/if}			
 		{elseif ($browse_type == "browse_year")} 
         <tr>
-			<td align="left" class="default"><br />
+			<td align="left" class="default" colspan="2" ><br />
 			<a href="{$rel_url}list.php?browse=year"><img border="0" src="{$rel_url}images/browse_32.jpg" align="absmiddle"/></a>
            &nbsp;<b>{$browse_heading}:</b>		  
 			</td>
@@ -267,7 +343,7 @@ function purgeObject(pid)
 			{/if}
 		{elseif $browse_type == "browse_subject"}
         <tr>
-			<td align="left" class="default"><br />
+			<td colspan="2" align="left" class="default"><br />
 			<a href="{$rel_url}list.php?browse=subject"><img border="0" src="{$rel_url}images/browse_32.jpg" align="absmiddle"/></a>
            &nbsp;<b>Browse by 
 		          {if $max_subject_breadcrumb != -1}
@@ -287,7 +363,7 @@ function purgeObject(pid)
 
         {section name="i" loop=$subject_list}
 		  <tr>
-			  <td>
+			  <td colspan="2">
 			  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
               <tr>
                   <td>{if $subject_list[i].cvo_image_filename != ""}<img align="absmiddle" src="{$rel_url}images/{$subject_list[i].cvo_image_filename}"/>{/if}
@@ -307,7 +383,7 @@ function purgeObject(pid)
 	        </tr>
         {sectionelse}
 		<tr>
-		<td>
+		<td colspan="2">
 		  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
         <tr><td>
             No further child subject classifications could be found.
@@ -318,11 +394,13 @@ function purgeObject(pid)
 		{/section}
 		{/if}		
 		{if ($browse_heading == "") ||  ($browse_type != "" & $smarty.get.author != "") || ($browse_type != "" & $smarty.get.depositor != "") || ($browse_type != "" & $smarty.get.year != "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)} 
+          {if $isCreator != true}
         <tr>
 			<td>&nbsp;</td>
 		</tr>
+		{/if}
 		  <tr>
-			  <td>
+			  <td colspan="2">
 			  <table bgcolor="#FFFFFF" width="100%" cellpadding="3" cellspacing="0">
         <tr>
 			<td align="left" class="default">
@@ -332,12 +410,17 @@ function purgeObject(pid)
 			<img src="{$rel_url}images/community_32.jpg" align="absmiddle"/>
 		{elseif $list_type == 'collection_list'}
 			<img src="{$rel_url}images/collection_32.jpg" align="absmiddle"/>
+		{elseif $browse_type == 'browse_author'}			
+			<a href="{$rel_url}list.php?browse=author"><img title="Browse by all authors" border="0" src="{$rel_url}images/browse_32.jpg" align="absmiddle"/></a>
 		{elseif $list_type == 'browse_subjects_list'}		
 
 		{/if}
            &nbsp;<b>{$list_heading}: </b>
 		   
 		   <b>({$list_info.total_rows} results found{if $list_info.end_offset > 0}, {math equation="x + 1" x=$list_info.start_offset|default:0} - {$list_info.end_offset} shown{/if}) ({$list_info.hidden_rows} hidden)</b> 
+		   {if $list_type != 'community_list'}
+		   <a href="{$smarty.server.REQUEST_URI}&tpl=2"><img title="Subscribe to the RSS feed for this list or search" border=0 src="{$rel_url}images/feed-icon16x16.png"></a>
+		   {/if}
                    </td><td align="right"><span class="default">Order By </span>
                    <select class="default" name="order_by" onchange="javascript:sortList(this.form, 'order_by');">
                        {html_options options=$order_by_list selected=$order_by_default}
@@ -367,7 +450,7 @@ function purgeObject(pid)
 								{/if}
 							{/if}
 		  <tr>
-			  <td>
+			  <td colspan="2">
 			  <table bgcolor="#FFFFFF" width="100%" cellpadding="3" cellspacing="0">
 				  <tr>
 					  <td class="default_white" {$shaded_bar}><strong>{$day_name}</strong>
@@ -430,11 +513,21 @@ function purgeObject(pid)
                         {assign var="showEdit" value=false}
                 {/if}
            {/if}
-		  <tr>
 
-			  <td>
-			  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
+		  <tr>
+		  {if ($isAdministrator)}  		  
+              <td valign="top">
+	              <table bgcolor="#FFFFFF" cellpadding="2" cellspacing="1" class="listrecord">			  
+	              	<tr>
+	                  <td width="4" bgcolor="{$cell_color}" nowrap><input type="checkbox" name="pids[]" value="{$list[i].pid}"></td>              
+	                </tr>
+	              </table>  
+              </td>
+          {/if}
+			  <td width="100%">
+			  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">			  
               <tr>
+
                   <td>
                         {if $href_view}<a href='{$href_view}' >{/if}<img align="absmiddle" 
                         src="{$icon}" border="0">{if $href_view}</a>{/if} 
@@ -481,7 +574,7 @@ function purgeObject(pid)
 
 
 		    </td><td align="right" valign="top">{if $list[i].Relevance} (Search Relevance: <b>{$list[i].Relevance}</b>)<br />{/if}
-					        {if $list[i].abstract_downloads}({$list[i].abstract_downloads|escape:"html"} Abstract Views)<br />{/if} {if $list[i].file_downloads}({$list[i].file_downloads|escape:"html"} <a class="author_link" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}">File Downloads</a>){/if} </td>
+					        {if $list[i].object_type.0 == '3'}{if $list[i].abstract_downloads}({$list[i].abstract_downloads|escape:"html"} Abstract Views)<br />{/if} {if $list[i].file_downloads}({$list[i].file_downloads|escape:"html"} <a class="author_link" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}">File Downloads</a>){/if}{/if} </td>
 
 				</tr>
 					<tr>
@@ -554,12 +647,13 @@ function purgeObject(pid)
             <table width="100%" cellspacing="0" cellpadding="0">
               <tr>
                 <td width="30%" nowrap>
-                  {if $current_role > $roles.administrator}
-                  <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'item[]');">
-                  <input type="button" value="Assign &gt;" class="shortcut" onClick="javascript:assignItems(this.form);">
-                  <select name="users" class="default">
-                    <option value=""></option>
-                    {html_options options=$users}
+                  {if $isAdministrator}
+
+                  <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'pids[]');">
+			      <input type="button" value="Delete"  onClick="javascript:return checkDeleteRecords(this.form);" class="button" />                  
+                  <input type="button" value="Run Workflow &gt;" class="shortcut" onClick="javascript:workflowItems(this.form);">
+                  <select name="wft_id" class="default">
+                    {html_options options=$bulk_workflows}
                   </select>
                   {include file="error_icon.tpl.html" field="users"}
                   {/if}
@@ -603,4 +697,3 @@ function purgeObject(pid)
   </tr>
   </form>
 </table>
-

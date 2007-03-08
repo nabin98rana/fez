@@ -79,7 +79,7 @@ if ($cat == 'submit') {
 $wfstatus->checkStateChange();
 
 
-$communities = Community::getList();
+$communities = Community::getList(0, 150);
 $communities_list = Misc::keyPairs($communities['list'], 'pid', 'title');
 $communities_list = Misc::stripOneElementArrays($communities_list);
 // Find collections that the current user can create records in and then list the parent communities.

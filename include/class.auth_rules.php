@@ -57,6 +57,8 @@ class AuthRules
     {
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
         // does rule exist in table
+        $rule = Misc::escapeString($rule);
+        $value = Misc::escapeString($value);
         $stmt = "SELECT ar_id FROM {$dbtp}auth_rules WHERE ar_rule='$rule' and ar_value='$value' ";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {

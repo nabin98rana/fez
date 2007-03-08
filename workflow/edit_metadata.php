@@ -333,8 +333,13 @@ if ($access_ok) {
     $datastreams = Misc::cleanDatastreamList($datastreams);
 
     $datastream_workflows = WorkflowTrigger::getListByTrigger('-1', 5); //5 is for datastreams
-
+	$linkCount = 0;
+	$fileCount = 0;		
+    
     foreach ($datastreams as $ds_key => $ds) {
+		if ($datastreams[$ds_key]['controlGroup'] == 'R') {
+			$linkCount++;				
+		}   	
 		if ($datastreams[$ds_key]['controlGroup'] == 'R' && $datastreams[$ds_key]['ID'] != 'DOI') {
 			$datastreams[$ds_key]['location'] = trim($datastreams[$ds_key]['location']);
 			// Check for APP_LINK_PREFIX and add if not already there
@@ -347,6 +352,7 @@ if ($access_ok) {
             $FezACML_DS = array();
             $FezACML_DS = Record::getIndexDatastream($pid, $ds['ID'], 'FezACML');
             $return = array();
+            $fileCount++;
             foreach ($FezACML_DS as $result) {
                 if (in_array($result['xsdsel_title'], $securityfields)  && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) )  {
                     if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
@@ -408,6 +414,7 @@ if ($access_ok) {
 //	print_r($details);
 //    print_r($datastreams);
     $tpl->assign("datastreams", $datastreams);
+	$tpl->assign("fileCount", $fileCount);				    
     $tpl->assign("fez_root_dir", APP_PATH);
     $tpl->assign("eserv_url", APP_BASE_URL."eserv.php?pid=".$pid."&dsID=");
     $tpl->assign("local_eserv_url", APP_RELATIVE_URL."eserv.php?pid=".$pid."&dsID=");

@@ -35,6 +35,7 @@
 // set sta_id=1 for not published
 $pid = $this->pid;
 $this->getRecordObject();
-$this->rec_obj->setStatusId(1);
+$sta_id = Status::getID('Unpublished');
+$this->rec_obj->setStatusId($sta_id);
 
 ?>

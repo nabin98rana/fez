@@ -198,17 +198,17 @@ function openHistory(pid)
 		{/if}
 		<tr>
 		  <td align="left"> 
-			<table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="2">
+			<table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="2" width="100%">
  		       {if $citation != ""}
 				<tr valign="top">
-				  <td align="left" class="default"> <b>Citation:</b></td>
-				  <td align="left" class="default"> {$citation}
+				  <td align="left" class="citation"> <b>Citation:</b></td>
+				  <td align="left" class="citation" width="100%"> {$citation}
 				  </td>
 				</tr>
                 {/if}				
 				<tr>
 				  <td align="left" class="default"> <b>{$parent_heading} </b></td>
-				  <td align="left" class="default"> 
+				  <td align="left" class="default" width="100%"> 
 					{section name="i" loop=$parents}
 						<a href="{$rel_url}list.php?collection_pid={$parents[i].pid}">{$parents[i].title.0}</a> &nbsp;
 					{/section}
@@ -217,12 +217,65 @@ function openHistory(pid)
 {if $prev || $next}
 				<tr valign="top">
 				  <td align="left" class="default" nowrap> <b>Browse Collection:</b></td>
-				  <td align="left" class="default"> 
+				  <td align="left" class="default" width="100%"> 
 {if $prev}<a href="{$rel_url}view.php?pid={$prev.pid}&go_prev={$go_prev}">Prev: <i>{$prev.title.0}</i></a> {if $next}<br />{/if}{/if}
-{if $next}&nbsp; <a href="{$rel_url}view.php?pid={$next.pid}&go_next={$go_next}">Next: <i>{$next.title.0}</i></a> {/if}
+{if $next}<a href="{$rel_url}view.php?pid={$next.pid}&go_next={$go_next}">Next: <i>{$next.title.0}</i></a> {/if}
 				  </td>
 				</tr>
 {/if}
+{if $fileCount > 0}
+			</table>
+		  </td>
+		</tr> 
+		<tr>
+		  <td align="left"> 
+			<table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="2" width="100%">
+
+		  <tr>
+			<td class="default" colspan="5">&nbsp;</td>
+		  </tr>
+		  <tr>
+			<td class="default_white" colspan="5" bgcolor="{$heading_color}"><b>Attached Files</b></td>
+		  </tr>
+
+		  <tr class="default" bgcolor="{$cell_color}">
+			<td>Name</td>
+			<td>Description</td>			
+			<td>MIMEType</td>
+			<td>Size</td>			
+			<td align="right">Downloads</td>			
+		  </tr>
+
+		{assign var="show_preview_pane" value="0"}
+        {section name="d" loop=$datastreams}
+			{if $datastreams[d].controlGroup == "M" && $datastreams[d].isLister == 1}
+  			  <tr class="default" id="datastream_list_{$datastreams[d].ID}" bgcolor="{$light_color}"> 			  
+				{assign var="image_file_name" value=$datastreams[d].MIMEType|replace:"/":"_"|cat:".png"}
+				{assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$image_file_name} 			
+				{if ($datastreams[d].canPreview || $isAdministrator) && !$preview_ds_1 && $datastreams[d].preview != "0"}
+				  {assign var="preview_ds_1" value=$datastreams[d]}
+				{/if}
+				{assign var="image_file_string" value=""}
+				{fetch file=$image_name assign="image_file_string"}
+				<td nowrap>
+            {if $datastreams[d].thumbnail != "0"}{if $datastreams[d].canPreview || $isAdministrator}<a href="#">{/if}
+				{assign var="show_preview_pane" value="1"}
+			<img align="absmiddle" title="Click on the thumbnail image to show the corresponding preview image" src="{$eserv_url}{$datastreams[d].thumbnail}&ls=0" border="1"
+            {if $datastreams[d].canPreview || $isAdministrator}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].preview}', '{$datastreams[d].ID|escape:'html'}');"{/if}
+            >{if $datastreams[d].canPreview || $isAdministrator}</a>{/if}{/if}{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}images/default.png">{/if} {if $datastreams[d].isViewer == 1 || $isAdministrator}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].ID}">{/if}{$datastreams[d].ID}{if $datastreams[d].isViewer == 1 || $isAdministrator}</a> &nbsp;{/if} {if ($datastreams[d].isArchivalViewer == 1 || $isAdministrator) && $datastreams[d].thumbnail != "0"}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID=archival_{$datastreams[d].ID}"><img title="archival version" align="absmiddle" border="0" src="{$rel_url}images/archival_22.gif"></a>&nbsp;{/if} {if $datastreams[d].presmd != "0" && ($isAdministrator)}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].presmd}"><img title="preservation metadata" align="absmiddle" border="0" src="{$rel_url}images/presmd_22.gif"></a>&nbsp;{/if} 	
+				</td>
+				<td>{$datastreams[d].label}</td>
+				<td>{$datastreams[d].MIMEType}</td>
+				<td>{$datastreams[d].archival_size}</td>				
+				<td align="right">{$datastreams[d].downloads}</td>				
+			  </tr>
+			 {/if}
+        {/section}
+        
+
+	
+    {/if}
+
 
 			</table><br />
 		  </td>
@@ -291,51 +344,7 @@ function openHistory(pid)
                 </tr>
       </table>
 		<table width="100%" border="0" cellpadding="2" cellspacing="0"  bgcolor="#FFFFFF" >
-{if $fileCount > 0}
-		  <tr>
-			<td class="default" colspan="5">&nbsp;</td>
-		  </tr>
-		  <tr>
-			<td class="default_white" colspan="5" bgcolor="{$heading_color}"><b>Attached Files</b></td>
-		  </tr>
 
-		  <tr class="default" bgcolor="{$cell_color}">
-			<td>Name</td>
-			<td>Description</td>			
-			<td>MIMEType</td>
-			<td>Size</td>			
-			<td align="right">Downloads</td>			
-		  </tr>
-
-		{assign var="show_preview_pane" value="0"}
-        {section name="d" loop=$datastreams}
-			{if $datastreams[d].controlGroup == "M" && $datastreams[d].isLister == 1}
-  			  <tr class="default" id="datastream_list_{$datastreams[d].ID}" bgcolor="{$light_color}"> 			  
-				{assign var="image_file_name" value=$datastreams[d].MIMEType|replace:"/":"_"|cat:".png"}
-				{assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$image_file_name} 			
-				{if ($datastreams[d].canPreview || $isAdministrator) && !$preview_ds_1 && $datastreams[d].preview != "0"}
-				  {assign var="preview_ds_1" value=$datastreams[d]}
-				{/if}
-				{assign var="image_file_string" value=""}
-				{fetch file=$image_name assign="image_file_string"}
-				<td>
-            {if $datastreams[d].thumbnail != "0"}{if $datastreams[d].canPreview || $isAdministrator}<a href="#">{/if}
-				{assign var="show_preview_pane" value="1"}
-			<img align="absmiddle" title="Click on the thumbnail image to show the corresponding preview image" src="{$eserv_url}{$datastreams[d].thumbnail}&ls=0" border="1"
-            {if $datastreams[d].canPreview || $isAdministrator}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].preview}', '{$datastreams[d].ID|escape:'html'}');"{/if}
-            >{if $datastreams[d].canPreview || $isAdministrator}</a>{/if}{/if}{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}images/default.png">{/if} {if $datastreams[d].isViewer == 1 || $isAdministrator}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].ID}">{/if}{$datastreams[d].ID}{if $datastreams[d].isViewer == 1 || $isAdministrator}</a> &nbsp;{/if} {if ($datastreams[d].isArchivalViewer == 1 || $isAdministrator) && $datastreams[d].thumbnail != "0"}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID=archival_{$datastreams[d].ID}"><img title="archival version" align="absmiddle" border="0" src="{$rel_url}images/archival_22.gif"></a>&nbsp;{/if} {if $datastreams[d].presmd != "0" && ($datastreams[d].isViewer == 1 || $isAdministrator)}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].presmd}"><img title="preservation metadata" align="absmiddle" border="0" src="{$rel_url}images/presmd_22.gif"></a>&nbsp;{/if} 	
-				</td>
-				<td>{$datastreams[d].label}</td>
-				<td>{$datastreams[d].MIMEType}</td>
-				<td>{$datastreams[d].archival_size}</td>				
-				<td align="right">{$datastreams[d].downloads}</td>				
-			  </tr>
-			 {/if}
-        {/section}
-        
-
-	
-    {/if}
 	{if $linkCount > 0}
 		  <tr>
 			<td class="default" colspan="5">&nbsp;</td>
@@ -392,14 +401,14 @@ function openHistory(pid)
 {if $WEBSERVER_LOG_STATISTICS == 'ON'}   		
 				<tr>
 				  <td align="left" class="default" nowrap> <b>Access Statistics:</b></td>
-				  <td align="left" class="default" nowrap>  {$statsAbstract} Abstract Views{if $fileCount > 0}, {$statsFiles} File Downloads{/if}
+				  <td align="left" class="default" nowrap width="100%">  {$statsAbstract} Abstract Views{if $fileCount > 0}, {$statsFiles} File Downloads{/if}
 				  <a href="{$rel_url}stat_details.php?action=show_detail&pid={$pid}">Detailed Statistics</a>
 				  </td>
 				</tr>
 {/if}				
 				<tr>
 				  <td align="left" class="default" nowrap> <b>Created:</b></td>
-				  <td align="left" class="default" nowrap>  {$created_date} 
+				  <td align="left" class="default" nowrap width="100%">  {$created_date} 
 				  {if $depositor != ""} by <a href="{$rel_url}list.php?browse=depositor&depositor={$depositor_id}" class="silent_link">{$depositor}</a>{/if}
 				  <a title="view the full history of changes on this object" href="javascript:void(null);" onclick="javascript:openHistory('{$pid}');">Detailed History</a>
 				  </td>
@@ -416,7 +425,7 @@ function openHistory(pid)
     <td align="center" valign="top"  bgcolor="#FFFFFF" cellspacing="1" cellpadding="2" border="0">
       <table width="100%" border="0" cellpadding="2" cellspacing="0"  bgcolor="#FFFFFF" >
         <tr>
-          <td class="default_white" colspan="4" bgcolor="{$heading_color}"><b>Datastream Preview</b>
+          <td class="default_white" colspan="4" bgcolor="{$heading_color}"><b>Image Preview (click the image for a larger version)</b>
           <span id="datastream_preview_loading" style="display:none;"></span>
           </td>
         </tr>

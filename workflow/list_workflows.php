@@ -62,6 +62,7 @@ $tpl->assign("isAdministrator", $isAdministrator);
 
 $xdis_id = Misc::GETorPOST('xdis_id');
 $pid = Misc::GETorPOST('pid');
+$pids = Misc::GETorPOST('pids');
 $dsID = Misc::GETorPOST("dsID");
 $href= Misc::GETorPOST('href');
 $tpl->assign("href", $href);
@@ -69,7 +70,7 @@ $cat = Misc::GETorPOST('cat');
 if ($cat == 'select_workflow') {
     $wft_id = Misc::GETorPOST("wft_id");
 //    $pid = Misc::GETorPOST("pid");
-    Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID);
+    Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);
 }
 
 $message = '';
@@ -79,11 +80,33 @@ $tpl->assign('wfl_list', $wfl_list);
 $tpl->assign('xdis_list', $xdis_list);
 if ($pid == -1) {
     // the -1 thing only works when creating a record, you can't update a non-object.
+
+} elseif (!empty($pids)) {
+
+	
+    $pid = -2;
+    $tpl->assign("pid", $pid);
+
+    $workflows = WorkflowTrigger::getFilteredList(-1, array(
+                'trigger'=>$trigger_type, 
+                'xdis_id' => -2, 
+                'strict_xdis' => true,
+                'any_ret' => true));
+    foreach ($workflows as $trigger) {
+        if (Workflow::userCanTrigger($trigger['wft_wfl_id'],$user_id)) {
+            $workflows1[] = $trigger;
+        }
+    }
+    $workflows = $workflows1;            
+    $tpl->assign('workflows', $workflows);
+	
+
 } elseif (empty($pid) || $pid == -2) {
     // Update called from my-fez page - look for workflows that allow selection of an object 
     // (assigned with -2 == None)
     $pid = -2;
     $tpl->assign("pid", $pid);
+
     $workflows = WorkflowTrigger::getFilteredList(-1, array(
                 'trigger'=>$trigger_type, 
                 'xdis_id' => -2, 
@@ -137,7 +160,7 @@ if (empty($workflows)) {
     $message .= "You don't have permissions to run any '$trigger_type' workflows<br/>";
 } elseif (count($workflows) == 1) {
     // no need for user to select a workflow - just start the only one available
-    Workflow::start($workflows[0]['wft_id'], $pid, $xdis_id, $href);
+    Workflow::start($workflows[0]['wft_id'], $pid, $xdis_id, $href, '', $pids);
 }
 
 $tpl->assign('message', $message);

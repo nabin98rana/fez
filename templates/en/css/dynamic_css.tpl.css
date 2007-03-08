@@ -14,7 +14,7 @@ background-color: [[$smarty.const.APP_LIGHT_COLOR]];
 
 .outline
 {
-width:100%;
+width:99%;
 padding: 2px 2px 2px 2px;
 margin: 2px 2px 2px 2px;
 border: 1px solid [[$smarty.const.APP_CELL_COLOR]];

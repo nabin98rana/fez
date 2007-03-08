@@ -156,6 +156,30 @@ class Status
         }
     }
 
+    /**
+     * Method used to get the ID of a specific status.
+     *
+     * @access  public
+     * @param   integer $sta_title The status title
+     * @return  string The ID of the status
+     */
+    function getID($sta_title)
+    {
+        $stmt = "SELECT
+                    sta_id
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "status
+                 WHERE
+                    sta_title='$sta_title'";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return '';
+        } else {
+            return $res;
+        }
+    }
 
     /**
      * Method used to get the list of statuss available in the 
@@ -182,6 +206,32 @@ class Status
         }
     }
 
+    /**
+     * Method used to get the list of statuss available in the 
+     * system returned in an associative array for drop down lists.
+     *
+     * @access  public
+     * @return  array The list of statuss in an associative array (for drop down lists).
+     */
+    function getUnpublishedAssocList()
+    {
+        $stmt = "SELECT
+                    sta_id,
+					sta_title
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "status
+				 WHERE sta_title != 'Published' 
+                 ORDER BY
+                    sta_title ASC";
+        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }    
+    
     /**
      * Method used to get the list of statuss available in the 
      * system.
