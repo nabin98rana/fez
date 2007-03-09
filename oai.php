@@ -38,14 +38,14 @@ include_once(APP_INC_PATH . "class.oai.php");
 include_once(APP_INC_PATH . "class.record.php");
 
 $tpl = new Template_API();
-$verb = trim($_GET['verb']);
-$metadataPrefix = trim($_GET['metadataPrefix']);
-$originalIdentifier = trim($_GET['identifier']);
+$verb = trim(Misc::GETorPOST('verb'));
+$metadataPrefix = trim(Misc::GETorPOST('metadataPrefix'));
+$originalIdentifier = trim(Misc::GETorPOST('identifier'));
 $identifier = str_replace("oai:".APP_HOSTNAME.":", "", $originalIdentifier);
-$from = trim($_GET['from']);
-$until = trim($_GET['until']);
-$originalSet = trim($_GET['set']);
-$originalResumptionHash = ($_GET['resumptionToken']);
+$from = trim(Misc::GETorPOST('from'));
+$until = trim(Misc::GETorPOST('until'));
+$originalSet = trim(Misc::GETorPOST('set'));
+$originalResumptionHash = (Misc::GETorPOST('resumptionToken'));
 if (is_numeric(strpos($originalSet, ":cvo_id:"))) {
 	$setType = "contvocab";
 	$set = substr($originalSet, (strrpos($originalSet, ":")+1));	
@@ -61,8 +61,11 @@ $test = ltrim($test, "&");
 $test = Misc::parse_str_ext($test);
 print_r($test);
 exit;*/
-
-$querystring = $_GET;
+if (empty($_GET)) {
+	$querystring= $_POST;
+} else {
+	$querystring = $_GET;
+}
 $acceptable_vars = array("verb", "metadataPrefix", "identifier", "from", "until", "resumptionToken", "set");
 $resumption_acceptable_vars = array("metadataPrefix", "from", "until", "set");
 
@@ -75,8 +78,16 @@ $list_sets_acceptable_vars = array("verb", "metadataPrefix", "resumptionToken");
 
 $errors = array();
 $i_errors = array();
-$querystring = Misc::parse_str_ext($_SERVER["QUERY_STRING"]);
-
+if (empty($_GET)) {
+	$querystring = $_POST;
+	$qtemp = array();
+	foreach ($querystring as $qkey => $qvalue) {
+		$qtemp[$qkey][0] = $qvalue;
+	}
+	$querystring = $qtemp;
+} else {
+	$querystring = Misc::parse_str_ext($_SERVER["QUERY_STRING"]);
+} 
 
 $tpls = array(
     'ListRecords' => array('file' => 'oai/ListRecords.tpl.html', 'title' => 'ListRecords'),
@@ -97,7 +108,7 @@ $tpl->setTemplate($tpl_file);
 $tpl->assign('tpl_list', array_map(create_function('$a','return $a[\'title\'];'), $tpls));
 $responseDate = Date_API::getFedoraFormattedDateUTC();
 $rows=100;
-$start = $HTTP_GET_VARS["resumptionToken"] ? $HTTP_GET_VARS["resumptionToken"] : 0;
+$start = Misc::GETorPOST("resumptionToken") ? Misc::GETorPOST("resumptionToken") : 0;
 $resumptionToken = $start;
 //echo $resumptionToken; exit;
 if ($resumptionToken != "") {
@@ -105,6 +116,8 @@ if ($resumptionToken != "") {
 	if (!$matches) {
 		$errors["code"][] = "badResumptionToken";
 		$errors["message"][] = "Token is invalid (does not match regexp)";		
+		$errors["code"][] = "badArgument";
+		$errors["message"][] = "Token is invalid (does not match regexp)";	
 	} else {		
 		$start = substr($start, 0, strpos($start, "/"));		
 		$resumptionToken = ltrim(base64_decode(substr($resumptionToken, strrpos($resumptionToken, "/")+1)), "&");
