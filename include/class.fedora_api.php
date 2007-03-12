@@ -778,14 +778,30 @@ class Fedora_API {
             // We've checked the mimetype is XML so lets parse it and make a simple array
 			if (!empty($blob) && $blob != false) {
 				$doc = DOMDocument::loadXML($blob);
-				$xpath = new DOMXPath($doc);
-				$fieldNodeList = $xpath->query("/*/*");
-				foreach ($fieldNodeList as $fieldNode) {
-					$resultlist[$fieldNode->nodeName][] = trim($fieldNode->nodeValue);
+                // walk through the doc and pull out elements and attributes into keypairs
+                for ($nodeStack = array(array($doc->documentElement,'')); !empty($nodeStack); ) {
+					$fieldNodeInfo = array_pop($nodeStack);
+                    $fieldNode = $fieldNodeInfo[0];
+                    $xpath =  $fieldNodeInfo[1];
+                    // Walk through children - push them to the nodestack causing a depth first traversal
+                    // Do this first so we can also check if the current node has an child elements 
+                    // (as opposed to text node children)
+                    $has_child_elements = false; 
+                    foreach ($fieldNode->childNodes as $childNode) {
+                        if ($childNode->nodeType == XML_ELEMENT_NODE) {
+                            array_push($nodeStack, array($childNode, $xpath.$childNode->nodeName."/"));
+                            $has_child_elements = true; 
+                        }
+                    }
+                    // don't get value of elements that have children as nodeValue 
+                    // will contain all the child nodes content
+                    if (!$has_child_elements) {
+                        $resultlist[rtrim($xpath,'/')][] = trim($fieldNode->nodeValue);
+                    }
 					// get attributes
-					$fieldAttList = $xpath->query("@*",$fieldNode);
+					$fieldAttList = $fieldNode->attributes;
 					foreach ($fieldAttList as $fieldAtt) {
-						$resultlist[$fieldAtt->nodeName][] = trim($fieldAtt->nodeValue);
+						$resultlist[rtrim($xpath,'/').'@'.$fieldAtt->nodeName][] = trim($fieldAtt->nodeValue);
 					}
 				}
 			}

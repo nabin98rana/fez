@@ -2,6 +2,7 @@
 
 include_once(APP_INC_PATH.'class.background_process.php');
 include_once(APP_INC_PATH.'class.exportspreadsheet.php');
+include_once(APP_INC_PATH.'class.exportspreadsheet_rqf.php');
 
 class BackgroundProcess_Export_Spreadsheet extends BackgroundProcess
 {
@@ -16,7 +17,11 @@ class BackgroundProcess_Export_Spreadsheet extends BackgroundProcess
     {
         $this->setState(1);
         extract(unserialize($this->inputs));
-        $exp = new ExportSpreadsheet;
+        if (!is_null($rqf) && $rqf) {
+            $exp = new ExportSpreadsheetRQF;
+        } else {
+            $exp = new ExportSpreadsheet;
+        }
         $exp ->setBackgroundObject($this);
         $exp->export2File($pid);
         $this->setState(2);

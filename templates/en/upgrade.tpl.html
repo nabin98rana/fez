@@ -4,7 +4,11 @@
 <h1>Upgrading Fez</h1>
 
 {if $result}
+{if $result_good}
+<div class="sanity_result_passed">{$result}</div>
+{else}
 <div class="sanity_result_failed">{$result}</div>
+{/if}
 {/if}
 {if $step == 1}
 <div>Clicking 'Upgrade' will upgrade your database from the previous version.  You should do this once after unpacking 

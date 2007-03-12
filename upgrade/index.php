@@ -142,6 +142,7 @@ function upgrade()
     if ($dbversion == 0) {
         if (parse_mysql_dump("upgrade.sql")) {
             $success = $success && true;
+            $dbversion = get_data_model_version();
         } else {
             $success = false;
         }
@@ -159,9 +160,9 @@ function upgrade()
         }
     }
     if ($success && set_data_model_version($sql_upgrade)) {
-        return 'Upgrades succeeded.';
+        return array($success, "Upgrade to database version $sql_upgrade succeeded.");
     } else {
-        return 'The upgrade failed - check error_handler.log';
+        return array($success, 'The upgrade failed - check error_handler.log');
     }
 }
 
@@ -179,9 +180,10 @@ switch ($step) {
     break;
     case 2:
     if (!empty($_POST["upgrade"])) {
-        $res = upgrade();
-        $tpl->assign("result", $res);
-        if ($res != 'success') {
+        list($res, $message) = upgrade();
+        $tpl->assign("result", $message);
+        $tpl->assign("result_good", $res);
+        if (!$res) {
         	$step = 1;
         }
     }

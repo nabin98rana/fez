@@ -57,64 +57,56 @@ class ExportSpreadsheet {
 
     function pid2spreadsheet($pid)
     {
-        $spreadsheet = &$this->spreadsheet;
-        $exclude_list = array('FezACML','FezMD','RELS-EXT');
+        $exclude_list = array('FezACML','FezMD','RELS-EXT','PremisEvent');
         $exclude_prefix = array('presmd','thumbnail','web','preview');
         $acceptable_roles = array("Viewer", "Community_Administrator", "Editor", "Creator", "Annotator");
+        $spreadsheet = &$this->spreadsheet;
 
         $record = new RecordGeneral($pid);
         if ($record->checkExists() && $record->canView(false)) {
             $datastreams = $record->getDatastreams();
             $spreadsheet->addRow();
             $spreadsheet->addValue($pid,'PID');
-            $parents = $record->getParents();
-            foreach ($parents as $parent) {
-                foreach ($parent['title'] as $title) {
-                    $spreadsheet->addValue($title,'Parent Record');
-                }
-            }
             $status = $record->getPublishedStatus(true);
             $spreadsheet->addValue($status,'Status');
             $doctype = $record->getDocumentType();
             $spreadsheet->addValue($doctype,'Document Type');
-
-            $additional_notes = $record->getDetailsByXSDMF_element('!additional_notes');
-            $spreadsheet->addValue($additional_notes,'Additional Notes');
-
-            // Metadata
-            foreach ($datastreams as $ds) {
-                if ($ds['controlGroup'] == 'X' 
-                        && !in_array($ds['ID'], $exclude_list)
-                        && !in_array(substr($ds['ID'],0,strpos($ds['ID'],'_')), $exclude_prefix)
-                        && Auth::checkAuthorisation($pid, $ds['ID'], $acceptable_roles, '', null, false)
-                   ) {
-                    $metaArray = Fedora_API::callGetDatastreamContents($pid, $ds['ID']);
-                    // Special case lookup for author id
-                    if (isset($metaArray['submitting_author']) && is_array($metaArray['submitting_author'])) {
-                        foreach ($metaArray['submitting_author'] as $key => $sauth) {
-                            if (is_numeric($sauth)) {
-                                $auth_name = Author::getFullname($sauth);
-                                $metaArray['submitting_author'][$key] = $auth_name;
-                                $auth_id = Author::getOrgStaffId($sauth);
-                                $metaArray['submitting_author_org_id'][$key] = $auth_id;
-                            }
-                        }
-                    }
-                    if (isset($metaArray['authorID']) && is_array($metaArray['authorID'])) {
-                        foreach ($metaArray['authorID'] as $key => $sauth) {
-                            if (is_numeric($sauth)) {
-                                $auth_id = Author::getOrgStaffId($sauth);
-                                if (empty($auth_id)) {
-                                    $auth_id = 'unknown';
-                                }
-                                $metaArray['authorID'][$key] = $auth_id;
-                            } else {
-                                $metaArray['authorID'][$key] = 'unknown';
-                            }
+            // get the metadata columns
+            $details = $record->getDetails();
+            foreach ($details as $xsdmf_id => $value) {
+                if (!is_array($value)) {
+                    $value = array($value);
+                }
+                $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
+                $xsd_id = XSD_Display::getParentXSDID($xsdmf_details['xsdmf_xdis_id']);
+                $datastream = Doc_Type_XSD::getTitle($xsd_id);
+                if (($xsdmf_details['xsdmf_element'] == '!submitting_author') 
+                        || ($xsdmf_details['xsdmf_html_input'] == 'author_suggestor')) {
+                    $metaArray = array();
+                    foreach ($value as $key => $sauth) {
+                        if (is_numeric($sauth)) {
+                             $auth_name = Author::getFullname($sauth);
+                             $metaArray[$xsdmf_details['xsdmf_title'].' Aurion Name'][$key] = $auth_name;
+                             $auth_id = Author::getOrgStaffId($sauth);
+                             $metaArray[$xsdmf_details['xsdmf_title'].' Aurion ID'][$key] = $auth_id;
                         }
                     }
                     $spreadsheet->addArray($metaArray);
-                } elseif ($ds['controlGroup'] == 'R' 
+                } else {
+                    Error_Handler::logError($datastream);
+                    if (in_array($datastream,$exclude_list) || empty($xsdmf_details['xsdmf_show_in_view'])) {
+                        Error_Handler::logError('skipping');
+                        continue;
+                    }
+                    foreach ($value as $value_item) {
+                        $spreadsheet->addValue($value_item,$xsdmf_details['xsdmf_title']);
+                    }
+                }
+            }
+            // get info about the attached binary files
+            // get info about links
+            foreach ($datastreams as $ds) {
+                if ($ds['controlGroup'] == 'R' 
                         && !in_array(substr($ds['ID'],0,strpos($ds['ID'],'_')), $exclude_prefix)
                         && Auth::checkAuthorisation($pid, $ds['ID'], $acceptable_roles, '', null, false)
                         ) {
@@ -123,7 +115,6 @@ class ExportSpreadsheet {
                 } elseif ($ds['controlGroup'] == 'M' 
                         && !in_array(substr($ds['ID'],0,strpos($ds['ID'],'_')), $exclude_prefix)
                         && Auth::checkAuthorisation($pid, $ds['ID'], $acceptable_roles, '', null, false)) {
-
                     $spreadsheet->addValue($ds['ID'], 'File Datastream ID');
                     $spreadsheet->addValue($ds['label'], 'File Label');
                     $spreadsheet->addValue($ds['MIMEType'], 'File MIME Type');
@@ -135,16 +126,18 @@ class ExportSpreadsheet {
                 $this->bgp->setProgress($this->record_count); 
                 $this->bgp->setStatus($record->getTitle()); 
             }
-
             $children = $record->getChildrenPids();
             if ($children) {
                 foreach ($children as $child) {
                     $this->pid2spreadsheet($child);
                 }
+            } 
+        } else {
+            if ($this->bgp) {
+                $this->bgp->setStatus("Access Denied or record doesn't exist ($pid)");
             }
         }
-
-        return $spreadsheet;
-
     }
+    
 }
+?>
