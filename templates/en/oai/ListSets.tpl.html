@@ -13,7 +13,7 @@
   </set>
 {/section}
 {if $list_count < 100}
-  <resumptionToken>0/{$resumptionHash}</resumptionToken>
+  <resumptionToken></resumptionToken>
 {else}
   <resumptionToken>{$start+100}/{$resumptionHash}</resumptionToken>
 {/if}
