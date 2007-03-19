@@ -67,6 +67,12 @@ class ExportSpreadsheet {
             $datastreams = $record->getDatastreams();
             $spreadsheet->addRow();
             $spreadsheet->addValue($pid,'PID');
+            $parents = $record->getParents();
+            foreach ($parents as $parent) {
+                foreach ($parent['title'] as $title) {
+                    $spreadsheet->addValue($title,'Parent Record');
+                }
+            }
             $status = $record->getPublishedStatus(true);
             $spreadsheet->addValue($status,'Status');
             $doctype = $record->getDocumentType();
@@ -86,9 +92,20 @@ class ExportSpreadsheet {
                     foreach ($value as $key => $sauth) {
                         if (is_numeric($sauth)) {
                              $auth_name = Author::getFullname($sauth);
-                             $metaArray[$xsdmf_details['xsdmf_title'].' Aurion Name'][$key] = $auth_name;
                              $auth_id = Author::getOrgStaffId($sauth);
+                        } else {
+                             $auth_name = null;
+                             $auth_id = null;
+                        }
+                        if (!empty($auth_id) && is_numeric($auth_id)) {
                              $metaArray[$xsdmf_details['xsdmf_title'].' Aurion ID'][$key] = $auth_id;
+                        } else {
+                            $metaArray[$xsdmf_details['xsdmf_title'].' Aurion ID'][$key] = 'unknown';
+                        }
+                        if (!empty($auth_name)) {
+                            $metaArray[$xsdmf_details['xsdmf_title'].' Aurion Name'][$key] = $auth_name;
+                        } else {
+                            $metaArray[$xsdmf_details['xsdmf_title'].' Aurion Name'][$key] = 'unknown';
                         }
                     }
                     $spreadsheet->addArray($metaArray);

@@ -207,7 +207,7 @@ class Foxml
      * @param   integer $top_xdis_id
      * @return  string $xmlObj The xml object, plus the indexArray is passed back by reference
      */
-    function handleStaticInstance(&$attrib_value, &$indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details,  $attrib_loop_index, $element_prefix, $i, $created_date, $updated_date, $depositor, $file_downloads, $top_xdis_id, $assign_usr_id, $assign_grp_id) {
+    function handleStaticInstance(&$attrib_value, &$indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details,  $attrib_loop_index, $element_prefix, $i, $created_date, $updated_date, $depositor, $file_downloads, $top_xdis_id, $assign_usr_id=null, $assign_grp_id=null) {
         if ($xsdmf_details['xsdmf_fez_variable'] == "pid") {
             $attrib_value = $pid;
             array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $pid));
