@@ -28,7 +28,8 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
@@ -406,6 +407,38 @@ class Org_Structure
             return $res;
         }
     }	
+
+
+   /**
+     * Method used to get the list of all organsational structures available in the 
+     * system for drop down lists, with supplemental information.
+     *
+     * @access  public
+     * @return  array The list of organsational structures (for drop down lists).
+     */
+    function getListAll()
+    {
+        $stmt = "SELECT
+                    org_id,
+                    org_title,
+                    org_ext_table 
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure
+                 ORDER BY 
+                    org_title";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            if (empty($res)) {
+                return array();
+            } else {
+                return $res;
+            }
+        }
+    }
+
 
     /**
      * Method used to get the list of organsational structures available in the 

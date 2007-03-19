@@ -1,3 +1,4 @@
+{if $author_id == ''}<meta http-equiv="refresh" content="0; URL=authors.php">{/if}
 
       <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
         <tr>
@@ -9,14 +10,20 @@
               var editing_option_id = -1;
               function validateForm(f)
               {
-                  if (isWhitespace(f.title.value)) {
-                      alert('Please enter the title of this Organisational Unit.');
-                      selectField(f, 'title');
+                  if (isWhitespace(f.organisation_id.value)) {
+                      alert('Please select the relevant Organisational Unit.');
+                      selectField(f, 'organisation_id');
                       return false;
                   }
-                  if ((f.field_type[2].checked) || (f.field_type[3].checked)) {
-                      // select all of the options in the select box
-                      selectAllOptions(f, 'field_options[]');
+                  if (isWhitespace(f.classification_id.value)) {
+                      alert('Please supply a Classification.');
+                      selectField(f, 'classification_id');
+                      return false;
+                  }
+                  if (isWhitespace(f.function_id.value)) {
+                      alert('Please supply a Function.');
+                      selectField(f, 'function_id');
+                      return false;
                   }
                   return true;
               }
@@ -138,30 +145,20 @@
               //-->
               </script>
               {/literal}
-              <form name="custom_field_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
+              <form name="custom_field_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}?cat=view&auth={$author_id}" enctype="multipart/form-data">
               {if $smarty.get.cat == 'edit'}
               <input type="hidden" name="cat" value="update">
               <input type="hidden" name="id" value="{$smarty.get.id}">
               {else}
               <input type="hidden" name="cat" value="new">
               {/if}
-              <input type="hidden" name="parent_id" value="{$parent_id}">			  
               <tr>
                 <td colspan="2" class="default">
-                  <b><a href="orgstructure.php">Manage Organisational Units </a>->
-
-		          {if $max_subject_breadcrumb != -1}
-					  {section name="b" loop=$subject_breadcrumb}
-						  {assign var="counter" value=b}
-		                  {if $subject_breadcrumb[b].org_image_filename != ""}
-						    <img align="absmiddle" src="{$rel_url}images/{$subject_breadcrumb[b].org_image_filename}"/>
-						  {/if}
-                          {if $max_subject_breadcrumb != $smarty.section.b.index}<a href='orgstructure.php?parent_id={$subject_breadcrumb[b].org_id}'>{else}<b>{/if}{$subject_breadcrumb[b].org_title|escape:"html"}{if $max_subject_breadcrumb != $smarty.section.b.index}</a>{else}</b>{/if}
- 						  {assign var="org_id" value=$subject_breadcrumb[b].org_id}
-						  {if $subject_count[$org_id]}({$subject_count[$org_id]}){else}{/if}{if $max_subject_breadcrumb != $smarty.section.b.index}->{else}:{/if}					
-					  {/section}
-				   {else}Subject Classification:{/if}</b>		  
-
+                  <b><a href="orgstructure_author.php">Manage Author Organisation Memberships</a>
+		          {if $breadcrumb_detail != ''}
+				  -> {$breadcrumb_detail}
+				  {/if}
+				   </b>		  
                 </td>
               </tr>
               {if $result != ""}
@@ -169,70 +166,107 @@
                 <td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
                   {if $smarty.post.cat == "new"}
                     {if $result == -1}
-                      An error occurred while trying to add the new Organisational Unit.
+                      An error occurred while trying to register the new organisational membership.
                     {elseif $result == 1}
-                      Thank you, the Organisational Unit was added successfully.
+                      Thank you, the organisational membership was registered successfully.
                     {/if}
                   {elseif $smarty.post.cat == "update"}
                     {if $result == -1}
-                      An error occurred while trying to update the Organisational Unit information.
+                      An error occurred while trying to update the organisational membership.
                     {elseif $result == 1}
-                      Thank you, the Organisational Unit was updated successfully.
+                      Thank you, the organisational membership was updated successfully.
+                    {/if}
+                  {elseif $smarty.post.cat == "delete"}
+                    {if $result == false}
+                      An error occurred while trying to delete the organisational membership.
+                    {elseif $result == true}
+                      Thank you, the organisational membership was successfully deleted.
                     {/if}
                   {/if}
                 </td>
               </tr>
               {/if}
-              <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
-                  <b>Title:</b>
-                </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="org_title" size="40" class="default" value="{$info.org_title}">
-                  {include file="error_icon.tpl.html" field="title"}
-                </td>
-              </tr>
-              <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
-                  <b>Unit Type:</b>
-                </td>
-                <td bgcolor="{$light_color}">
-				  <input type="text" name="org_ext_table" size="40" class="default" value="{$info.org_ext_table}">
-                  {include file="error_icon.tpl.html" field="org_ext_table"}
-                </td>
-              </tr>
-              <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
-                  <b>Description:</b>
-                </td>
-                <td bgcolor="{$light_color}">
-                  <textarea name="org_desc" cols="50" rows="3" class="default">{$info.org_desc}</textarea>
-                  {include file="error_icon.tpl.html" field="org_desc"}
-                </td>
-              </tr>
-              <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
-                  <b>Image Filename:</b>
-                </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="org_image_filename" size="40" class="default" value="{$info.org_image_filename}">
-                  {include file="error_icon.tpl.html" field="org_image_filename"}
-                </td>
-              </tr>			  
+
+			  <input type="hidden" name="author_id" value="{$author_id}" />
+
+			  <tr>
+			    <td width="120" bgcolor="{$cell_color}" class="default">
+				  <b>Organisation:</b>
+				</td>
+				<td bgcolor="{$light_color}">
+				  <select name="organisation_id" class="default">
+				    <option value="">[Select from the following list]</option>
+					{section name="i" loop=$org_list}
+					<option value="{$org_list[i].org_id}"{if $org_list[i].org_id == $info.auo_org_id} selected{/if}>{$org_list[i].org_title} ({$org_list[i].org_ext_table})</option>
+					{/section}
+				  </select>
+				</td>
+			  </tr>
+
+			  <tr>
+			    <td width="120" bgcolor="{$cell_color}" class="default">
+				  <b>Classification:</b>
+				</td>
+				<td bgcolor="{$light_color}">
+				  <select name="classification_id" class="default">
+				    <option value="">[Select from the following list]</option>
+					{section name="i" loop=$cla_list}
+					<option value="{$cla_list[i].cla_id}"{if $cla_list[i].cla_id == $info.auo_cla_id} selected{/if}>{$cla_list[i].cla_title}</option>
+					{/section}
+				  </select>
+				</td>
+			  </tr>
+
+			  <tr>
+			    <td width="120" bgcolor="{$cell_color}" class="default">
+				  <b>Function:</b>
+				</td>
+				<td bgcolor="{$light_color}">
+				  <select name="function_id" class="default">
+				    <option value="">[Select from the following list]</option>
+					{section name="i" loop=$fun_list}
+					<option value="{$fun_list[i].fun_id}"{if $fun_list[i].fun_id == $info.auo_fun_id} selected{/if}>{$fun_list[i].fun_title}</option>
+					{/section}
+				  </select>
+				</td>
+			  </tr>
+
+			  <tr>
+			    <td width="120" bgcolor="{$cell_color}" class="default">
+				  <b>Assessed?</b>
+				</td>
+				<td bgcolor="{$light_color}">
+				  <select name="assessed" class="default">
+				    <option value="">No</option>
+					<option value="Y"{if $info.auo_assessed == 'Y'} selected{/if}>Yes</option>
+				  </select>
+				</td>
+			  </tr>
+
+			  <tr>
+			    <td width="120" bgcolor="{$cell_color}" class="default">
+				  <b>Assessment Year:</b>
+				</td>
+				<td bgcolor="{$light_color}">
+				  <input type="text" name="assessed_year" value="{$info.auo_assessed_year}" class="default" size="4" />
+				</td>
+			  </tr>
+
               <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $smarty.get.cat == 'edit'}
-                  <input class="button" type="submit" value="Update Organisational Unit">
+                  <input class="button" type="submit" value="Update Organisational Membership">
                   {else}
-                  <input class="button" type="submit" value="Add Organisational Unit">
+                  <input class="button" type="submit" value="Register New Organisational Membership">
                   {/if}
                   <input class="button" type="reset" value="Reset">
                 </td>
               </tr>
-              </form>
+
+			  </form>
               <tr>
                 <td colspan="2" class="default">
-                  <b>Existing Organisational Units:</b>
+                  <b>Registered Organisational Units:</b>
                 </td>
               </tr>
               <tr>
@@ -243,10 +277,10 @@
                   function checkDelete(f)
                   {
                       if (!hasOneChecked(f, 'items[]')) {
-                          alert('Please select at least one of the Organisational Units.');
+                          alert('Please select at least one of the Registered Organisational Units.');
                           return false;
                       }
-                      if (!confirm('This action will permanently remove the selected Organisational Units.')) {
+                      if (!confirm('This action will permanently disassociate this author from the selected Organisational Unit.\nProceed?')) {
                           return false;
                       } else {
                           return true;
@@ -256,45 +290,42 @@
                   </script>
                   {/literal}
                   <table border="0" width="100%" cellpadding="1" cellspacing="1">
-                    <form onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
+                    <form onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}?auth={$author_id}">
                     <input type="hidden" name="cat" value="delete">
                     <tr>
                       <td width="5" bgcolor="{$cell_color}" align="center" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Type</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Desc</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Image Filename</b>&nbsp;</td>					  
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Edit Children</b>&nbsp;</td>  
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Assessed?</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Year Assessed</b>&nbsp;</td>					  
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
                     <tr>
                       <td width="4" nowrap bgcolor="{$row_color}" align="center">
-                        <input type="checkbox" name="items[]" value="{$list[i].org_id}" {if $smarty.section.i.total == 0}disabled{/if}>
+                        <input type="checkbox" name="items[]" value="{$list[i].auo_id}" {if $smarty.section.i.total == 0}disabled{/if}>
                       </td>
                       <td bgcolor="{$row_color}" class="default">
-                        &nbsp;<a href="orgstructure.php?cat=edit&id={$list[i].org_id}">{$list[i].org_title}</a>
+                        &nbsp;<a href="{$smarty.server.PHP_SELF}?cat=edit&id={$list[i].auo_id}">{$list[i].org_title}</a>
                       </td>
                       <td bgcolor="{$row_color}" class="default">
                         &nbsp;{$list[i].org_ext_table}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
-                        &nbsp;{$list[i].org_desc}
+                        &nbsp;{if $list[i].auo_assessed == 'Y'}Yes{/if}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
-                        &nbsp;{$list[i].org_image_filename}
-                      </td>
-                      <td bgcolor="{$row_color}" class="default">
-                        &nbsp;<a href="orgstructure.php?parent_id={$list[i].org_id}">Edit {$list[i].org_title} Child Units</a>
+                        &nbsp;{$list[i].auo_assessed_year}
                       </td>
                     </tr>
                     {sectionelse}
                     <tr>
                       <td colspan="6" bgcolor="{$light_color}" align="center" class="default">
-                        No Organisational Units could be found.
+                        No organisational memberships are currently registered.
                       </td>
                     </tr>
                     {/section}
+
                     <tr>
                       <td width="4" align="center" bgcolor="{$cell_color}">
                         <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
@@ -311,5 +342,3 @@
           </td>
         </tr>
       </table>
-
-

@@ -238,7 +238,7 @@
                     <tr>
                       <td width="4" align="center" nowrap bgcolor="{$row_color}"><input type="checkbox" name="items[]" value="{$list[i].aut_id}"></td>
                       <td bgcolor="{$row_color}" class="default">
-                        &nbsp;<a class="link" href="{$smarty.server.PHP_SELF}?cat=edit&id={$list[i].aut_id}" title="update this entry">{$list[i].aut_id}</a>
+                        &nbsp;<a class="link" href="{$smarty.server.PHP_SELF}?cat=edit&id={$list[i].aut_id}" title="Update this entry">{$list[i].aut_id}</a>
                       </td>
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_title}</td>
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_fname}</td>					  
@@ -248,7 +248,7 @@
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_cv_link}</td>
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_homepage_link}</td>					  
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_created_date}</td>					  
-                      <td bgcolor="{$row_color}" class="default">&nbsp;Edit</td>					                        
+                      <td bgcolor="{$row_color}" class="default">&nbsp;<a class="link" href="orgstructure_author.php?cat=view&auth={$list[i].aut_id}" title="Update this entry">Edit</a></td>					                        
                     </tr>
                     {sectionelse}
                     <tr>
