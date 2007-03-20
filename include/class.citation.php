@@ -64,7 +64,9 @@
         foreach ($matches[1] as $key => $match) {
             list($xsdmf_id,$prefix,$suffix) = explode('|',$match);
             $value = Citation::formatValue($details[$xsdmf_id], $xsdmf_list[$xsdmf_id]);
-            $value = $prefix.$value.$suffix;
+            if (!empty($value)) {
+                $value = $prefix.$value.$suffix;
+            }
             //Error_Handler::logError($match);
             $template = str_replace('{'.$match.'}', $value, $template);
         } 
@@ -90,11 +92,11 @@
         } elseif ($xsdmf['xsdmf_data_type'] == 'date') {
             if ($xsdmf['xsdmf_html_input'] == 'date') {
                 if ($xsdmf['xsdmf_date_type'] == 1) {
-                    $value = strftime("%Y", $value); 
+                    $value = strftime("%Y", strtotime($value)); 
                 }
             } else {
                 if ($xsdmf['xsdmf_attached_xsdmf_id'] == 0) {
-                    $value = strftime("%A, %B %e, %Y", $value); 
+                    $value = strftime("%A, %B %e, %Y", strtotime($value)); 
                 }
             }
         }
