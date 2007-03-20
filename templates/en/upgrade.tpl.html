@@ -47,6 +47,9 @@ Move @define(APP_HOSTNAME... to above all the other defines.
 {literal}} elseif (APP_FEDORA_SETUP == 'sslapim') {{/literal}
     @define("APP_BASE_FEDORA_APIA_DOMAIN", APP_FEDORA_APIA_PROTOCOL_TYPE.APP_FEDORA_LOCATION); // the location of your fedora ssl server for apia
 
+{literal}// Correct the administrator email address, if it is set to {APP_ADMIN_EMAL}
+@define("APP_ADMIN_EMAIL", "admin@yourinst.edu"); // used in the OAI identify verb and page footer{/literal}
+
 
 *** All of the following are New Variables
 

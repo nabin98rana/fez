@@ -94,12 +94,12 @@ set_time_limit(0);
 if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
 	@define("APP_TEMP_DIR", 'c:/temp/');
     @define("APP_DELETE_CMD", 'del ');
-	@define("APP_DELETE_DIR", 'c:/temp/'); //Windows needs the delete path to be forward slashes
+	@define("APP_DELETE_DIR", 'c:/temp/');
 	@define("APP_CONVERT_CMD", "convert.exe");   // To convert image (part of ImageMagick)
 	@define("APP_COMPOSITE_CMD", "composite.exe");   // To watermark image (part of ImageMagick)
 	@define("APP_IDENTIFY_CMD", "identify.exe"); // To get image information (part of ImageMagick)  	 	 
 	@define("APP_JHOVE_DIR", "c:/jhove/");
-	@define("APP_JHOVE_TEMP_DIR", 'c:/temp/'); // jhove needs windows style dir names when run on a win server
+	@define("APP_JHOVE_TEMP_DIR", 'c:/temp/');
     ini_set("include_path", ".;" . APP_PEAR_PATH);
     @define("APP_DOT_EXEC", "c:/PROGRA~1/ATT/Graphviz/bin/dot.exe");
     @define("APP_PHP_EXEC", "c:/php/php.exe");
@@ -191,7 +191,7 @@ if (APP_FEDORA_SETUP == 'sslall') {
 
 
 @define("APP_NAME", "%{APP_NAME}%");
-@define("APP_ADMIN_EMAIL", "%{APP_ADMIN_EMAL}%"); // used in the OAI identify verb
+@define("APP_ADMIN_EMAIL", "%{APP_ADMIN_EMAIL}%"); // used in the OAI identify verb and page footer
 @define("APP_ORG_NAME", "%{APP_ORG_NAME}%");
 @define("APP_SHORT_ORG_NAME", "%{APP_SHORT_ORG_NAME}%");
 @define("APP_PID_NAMESPACE", "%{APP_PID_NAMESPACE}%"); // Must be the same as your Fedora fedora.fcfg "namespace" variable
