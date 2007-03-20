@@ -242,7 +242,26 @@ class Doc_Type_XSD
         }
     }
 
-
+    /**
+     * getFoxmlXsdId - Special case to get the xsd_id of the foxml XSD which is the parent of 
+     * all other XSDs.
+     * @return integer xsd_id of Foxml XSD
+     */
+    function getFoxmlXsdId()
+    {
+        $stmt = "SELECT
+                    xsd_id
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd
+                 where xsd_top_element_name='digitalObject' ";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return null;
+        } else {
+            return $res;
+        }
+    }
 
     /**
      * Method used to get the source of an XSD in the 

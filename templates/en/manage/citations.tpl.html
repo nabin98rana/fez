@@ -1,0 +1,105 @@
+<div class="outline">
+<form method="post">
+{if $action=='select_display'}
+
+{* Select the Display the edit the citation for *}
+
+<table>
+<tr class="table_heading_row">
+
+<td>Title</td>
+<td>Version</td>
+<td>Enabled?</td>
+<td>Citation Set?</td>
+</tr>
+{section name="i" loop=$list}
+			  {assign var="xdis" value=$list[i]}
+			  {cycle values=$cycle assign="row_color"}
+                    <tr>
+                      <td width="35%" bgcolor="{$row_color}" class="default">
+                        <a href="{$smarty.const.PHP_SELF}?action=edit&xdis_id={$xdis.xdis_id}">{$xdis.xdis_title}</a>
+                      </td>
+
+                      <td width="15%" bgcolor="{$row_color}" class="default">
+                        &nbsp;{$xdis.xdis_version}
+                      </td>
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{if $xdis.xdis_enabled == 1}<font color="green">yes</font>{else}<font color="red">no</font>{/if}
+                      </td>
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{if $xdis.cit == 1}<font color="green">yes</font>{else}<font color="red">no</font>{/if}
+                      </td>
+
+                    </tr>
+{sectionelse}
+                    <tr>
+                      <td colspan="7" bgcolor="{$light_color}" align="center" class="default">
+                        No displays could be found.
+                      </td>
+                    </tr>
+{/section}
+</table>
+<br/>
+<div class="default"><a href="{$smarty.const.PHP_SELF}?action=convert">Convert from old style citations</a> if you are using this 
+for the first time.  This will attempt to find citations defined in the xsdmf mappings and make new citations
+in the citations table.</div>
+
+
+{elseif $action=='edit' || $action=='preview'}
+
+{* Edit the citation *}
+
+<div class="contentheader">
+{$xdis_details.xdis_title} Citation
+</div>
+<div>
+Type the html to format the citation e.g. &lt;i&gt;</pre><i>italics</i>&lt;/i&gt; 
+and &lt;b&gt;<b>bold</b>&lt;/b&gt;.  Insert metadata elements into the template by selecting them.
+This will insert a code into the template to represent the metadata item (the code is smarty templating).  The format 
+of the code can be changed to add an optional prefix or suffix that will only show if the item is set {ldelim}code|prefix|suffix{rdelim}
+Click 'Preview' to see the template rendered with the names of the metadata elements as placeholders for the metadata.  
+Click 'Save' to make the changes live.
+</div>
+<script type="text/javascript">
+{literal}
+<!--
+function insertCode(xsdmf_id)
+{
+  tt = document.getElementById('template_text');
+  before = tt.value.slice(0, tt.selectionStart);
+  after = tt.value.slice(tt.selectionEnd);
+  tt.value = before +  '{' + xsdmf_id + '}' + after;
+  setTimeout('tt.focus();', 100);
+}
+
+function tag(tag)
+{
+  tt = document.getElementById('template_text');
+  before = tt.value.slice(0, tt.selectionStart);
+  middle = tt.value.slice(tt.selectionStart,tt.selectionEnd);
+  after = tt.value.slice(tt.selectionEnd);
+  tt.value = before +  '<' + tag + '>' + middle + '</' + tag + '>' + after;
+  setTimeout('tt.focus();', 100);
+}
+
+// -->
+{/literal}
+</script>
+<input type="hidden" name="action" value="edit" />
+<input type="hidden" name="xdis_id" value="{$xdis_id}" />
+<select id="xsdmf_select" onchange="insertCode(this.value)">
+{html_options options=$xsdmf_select_list}
+</select>
+<input type="button" value="Bold" onclick="tag('b');" />
+<input type="button" value="italics" onclick="tag('i');" />
+<input type="button" value="underline" onclick="tag('u');" />
+<textarea name="template" id="template_text" rows="10" cols="80">{$template|default:$cit_template}</textarea><br/>
+<input type="submit" name="preview" value="Preview" onclick="form.action.value='edit';" />
+<input type="submit" name="save" value="Save" onclick="form.action.value='save';"/>
+{if $preview}
+<h2>Preview:</h2>
+<div class="citation_preview">{$preview}</div>
+{/if}
+{/if}
+</form>
+</div>

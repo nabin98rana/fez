@@ -355,8 +355,8 @@ class XSD_HTML_Match {
 		$xsdrelall = $GLOBALS["db_api"]->dbh->getCol($stmt);
 		if (PEAR::isError($xsdrelall)) {
 			Error_Handler::logError(array (
-			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-			$res = array ();
+			$xsdrelall->getMessage(), $xsdrelall->getDebugInfo()), __FILE__, __LINE__);
+			$xsdrelall = array ();
 		}
 		array_push($xsdrelall, $xdis_id);
 

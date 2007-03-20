@@ -40,3 +40,9 @@ background-color: [[$smarty.const.APP_CELL_COLOR]];
   margin: 10px;
 vertical-align: middle;
 }
+
+.citation_preview {
+padding: 3px;
+border: 1px solid [[$smarty.const.APP_DARK_COLOR]];
+background-color: [[$smarty.const.APP_LIGHT_COLOR]];
+}

@@ -2178,6 +2178,10 @@ class Misc
     function keyArray($source, $kfield)
     {
         $dest = array();
+        if (!is_array($source)) {
+            Error_Handler::logError("Not an array", __FILE__,__LINE__);
+            return null;
+        }
         foreach ($source as $item) {
             $dest[$item[$kfield]] = $item;
         }
