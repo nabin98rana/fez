@@ -11,7 +11,7 @@
  class Citation
  {
  
-    function getDetails($xdis_id, $type='MLA') {
+    function getDetails($xdis_id, $type='APA') {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $stmt = "SELECT * FROM {$dbtp}citation WHERE cit_xdis_id='$xdis_id' AND cit_type='$type' ";
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
@@ -23,7 +23,7 @@
         }
     }
     
-    function save($xdis_id, $template, $type='MLA') 
+    function save($xdis_id, $template, $type='APA') 
     {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $det = Citation::getDetails($xdis_id, $type);
@@ -46,7 +46,7 @@
         return true;
     }
     
-    function renderCitation($xdis_id, $details, $xsd_display_fields, $type='MLA')
+    function renderCitation($xdis_id, $details, $xsd_display_fields, $type='APA')
     {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $det = Citation::getDetails($xdis_id, $type);
@@ -57,7 +57,7 @@
         return Citation::renderCitationTemplate($result, $details, $xsd_display_fields, $type);
     }
     
-    function renderCitationTemplate($template, $details, $xsd_display_fields, $type='MLA')
+    function renderCitationTemplate($template, $details, $xsd_display_fields, $type='APA')
     {
         preg_match_all('/\{(.*?)\}/',$template,$matches,PREG_PATTERN_ORDER);
         $xsdmf_list = Misc::keyArray($xsd_display_fields, 'xsdmf_id');
@@ -162,7 +162,7 @@
         $citation_html = str_replace(' ,', ', ', $citation_html);
         $citation_html = str_replace(' .', '. ', $citation_html);
         $citation_html = preg_replace('/(,|\.),\S/', ', ', $citation_html);
-        return Citation::save($xdis_id, trim($citation_html), 'MLA'); 
+        return Citation::save($xdis_id, trim($citation_html), 'APA'); 
     }
      
  }
