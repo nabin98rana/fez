@@ -62,8 +62,8 @@
         preg_match_all('/\{(.*?)\}/',$template,$matches,PREG_PATTERN_ORDER);
         $xsdmf_list = Misc::keyArray($xsd_display_fields, 'xsdmf_id');
         foreach ($matches[1] as $key => $match) {
-            list($xsdmf_id,$prefix,$suffix) = explode('|',$match);
-            $value = Citation::formatValue($details[$xsdmf_id], $xsdmf_list[$xsdmf_id]);
+            list($xsdmf_id,$prefix,$suffix,$option) = explode('|',$match);
+            $value = Citation::formatValue($details[$xsdmf_id], $xsdmf_list[$xsdmf_id], $option, $type);
             if (!empty($value)) {
                 $value = $prefix.$value.$suffix;
             }
@@ -73,7 +73,7 @@
         return $template;
     }
      
-    function formatValue($value, $xsdmf)
+    function formatValue($value, $xsdmf, $option = '', $type='APA')
     {
         if (is_array($value)) {
             // recurse for each item of the array
@@ -87,31 +87,58 @@
                         $list .= ', ';
                     }
                 }
-                $list .= Citation::formatValue($value[$ii],$xsdmf);
+                $list .= Citation::formatValue($value[$ii],$xsdmf, $option, $type);
             }
             $value = $list;
         } elseif ($xsdmf['xsdmf_data_type'] == 'date') {
-            if ($xsdmf['xsdmf_html_input'] == 'date') {
-                if ($xsdmf['xsdmf_date_type'] == 1) {
-                    $value = strftime("%Y", strtotime($value)); 
-                }
-            } else {
-                if ($xsdmf['xsdmf_attached_xsdmf_id'] == 0) {
-                    $value = strftime("%A, %B %e, %Y", strtotime($value)); 
-                }
-            }
-          // need to for an attached field for the suggestor thing to work or we need some other way
-          // of handling commas in authors names.
+            switch($option) {
+                case 'ymd':
+                    $value = strftime("%Y, %B %d", strtotime($value));
+                break;
+                case 'ym':
+                    $value = strftime("%Y, %B", strtotime($value));
+                break;
+                case 'my':
+                    $value = strftime("%B %Y", strtotime($value));
+                break;
+                default:
+                    $value = strftime("%Y", strtotime($value));
+                break;
+            } 
+        // need to for an attached field for the suggestor thing to work or we need some other way
+        // of handling commas in authors names.
         } elseif ($xsdmf['xsdmf_html_input'] == 'author_selector') {
-           $value = Author::getFullname($value);
+           $value = Citation::formatAuthor(Author::getFullname($value), $type);
             // special case hack for editors name fix
         } elseif ($xsdmf['sek_title'] == "Author"
                     || strpos($xsdmf['xsdmf_title'], 'Editor') !== false) {
-            $parts = explode(',', $value, 2);
-            if (count($parts) > 1) {
-                $value = $parts[1].' '.$parts[0];     
-            }
+            $value = Citation::formatAuthor($value, $type);
         } 
+        return $value;
+    }
+    
+    function formatAuthor($value, $type='APA') 
+    {
+        if (empty($value)) {
+            return '';
+        }
+        // First convert to display names style - Title FName MName/Init LName
+        $parts = explode(',', $value, 2);
+        if (count($parts) > 1) {
+            $value = $parts[1].' '.$parts[0];     
+        }
+        $value = str_replace('.', '. ', $value);
+        
+        switch($type)
+        {
+            case 'APA':
+                $parts = explode(' ', $value);
+                $parts = array_filter($parts, create_function('$a', 'return !empty($a);'));
+                $lname = array_pop($parts);
+                $inits = array_map(create_function('$a', 'return substr(trim($a), 0, 1);'), $parts);
+                $value = $lname.', '.implode('. ',$inits).'.';
+            break;
+        }
         return $value;
     }
     
