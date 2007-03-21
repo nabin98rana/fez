@@ -76,13 +76,14 @@
     function formatValue($value, $xsdmf)
     {
         if (is_array($value)) {
+            // recurse for each item of the array
             $list = '';
             $cnt = count($value);
             for ($ii = 0; $ii < $cnt; $ii++) {
                 if ($ii > 0) {
-                    if ($ii >= $cnt - 2) {
+                    if ($ii >= $cnt - 1) {
                         $list .= ' and ';
-                    } elseif ($ii < $cnt - 2) {
+                    } else {
                         $list .= ', ';
                     }
                 }
@@ -99,7 +100,18 @@
                     $value = strftime("%A, %B %e, %Y", strtotime($value)); 
                 }
             }
-        }
+          // need to for an attached field for the suggestor thing to work or we need some other way
+          // of handling commas in authors names.
+        } elseif ($xsdmf['xsdmf_html_input'] == 'author_selector') {
+           $value = Author::getFullname($value);
+            // special case hack for editors name fix
+        } elseif ($xsdmf['sek_title'] == "Author"
+                    || strpos($xsdmf['xsdmf_title'], 'Editor') !== false) {
+            $parts = explode(',', $value, 2);
+            if (count($parts) > 1) {
+                $value = $parts[1].' '.$parts[0];     
+            }
+        } 
         return $value;
     }
     
