@@ -207,8 +207,9 @@ class Lister
         } elseif ($browse == "year") {
             // browse by year
             $year = Pager::getParam('year',$params);
+            if (empty($order_by)) {
             $order_by = 'Title';
-
+            }
             if (is_numeric($year)) {	
                 $list = Collection::browseListing($pagerRow, $rows, "Date", $order_by);
                 $list_info = $list["info"];
@@ -246,8 +247,9 @@ class Lister
             // browse by depositor
             $depositor = Pager::getParam('depositor',$params);
 			$depositor_fullname = User::getFullName($depositor);
+            if (empty($order_by)) {
             $order_by = 'Title';
-
+            }
             if (!empty($depositor)) {	
                 $list = Collection::browseListing($pagerRow, $rows, "Depositor",$order_by);
                 $list_info = $list["info"];
@@ -297,9 +299,9 @@ class Lister
             $tpl->assign("browse_type", "browse_subject");
         } else {
             // list all communities
-//            if (empty($order_by)) {
+            if (empty($order_by)) {
                 $order_by = 'Title';
-//            }
+            }
             $xdis_id = Community::getCommunityXDIS_ID();
             $tpl->assign("xdis_id", $xdis_id);	
             $list = Community::getList($pagerRow, $rows, $order_by);
