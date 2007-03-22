@@ -41,7 +41,8 @@ switch ($action)
         $list = XSD_Display::getList($xsd_id);
         foreach ($list as $key => $item) {
             $det = Citation::getDetails($item['xdis_id']);
-            if (!empty($det)) {
+            $template = trim($det['cit_template']);
+            if (!empty($det) && !empty($template)) {
                 $list[$key]['cit'] = 1; 
             }
         }
