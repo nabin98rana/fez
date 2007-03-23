@@ -272,7 +272,7 @@ table.listing td {
 }
 
 .front-page-list {
-	list-style-image: url('http://localhost/fez/images/bullet.gif')
+	list-style-image: url('../images/bullet.gif')
 }
 
 .front-page-list li {
