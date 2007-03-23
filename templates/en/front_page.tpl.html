@@ -61,98 +61,82 @@ function selectSearchSuggestor(f, field_name)
 //-->
 </script>
 {/literal}
-<table width="100%">
-  <tr>
-    <td valign="top"><table border="0" CELLPADDING="10">
-        <tr>
-          <td rowspan=2 width=45% valign="top"><table width=100% border="0" cellspacing="0">
-              <tr>
-                <td><table width=220 cellpadding=2 cellspacing=0 border=0  style="position:relative; left:-10px">
-                    <tr>
-                      <td width=19><img src="{$rel_url}images/search_22.jpg" align="absmiddle"/></td>
-                      <td class="contentheader">Search</td>
-                    </tr>
-                  </table></td>
-              </tr>
-              <tr>
-                <form name="search_frm" target="_top" method="get" action="{$rel_url}list.php">
-                  <td width="5%" nowrap align="left"><label for="search" accesskey="3"></label>
-					<input type="hidden" name="order_by" value="Relevance" />
-                    <input class="default"  type="text" id="front_search" autocomplete="off" name="terms" size="40" onKeyUp="javascript: selectSearchSuggestor(this.form, 'front_search')">
-						<div id="loading1" style="display:none;">Loading...</div>
-                    <input class="default" type="submit" value="Search">
-                    <span class="default"><a href="#" onClick="javascript:alert( 'Search All Fields\n\n Enter a phrase.  Objects where any field contains the phrase will be returned.\n This is a case-insensitive search, and you may use the * or ? wildcards.\n\n Examples:\n\n li*y\n finds objects that start with li and end with y\n\n b?ts\n finds words that start with b followed by any letter and then ts.  e.g. bits, bats, byts')">help</a> <br />
-                    Use <a href="{$rel_url}adv_search.php">Advanced Search</a> to search by multiple criteria </span> </td>
-                </form>
-              </tr>
-              <tr>
-                <td class="default">&nbsp;</td>
-              </tr>
-              <tr>
-                <td><table width=220 cellpadding=2 cellspacing=0 border=0 style="position:relative; left:-10px">
-                    <tr>
-                      <td width=19><img src="{$rel_url}images/browse_22.jpg" alt="" align="middle"></td>
-                      <td class="contentheader">Browse</td>
-                    </tr>
-                  </table></td>
-              </tr>
-              <tr>
-                <td class="default"><a href="{$rel_url}list.php">by Communities &amp; Collections</a> | <a href="{$rel_url}list.php?browse=subject" class="uqnavigationlink">by Subject</a> | <a href="{$rel_url}list.php?browse=year" class="uqnavigationlink">by Year</a> | <a href="{$rel_url}list.php?browse=author" class="uqnavigationlink">by Author</a> | <a href="{$rel_url}list.php?browse=latest" class="uqnavigationlink">by Latest additions</a> </td>
-              </tr>
-{if $WEBSERVER_LOG_STATISTICS == 'ON'}               
-              <tr>
-                <td class="default">&nbsp;</td>
-              </tr>
-              <tr>
-                <td><table width=220 cellpadding=2 cellspacing=0 border=0 style="position:relative; left:-10px">
-                    <tr>
-                      <td width=19><img src="{$rel_url}images/statistics_22.gif" alt="" align="middle"></td>
-                      <td class="contentheader">Access Statistics</td>
-                    </tr>
-                  </table></td>
-              </tr>
-              <td class="default">
-			<p><strong>Top 50:</strong>
-			[<a href="{$rel_url}stats.php?browse=top50authors">Authors</a>] 
-			[<a href="{$rel_url}stats.php?browse=top50papers">Papers</a>] 
-			<p><strong>Most viewed records:</strong>
-			[<a href="{$rel_url}stats.php?browse=show_detail_date&range=4w">Past four weeks</a>] 
-			[<a href="{$rel_url}stats.php?browse=show_detail_date&year={$thisYear}">This year</a>]
-			[<a href="{$rel_url}stats.php?browse=show_detail_date&year={$lastYear}">Last year</a>]
-			[<a href="{$rel_url}stats.php?browse=show_detail_date">All years</a>]
-			<br /><br /><strong>Repository-wide statistics:</strong>
-			[<a href="{$rel_url}stat_details.php?action=cumulative_usage&range=all">by Year/month</a>] 
-			[<a href="{$rel_url}stat_details.php?action=cumulative_usage_country">by Country</a>] 
 
-			  </td>
-			  </tr>
+<table id="front-page-container">
+  <tr>
+    <td colspan="2"><div id="front-page-welcome-message">Welcome to <b>{$smarty.const.APP_NAME}</b>, {$smarty.const.APP_ORG_NAME}'s institutional digital repository</div></td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+	  <div class="front-page-content-header"><img src="{$rel_url}images/search_22.jpg" alt="Search" title="Search" /> Search</div>
+	  <div class="front-page-content-detail">
+		<form name="search_frm" target="_top" method="get" action="{$rel_url}list.php">
+		  <label for="search" accesskey="3"></label>
+			<input type="hidden" name="order_by" value="Relevance" />
+			<input class="default"  type="text" id="front_search" autocomplete="off" name="terms" size="40" onKeyUp="javascript: selectSearchSuggestor(this.form, 'front_search')">
+				<div id="loading1" style="display:none;">Loading...</div>
+			<input class="default" type="submit" value="Search">
+			<span class="default"><a href="#" onClick="javascript:alert( 'Search All Fields\n\n Enter a phrase.  Objects where any field contains the phrase will be returned.\n This is a case-insensitive search, and you may use the * or ? wildcards.\n\n Examples:\n\n li*y\n finds objects that start with li and end with y\n\n b?ts\n finds words that start with b followed by any letter and then ts.  e.g. bits, bats, byts')">Help</a> <br />
+			Use <a href="{$rel_url}adv_search.php"><b>Advanced Search</b></a> to search by multiple criteria</span>
+		</form>	  
+	  </div>
+
+	  <div class="front-page-content-header"><img src="{$rel_url}images/browse_22.jpg" alt="Browse" title="Browse" /> Browse</div>
+	  <div class="front-page-content-detail">
+	  <span class="default">
+		<ul class="front-page-list">
+			<li><a href="{$rel_url}list.php?browse=author">by Author</a></li>
+			<li><a href="{$rel_url}list.php?browse=subject">by Subject</a></li>
+			<li><a href="{$rel_url}list.php">by Community</a></li>
+			<li><a href="{$rel_url}list.php?browse=year">by Year</a></li>
+			<li><a href="{$rel_url}list.php?browse=latest">by Latest additions</a></li>
+		</ul>
+		</span>
+	  </div>
+
+{if $WEBSERVER_LOG_STATISTICS == 'ON'}
+	  <div class="front-page-content-header"><img src="{$rel_url}images/statistics_22.gif" alt="Download Statistics" title="Download Statistics" /> Download Statistics</div>
+	  <div class="front-page-content-detail">
+	  <span class="default">
+		<ul class="front-page-list">
+		  <li><a href="{$rel_url}stats.php?browse=top50authors">Top 50 authors</a></li>
+		  <li><a href="{$rel_url}stats.php?browse=top50papers">Top 50 papers</a></li>
+		  <li>Most viewed - <a href="{$rel_url}stats.php?browse=show_detail_date&range=4w">Last 4 weeks</a> | <a href="{$rel_url}stats.php?browse=show_detail_date&year={$thisYear}">This year</a> | <!--a href="{$rel_url}stats.php?browse=show_detail_date&year={$lastYear}">Last year</a> |--> <a href="{$rel_url}stats.php?browse=show_detail_date">All years</a></li>
+		  <li>All statistics - <a href="{$rel_url}stat_details.php?action=cumulative_usage&range=all">by Date</a> | <a href="{$rel_url}stat_details.php?action=cumulative_usage_country">by Country</a></li>
+		</ul>
+		</span>
+	  </div>
 {/if}
-{if $SELF_REGISTRATION == 'ON'} 
-              <tr>
-                <td class="default">&nbsp;</td>
-              </tr>
-              <tr>
-                <td><table width=220 cellpadding=2 cellspacing=0 border=0 style="position:relative; left:-10px">
-                    <tr>
-                      <td width=19><img src="{$rel_url}images/editor_22.jpg" alt="" align="middle"></td>
-                      <td class="contentheader">Registered Users</td>
-                    </tr>
-                  </table></td>
-              </tr>
-              <td class="default"><a href="{$rel_url}register.php" class="uqnavigationlink">Register</a> | <a href="{$rel_url}my_fez.php" class="uqnavigationlink">Deposit or manage papers</a> </td>
-              </tr>
-{/if}              
-              <tr>
-                <td class="default">&nbsp;</td>
-              </tr>
-              <tr>
-                <td><table width=220 cellpadding=2 cellspacing=0 border=0 style="position:relative; left:-10px">
-                    <tr>
-                      <td width=19><img src="{$rel_url}images/folder_new_22.jpg" alt="" align="middle"></td>
-                      <td class="contentheader" nowrap>Recently Added Items</td>
-                    </tr>
-                  </table></td>
-              </tr>
+
+{if $SELF_REGISTRATION == 'ON'}
+	  <div class="front-page-content-header"><img src="{$rel_url}images/editor_22.jpg" alt="Registered Users" title="Registered Users" /> Registered Users</div>
+	  <div class="front-page-content-detail">
+	  <span class="default">
+		<a href="{$rel_url}register.php">Register</a> | <a href="{$rel_url}my_fez.php">Deposit or manage papers</a>
+		</span>
+	  </div>
+{/if}
+
+
+    </td>
+    <td width="50%" valign="top">
+	  <div class="front-page-content-header"><img src="{$rel_url}images/news_22.jpg" alt="News" title="News" /> News</div>
+	  <div class="front-page-content-detail">
+		<span class="default">
+		  <ul class="front-page-list">
+		  {section name="i" loop=$news}
+		  <li><a href="news.php#{$news[i].nws_id}">{$news[i].nws_title}</a></li>
+		  {/section}
+		  <li><a href="news.php">More...</a></li>
+		  </ul>
+		</span>
+	  </div>
+
+	  <div class="front-page-content-header"><img src="{$rel_url}images/folder_new_22.jpg" alt="Recently Added Items" title="Recently Added Items" /> Recently Added Items</div>
+	  <div class="front-page-content-detail">
+	    <span class="default">
+		<ul class="front-page-list">
+
 	        {section name="i" loop=$list}		
                 {if ($list[i].isViewer==1 || $isAdministrator)}
                   {if ($list[i].object_type.0 == '3')}
@@ -191,7 +175,7 @@ function selectSearchSuggestor(f, field_name)
 									{assign var="day_name" value=$list[i].day_name}							
 								{/if}
 							{/if}
-		  <tr>
+		  <!--tr>
 			  <td>
 			  <table bgcolor="#FFFFFF" width="100%" cellpadding="3" cellspacing="0">
 				  <tr>
@@ -200,12 +184,12 @@ function selectSearchSuggestor(f, field_name)
 				  </tr>
 			 </table>
 			 </td>
-		  </tr>
+		  </tr-->
 	
 						{/if}				
 					{elseif $day_name != "Today"}
 					  {assign var="day_name" value="Today"}
-		  <tr>
+		  <!--tr>
 			  <td>
 			  <table bgcolor="#FFFFFF" width="100%" cellpadding="3" cellspacing="0">
 				  <tr>
@@ -214,21 +198,14 @@ function selectSearchSuggestor(f, field_name)
 				  </tr>
 			 </table>
 			 </td>
-		  </tr>
+		  </tr-->
 
 					{/if}
 			{/if}
 
-
-		  <tr>
-
-			  <td>
-			  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
-              <tr>
-
-                  <td>
-                        {if $href_view}<a href='{$href_view}' >{/if}<img align="absmiddle" 
-                        src="{$icon}" border="0">{if $href_view}</a>{/if} 
+					<li>
+                        {if $href_view}<a href='{$href_view}' >{/if}<!--img align="absmiddle" 
+                        src="{$icon}" border="0"-->{if $href_view}</a>{/if} 
 
                     {if $href_view}<a href='{$href_view}'>{/if}
 					{$list[i].title.0|escape:"html"}{if $href_view}</a>{/if}
@@ -242,81 +219,31 @@ function selectSearchSuggestor(f, field_name)
 						{/if}
 
 					  {/if}
-					{if $list[i].file_downloads}(<a class="silent_link" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}">{$list[i].file_downloads|escape:"html"} File Downloads</a>){/if}   					   
-					</td>
-				</tr>
-				<tr>
-                    <td>				
-                       {if $list[i].author}<b>{section name="author_loop" loop=$list[i].author}{assign var="next_author" value=$smarty.section.author_loop.index+1}<a class="author_link" href="list.php?browse=author&author={$list[i].author[author_loop]}">{$list[i].author[author_loop]|escape:"html"}</a>{if $list[i].author[$next_author] != ""} and {/if}{/section}</b>{if $list[i].date.0} {else}<br />{/if}{/if}{if $list[i].date.0}({$list[i].date.0|date_format:"%Y"})<br />{/if}
-                	   {if $list[i].research_program.0}{$list[i].research_program.0|escape:"html"}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'} - <i>{$list[i].xdis_title.0|escape:"html"}</i>{/if}<br />{else}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'}<i>{$list[i].xdis_title.0|escape:"html"}</i><br />{/if}{/if}
-                       {if $list[i].description.0}{$list[i].description.0|escape:"html"}{if ($list[i].description.0|count_characters > 200)}...{/if}<br />{/if}
+
+					{if $list[i].file_downloads}(<a class="silent_link" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}">{$list[i].file_downloads|escape:"html"} File Downloads</a>)
+					{/if}			   
+	
+                       {if $list[i].author} by <b>{section name="author_loop" loop=$list[i].author}{assign var="next_author" value=$smarty.section.author_loop.index+1}<a class="author_link" href="list.php?browse=author&author={$list[i].author[author_loop]}">{$list[i].author[author_loop]|escape:"html"}</a>{if $list[i].author[$next_author] != ""}</b> and <b>{/if}{/section}</b>{if $list[i].date.0} {else} - {/if}{/if}{if $list[i].date.0}({$list[i].date.0|date_format:"%Y"}) - {/if}
+                	   {if $list[i].research_program.0}{$list[i].research_program.0|escape:"html"}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'} - <i>{$list[i].xdis_title.0|escape:"html"}</i>{/if} - {else}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'}<i>{$list[i].xdis_title.0|escape:"html"}</i>{/if}{/if}
+                       
 					   {if $list[i].object_type == '3' && $list[i].datastreams.0}<b>Files:</b> {section name="d" loop=$list[i].datastreams}{if $href_view}<a href="{$eserv_url|cat:"?pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].datastreams[d]}">{/if}{$list[i].datastreams[d]}{if $href_view}</a>{/if} {/section}{/if}
-                    </td>
-                  </tr>
-				  </table>
-                <!-- space between rows -->
-	        </td>
-	        </tr>
+
+					</li>
+
 			{sectionelse}
-							  <tr>
-				  <td class="default"><strong>(No publicly viewable items published in the last week)</strong>
-				  </td></tr>
-				  
+			  <strong>(No publicly viewable items published in the last week)</strong>
 			{/section}
 
-              <tr>
-                <td class="default">&nbsp;</td>
-              </tr>
-            </table></td>
-          <td valign="top"><table cellpadding="2">
-			{if $news_count > 0}
-              <tr>
-                <td><table width=220 cellpadding=2 cellspacing=0 border=0 style="position:relative; left:-10px">
-                    <tr>
-                      <td width=19><img src="{$rel_url}images/community_22.jpg" alt="" align="middle"></td>
-                      <td class="contentheader">{$application_title} News</td>
-                    </tr>
-                  </table></td>
-              </tr>
-              {section name="i" loop=$news}
-              <tr>
-                <td class="default"><table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
-                    <tr>
-                      <td><b>{$news[i].nws_title} - {$news[i].nws_published_date} - (<em><a href="mailto:{$news[i].usr_email}">{$news[i].usr_full_name}</a></em>)</b> </td>
-                    </tr>
-                    <tr>
-                      <td>{$news[i].nws_message}</td>
-                    </tr>
-                  </table></td>
-              </tr>
-			  {/section}
-              <tr>
-                <td class="default">&nbsp;</td>
-              </tr>
-			  {/if}
-              <tr>
-                <TD VALIGN="top" width="55%"><p class="default"><strong>{$application_title}</strong> is {$org_name}'s institutional digital repository for publications, research, and teaching materials. Deposited material covers a very wide range of subjects and disciplines. The repository holds the full text of many peer-reviewed published articles and conference papers, as well as book chapters, theses and other forms of written research from {$org_short_name} academic staff and postgraduate students. It contains working and discussion papers, technical reports and some preprints. Research datasets, sound and image collections, multimedia, software and other forms of research data are also held. Learning objects and other course-related materials are welcome.<br>
-                </p>
-                  <p class="default"><strong>{$application_title}</strong> provides free, searchable access to openly available {$org_short_name} research, publications and teaching materials and manages their long-term archiving. {$org_short_name} staff and students must log in to deposit materials.</p>
-                  <p class="default"><strong>{$application_title}</strong> is running on <strong>Fez </strong> software. <strong>Fez </strong> is part of a wider project entitled <a href="http://www.library.uq.edu.au/escholarship/">eScholarshipUQ</a>, which is the local testbed for the <a href="http://www.apsr.edu.au/">Australian Partnership for Sustainable Repositories</a>. The aim of this <a href="http://www.dest.gov.au/">DEST</a>- funded project is to make all of UQ's openly available research visible, accessible and usable over the long term. The project also aims to make UQ's research accessible through a global network of interlinked services such as <a href="http://oaister.umdl.umich.edu/o/oaister">OAIster</a> ands <a href="http://www.arrow.edu.au/">ARROW</a>. See the <strong>Fez</strong> <a href="http://dev-repo.library.uq.edu.au/wiki">Wiki</a> for more information. Check publishers' copyright policies at <a href="http://www.sherpa.ac.uk/romeo.php">SHERPA</a>.</p>
-                  <p /></td>
-              </tr>
-              <tr>
-                <td bgcolor="#e6e6fa"><p class="default">Fez is running on <a href="http://www.fedora.info/"><em>Fedora 2.1.1</em></a> digital repository software.</p>
-                  <p class="default">The Fez digital repository software is available for free at <a href="http://sourceforge.net/projects/fez/">http://sourceforge.net/projects/fez/</a>. Information and background on Fez initiatives is available from <A HREF="http://www.library.uq.edu.au/escholarship">http://www.library.uq.edu.au/escholarship</A></p>
-                  </p>
-                </td>
-              </tr>
-              <tr>
-              <td class="default" align="left" >
-			  <a href="http://sourceforge.net/projects/fez/"><img src="{$rel_url}images/fez-logo.gif" alt="fez logo" border="0" align="center"/></a> &nbsp;			  
-              <a href="http://www.fedora.info/"><img src="{$rel_url}images/fedora_logo.gif" alt="fedora logo" border="0" align="center"/></a> &nbsp;
-              </td></tr>
+		</ul>
+		</span>
+	  </div>
 
-            </table></td>
-        </tr>
-      </table></td>
+	  <div class="front-page-content-header"><img src="{$rel_url}images/community_22.jpg" alt="About" title="About" /> About</div>
+	  <div class="front-page-content-detail"><span class="default">Find out more about <a href="about.php">{$application_title}</a>.</span>
+	  </div>
+
+    </td>
   </tr>
 </table>
-<br />
-{include file="app_info.tpl.html"} {include file="footer.tpl.html"} 
+
+{include file="app_info.tpl.html"} {include file="footer.tpl.html"}

@@ -28,7 +28,8 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
@@ -190,16 +191,17 @@ class News
      * @access  public
      * @return  array The list of news entries
      */
-    function getList()
+    function getList($maxPosts = 999999)
     {
         $stmt = "SELECT
 					*
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "news,
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user					
-				 WHERE nws_status = 'active' and usr_id = nws_usr_id
+                 WHERE nws_status = 'active' and usr_id = nws_usr_id
                  ORDER BY
-                    nws_created_date DESC";
+                    nws_created_date DESC
+                 LIMIT " . $maxPosts . "";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

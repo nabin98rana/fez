@@ -1,34 +1,17 @@
-{include file="header.tpl.html" extra_title="Important Notices"}
+{include file="header.tpl.html" extra_title="News"}
 {include file="navigation.tpl.html"}
 
-<table width="100%" border="0" cellpadding="0" cellspacing="0">
-  <tr>
-    <td valign="top">
-      <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
-        <tr>
-          <td width="100%">
-            <table bgcolor="#FFFFFF" width="100%" border="0" cellspacing="0" cellpadding="4">
-              <tr>
-                <td>
-                  <span class="default"><b>Important Notices</b></span>
-                </td>
-              </tr>
-              <tr>
-                <td bgcolor="{$light_color}" class="default">
-                  {section name="i" loop=$news}
-                  <p><b>{$news[i].nws_created_date} - {$news[i].nws_title}</b></p>
-                  <p>{$news[i].nws_message|escape:"html"|nl2br}</p>
-                  {/section}
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-      </table>
-      <br />
-    </td>
+<table cellpadding="5" cellspacing="5">
+  <tr class="default">
+    <td class="contentheader"><img src="/fez/images/community_22.jpg" alt="News" align="absmiddle"> News</td>
   </tr>
+
 </table>
+
+{section name="i" loop=$news}
+<div class="news-item"><a name="{$news[i].nws_id}"></a><div class="news-heading">{$news[i].nws_title}</div><div class="news-supp-info">Posted {$news[i].nws_published_date} by {if $news[i].usr_email !== ''}<a href="mailto:{$news[i].usr_email}">{/if}{$news[i].usr_full_name}{if $news[i].usr_email !== ''}</a>{/if}</div><div class="news-body">{$news[i].nws_message}</div>
+</div>
+{/section}
 
 {include file="app_info.tpl.html"}
 {include file="footer.tpl.html"}

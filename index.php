@@ -119,17 +119,17 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
 }
 $isAdministrator = User::isUserAdministrator($username);
 $tpl->assign("isAdministrator", $isAdministrator);
-// get the 3 most recently added items this week
+// get the 5 most recently added items this week
 $tpl->assign("today", date("Y-m-d"));
 $tpl->assign("today_day_name", date("l"));
 $tpl->assign("yesterday", date("Y-m-d", time()-86400));
 $tpl->assign("last", "Last ");
 
-$list = Collection::browseListing(0, 3, "Created Date", null, 0);
+$list = Collection::browseListing(0, 5, "Created Date", null, 0);
 $list = $list["list"];
 $tpl->assign("list", $list);
 $tpl->assign("eserv_url", APP_RELATIVE_URL."eserv.php");
-$news = News::getList();
+$news = News::getList(5);       // Maximum of 5 news posts for front page.
 $news_count = count($news);
 $tpl->assign("news", $news);
 $tpl->assign("isHomePage", "true");

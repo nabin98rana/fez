@@ -189,7 +189,8 @@ a:link .footerlinks {
 	font-style: normal;
 	font-weight: normal;
 	font-size: 11px;
-	border: 1px solid #255282;
+	padding-bottom: 2px;
+	border-bottom: 1px solid #DDDDDD;
 }
 
 .listrecord .tr {
@@ -225,4 +226,80 @@ table.listing td {
 	margin: 1px 1px 0px 0px;
 	padding: 1px 1px 1px 5px;
 	border-width: 0px;
+}
+
+#front-page-container {
+	width: 80%;
+	margin-bottom: 20px;
+	font-size: 120%;
+}
+
+#front-page-container a {
+	text-decoration: none;
+	color: #3179C6;
+}
+
+#front-page-container a:hover {
+	text-decoration: underline;
+	color: #61ADFF;
+}
+
+#front-page-welcome-message {
+	font-family: Arial, Verdana, Helvetica, Sans-Serif;
+	font-size: 15px;
+	font-weight: bold;
+	font-style: italic;
+	color: #00358B;
+	padding: 5px 0px 15px 10px;
+}
+
+.front-page-content-header {
+	font-family: Arial, Verdana, Helvetica, Sans-Serif;
+	font-size: 18px;
+	font-weight: bold;
+	color: #00358B;
+	padding: 0px 0px 0px 5px;
+}
+
+.front-page-content-detail {
+	padding-top: 5px;
+	margin-left: 20px;
+}
+
+.front-page-list a:hover {
+	text-decoration: underline;
+	color: #156DB1;
+}
+
+.front-page-list {
+	list-style-image: url('http://localhost/fez/images/bullet.gif')
+}
+
+.front-page-list li {
+	line-height: 1.2em;
+	margin-left: -5px;
+}
+
+.news-item {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-style: normal;
+	font-weight: normal;
+	font-size: 70%;
+	padding: 10px;
+	margin: 10px;
+	border: 1px solid #003399;
+}
+
+.news-heading {
+	font-weight: bold;
+}
+
+.news-supp-info {
+	padding-top: 5px;
+	padding-bottom: 15px;
+	color: #999999;
+}
+
+.news-body {
+	/* No special styling at this time. */
 }
