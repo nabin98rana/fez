@@ -133,13 +133,13 @@ if ($resumptionToken != "") {
 				}
 			}	
 			if (!empty($set)) {
-				if (is_numeric(strpos($originalSet, ":cvo_id:"))) {
+				if (is_numeric(strpos($set, ":cvo_id:"))) {
 					$setType = "contvocab";
-					$set = substr($originalSet, (strrpos($originalSet, ":")+1));
+					$set = substr($set, (strrpos($set, ":")+1));
 					$setObject = Null;	
 				} else {
 					$setType = "isMemberOf";
-					$set = str_replace("oai:".APP_HOSTNAME.":", "", $originalSet);	
+					$set = str_replace("oai:".APP_HOSTNAME.":", "", $set);	
 					$setObject = new RecordObject($set);				
 				}		
 			}
@@ -276,17 +276,23 @@ if (!empty($verb)) {
 				}
 				if ($metadataPrefix != "") {
 					if ($metadataPrefix == "oai_dc") {
-						if (!empty($set)) {
-							if ((!Controlled_Vocab::exists($set) && $setType == "contvocab")) {								
-								$errors["code"][] = "badArgument";
-								$errors["message"][] = "Invalid set parameter; unknown key (".set.")";
-								break;
-							} elseif (empty($setObject) || (($setType == "isMemberOf") && ((!$setObject->checkExists())) || (!$setObject->isCollection()))) {
+						if (!empty($set)) {					
+							if ((!Controlled_Vocab::exists($set) && $setType == "contvocab")) {	
 								$errors["code"][] = "badArgument";
 								$errors["message"][] = "Invalid set parameter; unknown key (".$set.")";
-								break;								
+								break;
+							} elseif ($setType == "isMemberOf") {
+								if (empty($setObject)) {
+									$errors["code"][] = "badArgument";
+									$errors["message"][] = "Invalid set parameter; unknown key (".$set.")";
+									break;									
+								} elseif (!$setObject->checkExists() || !$setObject->isCollection()) { 
+									$errors["code"][] = "badArgument";
+									$errors["message"][] = "Invalid set parameter; unknown key (".$set.")";
+									break;
+								}																
 							}
-						}		
+						}
 						if (!empty($from)) {
 							if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $from)) {
 								$errors["code"][] = "badArgument";
@@ -331,15 +337,21 @@ if (!empty($verb)) {
 				}				
 				if ($metadataPrefix != "") {
 					if ($metadataPrefix == "oai_dc") {
-						if (!empty($set)) {
+						if (!empty($set)) {					
 							if ((!Controlled_Vocab::exists($set) && $setType == "contvocab")) {	
 								$errors["code"][] = "badArgument";
 								$errors["message"][] = "Invalid set parameter; unknown key (".$set.")";
 								break;
-							} elseif (empty($setObject) || (($setType == "isMemberOf") && ((!$setObject->checkExists())) || (!$setObject->isCollection()))) {
-								$errors["code"][] = "badArgument";
-								$errors["message"][] = "Invalid set parameter; unknown key (".$set.")";
-								break;								
+							} elseif ($setType == "isMemberOf") {
+								if (empty($setObject)) {
+									$errors["code"][] = "badArgument";
+									$errors["message"][] = "Invalid set parameter; unknown key (".$set.")";
+									break;									
+								} elseif (!$setObject->checkExists() || !$setObject->isCollection()) { 
+									$errors["code"][] = "badArgument";
+									$errors["message"][] = "Invalid set parameter; unknown key (".$set.")";
+									break;
+								}																
 							}
 						}
 						if (!empty($from)) {
