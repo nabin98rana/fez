@@ -48,7 +48,8 @@ $originalSet = trim(Misc::GETorPOST('set'));
 $originalResumptionHash = (Misc::GETorPOST('resumptionToken'));
 if (is_numeric(strpos($originalSet, ":cvo_id:"))) {
 	$setType = "contvocab";
-	$set = substr($originalSet, (strrpos($originalSet, ":")+1));	
+	$set = substr($originalSet, (strrpos($originalSet, ":")+1));
+	$setObject = Null;	
 } else {
 	$setType = "isMemberOf";
 	$set = str_replace("oai:".APP_HOSTNAME.":", "", $originalSet);	
@@ -260,10 +261,14 @@ if (!empty($verb)) {
 				if ($metadataPrefix != "") {
 					if ($metadataPrefix == "oai_dc") {
 						if (!empty($set)) {
-							if ((!Controlled_Vocab::exists($set) && $setType == "contvocab") || (($setType == "isMemberOf") && ((!$setObject->checkExists())) || (!$setObject->isCollection()))) {								
+							if ((!Controlled_Vocab::exists($set) && $setType == "contvocab")) {								
 								$errors["code"][] = "badArgument";
 								$errors["message"][] = "Invalid set parameter; unknown key (".set.")";
 								break;
+							} elseif (!empty($setObject) && (($setType == "isMemberOf") && ((!$setObject->checkExists())) || (!$setObject->isCollection()))) {
+								$errors["code"][] = "badArgument";
+								$errors["message"][] = "Invalid set parameter; unknown key (".set.")";
+								break;								
 							}
 						}		
 						if (!empty($from)) {
@@ -311,10 +316,14 @@ if (!empty($verb)) {
 				if ($metadataPrefix != "") {
 					if ($metadataPrefix == "oai_dc") {
 						if (!empty($set)) {
-							if ((!Controlled_Vocab::exists($set) && $setType == "contvocab") || (($setType == "isMemberOf") && ((!$setObject->checkExists())) || (!$setObject->isCollection()))) {
+							if ((!Controlled_Vocab::exists($set) && $setType == "contvocab")) {	
 								$errors["code"][] = "badArgument";
 								$errors["message"][] = "Invalid set parameter; unknown key (".$set.")";
 								break;
+							} elseif (!empty($setObject) && (($setType == "isMemberOf") && ((!$setObject->checkExists())) || (!$setObject->isCollection()))) {
+								$errors["code"][] = "badArgument";
+								$errors["message"][] = "Invalid set parameter; unknown key (".set.")";
+								break;								
 							}
 						}
 						if (!empty($from)) {
