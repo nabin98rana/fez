@@ -113,24 +113,40 @@ $start = Misc::GETorPOST("resumptionToken") ? Misc::GETorPOST("resumptionToken")
 $resumptionToken = $start;
 //echo $resumptionToken; exit;
 if ($resumptionToken != "") {
-	$matches = preg_match("/^(\d+)\/(.*)?$/", $resumptionToken);
+	$matches = preg_match("/^(\d+)\/?(.*)?$/", $resumptionToken);
 	if (!$matches) {
 		$errors["code"][] = "badResumptionToken";
 		$errors["message"][] = "Token is invalid (does not match regexp)";		
 		$errors["code"][] = "badArgument";
 		$errors["message"][] = "Token is invalid (does not match regexp)";	
 	} else {		
-		$start = substr($start, 0, strpos($start, "/"));		
-		$resumptionToken = ltrim(base64_decode(substr($resumptionToken, strrpos($resumptionToken, "/")+1)), "&");
-		$originalResumptionToken = $resumptionToken;
-		$resumptionArray = Misc::parse_str_ext($resumptionToken);
-		$resumptionToken = "";
-		foreach ($resumptionArray as $rname => $rvalue) {
-			if (in_array($rname, $resumption_acceptable_vars)) {
-				$resumptionToken .= "&".$rname."=".$rvalue[0];
-				eval("$".$rname."=".$rvalue[0].";");
+		if (is_numeric(strpos($start, "/"))) { 
+			$start = substr($start, 0, strpos($start, "/"));
+			$resumptionToken = ltrim(base64_decode(substr($resumptionToken, strrpos($resumptionToken, "/")+1)), "&");
+			$originalResumptionToken = $resumptionToken;
+			$resumptionArray = Misc::parse_str_ext($resumptionToken);
+			$resumptionToken = "";
+			foreach ($resumptionArray as $rname => $rvalue) {
+				if (in_array($rname, $resumption_acceptable_vars)) {
+					$resumptionToken .= "&".$rname."=".$rvalue[0];
+					eval("$".$rname."='".$rvalue[0]."';");
+				}
+			}	
+			if (!empty($set)) {
+				if (is_numeric(strpos($originalSet, ":cvo_id:"))) {
+					$setType = "contvocab";
+					$set = substr($originalSet, (strrpos($originalSet, ":")+1));
+					$setObject = Null;	
+				} else {
+					$setType = "isMemberOf";
+					$set = str_replace("oai:".APP_HOSTNAME.":", "", $originalSet);	
+					$setObject = new RecordObject($set);				
+				}		
 			}
-		}
+		} else {
+			$start = trim($start);		
+			$resumptionToken = "";
+		}				
 //		$metadataPrefix = substr($start, strrpos($start, "/")+1);
 
 	}
@@ -265,9 +281,9 @@ if (!empty($verb)) {
 								$errors["code"][] = "badArgument";
 								$errors["message"][] = "Invalid set parameter; unknown key (".set.")";
 								break;
-							} elseif (!empty($setObject) && (($setType == "isMemberOf") && ((!$setObject->checkExists())) || (!$setObject->isCollection()))) {
+							} elseif (empty($setObject) || (($setType == "isMemberOf") && ((!$setObject->checkExists())) || (!$setObject->isCollection()))) {
 								$errors["code"][] = "badArgument";
-								$errors["message"][] = "Invalid set parameter; unknown key (".set.")";
+								$errors["message"][] = "Invalid set parameter; unknown key (".$set.")";
 								break;								
 							}
 						}		
@@ -320,9 +336,9 @@ if (!empty($verb)) {
 								$errors["code"][] = "badArgument";
 								$errors["message"][] = "Invalid set parameter; unknown key (".$set.")";
 								break;
-							} elseif (!empty($setObject) && (($setType == "isMemberOf") && ((!$setObject->checkExists())) || (!$setObject->isCollection()))) {
+							} elseif (empty($setObject) || (($setType == "isMemberOf") && ((!$setObject->checkExists())) || (!$setObject->isCollection()))) {
 								$errors["code"][] = "badArgument";
-								$errors["message"][] = "Invalid set parameter; unknown key (".set.")";
+								$errors["message"][] = "Invalid set parameter; unknown key (".$set.")";
 								break;								
 							}
 						}
