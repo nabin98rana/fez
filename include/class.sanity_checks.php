@@ -86,7 +86,7 @@
         if (!preg_match("/Tidy support.*<\/th><th.*>enabled/U", $contents)) {
             $results[] = new ConfigResult('PHP extensions','Tidy support', '',"The Tidy extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly.");
         }
-        if (!preg_match("/CURL support.*<\/td><td.*>enabled/i", $contents)) {
+        if (!preg_match("/[cC]URL support.*<\/td><td.*>enabled/i", $contents)) {
             $results[] = new ConfigResult('PHP extensions','CURL support', '',"The CURL extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly.");
         }
         if (!preg_match("/DOM\/XML.*<\/td><td.*>enabled/U", $contents)) {
