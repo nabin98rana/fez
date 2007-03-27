@@ -333,7 +333,7 @@ class Workflow_State
         $workflow_elem->appendChild($state_elem);
         $wfb_id = $wfs_details['wfs_wfb_id'];
         if (!in_array($wfb_id, $wfb_ids)) {
-            $wfb_ids[] = $wfb_ids;
+            $wfb_ids[] = $wfb_id;
         }
     }
     /**

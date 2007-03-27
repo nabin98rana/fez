@@ -60,6 +60,7 @@ include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.foxml.php");
 include_once(APP_INC_PATH . "class.auth_rules.php");
 include_once(APP_INC_PATH . "class.auth_index.php");
+include_once(APP_INC_PATH . "class.xml_helper.php");
 
 /**
   * Record
@@ -2486,6 +2487,109 @@ class RecordGeneral
                 }
             }
         }
+    }
+    
+    /**
+     * copyToNewPID 
+     * This makes a copy of the fedora object with the current PID to a new PID.  The getNextPID call on fedora is
+     * used to get the new PID. All datastreams are extracted from the original object and reingested to the new object.
+     * Premis history is not brought across, the first entry in the new premis history identifies the PID of the 
+     * source object.   The $new_xdis_id specifies a change of content model.  If $new_xdis_id is null, then the
+     * xdis_id of the source object is used.  If $is_succession is true, the RELS-EXT will have a isSuccessor element 
+     * pointing back to the sourec object.
+     * @param integer $new_xdis_id - optional new content model
+     * @param boolean $is_succession - optional link back to original
+     * @return string - the new PID for success, false for failure.  Calls Error_Handler::logError if there is a problem.
+     */
+    function copyToNewPID($new_xdis_id = null, $is_succession = false)
+    {
+        if (empty($this->pid)) {
+            return false;
+        }
+        $pid = $this->pid;
+        $new_pid = Fedora_API::getNextPID();
+        // need to get hold of a copy of the fedora XML, and substitute the PIDs in it then ingest it.
+        $xml_str = Fedora_API::getObjectXMLByPID($pid);
+        $xml_str = str_replace($pid, $new_pid, $xml_str);  // change to new pid
+        // strip off datastreams - we'll add them later.  This gets rid of the internal fedora audit datastream
+        $doc = DOMDocument::loadXML($xml_str);
+        $xpath = new DOMXPath($doc);
+        $xpath->registerNamespace('foxml','info:fedora/fedora-system:def/foxml#');
+        $xpath->registerNamespace('fedoraxsi','http://www.w3.org/2001/XMLSchema-instance');
+        $xpath->registerNamespace('audit','info:fedora/fedora-system:def/audit#');
+        $nodes = $xpath->query('/foxml:digitalObject/foxml:datastream');
+        foreach ($nodes as $node) {
+            $node->parentNode->removeChild($node);
+        }
+        $new_xml = $doc->saveXML();
+        Fedora_API::callIngestObject($new_xml);
+        
+        $datastreams = Fedora_API::callGetDatastreams($pid); // need the full get datastreams to get the controlGroup etc
+        if (empty($datastreams)) {
+            Error_Handler::logError("The PID {} doesn't appear to be in the fedora repository - perhaps it was not ingested correctly.  " .
+                    "Please let the Fez admin know so that the Fez index can be repaired.",__FILE__,__LINE__);
+            return false;
+        }
+        
+        foreach ($datastreams as $ds_key => $ds_value) {
+            // get the matchfields for the FezACML of the datastream if any exists
+            switch ($ds_value['ID']) {
+                case 'DC':
+                    $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
+                    Fedora_API::callModifyDatastreamByValue($new_pid, $ds_value['ID'], $ds_value['state'], 
+                        $ds_value['label'], $value, $ds_value['MIMEType'], "false");
+                break; 
+                case 'FezMD':
+                    // let's fix up a few things in FezMD
+                    $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
+                    $doc = DOMDocument::loadXML($value);
+                    XML_Helper::setElementNodeValue($doc, '/FezMD', 'created_date', 
+                        Date_API::getFedoraFormattedDateUTC());
+                    XML_Helper::setElementNodeValue($doc, '/FezMD', 'updated_date', 
+                        Date_API::getFedoraFormattedDateUTC());
+                    XML_Helper::setElementNodeValue($doc, '/FezMD', 'depositor', Auth::getUserID());
+                    XML_Helper::setElementNodeValue($doc, '/FezMD', 'xdis_id', $new_xdis_id);
+                    $value = $doc->saveXML();
+                    Fedora_API::getUploadLocation($new_pid, $ds_value['ID'], $value, $ds_value['label'],
+                            $ds_value['MIMEType'], $ds_value['controlGroup']);
+                break;
+                case 'RELS-EXT':
+                    // set the successor thing in RELS-EXT
+                    $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
+                    $value = str_replace($pid, $new_pid, $value);
+                    if ($is_succession) {
+                        $doc = DOMDocument::loadXML($value);
+                        //    <rel:isDerivationOf rdf:resource="info:fedora/MSS:379"/>
+                        $node = XML_Helper::getOrCreateElement($doc, '/rdf:RDF/rdf:description', 'rel:isDerivationOf', 
+                             array('rdf'=>"http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                                    'rel'=>"info:fedora/fedora-system:def/relations-external#"));
+                        $node->setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", 'resource', $pid);
+                        $value = $doc->saveXML();
+                    }
+                    Fedora_API::getUploadLocation($new_pid, $ds_value['ID'], $value, $ds_value['label'],
+                            $ds_value['MIMEType'], $ds_value['controlGroup']);
+                break;
+                default:
+                    if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'X') {
+                        $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
+                        $value = str_replace($pid, $new_pid, $value);
+                        Fedora_API::getUploadLocation($new_pid, $ds_value['ID'], $value, $ds_value['label'],
+                            $ds_value['MIMEType'], $ds_value['controlGroup']);
+                    } elseif (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M') {
+                        $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
+                        Fedora_API::getUploadLocation($new_pid, $ds_value['ID'], $value, $ds_value['label'],
+                            $ds_value['MIMEType'], $ds_value['controlGroup']);
+                    } elseif (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'R') {
+                        $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
+                        Fedora_API::callAddDatastream($new_pid, $ds_value['ID'], $value, $ds_value['label'], 
+                            $ds_value['state'],$ds_value['MIMEType'], $ds_value['controlGroup']);
+                    }
+                break;
+            }
+        }
+        Record::setIndexMatchingFields($new_pid);
+        
+        return $new_pid;
     }
 }
 

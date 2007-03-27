@@ -406,8 +406,22 @@ class Doc_Type_XSD
         $idx = 0;
         foreach ($xdocs as $xdoc) {
             $bgp->setProgress(intval(++$idx / count($xdocs) * 100 + 0.5));
-        	$title = Misc::escapeString($xdoc->getAttribute('xsd_title'));
+            $title = Misc::escapeString($xdoc->getAttribute('xsd_title'));
             $version = Misc::escapeString($xdoc->getAttribute('xsd_version'));
+
+            // skip this if the user doesn't want any of it's displays
+            $import = false;
+            foreach ($xdis_ids as $xdis_id) {
+                $res = $xpath->query('display[@xdis_id='.$xdis_id.']', $xdoc);
+                if ($res->length > 0) {
+                    $import = true;
+                }
+            }
+            if (!$import) {
+                $bgp->setStatus("Skipping XSD $title $version");
+                continue;
+            }
+            
             // There are two things to consider when importing
             // 1) Upgrade docs which match on xsd_title and have version < import doc .  Remap any references in import doc to xdis)
             // 2) Insert new doc which don't match title.  Remap references in imported stuff  

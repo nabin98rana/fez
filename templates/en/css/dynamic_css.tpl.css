@@ -46,3 +46,38 @@ padding: 3px;
 border: 1px solid [[$smarty.const.APP_DARK_COLOR]];
 background-color: [[$smarty.const.APP_LIGHT_COLOR]];
 }
+
+div.fez_form {
+padding: 3px;
+border: 1px solid [[$smarty.const.APP_DARK_COLOR]];
+background-color: [[$smarty.const.APP_LIGHT_COLOR]];
+}
+
+div.fez_form_item {
+display: table-row;
+}
+
+.fez_form label {
+display: table-cell;
+background-color: [[$smarty.const.APP_CELL_COLOR]];
+border: 1px solid [[$smarty.const.APP_LIGHT_COLOR]];
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 11px;
+  margin: 10px;
+  padding: 2px;
+  width: 30%;
+ }
+ 
+span.fez_form_input {
+display: table-cell;
+background-color: [[$smarty.const.APP_LIGHT_COLOR]];
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-style: normal;
+  font-weight: none;
+  font-size: 11px;
+  margin: 10px;
+  padding: 2px;
+}
+

@@ -49,6 +49,7 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.xsd_relationship.php");
 include_once(APP_INC_PATH . "class.xsd_loop_subelement.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
+include_once(APP_INC_PATH . "class.citation.php");
 
 class XSD_Display
 {
@@ -94,7 +95,9 @@ class XSD_Display
                      WHERE
                         xsdmf_xdis_id IN (" . $items . ")";
             $GLOBALS["db_api"]->dbh->query($stmt);
-
+            foreach ($params["items"] as $item) {
+                Citation::deleteAllTypes($item);
+            }
 		  return true;
         }
     }
@@ -728,6 +731,7 @@ class XSD_Display
                 $xdis->setAttribute('xdis_enabled', $item['xdis_enabled']);
                 $xdis->setAttribute('xdis_object_type', $item['xdis_object_type']);
                 XSD_HTML_Match::exportMatchFields($xdis, $item['xdis_id']);
+                Citation::export($xdis, $item['xdis_id']);
                 $xnode->appendChild($xdis);
                 $xcount++;
             }
@@ -808,6 +812,7 @@ class XSD_Display
                 }
                 $maps['xdis_map'][$xdis->getAttribute('xdis_id')] = $xdis_id;
                 XSD_HTML_Match::importMatchFields($xdis, $xdis_id, $maps);
+                Citation::import($xdis, $xdis_id);
         }
     }
     

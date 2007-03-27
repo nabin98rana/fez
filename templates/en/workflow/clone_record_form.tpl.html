@@ -1,0 +1,31 @@
+<tr><td>
+<script type="text/javascript">
+<!-- 
+{literal}
+function validateForm(f) 
+{
+	return true;
+}
+{/literal}
+// -->
+</script>
+
+<div class="fez_form">
+<input type="hidden" name="cat" value="submit" />
+<div class="fez_form_item">
+<label for="new_xdis_id" >Display</label>
+<span class="fez_form_input">
+<select name="new_xdis_id" >
+	{html_options options=$xdis_list selected=$smarty.request.new_xdis_id|default:$xdis_id }
+</select>
+</span>
+</div>
+<div class="fez_form_item">
+<label for="is_succession" >Successor</label>
+<span class="fez_form_input">
+<input name="is_succession" type="checkbox" 
+	{if $smarty.request.is_succession}checked="on"{/if} /> (If checked, clone will succeed or supercede the source record)
+</span>
+</div>
+</div>
+</td></tr>

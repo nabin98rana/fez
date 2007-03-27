@@ -172,7 +172,6 @@ class XSD_Loop_Subelement
 		}
 		// @@@ CK - Added order statement to sublooping elements displayed in a desired order
 		$stmt .= " ORDER BY xsdsel_order ASC";
-        //echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
