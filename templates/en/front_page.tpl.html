@@ -201,10 +201,17 @@ function selectSearchSuggestor(f, field_name)
 			{/if}
 
 					<li>
-                        {if $href_view}<a href='{$href_view}' >{/if}<!--img align="absmiddle" 
-                        src="{$icon}" border="0"-->{if $href_view}</a>{/if} 
+                    {if $href_view}<a class="tool-tip" href='{$href_view}' >{/if}<!--img align="absmiddle" src="{$icon}" border="0"-->{if $href_view}</a>{/if} 
 
-                    {if $href_view}<a href='{$href_view}'>{/if}
+                    {if $href_view}<a class="tool-tip" href='{$href_view}'>{/if}
+					<span class="tool-tip">
+					{if $list[i].research_program.0}{$list[i].research_program.0|escape:"html"}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'} - <b>{$list[i].xdis_title.0|escape:"html"}</b>{/if} - {else}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'}<b>{$list[i].xdis_title.0|escape:"html"}</b>{/if}{/if}
+					<br />
+					{if $list[i].file_downloads}<!--a href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}"-->{$list[i].file_downloads|escape:"html"} File Download{if $list[i].file_downloads > 1}s<br />{/if}<!--/a-->
+					{/if}
+					<br />
+					{if $list[i].description.0}{$list[i].description.0|escape:"html"}{if ($list[i].description.0|count_characters > 200)}...{/if}<br />{/if}
+					</span>
 					{$list[i].title.0|escape:"html"}{if $href_view}</a>{/if}
 
 					  {if $showEdit || $isAdministrator}
@@ -216,13 +223,9 @@ function selectSearchSuggestor(f, field_name)
 						{/if}
 
 					  {/if}
-
-					{if $list[i].file_downloads}(<a class="silent_link" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}">{$list[i].file_downloads|escape:"html"} File Download{if $list[i].file_downloads}s{/if}</a>)
-					{/if}			   
 	
-                       {if $list[i].author} by <b>{section name="author_loop" loop=$list[i].author}{assign var="next_author" value=$smarty.section.author_loop.index+1}<a class="author_link" href="list.php?browse=author&author={$list[i].author[author_loop]}">{$list[i].author[author_loop]|escape:"html"}</a>{if $list[i].author[$next_author] != ""}</b> and <b>{/if}{/section}</b>{if $list[i].date.0} {else} - {/if}{/if}{if $list[i].date.0}({$list[i].date.0|date_format:"%Y"}) - {/if}
-                	   {if $list[i].research_program.0}{$list[i].research_program.0|escape:"html"}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'} - <i>{$list[i].xdis_title.0|escape:"html"}</i>{/if} - {else}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'}<i>{$list[i].xdis_title.0|escape:"html"}</i>{/if}{/if}
-                       
+                       {if $list[i].author} by <b>{section name="author_loop" loop=$list[i].author}{assign var="next_author" value=$smarty.section.author_loop.index+1}<a class="author_link" href="list.php?browse=author&author={$list[i].author[author_loop]}">{$list[i].author[author_loop]|escape:"html"}</a>{if $list[i].author[$next_author] != ""}</b> and <b>{/if}{/section}</b>{if $list[i].date.0} {else}{/if}{/if}{if $list[i].date.0}({$list[i].date.0|date_format:"%Y"}){/if}
+                      
 					   {if $list[i].object_type == '3' && $list[i].datastreams.0}<b>Files:</b> {section name="d" loop=$list[i].datastreams}{if $href_view}<a href="{$eserv_url|cat:"?pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].datastreams[d]}">{/if}{$list[i].datastreams[d]}{if $href_view}</a>{/if} {/section}{/if}
 
 					</li>
@@ -244,10 +247,9 @@ function selectSearchSuggestor(f, field_name)
 
 		<table id="front-page-logo-set">
 		  <tr>
-			<td><a href="http://oaister.umdl.umich.edu/o/oaister" target="_blank"><img src="{$rel_url}images/logo_oaister.gif" alt="OAister - University of Michigan Digital Library
-		Production Services" title="OAister - University of Michigan Digital Library Production Services"border="0" /></a></td>
-			<td><a href="http://search.arrow.edu.au/apps/ArrowUI/?adapter=ViewSearchFormAdapter" target="_blank"><img src="{$rel_url}images/logo_arrow.gif" alt="ARROW" title="ARROW" border="0" /></a></td>
-			<td><a href="http://scholar.google.com/" target="_blank"><img src="{$rel_url}images/logo_google_scholar.jpg" alt="Google Scholar" title="Google Scholar" border="0" /></a></td>
+			<td><a href="http://oaister.umdl.umich.edu/o/oaister" target="_blank"><img src="{$rel_url}images/logo_oaister.gif" alt="OAIster - University of Michigan Digital Library Production Services" title="OAIster - University of Michigan Digital Library Production Services" border="0" /></a></td>
+			<td><a href="http://search.arrow.edu.au/apps/ArrowUI/?adapter=ViewSearchFormAdapter" target="_blank"><img src="{$rel_url}images/logo_arrow.gif" alt="ARROW - National Library of Australia's resource discovery service" title="ARROW - National Library of Australia's resource discovery service" border="0" /></a></td>
+			<td><a href="http://scholar.google.com/" target="_blank"><img src="{$rel_url}images/logo_google_scholar.jpg" alt="Google Scholar - broadly search for scholarly literature" title="Google Scholar - broadly search for scholarly literature" border="0" /></a></td>
 		  </tr>
 		</table>
 

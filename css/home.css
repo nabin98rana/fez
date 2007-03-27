@@ -241,7 +241,7 @@ table.listing td {
 }
 
 #front-page-container a:hover {
-	text-decoration: underline;
+	/*text-decoration: underline;*/
 	color: #61ADFF;
 }
 
@@ -299,4 +299,33 @@ table.listing td {
 
 .news-body {
 	/* No special styling at this time. */
+}
+
+/* Tool tips */
+a.tool-tip {
+	position: relative;
+	z-index: 1;
+	text-decoration: none;
+}
+
+a.tool-tip:hover {
+	z-index: 2;
+	background-color: #FFFFFE;	/* So close to white it hurts. */
+}
+
+a.tool-tip span {
+	display: none;
+}
+
+a.tool-tip:hover span {
+	display: block;
+	position: absolute;
+	top: 1.2em;
+	padding: 5px;
+	margin: 3px;
+	width: 200px;
+	border: 1px solid #DDDDDD;
+	background-color: #FFFFEE;
+	color: #000000;
+	text-decoration: none;
 }
