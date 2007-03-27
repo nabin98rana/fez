@@ -217,7 +217,7 @@ function selectSearchSuggestor(f, field_name)
 
 					  {/if}
 
-					{if $list[i].file_downloads}(<a class="silent_link" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}">{$list[i].file_downloads|escape:"html"} File Downloads</a>)
+					{if $list[i].file_downloads}(<a class="silent_link" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}">{$list[i].file_downloads|escape:"html"} File Download{if $list[i].file_downloads}s{/if}</a>)
 					{/if}			   
 	
                        {if $list[i].author} by <b>{section name="author_loop" loop=$list[i].author}{assign var="next_author" value=$smarty.section.author_loop.index+1}<a class="author_link" href="list.php?browse=author&author={$list[i].author[author_loop]}">{$list[i].author[author_loop]|escape:"html"}</a>{if $list[i].author[$next_author] != ""}</b> and <b>{/if}{/section}</b>{if $list[i].date.0} {else} - {/if}{/if}{if $list[i].date.0}({$list[i].date.0|date_format:"%Y"}) - {/if}
@@ -236,21 +236,20 @@ function selectSearchSuggestor(f, field_name)
 	  </div>
 
 	  <div class="front-page-content-header"><img src="{$rel_url}images/community_22.jpg" alt="About" title="About" /> About</div>
-	  <div class="front-page-content-detail"><span class="default">Find out more about <a href="about.php">{$application_title}</a>.
-	  <br /><br />
+	  <div class="front-page-content-detail"><span class="default">
+	  <ul class="front-page-list">
+	    <li>Find out more about <a href="about.php">{$application_title}</a></li>
+		<li>Or, try these other digital repository search tools:</li>
+	  </ul>
 
-<table id="front-page-logo-set">
-  <tr>
-    <td><a href="http://search.arrow.edu.au/apps/ArrowUI/?adapter=ViewSearchFormAdapter" target="_blank"><img src="{$rel_url}images/logo_arrow.gif" alt="ARROW" border="0" /></a></td>
-    <td><a href="http://scholar.google.com/" target="_blank"><img src="{$rel_url}images/logo_google_scholar.gif" alt="Google Scholar" border="0" /></a></td>
-    <td><a href="http://oaister.umdl.umich.edu/o/oaister" target="_blank"><img src="{$rel_url}images/logo_oaister.gif" alt="OAister - University of Michigan Digital Library
-Production Services" border="0" /></a></td>
-  </tr>
-  <tr>
-    <td><a href="http://adt.caul.edu.au/" target="_blank"><img src="{$rel_url}images/logo_adt.png" alt="Australian Digital Thesis Program" border="0" /></a></td>
-    <td><a href="http://www.opendoar.org/" target="_blank"><img src="{$rel_url}images/logo_opendoar.gif" alt="OpenDOAR" border="0" /></a></td>
-  </tr>
-</table>
+		<table id="front-page-logo-set">
+		  <tr>
+			<td><a href="http://oaister.umdl.umich.edu/o/oaister" target="_blank"><img src="{$rel_url}images/logo_oaister.gif" alt="OAister - University of Michigan Digital Library
+		Production Services" title="OAister - University of Michigan Digital Library Production Services"border="0" /></a></td>
+			<td><a href="http://search.arrow.edu.au/apps/ArrowUI/?adapter=ViewSearchFormAdapter" target="_blank"><img src="{$rel_url}images/logo_arrow.gif" alt="ARROW" title="ARROW" border="0" /></a></td>
+			<td><a href="http://scholar.google.com/" target="_blank"><img src="{$rel_url}images/logo_google_scholar.jpg" alt="Google Scholar" title="Google Scholar" border="0" /></a></td>
+		  </tr>
+		</table>
 
 	  </span>
 	  </div>
