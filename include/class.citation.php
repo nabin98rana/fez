@@ -1,6 +1,6 @@
 <?php
 /*
- * Fez Devel
+ * Fez
  * Univeristy of Queensland Library
  * Created by Matthew Smith on 19/03/2007
  * This code is licensed under the GPL, see
@@ -8,9 +8,34 @@
  * 
  */
  
+ /**
+  * Citation
+  * Class to format citations for displaying to the user.  The citations are stored as templates where
+  * values from the records are substituted into placeholders.  The citation templates are mapped according 
+  * to the XSD Display for the record so there is a template for each Display mapping that uses the xsdmf_ids
+  * as the placeholders.  There is also support for different types of citations - APA, MLA, Chicago etc... but 
+  * only APA is implemented for now. 
+  * 
+  * This system of citations replaces a system using the xsdmf_citation_* columns in the fez_xsd_html_matchfiels table.
+  * 
+  * The templates use place holders of the form {<xsdmf_id>|<prefix>|<suffix>|<option>} where the <xsdmf_id> is the 
+  * xsdmf_id to be mapped from the record to this part of the template.  If the values for this xsdmf_id is set, 
+  * then the prefix and suffix are also put before and after the value in the output.  Also there are some options that
+  * can control how the value is formatted which may depend on the type of citation and even vary between content models
+  * in the same citation type (e.g. in APA dates are formatted differently between newspapers which have the year
+  * month and day or books which just have the year).
+  */
  class Citation
  {
  
+    /**
+     * getDetails - Retrieves a citation template for the given xdis_id and type from the citations table in the 
+     * database. 
+     * @param integer $xdis_id - The display id that the citation is for. 
+     * @param string $type - Optional citation type (default is 'APA').
+     * @return array - Citation table columns for the row that matches the xdis_id and type 
+     *                 or an empty array for no match.
+     */
     function getDetails($xdis_id, $type='APA') {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $stmt = "SELECT * FROM {$dbtp}citation WHERE cit_xdis_id='$xdis_id' AND cit_type='$type' ";
@@ -23,6 +48,31 @@
         }
     }
     
+    /**
+     * getDetailsAllTypes - retrieves the citatiosn table rows for all types of citations on a given display
+     * @param integer $xdis_id - The display id that the citations are for.
+     * @return array - Citation table columns for the rows that match the xdis_id or an empty array for no match.
+     */
+    function getDetailsAllTypes($xdis_id) {
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $stmt = "SELECT * FROM {$dbtp}citation WHERE cit_xdis_id='$xdis_id' ";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        } else {
+            return $res;
+        }
+    } 
+    
+    /**
+     * save - Write a citation template to the citations database table.  Either inserts a new one or updates
+     * an existing one.  This can be determined as there is only one template allowed for a given xdis_id and type. 
+     * @param integer $xdis_id - The display id that the citation is for. 
+     * @param string $type - Optional citation type (default is 'APA').
+     * @return boolean - True if the query succeeded, false if there was an error (the Error_Handler is also called 
+     *                   when there is an error)
+     */
     function save($xdis_id, $template, $type='APA') 
     {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
@@ -46,6 +96,32 @@
         return true;
     }
     
+    /**
+     * deleteAllTypes - removed citation templates from the citations database table for a given XSD Display.
+     * @param integer $xdis_id - The display id that the citations are for.
+     * @return boolean - True if the query succeeded, false if there was an error (the Error_Handler is also called 
+     *                   when there is an error)
+     */
+    function deleteAllTypes($xdis_id)
+    {
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $stmt = "DELETE FROM {$dbtp}citation WHERE cit_xdis_id='$xdis_id'";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return false;
+        }
+        return true;
+    }
+    
+    /**
+     * renderCitation - produce a HTML rendering of a citation given the XSD Display Id, xsdmf and record data.
+     * @param integer $xdis_id - The display id that the citation is for.
+     * @param array $details - Associative array of record values where the keys are xsdmf_ids
+     * @param array $xsd_display_fields - Match fields for the XSD Display.  Provides extra information about how
+     *                                    the record fields should be formatted.
+     * @param string $type - Optional citation type (default is 'APA').
+     */
     function renderCitation($xdis_id, $details, $xsd_display_fields, $type='APA')
     {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
@@ -56,7 +132,16 @@
         }
         return Citation::renderCitationTemplate($result, $details, $xsd_display_fields, $type);
     }
-    
+
+    /**
+     * renderCitation - produce a HTML rendering of a citation given the template, xsdmf and record data.
+     * This can be used to render a citation that hasn't been saved in the database yet - e.g. previewing
+     * @param string $template - The template to be rendered. 
+     * @param array $details - Associative array of record values where the keys are xsdmf_ids
+     * @param array $xsd_display_fields - Match fields for the XSD Display.  Provides extra information about how
+     *                                    the record fields should be formatted.
+     * @param string $type - Optional citation type (default is 'APA').
+     */
     function renderCitationTemplate($template, $details, $xsd_display_fields, $type='APA')
     {
         preg_match_all('/\{(.*?)\}/',$template,$matches,PREG_PATTERN_ORDER);
@@ -73,10 +158,19 @@
         return $template;
     }
      
+    /**
+     * formatValue - format a single value in the template.  e.g. if the value is a timestamp, it can be shown as
+     * a formatted date according to the citation type.
+     * @param mixed $value - the value from the record.
+     * @param array $xsdmf - matchfields table columns for this value 
+     * @param string $option - optional template item parameter
+     * @param string $type - Optional citation type (default is 'APA').
+     */
     function formatValue($value, $xsdmf, $option = '', $type='APA')
     {
         if (is_array($value)) {
-            // recurse for each item of the array
+            // If the item is an array, then we'll format a list of values and 
+            // recurse for each item of the list to format each of them too.
             $list = '';
             $cnt = count($value);
             for ($ii = 0; $ii < $cnt; $ii++) {
@@ -87,6 +181,7 @@
                         $list .= ', ';
                     }
                 }
+                // recurse for each item of list.
                 $list .= Citation::formatValue($value[$ii],$xsdmf, $option, $type);
             }
             $value = $list;
@@ -105,8 +200,8 @@
                     $value = strftime("%Y", strtotime($value));
                 break;
             } 
-        // need to for an attached field for the suggestor thing to work or we need some other way
-        // of handling commas in authors names.
+            // hacky formatting of authors names.  Pretty easy to break - like
+            // if the field doesn't use the selector or the sek_title or xsdmf_title is in a different language.
         } elseif ($xsdmf['xsdmf_html_input'] == 'author_selector') {
            $value = Citation::formatAuthor(Author::getFullname($value), $type);
             // special case hack for editors name fix
@@ -117,6 +212,12 @@
         return $value;
     }
     
+    /**
+     * formatAuthor - Check an author's name for commas and try to get it into the right combination of
+     * lst name and initials for the given citation type.
+     * @param string $value - the value from the record.
+     * @param string $type - Optional citation type (default is 'APA').
+     */
     function formatAuthor($value, $type='APA') 
     {
         if (empty($value)) {
@@ -141,7 +242,14 @@
         }
         return $value;
     }
-    
+
+    /**
+     * convert - retrieve old style of doing citations and write a citation template equivalent.
+     * This assumes that the existing citations are the APA style.  This has been written specifically for
+     * UQ eSpace which had existing citation templates using xsdmf_citation* columns which this templating
+     * system replaces.
+     * @param integer $xdis_id - The display id that the citations are for.
+     */    
     function convert($xdis_id) 
     {
         $xsd_display_fields = XSD_HTML_Match::getListByDisplay($xdis_id, array('FezACML'));
@@ -191,6 +299,48 @@
         $citation_html = preg_replace('/(,|\.),\S/', ', ', $citation_html);
         return Citation::save($xdis_id, trim($citation_html), 'APA'); 
     }
-     
+    
+    /**
+     * export - Create an XML export of the citation template for a XSD Display.
+     * @param object $xnode - DOM object to attach the XML representation of the citation template to.  The function
+     *                        modifies this object to add XML child nodes.
+     * @param integer $xdis_id - The display id that the citations are for.
+     * @return null
+     */
+    function export(&$xnode, $xdis_id)
+    {
+        $list = Citation::getDetailsAllTypes($xdis_id);
+        if (!empty($list)) {
+            $xcits = $xnode->ownerDocument->createElement('citations');
+            foreach ($list as $det) {
+                $xcit = $xnode->ownerDocument->createElement('citation');
+                $keys = array_diff(array_keys($det), array('cit_template'));
+                foreach ($keys as $key) {
+                    $xcit->setAttribute($key, $det[$key]);
+                }
+                $cdata = $xnode->ownerDocument->createCDATASection($det['cit_template']);
+                $xcit->appendChild($cdata);
+                $xcits->appendChild($xcit);
+            }
+            $xnode->appendChild($xcits);
+        }
+    }
+    
+    /**
+     * import - Traverse a XML DOM representation of a citation template and save it to the citations database table.
+     * @param object $xdis - DOM object to extract the citation templates from.
+     * @param integer $xdis_id - The XSD Display to save the citation for.  Note that the value in the DOM cit_xdis_id 
+     *                           attribute might be wrong as the display might be at a different db id than from what
+     *                           was exported, so be sure to use the xdis_id passed in the function params.
+     * @return null             
+     */
+    function import($xdis, $xdis_id)
+    {
+        $xpath = new DOMXPath($xdis->ownerDocument);
+        $xcits = $xpath->query('citations/citation', $xdis);
+        foreach ($xcits as $xcit) {
+            Citation::save($xdis_id, $xcit->nodeValue, $xcit->getAttribute('cit_type'));
+        }
+    }
  }
 ?>
