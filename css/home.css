@@ -232,6 +232,7 @@ table.listing td {
 	width: 80%;
 	margin-bottom: 20px;
 	font-size: 120%;
+	margin-top: 5px;
 }
 
 #front-page-container a {
@@ -242,15 +243,6 @@ table.listing td {
 #front-page-container a:hover {
 	text-decoration: underline;
 	color: #61ADFF;
-}
-
-#front-page-welcome-message {
-	font-family: Arial, Verdana, Helvetica, Sans-Serif;
-	font-size: 15px;
-	font-weight: bold;
-	font-style: italic;
-	color: #00358B;
-	padding: 5px 0px 15px 10px;
 }
 
 .front-page-content-header {
