@@ -280,6 +280,11 @@ table.listing td {
 	margin-left: -5px;
 }
 
+#front-page-logo-set td {
+	padding: 5px;
+	text-align: center;
+}
+
 .news-item {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-style: normal;
