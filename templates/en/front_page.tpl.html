@@ -207,7 +207,7 @@ function selectSearchSuggestor(f, field_name)
 					<span class="tool-tip">
 					{if $list[i].research_program.0}{$list[i].research_program.0|escape:"html"}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'} - <b>{$list[i].xdis_title.0|escape:"html"}</b>{/if} - {else}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'}<b>{$list[i].xdis_title.0|escape:"html"}</b>{/if}{/if}
 					<br />
-					{if $list[i].file_downloads}<!--a href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}"-->{$list[i].file_downloads|escape:"html"} File Download{if $list[i].file_downloads > 1}s<br />{/if}<!--/a-->
+					{if $list[i].file_downloads}<!--a href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}"-->{$list[i].file_downloads|escape:"html"} File Download{if $list[i].file_downloads > 1}s{/if}<!--/a--><br />
 					{/if}
 					<br />
 					{if $list[i].description.0}{$list[i].description.0|escape:"html"}{if ($list[i].description.0|count_characters > 200)}...{/if}<br />{/if}

@@ -181,7 +181,7 @@ function purgeObject(pid)
 							<a href='{$rel_url}list.php?browse=author&author={$list[i].record_author|escape:'url'}'>{$list[i].record_author|escape:"html"}</a> 
 
 						</td>
-						<td align="right" nowrap>(<strong>{$list[i].file_downloads|escape:"html"}</strong> File Downloads)</td>
+						<td align="right" nowrap>(<strong>{$list[i].file_downloads|escape:"html"}</strong> File Download{if $list[i].file_downloads > 1}s{/if})</td>
 					</tr>
 					  </table>
 					<!-- space between rows -->
@@ -218,7 +218,7 @@ function purgeObject(pid)
 							<a href='{$rel_url}view.php?pid={$list[i].pid}'>{$list[i].title.0|escape:"html"}</a> 
 
 						</td>
-						<td align="right" nowrap>(<strong>{$list[i].file_downloads|escape:"html"}</strong> <a href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}">File Downloads</a>)</td>
+						<td align="right" nowrap>(<strong>{$list[i].file_downloads|escape:"html"}</strong> <a href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}">File Download{if $list[i].file_downloads > 1}s{/if}</a>)</td>
 					</tr>
 					  </table>
 					<!-- space between rows -->
@@ -255,7 +255,7 @@ function purgeObject(pid)
 							<a href='{$rel_url}view.php?pid={$list[i].pid}'>{$list[i].title.0|escape:"html"}</a> 
 
 						</td>
-						<td align="right" nowrap>(<strong>{$list[i].file_downloads|escape:"html"}</strong> <a href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}">File Downloads</a>)</td>
+						<td align="right" nowrap>(<strong>{$list[i].file_downloads|escape:"html"}</strong> <a href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}">File Download{if $list[i].file_downloads > 1}s{/if}</a>)</td>
 					</tr>
 					  </table>
 					<!-- space between rows -->
