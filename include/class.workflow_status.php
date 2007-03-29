@@ -244,14 +244,16 @@ class WorkflowStatus {
         $href= $this->href;
         $args = compact('wfl_title','wft_type','parent_pid','pid', 'dsID', 'assign_grp_id', 'parents_list', 'action', 'href');
         $argstrs = array();
+        $outcome = $this->getvar('outcome');
+        $outcome_details = $this->getvar('outcome_details');
         foreach ($args as $key => $arg) {
             $argstrs[] = "$key=".urlencode($arg);
         }
         $querystr=implode('&', $argstrs);
         if ($wft_type != 'Delete') {
-            History::addHistory($pid, $this->wfl_details['wfl_id'], "", "", true);
+            History::addHistory($pid, $this->wfl_details['wfl_id'], $outcome, $outcome_details, true);
         } elseif ($parent_pid) {
-            History::addHistory($parent_pid, $this->wfl_details['wfl_id'], "Deleted $pid", "", true);
+            History::addHistory($parent_pid, $this->wfl_details['wfl_id'], "", "Deleted child $pid", true);
         }
         $this->clearSession();
         if ($wft_type != 'Ingest') {

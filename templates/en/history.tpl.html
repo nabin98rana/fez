@@ -25,6 +25,7 @@
                 </td>
                 <td bgcolor="{$row_color}" width="85%" class="default">
                   {$changes[i].pre_detail|escape:"html"|replace:"no value set":"<i>no value set</i>"}
+                  {if $changes[i].pre_outcomeDetail}<br/>{$changes[i].pre_outcomeDetail|escape:"html"}{/if}
                 </td>
               </tr>
               {sectionelse}

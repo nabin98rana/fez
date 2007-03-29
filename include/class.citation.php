@@ -185,7 +185,7 @@
                 $list .= Citation::formatValue($value[$ii],$xsdmf, $option, $type);
             }
             $value = $list;
-        } elseif ($xsdmf['xsdmf_data_type'] == 'date') {
+        } elseif ($xsdmf['xsdmf_data_type'] == 'date' || $xsdmf['xsdmf_html_input'] == 'date_selector') {
             switch($option) {
                 case 'ymd':
                     $value = strftime("%Y, %B %d", strtotime($value));

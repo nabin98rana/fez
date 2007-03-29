@@ -15,6 +15,9 @@ $record = new RecordGeneral($pid);
 $new_pid = $record->copyToNewPID($new_xdis_id,$is_succession);
 if (!empty($new_pid)) {
     $this->setCreatedPid($new_pid);
+    $this->assign('outcome', "Success");
+    $this->assign('outcome_details', "Cloned from $pid to $new_pid");
 }
 
+    
 ?>

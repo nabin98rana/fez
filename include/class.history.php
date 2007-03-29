@@ -165,6 +165,8 @@ class History
      */
     function add($pid, $usr_id, $event_date, $wfl_id, $detail, $outcome, $outcomeDetail, $hide = false)
     {
+    	$l_wfl_id = (is_null($wfl_id)) ? 'NULL' : $wfl_id;
+    	
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "premis_event
                  (
@@ -179,7 +181,7 @@ class History
             $stmt .= ", pre_is_hidden";
         }
         $stmt .= ") VALUES (
-                    $wfl_id,
+                    $l_wfl_id,
                     '" . $event_date . "',
                     '".Misc::escapeString($detail)."',
                     '".Misc::escapeString($outcome)."',
@@ -207,13 +209,16 @@ class History
      * @access  public
      * @return  void
      */
-	function addHistory($pid, $wfl_id, $outcome="", $outcomeDetail="", $refreshDatastream=false) {
+	function addHistory($pid, $wfl_id=null, $outcome="", $outcomeDetail="", $refreshDatastream=false, $historyDetail="") {
 		$dsIDName = "PremisEvent";
 		$event_usr_id = Auth::getUserID();
 		$event_usr_full_name = User::getFullName($event_usr_id);
 		$event_date = Date_API::getCurrentDateGMT(); //date("Y-m-d H:i:s");
-		$wfl_title = Workflow::getTitle($wfl_id);
+
+		
+		$wfl_title = (is_null($wfl_id)) ? $historyDetail : Workflow::getTitle($wfl_id);
 		$detail = $wfl_title. " by " . $event_usr_full_name;
+		
 		// First add it to the Fez database, then refresh the Fedora datastream
 		History::add($pid, $event_usr_id, $event_date, $wfl_id, $detail, $outcome, $outcomeDetail);
 		if ($refreshDatastream == true) {
@@ -223,12 +228,8 @@ class History
 			$eventList = History::getList($pid, true);
 			$newXML .= '<premis:premis xmlns:premis="http://www.loc.gov/standards/premis">';
 			foreach ($eventList as $event) {
-				if ($event["pre_wfl_id"]) {
-					$wfl_title = Workflow::getTitle($event["pre_wfl_id"]);
-				} else {
-					$wfl_title = "";					
-				}
-				$event_usr_full_name = User::getFullName($event_usr_id);
+				$wfl_title = $event["pre_detail"];
+				$event_usr_full_name = User::getFullName($event["pre_usr_id"]);
 				$newevent = History::generateHistoryAction($event["pre_id"], $wfl_title, $event["pre_date"], $event["pre_usr_id"], $event_usr_full_name, $event["pre_detail"], $event["pre_pid"], $event["pre_outcome"], $event["pre_outcomedetail"], $event["pre_usr_id"], "");
 				$newXML .= $newevent;
 			}
