@@ -252,8 +252,8 @@ class WorkflowStatus {
         $querystr=implode('&', $argstrs);
         if ($wft_type != 'Delete') {
             History::addHistory($pid, $this->wfl_details['wfl_id'], $outcome, $outcome_details, true);
-        } elseif ($parent_pid) {
-            History::addHistory($parent_pid, $this->wfl_details['wfl_id'], "", "Deleted child $pid", true);
+        } elseif (!empty($this->parents_list)) {
+            History::addHistory($this->parents_list[0]['pid'], $this->wfl_details['wfl_id'], "", "Deleted child $pid", true);
         }
         $this->clearSession();
         if ($wft_type != 'Ingest') {

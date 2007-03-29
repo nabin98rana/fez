@@ -292,6 +292,21 @@ class Template_API
     	$this->processTemplate();
     }
 
+    /**
+     * setAuthVars
+     * Set template variables for the headers of the fez pages to display the right menus for an adminsitrator etc...
+     */
+    function setAuthVars()
+    {
+        $username = Auth::getUsername();
+        $this->assign("isUser", $username);
+        $isAdministrator = User::isUserAdministrator($username);
+        if (Auth::userExists($username)) { // if the user is registered as a Fez user
+            $this->assign("isFezUser", $username);
+        }
+        $this->assign("isAdministrator", $isAdministrator);
+    }
+
 }
 
 

@@ -15,6 +15,7 @@ $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", 'clone_record_form');
 
 Auth::checkAuthentication(APP_SESSION);
+$tpl->setAuthVars();
 
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 $pid = $wfstatus->pid;

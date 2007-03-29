@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <workflows schema_version="1.0">
-  <workflow wfl_id="192" wfl_title="Clone Selected Record" wfl_version="1.0" wfl_description="Copy a record to a new PID." wfl_roles="Creator, Editor, Community_Administrator, Collection_Administrator" wfl_end_button_label="Go">
-    <WorkflowState wfs_id="665" wfs_title="Do it" wfs_description="" wfs_auto="1" wfs_wfb_id="126" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="1" wfs_roles=""/>
-    <WorkflowState wfs_id="664" wfs_title="Select Clone Options" wfs_description="Fill out the following options for cloning the record." wfs_auto="0" wfs_wfb_id="125" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="995" wfsl_from_id="664" wfsl_to_id="665"/>
-    <WorkflowTrigger wft_id="240" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/folder_new.gif" wft_ret_id="3" wft_options="0"/>
+  <workflow wfl_id="192" wfl_title="Clone Selected Record" wfl_version="1.0" wfl_description="Copy a record to a new PID." wfl_roles="Creator, Editor, Community_Administrator, Collection_Administrator, Approver" wfl_end_button_label="Go">
+    <WorkflowState wfs_id="668" wfs_title="unpublish" wfs_description="" wfs_auto="1" wfs_wfb_id="123" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="1" wfs_roles=""/>
+    <WorkflowState wfs_id="666" wfs_title="Do it" wfs_description="" wfs_auto="1" wfs_wfb_id="126" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="1" wfs_roles=""/>
+    <WorkflowState wfs_id="667" wfs_title="Select Clone Options" wfs_description="Fill out the following options for cloning the record." wfs_auto="0" wfs_wfb_id="125" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="996" wfsl_from_id="666" wfsl_to_id="668"/>
+    <WorkflowStateLinks wfsl_id="997" wfsl_from_id="667" wfsl_to_id="666"/>
+    <WorkflowTrigger wft_id="241" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/folder_new.gif" wft_ret_id="3" wft_options="0"/>
   </workflow>
   <WorkflowBehaviour wfb_id="126" wfb_title="Clone Record" wfb_description="Do the cloning.  Assumes that the source pid has already been set  and that the is_successor variable has been set." wfb_version="1.0" wfb_script_name="clone_record.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="125" wfb_title="Clone Record Options" wfb_description="Form to request options for clone record." wfb_version="1.0" wfb_script_name="clone_record_form.php" wfb_auto="0"/>
+  <WorkflowBehaviour wfb_id="123" wfb_title="Unpublish" wfb_description="" wfb_version="" wfb_script_name="unpublish.php" wfb_auto="1"/>
 </workflows>
