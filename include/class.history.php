@@ -230,7 +230,7 @@ class History
 			foreach ($eventList as $event) {
 				$wfl_title = $event["pre_detail"];
 				$event_usr_full_name = User::getFullName($event["pre_usr_id"]);
-				$newevent = History::generateHistoryAction($event["pre_id"], $wfl_title, $event["pre_date"], $event["pre_usr_id"], $event_usr_full_name, $event["pre_detail"], $event["pre_pid"], $event["pre_outcome"], $event["pre_outcomedetail"], $event["pre_usr_id"], "");
+				$newevent = History::generateHistoryAction($event["pre_id"], $wfl_title, $event["pre_date"], $event["pre_usr_id"], $event_usr_full_name, $event["pre_detail"], $event["pre_pid"], $event["pre_outcome"], $event["pre_outcomeDetail"], $event["pre_usr_id"], "");
 				$newXML .= $newevent;
 			}
 			$newXML .= ' </premis:premis>';

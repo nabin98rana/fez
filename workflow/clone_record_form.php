@@ -28,7 +28,7 @@ if (@$_REQUEST["cat"] == "submit") {
 }
 $wfstatus->checkStateChange();
 
-$xdis_list = XSD_Display::getAssocListByObjectType(3);
+$xdis_list = XSD_Display::getAssocListDocTypes();
 $record = new RecordGeneral($pid);
 $xdis_id = $record->getXmlDisplayId();
 
