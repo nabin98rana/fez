@@ -84,7 +84,7 @@ function selectSearchSuggestor(f, field_name)
 		<ul class="front-page-list">
 			<li><a href="{$rel_url}list.php?browse=author">by Author</a></li>
 			<li><a href="{$rel_url}list.php?browse=subject">by Subject</a></li>
-			<li><a href="{$rel_url}list.php">by Community</a></li>
+			<li><a href="{$rel_url}list.php">by Organisational Unit</a></li>
 			<li><a href="{$rel_url}list.php?browse=year">by Year</a></li>
 			<li><a href="{$rel_url}list.php?browse=latest">by Latest additions</a></li>
 		</ul>
@@ -124,7 +124,7 @@ function selectSearchSuggestor(f, field_name)
 		  {section name="i" loop=$news}
 		  <li><a href="news.php#{$news[i].nws_id}">{$news[i].nws_title}</a></li>
 		  {/section}
-		  <li><a href="news.php">More...</a></li>
+		  <li><a href="news.php?show=rss">RSS</a> | <a href="news.php">More...</a></li>
 		  </ul>
 		</span>
 	  </div>

@@ -39,7 +39,9 @@ include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.news.php");
 
 $tpl = new Template_API();
-$tpl->setTemplate("news.tpl.html");
+
+// Select the template, depending on query string parameter
+($_GET['show'] == 'rss') ? $tpl->setTemplate("news_rss.tpl.html") : $tpl->setTemplate("news.tpl.html");
 
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);

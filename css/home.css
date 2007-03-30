@@ -282,9 +282,9 @@ table.listing td {
 	font-style: normal;
 	font-weight: normal;
 	font-size: 70%;
-	padding: 10px;
+	padding: 10 10 22 10px;
 	margin: 10px;
-	border: 1px solid #003399;
+	border-bottom: 1px solid #DDDDDD;
 }
 
 .news-heading {
@@ -323,7 +323,7 @@ a.tool-tip:hover span {
 	top: 1.2em;
 	padding: 5px;
 	margin: 3px;
-	width: 200px;
+	width: 300px;
 	border: 1px solid #DDDDDD;
 	background-color: #FFFFEE;
 	color: #000000;
