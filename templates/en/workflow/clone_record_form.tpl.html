@@ -12,6 +12,23 @@ function validateForm(f)
 
 <div class="fez_form">
 <input type="hidden" name="cat" value="submit" />
+
+<div class="fez_form_item">
+<label for="is_succession" >Successor</label>
+<span class="fez_form_input">
+<input name="is_succession" type="checkbox" 
+	{if $smarty.request.is_succession}checked="on"{/if} /> (If checked, the copy will be marked as a newer version of the source record)
+</span>
+</div>
+
+<div class="fez_form_item">
+<label for="clone_binary_datastreams" >Include File Attachments</label>
+<span class="fez_form_input">
+<input name="clone_binary_datastreams" type="checkbox" 
+	{if $smarty.request.clone_binary_datastreams}checked="on"{/if} /> 
+</span>
+</div>
+
 <div class="fez_form_item">
 <label for="new_xdis_id" >Display</label>
 <span class="fez_form_input">
@@ -20,12 +37,6 @@ function validateForm(f)
 </select>
 </span>
 </div>
-<div class="fez_form_item">
-<label for="is_succession" >Successor</label>
-<span class="fez_form_input">
-<input name="is_succession" type="checkbox" 
-	{if $smarty.request.is_succession}checked="on"{/if} /> (If checked, clone will succeed or supersede the source record)
-</span>
-</div>
+
 </div>
 </td></tr>

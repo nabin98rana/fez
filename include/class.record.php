@@ -2501,7 +2501,7 @@ class RecordGeneral
      * @param boolean $is_succession - optional link back to original
      * @return string - the new PID for success, false for failure.  Calls Error_Handler::logError if there is a problem.
      */
-    function copyToNewPID($new_xdis_id = null, $is_succession = false)
+    function copyToNewPID($new_xdis_id = null, $is_succession = false, $clone_attached_datastreams=false)
     {
         if (empty($this->pid)) {
             return false;
@@ -2530,9 +2530,19 @@ class RecordGeneral
                     "Please let the Fez admin know so that the Fez index can be repaired.",__FILE__,__LINE__);
             return false;
         }
+
+        // exclude these prefixes if we're not cloning the binaries
+        $exclude_prefix = array('presmd','thumbnail','web','preview');
         
         foreach ($datastreams as $ds_key => $ds_value) {
-            // get the matchfields for the FezACML of the datastream if any exists
+            if (!$clone_attached_datastreams) {
+                // don't process derived datastreams if we're not copying the binaries
+                if (in_array(substr($ds_value['ID'],0,strpos($ds_value['ID'],'_')), $exclude_prefix)) {
+                    continue;
+                }
+            }
+            
+            
             switch ($ds_value['ID']) {
                 case 'DC':
                     $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
@@ -2575,11 +2585,13 @@ class RecordGeneral
                         $value = str_replace($pid, $new_pid, $value);
                         Fedora_API::getUploadLocation($new_pid, $ds_value['ID'], $value, $ds_value['label'],
                             $ds_value['MIMEType'], $ds_value['controlGroup']);
-                    } elseif (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M') {
+                    } elseif (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M' 
+                                && $clone_attached_datastreams) {
                         $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
                         Fedora_API::getUploadLocation($new_pid, $ds_value['ID'], $value, $ds_value['label'],
                             $ds_value['MIMEType'], $ds_value['controlGroup']);
-                    } elseif (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'R') {
+                    } elseif (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'R'
+                                && $clone_attached_datastreams) {
                         $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
                         Fedora_API::callAddDatastream($new_pid, $ds_value['ID'], $value, $ds_value['label'], 
                             $ds_value['state'],$ds_value['MIMEType'], $ds_value['controlGroup']);

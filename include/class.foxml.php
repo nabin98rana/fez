@@ -397,7 +397,7 @@ class Foxml
      * @param   string $updated_date 	 	 
      * @return  string $xmlObj The xml object, plus the indexArray is passed back by reference
      */
-    function array_to_xml_instance($a, &$xmlObj="", $element_prefix, $sought_node_type="", $tagIndent="", $parent_sel_id="", $xdis_id, $pid, $top_xdis_id, $attrib_loop_index="", &$indexArray=array(), $file_downloads=0, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id) {
+    function array_to_xml_instance($a, &$xmlObj="", $element_prefix, $sought_node_type="", $tagIndent="", $parent_sel_id="", $xdis_id, $pid, $top_xdis_id, $attrib_loop_index="", &$indexArray=array(), $file_downloads=0, $created_date, $updated_date, $depositor, $assign_usr_id=null, $assign_grp_id=null) {
         global $HTTP_POST_VARS, $HTTP_POST_FILES; 
 //        $tagIndent .= "    ";
 $tagIndent = "";

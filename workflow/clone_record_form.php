@@ -26,6 +26,7 @@ if (@$_REQUEST["cat"] == "submit") {
     $wfstatus->assign('new_xdis_id', $new_xdis_id);
     $is_succession = $_REQUEST['is_succession'];
     $wfstatus->assign('is_succession', $is_succession);
+    $wfstatus->assign('clone_binary_datastreams', $_REQUEST['clone_binary_datastreams']);
 }
 $wfstatus->checkStateChange();
 
