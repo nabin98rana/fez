@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+<channel>
+  <title>{$application_title|escape:'html'} News</title>
+  <link>{$app_base_url}news.php</link>
+  <description>{$org_name} - Latest News</description>
+  <language>{$lang}</language>
+  <generator>Fez {$application_version}</generator>
+  <docs>http://blogs.law.harvard.edu/tech/rss</docs>
+{section name="i" loop=$news}
+  <item>
+    <title>{$news[i].nws_title|escape:"html"}</title>
+      <link>{$app_base_url}news.php#{$news[i].nws_id}</link>
+      <description>{$news[i].nws_message|escape:"html"}</description>
+      <pubDate>{$news[i].nws_published_date|date_format:"%a, %d %b %Y %H:%M:%S"}</pubDate>
+      <author>{if $news[i].usr_email !== ''}{$news[i].usr_email|escape:"html"} ({$news[i].usr_full_name|escape:"html"}){else}{$news[i].usr_full_name|escape:"html"}{/if}</author>
+  </item>
+{/section}
+</channel>
+</rss>
