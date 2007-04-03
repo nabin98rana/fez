@@ -28,7 +28,8 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
@@ -2484,6 +2485,15 @@ function backtrace()
             return true;
         }
         return false;
+    }
+
+    function generateAlphabetArray()
+    {
+        $alphabetArray = array();
+        for ($i = 65; $i <= 90; $i++) {
+            array_push($alphabetArray, chr($i));
+        }
+        return $alphabetArray;
     }
   
 } // end of Misc class

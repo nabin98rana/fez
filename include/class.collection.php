@@ -28,7 +28,8 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
@@ -1356,7 +1357,7 @@ if ($order_by == 'File Downloads') {
      * @param   string $searchKey The search key the records are being browsed by  Date (Year) or Author
      * @return  array The list of records 
      */
-    function listByAttribute($current_row = 0, $max = 25, $searchKey="Date",$order_by="Title")
+    function listByAttribute($current_row = 0, $max = 25, $searchKey="Date", $order_by="Title", $letter = "")
     {
 		if ($max == "ALL") {
             $max = 9999999;
@@ -1371,6 +1372,7 @@ if ($order_by == 'File Downloads') {
 		$order_field = "";
 		$termCounter = 2;
 		$extra_join = "";
+        $letter_restrict = "";
 		$show_field = "";
 		if ($searchKey == "Subject") {				
 			$terms = $_GET['parent_id'];		
@@ -1388,7 +1390,7 @@ if ($order_by == 'File Downloads') {
 			$group_field = "(r2.rmf_".$search_data_type.")";
 			$show_field = "u.usr_full_name as fullname, ".$group_field;
 			$order_field = " u.usr_full_name asc";
-			$as_field = "record_depositor";	
+			$as_field = "record_depositor";
 			$extra_join = "left join ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user u on u.usr_id = r2.rmf_".$search_data_type;
 		} else {
 
@@ -1401,6 +1403,10 @@ if ($order_by == 'File Downloads') {
 		if ($show_field == "") {
 			$show_field = $group_field;
 		}
+        if (!empty($letter)) {
+            $letter = addslashes($letter);
+            $letter_restrict = "WHERE r2.rmf_varchar LIKE '" . $letter . "%' OR r2.rmf_varchar LIKE '" . strtolower($letter) . "%'";
+        }
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
 		$middleStmt .= 
 		" INNER JOIN 
@@ -1426,10 +1432,7 @@ if ($order_by == 'File Downloads') {
                          and r3.rmf_int=2
                          AND x3.xsdmf_element='!sta_id'
 				$extra_join
-
-
-                        
-
+                $letter_restrict
 				 GROUP BY
 				 	".$group_field."
 				 ORDER BY ";
@@ -2207,6 +2210,34 @@ $res_count = array();
             return $return;
         }
 
+    }
+
+
+    /**
+     * Method used to get a list of leading letters, for a given set of 
+     * items that needs to be rendered.
+     *
+     * @access  public
+     * @return  array $return The list letters
+     */
+    function getLetterList()
+    {
+        $stmt = "SELECT DISTINCT UPPER(LEFT(r2.rmf_varchar, 1)) as letter
+                FROM fez_test_2.fez_record_matching_field AS r1
+                INNER JOIN fez_test_2.fez_xsd_display_matchfields AS x1 ON r1.rmf_xsdmf_id = x1.xsdmf_id
+                INNER JOIN fez_test_2.fez_record_matching_field AS r2 on r2.rmf_id = r1.rmf_id
+                INNER JOIN fez_test_2.fez_xsd_display_matchfields AS x2 ON r2.rmf_xsdmf_id = x2.xsdmf_id
+                INNER JOIN fez_test_2.fez_search_key AS s2 ON s2.sek_id = x2.xsdmf_sek_id AND s2.sek_title = 'Author'
+                INNER JOIN fez_test_2.fez_record_matching_field AS r3 on r3.rmf_rec_pid = r2.rmf_rec_pid
+                INNER JOIN fez_test_2.fez_xsd_display_matchfields AS x3 ON r3.rmf_xsdmf_id = x3.xsdmf_id and r3.rmf_int=2 AND x3.xsdmf_element='!sta_id'
+                GROUP BY (r2.rmf_varchar) ORDER BY (r2.rmf_varchar)";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
     }
 
 

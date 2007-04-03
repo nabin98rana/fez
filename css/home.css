@@ -329,3 +329,19 @@ a.tool-tip:hover span {
 	color: #000000;
 	text-decoration: none;
 }
+
+.letter-list {
+	font-family: Tahoma, Arial, Helvetica, sans-serif;
+	font-size: 70%;
+	color: #B9B9B9;
+	margin: 4px;
+	padding: 4px;
+}
+
+.letter-list a:link, .letter-list a:visited {
+	text-decoration: none;
+	color: #3179C6;
+	font-weight: bold;
+}
+
+.letter-list a:hover { color: #156DB1; }

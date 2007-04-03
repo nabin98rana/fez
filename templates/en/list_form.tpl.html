@@ -240,6 +240,19 @@ function checkDeleteRecords(f)
            &nbsp;<b>{$browse_heading}:</b>		  
 			</td>
         </tr>
+
+		<tr>
+		  <td>
+			<div class="letter-list">
+			{section name="i" loop=$alphabet_list}
+				{section name="j" loop=$letter_list}{if $alphabet_list[i] == $letter_list[j].letter}<a href="{$smarty.server.PHP_SELF}?browse=author&amp;letter={$alphabet_list[i]}">{/if}{/section}
+				{$alphabet_list[i]}{section name="j" loop=$letter_list}{if $alphabet_list[i] == $letter_list[j].letter}</a>{/if}{/section} | 
+			{/section}
+			<a href="{$smarty.server.PHP_SELF}?browse=author">All</a>
+			</div>
+          </td>
+		</tr>
+
 		   {if $smarty.get.author == ""}
 			{section name="i" loop=$list}
 
@@ -517,7 +530,7 @@ function checkDeleteRecords(f)
 		  <tr>
 		  {if ($isAdministrator)}  		  
               <td valign="top">
-	              <table bgcolor="#FFFFFF" cellpadding="2" cellspacing="1" class="listrecord">			  
+	              <table bgcolor="#FFFFFF" cellpadding="2" cellspacing="1">			  
 	              	<tr>
 	                  <td width="4" bgcolor="{$cell_color}" nowrap><input type="checkbox" name="pids[]" value="{$list[i].pid}"></td>              
 	                </tr>

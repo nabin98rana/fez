@@ -1,4 +1,49 @@
 <?php
+/* vim: set expandtab tabstop=4 shiftwidth=4: */
+// +----------------------------------------------------------------------+
+// | Fez - Digital Repository System                                      |
+// +----------------------------------------------------------------------+
+// | Copyright (c) 2005, 2006 The University of Queensland,               |
+// | Australian Partnership for Sustainable Repositories,                 |
+// | eScholarship Project                                                 |
+// |                                                                      |
+// | Some of the Fez code was derived from Eventum (Copyright 2003, 2004  |
+// | MySQL AB - http://dev.mysql.com/downloads/other/eventum/ - GPL)      |
+// |                                                                      |
+// | This program is free software; you can redistribute it and/or modify |
+// | it under the terms of the GNU General Public License as published by |
+// | the Free Software Foundation; either version 2 of the License, or    |
+// | (at your option) any later version.                                  |
+// |                                                                      |
+// | This program is distributed in the hope that it will be useful,      |
+// | but WITHOUT ANY WARRANTY; without even the implied warranty of       |
+// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        |
+// | GNU General Public License for more details.                         |
+// |                                                                      |
+// | You should have received a copy of the GNU General Public License    |
+// | along with this program; if not, write to:                           |
+// |                                                                      |
+// | Free Software Foundation, Inc.                                       |
+// | 59 Temple Place - Suite 330                                          |
+// | Boston, MA 02111-1307, USA.                                          |
+// +----------------------------------------------------------------------+
+// | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
+// +----------------------------------------------------------------------+
+//
+//
+
+
+/**
+ * Class to handle the business logic related to the administration
+ * of collections in the system.
+ *
+ * @version 1.0
+ * @author Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>
+ * @author Matthew Smith <m.smith@library.uq.edu.au>
+ * @author Lachlan Kuhn <l.kuhn@library.uq.edu.au>
+ */
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
@@ -51,6 +96,7 @@ class Lister
         $terms = Pager::getParam('terms',$params);
         $cat = Pager::getParam('cat',$params);
         $browse = Pager::getParam('browse',$params);
+        $letter = Pager::getParam('letter',$params);
         $collection_pid = Pager::getParam('collection_pid',$params);
         $community_pid = Pager::getParam("community_pid",$params);
         $order_by = Pager::getParam('order_by',$params);
@@ -230,19 +276,21 @@ class Lister
                 $order_by = 'Title';
             }
             if (!empty($author)) {	
-                $list = Collection::browseListing($pagerRow, $rows, "Author",$order_by);
+                $list = Collection::browseListing($pagerRow, $rows, "Author", $order_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
                 $tpl->assign("browse_heading", "Browse By Author - ".$author);
 			    $tpl->assign("list_heading", "Browse By Author - ".$author);	
             } else {
-                $list = Collection::listByAttribute($pagerRow, $rows, "Author",$order_by);
+                $list = Collection::listByAttribute($pagerRow, $rows, "Author", $order_by, $letter);
                 $list_info = $list["info"];
                 $list = $list["list"];
                 $tpl->assign("browse_heading", "Browse By Author");
 			    $tpl->assign("list_heading", "Browse By Author");					
             }
             $tpl->assign("browse_type", "browse_author");
+            $tpl->assign("letter_list", Collection::getLetterList());
+            $tpl->assign("alphabet_list", Misc::generateAlphabetArray());
         } elseif ($browse == "depositor") {
             // browse by depositor
             $depositor = Pager::getParam('depositor',$params);
