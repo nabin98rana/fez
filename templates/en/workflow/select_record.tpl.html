@@ -1,151 +1,118 @@
-
+<tr>
+<td>
 <script type="text/javascript">
 <!--
-{$najax_register}
 {literal}
-var coll_load_state = 0;
 
-function showLoading()
+function validateForm(f)
 {
-    document.body.style.cursor = 'wait';
-    document.getElementById('loading').style.display = 'block';
-};
-
-function hideLoading()
-{
-    document.body.style.cursor = '';
-    document.getElementById('loading').style.display = 'none';
-};
-
-
-function selectCommunity(f, field_name)
-{
-    if (coll_load_state > 0) {
-       return false;
-    } 
-    var field = getFormElement(f, field_name);
-    var selections = getSelectedItems(field);
-
-    if (selections.length > 0) {
-        coll_load_state++;
-        document.getElementById('tr_collection_pid').style.display = '';
-        showLoading();
-        var obj = new SelectRecord();
-        obj.onGetCollectionsError = function() {
-            removeAllOptions(f, 'collection_pid');
-            hideLoading();
-            coll_load_state--;
-        }
-        obj.setTimeout(10000);
-        obj.getCollections(selections[0].value, function(collections_list) {
-                removeAllOptions(f, 'collection_pid');
-                addOptions(f, 'collection_pid', collections_list);
-                hideLoading();
-                coll_load_state--;
-                selectCollection(f, 'collection_pid'); 
-                });
+	if (!hasOneChecked(f, 'pid')) {
+		errors[errors.length] = new Option('Select Record needs to have an item selected', 'pid');
     }
 }
 
-var dt_load_state = 0;
 function showLoading1()
 {
-    document.body.style.cursor = 'wait';
-    document.getElementById('loading1').style.display = 'block';
+	document.body.style.cursor = 'wait';
+	document.getElementById('loading1').style.display = '';
 }
 
 function hideLoading1()
 {
-    document.body.style.cursor = '';
-    document.getElementById('loading1').style.display = 'none';
+	document.body.style.cursor = '';
+	document.getElementById('loading1').style.display = 'none';
 }
 
-function selectCollection(f, field_name)
+var dt1_load_state = 0;
+var debounce = 0;
+
+function selectSearchSuggestor(f, field_name, result_div_id) 
 {
-    if (dt_load_state > 0) {
-       return false;
-    } 
-    var field = getFormElement(f, field_name);
-    var selections = getSelectedItems(field);
-
-    if (selections.length > 0) {
-        dt_load_state++;
-        document.getElementById('tr_pid').style.display = '';
-        showLoading1();
-        var obj = new SelectRecord();
-        obj.onGetRecordsError = function() {
-            removeAllOptions(f, 'pid');
-            hideLoading1();
-            dt_load_state--;
-        }
-        obj.setTimeout(10000);
-        obj.getRecords(selections[0].value, function(dt_list) {
-                removeAllOptions(f, 'pid');
-                addOptions(f, 'pid', dt_list);
-                hideLoading1();
-                dt_load_state--;
-                });
-    }
+    local_f = f;
+    local_field_name = field_name;
+    local_result_div_id = result_div_id;
+    debounce++;  // count number of times the keypress has been triggered
+    setTimeout('selectSearchSuggestorDebounced(local_f, local_field_name, local_result_div_id)', 500);
 }
 
-function validateForm(f) {
-    if (!hasOneSelected(f, 'community_pid')) {
-        errors[errors.length] = new Option('Community','community_pid');
-    }
-    if (!hasOneSelected(f, 'collection_pid')) {
-        errors[errors.length] = new Option('Collection','collection_pid');
-    }
-    if (!hasOneSelected(f, 'pid')) {
-        errors[errors.length] = new Option('Record','pid');
-    }
+function selectSearchSuggestorDebounced(f, field_name, result_div_id)
+{
+    // if there have been keypresses since the time was started, then we should let the next timer handle it
+	if (--debounce > 0) {
+		return;
+	}
+    debounce = 0;
+
+	if (++dt1_load_state > 1) {
+        dt1_load_state--;
+	    return false;
+	}
+
+ 	var field = getFormElement(f, field_name);
+	if (field.value == '') {
+      dt1_load_state--;
+	  return;
+	}
+
+		showLoading1();
+		var obj = new RecordSearchAndList();
+		obj.onGetSuggestionError = function() {
+			clearList(result_div_id);
+			hideLoading1();
+			dt1_load_state--;
+		}
+		obj.setTimeout(10000);
+
+		obj.getSuggestion(field.value, function(dt_list) {
+				clearList(result_div_id);
+				addListItems(result_div_id, dt_list);
+				hideLoading1();
+				dt1_load_state--;
+				});
+}
+
+function clearList(list_id)
+{
+   list_div = document.getElementById(list_id);
+   list_div.innerHTML = '';
+}
+
+function addListItems(list_id, items)
+{
+   list_div = document.getElementById(list_id);
+   for (ii in items) {
+		item_div = document.createElement('div');
+		item_div.setAttribute('id','list_' + list_id + '_item_'+ ii);
+		item_div.innerHTML = '<input type="radio" name="pid" value="'+ items[ii].value +'"/>' + items[ii].value + ': ' + items[ii].text;
+		list_div.appendChild(item_div);
+   }
 }
 
 {/literal}
 // -->
 </script>
 
-<input type="hidden" name="cat" value="submit"/>
-<table width="100%">
-<tr>
-  <td class="contentheader" colspan="2">
-    <b><img align="absmiddle" src="{$rel_url}images/collection_32.jpg" border="0">Select Record</b>
-  </td>
-</tr>
+<div class="fez_form">
 
-<tr >
-  <td width="100" bgcolor="{$cell_color}" class="default">
-    <b>Parent Community</b>
-  </td>
-  <td width="75%" bgcolor="{$light_color}">
-    <select class="default" name="community_pid" onChange="javascript: selectCommunity(this.form, 'community_pid')" >
-      {html_options options=$communities_list selected=$communities_list_selected }
-    </select>
-  </td>
-</tr>
-<tr style="display:none;" id="tr_collection_pid">
-  <td bgcolor="{$cell_color}" class="default">
-    <b>Collection</b>
-  </td>
-  <td bgcolor="{$light_color}">
-    <div id="loading" style="display:none;">Loading...</div>
-    <select class="default" name="collection_pid" onChange="javascript: selectCollection(this.form, 'collection_pid')">
-    </select>
-  </td>
-</tr>
-    
-<tr style="display:none;" id="tr_pid">
-  <td bgcolor="{$cell_color}" class="default">
-    <b>Record</b>
-  </td>
-  <td bgcolor="{$light_color}">
-    <div id="loading1" style="display:none;">Loading...</div>
-    <select class="default" name="pid">
-    </select>
-  </td>
-</tr>
-<script type="text/javascript"><!-- 
-selectCommunity(getForm('wfl_form1'), 'community_pid'); 
-// --></script>
+  <input type="hidden" name="cat" value="submit"/>
+  <div class="fez_form_item">
 
+		  <label for="search" accesskey="3">Search for record</label>
+		  <span class="fez_form_input">
+		  <input  type="text" id="record_search" autocomplete="off" name="terms" size="40" 
+			    onKeyUp="javascript: selectSearchSuggestor(this.form, this.name, 'record_list')">
+		  <div id="loading1" style="display:none;" class="loading">Loading...</div>
+		  </span>
+  </div>	  
+  <div class="fez_form_item">
+		  <label for="items">Select Record</label>
+		  <span class="fez_form_input">
+		  <div id="record_list">
+		  </div>
+		  </span>
+  </div>	  
 
-    </table>
+</div>
+
+</td>
+</tr>

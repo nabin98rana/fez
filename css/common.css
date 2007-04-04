@@ -75,3 +75,9 @@ background-color: #ffffee;
 width: 100%;
 text-align: center;
 }
+
+.loading {
+background-color: red;
+color: white;
+padding: 2px;
+}

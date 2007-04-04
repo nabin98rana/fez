@@ -12,5 +12,6 @@ include_once(APP_INC_PATH . "najax_objects/class.najaxrecord.php");
 include_once(APP_INC_PATH . "najax_objects/class.select_reindex_info.php");
 include_once(APP_INC_PATH . "najax_objects/class.select_create_info.php");
 include_once(APP_INC_PATH . "najax_objects/class.session.php");
+include_once(APP_INC_PATH . "najax_objects/class.record_search_and_list.php");
  
 ?>

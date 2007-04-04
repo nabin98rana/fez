@@ -74,30 +74,9 @@ $wfstatus->setTemplateVars($tpl);
 $cat = Misc::GETorPOST('cat');
 if ($cat == 'submit') {
     $wfstatus->pid = Misc::GETorPOST('pid');
-    $wfstatus->parent_pid = Misc::GETorPOST('collection_pid');
 }
 $wfstatus->checkStateChange();
 
-
-$communities = Community::getList();
-$communities_list = Misc::keyPairs($communities['list'], 'pid', 'title');
-$communities_list = Misc::stripOneElementArrays($communities_list);
-$communities_pids = array_keys($communities_list);
-$collection_list = Collection::getEditList();
-$communities_list2 = array();
-foreach ($collection_list as &$item) {
-   $parents = Misc::keyPairs(Collection::getParents2($item['pid']),'pid','title');
-   foreach ($parents as $parent_pid => $parent_title) {
-       if (in_array($parent_pid, $communities_pids)) {
-           $communities_list2[$parent_pid] = $communities_list[$parent_pid];
-       }
-   }
-}
-$communities_list = $communities_list2;
-$tpl->assign('communities_list', $communities_list);
-$tpl->assign('communities_list_selected', $communities['list'][0]['pid']);
-$tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
-$tpl->registerNajax( NAJAX_Client::register('SelectRecord', 'select_record.php'));
-
+$tpl->registerNajax(NAJAX_Client::register('RecordSearchAndList', APP_RELATIVE_URL.'ajax.php'));
 $tpl->displayTemplate();
 ?>

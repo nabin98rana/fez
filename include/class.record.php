@@ -2603,6 +2603,14 @@ class RecordGeneral
         
         return $new_pid;
     }
+    
+    function getCitation()
+    {
+        $details = $this->getDetails();
+        $xsdmfs = $this->display->xsdmf_array;
+        
+        return Citation::renderCitation($this->xdis_id, $details, $xsdmfs);
+    }
 }
 
 /**

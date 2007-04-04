@@ -17,6 +17,12 @@ function updateForm()
 You don't have permission to access this function
 </div>
 {else}
+{if $submit_to_popup}
+<form name="wfl_form1"  onSubmit="javascript:return (checkFormSubmission(this, 'validateForm') && updateForm());" target="_popup_window" action="{$rel_url}popup.php" method="POST" enctype="multipart/form-data">
+{else}
+<form name="wfl_form1" onSubmit="javascript:return (checkFormSubmission(this, 'validateForm'));"  action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
+{/if}
+<input type="hidden" name="id" value="{$id}">
 <table bgcolor="{$light_color}" border="0" cellspacing="0" cellpadding="1" align="center"  width="100%">
   <tr>
     <td>
@@ -39,12 +45,6 @@ Workflow Progress:
 {/section}
 </div>
 {/if}
-{if $submit_to_popup}
-<form name="wfl_form1"  onSubmit="javascript:return (checkFormSubmission(this, 'validateForm') && updateForm());" target="_popup_window" action="{$rel_url}popup.php" method="POST" enctype="multipart/form-data">
-{else}
-<form name="wfl_form1" onSubmit="javascript:return (checkFormSubmission(this, 'validateForm'));"  action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
-{/if}
-<input type="hidden" name="id" value="{$id}">
 </td></tr>
 {if $workflow_buttons}
 <tr>
@@ -90,10 +90,10 @@ Workflow Progress:
           </td>
         </tr>
 {/if}
-</form>
  
       </table>
     </td>
   </tr>
 </table>
+</form>
 {/if}
