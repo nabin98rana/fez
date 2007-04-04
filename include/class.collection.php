@@ -1993,7 +1993,7 @@ $res_count = array();
      * @param   integer $max The maximum number of records to return	 
      * @return  array The list of Fez objects matching the search criteria
      */
-    function searchListing($terms, $current_row = 0, $max = 25, $order_by='Relevance')
+    function searchListing($terms, $current_row = 0, $max = 25, $order_by='Relevance', $ret_id = '')
     {
 		if (empty($terms)) {
 			return array();
@@ -2032,18 +2032,26 @@ $res_count = array();
 		$termLike = " match (r2.rmf_varchar) against ('*".$terms."*' IN BOOLEAN MODE) ";
 		$termRelevance = " match (r2.rmf_varchar) against ('".$terms."') as Relevance";
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $ret_join = '';
+        if ($ret_id) {
+            $ret_join = "INNER JOIN {$dbtp}record_matching_field AS r3 
+              ON r3.rmf_int = '$ret_id'
+                    AND r3.rmf_rec_pid_num = r2.rmf_rec_pid_num AND r3.rmf_rec_pid = r2.rmf_rec_pid 
+              INNER JOIN {$dbtp}xsd_display_matchfields AS x3
+              ON x3.xsdmf_id=r3.rmf_xsdmf_id AND x3.xsdmf_element = '!ret_id'  ";
+        }
 
 
         $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
                     INNER JOIN {$dbtp}xsd_display_matchfields AS x2
                       ON r2.rmf_xsdmf_id = x2.xsdmf_id $joinStmt AND $termLike 
                     INNER JOIN {$dbtp}search_key AS s2  							  
-                      ON s2.sek_id = x2.xsdmf_sek_id AND s2.sek_simple_used = 1
-
+                      ON s2.sek_id = x2.xsdmf_sek_id AND s2.sek_simple_used = '1'
                     $authStmt
+                    $ret_join
 
                     INNER JOIN {$dbtp}record_matching_field AS r4
-                      ON r4.rmf_rec_pid=r2.rmf_rec_pid AND r4.rmf_int=2
+                      ON r4.rmf_rec_pid_num = r2.rmf_rec_pid_num AND r4.rmf_rec_pid=r2.rmf_rec_pid AND r4.rmf_int='2'
                     INNER JOIN {$dbtp}xsd_display_matchfields AS x4
                       ON r4.rmf_xsdmf_id = x4.xsdmf_id AND x4.xsdmf_element='!sta_id'
 
@@ -2066,7 +2074,7 @@ $res_count = array();
 			$bodyStmt = "$bodyStmtPart1
 					  
 						LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r5
-						ON r5.rmf_rec_pid=r4.rmf_rec_pid
+						ON r5.rmf_rec_pid_num=r4.rmf_rec_pid_num AND r5.rmf_rec_pid=r4.rmf_rec_pid
 						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x5
 						on r5.rmf_xsdmf_id = x5.xsdmf_id
 						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s5

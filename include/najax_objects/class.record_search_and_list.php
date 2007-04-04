@@ -15,7 +15,7 @@
  {
     function getSuggestion($terms)
     {
-        $list = Collection::searchListing($terms);
+        $list = Collection::searchListing($terms,0, 25, 'Relevance', 3);
         $res = array();
         foreach ($list['list'] as $item) {
             //$record = new RecordGeneral($item['pid']);

@@ -99,16 +99,16 @@ function addListItems(list_id, items)
 
 		  <label for="search" accesskey="3">Search for record</label>
 		  <span class="fez_form_input">
-		  <input  type="text" id="record_search" autocomplete="off" name="terms" size="40" 
+		    <input  type="text" id="record_search" autocomplete="off" name="terms" size="40" 
 			    onKeyUp="javascript: selectSearchSuggestor(this.form, this.name, 'record_list')">
-		  <div id="loading1" style="display:none;" class="loading">Loading...</div>
+		    <span id="loading1" style="display:none;" class="loading">Loading...</span>
 		  </span>
   </div>	  
   <div class="fez_form_item">
 		  <label for="items">Select Record</label>
 		  <span class="fez_form_input">
-		  <div id="record_list">
-		  </div>
+		    <div id="record_list">
+		    </div>
 		  </span>
   </div>	  
 
