@@ -28,7 +28,8 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
@@ -65,6 +66,7 @@ class Statistics
      * @return  boolean
      */
     function gatherStats() {
+        Statistics::checkSetup();
 		$timeStarted = date('Y-m-d H:i:s');
 		$counter = 0;
 		$counter_inserted = 0;
@@ -804,12 +806,42 @@ class Statistics
 		usort($merged, "comparar"); 
 		return $merged;
 	}
-	
+
+
+    function comparar($a, $b) {
+        return strnatcasecmp($a["stl_region"], $b["stl_region"]);
+    }
+
+
+    /**
+     * Method used to inspect the config file variables and report any obvious problems
+     * that will clearly prevent the stats from being scraped. This function mainly exists
+     * to prevent ugly PHP errors
+     *
+     * @access  public
+     * @return  boolean
+     */
+    function checkSetup()
+    {
+        $failure = '';
+        if (WEBSERVER_LOG_STATISTICS == "OFF") {
+            $failure = "You must set WEBSERVER_LOG_STATISTICS to 'ON' in order to generate log reports. Please check the config file.";
+        } elseif (!is_dir(WEBSERVER_LOG_DIR)) {
+            $failure = "Please ensure that WEBSERVER_LOG_DIR is set to a valid directory in the config file.";
+        } elseif (!is_file(WEBSERVER_LOG_DIR . WEBSERVER_LOG_FILE)) {
+            $failure = "Please ensure that WEBSERVER_LOG_FILE is set to a valid log in the config file.";
+        } elseif (!is_dir(APP_GEOIP_PATH)) {
+            $failure = "Please ensure that APP_GEOIP_PATH is set to a valid directory in the config file.";
+        }
+
+        if (!empty($failure)) {
+            echo 'Could not run stats - ' . $failure;
+            exit;
+        }
+    }
 
 }
-function comparar($a, $b) {
-   return strnatcasecmp($a["stl_region"], $b["stl_region"]);
-}
+
 
 // benchmarking the included file (aka setup time)
 if (APP_BENCHMARK) {
