@@ -276,12 +276,25 @@ class Reindex
             // need to rebuild presmd and image datastreams
             // get list of datastreams and iterate over them
             $ds = Fedora_API::callGetDatastreams($pid);
+            // delete any fez derived datastreams that might be hanging around for no reason.  We'll 
+            // recreate them later if they are still needed
+            foreach ($ds as $dsKey => $dsTitle) {
+                $dsIDName = $dsTitle['ID'];
+                if ($dsTitle['controlGroup'] == "M" 
+                    && (Misc::hasPrefix($dsIDName, 'preview_')
+                    || Misc::hasPrefix($dsIDName, 'web_')
+                    || Misc::hasPrefix($dsIDName, 'thumbnail_')
+                    || Misc::hasPrefix($dsIDName, 'presmd_'))) {
+                    Fedora_API::callPurgeDatastream($pid, $dsIDName);
+                } 
+            }
             foreach ($ds as $dsKey => $dsTitle) {
                 $dsIDName = $dsTitle['ID'];
                 if ($dsTitle['controlGroup'] == "M" 
                     && !Misc::hasPrefix($dsIDName, 'preview_')
                     && !Misc::hasPrefix($dsIDName, 'web_')
                     && !Misc::hasPrefix($dsIDName, 'thumbnail_')
+                    && !Misc::hasPrefix($dsIDName, 'presmd_') // since presmd is stored as a binary to avoid parsing by fedora at the moment.
                     ) {
                     $new_dsID = Foxml::makeNCName($dsIDName);
                     // get the datastream into a file where we can do stuff to it
