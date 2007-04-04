@@ -11,10 +11,10 @@
 $pid = $this->pid;
 $new_xdis_id =  $this->getvar('new_xdis_id');
 $is_succession =  $this->getvar('is_succession');
-$clone_binary_datastreams = $this->getvar('clone_binary_datastreams');
+$clone_attached_datastreams = $this->getvar('clone_attached_datastreams');
 
 $record = new RecordGeneral($pid);
-$new_pid = $record->copyToNewPID($new_xdis_id,$is_succession,$clone_binary_datastreams);
+$new_pid = $record->copyToNewPID($new_xdis_id,$is_succession,$clone_attached_datastreams);
 if (!empty($new_pid)) {
     $this->setCreatedPid($new_pid);
     $this->assign('outcome', "Success");
