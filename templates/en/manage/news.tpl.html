@@ -12,6 +12,18 @@
                       alert('Please enter the title of this news entry.');
                       selectField(f, 'title');
                       return false;
+                  } else if (isWhitespace(f.message.value)) {
+                      alert('Please enter the body of the news entry.');
+                      selectField(f, 'message');
+                      return false;
+                  } else if (f.title.value.length > 255) {
+                      alert('Please revise the length of the title so that it is less than 255 characters.');
+                      selectField(f, 'title');
+                      return false;
+                  } else if (f.message.value.length > 65535) {
+                      alert('Please revise the length of the news entry so that it is less than 255 characters.');
+                      selectField(f, 'message');
+                      return false;
                   }
                   return true;
               }
@@ -40,6 +52,10 @@
                       Please enter the title for this news entry.
                     {elseif $result == -3}
                       Please enter the message for this news entry.
+                    {elseif $result == -4}
+                      Please make the title shorter than 255 characters.
+                    {elseif $result == -5}
+                      The message is too long - please shorten it to be less than 64K.
                     {elseif $result == 1}
                       Thank you, the news entry was added successfully.
                     {/if}
@@ -50,6 +66,10 @@
                       Please enter the title for this news entry.
                     {elseif $result == -3}
                       Please enter the message for this news entry.
+                    {elseif $result == -4}
+                      Please make the title shorter than 255 characters.
+                    {elseif $result == -5}
+                      The message is too long - please shorten it to be less than 64K.
                     {elseif $result == 1}
                       Thank you, the news entry was updated successfully.
                     {/if}

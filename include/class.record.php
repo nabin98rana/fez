@@ -28,7 +28,8 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
@@ -701,6 +702,12 @@ class Record
         if ($data_type == 'date') {
         	$date = new Date($value);
             $value = $date->format('%Y-%m-%d %T');
+        }
+        /* rmf_varchar updates featuring extra-long strings cause the query below to die. We'll truncate 
+           the field for now, but this obviously needs to be done a little better in the future. */
+        $dataTypeField = "rmf_".$data_type;
+        if ($dataTypeField == 'rmf_varchar') {
+            $value = substr($value, 0, 254);        // Only use the left-most 255 chars
         }
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field

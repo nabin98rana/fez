@@ -40,6 +40,34 @@ class News
 {
 
     /**
+     * Method used to inspect the supplied data fields, and report any problems back
+     * to the user prior to insert / update operation being performed.
+     *
+     * @access  public
+     * @return  integer 1 if data OK, -N otherwise
+     */
+    function checkFieldData()
+    {
+        global $HTTP_POST_VARS;
+        // Check for non-supplied field data
+        if (Validation::isWhitespace($HTTP_POST_VARS["title"])) {
+            return -2;
+        }
+        if (Validation::isWhitespace($HTTP_POST_VARS["message"])) {
+            return -3;
+        }
+        // Check for field data that exceeds the length of underlying DB field limits
+        if (strlen($HTTP_POST_VARS["title"]) > 255) {
+            return -4;
+        }
+        if (strlen($HTTP_POST_VARS["message"]) > 65535) {
+            return -5;
+        }
+        return 1;
+    }
+
+
+    /**
      * Method used to add a news entry to the system.
      *
      * @access  public
@@ -49,12 +77,11 @@ class News
     {
         global $HTTP_POST_VARS;
 
-        if (Validation::isWhitespace($HTTP_POST_VARS["title"])) {
-            return -2;
+        $checkResult = News::checkFieldData();
+        if ($checkResult !== 1) {
+            return $checkResult;
         }
-        if (Validation::isWhitespace($HTTP_POST_VARS["message"])) {
-            return -3;
-        }
+
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "news
                  (
@@ -124,17 +151,14 @@ class News
     function update()
     {
         global $HTTP_POST_VARS;
-
-		// get existing details for the publish date condition
-		$existing_res = News::getDetails($HTTP_POST_VARS["id"]);
-
-
-        if (Validation::isWhitespace($HTTP_POST_VARS["title"])) {
-            return -2;
+        $checkResult = News::checkFieldData();
+        if ($checkResult !== 1) {
+            return $checkResult;
         }
-        if (Validation::isWhitespace($HTTP_POST_VARS["message"])) {
-            return -3;
-        }
+
+        // get existing details for the publish date condition
+        $existing_res = News::getDetails($HTTP_POST_VARS["id"]);
+
         $stmt = "UPDATE
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "news
                  SET
