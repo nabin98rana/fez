@@ -54,20 +54,20 @@ $tpl->assign('myFezView', "MCL");
 $tpl->assign('extra_title', "My Assigned Collections");
 $grp_id = $options['grp_id'];
 $usr_id = $options['usr_id'];
-$order_by = $options['order_by'];
-if (empty($order_by)) {
-	$order_by = "Title";	
+$sort_by = $options['sort_by'];
+if (empty($sort_by)) {
+	$sort_by = "Title";	
 }
-$order_by_dir = $options['order_by_dir'];
-$order_by_list = array();
+$sort_by_dir = $options['sort_by_dir'];
+$sort_by_list = array();
 foreach (Search_Key::getAssocList() as $key => $value) {
-    $order_by_list[$value] = $value;
+    $sort_by_list[$value] = $value;
 }
 $tpl->assign('isMemberOf_default', $isMemberOf);
-$tpl->assign('order_by_list', $order_by_list);
-$tpl->assign('order_by_dir_list', array("Asc", "Desc"));
-$tpl->assign('order_by_default', $order_by);
-$tpl->assign('order_by_dir_default', $order_by_dir);
+$tpl->assign('sort_by_list', $sort_by_list);
+$tpl->assign('sort_by_dir_list', array("Asc", "Desc"));
+$tpl->assign('sort_by_default', $sort_by);
+$tpl->assign('sort_by_dir_default', $sort_by_dir);
 
 
 Auth::checkAuthentication(APP_SESSION);
@@ -122,9 +122,9 @@ $tpl->assign("options", $options);
 $tpl->assign("grp_list", $grp_list);
 $tpl->assign("usr_list", $usr_list);
 $tpl->assign("isMemberOf_list", $collection_assoc_list);
-$assigned_items= Record::getAssigned(Auth::getUsername(), $pagerRow, $rows, $order_by, $order_by_dir, $isMemberOf);
-$tpl->assign('my_assigned_items_list', $assigned_items['list']);
-$tpl->assign('my_assigned_items_info', $assigned_items['info']);
+//$assigned_items= Record::getAssigned(Auth::getUsername(), $pagerRow, $rows, $sort_by, $sort_by_dir, $isMemberOf);
+//$tpl->assign('my_assigned_items_list', $assigned_items['list']);
+//$tpl->assign('my_assigned_items_info', $assigned_items['info']);
 
 $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
 $tpl->registerNajax( NAJAX_Client::register('NajaxBackgroundProcessList', APP_RELATIVE_URL.'najax_services/generic.php'));

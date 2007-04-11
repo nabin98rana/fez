@@ -51,37 +51,40 @@ include_once(APP_INC_PATH.'najax_objects/class.background_process_list.php');
 $tpl = new Template_API();
 $tpl->setTemplate("my_fez.tpl.html");
 $options = Pager::saveSearchParams();
+$search_keys = Search_Key::getMyFezSearchList();
 $isMemberOf = $options['isMemberOf'];
-
+//print_r($search_keys);
+//print_r($options);
 if (!array_key_exists("searchKey9", $options)) { // for the my fez unpublished items page need to set the default to any non-published items 
 	$options["searchKey9"] = "-4"; 
 	$options["noOrder"] = 0;
 }
+//if (!in_array($options["searchKey9"], $search_keys[])) {
+//	$
+	
+//}
 $assign_grp_id = $options['grp_id'];
 $sta_id = $options['sta_id'];
 $assign_usr_id = $options['usr_id'];
 //echo $assign_usr_id." ". $sta_id." ".$assign_grp_id;
 
-$order_by = $options['order_by'];
-if (empty($order_by)) {
-	$order_by = "Title";	
+$sort_by = $options['sort_by'];
+if (empty($sort_by)) {
+	$sort_by = "Title";	
 }
 
-$order_by_dir = $options['order_by_dir'];
-$order_by_list = array();
+$sort_by_dir = $options['sort_by_dir'];
+$sort_by_list = array();
 foreach (Search_Key::getAssocList() as $key => $value) {
-    $order_by_list[$value] = $value;
+    $sort_by_list["searchKey".$key] = $value;
 }
 $tpl->assign('isMemberOf_default', $isMemberOf);
 $tpl->assign('myFezView', "MAI");
 $tpl->assign('extra_title', "Assigned Unpublished Items");
-$tpl->assign('order_by_list', $order_by_list);
-$tpl->assign('order_by_dir_list', array("Asc", "Desc"));
-$tpl->assign('order_by_default', $order_by);
-$tpl->assign('order_by_dir_default', $order_by_dir);
-
-$search_keys = Search_Key::getMyFezSearchList();
-
+$tpl->assign('sort_by_list', $sort_by_list);
+$tpl->assign('sort_by_dir_list', array("Asc", "Desc"));
+$tpl->assign('sort_by_default', $sort_by);
+$tpl->assign('sort_by_dir_default', $sort_by_dir);
 
 
 
@@ -108,12 +111,24 @@ foreach ($collection_list as &$item) {
 //   $item['count'] = Collection::getSimpleListingCount($item['pid']);   
    $collection_assoc_list[$item['pid']] = $item['title'][0];
 }
-
-//print_r($search_keys);
 foreach ($search_keys as $skey => $svalue) {
-	if ($svalue["sek_id"] == 8) {
+	if ($svalue["sek_id"] == Search_Key::getID("isMemberOf")) {
 		$search_keys[$skey]["field_options"] = $collection_assoc_list;
+	}
+	if ($svalue["sek_smarty_variable"] == 'User::getAssocList()') {
+		$search_keys[$skey]["field_options"] = array("-1" => "un-assigned", "-2" => "myself", "-3" => "myself and un-assigned") + $search_keys[$skey]["field_options"];
+	}			
+	if ($svalue["sek_html_input"] != 'multiple' && $svalue["sek_smarty_variable"] != 'Status::getUnpublishedAssocList()') {
+		$search_keys[$skey]["field_options"] = array("" => "any") + $search_keys[$skey]["field_options"];		
 	}	
+	if ($svalue["sek_id"]  == Search_Key::getID("Status")) {
+		$search_keys[$skey]["field_options"] = array("-4" => "any Unpublished") + $search_keys[$skey]["field_options"]; //get all status's
+	}	
+	if ($svalue["sek_id"] == Search_Key::getID("Status")) {
+		if (!array_key_exists($options["searchKey9"], $search_keys[$skey]["field_options"])) {
+			$options["searchKey9"] = "-4";
+		}
+	}
 }
 
 
@@ -124,9 +139,9 @@ $tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
 $tpl->assign('search_keys', $search_keys);
 
 $tpl->assign("roles_list", Auth::getDefaultRoles());
-$pagerRow = Pager::getParam('pagerRow_my_assigned');
-if (empty($pagerRow)) {
-    $pagerRow = 0;
+$pager_row = Pager::getParam('pager_row_my_assigned');
+if (empty($pager_row)) {
+    $pager_row = 0;
 }
 $rows = Pager::getParam('rows');
 if (empty($rows)) {
@@ -144,30 +159,38 @@ if (is_numeric($grp_id)) {
 $bulk_workflows = WorkflowTrigger::getAssocListByTrigger("-1", 7); //get the bulk change workflows
 $tpl->assign("bulk_workflows", $bulk_workflows);
 
+if (Misc::GETorPost("search_button") == "Search" && trim($options["searchKey0"]) != "") { //if search button was just pressed and all fields search has something in it then sort by relevance enforced
+	$options["sort_by"] = "searchKey0";
+}
 
+if ($options["searchKey0"] != "" && (Misc::GETorPost("sort_by") == "" || $options["sort_by"] == "searchKey0")) {
+	$options["sort_order"] = 1;
+}
 
 $tpl->assign("options", $options);
 $tpl->assign("grp_list", $grp_list);
 $tpl->assign("status_list", $status_list);
 $tpl->assign("usr_list", $usr_list);
 $tpl->assign("isMemberOf_list", $collection_assoc_list);
-//$assigned_items= Record::getAssigned(Auth::getUsername(), $pagerRow, $rows, $order_by, $order_by_dir, $isMemberOf);
-$assigned_items = Record::getListing($options, $pagerRow, $rows);
+//$assigned_items= Record::getAssigned(Auth::getUsername(), $pager_row, $rows, $sort_by, $sort_by_dir, $isMemberOf);
+
+
+$assigned_items = Record::getListing($options, array("Editor", "Approver"), $pager_row, $rows, $options["sort_by"]);
 
 $tpl->assign('my_assigned_items_list', $assigned_items['list']);
 $tpl->assign('my_assigned_items_info', $assigned_items['info']);
 
-$pagerRow_my_created = Pager::getParam('pagerRow_my_created');
+$pager_row_my_created = Pager::getParam('pager_row_my_created');
 $mci_rows = Pager::getParam('mci_rows');
 if (empty($mci_rows)) {
     $mci_rows = APP_DEFAULT_PAGER_SIZE;
 }
-$mci_order_by = Pager::getParam('mci_order_by');
-if (empty($mci_order_by)) {
-    $mci_order_by = "Title";
+$mci_sort_by = Pager::getParam('mci_sort_by');
+if (empty($mci_sort_by)) {
+    $mci_sort_by = "Title";
 }
-$mci_order_by_dir = Pager::getParam('mci_order_by_dir');
-//$created_items= Record::getCreated(Auth::getUserID(), $pagerRow_my_created, $mci_rows, $mci_order_by, $mci_order_by_dir);
+$mci_sort_by_dir = Pager::getParam('mci_sort_by_dir');
+//$created_items= Record::getCreated(Auth::getUserID(), $pager_row_my_created, $mci_rows, $mci_sort_by, $mci_sort_by_dir);
 
 $tpl->assign('my_created_items_list', $created_items['list']);
 $tpl->assign('my_created_items_info', $created_items['info']);

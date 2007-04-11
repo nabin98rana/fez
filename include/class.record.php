@@ -947,22 +947,22 @@ class Record
      * @param string $username The username of the search is performed on
      * @return array $res2 The index details of records associated with the user
      */
-    function getAssigned($username,$currentPage=0,$pageRows="ALL",$order_by="Title", $order_by_dir=0, $isMemberOf='ALL')
+    function getAssigned($username,$current_page=0,$page_rows="ALL",$sort_by="Title", $sort_order=0, $isMemberOf='ALL')
     {
-        if ($pageRows == "ALL") {
-            $pageRows = 9999999;
+        if ($page_rows == "ALL") {
+            $page_rows = 9999999;
         }
-        $start = $currentPage * $pageRows;
+        $start = $current_page * $page_rows;
 
-        $currentRow = $currentPage * $pageRows;
-        $sekdet = Search_Key::getDetailsByTitle($order_by);
+        $current_row = $current_page * $page_rows;
+        $sekdet = Search_Key::getDetailsByTitle($sort_by);
         $data_type = $sekdet['xsdmf_data_type'];
 		$dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
 
 		$authArray = Collection::getAuthIndexStmt(array("Editor", "Approver"));
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];
-		if ($order_by_dir == 0) {
+		if ($sort_order == 0) {
 			$order_dir = "ASC";
 		} else {
 			$order_dir = "DESC";			
@@ -977,7 +977,7 @@ class Record
 		$isMemberOfList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('isMemberOf');
 		$statusList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Status');		
 		$displayTypeList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Display Type');				
-		$order_byList = XSD_HTML_Match::getXSDMF_IDsBySekTitle($order_by);				
+		$sort_byList = XSD_HTML_Match::getXSDMF_IDsBySekTitle($sort_by);				
 		$sql_filter = array();
 		$sql_filter['where'] = "";
 		$sql_filter['elsewhere'] = "";     
@@ -1010,8 +1010,8 @@ class Record
                     inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x5
                     on r5.rmf_xsdmf_id = x5.xsdmf_id
                     left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s5			
-					on (s5.sek_id = x5.xsdmf_sek_id and s5.sek_title = '$order_by')  
-					where (r5.rmf_$data_type is null) or s5.sek_title = '$order_by'					
+					on (s5.sek_id = x5.xsdmf_sek_id and s5.sek_title = '$sort_by')  
+					where (r5.rmf_$data_type is null) or s5.sek_title = '$sort_by'					
 					group by r5.rmf_rec_pid
 
 					
@@ -1026,7 +1026,7 @@ class Record
 /*$firstStmt = "SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid, min(r5.rmf_$data_type) as sort_column
                     $bodyStmt
 					order by sort_column $order_dir, r2.rmf_rec_pid desc
-                    LIMIT $start, $pageRows
+                    LIMIT $start, $page_rows
                     ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid";
                     
 */                  
@@ -1040,7 +1040,7 @@ class Record
                     SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid, min(r5.rmf_$data_type) as sort_column
                     $bodyStmt
 					order by sort_column $order_dir, r2.rmf_rec_pid desc
-                    LIMIT $start, $pageRows
+                    LIMIT $start, $page_rows
                     ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid 
             LEFT JOIN {$dbtp}xsd_loop_subelement s1 
             ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
@@ -1073,19 +1073,19 @@ class Record
 		$list = $return;
 		
 
-		$totalRows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
-//        $totalRows = count($list);
-//        $list = array_slice($list,$currentRow, $pageRows);
-        $totalPages = intval($totalRows / $pageRows);
-        if ($totalRows % $pageRows) {
-            $totalPages++;
+		$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
+//        $total_rows = count($list);
+//        $list = array_slice($list,$current_row, $page_rows);
+        $total_pages = intval($total_rows / $page_rows);
+        if ($total_rows % $page_rows) {
+            $total_pages++;
         }
-        $nextPage = ($currentPage >= $totalPages) ? -1 : $currentPage + 1;
-        $prevPage = ($currentPage <= 0) ? -1 : $currentPage - 1;
-        $lastPage = $totalPages - 1;
-        $currentLastRow = $currentRow + count($list);
-        $info = compact('totalRows', 'pageRows', 'currentRow','currentLastRow','currentPage','totalPages',
-                'nextPage','prevPage','lastPage');
+        $next_page = ($current_page >= $total_pages) ? -1 : $current_page + 1;
+        $prev_page = ($current_page <= 0) ? -1 : $current_page - 1;
+        $last_page = $total_pages - 1;
+        $current_last_row = $current_row + count($list);
+        $info = compact('total_rows', 'page_rows', 'current_row','current_last_row','current_page','total_pages',
+                'next_page','prev_page','last_page');
         return compact('info','list');
     }
 
@@ -1098,19 +1098,20 @@ class Record
      * @param string $options The search parameters
      * @return array $res2 The index details of records associated with the search params
      */
-    function getListing($options,$currentPage=0,$pageRows="ALL")
+    function getListing($options, $approved_roles=array("Viewer", "Lister"), $current_page=0,$page_rows="ALL", $sort_by)
     {
-        if ($pageRows == "ALL") {
-            $pageRows = 9999999;
+        if ($page_rows == "ALL") {
+            $page_rows = 9999999;
         }
-        $start = $currentPage * $pageRows;
+        $start = $current_page * $page_rows;
 		$dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX; // Database and table prefix
-        $currentRow = $currentPage * $pageRows;
-		if ($order_by_dir == 0) {
-			$order_dir = "ASC";
+        $current_row = $current_page * $page_rows;
+        
+		/*if ($options["sort_order"] == 1) {
+			$order_dir = "DESC";
 		} else {
-			$order_dir = "DESC";			
-		}
+			$order_dir = "ASC";			
+		}*/
 		/*
         if (!empty($authStmt)) {
             $r4_join_field = "ai.authi_pid";
@@ -1118,65 +1119,38 @@ class Record
             $r4_join_field = "r2.rmf_rec_pid";
         }*/
 
-        $searchKey_join = Record::buildSearchKeyJoins($options);
-		$authArray = Collection::getAuthIndexStmt(array("Editor", "Approver"), "r".$searchKey_join[4]);
+        $searchKey_join = Record::buildSearchKeyJoins($options, $sort_by);
+//		$authArray = Collection::getAuthIndexStmt(array("Editor", "Approver"), "r".$searchKey_join[4]);
+		//$authArray = Collection::getAuthIndexStmt(array("Viewer", "Lister"), "r".$searchKey_join[4]);
+		$authArray = Collection::getAuthIndexStmt($approved_roles, "r".$searchKey_join[4]);
 		$authStmt = $authArray['authStmt'];
-		$joinStmt = $authArray['joinStmt'];
-        
- 
+		$joinStmt = $authArray['joinStmt'];        
 		
 		$sql_filter = array();
 		$sql_filter['where'] = "";
 		$sql_filter['elsewhere'] = "";     
-        
-        
-/*        $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
-                    INNER JOIN {$dbtp}xsd_display_matchfields AS x2
-                      ON r2.rmf_xsdmf_id = x2.xsdmf_id AND x2.xsdmf_element='!sta_id' and r2.rmf_int!=2
-
-                    $authStmt
-
-                    ";
-*/
 
 		$bodyStmt = $searchKey_join[0].$searchKey_join[1].$authStmt;	
-		
-// ORDERING!! left joins, not required for count
-/*        $bodyStmt = "$bodyStmtPart1
-
-                    LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r5 on r5.rmf_rec_pid = r2.rmf_rec_pid
-                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x5
-                    on r5.rmf_xsdmf_id = x5.xsdmf_id
-                    left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s5			
-					on (s5.sek_id = x5.xsdmf_sek_id and s5.sek_title = '$order_by')  
-					where (r5.rmf_$data_type is null) or s5.sek_title = '$order_by'					
-					group by r5.rmf_rec_pid		                    
-             ";*/
 
         $countStmt = "
                     SELECT ".APP_SQL_CACHE."  count(distinct r".$searchKey_join[4].".rmf_rec_pid) ".
                     $searchKey_join[0].$authStmt.$searchKey_join[2];
-            
-
-/*$firstStmt = "SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid, min(r5.rmf_$data_type) as sort_column
-                    $bodyStmt
-					order by sort_column $order_dir, r2.rmf_rec_pid desc
-                    LIMIT $start, $pageRows
-                    ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid";
-                    
-*/                  
-                             
+          
+                                     
+        $stmt = "SELECT ".APP_SQL_CACHE."  r1.*, x1.*, s1.*, k1.*, d1.*, st1.*";
+        if ($searchKey_join[6] != "") {
+        	$stmt .= ", display.Relevance ";
+        }
         
-        $stmt = "SELECT ".APP_SQL_CACHE."  r1.*, x1.*, s1.*, k1.*, d1.*, st1.*
-            FROM {$dbtp}record_matching_field AS r1
+  $stmt .=" FROM {$dbtp}record_matching_field AS r1
             INNER JOIN {$dbtp}xsd_display_matchfields AS x1
             ON r1.rmf_xsdmf_id = x1.xsdmf_id
             INNER JOIN (
-                    SELECT ".APP_SQL_CACHE."  distinct r".$searchKey_join[4].".rmf_rec_pid
+                    SELECT ".APP_SQL_CACHE."  distinct r".$searchKey_join[4].".rmf_rec_pid ".$searchKey_join[6]."
 					$bodyStmt
-					".$searchKey_join[2]."
-					order by ".$searchKey_join[3]." r".$searchKey_join[4].".rmf_rec_pid desc
-                    LIMIT $pageRows OFFSET $start
+					".$searchKey_join[2].$searchKey_join[8]."
+					order by ".$searchKey_join[3]." r".$searchKey_join[4].".rmf_rec_pid_num desc
+                    LIMIT $page_rows OFFSET $start
                     ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid 
             LEFT JOIN {$dbtp}xsd_loop_subelement s1 
             ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
@@ -1188,26 +1162,10 @@ class Record
             ON (st1.sta_id = r1.rmf_int and k1.sek_title = 'Status')
 
              ";
- //echo $stmt;
-//exit;
-/*                    
-        $stmt = "SELECT ".APP_SQL_CACHE."  r1.*, x1.*, s1.*, k1.*, d1.* 
-            FROM {$dbtp}record_matching_field AS r1
-            INNER JOIN {$dbtp}xsd_display_matchfields AS x1
-            ON r1.rmf_xsdmf_id = x1.xsdmf_id   
-			$bodyStmt
-			LEFT JOIN {$dbtp}xsd_loop_subelement s1 
-            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
-            LEFT JOIN {$dbtp}search_key k1 
-            ON (k1.sek_id = x1.xsdmf_sek_id)
-            LEFT JOIN {$dbtp}xsd_display d1  
-            ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
-			order by ".$searchKey_join[1].", r1.rmf_rec_pid desc
-            LIMIT $start, $pageRows ";
-*/			
-        
-		$totalRows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
-		if ($totalRows > 0) {
+  //echo "<pre>".$stmt."</pre>";
+       
+		$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);		
+		if ($total_rows > 0) {
 			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 
 			if (PEAR::isError($res)) {
@@ -1219,61 +1177,77 @@ class Record
 		}
 
         $return = Collection::makeReturnList($res);
-        $return = Collection::makeSecurityReturnList($return);
+        $return = Collection::makeSecurityReturnList($return);        
 //		$return = array_values($return);
 		$return = Auth::getIndexAuthorisationGroups($return);
 //		print_r($return);		
-		$return = Collection::getWorkflows($return); 
+		$usr_id = Auth::getUserID();
+		if (is_numeric($usr_id) && $usr_id != 0) { //only get the workflows if logged in an not an RSS feed
+			$return = Collection::getWorkflows($return);
+		} 
 		foreach ($return as &$result) {
         	$parents = Record::getParents($result['pid']);
         	$result['parents'] = $parents;
 		}
 		$list = $return;
 		
-//echo $countStmt;
-
-//        $totalRows = count($list);
-//        $list = array_slice($list,$currentRow, $pageRows);
-        $totalPages = intval($totalRows / $pageRows);
-        if ($totalRows % $pageRows) {
-            $totalPages++;
+        $total_pages = intval($total_rows / $page_rows);
+        if ($total_rows % $page_rows) {
+            $total_pages++;
         }
+        $search_info = rtrim($searchKey_join[7], ', ');
         if ($searchKey_join[2] == "") {
         	$noOrder = 1;
         } else {
         	$noOrder = 0;
         }
-        $nextPage = ($currentPage >= $totalPages) ? -1 : $currentPage + 1;
-        $prevPage = ($currentPage <= 0) ? -1 : $currentPage - 1;
-        $lastPage = $totalPages - 1;
-        $currentLastRow = $currentRow + count($list);
-        $info = compact('totalRows', 'pageRows', 'currentRow','currentLastRow','currentPage','totalPages',
-                'nextPage','prevPage','lastPage', 'noOrder');
+        $next_page = ($current_page >= $total_pages) ? -1 : $current_page + 1;
+        $prev_page = ($current_page <= 0) ? -1 : $current_page - 1;
+        $last_page = $total_pages - 1;
+        $current_last_row = $current_row + count($list);
+        $info = compact('total_rows', 'page_rows', 'current_row','current_last_row','current_page','total_pages',
+                'next_page','prev_page','last_page', 'noOrder', 'search_info');
        // print_r($info); exit;
         return compact('info','list');
     }    
 
-    function buildSearchKeyJoins($options) {
+    function buildSearchKeyJoins($options, $sort_by) {
     	$searchKey_join = array();
         $searchKey_join[0] = ""; // initialise the return sql searchKey fields join string
 		$searchKey_join[1] = ""; // initialise the return sql where string
 		$searchKey_join[2] = ""; // initialise the return sql left joins string - so count doesnt need to do it
-
         $searchKey_join[3] = ""; // initialise the return sql searchKey Order/Sort by join string
         $searchKey_join[4] = 0; // initialise the first join searchKey ID
         $searchKey_join[5] = 0; // initialise the max count of extra searchKey field joins
+		$searchKey_join[6] = ""; //initialise the return sql term relevance matching when fulltext indexing is used
+		$searchKey_join[7] = ""; // initialise the search info string
+		$searchKey_join[8] = ""; //initialise the group by string
 		$joinType = "";
 		$x = 0;
 		$firstX = 0;
 		$firstLoop = true; 
-		$sortRestriction = "";
-		//print_r($options);
+		$sortRestriction = "";		
         if (!empty($options["searchKey_count"])) {
             if ($options["searchKey_count"] > 0) {
+            	
+            	if ($options["searchKey0"]  && trim($options["searchKey0"]) != "") {
+            		$firstLoop = false;
+            		$joinType = " FROM ";
+            		$searchKey_join[4] = 0;
+            		$searchKey_join[7] .= "All Fields:\"".trim($options["searchKey".$x])."\", ";
+            		$termLike = " match (r".$x.".rmf_varchar) against ('*".$options["searchKey0"]."*' IN BOOLEAN MODE)";
+            		$searchKey_join[8] = " group by r".$x.".rmf_rec_pid ";
+            		$termRelevance = ", sum(match (r".$x.".rmf_varchar) against ('".$options["searchKey0"]."')) as Relevance";
+            		$searchKey_join[6] = $termRelevance;
+            		$searchKey_join[0] .= $joinType."
+											     ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field as r0";
+            		Misc::addToWhere(&$searchKey_join[2], $termLike);
+            	}            	
             	
             	for($x=1;$x < ($options["searchKey_count"] + 1);$x++) {
             	 	 if (!empty($options["searchKey".$x]) && trim($options["searchKey".$x]) != "") {            	 	 	
             	 	    $sekdet = Search_Key::getDetails($x);
+            	 	    $searchKey_join[7] .= "{$sekdet['sek_title']}:\"".trim($options["searchKey".$x])."\", ";
             	 	    $sek_xsdmfs = array();
             	 	    $sek_xsdmfs = XSD_HTML_Match::getXSDMF_IDsBySekTitle($sekdet['sek_title']);            	 	    
             	 	    if (count($sek_xsdmfs) > 0) {         
@@ -1359,23 +1333,35 @@ class Record
         	$x = 0;        
     	  	$searchKey_join[0] = "FROM ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field as r".$x;	
         }
-        if (!empty($options["sort_by"]) && $x != 0) { // only do a sort if the query has be limited in some way, otherwise it is far too slow        	
-             $x = ltrim($options["sort_by"], "searchKey");
+        
+        	
+        if (!empty($sort_by) && $x != 0) { // only do a sort if the query has be limited in some way, otherwise it is far too slow        	
+             $x = ltrim($sort_by, "searchKey");
              if (is_numeric($x)) { 
-	        	 $sekdet = Search_Key::getDetails($x);
-	             $sek_xsdmfs = XSD_HTML_Match::getXSDMF_IDsBySekTitle($sekdet['sek_title']);             
-	             if (count($sek_xsdmfs) > 0) {
-	        		$searchKey_join[1] .= " 
-					    LEFT JOIN ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field as rsort".$x." on rsort".$x.".rmf_rec_pid = r".$searchKey_join[4].".rmf_rec_pid ".
-					  " and rsort".$x.".rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).")".$sortRestriction;
-	             	if ($options["sort_order"] == "1") {
-	             		$searchKey_join[3] .= " rsort".$x.".rmf_".$sekdet['xsdmf_data_type']." DESC, ";
-	             	} else {
-	             		$searchKey_join[3] .= " rsort".$x.".rmf_".$sekdet['xsdmf_data_type']." ASC, ";         
-	             	}
-	             }
+             	if ($x == 0 && ($options["searchKey0"]  && trim($options["searchKey0"]) != "")) {             		             		
+             		if ($options["sort_order"] == 0) {
+	             		$searchKey_join[3] .= " Relevance ASC, ";
+					} else { 
+						$searchKey_join[3] .= " Relevance DESC, ";
+					}
+             	} else {
+		        	 $sekdet = Search_Key::getDetails($x);
+		             $sek_xsdmfs = XSD_HTML_Match::getXSDMF_IDsBySekTitle($sekdet['sek_title']);             
+		             if (count($sek_xsdmfs) > 0) {
+		        		$searchKey_join[1] .= " 
+						    LEFT JOIN ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field as rsort".$x." on rsort".$x.".rmf_rec_pid = r".$searchKey_join[4].".rmf_rec_pid ".
+						  " and rsort".$x.".rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).")".$sortRestriction;
+		             	if ($options["sort_order"] == "1") {
+		             		$searchKey_join[3] .= " rsort".$x.".rmf_".$sekdet['xsdmf_data_type']." DESC, ";
+		             	} else {
+		             		$searchKey_join[3] .= " rsort".$x.".rmf_".$sekdet['xsdmf_data_type']." ASC, ";         
+		             	}
+		             }
+             	}
              }
-        }      
+//        } elseif ($options["searchKey0"] && trim($options["searchKey0"]) != "") { // If used a search all fields then sort by search relevance unless specific sort by variable was sent
+         
+        }
         return $searchKey_join;   	
     }
     
@@ -1390,41 +1376,50 @@ class Record
      * @param string $username The username of the search is performed on
      * @return array $res2 The index details of records associated with the user
      */
-    function getCreated($usr_id = '',$currentPage=0,$pageRows="ALL",$order_by="Title", $order_by_dir=0)
+    function getCreated($options, $current_page=0,$page_rows="ALL",$sort_by='', $sort_order=0)
     {
-        if ($pageRows == "ALL") {
-            $pageRows = 9999999;
+    	
+    	$options["searchKey".Search_Key::getID("Depositor")] = $usr_id;
+    	return Record::getListing($options, array("Lister"), $current_page, $page_rows, $sort_by);
+/*    	
+    	
+        if ($page_rows == "ALL") {
+            $page_rows = 9999999;
         }
-        $start = $currentPage * $pageRows;
+        $start = $current_page * $page_rows;
 
-        $currentRow = $currentPage * $pageRows;
-        $sekdet = Search_Key::getDetailsByTitle($order_by);
+        if ($sort_by == '') {
+        	$sort_by = "searchKey".Search_Key::getID("Title");
+        }        
+        $sek_id = ltrim($sort_by, "searchKey");
+        $current_row = $current_page * $page_rows;
+        $sekdet = Search_Key::getDetails($sek_id);
+        //print_r($sekdet);
         $data_type = $sekdet['xsdmf_data_type'];
 		$dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
 
+
+		$depositorList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Depositor');	
+		$orderByList = XSD_HTML_Match::getXSDMF_IDsBySekID($sekdet["sek_id"]);
+		
         if (empty($usr_id)) {
             $usr_id = Auth::getUserID(); 
         }
 
-		if ($order_by_dir == 0) {
+		if ($sort_order == 0) {
 			$order_dir = "ASC";
 		} else {
 			$order_dir = "DESC";			
 		}
         $r4_join_field = "r2.rmf_rec_pid";
 
-        $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2" .
-                " INNER JOIN {$dbtp}xsd_display_matchfields AS x2 ON x2.xsdmf_id=r2.rmf_xsdmf_id " .
-                "           AND xsdmf_element='!depositor' AND r2.rmf_int='$usr_id'
-                    ";
-        $bodyStmt = "$bodyStmtPart1
+        $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2 ";
+        $bodyStmt = " $bodyStmtPart1
 
                     LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r5 on r5.rmf_rec_pid = r2.rmf_rec_pid
-                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x5
-                    on r5.rmf_xsdmf_id = x5.xsdmf_id
-                    left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s5			
-					on (s5.sek_id = x5.xsdmf_sek_id and s5.sek_title = '$order_by')  
-					where (r5.rmf_$data_type is null) or s5.sek_title = '$order_by'					
+                    and r5.rmf_xsdmf_id in (".implode(",", $depositorList).")
+                   
+					where r2.rmf_int=$usr_id and r2.rmf_xsdmf_id in (".implode(",", $depositorList).") 					
 					group by r5.rmf_rec_pid
 
 					
@@ -1441,10 +1436,10 @@ class Record
             INNER JOIN {$dbtp}xsd_display_matchfields AS x1
             ON r1.rmf_xsdmf_id = x1.xsdmf_id
             INNER JOIN (
-                    SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid, min(r5.rmf_$data_type) as sort_column
+                    SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid, min(r5.rmf_int) as sort_column
                     $bodyStmt
 					order by sort_column $order_dir, r2.rmf_rec_pid desc
-                    LIMIT $start, $pageRows
+                    LIMIT $start, $page_rows
                     ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid 
             LEFT JOIN {$dbtp}xsd_loop_subelement s1 
             ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
@@ -1463,7 +1458,7 @@ class Record
 		/*} else {
 			$res = array();
 		}*/
-
+/*
         $return = Collection::makeReturnList($res);
         $return = Collection::makeSecurityReturnList($return);
 //		$return = array_values($return);
@@ -1473,20 +1468,20 @@ class Record
 		$list = $return;
 
 
-		$totalRows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
-//        $totalRows = count($list);
-//        $list = array_slice($list,$currentRow, $pageRows);
-        $totalPages = intval($totalRows / $pageRows);
-        if ($totalRows % $pageRows) {
-            $totalPages++;
+		$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
+//        $total_rows = count($list);
+//        $list = array_slice($list,$current_row, $page_rows);
+        $total_pages = intval($total_rows / $page_rows);
+        if ($total_rows % $page_rows) {
+            $total_pages++;
         }
-        $nextPage = ($currentPage >= $totalPages) ? -1 : $currentPage + 1;
-        $prevPage = ($currentPage <= 0) ? -1 : $currentPage - 1;
-        $lastPage = $totalPages - 1;
-        $currentLastRow = $currentRow + count($list);
-        $info = compact('totalRows', 'pageRows', 'currentRow','currentLastRow','currentPage','totalPages',
-                'nextPage','prevPage','lastPage');
-        return compact('info','list');
+        $next_page = ($current_page >= $total_pages) ? -1 : $current_page + 1;
+        $prev_page = ($current_page <= 0) ? -1 : $current_page - 1;
+        $last_page = $total_pages - 1;
+        $current_last_row = $current_row + count($list);
+        $info = compact('total_rows', 'page_rows', 'current_row','current_last_row','current_page','total_pages',
+                'next_page','prev_page','last_page');
+        return compact('info','list');*/
     }
 
 

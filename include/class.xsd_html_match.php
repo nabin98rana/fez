@@ -2086,7 +2086,7 @@ class XSD_HTML_Match {
 	  * @return  array $res The list of xsdmf_ids
 	  */
 	function getXSDMF_IDsBySekTitle($sek_title, $nocache = false) {
-		static $returns;		
+		static $returns;				
 		if (!$sek_title) {
 			return array();
 		}
@@ -2099,7 +2099,7 @@ class XSD_HTML_Match {
 	                   " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1
 					INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key AS s1  	
 	                ON
-	                   x1.xsdmf_sek_id = s1.sek_id and s1.sek_title = '".Misc::escapeString($sek_title)."'";
+	                   x1.xsdmf_sek_id = s1.sek_id and s1.sek_title = '".Misc::escapeString($sek_title)."'";			
 			$res = $GLOBALS["db_api"]->dbh->getCol($stmt);
 			if (PEAR::isError($res)) {
 				Error_Handler::logError(array (
@@ -2111,7 +2111,40 @@ class XSD_HTML_Match {
 			}
 		}
 	}
-	
+
+	/**
+	 * getXSDMF_IDsBySekID
+	 * Returns a list of XSDMF_IDs matching a sek ID
+	 *
+	 * @access  public
+	 * @param   integer $sek_id
+	 * @return  array $res The list of xsdmf_ids
+	 */
+	function getXSDMF_IDsBySekID($sek_id, $nocache = false) {
+		static $returns;
+		if (!is_numeric($sek_id)) {
+			return array();
+		}
+		if (!empty($returns[$sek_id]) && !$nocache) {
+			return $returns[$sek_id];
+		} else {
+			$stmt = "SELECT
+	                   xsdmf_id
+	                FROM
+	                   " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1
+					WHERE
+	                   x1.xsdmf_sek_id = ".$sek_id;			
+			$res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+			if (PEAR::isError($res)) {
+				Error_Handler::logError(array (
+				$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+				return "";
+			} else {
+				$returns[$sek_id] = $res;
+				return $res;
+			}
+		}
+	}
 	
 	/**
 	 * Method used to get the list of XSD HTML Matching fields available in the 

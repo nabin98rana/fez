@@ -95,16 +95,14 @@ class Pager
         $isMemberOf = Pager::getParam('isMemberOf',$params);			
         $sort_by = Pager::getParam('sort_by',$params);
 //        $order_by = Pager::getParam('order_by',$params);        
-        $order_by_dir = Pager::getParam('order_by_dir',$params);                
+      //  $order_by_dir = Pager::getParam('order_by_dir',$params);                
         $sort_order = Pager::getParam('sort_order',$params);
         
         
         $rows = Pager::getParam('rows',$params);
         $cookie = array(
             'rows'           => $rows ? $rows : APP_DEFAULT_PAGER_SIZE,
-            "sort_by"        => $sort_by ? $sort_by : "title",
-//            "order_by"       => $order_by ? $order_by : "Title",            
-            "order_by_dir"   => $order_by_dir ? $order_by_dir : 1,                        
+            "sort_by"        => $sort_by ? $sort_by : "title",                        
             "isMemberOf"     => $isMemberOf != "" ? $isMemberOf : "ALL",            
             "sort_order"     => is_numeric($sort_order) ? $sort_order : 1,
             // quick filter form
@@ -146,6 +144,9 @@ class Pager
                 }
             }
         }		
+        if (!empty($cookie["searchKey0"]) && empty($sort_by)) { 
+        	$cookie['sort_by'] = "searchKey0";
+        }
 		$encoded = base64_encode(serialize($cookie));
         @setcookie(APP_LIST_COOKIE, $encoded, APP_LIST_COOKIE_EXPIRE);
         return $cookie;

@@ -208,6 +208,30 @@ class Search_Key
         }
     }
 
+    /**
+     * Method used to get the ID of a specific search key by the title.
+     *
+     * @access  public
+     * @param   integer $sek_title The search key title
+     * @return  string The ID of the search key
+     */
+    function getID($sek_title)
+    {
+    	$stmt = "SELECT
+                     sek_id
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
+                 WHERE
+                    sek_title='$sek_title'";
+    	$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+
+    	if (PEAR::isError($res)) {
+    		Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+    		return '';
+    	} else {
+    		return $res;
+    	}
+    }
 
     /**
      * Method used to get the title of a specific search key.
@@ -219,7 +243,7 @@ class Search_Key
     function getTitle($sek_id)
     {
         $stmt = "SELECT
-                     IFNULL(sek_alt_title, sek_title)
+                     IF(sek_alt_title <> '', sek_alt_title, sek_title)
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
                  WHERE
@@ -292,7 +316,7 @@ class Search_Key
     {
         $stmt = "SELECT
                     sek_id,
-					IFNULL(sek_alt_title, sek_title)
+					IF(sek_alt_title <> '', sek_alt_title, sek_title)
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
                  ORDER BY
@@ -313,13 +337,18 @@ class Search_Key
      * @access  public
      * @return  array The list of search keys in an associative array (for drop down lists).
      */
-    function getAssocListAdvanced()
+    function getAssocListAdvanced($hide_unused=0)
     {
         $stmt = "SELECT
                     sek_id,
-					IFNULL(sek_alt_title, sek_title)
+					IF(sek_alt_title <> '', sek_alt_title, sek_title)
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key ";
+        if ($hide_unused == 1) {
+        	$stmt .= " INNER JOIN ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+                    on xsdmf_sek_id=sek_id ";
+        }
+        $stmt .= "
 				 WHERE sek_adv_visible = 1                    
                  ORDER BY
                     sek_order ASC";
@@ -343,7 +372,7 @@ class Search_Key
     {
         $stmt = "SELECT
                     sek_id,
-					IFNULL(sek_alt_title, sek_title),
+					IF(sek_alt_title <> '', sek_alt_title, sek_title),
 					sek_fez_variable
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
@@ -479,6 +508,47 @@ class Search_Key
             }
         }
     }    
+
+    /**
+     * Method used to get the list of simple/quick search keys available in the
+     * system.
+     *
+     * @access  public
+     * @return  array The list of search keys
+     */
+    function getQuickSearchList()
+    {
+    	$stmt = "SELECT
+                    *
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
+				 WHERE sek_simple_used = 1
+                 ORDER BY
+                    sek_order ASC";
+    	$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+    	if (PEAR::isError($res)) {
+    		Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+    		return "";
+    	} else {
+    		if (empty($res)) {
+    			return array();
+    		} else {
+    			for ($i = 0; $i < count($res); $i++) {
+    				$res[$i]["field_options"] = Search_Key::getOptions($res[$i]["sek_smarty_variable"]);
+    				if ($res[$i]["sek_html_input"] == "contvocab") {
+						$cvo_list = Controlled_Vocab::getAssocListFullDisplay(false, "", 0, 2);
+						$res[$i]['field_options'][0] = $cvo_list['data'][$res[$i]['sek_cvo_id']];
+    					$res[$i]['cv_titles'][0] = $cvo_list['title'][$res[$i]['sek_cvo_id']];
+    					$res[$i]['cv_ids'][0] = $res[$i]['sek_cvo_id'];
+    				} elseif ($res[$i]["sek_html_input"] == "combo") {
+    				//	$ret_list = Object_Type::getAssocList();    				    		
+    				//  $xdis_list = XSD_Display::getAssocListDocTypes();
+    				}
+    			}
+    			return $res;
+    		}
+    	}
+    }
     
     /**
      * Method used to get the list of search keys available in the 
@@ -525,6 +595,7 @@ class Search_Key
                     on xsdmf_sek_id=sek_id                    
                  WHERE
                     sek_id=$sek_id";
+        
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

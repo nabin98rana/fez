@@ -136,18 +136,18 @@ if (!empty($pid) && $record->checkExists()) {
 			array_push($parent_relationships[$parent['pid']], $parent['display_type'][0]);
 		} 
 		// Now generate the META Tag headers
-		$meta_head = '<META NAME="DC.Identifier" SCHEMA="URI" CONTENT="'.substr(APP_BASE_URL,0,-1).$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'">'."\n";
+		$meta_head = '<meta name="DC.Identifier" schema="URI" content="'.substr(APP_BASE_URL,0,-1).$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'"/>'."\n";
 		foreach ($xsd_display_fields as $dis_key => $dis_field) {
 			if (($dis_field['xsdmf_enabled'] == 1) && ($dis_field['xsdmf_meta_header'] == 1) && (trim($dis_field['xsdmf_meta_header_name']) != "")) {
 				if (is_array($details[$dis_field['xsdmf_id']])) {
 					foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
 						if ($cdata != "") {
-							$meta_head .= '<META NAME="'.$dis_field['xsdmf_meta_header_name'].'" CONTENT="'.trim($cdata).'">'."\n";
+							$meta_head .= '<meta name="'.$dis_field['xsdmf_meta_header_name'].'" content="'.trim($cdata).'"/>'."\n";
 						}
 					}
 				} else {
 					if ($details[$dis_field['xsdmf_id']] != "") {
-						$meta_head .= '<META NAME="'.$dis_field['xsdmf_meta_header_name'].'" CONTENT="'.trim($details[$dis_field['xsdmf_id']]).'">'."\n";
+						$meta_head .= '<meta name="'.$dis_field['xsdmf_meta_header_name'].'" content="'.trim($details[$dis_field['xsdmf_id']]).'"/>'."\n";
 						if ($dis_field['xsdmf_meta_header_name'] == "DC.Title") {
 							$tpl->assign("extra_title", trim($details[$dis_field['xsdmf_id']]));
 						}

@@ -148,16 +148,16 @@ class Community
      * @param   integer $max The maximum number of records to return	 
      * @return  array The list of communities
      */
-    function getList($current_row = 0, $max = 25, $order_by="Title")
+    function getList($current_row = 0, $max = 25, $sort_by="Title")
     {
 	
         $order_dir = 'ASC';
         $start = $current_row * $max;
-        $sekdet = Search_Key::getDetailsByTitle($order_by);
+        $sekdet = Search_Key::getDetailsByTitle($sort_by);
         $data_type = $sekdet['xsdmf_data_type'];
         if (!$data_type) {
-            $order_by = "Title";
-            $sekdet = Search_Key::getDetailsByTitle($order_by);
+            $sort_by = "Title";
+            $sekdet = Search_Key::getDetailsByTitle($sort_by);
             $data_type = $sekdet['xsdmf_data_type'];
         }
         $authStmts = Collection::getAuthIndexStmt(array("Lister","Viewer","Creator","Editor"));
@@ -193,7 +193,7 @@ class Community
                     inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x4
                     on r4.rmf_xsdmf_id = x4.xsdmf_id 
                     inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s4
-                    on s4.sek_id = x4.xsdmf_sek_id AND s4.sek_title = '$order_by'
+                    on s4.sek_id = x4.xsdmf_sek_id AND s4.sek_title = '$sort_by'
                     
                     union
                     SELECT distinct r2.rmf_rec_pid, r2.rmf_rec_pid as sort_pid, null as sort_column 
@@ -203,7 +203,7 @@ class Community
                         inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x4 
                                 on r4.rmf_xsdmf_id = x4.xsdmf_id
                         inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s4 
-                                on s4.sek_id = x4.xsdmf_sek_id aND s4.sek_title = '$order_by' 
+                                on s4.sek_id = x4.xsdmf_sek_id aND s4.sek_title = '$sort_by' 
                         where rmf.rmf_rec_pid = r4.rmf_rec_pid )
                 ) as r2
                 ORDER BY sort_column $order_dir, r2.rmf_rec_pid desc

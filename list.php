@@ -46,4 +46,6 @@ $_SESSION['list_params'] = $_GET;
 $_SESSION['list_info'] = $res['list_info'];
 $_SESSION['view_page'] = $res['list_info']['current_page'];
 
+//echo ($GLOBALS['bench']->getOutput());
+
 ?>

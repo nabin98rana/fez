@@ -1,235 +1,72 @@
 
-<script language="JavaScript" src="{$rel_url}js/dynCalendar.js"></script>
-{literal}
-<script language="JavaScript">
-<!--
-function saveCustomFilter(f)
-{
-    if (isWhitespace(f.title.value)) {
-        selectField(f, 'title');
-        alert('Please enter the title for this saved search.');
-        return false;
-    }
-    var features = 'width=420,height=200,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
-    var popupWin = window.open('', '_customFilter', features);
-    popupWin.focus();
-    f.target = '_customFilter';
-    f.method = 'post';
-    f.action = 'popup.php';
-    f.cat.value = 'save_filter';
-    f.submit();
-}
-function validateRemove(f)
-{
-    if (!hasOneChecked(f, 'item[]')) {
-        alert('Please choose which entries need to be removed.');
-        return false;
-    }
-    if (!confirm('This action will permanently delete the selected entries.')) {
-        return false;
-    } else {
-        var features = 'width=420,height=200,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
-        var popupWin = window.open('', '_removeFilter', features);
-        popupWin.focus();
-        return true;
-    }
-}
-function toggleDateFields(f, field_name)
-{
-    var checkbox = getFormElement(f, 'filter[' + field_name + ']');
-    var filter_type = getFormElement(f, field_name + '[filter_type]');
-    var month_field = getFormElement(f, field_name + '[Month]');
-    var day_field = getFormElement(f, field_name + '[Day]');
-    var year_field = getFormElement(f, field_name + '[Year]');
-    var month_end_field = getFormElement(f, field_name + '_end[Month]');
-    var day_end_field = getFormElement(f, field_name + '_end[Day]');
-    var year_end_field = getFormElement(f, field_name + '_end[Year]');
-    if (checkbox.checked) {
-        var bool = false;
-    } else {
-        var bool = true;
-    }
-    filter_type.disabled = bool;
-    month_field.disabled = bool;
-    day_field.disabled = bool;
-    year_field.disabled = bool;
-    month_end_field.disabled = bool;
-    day_end_field.disabled = bool;
-    year_end_field.disabled = bool;
-}
-function checkDateFilterType(f, type_field)
-{
-    var option = getSelectedOption(f, type_field.name);
-    var element_name = type_field.name.substring(0, type_field.name.indexOf('['));
-    var element = getPageElement(element_name + 1);
-    if ((option == 'between') && (!isElementVisible(element))) {
-        toggleVisibility(element_name, false);
-    } else if ((option != 'between') && (isElementVisible(element))) {
-        toggleVisibility(element_name, false);
-    }
-}
-function selectDateOptions(field_prefix, date_str)
-{
-    if (date_str.length != 10) {
-        return false;
-    } else {
-        var year = date_str.substring(0, date_str.indexOf('-'));
-        var month = date_str.substring(date_str.indexOf('-')+1, date_str.lastIndexOf('-'));
-        var day = date_str.substring(date_str.lastIndexOf('-')+1);
-        selectDateField(field_prefix, day, month, year);
-    }
-}
-function selectDateField(field_name, day, month, year)
-{
-    selectOption(this.document.custom_filter_form, field_name + '[Day]', day);
-    selectOption(this.document.custom_filter_form, field_name + '[Month]', month);
-    selectOption(this.document.custom_filter_form, field_name + '[Year]', year);
-}
-function calendarCallback_created(day, month, year) { selectDateField('created_date', day, month, year); }
-function calendarCallback_created_end(day, month, year) { selectDateField('created_date_end', day, month, year); }
-function calendarCallback_updated(day, month, year) { selectDateField('updated_date', day, month, year); }
-function calendarCallback_updated_end(day, month, year) { selectDateField('updated_date_end', day, month, year); }
-function calendarCallback_last_response(day, month, year) { selectDateField('last_response_date', day, month, year); }
-function calendarCallback_last_response_end(day, month, year) { selectDateField('last_response_date_end', day, month, year); }
-function calendarCallback_first_response(day, month, year) { selectDateField('first_response_date', day, month, year); }
-function calendarCallback_first_response_end(day, month, year) { selectDateField('first_response_date_end', day, month, year); }
-function calendarCallback_closed(day, month, year) { selectDateField('closed_date', day, month, year); }
-function calendarCallback_closed_end(day, month, year) { selectDateField('closed_date_end', day, month, year); }
-function validateForm(f)
-{
-{/literal}
-{section name="i" loop=$list}
-{if $list[i].sek_html_input == 'allcontvocab'}
-{section name="z" loop=$list[i].field_options}
-{assign var="loop_num" value=$list[i].cv_ids[z]}
+<table class="listing" width="100%" cellpadding=0>
+<tr>
 
-{literal}
-//selectAllOptions(document.report_form, 'xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_1');
-	var field = document.custom_filter_form.list_{/literal}{$list[i].sek_id}_{$loop_num}{literal};
-    for (var y = 0; y < field.options.length; y++) {
-        field.options[y].selected = true;
-    }
-{/literal}
-{/section}
-{/if}
-{/section}
-{literal}
-
-}
-//-->
-</script>
-{/literal}
-<table bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
-  <tr>
-    <td>&nbsp;
-      
-    </td>
-    <td>
-      <table bgcolor="#FFFFFF" width="100%" border="0" cellspacing="0" cellpadding="1">
-        <tr>
-          <td {$shaded_bar} class="default" colspan="2" height="22">
-            <b>Advanced Search</b>
-          </td>
-        </tr>
-        <form name="custom_filter_form" method="get" action="list.php" onSubmit="javascript:return validateForm(this);">
-        <input type="hidden" name="cat" value="search">
-
-        <tr><td colspan="2" class="default">
-	<table id="choicelist_{$list[i].sek_id}" border="0" cellpadding="2" cellspacing="0" width="100%">
-        <tr><td width="150" bgcolor="{$cell_color}" class="default"><b>Fulltext Index Search</b></td>
-            <td bgcolor="{$light_color}"><input name="full_text" type="textfield" size="50"  class="default"/></td>
-            </tr>
-            </table>
-            </td></tr>
-        {section name="i" loop=$list}
-		{if $list[i].sek_html_input == 'text' ||  $list[i].sek_html_input == 'combo' ||  $list[i].sek_html_input == 'multiple' ||  $list[i].sek_html_input == 'contvocab' ||  $list[i].sek_html_input == 'allcontvocab' }
-        <tr><td colspan="2" class="default">
-	<table id="choicelist_{$list[i].sek_id}" border="0" cellpadding="2" cellspacing="0" width="100%">
-            {if $list[i].sek_html_input == 'text'}
-				{if $list[i].sek_multiple == 1}
-					{section name="z" loop=$list[i].multiple_array}
-						{assign var="loop_num" value=$list[i].multiple_array[z]}
-						<tr id="tr_list_{$list[i].sek_id}_{$loop_num}" {if $loop_num != 1}style="display:none"{/if}>
-						  <td width="150" bgcolor="{$cell_color}" class="default">
-							<b>{$list[i].sek_title} {$loop_num}</b><br />{if $loop_num == 1}<i>(More {$list[i].sek_title} input boxes will appears as they are used up)</i>{/if}
-						  </td>
-						  <td bgcolor="{$light_color}">
-						<input class="default" type="text" id="list_{$list[i].sek_id}_{$loop_num}" name="list[{$list[i].sek_id}][]" onChange="javascript:unhideRow('list_{$list[i].sek_id}', 'choicelist_{$list[i].sek_id}');" maxlength="255" size="50">
-						 </td>
-						</tr>
-					{/section}
-				{else}
-						<tr id="tr_list_{$list[i].sek_id}_1">
-						  <td width="150" bgcolor="{$cell_color}" class="default">
-							<b>{$list[i].sek_title}</b>
-						  </td>
-						  <td bgcolor="{$light_color}">
-						<input class="default" type="text" id="list_{$list[i].sek_id}_1" name="list[{$list[i].sek_id}]"  maxlength="255" size="50">
-						 </td>
-						</tr>
-				{/if}				
-            {elseif $list[i].sek_html_input == 'multiple' or $list[i].sek_html_input == 'combo'}
-				{if $list[i].sek_multiple == 1}
-					{section name="z" loop=$list[i].multiple_array}
-						{assign var="loop_num" value=$list[i].multiple_array[z]}
-						<tr id="tr_list_{$list[i].sek_id}_{$loop_num}" {if $loop_num != 1}style="display:none"{/if}>
-						  <td width="150" bgcolor="{$cell_color}" class="default">
-							<b>{$list[i].sek_title} {$loop_num}</b><br />{if $loop_num == 1}<i>(More {$list[i].sek_title} input boxes will appears as they are used up)</i>{/if}
-						  </td>
-						  <td bgcolor="{$light_color}">
-							<select id="list_{$list[i].sek_id}_{$loop_num}" {if $list[i].sek_html_input == 'multiple'}multiple size="3"{/if} class="default" name="list[{$list[i].sek_id}]{if $list[i].sek_html_input == 'multiple'}[]{/if}" onChange="javascript:unhideRow('list_{$list[i].sek_id}', 'choicelist_{$list[i].sek_id}');">
-							  {if $list[i].sek_html_input != 'multiple'}<option value="-1">Any</option>{/if}
-							  {html_options options=$list[i].field_options  selected=$list[i].selected_option}
-							</select>
-						 </td>
-						</tr>
-					{/section}
-				{else}
-						<tr id="tr_list_{$list[i].sek_id}_1">
-						  <td width="150" bgcolor="{$cell_color}" class="default">
-							<b>{$list[i].sek_title}</b>
-						  </td>
-						  <td bgcolor="{$light_color}">
-							<select id="list_{$list[i].sek_id}_1" {if $list[i].sek_html_input == 'multiple'}multiple size="3"{/if} class="default" name="list[{$list[i].sek_id}]{if $list[i].sek_html_input == 'multiple'}[]{/if}">
-							  {if $list[i].sek_html_input != 'multiple'}<option value="-1">Any</option>{/if}
-								  {html_options options=$list[i].field_options selected=$list[i].selected_option}
-							</select>
-						 </td>
-						</tr>
-				{/if}
-            {elseif $list[i].sek_html_input == 'allcontvocab' or $list[i].sek_html_input == 'contvocab'}
-					{section name="z" loop=$list[i].field_options}
-					{assign var="loop_num" value=$list[i].cv_ids[z]}
-					<tr id="tr_list_{$list[i].sek_id}_{$loop_num}" valign="top">
-					  <td width="150" bgcolor="{$cell_color}" class="default">
-						<b>{$list[i].sek_title}</b><br />{$list[i].cv_titles[z]}
-					  </td>
-					  <td bgcolor="{$light_color}">
-						<select id="list_{$list[i].sek_id}_{$loop_num}" multiple size="15" class="default" name="list[{$list[i].sek_id}]{if $list[i].sek_html_input == 'multiple'}[]{/if}">
-						</select>
-						<input class="default" type=button value="Add Subject" onclick = "javascript:small_window('cv_selector.php?cvo_id={$list[i].cv_ids[z]}&form=custom_filter_form&element=list_{$list[i].sek_id}_{$loop_num}');">
-						<input class="default" type=button value="Remove Subject" onclick =" javascript:deleteSelectedItemsFromList(list_{$list[i].sek_id}_{$loop_num});">
-					 </td>
-					</tr>
-				  {/section}				  
-		{/if}
-	</table>
-		</td></tr>
-		{/if}
-        {/section}
-
-        <tr>
-          <td colspan="2" align="center">
-            <input class="button" type="submit" value="Run Search">
-            <input class="button" type="reset" value="Reset">
-          </td>
-        </tr>
-        </form>
-      </table>
-    </td>
-    <td>&nbsp;
-      
-    </td>
+{section name="i" loop=$search_keys}
+  {if ($smarty.section.i.index==2)}
+   <td nowrap valign="middle">            
+     <input class="button" type="submit" value="Search">
+   </td>
   </tr>
+  <tr>    
+  {elseif (($smarty.section.i.index % 4)==0 && $smarty.section.i.index != 3)}
+    </tr>
+    <tr>  
+  {/if}
+  {assign var="search_key_name" value='searchKey'|cat:$search_keys[i].sek_id}
+  {assign var ="last_key" value=$options.$search_key_name}  
+  {if ($smarty.section.i.index ==  0)}
+  <td class="{if $options.searchKey0 != ''}default-search-used{else}default{/if}">
+    All Fields: <br />
+	<input id="search_keys[0]" type="text" name="search_keys[0]" maxlength="255" size="35" value="{$options.searchKey0}">
+  </td>
+  {/if}
+  {if $search_keys[i].sek_html_input != 'allcontvocab' and $search_keys[i].sek_html_input != 'contvocab'}
+  <td class="{if $last_key != 'ALL' && $last_key != ''}default-search-used{else}default{/if}">
+  {if $search_keys[i].sek_alt_title}{$search_keys[i].sek_alt_title}{else}{$search_keys[i].sek_title}{/if}:
+  {if $search_keys[i].sek_html_input != 'text' &&  $search_keys[i].sek_html_input != 'textarea'}
+    <script language="JavaScript">
+    <!--
+    //            search_keys[search_keys.length] = new Option('search_keys[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}', '{$search_keys[i].sek_title}');
+    //            required_search_keys[required_search_keys.length] = new Option('search_keys[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}', {if $search_keys[i].sek_html_input == 'multiple'}'multiple'{elseif $search_keys[i].sek_html_input == 'combo'}'combo'{else}'whitespace'{/if});
+    //-->
+    </script>
+  {/if}
+  <br />
+  {/if}
+  {if $search_keys[i].sek_html_input == 'text'}
+  <input id="search_keys[{$search_keys[i].sek_id}]" type="text" name="search_keys[{$search_keys[i].sek_id}]" maxlength="255" size="35" value="{$last_key}">
+  {elseif $search_keys[i].sek_html_input == 'textarea'}
+  <textarea id="search_keys[{$search_keys[i].sek_id}]" name="search_keys[{$search_keys[i].sek_id}]" rows="10" cols="60" value="{$last_key}"></textarea>
+  {elseif $search_keys[i].sek_html_input == 'allcontvocab' or $search_keys[i].sek_html_input == 'contvocab'}
+	{section name="z" loop=$search_keys[i].field_options}
+	{assign var="loop_num" value=$search_keys[i].cv_ids[z]}
+	<tr id="tr_list_{$search_keys[i].sek_id}_{$loop_num}" valign="top">
+	  <td width="150" bgcolor="{$cell_color}" class="default">
+		<b>{$search_keys[i].sek_title}</b><br />{$search_keys[i].cv_titles[z]}
+	  </td>
+	  <td bgcolor="{$light_color}">
+		<select id="list_{$search_keys[i].sek_id}_{$loop_num}" multiple size="5" class="default" name="list[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}">
+		</select>
+		<input class="default" type=button value="Add Subject" onclick = "javascript:small_window('cv_selector.php?cvo_id={$search_keys[i].cv_ids[z]}&form=custom_filter_form&element=list_{$search_keys[i].sek_id}_{$loop_num}');">
+		<input class="default" type=button value="Remove Subject" onclick =" javascript:deleteSelectedItemsFromList(list_{$search_keys[i].sek_id}_{$loop_num});">
+	 </td>
+	</tr>
+  {/section}	
+
+  {else}
+  <select id="search_keys[{$search_keys[i].sek_id}]" {if $search_keys[i].sek_html_input == 'multiple'}multiple size="8"{/if} name="search_keys[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}">
+    {html_options options=$search_keys[i].field_options selected=$last_key}
+  </select>
+  {/if}
+  {assign var="search_key_id" value=$search_keys[i].sek_id}
+  {if $search_keys[i].sek_html_input == 'multiple'}
+    {assign var="search_key_sufix" value="[]"}
+  {else}
+    {assign var="search_key_sufix" value=""}
+  {/if}
+  {include file="error_icon.tpl.html" field="search_keys[$search_key_id]$search_key_sufix"}
+  </td>
+{/section}
+</tr>
 </table>
-<br />

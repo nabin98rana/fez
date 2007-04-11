@@ -620,13 +620,26 @@ function isElementVisible(element)
     }
 }
 
-function toggleVisibility(title, create_cookie)
+function toggleVisibility(title, keep_basic_filter_form, create_cookie)
 {
     var element = getPageElement(title + '1');
     if (isElementVisible(element)) {
         var new_style = 'none';
+        if (title != 'basic_filter_form' && keep_basic_filter_form != 1) { 
+            var basic_element = getPageElement('basic_filter_form' + '1');
+			if (isElementVisible(basic_element)) {
+				toggleVisibility('basic_filter_form');
+			}
+		}
+        
     } else {
         var new_style = getDisplayStyle();
+        if (title != 'basic_filter_form' && keep_basic_filter_form != 1) { 
+            var basic_element = getPageElement('basic_filter_form' + '1');
+			if (!isElementVisible(basic_element)) {
+				toggleVisibility('basic_filter_form');
+			}
+		}
     }
     var i = 1;
     while (1) {
@@ -689,8 +702,8 @@ function setCookie(name, value, expires, path, domain, secure)
 
 function openHelp(rel_url, topic)
 {
-    var width = 500;
-    var height = 450;
+    var width = 550;
+    var height = 500;
     var w_offset = 30;
     var h_offset = 30;
     var location = 'top=' + h_offset + ',left=' + w_offset + ',';

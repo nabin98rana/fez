@@ -57,7 +57,10 @@ function selectSearchSuggestor(f, field_name)
 				});
 	}
 }
-
+var basic_element = getPageElement('basic_filter_form' + '1');
+if (isElementVisible(basic_element)) {
+	toggleVisibility('basic_filter_form');
+}
 //-->
 </script>
 {/literal}
@@ -68,9 +71,10 @@ function selectSearchSuggestor(f, field_name)
 	  <div class="front-page-content-header"><img src="{$rel_url}images/search_22.jpg" alt="Search" title="Search" /> Search</div>
 	  <div class="front-page-content-detail">
 		<form name="search_frm" target="_top" method="get" action="{$rel_url}list.php">
+		  <input type="hidden" name="cat" value="quick_filter" />		
 		  <label for="search" accesskey="3"></label>
-			<input type="hidden" name="order_by" value="Relevance" />
-			<input class="default"  type="text" id="front_search" autocomplete="off" name="terms" size="40" onKeyUp="javascript: selectSearchSuggestor(this.form, 'front_search')">
+			<input type="hidden" name="sort_by" value="searchKey0" />
+			<input class="default"  type="text" id="front_search" autocomplete="off" name="search_keys[0]" size="40" onKeyUp="javascript: selectSearchSuggestor(this.form, 'front_search')">
 				<div id="loading1" style="display:none;">Loading...</div>
 			<input class="default" type="submit" value="Search">
 			<span class="default"><a href="#" onClick="javascript:alert( 'Search All Fields\n\n Enter a phrase.  Objects where any field contains the phrase will be returned.\n This is a case-insensitive search, and you may use the * or ? wildcards.\n\n Examples:\n\n li*y\n finds objects that start with li and end with y\n\n b?ts\n finds words that start with b followed by any letter and then ts.  e.g. bits, bats, byts')">Help</a> <br />

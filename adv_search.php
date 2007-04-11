@@ -60,16 +60,16 @@ $tpl->assign("isAdministrator", $isAdministrator);
 
 
 foreach ($list as $list_key => $list_field) {
-        if ($list_field["sek_html_input"] == 'combo' || $list_field["sek_html_input"] == 'multiple') {
-                if (!empty($list_field["sek_smarty_variable"]) && $list_field["sek_smarty_variable"] != "none") {
-                        eval("\$list[\$list_key]['field_options'] = " . $list_field["sek_smarty_variable"] . ";");
-                }
-        }
-        if ($list_field["sek_html_input"] == 'contvocab') {
+	if ($list_field["sek_html_input"] == 'combo' || $list_field["sek_html_input"] == 'multiple') {
+		if (!empty($list_field["sek_smarty_variable"]) && $list_field["sek_smarty_variable"] != "none") {
+			eval("\$list[\$list_key]['field_options'] = " . $list_field["sek_smarty_variable"] . ";");
+			$list[$list_key]['field_options'] = array("" => "any") + $list[$list_key]['field_options'];
+	    }
+    }
+    if ($list_field["sek_html_input"] == 'contvocab') {
 		$list[$list_key]['field_options'][0] = $cvo_list['data'][$list_field['sek_cvo_id']];
 		$list[$list_key]['cv_titles'][0] = $cvo_list['title'][$list_field['sek_cvo_id']];
 		$list[$list_key]['cv_ids'][0] = $list_field['sek_cvo_id'];
-
 	}
 	if ($list_field["sek_html_input"] == 'allcontvocab') {
 		$list[$list_key]['field_options'] = array_values($cvo_list['data']);
@@ -78,7 +78,7 @@ foreach ($list as $list_key => $list_field) {
 	}
 }
 
-$tpl->assign("list", $list);
+$tpl->assign("search_keys", $list);
 $tpl->displayTemplate();
 ?>
 

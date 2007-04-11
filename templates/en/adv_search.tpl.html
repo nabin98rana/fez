@@ -1,7 +1,18 @@
 {include file="header.tpl.html" extra_title="Advanced Search"}
 {include file="navigation.tpl.html"}
-
+<form name="custom_filter_form" action="list.php" method="get">
+<input type="hidden" name="cat" value="quick_filter" />
 {include file="custom_filter_form.tpl.html"}
-
+</form>
+{literal}
+<script language="JavaScript">
+<!--
+var basic_element = getPageElement('basic_filter_form' + '1');
+if (isElementVisible(basic_element)) {
+	toggleVisibility('basic_filter_form');
+}
+{/literal}
+//-->
+</script>
 {include file="app_info.tpl.html"}
 {include file="footer.tpl.html"}

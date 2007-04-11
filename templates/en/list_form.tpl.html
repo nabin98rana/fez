@@ -70,8 +70,10 @@ function hideClosed(f)
 }
 function resizePager(f)
 {
-    var pagesize = f.page_size.options[f.page_size.selectedIndex].value;
-    window.location.href = page_url + "?" + replaceParam(window.location.href, 'rows', pagesize);
+    var pagesize = f.page_size.options[f.page_size.selectedIndex].value;   
+    var temp = page_url + "?" + replaceParam(window.location.href, 'rows', pagesize);
+    window.location.href = temp + "?" + replaceParam(temp, 'pager_row', '0');
+    
 }
 function checkPageField(ev)
 {
@@ -96,7 +98,7 @@ function setPage(new_page)
             (new_page == current_page)) {
         return false;
     }
-    window.location.href = page_url + "?" + replaceParam(window.location.href, 'pagerRow', new_page);
+    window.location.href = page_url + "?" + replaceParam(window.location.href, 'pager_row', new_page);
 }
 function downloadCSV()
 {
@@ -123,8 +125,13 @@ function disableFields()
 }
 
 function sortList(f, field) {
-    order_by = getSelectedOption(f, field);
-    window.location.href = page_url + "?" + replaceParam(window.location.href, 'order_by', order_by);
+    sort_by = getSelectedOption(f, field);
+    window.location.href = page_url + "?" + replaceParam(window.location.href, 'sort_by', sort_by);
+}
+
+function sortListOrder(f, field) {
+    sort_order = getSelectedOption(f, field);
+    window.location.href = page_url + "?" + replaceParam(window.location.href, 'sort_order', sort_order);
 }
 
 function setTemplate(f, field) {
@@ -170,9 +177,25 @@ function checkDeleteRecords(f)
         
     }
 }
+var custom_filter_element = getPageElement('custom_filter_form' + '1');
+{/literal}
+//{$browse_type} ---- {$list_type}
+{if (($browse_type == "" && $list_type <> "all_records_list") || $browse_type != "")}
+{literal}
+if (isElementVisible(custom_filter_element)) {
+	toggleVisibility('custom_filter_form');
+}
+{/literal}
+{/if}
+{literal}
+var basic_element = getPageElement('basic_filter_form' + '1');
+if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element)) || (!isElementVisible(basic_element) && !isElementVisible(custom_filter_element))) {
+	toggleVisibility('basic_filter_form');
+} 
+{/literal}
 //-->
 </script>
-{/literal}
+
 <table width="100%" bgcolor="{$cell_color}" cellspacing="0" cellpadding="1" align="center">
   
   <tr>
@@ -408,9 +431,10 @@ function checkDeleteRecords(f)
 		{/if}		
 		{if ($browse_heading == "") ||  ($browse_type != "" & $smarty.get.author != "") || ($browse_type != "" & $smarty.get.depositor != "") || ($browse_type != "" & $smarty.get.year != "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)} 
           {if $isCreator != true}
-        <tr>
+<!--         <tr>
 			<td>&nbsp;</td>
 		</tr>
+		 -->
 		{/if}
 		  <tr>
 			  <td colspan="2">
@@ -430,14 +454,20 @@ function checkDeleteRecords(f)
 		{/if}
            &nbsp;<b>{$list_heading}: </b>
 		   
-		   <b>({$list_info.total_rows} results found{if $list_info.end_offset > 0}, {math equation="x + 1" x=$list_info.start_offset|default:0} - {$list_info.end_offset} shown{/if}) ({$list_info.hidden_rows} hidden)</b> 
+		   <b>({$list_info.total_rows} results found{if $list_info.end_offset > 0}, {math equation="x + 1" x=$list_info.start_offset|default:0} - {$list_info.end_offset} shown{/if})</b> 
 		   {if $list_type != 'community_list'}
 		   <a href="{$smarty.server.REQUEST_URI}&tpl=2"><img title="Subscribe to the RSS feed for this list or search" border=0 src="{$rel_url}images/feed-icon16x16.png"></a>
 		   {/if}
-                   </td><td align="right"><span class="default">Order By </span>
-                   <select class="default" name="order_by" onchange="javascript:sortList(this.form, 'order_by');">
-                       {html_options options=$order_by_list selected=$order_by_default}
+                   </td>                                     
+                   <td align="right"><span class="default">Order By </span>
+                   <select class="default" name="sort_by" onchange="javascript:sortList(this.form, 'sort_by');">
+                       {html_options options=$sort_by_list selected=$sort_by_default}
                    </select>
+                    <select class="default" name="sort_order" onchange="javascript:sortListOrder(this.form, 'sort_order');">
+                       <option value="0" {if $sort_order == 0}selected{/if}>Asc</option>
+                       <option value="1" {if $sort_order == 1}selected{/if}>Desc</option>
+                   </select>
+                   
 			</td>
         </tr>
 		</table>
@@ -571,8 +601,7 @@ function checkDeleteRecords(f)
                               {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
 			    {/if}
 			<a href='{$wf_url}?pid={$list[i].pid|escape:"html"}&cat=select_workflow&xdis_id={$list[i].xdis_id.0}&wft_id={$list[i].workflows[w].wft_id}&href={$smarty.server.REQUEST_URI}'
-                        ><img title="{$list[i].workflows[w].wfl_title}" align="absmiddle" 
-                        src="{$rel_url}{$wf_icon}" border="0"></a> 
+                        ><img title="{$list[i].workflows[w].wfl_title}" align="absmiddle" src="{$rel_url}{$wf_icon}" border="0"></a> 
 			  {/section}
 			  {/if}
 			  {if $isAdministrator}
@@ -592,7 +621,7 @@ function checkDeleteRecords(f)
 				</tr>
 					<tr>
                     <td colspan="2">
-                       {if $list[i].author}<b>{section name="author_loop" loop=$list[i].author}{assign var="next_author" value=$smarty.section.author_loop.index+1}<a class="author_link" href="list.php?browse=author&author={$list[i].author[author_loop]}">{$list[i].author[author_loop]|escape:"html"}</a>{if $list[i].author[$next_author] != ""} and {/if}{/section}</b>{if $list[i].date.0} {else}<br />{/if}{/if}{if $list[i].date.0}({$list[i].date.0|date_format:"%Y"})<br />{/if}
+                       {if $list[i].author}<b>{section name="author_loop" loop=$list[i].author}{assign var="next_author" value=$smarty.section.author_loop.index+1}<a class="author_link" title="Browse by Author - {$list[i].author[author_loop]}" href="list.php?browse=author&author={$list[i].author[author_loop]}">{$list[i].author[author_loop]|escape:"html"}</a>{if $list[i].author[$next_author] != ""} and {/if}{/section}</b>{if $list[i].date.0} {else}<br />{/if}{/if}{if $list[i].date.0}({$list[i].date.0|date_format:"%Y"})<br />{/if}
                 	   {if $list[i].research_program.0}{$list[i].research_program.0|escape:"html"}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'} - <i>{$list[i].xdis_title.0|escape:"html"}</i>{/if}<br />{else}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'}<i>{$list[i].xdis_title.0|escape:"html"}</i><br />{/if}{/if}
                        {if $list[i].description.0}{$list[i].description.0|escape:"html"}{if ($list[i].description.0|count_characters > 200)}...{/if}<br />{/if}
 					   {if $list[i].object_type == '3' && $list[i].datastreams.0}<b>Files:</b> {section name="d" loop=$list[i].datastreams}{if $href_view}<a href="{$eserv_url|cat:"?pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].datastreams[d]}">{/if}{$list[i].datastreams[d]}{if $href_view}</a>{/if} {/section}{/if}
@@ -674,7 +703,7 @@ function checkDeleteRecords(f)
                 <td width="40%" align="center" nowrap>
                   <nobr>
                   <input name="first" type="button" value="|&lt;" class="shortcut" onClick="javascript:setPage(0);">
-                  <input name="previous" type="button" value="&lt;&lt;" class="shortcut" onClick="javascript:setPage({$list_info.previous_page});">
+                  <input name="previous" type="button" value="&lt;&lt;" class="shortcut" onClick="javascript:setPage({$list_info.prev_page});">
                   <input type="text" name="page" size="3" maxlength="3" value="{math equation="x + 1" x=$list_info.current_page|default:0}" style="background: {$cell_color};" class="paging_input" onKeyPress="javascript:return checkPageField(event);">
                   <input name="go" type="button" value="Go" class="shortcut" onClick="javascript:goPage(this.form, this.form.page.value);">
                   <input name="next" type="button" value="&gt;&gt;" class="shortcut" onClick="javascript:setPage({$list_info.next_page});">

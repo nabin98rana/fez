@@ -1,8 +1,8 @@
 <script type="text/javascript" language="javascript">
 <!--
 var page_url = '{$smarty.server.PHP_SELF}';
-var mci_current_page = {if $my_created_items_info.currentPage != ""}{$my_created_items_info.currentPage}{else}0{/if};
-var mci_last_page = {if $my_created_items_info.lastPage != ""}{$my_created_items_info.lastPage}{else}0{/if};
+var mci_current_page = {if $my_created_items_info.current_page != ""}{$my_created_items_info.current_page}{else}0{/if};
+var mci_last_page = {if $my_created_items_info.last_page != ""}{$my_created_items_info.last_page}{else}0{/if};
 {literal}
 function mci_checkDeleteRecords(f)
 {
@@ -61,7 +61,7 @@ function mci_setPage(new_page)
             (new_page == mci_current_page)) {
         return false;
     }
-    window.location.href = page_url + "?" + replaceParam(window.location.href, 'pagerRow_my_created', new_page);
+    window.location.href = page_url + "?" + replaceParam(window.location.href, 'pager_row_my_created', new_page);
 }
 function mci_disableFields(f)
 {
@@ -80,62 +80,153 @@ function mci_disableFields(f)
 }
 
 function mci_sortList(f, field) {
-    order_by = getSelectedOption(f, field);
-    order_by_dir = getSelectedOption(f, 'mci_order_by_dir');    
-    temp = page_url + "?" + 'mci_order_by=' + order_by;
-    window.location.href = temp + "&" + 'mci_order_by_dir=' + order_by_dir;
+    sort_by = getSelectedOption(f, field);
+    sort_by_dir = getSelectedOption(f, 'sort_by_dir');    
+    temp = page_url + "?" + 'sort_by=' + sort_by;
+    window.location.href = temp + "&" + 'sort_by_dir=' + sort_by_dir;
 }
 
 
 {/literal}
 // -->
 </script>
-<form name="created_records" method="post" action="{$rel_url}popup.php" target="_popup">
 <div class="outline">
+<form action="my_created_items.php" method="get">
 <div class="contentheader">
-Created Items
+Created Items <span class="default">(your deposited items you can list)</span>
+
 </div>
 <span class="default">
-Showing items {math equation="x + 1" x=$my_created_items_info.currentRow} 
-to {$my_created_items_info.currentLastRow} of {$my_created_items_info.totalRows}
+{if $my_created_items_info.total_rows != 0}
+Showing items {math equation="x + 1" x=$my_created_items_info.current_row} 
+to {$my_created_items_info.current_last_row} of {$my_created_items_info.total_rows}
+{else}
+No items found
+{/if}
 </span>
+{if ($my_created_items_info.noOrder == 1)}
+<span class="default_warning">
+(No search restrictions set, so order sorting disabled)
+</span>
+{/if}
 
 
-
-<div>
-
-<span class="default">Order By </span>
-                   <select class="default" name="mci_order_by" onchange="javascript:mci_sortList(this.form, 'mci_order_by');">
-                       {html_options options=$order_by_list selected=$smarty.get.mci_order_by|default:$order_by_default}
-                   </select>
-
-
-                   <select class="default" name="mci_order_by_dir" onchange="javascript:mci_sortList(this.form, 'mci_order_by');">
-                       {html_options options=$order_by_dir_list selected=$smarty.get.mci_order_by_dir|default:$order_by_dir_default}
-                   </select>
-			</div>
-			
-</div>
-
+{include file="quick_filter_form.tpl.html"}         
+<br />          
 <input type="hidden" name="cat" value="purge_objects" />
 
-   <table class="listing">
+   <table class="listing" width="100%" cellpadding=0>
      <tr bgcolor="{$cell_color}">
        <td width="10"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form, 'items[]');" 
        class="button" /></td>
-       <td class="default">&nbsp;<b>Title</b></td>
+       {if $options.searchKey9 == "" || $options.searchKey9 == "ALL" || $options.searchKey9 == '-4'}     
+       <td>
+       	<table class="listing" width="100%" cellpadding=0 cellspacing=0>
+       	  <tr>
+       		<td class="default">Status</td>
+       		{if ($my_created_items_info.noOrder == 0)}
+       		<td align="right">
+       		{if $options.sort_by == "searchKey9"}
+       			{if $options.sort_order == "1"}<a href='{$rel_url}my_created_items.php?sort_by=searchKey9&sort_order=0'><img border="0" title="click to sort by Status Ascending" src="{$rel_url}images/sort_asc_off_16.gif" align="middle"></a><img border="0" src="{$rel_url}images/sort_desc_16.gif" align="middle">{/if}
+       			{if $options.sort_order == "0"}<img border="0" src="{$rel_url}images/sort_asc_16.gif"  align="middle"><a href='{$rel_url}my_created_items.php?sort_by=searchKey9&sort_order=1'><img border="0" title="click to sort by Status Descending"  src="{$rel_url}images/sort_desc_off_16.gif" align="middle"></a>{/if}
+       	    {else}<a href='{$rel_url}my_created_items.php?sort_by=searchKey9&sort_order=0'><img border="0" src="{$rel_url}images/sort_asc_off_16.gif" title="click to sort by Status Ascending" align="middle"></a><a href='{$rel_url}my_created_items.php?sort_by=searchKey9&sort_order=1'><img border="0" src="{$rel_url}images/sort_desc_off_16.gif" title="click to sort by Status Descending" align="middle"></a>
+       	    {/if}</td>
+       	    {/if}       
+       	  </tr>
+       	</table>
+       </td>
+       {/if}
+       {if $options.searchKey23 == "" || $options.searchKey23 == "ALL"}     
+       <td>
+       	<table class="listing" width="100%" cellpadding=0 cellspacing=0>
+       	  <tr>
+       		<td class="default">Group</td>
+       		{if ($my_created_items_info.noOrder == 0)}
+       		<td align="right">
+       		{if $options.sort_by == "searchKey23"}
+       			{if $options.sort_order == "1"}<a href='{$rel_url}my_created_items.php?sort_by=searchKey23&sort_order=0'><img border="0" title="click to sort by Group Ascending" src="{$rel_url}images/sort_asc_off_16.gif" align="middle"></a><img border="0" src="{$rel_url}images/sort_desc_16.gif" align="middle">{/if}
+       			{if $options.sort_order == "0"}<img border="0" src="{$rel_url}images/sort_asc_16.gif" align="middle"><a href='{$rel_url}my_created_items.php?sort_by=searchKey23&sort_order=1'><img title="click to sort by Group Descending" border="0" src="{$rel_url}images/sort_desc_off_16.gif" align="middle"></a>{/if}
+       	    {else}<a href='{$rel_url}my_created_items.php?sort_by=searchKey23&sort_order=0'><img border="0" src="{$rel_url}images/sort_asc_off_16.gif" title="click to sort by Group Ascending" align="middle"></a><a href='{$rel_url}my_created_items.php?sort_by=searchKey23&sort_order=1'><img border="0" src="{$rel_url}images/sort_desc_off_16.gif" title="click to sort by Group Descending" align="middle"></a>
+       	    {/if}</td>
+       	    {/if}              		
+       	  </tr>
+       	</table>
+       </td>{/if}
+       {if ($options.searchKey22 == "" || $options.searchKey22 == "ALL"  || $options.searchKey22 == '-3')}
+       <td>
+       	<table class="listing" width="100%" cellpadding=0 cellspacing=0>
+       	  <tr>       
+	       <td class="default">Assigned Users</td>
+	       {if ($my_created_items_info.noOrder == 0)}
+       		<td align="right">
+       		{if $options.sort_by == "searchKey22"}
+       			{if $options.sort_order == "1"}<a href='{$rel_url}my_created_items.php?sort_by=searchKey22&sort_order=0'><img border="0" title="click to sort by Assigned User Ascending" src="{$rel_url}images/sort_asc_off_16.gif" align="middle"></a><img border="0" src="{$rel_url}images/sort_desc_16.gif" align="middle">{/if}
+       			{if $options.sort_order == "0"}<img border="0" src="{$rel_url}images/sort_asc_16.gif"  align="middle"><a href='{$rel_url}my_created_items.php?sort_by=searchKey22&sort_order=1'><img border="0" title="click to sort by Assigned User Descending"  src="{$rel_url}images/sort_desc_off_16.gif" align="middle"></a>{/if}
+       	    {else}<a href='{$rel_url}my_created_items.php?sort_by=searchKey22&sort_order=0'><img border="0" src="{$rel_url}images/sort_asc_off_16.gif" title="click to sort by Assigned User Ascending" align="middle"></a><a href='{$rel_url}my_created_items.php?sort_by=searchKey22&sort_order=1'><img border="0" src="{$rel_url}images/sort_desc_off_16.gif" title="click to sort by Assigned User Descending" align="middle"></a>
+       	    {/if}</td>
+       	    {/if}       	       
+      	  </tr>
+       	</table>
+       </td>{/if}
+       {if $options.searchKey8 == ""}
+       <td>
+       	<table class="listing" width="100%" cellpadding=0 cellspacing=0>
+       	  <tr>
+       		<td class="default">Collection(s)</td>
+       		{if ($my_created_items_info.noOrder == 3)} {* disabled for now - slow and meaningless unless using collection title instead of pid *}
+       		<td align="right">
+       		{if $options.sort_by == "searchKey8"}
+       			{if $options.sort_order == "1"}<a href='{$rel_url}my_created_items.php?sort_by=searchKey8&sort_order=0'><img border="0" title="click to sort by Collection Ascending" src="{$rel_url}images/sort_asc_off_16.gif" align="middle"></a><img border="0" src="{$rel_url}images/sort_desc_16.gif" align="middle">{/if}
+       			{if $options.sort_order == "0"}<img border="0" src="{$rel_url}images/sort_asc_16.gif"  align="middle"><a href='{$rel_url}my_created_items.php?sort_by=searchKey8&sort_order=1'><img border="0" title="click to sort by Collection Descending"  src="{$rel_url}images/sort_desc_off_16.gif" align="middle"></a>{/if}
+       	    {else}<a href='{$rel_url}my_created_items.php?sort_by=searchKey8&sort_order=0'><img border="0" src="{$rel_url}images/sort_asc_off_16.gif" title="click to sort by Collection Ascending" align="middle"></a><a href='{$rel_url}my_created_items.php?sort_by=searchKey8&sort_order=1'><img border="0" src="{$rel_url}images/sort_desc_off_16.gif" title="click to sort by Collection Descending" align="middle"></a>
+       	    {/if}</td>
+       	    {/if}       	       
+      	  </tr>
+       	</table>
+       </td>{/if}
+       <td width="50%">
+       	<table class="listing" width="100%" cellpadding=0 cellspacing=0>
+       	  <tr>       
+       		<td class="default">Title</td>
+       		{if ($my_created_items_info.noOrder == 0)} 
+       		<td align="right">
+       		{if $options.sort_by == "searchKey2"}
+       			{if $options.sort_order == "1"}<a href='{$rel_url}my_created_items.php?sort_by=searchKey2&sort_order=0'><img border="0" title="click to sort by Title Ascending" src="{$rel_url}images/sort_asc_off_16.gif" align="middle"></a><img border="0" src="{$rel_url}images/sort_desc_16.gif" align="middle">{/if}
+       			{if $options.sort_order == "0"}<img border="0" src="{$rel_url}images/sort_asc_16.gif"  align="middle"><a href='{$rel_url}my_created_items.php?sort_by=searchKey2&sort_order=1'><img border="0" title="click to sort by Title Descending"  src="{$rel_url}images/sort_desc_off_16.gif" align="middle"></a>{/if}
+       	    {else}<a href='{$rel_url}my_created_items.php?sort_by=searchKey2&sort_order=0'><img border="0" src="{$rel_url}images/sort_asc_off_16.gif" title="click to sort by Title Ascending" align="middle"></a><a href='{$rel_url}my_created_items.php?sort_by=searchKey2&sort_order=1'><img border="0" src="{$rel_url}images/sort_desc_off_16.gif" title="click to sort by Title Descending" align="middle"></a>
+       	    {/if}</td>
+       	    {/if}       	       
+      	  </tr>
+       	</table>       		
+       </td>       		       		
      </tr>
+</form>
+<form name="assigned_records" method="post" action="{$rel_url}popup.php" target="_popup">     
+<input type="hidden" name="cat" value="purge_objects" />
 {assign var="list" value=$my_created_items_list}
      {section name="i" loop=$list}
 		{if $list[i].thumbnail != "0"}
 			{assign var="icon" value=$eserv_url|cat:"?pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].thumbnail}
 		{else}
-			{assign var="icon" value="images/record.jpg" }
+			{assign var="icon" value="images/record.jpg"}
 		{/if}
 	     {cycle values=$cycle assign="row_color"}
      <tr bgcolor="{$row_color}">
-       <td><input type="checkbox" name="items[]" value="{$list[i].pid}" /></td>
+       <td width="10"><input type="checkbox" name="pids[]" value="{$list[i].pid}" /></td>
+      {if $options.searchKey9 == "" || $options.searchKey9 == '-4'}<td class="default">{$list[i].sta_title.0}</td>{/if}     
+       {if $options.searchKey23 == ""}<td class="default">{section name="g" loop=$list[i].AssignedGroupID}{$list[i].AssignedGroupID[g].grp_title}{/section}</td>{/if}
+       {if ($options.searchKey22 == "" || $options.searchKey22 == "ALL"  ||  $options.searchKey22 == '-3')}<td class="default">{section name="u" loop=$list[i].AssignedUserID}{$list[i].AssignedUserID[u].usr_fullname}{/section}</td>{/if}
+	   {if $options.searchKey8 == ""}
        <td class="default">
+           {section name="m" loop=$list[i].parents}
+             <a title="click to open the published list of records in this collection" href="{$rel_url}list.php?collection_pid={$list[i].parents[m].pid}">{$list[i].parents[m].title.0}</a><br />
+           {/section}
+       </td>
+       {/if}
+       <td width="99%">
+       	<table class="default" cellpadding="0" cellspacing="0" width="100%">
+       	  <tr>
+       	    <td width="99%">
 
 
 		<a href="{$rel_url}view.php?pid={$list[i].pid|escape}"><img align="absmiddle" src="{$icon}" border="0"></a>
@@ -170,36 +261,52 @@ to {$my_created_items_info.currentLastRow} of {$my_created_items_info.totalRows}
 	   {if $list[i].research_program.0}{$list[i].research_program.0|escape:"html"}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'} - <i>{$list[i].xdis_title.0|escape:"html"}</i>{/if}<br />{else}{if $list[i].xdis_title.0}<i>{$list[i].xdis_title.0|escape:"html"}</i><br />{/if}{/if}
 		 (Created: {$list[i].created_date.0|date_format:"%c"}{if $list[i].updated_date.0 <> $list[i].created_date.0} Last Updated: {$list[i].updated_date.0|date_format:"%c"}{/if})
        </td>
+       <td nowrap align="right" valign="top">{if $list[i].Relevance} (Search Relevance: <b>{$list[i].Relevance}</b>)<br />{/if}
+					        {if $list[i].object_type.0 == '3'}{if $list[i].abstract_downloads}({$list[i].abstract_downloads|escape:"html"} Abstract View{if $list[i].abstract_downloads > 1}s{/if})<br />{/if} {if $list[i].file_downloads}({$list[i].file_downloads|escape:"html"} <a class="author_link" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}">File Download{if $list[i].file_downloads > 1}s{/if}</a>){/if}{/if} 
+       </td>
+      </tr>
+      </table>
+     </td>
+       
      </tr>
      {sectionelse}
      <tr>
-       <td colspan="5" bgcolor="{$light_color}" align="center" class="default">
-         No workflow items could be found.
+       <td colspan="6" bgcolor="{$light_color}" align="center" class="default">
+         No items with that search filter could be found.
        </td>
      </tr>
      {/section}
      </table>
 
-     <table class="listing">
+     <table width="100%" cellpadding=0>
      <tr bgcolor="{$cell_color}">
-       <td width="10px"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form, 'items[]');" 
+       <td width="10px"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" 
        class="button" /></td>
-       <td >
-{* no delete or publish, since creator doesn't necessarily have those
-	    permissions *}
+       {if $isAdministrator} 
+       <td>
+       <input type="submit" value="Delete"  onClick="javascript:return checkDeleteRecords(this.form);" class="button" />
+       <input type="submit" value="Publish" onClick="javascript:return checkPublishRecords(this.form);" class="button" />
+       </td>
+       {/if}
+       <td>                   
+         <input type="button" value="Run Workflow &gt;" class="shortcut" onClick="javascript:workflowItems(this.form);">
+         <select name="wft_id" class="default">
+           {html_options options=$bulk_workflows}
+          </select>
+         {include file="error_icon.tpl.html" field="users"} 
        </td>
        <td width="40%" align="center" nowrap>
        <nobr>
-       <input name="first" type="button" value="|&lt;" class="shortcut" onClick="javascript:mci_setPage(0);">
-       <input name="previous" type="button" value="&lt;&lt;" class="shortcut" onClick="javascript:mci_setPage({$my_created_items_info.prevPage});">
-       <input type="text" name="page" size="3" maxlength="3" value="{math equation="x + 1" x=$my_created_items_info.currentPage|default:0}" style="background: {$cell_color};" class="paging_input" onKeyPress="javascript:return mci_checkPageField(event);">
-       <input name="go" type="button" value="Go" class="shortcut" onClick="javascript:mci_goPage(this.form, this.form.page.value);">
-       <input name="next" type="button" value="&gt;&gt;" class="shortcut" onClick="javascript:mci_setPage({$my_created_items_info.nextPage});">
-       <input name="last" type="button" value="&gt;|" class="shortcut" onClick="javascript:mci_setPage({$my_created_items_info.lastPage});">
+       <input name="first" type="button" value="|&lt;" class="shortcut" onClick="javascript:setPage(0);">
+       <input name="previous" type="button" value="&lt;&lt;" class="shortcut" onClick="javascript:setPage({$my_created_items_info.prev_page});">
+       <input type="text" name="page" size="3" maxlength="3" value="{math equation="x + 1" x=$my_created_items_info.current_page}" style="background: {$cell_color};" class="paging_input" onKeyPress="javascript:return checkPageField(event);">
+       <input name="go" type="button" value="Go" class="shortcut" onClick="javascript:goPage(this.form, this.form.page.value);">
+       <input name="next" type="button" value="&gt;&gt;" class="shortcut" onClick="javascript:setPage({$my_created_items_info.next_page});">
+       <input name="last" type="button" value="&gt;|" class="shortcut" onClick="javascript:setPage({$my_created_items_info.last_page});">
                   </nobr>
                 </td>
                 <td nowrap>
-                  <select name="page_size" class="default" onChange="javascript:mci_resizePager(this.form);">
+                  <select name="page_size" class="default" onChange="javascript:resizePager(this.form);">
                     <option value="5" {if $options.rows == 5}selected{/if}>5</option>
                     <option value="10" {if $options.rows == 10}selected{/if}>10</option>
                     <option value="15" {if $options.rows == 15}selected{/if}>15</option>
@@ -208,14 +315,21 @@ to {$my_created_items_info.currentLastRow} of {$my_created_items_info.totalRows}
                     <option value="100" {if $options.rows == 100}selected{/if}>100</option>
                     <option value="150" {if $options.rows == 150}selected{/if}>150</option>
                   </select>
-                  <input type="button" value="Show Rows" class="shortcut" onClick="javascript:mci_resizePager(this.form);">
+                  <input type="button" value="Show Rows" class="shortcut" onClick="javascript:resizePager(this.form);">
                 </td>
+                {literal}
                 <script type="text/javascript" language="JavaScript">
                 <!--
-                mci_disableFields(getForm('created_records'));
+                disableFields(getForm('assigned_records'));
+				var custom_filter_element = getPageElement('custom_filter_form' + '1');
+				if (!isElementVisible(custom_filter_element)) {
+					toggleVisibility('custom_filter_form');
+				}
                 // -->
                 </script>
+                {/literal}
      </tr>
    </table>
+
    </form>
   </div>

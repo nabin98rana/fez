@@ -53,6 +53,7 @@ include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.status.php");
+include_once(APP_INC_PATH . "class.group.php");
 include_once(APP_INC_PATH . "class.statistics.php");
 include_once(APP_INC_PATH . "class.fulltext_index.php");
 
@@ -198,10 +199,10 @@ class Collection
      * @param   integer $max The maximum number of records to return
      * @return  array The list of collections
      */
-    function getList($community_pid=false, $current_row = 0, $max = 25, $order_by="Title")
+    function getList($community_pid=false, $current_row = 0, $max = 25, $sort_by="Title")
     {
         $start = $current_row * $max;
-        $sekdet = Search_Key::getDetailsByTitle($order_by);
+        $sekdet = Search_Key::getDetailsByTitle($sort_by);
         $data_type = $sekdet['xsdmf_data_type'];
 
         // Should we restrict the list to a community.
@@ -253,7 +254,7 @@ class Collection
                         on r2.rmf_xsdmf_id = x2.xsdmf_id 
                         inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
                         on s2.sek_id = x2.xsdmf_sek_id
-                        where s2.sek_title = '$order_by'
+                        where s2.sek_title = '$sort_by'
                         ) as d3
                 on r1.rmf_rec_pid = d3.sort_pid
                 left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 
@@ -336,9 +337,9 @@ class Collection
 //        $returnfield_query = Misc::array_to_sql_string($returnfields);
 
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-        $order_by = 'Title';
-        $order_dir = 'asc';
-        $sekdet = Search_Key::getDetailsByTitle($order_by);
+        $sort_by = 'Title';
+        $sort_order = 'asc';
+        $sekdet = Search_Key::getDetailsByTitle($sort_by);
         $data_type = $sekdet['xsdmf_data_type'];
         $restrict_community = '';
 
@@ -346,21 +347,26 @@ class Collection
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];
 
+		
+		$isMemberOfList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('isMemberOf');
+		$titleList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Title');
+//		$statusList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Status');		
+		$objectTypeList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Object Type');		
+		$orderByList = XSD_HTML_Match::getXSDMF_IDsBySekTitle($sort_by);
 	    if (!empty($community_pid)) {		
 			$memberOfStmt = "
 						INNER JOIN {$dbtp}record_matching_field AS r4
 						  ON r4.rmf_rec_pid = r2.rmf_rec_pid
-						INNER JOIN {$dbtp}xsd_display_matchfields AS x4
-						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and r4.rmf_varchar='$community_pid'
-						INNER JOIN {$dbtp}search_key AS s4  							  
-						  ON s4.sek_id = x4.xsdmf_sek_id AND s4.sek_title = 'isMemberOf' ";
+						 and r4.rmf_xsdmf_id in (".implode(",", $isMemberOfList).")
+						 and r4.rmf_varchar='$community_pid'
+
+						";
 		} else {
 			$memberOfStmt = "";
 		}
 
         $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
-                    INNER JOIN {$dbtp}xsd_display_matchfields AS x2
-                      ON r2.rmf_xsdmf_id = x2.xsdmf_id AND x2.xsdmf_element = '!ret_id' and r2.rmf_int=2
+                   
 					
 
                     $authStmt
@@ -368,20 +374,20 @@ class Collection
 					$memberOfStmt
 
                     ";
+		$bodyWhere = " WHERE r2.rmf_xsdmf_id in (".implode(",", $objectTypeList).")	and r2.rmf_int = 2 ";
         $bodyStmt = "$bodyStmtPart1
                   
                     LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r5
-                    ON r5.rmf_rec_pid=r2.rmf_rec_pid
-                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x5
-                    on r5.rmf_xsdmf_id = x5.xsdmf_id
-                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s5
-                    on s5.sek_id = x5.xsdmf_sek_id AND s5.sek_title = '$order_by'
+                    ON r5.rmf_rec_pid=r2.rmf_rec_pid and r5.rmf_xsdmf_id in (".implode(",", $orderByList).")
+					$bodyWhere
+					
                     
              ";
 
         $countStmt = "
                     SELECT ".APP_SQL_CACHE."  count(distinct r2.rmf_rec_pid)
                     $bodyStmtPart1
+					$bodyWhere
             ";
 
         $stmt = "SELECT ".APP_SQL_CACHE."   r1.*, x1.*, s1.*, k1.*, d1.* 
@@ -398,7 +404,7 @@ class Collection
             ON (k1.sek_id = x1.xsdmf_sek_id)
             LEFT JOIN {$dbtp}xsd_display d1  
             ON (d1.xdis_id = r1.rmf_varchar and k1.sek_title = 'Title')
-            ORDER BY display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
+            ORDER BY display.sort_column $sort_order, r1.rmf_rec_pid DESC ";
 
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
@@ -515,6 +521,53 @@ class Collection
 					array_push($return[$result['rmf_rec_pid']]['isMemberOf'], $result['rmf_varchar']);
 				}
 			}			
+
+			if (@$result['sek_title'] == 'Assigned User ID') {
+				if (!is_array(@$return[$result['rmf_rec_pid']]['AssignedUserID'])) {
+					$return[$result['rmf_rec_pid']]['AssignedUserID'] = array();
+				}
+				$foundUser = false;
+				foreach ($return[$result['rmf_rec_pid']]['AssignedUserID'] as $userArray) {
+					if (key_exists("rmf_int", $userArray)) {
+						if (in_array($result['rmf_int'], $userArray['rmf_int'])) {
+							$foundUser = true;
+						}
+					}
+				}
+				if ($foundUser === false) {
+					$usr_fullname = User::getFullName($result['rmf_int']);
+					array_push($return[$result['rmf_rec_pid']]['AssignedUserID'], array('usr_id' => $result['rmf_int'], 'usr_fullname' => $usr_fullname));
+				}
+				//print_r($return[$result['rmf_rec_pid']]['AssignedGroupID']);
+			}					
+			
+			if (@$result['sek_title'] == 'Assigned Group ID') {
+				if (!is_array(@$return[$result['rmf_rec_pid']]['AssignedGroupID'])) {
+					$return[$result['rmf_rec_pid']]['AssignedGroupID'] = array();
+				}
+				$foundGroup = false;
+				foreach ($return[$result['rmf_rec_pid']]['AssignedGroupID'] as $groupArray) {
+					if (key_exists("rmf_int", $groupArray)) {
+						if (in_array($result['rmf_int'], $groupArray['rmf_int'])) {
+							$foundGroup = true;
+						}
+					}
+				}
+				if ($foundGroup === false) {
+					$group_title = Group::getName($result['rmf_int']);
+					array_push($return[$result['rmf_rec_pid']]['AssignedGroupID'], array('grp_id' => $result['rmf_int'], 'grp_title' => $group_title));
+				}
+				//print_r($return[$result['rmf_rec_pid']]['AssignedGroupID']);
+			}				
+			// get status_title
+            if (!empty($result['sta_title'])) {
+                if (!is_array(@$return[$result['rmf_rec_pid']]['sta_title'])) {
+                    $return[$result['rmf_rec_pid']]['sta_title'] = array();
+                }
+                if (!in_array($result['sta_title'],$return[$result['rmf_rec_pid']]['sta_title'])) {
+                    array_push($return[$result['rmf_rec_pid']]['sta_title'], $result['sta_title']);
+                }
+            }        
 			// get the document type
             if (!empty($result['xdis_title'])) {
                 if (!is_array(@$return[$result['rmf_rec_pid']]['xdis_title'])) {
@@ -523,7 +576,7 @@ class Collection
                 if (!in_array($result['xdis_title'],$return[$result['rmf_rec_pid']]['xdis_title'])) {
                     array_push($return[$result['rmf_rec_pid']]['xdis_title'], $result['xdis_title']);
                 }
-            }
+            }           
 			if (is_numeric(@$result['sek_id'])) {
 				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
 				$search_var = strtolower(str_replace(" ", "_", $result['sek_title']));
@@ -534,7 +587,8 @@ class Collection
                             $return[$result['rmf_rec_pid']][$search_var])) {
 					array_push($return[$result['rmf_rec_pid']][$search_var], 
                             $result['rmf_'.$result['xsdmf_data_type']]);
-					sort($return[$result['rmf_rec_pid']][$search_var]);
+//					sort($return[$result['rmf_rec_pid']][$search_var]);
+
 				}
 			} 
 			// get thumbnails
@@ -669,7 +723,8 @@ class Collection
         return $res[0];		
 		
 	}
-    
+
+
     /**
       * List the records in a collection that can be edited by the current user
       * @param integer $collection_pid The pid of the collection to restrict the list to
@@ -684,10 +739,10 @@ class Collection
         //     AND user is in the roles for the ACML
         $fez_groups_sql = Misc::arrayToSQL($_SESSION[APP_INTERNAL_GROUPS_SESSION]);
         $ldap_groups_sql = Misc::arrayToSQL($_SESSION[APP_LDAP_GROUPS_SESSION]);
-        $order_by = 'Title';
+        $sort_by = 'Title';
         $start = 0;
         $max = 100;
-        $sekdet = Search_Key::getDetailsByTitle($order_by);
+        $sekdet = Search_Key::getDetailsByTitle($sort_by);
         $data_type = $sekdet['xsdmf_data_type'];
 		$authArray = Collection::getAuthIndexStmt(array( "Editor", "Approver"));
 		$authStmt = $authArray['authStmt'];
@@ -733,8 +788,8 @@ class Collection
                     LEFT JOIN {$dbtp}record_matching_field r5 on r5.rmf_rec_pid_num = r2.rmf_rec_pid_num and r5.rmf_rec_pid = r2.rmf_rec_pid
                     inner join {$dbtp}xsd_display_matchfields x5 on r5.rmf_xsdmf_id = x5.xsdmf_id
                     left join {$dbtp}search_key s5
-                    on (s5.sek_id = x5.xsdmf_sek_id and s5.sek_title = '$order_by')  
-					where (r5.rmf_{$data_type} is null) or s5.sek_title = '$order_by'
+                    on (s5.sek_id = x5.xsdmf_sek_id and s5.sek_title = '$sort_by')  
+					where (r5.rmf_{$data_type} is null) or s5.sek_title = '$sort_by'
 					group by r5.rmf_rec_pid
              ";
 
@@ -746,7 +801,7 @@ class Collection
             INNER JOIN (
                     SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid, min(r5.rmf_$data_type) as sort_column
                     $bodyStmt
-					order by sort_column $order_dir, r2.rmf_rec_pid_num desc
+					order by sort_column $sort_order, r2.rmf_rec_pid_num desc
                     LIMIT $start, $max					
                     ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid 
             LEFT JOIN {$dbtp}xsd_loop_subelement s1 
@@ -755,7 +810,7 @@ class Collection
             ON (k1.sek_id = x1.xsdmf_sek_id)
             LEFT JOIN {$dbtp}xsd_display d1  
             ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
-            ORDER BY display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
+            ORDER BY display.sort_column $sort_order, r1.rmf_rec_pid DESC ";
 
            // Error_Handler::logError($stmt,__FILE__,__LINE__);
 
@@ -795,21 +850,26 @@ class Collection
      * @param   integer $max The maximum number of records to return	 
      * @return  array The list of collection records with the given collection pid
      */
-    function getListing($collection_pid, $current_row = 0, $max = 25, $order_by = 'Title')
+    function getListing($collection_pid, $current_row = 0, $max = 25, $sort_by = '')
     {
 
-        $order_dir = 'ASC';
+        $sort_order = 'ASC';
 		if ($max == "ALL") {
             $max = 9999999;
         }
         $start = $current_row * $max;
-
+//echo $sort_by;
+        if ($sort_by == '') {
+        	$sort_by = "searchKey".Search_Key::getID("Title");
+        }
+        
         // this query broken into pieces to try and get some speed.
 
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-//        $order_by = 'Title';
-        $sekdet = Search_Key::getDetailsByTitle($order_by);		
-        $data_type = $sekdet['xsdmf_data_type'];
+//        $sort_by = 'Title';
+		$sek_id = ltrim($sort_by, "searchKey");
+        $sekdet = Search_Key::getDetails($sek_id);		
+        $data_type = $sekdet['xsdmf_data_type'];        
 		if (empty($data_type)) {
 			$data_type = "varchar";			
 		}
@@ -819,70 +879,91 @@ class Collection
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];
 
+		$isMemberOfList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('isMemberOf');
+		$statusList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Status');		
+		$displayTypeList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Display Type');				
+		$sort_byList = XSD_HTML_Match::getXSDMF_IDsBySekID($sek_id);				
+		$sql_filter = array();
+		$sql_filter['where'] = "";
+		$sql_filter['elsewhere'] = "";
+
         if (!empty($collection_pid)) {		
+
+        	$sql_filter['where'][] = "r2.rmf_varchar = '".Misc::escapeString($collection_pid)."'";
+			//$sql_filter['where'][] = "r2.rmf_xsdmf_id in (".implode(",", $isMemberOfList).")";      	
+
 			$memberOfStmt = "
 						INNER JOIN {$dbtp}record_matching_field AS r4
 						  ON r4.rmf_rec_pid_num = r2.rmf_rec_pid_num and r4.rmf_rec_pid = r2.rmf_rec_pid
 						INNER JOIN {$dbtp}xsd_display_matchfields AS x4
 						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and r4.rmf_varchar = '$collection_pid'
-						INNER JOIN {$dbtp}search_key AS s4  							  
-						  ON s4.sek_id = x4.xsdmf_sek_id AND s4.sek_title = 'isMemberOf' ";
+						and r4.rmf_xsdmf_id in (".implode(",", $isMemberOfList).")";
+
 		} else {
-			return array();
+			//return array();
 //			$memberOfStmt = "";
 		}
 
         $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
-                    INNER JOIN {$dbtp}xsd_display_matchfields AS x2
-                      ON r2.rmf_xsdmf_id = x2.xsdmf_id AND x2.xsdmf_element ='!sta_id' 
-                      and r2.rmf_int=2 $joinStmt
-
-
-                    $authStmt
-
 					$memberOfStmt
-				
+                    INNER JOIN {$dbtp}record_matching_field AS r3
+                      ON r3.rmf_rec_pid_num = r2.rmf_rec_pid_num and r3.rmf_rec_pid = r2.rmf_rec_pid and r3.rmf_xsdmf_id in 
+					 (".implode(",", $statusList).")
+                      and r3.rmf_int=2 $joinStmt
+					
+
+                    $authStmt				
 
                     ";
         $bodyStmt = "$bodyStmtPart1
 
 
                     LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r5 
-                    on r5.rmf_rec_pid_num = r2.rmf_rec_pid_num and r5.rmf_rec_pid = r2.rmf_rec_pid
-                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x5
-                    on r5.rmf_xsdmf_id = x5.xsdmf_id
-                    left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s5
-                    on (s5.sek_id = x5.xsdmf_sek_id and s5.sek_title = '$order_by')  
-					where (r5.rmf_{$data_type} is null) or s5.sek_title = '$order_by'
-					group by r5.rmf_rec_pid_num
+                    on r5.rmf_rec_pid_num = r2.rmf_rec_pid_num and r5.rmf_rec_pid = r2.rmf_rec_pid and r5.rmf_xsdmf_id in (".implode(",", $sort_byList).")
+                   
+					" . (isset ($sql_filter['where']) ? "WHERE ".implode("\r\nAND ", $sql_filter['where']) : $elsewhere) . "
+					group by r2.rmf_rec_pid_num
              ";
 
-        $countStmt = "
-                    SELECT ".APP_SQL_CACHE."  count(distinct r2.rmf_rec_pid_num)
-                    $bodyStmtPart1
+
+
+        $stmt = "
+                    SELECT ".APP_SQL_CACHE." SQL_CALC_FOUND_ROWS r2.rmf_rec_pid
+                    $bodyStmt
+					order by r5.rmf_$data_type $sort_order, r2.rmf_rec_pid_num desc
+                    LIMIT $start, $max					
+                   
             ";
 
-        $stmt = "SELECT ".APP_SQL_CACHE."  r1.*, x1.*, s1.*, k1.*, d1.* 
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+		$total_rows = $GLOBALS["db_api"]->dbh->getOne('SELECT FOUND_ROWS()');
+		$return = array ();
+		$return['count'] = $count[0];
+		foreach ($res as $result) {
+			$return['list'][] = $result['rmf_rec_pid'];
+
+		}		
+		if (!isset($return['list'])) {
+			return array();
+		}
+
+        $stmtWrap = "SELECT ".APP_SQL_CACHE."  r1.*, x1.*, s1.*, k1.*, d1.* 
             FROM {$dbtp}record_matching_field AS r1
             INNER JOIN {$dbtp}xsd_display_matchfields AS x1
             ON r1.rmf_xsdmf_id = x1.xsdmf_id
-            INNER JOIN (
-                    SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid, r2.rmf_rec_pid_num, min(r5.rmf_$data_type) as sort_column
-                    $bodyStmt
-					order by sort_column $order_dir, r2.rmf_rec_pid_num desc
-                    LIMIT $start, $max					
-                    ) as display ON display.rmf_rec_pid_num=r1.rmf_rec_pid_num and display.rmf_rec_pid=r1.rmf_rec_pid
             LEFT JOIN {$dbtp}xsd_loop_subelement s1 
             ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
             LEFT JOIN {$dbtp}search_key k1 
             ON (k1.sek_id = x1.xsdmf_sek_id)
             LEFT JOIN {$dbtp}xsd_display d1  
             ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
-            ";
+			WHERE r1.rmf_rec_pid in ('".implode("','", $return['list'])."')
+            ";                    
+                    
+                    
+	//echo $stmtWrap;
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmtWrap, DB_FETCHMODE_ASSOC);
 
-//echo $stmt;
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-		$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
 		$return = array();
 		$return = Collection::makeReturnList($res);
         $return = Collection::makeSecurityReturnList($return);
@@ -1042,7 +1123,7 @@ class Collection
 
 
 
-	function getAuthIndexStmt($roles = array()) {
+	function getAuthIndexStmt($roles = array(), $joinPrefix="r2") {
 		// If the user is a Fez Administrator then don't check for security, give them everything
 		$isAdministrator = Auth::isAdministrator();  
 		if ($isAdministrator === true) {
@@ -1065,15 +1146,15 @@ class Collection
 		$joinStmt = "";
         $usr_id = Auth::getUserID();
         if (is_numeric($usr_id)) {	
-            $authStmt .= "INNER JOIN {$dbtp}auth_index2 ai 
-                ON authi_role in ($rolesStmt) AND ai.authi_pid = r2.rmf_rec_pid   
+            $authStmt .= " INNER JOIN {$dbtp}auth_index2 ai 
+                ON authi_role in ($rolesStmt) AND ai.authi_pid = ".$joinPrefix.".rmf_rec_pid   
                 INNER JOIN {$dbtp}auth_rule_group_users 
                 ON argu_usr_id='$usr_id' AND ai.authi_arg_id=argu_arg_id ";
 
             $authStmt .= "
-                and ai.authi_pid = r2.rmf_rec_pid";
+                and ai.authi_pid = ".$joinPrefix.".rmf_rec_pid";
         } else {
-            $authStmt = " INNER JOIN {$dbtp}auth_index2 ON authi_role='Lister' AND authi_pid=r2.rmf_rec_pid 
+            $authStmt = " INNER JOIN {$dbtp}auth_index2 ON authi_role='Lister' AND authi_pid=".$joinPrefix.".rmf_rec_pid 
                 INNER JOIN {$dbtp}auth_rule_group_rules ON argr_arg_id=authi_arg_id 
                 INNER JOIN {$dbtp}auth_rules ON ar_rule='public_list' AND ar_value='1' AND argr_ar_id=ar_id ";
             $joinStmt .= "";
@@ -1092,22 +1173,25 @@ class Collection
      * @param   string $getCount If 1 the query will get all the records to it can get a count, otherwise it will be restricted earlier.
      * @return  array The list of records 
      */
-    function browseListing($current_row = 0, $max = 25, $searchKey="Subject", $order_by=null, $getCount=1)
+    function browseListing($current_row = 0, $max = 25, $searchKey="Subject", $sort_by=null, $getCount=1)
     {
 //		return array();
-        if (empty($order_by)) {
-            $order_by = $searchKey;
-            if (empty($order_by)) {
-                $order_by = 'Title';
+        if (empty($sort_by)) {
+            $sort_by = $searchKey;
+            if (empty($sort_by)) {
+                $sort_by = "searchKey".Search_Key::getID('Title');
             }
         }
 		if ($max == "ALL") {
             $max = 9999999;
         }
         $start = $current_row * $max;
-        $sekdet = Search_Key::getDetailsByTitle($order_by);
+        // echo $sort_by;
+        $sort_by_id = ltrim($sort_by, "searchKey");              
+        $sekdet = Search_Key::getDetails($sort_by_id);
         $data_type = $sekdet['xsdmf_data_type'];
-        $order_dir = ' asc ';
+        //echo $data_type;        
+        $sort_order = ' asc ';
 		$restrictSQL = "";
 		$middleStmt = "";
 		$extra_order = "";
@@ -1115,7 +1199,7 @@ class Collection
 		$extra_secondary_order = "";
 		$termCounter = 5;
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-
+        $status_xsdmfs = XSD_HTML_Match::getXSDMF_IDsBySekTitle("Status");
 
 		$joinNum = $termCounter + 1;
 //		$joinNum = 2;
@@ -1135,11 +1219,11 @@ class Collection
 //			$extra_order =  "r".$termCounter.".rmf_".$search_data_type.", ";
 			$subqueryExtra = ", r".$termCounter.".rmf_date as preorder";
 			$extra_order =  "date(display.preorder) DESC, ";
-            $order_dir = " DESC ";
+            $sort_order = " DESC ";
 			$joinNum = 5;
 			$internal_extra_order =  "date(r5.rmf_date) desc, ";
-            if ($order_by == 'Created Date') {
-/*                $order_dir = " DESC ";
+            if ($sort_by == 'Created Date') {
+/*                $sort_order = " DESC ";
 				$internal_extra_order =  "preorder desc, ";*/
 				$extra = ", DAYNAME(convert_tz(display.sort_column,'$default_tz','$user_tz')) as day_name";		
 				$extra_order = "";
@@ -1185,49 +1269,49 @@ class Collection
                     inner join {$dbtp}xsd_display_matchfields x".$termCounter." on r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id 
                     inner join {$dbtp}search_key AS s".$termCounter." on s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id
                       and s".$termCounter.".sek_title = '".$searchKey."'  
-                    $restrictSQL";
+                    $restrictSQL WHERE r2.rmf_xsdmf_id in (".implode(",", $status_xsdmfs).")";
 
 		$termCounter++;
 /*
 					inner join {$dbtp}record_matching_field r3 on r3.rmf_rec_pid = r2.rmf_rec_pid
 					inner join {$dbtp}xsd_display_matchfields x3 on r3.rmf_xsdmf_id = x3.xsdmf_id
-					inner join {$dbtp}search_key s3 on s3.sek_id = x3.xsdmf_sek_id and  s3.sek_title = '$order_by'
+					inner join {$dbtp}search_key s3 on s3.sek_id = x3.xsdmf_sek_id and  s3.sek_title = '$sort_by'
 */
 
 		if ($searchKey == "Created Date") {
 			$search_data_type = "date";
 		}
 		$bodyStmt = " FROM  {$dbtp}record_matching_field r2 
-                    inner join {$dbtp}xsd_display_matchfields AS x2 on r2.rmf_xsdmf_id = x2.xsdmf_id and r2.rmf_int=2 and x2.xsdmf_element='!sta_id' $joinStmt
+                     $joinStmt
 
 					$authStmt
 					
 					";
 		
-		if	((($searchKey == 'Created Date') && ($order_by != $searchKey)) || ($searchKey != 'Created Date')) {
-					if ($order_by == 'File Downloads') {
+		if	((($searchKey == 'Created Date') && ($sort_by != $searchKey)) || ($searchKey != 'Created Date')) {
+					if ($sort_by == 'File Downloads') {
 						$extra = ", display.sort_column as file_downloads";
-						$order_dir = "desc";
+						$sort_order = "desc";
 						$bodyStmt .= "
 						left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "statistics_all s".$termCounter."
 						on s".$termCounter.".stl_pid = r2.rmf_rec_pid and s".$termCounter.".stl_dsid <> '' ";
 					} else {					
 						$bodyStmt .= "
-						inner join  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r".$termCounter." 
+						left join  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r".$termCounter." 
 						on r".$termCounter.".rmf_rec_pid = r2.rmf_rec_pid 
 						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x".$termCounter."
 						on r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id";
 						$bodyStmt .= "
 						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s".$termCounter."
 						on s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id
-						and (s".$termCounter.".sek_title = '$order_by' OR r{$termCounter}.rmf_{$data_type} is null) ";
+						and (s".$termCounter.".sek_title = '".$sekdet["sek_title"]."' ) ";
 					}
 //		} elseif ($searchKey == "Created Date") {
 		
 		} elseif ($searchKey == "Depositor") {
 			$extra = ", s".$termCounter.".usr_full_name";
 			$extra_order = "s".$termCounter.".usr_full_name, ";
-			$order_dir = "desc";
+			$sort_order = "desc";
 			$bodyStmt .= "
 			left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user s".$termCounter."
 			on s".$termCounter.".usr_id = r2.rmf_int  ";
@@ -1245,7 +1329,7 @@ class Collection
 				  $bodyStmt";
 
 					
-		if ($order_by == 'File Downloads') {					
+		if ($sort_by == 'File Downloads') {					
 			$bodyStmt .= "group by r2.rmf_rec_pid";		
 		}
 		
@@ -1274,14 +1358,14 @@ class Collection
                  INNER JOIN {$dbtp}xsd_display_matchfields x1 
                  ON r1.rmf_xsdmf_id = x1.xsdmf_id 
 				 INNER JOIN (";
-if ($order_by == 'File Downloads') {
+if ($sort_by == 'File Downloads') {
 	$stmt .= "					 SELECT ".APP_SQL_CACHE."   distinct r2.rmf_rec_pid, count(s6.stl_pid) as sort_column $subqueryExtra ";
 } else {
 	$stmt .= "					 SELECT ".APP_SQL_CACHE."   distinct r2.rmf_rec_pid, r".$joinNum.".rmf_$data_type as sort_column $subqueryExtra ";
 }
 		$stmt .= "
 					$bodyStmt
-					order by $internal_extra_order sort_column $order_dir $extra_secondary_order, r2.rmf_rec_pid desc
+					order by $internal_extra_order sort_column $sort_order $extra_secondary_order, r2.rmf_rec_pid desc
 					
 					";
 //					if ($getCount == 0) {
@@ -1299,8 +1383,8 @@ if ($order_by == 'File Downloads') {
                  ON (k1.sek_id = x1.xsdmf_sek_id)
 				LEFT JOIN {$dbtp}xsd_display d1  
 				ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
-                ORDER BY $extra_order display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
-
+                ORDER BY $extra_order display.sort_column $sort_order, r1.rmf_rec_pid DESC ";
+		//echo "<pre>".$stmt."</pre>";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 
 		//echo $stmt; //return array();
@@ -1357,13 +1441,13 @@ if ($order_by == 'File Downloads') {
      * @param   string $searchKey The search key the records are being browsed by  Date (Year) or Author
      * @return  array The list of records 
      */
-    function listByAttribute($current_row = 0, $max = 25, $searchKey="Date", $order_by="Title", $letter = "")
+    function listByAttribute($current_row = 0, $max = 25, $searchKey="Date",$sort_by="Title")
     {
 		if ($max == "ALL") {
             $max = 9999999;
         }
         $start = $current_row * $max;
-        $sekdet = Search_Key::getDetailsByTitle($order_by);
+        $sekdet = Search_Key::getDetailsByTitle($sort_by);
         $data_type = $sekdet['xsdmf_data_type'];
         $authArray = Collection::getAuthIndexStmt();
         $authStmt = $authArray['authStmt'];
@@ -1546,15 +1630,15 @@ if ($order_by == 'File Downloads') {
         // this query broken into pieces to try and get some speed.
 
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-        $order_by = 'File Downloads';
-        $sekdet = Search_Key::getDetailsByTitle($order_by);
+        $sort_by = 'File Downloads';
+        $sekdet = Search_Key::getDetailsByTitle($sort_by);
 //        $data_type = $sekdet['xsdmf_data_type'];
         $restrict_community = '';
 
 		$authArray = Collection::getAuthIndexStmt(array("Lister", "Viewer", "Editor", "Creator"));
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];
-		$order_dir = "DESC";
+		$sort_order = "DESC";
 
 
 			$memberOfStmt = "
@@ -1594,7 +1678,7 @@ if ($order_by == 'File Downloads') {
 		$innerStmt = "
                     SELECT ".APP_SQL_CACHE."  distinct r4.rmf_$data_type $as_field $extra, IFNULL(count(stl_pid),0) as sort_column
                     $bodyStmt
-					order by sort_column $order_dir, r2.rmf_rec_pid desc
+					order by sort_column $sort_order, r2.rmf_rec_pid desc
                     LIMIT $start, $max					
 					";
 		if ($searchKey == "Title") {
@@ -1611,7 +1695,7 @@ if ($order_by == 'File Downloads') {
 				ON (k1.sek_id = x1.xsdmf_sek_id)
 				LEFT JOIN {$dbtp}xsd_display d1  
 				ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
-				ORDER BY display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
+				ORDER BY display.sort_column $sort_order, r1.rmf_rec_pid DESC ";
 		} else {
 			$stmt = $innerStmt;
 		}
@@ -1687,7 +1771,7 @@ if ($order_by == 'File Downloads') {
      * @param   integer $max The maximum number of records to return	 
      * @return  array The list of Fez objects matching the search criteria
      */
-    function advSearchListing($current_row = 0, $max = 25, $order_by_key = '')
+    function advSearchListing($current_row = 0, $max = 25, $sort_by_key = '')
     {
 		$terms = @$_GET['list'];
 
@@ -1797,21 +1881,21 @@ if ($order_by == 'File Downloads') {
             $search_info .= "FullText:\"$fulltext_input\", ";
         }
 
-        if (empty($order_by_key)) {
+        if (empty($sort_by_key)) {
             if (!empty($ft_stmt) && ($fulltext_input != "")) {
-                $order_by_key = 'Relevance';
+                $sort_by_key = 'Relevance';
             } else {
-                $order_by_key = 'Title';
+                $sort_by_key = 'Title';
             }
         } 
-        if ($order_by_key == 'Relevance') {
+        if ($sort_by_key == 'Relevance') {
             $order_use_key = false;
-            $order_by = 'Relevance desc';
+            $sort_by = 'Relevance desc';
         } else {
             $order_use_key = true;
-            $sekdet = Search_Key::getDetailsByTitle($order_by_key);
+            $sekdet = Search_Key::getDetailsByTitle($sort_by_key);
             $data_type = $sekdet['xsdmf_data_type'];
-            $order_by = 'd3.sort_column';
+            $sort_by = 'd3.sort_column';
         }
  
         $stmt = "SELECT ".APP_SQL_CACHE."  * 
@@ -1845,7 +1929,7 @@ if ($order_by == 'File Downloads') {
                 on r2.rmf_xsdmf_id = x2.xsdmf_id 
                 inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
                 on s2.sek_id = x2.xsdmf_sek_id
-                where s2.sek_title = '$order_by_key'
+                where s2.sek_title = '$sort_by_key'
                 ) as d3
                 on r1.rmf_rec_pid = d3.sort_pid
                 ";
@@ -1860,7 +1944,7 @@ if ($order_by == 'File Downloads') {
                     WHERE rmf.rmf_int=2
                     AND xdm.xsdmf_element='!sta_id'
                     )
-            ORDER BY $order_by ";
+            ORDER BY $sort_by ";
 
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         //Error_Handler::logError($stmt,__FILE__,__LINE__);
@@ -1898,15 +1982,18 @@ if ($order_by == 'File Downloads') {
                     "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
                     "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
                     "last_page"     => $last_page,
-                    "hidden_rows"     => $hidden_rows - $total_rows
-                ),
-                'search_info' => rtrim($search_info, ', ')
+                    "hidden_rows"     => $hidden_rows - $total_rows,
+                    "search_info" => rtrim($search_info, ', ')
+                )                
             );
         }
     }
 
 	function suggest($terms, $current_row = 0, $max = 10) {
 
+		if (empty($terms)) {
+			return array();
+		}
 		$terms = mysql_real_escape_string($terms);
 // old simple and quick way of doing suggest
 /*        $stmt = "SELECT ".APP_SQL_CACHE."  substring(r1.rmf_varchar, instr(r1.rmf_varchar, 'chr'), char_length(substring_index(substring(r1.rmf_varchar, instr(r1.rmf_varchar, '$terms')), ' ', 2))) as matchword,
@@ -1921,53 +2008,60 @@ count(substring(r1.rmf_varchar, instr(r1.rmf_varchar, 'chr'), char_length(substr
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];
 		$dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+		$status_xsdmfs = XSD_HTML_Match::getXSDMF_IDsBySekTitle("Status");		
+		$spaceCount = substr_count($terms, " ");
+		$spaceCount+=1;
+//        $stmt = "SELECT ".APP_SQL_CACHE." distinct substr(r2.rmf_varchar, instr(r2.rmf_varchar, ' $terms'), char_length(substring_index(substring(r2.rmf_varchar, instr(r2.rmf_varchar, ' $terms')), ' ', ".$spaceCount."))) as matchword
+   $stmt = "SELECT ".APP_SQL_CACHE."
 
-        $stmt = "SELECT ".APP_SQL_CACHE."  substring(r2.rmf_varchar, instr(r2.rmf_varchar, '$terms'), char_length(substring_index(substring(r2.rmf_varchar, instr(r2.rmf_varchar, '$terms')), ' ', 1))) as matchword
+
+
+substr(trim(substr(r2.rmf_varchar, instr(r2.rmf_varchar, ' $terms'))), 
+1,char_length(substring_index(concat(trim(substring(r2.rmf_varchar, instr(r2.rmf_varchar, ' $terms'))),  \" \"),
+ ' ', $spaceCount)))  as matchword, 33 as cword
+				
             FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS r2
 			$authStmt
 			INNER JOIN {$dbtp}xsd_display_matchfields AS x2
 			  ON r2.rmf_xsdmf_id = x2.xsdmf_id $joinStmt
-			INNER JOIN {$dbtp}search_key AS s2  							  
-			  ON s2.sek_id = x2.xsdmf_sek_id AND s2.sek_simple_used = 1
 
 			INNER JOIN {$dbtp}record_matching_field AS r4
 			  ON r4.rmf_rec_pid=r2.rmf_rec_pid AND r4.rmf_int=2
-			INNER JOIN {$dbtp}xsd_display_matchfields AS x4
-			  ON r4.rmf_xsdmf_id = x4.xsdmf_id AND x4.xsdmf_element='!sta_id'
+			and r4.rmf_xsdmf_id in (".implode(",", $status_xsdmfs).")
 
-            WHERE r2.rmf_varchar like '$terms%'
-            GROUP BY matchword
-			limit 0, 10
+            WHERE r2.rmf_varchar like '% $terms%'
+
+			having matchword <> '' and matchword REGEXP \"^([[:alnum:]]|\\')|(\\ )+$\"
+
+			limit 0, 20
             ";
 
 // 		$securityfields = Auth::getAllRoles(); // will need to add security soon
-		$res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+		$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
 //		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 
 			$termCounter = 100;
-			$sekdet = Search_Key::getDetailsByTitle($order_by);
-			$data_type = $sekdet['xsdmf_data_type'];
+//			$sekdet = Search_Key::getDetailsByTitle($sort_by);
+//			$data_type = $sekdet['xsdmf_data_type'];
 
 $return = array();
+$sorter = array();
 $res_count = array();
 //		$return = array();
-		foreach ($res as $word) {
+		foreach ($res as $word => $count) {
 			$termLike = " match (r2.rmf_varchar) against ('*".$word."*' IN BOOLEAN MODE) ";
 		
 		
 			$bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
 							INNER JOIN {$dbtp}xsd_display_matchfields AS x2
-							  ON r2.rmf_xsdmf_id = x2.xsdmf_id $joinStmt AND $termLike 
-							INNER JOIN {$dbtp}search_key AS s2  							  
-							  ON s2.sek_id = x2.xsdmf_sek_id AND s2.sek_simple_used = 1
+							  ON r2.rmf_xsdmf_id = x2.xsdmf_id $joinStmt  
 		
 							$authStmt
 		
 							INNER JOIN {$dbtp}record_matching_field AS r4
 							  ON r4.rmf_rec_pid=r2.rmf_rec_pid AND r4.rmf_int=2
-							INNER JOIN {$dbtp}xsd_display_matchfields AS x4
-							  ON r4.rmf_xsdmf_id = x4.xsdmf_id AND x4.xsdmf_element='!sta_id'
-		
+							and r4.rmf_xsdmf_id in (".implode(",", $status_xsdmfs).")
+							WHERE $termLike
 							";
 		
 
@@ -1978,8 +2072,15 @@ $res_count = array();
 				//echo $countStmt;
 
 			$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
-					$return[$word] = $word."        (".$total_rows." matches)";
+//			$total_rows = 1;
+					$sorter[$total_rows] = $word;
+//					$return[$word] = $word."        (".$total_rows." matches)";
+//			$return[$word] = $word."        (".$count." matches)";					
 
+		}
+		krsort($sorter);
+		foreach ($sorter as $s1 => $s2) {
+			$return[$s2] = $s2."        (".$s1." matches)";
 		}
 		return $return;
 
@@ -1993,15 +2094,14 @@ $res_count = array();
      * @param   integer $max The maximum number of records to return	 
      * @return  array The list of Fez objects matching the search criteria
      */
-    function searchListing($terms, $current_row = 0, $max = 25, $order_by='Relevance', $ret_id = '')
-    {
+    function searchListing($terms, $current_row = 0, $max = 25, $sort_by='Relevance') {
 		if (empty($terms)) {
 			return array();
 		}
-        if (empty($order_by)) {
-            $order_by = $searchKey;
-            if (empty($order_by)) {
-                $order_by = 'Relevance';
+        if (empty($sort_by)) {
+            $sort_by = $searchKey;
+            if (empty($sort_by)) {
+                $sort_by = 'Relevance';
             }
         }
 
@@ -2014,7 +2114,7 @@ $res_count = array();
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];
 		$termCounter = 100;
-        $sekdet = Search_Key::getDetailsByTitle($order_by);
+        $sekdet = Search_Key::getDetailsByTitle($sort_by);
         $data_type = $sekdet['xsdmf_data_type'];
 
 //		$termArray = explode(" ", $terms);
@@ -2058,18 +2158,18 @@ $res_count = array();
                     ";
 
 		$sortColumn = "";
-		if ($order_by == "Relevance") {
-	        $order_dir = ' desc ';
+		if ($sort_by == "Relevance") {
+	        $sort_order = ' desc ';
 			$orderRelevance = " Relevance DESC ";
 			$bodyStmt = $bodyStmtPart1;
 			$sortColumn = "";
 			$sortBy = "";			
-			$sortFinal = "display.Relevance".$order_dir;
+			$sortFinal = "display.Relevance".$sort_order;
 		} else {
 			$sortColumn = " r5.rmf_$data_type as sort_column,";
-	        $order_dir = ' asc ';
-			$sortBy = " sort_column ".$order_dir;
-			$sortFinal = "display.sort_column".$order_dir;
+	        $sort_order = ' asc ';
+			$sortBy = " sort_column ".$sort_order;
+			$sortFinal = "display.sort_column".$sort_order;
 
 			$bodyStmt = "$bodyStmtPart1
 					  
@@ -2078,7 +2178,7 @@ $res_count = array();
 						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x5
 						on r5.rmf_xsdmf_id = x5.xsdmf_id
 						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s5
-						on s5.sek_id = x5.xsdmf_sek_id AND s5.sek_title = '$order_by'
+						on s5.sek_id = x5.xsdmf_sek_id AND s5.sek_title = '$sort_by'
 						
 				 ";
 		}

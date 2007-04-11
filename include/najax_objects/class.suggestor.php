@@ -20,7 +20,7 @@ class Suggestor
 		}
         include_once(APP_INC_PATH.$this->include_name);
         $obj = new $this->class_name;
-        $res = $obj->suggest(trim($search));
+        $res = $obj->suggest(($search));
         $list = array();
         foreach($res as $key => $item) {
 //            $list[] = array('value' => $key, 'text' => $item);

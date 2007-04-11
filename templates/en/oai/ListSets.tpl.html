@@ -15,7 +15,7 @@
 {if $list_count < 100}
   <resumptionToken></resumptionToken>
 {else}
-  <resumptionToken>{$start+100}/{$resumptionHash}</resumptionToken>
+  <resumptionToken>{$start+100}{if $resumptionHash != ""}/{/if}{$resumptionHash}</resumptionToken>
 {/if}
 </ListSets>
 {else}

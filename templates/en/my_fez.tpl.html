@@ -13,6 +13,10 @@ function purgeObject(pid)
         return true;
     }
 }
+var basic_element = getPageElement('basic_filter_form' + '1');
+if (!isElementVisible(basic_element)) {
+	toggleVisibility('basic_filter_form');
+}
 //-->
 </script>
 {/literal}

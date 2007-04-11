@@ -222,8 +222,7 @@
     {
     	if (SHIB_SWITCH == "ON") {
     		$results = array(ConfigResult::message('Testing Shibboleth'));
-            $results = array_merge($results, SanityChecks::checkXML('Shibboleth','SHIB_WAYF_METADATA_LOCATION',
-                SHIB_WAYF_METADATA_LOCATION,"//md:EntitiesDescriptor/md:EntityDescriptor",
+            $results = array_merge($results, SanityChecks::checkXML('Shibboleth',SHIB_WAYF_METADATA_LOCATION,"//md:EntitiesDescriptor/md:EntityDescriptor",
                     array("md" => "urn:oasis:names:tc:SAML:2.0:metadata",
                           "shib" => "urn:mace:shibboleth:metadata:1.0")));
             if (SanityChecks::resultsClean($results)) {
@@ -544,7 +543,6 @@
             $value = str_replace('/','\\',$value);
             $value = trim($value,'"');
         }
-
         if (!is_file($value)) {
             return array(new ConfigResult('File', $configDefine, $value, "This file doesn't exist, check the path" .
                     " and the permissions so that webserver user can read the file (the webserver must have 'rx' " .

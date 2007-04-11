@@ -75,7 +75,6 @@ display: table-cell;
 background-color: [[$smarty.const.APP_LIGHT_COLOR]];
   font-family: Verdana, Arial, Helvetica, sans-serif;
   font-style: normal;
-  font-weight: none;
   font-size: 11px;
   padding: 2px;
 }

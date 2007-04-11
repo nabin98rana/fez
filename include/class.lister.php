@@ -50,6 +50,7 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.pager.php");
+include_once(APP_INC_PATH . "class.search_key.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.community.php");
 include_once(APP_INC_PATH . "class.controlled_vocab.php");
@@ -76,6 +77,8 @@ class Lister
 
         $tpl->assign('tpl_list', array_map(create_function('$a','return $a[\'title\'];'), $tpls));
 
+
+        
         $username = Auth::getUsername();
         $tpl->assign("isUser", $username);
         $isAdministrator = User::isUserAdministrator($username);
@@ -83,55 +86,94 @@ class Lister
             $tpl->assign("isFezUser", $username);
         }
         $tpl->assign("isAdministrator", $isAdministrator);
-        $pagerRow = Pager::getParam('pagerRow',$params);
-        if (empty($pagerRow)) {
-            $pagerRow = 0;
+        $pager_row = Pager::getParam('pager_row',$params);
+        if (empty($pager_row)) {
+            $pager_row = 0;
         }
         $rows = Pager::getParam('rows',$params);
         if (empty($rows)) {
             $rows = APP_DEFAULT_PAGER_SIZE;
         }
-        $options = Pager::saveSearchParams($params);
+        
+        switch ($tpl_idx) {
+        	case 2:
+        		$rows = "ALL"; //If an RSS feed show all the rows
+				$pager_row = 0;
+        		break;
+        	default:
+        		break;        		 
+        }
+        
+        $search_keys = Search_Key::getQuickSearchList();
+	    foreach ($search_keys as $skey => $svalue) {
+			if (!in_array($svalue["sek_html_input"], array('multiple', 'allcontvocab', 'contvocab')) && $svalue["sek_smarty_variable"] != 'Status::getUnpublishedAssocList()') {
+				$search_keys[$skey]["field_options"] = array("" => "any") + $search_keys[$skey]["field_options"];		
+			}	
+	    }               
+        $tpl->assign("search_keys", $search_keys);
+        $options = Pager::saveSearchParams($params);   
+        $options['tpl_idx'] = $tpl_idx;     
         $tpl->assign("options", $options);
         $terms = Pager::getParam('terms',$params);
-        $cat = Pager::getParam('cat',$params);
+        $cat = Misc::GETorPOST('cat');
         $browse = Pager::getParam('browse',$params);
         $letter = Pager::getParam('letter',$params);
         $collection_pid = Pager::getParam('collection_pid',$params);
         $community_pid = Pager::getParam("community_pid",$params);
-        $order_by = Pager::getParam('order_by',$params);
-        $order_by_list = array();
+        //$sort_by = Pager::getParam('sort_by',$params);
+		$sort_by = $options["sort_by"];
+//		$sort_order = $options["sort_order"];
+		$sort_by_list = array();
+
+        $sort_by_list = array();
         if (!empty($community_pid)) {
-            $order_by_list = array(
-                'Title' => 'Title',
-                'Description' => 'Description'
+            $sort_by_list = array(
+                "searchKey".Search_Key::getID("Title") => 'Title',
+                "searchKey".Search_Key::getID("Description") => 'Description',
+                "searchKey".Search_Key::getID("Date") => 'Date'
             );
-        } elseif (empty($community_pid) && empty($collection_pid) && empty($cat) && empty($browse)) {
-            $order_by_list = array(
-                'Title' => 'Title',
-                'Description' => 'Description'
+        } elseif (empty($community_pid) && empty($collection_pid) && empty($browse)) {
+            $sort_by_list = array(
+            	"searchKey".Search_Key::getID("Title") => 'Title',
+           		"searchKey".Search_Key::getID("Description") => 'Description',
+				"searchKey".Search_Key::getID("Date") => 'Date'
             );
         } else {
-            foreach (Search_Key::getAssocListAdvanced() as $key => $value) {
-                $order_by_list[$value] = $value;
+        	$sort_by_list = array(
+        	"searchKey".Search_Key::getID("Title") => 'Title',
+        	"searchKey".Search_Key::getID("Description") => 'Description',
+        	"searchKey".Search_Key::getID("Date") => 'Date'
+			);
+        }
+       //print_r($options);
+       //print_r($sort_by_list);
+        if (($cat == 'search' || $cat == 'all_fields' || $cat == 'quick_filter') && $options["searchKey0"] != "") {        	
+            $sort_by_list['searchKey0'] = "Search Relevance";           
+            if ((Misc::GETorPOST("sort_by")) == "") {
+            	$sort_by = "searchKey0";            	
             }
+            if (!is_numeric(Misc::GETorPOST("sort_order")) && ($sort_by == "searchKey0")) { // if searching by all fields and sort order not specifically set in the querystring (from a manual sort order change) than make search revelance sort descending
+            	$options["sort_order"] = 1; // DESC relevance
+        	}
         }
-        if (!empty($terms) || $cat == 'search') {
-            $order_by_list['Relevance'] = "Search Relevance";
+        
+        $tpl->assign('sort_by_list', $sort_by_list);
+        //print_r($sort_by_list);
+		$sort_by_keys = $sort_by_list;
+        //$sort_by_keys = array_keys($sort_by_list);
+        if (!array_key_exists($sort_by, $sort_by_keys)) {
+        	$sort_by = "searchKey".Search_Key::getID("Title");
         }
-        $tpl->assign('order_by_list', $order_by_list);
-        $orderby_keys = array_keys($order_by_list);
-        if (!in_array($order_by, $orderby_keys)) {
-            $order_by = $orderby_keys[0];
-        }
+        
+        //print_r($sort_by);
         $list_info = array();
         
 		$bulk_workflows = WorkflowTrigger::getAssocListByTrigger("-1", 7); //get the bulk change workflows
 //		print_r($bulk_workflows);
         $tpl->assign("bulk_workflows", $bulk_workflows);
         if (!empty($collection_pid)) {
-            if (empty($order_by)) {
-                $order_by = 'Title';
+            if (empty($sort_by)) {
+                $sort_by = "searchKey".Search_Key::getID("Title");
             }
             // list a collection
             // first check the user has view rights over the collection object
@@ -159,12 +201,12 @@ class Lister
                         || in_array("Editor", $userPIDAuthGroups) 
                         || in_array("Collection Administrator", $userPIDAuthGroups));
                 $tpl->assign("isEditor", $isEditor);		
-                
-                $list = Collection::getListing($collection_pid, $pagerRow, $rows, $order_by);
+                $list = Collection::getListing($collection_pid, $pager_row, $rows, $sort_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
                 $tpl->assign("list_heading", "List of Records in ".$collection_details[0]['title'][0]." Collection");
                 $tpl->assign("list_type", "collection_records_list");
+
                 $tpl->assign("collection_pid", $collection_pid);
                 $childXDisplayOptions = Collection::getChildXDisplayOptions($collection_pid);
                 if (count($childXDisplayOptions) > 0) {
@@ -176,10 +218,10 @@ class Lister
                 $tpl->assign("show_not_allowed_msg", true);
             } 
         } elseif (!empty($community_pid)) {
-            /*if (empty($order_by)) {
-                $order_by = 'Title';
+            /*if (empty($sort_by)) {
+                $sort_by = "searchKey".Search_Key::getID("Title");
             }*/
-			$order_by = 'Title';
+			$sort_by = "searchKey".Search_Key::getID("Title");
             // list collections in a community
             // first check the user has view rights over the collection object
             $record = new RecordObject($community_pid);
@@ -196,8 +238,8 @@ class Lister
                 $tpl->assign("isEditor", $isEditor);
                 $tpl->assign("xdis_id", $xdis_id);	
                 $community_details = Community::getDetails($community_pid);
-                $list = Collection::getListing($community_pid, $pagerRow, $rows, $order_by);
-                $list_info = $list["info"];
+                $list = Collection::getListing($community_pid, $pager_row, $rows, $sort_by);
+                $list_info = $list["info"];                
                 $list = $list["list"];
                 $tpl->assign("list_heading", "List of Collections in ".$community_details[0]['title'][0]." Community");
                 $tpl->assign("list_type", "collection_list");
@@ -210,39 +252,50 @@ class Lister
             } else {
                 $tpl->assign("show_not_allowed_msg", true);
             }
-        } elseif (!empty($terms)) {
-            if (empty($order_by)) {
-                $order_by = 'Relevance';
-            }
+/*        } elseif ($cat == "all_fields") {
+        	//print_r($options); echo $sort_by;
+        	if (empty($sort_by)) {
+        		if ($options["search_keys0"] == "") {
+        			$sort_by = "searchKey".Search_Key::getID("Title");
+        		} else {
+        			$sort_by = "searchKey0"; // Search Relevance
+        			$options["sort_dir"] = 1;
+        		}
+        	}
 
-            // search Fez
-            $list = Collection::searchListing($terms, $pagerRow, $rows, $order_by);	
-            $list_info = $list["info"];
-            $list = $list["list"];
-            $tpl->assign("list_heading", "Search Results ($terms)");
-            $tpl->assign("list_type", "all_records_list");
-        } elseif ($cat == "search") {
-            if (empty($order_by)) {
-                $order_by = 'Title';
-            }
+        	// search Fez
+        	$options = Pager::saveSearchParams();
+        	$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+        	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by);
 
+        	$list_info = @$list["info"];
+        	$terms = @$list_info['search_info'];
+        	$list = @$list["list"];
+        	$tpl->assign("list_heading", "Search Results ($terms)");
+        	$tpl->assign("list_type", "all_records_list"); */
+/*        } elseif ($cat == "search") {
+            if (empty($sort_by)) {
+                $sort_by = "searchKey".Search_Key::getID("Title");
+            }
+            $search_keys = Search_Key::getQuickSearchList();
             // search 
-            $list = Collection::advSearchListing($pagerRow, $rows, $order_by);	
+            $list = Collection::advSearchListing($pager_row, $rows, $sort_by);	
             $list_info = @$list["info"];
-            $terms = @$list['search_info'];
+            $terms = @$list_info['search_info'];
             $list = @$list["list"];
             $tpl->assign("list_heading", "Search Results ($terms)");
-            $tpl->assign("list_type", "all_records_list");
+            $tpl->assign("list_type", "all_records_list");*/
         } elseif ($browse == "latest") {
             // browse by latest additions / created date desc
             // reget the order by thing so we can change the default
-            if (empty($order_by)) {
-                $order_by = 'Created Date';
+            if (empty($sort_by)) {
+                $sort_by = 'Created Date';
             }
-            $list = Collection::browseListing($pagerRow, $rows, "Created Date",$order_by);
+            $list = Collection::browseListing($pager_row, $rows, "Created Date",$sort_by);
             //print_r($list);
             $list_info = $list["info"];
             $list = $list["list"];
+            $search_keys = Search_Key::getQuickSearchList();
             $tpl->assign("browse_type", "browse_latest");
             $tpl->assign("list_heading", "Browse By Latest Additions");
             $tpl->assign("today", date("Y-m-d"));
@@ -253,17 +306,18 @@ class Lister
         } elseif ($browse == "year") {
             // browse by year
             $year = Pager::getParam('year',$params);
-            if (empty($order_by)) {
-            $order_by = 'Title';
+            $search_keys = Search_Key::getQuickSearchList();
+            if (empty($sort_by)) {
+           		$sort_by = "searchKey".Search_Key::getID("Title");
             }
             if (is_numeric($year)) {	
-                $list = Collection::browseListing($pagerRow, $rows, "Date", $order_by);
+                $list = Collection::browseListing($pager_row, $rows, "Date", $sort_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
                 $tpl->assign("browse_heading", "Browse By Year ".$year);
                 $tpl->assign("list_heading", "List of Records");
             } else {
-                $list = Collection::listByAttribute($pagerRow, $rows,"Date",$order_by);
+                $list = Collection::listByAttribute($pager_row, $rows,"Date",$sort_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
                 $tpl->assign("browse_heading", "Browse By Year");
@@ -272,17 +326,17 @@ class Lister
         } elseif ($browse == "author") {
             // browse by author
             $author = Pager::getParam('author',$params);
-            if (empty($order_by)) {
-                $order_by = 'Title';
+            if (Misc::GETorPOST("sort_by") == "") {            	
+                $sort_by = "searchKey".Search_Key::getID("Title");
             }
             if (!empty($author)) {	
-                $list = Collection::browseListing($pagerRow, $rows, "Author", $order_by);
+                $list = Collection::browseListing($pager_row, $rows, "Author",$sort_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
                 $tpl->assign("browse_heading", "Browse By Author - ".$author);
 			    $tpl->assign("list_heading", "Browse By Author - ".$author);	
             } else {
-                $list = Collection::listByAttribute($pagerRow, $rows, "Author", $order_by, $letter);
+                $list = Collection::listByAttribute($pager_row, $rows, "Author",$sort_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
                 $tpl->assign("browse_heading", "Browse By Author");
@@ -295,17 +349,17 @@ class Lister
             // browse by depositor
             $depositor = Pager::getParam('depositor',$params);
 			$depositor_fullname = User::getFullName($depositor);
-            if (empty($order_by)) {
-            $order_by = 'Title';
-            }
-            if (!empty($depositor)) {	
-                $list = Collection::browseListing($pagerRow, $rows, "Depositor",$order_by);
+			if (Misc::GETorPOST("sort_by") == "") {
+				$sort_by = "searchKey".Search_Key::getID("Title");
+			}
+			if (!empty($depositor)) {
+                $list = Collection::browseListing($pager_row, $rows, "Depositor",$sort_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
                 $tpl->assign("browse_heading", "Browse By Depositor - ".$depositor_fullname);
 			    $tpl->assign("list_heading", "Browse By Depositor - ".$depositor_fullname);	
             } else {
-                $list = Collection::listByAttribute($pagerRow, $rows, "Depositor",$order_by);
+                $list = Collection::listByAttribute($pager_row, $rows, "Depositor",$sort_by);
                 $list_info = $list["info"];
                 $list = $list["list"];		
                 $tpl->assign("browse_heading", "Browse By Depositor");
@@ -313,9 +367,9 @@ class Lister
             }
             $tpl->assign("browse_type", "browse_depositor");			
         } elseif ($browse == "subject") {
-            if (empty($order_by)) {
-                $order_by = 'Title';
-            }
+        	if (Misc::GETorPOST("sort_by") == "") {
+        		$sort_by = "searchKey".Search_Key::getID("Title");
+        	}
             // browse by subject
             $parent_id = Pager::getParam('parent_id',$params);
             if (is_numeric($parent_id)) {	
@@ -323,7 +377,7 @@ class Lister
                 $treeIDs = Controlled_Vocab::getAllTreeIDs($parent_id);
 
                 $subject_count = Collection::getCVCountSearch($treeIDs, $parent_id);
-                $list = Collection::browseListing($pagerRow, $rows, "Subject",$order_by);	
+                $list = Collection::browseListing($pager_row, $rows, "Subject",$sort_by);	
                 $list_info = $list["info"];
                 $list = $list["list"];		
             } else {
@@ -345,24 +399,45 @@ class Lister
             $tpl->assign("browse_heading", "Browse By Subject Classifications Records");
             $tpl->assign("list_heading", "List of Subject Classifications Records");
             $tpl->assign("browse_type", "browse_subject");
+        } elseif ($cat == "quick_filter") {
+        	if (empty($sort_by)) {      
+        		if ($options["searchKey0"] == "") {
+        			$sort_by = "searchKey".Search_Key::getID("Title");	
+        		} else {        			
+        			$sort_by = "searchKey0"; // Search Relevance
+					$options["sort_dir"] = 1;
+        		}
+        	}        	
+        	// search Fez			
+			//$options = Pager::saveSearchParams(); // already done up above
+			// enforce certain search parameters			
+			$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+			$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by);        	
+
+        	$list_info = @$list["info"];
+        	$terms = @$list_info['search_info'];
+        	$list = @$list["list"];
+        	$tpl->assign("list_heading", "Search Results ($terms)");        	 
+        	$tpl->assign("list_type", "all_records_list");
         } else {
             // list all communities
-            if (empty($order_by)) {
-                $order_by = 'Title';
-            }
+            if (empty($sort_by)) {
+                $sort_by = "searchKey".Search_Key::getID("Title");
+            }            
             $xdis_id = Community::getCommunityXDIS_ID();
             $tpl->assign("xdis_id", $xdis_id);	
-            $list = Community::getList($pagerRow, $rows, $order_by);
+            $list = Community::getList($pager_row, $rows, $sort_by);
             $list_info = $list["info"];
             $list = $list["list"];
             $tpl->assign("list_type", "community_list");
             $tpl->assign("list_heading", "List of Communities");
-        }
-        $tpl->assign('order_by_default', $order_by);
+        }        
+        
+        $tpl->assign('sort_by_default', $sort_by);        
         $workflows_list = Misc::keyPairs(Workflow::getList(), 'wfl_id', 'wfl_title');
         $tpl->assign('workflows_list', $workflows_list);
         $tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
-
+        $tpl->assign('sort_order', $options["sort_order"]);
         $tpl->assign("list", $list);
         $tpl->assign("list_info", $list_info);
         if (Auth::userExists($username)) {

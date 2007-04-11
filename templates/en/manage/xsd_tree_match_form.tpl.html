@@ -890,6 +890,7 @@
 						<option value="varchar" {if $info.xsdmf_data_type == 'varchar' || $info.xsdmf_data_type == ''}selected{/if}>Varchar (text up to 255 characters)</option>
 						<option value="int" {if $info.xsdmf_data_type == 'int'}selected{/if}>Integer (whole number)</option>
 						<option value="date" {if $info.xsdmf_data_type == 'date'}selected{/if}>Date (YYYY-MM-DD)</option>
+						<option value="text" {if $info.xsdmf_data_type == 'text'}selected{/if}>Text (text likely greater than 255 characters)</option>						
 					</select>
                 </td>
               </tr>			  			  
@@ -1204,6 +1205,8 @@
 					<INPUT TYPE=RADIO NAME="fez_variable" VALUE="created_date" {if $info.xsdmf_fez_variable == "created_date"}checked{/if}/>Fez Created Date<BR>
 					<INPUT TYPE=RADIO NAME="fez_variable" VALUE="updated_date" {if $info.xsdmf_fez_variable == "updated_date"}checked{/if}/>Fez Updated Date<BR>
 					<INPUT TYPE=RADIO NAME="fez_variable" VALUE="usr_id" {if $info.xsdmf_fez_variable == "usr_id"}checked{/if}/>Fez User ID<BR>					
+					<INPUT TYPE=RADIO NAME="fez_variable" VALUE="assigned_usr_id" {if $info.xsdmf_fez_variable == "assigned_usr_id"}checked{/if}/>Fez Assigned User ID<BR>					
+					<INPUT TYPE=RADIO NAME="fez_variable" VALUE="assigned_grp_id" {if $info.xsdmf_fez_variable == "assigned_grp_id"}checked{/if}/>Fez Assigned Group ID<BR>															
 				</td>
  			  </tr> 
 

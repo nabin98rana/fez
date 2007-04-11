@@ -9,9 +9,9 @@
               var editing_option_id = -1;
               function validateForm(f)
               {
-                  if (isWhitespace(f.title.value)) {
+                  if (isWhitespace(f.sek_title.value)) {
                       alert('Please enter the title of this search key.');
-                      selectField(f, 'title');
+                      selectField(f, 'sek_title');
                       return false;
                   }
                   if ((f.field_type[2].checked) || (f.field_type[3].checked)) {
