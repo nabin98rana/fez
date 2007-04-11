@@ -16,13 +16,13 @@
   {assign var="search_key_name" value='searchKey'|cat:$search_keys[i].sek_id}
   {assign var ="last_key" value=$options.$search_key_name}  
   {if ($smarty.section.i.index ==  0)}
-  <td class="{if $options.searchKey0 != ''}default-search-used{else}default{/if}">
+  <td class="{if $options.searchKey0 != ''}default-search-used{else}default{/if}" valign="top">
     All Fields: <br />
 	<input id="search_keys[0]" type="text" name="search_keys[0]" maxlength="255" size="35" value="{$options.searchKey0}">
   </td>
   {/if}
   {if $search_keys[i].sek_html_input != 'allcontvocab' and $search_keys[i].sek_html_input != 'contvocab'}
-  <td class="{if $last_key != 'ALL' && $last_key != ''}default-search-used{else}default{/if}">
+  <td class="{if $last_key != 'ALL' && $last_key != ''}default-search-used{else}default{/if}" valign="top">
   {if $search_keys[i].sek_alt_title}{$search_keys[i].sek_alt_title}{else}{$search_keys[i].sek_title}{/if}:
   {if $search_keys[i].sek_html_input != 'text' &&  $search_keys[i].sek_html_input != 'textarea'}
     <script language="JavaScript">
