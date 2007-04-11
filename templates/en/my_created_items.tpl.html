@@ -1,10 +1,10 @@
 <script type="text/javascript" language="javascript">
 <!--
 var page_url = '{$smarty.server.PHP_SELF}';
-var mci_current_page = {if $my_created_items_info.current_page != ""}{$my_created_items_info.current_page}{else}0{/if};
-var mci_last_page = {if $my_created_items_info.last_page != ""}{$my_created_items_info.last_page}{else}0{/if};
+var current_page = {if $my_created_items_info.current_page != ""}{$my_created_items_info.current_page}{else}0{/if};
+var last_page = {if $my_created_items_info.last_page != ""}{$my_created_items_info.last_page}{else}0{/if};
 {literal}
-function mci_checkDeleteRecords(f)
+function checkDeleteRecords(f)
 {
     if (!hasOneChecked(f, 'items[]')) {
         alert('Please select at least one item.');
@@ -19,7 +19,7 @@ function mci_checkDeleteRecords(f)
          return true;
     }
 }
-function mci_checkPublishRecords(f)
+function checkPublishRecords(f)
 {
     if (!hasOneChecked(f, 'items[]')) {
         alert('Please select at least one item.');
@@ -38,7 +38,7 @@ function mci_checkPublishRecords(f)
 }
 
 
-function mci_checkPageField(ev)
+function checkPageField(ev)
 {
     // check if the user is trying to submit the form by hitting <enter>
     if (((window.event) && (window.event.keyCode == 13)) ||
@@ -46,40 +46,40 @@ function mci_checkPageField(ev)
         return false;
     }
 }
-function mci_goPage(f, new_page)
+function goPage(f, new_page)
 {
-    if ((new_page > mci_last_page+1) || (new_page <= 0) ||
-            (new_page == mci_current_page+1) || (!isNumberOnly(new_page))) {
-        f.page.value = mci_current_page+1;
+    if ((new_page > last_page+1) || (new_page <= 0) ||
+            (new_page == current_page+1) || (!isNumberOnly(new_page))) {
+        f.page.value = current_page+1;
         return false;
     }
     setPage(new_page-1);
 }
-function mci_setPage(new_page)
+function setPage(new_page)
 {
-    if ((new_page > mci_last_page) || (new_page < 0) ||
-            (new_page == mci_current_page)) {
+    if ((new_page > last_page) || (new_page < 0) ||
+            (new_page == current_page)) {
         return false;
     }
     window.location.href = page_url + "?" + replaceParam(window.location.href, 'pager_row_my_created', new_page);
 }
-function mci_disableFields(f)
+function disableFields(f)
 {
-    if (mci_current_page == 0) {
+    if (current_page == 0) {
         f.first.disabled = true;
         f.previous.disabled = true;
     }
-    if ((mci_current_page == mci_last_page) || (mci_last_page <= 0)) {
+    if ((current_page == last_page) || (last_page <= 0)) {
         f.next.disabled = true;
         f.last.disabled = true;
     }
-    if ((mci_current_page == 0) && (mci_last_page <= 0)) {
+    if ((current_page == 0) && (last_page <= 0)) {
         f.page.disabled = true;
         f.go.disabled = true;
     }
 }
 
-function mci_sortList(f, field) {
+function sortList(f, field) {
     sort_by = getSelectedOption(f, field);
     sort_by_dir = getSelectedOption(f, 'sort_by_dir');    
     temp = page_url + "?" + 'sort_by=' + sort_by;

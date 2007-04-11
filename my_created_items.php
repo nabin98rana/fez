@@ -124,7 +124,7 @@ $tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
 
 $tpl->assign("roles_list", Auth::getDefaultRoles());
-$pager_row = Pager::getParam('pager_row_my_assigned');
+$pager_row = Pager::getParam('pager_row_my_created');
 if (empty($pager_row)) {
     $pager_row = 0;
 }
@@ -156,7 +156,10 @@ $tpl->assign("grp_list", $grp_list);
 $tpl->assign("usr_list", $usr_list);
 $tpl->assign("isMemberOf_list", $collection_assoc_list);
 
-$pager_row_my_created = Pager::getParam('pager_row_my_created');
+$pager_row = Pager::getParam('pager_row_my_created');
+if (empty($pager_row)) {
+    $pager_row = 0;
+}
 $rows = Pager::getParam('rows');
 if (empty($rows)) {
     $rows = APP_DEFAULT_PAGER_SIZE;
@@ -166,7 +169,7 @@ if (empty($sort_by)) {
     $sort_by = "searchKey".Search_Key::getID("Title");
 }
 $sort_by_dir = Pager::getParam('sort_by_dir');
-$created_items= Record::getCreated($options, $pager_row_my_created, $rows, $sort_by, $sort_by_dir);
+$created_items= Record::getCreated($options, $pager_row, $rows, $sort_by, $sort_by_dir);
 
 $tpl->assign('my_created_items_list', $created_items['list']);
 $tpl->assign('my_created_items_info', $created_items['info']);

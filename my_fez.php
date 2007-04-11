@@ -174,26 +174,10 @@ $tpl->assign("usr_list", $usr_list);
 $tpl->assign("isMemberOf_list", $collection_assoc_list);
 //$assigned_items= Record::getAssigned(Auth::getUsername(), $pager_row, $rows, $sort_by, $sort_by_dir, $isMemberOf);
 
-
 $assigned_items = Record::getListing($options, array("Editor", "Approver"), $pager_row, $rows, $options["sort_by"]);
 
 $tpl->assign('my_assigned_items_list', $assigned_items['list']);
 $tpl->assign('my_assigned_items_info', $assigned_items['info']);
-
-$pager_row_my_created = Pager::getParam('pager_row_my_created');
-$mci_rows = Pager::getParam('mci_rows');
-if (empty($mci_rows)) {
-    $mci_rows = APP_DEFAULT_PAGER_SIZE;
-}
-$mci_sort_by = Pager::getParam('mci_sort_by');
-if (empty($mci_sort_by)) {
-    $mci_sort_by = "Title";
-}
-$mci_sort_by_dir = Pager::getParam('mci_sort_by_dir');
-//$created_items= Record::getCreated(Auth::getUserID(), $pager_row_my_created, $mci_rows, $mci_sort_by, $mci_sort_by_dir);
-
-$tpl->assign('my_created_items_list', $created_items['list']);
-$tpl->assign('my_created_items_info', $created_items['info']);
 
 $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
 $tpl->registerNajax( NAJAX_Client::register('NajaxBackgroundProcessList', APP_RELATIVE_URL.'najax_services/generic.php'));
