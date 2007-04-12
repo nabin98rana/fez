@@ -1,32 +1,34 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title>{if $extra_title != ""}{$extra_title} - {/if}{$application_title}</title>
 <link rel="Bookmark" href="{$rel_url}favicon.ico" />
 <link rel="SHORTCUT ICON" href="{$rel_url}favicon.ico" />
-<link rel="stylesheet" href="{$rel_url}css/dynCalendar.css" type="text/css" media="screen">
+<link rel="stylesheet" href="{$rel_url}css/dynCalendar.css" type="text/css" media="screen" />
 {if $user_agent == 'ie'}
-<link rel="stylesheet" href="{$rel_url}css/style.css" type="text/css">
+<link rel="stylesheet" href="{$rel_url}css/style.css" type="text/css" />
 {else}
-<link rel="stylesheet" href="{$rel_url}css/other.css" type="text/css">
+<link rel="stylesheet" href="{$rel_url}css/other.css" type="text/css" />
 {/if}
-<link rel="stylesheet" href="{$rel_url}css/common.css" type="text/css">
-
-<link rel="stylesheet" href="{$rel_url}css/dynCalendar.css" type="text/css">
-<link rel="stylesheet" href="{$rel_url}css/dynamic_css.php" type="text/css">
-<script language="JavaScript" src="{$rel_url}js/browserSniffer.js"></script>
-<script language="JavaScript" src="{$rel_url}js/global.js"></script>
-<script language="JavaScript" src="{$rel_url}js/validation.js"></script>
-<script language="JavaScript" src="{$rel_url}js/common.js"></script>
+<link rel="stylesheet" href="{$rel_url}css/common.css" type="text/css" />
+<link rel="stylesheet" href="{$rel_url}css/home.css" type="text/css" />
+<link rel="stylesheet" href="{$rel_url}css/dynCalendar.css" type="text/css" />
+<link rel="stylesheet" href="{$rel_url}css/dynamic_css.php" type="text/css" />
+<script language="JavaScript" type="text/javascript" src="{$rel_url}js/browserSniffer.js"></script>
+<script language="JavaScript" type="text/javascript" src="{$rel_url}js/global.js"></script>
+<script language="JavaScript" type="text/javascript" src="{$rel_url}js/validation.js"></script>
+<script language="JavaScript" type="text/javascript" src="{$rel_url}js/common.js"></script>
 {if $refresh_rate}
-<meta http-equiv="Refresh" content="{$refresh_rate};URL={$app_base_url}{$refresh_page}">
+<meta http-equiv="Refresh" content="{$refresh_rate};URL={$app_base_url}{$refresh_page}" />
 {/if}
 {$najax_header}
 {$meta_head}
-<script language="JavaScript" src="{$rel_url}js/suggestions.js"></script>
-<script language="JavaScript" src="{$rel_url}js/autosuggest.js"></script>
-<script language="JavaScript" src="{$rel_url}js/autocomplete.js"></script>
+<script language="JavaScript" type="text/javascript" src="{$rel_url}js/suggestions.js"></script>
+<script language="JavaScript" type="text/javascript" src="{$rel_url}js/autosuggest.js"></script>
+<script language="JavaScript" type="text/javascript" src="{$rel_url}js/autocomplete.js"></script>
 <script language="JavaScript" type="text/javascript">
+<!--
 {$najax_register}
 {literal}
 window.onload = function () {
@@ -44,6 +46,7 @@ window.onload = function () {
 	}
 }
 {/literal}
+-->
 </script>
 
 </head>

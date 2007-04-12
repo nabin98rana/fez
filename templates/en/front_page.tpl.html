@@ -3,7 +3,7 @@
 {include file="navigation.tpl.html"}
 
 {literal}
-<script language="JavaScript">
+<script language="JavaScript" type="text/javascript">
 <!--
 {/literal}{$najax_register}{literal}
 function purgeObject(pid)
@@ -35,7 +35,7 @@ function selectSearchSuggestor(f, field_name)
 	   return false;
 	}
 	var field = getFormElement(f, field_name);
-	//var selections = getSelectedItems(field);
+	/*var selections = getSelectedItems(field);*/
 	if (field.value != '') {
 		dt1_load_state++;
 
@@ -44,7 +44,7 @@ function selectSearchSuggestor(f, field_name)
 		obj.ongetSuggestionError = function() {
 			removeAllOptions(f, 'front_search');
 			hideLoading1();
-			dt1_load_state--;
+			dt1_load_state = dt1_load_state - 1;
 		}
 		obj.setTimeout(10000);
 
@@ -52,8 +52,8 @@ function selectSearchSuggestor(f, field_name)
 				removeAllOptions(f, 'front_search');
 				addOptions(f, 'front_search', dt_list);
 				hideLoading1();
-				//autoComplete(field, dt_list);
-				dt1_load_state--;
+				/*autoComplete(field, dt_list);*/
+				dt1_load_state = dt1_load_state - 1;
 				});
 	}
 }
@@ -61,7 +61,7 @@ var basic_element = getPageElement('basic_filter_form' + '1');
 if (isElementVisible(basic_element)) {
 	toggleVisibility('basic_filter_form');
 }
-//-->
+-->
 </script>
 {/literal}
 
@@ -74,17 +74,15 @@ if (isElementVisible(basic_element)) {
 		  <input type="hidden" name="cat" value="quick_filter" />		
 		  <label for="search" accesskey="3"></label>
 			<input type="hidden" name="sort_by" value="searchKey0" />
-			<input class="default"  type="text" id="front_search" autocomplete="off" name="search_keys[0]" size="40" onKeyUp="javascript: selectSearchSuggestor(this.form, 'front_search')">
-				<div id="loading1" style="display:none;">Loading...</div>
-			<input class="default" type="submit" value="Search">
-			<span class="default"><a href="#" onClick="javascript:alert( 'Search All Fields\n\n Enter a phrase.  Objects where any field contains the phrase will be returned.\n This is a case-insensitive search, and you may use the * or ? wildcards.\n\n Examples:\n\n li*y\n finds objects that start with li and end with y\n\n b?ts\n finds words that start with b followed by any letter and then ts.  e.g. bits, bats, byts')">Help</a> <br />
-			Use <a href="{$rel_url}adv_search.php"><b>Advanced Search</b></a> to search by multiple criteria</span>
+			<input type="text" id="front_search" autocomplete="off" name="search_keys[0]" size="40" onkeyup="javascript: selectSearchSuggestor(this.form, 'front_search')" />
+			<div id="loading1" style="display:none;">Loading...</div>
+			<input type="submit" value="Search" />
+			<a href="#" onclick="javascript:alert( 'Search All Fields\n\n Enter a phrase.  Objects where any field contains the phrase will be returned.\n This is a case-insensitive search, and you may use the * or ? wildcards.\n\n Examples:\n\n li*y\n finds objects that start with li and end with y\n\n b?ts\n finds words that start with b followed by any letter and then ts.  e.g. bits, bats, byts')">Help</a><br />Use <a href="{$rel_url}adv_search.php"><b>Advanced Search</b></a> to search by multiple criteria<br />&nbsp;
 		</form>	  
 	  </div>
 
 	  <div class="front-page-content-header"><img src="{$rel_url}images/browse_22.jpg" alt="Browse" title="Browse" /> Browse</div>
 	  <div class="front-page-content-detail">
-	  <span class="default">
 		<ul class="front-page-list">
 			<li><a href="{$rel_url}list.php?browse=author">by Author</a></li>
 			<li><a href="{$rel_url}list.php?browse=subject">by Subject</a></li>
@@ -92,29 +90,24 @@ if (isElementVisible(basic_element)) {
 			<li><a href="{$rel_url}list.php?browse=year">by Year</a></li>
 			<li><a href="{$rel_url}list.php?browse=latest">by Latest additions</a></li>
 		</ul>
-		</span>
 	  </div>
 
 {if $WEBSERVER_LOG_STATISTICS == 'ON'}
 	  <div class="front-page-content-header"><img src="{$rel_url}images/statistics_22.gif" alt="Download Statistics" title="Download Statistics" /> Download Statistics</div>
 	  <div class="front-page-content-detail">
-	  <span class="default">
 		<ul class="front-page-list">
 		  <li><a href="{$rel_url}stats.php?browse=top50authors">Top 50 authors</a></li>
 		  <li><a href="{$rel_url}stats.php?browse=top50papers">Top 50 papers</a></li>
-		  <li>Most viewed - <a href="{$rel_url}stats.php?browse=show_detail_date&range=4w">Last 4 weeks</a> | <a href="{$rel_url}stats.php?browse=show_detail_date&year={$thisYear}">This year</a> | <!--a href="{$rel_url}stats.php?browse=show_detail_date&year={$lastYear}">Last year</a> |--> <a href="{$rel_url}stats.php?browse=show_detail_date">All years</a></li>
-		  <li>All statistics - <a href="{$rel_url}stat_details.php?action=cumulative_usage&range=all">by Date</a> | <a href="{$rel_url}stat_details.php?action=cumulative_usage_country">by Country</a></li>
+		  <li>Most viewed - <a href="{$rel_url}stats.php?browse=show_detail_date&amp;range=4w">Last 4 weeks</a> | <a href="{$rel_url}stats.php?browse=show_detail_date&amp;year={$thisYear}">This year</a> | <!--a href="{$rel_url}stats.php?browse=show_detail_date&amp;year={$lastYear}">Last year</a> |--> <a href="{$rel_url}stats.php?browse=show_detail_date">All years</a></li>
+		  <li>All statistics - <a href="{$rel_url}stat_details.php?action=cumulative_usage&amp;range=all">by Date</a> | <a href="{$rel_url}stat_details.php?action=cumulative_usage_country">by Country</a></li>
 		</ul>
-		</span>
 	  </div>
 {/if}
 
 {if $SELF_REGISTRATION == 'ON'}
 	  <div class="front-page-content-header"><img src="{$rel_url}images/editor_22.jpg" alt="Registered Users" title="Registered Users" /> Registered Users</div>
 	  <div class="front-page-content-detail">
-	  <span class="default">
 		<a href="{$rel_url}register.php">Register</a> | <a href="{$rel_url}my_fez.php">Deposit or manage papers</a>
-		</span>
 	  </div>
 {/if}
 
@@ -123,19 +116,16 @@ if (isElementVisible(basic_element)) {
     <td width="50%" valign="top">
 	  <div class="front-page-content-header"><img src="{$rel_url}images/news_22.jpg" alt="News" title="News" /> News</div>
 	  <div class="front-page-content-detail">
-		<span class="default">
 		  <ul class="front-page-list">
 		  {section name="i" loop=$news}
 		  <li><a href="news.php#{$news[i].nws_id}">{$news[i].nws_title}</a></li>
 		  {/section}
 		  <li><a href="news.php?show=rss">RSS</a> | <a href="news.php">More...</a></li>
 		  </ul>
-		</span>
 	  </div>
 
 	  <div class="front-page-content-header"><img src="{$rel_url}images/folder_new_22.jpg" alt="Recently Added Items" title="Recently Added Items" /> Recently Added Items</div>
 	  <div class="front-page-content-detail">
-	    <span class="default">
 		<ul class="front-page-list">
 
 	        {section name="i" loop=$list}		
@@ -154,7 +144,7 @@ if (isElementVisible(basic_element)) {
                   {assign var="href_view" value=""}
                 {/if}
 				{if $list[i].thumbnail != "0" && $list[i].isViewer==1}
-	                {assign var="icon" value=$eserv_url|cat:"?ls=0&pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].thumbnail}
+	                {assign var="icon" value=$eserv_url|cat:"?ls=0&amp;pid="|cat:$list[i].pid|cat:"&amp;dsID="|cat:$list[i].thumbnail}
 				{else}
 
 				{/if}
@@ -205,13 +195,13 @@ if (isElementVisible(basic_element)) {
 			{/if}
 
 					<li>
-                    {if $href_view}<a class="tool-tip" href='{$href_view}' >{/if}<!--img align="absmiddle" src="{$icon}" border="0"-->{if $href_view}</a>{/if} 
+                    {if $href_view}<a class="tool-tip" href='{$href_view}' >{/if}<!--img src="{$icon}" border="0"-->{if $href_view}</a>{/if} 
 
                     {if $href_view}<a class="tool-tip" href='{$href_view}'>{/if}
 					<span class="tool-tip">
 					{if $list[i].research_program.0}{$list[i].research_program.0|escape:"html"}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'} - <b>{$list[i].xdis_title.0|escape:"html"}</b>{/if} - {else}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'}<b>{$list[i].xdis_title.0|escape:"html"}</b>{/if}{/if}
 					<br />
-					{if $list[i].file_downloads}<!--a href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}"-->{$list[i].file_downloads|escape:"html"} File Download{if $list[i].file_downloads > 1}s{/if}<!--/a--><br />
+					{if $list[i].file_downloads}<!--a href="{$rel_url}stat_details.php?action=show_detail&amp;pid={$list[i].pid}"-->{$list[i].file_downloads|escape:"html"} File Download{if $list[i].file_downloads > 1}s{/if}<!--/a--><br />
 					{/if}
 					<br />
 					{if $list[i].description.0}{$list[i].description.0|escape:"html"}{if ($list[i].description.0|count_characters > 200)}...{/if}<br />{/if}
@@ -220,17 +210,17 @@ if (isElementVisible(basic_element)) {
 
 					  {if $showEdit || $isAdministrator}
 						{if $showEdit}
-							&nbsp;&nbsp;<a href='{$rel_url}workflow/update.php?pid={$list[i].pid|escape:"html"}&href={$smarty.server.REQUEST_URI}'><img title="Edit" align="absmiddle" src="{$rel_url}images/edit.gif" border="0"></a>
+							&nbsp;&nbsp;<a href='{$rel_url}workflow/update.php?pid={$list[i].pid|escape:"html"}&amp;href={$smarty.server.REQUEST_URI}'><img alt="Edit" title="Edit" src="{$rel_url}images/edit.gif" border="0" /></a>
 						{/if}
 						{if $isAdministrator}
-							 <a href='javascript:void(null);' onClick="javascript:purgeObject('{$list[i].pid|escape:"html"}');"><img title="Delete" align="absmiddle" src="{$rel_url}images/delete.gif" border="0"></a>
+							 <a href='javascript:void(null);' onclick="javascript:purgeObject('{$list[i].pid|escape:"html"}');"><img alt="Delete" title="Delete" src="{$rel_url}images/delete.gif" border="0" /></a>
 						{/if}
 
 					  {/if}
 	
-                       {if $list[i].author} by <b>{section name="author_loop" loop=$list[i].author}{assign var="next_author" value=$smarty.section.author_loop.index+1}<a class="author_link" href="list.php?browse=author&author={$list[i].author[author_loop]}">{$list[i].author[author_loop]|escape:"html"}</a>{if $list[i].author[$next_author] != ""}</b> and <b>{/if}{/section}</b>{if $list[i].date.0} {else}{/if}{/if}{if $list[i].date.0}({$list[i].date.0|date_format:"%Y"}){/if}
+                       {if $list[i].author} by <b>{section name="author_loop" loop=$list[i].author}{assign var="next_author" value=$smarty.section.author_loop.index+1}<a class="author_link" href="list.php?browse=author&amp;author={$list[i].author[author_loop]}">{$list[i].author[author_loop]|escape:"html"}</a>{if $list[i].author[$next_author] != ""}</b> and <b>{/if}{/section}</b>{if $list[i].date.0} {else}{/if}{/if}{if $list[i].date.0}({$list[i].date.0|date_format:"%Y"}){/if}
                       
-					   {if $list[i].object_type == '3' && $list[i].datastreams.0}<b>Files:</b> {section name="d" loop=$list[i].datastreams}{if $href_view}<a href="{$eserv_url|cat:"?pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].datastreams[d]}">{/if}{$list[i].datastreams[d]}{if $href_view}</a>{/if} {/section}{/if}
+					   {if $list[i].object_type == '3' && $list[i].datastreams.0}<b>Files:</b> {section name="d" loop=$list[i].datastreams}{if $href_view}<a href="{$eserv_url|cat:"?pid="|cat:$list[i].pid|cat:"&amp;dsID="|cat:$list[i].datastreams[d]}">{/if}{$list[i].datastreams[d]}{if $href_view}</a>{/if} {/section}{/if}
 
 					</li>
 
@@ -239,11 +229,10 @@ if (isElementVisible(basic_element)) {
 			{/section}
 
 		</ul>
-		</span>
 	  </div>
 
 	  <div class="front-page-content-header"><img src="{$rel_url}images/community_22.jpg" alt="About" title="About" /> About</div>
-	  <div class="front-page-content-detail"><span class="default">
+	  <div class="front-page-content-detail">
 	  <ul class="front-page-list">
 	    <li>Find out more about <a href="about.php">{$application_title}</a></li>
 		<li>Or, try these other digital repository search tools:</li>
@@ -257,7 +246,6 @@ if (isElementVisible(basic_element)) {
 		  </tr>
 		</table>
 
-	  </span>
 	  </div>
     </td>
   </tr>

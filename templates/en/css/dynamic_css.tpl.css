@@ -1,3 +1,7 @@
+#header {
+	background-image: url("[[$smarty.const.APP_URL]]/images/fez_banner_glass.gif");
+}
+
 div.wfl_description {
 padding: 1em;
 margin: 1em;

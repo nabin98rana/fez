@@ -1,97 +1,104 @@
 {include file="banner.tpl.html"}
-<table width="100%" border="0" cellspacing="0" cellpadding="0">
-  <tr>
-    <td>
-      <table width="100%" border="0" cellspacing="0" cellpadding="0" {$shaded_bar}>
-        <tr height="21" valign="middle">
-				<form name="IdPList" target="_top" method="get" action="{$rel_url}login.php">		  
-          <td nowrap class="default">
 
-			{if $isUser}
-            &nbsp;<b>{$application_title}</b> 
-			(<a title="logout from {$application_title}" target="_top" href="{$rel_url}logout.php" class="white_link">Logout</a>)
+{literal}
+<script language="JavaScript" type="text/javascript">
+<!--
+function setCurrentCollection()
+{
+  var features = 'width=420,height=200,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
+  var projWin = window.open('', '_active_collection', features);
+  projWin.focus();
+  return true;
+}
+//-->
+</script>
+{/literal}
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0" class="nav-table-top">
+	<tr>
+	  <td nowrap="nowrap" width="100%">
+		{if $isUser}
+		&nbsp;<b>{$application_title}</b> 
+		(<a title="logout from {$application_title}" target="_top" href="{$rel_url}logout.php" class="white_link">Logout</a>)
+		{else}
+			{if SHIB_SWITCH == "ON" && SHIB_DIRECT_LOGIN == "ON"}
+		<form name="IdPList" target="_top" method="get" action="{$rel_url}login.php" id="idp-form">
+		&nbsp;<b>{$application_title}</b> 
+		<input type="hidden" name="shire" value="https://{$APP_HOSTNAME}/Shibboleth.sso/SAML/POST" />
+		<input type="hidden" name="target" value="cookie" />
+		<input type="hidden" name="providerId" value="{$SHIB_HOME_SP}" />
+		<input type="hidden" name="origin" value="{$SHIB_HOME_IDP}" />		    
+		<input type="hidden" name="getArguments" value="{$getArguments}">
+		<input type="hidden" name="time" value="1142380709" />
+		<input type="hidden" name="action" value="selection" />
+		<input type="hidden" name="cache" value="false" />
+		 (<input type="submit" class="submit_link" value="{$org_short_name} Login"/>) |
+		 (<a title="Non-{$org_short_name} user login, or when {$org_short_name} Login is unavailable {$application_title}" target="_top" href="{$rel_url}login.php" class="white_link">Other Login</a>)
+		 </form>
 			{else}
-				{if SHIB_SWITCH == "ON" && SHIB_DIRECT_LOGIN == "ON"}
-            &nbsp;<b>{$application_title}</b> 
-
-		    <input type="hidden" name="shire" value="https://{$APP_HOSTNAME}/Shibboleth.sso/SAML/POST" />
-		    <input type="hidden" name="target" value="cookie" />
-
-			    <input type="hidden" name="providerId" value="{$SHIB_HOME_SP}" />
-				<input type="hidden" name="origin" value="{$SHIB_HOME_IDP}" />		    
-			    <input type="hidden" name="getArguments" value="{$getArguments}">
-				<input type="hidden" name="time" value="1142380709" />
-		    
-		    <input type="hidden" name="action" value="selection" />
-		    <input type="hidden" name="cache" value="false" />
-			 (<input type="submit" class="submit_link" value="{$org_short_name} Login"/>) |
-			 (<a title="Non-{$org_short_name} user login, or when {$org_short_name} Login is unavailable {$application_title}" target="_top" href="{$rel_url}login.php" class="white_link">Other Login</a>)
-
-				{else}
-            &nbsp;<b>{$application_title}</b> 
-			(<a title="login to {$application_title}" target="_top" href="{$rel_url}login.php" class="white_link">Login</a>)
-				{/if}
+		&nbsp;<b>{$application_title}</b> 
+		(<a title="login to {$application_title}" target="_top" href="{$rel_url}login.php" class="white_link">Login</a>)
 			{/if}
-          </td>
-          				</form>
-          <td align="right" class="default">
-            {if $isHomePage != "true"}
-            <img src="{$rel_url}images/home_16.gif" align="absmiddle"/> <a target="_top" title="Click here to go to the {$application_title} homepage" href="{$rel_url}" class="white_link">Home</a>&nbsp;|         
-            {/if}
-            {if $isAdministrator}
-            <img src="{$rel_url}images/administrator_16.gif" align="absmiddle"/> <a target="_top" title="manage the application settings, users, etc" href="{$rel_url}manage/" class="white_link">Administration</a>&nbsp;|
-            {/if}
-            <img src="{$rel_url}images/community_16.gif" align="absmiddle"/> <a target="_top" title="list the communities stored in {$application_title}" href="{$rel_url}list.php" class="white_link">Browse Communities</a>&nbsp;|
-            {if $isAdministrator || $isUser}
-            <img src="{$rel_url}images/my_fez_16.gif" align="absmiddle"/> <a target="_top" title="" href="{$rel_url}my_fez.php" class="white_link">My {$application_title}</a>&nbsp;|
-            {/if}
-            <img src="{$rel_url}images/help.gif" align="absmiddle"/> <a title="help documentation" href="{$rel_url}help.php?topic=main" target="_blank" class="help">Help</a>&nbsp;
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
+		{/if}
+	  </td>
+	  {if $isHomePage != "true"}
+	  <td align="right"><img src="{$rel_url}images/home_16.gif" alt="" /></td>
+	  <td nowrap="nowrap"> &nbsp;<a target="_top" title="Click here to go to the {$application_title} homepage" href="{$rel_url}" class="white_link">Home</a> &nbsp; </td>
+	  {/if}
+	  {if $isAdministrator}
+	  <td nowrap="nowrap"><img src="{$rel_url}images/administrator_16.gif" alt="" /></td>
+	  <td nowrap="nowrap"> &nbsp;<a target="_top" title="manage the application settings, users, etc" href="{$rel_url}manage/" class="white_link">Administration</a> &nbsp; 	  </td>
+	  {/if}
+	  <td nowrap="nowrap"><img src="{$rel_url}images/community_16.gif" alt="" /></td>
+	  <td nowrap="nowrap"> &nbsp;<a target="_top" title="list the communities stored in {$application_title}" href="{$rel_url}list.php" class="white_link">Browse Communities</a> &nbsp; </td>
+	  {if $isAdministrator || $isUser}
+	  <td nowrap="nowrap"><img src="{$rel_url}images/my_fez_16.gif" alt="" /></td>
+	  <td nowrap="nowrap"> &nbsp;<a target="_top" title="" href="{$rel_url}my_fez.php" class="white_link">My {$application_title}</a> &nbsp; </td>
+	  {/if}
+	  <td nowrap="nowrap"><img src="{$rel_url}images/help.gif" alt="" /></td>
+	  <td nowrap="nowrap"> &nbsp;<a title="help documentation" href="{$rel_url}help.php?topic=main" target="_blank" class="help">Help</a> &nbsp; </td>
+	</tr>
+</table>
+
+{literal}
+<script language="JavaScript" type="text/javascript">
+<!--
+function setCurrentCollection()
+{
+  var features = 'width=420,height=200,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
+  var projWin = window.open('', '_active_collection', features);
+  projWin.focus();
+  return true;
+}
+//-->
+</script>
+{/literal}
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0" class="nav-table-bottom">
   <tr>
-    <td>
-      <table width="100%" border="0" cellspacing="0" cellpadding="2">
-        <tr bgcolor="{$light_color}">
-          {literal}
-          <script language="JavaScript">
-          <!--
-          function setCurrentCollection()
-          {
-              var features = 'width=420,height=200,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
-              var projWin = window.open('', '_active_collection', features);
-              projWin.focus();
-              return true;
-          }
-          //-->
-          </script>
-          {/literal}
-		  {if $isUser}
-          <td width="10%" nowrap class="default">
-            <b>User: {$current_full_name}</b> {if $isFezUser}(<a target="_top" title="modify your account details and preferences" href="{$rel_url}preferences.php" class="link">Preferences</a>){/if}
-          </td>
-          <td><div id="flash_message_div" class="flash_message" style="display:none;">
-		  </div></td>
-		  {/if}
-          <form target="_top" name="basic_filter_form" method="get" action="{$rel_url}list.php">
-          <td id="basic_filter_form1" nowrap bgcolor="{$light_color}" align="right" {get_display_style element_name="basic_filter_form"}>
-			<input type="hidden" name="order_by" value="Relevance" />
-		    <input type="hidden" name="cat" value="quick_filter" />
-            <a href="{$rel_url}adv_search.php"><img border="0" title="Click Here for Advanced Search page" src="{$rel_url}images/search_16.gif" align="absmiddle"/></a> <label for="search" accesskey="3"></label>
-            <input type="text" id="search" name="search_keys[0]" value="" size="15" class="shortcut">
-            <input type="submit" value="Search" class="shortcut">
-<!--<a href="#" onClick="javascript:alert( 'Search All Fields\n\n Enter a phrase.  Objects where any field contains the phrase will be returned.\n This is a case-insensitive search, and you may use the * or ? wildcards.\n\n Examples:\n\n li*y\n finds objects that start with li and end with y\n\n b?ts\n finds words that start with b followed by any letter and then ts.  e.g. bits, bats, byts')"><i>search help</i></a>-->
-          </td>
-          </form>                          
-        </tr>
-      </table>
+	  {if $isUser}
+	  <td nowrap="nowrap" class="default">
+	   &nbsp;<b>User: {$current_full_name}</b> {if $isFezUser}(<a target="_top" title="modify your account details and preferences" href="{$rel_url}preferences.php" class="link">Preferences</a>){/if}
+	  </td>
+	  <td>
+	  <div id="flash_message_div" class="flash_message" style="display:none;"></div>
+	  </td>
+	  {/if}
+	  <td nowrap="nowrap" align="right">
+	  <form target="_top" name="basic_filter_form" method="get" action="{$rel_url}list.php">
+		<input type="hidden" name="order_by" value="Relevance" />
+		<input type="hidden" name="cat" value="quick_filter" />
+		<a href="{$rel_url}adv_search.php"><img border="0" alt="Click Here for Advanced Search page" title="Click Here for Advanced Search page" src="{$rel_url}images/search_16.gif" /></a> <label for="search" accesskey="3"></label>
+		<input type="text" id="search" name="search_keys[0]" value="" size="15" class="shortcut" />
+		<input type="submit" value="Search" class="shortcut" />
+<!--a href="#" onClick="javascript:alert( 'Search All Fields\n\n Enter a phrase.  Objects where any field contains the phrase will be returned.\n This is a case-insensitive search, and you may use the * or ? wildcards.\n\n Examples:\n\n li*y\n finds objects that start with li and end with y\n\n b?ts\n finds words that start with b followed by any letter and then ts.  e.g. bits, bats, byts')"><i>search help</i></a-->
+	  </form>
     </td>
   </tr>
 </table>
 {literal}
-<script language="JavaScript">
+
+<script language="JavaScript" type="text/javascript">
 <!--
 var basic_element = getPageElement('basic_filter_form' + '1');
 if (!isElementVisible(basic_element)) {
@@ -101,8 +108,8 @@ if (!isElementVisible(basic_element)) {
 </script>
 {/literal}
 
-{if $show_line != "no"}
+<!-- End prefs bar -->
 
-{/if}
+{if $show_line != "no"}{/if}
 
 {include file="app_errors.tpl.html"}

@@ -126,6 +126,8 @@ $tpl->assign("yesterday", date("Y-m-d", time()-86400));
 $tpl->assign("last", "Last ");
 $sort_by = "searchKey".Search_Key::getID("Created Date");
 $list = Collection::browseListing(0, 5, "Created Date", $sort_by, 0);
+$tpl->assign("thisYear", date("Y"));
+$tpl->assign("lastYear", date("Y") - 1);
 $list = $list["list"];
 $tpl->assign("list", $list);
 $tpl->assign("eserv_url", APP_RELATIVE_URL."eserv.php");
