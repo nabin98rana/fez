@@ -240,7 +240,7 @@ function showComboBoxes()
 function getOverlibContents(options, target_form, target_field, is_multiple)
 {
     hideComboBoxes(target_field);
-    var html = '<form onSubmit="javascript:return lookupOption(this, \'' + target_form + '\', \'' + target_field + '\');">' + options + '<input class="button_overlib" type="submit" value="Lookup"><br><input name="search" class="lookup_field_overlib" type="text" size="24" value="paste or start typing here" onBlur="javascript:this.value=\'paste or start typing here\';" onFocus="javascript:this.value=\'\';" onKeyUp="javascript:lookupField(this.form, this, \'lookup';
+    var html = '<form onSubmit="javascript:return lookupOption(this, \'' + target_form + '\', \'' + target_field + '\');">' + options + '<input class="button_overlib" type="submit" value="Lookup"><br><input name="search" class="lookup_field_overlib" type="text" size="24" value="Paste or start typing here" onBlur="javascript:this.value=\'Paste or start typing here\';" onFocus="javascript:this.value=\'\';" onKeyUp="javascript:lookupField(this.form, this, \'lookup';
     if ((is_multiple != null) && (is_multiple == true)) {
         html += '[]';
     }
@@ -251,7 +251,7 @@ function getOverlibContents(options, target_form, target_field, is_multiple)
 function getFillInput(options, target_form, target_field)
 {
     hideComboBoxes(target_field);
-    return '<form onSubmit="javascript:return fillInput(this, \'' + target_form + '\', \'' + target_field + '\');">' + options + '<input class="button_overlib" type="submit" value="Lookup"><br><input name="search" class="lookup_field_overlib" type="text" size="24" value="paste or start typing here" onBlur="javascript:this.value=\'paste or start typing here\';" onFocus="javascript:this.value=\'\';" onKeyUp="javascript:lookupField(this.form, this, \'lookup\');"></form>';
+    return '<form onSubmit="javascript:return fillInput(this, \'' + target_form + '\', \'' + target_field + '\');">' + options + '<input class="button_overlib" type="submit" value="Lookup"><br><input name="search" class="lookup_field_overlib" type="text" size="24" value="Paste or start typing here" onBlur="javascript:this.value=\'Paste or start typing here\';" onFocus="javascript:this.value=\'\';" onKeyUp="javascript:lookupField(this.form, this, \'lookup\');"></form>';
 }
 
 function lookupOption(f, target_form, target_field)

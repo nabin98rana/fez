@@ -28,7 +28,8 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
@@ -226,6 +227,7 @@ class Date_API
      */
     function getTimezoneList()
     {
+        ksort($GLOBALS['_DATE_TIMEZONE_DATA']);     // Because nobody should have to look at that crazy randomised list ever again.
         return Date_TimeZone::getAvailableIDs();
     }
 

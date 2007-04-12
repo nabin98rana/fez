@@ -2,7 +2,7 @@
 {include file="navigation.tpl.html"}
 
 {literal}
-<script language="JavaScript">
+<script language="JavaScript" type="text/javascript">
 <!--
 function validateName(f)
 {
@@ -47,15 +47,15 @@ function validateAccount(f)
         {/if}
   <tr>
     <td>
-      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-        <tr bgcolor="{$heading_color}">
+	<form name="update_name_form" onsubmit="javascript:return validateName(this);" action="{$smarty.server.PHP_SELF}" method="post">
+	<input type="hidden" name="cat" value="update_name" />
+	  <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+		<tr bgcolor="{$heading_color}">
           <td class="default_white" colspan="2">
             <b>User Details</b>
             {include file="help_link.tpl.html" topic="preferences"}
           </td>
         </tr>
-        <form name="update_name_form" onSubmit="javascript:return validateName(this);" action="{$smarty.server.PHP_SELF}" method="post">
-        <input type="hidden" name="cat" value="update_name">
         {if $update_name_result}
         <tr>
           <td colspan="2" class="error" bgcolor="{$cell_color}" align="center">
@@ -72,19 +72,22 @@ function validateAccount(f)
             <b>Full Name:</b>
           </td>
           <td bgcolor="{$light_color}">
-            <input type="text" name="full_name" size="40" class="default" value="{$current_full_name}">
+            <input type="text" name="full_name" size="40" class="default" value="{$current_full_name}" />
             {include file="error_icon.tpl.html" field="full_name"}
           </td>
         </tr>
         <tr>
           <td colspan="2" bgcolor="{$cell_color}" align="center">
-            <input class="button" type="submit" value="Update Full Name">
-            <input class="button" type="reset" value="Reset">
+            <input class="button" type="submit" value="Update Full Name" />
+            <input class="button" type="reset" value="Reset" />
           </td>
         </tr>
-        </form>
-        <form name="update_email_form" onSubmit="javascript:return validateEmail(this);" action="{$smarty.server.PHP_SELF}" method="post">
-        <input type="hidden" name="cat" value="update_email">
+	  </table>
+    </form>
+
+	<form name="update_email_form" onsubmit="javascript:return validateEmail(this);" action="{$smarty.server.PHP_SELF}" method="post">
+	<input type="hidden" name="cat" value="update_email" />
+	  <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
         {if $update_email_result}
         <tr>
           <td colspan="2" class="error" bgcolor="{$cell_color}" align="center">
@@ -101,18 +104,18 @@ function validateAccount(f)
             <b>Email Address:</b>
           </td>
           <td bgcolor="{$light_color}">
-            <input type="text" name="email" size="40" class="default" value="{$current_email}">
+            <input type="text" name="email" size="40" class="default" value="{$current_email}" />
             {include file="error_icon.tpl.html" field="email"}
           </td>
         </tr>
         <tr>
           <td colspan="2" bgcolor="{$cell_color}" align="center">
-            <input class="button" type="submit" value="Update Email Address">
-            <input class="button" type="reset" value="Reset">
+            <input class="button" type="submit" value="Update Email Address" />
+            <input class="button" type="reset" value="Reset" />
           </td>
         </tr>
-        </form>
       </table>
+	</form>
     </td>
   </tr>
 </table>
@@ -120,9 +123,9 @@ function validateAccount(f)
 <table width="99%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
   <tr>
     <td>
+	  <form name="account_prefs_form" onsubmit="javascript:return validateAccount(this);" action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
+      <input type="hidden" name="cat" value="update_account" />
       <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-        <form name="account_prefs_form" onSubmit="javascript:return validateAccount(this);" action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
-        <input type="hidden" name="cat" value="update_account">
         <tr bgcolor="{$heading_color}">
           <td class="default_white" colspan="2">
             <b>Account Preferences</b>
@@ -153,12 +156,12 @@ function validateAccount(f)
         </tr>
         <tr>
           <td colspan="2" bgcolor="{$cell_color}" align="center">
-            <input class="button" type="submit" value="Update Preferences">
-            <input class="button" type="reset" value="Reset">
+            <input class="button" type="submit" value="Update Preferences" />
+            <input class="button" type="reset" value="Reset" />
           </td>
         </tr>
-        </form>
       </table>
+      </form>
     </td>
   </tr>
 </table>
