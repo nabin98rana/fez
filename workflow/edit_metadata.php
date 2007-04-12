@@ -199,8 +199,8 @@ if ($access_ok) {
 				for ($x=1;$x<=$suggestor_count;$x++) {
 				 $tpl->headerscript .= "window.oTextbox_xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."_lookup
 						= new AutoSuggestControl(document.wfl_form1, 'xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."', document.getElementById('xsd_display_fields_{$dis_field['xsdmf_asuggest_xsdmf_id']}_".$x."'), document.getElementById('xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."_lookup'),
-								new StateSuggestions('Author',false,
-									'class.author.php'));
+								new StateSuggestions('Author','suggest',false,
+									'class.author.php'), 'authorSuggestorCallback');
 						";  			
 				}
 			}		

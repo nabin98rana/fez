@@ -68,3 +68,34 @@ function clearFlashMessage()
 	document.getElementById('flash_message_div').style.display = 'none';
 }
 
+/**
+ * Callback for author suggestor to handle the setting of the extra form elements.  This is 
+ * called from autosuggest.js in the hideSuggestions method
+ */
+function authorSuggestorCallback(oThis, oTarget) {
+			var dtList = new Array();
+			if (isWhitespace(oThis.textboxcopy.value)) {
+				oThis.textboxcopy.value = oTarget.firstChild.nodeValue;
+			}
+			dtList[0] = new Option;
+			dtList[0].text = "(none)";
+			dtList[0].value = "0";
+			dtList[1] = new Option;			
+			dtList[1].value = oTarget.getAttribute('id');
+			dtList[1].text = oTarget.firstChild.nodeValue+" ("+oTarget.getAttribute('id')+")";
+			dtList[1].selected = true;
+
+
+			if (oThis.textboxcopy == null) {
+				oThis.textbox.focus();
+			} else {				
+				oThis.textboxcopy.focus();
+				removeAllOptions(oThis.form, oThis.selectbox);
+				addOptions(oThis.form, oThis.selectbox, dtList);
+			}		
+}
+
+function cloneSuggestorCallback(oThis, oTarget) {
+	c = document.getElementById('collection_pid');
+	c.value = oTarget.getAttribute('id');
+}

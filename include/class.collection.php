@@ -415,6 +415,36 @@ class Collection
         return $list;
 
     }
+    
+    /**
+     * Search collection titles for possible matches to the search term where the 
+     * current user has create rights.
+     */
+    function suggestCreateList($search)
+    {
+        $roles = explode(',',APP_CREATOR_ROLES);
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $authArray = Collection::getAuthIndexStmt($roles);
+        $authStmt = $authArray['authStmt'];
+        $joinStmt = $authArray['joinStmt'];
+        $stmt = "SELECT r2.rmf_rec_pid, r2.rmf_varchar FROM {$dbtp}record_matching_field AS r2 " .
+                "INNER JOIN {$dbtp}xsd_display_matchfields AS x2 ON r2.rmf_xsdmf_id = x2.xsdmf_id " .
+                "INNER jOIN {$dbtp}search_key s2 ON s2.sek_title = 'Title' AND s2.sek_id = x2.xsdmf_sek_id " .
+                "AND match (rmf_varchar) against ('$search*' in boolean mode)" .
+                "$authStmt " .
+                "INNER JOIN {$dbtp}record_matching_field AS r3 ON r2.rmf_rec_pid_num=r3.rmf_rec_pid_num " .
+                "AND r2.rmf_rec_pid=r3.rmf_rec_pid " .
+                "INNER JOIN {$dbtp}xsd_display_matchfields AS x3 ON x3.xsdmf_element = '!ret_id' " .
+                "AND r3.rmf_xsdmf_id = x3.xsdmf_id AND r3.rmf_int = '2' " .
+                "";
+        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        } else {
+            return $res;
+        }
+    }
 
     /**
       * List the collections in a community 

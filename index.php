@@ -138,7 +138,7 @@ $tpl->assign("isHomePage", "true");
 $tpl->assign("news_count", $news_count);
 $tpl->headerscript .= "window.oTextbox_front_search
 	= new AutoSuggestControl(document.search_frm, 'front_search', document.getElementById('front_search'), document.getElementById('front_search'),
-			new StateSuggestions('Collection',false,
+			new StateSuggestions('Collection','suggest',false,
 				'class.collection.php'));
 	";
 

@@ -10,6 +10,7 @@ class Suggestor
     var $class_name = '';
     var $include_name = '';
     var $show_all = true;
+    var $method = 'suggest';
     
     function getSuggestion($search, $min_char = 0)
     {
@@ -20,7 +21,7 @@ class Suggestor
 		}
         include_once(APP_INC_PATH.$this->include_name);
         $obj = new $this->class_name;
-        $res = $obj->suggest(($search));
+        $res = call_user_func(array($obj, $this->method), $search);
         $list = array();
         foreach($res as $key => $item) {
 //            $list[] = array('value' => $key, 'text' => $item);

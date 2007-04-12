@@ -27,6 +27,7 @@ if (@$_REQUEST["cat"] == "submit") {
     $is_succession = $_REQUEST['is_succession'];
     $wfstatus->assign('is_succession', $is_succession);
     $wfstatus->assign('clone_attached_datastreams', $_REQUEST['clone_attached_datastreams']);
+    $wfstatus->assign('collection_pid', $_REQUEST['collection_pid']);
 }
 $wfstatus->checkStateChange();
 
@@ -36,5 +37,29 @@ $xdis_id = $record->getXmlDisplayId();
 
 $tpl->assign(compact('xdis_id','xdis_list'));
 
+$parents = $record->getParents();
+$collection_pid = '';
+$collection_title = '';
+foreach ($parents as $parent) {
+    $col = new RecordGeneral($parent['pid']);
+    if ($col->canCreate()) {
+        $collection_pid = $parent['pid'];
+        $collection_title = $parent['title'][0];
+        break;
+    }
+}
+$tpl->assign(compact('collection_pid','collection_title'));
+
+$js = <<<EOT
+window.oTextbox_xsd_display_fields_6346_1_lookup
+                        = new AutoSuggestControl(document.wfl_form1, 'collection_id', null, document.getElementById('record_search'),
+                                new StateSuggestions('Collection','suggestCreateList', false,'class.collection.php'),
+                                'cloneSuggestorCallback');
+EOT;
+
+$tpl->onload($js); 
+$tpl->registerNajax(NAJAX_Client::register('Suggestor', APP_RELATIVE_URL.'ajax.php'));
+
+ 
 $tpl->displayTemplate(); 
 ?>

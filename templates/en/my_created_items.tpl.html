@@ -98,7 +98,7 @@ Created Items <span class="default">(your deposited items you can list)</span>
 </div>
 <span class="default">
 {if $my_created_items_info.total_rows != 0}
-Showing items {math equation="x + 1" x=$my_created_items_info.current_row} 
+Showing items {math equation="x + 1" x=$my_created_items_info.current_row|default:0} 
 to {$my_created_items_info.current_last_row} of {$my_created_items_info.total_rows}
 {else}
 No items found
@@ -299,7 +299,7 @@ No items found
        <nobr>
        <input name="first" type="button" value="|&lt;" class="shortcut" onClick="javascript:setPage(0);">
        <input name="previous" type="button" value="&lt;&lt;" class="shortcut" onClick="javascript:setPage({$my_created_items_info.prev_page});">
-       <input type="text" name="page" size="3" maxlength="3" value="{math equation="x + 1" x=$my_created_items_info.current_page}" style="background: {$cell_color};" class="paging_input" onKeyPress="javascript:return checkPageField(event);">
+       <input type="text" name="page" size="3" maxlength="3" value="{math equation="x + 1" x=$my_created_items_info.current_page|default:0}" style="background: {$cell_color};" class="paging_input" onKeyPress="javascript:return checkPageField(event);">
        <input name="go" type="button" value="Go" class="shortcut" onClick="javascript:goPage(this.form, this.form.page.value);">
        <input name="next" type="button" value="&gt;&gt;" class="shortcut" onClick="javascript:setPage({$my_created_items_info.next_page});">
        <input name="last" type="button" value="&gt;|" class="shortcut" onClick="javascript:setPage({$my_created_items_info.last_page});">

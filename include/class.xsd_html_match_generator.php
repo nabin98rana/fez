@@ -194,7 +194,7 @@ function register_suggest_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}() {
         'xsdmf_editor_input_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}', 
         document.getElementById('xsdmf_editor_input_{$xsdmf_cols['xsdmf_asuggest_xsdmf_id']}_{$safe_pid}_{$vidx}'), 
         document.getElementById('xsdmf_editor_input_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}_lookup'),
-        new StateSuggestions('Author',false,'class.author.php'));
+        new StateSuggestions('Author','suggest',false,'class.author.php'));
 }
 </script>
 <div class="register_suggest" name="register_suggest">register_suggest_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}();</div>

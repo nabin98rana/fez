@@ -5,7 +5,7 @@
  * @scope public
  */
 function AutoSuggestControl(oForm,  oIDbox /*:HTMLSelectBoxInputElement*/, oTextboxCopy /*:HTMLInputElement*/, oTextbox /*:HTMLInputElement*/,
-                            oProvider /*:SuggestionProvider*/) {
+                            oProvider /*:SuggestionProvider*/, oCallback) {
 
     /**
      * The currently selected suggestions.
@@ -32,6 +32,11 @@ function AutoSuggestControl(oForm,  oIDbox /*:HTMLSelectBoxInputElement*/, oText
      * @scope private.
      */
     this.provider /*:SuggestionProvider*/ = oProvider;
+    
+    /**
+     * function to call once the item has been selected.
+     */
+    this.callback_func = oCallback;
     
     /**
      * The textbox to capture.
@@ -87,7 +92,6 @@ AutoSuggestControl.prototype.autosuggest = function (aSuggestions /*:Array*/,
 AutoSuggestControl.prototype.createDropDown = function () {
 
     var oThis = this;
-	var dtList = new Array();
     //create the layer and assign styles
     this.layer = document.createElement("div");
     this.layer.className = "suggestions";
@@ -103,26 +107,8 @@ AutoSuggestControl.prototype.createDropDown = function () {
         oTarget = oEvent.target || oEvent.srcElement;
 
         if (oEvent.type == "mousedown") {
-			if (isWhitespace(oThis.textboxcopy.value)) {
-				oThis.textboxcopy.value = oTarget.firstChild.nodeValue;
-			}
-//			fixedValue = new Regex(
-			oThis.textbox.value = oTarget.firstChild.nodeValue.replace(/ *(\(.*matches\)) */g, '');
-			dtList[0] = new Option;
-			dtList[0].text = "(none)";
-			dtList[0].value = "0";
-			dtList[1] = new Option;			
-			dtList[1].value = oTarget.getAttribute('id');
-			dtList[1].text = oTarget.firstChild.nodeValue+" ("+oTarget.getAttribute('id')+")";
-			dtList[1].selected = true;
+			oThis.highlightSuggestion(oTarget);
 			oThis.hideSuggestions();
-			if (oThis.textboxcopy == null) {
-				oThis.textbox.focus();
-			} else {				
-				oThis.textboxcopy.focus();
-				removeAllOptions(oThis.form, oThis.selectbox);
-				addOptions(oThis.form, oThis.selectbox, dtList);
-			}		
 		} else if (oEvent.type == "mouseover") {
             oThis.highlightSuggestion(oTarget);
         } else {
@@ -221,10 +207,30 @@ AutoSuggestControl.prototype.handleKeyUp = function (oEvent /*:Event*/) {
  * @scope private
  */
 AutoSuggestControl.prototype.hideSuggestions = function () {
-    this.layer.style.display = "none";
 
+	if (this.layer.childNodes.length > 0) {
+	    oTarget = null;
+	    for (var i=0; i < this.layer.childNodes.length; i++) {
+    	    var oNode = this.layer.childNodes[i];
+        	if (oNode.className == "current") {
+            	oTarget = oNode;
+	            break;
+    	    }
+    	}
+		if (oTarget != null) {
+			oThis = this;
+			oThis.textbox.value = oTarget.firstChild.nodeValue.replace(/ *(\(.*matches\)) */g, '');
+
+		    if (this.callback_func != null) {			
+			  eval(this.callback_func + '(oThis, oTarget);');
+			}
+		}
+	}
+
+    this.layer.style.display = "none";
     this.showingSuggestions = false;
     };
+
 
 /**
  * Highlights the given node in the suggestions dropdown.

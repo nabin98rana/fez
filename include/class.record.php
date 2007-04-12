@@ -2503,7 +2503,7 @@ class RecordGeneral
      * @param boolean $is_succession - optional link back to original
      * @return string - the new PID for success, false for failure.  Calls Error_Handler::logError if there is a problem.
      */
-    function copyToNewPID($new_xdis_id = null, $is_succession = false, $clone_attached_datastreams=false)
+    function copyToNewPID($new_xdis_id = null, $is_succession = false, $clone_attached_datastreams=false, $collection_pid=null)
     {
         if (empty($this->pid)) {
             return false;
@@ -2543,8 +2543,6 @@ class RecordGeneral
                     continue;
                 }
             }
-            
-            
             switch ($ds_value['ID']) {
                 case 'DC':
                     $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
@@ -2569,13 +2567,21 @@ class RecordGeneral
                     // set the successor thing in RELS-EXT
                     $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
                     $value = str_replace($pid, $new_pid, $value);
-                    if ($is_succession) {
+                    if ($is_succession || !empty($collection_pid)) {
                         $doc = DOMDocument::loadXML($value);
                         //    <rel:isDerivationOf rdf:resource="info:fedora/MSS:379"/>
-                        $node = XML_Helper::getOrCreateElement($doc, '/rdf:RDF/rdf:description', 'rel:isDerivationOf', 
-                             array('rdf'=>"http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                        if ($is_succession) {
+                            $node = XML_Helper::getOrCreateElement($doc, '/rdf:RDF/rdf:description', 'rel:isDerivationOf', 
+                                 array('rdf'=>"http://www.w3.org/1999/02/22-rdf-syntax-ns#",
                                     'rel'=>"info:fedora/fedora-system:def/relations-external#"));
-                        $node->setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", 'resource', $pid);
+                            $node->setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", 'resource', $pid);
+                        }
+                        if (!empty($collection_pid)) {
+                            $node = XML_Helper::getOrCreateElement($doc, '/rdf:RDF/rdf:description', 'rel:isMemberOf', 
+                                 array('rdf'=>"http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                                    'rel'=>"info:fedora/fedora-system:def/relations-external#"));
+                            $node->setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", 'resource', $collection_pid);
+                        }
                         $value = $doc->saveXML();
                     }
                     Fedora_API::getUploadLocation($new_pid, $ds_value['ID'], $value, $ds_value['label'],

@@ -4,14 +4,32 @@
 {literal}
 function validateForm(f) 
 {
-	return true;
+	if (isWhitespace(f.collection_pid.value)) {
+	  errors[errors.length] = new Option('Destination Collection', 'record_search');
+	}
+	if (isWhitespace(f.record_search.value)) {
+	  errors[errors.length] = new Option('Destination Collection', 'record_search');
+	}
 }
+
+
 {/literal}
 // -->
 </script>
 
 <div class="fez_form">
 <input type="hidden" name="cat" value="submit" />
+
+<div class="fez_form_item">
+<label for="collection_pid" >Destination Collection</label>
+<span class="fez_form_input">
+<input type="text" id="record_search" autocomplete="off" name="record_search" size="40" 
+			    onKeyUp="javascript: selectSearchSuggestor(this.form, this.name, 'collection_pid')" 
+			    value="{$collection_title}" />
+		    <span id="record_search_searching" style="display:none;" class="loading">Loading...</span>
+<input name="collection_pid" id="collection_pid" type="hidden" value="{$collection_pid}" /> 
+</span>
+</div>
 
 <div class="fez_form_item">
 <label for="is_succession" >Successor</label>

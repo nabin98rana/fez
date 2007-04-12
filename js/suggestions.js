@@ -4,10 +4,11 @@
  * @class
  * @scope public
  */
-function StateSuggestions(class_name, show_all, include_name) {
+function StateSuggestions(class_name, method, show_all, include_name) {
     this.mutex = 0;
     this.sugg = new Suggestor();
-    this.sugg.class_name = class_name;
+    this.sugg.class_name = class_name; // target class name
+    this.sugg.method = method; // method to call on the target class to get suggestions
     this.sugg.show_all = show_all;
     this.sugg.include_name = include_name;
     this.sugg.ongetSuggestionError = function() {
