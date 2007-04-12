@@ -2331,13 +2331,13 @@ $res_count = array();
     function getLetterList()
     {
         $stmt = "SELECT DISTINCT UPPER(LEFT(r2.rmf_varchar, 1)) as letter
-                FROM fez_test_2.fez_record_matching_field AS r1
-                INNER JOIN fez_test_2.fez_xsd_display_matchfields AS x1 ON r1.rmf_xsdmf_id = x1.xsdmf_id
-                INNER JOIN fez_test_2.fez_record_matching_field AS r2 on r2.rmf_id = r1.rmf_id
-                INNER JOIN fez_test_2.fez_xsd_display_matchfields AS x2 ON r2.rmf_xsdmf_id = x2.xsdmf_id
-                INNER JOIN fez_test_2.fez_search_key AS s2 ON s2.sek_id = x2.xsdmf_sek_id AND s2.sek_title = 'Author'
-                INNER JOIN fez_test_2.fez_record_matching_field AS r3 on r3.rmf_rec_pid = r2.rmf_rec_pid
-                INNER JOIN fez_test_2.fez_xsd_display_matchfields AS x3 ON r3.rmf_xsdmf_id = x3.xsdmf_id and r3.rmf_int=2 AND x3.xsdmf_element='!sta_id'
+                FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS r1
+                INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields AS x1 ON r1.rmf_xsdmf_id = x1.xsdmf_id
+                INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS r2 on r2.rmf_id = r1.rmf_id
+                INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields AS x2 ON r2.rmf_xsdmf_id = x2.xsdmf_id
+                INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key AS s2 ON s2.sek_id = x2.xsdmf_sek_id AND s2.sek_title = 'Author'
+                INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS r3 on r3.rmf_rec_pid = r2.rmf_rec_pid
+                INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields AS x3 ON r3.rmf_xsdmf_id = x3.xsdmf_id and r3.rmf_int=2 AND x3.xsdmf_element='!sta_id'
                 GROUP BY (r2.rmf_varchar) ORDER BY (r2.rmf_varchar)";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
