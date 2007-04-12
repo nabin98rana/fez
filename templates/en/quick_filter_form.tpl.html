@@ -4,9 +4,7 @@
 <input type="hidden" name="cat" value="quick_filter" />
 
 <tr id="custom_filter_form1" {get_display_style element_name="custom_filter_form"}>
-    <td>&nbsp;
-      
-    </td>
+    <td>&nbsp;</td>
     <td>
       <table bgcolor="#FFFFFF" width="100%" border="0" cellspacing="0" cellpadding="4">
 		<tr>
@@ -84,10 +82,10 @@
 </table>
 
 <tr>
-	<td colspan="5" align="middle" class="default">
+	<td colspan="5" class="default">
  	 {if $browser.ie5up or $browser.ns6up or $browser.gecko}
-  hide/show:
-  [ <a class="link" title="hide / show the quick search form" href="javascript:void(null);" onClick="javascript:toggleVisibility('custom_filter_form'{if $myFezView}, 1{/if});{if !$myFezView}toggleVisibility('basic_filter_form');{/if}">quick search</a> ]
+  <div style="text-align: center;">hide/show:
+  [ <a class="link" title="hide / show the quick search form" href="javascript:void(null);" onClick="javascript:toggleVisibility('custom_filter_form'{if $myFezView}, 1{/if});{if !$myFezView}toggleVisibility('basic_filter_form');{/if}">quick search</a> ]</div>
   {/if}
    </td>
 </tr>
