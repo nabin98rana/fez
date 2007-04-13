@@ -367,3 +367,11 @@ a.tool-tip:hover span {
 }
 
 .letter-list a:hover { color: #156DB1; }
+
+h1.public {
+	font-family: Arial, Verdana, Helvetica, Sans-Serif;
+	font-size: 18px;
+	font-weight: bold;
+	color: #00358B;
+	padding: 0px 0px 0px 20px;
+}

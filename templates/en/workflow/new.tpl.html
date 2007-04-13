@@ -1,6 +1,6 @@
 {if $message}
 <tr>
-<td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
+<td colspan="2" bgcolor="{$cell_color}" class="error">
 {$message}
 </td><tr>
 {/if}
@@ -12,41 +12,31 @@
 </tr>
 {section name="i" loop=$workflows}
 <tr><td>
-<table width="100%" bgcolor="{$cell_color}" cellspacing="0" cellpadding="1" align="center">
-<tr><td>
-  <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" >
+<table style="margin: 5px 100px 0px 10px; border: 1px solid {$cell_color}; width: 70%; padding: 3px;">
 <tr>
-<td  class="default">
+<td class="default">
 {assign var="wfl_id" value=$workflows[i].wft_wfl_id}
 {assign var="xdis_id1" value=$workflows[i].wft_xdis_id}
-{if $workflows[i].wft_icon}<img src="{$rel_url}{$workflows[i].wft_icon}" alt="icon" align="center"/>{/if}
-<a href="{$smarty.server.SCRIPT_NAME}?pid={$pid}&cat=select_workflow&xdis_id={$xdis_id}&wft_id={$workflows[i].wft_id}&href={$href}" 
->{$wfl_list[$wfl_id].wfl_title|escape}</a> 
-{if $wfl_list[$wfl_id].wfl_description}<br/>{$wfl_list[$wfl_id].wfl_description|escape}{/if}
+{if $workflows[i].wft_icon}<img src="{$rel_url}{$workflows[i].wft_icon}" hspace="5" alt="" /></td><td class="default" width="100%">{/if}
+<a href="{$smarty.server.SCRIPT_NAME}?pid={$pid}&amp;cat=select_workflow&amp;xdis_id={$xdis_id}&amp;wft_id={$workflows[i].wft_id}&amp;href={$href}">{$wfl_list[$wfl_id].wfl_title|escape}</a> 
+{if $wfl_list[$wfl_id].wfl_description}<br /><br />{$wfl_list[$wfl_id].wfl_description|escape}{/if}
 </td>
 </tr>
  </table>
-</td></tr></table>
 </td></tr>
 <tr><td class="default"><br/></td></tr>
 {/section}
 {if $isAdministrator && $showTriggerEdit}
 <tr><td>
-<table width="100%" bgcolor="{$cell_color}" cellspacing="0" cellpadding="1" align="center">
-<tr><td>
-  <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" >
+<table style="margin: 5px 100px 0px 10px; border: 1px solid {$cell_color}; width: 70%; padding: 3px;">
 <tr>
-<td  class="default">
-<a href="{$rel_url}workflow_triggers.php?pid={$pid}"
-><img title="Workflow" align="absmiddle" src="{$rel_url}images/workflow_16.gif" border="0">Set workflow triggers for selected record</a>
+<td class="default">
+<img title="Workflow" src="{$rel_url}images/workflow_16.gif" hspace="5" alt="" /></td><td class="default" width="100%"><a href="{$rel_url}workflow_triggers.php?pid={$pid}">Set workflow triggers for selected record</a>
 {/if}
 </td>
 </tr>
  </table>
-</td></tr></table>
 </td></tr>
 <tr><td class="default"><br/></td></tr>
 {/if}
 <tr><td class="default"><br/>This is {$trigger} for {$pid}</td></tr>
-
-

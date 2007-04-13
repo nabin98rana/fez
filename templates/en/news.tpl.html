@@ -1,14 +1,7 @@
 {include file="header.tpl.html" extra_title="News"}
 {include file="navigation.tpl.html"}
 
-<table cellpadding="5" cellspacing="5">
-  <tr class="default">
-    <td class="contentheader"><img src="{$rel_url}images/news_22.jpg" align="absmiddle" alt="News" title="News" /> News
-	<a href="{$smarty.server.PHP_SELF}?show=rss"><img title="Subscribe to the RSS news feed" border="0" src="{$rel_url}images/feed-icon16x16.png" /></a>
-	</td>
-  </tr>
-
-</table>
+<h1 class="public"><img src="{$rel_url}images/news_22.jpg" alt="News" title="News" /> News <a href="{$smarty.server.PHP_SELF}?show=rss"><img alt="Subscribe to the RSS news feed" title="Subscribe to the RSS news feed" border="0" src="{$rel_url}images/feed-icon16x16.png" /></a></h1>
 
 {section name="i" loop=$news}
 <div class="news-item">

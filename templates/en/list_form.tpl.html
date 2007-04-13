@@ -1,5 +1,5 @@
 {literal}
-<script language="JavaScript">
+<script language="JavaScript" type="text/javascript">
 <!--
 var page_url = '{/literal}{$smarty.server.PHP_SELF}{literal}';
 var current_page = {/literal}{if $list_info.current_page != ""}{$list_info.current_page}{else}0{/if}{literal};
@@ -139,13 +139,12 @@ function setTemplate(f, field) {
     window.location.href = page_url + "?" + replaceParam(window.location.href, 'tpl', tpl);
 }
 
-
-//-->
+-->
 </script>
 {/literal}
 
 {literal}
-<script language="JavaScript">
+<script language="JavaScript" type="text/javascript">
 <!--
 function purgeObject(pid)
 {
@@ -179,7 +178,7 @@ function checkDeleteRecords(f)
 }
 var custom_filter_element = getPageElement('custom_filter_form' + '1');
 {/literal}
-//{$browse_type} ---- {$list_type}
+/* {$browse_type} ---- {$list_type} */
 {if (($browse_type == "" && $list_type <> "all_records_list") || $browse_type != "")}
 {literal}
 if (isElementVisible(custom_filter_element)) {
@@ -193,7 +192,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 	toggleVisibility('basic_filter_form');
 } 
 {/literal}
-//-->
+-->
 </script>
 
 <table width="100%" bgcolor="{$cell_color}" cellspacing="0" cellpadding="1" align="center">
@@ -219,47 +218,47 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		</tr>
 		{/if}
 		{if $isUser}
-  <form name="top_create_form">		
         <tr>
           <td align="left" >
+		    <form name="top_create_form" action="">		
 			{if $list_type == 'community_list' && $isAdministrator}
-			<br /> <a class="default" target="_top" title="create a new community" href="{$rel_url}workflow/new.php?pid=-1&xdis_id={$xdis_id}&href={$smarty.server.REQUEST_URI}"><img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0"><b>Create New Community</b></a>&nbsp;
+			<br /> <a class="default" target="_top" title="create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI}"><img src="{$rel_url}images/folder_new.gif" border="0" alt="" /><b>Create New Community</b></a>&nbsp;
 			{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
 				{if $childXDisplayOptions != 0}
-			<br /> <img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0">
-				<input type="hidden" name="community_pid" value="{$community_pid}">
+			<br /> <img src="{$rel_url}images/folder_new.gif" border="0" alt="" />
+				<input type="hidden" name="community_pid" value="{$community_pid}" />
 				<select name="xdis_id" class="default">
 				  {html_options options=$childXDisplayOptions}
 				</select>
-				<input class="default" type="button" value="Create" onClick="javascript:createRecord(this.form)">
+				<input class="default" type="button" value="Create" onClick="javascript:createRecord(this.form)" />
 			&nbsp;<br />
 				{/if}
 			{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}			
 				{if $childXDisplayOptions != 0}
-			<br /> <img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0">
-				<input type="hidden" name="collection_pid" value="{$collection_pid}">
+			<br /> <img src="{$rel_url}images/folder_new.gif" border="0" alt="" />
+				<input type="hidden" name="collection_pid" value="{$collection_pid}" />
 				<select name="xdis_id" class="default">
 				  {html_options options=$childXDisplayOptions}
 				</select>
-				<input class="default" type="button" value="Create" onClick="javascript:createRecord(this.form)">
+				<input class="default" type="button" value="Create" onClick="javascript:createRecord(this.form)" />
 			&nbsp;
 				{/if}
 			{/if}
+			</form>
 		  </td>
         </tr>
-  </form>
-		{/if}
+  		{/if}
 
-  <form name="list_form" method="get" action="{$smarty.server.PHP_SELF}">
-  <input type="hidden" name="cat" value="assign">
-  <input type="hidden" name="href" value="{$smarty.server.REQUEST_URI}">
-		
-        <tr><td>
+        <tr>
+		  <td>
+		  <form name="list_form" method="get" action="{$smarty.server.PHP_SELF}">
+		  <input type="hidden" name="cat" value="assign" />
+		  <input type="hidden" name="href" value="{$smarty.server.REQUEST_URI}" />
       <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1">
 		{if ($browse_type == "browse_author") && !$smarty.get.author} 
         <tr>
 			<td align="left" class="default">
-			<a href="{$rel_url}list.php?browse=author"><img border="0" src="{$rel_url}images/browse_32.jpg" align="absmiddle"/></a>
+			<a href="{$rel_url}list.php?browse=author"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a>
            &nbsp;<b>{$browse_heading}:</b>		  
 			</td>
         </tr>
@@ -308,7 +307,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		{elseif ($browse_type == "browse_depositor")} 
         <tr>
 			<td align="left" class="default" colspan="2"><br />
-			<a href="{$rel_url}list.php?browse=depositor"><img border="0" src="{$rel_url}images/browse_32.jpg" align="absmiddle"/></a>
+			<a href="{$rel_url}list.php?browse=depositor"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a>
            &nbsp;<b>{$browse_heading}:</b>		  
 			</td>
         </tr>
@@ -344,7 +343,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		{elseif ($browse_type == "browse_year")} 
         <tr>
 			<td align="left" class="default" colspan="2" ><br />
-			<a href="{$rel_url}list.php?browse=year"><img border="0" src="{$rel_url}images/browse_32.jpg" align="absmiddle"/></a>
+			<a href="{$rel_url}list.php?browse=year"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a>
            &nbsp;<b>{$browse_heading}:</b>		  
 			</td>
         </tr>
@@ -380,13 +379,13 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		{elseif $browse_type == "browse_subject"}
         <tr>
 			<td colspan="2" align="left" class="default"><br />
-			<a href="{$rel_url}list.php?browse=subject"><img border="0" src="{$rel_url}images/browse_32.jpg" align="absmiddle"/></a>
+			<a href="{$rel_url}list.php?browse=subject"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a>
            &nbsp;<b>Browse by 
 		          {if $max_subject_breadcrumb != -1}
 					  {section name="b" loop=$subject_breadcrumb}
 						  {assign var="counter" value=b}
 		                  {if $subject_breadcrumb[b].cvo_image_filename != ""}
-						    <img align="absmiddle" src="{$rel_url}images/{$subject_breadcrumb[b].cvo_image_filename}"/>
+						    <img src="{$rel_url}images/{$subject_breadcrumb[b].cvo_image_filename}" alt="" />
 						  {/if}
                           {if $max_subject_breadcrumb != $smarty.section.b.index}<a href='{$rel_url}list.php?browse=subject&parent_id={$subject_breadcrumb[b].cvo_id}'>{else}<b>{/if}{$subject_breadcrumb[b].cvo_title|escape:"html"}{if $max_subject_breadcrumb != $smarty.section.b.index}</a>{else}</b>{/if}
  						  {assign var="cvo_id" value=$subject_breadcrumb[b].cvo_id}
@@ -402,7 +401,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 			  <td colspan="2">
 			  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
               <tr>
-                  <td>{if $subject_list[i].cvo_image_filename != ""}<img align="absmiddle" src="{$rel_url}images/{$subject_list[i].cvo_image_filename}"/>{/if}
+                  <td>{if $subject_list[i].cvo_image_filename != ""}<img src="{$rel_url}images/{$subject_list[i].cvo_image_filename}" alt="" />{/if}
                         <a href='{$rel_url}list.php?browse=subject&parent_id={$subject_list[i].cvo_id}'>{$subject_list[i].cvo_title|escape:"html"}</a>
 						{assign var="cvo_id" value=$subject_list[i].cvo_id}
 						{if $subject_count[$cvo_id]}({$subject_count[$cvo_id]}){elseif ($smarty.get.parent_id)}(0){/if}
@@ -442,13 +441,13 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
         <tr>
 			<td align="left" class="default">
 		{if $list_type == 'all_records_list' || $list_type == 'collection_records_list'}
-			<img src="{$rel_url}images/record_32.jpg" align="absmiddle"/>		
+			<img src="{$rel_url}images/record_32.jpg" alt="" />		
 		{elseif $list_type == 'community_list'}
-			<img src="{$rel_url}images/community_32.jpg" align="absmiddle"/>
+			<img src="{$rel_url}images/community_32.jpg" alt="" />
 		{elseif $list_type == 'collection_list'}
-			<img src="{$rel_url}images/collection_32.jpg" align="absmiddle"/>
+			<img src="{$rel_url}images/collection_32.jpg" alt="" />
 		{elseif $browse_type == 'browse_author'}			
-			<a href="{$rel_url}list.php?browse=author"><img title="Browse by all authors" border="0" src="{$rel_url}images/browse_32.jpg" align="absmiddle"/></a>
+			<a href="{$rel_url}list.php?browse=author"><img title="Browse by all authors" alt="Browse by all authors" border="0" src="{$rel_url}images/browse_32.jpg" /></a>
 		{elseif $list_type == 'browse_subjects_list'}		
 
 		{/if}
@@ -456,7 +455,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		   
 		   <b>({$list_info.total_rows} results found{if $list_info.end_offset > 0}, {math equation="x + 1" x=$list_info.start_offset|default:0} - {$list_info.end_offset} shown{/if})</b> 
 		   {if $list_type != 'community_list'}
-		   <a href="{$smarty.server.REQUEST_URI}&tpl=2"><img title="Subscribe to the RSS feed for this list or search" border=0 src="{$rel_url}images/feed-icon16x16.png"></a>
+		   <a href="{$smarty.server.REQUEST_URI}&amp;tpl=2"><img alt="Subscribe to the RSS feed for this list or search" title="Subscribe to the RSS feed for this list or search" border="0" src="{$rel_url}images/feed-icon16x16.png" /></a>
 		   {/if}
                    </td>                                     
                    <td align="right"><span class="default">Order By </span>
@@ -464,8 +463,8 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
                        {html_options options=$sort_by_list selected=$sort_by_default}
                    </select>
                     <select class="default" name="sort_order" onchange="javascript:sortListOrder(this.form, 'sort_order');">
-                       <option value="0" {if $sort_order == 0}selected{/if}>Asc</option>
-                       <option value="1" {if $sort_order == 1}selected{/if}>Desc</option>
+                       <option value="0" {if $sort_order == 0}selected="selected"{/if}>Asc</option>
+                       <option value="1" {if $sort_order == 1}selected="selected"{/if}>Desc</option>
                    </select>
                    
 			</td>
@@ -562,7 +561,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
               <td valign="top">
 	              <table bgcolor="#FFFFFF" cellpadding="2" cellspacing="1">			  
 	              	<tr>
-	                  <td width="4" bgcolor="{$cell_color}" nowrap><input type="checkbox" name="pids[]" value="{$list[i].pid}"></td>              
+	                  <td width="4" bgcolor="{$cell_color}" nowrap="nowrap"><input type="checkbox" name="pids[]" value="{$list[i].pid}" /></td>
 	                </tr>
 	              </table>  
               </td>
@@ -570,14 +569,14 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 			  <td width="100%">
 			  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">			  
               <tr>
-
-                  <td>
-                        {if $href_view}<a href='{$href_view}' >{/if}<img align="absmiddle" 
-                        src="{$icon}" border="0">{if $href_view}</a>{/if} 
-
+                  <td width="10">
+                        {if $href_view}<a href='{$href_view}' >{/if}<img src="{$icon}" alt="" border="0" />{if $href_view}</a>{/if}
+				  </td>
+				  <td valign="middle" >
                     {if $href_view}<a href='{$href_view}'>{/if}
 					{$list[i].title.0|escape:"html"}{if $href_view}</a>{/if}
-
+				  </td>
+				  <td valign="middle" align="right">
 			{if $showEdit || $isAdministrator}
 			  &nbsp;&nbsp;
 			  {if $showEdit}
@@ -600,14 +599,12 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
                             {else}
                               {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
 			    {/if}
-			<a href='{$wf_url}?pid={$list[i].pid|escape:"html"}&cat=select_workflow&xdis_id={$list[i].xdis_id.0}&wft_id={$list[i].workflows[w].wft_id}&href={$smarty.server.REQUEST_URI}'
-                        ><img title="{$list[i].workflows[w].wfl_title}" align="absmiddle" src="{$rel_url}{$wf_icon}" border="0"></a> 
+			<a href="{$wf_url}?pid={$list[i].pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].xdis_id.0}&amp;wft_id={$list[i].workflows[w].wft_id}&amp;href={$smarty.server.REQUEST_URI}"><img alt="{$list[i].workflows[w].wfl_title}" title="{$list[i].workflows[w].wfl_title}" src="{$rel_url}{$wf_icon}" border="0" /></a> 
 			  {/section}
 			  {/if}
 			  {if $isAdministrator}
 			<a href="javascript:void(null);" onclick="javascript: purgeObject('{$list[i].pid|escape}');" 
-                        ><img title="Delete" align="absmiddle" 
-                        src="{$rel_url}images/delete.gif" border="0"></a> 
+                        ><img alt="Delete" title="Delete" src="{$rel_url}images/delete.gif" border="0" /></a> 
 		          {/if}
                         <a href="workflow/list_workflows2.php?pid={$list[i].pid|escape}"
                         >...</a> 
@@ -658,25 +655,25 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
         <tr>
           <td align="left" >
 			{if $list_type == 'community_list' && $isAdministrator}
-			<br /> <a class="default" target="_top" title="create a new community" href="{$rel_url}workflow/new.php?pid=-1&xdis_id={$xdis_id}&href={$smarty.server.REQUEST_URI}"><img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0"><b>Create New Community</b></a>&nbsp;
+			<br /> <a class="default" target="_top" title="create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI}"><img src="{$rel_url}images/folder_new.gif" border="0" alt="" /><b>Create New Community</b></a>&nbsp;
 			{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
 				{if $childXDisplayOptions != 0}
-			<br /> <img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0">
-				<input type="hidden" name="community_pid" value="{$community_pid}">
+			<br /> <img src="{$rel_url}images/folder_new.gif" border="0" alt="" />
+				<input type="hidden" name="community_pid" value="{$community_pid}" />
 				<select name="xdis_id" class="default">
 				  {html_options options=$childXDisplayOptions}
 				</select>
-				<input class="default" type="button" value="Create" onClick="javascript:createRecord(this.form)">
+				<input class="default" type="button" value="Create" onClick="javascript:createRecord(this.form)" />
 			&nbsp;<br />
 				{/if}
 			{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}			
 				{if $childXDisplayOptions != 0}
-			<br /> <img align="absmiddle" src="{$rel_url}images/folder_new.gif" border="0">
-				<input type="hidden" name="collection_pid" value="{$collection_pid}">
+			<br /> <img src="{$rel_url}images/folder_new.gif" border="0" alt="" />
+				<input type="hidden" name="collection_pid" value="{$collection_pid}" />
 				<select name="xdis_id" class="default">
 				  {html_options options=$childXDisplayOptions}
 				</select>
-				<input class="default" type="button" value="Create" onClick="javascript:createRecord(this.form)">
+				<input class="default" type="button" value="Create" onClick="javascript:createRecord(this.form)" />
 			&nbsp;<br />
 				{/if}
 			{/if}
@@ -688,39 +685,39 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
           <td colspan="{if $current_role > $roles.standard_user}{math equation="x + 13" x=$ColumnAdd|default:0}{else}{math equation="x + 12" x=$ColumnAdd|default:0}{/if}">
             <table width="100%" cellspacing="0" cellpadding="0">
               <tr>
-                <td width="30%" nowrap>
+                <td width="30%" nowrap="nowrap">
                   {if $isAdministrator}
 
-                  <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'pids[]');">
-			      <input type="button" value="Delete"  onClick="javascript:return checkDeleteRecords(this.form);" class="button" />                  
-                  <input type="button" value="Run Workflow &gt;" class="shortcut" onClick="javascript:workflowItems(this.form);">
+                  <input type="button" value="All" class="shortcut" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" />
+			      <input type="button" value="Delete" onclick="javascript:return checkDeleteRecords(this.form);" class="button" />                  
+                  <input type="button" value="Run Workflow &gt;" class="shortcut" onclick="javascript:workflowItems(this.form);" />
                   <select name="wft_id" class="default">
                     {html_options options=$bulk_workflows}
                   </select>
                   {include file="error_icon.tpl.html" field="users"}
                   {/if}
                 </td>
-                <td width="40%" align="center" nowrap>
-                  <nobr>
-                  <input name="first" type="button" value="|&lt;" class="shortcut" onClick="javascript:setPage(0);">
-                  <input name="previous" type="button" value="&lt;&lt;" class="shortcut" onClick="javascript:setPage({$list_info.prev_page});">
-                  <input type="text" name="page" size="3" maxlength="3" value="{math equation="x + 1" x=$list_info.current_page|default:0}" style="background: {$cell_color};" class="paging_input" onKeyPress="javascript:return checkPageField(event);">
-                  <input name="go" type="button" value="Go" class="shortcut" onClick="javascript:goPage(this.form, this.form.page.value);">
-                  <input name="next" type="button" value="&gt;&gt;" class="shortcut" onClick="javascript:setPage({$list_info.next_page});">
-                  <input name="last" type="button" value="&gt;|" class="shortcut" onClick="javascript:setPage({$list_info.last_page});">
-                  </nobr>
+                <td width="40%" align="center" nowrap="nowrap">
+                  <div style="white-space: nowrap;">
+                    <input name="first" type="button" value="|&lt;" class="shortcut" onclick="javascript:setPage(0);" />
+                    <input name="previous" type="button" value="&lt;&lt;" class="shortcut" onclick="javascript:setPage({$list_info.prev_page});" />
+                    <input type="text" name="page" size="3" maxlength="3" value="{math equation="x + 1" x=$list_info.current_page|default:0}" style="background: {$cell_color};" class="paging_input" onkeypress="javascript:return checkPageField(event);" />
+                    <input name="go" type="button" value="Go" class="shortcut" onclick="javascript:goPage(this.form, this.form.page.value);" />
+                    <input name="next" type="button" value="&gt;&gt;" class="shortcut" onclick="javascript:setPage({$list_info.next_page});" />
+                    <input name="last" type="button" value="&gt;|" class="shortcut" onclick="javascript:setPage({$list_info.last_page});" />
+                  </div>
                 </td>
-                <td nowrap>
+                <td nowrap="nowrap">
                   <span class="default_white">Rows per Page:</span>
-                  <select name="page_size" class="default" onChange="javascript:resizePager(this.form);">
-                    <option value="5" {if $options.rows == 5}selected{/if}>5</option>
-                    <option value="10" {if $options.rows == 10}selected{/if}>10</option>
-                    <option value="25" {if $options.rows == 25}selected{/if}>25</option>
-                    <option value="50" {if $options.rows == 50}selected{/if}>50</option>
-                    <option value="100" {if $options.rows == 100}selected{/if}>100</option>
-                    <option value="150" {if $options.rows == 150}selected{/if}>150</option>
+                  <select name="page_size" class="default" onchange="javascript:resizePager(this.form);">
+                    <option value="5" {if $options.rows == 5}selected="selected"{/if}>5</option>
+                    <option value="10" {if $options.rows == 10}selected="selected"{/if}>10</option>
+                    <option value="25" {if $options.rows == 25}selected="selected"{/if}>25</option>
+                    <option value="50" {if $options.rows == 50}selected="selected"{/if}>50</option>
+                    <option value="100" {if $options.rows == 100}selected="selected"{/if}>100</option>
+                    <option value="150" {if $options.rows == 150}selected="selected"{/if}>150</option>
                   </select>
-                  <input type="button" value="Set" class="shortcut" onClick="javascript:resizePager(this.form);">
+                  <input type="button" value="Set" class="shortcut" onclick="javascript:resizePager(this.form);" />
                 </td>
                 <td width="30%" align="right">
                 {* if $isAdministrator *}
@@ -728,14 +725,13 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
                        {html_options options=$tpl_list selected=$smarty.get.tpl}
                    </select>
                    {* /if *}
-
                 </td>
               </tr>
 			</table>
-		</td>
+   	      </td>
 		</tr>
       </table>
-    </td>
+	  </form>
+	</td>
   </tr>
-  </form>
 </table>

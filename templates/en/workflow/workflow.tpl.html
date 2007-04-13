@@ -1,5 +1,5 @@
 {literal}
-<script language="JavaScript">
+<script language="JavaScript" type="text/javascript">
 <!--
 
 function updateForm()
@@ -9,7 +9,7 @@ function updateForm()
   updateWin.focus();
   return true;
 }
-//-->
+-->
 </script>
 {/literal}
 {if $show_not_allowed_msg}
@@ -18,11 +18,11 @@ You don't have permission to access this function
 </div>
 {else}
 {if $submit_to_popup}
-<form name="wfl_form1"  onSubmit="javascript:return (checkFormSubmission(this, 'validateForm') && updateForm());" target="_popup_window" action="{$rel_url}popup.php" method="POST" enctype="multipart/form-data">
+<form name="wfl_form1"  onsubmit="javascript:return (checkFormSubmission(this, 'validateForm') && updateForm());" target="_popup_window" action="{$rel_url}popup.php" method="POST" enctype="multipart/form-data">
 {else}
-<form name="wfl_form1" onSubmit="javascript:return (checkFormSubmission(this, 'validateForm'));"  action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
+<form name="wfl_form1" onsubmit="javascript:return (checkFormSubmission(this, 'validateForm'));"  action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
 {/if}
-<input type="hidden" name="id" value="{$id}">
+<input type="hidden" name="id" value="{$id}" />
 <table bgcolor="{$light_color}" border="0" cellspacing="0" cellpadding="1" align="center"  width="100%">
   <tr>
     <td>
@@ -40,7 +40,7 @@ You don't have permission to access this function
 <div class="wfl_progress">
 Workflow Progress:
 {section name="i" loop=$states_done}
-<span class="wfl_progress">{if !$states_done[i].wfs_auto}<a class="link" href="{$rel_url}workflow/{$states_done[i].wfb_script_name}?id={$id}&wfs_id={$states_done[i].wfs_id}">{/if}{$states_done[i].wfs_title}{if !$states_done[i].wfs_auto}</a>{/if}</span>
+<span class="wfl_progress">{if !$states_done[i].wfs_auto}<a class="link" href="{$rel_url}workflow/{$states_done[i].wfb_script_name}?id={$id}&amp;wfs_id={$states_done[i].wfs_id}">{/if}{$states_done[i].wfs_title}{if !$states_done[i].wfs_auto}</a>{/if}</span>
 <img src="{$rel_url}images/1rightarrow_16.gif" alt=" -> "  class="wfl_progress"/>
 {/section}
 </div>
@@ -53,11 +53,9 @@ Workflow Progress:
    <tr>
     <td   width="100%" align="center">
    {section name="i" loop=$workflow_buttons}
-     <input class="button" type="submit" name="workflow_button_{$workflow_buttons[i].wfs_id}" 
-      value="{$workflow_buttons[i].wfs_title|default:'Done'}" 
-      />&nbsp;
+     <input class="button" type="submit" name="workflow_button_{$workflow_buttons[i].wfs_id}" value="{$workflow_buttons[i].wfs_title|default:'Done'}" />&nbsp;
      {/section}
-     | <input class="button" type="reset" value="Reset Form" tabindex="13">
+     | <input class="button" type="reset" value="Reset Form" tabindex="13" />
     </td>
    </tr>
   </table>
@@ -74,11 +72,9 @@ Workflow Progress:
    <tr>
     <td   width="100%" align="center">
    {section name="i" loop=$workflow_buttons}
-     <input class="button" type="submit" name="workflow_button_{$workflow_buttons[i].wfs_id}" 
-      value="{$workflow_buttons[i].wfs_title|default:'Done'}" 
-      />&nbsp;
+     <input class="button" type="submit" name="workflow_button_{$workflow_buttons[i].wfs_id}" value="{$workflow_buttons[i].wfs_title|default:'Done'}" />&nbsp;
      {/section}
-     | <input class="button" type="reset" value="Reset Form" tabindex="13">
+     | <input class="button" type="reset" value="Reset Form" tabindex="13" />
     </td>
    </tr>
   </table>

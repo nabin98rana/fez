@@ -1,7 +1,7 @@
-
-<table class="listing" width="100%" cellpadding="1" cellspacing="2" border="0">
 <form name="custom_filter_form" action="list.php" method="get">
 <input type="hidden" name="cat" value="quick_filter" />
+
+<table class="listing" width="100%" cellpadding="1" cellspacing="2" border="0">
 
 <tr id="custom_filter_form1" {get_display_style element_name="custom_filter_form"}>
     <td>&nbsp;</td>
@@ -9,12 +9,11 @@
       <table bgcolor="#FFFFFF" width="100%" border="0" cellspacing="0" cellpadding="4">
 		<tr>
 
-
 {section name="i" loop=$search_keys}
   {if ($smarty.section.i.index==3)}
-   <td nowrap valign="middle">            
-     <input name="search_button" class="button" type="submit" value="Search">
-     <!-- <input class="button" type="button" value="Clear" onClick="javascript:clearFilters(this.form);"> -->
+   <td nowrap="nowrap" valign="middle">            
+     <input name="search_button" class="button" type="submit" value="Search" />
+     <!-- <input class="button" type="button" value="Clear" onclick="javascript:clearFilters(this.form);"> -->
    </td>
   {/if}
   {if (($smarty.section.i.index % 3)==0)}
@@ -26,14 +25,14 @@
   {if ($smarty.section.i.index ==  0)}
   <td class="{if $options.searchKey0 != ''}default-search-used{else}default{/if}">
     All Fields: <br />
-	<input id="search_keys[0]" type="text" name="search_keys[0]" maxlength="255" size="35" value="{$options.searchKey0}">
+	<input id="search_keys[0]" type="text" name="search_keys[0]" maxlength="255" size="35" value="{$options.searchKey0}" />
   </td>
   {/if}
 
   <td class="{if $last_key != 'ALL' && $last_key != ''}default-search-used{else}default{/if}">
   {if $search_keys[i].sek_alt_title}{$search_keys[i].sek_alt_title}{else}{$search_keys[i].sek_title}{/if}:
   {if $search_keys[i].sek_html_input != 'text' &&  $search_keys[i].sek_html_input != 'textarea'}
-    <script language="JavaScript">
+    <script language="JavaScript" type="text/javascript">
     <!--
     //            search_keys[search_keys.length] = new Option('search_keys[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}', '{$search_keys[i].sek_title}');
     //            required_search_keys[required_search_keys.length] = new Option('search_keys[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}', {if $search_keys[i].sek_html_input == 'multiple'}'multiple'{elseif $search_keys[i].sek_html_input == 'combo'}'combo'{else}'whitespace'{/if});
@@ -42,7 +41,7 @@
   {/if}
   <br />
   {if $search_keys[i].sek_html_input == 'text'}
-  <input id="search_keys[{$search_keys[i].sek_id}]" type="text" name="search_keys[{$search_keys[i].sek_id}]" maxlength="255" size="30" value="{$last_key}">
+  <input id="search_keys[{$search_keys[i].sek_id}]" type="text" name="search_keys[{$search_keys[i].sek_id}]" maxlength="255" size="30" value="{$last_key}" />
   {elseif $search_keys[i].sek_html_input == 'textarea'}
   <textarea id="search_keys[{$search_keys[i].sek_id}]" name="search_keys[{$search_keys[i].sek_id}]" rows="10" cols="60" value="{$last_key}"></textarea>
   {elseif $search_keys[i].sek_html_input == 'allcontvocab' or $search_keys[i].sek_html_input == 'contvocab'}
@@ -55,8 +54,8 @@
 	  <td bgcolor="{$light_color}">
 		<select id="list_{$search_keys[i].sek_id}_{$loop_num}" multiple size="5" class="default" name="list[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}">
 		</select>
-		<input class="default" type=button value="Add Subject" onclick = "javascript:small_window('cv_selector.php?cvo_id={$search_keys[i].cv_ids[z]}&form=custom_filter_form&element=list_{$search_keys[i].sek_id}_{$loop_num}');">
-		<input class="default" type=button value="Remove Subject" onclick =" javascript:deleteSelectedItemsFromList(list_{$search_keys[i].sek_id}_{$loop_num});">
+		<input class="default" type="button" value="Add Subject" onclick="javascript:small_window('cv_selector.php?cvo_id={$search_keys[i].cv_ids[z]}&amp;form=custom_filter_form&amp;element=list_{$search_keys[i].sek_id}_{$loop_num}');" />
+		<input class="default" type="button" value="Remove Subject" onclick="javascript:deleteSelectedItemsFromList(list_{$search_keys[i].sek_id}_{$loop_num});" />
 	 </td>
 	</tr>
   {/section}	
@@ -85,9 +84,10 @@
 	<td colspan="5" class="default">
  	 {if $browser.ie5up or $browser.ns6up or $browser.gecko}
   <div style="text-align: center;">hide/show:
-  [ <a class="link" title="hide / show the quick search form" href="javascript:void(null);" onClick="javascript:toggleVisibility('custom_filter_form'{if $myFezView}, 1{/if});{if !$myFezView}toggleVisibility('basic_filter_form');{/if}">quick search</a> ]</div>
+  [ <a class="link" title="hide / show the quick search form" href="javascript:void(null);" onclick="javascript:toggleVisibility('custom_filter_form'{if $myFezView}, 1{/if});{if !$myFezView}toggleVisibility('basic_filter_form');{/if}">quick search</a> ]</div>
   {/if}
    </td>
 </tr>
-</form>
 </table>
+
+</form>

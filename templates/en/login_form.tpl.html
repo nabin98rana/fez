@@ -1,6 +1,7 @@
+<body>
 
 {literal}
-<script language="JavaScript">
+<script language="JavaScript" type="text/javascript">
 <!--
 function validateForm(f)
 {
@@ -19,24 +20,21 @@ function validateForm(f)
 {/literal}
 {if $SHIB_SWITCH == "ON"}
 <form name="IdPList" method="get">
-		    <input type="hidden" name="shire" value="https://{$APP_HOSTNAME}/Shibboleth.sso/SAML/POST" />
-		    <input type="hidden" name="target" value="cookie" />
-
-			    <input type="hidden" name="providerId" value="{$SHIB_HOME_SP}" />
-		    
-			    <input type="hidden" name="getArguments" value="{$getArguments}">
-				<input type="hidden" name="time" value="1142380709" />
-		    
-		    <input type="hidden" name="action" value="selection" />
-		    <input type="hidden" name="cache" value="false" />
+	<input type="hidden" name="shire" value="https://{$APP_HOSTNAME}/Shibboleth.sso/SAML/POST" />
+	<input type="hidden" name="target" value="cookie" />
+	<input type="hidden" name="providerId" value="{$SHIB_HOME_SP}" />
+	<input type="hidden" name="getArguments" value="{$getArguments|escape:"html"}" />
+	<input type="hidden" name="time" value="1142380709" />
+	<input type="hidden" name="action" value="selection" />
+	<input type="hidden" name="cache" value="false" />
 <table align="center" width="500" border="0" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF">
   <tr>
     <td>
             <br /><br />
       <table bgcolor="{$heading_color}" width="100%" border="0" cellspacing="0" cellpadding="4">
 		<tr>
-          <td align="center" nowrap class="default_white">
-            <img align="absmiddle" src="{$rel_url}images/shibboleth_logo_32.gif" border="0"> <b> Select your home institution:</b>
+          <td align="center" nowrap="nowrap" class="default_white">
+            <img src="{$rel_url}images/shibboleth_logo_32.gif" border="0" alt="" /> <b> Select your home institution:</b>
           </td>
         </tr>
 
@@ -49,20 +47,20 @@ function validateForm(f)
     <td>
       <table bgcolor="#FFFFFF" width="100%" border="0" cellspacing="0" cellpadding="4">
         <tr>
-          <td colspan="2" bgcolor="{$cell_color}"><img src="images/blank.gif" width="1" height="5"></td>
+          <td colspan="2" bgcolor="{$cell_color}"><img src="images/blank.gif" width="1" height="5" alt="" /></td>
         </tr>
 	
         <tr>
           <td align="right" width="40%" class="default" bgcolor="{$cell_color}"><b>Home Institution:</b></td>
-          <td width="60%" bgcolor="{$cell_color}" nowrap>
+          <td width="60%" bgcolor="{$cell_color}" nowrap="nowrap">
 							<select class="default" name="origin">
 							  {html_options options=$SHIB_IDP_LIST selected=$SHIB_HOME_IDP}
 							</select>          
-            <input type="submit" name="federation_login" value="Select" class="button">
+            <input type="submit" name="federation_login" value="Select" class="button" />
           </td>
         </tr>
         <tr>
-          <td colspan="2" bgcolor="{$cell_color}"><img src="images/blank.gif" width="1" height="5"></td>
+          <td colspan="2" bgcolor="{$cell_color}"><img src="images/blank.gif" width="1" height="5" alt="" /></td>
         </tr>		
 
       </table>
@@ -70,7 +68,7 @@ function validateForm(f)
   </tr>
 </table>
 </form>
-		{/if}	
+{/if}	
 
 {if $SHIB_SWITCH == "ON"}
 <table align="center" width="500" border="0" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF">
@@ -83,9 +81,9 @@ function validateForm(f)
 </table>
 {/if}
 
-<form name="login_form" onSubmit="javascript:return checkFormSubmission(this, 'validateForm');" method="post" action="index.php">
-<input type="hidden" name="cat" value="login">
-<input type="hidden" name="url" value="{$smarty.get.url}">
+<form name="login_form" onsubmit="javascript:return checkFormSubmission(this, 'validateForm');" method="post" action="index.php">
+<input type="hidden" name="cat" value="login" />
+<input type="hidden" name="url" value="{$smarty.get.url}" />
 
 
 <table align="center" width="500" border="0" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF">
@@ -95,7 +93,7 @@ function validateForm(f)
       <table bgcolor="{$heading_color}" width="100%" border="0" cellspacing="0" cellpadding="4">
         <tr>
           <td colspan="2" align="center" class="default_white">
-            <img align="absmiddle" src="{$rel_url}images/keys_32.gif" border="0"><b>{if $SHIB_SWITCH == "ON"}Secondary Login Method: {/if}Login to {$application_title}{if $SHIB_SWITCH == "ON"} with a {$org_short_name} username or internal {$application_title} username ONLY if you do not belong to one of the institutions in the above drop down list or if the federated login is down{/if}</b>
+            <img src="{$rel_url}images/keys_32.gif" border="0" alt="" /><b>{if $SHIB_SWITCH == "ON"}Secondary Login Method: {/if}Login to {$application_title}{if $SHIB_SWITCH == "ON"} with a {$org_short_name} username or internal {$application_title} username ONLY if you do not belong to one of the institutions in the above drop down list or if the federated login is down{/if}</b>
           </td>
         </tr>
       </table>
@@ -154,23 +152,23 @@ function validateForm(f)
         </tr>
         {/if}
         <tr>
-          <td align="right"  class="default" bgcolor="{$cell_color}" valign="middle" nowrap><b>{if $SHIB_SWITCH != "ON"}{if $ldap_switch == "ON"}{$org_short_name} or {/if}{$application_title}{/if} <u>U</u>sername:</b></td>
-          <td width="60%" bgcolor="{$cell_color}" valign="bottom" nowrap>
-            <input accessKey="U" class="default" type="text" name="username" value="{$username|default:$smarty.get.username}" size="30">
+          <td align="right"  class="default" bgcolor="{$cell_color}" valign="middle" nowrap="nowrap"><b>{if $SHIB_SWITCH != "ON"}{if $ldap_switch == "ON"}{$org_short_name} or {/if}{$application_title}{/if} <u>U</u>sername:</b></td>
+          <td width="60%" bgcolor="{$cell_color}" valign="bottom" nowrap="nowrap">
+            <input accesskey="U" class="default" type="text" name="username" value="{$username|default:$smarty.get.username}" size="30" />
             {include file="error_icon.tpl.html" field="username"}
           </td>
         </tr>
         <tr>
           <td align="right"  class="default" bgcolor="{$cell_color}" valign="middle"><b><u>P</u>assword:</b></td>
           <td width="60%" bgcolor="{$cell_color}" valign="middle">
-            <input accessKey="p" class="default" type="password" name="passwd" size="30" maxlength="32">
+            <input accesskey="p" class="default" type="password" name="passwd" size="30" maxlength="32" />
             {include file="error_icon.tpl.html" field="passwd"}
           </td>
         </tr>
         <tr align="left">
           <td bgcolor="{$cell_color}">&nbsp;</td>
           <td bgcolor="{$cell_color}">
-            <input type="submit" name="Submit" value="Login" class="button">
+            <input type="submit" name="Submit" value="Login" class="button" />
           </td>
         </tr>			
       </table>
@@ -181,7 +179,7 @@ function validateForm(f)
 </form>
 
 {literal}
-<script language="JavaScript">
+<script language="JavaScript" type="text/javascript">
 <!--
 window.onload = setFocus;
 function setFocus()
@@ -201,4 +199,3 @@ function setFocus()
 //-->
 </script>
 {/literal}
-
