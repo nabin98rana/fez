@@ -1351,8 +1351,6 @@ class Collection
 		}
 		$bodyStmt .= "
 
-
-
 	                $middleStmt ";
 
 		$stmtCount = "SELECT ".APP_SQL_CACHE."  count(distinct r2.rmf_rec_pid) as display_count
@@ -1471,7 +1469,7 @@ if ($sort_by == 'File Downloads') {
      * @param   string $searchKey The search key the records are being browsed by  Date (Year) or Author
      * @return  array The list of records 
      */
-    function listByAttribute($current_row = 0, $max = 25, $searchKey="Date",$sort_by="Title")
+    function listByAttribute($current_row = 0, $max = 25, $searchKey = "Date", $sort_by = "Title", $letter = "")
     {
 		if ($max == "ALL") {
             $max = 9999999;

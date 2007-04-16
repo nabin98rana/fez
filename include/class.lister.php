@@ -291,7 +291,7 @@ class Lister
             if (empty($sort_by)) {
                 $sort_by = 'Created Date';
             }
-            $list = Collection::browseListing($pager_row, $rows, "Created Date",$sort_by);
+            $list = Collection::browseListing($pager_row, $rows, "Created Date", $sort_by);
             //print_r($list);
             $list_info = $list["info"];
             $list = $list["list"];
@@ -317,7 +317,7 @@ class Lister
                 $tpl->assign("browse_heading", "Browse By Year ".$year);
                 $tpl->assign("list_heading", "List of Records");
             } else {
-                $list = Collection::listByAttribute($pager_row, $rows,"Date",$sort_by);
+                $list = Collection::listByAttribute($pager_row, $rows, "Date", $sort_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
                 $tpl->assign("browse_heading", "Browse By Year");
@@ -330,13 +330,13 @@ class Lister
                 $sort_by = "searchKey".Search_Key::getID("Title");
             }
             if (!empty($author)) {	
-                $list = Collection::browseListing($pager_row, $rows, "Author",$sort_by);
+                $list = Collection::browseListing($pager_row, $rows, "Author", $sort_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
                 $tpl->assign("browse_heading", "Browse By Author - ".$author);
 			    $tpl->assign("list_heading", "Browse By Author - ".$author);	
             } else {
-                $list = Collection::listByAttribute($pager_row, $rows, "Author",$sort_by);
+                $list = Collection::listByAttribute($pager_row, $rows, "Author", $sort_by, $letter);
                 $list_info = $list["info"];
                 $list = $list["list"];
                 $tpl->assign("browse_heading", "Browse By Author");

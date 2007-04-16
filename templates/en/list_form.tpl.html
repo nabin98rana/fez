@@ -572,11 +572,10 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
                   <td width="10">
                         {if $href_view}<a href='{$href_view}' >{/if}<img src="{$icon}" alt="" border="0" />{if $href_view}</a>{/if}
 				  </td>
-				  <td valign="middle" >
+				  <td valign="middle">
                     {if $href_view}<a href='{$href_view}'>{/if}
 					{$list[i].title.0|escape:"html"}{if $href_view}</a>{/if}
-				  </td>
-				  <td valign="middle" align="right">
+
 			{if $showEdit || $isAdministrator}
 			  &nbsp;&nbsp;
 			  {if $showEdit}
@@ -611,8 +610,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 
                         {/if}
 
-
-		    </td><td align="right" valign="top">{if $list[i].Relevance} (Search Relevance: <b>{$list[i].Relevance}</b>)<br />{/if}
+			</td><td align="right" valign="top" width="">{if $list[i].Relevance} (Search Relevance: <b>{$list[i].Relevance}</b>)<br />{/if}
 					        {if $list[i].object_type.0 == '3'}{if $list[i].abstract_downloads}({$list[i].abstract_downloads|escape:"html"} Abstract View{if $list[i].abstract_downloads > 1}s{/if})<br />{/if} {if $list[i].file_downloads}({$list[i].file_downloads|escape:"html"} <a class="author_link" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}">File Download{if $list[i].file_downloads > 1}s{/if}</a>){/if}{/if} </td>
 
 				</tr>

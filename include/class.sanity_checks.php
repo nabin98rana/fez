@@ -332,7 +332,7 @@
         	// run a test bgp
             $bgp = new BackgroundProcess_Test();
             $id = $bgp->register(serialize(array('test'=>'Hello')),1);
-            sleep(1); // i hope this is long enough
+            sleep(3); // Allowing just 1 second results in failure most of the time on my test server - LK
             $bgp = new BackgroundProcess($id);
             $det = $bgp->getDetails();
             if ($det['bgp_status_message'] != "I got Hello") {
