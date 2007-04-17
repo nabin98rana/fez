@@ -512,135 +512,135 @@ class Auth
 
     /**
      * getIndexAuthorisationGroups
-	 * This method gets the roles (or authorisation groups) the user has, based on the given ACMLs using the Fez Index.
-	 * This is usually used when the user is searching, listing, browsing when an index would speed up the process.
+     * This method gets the roles (or authorisation groups) the user has, based on the given ACMLs using the Fez Index.
+     * This is usually used when the user is searching, listing, browsing when an index would speed up the process.
      *
      * @access  public
      * @param   array $indexArray The array of ACMLs found for the object.
      * @returns array $indexArray The input array, but with results of the security check for roles.
      */
-	function getIndexAuthorisationGroups($indexArray) {
+    function getIndexAuthorisationGroups($indexRecord) 
+    {
         // Usually everyone can list, view and view comments, this is set in the global "non restricted roles".
+        global $NonRestrictedRoles;
+        $session = &Auth::getSession();
+        $securityfields = Auth::getAllRoles();
+            $userPIDAuthGroups = $NonRestrictedRoles;
+            $cleanedArray = array();
+            if (!is_array(@$indexRecord['FezACML'])) {
+//              return false;
+                // if it doesnt have its own acml record try and get rights from its parents
+//              Auth::getIndexAuthorisationGroups();
+                // 1. get the parents records with their fez acml's
+                // 2. if at least one of them have an fez acml then use it otherwise get the parents parents
 
-		global $NonRestrictedRoles;
-        global $auth_isBGP, $auth_bgp_session;
-        if ($auth_isBGP) {
-            $session =& $auth_bgp_session;
-        } else {
-            session_name(APP_SESSION);
-            @session_start();
-            $session =& $_SESSION;
-        }
-		$securityfields = Auth::getAllRoles();
+            } else {        
+                foreach ($indexRecord['FezACML'] as $FezACML) { // can have multiple fez acmls if got from parents
+                    foreach ($FezACML as $role_name => $role) {                     
+                        if (in_array($role_name, $userPIDAuthGroups) && in_array($role_name, $NonRestrictedRoles) && (@$cleanedArray[$role_name] != 1)) {
+                            $userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role_name, false, true);
+                            $cleanedArray[$role_name] = 1;
+                        }
+                        if (in_array($role_name, $securityfields) && $role_name != '0') {
+                            foreach ($role as $rule_name => $rule) {
+                                foreach ($rule as $ruleRecord) {
+                                    // if the role is in the ACML then it is restricted so remove it
+                                    // @@@ CK - if the role has already been 
+                                    // found then don't check for it again
+                                    if (!in_array($role_name, $userPIDAuthGroups)) {
+                                        switch ($rule_name) {
+                                            case '!rule!role!AD_Group': 
+                                                if (@in_array($ruleRecord, $session[APP_LDAP_GROUPS_SESSION])) {
+                                                    array_push($userPIDAuthGroups, $role_name);
+                                                }
+                                                break;
+                                            case '!rule!role!in_AD':
+                                                if (($ruleRecord == 'on') && Auth::isValidSession($session)
+                                                        && Auth::isInAD()) {
+                                                    array_push($userPIDAuthGroups, $role_name);
+                                                }
+                                                break;
+                                            case '!rule!role!in_Fez':
+                                                if (($ruleRecord == 'on') && Auth::isValidSession($session) 
+                                                        && Auth::isInDB()) {
+                                                    array_push($userPIDAuthGroups, $role_name);
+                                                }   
+                                                break;
+                                            case '!rule!role!AD_User':
+                                                if (Auth::isValidSession($session) 
+                                                        && $ruleRecord == Auth::getUsername()) {
+                                                    array_push($userPIDAuthGroups, $role_name);
+                                                }
+                                                break;
+                                            case '!rule!role!AD_DistinguishedName':
+                                                if (is_numeric(strpos(@$session['distinguishedname'], $ruleRecord))) {
+                                                    array_push($userPIDAuthGroups, $role_name);
+                                                }
+                                                break;                                              
+                                            case '!rule!role!eduPersonTargetedID':
+                                                if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'], $ruleRecord))) {
+                                                    array_push($userPIDAuthGroups, $role_name);
+                                                }
+                                                break;                                              
+                                            case '!rule!role!eduPersonAffiliation':
+                                                if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation'], $ruleRecord))) {
+                                                    array_push($userPIDAuthGroups, $role_name);
+                                                }
+                                                break;                                                          
+                                            case '!rule!role!eduPersonScopedAffiliation':
+                                                if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'], $ruleRecord))) {
+                                                    array_push($userPIDAuthGroups, $role_name);
+                                                }
+                                                break;                                              
+                                            case '!rule!role!eduPersonPrimaryAffiliation':
+                                                if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'], $ruleRecord))) {
+                                                    array_push($userPIDAuthGroups, $role_name);
+                                                }
+                                                break;                                              
+                                            case '!rule!role!eduPersonPrincipalName':
+                                                if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], $ruleRecord))) {
+                                                    array_push($userPIDAuthGroups, $role_name);
+                                                }
+                                                break;      
+                                            case '!rule!role!eduPersonOrgUnitDN':
+                                                if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgUnitDN'], $ruleRecord))) {
+                                                    array_push($userPIDAuthGroups, $role_name);
+                                                }
+                                                break;      
+                                            case '!rule!role!eduPersonPrimaryOrgUnitDN':
+                                                if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN'], $ruleRecord))) {
+                                                    array_push($userPIDAuthGroups, $role_name);
+                                                }
+                                                break;      
+                                            case '!rule!role!Fez_Group':
+                                                if (@in_array($ruleRecord, $session[APP_INTERNAL_GROUPS_SESSION])) {
+                                                    array_push($userPIDAuthGroups, $role_name);
+                                                }
+                                                break;  
+                                            case '!rule!role!Fez_User':
+                                                if (Auth::isValidSession($session)
+                                                        && $ruleRecord == Auth::getUserID()) {
+                                                    array_push($userPIDAuthGroups, $role_name);
+                                                }
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                    }                                               
+                                }
+                            }
+                        }
+                    }           
+                }       
+            }
+            return $userPIDAuthGroups;
+        
+    }
+
+    function getIndexAuthorisation(&$indexArray) 
+    {
 		foreach ($indexArray as $indexKey => $indexRecord) {
-			$userPIDAuthGroups = $NonRestrictedRoles;
-			$cleanedArray = array();
-			if (!is_array(@$indexRecord['FezACML'])) {
-//				return false;
-				// if it doesnt have its own acml record try and get rights from its parents
-//				Auth::getIndexAuthorisationGroups();
-				// 1. get the parents records with their fez acml's
-				// 2. if at least one of them have an fez acml then use it otherwise get the parents parents
-
-			} else {		
-				foreach ($indexRecord['FezACML'] as $FezACML) { // can have multiple fez acmls if got from parents
-					foreach ($FezACML as $role_name => $role) {						
-						if (in_array($role_name, $userPIDAuthGroups) && in_array($role_name, $NonRestrictedRoles) && (@$cleanedArray[$role_name] != 1)) {
-							$userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role_name, false, true);
-							$cleanedArray[$role_name] = 1;
-						}
-						if (in_array($role_name, $securityfields) && $role_name != '0') {
-							foreach ($role as $rule_name => $rule) {
-								foreach ($rule as $ruleRecord) {
-									// if the role is in the ACML then it is restricted so remove it
-									// @@@ CK - if the role has already been 
-									// found then don't check for it again
-									if (!in_array($role_name, $userPIDAuthGroups)) {
-										switch ($rule_name) {
-											case '!rule!role!AD_Group': 
-												if (@in_array($ruleRecord, $session[APP_LDAP_GROUPS_SESSION])) {
-													array_push($userPIDAuthGroups, $role_name);
-												}
-												break;
-											case '!rule!role!in_AD':
-												if (($ruleRecord == 'on') && Auth::isValidSession($session)
-														&& Auth::isInAD()) {
-													array_push($userPIDAuthGroups, $role_name);
-												}
-												break;
-											case '!rule!role!in_Fez':
-												if (($ruleRecord == 'on') && Auth::isValidSession($session) 
-														&& Auth::isInDB()) {
-													array_push($userPIDAuthGroups, $role_name);
-												}	
-												break;
-											case '!rule!role!AD_User':
-												if (Auth::isValidSession($session) 
-														&& $ruleRecord == Auth::getUsername()) {
-													array_push($userPIDAuthGroups, $role_name);
-												}
-												break;
-											case '!rule!role!AD_DistinguishedName':
-												if (is_numeric(strpos(@$session['distinguishedname'], $ruleRecord))) {
-													array_push($userPIDAuthGroups, $role_name);
-												}
-												break;												
-											case '!rule!role!eduPersonTargetedID':
-												if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'], $ruleRecord))) {
-													array_push($userPIDAuthGroups, $role_name);
-												}
-												break;												
-											case '!rule!role!eduPersonAffiliation':
-												if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation'], $ruleRecord))) {
-													array_push($userPIDAuthGroups, $role_name);
-												}
-												break;															
-											case '!rule!role!eduPersonScopedAffiliation':
-												if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'], $ruleRecord))) {
-													array_push($userPIDAuthGroups, $role_name);
-												}
-												break;												
-											case '!rule!role!eduPersonPrimaryAffiliation':
-												if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'], $ruleRecord))) {
-													array_push($userPIDAuthGroups, $role_name);
-												}
-												break;												
-											case '!rule!role!eduPersonPrincipalName':
-												if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], $ruleRecord))) {
-													array_push($userPIDAuthGroups, $role_name);
-												}
-												break;		
-											case '!rule!role!eduPersonOrgUnitDN':
-												if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgUnitDN'], $ruleRecord))) {
-													array_push($userPIDAuthGroups, $role_name);
-												}
-												break;		
-											case '!rule!role!eduPersonPrimaryOrgUnitDN':
-												if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN'], $ruleRecord))) {
-													array_push($userPIDAuthGroups, $role_name);
-												}
-												break;		
-											case '!rule!role!Fez_Group':
-												if (@in_array($ruleRecord, $session[APP_INTERNAL_GROUPS_SESSION])) {
-													array_push($userPIDAuthGroups, $role_name);
-												}
-												break;	
-											case '!rule!role!Fez_User':
-												if (Auth::isValidSession($session)
-														&& $ruleRecord == Auth::getUserID()) {
-													array_push($userPIDAuthGroups, $role_name);
-												}
-												break;
-											default:
-												break;
-										}
-									}												
-								}
-							}
-						}
-					}			
-				}		
-			}
+            $userPIDAuthGroups = Auth::getIndexAuthorisationGroups($indexRecord);
             $editor_matches = array_intersect(explode(',',APP_EDITOR_ROLES), $userPIDAuthGroups);
 			$indexArray[$indexKey]['isCommunityAdministrator'] = (in_array('Community Administrator', $userPIDAuthGroups) || Auth::isAdministrator()); //editor is only for the children. To edit the actual community record details you need to be a community admin
 			$indexArray[$indexKey]['isEditor'] = (!empty($editor_matches) || $indexArray[$indexKey]['isCommunityAdministrator'] == true);
@@ -651,6 +651,18 @@ class Auth
 //		print_r($indexArray);
 		return $indexArray;		
 	}
+
+    function getIndexAuthorisationGroupsByPid($pid, $indexArray) 
+    {
+        foreach ($indexArray as $indexKey => $indexRecord) {
+            if ($indexRecord['pid'] == $pid) {
+                $userPIDAuthGroups = Auth::getIndexAuthorisationGroups($indexRecord);
+                return $userPIDAuthGroups;     
+            }
+        }
+        return array(); // pid not found in listing
+    }
+
 
     /**
      * getAuthorisationGroups
@@ -1573,7 +1585,7 @@ class Auth
         }
         return @$session['isInDB'];
     }
-
+    
     /**
      * Checks and appends the security roles (authorisation groups) the user has over the object for the listing/search screens. 
      *
@@ -1749,6 +1761,18 @@ class Auth
         return $ses;
     }
 
+    function canEdit() 
+    {
+        $count = Collection::getEditListingCount();
+        return ($count > 0) ? true : false;
+    }
+    
+    function canCreate() 
+    {
+        $list = Collection::getEditList();
+        $count = count($list);
+        return ($count > 0) ? true : false;
+    }
 }
 
 // benchmarking the included file (aka setup time)

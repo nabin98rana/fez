@@ -549,7 +549,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 				{else}
 	                {assign var="icon" value="images/record.jpg" }
 				{/if}
-                {if $isUser && ($list[i].isEditor==1 || $isAdministrator)} 
+                {if $isUser } 
                         {assign var="showEdit" value=true}
                 {else}
                         {assign var="showEdit" value=false}
@@ -578,7 +578,6 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 
 			{if $showEdit || $isAdministrator}
 			  &nbsp;&nbsp;
-			  {if $showEdit}
 			  {section name="w" loop=$list[i].workflows}
 			    {if $list[i].workflows[w].wft_icon == 'images/security.gif'}
 			      {if $list[i].security == 'include'}
@@ -590,25 +589,24 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 			      {else}
 			        {assign var="wf_icon" value=$list[i].workflows[w].wft_icon}
 			      {/if}
-		            {else}
+	            {else}
 			      {assign var="wf_icon" value=$list[i].workflows[w].wft_icon}
 			    {/if}
                             {if $list[i].workflows[w].wft_type_id == 6}
                               {assign var='wf_url' value=$rel_url|cat:'workflow/export.php'}
                             {else}
                               {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
-			    {/if}
+               			    {/if}
 			<a href="{$wf_url}?pid={$list[i].pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].xdis_id.0}&amp;wft_id={$list[i].workflows[w].wft_id}&amp;href={$smarty.server.REQUEST_URI}"><img alt="{$list[i].workflows[w].wfl_title}" title="{$list[i].workflows[w].wfl_title}" src="{$rel_url}{$wf_icon}" border="0" /></a> 
 			  {/section}
-			  {/if}
-			  {if $isAdministrator}
+			      {if $isAdministrator}
 			<a href="javascript:void(null);" onclick="javascript: purgeObject('{$list[i].pid|escape}');" 
                         ><img alt="Delete" title="Delete" src="{$rel_url}images/delete.gif" border="0" /></a> 
 		          {/if}
-                        <a href="workflow/list_workflows2.php?pid={$list[i].pid|escape}"
-                        >...</a> 
+		          
+                <a href="workflow/list_workflows2.php?pid={$list[i].pid|escape}">...</a> 
 
-                        {/if}
+           {/if}
 
 			</td><td align="right" valign="top" width="">{if $list[i].Relevance} (Search Relevance: <b>{$list[i].Relevance}</b>)<br />{/if}
 					        {if $list[i].object_type.0 == '3'}{if $list[i].abstract_downloads}({$list[i].abstract_downloads|escape:"html"} Abstract View{if $list[i].abstract_downloads > 1}s{/if})<br />{/if} {if $list[i].file_downloads}({$list[i].file_downloads|escape:"html"} <a class="author_link" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}">File Download{if $list[i].file_downloads > 1}s{/if}</a>){/if}{/if} </td>

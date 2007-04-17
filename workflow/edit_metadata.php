@@ -394,7 +394,7 @@ if ($access_ok) {
         }
     } 
 
-    $datastreams = Auth::getIndexAuthorisationGroups($datastreams);
+    $datastreams = Auth::getIndexAuthorisation($datastreams);
     $parents = $record->getParents(); // RecordObject
     $tpl->assign("parents", $parents);
     $title = $record->getTitle(); // RecordObject

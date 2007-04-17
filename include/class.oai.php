@@ -223,7 +223,7 @@ class OAI
 
 //	        $return = Collection::makeSecurityReturnList($return);
 			$hidden_rows = 0;
-//			$return = Auth::getIndexAuthorisationGroups($return);
+//			$return = Auth::getIndexAuthorisation($return);
 //			$return = Misc::cleanListResults($return);  
 	//		$total_rows = count($return);
 			if (($start + $max) < $total_rows) {

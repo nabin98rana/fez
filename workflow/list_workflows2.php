@@ -110,7 +110,6 @@ if (($pid != -1)
         }
         
         $tpl->assign('workflows', $workflows);
-    } else {
     }
     $tpl->assign('xdis_id', $xdis_id);
 }

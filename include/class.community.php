@@ -226,7 +226,7 @@ class Community
         $return = Collection::makeSecurityReturnList($return);
 
 		$hidden_rows = count($return);
-		$return = Auth::getIndexAuthorisationGroups($return);
+		$return = Auth::getIndexAuthorisation($return);
 		$return = Misc::cleanListResults($return);
 		if (($start + $max) < $total_rows) {
 	        $total_rows_limit = $start + $max;

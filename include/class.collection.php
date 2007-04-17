@@ -269,7 +269,7 @@ class Collection
 		$return = Collection::makeReturnList($res);
         $return = Collection::makeSecurityReturnList($return);
 		$hidden_rows = count($return);
-		$return = Auth::getIndexAuthorisationGroups($return);		
+		$return = Auth::getIndexAuthorisation($return);		
 		$return = Misc::cleanListResults($return);
 
 		$total_rows = count($return);
@@ -709,7 +709,7 @@ class Collection
                     $authStmt
 
 					$memberOfStmt
-					WHERE  r2.rmf_xsdmf_id in (".implode(",", $objectTypeList).") AND r2.rmf_int = 3
+					WHERE  r2.rmf_xsdmf_id in (".implode(",", $objectTypeList).") AND r2.rmf_int = '3'
                     ";
 
         $countStmt = "
@@ -998,7 +998,7 @@ class Collection
 		$return = Collection::makeReturnList($res);
         $return = Collection::makeSecurityReturnList($return);
 		$hidden_rows = 0;
-		$return = Auth::getIndexAuthorisationGroups($return);
+		$return = Auth::getIndexAuthorisation($return);
 		$return = Misc::cleanListResults($return);  
 //		$total_rows = count($return);
 		if (($start + $max) < $total_rows) {
@@ -1046,7 +1046,7 @@ class Collection
 			$pid = $ret_wf['pid'];
 			$record = new RecordObject($pid);
             $workflows = array();
-			if ($ret_wf['isEditor']) {
+			if (Auth::canCreate()) {
 				$xdis_id = $ret_wf['display_type'][0];
 				$ret_id = $ret_wf['object_type'][0];
 				$strict = false;
@@ -1064,7 +1064,7 @@ class Collection
 					}
 				}
 				$workflows = $workflows1;
-			} 
+			}
 			$return[$ret_key]['workflows'] = $workflows; 
 		}  
 		return $return;
@@ -1429,7 +1429,7 @@ if ($sort_by == 'File Downloads') {
             $return = Collection::makeSecurityReturnList($return);
 //			$hidden_rows = count($return);
 			$hidden_rows = $total_rows;
-			$return = Auth::getIndexAuthorisationGroups($return);
+			$return = Auth::getIndexAuthorisation($return);
 			$return = Misc::cleanListResults($return);
 			$return = Collection::getWorkflows($return);
 //			print_r($return);
@@ -1756,7 +1756,7 @@ if ($sort_by == 'File Downloads') {
 	        $return = Collection::makeSecurityReturnList($return);
 	
 			$hidden_rows = 0;
-	//		$return = Auth::getIndexAuthorisationGroups($return);
+	//		$return = Auth::getIndexAuthorisation($return);
 	//		$return = Misc::cleanListResults($return);
 	//		$return = Collection::getWorkflows($return);
 			if (($start + $max) < $total_rows) {
@@ -1981,7 +1981,7 @@ if ($sort_by == 'File Downloads') {
         $return = Collection::makeSecurityReturnList($return);
 		$return = array_values($return);
 		$hidden_rows = count($return);
-		$return = Auth::getIndexAuthorisationGroups($return);
+		$return = Auth::getIndexAuthorisation($return);
 		$return = Misc::cleanListResults($return);
 		$return = Collection::getWorkflows($return);
 		
@@ -2242,7 +2242,7 @@ $res_count = array();
 		$return = Collection::makeReturnList($res);
         $return = Collection::makeSecurityReturnList($return);
 		$return = array_values($return);
-		$return = Auth::getIndexAuthorisationGroups($return);
+		$return = Auth::getIndexAuthorisation($return);
 		$return = Misc::cleanListResults($return);
 		$return = Collection::getWorkflows($return);
 		$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);

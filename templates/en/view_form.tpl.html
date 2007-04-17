@@ -160,7 +160,7 @@ function openHistory(pid)
           <td align="left" class="default" colspan="2"><br /><img align="absmiddle" src="{$rel_url}images/record_view_32.jpg"/> <b>View {$xdis_title}: <i>{$title}</i> </b> <br /><br /></td>
         </tr>
 
-{if ($isEditor || $isAdministrator) && !$hide_edit}
+{if $isUser && !$hide_edit}
 		<tr>
 		  <td align="left"> 
 			<table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="1">

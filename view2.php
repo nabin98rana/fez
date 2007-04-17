@@ -84,24 +84,8 @@ if (!empty($pid) && $record->checkExists()) {
 	
 	$canEdit = false;
 	$canView = true;
-		$canEdit = $record->canEdit(false);
-		if ($canEdit == true) {
-		$ret_id = 3;
-		$strict = false;
-		$workflows = array_merge($record->getWorkflowsByTriggerAndRET_ID('Update', $ret_id, $strict),
-			$record->getWorkflowsByTriggerAndRET_ID('Export', $ret_id, $strict));
-		// check which workflows can be triggered			
-		$workflows1 = array();
-		if (is_array($workflows)) {
-			foreach ($workflows as $trigger) {
-				if (WorkflowTrigger::showInList($trigger['wft_options']) 
-						&& Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
-					$workflows1[] = $trigger;
-				}
-			}
-			$workflows = $workflows1;
-		} 
-		$tpl->assign("workflows", $workflows); 
+	$canEdit = $record->canEdit(false);
+    if ($canEdit == true) {
 		$canView = true;
 	} else {
 		$canView = $record->canView();
@@ -109,6 +93,25 @@ if (!empty($pid) && $record->checkExists()) {
 	
 	$tpl->assign("isViewer", $canView);
 	if ($canView) {
+
+        $ret_id = 3;
+        $strict = false;
+        $workflows = array_merge($record->getWorkflowsByTriggerAndRET_ID('Update', $ret_id, $strict),
+            $record->getWorkflowsByTriggerAndRET_ID('Export', $ret_id, $strict));
+        // check which workflows can be triggered           
+        $workflows1 = array();
+        if (is_array($workflows)) {
+            foreach ($workflows as $trigger) {
+                if (WorkflowTrigger::showInList($trigger['wft_options']) 
+                        && Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
+                    $workflows1[] = $trigger;
+                }
+            }
+            $workflows = $workflows1;
+        } 
+        $tpl->assign("workflows", $workflows); 
+
+
 		$tpl->assign("isEditor", $canEdit);
 		$tpl->assign("sta_id", $record->getPublishedStatus()); 
 		$display = new XSD_DisplayObject($xdis_id);
@@ -413,7 +416,7 @@ if (!empty($pid) && $record->checkExists()) {
                 $tpl->assign('doi', $datastreams[$ds_key]);
             }
 		} 
-		$datastreams = Auth::getIndexAuthorisationGroups($datastreams);
+		$datastreams = Auth::getIndexAuthorisation($datastreams);
 //		print_r($datastreams);
 		$tpl->assign("datastreams", $datastreams);	
 		$tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");		

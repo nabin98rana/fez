@@ -325,7 +325,7 @@ class Workflow
             // the roles must be comma separated
             $wfl_roles = preg_split("/[\s,;]+/", $wfl['wfl_roles']);
 			if (is_array($indexArray)) { 
-	            $pid_roles = Auth::getIndexAuthorisationGroups($indexArray);
+                $pid_roles = Auth::getIndexAuthorisationGroupsByPid($pid, $indexArray);
 			} else {
 				$pid_roles = Auth::getAuthorisationGroups($pid);							
 			}

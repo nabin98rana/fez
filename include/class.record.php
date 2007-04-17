@@ -1063,7 +1063,7 @@ class Record
         $return = Collection::makeReturnList($res);
         $return = Collection::makeSecurityReturnList($return);
 //		$return = array_values($return);
-		$return = Auth::getIndexAuthorisationGroups($return);
+		$return = Auth::getIndexAuthorisation($return);
 //		print_r($return);		
 		$return = Collection::getWorkflows($return); 
 		foreach ($return as &$result) {
@@ -1179,7 +1179,7 @@ class Record
         $return = Collection::makeReturnList($res);
         $return = Collection::makeSecurityReturnList($return);        
 //		$return = array_values($return);
-		$return = Auth::getIndexAuthorisationGroups($return);
+		$return = Auth::getIndexAuthorisation($return);
 //		print_r($return);		
 		$usr_id = Auth::getUserID();
 		if (is_numeric($usr_id) && $usr_id != 0) { //only get the workflows if logged in an not an RSS feed
@@ -1462,7 +1462,7 @@ class Record
         $return = Collection::makeReturnList($res);
         $return = Collection::makeSecurityReturnList($return);
 //		$return = array_values($return);
-		$return = Auth::getIndexAuthorisationGroups($return);
+		$return = Auth::getIndexAuthorisation($return);
 //		print_r($return);		
 		$return = Collection::getWorkflows($return); 
 		$list = $return;
