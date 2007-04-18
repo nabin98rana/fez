@@ -46,8 +46,6 @@ class WorkflowStatus {
     var $pid;
     var $pids = array();    
     var $dsID;
-    var $assign_usr_ids = array();
-    var $assign_grp_id;
     var $xdis_id;
     var $wft_id;
     var $wfl_details;
@@ -69,18 +67,30 @@ class WorkflowStatus {
      * how the workflow is triggered.  Sometimes nothing is known at the start of the
      * workflow lik ehwen the user clicks 'create' on the My_Fez page.
      */
-    function WorkflowStatus($pid=null, $wft_id=null, $xdis_id=null, $dsInfo=null, $dsID='', $pids=array(), $assign_usr_ids=array(), $assign_grp_id=null)
+    function WorkflowStatus($pid=null, $wft_id=null, $xdis_id=null, $dsInfo=null, $dsID='', $pids=array())
     {
-        $this->id = md5(uniqid(rand(), true));
         $this->pid = $pid;
         $this->pids = $pids;        
         $this->dsID = $dsID;
-        $this->assign_usr_ids = $assign_usr_ids;
-        $this->assign_grp_id = $assign_grp_id;
         $this->wft_id= $wft_id;
         $this->xdis_id= $xdis_id;
         $this->dsInfo = $dsInfo;
+        $this->id = $this->newDBSession();
+        $this->setSession();
+    }
 
+    function newDBSession()
+    {
+        $usr_id = Auth::getUserID();
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $stmt = "INSERT INTO {$dbtp}workflow_sessions (wfses_usr_id, wfses_listing, wfses_date) " .
+                "VALUES ('$usr_id','',NOW())";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        }
+        return $GLOBALS["db_api"]->get_last_insert_id();
     }
 
     /**
@@ -95,11 +105,46 @@ class WorkflowStatus {
     }
 
     /**
-     * Saves this object in a session variable.
+     * Saves this object in the workflow_sessions db table
      */
     function setSession()
     {
-        $_SESSION['workflow'][$this->id] = serialize($this);
+        $this->getWorkflowDetails();
+        $this->getStateDetails();
+        $title = $this->wfl_details['wfl_title'].": ".$this->wfs_details['wfs_title'];
+        if ($this->pid) {
+            $this->getRecordObject();
+            $title .= " on {$this->pid}: ". $this->rec_obj->getTitle();
+        }
+        $date = Date_API::getCurrentDateGMT();
+        $usr_id = Auth::getUserID();
+        $id = $this->id;
+        // get rid of some stuff to cut the size of the serialised object down
+        $wfs_details = $this->wfs_details; 
+        $wfl_details = $this->wfl_details; 
+        $wfb_details = $this->wfb_details; 
+        $rec_obj = $this->rec_obj; 
+        $this->wfs_details = null;
+        $this->wfl_details = null;
+        $this->wfb_details = null;
+        $this->rec_obj = null;
+        $blob = Misc::escapeString(serialize($this));
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $stmt = "UPDATE {$dbtp}workflow_sessions " .
+                "SET wfses_object='$blob', wfses_listing='$title', wfses_date='$date' " .
+                "WHERE wfses_id='$id' AND wfses_usr_id='$usr_id' ";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $res = -1;
+        } else {
+            $res = 1;
+        }
+        $this->wfs_details = $wfs_details; 
+        $this->wfl_details = $wfl_details; 
+        $this->wfb_details = $wfb_details; 
+        $this->rec_obj = $rec_obj; 
+        return $res;
     }
 
     /**
@@ -107,7 +152,17 @@ class WorkflowStatus {
      */
     function clearSession()
     {
-        $_SESSION['workflow'][$this->id] = serialize($this);
+        $usr_id = Auth::getUserID();
+        $id = $this->id;
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $stmt = "DELETE FROM {$dbtp}workflow_sessions " .
+                "WHERE wfses_id='$id' AND wfses_usr_id='$usr_id' ";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        }
+        return 1;
     }
 
     /**
@@ -237,12 +292,10 @@ class WorkflowStatus {
         $wft_type = WorkflowTrigger::getTriggerName($this->wft_details['wft_type_id']);
         $dsID = $this->dsID;
         $pid = $this->pid;
-        //$assign_usr_ids = $this->assign_usr_ids;
-        $assign_grp_id = $this->assign_grp_id;
         $parent_pid = $this->parent_pid;
         $parents_list = serialize($this->parents_list);
         $href= $this->href;
-        $args = compact('wfl_title','wft_type','parent_pid','pid', 'dsID', 'assign_grp_id', 'parents_list', 'action', 'href');
+        $args = compact('wfl_title','wft_type','parent_pid','pid', 'dsID', 'parents_list', 'action', 'href');
         $argstrs = array();
         $outcome = $this->getvar('outcome');
         $outcome_details = $this->getvar('outcome_details');
@@ -433,13 +486,23 @@ class WorkflowStatusStatic
     function getSession()
     {
         $id = Misc::GETorPOST('id');
+        $usr_id = Auth::getUserID();
         $wfs_id = Misc::GETorPOST('wfs_id');
         $obj = null;
-        if (@$_SESSION['workflow'][$id]) {
-            $obj = unserialize($_SESSION['workflow'][$id]);
-            if (!$obj->change_on_refresh) {
-                $obj->setState($wfs_id);
-            }
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $stmt = "SELECT wfses_object FROM {$dbtp}workflow_sessions " .
+                "WHERE wfses_usr_id='$usr_id'  AND wfses_id='$id' ";  
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return null;
+        }
+        if (empty($res)) {
+            return null;
+        }
+        $obj = unserialize($res);
+        if (!$obj->change_on_refresh) {
+            $obj->setState($wfs_id);
         }
         return $obj;
     }

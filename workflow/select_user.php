@@ -59,7 +59,7 @@ $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus obje
 $wfstatus->setTemplateVars($tpl);
 $cat = Misc::GETorPOST('cat');
 if ($cat == 'submit') {
-    $wfstatus->assign_usr_ids[0] = Misc::GETorPOST('usr_id');
+    $wfstatus->setvar('assign_usr_ids') = array(Misc::GETorPOST('usr_id'));
 }
 $wfstatus->checkStateChange();
 
