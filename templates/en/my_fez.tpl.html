@@ -25,11 +25,18 @@ if (!isElementVisible(basic_element)) {
 <tr>
   <td>
   <table><tr><td>Views
-    <a href="{$rel_url}my_fez.php">Unpublished Items</a> 
-    | <a href="{$rel_url}my_created_items.php">My Created Items</a> 
-    | <a href="{$rel_url}my_collections.php">Collections</a> 
-    | <a href="{$rel_url}my_processes.php">Background Processes</a> 
-  
+    <ul class="my_views_tab">
+    <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_fez.php'}class="my_views_tab_here"{/if} 
+    		href="{$rel_url}my_fez.php">Unpublished Items</a></li> 
+    <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_created_items.php'}class="my_views_tab_here"{/if}
+    	href="{$rel_url}my_created_items.php">My Created Items</a></li> 
+    <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_collections.php'}class="my_views_tab_here"{/if}
+    	href="{$rel_url}my_collections.php">Collections</a></li> 
+    <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_active_workflows.php'}class="my_views_tab_here"{/if}
+    	href="{$rel_url}my_active_workflows.php">Active Workflows</a></li> 
+    <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_processes.php'}class="my_views_tab_here"{/if}
+    	href="{$rel_url}my_processes.php">Background Processes</a></li> 
+    </ul>
  </td>
 
 </tr>
@@ -54,6 +61,8 @@ if (!isElementVisible(basic_element)) {
 {include file="my_created_items.tpl.html"}
 {elseif $myFezView == "MBP"}
 {include file="my_background_processes.tpl.html"}
+{elseif $myFezView == "MWF"}
+{include file="my_active_workflows.tpl.html"}
 {else}
 {include file="my_assigned_items.tpl.html"}
 {/if}

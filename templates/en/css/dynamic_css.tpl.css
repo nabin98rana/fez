@@ -83,3 +83,39 @@ background-color: [[$smarty.const.APP_LIGHT_COLOR]];
   padding: 2px;
 }
 
+ul.my_views_tab {
+width:100%;
+padding:0 0 25px 1em;
+margin:0;
+list-style-type:none;
+line-height:1em;
+border-bottom:1px solid [[$smarty.const.APP_CELL_COLOR]];
+}
+
+ul.my_views_tab li {
+display:inline;
+margin:0;
+padding:0;
+}
+
+ul.my_views_tab a, ul.my_views_tab a:visited, ul.my_views_tab a:active {
+float:left;
+color:#444;
+text-decoration:none;
+font-weight:bold;
+background:[[$smarty.const.APP_LIGHT_COLOR]];
+margin:0;
+padding:0.25em 1em;
+border-left:1px solid #fff;
+border-top:1px solid #fff;
+border-right:1px solid [[$smarty.const.APP_CELL_COLOR]];
+}
+
+ul.my_views_tab a:hover,
+ul.my_views_tab a.my_views_tab_here
+{
+background:[[$smarty.const.APP_CELL_COLOR]];
+}
+
+
+
