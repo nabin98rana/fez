@@ -480,14 +480,22 @@ class WorkflowStatusStatic
 {
     /**
      * Get an instance of a workflow runtime from the session.
-     * @param string $id The workflow id to be retrieved.
+     * @param integer $id The workflow id to be retrieved.
+     * @param integer $usr_id The id of the user
+     * @param integer $wfs_id The workflow state to go to (e.g. when linking link to a previous workflow step) 
      * @return object WorkflowStatus object.
      */
-    function getSession()
+    function getSession($id = null, $usr_id = null, $wfs_id = null)
     {
-        $id = Misc::GETorPOST('id');
-        $usr_id = Auth::getUserID();
-        $wfs_id = Misc::GETorPOST('wfs_id');
+        if (empty($id)) {
+            $id = Misc::GETorPOST('id');
+        }
+        if (empty($usr_id)) {
+            $usr_id = Auth::getUserID();
+        }
+        if (empty($wfs_id)) {
+            $wfs_id = Misc::GETorPOST('wfs_id');
+        }
         $obj = null;
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $stmt = "SELECT wfses_object FROM {$dbtp}workflow_sessions " .
@@ -501,10 +509,28 @@ class WorkflowStatusStatic
             return null;
         }
         $obj = unserialize($res);
-        if (!$obj->change_on_refresh) {
+        if (!$obj->change_on_refresh && !empty($wfs_id)) {
             $obj->setState($wfs_id);
         }
         return $obj;
+    }
+    
+    function getList($usr_id = null)
+    {
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        if (!empty($usr_id)) {
+            $where_user = "wfses_usr_id='$usr_id'"; 
+        } else {
+            $where_user = '';
+        }
+        $stmt = "SELECT wfses_id,wfses_date, wfses_listing FROM {$dbtp}workflow_sessions " .
+                "WHERE $where_user ";  
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        }
+        return $res;
     }
 
 }

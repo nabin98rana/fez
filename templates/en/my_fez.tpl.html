@@ -23,8 +23,18 @@ if (!isElementVisible(basic_element)) {
 
 <table width="100%" class="contentheader">
 <tr>
+  <td>Actions 
+  <a href="{$rel_url}workflow/new.php?href={$smarty.server.REQUEST_URI}">Create</a> 
+  | <a href="{$rel_url}workflow/update.php?href={$smarty.server.REQUEST_URI}">Edit</a> 
+  | <a href="{$rel_url}workflow/export.php?href={$smarty.server.REQUEST_URI}">Export</a>
+  </td>
+  </tr>
+  </table>
+  </td>
+</tr>
+<tr>
   <td>
-  <table><tr><td>Views
+  <table width="100%" cellpadding=0 cellspacing=0><tr><td>
     <ul class="my_views_tab">
     <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_fez.php'}class="my_views_tab_here"{/if} 
     		href="{$rel_url}my_fez.php">Unpublished Items</a></li> 
@@ -36,22 +46,7 @@ if (!isElementVisible(basic_element)) {
     	href="{$rel_url}my_active_workflows.php">Active Workflows</a></li> 
     <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_processes.php'}class="my_views_tab_here"{/if}
     	href="{$rel_url}my_processes.php">Background Processes</a></li> 
-    </ul>
- </td>
-
-</tr>
-<tr>
-  <td>Actions 
-  <a href="{$rel_url}workflow/new.php?href={$smarty.server.REQUEST_URI}">Create</a> 
-  | <a href="{$rel_url}workflow/update.php?href={$smarty.server.REQUEST_URI}">Edit</a> 
-  | <a href="{$rel_url}workflow/export.php?href={$smarty.server.REQUEST_URI}">Export</a>
-  </td>
-  </tr>
-  </table>
-  </td>
-</tr>
-<tr>
-  <td><table width="100%" cellpadding=0 cellspacing=0><tr><td>
+    </ul>  
 {if $myFezView == "MAI"}
 {include file="my_assigned_items.tpl.html"}
 {elseif $myFezView == "MCL"}

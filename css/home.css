@@ -250,6 +250,10 @@ table.listing td {
 	border-width: 0px;
 }
 
+td.checkbox_column {
+width: 2em;
+}
+
 #front-page-container {
 	width: 80%;
 	margin-bottom: 20px;
