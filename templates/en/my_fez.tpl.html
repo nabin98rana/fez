@@ -2,7 +2,7 @@
 {include file="navigation.tpl.html"}
 
 {literal}
-<script language="JavaScript">
+<script language="JavaScript" type="text/javascript">
 <!--
 function purgeObject(pid)
 {
@@ -34,7 +34,7 @@ if (!isElementVisible(basic_element)) {
 </tr>
 <tr>
   <td>
-  <table width="100%" cellpadding=0 cellspacing=0><tr><td>
+  <table width="98%" cellpadding="0" cellspacing="0"><tr><td>
     <ul class="my_views_tab">
     <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_fez.php'}class="my_views_tab_here"{/if} 
     		href="{$rel_url}my_fez.php">Unpublished Items</a></li> 
