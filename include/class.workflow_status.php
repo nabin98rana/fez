@@ -112,7 +112,7 @@ class WorkflowStatus {
         $this->getWorkflowDetails();
         $this->getStateDetails();
         $title = $this->wfl_details['wfl_title'].": ".$this->wfs_details['wfs_title'];
-        if ($this->pid) {
+        if ($this->pid && !is_numeric($this->pid)) {
             $this->getRecordObject();
             $title .= " on {$this->pid}: ". $this->rec_obj->getTitle();
         }
@@ -530,7 +530,36 @@ class WorkflowStatusStatic
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return array();
         }
+        foreach ($res as $key => $item) {
+            $res[$key]['wfses_date'] = Date_API::getFormattedDate($item['wfses_date']);
+        }
         return $res;
+    }
+    
+    /**
+     * Removes the workflow session for current user with passed id.
+     * @param integer $id - database id of workflow session
+     * @param integer $usr_id - database id of user
+     * @return integer 1 for success, -1 for failure. 
+     */
+    function remove($id = null, $usr_id = null)
+    {
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        if (empty($id)) {
+            $id = Misc::GETorPOST('id');
+        }
+        if (empty($usr_id)) {
+            $usr_id = Auth::getUserID();
+        }
+        $stmt = "DELETE FROM {$dbtp}workflow_sessions " .
+                "WHERE wfses_usr_id='$usr_id'  AND wfses_id='$id' ";  
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        }
+        return 1;
+        
     }
 
 }

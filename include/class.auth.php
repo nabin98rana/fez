@@ -1763,15 +1763,27 @@ class Auth
 
     function canEdit() 
     {
-        $count = Collection::getEditListingCount();
-        return ($count > 0) ? true : false;
+        $ses =& Auth::getSession();
+        if (!Auth::isValidSession($ses)) {
+            $ses['can_edit'] = false;
+        } elseif (!isset($ses['can_edit']) || $ses['can_edit'] === null) {
+            $count = Collection::getEditListingCount();
+            $ses['can_edit'] = ($count > 0) ? true : false;
+        }
+        return $ses['can_edit'];
     }
     
     function canCreate() 
     {
-        $list = Collection::getEditList();
-        $count = count($list);
-        return ($count > 0) ? true : false;
+        $ses =& Auth::getSession();
+        if (!Auth::isValidSession($ses)) {
+            $ses['can_create'] = false;
+        } elseif (!isset($ses['can_create']) || $ses['can_create'] === null) {
+            $list = Collection::getEditList();
+            $count = count($list);
+            $ses['can_create'] = ($count > 0) ? true : false;
+        }
+        return $ses['can_create'];
     }
 }
 

@@ -15,10 +15,18 @@ table.nav-table-top td {
 	width: 100%;
 }
 
+table.nav-table-top form {
+display: inline;
+padding: 0;
+margin: o;
+border: none;
+}
+
 table.nav-table-bottom td {
 	padding: 2px;
 	background-color: #EFF7FF;
 }
+
 
 table.nav-table-bottom td form { margin: 0px; }
 table.nav-table-top { height: 22px; }

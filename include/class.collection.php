@@ -1299,7 +1299,7 @@ class Collection
                     inner join {$dbtp}xsd_display_matchfields x".$termCounter." on r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id 
                     inner join {$dbtp}search_key AS s".$termCounter." on s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id
                       and s".$termCounter.".sek_title = '".$searchKey."'  
-                    $restrictSQL WHERE r2.rmf_xsdmf_id in (".implode(",", $status_xsdmfs).")";
+                    $restrictSQL WHERE r2.rmf_xsdmf_id in (".implode(",", $status_xsdmfs).") AND r2.rmf_int = 2 ";
 
 		$termCounter++;
 /*

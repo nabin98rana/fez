@@ -1,29 +1,25 @@
+<div class="outline">
 
-<table class="listing" width="100%" cellpadding="0">
-<tr>
+<div id="custom_filter_form1" {get_display_style element_name="custom_filter_form"}>
 
-{section name="i" loop=$search_keys}
-  {if ($smarty.section.i.index==2)}
-   <td nowrap="nowrap" valign="middle">
-     <input class="button" type="submit" value="Search" />
-   </td>
-  </tr>
-  <tr>    
-  {elseif (($smarty.section.i.index % 4)==0 && $smarty.section.i.index != 3)}
-    </tr>
-    <tr>  
-  {/if}
-  {assign var="search_key_name" value='searchKey'|cat:$search_keys[i].sek_id}
-  {assign var ="last_key" value=$options.$search_key_name}  
-  {if ($smarty.section.i.index ==  0)}
-  <td class="{if $options.searchKey0 != ''}default-search-used{else}default{/if}" valign="top">
+  <div class="{if $options.searchKey0 != ''}default-search-used{else}default{/if} quick_search_item">
     All Fields: <br />
 	<input id="search_keys[0]" type="text" name="search_keys[0]" maxlength="255" size="35" value="{$options.searchKey0}" />
-  </td>
+  </div>
+  {* Do little items first, then buly items *}
+{section name="i" loop=$search_keys}
+  {assign var="search_key_name" value='searchKey'|cat:$search_keys[i].sek_id}
+  {assign var ="last_key" value=$options.$search_key_name}
+  {assign var="set_in_this_loop" value="0" }
+  {if $search_keys[i].sek_html_input == 'text'}
+    {assign var="set_in_this_loop" value="1" }
+  {elseif $search_keys[i].sek_html_input == 'combo'}
+    {assign var="set_in_this_loop" value="1" }
   {/if}
-  {if $search_keys[i].sek_html_input != 'allcontvocab' and $search_keys[i].sek_html_input != 'contvocab'}
-  <td class="{if $last_key != 'ALL' && $last_key != ''}default-search-used{else}default{/if}" valign="top">
-  {if $search_keys[i].sek_alt_title}{$search_keys[i].sek_alt_title}{else}{$search_keys[i].sek_title}{/if}:
+
+  {if $set_in_this_loop}
+  <div class="{if $last_key != 'ALL' && $last_key != ''}default-search-used{else}default{/if} quick_search_item">
+  {if $search_keys[i].sek_alt_title}{$search_keys[i].sek_alt_title}{else}{$search_keys[i].sek_title}{/if}:<br/>
   {if $search_keys[i].sek_html_input != 'text' &&  $search_keys[i].sek_html_input != 'textarea'}
     <script language="JavaScript" type="text/javascript">
     <!--
@@ -32,29 +28,9 @@
     //-->
     </script>
   {/if}
-  <br />
-  {/if}
   {if $search_keys[i].sek_html_input == 'text'}
-  <input id="search_keys[{$search_keys[i].sek_id}]" type="text" name="search_keys[{$search_keys[i].sek_id}]" maxlength="255" size="35" value="{$last_key}" />
-  {elseif $search_keys[i].sek_html_input == 'textarea'}
-  <textarea id="search_keys[{$search_keys[i].sek_id}]" name="search_keys[{$search_keys[i].sek_id}]" rows="10" cols="60" value="{$last_key}"></textarea>
-  {elseif $search_keys[i].sek_html_input == 'allcontvocab' or $search_keys[i].sek_html_input == 'contvocab'}
-	{section name="z" loop=$search_keys[i].field_options}
-	{assign var="loop_num" value=$search_keys[i].cv_ids[z]}
-	<tr id="tr_list_{$search_keys[i].sek_id}_{$loop_num}" valign="top">
-	  <td width="150" bgcolor="{$cell_color}" class="default">
-		<b>{$search_keys[i].sek_title}</b><br />{$search_keys[i].cv_titles[z]}
-	  </td>
-	  <td bgcolor="{$light_color}">
-		<select id="list_{$search_keys[i].sek_id}_{$loop_num}" multiple size="5" class="default" name="list[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}">
-		</select>
-		<input class="default" type="button" value="Add Subject" onclick="javascript:small_window('cv_selector.php?cvo_id={$search_keys[i].cv_ids[z]}&form=custom_filter_form&amp;element=list_{$search_keys[i].sek_id}_{$loop_num}');" />
-		<input class="default" type="button" value="Remove Subject" onclick="javascript:deleteSelectedItemsFromList(list_{$search_keys[i].sek_id}_{$loop_num});" />
-	 </td>
-	</tr>
-  {/section}	
-
-  {else}
+  <input id="search_keys[{$search_keys[i].sek_id}]" type="text" name="search_keys[{$search_keys[i].sek_id}]" maxlength="255" size="30" value="{$last_key}" />
+  {elseif $search_keys[i].sek_html_input == 'combo'}
   <select id="search_keys[{$search_keys[i].sek_id}]" {if $search_keys[i].sek_html_input == 'multiple'}multiple size="8"{/if} name="search_keys[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}">
     {html_options options=$search_keys[i].field_options selected=$last_key}
   </select>
@@ -66,7 +42,70 @@
     {assign var="search_key_sufix" value=""}
   {/if}
   {include file="error_icon.tpl.html" field="search_keys[$search_key_id]$search_key_sufix"}
-  </td>
+  </div>
+  {/if}
 {/section}
-</tr>
-</table>
+
+  {* Second loop for bulky items *}
+
+{section name="i" loop=$search_keys}
+  {assign var="search_key_name" value='searchKey'|cat:$search_keys[i].sek_id}
+  {assign var ="last_key" value=$options.$search_key_name}  
+  {assign var="set_in_this_loop" value="0" }
+  {if $search_keys[i].sek_html_input == 'textarea'}
+    {assign var="set_in_this_loop" value="1" }
+  {elseif $search_keys[i].sek_html_input == 'allcontvocab' or $search_keys[i].sek_html_input == 'contvocab'}
+    {assign var="set_in_this_loop" value="1" }
+  {elseif $search_keys[i].sek_html_input == 'multiple'}
+    {assign var="set_in_this_loop" value="1" }
+  {/if}
+
+  {if $set_in_this_loop}
+
+  <div class="{if $last_key != 'ALL' && $last_key != ''}default-search-used{else}default{/if} quick_search_item">
+  {if $search_keys[i].sek_alt_title}{$search_keys[i].sek_alt_title}{else}{$search_keys[i].sek_title}{/if}:<br/>
+  {if $search_keys[i].sek_html_input != 'text' &&  $search_keys[i].sek_html_input != 'textarea'}
+    <script language="JavaScript" type="text/javascript">
+    <!--
+    //            search_keys[search_keys.length] = new Option('search_keys[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}', '{$search_keys[i].sek_title}');
+    //            required_search_keys[required_search_keys.length] = new Option('search_keys[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}', {if $search_keys[i].sek_html_input == 'multiple'}'multiple'{elseif $search_keys[i].sek_html_input == 'combo'}'combo'{else}'whitespace'{/if});
+    //-->
+    </script>
+  {/if}
+
+  {if $search_keys[i].sek_html_input == 'textarea'}
+  <textarea id="search_keys[{$search_keys[i].sek_id}]" name="search_keys[{$search_keys[i].sek_id}]" rows="10" cols="60" value="{$last_key}"></textarea>
+  {elseif $search_keys[i].sek_html_input == 'allcontvocab' or $search_keys[i].sek_html_input == 'contvocab'}
+	{section name="z" loop=$search_keys[i].field_options}
+	{assign var="loop_num" value=$search_keys[i].cv_ids[z]}
+	<div id="tr_list_{$search_keys[i].sek_id}_{$loop_num}" valign="top" class="quick_search_item">
+		{$search_keys[i].cv_titles[z]}
+		<select id="list_{$search_keys[i].sek_id}_{$loop_num}" multiple size="5" class="default" name="list[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}">
+		</select>
+		<input class="default" type="button" value="Add Subject" onclick="javascript:small_window('cv_selector.php?cvo_id={$search_keys[i].cv_ids[z]}&amp;form=custom_filter_form&amp;element=list_{$search_keys[i].sek_id}_{$loop_num}');" />
+		<input class="default" type="button" value="Remove Subject" onclick="javascript:deleteSelectedItemsFromList(list_{$search_keys[i].sek_id}_{$loop_num});" />
+	</div>
+  {/section}	
+  {elseif $search_keys[i].sek_html_input == 'multiple'}
+  <select id="search_keys[{$search_keys[i].sek_id}]" {if $search_keys[i].sek_html_input == 'multiple'}multiple size="8"{/if} name="search_keys[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}">
+    {html_options options=$search_keys[i].field_options selected=$last_key}
+  </select>
+  {/if}
+  {assign var="search_key_id" value=$search_keys[i].sek_id}
+  {if $search_keys[i].sek_html_input == 'multiple'}
+    {assign var="search_key_sufix" value="[]"}
+  {else}
+    {assign var="search_key_sufix" value=""}
+  {/if}
+  {include file="error_icon.tpl.html" field="search_keys[$search_key_id]$search_key_sufix"}
+  </div>
+  {/if}
+{/section}
+
+     <input name="search_button" class="button quick_search_button" type="submit" value="Search" />
+     <!-- <input class="button" type="button" value="Clear" onclick="javascript:clearFilters(this.form);"> -->
+</div>
+
+ <div class="default quick_search_hide" > </div>
+
+</div>

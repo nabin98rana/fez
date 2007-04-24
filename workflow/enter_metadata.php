@@ -89,7 +89,7 @@ if ($debug == 1) {
 	$tpl->assign("debug", "0");	
 }
 $tpl->assign("extra_title", "Create New ".$xdis_title);
-if ($pid == -1 || !$pid) {
+if ($pid == -1 || $pid == -2 || !$pid) {
     $access_ok = $isAdministrator;
 } else {
     $community_pid = $pid;
@@ -137,7 +137,7 @@ if ($access_ok) {
 //	echo $wfstatus->parent_pid;
 //	if ($wfstatus->parent_pid != "-1") {
 //	  $parent_record = new RecordObject($wfstatus->parent_pid);
-	if ($pid != "-1") {
+	if (!is_numeric($pid)) {
 	  $parent_record = new RecordObject($pid);	  
 	  $parent_xdis_id = $parent_record->getXmlDisplayId();
 	  $parent_relationships = XSD_Relationship::getColListByXDIS($parent_xdis_id);
