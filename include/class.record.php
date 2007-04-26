@@ -1420,7 +1420,7 @@ class Record
      */
     function getCreated($options, $current_page=0,$page_rows="ALL",$sort_by='', $sort_order=0)
     {
-    	
+    	$usr_id = Auth::getUserID();
     	$options["searchKey".Search_Key::getID("Depositor")] = $usr_id;
     	return Record::getListing($options, array("Lister"), $current_page, $page_rows, $sort_by);
 /*    	
