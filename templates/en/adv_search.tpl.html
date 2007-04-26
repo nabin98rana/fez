@@ -11,6 +11,11 @@ var basic_element = getPageElement('basic_filter_form' + '1');
 if (isElementVisible(basic_element)) {
 	toggleVisibility('basic_filter_form');
 }
+var custom_element = getPageElement('custom_filter_form' + '1');
+if (!isElementVisible(custom_element)) {
+	toggleVisibility('custom_filter_form');
+}
+
 {/literal}
 //-->
 </script>
