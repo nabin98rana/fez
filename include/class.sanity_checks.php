@@ -426,8 +426,8 @@
         	// check get next pid is ok
             $results = array_merge($results, SanityChecks::checkHTTPConnect(
                 'GetNextPid',
-                APP_BASE_FEDORA_APIM_DOMAIN."/mgmt/getNextPID?xml=true"));
-            $getString = APP_BASE_FEDORA_APIM_DOMAIN."/mgmt/getNextPID?xml=true";
+                APP_BASE_FEDORA_APIM_DOMAIN."/management/getNextPID?xml=true"));
+            $getString = APP_BASE_FEDORA_APIM_DOMAIN."/management/getNextPID?xml=true";
             $ch = curl_init($getString);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);

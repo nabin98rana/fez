@@ -331,16 +331,23 @@
                  <td width="120" bgcolor="{$cell_color}" class="default"><b>Controlled Vocabulary:</b></td>
  				<td bgcolor="{$light_color}">
 					<select class="default" name="sek_cvo_id">
-					  {html_options options=$controlled_vocab_list}
+					  {html_options options=$controlled_vocab_list selected=$info.sek_cvo_id}
 					</select>
 			  	</td>
 		     </tr>
               <tr id="smarty_variable_tr"  {$selectingfield_only} >
                  <td width="120" bgcolor="{$cell_color}" class="default"><b>Dynamic Variable:</b></td>
  				<td bgcolor="{$light_color}">
-					<input class="default" type="text" name="sek_smarty_variable" size="26" value="{$info.sek_smarty_variable}">
+					<input class="default" type="text" name="sek_smarty_variable" size="40" value="{$info.sek_smarty_variable}">
 			  	</td>
 		     </tr>
+              <tr id="lookup_function_tr">
+                 <td width="120" bgcolor="{$cell_color}" class="default"><b>Function Lookup for Value of ID (optional):</b></td>
+ 				<td bgcolor="{$light_color}">
+					<input class="default" type="text" name="sek_lookup_function" size="40" value="{$info.sek_lookup_function}">
+			  	</td>
+		     </tr>
+		     
 			 <tr id="sek_fez_variable_tr" {if $info.sek_html_input != 'static' && !$selectingfield}style="display:none"{/if}>
                  <td width="120" bgcolor="{$cell_color}" class="default"><b>Fez Variable:</b><i>(If a Fez variable is set it will be used instead of any other options including smarty template variables)</i></td>
 				<td class="default" bgcolor="{$light_color}"><br /><b>OR use one of these Fez variables: </b> <br />

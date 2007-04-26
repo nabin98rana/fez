@@ -200,8 +200,15 @@ class Lister
                         || in_array("Community Administrator", $userPIDAuthGroups) 
                         || in_array("Editor", $userPIDAuthGroups) 
                         || in_array("Collection Administrator", $userPIDAuthGroups));
-                $tpl->assign("isEditor", $isEditor);		
-                $list = Collection::getListing($collection_pid, $pager_row, $rows, $sort_by);
+                $tpl->assign("isEditor", $isEditor);	
+
+                $options = Search_Key::stripSearchKeys($options);                                                           
+                $options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+			    $options["searchKey".Search_Key::getID("isMemberOf")] = $collection_pid; // 
+                $list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by);	
+                
+                
+                //$list = Collection::getListing($collection_pid, $pager_row, $rows, $sort_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
                 $tpl->assign("list_heading", "List of Records in ".$collection_details[0]['title'][0]." Collection");
@@ -238,7 +245,15 @@ class Lister
                 $tpl->assign("isEditor", $isEditor);
                 $tpl->assign("xdis_id", $xdis_id);	
                 $community_details = Community::getDetails($community_pid);
-                $list = Collection::getListing($community_pid, $pager_row, $rows, $sort_by);
+                
+                
+                $options = Search_Key::stripSearchKeys($options);                                                           
+            	$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+				$options["searchKey".Search_Key::getID("isMemberOf")] = $community_pid; // 
+            	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by);	
+                
+                
+                //$list = Collection::getListing($community_pid, $pager_row, $rows, $sort_by);
                 $list_info = $list["info"];                
                 $list = $list["list"];
                 $tpl->assign("list_heading", "List of Collections in ".$community_details[0]['title'][0]." Community");
@@ -326,17 +341,24 @@ class Lister
         } elseif ($browse == "author") {
             // browse by author
             $author = Pager::getParam('author',$params);
+            $author_id = Pager::getParam('author_id',$params);
             if (Misc::GETorPOST("sort_by") == "") {            	
                 $sort_by = "searchKey".Search_Key::getID("Title");
             }
-            if (!empty($author)) {	
+            if (!empty($author_id)) {	
+                $list = Collection::browseListing($pager_row, $rows, "Author ID", $sort_by);
+                $list_info = $list["info"];
+                $list = $list["list"];
+                $tpl->assign("browse_heading", "Browse By Author - ".$author);
+                $tpl->assign("list_heading", "Browse By Author - ".$author);
+            } elseif (!empty($author)) {	
                 $list = Collection::browseListing($pager_row, $rows, "Author", $sort_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
                 $tpl->assign("browse_heading", "Browse By Author - ".$author);
-			    $tpl->assign("list_heading", "Browse By Author - ".$author);	
+			    $tpl->assign("list_heading", "Browse By Author - ".$author);	                
             } else {
-                $list = Collection::listByAttribute($pager_row, $rows, "Author", $sort_by, $letter);
+                $list = Collection::listByAuthor($pager_row, $rows, $sort_by, $letter);
                 $list_info = $list["info"];
                 $list = $list["list"];
                 $tpl->assign("browse_heading", "Browse By Author");
@@ -425,8 +447,12 @@ class Lister
                 $sort_by = "searchKey".Search_Key::getID("Title");
             }            
             $xdis_id = Community::getCommunityXDIS_ID();
-            $tpl->assign("xdis_id", $xdis_id);	
-            $list = Community::getList($pager_row, $rows, $sort_by);
+            $tpl->assign("xdis_id", $xdis_id);
+            $options = Search_Key::stripSearchKeys($options);                                                           
+            $options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+			$options["searchKey".Search_Key::getID("Object Type")] = 1; // enforce communities only
+            $list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by);	
+            //$list = Community::getList($pager_row, $rows, $sort_by);
             $list_info = $list["info"];
             $list = $list["list"];
             $tpl->assign("list_type", "community_list");

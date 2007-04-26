@@ -107,7 +107,7 @@ class Fedora_API {
      */
 	function getNextPID() {
 		$pid = false;
-		$getString = APP_BASE_FEDORA_APIM_DOMAIN."/mgmt/getNextPID?xml=true";
+		$getString = APP_BASE_FEDORA_APIM_DOMAIN."/management/getNextPID?xml=true";
 		$ch = curl_init($getString);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
@@ -484,6 +484,8 @@ class Fedora_API {
 			}			
 		}
 		if (!empty($local_file_location) && (trim($local_file_location) != "")) {
+//			Error_Handler::logError($local_file_location,__FILE__,__LINE__);
+//			echo "here = ".APP_FEDORA_UPLOAD_URL; exit;
 		   //Send multipart/form-data via curl
 		   $ch = curl_init(APP_FEDORA_UPLOAD_URL);
 		   curl_setopt($ch, CURLOPT_VERBOSE, 0);

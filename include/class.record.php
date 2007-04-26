@@ -51,6 +51,7 @@ include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.pager.php");
+include_once(APP_INC_PATH . "class.object_type.php");
 include_once(APP_INC_PATH . "class.workflow.php");
 include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "class.history.php");
@@ -890,8 +891,7 @@ class Record
 			}
 			return false;
 		}
-	}
-
+	}	
 
     /**
      * Method used to get the details for a specific Record gotten directly from the Fedora repository.
@@ -1106,7 +1106,7 @@ class Record
         $start = $current_page * $page_rows;
 		$dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX; // Database and table prefix
         $current_row = $current_page * $page_rows;
-        
+        //print_r($options);
 		/*if ($options["sort_order"] == 1) {
 			$order_dir = "DESC";
 		} else {
@@ -1118,7 +1118,7 @@ class Record
         } else {
             $r4_join_field = "r2.rmf_rec_pid";
         }*/
-
+		//print_r($options);
         $searchKey_join = Record::buildSearchKeyJoins($options, $sort_by);
 //		$authArray = Collection::getAuthIndexStmt(array("Editor", "Approver"), "r".$searchKey_join[4]);
 		//$authArray = Collection::getAuthIndexStmt(array("Viewer", "Lister"), "r".$searchKey_join[4]);
@@ -1164,7 +1164,8 @@ class Record
              ";
   //echo "<pre>".$stmt."</pre>";
        
-		$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);		
+		$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
+		//echo $countStmt;		
 		if ($total_rows > 0) {
 			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 
@@ -1182,13 +1183,14 @@ class Record
 		$return = Auth::getIndexAuthorisation($return);
 //		print_r($return);		
 		$usr_id = Auth::getUserID();
-		if (is_numeric($usr_id) && $usr_id != 0) { //only get the workflows if logged in an not an RSS feed
-			$return = Collection::getWorkflows($return);
+		$isAdministrator = Auth::isAdministrator();
+		if (is_numeric($usr_id) && $usr_id != 0) { //only get the workflows if logged in an not an RSS feed. Admins get all.
+			//$return = Collection::getWorkflows($return);
 		} 
-		foreach ($return as &$result) {
+		/*foreach ($return as &$result) { // why do we need to get all the parents?
         	$parents = Record::getParents($result['pid']);
         	$result['parents'] = $parents;
-		}
+		}*/
 		$list = $return;
 		
         $total_pages = intval($total_rows / $page_rows);
@@ -1247,9 +1249,49 @@ class Record
             	for($x=1;$x < ($options["searchKey_count"] + 1);$x++) {
             	 	 if (!empty($options["searchKey".$x]) && trim($options["searchKey".$x]) != "") {            	 	 	
             	 	    $sekdet = Search_Key::getDetails($x);
-            	 	    $searchKey_join[7] .= "{$sekdet['sek_title']}:\"".trim($options["searchKey".$x])."\", ";
+            	 	    //print_r($sekdet);
+            	 	    //$searchKey_join[7] .= "{$sekdet['sek_title']}:\"".trim($options["searchKey".$x])."\", ";
             	 	    $sek_xsdmfs = array();
-            	 	    $sek_xsdmfs = XSD_HTML_Match::getXSDMF_IDsBySekTitle($sekdet['sek_title']);            	 	    
+            	 	    $sek_xsdmfs = XSD_HTML_Match::getXSDMF_IDsBySekTitle($sekdet['sek_title']);
+            	 	    $options["sql"] = array();
+            	 	    $temp_value = "";
+            	 	    if (is_array($options["searchKey".$x])) {            	 	    	
+            	 	    	if ($sekdet['xsdmf_data_type'] == "int") {
+								$options["sql"]["searchKey".$x] = " in (".implode(",", $options["searchKey".$x]).")";
+								$searchKey_join[7] .= "{$sekdet['sek_title']}:\"";
+								$temp_counter = 0;
+								foreach ($options["searchKey".$x] as $temp_int) {
+									if (is_numeric($temp_int) && (!empty($sekdet["sek_lookup_function"]))) {
+										eval("\$temp_value = ".$sekdet["sek_lookup_function"]."(".$temp_int.");");
+										if ($temp_counter != 0) {
+											$searchKey_join[7] .= ",";
+										}
+            	 	    				$searchKey_join[7] .= " ".$temp_value;
+            	 	    				$temp_counter++;
+									}										
+								}
+								$searchKey_join[7] .= "\", ";
+            	 	    	} else {
+								$options["sql"]["searchKey".$x] = " in ('".implode("','", $options["searchKey".$x])."')";
+								$searchKey_join[7] .= "{$sekdet['sek_title']}:\"".implode("','", $options["searchKey".$x])."\", ";       	 	    		
+            	 	    	}
+            	 	    } else {            	 	    	
+            	 	    	
+            	 	    	if ($sekdet['xsdmf_data_type'] == "int") {
+            	 	    		$options["sql"]["searchKey".$x] = " = ".$options["searchKey".$x];
+            	 	    		if (is_numeric($options["searchKey".$x])) {
+            	 	    			if (!empty($sekdet["sek_lookup_function"])) {
+            	 	    				eval("\$temp_value = ".$sekdet["sek_lookup_function"]."(".$options["searchKey".$x].");");          	            	 	    				
+            	 	    				$searchKey_join[7] .= "{$sekdet['sek_title']}:\"".$temp_value."\", ";
+            	 	    			} else {
+            	 	    				$searchKey_join[7] .= "{$sekdet['sek_title']}:\"".trim($options["searchKey".$x])."\", ";
+            	 	    			}            	 	    			
+            	 	    		}            	 	    		 
+            	 	    	} else {
+            	 	    		$options["sql"]["searchKey".$x] = " = '".$options["searchKey".$x]."'";
+            	 	    		$searchKey_join[7] .= "{$sekdet['sek_title']}:\"".trim($options["searchKey".$x])."\", ";
+            	 	    	}
+            	 	    }
             	 	    if (count($sek_xsdmfs) > 0) {         
             	 	    	if ($firstLoop === true) {
             	 	    		$joinType = " FROM ";   	
@@ -1308,7 +1350,7 @@ class Record
             	 	        		Misc::addToWhere(&$searchKey_join[2], " ((r".$x.".rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).") and r".$x.".rmf_".$sekdet['xsdmf_data_type']." = '".$usr_id."') or not exists 
 										(select * from ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field as sr where sr.rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).") and sr.rmf_rec_pid = r".$x.".rmf_rec_pid))");
             	 	        	} else {            	 	        
-            	 	        		$restriction = " and r".$x.".rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).")"." and r".$x.".rmf_".$sekdet['xsdmf_data_type']." = '".$options["searchKey".$x]."' ";
+            	 	        		$restriction = " and r".$x.".rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).")"." and r".$x.".rmf_".$sekdet['xsdmf_data_type']." ".$options["sql"]["searchKey".$x]." ";
             	 	        	}
             	 	        	if ($firstLoop === true) {
             	 	 				$searchKey_join[0] .= $joinType." 

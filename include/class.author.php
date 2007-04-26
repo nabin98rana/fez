@@ -313,7 +313,7 @@ class Author
      */
     function getList($current_row = 0, $max = 25, $order_by = 'aut_lname', $filter="")
     {
-    	
+
     	$where_stmt = "";
     	$extra_stmt = "";
     	$extra_order_stmt = "";    	    	

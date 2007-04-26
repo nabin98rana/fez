@@ -199,7 +199,7 @@ class Object_Type
 					CONCAT('(',ret_id,') ',ret_title) as ret_title
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "object_type
-				 WHERE ret_id != 0
+				 WHERE ret_id not in  (0,4)
                  ORDER BY				 
                     ret_id ASC";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);

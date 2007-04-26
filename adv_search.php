@@ -63,7 +63,9 @@ foreach ($list as $list_key => $list_field) {
 	if ($list_field["sek_html_input"] == 'combo' || $list_field["sek_html_input"] == 'multiple') {
 		if (!empty($list_field["sek_smarty_variable"]) && $list_field["sek_smarty_variable"] != "none") {
 			eval("\$list[\$list_key]['field_options'] = " . $list_field["sek_smarty_variable"] . ";");
-			$list[$list_key]['field_options'] = array("" => "any") + $list[$list_key]['field_options'];
+			if ($list_field["sek_html_input"] == 'combo') {
+				$list[$list_key]['field_options'] = array("" => "any") + $list[$list_key]['field_options'];
+			}
 	    }
     }
     if ($list_field["sek_html_input"] == 'contvocab') {

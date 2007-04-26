@@ -46,12 +46,28 @@ include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.auth.php");
+include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.status.php");
 
 
 class Search_Key
 {
 
+	
+	function stripSearchKeys($options = array()) {
+
+		$new_options = array();
+		foreach ($options as $key => $value) {
+			if (!is_numeric(strpos($key, "searchKey"))) {
+				$new_options[$key] = $value;
+			}
+		}
+		$new_options["searchKey_count"] = $options["searchKey_count"];
+		return $new_options;
+	}
+	
+	
+	
     /**
      * Method used to remove a given list of search keys.
      *
@@ -118,6 +134,7 @@ class Search_Key
 		$stmt .= "
 					sek_html_input,
 					sek_fez_variable,
+					sek_lookup_function,
 					sek_smarty_variable ";
 				if (is_numeric($HTTP_POST_VARS["sek_cvo_id"])) {
 					$stmt .= " ,sek_cvo_id ";
@@ -134,7 +151,8 @@ class Search_Key
 					}
 					$stmt .= "
                     '" . Misc::escapeString($HTTP_POST_VARS["field_type"]) . "',					
-                    '" . Misc::escapeString($HTTP_POST_VARS["sek_fez_variable"]) . "',					
+                    '" . Misc::escapeString($HTTP_POST_VARS["sek_fez_variable"]) . "',
+					'" . Misc::escapeString($HTTP_POST_VARS["sek_lookup_function"]) . "',					
                     '" . Misc::escapeString($HTTP_POST_VARS["sek_smarty_variable"]) . "'";
 					if (is_numeric($HTTP_POST_VARS["sek_cvo_id"])) {
 	                    $stmt .=  "," . $HTTP_POST_VARS["sek_cvo_id"];
@@ -192,6 +210,7 @@ class Search_Key
 					$stmt .= "
                     sek_html_input = '" . Misc::escapeString($HTTP_POST_VARS["field_type"]) . "',
                     sek_smarty_variable = '" . Misc::escapeString($HTTP_POST_VARS["sek_smarty_variable"]) . "',
+					sek_lookup_function = '" . Misc::escapeString($HTTP_POST_VARS["sek_lookup_function"]) . "',
                     sek_fez_variable = '" . Misc::escapeString($HTTP_POST_VARS["sek_fez_variable"]) . "'";
 					if (is_numeric($HTTP_POST_VARS["sek_cvo_id"])) {
 						$stmt .= ",sek_cvo_id = ".$HTTP_POST_VARS["sek_cvo_id"];
