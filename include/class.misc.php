@@ -1400,6 +1400,18 @@ class Misc
     }
 
     /**
+      * makes an array into a string WITHOUT THE STRING QUOTES ready to be used in a MySQL query list
+      * @param $array The array to be put in the query
+      * @return string escaped mysql query element ready to be used like this WHERE x IN ($string)
+      */
+    function array_to_sql($array) {
+        foreach ($array as &$item) {
+            $item = mysql_escape_string($item);
+        }
+        return implode(', ', $array);
+    }    
+    
+    /**
      * Gets the next numeric incremental key in an array
 	 * 
      * @access  public

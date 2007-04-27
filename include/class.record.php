@@ -1237,9 +1237,9 @@ class Record
             		$joinType = " FROM ";
             		$searchKey_join[4] = 0;
             		$searchKey_join[7] .= "All Fields:\"".trim($options["searchKey".$x])."\", ";
-            		$termLike = " match (r".$x.".rmf_varchar) against ('*".$options["searchKey0"]."*' IN BOOLEAN MODE)";
+            		$termLike = " match (r".$x.".rmf_varchar) against ('*".Misc::escapeString($options["searchKey0"])."*' IN BOOLEAN MODE)";
             		$searchKey_join[8] = " group by r".$x.".rmf_rec_pid ";
-            		$termRelevance = ", sum(match (r".$x.".rmf_varchar) against ('".$options["searchKey0"]."')) as Relevance";
+            		$termRelevance = ", sum(match (r".$x.".rmf_varchar) against ('".Misc::escapeString($options["searchKey0"])."')) as Relevance";
             		$searchKey_join[6] = $termRelevance;
             		$searchKey_join[0] .= $joinType."
 											     ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field as r0";
@@ -1272,8 +1272,8 @@ class Record
 								}
 								$searchKey_join[7] .= "\", ";
             	 	    	} else {
-								$options["sql"]["searchKey".$x] = " in ('".implode("','", $options["searchKey".$x])."')";
-								$searchKey_join[7] .= "{$sekdet['sek_title']}:\"".implode("','", $options["searchKey".$x])."\", ";       	 	    		
+								$options["sql"]["searchKey".$x] = " in ('".implode("','", Misc::escapeString($options["searchKey".$x]))."')";
+								$searchKey_join[7] .= "{$sekdet['sek_title']}:\"".implode("','", Misc::escapeString($options["searchKey".$x]))."\", ";       	 	    		
             	 	    	}
             	 	    } else {            	 	    	
             	 	    	
@@ -1307,12 +1307,12 @@ class Record
             	 	 				$searchKey_join[0] .= $joinType." 
 											     ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field as r".$x;
 									Misc::addToWhere(&$searchKey_join[2], 
-											  " r".$x.".rmf_".$sekdet['xsdmf_data_type']." like '%".$options["searchKey".$x]."%' ".
+											  " r".$x.".rmf_".$sekdet['xsdmf_data_type']." like '%".Misc::escapeString($options["searchKey".$x])."%' ".
             	 	 						 " and r".$x.".rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).")");
             	 	        	} else {
             	 	 				$searchKey_join[0] .= $joinType." 
 											     ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field as r".$x." on r".$x.".rmf_rec_pid = r".$searchKey_join[4].".rmf_rec_pid ".
-											  " and r".$x.".rmf_".$sekdet['xsdmf_data_type']." like '%".$options["searchKey".$x]."%' ".
+											  " and r".$x.".rmf_".$sekdet['xsdmf_data_type']." like '%".Misc::escapeString($options["searchKey".$x])."%' ".
             	 	 						 " and r".$x.".rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).")";            	 	        		
             	 	        	}
             	 	        } else {     

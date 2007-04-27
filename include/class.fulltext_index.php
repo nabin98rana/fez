@@ -324,7 +324,7 @@ class FulltextIndex {
             $res = array();
         }
         if (!empty($res)) {
-            $ftis = Misc::arrayToSQL($res);
+            $ftis = Misc::array_to_sql($res);
             $stmt = "DELETE FROM {$dbtp}fulltext_engine WHERE fte_fti_id IN ($ftis) ";
             $res = $GLOBALS['db_api']->dbh->query($stmt);
             if (PEAR::isError($res)) {
@@ -350,7 +350,7 @@ class FulltextIndex {
             $res = array();
         }
         if (!empty($res)) {
-            $ftis = Misc::arrayToSQL($res);
+            $ftis = Misc::array_to_sql($res);
             $stmt = "DELETE FROM {$dbtp}fulltext_engine WHERE fte_fti_id IN ($ftis) ";
             $res = $GLOBALS['db_api']->dbh->query($stmt);
             if (PEAR::isError($res)) {
