@@ -129,7 +129,7 @@ if ($resumptionToken != "") {
 			foreach ($resumptionArray as $rname => $rvalue) {
 				if (in_array($rname, $resumption_acceptable_vars)) {
 					$resumptionToken .= "&".$rname."=".$rvalue[0];
-					eval("$".$rname."='".$rvalue[0]."';");
+					eval("$".$rname."='".urldecode($rvalue[0])."';");
 				}
 			}	
 			if (!empty($set)) {
