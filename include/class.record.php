@@ -1773,7 +1773,72 @@ class Record
             }
         }
     }
-    
+
+
+
+    /**
+     * propagateExistingPremisDatastreamToFez
+     *
+     * This method looks up the PremisEvent datastream of the nominated Fedora object, and checks for its
+     * existence. If found, and any events are marked TBG (To Be Generated), the details are written back
+     * to the Fez premis_event table, so that the underlying object may be re-built from Fez.
+     *
+     * @access  public
+     * @param   $pid    The PID of the Fedora object we are processing.
+     */
+
+    function propagateExistingPremisDatastreamToFez($pid) {
+
+        $datastreams = Fedora_API::callGetDatastreams($pid);
+        if (empty($datastreams)) {
+            return;     // No datastreams at all; let's bail out.
+        }
+
+        foreach ($datastreams as $ds_key => $ds_value) {
+            if ($ds_value['ID'] == 'PremisEvent') {
+                $value = Fedora_API::callGetDatastreamContents($pid, 'PremisEvent', true);
+
+                /* It's time for a spot of DOMage */
+                $xmlDoc = new DOMDocument();
+                $xmlDoc->preserveWhiteSpace = false;
+                $xmlDoc->loadxml($value);
+                $xpath = new DOMXPath($xmlDoc);
+                $xpath->registerNamespace("premis", "http://www.loc.gov/standards/premis");
+                $events = $xpath->query("//premis:event");
+
+                foreach ($events as $event) {
+                    if ($event->firstChild->nodeValue == "[TBG]") {
+                        // Assemble $historyDetail
+                        $params = $event->getElementsByTagName("eventType");
+                        foreach ($params as $param) {
+                               $historyDetail = $param -> nodeValue;
+                        }
+                        // Assemble $historyDetailExtra
+                        $params = $event->getElementsByTagName("eventDetail");
+                        foreach ($params as $param) {
+                               $historyDetailExtra = $param -> nodeValue;
+                        }
+
+                        /* This field is auto-generated at the other end. We can't actually touch this. */
+                        // premis:eventDateTime
+                        /* The following fields will be populated by the workflow. We may as well just disregard these too */
+                        // premis:linkingAgentIdentifierType
+                        // premis:linkingAgentIdentifierValue
+                        // premis:linkingAgentIdentifierType
+                        // premis:linkingAgentIdentifierValue
+                        // premis:linkingObjectIdentifier
+
+                        // Invoke the function that writes the details back to the Fez database.
+                        History::addHistory($pid, null, "", "", true, $historyDetail, $historyDetailExtra);
+                    }
+                }
+            }
+        }
+        return;
+    }
+
+
+
     function runIngestTriggers($pid, $dsId, $mimetype)
     {
         

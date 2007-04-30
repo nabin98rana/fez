@@ -28,7 +28,8 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
@@ -209,15 +210,17 @@ class History
      * @access  public
      * @return  void
      */
-	function addHistory($pid, $wfl_id=null, $outcome="", $outcomeDetail="", $refreshDatastream=false, $historyDetail="") {
+	function addHistory($pid, $wfl_id=null, $outcome="", $outcomeDetail="", $refreshDatastream=false, $historyDetail="", $historyDetailExtra=null) {
 		$dsIDName = "PremisEvent";
 		$event_usr_id = Auth::getUserID();
 		$event_usr_full_name = User::getFullName($event_usr_id);
 		$event_date = Date_API::getCurrentDateGMT(); //date("Y-m-d H:i:s");
 
-		
 		$wfl_title = (is_null($wfl_id)) ? $historyDetail : Workflow::getTitle($wfl_id);
 		$detail = $wfl_title. " by " . $event_usr_full_name;
+        if (!is_null($historyDetailExtra)) {
+            $detail .=  " - " . $historyDetailExtra;
+        }
 		
 		// First add it to the Fez database, then refresh the Fedora datastream
 		History::add($pid, $event_usr_id, $event_date, $wfl_id, $detail, $outcome, $outcomeDetail);

@@ -28,7 +28,8 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
@@ -237,7 +238,7 @@ class Reindex
 
     
     /**
-     * Method used to reindex a batch of pids in fedora into Fez that appear to already by Fez objects
+     * Method used to reindex a batch of pids in fedora into Fez that appear to already be Fez objects
 	 * eg 1. They have already got a RELS-EXT that points to an existing Fez collection
 	 *    2. They have a FezMD datastream
      *
@@ -258,6 +259,7 @@ class Reindex
 		$collection_pid = @$params["collection_pid"];
 
 		foreach ($items as $pid) {
+
     		// determine if the record is a Fez record
             if (!Fedora_API::datastreamExists($pid, 'FezMD')) {
                 $relsext = Reindex::buildRELSEXT($collection_pid, $pid);
@@ -315,6 +317,7 @@ class Reindex
                     }
                 }
             }
+            Record::propagateExistingPremisDatastreamToFez($pid);
 			Record::setIndexMatchingFields($pid);
 		}
         if (PEAR::isError($res)) {
