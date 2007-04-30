@@ -37,7 +37,7 @@ function loadPreview(pid,datastreamID, alt)
     ip_obj.getPreview(pid, datastreamID, max_width, max_height, false, function() { */
 //            pv_img.src = rel_url+'webservices/image_resize_cache.php?pid='+pid+'&dsID='+datastreamID+'&width='+max_width+'&height='+max_height;
             pv_img.src = rel_url+'eserv.php?ls=0&pid='+pid+'&dsID=preview_'+datastreamID;
-			datastream_preview_href.href = rel_url+'eserv.php?pid='+pid+'&dsID='+datastreamID;
+			// datastream_preview_href.href = rel_url+'eserv.php?pid='+pid+'&dsID='+datastreamID;
             pv_img.alt = alt;
             pv_loading.style.display = 'none';
             image_preview_loading = 0;
@@ -82,8 +82,10 @@ function hideClosed(f)
 }
 function resizePager(f)
 {
-    var pagesize = f.page_size.options[f.page_size.selectedIndex].value;
-    window.location.href = page_url + "?" + replaceParam(window.location.href, 'rows', pagesize);
+	var pagesize = f.page_size.options[f.page_size.selectedIndex].value;   
+	var temp = replaceParam(window.location.href, 'rows', pagesize);
+	temp = replaceParam(page_url + "?" + temp, 'pager_row', '0');
+	window.location.href = page_url + "?" + temp;
 }
 function checkPageField(ev)
 {
