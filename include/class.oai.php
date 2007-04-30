@@ -107,6 +107,10 @@ class OAI
 		$sql_filter['elsewhere'] = "";
         if (!empty($identifier)) {
         	$sql_filter['where'][] = "r2.rmf_rec_pid = '".Misc::escapeString($identifier)."'";
+        	$bodyStmtPart2 = " INNER JOIN {$dbtp}record_matching_field AS r3
+                      ON r3.rmf_rec_pid_num = r2.rmf_rec_pid_num and r3.rmf_rec_pid = r2.rmf_rec_pid and r3.rmf_xsdmf_id in 
+					 (".implode(",", $statusList).")
+                      and r3.rmf_int=2 ";        	
         } elseif (!empty($set)) {
         	if ($setType == "isMemberOf") {
 	        	$sql_filter['where'][] = "r2.rmf_varchar = '".Misc::escapeString($set)."'";
@@ -115,24 +119,27 @@ class OAI
 	        	$sql_filter['where'][] = "r2.rmf_varchar = '".Misc::escapeString($set)."'";
 				$sql_filter['where'][] = "r2.rmf_xsdmf_id in (".implode(",", $subjectList).")";        		
         	}
-		} else {
-			$elsewhere = "";
-//			return array();
-//			$memberOfStmt = "";
-		}
-
-        $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
-                    INNER JOIN {$dbtp}record_matching_field AS r3
+        	$bodyStmtPart2 = " INNER JOIN {$dbtp}record_matching_field AS r3
                       ON r3.rmf_rec_pid_num = r2.rmf_rec_pid_num and r3.rmf_rec_pid = r2.rmf_rec_pid and r3.rmf_xsdmf_id in 
 					 (".implode(",", $statusList).")
-                      and r3.rmf_int=2 
+                      and r3.rmf_int=2 ";        	        	
+		} else {
+			$sql_filter['where'][] = "r2.rmf_int = 2";
+			$sql_filter['where'][] = "r2.rmf_xsdmf_id in (".implode(",", $statusList).")";        		
+									
+			$elsewhere = "";
+			$bodyStmtPart2 = "";
+		}
+
+        $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2 ".$bodyStmtPart2;
+
+		$bodyStmtPart1 .= "                      
 		           INNER JOIN {$dbtp}record_matching_field AS r4
                       ON r4.rmf_rec_pid_num = r2.rmf_rec_pid_num and r4.rmf_rec_pid = r2.rmf_rec_pid and r4.rmf_xsdmf_id in 
 					 (".implode(",", $objectTypeList).")
                       and r4.rmf_int=3
         
-                     $joinStmt
-
+                    $joinStmt
 
                     $authStmt				
 
@@ -168,13 +175,13 @@ class OAI
 		}                    
 	    $bodyStmt .=                   
 					 ( ($sql_filter['where']) != "" ? "WHERE ".implode("\r\nAND ", $sql_filter['where']) : $elsewhere) . "
-					group by r2.rmf_rec_pid_num
+					
              ";
 		
 
 
         $stmt = "
-                    SELECT ".APP_SQL_CACHE." SQL_CALC_FOUND_ROWS r2.rmf_rec_pid
+                    SELECT ".APP_SQL_CACHE." r2.rmf_rec_pid
                     $bodyStmt
 					order by ";
         if ($order_by != "") {
@@ -184,77 +191,36 @@ class OAI
         }
 	    $stmt .= "		
                     LIMIT $start, $max					                   
-            ";
-
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-		$total_rows = $GLOBALS["db_api"]->dbh->getOne('SELECT FOUND_ROWS()');
-		$return = array ();
-		$return['count'] = $count[0];
-		foreach ($res as $result) {
-			$return['list'][] = $result['rmf_rec_pid'];
-
-		}		
-		if (!isset($return['list'])) {
-			return array();
-		}
+            ";		
 
         $stmtWrap = "SELECT ".APP_SQL_CACHE."  r1.*, x1.*, s1.*, k1.*, d1.* 
             FROM {$dbtp}record_matching_field AS r1
             INNER JOIN {$dbtp}xsd_display_matchfields AS x1
             ON r1.rmf_xsdmf_id = x1.xsdmf_id
+
+				INNER JOIN (".$stmt.") as display on display.rmf_rec_pid = r1.rmf_rec_pid
+
             LEFT JOIN {$dbtp}xsd_loop_subelement s1 
             ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
             LEFT JOIN {$dbtp}search_key k1 
             ON (k1.sek_id = x1.xsdmf_sek_id)
             LEFT JOIN {$dbtp}xsd_display d1  
             ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
-			WHERE r1.rmf_rec_pid in ('".implode("','", $return['list'])."')
+			
 			ORDER BY r1.rmf_rec_pid_num ASC, r1.rmf_id ASC
             ";                    
-                                        
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmtWrap, DB_FETCHMODE_ASSOC);
-	
+      
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmtWrap, DB_FETCHMODE_ASSOC);		
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-       		$return = array();
+       		$return = array();       	
 			$return = OAI::makeReturnList($res);
 
-//	        $return = Collection::makeSecurityReturnList($return);
-			$hidden_rows = 0;
-//			$return = Auth::getIndexAuthorisation($return);
-//			$return = Misc::cleanListResults($return);  
-	//		$total_rows = count($return);
-			if (($start + $max) < $total_rows) {
-		        $total_rows_limit = $start + $max;
-			} else {
-			   $total_rows_limit = $total_rows;
-			}
-	
-			$total_pages = ceil($total_rows / $max);
-	        $last_page = $total_pages - 1;
-	//		$return = Misc::limitListResults($return, $start, ($start + $max));		
-			// add the available workflow trigger buttons
-	
-	    		// Now generate the META Tag headers
-//			print_r($res); exit;
-//			$oai_dc = array();
 			$return = array_values($return);
-//			print_r($return); exit;
             return array(
-                "list" => $return,
-                "info" => array(
-                    "current_page"  => $current_row,
-                    "start_offset"  => $start,
-                    "end_offset"    => $total_rows_limit,
-                    "total_rows"    => $total_rows,
-                    "total_pages"   => $total_pages,
-                    "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
-                    "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
-                    "last_page"     => $last_page,
-                    "hidden_rows"     => 0
-                )
+                "list" => $return
             );
         }
     }
