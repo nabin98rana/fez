@@ -298,8 +298,13 @@ function validateFormSelections() {
                         <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
                       </td>
                       <td colspan="3" align="center" bgcolor="{$cell_color}">
-                        <input type="button" name="go_list" value="{if $index_type == 1}Index Selected Items Into Fez{else}Reindex Selected Items{/if}" class="button" onclick="{literal}if(checkForSelectedItem() == true){if(validateFormSelections() == true){document.reindex_form.submit();}}{/literal}" />
-                        <input type="button" name="do_all" value="{if $index_type == 1}Index All Pages Into Fez{else}Reindex All Pages{/if}" class="button" onclick="{literal}if(validateFormSelections() == true){document.reindex_form.submit();}{/literal}" />
+					    {if $index_type == 1}
+						<input type="submit" name="go_list" value="Index Selected Items Into Fez" class="button" onclick="{literal}if(checkForSelectedItem() == true){if(validateFormSelections() == true){this.form.method='post';document.reindex_form.submit();}else{return false;}}else{return false;}{/literal}" />
+						<input type="submit" name="do_all" value="Index All Pages Into Fez" class="button" onclick="{literal}if(validateFormSelections() == true){this.form.method='post';document.reindex_form.submit();}else{return false;}{/literal}" />
+						{else}
+						<input type="submit" name="go_list" value="Reindex Selected Items" class="button" onclick="{literal}if(checkForSelectedItem() == true){this.form.method='post';document.reindex_form.submit();}else{return false;}{/literal}" />
+						<input type="submit" name="do_all" value="Reindex All Pages" class="button" onclick="this.form.method='post';document.reindex_form.submit();" />
+						{/if}
                       </td>
                     </tr>
                   </table>
