@@ -296,14 +296,16 @@ class OAI
 					}
 					array_push($return[$result['rmf_rec_pid']]['thumbnails'], $result['rmf_varchar']);
 				} else {
-					/*if ($result['sek_title'] == 'File Attachment Name') { 
+					if ($result['sek_title'] == 'File Attachment Name') { 
 						if (!is_array(@$return[$result['rmf_rec_pid']]['File_Attachment'])) {
 							$return[$result['rmf_rec_pid']]['File_Attachment'] = array();
 						}	
-					}*/
+					}
 				    if ((!is_numeric(strpos($result['rmf_'.$result['xsdmf_data_type']], "thumbnail_"))) && (!is_numeric(strpos($result['rmf_'.$result['xsdmf_data_type']], "web_"))) && (!is_numeric(strpos($result['rmf_'.$result['xsdmf_data_type']], "preview_"))) && (!is_numeric(strpos($result['rmf_'.$result['xsdmf_data_type']], "presmd_"))) && (!is_numeric(strpos($result['rmf_'.$result['xsdmf_data_type']], "FezACML_"))) )   {
-						//array_push($return[$result['rmf_rec_pid']]['File_Attachment'], $result['rmf_'.$result['xsdmf_data_type']]);
-						$return[$result['rmf_rec_pid']]['oai_dc'] .=  '<dc:format>'.APP_BASE_URL.'eserv.php?pid='.$result['rmf_rec_pid'].'&amp;dsID='.$result['rmf_'.$result['xsdmf_data_type']].'</dc:format>'."\n";
+				    	if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['File_Attachment'])) {
+							array_push($return[$result['rmf_rec_pid']]['File_Attachment'], $result['rmf_'.$result['xsdmf_data_type']]);
+							$return[$result['rmf_rec_pid']]['oai_dc'] .=  '<dc:format>'.APP_BASE_URL.'eserv.php?pid='.$result['rmf_rec_pid'].'&amp;dsID='.$result['rmf_'.$result['xsdmf_data_type']].'</dc:format>'."\n";
+				    	}
 				    }
 					if (!is_array(@$return[$result['rmf_rec_pid']]['datastreams'])) {
 						$return[$result['rmf_rec_pid']]['datastreams'] = array();
