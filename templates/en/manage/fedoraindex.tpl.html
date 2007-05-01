@@ -145,7 +145,22 @@ function toggleOverride()
   return true;
 }
 
+function checkForSelectedItem() {
+	var f = getForm('reindex_form');
+	if (!hasOneChecked(f, 'items[]')) {
+		alert('Please select at least one object to index.');
+		return false;
+	}
+	return true;
+}
 
+function validateFormSelections() {
+	if (document.reindex_form.community_pid.selectedIndex == -1 || document.reindex_form.collection_pid.selectedIndex == -1 || document.reindex_form.xdis_id.selectedIndex == -1 || document.reindex_form.sta_id.selectedIndex == -1) {
+		alert('Please select default values for the objects you are about to index.');
+		return false;
+	}
+	return true;
+}
 
 {/literal}
 // -->
@@ -283,8 +298,8 @@ function toggleOverride()
                         <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
                       </td>
                       <td colspan="3" align="center" bgcolor="{$cell_color}">
-                        <input type="submit" name="go_list" value="{if $index_type == 1}Index Selected Items Into Fez{else}Reindex Selected Items{/if}" class="button" onclick="this.form.method='post';return true;" />
-                        <input type="submit" name="do_all" value="{if $index_type == 1}Index All Pages Into Fez{else}Reindex All Pages{/if}" class="button" onclick="this.form.method='post';return true;" />
+                        <input type="button" name="go_list" value="{if $index_type == 1}Index Selected Items Into Fez{else}Reindex Selected Items{/if}" class="button" onclick="{literal}if(checkForSelectedItem() == true){if(validateFormSelections() == true){document.reindex_form.submit();}}{/literal}" />
+                        <input type="button" name="do_all" value="{if $index_type == 1}Index All Pages Into Fez{else}Reindex All Pages{/if}" class="button" onclick="{literal}if(validateFormSelections() == true){document.reindex_form.submit();}{/literal}" />
                       </td>
                     </tr>
                   </table>
