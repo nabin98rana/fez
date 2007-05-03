@@ -128,6 +128,7 @@ class WorkflowStatus {
         $this->wfl_details = null;
         $this->wfb_details = null;
         $this->rec_obj = null;
+        $title = Misc::escapeString($title);
         $blob = Misc::escapeString(serialize($this));
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $stmt = "UPDATE {$dbtp}workflow_sessions " .
