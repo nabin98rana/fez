@@ -909,7 +909,7 @@ class Auth
     {
     	$stmt = "SELECT distinct authi_role FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "auth_rule_group_users " .
                 "INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "auth_rule_group_rules " .
-                        "ON argr_arg_id=argu_arg_id " .
+                        "ON argu_usr_id='$user_id' AND argr_arg_id=argu_arg_id " .
                 "INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "auth_index2 " .
                         "ON authi_arg_id=argr_ar_id ";
         $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
@@ -972,7 +972,7 @@ class Auth
      * @param   array $session The unserialized contents of the session
      * @return  boolean
      */
-    function isValidSession($session)
+    function isValidSession(&$session)
     {
         global $HTTP_SERVER_VARS;
         if ((empty($session["username"])) || (empty($session["hash"])) 
@@ -1636,117 +1636,137 @@ class Auth
 
     function setAuthRulesUsers()
     {
-        $ses = &Auth::getSession();
-        $fez_groups_sql = Misc::arrayToSQL(@$ses[APP_INTERNAL_GROUPS_SESSION]);
-        $ldap_groups_sql = Misc::arrayToSQL(@$ses[APP_LDAP_GROUPS_SESSION]);
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-        $usr_id = Auth::getUserID();
+        global $auth_isBGP, $auth_bgp_session;
 
-        // clear the rule matches for this user
-        $stmt = "DELETE FROM {$dbtp}auth_rule_group_users WHERE argu_usr_id='$usr_id'";
-		$res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-        }
-        // test and insert matching rules for this user
-        $authStmt = "
-            INSERT INTO {$dbtp}auth_rule_group_users (argu_arg_id, argu_usr_id)
-            SELECT distinct argr_arg_id, '$usr_id' FROM {$dbtp}auth_rule_group_rules
-            INNER JOIN {$dbtp}auth_rules ON argr_ar_id=ar_id
-            AND 
-            (
-                (ar_rule='public_list' AND ar_value='1') 
-            OR  (ar_rule = '!rule!role!Fez_User' AND ar_value='$usr_id') 
-            OR (ar_rule = '!rule!role!AD_User' AND ar_value='".Auth::getUsername()."') ";
-        if (!empty($fez_groups_sql)) {
-            $authStmt .="
-                OR (ar_rule = '!rule!role!Fez_Group' AND ar_value IN ($fez_groups_sql) ) ";
-        }
-        if (!empty($ldap_groups_sql)) {
+        if (!$auth_isBGP) {
+            $ses = &Auth::getSession();
+            $fez_groups_sql = Misc::arrayToSQL(@$ses[APP_INTERNAL_GROUPS_SESSION]);
+            $ldap_groups_sql = Misc::arrayToSQL(@$ses[APP_LDAP_GROUPS_SESSION]);
+            $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+            $usr_id = Auth::getUserID();
+    
+            // clear the rule matches for this user
+            $stmt = "DELETE FROM {$dbtp}auth_rule_group_users WHERE argu_usr_id='$usr_id'";
+    		$res = $GLOBALS["db_api"]->dbh->query($stmt);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            }
+            // test and insert matching rules for this user
+            $authStmt = "
+                INSERT INTO {$dbtp}auth_rule_group_users (argu_arg_id, argu_usr_id)
+                SELECT distinct argr_arg_id, '$usr_id' FROM {$dbtp}auth_rule_group_rules
+                INNER JOIN {$dbtp}auth_rules ON argr_ar_id=ar_id
+                AND 
+                (
+                    (ar_rule='public_list' AND ar_value='1') 
+                OR  (ar_rule = '!rule!role!Fez_User' AND ar_value='$usr_id') 
+                OR (ar_rule = '!rule!role!AD_User' AND ar_value='".Auth::getUsername()."') ";
+            if (!empty($fez_groups_sql)) {
+                $authStmt .="
+                    OR (ar_rule = '!rule!role!Fez_Group' AND ar_value IN ($fez_groups_sql) ) ";
+            }
+            if (!empty($ldap_groups_sql)) {
+                $authStmt .= "
+                    OR (ar_rule = '!rule!role!AD_Group' AND ar_value IN ($ldap_groups_sql) ) ";
+            }
+            if (!empty($ses['distinguishedname'])) {
+                $authStmt .= "
+                    OR (ar_rule = '!rule!role!AD_DistinguishedName' 
+                            AND INSTR('".$ses['distinguishedname']."', ar_value)
+                       ) ";
+            } 
+    
+            if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'])) {
+                $authStmt .= "
+                    OR (ar_rule = '!rule!role!eduPersonTargetedID' 
+                            AND INSTR('".$ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID']."', ar_value)
+                       ) ";
+            }
+            if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation'])) {
+                $authStmt .= "
+                    OR (ar_rule = '!rule!role!eduPersonAffiliation' 
+                            AND INSTR('".$ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation']."', 
+                                ar_value)
+                       ) ";
+            }
+            if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'])) {
+                $authStmt .= "
+                    OR (ar_rule = '!rule!role!eduPersonScopedAffiliation' 
+                            AND INSTR('".$ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation']."', 
+                                ar_value)
+                       ) ";
+            }
+            if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'])) {
+                $authStmt .= "
+                    OR (ar_rule = '!rule!role!eduPersonPrimaryAffiliation' 
+                            AND INSTR('".$ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation']."', ar_value)
+                       ) ";
+            }
+            if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'])) {
+                $authStmt .= "
+                    OR (ar_rule = '!rule!role!eduPersonPrincipalName' 
+                            AND INSTR('".$ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName']."', ar_value)
+                       ) ";
+            }
+            if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN'])) {
+                $authStmt .= "
+                    OR (ar_rule = '!rule!role!eduPersonOrgUnitDN' 
+                            AND INSTR('".$ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN']."', ar_value)
+                       ) ";
+            }
+            if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN'])) {
+                $authStmt .= "
+                    OR (ar_rule = '!rule!role!eduPersonPrimaryOrgUnitDN' 
+                            AND INSTR('".$ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN']."', ar_value)
+                       ) ";
+            }
+    
+            if (Auth::isInAD())  {
+                $authStmt .= "
+                    OR (ar_rule = '!rule!role!in_AD' ) ";
+            }
+            if (Auth::isInDB()) {
+                $authStmt .= "
+                    OR (ar_rule = '!rule!role!in_Fez') ";
+            }
             $authStmt .= "
-                OR (ar_rule = '!rule!role!AD_Group' AND ar_value IN ($ldap_groups_sql) ) ";
+                ) ";
+            //Error_Handler::logError($authStmt, __FILE__,__LINE__);
+    		$res = $GLOBALS["db_api"]->dbh->query($authStmt);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                return -1;
+            }
+            Auth::setSession('auth_index_highest_rule_group', AuthIndex::highestRuleGroup());
         }
-        if (!empty($ses['distinguishedname'])) {
-            $authStmt .= "
-                OR (ar_rule = '!rule!role!AD_DistinguishedName' 
-                        AND INSTR('".$ses['distinguishedname']."', ar_value)
-                   ) ";
-        } 
-
-        if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'])) {
-            $authStmt .= "
-                OR (ar_rule = '!rule!role!eduPersonTargetedID' 
-                        AND INSTR('".$ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID']."', ar_value)
-                   ) ";
-        }
-        if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation'])) {
-            $authStmt .= "
-                OR (ar_rule = '!rule!role!eduPersonAffiliation' 
-                        AND INSTR('".$ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation']."', 
-                            ar_value)
-                   ) ";
-        }
-        if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'])) {
-            $authStmt .= "
-                OR (ar_rule = '!rule!role!eduPersonScopedAffiliation' 
-                        AND INSTR('".$ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation']."', 
-                            ar_value)
-                   ) ";
-        }
-        if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'])) {
-            $authStmt .= "
-                OR (ar_rule = '!rule!role!eduPersonPrimaryAffiliation' 
-                        AND INSTR('".$ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation']."', ar_value)
-                   ) ";
-        }
-        if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'])) {
-            $authStmt .= "
-                OR (ar_rule = '!rule!role!eduPersonPrincipalName' 
-                        AND INSTR('".$ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName']."', ar_value)
-                   ) ";
-        }
-        if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN'])) {
-            $authStmt .= "
-                OR (ar_rule = '!rule!role!eduPersonOrgUnitDN' 
-                        AND INSTR('".$ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN']."', ar_value)
-                   ) ";
-        }
-        if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN'])) {
-            $authStmt .= "
-                OR (ar_rule = '!rule!role!eduPersonPrimaryOrgUnitDN' 
-                        AND INSTR('".$ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN']."', ar_value)
-                   ) ";
-        }
-
-        if (Auth::isInAD())  {
-            $authStmt .= "
-                OR (ar_rule = '!rule!role!in_AD' ) ";
-        }
-        if (Auth::isInDB()) {
-            $authStmt .= "
-                OR (ar_rule = '!rule!role!in_Fez') ";
-        }
-        $authStmt .= "
-            ) ";
-        //Error_Handler::logError($authStmt, __FILE__,__LINE__);
-		$res = $GLOBALS["db_api"]->dbh->query($authStmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        }
-        $ses['auth_index_highest_rule_group'] = AuthIndex::highestRuleGroup();
+        Auth::setSession('can_edit', null);
+        Auth::setSession('can_create', null);
         return 1;
     }
 
+    /**
+     * Check caching of auth stuff to see if it needs to be invalidated.  If a new rule group has been set then 
+     * it probably needs to be invalidated.
+     */
     function checkRuleGroups()
     {
-        $ses = &Auth::getSession();
-        if (AuthIndex::highestRuleGroup() > $ses['auth_index_highest_rule_group']) {
-            //Error_Handler::logError(AuthIndex::highestRuleGroup()." > ".$ses['auth_index_highest_rule_group'],__FILE__,__LINE__);;
-            Auth::setAuthRulesUsers();
+        global $auth_isBGP, $auth_bgp_session;
+
+        if (!$auth_isBGP) {
+            $ses = &Auth::getSession();
+            if (AuthIndex::highestRuleGroup() > $ses['auth_index_highest_rule_group']) {
+                //Error_Handler::logError(AuthIndex::highestRuleGroup()." > ".$ses['auth_index_highest_rule_group'],__FILE__,__LINE__);;
+                Auth::setAuthRulesUsers();
+            }
         }
     }
 
+    /**
+     * Get a reference to the session - not sure if you are running as background process or in apache so
+     * it grabs a global var and treats it as a session otherwise.
+     * NOTE:  There seems to be a bug that means that the session is not updated if you just set a key in the
+     * reference to the $_SESSION returned from the function.  So use Auth::setSession to make it do the right thing. 
+     */
     function getSession()
     {
         global $auth_isBGP, $auth_bgp_session;
@@ -1760,30 +1780,66 @@ class Auth
         }
         return $ses;
     }
+    
+    /**
+     * Determines if we are background process and sets the right SESSION global for the occasion.
+     */
+    function setSession($key, $value)
+    {
+        global $auth_isBGP, $auth_bgp_session;
 
+        if ($auth_isBGP) {
+            $auth_bgp_session[$key] = $value;
+        } else {
+            session_name(APP_SESSION);
+            @session_start();
+            $_SESSION[$key] = $value;
+        }
+    }
+
+    /**
+     * NOTE: uses internal true false of 1 or -1 in the session (0 means not calculated)
+     * @return boolean true if the user can edit at least one record in the repository
+     */
     function canEdit() 
     {
         $ses =& Auth::getSession();
+        $result = $ses['can_edit'];
         if (!Auth::isValidSession($ses)) {
-            $ses['can_edit'] = false;
-        } elseif (!isset($ses['can_edit']) || $ses['can_edit'] === null) {
-            $count = Collection::getEditListingCount();
-            $ses['can_edit'] = ($count > 0) ? true : false;
+            $result = -1;
+        } elseif (empty($result)) {
+            if (Auth::isAdministrator()) {
+              $result = 1;    
+            } else {
+                $count = Collection::getEditListingCount();
+                $result = ($count > 0) ? 1 : -1;
+            }
         }
-        return $ses['can_edit'];
+        Auth::setSession('can_edit', $result);
+        return $result == 1 ? true : false;
     }
     
+    /** 
+     * NOTE: uses internal true false of 1 or -1 in the session (0 means not calculated)
+     * @return boolean true if the user can create in at least one colelction in the repository
+     */
     function canCreate() 
     {
-        $ses =& Auth::getSession();
+        $ses = &Auth::getSession();
+        $result = $ses['can_create'];
         if (!Auth::isValidSession($ses)) {
-            $ses['can_create'] = false;
-        } elseif (!isset($ses['can_create']) || $ses['can_create'] === null) {
-            $list = Collection::getEditList();
-            $count = count($list);
-            $ses['can_create'] = ($count > 0) ? true : false;
+            $result = -1;
+        } elseif (empty($result)) {
+            if (Auth::isAdministrator()) {
+              $result = 1;    
+            } else {
+                $list = Collection::getEditList();
+                $count = count($list);
+                $result = ($count > 0) ? 1 : -1;
+            }
         }
-        return $ses['can_create'];
+        Auth::setSession('can_create', $result);
+        return $result == 1 ? true : false;
     }
 }
 
