@@ -2046,9 +2046,14 @@ class RecordGeneral
     function getRecordType()
     {
         $this->getDetails();
-        $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!ret_id'); 
-        $ret_id = $this->details[$xsdmf_id];
-        return $ret_id;
+        $this->getXmlDisplayId();
+        if (!empty($this->xdis_id)) {
+	        $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!ret_id'); 
+        	$ret_id = $this->details[$xsdmf_id];
+        	return $ret_id;        	
+        } else {
+        	return null;
+        }
     }
 
 
@@ -2326,6 +2331,8 @@ class RecordGeneral
             }
             return $this->display;
         } else {
+        	// if it has no xdis id (display id) log an error and return a null
+			Error_Handler::logError("The PID {$this->pid} does not have an display id (FezMD->xdis_id). This object is currently in an erroneous state.",__FILE__,__LINE__);
             return null;
         }
     }
@@ -2351,6 +2358,8 @@ class RecordGeneral
             $this->getDisplay();
             if ($this->display) {
                 $this->details = $this->display->getXSDMF_Values($this->pid);
+            } else {
+  				Error_Handler::logError("The PID {$this->pid} has an error getting it's display details. This object is currently in an erroneous state.",__FILE__,__LINE__);
             }
         }
         return $this->details;

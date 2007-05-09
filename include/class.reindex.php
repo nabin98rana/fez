@@ -100,8 +100,10 @@ class Reindex
                 }
             }
             //Error_Handler::logError(print_r($res, true));
+			//print_r($res['resultList']);
             $this->listSession = @$res['listSession'];
-            $this->fedoraObjects = @$res['resultList']; 
+            //$this->fedoraObjects = @$res['resultList']; //for fedora 2.1.1
+            $this->fedoraObjects = @$res['resultList']['objectFields']; //for fedora 2.2
         }
         return @array_shift($this->fedoraObjects);
     }
@@ -156,6 +158,7 @@ class Reindex
         $start = $max * $page;
         $return = array();
         $detail = $this->getNextFedoraObject();
+        
         for ($ii = 0; !empty($detail) && count($return) < $max ; $detail = $this->getNextFedoraObject()) {
             if (Reindex::inIndex($detail['pid'])) {
                 if (++$ii > $start) {

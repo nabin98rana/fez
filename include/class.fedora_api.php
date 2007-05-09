@@ -32,6 +32,7 @@
 // +----------------------------------------------------------------------+
 //
 //
+// FOR FEDORA 2.2 API
 /***************** Fedora API calls ******************/
 /*
 This code has many functions that use the nusoap class files
@@ -484,8 +485,6 @@ class Fedora_API {
 			}			
 		}
 		if (!empty($local_file_location) && (trim($local_file_location) != "")) {
-//			Error_Handler::logError($local_file_location,__FILE__,__LINE__);
-//			echo "here = ".APP_FEDORA_UPLOAD_URL; exit;
 		   //Send multipart/form-data via curl
 		   $ch = curl_init(APP_FEDORA_UPLOAD_URL);
 		   curl_setopt($ch, CURLOPT_VERBOSE, 0);
@@ -545,7 +544,7 @@ class Fedora_API {
 			}
 		}
 	   $versionable = 'false';
-	   $parms=array('PID' => $pid, 'dsID' => $dsID, 'altIDs' => array(), 'dsLabel' => $dsLabel, new soapval('versionable', 'boolean', $versionable), 'MIMEType' => $mimetype, 'formatURI' => 'unknown', new soapval('dsLocation', 'string', $uploadLocation), 'controlGroup' => $controlGroup, 'dsState' => 'A', 'logMessage' => 'Added Datastream');//
+	   $parms=array('PID' => $pid, 'dsID' => $dsID, 'altIDs' => array(), 'label' => $dsLabel, new soapval('versionable', 'boolean', $versionable), 'MIMEType' => $mimetype, 'formatURI' => 'unknown', new soapval('location', 'string', $uploadLocation), 'controlGroup' => $controlGroup, 'dsState' => 'A', 'logMessage' => 'Added Datastream');//
 	   //Call addDatastream
 	   Fedora_API::openSoapCall('addDatastream', $parms);
 	}
@@ -748,13 +747,13 @@ class Fedora_API {
     * @return array $dsIDListArray The datastream returned in an array
     */
 	function callGetDatastreamDissemination($pid, $dsID, $asofDateTime="") {
-
 	   if ($asofDateTime == "") {
 		   $parms=array('pid' => $pid, 'dsID' => $dsID);
 		} else {
 		   $parms=array('pid' => $pid, 'dsID' => $dsID, 'asofDateTime' => $asofDateTime);
 		}
-	   $dsIDListArray = Fedora_API::openSoapCallAccess('getDatastreamDissemination', $parms);
+		$dsIDListArray = Fedora_API::openSoapCallAccess('getDatastreamDissemination', $parms);		
+		$dsIDListArray['stream'] = base64_decode($dsIDListArray['stream']);
 	   return $dsIDListArray;
 	}
 
@@ -779,31 +778,16 @@ class Fedora_API {
 			} 
             // We've checked the mimetype is XML so lets parse it and make a simple array
 			if (!empty($blob) && $blob != false) {
+				//print_r($blob);
 				$doc = DOMDocument::loadXML($blob);
-                // walk through the doc and pull out elements and attributes into keypairs
-                for ($nodeStack = array(array($doc->documentElement,'')); !empty($nodeStack); ) {
-					$fieldNodeInfo = array_pop($nodeStack);
-                    $fieldNode = $fieldNodeInfo[0];
-                    $xpath =  $fieldNodeInfo[1];
-                    // Walk through children - push them to the nodestack causing a depth first traversal
-                    // Do this first so we can also check if the current node has an child elements 
-                    // (as opposed to text node children)
-                    $has_child_elements = false; 
-                    foreach ($fieldNode->childNodes as $childNode) {
-                        if ($childNode->nodeType == XML_ELEMENT_NODE) {
-                            array_push($nodeStack, array($childNode, $xpath.$childNode->nodeName."/"));
-                            $has_child_elements = true; 
-                        }
-                    }
-                    // don't get value of elements that have children as nodeValue 
-                    // will contain all the child nodes content
-                    if (!$has_child_elements) {
-                        $resultlist[rtrim($xpath,'/')][] = trim($fieldNode->nodeValue);
-                    }
+				$xpath = new DOMXPath($doc);
+				$fieldNodeList = $xpath->query("/*/*");
+				foreach ($fieldNodeList as $fieldNode) {
+					$resultlist[$fieldNode->nodeName][] = trim($fieldNode->nodeValue);
 					// get attributes
-					$fieldAttList = $fieldNode->attributes;
+					$fieldAttList = $xpath->query("@*",$fieldNode);
 					foreach ($fieldAttList as $fieldAtt) {
-						$resultlist[rtrim($xpath,'/').'@'.$fieldAtt->nodeName][] = trim($fieldAtt->nodeValue);
+						$resultlist[$fieldAtt->nodeName][] = trim($fieldAtt->nodeValue);
 					}
 				}
 			}
@@ -877,16 +861,16 @@ class Fedora_API {
 		}
 	    $dsContent = base64_encode(trim($dsContent));
 	    $logmsg = 'Modifying datastream from Fez';
-		if (empty($versionable)) {
+		/*if (empty($versionable)) {
 			$versionable = 'false';
 		}
 		if ($versionable == "true") {
 			$versionable = 'true';
 		} elseif ($versionable == "false") {
 			$versionable = 'false';
-		}
-		$versionable = 'false'; //overriding this here.
-		$parms= array('pid' => $pid, 'dsID' => $dsID, 'altIDs' => array(), 'dsLabel' => $label, new soapval('versionable', 'boolean', $versionable), 'MIMEType' => $mimetype, 'formatURI' => 'unknown',  new soapval("dsContent","base64Binary",$dsContent), 'dsState' => $state, 'logMessage' => $logmsg, 'force' => true);
+		}*/
+		//$versionable = 'false'; //overriding this here.
+		$parms= array('PID' => $pid, 'datastreamID' => $dsID, 'altIDs' => array(), 'dsLabel' => $label, 'mimeType' => $mimetype, 'formatURI' => 'unknown', new soapval("dsContent","base64Binary",$dsContent), 'logMessage' => $logmsg, new soapval('force', 'boolean', 'true'));
 //		echo "\n\n before open soap call,after tidy and base64encode for modify ".$dsID." "; echo date("l dS of F Y h:i:s A");
 	    Fedora_API::openSoapCall('modifyDatastreamByValue', $parms);
 //		echo "\n\n after open soal call for modify ".$dsID." "; echo date("l dS of F Y h:i:s A");
@@ -905,7 +889,7 @@ class Fedora_API {
 	function callModifyDatastreamByReference ($pid, $dsID, $dsLabel, $dsLocation=NULL, $mimetype) {
 	   $logmsg = 'Modifying datastream by reference';
 	   $versionable = 'false';
-	   $parms= array('pid' => $pid, 'dsID' => $dsID, 'altIDs' => array(), 'dsLabel' => $dsLabel, new soapval('versionable', 'boolean', $versionable),  'MIMEType' => $mimetype, 'formatURI' => 'unknown', 'dsLocation' => $dsLocation, 'dsState' => 'A', 'logMessage' => $logmsg, 'force' => true);
+	   $parms= array('PID' => $pid, 'datastreamID' => $dsID, 'altIDs' => array(), 'dsLabel' => $dsLabel, new soapval('versionable', 'boolean', $versionable),  'mimeType' => $mimetype, 'formatURI' => 'unknown', 'dsLocation' => $dsLocation, 'logMessage' => $logmsg, 'force' => true);
 	   Fedora_API::openSoapCall('modifyDatastreamByReference', $parms);
 	}
 
@@ -920,8 +904,8 @@ class Fedora_API {
 	* @param boolean $force
     * @return boolean
     */
-	function callPurgeDatastream ($pid, $dsID, $endDT=NULL, $logMessage="Purged Datastream from Fez", $force=false) {
-	   $parms= array('PID' => $pid, 'dsID' => $dsID, 'endDT' => $endDT, 'logMessage' => $logMessage, 'force' => $force);
+	function callPurgeDatastream ($pid, $dsID, $startDT=NULL, $endDT=NULL, $logMessage="Purged Datastream from Fez", $force=false) {
+	   $parms= array('PID' => $pid, 'datastreamID' => $dsID, 'startDT' => $startDT, 'endDT' => $endDT, 'logMessage' => $logMessage, 'force' => $force);
 	   return Fedora_API::openSoapCall('purgeDatastream', $parms);
 	}
 
