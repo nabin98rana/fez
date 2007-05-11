@@ -256,6 +256,22 @@ function validateFormSelections() {
 				</td>
  			  </tr>			
 
+			  <tr>
+			  	<td>
+				  	<table>
+					<tr>
+					  <td  bgcolor="{$cell_color}" class="default">
+						<b>Rebuild Datastreams:</b>
+					  </td>
+					  <td bgcolor="{$light_color}">
+					  	<input type="checkbox" name="rebuild" value="on" {if $smarty.request.rebuild}checked="1"{/if} />
+					  	<label for="rebuild" class="default">Should Fez rebuild the presmd and derived datastreams such as image thumbnails? 
+					  	(these will be generated for objects that appear to be new to Fez regardless)</label>
+					  </td>
+				  </tr>
+				  </table>
+				</td>
+ 			  </tr>			
 
 
 			  <tr>
