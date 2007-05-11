@@ -248,6 +248,8 @@ class Fedora_API {
 			// add the return fields array to out list of results
 			$resultlist[] = $rItem;
 		}
+        // make the result compatible with fedora 2.2
+        $resultlist['resultList'] = array('objectFields' => $resultlist['resultList']);
 		return $resultlist;
 	}
 

@@ -260,10 +260,11 @@ class Reindex
 		$sta_id = @$params["sta_id"];		
 		$community_pid = @$params["community_pid"];
 		$collection_pid = @$params["collection_pid"];
+        $rebuild = @$params["rebuild"];
 
 		foreach ($items as $pid) {
-
-    		// determine if the record is a Fez record
+    		$rebuild_this = $rebuild;
+            // determine if the record is a Fez record
             if (!Fedora_API::datastreamExists($pid, 'FezMD')) {
                 $relsext = Reindex::buildRELSEXT($collection_pid, $pid);
 				$fezmd = Reindex::buildFezMD($xdis_id, $sta_id);			
@@ -277,59 +278,62 @@ class Reindex
 				} else {
 					Fedora_API::getUploadLocation($pid, "FezMD", $fezmd, "Fez extension metadata", "text/xml", "X");
 				}
+                $rebuild_this = true;  // always rebuild non-fez objects
+                Error_Handler::logError("$pid: Object was new to fez");
 			}
-            // need to rebuild presmd and image datastreams
-            // get list of datastreams and iterate over them
-            $ds = Fedora_API::callGetDatastreams($pid);
-            // delete any fez derived datastreams that might be hanging around for no reason.  We'll 
-            // recreate them later if they are still needed
-            foreach ($ds as $dsKey => $dsTitle) {
-                $dsIDName = $dsTitle['ID'];
-                if ($dsTitle['controlGroup'] == "M" 
-                    && (Misc::hasPrefix($dsIDName, 'preview_')
-                    || Misc::hasPrefix($dsIDName, 'web_')
-                    || Misc::hasPrefix($dsIDName, 'thumbnail_')
-                    || Misc::hasPrefix($dsIDName, 'presmd_'))) {
-                    Fedora_API::callPurgeDatastream($pid, $dsIDName);
-                } 
-            }
-            foreach ($ds as $dsKey => $dsTitle) {
-                $dsIDName = $dsTitle['ID'];
-                if ($dsTitle['controlGroup'] == "M" 
-                    && !Misc::hasPrefix($dsIDName, 'preview_')
-                    && !Misc::hasPrefix($dsIDName, 'web_')
-                    && !Misc::hasPrefix($dsIDName, 'thumbnail_')
-                    && !Misc::hasPrefix($dsIDName, 'presmd_') // since presmd is stored as a binary to avoid parsing by fedora at the moment.
-                    ) {
-                    $new_dsID = Foxml::makeNCName($dsIDName);
-                    // get the datastream into a file where we can do stuff to it
-                    $urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsIDName; 
-                    $urlReturn = Misc::ProcessURL($urldata);
-                    $handle = fopen(APP_TEMP_DIR.$new_dsID, "w");
-                    fwrite($handle, $urlReturn[0]);
-                    fclose($handle);
-                    // delete and re-ingest - need to do this because sometimes the object made it
-                    // into the repository even though its dsID is illegal.
-                    Fedora_API::callPurgeDatastream($pid, $dsIDName);
-                    Fedora_API::getUploadLocationByLocalRef($pid, $new_dsID, APP_TEMP_DIR.$new_dsID, $new_dsID, 
-                        $dsTitle['MIMEType'], "M");
-                    Record::generatePresmd($pid, $new_dsID);
-                    Workflow::processIngestTrigger($pid, $new_dsID, $dsTitle['MIMEType']);
-                    if (is_file(APP_TEMP_DIR.$dsIDName)) {
-                        unlink(APP_TEMP_DIR.$dsIDName);
+            if ($rebuild_this) {
+                Error_Handler::logError("$pid: rebuilding");
+                // need to rebuild presmd and image datastreams
+                // get list of datastreams and iterate over them
+                $ds = Fedora_API::callGetDatastreams($pid);
+                // delete any fez derived datastreams that might be hanging around for no reason.  We'll 
+                // recreate them later if they are still needed
+                foreach ($ds as $dsKey => $dsTitle) {
+                    $dsIDName = $dsTitle['ID'];
+                    if ($dsTitle['controlGroup'] == "M" 
+                        && (Misc::hasPrefix($dsIDName, 'preview_')
+                            || Misc::hasPrefix($dsIDName, 'web_')
+                            || Misc::hasPrefix($dsIDName, 'thumbnail_')
+                            || Misc::hasPrefix($dsIDName, 'presmd_'))) {
+                        Fedora_API::callPurgeDatastream($pid, $dsIDName);
+                    } 
+                }
+                foreach ($ds as $dsKey => $dsTitle) {
+                    $dsIDName = $dsTitle['ID'];
+                    if ($dsTitle['controlGroup'] == "M" 
+                        && !Misc::hasPrefix($dsIDName, 'preview_')
+                        && !Misc::hasPrefix($dsIDName, 'web_')
+                        && !Misc::hasPrefix($dsIDName, 'thumbnail_')
+                        && !Misc::hasPrefix($dsIDName, 'presmd_') // since presmd is stored as a binary to avoid parsing by fedora at the moment.
+                        ) {
+                        $new_dsID = Foxml::makeNCName($dsIDName);
+                        // get the datastream into a file where we can do stuff to it
+                        $urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsIDName; 
+                        $urlReturn = Misc::ProcessURL($urldata);
+                        $handle = fopen(APP_TEMP_DIR.$new_dsID, "w");
+                        fwrite($handle, $urlReturn[0]);
+                        fclose($handle);
+                        if ($new_dsID != $dsIDName) {
+                            Error_Handler::logError("$pid: $dsIDName: need to repair dsID");
+                            // delete and re-ingest - need to do this because sometimes the object made it
+                            // into the repository even though its dsID is illegal.
+                            Fedora_API::callPurgeDatastream($pid, $dsIDName);
+                            Fedora_API::getUploadLocationByLocalRef($pid, $new_dsID, APP_TEMP_DIR.$new_dsID, $new_dsID, 
+                                $dsTitle['MIMEType'], "M");
+                        }
+                        Record::generatePresmd($pid, $new_dsID);
+                        Workflow::processIngestTrigger($pid, $new_dsID, $dsTitle['MIMEType']);
+                        if (is_file(APP_TEMP_DIR.$dsIDName)) {
+                            unlink(APP_TEMP_DIR.$dsIDName);
+                        }
                     }
                 }
             }
             Record::propagateExistingPremisDatastreamToFez($pid);
 			Record::setIndexMatchingFields($pid);
 		}
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
-            return true; 
-        }
-    }	
+        return true;
+    }
 
 	function buildRELSEXT($parent_pid, $pid) {
 		$xml = '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
