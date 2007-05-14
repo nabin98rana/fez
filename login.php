@@ -140,7 +140,7 @@ $tpl = new Template_API();
 $tpl->setTemplate("index.tpl.html");
 
 if (Auth::hasValidSession(APP_SESSION)) {
-    if ($_SESSION["autologin"]) {
+    if ($_SESSION["autologin"]) {    	
         if (!empty($HTTP_GET_VARS["url"])) {
             $extra = '?url=' . $HTTP_GET_VARS["url"];
         } else {
@@ -155,6 +155,9 @@ if (Auth::hasValidSession(APP_SESSION)) {
 }
 $tpl->assign("SHIB_SWITCH", SHIB_SWITCH);
 if (SHIB_SWITCH == "ON") {
+	if (!empty($HTTP_GET_VARS["url"])) { // set the url session for shib logins so redirects to index.php (front page) then redirecto to the original url		
+		$_SESSION["url"] = $HTTP_GET_VARS["url"];			
+	}
 	// Configuration
 //	$commonDomain = '.au'; // Must start with a .
 	$commonDomain = '.'; // Must start with a .

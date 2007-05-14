@@ -74,7 +74,7 @@ class Reindex
     function inIndex($pid)
     {
         $stmt = "SELECT
-                   count(*)
+                   rmf_id
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field  where rmf_rec_pid='$pid' ";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -82,7 +82,7 @@ class Reindex
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return false;
         } else {
-            return ($res > 0) ? true : false;
+            return (count($res) > 0) ? true : false;
         }
     }
 
@@ -90,7 +90,7 @@ class Reindex
     {
         if (empty($this->fedoraObjects)) {
             if (!$this->resume) {
-                $res = Fedora_API::callFindObjects(array('pid', 'title', 'description'), 10, $this->terms);
+                $res = Fedora_API::callFindObjects(array('pid', 'title', 'description'), 5, $this->terms);
                 $this->resume = true;
             } else {
                 if (!empty($this->listSession['token'])) {
@@ -203,35 +203,66 @@ class Reindex
             }
             if (!Reindex::inIndex($detail['pid'])) {
                 if (!empty($this->bgp)) {
-                    $this->bgp->setStatus("Adding: '{$detail['title']}'");
+                    $this->bgp->setStatus("Adding: '{$detail['pid']}' '{$detail['title']}'");
                 }
                 $params['items'] = array($detail['pid']);
                 Reindex::indexFezFedoraObjects($params);                
             } else {
                 if (!empty($this->bgp)) {
-                    $this->bgp->setStatus("Skipping: '{$detail['title']}'");
+                    $this->bgp->setStatus("Skipping: '{$detail['pid']}' '{$detail['title']}'");
                 }
             }
         }
     }
 
+
+
+    function getIndexPIDCount() {
+        $stmt = "select count(distinct rmf_rec_pid) as pid_count from  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        } else {
+//          return 10;
+            return $res;
+        }
+    }
+
+
     function reindexFullList($params,$terms)
     {
         $this->terms = $terms;
         $ii = 0;
+        $reindex_record_counter = 0;
+        $record_count = Reindex::getIndexPIDCount();
         for ($detail = $this->getNextFedoraObject(); !empty($detail); $detail = $this->getNextFedoraObject()) {
             if (!empty($this->bgp)) {
                 $this->bgp->setProgress(++$ii);
             }
+            $reindex_record_counter++;
+
+                    $bgp_details = $this->bgp->getDetails();
+                    $utc_date = Date_API::getSimpleDateUTC();
+                    $time_per_object = Date_API::dateDiff("s", $bgp_details['bgp_started'], $utc_date);
+                    $date_new = new Date(strtotime($bgp_details['bgp_started']));
+                    $time_per_object = intval($time_per_object / $reindex_record_counter);
+                    //$expected_finish = Date_API::getFormattedDate($date_new->getTime());
+                    $date_new->addSeconds($time_per_object*$record_count);
+                    $tz = Date_API::getPreferredTimezone($bgp_details["bgp_usr_id"]);
+    				$res[$key]["bgp_started"] = Date_API::getFormattedDate($res[$key]["bgp_started"], $tz);
+                    $expected_finish = Date_API::getFormattedDate($date_new->getTime(), $tz);
             if (Reindex::inIndex($detail['pid'])) {
                 if (!empty($this->bgp)) {
-                    $this->bgp->setStatus("Reindexing: '{$detail['title']}'");
+                    $this->bgp->setProgress(intval(100*$reindex_record_counter/$record_count)."%");
+              $this->bgp->setStatus("Reindexing:  '{$detail['pid']}' ".$detail['title']. " (".$reindex_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
+                 //   $this->bgp->setStatus("Reindexing: '{$detail['pid']}' '{$detail['title']}'");
                 }
                 $params['items'] = array($detail['pid']);
                 Reindex::indexFezFedoraObjects($params);                
             } else {
                 if (!empty($this->bgp)) {
-                    $this->bgp->setStatus("Skipping: '{$detail['title']}'");
+                    $this->bgp->setStatus("Skipping: '{$detail['pid']}'  '{$detail['title']}'");
                 }
             }
         }

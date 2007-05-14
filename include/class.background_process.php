@@ -1,5 +1,5 @@
 <?php
-
+include_once(APP_INC_PATH . "class.date.php");
 /**
   * This is a virtual class.
   * Subclass this to make a background process with a customised 'run' method.
@@ -35,7 +35,10 @@ class BackgroundProcess {
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
                 return array();
-            }
+            } else {
+			}
+            	
+            
 
             $this->details = $res[0];
         }

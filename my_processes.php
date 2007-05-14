@@ -89,7 +89,10 @@ $tpl->assign('my_collections_list', $collection_list);
 
 $bgp_list = new BackgroundProcessList;
 $bgp_list->autoDeleteOld(Auth::getUserID());
-$tpl->assign('bgp_list', $bgp_list->getList(Auth::getUserID()));
+$bgp_list_auth = $bgp_list->getList(Auth::getUserID());
+//print_r($bgp_list_auth);
+$tpl->assign('bgp_list', $bgp_list_auth);
+
 $tpl->assign('bgp_states', $bgp_list->getStates());
 
 $tpl->assign("eserv_url", APP_BASE_URL."eserv.php");

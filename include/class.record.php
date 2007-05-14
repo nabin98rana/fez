@@ -2375,8 +2375,15 @@ class RecordGeneral
     function getTitle()
     {
         $this->getDetails();
-        $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!dc:title'); 
-        return $this->details[$xsdmf_id];
+        $this->getXmlDisplayId();
+        if (!empty($this->xdis_id)) {
+             $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!dc:title'); 
+             return $this->details[$xsdmf_id];
+        } else {
+            // if it has no xdis id (display id) log an error and return a null
+            Error_Handler::logError("The PID {$this->pid} does not have an display id (FezMD->xdis_id). This object is currently in an erroneous state.",__FILE__,__LINE__);
+            return null;
+        }
     }
 
     /**
@@ -2389,7 +2396,14 @@ class RecordGeneral
     function getDCType()
     {
         $this->getDetails();
-        $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!dc:type'); 
+        $this->getXmlDisplayId();
+        if (!empty($this->xdis_id)) {
+            $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!dc:type'); 
+        } else {
+            // if it has no xdis id (display id) log an error and return a null
+            Error_Handler::logError("The PID {$this->pid} does not have an display id (FezMD->xdis_id). This object is currently in an erroneous state.",__FILE__,__LINE__);
+            return null;
+        }
         return $this->details[$xsdmf_id];
     }
 
@@ -2412,8 +2426,16 @@ class RecordGeneral
     function getDetailsByXSDMF_element($xsdmf_element)
     {
         $this->getDetails();
-        $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID($xsdmf_element); 
+        
+        $this->getXmlDisplayId();
+        if (!empty($this->xdis_id)) {
+          $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID($xsdmf_element); 
         return @$this->details[$xsdmf_id];
+        } else {
+            // if it has no xdis id (display id) log an error and return a null
+            Error_Handler::logError("The PID {$this->pid} does not have an display id (FezMD->xdis_id). This object is currently in an erroneous state.",__FILE__,__LINE__);
+            return null;
+        }
     }
     
     function getDetailsByXSDMF_ID($xsdmf_id)

@@ -1,6 +1,7 @@
 <?php
 
 include_once(APP_INC_PATH.'class.background_process.php');
+include_once(APP_INC_PATH . "class.date.php");
 
 class BackgroundProcessList 
 {
@@ -11,7 +12,7 @@ class BackgroundProcessList
     {
         $usr_id = Misc::escapeString($usr_id);
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
-        $stmt = "SELECT bgp_id, bgp_status_message, bgp_progress, bgp_state, bgp_heartbeat,bgp_name,bgp_started," .
+        $stmt = "SELECT bgp_id, bgp_usr_id, bgp_status_message, bgp_progress, bgp_state, bgp_heartbeat,bgp_name,bgp_started," .
                 "if (bgp_heartbeat < DATE_SUB(CURDATE(),INTERVAL 1 DAY), 1, 0) as is_old
             FROM {$dbtp}background_process
             WHERE bgp_usr_id='$usr_id'
@@ -22,14 +23,12 @@ class BackgroundProcessList
             return array();
         }
 		foreach ($res as $key => $row) {			
-//		  $res[$key]["bgp_started"] = Date_API::getFormattedDate($res[$key]["bgp_started"]);
-//		  $res[$key]["bgp_heartbeat"] = Date_API::getFormattedDate($res[$key]["bgp_heartbeat"]);
-			
-			$res[$key]["bgp_started"] = Date_API::getFormattedDate($res[$key]["bgp_started"], APP_DEFAULT_USER_TIMEZONE);
-			$res[$key]["bgp_heartbeat"] = Date_API::getFormattedDate($res[$key]["bgp_heartbeat"], APP_DEFAULT_USER_TIMEZONE);
+			$tz = Date_API::getPreferredTimezone($res[$key]["bgp_usr_id"]);			
+			$res[$key]["bgp_started"] = Date_API::getFormattedDate($res[$key]["bgp_started"], $tz);
+			$res[$key]["bgp_heartbeat"] = Date_API::getFormattedDate($res[$key]["bgp_heartbeat"], $tz);
 		}
-
         return $res;
+        
     }
     
    function getDetails($id)
@@ -42,6 +41,7 @@ class BackgroundProcessList
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return array();
+        } else {		
         }
         return $res;
    }
