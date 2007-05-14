@@ -100,6 +100,9 @@ Move @define(APP_HOSTNAME... to above all the other defines.
     @define("APP_PDFTOTEXT_EXEC", "/usr/bin/pdftotext");
 *** End of Bill vs Linus
 
+// In the FEDORA VARIABLES section:
+@define("APP_FEDORA_VERSION", "2.2");   // Or set to 2.1.1, if running an older version of Fedora.
+
 @define("APP_HTTPS_CURL_CHECK_CERT", "OFF"); //if you have a dev. host with an SSL cert. that's not officially signed, set this OFF, otherwise Fedora SSL calls will fail in CURL
 
 *** Put this near APP_ERROR_LOG 
@@ -132,6 +135,9 @@ Move @define(APP_HOSTNAME... to above all the other defines.
 <pre>
 {literal}// Correct the administrator email address, if it is set to {APP_ADMIN_EMAL}
 @define("APP_ADMIN_EMAIL", "admin@yourinst.edu"); // used in the OAI identify verb and page footer{/literal}
+
+// In the FEDORA VARIABLES section:
+@define("APP_FEDORA_VERSION", "2.2");   // Or set to 2.1.1, if running an older version of Fedora.
 </pre>
 </div>
 

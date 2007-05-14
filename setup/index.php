@@ -28,7 +28,8 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
@@ -433,6 +434,7 @@ $stmt = $contents;
 	$config_contents = str_replace("%{LDAP_PREFIX}%", $HTTP_POST_VARS['ldap_prefix'], $config_contents);
 	$config_contents = str_replace("%{LDAP_SERVER}%", $HTTP_POST_VARS['ldap_server'], $config_contents);		
 	$config_contents = str_replace("%{LDAP_PORT}%", $HTTP_POST_VARS['ldap_port'], $config_contents);		
+    $config_contents = str_replace("%{APP_FEDORA_VERSION}%", $HTTP_POST_VARS['fedora_version'], $config_contents);    
     $config_contents = str_replace("%{APP_FEDORA_LOCATION}%", $HTTP_POST_VARS['fedora_location'], $config_contents);
     $config_contents = str_replace("%{APP_FEDORA_SSL_LOCATION}%", $HTTP_POST_VARS['fedora_ssl_location'], $config_contents);
     $config_contents = str_replace("%{APP_FEDORA_USERNAME}%", $HTTP_POST_VARS['fedora_username'], $config_contents);

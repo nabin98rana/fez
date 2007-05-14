@@ -28,7 +28,8 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 ini_set('allow_url_fopen', 0);
@@ -127,6 +128,7 @@ if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Serve
 
 // FEDORA VARIABLES
 // Setup reusable Fedora API variables
+@define("APP_FEDORA_VERSION", "%{APP_FEDORA_VERSION}%");
 @define("APP_FEDORA_USERNAME", "%{APP_FEDORA_USERNAME}%");
 @define("APP_FEDORA_PWD", "%{APP_FEDORA_PWD}%");
 

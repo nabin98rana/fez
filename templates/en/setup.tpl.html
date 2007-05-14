@@ -26,6 +26,9 @@ function validateForm(f)
     if (isWhitespace(f.path.value)) {
         errors[errors.length] = new Option('Full path to the base of the applciation in the fez server', 'path');
     }
+    if (isWhitespace(f.fedora_version.value)) {
+        errors[errors.length] = new Option('Fedora Version', 'fedora_version');
+    }
     if (isWhitespace(f.fedora_username.value)) {
         errors[errors.length] = new Option('Fedora Username', 'fedora_username');
     }
@@ -263,12 +266,17 @@ without submitting the following form. <br/>
 			  <!-- <input type="radio" name="fedora_setup" value="sslall"  onClick="javascript:toggleSSLBaseLocation(false);toggleBaseLocation(true);" {if $smarty.post.fedora_setup == 'sslall'}checked="on"{/if}/> -->
 			</td>
 		</tr>
+		<tr>
+		  <td class="default" align="right"><b>Fedora Version: *</b></td>
+		  <td class="default"><input type="text" name="fedora_version" value="{$smarty.post.fedora_version|default:'2.2'}" size="10">
+            {include file="error_icon.tpl.html" field="fedora_version"}<br />The above must be set to either &quot;2.2&quot; or &quot;2.1.1&quot;.</td>
+		</tr>
         <tr>
           <td class="default" align="right">
             <b>Fedora Server Base Location: </b>
           </td>
-          <td>
-            <b>http://</b><input type="text" name="fedora_location" class="default" size="50" value="{$smarty.post.fedora_location|default:'localhost:8080/fedora'}">
+          <td class="default">
+            <b>http://</b><input type="text" name="fedora_location" size="50" value="{$smarty.post.fedora_location|default:'localhost:8080/fedora'}">
             {include file="error_icon.tpl.html" field="fedora_location"}
           </td>
         </tr>
@@ -276,8 +284,8 @@ without submitting the following form. <br/>
           <td class="default" align="right" nowrap>
             <b>Fedora Server Base SSL Location: </b>
           </td>
-          <td>
-            <b>https://</b><input type="text" name="fedora_ssl_location" class="default" size="50"  value="{$smarty.post.fedora_ssl_location|default:'localhost:8443/fedora'}">
+          <td class="default">
+            <b>https://</b><input type="text" name="fedora_ssl_location" size="50"  value="{$smarty.post.fedora_ssl_location|default:'localhost:8443/fedora'}">
             {include file="error_icon.tpl.html" field="fedora_ssl_location"}
           </td>
         </tr>		
