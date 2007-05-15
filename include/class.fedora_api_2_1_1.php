@@ -185,7 +185,7 @@ class Fedora_API {
     function callFindObjects($resultFields = array('pid', 'title', 'identifier', 'description', 'type'),
                             $maxResults = 10, $query_terms="")
     {
-        return Fedora_API::openSoapCallAccess('findObjects', array(
+        $resultlist = Fedora_API::openSoapCallAccess('findObjects', array(
             'resultFields' => $resultFields,
              new soapval('maxResults','nonNegativeInteger', $maxResults),
             //new soapval('query','FieldSearchQuery',
@@ -195,14 +195,21 @@ class Fedora_API {
                             array('terms' => "$query_terms"), 
                         false,'http://www.fedora.info/definitions/1/0/types/')
         ));
+        // make the result compatible with fedora 2.2
+        $resultlist['resultList'] = array('objectFields' => $resultlist['resultList']);
+        return $resultlist;
         
         //$name='soapval',$type=false,$value=-1,$element_ns=false,$type_ns=false,$attributes=false
     }
 
     function callResumeFindObjects($token)
     {
-    	return Fedora_API::openSoapCallAccess('resumeFindObjects', array('sessionToken' => $token));
+    	$resultlist = Fedora_API::openSoapCallAccess('resumeFindObjects', array('sessionToken' => $token));
+        // make the result compatible with fedora 2.2
+        $resultlist['resultList'] = array('objectFields' => $resultlist['resultList']);
+        return $resultlist;
     }
+    
     /**
      * This function uses Fedora's simple search service which only really works against Dublin Core records,
 	 * so is not heavily used. Searches are mostly carried out against Fez's own (much more powerful) index.
@@ -248,8 +255,6 @@ class Fedora_API {
 			// add the return fields array to out list of results
 			$resultlist[] = $rItem;
 		}
-        // make the result compatible with fedora 2.2
-        $resultlist['resultList'] = array('objectFields' => $resultlist['resultList']);
 		return $resultlist;
 	}
 
