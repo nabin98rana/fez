@@ -102,11 +102,7 @@ class Reindex
             //Error_Handler::logError(print_r($res, true));
 			//print_r($res['resultList']);
             $this->listSession = @$res['listSession'];
-            if (APP_FEDORA_VERSION !== "2.2") {
-                $this->fedoraObjects = @$res['resultList']; // Old style 2.1, 2.1.1, etc.
-            } else {
-                $this->fedoraObjects = @$res['resultList']['objectFields']; // 2.2 and up!
-            }
+            $this->fedoraObjects = @$res['resultList']['objectFields']; // 2.2 and up!
         }
         return @array_shift($this->fedoraObjects);
     }
