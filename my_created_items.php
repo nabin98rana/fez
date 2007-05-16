@@ -171,6 +171,10 @@ if (empty($sort_by)) {
 $sort_by_dir = Pager::getParam('sort_by_dir');
 $created_items= Record::getCreated($options, $pager_row, $rows, $sort_by, $sort_by_dir);
 
+foreach ($created_items['list'] as $aikey => $aidata) {
+	$created_items['list'][$aikey]['parents'] = Record::getParents($aidata['pid']);
+}
+
 $tpl->assign('my_created_items_list', $created_items['list']);
 $tpl->assign('my_created_items_info', $created_items['info']);
 

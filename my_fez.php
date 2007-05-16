@@ -176,6 +176,10 @@ $tpl->assign("isMemberOf_list", $collection_assoc_list);
 
 $assigned_items = Record::getListing($options, array("Editor", "Approver"), $pager_row, $rows, $options["sort_by"]);
 
+foreach ($assigned_items['list'] as $aikey => $aidata) {
+	$assigned_items['list'][$aikey]['parents'] = Record::getParents($aidata['pid']);
+}
+
 $tpl->assign('my_assigned_items_list', $assigned_items['list']);
 $tpl->assign('my_assigned_items_info', $assigned_items['info']);
 
