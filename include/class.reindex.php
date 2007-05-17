@@ -309,10 +309,10 @@ class Reindex
 					Fedora_API::getUploadLocation($pid, "FezMD", $fezmd, "Fez extension metadata", "text/xml", "X");
 				}
                 $rebuild_this = true;  // always rebuild non-fez objects
-                Error_Handler::logError("$pid: Object was new to fez");
+                //Error_Handler::logError("$pid: Object was new to fez");   // Why are we logging an error? #1
 			}
             if ($rebuild_this) {
-                Error_Handler::logError("$pid: rebuilding");
+                //Error_Handler::logError("$pid: rebuilding");   // Why are we logging an error? #1
                 // need to rebuild presmd and image datastreams
                 // get list of datastreams and iterate over them
                 $ds = Fedora_API::callGetDatastreams($pid);

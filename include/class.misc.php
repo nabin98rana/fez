@@ -1950,11 +1950,11 @@ class Misc
 												$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Day']);
 		} elseif ((!empty($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year'])) &&
 			 (!empty($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Month']))) {
-			$return['value'] = sprintf('%04d-%02d-01', $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year'],
+			$return['value'] = sprintf('%04d-%02d', $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year'],
 												$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Month']);
 			$dateType = 2;	// year and month
 		} elseif (!empty($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year'])) {
-			$return['value'] = sprintf('%04d-01-01',$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year']);
+			$return['value'] = sprintf('%04d',$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year']);
 			$dateType = 1; // year only 
 		} else {
 			$return['value'] = '';

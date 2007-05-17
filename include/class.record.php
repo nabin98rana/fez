@@ -701,8 +701,17 @@ class Record
         $xsdsel_id = '';
         // MySQL doesn't always handle date string conversions so convert to MySQL style date manually 
         if ($data_type == 'date') {
-        	$date = new Date($value);
-            $value = $date->format('%Y-%m-%d %T');
+            if (is_numeric($value) && strlen($value) == 4) {
+                // It appears we've just been fed a year. We'll pad this, so it can be added to the index.
+                $value = $value . "-01-01 00:00:00";
+            } elseif (strlen($value) == 7) {
+                // YYYY-MM. We could arguably write some better string inspection stuff here, but this will do for now.
+                $value = $value . "-01 00:00:00";
+            } else {
+                // Looks like a regular fully-formed date.
+                $date = new Date($value);
+                $value = $date->format('%Y-%m-%d %T');
+            }
         }
         /* rmf_varchar updates featuring extra-long strings cause the query below to die. We'll truncate 
            the field for now, but this obviously needs to be done a little better in the future. */
