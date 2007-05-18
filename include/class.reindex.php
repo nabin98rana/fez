@@ -76,7 +76,7 @@ class Reindex
         $stmt = "SELECT
                    rmf_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field  where rmf_rec_pid='$pid' ";
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field  where rmf_rec_pid='" . $pid . "' ";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -202,13 +202,13 @@ class Reindex
             }
             if (!Reindex::inIndex($detail['pid'])) {
                 if (!empty($this->bgp)) {
-                    $this->bgp->setStatus("Adding: '{$detail['pid']}' '{$detail['title']}'");
+                    $this->bgp->setStatus("Adding: '{" . $detail['pid'] . "}' '{" . $detail['title'] . "}'");
                 }
                 $params['items'] = array($detail['pid']);
                 Reindex::indexFezFedoraObjects($params);                
             } else {
                 if (!empty($this->bgp)) {
-                    $this->bgp->setStatus("Skipping: '{$detail['pid']}' '{$detail['title']}'");
+                    $this->bgp->setStatus("Skipping: '{" . $detail['pid'] . "}' '{" . $detail['title'] . "}'");
                 }
             }
         }
@@ -254,14 +254,14 @@ class Reindex
             if (Reindex::inIndex($detail['pid'])) {
                 if (!empty($this->bgp)) {
                     $this->bgp->setProgress(intval(100*$reindex_record_counter/$record_count)."%");
-              $this->bgp->setStatus("Reindexing:  '{$detail['pid']}' ".$detail['title']. " (".$reindex_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
-                 //   $this->bgp->setStatus("Reindexing: '{$detail['pid']}' '{$detail['title']}'");
+              $this->bgp->setStatus("Reindexing:  '{" . $detail['pid'] . "}' ". $detail['title'] . " (". $reindex_record_counter . "/" . $record_count . ") (Avg " . $time_per_object . "s per Object, Expected Finish " . $expected_finish . ")");
+                 //   $this->bgp->setStatus("Reindexing: '{" . $detail['pid'] . "}' '{" . $detail['title'] . "}'");
                 }
                 $params['items'] = array($detail['pid']);
                 Reindex::indexFezFedoraObjects($params);                
             } else {
                 if (!empty($this->bgp)) {
-                    $this->bgp->setStatus("Skipping: '{$detail['pid']}'  '{$detail['title']}'");
+                    $this->bgp->setStatus("Skipping: '{" . $detail['pid'] . "}'  '{" . $detail['title'] . "}'");
                 }
             }
         }
@@ -344,7 +344,7 @@ class Reindex
                         fwrite($handle, $urlReturn[0]);
                         fclose($handle);
                         if ($new_dsID != $dsIDName) {
-                            Error_Handler::logError("$pid: $dsIDName: need to repair dsID");
+                            Error_Handler::logError($pid . ": " . $dsIDName . ": need to repair dsID");
                             // delete and re-ingest - need to do this because sometimes the object made it
                             // into the repository even though its dsID is illegal.
                             Fedora_API::callPurgeDatastream($pid, $dsIDName);
