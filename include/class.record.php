@@ -172,7 +172,9 @@ class Record
 			}
 		}
 		$details = array_values($return);			
-		$returns[$pid][$searchKey] = $details;
+		if ($GLOBALS['app_cache']) {
+		  $returns[$pid][$searchKey] = $details;
+        }
 
 		return $details; 
     }
@@ -240,7 +242,9 @@ class Record
 			}
 		}
 		$details = array_values($return);			
-		$returns[$pid][$searchKey] = $details;
+		if ($GLOBALS['app_cache']) {
+		  $returns[$pid][$searchKey] = $details;
+        }
 
 		return $details; 
     }
@@ -342,7 +346,9 @@ class Record
 			} 
 		}
 		$details = array_reverse($details);
-		$returns[$pid][$searchKey] = $details;
+		if ($GLOBALS['app_cache']) {
+		  $returns[$pid][$searchKey] = $details;
+        }
 		return $details; 
     }
 
@@ -446,7 +452,9 @@ class Record
 			} 
 		} */
 		$details = array_reverse($details);
-		$returns[$pid][$searchKey] = $details;
+		if ($GLOBALS['app_cache']) {
+		  $returns[$pid][$searchKey] = $details;
+        }
 		return $details; 
     }	
 
@@ -588,10 +596,10 @@ class Record
      * @access  public
      * @param   string $pid The persistent identifier of the record
      * @param   string $dsID The ID of the datastream (optional)
-     * @param   string $dsDelete A flag to check if the datastream_id should be kept 
+     * @param   string $dsDelete A flag to check if th e datastream_id should be kept 
      * @return  void
      */
-    function removeIndexRecord($pid, $dsID='', $dsDelete='all', $exclude_list=array(), $specify_list=array()) {
+    function removeIndexRecord($pid, $dsID='', $dsDelete='all', $exclude_list=array(), $specify_list=array(), $fteindex = true) {
         if (empty($pid)) {
             return -1;
         }
@@ -634,9 +642,13 @@ class Record
 
         if (empty($dsID)) {
             AuthIndex::clearIndexAuth($pid);
-            FulltextIndex::removeByPid($pid);
+            if ($fteindex) {
+                FulltextIndex::removeByPid($pid);
+            }
         } else {
-            FulltextIndex::removeByDS($pid,$dsID);
+            if ($fteindex) {
+                FulltextIndex::removeByDS($pid,$dsID);
+            }
         }
     }
 
@@ -785,26 +797,26 @@ class Record
      * @param   string $pid The persistent identifier of the object
      * @return  void
      */
-    function setIndexMatchingFields($pid, $dsID='') 
+    function setIndexMatchingFields($pid, $dsID='', $fteindex = true) 
     {
         $record = new RecordObject($pid);
-        $record->setIndexMatchingFields($dsID);
+        $record->setIndexMatchingFields($dsID, $fteindex);
         AuthIndex::setIndexAuth($pid); //set the security index
-        if (!$record->isCommunity() && !$record->isCollection()) { 
+        if (!$record->isCommunity() && !$record->isCollection() && $fteindex) { 
             FulltextIndex::indexPid($pid);
         }
 //      exit;
     }
     
-    function setIndexMatchingFieldsRecurse($pid, $bgp=null) 
+    function setIndexMatchingFieldsRecurse($pid, $bgp=null, $fteindex = true) 
     {
         if (!empty($bgp)) {
             $bgp->setStatus("Processing {$pid}");
             $bgp->incrementProgress();
         }
         $record = new RecordObject($pid);
-        $record->setIndexMatchingFields();
-        if (!$record->isCommunity() && !$record->isCollection()) { 
+        $record->setIndexMatchingFields('', $fteindex);
+        if (!$record->isCommunity() && !$record->isCollection() && $fteindex) { 
             FulltextIndex::indexPid($pid);
         }
         // recurse children
@@ -812,7 +824,7 @@ class Record
         //          memberOf
         $children = $record->getChildrenPids();
         foreach ($children as $child_pid) {
-            Record::setIndexMatchingFieldsRecurse($child_pid, $bgp);
+            Record::setIndexMatchingFieldsRecurse($child_pid, $bgp, $fteindex);
         }
     }
     
@@ -886,19 +898,23 @@ class Record
 			$xmldoc= new DomDocument();
 			$xmldoc->preserveWhiteSpace = false;
 			$xmldoc->loadXML($xmlACML);
-			if ($dsID != "") {
-				$acml_cache['ds'][$dsID][$pid] = $xmldoc;
-			} else {
+			if ($GLOBALS['app_cache']) {
+			  if ($dsID != "") {
+			  	$acml_cache['ds'][$dsID][$pid] = $xmldoc;
+			  } else {
 				$acml_cache['pid'][$pid] = $xmldoc;
-			}
+			  }
+            }
 			return $xmldoc;
 		} else {
+		  if ($GLOBALS['app_cache']) {
 			if ($dsID != "") {
 				$acml_cache['ds'][$dsID][$pid] = false;
 			} else {
 				$acml_cache['pid'][$pid] = false;
 			}
 			return false;
+          }
 		}
 	}	
 
@@ -2604,7 +2620,7 @@ class RecordGeneral
 		return Fedora_API::callGetDatastreamContents($this->pid, $dsID);
     }
     
-    function setIndexMatchingFields($dsID='') 
+    function setIndexMatchingFields($dsID='', $fteindex = true) 
     {
         // careful what you do with the record object - don't want to use the index while reindexing 
         
@@ -2617,7 +2633,7 @@ class RecordGeneral
         $display = new XSD_DisplayObject($xdis_id);
         $array_ptr = array();
         $xsdmf_array = $display->getXSDMF_Values($pid);     
-        Record::removeIndexRecord($pid, '', 'keep'); //CK 22/5/06 = added last 2 params to make it keep the dsID indexes for Fezacml on datastreams // remove any existing index entry for that PID // CK added 9/1/06 - still working on this
+        Record::removeIndexRecord($pid, '', 'keep', array(), array(), $fteindex); //CK 22/5/06 = added last 2 params to make it keep the dsID indexes for Fezacml on datastreams // remove any existing index entry for that PID // CK added 9/1/06 - still working on this
         //print_r($xsdmf_array); exit;
         foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
             if (!is_array($xsdmf_value) && !empty($xsdmf_value) && (trim($xsdmf_value) != "")) {                    

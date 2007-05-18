@@ -2106,7 +2106,9 @@ class XSD_HTML_Match {
 				$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 				return "";
 			} else {
-				$returns[$sek_title] = $res;
+				if ($GLOBALS['app_cache']) {
+				    $returns[$sek_title] = $res;
+                }
 				return $res;
 			}
 		}
@@ -2140,7 +2142,9 @@ class XSD_HTML_Match {
 				$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 				return "";
 			} else {
-				$returns[$sek_id] = $res;
+				if ($GLOBALS['app_cache']) {
+				    $returns[$sek_id] = $res;
+                }
 				return $res;
 			}
 		}
@@ -2434,7 +2438,9 @@ class XSD_HTML_Match {
 										mfo_value ASC";
 				$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
 				if (!PEAR::isError($res)) {
-					$mfo_returns[$fld_id] = $res;
+					if ($GLOBALS['app_cache']) {
+					    $mfo_returns[$fld_id] = $res;
+                    }
 				}
 			}
 			if (PEAR::isError($res)) {

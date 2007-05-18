@@ -360,7 +360,8 @@ class Date_API
             $usr_id = Auth::getUserID();
         }
         if (empty($usr_id)) {
-            return Date_API::getDefaultTimezone();
+           // return Date_API::getDefaultTimezone();
+            return APP_DEFAULT_USER_TIMEZONE;
         }
 		
         $prefs = Prefs::get($usr_id);

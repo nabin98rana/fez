@@ -147,7 +147,9 @@ class Collection
 			foreach ($res as $item) {
 				$res2[] = array('pid' => $item['rmf_rec_pid'], 'title' => $item['rmf_varchar']);
 			}
-			$returns[$collection_pid] = $res2;
+			if ($GLOBALS['app_cache']) {
+			    $returns[$collection_pid] = $res2;
+            }
 			return $res2;
 		}
     }
@@ -1082,20 +1084,20 @@ class Collection
 		}
 		$termCounter = 2;
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $subjectList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Subject');
         $authArray = Collection::getAuthIndexStmt(array("Lister", "Viewer", "Editor", "Creator"));
         $authStmt = $authArray['authStmt'];
-		$stringIDs = implode("', '", Misc::array_flatten($treeIDs));
-		$stmt = "SELECT ".APP_SQL_CACHE." cvo_id, count(distinct r{$termCounter}.rmf_rec_pid) 
+		$stringIDs = implode(", ", Misc::array_flatten($treeIDs));
+		$stmt = "SELECT ".APP_SQL_CACHE." r{$termCounter}.rmf_int, count(distinct r{$termCounter}.rmf_rec_pid) 
 				FROM  {$dbtp}record_matching_field r".$termCounter."
-				INNER JOIN {$dbtp}xsd_display_matchfields x".$termCounter." ON r".$termCounter.".rmf_xsdmf_id = x".$termCounter.".xsdmf_id
-				INNER JOIN {$dbtp}search_key s".$termCounter." ON s".$termCounter.".sek_id = x".$termCounter.".xsdmf_sek_id
-                        AND s".$termCounter.".sek_title = '".$searchKey."'  	
-                INNER JOIN {$dbtp}controlled_vocab ON cvo_id IN ('".$stringIDs."') 
-                        AND cvo_title=r".$termCounter.".rmf_varchar
+                
                 $authStmt
-                GROUP BY cvo_id               						  
-		";
+		WHERE r{$termCounter}.rmf_int IN (".$stringIDs.") 
+                        AND r{$termCounter}.rmf_xsdmf_id in (".implode(",", $subjectList).")  
+                GROUP BY r{$termCounter}.rmf_int ";
+		
 		//Error_Handler::logError($stmt);
+		
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -1232,10 +1234,13 @@ class Collection
         $extra = '';
 		if ($searchKey == "Subject") {				
 			$terms = $_GET['parent_id'];		
-			$search_data_type = "varchar";
-			$restrictSQL = "INNER JOIN {$dbtp}controlled_vocab cv " .
+			//$search_data_type = "varchar";
+			$search_data_type = "int";
+			$restrictSQL = " and r{$termCounter}.rmf_{$search_data_type}=$terms ";
+
+/*			$restrictSQL = "INNER JOIN {$dbtp}controlled_vocab cv " .
                     " ON r{$termCounter}.rmf_{$search_data_type}=cv.cvo_title
-                    AND cv.cvo_id='$terms' ";
+                    AND cv.cvo_id='$terms' ";*/
 		} elseif ($searchKey == "Created Date") {
 			$search_data_type = "date";
             $default_tz = Misc::MySQLTZ(APP_DEFAULT_TIMEZONE);
@@ -1534,7 +1539,28 @@ if ($sort_by == 'File Downloads') {
                 
                 $authStmt ";
 		$sql_where_id .= " r".$termCounter.".rmf_xsdmf_id in (".implode(",", $authorIDList).") ";
-        $stmt = "
+
+ $stmt = "
+
+				 
+
+				SELECT ".APP_SQL_CACHE." 
+                    count(*) as record_count, ".$show_field_id." as ".$as_field.", a1.aut_id as record_author_id
+                 FROM
+				$middleStmt_id
+                  INNER JOIN
+                         {$dbtp}record_matching_field AS r3 on r3.rmf_rec_pid = r2.rmf_rec_pid
+                        and r3.rmf_xsdmf_id in (".implode(",", $statusList).") and r3.rmf_int = 2
+				$extra_join
+                $letter_restrict_id $sql_where_id
+				 GROUP BY
+				 	".$group_field_id."
+
+				
+				 ORDER BY record_author ASC
+				 LIMIT ".$max." OFFSET ".$start;		
+		/*
+		$stmt = "
 
 				 (
 
@@ -1564,7 +1590,7 @@ if ($sort_by == 'File Downloads') {
 				 GROUP BY
 				 	".$group_field.")
 				 ORDER BY record_author ASC
-				 LIMIT ".$max." OFFSET ".$start;
+				 LIMIT ".$max." OFFSET ".$start;*/
 
 		//echo $stmt;
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -2510,7 +2536,6 @@ $res_count = array();
 
     }
 
-
     /**
      * Method used to get a list of leading letters, for a given set of 
      * items that needs to be rendered.
@@ -2520,15 +2545,41 @@ $res_count = array();
      */
     function getLetterList()
     {
-        $stmt = "SELECT DISTINCT UPPER(LEFT(r2.rmf_varchar, 1)) as letter
+    	$statusList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Status');
+    	$authorList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Author');    	
+    	
+        $stmt = "SELECT DISTINCT UPPER(LEFT(r1.rmf_varchar, 1)) as letter
                 FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS r1
-                INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields AS x1 ON r1.rmf_xsdmf_id = x1.xsdmf_id
-                INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS r2 on r2.rmf_id = r1.rmf_id
-                INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields AS x2 ON r2.rmf_xsdmf_id = x2.xsdmf_id
-                INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key AS s2 ON s2.sek_id = x2.xsdmf_sek_id AND s2.sek_title = 'Author'
-                INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS r3 on r3.rmf_rec_pid = r2.rmf_rec_pid
-                INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields AS x3 ON r3.rmf_xsdmf_id = x3.xsdmf_id and r3.rmf_int=2 AND x3.xsdmf_element='!sta_id'
-                GROUP BY (r2.rmf_varchar) ORDER BY (r2.rmf_varchar)";
+                INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS r2 on r2.rmf_rec_pid = r1.rmf_rec_pid and r2.rmf_int = 2 and r2.rmf_xsdmf_id in (".implode(",", $statusList).")
+				WHERE r1.rmf_xsdmf_id in (".implode(",", $authorList).") 
+                ORDER BY (r1.rmf_varchar)";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        } 
+    }
+
+    /**
+     * Method used to get a list of leading letters, for a given set of 
+     * items that needs to be rendered.
+     *
+     * @access  public
+     * @return  array $return The list letters
+     */
+    function getLetterListAuthor()
+    {
+    	
+    	$statusList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Status');
+    	$authorIDList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Author ID');
+    	
+        $stmt = "SELECT DISTINCT UPPER(LEFT(a1.aut_lname, 1)) as letter
+                FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author as a1
+                INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS r2 on r2.rmf_int = a1.aut_id and r2.rmf_xsdmf_id in (".implode(",", $authorIDList).")
+                INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS r3 on r3.rmf_rec_pid = r2.rmf_rec_pid and r3.rmf_xsdmf_id in (".implode(",", $statusList).") and r3.rmf_int = 2
+                GROUP BY (a1.aut_lname) ORDER BY (a1.aut_lname)";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

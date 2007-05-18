@@ -541,7 +541,9 @@ class XSD_Display
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-			$returns[$xdis_title] = $res;
+        	if ($GLOBALS['app_cache']) {
+			    $returns[$xdis_title] = $res;
+            }
             return $res;
         }
     }
@@ -1030,6 +1032,7 @@ class XSD_DisplayObject
 					// find out if this record has the xml based datastream
 					if (Fedora_API::datastreamExistsInArray($datastreams, $dsValue['xsdsel_title'])) {
 						$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title']);
+//						print_r($DSResultArray);
 						if (isset($DSResultArray['stream'])) {
 							$xmlDatastream = $DSResultArray['stream'];
 							// get the matchfields for the datastream (using the sub-display for this stream)						
@@ -1103,6 +1106,7 @@ class XSD_DisplayObject
 
 						if (!is_numeric(@$cbdata['currentSEL'])) {	
 							$xsdmf_id = $this->xsd_html_match->getXSDMF_IDByXDIS_IDAll($new_element);
+
 							if (is_array($xsdmf_id)) {
 								if (count($xsdmf_id) > 1) {
 									foreach ($xsdmf_id as $row) {

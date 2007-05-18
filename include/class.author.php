@@ -164,7 +164,9 @@ class Author
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-            $returns[$aut_id] = $res;
+        	if ($GLOBALS['app_cache']) {
+                $returns[$aut_id] = $res;
+            }
             return $res;
         }
     }
@@ -392,7 +394,9 @@ class Author
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-            $returns[$aut_id] = $res;
+        	if ($GLOBALS['app_cache']) {
+                $returns[$aut_id] = $res;
+            }
             return $res;
         }
     }

@@ -88,6 +88,9 @@ Move @define(APP_HOSTNAME... to above all the other defines.
 
 @define("BATCH_IMPORT_TYPE", "MODS 1.0"); // Either MODS 1.0 or Dublin Core 1.0
 @define("APP_SQL_CACHE", ""); // Set this string to SQL_NO_CACHE if you want to test MySQL performance without query caching, keep "" for optimal performance (caching on)
+$GLOBALS['app_cache'] = true; // Set this string to true if you have given php.ini at least 256M to use. It will improve performance by storing some fedora and sql queries in php memo
+ry rather than fetch them twice or more during a single page load. This gets hardset to OFF globally for indexing and reindexing in background processes as this won't scale over 5
+00M with over 10,000 objects otherwise (you will get  php fatal memory error for example).
 
 *** In the Bill vs Linus section:
 // Windows

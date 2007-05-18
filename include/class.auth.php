@@ -888,11 +888,13 @@ class Auth
                 }
             }
         }
-		if ($dsID != "") {
-		    $roles_cache[$pid][$dsID] = $userPIDAuthGroups;
-		} else {			
-	        $roles_cache[$pid] = $userPIDAuthGroups;
-		}
+        if ($GLOBALS['app_cache']) {
+		  if ($dsID != "") {
+		      $roles_cache[$pid][$dsID] = $userPIDAuthGroups;
+	  	  } else {			
+	          $roles_cache[$pid] = $userPIDAuthGroups;
+		  }
+        }
 //		print_r($userPIDAuthGroups);
         return $userPIDAuthGroups;
     } 

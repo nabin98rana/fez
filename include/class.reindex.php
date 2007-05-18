@@ -360,7 +360,7 @@ class Reindex
                 }
             }
             Record::propagateExistingPremisDatastreamToFez($pid);
-			Record::setIndexMatchingFields($pid);
+			Record::setIndexMatchingFields($pid, '', $rebuild_this);
 		}
         return true;
     }

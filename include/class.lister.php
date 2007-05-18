@@ -69,7 +69,8 @@ class Lister
         $tpls = array(
             0 => array('file' => 'list.tpl.html', 'title' => 'Default'),
             1 => array('file' => 'views/list/author_bulk_edit.tpl.html', 'title' => 'Edit Authors'),
-            2 => array('file' => 'rss.tpl.html', 'title' => 'RSS Feed')
+            2 => array('file' => 'rss.tpl.html', 'title' => 'RSS Feed'),
+            3 => array('file' => 'xml_feed.tpl.html', 'title' => 'XML Feed')
         );
     
         $tpl_file = $tpls[$tpl_idx]['file'];    
@@ -345,8 +346,14 @@ class Lister
             if (Misc::GETorPOST("sort_by") == "") {            	
                 $sort_by = "searchKey".Search_Key::getID("Title");
             }
-            if (!empty($author_id)) {	
-                $list = Collection::browseListing($pager_row, $rows, "Author ID", $sort_by);
+            if (!empty($author_id)) {            	
+            	$options = Search_Key::stripSearchKeys($options);                                                           
+            	$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+				$options["searchKey".Search_Key::getID("Author ID")] = $author_id; //
+				$author = Author::getFullname($author_id); 
+            	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by);
+            	//print_r($list);	                        	
+                //$list = Collection::browseListing($pager_row, $rows, "Author ID", $sort_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
                 $tpl->assign("browse_heading", "Browse By Author - ".$author);
@@ -374,8 +381,12 @@ class Lister
 			if (Misc::GETorPOST("sort_by") == "") {
 				$sort_by = "searchKey".Search_Key::getID("Title");
 			}
-			if (!empty($depositor)) {
-                $list = Collection::browseListing($pager_row, $rows, "Depositor",$sort_by);
+			if (!empty($depositor)) {				
+				$options = Search_Key::stripSearchKeys($options);                                                           
+            	$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+				$options["searchKey".Search_Key::getID("Depositor")] = $depositor; // 
+            	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by);	
+                //$list = Collection::browseListing($pager_row, $rows, "Depositor",$sort_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
                 $tpl->assign("browse_heading", "Browse By Depositor - ".$depositor_fullname);
@@ -405,6 +416,7 @@ class Lister
             } else {
                 $subject_list = Controlled_Vocab::getList();	
             }
+            //exit;
             $breadcrumb = Controlled_Vocab::getParentAssocListFullDisplay($parent_id);
             $breadcrumb = Misc::array_merge_preserve($breadcrumb, Controlled_Vocab::getAssocListByID($parent_id));
             $newcrumb = array();
@@ -439,6 +451,7 @@ class Lister
         	$list_info = @$list["info"];
         	$terms = @$list_info['search_info'];
         	$list = @$list["list"];
+        	//print_r($list);
         	$tpl->assign("list_heading", "Search Results ($terms)");        	 
         	$tpl->assign("list_type", "all_records_list");
         } else {

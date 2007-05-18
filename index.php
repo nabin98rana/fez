@@ -81,6 +81,12 @@ if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
 	  if (!Survey::hasFilledSurvey(Auth::getUserID()) == 1) { //send them to the survey the first time they login
 		  Auth::redirect(APP_RELATIVE_URL . "survey.php");
 	  }
+	}	
+	if (!empty($_SESSION["url"])) { 
+		$url = $_SESSION["url"];
+		$_SESSION["url"] = "";
+		Auth::redirect($url);			
+		exit;
 	}
 } elseif (count($HTTP_POST_VARS) > 0) {
 	if (Validation::isWhitespace($HTTP_POST_VARS["username"])) {

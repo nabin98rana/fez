@@ -94,7 +94,9 @@ class User
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-            $returns[$username] = $res;
+        	if ($GLOBALS['app_cache']) {
+                $returns[$username] = $res;
+            }
 			if (!is_numeric($res)) {
 				return 0; // added so auth index would continue with other auth parts without a number, this may change with eduPersonTargetedID
             } else {			
@@ -301,7 +303,9 @@ class User
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-            $returns[$key] = $res;
+        	if ($GLOBALS['app_cache']) {
+                $returns[$key] = $res;
+            }
             return $res;
         }
     }
@@ -335,7 +339,9 @@ class User
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return '';
         } else {
-            $returns[$username] = $res;
+        	if ($GLOBALS['app_cache']) {
+                $returns[$username] = $res;
+            }
             return $res;
         }
     }
@@ -1117,7 +1123,9 @@ class User
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-            $returns[$usr_id] = $res;
+        	if ($GLOBALS['app_cache']) {
+                $returns[$usr_id] = $res;
+            }
             return $res;
         }
     } 
@@ -1149,7 +1157,9 @@ class User
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-            $returns[$ext_id] = $res;
+        	if ($GLOBALS['app_cache']) {
+                $returns[$ext_id] = $res;
+            }
             return $res;
         }
     } 

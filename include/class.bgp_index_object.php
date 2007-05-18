@@ -31,7 +31,8 @@ class BackgroundProcess_Index_Object extends BackgroundProcess
     {
         $this->setState(1);
         extract(unserialize($this->inputs));
-
+        $GLOBALS['app_cache'] = false; //SWITCH OFF the $GLOBALS['app_cache'] var for the bgp indexing
+        $this->setStatus("Disabled app_cache for background -> app_cache = ".$GLOBALS['app_cache']." <-");
         $reindex = new Reindex;
 
         if (empty($terms)) {
@@ -49,7 +50,7 @@ class BackgroundProcess_Index_Object extends BackgroundProcess
         } else {
             $reindex->reindexFullList($params,$terms);
         }
-        $this->setState(2);
+        $this->setState(2);        
     }
 }
  

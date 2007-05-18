@@ -133,7 +133,9 @@ class Group
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-            $returns[$grp_id] = $res;
+        	if ($GLOBALS['app_cache']) {
+                $returns[$grp_id] = $res;
+            }
             return $res;
         }
     }
@@ -375,7 +377,9 @@ class Group
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-            $returns[$usr_id] = $res;
+        	if ($GLOBALS['app_cache']) {
+                $returns[$usr_id] = $res;
+            }
             return $res;
         }
     }

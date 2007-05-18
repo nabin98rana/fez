@@ -662,7 +662,9 @@ class Fedora_API {
 				}
 				$counter++;
 			}
-			$returns[$pid] = $resultlist;
+			if ($GLOBALS['app_cache']) {
+			  $returns[$pid] = $resultlist;
+            }
 			return $resultlist;
         } else {
             return array();

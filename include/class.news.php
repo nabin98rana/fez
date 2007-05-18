@@ -232,9 +232,12 @@ class News
             return "";
         } else {
 			foreach ($res as $key => $row) {			
-			  $res[$key]["nws_created_date"] = Date_API::getFormattedDate($res[$key]["nws_created_date"], APP_DEFAULT_USER_TIMEZONE);
-			  $res[$key]["nws_updated_date"] = Date_API::getFormattedDate($res[$key]["nws_updated_date"], APP_DEFAULT_USER_TIMEZONE);
-			  $res[$key]["nws_published_date"] = Date_API::getFormattedDate($res[$key]["nws_published_date"], APP_DEFAULT_USER_TIMEZONE);
+			  $res[$key]["nws_created_date"] = Date_API::getFormattedDate($res[$key]["nws_created_date"]);
+			  $res[$key]["nws_updated_date"] = Date_API::getFormattedDate($res[$key]["nws_updated_date"]);
+			  $res[$key]["nws_published_date"] = Date_API::getFormattedDate($res[$key]["nws_published_date"]);
+			  //$res[$key]["nws_created_date"] = Date_API::getFormattedDate($res[$key]["nws_created_date"], APP_DEFAULT_USER_TIMEZONE);
+			  //$res[$key]["nws_updated_date"] = Date_API::getFormattedDate($res[$key]["nws_updated_date"], APP_DEFAULT_USER_TIMEZONE);
+			  //$res[$key]["nws_published_date"] = Date_API::getFormattedDate($res[$key]["nws_published_date"], APP_DEFAULT_USER_TIMEZONE);
 			}
             return $res;
         }
