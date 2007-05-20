@@ -58,7 +58,7 @@ class AuthIndex {
         foreach ($res as $source_pid => $groups) {
             foreach ($groups as $role => $group) {
                 $arg_id = AuthRules::getOrCreateRuleGroup($group,$topcall);
-                $values .= "('$pid', ".Misc::numPID($pid).", '$role', '$arg_id'),";
+                $values .= "('".$pid."', ".Misc::numPID($pid).", '".$role."', '".$arg_id."'),";
                 $rows[] = array('authi_pid' => $pid, 'authi_role' => $role, 'authi_arg_id' => $arg_id);
             }
         }
@@ -66,7 +66,7 @@ class AuthIndex {
         // Only check for change of rules at top of recursion, otherwise it slows things down too much.
         if ($topcall) {
             // check if the auth rules have changed for this pid - if they haven't then we don't need to recurse.
-            $stmt = "SELECT * FROM {$dbtp}auth_index2 WHERE authi_pid='$pid' ";
+            $stmt = "SELECT * FROM {$dbtp}auth_index2 WHERE authi_pid='".$pid."' ";
             $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -111,7 +111,7 @@ class AuthIndex {
         }
         if ($rules_changed) {
             AuthIndex::clearIndexAuth($pid);
-            $stmt = "INSERT INTO {$dbtp}auth_index2 (authi_pid,authi_pid_num,authi_role,authi_arg_id) VALUES $values ";
+            $stmt = "INSERT INTO ".$dbtp."auth_index2 (authi_pid,authi_pid_num,authi_role,authi_arg_id) VALUES ".$values." ";
             $res = $GLOBALS["db_api"]->dbh->query($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -154,9 +154,9 @@ class AuthIndex {
             if (!isset($pid_cache[$pid])) {
             $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
             $stmt = "SELECT rmf_rec_pid as pid, xsdmf_parent_key_match as role, xsdmf_element as rule, rmf_varchar as value 
-                FROM {$dbtp}record_matching_field AS r1 
-                    INNER JOIN {$dbtp}xsd_display_matchfields AS x1 ON    
-                rmf_rec_pid = '$pid'
+                FROM ".$dbtp."record_matching_field AS r1 
+                    INNER JOIN ".$dbtp."xsd_display_matchfields AS x1 ON    
+                rmf_rec_pid = '".$pid."'
                 AND (r1.rmf_dsid IS NULL or r1.rmf_dsid = '') 
                 AND (xsdmf_element in ('!rule!role!Fez_User',
                             '!rule!role!AD_Group',
@@ -226,7 +226,7 @@ class AuthIndex {
         }
         $pids_str = Misc::arrayToSQL($pids);
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
-        $stmt = "DELETE FROM {$dbtp}auth_index2 WHERE authi_pid IN ($pids_str) ";
+        $stmt = "DELETE FROM ".$dbtp."auth_index2 WHERE authi_pid IN (".$pids_str.") ";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -238,7 +238,7 @@ class AuthIndex {
     function highestRuleGroup()
     {
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
-        $stmt = "SELECT max(arg_id) FROM {$dbtp}auth_rule_groups";
+        $stmt = "SELECT max(arg_id) FROM ".$dbtp."auth_rule_groups";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -254,8 +254,8 @@ class AuthIndex {
     {
         // check for unused rules
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
-        $stmt = "select count(*) from {$dbtp}auth_rule_groups where not exists (
-            select * FROM {$dbtp}auth_index2 where authi_arg_id=arg_id)";
+        $stmt = "select count(*) from ".$dbtp."auth_rule_groups where not exists (
+            select * FROM ".$dbtp."auth_index2 where authi_arg_id=arg_id)";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -263,20 +263,20 @@ class AuthIndex {
         }
         if ($res > 1000) {
             // found a lot of unused rules so lets get rid of them
-            $stmt = "delete from {$dbtp}auth_rule_groups where not exists (
-                select * FROM {$dbtp}auth_index2 where authi_arg_id=arg_id)";
+            $stmt = "delete from ".$dbtp."auth_rule_groups where not exists (
+                select * FROM ".$dbtp."auth_index2 where authi_arg_id=arg_id)";
             $res = $GLOBALS["db_api"]->dbh->query($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             }
-            $stmt = "delete from {$dbtp}auth_rule_group_rules where not exists (
-                select * FROM {$dbtp}auth_rule_groups where argr_arg_id=arg_id)";
+            $stmt = "delete from ".$dbtp."auth_rule_group_rules where not exists (
+                select * FROM ".$dbtp."auth_rule_groups where argr_arg_id=arg_id)";
             $res = $GLOBALS["db_api"]->dbh->query($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             }
-            $stmt = "delete from {$dbtp}auth_rules where not exists (
-                select * FROM {$dbtp}auth_rule_group_rules where argr_ar_id=ar_id)";
+            $stmt = "delete from ".$dbtp."auth_rules where not exists (
+                select * FROM ".$dbtp."auth_rule_group_rules where argr_ar_id=ar_id)";
             $res = $GLOBALS["db_api"]->dbh->query($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

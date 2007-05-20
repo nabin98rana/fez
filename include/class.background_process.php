@@ -30,7 +30,7 @@ class BackgroundProcess {
     {
         if (!$this->details || $this->details['bgp_id'] != $this->bgp_id) {
             $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
-            $stmt = "SELECT * FROM {$dbtp}background_process WHERE bgp_id='{$this->bgp_id}'";
+            $stmt = "SELECT * FROM ".$dbtp."background_process WHERE bgp_id='".$this->bgp_id."'";
             $res = $GLOBALS['db_api']->dbh->getAll($stmt,DB_FETCHMODE_ASSOC);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -49,7 +49,7 @@ class BackgroundProcess {
     {
         $serialized = Misc::escapeString(serialize($this));
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
-        $stmt = "UPDATE {$dbtp}background_process SET bgp_serialized='$serialized' WHERE bgp_id='{$this->bgp_id}'";
+        $stmt = "UPDATE ".$dbtp."background_process SET bgp_serialized='".$serialized."' WHERE bgp_id='".$this->bgp_id."'";
         $res = $GLOBALS['db_api']->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -60,7 +60,7 @@ class BackgroundProcess {
     {
         $percent = Misc::escapeString($percent);
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
-        $stmt = "UPDATE {$dbtp}background_process SET bgp_progress='$percent' WHERE bgp_id='{$this->bgp_id}'";
+        $stmt = "UPDATE ".$dbtp."background_process SET bgp_progress='".$percent."' WHERE bgp_id='".$this->bgp_id."'";
         $res = $GLOBALS['db_api']->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -75,10 +75,10 @@ class BackgroundProcess {
 
     function setStatus($msg)
     {
-        echo "$msg\n";
+        echo $msg."\n";
         $msg = Misc::escapeString($msg);
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
-        $stmt = "UPDATE {$dbtp}background_process SET bgp_status_message='$msg' WHERE bgp_id='{$this->bgp_id}'";
+        $stmt = "UPDATE ".$dbtp."background_process SET bgp_status_message='".$msg."' WHERE bgp_id='".$this->bgp_id."'";
         $res = $GLOBALS['db_api']->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -90,7 +90,7 @@ class BackgroundProcess {
     {
         $state = Misc::escapeString($state);
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
-        $stmt = "UPDATE {$dbtp}background_process SET bgp_state='$state' WHERE bgp_id='{$this->bgp_id}'";
+        $stmt = "UPDATE ".$dbtp."background_process SET bgp_state='".$state."' WHERE bgp_id='".$this->bgp_id."'";
         $res = $GLOBALS['db_api']->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -103,7 +103,7 @@ class BackgroundProcess {
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
 //		$utc_date = Date_API::getDateGMT(date("Y-m-d H:i:s"));
 		$utc_date = Date_API::getSimpleDateUTC();		
-        $stmt = "UPDATE {$dbtp}background_process SET bgp_heartbeat='$utc_date' WHERE bgp_id='{$this->bgp_id}'";
+        $stmt = "UPDATE ".$dbtp."background_process SET bgp_heartbeat='".$utc_date."' WHERE bgp_id='".$this->bgp_id."'";
         $res = $GLOBALS['db_api']->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -115,10 +115,10 @@ class BackgroundProcess {
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
         $filename = Misc::escapeString($filename);
         $headers = Misc::escapeString($headers);
-        $stmt = "UPDATE {$dbtp}background_process SET 
-            bgp_filename='$filename',
-            bgp_headers='$headers'
-            WHERE bgp_id='{$this->bgp_id}'";
+        $stmt = "UPDATE ".$dbtp."background_process SET 
+            bgp_filename='".$filename."',
+            bgp_headers='".$headers."'
+            WHERE bgp_id='".$this->bgp_id."'";
         $res = $GLOBALS['db_api']->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -129,7 +129,7 @@ class BackgroundProcess {
     {
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
         $stmt = "SELECT bgp_filename, bgp_headers, bgp_usr_id 
-            FROM {$dbtp}background_process WHERE bgp_id='{$this->bgp_id}'";
+            FROM ".$dbtp."background_process WHERE bgp_id='".$this->bgp_id."'";
         $res = $GLOBALS['db_api']->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -162,8 +162,8 @@ class BackgroundProcess {
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
 
 		$utc_date = Date_API::getSimpleDateUTC();
-        $stmt = "INSERT INTO {$dbtp}background_process (bgp_usr_id,bgp_started,bgp_name,bgp_include) 
-            VALUES ('$usr_id', '$utc_date', '{$this->name}','{$this->include}')";
+        $stmt = "INSERT INTO ".$dbtp."background_process (bgp_usr_id,bgp_started,bgp_name,bgp_include) 
+            VALUES ('".$usr_id."', '".$utc_date."', '".$this->name."','".$this->include."')";
         $res = $GLOBALS['db_api']->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -171,12 +171,12 @@ class BackgroundProcess {
         }
         $this->bgp_id = $GLOBALS['db_api']->get_last_insert_id();
         $this->serialize();
-        $command = APP_PHP_EXEC." \"".APP_PATH."misc/run_background_process.php\" {$this->bgp_id} \""
-            .APP_PATH."\" > ".APP_TEMP_DIR."fezbgp_{$this->bgp_id}.log";
+        $command = APP_PHP_EXEC." \"".APP_PATH."misc/run_background_process.php\" ".$this->bgp_id." \""
+            .APP_PATH."\" > ".APP_TEMP_DIR."fezbgp_".$this->bgp_id.".log";
         if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
-            pclose(popen("start /min /b $command",'r'));
+            pclose(popen("start /min /b ".$command,'r'));
         } else {
-            exec("$command 2>&1 &");
+            exec($command." 2>&1 &");
         }
         return $this->bgp_id;
     } 
@@ -203,7 +203,7 @@ class BackgroundProcess {
         $session =& $this->local_session;
 
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
-        $stmt = "SELECT * FROM {$dbtp}background_process WHERE bgp_id='{$this->bgp_id}'";
+        $stmt = "SELECT * FROM ".$dbtp."background_process WHERE bgp_id='".$this->bgp_id."'";
         $res = $GLOBALS['db_api']->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

@@ -75,7 +75,7 @@ class Controlled_Vocab
         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
                  WHERE
-                    cvo_id IN ($all_items)";
+                    cvo_id IN (".$all_items.")";
 		Controlled_Vocab::deleteRelationship($all_items);
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -117,7 +117,7 @@ class Controlled_Vocab
         $stmt = "DELETE FROM 
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab_relationship
                  WHERE
-                    cvr_parent_cvo_id IN ($items) OR cvr_child_cvo_id IN ($items)";
+                    cvr_parent_cvo_id IN (".$items.") OR cvr_child_cvo_id IN (".$items.")";
 
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -318,7 +318,7 @@ class Controlled_Vocab
                     cvo_title = '" . Misc::escapeString($HTTP_POST_VARS["cvo_title"]) . "',
                     cvo_external_id = '" . trim($HTTP_POST_VARS["cvo_external_id"]). "',
                     cvo_desc = '" . Misc::escapeString($HTTP_POST_VARS["cvo_desc"]) . "'
-                 WHERE cvo_id = '$cvo_id' ";
+                 WHERE cvo_id = '".$cvo_id."' ";
 
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -347,7 +347,7 @@ class Controlled_Vocab
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
                  WHERE
-                    cvo_id=$cvo_id";
+                    cvo_id=".$cvo_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 
         if (PEAR::isError($res)) {
@@ -404,7 +404,7 @@ class Controlled_Vocab
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
                  WHERE
-                    cvo_external_id=$cvo_external_id";
+                    cvo_external_id=".$cvo_external_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 
         if (PEAR::isError($res)) {
@@ -429,7 +429,7 @@ class Controlled_Vocab
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
                  WHERE
-                    cvo_title='$cvo_title'";
+                    cvo_title='".$cvo_title."'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 
         if (PEAR::isError($res)) {
@@ -482,7 +482,7 @@ class Controlled_Vocab
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
 ";
         if (is_numeric($start) && is_numeric($max)) {
-        	$stmt .= " LIMIT $start, $max";
+        	$stmt .= " LIMIT ".$start.", ".$max;
         }
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
         if (PEAR::isError($res)) {
@@ -510,7 +510,7 @@ class Controlled_Vocab
 				 WHERE cvo_id not in (SELECT cvr_parent_cvo_id from  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab_relationship)
 				 ORDER BY cvo_id ASC";
         if (is_numeric($start) && is_numeric($max)) {
-        	$stmt .= " LIMIT $start, $max";
+        	$stmt .= " LIMIT ".$start.", ".$max;
         }
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
@@ -540,7 +540,7 @@ class Controlled_Vocab
 					cvo_title
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
-				 WHERE cvo_id = $id";
+				 WHERE cvo_id = ".$id;
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -564,7 +564,7 @@ class Controlled_Vocab
 					cvo_title
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
-				 WHERE cvo_id = $id";
+				 WHERE cvo_id = ".$id;
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -834,7 +834,7 @@ class Controlled_Vocab
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
                  WHERE
-                    cvo_id=$cvo_id";
+                    cvo_id=".$cvo_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

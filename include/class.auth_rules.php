@@ -16,7 +16,7 @@ class AuthRules
         }
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
         // does rule exist in table
-        $stmt = "SELECT arg_id, arg_md5 FROM {$dbtp}auth_rule_groups WHERE arg_md5='$rmd5' ";
+        $stmt = "SELECT arg_id, arg_md5 FROM ".$dbtp."auth_rule_groups WHERE arg_md5='".$rmd5."' ";
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt,DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -24,7 +24,7 @@ class AuthRules
         }
         if (empty($res)) {
             // rule group doesn't exist so add it
-            $stmt = "INSERT INTO {$dbtp}auth_rule_groups (arg_md5) VALUES ('$rmd5') ";
+            $stmt = "INSERT INTO ".$dbtp."auth_rule_groups (arg_md5) VALUES ('".$rmd5."') ";
             $res = $GLOBALS["db_api"]->dbh->query($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -35,12 +35,12 @@ class AuthRules
             $values = '';
             foreach($group as $row) {
                 $ar_id = AuthRules::getOrCreateRule($row['rule'], $row['value']);
-                $values .= "('$arg_id',  '$ar_id'),";
+                $values .= "('".$arg_id."',  '".$ar_id."'),";
             }
             $values = rtrim($values, ', ');
 
             // make an insert statement
-            $stmt = "INSERT INTO {$dbtp}auth_rule_group_rules (argr_arg_id,argr_ar_id) VALUES $values ";
+            $stmt = "INSERT INTO ".$dbtp."auth_rule_group_rules (argr_arg_id,argr_ar_id) VALUES ".$values;
             $res = $GLOBALS["db_api"]->dbh->query($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -59,7 +59,7 @@ class AuthRules
         // does rule exist in table
         $rule = Misc::escapeString($rule);
         $value = Misc::escapeString($value);
-        $stmt = "SELECT ar_id FROM {$dbtp}auth_rules WHERE ar_rule='$rule' and ar_value='$value' ";
+        $stmt = "SELECT ar_id FROM ".$dbtp."auth_rules WHERE ar_rule='".$rule."' and ar_value='".$value."' ";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -67,7 +67,7 @@ class AuthRules
         }
         if (empty($res)) {
             // if the rule is not yet in the table, then add it
-            $stmt = "INSERT INTO {$dbtp}auth_rules (ar_rule,ar_value) VALUES ('$rule', '$value') ";
+            $stmt = "INSERT INTO ".$dbtp."auth_rules (ar_rule,ar_value) VALUES ('".$rule."', '".$value."') ";
             $res = $GLOBALS["db_api"]->dbh->query($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

@@ -853,8 +853,8 @@ class Misc
      */
     function activateLinks($text, $class = "link")
     {
-        $text = preg_replace("'(\w+)://([\w\+\-\@\=\?\.\%\/\:\&\;]+)(\.)?'", "<a title=\"open \\1://\\2 in a new window\" class=\"$class\" href=\"\\1://\\2\" target=\"_\\2\">\\1://\\2</a>", $text);
-        $text = preg_replace("'(\s+)www.([\w\+\-\@\=\?\.\%\/\:\&\;]+)(\.\s|\s)'", "\\1<a title=\"open http://www.\\2 in a new window\" class=\"$class\" href=\"http://www.\\2\" target=\"_\\2\">www.\\2</a>\\3" , $text);
+        $text = preg_replace("'(\w+)://([\w\+\-\@\=\?\.\%\/\:\&\;]+)(\.)?'", "<a title=\"open \\1://\\2 in a new window\" class=\"".$class."\" href=\"\\1://\\2\" target=\"_\\2\">\\1://\\2</a>", $text);
+        $text = preg_replace("'(\s+)www.([\w\+\-\@\=\?\.\%\/\:\&\;]+)(\.\s|\s)'", "\\1<a title=\"open http://www.\\2 in a new window\" class=\"".$class."\" href=\"http://www.\\2\" target=\"_\\2\">www.\\2</a>\\3" , $text);
         return $text;
     }
 
@@ -2077,14 +2077,14 @@ class Misc
 									}
 								}
 								if (!array_key_exists($parent_counter, $open_array)) {
-								    $open_array[$parent_counter] = "tree.openTo($parent_counter, false, false);\n";
+								    $open_array[$parent_counter] = "tree.openTo(".$parent_counter.", false, false);\n";
 								}
 							}
 							$ehref = urlencode($ehref);
-						  $ret[1] .= "tree.add($counter, $parent_counter, '$node_label', "
-							  ."'$match_form_url$ehref', '', 'basefrm'".$dtree_image.");\n";
+						  $ret[1] .= "tree.add(".$counter.", ".$parent_counter.", '".$node_label."', "
+							  ."'".$match_form_url.$ehref."', '', 'basefrm'".$dtree_image.");\n";
 						} else {
-						  $ret[1] .= "tree.add($counter, $parent_counter, '$i');\n";
+						  $ret[1] .= "tree.add(".$counter.", ".$parent_counter.", '$i');\n";
 						} 
 					}
 					$tmp = array();
@@ -2109,7 +2109,7 @@ class Misc
 					}
 					$ehref = $j['fez_hyperlink'];
 					$ehref = urlencode($ehref);
-					$ret[1] .= "tree.add($counter, $parent_counter, '$i', '".$match_form_url.$ehref."', '', 'basefrm'".$dtree_image.");\n";
+					$ret[1] .= "tree.add(".$counter.", ".$parent_counter.", '$i', '".$match_form_url.$ehref."', '', 'basefrm'".$dtree_image.");\n";
 				} 
 				$counter = $counter + 1;
 			}
@@ -2454,7 +2454,7 @@ function backtrace()
                     $number *= 1048576000;
                     break;
                 default:
-                    Error_Handler::logError("Can't convert '$letter' to a number",__FILE__,__LINE__);
+                    Error_Handler::logError("Can't convert '".$letter."' to a number",__FILE__,__LINE__);
                     break;
             }
             $res = $number;

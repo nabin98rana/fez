@@ -76,7 +76,7 @@ class Doc_Type_XSD
         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd
                  WHERE
-                    xsd_id IN ($items_str)";
+                    xsd_id IN (".$items_str.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -205,7 +205,7 @@ class Doc_Type_XSD
                     xsd_element_prefix = '" . Misc::escapeString($params["xsd_element_prefix"]) . "',
                     xsd_extra_ns_prefixes = '" . Misc::escapeString($params["xsd_extra_ns_prefixes"]) . "',
                     xsd_file = '" . Misc::escapeString($blob) . "'
-                 WHERE xsd_id = $xsd_id";
+                 WHERE xsd_id = ".$xsd_id;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -227,10 +227,10 @@ class Doc_Type_XSD
     function getList($select = '*', $where="")
     {
         $stmt = "SELECT
-                    $select
+                    ".$select."
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd
-                 $where
+                 ".$where."
                         ORDER BY
                     xsd_title ASC";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -278,7 +278,7 @@ class Doc_Type_XSD
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd
                  WHERE
-                    xsd_id=$xsd_id";
+                    xsd_id=".$xsd_id;
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -303,7 +303,7 @@ class Doc_Type_XSD
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd
                  WHERE
-                    xsd_id=$xsd_id";
+                    xsd_id=".$xsd_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -327,7 +327,7 @@ class Doc_Type_XSD
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd
                  WHERE
-                    xsd_id = $xsd_id";
+                    xsd_id = ".$xsd_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -381,7 +381,7 @@ class Doc_Type_XSD
             $item['xsd_title'] = Misc::escapeString($xdoc->getAttribute('xsd_title'));
             $item['xsd_version'] = Misc::escapeString($xdoc->getAttribute('xsd_version'));
             $item['exist_list'] = Doc_Type_XSD::getList("xsd_id, xsd_title, xsd_version",
-                "WHERE xsd_title='{$item['xsd_title']}' AND xsd_version='{$item['xsd_version']}'");
+                "WHERE xsd_title='".$item['xsd_title']."' AND xsd_version='".$item['xsd_version']."'");
             if (!empty($item['exist_list'])) {
             	$item['overwrite'] = true;
             } else {

@@ -169,7 +169,7 @@ class Community
             inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2  
 			ON r2.rmf_xsdmf_id = x2.xsdmf_id AND x2.xsdmf_element='!ret_id' and r2.rmf_int=1
             
-            $authStmt
+            ".$authStmt."
 
             INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS rmf
             ON rmf.rmf_rec_pid = r2.rmf_rec_pid AND rmf.rmf_int=2
@@ -185,36 +185,36 @@ class Community
             ON r1.rmf_xsdmf_id = x1.xsdmf_id  
 			inner join (
                 select * from (
-                    SELECT distinct r2.rmf_rec_pid, r4.rmf_rec_pid as sort_pid, r4.rmf_$data_type as sort_column 
-                    $body1
+                    SELECT distinct r2.rmf_rec_pid, r4.rmf_rec_pid as sort_pid, r4.rmf_".$data_type." as sort_column 
+                    ".$body1."
 
                     inner JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r4
                     on rmf.rmf_rec_pid = r4.rmf_rec_pid  
                     inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x4
                     on r4.rmf_xsdmf_id = x4.xsdmf_id 
                     inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s4
-                    on s4.sek_id = x4.xsdmf_sek_id AND s4.sek_title = '$sort_by'
+                    on s4.sek_id = x4.xsdmf_sek_id AND s4.sek_title = '".$sort_by."'
                     
                     union
                     SELECT distinct r2.rmf_rec_pid, r2.rmf_rec_pid as sort_pid, null as sort_column 
-                    $body1
+                    ".$body1."
                     where not exists (
                         select * from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r4  
                         inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x4 
                                 on r4.rmf_xsdmf_id = x4.xsdmf_id
                         inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s4 
-                                on s4.sek_id = x4.xsdmf_sek_id aND s4.sek_title = '$sort_by' 
+                                on s4.sek_id = x4.xsdmf_sek_id aND s4.sek_title = '".$sort_by."' 
                         where rmf.rmf_rec_pid = r4.rmf_rec_pid )
                 ) as r2
-                ORDER BY sort_column $order_dir, r2.rmf_rec_pid desc
+                ORDER BY sort_column ".$order_dir.", r2.rmf_rec_pid desc
                 LIMIT $start, $max
             ) as d3 on d3.rmf_rec_pid = r1.rmf_rec_pid
             left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 
             on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
 			left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key sk1 on sk1.sek_id = x1.xsdmf_sek_id
-            order by d3.sort_column $order_dir, r1.rmf_rec_pid DESC 
+            order by d3.sort_column ".$order_dir.", r1.rmf_rec_pid DESC 
             ";
-        $countStmt = "SELECT count(distinct r2.rmf_rec_pid) $body1";
+        $countStmt = "SELECT count(distinct r2.rmf_rec_pid) ".$body1;
 		$securityfields = Auth::getAllRoles();
 
         //Error_Handler::logError($stmt, __FILE__,__LINE__);

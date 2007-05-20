@@ -583,13 +583,13 @@ $tagIndent = "";
                                         && $HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']][$attrib_loop_index] > 0) {
                                         $fu_name = $HTTP_POST_FILES["xsd_display_fields"]["name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index];
                                         $fu_error = $HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']][$attrib_loop_index];
-                                        Session::setMessage("File upload failed, file: {$fu_name}, Error: ".Misc::fileUploadErr($fu_error));
+                                        Session::setMessage("File upload failed, file: ".$fu_name.", Error: ".Misc::fileUploadErr($fu_error));
                                     } elseif (!is_numeric($attrib_loop_index) 
                                         && !is_array($HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']])
                                         && $HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']] > 0) {
                                         $fu_name = $HTTP_POST_FILES["xsd_display_fields"]["name"][$xsdmf_details['xsdmf_id']];
                                         $fu_error = $HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']];
-                                        Session::setMessage("File upload failed, file: {$fu_name}, Error: ".Misc::fileUploadErr($fu_error));
+                                        Session::setMessage("File upload failed, file: ".$fu_name.", Error: ".Misc::fileUploadErr($fu_error));
                                     } else {
                                         if (is_numeric($attrib_loop_index) && is_array($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']])) {
                                             $attrib_value = (fread(fopen($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index], "r"), $HTTP_POST_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']][$attrib_loop_index]));
@@ -758,8 +758,8 @@ $tagIndent = "";
 
     function setDCTitle($title, $xmlObj)
     {
-        $xmlObj = preg_replace('/<dc:title>.*?<\/dc:title>/s', "<dc:title>$title</dc:title>", $xmlObj);
-        $xmlObj = preg_replace('/<dc:title\/>/', "<dc:title>$title</dc:title>", $xmlObj);
+        $xmlObj = preg_replace('/<dc:title>.*?<\/dc:title>/s', "<dc:title>".$title."</dc:title>", $xmlObj);
+        $xmlObj = preg_replace('/<dc:title\/>/', "<dc:title>".$title."</dc:title>", $xmlObj);
         return $xmlObj;
     }
 

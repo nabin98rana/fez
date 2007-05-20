@@ -116,7 +116,7 @@ class OAI
 	        	$sql_filter['where'][] = "r2.rmf_varchar = '".Misc::escapeString($set)."'";
 				$sql_filter['where'][] = "r2.rmf_xsdmf_id in (".implode(",", $isMemberOfList).")";
         	} else { //cont vocab
-	        	$sql_filter['where'][] = "r2.rmf_varchar = '".Misc::escapeString($set)."'";
+	        	$sql_filter['where'][] = "r2.rmf_int = ".Misc::escapeString($set)."";
 				$sql_filter['where'][] = "r2.rmf_xsdmf_id in (".implode(",", $subjectList).")";        		
         	}
         	$bodyStmtPart2 = " INNER JOIN {$dbtp}record_matching_field AS r3
@@ -229,6 +229,7 @@ class OAI
     function makeReturnList($res, $statsFlag = 0) {
 		$securityfields = Auth::getAllRoles();
         $return = array();
+        
 		foreach ($res as $result) {
 			if ($result['sek_title'] == 'isMemberOf') {
                 $return[$result['rmf_rec_pid']]['isMemberOf'][] = $result['rmf_varchar'];

@@ -1013,16 +1013,16 @@ class Record
 			//$sql_filter['where'][] = "r2.rmf_xsdmf_id in (".implode(",", $isMemberOfList).")";      	
         	
         	$memberOfStmt = "
-                        INNER JOIN {$dbtp}record_matching_field AS r4
+                        INNER JOIN ".$dbtp."record_matching_field AS r4
                           ON r4.rmf_rec_pid = r2.rmf_rec_pid
-                        INNER JOIN {$dbtp}xsd_display_matchfields AS x4
-                          ON r4.rmf_xsdmf_id = x4.xsdmf_id and r4.rmf_varchar = '$isMemberOf'
+                        INNER JOIN ".$dbtp."xsd_display_matchfields AS x4
+                          ON r4.rmf_xsdmf_id = x4.xsdmf_id and r4.rmf_varchar = '".$isMemberOf."'
                         and r4.rmf_xsdmf_id in  (".implode(",", $isMemberOfList).")";
 
         }        
         
-        $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2
-                    INNER JOIN {$dbtp}xsd_display_matchfields AS x2
+        $bodyStmtPart1 = "FROM  ".$dbtp."record_matching_field AS r2
+                    INNER JOIN ".$dbtp."xsd_display_matchfields AS x2
                       ON r2.rmf_xsdmf_id = x2.xsdmf_id AND x2.xsdmf_element='!sta_id' and r2.rmf_int!=2
 
 					$memberOfStmt
@@ -1035,8 +1035,8 @@ class Record
                     inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x5
                     on r5.rmf_xsdmf_id = x5.xsdmf_id
                     left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s5			
-					on (s5.sek_id = x5.xsdmf_sek_id and s5.sek_title = '$sort_by')  
-					where (r5.rmf_$data_type is null) or s5.sek_title = '$sort_by'					
+					on (s5.sek_id = x5.xsdmf_sek_id and s5.sek_title = '".$sort_by."')  
+					where (r5.rmf_".$data_type." is null) or s5.sek_title = '".$sort_by."'					
 					group by r5.rmf_rec_pid
 
 					
@@ -1045,7 +1045,7 @@ class Record
 
         $countStmt = "
                     SELECT ".APP_SQL_CACHE."  count(distinct r2.rmf_rec_pid)
-                    $bodyStmtPart1
+                    ".$bodyStmtPart1."
             ";
 
 /*$firstStmt = "SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid, min(r5.rmf_$data_type) as sort_column
@@ -1058,22 +1058,22 @@ class Record
                              
         
         $stmt = "SELECT ".APP_SQL_CACHE."  r1.*, x1.*, s1.*, k1.*, d1.* 
-            FROM {$dbtp}record_matching_field AS r1
-            INNER JOIN {$dbtp}xsd_display_matchfields AS x1
+            FROM ".$dbtp."record_matching_field AS r1
+            INNER JOIN ".$dbtp."xsd_display_matchfields AS x1
             ON r1.rmf_xsdmf_id = x1.xsdmf_id
             INNER JOIN (
-                    SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid, min(r5.rmf_$data_type) as sort_column
-                    $bodyStmt
-					order by sort_column $order_dir, r2.rmf_rec_pid desc
-                    LIMIT $start, $page_rows
+                    SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid, min(r5.rmf_".$data_type.") as sort_column
+                    ".$bodyStmt."
+					order by sort_column ".$order_dir.", r2.rmf_rec_pid desc
+                    LIMIT ".$start.", ".$page_rows."
                     ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid 
-            LEFT JOIN {$dbtp}xsd_loop_subelement s1 
+            LEFT JOIN ".$dbtp."xsd_loop_subelement s1 
             ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
-            LEFT JOIN {$dbtp}search_key k1 
+            LEFT JOIN ".$dbtp."search_key k1 
             ON (k1.sek_id = x1.xsdmf_sek_id)
-            LEFT JOIN {$dbtp}xsd_display d1  
+            LEFT JOIN ".$dbtp."xsd_display d1  
             ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
-            ORDER BY display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
+            ORDER BY display.sort_column ".$order_dir.", r1.rmf_rec_pid DESC ";
 //echo $stmt;`
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 

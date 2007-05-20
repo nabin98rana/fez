@@ -106,7 +106,7 @@ class Author_Org
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author_org_structure
                  WHERE
-                    auo_id = $rel_id";
+                    auo_id = ".$rel_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -212,7 +212,7 @@ class Author_Org
         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author_org_structure
                  WHERE
-                    auo_id IN ($items)";
+                    auo_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

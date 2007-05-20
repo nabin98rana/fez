@@ -67,7 +67,7 @@ class Author
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
                  WHERE
-                    aut_id=$aut_id";
+                    aut_id=".$aut_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -96,7 +96,7 @@ class Author
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
                  WHERE
-                    aut_title='$aut_title'";
+                    aut_title='".$aut_title."'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -158,7 +158,7 @@ class Author
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
                  WHERE
-                    aut_id=$aut_id";
+                    aut_id=".$aut_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -186,7 +186,7 @@ class Author
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
                  WHERE
-                    aut_id=$aut_id";
+                    aut_id=".$aut_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -212,7 +212,7 @@ class Author
         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
                  WHERE
-                    aut_id IN ($items)";
+                    aut_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -328,13 +328,13 @@ class Author
     	
 		$start = $current_row * $max;
         $stmt = "SELECT SQL_CALC_FOUND_ROWS 
-					* $extra_stmt
+					* ".$extra_stmt."
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
-				$where_stmt
-                 ORDER BY $extra_order_stmt
-                    $order_by
-				 LIMIT $start, $max";
+				".$where_stmt."
+                 ORDER BY ".$extra_order_stmt."
+                    ".$order_by."
+				 LIMIT ".$start.", ".$max;
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$total_rows = $GLOBALS["db_api"]->dbh->getOne('SELECT FOUND_ROWS()');        
         if (PEAR::isError($res)) {
@@ -469,8 +469,8 @@ class Author
 			 (SELECT
 				distinct aut_id,
 				concat_ws(' ', aut_fname, aut_mname, aut_lname) as aut_fullname, 
-				MATCH(aut_fname, aut_lname) AGAINST ('$term') as Relevance FROM {$dbtp}author
-			 WHERE MATCH (aut_fname, aut_lname) AGAINST ('*$term*' IN BOOLEAN MODE)
+				MATCH(aut_fname, aut_lname) AGAINST ('".$term."') as Relevance FROM ".$dbtp."author
+			 WHERE MATCH (aut_fname, aut_lname) AGAINST ('*".$term."*' IN BOOLEAN MODE)
 			 ORDER BY Relevance DESC, aut_fullname, aut_id LIMIT 0,20) as temp";
 	    $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
         if (PEAR::isError($res)) {
@@ -513,7 +513,7 @@ class Author
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
                     WHERE
-                    aut_id='$aut_id'
+                    aut_id='".$aut_id."'
                  ORDER BY
                     aut_title";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -533,7 +533,7 @@ class Author
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
                     WHERE
-                    aut_id='$aut_id'
+                    aut_id='".$aut_id."'
                  ORDER BY
                     aut_title";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);

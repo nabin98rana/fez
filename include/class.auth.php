@@ -911,7 +911,7 @@ class Auth
     {
     	$stmt = "SELECT distinct authi_role FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "auth_rule_group_users " .
                 "INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "auth_rule_group_rules " .
-                        "ON argu_usr_id='$user_id' AND argr_arg_id=argu_arg_id " .
+                        "ON argu_usr_id='".$user_id."' AND argr_arg_id=argu_arg_id " .
                 "INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "auth_index2 " .
                         "ON authi_arg_id=argr_ar_id ";
         $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
@@ -1042,7 +1042,7 @@ class Auth
             echo $html;
             exit;
         } else {
-            header("Refresh: 0; URL=$new_url");
+            header("Refresh: 0; URL=".$new_url);
             exit;
         }
     }
@@ -1085,7 +1085,7 @@ class Auth
         if (empty($username)) {
             return false;
           } else {
-            $stmt = "SELECT usr_administrator FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user WHERE usr_username='$username'";
+            $stmt = "SELECT usr_administrator FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user WHERE usr_username='".$username."'";
             $info = $GLOBALS["db_api"]->dbh->getOne($stmt);
             if (PEAR::isError($info)) {
                 Error_Handler::logError(array($info->getMessage(), $info->getDebugInfo()), __FILE__, __LINE__);
@@ -1648,28 +1648,28 @@ class Auth
             $usr_id = Auth::getUserID();
     
             // clear the rule matches for this user
-            $stmt = "DELETE FROM {$dbtp}auth_rule_group_users WHERE argu_usr_id='$usr_id'";
+            $stmt = "DELETE FROM ".$dbtp."auth_rule_group_users WHERE argu_usr_id='".$usr_id."'";
     		$res = $GLOBALS["db_api"]->dbh->query($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             }
             // test and insert matching rules for this user
             $authStmt = "
-                INSERT INTO {$dbtp}auth_rule_group_users (argu_arg_id, argu_usr_id)
-                SELECT distinct argr_arg_id, '$usr_id' FROM {$dbtp}auth_rule_group_rules
-                INNER JOIN {$dbtp}auth_rules ON argr_ar_id=ar_id
+                INSERT INTO ".$dbtp."auth_rule_group_users (argu_arg_id, argu_usr_id)
+                SELECT distinct argr_arg_id, '".$usr_id."' FROM ".$dbtp."auth_rule_group_rules
+                INNER JOIN ".$dbtp."auth_rules ON argr_ar_id=ar_id
                 AND 
                 (
                     (ar_rule='public_list' AND ar_value='1') 
-                OR  (ar_rule = '!rule!role!Fez_User' AND ar_value='$usr_id') 
+                OR  (ar_rule = '!rule!role!Fez_User' AND ar_value='".$usr_id."') 
                 OR (ar_rule = '!rule!role!AD_User' AND ar_value='".Auth::getUsername()."') ";
             if (!empty($fez_groups_sql)) {
                 $authStmt .="
-                    OR (ar_rule = '!rule!role!Fez_Group' AND ar_value IN ($fez_groups_sql) ) ";
+                    OR (ar_rule = '!rule!role!Fez_Group' AND ar_value IN (".$fez_groups_sql.") ) ";
             }
             if (!empty($ldap_groups_sql)) {
                 $authStmt .= "
-                    OR (ar_rule = '!rule!role!AD_Group' AND ar_value IN ($ldap_groups_sql) ) ";
+                    OR (ar_rule = '!rule!role!AD_Group' AND ar_value IN (".$ldap_groups_sql.") ) ";
             }
             if (!empty($ses['distinguishedname'])) {
                 $authStmt .= "

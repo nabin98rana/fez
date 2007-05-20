@@ -151,7 +151,7 @@ class ExportSpreadsheet {
             } 
         } else {
             if ($this->bgp) {
-                $this->bgp->setStatus("Access Denied or record doesn't exist ($pid)");
+                $this->bgp->setStatus("Access Denied or record doesn't exist (".$pid.")");
             }
         }
     }

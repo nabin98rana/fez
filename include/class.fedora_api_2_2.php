@@ -193,7 +193,7 @@ class Fedora_API {
             //                array('terms' => "$query_terms*") 
             //            ,false,'http://www.fedora.info/definitions/1/0/types/')
             new soapval('query','FieldSearchQuery',
-                            array('terms' => "$query_terms"), 
+                            array('terms' => "".$query_terms.""), 
                         false,'http://www.fedora.info/definitions/1/0/types/')
         ));
         
@@ -222,11 +222,11 @@ class Fedora_API {
 		}
 		$fieldPhrase = '';
 		foreach ($returnfields as $rField) {
-			$fieldPhrase .= "&$rField=true";
+			$fieldPhrase .= "&".$rField."=true";
 		}
-		$searchPhrase = "?xml=true$fieldPhrase&terms=$searchTerms";
+		$searchPhrase = "?xml=true".$fieldPhrase."&terms=".$searchTerms;
 		if (is_numeric($maxResults)) {
-			$searchPhrase .= "&maxResults=$maxResults";
+			$searchPhrase .= "&maxResults=".$maxResults;
 		}
 		$filename = APP_FEDORA_SEARCH_URL.$searchPhrase;
         
@@ -968,7 +968,7 @@ class Fedora_API {
 	   $client->setCredentials(APP_FEDORA_USERNAME, APP_FEDORA_PWD);
 	   $result = $client->call($call, $parms);
        if ($debug_error && is_array($result) && isset($result['faultcode'])) {
-			$fedoraError = "Error when calling $call :".$result['faultstring'];
+			$fedoraError = "Error when calling ".$call." :".$result['faultstring'];
 			Error_Handler::logError(array($fedoraError,$client->request), __FILE__,__LINE__);		
             return false;
        }
@@ -995,7 +995,7 @@ class Fedora_API {
 	   $result = $client->call($call, $parms);
        //Fedora_API::debugInfo($client);
 	   if (is_array($result) && isset($result['faultcode'])) {
-            $fedoraError = "Error when calling $call :".$result['faultstring'];
+            $fedoraError = "Error when calling ".$call." :".$result['faultstring'];
             Error_Handler::logError(array($fedoraError,$client->request), __FILE__,__LINE__);                   
        }return $result;
 

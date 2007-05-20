@@ -38,7 +38,7 @@
      */
     function getDetails($xdis_id, $type='APA') {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-        $stmt = "SELECT * FROM {$dbtp}citation WHERE cit_xdis_id='$xdis_id' AND cit_type='$type' ";
+        $stmt = "SELECT * FROM ".$dbtp."citation WHERE cit_xdis_id='".$xdis_id."' AND cit_type='".$type."' ";
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -55,7 +55,7 @@
      */
     function getDetailsAllTypes($xdis_id) {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-        $stmt = "SELECT * FROM {$dbtp}citation WHERE cit_xdis_id='$xdis_id' ";
+        $stmt = "SELECT * FROM ".$dbtp."citation WHERE cit_xdis_id='".$xdis_id."' ";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -79,14 +79,14 @@
         $det = Citation::getDetails($xdis_id, $type);
         $template = Misc::escapeString($template);
         if (empty($det)) {
-            $stmt = "INSERT INTO {$dbtp}citation (cit_xdis_id, cit_template, cit_type) " .
-                    "VALUES ('$xdis_id','$template','$type')";
+            $stmt = "INSERT INTO ".$dbtp."citation (cit_xdis_id, cit_template, cit_type) " .
+                    "VALUES ('".$xdis_id."','".$template."','".$type."')";
         } else {
-            $stmt = "UPDATE {$dbtp}citation SET " .
-                    "cit_xdis_id='$xdis_id'," .
-                    "cit_template='$template'," .
-                    "cit_type='$type' " .
-                    "WHERE cit_id='{$det['cit_id']}' ";
+            $stmt = "UPDATE ".$dbtp."citation SET " .
+                    "cit_xdis_id='".$xdis_id."'," .
+                    "cit_template='".$template."'," .
+                    "cit_type='".$type."' " .
+                    "WHERE cit_id='".$det['cit_id']."' ";
         }
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -105,7 +105,7 @@
     function deleteAllTypes($xdis_id)
     {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-        $stmt = "DELETE FROM {$dbtp}citation WHERE cit_xdis_id='$xdis_id'";
+        $stmt = "DELETE FROM ".$dbtp."citation WHERE cit_xdis_id='".$xdis_id."'";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
