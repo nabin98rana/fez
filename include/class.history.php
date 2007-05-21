@@ -59,23 +59,23 @@ class History
      */
 	function generateHistoryAction($event_id, $event_type, $event_date, $event_usr_id, $event_usr_fullname, $event_detail, $event_pid, $event_outcome, $event_outcome_detail, $event_dsID="") {
 		$eventXML = "<premis:event>
-						<premis:eventIdentifier>$event_id</premis:eventIdentifier>
-						<premis:eventType>$event_type</premis:eventType>
-						<premis:eventDateTime>$event_date</premis:eventDateTime>
-						<premis:eventDetail>$event_detail</premis:eventDetail>
+						<premis:eventIdentifier>".$event_id."</premis:eventIdentifier>
+						<premis:eventType>".$event_type."</premis:eventType>
+						<premis:eventDateTime>".$event_date."</premis:eventDateTime>
+						<premis:eventDetail>".$event_detail."</premis:eventDetail>
 						<premis:eventOutcomeInformation>
-							<premis:eventOutcome>$event_outcome</premis:eventOutcome>
-							<premis:eventOutcomeDetail>$event_outcome_detail</premis:eventOutcomeDetail>
+							<premis:eventOutcome>".$event_outcome."</premis:eventOutcome>
+							<premis:eventOutcomeDetail>".$event_outcome_detail."</premis:eventOutcomeDetail>
 						</premis:eventOutcomeInformation>							
 						<premis:linkingAgentIdentifier>
 							<premis:linkingAgentIdentifierType>ID</premis:linkingAgentIdentifierType>
-							<premis:linkingAgentIdentifierValue>$event_usr_id</premis:linkingAgentIdentifierValue>							
+							<premis:linkingAgentIdentifierValue>".$event_usr_id."</premis:linkingAgentIdentifierValue>							
 						</premis:linkingAgentIdentifier>
 						<premis:linkingAgentIdentifier>
 							<premis:linkingAgentIdentifierType>Full Name</premis:linkingAgentIdentifierType>
 							<premis:linkingAgentIdentifierValue>".$event_usr_fullname."</premis:linkingAgentIdentifierValue>							
 						</premis:linkingAgentIdentifier>													
-						<premis:linkingObjectIdentifier>$event_pid</premis:linkingObjectIdentifier>";
+						<premis:linkingObjectIdentifier>".$event_pid."</premis:linkingObjectIdentifier>";
 /*		if ($event_dsID != "") {
 			$eventXML .= "	<event_dsID>$event_dsID</event_dsID>";
 		} else {
@@ -103,7 +103,7 @@ class History
                  if ($show_hidden==false) {
                     $stmt .= "pre_is_hidden != 1 AND ";
                  }
-                 $stmt .= "pre_pid='$pid'
+                 $stmt .= "pre_pid='".$pid."'
                  ORDER BY
                     pre_id DESC";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -135,7 +135,7 @@ class History
                  if ($show_hidden==false) {
                     $stmt .= "pre_is_hidden != 1 AND ";
                  }
-                 $stmt .= "pre_pid='$pid'
+                 $stmt .= "pre_pid='".$pid."'
                  ORDER BY
                     pre_id DESC";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -182,13 +182,13 @@ class History
             $stmt .= ", pre_is_hidden";
         }
         $stmt .= ") VALUES (
-                    $l_wfl_id,
+                    ".$l_wfl_id.",
                     '" . $event_date . "',
                     '".Misc::escapeString($detail)."',
                     '".Misc::escapeString($outcome)."',
                     '".Misc::escapeString($outcomeDetail)."',                                        
-                    $usr_id,
-                    '$pid'";
+                    ".$usr_id.",
+                    '".$pid."'";
         if ($hide == true) {
             $stmt .= ", 1";
         }

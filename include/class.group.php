@@ -67,7 +67,7 @@ class Group
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group
                  WHERE
-                    grp_id=$grp_id";
+                    grp_id=".$grp_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -96,7 +96,7 @@ class Group
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group
                  WHERE
-                    grp_title='$grp_title'";
+                    grp_title='".$grp_title."'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -127,7 +127,7 @@ class Group
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group
                  WHERE
-                    grp_id=$grp_id";
+                    grp_id=".$grp_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -155,7 +155,7 @@ class Group
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group
                  WHERE
-                    grp_id=$grp_id";
+                    grp_id=".$grp_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -181,7 +181,7 @@ class Group
         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group
                  WHERE
-                    grp_id IN ($items)";
+                    grp_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -207,7 +207,7 @@ class Group
         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group_user
                  WHERE
-                    gpu_grp_id IN ($items)";
+                    gpu_grp_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -268,8 +268,8 @@ class Group
                     gpu_usr_id,
                     gpu_grp_id
                  ) VALUES (
-                    $usr_id,
-                    $grp_id
+                    ".$usr_id.",
+                    ".$grp_id."
                  )";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -369,7 +369,7 @@ class Group
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group_user
                  WHERE
                     grp_id=gpu_grp_id AND
-                    gpu_usr_id=$usr_id
+                    gpu_usr_id=".$usr_id."
                  ORDER BY
                     grp_title";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
@@ -429,7 +429,7 @@ class Group
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user,
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group_user
                  WHERE
-                    gpu_grp_id in ($grp_id) AND
+                    gpu_grp_id in (".$grp_id.") AND
                     gpu_usr_id=usr_id ";
         $stmt .= "
                  ORDER BY
@@ -460,7 +460,7 @@ class Group
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user,
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group_user
                  WHERE
-                    gpu_grp_id=$grp_id AND
+                    gpu_grp_id=".$grp_id." AND
                     gpu_usr_id=usr_id
                  ORDER BY
                     usr_full_name ASC";
@@ -489,7 +489,7 @@ class Group
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group_user
                  WHERE
-                    gpu_usr_id=$usr_id";
+                    gpu_usr_id=".$usr_id;
         $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -570,7 +570,7 @@ class Group
                     grp_title
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group
-				 WHERE grp_id <> $excluded_grp_id
+				 WHERE grp_id <> ".$excluded_grp_id."
                  ORDER BY
                     grp_title";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
@@ -601,7 +601,7 @@ class Group
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user,
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group_user
                  WHERE
-                    gpu_grp_id=$grp_id AND
+                    gpu_grp_id=".$grp_id." AND
                     gpu_usr_id=usr_id AND
                     usr_id != " . APP_SYSTEM_USER_ID . "
                  ORDER BY
@@ -635,7 +635,7 @@ class Group
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user,
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group_user
                  WHERE
-                    gpu_grp_id=$grp_id AND
+                    gpu_grp_id=".$grp_id." AND
                     gpu_usr_id=usr_id AND
                     usr_id != " . APP_SYSTEM_USER_ID . "
                  ORDER BY

@@ -76,7 +76,7 @@ class Org_Structure
         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure
                  WHERE
-                    org_id IN ($all_items)";
+                    org_id IN (".$all_items.")";
 		Org_Structure::deleteRelationship($all_items);
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -118,7 +118,7 @@ class Org_Structure
         $stmt = "DELETE FROM 
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure_relationship
                  WHERE
-                    orr_parent_org_id IN ($items) OR orr_child_org_id IN ($items)";
+                    orr_parent_org_id IN (".$items.") OR orr_child_org_id IN (".$items.")";
 
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -219,7 +219,7 @@ class Org_Structure
                     org_desc = '" . Misc::escapeString($HTTP_POST_VARS["org_desc"]) . "',
                     org_ext_table = '" . Misc::escapeString($HTTP_POST_VARS["org_ext_table"]) . "',
                     org_image_filename = '" . Misc::escapeString($HTTP_POST_VARS["org_image_filename"]) . "'
-                 WHERE org_id = $org_id";
+                 WHERE org_id = ".$org_id;
 
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -245,7 +245,7 @@ class Org_Structure
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure
                  WHERE
-                    org_id=$org_id";
+                    org_id=".$org_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 
         if (PEAR::isError($res)) {
@@ -323,7 +323,7 @@ class Org_Structure
 					org_title
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure
-				 WHERE org_id = $id";
+				 WHERE org_id = ".$id;
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -348,7 +348,7 @@ class Org_Structure
 					org_title
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure
-				 WHERE org_ext_table = '$org_level'";
+				 WHERE org_ext_table = '".$org_level."'";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -398,7 +398,7 @@ class Org_Structure
 					org_title
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure
-				 WHERE org_id = $id";
+				 WHERE org_id = ".$id;
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -607,7 +607,7 @@ class Org_Structure
                     concat_ws(', ',   aut_lname, aut_mname, aut_fname, aut_id) as aut_fullname
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author INNER JOIN ".
-			            APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author_org_structure ON (auo_org_id = $org_id AND aut_id = auo_aut_id)
+			            APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author_org_structure ON (auo_org_id = ".$org_id." AND aut_id = auo_aut_id)
 				 WHERE auo_assessed = 'Y'
                  ORDER BY
                     aut_fullname ASC";
@@ -726,7 +726,7 @@ class Org_Structure
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure
                  WHERE
-                    org_id=$org_id";
+                    org_id=".$org_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

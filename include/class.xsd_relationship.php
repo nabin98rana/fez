@@ -68,7 +68,7 @@ class XSD_Relationship
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display,
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
                  WHERE
-                    xsdrel_xsdmf_id=$xsdmf_id and xsdrel_xsdmf_id = xsdmf_id and xsdrel_xdis_id = xdis_id ";
+                    xsdrel_xsdmf_id=".$xsdmf_id." and xsdrel_xsdmf_id = xsdmf_id and xsdrel_xdis_id = xdis_id ";
 		$stmt .= " ORDER BY xsdrel_order ASC";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
@@ -93,7 +93,7 @@ class XSD_Relationship
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship
                  WHERE
-                    xsdrel_xsdmf_id=$xsdmf_id ";
+                    xsdrel_xsdmf_id=".$xsdmf_id." ";
 		$stmt .= " ORDER BY xsdrel_order ASC";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
@@ -121,7 +121,7 @@ class XSD_Relationship
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display,
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
                  WHERE
-                   xsdmf_xdis_id = $xdis_id and xsdrel_xsdmf_id = xsdmf_id and xsdrel_xdis_id = xdis_id ";
+                   xsdmf_xdis_id = ".$xdis_id." and xsdrel_xsdmf_id = xsdmf_id and xsdrel_xdis_id = xdis_id ";
 		$stmt .= " ORDER BY xsdrel_order ASC";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt);
         if (PEAR::isError($res)) {
@@ -152,7 +152,7 @@ class XSD_Relationship
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display,
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
                  WHERE
-                   xsdmf_xdis_id = $xdis_id and xsdrel_xsdmf_id = xsdmf_id and xsdrel_xdis_id = xdis_id ";
+                   xsdmf_xdis_id = ".$xdis_id." and xsdrel_xsdmf_id = xsdmf_id and xsdrel_xdis_id = xdis_id ";
 		$stmt .= " ORDER BY xsdrel_order ASC";
         $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
         if (PEAR::isError($res)) {
@@ -273,7 +273,7 @@ class XSD_Relationship
                     xsdrel_xsdmf_id = '" . Misc::escapeString($params["xsdrel_xsdmf_id"]) . "',
                     xsdrel_xdis_id = '" . Misc::escapeString($params["xsdrel_xdis_id"]) . "',
                     xsdrel_order = '" . Misc::escapeString($params["xsdrel_order"]) . "'
-                 WHERE xsdrel_id = '$xsdrel_id' ";
+                 WHERE xsdrel_id = '".$xsdrel_id."' ";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -305,7 +305,7 @@ class XSD_Relationship
         }    
         foreach ($maps['xsdrel_map'] as $xsdrel_id) {
             $stmt = "SELECT * FROM ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX ."xsd_relationship " .
-                    "WHERE xsdrel_id='$xsdrel_id' ";
+                    "WHERE xsdrel_id='".$xsdrel_id."' ";
             $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

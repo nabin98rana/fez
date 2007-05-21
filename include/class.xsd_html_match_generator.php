@@ -10,7 +10,7 @@ include_once(APP_INC_PATH.'class.org_structure.php');
         $record_obj = new RecordGeneral($pid);
         $xsdmf_cols = $record_obj->getXSDMFDetailsByElement($escaped_path);
         if (empty($xsdmf_cols)) {
-            $html_result .= "$label not found";
+            $html_result .= $label." not found";
         } else {
             $values = $record_obj->getDetailsByXSDMF_element($escaped_path);
     //        $html_result .= "<a href=\"#\" class=\"form_note\">?<span class=\"form_note\">" 
@@ -36,10 +36,10 @@ include_once(APP_INC_PATH.'class.org_structure.php');
                     } else {
                         $hide_div = ' style="display:none" ';
                     }
-                    $html_result .= "<div id=\"xsdmf_editor_div_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}\"" .
+                    $html_result .= "<div id=\"xsdmf_editor_div_".$xsdmf_cols['xsdmf_id']."_".$safe_pid."_".$vidx."\"" .
                             " class=\"xsdmf_editor_div\" $hide_div>" .
                             "<div class=\"xsdmf_editor_label\">$label</div>" .
-                            "<form name=\"wfl_form_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}\"" .
+                            "<form name=\"wfl_form_".$xsdmf_cols['xsdmf_id']."_".$safe_pid."_".$vidx."\"" .
                             "   class=\"xsdmf_editor_input_form\" >" ;
                     $func_name = XSD_HTML_Match_Generator::getFuncName($xsdmf_cols['xsdmf_html_input']);
                     $html_result .= call_user_func(array('XSD_HTML_Match_Generator',$func_name), $pid, $xsdmf_cols, $vidx, $value, $record_obj);
@@ -50,7 +50,7 @@ include_once(APP_INC_PATH.'class.org_structure.php');
                         $xsdmf_cols1 = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id1);
                         $values1 = $record_obj->getDetailsByXSDMF_ID($xsdmf_id1);
                         $func_name = XSD_HTML_Match_Generator::getFuncName($xsdmf_cols1['xsdmf_html_input']);
-                        $html_result .= "<form name=\"wfl_form_{$xsdmf_cols1['xsdmf_id']}_{$safe_pid}_{$vidx}\"" .
+                        $html_result .= "<form name=\"wfl_form_".$xsdmf_cols1['xsdmf_id']."_".$safe_pid."_".$vidx."\"" .
                                 " class=\"xsdmf_editor_input_form\" >" ;
                         $html_result .= call_user_func(array('XSD_HTML_Match_Generator',$func_name), $pid, $xsdmf_cols1, $vidx, $values1[$vidx], $record_obj);
                         $html_result .= '</form>';
@@ -85,21 +85,21 @@ include_once(APP_INC_PATH.'class.org_structure.php');
         if ($xsdmf_cols['xsdmf_multiple']) {
     		if ($vidx < $xsdmf_cols['xsdmf_multiple_limit'] - 1) {
     		      $nextIdx = $vidx + 1;
-                  $onkeyup = " onkeyup=\"unhideXSDMF_Editor('{$pid}','{$xsdmf_cols['xsdmf_id']}','$nextIdx');\" ";	
+                  $onkeyup = " onkeyup=\"unhideXSDMF_Editor('".$pid."','".$xsdmf_cols['xsdmf_id']."','".$nextIdx."');\" ";	
     		} 
     	}
         $safe_pid = str_replace(':','_',$pid);
-        return <<<EOT
+        return " 
 
-<div class="xsdmf_editor_input_div">
-<input name="xsdmf_editor_input_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}" 
-  id="xsdmf_editor_input_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}" value="$value" $onkeyup/>
-<input type="button" value="Submit" id="xsdmf_editor_submit_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}" 
-onclick="handleXSDMF_Editor('{$pid}','{$xsdmf_cols['xsdmf_id']}','$vidx');"/>
-<span class="updating" style="display:none;" id="xsdmf_editor_mess_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}"></span>
+<div class=\"xsdmf_editor_input_div\">
+<input name=\"xsdmf_editor_input_".$xsdmf_cols['xsdmf_id']."_".$safe_pid."_".$vidx."\" 
+  id=\"xsdmf_editor_input_".$xsdmf_cols['xsdmf_id']."_".$safe_pid."_".$vidx."\" value=\"".$value."\" ".$onkeyup."/>
+<input type=\"button\" value=\"Submit\" id=\"xsdmf_editor_submit_".$xsdmf_cols['xsdmf_id']."_".$safe_pid."_".$vidx."\" 
+onclick=\"handleXSDMF_Editor('".$pid."','".$xsdmf_cols['xsdmf_id']."','".$vidx."');\"/>
+<span class=\"updating\" style=\"display:none;\" id=\"xsdmf_editor_mess_".$xsdmf_cols['xsdmf_id']."_".$safe_pid."_".$vidx."\"></span>
 </div>
 
-EOT;
+";
     }
     
     function authorSelector($pid, $xsdmf_cols, $vidx, $value, &$record_obj)
@@ -132,29 +132,29 @@ EOT;
             } else {
                 $checked = '';	
             }
-            $option_list_html .= "<option value=\"$key\" $checked>$option_value</option>\n" ;
+            $option_list_html .= "<option value=\"".$key."\" ".$checked.">".$option_value."</option>\n" ;
         } 
         $onkeyup = '';
         if ($xsdmf_cols['xsdmf_multiple']) {
             if ($vidx < $xsdmf_cols['xsdmf_multiple_limit'] - 1) {
                   $nextIdx = $vidx + 1;
-                  $onkeyup = " unhideXSDMF_Editor('{$pid}','{$xsdmf_cols['xsdmf_id']}','$nextIdx'); "; 
+                  $onkeyup = " unhideXSDMF_Editor('".$pid."','".$xsdmf_cols['xsdmf_id']."','".$nextIdx."'); "; 
             } 
         }
         $safe_pid = str_replace(':','_',$pid);
-        return <<<EOT
+        return "
 
-<div class="xsdmf_editor_input_div">
-<select name="xsdmf_editor_input_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}" 
-id="xsdmf_editor_input_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}">
- $option_list_html
+<div class=\"xsdmf_editor_input_div\">
+<select name=\"xsdmf_editor_input_".$xsdmf_cols['xsdmf_id']."_".$safe_pid."_".$vidx."\" 
+id=\"xsdmf_editor_input_".$xsdmf_cols['xsdmf_id']."_".$safe_pid."_".$vidx."\">
+ ".$option_list_html."
 </select> 
-<input type="button" value="Submit" id="xsdmf_editor_submit_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}" 
-onclick="handleXSDMF_Editor('{$pid}','{$xsdmf_cols['xsdmf_id']}','$vidx');$onkeyup"/>
-<span class="updating" style="display:none;" id="xsdmf_editor_mess_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}"></span>
+<input type=\"button\" value=\"Submit\" id=\"xsdmf_editor_submit_".$xsdmf_cols['xsdmf_id']."_".$safe_pid."_".$vidx."\" 
+onclick=\"handleXSDMF_Editor('".$pid."','".$xsdmf_cols['xsdmf_id']."','".$vidx."');".$onkeyup."\"/>
+<span class=\"updating\" style=\"display:none;\" id=\"xsdmf_editor_mess_".$xsdmf_cols['xsdmf_id']."_".$safe_pid."_".$vidx."\"></span>
 </div>
 
-EOT;
+";
     	
     }
 
@@ -170,9 +170,9 @@ EOT;
             		$auth_name = $details[$xsdmf_cols['xsdmf_asuggest_xsdmf_id']];
             	}
             }
-            $html_option = <<<EOT
-<option value="$value" selected>{$auth_name} ($value)</option>
-EOT;
+            $html_option = "
+<option value=\"".$value."\" selected>".$auth_name." (".$value.")</option>
+";
         } else {
         	$html_option = '';
         }
@@ -180,38 +180,38 @@ EOT;
         if ($xsdmf_cols['xsdmf_multiple']) {
             if ($vidx < $xsdmf_cols['xsdmf_multiple_limit'] - 1) {
                   $nextIdx = $vidx + 1;
-                  $onkeyup = " && unhideXSDMF_Editor('{$pid}','{$xsdmf_cols['xsdmf_id']}','$nextIdx') "; 
+                  $onkeyup = " && unhideXSDMF_Editor('".$pid."','".$xsdmf_cols['xsdmf_id']."','".$nextIdx."') "; 
             } 
         }
         $safe_pid = str_replace(':','_',$pid);
-        return <<<EOT
+        return "
 
-<div class="xsdmf_editor_input_div">
-<script type="text/javascript">
-function register_suggest_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}() {
-    window.oTextbox_xsdmf_editor_input_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}_lookup
-    = new AutoSuggestControl(document.wfl_form_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}, 
-        'xsdmf_editor_input_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}', 
-        document.getElementById('xsdmf_editor_input_{$xsdmf_cols['xsdmf_asuggest_xsdmf_id']}_{$safe_pid}_{$vidx}'), 
-        document.getElementById('xsdmf_editor_input_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}_lookup'),
+<div class=\"xsdmf_editor_input_div\">
+<script type=\"text/javascript\">
+function register_suggest_".$xsdmf_cols['xsdmf_id']."_".$safe_pid."_".$vidx."() {
+    window.oTextbox_xsdmf_editor_input_".$xsdmf_cols['xsdmf_id']."_".$safe_pid."_".$vidx."_lookup
+    = new AutoSuggestControl(document.wfl_form_".$xsdmf_cols['xsdmf_id']."_".$safe_pid."_".$vidx.", 
+        'xsdmf_editor_input_".$xsdmf_cols['xsdmf_id']."_".$safe_pid."_".$vidx."', 
+        document.getElementById('xsdmf_editor_input_".$xsdmf_cols['xsdmf_asuggest_xsdmf_id']."_".$safe_pid."_".$vidx."'), 
+        document.getElementById('xsdmf_editor_input_".$xsdmf_cols['xsdmf_id']."_".$safe_pid."_".$vidx."_lookup'),
         new StateSuggestions('Author','suggest',false,'class.author.php'));
 }
 </script>
-<div class="register_suggest" name="register_suggest">register_suggest_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}();</div>
-<select id="xsdmf_editor_input_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}" 
-    name="xsdmf_editor_input_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}">    
-<option value="0">(none)</option>
-$html_option
+<div class=\"register_suggest\" name=\"register_suggest\">register_suggest_".$xsdmf_cols['xsdmf_id']."_".$safe_pid."_".$vidx."();</div>
+<select id=\"xsdmf_editor_input_".$xsdmf_cols['xsdmf_id']."_".$safe_pid."_".$vidx."\" 
+    name=\"xsdmf_editor_input_".$xsdmf_cols['xsdmf_id']."_".$safe_pid."_".$vidx."\">    
+<option value=\"0\">(none)</option>
+".$html_option."
 </select>
 <!-- Google suggest style selection -->
-<input type="text" name="xsdmf_editor_input_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}_lookup" 
-    id="xsdmf_editor_input_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}_lookup" size="30" autocomplete="off"  />
-<input type="button" value="Submit" id="xsdmf_editor_submit_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}" 
-    onclick="handleXSDMF_Editor('{$pid}','{$xsdmf_cols['xsdmf_id']}','{$vidx}')$onkeyup;"/>
-<span class="updating" style="display:none;" id="xsdmf_editor_mess_{$xsdmf_cols['xsdmf_id']}_{$safe_pid}_{$vidx}"></span>
+<input type=\"text\" name=\"xsdmf_editor_input_".$xsdmf_cols['xsdmf_id']."_".$safe_pid."_".$vidx."_lookup\" 
+    id=\"xsdmf_editor_input_".$xsdmf_cols['xsdmf_id']."_".$safe_pid."_".$vidx."_lookup\" size=\"30\" autocomplete=\"off\"  />
+<input type=\"button\" value=\"Submit\" id=\"xsdmf_editor_submit_".$xsdmf_cols['xsdmf_id']."_".$safe_pid."_".$vidx."\" 
+    onclick=\"handleXSDMF_Editor('".$pid."','".$xsdmf_cols['xsdmf_id']."','".$vidx."')".$onkeyup.";\"/>
+<span class=\"updating\" style=\"display:none;\" id=\"xsdmf_editor_mess_".$xsdmf_cols['xsdmf_id']."_".$safe_pid."_".$vidx." \"></span>
 </div>
+";
 
-EOT;
     }
     
  }

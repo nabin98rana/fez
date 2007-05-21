@@ -94,7 +94,7 @@ class Prefs
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
                  WHERE
-                    usr_id=$usr_id";
+                    usr_id=".$usr_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -166,7 +166,7 @@ class Prefs
                  SET
                     usr_preferences='" . Misc::escapeString($data) . "'
                  WHERE
-                    usr_id=$usr_id";
+                    usr_id=".$usr_id;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

@@ -67,7 +67,7 @@ class XSD_Loop_Subelement
 					IFNULL(CONCAT('(', s1.xsdsel_indicator_xsdmf_id, ') (', s3.xsdsel_title, ') ', m3.xsdmf_element), CONCAT('(', m3.xsdmf_id, ') ', m3.xsdmf_element)) as xsdmf_indicator_presentation
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 inner join
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m1 on (s1.xsdsel_xsdmf_id = m1.xsdmf_id) and (s1.xsdsel_xsdmf_id=$xsdmf_id) inner join
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m1 on (s1.xsdsel_xsdmf_id = m1.xsdmf_id) and (s1.xsdsel_xsdmf_id=".$xsdmf_id.") inner join
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on (m1.xsdmf_xdis_id = d1.xdis_id) left join
 					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m2 on (m2.xsdmf_id = s1.xsdsel_attribute_loop_xsdmf_id) left join 
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s2 on (m2.xsdmf_xsdsel_id = s2.xsdsel_id) left join
@@ -101,7 +101,7 @@ class XSD_Loop_Subelement
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement
                  WHERE
-                    xsdsel_xsdmf_id=$xsdmf_id";
+                    xsdsel_xsdmf_id=".$xsdmf_id;
 		$stmt .= " ORDER BY xsdsel_order ASC";
 
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -128,7 +128,7 @@ class XSD_Loop_Subelement
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement
                  WHERE
-                    xsdsel_xsdmf_id=$xsdmf_id";
+                    xsdsel_xsdmf_id=".$xsdmf_id;
 		// @@@ CK - Added order statement to sublooping elements displayed in a desired order
 		$stmt .= " ORDER BY xsdsel_order ASC";
         $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
@@ -228,9 +228,9 @@ class XSD_Loop_Subelement
 					s1.*, m1.*, m2.xsdmf_id as child_xsdmf_id
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 inner join 
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m1 on s1.xsdsel_xsdmf_id = m1.xsdmf_id and m1.xsdmf_xdis_id = $xdis_id 
-					and (INSTR('$xml_element', m1.xsdmf_element) = 1) and (m1.xsdmf_element != '$xml_element') and m1.xsdmf_html_input = 'xsd_loop_subelement' left join
-					 " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m2 on (m2.xsdmf_xsdsel_id = s1.xsdsel_id) and (m2.xsdmf_element = '$xml_element')
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m1 on s1.xsdsel_xsdmf_id = m1.xsdmf_id and m1.xsdmf_xdis_id = ".$xdis_id." 
+					and (INSTR('".$xml_element."', m1.xsdmf_element) = 1) and (m1.xsdmf_element != '".$xml_element."') and m1.xsdmf_html_input = 'xsd_loop_subelement' left join
+					 " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m2 on (m2.xsdmf_xsdsel_id = s1.xsdsel_id) and (m2.xsdmf_element = '".$xml_element."')
                     ";
 		$stmt .= " ORDER BY xsdsel_order ASC";
 //		echo $stmt;
@@ -437,7 +437,7 @@ class XSD_Loop_Subelement
 					$stmt .= "
                     xsdsel_indicator_value = '" . Misc::escapeString($params["xsdsel_indicator_value"]) . "',
                     xsdsel_type = '" . Misc::escapeString($params["xsdsel_type"]) . "'
-                 WHERE xsdsel_id = '$xsdsel_id' ";
+                 WHERE xsdsel_id = '".$xsdsel_id."' ";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -533,7 +533,7 @@ class XSD_Loop_Subelement
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement,
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
                  WHERE
-                    xsdmf_html_input = '$input_type'  AND xsdmf_xsdsel_id = xsdsel_id AND xsdsel_id=".$xsdsel_id;
+                    xsdmf_html_input = '".$input_type."'  AND xsdmf_xsdsel_id = xsdsel_id AND xsdsel_id=".$xsdsel_id;
 		if ($exclude_attrib_loops == true) {
 			$stmt .= " AND xsdmf_id <> xsdsel_attribute_loop_xsdmf_id";
 		} 

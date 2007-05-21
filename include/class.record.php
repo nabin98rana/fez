@@ -152,7 +152,7 @@ class Record
 						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
 							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,							
 							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
-						WHERE (s2.sek_title = '$searchKey' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid_num = ".Misc::numPID($pid)." and r2.rmf_rec_pid = '".$pid."'))
+						WHERE (s2.sek_title = '".$searchKey."' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid_num = ".Misc::numPID($pid)." and r2.rmf_rec_pid = '".$pid."'))
 					as p1 on p1.parent_pid = r1.rmf_rec_pid 
 					";	
 
@@ -203,26 +203,26 @@ class Record
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
 
 		$bodyStmt .= "
-						FROM {$dbtp}record_matching_field AS r4
-						INNER JOIN {$dbtp}xsd_display_matchfields AS x4
-						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and r4.rmf_varchar='$pid'
-						INNER JOIN {$dbtp}search_key AS s4  							  
-						  ON s4.sek_id = x4.xsdmf_sek_id AND s4.sek_title = '$searchKey' ";		
+						FROM ".$dbtp."record_matching_field AS r4
+						INNER JOIN ".$dbtp."xsd_display_matchfields AS x4
+						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and r4.rmf_varchar='".$pid."'
+						INNER JOIN ".$dbtp."search_key AS s4  							  
+						  ON s4.sek_id = x4.xsdmf_sek_id AND s4.sek_title = '".$searchKey."' ";		
 				
         $stmt = "SELECT ".APP_SQL_CACHE."  r1.*, x1.*, s1.*, k1.*, d1.* 
-            FROM {$dbtp}record_matching_field AS r1
-            INNER JOIN {$dbtp}xsd_display_matchfields AS x1
+            FROM ".$dbtp."record_matching_field AS r1
+            INNER JOIN ".$dbtp."xsd_display_matchfields AS x1
             ON r1.rmf_xsdmf_id = x1.xsdmf_id
             INNER JOIN (
                     SELECT ".APP_SQL_CACHE."  distinct r4.rmf_rec_pid
-                    $bodyStmt
+                    ".$bodyStmt."
 					order by r4.rmf_rec_pid desc
                     ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid 
-            LEFT JOIN {$dbtp}xsd_loop_subelement s1 
+            LEFT JOIN ".$dbtp."xsd_loop_subelement s1 
             ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
-            LEFT JOIN {$dbtp}search_key k1 
+            LEFT JOIN ".$dbtp."search_key k1 
             ON (k1.sek_id = x1.xsdmf_sek_id)
-            LEFT JOIN {$dbtp}xsd_display d1  
+            LEFT JOIN ".$dbtp."xsd_display d1  
             ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
             ORDER BY r1.rmf_rec_pid DESC ";
                     
@@ -307,7 +307,7 @@ class Record
 						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
 							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,							
 							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
-						WHERE (s2.sek_title = '$searchKey' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid = '".$pid."'))
+						WHERE (s2.sek_title = '".$searchKey."' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid = '".$pid."'))
 					as p1 on p1.parent_pid = r1.rmf_rec_pid
 					";	
 
@@ -372,26 +372,26 @@ class Record
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
 
 		$bodyStmt .= "
-						FROM {$dbtp}record_matching_field AS r4
-						INNER JOIN {$dbtp}xsd_display_matchfields AS x4
-						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and r4.rmf_varchar='$pid'
-						INNER JOIN {$dbtp}search_key AS s4  							  
+						FROM ".$dbtp."record_matching_field AS r4
+						INNER JOIN ".$dbtp."xsd_display_matchfields AS x4
+						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and r4.rmf_varchar='".$pid."'
+						INNER JOIN ".$dbtp."search_key AS s4  							  
 						  ON s4.sek_id = x4.xsdmf_sek_id AND s4.sek_title = '$searchKey' ";		
 				
         $stmt = "SELECT ".APP_SQL_CACHE."  r1.*, x1.*, s1.*, k1.*, d1.* 
-            FROM {$dbtp}record_matching_field AS r1
-            INNER JOIN {$dbtp}xsd_display_matchfields AS x1
+            FROM ".$dbtp."record_matching_field AS r1
+            INNER JOIN ".$dbtp."xsd_display_matchfields AS x1
             ON r1.rmf_xsdmf_id = x1.xsdmf_id
             INNER JOIN (
                     SELECT ".APP_SQL_CACHE."  distinct r4.rmf_rec_pid
-                    $bodyStmt
+                    ".$bodyStmt."
 					order by r4.rmf_rec_pid desc
                     ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid 
-            LEFT JOIN {$dbtp}xsd_loop_subelement s1 
+            LEFT JOIN ".$dbtp."xsd_loop_subelement s1 
             ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
-            LEFT JOIN {$dbtp}search_key k1 
+            LEFT JOIN ".$dbtp."search_key k1 
             ON (k1.sek_id = x1.xsdmf_sek_id)
-            LEFT JOIN {$dbtp}xsd_display d1  
+            LEFT JOIN ".$dbtp."xsd_display d1  
             ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
             ORDER BY r1.rmf_rec_pid DESC ";
 //		echo $stmt;
@@ -776,10 +776,10 @@ class Record
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX; // Database and table prefix
         $stmt = "SELECT ".APP_SQL_CACHE."  * FROM 
         {$dbtp}record_matching_field r1
-        inner join {$dbtp}xsd_display_matchfields x1 on r1.rmf_xsdmf_id = x1.xsdmf_id and rmf_rec_pid = '".$pid."' and rmf_dsid = '".$dsID."'
-        inner join {$dbtp}xsd_display d1 on x1.xsdmf_xdis_id = d1.xdis_id
-        inner join {$dbtp}xsd x2 on x2.xsd_id = d1.xdis_xsd_id and x2.xsd_title = '".$xsd_title."'
-        left join {$dbtp}xsd_loop_subelement s1 on s1.xsdsel_id = x1.xsdmf_xsdsel_id";
+        inner join ".$dbtp."xsd_display_matchfields x1 on r1.rmf_xsdmf_id = x1.xsdmf_id and rmf_rec_pid = '".$pid."' and rmf_dsid = '".$dsID."'
+        inner join ".$dbtp."xsd_display d1 on x1.xsdmf_xdis_id = d1.xdis_id
+        inner join ".$dbtp."xsd x2 on x2.xsd_id = d1.xdis_xsd_id and x2.xsd_title = '".$xsd_title."'
+        left join ".$dbtp."xsd_loop_subelement s1 on s1.xsdsel_id = x1.xsdmf_xsdsel_id";
 //      echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         return $res;
@@ -811,7 +811,7 @@ class Record
     function setIndexMatchingFieldsRecurse($pid, $bgp=null, $fteindex = true) 
     {
         if (!empty($bgp)) {
-            $bgp->setStatus("Processing {$pid}");
+            $bgp->setStatus("Processing ".$pid);
             $bgp->incrementProgress();
         }
         $record = new RecordObject($pid);
@@ -1167,23 +1167,23 @@ class Record
         	$stmt .= ", display.Relevance ";
         }
         
-  $stmt .=" FROM {$dbtp}record_matching_field AS r1
-            INNER JOIN {$dbtp}xsd_display_matchfields AS x1
+  $stmt .=" FROM ".$dbtp."record_matching_field AS r1
+            INNER JOIN ".$dbtp."xsd_display_matchfields AS x1
             ON r1.rmf_xsdmf_id = x1.xsdmf_id
             INNER JOIN (
                     SELECT ".APP_SQL_CACHE."  distinct r".$searchKey_join[4].".rmf_rec_pid ".$searchKey_join[6]."
-					$bodyStmt
+					".$bodyStmt."
 					".$searchKey_join[2].$searchKey_join[8]."
 					order by ".$searchKey_join[3]." r".$searchKey_join[4].".rmf_rec_pid_num desc
-                    LIMIT $page_rows OFFSET $start
+                    LIMIT ".$page_rows." OFFSET ".$start."
                     ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid 
-            LEFT JOIN {$dbtp}xsd_loop_subelement s1 
+            LEFT JOIN ".$dbtp."xsd_loop_subelement s1 
             ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
-            LEFT JOIN {$dbtp}search_key k1 
+            LEFT JOIN ".$dbtp."search_key k1 
             ON (k1.sek_id = x1.xsdmf_sek_id)
-            LEFT JOIN {$dbtp}xsd_display d1  
+            LEFT JOIN ".$dbtp."xsd_display d1  
             ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
-            LEFT JOIN {$dbtp}status st1  
+            LEFT JOIN ".$dbtp."status st1  
             ON (st1.sta_id = r1.rmf_int and k1.sek_title = 'Status')
 
              ";
@@ -1564,11 +1564,11 @@ class Record
     {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX; // Database and table prefix
         $stmt = "SELECT ".APP_SQL_CACHE."  distinct rmf_rec_pid FROM 
-        {$dbtp}record_matching_field 
+        ".$dbtp."record_matching_field 
         WHERE rmf_rec_pid NOT IN (
                 SELECT ".APP_SQL_CACHE."  rmf.rmf_rec_pid FROM
-                {$dbtp}record_matching_field AS rmf
-                INNER JOIN {$dbtp}xsd_display_matchfields AS xdmf 
+                ".$dbtp."record_matching_field AS rmf
+                INNER JOIN ".$dbtp."xsd_display_matchfields AS xdmf 
                 ON xdmf.xsdmf_id=rmf.rmf_xsdmf_id
                 WHERE xdmf.xsdmf_element='!sta_id' 
                 )";
@@ -1941,7 +1941,7 @@ class RecordGeneral
         if (!$this->no_xdis_id) {
             if (empty($this->xdis_id)) {
                 if (!$this->checkExists()) {
-                	Error_Handler::logError("Record {$this->pid} doesn't exist",__FILE__,__LINE__);
+                	Error_Handler::logError("Record ".$this->pid." doesn't exist",__FILE__,__LINE__);
                     return null;
                 }
                 $xdis_array = Fedora_API::callGetDatastreamContentsField($this->pid, 'FezMD', array('xdis_id'));
@@ -2126,7 +2126,7 @@ class RecordGeneral
             }
         }
         if ($foundElement != true) {
-            $newXML .= "<$key>".$value."</$key>";
+            $newXML .= "<".$key.">".$value."</".$key.">";
         }
         $newXML .= "</FezMD>";
         //Error_handler::logError($newXML,__FILE__,__LINE__);
@@ -2357,7 +2357,7 @@ class RecordGeneral
             return $this->display;
         } else {
         	// if it has no xdis id (display id) log an error and return a null
-			Error_Handler::logError("The PID {$this->pid} does not have an display id (FezMD->xdis_id). This object is currently in an erroneous state.",__FILE__,__LINE__);
+			Error_Handler::logError("The PID ".$this->pid." does not have an display id (FezMD->xdis_id). This object is currently in an erroneous state.",__FILE__,__LINE__);
             return null;
         }
     }
@@ -2384,7 +2384,7 @@ class RecordGeneral
             if ($this->display) {
                 $this->details = $this->display->getXSDMF_Values($this->pid);
             } else {
-  				Error_Handler::logError("The PID {$this->pid} has an error getting it's display details. This object is currently in an erroneous state.",__FILE__,__LINE__);
+  				Error_Handler::logError("The PID ".$this->pid." has an error getting it's display details. This object is currently in an erroneous state.",__FILE__,__LINE__);
             }
         }
         return $this->details;
@@ -2406,7 +2406,7 @@ class RecordGeneral
              return $this->details[$xsdmf_id];
         } else {
             // if it has no xdis id (display id) log an error and return a null
-            Error_Handler::logError("The PID {$this->pid} does not have an display id (FezMD->xdis_id). This object is currently in an erroneous state.",__FILE__,__LINE__);
+            Error_Handler::logError("The PID ".$this->pid." does not have an display id (FezMD->xdis_id). This object is currently in an erroneous state.",__FILE__,__LINE__);
             return null;
         }
     }
@@ -2426,7 +2426,7 @@ class RecordGeneral
             $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!dc:type'); 
         } else {
             // if it has no xdis id (display id) log an error and return a null
-            Error_Handler::logError("The PID {$this->pid} does not have an display id (FezMD->xdis_id). This object is currently in an erroneous state.",__FILE__,__LINE__);
+            Error_Handler::logError("The PID ".$this->pid." does not have an display id (FezMD->xdis_id). This object is currently in an erroneous state.",__FILE__,__LINE__);
             return null;
         }
         return $this->details[$xsdmf_id];
@@ -2458,7 +2458,7 @@ class RecordGeneral
         return @$this->details[$xsdmf_id];
         } else {
             // if it has no xdis id (display id) log an error and return a null
-            Error_Handler::logError("The PID {$this->pid} does not have an display id (FezMD->xdis_id). This object is currently in an erroneous state.",__FILE__,__LINE__);
+            Error_Handler::logError("The PID ".$this->pid." does not have an display id (FezMD->xdis_id). This object is currently in an erroneous state.",__FILE__,__LINE__);
             return null;
         }
     }
@@ -2585,10 +2585,10 @@ class RecordGeneral
     {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $stmt = "SELECT ".APP_SQL_CACHE."  rmf_rec_pid 
-            FROM {$dbtp}record_matching_field
-            INNER JOIN {$dbtp}xsd_display_matchfields 
-            ON rmf_xsdmf_id=xsdmf_id AND rmf_varchar='{$this->pid}'
-            INNER JOIN {$dbtp}search_key on xsdmf_sek_id=sek_id AND sek_title='isMemberOf'
+            FROM ".$dbtp."record_matching_field
+            INNER JOIN ".$dbtp."xsd_display_matchfields 
+            ON rmf_xsdmf_id=xsdmf_id AND rmf_varchar='".$this->pid."'
+            INNER JOIN ".$dbtp."search_key on xsdmf_sek_id=sek_id AND sek_title='isMemberOf'
              ";
         $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
         if (PEAR::isError($res)) {
@@ -2691,7 +2691,7 @@ class RecordGeneral
         
         $datastreams = Fedora_API::callGetDatastreams($pid); // need the full get datastreams to get the controlGroup etc
         if (empty($datastreams)) {
-            Error_Handler::logError("The PID {} doesn't appear to be in the fedora repository - perhaps it was not ingested correctly.  " .
+            Error_Handler::logError("The PID ".$pid." doesn't appear to be in the fedora repository - perhaps it was not ingested correctly.  " .
                     "Please let the Fez admin know so that the Fez index can be repaired.",__FILE__,__LINE__);
             return false;
         }

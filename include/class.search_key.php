@@ -82,7 +82,7 @@ class Search_Key
         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
                  WHERE
-                    sek_id IN ($items)";
+                    sek_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -216,7 +216,7 @@ class Search_Key
 						$stmt .= ",sek_cvo_id = ".$HTTP_POST_VARS["sek_cvo_id"];
 					}
 				$stmt .= "
-                 WHERE sek_id = $sek_id";
+                 WHERE sek_id = ".$sek_id;
 
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -241,7 +241,7 @@ class Search_Key
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
                  WHERE
-                    sek_title='$sek_title'";
+                    sek_title='".$sek_title."'";
     	$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 
     	if (PEAR::isError($res)) {
@@ -266,7 +266,7 @@ class Search_Key
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
                  WHERE
-                    sek_id=$sek_id";
+                    sek_id=".$sek_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 
         if (PEAR::isError($res)) {
@@ -291,7 +291,7 @@ class Search_Key
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
                  WHERE
-                    sek_id=$sek_id";
+                    sek_id=".$sek_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 
         if (PEAR::isError($res)) {
@@ -613,7 +613,7 @@ class Search_Key
                     left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
                     on xsdmf_sek_id=sek_id                    
                  WHERE
-                    sek_id=$sek_id";
+                    sek_id=".$sek_id;
         
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
@@ -640,7 +640,7 @@ class Search_Key
                     inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
                     on xsdmf_sek_id=sek_id
                  WHERE
-                    sek_title='$sek_title'";
+                    sek_title='".$sek_title."'";
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

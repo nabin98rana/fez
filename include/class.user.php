@@ -143,7 +143,7 @@ class User
                     usr_status='active' AND
                     usr_id != " . APP_SYSTEM_USER_ID;
         if ($role != NULL) {
-            $stmt .= " AND usr_role > $role ";
+            $stmt .= " AND usr_role > ".$role;
         }
         $stmt .= "
                  ORDER BY
@@ -171,7 +171,7 @@ class User
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
                  WHERE
-                    usr_username='$username'";
+                    usr_username='".$username."'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             return false;
@@ -198,7 +198,7 @@ class User
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
                  WHERE
-                    usr_id='$usr_id'";
+                    usr_id='".$usr_id."'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             return false;
@@ -222,7 +222,7 @@ class User
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
                  WHERE
-                    usr_username='$username'";
+                    usr_username='".$username."'";
 
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
@@ -249,7 +249,7 @@ class User
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
                  WHERE
-                    usr_id=$id";
+                    usr_id=".$id;
 
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
@@ -375,7 +375,7 @@ class User
                  SET
                     usr_status='" . $HTTP_POST_VARS["status"] . "'
                  WHERE
-                    usr_id IN ($items)";
+                    usr_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -393,7 +393,7 @@ class User
         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
                  WHERE
-                    usr_id IN ($items)";
+                    usr_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -423,7 +423,7 @@ class User
                  SET
                     usr_password='" . md5($HTTP_POST_VARS["new_password"]) . "'
                  WHERE
-                    usr_id=$usr_id";
+                    usr_id=".$usr_id;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -503,7 +503,7 @@ class User
                  SET
                     usr_full_name='" . Misc::escapeString($HTTP_POST_VARS["full_name"]) . "'
                  WHERE
-                    usr_id=$usr_id";
+                    usr_id=".$usr_id;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -530,7 +530,7 @@ class User
                  SET
                     usr_email='" . Misc::escapeString($HTTP_POST_VARS["email"]) . "'
                  WHERE
-                    usr_id=$usr_id";
+                    usr_id=".$usr_id;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -558,7 +558,7 @@ class User
                     usr_login_count=usr_login_count + 1,
 					usr_last_login_date='" . Date_API::getCurrentDateGMT() . "'
                  WHERE
-                    usr_id=$usr_id";
+                    usr_id=".$usr_id;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -585,7 +585,7 @@ class User
                     usr_shib_login_count=usr_shib_login_count + 1,
 					usr_last_login_date='" . Date_API::getCurrentDateGMT() . "'
                  WHERE
-                    usr_id=$usr_id";
+                    usr_id=".$usr_id;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -886,7 +886,7 @@ class User
                     '" . Misc::escapeString($usr_username) . "',
                     '" . Misc::escapeString($usr_username) . "',
 					0,
-					$eprints_usr_id,					
+					".$eprints_usr_id.",					
                     '" . Date_API::getCurrentDateGMT() . "'
                  ) on duplicate key update usr_external_usr_id = $eprints_usr_id";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -1027,13 +1027,13 @@ class User
     	
 		$start = $current_row * $max;
         $stmt = "SELECT SQL_CALC_FOUND_ROWS 
-					* $extra_stmt
+					* ".$extra_stmt."
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
-				$where_stmt
-                 ORDER BY $extra_order_stmt
-                    $order_by
-				 LIMIT $start, $max";
+				".$where_stmt."
+                 ORDER BY ".$extra_order_stmt."
+                    ".$order_by."
+				 LIMIT ".$start.", ".$max;
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$total_rows = $GLOBALS["db_api"]->dbh->getOne('SELECT FOUND_ROWS()');        
         if (PEAR::isError($res)) {
@@ -1117,7 +1117,7 @@ class User
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
                  WHERE
-                    usr_id=$usr_id";
+                    usr_id=".$usr_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -1151,7 +1151,7 @@ class User
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
                  WHERE
-                    usr_external_usr_id=$ext_id";
+                    usr_external_usr_id=".$ext_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

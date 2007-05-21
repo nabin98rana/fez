@@ -194,7 +194,7 @@ class Pager
     {
         $stmt = str_replace("\n", "", $stmt);
         $stmt = str_replace("\r", "", $stmt);
-        $stmt = preg_replace("/SELECT (.*?) FROM /sei", "'SELECT COUNT(DISTINCT $distinct_field) AS total_rows FROM '", $stmt);
+        $stmt = preg_replace("/SELECT (.*?) FROM /sei", "'SELECT COUNT(DISTINCT ".$distinct_field.") AS total_rows FROM '", $stmt);
         $rows = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($rows)) {
             Error_Handler::logError(array($rows->getMessage(), $rows->getDebugInfo()), __FILE__, __LINE__);

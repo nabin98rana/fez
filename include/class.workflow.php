@@ -63,7 +63,7 @@ class Workflow
         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow
                  WHERE
-                    wfl_id IN ($items)";
+                    wfl_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -132,7 +132,7 @@ class Workflow
                     wfl_description = '" . Misc::escapeString($params["wfl_description"]) . "',
                     wfl_roles = '" . Misc::escapeString($params["wfl_roles"]) . "',
                     wfl_end_button_label = '" . Misc::escapeString($params["wfl_end_button_label"]) . "'
-                 WHERE wfl_id = $wfl_id";
+                 WHERE wfl_id = ".$wfl_id;
 //		echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -157,7 +157,7 @@ class Workflow
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow
                  WHERE
-                    wfl_id=$wfl_id";
+                    wfl_id=".$wfl_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 
         if (PEAR::isError($res)) {
@@ -208,7 +208,7 @@ class Workflow
                     *
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow
-                        $where" .
+                        ".$where.
                                 " order by    wfl_title 
                     ";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -252,7 +252,7 @@ class Workflow
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow
                  WHERE
-                    wfl_id=$wfl_id";
+                    wfl_id=".$wfl_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -427,7 +427,7 @@ class Workflow
                 'wfl_title' => $title,
                 'wfl_version' => $xworkflow->getAttribute('wfl_version'),
                 );
-            $elist = Workflow::getList($where="WHERE wfl_title='$title'");
+            $elist = Workflow::getList($where="WHERE wfl_title='".$title."'");
             if (!empty($elist)) {
                 $overwrite = true;
             } else {
@@ -475,7 +475,7 @@ class Workflow
         $version = Misc::escapeString(trim($xworkflow->getAttribute('wfl_version')));
     
     	// Does the workflow exist already?
-        $list = Workflow::getList($where="WHERE wfl_title='$title'");
+        $list = Workflow::getList($where="WHERE wfl_title='".$title."'");
         if (!empty($list)) {
         	$overwrite = true;
             $wfl_id = $list[0]['wfl_id'];
@@ -483,7 +483,7 @@ class Workflow
             $overwrite = false;
         }
         	// insert the new workflow from the XML
-            $feedback[] = "Importing workflow $title $version";
+            $feedback[] = "Importing workflow ".$title." ".$version;
             $params = array(
                 'wfl_title' => $xworkflow->getAttribute('wfl_title'),
                 'wfl_version' => $xworkflow->getAttribute('wfl_version'),

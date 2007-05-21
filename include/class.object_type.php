@@ -65,7 +65,7 @@ class Object_Type
         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "object_type
                  WHERE
-                    ret_id IN ($items)";
+                    ret_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -123,7 +123,7 @@ class Object_Type
                     ret_title = '" . Misc::escapeString($HTTP_POST_VARS["ret_title"]) . "',
 					ret_order = '" . Misc::escapeString($HTTP_POST_VARS["ret_order"]) . "',
 					ret_color = '" . Misc::escapeString($HTTP_POST_VARS["ret_color"]) . "'
-                 WHERE ret_id = $ret_id";
+                 WHERE ret_id = ".$ret_id;
 
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -149,7 +149,7 @@ class Object_Type
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "object_type
                  WHERE
-                    ret_id=$ret_id";
+                    ret_id=".$ret_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 
         if (PEAR::isError($res)) {
@@ -174,7 +174,7 @@ class Object_Type
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "object_type
                  WHERE
-                    ret_title='$ret_title'";
+                    ret_title='".$ret_title."'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 
         if (PEAR::isError($res)) {
@@ -277,7 +277,7 @@ class Object_Type
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "object_type
                  WHERE
-                    ret_id=$ret_id";
+                    ret_id=".$ret_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

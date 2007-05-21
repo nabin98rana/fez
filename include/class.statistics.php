@@ -204,7 +204,7 @@ class Statistics
 		if the script is run more than once on the same log file
 	*/
 		$stmt = "INSERT INTO
-				" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "statistics_proc (stp_latestlog, stp_lastproc, stp_count, stp_count_inserted, stp_timestarted, stp_timefinished)  values ('".date('Y-m-d H:i:s', $request_date)."', '".date('Y-m-d', $request_date)."', $counter, $counter_inserted, '$timeStarted', '$timeFinished')";
+				" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "statistics_proc (stp_latestlog, stp_lastproc, stp_count, stp_count_inserted, stp_timestarted, stp_timefinished)  values ('".date('Y-m-d H:i:s', $request_date)."', '".date('Y-m-d', $request_date)."', ".$counter.", ".$counter_inserted.", '".$timeStarted."', '".$timeFinished."')";
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
 		if (PEAR::isError($res)) {
 			Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -216,7 +216,7 @@ class Statistics
 
 	function isRobot($ip) {	
 		// check if the ip is in the Fez robots listing so far
-		$stmt = "select count(*) from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "statistics_robots where str_ip = '$ip'";
+		$stmt = "select count(*) from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "statistics_robots where str_ip = '".$ip."'";
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 		if (($res > 0) && (!empty($res))) {
 			$robot = 1;
@@ -228,7 +228,7 @@ class Statistics
 	
 	function addRobot($ip, $hostname) {	
 		// add this ip to the Fez robots listing
-		$stmt = "insert into " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "statistics_robots (str_ip, str_hostname, str_date_added) values ('$ip', '$hostname', now())";
+		$stmt = "insert into " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "statistics_robots (str_ip, str_hostname, str_date_added) values ('".$ip."', '".$hostname."', now())";
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
 		if (PEAR::isError($res)) {
 			Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -254,7 +254,7 @@ class Statistics
 	function getStatsByDatastream($pid, $dsid) {	
 		$stmt = "select count(*)  
 			 	 from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "statistics_all
-				 where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '$pid' and stl_dsid = '$dsid'";
+				 where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '".$pid."' and stl_dsid = '".$dsid."'";
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 		if ((count($res) == 1) && (!empty($res))) {
 			$count = $res;
@@ -279,7 +279,7 @@ class Statistics
 
 		$stmt = "select count(*)  
 			 	 from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "statistics_all
-				 where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '$pid' and stl_dsid = '' $limit";
+				 where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '".$pid."' and stl_dsid = '' ".$limit;
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -298,10 +298,10 @@ class Statistics
 		$limit = "";
 		if ($year != 'all' && is_numeric($year)) {
 			$year = Misc::escapeString($year);
-			$limit = " and year(stl_request_date) = $year";
+			$limit = " and year(stl_request_date) = ".$year;
 			if ($month != 'all' && is_numeric($month)) {
 				$month = Misc::escapeString($month);
-				$limit .= " and month(stl_request_date) = $month";
+				$limit .= " and month(stl_request_date) = ".$month;
 			}
 		} elseif ($range != 'all' && $range == '4w') {
 			$limit .= " and stl_request_date >= CURDATE()-INTERVAL 1 MONTH";
@@ -309,7 +309,7 @@ class Statistics
 
 		$stmt = "select count(*)  
 			 	 from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "statistics_all
-				 where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '$pid' and stl_dsid <> '' $limit";
+				 where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '".$pid."' and stl_dsid <> '' ".$limit;
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 		if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -326,16 +326,16 @@ class Statistics
 	
 	function getStatsByCountryAbstractView($pid, $year='all', $month='all', $range='all') {	
 		if ($pid != 'all') {
-			$limit = "where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '$pid' and stl_dsid = ''";
+			$limit = "where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '".$pid."' and stl_dsid = ''";
 		} else {
 			$limit = "where stl_dsid = '' ";		
 		}
 		if ($year != 'all' && is_numeric($year)) {
 			$year = Misc::escapeString($year);
-			$limit .= " and year(stl_request_date) = $year";
+			$limit .= " and year(stl_request_date) = ".$year;
 			if ($month != 'all' && is_numeric($month)) {
 				$month = Misc::escapeString($month);
-				$limit .= " and month(stl_request_date) = $month";
+				$limit .= " and month(stl_request_date) = ".$month;
 			}
 		} elseif ($range != 'all' && $range == '4w') {
 			$limit .= " and stl_request_date >= CURDATE()-INTERVAL 1 MONTH";
@@ -343,7 +343,7 @@ class Statistics
 
 		$stmt = "select count(*) as stl_country_count, stl_country_name, stl_country_code  
 			 	 from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "statistics_all
-				 $limit
+				 ".$limit."
 				 group by stl_country_name, stl_country_code
 				 order by stl_country_count desc, stl_country_name asc";
 
@@ -362,16 +362,16 @@ class Statistics
 
 	function getStatsByCountrySpecificAbstractView($pid, $year='all', $month='all', $range='all',$country) {	
 		if ($pid != 'all') {
-			$limit = "where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '$pid' and stl_dsid = ''";
+			$limit = "where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '".$pid."' and stl_dsid = ''";
 		} else {
 			$limit = "where stl_dsid = '' ";		
 		}
 		if ($year != 'all' && is_numeric($year)) {
 			$year = Misc::escapeString($year);
-			$limit .= " and year(stl_request_date) = $year";
+			$limit .= " and year(stl_request_date) = ".$year;
 			if ($month != 'all' && is_numeric($month)) {
 				$month = Misc::escapeString($month);
-				$limit .= " and month(stl_request_date) = $month";
+				$limit .= " and month(stl_request_date) = ".$month;
 			}
 		} elseif ($range != 'all' && $range == '4w') {
 			$limit .= " and stl_request_date >= CURDATE()-INTERVAL 1 MONTH";
@@ -379,7 +379,7 @@ class Statistics
 		$limit .= " and stl_country_name = '".$country."'";
 		$stmt = "select count(*) as stl_country_count, stl_country_name, stl_country_code, stl_region, stl_city
 			 	 from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "statistics_all
-				 $limit
+				 ".$limit."
 				 group by stl_country_name, stl_country_code, stl_region, stl_city
 				 order by stl_country_name asc, stl_region asc, stl_city asc, stl_country_count desc";
 
@@ -444,10 +444,10 @@ class Statistics
 		}
 		if ($year != 'all' && is_numeric($year)) {
 			$year = Misc::escapeString($year);
-			$limit .= " and year(stl_request_date) = $year";
+			$limit .= " and year(stl_request_date) = ".$year;
 			if ($month != 'all' && is_numeric($month)) {
 				$month = Misc::escapeString($month);
-				$limit .= " and month(stl_request_date) = $month";
+				$limit .= " and month(stl_request_date) = ".$month;
 			}
 		} elseif ($range != 'all' && $range == '4w') {
 			$limit .= " and stl_request_date >= CURDATE()-INTERVAL 1 MONTH";
@@ -455,7 +455,7 @@ class Statistics
 		
 		$stmt = "select count(*) as stl_country_count, stl_country_name, stl_country_code  
 			 	 from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "statistics_all
-				 $limit
+				 ".$limit."
 				 group by stl_country_name, stl_country_code
 				 order by stl_country_count desc, stl_country_name asc";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt,  DB_FETCHMODE_ASSOC);
@@ -469,16 +469,16 @@ class Statistics
 
 	function getStatsByCountrySpecificAllFileDownloads($pid, $year='all', $month='all', $range='all', $country) {	
 		if ($pid != 'all') {
-			$limit = "where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '$pid' and stl_dsid <> ''";
+			$limit = "where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '".$pid."' and stl_dsid <> ''";
 		} else {
 			$limit = "where stl_dsid <> '' ";		
 		}
 		if ($year != 'all' && is_numeric($year)) {
 			$year = Misc::escapeString($year);
-			$limit .= " and year(stl_request_date) = $year";
+			$limit .= " and year(stl_request_date) = ".$year;
 			if ($month != 'all' && is_numeric($month)) {
 				$month = Misc::escapeString($month);
-				$limit .= " and month(stl_request_date) = $month";
+				$limit .= " and month(stl_request_date) = ".$month;
 			}
 		} elseif ($range != 'all' && $range == '4w') {
 			$limit .= " and stl_request_date >= CURDATE()-INTERVAL 1 MONTH";
@@ -487,7 +487,7 @@ class Statistics
 		
 		$stmt = "select count(*) as stl_country_count, stl_country_name, stl_country_code, stl_region, stl_city
 			 	 from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "statistics_all
-				 $limit
+				 ".$limit."
 				 group by stl_country_name, stl_country_code, stl_region, stl_city
 				 order by stl_country_name asc, stl_region asc, stl_city asc, stl_country_count desc";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt,  DB_FETCHMODE_ASSOC);
@@ -502,7 +502,7 @@ class Statistics
 	function getStatsByObject($pid) {	
 		$stmt = "select count(*)  
 			 	 from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "statistics_all
-				 where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '$pid'";
+				 where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '".$pid."'";
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 		if ((count($res) == 1) && (!empty($res))) {
 			$count = $res;
@@ -514,14 +514,14 @@ class Statistics
 
 	function getStatsByAbstractViewHistory($pid) {	
 		if ($pid != 'all') {
-			$limit = "where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '$pid' and stl_dsid = ''";
+			$limit = "where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '".$pid."' and stl_dsid = ''";
 		} else {
 			$limit = "where stl_dsid = ''";		
 		}
 
 		$stmt = "select count(*) as count,month(stl_request_date) as monthnum,date_format(stl_request_date,'%b') as month,year(stl_request_date) as year 
 	 	 from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "statistics_all
-		 $limit 		
+		 ".$limit." 		
  		 group by year(stl_request_date), month(stl_request_date) 
 		 order by stl_request_date desc";
 
@@ -536,14 +536,14 @@ class Statistics
 
 	function getStatsByDownloadHistory($pid) {	
 		if ($pid != 'all') {
-			$limit = "where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '$pid' and stl_dsid <> ''";
+			$limit = "where stl_pid_num = ".Misc::numPID($pid)." and stl_pid = '".$pid."' and stl_dsid <> ''";
 		} else {
 			$limit = "where stl_dsid <> ''";		
 		}
 		
 		$stmt = "select count(*) as count,month(stl_request_date) as monthnum,date_format(stl_request_date,'%b') as month,year(stl_request_date) as year 
 	 	 from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "statistics_all
-		 $limit		
+		 ".$limit."		
  		 group by year(stl_request_date), month(stl_request_date) 
 		 order by stl_request_date desc";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);

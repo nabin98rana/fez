@@ -90,7 +90,7 @@ class WF_Behaviour
         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "wfbehaviour
                  WHERE
-                    wfb_id IN ($items)";
+                    wfb_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -155,7 +155,7 @@ class WF_Behaviour
                     wfb_description = '" . Misc::escapeString($params["wfb_description"]) . "',
                     wfb_script_name = '" . Misc::escapeString($params["wfb_script_name"]) . "',
                     wfb_auto = '" . Misc::checkBox(@$params["wfb_auto"]) . "'
-                 WHERE wfb_id = $wfb_id";
+                 WHERE wfb_id = ".$wfb_id;
 //		echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -180,7 +180,7 @@ class WF_Behaviour
                     *
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "wfbehaviour wfb
-                    $wherestr
+                    ".$wherestr."
                  ORDER BY
                     wfb.wfb_title ASC";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -208,7 +208,7 @@ class WF_Behaviour
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "wfbehaviour
                  WHERE
-                    wfb_id=$wfb_id";
+                    wfb_id=".$wfb_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -267,7 +267,7 @@ class WF_Behaviour
                 'wfb_title' => $xworkflow->getAttribute('wfb_title'),
                 'wfb_version' => $xworkflow->getAttribute('wfb_version'),
                 );
-            $elist = WF_Behaviour::getList($where="WHERE wfb_script_name='$xscript'");
+            $elist = WF_Behaviour::getList($where="WHERE wfb_script_name='".$xscript."'");
             if (!empty($elist)) {
                 $overwrite = true;
             } else {
@@ -306,13 +306,13 @@ class WF_Behaviour
                     'wfb_script_name' => $xbehaviour->getAttribute('wfb_script_name'),
                     'wfb_auto' => $xbehaviour->getAttribute('wfb_auto'),
                 );
-            	$elist = WF_Behaviour::getList($where="WHERE wfb_script_name='$xscript'");
+            	$elist = WF_Behaviour::getList($where="WHERE wfb_script_name='".$xscript."'");
                 if (!empty($elist)) {
-                    $feedback[] = "Overwriting behaviour $xtitle";
+                    $feedback[] = "Overwriting behaviour ".$xtitle;
                     $dbid = $elist[0]['wfb_id'];
                     WF_Behaviour::update($dbid, $params);
                 } else {
-                    $feedback[] = "Importing new behaviour $xtitle";
+                    $feedback[] = "Importing new behaviour ".$xtitle;
                     $dbid = WF_Behaviour::insert($params);
                 }
             

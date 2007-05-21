@@ -66,7 +66,7 @@ class XSD_Display_Attach
 					*
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_attach left join
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields on (att_parent_xsdmf_id=$xsdmf_id and att_child_xsdmf_id = xsdmf_id)
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields on (att_parent_xsdmf_id=".$xsdmf_id." and att_child_xsdmf_id = xsdmf_id)
                     inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display on (xdis_id = xsdmf_xdis_id)
 					";
 		$stmt .= " ORDER BY att_order ASC";

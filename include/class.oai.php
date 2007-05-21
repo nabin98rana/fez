@@ -107,7 +107,7 @@ class OAI
 		$sql_filter['elsewhere'] = "";
         if (!empty($identifier)) {
         	$sql_filter['where'][] = "r2.rmf_rec_pid = '".Misc::escapeString($identifier)."'";
-        	$bodyStmtPart2 = " INNER JOIN {$dbtp}record_matching_field AS r3
+        	$bodyStmtPart2 = " INNER JOIN ".$dbtp."record_matching_field AS r3
                       ON r3.rmf_rec_pid_num = r2.rmf_rec_pid_num and r3.rmf_rec_pid = r2.rmf_rec_pid and r3.rmf_xsdmf_id in 
 					 (".implode(",", $statusList).")
                       and r3.rmf_int=2 ";        	
@@ -131,10 +131,10 @@ class OAI
 			$bodyStmtPart2 = "";
 		}
 
-        $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2 ".$bodyStmtPart2;
+        $bodyStmtPart1 = "FROM  ".$dbtp."record_matching_field AS r2 ".$bodyStmtPart2;
 
 		$bodyStmtPart1 .= "                      
-		           INNER JOIN {$dbtp}record_matching_field AS r4
+		           INNER JOIN ".$dbtp."record_matching_field AS r4
                       ON r4.rmf_rec_pid_num = r2.rmf_rec_pid_num and r4.rmf_rec_pid = r2.rmf_rec_pid and r4.rmf_xsdmf_id in 
 					 (".implode(",", $objectTypeList).")
                       and r4.rmf_int=3
@@ -182,29 +182,29 @@ class OAI
 
         $stmt = "
                     SELECT ".APP_SQL_CACHE." r2.rmf_rec_pid
-                    $bodyStmt
+                    ".$bodyStmt."
 					order by ";
         if ($order_by != "") {
-			$stmt .= " r5.rmf_$data_type $order_dir, r2.rmf_rec_pid_num ASC";
+			$stmt .= " r5.rmf_".$data_type." ".$order_dir.", r2.rmf_rec_pid_num ASC";
         } else {
 			$stmt .= " r2.rmf_rec_pid_num ASC";        	
         }
 	    $stmt .= "		
-                    LIMIT $start, $max					                   
+                    LIMIT ".$start.", ".$max."					                   
             ";		
 
         $stmtWrap = "SELECT ".APP_SQL_CACHE."  r1.*, x1.*, s1.*, k1.*, d1.* 
-            FROM {$dbtp}record_matching_field AS r1
-            INNER JOIN {$dbtp}xsd_display_matchfields AS x1
+            FROM ".$dbtp."record_matching_field AS r1
+            INNER JOIN ".$dbtp."xsd_display_matchfields AS x1
             ON r1.rmf_xsdmf_id = x1.xsdmf_id
 
 				INNER JOIN (".$stmt.") as display on display.rmf_rec_pid = r1.rmf_rec_pid
 
-            LEFT JOIN {$dbtp}xsd_loop_subelement s1 
+            LEFT JOIN ".$dbtp."xsd_loop_subelement s1 
             ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
-            LEFT JOIN {$dbtp}search_key k1 
+            LEFT JOIN ".$dbtp."search_key k1 
             ON (k1.sek_id = x1.xsdmf_sek_id)
-            LEFT JOIN {$dbtp}xsd_display d1  
+            LEFT JOIN ".$dbtp."xsd_display d1  
             ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
 			
 			ORDER BY r1.rmf_rec_pid_num ASC, r1.rmf_id ASC

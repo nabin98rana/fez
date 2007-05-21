@@ -70,7 +70,7 @@ class XSD_Display
         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
                  WHERE
-                    xdis_id IN ($items)";
+                    xdis_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -266,16 +266,16 @@ class XSD_Display
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
                  (
-                    $xdis_field_str
+                    ".$xdis_field_str."
                     xdis_title,
                     xdis_xsd_id,
                     xdis_version,
                     xdis_enabled,
                     xdis_object_type
                  ) VALUES (
-                    $xdis_value_str
+                    ".$xdis_value_str."
                     '" . Misc::escapeString($params["xdis_title"]) . "',
-                    $xsd_id,
+                    ".$xsd_id.",
                     '" . Misc::escapeString($params["xdis_version"]) . "',
                     " .$xdis_enabled . ",                    
                     " .$params["xdis_object_type"] . "
@@ -322,7 +322,7 @@ class XSD_Display
                     xdis_version = '" . Misc::escapeString($params["xdis_version"]) . "',
 					xdis_enabled = " .$xdis_enabled . ",
 					xdis_object_type = " .$params["xdis_object_type"] . "
-                 WHERE xdis_id = $xdis_id";
+                 WHERE xdis_id = ".$xdis_id;
 
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -349,7 +349,7 @@ class XSD_Display
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
                  WHERE
-                    xdis_xsd_id = $xsd_id $where
+                    xdis_xsd_id = ".$xsd_id." ".$where."
                  ORDER BY
                     xdis_title ASC";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -428,7 +428,7 @@ class XSD_Display
 					concat(xdis_title, ' Version ', xdis_version) as xdis_desc
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display 
-				 WHERE xdis_object_type = $ret_id			 
+				 WHERE xdis_object_type = ".$ret_id."			 
                  ORDER BY
                     xdis_title, xdis_version ASC";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
@@ -506,7 +506,7 @@ class XSD_Display
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
                  WHERE
-                    xdis_id=$xdis_id";
+                    xdis_id=".$xdis_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -566,7 +566,7 @@ class XSD_Display
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1,
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields s1
                  WHERE
-				    r1.xsdrel_xsdmf_id = x1.xsdmf_id AND x1.xsdmf_xdis_id = $related_xdis_id AND s1.xsdsel_id = x1.xsdmf_xsdsel_id and
+				    r1.xsdrel_xsdmf_id = x1.xsdmf_id AND x1.xsdmf_xdis_id = ".$related_xdis_id." AND s1.xsdsel_id = x1.xsdmf_xsdsel_id and
                     s1.xsdsel_title = '".$xdis_title."'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
@@ -616,7 +616,7 @@ class XSD_Display
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
                  WHERE
-                    xdis_id = $xdis_id";
+                    xdis_id = ".$xdis_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -640,7 +640,7 @@ class XSD_Display
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
                  WHERE
-                    xdis_title = '$xdis_title'";
+                    xdis_title = '".$xdis_title."'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -665,7 +665,7 @@ class XSD_Display
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
                  WHERE
-                    xdis_title = '$xdis_title' and xdis_version = '$xdis_version'";
+                    xdis_title = '".$xdis_title."' and xdis_version = '".$xdis_version."'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -710,7 +710,7 @@ class XSD_Display
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
                  WHERE
-                    xdis_id=$xdis_id";
+                    xdis_id=".$xdis_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -778,11 +778,11 @@ class XSD_Display
             $title = Misc::escapeString($xdis->getAttribute('xdis_title'));
             $version = Misc::escapeString($xdis->getAttribute('xdis_version'));
             if (!in_array($xdis->getAttribute('xdis_id'), $xdis_ids)) {
-                $bgp->setStatus("Skipping Display $title");
+                $bgp->setStatus("Skipping Display ".$title);
             	continue;
             }
             $found_matching_title = false;
-            $list = XSD_Display::getList($xsd_id,"AND xdis_title='$title' AND xdis_version='$version' ");
+            $list = XSD_Display::getList($xsd_id,"AND xdis_title='".$title."' AND xdis_version='".$version."' ");
             if (!empty($list)) {
                 $found_matching_title = true;
                 $xdis_id = $list[0]['xdis_id'];
@@ -974,7 +974,7 @@ class XSD_DisplayObject
             $datastreamTitles = $this->getDatastreamTitles();
 			$datastreams = Fedora_API::callGetDatastreams($pid); // need the full get datastreams to get the controlGroup etc
             if (empty($datastreams)) {
-            	Error_Handler::logError("The PID {} doesn't appear to be in the fedora repository - perhaps it was not ingested correctly.  " .
+            	Error_Handler::logError("The PID ".$pid." doesn't appear to be in the fedora repository - perhaps it was not ingested correctly.  " .
                         "Please let the Fez admin know so that the Fez index can be repaired.",__FILE__,__LINE__);
                 return;
             }

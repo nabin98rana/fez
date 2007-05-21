@@ -58,7 +58,7 @@ class Workflow_State
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow_state 
                  WHERE
-                    wfs_id=$wfs_id";
+                    wfs_id=".$wfs_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -102,8 +102,8 @@ class Workflow_State
                     '" . Misc::escapeString($params['wfs_title']) . "',
                     '" . Misc::escapeString($params['wfs_description']) . "',
                     '" . Misc::escapeString($params['wfs_roles']) . "',
-                    '$wfs_auto',
-                    '$wfs_wfb_id',
+                    '".$wfs_auto."',
+                    '".$wfs_wfb_id."',
                     '" . Misc::checkBox(@$params['wfs_start']) . "',
                     '" . Misc::checkBox(@$params['wfs_end']) . "',
                     '" . Misc::checkBox(@$params['wfs_transparent']) . "'
@@ -138,8 +138,8 @@ class Workflow_State
                     wfs_title='" . Misc::escapeString($HTTP_POST_VARS['wfs_title']) . "',
                     wfs_description='" . Misc::escapeString($HTTP_POST_VARS['wfs_description']) . "',
                     wfs_roles='" . Misc::escapeString($HTTP_POST_VARS['wfs_roles']) . "',
-                    wfs_auto='$wfs_auto',
-                    wfs_wfb_id='$wfs_wfb_id',
+                    wfs_auto='".$wfs_auto."',
+                    wfs_wfb_id='".$wfs_wfb_id."',
                     wfs_start='".Misc::checkBox(@$HTTP_POST_VARS['wfs_start'])."',
                     wfs_end='".Misc::checkBox(@$HTTP_POST_VARS['wfs_end'])."',
                     wfs_transparent='".Misc::checkBox(@$HTTP_POST_VARS['wfs_transparent'])."'
@@ -168,7 +168,7 @@ class Workflow_State
         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow_state
                  WHERE
-                    wfs_id IN ($items)";
+                    wfs_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -185,12 +185,12 @@ class Workflow_State
         } 
     	$items = Misc::arrayToSQL($wfl_ids);
         $stmt = "SELECT wfs_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow_state" .
-                " WHERE wfs_wfl_id IN ($items)";
+                " WHERE wfs_wfl_id IN (".$items.")";
         $wfs_ids = $GLOBALS["db_api"]->dbh->getCol($stmt);        
         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow_state
                  WHERE
-                    wfs_wfl_id IN ($items)";
+                    wfs_wfl_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -212,7 +212,7 @@ class Workflow_State
     function getList($wfl_id, $andstr='')
     {
         if ($wfl_id) {
-            $wherestr = " wfs_wfl_id=$wfl_id ";
+            $wherestr = " wfs_wfl_id=".$wfl_id." ";
         } else {
             $wherestr = " 1 ";			
         }
@@ -223,7 +223,7 @@ class Workflow_State
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow_state AS ws
                     LEFT JOIN ".APP_DEFAULT_DB.".".APP_TABLE_PREFIX."wfbehaviour AS wb ON ws.wfs_wfb_id=wb.wfb_id
                  WHERE
-                     $wherestr $andstr 
+                     ".$wherestr." ".$andstr." 
                     ";
 
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -271,7 +271,7 @@ class Workflow_State
         $ids = WorkflowStateLink::getListNext($wfs_id);
         if (!empty($ids)) {
             $ids_str = implode(',', $ids);
-            $states = Workflow_State::getList(null, " AND wfs_id IN ($ids_str) ");
+            $states = Workflow_State::getList(null, " AND wfs_id IN (".$ids_str.") ");
             return $states;
         } else {
             return array();
@@ -347,12 +347,12 @@ class Workflow_State
         foreach ($xstates as $xstate) {
             $wfb_id = $xstate->getAttribute('wfs_wfb_id');
         	if (!isset($behaviour_ids_map[$wfb_id])) {
-                $bNodes = $xpath->query("//WorkflowBehaviour[@wfb_id='$wfb_id']");
+                $bNodes = $xpath->query("//WorkflowBehaviour[@wfb_id='".$wfb_id."']");
                 if ($bNodes->length > 0) {
                     $btitle = $bNodes->item(0)->getAttribute('wfb_title');
-                    $feedback[] = "This workflow requires behaviour {$btitle}";
+                    $feedback[] = "This workflow requires behaviour ".$btitle;
                 } else {
-                    $feedback[] = "This workflow requires a behaviour that wasn't found in the XML file ($wfb_id)";
+                    $feedback[] = "This workflow requires a behaviour that wasn't found in the XML file (".$wfb_id.")";
                 }
                 $wfb_remapped = $wfb_id;
         	} else {

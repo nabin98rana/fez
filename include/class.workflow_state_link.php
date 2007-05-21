@@ -107,7 +107,7 @@ class WorkflowStateLink
     	$stmt = "INSERT INTO 
                 ".APP_DEFAULT_DB.".".APP_TABLE_PREFIX."workflow_state_link 
                 (wfsl_wfl_id, wfsl_from_id, wfsl_to_id) VALUES
-                ('$wfl_id','$from','$to')";
+                ('".$wfl_id."','".$from."','".$to."')";
         $res1 = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res1)) {
             Error_Handler::logError(array($res1->getMessage(), $res1->getDebugInfo()), __FILE__, __LINE__);
@@ -124,7 +124,7 @@ class WorkflowStateLink
     function getDetails($wfsl_id)
     {
         $stmt = "SELECT * FROM ".APP_DEFAULT_DB.".".APP_TABLE_PREFIX."workflow_state_link
-            WHERE wfsl_id='$wfsl_id'";
+            WHERE wfsl_id='".$wfsl_id."'";
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt,DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -148,7 +148,7 @@ class WorkflowStateLink
         }
         $stmt = "DELETE FROM 
             ".APP_DEFAULT_DB.".".APP_TABLE_PREFIX."workflow_state_link 
-            WHERE wfsl_from_id IN ($items) OR wfsl_to_id IN ($items)
+            WHERE wfsl_from_id IN (".$items.") OR wfsl_to_id IN (".$items.")
             ";
         $res1 = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res1)) {
@@ -165,7 +165,7 @@ class WorkflowStateLink
     {
         $stmt = "SELECT wfsl_to_id FROM 
             ".APP_DEFAULT_DB.".".APP_TABLE_PREFIX."workflow_state_link 
-            WHERE wfsl_from_id=$state";
+            WHERE wfsl_from_id=".$state;
         $res1 = $GLOBALS["db_api"]->dbh->getCol($stmt);
         if (PEAR::isError($res1)) {
             Error_Handler::logError(array($res1->getMessage(), $res1->getDebugInfo()), __FILE__, __LINE__);
@@ -183,7 +183,7 @@ class WorkflowStateLink
     {
         $stmt = "SELECT wfsl_from_id FROM 
             ".APP_DEFAULT_DB.".".APP_TABLE_PREFIX."workflow_state_link 
-            WHERE wfsl_to_id=$state";
+            WHERE wfsl_to_id=".$state;
         $res1 = $GLOBALS["db_api"]->dbh->getCol($stmt);
         if (PEAR::isError($res1)) {
             Error_Handler::logError(array($res1->getMessage(), $res1->getDebugInfo()), __FILE__, __LINE__);
@@ -202,7 +202,7 @@ class WorkflowStateLink
     {
         $stmt = "SELECT * FROM 
             ".APP_DEFAULT_DB.".".APP_TABLE_PREFIX."workflow_state_link 
-            WHERE wfsl_wfl_id=$wfl_id";
+            WHERE wfsl_wfl_id=".$wfl_id;
         $res1 = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res1)) {
             Error_Handler::logError(array($res1->getMessage(), $res1->getDebugInfo()), __FILE__, __LINE__);
@@ -221,7 +221,7 @@ class WorkflowStateLink
     {
         $stmt = "SELECT * FROM 
             ".APP_DEFAULT_DB.".".APP_TABLE_PREFIX."workflow_state_link 
-            WHERE wfsl_wfl_id=$wfl_id";
+            WHERE wfsl_wfl_id=".$wfl_id;
         $res1 = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res1)) {
             Error_Handler::logError(array($res1->getMessage(), $res1->getDebugInfo()), __FILE__, __LINE__);
@@ -239,7 +239,7 @@ class WorkflowStateLink
     {
         $stmt = "SELECT * FROM 
             ".APP_DEFAULT_DB.".".APP_TABLE_PREFIX."workflow_state_link 
-            WHERE wfsl_wfl_id=$wfl_id";
+            WHERE wfsl_wfl_id=".$wfl_id;
         $res1 = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res1)) {
             Error_Handler::logError(array($res1->getMessage(), $res1->getDebugInfo()), __FILE__, __LINE__);
@@ -291,11 +291,11 @@ EOT;
             if (!empty($subtitle)) {
                 $subtitle = "($subtitle)";
             }
-            $dot .= "{$state['wfs_id']} [label=\"$title\\n$subtitle\" URL=\"$url1\" $style ];\n";
+            $dot .= $state['wfs_id']." [label=\"".$title."\\n".$subtitle."\" URL=\"".$url1."\" ".$style." ];\n";
         }
         foreach ($res1 as $link) {
-            $dot .= "\"{$link['wfsl_from_id']}\" -> "
-                ."\"{$link['wfsl_to_id']}\";\n";
+            $dot .= "\"".$link['wfsl_from_id']."\" -> "
+                ."\"".$link['wfsl_to_id']."\";\n";
         }
         $dot .= "}\n";
         return $dot;
@@ -317,7 +317,7 @@ EOT;
         $end_state = array();
         foreach ($states as $state) {
             if ($state['wfs_auto'] == 1 && count($state['next_ids']) > 1) {
-                $txt .= "ALERT: Not allowed: {$state['wfs_title']} is automatic and has more than 1 following states<br/>";
+                $txt .= "ALERT: Not allowed: ".$state['wfs_title']." is automatic and has more than 1 following states<br/>";
             }
             // if the state has not previous states or it has only one previous state that is itself
             if ($state['wfs_start']) {
@@ -329,7 +329,7 @@ EOT;
         }
         if (count($start_state) > 1) {
             $str = implode(', ', $start_state);
-            $txt .= "ALERT: Too many start states: $str <br/>";
+            $txt .= "ALERT: Too many start states: ".$str." <br/>";
         }
         if (count($start_state) < 1) {
             $txt .= "ALERT: Not allowed: there is no start state.  <br/>";

@@ -83,8 +83,8 @@ class WorkflowStatus {
     {
         $usr_id = Auth::getUserID();
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-        $stmt = "INSERT INTO {$dbtp}workflow_sessions (wfses_usr_id, wfses_listing, wfses_date) " .
-                "VALUES ('$usr_id','',NOW())";
+        $stmt = "INSERT INTO ".$dbtp."workflow_sessions (wfses_usr_id, wfses_listing, wfses_date) " .
+                "VALUES ('".$usr_id."','',NOW())";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -131,9 +131,9 @@ class WorkflowStatus {
         $title = Misc::escapeString($title);
         $blob = Misc::escapeString(serialize($this));
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-        $stmt = "UPDATE {$dbtp}workflow_sessions " .
-                "SET wfses_object='$blob', wfses_listing='$title', wfses_date='$date' " .
-                "WHERE wfses_id='$id' AND wfses_usr_id='$usr_id' ";
+        $stmt = "UPDATE ".$dbtp."workflow_sessions " .
+                "SET wfses_object='".$blob."', wfses_listing='".$title."', wfses_date='".$date."' " .
+                "WHERE wfses_id='".$id."' AND wfses_usr_id='".$usr_id."' ";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -156,8 +156,8 @@ class WorkflowStatus {
         $usr_id = Auth::getUserID();
         $id = $this->id;
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-        $stmt = "DELETE FROM {$dbtp}workflow_sessions " .
-                "WHERE wfses_id='$id' AND wfses_usr_id='$usr_id' ";
+        $stmt = "DELETE FROM ".$dbtp."workflow_sessions " .
+                "WHERE wfses_id='".$id."' AND wfses_usr_id='".$usr_id."' ";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -307,11 +307,11 @@ class WorkflowStatus {
         if ($wft_type != 'Delete') {
             History::addHistory($pid, $this->wfl_details['wfl_id'], $outcome, $outcome_details, true);
         } elseif (!empty($this->parents_list)) {
-            History::addHistory($this->parents_list[0]['pid'], $this->wfl_details['wfl_id'], "", "Deleted child $pid", true);
+            History::addHistory($this->parents_list[0]['pid'], $this->wfl_details['wfl_id'], "", "Deleted child ".$pid, true);
         }
         $this->clearSession();
         if ($wft_type != 'Ingest') {
-            header("Location: ".APP_RELATIVE_URL."workflow/end.php?$querystr");
+            header("Location: ".APP_RELATIVE_URL."workflow/end.php?".$querystr);
             exit;
         }
     }
@@ -499,8 +499,8 @@ class WorkflowStatusStatic
         }
         $obj = null;
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-        $stmt = "SELECT wfses_object FROM {$dbtp}workflow_sessions " .
-                "WHERE wfses_usr_id='$usr_id'  AND wfses_id='$id' ";  
+        $stmt = "SELECT wfses_object FROM ".$dbtp."workflow_sessions " .
+                "WHERE wfses_usr_id='".$usr_id."'  AND wfses_id='".$id."' ";  
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -520,12 +520,12 @@ class WorkflowStatusStatic
     {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         if (!empty($usr_id)) {
-            $where_user = "wfses_usr_id='$usr_id'"; 
+            $where_user = "wfses_usr_id='".$usr_id."'"; 
         } else {
             $where_user = '';
         }
-        $stmt = "SELECT wfses_id,wfses_date, wfses_listing FROM {$dbtp}workflow_sessions " .
-                "WHERE $where_user ";  
+        $stmt = "SELECT wfses_id,wfses_date, wfses_listing FROM ".$dbtp."workflow_sessions " .
+                "WHERE ".$where_user;  
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -552,8 +552,8 @@ class WorkflowStatusStatic
         if (empty($usr_id)) {
             $usr_id = Auth::getUserID();
         }
-        $stmt = "DELETE FROM {$dbtp}workflow_sessions " .
-                "WHERE wfses_usr_id='$usr_id'  AND wfses_id='$id' ";  
+        $stmt = "DELETE FROM ".$dbtp."workflow_sessions " .
+                "WHERE wfses_usr_id='".$usr_id."'  AND wfses_id='".$id."' ";  
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

@@ -61,7 +61,7 @@ class Status
         $stmt = "DELETE FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "status
                  WHERE
-                    sta_id IN ($items)";
+                    sta_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -119,7 +119,7 @@ class Status
                     sta_title = '" . Misc::escapeString($HTTP_POST_VARS["sta_title"]) . "',
 					sta_order = '" . Misc::escapeString($HTTP_POST_VARS["sta_order"]) . "',
 					sta_color = '" . Misc::escapeString($HTTP_POST_VARS["sta_color"]) . "'
-                 WHERE sta_id = $sta_id";
+                 WHERE sta_id = ".$sta_id;
 
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -145,7 +145,7 @@ class Status
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "status
                  WHERE
-                    sta_id=$sta_id";
+                    sta_id=".$sta_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 
         if (PEAR::isError($res)) {
@@ -170,7 +170,7 @@ class Status
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "status
                  WHERE
-                    sta_title='$sta_title'";
+                    sta_title='".$sta_title."'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 
         if (PEAR::isError($res)) {
@@ -274,7 +274,7 @@ class Status
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "status
                  WHERE
-                    sta_id=$sta_id";
+                    sta_id=".$sta_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

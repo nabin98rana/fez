@@ -188,8 +188,8 @@ class FulltextIndex {
             $key_id = $this->getKeyId($word);
 
             // associate words with pid
-            $stmt = "INSERT INTO {$dbtp}fulltext_engine (fte_fti_id,fte_key_id,fte_weight) 
-                VALUES ('$fti_id','$key_id','$weight') ";
+            $stmt = "INSERT INTO ".$dbtp."fulltext_engine (fte_fti_id,fte_key_id,fte_weight) 
+                VALUES ('".$fti_id."','".$key_id."','".$weight."') ";
             $res = $GLOBALS['db_api']->dbh->query($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -206,7 +206,7 @@ class FulltextIndex {
     {
         $word = substr($word, 0, 64); // limit the word to the length of the field in the DB
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-        $stmt = "SELECT ftk_id FROM {$dbtp}fulltext_keywords WHERE ftk_word = '".Misc::escapeString($word)."'";
+        $stmt = "SELECT ftk_id FROM ".$dbtp."fulltext_keywords WHERE ftk_word = '".Misc::escapeString($word)."'";
         $res = $GLOBALS['db_api']->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -215,7 +215,7 @@ class FulltextIndex {
         if ($res > 0) {
             $key_id = $res;
         } else {
-            $stmt = "INSERT INTO {$dbtp}fulltext_keywords (ftk_word, ftk_twoletters) VALUES
+            $stmt = "INSERT INTO ".$dbtp."fulltext_keywords (ftk_word, ftk_twoletters) VALUES
                 ('".Misc::escapeString($word)."',
                  '".Misc::escapeString(substr(str_replace('\\','',$word),0,2))."') ";
             $res = $GLOBALS['db_api']->dbh->query($stmt);
@@ -231,7 +231,7 @@ class FulltextIndex {
     {
         $pid = $rec->getPid();
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-        $stmt = "SELECT * FROM {$dbtp}fulltext_index WHERE fti_pid='$pid' AND fti_dsid='$dsID'";
+        $stmt = "SELECT * FROM ".$dbtp."fulltext_index WHERE fti_pid='".$pid."' AND fti_dsid='".$dsID."'";
         $res = $GLOBALS['db_api']->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -241,8 +241,8 @@ class FulltextIndex {
             $fti_id = $res['fti_id'];
             $new_id = false;
         } else {
-            $stmt = "INSERT INTO {$dbtp}fulltext_index (fti_pid, fti_dsid, fti_indexed) 
-                VALUES ('$pid', '$dsID', NOW()) ";
+            $stmt = "INSERT INTO ".$dbtp."fulltext_index (fti_pid, fti_dsid, fti_indexed) 
+                VALUES ('".$pid."', '".$dsID."', NOW()) ";
             $res = $GLOBALS['db_api']->dbh->query($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -272,19 +272,19 @@ class FulltextIndex {
                 // For AND operator, sum up the weights from each of the joins
                 $ft_weight_select = '';
                 foreach ($keywords as $num => $word) {
-                    $ft_weight_select .= "sum(fte$num.fte_weight)+";
+                    $ft_weight_select .= "sum(fte".$num.".fte_weight)+";
                 }
                 $ft_weight_select = rtrim($ft_weight_select,'+');
                 $ft_stmt = "INNER JOIN (
-                    SELECT fti_pid, $ft_weight_select as Relevance FROM {$dbtp}fulltext_index as fti  
+                    SELECT fti_pid, ".$ft_weight_select." as Relevance FROM ".$dbtp."fulltext_index as fti  
                     ";
                 // Use INNER JOINS to AND the keywords
                 foreach ($keywords as $num => $word) {
-                    $ft_stmt .= "INNER JOIN {$dbtp}fulltext_engine as fte$num ON fte$num.fte_fti_id=fti.fti_id
-                       INNER JOIN {$dbtp}fulltext_keywords as ftk$num 
-                       ON ftk$num.ftk_twoletters='".Misc::escapeString(substr(str_replace('\\','',$word),0,2))."'
-                       AND ftk$num.ftk_word like '".Misc::escapeString($word)."%' 
-                       AND ftk$num.ftk_id=fte$num.fte_key_id ";
+                    $ft_stmt .= "INNER JOIN ".$dbtp."fulltext_engine as fte".$num." ON fte".$num.".fte_fti_id=fti.fti_id
+                       INNER JOIN ".$dbtp."fulltext_keywords as ftk".$num." 
+                       ON ftk".$num.".ftk_twoletters='".Misc::escapeString(substr(str_replace('\\','',$word),0,2))."'
+                       AND ftk".$num.".ftk_word like '".Misc::escapeString($word)."%' 
+                       AND ftk".$num.".ftk_id=fte".$num.".fte_key_id ";
                 }
                 /**
                  *      This works for an OR operator
@@ -317,7 +317,7 @@ class FulltextIndex {
     function removeByPid($pid)
     {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-        $stmt = "SELECT fti_id FROM {$dbtp}fulltext_index WHERE fti_pid='$pid' ";
+        $stmt = "SELECT fti_id FROM ".$dbtp."fulltext_index WHERE fti_pid='".$pid."' ";
         $res = $GLOBALS['db_api']->dbh->getCol($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -325,13 +325,13 @@ class FulltextIndex {
         }
         if (!empty($res)) {
             $ftis = Misc::array_to_sql($res);
-            $stmt = "DELETE FROM {$dbtp}fulltext_engine WHERE fte_fti_id IN ($ftis) ";
+            $stmt = "DELETE FROM ".$dbtp."fulltext_engine WHERE fte_fti_id IN (".$ftis.") ";
             $res = $GLOBALS['db_api']->dbh->query($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
                 $res = null;
             }
-            $stmt = "DELETE FROM {$dbtp}fulltext_index WHERE fti_pid='$pid' ";
+            $stmt = "DELETE FROM ".$dbtp."fulltext_index WHERE fti_pid='".$pid."' ";
             $res = $GLOBALS['db_api']->dbh->query($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -343,7 +343,7 @@ class FulltextIndex {
     function removeByDS($pid,$dsID)
     {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-        $stmt = "SELECT fti_id FROM {$dbtp}fulltext_index WHERE fti_pid='$pid' AND fti_dsid='$dsID' ";
+        $stmt = "SELECT fti_id FROM ".$dbtp."fulltext_index WHERE fti_pid='".$pid."' AND fti_dsid='".$dsID."' ";
         $res = $GLOBALS['db_api']->dbh->getCol($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -351,13 +351,13 @@ class FulltextIndex {
         }
         if (!empty($res)) {
             $ftis = Misc::array_to_sql($res);
-            $stmt = "DELETE FROM {$dbtp}fulltext_engine WHERE fte_fti_id IN ($ftis) ";
+            $stmt = "DELETE FROM ".$dbtp."fulltext_engine WHERE fte_fti_id IN (".$ftis.") ";
             $res = $GLOBALS['db_api']->dbh->query($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
                 $res = null;
             }
-            $stmt = "DELETE FROM {$dbtp}fulltext_index WHERE fti_pid='$pid'  AND fti_dsid='$dsID' ";
+            $stmt = "DELETE FROM ".$dbtp."fulltext_index WHERE fti_pid='".$pid."'  AND fti_dsid='".$dsID."' ";
             $res = $GLOBALS['db_api']->dbh->query($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

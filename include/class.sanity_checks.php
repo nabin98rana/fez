@@ -641,14 +641,14 @@
        $info = curl_getinfo($ch);
        if (curl_errno($ch) != 0) {
             $errstr = curl_error($ch);
-            return array(new ConfigResult('ConnectHTTP', $configDefine, $value, "Error: $errstr. " .
+            return array(new ConfigResult('ConnectHTTP', $configDefine, $value, "Error: ".$errstr.". " .
                     "The webserver couldn't connect to this address.  Check that the address is correct. " .
                     "Perhaps it is blocked at a firewall.  Also check that CURL is correctly installed."));
        }
        curl_close ($ch);
        if ($info['http_code'] != 200) {
             return array(new ConfigResult('ConnectHTTP', $configDefine, $value,
-                    "HTTP Result {$info['http_code']} code. ".
+                    "HTTP Result ".$info['http_code']." code. ".
                     "The webserver couldn't connect to this address.  Check that the address is correct. " .
                     "Check that any authorisation needed is correct. " .
                     "Perhaps it is blocked at a firewall."));

@@ -70,7 +70,7 @@ class Spreadsheet_Array {
                 $value = str_replace("\n",' ',$value);
                 $value = str_replace("\r",' ',$value);
                 $value = str_replace('"','""',$value);
-                $csv .= "\"{$value}\",";
+                $csv .= "\"".$value."\",";
             }
             $csv = rtrim($csv,',')."\n";
         }
@@ -93,13 +93,13 @@ xmlns:x="urn:schemas-microsoft-com:office:excel"
 xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
 xmlns:html="http://www.w3.org/TR/REC-html40">
 <Worksheet ss:Name="Sheet1">
-  <Table ss:ExpandedColumnCount="{$col_count}" ss:ExpandedRowCount="{$row_count}" x:FullColumns="1"
+  <Table ss:ExpandedColumnCount="".$col_count."" ss:ExpandedRowCount="".$row_count."" x:FullColumns="1"
    x:FullRows="1" >
 
 EOT;
         $xmlss .= "<Row>\n";
         foreach ($this->columns as $col) {
-            $xmlss .= "<Cell><Data ss:Type=\"String\">$col</Data></Cell>\n";
+            $xmlss .= "<Cell><Data ss:Type=\"String\">".$col."</Data></Cell>\n";
         }
         $xmlss .= "</Row>\n";
         foreach ($this->rows as $row) {
@@ -118,7 +118,7 @@ EOT;
                     $cell_type = 'String';
                 }
                 $value = htmlspecialchars($value);
-                $xmlss .= "<Cell><Data ss:Type=\"$cell_type\">{$value}</Data></Cell>";
+                $xmlss .= "<Cell><Data ss:Type=\"".$cell_type."\">".$value."</Data></Cell>";
             }
             $xmlss .= "</Row>\n";
         }
