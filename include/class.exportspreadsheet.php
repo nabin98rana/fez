@@ -39,7 +39,7 @@ class ExportSpreadsheet {
         $this->record_count = 0;
         $this->pid2spreadsheet($pid);
         $spreadsheetstr = $this->spreadsheet->toXMLSS();
-        $filename = APP_PATH."exports/{$this->bgp->bgp_id}.xml";
+        $filename = APP_PATH."exports/".$this->bgp->bgp_id.".xml";
         file_put_contents($filename, $spreadsheetstr);
         $headers = "Content-type: text/xml\n"
             ."Content-Disposition: attachment; filename=\"export.xml\"\n"

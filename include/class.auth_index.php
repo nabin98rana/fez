@@ -66,7 +66,7 @@ class AuthIndex {
         // Only check for change of rules at top of recursion, otherwise it slows things down too much.
         if ($topcall) {
             // check if the auth rules have changed for this pid - if they haven't then we don't need to recurse.
-            $stmt = "SELECT * FROM {$dbtp}auth_index2 WHERE authi_pid='".$pid."' ";
+            $stmt = "SELECT * FROM ".$dbtp."auth_index2 WHERE authi_pid='".$pid."' ";
             $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

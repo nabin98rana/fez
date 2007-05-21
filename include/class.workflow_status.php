@@ -114,7 +114,7 @@ class WorkflowStatus {
         $title = $this->wfl_details['wfl_title'].": ".$this->wfs_details['wfs_title'];
         if ($this->pid && !is_numeric($this->pid)) {
             $this->getRecordObject();
-            $title .= " on {$this->pid}: ". $this->rec_obj->getTitle();
+            $title .= " on ".$this->pid.": ". $this->rec_obj->getTitle();
         }
         $date = Date_API::getCurrentDateGMT();
         $usr_id = Auth::getUserID();
@@ -278,7 +278,7 @@ class WorkflowStatus {
             $this->auto_next();
         } else {
             header("Location: ".APP_RELATIVE_URL.'workflow/'.$this->wfb_details['wfb_script_name']
-                    ."?id={$this->id}&wfs_id={$this->wfs_id}");
+                    ."?id=".$this->id."&wfs_id=".$this->wfs_id);
             exit;
         }
     }

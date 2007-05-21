@@ -775,7 +775,7 @@ class Record
     {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX; // Database and table prefix
         $stmt = "SELECT ".APP_SQL_CACHE."  * FROM 
-        {$dbtp}record_matching_field r1
+        ".$dbtp."record_matching_field r1
         inner join ".$dbtp."xsd_display_matchfields x1 on r1.rmf_xsdmf_id = x1.xsdmf_id and rmf_rec_pid = '".$pid."' and rmf_dsid = '".$dsID."'
         inner join ".$dbtp."xsd_display d1 on x1.xsdmf_xdis_id = d1.xdis_id
         inner join ".$dbtp."xsd x2 on x2.xsd_id = d1.xdis_xsd_id and x2.xsd_title = '".$xsd_title."'
@@ -1275,7 +1275,6 @@ class Record
             	 	 if (!empty($options["searchKey".$x]) && trim($options["searchKey".$x]) != "") {            	 	 	
             	 	    $sekdet = Search_Key::getDetails($x);
             	 	    //print_r($sekdet);
-            	 	    //$searchKey_join[7] .= "{$sekdet['sek_title']}:\"".trim($options["searchKey".$x])."\", ";
             	 	    $sek_xsdmfs = array();
             	 	    $sek_xsdmfs = XSD_HTML_Match::getXSDMF_IDsBySekTitle($sekdet['sek_title']);
             	 	    $options["sql"] = array();
@@ -1283,7 +1282,7 @@ class Record
             	 	    if (is_array($options["searchKey".$x])) {            	 	    	
             	 	    	if ($sekdet['xsdmf_data_type'] == "int") {
 								$options["sql"]["searchKey".$x] = " in (".implode(",", $options["searchKey".$x]).")";
-								$searchKey_join[7] .= "{$sekdet['sek_title']}:\"";
+								$searchKey_join[7] .= $sekdet['sek_title'].":\"";
 								$temp_counter = 0;
 								foreach ($options["searchKey".$x] as $temp_int) {
 									if (is_numeric($temp_int) && (!empty($sekdet["sek_lookup_function"]))) {
@@ -1298,7 +1297,7 @@ class Record
 								$searchKey_join[7] .= "\", ";
             	 	    	} else {
 								$options["sql"]["searchKey".$x] = " in ('".implode("','", Misc::escapeString($options["searchKey".$x]))."')";
-								$searchKey_join[7] .= "{$sekdet['sek_title']}:\"".implode("','", Misc::escapeString($options["searchKey".$x]))."\", ";       	 	    		
+								$searchKey_join[7] .= $sekdet['sek_title'].":\"".implode("','", Misc::escapeString($options["searchKey".$x]))."\", ";       	 	    		
             	 	    	}
             	 	    } else {            	 	    	
             	 	    	
@@ -1307,14 +1306,14 @@ class Record
             	 	    		if (is_numeric($options["searchKey".$x])) {
             	 	    			if (!empty($sekdet["sek_lookup_function"])) {
             	 	    				eval("\$temp_value = ".$sekdet["sek_lookup_function"]."(".$options["searchKey".$x].");");          	            	 	    				
-            	 	    				$searchKey_join[7] .= "{$sekdet['sek_title']}:\"".$temp_value."\", ";
+            	 	    				$searchKey_join[7] .= $sekdet['sek_title'].":\"".$temp_value."\", ";
             	 	    			} else {
-            	 	    				$searchKey_join[7] .= "{$sekdet['sek_title']}:\"".trim($options["searchKey".$x])."\", ";
+            	 	    				$searchKey_join[7] .= $sekdet['sek_title'].":\"".trim($options["searchKey".$x])."\", ";
             	 	    			}            	 	    			
             	 	    		}            	 	    		 
             	 	    	} else {
             	 	    		$options["sql"]["searchKey".$x] = " = '".$options["searchKey".$x]."'";
-            	 	    		$searchKey_join[7] .= "{$sekdet['sek_title']}:\"".trim($options["searchKey".$x])."\", ";
+            	 	    		$searchKey_join[7] .= $sekdet['sek_title'].":\"".trim($options["searchKey".$x])."\", ";
             	 	    	}
             	 	    }
             	 	    if (count($sek_xsdmfs) > 0) {         

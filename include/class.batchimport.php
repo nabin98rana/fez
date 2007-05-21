@@ -1125,7 +1125,7 @@ class BatchImport
 					BatchImport::saveEprintPid($eprint_id, $pid); // save the eprint id against its new Fedora/Fez pid so it can be used with a mod-rewrite redirect for the ePrints record and bringing across stats
 	                $result = Fedora_API::callIngestObject($xmlObj);
 	                if (is_array($result)) {
-	                    $errMsg =  "The article \"{$importArray[$document_type][$key]['title'][0]}\" had the following error:\n"
+	                    $errMsg =  "The article \"".$importArray[$document_type][$key]['title'][0]."\" had the following error:\n"
 	                        .print_r($result,true)."\n";
 	//                    $errMsg = "\n$xmlObj\n";
 						Error_Handler::logError("$errMsg \n", __FILE__,__LINE__);

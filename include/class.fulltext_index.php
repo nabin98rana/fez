@@ -97,7 +97,7 @@ class FulltextIndex {
             return;
         }
         // get a copy of the file and put it in the temp directory
-        $filename = APP_TEMP_DIR."fulltext_{$dsitem['ID']}";
+        $filename = APP_TEMP_DIR."fulltext_".$dsitem['ID'];
         $content = &$rec->getDatastreamContents($dsitem['ID']);
         file_put_contents($filename, $content);
         $textfilename = $this->convertFile($dsitem['MIMEType'], $filename);
@@ -148,7 +148,7 @@ class FulltextIndex {
         }
 
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-        $stmt = "DELETE FROM {$dbtp}fulltext_engine WHERE fte_fti_id='$fti_id' ";
+        $stmt = "DELETE FROM ".$dbtp."fulltext_engine WHERE fte_fti_id='$fti_id' ";
         $res = $GLOBALS['db_api']->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

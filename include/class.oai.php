@@ -119,7 +119,7 @@ class OAI
 	        	$sql_filter['where'][] = "r2.rmf_int = ".Misc::escapeString($set)."";
 				$sql_filter['where'][] = "r2.rmf_xsdmf_id in (".implode(",", $subjectList).")";        		
         	}
-        	$bodyStmtPart2 = " INNER JOIN {$dbtp}record_matching_field AS r3
+        	$bodyStmtPart2 = " INNER JOIN ".$dbtp."record_matching_field AS r3
                       ON r3.rmf_rec_pid_num = r2.rmf_rec_pid_num and r3.rmf_rec_pid = r2.rmf_rec_pid and r3.rmf_xsdmf_id in 
 					 (".implode(",", $statusList).")
                       and r3.rmf_int=2 ";        	        	

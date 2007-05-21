@@ -113,13 +113,13 @@ class Error_Handler
                $output_processed_item = array();
                $output_processed_item_display = array();               
                $file = str_replace(APP_PATH,'',$bt['file']);
-               $output_processed_item['file'] = "{$file}:{$bt['line']}";
-               $output_processed_item['call'] = "{$bt['class']}{$bt['type']}{$bt['function']}($args)";               
-               $output_processed_item_display['file'] = "{$file}:{$bt['line']}";
+               $output_processed_item['file'] = $file.":".$bt['line'];
+               $output_processed_item['call'] = $bt['class'].$bt['type'].$bt['function'].($args);               
+               $output_processed_item_display['file'] = $file.":".$bt['line'];
                if ((APP_DISPLAY_ERROR_LEVEL == 3) && (APP_DEBUG_LEVEL == 3)){
-	               $output_processed_item_display['call'] = "{$bt['class']}{$bt['type']}{$bt['function']}($args)";
+	               $output_processed_item_display['call'] = $bt['class'].$bt['type'].$bt['function'].($args);
                } elseif (APP_DISPLAY_ERROR_LEVEL == 2) {
-               	   $output_processed_item_display['call'] = "{$bt['class']}{$bt['type']}{$bt['function']}";
+               	   $output_processed_item_display['call'] = $bt['class'].$bt['type'].$bt['function'];
                }
                
                $output_processed[] = $output_processed_item;

@@ -752,7 +752,7 @@ class XSD_Display
                 'xdis_version' => $xdis->getAttribute('xdis_version')
             );
             $item['exists_list'] = XSD_Display::getList($xsd_id,
-                "AND xdis_title='{$item['xdis_title']}' AND xdis_version='{$item['xdis_version']}'");
+                "AND xdis_title='".$item['xdis_title']."' AND xdis_version='".$item['xdis_version']."'");
             if (!empty($item['exists_list'])) {
             	$item['overwrite'] = true;
             } else {
@@ -1038,7 +1038,7 @@ class XSD_DisplayObject
 							// get the matchfields for the datastream (using the sub-display for this stream)						
 							$this->processXSDMFDatastream($xmlDatastream, $dsValue['xsdmf_xdis_id']);							
 						} else {
-							Error_Handler::logError("Couldn't get {$dsValue['xsdsel_title']} on $pid",
+							Error_Handler::logError("Couldn't get ".$dsValue['xsdsel_title']." on ".$pid,
                                 __FILE__,__LINE__);
 						}
 					}
@@ -1218,9 +1218,9 @@ class XSD_DisplayObject
                 break;
             case XML_ATTRIBUTE_NODE:
                 if ((is_numeric(strpos(substr($cbdata['parentContent'], 0, 1), "!"))) || ($cbdata['parentContent'] == "")) {
-	                $new_element = "{$cbdata['parentContent']}!{$cbdata['clean_nodeName']}!$clean_nodeName";
+	                $new_element = $cbdata['parentContent']."!".$cbdata['clean_nodeName']."!".$clean_nodeName;
 				} else {				
-	                $new_element = "!{$cbdata['parentContent']}!{$cbdata['clean_nodeName']}!$clean_nodeName";
+	                $new_element = "!".$cbdata['parentContent']."!".$cbdata['clean_nodeName']."!".$clean_nodeName;
 				}
 
                 // Is there a match field for this attribute?
@@ -1262,7 +1262,7 @@ class XSD_DisplayObject
 					}
 	                if (empty($xsdmf_id)) {
 						// if still can't find it, try it further up the tree - eg for MODS name|ID looked for in name|namePart
-		                $new_element = "!{$cbdata['parentContent']}!$clean_nodeName";
+		                $new_element = "!".$cbdata['parentContent']."!".$clean_nodeName;
 						$xsdmf_id = $this->xsd_html_match->getXSDMF_IDByXDIS_ID($new_element);						
 					}
                 }	

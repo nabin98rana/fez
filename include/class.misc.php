@@ -2329,9 +2329,9 @@ class Misc
     function shortFilename($filename, $maxlen)
     {
         $pathstuff = pathinfo($filename);
-        $filename = basename($pathstuff['basename'], ".{$pathstuff['extension']}");
+        $filename = basename($pathstuff['basename'], ".".$pathstuff['extension']);
         $new_filename = substr($filename, 0, $maxlen - strlen($pathstuff['extension']) - 1)
-            .".{$pathstuff['extension']}";
+            .".".$pathstuff['extension'];
         return $new_filename;
     }
 
@@ -2389,8 +2389,8 @@ function backtrace()
            }
        }
        $output .= "<br />\n";
-       $output .= "<b>file:</b> {$bt['line']} - {$bt['file']}<br />\n";
-       $output .= "<b>call:</b> {$bt['class']}{$bt['type']}{$bt['function']}($args)<br />\n";
+       $output .= "<b>file:</b> ".$bt['line']." - ".$bt['file']."<br />\n";
+       $output .= "<b>call:</b> ".$bt['class'].$bt['type'].$bt['function'].($args)."<br />\n";
    }
    $output .= "</div>\n";
    return $output;

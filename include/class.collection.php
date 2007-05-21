@@ -1236,10 +1236,10 @@ class Collection
 			$terms = $_GET['parent_id'];
 			//$search_data_type = "varchar";
 			$search_data_type = "int";
-			$restrictSQL = " and r".$termCounter.".rmf_{$search_data_type}=$terms ";
+			$restrictSQL = " and r".$termCounter.".rmf_".$search_data_type."=$terms ";
 
 /*			$restrictSQL = "INNER JOIN ".$dbtp."controlled_vocab cv " .
-                    " ON r".$termCounter.".rmf_{$search_data_type}=cv.cvo_title
+                    " ON r".$termCounter.".rmf_".$search_data_type."=cv.cvo_title
                     AND cv.cvo_id='$terms' ";*/
 		} elseif ($searchKey == "Created Date") {
 			$search_data_type = "date";
@@ -2014,7 +2014,7 @@ if ($sort_by == 'File Downloads') {
 						if (!empty($tsubdata) && ($tsubdata != "-1")) {
 							$tkey = Misc::escapeString(trim($tkey));
                             $keydet = Search_Key::getDetails($tkey);
-                            $search_info .= "{$keydet['sek_title']}:\"".trim($tsubdata)."\", ";
+                            $search_info .= $keydet['sek_title'].":\"".trim($tsubdata)."\", ";
 							$data_type = $keydet['xsdmf_data_type'];
 							$tsubdata = Misc::escapeString(trim($tsubdata));
 							if (empty($data_type)) {
