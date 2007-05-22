@@ -44,6 +44,7 @@
  * @author Matthew Smith <m.smith@library.uq.edu.au>
  */
 
+include_once(APP_INC_PATH . 'common.inc.php');
 include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
