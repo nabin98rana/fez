@@ -85,7 +85,8 @@ require_once('class.soap_server.php');*/
 
 // class variable emulation
 // cf. http://www.webkreator.com/php/techniques/php-static-class-variables.html
-$GLOBALS['_transient']['static']['nusoap_base']->globalDebugLevel = 9;
+//$GLOBALS['_transient']['static']['nusoap_base']->globalDebugLevel = 9;
+$GLOBALS['_transient']['static']['nusoap_base']->globalDebugLevel = 0;
 
 /**
 *
@@ -1246,8 +1247,8 @@ class XMLSchema extends nusoap_base  {
 			break;
 			case 'attribute':	// complexType attribute
             	//$this->xdebug("parsing attribute $attrs[name] $attrs[ref] of value: ".$attrs['http://schemas.xmlsoap.org/wsdl/:arrayType']);
-            	$this->xdebug("parsing attribute:");
-            	$this->appendDebug($this->varDump($attrs));
+            	//$this->xdebug("parsing attribute:");
+            	//$this->appendDebug($this->varDump($attrs));
 				if (!isset($attrs['form'])) {
 					$attrs['form'] = $this->schemaInfo['attributeFormDefault'];
 				}
@@ -1302,7 +1303,7 @@ class XMLSchema extends nusoap_base  {
 			case 'complexType':
 				array_push($this->complexTypeStack, $this->currentComplexType);
 				if(isset($attrs['name'])){
-					$this->xdebug('processing named complexType '.$attrs['name']);
+					//$this->xdebug('processing named complexType '.$attrs['name']);
 					//$this->currentElement = false;
 					$this->currentComplexType = $attrs['name'];
 					$this->complexTypes[$this->currentComplexType] = $attrs;
@@ -1315,13 +1316,13 @@ class XMLSchema extends nusoap_base  {
 					//                </sequence>
 					//            </complexType>
 					if(isset($attrs['base']) && ereg(':Array$',$attrs['base'])){
-						$this->xdebug('complexType is unusual array');
+						//$this->xdebug('complexType is unusual array');
 						$this->complexTypes[$this->currentComplexType]['phpType'] = 'array';
 					} else {
 						$this->complexTypes[$this->currentComplexType]['phpType'] = 'struct';
 					}
 				}else{
-					$this->xdebug('processing unnamed complexType for element '.$this->currentElement);
+					//$this->xdebug('processing unnamed complexType for element '.$this->currentElement);
 					$this->currentComplexType = $this->currentElement . '_ContainedType';
 					//$this->currentElement = false;
 					$this->complexTypes[$this->currentComplexType] = $attrs;
@@ -1334,7 +1335,7 @@ class XMLSchema extends nusoap_base  {
 					//                </sequence>
 					//            </complexType>
 					if(isset($attrs['base']) && ereg(':Array$',$attrs['base'])){
-						$this->xdebug('complexType is unusual array');
+						//$this->xdebug('complexType is unusual array');
 						$this->complexTypes[$this->currentComplexType]['phpType'] = 'array';
 					} else {
 						$this->complexTypes[$this->currentComplexType]['phpType'] = 'struct';
@@ -1350,11 +1351,11 @@ class XMLSchema extends nusoap_base  {
 					$attrs['form'] = $this->schemaInfo['elementFormDefault'];
 				}
 				if(isset($attrs['type'])){
-					$this->xdebug("processing typed element ".$attrs['name']." of type ".$attrs['type']);
+					//$this->xdebug("processing typed element ".$attrs['name']." of type ".$attrs['type']);
 					if (! $this->getPrefix($attrs['type'])) {
 						if ($this->defaultNamespace[$pos]) {
 							$attrs['type'] = $this->defaultNamespace[$pos] . ':' . $attrs['type'];
-							$this->xdebug('used default namespace to make type ' . $attrs['type']);
+							//$this->xdebug('used default namespace to make type ' . $attrs['type']);
 						}
 					}
 					// This is for constructs like
@@ -1365,7 +1366,7 @@ class XMLSchema extends nusoap_base  {
 					//                </sequence>
 					//            </complexType>
 					if ($this->currentComplexType && $this->complexTypes[$this->currentComplexType]['phpType'] == 'array') {
-						$this->xdebug('arrayType for unusual array is ' . $attrs['type']);
+						//$this->xdebug('arrayType for unusual array is ' . $attrs['type']);
 						$this->complexTypes[$this->currentComplexType]['arrayType'] = $attrs['type'];
 					}
 					$this->currentElement = $attrs['name'];
@@ -1373,11 +1374,11 @@ class XMLSchema extends nusoap_base  {
 					$this->elements[ $attrs['name'] ]['typeClass'] = 'element';
 					$ename = $attrs['name'];
 				} elseif(isset($attrs['ref'])){
-					$this->xdebug("processing element as ref to ".$attrs['ref']);
+					//$this->xdebug("processing element as ref to ".$attrs['ref']);
 					$this->currentElement = "ref to ".$attrs['ref'];
 					$ename = $this->getLocalPart($attrs['ref']);
 				} else {
-					$this->xdebug("processing untyped element ".$attrs['name']);
+					//$this->xdebug("processing untyped element ".$attrs['name']);
 					$this->currentElement = $attrs['name'];
 					$this->elements[ $attrs['name'] ] = $attrs;
 					$this->elements[ $attrs['name'] ]['typeClass'] = 'element';
@@ -1390,7 +1391,7 @@ class XMLSchema extends nusoap_base  {
 				}
 			break;
 			case 'enumeration':	//	restriction value list member
-				$this->xdebug('enumeration ' . $attrs['value']);
+				//$this->xdebug('enumeration ' . $attrs['value']);
 				if ($this->currentSimpleType) {
 					$this->simpleTypes[$this->currentSimpleType]['enumeration'][] = $attrs['value'];
 				} elseif ($this->currentComplexType) {
@@ -1398,7 +1399,7 @@ class XMLSchema extends nusoap_base  {
 				}
 			break;
 			case 'extension':	// simpleContent or complexContent type extension
-				$this->xdebug('extension ' . $attrs['base']);
+				//$this->xdebug('extension ' . $attrs['base']);
 				if ($this->currentComplexType) {
 					$this->complexTypes[$this->currentComplexType]['extensionBase'] = $attrs['base'];
 				}
@@ -1418,7 +1419,7 @@ class XMLSchema extends nusoap_base  {
 			case 'list':	// simpleType value list
 			break;
 			case 'restriction':	// simpleType, simpleContent or complexContent value restriction
-				$this->xdebug('restriction ' . $attrs['base']);
+				//$this->xdebug('restriction ' . $attrs['base']);
 				if($this->currentSimpleType){
 					$this->simpleTypes[$this->currentSimpleType]['type'] = $attrs['base'];
 				} elseif($this->currentComplexType){
@@ -1446,13 +1447,13 @@ class XMLSchema extends nusoap_base  {
 			case 'simpleType':
 				array_push($this->simpleTypeStack, $this->currentSimpleType);
 				if(isset($attrs['name'])){
-					$this->xdebug("processing simpleType for name " . $attrs['name']);
+					//$this->xdebug("processing simpleType for name " . $attrs['name']);
 					$this->currentSimpleType = $attrs['name'];
 					$this->simpleTypes[ $attrs['name'] ] = $attrs;
 					$this->simpleTypes[ $attrs['name'] ]['typeClass'] = 'simpleType';
 					$this->simpleTypes[ $attrs['name'] ]['phpType'] = 'scalar';
 				} else {
-					$this->xdebug('processing unnamed simpleType for element '.$this->currentElement);
+					//$this->xdebug('processing unnamed simpleType for element '.$this->currentElement);
 					$this->currentSimpleType = $this->currentElement . '_ContainedType';
 					//$this->currentElement = false;
 					$this->simpleTypes[$this->currentSimpleType] = $attrs;
@@ -1489,16 +1490,16 @@ class XMLSchema extends nusoap_base  {
         }
 		// move on...
 		if($name == 'complexType'){
-			$this->xdebug('done processing complexType ' . ($this->currentComplexType ? $this->currentComplexType : '(unknown)'));
+			//$this->xdebug('done processing complexType ' . ($this->currentComplexType ? $this->currentComplexType : '(unknown)'));
 			$this->currentComplexType = array_pop($this->complexTypeStack);
 			//$this->currentElement = false;
 		}
 		if($name == 'element'){
-			$this->xdebug('done processing element ' . ($this->currentElement ? $this->currentElement : '(unknown)'));
+			//$this->xdebug('done processing element ' . ($this->currentElement ? $this->currentElement : '(unknown)'));
 			$this->currentElement = array_pop($this->elementStack);
 		}
 		if($name == 'simpleType'){
-			$this->xdebug('done processing simpleType ' . ($this->currentSimpleType ? $this->currentSimpleType : '(unknown)'));
+			//$this->xdebug('done processing simpleType ' . ($this->currentSimpleType ? $this->currentSimpleType : '(unknown)'));
 			$this->currentSimpleType = array_pop($this->simpleTypeStack);
 		}
 	}
@@ -1684,10 +1685,10 @@ class XMLSchema extends nusoap_base  {
 	function getTypeDef($type){
 		//$this->debug("in getTypeDef for type $type");
 		if(isset($this->complexTypes[$type])){
-			$this->xdebug("in getTypeDef, found complexType ".$type);
+			//$this->xdebug("in getTypeDef, found complexType ".$type);
 			return $this->complexTypes[$type];
 		} elseif(isset($this->simpleTypes[$type])){
-			$this->xdebug("in getTypeDef, found simpleType ".$type);
+			//$this->xdebug("in getTypeDef, found simpleType ".$type);
 			if (!isset($this->simpleTypes[$type]['phpType'])) {
 				// get info for type to tack onto the simple type
 				// TODO: can this ever really apply (i.e. what is a simpleType really?)
@@ -1695,8 +1696,8 @@ class XMLSchema extends nusoap_base  {
 				$ns = substr($this->simpleTypes[$type]['type'], 0, strrpos($this->simpleTypes[$type]['type'], ':'));
 				$etype = $this->getTypeDef($uqType);
 				if ($etype) {
-					$this->xdebug("in getTypeDef, found type for simpleType ".$type.":");
-					$this->xdebug($this->varDump($etype));
+					//$this->xdebug("in getTypeDef, found type for simpleType ".$type.":");
+					//$this->xdebug($this->varDump($etype));
 					if (isset($etype['phpType'])) {
 						$this->simpleTypes[$type]['phpType'] = $etype['phpType'];
 					}
@@ -1707,15 +1708,15 @@ class XMLSchema extends nusoap_base  {
 			}
 			return $this->simpleTypes[$type];
 		} elseif(isset($this->elements[$type])){
-			$this->xdebug("in getTypeDef, found element $type");
+			//$this->xdebug("in getTypeDef, found element $type");
 			if (!isset($this->elements[$type]['phpType'])) {
 				// get info for type to tack onto the element
 				$uqType = substr($this->elements[$type]['type'], strrpos($this->elements[$type]['type'], ':') + 1);
 				$ns = substr($this->elements[$type]['type'], 0, strrpos($this->elements[$type]['type'], ':'));
 				$etype = $this->getTypeDef($uqType);
 				if ($etype) {
-					$this->xdebug("in getTypeDef, found type for element ".$type.":");
-					$this->xdebug($this->varDump($etype));
+					//$this->xdebug("in getTypeDef, found type for element ".$type.":");
+					//$this->xdebug($this->varDump($etype));
 					if (isset($etype['phpType'])) {
 						$this->elements[$type]['phpType'] = $etype['phpType'];
 					}
@@ -1723,22 +1724,22 @@ class XMLSchema extends nusoap_base  {
 						$this->elements[$type]['elements'] = $etype['elements'];
 					}
 				} elseif ($ns == 'http://www.w3.org/2001/XMLSchema') {
-					$this->xdebug("in getTypeDef, element ".$type." is an XSD type");
+					//$this->xdebug("in getTypeDef, element ".$type." is an XSD type");
 					$this->elements[$type]['phpType'] = 'scalar';
 				}
 			}
 			return $this->elements[$type];
 		} elseif(isset($this->attributes[$type])){
-			$this->xdebug("in getTypeDef, found attribute ".$type."");
+			//$this->xdebug("in getTypeDef, found attribute ".$type."");
 			return $this->attributes[$type];
 		} elseif (ereg('_ContainedType$', $type)) {
-			$this->xdebug("in getTypeDef, have an untyped element ".$type."");
+			//$this->xdebug("in getTypeDef, have an untyped element ".$type."");
 			$typeDef['typeClass'] = 'simpleType';
 			$typeDef['phpType'] = 'scalar';
 			$typeDef['type'] = 'http://www.w3.org/2001/XMLSchema:string';
 			return $typeDef;
 		}
-		$this->xdebug("in getTypeDef, did not find ".$type."");
+		//$this->xdebug("in getTypeDef, did not find ".$type."");
 		return false;
 	}
 
@@ -1870,7 +1871,7 @@ class XMLSchema extends nusoap_base  {
 	    'arrayType'	=> $arrayType
 		);
 
-		$this->xdebug("addComplexType ".$name.":");
+		//$this->xdebug("addComplexType ".$name.":");
 		$this->appendDebug($this->varDump($this->complexTypes[$name]));
 	}
 
@@ -1895,8 +1896,8 @@ class XMLSchema extends nusoap_base  {
 	    'enumeration'	=> $enumeration
 		);
 
-		$this->xdebug("addSimpleType ".$name.":");
-		$this->appendDebug($this->varDump($this->simpleTypes[$name]));
+		//$this->xdebug("addSimpleType ".$name.":");
+		//$this->appendDebug($this->varDump($this->simpleTypes[$name]));
 	}
 
 	/**
@@ -1913,7 +1914,7 @@ class XMLSchema extends nusoap_base  {
 		$this->elements[ $attrs['name'] ] = $attrs;
 		$this->elements[ $attrs['name'] ]['typeClass'] = 'element';
 
-		$this->xdebug("addElement " . $attrs['name']);
+		//$this->xdebug("addElement " . $attrs['name']);
 		$this->appendDebug($this->varDump($this->elements[ $attrs['name'] ]));
 	}
 }
@@ -3642,9 +3643,9 @@ class soap_server extends nusoap_base {
 			}
 			$this->methodreturn = call_user_func_array($call_arg, array_values($this->methodparams));
 		}
-        $this->debug('in invoke_method, methodreturn:');
-        $this->appendDebug($this->varDump($this->methodreturn));
-		$this->debug("in invoke_method, called method ".$this->methodname.", received ".$this->methodreturn." of type ".gettype($this->methodreturn));
+        //$this->debug('in invoke_method, methodreturn:');
+        //$this->appendDebug($this->varDump($this->methodreturn));
+		//$this->debug("in invoke_method, called method ".$this->methodname.", received ".$this->methodreturn." of type ".gettype($this->methodreturn));
 	}
 
 	/**
@@ -3680,7 +3681,7 @@ class soap_server extends nusoap_base {
 			    	$opParams = array($this->methodreturn);
 			    }
 			    $return_val = $this->wsdl->serializeRPCParameters($this->methodname,'output',$opParams);
-			    $this->appendDebug($this->wsdl->getDebug());
+			    //$this->appendDebug($this->wsdl->getDebug());
 			    $this->wsdl->clearDebug();
 				if($errstr = $this->wsdl->getError()){
 					$this->debug('got wsdl error: '.$errstr);
@@ -4166,7 +4167,7 @@ class wsdl extends nusoap_base {
 
         // parse wsdl file
         if ($wsdl != "") {
-            $this->debug('initial wsdl URL: ' . $wsdl);
+            //$this->debug('initial wsdl URL: ' . $wsdl);
             $this->parseWSDL($wsdl);
         }
         // imports
@@ -4232,7 +4233,7 @@ class wsdl extends nusoap_base {
         foreach($this->bindings as $binding => $bindingData) {
             if (isset($bindingData['operations']) && is_array($bindingData['operations'])) {
                 foreach($bindingData['operations'] as $operation => $data) {
-                    $this->debug('post-parse data gathering for ' . $operation);
+                    //$this->debug('post-parse data gathering for ' . $operation);
                     $this->bindings[$binding]['operations'][$operation]['input'] =
 						isset($this->bindings[$binding]['operations'][$operation]['input']) ?
 						array_merge($this->bindings[$binding]['operations'][$operation]['input'], $this->portTypes[ $bindingData['portType'] ][$operation]['input']) :
@@ -4267,7 +4268,7 @@ class wsdl extends nusoap_base {
     function parseWSDL($wsdl = '')
     {
         if ($wsdl == '') {
-            $this->debug('no wsdl passed to parseWSDL()!!');
+            //$this->debug('no wsdl passed to parseWSDL()!!');
             $this->setError('no wsdl passed to parseWSDL()!!');
             return false;
         }
@@ -4276,7 +4277,7 @@ class wsdl extends nusoap_base {
         $wsdl_props = parse_url($wsdl);
 
         if (isset($wsdl_props['scheme']) && ($wsdl_props['scheme'] == 'http' || $wsdl_props['scheme'] == 'https')) {
-            $this->debug('getting WSDL http(s) URL ' . $wsdl);
+            //$this->debug('getting WSDL http(s) URL ' . $wsdl);
         	// get wsdl
 	        $tr = new soap_transport_http($wsdl);
 			$tr->request_method = 'GET';
@@ -4306,7 +4307,7 @@ class wsdl extends nusoap_base {
         	} else {
         		$path = $wsdl;
         	}
-            $this->debug('getting WSDL file ' . $path);
+            //$this->debug('getting WSDL file ' . $path);
             if ($fp = @fopen($path, 'r')) {
                 $wsdl_string = '';
                 while ($data = fread($fp, 32768)) {
@@ -4320,7 +4321,7 @@ class wsdl extends nusoap_base {
                 return false;
             }
         }
-        $this->debug('Parse WSDL');
+        //$this->debug('Parse WSDL');
         // end new code added
         // Create an XML parser.
         $this->parser = xml_parser_create();
@@ -4341,14 +4342,14 @@ class wsdl extends nusoap_base {
                 xml_get_current_line_number($this->parser),
                 xml_error_string(xml_get_error_code($this->parser))
                 );
-            $this->debug($errstr);
-			$this->debug("XML payload:\n" . $wsdl_string);
+            //$this->debug($errstr);
+			//$this->debug("XML payload:\n" . $wsdl_string);
             $this->setError($errstr);
             return false;
         }
 		// free the parser
         xml_parser_free($this->parser);
-        $this->debug('Parsing WSDL done');
+        //$this->debug('Parsing WSDL done');
 		// catch wsdl parse errors
 		if($this->getError()){
 			return false;
@@ -4368,7 +4369,7 @@ class wsdl extends nusoap_base {
     {
         if ($this->status == 'schema') {
             $this->currentSchema->schemaStartElement($parser, $name, $attrs);
-            $this->appendDebug($this->currentSchema->getDebug());
+            //$this->appendDebug($this->currentSchema->getDebug());
             $this->currentSchema->clearDebug();
         } elseif (ereg('schema$', $name)) {
         	$this->debug('Parsing WSDL schema');
@@ -4376,7 +4377,7 @@ class wsdl extends nusoap_base {
             $this->status = 'schema';
             $this->currentSchema = new xmlschema('', '', $this->namespaces);
             $this->currentSchema->schemaStartElement($parser, $name, $attrs);
-            $this->appendDebug($this->currentSchema->getDebug());
+            //$this->appendDebug($this->currentSchema->getDebug());
             $this->currentSchema->clearDebug();
         } else {
             // position in the total number of elements, starting from 0
@@ -4428,11 +4429,11 @@ class wsdl extends nusoap_base {
                 case 'message':
                     if ($name == 'part') {
 			            if (isset($attrs['type'])) {
-		                    $this->debug("msg " . $this->currentMessage . ": found part ".$attrs[name].": " . implode(',', $attrs));
+		                    //$this->debug("msg " . $this->currentMessage . ": found part ".$attrs[name].": " . implode(',', $attrs));
 		                    $this->messages[$this->currentMessage][$attrs['name']] = $attrs['type'];
             			}
 			            if (isset($attrs['element'])) {
-		                    $this->debug("msg " . $this->currentMessage . ": found part ".$attrs[name].": " . implode(',', $attrs));
+		                    //$this->debug("msg " . $this->currentMessage . ": found part ".$attrs[name].": " . implode(',', $attrs));
 			                $this->messages[$this->currentMessage][$attrs['name']] = $attrs['element'];
 			            }
         			}
@@ -4441,7 +4442,7 @@ class wsdl extends nusoap_base {
 			        switch ($name) {
 			            case 'operation':
 			                $this->currentPortOperation = $attrs['name'];
-			                $this->debug("portType ".$this->currentPortType." operation: ".$this->currentPortOperation);
+			                //$this->debug("portType ".$this->currentPortType." operation: ".$this->currentPortOperation);
 			                if (isset($attrs['parameterOrder'])) {
 			                	$this->portTypes[$this->currentPortType][$attrs['name']]['parameterOrder'] = $attrs['parameterOrder'];
 			        		}
@@ -4477,7 +4478,7 @@ class wsdl extends nusoap_base {
 						    }
 						    if (isset($attrs['name'])) {
 						        $this->currentOperation = $attrs['name'];
-						        $this->debug("current binding operation: ".$this->currentOperation);
+						        //$this->debug("current binding operation: ".$this->currentOperation);
 						        $this->bindings[$this->currentBinding]['operations'][$this->currentOperation]['name'] = $attrs['name'];
 						        $this->bindings[$this->currentBinding]['operations'][$this->currentOperation]['binding'] = $this->currentBinding;
 						        $this->bindings[$this->currentBinding]['operations'][$this->currentOperation]['endpoint'] = isset($this->bindings[$this->currentBinding]['endpoint']) ? $this->bindings[$this->currentBinding]['endpoint'] : '';
@@ -4502,7 +4503,7 @@ class wsdl extends nusoap_base {
 					switch ($name) {
 					    case 'port':
 					        $this->currentPort = $attrs['name'];
-					        $this->debug('current port: ' . $this->currentPort);
+					        //$this->debug('current port: ' . $this->currentPort);
 					        $this->ports[$this->currentPort]['binding'] = $this->getLocalPart($attrs['binding']);
 
 					        break;
@@ -4520,13 +4521,13 @@ class wsdl extends nusoap_base {
 			case 'import':
 			    if (isset($attrs['location'])) {
                     $this->import[$attrs['namespace']][] = array('location' => $attrs['location'], 'loaded' => false);
-                    $this->debug('parsing import ' . $attrs['namespace']. ' - ' . $attrs['location'] . ' (' . count($this->import[$attrs['namespace']]).')');
+                    //$this->debug('parsing import ' . $attrs['namespace']. ' - ' . $attrs['location'] . ' (' . count($this->import[$attrs['namespace']]).')');
 				} else {
                     $this->import[$attrs['namespace']][] = array('location' => '', 'loaded' => true);
 					if (! $this->getPrefixFromNamespace($attrs['namespace'])) {
 						$this->namespaces['ns'.(count($this->namespaces)+1)] = $attrs['namespace'];
 					}
-                    $this->debug('parsing import ' . $attrs['namespace']. ' - [no location] (' . count($this->import[$attrs['namespace']]).')');
+                    //$this->debug('parsing import ' . $attrs['namespace']. ' - [no location] (' . count($this->import[$attrs['namespace']]).')');
 				}
 				break;
 			//wait for schema
@@ -4581,7 +4582,7 @@ class wsdl extends nusoap_base {
 		// unset schema status
 		if (/*ereg('types$', $name) ||*/ ereg('schema$', $name)) {
 			$this->status = "";
-            $this->appendDebug($this->currentSchema->getDebug());
+            //$this->appendDebug($this->currentSchema->getDebug());
             $this->currentSchema->clearDebug();
 			$this->schemas[$this->currentSchema->schemaTargetNamespace][] = $this->currentSchema;
         	$this->debug('Parsing WSDL schema done');
@@ -5621,7 +5622,7 @@ class wsdl extends nusoap_base {
 							    $xml .= $this->serializeType($eName, isset($attrs['type']) ? $attrs['type'] : $attrs['ref'], $v, $use, $encodingStyle, $unqualified);
 							} else {
 								// serialize generic type (can this ever really happen?)
-							    $this->debug("calling serialize_val() for ".$v.", ".$eName.", false, false, false, false, ".$use);
+							    //$this->debug("calling serialize_val() for ".$v.", ".$eName.", false, false, false, false, ".$use);
 							    $xml .= $this->serialize_val($v, $eName, false, false, false, false, $use);
 							}
 						}
@@ -5631,7 +5632,7 @@ class wsdl extends nusoap_base {
 						    $xml .= $this->serializeType($eName, isset($attrs['type']) ? $attrs['type'] : $attrs['ref'], $v, $use, $encodingStyle, $unqualified);
 						} else {
 							// serialize generic type (can this ever really happen?)
-						    $this->debug("calling serialize_val() for ".$v.", ".$eName.", false, false, false, false, ".$use);
+						    //$this->debug("calling serialize_val() for ".$v.", ".$eName.", false, false, false, false, ".$use);
 						    $xml .= $this->serialize_val($v, $eName, false, false, false, false, $use);
 						}
 					}
@@ -6348,13 +6349,13 @@ class soap_parser extends nusoap_base {
                 }
             // array
 			} elseif($this->message[$pos]['type'] == 'array' || $this->message[$pos]['type'] == 'Array'){
-                $this->debug('in buildVal, adding array '.$this->message[$pos]['name']);
+                //$this->debug('in buildVal, adding array '.$this->message[$pos]['name']);
                 foreach($children as $child_pos){
                 	$params[] = &$this->message[$child_pos]['result'];
                 }
             // apache Map type: java hashtable
             } elseif($this->message[$pos]['type'] == 'Map' && $this->message[$pos]['type_namespace'] == 'http://xml.apache.org/xml-soap'){
-                $this->debug('in buildVal, Java Map '.$this->message[$pos]['name']);
+                //$this->debug('in buildVal, Java Map '.$this->message[$pos]['name']);
                 foreach($children as $child_pos){
                 	$kv = explode("|",$this->message[$child_pos]['children']);
                    	$params[$this->message[$kv[1]]['result']] = &$this->message[$kv[2]]['result'];
@@ -6363,7 +6364,7 @@ class soap_parser extends nusoap_base {
             //} elseif($this->message[$pos]['type'] == 'SOAPStruct' || $this->message[$pos]['type'] == 'struct') {
 		    } else {
 	    		// Apache Vector type: treat as an array
-                $this->debug('in buildVal, adding Java Vector or generic compound type '.$this->message[$pos]['name']);
+                //$this->debug('in buildVal, adding Java Vector or generic compound type '.$this->message[$pos]['name']);
 				if ($this->message[$pos]['type'] == 'Vector' && $this->message[$pos]['type_namespace'] == 'http://xml.apache.org/xml-soap') {
 					$notstruct = 1;
 				} else {
@@ -6387,14 +6388,14 @@ class soap_parser extends nusoap_base {
                 }
 			}
 			if (isset($this->message[$pos]['xattrs'])) {
-                $this->debug('in buildVal, handling attributes');
+                //$this->debug('in buildVal, handling attributes');
 				foreach ($this->message[$pos]['xattrs'] as $n => $v) {
 					$params[$n] = $v;
 				}
 			}
 			// handle simpleContent
 			if (isset($this->message[$pos]['cdata']) && trim($this->message[$pos]['cdata']) != '') {
-                $this->debug('in buildVal, handling simpleContent');
+                //$this->debug('in buildVal, handling simpleContent');
             	if (isset($this->message[$pos]['type'])) {
 					$params['!'] = $this->decodeSimple($this->message[$pos]['cdata'], $this->message[$pos]['type'], isset($this->message[$pos]['type_namespace']) ? $this->message[$pos]['type_namespace'] : '');
 				} else {
