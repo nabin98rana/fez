@@ -258,14 +258,20 @@ if ($access_ok) {
     foreach ($xsd_display_fields  as $dis_field) {
 		if ($dis_field["xsdmf_enabled"] == 1) {
 			if ($dis_field["xsdmf_html_input"] == 'text' || $dis_field["xsdmf_html_input"] == 'textarea') {
-				if (is_array($details[$dis_field['xsdmf_id']])) {
+				if ($dis_field["xsdmf_title"] == 'Title of article') {
+				    Error_Handler::logError($details[$dis_field['xsdmf_id']]);
+				}
+                if (is_array($details[$dis_field['xsdmf_id']])) {
 
 					foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
-						$dis_field['xsdmf_id'][$cdata] = trim($cdata);
+						$dis_field['xsdmf_id'][$cdata] = str_replace("\n", ' ', trim($cdata));
 					}
 				} else {
-					$details[$dis_field['xsdmf_id']] = trim($details[$dis_field['xsdmf_id']]);
+					$details[$dis_field['xsdmf_id']] = str_replace("\n", ' ', trim($details[$dis_field['xsdmf_id']]));
 				}				
+                if ($dis_field["xsdmf_title"] == 'Title of article') {
+                    Error_Handler::logError($details[$dis_field['xsdmf_id']]);
+                }
 			}
 			if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'contvocab' || $dis_field["xsdmf_html_input"] == 'contvocab_selector') {
 				if (@$details[$dis_field["xsdmf_id"]]) { // if a record detail matches a display field xsdmf entry
@@ -413,6 +419,7 @@ if ($access_ok) {
     }
 //	print_r($details);
 //    print_r($datastreams);
+    $tpl->assign("linkCount", $linkCount);
     $tpl->assign("datastreams", $datastreams);
 	$tpl->assign("fileCount", $fileCount);				    
     $tpl->assign("fez_root_dir", APP_PATH);
