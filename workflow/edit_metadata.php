@@ -261,10 +261,10 @@ if ($access_ok) {
                 if (is_array($details[$dis_field['xsdmf_id']])) {
 
 					foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
-						$dis_field['xsdmf_id'][$cdata] = str_replace("\n", ' ', trim($cdata));
+						$dis_field['xsdmf_id'][$cdata] = preg_replace('/\s\s+/', ' ', trim($cdata));
 					}
 				} else {
-					$details[$dis_field['xsdmf_id']] = str_replace("\n", ' ', trim($details[$dis_field['xsdmf_id']]));
+					$details[$dis_field['xsdmf_id']] = preg_replace('/\s\s+/', ' ', trim($details[$dis_field['xsdmf_id']]));
 				}				
 			}
 			if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'contvocab' || $dis_field["xsdmf_html_input"] == 'contvocab_selector') {
