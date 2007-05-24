@@ -258,9 +258,6 @@ if ($access_ok) {
     foreach ($xsd_display_fields  as $dis_field) {
 		if ($dis_field["xsdmf_enabled"] == 1) {
 			if ($dis_field["xsdmf_html_input"] == 'text' || $dis_field["xsdmf_html_input"] == 'textarea') {
-				if ($dis_field["xsdmf_title"] == 'Title of article') {
-				    Error_Handler::logError($details[$dis_field['xsdmf_id']]);
-				}
                 if (is_array($details[$dis_field['xsdmf_id']])) {
 
 					foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
@@ -269,9 +266,6 @@ if ($access_ok) {
 				} else {
 					$details[$dis_field['xsdmf_id']] = str_replace("\n", ' ', trim($details[$dis_field['xsdmf_id']]));
 				}				
-                if ($dis_field["xsdmf_title"] == 'Title of article') {
-                    Error_Handler::logError($details[$dis_field['xsdmf_id']]);
-                }
 			}
 			if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'contvocab' || $dis_field["xsdmf_html_input"] == 'contvocab_selector') {
 				if (@$details[$dis_field["xsdmf_id"]]) { // if a record detail matches a display field xsdmf entry
