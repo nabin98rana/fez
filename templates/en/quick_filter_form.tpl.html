@@ -31,7 +31,7 @@
 	{assign var="loop_num" value=$search_keys[i].cv_ids[z]}
 	<div id="tr_list_{$search_keys[i].sek_id}_{$loop_num}" valign="top" class="quick_search_item">
 		<b>{$search_keys[i].sek_title}</b><br />{$search_keys[i].cv_titles[z]}
-		<select id="list_{$search_keys[i].sek_id}_{$loop_num}" multiple size="5" class="default" name="list[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}">
+		<select id="search_keys_{$search_keys[i].sek_id}_{$loop_num}" multiple size="5" class="default" name="search_keys[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}">
 		</select>
 		<input class="default" type="button" value="Add Subject" onclick="javascript:small_window('cv_selector.php?cvo_id={$search_keys[i].cv_ids[z]}&amp;form=custom_filter_form&amp;element=list_{$search_keys[i].sek_id}_{$loop_num}');" />
 		<input class="default" type="button" value="Remove Subject" onclick="javascript:deleteSelectedItemsFromList(list_{$search_keys[i].sek_id}_{$loop_num});" />
