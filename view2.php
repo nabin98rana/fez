@@ -52,7 +52,7 @@ $tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("fez_root_dir", APP_PATH);
 $tpl->assign("eserv_url", APP_BASE_URL."eserv.php?pid=".$pid."&dsID=");
 $tpl->assign("local_eserv_url", APP_BASE_URL."eserv.php?pid=".$pid."&dsID=");
-$tpl->assign("extra_title", "Record #$pid Details");
+$tpl->assign("extra_title", "Record #".$pid." Details");
 $debug = @$_REQUEST['debug'];
 if ($debug == 1) {
 	$tpl->assign("debug", "1");
@@ -145,12 +145,12 @@ if (!empty($pid) && $record->checkExists()) {
 				if (is_array($details[$dis_field['xsdmf_id']])) {
 					foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
 						if ($cdata != "") {
-							$meta_head .= '<meta name="'.$dis_field['xsdmf_meta_header_name'].'" content="'.trim($cdata).'"/>'."\n";
+							$meta_head .= '<meta name="'.$dis_field['xsdmf_meta_header_name'].'" content="'.htmlspecialchars(trim($cdata), ENT_QUOTES).'"/>'."\n";
 						}
 					}
 				} else {
 					if ($details[$dis_field['xsdmf_id']] != "") {
-						$meta_head .= '<meta name="'.$dis_field['xsdmf_meta_header_name'].'" content="'.trim($details[$dis_field['xsdmf_id']]).'"/>'."\n";
+						$meta_head .= '<meta name="'.$dis_field['xsdmf_meta_header_name'].'" content="'.htmlspecialchars(trim($details[$dis_field['xsdmf_id']]), ENT_QUOTES).'"/>'."\n";
 						if ($dis_field['xsdmf_meta_header_name'] == "DC.Title") {
 							$tpl->assign("extra_title", trim($details[$dis_field['xsdmf_id']]));
 						}
