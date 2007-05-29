@@ -28,7 +28,8 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
@@ -102,7 +103,7 @@ $tpl->assign("list_info", $details['info']);
 //        return $details; 
 
 $status_list = Status::getAssocList();
-$communities = Community::getList();
+$communities = Community::getList(0, 999999);
 $communities_list = Misc::keyPairs($communities['list'], 'pid', 'title');
 $communities_list = Misc::stripOneElementArrays($communities_list);
 $tpl->assign('status_list', $status_list);
