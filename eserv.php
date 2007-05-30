@@ -33,12 +33,11 @@
 //
 //
 include_once("config.inc.php");
-include_once(APP_INC_PATH . "db_access.php");
-include_once(APP_INC_PATH . "class.template.php");
+//include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.misc.php");
-include_once(APP_INC_PATH . "class.record.php");
-include_once(APP_INC_PATH . "class.fedora_api.php");
+//include_once(APP_INC_PATH . "class.record.php");
+//include_once(APP_INC_PATH . "class.fedora_api.php");
 
 $username = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($username);
@@ -154,6 +153,7 @@ if (!empty($pid) && !empty($dsID)) {
 				} else {
 					
 					if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $HTTP_SERVER_VARS['PHP_SELF']."?".urlencode($HTTP_SERVER_VARS['QUERY_STRING'])) == true) {
+                        include_once(APP_INC_PATH . "class.template.php");
 						$tpl = new Template_API();
 						$tpl->setTemplate("flv.tpl.html");
 						$username = Auth::getUsername();
@@ -171,6 +171,7 @@ if (!empty($pid) && !empty($dsID)) {
 						$tpl->displayTemplate();				
 						exit;
 					} else {
+                        include_once(APP_INC_PATH . "class.template.php");
 						$tpl = new Template_API();
 						$tpl->setTemplate("view.tpl.html");
 						$tpl->assign("show_not_allowed_msg", true);
@@ -215,6 +216,7 @@ if (!empty($pid) && !empty($dsID)) {
 		}
 //	}		
 }
+include_once(APP_INC_PATH . "class.template.php");
 $tpl = new Template_API();
 $tpl->setTemplate("view.tpl.html");
 $tpl->assign("show_not_allowed_msg", true);
