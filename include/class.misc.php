@@ -2319,7 +2319,7 @@ class Misc
      */
     function isValidPid($pid) 
     {
-        if (!Misc::isInt($pid) || $pid > 0) {
+        if ((!Misc::isInt($pid) || $pid > 0) && !empty($pid))  {
             return true;
         } else {
             return false;

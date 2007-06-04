@@ -243,6 +243,7 @@ No items found
      </tr>
 </form>
 <form name="assigned_records" method="post" action="{$rel_url}popup.php" target="_popup">     
+<input type="hidden" name="href" value="/my_fez.php" />
 <input type="hidden" name="cat" value="purge_objects" />
 {assign var="list" value=$my_assigned_items_list}
      {section name="i" loop=$list}

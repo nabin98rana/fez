@@ -68,27 +68,28 @@ if ($href) {
 }
 
 $parents_list = unserialize(Misc::GETorPOST('parents_list'));
+
 if (is_array($parents_list)) {
     foreach ($parents_list as &$item) {
         if (Misc::isValidPid($item['pid'])) {
             $precord = new RecordObject($item['pid']);
             if ($precord->isCommunity()) {
-                $item['url'] = APP_RELATIVE_URL."list.php?community_pid={$item['pid']}";
+                $item['url'] = APP_RELATIVE_URL."list.php?community_pid=".$item['pid'];
             } else {
-                $item['url'] = APP_RELATIVE_URL."list.php?collection_pid={$item['pid']}";
+                $item['url'] = APP_RELATIVE_URL."list.php?collection_pid=".$item['pid'];
             }
         }
     }
 }
 $pid = Misc::GETorPOST('pid');
 if ($wft_type != 'Delete') {
-    $view_record_url = APP_RELATIVE_URL."view.php?pid=$pid";
+    $view_record_url = APP_RELATIVE_URL."view.php?pid=".$pid;
     if (Misc::isValidPid($pid)) {
         $record = new RecordObject($pid);
         if ($record->isCommunity()) {
-            $view_record_url = APP_RELATIVE_URL."list.php?community_pid=$pid";
+            $view_record_url = APP_RELATIVE_URL."list.php?community_pid=".$pid;
         } elseif ($record->isCollection()) {
-            $view_record_url = APP_RELATIVE_URL."list.php?collection_pid=$pid";
+            $view_record_url = APP_RELATIVE_URL."list.php?collection_pid=".$pid;
         }
         $record_title = $record->getTitle();
     } else {
@@ -105,9 +106,9 @@ if ($parent_pid) {
             $precord = new RecordObject($parent_pid);
             if ($precord) {
                 if ($precord->isCommunity()) {
-                    $view_parent_url = APP_RELATIVE_URL."list.php?community_pid=$parent_pid";
+                    $view_parent_url = APP_RELATIVE_URL."list.php?community_pid=".$parent_pid;
                 } else {
-                    $view_parent_url = APP_RELATIVE_URL."list.php?collection_pid=$parent_pid";
+                    $view_parent_url = APP_RELATIVE_URL."list.php?collection_pid=".$parent_pid;
                 }
                 $parent_title = $precord->getTitle();
             } else {
