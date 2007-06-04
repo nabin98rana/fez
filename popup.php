@@ -177,7 +177,7 @@ switch ($cat)
         }
     case 'publish_objects':
         {
-            $items = Misc::GETorPOST('items');
+            $items = Misc::GETorPOST('pids');
             foreach ($items as $pid) {
                 $rec_obj = new RecordGeneral($pid);
                 $res = $rec_obj->setStatusId(2);
