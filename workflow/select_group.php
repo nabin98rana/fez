@@ -59,7 +59,7 @@ $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus obje
 $wfstatus->setTemplateVars($tpl);
 $cat = Misc::GETorPOST('cat');
 if ($cat == 'submit') {
-    $wfstatus->setvar('assign_grp_id') = Misc::GETorPOST('grp_id');
+    $wfstatus->setvar('assign_grp_id',  Misc::GETorPOST('grp_id'));
 }
 $wfstatus->checkStateChange();
 
