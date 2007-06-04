@@ -2,6 +2,8 @@
 
 
 include_once(APP_INC_PATH . "class.bgp_bulk_assign_record_group.php");
+include_once(APP_INC_PATH . "class.history.php");
+include_once(APP_INC_PATH . "class.group.php");
 
 
 class Bulk_Assign_Record_Group {
@@ -26,7 +28,8 @@ class Bulk_Assign_Record_Group {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
 		$record = new RecordObject($pid);		
 		$record->updateFezMD_Group("grp_id", $assign_grp_id);
-        $this->bgp->setStatus("Finished Bulk Assign Record to Group for ".$record->getTitle());				
+		History::addHistory($pid, null, "", "", true, "Assigned Record to Group ".Group::getName($assign_grp_id)." (".$assign_grp_id.")");
+        $this->bgp->setStatus("Finished Bulk Assign Record to Group ".Group::getName($assign_grp_id)."(".$assign_grp_id.") for ".$record->getTitle());				
         
 
     }

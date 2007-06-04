@@ -2,14 +2,16 @@
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-style: normal;
 	font-weight: normal;
-	font-size: 70%;
+	/*font-size: 70%;*/
+	font-size: 75%;
 }
 
 .default_warning {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-style: normal;
 	font-weight: normal;
-	font-size: 70%;
+	/*font-size: 70%;*/
+	font-size: 75%;
 	color: #FF0000;
 }
 
@@ -24,7 +26,8 @@
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-style: normal;
 	font-weight: normal;
-	font-size: 70%;
+	/*font-size: 70%;*/
+	font-size: 75%;
 	color: #FFFFFF;
 }
 
@@ -32,7 +35,8 @@
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-style: normal;
 	font-weight: bold;
-	font-size: 70%;
+	/*font-size: 70%;*/
+	font-size: 10px;
 	color: #FF0000;
 }
 
@@ -48,7 +52,8 @@
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-style: normal;
 	font-weight: bold;
-	font-size: 70%;
+	/*font-size: 70%;*/
+	font-size: 75%;
 	color: #FFFFFF;
 	text-align: center;
 }
@@ -113,6 +118,20 @@ h4 {
 .author_link #author_link {
 	text-decoration: underline;
 }
+
+.author_id_link {
+        color: #4F7F37;
+        text-decoration: none;
+}
+        
+.author_id_link:hover {
+        color: #C1EFB3;
+}
+
+.author_id_link #author_id_link {
+	text-decoration: underline;
+}
+
 
 .silent_link {
 	color: #000000;
@@ -254,7 +273,7 @@ div.suggestions div {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-style: normal;
 	font-weight: normal;
-	font-size: 11px;
+	font-size: 75%;
 }
 
 div.suggestions div.current {

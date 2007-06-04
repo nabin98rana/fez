@@ -2,21 +2,24 @@
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-style: normal;
 	font-weight: normal;
-	font-size: 70%;
+	/*font-size: 70%;*/
+	font-size: 80%;
 }
 
 .default {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-style: normal;
 	font-weight: normal;
-	font-size: 70%;
+	/*font-size: 70%;*/
+	font-size: 80%;
 }
 
 .default_warning {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-style: normal;
 	font-weight: normal;
-	font-size: 70%;
+	/*font-size: 70%;*/
+	font-size: 80%;
 	color: #FF0000;
 }
 
@@ -24,7 +27,8 @@
 	font-family: Arial, Helvetica, sans-serif;
 	font-style: normal;
 	font-weight: normal;
-	font-size: 80%;
+	/*font-size: 70%;*/
+	font-size: 12px;
 }
 
 
@@ -32,7 +36,9 @@
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-style: normal;
 	font-weight: bold;
-	font-size: 70%;
+	/*font-size: 70%;*/
+	font-size: 80%;
+
 	color: #FF0000;
 }
 
@@ -47,7 +53,8 @@
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-style: normal;
 	font-weight: normal;
-	font-size: 70%;
+	/*font-size: 70%;*/
+	font-size: 80%;
 	color: #FFFFFF;
 }
 
@@ -63,7 +70,8 @@
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-style: normal;
 	font-weight: bold;
-	font-size: 70%;
+	/*font-size: 70%;*/
+	font-size: 80%;
 	color: #FFFFFF;
 	text-align: center;
 }
@@ -126,6 +134,19 @@ h4 {
 }
 
 .author_link #author_link {
+	text-decoration: underline;
+}
+
+.author_id_link {
+	color: #4F7F37;
+	text-decoration: none;
+}
+
+.author_id_link:hover {
+	color: #C1EFB3;
+}
+
+.author_id_link #author_id_link {
 	text-decoration: underline;
 }
 
@@ -279,7 +300,7 @@ div.suggestions div {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-style: normal;
 	font-weight: normal;
-	font-size: 11px;
+	font-size: 80%;
 }
 
 div.suggestions div.current {

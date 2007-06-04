@@ -227,7 +227,7 @@ class Foxml
             $attrib_value = $top_xdis_id;
             array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $top_xdis_id));
         } elseif ($xsdmf_details['xsdmf_fez_variable'] == "assigned_usr_id") {
-            $attrib_value = $assign_usr_id[0];
+            $attrib_value = $assign_usr_id[0];            
             array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $assign_usr_id[0]));            
         } elseif ($xsdmf_details['xsdmf_fez_variable'] == "assigned_grp_id") {
             $attrib_value = $assign_grp_id;
@@ -462,7 +462,7 @@ $tagIndent = "";
                                         Foxml::handleTextInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $xsdmf_details_ref, $attrib_loop_index, $element_prefix, $i, $xmlObj, $tagIndent);
                                     }
                                 } elseif ($xsdmf_details['xsdmf_html_input'] == 'static') {
-                                    Foxml::handleStaticInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $attrib_loop_index, $element_prefix, $i, $created_date, $updated_date, $depositor, $file_downloads, $top_xdis_id);
+                                    Foxml::handleStaticInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $attrib_loop_index, $element_prefix, $i, $created_date, $updated_date, $depositor, $file_downloads, $top_xdis_id, $assign_usr_id, $assign_grp_id);
                                 } elseif ($xsdmf_details['xsdmf_html_input'] == 'dynamic') {
 	//                                 eval("\$attrib_value = \$xsdmf_details['xsdmf_dynamic_text'];");
                                     $attrib_value = $HTTP_POST_VARS[$xsdmf_details['xsdmf_dynamic_text']];
@@ -602,7 +602,7 @@ $tagIndent = "";
                                     Foxml::handleTextInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $xsdmf_details_ref, $attrib_loop_index, $element_prefix, $i, $xmlObj, $tagIndent);
                                 }
                             } elseif ($xsdmf_details['xsdmf_html_input'] == 'static') {
-                                Foxml::handleStaticInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $attrib_loop_index, $element_prefix, $i, $created_date, $updated_date, $depositor, $file_downloads, $top_xdis_id);
+                                Foxml::handleStaticInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $attrib_loop_index, $element_prefix, $i, $created_date, $updated_date, $depositor, $file_downloads, $top_xdis_id, $assign_usr_id, $assign_grp_id);
                             } elseif ($xsdmf_details['xsdmf_html_input'] == 'dynamic') {
     //                            eval("\$attrib_value = \$xsdmf_details['xsdmf_dynamic_text'];");
 	                            $attrib_value = $HTTP_POST_VARS[$xsdmf_details['xsdmf_dynamic_text']];

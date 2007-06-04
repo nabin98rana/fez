@@ -2810,7 +2810,7 @@ class RecordObject extends RecordGeneral
      * Retrieve the display id for this record
      */
     function getObjectAdminMD() {
-		$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD');
+		$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD');		
 		if (isset($xdis_array['created_date'][0])) {
 			$this->created_date = $xdis_array['created_date'][0];
 		} else {
@@ -2832,6 +2832,9 @@ class RecordObject extends RecordGeneral
 			$this->assign_grp_id = NULL;
 		}		
 		if (isset($xdis_array['usr_id'][0])) {
+			if (!is_array($this->assign_usr_id)) {
+				$this->assign_usr_id = array();
+			}
 			foreach ($xdis_array['usr_id'] as $assign_usr_id) {
 				array_push($this->assign_usr_id, $assign_usr_id);
 			}
@@ -2987,8 +2990,7 @@ class RecordObject extends RecordGeneral
 		$xmlObj .= ">\n";
  		// @@@ CK - 6/5/2005 - Added xdis so xml building could search using the xml display ids
 		$indexArray = array();
-
-
+		
 		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, $file_downloads, $this->created_date, $this->updated_date, $this->depositor, $this->assign_usr_id, $this->assign_grp_id);
 		
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";

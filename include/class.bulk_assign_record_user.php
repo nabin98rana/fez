@@ -2,6 +2,7 @@
 
 
 include_once(APP_INC_PATH . "class.bgp_bulk_assign_record_user.php");
+include_once(APP_INC_PATH . "class.history.php");
 
 
 class Bulk_Assign_Record_User {
@@ -26,6 +27,7 @@ class Bulk_Assign_Record_User {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
 		$record = new RecordObject($pid);		
 		$record->updateFezMD_User("usr_id", $assign_usr_id);
+		History::addHistory($pid, null, "", "", true, "Assigned Record to User ".User::getFullName($assign_usr_id)." (".$assign_usr_id.")");
         $this->bgp->setStatus("Finished Bulk Assign Record to User for ".$record->getTitle());				
         
 

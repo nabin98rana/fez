@@ -304,7 +304,7 @@ class WorkflowStatus {
             $argstrs[] = "$key=".urlencode($arg);
         }
         $querystr=implode('&', $argstrs);
-        if ($wft_type != 'Delete') {
+        if (($wft_type != 'Delete') && !empty($this->pid))  {
             History::addHistory($pid, $this->wfl_details['wfl_id'], $outcome, $outcome_details, true);
         } elseif (!empty($this->parents_list)) {
             History::addHistory($this->parents_list[0]['pid'], $this->wfl_details['wfl_id'], "", "Deleted child ".$pid, true);
