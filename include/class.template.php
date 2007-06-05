@@ -190,6 +190,7 @@ class Template_API
         if ($username != '') {
             $this->assign("current_full_name", Auth::getUserFullName());
             $this->assign("current_email", Auth::getUserEmail());
+            $this->assign("current_user_id", Auth::getUserID());
         }
 		
         $this->assign("app_path", APP_PATH);

@@ -227,6 +227,8 @@ function selectDateField(field_name, day, month, year)
 <input type="hidden" name="sta_id" value="{$sta_id}">
 <input type="hidden" name="pid" value="{$pid}">
 <input type="hidden" name="id" value="{$id}">
+<input type="hidden" name="user_id" value="{$current_user_id}">
+<input type="hidden" name="userfullname" value="{$current_full_name}">
 {section name="i" loop=$xsd_display_fields}
 	{if $xsd_display_fields[i].xsdmf_title == 'state'}
 <input type="hidden" name="state" value="{$xsd_display_fields[i].xsdmf_static_text}">

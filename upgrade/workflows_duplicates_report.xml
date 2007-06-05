@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<workflows schema_version="1.0">
+  <workflow wfl_id="193" wfl_title="Duplicates Report" wfl_version="1.0" wfl_description="Workflow for finding duplicates in a collection." wfl_roles="Editor" wfl_end_button_label="Finished">
+    <WorkflowState wfs_id="681" wfs_title="Refresh Report" wfs_description="" wfs_auto="1" wfs_wfb_id="97" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="675" wfs_title="Show Duplicates List" wfs_description="This is a report of duplicates found for the selected records.  Select an item to see it's duplicate records." wfs_auto="0" wfs_wfb_id="127" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="676" wfs_title="Show Record Duplicates" wfs_description="This is view of the metadata for the selected record and the metadata of the suspected duplicates.  You can page through each of the suspected duplicates." wfs_auto="0" wfs_wfb_id="130" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="684" wfs_title="Remove Duplicate" wfs_description="Deletes the duplicates and marks the base pid in the report as resolved." wfs_auto="1" wfs_wfb_id="134" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="678" wfs_title="Change Base Record PID" wfs_description="The oldest PID in the repository has been chosen as the destination for the merged record.  This is because it is mostl likely to be referenced on the internet.  If for some reason, this is not intended, then choose wich PID should be the destination of the merged record." wfs_auto="0" wfs_wfb_id="133" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="687" wfs_title="Not a Duplicate" wfs_description="" wfs_auto="1" wfs_wfb_id="135" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="680" wfs_title="Delete Report" wfs_description="The duplicates report has been deleted." wfs_auto="1" wfs_wfb_id="109" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="1120" wfsl_from_id="675" wfsl_to_id="680"/>
+    <WorkflowStateLinks wfsl_id="1117" wfsl_from_id="684" wfsl_to_id="676"/>
+    <WorkflowStateLinks wfsl_id="1062" wfsl_from_id="675" wfsl_to_id="676"/>
+    <WorkflowStateLinks wfsl_id="1116" wfsl_from_id="676" wfsl_to_id="684"/>
+    <WorkflowStateLinks wfsl_id="1061" wfsl_from_id="675" wfsl_to_id="681"/>
+    <WorkflowStateLinks wfsl_id="1115" wfsl_from_id="678" wfsl_to_id="676"/>
+    <WorkflowStateLinks wfsl_id="1114" wfsl_from_id="676" wfsl_to_id="678"/>
+    <WorkflowStateLinks wfsl_id="1060" wfsl_from_id="676" wfsl_to_id="675"/>
+    <WorkflowStateLinks wfsl_id="1059" wfsl_from_id="681" wfsl_to_id="675"/>
+    <WorkflowStateLinks wfsl_id="1119" wfsl_from_id="687" wfsl_to_id="676"/>
+    <WorkflowStateLinks wfsl_id="1118" wfsl_from_id="676" wfsl_to_id="687"/>
+    <WorkflowTrigger wft_id="243" wft_pid="-1" wft_type_id="1" wft_xdis_id="285" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="3" wft_options="0"/>
+  </workflow>
+  <WorkflowBehaviour wfb_id="97" wfb_title="Batch Import" wfb_description="Needs the select batchimport to have been run first.  Does the actual importing.  Will use any template that has been set in 'set_template' or else will make mostly blank metadata." wfb_version="" wfb_script_name="batchimport.php" wfb_auto="1"/>
+  <WorkflowBehaviour wfb_id="130" wfb_title="Compare Records Form" wfb_description="Show two records side by side and allow them to merge." wfb_version="1.0" wfb_script_name="compare_records_form.php" wfb_auto="0"/>
+  <WorkflowBehaviour wfb_id="135" wfb_title="Duplciates Mark Ok" wfb_description="Not a duplicate." wfb_version="1.0" wfb_script_name="duplicates_mark_ok.php" wfb_auto="1"/>
+  <WorkflowBehaviour wfb_id="133" wfb_title="Duplicates Change Base Record" wfb_description="Part of the duplicates report." wfb_version="1.0" wfb_script_name="duplicates_base_record.php" wfb_auto="0"/>
+  <WorkflowBehaviour wfb_id="134" wfb_title="Duplicates Remove" wfb_description="Part of duplicates report processing.  Removes the current displayed duplicate record." wfb_version="1.0" wfb_script_name="duplicates_remove.php" wfb_auto="1"/>
+  <WorkflowBehaviour wfb_id="127" wfb_title="Duplicates Report" wfb_description="Reports duplicates" wfb_version="1.0" wfb_script_name="duplicates_report.php" wfb_auto="0"/>
+  <WorkflowBehaviour wfb_id="109" wfb_title="Purge Object" wfb_description="" wfb_version="1.0" wfb_script_name="purge.php" wfb_auto="1"/>
+</workflows>

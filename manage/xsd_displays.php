@@ -71,7 +71,7 @@ if ($isAdministrator) {
 	$tpl->assign("xsd_id", ($xsd_id));
 	$tpl->assign("xdis_id", ($xdis_id));	
 	$xsd_title = Doc_Type_XSD::getTitle($xsd_id);
-	$tpl->assign("object_options", Object_Type::getAssocList());
+	$tpl->assign("object_options", Object_Type::getAssocListAll());
 	$tpl->assign("xsd_title", ($xsd_title));
     $tpl->assign("list", XSD_Display::getList($xsd_id));
     $tpl->assign('extra_title', "Manage XSD Displays for XSD {$xsd_title}");

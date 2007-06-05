@@ -1,6 +1,6 @@
 <div class="outline">
 
-<div id="custom_filter_form1" {get_display_style element_name="custom_filter_form"}>
+<div id="custom_filter_form1" >
 
   <div class="{if $options.searchKey0 != ''}default-search-used{else}default{/if} quick_search_item">
     All Fields: <br />
@@ -47,7 +47,7 @@
 {/section}
 
   {* Second loop for bulky items *}
-
+<br/>
 {section name="i" loop=$search_keys}
   {assign var="search_key_name" value='searchKey'|cat:$search_keys[i].sek_id}
   {assign var ="last_key" value=$options.$search_key_name}  

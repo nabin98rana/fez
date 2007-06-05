@@ -119,7 +119,27 @@ class Misc
 	function numPID($pid) {
 		return substr($pid, strpos($pid, ":")+1);
 	}
+
+    function namespacePID($pid) {
+        return substr($pid, 0, strpos($pid, ":"));
+    }
 	
+    function comparePIDs($pid1, $pid2)
+    {
+        // the namespace has the higher precendence
+        $res1 = strcmp(Misc::namespacePID($pid1), Misc::namespacePID($pid2));
+        if ($res1 === 0) {
+            // the namespaces are the same so compare the numbers
+            $res2 = Misc::numPID($pid1) - Misc::numPID($pid2);
+            if ($res2 === 0) {
+                return 0;
+            } else {
+                return  $res2 / abs($res2);
+            } 
+        } else {
+            return $res1;
+        }
+    }
     /**
       * Just get the http headers from an URL
       * Returns the header and the curl info array.
@@ -1885,14 +1905,22 @@ class Misc
      * @param   array $haystack
      * @return  boolean
      */	
-	function array_flatten(&$a,$pref='') {
+	function array_flatten(&$a,$pref='', $ignore_keys = false) {
 	   $ret=array();
 	   foreach ($a as $i => $j)
 		   if (is_array($j)) {
-			   $ret=array_merge($ret,Misc::array_flatten($j,$pref.$i."|"));
-			   $ret[$pref.$i] = $i;
+               if (!$ignore_keys) {
+                   $ret=array_merge($ret,Misc::array_flatten($j,$pref.$i."|"));
+                   $ret[$pref.$i] = $i;
+               } else {
+                   $ret=array_merge($ret,Misc::array_flatten($j,'',$ignore_keys));
+               }
 		   } else {
-			   $ret[$pref.$i] = $j;
+               if (!$ignore_keys) {
+                 $ret[$pref.$i] = $j;
+               } else {
+                 $ret[] = $j;
+               }
 			}
 	   return $ret;
 	}

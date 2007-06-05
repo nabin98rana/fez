@@ -46,7 +46,7 @@ function unhideXSDMF_Editor(pid, xsdmf_id, vidx) {
 function showFlashMessage()
 {
 	document.getElementById('flash_message_div').style.display = '';
-	setTimeout('clearFlashMessage()', 30000);
+	setTimeout('clearFlashMessage()', 5000);
 }
 
 function getFlashMessage(id)
@@ -55,8 +55,10 @@ function getFlashMessage(id)
 	wfs.getMessage( function(s) {
 		if (s != null && s.length > 0) {
 			e = document.getElementById('flash_message_div');
-			e.innerHTML = s;
-			showFlashMessage()
+			if (e != null) {
+				e.innerHTML = s;
+				showFlashMessage();
+			}
 		}
 	});
 }

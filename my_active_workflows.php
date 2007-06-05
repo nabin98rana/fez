@@ -15,6 +15,19 @@ $tpl = new Template_API();
 $tpl->setTemplate("my_fez.tpl.html");
 $tpl->assign('myFezView', "MWF");
 
+Auth::checkAuthentication(APP_SESSION);
+$username = Auth::getUsername();
+$tpl->assign("isUser", $username);
+$isAdministrator = User::isUserAdministrator($username);
+if (Auth::userExists($username)) { // if the user is registered as a Fez user
+    $tpl->assign("isFezUser", $username);
+    $prefs = Prefs::get(Auth::getUserID());
+} elseif ($username != ""){
+// don't require registration now for logged in users, although they can (to get prefs etc) but don't force them
+//  Auth::redirect(APP_RELATIVE_URL . "register.php?err=5&username=" . $username);  
+}
+$tpl->assign("isAdministrator", $isAdministrator);
+
 $list = WorkflowStatusStatic::getList(Auth::getUserID());
 
 $tpl->assign(compact('list'));

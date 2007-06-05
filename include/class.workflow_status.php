@@ -37,6 +37,9 @@ include_once(APP_INC_PATH.'class.wfbehaviours.php');
 include_once(APP_INC_PATH.'class.workflow_state.php');
 include_once(APP_INC_PATH.'class.workflow_trigger.php');
 include_once(APP_INC_PATH.'class.foxml.php');
+include_once(APP_INC_PATH . 'class.bgp_generate_duplicates_report.php');
+include_once(APP_INC_PATH . 'class.template.php');
+include_once(APP_INC_PATH . 'class.mail.php');
 
 /**
  * for tracking status of objects in workflows.  This is like the runtime part of the workflows.
@@ -254,12 +257,19 @@ class WorkflowStatus {
      */
     function auto_next()
     {
-        $this->getWorkflowDetails();
-        if (!$this->wfs_details['wfs_end']) {
-            $this->setState($this->wfs_details['next_ids'][0]);
+        //Error_Handler::logError($this->wfs_id);
+        if (empty($this->wfs_id)) {
+            // we must have just chained to a new workflow so run the first state.
             $this->run();
         } else {
-            $this->theend();
+            $this->getStateDetails();
+            if (!$this->wfs_details['wfs_end']) {
+                // goto next state
+                $this->setState($this->wfs_details['next_ids'][0]);
+                $this->run();
+            } else {
+                $this->theend();
+            }
         }
     }
 
@@ -273,12 +283,15 @@ class WorkflowStatus {
         $this->getStateDetails();
         $this->states_done[] = array_merge($this->wfs_details, $this->wfb_details);
         $this->setSession();
+
         if ($this->wfb_details['wfb_auto']) {
             include(APP_PATH.'workflow/'.$this->wfb_details['wfb_script_name']);
             $this->auto_next();
         } else {
-            header("Location: ".APP_RELATIVE_URL.'workflow/'.$this->wfb_details['wfb_script_name']
+            if (!$GLOBALS['auth_isBGP']) {
+                header("Location: ".APP_RELATIVE_URL.'workflow/'.$this->wfb_details['wfb_script_name']
                     ."?id=".$this->id."&wfs_id=".$this->wfs_id);
+            }
             exit;
         }
     }
@@ -472,6 +485,16 @@ class WorkflowStatus {
         $tpl->assign('wfs_description', $this->wfs_details['wfs_description']);
     }
 
+    function setNewWorkflow($new_wft_id)
+    {
+        $this->wft_id= $new_wft_id;
+        $this->wfs_id = null;
+        $this->wfs_details = null;
+        $this->wfl_details = null;
+        $this->wfb_details = null;
+        $this->wft_details = null;
+    }
+    
 }
 
 /**
@@ -522,7 +545,7 @@ class WorkflowStatusStatic
         if (!empty($usr_id)) {
             $where_user = "wfses_usr_id='".$usr_id."'"; 
         } else {
-            $where_user = '';
+            $where_user = '1';
         }
         $stmt = "SELECT wfses_id,wfses_date, wfses_listing FROM ".$dbtp."workflow_sessions " .
                 "WHERE ".$where_user;  

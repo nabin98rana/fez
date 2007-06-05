@@ -333,7 +333,6 @@ class XSD_Display
         }
     }
 
-
     /**
      * Method used to get the list of XSD Displays for a given XSD.
      *
@@ -674,7 +673,7 @@ class XSD_Display
             return $res;
         }
     }
-	
+
     /**
      * Method used to get the maximum XSD Display ID
      *

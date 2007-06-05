@@ -17,6 +17,7 @@ class BackgroundProcess {
             );
     var $local_session = array();
     var $progress = 0;
+    var $wfses_id = null; // id of workflow session to resume when this background process finishes
 
 
     /***** Mixed *****/
@@ -155,11 +156,16 @@ class BackgroundProcess {
      *                       e.g. serialize(compact('pid','dsID'))
      * @param int $usr_id The user who will own the process.
      */
-    function register($inputs, $usr_id) 
+    function register($inputs, $usr_id, $wfses_id = null) 
     {
         $this->inputs = $inputs;
+        $this->wfses_id = $wfses_id; // optional workflow session
         $usr_id = Misc::escapeString($usr_id);
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        // keep background log files in a subdir so that they don't cutter up the /tmp dir so much
+        if (!is_dir(APP_TEMP_DIR."fezbgp")) {
+            mkdir(APP_TEMP_DIR."fezbgp");
+        }
 
 		$utc_date = Date_API::getSimpleDateUTC();
         $stmt = "INSERT INTO ".$dbtp."background_process (bgp_usr_id,bgp_started,bgp_name,bgp_include) 
@@ -172,7 +178,7 @@ class BackgroundProcess {
         $this->bgp_id = $GLOBALS['db_api']->get_last_insert_id();
         $this->serialize();
         $command = APP_PHP_EXEC." \"".APP_PATH."misc/run_background_process.php\" ".$this->bgp_id." \""
-            .APP_PATH."\" > ".APP_TEMP_DIR."fezbgp_".$this->bgp_id.".log";
+            .APP_PATH."\" > ".APP_TEMP_DIR."fezbgp/fezbgp_".$this->bgp_id.".log";
         if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
             pclose(popen("start /min /b ".$command,'r'));
         } else {

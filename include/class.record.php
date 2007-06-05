@@ -2390,6 +2390,39 @@ class RecordGeneral
     }
 
     /**
+     * getFieldValueBySearchKey
+     * Get the value or values of a metadata field that matches a given search key
+     *
+     * @access  public
+     * @param $sek_title string - The name of the search key to get the field value for, e.g. 'Title'
+     * @return  array $this->details[$xsdmf_id] The Dublin Core title of the object
+     */
+    function getFieldValueBySearchKey($sek_title)
+    {
+        $this->getDetails();
+        $this->getXmlDisplayId();
+        if (!empty($this->xdis_id)) {
+             $sek_id = Search_Key::getID($sek_title);
+             if (!$sek_id) {
+                 return null;
+             }
+             $res = array();
+             foreach ($this->display->xsd_html_match->getMatchCols() as $xsdmf ) {
+                 if ($xsdmf['xsdmf_sek_id'] == $sek_id) {
+                     $res[] = $this->details[$xsdmf['xsdmf_id']];
+                 }
+             }
+             return $res;
+        } else {
+            // if it has no xdis id (display id) log an error and return a null
+            Error_Handler::logError("The PID ".$this->pid." does not have an display id (FezMD->xdis_id). This object is currently in an erroneous state.",__FILE__,__LINE__);
+            return null;
+        }
+    }
+
+
+
+    /**
      * getTitle
      * Get the dc:title for the record
      *
@@ -2585,10 +2618,8 @@ class RecordGeneral
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $stmt = "SELECT ".APP_SQL_CACHE."  rmf_rec_pid 
             FROM ".$dbtp."record_matching_field
-            INNER JOIN ".$dbtp."xsd_display_matchfields 
-            ON rmf_xsdmf_id=xsdmf_id AND rmf_varchar='".$this->pid."'
-            INNER JOIN ".$dbtp."search_key on xsdmf_sek_id=sek_id AND sek_title='isMemberOf'
-             ";
+            INNER JOIN ".$dbtp."xsd_display_matchfields ON rmf_xsdmf_id=xsdmf_id AND rmf_varchar='".$this->pid."'
+            INNER JOIN ".$dbtp."search_key ON xsdmf_sek_id=sek_id AND sek_title='isMemberOf' ";
         $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -2942,9 +2973,16 @@ class RecordObject extends RecordGeneral
      * @access  public
      * @return  void
      */
-    function fedoraInsertUpdate($exclude_list=array(), $specify_list=array())
+    function fedoraInsertUpdate($exclude_list=array(), $specify_list=array(), $params = array())
     {
         global $HTTP_POST_VARS;
+        if (!empty($params)) {
+            // dirty double hack as this function and all the ones it calls assumes this is
+            // to do with a form submission
+            $HTTP_POST_VARS = $params;
+            $_POST = $params;
+        }
+        
         // If pid is null then we need to ingest the object as well
         // otherwise we are updating an existing object
         $ingestObject = false;

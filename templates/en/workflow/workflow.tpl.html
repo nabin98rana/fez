@@ -55,7 +55,6 @@ Workflow Progress:
    {section name="i" loop=$workflow_buttons}
      <input class="button" type="submit" name="workflow_button_{$workflow_buttons[i].wfs_id}" value="{$workflow_buttons[i].wfs_title|default:'Done'}" />&nbsp;
      {/section}
-     | <input class="button" type="reset" value="Reset Form" tabindex="13" />
     </td>
    </tr>
   </table>
@@ -74,7 +73,6 @@ Workflow Progress:
    {section name="i" loop=$workflow_buttons}
      <input class="button" type="submit" name="workflow_button_{$workflow_buttons[i].wfs_id}" value="{$workflow_buttons[i].wfs_title|default:'Done'}" />&nbsp;
      {/section}
-     | <input class="button" type="reset" value="Reset Form" tabindex="13" />
     </td>
    </tr>
   </table>

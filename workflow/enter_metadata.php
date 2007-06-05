@@ -75,9 +75,6 @@ $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus obje
 $pid = $wfstatus->pid;
 $tpl->assign("pid", $pid);
 
-
-
-
 $wfstatus->setTemplateVars($tpl);
 // get the xdis_id of what we're creating
 $xdis_id = $wfstatus->getXDIS_ID();

@@ -90,7 +90,7 @@ class NAJAX_Server extends NAJAX_Observable
 	 */
 	function runServer()
 	{
-		if ( ! NAJAX_Server::notifyObservers('runServerEnter')) {
+        if ( ! NAJAX_Server::notifyObservers('runServerEnter')) {
 
 			return false;
 		}
@@ -143,7 +143,6 @@ class NAJAX_Server extends NAJAX_Observable
 		}
 
 		if (isset($_GET['najaxCall'])) {
-
 			if (strcasecmp($_GET['najaxCall'], 'true') == 0) {
 
 				if ( ! isset($GLOBALS['HTTP_RAW_POST_DATA'])) {

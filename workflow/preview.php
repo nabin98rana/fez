@@ -47,10 +47,18 @@ $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign('type',"preview");
 
+
+Auth::checkAuthentication(APP_SESSION);
+
+$isUser = Auth::getUsername();
+$tpl->assign("isUser", $isUser);
+$isAdministrator = User::isUserAdministrator($isUser);
+$tpl->assign("isAdministrator", $isAdministrator);
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 $pid = $wfstatus->pid;
-
+$tpl->assign("pid", $pid);
 $wfstatus->setTemplateVars($tpl);
+
 
 $wfstatus->checkStateChange();
 include_once('../view2.php');

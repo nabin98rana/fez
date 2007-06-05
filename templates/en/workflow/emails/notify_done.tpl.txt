@@ -1,0 +1,11 @@
+Dear {$current_full_name}
+
+{$notify}
+
+Please click here to resume the workflow: 
+{$app_base_url}workflow/resume.php?id={$wfses_id}
+
+Regards
+
+{$application_title}
+

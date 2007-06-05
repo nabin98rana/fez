@@ -37,7 +37,7 @@ function loadPreview(pid,datastreamID, alt)
     ip_obj.getPreview(pid, datastreamID, max_width, max_height, false, function() { */
 //            pv_img.src = rel_url+'webservices/image_resize_cache.php?pid='+pid+'&dsID='+datastreamID+'&width='+max_width+'&height='+max_height;
             pv_img.src = rel_url+'eserv.php?ls=0&pid='+pid+'&dsID=preview_'+datastreamID;
-			// datastream_preview_href.href = rel_url+'eserv.php?pid='+pid+'&dsID='+datastreamID;
+			pv_img_href.href = rel_url+'eserv.php?pid='+pid+'&dsID='+datastreamID;
             pv_img.alt = alt;
             pv_loading.style.display = 'none';
             image_preview_loading = 0;

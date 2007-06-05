@@ -65,14 +65,15 @@ function hideClosed(f)
     if (f.hide_closed.checked) {
         window.location.href = page_url + "?" + replaceParam(window.location.href, 'hide_closed', '1');
     } else {
-        window.location.href = page_url + "?" + replaceParam(window.location.href, 'hide_closed', '0');
+        window.location.href = c + "?" + replaceParam(window.location.href, 'hide_closed', '0');
     }
 }
 function resizePager(f)
 {
     var pagesize = f.page_size.options[f.page_size.selectedIndex].value;   
-    var temp = page_url + "?" + replaceParam(window.location.href, 'rows', pagesize);
-    window.location.href = temp + "?" + replaceParam(temp, 'pager_row', '0');
+    var temp = replaceParam(window.location.href, 'rows', pagesize);
+    temp = replaceParam(page_url + "?" + temp, 'pager_row', '0');
+    window.location.href = page_url + "?" + temp;
     
 }
 function checkPageField(ev)

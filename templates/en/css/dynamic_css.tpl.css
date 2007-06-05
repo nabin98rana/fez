@@ -1,5 +1,5 @@
 #header {
-	background-image: url("[[$smarty.const.APP_BASE_URL]]images/fez_banner_glass.gif");
+background-image: url("[[$smarty.const.APP_BASE_URL]]images/fez_banner_glass.gif");
 }
 
 div.wfl_description {
@@ -37,13 +37,44 @@ padding: 2px;
 
 .table_heading_row {
 background-color: [[$smarty.const.APP_CELL_COLOR]];
-  font-family: Verdana, Arial, Helvetica, sans-serif;
-  font-style: normal;
-  font-weight: bold;
-  font-size: 11px;
-  margin: 10px;
+font-family: Verdana, Arial, Helvetica, sans-serif;
+font-style: normal;
+font-weight: bold;
+font-size: 11px;
+margin: 10px;
 vertical-align: middle;
 }
+
+.table_label_cell {
+background-color: [[$smarty.const.APP_CELL_COLOR]];
+font-family: Verdana, Arial, Helvetica, sans-serif;
+font-style: normal;
+font-weight: bold;
+font-size: 11px;
+padding: 3px;
+vertical-align: middle;
+width: 20%;
+}
+
+.table_value_cell {
+background-color: [[$smarty.const.APP_LIGHT_COLOR]];
+font-family: Verdana, Arial, Helvetica, sans-serif;
+font-style: normal;
+font-weight: none;
+font-size: 11px;
+padding: 3px;
+vertical-align: middle;
+width: 40%;
+}
+
+.listing_row_light {
+background-color: #DDDDDD;
+}
+
+.listing_row_dark {
+background-color: #CACACA;
+}
+
 
 .citation_preview {
 padding: 3px;
@@ -65,22 +96,22 @@ border: 1px solid [[$smarty.const.APP_LIGHT_COLOR]];
 .fez_form label {
 display: table-cell;
 background-color: [[$smarty.const.APP_CELL_COLOR]];
-  font-family: Verdana, Arial, Helvetica, sans-serif;
-  font-style: normal;
-  font-weight: bold;
-  font-size: 11px;
-  padding: 5px;
-  width: 200px;
-  vertical-align: top;
+font-family: Verdana, Arial, Helvetica, sans-serif;
+font-style: normal;
+font-weight: bold;
+font-size: 11px;
+padding: 5px;
+width: 200px;
+vertical-align: top;
  }
  
 span.fez_form_input {
 display: table-cell;
 background-color: [[$smarty.const.APP_LIGHT_COLOR]];
-  font-family: Verdana, Arial, Helvetica, sans-serif;
-  font-style: normal;
-  font-size: 11px;
-  padding: 2px;
+font-family: Verdana, Arial, Helvetica, sans-serif;
+font-style: normal;
+font-size: 11px;
+padding: 2px;
 }
 
 ul.my_views_tab {
@@ -117,5 +148,8 @@ ul.my_views_tab a.my_views_tab_here
 background:[[$smarty.const.APP_CELL_COLOR]];
 }
 
-
+div.cv_selection
+{
+background:[[$smarty.const.APP_LIGHT_COLOR]];
+}
 

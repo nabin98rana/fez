@@ -1033,7 +1033,6 @@ class Collection
     }
 
 	function getWorkflows($input) {
-		$return = array();
 		if (!is_array($input)) {
 			return array();
 		} else {

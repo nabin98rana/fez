@@ -82,6 +82,18 @@ class Pager
         return $result;
     }
 
+    function setParam($name, $value, &$params=null)
+    {
+        if (!is_null($params)) {
+            $params[$name] = $value;
+            return;
+        }
+        $cookie = Pager::getCookieParams();
+        $cookie[$name] = $value;
+        $encoded = base64_encode(serialize($cookie));
+        @setcookie(APP_LIST_COOKIE, $encoded, APP_LIST_COOKIE_EXPIRE);
+        
+    }
 
     /**
      * Method used to save the current search parameters in a cookie.
@@ -347,6 +359,26 @@ class Pager
         } else {
             return $temp;
         }
+    }
+    
+    /**
+     * Get the current page and rows from cookie and set them in the template as
+     * $page, $page_size.  Returns them for convenience.
+     */
+    function doPaging($tpl, $prefix)
+    {
+        $page_size = Pager::getParam($prefix.'page_size');
+        $page = Pager::getParam($prefix.'page');
+        if (empty($page_size)) {
+            $page_size = 10;
+        }
+        if (!is_numeric($page)) {
+            $page = 0;
+        }
+        Pager::setParam($prefix.'page_size', $page_size);
+        Pager::setParam($prefix.'page',$page);
+        $tpl->assign(compact('page','page_zize'));
+        return array($page, $page_size);
     }
 
 }

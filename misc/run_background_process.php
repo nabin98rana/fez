@@ -22,4 +22,9 @@ $bgp->setAuth();
 
 $bgp->run();
 
+if (!empty($bgp->wfses_id)) {
+    $wfstatus = WorkflowStatusStatic::getSession($bgp->wfses_id);
+    $wfstatus->auto_next();
+}
+
 ?>

@@ -122,13 +122,12 @@ class BackgroundProcessList
 
     function getLog($bgp_id)
     {
-        return file_get_contents(APP_TEMP_DIR."fezbgp_".$bgp_id.".log");
+        return file_get_contents(APP_TEMP_DIR."fezbgp/fezbgp_".$bgp_id.".log");
     }
 
     function deleteLog($bgp_id)
     {
-        $deleteCommand = APP_DELETE_CMD." ".APP_TEMP_DIR."fezbgp_".$bgp_id.".log";
-        exec($deleteCommand);
+        unlink(APP_TEMP_DIR."fezbgp/fezbgp_".$bgp_id.".log");
     }
 
 }
