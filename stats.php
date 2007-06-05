@@ -70,9 +70,10 @@ $month = (@$_REQUEST['month'] >= 1 && @$_REQUEST['month'] <= 12) ? $_REQUEST['mo
 $browse = @$_REQUEST['browse'];
 if ($browse == "top50authors") {
 	$rows = 50;
-	$list = Collection::statsByAttribute(0, $rows, "Author");
+	$list = Collection::statsByAuthorID(0, $rows, "Author ID");
 	$list_info = $list["info"];
 	$list = $list["list"];
+
 	$tpl->assign("browse_heading", "Top 50 Authors");
 	$tpl->assign("extra_title", "Top 50 Authors");
 	$tpl->assign("browse_type", "browse_top50authors");

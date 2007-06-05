@@ -1977,7 +1977,159 @@ if ($sort_by == 'File Downloads') {
         }
     }
 
+   /**
+     * Method used to get the statistics by a specified searchKey like Author or Title of the paper
+     *
+     * @access  public
+     * @param   integer $current_row The point in the returned results to start from.
+     * @param   integer $max The maximum number of records to return
+     * @param   string $searchKey The search key of the stats eg Title or Author, or any other search key
+     * @return  array The list of records
+     */
+    function statsByAuthorID($current_row = 0, $max = 50, $searchKey="Author ID", $year = "all", $month = "all", $range = "all")
+    {
 
+		$limit = "";
+		if ($year != 'all' && is_numeric($year)) {
+			$year = Misc::escapeString($year);
+			$limit = " and year(stl_request_date) = $year";
+			if ($month != 'all' && is_numeric($month)) {
+				$month = Misc::escapeString($month);
+				$limit .= " and month(stl_request_date) = $month";
+			}
+		} elseif ($range != 'all' && $range == '4w') {
+			$limit .= " and stl_request_date >= CURDATE()-INTERVAL 1 MONTH";
+		}
+
+		if ($max == "ALL") {
+            $max = 9999999;
+        }
+        $start = $current_row * $max;
+		$restrictSQL = "";
+		$middleStmt = "";
+		$extra = " ,a1.aut_display_name as record_author ";
+		$termCounter = 3;
+		$as_field = "";
+		$statusList =  XSD_HTML_Match::getXSDMF_IDsBySekTitle('Status');
+		$sdet = Search_Key::getDetailsByTitle($searchKey);
+		//$authorID_list = Search
+		$author_IDList = XSD_HTML_Match::getXSDMF_IDsBySekID($sdet["sek_id"]);
+		$data_type = $sdet['xsdmf_data_type'];
+		//$data_type = "varchar";
+		$group_field = "r4.rmf_int ";
+
+
+		if ($max == "ALL") {
+            $max = 9999999;
+        }
+        $start = $current_row * $max;
+
+        // this query broken into pieces to try and get some speed.
+
+        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $sort_by = 'File Downloads';
+        $sekdet = Search_Key::getDetailsByTitle($sort_by);
+//        $data_type = $sekdet['xsdmf_data_type'];
+        $restrict_community = '';
+
+		//$authArray = Collection::getAuthIndexStmt(array("Lister", "Viewer", "Editor", "Creator"));
+		//$authStmt = $authArray['authStmt'];
+		//$joinStmt = $authArray['joinStmt'];
+		$sort_order = "DESC";
+
+
+			$memberOfStmt = "
+						INNER JOIN ".$dbtp."record_matching_field AS r4 ON r4.rmf_rec_pid = r2.rmf_rec_pid
+						and r4.rmf_xsdmf_id in (".implode(",", $author_IDList).") 
+						INNER JOIN ".$dbtp."author a1 on a1.aut_id = r4.rmf_int";
+
+        $bodyStmtPart1 = " FROM ".$dbtp."statistics_all stl
+        				INNER JOIN  ".$dbtp."record_matching_field AS r2 on stl.stl_pid_num=r2.rmf_rec_pid_num and stl.stl_pid=r2.rmf_rec_pid and stl.stl_dsid <> ''
+                    and r2.rmf_xsdmf_id in (".implode(",", $statusList).") and r2.rmf_int=2
+
+                   
+
+					".$memberOfStmt."
+
+
+                    ";
+        $bodyStmt = $bodyStmtPart1."
+
+					 ".$limit."
+                    group by ".$group_field."
+             ";
+			 if  ( $authStmt <> "" ) { // so the stats will work even when there are auth rules
+//			 	$bodyStmt .= ", authi_id";
+			 }
+        $countStmt = "
+                    SELECT ".APP_SQL_CACHE."  count(distinct r2.rmf_rec_pid)
+                    ".$bodyStmtPart1."
+            ";
+
+		$innerStmt = "
+                    SELECT ".APP_SQL_CACHE."  distinct r4.rmf_".$data_type." ".$as_field." ".$extra.", IFNULL(count(stl_pid),0) as sort_column
+                    ".$bodyStmt."
+					order by sort_column ".$sort_order.", r2.rmf_rec_pid desc
+                    LIMIT ".$start.", ".$max."
+					";
+
+			$stmt = $innerStmt;
+		
+		//echo $stmt; exit;
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+			foreach ($res as $key => $result) {
+				$res[$key]['file_downloads'] = $res[$key]['sort_column'];
+			}
+			//print_r($res);
+
+			$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
+
+			$return = $res;
+
+			//$return = Collection::makeReturnList($res, 1);
+	        //$return = Collection::makeSecurityReturnList($return);
+
+			$hidden_rows = 0;
+	//		$return = Auth::getIndexAuthorisation($return);
+	//		$return = Misc::cleanListResults($return);
+	//		$return = Collection::getWorkflows($return);
+			if (($start + $max) < $total_rows) {
+		        $total_rows_limit = $start + $max;
+			} else {
+			   $total_rows_limit = $total_rows;
+			}
+			$total_pages = ceil($total_rows / $max);
+	        $last_page = $total_pages - 1;
+
+
+	        if (PEAR::isError($res)) {
+	            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+	            return "";
+	        } else {
+	            return array(
+	                "list" => $return,
+	                "info" => array(
+	                    "current_page"  => $current_row,
+	                    "start_offset"  => $start,
+	                    "end_offset"    => $total_rows_limit,
+	                    "total_rows"    => $total_rows,
+	                    "total_pages"   => $total_pages,
+	                    "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+	                    "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
+	                    "last_page"     => $last_page,
+	                    "hidden_rows"     => 0
+	                )
+	            );
+	        }
+        }
+    }
+    
+    
+    
     /**
      * Method used to perform advanced searching of objects in Fez. Gets the search criteria from a querystring 'list'.
      *
