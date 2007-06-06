@@ -443,6 +443,7 @@ $stmt = $contents;
     $config_contents = str_replace("%{APP_SHORT_ORG_NAME}%", $HTTP_POST_VARS['short_org'], $config_contents);
     $config_contents = str_replace("%{APP_NAME}%", $HTTP_POST_VARS['app_name'], $config_contents);		
     $config_contents = str_replace("%{APP_ADMIN_EMAIL}%", $HTTP_POST_VARS['app_admin_email'], $config_contents);		    
+    $config_contents = str_replace("%{APP_PID_NAMESPACE}%", $HTTP_POST_VARS['fedora_pid_namespace'], $config_contents);		    
     $app_path = trim($HTTP_POST_VARS['path']);
     if (!endsWith($app_path, '/')) {
         $app_path .= '/';
