@@ -268,8 +268,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		  <td>
 			<div class="letter-list">
 			{section name="i" loop=$alphabet_list}
-				{section name="j" loop=$letter_list}{if $alphabet_list[i] == $letter_list[j].letter}<a href="{$smarty.server.PHP_SELF}?browse=author&amp;letter={$alphabet_list[i]}">{/if}{/section}
-				{$alphabet_list[i]}{section name="j" loop=$letter_list}{if $alphabet_list[i] == $letter_list[j].letter}</a>{/if}{/section} | 
+				<a href="{$smarty.server.PHP_SELF}?browse=author&amp;letter={$alphabet_list[i]}">{$alphabet_list[i]}</a> | 
 			{/section}
 			<a href="{$smarty.server.PHP_SELF}?browse=author">All</a>
 			</div>

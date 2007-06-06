@@ -372,7 +372,6 @@ class Lister
 			    $tpl->assign("list_heading", "Browse By Author");					
             }
             $tpl->assign("browse_type", "browse_author");
-            $tpl->assign("letter_list", Collection::getLetterList());
             $tpl->assign("alphabet_list", Misc::generateAlphabetArray());
         } elseif ($browse == "depositor") {
             // browse by depositor

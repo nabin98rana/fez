@@ -2528,6 +2528,12 @@ function backtrace()
         return false;
     }
 
+    /**
+     * generateAlphabetArray
+     *
+     * Builds an array containing capital letters A-Z. This method is for printing a list of letters to allow
+     * filtration of results by first letter. We may one day want to augment this to include special characters.
+     */
     function generateAlphabetArray()
     {
         $alphabetArray = array();

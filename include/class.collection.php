@@ -2693,7 +2693,9 @@ $res_count = array();
      *
      * @access  public
      * @return  array $return The list letters
-     */
+     * 
+     * Decommissioned 06/06/2007 - LK
+     *
     function getLetterList()
     {
     	$statusList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Status');
@@ -2712,6 +2714,7 @@ $res_count = array();
             return $res;
         }
     }
+     */
 
     /**
      * Method used to get a list of leading letters, for a given set of
@@ -2719,7 +2722,9 @@ $res_count = array();
      *
      * @access  public
      * @return  array $return The list letters
-     */
+     *
+     * Decommissioned 06/06/2007 - LK
+     *
     function getLetterListAuthor()
     {
 
@@ -2739,6 +2744,7 @@ $res_count = array();
             return $res;
         }
     }
+     */
 
 
 }
