@@ -84,7 +84,7 @@ if (isElementVisible(basic_element)) {
 	  <div class="front-page-content-header"><img src="{$rel_url}images/browse_22.jpg" alt="Browse" title="Browse" /> Browse</div>
 	  <div class="front-page-content-detail">
 		<ul class="front-page-list">
-			<li><a href="{$rel_url}list.php?browse=author_id" "Browse records linked to Author IDs (won't show non-{$application_title} authors)">by {$application_title} Author ID</a></li>
+			<li><a class="author_id_link" href="{$rel_url}list.php?browse=author_id" "Browse records linked to Author IDs (won't show non-{$application_title} authors)">by {$application_title} Author ID</a></li>
 			<li><a href="{$rel_url}list.php?browse=author" title="Browse by Author Names (strings) as they appear in records (not author ID linked)">by Author Name</a></li>
 			<li><a href="{$rel_url}list.php?browse=subject">by Subject</a></li>
 			<li><a href="{$rel_url}list.php">by Organisational Unit</a></li>
@@ -97,7 +97,7 @@ if (isElementVisible(basic_element)) {
 	  <div class="front-page-content-header"><img src="{$rel_url}images/statistics_22.gif" alt="Download Statistics" title="Download Statistics" /> Download Statistics</div>
 	  <div class="front-page-content-detail">
 		<ul class="front-page-list">
-		  <li><a href="{$rel_url}stats.php?browse=top50authors">Top 50 {$application_title} authors</a></li>
+		  <li><a class="author_id_link" href="{$rel_url}stats.php?browse=top50authors">Top 50 {$application_title} authors</a></li>
 		  <li><a href="{$rel_url}stats.php?browse=top50papers">Top 50 papers</a></li>
 		  <li>Most viewed - <a href="{$rel_url}stats.php?browse=show_detail_date&amp;range=4w">Last 4 weeks</a> | <a href="{$rel_url}stats.php?browse=show_detail_date&amp;year={$thisYear}">This year</a> | <!--a href="{$rel_url}stats.php?browse=show_detail_date&amp;year={$lastYear}">Last year</a> |--> <a href="{$rel_url}stats.php?browse=show_detail_date">All years</a></li>
 		  <li>All statistics - <a href="{$rel_url}stat_details.php?action=cumulative_usage&amp;range=all">by Date</a> | <a href="{$rel_url}stat_details.php?action=cumulative_usage_country">by Country</a></li>
