@@ -223,6 +223,25 @@ a:link .footerlinks {
 	border-bottom: 1px solid #DDDDDD;
 }
 
+.listrecord a {
+	text-decoration: none;
+	color: #3179C6;	
+}
+
+.listrecord a:hover {
+	text-decoration: none;
+	color: #61ADFF;
+}
+
+.listrecord a.author_id_link {
+	color: #4F7F37;
+	text-decoration: none;
+}
+
+.listrecord a:hover.author_id_link {
+	color: #C1EFB3;
+}
+
 .listrecord .tr {
 	background-color: #255282;
 	color: white;
@@ -277,6 +296,15 @@ width: 2em;
 #front-page-container a:hover {
 	/*text-decoration: underline;*/
 	color: #61ADFF;
+}
+
+#front-page-container a.author_id_link {
+	color: #4F7F37;
+	text-decoration: none;
+}
+
+#front-page-container a:hover.author_id_link {
+	color: #C1EFB3;
 }
 
 .front-page-content-header {
@@ -337,6 +365,7 @@ width: 2em;
 
 /* Tool tips */
 a.tool-tip {
+	font-weight: bold;
 	position: relative;
 	z-index: 1;
 	text-decoration: none;

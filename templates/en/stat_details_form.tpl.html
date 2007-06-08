@@ -137,14 +137,14 @@ function purgeObject(pid)
 		</tr>
 		{/if}
 
-        <tr><td align="center">
+        <tr  align="center"><td>
       <table bgcolor="#FFFFFF" width="800" cellpadding="2" cellspacing="1" class="default">
 		 <tr>
-			<td class="contentheader"><img src="{$rel_url}images/statistics_22.gif" alt="" align="absmiddle"> Access Statistics: <a href="{$rel_url}view.php?pid={$pid}">{$title}</a>
+			<td align="left" class="contentheader"><img src="{$rel_url}images/statistics_22.gif" alt="" align="absmiddle"> Access Statistics: <a href="{$rel_url}view.php?pid={$pid}">{$title}</a>
 			</td>
 		</tr>
 		 <tr>
-			<td>
+			<td align="left">
 			<p>
 			{if $pid != 'all'}
 			<p><strong>For this record:</strong>
@@ -167,7 +167,7 @@ function purgeObject(pid)
 		</tr>
 		{if $action == 'show_detail'}
 	    <tr>
-			<td>
+			<td align="left">
 				<table cellspacing="0" cellpadding="3" width="800">
 					<tr {$shaded_bar}>
 						<td colspan="4" class="default_white"><strong>Abstract views and document downloads {$dateString}</strong></td>
@@ -198,7 +198,7 @@ function purgeObject(pid)
 		</tr>
 
 	    <tr>
-			<td>
+			<td align="left">
 				<table cellspacing="0" cellpadding="3" width="800">
 					<tr {$shaded_bar}>
 						<td colspan="4" class="default_white"><strong>Views by country (derived from IP address of query) {$dateString}</strong></td>
@@ -230,7 +230,7 @@ function purgeObject(pid)
 		</tr>
 
 	    <tr>
-			<td>
+			<td align="left">
 				<table cellspacing="0" cellpadding="3" width="800">
 					<tr {$shaded_bar}>
 						<td colspan="4" class="default_white"><strong>History of views for this record</strong></td>
@@ -256,7 +256,7 @@ function purgeObject(pid)
 		</tr>
 		{elseif $action == 'cumulative_usage'}
 			    <tr>
-			<td>
+			<td align="left">
 				<table cellspacing="0" cellpadding="3" width="800">
 					<tr {$shaded_bar}>
 						<td colspan="4" class="default_white"><strong>Abstract views and document downloads by month/year</strong></td>
@@ -282,7 +282,7 @@ function purgeObject(pid)
 		</tr>
 		{elseif $action == 'cumulative_usage_country'}
 	    <tr>
-			<td>
+			<td align="left">
 				<table cellspacing="0" cellpadding="3" width="800">
 					<tr {$shaded_bar}>
 						<td colspan="4" class="default_white"><strong>Views by country (derived from IP address of query) {$dateString}</strong></td>
@@ -314,7 +314,7 @@ function purgeObject(pid)
 		</tr>
 		{elseif $action == 'cumulative_usage_country_specific'}
 	    <tr>
-			<td>
+			<td align="left">
 				<table cellspacing="0" cellpadding="3" width="800">
 					<tr {$shaded_bar}>
 						<td colspan="5" class="default_white"><strong>Views for {$country_name} by state city/suburb (derived from IP address of query) {$dateString}</strong></td>

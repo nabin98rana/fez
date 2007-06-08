@@ -121,6 +121,7 @@ if (!empty($pid) && $record->checkExists()) {
 		$xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array(""));  // XSD_DisplayObject
 		$tpl->assign("xsd_display_fields", $xsd_display_fields);
 		$details = $record->getDetails();
+        //print_r($details);
 		$tpl->assign("details_array", $details);
 		$parents = $record->getParents();				
 //		$parents = Collection::getParents2($pid);
@@ -158,7 +159,6 @@ if (!empty($pid) && $record->checkExists()) {
 				}
 			}
 		}
-
 				
 		foreach ($xsd_display_fields as $dis_key => $dis_field) {
 			if (($dis_field['xsdmf_enabled'] == 1)) { // CK - took out check for is in view form, as not much is in view form now
@@ -223,11 +223,23 @@ if (!empty($pid) && $record->checkExists()) {
 				if ($dis_field['sek_title'] == "Author") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
-							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {		
-								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=author&author=".htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey], ENT_QUOTES)."'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
+							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {	
+                                $temp_xsdmf_id = $dis_field['xsdmf_attached_xsdmf_id'];
+                                if ( is_array($details[$temp_xsdmf_id]) &&  (is_numeric($details[$temp_xsdmf_id][$ckey])) && ($details[$temp_xsdmf_id][$ckey] != 0)) {
+                                //if ( array_key_exists($temp_xsdmf_id, $details) ) {
+								  $details[$dis_field['xsdmf_id']][$ckey] = "<a title='Browse by Author ID for ".$details[$dis_field['xsdmf_id']][$ckey]."' class='author_id_link' href='".APP_BASE_URL."list.php?browse=author&author_id=".htmlspecialchars($details[$temp_xsdmf_id][$ckey], ENT_QUOTES)."'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
+                                } else {
+								  $details[$dis_field['xsdmf_id']][$ckey] = "<a title='Browse by Author Name for ".$details[$dis_field['xsdmf_id']][$ckey]."' class='silent_link' href='".APP_BASE_URL."list.php?browse=author&author=".htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey], ENT_QUOTES)."'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
+
+                                }                	
 							}
 						} else {
-							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=author&author=".htmlspecialchars($details[$dis_field['xsdmf_id']], ENT_QUOTES)."'>".$details[$dis_field['xsdmf_id']]."</a>";
+                             $temp_xsdmf_id = $dis_field['xsdmf_attached_xsdmf_id'];
+                             if ((is_numeric($details[$temp_xsdmf_id])) && ($details[$temp_xsdmf_id] != 0)) {
+							   $details[$dis_field['xsdmf_id']] = "<a title='Browse by Author ID for ".$details[$dis_field['xsdmf_id']]."' class='author_id_link' href='".APP_BASE_URL."list.php?browse=author&author_id=".htmlspecialchars($details[$temp_xsdmf_id], ENT_QUOTES)."'>".$details[$dis_field['xsdmf_id']]."</a>";
+                             } else {
+							   $details[$dis_field['xsdmf_id']] = "<a title='Browse by Author Name for ".$details[$dis_field['xsdmf_id']]."' class='silent_link' href='".APP_BASE_URL."list.php?browse=author&author=".htmlspecialchars($details[$dis_field['xsdmf_id']], ENT_QUOTES)."'>".$details[$dis_field['xsdmf_id']]."</a>";
+                             }
 						}
 					}
 				}			
@@ -314,7 +326,6 @@ if (!empty($pid) && $record->checkExists()) {
 				}	
 			}
 		}
-
         $tpl->assign('meta_head', $meta_head);
 
 		foreach ($details as $dkey => $dvalue) { // turn any array values into a comma seperated string value

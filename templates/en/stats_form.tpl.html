@@ -141,14 +141,14 @@ function purgeObject(pid)
       <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1">
 		{if ($browse_type == "browse_top50authors") || ($browse_type == "browse_top50papers") || ($browse_type == "browse_show_detail_date")} 
 		 <tr class="default">
-			<td class="contentheader"><img src="{$rel_url}images/statistics_22.gif" alt="" align="absmiddle"> Access Statistics: <a href="{$rel_url}view.php?pid={$pid}">{$title}</a>
+			<td class="contentheader" align="left"><img src="{$rel_url}images/statistics_22.gif" alt="" align="absmiddle"> Access Statistics: <a href="{$rel_url}view.php?pid={$pid}">{$title}</a>
 			</td>
 		</tr>
 
 		 <tr class="default">
-			<td>
+			<td align="left">
 			<p><strong>Top 50:</strong>
-			[<a href="{$rel_url}stats.php?browse=top50authors">Authors</a>] 
+			[<a href="{$rel_url}stats.php?browse=top50authors">{$application_title} Authors</a>] 
 			[<a href="{$rel_url}stats.php?browse=top50papers">Papers</a>] 
 			<p><strong>Most viewed records:</strong>
 			[<a href="{$rel_url}stats.php?browse=show_detail_date&range=4w">Past four weeks</a>] 

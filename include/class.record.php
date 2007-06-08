@@ -1171,7 +1171,7 @@ class Record
             INNER JOIN ".$dbtp."xsd_display_matchfields AS x1
             ON r1.rmf_xsdmf_id = x1.xsdmf_id
             INNER JOIN (
-                    SELECT ".APP_SQL_CACHE."  distinct r".$searchKey_join[4].".rmf_rec_pid ".$searchKey_join[6]."
+                    SELECT ".APP_SQL_CACHE."  distinct r".$searchKey_join[4].".rmf_rec_pid, r".$searchKey_join[4].".rmf_rec_pid_num ".$searchKey_join[6]." ".$searchKey_join[9]."
 					".$bodyStmt."
 					".$searchKey_join[2].$searchKey_join[8]."
 					order by ".$searchKey_join[3]." r".$searchKey_join[4].".rmf_rec_pid_num desc
@@ -1184,9 +1184,13 @@ class Record
             LEFT JOIN ".$dbtp."xsd_display d1  
             ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
             LEFT JOIN ".$dbtp."status st1  
-            ON (st1.sta_id = r1.rmf_int and k1.sek_title = 'Status')
-
-             ";
+            ON (st1.sta_id = r1.rmf_int and k1.sek_title = 'Status')";
+  			if ($searchKey_join[10] != "") {  				
+				$stmt .= "order by display.".$searchKey_join[10]." display.rmf_rec_pid_num desc, r1.rmf_id ASC";
+  			} else {
+  				$stmt .= "order by display.rmf_rec_pid_num desc, r1.rmf_id ASC";
+  			}
+            
   //echo "<pre>".$stmt."</pre>";
        
 		$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
@@ -1206,7 +1210,7 @@ class Record
         $return = Collection::makeSecurityReturnList($return);        
 //		$return = array_values($return);
 		$return = Auth::getIndexAuthorisation($return);
-//		print_r($return);		
+		//print_r($return);		
 		$usr_id = Auth::getUserID();
 		$isAdministrator = Auth::isAdministrator();
 		if (is_numeric($usr_id) && $usr_id != 0) { //only get the workflows if logged in an not an RSS feed. Admins get all.
@@ -1249,6 +1253,8 @@ class Record
 		$searchKey_join[6] = ""; //initialise the return sql term relevance matching when fulltext indexing is used
 		$searchKey_join[7] = ""; // initialise the search info string
 		$searchKey_join[8] = ""; //initialise the group by string
+		$searchKey_join[9] = ""; //initialise the order by return string
+		$searchKey_join[10] = ""; //initialise the order by cut down return string
 		$joinType = "";
 		$x = 0;
 		$firstX = 0;
@@ -1404,11 +1410,15 @@ class Record
         if (!empty($sort_by) && $x != 0) { // only do a sort if the query has be limited in some way, otherwise it is far too slow        	
              $x = ltrim($sort_by, "searchKey");
              if (is_numeric($x)) { 
-             	if ($x == 0 && ($options["searchKey0"]  && trim($options["searchKey0"]) != "")) {             		             		
+             	if ($x == 0 && ($options["searchKey0"]  && trim($options["searchKey0"]) != "")) {
+					//$searchKey_join[9] = " ,Relevance, ";
+					             		             		             		
              		if ($options["sort_order"] == 0) {
 	             		$searchKey_join[3] .= " Relevance ASC, ";
+	             		$searchKey_join[10] .= " Relevance ASC, ";
 					} else { 
 						$searchKey_join[3] .= " Relevance DESC, ";
+						$searchKey_join[10] .= " Relevance DESC, ";
 					}
              	} else {
 		        	 $sekdet = Search_Key::getDetails($x);
@@ -1417,10 +1427,13 @@ class Record
 		        		$searchKey_join[1] .= " 
 						    LEFT JOIN ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field as rsort".$x." on rsort".$x.".rmf_rec_pid = r".$searchKey_join[4].".rmf_rec_pid ".
 						  " and rsort".$x.".rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).")".$sortRestriction;
-		             	if ($options["sort_order"] == "1") {
+		             	$searchKey_join[9] = ",  rsort".$x.".rmf_".$sekdet['xsdmf_data_type']." ";		             	
+					    if ($options["sort_order"] == "1") {		             		
 		             		$searchKey_join[3] .= " rsort".$x.".rmf_".$sekdet['xsdmf_data_type']." DESC, ";
+		             		$searchKey_join[10] .= "rmf_".$sekdet['xsdmf_data_type']." DESC, ";
 		             	} else {
-		             		$searchKey_join[3] .= " rsort".$x.".rmf_".$sekdet['xsdmf_data_type']." ASC, ";         
+		             		$searchKey_join[3] .= " rsort".$x.".rmf_".$sekdet['xsdmf_data_type']." ASC, ";
+		             		$searchKey_join[10] .= "rmf_".$sekdet['xsdmf_data_type']." ASC, ";         
 		             	}
 		             }
              	}

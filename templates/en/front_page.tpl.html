@@ -84,7 +84,8 @@ if (isElementVisible(basic_element)) {
 	  <div class="front-page-content-header"><img src="{$rel_url}images/browse_22.jpg" alt="Browse" title="Browse" /> Browse</div>
 	  <div class="front-page-content-detail">
 		<ul class="front-page-list">
-			<li><a href="{$rel_url}list.php?browse=author">by Author</a></li>
+			<li><a href="{$rel_url}list.php?browse=author_id" "Browse records linked to Author IDs (won't show non-{$application_title} authors)">by {$application_title} Author ID</a></li>
+			<li><a href="{$rel_url}list.php?browse=author" title="Browse by Author Names (strings) as they appear in records (not author ID linked)">by Author Name</a></li>
 			<li><a href="{$rel_url}list.php?browse=subject">by Subject</a></li>
 			<li><a href="{$rel_url}list.php">by Organisational Unit</a></li>
 			<li><a href="{$rel_url}list.php?browse=year">by Year</a></li>
@@ -96,7 +97,7 @@ if (isElementVisible(basic_element)) {
 	  <div class="front-page-content-header"><img src="{$rel_url}images/statistics_22.gif" alt="Download Statistics" title="Download Statistics" /> Download Statistics</div>
 	  <div class="front-page-content-detail">
 		<ul class="front-page-list">
-		  <li><a href="{$rel_url}stats.php?browse=top50authors">Top 50 authors</a></li>
+		  <li><a href="{$rel_url}stats.php?browse=top50authors">Top 50 {$application_title} authors</a></li>
 		  <li><a href="{$rel_url}stats.php?browse=top50papers">Top 50 papers</a></li>
 		  <li>Most viewed - <a href="{$rel_url}stats.php?browse=show_detail_date&amp;range=4w">Last 4 weeks</a> | <a href="{$rel_url}stats.php?browse=show_detail_date&amp;year={$thisYear}">This year</a> | <!--a href="{$rel_url}stats.php?browse=show_detail_date&amp;year={$lastYear}">Last year</a> |--> <a href="{$rel_url}stats.php?browse=show_detail_date">All years</a></li>
 		  <li>All statistics - <a href="{$rel_url}stat_details.php?action=cumulative_usage&amp;range=all">by Date</a> | <a href="{$rel_url}stat_details.php?action=cumulative_usage_country">by Country</a></li>
@@ -218,7 +219,18 @@ if (isElementVisible(basic_element)) {
 
 					  {/if}
 	
-                       {if $list[i].author} by <b>{section name="author_loop" loop=$list[i].author}{assign var="next_author" value=$smarty.section.author_loop.index+1}<a class="author_link" href="list.php?browse=author&amp;author={$list[i].author[author_loop]}">{$list[i].author[author_loop]|escape:"html"}</a>{if $list[i].author[$next_author] != ""}</b> and <b>{/if}{/section}</b>{if $list[i].date.0} {else}{/if}{/if}{if $list[i].date.0}({$list[i].date.0|date_format:"%Y"}){/if}
+                       {if $list[i].author} by
+                          {section name="author_loop" loop=$list[i].author}
+                            {assign var="next_author" value=$smarty.section.author_loop.index+1}
+                            {if $list[i].author}
+                            {if $list[i].author_id && $list[i].author_id[author_loop] && $list[i].author_id[author_loop] != 0}
+                            <a class="author_id_link" title="Browse by Author ID for {$list[i].author[author_loop]} ({$list[i].author_id[author_loop]})" href="list.php?browse=author&author_id={$list[i].author_id[author_loop]}">{$list[i].author[author_loop]|escape:"html"}</a>
+                            {else}
+                            <a title="Browse by Author Name for {$list[i].author[author_loop]}" href="list.php?browse=author&author={$list[i].author[author_loop]}">{$list[i].author[author_loop]|escape:"html"}</a>                            
+                            {/if}
+                            {/if}
+                            {if $list[i].author[$next_author] != ""} and {/if}
+                          {/section}{if $list[i].date.0} {else}{/if}{/if}{if $list[i].date.0}({$list[i].date.0|date_format:"%Y"}){/if}
                       
 					   {if $list[i].object_type == '3' && $list[i].datastreams.0}<b>Files:</b> {section name="d" loop=$list[i].datastreams}{if $href_view}<a href="{$eserv_url|cat:"?pid="|cat:$list[i].pid|cat:"&amp;dsID="|cat:$list[i].datastreams[d]}">{/if}{$list[i].datastreams[d]}{if $href_view}</a>{/if} {/section}{/if}
 

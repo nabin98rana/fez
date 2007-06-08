@@ -6,7 +6,7 @@ var last_page = {if $my_created_items_info.last_page != ""}{$my_created_items_in
 {literal}
 function checkDeleteRecords(f)
 {
-    if (!hasOneChecked(f, 'items[]')) {
+    if (!hasOneChecked(f, 'pids[]')) {
         alert('Please select at least one item.');
         return false;
     }
@@ -21,7 +21,7 @@ function checkDeleteRecords(f)
 }
 function checkPublishRecords(f)
 {
-    if (!hasOneChecked(f, 'items[]')) {
+    if (!hasOneChecked(f, 'pids[]')) {
         alert('Please select at least one item.');
         return false;
     }
@@ -112,12 +112,15 @@ No items found
 
 
 {include file="quick_filter_form.tpl.html"}         
-<br />          
+<br />         
+</form>
+<form name="assigned_records" method="post" action="{$rel_url}popup.php" target="_popup">     
+ 
 <input type="hidden" name="cat" value="purge_objects" />
 
    <table class="listing" width="100%" cellpadding=0>
      <tr bgcolor="{$cell_color}">
-       <td width="10"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form, 'items[]');" 
+       <td width="10"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" 
        class="button" /></td>
        {if $options.searchKey9 == "" || $options.searchKey9 == "ALL" || $options.searchKey9 == '-4'}     
        <td>
@@ -200,8 +203,6 @@ No items found
        	</table>       		
        </td>       		       		
      </tr>
-</form>
-<form name="assigned_records" method="post" action="{$rel_url}popup.php" target="_popup">     
 <input type="hidden" name="cat" value="purge_objects" />
 {assign var="list" value=$my_created_items_list}
      {section name="i" loop=$list}
@@ -230,7 +231,7 @@ No items found
 
 
 		<a href="{$rel_url}view.php?pid={$list[i].pid|escape}"><img align="absmiddle" src="{$icon}" border="0"></a>
-         <a href="{$rel_url}view.php?pid={$list[i].pid|escape}">{$list[i].title.0|escape}</a>
+         <a href="{$rel_url}view.php?pid={$list[i].pid|escape}" class="title_link">{$list[i].title.0|escape}</a>
 			  {section name="w" loop=$list[i].workflows}
 			    {if $list[i].workflows[w].wft_icon == 'images/security.gif'}
 			      {if $list[i].security == 'include'}
@@ -257,7 +258,19 @@ No items found
     <a href="workflow/list_workflows2.php?pid={$list[i].pid|escape}"
                         >...</a> 
 		<br />
-	   {if $list[i].author}<b>{section name="author_loop" loop=$list[i].author}{assign var="next_author" value=$smarty.section.author_loop.index+1}{$list[i].author[author_loop]|escape:"html"}{if $list[i].author[$next_author] != ""} and {/if}{/section}</b>{if $list[i].date.0} {else}<br />{/if}{/if}{if $list[i].date.0}({$list[i].date.0|date_format:"%Y"})<br />{/if}
+	   {if $list[i].author}
+                          {section name="author_loop" loop=$list[i].author}
+                            {assign var="next_author" value=$smarty.section.author_loop.index+1}
+                            {if $list[i].author}
+                            {if $list[i].author_id && $list[i].author_id[author_loop] && $list[i].author_id[author_loop] != 0}
+                            <a class="author_id_link" title="Browse by Author ID for {$list[i].author[author_loop]} ({$list[i].author_id[author_loop]})" href="list.php?browse=author&author_id={$list[i].author_id[author_loop]}">{$list[i].author[author_loop]|escape:"html"}</a>
+                            {else}
+                            <a title="Browse by Author Name for {$list[i].author[author_loop]}" href="list.php?browse=author&author={$list[i].author[author_loop]}">{$list[i].author[author_loop]|escape:"html"}</a>                            
+                            {/if}
+                            {/if}
+                            {if $list[i].author[$next_author] != ""} and {/if}
+                          {/section}
+                          {if $list[i].date.0} {else}<br />{/if}{/if}{if $list[i].date.0}({$list[i].date.0|date_format:"%Y"})<br />{/if}
 	   {if $list[i].research_program.0}{$list[i].research_program.0|escape:"html"}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'} - <i>{$list[i].xdis_title.0|escape:"html"}</i>{/if}<br />{else}{if $list[i].xdis_title.0}<i>{$list[i].xdis_title.0|escape:"html"}</i><br />{/if}{/if}
 		 (Created: {$list[i].created_date.0|date_format:"%c"}{if $list[i].updated_date.0 <> $list[i].created_date.0} Last Updated: {$list[i].updated_date.0|date_format:"%c"}{/if})
        </td>

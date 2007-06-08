@@ -77,7 +77,7 @@ function appendCookieValue($value, $CookieArray){
 function checkIDP($IDP, $IDProviders){
 	
 	if (!$IDProviders[$IDP]){
-		$message = sprintf(getLocalString('invalid_origin'), $_REQUEST[$redirectCookieName])."</p><p>\n<tt>";
+		$message = sprintf('Invalid IDP origin', $_REQUEST[$redirectCookieName])."</p><p>\n<tt>";
 					foreach ($IDProviders as $key => $value){
 						$message .= $key."\n";
 					}

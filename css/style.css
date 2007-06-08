@@ -2,7 +2,27 @@
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-style: normal;
 	font-weight: normal;
-	font-size: 11px;
+	font-size: 80%;
+}
+
+.default a {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	text-decoration: none;
+	color: #3179C6;	
+}
+
+.default a:hover {
+	text-decoration: none;
+	color: #61ADFF;
+}
+
+.default a.author_id_link {
+	color: #4F7F37;
+	text-decoration: none;
+}
+
+.default a:hover.author_id_link {
+	color: #C1EFB3;
 }
 
 .default_warning {
@@ -102,18 +122,17 @@ h4 {
 	font-weight: bold;
 	font-size: 9px;
 }
-
-.author_link {
+.title_link {
 	font-weight: bold;
 	color: #000000;
 	text-decoration: none;
 }
 
-.author_link:hover {
+.title_link:hover {
 	text-decoration: underline;
 }
 
-.author_link #author_link {
+.title_link #title_link {
 	text-decoration: underline;
 }
 
@@ -234,6 +253,16 @@ h4 {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-style: normal;
 	font-size: 60%;
+}
+
+.footer a {
+	text-decoration: none;
+	color: #3179C6;	
+}
+
+.footer a:hover {
+	text-decoration: none;
+	color: #61ADFF;
 }
 
 .small_default {

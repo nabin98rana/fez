@@ -339,7 +339,7 @@ class Lister
                 $tpl->assign("browse_heading", "Browse By Year");
             }
             $tpl->assign("browse_type", "browse_year");
-        } elseif ($browse == "author") {
+        } elseif (($browse == "author") || ($browse == "author_id")) {
             // browse by author
             $author = Pager::getParam('author',$params);
             $author_id = Pager::getParam('author_id',$params);
@@ -365,11 +365,19 @@ class Lister
                 $tpl->assign("browse_heading", "Browse By Author - ".$author);
 			    $tpl->assign("list_heading", "Browse By Author - ".$author);	                
             } else {
-                $list = Collection::listByAuthor($pager_row, $rows, $sort_by, $letter);
-                $list_info = $list["info"];
-                $list = $list["list"];
-                $tpl->assign("browse_heading", "Browse By Author");
-			    $tpl->assign("list_heading", "Browse By Author");					
+            	if ($browse == "author_id") {
+	                $list = Collection::listByAuthor($pager_row, $rows, $sort_by, $letter);
+	                $list_info = $list["info"];
+	                $list = $list["list"];
+	                $tpl->assign("browse_heading", "Browse By ".APP_NAME." Author ID");
+				    $tpl->assign("list_heading", "Browse By ".APP_NAME." Author ID");
+            	} else {
+	                $list = Collection::listByAttribute($pager_row, $rows, "Author", $sort_by, $letter);
+	                $list_info = $list["info"];
+	                $list = $list["list"];
+	                $tpl->assign("browse_heading", "Browse By Author Name");
+				    $tpl->assign("list_heading", "Browse By Author Name");            		
+            	}
             }
             $tpl->assign("browse_type", "browse_author");
             $tpl->assign("alphabet_list", Misc::generateAlphabetArray());

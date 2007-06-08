@@ -204,11 +204,11 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 
 		{if $list_type == 'collection_records_list'}
 		<tr>
-		  <td align="left"> <br />
+		  <td align="left" class="default"> <br />
 			<table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="1">
 				<tr>
-				  <td align="left" class="default"> <b>Parent Communities: </b></td>
-				  <td align="left" class="default"> &nbsp;
+				  <td align="left"> <b>Parent Communities: </b></td>
+				  <td align="left"> &nbsp;
 					{section name="i" loop=$parents}
 						<a href="list.php?community_pid={$parents[i].pid}">{$parents[i].title}</a> &nbsp;
 					{/section}
@@ -220,28 +220,28 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		{/if}
 		{if $isUser}
         <tr>
-          <td align="left" >
+          <td align="left" class="default" >
 		    <form name="top_create_form" action="">		
 			{if $list_type == 'community_list' && $isAdministrator}
-			<br /> <a class="default" target="_top" title="create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI}"><img src="{$rel_url}images/folder_new.gif" border="0" alt="" /><b>Create New Community</b></a>&nbsp;
+			<br /> <a target="_top" title="create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI}"><img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" /> <b>Create New Community</b></a>&nbsp;
 			{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
 				{if $childXDisplayOptions != 0}
-			<br /> <img src="{$rel_url}images/folder_new.gif" border="0" alt="" />
+			<br /> <img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
 				<input type="hidden" name="community_pid" value="{$community_pid}" />
-				<select name="xdis_id" class="default">
+				<select name="xdis_id">
 				  {html_options options=$childXDisplayOptions}
 				</select>
-				<input class="default" type="button" value="Create" onClick="javascript:createRecord(this.form)" />
+				<input type="button" value="Create" onClick="javascript:createRecord(this.form)" />
 			&nbsp;<br />
 				{/if}
 			{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}			
 				{if $childXDisplayOptions != 0}
-			<br /> <img src="{$rel_url}images/folder_new.gif" border="0" alt="" />
+			<br /> <img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
 				<input type="hidden" name="collection_pid" value="{$collection_pid}" />
-				<select name="xdis_id" class="default">
+				<select name="xdis_id">
 				  {html_options options=$childXDisplayOptions}
 				</select>
-				<input class="default" type="button" value="Create" onClick="javascript:createRecord(this.form)" />
+				<input type="button" value="Create" onClick="javascript:createRecord(this.form)" />
 			&nbsp;
 				{/if}
 			{/if}
@@ -256,7 +256,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		  <input type="hidden" name="cat" value="assign" />
 		  <input type="hidden" name="href" value="{$smarty.server.REQUEST_URI}" />
       <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1">
-		{if ($browse_type == "browse_author") && !$smarty.get.author} 
+		{if ($browse_type == "browse_author") && (!$smarty.get.author && !$smarty.get.author_id)} 
         <tr>
 			<td align="left" class="default">
 			<a href="{$rel_url}list.php?browse=author"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a>
@@ -275,7 +275,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
           </td>
 		</tr>
 
-		   {if $smarty.get.author == ""}
+		   {if $smarty.get.author == "" && $smarty.get.author_id == ""}
 			{section name="i" loop=$list}
 
 			  <tr>
@@ -431,7 +431,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 	        </tr>
 		{/section}
 		{/if}		
-		{if ($browse_heading == "") ||  ($browse_type != "" & $smarty.get.author != "") || ($browse_type != "" & $smarty.get.depositor != "") || ($browse_type != "" & $smarty.get.year != "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)} 
+		{if ($browse_heading == "") ||  ($browse_type != "" && ($smarty.get.author != "" || $smarty.get.author_id != "")) || ($browse_type != "" & $smarty.get.depositor != "") || ($browse_type != "" & $smarty.get.year != "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)} 
           {if $isCreator != true}
 <!--         <tr>
 			<td>&nbsp;</td>
@@ -442,7 +442,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 			  <td colspan="2">
 			  <table bgcolor="#FFFFFF" width="100%" cellpadding="3" cellspacing="0">
         <tr>
-			<td align="left" class="default">
+			<td align="left" valign="middle" class="default" width ="1%" nowrap>
 		{if $list_type == 'all_records_list' || $list_type == 'collection_records_list'}
 			<img src="{$rel_url}images/record_32.jpg" alt="" />		
 		{elseif $list_type == 'community_list'}
@@ -454,6 +454,8 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		{elseif $list_type == 'browse_subjects_list'}		
 
 		{/if}
+		</td>
+		<td class="default" align="left" valign="middle">
            &nbsp;<b>{$list_heading}: </b>
 		   
 		   <b>({$list_info.total_rows} results found{if $list_info.end_offset > 0}, {math equation="x + 1" x=$list_info.start_offset|default:0} - {$list_info.end_offset} shown{/if})</b> 
@@ -572,15 +574,12 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 			  <td width="100%">
 			  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">			  
               <tr>
-                  <td width="10">
+                  <td width="1%">
                         {if $href_view}<a href='{$href_view}' >{/if}<img src="{$icon}" alt="" border="0" />{if $href_view}</a>{/if}
 				  </td>
-				  <td valign="middle">
-                    {if $href_view}<a href='{$href_view}'>{/if}
-					{$list[i].title.0|escape:"html"}{if $href_view}</a>{/if}
-
+				  <td align="left" valign="middle">
+                    {if $href_view}<a class="title_link" href='{$href_view}'>{/if}{$list[i].title.0|escape:"html"}{if $href_view}</a>{/if}
 			{if $showEdit || $isAdministrator}
-			  &nbsp;&nbsp;
 			  {section name="w" loop=$list[i].workflows}
 			    {if $list[i].workflows[w].wft_icon == 'images/security.gif'}
 			      {if $list[i].security == 'include'}
@@ -616,13 +615,24 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 
 				</tr>
 					<tr>
-                    <td colspan="2">
-                       {if $list[i].author}<b>{section name="author_loop" loop=$list[i].author}{assign var="next_author" value=$smarty.section.author_loop.index+1}<a class="author_link" title="Browse by Author - {$list[i].author[author_loop]}" href="list.php?browse=author&author={$list[i].author[author_loop]}">{$list[i].author[author_loop]|escape:"html"}</a>{if $list[i].author[$next_author] != ""} and {/if}{/section}</b>{if $list[i].date.0} {else}<br />{/if}{/if}{if $list[i].date.0}({$list[i].date.0|date_format:"%Y"})<br />{/if}
+                     <td colspan="2">
+                        {if $list[i].author}
+                          {section name="author_loop" loop=$list[i].author}
+                            {assign var="next_author" value=$smarty.section.author_loop.index+1}
+                            {if $list[i].author}
+                            {if $list[i].author_id && $list[i].author_id[author_loop] && $list[i].author_id[author_loop] != 0}
+                            <a class="author_id_link" title="Browse by Author ID for {$list[i].author[author_loop]} ({$list[i].author_id[author_loop]})" href="list.php?browse=author&author_id={$list[i].author_id[author_loop]}">{$list[i].author[author_loop]|escape:"html"}</a>
+                            {else}
+                            <a title="Browse by Author Name for {$list[i].author[author_loop]}" href="list.php?browse=author&author={$list[i].author[author_loop]}">{$list[i].author[author_loop]|escape:"html"}</a>                            
+                            {/if}
+                            {/if}
+                            {if $list[i].author[$next_author] != ""} and {/if}
+                          {/section}  {if $list[i].date.0} {else}<br />{/if}{/if}{if $list[i].date.0}({$list[i].date.0|date_format:"%Y"})<br />{/if}
                 	   {if $list[i].research_program.0}{$list[i].research_program.0|escape:"html"}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'} - <i>{$list[i].xdis_title.0|escape:"html"}</i>{/if}<br />{else}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'}<i>{$list[i].xdis_title.0|escape:"html"}</i><br />{/if}{/if}
                        {if $list[i].description.0}{$list[i].description.0|escape:"html"}{if ($list[i].description.0|count_characters > 200)}...{/if}<br />{/if}
 					   {if $list[i].object_type == '3' && $list[i].datastreams.0}<b>Files:</b> {section name="d" loop=$list[i].datastreams}{if $href_view}<a href="{$eserv_url|cat:"?pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].datastreams[d]}">{/if}{$list[i].datastreams[d]}{if $href_view}</a>{/if} {/section}{/if}
-                    </td>
-                  </tr>
+                    </td> 
+                  </tr> 
 				  </table>
                 <!-- space between rows -->
 	        </td>
@@ -652,33 +662,36 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
         </tr>
 		{if $isUser}
         <tr>
-          <td align="left" >
+          <td align="left" class="default" >
+		    <form name="top_create_form" action="">		
 			{if $list_type == 'community_list' && $isAdministrator}
-			<br /> <a class="default" target="_top" title="create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI}"><img src="{$rel_url}images/folder_new.gif" border="0" alt="" /><b>Create New Community</b></a>&nbsp;
+			<br /> <a target="_top" title="create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI}"><img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" /> <b>Create New Community</b></a>&nbsp;
 			{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
 				{if $childXDisplayOptions != 0}
-			<br /> <img src="{$rel_url}images/folder_new.gif" border="0" alt="" />
+			<br /> <img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
 				<input type="hidden" name="community_pid" value="{$community_pid}" />
-				<select name="xdis_id" class="default">
+				<select name="xdis_id">
 				  {html_options options=$childXDisplayOptions}
 				</select>
-				<input class="default" type="button" value="Create" onClick="javascript:createRecord(this.form)" />
+				<input type="button" value="Create" onClick="javascript:createRecord(this.form)" />
 			&nbsp;<br />
 				{/if}
 			{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}			
 				{if $childXDisplayOptions != 0}
-			<br /> <img src="{$rel_url}images/folder_new.gif" border="0" alt="" />
+			<br /> <img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
 				<input type="hidden" name="collection_pid" value="{$collection_pid}" />
-				<select name="xdis_id" class="default">
+				<select name="xdis_id">
 				  {html_options options=$childXDisplayOptions}
 				</select>
-				<input class="default" type="button" value="Create" onClick="javascript:createRecord(this.form)" />
-			&nbsp;<br />
+				<input type="button" value="Create" onClick="javascript:createRecord(this.form)" />
+			&nbsp;
 				{/if}
 			{/if}
+			</form>
 		  </td>
         </tr>
-		{/if}
+  		{/if}
+
 
         <tr bgcolor="{$cell_color}">
           <td colspan="{if $current_role > $roles.standard_user}{math equation="x + 13" x=$ColumnAdd|default:0}{else}{math equation="x + 12" x=$ColumnAdd|default:0}{/if}">

@@ -74,8 +74,8 @@ if ($browse == "top50authors") {
 	$list_info = $list["info"];
 	$list = $list["list"];
 
-	$tpl->assign("browse_heading", "Top 50 Authors");
-	$tpl->assign("extra_title", "Top 50 Authors");
+	$tpl->assign("browse_heading", "Top 50 ".APP_NAME." Authors");
+	$tpl->assign("extra_title", "Top 50 ".APP_NAME." Authors");
 	$tpl->assign("browse_type", "browse_top50authors");
 }  elseif ($browse == "top50papers") {
 	$rows = 50;
