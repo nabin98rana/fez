@@ -356,14 +356,14 @@ class Lister
                 //$list = Collection::browseListing($pager_row, $rows, "Author ID", $sort_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
-                $tpl->assign("browse_heading", "Browse By Author - ".$author);
-                $tpl->assign("list_heading", "Browse By Author - ".$author);
+                $tpl->assign("browse_heading", "Browse By Author ID - ".$author);
+                $tpl->assign("list_heading", "Browse By Author ID - ".$author);
             } elseif (!empty($author)) {	
                 $list = Collection::browseListing($pager_row, $rows, "Author", $sort_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
-                $tpl->assign("browse_heading", "Browse By Author - ".$author);
-			    $tpl->assign("list_heading", "Browse By Author - ".$author);	                
+                $tpl->assign("browse_heading", "Browse By Author Name - ".$author);
+			    $tpl->assign("list_heading", "Browse By Author Name - ".$author);	                
             } else {
             	if ($browse == "author_id") {
 	                $list = Collection::listByAuthor($pager_row, $rows, $sort_by, $letter);

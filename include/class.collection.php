@@ -610,13 +610,10 @@ class Collection
 				if (@!is_array($return[$result['rmf_rec_pid']][$search_var])) {
 					$return[$result['rmf_rec_pid']][$search_var] = array();
 				}
-				if (!in_array($result['rmf_'.$result['xsdmf_data_type']],
-                            $return[$result['rmf_rec_pid']][$search_var])) {
-					array_push($return[$result['rmf_rec_pid']][$search_var],
-                            $result['rmf_'.$result['xsdmf_data_type']]);
+				//if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']][$search_var])) {
+					array_push($return[$result['rmf_rec_pid']][$search_var], $result['rmf_'.$result['xsdmf_data_type']]);
 //					sort($return[$result['rmf_rec_pid']][$search_var]);
-
-				}
+				//}
 			}
 			// get thumbnails
 			if ($result['xsdmf_element'] == "!datastream!ID") {
@@ -1415,7 +1412,7 @@ if ($sort_by == 'File Downloads') {
                  ON (k1.sek_id = x1.xsdmf_sek_id)
 				LEFT JOIN ".$dbtp."xsd_display d1
 				ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
-                ORDER BY ".$extra_order." display.sort_column ".$sort_order.", r1.rmf_rec_pid DESC ";
+                ORDER BY ".$extra_order." display.sort_column ".$sort_order.", r1.rmf_rec_pid DESC, r1.rmf_id ASC ";
 		//echo "<pre>".$stmt."</pre>";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 
