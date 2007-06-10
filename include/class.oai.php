@@ -429,7 +429,7 @@ class OAI
                     "end_offset"    => $start + ($total_rows_limit),
                     "total_rows"    => $total_rows,
                     "total_pages"   => $total_pages,
-                    "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+                    "prev_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
                     "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
                     "last_page"     => $last_page,
                     "hidden_rows"     => $hidden_rows - $total_rows

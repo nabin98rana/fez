@@ -216,7 +216,7 @@ class History
 		$event_usr_full_name = User::getFullName($event_usr_id);
 		$event_date = Date_API::getCurrentDateGMT(); //date("Y-m-d H:i:s");
 
-		$wfl_title = (is_null($wfl_id)) ? $historyDetail : Workflow::getTitle($wfl_id);
+		$wfl_title = (is_null($wfl_id)) ? $historyDetail : Workflow::getTitle($wfl_id);		
 		$detail = $wfl_title. " by " . $event_usr_full_name;
         if (!is_null($historyDetailExtra)) {
             $detail .=  " - " . $historyDetailExtra;

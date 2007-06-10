@@ -268,7 +268,11 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		  <td>
 			<div class="letter-list">
 			{section name="i" loop=$alphabet_list}
+                          {if $smarty.get.browse == "author_id"}
+				<a href="{$smarty.server.PHP_SELF}?browse=author_id&amp;letter={$alphabet_list[i]}">{$alphabet_list[i]}</a> | 
+                          {else}
 				<a href="{$smarty.server.PHP_SELF}?browse=author&amp;letter={$alphabet_list[i]}">{$alphabet_list[i]}</a> | 
+                          {/if}
 			{/section}
 			<a href="{$smarty.server.PHP_SELF}?browse=author">All</a>
 			</div>

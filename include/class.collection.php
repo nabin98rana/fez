@@ -293,7 +293,7 @@ class Collection
                     "end_offset"    => $start + ($total_rows_limit),
                     "total_rows"    => $total_rows,
                     "total_pages"   => $total_pages,
-                    "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+                    "prev_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
                     "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
                     "last_page"     => $last_page,
                     "hidden_rows"     => $hidden_rows - $total_rows
@@ -1020,7 +1020,7 @@ class Collection
                     "end_offset"    => $total_rows_limit,
                     "total_rows"    => $total_rows,
                     "total_pages"   => $total_pages,
-                    "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+                    "prev_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
                     "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
                     "last_page"     => $last_page,
                     "hidden_rows"     => 0
@@ -1457,7 +1457,7 @@ if ($sort_by == 'File Downloads') {
                     "end_offset"    => $total_rows_limit,
                     "total_rows"    => $total_rows,
                     "total_pages"   => $total_pages,
-                    "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+                    "prev_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
                     "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
                     "last_page"     => $last_page,
                     "hidden_rows"     => $hidden_rows - $total_rows
@@ -1536,12 +1536,10 @@ if ($sort_by == 'File Downloads') {
                 $authStmt ";
 		$sql_where_id .= " r".$termCounter.".rmf_xsdmf_id in (".implode(",", $authorIDList).") ";
 
- $stmt = "
+ $countStmt = "
 
 
 
-				SELECT ".APP_SQL_CACHE."
-                    count(*) as record_count, ".$show_field_id." as ".$as_field.", a1.aut_id as record_author_id
                  FROM
 				".$middleStmt_id."
                   INNER JOIN
@@ -1549,12 +1547,25 @@ if ($sort_by == 'File Downloads') {
                         and r3.rmf_xsdmf_id in (".implode(",", $statusList).") and r3.rmf_int = 2
 				".$extra_join."
                 ".$letter_restrict_id." ".$sql_where_id."
+";
+$stmt .= "
+
+				SELECT ".APP_SQL_CACHE."
+                    count(*) as record_count, ".$show_field_id." as ".$as_field.", a1.aut_id as record_author_id ".$countStmt;
+
+$countStmt = "
+				SELECT ".APP_SQL_CACHE." count(distinct a1.aut_id)
+                ".$countStmt;
+
+$stmt .= "
+
 				 GROUP BY
 				 	".$group_field_id."
-
-
 				 ORDER BY record_author ASC
 				 LIMIT ".$max." OFFSET ".$start;
+
+
+
 		/*
 		$stmt = "
 
@@ -1588,9 +1599,13 @@ if ($sort_by == 'File Downloads') {
 				 ORDER BY record_author ASC
 				 LIMIT ".$max." OFFSET ".$start;*/
 
-		//echo $stmt;
+//		echo $countStmt;
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+    	$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
+        //print_r($total_rows);
 		//print_r($res);
+       
+        $total_rows = $total_rows;
 		foreach ($res as $key => $row) {
 			if (trim($row[$as_field]) != "") {
 				if ($searchKey == "Depositor") {
@@ -1601,8 +1616,6 @@ if ($sort_by == 'File Downloads') {
 				$return[$key]['record_author_id'] = $row['record_author_id'];
 			}
 		}
-		$hidden_rows = count($return);
-		$total_rows = count($return);
 		if (($start + $max) < $total_rows) {
 	        $total_rows_limit = $start + $max;
 		} else {
@@ -1629,7 +1642,7 @@ if ($sort_by == 'File Downloads') {
                     "end_offset"    => $total_rows_limit,
                     "total_rows"    => $total_rows,
                     "total_pages"   => $total_pages,
-                    "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+                    "prev_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
                     "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
                     "last_page"     => $last_page,
                     "hidden_rows"     => $hidden_rows - $total_rows
@@ -1776,7 +1789,7 @@ if ($sort_by == 'File Downloads') {
                     "end_offset"    => $total_rows_limit,
                     "total_rows"    => $total_rows,
                     "total_pages"   => $total_pages,
-                    "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+                    "prev_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
                     "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
                     "last_page"     => $last_page,
                     "hidden_rows"     => $hidden_rows - $total_rows
@@ -1964,7 +1977,7 @@ if ($sort_by == 'File Downloads') {
 	                    "end_offset"    => $total_rows_limit,
 	                    "total_rows"    => $total_rows,
 	                    "total_pages"   => $total_pages,
-	                    "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+	                    "prev_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
 	                    "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
 	                    "last_page"     => $last_page,
 	                    "hidden_rows"     => 0
@@ -2115,7 +2128,7 @@ if ($sort_by == 'File Downloads') {
 	                    "end_offset"    => $total_rows_limit,
 	                    "total_rows"    => $total_rows,
 	                    "total_pages"   => $total_pages,
-	                    "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+	                    "prev_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
 	                    "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
 	                    "last_page"     => $last_page,
 	                    "hidden_rows"     => 0
@@ -2343,7 +2356,7 @@ if ($sort_by == 'File Downloads') {
                     "end_offset"    => $total_rows_limit,
                     "total_rows"    => $total_rows,
                     "total_pages"   => $total_pages,
-                    "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+                    "prev_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
                     "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
                     "last_page"     => $last_page,
                     "hidden_rows"     => $hidden_rows - $total_rows,
@@ -2602,7 +2615,7 @@ $res_count = array();
                     "end_offset"    => $total_rows_limit,
                     "total_rows"    => $total_rows,
                     "total_pages"   => $total_pages,
-                    "previous_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+                    "prev_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
                     "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
                     "last_page"     => $last_page,
                     "hidden_rows"     => 0

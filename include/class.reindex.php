@@ -143,7 +143,7 @@ class Reindex
                 "end_offset"    => $start + ($total_rows_limit),
                 "total_rows"    => $total_rows,
                 "total_pages"   => $total_pages,
-                "previous_page" => ($page == 0) ? "-1" : ($page - 1),
+                "prev_page" => ($page == 0) ? "-1" : ($page - 1),
                 "next_page"     => ($page == $last_page) ? "-1" : ($page + 1),
                 "last_page"     => $last_page
             )
@@ -185,7 +185,7 @@ class Reindex
                 "end_offset"    => $start + ($total_rows_limit),
                 "total_rows"    => $total_rows,
                 "total_pages"   => $total_pages,
-                "previous_page" => ($page == 0) ? "-1" : ($page - 1),
+                "prev_page" => ($page == 0) ? "-1" : ($page - 1),
                 "next_page"     => ($page == $last_page) ? "-1" : ($page + 1),
                 "last_page"     => $last_page
             )
