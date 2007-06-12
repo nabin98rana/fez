@@ -200,14 +200,13 @@ if (isElementVisible(basic_element)) {
 
                     {if $href_view}<a class="tool-tip" href='{$href_view}'>{/if}
 					<span class="tool-tip">
-					{if $list[i].research_program.0}{$list[i].research_program.0|escape:"html"}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'} - <b>{$list[i].xdis_title.0|escape:"html"}</b>{/if} - {else}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'}<b>{$list[i].xdis_title.0|escape:"html"}</b>{/if}{/if}
-					<br />
-					{if $list[i].file_downloads}<!--a href="{$rel_url}stat_details.php?action=show_detail&amp;pid={$list[i].pid}"-->{$list[i].file_downloads|escape:"html"} File Download{if $list[i].file_downloads > 1}s{/if}<!--/a--><br />
+					{if $list[i].research_program.0}{$list[i].research_program.0|escape:"html"}{if $list[i].xdis_title.0 && $list[i].object_type.0 == '3'} - <b>{$list[i].xdis_title.0|escape:"html"}</b>{/if} - {else}{if $list[i].xdis_title.0 && $list[i].object_type.0 == '3'}<b>{$list[i].xdis_title.0|escape:"html"}</b>{/if}{/if}
+					{if $list[i].file_downloads}<br /><!--a href="{$rel_url}stat_details.php?action=show_detail&amp;pid={$list[i].pid}"-->{$list[i].file_downloads|escape:"html"} File Download{if $list[i].file_downloads > 1}s{/if}<!--/a--><br />
 					{/if}
 					<br />
 					{if $list[i].description.0}{$list[i].description.0|escape:"html"}{if ($list[i].description.0|count_characters > 200)}...{/if}<br />{/if}
 					</span>
-					{$list[i].title.0|escape:"html"}{if $href_view}</a>{/if}
+					<b>{$list[i].title.0|escape:"html"}{if $href_view}</b></a>{/if}
 
 					  {if $showEdit || $isAdministrator}
 						{if $showEdit}

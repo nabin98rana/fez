@@ -318,7 +318,7 @@ No items found
 		 (Created: {$list[i].created_date.0|date_format:"%c"}{if $list[i].updated_date.0 <> $list[i].created_date.0} Last Updated: {$list[i].updated_date.0|date_format:"%c"}{/if})
        </td>
        <td nowrap align="right" valign="top">{if $list[i].Relevance} (Search Relevance: <b>{$list[i].Relevance}</b>)<br />{/if}
-					        {if $list[i].object_type.0 == '3'}{if $list[i].abstract_downloads}({$list[i].abstract_downloads|escape:"html"} Abstract View{if $list[i].abstract_downloads > 1}s{/if})<br />{/if} {if $list[i].file_downloads}({$list[i].file_downloads|escape:"html"} <a class="author_link" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}">File Download{if $list[i].file_downloads > 1}s{/if}</a>){/if}{/if} 
+					        {if $list[i].object_type.0 == '3'}{if $list[i].abstract_downloads}({$list[i].abstract_downloads|escape:"html"}&nbsp;Abstract&nbsp;View{if $list[i].abstract_downloads > 1}s{/if})<br />{/if} {if $list[i].file_downloads}({$list[i].file_downloads|escape:"html"}&nbsp;<a class="author_link" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}">File&nbsp;Download{if $list[i].file_downloads > 1}s{/if}</a>){/if}{/if} 
        </td>
       </tr>
       </table>
