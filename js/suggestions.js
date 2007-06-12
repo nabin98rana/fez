@@ -60,6 +60,11 @@ StateSuggestions.prototype.requestSuggestions2 = function (oAutoSuggestControl /
     var sTextboxValue = oAutoSuggestControl.textbox.value;
     var sTextboxName = oAutoSuggestControl.textbox.name;
 
+    // only run for user input at least 2 characters
+    if (sTextboxValue.length < 2) {
+    	return;
+    }
+
     s = document.getElementById(sTextboxName+'_searching');
     if (s) {
         s.style.display = '';
@@ -99,10 +104,6 @@ StateSuggestions.prototype.requestSuggestions2 = function (oAutoSuggestControl /
 StateSuggestions.prototype.addMulti = function (oAutoSuggestControl /*:AutoSuggestControl*/, multi) {
     // get the suggest value
     var sTextboxValue = oAutoSuggestControl.textbox.value;
-    // only run for user input at least 2 characters
-    if (sTextboxValue.length < 2) {
-    	return;
-    }
     if (sTextboxValue.length > 0) {
         options_exists = false;
         for (var i = 0; i < multi.options.length; i++) {
