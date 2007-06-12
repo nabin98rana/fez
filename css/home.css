@@ -415,3 +415,36 @@ h1.public {
 	color: #00358B;
 	padding: 0px 0px 0px 20px;
 }
+
+.admin-side-nav-title {
+	font-weight: bold;
+	font-size: 14px;
+	padding-top: 10px;
+	padding-bottom: 5px;
+}
+
+.admin-side-nav {
+	margin: 2px;
+	padding: 0px;
+}
+
+.admin-side-nav li {
+	border-bottom: 1px #DEDEDE solid;
+	list-style: none;
+	white-space: nowrap;
+}
+
+.admin-side-nav a {
+	padding: 2px;
+	display: block;
+}
+
+.admin-side-nav li a:hover {
+	background-color: #DDEFFF;
+	color: #00417D;
+}
+
+.admin-side-nav li a:active {
+	background-color: #BCDFFF;
+	color: #00417D;
+}

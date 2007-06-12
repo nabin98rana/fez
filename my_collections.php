@@ -28,23 +28,22 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
 include_once("config.inc.php");
 include_once(APP_INC_PATH . "db_access.php");
-
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
-
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.group.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.background_process_list.php");
-include_once(APP_INC_PATH.'najax/najax.php');
-include_once(APP_INC_PATH.'najax_objects/class.background_process_list.php');
+include_once(APP_INC_PATH . "najax/najax.php");
+include_once(APP_INC_PATH . "najax_objects/class.background_process_list.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("my_fez.tpl.html");
