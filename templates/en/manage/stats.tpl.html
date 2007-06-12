@@ -1,0 +1,16 @@
+<div class="outline">
+
+	<div class="contentheader">
+      Run Webstats
+    </div>
+    <div class="default">
+		<img align="absmiddle" src="{$rel_url}images/statistics_22.gif" border="0" /> Manually trigger a re-build of the web statistics.
+    </div>
+	<br />
+    <form name="run_stats"  method="post" action="{$smarty.server.PHP_SELF}">
+		<input type="hidden" name="action" value="go"/>
+		&nbsp;&nbsp;&nbsp;<input type="submit" name="button" value="Run statistics generator" class="submit" />
+	</form>
+	<br />
+
+</div>
