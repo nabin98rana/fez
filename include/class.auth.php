@@ -644,6 +644,8 @@ class Auth
             $editor_matches = array_intersect(explode(',',APP_EDITOR_ROLES), $userPIDAuthGroups);
 			$indexArray[$indexKey]['isCommunityAdministrator'] = (in_array('Community Administrator', $userPIDAuthGroups) || Auth::isAdministrator()); //editor is only for the children. To edit the actual community record details you need to be a community admin
 			$indexArray[$indexKey]['isEditor'] = (!empty($editor_matches) || $indexArray[$indexKey]['isCommunityAdministrator'] == true);
+			$indexArray[$indexKey]['isCreator'] = (!empty($editor_matches) || $indexArray[$indexKey]['isCommunityAdministrator'] == true);
+			$indexArray[$indexKey]['isApprover'] = (!empty($editor_matches) || $indexArray[$indexKey]['isCommunityAdministrator'] == true);
 			$indexArray[$indexKey]['isArchivalViewer'] = (in_array('Archival_Viewer', $userPIDAuthGroups) || ($indexArray[$indexKey]['isEditor'] == true));
 			$indexArray[$indexKey]['isViewer'] = (in_array('Viewer', $userPIDAuthGroups) || ($indexArray[$indexKey]['isEditor'] == true));
 			$indexArray[$indexKey]['isLister'] = (in_array('Lister', $userPIDAuthGroups) || ($indexArray[$indexKey]['isViewer'] == true));
@@ -888,6 +890,26 @@ class Auth
                 }
             }
         }
+		
+		if (in_array('Community_Administrator', $userPIDAuthGroups) && !in_array('Editor', $userPIDAuthGroups)) {
+			array_push($userPIDAuthGroups, "Editor");	
+		}
+		if (in_array('Community_Administrator', $userPIDAuthGroups) && !in_array('Creator', $userPIDAuthGroups)) {
+			array_push($userPIDAuthGroups, "Creator");	
+		}
+		if (in_array('Community_Administrator', $userPIDAuthGroups) && !in_array('Approver', $userPIDAuthGroups)) {
+			array_push($userPIDAuthGroups, "Approver");	
+		}
+		if (in_array('Editor', $userPIDAuthGroups) && !in_array('Archival_Viewer', $userPIDAuthGroups)) {
+			array_push($userPIDAuthGroups, "Archival_Viewer");	
+		}
+		if (in_array('Editor', $userPIDAuthGroups) && !in_array('Viewer', $userPIDAuthGroups)) {
+			array_push($userPIDAuthGroups, "Viewer");	
+		}
+		if (in_array('Viewer', $userPIDAuthGroups) && !in_array('Lister', $userPIDAuthGroups)) {
+			array_push($userPIDAuthGroups, "Lister");	
+		}
+                
         if ($GLOBALS['app_cache']) {
 		  if ($dsID != "") {
 		      $roles_cache[$pid][$dsID] = $userPIDAuthGroups;
@@ -895,8 +917,7 @@ class Auth
 	          $roles_cache[$pid] = $userPIDAuthGroups;
 		  }
         }
-//		print_r($userPIDAuthGroups);
-        return $userPIDAuthGroups;
+       return $userPIDAuthGroups;
     } 
     
     /**
@@ -1602,12 +1623,14 @@ class Auth
                 $xdis_id = $xdis_array['xdis_id'][0];
                 $rowAuthGroups = Auth::getAuthorisationGroups($row['pid']);
                 // get only the roles which are of relevance/use on the listing screen. This logic may be changed later.
+                $details[$key]['isApprover'] = in_array('Approver', $rowAuthGroups); // probably not necessary at the listing stage
                 $details[$key]['isCommunityAdministrator'] = (in_array('Community Administrator', $rowAuthGroups) || Auth::isAdministrator()); //editor is only for the children. To edit the actual community record details you need to be a community admin
                 $details[$key]['isEditor'] = (in_array('Editor', $rowAuthGroups) || $details[$key]['isCommunityAdministrator'] == true);
+                $details[$key]['isCreator'] = (in_array('Creator', $rowAuthGroups) || $details[$key]['isCommunityAdministrator'] == true);
+                $details[$key]['isApprover'] = (in_array('Approver', $rowAuthGroups) || $details[$key]['isCommunityAdministrator'] == true);
                 $details[$key]['isArchivalViewer'] = (in_array('Archival_Viewer', $rowAuthGroups) || $details[$key]['isEditor'] == true);
                 $details[$key]['isViewer'] = (in_array('Viewer', $rowAuthGroups) || $details[$key]['isEditor'] == true);
                 $details[$key]['isLister'] = (in_array('Lister', $rowAuthGroups) || $details[$key]['isViewer'] == true);
-                //			$details[$key]['isApprover'] = in_array('Approver', $rowAuthGroups); // probably not necessary at the listing stage
             } 
 		}
         return $details;
