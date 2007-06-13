@@ -51,17 +51,7 @@ if ( (is_numeric(strpos($pid, ".."))) && (is_numeric(strpos($dsID, "..")))) {
 } // to stop haxors snooping our confs
 $is_image = 0;
 
-if (($is_image == 1) && (is_numeric(strpos($dsID, "archival_"))) ) { // if its trying to find the archival version then check
-	$real_dsID = str_replace("archival_", "", $dsID);
-	$acceptable_roles = array("Community_Admin", "Editor", "Creator", "Archival_Viewer");
-} elseif (($is_image == 1) && (!is_numeric(strpos($dsID, "web_"))) && (!is_numeric(strpos($dsID, "preview_"))) && (!is_numeric(strpos($dsID, "thumbnail_"))) ) {
-	$real_dsID = "web_".substr($dsID, 0, strrpos($dsID, ".") + 1)."jpg";
-	$acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
-	$header = "Content-type: image/jpeg\n";
-} else {
-	$real_dsID = $dsID;
-	$acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
-}
+$acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
 
 
 if (!empty($pid) && !empty($dsID)) {
@@ -186,7 +176,19 @@ if (!empty($pid) && !empty($dsID)) {
 	} // end switch field_extension
 	
 
-
+if (($is_image == 1) && (is_numeric(strpos($dsID, "archival_"))) ) { // if its trying to find the archival version then check
+	$real_dsID = str_replace("archival_", "", $dsID);
+	$acceptable_roles = array("Community_Admin", "Editor", "Creator", "Archival_Viewer");
+} elseif (($is_image == 1) && (!is_numeric(strpos($dsID, "web_"))) && (!is_numeric(strpos($dsID, "preview_"))) && (!is_numeric(strpos($dsID, "thumbnail_"))) ) {
+	$real_dsID = "web_".substr($dsID, 0, strrpos($dsID, ".") + 1)."jpg";
+	$acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
+	$header = "Content-type: image/jpeg\n";
+} else {
+	$real_dsID = $dsID;
+	$acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
+}
+	
+	
 //	$xdis_array = Fedora_API::callGetDatastreamContentsField ($pid, 'FezMD', array('xdis_id'));
 //	$xdis_id = $xdis_array['xdis_id'][0];
 //	if (is_numeric($xdis_id)) {	
