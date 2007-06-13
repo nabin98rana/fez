@@ -48,6 +48,7 @@ include_once(APP_INC_PATH . "class.pager.php");
 include_once(APP_INC_PATH . "class.bgp_index_object.php");
 include_once(APP_INC_PATH . "najax_classes.php");
 
+set_time_limit(1800);      // 1800 MILLION MICROSECONDS!
 
 $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");
