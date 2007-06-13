@@ -35,6 +35,7 @@
 //
 include_once("../config.inc.php");
 include_once(APP_INC_PATH . "db_access.php");
+include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.bgp_run_webstats.php");
 
 $tpl = new Template_API();
