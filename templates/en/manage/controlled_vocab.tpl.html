@@ -40,8 +40,9 @@
               {/if}
               <input type="hidden" name="parent_id" value="{$parent_id}">			  
               <tr>
-                <td colspan="2" class="default">
-                  <b><a href="controlled_vocab.php">Manage Controlled Vocabularies </a>->
+                <td colspan="2">
+				  <div class="admin-header">Manage Controlled Vocabularies</div>
+                  <!--b><a href="controlled_vocab.php"> </a>-->
 
 		          {if $max_subject_breadcrumb != -1}
 					  {section name="b" loop=$subject_breadcrumb}

@@ -28,10 +28,34 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
 
-header("Location: doctypexsds.php");
+//header("Location: doctypexsds.php");          // Un-comment this line to restore old-style admin.
+
+include_once("../config.inc.php");
+include_once(APP_INC_PATH . "class.template.php");
+include_once(APP_INC_PATH . "class.auth.php");
+include_once(APP_INC_PATH . "db_access.php");
+
+$tpl = new Template_API();
+$tpl->setTemplate("manage/index.tpl.html");
+
+Auth::checkAuthentication(APP_SESSION);
+
+$tpl->assign("type", "main");
+$isUser = Auth::getUsername();
+$tpl->assign("isUser", $isUser);
+$isAdministrator = User::isUserAdministrator($isUser);
+$tpl->assign("isAdministrator", $isAdministrator);
+
+if (!$isAdministrator) {
+    $tpl->assign("show_not_allowed_msg", true);
+}
+
+$tpl->displayTemplate();
+
 ?>

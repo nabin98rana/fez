@@ -448,3 +448,19 @@ h1.public {
 	background-color: #BCDFFF;
 	color: #00417D;
 }
+
+.focus {
+	background-color: #F1F9FF;
+	color: #00417D;
+}
+
+.admin-header {
+	padding: 5px;
+	font-family: Arial, Verdana, Helvetica, Sans-Serif;
+	font-weight: bold;
+	color: #333;
+}
+
+.admin-content {
+	padding: 10px;
+}

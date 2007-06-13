@@ -84,7 +84,7 @@ if (isElementVisible(basic_element)) {
 	  <div class="front-page-content-header"><img src="{$rel_url}images/browse_22.jpg" alt="Browse" title="Browse" /> Browse</div>
 	  <div class="front-page-content-detail">
 		<ul class="front-page-list">
-			<li><a class="author_id_link" href="{$rel_url}list.php?browse=author_id" "Browse records linked to Author IDs (won't show non-{$application_title} authors)">by {$application_title} Author ID</a></li>
+			<li><a class="author_id_link" href="{$rel_url}list.php?browse=author_id" title="Browse records linked to Author IDs (won't show non-{$application_title} authors)">by {$application_title} Author ID</a></li>
 			<li><a href="{$rel_url}list.php?browse=author" title="Browse by Author Names (strings) as they appear in records (not author ID linked)">by Author Name</a></li>
 			<li><a href="{$rel_url}list.php?browse=subject">by Subject</a></li>
 			<li><a href="{$rel_url}list.php">by Organisational Unit</a></li>
@@ -223,9 +223,9 @@ if (isElementVisible(basic_element)) {
                             {assign var="next_author" value=$smarty.section.author_loop.index+1}
                             {if $list[i].author}
                             {if $list[i].author_id && $list[i].author_id[author_loop] && $list[i].author_id[author_loop] != 0}
-                            <a class="author_id_link" title="Browse by Author ID for {$list[i].author[author_loop]} ({$list[i].author_id[author_loop]})" href="list.php?browse=author&author_id={$list[i].author_id[author_loop]}">{$list[i].author[author_loop]|escape:"html"}</a>
+                            <a class="author_id_link" title="Browse by Author ID for {$list[i].author[author_loop]} ({$list[i].author_id[author_loop]})" href="list.php?browse=author&amp;author_id={$list[i].author_id[author_loop]}">{$list[i].author[author_loop]|escape:"html"}</a>
                             {else}
-                            <a title="Browse by Author Name for {$list[i].author[author_loop]}" href="list.php?browse=author&author={$list[i].author[author_loop]}">{$list[i].author[author_loop]|escape:"html"}</a>                            
+                            <a title="Browse by Author Name for {$list[i].author[author_loop]}" href="list.php?browse=author&amp;author={$list[i].author[author_loop]}">{$list[i].author[author_loop]|escape:"html"}</a>                            
                             {/if}
                             {/if}
                             {if $list[i].author[$next_author] != ""} and {/if}

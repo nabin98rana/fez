@@ -47,8 +47,9 @@
               <input type="hidden" name="parent_id" value="{$parent_id}">			  
             <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
               <tr>
-                <td colspan="2" class="default">
-                  <b><a href="orgstructure.php">Manage Organisational Units </a>->
+                <td colspan="2">
+				  <div class="admin-header">Manage Organisational Units</div>
+                  <!--b><a href="orgstructure.php">Manage Organisational Units </a>-->
 
 		          {if $max_subject_breadcrumb != -1}
 					  {section name="b" loop=$subject_breadcrumb}

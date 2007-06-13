@@ -19,37 +19,38 @@
               <tr>
                 <td class="default">
 				  {if $isAdministrator}
+
                   <div class="admin-side-nav-title">Configuration</div>
                   <ul class="admin-side-nav">
-                    <li><a href="{$rel_url}manage/doctypexsds.php">Manage Document Type XSDs</a></li>
-                    <li><a href="{$rel_url}manage/citations.php">Manage Citations Views</a></li>
-                    <li><a href="{$rel_url}manage/workflows.php">Manage Workflow Templates</a></li>
-                    <li><a href="{$rel_url}manage/wfbehaviours.php">Manage Workflow Behaviours</a></li>
-                    <li><a href="{$rel_url}workflow_triggers.php?pid=-1">Default Workflows</a></li>
-                    <li><a href="{$rel_url}manage/controlled_vocab.php">Manage Controlled Vocabularies</a></li>
-                    <li><a href="{$rel_url}manage/search_keys.php">Manage Search Keys</a></li>					
+                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/doctypexsds.php'}class="focus" {/if}href="{$rel_url}manage/doctypexsds.php">Manage Document Type XSDs</a></li>
+                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/citations.php'}class="focus" {/if}href="{$rel_url}manage/citations.php">Manage Citations Views</a></li>
+                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/workflows.php'}class="focus" {/if}href="{$rel_url}manage/workflows.php">Manage Workflow Templates</a></li>
+                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/wfbehaviours.php'}class="focus" {/if}href="{$rel_url}manage/wfbehaviours.php">Manage Workflow Behaviours</a></li>
+                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'workflow_triggers.php?pid=-1'}class="focus" {/if}href="{$rel_url}workflow_triggers.php?pid=-1">Default Workflows</a></li>
+                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/controlled_vocab.php'}class="focus" {/if}href="{$rel_url}manage/controlled_vocab.php">Manage Controlled Vocabularies</a></li>
+                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/search_keys.php'}class="focus" {/if}href="{$rel_url}manage/search_keys.php">Manage Search Keys</a></li>					
                   </ul>
 				  {/if}
 
 				  <div class="admin-side-nav-title">Areas</div>
                   <ul class="admin-side-nav">
-                    <li><a href="{$rel_url}manage/news.php">Manage News</a></li>
-                    <li><a href="{$rel_url}manage/statuses.php">Manage Statuses</a></li>
-                    <li><a href="{$rel_url}manage/users.php">Manage Users</a></li>
-                    <li><a href="{$rel_url}manage/groups.php">Manage Groups</a></li>
-                    <li><a href="{$rel_url}manage/orgstructure.php">Manage Organisational Structure</a></li>
-                    <li><a href="{$rel_url}manage/authors.php">Manage Authors</a></li>
+                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/news.php'}class="focus" {/if}href="{$rel_url}manage/news.php">Manage News</a></li>
+                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/statuses.php'}class="focus" {/if}href="{$rel_url}manage/statuses.php">Manage Statuses</a></li>
+                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/users.php'}class="focus" {/if}href="{$rel_url}manage/users.php">Manage Users</a></li>
+                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/groups.php'}class="focus" {/if}href="{$rel_url}manage/groups.php">Manage Groups</a></li>
+                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/orgstructure.php'}class="focus" {/if}href="{$rel_url}manage/orgstructure.php">Manage Organisational Structure</a></li>
+                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/authors.php'}class="focus" {/if} href="{$rel_url}manage/authors.php">Manage Authors</a></li>
                   </ul>
 
 				  <div class="admin-side-nav-title">Maintenance</div>
                   <ul class="admin-side-nav">
-                    <li><a href="{$rel_url}manage/indexfedora.php">Index Fedora Objects into Fez</a></li>
-                    <li><a href="{$rel_url}manage/reindex.php">Reindex Fez Fedora Objects</a></li>
-                    <li><a href="{$rel_url}manage/export_workflows.php">Export Workflows</a></li>
-                    <li><a href="{$rel_url}manage/import_workflows.php">Import Workflows</a></li>
-                    <li><a href="{$rel_url}manage/export_xsds.php">Export XSDs</a></li>
-                    <li><a href="{$rel_url}manage/import_xsds.php">Import XSDs</a></li>
-					{if $WEBSERVER_LOG_STATISTICS == 'ON'}<li><a href="{$rel_url}manage/run_webstats.php">Run Webstats</a></li>{/if}
+                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/indexfedora.php'}class="focus" {/if}href="{$rel_url}manage/indexfedora.php">Index Fedora Objects into Fez</a></li>
+                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/reindex.php'}class="focus" {/if}href="{$rel_url}manage/reindex.php">Reindex Fez Fedora Objects</a></li>
+                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/export_workflows.php'}class="focus" {/if}href="{$rel_url}manage/export_workflows.php">Export Workflows</a></li>
+                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/import_workflows.php'}class="focus" {/if}href="{$rel_url}manage/import_workflows.php">Import Workflows</a></li>
+                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/export_xsds.php'}class="focus" {/if}href="{$rel_url}manage/export_xsds.php">Export XSDs</a></li>
+                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/import_xsds.php'}class="focus" {/if}href="{$rel_url}manage/import_xsds.php">Import XSDs</a></li>
+					{if $WEBSERVER_LOG_STATISTICS == 'ON'}<li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/run_webstats.php'}class="focus" {/if}href="{$rel_url}manage/run_webstats.php">Run Webstats</a></li>{/if}
                   </ul>
 				  <br />
 

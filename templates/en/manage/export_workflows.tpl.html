@@ -1,4 +1,7 @@
 <div class="outline">
+
+<div class="admin-header">Export Workflows</div>
+
 <form method="post">
 <table>
 <tr class="table_heading_row">
@@ -6,7 +9,6 @@
 <td>Title</td>
 <td>Version</td>
 </tr>
-<tr><td colspan="20"><span class="contentheader">Workflows</span></td></tr>
 {section name="i" loop=$wfl_list}
 			  {assign var="item" value=$wfl_list[i]}
 			  {cycle values=$cycle assign="row_color"}
