@@ -94,5 +94,11 @@ $tpl->assign("shibAttribs", $shibAttribs);
 $tpl->assign("user_prefs", $prefs);
 $tpl->assign("zones", Date_API::getTimezoneList());
 
+if (Auth::isInDB() && !Auth::isInAD()) {
+    $tpl->assign("local_db_user", "1");
+} else {
+    $tpl->assign("local_db_user", "0");
+}
+
 $tpl->displayTemplate();
 ?>

@@ -42,6 +42,7 @@ function validateAccount(f)
 			  indicate communities and collections you wish to join to deposit material.
             {/if}
             </b>
+
           </td>
         </tr>
         {/if}
@@ -51,6 +52,7 @@ function validateAccount(f)
 	<input type="hidden" name="cat" value="update_name" />
 	  <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
 		<tr bgcolor="{$heading_color}">
+
           <td class="default_white" colspan="2">
             <b>User Details</b>
             {include file="help_link.tpl.html" topic="preferences"}
@@ -61,6 +63,7 @@ function validateAccount(f)
           <td colspan="2" class="error" bgcolor="{$cell_color}" align="center">
             {if $update_name_result == -1}
             <b>An error occurred while trying to run your query.</b>
+
             {elseif $update_name_result == 1}
             <b>Thank you, your full name was updated successfully.</b>
             {/if}
@@ -70,6 +73,7 @@ function validateAccount(f)
         <tr>
           <td width="190" bgcolor="{$cell_color}" class="default">
             <b>Full Name:</b>
+
           </td>
           <td bgcolor="{$light_color}">
             <input type="text" name="full_name" size="40" class="default" value="{$current_full_name}" />
@@ -79,6 +83,7 @@ function validateAccount(f)
         <tr>
           <td colspan="2" bgcolor="{$cell_color}" align="center">
             <input class="button" type="submit" value="Update Full Name" />
+
             <input class="button" type="reset" value="Reset" />
           </td>
         </tr>
@@ -88,6 +93,7 @@ function validateAccount(f)
 	<form name="update_email_form" onsubmit="javascript:return validateEmail(this);" action="{$smarty.server.PHP_SELF}" method="post">
 	<input type="hidden" name="cat" value="update_email" />
 	  <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+
         {if $update_email_result}
         <tr>
           <td colspan="2" class="error" bgcolor="{$cell_color}" align="center">
@@ -98,6 +104,7 @@ function validateAccount(f)
             {/if}
           </td>
         </tr>
+
         {/if}
         <tr>
           <td width="190" bgcolor="{$cell_color}" class="default">
@@ -107,6 +114,7 @@ function validateAccount(f)
             <input type="text" name="email" size="40" class="default" value="{$current_email}" />
             {include file="error_icon.tpl.html" field="email"}
           </td>
+
         </tr>
         <tr>
           <td colspan="2" bgcolor="{$cell_color}" align="center">
@@ -116,6 +124,57 @@ function validateAccount(f)
         </tr>
       </table>
 	</form>
+
+	{if $local_db_user == 1}
+	<form name="update_name_form" onsubmit="javascript:return validateName(this);" action="{$smarty.server.PHP_SELF}" method="post">
+	<input type="hidden" name="cat" value="update_password" />
+	  <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+        {if $update_password_result}
+        <tr>
+          <td colspan="2" class="error" bgcolor="{$cell_color}" align="center">
+            {if $update_password_result == -1}
+            <b>An error occurred while trying to run your query.</b>
+			{elseif $update_password_result == -2}
+            <b>The password and confirm passwords did not match. Please try again.</b>
+			{elseif $update_password_result == -3}
+            <b>Your password muct be at least 6 characters long.</b>
+            {elseif $update_password_result == 1}
+            <b>Thank you, your password was updated successfully.</b>
+            {/if}
+          </td>
+        </tr>
+        {/if}
+        <tr>
+          <td width="190" bgcolor="{$cell_color}" class="default">
+            <b>New Password:</b>
+          </td>
+          <td bgcolor="{$light_color}">
+
+            <input type="password" name="new_password" size="40" class="default" value="" />
+            {include file="error_icon.tpl.html" field="new_password"}
+          </td>
+        </tr>
+        <tr>
+          <td width="190" bgcolor="{$cell_color}" class="default">
+            <b>Confirm Password:</b>
+          </td>
+          <td bgcolor="{$light_color}">
+
+            <input type="password" name="confirm_password" size="40" class="default" value="" />
+            {include file="error_icon.tpl.html" field="confirm_password"}
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" bgcolor="{$cell_color}" align="center">
+            <input class="button" type="submit" value="Update Password" />
+            <input class="button" type="reset" value="Reset" />
+          </td>
+
+        </tr>
+	  </table>
+    </form>
+	{/if}
+
     </td>
   </tr>
 </table>
@@ -123,6 +182,7 @@ function validateAccount(f)
 <table width="99%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
   <tr>
     <td>
+
 	  <form name="account_prefs_form" onsubmit="javascript:return validateAccount(this);" action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
       <input type="hidden" name="cat" value="update_account" />
       <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
@@ -132,6 +192,7 @@ function validateAccount(f)
             {include file="help_link.tpl.html" topic="preferences"}
           </td>
         </tr>
+
         {if $update_account_result}
         <tr>
           <td colspan="2" class="error" bgcolor="{$cell_color}" align="center">
@@ -142,6 +203,7 @@ function validateAccount(f)
             {/if}
           </td>
         </tr>
+
         {/if}
         <tr>
           <td width="190" bgcolor="{$cell_color}" class="default">
@@ -151,6 +213,7 @@ function validateAccount(f)
             <select class="default" name="timezone">
               {html_options values=$zones output=$zones selected=$user_prefs.timezone}
             </select>
+
             {include file="lookup_field.tpl.html" lookup_field_name="search" lookup_field_target="timezone"}
           </td>
         </tr>
@@ -160,6 +223,7 @@ function validateAccount(f)
             <input class="button" type="reset" value="Reset" />
           </td>
         </tr>
+
       </table>
       </form>
     </td>
@@ -171,6 +235,7 @@ function validateAccount(f)
   <tr>
     <td>
       <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+
         <tr bgcolor="{$heading_color}">
           <td class="default_white" colspan="2">
             <b>Shibboleth Attributes</b>
@@ -180,6 +245,7 @@ function validateAccount(f)
 		{section name="i" loop=$shibAttribs}
         <tr>
           <td width="190" bgcolor="{$cell_color}" class="default">
+
             <b>{$shibAttribs[i].name}:</b>
           </td>
           <td bgcolor="{$light_color}" class="default">
@@ -189,6 +255,7 @@ function validateAccount(f)
 		{/section}
       </table>
     </td>
+
   </tr>
 </table>
 {/if}
