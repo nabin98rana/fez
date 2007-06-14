@@ -146,6 +146,19 @@ class Statistics
 				$country_name = $record->country_name;
 				$city = $record->city;
 				$region = $record->region;
+
+                 // Make this stuff SQL-safe.
+                $archive_name = Misc::escapeString($archive_name);
+                $ip = Misc::escapeString($ip);
+                $hostname = Misc::escapeString($hostname);
+                $request_date = Misc::escapeString($request_date);
+                $country_code = Misc::escapeString($country_code);
+                $country_name = Misc::escapeString($country_name);
+                $region = Misc::escapeString($region);
+                $city = Misc::escapeString($city);
+                $pid = Misc::escapeString($pid);
+                $dsid = Misc::escapeString($dsid);
+
 				// below commented out lines are other GeoIP information you could possibly use if you are interested
 /*				print $record->postal_code . "\n";
 				print $record->latitude . "\n";
