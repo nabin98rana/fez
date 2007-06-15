@@ -162,7 +162,7 @@ class BackgroundProcess {
         $this->wfses_id = $wfses_id; // optional workflow session
         $usr_id = Misc::escapeString($usr_id);
         $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
-        // keep background log files in a subdir so that they don't cutter up the /tmp dir so much
+        // keep background log files in a subdir so that they don't clutter up the /tmp dir so much
         if (!is_dir(APP_TEMP_DIR."fezbgp")) {
             mkdir(APP_TEMP_DIR."fezbgp");
         }

@@ -61,24 +61,19 @@ if (!empty($pid) && !empty($dsID)) {
 		case 'pdf'  :
 				$header = "Content-type: application/pdf\n";
 				break;
-		
 		case 'xls'  :
 				$header = "Content-type: application/vnd.ms-excel\n";
 				break;
-		
 		case 'doc'  :
 				$header = "Content-type: application/msword\n";
 				break;
-		
 		case 'ica'  :
 				$header = "Content-type: application/x-ica\n";
 				break;
-		
 		case 'gif'  :
 				$is_image = 1;
 				$header = "Content-type: image/gif\n";
 				break;
-		
 		case 'tif'  :
 				$is_image = 1;
 				$header = "Content-type: image/tif\n";
@@ -95,7 +90,6 @@ if (!empty($pid) && !empty($dsID)) {
 				$is_image = 1;
 				$header = "Content-type: image/png\n";
 				break;
-		
 		case 'jpg'  :
 				$is_image = 1;
 				$header = "Content-type: image/jpeg\n";
@@ -108,7 +102,6 @@ if (!empty($pid) && !empty($dsID)) {
 				$is_image = 1;
 				$header = "Content-type: image/ico\n";
 				break;
-		
 		case 'ppt'  :
 				$header = "Content-type: application/vnd.ms-powerpoint";
 				break;

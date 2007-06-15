@@ -59,6 +59,8 @@ include_once(APP_INC_PATH . "geoipregionvars.php");
 class Statistics
 {
 
+    var $bgp;       // For background process
+
     /**
      * Method used to scan a web server log for Fez statistics.
      *
@@ -851,6 +853,10 @@ class Statistics
             echo 'Could not run stats - ' . $failure;
             exit;
         }
+    }
+
+    function setBGP(&$bgp) {
+        $this->bgp = &$bgp;
     }
 
 }

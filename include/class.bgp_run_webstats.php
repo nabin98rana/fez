@@ -14,8 +14,9 @@ class BackgroundProcess_Run_Webstats extends BackgroundProcess
     function run()
     {
         $this->setState(1);
+        extract(unserialize($this->inputs));
         $stats = new Statistics;
-        $reindex->bgp = $this;
+        $stats->setBGP($this);
         $stats->gatherStats();
         $this->setState(2);
     }
