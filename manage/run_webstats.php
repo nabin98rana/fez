@@ -55,7 +55,7 @@ if ($isAdministrator) {
     }
     if (@$HTTP_POST_VARS["action"] == "go") {
         $bgp = new BackgroundProcess_Run_Webstats();
-        $id = $bgp->register(serialize(array()), 1);
+        $id = $bgp->register(serialize(array()), Auth::getUserID());
         $bgp = new BackgroundProcess($id);
         Session::setMessage('The statistics are being generated as a background process (see My Fez to follow progress)');
     }
