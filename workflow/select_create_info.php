@@ -84,6 +84,13 @@ $communities_list = Misc::keyPairs($communities['list'], 'pid', 'title');
 $communities_list = Misc::stripOneElementArrays($communities_list);
 // Find collections that the current user can create records in and then list the parent communities.
 $communities_pids = array_keys($communities_list);
+
+//Handle nested collections also
+$all_collections = Collection::getEditList();
+$all_collections_list = Misc::keyPairs($all_collections, 'pid', 'title');
+$all_collections_list = Misc::stripOneElementArrays($all_collections_list);
+$all_collections_pids = array_keys($all_collections_list);
+
 $collection_list = Collection::getEditList(null, array('Creator'));
 $communities_list2 = array();
 foreach ($collection_list as &$item) {
@@ -91,6 +98,9 @@ foreach ($collection_list as &$item) {
    foreach ($parents as $parent_pid => $parent_title) {
        if (in_array($parent_pid, $communities_pids)) {
            $communities_list2[$parent_pid] = $communities_list[$parent_pid];
+       }
+       else if (in_array($parent_pid, $all_collections_pids)) {
+           $communities_list2[$parent_pid] = $all_collections_list[$parent_pid];
        }
    }
 }
