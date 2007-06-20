@@ -295,7 +295,7 @@ class Auth
 					 FROM
 						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1
 						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on (r1.rmf_xsdmf_id = x1.xsdmf_id)
-						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on (d1.xdis_id = x1.xsdmf_xdis_id and r1.rmf_rec_pid_num='".Misc::numPID($pid)."' and r1.rmf_rec_pid ='".$pid."')
+						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on (d1.xdis_id = x1.xsdmf_xdis_id and r1.rmf_rec_pid_num=".Misc::numPID($pid)." and r1.rmf_rec_pid ='".$pid."')
 						left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd x2 on (x2.xsd_id = d1.xdis_xsd_id and x2.xsd_title = 'FezACML')
 						left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
 						left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 on (k1.sek_title = 'isMemberOf' AND r1.rmf_xsdmf_id = x1.xsdmf_id AND k1.sek_id = x1.xsdmf_sek_id)
@@ -1058,7 +1058,7 @@ class Auth
                      <!--
                      window.opener.location.href = "' . $new_url . '";
                      window.close();
-                     -->
+                     //-->
                      </script>';
             echo $html;
             exit;
@@ -1286,13 +1286,11 @@ class Auth
 		$ldap_infoadmin = null;
 		$usersgroups = array();
 		$success = 'true';
-		//LUR: retrieve the filter attribute from FEZ configuration
-		$filter = "(".LDAP_ATTRIBUTE_USERNAME."=".$username.")";
+		$filter = "(samaccountname=".$username.")";
 		$ldap_conn = ldap_connect(LDAP_SERVER, LDAP_PORT);
 	    ldap_set_option($ldap_conn, LDAP_OPT_PROTOCOL_VERSION, 3);
     	ldap_set_option($ldap_conn, LDAP_OPT_REFERRALS, 0);
-		// LUR: Modify ldap_bind 
-		$ldap_bind = @ldap_bind($ldap_conn, LDAP_ADMIN_DN, LDAP_ADMIN_PWD);
+		$ldap_bind = @ldap_bind($ldap_conn, LDAP_PREFIX."\\".$username, $password);
 		if ($ldap_bind) {
 			$ldap_result = ldap_search($ldap_conn, LDAP_ROOT_DN, $filter);
 			// retrieve all the entries from the search result
@@ -1302,19 +1300,16 @@ class Auth
 				for ($i=0; $ii<$info[$i]["count"]; $ii++) {
 					$data = $info[$i][$ii];
 					for($j=0; $j<$info[$i][$data]["count"]; $j++) {	
-						// LUR: retrieve the isMemberOf attribute from FEZ configuration
-						if ($data == LDAP_ATTRIBUTE_MEMBEROF) {
+						if ($data == "memberof") {
 							array_push($memberships, $info[$i][$data][$j] );
 						}
 					}
 				}
 				foreach($memberships as $item) {
-					//LUR: Modify groups retrieval: groups are directly in $item variable, no split operation is required.
-					//list($CNitem, $rest) = split(",", $item);
-					//list($tag, $group) = split("=", $CNitem);
+					list($CNitem, $rest) = split(",", $item);
+					list($tag, $group) = split("=", $CNitem);
 //					echo $username." is a member of group: $group<br>\n";
-					//array_push($usersgroups, $group);
-					array_push($usersgroups, $item);
+					array_push($usersgroups, $group);
 				}
 			} else {
 				echo ldap_error($ldap_conn);
@@ -1343,9 +1338,8 @@ class Auth
             $t_authenticated 		= false;
             $t_username             = $p_user_id;
             $t_ds                   = ldap_connect(LDAP_SERVER, LDAP_PORT);
-            # Attempt to bind with the DN and password
-            // LUR: Modify ldap_bind
-            $t_br = @ldap_bind( $t_ds, "uid=".$t_username.",".LDAP_PREFIX, $p_password );
+# Attempt to bind with the DN and password
+            $t_br = @ldap_bind( $t_ds, LDAP_PREFIX."\\".$t_username, $p_password );
             if ($t_br) {
                 $t_authenticated = true;
             }
@@ -1500,9 +1494,8 @@ class Auth
 				$email = $userDetails['email'];
 				$distinguishedname = $userDetails['distinguishedname'];
 				Auth::GetUsersLDAPGroups($username, $password);
-				// Create the user in Fez
-				// LUR: insertFromLDAPLogin signature has been modified
-				User::insertFromLDAPLogin($username, $password);				
+				// Create the user in Fez				
+				User::insertFromLDAPLogin();				
 			}
             $usr_id = User::getUserIDByUsername($username);
         } else { // if it is a registered Fez user then get their details from the fez user table
