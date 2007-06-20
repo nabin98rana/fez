@@ -80,18 +80,28 @@ $wfstatus->checkStateChange();
 
 
 $communities = Community::getList(0, 150);
-$communities_list = Misc::keyPairs($communities['list'], 'pid', 'title');
-$communities_list = Misc::stripOneElementArrays($communities_list);
-// Find collections that the current user can create records in and then list the parent communities.
-$communities_pids = array_keys($communities_list);
+$communities_list = array();
+$communities_pids = array();
+if (sizeof($communities['list']) > 0)
+{
+	$communities_list = Misc::keyPairs($communities['list'], 'pid', 'title');
+	$communities_list = Misc::stripOneElementArrays($communities_list);
+	// Find collections that the current user can create records in and then list the parent communities.
+	$communities_pids = array_keys($communities_list);
+}
 
 //Handle nested collections also
 $all_collections = Collection::getEditList();
-$all_collections_list = Misc::keyPairs($all_collections, 'pid', 'title');
-$all_collections_list = Misc::stripOneElementArrays($all_collections_list);
-$all_collections_pids = array_keys($all_collections_list);
+$all_collections_list = array();
+$all_collections_pids = array();
+if (sizeof($all_collections) > 0)
+{
+	$all_collections_list = Misc::keyPairs($all_collections, 'pid', 'title');
+	$all_collections_list = Misc::stripOneElementArrays($all_collections_list);
+	$all_collections_pids = array_keys($all_collections_list);
+}
 
-$collection_list = Collection::getEditList(null, array('Creator'));
+$collection_list = Collection::getEditList(null, array('Creator', 'Community_Administrator'));
 $communities_list2 = array();
 foreach ($collection_list as &$item) {
    $parents = Misc::keyPairs(Collection::getParents2($item['pid']),'pid','title');

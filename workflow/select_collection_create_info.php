@@ -72,10 +72,25 @@ if ($cat == 'submit') {
 }
 $wfstatus->checkStateChange();
 
+// LUR: get the communities where the user is allowed to create collections
+$communities = Community::getList(0, 150);
+$index=0;
+foreach ($communities['list'] as $item) {
+	if ($item['isCreator'] != 1)
+	{
+		array_splice($communities['list'], $index,1);
+	}
+	else {
+		$index++;
+	}
+}
+$communities_list = array();
+if (sizeof($communities['list']) > 0)
+{
+	$communities_list = Misc::keyPairs($communities['list'], 'pid', 'title');
+	$communities_list = Misc::stripOneElementArrays($communities_list);
+}
 
-$communities = Community::getList();
-$communities_list = Misc::keyPairs($communities['list'], 'pid', 'title');
-$communities_list = Misc::stripOneElementArrays($communities_list);
 $tpl->assign('communities_list', $communities_list);
 $tpl->assign('communities_list_selected', $communities['list'][0]['pid']);
 $tpl->registerNajax( NAJAX_Client::register('SelectCreateInfo', APP_RELATIVE_URL.'ajax.php'));

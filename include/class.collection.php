@@ -323,7 +323,7 @@ class Collection
       * @param integer $community_pid The pid of the community to restrict the list to
       * @return array Associative array of collections - (pid, title)
       */
-    function getEditList($community_pid=null, $roles = array("Creator", "Editor", "Approver")) {
+    function getEditList($community_pid=null, $roles = array("Creator", "Editor", "Approver", "Community_Administrator")) {
         // get list of collections that
         // parent is community_pid
         // has ACMLs set

@@ -9,7 +9,7 @@ class SelectCreateInfo {
 
     function getCollections($community_pid)
     {
-        $collections = Collection::getEditList($community_pid,array('Creator'));
+        $collections = Collection::getEditList($community_pid,array('Creator', 'Community_Administrator'));
         $list = array();
         foreach($collections as $item) {
             $pid = $item['pid'];

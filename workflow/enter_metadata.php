@@ -116,8 +116,31 @@ if ($access_ok) {
     $tpl->assign('sta_id', $sta_id);
 	$xdis_collection_list = XSD_Display::getAssocListCollectionDocTypes(); // @@@ CK - 13/1/06 added for communities to be able to select their collection child document types/xdisplays
     $xdis_list = XSD_Display::getAssocListDocTypes();
-    $community_list = Community::getAssocList();
-    $collection_list = Collection::getEditListAssoc(); 
+    // LUR: get the communities and collections where the user is allowed to create collections   
+    $communities = Community::getList(0, 150);
+	$index=0;
+	foreach ($communities['list'] as $item) {
+		if ($item['isCreator'] != 1)
+		{
+			array_splice($communities['list'], $index,1);
+		}
+		else {
+			$index++;
+		}
+	}	
+	$community_list = array();
+	if (sizeof($communities['list']) > 0)
+	{
+		$community_list = Misc::keyPairs($communities['list'], 'pid', 'title');
+		$community_list = Misc::stripOneElementArrays($community_list);
+	}
+	$collections = Collection::getEditList();
+	$collection_list = array();
+	if (sizeof($collections) > 0)
+	{
+		$collection_list = Misc::keyPairs($collections, 'pid', 'title');
+		$collection_list = Misc::stripOneElementArrays($collection_list);
+	}
 /*    $internal_user_list = User::getAssocList();
     $internal_group_list = Group::getAssocListAll(); */
 /*	$author_list = Author::getAssocListAll();
