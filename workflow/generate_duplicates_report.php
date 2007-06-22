@@ -15,27 +15,15 @@ ksort($xdises); // sort by verion
 $xdis = array_pop($xdises); // get the last one
 $xdis_id = $xdis['xdis_id'];
 $this->xdis_id = $xdis_id;
-$collection_pid = $this->pid;
+
+// create the report object
+$collection_pid = $this->pid; // set by the select collection step
 $col_record = new RecordGeneral($collection_pid);
 $access_ok = $col_record->canCreate();
-$pids = $this->pids;
-if (empty($pids) || !is_array($pids)) {
-    if (!empty($collection_pid)) {
-        if ($col_record->isCollection()) {
-            $this->pids = $col_record->getChildrenPids();
-        }
-    }
-}
-
-
-
 if (!$access_ok) {
     echo "You are not permitted to create a duplicates report in this collection {$collection_pid}";
     exit;
 }
-
-// create the report object
-
 $params = array();
 $params['xdis_id'] = $xdis_id;
 $params['sta_id'] = 1; // unpublished record

@@ -72,6 +72,10 @@ include_once(APP_INC_PATH . "class.xml_helper.php");
 class Record
 {
 
+    const status_undefined = 0;
+    const status_unpublished = 1;
+    const status_published = 2;
+
   /**
 	* Returns the parent details of the . Searches search key representing RELS-EXT "isDerivationOf".
 	*/
@@ -1901,9 +1905,9 @@ class RecordGeneral
     var $details;
     var $record_parents;
     var $status_array = array(
-            0 => 'Undefined',
-            1 => 'Unpublished',
-            2 => 'Published'
+            Record::status_undefined => 'Undefined',
+            Record::status_unpublished => 'Unpublished',
+            Record::status_published => 'Published'
             );
  
     /**

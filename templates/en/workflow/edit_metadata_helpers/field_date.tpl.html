@@ -1,0 +1,52 @@
+            {if  $xsdmf.xsdmf_enabled == 1}
+              <tr>
+				  <td width="200" bgcolor="{$cell_color}" class="default">
+					<b>{$xsdmf.xsdmf_title} {if $xsdmf.xsdmf_required == 1} * {/if}</b>
+				  </td>
+                <td nowrap bgcolor="{$value_color}">
+                  {assign var="temp_xsdmf_id" value=$xsdmf.xsdmf_id}
+					{* Convert date to format usable by html_select_date *}
+					{if $details[$temp_fld_id] == ''}
+						{assign var="full_date" value='0000-00-00'}
+					{else}
+						{assign var="full_date" value=$details[$temp_fld_id]}
+						{assign var="attached_temp_fld_id" value=$xsdmf.xsdmf_attached_xsdmf_id}
+						{if $full_date|substr:"7":"2" != '' && $details[$attached_temp_fld_id] == 0}
+							{assign var="full_day" value=$full_date|substr:"8":"2"}
+						{else}
+							{assign var="full_day" value="00"}
+						{/if}
+						{if $full_date|substr:"5":"2" != '' && $details[$attached_temp_fld_id] != 1}
+							{assign var="full_month" value=$full_date|substr:"5":"2"}
+						{else}
+							{assign var="full_month" value="00"}
+						{/if}
+						{if $full_date|substr:"0":"4" != ''}
+							{assign var="full_year" value=$full_date|substr:"0":"4"}				
+						{else}
+							{assign var="full_year" value="0000"}
+						{/if}
+						{assign var="full_date" value=$full_year|cat:"-"|cat:$full_month|cat:"-"|cat:$full_day}
+					{/if}
+
+
+                  {html_select_date time=$full_date month_empty='' year_empty='' day_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="-50" end_year="+10" all_extra='class="default"'}
+                  <script type="text/javascript">
+                  <!--
+                  tCalendar_xsd_display_fields{$xsdmf.xsdmf_id} = new dynCalendar('tCalendar_xsd_display_fields{$xsdmf.xsdmf_id}', 'calendarCallback_xsd_display_fields{$xsdmf.xsdmf_id}', '{$rel_url}images/');
+                  tCalendar_xsd_display_fields{$xsdmf.xsdmf_id}.setMonthCombo(false);
+                  tCalendar_xsd_display_fields{$xsdmf.xsdmf_id}.setYearCombo(false);
+                  //-->
+                  </script>
+					{if $xsdmf.xsdmf_required == 1}
+        		    <script type="text/javascript">
+			        <!--
+        		    xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsdmf.xsdmf_id}], '{$xsdmf.xsdmf_title}');
+		            required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsdmf.xsdmf_id}]', 'whitespace');
+        		    //-->
+		            </script>
+        		    {/if}
+                </td>
+ 				  {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields[$temp_xsdmf_id]"}
+              </tr>
+{/if}

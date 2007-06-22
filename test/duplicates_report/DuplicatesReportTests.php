@@ -21,6 +21,7 @@ require_once 'DuplicatesReportRearrangeSetsTest.php';
 require_once 'DuplicatesReportMergeRearrangedSetsTest.php';
 require_once 'DuplicatesReportGenerateXMLTest.php';
 require_once 'DuplicatesReportGetListingTest.php';
+require_once 'DuplicatesReportGetItemDetailsTest.php';
 
 class DuplicatesReportTests
 {
@@ -38,6 +39,7 @@ class DuplicatesReportTests
         $suite->addTestSuite('DuplicatesReportMergeRearrangedSetsTest');
         $suite->addTestSuite('DuplicatesReportGenerateXMLTest');
         $suite->addTestSuite('DuplicatesReportGetListingTest');
+        $suite->addTestSuite('DuplicatesReportGetItemDetailsTest');
         
         // ...
  

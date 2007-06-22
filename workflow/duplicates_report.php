@@ -26,6 +26,11 @@ $pid = $wfstatus->pid;
 
 $wfstatus->setTemplateVars($tpl);
 
+if (isset($_REQUEST['pid'])) {
+    $dup_report_selected_pid = $_REQUEST['pid'];
+    $wfstatus->assign('dup_report_left_pid',$dup_report_selected_pid);
+}
+
 $wfstatus->checkStateChange();
 
 list($page, $page_size) = Pager::doPaging($tpl, 'duplicates_report_');

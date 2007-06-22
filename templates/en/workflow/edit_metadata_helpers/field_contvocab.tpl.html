@@ -1,0 +1,21 @@
+{if $xsdmf.xsdmf_html_input == 'contvocab'  && $xsdmf.xsdmf_enabled == 1}
+	<tr id="tr_list_{$list[i].xsdmf_id}_1" valign="top">
+		<td width="200" bgcolor="{$cell_color}" class="default">
+			<b>{$xsdmf.xsdmf_title} {if $xsdmf.xsdmf_required == 1} * {/if}</b>
+		</td>
+		<td bgcolor="{$value_color}">
+			<select id="xsd_display_fields_{$xsdmf.xsdmf_id}_1" multiple size="15" class="default" name="xsd_display_fields[{$xsdmf.xsdmf_id}][]">
+			  {html_options options=$xsdmf.field_options selected=$details[$temp_fld_id]}
+			</select>
+			{if $xsdmf.xsdmf_required == 1}
+    			<script type="text/javascript">
+				<!--
+        		xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsdmf.xsdmf_id}][]', '{$xsdmf.xsdmf_title}');
+		        required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsdmf.xsdmf_id}][]', 'multiple');
+        		//-->
+			    </script>
+    	    {/if}
+		</td>
+				  {include file='workflow/compare_records_helpers/get_right_column.tpl.html}
+	</tr>				
+{/if}

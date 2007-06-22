@@ -1,0 +1,26 @@
+{if $xsdmf.xsdmf_enabled == 1}
+<!-- author selector -->
+				{assign var="field_name" value="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}						
+			    {assign var="field_id" value="xsd_display_fields_"|cat:$xsdmf.xsdmf_id|cat:"_1"}
+				<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_1">
+				  <td width="200" bgcolor="{$cell_color}" class="default">
+					<b>{$xsdmf.xsdmf_title} {if $xsdmf.xsdmf_required == 1} * {/if}</b>
+				  </td>
+				  <td bgcolor="{$light_color}">
+					<select class="default" id="{$field_id}" name="xsd_display_fields[{$xsdmf.xsdmf_id}]">
+					   <option value="0">(none)</option>
+					  {html_options options=$xsdmf.field_options selected=$details[$temp_fld_id]}
+					</select>
+					{include file="lookup_field.tpl.html" lookup_field_name="search" lookup_field_target=$field_name}
+					{if $xsdmf.xsdmf_required == 1}
+        		    <script language="JavaScript">
+			        <!--
+        		    xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsdmf.xsdmf_id}]{if $xsdmf.xsdmf_multiple == 1}[]{/if}', '{$xsdmf.xsdmf_title}');
+		            required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsdmf.xsdmf_id}]{if $xsdmf.xsdmf_multiple == 1}[]{/if}', {if $xsdmf.xsdmf_multiple == 1}'multiple'{else}'combo'{/if});
+        		    //-->
+		            </script>
+        		    {/if}
+				  </td>
+				  {include file='workflow/compare_records_helpers/get_right_column.tpl.html}
+				</tr>
+{/if}

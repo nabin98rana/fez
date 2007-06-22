@@ -44,8 +44,9 @@ if ($res > 0) {
     Session::setMessage("Couldn't remove workflow");
 }
 $href = Misc::GETorPOST('href');
-if (!empty($href)) {
-    Auth::redirect($href);
+if (empty($href)) {
+    $href = APP_RELATIVE_URL.'my_fez.php';
 }
+Auth::redirect($href);
 
 ?>

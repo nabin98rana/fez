@@ -1,0 +1,11 @@
+<!-- Static text {$xsdmf.xsdmf_id} -->
+{if $xsdmf.xsdmf_enabled == 1 && $xsdmf.xsdmf_show_in_view == 1 && $xsdmf.xsdmf_static_text != ''}
+	<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1">
+		<td bgcolor="{$heading_color}" class="default_white" colspan="2" nowrap>
+			{if $xsdmf.xsdmf_image_location != ""}<img align="absmiddle" src="{$rel_url}images/{$xsdmf.xsdmf_image_location}">{/if}
+			<b>{$xsd_display_fields[i].xsdmf_static_text}</b> 
+			{if $xsdmf.xsdmf_description != ""}&nbsp;<i>{$xsdmf.xsdmf_description|escape:"html"}</i>{/if}
+		</td>
+				  {include file='workflow/compare_records_helpers/get_right_column.tpl.html}
+	</tr>
+{/if}

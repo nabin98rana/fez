@@ -483,6 +483,7 @@ class WorkflowStatus {
         $this->getStateDetails();
         $tpl->assign('wfs_title', $this->wfs_details['wfs_title']);
         $tpl->assign('wfs_description', $this->wfs_details['wfs_description']);
+        $tpl->assign('href', $this->href);
     }
 
     function setNewWorkflow($new_wft_id)

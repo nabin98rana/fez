@@ -151,7 +151,7 @@ class DuplicatesReport {
         {
             $base_record = new RecordGeneral($group['pid']);
             foreach ($group['list'] as $dup_pid => $dup_item) {
-                $dup_record = new RecordGeneral($group['pid']);
+                $dup_record = new RecordGeneral($dup_item['pid']);
                 $final_groups[$key]['list'][$dup_pid]['probability'] = $this->compareRecords($base_record, $dup_record);
             }
         }
@@ -201,6 +201,11 @@ class DuplicatesReport {
     
     function compareRecords($record1, $record2) 
     {
+        // Can't compare records of different content models as the XSDMFs will all be different
+        if ($record1->getXmlDisplayId() != $record2->getXmlDisplayId()) {
+            return 0;
+        }
+        
         $title_tokens1 = $this->tokenise(array($record1->getTitle()));
         $title_tokens2 = $this->tokenise(array($record2->getTitle()));
         $title_score = $this->calcOverlap($title_tokens1, $title_tokens2);
@@ -236,7 +241,6 @@ class DuplicatesReport {
 
     function getListing($page, $page_size)
     {
-        $this->pid;
         $xml = Fedora_API::callGetDatastreamContents($this->pid, 'DuplicatesReport', true);
         return $this->getListingFromXML($page,$page_size, $xml);
     }
@@ -274,6 +278,34 @@ class DuplicatesReport {
                 $listing_item['count'] = $dups_list->length;
                 $listing[] = $listing_item;
             }
+        }
+        return $listing;
+    }
+    
+    function getItemDetails($pid)
+    {
+        $xml = Fedora_API::callGetDatastreamContents($this->pid, 'DuplicatesReport', true);
+        return $this->getItemDetailsFromXML($pid,$xml);
+    }
+    
+    function getItemDetailsFromXML($pid,$xml)
+    {
+        if (is_null($xml) || !is_string($xml) || empty($xml)) {
+            return array();
+        }
+        $report_dom = DOMDocument::loadXML($xml);
+        if (empty($report_dom)) {
+            return array();
+        }
+        $xpath = new DOMXPath($report_dom);
+        $items = $xpath->query('/DuplicatesReport/duplicatesReportItem[@pid=\''.$pid.'\']/duplicateItem');
+        $listing = array();
+        foreach ($items as $item) {
+            $listing_item = array();
+            foreach (array('pid','probability') as $att) {
+                $listing_item[$att] = $item->getAttribute($att);
+            }
+            $listing[] = $listing_item;
         }
         return $listing;
     }

@@ -136,12 +136,11 @@ class BackgroundProcess {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
         }
         if (Auth::getUserID() == $res['bgp_usr_id']) {
-        $str = file_get_contents($res['bgp_filename']);
-        $headers = explode("\n", $res['bgp_headers']);
-        foreach ($headers as $head) {
-            header($head);
-        }
-        echo $str;
+            $headers = explode("\n", $res['bgp_headers']);
+            foreach ($headers as $head) {
+                header($head);
+            }
+            readfile($res['bgp_filename']);
         } else {
             echo "Not authorised: Username doesn't match";
         }

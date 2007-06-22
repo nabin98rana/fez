@@ -221,7 +221,6 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		{if $isUser}
         <tr>
           <td align="left" class="default" >
-		    <form name="top_create_form" action="">		
 			{if $list_type == 'community_list' && $isAdministrator}
 			<br /> <a target="_top" title="create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI}"><img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" /> <b>Create New Community</b></a>&nbsp;
 			{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
@@ -667,7 +666,6 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		{if $isUser}
         <tr>
           <td align="left" class="default" >
-		    <form name="top_create_form" action="">		
 			{if $list_type == 'community_list' && $isAdministrator}
 			<br /> <a target="_top" title="create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI}"><img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" /> <b>Create New Community</b></a>&nbsp;
 			{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
@@ -691,7 +689,6 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 			&nbsp;
 				{/if}
 			{/if}
-			</form>
 		  </td>
         </tr>
   		{/if}

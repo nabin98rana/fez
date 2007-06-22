@@ -68,8 +68,7 @@ class BackgroundProcessList
         }
         foreach ($res as $filename) {
             if (!empty($filename)) {
-                $deleteCommand = APP_DELETE_CMD." $filename";
-                exec($deleteCommand);
+                unlink($filename);
             }
         }
 

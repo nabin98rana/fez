@@ -1,0 +1,194 @@
+<script language="JavaScript">
+<!--
+{literal}
+function purgeDatastream(ds_id)
+{
+    if (!confirm('This action will permanently delete the selected datastream.')) {
+        return false;
+    } else {
+        var features = 'width=420,height=200,top=30,left=30,resizable=yes,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
+        {/literal}
+        var popupWin = window.open('{$rel_url}popup.php?cat=purge_datastream&pid={$pid}&dsID=' + ds_id, '_popup', features);
+        {literal}
+        popupWin.focus();
+    }
+}
+var required_xsd_display_fields = new Array();
+var xsd_display_fields = new Array();
+
+// ------------------------------------------------------------------------------------------------------------
+// Validation - check each XSDMF for the validation setting and generate javascript to check it
+
+function validateForm() {
+{/literal}
+{section name="i" loop=$xsd_display_fields}
+{if $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' && $xsd_display_fields[i].xsdmf_enabled == 1}
+	// The controlled vocabulary selector should select all the fields in the multiple combo box so that they will
+	// be included in the form submission.
+	var field = document.wfl_form1.xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1;
+	{literal}
+    for (var y = 0; y < field.options.length; y++) {
+        field.options[y].selected = true;
+    }
+	{/literal}
+{elseif $xsd_display_fields[i].xsdmf_enabled == 1 
+		&& $xsd_display_fields[i].xsdmf_html_input == 'text'
+		&& $xsd_display_fields[i].xsdmf_validation_type != '' 
+		&& $xsd_display_fields[i].xsdmf_validation_type != 'none'}
+	{if $xsd_display_fields[i].xsdmf_multiple == 1}
+		// Validate multiple text fields
+		{section name="z" loop=$xsd_display_fields[i].multiple_array}
+			{assign var='loop_num' value=$xsd_display_fields[i].multiple_array[z]}
+			var field = document.wfl_form1.xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num};
+			{literal}
+			if (field != null) {
+				{/literal}
+				xsdmfValidate(field, field.value, '{$xsd_display_fields[i].xsdmf_validation_type}',
+					'{$xsd_display_fields[i].xsdmf_title}', field.name);
+				{literal}
+			}
+	        {/literal}
+		{/section}
+	{else}
+		// validate a single text field
+		var field = document.wfl_form1.xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1;
+		{literal}
+		if (field != null) {
+			{/literal}
+			xsdmfValidate(field, field.value, '{$xsd_display_fields[i].xsdmf_validation_type}',
+								'{$xsd_display_fields[i].xsdmf_title}', field.name);
+			{literal}
+		}
+        {/literal}
+	{/if}
+{/if}
+{/section}
+{literal}
+// ensure that a value has been entered for each of the required field (marked with a '*' in the form)
+checkRequiredFields(document.wfl_form1, required_xsd_display_fields);
+}
+
+// ---------------------------------------------------------------------------------------------
+// Generate helper functions for some dynamic controls
+
+{/literal}
+{section name="i" loop=$xsd_display_fields}
+
+	{if $xsd_display_fields[i].xsdmf_html_input == 'date' && $xsd_display_fields[i].xsdmf_enabled == 1}
+
+// Calendar control
+function calendarCallback_xsd_display_fields{$xsd_display_fields[i].xsdmf_id}(day, month, year) {ldelim} selectDateField('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]', day, month, year); {rdelim}
+function calendarCallback_xsd_display_fields_end{$xsd_display_fields[i].xsdmf_id}(day, month, year) {ldelim} selectDateField('xsd_display_fields_end[{$xsd_display_fields[i].xsdmf_id}]', day, month, year); {rdelim}
+
+	{elseif $xsd_display_fields[i].xsdmf_html_input == 'org_selector' && $xsd_display_fields[i].xsdmf_use_org_to_fill == 1}
+
+// Organisation selector
+var dt_load_state_{$xsd_display_fields[i].xsdmf_id} = 0;
+function showLoading_{$xsd_display_fields[i].xsdmf_id}()
+{ldelim}
+	document.body.style.cursor = 'wait';
+	document.getElementById('loading_{$xsd_display_fields[i].xsdmf_id}').style.display = 'block';
+{rdelim}
+
+function hideLoading_{$xsd_display_fields[i].xsdmf_id}()
+{ldelim}
+	document.body.style.cursor = '';
+	document.getElementById('loading_{$xsd_display_fields[i].xsdmf_id}').style.display = 'none';
+{rdelim}
+
+function selectOrgStructure_{$xsd_display_fields[i].xsdmf_id}(f, field_name)
+{literal}
+{
+	{/literal}
+	if (dt_load_state_{$xsd_display_fields[i].xsdmf_id} > 0) {literal}{
+	   return false;
+	} 
+	{/literal}
+	var field = document.wfl_form1.xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1;
+	var selections = getSelectedItems(field);
+    {literal}
+	if (selections.length > 0) {
+		{/literal}
+		dt_load_state_{$xsd_display_fields[i].xsdmf_id}++;
+//		document.getElementById('tr_org_id').style.display = '';
+		showLoading_{$xsd_display_fields[i].xsdmf_id}();
+		var obj = new SelectOrgStructure();
+		{literal}
+		obj.ongetSubListError = function() {
+			{/literal}
+			removeAllOptions(f, 'xsd_display_fields[{$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}]');
+			hideLoading_{$xsd_display_fields[i].xsdmf_id}();
+			dt_load_state_{$xsd_display_fields[i].xsdmf_id}--;
+			{literal}
+		}
+		obj.setTimeout(10000);
+		
+		if ((IsNumeric(selections[0].value) == true) && (selections[0].value != '-1')) {
+			obj.getSubList(selections[0].value, function(dt_list) {
+					{/literal}
+					removeAllOptions(f, 'xsd_display_fields[{$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}]');
+					addOptions(f, 'xsd_display_fields[{$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}]', dt_list);
+					{assign var="temp_select_id" value=$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}
+					hideLoading_{$xsd_display_fields[i].xsdmf_id}();
+					dt_load_state_{$xsd_display_fields[i].xsdmf_id}--;
+					});	
+					{literal}	
+		} else {
+			{/literal}
+			removeAllOptions(f, 'xsd_display_fields[{$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}]');		
+			hideLoading_{$xsd_display_fields[i].xsdmf_id}();
+			dt_load_state_{$xsd_display_fields[i].xsdmf_id}--;
+			{literal}	
+		}
+
+	}
+}		
+{/literal}
+{/if}
+{/section}
+{literal}
+
+function toggleDateFields(f, field_name)
+{
+    var checkbox = getFormElement(f, 'filter[' + field_name + ']');
+    var filter_type = getFormElement(f, field_name + '[filter_type]');
+    var month_field = getFormElement(f, field_name + '[Month]');
+    var day_field = getFormElement(f, field_name + '[Day]');
+    var year_field = getFormElement(f, field_name + '[Year]');
+    var month_end_field = getFormElement(f, field_name + '_end[Month]');
+    var day_end_field = getFormElement(f, field_name + '_end[Day]');
+    var year_end_field = getFormElement(f, field_name + '_end[Year]');
+    if (checkbox.checked) {
+        var bool = false;
+    } else {
+        var bool = true;
+    }
+    filter_type.disabled = bool;
+    month_field.disabled = bool;
+    day_field.disabled = bool;
+    year_field.disabled = bool;
+    month_end_field.disabled = bool;
+    day_end_field.disabled = bool;
+    year_end_field.disabled = bool;
+}
+
+function selectDateOptions(field_prefix, date_str)
+{
+    if (date_str.length != 10) {
+        return false;
+    } else {
+        var year = date_str.substring(0, date_str.indexOf('-'));
+        var month = date_str.substring(date_str.indexOf('-')+1, date_str.lastIndexOf('-'));
+        var day = date_str.substring(date_str.lastIndexOf('-')+1);
+        selectDateField(field_prefix, day, month, year);
+    }
+}
+function selectDateField(field_name, day, month, year)
+{
+    selectOption(this.document.wfl_form1, field_name + '[Day]', day);
+    selectOption(this.document.wfl_form1, field_name + '[Month]', month);
+    selectOption(this.document.wfl_form1, field_name + '[Year]', year);
+}
+{/literal}
+//-->
+</script>

@@ -1,0 +1,28 @@
+            {if  $xsd_display_fields[i].xsdmf_enabled == 1}
+
+					<tr id="tr_list_{$list[i].xsdmf_id}_1" valign="top">
+					  <td width="200" bgcolor="{$cell_color}" class="default">
+						<b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
+					  </td>
+					  <td bgcolor="{$value_color}">
+					   {assign var="field_name" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
+						<select id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1" multiple size="10" class="default" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]">
+							{if $details[$temp_fld_id]}
+							  {html_options options=$details[$temp_fld_id]}
+							 {/if}
+						</select>
+						{include file="error_icon.tpl.html" field=$field_name}
+						<input class="default" type=button value="Add Subject" onclick = "javascript:small_window('{$rel_url}cv_selector.php?cvo_id={$xsd_display_fields[i].xsdmf_cvo_id}&form=wfl_form1&element=xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1&xsdmf_cvo_min_level={$xsd_display_fields[i].xsdmf_cvo_min_level}');">
+						<input class="default" type=button value="Remove Subject" onclick =" javascript:deleteSelectedItemsFromList(xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1);">
+					{if $xsd_display_fields[i].xsdmf_required == 1}
+        		    <script type="text/javascript">
+			        <!--
+        		    xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]', '{$xsd_display_fields[i].xsdmf_title}');
+		            required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]', 'multiple');
+        		    //-->
+		            </script>
+        		    {/if}
+					 </td>
+				  {include file='workflow/compare_records_helpers/get_right_column.tpl.html}
+					</tr>						  			  
+{/if}
