@@ -36,33 +36,23 @@
 include_once("../config.inc.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.template.php");
-include_once(APP_INC_PATH . "class.bgp_run_webstats.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION);
 
-$tpl->assign("type", "stats");
+$tpl->assign("type", "configuration");
 $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 
-if ($isAdministrator) {
-    if (WEBSERVER_LOG_STATISTICS !== 'ON') {
-        die("<b>Error:</b> The WEBSERVER_LOG_STATISTICS directive in the configuration file must be set to ON to invoke this function.");
-    }
-    if (@$HTTP_POST_VARS["action"] == "go") {
-        $bgp = new BackgroundProcess_Run_Webstats();
-        $id = $bgp->register(serialize(array()), Auth::getUserID());
-        $bgp = new BackgroundProcess($id);
-        Session::setMessage('The statistics are being generated as a background process (see My Fez to follow progress)');
-        $tpl->assign("is_running", true);
-    }
-} else {
+if (!$isAdministrator) {
     $tpl->assign("show_not_allowed_msg", true);
 }
+
+// Do stuff here.
 
 $tpl->displayTemplate();
 
