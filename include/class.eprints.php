@@ -1187,8 +1187,8 @@ class ePrints
 					$utc_date = Date_API::getSimpleDateUTC();
 					$time_per_object = Date_API::dateDiff("s", $bgp_details['bgp_started'], $utc_date);
 					$date_new = new Date(strtotime($bgp_details['bgp_started']));			
-					$time_per_object = intval($time_per_object / $eprint_record_counter);
-					$expected_finish = Date_API::getFormattedDate($date_new->getTime());	
+					$time_per_object = round(($time_per_object / $eprint_record_counter), 2);
+					$expected_finish = Date_API::getFormattedDate($date_new->getTime());
 					$date_new->addSeconds($time_per_object*$record_count);
 					$expected_finish = Date_API::getFormattedDate($date_new->getTime());
                     $batch_import_object->bgp->setProgress(intval(100*$eprint_record_counter/$record_count)); 

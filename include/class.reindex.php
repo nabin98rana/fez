@@ -245,7 +245,7 @@ class Reindex
                     $utc_date = Date_API::getSimpleDateUTC();
                     $time_per_object = Date_API::dateDiff("s", $bgp_details['bgp_started'], $utc_date);
                     $date_new = new Date(strtotime($bgp_details['bgp_started']));
-                    $time_per_object = intval($time_per_object / $reindex_record_counter);
+                    $time_per_object = round(($time_per_object / $reindex_record_counter), 2);
                     //$expected_finish = Date_API::getFormattedDate($date_new->getTime());
                     $date_new->addSeconds($time_per_object*$record_count);
                     $tz = Date_API::getPreferredTimezone($bgp_details["bgp_usr_id"]);
