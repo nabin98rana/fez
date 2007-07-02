@@ -10,7 +10,7 @@
     <form name="reindex" method="post" action="{$smarty.server.PHP_SELF}">
 		<input type="hidden" name="action" value="prompt"/>
 		&nbsp;&nbsp;&nbsp;<input type="submit" name="button" value="Discover new Fedora objects" class="submit" />
-		&nbsp;&nbsp;&nbsp;<input type="submit" name="button" value="Reindex existing objects" class="submit" />
+		&nbsp;&nbsp;&nbsp;<input type="submit" name="button" value="Reindex known Fedora objects" class="submit" />
 	</form>
 	<br />
 
@@ -27,8 +27,9 @@ var current_page = {/literal}{if $list_info.current_page != ""}{$list_info.curre
 var last_page = {/literal}{if $list_info.last_page != ""}{$list_info.last_page}{else}0{/if}{literal};
 function resizePager(f)
 {
-    var pagesize = f.page_size.options[f.page_size.selectedIndex].value;
-    window.location.href = page_url + "?" + replaceParam(window.location.href, 'rows', pagesize);
+	//reindex_form
+	f.rows.value = f.page_size.options[f.page_size.selectedIndex].value;
+	f.submit();
 }
 function checkPageField(ev)
 {
@@ -40,8 +41,7 @@ function checkPageField(ev)
 }
 function goPage(f, new_page)
 {
-    if ((new_page > last_page+1) || (new_page <= 0) ||
-            (new_page == current_page+1) || (!isNumberOnly(new_page))) {
+    if ((new_page > last_page+1) || (new_page <= 0) || (new_page == current_page+1) || (!isNumberOnly(new_page))) {
         f.page.value = current_page+1;
         return false;
     }
@@ -49,11 +49,13 @@ function goPage(f, new_page)
 }
 function setPage(new_page)
 {
-    if ((new_page > last_page) || (new_page < 0) ||
-            (new_page == current_page)) {
+    if ((new_page > last_page) || (new_page < 0) || (new_page == current_page)) {
         return false;
     }
-    window.location.href = page_url + "?" + replaceParam(window.location.href, 'pagerRow', new_page);
+	//window.alert('We want to go to page ' + new_page);
+	document.reindex_form.pagerRow.value = new_page;
+	document.reindex_form.submit();
+//    window.location.href = page_url + "?" + replaceParam(window.location.href, 'pagerRow', new_page);
 }
 
 function showLoading()
@@ -185,13 +187,16 @@ function validateFormSelections() {
 // -->
 </script>
 
-                    <form name="reindex_form" method="get" action="{$smarty.server.PHP_SELF}">
+<form name="reindex_form" method="POST" action="{$smarty.server.PHP_SELF}">
 
-<input type="hidden" name="action" value="index"/>
+<input type="hidden" name="action" value="index" />
+<input type="hidden" name="rows" value="{$options.rows}" />
+<input type="hidden" name="pagerRow" value="" /> 
+
 {if $index_type == 1}
 <input type="hidden" name="button" value="Discover new Fedora objects" />
 {else}
-<input type="hidden" name="button" value="Reindex existing objects" />
+<input type="hidden" name="button" value="Reindex known Fedora objects" />
 {/if}
       <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
         <tr>
@@ -200,7 +205,7 @@ function validateFormSelections() {
 
               <tr>
                 <td colspan="2">
-				  <div class="admin-header">{if $index_type == 1}Discover new Fedora objects{else}Reindex existing objects{/if}</div>
+				  <div class="admin-header">{if $index_type == 1}Discover new Fedora objects{else}Reindex known Fedora objects{/if}</div>
                 </td>
               </tr>
              <tr>
@@ -348,7 +353,6 @@ function validateFormSelections() {
                   </table>
                 </td>
               </tr>
-              
               
         <tr bgcolor="{$cell_color}">
           <td colspan="{math equation="x + 12" x=$ColumnAdd}">

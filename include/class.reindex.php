@@ -74,7 +74,7 @@ class Reindex
     function inIndex($pid)
     {
         $stmt = "SELECT
-                   rmf_id
+                   *
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field  where rmf_rec_pid='".$pid."' ";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -108,6 +108,49 @@ class Reindex
     }
 
     /**
+     * Method used for retrieving core list details for a nominated PID.
+     *
+     * @access  public
+     * @return  array The details.
+     */
+    function getFedoraObjectListDetails($pid)
+    {
+        $res = Fedora_API::callFindObjects(array('pid', 'title', 'description'), 1, $pid);
+        // Probably should add some error checking here, but for now we only plan to call 
+        // this function for PIDs that we are certain exist in the system.
+        return @array_shift($res['resultList']['objectFields']);
+    }
+
+    /**
+     * Method used for retrieving list of all PIDs in Fedora.
+     *
+     * @access  public
+     * @return  array The PIDs.
+     */
+    function getAllFedoraPIDs()
+    {
+        $resumeToken = "~";     // Initialisation to trigger first pass
+        $fedoraPIDs = array();
+        do {
+            if ($resumeToken == "~") {
+                $res = Fedora_API::callFindObjects(array('pid'), 100, "*");     // First time.
+            } else {
+                $res = Fedora_API::callResumeFindObjects($resumeToken);         // Each subsequent time.
+            }
+            $fedoraObjects = @$res['resultList']['objectFields'];
+            $resumeToken = @$res['listSession']['token'];
+            if (sizeof($fedoraObjects) > 1) {
+                foreach ($fedoraObjects as $thing) {
+                    array_push($fedoraPIDs, $thing['pid']);
+                }
+            }
+        } while ($resumeToken !== null);
+
+        //sort($fedoraPIDs);      // Probably more appropriate to sort later, if at all.
+        return $fedoraPIDs;
+    }
+
+    /**
      * Method used to get the list of PIDs in Fedora that are not in the Fez index.
      *
      * @access  public
@@ -118,16 +161,33 @@ class Reindex
         $this->terms = $terms;
 		$start = $max * $page;
 		$return = array();
-		$detail = $this->getNextFedoraObject();
-        for ($ii = 0; !empty($detail) && count($return) < $max ; $detail = $this->getNextFedoraObject()) {
-			if (!Reindex::inIndex($detail['pid'])) {
-				if (++$ii > $start) {
-                    array_push($return, $detail);
-                }
-			}
-		}
 
-		$total_rows = count($return);		
+        //// Direct Access to Fedora - DEPRECATED
+        //$fedoraDirect = new Fedora_Direct_Access();
+        //$PIDsInFedora = $fedoraDirect->fetchAllFedoraPIDs();
+        ////
+
+        $PIDsInFedora = Reindex::getAllFedoraPIDs();
+        $PIDsInFez = Reindex::getPIDlist();
+        $newPIDs = array_values(array_diff($PIDsInFedora, $PIDsInFez));
+
+        // Chop it down until we just have the required number.
+        $newPIDsReduced = array();
+        $listCounter = 0;
+        for ($ii = 0; count($newPIDsReduced) < $max && count($newPIDsReduced) <= count($newPIDs) - 1 && $listCounter < count($newPIDs); $ii++) {
+            if ($listCounter >= $start) {
+                if ($newPIDs[$ii] !== null) {
+                    array_push($newPIDsReduced, $newPIDs[$ii]);
+                }
+            }
+            $listCounter++;
+        }
+
+        foreach ($newPIDsReduced as $pid) {
+            array_push($return, Reindex::getFedoraObjectListDetails($pid));     // Extract details ONLY for the records we're listing.
+        }
+
+		$total_rows = sizeof($newPIDs);
 		if (($start + $max) < $total_rows) {
 	        $total_rows_limit = $start + $max;
 		} else {
@@ -147,7 +207,7 @@ class Reindex
                 "next_page"     => ($page == $last_page) ? "-1" : ($page + 1),
                 "last_page"     => $last_page
             )
-        );	
+        );
 	}
 
     function getFullList($page, $max, $terms)
@@ -192,7 +252,34 @@ class Reindex
         );  
     }
 
-    function reindexMissingList($params,$terms)
+    /**
+     * Method used to return a complete list of PIDs in the Fez index.
+     *
+     * Developer note: CK has advised that this will need to be modified when the index table
+     * restructure occurs. #PREFIX#_record_search_key is the table against which this piece of
+     * SQL will need to be run. But for now, it doesn't exist, so ....
+     */
+    function getPIDlist()
+    {
+        $stmt = "SELECT DISTINCT(rmf_rec_pid) 
+                 FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field";
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+	    if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);			
+			return $res;
+		}
+        $fezPIDs = array();      // Array for storing the processed results.
+        // Step through the results.
+        foreach ($res as $PIDarray) {
+            foreach ($PIDarray as $PIDarrayVal) {
+                array_push($fezPIDs, $PIDarrayVal);
+            }            
+        }
+        return $fezPIDs;
+    }
+
+    // This probably wants a re-write at some point too. But at least now we can trigger it ...
+    function reindexMissingList($params, $terms)
     {
         $this->terms = $terms;
         $ii = 0;
@@ -214,8 +301,6 @@ class Reindex
         }
     }
 
-
-
     function getIndexPIDCount() {
         $stmt = "select count(distinct rmf_rec_pid) as pid_count from  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -223,10 +308,10 @@ class Reindex
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return array();
         } else {
-//          return 10;
             return $res;
         }
     }
+
 
 
     function reindexFullList($params,$terms)

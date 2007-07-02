@@ -47,6 +47,7 @@ include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.pager.php");
 include_once(APP_INC_PATH . "class.bgp_index_object.php");
 include_once(APP_INC_PATH . "najax_classes.php");
+include_once(APP_INC_PATH . "class.fedora_direct_access.php");
 
 set_time_limit(1800);      // 1800 MILLION MICROSECONDS!
 
@@ -104,11 +105,15 @@ if (empty($pagerRow)) {
 }
 $options = Pager::saveSearchParams();
 $tpl->assign("options", $options);
-if ($index_type == INDEX_TYPE_FEDORAINDEX) {
-    $details = $reindex->getMissingList($pagerRow, $rows, $terms);
-} else {
-	$details = $reindex->getFullList($pagerRow, $rows, $terms);
+
+if ($HTTP_POST_VARS["action"] == "prompt" || $HTTP_POST_VARS["action"] == "index") {
+    if ($index_type == INDEX_TYPE_FEDORAINDEX) {
+        $details = $reindex->getMissingList($pagerRow, $rows, $terms);
+    } else {
+        $details = $reindex->getFullList($pagerRow, $rows, $terms);
+    }
 }
+
 $tpl->assign("list", $details['list']);
 $tpl->assign("list_info", $details['info']);		
 //        return $details; 
