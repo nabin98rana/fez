@@ -455,6 +455,12 @@ $stmt = $contents;
     $config_contents = str_replace("%{APP_SQL_DBPASS}%", $HTTP_POST_VARS['db_password'], $config_contents);
     $config_contents = str_replace("%{APP_TABLE_PREFIX}%", $HTTP_POST_VARS['db_table_prefix'], $config_contents);
     $config_contents = str_replace("%{APP_HOSTNAME}%", $HTTP_POST_VARS['hostname'], $config_contents);
+    $config_contents = str_replace("%{FEDORA_DB_HOST}%", $HTTP_POST_VARS['db_hostname'], $config_contents);
+    $config_contents = str_replace("%{FEDORA_DB_TYPE}%", $HTTP_POST_VARS['db_type'], $config_contents);
+    $config_contents = str_replace("%{FEDORA_DB_DATABASE_NAME}%", $HTTP_POST_VARS['db_name'], $config_contents);
+    $config_contents = str_replace("%{FEDORA_DB_USERNAME}%", $HTTP_POST_VARS['db_username'], $config_contents);
+    $config_contents = str_replace("%{FEDORA_DB_PASSWD}%", $HTTP_POST_VARS['db_password'], $config_contents);
+    
     $rel_url = trim($HTTP_POST_VARS['relative_url']);
     if (!endsWith($rel_url, '/')) {
         $rel_url .= '/';

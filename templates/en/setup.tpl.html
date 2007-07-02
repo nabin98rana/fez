@@ -38,7 +38,9 @@ function validateForm(f)
     if (isWhitespace(f.fedora_pid_namespace.value)) {
         errors[errors.length] = new Option('Fedora PID Namespace (the fedora.fcfg pidNamespace value)', 'fedora_pid_namespace');
     }
-    
+    if (isWhitespace(f.db_type.value)) {
+        errors[errors.length] = new Option('Database type', 'db_type');
+    }    
     if (isWhitespace(f.db_hostname.value)) {
         errors[errors.length] = new Option('Database hostname', 'db_hostname');
     }
@@ -188,7 +190,7 @@ without submitting the following form. <br/>
           <td colspan="2" align="center">
             <h1>Fez Installation</h1>
             <hr size="1" noshade color="#000000">
-			This setup script will create a config.inc.php file in the Fez root directory and setup the Fez MySQL database. <br />
+			This setup script will create a config.inc.php file in the Fez root directory and setup the Fez database. <br />
 			It is assumed you have already setup Fedora and all the Fez prerequisites.
           </td>
         </tr>
@@ -322,9 +324,20 @@ without submitting the following form. <br/>
             {include file="error_icon.tpl.html" field="fedora_pid_namespace"}
           </td>
         </tr>        
+
         <tr>
           <td class="default" align="right">
-            <nobr>&nbsp;<b>MySQL Server Hostname: *</b></nobr>
+            <nobr>&nbsp;<b>Database Type: *</b></nobr>
+          </td>
+          <td class="default">
+            <input type="text" name="db_type" class="default" size="30"  value="{$smarty.post.db_type}"> (&quot;mysql&quot; <strike>or &quot;postgres&quot;</strike>)
+            {include file="error_icon.tpl.html" field="db_type"}
+          </td>
+        </tr>
+
+        <tr>
+          <td class="default" align="right">
+            <nobr>&nbsp;<b>Database Server Hostname: *</b></nobr>
           </td>
           <td>
             <input type="text" name="db_hostname" class="default" size="30"  value="{$smarty.post.db_hostname}">
@@ -333,7 +346,7 @@ without submitting the following form. <br/>
         </tr>
         <tr>
           <td class="default" align="right">
-            <b>MySQL Database: *</b>
+            <b>Database Name: *</b>
           </td>
           <td>
             <input type="text" name="db_name" class="default" size="30" value="{$smarty.post.db_name}">
@@ -343,7 +356,7 @@ without submitting the following form. <br/>
         </tr>
         <tr>
           <td class="default" align="right">
-            <b>MySQL Table Prefix:</b>
+            <b>Table Prefix:</b>
           </td>
           <td>
             <input type="text" name="db_table_prefix" value="{$smarty.post.db_table_prefix|default:'fez_'}" class="default" size="30">
@@ -356,7 +369,7 @@ without submitting the following form. <br/>
         </tr>
         <tr>
           <td class="default" align="right">
-            <b>MySQL Username: *</b>
+            <b>Database Username: *</b>
           </td>
           <td>
             <input type="text" name="db_username" class="default" size="20" value="{$smarty.post.db_username}">
@@ -370,7 +383,7 @@ without submitting the following form. <br/>
         </tr>
         <tr>
           <td class="default" align="right">
-            <b>MySQL Password: *</b>
+            <b>Database Password: *</b>
           </td>
           <td>
             <input type="password" name="db_password" class="default" size="20" value="{$smarty.post.db_password}">
@@ -379,7 +392,7 @@ without submitting the following form. <br/>
         </tr>
         <tr>
           <td colspan="2" class="default" align="center">
-            <input type="checkbox" name="alternate_user" value="yes" onClick="javascript:toggleAlternateUserFields();" {if $smarty.post.alternate_user == 'yes'}checked{/if}> <b><a id="link" class="link" href="javascript:void(null);" onClick="javascript:toggleCheckbox('install_form', 'alternate_user');toggleAlternateUserFields();">Use a Separate MySQL User for Normal Fez Use</a></b>
+            <input type="checkbox" name="alternate_user" value="yes" onClick="javascript:toggleAlternateUserFields();" {if $smarty.post.alternate_user == 'yes'}checked{/if}> <b><a id="link" class="link" href="javascript:void(null);" onClick="javascript:toggleCheckbox('install_form', 'alternate_user');toggleAlternateUserFields();">Use a Separate Database User for Normal Fez Use</a></b>
           </td>
         </tr>
         <tr id="alternate_user_row">

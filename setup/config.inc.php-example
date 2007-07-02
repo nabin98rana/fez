@@ -131,6 +131,12 @@ if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Serve
 @define("APP_FEDORA_VERSION", "%{APP_FEDORA_VERSION}%");
 @define("APP_FEDORA_USERNAME", "%{APP_FEDORA_USERNAME}%");
 @define("APP_FEDORA_PWD", "%{APP_FEDORA_PWD}%");
+// Setup for direct Fedora access
+@define("FEDORA_DB_HOST", "%{FEDORA_DB_HOST}%");
+@define("FEDORA_DB_TYPE", "%{FEDORA_DB_TYPE}%");         // mysql || postgres
+@define("FEDORA_DB_DATABASE_NAME", "%{FEDORA_DB_DATABASE_NAME}%");
+@define("FEDORA_DB_USERNAME", "%{FEDORA_DB_USERNAME}%");
+@define("FEDORA_DB_PASSWD", "%{FEDORA_DB_PASSWD}%");
 
 //base fedora server domain - note SSL/HTTPS was only available from Fedora 2.1 onwards. Fedora 2.0 and previous only offered HTTP
 @define("APP_FEDORA_SETUP", "%{APP_FEDORA_SETUP}%");
