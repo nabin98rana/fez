@@ -162,12 +162,11 @@ class Reindex
 		$start = $max * $page;
 		$return = array();
 
-        //// Direct Access to Fedora - DEPRECATED
-        //$fedoraDirect = new Fedora_Direct_Access();
-        //$PIDsInFedora = $fedoraDirect->fetchAllFedoraPIDs();
-        ////
+        // Direct Access to Fedora
+        $fedoraDirect = new Fedora_Direct_Access();
+        $PIDsInFedora = $fedoraDirect->fetchAllFedoraPIDs();
 
-        $PIDsInFedora = Reindex::getAllFedoraPIDs();
+        //$PIDsInFedora = Reindex::getAllFedoraPIDs(); // Old way.
         $PIDsInFez = Reindex::getPIDlist();
         $newPIDs = array_values(array_diff($PIDsInFedora, $PIDsInFez));
 
