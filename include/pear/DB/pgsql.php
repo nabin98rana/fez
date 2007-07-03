@@ -80,14 +80,14 @@ class DB_pgsql extends DB_common
      */
     function connect($dsninfo, $persistent = false)
     {
-        if (!DB::assertExtension('pgsql'))
-            return $this->raiseError(DB_ERROR_EXTENSION_NOT_FOUND);
+        //if (!DB::assertExtension('pgsql'))
+        //    return $this->raiseError(DB_ERROR_EXTENSION_NOT_FOUND);
 
         $this->dsn = $dsninfo;
-        $protocol = (isset($dsninfo['protocol'])) ? $dsninfo['protocol'] : 'tcp';
+        $protocol = (!empty($dsninfo['protocol'])) ? $dsninfo['protocol'] : 'tcp';
         $connstr = '';
 
-        if ($protocol == 'tcp') {
+        if ($protocol == 'tcp') {        	
             if (!empty($dsninfo['hostspec'])) {
                 $connstr = 'host=' . $dsninfo['hostspec'];
             }
@@ -112,9 +112,9 @@ class DB_pgsql extends DB_common
             $connstr .= ' tty=' . $dsninfo['tty'];
         }
 
-        $connect_function = $persistent ? 'pg_pconnect' : 'pg_connect';
+        $connect_function = $persistent ? 'pg_pconnect' : 'pg_connect';       
         // catch error
-        ob_start();
+        ob_start();        
         $conn = $connect_function($connstr);
         $error = ob_get_contents();
         ob_end_clean();
@@ -560,7 +560,8 @@ class DB_pgsql extends DB_common
 
     function modifyLimitQuery($query, $from, $count)
     {
-        $query = $query . " LIMIT $count, $from";
+        //$query = $query . " LIMIT $count, $from"; // CK fixed (21/6/2007)
+        $query = $query . " LIMIT $count OFFSET $from";
         return $query;
     }
 

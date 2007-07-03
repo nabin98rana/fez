@@ -460,6 +460,7 @@ $stmt = $contents;
     $config_contents = str_replace("%{FEDORA_DB_DATABASE_NAME}%", $HTTP_POST_VARS['fedora_db_name'], $config_contents);
     $config_contents = str_replace("%{FEDORA_DB_USERNAME}%", $HTTP_POST_VARS['fedora_db_username'], $config_contents);
     $config_contents = str_replace("%{FEDORA_DB_PASSWD}%", $HTTP_POST_VARS['fedora_db_password'], $config_contents);
+    $config_contents = str_replace("%{FEDORA_DB_PORT}%", $HTTP_POST_VARS['fedora_db_port'], $config_contents);
     
     $rel_url = trim($HTTP_POST_VARS['relative_url']);
     if (!endsWith($rel_url, '/')) {

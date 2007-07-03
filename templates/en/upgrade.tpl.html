@@ -107,10 +107,11 @@ ry rather than fetch them twice or more during a single page load. This gets har
 @define("APP_FEDORA_VERSION", "2.2");   // Or set to 2.1.1, if running an older version of Fedora.
 
 @define("FEDORA_DB_HOST", "enter_your_host");
-@define("FEDORA_DB_TYPE", "mysql");         // mysql || postgres
+@define("FEDORA_DB_TYPE", "enter_your_db_type"); // mysql || pgsql || oracle || any other pear db supported database - look in fez/include/pear/db/ dir 
 @define("FEDORA_DB_DATABASE_NAME", "enter_your_db_name");
 @define("FEDORA_DB_USERNAME", "enter_your_db_username");
 @define("FEDORA_DB_PASSWD", "enter_your_db_passwd");
+@define("FEDORA_DB_PORT", "enter_your_db_port"); // mysql is 3306, pgsql is 5432
 
 @define("APP_HTTPS_CURL_CHECK_CERT", "OFF"); //if you have a dev. host with an SSL cert. that's not officially signed, set this OFF, otherwise Fedora SSL calls will fail in CURL
 
@@ -153,6 +154,7 @@ ry rather than fetch them twice or more during a single page load. This gets har
 @define("FEDORA_DB_DATABASE_NAME", "enter_your_db_name");
 @define("FEDORA_DB_USERNAME", "enter_your_db_username");
 @define("FEDORA_DB_PASSWD", "enter_your_db_passwd");
+@define("FEDORA_DB_PORT", "enter_your_db_port"); // mysql is 3306, pgsql is 5432
 </pre>
 </div>
 

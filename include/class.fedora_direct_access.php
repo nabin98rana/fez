@@ -60,13 +60,14 @@ class Fedora_Direct_Access {
             'phptype'  => FEDORA_DB_TYPE,
             'hostspec' => FEDORA_DB_HOST,
             'database' => FEDORA_DB_DATABASE_NAME,
-            'username' => FEDORA_DB_USERNAME,
-            'password' => FEDORA_DB_PASSWD
+            'username' => FEDORA_DB_USERNAME,            
+            'password' => FEDORA_DB_PASSWD,
+            'port' => FEDORA_DB_PORT
         );
-
-        $this->dbh = DB::connect($dsn);
+		$options = array('persistent' => false);
+        $this->dbh = DB::connect($dsn, options);
         if (PEAR::isError($this->dbh)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            Error_Handler::logError(array($this->dbh->getMessage(), $this->dbh->getDebugInfo()), __FILE__, __LINE__);
             $error_type = "db";
             //include_once(APP_PATH . "offline.php");
             exit;
@@ -83,7 +84,7 @@ class Fedora_Direct_Access {
      */
     function fetchAllFedoraPIDs() {
 
-        $result = $this->dbh->getCol('SELECT DISTINCT(doPID) FROM do');
+        $result = $this->dbh->getAll('SELECT pid, dctitle AS title, dcdescription AS description FROM dofields ORDER BY cdate DESC', DB_FETCHMODE_ASSOC);
          if (PEAR::isError($result)) {
             Error_Handler::logError(array($result->getMessage(), $result->getDebugInfo()), __FILE__, __LINE__);			
 			return $result;

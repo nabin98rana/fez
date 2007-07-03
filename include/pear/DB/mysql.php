@@ -863,13 +863,17 @@ class DB_mysql extends DB_common
      */
     function modifyLimitQuery($query, $from, $count, $params = array())
     {
+    /*
         if (DB::isManip($query)) {
             return $query . " LIMIT $count";
         } else {
             return $query . " LIMIT $from, $count";
         }
+    */  
+        // This is more SQL ANSI compatible and still works the same in mysql
+        $query = $query . " LIMIT $count OFFSET $from";
+        return $query;
     }
-
     // }}}
     // {{{ mysqlRaiseError()
 

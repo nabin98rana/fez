@@ -167,11 +167,15 @@ class Reindex
 
         // Direct Access to Fedora
         $fedoraDirect = new Fedora_Direct_Access();
-        $PIDsInFedora = $fedoraDirect->fetchAllFedoraPIDs();
-
+        $fedoraList = $fedoraDirect->fetchAllFedoraPIDs();
+        $fedoraPIDs = array();
+		foreach ($fedoraList as $flist) {            
+        	array_push($fedoraPIDs, $flist['pid']);                        
+        } 
+//        print_r($fedoraPIDs);
         //$PIDsInFedora = Reindex::getAllFedoraPIDs(); // Old way.
         $PIDsInFez = Reindex::getPIDlist();
-        $newPIDs = array_values(array_diff($PIDsInFedora, $PIDsInFez));
+        $newPIDs = array_values(array_diff($fedoraPIDs, $PIDsInFez));
 
         // Chop it down until we just have the required number.
         $newPIDsReduced = array();
@@ -186,9 +190,13 @@ class Reindex
         }
 
         foreach ($newPIDsReduced as $pid) {
-            array_push($return, Reindex::getFedoraObjectListDetails($pid));     // Extract details ONLY for the records we're listing.
+        	foreach ($fedoraList as $flist) {
+        		if ($flist['pid'] == $pid) {
+        			array_push($return, $flist); 
+        		}
+            	//array_push($return, Reindex::getFedoraObjectListDetails($pid));     // Extract details ONLY for the records we're listing. // old way of doing it with fedora api - doesn't scale well
+        	}
         }
-
 		$total_rows = sizeof($newPIDs);
 		if (($start + $max) < $total_rows) {
 	        $total_rows_limit = $start + $max;

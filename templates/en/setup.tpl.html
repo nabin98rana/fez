@@ -53,6 +53,9 @@ function validateForm(f)
     if (isWhitespace(f.fedora_db_password.value)) {
         errors[errors.length] = new Option('Fedora Database password', 'fedora_db_password');
     }
+    if (isWhitespace(f.fedora_db_password.value)) {
+        errors[errors.length] = new Option('Fedora Database port', 'fedora_db_port');
+    }    
     if (isWhitespace(f.db_hostname.value)) {
         errors[errors.length] = new Option('Fez Database hostname', 'db_hostname');
     }
@@ -339,7 +342,7 @@ without submitting the following form. <br/>
             <nobr>&nbsp;<b>Fedora Database Type: *</b></nobr>
           </td>
           <td class="default">
-            <input type="text" name="fedora_db_type" class="default" size="30"  value="{$smarty.post.fedora_db_type|default:'mysql'}" /> (&quot;mysql&quot; <strike>or &quot;postgres&quot;</strike>)
+            <input type="text" name="fedora_db_type" class="default" size="30"  value="{$smarty.post.fedora_db_type|default:'mysql'}" /> (&quot;mysql&quot; <strike>or &quot;postgres&quot; or oracle or any pear db supported database fedora uses (mckoi is NOT supported)</strike>)
             {include file="error_icon.tpl.html" field="fedora_db_type"}
           </td>
         </tr>
@@ -350,6 +353,15 @@ without submitting the following form. <br/>
           <td class="default">
             <input type="text" name="fedora_db_hostname" class="default" size="30"  value="{$smarty.post.fedora_db_hostname}" />
             {include file="error_icon.tpl.html" field="fedora_db_hostname"}
+          </td>
+        </tr>
+        <tr>
+          <td class="default" align="right">
+            <nobr>&nbsp;<b>Fedora Database Server Port (mysql should be 3306, postgresql 5432): *</b></nobr>
+          </td>
+          <td class="default">
+            <input type="text" name="fedora_db_port" class="default" size="30"  value="{$smarty.post.fedora_db_port}" />
+            {include file="error_icon.tpl.html" field="fedora_db_port"}
           </td>
         </tr>
         <tr>
