@@ -38,21 +38,32 @@ function validateForm(f)
     if (isWhitespace(f.fedora_pid_namespace.value)) {
         errors[errors.length] = new Option('Fedora PID Namespace (the fedora.fcfg pidNamespace value)', 'fedora_pid_namespace');
     }
-    if (isWhitespace(f.db_type.value)) {
-        errors[errors.length] = new Option('Database type', 'db_type');
-    }    
+    if (isWhitespace(f.fedora_db_type.value)) {
+        errors[errors.length] = new Option('Fedora Database type', 'fedora_db_type');
+    }
+    if (isWhitespace(f.fedora_db_hostname.value)) {
+        errors[errors.length] = new Option('Fedora Database hostname', 'fedora_db_hostname');
+    }
+    if (isWhitespace(f.fedora_db_name.value)) {
+        errors[errors.length] = new Option('Fedora Database name', 'fedora_db_name');
+    }
+    if (isWhitespace(f.fedora_db_username.value)) {
+        errors[errors.length] = new Option('Fedora Database username', 'fedora_db_username');
+    }
+    if (isWhitespace(f.fedora_db_password.value)) {
+        errors[errors.length] = new Option('Fedora Database password', 'fedora_db_password');
+    }
     if (isWhitespace(f.db_hostname.value)) {
-        errors[errors.length] = new Option('Database hostname', 'db_hostname');
+        errors[errors.length] = new Option('Fez Database hostname', 'db_hostname');
     }
     if (isWhitespace(f.db_password.value)) {
-        errors[errors.length] = new Option('Database password', 'db_password');
+        errors[errors.length] = new Option('Fez Database password', 'db_password');
     }
-    
     if (isWhitespace(f.db_name.value)) {
-        errors[errors.length] = new Option('Database name', 'db_name');
+        errors[errors.length] = new Option('Fez Database name', 'db_name');
     }
     if (isWhitespace(f.db_username.value)) {
-        errors[errors.length] = new Option('Database username', 'db_username');
+        errors[errors.length] = new Option('Fez Database username', 'db_username');
     }
     if (f.alternate_user.checked) {
         if (isWhitespace(f.fez_user.value)) {
@@ -61,7 +72,6 @@ function validateForm(f)
         if (isWhitespace(f.fez_password.value)) {
 	        errors[errors.length] = new Option('Alternate password', 'fez_password');
         }
-        
     }
     return true;
 }
@@ -324,20 +334,54 @@ without submitting the following form. <br/>
             {include file="error_icon.tpl.html" field="fedora_pid_namespace"}
           </td>
         </tr>        
-
         <tr>
           <td class="default" align="right">
-            <nobr>&nbsp;<b>Database Type: *</b></nobr>
+            <nobr>&nbsp;<b>Fedora Database Type: *</b></nobr>
           </td>
           <td class="default">
-            <input type="text" name="db_type" class="default" size="30"  value="{$smarty.post.db_type}"> (&quot;mysql&quot; <strike>or &quot;postgres&quot;</strike>)
-            {include file="error_icon.tpl.html" field="db_type"}
+            <input type="text" name="fedora_db_type" class="default" size="30"  value="{$smarty.post.fedora_db_type|default:'mysql'}" /> (&quot;mysql&quot; <strike>or &quot;postgres&quot;</strike>)
+            {include file="error_icon.tpl.html" field="fedora_db_type"}
           </td>
         </tr>
-
         <tr>
           <td class="default" align="right">
-            <nobr>&nbsp;<b>Database Server Hostname: *</b></nobr>
+            <nobr>&nbsp;<b>Fedora Database Server Hostname: *</b></nobr>
+          </td>
+          <td class="default">
+            <input type="text" name="fedora_db_hostname" class="default" size="30"  value="{$smarty.post.fedora_db_hostname}" />
+            {include file="error_icon.tpl.html" field="fedora_db_hostname"}
+          </td>
+        </tr>
+        <tr>
+          <td class="default" align="right">
+            <nobr>&nbsp;<b>Fedora Database Name: *</b></nobr>
+          </td>
+          <td class="default">
+            <input type="text" name="fedora_db_name" class="default" size="30"  value="{$smarty.post.fedora_db_name}" />
+            {include file="error_icon.tpl.html" field="fedora_db_name"}
+          </td>
+        </tr>
+        <tr>
+          <td class="default" align="right">
+            <nobr>&nbsp;<b>Fedora Database Username: *</b></nobr>
+          </td>
+          <td class="default">
+            <input type="text" name="fedora_db_username" class="default" size="30"  value="{$smarty.post.fedora_db_username}" />
+            {include file="error_icon.tpl.html" field="fedora_db_username"}
+          </td>
+        </tr>
+        <tr>
+          <td class="default" align="right">
+            <nobr>&nbsp;<b>Fedora Database Password: *</b></nobr>
+          </td>
+          <td class="default">
+            <input type="text" name="fedora_db_password" class="default" size="30"  value="{$smarty.post.fedora_db_password}" />
+            {include file="error_icon.tpl.html" field="fedora_db_password"}
+          </td>
+        </tr>
+        <tr>
+          <td class="default" align="right">
+            <nobr>&nbsp;<b>Fez Database Server Hostname: *</b></nobr>
           </td>
           <td>
             <input type="text" name="db_hostname" class="default" size="30"  value="{$smarty.post.db_hostname}">
@@ -346,7 +390,7 @@ without submitting the following form. <br/>
         </tr>
         <tr>
           <td class="default" align="right">
-            <b>Database Name: *</b>
+            <b>Fez Database Name: *</b>
           </td>
           <td>
             <input type="text" name="db_name" class="default" size="30" value="{$smarty.post.db_name}">
@@ -356,7 +400,7 @@ without submitting the following form. <br/>
         </tr>
         <tr>
           <td class="default" align="right">
-            <b>Table Prefix:</b>
+            <b>Fez Table Prefix:</b>
           </td>
           <td>
             <input type="text" name="db_table_prefix" value="{$smarty.post.db_table_prefix|default:'fez_'}" class="default" size="30">
@@ -369,7 +413,7 @@ without submitting the following form. <br/>
         </tr>
         <tr>
           <td class="default" align="right">
-            <b>Database Username: *</b>
+            <b>Fez Database Username: *</b>
           </td>
           <td>
             <input type="text" name="db_username" class="default" size="20" value="{$smarty.post.db_username}">
@@ -383,7 +427,7 @@ without submitting the following form. <br/>
         </tr>
         <tr>
           <td class="default" align="right">
-            <b>Database Password: *</b>
+            <b>Fez Database Password: *</b>
           </td>
           <td>
             <input type="password" name="db_password" class="default" size="20" value="{$smarty.post.db_password}">

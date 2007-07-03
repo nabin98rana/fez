@@ -126,6 +126,9 @@ class Reindex
      *
      * @access  public
      * @return  array The PIDs.
+     *
+     * Note: This turns out to be prohibitively slow. We have phased this out in favour of
+     * direct access to the Fedora database. See class.fedora_direct_access.php.
      */
     function getAllFedoraPIDs()
     {

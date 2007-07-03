@@ -42,21 +42,9 @@ include_once(APP_INC_PATH . "class.misc.php");
  * Fedora_Direct_Access
  *
  * This class is to address some short-comings of the Fedora API, most notably, the extremely
- * high fetch times for simple operations like retriving a comprehensive list of objects in the 
+ * high fetch times for simple operations like retrieving a comprehensive list of objects in the 
  * repository. Until such time as performance of these functions can be improved, we are going
  * to connect directly to Fedora to pluck out what we want.
- *
- * Note: This class is not currently being used, but may be used as-needed. config.inc.php
- * needs to be updated with the following declarations:
-
-// Setup for direct Fedora access
-//@define("FEDORA_DB_HOST", "dev-repo");
-//@define("FEDORA_DB_TYPE", "mysql");         // mysql || postgres
-//@define("FEDORA_DB_DATABASE_NAME", "dev_fedora");
-//@define("FEDORA_DB_USERNAME", "setusernamehere");
-//@define("FEDORA_DB_PASSWD", "setpasswdhere");
-
- *
  */
 
 class Fedora_Direct_Access {
@@ -91,33 +79,16 @@ class Fedora_Direct_Access {
     /**
      * fetchAllFedoraPIDs
      *
-     * Returns a list of all PIDs in Fedora. These PIDs are reduced to integer form, with the 
-     * leading namespace: component removed.
-     *
-     * Modification: The full PID is now returned; we no longer strip the namespace part.
+     * This method returns a list of all PIDs in Fedora.
      */
     function fetchAllFedoraPIDs() {
 
-		$stmt = "SELECT DISTINCT(doPID) FROM do";
-		$res = $this->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-	    if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);			
-			return $res;
-		}
-
-        $fedoraPIDs = array();      // Array for storing the processed results.
-
-        // Step through the results.
-        foreach ($res as $PIDarray) {
-            foreach ($PIDarray as $PIDarrayVal) {
-                // Old way
-                //$splitPID = explode(":", $PIDarrayVal);         // Extract the numerical component.
-                //array_push($fedoraPIDs, $splitPID[1]);
-                // New way
-                array_push($fedoraPIDs, $PIDarrayVal);
-            }            
+        $result = $this->dbh->getCol('SELECT DISTINCT(doPID) FROM do');
+         if (PEAR::isError($result)) {
+            Error_Handler::logError(array($result->getMessage(), $result->getDebugInfo()), __FILE__, __LINE__);			
+			return $result;
         }
-        return $fedoraPIDs;
+        return $result;
     }
 
 }
