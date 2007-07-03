@@ -83,8 +83,13 @@ class Fedora_Direct_Access {
      * This method returns a list of all PIDs in Fedora.
      */
     function fetchAllFedoraPIDs() {
-
-        $result = $this->dbh->getAll('SELECT pid, dctitle AS title, dcdescription AS description FROM dofields ORDER BY cdate DESC', DB_FETCHMODE_ASSOC);
+		if (APP_FEDORA_VERSION == "2.1.1") {
+    		$table = "doFields";
+    	} else {
+    		$table = "dofields";
+    	} 
+    	
+        $result = $this->dbh->getAll('SELECT pid, dctitle AS title, dcdescription AS description FROM '.$table.' ORDER BY cdate DESC', DB_FETCHMODE_ASSOC);
          if (PEAR::isError($result)) {
             Error_Handler::logError(array($result->getMessage(), $result->getDebugInfo()), __FILE__, __LINE__);			
 			return $result;
