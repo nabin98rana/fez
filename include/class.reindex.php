@@ -161,15 +161,14 @@ class Reindex
      */
     function getMissingList($page = 0, $max=10, $terms)
     {
-        $this->terms = $terms;
 		$start = $max * $page;
 		$return = array();
 
         // Direct Access to Fedora
         $fedoraDirect = new Fedora_Direct_Access();
-        $fedoraList = $fedoraDirect->fetchAllFedoraPIDs();
+        $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms);
         $fedoraPIDs = array();
-		foreach ($fedoraList as $flist) {            
+		foreach ($fedoraList as $flist) {
         	array_push($fedoraPIDs, $flist['pid']);                        
         } 
 //        print_r($fedoraPIDs);

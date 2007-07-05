@@ -34,6 +34,70 @@
 //
 //
 
-include_once(APP_INC_PATH."class.fedora_direct_access_".str_replace(".", "_", APP_FEDORA_VERSION).".php");
+include_once(APP_INC_PATH . "class.error_handler.php");
+include_once(APP_INC_PATH . "class.setup.php");
+include_once(APP_INC_PATH . "class.misc.php");
+
+/**
+ * Fedora_Direct_Access
+ *
+ * This class is to address some short-comings of the Fedora API, most notably, the extremely
+ * high fetch times for simple operations like retrieving a comprehensive list of objects in the 
+ * repository. Until such time as performance of these functions can be improved, we are going
+ * to connect directly to Fedora to pluck out what we want.
+ */
+
+class Fedora_Direct_Access {
+
+    /**
+     * Fedora_Direct_Access
+     *
+     * This method sets up the database connection.
+     */
+    function Fedora_Direct_Access() {
+
+		$dsn = array(
+            'phptype'  => FEDORA_DB_TYPE,
+            'hostspec' => FEDORA_DB_HOST,
+            'database' => FEDORA_DB_DATABASE_NAME,
+            'username' => FEDORA_DB_USERNAME,            
+            'password' => FEDORA_DB_PASSWD,
+            'port'     => FEDORA_DB_PORT
+        );
+		$options = array('persistent' => false);
+        $this->dbh = DB::connect($dsn, options);
+        if (PEAR::isError($this->dbh)) {
+            Error_Handler::logError(array($this->dbh->getMessage(), $this->dbh->getDebugInfo()), __FILE__, __LINE__);
+            $error_type = "db";
+            //include_once(APP_PATH . "offline.php");
+            exit;
+        }
+        return;
+    }
+
+
+
+    /**
+     * fetchAllFedoraPIDs
+     *
+     * This method returns a list of all PIDs in Fedora.
+     */
+    function fetchAllFedoraPIDs($terms = "%") {
+
+        $terms = strtr($terms, "*", "%");       // SQLerize the search terms
+
+        $result = $this->dbh->getAll("SELECT pid, dctitle AS title, dcdescription AS description FROM dofields WHERE pid LIKE '" . $terms . "' ORDER BY cdate DESC", DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($result)) {
+            // Attempt the same thing with the other known table spelling.
+            $result = $this->dbh->getAll("SELECT pid, dctitle AS title, dcdescription AS description FROM doFields WHERE pid LIKE '" . $terms . "' ORDER BY cdate DESC", DB_FETCHMODE_ASSOC);
+            if (PEAR::isError($result)) {
+                Error_Handler::logError(array($result->getMessage(), $result->getDebugInfo()), __FILE__, __LINE__);			
+                return array();
+            }
+        }
+        return $result;
+    }
+
+}
 
 ?>
