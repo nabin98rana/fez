@@ -82,14 +82,14 @@ class Fedora_Direct_Access {
      *
      * This method returns a list of all PIDs in Fedora.
      */
-    function fetchAllFedoraPIDs($terms = "%") {
+    function fetchAllFedoraPIDs($terms = "") {
 
-        $terms = strtr($terms, "*", "%");       // SQLerize the search terms
+        $terms = Misc::escapeString(str_replace("*", "", $terms));  // Get the search terms ready for SQLage.
 
-        $result = $this->dbh->getAll("SELECT pid, dctitle AS title, dcdescription AS description FROM dofields WHERE pid LIKE '" . $terms . "' ORDER BY cdate DESC", DB_FETCHMODE_ASSOC);
+        $result = $this->dbh->getAll("SELECT pid, dctitle AS title, dcdescription AS description FROM dofields WHERE pid LIKE '%" . $terms . "%' OR dctitle LIKE '%" . $terms . "%' OR dcdescription LIKE '%" . $terms . "%' ORDER BY cdate DESC", DB_FETCHMODE_ASSOC);
         if (PEAR::isError($result)) {
             // Attempt the same thing with the other known table spelling.
-            $result = $this->dbh->getAll("SELECT pid, dctitle AS title, dcdescription AS description FROM doFields WHERE pid LIKE '" . $terms . "' ORDER BY cdate DESC", DB_FETCHMODE_ASSOC);
+            $result = $this->dbh->getAll("SELECT pid, dctitle AS title, dcdescription AS description FROM doFields WHERE pid LIKE '%" . $terms . "%' OR dctitle LIKE '%" . $terms . "%' OR dcdescription LIKE '%" . $terms . "%' ORDER BY cdate DESC", DB_FETCHMODE_ASSOC);
             if (PEAR::isError($result)) {
                 Error_Handler::logError(array($result->getMessage(), $result->getDebugInfo()), __FILE__, __LINE__);			
                 return array();
