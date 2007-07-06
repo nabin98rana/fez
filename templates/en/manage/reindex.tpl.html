@@ -300,23 +300,21 @@ function validateFormSelections() {
 				</td>
  			  </tr>			
 
-
 			  <tr>
 			  	<td>
                   <table border="0" width="100%" cellpadding="1" cellspacing="1">
-
-		            <input type="hidden" name="cat" value="go">        
+		            <input type="hidden" name="cat" value="go" />        
                     <tr>
                       <td width="5" bgcolor="{$cell_color}" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td width="10%" bgcolor="{$cell_color}" class="default">&nbsp;<b>PID</b>&nbsp;</td>
-                      <td width="40%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b>&nbsp;</td>
-                      <td width="50%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>Description</b>&nbsp;</td>
+                      <td width="100" bgcolor="{$cell_color}" class="default">&nbsp;<b>PID</b>&nbsp;</td>
+                      <td width="" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b>&nbsp;</td>
+                      {if $index_type !== 1}<td width="50%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>Description</b>&nbsp;</td>{/if}
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
                     <tr>
                       <td width="4" nowrap bgcolor="{$row_color}" align="center">
-                        <input type="checkbox" name="items[]" value="{$list[i].pid}" {if $smarty.section.i.total == 0}disabled{/if}>
+                        <input type="checkbox" name="items[]" value="{$list[i].pid}" {if $smarty.section.i.total == 0}disabled{/if} />
                       </td>
                       <td bgcolor="{$row_color}" class="default">
                         &nbsp;{$list[i].pid}
@@ -324,9 +322,11 @@ function validateFormSelections() {
                       <td bgcolor="{$row_color}" class="default">
                         &nbsp;{$list[i].title}
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
+                      {if $index_type !== 1}
+					  <td bgcolor="{$row_color}" class="default">
                         &nbsp;{$list[i].description}
                       </td>
+					  {/if}
                     </tr>
                     {sectionelse}
                     <tr>
@@ -362,12 +362,12 @@ function validateFormSelections() {
                 </td>
                 <td width="40%" align="center" nowrap>
                   <nobr>
-                  <input name="first" type="button" value="|&lt;" class="shortcut" onClick="javascript:setPage(0);">
-                  <input name="previous" type="button" value="&lt;&lt;" class="shortcut" onClick="javascript:setPage({$list_info.prev_page});">
-                  <input type="text" name="page" size="3" maxlength="3" value="{math equation="x + 1" x=$list_info.current_page}" style="background: {$cell_color};" class="paging_input" onKeyPress="javascript:return checkPageField(event);">
-                  <input name="go" type="button" value="Go" class="shortcut" onClick="javascript:goPage(this.form, this.form.page.value);">
-                  <input name="next" type="button" value="&gt;&gt;" class="shortcut" onClick="javascript:setPage({$list_info.next_page});">
-                  <input name="last" type="button" value="&gt;|" class="shortcut" onClick="javascript:setPage({$list_info.last_page});">
+                  <input name="first" type="button" value="|&lt;" class="shortcut" onClick="javascript:setPage(0);" />
+                  <input name="previous" type="button" value="&lt;&lt;" class="shortcut" onClick="javascript:setPage({$list_info.prev_page});" />
+                  <input type="text" name="page" size="3" maxlength="3" value="{math equation="x + 1" x=$list_info.current_page}" style="background: {$cell_color};" class="paging_input" onKeyPress="javascript:return checkPageField(event);" />
+                  <input name="go" type="button" value="Go" class="shortcut" onClick="javascript:goPage(this.form, this.form.page.value);" />
+                  <input name="next" type="button" value="&gt;&gt;" class="shortcut" onClick="javascript:setPage({$list_info.next_page});" />
+                  <input name="last" type="button" value="&gt;|" class="shortcut" onClick="javascript:setPage({$list_info.last_page});" />
                   </nobr>
                 </td>
                 <td width="30%" nowrap>
@@ -380,7 +380,7 @@ function validateFormSelections() {
                     <option value="100" {if $options.rows == 100}selected{/if}>100</option>
                     <option value="150" {if $options.rows == 150}selected{/if}>150</option>
                   </select>
-                  <input type="button" value="Set" class="shortcut" onClick="javascript:resizePager(this.form);">
+                  <input type="button" value="Set" class="shortcut" onClick="javascript:resizePager(this.form);" />
                 </td>
               </tr>
 			</table>

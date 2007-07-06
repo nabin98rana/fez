@@ -167,11 +167,18 @@ class Reindex
         // Direct Access to Fedora
         $fedoraDirect = new Fedora_Direct_Access();
         $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms);
+
+        // Correct for Oracle-produced array key case issue reported by Kostas
+		foreach ($fedoraList as &$flist) {
+            $flist = array_change_key_case($flist, CASE_LOWER);
+        }
+
+        // Extract just the PIDs
         $fedoraPIDs = array();
-		foreach ($fedoraList as $flist) {
-        	array_push($fedoraPIDs, $flist['pid']);                        
-        } 
-//        print_r($fedoraPIDs);
+		foreach ($fedoraList as &$flist) {
+        	array_push($fedoraPIDs, $flist['pid']);
+        }
+
         //$PIDsInFedora = Reindex::getAllFedoraPIDs(); // Old way.
         $PIDsInFez = Reindex::getPIDlist();
         $newPIDs = array_values(array_diff($fedoraPIDs, $PIDsInFez));
@@ -189,7 +196,7 @@ class Reindex
         }
 
         foreach ($newPIDsReduced as $pid) {
-        	foreach ($fedoraList as $flist) {
+        	foreach ($fedoraList as &$flist) {
         		if ($flist['pid'] == $pid) {
         			array_push($return, $flist); 
         		}
