@@ -1,7 +1,42 @@
 {if $has_app_errors}
+<!--        Script by hscripts.com          -->
+<!--        copyright of HIOX INDIA         -->
+<!-- Free javascripts @ http://www.hscripts.com -->
+<script language=javascript>
+<!--
+{literal}
+function fnSelect(objId)
+{
+   fnDeSelect();
+   if (document.selection) 
+   {
+      var range = document.body.createTextRange();
+      range.moveToElementText(document.getElementById(objId));
+      range.select();
+   }
+   else if (window.getSelection) 
+   {
+      var range = document.createRange();
+      range.selectNode(document.getElementById(objId));
+      window.getSelection().addRange(range);
+   }
+}
+function fnDeSelect() 
+{
+   if (document.selection)
+             document.selection.empty();
+   else if (window.getSelection)
+              window.getSelection().removeAllRanges();
+} 
+{/literal}
+// -->
+</script>
+<!-- Script by hscripts.com -->
+
+
 <a class="app_errors" href="#"><div>
 {section name="ii" loop=$app_errors}
-    <div class="app_error">
+    <div class="app_error" id="app_error_{$smarty.section.ii.index}">
 		<div class="app_error_txt">
 		{section name="jj" loop=$app_errors[ii].txt}
 			{$app_errors[ii].txt[jj]|wordwrap:80:' ':true|escape}<br/>
@@ -19,6 +54,7 @@
 			   </div>
 			{/section}
 		</div>
+		<input type="button" value="Select Error" onClick="fnSelect('app_error_{$smarty.section.ii.index}')" />
 	</div>
 {/section}
 </div></a>
