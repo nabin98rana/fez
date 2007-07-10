@@ -218,6 +218,10 @@ class BackgroundProcess {
         $user_det = $usr_obj->getDetailsByID($usr_id);
         $username = $user_det['usr_username'];
 
+		if( strcmp($username,"") == 0 )
+		{
+			Error_Handler::logError(array("WARNING: username is blank.  Cannot authenticate for running background process test.  Most likely the user (id: '".$usr_id."') doesn't exist or has been deleted."), __FILE__, __LINE__);
+		}
         // the password is not used.  The auth system won't be able to access any AD info
         Auth::LoginAuthenticatedUser($username, 'blah'); 	
     }

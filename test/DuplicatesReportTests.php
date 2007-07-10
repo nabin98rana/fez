@@ -16,12 +16,16 @@ if (!defined('PHPUnit_MAIN_METHOD')) {
  
 require_once APP_PEAR_PATH.'PHPUnit/TextUI/TestRunner.php';
  
-require_once 'DuplicatesReportMiscTest.php';
-require_once 'DuplicatesReportRearrangeSetsTest.php';
-require_once 'DuplicatesReportMergeRearrangedSetsTest.php';
-require_once 'DuplicatesReportGenerateXMLTest.php';
-require_once 'DuplicatesReportGetListingTest.php';
-require_once 'DuplicatesReportGetItemDetailsTest.php';
+require_once APP_TEST_PATH.'duplicates_report/DuplicatesReportMiscTest.php';
+require_once APP_TEST_PATH.'duplicates_report/DuplicatesReportRearrangeSetsTest.php';
+require_once APP_TEST_PATH.'duplicates_report/DuplicatesReportMergeRearrangedSetsTest.php';
+require_once APP_TEST_PATH.'duplicates_report/DuplicatesReportGenerateXMLTest.php';
+require_once APP_TEST_PATH.'duplicates_report/DuplicatesReportGetListingTest.php';
+require_once APP_TEST_PATH.'duplicates_report/DuplicatesReportGetItemDetailsTest.php';
+require_once APP_TEST_PATH.'duplicates_report/DuplicatesReportSetDuplicateXMLTest.php';
+require_once APP_TEST_PATH.'duplicates_report/DuplicatesReportSwapBaseXMLTest.php';
+
+
 
 class DuplicatesReportTests
 {
@@ -40,6 +44,8 @@ class DuplicatesReportTests
         $suite->addTestSuite('DuplicatesReportGenerateXMLTest');
         $suite->addTestSuite('DuplicatesReportGetListingTest');
         $suite->addTestSuite('DuplicatesReportGetItemDetailsTest');
+        $suite->addTestSuite('DuplicatesReportSetDuplicateXMLTest');
+        $suite->addTestSuite('DuplicatesReportSwapBaseXMLTest');
         
         // ...
  

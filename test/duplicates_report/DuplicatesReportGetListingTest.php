@@ -29,12 +29,12 @@ class DuplicatesReportGetListingTest extends PHPUnit_Framework_TestCase
   </duplicatesReportItem>
   <duplicatesReportItem pid="MSS:400" title="This is a test">
     <duplicateItem pid="MSS:403" probability="0.51"/>
-    <duplicateItem pid="MSS:405" probability="0.61"/>
+    <duplicateItem pid="MSS:405" probability="0.61" duplicate="true" />
     <duplicateItem pid="MSS:406" probability="0.71"/>
   </duplicatesReportItem>
   <duplicatesReportItem pid="MSS:393" title="Catch the Wave">
-    <duplicateItem pid="MSS:410" probability="0.81"/>
-    <duplicateItem pid="MSS:411" probability="0.91"/>
+    <duplicateItem pid="MSS:410" probability="0.81"  duplicate="true"/>
+    <duplicateItem pid="MSS:411" probability="0.91"  duplicate="false"/>
   </duplicatesReportItem>
 </DuplicatesReport>';
         $this->reportLong = '<DuplicatesReport>
@@ -268,6 +268,16 @@ class DuplicatesReportGetListingTest extends PHPUnit_Framework_TestCase
         $listing = $this->fixture->getListingFromXML(2, 2, $this->reportLong);
         $this->assertEquals(array('3','2'), array_keys(Misc::keyArray($listing,'count')));
   }
+
+  public function testDuplicatesReportListingNotResolved()
+  {
+        $listing = $this->fixture->getListingFromXML(0, 10, $this->reportShort);
+        $only_dups = array();
+        foreach ($listing as $item) {
+            $only_dups[] = $item['resolved'];
+        }
+        $this->assertEquals(array(false,false,true), $only_dups);
+  } 
   
 }
 

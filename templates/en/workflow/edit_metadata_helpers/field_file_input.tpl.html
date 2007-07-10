@@ -9,7 +9,11 @@
 				</td>
 				<td bgcolor="{$value_color}">
 					<input type="hidden" name="MAX_FILE_SIZE" value="{$phpini_upload_max_filesize}" />
-					<input class="default" type="file" id="xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsdmf.xsdmf_id}][]" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'choicexsd_display_fields_{$xsdmf.xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'choicexsd_display_fields_{$xsdmf.xsdmf_id}');" maxlength="255" size="50">
+					<input class="default" type="file" id="xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}" 
+					  name="xsd_display_fields[{$xsdmf.xsdmf_id}][]" 
+					  	onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'edit_metadata_form_table');" 
+					  	onChange="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'edit_metadata_form_table');" 
+					  	maxlength="255" size="50">
 					{if $xsdmf.xsdmf_attached_xsdmf_id != ""}
 						{section name="a" loop=$xsd_display_fields}
 							{assign var="temp_attached_xsdmf_id" value=$xsd_display_fields[a].xsdmf_id}
@@ -20,7 +24,10 @@
 									{assign var="attached_field_id" value="xsd_display_fields_"|cat:$temp_attached_xsdmf_id|cat:"_"|cat:$loop_num}
 									<input class="default" type="text" id="{$attached_field_id}" name="xsd_display_fields[{$xsd_display_fields[a].xsdmf_id}][]" value="{$details[$temp_fld_id][z]}"  maxlength="255" size="50">
 								{elseif $xsd_display_fields[a].xsdmf_html_input == 'checkbox'}
-									<input class="default" type="checkbox" id="xsd_display_fields_{$xsd_display_fields[a].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[a].xsdmf_id}][]" {if $details[$temp_fld_id][z] =='on'}checked{/if} onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[a].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[a].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[a].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[a].xsdmf_id}');">
+									<input class="default" type="checkbox" id="xsd_display_fields_{$xsd_display_fields[a].xsdmf_id}_{$loop_num}" 
+										name="xsd_display_fields[{$xsd_display_fields[a].xsdmf_id}][]" {if $details[$temp_fld_id][z] =='on'}checked{/if} 
+										onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[a].xsdmf_id}', 'edit_metadata_form_table');" 
+										onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[a].xsdmf_id}', 'edit_metadata_form_table');">
 									{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[a].xsdmf_id|cat:"][]"}
 									{if $xsd_display_fields[a].xsdmf_long_description != ""}
 										<span class="default">{$xsd_display_fields[a].xsdmf_long_description}</span>
@@ -39,7 +46,7 @@
         		    {/if}
 
 				</td>
-				{include file='workflow/compare_records_helpers/get_right_column.tpl.html}
+				{include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
 			</tr>
 		{/section}
 	{else}
@@ -48,7 +55,8 @@
 				<b>{$xsdmf.xsdmf_title}{if $xsdmf.xsdmf_required == 1} * {/if}</b>
 			</td>
 			<td bgcolor="{$value_color}">
-				<input class="default" type="file" id="xsd_display_fields_{$xsdmf.xsdmf_id}_1" name="xsd_display_fields[{$xsdmf.xsdmf_id}]"  maxlength="255" size="50">
+				<input class="default" type="file" id="xsd_display_fields_{$xsdmf.xsdmf_id}_1" 
+					name="xsd_display_fields[{$xsdmf.xsdmf_id}]"  maxlength="255" size="50">
 				{if $xsdmf.xsdmf_attached_xsdmf_id != ""}
 					{section name="a" loop=$xsd_display_fields}
 						{assign var="temp_attached_xsdmf_id" value=$xsd_display_fields[a].xsdmf_id}
@@ -69,7 +77,7 @@
 		            </script>
         		    {/if}
 			 </td>
-				  {include file='workflow/compare_records_helpers/get_right_column.tpl.html}
+				  {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
 		</tr>
 	{/if}
 {/if}

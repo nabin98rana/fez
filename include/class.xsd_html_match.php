@@ -2826,10 +2826,6 @@ class XSD_HTML_MatchObject {
 		$this->xdis_str = $xdis_str;
 	}
 
-	function set_xdis_str($xdis_str) {
-		$this->xdis_str = $xdis_str;
-	}
-
 	/**
 	 * getMatchCols
 	 * Retrieve the matchfields records that relate to the current display and store them locally.  This 
@@ -2906,11 +2902,20 @@ class XSD_HTML_MatchObject {
 	}
 
 	/**
-	 * getXSDMF_IDByXDIS_ID
+	 * getXSDMFByElement
 	 * Find a match for the given element
+     * @param string $xsdmf_element - xml element to search for (escaped with '!')
+     * @param string $xdis_ids - Comma delimited list. Specify sub XSD disply mappings to use.  
+     *                          If null will default to all for the current display.
 	 */
-	function getXSDMF_IDByXDIS_IDAll($xsdmf_element) {
-		$stmt = "SELECT
+	function getXSDMFByElement($xsdmf_element, $xdis_ids=null) {
+		if (empty($xdis_ids)) {
+		    $xdis_str = $this->xdis_str;
+		} else {
+		    $xdis_str = $xdis_ids;
+		}
+        
+        $stmt = "SELECT
 		                   m1.xsdmf_element, 
 		                   m1.xsdmf_id,  
 		                   m1.xsdmf_is_key, 
@@ -2932,7 +2937,7 @@ class XSD_HTML_MatchObject {
 							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd x1 on (d1.xdis_xsd_id = x1.xsd_id) left join 
 							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m2 on (m2.xsdmf_id = s1.xsdsel_indicator_xsdmf_id)
 		                WHERE
-		                    m1.xsdmf_xdis_id in (".$this->xdis_str.") and m1.xsdmf_element = '".$xsdmf_element."'";
+		                    m1.xsdmf_xdis_id in (".$xdis_str.") and m1.xsdmf_element = '".$xsdmf_element."'";
 
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		if (PEAR::isError($res)) {

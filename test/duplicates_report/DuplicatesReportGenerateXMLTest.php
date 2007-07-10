@@ -25,27 +25,27 @@ class DuplicatesReportGenerateXMLTest extends PHPUnit_Framework_TestCase
                 'pid' => 'UQ:4',
                 'title' => 'Title UQ:4',
                 'list' => array(
-                    array('pid' => 'UQ:5', 'probability' => '0.7', 'title' => 'Title UQ:5'),
-                    array('pid' => 'UQ:7', 'probability' => '0.7', 'title' => 'Title UQ:7'),
-                    array('pid' => 'UQ:6', 'probability' => '0.7', 'title' => 'Title UQ:6'),
+                    'UQ:5' => array('pid' => 'UQ:5', 'probability' => '0.7', 'title' => 'Title UQ:5'),
+                    'UQ:7' => array('pid' => 'UQ:7', 'probability' => '0.7', 'title' => 'Title UQ:7'),
+                    'UQ:6' => array('pid' => 'UQ:6', 'probability' => '0.7', 'title' => 'Title UQ:6'),
                 )
             ),
             'UQ:3' => array(
                 'pid' => 'UQ:3',
                 'title' => 'Title UQ:3',
                 'list' => array(
-                    array('pid' => 'UQ:5', 'probability' => '0.7', 'title' => 'Title UQ:5'),
-                    array('pid' => 'UQ:7', 'probability' => '0.7', 'title' => 'Title UQ:7'),
-                    array('pid' => 'UQ:6', 'probability' => '0.7', 'title' => 'Title UQ:6'),
+                    'UQ:5' => array('pid' => 'UQ:5', 'probability' => '0.7', 'title' => 'Title UQ:5'),
+                    'UQ:7' => array('pid' => 'UQ:7', 'probability' => '0.7', 'title' => 'Title UQ:7'),
+                    'UQ:6' => array('pid' => 'UQ:6', 'probability' => '0.7', 'title' => 'Title UQ:6'),
                 )
             ),
             'UQ:2' => array(
                 'pid' => 'UQ:2',
                 'title' => 'Title UQ:2',
                 'list' => array(
-                    array('pid' => 'UQ:5', 'probability' => '0.7', 'title' => 'Title UQ:5'),
-                    array('pid' => 'UQ:7', 'probability' => '0.7', 'title' => 'Title UQ:7'),
-                    array('pid' => 'UQ:8', 'probability' => '0.7', 'title' => 'Title UQ:8'),
+                    'UQ:5' => array('pid' => 'UQ:5', 'probability' => '0.7', 'title' => 'Title UQ:5'),
+                    'UQ:7' => array('pid' => 'UQ:7', 'probability' => '0.7', 'title' => 'Title UQ:7'),
+                    'UQ:8' => array('pid' => 'UQ:8', 'probability' => '0.8', 'title' => 'Title UQ:8'),
                 )
             ),
         );
@@ -84,19 +84,19 @@ class DuplicatesReportGenerateXMLTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('<?xml version="1.0"?>'."\n"
                 .'<DuplicatesReport>'
                   .'<duplicatesReportItem pid="UQ:4" title="Title UQ:4">'
-                    .'<duplicateItem pid="0" probability="0.7"/>'
-                    .'<duplicateItem pid="1" probability="0.7"/>'
-                    .'<duplicateItem pid="2" probability="0.7"/>'
+                    .'<duplicateItem pid="UQ:5" probability="0.7"/>'
+                    .'<duplicateItem pid="UQ:7" probability="0.7"/>'
+                    .'<duplicateItem pid="UQ:6" probability="0.7"/>'
                   .'</duplicatesReportItem>'
                   .'<duplicatesReportItem pid="UQ:3" title="Title UQ:3">'
-                    .'<duplicateItem pid="0" probability="0.7"/>'
-                    .'<duplicateItem pid="1" probability="0.7"/>'
-                    .'<duplicateItem pid="2" probability="0.7"/>'
+                    .'<duplicateItem pid="UQ:5" probability="0.7"/>'
+                    .'<duplicateItem pid="UQ:7" probability="0.7"/>'
+                    .'<duplicateItem pid="UQ:6" probability="0.7"/>'
                   .'</duplicatesReportItem>'
                   .'<duplicatesReportItem pid="UQ:2" title="Title UQ:2">'
-                    .'<duplicateItem pid="0" probability="0.7"/>'
-                    .'<duplicateItem pid="1" probability="0.7"/>'
-                    .'<duplicateItem pid="2" probability="0.7"/>'
+                    .'<duplicateItem pid="UQ:5" probability="0.7"/>'
+                    .'<duplicateItem pid="UQ:7" probability="0.7"/>'
+                    .'<duplicateItem pid="UQ:8" probability="0.8"/>'
                   .'</duplicatesReportItem>'
                 .'</DuplicatesReport>'."\n", 
                 $res);

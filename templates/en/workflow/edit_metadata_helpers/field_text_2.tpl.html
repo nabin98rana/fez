@@ -21,13 +21,10 @@
 					>
 				{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"|cat:$squares}
 				{if $xsdmf.xsdmf_attached_xsdmf_id != ""}
-					{section name="a" loop=$xsd_display_fields}
-						{assign var="temp_attached_xsdmf_id" value=$xsd_display_fields[a].xsdmf_id}
-						{assign var="temp_attached_field_name" value="xsd_display_fields["|cat:$xsd_display_fields[a].xsdmf_id|cat:"]"}						
-						{if $temp_attached_xsdmf_id == $xsdmf.xsdmf_attached_xsdmf_id}
-   							{include file='workflow/edit_metadata_helpers/attached_'|cat:$xsd_display_fields[a].xsdmf_html_input|cat:'.tpl.html'}
-						{/if}
-					{/section}
+					{assign var="attached_xsdmf_id" value=$xsdmf.xsdmf_attached_xsdmf_id}
+					{section name='aa' loop=$xsd_display_fields}{if $xsd_display_fields[aa].xsdmf_id == $attached_xsdmf_id}{assign var="attached_xsdmf" value=$xsd_display_fields[aa]}{/if}{/section}
+					{assign var="attached_field_name" value="xsd_display_fields_"|cat:$attached_xsdmf_id|cat:"_"|cat:$loop_num}						
+					{include file='workflow/edit_metadata_helpers/attached_'|cat:$attached_xsdmf.xsdmf_html_input|cat:'.tpl.html'}
 				{/if}
 					{if $xsd_display_fields[i].xsdmf_required == 1}
         		    <script language="JavaScript">
@@ -38,5 +35,6 @@
 		            </script>
         		    {/if}
 			  </td>
-				  {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"|cat:$squares}
+				  {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"|cat:$squares 
+				  	attached_field_name=$attached_field_name attached_xsdmf=$attached_xsdmf}
 			</tr>

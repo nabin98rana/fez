@@ -152,7 +152,8 @@ class History
 	
 	
     /**
-     * Method used to log the changes made against a specific issue.
+     * Method used to log the changes made against a specific record.  This updates the database only and
+     * usually should not be called directly, but rather called from addHistory
      *
      * @access  public
      * @param   integer $pid The object persistent ID
@@ -225,7 +226,7 @@ class History
 		// First add it to the Fez database, then refresh the Fedora datastream
 		History::add($pid, $event_usr_id, $event_date, $wfl_id, $detail, $outcome, $outcomeDetail);
 		if ($refreshDatastream == true) {
-			// First check if a FezHistory datastream exists		
+			// First check if a FezHistory datastream exists
 			$dsExists = Fedora_API::datastreamExists($pid, $dsIDName, true);
 			$newXML = "";
 			$eventList = History::getList($pid, true);

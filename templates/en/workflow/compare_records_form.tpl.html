@@ -2,44 +2,61 @@
 <td>
 
 <script type="text/javascript" src="{$rel_url}js/compare_records_helpers.js" ></script>
-<script type="text/javascript">
-<!--
-{literal}
-
-function validateForm(f)
-{
-	
-}
-
-xsd_display_fields = new Array;
-required_xsd_display_fields = new Array;
-
-{/literal}
-// -->
-</script>
-
+{include file="workflow/edit_metadata_helpers/javascript_block.tpl.html"}
 <div class="outline">
 
-{if $sta_id != 2}
-<div class="default">
-<b>NOTE: This record is not published.</b>
-</div>
-{/if}
+
 
 <table class="listing default" id="edit_metadata_form_table">
 <tr class="default">
- <td>Base Record: {$left_pid}</td>
- <td> </td>
- <td> </td>
- <td>Duplicates: 
- {section name='ii' loop=$dup_list}
-	{if !$smarty.section.ii.first}|{/if}
+ <td colspan="2" class="compare_records_left_side">
+ 	<h2>Base Record: {$left_pid}</h2>
+	{if $sta_id != 2}
+	<div class="default">
+	NOTE: This record is not published.
+	</div>
+	{/if}
+	<div>
+ 	<input type="submit" name="save_base_record" value="Save Changes" 
+ 		onclick="return setAction(this.form,'save_base_record');" class="button"/>
+	<input type="hidden" name="action" value="save_base_record"/>
+	</div>
+ </td>
+ <td colspan="2" class="compare_records_right_side">
+ <h2>Possible Duplicate: {$current_dup_pid}</h2>
+	{if $current_dup_pid_details.duplicate == 'true'}
+		<div class="default">This record has been marked as a <span class="yes">duplicate</span></div>
+	{elseif $current_dup_pid_details.duplicate == 'false'}
+		<div class="default">This record has been marked as a <span class="no">non-duplicate</span></div>
+	{/if}
+	<div>
+ <input type="submit" name="mark_duplicate" value="Mark as Duplicate" 
+ 	onclick="return setAction(this.form,'mark_duplicate');" class="button"/>
+ <input type="submit" name="not_duplicate" value="Not a Duplicate" 
+ 	onclick="return setAction(this.form,'not_duplicate');" class="button"/>
+ <input type="submit" name="set_as_base" value="Make This the Base Record" 
+ 	onclick="return setAction(this.form,'set_as_base');" class="button"/>
+ 	</div>
+ 	<div>
+Possible Duplicates: 
+	<ul>
+  {section name='ii' loop=$dup_list}
+	  <li>
 	{if $dup_list[ii].pid == $current_dup_pid}
 		<b>{$dup_list[ii].pid}</b>
 	{else}
 		<a href="{$dup_list[ii].link}">{$dup_list[ii].pid}</a>
 	{/if}
- {/section}</td>
+	{if $dup_list[ii].duplicate == 'true'}
+		(<span class="yes">Y</span>)
+	{elseif $dup_list[ii].duplicate == 'false'}
+		(<span class="no">N</span>)
+	{/if}
+	  </li>
+ {/section}
+	 </ul>
+	</div>
+ </td>
 </tr>
 {section name="i" loop=$xsd_display_fields}
 	{assign var="temp_fld_id" value=$xsd_display_fields[i].xsdmf_id}

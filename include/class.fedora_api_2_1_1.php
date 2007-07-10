@@ -918,6 +918,19 @@ class Fedora_API {
 	   Fedora_API::openSoapCall('modifyDatastreamByReference', $parms);
 	}
 
+    /** 
+     * Changes the state and/or label of the object.
+     * @param string $pid - the pid of the object. 
+     * @param string $state - the new state, A, I or D. Null means leave unchanged. 
+     * @param string $label - the new label. Null means leave unchanged. 
+     * @param string $logMessage - a log message. 
+     */
+    function callModifyObject($pid, $state, $label, $logMessage = 'Deleted by Fez')
+    {
+        $parms= compact('pid','state','label','logMessage');
+        return Fedora_API::openSoapCall('modifyObject', $parms);
+    }
+
   /**
     * This function deletes a datastream
 	*

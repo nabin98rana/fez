@@ -988,11 +988,7 @@ class XSD_DisplayObject
 					if (Fedora_API::datastreamExistsInArray($datastreams, $FezACML_DS_name)) {
 						$FezACML_DS = Fedora_API::callGetDatastreamDissemination($pid, $FezACML_DS_name);						
 						if (isset($FezACML_DS['stream'])) {
-							$save_xdis_str = "";
-							$save_xdis_str = $this->xsd_html_match->xdis_str;
-							$this->xsd_html_match->set_xdis_str($FezACML_xdis_id);
 							$this->processXSDMFDatastream($FezACML_DS['stream'], $FezACML_xdis_id);
-							$this->xsd_html_match->xdis_str = $save_xdis_str;
 							$this->xsd_html_match->gotMatchCols = false; // make sure it refreshes for the other xsd displays
 						} 
 					}
@@ -1035,7 +1031,7 @@ class XSD_DisplayObject
 						if (isset($DSResultArray['stream'])) {
 							$xmlDatastream = $DSResultArray['stream'];
 							// get the matchfields for the datastream (using the sub-display for this stream)						
-							$this->processXSDMFDatastream($xmlDatastream, $dsValue['xsdmf_xdis_id']);							
+							$this->processXSDMFDatastream($xmlDatastream, $dsValue['xsdrel_xdis_id']);							
 						} else {
 							Error_Handler::logError("Couldn't get ".$dsValue['xsdsel_title']." on ".$pid,
                                 __FILE__,__LINE__);
@@ -1061,7 +1057,7 @@ class XSD_DisplayObject
         $this->xsd_top_element_name = $xsd_details['xsd_top_element_name'];
         $xmlnode = new DomDocument();
         @$xmlnode->loadXML($xmlDatastream);
-        $cbdata = array('parentContent' => '', 'parent_key' => '');
+        $cbdata = array('parentContent' => '', 'parent_key' => '', 'xdis_id' => $xsdmf_xdis_id);
         $this->mfcb_rootdone = false;
         Misc::XML_Walk($xmlnode, $this, 'matchFieldsCallback', $cbdata, $xmlnode);
 //		print_r($this->xsdmf_array);
@@ -1084,7 +1080,7 @@ class XSD_DisplayObject
     function matchFieldsCallback($domNode, $cbdata, $context=NULL, $rootNode)
     {
         $clean_nodeName = Misc::strip_element_name($domNode->nodeName);
-        $xsdmf_ptr = &$this->xsdmf_current;
+        $xsdmf_ptr = &$this->xsdmf_current; // stores results
         $xsdmf_id = NULL;
 		$currentSEL = "";
         // look for the xsdmf_id		
@@ -1104,8 +1100,7 @@ class XSD_DisplayObject
 						}
 
 						if (!is_numeric(@$cbdata['currentSEL'])) {	
-							$xsdmf_id = $this->xsd_html_match->getXSDMF_IDByXDIS_IDAll($new_element);
-
+							$xsdmf_id = $this->xsd_html_match->getXSDMFByElement($new_element,$cbdata['xdis_id']);
 							if (is_array($xsdmf_id)) {
 								if (count($xsdmf_id) > 1) {
 									foreach ($xsdmf_id as $row) {
@@ -1159,13 +1154,12 @@ class XSD_DisplayObject
                                 $new_element = "!".$parentContent."!".$clean_nodeName; 
                             }
                             if ($cbdata['parent_key'] != "") { 
-                                // if there are passed parent keys then use them in the search
                                 $xsdmf_id = $this->xsd_html_match->getXSDMF_IDByParentKeyXDIS_ID($new_element, 
                                         $cbdata['parent_key']);		
 							} elseif (is_numeric(@$cbdata['currentSEL'])) {						
 								$xsdmf_id = $this->xsd_html_match->getXSDMF_IDBySELXDIS_ID($new_element, $cbdata['currentSEL']);
                             } else {
-                                $xsdmf_id = $this->xsd_html_match->getXSDMF_IDByXDIS_IDAll($new_element);
+                                $xsdmf_id = $this->xsd_html_match->getXSDMFByElement($new_element,$cbdata['xdis_id']);
 								if (is_array($xsdmf_id)) {
 									if (count($xsdmf_id) > 1) {
 										foreach ($xsdmf_id as $row) {
@@ -1231,7 +1225,7 @@ class XSD_DisplayObject
 					if (is_numeric(@$cbdata['currentSEL'])) {
 						$xsdmf_id = $this->xsd_html_match->getXSDMF_IDBySELXDIS_ID($new_element, $cbdata['currentSEL']);
 					} else {
-						$xsdmf_id = $this->xsd_html_match->getXSDMF_IDByXDIS_IDAll($new_element);
+						$xsdmf_id = $this->xsd_html_match->getXSDMFByElement($new_element,$cbdata['xdis_id']);
 						if (is_array($xsdmf_id)) {
 							if (count($xsdmf_id) > 1) {
 								foreach ($xsdmf_id as $row) {
@@ -1278,6 +1272,7 @@ class XSD_DisplayObject
             } else {
                 $ptr_value = $domNode->nodeValue;
             }
+            
             // Store the matchfields value against the matchfield id in the result array.
             // If there's already a value for this match field, then make an array for the value.
             if (isset($xsdmf_ptr[$xsdmf_id])) {

@@ -1,18 +1,18 @@
 <br />
-<span class="default"><b>{$xsd_display_fields[a].xsdmf_title}:</b></span>
-{assign var="attached_field_id" value="xsd_display_fields_"|cat:$temp_attached_xsdmf_id|cat:"_"|cat:$loop_num}
+<span class="default"><b>{$attached_xsdmf.xsdmf_title}:</b></span>
+{assign var="attached_field_id" value="xsd_display_fields_"|cat:$attached_xsdmf_id|cat:"_"|cat:$loop_num}
 <select class="default" id="{$attached_field_id}" name="{$attached_field_id}">	
    <option value="0">(none)</option>
-   {if ($details[$temp_fld_id][z] != "" && $details[$temp_attached_xsdmf_id][z] != 0)}
-	   {if is_array($details[$temp_attached_xsdmf_id])}
-		 {if $details[$temp_attached_xsdmf_id][z] != ""}
-		   {assign var="author_id" value=$details[$temp_attached_xsdmf_id][z]}
-		   <option value="{$details[$temp_attached_xsdmf_id][z]}" selected>{$author_ids[$author_id]} ({$details[$temp_attached_xsdmf_id][z]})</option>
+   {if ($details[$temp_fld_id][z] != "" && $details[$attached_xsdmf_id][z] != 0)}
+	   {if is_array($details[$attached_xsdmf_id])}
+		 {if $details[$attached_xsdmf_id][z] != ""}
+		   {assign var="author_id" value=$details[$attached_xsdmf_id][z]}
+		   <option value="{$details[$temp_attached_xsdmf_id][z]}" selected>{$author_ids[$author_id]} ({$details[$attached_xsdmf_id][z]})</option>
 		  {/if}
 	   {else}
-		  {if $details[$temp_attached_xsdmf_id] != "" && $show_num == 0}
-			{assign var="author_id" value=$details[$temp_attached_xsdmf_id]}
-		 	<option value="{$details[$temp_attached_xsdmf_id]}" selected>{$author_ids[$author_id]} ({$details[$temp_attached_xsdmf_id]})</option>										   
+		  {if $details[$attached_xsdmf_id] != "" && $show_num == 0}
+			{assign var="author_id" value=$details[$attached_xsdmf_id]}
+		 	<option value="{$details[$attached_xsdmf_id]}" selected>{$author_ids[$author_id]} ({$details[$attached_xsdmf_id]})</option>										   
 		  {/if}
 	   {/if}
 	{/if}

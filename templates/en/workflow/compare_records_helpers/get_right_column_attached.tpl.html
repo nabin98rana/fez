@@ -1,0 +1,12 @@
+{if $xsdmf.xsdmf_html_input != 'static'
+	&& $xsdmf.xsdmf_html_input != 'file_input'
+	&& $xsdmf.xsdmf_html_input != 'xsd_loop_subelement'
+  }
+<div>
+{include file='workflow/compare_records_helpers/get_right_column_values.tpl.html' 
+	input_field_name=$attached_field_name
+	temp_fld_id=$attached_xsdmf.xsdmf_id
+	attached_multiple=$xsdmf.xsdmf_multiple
+	xsdmf=$attached_xsdmf}
+</div>
+{/if}

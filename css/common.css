@@ -97,3 +97,18 @@ float: right;
 clear: both;
 text-align: center;
 }
+
+.yes {
+color:green;
+}
+.no {
+color:red;
+}
+
+.compare_records_left_side, .compare_records_right_side {
+vertical-align: top;
+}
+
+.compare_records_left_side div, .compare_records_right_side div {
+margin-bottom: 1em;
+}

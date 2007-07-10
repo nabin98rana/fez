@@ -268,13 +268,21 @@ class DuplicatesReport {
                 );
                 $max_score = 0;
                 $dups_list = $xpath->query('duplicateItem', $itemNode);
+                $resolved = true;
                 foreach ($dups_list as $dupNode) {
                     $score = $dupNode->getAttribute('probability');
                     if ($score > $max_score) {
                         $max_score = $score;
                     }
+                    // if we find at least one blank duplicate attribute in the set of 
+                    // dupes then this is not resolved yet. 
+                    $dup_att = $dupNode->getAttribute('duplicate');
+                    if (empty($dup_att)) {
+                        $resolved = false;
+                    }
                 }
                 $listing_item['probability'] = $max_score;
+                $listing_item['resolved'] = $resolved;
                 $listing_item['count'] = $dups_list->length;
                 $listing[] = $listing_item;
             }
@@ -302,12 +310,161 @@ class DuplicatesReport {
         $listing = array();
         foreach ($items as $item) {
             $listing_item = array();
-            foreach (array('pid','probability') as $att) {
+            foreach (array('pid','probability','duplicate') as $att) {
                 $listing_item[$att] = $item->getAttribute($att);
             }
             $listing[] = $listing_item;
         }
         return $listing;
+    }
+    
+    function markDuplicate($base_pid, $dup_pid)
+    {
+        $xml = Fedora_API::callGetDatastreamContents($this->pid, 'DuplicatesReport', true);
+        $xml = $this->setDuplicateXML($base_pid, $dup_pid, $xml, true);
+        if (!empty($xml)) {
+            $this->addReportToFedoraObject($xml);
+            // put object in limbo
+            $rec = new RecordObject($dup_pid);
+            $rec->markAsDeleted();
+        } else {
+            Error_Handler::logError("Failed to set ".$dup_pid." as duplicate of ".$base_pid
+                ." in XML (report pid".$this->pid.")", __FILE__,__LINE__);
+        }
+    }
+
+    function markNotDuplicate($base_pid, $dup_pid)
+    {
+        $xml = Fedora_API::callGetDatastreamContents($this->pid, 'DuplicatesReport', true);
+        $xml = $this->setDuplicateXML($base_pid, $dup_pid, $xml, false);
+        if (!empty($xml)) {
+            $this->addReportToFedoraObject($xml);
+            // get object back from limbo
+            $rec = new RecordObject($dup_pid);
+            $rec->markAsActive();
+        } else {
+            Error_Handler::logError("Failed to set ".$dup_pid." as non-duplicate of ".$base_pid
+                ." in XML (report pid".$this->pid.")", __FILE__,__LINE__);
+        }
+    }
+    
+    
+    /**
+     * setDuplicateXML - sets the duplicate attribute on the dup_pid for the base_pid in the XML report.
+     * @param string $base_pid
+     * @param string $dup_pid
+     * @param string $xml - must be valid XML of DuplicatesReport
+     * @param boolean $is_duplicate - the duplicate attribute will be set to "true" or "false" based on this
+     * @return string modified XML string on success, null on failure. 
+     */
+    function setDuplicateXML($base_pid, $dup_pid, $xml, $is_duplicate = true)
+    {
+        if (is_null($xml) || !is_string($xml) || empty($xml)) {
+            return null;
+        }
+        if (empty($base_pid) || !is_string($base_pid)) {
+            return null;
+        }
+        if (empty($dup_pid) || !is_string($dup_pid)) {
+            return null;
+        }
+        $report_dom = DOMDocument::loadXML($xml);
+        if (empty($report_dom)) {
+            return null;
+        }
+        $xpath = new DOMXPath($report_dom);
+        $items = $xpath->query('/DuplicatesReport/duplicatesReportItem[@pid=\''.$base_pid.'\']/duplicateItem[@pid=\''.$dup_pid.'\']');
+        if ($items->length > 0) {
+            $item = $items->item(0);
+            $item->setAttribute('duplicate',$is_duplicate?'true':'false');
+        } else {
+            // the Pids should exist otherwise it's an error
+            return null;
+        }
+        return $report_dom->saveXML();
+    }
+    
+    function swapBase($base_pid,$dup_pid)
+    {
+        $xml = Fedora_API::callGetDatastreamContents($this->pid, 'DuplicatesReport', true);
+        $xml = $this->swapBaseXML($base_pid,$dup_pid,$xml);
+        if (!empty($xml)) {
+            $xml = $this->recalcDupScoresXML($dup_pid,$xml);
+        } else {
+            Error_Handler::logError("Failed to swap dup ".$dup_pid." for base ".$base_pid
+                ." in XML (report pid".$this->pid.")", __FILE__,__LINE__);
+            return;
+        }
+        if (!empty($xml)) {
+            $this->addReportToFedoraObject($xml);
+        } else {
+            Error_Handler::logError("Failed to recalc dup scores when trying to swap dup "
+                .$dup_pid." for base ".$base_pid
+                ." in XML (report pid".$this->pid.")", __FILE__,__LINE__);
+        }
+    }
+    
+    function swapBaseXML($base_pid,$dup_pid,$xml)
+    {
+        if (is_null($xml) || !is_string($xml) || empty($xml)) {
+            return null;
+        }
+        if (empty($base_pid) || !is_string($base_pid)) {
+            return null;
+        }
+        if (empty($dup_pid) || !is_string($dup_pid)) {
+            return null;
+        }
+        $report_dom = DOMDocument::loadXML($xml);
+        if (empty($report_dom)) {
+            return null;
+        }
+        $xpath = new DOMXPath($report_dom);
+        $items = $xpath->query('/DuplicatesReport/duplicatesReportItem[@pid=\''.$base_pid.'\']/duplicateItem[@pid=\''.$dup_pid.'\']');
+        if ($items->length < 1) {
+            // the Pids should exist otherwise it's an error
+            return null;
+        }
+        $dup_item = $items->item(0);
+        $dup_item->setAttribute('pid',$base_pid);
+        $items = $xpath->query('/DuplicatesReport/duplicatesReportItem[@pid=\''.$base_pid.'\']');
+        if ($items->length < 1) {
+            // the base Pid should exist otherwise it's an error
+            return null;
+        }
+        $base_item = $items->item(0);
+        $base_item->setAttribute('pid',$dup_pid);
+        
+        return $report_dom->saveXML();
+    }
+    
+    /**
+     * Finds a base record and updates the duplicate scores for the dup records.  Called if the base record is swapped.
+     */
+    function recalcDupScoresXML($base_pid,$xml)
+    { 
+        if (is_null($xml) || !is_string($xml) || empty($xml)) {
+            return null;
+        }
+        if (empty($base_pid) || !is_string($base_pid)) {
+            return null;
+        }
+        $report_dom = DOMDocument::loadXML($xml);
+        if (empty($report_dom)) {
+            return null;
+        }
+        $xpath = new DOMXPath($report_dom);
+        $items = $xpath->query('/DuplicatesReport/duplicatesReportItem[@pid=\''.$base_pid.'\']/duplicateItem');
+        if ($items->length < 1) {
+            // the Pids should exist otherwise it's an error
+            return null;
+        }
+        $base_record = new RecordGeneral($base_pid);
+        foreach ($items as $dup_item) {
+            $dup_record = new RecordGeneral($dup_item->getAttribute('pid'));
+            $dup_item->setAttribute('probability',$this->compareRecords($base_record, $dup_record));
+        }
+        return $report_dom->saveXML();
     }
     
 }

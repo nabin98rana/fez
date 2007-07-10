@@ -42,6 +42,8 @@ include_once(APP_INC_PATH . "class.jhove.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.statistics.php");
 include_once(APP_INC_PATH . "class.citation.php");
+include_once(APP_INC_PATH . "class.org_structure.php");
+
 include_once(APP_PEAR_PATH . "Date.php");
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
@@ -208,7 +210,20 @@ if (!empty($pid) && $record->checkExists()) {
 							} 
 						}
 					}
-				} 
+				}
+                if ($dis_field["xsdmf_html_input"] == 'org_selector') {
+                    if (!empty($details[$dis_field['xsdmf_id']])) {
+                        if (is_array($details[$dis_field['xsdmf_id']])) {
+                            foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
+                                $org_det = Org_Structure::getDetails($cdata);
+                                $details[$dis_field['xsdmf_id']][$ckey] = $org_det['org_title'];
+                            }
+                        } else {
+                            $org_det = Org_Structure::getDetails($details[$dis_field['xsdmf_id']]);
+                            $details[$dis_field['xsdmf_id']] = $org_det['org_title'];
+                        }
+                    }
+                }
 				if ($dis_field['xsdmf_html_input'] == "author_selector") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {

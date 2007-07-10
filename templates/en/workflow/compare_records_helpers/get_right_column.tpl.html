@@ -1,23 +1,14 @@
 {if $xsdmf.xsdmf_html_input != 'static'
-	&& $xsdmf.xsdmf_html_input != 'file_input'
 	&& $xsdmf.xsdmf_html_input != 'xsd_loop_subelement'
   }
-<td>
-{if $xsdmf.xsdmf_html_input == 'combo' || $xsdmf.xsdmf_html_input == 'multiple'} 
-	{assign var='selected' value=$right_details[$temp_fld_id]}
-	<span id="right_column_{$xsdmf.xsdmf_id}">{$right_details[$temp_fld_id]}</span>: {$xsdmf.field_options[$selected]}
-{elseif $xsdmf.xsdmf_multiple == 1}
-	{assign var='right_values' value=$right_details[$temp_fld_id]}
-	<span id="right_column_{$xsdmf.xsdmf_id}_{$loop_num}">{$right_values[$loop_num]}</span>
-{elseif $xsdmf.xsdmf_html_input == 'contvocab_selector'}
-	{section name='grc' loop=$right_details[$temp_fld_id]}
-		<span id="right_column_{$xsdmf.xsdmf_id}_$loop_num">{$right_details[$temp_fld_id][grc]}</span>{if !$smarty.section.grc.first},{/if}
-	{/section}
-{else}
-	<a href="javascript:void(null);" onclick="javascript:copy_field_{$xsdmf.xsdmf_html_input}('{$input_field_name}', '{$right_details[$temp_fld_id]}');">{$right_details[$temp_fld_id]}</a>
+<td class="compare_records_right_side">
+{include file='workflow/compare_records_helpers/get_right_column_values.tpl.html'}
+{if $xsdmf.xsdmf_attached_xsdmf_id != ""}
+	{include file='workflow/compare_records_helpers/get_right_column_attached.tpl.html'}
 {/if}
+
 
 </td>
 {else}
-<td></td><td></td>
+<td  class="compare_records_right_side" colspan="2"></td>
 {/if}

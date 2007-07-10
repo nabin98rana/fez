@@ -125,6 +125,7 @@
         $this->fixDetails($details);
         $this->details = $details;
         
+        
         $tpl->assign("parents", $parents);
         $title = $record->getTitle(); // RecordObject
         $tpl->assign("title", $title);

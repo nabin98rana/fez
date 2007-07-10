@@ -46,8 +46,10 @@ function workflowItems(f)
     f.submit();
 }
 
-function createRecord(f) {
+function createRecord(f, xdis_id_sel) {
     f.action = '{/literal}{$rel_url}{literal}workflow/new.php';
+    xdis_id = getSelectedOption(f, xdis_id_sel.getAttribute('name'));
+    f.xdis_id.setAttribute('value', xdis_id);
 	f.submit();
 }
 
@@ -200,6 +202,10 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
   
   <tr>
     <td>
+		  <form name="list_form" method="get" action="{$smarty.server.PHP_SELF}">
+		  <input type="hidden" name="cat" value="assign" />
+		  <input type="hidden" name="href" value="{$smarty.server.REQUEST_URI}" />
+		  <input type="hidden" name="xdis_id" value="" />
       <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" >
 
 		{if $list_type == 'collection_records_list'}
@@ -228,32 +234,30 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 				{if $childXDisplayOptions != 0}
 			<br /> <img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
 				<input type="hidden" name="community_pid" value="{$community_pid}" />
-				<select name="xdis_id">
+				<select name="xdis_id_top">
 				  {html_options options=$childXDisplayOptions}
 				</select>
-				<input type="button" value="Create" onClick="javascript:createRecord(this.form)" />
+				<input type="button" value="Create" onClick="javascript:createRecord(this.form, this.form.xdis_id_top)" />
 			&nbsp;<br />
 				{/if}
 			{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}			
 				{if $childXDisplayOptions != 0}
 			<br /> <img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
 				<input type="hidden" name="collection_pid" value="{$collection_pid}" />
-				<select name="xdis_id">
+				<select name="xdis_id_top">
 				  {html_options options=$childXDisplayOptions}
 				</select>
-				<input type="button" value="Create" onClick="javascript:createRecord(this.form)" />
+				<input type="button" value="Create" onClick="javascript:createRecord(this.form, this.form.xdis_id_top)" />
 			&nbsp;
 				{/if}
 			{/if}
+			
 		  </td>
         </tr>
   		{/if}
 
         <tr>
 		  <td>
-		  
-		  <input type="hidden" name="cat" value="assign" />
-		  <input type="hidden" name="href" value="{$smarty.server.REQUEST_URI}" />
       <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1">
 		{if ($browse_type == "browse_author") && (!$smarty.get.author && !$smarty.get.author_id)} 
         <tr>
@@ -672,20 +676,20 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 				{if $childXDisplayOptions != 0}
 			<br /> <img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
 				<input type="hidden" name="community_pid" value="{$community_pid}" />
-				<select name="xdis_id">
+				<select name="xdis_id_bottom">
 				  {html_options options=$childXDisplayOptions}
 				</select>
-				<input type="button" value="Create" onClick="javascript:createRecord(this.form)" />
+				<input type="button" value="Create" onClick="javascript:createRecord(this.form, this.form.xdis_id_bottom)" />
 			&nbsp;<br />
 				{/if}
 			{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}			
 				{if $childXDisplayOptions != 0}
 			<br /> <img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
 				<input type="hidden" name="collection_pid" value="{$collection_pid}" />
-				<select name="xdis_id">
+				<select name="xdis_id_bottom">
 				  {html_options options=$childXDisplayOptions}
 				</select>
-				<input type="button" value="Create" onClick="javascript:createRecord(this.form)" />
+				<input type="button" value="Create" onClick="javascript:createRecord(this.form, this.form.xdis_id_bottom)" />
 			&nbsp;
 				{/if}
 			{/if}

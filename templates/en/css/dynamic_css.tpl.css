@@ -60,7 +60,7 @@ width: 20%;
 background-color: [[$smarty.const.APP_LIGHT_COLOR]];
 font-family: Verdana, Arial, Helvetica, sans-serif;
 font-style: normal;
-font-weight: none;
+font-weight: normal;
 font-size: 11px;
 padding: 3px;
 vertical-align: middle;
@@ -151,5 +151,9 @@ background:[[$smarty.const.APP_CELL_COLOR]];
 div.cv_selection
 {
 background:[[$smarty.const.APP_LIGHT_COLOR]];
+}
+
+.compare_records_left_side {
+background-color: [[$smarty.const.APP_LIGHT_COLOR]];
 }
 

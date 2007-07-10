@@ -9,10 +9,14 @@
  */
  
  
- define('APP_UNIT_TESTING', true);
- require_once('../config.inc.php');
  
- require_once APP_PEAR_PATH.'PHPUnit/Framework.php';
+define('APP_UNIT_TESTING', true);
+// Where is config.inc?
+
+require_once('../config.inc.php');
+define(APP_TEST_PATH, APP_PATH.'/test/');
+require_once APP_PEAR_PATH.'PHPUnit/Framework.php';
+require_once APP_TEST_PATH.'test_common.php';
  
  
 ?>

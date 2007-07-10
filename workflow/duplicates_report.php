@@ -23,6 +23,7 @@ $tpl->assign("isAdministrator", $isAdministrator);
 
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 $pid = $wfstatus->pid;
+$tpl->assign('report_pid', $pid);
 
 $wfstatus->setTemplateVars($tpl);
 
@@ -40,6 +41,8 @@ $duplicates_report = new DuplicatesReport($pid);
 $listing = $duplicates_report->getListing($page, $page_size);
 $tpl->assign('listing', $listing);
 
+$duplicates_report_record = new RecordObject($pid);
+$tpl->assign('report_title',$duplicates_report_record->getTitle());
 
 $tpl->displayTemplate();
  

@@ -158,17 +158,19 @@ class XSD_Loop_Subelement
 		// Get the datastream titles and xdisplay ids that are references to other display ids, and also get any binary content (file upload/select) datastreams
 		$stmt = "SELECT	m1.xsdmf_id, m1.xsdmf_xdis_id,
 			s1.xsdsel_title,
-			s1.xsdsel_id
+			s1.xsdsel_id,
+            xsdrel_xdis_id        
 						 FROM
-							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1,
-							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m1
-		WHERE 
-		m1.xsdmf_element in ('!datastream!datastreamVersion!xmlContent', '!datastream!datastreamVersion!contentLocation', '!datastream!datastreamVersion!binaryContent') 	
-		AND m1.xsdmf_xdis_id=".$xdis_id."	and s1.xsdsel_id = m1.xsdmf_xsdsel_id";
+							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1
+							INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m1 
+                            ON m1.xsdmf_element in ('!datastream!datastreamVersion!xmlContent', '!datastream!datastreamVersion!contentLocation', '!datastream!datastreamVersion!binaryContent')    
+                            AND m1.xsdmf_xdis_id=".$xdis_id." AND s1.xsdsel_id = m1.xsdmf_xsdsel_id 
+                            LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship ON xsdrel_xsdmf_id = m1.xsdmf_id
+           ";
 		if ($specify_str != "") {				
-			$stmt .= " and s1.xsdsel_title in ('".$specify_str."')";			
+			$stmt .= " WHERE s1.xsdsel_title in ('".$specify_str."')";			
 		} elseif ($exclude_str != "") {
-			$stmt .= " and s1.xsdsel_title not in ('".$exclude_str."')";					
+			$stmt .= " WHERE s1.xsdsel_title not in ('".$exclude_str."')";					
 		}
 		// @@@ CK - Added order statement to sublooping elements displayed in a desired order
 		$stmt .= " ORDER BY xsdsel_order ASC";

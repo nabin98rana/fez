@@ -923,37 +923,6 @@ class Record
 	}	
 
     /**
-     * Method used to get the details for a specific Record gotten directly from the Fedora repository.
-     *
-     * @access  public
-     * @param   string $pid The persistent identifier of the object
-     * @param   string $xdis_id  The XSD Display ID of the object
-     * @return  array $xsdmf_array The details for the XML object against its XSD Matching Field IDs
-     */
-    function getDetails($pid, $xdis_id)
-    {
-		// Get the Datastreams.
-		$datastreamTitles = XSD_Loop_Subelement::getDatastreamTitles($xdis_id);
-		foreach ($datastreamTitles as $dsValue) {
-			$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title']);
-            if (isset($DSResultArray['stream'])) {
-                $xmlDatastream = $DSResultArray['stream'];
-                $xsd_id = XSD_Display::getParentXSDID($dsValue['xsdmf_xdis_id']);
-                $xsd_details = Doc_Type_XSD::getDetails($xsd_id);
-                $xsd_element_prefix = $xsd_details['xsd_element_prefix'];
-                $xsd_top_element_name = $xsd_details['xsd_top_element_name'];
-
-                $xmlnode = new DomDocument();
-                $xmlnode->loadXML($xmlDatastream);
-				echo $xmlDatastream;
-                $array_ptr = array();
-                Misc::dom_xml_to_simple_array($xmlnode, $array_ptr, $xsd_top_element_name, $xsd_element_prefix, $xsdmf_array, $xdis_id);
-            }
-		}
-		return $xsdmf_array;
-    }
-
-    /**
      * Method used to get the default record XDIS_ID
      *
      * Developer Note: Need to make this able to be set in Administrative interface and stored in the Fez database,
@@ -1791,10 +1760,8 @@ class Record
                 }
 			}
         }
-
+        History::addHistory($this->pid, null, "", "", true, "Record modified", null);
 		Record::setIndexMatchingFields($pid);
-		
-
     }
     
     function generatePresmd($pid, $dsIDName)
@@ -2822,6 +2789,9 @@ class RecordGeneral
         return $new_pid;
     }
     
+    /**
+     * Generate a string which is a citation for this record.  Uses a citation template.
+     */
     function getCitation()
     {
         $details = $this->getDetails();
@@ -2829,6 +2799,32 @@ class RecordGeneral
         
         return Citation::renderCitation($this->xdis_id, $details, $xsdmfs);
     }
+    
+    /**
+     * Mark the fedora state of the record as deleted.  This keeps the record around in case we want to undelete it
+     * later. We tell the Fez indexer not to index Fedora Deleted objects.
+     */
+    function markAsDeleted()
+    {
+        // tell fedora that the object is deleted.
+        Fedora_API::callModifyObject($this->pid, 'D', null);
+        
+        // delete it from the Fez index.
+        Record::removeIndexRecord($this->pid);
+    }
+    
+    /**
+     * Mark the fedora state of the record as active.  Also restores the fez index of the object.
+     */
+    function markAsActive()
+    {
+        // tell fedora that the object is active.
+        Fedora_API::callModifyObject($this->pid, 'A', null);
+        
+        // add it to the Fez index.
+        Record::setIndexMatchingFields($this->pid);
+    }
+    
 }
 
 /**
@@ -3024,6 +3020,7 @@ class RecordObject extends RecordGeneral
 				$this->getFileDownloadsCount();
 			} 
 			$file_downloads = $this->file_downloads;
+            $this->getXmlDisplayId();
 		}
         $pid = $this->pid;
 

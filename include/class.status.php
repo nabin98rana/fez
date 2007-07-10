@@ -78,9 +78,12 @@ class Status
      * @access  public
      * @return  integer 1 if the insert worked, -1 otherwise
      */
-    function insert()
+    function insert($params = array())
     {
         global $HTTP_POST_VARS;
+        if (empty($params)) {
+            $params = $HTTP_POST_VARS;
+        }
 		
         $stmt = "INSERT INTO
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "status
@@ -89,9 +92,9 @@ class Status
 					sta_order,
 					sta_color
                  ) VALUES (
-                    '" . Misc::escapeString($HTTP_POST_VARS["sta_title"]) . "',
-					" . Misc::escapeString($HTTP_POST_VARS["sta_order"]) . ",
-					'" . Misc::escapeString($HTTP_POST_VARS["sta_color"]) . "'					
+                    '" . Misc::escapeString($params["sta_title"]) . "',
+					" . Misc::escapeString($params["sta_order"]) . ",
+					'" . Misc::escapeString($params["sta_color"]) . "'					
                  )"; 
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {

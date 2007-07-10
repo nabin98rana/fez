@@ -151,7 +151,6 @@ if ($access_ok) {
 //    $xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id));
 	$xsd_display_fields = XSD_HTML_Match::getListByDisplay($xdis_id, array("FezACML"), array(""));  // XSD_DisplayObject
 //	print_r($xsd_display_fields);
-//	$parents = Record::getDetails($wfstatus->parent_pid);
 
 //	print_r($parents);
 //	echo $wfstatus->parent_pid;

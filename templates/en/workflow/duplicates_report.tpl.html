@@ -16,6 +16,9 @@ function validateForm(f)
 </script>
 
 <div class="outline">
+<h2>Duplicates Report Listing</h2>
+<div>{$report_title}</div>
+<div>Report PID {$report_pid}</div>
 <table class="default listing">
 <tr class="table_heading_row">
 <td></td>
@@ -23,6 +26,7 @@ function validateForm(f)
 <td>Title</td>
 <td>Count</td>
 <td>Probability</td>
+<td>Resolved</td>
 </tr>
 {section name="ii" loop=$listing}
 {cycle assign='row_class' values="listing_row_light,listing_row_dark"}
@@ -33,6 +37,7 @@ function validateForm(f)
 <td>{$listing[ii].title}</td>
 <td>{$listing[ii].count}</td>
 <td>{$listing[ii].probability}</td>
+<td>{if $listing[ii].resolved}<span class="yes">yes</span>{else}<span class="no">no</span>{/if}</td>
 </tr>
 {/section}
 

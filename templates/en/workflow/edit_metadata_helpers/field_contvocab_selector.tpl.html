@@ -6,7 +6,8 @@
 					  </td>
 					  <td bgcolor="{$value_color}">
 					   {assign var="field_name" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
-						<select id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1" multiple size="10" class="default" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]">
+						<select id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1" multiple size="10" class="default" 
+							name="{$field_name}">
 							{if $details[$temp_fld_id]}
 							  {html_options options=$details[$temp_fld_id]}
 							 {/if}
@@ -23,6 +24,6 @@
 		            </script>
         		    {/if}
 					 </td>
-				  {include file='workflow/compare_records_helpers/get_right_column.tpl.html}
+				  {include file='workflow/compare_records_helpers/get_right_column.tpl.html  input_field_name=$field_name}
 					</tr>						  			  
 {/if}
