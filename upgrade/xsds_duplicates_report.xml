@@ -23,6 +23,7 @@
     <xsd:sequence>
        <xsd:attribute name="pid"  />
        <xsd:attribute name="probability"  />
+       <xsd:attribute name="duplicate"  />
     </xsd:sequence>
 </xsd:complexType>
 

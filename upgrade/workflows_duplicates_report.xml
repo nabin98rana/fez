@@ -1,24 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <workflows schema_version="1.0">
-  <workflow wfl_id="194" wfl_title="Generate Duplicates Report" wfl_version="1.0" wfl_description="Generates a duplicates report." wfl_roles="Community_Administrator, Administrator " wfl_end_button_label="Finished">
-    <WorkflowState wfs_id="688" wfs_title="Generating Report" wfs_description="The requested process has started but may take some time to run.  You can see it's progress in the dashboard under 'Background Processes', you will be emailed when the process finishes." wfs_auto="0" wfs_wfb_id="131" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="682" wfs_title="Generate Report" wfs_description="" wfs_auto="1" wfs_wfb_id="128" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="683" wfs_title="Goto Report" wfs_description="" wfs_auto="1" wfs_wfb_id="129" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="1" wfs_roles=""/>
-    <WorkflowState wfs_id="686" wfs_title="Select Report Collection" wfs_description="Please enter some details about the report." wfs_auto="0" wfs_wfb_id="114" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="689" wfs_title="Email User" wfs_description="This state should email the user about the previous state finishing." wfs_auto="1" wfs_wfb_id="132" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="1" wfs_roles=""/>
-    <WorkflowState wfs_id="690" wfs_title="Get Source PIDs" wfs_description="" wfs_auto="1" wfs_wfb_id="136" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="1123" wfsl_from_id="686" wfsl_to_id="682"/>
-    <WorkflowStateLinks wfsl_id="1113" wfsl_from_id="689" wfsl_to_id="683"/>
-    <WorkflowStateLinks wfsl_id="1122" wfsl_from_id="690" wfsl_to_id="686"/>
-    <WorkflowStateLinks wfsl_id="1112" wfsl_from_id="688" wfsl_to_id="689"/>
-    <WorkflowStateLinks wfsl_id="1106" wfsl_from_id="682" wfsl_to_id="688"/>
-    <WorkflowTrigger wft_id="244" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="2" wft_options="0"/>
-    <WorkflowTrigger wft_id="242" wft_pid="-1" wft_type_id="7" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="3" wft_options="0"/>
+  <workflow wfl_id="193" wfl_title="Duplicates Report" wfl_version="1.0" wfl_description="Workflow for finding duplicates in a collection." wfl_roles="Editor" wfl_end_button_label="Finished">
+    <WorkflowState wfs_id="675" wfs_title="Show Duplicates List" wfs_description="This is a report of duplicates found for the selected records.  Select an item to see it's duplicate records." wfs_auto="0" wfs_wfb_id="127" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="676" wfs_title="Show Record Duplicates" wfs_description="This is view of the metadata for the selected record and the metadata of the suspected duplicates.  You can page through each of the suspected duplicates." wfs_auto="0" wfs_wfb_id="130" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="680" wfs_title="Delete Report" wfs_description="The duplicates report has been deleted." wfs_auto="1" wfs_wfb_id="109" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="1120" wfsl_from_id="675" wfsl_to_id="680"/>
+    <WorkflowStateLinks wfsl_id="1062" wfsl_from_id="675" wfsl_to_id="676"/>
+    <WorkflowStateLinks wfsl_id="1060" wfsl_from_id="676" wfsl_to_id="675"/>
+    <WorkflowTrigger wft_id="243" wft_pid="-1" wft_type_id="1" wft_xdis_id="285" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="3" wft_options="0"/>
   </workflow>
-  <WorkflowBehaviour wfb_id="131" wfb_title="Block on Background Process" wfb_description="Special state that displays information in the workflow state but disables the workflow buttons, instead it redirects them to the background processes page in my fez (after they have pressed ok)." wfb_version="1.0" wfb_script_name="block.php" wfb_auto="0"/>
-  <WorkflowBehaviour wfb_id="129" wfb_title="Chain Workflow" wfb_description="Links to another workflow based on trigger wft_id stored in workflow var 'chain_wft_id'" wfb_version="1.0" wfb_script_name="chain_workflow.php" wfb_auto="1"/>
-  <WorkflowBehaviour wfb_id="128" wfb_title="Generate Duplicates Report" wfb_description="Generates a duplicates report and saves it as a PID." wfb_version="1.0" wfb_script_name="generate_duplicates_report.php" wfb_auto="1"/>
-  <WorkflowBehaviour wfb_id="132" wfb_title="Notify Process Finished" wfb_description="Sends an email to the owner of the workflow to notify that a background process has finished.  The workflow variable 'notify' can be used to set some specific message text." wfb_version="1.0" wfb_script_name="notify_done.php" wfb_auto="1"/>
-  <WorkflowBehaviour wfb_id="136" wfb_title="Save Source Pids" wfb_description="Works out source pids (int he collection in $this-&gt;pid) for the workflow and puts them in $this-&gt;pids so that you can then run another step to select a destination which will overwrite $this-&gt;pid" wfb_version="1.0" wfb_script_name="save_source_pids.php" wfb_auto="1"/>
-  <WorkflowBehaviour wfb_id="114" wfb_title="Select Collection" wfb_description="" wfb_version="" wfb_script_name="select_collection.php" wfb_auto="0"/>
+  <WorkflowBehaviour wfb_id="130" wfb_title="Compare Records Form" wfb_description="Show two records side by side and allow them to merge." wfb_version="1.0" wfb_script_name="compare_records_form.php" wfb_auto="0"/>
+  <WorkflowBehaviour wfb_id="127" wfb_title="Duplicates Report" wfb_description="Reports duplicates" wfb_version="1.0" wfb_script_name="duplicates_report.php" wfb_auto="0"/>
+  <WorkflowBehaviour wfb_id="109" wfb_title="Purge Object" wfb_description="" wfb_version="1.0" wfb_script_name="purge.php" wfb_auto="1"/>
 </workflows>
