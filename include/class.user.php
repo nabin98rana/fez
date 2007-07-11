@@ -1099,6 +1099,36 @@ class User
     }
 
 
+
+    /**
+     * Method used to get an associative array of the user ID and 
+     * full name of all administrator users available in the system.
+     *
+     * @access  public
+     * @return  array The list of admin users
+     */
+    function getAdminsAssocList()
+    {
+        $stmt = "SELECT
+                    usr_id,
+                    usr_full_name
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                 WHERE
+                    usr_administrator = 1 
+                 ORDER BY
+                    usr_full_name ASC";
+        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
+
+
+
     /**
      * Method used to get the full name and email for the specified
      * user.

@@ -464,3 +464,20 @@ h1.public {
 .admin-content {
 	padding: 10px;
 }
+
+.config-group {
+	padding: 5px;
+	border: 1px #A7C1DF solid;
+}
+
+.colname {
+	width: 120px;
+	padding: 5px;
+	text-align: right;
+	font-weight: bold;
+}
+
+.coldetail {
+	padding: 5px;
+	font-size: 80%;
+}

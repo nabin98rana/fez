@@ -51,7 +51,6 @@ set_time_limit(0);
 
 // definitions of Organisation Shibboleth related variables. You may need to query your Org's Shibboleth expert for help on these settings.
 @define("SHIB_SWITCH", "OFF");  // Set to OFF or ON depending on whether you want to use Shibboleth authentication
-@define("SHIB_DIRECT_LOGIN", "ON");
 @define("SHIB_FEDERATION_NAME", "MAMS Testbed Federation");  // Change this to the name of your Shibboleth Federation, eg Inqueue, InCommon, MAMS Testbed Federation
 @define("SHIB_SURVEY", false);  // Switch to ON to turn the post shibboleth login survey on
 @define("SHIB_FEDERATION", "urn:mace:federation.org.au:testfed:level-1:");  // Change this to the base urn of your federation eg Inqueue or InCommon
