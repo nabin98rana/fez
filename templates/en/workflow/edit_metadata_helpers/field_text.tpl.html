@@ -4,15 +4,14 @@
      <!-- multiple -->
 		{assign var="show_num" value=0}
 		{assign var="check_num" value=0}						
-		{assign var='squares' value='[]'}
-		{section name="z" loop=$xsdmf.multiple_array}
-			{assign var="loop_num" value=$xsdmf.multiple_array[z]}
+		{foreach name="z" from=$xsdmf.multiple_array key='loop_num' item='mtext_item'}
+			{assign var='squares' value='['|cat:$loop_num|cat:']'}
 			{if $show_num != 0}
 				{assign var="check_num" value=$show_num-1}
 			{/if}
 			{include file='workflow/edit_metadata_helpers/field_text_2.tpl.html'}
 			{assign var="show_num" value=$show_num+1}
-		{/section}
+		{/foreach}
 	{else}
 		<!-- single -->
 		{assign var="loop_num" value=1}

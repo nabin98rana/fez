@@ -79,7 +79,7 @@ function copy_field_text(dest, value)
 	}
 }
 
-function copy_field_text_area(dest, value)
+function copy_field_textarea(dest, value)
 {
 	f = document.forms.wfl_form1;
 	fe = getFormElement(f, dest);

@@ -801,6 +801,13 @@ class DB_pgsql extends DB_common
         }
         return $sql;
     }
+    
+    function getLastInsertId($tablename, $fieldname)
+    {
+        $stmt = "SELECT last_value FROM ".$tablename."_".$fieldname."_seq";
+        $res = $this->getOne($stmt);
+        return $res;
+    }
 
     // }}}
 

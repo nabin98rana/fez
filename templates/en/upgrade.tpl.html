@@ -155,6 +155,11 @@ ry rather than fetch them twice or more during a single page load. This gets har
 @define("FEDORA_DB_USERNAME", "enter_your_db_username");
 @define("FEDORA_DB_PASSWD", "enter_your_db_passwd");
 @define("FEDORA_DB_PORT", "enter_your_db_port"); // mysql is 3306, pgsql is 5432
+
+// email settings
+@define('APP_EMAIL_SYSTEM_FROM_ADDRESS', APP_SHORT_NAME.'@'.APP_HOSTNAME);
+@define('APP_EMAIL_SMTP', APP_HOSTNAME);
+
 </pre>
 </div>
 

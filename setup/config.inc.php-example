@@ -251,6 +251,10 @@ if (APP_FEDORA_SETUP == 'sslall') {
 @define('APP_EDITOR_ROLES',"Community_Admin,Editor");
 @define('APP_CREATOR_ROLES',"Creator,Community_Admin,Editor");
 
+// email settings
+@define('APP_EMAIL_SYSTEM_FROM_ADDRESS', APP_SHORT_NAME.'@'.APP_HOSTNAME);
+@define('APP_EMAIL_SMTP', APP_HOSTNAME);
+
 
 @define("APP_BENCHMARK", true);
 if (APP_BENCHMARK) {

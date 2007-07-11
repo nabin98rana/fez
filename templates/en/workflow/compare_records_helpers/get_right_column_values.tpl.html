@@ -13,7 +13,7 @@
 	{foreach name='grc' from=$current_right_details item='cvo_item' key='cvo_key'}
 		<a href="javascript:void(null);" 
 			onclick="javascript:copy_field_{$xsdmf.xsdmf_html_input}('{$input_field_name}', '{$cvo_key}');"
-			>{$cvo_item}</a>{if !$smarty.foreach.grc.first},{/if}
+			>{$cvo_item}</a>{if !$smarty.foreach.grc.last},<br/>{/if}
 	{/foreach}
 {else}
 	<a href="javascript:void(null);" 

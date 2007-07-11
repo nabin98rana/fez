@@ -1851,6 +1851,7 @@ class Record
     {
         
     }
+    
 }
 
 
@@ -2824,6 +2825,27 @@ class RecordGeneral
         // add it to the Fez index.
         Record::setIndexMatchingFields($this->pid);
     }
+    
+    function getLock()
+    {
+        return RecordLock::getLock($this->pid, Auth::getUserID());
+    }
+    
+    function releaseLock()
+    {
+        return RecordLock::releaseLock($this->pid);
+    }
+
+    function getLockOwner()
+    {
+        return RecordLock::getOwner($this->pid);
+    }
+    
+    function isLocked()
+    {
+        return RecordLock::getOwner($this->pid) > 0 ? true : false;
+    }
+    
     
 }
 
