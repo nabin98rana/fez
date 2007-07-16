@@ -50,6 +50,7 @@ class Error_Handler
 {
  
     static $app_errors = array();
+    static $debug_on = false;
     
     /**
      * Logs the specified error
@@ -216,6 +217,37 @@ class Error_Handler
 		}
 		return $sbt."\n";
 	}
+    
+    /**
+     * @param string $initials - Your initials.  e.g. MSS =>  /tmp/fez_debug_mss.txt
+     * @param array $var - the variable to be debugged - use compact to create it, e.g. compact('thing');
+     */
+    function debug($initials, $vars)
+    {
+        if (!self::$debug_on) {
+            return;
+        }
+        file_put_contents('/tmp/fez_debug_'.strtolower($initials).'.txt',date('r').' -> ', FILE_APPEND);
+        $index = 0;
+        foreach ($vars as $key => $var ) {
+            if ($index++ > 0) {
+                file_put_contents('/tmp/fez_debug_'.strtolower($initials).'.txt', ', ', FILE_APPEND);
+            }
+            file_put_contents('/tmp/fez_debug_'.strtolower($initials).'.txt', 
+                $key.':'.print_r($var,true), FILE_APPEND);
+        }
+        file_put_contents('/tmp/fez_debug_'.strtolower($initials).'.txt', "\n", FILE_APPEND);
+    }
+    
+    function debugStart()
+    {
+        self::$debug_on = true;
+    }
+    
+    function debugStop()
+    {
+        self::$debug_on = false;
+    }
 }
 // benchmarking the included file (aka setup time)
 if (APP_BENCHMARK) {

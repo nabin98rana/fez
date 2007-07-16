@@ -25,7 +25,6 @@ class Foxml
     function handleTextInstance(&$attrib_value, &$indexArray, $pid, $parent_sel_id, $xdis_id, 
             $xsdmf_id, $xsdmf_details, $xsdmf_details_ref, $attrib_loop_index, $element_prefix, $i, &$xmlObj, $tagIndent) {
         global $HTTP_POST_VARS;
-   		$loop_count = 0;
 		$full_attached_attribute = "";
         // The attrib value is escaped for XML generically at the end of this function.  Use the following flag
         // if there is some special case for the escaping
@@ -56,11 +55,10 @@ class Foxml
 					// attached matching fields						
 					$full_attached_attribute = "";
 					if (is_numeric($xsdmf_details['xsdmf_attached_xsdmf_id'])) {
-						$loop_count++; 
 //						$post_idx = 'xsd_display_fields_'.$xsdmf_details['xsdmf_attached_xsdmf_id']
 //							.'_'.$loop_count;
 						$post_idx = 'xsd_display_fields_'.$xsdmf_details['xsdmf_attached_xsdmf_id']
-							.'_'.($attrib_loop_index+1);
+							.'_'.($attrib_loop_index);
 
 						$attached_value = @$HTTP_POST_VARS[$post_idx];
 
@@ -120,11 +118,11 @@ class Foxml
             } elseif ($xsdmf_details['xsdmf_multiple'] == 1) {
                 // multiple input fields
                 if (@is_array($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) {
+                    $loop_count = 0;
                     foreach ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] as $multiple_element) {
                         // attached matching fields						
                         $full_attached_attribute = "";
                         if (is_numeric($xsdmf_details['xsdmf_attached_xsdmf_id'])) {
-                            $loop_count++; 
                             $post_idx = 'xsd_display_fields_'.$xsdmf_details['xsdmf_attached_xsdmf_id']
                                 .'_'.$loop_count;
                             $attached_value = @$HTTP_POST_VARS[$post_idx];
@@ -177,6 +175,7 @@ class Foxml
                                             Misc::addPrefix($multiple_element, $xsdmf_details['xsdmf_value_prefix'])));
                             }
                         }
+                        $loop_count++; 
                     }
                 }
             }

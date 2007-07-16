@@ -28,7 +28,7 @@
 					{assign var="attached_field_name" value="xsd_display_fields_"|cat:$attached_xsdmf_id|cat:"_"|cat:$loop_num}						
 					{include file='workflow/edit_metadata_helpers/attached_'|cat:$attached_xsdmf.xsdmf_html_input|cat:'.tpl.html'}
 				{/if}
-					{if $xsd_display_fields[i].xsdmf_required == 1}
+					{if $xsd_display_fields[i].xsdmf_required == 1 && $loop_num == 0}
         		    <script language="JavaScript">
 			        <!--
         		    xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{$squares}', '{$xsd_display_fields[i].xsdmf_title}');
