@@ -150,6 +150,7 @@ class Fedora_API {
 	function getObjectXMLByPID($pid) {
 		$parms = array('pid' => $pid);
 		$result = Fedora_API::openSoapCall('getObjectXML', $parms);
+        $result =  base64_decode($result);
 		return $result;
 	}
 
