@@ -70,7 +70,7 @@ class WorkflowStatus {
      * how the workflow is triggered.  Sometimes nothing is known at the start of the
      * workflow lik ehwen the user clicks 'create' on the My_Fez page.
      */
-    function WorkflowStatus($pid=null, $wft_id=null, $xdis_id=null, $dsInfo=null, $dsID='', $pids=array())
+    function WorkflowStatus($pid=null, $wft_id, $xdis_id=null, $dsInfo=null, $dsID='', $pids=array())
     {
         $this->pid = $pid;
         $this->pids = $pids;        

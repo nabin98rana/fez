@@ -100,6 +100,17 @@ if (!empty($community_pid)) {
 	$extra_redirect.="&community_pid=".$pid;
 }
 $record = new RecordObject($pid);
+
+if ($record->getLock(RecordLock::CONTEXT_WORKFLOW, $wfstatus->id) != 1) {
+    // Someone else is editing this record.
+    $owner_id = $record->getLockOwner();
+    $tpl->assign('conflict', 1);
+    $tpl->assign('conflict_user', User::getFullname($owner_id));
+    $tpl->assign('disable_workflow', 1);
+    $tpl->displayTemplate();
+    exit;
+}
+
 $record->getDisplay();
 $xdis_id = $record->getXmlDisplayId();
 $xdis_title = XSD_Display::getTitle($xdis_id);

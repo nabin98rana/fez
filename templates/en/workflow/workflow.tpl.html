@@ -53,7 +53,9 @@ Workflow Progress:
    <tr>
     <td   width="100%" align="center">
    {section name="i" loop=$workflow_buttons}
-     <input class="button" type="submit" name="workflow_button_{$workflow_buttons[i].wfs_id}" value="{$workflow_buttons[i].wfs_title|default:'Done'}" />&nbsp;
+     <input class="button" type="submit" name="workflow_button_{$workflow_buttons[i].wfs_id}" 
+     		value="{$workflow_buttons[i].wfs_title|default:'Done'}" 
+	     	{if $disable_workflow}disabled="disabled"{/if} />&nbsp;
      {/section}
      | <input class="button" type="button"  onclick="javascript:document.location.href='{$rel_url}workflow/abandon.php?id={$id}&href={$href|escape:'url'}';" value="Abandon Workflow" />
      
@@ -73,7 +75,10 @@ Workflow Progress:
    <tr>
     <td   width="100%" align="center">
    {section name="i" loop=$workflow_buttons}
-     <input class="button" type="submit" name="workflow_button_{$workflow_buttons[i].wfs_id}" value="{$workflow_buttons[i].wfs_title|default:'Done'}" />&nbsp;
+     <input class="button" type="submit" 
+     		name="workflow_button_{$workflow_buttons[i].wfs_id}" 
+     		value="{$workflow_buttons[i].wfs_title|default:'Done'}" 
+     		{if $disable_workflow}disabled="disabled"{/if} />&nbsp;
      {/section}
      | <input class="button" type="button"  onclick="javascript:document.location.href='{$rel_url}workflow/abandon.php?id={$id}&href={$href|escape:'url'}';" value="Abandon Workflow" />
     </td>

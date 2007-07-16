@@ -19,6 +19,7 @@ require_once APP_PEAR_PATH.'PHPUnit/TextUI/TestRunner.php';
 require_once APP_TEST_PATH.'record_lock/RecordLockGetLockTest.php';
 require_once APP_TEST_PATH.'record_lock/RecordLockReleaseLockTest.php';
 require_once APP_TEST_PATH.'record_lock/RecordLockGetListTest.php';
+require_once APP_TEST_PATH.'record_lock/RecordLockGetOwnerTest.php';
 
 
 
@@ -35,6 +36,7 @@ class RecordLockTests
  
         $suite->addTestSuite('RecordLockGetLockTest');
         $suite->addTestSuite('RecordLockReleaseLockTest');
+        $suite->addTestSuite('RecordLockGetOwnerTest');
         $suite->addTestSuite('RecordLockGetListTest');
         
         // ...

@@ -63,6 +63,7 @@ include_once(APP_INC_PATH . "class.foxml.php");
 include_once(APP_INC_PATH . "class.auth_rules.php");
 include_once(APP_INC_PATH . "class.auth_index.php");
 include_once(APP_INC_PATH . "class.xml_helper.php");
+include_once(APP_INC_PATH . "class.record_lock.php");
 
 /**
   * Record
@@ -2826,9 +2827,9 @@ class RecordGeneral
         Record::setIndexMatchingFields($this->pid);
     }
     
-    function getLock()
+    function getLock($context=self::CONTEXT_NONE, $extra_context=null)
     {
-        return RecordLock::getLock($this->pid, Auth::getUserID());
+        return RecordLock::getLock($this->pid, Auth::getUserID(),$context,$extra_context);
     }
     
     function releaseLock()

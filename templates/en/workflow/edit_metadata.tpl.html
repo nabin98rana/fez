@@ -1,4 +1,11 @@
 <tr><td>
+<div class="outline">
+{if $conflict}
+<div class="admin-header">Editing Conflict</div>
+<div class="default admin-content">The record you have selected is currently being edited by {$conflict_user}.  <a href="{$link_self}">Check again</a></div>
+{else}
+
+
 {include file='workflow/edit_metadata_helpers/javascript_block.tpl.html'}
 
 <input type="hidden" name="cat" value="update_form">
@@ -105,6 +112,7 @@
         {/section}		
 	</table>
 {/if}
-				  
 
+{/if}				  
+</div>
 </td></tr>

@@ -38,6 +38,18 @@ class RecordLockGetLockTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(-1, $res);
     }
 
+    public function testGetLockNullContext()
+    {
+        $res = RecordLock::getLock('Test:123', 1, '');
+        $this->assertEquals(-1, $res);
+    }
+
+    public function testGetLockNullExtra()
+    {
+        $res = RecordLock::getLock('Test:123', 1, RecordLock::CONTEXT_NONE, '');
+        $this->assertEquals(-1, $res);
+    }
+
     public function testGetLockZeroUser()
     {
         $res = RecordLock::getLock('Test:123', 0);

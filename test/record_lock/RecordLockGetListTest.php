@@ -38,7 +38,12 @@ class RecordLockGetListTest extends PHPUnit_Framework_TestCase
         $res = RecordLock::getList(1);
         // fix the rl_id as it is an autoincrement
         $res[0]['rl_id'] = 12345;
-        $this->assertEquals(array(array('rl_id' => 12345, 'rl_pid' => 'Test:123', 'rl_usr_id' => 1)), $res);
+        $expect = array(array('rl_id' => 12345, 
+                                'rl_pid' => 'Test:123', 
+                                'rl_usr_id' => 1, 
+                                'rl_context_type' => RecordLock::CONTEXT_NONE,
+                                'rl_context_value' => 0));
+        $this->assertEquals($expect, $res);
     }
 
     public function testGetListTwoItems()
@@ -49,8 +54,16 @@ class RecordLockGetListTest extends PHPUnit_Framework_TestCase
         // fix the rl_id as it is an autoincrement
         $res[0]['rl_id'] = 12345;
         $res[1]['rl_id'] = 12346;
-        $expect = array(array('rl_id' => 12345, 'rl_pid' => 'Test:123', 'rl_usr_id' => 1),
-                        array('rl_id' => 12346, 'rl_pid' => 'Test:321', 'rl_usr_id' => 1));
+        $expect = array(array('rl_id' => 12345, 
+                                'rl_pid' => 'Test:123', 
+                                'rl_usr_id' => 1,
+                                'rl_context_type' => RecordLock::CONTEXT_NONE,
+                                'rl_context_value' => 0),
+                        array('rl_id' => 12346, 
+                                'rl_pid' => 'Test:321', 
+                                'rl_usr_id' => 1,
+                                'rl_context_type' => RecordLock::CONTEXT_NONE,
+                                'rl_context_value' => 0));
         $this->assertEquals($expect, $res);
     }
 
@@ -64,7 +77,11 @@ class RecordLockGetListTest extends PHPUnit_Framework_TestCase
         $res = RecordLock::getList(1);
         // fix the rl_id as it is an autoincrement
         $res[0]['rl_id'] = 12345;
-        $expect = array(array('rl_id' => 12345, 'rl_pid' => 'Test:123', 'rl_usr_id' => 1));
+        $expect = array(array('rl_id' => 12345, 
+                                'rl_pid' => 'Test:123', 
+                                'rl_usr_id' => 1,
+                                'rl_context_type' => RecordLock::CONTEXT_NONE,
+                                'rl_context_value' => 0));
         $this->assertEquals($expect, $res);
     }
 
@@ -75,7 +92,11 @@ class RecordLockGetListTest extends PHPUnit_Framework_TestCase
         $res = RecordLock::getList(2);
         // fix the rl_id as it is an autoincrement
         $res[0]['rl_id'] = 12345;
-        $expect = array(array('rl_id' => 12345, 'rl_pid' => 'Test:321', 'rl_usr_id' => 2));
+        $expect = array(array('rl_id' => 12345, 
+                                'rl_pid' => 'Test:321', 
+                                'rl_usr_id' => 2,
+                                'rl_context_type' => RecordLock::CONTEXT_NONE,
+                                'rl_context_value' => 0));
         $this->assertEquals($expect, $res);
     }
     
@@ -90,7 +111,11 @@ class RecordLockGetListTest extends PHPUnit_Framework_TestCase
         $res = RecordLock::getList(1);
         // fix the rl_id as it is an autoincrement
         $res[0]['rl_id'] = 12345;
-        $expect = array(array('rl_id' => 12345, 'rl_pid' => 'Test:123', 'rl_usr_id' => 1));
+        $expect = array(array('rl_id' => 12345, 
+                                'rl_pid' => 'Test:123', 
+                                'rl_usr_id' => 1,
+                                'rl_context_type' => RecordLock::CONTEXT_NONE,
+                                'rl_context_value' => 0));
         $this->assertEquals($expect, $res);
         
     }
@@ -110,7 +135,10 @@ class RecordLockGetListTest extends PHPUnit_Framework_TestCase
                 }                    
             }
         }
-        $expect = array('rl_pid' => 'Test:123', 'rl_usr_id' => 1);
+        $expect = array('rl_pid' => 'Test:123', 
+                                'rl_usr_id' => 1,
+                                'rl_context_type' => RecordLock::CONTEXT_NONE,
+                                'rl_context_value' => 0);
         $this->assertEquals($expect, $found);
     }
     
@@ -129,7 +157,10 @@ class RecordLockGetListTest extends PHPUnit_Framework_TestCase
                 }                    
             }
         }
-        $expect = array('rl_pid' => 'Test:321', 'rl_usr_id' => 2);
+        $expect = array('rl_pid' => 'Test:321', 
+                            'rl_usr_id' => 2,
+                            'rl_context_type' => RecordLock::CONTEXT_NONE,
+                            'rl_context_value' => 0);
         $this->assertEquals($expect, $found);
     }
     

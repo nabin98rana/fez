@@ -32,6 +32,22 @@ $wfstatus->setTemplateVars($tpl);
 $wfstatus->checkStateChange();
 
 $left_pid = $wfstatus->getvar('dup_report_left_pid');
+$left_record = new RecordObject($left_pid);
+
+$link_self = $_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id));
+$tpl->assign('link_self', $link_self);
+
+if ($left_record->getLock(RecordLock::CONTEXT_WORKFLOW, $wfstatus->id) != 1) {
+    // Someone else is editing this record.
+    $owner_id = $left_record->getLockOwner();
+    $tpl->assign('conflict', 1);
+    $tpl->assign('conflict_user', User::getFullname($owner_id));
+    $tpl->assign('disable_workflow', 1);
+    $tpl->displayTemplate();
+    exit;
+}
+ 
+
 $current_dup_pid = $wfstatus->getvar('current_dup_pid');    
 $duplicates_report = new DuplicatesReport($pid);
 
@@ -78,7 +94,6 @@ foreach ($dup_list as $key => $dup_list_item) {
     $dup_list[$key]['link'] = $_SERVER['PHP_SELF'].'?'.http_build_query($qparams);
 }
 
-$left_record = new RecordObject($left_pid);
 $record_edit_form = new RecordEditForm();
 $record_edit_form->setTemplateVars($tpl, $left_record);
 

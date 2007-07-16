@@ -1,6 +1,8 @@
 <tr>
 <td>
-
+{if $conflict}
+<div class="admin-content">The record you have selected is currently being edited by {$conflict_user}.  <a href="{$link_self}">Check again</a></div>
+{else}
 <script type="text/javascript" src="{$rel_url}js/compare_records_helpers.js" ></script>
 {include file="workflow/edit_metadata_helpers/javascript_block.tpl.html"}
 <div class="outline">
@@ -71,6 +73,7 @@ Possible Duplicates:
 </table>
 
 </div>
+{/if}
 
 </td>
 </tr>
