@@ -308,11 +308,7 @@ function openHistory(pid)
 
  			  <td align="left" bgcolor="{$light_color}" class="default">
  			  {if $xsd_display_fields[i].xsdmf_html_input == 'date'}
-	 		    {if $xsd_display_fields[i].xsdmf_date_type == 1}
-	 			    {$details[$temp_fld_id]|date_format:"%Y"}
- 			    {else}	 			    
 		          {$details[$temp_fld_id]}
-	 			{/if}
  			  {else}
  			  	{if $details[$attached_temp_fld_id] == 0}{$details[$temp_fld_id]|date_format:"%A, %B %e, %Y"}{else}{$details[$temp_fld_id]}{/if}
  			  {/if}

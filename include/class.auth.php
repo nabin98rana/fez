@@ -1608,7 +1608,24 @@ class Auth
         }
         return @$session['isInDB'];
     }
-    
+
+    /**
+     * Is the user in the Shibboleth system?
+     *
+     * @access  public
+     * @return  boolean true if in the Shibboleth system, false otherwise.
+     */
+    function isInFederation()
+    {
+        global $auth_bgp_session, $auth_isBGP;
+        if ($auth_isBGP) {
+            $session =& $auth_bgp_session;
+        } else {
+            $session =& $_SESSION;
+        }
+        return @$session['isInFederation'];
+    }
+
     /**
      * Checks and appends the security roles (authorisation groups) the user has over the object for the listing/search screens. 
      *
