@@ -7,10 +7,10 @@
 	   {if is_array($details[$attached_xsdmf_id])}
 		 {if $details[$attached_xsdmf_id][$loop_num] != ""}
 		   {assign var="author_id" value=$details[$attached_xsdmf_id][$loop_num]}
-		   <option value="{$details[$temp_attached_xsdmf_id][$loop_num]}" selected>{$author_ids[$author_id]} ({$details[$attached_xsdmf_id][$loop_num]})</option>
+		   <option value="{$details[$attached_xsdmf_id][$loop_num]}" selected>{$author_ids[$author_id]} ({$details[$attached_xsdmf_id][$loop_num]})</option>
 		  {/if}
 	   {else}
-		  {if $details[$attached_xsdmf_id] != "" && $loop_num == 0}
+		  {if $details[$attached_xsdmf_id] != ""}
 			{assign var="author_id" value=$details[$attached_xsdmf_id]}
 		 	<option value="{$details[$attached_xsdmf_id]}" selected>{$author_ids[$author_id]} ({$details[$attached_xsdmf_id]})</option>										   
 		  {/if}
