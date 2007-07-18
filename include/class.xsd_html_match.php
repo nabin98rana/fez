@@ -29,7 +29,8 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
@@ -1673,15 +1674,35 @@ class XSD_HTML_Match {
             $value = Misc::escapeString(@$params[$col_name]);
             if (strstr($col_name, '_id') && empty($value)) {
                 $stmt .= " ".$col_name."=null,\n";
+            } elseif (strstr($col_name, 'xsdmf_multiple') && empty($value)) {
+                $stmt .= " ".$col_name."=null,\n";
+            } elseif (strstr($col_name, 'xsdmf_required') && empty($value)) {
+                $stmt .= " ".$col_name."=null,\n";
+            } elseif (strstr($col_name, 'xsdmf_order') && empty($value)) {
+                $stmt .= " ".$col_name."=null,\n";
+            } elseif (strstr($col_name, 'xsdmf_is_key') && empty($value)) {
+                $stmt .= " ".$col_name."=null,\n";
+            } elseif (strstr($col_name, 'xsdmf_show_in_view') && empty($value)) {
+                $stmt .= " ".$col_name."=null,\n";
+            } elseif (strstr($col_name, 'xsdmf_cvo_min_level') && empty($value)) {
+                $stmt .= " ".$col_name."=null,\n";
+            } elseif (strstr($col_name, 'xsdmf_enabled') && empty($value)) {
+                $stmt .= " ".$col_name."=null,\n";
+            } elseif (strstr($col_name, 'xsdmf_citation_order') && empty($value)) {
+                $stmt .= " ".$col_name."=null,\n";
+            } elseif (strstr($col_name, 'xsdmf_valueintag') && empty($value)) {
+                $stmt .= " ".$col_name."=null,\n";
             } else {
                 $stmt .= " ".$col_name."='".$value."',\n";
             }
         }
         $stmt = rtrim($stmt,", \n"); // get rid of trailing comma
         $stmt .= " WHERE xsdmf_id='".$xsdmf_id."' ";
+        /* -- Not sure what this was doing. MS suggests this is old debug. Probably okay to axe.
         if ($xsdmf_id == 523) {
         	Error_Handler::logError($stmt);
         }
+        */
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array (
