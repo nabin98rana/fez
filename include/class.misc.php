@@ -2060,6 +2060,9 @@ class Misc
 											case "text":
 											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.'<b>Text Input:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].'</span><img src="'.APP_RELATIVE_URL.'images/text_16.png" />';										   
 											   break;
+                                            case "hidden":
+                                               $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.'<b>Text Input:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].'</span><img src="'.APP_RELATIVE_URL.'images/hidden_16.png" />';                                        
+                                               break;
 											case "contvocab_selector":
 											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.'<b>Controlled Vocabulary Selector:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].'</span><img src="'.APP_RELATIVE_URL.'images/contvocab_16.png" />';										   
 											   break;

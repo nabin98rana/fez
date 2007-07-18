@@ -1,0 +1,48 @@
+Page: 
+{if $pages == 1}
+1	
+{else}
+  {if $pages <= 5}
+     {section name='page_idx' loop=5}
+     	{assign var='pp_current' value=$smarty.section.page_idx.index}
+     	{if $pp_current == $page}
+     	  {math equation='x + 1' x=$page}
+     	{else}
+     	  <a href="{$pager_self_link|replace:__pp_page__:$pp_current}">{math equation='x + 1' x=$page}</a>
+     	{/if}
+     {/section}
+  {else}
+   	{assign var='pp_current' value=1}
+     	{if $pp_current == $page}
+     	  {math equation='x + 1' x=$page}
+     	{else}
+     	  <a href="{$pager_self_link|replace:__pp_page__:$pp_current}">{math equation='x + 1' x=$page}</a>
+     	{/if}
+
+   	{math var='pp_start' equation='x - 1' x=$page}
+   	{if $pp_start < 2}
+   	  {assign var='pp_start' value=2}
+   	{elseif $pp_start > $pages - 4}
+   	  {math var='pp_start' equation='x-4' x=$pages}
+ 	{/if}
+		
+     {section name='page_idx' loop=3 start=$pp_start}
+     	{assign var='pp_current' value=$smarty.section.page_idx.index}
+     	{if $pp_current == $page}
+     	  {math equation='x + 1' x=$page}
+     	{else}
+     	  <a href="{$pager_self_link|replace:__pp_page__:$pp_current}">{math equation='x + 1' x=$page}</a>
+     	{/if}
+     {/section}
+
+
+   	{math var='pp_current' equation='x - 1' x=$pages}
+     	{if $pp_current == $page}
+     	  {math equation='x + 1' x=$page}
+     	{else}
+     	  <a href="{$pager_self_link|replace:__pp_page__:$pp_current}">{math equation='x + 1' x=$page}</a>
+     	{/if}
+
+  	
+  {/if}
+{/if}

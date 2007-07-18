@@ -159,7 +159,7 @@
         $xsd_display_fields = $this->xsd_display_fields;
         foreach ($xsd_display_fields  as $dis_field) {
             if ($dis_field["xsdmf_enabled"] == 1) {
-                if ($dis_field["xsdmf_html_input"] == 'text' || $dis_field["xsdmf_html_input"] == 'textarea') {
+                if ($dis_field["xsdmf_html_input"] == 'text' || $dis_field["xsdmf_html_input"] == 'textarea' || $dis_field["xsdmf_html_input"] == 'hidden') {
                     if (is_array($details[$dis_field['xsdmf_id']])) {
                         foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
                             $details[$dis_field['xsdmf_id']][$ckey] = preg_replace('/\s\s+/', ' ', trim($cdata));

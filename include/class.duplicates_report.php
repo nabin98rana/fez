@@ -198,6 +198,14 @@ class DuplicatesReport {
         }
         return $res;
     }
+
+    /** 
+     * Look for <mods:identifier type="isi_loc"> on both records and if they're the same
+     * return true.
+     */
+    function checkAutoMerge()
+    {
+    }
     
     function compareRecords($record1, $record2) 
     {
@@ -258,6 +266,7 @@ class DuplicatesReport {
         $first_item = $page * $page_size;
         $last_item = $first_item + $page_size;
         $items = $xpath->query('/DuplicatesReport/duplicatesReportItem');
+        $pages = intval(floor(($items->length / $page_size) + 0.999999));
         $listing = array();
         for ($ii = $first_item; $ii < $last_item && $ii < $items->length; $ii++) {
             $itemNode = $items->item($ii);
@@ -287,7 +296,8 @@ class DuplicatesReport {
                 $listing[] = $listing_item;
             }
         }
-        return $listing;
+        $list_meta = compact('pages');
+        return compact('listing','list_meta');
     }
     
     function getItemDetails($pid)

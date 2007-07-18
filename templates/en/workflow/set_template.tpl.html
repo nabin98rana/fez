@@ -386,6 +386,29 @@ function selectDateField(field_name, day, month, year)
 						 </td>
 						</tr>
 				{/if}
+            {elseif $xsd_display_fields[i].xsdmf_html_input == 'hidden' && $xsd_display_fields[i].xsdmf_enabled == 1}
+				{if $xsd_display_fields[i].xsdmf_multiple == 1}
+					{section name="z" loop=$xsd_display_fields[i].multiple_array}
+						{assign var="loop_num" value=$xsd_display_fields[i].multiple_array[z]}
+						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" style="display:none">
+						  <td width="200" bgcolor="{$cell_color}" class="default">
+							<b>{$xsd_display_fields[i].xsdmf_title} {$loop_num} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />{if $loop_num == 1}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appears as they are used up)</i>{/if}
+						  </td>
+						  <td bgcolor="{$light_color}">
+				            <input type="hidden" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" />
+						 </td>
+						</tr>
+					{/section}
+				{else}
+						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1" style="display:none">
+						  <td width="200" bgcolor="{$cell_color}" class="default">
+							<b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
+						  </td>
+						  <td bgcolor="{$light_color}">
+				            <input type="hidden" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]" />
+						 </td>
+						</tr>
+				{/if}
             {elseif ($xsd_display_fields[i].xsdmf_html_input == 'org_selector') && $xsd_display_fields[i].xsdmf_enabled == 1}
 				{assign var="field_name" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}							
 				{if $xsd_display_fields[i].xsdmf_html_input == 'multiple'}

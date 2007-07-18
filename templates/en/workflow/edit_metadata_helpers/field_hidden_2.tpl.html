@@ -1,0 +1,31 @@
+			<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}" style="display:none">
+			  <td>{$xsdmf.xsdmf_title}
+			  </td>
+			  <td>
+				{assign var="field_id" value="xsd_display_fields_"|cat:$xsdmf.xsdmf_id|cat:"_"|cat:$loop_num}
+				<input class="default" type="hidden" 
+					id="{$field_id}" 
+					{if $xsdmf.xsdmf_multiple == 1}
+						name="xsd_display_fields[{$xsdmf.xsdmf_id}]{$squares}" 
+						value="{$details[$temp_fld_id][$loop_num]|escape:"html"}" 
+					{else}
+						name="xsd_display_fields[{$xsdmf.xsdmf_id}]" 
+						value="{$details[$temp_fld_id]|escape:"html"}" 
+					{/if}
+					>
+				{if $xsdmf.xsdmf_attached_xsdmf_id != ""}
+					{assign var="attached_xsdmf_id" value=$xsdmf.xsdmf_attached_xsdmf_id}
+					{section name='aa' loop=$xsd_display_fields}{if $xsd_display_fields[aa].xsdmf_id == $attached_xsdmf_id}{assign var="attached_xsdmf" value=$xsd_display_fields[aa]}{/if}{/section}
+					{assign var="attached_field_name" value="xsd_display_fields_"|cat:$attached_xsdmf_id|cat:"_"|cat:$loop_num}						
+					{include file='workflow/edit_metadata_helpers/attached_'|cat:$attached_xsdmf.xsdmf_html_input|cat:'.tpl.html'}
+				{/if}
+
+			  </td>
+				  {if $xsdmf.xsdmf_multiple == 1}
+				    {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"|cat:$squares
+				  	  attached_field_name=$attached_field_name attached_xsdmf=$attached_xsdmf }
+				  {else}
+				    {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]" 
+				  	  attached_field_name=$attached_field_name attached_xsdmf=$attached_xsdmf }
+				  {/if}
+			</tr>
