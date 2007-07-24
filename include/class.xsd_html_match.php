@@ -1103,9 +1103,13 @@ class XSD_HTML_Match {
 		                    xsdmf_title,
 		                    xsdmf_description,
 		                    xsdmf_html_input,
-		                    xsdmf_order,
 		                    xsdmf_validation_type,";
-		if (!empty ($insertArray["xsdmf_enabled"])) {
+
+		if (!empty ($insertArray["xsdmf_order"])) {
+			$stmt .= " xsdmf_order,";
+		}
+
+        if (!empty ($insertArray["xsdmf_enabled"])) {
 			$stmt .= " xsdmf_enabled,";
 		}
 		if (!empty ($insertArray["xsdmf_indexed"])) {
@@ -1247,10 +1251,13 @@ class XSD_HTML_Match {
 		                    '" . Misc::escapeString($insertArray["xsdmf_title"]) . "',
 		                    '" . Misc::escapeString($insertArray["xsdmf_description"]) . "',
 		                    '" . Misc::escapeString($insertArray["xsdmf_html_input"]) . "',
-		                    '" . Misc::escapeString($insertArray["xsdmf_order"]) . "',
 		                    '" . Misc::escapeString($insertArray["xsdmf_validation_type"]) . "',";
 
-		if (!empty ($insertArray["xsdmf_enabled"])) {
+		if (!empty ($insertArray["xsdmf_order"])) {
+			$stmt .= $insertArray["xsdmf_order"] . ",";
+		}
+        
+        if (!empty ($insertArray["xsdmf_enabled"])) {
 			$stmt .= $insertArray["xsdmf_enabled"] . ",";
 		}
 
@@ -1265,21 +1272,21 @@ class XSD_HTML_Match {
 			$stmt .= $insertArray["xsdmf_multiple"] . ",";
 		}
 
-			if (!empty($insertArray["xsdmf_multiple_limit"])) {
-               $stmt .= $insertArray["xsdmf_multiple_limit"] . ",";
-			}
-			if (!empty($insertArray["xsdmf_sek_id"])) {
-               $stmt .= $insertArray["xsdmf_sek_id"] . ",";
-			}
-			if (!empty($insertArray["xsdmf_valueintag"])) {
-               $stmt .= $insertArray["xsdmf_valueintag"] . ",";
-			}
-			if (!empty($insertArray["xsdmf_is_key"])) {
-               $stmt .= $insertArray["xsdmf_is_key"] . ",";
-			}
-			if (!empty($insertArray["xsdmf_meta_header_name"])) {
-               $stmt .= "'".$insertArray["xsdmf_meta_header_name"] . "',";
-			}
+        if (!empty($insertArray["xsdmf_multiple_limit"])) {
+           $stmt .= $insertArray["xsdmf_multiple_limit"] . ",";
+        }
+        if (!empty($insertArray["xsdmf_sek_id"])) {
+           $stmt .= $insertArray["xsdmf_sek_id"] . ",";
+        }
+        if (!empty($insertArray["xsdmf_valueintag"])) {
+           $stmt .= $insertArray["xsdmf_valueintag"] . ",";
+        }
+        if (!empty($insertArray["xsdmf_is_key"])) {
+           $stmt .= $insertArray["xsdmf_is_key"] . ",";
+        }
+        if (!empty($insertArray["xsdmf_meta_header_name"])) {
+           $stmt .= "'".$insertArray["xsdmf_meta_header_name"] . "',";
+        }
 
 		if (!empty ($insertArray["xsdmf_meta_header"])) {
 			$stmt .= $insertArray["xsdmf_meta_header"] . ",";
