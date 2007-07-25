@@ -44,25 +44,28 @@ class DuplicatesReportSwapBaseXMLTest extends PHPUnit_Framework_TestCase
     
     public function testDuplicatesReportSwapBaseXMLEmpty1()
     {
-        $res = $this->fixture->swapBaseXML(null,null,null);
-        $this->assertNull($res);
+        $res = $this->fixture->swapBaseXML(null,null);
+        $this->assertEquals(-1,$res);
     }
     
     public function testDuplicatesReportSwapBaseXMLEmpty2()
     {
-        $res = $this->fixture->swapBaseXML('MSS:400',null,null);
-        $this->assertNull($res);
+        $res = $this->fixture->swapBaseXML('MSS:400',null);
+        $this->assertEquals(-1,$res);
     }
-    
-    public function testDuplicatesReportSwapBaseXMLEmpty3()
+
+    public function testDuplicatesReportSwapBaseXMLReturn()
     {
-        $res = $this->fixture->swapBaseXML('MSS:400','MSS:405',null);
-        $this->assertNull($res);
+        $this->fixture->setXML_DOM(DOMDocument::loadXML($this->report));
+        $res = $this->fixture->swapBaseXML('MSS:400','MSS:405');
+        $this->assertEquals(1,$res);
     }
     
     public function testDuplicatesReportSwapBaseXML()
     {
-        $res = $this->fixture->swapBaseXML('MSS:400','MSS:405',$this->report);
+        $this->fixture->setXML_DOM(DOMDocument::loadXML($this->report));
+        $res = $this->fixture->swapBaseXML('MSS:400','MSS:405');
+        $xml = $this->fixture->xml_dom->saveXML();
         $expect = '<?xml version="1.0"?>
 <DuplicatesReport>
   <duplicatesReportItem pid="MSS:379" title="date test">
@@ -81,13 +84,14 @@ class DuplicatesReportSwapBaseXMLTest extends PHPUnit_Framework_TestCase
     <duplicateItem pid="MSS:411" probability="0.91"/>
   </duplicatesReportItem>
 </DuplicatesReport>';
-        $this->assertEquals(TestCommon::treatXML($expect), TestCommon::treatXML($res));
+        $this->assertEquals(TestCommon::treatXML($expect), TestCommon::treatXML($xml));
     }
     
     public function testDuplicatesReportSwapBaseXMLAlreadySwapped()
     {
-        $res = $this->fixture->swapBaseXML('MSS:405','MSS:400',$this->report);
-        $this->assertNull($res);
+        $this->fixture->setXML_DOM(DOMDocument::loadXML($this->report));
+        $res = $this->fixture->swapBaseXML('MSS:405','MSS:400');
+        $this->assertEquals(-1,$res);
     }
 
 }

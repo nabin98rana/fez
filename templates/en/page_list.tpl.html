@@ -1,7 +1,7 @@
-Page: 
 {if $pages == 1}
-1	
-{else}
+Page: 1	
+{elseif $pages > 1}
+Page: 
   {if $pages <= 5}
      {section name='page_idx' loop=5}
      	{assign var='pp_current' value=$smarty.section.page_idx.index}

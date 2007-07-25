@@ -50,6 +50,7 @@ if ($left_record->getLock(RecordLock::CONTEXT_WORKFLOW, $wfstatus->id) != 1) {
 
 $current_dup_pid = $wfstatus->getvar('current_dup_pid');    
 $duplicates_report = new DuplicatesReport($pid);
+$duplicates_report->setWorkflowId($wfstatus->id);
 
 if (@$_REQUEST['action'] == 'change_dup_pid') {
     $current_dup_pid = $_REQUEST['current_dup_pid'];

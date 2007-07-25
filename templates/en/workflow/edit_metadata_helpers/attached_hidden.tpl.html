@@ -1,6 +1,12 @@
 {assign var="attached_field_id" value="xsd_display_fields_"|cat:$attached_xsdmf_id|cat:"_"|cat:$loop_num}
-{if $xsdmf.xsdmf_multiple == 1}
-<input type="hidden" id="{$attached_field_id}" name="{$attached_field_id}" value="{$details[$attached_xsdmf_id][$loop_num]}" />
+{if $xsdmf.xsdmf_multiple == 1 }
+	{if is_array($details[$attached_xsdmf_id])}
+		<input type="hidden" id="{$attached_field_id}" name="{$attached_field_id}" value="{$details[$attached_xsdmf_id][$loop_num]}" />
+	{elseif $loop_num == 0}
+		<input type="hidden" id="{$attached_field_id}" name="{$attached_field_id}" value="{$details[$attached_xsdmf_id]}" />
+	{else}
+		<input type="hidden" id="{$attached_field_id}" name="{$attached_field_id}" value="" />
+	{/if}
 {else}
-<input type="hidden" id="{$attached_field_id}" name="{$attached_field_id}" value="{$details[$attached_xsdmf_id]}" />
+	<input type="hidden" id="{$attached_field_id}" name="{$attached_field_id}" value="{$details[$attached_xsdmf_id]}" />
 {/if}

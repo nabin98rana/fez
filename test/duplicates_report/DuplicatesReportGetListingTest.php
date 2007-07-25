@@ -193,85 +193,74 @@ class DuplicatesReportGetListingTest extends PHPUnit_Framework_TestCase
     
     public function testDuplicatesReportListingNull()
     {
-        $listing = $this->fixture->getListingFromXML(0, 10, null);
-        $this->assertEquals(array(), $listing);
+        $listing = $this->fixture->getListing(0, 10);
+        $this->assertEquals(-1, $listing);
     }
     
-    public function testDuplicatesReportListingEmpty()
-    {
-        $listing = $this->fixture->getListingFromXML(0, 10, '');
-        $this->assertEquals(array(), $listing);
-    }
-    
-    public function testDuplicatesReportListingWrongType()
-    {
-        $listing = $this->fixture->getListingFromXML(0, 10, 666);
-        $this->assertEquals(array(), $listing);
-    }
-    
-/*    public function testDuplicatesReportListingInvalidXML()
-    {
-        $listing = $this->fixture->getListingFromXML(0, 10, str_replace('/', '', $this->reportShort));
-        $this->assertEquals(array(), $listing);
-    }
-  */
-  
   public function testDuplicatesReportListingShort0_10()
   {
-        $listing = $this->fixture->getListingFromXML(0, 10, $this->reportShort);
+		$this->fixture->setXML_DOM(DOMDocument::loadXML($this->reportShort));
+        $listing = $this->fixture->getListing(0, 10);
         $this->assertEquals(3, count($listing['listing']));
       
   }
   
   public function testDuplicatesReportListingShort1_10()
   {
-        $listing = $this->fixture->getListingFromXML(1, 10, $this->reportShort);
+		$this->fixture->setXML_DOM(DOMDocument::loadXML($this->reportShort));
+        $listing = $this->fixture->getListing(1, 10);
         $this->assertEquals(array(), $listing['listing']);
       
   }
   
   public function testDuplicatesReportListingLong0_10()
   {
-        $listing = $this->fixture->getListingFromXML(0, 10, $this->reportLong);
+		$this->fixture->setXML_DOM(DOMDocument::loadXML($this->reportLong));
+        $listing = $this->fixture->getListing(0, 10);
         $this->assertEquals(10, count($listing['listing']));
       
   }
   
   public function testDuplicatesReportListingLong2_2()
   {
-        $listing = $this->fixture->getListingFromXML(2, 2, $this->reportLong);
+		$this->fixture->setXML_DOM(DOMDocument::loadXML($this->reportLong));
+        $listing = $this->fixture->getListing(2, 2);
         $this->assertEquals(2, count($listing['listing']));
       
   }
   
   public function testDuplicatesReportListingLong2_2Pids()
   {
-        $listing = $this->fixture->getListingFromXML(2, 2, $this->reportLong);
+		$this->fixture->setXML_DOM(DOMDocument::loadXML($this->reportLong));
+        $listing = $this->fixture->getListing(2, 2);
         $this->assertEquals(array('MSS:400','MSS:393'), array_keys(Misc::keyArray($listing['listing'],'pid')));
-      
   }
   
   public function testDuplicatesReportListingLong2_2Titles()
   {
-        $listing = $this->fixture->getListingFromXML(2, 2, $this->reportLong);
+		$this->fixture->setXML_DOM(DOMDocument::loadXML($this->reportLong));
+        $listing = $this->fixture->getListing(2, 2);
         $this->assertEquals(array('This is a test','Catch the Wave'), array_keys(Misc::keyArray($listing['listing'],'title')));
   }
   
   public function testDuplicatesReportListingLong2_2Scores()
   {
-        $listing = $this->fixture->getListingFromXML(2, 2, $this->reportLong);
+		$this->fixture->setXML_DOM(DOMDocument::loadXML($this->reportLong));
+        $listing = $this->fixture->getListing(2, 2);
         $this->assertEquals(array('0.63843893489431','0.85489569569561'), array_keys(Misc::keyArray($listing['listing'],'probability')));
   }
 
   public function testDuplicatesReportListingLong2_2Count()
   {
-        $listing = $this->fixture->getListingFromXML(2, 2, $this->reportLong);
+		$this->fixture->setXML_DOM(DOMDocument::loadXML($this->reportLong));
+        $listing = $this->fixture->getListing(2, 2);
         $this->assertEquals(array('3','2'), array_keys(Misc::keyArray($listing['listing'],'count')));
   }
 
   public function testDuplicatesReportListingNotResolved()
   {
-        $listing = $this->fixture->getListingFromXML(0, 10, $this->reportShort);
+		$this->fixture->setXML_DOM(DOMDocument::loadXML($this->reportShort));
+        $listing = $this->fixture->getListing(0, 10);
         $only_dups = array();
         foreach ($listing['listing'] as $item) {
             $only_dups[] = $item['resolved'];
@@ -281,63 +270,66 @@ class DuplicatesReportGetListingTest extends PHPUnit_Framework_TestCase
   
   public function testDuplicatesReportListingPaging1()
   {
-        $listing = $this->fixture->getListingFromXML(0, 10, $this->reportShort);
+		$this->fixture->setXML_DOM(DOMDocument::loadXML($this->reportShort));
+        $listing = $this->fixture->getListing(0, 10);
         $this->assertEquals(1, $listing['list_meta']['pages']);
   }
 
   public function testDuplicatesReportListingPaging2()
   {
-        $listing = $this->fixture->getListingFromXML(0, 10, $this->reportLong);
+		$this->fixture->setXML_DOM(DOMDocument::loadXML($this->reportLong));
+        $listing = $this->fixture->getListing(0, 10);
         $this->assertEquals(3, $listing['list_meta']['pages']);
   }
 
   public function testDuplicatesReportListingPaging3()
   {
-        $listing = $this->fixture->getListingFromXML(0, 30, $this->reportLong);
+		$this->fixture->setXML_DOM(DOMDocument::loadXML($this->reportLong));
+        $listing = $this->fixture->getListing(0, 30);
         $this->assertEquals(1, $listing['list_meta']['pages']);
   }
 
   public function testDuplicatesReportListingPaging4()
   {
-        $listing = $this->fixture->getListingFromXML(0, 11, $this->reportLong);
+		$this->fixture->setXML_DOM(DOMDocument::loadXML($this->reportLong));
+        $listing = $this->fixture->getListing(0, 11);
         $this->assertEquals(3, $listing['list_meta']['pages']);
   }
 
   public function testDuplicatesReportListingPaging5()
   {
-        $listing = $this->fixture->getListingFromXML(0, 9, $this->reportLong);
+		$this->fixture->setXML_DOM(DOMDocument::loadXML($this->reportLong));
+        $listing = $this->fixture->getListing(0, 9);
         $this->assertEquals(4, $listing['list_meta']['pages']);
   }
 
   public function testDuplicatesReportListingPaging6()
   {
-        $listing = $this->fixture->getListingFromXML(0, 15, $this->reportLong);
+		$this->fixture->setXML_DOM(DOMDocument::loadXML($this->reportLong));
+	    $listing = $this->fixture->getListing(0, 15);
         $this->assertEquals(2, $listing['list_meta']['pages']);
   }
 
   public function testDuplicatesReportListingPaging7()
   {
-        $listing = $this->fixture->getListingFromXML(0, 7, $this->reportLong);
+		$this->fixture->setXML_DOM(DOMDocument::loadXML($this->reportLong));
+        $listing = $this->fixture->getListing(0, 7);
         $this->assertEquals(5, $listing['list_meta']['pages']);
   }
 
   public function testDuplicatesReportListingPaging8()
   {
-        $listing = $this->fixture->getListingFromXML(0, 29, $this->reportLong);
+		$this->fixture->setXML_DOM(DOMDocument::loadXML($this->reportLong));
+        $listing = $this->fixture->getListing(0, 29);
         $this->assertEquals(2, $listing['list_meta']['pages']);
   }
 
   public function testDuplicatesReportListingPaging9()
   {
-        $listing = $this->fixture->getListingFromXML(0, 31, $this->reportLong);
+		$this->fixture->setXML_DOM(DOMDocument::loadXML($this->reportLong));
+        $listing = $this->fixture->getListing(0, 31);
         $this->assertEquals(1, $listing['list_meta']['pages']);
   }
-
-
-
-
-
-
   
 }
 

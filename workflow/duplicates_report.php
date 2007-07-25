@@ -43,8 +43,14 @@ if (!empty($left_pid) && RecordLock::getOwner($left_pid) == Auth::getUserID()) {
 list($page, $page_size) = Pager::doPaging($tpl, 'duplicates_report_');
 
 $duplicates_report = new DuplicatesReport($pid);
-
+$duplicates_report->setWorkflowId($wfstatus->id);
 $listing = $duplicates_report->getListing($page, $page_size);
+// correct problem of paging off the end of the list.
+if ($page > $listing['list_meta']['pages'] - 1) {
+	$page = 0;
+	$listing = $duplicates_report->getListing($page, $page_size);
+	Pager::setParam('duplicates_report_page',$page);
+}
 $tpl->assign('listing', $listing['listing']);
 $tpl->assign('list_meta', $listing['list_meta']);
 $tpl->assign('pages', $listing['list_meta']['pages']);

@@ -827,8 +827,6 @@ class XSD_Display
 class XSD_DisplayObject
 {
     var $xdis_id;
-    var $matchfields;
-    var $retrieved_mf = false;
     var $xsd_html_match;
 
     /**
@@ -868,12 +866,7 @@ class XSD_DisplayObject
      */ 
     function getMatchFieldsList($exclude_list=array(), $specify_list=array())
     {
-        if ($this->retrieved_mf) {
-            return $this->matchfields;
-        }
         $res = XSD_HTML_Match::getListByDisplay($this->xdis_id, $exclude_list, $specify_list);
-        $this->retrieved_mf = true;
-        $this->matchfields = $res;
         return $res;
     }
 

@@ -1,4 +1,3 @@
-<!--
 var today = new Date();
 var expires = new Date(today.getTime() + (56 * 86400000));
 
@@ -832,4 +831,23 @@ function setAction(f,action)
 	fe.setAttribute('value', action);
 	return true;
 }
-//-->
+
+function workflowItems(f, rel_url)
+{
+    if (!hasOneChecked(f, 'pids[]')) {
+        alert('Please choose which entries to run this workflow against.');
+        return false;
+    }
+    if (f.wft_id.options[f.wft_id.selectedIndex].value == '') {
+        alert('Please choose the bulk workflow to use these objects.');
+        f.users.focus();
+        selectField(f, 'wft_id');
+        return false;
+    }
+    f.wft_id = f.wft_id.selectedIndex;
+    f.cat.value = 'select_workflow';
+    f.action = rel_url + 'workflow/bulk_change.php';
+    f.target='';
+    f.submit();
+}
+

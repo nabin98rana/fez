@@ -203,7 +203,6 @@ No items found
        	</table>       		
        </td>       		       		
      </tr>
-<input type="hidden" name="cat" value="purge_objects" />
 {assign var="list" value=$my_created_items_list}
      {section name="i" loop=$list}
 		{if $list[i].thumbnail != "0"}
@@ -302,7 +301,7 @@ No items found
        </td>
        {/if}
        <td>                   
-         <input type="button" value="Run Workflow &gt;" class="shortcut" onClick="javascript:workflowItems(this.form);">
+         <input type="button" value="Run Workflow &gt;" class="shortcut" onClick="javascript:workflowItems(this.form, '{$rel_url}');">
          <select name="wft_id" class="default">
            {html_options options=$bulk_workflows}
           </select>

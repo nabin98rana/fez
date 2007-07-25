@@ -45,25 +45,35 @@ class DuplicatesReportSetDuplicateXMLTest extends PHPUnit_Framework_TestCase
     public function testSetDuplicateXMLEmpty1()
     {
         $res = $this->fixture->setDuplicateXML(null, null, null, null);
-        $this->assertNull($res);
+        $this->assertEquals(-1,$res);
     }    
 
     public function testSetDuplicateXMLEmpty2()
     {
         $res = $this->fixture->setDuplicateXML('MSS:400', null, null, null);
-        $this->assertNull($res);
+        $this->assertEquals(-1,$res);
     }    
 
     public function testSetDuplicateXMLEmpty3()
     {
         $res = $this->fixture->setDuplicateXML('MSS:400', 'MSS:405', null, null);
-        $this->assertNull($res);
+        $this->assertEquals(-1,$res);
     }    
+
+    public function testSetDuplicateXMLEmpty4Return()
+    {
+        // If $is_duplicate is null, then default to false
+        $this->fixture->setXML_DOM(DOMDocument::loadXML($this->report));
+        $res = $this->fixture->setDuplicateXML('MSS:400', 'MSS:405',  null);
+        $this->assertEquals(1,$res);
+    }
 
     public function testSetDuplicateXMLEmpty4()
     {
         // If $is_duplicate is null, then default to false
-        $res = $this->fixture->setDuplicateXML('MSS:400', 'MSS:405', $this->report, null);
+        $this->fixture->setXML_DOM(DOMDocument::loadXML($this->report));
+        $res = $this->fixture->setDuplicateXML('MSS:400', 'MSS:405',  null);
+        $xml = $this->fixture->xml_dom->saveXML();
         // remove whitespace from XML since it seems to confuse things
         $expected_xml = TestCommon::treatXML(
 '<?xml version="1.0"?>
@@ -84,13 +94,24 @@ class DuplicatesReportSetDuplicateXMLTest extends PHPUnit_Framework_TestCase
     <duplicateItem pid="MSS:411" probability="0.91"/>
   </duplicatesReportItem>
 </DuplicatesReport>');
-        $this->assertEquals($expected_xml, TestCommon::treatXML($res));
+        $this->assertEquals($expected_xml, TestCommon::treatXML($xml));
     }    
+
+    public function testSetDuplicateXMLDefault4Return()
+    {
+        // If $is_duplicate is null, then default to false
+        $this->fixture->setXML_DOM(DOMDocument::loadXML($this->report));
+        $res = $this->fixture->setDuplicateXML('MSS:400', 'MSS:405');
+        $this->assertEquals(1,$res);
+    }
+
 
     public function testSetDuplicateXMLDefault4()
     {
         // If $is_duplicate is not specified, then default to true
-        $res = $this->fixture->setDuplicateXML('MSS:400', 'MSS:405', $this->report);
+        $this->fixture->setXML_DOM(DOMDocument::loadXML($this->report));
+        $res = $this->fixture->setDuplicateXML('MSS:400', 'MSS:405');
+        $xml = $this->fixture->xml_dom->saveXML();
         $expected_xml = TestCommon::treatXML(
 '<?xml version="1.0"?>
 <DuplicatesReport>
@@ -110,16 +131,17 @@ class DuplicatesReportSetDuplicateXMLTest extends PHPUnit_Framework_TestCase
     <duplicateItem pid="MSS:411" probability="0.91"/>
   </duplicatesReportItem>
 </DuplicatesReport>'); 
-        $this->assertEquals($expected_xml, TestCommon::treatXML($res));
+        $this->assertEquals($expected_xml, TestCommon::treatXML($xml));
     }
     
     /**
-     * What if the base pid isn't in the XML?  Return null
+     * What if the base pid isn't in the XML?  
      */    
     public function testSetDuplicateXMLBaseNotExist()
     {
-        $res = $this->fixture->setDuplicateXML('MSS:666', 'MSS:405', $this->report);
-        $this->assertNull($res);
+        $this->fixture->setXML_DOM(DOMDocument::loadXML($this->report));
+        $res = $this->fixture->setDuplicateXML('MSS:666', 'MSS:405');
+        $this->assertEquals(-1,$res);
     }
     
     /**
@@ -128,8 +150,9 @@ class DuplicatesReportSetDuplicateXMLTest extends PHPUnit_Framework_TestCase
      */
     public function testSetDuplicateXMLBaseDupSwap()
     {
-        $res = $this->fixture->setDuplicateXML('MSS:405', 'MSS:400', $this->report);
-        $this->assertNull($res);
+        $this->fixture->setXML_DOM(DOMDocument::loadXML($this->report));
+        $res = $this->fixture->setDuplicateXML('MSS:405', 'MSS:400');
+        $this->assertEquals(-1,$res);
     }
     
     /**
@@ -137,8 +160,9 @@ class DuplicatesReportSetDuplicateXMLTest extends PHPUnit_Framework_TestCase
      */
     public function testSetDuplicateXMLDupNotExists()
     {
-        $res = $this->fixture->setDuplicateXML('MSS:400', 'MSS:666', $this->report);
-        $this->assertNull($res);
+        $this->fixture->setXML_DOM(DOMDocument::loadXML($this->report));
+        $res = $this->fixture->setDuplicateXML('MSS:400', 'MSS:666');
+        $this->assertEquals(-1,$res);
     }
     
     /**
@@ -146,8 +170,9 @@ class DuplicatesReportSetDuplicateXMLTest extends PHPUnit_Framework_TestCase
      */
     public function testSetDuplicateXMLDupNotElsewhere()
     {
-        $res = $this->fixture->setDuplicateXML('MSS:400', 'MSS:407', $this->report);
-        $this->assertNull($res);
+        $this->fixture->setXML_DOM(DOMDocument::loadXML($this->report));
+        $res = $this->fixture->setDuplicateXML('MSS:400', 'MSS:407');
+        $this->assertEquals(-1,$res);
     }
     
     /*    

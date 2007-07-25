@@ -25,12 +25,53 @@
         $tpl->assign('sta_id', $sta_id); 
         
         $parents = $record->getParents();
-        $tpl->assign("parents", $parents);
         $tpl->assign("pid", $pid);
-        
-        $jtaskData = "";
-        $maxG = 0;
+
         $xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array(""));  // XSD_DisplayObject
+        $this->fixDisplayFields($xsd_display_fields, $record);
+        $this->xsd_display_fields = $xsd_display_fields;
+    
+        $tpl->assign("xsd_display_fields", $xsd_display_fields);
+    
+        $tpl->assign("xdis_id", $record->getXmlDisplayId());
+    
+        $details = $record->getDetails();
+        $this->fixDetails($details);
+        $this->details = $details;
+        
+        
+        $tpl->assign("parents", $parents);
+        $tpl->assign("author_ids", $this->author_ids);
+        $title = $record->getTitle(); // RecordObject
+        $tpl->assign("title", $title);
+        if ($record->isCollection()) {
+            $tpl->assign('record_type', 'Collection');
+            $tpl->assign('parent_type', 'Community');
+            $tpl->assign('view_href', APP_RELATIVE_URL."list.php?collection_pid=$pid");
+        } elseif ($record->isCommunity()) {
+            $tpl->assign('record_type', 'Community');
+            $tpl->assign('view_href', APP_RELATIVE_URL."list.php?community_pid=$pid");
+        } else {
+            $tpl->assign('record_type', 'Record');
+            $tpl->assign('parent_type', 'Collection');
+            $tpl->assign('view_href', APP_RELATIVE_URL."view.php?pid=$pid");
+        }
+    //  print_r($details);
+    //    print_r($datastreams);
+        $tpl->assign("eserv_url", APP_BASE_URL."eserv.php?pid=".$pid."&dsID=");
+        $tpl->assign("local_eserv_url", APP_RELATIVE_URL."eserv.php?pid=".$pid."&dsID=");
+        $tpl->assign('triggers', count(WorkflowTrigger::getList($pid)));
+        $tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");
+        $tpl->assign("isEditor", 1);
+        $tpl->assign("details", $details);
+        $tpl->registerNajax( NAJAX_Client::register('SelectOrgStructure', 'edit_metadata.php')."\n"
+                        .NAJAX_Client::register('Suggestor', 'edit_metadata.php'));
+             
+     }
+     
+    function fixDisplayFields(&$xsd_display_fields, $record)
+    {
+        $parents = $record->getParents();
         $parent_relationships = array();
         foreach ($parents as $parent) {
             $parent_record = new RecordObject($parent['pid']);
@@ -41,10 +82,10 @@
         }
         //print_r($xsd_display_fields);
         $author_ids = Author::getAssocListAllBasic();
-    
-        $tpl->assign("author_ids", $author_ids);
-        
-        // setup smarty variables used in dynamic XSD value lookups
+        $this->author_ids = $author_ids;
+
+
+    	  // setup smarty variables used in dynamic XSD value lookups
         $community_list = Community::getAssocList();
         $collection_list = Collection::getEditListAssoc();
         $xdis_collection_list = XSD_Display::getAssocListCollectionDocTypes(); // @@@ CK - 13/1/06 added for communities to be able to select their collection child document types/xdisplays
@@ -115,44 +156,8 @@
                 
             }
         }
-        $this->xsd_display_fields = $xsd_display_fields;
-    
-        $tpl->assign("xsd_display_fields", $xsd_display_fields);
-    
-        $tpl->assign("xdis_id", $record->getXmlDisplayId());
-    
-        $details = $record->getDetails();
-        $this->fixDetails($details);
-        $this->details = $details;
-        
-        
-        $tpl->assign("parents", $parents);
-        $title = $record->getTitle(); // RecordObject
-        $tpl->assign("title", $title);
-        if ($record->isCollection()) {
-            $tpl->assign('record_type', 'Collection');
-            $tpl->assign('parent_type', 'Community');
-            $tpl->assign('view_href', APP_RELATIVE_URL."list.php?collection_pid=$pid");
-        } elseif ($record->isCommunity()) {
-            $tpl->assign('record_type', 'Community');
-            $tpl->assign('view_href', APP_RELATIVE_URL."list.php?community_pid=$pid");
-        } else {
-            $tpl->assign('record_type', 'Record');
-            $tpl->assign('parent_type', 'Collection');
-            $tpl->assign('view_href', APP_RELATIVE_URL."view.php?pid=$pid");
-        }
-    //  print_r($details);
-    //    print_r($datastreams);
-        $tpl->assign("eserv_url", APP_BASE_URL."eserv.php?pid=".$pid."&dsID=");
-        $tpl->assign("local_eserv_url", APP_RELATIVE_URL."eserv.php?pid=".$pid."&dsID=");
-        $tpl->assign('triggers', count(WorkflowTrigger::getList($pid)));
-        $tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");
-        $tpl->assign("isEditor", 1);
-        $tpl->assign("details", $details);
-        $tpl->registerNajax( NAJAX_Client::register('SelectOrgStructure', 'edit_metadata.php')."\n"
-                        .NAJAX_Client::register('Suggestor', 'edit_metadata.php'));
-             
-     }
+
+    }
      
      function fixDetails(&$details)
      {
@@ -316,5 +321,83 @@
      {
          return $this->details;
      }
+    
+    
+    /**
+     * makes sure that an array of params conforms to the expected 
+     * formats as if it was submitted by a form.
+     */ 
+    function fixParams(&$params, $record)
+    {
+    	$record->getDisplay();
+    	$xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array(""));  
+        $this->fixDisplayFields($xsd_display_fields, $record);
+        $this->xsd_display_fields = $xsd_display_fields;
+        $this->fixDetails($params['xsd_display_fields']);
+        foreach ($xsd_display_fields  as $dis_field) {
+            if ($dis_field["xsdmf_enabled"] != 1) {
+            	continue; // skip non-enabled items
+    		}
+    		// make sure multiple items are arrays even if they only have one item
+            if ( ($dis_field["xsdmf_html_input"] == 'multiple' 
+        	    		|| $dis_field["xsdmf_html_input"] == 'contvocab_selector') 
+    	        	&& (!@is_array($params['xsd_display_fields'][$dis_field["xsdmf_id"]])) ){ 
+	            $params['xsd_display_fields'][$dis_field["xsdmf_id"]] 
+	            	= array($params['xsd_display_fields'][$dis_field["xsdmf_id"]]);
+            }
+            // the contvocab selector uses key value pairs but we only want the keys
+            if ($dis_field["xsdmf_html_input"] == 'contvocab_selector') {
+            	$params['xsd_display_fields'][$dis_field["xsdmf_id"]] 
+	            	= array_keys($params['xsd_display_fields'][$dis_field["xsdmf_id"]]);
+			}
+			// handle attached fields
+            if (isset($params['xsd_display_fields'][$dis_field["xsdmf_id"]])) {
+            	if (is_numeric($dis_field["xsdmf_attached_xsdmf_id"])) {
+            		if (is_array($params['xsd_display_fields'][$dis_field["xsdmf_attached_xsdmf_id"]])) {
+	            		$ctr = 0;
+	            		foreach ($params['xsd_display_fields'][$dis_field["xsdmf_attached_xsdmf_id"]] as $item) {
+    	        			$att_key = 'xsd_display_fields_'.$dis_field["xsdmf_attached_xsdmf_id"].'_'.$ctr;
+        	    			$params[$att_key] = $item;
+            				$ctr++;
+            			}
+	        		} else {
+    	        		$att_key = 'xsd_display_fields_'.$dis_field["xsdmf_attached_xsdmf_id"].'_0';
+        	    		$params[$att_key] = $item;
+    	    		}
+            	}
+			}
+			// convert dates
+			if ($dis_field["xsdmf_html_input"] == 'date' 
+				&& !empty($params['xsd_display_fields'][$dis_field["xsdmf_id"]])) {
+				// need to break this into array of Year / Month / Day
+				// We are expecting a YYYY-MM-DD format
+				if (preg_match('/(\d{4})(-(\d{1,2})(-(\d{1,2}))?)?/', 		trim($params['xsd_display_fields'][$dis_field["xsdmf_id"]]), $matches)) {
+					if (isset($matches[1])) {
+						$params['xsd_display_fields'][$dis_field["xsdmf_id"]] = array('Year' => $matches[1]);
+					}
+					if (isset($matches[3])) {
+						$params['xsd_display_fields'][$dis_field["xsdmf_id"]]['Month'] = $matches[3];
+					}
+					if (isset($matches[5])) {
+						$params['xsd_display_fields'][$dis_field["xsdmf_id"]]['Day'] = $matches[5];
+					}
+				}
+			}
+        }
+        // as a last pass, strip out any non enabled items. We do this in a seperate loop because the attached fields 
+        // need to be read in the first loop and they are not usually enabled.
+        foreach ($xsd_display_fields  as $dis_field) {
+            if ($dis_field["xsdmf_enabled"] != 1 && isset($params['xsd_display_fields'][$dis_field["xsdmf_id"]])) {
+				unset($params['xsd_display_fields'][$dis_field["xsdmf_id"]]);
+			}
+		}
+		// strip out FezACML
+		$fezacml_list = $record->display->getMatchFieldsList(array(), array("FezACML"));
+		foreach ($fezacml_list as $item) {
+			if (isset($params['xsd_display_fields'][$item['xsdmf_id']])) {
+				unset($params['xsd_display_fields'][$item['xsdmf_id']]);
+			}
+		}
+    }
  }
 ?>
