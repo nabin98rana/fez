@@ -134,6 +134,9 @@ class WorkflowStatus {
         $this->rec_obj = null;
         $title = Misc::escapeString($title);
         $blob = Misc::escapeString(serialize($this));
+        if (strlen($blob) > 64000) {
+        	Error_Handler::logError("Maximum size of workflow session data exceeded", __FILE__,__LINE__);
+        }
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         $stmt = "UPDATE ".$dbtp."workflow_sessions " .
                 "SET wfses_object='".$blob."', wfses_listing='".$title."', wfses_date='".$date."' " .
@@ -535,6 +538,10 @@ class WorkflowStatusStatic
             return null;
         }
         $obj = unserialize($res);
+        if (!is_object($obj) || get_class($obj) != 'WorkflowStatus' ) {
+        	Error_Handler::logError("Workflow object is corrupt. get_class: ".get_class($obj)."print_r: ".print_r($obj,true),__FILE__,__LINE__);
+        	return null;
+        }
         if (!$obj->change_on_refresh && !empty($wfs_id)) {
             $obj->setState($wfs_id);
         }

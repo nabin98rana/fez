@@ -35,8 +35,22 @@
 include_once('../config.inc.php');
 include_once(APP_INC_PATH.'class.workflow_status.php');
 
+Auth::checkAuthentication(APP_SESSION);
+
+$isUser = Auth::getUsername();
+$isAdministrator = User::isUserAdministrator($isUser);
+
+
 $id = Misc::GETorPOST('id');
 $wfstatus = WorkflowStatusStatic::getSession($id);
+if (empty($wfstatus)) {
+	$tpl = new Template_API();
+	$tpl->setTemplate('workflow/resume_error.tpl.html');
+	$tpl->assign("isUser", $isUser);
+	$tpl->assign("isAdministrator", $isAdministrator);
+	$tpl->displayTemplate();
+	exit;
+}
 $wfstatus->run();
 
 ?>

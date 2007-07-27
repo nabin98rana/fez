@@ -49,7 +49,10 @@ $this->pid = $pid;
 
 // The actual report is generated as a background process.
 $bgp = new BackgroundProcess_GenerateDuplicatesReport;
-$bgp->register(serialize(array('report_pid' => $pid, 'pids' => $this->pids)), Auth::getUserID(), $this->id);
+$bgp->register(serialize(array('report_pid' => $pid, 
+								'pids' => $this->pids, 
+								'source_collection_pid' => $this->getvar('source_collection_pid'))), 
+				Auth::getUserID(), $this->id);
 
 $this->assign('notify', "The duplicates report has been generated.");
 

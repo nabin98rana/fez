@@ -42,7 +42,7 @@ class DuplicatesReport {
     function generate($pids) {
         $total_pids = count($pids);
         $progress = 0;
-        
+        //Error_Handler::debugStart();
         $report_array = array();
         foreach ($pids as $pid) {
             if (!empty($this->bgp)) {
@@ -51,7 +51,10 @@ class DuplicatesReport {
             }
             $record = new RecordGeneral($pid);
             if ($record->checkExists()) {
+				Error_Handler::debug('MSS', compact('pid'));
                 $res = $this->findSimilarPidsFirstPass($record);
+				Error_Handler::debug('MSS', compact('res'));
+
                 if (count($res)) {
                     foreach ($res as $dup_row) {
                         $dup_rec = new RecordGeneral($dup_row['pid']);
@@ -73,6 +76,7 @@ class DuplicatesReport {
         }
         $report_array = $this->mergeSets($report_array);
         $xml = $this->generateXML($report_array);
+        Error_Handler::debugStop();
         $this->addReportToFedoraObject($xml);
     }
     
@@ -199,9 +203,13 @@ class DuplicatesReport {
     function findSimilarPidsFirstPass($record)
     {
         $pid = $record->pid;
-        $title = $record->getTitle(); // first we'll look for records with similar titles
-        return $this->similarPidsQuery($pid, $title);
-    }
+        $title = trim($record->getTitle()); // first we'll look for records with similar titles
+        if (empty($title)) {
+        	return array();
+    	} else {
+     	   return $this->similarPidsQuery($pid, $title);
+ 	   }
+ 	}
     
     /**
      * @param $pid string - exclude this pid from the search
@@ -216,7 +224,7 @@ class DuplicatesReport {
                 "FROM  ".$dbtp."record_matching_field AS r2 " .
                 "INNER JOIN ".$dbtp."xsd_display_matchfields AS x2 " .
                 "  ON r2.rmf_xsdmf_id = x2.xsdmf_id " .
-                "  AND match (r2.rmf_varchar) against ('".$title."' IN BOOLEAN MODE) " .
+                "  AND match (r2.rmf_varchar) against ('".$title."') " .
                 "  AND NOT (rmf_rec_pid_num = ".$pidnum." AND rmf_rec_pid = '".$pid."') " .
                 "INNER JOIN ".$dbtp."search_key AS s2 " .
                 "  ON s2.sek_id = x2.xsdmf_sek_id " .
@@ -228,7 +236,8 @@ class DuplicatesReport {
                 "INNER JOIN ".$dbtp."xsd_display_matchfields AS x3 " .
                 "  ON r3.rmf_xsdmf_id = x3.xsdmf_id " .
                 "  AND x3.xsdmf_element = '!ret_id' " .
-                "ORDER BY Relevance DESC";
+                "ORDER BY Relevance DESC " .
+                "LIMIT 0,10";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

@@ -25,8 +25,12 @@ class BackgroundProcess_GenerateDuplicatesReport extends BackgroundProcess
         $this->setState(1);
         extract(unserialize($this->inputs));
 
-        if (!empty($pids) && is_array($pids)
-            && !empty($report_pid)) { 
+		if (empty($pids) && !empty($source_collection_pid)) {
+			$col_record = new RecordGeneral($source_collection_pid);
+			$pids = $col_record->getChildrenPids();
+		}
+
+        if (!empty($pids) && is_array($pids) && !empty($report_pid)) { 
             $dr = new DuplicatesReport($report_pid);
             $dr->setBGP($this);
             $dr->generate($pids);

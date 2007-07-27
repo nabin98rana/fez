@@ -10,12 +10,12 @@
  
  
 $collection_pid = $this->pid;
-$col_record = new RecordGeneral($collection_pid);
 $pids = $this->pids;
 if (empty($pids) || !is_array($pids)) {
     if (!empty($collection_pid)) {
+        $col_record = new RecordGeneral($collection_pid);
         if ($col_record->isCollection()) {
-            $this->pids = $col_record->getChildrenPids();
+            $this->assign('source_collection_pid', $collection_pid);
         }
     }
 }
