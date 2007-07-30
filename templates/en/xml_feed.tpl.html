@@ -36,6 +36,12 @@
 				<author>{$list[i].author[author_loop]|escape:"html"}</author>
 			{/section}
 		{/if}
+		{if $list[i].author_id}
+			{section name="author_loop" loop=$list[i].author_id}
+				{assign var="next_author" value=$smarty.section.author_loop.index+1}
+				<author_id>{$list[i].author_id[author_loop]|escape:"html"}</author_id>
+			{/section}
+		{/if}		
 		{if $list[i].author_id_external}
 			{section name="author_loop" loop=$list[i].author_id_external}
 				{assign var="next_author" value=$smarty.section.author_loop.index+1}
@@ -72,13 +78,13 @@
 		{/if}
 		{if $list[i].datastreams}
 			{section name="datastreams_loop" loop=$list[i].datastreams}
-			<datastreams>{$list[i].datastreams[datastreams_loop]|escape:"html"}</datastreams>	
+			<datastream>{$list[i].datastreams[datastreams_loop]|escape:"html"}</datastream>	
 			{/section}
 		{/if}		
 
 		{if $list[i].datastreams}
 			{section name="datastreams_loop" loop=$list[i].datastreams}
-			<file_attachment_link>{$app_base_url}eserv.php?pid={$list[i].pid|escape:"html"}&dsID={$list[i].datastreams[datastreams_loop]|escape:"html"}</file_attachment_link>	
+			<datastream_link>{$app_base_url}eserv.php?pid={$list[i].pid|escape:"html"}&dsID={$list[i].datastreams[datastreams_loop]|escape:"html"}</datastream_link>	
 			{/section}
 		{/if}		
 

@@ -626,7 +626,9 @@ class Collection
 					if (!is_array(@$return[$result['rmf_rec_pid']]['datastreams'])) {
 						$return[$result['rmf_rec_pid']]['datastreams'] = array();
 					}
-					array_push($return[$result['rmf_rec_pid']]['datastreams'], $result['rmf_varchar']);
+					if (!in_array($result['rmf_varchar'], $return[$result['rmf_rec_pid']]['datastreams'])) {
+						array_push($return[$result['rmf_rec_pid']]['datastreams'], $result['rmf_varchar']);
+					}
 				}
 			}
 		}
@@ -654,7 +656,6 @@ class Collection
 			}
 		}
 		$return = array_values($return);
-//		print_r($return);
 		return $return;
 		
     }
