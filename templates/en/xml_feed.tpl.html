@@ -26,8 +26,8 @@
 	  {if $list[i].updated_date.0}
 	  	<updated_date>{$list[i].updated_date.0|date_format:"%a, %d %b %Y %H:%M:%S"}</updated_date>
 	  {/if}
-	  {if $list[i].date}
-	  	<publication_date>{$list[i].date|date_format:"%a, %d %b %Y %H:%M:%S"}</publication_date>
+	  {if $list[i].date.0}
+	  	<publication_date>{$list[i].date.0|date_format:"%a, %d %b %Y %H:%M:%S"}</publication_date>
 	  {/if}
 	
 		{if $list[i].author}
