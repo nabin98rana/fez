@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+<channel>
+  <title>{if $list_heading != ""}{$list_heading|escape:'html'} - {/if}{$application_title|escape:'html'}</title>
+  <link>{$app_base_url}</link>
+  <description>{$org_name}</description>
+  <language>{$lang}</language>
+  <generator>Fez {$application_version}</generator>
+  <docs>http://blogs.law.harvard.edu/tech/rss</docs>
+  {section name="i" loop=$list}
+ 		{if $list[i].object_type.0 == '1'}
+          {assign var="href_view" value="list.php?community_pid="|cat:$list[i].pid|escape:"html"}  
+        {elseif $list[i].object_type.0 == '2'}
+	      {assign var="href_view" value="list.php?collection_pid="|cat:$list[i].pid|escape:"html"}
+	    {else}
+		  {assign var="href_view" value="view.php?pid="|cat:$list[i].pid|escape:"html"}	      
+		{/if}
+  <item>
+	  <title>{$list[i].title.0|escape:"html"}</title>
+	  <link>{$app_base_url}{$href_view}</link>
+	  {if $list[i].description.0 != "null"}	
+	  	 <description>{$list[i].description.0|escape:"html"}</description>
+	  {/if}
+	  {if $list[i].created_date.0}
+	  	<pubDate>{$list[i].created_date.0|date_format:"%a, %d %b %Y %H:%M:%S"}</pubDate>
+	  {/if}
+		{if $list[i].author}
+			<author>
+			{section name="author_loop" loop=$list[i].author}
+				{assign var="next_author" value=$smarty.section.author_loop.index+1}
+						{$list[i].author[author_loop]|escape:"html"}
+				{if $list[i].author[$next_author] != ""} og {/if}
+			{/section}
+			</author>
+		{/if}
+				
+		{if $list[i].xdis_title}
+			<xdis_title>
+			{section name="xdis_title_loop" loop=$list[i].xdis_title}
+				{assign var="next_xdis_title" value=$smarty.section.xdis_title_loop.index+1}
+						{$list[i].xdis_title[xdis_title_loop]|escape:"html"}
+				{if $list[i].xdis_title[$next_xdis_title] != ""} og {/if}
+			{/section}
+			</xdis_title>
+		{/if}
+		{if $list[i].isMemberOf}
+			<isMemberOf>
+			{section name="isMemberOf_loop" loop=$list[i].isMemberOf}
+				{assign var="next_isMemberOf" value=$smarty.section.isMemberOf_loop.index+1}
+						{$list[i].isMemberOf[isMemberOf_loop]|escape:"html"}
+				{if $list[i].isMemberOf[$next_isMemberOf] != ""} og {/if}
+			{/section}
+			</isMemberOf>
+		{/if}
+		{if $list[i].description}
+			<description>
+			{section name="description_loop" loop=$list[i].description}
+				{assign var="next_description" value=$smarty.section.description_loop.index+1}
+						{$list[i].description[description_loop]|escape:"html"}
+				{if $list[i].description[$next_description] != ""} og {/if}
+			{/section}
+			</description>
+		{/if}
+		{if $list[i].keywords}
+			<keywords>
+			{section name="keywords_loop" loop=$list[i].keywords}
+				{assign var="next_keywords" value=$smarty.section.keywords_loop.index+1}
+						{$list[i].keywords[keywords_loop]|escape:"html"}
+				{if $list[i].keywords[$next_keywords] != ""} og {/if}
+			{/section}
+			</keywords>
+		{/if}
+		{if $list[i].file_attachment_name}
+			<file_attachment_name>
+			{section name="file_attachment_name_loop" loop=$list[i].file_attachment_name}
+				{assign var="next_file_attachment_name" value=$smarty.section.file_attachment_name_loop.index+1}
+						{$list[i].file_attachment_name[file_attachment_name_loop]|escape:"html"}
+				{if $list[i].file_attachment_name[$next_file_attachment_name] != ""} og {/if}
+			{/section}
+			</file_attachment_name>
+		{/if}		
+  </item>
+  {/section}        
+</channel>
+</rss>
