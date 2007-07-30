@@ -359,8 +359,7 @@ class Mail_Queue
      */
     function _getSMTPSettings()
     {
-        $settings = Setup::load();
-        return $settings["smtp"];
+        return Mail_API::getSMTPSettings();
     }
 }
 

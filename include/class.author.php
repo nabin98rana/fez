@@ -533,7 +533,7 @@ class Author
                  FROM
                     " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
                     WHERE
-                    aut_id='".$aut_id."'
+                    aut_id=".$aut_id."
                  ORDER BY
                     aut_title";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);

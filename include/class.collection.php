@@ -622,7 +622,7 @@ class Collection
 						$return[$result['rmf_rec_pid']]['thumbnails'] = array();
 					}
 					array_push($return[$result['rmf_rec_pid']]['thumbnails'], $result['rmf_varchar']);
-				} else {
+				} elseif ((!is_numeric(strpos($result['rmf_varchar'], "presmd_"))) && (!is_numeric(strpos($result['rmf_varchar'], "web_"))) && (!is_numeric(strpos($result['rmf_varchar'], "preview_"))) && (!is_numeric(strpos($result['rmf_varchar'], "fezacml_")))) {
 					if (!is_array(@$return[$result['rmf_rec_pid']]['datastreams'])) {
 						$return[$result['rmf_rec_pid']]['datastreams'] = array();
 					}
@@ -635,6 +635,15 @@ class Collection
 			if ($statsFlag == 1) {
 				$return[$pid_key]['file_downloads'] = $return[$pid_key]['sort_column'];
 			} else {
+				if (is_array(@$return[$pid_key]['author_id'])) {
+					foreach ($return[$pid_key]['author_id'] as $author_id) {
+						if (is_numeric($author_id) && $author_id != 0) {
+							$return[$pid_key]['author_id_external'][] = Author::getOrgStaffID($author_id);
+						} else {
+							$return[$pid_key]['author_id_external'][] = 0;
+						}						
+					}
+				}
 				$return[$pid_key]['abstract_downloads'] = Statistics::getStatsByAbstractView($pid_key);
 				$return[$pid_key]['file_downloads'] = Statistics::getStatsByAllFileDownloads($pid_key);
 				if (count(@$row['thumbnails']) > 0) {
@@ -645,7 +654,9 @@ class Collection
 			}
 		}
 		$return = array_values($return);
+//		print_r($return);
 		return $return;
+		
     }
 
     function makeSecurityReturnList($return)

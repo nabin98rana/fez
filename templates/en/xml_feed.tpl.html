@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0">
-<channel>
+<xmlfeed>
   <title>{if $list_heading != ""}{$list_heading|escape:'html'} - {/if}{$application_title|escape:'html'}</title>
   <link>{$app_base_url}</link>
   <description>{$org_name}</description>
   <language>{$lang}</language>
   <generator>Fez {$application_version}</generator>
-  <docs>http://blogs.law.harvard.edu/tech/rss</docs>
   {section name="i" loop=$list}
  		{if $list[i].object_type.0 == '1'}
           {assign var="href_view" value="list.php?community_pid="|cat:$list[i].pid|escape:"html"}  
@@ -17,69 +15,73 @@
 		{/if}
   <item>
 	  <title>{$list[i].title.0|escape:"html"}</title>
+	  <pid>{$list[i].pid|escape:"html"}</pid>
 	  <link>{$app_base_url}{$href_view}</link>
 	  {if $list[i].description.0 != "null"}	
 	  	 <description>{$list[i].description.0|escape:"html"}</description>
 	  {/if}
 	  {if $list[i].created_date.0}
-	  	<pubDate>{$list[i].created_date.0|date_format:"%a, %d %b %Y %H:%M:%S"}</pubDate>
+	  	<created_date>{$list[i].created_date.0|date_format:"%a, %d %b %Y %H:%M:%S"}</created_date>
 	  {/if}
+	  {if $list[i].updated_date.0}
+	  	<updated_date>{$list[i].updated_date.0|date_format:"%a, %d %b %Y %H:%M:%S"}</updated_date>
+	  {/if}
+	  {if $list[i].date}
+	  	<publication_date>{$list[i].date|date_format:"%a, %d %b %Y %H:%M:%S"}</publication_date>
+	  {/if}
+	
 		{if $list[i].author}
-			<author>
 			{section name="author_loop" loop=$list[i].author}
 				{assign var="next_author" value=$smarty.section.author_loop.index+1}
-						{$list[i].author[author_loop]|escape:"html"}
-				{if $list[i].author[$next_author] != ""} og {/if}
+				<author>{$list[i].author[author_loop]|escape:"html"}</author>
 			{/section}
-			</author>
+		{/if}
+		{if $list[i].author_id_external}
+			{section name="author_loop" loop=$list[i].author_id_external}
+				{assign var="next_author" value=$smarty.section.author_loop.index+1}
+				<author_id_external>{$list[i].author_id_external[author_loop]|escape:"html"}</author_id_external>
+			{/section}
 		{/if}
 				
 		{if $list[i].xdis_title}
-			<xdis_title>
+			
 			{section name="xdis_title_loop" loop=$list[i].xdis_title}
 				{assign var="next_xdis_title" value=$smarty.section.xdis_title_loop.index+1}
-						{$list[i].xdis_title[xdis_title_loop]|escape:"html"}
-				{if $list[i].xdis_title[$next_xdis_title] != ""} og {/if}
+				<display_type>{$list[i].xdis_title[xdis_title_loop]|escape:"html"}</display_type>
 			{/section}
-			</xdis_title>
+			
 		{/if}
 		{if $list[i].isMemberOf}
-			<isMemberOf>
 			{section name="isMemberOf_loop" loop=$list[i].isMemberOf}
 				{assign var="next_isMemberOf" value=$smarty.section.isMemberOf_loop.index+1}
-						{$list[i].isMemberOf[isMemberOf_loop]|escape:"html"}
-				{if $list[i].isMemberOf[$next_isMemberOf] != ""} og {/if}
-			{/section}
-			</isMemberOf>
+				<isMemberOf>{$list[i].isMemberOf[isMemberOf_loop]|escape:"html"}</isMemberOf>
+			{/section}			
 		{/if}
 		{if $list[i].description}
-			<description>
+			
 			{section name="description_loop" loop=$list[i].description}
 				{assign var="next_description" value=$smarty.section.description_loop.index+1}
-						{$list[i].description[description_loop]|escape:"html"}
-				{if $list[i].description[$next_description] != ""} og {/if}
-			{/section}
-			</description>
+				<description>{$list[i].description[description_loop]|escape:"html"}</description>
+			{/section}			
 		{/if}
 		{if $list[i].keywords}
-			<keywords>
 			{section name="keywords_loop" loop=$list[i].keywords}
 				{assign var="next_keywords" value=$smarty.section.keywords_loop.index+1}
-						{$list[i].keywords[keywords_loop]|escape:"html"}
-				{if $list[i].keywords[$next_keywords] != ""} og {/if}
-			{/section}
-			</keywords>
+				<keywords>{$list[i].keywords[keywords_loop]|escape:"html"}</keywords>
+			{/section}			
 		{/if}
-		{if $list[i].file_attachment_name}
-			<file_attachment_name>
-			{section name="file_attachment_name_loop" loop=$list[i].file_attachment_name}
-				{assign var="next_file_attachment_name" value=$smarty.section.file_attachment_name_loop.index+1}
-						{$list[i].file_attachment_name[file_attachment_name_loop]|escape:"html"}
-				{if $list[i].file_attachment_name[$next_file_attachment_name] != ""} og {/if}
+		{if $list[i].datastreams}
+			{section name="datastreams_loop" loop=$list[i].datastreams}
+			<datastreams>{$list[i].datastreams[datastreams_loop]|escape:"html"}</datastreams>	
 			{/section}
-			</file_attachment_name>
 		{/if}		
+
+		{if $list[i].datastreams}
+			{section name="datastreams_loop" loop=$list[i].datastreams}
+			<file_attachment_link>{$app_base_url}eserv.php?pid={$list[i].pid|escape:"html"}&dsID={$list[i].datastreams[datastreams_loop]|escape:"html"}</file_attachment_link>	
+			{/section}
+		{/if}		
+
   </item>
   {/section}        
-</channel>
-</rss>
+</xmlfeed>
