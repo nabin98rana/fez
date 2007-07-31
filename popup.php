@@ -47,8 +47,10 @@ $tpl = new Template_API();
 $tpl->setTemplate("popup.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION, 'index.php?err=5', true);
+$isAdministrator = Auth::isAdministrator(); 
 $usr_id = Auth::getUserID();
 $cat = @$HTTP_GET_VARS["cat"] ? @$HTTP_GET_VARS["cat"] : @$HTTP_POST_VARS["cat"];
+
 switch ($cat) 
 {	
 
@@ -118,14 +120,16 @@ switch ($cat)
         }		
     case 'purge_object':
         {
-            // first delete all indexes about this pid
-            $id = Misc::GETorPOST('id');
-            $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
-            $pid = $wfstatus->pid;
-            Record::removeIndexRecord($pid);
-            $res = Fedora_API::callPurgeObject($pid);
-            $tpl->assign("purge_object_result", $res);
-            $wfstatus->checkStateChange(true);
+            if ($isAdministrator) {
+                // first delete all indexes about this pid
+                $id = Misc::GETorPOST('id');
+                $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
+                $pid = $wfstatus->pid;
+                Record::removeIndexRecord($pid);
+                $res = Fedora_API::callPurgeObject($pid);
+                $tpl->assign("purge_object_result", $res);
+                $wfstatus->checkStateChange(true);
+            }
             break;
         }
     case 'new_workflow_triggers':
@@ -161,20 +165,25 @@ switch ($cat)
             $tpl->assign("generic_type",'background processes');
             break;
         }
-    case 'purge_objects':
-        {
-            // first delete all indexes about this pid
-            $items = Misc::GETorPOST('items');
-            if (empty($items)) { // is named pids on the list form
-	            $items = Misc::GETorPOST('pids');
-            }
-            foreach ($items as $pid) {
-                Record::removeIndexRecord($pid);
-                $res = Fedora_API::callPurgeObject($pid);
-            }
-            $tpl->assign("purge_object_result", $res);
-            break;
-        }
+	case 'purge_objects':
+	        {
+	            if ($isAdministrator) {
+					// first delete all indexes about this pid
+					$items = Misc::GETorPOST('items');
+					if (empty($items)) { // is named pids on the list form
+					    $items = Misc::GETorPOST('pids');
+					}
+					foreach ($items as $pid) {
+					//                $rec_obj = new Record($pid);
+					//                if ($rec_object->canDelete()) {
+					        Record::removeIndexRecord($pid);
+					        $res = Fedora_API::callPurgeObject($pid);
+					//                }
+					}
+					$tpl->assign("purge_object_result", $res);
+					break;
+				}
+	        }
     case 'publish_objects':
         {
             $items = Misc::GETorPOST('pids');

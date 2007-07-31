@@ -146,7 +146,7 @@ function checkDeleteRecords(f)
     if (!confirm('The checked items will be deleted, are you sure?')) {
         return false;
     } else {
-	f.cat = 'purge_objects';
+	f.cat.value = 'purge_objects';
     f.action = 'popup.php';
     f.target = '_popup';
 	f.method = 'post';
