@@ -291,53 +291,7 @@ function openHistory(pid)
 
                 <tr>
                 <td>
-                <table cellpadding="3" cellspacing="1" width="100%">
-
-        {section name="i" loop=$xsd_display_fields}
-		{if $xsd_display_fields[i].xsdmf_html_input != 'static' and $xsd_display_fields[i].xsdmf_show_in_view == 1 and $xsd_display_fields[i].xsdmf_html_input != 'xsdmf_id_ref' and $xsd_display_fields[i].xsdmf_html_input != 'xsd_ref' and $xsd_display_fields[i].xsdmf_html_input != ''}
-		{assign var="temp_fld_id" value=$xsd_display_fields[i].xsdmf_id}
-		{assign var="attached_temp_fld_id" value=$xsd_display_fields[i].xsdmf_attached_xsdmf_id}
-
-		  {if $xsd_display_fields[i].xsdmf_show_in_view == 1 && $details[$temp_fld_id]}
-			  {if $xsd_display_fields[i].xsdmf_data_type == 'date'}
-			  
-			<tr>			
-			  <td align="right" bgcolor="{$cell_color}" class="default" width="20%" valign="top" nowrap><b>{$xsd_display_fields[i].xsdmf_title}</b>			{if $debug == 1}
-				{$xsd_display_fields[i].xsdmf_order}
-			{/if}</td>
-
- 			  <td align="left" bgcolor="{$light_color}" class="default">
- 			  {if $xsd_display_fields[i].xsdmf_html_input == 'date'}
-		          {$details[$temp_fld_id]}
- 			  {else}
- 			  	{if $details[$attached_temp_fld_id] == 0}{$details[$temp_fld_id]|date_format:"%A, %B %e, %Y"}{else}{$details[$temp_fld_id]}{/if}
- 			  {/if}
- 			  </td>
-			</tr>		
-			  {else}
-			<tr>
-			
-			  <td align="right" bgcolor="{$cell_color}" class="default" width="20%" valign="top"><b>{$xsd_display_fields[i].xsdmf_title}</b>			{if $debug == 1}
-				{$xsd_display_fields[i].xsdmf_order}
-			{/if}</td>
-
- 			  <td align="left" bgcolor="{$light_color}" class="default">
-			  {$details[$temp_fld_id]} 
-			  </td>
-
-			</tr>					  
-			  {/if}
-		  {/if}
-		{/if}	
-        {sectionelse}
-        <tr bgcolor="gray">
-          <td colspan="13" class="default" align="center">
-            <b>No details could be found.</b>
-          </td>
-        </tr>
-        {/section}
-
-                </table>
+{include file='view_metadata.tpl.html'}
                 </td>
                 </tr>
       </table>

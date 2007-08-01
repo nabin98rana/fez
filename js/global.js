@@ -851,3 +851,11 @@ function workflowItems(f, rel_url)
     f.submit();
 }
 
+function resizePager(f, page_url)
+{
+    var pagesize = f.page_size.options[f.page_size.selectedIndex].value;   
+    var temp = replaceParam(window.location.href, 'rows', pagesize);
+    temp = replaceParam(page_url + "?" + temp, 'pager_row', '0');
+    window.location.href = page_url + "?" + temp;
+    
+}

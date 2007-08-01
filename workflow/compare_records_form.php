@@ -12,6 +12,7 @@
 include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.record_edit_form.php");
+include_once(APP_INC_PATH . "class.record_view.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
@@ -33,6 +34,7 @@ $wfstatus->checkStateChange();
 
 $left_pid = $wfstatus->getvar('dup_report_left_pid');
 $left_record = new RecordObject($left_pid);
+$left_xdis_id = $left_record->getXmlDisplayId();
 
 $link_self = $_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id));
 $tpl->assign('link_self', $link_self);
@@ -99,9 +101,23 @@ $record_edit_form = new RecordEditForm();
 $record_edit_form->setTemplateVars($tpl, $left_record);
 
 
+
 $right_record = new RecordObject($current_dup_pid);
-$right_details = $right_record->getDetails();
-$record_edit_form->fixDetails($right_details);
+$right_xdis_id = $right_record->getXmlDisplayId();
+
+if ($right_xdis_id == $left_xdis_id) {
+	$tpl->assign('compare_and_merge_records', 1);
+	$right_details = $right_record->getDetails();
+	$record_edit_form->fixDetails($right_details);
+} else {
+	$tpl->assign('compare_unlike_records', 1);
+	$record_view = new RecordView($right_record);
+	$right_details = $record_view->getDetails();
+	$right_xsd_display_fields = $record_view->getDisplayFields();
+	$tpl->assign('right_xsd_display_fields',$right_xsd_display_fields);
+	$right_xdis_title = $right_record->display->getTitle();
+	$tpl->assign('right_xdis_title', $right_xdis_title);
+}
 
 $tpl->assign(compact('dup_list','current_dup_pid','right_details','left_pid','current_dup_pid_details'));
 $tpl->assign("hide_edit", true);

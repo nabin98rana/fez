@@ -44,6 +44,10 @@ include_once(APP_INC_PATH . "class.error_handler.php");
 
 class Pager
 {
+
+	private static $cookie;
+	
+	
     /**
      * Method used to get the current listing related cookie information.
      *
@@ -53,8 +57,11 @@ class Pager
     function getCookieParams()
     {
         global $HTTP_COOKIE_VARS;
-		$return = @unserialize(base64_decode($HTTP_COOKIE_VARS[APP_LIST_COOKIE]));
-        return $return;
+        if (empty(self::$cookie)) {
+			$return = @unserialize(base64_decode($HTTP_COOKIE_VARS[APP_LIST_COOKIE]));
+			self::$cookie = $return;
+		}
+        return self::$cookie;
     }
 
     /**
@@ -88,12 +95,14 @@ class Pager
             $params[$name] = $value;
             return;
         }
-        $cookie = Pager::getCookieParams();
-        $cookie[$name] = $value;
-        $encoded = base64_encode(serialize($cookie));
-        @setcookie(APP_LIST_COOKIE, $encoded, APP_LIST_COOKIE_EXPIRE);
-        
+        self::$cookie[$name] = $value;
     }
+    
+    function sendCookie()
+	{
+        $encoded = base64_encode(serialize(self::$cookie));
+        @setcookie(APP_LIST_COOKIE, $encoded, APP_LIST_COOKIE_EXPIRE);
+	}
 
     /**
      * Method used to save the current search parameters in a cookie.
@@ -367,7 +376,12 @@ class Pager
      */
     function doPaging($tpl, $prefix)
     {
-        $page_size = Pager::getParam($prefix.'page_size');
+        // check for a non-prefixed page size in the get params as this is how the generic javascript sets it
+        // otherwise we look for the prefixed one in the cookie.
+        $page_size = @$_GET['rows'];
+        if (empty($page_size)) {
+        	$page_size = Pager::getParam($prefix.'page_size');
+    	}
         $page = Pager::getParam($prefix.'page');
         if (empty($page_size)) {
             $page_size = 10;
@@ -375,9 +389,10 @@ class Pager
         if (!is_numeric($page)) {
             $page = 0;
         }
-        Pager::setParam($prefix.'page_size', $page_size);
-        Pager::setParam($prefix.'page',$page);
-        $tpl->assign(compact('page','page_zize'));
+        self::setParam($prefix.'page_size', $page_size);
+        self::setParam($prefix.'page',$page);
+        self::sendCookie();
+        $tpl->assign(compact('page','page_size'));
         return array($page, $page_size);
     }
 

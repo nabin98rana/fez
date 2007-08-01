@@ -63,12 +63,19 @@ class DuplicatesReport {
                         //echo "dup_tokens: \n".print_r($dup_tokens,true)."\n";
                         if ($score > 0.5) {
                             if (!isset($report_array[$pid])) {
-                                $report_array[$pid] = array();
-                                $report_array[$pid]['title'] = $record->getTitle();
+                                $report_array[$pid] = array(
+                                	'pid' => $pid,
+                                	'title' => $record->getTitle(),
+                                    'rm_prn' => $this->getRM_PRN($record),
+                                    'isi_loc' => $this->getISI_LOC($record)
+                                	);
                             }
-                            $report_array[$pid]['list'][$dup_row['pid']] = array('pid' => $dup_row['pid'], 
-                                                                                 'probability' => $score, 
-                                                                                 'title' => $dup_rec->getTitle());
+                            $report_array[$pid]['list'][$dup_row['pid']] 
+                            	= array('pid' => $dup_row['pid'], 
+                                         'probability' => $score, 
+                                         'title' => $dup_rec->getTitle(),
+                                         'rm_prn' => $this->getRM_PRN($dup_rec),
+                                         'isi_loc' => $this->getISI_LOC($dup_rec));
                         }
                     }
                 }
@@ -91,13 +98,17 @@ class DuplicatesReport {
 
         foreach ($report_array as $pid => $item) {
             $report_item = $report_dom->createElement('duplicatesReportItem');
-            $report_item->setAttribute('pid', $pid);
-            $report_item->setAttribute('title', $item['title']);
+            foreach ($item as $key => $value) {
+            	if ($key != 'list') {
+            		$report_item->setAttribute($key, $value);
+        		}
+            }
             $report_root->appendChild($report_item);
             foreach ($item['list'] as $list_item_pid => $list_item) {
                 $report_dup_list_item = $report_dom->createElement('duplicateItem');
-                $report_dup_list_item->setAttribute('pid', $list_item_pid);
-                $report_dup_list_item->setAttribute('probability', $list_item['probability']);
+                foreach ($list_item as $key => $value) {
+                	$report_dup_list_item->setAttribute($key, $value);
+                }
                 $report_item->appendChild($report_dup_list_item);
             }
         }
@@ -152,19 +163,32 @@ class DuplicatesReport {
 
     function rearrangeSets($report_array)
     {
+		Error_Handler::debugStart();
         // Rearrange all sets so that the base record is the oldest in the grouping
         $rearranged_report = array();
         foreach ($report_array as $pid => $item) {
-            $items = array_merge($item['list'], array(array('pid'=>$pid,'title'=>$item['title'])));
-            $items = Misc::keyArray($items, 'pid');         
-            uksort($items, array('Misc','comparePIDs'));
+            $items = $item['list'];
+            unset($item['list']);
+            $items[$pid] = $item;
+            // Seperate set into two lists so that rm_prn records will be preferred.
+            // If there are no rm_prn records then the lowest pid will be the base
+            $rm_list = array();
+            $other_list = array();
+            foreach ($items as $item) {
+            	if (!empty($item['rm_prn'])) {
+            		$rm_list[$item['pid']] = $item;
+            	} else {
+            		$other_list[$item['pid']] = $item;
+            	}
+            }
+            uksort($rm_list, array('Record','comparePIDs'));
+            uksort($other_list, array('Record','comparePIDs'));
+            $items = array_merge($rm_list, $other_list); // put any rm_prn items first
+			Error_Handler::debug('MSS', compact('rm_list', 'other_list', 'items'));
             $base = array_shift($items);
-            $rearranged_report[] = array(
-                    'pid' => $base['pid'],
-                    'list' => $items, 
-                    'title' => $base['title']
-                );
+            $rearranged_report[] = array_merge($base, array('list' => $items));
         }
+		Error_Handler::debugStop();
         return $rearranged_report;
     }
 
@@ -219,6 +243,8 @@ class DuplicatesReport {
     {
         $pidnum = substr($pid, strpos($pid, ':') + 1);
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        // Do a fuzzy title match on records that don't have the same pid as the candidate record
+        // and are type '3' (records not collections or communities)
         $stmt = "SELECT distinct r2.rmf_rec_pid as pid, " .
                 "  match (r2.rmf_varchar) against ('".$title."') as Relevance " .
                 "FROM  ".$dbtp."record_matching_field AS r2 " .
@@ -252,6 +278,8 @@ class DuplicatesReport {
         $report_dom = $this->getXML_DOM();
         $xpath = new DOMXPath($report_dom);
         $items = $xpath->query('/DuplicatesReport/duplicatesReportItem');
+        $wfl_id = $this->getWorkflowId();
+
         $progress = 0;
         foreach ($items as $report_item) {
             $base_pid = $report_item->getAttribute('pid');
@@ -264,19 +292,25 @@ class DuplicatesReport {
             foreach ($dups_list as $dup_item) {
                 $dup_pid = $dup_item->getAttribute('pid');
                 $dup_record = new RecordObject($dup_pid);
-                if ($this->compareISI_LOC($base_record, $dup_record)) {
+                // Check for a matching ISI_LOC
+                // but can't auto merge records that aren't the same Document Type
+                if ($base_record->getXmlDisplayId() == $dup_record->getXmlDisplayId()
+                		&& $this->compareISI_LOC($base_record, $dup_record)) {
                     // yikes they match!
                     if (!empty($this->bgp)) {
                         $this->bgp->setStatus("Merging on matching isi_loc ".$dup_pid);
                     }
-                    $this->mergeRecordsFromISI_LOC($base_record, $dup_record);
+                    $this->mergeRecords($base_record, $dup_record);
+			        // set some history on the object so we know why it was merged.
+			        History::addHistory($base_pid, $wfl_id, "", "", false, 
+			        	"Merged on LOC_ISI with ".$dup_pid, null);
                     $this->markDuplicate($base_pid, $dup_pid);
                 }
             }
         }
     }
 
-    function mergeRecordsFromISI_LOC($base_record, $dup_record)
+    function mergeRecords($base_record, $dup_record)
     {
         // get the values for both records and copy over anything that isn't set in the base.
         $base_det = $base_record->getDetails();
@@ -303,9 +337,74 @@ class DuplicatesReport {
 
         $base_record->fedoraInsertUpdate(array("FezACML"), array(""),$params);
 
-        // set some history on the object so we know what it was merged with.
-        $wfl_id = $this->getWorkflowId();
-        History::addHistory($base_record->pid, $wfl_id, "", "", true, "Merged on LOC_ISI with ".$dup_record->pid, null);
+    }
+    
+    function mergeRecordsHiddenFields($base_record, $dup_record)
+    {
+        // get the values for both records and copy over anything that isn't set in the base.
+        $base_det = $base_record->getDetails();
+        $dup_det = $dup_record->getDetails();
+        
+        $base_record->getDisplay();
+        $xsd_display_fields = Misc::keyArray($base_record->display->getMatchFieldsList(array("FezACML"), 
+        								array("")), 'xsdmf_id');  
+		if ($base_record->getXmlDisplayId() == $dup_record->getXmlDisplayId()) {
+        	foreach ($dup_det as $xsdmf_id => $dup_value) {
+            	// skip everything except hidden fields
+	            if ($xsd_display_fields[$xsdmf_id]['xsdmf_html_input'] != 'hidden') {
+    	        	continue;
+        	    }
+	            if (!isset($base_det[$xsdmf_id]) || empty($base_det[$xsdmf_id])) {
+    	            $base_det[$xsdmf_id] = $dup_value;
+        	    } elseif (is_array($dup_value)) {
+					if (is_array($base_det[$xsdmf_id])) {
+    	            	$base_det[$xsdmf_id] = array_unique(array_merge($base_det[$xsdmf_id], $dup_value));
+					} else {
+            			$base_det[$xsdmf_id] = array_unique(array_merge(array($base_det[$xsdmf_id]), 
+            										$dup_value));
+	        		}
+    	        }
+        	}
+    	} else {
+    		// the records are different document types
+    		// not much we can do but will try to rescue any isi_loc or rm_prn
+			$id_xsdmf_id = $base_record->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!identifier');
+			$type_xsdmf_id = $base_record->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!identifier!type');
+    		// make sure the base record slots for identifiers are arrays
+    		if (!isset($base_det[$id_xsdmf_id])) {
+    			$base_det[$id_xsdmf_id] = array();
+			} elseif (!is_array($base_det[$id_xsdmf_id])) {
+				$base_det[$id_xsdmf_id] = array($base_det[$id_xsdmf_id]);
+			}
+    		if (!isset($base_det[$type_xsdmf_id])) {
+    			$base_det[$type_xsdmf_id] = array();
+			} elseif (!is_array($base_det[$type_xsdmf_id])) {
+				$base_det[$type_xsdmf_id] = array($base_det[$type_xsdmf_id]);
+			}
+			// copy over the identifiers from the dupe
+    		foreach (array('rm_prn', 'isi_loc') as $id_type) {
+    			// don't merge if the identifier type is already in the base record
+    			if (in_array($id_type, $base_det[$type_xsdmf_id])) {
+    				continue;
+    			}
+    			// copy the identifier over to the base record
+    			$dup_id = $this->getIdentifier($dup_record, $id_type);
+    			if (!empty($dup_id)) {
+    				$base_det[$id_xsdmf_id][] = $dup_id;
+    				$base_det[$type_xsdmf_id][] = $id_type;
+    			}
+			}
+    	}
+        
+        $params = array();
+        $params['sta_id'] = $base_record->getPublishedStatus();
+
+        // Just want to find the basic xsdmf_ids for the title, date and user and set them to something useful
+        $params['xsd_display_fields'] = $base_det; 
+		$ref = new RecordEditForm();
+		$ref->fixParams(&$params, $base_record);
+
+        $base_record->fedoraInsertUpdate(array("FezACML"), array(""),$params);
     }
 
     /** 
@@ -327,30 +426,44 @@ class DuplicatesReport {
     
     function getISI_LOC($record) 
     {
+    	return $this->getIdentifier($record, 'isi_loc');
+    }
+
+    function getRM_PRN($record) 
+    {
+    	return $this->getIdentifier($record, 'rm_prn');
+    }
+    
+    function getIdentifier($record, $find_type)
+    {
         // get the mods:identifier.
-        $isi_loc = '';
+        $res = '';
         $types = $record->getDetailsByXSDMF_element('!identifier!type');
         $identifiers = $record->getDetailsByXSDMF_element('!identifier');
         if (is_array($types)) {
             foreach ($types as $key => $type) {
-                if ($type == 'isi_loc') {
-                    $isi_loc = $identifiers[$key];
+                if ($type == $find_type) {
+                    $res = $identifiers[$key];
                     break;
                 }
             }
         // If there is only one identifier element: ...    
-        } elseif (!empty($types) && $types == 'isi_loc') {
-            $isi_loc = $identifiers;
+        } elseif (!empty($types) && $types == $find_type) {
+            $res = $identifiers;
         }
-        return $isi_loc;
+        return $res;
     }
+
     
     function compareRecords($record1, $record2) 
     {
+        /**
         // Can't compare records of different content models as the XSDMFs will all be different
+        * actually I changed my mind.  We are going to show them but not merge them
         if ($record1->getXmlDisplayId() != $record2->getXmlDisplayId()) {
             return 0;
         }
+        */
         
         $title_tokens1 = $this->tokenise(array($record1->getTitle()));
         $title_tokens2 = $this->tokenise(array($record2->getTitle()));
@@ -464,10 +577,13 @@ class DuplicatesReport {
             $this->addReportToFedoraObject($this->xml_dom->saveXML());
             // put object in limbo
             $rec = new RecordObject($dup_pid);
+            $base_rec = new RecordObject($base_pid);
+            $this->mergeRecordsHiddenFields($base_rec, $rec);
             $rec->markAsDeleted();
             // set some history on the object
             $wfl_id = $this->getWorkflowId();
-            History::addHistory($dup_pid, $wfl_id, "", "", true, "Marked Duplicate", null);
+            History::addHistory($dup_pid, $wfl_id, "", "", false, "Marked Duplicate of ".$base_pid, null);
+            History::addHistory($base_pid, $wfl_id, "", "", true, "Resolved duplicate ".$dup_pid, null);
         } else {
             Error_Handler::logError("Failed to set ".$dup_pid." as duplicate of ".$base_pid
                 ." in XML (report pid".$this->pid.")", __FILE__,__LINE__);
@@ -484,7 +600,8 @@ class DuplicatesReport {
             $rec->markAsActive();
             // set some history on the object
             $wfl_id = $this->getWorkflowId();
-            History::addHistory($dup_pid, $wfl_id, "", "", true, "Marked not duplicate", null);
+            History::addHistory($dup_pid, $wfl_id, "", "", false, "Marked not duplicate of".$base_pid, null);
+            History::addHistory($base_pid, $wfl_id, "", "", true, "Resolved non-duplicate ".$dup_pid, null);
             
         } else {
             Error_Handler::logError("Failed to set ".$dup_pid." as non-duplicate of ".$base_pid

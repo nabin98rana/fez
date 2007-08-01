@@ -362,7 +362,8 @@
             			}
 	        		} else {
     	        		$att_key = 'xsd_display_fields_'.$dis_field["xsdmf_attached_xsdmf_id"].'_0';
-        	    		$params[$att_key] = $item;
+        	    		$params[$att_key] 
+        	    			= $params['xsd_display_fields'][$dis_field["xsdmf_attached_xsdmf_id"]];
     	    		}
             	}
 			}

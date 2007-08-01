@@ -2,6 +2,8 @@
 
 <script type="text/javascript">
 <!--
+var page_url = '{$smarty.server.PHP_SELF}';
+
 {literal}
 
 function validateForm(f)
@@ -49,7 +51,7 @@ function validateForm(f)
 	<tr class="table_heading_row">
                 <td align="center" nowrap="nowrap">
 				  <span class="default_white">{include file="page_list.tpl.html"}</span> <span class="default_white">Rows per Page:</span>
-                  <select name="page_size" class="default" onchange="javascript:resizePager(this.form);">
+                  <select name="page_size" class="default" onchange="javascript:resizePager(this.form,page_url);">
                     <option value="5" {if $page_size == 5}selected="selected"{/if}>5</option>
                     <option value="10" {if $page_size == 10}selected="selected"{/if}>10</option>
                     <option value="25" {if $page_size == 25}selected="selected"{/if}>25</option>
@@ -57,7 +59,7 @@ function validateForm(f)
                     <option value="100" {if $page_size == 100}selected="selected"{/if}>100</option>
                     <option value="150" {if $page_size == 150}selected="selected"{/if}>150</option>
                   </select>
-                  <input type="button" value="Set" class="shortcut" onclick="javascript:resizePager(this.form);" />
+                  <input type="button" value="Set" class="shortcut" onclick="javascript:resizePager(this.form,page_url);" />
                 </td>
 	</tr>
 </table>

@@ -157,3 +157,6 @@ background:[[$smarty.const.APP_LIGHT_COLOR]];
 background-color: [[$smarty.const.APP_LIGHT_COLOR]];
 }
 
+.default_white {
+	background: [[$smarty.const.APP_DARK_COLOR]];
+}

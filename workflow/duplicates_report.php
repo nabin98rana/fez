@@ -50,6 +50,7 @@ if ($page > $listing['list_meta']['pages'] - 1) {
 	$page = 0;
 	$listing = $duplicates_report->getListing($page, $page_size);
 	Pager::setParam('duplicates_report_page',$page);
+	Pager::sendCookie();
 }
 $tpl->assign('listing', $listing['listing']);
 $tpl->assign('list_meta', $listing['list_meta']);

@@ -60,6 +60,10 @@ Possible Duplicates:
 	</div>
  </td>
 </tr>
+{if $compare_unlike_records}
+<tr>
+	<td colspan="2">
+		<table>
 {section name="i" loop=$xsd_display_fields}
 	{assign var="temp_fld_id" value=$xsd_display_fields[i].xsdmf_id}
 	{assign var='xsdmf' value=$xsd_display_fields[i]}
@@ -70,6 +74,29 @@ Possible Duplicates:
 		{$xsd_display_fields[i].xsdmf_order}
 	{/if}
 {/section}
+	</table>
+</td>
+<td valign="top">
+	<div class="admin-content">
+		These two records are of different document types so can't be automatically matched or merged.
+		Please copy and paste any information that needs to be transfered to the other record.
+	</div>
+	<div class="default_white"><b>{$right_xdis_title}</b></div>
+{include file='view_metadata.tpl.html' xsd_display_fields=$right_xsd_display_fields details=$right_details}
+</td>
+</tr>
+{else}
+{section name="i" loop=$xsd_display_fields}
+	{assign var="temp_fld_id" value=$xsd_display_fields[i].xsdmf_id}
+	{assign var='xsdmf' value=$xsd_display_fields[i]}
+	{if $xsd_display_fields[i].xsdmf_html_input != ''}
+		{include file='workflow/edit_metadata_helpers/field_'|cat:$xsd_display_fields[i].xsdmf_html_input|cat:'.tpl.html'}
+	{/if}
+	{if $debug == 1}
+		{$xsd_display_fields[i].xsdmf_order}
+	{/if}
+{/section}
+{/if}
 </table>
 
 </div>

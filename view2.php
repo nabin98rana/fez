@@ -43,6 +43,7 @@ include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.statistics.php");
 include_once(APP_INC_PATH . "class.citation.php");
 include_once(APP_INC_PATH . "class.org_structure.php");
+include_once(APP_INC_PATH . "class.record_view.php");
 
 include_once(APP_PEAR_PATH . "Date.php");
 $username = Auth::getUsername();
@@ -143,7 +144,10 @@ if (!empty($pid) && $record->checkExists()) {
 		} 
 		// Now generate the META Tag headers
 		$meta_head = '<meta name="DC.Identifier" schema="URI" content="'.substr(APP_BASE_URL,0,-1).$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'"/>'."\n";
+
+		// Get some extra bits out of the record
 		foreach ($xsd_display_fields as $dis_key => $dis_field) {
+			// Look for the meta tag header items
 			if (($dis_field['xsdmf_enabled'] == 1) && ($dis_field['xsdmf_meta_header'] == 1) && (trim($dis_field['xsdmf_meta_header_name']) != "")) {
 				if (is_array($details[$dis_field['xsdmf_id']])) {
 					foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
@@ -160,137 +164,8 @@ if (!empty($pid) && $record->checkExists()) {
 					}
 				}
 			}
-		}
-				
-		foreach ($xsd_display_fields as $dis_key => $dis_field) {
-			if (($dis_field['xsdmf_enabled'] == 1)) { // CK - took out check for is in view form, as not much is in view form now
-				if ((($dis_field['xsdmf_html_input'] == "contvocab") || ($dis_field['xsdmf_html_input'] == "contvocab_selector")) && ($dis_field['xsdmf_cvo_save_type'] != 1)) {
-					if (!empty($details[$dis_field['xsdmf_id']])) {
-						if (is_array($details[$dis_field['xsdmf_id']])) {
-							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
-								$details[$dis_field['xsdmf_id']][$ckey] = Controlled_Vocab::getTitle($cdata);
-								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=subject&parent_id=".$cdata."'>".Controlled_Vocab::getTitle($cdata)."</a>";
-							}
-						} else {
-							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=subject&parent_id=".$details[$dis_field['xsdmf_id']]."'>".Controlled_Vocab::getTitle($details[$dis_field['xsdmf_id']])."</a>";
-						}
-					}
-				}
-				if ($dis_field['xsdmf_html_input'] == "xsdmf_id_ref") {
-
-					$xsdmf_details_ref = XSD_HTML_Match::getDetailsByXSDMF_ID($dis_field['xsdmf_id_ref']);
-					$xsdmf_id_ref = $xsdmf_details_ref['xsdmf_id'];
-					if (($xsdmf_details_ref['xsdmf_html_input'] == 'contvocab') ||($xsdmf_details_ref['xsdmf_html_input'] == 'contvocab_selector')) {
-						if (!empty($details[$dis_field['xsdmf_id']])) {
-							$details[$xsdmf_id_ref] = array(); //clear the existing data
-							if (is_array($details[$dis_field['xsdmf_id']])) {
-								foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
-									$details[$xsdmf_id_ref][$cdata] = Controlled_Vocab::getTitle($cdata);
-									$details[$xsdmf_id_ref][$cdata] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=subject&parent_id=".$cdata."'>".Controlled_Vocab::getTitle($cdata)."</a>";
-								}
-							} else {
-								$details[$xsdmf_id_ref] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=subject&parent_id=".$details[$dis_field['xsdmf_id']]."'>".Controlled_Vocab::getTitle($details[$dis_field['xsdmf_id']])."</a>";
-							}
-						}				
-					}				
-				}
-				if ($dis_field['xsdmf_data_type'] == "date") {
-					if (!empty($details[$dis_field['xsdmf_id']])) {
-						if (is_array($details[$dis_field['xsdmf_id']])) {
-							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
-								$details[$dis_field['xsdmf_id']][$ckey] = $details[$cdata];
-							}
-						} else {
-							//$tempDate = new Date($details[$dis_field['xsdmf_id']]);
-	//						$tempDate->format
-							if (@$details[$dis_field['xsdmf_attached_xsdmf_id']] == 1) {
-								$details[$dis_field['xsdmf_id']] = substr($details[$dis_field['xsdmf_id']], 0, 4);
-							} elseif (@$details[$dis_field['xsdmf_attached_xsdmf_id']] == 2) {
-								$details[$dis_field['xsdmf_id']] = substr($details[$dis_field['xsdmf_id']], 0, 7);
-							} 
-						}
-					}
-				}
-                if ($dis_field["xsdmf_html_input"] == 'org_selector') {
-                    if (!empty($details[$dis_field['xsdmf_id']])) {
-                        if (is_array($details[$dis_field['xsdmf_id']])) {
-                            foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
-                                $org_det = Org_Structure::getDetails($cdata);
-                                $details[$dis_field['xsdmf_id']][$ckey] = $org_det['org_title'];
-                            }
-                        } else {
-                            $org_det = Org_Structure::getDetails($details[$dis_field['xsdmf_id']]);
-                            $details[$dis_field['xsdmf_id']] = $org_det['org_title'];
-                        }
-                    }
-                }
-				if ($dis_field['xsdmf_html_input'] == "author_selector") {
-					if (!empty($details[$dis_field['xsdmf_id']])) {
-						if (is_array($details[$dis_field['xsdmf_id']])) {
-							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
-								$details[$dis_field['xsdmf_id']][$ckey] = Author::getFullname($cdata);
-							}
-						} else {
-							$details[$dis_field['xsdmf_id']] =  Author::getFullname($details[$dis_field['xsdmf_id']]);
-						}
-					}
-				} 
-				if ($dis_field['sek_title'] == "Author") {
-					if (!empty($details[$dis_field['xsdmf_id']])) {
-						if (is_array($details[$dis_field['xsdmf_id']])) {
-							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {	
-                                $temp_xsdmf_id = $dis_field['xsdmf_attached_xsdmf_id'];
-                                if ( is_array($details[$temp_xsdmf_id]) &&  (is_numeric($details[$temp_xsdmf_id][$ckey])) && ($details[$temp_xsdmf_id][$ckey] != 0)) {
-                                //if ( array_key_exists($temp_xsdmf_id, $details) ) {
-								  $details[$dis_field['xsdmf_id']][$ckey] = "<a title='Browse by Author ID for ".$details[$dis_field['xsdmf_id']][$ckey]."' class='author_id_link' href='".APP_BASE_URL."list.php?browse=author&author_id=".htmlspecialchars($details[$temp_xsdmf_id][$ckey], ENT_QUOTES)."'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
-                                } else {
-								  $details[$dis_field['xsdmf_id']][$ckey] = "<a title='Browse by Author Name for ".$details[$dis_field['xsdmf_id']][$ckey]."' class='silent_link' href='".APP_BASE_URL."list.php?browse=author&author=".htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey], ENT_QUOTES)."'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
-
-                                }                	
-							}
-						} else {
-                             $temp_xsdmf_id = $dis_field['xsdmf_attached_xsdmf_id'];
-                             if ((is_numeric($details[$temp_xsdmf_id])) && ($details[$temp_xsdmf_id] != 0)) {
-							   $details[$dis_field['xsdmf_id']] = "<a title='Browse by Author ID for ".$details[$dis_field['xsdmf_id']]."' class='author_id_link' href='".APP_BASE_URL."list.php?browse=author&author_id=".htmlspecialchars($details[$temp_xsdmf_id], ENT_QUOTES)."'>".$details[$dis_field['xsdmf_id']]."</a>";
-                             } else {
-							   $details[$dis_field['xsdmf_id']] = "<a title='Browse by Author Name for ".$details[$dis_field['xsdmf_id']]."' class='silent_link' href='".APP_BASE_URL."list.php?browse=author&author=".htmlspecialchars($details[$dis_field['xsdmf_id']], ENT_QUOTES)."'>".$details[$dis_field['xsdmf_id']]."</a>";
-                             }
-						}
-					}
-				}			
-				if ($dis_field['sek_title'] == "Description") {
-					if (!empty($details[$dis_field['xsdmf_id']])) {
-						if (is_array($details[$dis_field['xsdmf_id']])) {
-							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {		
-								$details[$dis_field['xsdmf_id']][$ckey] = (trim($details[$dis_field['xsdmf_id']][$ckey]));
-							}
-						} else {
-							$details[$dis_field['xsdmf_id']] = (trim($details[$dis_field['xsdmf_id']]));
-						}
-					}
-				}	
-				if ($dis_field['sek_title'] == "Keywords") {
-					if (!empty($details[$dis_field['xsdmf_id']])) {
-						if (is_array($details[$dis_field['xsdmf_id']])) {
-							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {		
-								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".APP_RELATIVE_URL."list.php?cat=quick_filter&search_keys%5B0%5D=".htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey], ENT_QUOTES)."'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
-							}
-						} else {
-							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_RELATIVE_URL."list.php?cat=quick_filter&search_keys%5B0%5D=".htmlspecialchars($details[$dis_field['xsdmf_id']], ENT_QUOTES)."'>".$details[$dis_field['xsdmf_id']]."</a>";
-						}
-					}
-				}	
-				if ($dis_field['sek_title'] == "Subject" && (($dis_field['xsdmf_html_input'] != "contvocab_selector")) ) {
-					if (!empty($details[$dis_field['xsdmf_id']])) {
-						if (is_array($details[$dis_field['xsdmf_id']])) {
-							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {		
-								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".APP_RELATIVE_URL."list.php?cat=quick_filter&search_keys%5B0%5D=".$details[$dis_field['xsdmf_id']][$ckey]."'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
-							}
-						} else {
-							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_RELATIVE_URL."list.php?cat=quick_filter&search_keys%5B0%5D=".$details[$dis_field['xsdmf_id']]."'>".$details[$dis_field['xsdmf_id']]."</a>";
-						}
-					}
-				}							
+			if ($dis_field['xsdmf_enabled'] == 1) {
+				// get the created / updated and depositor info
 				if ($dis_field['xsdmf_element'] == "!created_date") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
@@ -315,40 +190,13 @@ if (!empty($pid) && $record->checkExists()) {
 						}
 					}
 				}				
-				if ($dis_field["xsdmf_use_parent_option_list"] == 1) { 
-					// if the display field inherits this list from a parent then get those options
-					// Loop through the parents
-					foreach ($parent_relationships as $pkey => $prel) {
-						if (in_array($dis_field["xsdmf_parent_option_xdis_id"], $prel)) {
-							$parent_record = new RecordObject($pkey);
-							$parent_details = $parent_record->getDetails();
-							if (is_array($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]])) {
-								$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($dis_field["xsdmf_parent_option_child_xsdmf_id"]);
-								if ($xsdmf_details['xsdmf_smarty_variable'] != "" && $xsdmf_details['xsdmf_html_input'] == "multiple") {
-									$temp_parent_options = array();
-									$temp_parent_options_final = array();
-									eval("\$temp_parent_options = ". $xsdmf_details['xsdmf_smarty_variable'].";");
-									$xsd_display_fields[$dis_key]['field_options'] = array();
-									foreach ($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]] as $parent_smarty_option) {
-										if (array_key_exists($details[$dis_field['xsdmf_id']], $temp_parent_options)) {
-											$details[$dis_field['xsdmf_id']] = $temp_parent_options[$details[$dis_field['xsdmf_id']]];
-										}
-									}
-								}
-							}
-						}
-					}
-				}	
 			}
 		}
         $tpl->assign('meta_head', $meta_head);
-
-		foreach ($details as $dkey => $dvalue) { // turn any array values into a comma seperated string value
-			if (is_array($dvalue)) {
-				$details[$dkey] = implode("<br /> ", $dvalue);
-			}
-		}
-
+		
+		$record_view = new RecordView($record);	
+		$details = $record_view->getDetails();
+		
         // Setup the Najax Image Preview object.
         $tpl->assign('najax_header', NAJAX_Utilities::header(APP_BASE_URL.'include/najax'));
         $tpl->registerNajax( NAJAX_Client::register('NajaxImagePreview', APP_BASE_URL.'najax_services/image_preview.php'));
