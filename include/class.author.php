@@ -465,13 +465,11 @@ class Author
 		$dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
 		$term = Misc::escapeString($term);
 		$stmt = "
-			  SELECT aut_id, aut_fullname FROM
-			 (SELECT
-				distinct aut_id,
-				concat_ws(' ', aut_fname, aut_mname, aut_lname) as aut_fullname, 
-				MATCH(aut_fname, aut_lname) AGAINST ('".$term."') as Relevance FROM ".$dbtp."author
-			 WHERE MATCH (aut_fname, aut_lname) AGAINST ('*".$term."*' IN BOOLEAN MODE)
-			 ORDER BY Relevance DESC, aut_fullname, aut_id LIMIT 0,20) as temp";
+			  SELECT aut_id, 
+				aut_display_name as aut_fullname,
+				MATCH(aut_display_name) AGAINST ('".$term."') as Relevance FROM ".$dbtp."author
+			 WHERE MATCH (aut_display_name) AGAINST ('*".$term."*' IN BOOLEAN MODE)
+			 ORDER BY Relevance DESC, aut_fullname LIMIT 0,20 ";
 	    $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

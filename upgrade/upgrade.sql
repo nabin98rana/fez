@@ -269,3 +269,5 @@ ALTER TABLE `%TABLE_PREFIX%xsd_loop_subelement`
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%auth_index`;
 DROP TABLE IF EXISTS `%TABLE_PREFIX%statistics`;
+
+ALTER TABLE `%TABLE_PREFIX%author` add fulltext `aut_display_name` (`aut_display_name`);
