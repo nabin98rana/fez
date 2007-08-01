@@ -12,7 +12,7 @@ function StateSuggestions(class_name, method, show_all, include_name) {
     this.sugg.show_all = show_all;
     this.sugg.include_name = include_name;
     this.sugg.ongetSuggestionError = function() {
-        //alert("getSuggestionError");
+        alert("getSuggestionError");
         this.mutex--;
     }
     this.sugg.onGetIdError = function() {
@@ -37,7 +37,7 @@ StateSuggestions.prototype.requestSuggestions = function (oAutoSuggestControl /*
     oSuggestor = this;
     oAutoSuggestControl_local = oAutoSuggestControl;
     bTypeAhead_local = bTypeAhead;
-    setTimeout("oSuggestor.requestSuggestions2(oAutoSuggestControl_local,bTypeAhead_local)",500);
+    setTimeout("oSuggestor.requestSuggestions2(oAutoSuggestControl_local,bTypeAhead_local)",300);
 };
 
 
@@ -48,9 +48,19 @@ StateSuggestions.prototype.requestSuggestions2 = function (oAutoSuggestControl /
     // Don't do search until user has stopped typing.
     date1 = new Date();
     keydelay = date1.getTime() - this.keyTime;
-    if (keydelay < 500) {
+    var aSuggestions = [];
+    var sTextboxValue = oAutoSuggestControl.textbox.value;
+    var sTextboxName = oAutoSuggestControl.textbox.name;
+
+    if (keydelay < 280) {
       return;
+	}
+	
+    // only run for user input at least 2 characters
+    if (sTextboxValue.length < 2) {
+    	return;
     }
+	
     // only do one search
     if (this.mutex++ > 0) {
         this.mutex--;
@@ -60,10 +70,6 @@ StateSuggestions.prototype.requestSuggestions2 = function (oAutoSuggestControl /
     var sTextboxValue = oAutoSuggestControl.textbox.value;
     var sTextboxName = oAutoSuggestControl.textbox.name;
 
-    // only run for user input at least 2 characters
-    if (sTextboxValue.length < 2) {
-    	return;
-    }
 
     s = document.getElementById(sTextboxName+'_searching');
     if (s) {
@@ -91,6 +97,7 @@ StateSuggestions.prototype.requestSuggestions2 = function (oAutoSuggestControl /
               s.style.display = 'none';
             }
             aSuggestions = suggest_list;
+//			alert('key delay = '+keydelay+'. val = '+sTextboxValue);
             //provide suggestions to the control
             // never allow type ahead as we are suggesting using a search that 
             // might match partway through a string
@@ -119,6 +126,7 @@ StateSuggestions.prototype.addMulti = function (oAutoSuggestControl /*:AutoSugge
         }
         // get the id for the text value
         oSuggestor = this;
+//		alert(sTextboxValue);
         this.sugg.getId(sTextboxValue, function(value_id)
                 {
                 // add the option to the multi select and select it
