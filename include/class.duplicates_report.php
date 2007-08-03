@@ -367,14 +367,16 @@ class DuplicatesReport {
                     $base_rm_prn = $report_item->getAttribute('rm_prn');
                     $dup_isi_loc = $dup_item->getAttribute('isi_loc');
                     if (!empty($base_rm_prn) && !empty($dup_isi_loc)) {
-	                    $this->mergeRecords($base_record, $dup_record, self::MERGE_TYPE_RM_ISI);
+	                    $merge_res = $this->mergeRecords($base_record, $dup_record, self::MERGE_TYPE_RM_ISI);
     	            } else {
-        	            $this->mergeRecords($base_record, $dup_record);
+        	            $merge_res = $this->mergeRecords($base_record, $dup_record);
             	    }
-			        // set some history on the object so we know why it was merged.
-			        History::addHistory($base_pid, $wfl_id, "", "", false, 
-			        	"Merged on LOC_ISI with ".$dup_pid, null);
-                    $this->markDuplicate($base_pid, $dup_pid);
+            	    if ($merge_res > 0) {
+				        // set some history on the object so we know why it was merged.
+				        History::addHistory($base_pid, $wfl_id, "", "", false, 
+				        	"Merged on LOC_ISI with ".$dup_pid, null);
+            	        $this->markDuplicate($base_pid, $dup_pid);
+            	    }
                 }
             }
         }
@@ -400,6 +402,11 @@ class DuplicatesReport {
 		        $base_det = $this->overrideRMDetails($base_det, $dup_record);
 			break;
 		}
+		
+		// check for errors and don't merge if there was a problem
+		if (!is_array($base_det)) {
+			return $base_det;
+		}
         
         $params = array();
         $params['sta_id'] = $base_record->getPublishedStatus();
@@ -410,6 +417,7 @@ class DuplicatesReport {
 		$ref->fixParams(&$params, $base_record);
 
         $base_record->fedoraInsertUpdate(array("FezACML"), array(""),$params);
+        return 1;
     }
 
 
@@ -506,8 +514,37 @@ class DuplicatesReport {
     
     function overrideRMDetails($base_det, $dup_record)
     {
+		$error = 0;
+		$dup_det = $dup_record->getDetails();
     	// title, journal name, date, start_page, end_page, volume_number?
-    	return $base_det;
+    	$elements = array('!titleInfo!title', '!relatedItem!name!namePart', '!originInfo!dateIssued', 
+    						'!part!extent!start', '!part!extent!end');
+    	foreach ($elements as $element) {
+    		$xsdmf_id = $dup_record->display->xsd_html_match->getXSDMF_IDByXDIS_ID($element);
+    		$base_det[$xsdmf_id] = $dup_det[$xsdmf_id];
+		}
+		// Find the Volume number xsdmf id
+		$sub_xsdmf_id = $dup_record->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!part!detail');
+		$subs = XSD_Loop_Subelement::getSimpleListByXSDMF($sub_xsdmf_id);
+		foreach ($subs as $sub) {
+			if ($sub['xsdsel_title'] == 'Volume') {
+				$sub_id = $sub['xsdsel_id'];
+			}
+		}
+		if (!empty($sub_id)) {
+			$xsdmf_id = $dup_record->display->xsd_html_match->getXSDMF_IDBySELXDIS_ID(
+								'!part!detail!number', $sub_id);
+			if (!empty($base_det[$xsdmf_id]) && $base_det[$xsdmf_id] != $dup_det[$xsdmf_id]) {
+				$error = -1;
+			} elseif (empty($base_det[$xsdmf_id])) {
+				$base_det[$xsdmf_id] = $dup_det[$xsdmf_id];
+			}
+		}
+		if (empty($error)) {
+    		return $base_det;
+		} else {
+			return $error;
+		}
     }
 
     /** 

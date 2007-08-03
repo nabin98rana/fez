@@ -1,5 +1,7 @@
 <?php
 
+proc_nice(10);
+
 $ARGV = $_SERVER['argv'];
 $base = $ARGV[2];
 include_once($base.'config.inc.php');
