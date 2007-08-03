@@ -338,7 +338,7 @@ class DuplicatesReport {
     
     function autoMergeOnISI_LOC()
     {
-        Error_Handler::debugStart();
+        //Error_Handler::debugStart();
 
         // get the report
         $report_dom = $this->getXML_DOM();
