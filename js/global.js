@@ -24,6 +24,10 @@ function unhideRow(element_name, table_name)
 		var row = document.getElementById('tr_' + element_name + '_' + x);
 		var rowInput = document.getElementById(element_name + '_' + x);
 
+		if (row == null) {
+			break;
+		}
+
 		if (row.style.display == '' && rowInput.value == '') {
 			emptyRowExists = 1;
 		}
