@@ -310,7 +310,7 @@ class DuplicatesReport {
         // Do a fuzzy title match on records that don't have the same pid as the candidate record
         // and are type '3' (records not collections or communities)
         $stmt = "SELECT distinct r2.rmf_rec_pid as pid, " .
-                "  match (r2.rmf_varchar) against ('".$title."') as relevance " .
+                "  match (r2.rmf_varchar) against ('".Misc::escapeString($title)."') as relevance " .
                 "FROM  ".$dbtp."record_matching_field AS r2 " .
                 "INNER JOIN ".$dbtp."xsd_display_matchfields AS x2 " .
                 "  ON r2.rmf_xsdmf_id = x2.xsdmf_id " .
@@ -338,6 +338,8 @@ class DuplicatesReport {
     
     function autoMergeOnISI_LOC()
     {
+        Error_Handler::debugStart();
+
         // get the report
         $report_dom = $this->getXML_DOM();
         $xpath = new DOMXPath($report_dom);
@@ -380,6 +382,7 @@ class DuplicatesReport {
                 }
             }
         }
+        Error_Handler::debugStop();
     }
     
     function mergeRecords($base_record, $dup_record, $merge_type = self::MERGE_TYPE_ALL)
@@ -399,7 +402,12 @@ class DuplicatesReport {
 			break;
 			case self::MERGE_TYPE_RM_ISI:
 		        $base_det = $this->mergeDetailsAll($base_record, $dup_record);
-		        $base_det = $this->overrideRMDetails($base_det, $dup_record);
+		        if (is_array($base_det)) {
+		        	$base_det = $this->overrideRMDetails($base_record, $dup_record, $base_det);
+	        	}
+		        if (is_array($base_det)) {
+			        $base_det = $this->mergeAuthorsRM_UQCited($base_record, $dup_record, $base_det);
+		        }
 			break;
 		}
 		
@@ -512,23 +520,26 @@ class DuplicatesReport {
 		return $this->mergeRecords($base_record, $dup_record, self::MERGE_TYPE_HIDDEN);
     }
     
-    function overrideRMDetails($base_det, $dup_record)
+    function overrideRMDetails($base_record, $dup_record, $base_det)
     {
 		$error = 0;
 		$dup_det = $dup_record->getDetails();
     	// title, journal name, date, start_page, end_page, volume_number?
     	$elements = array('!titleInfo!title', '!relatedItem!name!namePart', '!originInfo!dateIssued', 
-    						'!part!extent!start', '!part!extent!end');
+    						'!relatedItem!part!extent!start', '!relatedItem!part!extent!end');
     	foreach ($elements as $element) {
     		$xsdmf_id = $dup_record->display->xsd_html_match->getXSDMF_IDByXDIS_ID($element);
     		$base_det[$xsdmf_id] = $dup_det[$xsdmf_id];
 		}
 		// Find the Volume number xsdmf id
-		$sub_xsdmf_id = $dup_record->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!part!detail');
+		$sub_xsdmf_id = $dup_record->display->xsd_html_match->getXSDMF_IDByXDIS_ID(
+							'!relatedItem!part!detail');
 		$subs = XSD_Loop_Subelement::getSimpleListByXSDMF($sub_xsdmf_id);
-		foreach ($subs as $sub) {
-			if ($sub['xsdsel_title'] == 'Volume') {
-				$sub_id = $sub['xsdsel_id'];
+		if (!empty($subs)) {
+			foreach ($subs as $sub) {
+				if ($sub['xsdsel_title'] == 'Volume') {
+					$sub_id = $sub['xsdsel_id'];
+				}
 			}
 		}
 		if (!empty($sub_id)) {
@@ -539,6 +550,8 @@ class DuplicatesReport {
 			} elseif (empty($base_det[$xsdmf_id])) {
 				$base_det[$xsdmf_id] = $dup_det[$xsdmf_id];
 			}
+		} else {
+			$error = -2;
 		}
 		if (empty($error)) {
     		return $base_det;
@@ -546,6 +559,63 @@ class DuplicatesReport {
 			return $error;
 		}
     }
+    
+    function mergeAuthorsRM_UQCited($base_record, $dup_record, $base_det)
+    {
+    	/* the rules are:
+    	   if the base author is blank (there are more authors on the dup than the base) then copy them across.
+    	   if the ids match, then use the UQ Cited Author Display name (dup)
+    	   if the author names have a good levenstein score and the base id is not set (0) then use the dup
+    	   if the author names have a bad score then return -1
+    	   	
+    	*/
+    	$error = 0;
+    	
+    	$base_authors = $base_record->getFieldValueBySearchKey('Author');
+    	$base_author_ids = $base_record->getFieldValueBySearchKey('Author ID');
+    	
+    	$dup_authors = $dup_record->getFieldValueBySearchKey('Author');
+    	$dup_author_ids = $dup_record->getFieldValueBySearchKey('Author ID');
+    	
+    	$res_authors = array();
+    	$res_author_ids = array();
+    	
+    	Error_Handler::debug('MSS', compact('base_authors','base_author_ids','dup_authors', 'dup_author_ids'));
+    	
+		for ($ii = 0; $ii < count($dup_authors); $ii++) {
+			if (!isset($base_authors[$ii])) {
+				$res_authors[] = $dup_authors[$ii];
+				$res_author_ids[] = $dup_author_ids[$ii];
+			} elseif ($base_author_ids[$ii] == $dup_author_ids[$ii]) {
+				$res_authors[] = $dup_authors[$ii];
+				$res_author_ids[] = $dup_author_ids[$ii];
+			} elseif (empty($base_author_ids[$ii]) 
+				&& levenshtein($base_authors[$ii], $dup_authors[$ii]) < strlen($dup_authors[$ii]) / 2) {
+				$res_authors[] = $dup_authors[$ii];
+				$res_author_ids[] = $dup_author_ids[$ii];
+				$lev = levenshtein($base_authors[$ii], $dup_authors[$ii]);
+				Error_Handler::debug('MSS', compact('lev'));
+			} else {
+				$error = -1;
+				break;
+			}
+		}
+		Error_Handler::debug('MSS', compact('res_authors','res_author_ids','error'));
+		
+		if (empty($error)) {
+			// find the authors and ids xsdmf_ids and merge them in
+			$sek_id = Search_Key::getID('Author');
+			$xsdmf_id = $base_record->display->xsd_html_match->getXSDMF_IDBySEK($sek_id);
+			$base_det[$xsdmf_id] = $res_authors;
+			$sek_id = Search_Key::getID('Author ID');
+			$xsdmf_id = $base_record->display->xsd_html_match->getXSDMF_IDBySEK($sek_id);
+			$base_det[$xsdmf_id] = $res_author_ids;
+			return $base_det;
+		} else {
+			return $error;
+		}
+	}
+
 
     /** 
      * Look for <mods:identifier type="isi_loc"> on both records and if they're the same

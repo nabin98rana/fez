@@ -3014,6 +3014,15 @@ class XSD_HTML_MatchObject {
 		}
 		return null;
 	}
+	
+	function getXSDMF_IDBySEK($sek_id)
+	{
+         foreach ($this->getMatchCols() as $xsdmf ) {
+	         if ($xsdmf['xsdmf_sek_id'] == $sek_id) {
+				return $xsdmf['xsdmf_id'];
+			}
+		}
+	}
 	/**
 	 * getDetailsByXSDMF_ID 
 	 * Retrieve the details of a match field
