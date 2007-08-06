@@ -3049,6 +3049,34 @@ class XSD_HTML_MatchObject {
 		}
 		return null;
 	}
+	
+	/**
+	 * Finds an xsdmf_id by element name within a sub-looping element.
+	 * @param string $loop_base_element - the element that is the base of the sub looping mapping
+	 * @param string $loop_name - title of the sub looping element
+	 * @param string $element - element to find within the sub looping element
+	 * @return integer The xsdmf_id or a negative number if there was an error or the item isn't mapped
+	 */
+	function getXSDMF_ID_ByElementInSubElement($loop_base_element, $loop_name, $element)
+    {
+		$sub_xsdmf_id = $this->getXSDMF_IDByXDIS_ID($loop_base_element);
+		if (!empty($sub_xsdmf_id)) {							
+			$subs = XSD_Loop_Subelement::getSimpleListByXSDMF($sub_xsdmf_id);
+		}
+		if (!empty($subs)) {
+			foreach ($subs as $sub) {
+				if ($sub['xsdsel_title'] == $loop_name) {
+					$sub_id = $sub['xsdsel_id'];
+				}
+			}
+		}
+		if (!empty($sub_id)) {
+			$xsdmf_id = $this->getXSDMF_IDBySELXDIS_ID($element, $sub_id);
+			return $xsdmf_id;
+		} else {
+			return -1;
+		}
+    }
 }
 
 // benchmarking the included file (aka setup time)

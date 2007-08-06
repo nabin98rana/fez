@@ -8,9 +8,9 @@ var page_url = '{$smarty.server.PHP_SELF}';
 
 function validateForm(f)
 {
-	if (!hasOneChecked(f, 'pid')) {
-		errors[errors.length] = new Option('A record must be selected', 'pid');
-    }
+	//if (!hasOneChecked(f, 'pid')) {
+	//	errors[errors.length] = new Option('A record must be selected', 'pid');
+    //}
 }
 
 {/literal}
@@ -40,6 +40,10 @@ function validateForm(f)
 <td>{$listing[ii].count}</td>
 <td>{$listing[ii].probability}</td>
 <td>{if $listing[ii].resolved}<span class="yes">yes</span>{else}<span class="no">no</span>{/if}</td>
+</tr>
+{sectionelse}
+<tr class="{$row_class}">
+<td colspan="10"><center>No duplicates were found</center></td>
 </tr>
 {/section}
 

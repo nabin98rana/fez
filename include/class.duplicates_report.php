@@ -52,12 +52,15 @@ class DuplicatesReport {
         //Error_Handler::debugStart();
         $total_pids = count($pids);
         $progress = 0;
+        $dupes_count = 0;
         $report_array = array();
         for ($ii = 0; $ii < count($pids); $ii++) {
             $pid = $pids[$ii];
             if (!empty($this->bgp)) {
                 $this->bgp->setProgress(++$progress / $total_pids * 100);
-                $this->bgp->setStatus("Processing ".$progress." of ".$total_pids.". ".$pid);
+                $this->bgp->setStatus("Processing " . $progress . " of " . $total_pids . ", " 
+                	. $pid . ". "
+                	. $dupes_count . " dupes found so far.");
             }
             $record = new RecordGeneral($pid);
             if ($record->checkExists()) {
@@ -100,11 +103,14 @@ class DuplicatesReport {
                                          'title' => $dup_rec->getTitle(),
                                          'rm_prn' => $this->getRM_PRN($dup_rec),
                                          'isi_loc' => $this->getISI_LOC($dup_rec));
+                            $dupes_count++;
                         }
                     }
                 }
             }
         }
+        $this->bgp->setStatus("Found ". $dupes_count . " dupes in " .  $total_pids . " items.");
+
         $report_array = $this->mergeSets($report_array);
         $xml = $this->generateXML($report_array);
         $this->addReportToFedoraObject($xml);
@@ -314,7 +320,7 @@ class DuplicatesReport {
                 "FROM  ".$dbtp."record_matching_field AS r2 " .
                 "INNER JOIN ".$dbtp."xsd_display_matchfields AS x2 " .
                 "  ON r2.rmf_xsdmf_id = x2.xsdmf_id " .
-                "  AND match (r2.rmf_varchar) against ('".$title."') " .
+                "  AND match (r2.rmf_varchar) against ('".Misc::escapeString($title)."') " .
                 "  AND NOT (rmf_rec_pid_num = ".$pidnum." AND rmf_rec_pid = '".$pid."') " .
                 "INNER JOIN ".$dbtp."search_key AS s2 " .
                 "  ON s2.sek_id = x2.xsdmf_sek_id " .
@@ -363,22 +369,30 @@ class DuplicatesReport {
                 if ($base_record->getXmlDisplayId() == $dup_record->getXmlDisplayId()
                 		&& $this->compareISI_LOC($base_record, $dup_record)) {
                     // yikes they match!
-                    if (!empty($this->bgp)) {
-                        $this->bgp->setStatus("Merging on matching isi_loc ".$dup_pid);
-                    }
-                    $base_rm_prn = $report_item->getAttribute('rm_prn');
-                    $dup_isi_loc = $dup_item->getAttribute('isi_loc');
-                    if (!empty($base_rm_prn) && !empty($dup_isi_loc)) {
-	                    $merge_res = $this->mergeRecords($base_record, $dup_record, self::MERGE_TYPE_RM_ISI);
-    	            } else {
-        	            $merge_res = $this->mergeRecords($base_record, $dup_record);
-            	    }
-            	    if ($merge_res > 0) {
-				        // set some history on the object so we know why it was merged.
-				        History::addHistory($base_pid, $wfl_id, "", "", false, 
-				        	"Merged on LOC_ISI with ".$dup_pid, null);
-            	        $this->markDuplicate($base_pid, $dup_pid);
-            	    }
+                    if (defined('APP_RQF_REALLY_AUTO_MERGE') && APP_RQF_REALLY_AUTO_MERGE === true) {
+                 	   if (!empty($this->bgp)) {
+                    	    $this->bgp->setStatus("Merging on matching isi_loc ".$dup_pid);
+	                    }
+    	                $base_rm_prn = $report_item->getAttribute('rm_prn');
+        	            $dup_isi_loc = $dup_item->getAttribute('isi_loc');
+            	        if (!empty($base_rm_prn) && !empty($dup_isi_loc)) {
+	            	        $merge_res = $this->mergeRecords($base_record, $dup_record, self::MERGE_TYPE_RM_ISI);
+	    	            } else {
+    	    	            $merge_res = $this->mergeRecords($base_record, $dup_record);
+        	    	    }
+            		    if ($merge_res > 0) {
+					        // set some history on the object so we know why it was merged.
+				    	    History::addHistory($base_pid, $wfl_id, "", "", false, 
+					        	"Merged on LOC_ISI with ".$dup_pid, null);
+    	        	        $this->markDuplicate($base_pid, $dup_pid);
+        	    	    }
+        		    } else {
+        		    	// just pretend to merge
+	             		if (!empty($this->bgp)) {
+                    	    $this->bgp->setStatus("Matching isi_loc with " . $dup_pid . " (test mode: no merge has taken place) ");
+	                    }
+	        	        $this->markDuplicate($base_pid, $dup_pid);
+					}		    		
                 }
             }
         }
@@ -398,6 +412,9 @@ class DuplicatesReport {
 			        $base_det = $this->mergeDetailsHiddenSameDocType($base_record, $dup_record);
 		        } else {
 			        $base_det = $this->mergeDetailsHiddenDiffDocType($base_record, $dup_record);
+		        }
+		        if (is_array($base_det)) {
+			        $base_det = $this->merge_R_Datastreams($base_record, $dup_record, $base_det);
 		        }
 			break;
 			case self::MERGE_TYPE_RM_ISI:
@@ -435,18 +452,24 @@ class DuplicatesReport {
         $base_det = $base_record->getDetails();
         $dup_det = $dup_record->getDetails();
         foreach ($dup_det as $xsdmf_id => $dup_value) {
-            if (!isset($base_det[$xsdmf_id]) || empty($base_det[$xsdmf_id])) {
-                $base_det[$xsdmf_id] = $dup_value;
-            } elseif (is_array($dup_value)) {
-				if (is_array($base_det[$xsdmf_id])) {
-                	$base_det[$xsdmf_id] = array_unique(array_merge($base_det[$xsdmf_id], $dup_value));
-				} else {
-            		$base_det[$xsdmf_id] = array_unique(array_merge(array($base_det[$xsdmf_id]), $dup_value));
-        		}
-            }
+            $this->mergeDetailGeneric($base_det, $xsdmf_id, $dup_value);
         }
         return $base_det;
     }
+    
+    function mergeDetailGeneric(&$base_det, $xsdmf_id, $dup_value)
+    {
+    	if (!isset($base_det[$xsdmf_id]) || empty($base_det[$xsdmf_id])) {
+            $base_det[$xsdmf_id] = $dup_value;
+        } elseif (is_array($dup_value)) {
+			if (is_array($base_det[$xsdmf_id])) {
+            	$base_det[$xsdmf_id] = array_unique(array_merge($base_det[$xsdmf_id], $dup_value));
+			} else {
+        		$base_det[$xsdmf_id] = array_unique(array_merge(array($base_det[$xsdmf_id]), $dup_value));
+        	}
+        }
+    }
+	
     
     function mergeDetailsHiddenSameDocType($base_record, $dup_record)
     {
@@ -461,16 +484,7 @@ class DuplicatesReport {
             if ($xsd_display_fields[$xsdmf_id]['xsdmf_html_input'] != 'hidden') {
 	        	continue;
     	    }
-            if (!isset($base_det[$xsdmf_id]) || empty($base_det[$xsdmf_id])) {
-	            $base_det[$xsdmf_id] = $dup_value;
-    	    } elseif (is_array($dup_value)) {
-				if (is_array($base_det[$xsdmf_id])) {
-	            	$base_det[$xsdmf_id] = array_unique(array_merge($base_det[$xsdmf_id], $dup_value));
-				} else {
-        			$base_det[$xsdmf_id] = array_unique(array_merge(array($base_det[$xsdmf_id]), 
-        										$dup_value));
-        		}
-	        }
+    	    $this->mergeDetailGeneric($base_det, $xsdmf_id, $dup_value);
     	}
         return $base_det;
     }
@@ -532,26 +546,16 @@ class DuplicatesReport {
     		$base_det[$xsdmf_id] = $dup_det[$xsdmf_id];
 		}
 		// Find the Volume number xsdmf id
-		$sub_xsdmf_id = $dup_record->display->xsd_html_match->getXSDMF_IDByXDIS_ID(
-							'!relatedItem!part!detail');
-		$subs = XSD_Loop_Subelement::getSimpleListByXSDMF($sub_xsdmf_id);
-		if (!empty($subs)) {
-			foreach ($subs as $sub) {
-				if ($sub['xsdsel_title'] == 'Volume') {
-					$sub_id = $sub['xsdsel_id'];
-				}
-			}
-		}
-		if (!empty($sub_id)) {
-			$xsdmf_id = $dup_record->display->xsd_html_match->getXSDMF_IDBySELXDIS_ID(
-								'!part!detail!number', $sub_id);
+		$xsdmf_id = $dup_record->display->xsd_html_match->getXSDMF_ID_ByElementInSubElement(
+											'!relatedItem!part!detail','Volume','!part!detail!number');
+		if ($xsdmf_id > 0) {
 			if (!empty($base_det[$xsdmf_id]) && $base_det[$xsdmf_id] != $dup_det[$xsdmf_id]) {
 				$error = -1;
 			} elseif (empty($base_det[$xsdmf_id])) {
 				$base_det[$xsdmf_id] = $dup_det[$xsdmf_id];
 			}
 		} else {
-			$error = -2;
+			$error = $xsdmf_id; // this will be an error code from getXSDMF_ID_ByElementInSubElement
 		}
 		if (empty($error)) {
     		return $base_det;
@@ -559,6 +563,8 @@ class DuplicatesReport {
 			return $error;
 		}
     }
+    
+    
     
     function mergeAuthorsRM_UQCited($base_record, $dup_record, $base_det)
     {
@@ -595,6 +601,12 @@ class DuplicatesReport {
 				$res_author_ids[] = $dup_author_ids[$ii];
 				$lev = levenshtein($base_authors[$ii], $dup_authors[$ii]);
 				Error_Handler::debug('MSS', compact('lev'));
+			} elseif (empty($dup_author_ids[$ii]) 
+				&& levenshtein($base_authors[$ii], $dup_authors[$ii]) < strlen($dup_authors[$ii]) / 2) {
+				$res_authors[] = $dup_authors[$ii];
+				$res_author_ids[] = $base_author_ids[$ii];
+				$lev = levenshtein($base_authors[$ii], $dup_authors[$ii]);
+				Error_Handler::debug('MSS', compact('lev'));
 			} else {
 				$error = -1;
 				break;
@@ -615,7 +627,40 @@ class DuplicatesReport {
 			return $error;
 		}
 	}
+	
+	function merge_R_Datastreams($base_record, $dup_record, $base_det)
+	{
+		$error = 0;
+        $datastreams = Fedora_API::callGetDatastreams($dup_record->pid);
+        $datastreams = Misc::cleanDatastreamList($datastreams);
+        
+        $links_xsdmf_id =  $dup_record->display->xsd_html_match->getXSDMF_ID_ByElementInSubElement(
+									'!datastream','Link ','!datastream!datastreamVersion!contentLocation');
+        $link_labels_xsdmf_id =  $dup_record->display->xsd_html_match->getXSDMF_ID_ByElementInSubElement(
+									'!datastream','Link ','!datastream!datastreamVersion!label');
 
+        foreach ($datastreams as $ds_key => $ds) {
+			if ($datastreams[$ds_key]['controlGroup'] == 'R') {
+                $link = trim($datastreams[$ds_key]['location']);
+                $link_label = trim($datastreams[$ds_key]['label']);
+			    // only raise an error if there is a link to be copied and the destination isn't right
+			    if (empty($links_xsdmf_id) || $links_xsdmf_id < 0 
+			    		|| empty($link_labels_xsdmf_id) || $link_labels_xsdmf_id < 0) {
+		        	Error_Handler::logError("Couldn't merge the record link ".$link,__FILE__,__LINE__);
+		        	break;
+		        }
+                $this->mergeDetailGeneric($base_det, $links_xsdmf_id, $link);
+                $this->mergeDetailGeneric($base_det, $link_labels_xsdmf_id, $link_label);
+            }
+        }
+        
+		
+		if (empty($error)) {
+			return $base_det;
+		} else {
+			return $error;
+		}
+	}
 
     /** 
      * Look for <mods:identifier type="isi_loc"> on both records and if they're the same
