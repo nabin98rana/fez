@@ -403,6 +403,7 @@ class DuplicatesReport {
     
     function autoMergeRecords($base_record, $dup_record)
     {
+        //Error_Handler::debugStart();
         $base_rm_prn = $this->getIdentifier($base_record,'rm_prn');
         $dup_isi_loc = $this->getIdentifier($dup_record, 'isi_loc');
         if (!empty($base_rm_prn) && !empty($dup_isi_loc)) {
@@ -411,10 +412,14 @@ class DuplicatesReport {
     	    $merge_res = $this->mergeRecords($base_record, $dup_record);
         }
         if ($merge_res > 0) {
+	        $merge_res = $this->mergeRecords($base_record, $dup_record, self::MERGE_TYPE_HIDDEN);
+        }
+        if ($merge_res > 0) {
 		    // set some history on the object so we know why it was merged.
 		    History::addHistory($base_pid, $wfl_id, "", "", false, 
 		    		"Merged with " . $dup_pid . " by " . Auth::getUserFullName(), null);
 		}
+        //Error_Handler::debugStop();
 		return $merge_res;
     }
     
@@ -652,9 +657,9 @@ class DuplicatesReport {
         $datastreams = Misc::cleanDatastreamList($datastreams);
         
         $links_xsdmf_id =  $dup_record->display->xsd_html_match->getXSDMF_ID_ByElementInSubElement(
-									'!datastream','Link ','!datastream!datastreamVersion!contentLocation');
+									'!datastream','Link','!datastream!datastreamVersion!contentLocation');
         $link_labels_xsdmf_id =  $dup_record->display->xsd_html_match->getXSDMF_ID_ByElementInSubElement(
-									'!datastream','Link ','!datastream!datastreamVersion!label');
+									'!datastream','Link','!datastream!datastreamVersion!LABEL');
 
         foreach ($datastreams as $ds_key => $ds) {
 			if ($datastreams[$ds_key]['controlGroup'] == 'R') {
@@ -670,7 +675,6 @@ class DuplicatesReport {
                 $this->mergeDetailGeneric($base_det, $link_labels_xsdmf_id, $link_label);
             }
         }
-        
 		
 		if (empty($error)) {
 			return $base_det;
