@@ -557,7 +557,8 @@ class WorkflowStatusStatic
             $where_user = '1';
         }
         $stmt = "SELECT wfses_id,wfses_date, wfses_listing FROM ".$dbtp."workflow_sessions " .
-                "WHERE ".$where_user;  
+                "WHERE ".$where_user .
+                " ORDER BY wfses_id ASC ";  
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

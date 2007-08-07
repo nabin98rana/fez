@@ -17,6 +17,8 @@ class DuplicatesReport {
 	const MERGE_TYPE_RM_ISI = 2;
 	
 	const RELEVANCE_ISI_LOC_MATCH = -1;
+	
+	const DUPS_THRESHOLD = 0.8;
 
     var $pid;
     var $bgp; // background process object for user feedback
@@ -88,7 +90,7 @@ class DuplicatesReport {
                         	//echo "tokens: \n".print_r($tokens,true)."\n";
                         	//echo "dup_tokens: \n".print_r($dup_tokens,true)."\n";
                 		}
-                        if ($score > 0.5) {
+                        if ($score > self::DUPS_THRESHOLD) {
 	                		if (!isset($report_array[$pid])) {
                                 $report_array[$pid] = array(
                                 	'pid' => $pid,
@@ -396,7 +398,24 @@ class DuplicatesReport {
                 }
             }
         }
-        Error_Handler::debugStop();
+        //Error_Handler::debugStop();
+    }
+    
+    function autoMergeRecords($base_record, $dup_record)
+    {
+        $base_rm_prn = $this->getIdentifier($base_record,'rm_prn');
+        $dup_isi_loc = $this->getIdentifier($dup_record, 'isi_loc');
+        if (!empty($base_rm_prn) && !empty($dup_isi_loc)) {
+	        $merge_res = $this->mergeRecords($base_record, $dup_record, self::MERGE_TYPE_RM_ISI);
+	    } else {
+    	    $merge_res = $this->mergeRecords($base_record, $dup_record);
+        }
+        if ($merge_res > 0) {
+		    // set some history on the object so we know why it was merged.
+		    History::addHistory($base_pid, $wfl_id, "", "", false, 
+		    		"Merged with " . $dup_pid . " by " . Auth::getUserFullName(), null);
+		}
+		return $merge_res;
     }
     
     function mergeRecords($base_record, $dup_record, $merge_type = self::MERGE_TYPE_ALL)
@@ -577,42 +596,40 @@ class DuplicatesReport {
     	*/
     	$error = 0;
     	
-    	$base_authors = $base_record->getFieldValueBySearchKey('Author');
-    	$base_author_ids = $base_record->getFieldValueBySearchKey('Author ID');
+    	$base_authors = Misc::array_flatten($base_record->getFieldValueBySearchKey('Author'),'',true);
+    	$base_author_ids = Misc::array_flatten($base_record->getFieldValueBySearchKey('Author ID'),'',true);
     	
-    	$dup_authors = $dup_record->getFieldValueBySearchKey('Author');
-    	$dup_author_ids = $dup_record->getFieldValueBySearchKey('Author ID');
+    	$dup_authors = Misc::array_flatten($dup_record->getFieldValueBySearchKey('Author'),'',true);
+    	$dup_author_ids = Misc::array_flatten($dup_record->getFieldValueBySearchKey('Author ID'),'',true);
     	
     	$res_authors = array();
     	$res_author_ids = array();
     	
-    	Error_Handler::debug('MSS', compact('base_authors','base_author_ids','dup_authors', 'dup_author_ids'));
-    	
 		for ($ii = 0; $ii < count($dup_authors); $ii++) {
-			if (!isset($base_authors[$ii])) {
+			if (empty($base_authors[$ii])) {
 				$res_authors[] = $dup_authors[$ii];
 				$res_author_ids[] = $dup_author_ids[$ii];
 			} elseif ($base_author_ids[$ii] == $dup_author_ids[$ii]) {
 				$res_authors[] = $dup_authors[$ii];
 				$res_author_ids[] = $dup_author_ids[$ii];
-			} elseif (empty($base_author_ids[$ii]) 
-				&& levenshtein($base_authors[$ii], $dup_authors[$ii]) < strlen($dup_authors[$ii]) / 2) {
-				$res_authors[] = $dup_authors[$ii];
-				$res_author_ids[] = $dup_author_ids[$ii];
+			} elseif (empty($base_author_ids[$ii])) {
 				$lev = levenshtein($base_authors[$ii], $dup_authors[$ii]);
-				Error_Handler::debug('MSS', compact('lev'));
-			} elseif (empty($dup_author_ids[$ii]) 
-				&& levenshtein($base_authors[$ii], $dup_authors[$ii]) < strlen($dup_authors[$ii]) / 2) {
-				$res_authors[] = $dup_authors[$ii];
-				$res_author_ids[] = $base_author_ids[$ii];
+				if ($lev < strlen($dup_authors[$ii]) / 2) {
+					$res_authors[] = $dup_authors[$ii];
+					$res_author_ids[] = $dup_author_ids[$ii];
+				}
+			} elseif (empty($dup_author_ids[$ii])) { 
 				$lev = levenshtein($base_authors[$ii], $dup_authors[$ii]);
-				Error_Handler::debug('MSS', compact('lev'));
+				if ($lev < strlen($dup_authors[$ii]) / 2) {
+					$res_authors[] = $dup_authors[$ii];
+					$res_author_ids[] = $base_author_ids[$ii];
+					$lev = levenshtein($base_authors[$ii], $dup_authors[$ii]);
+				}
 			} else {
 				$error = -1;
 				break;
 			}
 		}
-		Error_Handler::debug('MSS', compact('res_authors','res_author_ids','error'));
 		
 		if (empty($error)) {
 			// find the authors and ids xsdmf_ids and merge them in
@@ -727,7 +744,20 @@ class DuplicatesReport {
         $author_tokens1 = $this->tokenise($record1->getFieldValueBySearchKey('Author'));
         $author_tokens2 = $this->tokenise($record2->getFieldValueBySearchKey('Author'));
         $author_score = $this->calcOverlap($author_tokens1, $author_tokens2);
-        return $title_score * $author_score;
+        
+        // if this is a journal
+        if (is_numeric(strpos($record1->getDocumentType(), 'Journal Article')) 
+        		&& is_numeric(strpos($record2->getDocumentType(), 'Journal Article'))) {
+        	$journal_tokens1 = $this->tokenise($record1->getDetailsByXSDMF_element(
+        													'!relatedItem!name!namePart'));
+        	$journal_tokens2 = $this->tokenise($record2->getDetailsByXSDMF_element(
+        													'!relatedItem!name!namePart'));
+        	$journal_title_score = $this->calcOverlap($journal_tokens1, $journal_tokens2);
+    	} else {
+    		$journal_title_score = 1;
+    	}
+        
+        return $title_score * $author_score * $journal_title_score; 
     }
     
     function calcOverlap($array1,$array2)
@@ -775,6 +805,8 @@ class DuplicatesReport {
                 $max_score = 0;
                 $dups_list = $xpath->query('duplicateItem', $itemNode);
                 $resolved = true;
+                $base_isi_loc = $itemNode->getAttribute('isi_loc');
+                $isi_match = false;
                 foreach ($dups_list as $dupNode) {
                     $score = $dupNode->getAttribute('probability');
                     if ($score > $max_score) {
@@ -786,10 +818,15 @@ class DuplicatesReport {
                     if (empty($dup_att)) {
                         $resolved = false;
                     }
+                    $dup_isi_loc = $dupNode->getAttribute('isi_loc');
+                    if ($dup_isi_loc == $base_isi_loc) {
+                    	$isi_match = true;
+                    }
                 }
                 $listing_item['probability'] = $max_score;
                 $listing_item['resolved'] = $resolved;
                 $listing_item['count'] = $dups_list->length;
+                $listing_item['isi_loc_match'] = $isi_match;
                 $listing[] = $listing_item;
             }
         }
