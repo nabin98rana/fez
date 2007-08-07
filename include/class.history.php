@@ -149,6 +149,40 @@ class History
             return $res;
         }
     }
+
+	/**
+	 * @param array $term_array - key pairs where the key is the column and the value is the search term 
+	 * 								in the column.
+	 */    
+    function searchOnPid($pid, $term_array)
+    {
+        $search_clause = '';
+        foreach ($term_array as $column => $terms) {
+        	$search_clause .= ' AND ' . $column . ' LIKE \'' . $terms . '\' ';
+        }
+        $stmt = "SELECT
+                    *
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "premis_event
+                 WHERE 1 ";
+                 $stmt .= $search_clause;
+                 if ($show_hidden==false) {
+                    $stmt .= " AND pre_is_hidden != 1 AND ";
+                 }
+                 $stmt .= "pre_pid='".$pid."'
+                 ORDER BY
+                    pre_id DESC";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        } else {
+            for ($i = 0; $i < count($res); $i++) {
+                $res[$i]["pre_date"] = Date_API::getFedoraFormattedDate($res[$i]["pre_date"]);
+            }
+            return $res;
+        }
+    }
 	
 	
     /**

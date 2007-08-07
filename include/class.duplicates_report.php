@@ -81,6 +81,17 @@ class DuplicatesReport {
                 if (count($res)) {
                     foreach ($res as $dup_row) {
                 		$dup_pid = $dup_row['pid'];
+                		
+                		// skip previously processed records
+                		$history_res = History::searchOnPid($dup_pid, 
+                			               			array('pre_detail' => '% Marked not duplicate of '.$pid));
+                		if (!empty($history_res)) {
+				            if (!empty($this->bgp)) {
+				                $this->bgp->setStatus("Skipping previously processed pid: " . $dup_pid);
+			            	}
+                			continue;
+                		}
+                		
                         $dup_rec = new RecordGeneral($dup_pid);
                         
                         if ($dup_row['relevance'] == self::RELEVANCE_ISI_LOC_MATCH) {
@@ -385,7 +396,7 @@ class DuplicatesReport {
             		    if ($merge_res > 0) {
 					        // set some history on the object so we know why it was merged.
 				    	    History::addHistory($base_pid, $wfl_id, "", "", false, 
-					        	"Merged on LOC_ISI with ".$dup_pid, null);
+					        	'', "Merged on LOC_ISI with ".$dup_pid);
     	        	        $this->markDuplicate($base_pid, $dup_pid);
         	    	    }
         		    } else {
@@ -415,9 +426,10 @@ class DuplicatesReport {
 	        $merge_res = $this->mergeRecords($base_record, $dup_record, self::MERGE_TYPE_HIDDEN);
         }
         if ($merge_res > 0) {
+	        $wfl_id = $this->getWorkflowId();
 		    // set some history on the object so we know why it was merged.
-		    History::addHistory($base_pid, $wfl_id, "", "", false, 
-		    		"Merged with " . $dup_pid . " by " . Auth::getUserFullName(), null);
+		    History::addHistory($base_record->pid, $wfl_id, "", "", false, 
+		    		"Merged with " . $dup_record->pid . " by " . Auth::getUserFullName(), null);
 		}
         //Error_Handler::debugStop();
 		return $merge_res;
@@ -878,8 +890,8 @@ class DuplicatesReport {
             $rec->markAsDeleted();
             // set some history on the object
             $wfl_id = $this->getWorkflowId();
-            History::addHistory($dup_pid, $wfl_id, "", "", false, "Marked Duplicate of ".$base_pid, null);
-            History::addHistory($base_pid, $wfl_id, "", "", true, "Resolved duplicate ".$dup_pid, null);
+            History::addHistory($dup_pid, $wfl_id, "", "", false, '', "Marked Duplicate of ".$base_pid);
+            History::addHistory($base_pid, $wfl_id, "", "", true, '', "Resolved duplicate ".$dup_pid);
         } else {
             Error_Handler::logError("Failed to set ".$dup_pid." as duplicate of ".$base_pid
                 ." in XML (report pid".$this->pid.")", __FILE__,__LINE__);
@@ -896,8 +908,10 @@ class DuplicatesReport {
             $rec->markAsActive();
             // set some history on the object
             $wfl_id = $this->getWorkflowId();
-            History::addHistory($dup_pid, $wfl_id, "", "", false, "Marked not duplicate of".$base_pid, null);
-            History::addHistory($base_pid, $wfl_id, "", "", true, "Resolved non-duplicate ".$dup_pid, null);
+            History::addHistory($dup_pid, $wfl_id, "", "", false, '',
+            											"Marked not duplicate of " . $base_pid);
+            History::addHistory($base_pid, $wfl_id, "", "", true, '',
+            												"Resolved non-duplicate " . $dup_pid);
             
         } else {
             Error_Handler::logError("Failed to set ".$dup_pid." as non-duplicate of ".$base_pid
