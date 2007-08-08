@@ -40,11 +40,25 @@ if (!empty($left_pid) && RecordLock::getOwner($left_pid) == Auth::getUserID()) {
     RecordLock::releaseLock($left_pid);
 }
 
+
+if (@$_REQUEST['action'] == 'show_resolved') {
+    $wfstatus->assign('show_resolved', true);
+    $wfstatus->setSession();
+    Auth::redirect($_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id)));
+} elseif (@$_REQUEST['action'] == 'hide_resolved') {
+    $wfstatus->assign('show_resolved', false);
+    $wfstatus->setSession();
+    Auth::redirect($_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id)));
+}
+
+$show_resolved = $wfstatus->getvar('show_resolved');
+$tpl->assign('show_resolved', $show_resolved);
+
 list($page, $page_size) = Pager::doPaging($tpl, 'duplicates_report_');
 
 $duplicates_report = new DuplicatesReport($pid);
 $duplicates_report->setWorkflowId($wfstatus->id);
-$listing = $duplicates_report->getListing($page, $page_size);
+$listing = $duplicates_report->getListing($page, $page_size, $show_resolved);
 // correct problem of paging off the end of the list.
 if ($page > $listing['list_meta']['pages'] - 1) {
 	$page = 0;

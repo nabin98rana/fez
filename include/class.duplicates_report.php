@@ -787,7 +787,11 @@ class DuplicatesReport {
     function tokenise($array_of_strings)
     {
         $array_of_strings = Misc::array_flatten($array_of_strings, '', true);
-        $tokens = explode(' ',implode(' ', $array_of_strings));
+        if (!is_array($array_of_strings)) {
+        	$tokens = explode(' ',$array_of_strings);
+        } else {
+	        $tokens = explode(' ',implode(' ', $array_of_strings));
+        }
         // get rid of anything three chars or less - initials and stuff
         $tokens = array_filter($tokens, array($this,'shortWordsFilter'));
         return array_values($tokens);
@@ -799,7 +803,7 @@ class DuplicatesReport {
         return strlen($a) > 3;
     } 
 
-    function getListing($page, $page_size)
+    function getListing($page, $page_size, $show_resolved = true)
     {
         $report_dom = $this->getXML_DOM();
         if (empty($report_dom)) {
@@ -811,13 +815,11 @@ class DuplicatesReport {
         $items = $xpath->query('/DuplicatesReport/duplicatesReportItem');
         $pages = intval(floor(($items->length / $page_size) + 0.999999));
         $listing = array();
-        for ($ii = $first_item; $ii < $last_item && $ii < $items->length; $ii++) {
+        $resolved_count = 0;
+        $unresolved_count = 0;
+        for ($ii = 0; $ii < $items->length; $ii++) {
             $itemNode = $items->item($ii);
             if (!empty($itemNode)) {
-                $listing_item = array(
-                    'pid' => $itemNode->getAttribute('pid'),
-                    'title' => $itemNode->getAttribute('title'),
-                );
                 $max_score = 0;
                 $dups_list = $xpath->query('duplicateItem', $itemNode);
                 $resolved = true;
@@ -839,14 +841,25 @@ class DuplicatesReport {
                     	$isi_match = true;
                     }
                 }
-                $listing_item['probability'] = $max_score;
-                $listing_item['resolved'] = $resolved;
-                $listing_item['count'] = $dups_list->length;
-                $listing_item['isi_loc_match'] = $isi_match;
-                $listing[] = $listing_item;
+                if ($resolved) {
+                	$resolved_count++;
+	            } else {
+	            	$unresolved_count++;
+	            }
+                if ($ii >= $first_item && $ii < $last_item 
+                	&& (($resolved && $show_resolved) || !$resolved)) {
+                	$listing_item = array(
+                    	'pid' => $itemNode->getAttribute('pid'),
+	                    'title' => $itemNode->getAttribute('title'),
+    	            	'probability' => $max_score,
+            	    	'resolved' => $resolved,
+                		'count' => $dups_list->length,
+	                	'isi_loc_match' => $isi_match);
+    	            $listing[] = $listing_item;
+            	}
             }
         }
-        $list_meta = compact('pages');
+        $list_meta = compact('pages', 'resolved_count', 'unresolved_count');
         return compact('listing','list_meta');
     }
     

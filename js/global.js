@@ -826,7 +826,7 @@ function cloneSuggestorCallback(oThis, oTarget) {
 function setAction(f,action)
 {
 	fe = getFormElement(f,'action');
-	if (fe == null) {
+	if (fe == null || fe == false) {
 		fe = document.createElement('input');
 		fe.setAttribute('name','action');
 		fe.setAttribute('type','hidden');

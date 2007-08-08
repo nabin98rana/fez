@@ -21,6 +21,16 @@ function validateForm(f)
 <h2>Duplicates Report Listing</h2>
 <div>{$report_title}</div>
 <div>Report PID {$report_pid}</div>
+<div>
+	{if $show_resolved}
+		<input type="submit" name="hide_resolved" value="Hide Resolved Items" 
+ 			onclick="return setAction(this.form,this.name);" class="button"/>
+	{else}
+		<input type="submit" name="show_resolved" value="Show Resolved Items" 
+ 			onclick="return setAction(this.form,this.name);" class="button"/>
+	{/if}
+ </div>
+<div>This report has {$list_meta.resolved_count} resolved items and {$list_meta.unresolved_count} unresolved items</div>
 <table class="default listing">
 <tr class="table_heading_row">
 <td></td>
@@ -43,7 +53,7 @@ function validateForm(f)
 </tr>
 {sectionelse}
 <tr class="{$row_class}">
-<td colspan="10"><center>No duplicates were found</center></td>
+<td colspan="10"><center>No items to display</center></td>
 </tr>
 {/section}
 
