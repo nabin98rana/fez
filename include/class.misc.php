@@ -2548,6 +2548,15 @@ function backtrace()
         }
         return $alphabetArray;
     }
+    
+    function array_last($a)
+    {
+    	if (is_array($a) && !empty($a)) {
+    		return $a[count($a) - 1];
+		} else {
+			return null;
+		}
+    }
   
 } // end of Misc class
 

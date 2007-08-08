@@ -11,7 +11,7 @@
 include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.workflow_status.php");
- 
+
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign('type',"duplicates_report");
@@ -40,6 +40,9 @@ if (!empty($left_pid) && RecordLock::getOwner($left_pid) == Auth::getUserID()) {
     RecordLock::releaseLock($left_pid);
 }
 
+$compare_records_url = APP_RELATIVE_URL . 'workflow/compare_records_form.php?' 
+	. http_build_query(array('id' => $wfstatus->id, 'left_pid' => '__pid__' ));
+$tpl->assign('compare_records_url', $compare_records_url);
 
 if (@$_REQUEST['action'] == 'show_resolved') {
     $wfstatus->assign('show_resolved', true);

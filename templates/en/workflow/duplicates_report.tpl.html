@@ -33,7 +33,6 @@ function validateForm(f)
 <div>This report has {$list_meta.resolved_count} resolved items and {$list_meta.unresolved_count} unresolved items</div>
 <table class="default listing">
 <tr class="table_heading_row">
-<td></td>
 <td>PID</td>
 <td>Title</td>
 <td>Count</td>
@@ -43,9 +42,7 @@ function validateForm(f)
 {section name="ii" loop=$listing}
 {cycle assign='row_class' values="listing_row_light,listing_row_dark"}
 <tr class="{$row_class}">
-<td><input type="radio" name="pid"  value="{$listing[ii].pid}" 
-	{if $smarty.request.pid == '' && $smarty.section.ii.first}checked="1"{/if} /></td>
-<td>{$listing[ii].pid}</td>
+<td><a href="{$compare_records_url|replace:'__pid__':$listing[ii].pid}">{$listing[ii].pid}</a></td>
 <td>{$listing[ii].title}</td>
 <td>{$listing[ii].count}</td>
 <td>{$listing[ii].probability}</td>

@@ -7,7 +7,7 @@
 {include file="workflow/edit_metadata_helpers/javascript_block.tpl.html"}
 <div class="outline">
 
-
+<div><a href="{$link_to_list}">Back to list</a></div>
 
 <table class="listing default" id="edit_metadata_form_table">
 <tr class="default">
@@ -32,6 +32,7 @@
 	{elseif $current_dup_pid_details.duplicate == 'false'}
 		<div class="default">This record has been marked as a <span class="yes">non-duplicate</span></div>
 	{/if}
+	{if $left_isi_loc && $left_isi_loc==$right_isi_loc}<div class="default">ISI LOC Matches</div>{/if}
 	<div>
  <input type="submit" name="mark_duplicate" value="Mark as Duplicate" 
  	onclick="return setAction(this.form,'mark_duplicate');" class="button"/>

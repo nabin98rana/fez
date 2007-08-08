@@ -19,7 +19,7 @@ class DuplicatesReport {
 	const RELEVANCE_ISI_LOC_MATCH = -1;
 	
 	const DUPS_THRESHOLD = 0.8;
-
+	
     var $pid;
     var $bgp; // background process object for user feedback
     var $sets = array();
@@ -69,18 +69,25 @@ class DuplicatesReport {
                 // recurse into collections and communities by appending the children to 
                 // the end of the list.
                 if ($record->isCollection()) {
-                	$pids = array_merge($pids, $record->getChildrenPids());
+                	$pids = array_merge($pids, array_diff($record->getChildrenPids(), $pids));
                 	continue;
                 }
                 if ($record->isCommunity()) {
-                	$pids = array_merge($pids, $record->getChildrenPids());
+                	$pids = array_merge($pids, array_diff($record->getChildrenPids(), $pids));
                 	continue;
                 }
                 $res = $this->findSimilarRecords($record);
+                $dup_pids = array();
 
                 if (count($res)) {
                     foreach ($res as $dup_row) {
                 		$dup_pid = $dup_row['pid'];
+                		
+                		// avoid checking same pid twice
+                		if (in_array($dup_pid,$dup_pids)) {
+                			continue;  
+                		}
+                		$dup_pids[] = $dup_pid;
                 		
                 		// skip previously processed records
                 		$history_res = History::searchOnPid($dup_pid, 
@@ -240,8 +247,9 @@ class DuplicatesReport {
         foreach ($rearranged_report as $group) {
             if (isset($final_groups[$group['pid']])) {
                 // merge these groups
-                $target_group_list = $final_groups[$group['pid']]['list'];
-                $group_list = $group['list'];
+                // key the arrays so that each pid is listed once in the destination
+                $target_group_list = Misc::keyArray($final_groups[$group['pid']]['list'], 'pid');
+                $group_list = Misc::keyArray($group['list'], 'pid');
                 $new_list = array_merge($target_group_list, $group_list);
                 $final_groups[$group['pid']]['list'] = $new_list;
             } else {
@@ -319,8 +327,8 @@ class DuplicatesReport {
     }
     
     /**
-     * @param $pid string - exclude this pid from the search
-     * @param $title string - search for this title
+     * @param string $pid - exclude this pid from the search
+     * @param string $title - search for this title
      */
     function similarTitlesQuery($pid, $title)
     {
@@ -404,7 +412,6 @@ class DuplicatesReport {
 	             		if (!empty($this->bgp)) {
                     	    $this->bgp->setStatus("Matching isi_loc with " . $dup_pid . " (test mode: no merge has taken place) ");
 	                    }
-	        	        $this->markDuplicate($base_pid, $dup_pid);
 					}		    		
                 }
             }

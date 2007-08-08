@@ -276,6 +276,14 @@ class WorkflowStatus {
             }
         }
     }
+    
+    function addToStateHistory()
+    {
+        $history_end = Misc::array_last($this->states_done);
+        if (empty($history_end) || $history_end['wfs_id'] != $this->wfs_details['wfs_id']) {
+        	$this->states_done[] = array_merge($this->wfs_details, $this->wfb_details);
+    	}
+    }
 
     /**
      * Perform the action for the current state.  This will be either displaying a form or running a script.
@@ -285,7 +293,7 @@ class WorkflowStatus {
         $this->getBehaviourDetails();
         $this->getTriggerDetails();
         $this->getStateDetails();
-        $this->states_done[] = array_merge($this->wfs_details, $this->wfb_details);
+        $this->addToStateHistory();
         $this->setSession();
 
         if ($this->wfb_details['wfb_auto']) {

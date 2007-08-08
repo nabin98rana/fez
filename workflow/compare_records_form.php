@@ -32,12 +32,20 @@ $wfstatus->setTemplateVars($tpl);
 
 $wfstatus->checkStateChange();
 
-$left_pid = $wfstatus->getvar('dup_report_left_pid');
+$left_pid = $_REQUEST['left_pid'];
+if (empty($left_pid)) {
+	$left_pid = $wfstatus->getvar('dup_report_left_pid');
+} else {
+	$wfstatus->assign('dup_report_left_pid', $left_pid);
+	$wfstatus->setSession(); 
+}
 $left_record = new RecordObject($left_pid);
 $left_xdis_id = $left_record->getXmlDisplayId();
 
 $link_self = $_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id));
 $tpl->assign('link_self', $link_self);
+$tpl->assign('link_to_list', APP_RELATIVE_URL . 'workflow/duplicates_report.php?' 
+	. http_build_query(array('id' => $wfstatus->id)));
 
 if ($left_record->getLock(RecordLock::CONTEXT_WORKFLOW, $wfstatus->id) != 1) {
     // Someone else is editing this record.
@@ -48,7 +56,7 @@ if ($left_record->getLock(RecordLock::CONTEXT_WORKFLOW, $wfstatus->id) != 1) {
     $tpl->displayTemplate();
     exit;
 }
- 
+
 
 $current_dup_pid = $wfstatus->getvar('current_dup_pid');    
 $duplicates_report = new DuplicatesReport($pid);
@@ -127,6 +135,9 @@ if ($right_xdis_id == $left_xdis_id) {
 	$right_xdis_title = $right_record->display->getTitle();
 	$tpl->assign('right_xdis_title', $right_xdis_title);
 }
+
+$tpl->assign('left_isi_loc', $duplicates_report->getISI_LOC($left_record)); 
+$tpl->assign('right_isi_loc', $duplicates_report->getISI_LOC($right_record)); 
 
 $tpl->assign(compact('dup_list','current_dup_pid','right_details','left_pid','current_dup_pid_details'));
 $tpl->assign("hide_edit", true);
