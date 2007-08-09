@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <workflows schema_version="1.0">
   <workflow wfl_id="191" wfl_title="Duplicates Report" wfl_version="1.0" wfl_description="Workflow for finding duplicates in a collection." wfl_roles="Editor" wfl_end_button_label="Finished">
-    <WorkflowState wfs_id="658" wfs_title="Show Duplicates List" wfs_description="This is a report of duplicates found for the selected records.  Select an item to see it's duplicate records." wfs_auto="0" wfs_wfb_id="126" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="659" wfs_title="Show Record Duplicates" wfs_description="This is view of the metadata for the selected record and the metadata of the suspected duplicates.  You can page through each of the suspected duplicates." wfs_auto="0" wfs_wfb_id="125" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="1021" wfsl_from_id="658" wfsl_to_id="659"/>
-    <WorkflowStateLinks wfsl_id="1020" wfsl_from_id="659" wfsl_to_id="658"/>
-    <WorkflowTrigger wft_id="237" wft_pid="-1" wft_type_id="1" wft_xdis_id="285" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="3" wft_options="0"/>
+    <WorkflowState wfs_id="688" wfs_title="Show Duplicates List" wfs_description="This is a report of duplicates found for the selected records.  Select an item to see it's duplicate records." wfs_auto="0" wfs_wfb_id="126" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowTrigger wft_id="245" wft_pid="-1" wft_type_id="1" wft_xdis_id="285" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="3" wft_options="0"/>
   </workflow>
-  <WorkflowBehaviour wfb_id="125" wfb_title="Compare Records Form" wfb_description="Show two records side by side and allow them to merge." wfb_version="1.0" wfb_script_name="compare_records_form.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="126" wfb_title="Duplicates Report" wfb_description="Reports duplicates" wfb_version="1.0" wfb_script_name="duplicates_report.php" wfb_auto="0"/>
 </workflows>
