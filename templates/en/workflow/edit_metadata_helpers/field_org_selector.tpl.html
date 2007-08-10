@@ -3,14 +3,14 @@
 	{if $xsdmf.xsdmf_multiple == 1}
 		{assign var="field_name" value=$field_name|cat:"[]"}
 	{/if}
-	<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_1">
+	<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0">
 		<td width="200" bgcolor="{$cell_color}" class="default">
 			<b>{$xsdmf.xsdmf_title} {if $xsdmf.xsdmf_required == 1} * {/if}</b>
 		</td>
 						  
 		<td bgcolor="{$light_color}">
 			<div id="loading_{$xsdmf.xsdmf_id}" style="display:none;" class="default">Loading...</div>
-			<select id="xsd_display_fields_{$xsdmf.xsdmf_id}_1" name=$field_name
+			<select id="xsd_display_fields_{$xsdmf.xsdmf_id}_0" name=$field_name
 		    	{if $xsdmf.xsdmf_use_org_to_fill == 1}onChange="javascript: selectOrgStructure_{$xsdmf.xsdmf_id}(this.form, 'xsd_display_fields[{$xsdmf.xsdmf_id}]')"{/if} 
 		    	{if $xsdmf.xsdmf_multiple == 1}multiple size="8"{/if} class="default"  >
 					{if $xsdmf.xsdmf_multiple != 1}<option value="-1">Please choose an option</option>{/if}
@@ -20,7 +20,7 @@
 			{if $xsdmf.xsdmf_use_org_to_fill == 1}
 				<script language="JavaScript">
 				<!--
-				// selectOrgStructure_{$xsdmf.xsdmf_id}(document.wfl_form1, 'xsdmf_display_fields_{$xsdmf.xsdmf_id}_1'); 	
+				// selectOrgStructure_{$xsdmf.xsdmf_id}(document.wfl_form1, 'xsdmf_display_fields_{$xsdmf.xsdmf_id}_0'); 	
 				//-->
 				</script>
 			{/if}

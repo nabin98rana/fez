@@ -25,7 +25,7 @@ function validateForm() {
 {if $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' && $xsd_display_fields[i].xsdmf_enabled == 1}
 	// The controlled vocabulary selector should select all the fields in the multiple combo box so that they will
 	// be included in the form submission.
-	var field = document.wfl_form1.xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1;
+	var field = document.wfl_form1.xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0;
 	{literal}
     for (var y = 0; y < field.options.length; y++) {
         field.options[y].selected = true;
@@ -51,7 +51,7 @@ function validateForm() {
 		{/section}
 	{else}
 		// validate a single text field
-		var field = document.wfl_form1.xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1;
+		var field = document.wfl_form1.xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0;
 		{literal}
 		if (field != null) {
 			{/literal}
@@ -104,7 +104,7 @@ function selectOrgStructure_{$xsd_display_fields[i].xsdmf_id}(f, field_name)
 	   return false;
 	} 
 	{/literal}
-	var field = document.wfl_form1.xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_1;
+	var field = document.wfl_form1.xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0;
 	var selections = getSelectedItems(field);
     {literal}
 	if (selections.length > 0) {

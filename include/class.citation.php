@@ -224,6 +224,9 @@
             return '';
         }
         // First convert to display names style - Title FName MName/Init LName
+/*
+// Commented this out because it munges too many names
+
         $parts = explode(',', $value, 2);
         if (count($parts) > 1) {
             $value = $parts[1].' '.$parts[0];     
@@ -240,6 +243,7 @@
                 $value = $lname.', '.implode('. ',$inits).'.';
             break;
         }
+*/
         return $value;
     }
 

@@ -20,12 +20,12 @@
 						</tr>
 					{/section}
 				{else}
-						<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_1" valign="top">
+						<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0" valign="top">
 						  <td width="200" bgcolor="{$cell_color}" class="default">
 							<b>{$xsdmf.xsdmf_title}{if $xsdmf.xsdmf_required == 1} * {/if}</b>
 						  </td>
 						  <td bgcolor="{$value_color}">
-						<input class="default" type="checkbox" id="xsd_display_fields_{$xsdmf.xsdmf_id}_1" 
+						<input class="default" type="checkbox" id="xsd_display_fields_{$xsdmf.xsdmf_id}_0" 
 						  name="xsd_display_fields[{$xsdmf.xsdmf_id}]" {if $details[$temp_fld_id] == 'on'}checked{/if}>
 						{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
 							{if $xsdmf.xsdmf_long_description != ""}

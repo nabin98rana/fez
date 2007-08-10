@@ -1705,11 +1705,6 @@ class XSD_HTML_Match {
         }
         $stmt = rtrim($stmt,", \n"); // get rid of trailing comma
         $stmt .= " WHERE xsdmf_id='".$xsdmf_id."' ";
-        /* -- Not sure what this was doing. MS suggests this is old debug. Probably okay to axe.
-        if ($xsdmf_id == 523) {
-        	Error_Handler::logError($stmt);
-        }
-        */
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array (

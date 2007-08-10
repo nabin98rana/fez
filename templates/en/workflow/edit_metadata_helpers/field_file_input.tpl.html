@@ -50,12 +50,12 @@
 			</tr>
 		{/section}
 	{else}
-		<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_1">
+		<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0">
 			<td width="200" bgcolor="{$cell_color}" class="default">
 				<b>{$xsdmf.xsdmf_title}{if $xsdmf.xsdmf_required == 1} * {/if}</b>
 			</td>
 			<td bgcolor="{$value_color}">
-				<input class="default" type="file" id="xsd_display_fields_{$xsdmf.xsdmf_id}_1" 
+				<input class="default" type="file" id="xsd_display_fields_{$xsdmf.xsdmf_id}_0" 
 					name="xsd_display_fields[{$xsdmf.xsdmf_id}]"  maxlength="255" size="50">
 				{if $xsdmf.xsdmf_attached_xsdmf_id != ""}
 					{section name="a" loop=$xsd_display_fields}

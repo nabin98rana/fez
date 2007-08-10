@@ -1,10 +1,10 @@
 {if $xsdmf.xsdmf_html_input == 'contvocab'  && $xsdmf.xsdmf_enabled == 1}
-	<tr id="tr_list_{$list[i].xsdmf_id}_1" valign="top">
+	<tr id="tr_list_{$list[i].xsdmf_id}_0" valign="top">
 		<td width="200" bgcolor="{$cell_color}" class="default">
 			<b>{$xsdmf.xsdmf_title} {if $xsdmf.xsdmf_required == 1} * {/if}</b>
 		</td>
 		<td bgcolor="{$value_color}">
-			<select id="xsd_display_fields_{$xsdmf.xsdmf_id}_1" multiple size="15" class="default" 
+			<select id="xsd_display_fields_{$xsdmf.xsdmf_id}_0" multiple size="15" class="default" 
 			  name="xsd_display_fields[{$xsdmf.xsdmf_id}][]">
 			  {html_options options=$xsdmf.field_options selected=$details[$temp_fld_id]}
 			</select>

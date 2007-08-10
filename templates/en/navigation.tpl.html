@@ -101,7 +101,7 @@ function setCurrentCollection()
 <script language="JavaScript" type="text/javascript">
 <!--
 var basic_element = getPageElement('basic_filter_form' + '1');
-if (!isElementVisible(basic_element)) {
+if (basic_element != null && !isElementVisible(basic_element)) {
 	toggleVisibility('basic_filter_form');
 }
 //-->

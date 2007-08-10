@@ -16,28 +16,29 @@ function closeAndGotoList()
 
 function unhideRow(element_name, table_name)
 {
-	var tbl = document.getElementById(table_name);
-    var rows = tbl.rows.length;
-	var maxEmptyRow = 1;
+	var firstHiddenRow = 0;
 	var emptyRowExists = 0;
-	for(x=1;x<rows;x++) {
-		var row = document.getElementById('tr_' + element_name + '_' + x);
+	var x = 0;
+	// for each row in the set of elements (with _x suffix)
+	for(row = document.getElementById('tr_' + element_name + '_' + x);
+			row != null && row != false; 
+			row = document.getElementById('tr_' + element_name + '_' + ++x)) {
 		var rowInput = document.getElementById(element_name + '_' + x);
 
-		if (row == null) {
-			break;
-		}
-
+		// are there any visible rows that have no values?
+		// if there are already visible blank rows, then we don't need to do anything
 		if (row.style.display == '' && rowInput.value == '') {
 			emptyRowExists = 1;
 		}
+		// look for the first hidden row
 		if (row.style.display != '') {
-			maxEmptyRow = x;
+			firstHiddenRow = x;
 			break;
 		}
 	}
-	if (maxEmptyRow > 1 && emptyRowExists == 0) {
-		var show_tr = document.getElementById('tr_' + element_name + '_' + x);
+	// did we find a hidden one?
+	if (firstHiddenRow > 0 && emptyRowExists == 0) {
+		var show_tr = document.getElementById('tr_' + element_name + '_' + firstHiddenRow);
 		show_tr.style.display = '';
 	}
 }
