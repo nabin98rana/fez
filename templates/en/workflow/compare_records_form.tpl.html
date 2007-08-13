@@ -7,7 +7,7 @@
 {include file="workflow/edit_metadata_helpers/javascript_block.tpl.html"}
 <div class="outline">
 
-<div><a href="{$link_to_list}">Back to list</a></div>
+<div><a href="{$link_to_list}">Back to list</a> | <a href="{$link_to_prev}">Prev</a> | <a href="{$link_to_next}">Next</a></div>
 
 <table class="listing default" id="edit_metadata_form_table">
 <tr class="default">
@@ -46,16 +46,16 @@
  	<div>
 Possible Duplicates: 
 	<ul>
-  {section name='ii' loop=$dup_list}
+  {section name='ii' loop=$dup_list.listing}
 	  <li>
-	{if $dup_list[ii].pid == $current_dup_pid}
-		<b>{$dup_list[ii].pid}</b>
+	{if $dup_list.listing[ii].pid == $current_dup_pid}
+		<b>{$dup_list.listing[ii].pid}</b>
 	{else}
-		<a href="{$dup_list[ii].link}">{$dup_list[ii].pid}</a>
+		<a href="{$dup_list.listing[ii].link}">{$dup_list.listing[ii].pid}</a>
 	{/if}
-	{if $dup_list[ii].duplicate == 'true'}
+	{if $dup_list.listing[ii].duplicate == 'true'}
 		(<span class="no">Dup</span>)
-	{elseif $dup_list[ii].duplicate == 'false'}
+	{elseif $dup_list.listing[ii].duplicate == 'false'}
 		(<span class="yes">Not-Dup</span>)
 	{/if}
 	  </li>

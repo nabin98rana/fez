@@ -827,27 +827,7 @@ class DuplicatesReport {
         for ($ii = 0; $ii < $items->length; $ii++) {
             $itemNode = $items->item($ii);
             if (!empty($itemNode)) {
-                $max_score = 0;
-                $dups_list = $xpath->query('duplicateItem', $itemNode);
-                $resolved = true;
-                $base_isi_loc = $itemNode->getAttribute('isi_loc');
-                $isi_match = false;
-                foreach ($dups_list as $dupNode) {
-                    $score = $dupNode->getAttribute('probability');
-                    if ($score > $max_score) {
-                        $max_score = $score;
-                    }
-                    // if we find at least one blank duplicate attribute in the set of 
-                    // dupes then this is not resolved yet. 
-                    $dup_att = $dupNode->getAttribute('duplicate');
-                    if (empty($dup_att)) {
-                        $resolved = false;
-                    }
-                    $dup_isi_loc = $dupNode->getAttribute('isi_loc');
-                    if ($dup_isi_loc == $base_isi_loc) {
-                    	$isi_match = true;
-                    }
-                }
+                list($max_score,$resolved,$isi_match) = $this->getDupsStats($itemNode, $xpath);
                 if ($resolved) {
                 	$resolved_count++;
 	            } else {
@@ -870,6 +850,72 @@ class DuplicatesReport {
         return compact('listing','list_meta');
     }
     
+    function getDupsStats($itemNode, $xpath)
+    {
+        $max_score = 0;
+        $dups_list = $xpath->query('duplicateItem', $itemNode);
+        $resolved = true;
+        $base_isi_loc = $itemNode->getAttribute('isi_loc');
+        $isi_match = false;
+        foreach ($dups_list as $dupNode) {
+            $score = $dupNode->getAttribute('probability');
+            if ($score > $max_score) {
+                $max_score = $score;
+            }
+            // if we find at least one blank duplicate attribute in the set of 
+            // dupes then this is not resolved yet. 
+            $dup_att = $dupNode->getAttribute('duplicate');
+            if (empty($dup_att)) {
+                $resolved = false;
+            }
+            $dup_isi_loc = $dupNode->getAttribute('isi_loc');
+            if ($dup_isi_loc == $base_isi_loc) {
+            	$isi_match = true;
+            }
+        }
+        return array($max_score,$resolved,$isi_match);
+    }
+    
+    function getPrevItem($pid, $show_resolved = true)
+    {
+    	return $this->getNextPrevItemCommon($pid, $show_resolved, 'preceding-sibling');
+    }
+    
+    function getNextItem($pid, $show_resolved = true)
+    {
+    	return $this->getNextPrevItemCommon($pid, $show_resolved, 'following-sibling');
+    }
+    
+    function getNextPrevItemCommon($pid, $show_resolved, $axis)
+    {
+        $report_dom = $this->getXML_DOM();
+        if (empty($report_dom)) {
+            return -1;
+        }
+        $xpath = new DOMXPath($report_dom);
+        $done = false;
+        $res = null;
+        // loops through pids
+        while(!$done) {
+ 			$nodelist = $xpath->query(
+ 						'/DuplicatesReport/duplicatesReportItem[@pid=\''.$pid.'\']/'.$axis.'::*');
+ 			if ($nodelist->length > 0) {
+ 				$node = $nodelist->item(0);
+ 				$pid = $node->getAttribute('pid');
+ 				if (!$show_resolved) {
+ 					list($max_score,$resolved,$isi_match) = $this->getDupsStats($node, $xpath);
+ 				}
+ 				if ($show_resolved || !$resolved) {
+ 					$done = true;
+ 					$res = $pid;
+ 				}
+ 			} else {
+ 				$done = true;
+ 			}
+ 		}
+ 		return $res;
+    }
+    
     function getItemDetails($pid)
     {
         $xml = Fedora_API::callGetDatastreamContents($this->pid, 'DuplicatesReport', true);
@@ -886,6 +932,7 @@ class DuplicatesReport {
             return array();
         }
         $xpath = new DOMXPath($report_dom);
+        
         $items = $xpath->query('/DuplicatesReport/duplicatesReportItem[@pid=\''.$pid.'\']/duplicateItem');
         $listing = array();
         foreach ($items as $item) {
@@ -895,7 +942,11 @@ class DuplicatesReport {
             }
             $listing[] = $listing_item;
         }
-        return $listing;
+        $res = array(
+        	'listing' => $listing,
+        	'list_meta' => $list_meta
+        );
+        return $res;
     }
     
     function markDuplicate($base_pid, $dup_pid)

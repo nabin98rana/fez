@@ -90,29 +90,58 @@ if (@$_REQUEST['action'] == 'change_dup_pid') {
     	Session::setMessage('The records were successfully automatically merged');
     }
     Auth::redirect($_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id)));
+} elseif (@$_REQUEST['action'] == 'link_to_prev') {
+    $new_left_pid = $duplicates_report->getPrevItem($left_pid, $wfstatus->getvar('show_resolved'));
+    if (!empty($new_left_pid)) {
+    	$wfstatus->assign('dup_report_left_pid', $new_left_pid);
+    	$wfstatus->assign('current_dup_pid', '');
+    	$wfstatus->setSession();  // save the change to the workflow session
+    	Auth::redirect($_SERVER['PHP_SELF'].'?'
+    	    .http_build_query(array('id' => $wfstatus->id, 'left_pid' => $new_left_pid)));
+	} else {
+		Session::setMessage('Already at beginning of list');
+	}
+} elseif (@$_REQUEST['action'] == 'link_to_next') {
+    $new_left_pid = $duplicates_report->getNextItem($left_pid, $wfstatus->getvar('show_resolved'));
+    if (!empty($new_left_pid)) {
+    	$wfstatus->assign('dup_report_left_pid', $new_left_pid);
+    	$wfstatus->assign('current_dup_pid', '');
+    	$wfstatus->setSession();  // save the change to the workflow session
+    	Auth::redirect($_SERVER['PHP_SELF'].'?'
+    	    .http_build_query(array('id' => $wfstatus->id, 'left_pid' => $new_left_pid)));
+	} else {
+		Session::setMessage('Already at end of list');
+	}
 }
 
 
 $dup_list = $duplicates_report->getItemDetails($left_pid);
 // make sure the current dup pid is actually in the list (it might not be if we've just viewed
 // a different base pid
-$dup_pids = Misc::keyArray($dup_list, 'pid');
+$dup_pids = Misc::keyArray($dup_list['listing'], 'pid');
 if (!in_array($current_dup_pid,array_keys($dup_pids))) {
     $current_dup_pid = '';
 }
 if ($current_dup_pid == '') {
-    $current_dup_pid = $dup_list[0]['pid'];
+    $current_dup_pid = $dup_list['listing'][0]['pid'];
 }
 $current_dup_pid_details = $dup_pids[$current_dup_pid];
 $wfstatus->assign('current_dup_pid', $current_dup_pid);
 
 // prepare the links for choosing the dup pid in the html
 $qparams = $_GET;
-foreach ($dup_list as $key => $dup_list_item) {
+foreach ($dup_list['listing'] as $key => $dup_list_item) {
     $qparams['current_dup_pid'] = $dup_list_item['pid'];
     $qparams['action'] = 'change_dup_pid';
-    $dup_list[$key]['link'] = $_SERVER['PHP_SELF'].'?'.http_build_query($qparams);
+    $dup_list['listing'][$key]['link'] = $_SERVER['PHP_SELF'] . '?' . http_build_query($qparams);
 }
+
+$link_to_prev = $_SERVER['PHP_SELF'] . '?' 
+	. http_build_query(array('id' => $wfstatus->id, 'action' => 'link_to_prev'));
+$link_to_next = $_SERVER['PHP_SELF'] . '?' 
+	. http_build_query(array('id' => $wfstatus->id, 'action' => 'link_to_next'));
+$tpl->assign(compact('link_to_prev','link_to_next'));
+
 
 $record_edit_form = new RecordEditForm();
 $record_edit_form->setTemplateVars($tpl, $left_record);
