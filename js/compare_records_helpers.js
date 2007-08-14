@@ -9,12 +9,18 @@ function copy_field_author_suggestor(dest,value)
 	f = document.forms.wfl_form1;
 	destinationList = getFormElement(f, dest);
 	var len = destinationList.length;
-	// Currently won't show the text part of the vocab in the list as it needs to look that information up.
-	// Could do an AJAX lookup on class.author.php or pass this info in from the calling javascript as an optional 
-	// 'extra' param.
-	// Will show the author list value for now.
-	destinationList.options[len] = new Option(value, value); 
-	destinationList.options[len].selected = true;
+	// get the label for the author using an ajax call
+	aut = new Author;
+	aut.onGetDisplayNameError = function() {
+		destinationList.options[len] = new Option(value, value); 
+		destinationList.options[len].selected = true;
+	}
+	aut.getDisplayName(value, function(res) {
+		destinationList.options[len] = new Option(res + ' (' + value + ')', value); 
+		destinationList.options[len].selected = true;
+	}
+	);
+
 }
 
 
@@ -41,13 +47,20 @@ function copy_field_contvocab_selector(dest,value)
 {
 	f = document.forms.wfl_form1;
 	destinationList = getFormElement(f, dest);
-	var len = destinationList.length;
-	// Currently won't show the text part of the vocab in the list as it needs to look that information up.
-	// Could do an AJAX lookup on cv_selector.php or pass this info in from the calling javascript as an optional 
-	// 'extra' param.
-	// Will show the CV list value for now.
-	destinationList.options[len] = new Option(value, value); 
-	destinationList.options[len].selected = true;
+	if (!optionValueExists(destinationList, value)) {
+		var len = destinationList.length;
+		// get the label for the controlled vocab using an ajax call
+		cv = new Controlled_Vocab;
+		cv.onGetTitleError = function() {
+			destinationList.options[len] = new Option(value, value); 
+			destinationList.options[len].selected = true;
+		}
+		cv.getTitle(value, function(res) {
+			destinationList.options[len] = new Option(res, value); 
+			destinationList.options[len].selected = true;
+		}
+		);
+	}
 }
 
 function copy_field_date(dest,value)

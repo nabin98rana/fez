@@ -83,8 +83,8 @@ class DuplicatesReport {
                     foreach ($res as $dup_row) {
                 		$dup_pid = $dup_row['pid'];
                 		
-                		// avoid checking same pid twice
-                		if (in_array($dup_pid,$dup_pids)) {
+                		// avoid checking same pid twice or detecting self
+                		if ($dup_pid == $pid || in_array($dup_pid,$dup_pids)) {
                 			continue;  
                 		}
                 		$dup_pids[] = $dup_pid;
@@ -254,6 +254,10 @@ class DuplicatesReport {
                 $final_groups[$group['pid']]['list'] = $new_list;
             } else {
                 $final_groups[$group['pid']] = $group;
+            }
+            // make sure we haven't somehow merged the base pid into the dupes list
+            if (isset($final_groups[$group['pid']]['list'][$group['pid']])) {
+            	unset($final_groups[$group['pid']]['list'][$group['pid']]);
             }
         }
         return $final_groups;

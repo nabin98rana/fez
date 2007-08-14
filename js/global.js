@@ -524,6 +524,17 @@ function optionExists(field, option)
     return false;
 }
 
+function optionValueExists(field, value)
+{
+	if (field.options == null) { return false; }
+	for (var i = 0; i < field.options.length; i++) {
+        if (field.options[i].value == value) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function addOptions(f, field_name, options)
 {
     var field = getFormElement(f, field_name);

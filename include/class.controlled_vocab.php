@@ -844,6 +844,12 @@ class Controlled_Vocab
         }
     }
 
+    function najaxGetMeta()
+    {
+        NAJAX_Client::mapMethods($this, array('getTitle' ));
+        NAJAX_Client::publicMethods($this, array('getTitle'));
+    }
+
 }
 
 // benchmarking the included file (aka setup time)

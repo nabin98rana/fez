@@ -523,6 +523,25 @@ class Author
         }
 
     }
+    
+    function getDisplayName()
+    {
+        $stmt = "SELECT
+                    aut_display_name
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
+                    WHERE
+                    aut_id='".$aut_id."'
+                 ORDER BY
+                    aut_title";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
 
     function getOrgStaffId($aut_id) 
     {
@@ -568,6 +587,12 @@ class Author
         } else {
             return $res;
         }
+    }
+
+    function najaxGetMeta()
+    {
+        NAJAX_Client::mapMethods($this, array('getFullname','getDisplayName' ));
+        NAJAX_Client::publicMethods($this, array('getFullname','getDisplayName'));
     }
 
 

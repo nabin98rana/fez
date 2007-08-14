@@ -231,8 +231,15 @@
                     $details[$dis_field["xsdmf_id"]] = array($details[$dis_field["xsdmf_id"]]);
                 }
             }
+			// handle attached fields on multiple things
+        	if (is_numeric($dis_field["xsdmf_attached_xsdmf_id"]) && $dis_field["xsdmf_multiple"] == 1) {
+        		if (!empty($details[$dis_field["xsdmf_attached_xsdmf_id"]]) 
+        					&& !is_array($details[$dis_field["xsdmf_attached_xsdmf_id"]])) {
+        			$details[$dis_field["xsdmf_attached_xsdmf_id"]] 
+        					= array($details[$dis_field["xsdmf_attached_xsdmf_id"]]);
+    			}
+			}
         }
-         
      }
      
      function setDatastreamEditingTemplateVars($tpl, $record)
