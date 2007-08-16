@@ -979,10 +979,9 @@ class XSD_DisplayObject
 					$FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
 					$FezACML_DS_name = "FezACML_".$ds_value['ID'].".xml";
 					if (Fedora_API::datastreamExistsInArray($datastreams, $FezACML_DS_name)) {
-						$FezACML_DS = Fedora_API::callGetDatastreamDissemination($pid, $FezACML_DS_name);						
+						$FezACML_DS = Fedora_API::callGetDatastreamDissemination($pid, $FezACML_DS_name);
 						if (isset($FezACML_DS['stream'])) {
 							$this->processXSDMFDatastream($FezACML_DS['stream'], $FezACML_xdis_id);
-							$this->xsd_html_match->gotMatchCols = false; // make sure it refreshes for the other xsd displays
 						} 
 					}
 				}
@@ -1024,7 +1023,7 @@ class XSD_DisplayObject
 						if (isset($DSResultArray['stream'])) {
 							$xmlDatastream = $DSResultArray['stream'];
 							// get the matchfields for the datastream (using the sub-display for this stream)						
-							$this->processXSDMFDatastream($xmlDatastream, $dsValue['xsdrel_xdis_id']);							
+							$this->processXSDMFDatastream($xmlDatastream, $dsValue['xsdrel_xdis_id']);
 						} else {
 							Error_Handler::logError("Couldn't get ".$dsValue['xsdsel_title']." on ".$pid,
                                 __FILE__,__LINE__);
@@ -1072,11 +1071,15 @@ class XSD_DisplayObject
       */
     function matchFieldsCallback($domNode, $cbdata, $context=NULL, $rootNode)
     {
+        static $profile_idx = 1;
         $clean_nodeName = Misc::strip_element_name($domNode->nodeName);
         $xsdmf_ptr = &$this->xsdmf_current; // stores results
         $xsdmf_id = NULL;
 		$currentSEL = "";
         // look for the xsdmf_id		
+//		if ($domNode->nodeType == XML_TEXT_NODE) {
+//			return $cbdata;
+//		}
         switch ($domNode->nodeType)
         {
             case XML_ELEMENT_NODE:
@@ -1199,6 +1202,7 @@ class XSD_DisplayObject
                         break;
                     case 'close':
                         // this is processed after have walked the attributes and children for this element
+		            	return $cbdata;
                         break;
                 }
                 break;
@@ -1254,6 +1258,7 @@ class XSD_DisplayObject
                 }	
                 break;
             default:
+            	return $cbdata;
                 break; 
         }
         if (is_numeric($xsdmf_id)) {

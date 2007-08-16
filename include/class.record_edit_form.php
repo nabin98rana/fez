@@ -41,7 +41,6 @@
         
         
         $tpl->assign("parents", $parents);
-        $tpl->assign("author_ids", $this->author_ids);
         $title = $record->getTitle(); // RecordObject
         $tpl->assign("title", $title);
         if ($record->isCollection()) {
@@ -68,6 +67,39 @@
                         .NAJAX_Client::register('Suggestor', 'edit_metadata.php'));
              
      }
+
+	function setDynamicVar($name)
+	{
+		// setup smarty variables used in dynamic XSD value lookups
+		switch ($name)
+		{
+			case '$community_list':
+				global $community_list;
+				if (empty($community_list)) {
+	        		$community_list = Community::getAssocList();
+        		}
+	        	break;
+	        case '$collection_list':
+				global $collection_list;
+				if (empty($collection_list)) {
+		            $collection_list = Collection::getEditListAssoc();
+	            }
+	            break;
+	        case '$xdis_collection_list':
+				global $xdis_collection_list;
+				if (empty($xdis_collection_list)) {
+		        	$xdis_collection_list = XSD_Display::getAssocListCollectionDocTypes(); 
+	        	}
+	        	break;
+	        case '$xdis_list':
+				global $xdis_list;
+				// @@@ CK - 24/8/05 added for collections to be able to select their child document types/xdisplays
+				if (empty($xdis_list)) {
+			        $xdis_list = XSD_Display::getAssocListDocTypes(); 
+		        }
+        	break;
+		}
+	}
      
     function fixDisplayFields(&$xsd_display_fields, $record)
     {
@@ -75,27 +107,18 @@
         $parent_relationships = array();
         foreach ($parents as $parent) {
             $parent_record = new RecordObject($parent['pid']);
-            $parent_xdis_id = $parent_record->getXmlDisplayId();
+            $parent_xdis_id = $parent_record->getXmlDisplayIdUseIndex();
             $parent_relationship = XSD_Relationship::getColListByXDIS($parent_xdis_id);
             array_push($parent_relationship, $parent_xdis_id);
             $parent_relationships = Misc::array_merge_values($parent_relationships, $parent_relationship);
         }
-        //print_r($xsd_display_fields);
-        $author_ids = Author::getAssocListAllBasic();
-        $this->author_ids = $author_ids;
 
-
-    	  // setup smarty variables used in dynamic XSD value lookups
-        $community_list = Community::getAssocList();
-        $collection_list = Collection::getEditListAssoc();
-        $xdis_collection_list = XSD_Display::getAssocListCollectionDocTypes(); // @@@ CK - 13/1/06 added for communities to be able to select their collection child document types/xdisplays
-        $xdis_list = XSD_Display::getAssocListDocTypes(); // @@@ CK - 24/8/05 added for collections to be able to select their child document types/xdisplays
-        
         
         //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
         foreach ($xsd_display_fields  as $dis_key => $dis_field) {
-            if ($dis_field["xsdmf_enabled"] == 1) {
-                if ($dis_field["xsdmf_html_input"] == 'org_selector') {
+           
+			if ($dis_field["xsdmf_enabled"] == 1) {
+      		  if ($dis_field["xsdmf_html_input"] == 'org_selector') {
                     if ($dis_field["xsdmf_org_level"] != "") {
                         $xsd_display_fields[$dis_key]['field_options'] = Org_Structure::getAssocListByLevel($dis_field["xsdmf_org_level"]);
                     }
@@ -117,10 +140,16 @@
                 }
                 if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple') {
                     if (!empty($dis_field["xsdmf_smarty_variable"]) && $dis_field["xsdmf_smarty_variable"] != "none") {
-                        eval("\$xsd_display_fields[\$dis_key]['field_options'] = " . $dis_field["xsdmf_smarty_variable"] . ";");
+                        $this->setDynamicVar($dis_field["xsdmf_smarty_variable"]);
+                        eval("global ".$dis_field['xsdmf_smarty_variable']
+                        	."; \$xsd_display_fields[\$dis_key]['field_options'] = " 
+	                        . $dis_field["xsdmf_smarty_variable"] . ";");
                     }
                     if (!empty($dis_field["xsdmf_dynamic_selected_option"]) && $dis_field["xsdmf_dynamic_selected_option"] != "none") {
-                        eval("\$xsd_display_fields[\$dis_key]['selected_option'] = " . $dis_field["xsdmf_dynamic_selected_option"] . ";");
+                        $this->setDynamicVar($dis_field["xsdmf_smarty_variable"]);
+                        eval("global ".$dis_field['xsdmf_smarty_variable']
+                        	."; \$xsd_display_fields[\$dis_key]['selected_option'] = " 
+                        	. $dis_field["xsdmf_dynamic_selected_option"] . ";");
                     }
         
                     if ($dis_field["xsdmf_use_parent_option_list"] == 1) { // if the display field inherits this list from a parent then get those options
@@ -132,7 +161,10 @@
                                 if ($xsdmf_details['xsdmf_smarty_variable'] != "" && $xsdmf_details['xsdmf_html_input'] == "multiple") {
                                     $temp_parent_options = array();
                                     $temp_parent_options_final = array();
-                                    eval("\$temp_parent_options = ". $xsdmf_details['xsdmf_smarty_variable'].";");
+			                        $this->setDynamicVar($xsdmf_details['xsdmf_smarty_variable']);
+            			            eval("global ".$xsdmf_details['xsdmf_smarty_variable']
+                                	    . "; \$temp_parent_options = "
+                                    	. $xsdmf_details['xsdmf_smarty_variable'].";");
                                     $xsd_display_fields[$dis_key]['field_options'] = array();
                                     foreach ($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]] as $parent_smarty_option) {
                                         if (array_key_exists($parent_smarty_option, $temp_parent_options)) {
@@ -152,11 +184,9 @@
     /*          if (($dis_field["xsdmf_html_input"] == 'contvocab')) {
                     $xsd_display_fields[$dis_key]['field_options'] = $cvo_list['data'][$dis_field['xsdmf_cvo_id']];
                 } */
-    
                 
             }
         }
-
     }
      
      function fixDetails(&$details)

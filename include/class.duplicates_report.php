@@ -882,12 +882,12 @@ class DuplicatesReport {
     
     function getPrevItem($pid, $show_resolved = true)
     {
-    	return $this->getNextPrevItemCommon($pid, $show_resolved, 'preceding-sibling');
+    	return $this->getNextPrevItemCommon($pid, $show_resolved, 'previousSibling');
     }
     
     function getNextItem($pid, $show_resolved = true)
     {
-    	return $this->getNextPrevItemCommon($pid, $show_resolved, 'following-sibling');
+    	return $this->getNextPrevItemCommon($pid, $show_resolved, 'nextSibling');
     }
     
     function getNextPrevItemCommon($pid, $show_resolved, $axis)
@@ -898,23 +898,23 @@ class DuplicatesReport {
         }
         $xpath = new DOMXPath($report_dom);
         $done = false;
-        $res = null;
+        $res = 0;
         // loops through pids
-        while(!$done) {
- 			$nodelist = $xpath->query(
- 						'/DuplicatesReport/duplicatesReportItem[@pid=\''.$pid.'\']/'.$axis.'::*');
- 			if ($nodelist->length > 0) {
- 				$node = $nodelist->item(0);
- 				$pid = $node->getAttribute('pid');
- 				if (!$show_resolved) {
- 					list($max_score,$resolved,$isi_match) = $this->getDupsStats($node, $xpath);
+		$nodelist = $xpath->query(
+						'/DuplicatesReport/duplicatesReportItem[@pid=\''.$pid.'\']');
+		if ($nodelist->length > 0) {
+			$node = $nodelist->item(0);
+			for ($node = $node->$axis; !empty($node) && !$done; $node = $node->$axis) {
+ 				if ($node->nodeType == XML_ELEMENT_NODE) {
+	 				$pid = $node->getAttribute('pid');
+ 					if (!$show_resolved) {
+ 						list($max_score,$resolved,$isi_match) = $this->getDupsStats($node, $xpath);
+ 					}
+ 					if ($show_resolved || !$resolved) {
+ 						$done = true;
+ 						$res = $pid;
+ 					}
  				}
- 				if ($show_resolved || !$resolved) {
- 					$done = true;
- 					$res = $pid;
- 				}
- 			} else {
- 				$done = true;
  			}
  		}
  		return $res;

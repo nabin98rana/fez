@@ -35,7 +35,8 @@ $wfstatus->checkStateChange();
 $left_pid = $_REQUEST['left_pid'];
 if (empty($left_pid)) {
 	$left_pid = $wfstatus->getvar('dup_report_left_pid');
-} else {
+} 
+if ($wfstatus->getvar('dup_report_left_pid') != $left_pid) {
 	$wfstatus->assign('dup_report_left_pid', $left_pid);
 	$wfstatus->setSession(); 
 }
@@ -56,7 +57,6 @@ if ($left_record->getLock(RecordLock::CONTEXT_WORKFLOW, $wfstatus->id) != 1) {
     $tpl->displayTemplate();
     exit;
 }
-
 
 $current_dup_pid = $wfstatus->getvar('current_dup_pid');    
 $duplicates_report = new DuplicatesReport($pid);
@@ -92,7 +92,7 @@ if (@$_REQUEST['action'] == 'change_dup_pid') {
     Auth::redirect($_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id)));
 } elseif (@$_REQUEST['action'] == 'link_to_prev') {
     $new_left_pid = $duplicates_report->getPrevItem($left_pid, $wfstatus->getvar('show_resolved'));
-    if (!empty($new_left_pid)) {
+    if (is_string($new_left_pid)) {
     	$wfstatus->assign('dup_report_left_pid', $new_left_pid);
     	$wfstatus->assign('current_dup_pid', '');
     	$wfstatus->setSession();  // save the change to the workflow session
@@ -100,10 +100,11 @@ if (@$_REQUEST['action'] == 'change_dup_pid') {
     	    .http_build_query(array('id' => $wfstatus->id, 'left_pid' => $new_left_pid)));
 	} else {
 		Session::setMessage('Already at beginning of list');
+	    Auth::redirect($_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id)));
 	}
 } elseif (@$_REQUEST['action'] == 'link_to_next') {
     $new_left_pid = $duplicates_report->getNextItem($left_pid, $wfstatus->getvar('show_resolved'));
-    if (!empty($new_left_pid)) {
+    if (is_string($new_left_pid)) {
     	$wfstatus->assign('dup_report_left_pid', $new_left_pid);
     	$wfstatus->assign('current_dup_pid', '');
     	$wfstatus->setSession();  // save the change to the workflow session
@@ -111,9 +112,9 @@ if (@$_REQUEST['action'] == 'change_dup_pid') {
     	    .http_build_query(array('id' => $wfstatus->id, 'left_pid' => $new_left_pid)));
 	} else {
 		Session::setMessage('Already at end of list');
+	    Auth::redirect($_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id)));
 	}
 }
-
 
 $dup_list = $duplicates_report->getItemDetails($left_pid);
 // make sure the current dup pid is actually in the list (it might not be if we've just viewed
@@ -142,7 +143,6 @@ $link_to_next = $_SERVER['PHP_SELF'] . '?'
 	. http_build_query(array('id' => $wfstatus->id, 'action' => 'link_to_next'));
 $tpl->assign(compact('link_to_prev','link_to_next'));
 
-
 $record_edit_form = new RecordEditForm();
 $record_edit_form->setTemplateVars($tpl, $left_record);
 
@@ -164,7 +164,6 @@ if ($right_xdis_id == $left_xdis_id) {
 	$right_xdis_title = $right_record->display->getTitle();
 	$tpl->assign('right_xdis_title', $right_xdis_title);
 }
-
 $tpl->assign('left_isi_loc', $duplicates_report->getISI_LOC($left_record)); 
 $tpl->assign('right_isi_loc', $duplicates_report->getISI_LOC($right_record)); 
 
@@ -179,5 +178,4 @@ $tpl->registerNajax( NAJAX_Client::register('Author', APP_RELATIVE_URL.'ajax.php
 $wfstatus->setSession();
 
 $tpl->displayTemplateRecord($pid);
- 
 ?>

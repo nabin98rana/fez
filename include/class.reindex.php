@@ -90,7 +90,7 @@ class Reindex
     {
         if (empty($this->fedoraObjects)) {
             if (!$this->resume) {
-                $res = Fedora_API::callFindObjects(array('pid', 'title', 'description'), 5, $this->terms);
+                $res = Fedora_API::callFindObjects(array('pid', 'title', 'state'), 5, $this->terms);
                 $this->resume = true;
             } else {
                 if (!empty($this->listSession['token'])) {
@@ -102,7 +102,7 @@ class Reindex
             //Error_Handler::logError(print_r($res, true));
 			//print_r($res['resultList']);
             $this->listSession = @$res['listSession'];
-            $this->fedoraObjects = @$res['resultList']['objectFields']; // 2.2 and up!
+            $this->fedoraObjects = @$res['resultList']['objectFields']; 
         }
         return @array_shift($this->fedoraObjects);
     }
@@ -115,7 +115,7 @@ class Reindex
      */
     function getFedoraObjectListDetails($pid)
     {
-        $res = Fedora_API::callFindObjects(array('pid', 'title', 'description'), 1, $pid);
+        $res = Fedora_API::callFindObjects(array('pid', 'title', 'description', 'state'), 1, $pid);
         // Probably should add some error checking here, but for now we only plan to call 
         // this function for PIDs that we are certain exist in the system.
         return @array_shift($res['resultList']['objectFields']);
@@ -235,7 +235,7 @@ class Reindex
         $detail = $this->getNextFedoraObject();
         
         for ($ii = 0; !empty($detail) && count($return) < $max ; $detail = $this->getNextFedoraObject()) {
-            if (Reindex::inIndex($detail['pid'])) {
+            if ($detail['state'] == 'A' && Reindex::inIndex($detail['pid'])) {
                 if (++$ii > $start) {
                     array_push($return, $detail);
                 }
@@ -300,20 +300,23 @@ class Reindex
         $this->terms = $terms;
         $ii = 0;
         for ($detail = $this->getNextFedoraObject(); !empty($detail); $detail = $this->getNextFedoraObject()) {
-            if (!empty($this->bgp)) {
+            if ($detail['state'] != 'A') {
+            	continue;
+        	}
+	        if (!empty($this->bgp)) {
                 $this->bgp->setProgress(++$ii);
-            }
-            if (!Reindex::inIndex($detail['pid'])) {
-                if (!empty($this->bgp)) {
-                    $this->bgp->setStatus("Adding: '".$detail['pid']."' '".$detail['title']."'");
-                }
-                $params['items'] = array($detail['pid']);
+    	    }
+        	if (!Reindex::inIndex($detail['pid'])) {
+        	    if (!empty($this->bgp)) {
+     	    	   $this->bgp->setStatus("Adding: '".$detail['pid']."' '".$detail['title']."'");
+            	}
+	            $params['items'] = array($detail['pid']);
                 Reindex::indexFezFedoraObjects($params);                
-            } else {
-                if (!empty($this->bgp)) {
+    	    } else {
+	            if (!empty($this->bgp)) {
                     $this->bgp->setStatus("Skipping: '".$detail['pid']."' '".$detail['title']."'");
-                }
-            }
+    	        }
+        	}
         }
     }
 
@@ -337,9 +340,12 @@ class Reindex
         $reindex_record_counter = 0;
         $record_count = Reindex::getIndexPIDCount();
         for ($detail = $this->getNextFedoraObject(); !empty($detail); $detail = $this->getNextFedoraObject()) {
-            if (!empty($this->bgp)) {
-                $this->bgp->setProgress(++$ii);
-            }
+            if ($detail['state'] != 'A') {
+            	continue;
+        	}
+	        if (!empty($this->bgp)) {
+    	        $this->bgp->setProgress(++$ii);
+        	}
             $reindex_record_counter++;
 
                     $bgp_details = $this->bgp->getDetails();

@@ -1878,6 +1878,7 @@ class RecordGeneral
             Record::status_unpublished => 'Unpublished',
             Record::status_published => 'Published'
             );
+    var $title;
  
     /**
      * RecordGeneral
@@ -1941,6 +1942,29 @@ class RecordGeneral
         }
         return null;
     }
+
+    function getXmlDisplayIdUseIndex() 
+    {
+    	$dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        if (!$this->no_xdis_id) {
+            if (empty($this->xdis_id)) {
+				$stmt = "SELECT rmf_int FROM ".$dbtp."record_matching_field 
+						INNER JOIN ".$dbtp."xsd_display_matchfields 
+						ON xsdmf_id=rmf_xsdmf_id AND xsdmf_element = '!xdis_id' 
+						WHERE rmf_rec_pid_num = 41787 AND rmf_rec_pid = 'rqfdemo:41787'";
+				$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+				$this->xdis_id = $res;
+		        if (PEAR::isError($res)) {
+		            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), 
+		            			        __FILE__, __LINE__);
+		            $this->xdis_id = null;
+		            $this->no_xdis_id = true;
+        		}
+            }
+            return $this->xdis_id;
+        }
+        return null;
+	}
 
     /**
      * getImageFezACML
@@ -2417,16 +2441,20 @@ class RecordGeneral
      */
     function getTitle()
     {
-        $this->getDetails();
-        $this->getXmlDisplayId();
-        if (!empty($this->xdis_id)) {
-             $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!dc:title'); 
-             return $this->details[$xsdmf_id];
-        } else {
-            // if it has no xdis id (display id) log an error and return a null
-            Error_Handler::logError("The PID ".$this->pid." does not have an display id (FezMD->xdis_id). This object is currently in an erroneous state.",__FILE__,__LINE__);
-            return null;
-        }
+        if (empty($this->title)) {
+		    $this->getDetails();
+		    $this->getXmlDisplayId();
+			if (!empty($this->xdis_id)) {
+			     $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!dc:title'); 
+			     $this->title = $this->details[$xsdmf_id];
+			} else {
+		        // if it has no xdis id (display id) log an error and return a null
+        	    Error_Handler::logError("Fez cannot display PID " . $this->pid . 
+        	    	" because it does not have a display id (FezMD/xdis_id). ",__FILE__,__LINE__);
+	            return null;
+    		}
+		}
+    	return $this->title;
     }
 
     /**

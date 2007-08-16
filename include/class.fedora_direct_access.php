@@ -83,11 +83,14 @@ class Fedora_Direct_Access {
      * This method returns a list of all PIDs in Fedora (provided they are not deleted), along 
      * with each object's title.
      */
-    function fetchAllFedoraPIDs($terms = "") {
+    function fetchAllFedoraPIDs($terms = "", $object_state = 'A') {
 
         $terms = Misc::escapeString(str_replace("*", "", $terms));  // Get the search terms ready for SQLage.
 
-        $result = $this->dbh->getAll("SELECT dopid AS pid, label AS title FROM doregistry WHERE (dopid LIKE '%" . $terms . "%' OR label LIKE '%" . $terms . "%') AND objectState = 'A'", DB_FETCHMODE_ASSOC);
+        $result = $this->dbh->getAll("SELECT dopid AS pid, label AS title FROM doregistry "
+    							. " WHERE (dopid LIKE '%" . $terms . "%' OR label LIKE '%" . $terms . "%') "
+    							. " AND objectState = '" . $object_state . "'", 
+        							DB_FETCHMODE_ASSOC);
         if (PEAR::isError($result)) {
             // Attempt the same thing with the other known table spelling.
             $result = $this->dbh->getAll("SELECT dopid AS pid, label AS title FROM doRegistry WHERE (dopid LIKE '%" . $terms . "%' OR label LIKE '%" . $terms . "%') AND objectState = 'A'", DB_FETCHMODE_ASSOC);
@@ -98,6 +101,9 @@ class Fedora_Direct_Access {
         }
         return $result;
     }
+    
+    
+    
 
 }
 

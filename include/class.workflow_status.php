@@ -65,6 +65,7 @@ class WorkflowStatus {
     var $rec_obj;
     var $href;
     var $states_done = array();
+    var $record_title;
     
     /**
      * Constructor.   These variables don't really need to be set depending on 
@@ -107,6 +108,17 @@ class WorkflowStatus {
         }
         return $this->rec_obj;
     }
+    
+    function getRecordTtitle()
+    {
+    	if (empty($this->record_title)) {
+	        if ($this->pid && !is_numeric($this->pid)) {
+    			$rec = $this->getRecordObject();
+    			$this->record_title = $rec->getTitle();
+			}
+		}
+		return $this->record_title;
+    }
 
     /**
      * Saves this object in the workflow_sessions db table
@@ -117,8 +129,7 @@ class WorkflowStatus {
         $this->getStateDetails();
         $title = $this->wfl_details['wfl_title'].": ".$this->wfs_details['wfs_title'];
         if ($this->pid && !is_numeric($this->pid)) {
-            $this->getRecordObject();
-            $title .= " on ".$this->pid.": ". $this->rec_obj->getTitle();
+            $title .= " on ".$this->pid.": ". $this->getRecordTtitle();
         }
         $date = Date_API::getCurrentDateGMT();
         $usr_id = Auth::getUserID();

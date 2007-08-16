@@ -182,7 +182,7 @@ class Fedora_API {
      * The session seems to have a five minute timeout
      * resultList - the list of items found
      */
-    function callFindObjects($resultFields = array('pid', 'title', 'identifier', 'description', 'type'),
+    function callFindObjects($resultFields = array('pid', 'title', 'identifier', 'description', 'state'),
                             $maxResults = 10, $query_terms="")
     {
         $resultlist = Fedora_API::openSoapCallAccess('findObjects', array(
