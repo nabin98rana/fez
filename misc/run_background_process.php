@@ -1,6 +1,8 @@
 <?php
 
-proc_nice(10);
+if (!(stristr(PHP_OS, 'win') && !stristr(PHP_OS, 'darwin'))) {
+    proc_nice(10);
+}
 
 $ARGV = $_SERVER['argv'];
 $base = $ARGV[2];
