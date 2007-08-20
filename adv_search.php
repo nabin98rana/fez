@@ -49,6 +49,8 @@ $sta_list = Status::getAssocList();
 $ret_list = Object_Type::getAssocList();
 $cvo_list = Controlled_Vocab::getAssocListFullDisplay(false, "", 0, 2);
 $xdis_list = XSD_Display::getAssocListDocTypes();
+$collection_assoc_list = array();
+$collection_assoc_list = Collection::getAssocList();
 
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
@@ -78,6 +80,9 @@ foreach ($list as $list_key => $list_field) {
 		$list[$list_key]['cv_titles'] = array_values($cvo_list['title']);		
 		$list[$list_key]['cv_ids'] = array_keys($cvo_list['title']);		
 	}
+    if ($list_field["sek_id"] == Search_Key::getID("isMemberOf")) {
+        $list[$list_key]["field_options"] = $collection_assoc_list;
+    }
 }
 
 $tpl->assign("search_keys", $list);

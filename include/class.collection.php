@@ -2675,6 +2675,10 @@ $res_count = array();
      */
     function getAssocList()
     {
+
+        $authArray = Collection::getAuthIndexStmt(array("Lister", "Viewer", "Editor", "Creator"));
+        $authStmt = $authArray['authStmt'];
+
         $stmt = "SELECT ".APP_SQL_CACHE."
                     *
                  FROM
@@ -2692,6 +2696,7 @@ $res_count = array();
 							AND s2.sek_title = 'Object Type'
 							AND r2.rmf_int = 2
 							) as o1 on o1.rmf_rec_pid = r1.rmf_rec_pid
+                    ".$authStmt."
 					";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		$return = array();
