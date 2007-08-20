@@ -81,7 +81,7 @@ foreach ($list as $list_key => $list_field) {
 		$list[$list_key]['cv_ids'] = array_keys($cvo_list['title']);		
 	}
     if ($list_field["sek_id"] == Search_Key::getID("isMemberOf")) {
-        $list[$list_key]["field_options"] = $collection_assoc_list;
+        $list[$list_key]["field_options"] =  array("" => "any") + $collection_assoc_list;
     }
 }
 
