@@ -2705,6 +2705,7 @@ $res_count = array();
 				$return[$result['rmf_rec_pid']] = $result['rmf_'.$result['xsdmf_data_type']];
 			}
 		}
+        asort($return);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
