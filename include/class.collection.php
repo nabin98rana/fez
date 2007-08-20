@@ -2676,7 +2676,7 @@ $res_count = array();
     function getAssocList()
     {
 
-        $authArray = Collection::getAuthIndexStmt(array("Lister", "Viewer", "Editor", "Creator"));
+        $authArray = Collection::getAuthIndexStmt(array("Lister", "Viewer", "Editor", "Creator"), "r1");
         $authStmt = $authArray['authStmt'];
 
         $stmt = "SELECT ".APP_SQL_CACHE."
