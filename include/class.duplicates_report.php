@@ -822,11 +822,11 @@ class DuplicatesReport {
         $first_item = $page * $page_size;
         $last_item = $first_item + $page_size;
         $items = $xpath->query('/DuplicatesReport/duplicatesReportItem');
-        $pages = intval(floor(($items->length / $page_size) + 0.999999));
         $listing = array();
         $resolved_count = 0;
         $unresolved_count = 0;
         $isi_loc_match_count = 0;
+        $found_count = 0;
         for ($ii = 0; $ii < $items->length; $ii++) {
             $itemNode = $items->item($ii);
             if (!empty($itemNode)) {
@@ -839,7 +839,7 @@ class DuplicatesReport {
 	            if ($isi_match) {
 	            	$isi_loc_match_count++;
             	}
-                if ($ii >= $first_item && $ii < $last_item 
+                if ($found_count >= $first_item && $found_count < $last_item 
                 	&& (($resolved && $show_resolved) || !$resolved)) {
                 	$listing_item = array(
                     	'pid' => $itemNode->getAttribute('pid'),
@@ -850,8 +850,12 @@ class DuplicatesReport {
 	                	'isi_loc_match' => $isi_match);
     	            $listing[] = $listing_item;
             	}
+            	if (($resolved && $show_resolved) || !$resolved) {
+    	            $found_count++;
+	            }
             }
         }
+        $pages = intval(floor(($found_count / $page_size) + 0.999999));
         $list_meta = compact('pages', 'resolved_count', 'unresolved_count','isi_loc_match_count');
         return compact('listing','list_meta');
     }

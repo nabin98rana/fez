@@ -3,7 +3,7 @@ Page: 1
 {elseif $pages > 1}
 Page: 
   {if $pages <= 5}
-     {section name='page_idx' loop=5}
+     {section name='page_idx' loop=$pages}
      	{assign var='pp_current' value=$smarty.section.page_idx.index}
      	{if $pp_current == $page}
      	  {math equation='x + 1' x=$page}
