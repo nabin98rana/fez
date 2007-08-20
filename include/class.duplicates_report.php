@@ -282,7 +282,7 @@ class DuplicatesReport {
         return $final_groups;
     }
     
-    function findSimilarRecords($record)
+    function findSimilarRecords(&$record)
     {
 		$pid = $record->pid;
         
@@ -423,9 +423,13 @@ class DuplicatesReport {
         //Error_Handler::debugStop();
     }
     
-    function autoMergeRecords($base_record, $dup_record)
+    function autoMergeRecords(&$base_record, &$dup_record)
     {
         //Error_Handler::debugStart();
+		if ($base_record->getXmlDisplayId() != $dup_record->getXmlDisplayId()) {
+			// can't automerge records of different document types
+			return -1;
+		}
         $base_rm_prn = $this->getIdentifier($base_record,'rm_prn');
         $dup_isi_loc = $this->getIdentifier($dup_record, 'isi_loc');
         if (!empty($base_rm_prn) && !empty($dup_isi_loc)) {
@@ -433,9 +437,12 @@ class DuplicatesReport {
 	    } else {
     	    $merge_res = $this->mergeRecords($base_record, $dup_record);
         }
-        if ($merge_res > 0) {
-	        $merge_res = $this->mergeRecords($base_record, $dup_record, self::MERGE_TYPE_HIDDEN);
-        }
+        
+        // Should we need to do this, for some reason the details don't update in these records
+        // and it merges the old record details	
+        //if ($merge_res > 0) {
+	    //    $merge_res = $this->mergeRecords($base_record, $dup_record, self::MERGE_TYPE_HIDDEN);
+        //}
         if ($merge_res > 0) {
 	        $wfl_id = $this->getWorkflowId();
 		    // set some history on the object so we know why it was merged.
@@ -446,7 +453,7 @@ class DuplicatesReport {
 		return $merge_res;
     }
     
-    function mergeRecords($base_record, $dup_record, $merge_type = self::MERGE_TYPE_ALL)
+    function mergeRecords(&$base_record, &$dup_record, $merge_type = self::MERGE_TYPE_ALL)
     {
         
 		switch ($merge_type)
@@ -474,7 +481,7 @@ class DuplicatesReport {
 		        }
 			break;
 		}
-		
+
 		// check for errors and don't merge if there was a problem
 		if (!is_array($base_det)) {
 			return $base_det;
@@ -493,7 +500,7 @@ class DuplicatesReport {
     }
 
 
-    function mergeDetailsAll($base_record, $dup_record)
+    function mergeDetailsAll(&$base_record, &$dup_record)
     {
         // get the values for both records and copy over anything that isn't set in the base.
         $base_det = $base_record->getDetails();
@@ -518,7 +525,7 @@ class DuplicatesReport {
     }
 	
     
-    function mergeDetailsHiddenSameDocType($base_record, $dup_record)
+    function mergeDetailsHiddenSameDocType(&$base_record, &$dup_record)
     {
         // get the values for both records and copy over anything that isn't set in the base.
         $base_det = $base_record->getDetails();
@@ -528,15 +535,14 @@ class DuplicatesReport {
         								array("")), 'xsdmf_id');  
     	foreach ($dup_det as $xsdmf_id => $dup_value) {
         	// skip everything except hidden fields
-            if ($xsd_display_fields[$xsdmf_id]['xsdmf_html_input'] != 'hidden') {
-	        	continue;
-    	    }
-    	    $this->mergeDetailGeneric($base_det, $xsdmf_id, $dup_value);
+            if ($xsd_display_fields[$xsdmf_id]['xsdmf_html_input'] == 'hidden') {
+    	    	$this->mergeDetailGeneric($base_det, $xsdmf_id, $dup_value);
+	    	}
     	}
         return $base_det;
     }
 
-    function mergeDetailsHiddenDiffDocType($base_record, $dup_record)
+    function mergeDetailsHiddenDiffDocType(&$base_record, &$dup_record)
     {
         // get the values for both records and copy over anything that isn't set in the base.
         $base_det = $base_record->getDetails();
@@ -576,12 +582,12 @@ class DuplicatesReport {
 
 
 
-    function mergeRecordsHiddenFields($base_record, $dup_record)
+    function mergeRecordsHiddenFields(&$base_record, &$dup_record)
     {
 		return $this->mergeRecords($base_record, $dup_record, self::MERGE_TYPE_HIDDEN);
     }
     
-    function overrideRMDetails($base_record, $dup_record, $base_det)
+    function overrideRMDetails(&$base_record, &$dup_record, $base_det)
     {
 		$error = 0;
 		$dup_det = $dup_record->getDetails();
@@ -613,7 +619,7 @@ class DuplicatesReport {
     
     
     
-    function mergeAuthorsRM_UQCited($base_record, $dup_record, $base_det)
+    function mergeAuthorsRM_UQCited(&$base_record, &$dup_record, $base_det)
     {
     	/* the rules are:
     	   if the base author is blank (there are more authors on the dup than the base) then copy them across.
@@ -673,7 +679,7 @@ class DuplicatesReport {
 		}
 	}
 	
-	function merge_R_Datastreams($base_record, $dup_record, $base_det)
+	function merge_R_Datastreams(&$base_record, &$dup_record, $base_det)
 	{
 		$error = 0;
         $datastreams = Fedora_API::callGetDatastreams($dup_record->pid);
@@ -710,7 +716,7 @@ class DuplicatesReport {
      * Look for <mods:identifier type="isi_loc"> on both records and if they're the same
      * return true.
      */
-    function compareISI_LOC($record1, $record2)
+    function compareISI_LOC(&$record1, &$record2)
     {
         $res = false;
         $isi1 = trim($this->getISI_LOC($record1));
@@ -723,17 +729,17 @@ class DuplicatesReport {
         return $res;
     }
     
-    function getISI_LOC($record) 
+    function getISI_LOC(&$record) 
     {
     	return $this->getIdentifier($record, 'isi_loc');
     }
 
-    function getRM_PRN($record) 
+    function getRM_PRN(&$record) 
     {
     	return $this->getIdentifier($record, 'rm_prn');
     }
     
-    function getIdentifier($record, $find_type)
+    function getIdentifier(&$record, $find_type)
     {
         // get the mods:identifier.
         $res = '';
@@ -754,16 +760,8 @@ class DuplicatesReport {
     }
 
     
-    function compareRecords($record1, $record2) 
+    function compareRecords(&$record1, &$record2) 
     {
-        /**
-        // Can't compare records of different content models as the XSDMFs will all be different
-        * actually I changed my mind.  We are going to show them but not merge them
-        if ($record1->getXmlDisplayId() != $record2->getXmlDisplayId()) {
-            return 0;
-        }
-        */
-        
         $title_tokens1 = $this->tokenise(array($record1->getTitle()));
         $title_tokens2 = $this->tokenise(array($record2->getTitle()));
         $title_score = $this->calcOverlap($title_tokens1, $title_tokens2);
@@ -828,15 +826,19 @@ class DuplicatesReport {
         $listing = array();
         $resolved_count = 0;
         $unresolved_count = 0;
+        $isi_loc_match_count = 0;
         for ($ii = 0; $ii < $items->length; $ii++) {
             $itemNode = $items->item($ii);
             if (!empty($itemNode)) {
-                list($max_score,$resolved,$isi_match) = $this->getDupsStats($itemNode, $xpath);
+                list($max_score,$resolved,$isi_match, $dups_count) = $this->getDupsStats($itemNode, $xpath);
                 if ($resolved) {
                 	$resolved_count++;
 	            } else {
 	            	$unresolved_count++;
 	            }
+	            if ($isi_match) {
+	            	$isi_loc_match_count++;
+            	}
                 if ($ii >= $first_item && $ii < $last_item 
                 	&& (($resolved && $show_resolved) || !$resolved)) {
                 	$listing_item = array(
@@ -844,13 +846,13 @@ class DuplicatesReport {
 	                    'title' => $itemNode->getAttribute('title'),
     	            	'probability' => $max_score,
             	    	'resolved' => $resolved,
-                		'count' => $dups_list->length,
+                		'count' => $dups_count,
 	                	'isi_loc_match' => $isi_match);
     	            $listing[] = $listing_item;
             	}
             }
         }
-        $list_meta = compact('pages', 'resolved_count', 'unresolved_count');
+        $list_meta = compact('pages', 'resolved_count', 'unresolved_count','isi_loc_match_count');
         return compact('listing','list_meta');
     }
     
@@ -861,6 +863,7 @@ class DuplicatesReport {
         $resolved = true;
         $base_isi_loc = $itemNode->getAttribute('isi_loc');
         $isi_match = false;
+        $dups_count = $dups_list->length;
         foreach ($dups_list as $dupNode) {
             $score = $dupNode->getAttribute('probability');
             if ($score > $max_score) {
@@ -872,12 +875,14 @@ class DuplicatesReport {
             if (empty($dup_att)) {
                 $resolved = false;
             }
-            $dup_isi_loc = $dupNode->getAttribute('isi_loc');
-            if ($dup_isi_loc == $base_isi_loc) {
-            	$isi_match = true;
+            if (!empty($base_isi_loc)) {
+	            $dup_isi_loc = $dupNode->getAttribute('isi_loc');
+            	if ($dup_isi_loc == $base_isi_loc) {
+            		$isi_match = true;
+        		}
             }
         }
-        return array($max_score,$resolved,$isi_match);
+        return array($max_score,$resolved,$isi_match, $dups_count);
     }
     
     function getPrevItem($pid, $show_resolved = true)

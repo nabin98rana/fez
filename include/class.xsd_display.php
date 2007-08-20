@@ -1071,15 +1071,11 @@ class XSD_DisplayObject
       */
     function matchFieldsCallback($domNode, $cbdata, $context=NULL, $rootNode)
     {
-        static $profile_idx = 1;
         $clean_nodeName = Misc::strip_element_name($domNode->nodeName);
         $xsdmf_ptr = &$this->xsdmf_current; // stores results
         $xsdmf_id = NULL;
 		$currentSEL = "";
         // look for the xsdmf_id		
-//		if ($domNode->nodeType == XML_TEXT_NODE) {
-//			return $cbdata;
-//		}
         switch ($domNode->nodeType)
         {
             case XML_ELEMENT_NODE:

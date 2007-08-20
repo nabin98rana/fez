@@ -81,7 +81,7 @@ if (@$_REQUEST['action'] == 'change_dup_pid') {
     $wfstatus->assign('current_dup_pid', $current_dup_pid);
     $wfstatus->setSession();  // save the change to the workflow session
     Auth::redirect($_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id)));
-} elseif (@$_POST['action'] == 'auto_merge') {
+} elseif (@$_REQUEST['action'] == 'auto_merge') {
     $right_record = new RecordObject($current_dup_pid);
     $res = $duplicates_report->autoMergeRecords($left_record,$right_record);
     if ($res < 0) {

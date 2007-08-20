@@ -2398,6 +2398,16 @@ class RecordGeneral
         }
         return $this->details;
     }
+    
+    
+    /**
+     * Clear the cached details in this record.  Used when the record has been altered to force
+     * details to be reparsed from the fedora object.
+     */
+    function clearDetails()
+    {
+    	$this->details = null;
+    }
 
     /**
      * getFieldValueBySearchKey
@@ -3100,6 +3110,7 @@ class RecordObject extends RecordGeneral
 //		echo $xmlObj;
 		$datastreamTitles = $display->getDatastreamTitles($exclude_list, $specify_list); 
         Record::insertXML($pid, compact('datastreamTitles', 'exclude_list', 'specify_list', 'xmlObj', 'indexArray', 'existingDatastreams', 'xdis_id'), $ingestObject);
+        $this->clearDetails();  // force the details to be refreshed from fedora.
 		return $pid;
     }
     
