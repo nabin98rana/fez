@@ -864,6 +864,7 @@ function workflowItems(f, rel_url)
     f.cat.value = 'select_workflow';
     f.action = rel_url + 'workflow/bulk_change.php';
     f.target='';
+    f.method='post';
     f.submit();
 }
 
