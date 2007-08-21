@@ -515,7 +515,9 @@ class DuplicatesReport {
     {
     	if (!isset($base_det[$xsdmf_id]) || empty($base_det[$xsdmf_id])) {
             $base_det[$xsdmf_id] = $dup_value;
-        } elseif (is_array($dup_value)) {
+    	} elseif (!empty($dup_value) && !is_array($dup_value) && is_array($base_det[$xsdmf_id])) {
+            $base_det[$xsdmf_id] = array_unique(array_merge($base_det[$xsdmf_id], array($dup_value)));
+    	} elseif (is_array($dup_value)) {
 			if (is_array($base_det[$xsdmf_id])) {
             	$base_det[$xsdmf_id] = array_unique(array_merge($base_det[$xsdmf_id], $dup_value));
 			} else {

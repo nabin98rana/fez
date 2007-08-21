@@ -18,6 +18,18 @@
 	NOTE: This record is not published.
 	</div>
 	{/if}
+	{if $left_isi_loc}
+	<div>ISI LOC: {$left_isi_loc}</div>
+	{/if}
+	{if $left_rm_prn}
+	<div>RM PRN: {$left_rm_prn}</div>
+	{/if}
+	{if $left_issn}
+	<div>ISSN: {$left_issn}</div>
+	{/if}
+	{if $left_isbn}
+	<div>ISBN: {$left_isbn}</div>
+	{/if}
 	<div>
  	<input type="submit" name="save_base_record" value="Save Changes" 
  		onclick="return setAction(this.form,'save_base_record');" class="button"/>
@@ -27,12 +39,26 @@
  </td>
  <td colspan="2" class="compare_records_right_side">
  <h2>Possible Duplicate: {$current_dup_pid}</h2>
+	{if $right_isi_loc}
+	<div>ISI LOC: {$right_isi_loc}</div>
+	{/if}
+	{if $right_rm_prn}
+	<div>RM PRN: {$right_rm_prn}</div>
+	{/if}
+	{if $right_issn}
+	<div>ISSN: {$right_issn}</div>
+	{/if}
+	{if $right_isbn}
+	<div>ISBN: {$right_isbn}</div>
+	{/if}
+
+	{if $left_isi_loc && $left_isi_loc==$right_isi_loc}<div class="default">ISI LOC Matches</div>{/if}
 	{if $current_dup_pid_details.duplicate == 'true'}
 		<div class="default">This record has been marked as a <span class="no">duplicate</span></div>
 	{elseif $current_dup_pid_details.duplicate == 'false'}
 		<div class="default">This record has been marked as a <span class="yes">non-duplicate</span></div>
 	{/if}
-	{if $left_isi_loc && $left_isi_loc==$right_isi_loc}<div class="default">ISI LOC Matches</div>{/if}
+
 	<div>
  <input type="submit" name="mark_duplicate" value="Mark as Duplicate" 
  	onclick="return setAction(this.form,'mark_duplicate');" class="button"/>

@@ -166,6 +166,13 @@ if ($right_xdis_id == $left_xdis_id) {
 }
 $tpl->assign('left_isi_loc', $duplicates_report->getISI_LOC($left_record)); 
 $tpl->assign('right_isi_loc', $duplicates_report->getISI_LOC($right_record)); 
+$tpl->assign('left_rm_prn', $duplicates_report->getRM_PRN($left_record)); 
+$tpl->assign('right_rm_prn', $duplicates_report->getRM_PRN($right_record)); 
+$tpl->assign('left_issn', $duplicates_report->getIdentifier($left_record,'issn')); 
+$tpl->assign('right_issn', $duplicates_report->getRM_PRN($right_record,'issn')); 
+$tpl->assign('left_isbn', $duplicates_report->getIdentifier($left_record,'isbn')); 
+$tpl->assign('right_isbn', $duplicates_report->getRM_PRN($right_record,'isbn')); 
+
 
 $tpl->assign(compact('dup_list','current_dup_pid','right_details','left_pid','current_dup_pid_details'));
 $tpl->assign("hide_edit", true);
