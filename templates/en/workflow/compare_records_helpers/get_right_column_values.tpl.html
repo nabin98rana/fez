@@ -1,22 +1,23 @@
 {if $xsdmf.xsdmf_html_input == 'combo' || $xsdmf.xsdmf_html_input == 'multiple'}
 	{assign var='selected' value=$right_details[$temp_fld_id]}
-	{if $right_details[$temp_fld_id]}{$right_details[$temp_fld_id]}<a href="javascript:void(null);"
+	{if $right_details[$temp_fld_id]}<span style="background-color: {if is_array($distances_colours[$xsdmf.xsdmf_id])}{$distances_colours[$xsdmf.xsdmf_id][$loop_num]}{else}{$distances_colours[$xsdmf.xsdmf_id]}{/if};">{$right_details[$temp_fld_id]}</span><a href="javascript:void(null);"
 		onclick="javascript:copy_field_{$xsdmf.xsdmf_html_input}('{$input_field_name}', '{$right_details[$temp_fld_id]}');"
 		>[copy]</a>: {$xsdmf.field_options[$selected]}{/if}
 {elseif $xsdmf.xsdmf_multiple == 1 || $attached_multiple}
 	{assign var='right_values' value=$right_details[$temp_fld_id]}
-	{if $right_values[$loop_num]}{$right_values[$loop_num]}<a href="javascript:void(null);"
+	{if $right_values[$loop_num]}<span style="background-color: {if is_array($distances_colours[$xsdmf.xsdmf_id])}{$distances_colours[$xsdmf.xsdmf_id][$loop_num]}{else}{$distances_colours[$xsdmf.xsdmf_id]}{/if};">{$right_values[$loop_num]}</span><a href="javascript:void(null);"
 		onclick="javascript:copy_field_{$xsdmf.xsdmf_html_input}('{$input_field_name}', '{$right_values[$loop_num]}');"
 		>[copy]</a>{/if}
 {elseif $xsdmf.xsdmf_html_input == 'contvocab_selector'}
 	{assign var='current_right_details' value=$right_details[$temp_fld_id] }
 	{foreach name='grc' from=$current_right_details item='cvo_item' key='cvo_key'}
-		{if $cvo_item}{$cvo_item}<a href="javascript:void(null);"
+		{if $cvo_item}<span style="background-color: {if is_array($distances_colours[$xsdmf.xsdmf_id])}{$distances_colours[$xsdmf.xsdmf_id][$cvo_key]}{else}{$distances_colours[$xsdmf.xsdmf_id]}{/if};">{$cvo_item}</span><a href="javascript:void(null);"
 			onclick="javascript:copy_field_{$xsdmf.xsdmf_html_input}('{$input_field_name}', '{$cvo_key}');"
 			>[copy]</a>{if !$smarty.foreach.grc.last},<br/>{/if}{/if}
 	{/foreach}
 {else}
-	{if $right_details[$temp_fld_id]}{$right_details[$temp_fld_id]}<a href="javascript:void(null);"
+	{assign var='dc_idx' value=$loop_num|default:0}
+	{if $right_details[$temp_fld_id]}<span style="background-color: {if is_array($distances_colours[$xsdmf.xsdmf_id])}{$distances_colours[$xsdmf.xsdmf_id][$dc_idx]}{else}{$distances_colours[$xsdmf.xsdmf_id]}{/if};">{$right_details[$temp_fld_id]}</span><a href="javascript:void(null);"
 		onclick="javascript:copy_field_{$xsdmf.xsdmf_html_input}('{$input_field_name}', '{$right_details[$temp_fld_id]|escape:'quotes'}');"
 		>[copy]</a>{/if}
 {/if}

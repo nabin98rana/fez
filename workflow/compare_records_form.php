@@ -164,17 +164,28 @@ if ($right_xdis_id == $left_xdis_id) {
 	$right_xdis_title = $right_record->display->getTitle();
 	$tpl->assign('right_xdis_title', $right_xdis_title);
 }
-$tpl->assign('left_isi_loc', $duplicates_report->getISI_LOC($left_record)); 
-$tpl->assign('right_isi_loc', $duplicates_report->getISI_LOC($right_record)); 
-$tpl->assign('left_rm_prn', $duplicates_report->getRM_PRN($left_record)); 
-$tpl->assign('right_rm_prn', $duplicates_report->getRM_PRN($right_record)); 
-$tpl->assign('left_issn', $duplicates_report->getIdentifier($left_record,'issn')); 
-$tpl->assign('right_issn', $duplicates_report->getRM_PRN($right_record,'issn')); 
-$tpl->assign('left_isbn', $duplicates_report->getIdentifier($left_record,'isbn')); 
-$tpl->assign('right_isbn', $duplicates_report->getRM_PRN($right_record,'isbn')); 
+$tpl->assign('left_isi_loc', $duplicates_report->getISI_LOC($left_record));
+$tpl->assign('right_isi_loc', $duplicates_report->getISI_LOC($right_record));
+$tpl->assign('left_rm_prn', $duplicates_report->getRM_PRN($left_record));
+$tpl->assign('right_rm_prn', $duplicates_report->getRM_PRN($right_record));
+$tpl->assign('left_issn', $duplicates_report->getIdentifier($left_record,'issn'));
+$tpl->assign('right_issn', $duplicates_report->getRM_PRN($right_record,'issn'));
+$tpl->assign('left_isbn', $duplicates_report->getIdentifier($left_record,'isbn'));
+$tpl->assign('right_isbn', $duplicates_report->getRM_PRN($right_record,'isbn'));
 
+$left_details = $record_edit_form->getRecordDetails();
 
-$tpl->assign(compact('dup_list','current_dup_pid','right_details','left_pid','current_dup_pid_details'));
+$distances = $duplicates_report->generateLevenshteinScores(
+									$left_details, $right_details);
+$distances_colours = $duplicates_report->convertLevColours($distances);
+
+//print_r($left_details[7989]);
+//print_r($right_details[7989]);
+//print_r($distances[7989]);
+//print_r($distances_colours[7989]);
+
+$tpl->assign(compact('dup_list','current_dup_pid','right_details','left_pid','current_dup_pid_details',
+		'distances','distances_colours'));
 $tpl->assign("hide_edit", true);
 
 $tpl->registerNajax( NAJAX_Client::register('Author', APP_RELATIVE_URL.'ajax.php') . "\n"

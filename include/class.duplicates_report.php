@@ -1113,6 +1113,97 @@ class DuplicatesReport {
         }
         return 1;
     }
+
+	/**
+	 * @return Levenshtein distance normalized to 1 (where 1 is completely differrent and 0 is the same)
+	 */
+    function calcLevenshtein($left, $right)
+    {
+		// for numeric values or pids, just give 0 or 1 (0 for == and 1 for !=)
+    	if ((Misc::isPid($left) && Misc::isPid($right)) 
+    		|| (is_numeric($left) && is_numeric($right))) {
+    		if ($left == $right) {
+    			return 0;
+    		} else {
+    			return 1;
+    		}
+    	}
+    	$maxlen = max(strlen($right),strlen($left));
+    	if ($maxlen > 255) {
+    		$left_array = $this->tokenise($left);
+    		$right_array = $this->tokenise($right);
+    		$score = $this->calcOverlap($left_array,$right_array);
+    		return 1-$score;
+    	}
+    	if ($maxlen > 0 && $maxlen <= 255) {
+    		return levenshtein($left, $right) / max(strlen($right),strlen($left));
+		} else {
+			return 1;
+		}
+    }
+    
+    function generateLevenshteinScores($left_details, $right_details)
+    {
+    	$distances = array();
+    	foreach ($right_details as $xsdmf_id => $det) {
+    		if (is_array($det)) {
+				if (is_array($left_details[$xsdmf_id])) {
+					$distances[$xsdmf_id] = array();
+	    			foreach ($det as $idx => $value) {
+						if (isset($left_details[$xsdmf_id][$idx])) {
+							$distances[$xsdmf_id][$idx] 
+								= $this->calcLevenshtein($left_details[$xsdmf_id][$idx], $value);
+						} else {
+							$distances[$xsdmf_id][$idx] = 1;
+						}
+					}
+				} else {
+					if (!empty($left_details[$xsdmf_id])) {
+						$distances[$xsdmf_id] = $this->calcLevenshtein($left_details[$xsdmf_id], $value);
+					} else {
+						$distances[$xsdmf_id] = 1;
+					}
+				}
+			} else {
+				if (is_array($left_details[$xsdmf_id])) {
+					$distances[$xsdmf_id][0] = $this->calcLevenshtein($left_details[$xsdmf_id][0], $det);
+				} else {
+					if (!empty($left_details[$xsdmf_id])) {
+						$distances[$xsdmf_id] = $this->calcLevenshtein($left_details[$xsdmf_id], $det);
+					} else {
+						$distances[$xsdmf_id][$idx] = 1;
+					}
+				}
+			}
+    	}
+    	return $distances;
+    }
+ 
+    function convertLevColour($lev)
+    {
+    	if ($lev == 0) {
+    		list($r,$g,$b) = Misc::HSV2RGB(80,64,255);
+		} else {
+    		list($r,$g,$b) = Misc::HSV2RGB(60-$lev*60,64,255);
+		}
+    	return "rgb(" . $r . ", " . $g . ", " . $b . ")";
+    }
+    
+    function convertLevColours($distances)
+    {
+    	$colours = array();
+    	foreach ($distances as $xsdmf_id => $dist) {
+    		if (is_array($dist)) {
+    			$colours[$xsdmf_id] = array();
+    			foreach ($dist as $idx => $dval) {
+    				$colours[$xsdmf_id][$idx] = $this->convertLevColour($dval);
+    			}
+    		} else {
+    			$colours[$xsdmf_id] = $this->convertLevColour($dist);
+    		}
+    	}
+    	return $colours;
+    }
     
 }
 
