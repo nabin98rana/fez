@@ -653,13 +653,18 @@ class DuplicatesReport {
 				if ($lev < strlen($dup_authors[$ii]) / 2) {
 					$res_authors[] = $dup_authors[$ii];
 					$res_author_ids[] = $dup_author_ids[$ii];
+				} else {
+					$error = -1;
+					break;
 				}
 			} elseif (empty($dup_author_ids[$ii])) { 
 				$lev = levenshtein($base_authors[$ii], $dup_authors[$ii]);
 				if ($lev < strlen($dup_authors[$ii]) / 2) {
 					$res_authors[] = $dup_authors[$ii];
 					$res_author_ids[] = $base_author_ids[$ii];
-					$lev = levenshtein($base_authors[$ii], $dup_authors[$ii]);
+				} else {
+					$error = -1;
+					break;
 				}
 			} else {
 				$error = -1;

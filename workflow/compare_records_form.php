@@ -64,6 +64,9 @@ $duplicates_report->setWorkflowId($wfstatus->id);
 
 if (@$_REQUEST['action'] == 'change_dup_pid') {
     $current_dup_pid = $_REQUEST['current_dup_pid'];
+	$wfstatus->assign('current_dup_pid', $current_dup_pid);
+    $wfstatus->setSession();  // save the change to the workflow session
+    Auth::redirect($_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id)));
 } elseif (@$_POST['action'] == 'save_base_record') {
     $res = Record::update($left_pid, array("FezACML"), array(""));
     Session::setMessage($res);
@@ -96,24 +99,20 @@ if (@$_REQUEST['action'] == 'change_dup_pid') {
     	$wfstatus->assign('dup_report_left_pid', $new_left_pid);
     	$wfstatus->assign('current_dup_pid', '');
     	$wfstatus->setSession();  // save the change to the workflow session
-    	Auth::redirect($_SERVER['PHP_SELF'].'?'
-    	    .http_build_query(array('id' => $wfstatus->id, 'left_pid' => $new_left_pid)));
 	} else {
 		Session::setMessage('Already at beginning of list');
-	    Auth::redirect($_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id)));
 	}
+    Auth::redirect($_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id)));
 } elseif (@$_REQUEST['action'] == 'link_to_next') {
     $new_left_pid = $duplicates_report->getNextItem($left_pid, $wfstatus->getvar('show_resolved'));
     if (is_string($new_left_pid)) {
     	$wfstatus->assign('dup_report_left_pid', $new_left_pid);
     	$wfstatus->assign('current_dup_pid', '');
     	$wfstatus->setSession();  // save the change to the workflow session
-    	Auth::redirect($_SERVER['PHP_SELF'].'?'
-    	    .http_build_query(array('id' => $wfstatus->id, 'left_pid' => $new_left_pid)));
 	} else {
 		Session::setMessage('Already at end of list');
-	    Auth::redirect($_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id)));
 	}
+    Auth::redirect($_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id)));
 }
 
 $dup_list = $duplicates_report->getItemDetails($left_pid);
@@ -169,9 +168,9 @@ $tpl->assign('right_isi_loc', $duplicates_report->getISI_LOC($right_record));
 $tpl->assign('left_rm_prn', $duplicates_report->getRM_PRN($left_record));
 $tpl->assign('right_rm_prn', $duplicates_report->getRM_PRN($right_record));
 $tpl->assign('left_issn', $duplicates_report->getIdentifier($left_record,'issn'));
-$tpl->assign('right_issn', $duplicates_report->getRM_PRN($right_record,'issn'));
+$tpl->assign('right_issn', $duplicates_report->getIdentifier($right_record,'issn'));
 $tpl->assign('left_isbn', $duplicates_report->getIdentifier($left_record,'isbn'));
-$tpl->assign('right_isbn', $duplicates_report->getRM_PRN($right_record,'isbn'));
+$tpl->assign('right_isbn', $duplicates_report->getIdentifier($right_record,'isbn'));
 
 $left_details = $record_edit_form->getRecordDetails();
 
