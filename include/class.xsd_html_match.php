@@ -1536,7 +1536,9 @@ class XSD_HTML_Match {
 		}
 		if (is_numeric($HTTP_POST_VARS["xsdmf_sek_id"])) {
 			$stmt .= " xsdmf_sek_id = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_sek_id"]) . ",";
-		}
+		} else {
+        	$stmt .= " xsdmf_sek_id = NULL,";
+        }
 		if ($HTTP_POST_VARS["xsdmf_org_level"] != "") {
 			$stmt .= " xsdmf_org_level = '" . Misc::escapeString($HTTP_POST_VARS["xsdmf_org_level"]) . "',";
 		}
