@@ -189,6 +189,7 @@ $tpl->assign("hide_edit", true);
 
 $tpl->registerNajax( NAJAX_Client::register('Author', APP_RELATIVE_URL.'ajax.php') . "\n"
 		. NAJAX_Client::register('Controlled_Vocab', APP_RELATIVE_URL.'ajax.php') );
+$tpl->onload('unHideCompareRows();');
 
 // Save the values we assigned to the workflow into the session - this is needed because we do multiple form
 // submits to this page that aren't controlled by the workflow framework.

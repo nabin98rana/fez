@@ -100,3 +100,23 @@ function copy_field_textarea(dest, value)
 		fe.value = value;
 	}
 }
+
+function unHideCompareRows()
+{
+	elems = document.getElementsByTagName('span');
+	for (ii = 0; ii < elems.length; ii++) {
+		if (elems[ii].className == 'right_value') {
+			parent_row = getParentRow(elems[ii]);
+			parent_row.style.display='';
+		}
+	}
+}
+
+function getParentRow(elem)
+{
+	var res;
+	for (res = elem.parentNode; res != null && res.tagName != 'TR'; res = res.parentNode) {
+		;// hello
+	}
+	return res;
+}
