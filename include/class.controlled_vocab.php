@@ -221,6 +221,7 @@ class Controlled_Vocab
 		$xpath_record = $HTTP_POST_VARS["cvi_xpath_record"];
 		$xpath_id = $HTTP_POST_VARS["cvi_xpath_id"];
 		$xpath_title = $HTTP_POST_VARS["cvi_xpath_title"];
+		$xpath_extparent_id = $HTTP_POST_VARS["cvi_xpath_extparent_id"];
 		$xpath_parent_id = $HTTP_POST_VARS["cvi_xpath_parent_id"];		
 /*		echo "xpath_record = ".$xpath_record."\n";
 		echo "xpath_id = ".$xpath_id."\n";				
@@ -262,6 +263,32 @@ class Controlled_Vocab
 	                }
 	            }
 			}
+			
+			// Checks for reference to parent(s) by external id			
+			// kj 2007/08/27 kai.jauslin@library.ethz.ch	
+					
+			// $xpath_extparent_id = "parent[@mode='internal']";
+			
+			if ($xpath_extparent_id != "") {
+				$extparent_id_fields = $xpath->query($xpath_extparent_id, $recordNode);
+											
+	            foreach ($extparent_id_fields as $extparent_id_field) {
+	            	print $extparent_id_field->nodeValue;
+	            	
+	                if  ($extparent_id_field->nodeValue > '') {
+	                    $extparent_id = $extparent_id_field->nodeValue;
+	                    
+	                    // set first external reference as parent (overrides internal parent_id)
+	                    $intparent_id = Controlled_Vocab::getInternalIDByExternalID($extparent_id);
+	                   	                    
+	                   	if ($intparent_id != '') {
+		                	$record_parent_id =	$intparent_id; 
+		                	//print "<br><b>$intparent_id</b>";              
+	                   	}
+	                }
+	            }				
+			}
+									
 			if ($record_id != "" && $record_title != "") {
 				if ($record_parent_id == "") {
 					$record_parent_id = $parent_id;
@@ -293,6 +320,7 @@ class Controlled_Vocab
                     " .$parent_id. ",
                     " .$child_id. "					
                  )";
+        
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -415,6 +443,32 @@ class Controlled_Vocab
         }
     }
 		
+    /**
+     * Method used to map external (content specific) to internal (database) id.
+     * kj 2007/08/27 kai.jauslin@library.ethz.ch	
+     * 
+     * @access public
+     * @param integer $cvo_external_id  The controlled vocabulary external ID
+     * @return string  The ID of the controlled vocabulary
+     */
+	function getInternalIDByExternalID($cvo_external_id)
+    {
+        $stmt = "SELECT
+                    cvo_id
+                 FROM
+                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
+                 WHERE
+                    cvo_external_id=".$cvo_external_id;
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return '';
+        } else {
+            return $res;
+        }
+    }
+        
     /**
      * Method used to get the title of a specific controlled vocabulary.
      *
