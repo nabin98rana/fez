@@ -465,6 +465,9 @@ class DuplicatesReport {
 		{
 			case self::MERGE_TYPE_ALL:
 		        $base_det = $this->mergeDetailsAll($base_record, $dup_record);
+		        if (!PEAR::isError($base_det)) {
+		        	$base_det = $this->mergeNormaliseKeywords($base_record, $dup_record, $base_det);
+	        	}
 			break;
 			case self::MERGE_TYPE_HIDDEN:
 				if ($base_record->getXmlDisplayId() == $dup_record->getXmlDisplayId()) {
@@ -473,11 +476,17 @@ class DuplicatesReport {
 			        $base_det = $this->mergeDetailsHiddenDiffDocType($base_record, $dup_record);
 		        }
 		        if (!PEAR::isError($base_det)) {
+			        $base_det = $this->removeDuplicateIdentifiers($base_record, $base_det);
+		        }
+		        if (!PEAR::isError($base_det)) {
 			        $base_det = $this->merge_R_Datastreams($base_record, $dup_record, $base_det);
 		        }
 			break;
 			case self::MERGE_TYPE_RM_ISI:
 		        $base_det = $this->mergeDetailsAll($base_record, $dup_record);
+		        if (!PEAR::isError($base_det)) {
+		        	$base_det = $this->mergeNormaliseKeywords($base_record, $dup_record, $base_det);
+	        	}
 		        if (!PEAR::isError($base_det)) {
 		        	$base_det = $this->overrideRMDetails($base_record, $dup_record, $base_det);
 	        	}
@@ -504,6 +513,12 @@ class DuplicatesReport {
         return 1;
     }
 
+    function mergeRecordsHiddenFields(&$base_record, &$dup_record)
+    {
+		return $this->mergeRecords($base_record, $dup_record, self::MERGE_TYPE_HIDDEN);
+    }
+    
+
 
     function mergeDetailsAll(&$base_record, &$dup_record)
     {
@@ -515,27 +530,45 @@ class DuplicatesReport {
         }
         return $base_det;
     }
-    
-    function mergeDetailGeneric(&$base_det, $xsdmf_id, $dup_value)
+
+    function mergeDetailGeneric(&$base_det, $xsdmf_id, $dup_value, $make_unique = true)
     {
     	if (!isset($base_det[$xsdmf_id]) || empty($base_det[$xsdmf_id])) {
             $base_det[$xsdmf_id] = $dup_value;
     	} elseif (!empty($dup_value) && !is_array($dup_value) && is_array($base_det[$xsdmf_id])) {
-            $base_det[$xsdmf_id] = array_values(array_unique(array_merge($base_det[$xsdmf_id], array($dup_value))));
+            if ($make_unique) {
+            	$base_det[$xsdmf_id] = array_values(array_unique(array_merge(
+											$base_det[$xsdmf_id], array($dup_value))));
+        	} else {
+            	$base_det[$xsdmf_id] = array_values(array_merge($base_det[$xsdmf_id], array($dup_value)));
+        	}
     	} elseif (is_array($dup_value)) {
 			if (is_array($base_det[$xsdmf_id])) {
-            	$base_det[$xsdmf_id] = array_values(array_unique(array_merge($base_det[$xsdmf_id], $dup_value)));
+	            if ($make_unique) {
+    	        	$base_det[$xsdmf_id] = array_values(array_unique(array_merge(
+    	        				        		$base_det[$xsdmf_id], $dup_value)));
+	        	} else {
+    	        	$base_det[$xsdmf_id] = array_values(array_merge($base_det[$xsdmf_id], $dup_value));
+	        	}
 			} else {
-        		$base_det[$xsdmf_id] = array_values(array_unique(array_merge(array($base_det[$xsdmf_id]), $dup_value)));
+	            if ($make_unique) {
+	        		$base_det[$xsdmf_id] = array_values(array_unique(array_merge(
+	        					        		array($base_det[$xsdmf_id]), $dup_value)));
+				} else {
+    	        	$base_det[$xsdmf_id] = array_values(array_merge(
+    	        					        	array($base_det[$xsdmf_id]), $dup_value));
+	        	}
         	}
         }
     }
 	
     
-    function mergeDetailsHiddenSameDocType(&$base_record, &$dup_record)
+    function mergeDetailsHiddenSameDocType(&$base_record, &$dup_record, $base_det = null)
     {
         // get the values for both records and copy over anything that isn't set in the base.
-        $base_det = $base_record->getDetails();
+        if (empty($base_det)) {
+        	$base_det = $base_record->getDetails();
+    	}
         $dup_det = $dup_record->getDetails();
         $base_record->getDisplay();
         $xsd_display_fields = Misc::keyArray($base_record->display->getMatchFieldsList(array("FezACML"), 
@@ -543,7 +576,7 @@ class DuplicatesReport {
     	foreach ($dup_det as $xsdmf_id => $dup_value) {
         	// skip everything except hidden fields
             if ($xsd_display_fields[$xsdmf_id]['xsdmf_html_input'] == 'hidden') {
-    	    	$this->mergeDetailGeneric($base_det, $xsdmf_id, $dup_value);
+    	    	$this->mergeDetailGeneric($base_det, $xsdmf_id, $dup_value, false);
 	    	}
     	}
         return $base_det;
@@ -571,7 +604,7 @@ class DuplicatesReport {
 			$base_det[$type_xsdmf_id] = array($base_det[$type_xsdmf_id]);
 		}
 		// copy over the identifiers from the dupe
-		foreach (array('rm_prn', 'isi_loc') as $id_type) {
+		foreach (array('rm_prn', 'isi_loc', 'isbn','issn') as $id_type) {
 			// don't merge if the identifier type is already in the base record
 			if (in_array($id_type, $base_det[$type_xsdmf_id])) {
 				continue;
@@ -586,14 +619,20 @@ class DuplicatesReport {
 
         return $base_det;
     }
-
-
-
-    function mergeRecordsHiddenFields(&$base_record, &$dup_record)
-    {
-		return $this->mergeRecords($base_record, $dup_record, self::MERGE_TYPE_HIDDEN);
-    }
     
+    function removeDuplicateIdentifiers(&$base_record, $base_det)
+    {
+		$id_xsdmf_id = $base_record->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!identifier');
+		$type_xsdmf_id = $base_record->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!identifier!type');
+		// put the actual identifier as the key as the type can be non-unique
+		$identifier_key_pairs = array_combine($base_det[$id_xsdmf_id], $base_det[$type_xsdmf_id]);
+		$base_det[$id_xsdmf_id] = array_keys($identifier_key_pairs);
+		$base_det[$type_xsdmf_id] = array_values($identifier_key_pairs);
+		return $base_det;
+    }
+
+
+
     function overrideRMDetails(&$base_record, &$dup_record, $base_det)
     {
 		$error = 0;
@@ -626,6 +665,22 @@ class DuplicatesReport {
 		}
     }
     
+    function mergeNormaliseKeywords(&$base_record, &$dup_record, $base_det)
+    {
+    	$base_keywords = Misc::array_flatten($base_record->getFieldValueBySearchKey('Keywords'),'',true);
+    	$dup_keywords = Misc::array_flatten($dup_record->getFieldValueBySearchKey('Keywords'),'',true);
+    	
+    	$base_keywords = array_map(create_function('$a', 'return ucwords(strtolower($a));'), $base_keywords);
+    	$dup_keywords = array_map(create_function('$a', 'return ucwords(strtolower($a));'), $dup_keywords);
+    	
+    	$sek_id = Search_Key::getID('Keywords');
+		$xsdmf_id = $base_record->display->xsd_html_match->getXSDMF_IDBySEK($sek_id);
+		if (is_numeric($xsdmf_id) && $xsdmf_id > 0) {
+    		$base_det[$xsdmf_id] = $base_keywords;
+    		$this->mergeDetailGeneric($base_det, $xsdmf_id, $dup_keywords);
+		}
+    	return $base_det;
+    }
     
     
     function mergeAuthorsRM_UQCited(&$base_record, &$dup_record, $base_det)

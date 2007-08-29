@@ -126,7 +126,7 @@ function purgeObject(pid)
     if (!confirm('This action will permanently delete the selected object.')) {
         return false;
     } else {
-        window.location.replace('{/literal}{$rel_url}workflow/delete.php?pid=' + pid + '&href={$smarty.server.REQUEST_URI}{literal}');
+        window.location.replace('{/literal}{$rel_url}workflow/delete.php?pid=' + pid + '&href={$smarty.server.REQUEST_URI|escape:'url'}{literal}');
         return true;
     }
 }
@@ -201,7 +201,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
         <tr>
           <td align="left" class="default" >
 			{if $list_type == 'community_list' && $isAdministrator}
-			<br /> <a target="_top" title="create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI}"><img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" /> <b>Create New Community</b></a>&nbsp;
+			<br /> <a target="_top" title="create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" /> <b>Create New Community</b></a>&nbsp;
 			{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
 				{if $childXDisplayOptions != 0}
 			<br /> <img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
@@ -578,7 +578,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
                             {else}
                               {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
                			    {/if}
-			<a href="{$wf_url}?pid={$list[i].pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].xdis_id.0}&amp;wft_id={$list[i].workflows[w].wft_id}&amp;href={$smarty.server.REQUEST_URI}"><img alt="{$list[i].workflows[w].wfl_title}" title="{$list[i].workflows[w].wfl_title}" src="{$rel_url}{$wf_icon}" border="0" /></a> 
+			<a href="{$wf_url}?pid={$list[i].pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].xdis_id.0}&amp;wft_id={$list[i].workflows[w].wft_id}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img alt="{$list[i].workflows[w].wfl_title}" title="{$list[i].workflows[w].wfl_title}" src="{$rel_url}{$wf_icon}" border="0" /></a> 
 			  {/section}
 			      {if $isAdministrator}
 			<a href="javascript:void(null);" onclick="javascript: purgeObject('{$list[i].pid|escape}');" 
@@ -643,7 +643,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
         <tr>
           <td align="left" class="default" >
 			{if $list_type == 'community_list' && $isAdministrator}
-			<br /> <a target="_top" title="create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI}"><img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" /> <b>Create New Community</b></a>&nbsp;
+			<br /> <a target="_top" title="create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" /> <b>Create New Community</b></a>&nbsp;
 			{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
 				{if $childXDisplayOptions != 0}
 			<br /> <img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
