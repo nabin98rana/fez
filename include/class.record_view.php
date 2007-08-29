@@ -151,7 +151,7 @@ class RecordView {
 						}
 					}
 				}							
-				if ($dis_field["xsdmf_use_parent_option_list"] == 1) { 
+				if ($dis_field["xsdmf_use_parent_option_list"] == 1 && is_array($parent_relationships)) {
 					// if the display field inherits this list from a parent then get those options
 					// Loop through the parents
 					foreach ($parent_relationships as $pkey => $prel) {
