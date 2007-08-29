@@ -231,7 +231,7 @@ class PEAR
 //		echo "|";
 //		echo is_subclass_of($data, 'pear_error');
         return (bool)(is_object($data) &&
-                      (get_class($data) == 'pear_error' ||
+                      (strtolower(get_class($data)) == 'pear_error' ||
                       is_subclass_of($data, 'pear_error')));
     }
 

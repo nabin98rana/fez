@@ -405,11 +405,15 @@ class DuplicatesReport {
 	    	            } else {
     	    	            $merge_res = $this->mergeRecords($base_record, $dup_record);
         	    	    }
-            		    if ($merge_res > 0) {
+            		    if (!PEAR::isError($merge_res)) {
 					        // set some history on the object so we know why it was merged.
 				    	    History::addHistory($base_pid, $wfl_id, "", "", false, 
 					        	'', "Merged on LOC_ISI with ".$dup_pid);
     	        	        $this->markDuplicate($base_pid, $dup_pid);
+        	    	    } else {
+        	    	     	if (!empty($this->bgp)) {
+                    	    	$this->bgp->setStatus("Merge failed: ".$merge_res->getMessage());
+	                    	}
         	    	    }
         		    } else {
         		    	// just pretend to merge
@@ -428,7 +432,8 @@ class DuplicatesReport {
         //Error_Handler::debugStart();
 		if ($base_record->getXmlDisplayId() != $dup_record->getXmlDisplayId()) {
 			// can't automerge records of different document types
-			return -1;
+			$error = PEAR::raiseError("Can't automerge records of different document types");
+			return $error;
 		}
         $base_rm_prn = $this->getIdentifier($base_record,'rm_prn');
         $dup_isi_loc = $this->getIdentifier($dup_record, 'isi_loc');
@@ -443,7 +448,7 @@ class DuplicatesReport {
         //if ($merge_res > 0) {
 	    //    $merge_res = $this->mergeRecords($base_record, $dup_record, self::MERGE_TYPE_HIDDEN);
         //}
-        if ($merge_res > 0) {
+        if (!PEAR::isError($merge_res)) {
 	        $wfl_id = $this->getWorkflowId();
 		    // set some history on the object so we know why it was merged.
 		    History::addHistory($base_record->pid, $wfl_id, "", "", false, 
@@ -467,23 +472,23 @@ class DuplicatesReport {
 		        } else {
 			        $base_det = $this->mergeDetailsHiddenDiffDocType($base_record, $dup_record);
 		        }
-		        if (is_array($base_det)) {
+		        if (!PEAR::isError($base_det)) {
 			        $base_det = $this->merge_R_Datastreams($base_record, $dup_record, $base_det);
 		        }
 			break;
 			case self::MERGE_TYPE_RM_ISI:
 		        $base_det = $this->mergeDetailsAll($base_record, $dup_record);
-		        if (is_array($base_det)) {
+		        if (!PEAR::isError($base_det)) {
 		        	$base_det = $this->overrideRMDetails($base_record, $dup_record, $base_det);
 	        	}
-		        if (is_array($base_det)) {
+		        if (!PEAR::isError($base_det)) {
 			        $base_det = $this->mergeAuthorsRM_UQCited($base_record, $dup_record, $base_det);
 		        }
 			break;
 		}
 
 		// check for errors and don't merge if there was a problem
-		if (!is_array($base_det)) {
+	    if (PEAR::isError($base_det)) {
 			return $base_det;
 		}
         
@@ -516,12 +521,12 @@ class DuplicatesReport {
     	if (!isset($base_det[$xsdmf_id]) || empty($base_det[$xsdmf_id])) {
             $base_det[$xsdmf_id] = $dup_value;
     	} elseif (!empty($dup_value) && !is_array($dup_value) && is_array($base_det[$xsdmf_id])) {
-            $base_det[$xsdmf_id] = array_unique(array_merge($base_det[$xsdmf_id], array($dup_value)));
+            $base_det[$xsdmf_id] = array_values(array_unique(array_merge($base_det[$xsdmf_id], array($dup_value))));
     	} elseif (is_array($dup_value)) {
 			if (is_array($base_det[$xsdmf_id])) {
-            	$base_det[$xsdmf_id] = array_unique(array_merge($base_det[$xsdmf_id], $dup_value));
+            	$base_det[$xsdmf_id] = array_values(array_unique(array_merge($base_det[$xsdmf_id], $dup_value)));
 			} else {
-        		$base_det[$xsdmf_id] = array_unique(array_merge(array($base_det[$xsdmf_id]), $dup_value));
+        		$base_det[$xsdmf_id] = array_values(array_unique(array_merge(array($base_det[$xsdmf_id]), $dup_value)));
         	}
         }
     }
@@ -605,11 +610,13 @@ class DuplicatesReport {
 											'!relatedItem!part!detail','Volume','!part!detail!number');
 		if ($xsdmf_id > 0) {
 			if (!empty($base_det[$xsdmf_id]) && $base_det[$xsdmf_id] != $dup_det[$xsdmf_id]) {
-				$error = -1;
+				$error = PEAR::raiseError("The base record has a different Volume value to the duplicate");
 			} elseif (empty($base_det[$xsdmf_id])) {
 				$base_det[$xsdmf_id] = $dup_det[$xsdmf_id];
 			}
 		} else {
+			Error_Handler::logError("Expected Duplicate record to have a Volume "
+					. "sublooping element on !part!detail!number", __FILE__,__LINE__);
 			$error = $xsdmf_id; // this will be an error code from getXSDMF_ID_ByElementInSubElement
 		}
 		if (empty($error)) {
@@ -650,24 +657,33 @@ class DuplicatesReport {
 				$res_author_ids[] = $dup_author_ids[$ii];
 			} elseif (empty($base_author_ids[$ii])) {
 				$lev = levenshtein($base_authors[$ii], $dup_authors[$ii]);
-				if ($lev < strlen($dup_authors[$ii]) / 2) {
+				$minlen = min(strlen($base_authors[$ii]), strlen($dup_authors[$ii]));
+				if ($lev < $minlen / 2) {
 					$res_authors[] = $dup_authors[$ii];
 					$res_author_ids[] = $dup_author_ids[$ii];
 				} else {
-					$error = -1;
+					$error = PEAR::raiseError("Author names '" . $base_authors[$ii] . "' and '" 
+						. $dup_authors[$ii] 
+						. "' are too different to be confident that they are the same person (diff:"
+						. $lev . ")");
 					break;
 				}
 			} elseif (empty($dup_author_ids[$ii])) { 
 				$lev = levenshtein($base_authors[$ii], $dup_authors[$ii]);
-				if ($lev < strlen($dup_authors[$ii]) / 2) {
+				$minlen = min(strlen($base_authors[$ii]), strlen($dup_authors[$ii]));
+				if ($lev < $minlen / 2) {
 					$res_authors[] = $dup_authors[$ii];
 					$res_author_ids[] = $base_author_ids[$ii];
 				} else {
-					$error = -1;
+					$error = PEAR::raiseError("Author names '" . $base_authors[$ii] . "' and '"
+						. $dup_authors[$ii]
+						. "' are too different to be confident that they are the same person (diff:"
+						. $lev . ")");
 					break;
 				}
 			} else {
-				$error = -1;
+				$error = PEAR::raiseError("Author names '".$base_authors[$ii]."' and '".$dup_authors[$ii]
+						."' couldn't be merged");
 				break;
 			}
 		}
@@ -705,6 +721,8 @@ class DuplicatesReport {
 			    if (empty($links_xsdmf_id) || $links_xsdmf_id < 0 
 			    		|| empty($link_labels_xsdmf_id) || $link_labels_xsdmf_id < 0) {
 		        	Error_Handler::logError("Couldn't merge the record link ".$link,__FILE__,__LINE__);
+		        	$error = PEAR::raiseError("Couldn't merge the record link: bad xsdmf_id on base "
+		        		. "document type");
 		        	break;
 		        }
                 $this->mergeDetailGeneric($base_det, $links_xsdmf_id, $link);

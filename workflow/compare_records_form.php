@@ -87,8 +87,8 @@ if (@$_REQUEST['action'] == 'change_dup_pid') {
 } elseif (@$_REQUEST['action'] == 'auto_merge') {
     $right_record = new RecordObject($current_dup_pid);
     $res = $duplicates_report->autoMergeRecords($left_record,$right_record);
-    if ($res < 0) {
-    	Session::setMessage('The records could not be automatically merged');
+    if (PEAR::isError($res)) {
+    	Session::setMessage('The records could not be automatically merged: '.$res->getMessage());
     } else {
     	Session::setMessage('The records were successfully automatically merged');
     }
