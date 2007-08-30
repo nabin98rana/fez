@@ -711,7 +711,7 @@ class DuplicatesReport {
 				$res_authors[] = $dup_authors[$ii];
 				$res_author_ids[] = $dup_author_ids[$ii];
 			} elseif (empty($base_author_ids[$ii])) {
-				$lev = levenshtein($base_authors[$ii], $dup_authors[$ii]);
+				$lev = $this->calcAuthorLevenshtein($base_authors[$ii], $dup_authors[$ii]);
 				$minlen = min(strlen($base_authors[$ii]), strlen($dup_authors[$ii]));
 				if ($lev < $minlen / 2) {
 					$res_authors[] = $dup_authors[$ii];
@@ -724,7 +724,7 @@ class DuplicatesReport {
 					break;
 				}
 			} elseif (empty($dup_author_ids[$ii])) { 
-				$lev = levenshtein($base_authors[$ii], $dup_authors[$ii]);
+				$lev = $this->calcAuthorLevenshtein($base_authors[$ii], $dup_authors[$ii]);
 				$minlen = min(strlen($base_authors[$ii]), strlen($dup_authors[$ii]));
 				if ($lev < $minlen / 2) {
 					$res_authors[] = $dup_authors[$ii];
@@ -755,6 +755,15 @@ class DuplicatesReport {
 		} else {
 			return $error;
 		}
+	}
+	
+	function calcAuthorLevenshtein($left, $right)
+	{
+		// remove spaces and punctuation from authorname
+		$pattern = '/[\s,.]/';
+		$left = preg_replace($pattern,'',$left);
+		$right = preg_replace($pattern,'',$right);
+		return levenshtein($left, $right);
 	}
 	
 	function merge_R_Datastreams(&$base_record, &$dup_record, $base_det)
