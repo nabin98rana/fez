@@ -19,10 +19,14 @@ class BackgroundProcess_Bulk_Move_Record_Collection extends BackgroundProcess
 
         $bmrc = new Bulk_Move_Record_Collection;
         $bmrc->setBGP($this);
+
+		if (!empty($options)) {
+			$this->setStatus("Running search");
+			$pids = $bmrc->getPidsFromSearchBGP($options);
+			$this->setStatus("Found ".count($pids). " records");
+		}
 		if (!empty($pids) && is_array($pids)) { 
-			foreach ($pids as $pid) {
-                $bmrc->moveBGP($pid, $parent_pid, $regen, true);
-			}
+            $bmrc->moveBGP($pids, $parent_pid, $regen, true);
 		}
         $this->setState(2);
     }

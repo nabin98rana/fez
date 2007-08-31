@@ -127,11 +127,10 @@ class Pager
             "isMemberOf"     => $isMemberOf != "" ? $isMemberOf : "ALL",            
             "sort_order"     => is_numeric($sort_order) ? $sort_order : 1,
             // quick filter form
-            'keywords'       => Pager::getParam('keywords')
+            'keywords'       => Pager::getParam('keywords',$params)
         );
 
 		$existing_cookie = Pager::getCookieParams(); //Why do we need to get this for? commented out CK 6/12/06 // uncommented for search_key expansion by CK 27/2/07
-		global $HTTP_POST_VARS, $HTTP_GET_VARS; //or this // as above
 
 		$sek_count = Search_Key::getMaxID();
         $tempArray = array('searchKey_count' => $sek_count);
@@ -140,11 +139,9 @@ class Pager
         if ($sek_count > 0) {
             $searchKeyArray = array();
             $from_cookie = false;
-            if (isset($HTTP_GET_VARS['search_keys'])) {
-                $searchKeyArray = $HTTP_GET_VARS['search_keys'];
-            } elseif (isset($HTTP_POST_VARS['search_keys'])) {
-                $searchKeyArray = $HTTP_POST_VARS['search_keys'];
-            } else {
+            $searchKeyArray = Pager::getParam('search_keys',$params);
+            if (empty($searchKeyArray)) {
+                $searchKeyArray = array();
                 $from_cookie = true;
                 for($x=0;$x<$sek_count;$x++) {
                     $existing_cookie = Pager::getCookieParams();

@@ -54,6 +54,17 @@
 {/section}
      <input name="search_button" class="button quick_search_button" type="submit" value="Search" />
      <!-- <input class="button" type="button" value="Clear" onclick="javascript:clearFilters(this.form);"> -->
+
+{if $user_can_edit && $bulk_search_workflows}
+<div class="quick_search_hide">
+<input type="button" value="Run Workflow &gt;" class="shortcut" 
+	onclick="javascript:workflowBulkChangeSearch(this.form, '{$rel_url}');" />
+<select name="wft_id" class="default">
+    {html_options options=$bulk_search_workflows}
+</select>
+</div>
+{/if}
+
 </div>
 
  	 {if $browser.ie5up or $browser.ns6up or $browser.gecko}

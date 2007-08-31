@@ -1951,7 +1951,8 @@ class RecordGeneral
 				$stmt = "SELECT rmf_int FROM ".$dbtp."record_matching_field 
 						INNER JOIN ".$dbtp."xsd_display_matchfields 
 						ON xsdmf_id=rmf_xsdmf_id AND xsdmf_element = '!xdis_id' 
-						WHERE rmf_rec_pid_num = 41787 AND rmf_rec_pid = 'rqfdemo:41787'";
+						WHERE rmf_rec_pid_num = ".Misc::numPid($this->pid)." 
+							AND rmf_rec_pid = '".$this->pid."'";
 				$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 				$this->xdis_id = $res;
 		        if (PEAR::isError($res)) {

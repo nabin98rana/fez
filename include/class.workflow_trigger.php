@@ -50,7 +50,8 @@ class WorkflowTrigger
             4 => "Create",  // creating a record
             5 => "Datastream",  // triggers on datastreams
             6 => "Export",  // exporting records
-            7 => "Bulk Change"  // Bulk/Mass changes to many objects at once            
+            7 => "Bulk Change",  // Bulk/Mass changes to many objects at once            
+            8 => "Bulk Change Search" // Changes to objects from a search result
             );
     }
 

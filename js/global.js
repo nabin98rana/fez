@@ -868,6 +868,22 @@ function workflowItems(f, rel_url)
     f.submit();
 }
 
+function workflowBulkChangeSearch(f, rel_url)
+{
+    if (f.wft_id.options[f.wft_id.selectedIndex].value == '') {
+        alert('Please choose the bulk workflow to use these objects.');
+        f.users.focus();
+        selectField(f, 'wft_id');
+        return false;
+    }
+    f.wft_id = f.wft_id.selectedIndex;
+    f.cat.value = 'select_workflow';
+    f.action = rel_url + 'workflow/bulk_change_from_search.php';
+    f.target='';
+    f.method='post';
+    f.submit();
+}
+
 function resizePager(f, page_url)
 {
     var pagesize = f.page_size.options[f.page_size.selectedIndex].value;   

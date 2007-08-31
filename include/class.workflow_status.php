@@ -66,6 +66,7 @@ class WorkflowStatus {
     var $href;
     var $states_done = array();
     var $record_title;
+    //var $request_params; // copy of $_REQUEST when workflow was started
     
     /**
      * Constructor.   These variables don't really need to be set depending on 
@@ -80,6 +81,7 @@ class WorkflowStatus {
         $this->wft_id= $wft_id;
         $this->xdis_id= $xdis_id;
         $this->dsInfo = $dsInfo;
+        //$this->request_params = $_REQUEST;
         $this->id = $this->newDBSession();
         $this->setSession();
     }

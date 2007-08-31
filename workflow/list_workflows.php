@@ -81,7 +81,7 @@ $tpl->assign('xdis_list', $xdis_list);
 if ($pid == -1) {
     // the -1 thing only works when creating a record, you can't update a non-object.
 
-} elseif (!empty($pids)) {
+} elseif (!empty($pids) || $trigger_type == 'Bulk Change Search') {
 
 	
     $pid = -2;

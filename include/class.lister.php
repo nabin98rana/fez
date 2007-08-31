@@ -87,6 +87,9 @@ class Lister
             $tpl->assign("isFezUser", $username);
         }
         $tpl->assign("isAdministrator", $isAdministrator);
+        if (Auth::canEdit() == 1) {
+        	$tpl->assign("user_can_edit", 1);
+        }
         $pager_row = Pager::getParam('pager_row',$params);
         if (empty($pager_row)) {
             $pager_row = 0;
@@ -112,7 +115,8 @@ class Lister
 			}	
 	    }               
         $tpl->assign("search_keys", $search_keys);
-        $options = Pager::saveSearchParams($params);   
+        $options = Pager::saveSearchParams($params);
+        //print_r($options);
         $options['tpl_idx'] = $tpl_idx;     
         $tpl->assign("options", $options);
         $terms = Pager::getParam('terms',$params);
@@ -169,9 +173,18 @@ class Lister
         //print_r($sort_by);
         $list_info = array();
         
-		$bulk_workflows = WorkflowTrigger::getAssocListByTrigger("-1", 7); //get the bulk change workflows
+        //get the bulk change workflows
+		$bulk_workflows = WorkflowTrigger::getAssocListByTrigger("-1", 
+			        							WorkflowTrigger::getTriggerId('Bulk Change')); 
 //		print_r($bulk_workflows);
         $tpl->assign("bulk_workflows", $bulk_workflows);
+
+		$bulk_search_workflows = WorkflowTrigger::getAssocListByTrigger("-1", 
+			        							WorkflowTrigger::getTriggerId('Bulk Change Search')); 
+//		print_r($bulk_search_workflows);
+        $tpl->assign("bulk_search_workflows", $bulk_search_workflows);
+
+
         if (!empty($collection_pid)) {
             if (empty($sort_by)) {
                 $sort_by = "searchKey".Search_Key::getID("Title");

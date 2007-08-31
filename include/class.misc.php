@@ -116,6 +116,9 @@ class Misc
  	    return array($data,$info);  
 	}
 
+	/**
+	 * @return the numeric part of the pid
+	 */
 	function numPID($pid) {
 		return substr($pid, strpos($pid, ":")+1);
 	}
