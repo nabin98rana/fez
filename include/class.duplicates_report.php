@@ -434,7 +434,7 @@ class DuplicatesReport {
     
     function autoMergeRecords(&$base_record, &$dup_record)
     {
-        //Error_Handler::debugStart();
+        Error_Handler::debugStart();
 		if ($base_record->getXmlDisplayId() != $dup_record->getXmlDisplayId()) {
 			// can't automerge records of different document types
 			$error = PEAR::raiseError("Can't automerge records of different document types");
@@ -458,7 +458,7 @@ class DuplicatesReport {
 		    History::addHistory($base_record->pid, $wfl_id, "", "", false, '',
 		    		"Merged with " . $dup_record->pid . " by " . Auth::getUserFullName(), null);
 		}
-        //Error_Handler::debugStop();
+        Error_Handler::debugStop();
 		return $merge_res;
     }
     
@@ -569,6 +569,18 @@ class DuplicatesReport {
 											$base_det[$xsdmf_id], array($dup_value))));
         	} else {
             	$base_det[$xsdmf_id] = array_values(array_merge($base_det[$xsdmf_id], array($dup_value)));
+        	}
+        } elseif (!empty($dup_value) && !is_array($dup_value) 
+        		    && !empty($base_det[$xsdmf_id]) && !is_array($base_det[$xsdmf_id])) {
+        	// check if this is supposed to be a multiple element
+        	$xsdmf = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
+        	if ($xsdmf['xsdmf_multiple'] == 1 || $xsdmf['xsdmf_html_input'] == 'multiple') {
+	            if ($make_unique) {
+    	        	$base_det[$xsdmf_id] = array_values(array_unique(
+    	        			    	        	array($base_det[$xsdmf_id], $dup_value)));
+	        	} else {
+    	        	$base_det[$xsdmf_id] = array_values(array($base_det[$xsdmf_id], $dup_value));
+	        	}
         	}
     	} elseif (is_array($dup_value)) {
 			if (is_array($base_det[$xsdmf_id])) {
