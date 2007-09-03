@@ -30,7 +30,7 @@ function validateForm(f)
  			onclick="return setAction(this.form,this.name);" class="button"/>
 	{/if}
  </div>
-<div>This report has {$list_meta.resolved_count} resolved items and {$list_meta.unresolved_count} unresolved items. {$list_meta.isi_loc_match_count} ISI LOC Matches</div>
+<div>This report has {$list_meta.resolved_count} resolved items and {$list_meta.unresolved_count} unresolved items. {$list_meta.isi_loc_match_count} ISI LOC Matches. {$list_meta.merge_ok_count} automerged ok.</div>
 <table class="default listing">
 <tr class="table_heading_row">
 <td>PID</td>
@@ -46,7 +46,7 @@ function validateForm(f)
 <td>{$listing[ii].title}</td>
 <td>{$listing[ii].count}</td>
 <td>{$listing[ii].probability}</td>
-<td>{if $listing[ii].resolved}<span class="yes">resolved</span>{else}<span class="no">unresolved</span>{/if} {if $listing[ii].isi_loc_match}(ISI LOC Match){/if} {if $merge_result}<span class="yes">(Merge ok)</span>{/if}</td>
+<td>{if $listing[ii].resolved}<span class="yes">resolved</span>{else}<span class="no">unresolved</span>{/if} {if $listing[ii].isi_loc_match}(ISI LOC Match){/if} {if $listing[ii].merge_result}<span class="yes">(Merge ok)</span>{/if}</td>
 </tr>
 {sectionelse}
 <tr class="{$row_class}">

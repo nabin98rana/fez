@@ -492,6 +492,9 @@ class DuplicatesReport {
 		        if (!PEAR::isError($base_det)) {
 		        	$base_det = $this->mergeNormaliseKeywords($base_record, $dup_record, $base_det);
 	        	}
+		        if (!PEAR::isError($base_det)) {
+			        $base_det = $this->mergeAuthorsGeneral($base_record, $dup_record, $base_det);
+		        }
 			break;
 			case self::MERGE_TYPE_HIDDEN:
 				if ($base_record->getXmlDisplayId() == $dup_record->getXmlDisplayId()) {
@@ -710,7 +713,10 @@ class DuplicatesReport {
     	return $base_det;
     }
     
-    
+    /**
+     * This function prefers to use the name from the dupe as the UQ Cited records apparently
+     * have better names.
+     */
     function mergeAuthorsRM_UQCited(&$base_record, &$dup_record, $base_det)
     {
     	/* the rules are:
@@ -784,6 +790,84 @@ class DuplicatesReport {
 			return $error;
 		}
 	}
+
+	/**
+	 * This function will use the base record author names if there is one as we have no reason to 
+	 * think the dupe will be any better.
+	 */
+    function mergeAuthorsGeneral(&$base_record, &$dup_record, $base_det)
+    {
+    	$error = 0;
+    	
+    	$base_authors = Misc::array_flatten($base_record->getFieldValueBySearchKey('Author'),'',true);
+    	$base_author_ids = Misc::array_flatten($base_record->getFieldValueBySearchKey('Author ID'),'',true);
+    	
+    	$dup_authors = Misc::array_flatten($dup_record->getFieldValueBySearchKey('Author'),'',true);
+    	$dup_author_ids = Misc::array_flatten($dup_record->getFieldValueBySearchKey('Author ID'),'',true);
+    	
+    	$res_authors = array();
+    	$res_author_ids = array();
+
+		if (empty($dup_authors) && empty($base_authors)) {
+			// nothing to do here
+			return 	$base_det;		
+		}
+    	
+		for ($ii = 0; $ii < count($dup_authors); $ii++) {
+			if (empty($base_authors[$ii])) {
+				$res_authors[] = $dup_authors[$ii];
+				$res_author_ids[] = $dup_author_ids[$ii];
+			} elseif (!empty($base_author_ids[$ii]) &&  $base_author_ids[$ii] == $dup_author_ids[$ii]) {
+				$res_authors[] = $base_authors[$ii];
+				$res_author_ids[] = $base_author_ids[$ii];
+			} elseif (empty($base_author_ids[$ii])) {
+				$lev = $this->calcAuthorLevenshtein($base_authors[$ii], $dup_authors[$ii]);
+				$minlen = min(strlen($base_authors[$ii]), strlen($dup_authors[$ii]));
+				if ($lev < $minlen / 2) {
+					$res_authors[] = $base_authors[$ii];
+					$res_author_ids[] = $dup_author_ids[$ii]; // maybe the dupe has an id
+				} else {
+					$error = PEAR::raiseError("Author names '" . $base_authors[$ii] . "' and '" 
+						. $dup_authors[$ii] 
+						. "' are too different to be confident that they are the same person (diff:"
+						. $lev . ")");
+					break;
+				}
+			} elseif (empty($dup_author_ids[$ii])) { 
+				$lev = $this->calcAuthorLevenshtein($base_authors[$ii], $dup_authors[$ii]);
+				$minlen = min(strlen($base_authors[$ii]), strlen($dup_authors[$ii]));
+				if ($lev < $minlen / 2) {
+					$res_authors[] = $base_authors[$ii];
+					$res_author_ids[] = $base_author_ids[$ii];
+				} else {
+					$error = PEAR::raiseError("Author names '" . $base_authors[$ii] . "' and '"
+						. $dup_authors[$ii]
+						. "' are too different to be confident that they are the same person (diff:"
+						. $lev . ")");
+					break;
+				}
+			} else {
+				$error = PEAR::raiseError("Author names '".$base_authors[$ii]."' and '".$dup_authors[$ii]
+						."' couldn't be merged");
+				break;
+			}
+		}
+		
+		if (empty($error)) {
+			// find the authors and ids xsdmf_ids and merge them in
+			$sek_id = Search_Key::getID('Author');
+			$xsdmf_id = $base_record->display->xsd_html_match->getXSDMF_IDBySEK($sek_id);
+			$base_det[$xsdmf_id] = $res_authors;
+			$sek_id = Search_Key::getID('Author ID');
+			$xsdmf_id = $base_record->display->xsd_html_match->getXSDMF_IDBySEK($sek_id);
+			$base_det[$xsdmf_id] = $res_author_ids;
+			return $base_det;
+		} else {
+			return $error;
+		}
+	}
+
+
 	
 	function calcAuthorLevenshtein($left, $right)
 	{
@@ -944,6 +1028,7 @@ class DuplicatesReport {
         $unresolved_count = 0;
         $isi_loc_match_count = 0;
         $found_count = 0;
+        $merge_ok_count = 0;
         for ($ii = 0; $ii < $items->length; $ii++) {
             $itemNode = $items->item($ii);
             if (!empty($itemNode)) {
@@ -956,6 +1041,9 @@ class DuplicatesReport {
 	            }
 	            if ($isi_match) {
 	            	$isi_loc_match_count++;
+            	}
+            	if ($merge_result) {
+            		$merge_ok_count++;
             	}
                 if ($found_count >= $first_item && $found_count < $last_item 
                 	&& (($resolved && $show_resolved) || !$resolved)) {
@@ -976,7 +1064,8 @@ class DuplicatesReport {
             }
         }
         $pages = intval(floor(($found_count / $page_size) + 0.999999));
-        $list_meta = compact('pages', 'resolved_count', 'unresolved_count','isi_loc_match_count');
+        $list_meta = compact('pages', 'resolved_count', 'unresolved_count','isi_loc_match_count',
+        						'merge_ok_count');
         return compact('listing','list_meta');
     }
     
@@ -1042,7 +1131,7 @@ class DuplicatesReport {
  				if ($node->nodeType == XML_ELEMENT_NODE) {
 	 				$pid = $node->getAttribute('pid');
  					if (!$show_resolved) {
- 						list($max_score,$resolved,$isi_match) = $this->getDupsStats($node, $xpath);
+ 						list($max_score,$resolved,$isi_match,$merge_result) = $this->getDupsStats($node, $xpath);
  					}
  					if ($show_resolved || !$resolved) {
  						$done = true;
@@ -1160,8 +1249,20 @@ class DuplicatesReport {
         }
         return 1;
     }
+
+    function setMergeResult($base_pid, $dup_pid, $mres)
+    {
+    	$res = $this->setMergeResultXML($base_pid, $dup_pid, $mres);
+    	if ($res == 1) {
+            $this->addReportToFedoraObject($this->xml_dom->saveXML());
+        } else {
+            Error_Handler::logError("Failed to set merge result for dup "
+                .$dup_pid." on base ".$base_pid
+                ." in XML (report pid".$this->pid.")", __FILE__,__LINE__);
+        }
+    }
     
-    function setMergeResult($base_pid, $dup_pid, $res)
+    function setMergeResultXML($base_pid, $dup_pid, $mres)
     {
         $report_dom = $this->getXML_DOM();
         if (empty($report_dom)) {
@@ -1174,10 +1275,11 @@ class DuplicatesReport {
             return -1;
         }
         $xpath = new DOMXPath($report_dom);
-        $items = $xpath->query('/DuplicatesReport/duplicatesReportItem[@pid=\''.$base_pid.'\']/duplicateItem[@pid=\''.$dup_pid.'\']');
+        $items = $xpath->query('/DuplicatesReport/duplicatesReportItem[@pid=\''.$base_pid.'\']'
+        	        .'/duplicateItem[@pid=\''.$dup_pid.'\']');
         if ($items->length > 0) {
             $item = $items->item(0);
-            $item->setAttribute('mergeResult',$res);
+            $item->setAttribute('mergeResult',$mres);
         } else {
             // the Pids should exist otherwise it's an error
             return -1;
