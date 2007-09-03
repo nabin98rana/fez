@@ -377,6 +377,13 @@ class DuplicatesReport {
         $items = $xpath->query('/DuplicatesReport/duplicatesReportItem');
         $wfl_id = $this->getWorkflowId();
 
+        if (defined('APP_RQF_REALLY_AUTO_MERGE') && APP_RQF_REALLY_AUTO_MERGE === true) {
+        	$test_mode = false;
+    	} else {
+        	$test_mode = true;
+        	$this->bgp->setStatus("Running in test mode.  No changes to records will be saved");
+    	}
+
         $progress = 0;
         foreach ($items as $report_item) {
             $base_pid = $report_item->getAttribute('pid');
@@ -394,33 +401,31 @@ class DuplicatesReport {
                 if ($base_record->getXmlDisplayId() == $dup_record->getXmlDisplayId()
                 		&& $this->compareISI_LOC($base_record, $dup_record)) {
                     // yikes they match!
-                    if (defined('APP_RQF_REALLY_AUTO_MERGE') && APP_RQF_REALLY_AUTO_MERGE === true) {
-                 	   if (!empty($this->bgp)) {
-                    	    $this->bgp->setStatus("Merging on matching isi_loc ".$dup_pid);
-	                    }
-    	                $base_rm_prn = $report_item->getAttribute('rm_prn');
-        	            $dup_isi_loc = $dup_item->getAttribute('isi_loc');
-            	        if (!empty($base_rm_prn) && !empty($dup_isi_loc)) {
-	            	        $merge_res = $this->mergeRecords($base_record, $dup_record, self::MERGE_TYPE_RM_ISI);
-	    	            } else {
-    	    	            $merge_res = $this->mergeRecords($base_record, $dup_record);
-        	    	    }
-            		    if (!PEAR::isError($merge_res)) {
+             	   if (!empty($this->bgp)) {
+	            	    $this->bgp->setStatus("Merging on matching isi_loc ".$dup_pid);
+    	            }
+    		        if ($this->recordIsResearchMaster($base_record) 
+        	        	&& $this->recordIsUQCited($dup_record)) {
+        		        $merge_res = $this->mergeRecords($base_record, $dup_record,
+        		        	            		        self::MERGE_TYPE_RM_ISI, $test_mode);
+    	            } else {
+    	        	    $merge_res = $this->mergeRecords($base_record, $dup_record, 
+	    	            			    	            self::MERGE_TYPE_ALL, $test_mode);
+		    	    }
+        		    if (!PEAR::isError($merge_res)) {
+		                if (!$test_mode) {
 					        // set some history on the object so we know why it was merged.
 				    	    History::addHistory($base_pid, $wfl_id, "", "", false, 
 					        	'', "Merged on LOC_ISI with ".$dup_pid);
     	        	        $this->markDuplicate($base_pid, $dup_pid);
-        	    	    } else {
-        	    	     	if (!empty($this->bgp)) {
-                    	    	$this->bgp->setStatus("Merge failed: ".$merge_res->getMessage());
-	                    	}
-        	    	    }
-        		    } else {
-        		    	// just pretend to merge
-	             		if (!empty($this->bgp)) {
-                    	    $this->bgp->setStatus("Matching isi_loc with " . $dup_pid . " (test mode: no merge has taken place) ");
-	                    }
-					}		    		
+	        	        }
+	        	        $this->setMergeResult($base_pid, $dup_pid, 'ok');
+            	    } else {
+            	     	if (!empty($this->bgp)) {
+                	    	$this->bgp->setStatus("Merge failed: ".$merge_res->getMessage());
+	                	}
+	                	$this->setMergeResult($base_pid, $dup_pid, $merge_res->getMessage());
+            	    }
                 }
             }
         }
@@ -435,9 +440,8 @@ class DuplicatesReport {
 			$error = PEAR::raiseError("Can't automerge records of different document types");
 			return $error;
 		}
-        $base_rm_prn = $this->getIdentifier($base_record,'rm_prn');
-        $dup_isi_loc = $this->getIdentifier($dup_record, 'isi_loc');
-        if (!empty($base_rm_prn) && !empty($dup_isi_loc)) {
+        
+        if ($this->recordIsResearchMaster($base_record) && $this->recordIsUQCited($dup_record)) {
 	        $merge_res = $this->mergeRecords($base_record, $dup_record, self::MERGE_TYPE_RM_ISI);
 	    } else {
     	    $merge_res = $this->mergeRecords($base_record, $dup_record);
@@ -451,14 +455,34 @@ class DuplicatesReport {
         if (!PEAR::isError($merge_res)) {
 	        $wfl_id = $this->getWorkflowId();
 		    // set some history on the object so we know why it was merged.
-		    History::addHistory($base_record->pid, $wfl_id, "", "", false, 
+		    History::addHistory($base_record->pid, $wfl_id, "", "", false, '',
 		    		"Merged with " . $dup_record->pid . " by " . Auth::getUserFullName(), null);
 		}
         //Error_Handler::debugStop();
 		return $merge_res;
     }
     
-    function mergeRecords(&$base_record, &$dup_record, $merge_type = self::MERGE_TYPE_ALL)
+    function recordIsResearchMaster(&$record)
+    {
+    	$rm_prn = $this->getIdentifier($record,'rm_prn');
+    	if (!empty($rm_prn)) {
+    		return true;
+    	}
+    	return false;
+    }
+    
+    function recordIsUQCited(&$record)
+    {
+    	$rm_prn = $this->getIdentifier($record,'rm_prn');
+    	$isi_loc = $this->getIdentifier($record,'isi_loc');
+    	if (!empty($isi_loc) && empty($rm_prn)) {
+    		return true;
+    	}
+    	return false;
+    }
+    
+    function mergeRecords(&$base_record, &$dup_record, $merge_type = self::MERGE_TYPE_ALL, 
+    						$test_mode = false)
     {
         
 		switch ($merge_type)
@@ -500,16 +524,17 @@ class DuplicatesReport {
 	    if (PEAR::isError($base_det)) {
 			return $base_det;
 		}
-        
-        $params = array();
-        $params['sta_id'] = $base_record->getPublishedStatus();
+        if (!$test_mode) {
+	        $params = array();
+    	    $params['sta_id'] = $base_record->getPublishedStatus();
 
-        // Just want to find the basic xsdmf_ids for the title, date and user and set them to something useful
-        $params['xsd_display_fields'] = $base_det; 
-		$ref = new RecordEditForm();
-		$ref->fixParams(&$params, $base_record);
+	        // Just want to find the basic xsdmf_ids for the title, date and user and set them to something useful
+	        $params['xsd_display_fields'] = $base_det; 
+			$ref = new RecordEditForm();
+			$ref->fixParams(&$params, $base_record);
 
-        $base_record->fedoraInsertUpdate(array("FezACML"), array(""),$params);
+	        $base_record->fedoraInsertUpdate(array("FezACML"), array(""),$params);
+        }
         return 1;
     }
 
@@ -646,7 +671,8 @@ class DuplicatesReport {
 		}
 		// Find the Volume number xsdmf id
 		$xsdmf_id = $dup_record->display->xsd_html_match->getXSDMF_ID_ByElementInSubElement(
-											'!relatedItem!part!detail','Volume','!part!detail!number');
+											'!relatedItem!part!detail','Volume',
+											'!relatedItem!part!detail!number');
 		if ($xsdmf_id > 0) {
 			if (!empty($base_det[$xsdmf_id]) && $base_det[$xsdmf_id] != $dup_det[$xsdmf_id]) {
 				$error = PEAR::raiseError("The base record has a different Volume value to the duplicate");
@@ -656,7 +682,9 @@ class DuplicatesReport {
 		} else {
 			Error_Handler::logError("Expected Duplicate record to have a Volume "
 					. "sublooping element on !part!detail!number", __FILE__,__LINE__);
-			$error = $xsdmf_id; // this will be an error code from getXSDMF_ID_ByElementInSubElement
+			$error = PEAR::raiseError("Expected Duplicate record to have a Volume "
+					. "sublooping element on !part!detail!number. "
+					. "getXSDMF_ID_ByElementInSubElement error code: ".$xsdmf_id); 
 		}
 		if (empty($error)) {
     		return $base_det;
@@ -707,7 +735,7 @@ class DuplicatesReport {
 			if (empty($base_authors[$ii])) {
 				$res_authors[] = $dup_authors[$ii];
 				$res_author_ids[] = $dup_author_ids[$ii];
-			} elseif ($base_author_ids[$ii] == $dup_author_ids[$ii]) {
+			} elseif (!empty($base_author_ids[$ii]) &&  $base_author_ids[$ii] == $dup_author_ids[$ii]) {
 				$res_authors[] = $dup_authors[$ii];
 				$res_author_ids[] = $dup_author_ids[$ii];
 			} elseif (empty($base_author_ids[$ii])) {
@@ -919,7 +947,8 @@ class DuplicatesReport {
         for ($ii = 0; $ii < $items->length; $ii++) {
             $itemNode = $items->item($ii);
             if (!empty($itemNode)) {
-                list($max_score,$resolved,$isi_match, $dups_count) = $this->getDupsStats($itemNode, $xpath);
+                list($max_score,$resolved,$isi_match, $dups_count, $merge_result) 
+                	                = $this->getDupsStats($itemNode, $xpath);
                 if ($resolved) {
                 	$resolved_count++;
 	            } else {
@@ -936,7 +965,9 @@ class DuplicatesReport {
     	            	'probability' => $max_score,
             	    	'resolved' => $resolved,
                 		'count' => $dups_count,
-	                	'isi_loc_match' => $isi_match);
+	                	'isi_loc_match' => $isi_match,
+	                	'merge_result' => $merge_result
+                	);
     	            $listing[] = $listing_item;
             	}
             	if (($resolved && $show_resolved) || !$resolved) {
@@ -956,6 +987,7 @@ class DuplicatesReport {
         $resolved = true;
         $base_isi_loc = $itemNode->getAttribute('isi_loc');
         $isi_match = false;
+        $merge_result = true;
         $dups_count = $dups_list->length;
         foreach ($dups_list as $dupNode) {
             $score = $dupNode->getAttribute('probability');
@@ -974,8 +1006,12 @@ class DuplicatesReport {
             		$isi_match = true;
         		}
             }
+            $mres = $dupNode->getAttribute('mergeResult');
+            if ($mres != 'ok') {
+            	$merge_result = false;
+            }
         }
-        return array($max_score,$resolved,$isi_match, $dups_count);
+        return array($max_score,$resolved,$isi_match, $dups_count, $merge_result);
     }
     
     function getPrevItem($pid, $show_resolved = true)
@@ -1039,7 +1075,7 @@ class DuplicatesReport {
         $listing = array();
         foreach ($items as $item) {
             $listing_item = array();
-            foreach (array('pid','probability','duplicate') as $att) {
+            foreach (array('pid','probability','duplicate','mergeResult') as $att) {
                 $listing_item[$att] = $item->getAttribute($att);
             }
             $listing[] = $listing_item;
@@ -1118,6 +1154,30 @@ class DuplicatesReport {
         if ($items->length > 0) {
             $item = $items->item(0);
             $item->setAttribute('duplicate',$is_duplicate?'true':'false');
+        } else {
+            // the Pids should exist otherwise it's an error
+            return -1;
+        }
+        return 1;
+    }
+    
+    function setMergeResult($base_pid, $dup_pid, $res)
+    {
+        $report_dom = $this->getXML_DOM();
+        if (empty($report_dom)) {
+            return -1;
+        }
+        if (empty($base_pid) || !is_string($base_pid)) {
+            return -1;
+        }
+        if (empty($dup_pid) || !is_string($dup_pid)) {
+            return -1;
+        }
+        $xpath = new DOMXPath($report_dom);
+        $items = $xpath->query('/DuplicatesReport/duplicatesReportItem[@pid=\''.$base_pid.'\']/duplicateItem[@pid=\''.$dup_pid.'\']');
+        if ($items->length > 0) {
+            $item = $items->item(0);
+            $item->setAttribute('mergeResult',$res);
         } else {
             // the Pids should exist otherwise it's an error
             return -1;
