@@ -80,19 +80,22 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default" >
-                  <b>Roles:</b>
-                </td>
-                <td bgcolor="{$light_color}">
-                  <input type="textfield" name="wfl_roles" size="30" class="default" value="{$info.wfl_roles}" />
-                </td>
-              </tr>
-              <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default" nowrap>
                   <b>End Button Label:</b>
                 </td>
                 <td bgcolor="{$light_color}">
                   <input type="textfield" name="wfl_end_button_label" size="30" class="default" value="{$info.wfl_end_button_label|default:'Done'}" />
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Roles:</b>
+                </td>
+                <td bgcolor="{$light_color}" width="80%">
+                  <select name="wfl_roles[]" multiple size="12" class="default">
+                    {html_options options=$auth_role_options selected=$info.wfl_roles}
+                  </select>
+                  {include file="error_icon.tpl.html" field="wfl_roles[]"}
                 </td>
               </tr>
                <tr>
@@ -161,7 +164,10 @@
                         &nbsp;{$list[i].wfl_description}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
-                        &nbsp;{$list[i].wfl_roles}
+                        	  {section name="r" loop=$list[i].wfl_roles}
+								  {assign var="aro_id" value=$list[i].wfl_roles[r].wfr_aro_id}
+								  {$auth_role_options[$aro_id]}
+							  {/section}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
                         &nbsp;{$list[i].wfl_end_button_label}

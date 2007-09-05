@@ -200,11 +200,13 @@
               </tr>
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default">
-                  <b>Roles: </b>
+                  <b>Roles:</b>
                 </td>
                 <td bgcolor="{$light_color}" width="80%">
-                  <input type="text" name="wfs_roles" class="default"
-                  value="{$info.wfs_roles|escape}" />
+                  <select name="wfs_roles[]" multiple size="12" class="default">
+                    {html_options options=$auth_role_options selected=$info.wfs_roles}
+                  </select>
+                  {include file="error_icon.tpl.html" field="wfs_roles[]"}
                 </td>
               </tr>
                <tr>
@@ -330,7 +332,10 @@
                         {if $list[i].wfs_transparent == 1}<span style="color:#555555;">(transparent)</span>{/if}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
-                        &nbsp;{$list[i].wfs_roles}
+                        	  {section name="r" loop=$list[i].wfs_roles}
+								  {assign var="aro_id" value=$list[i].wfs_roles[r].wfsr_aro_id}
+								  {$auth_role_options[$aro_id]}
+							  {/section}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
                         &nbsp;{if $list[i].wfs_start == 1}<span style="color:green;">yes</span>{/if}

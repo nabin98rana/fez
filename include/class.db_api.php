@@ -100,6 +100,8 @@ class DB_API
      */
     function escapeString($str)
     {
+		return $GLOBALS["db_api"]->dbh->escapeSimple($str);	
+		/*
         static $real_escape_string;
 
         if (!isset($real_escape_string)) {
@@ -111,6 +113,7 @@ class DB_API
         } else {
             return mysql_escape_string($str);
         }
+		*/
     }
 }
 

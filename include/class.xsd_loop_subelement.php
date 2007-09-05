@@ -66,13 +66,13 @@ class XSD_Loop_Subelement
 					IFNULL(CONCAT('(', s1.xsdsel_attribute_loop_xsdmf_id, ') (', s2.xsdsel_title, ') ', m2.xsdmf_element), CONCAT('(', m2.xsdmf_id, ') ', m2.xsdmf_element)) as xsdmf_attribute_loop_presentation,
 					IFNULL(CONCAT('(', s1.xsdsel_indicator_xsdmf_id, ') (', s3.xsdsel_title, ') ', m3.xsdmf_element), CONCAT('(', m3.xsdmf_id, ') ', m3.xsdmf_element)) as xsdmf_indicator_presentation
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 inner join
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m1 on (s1.xsdsel_xsdmf_id = m1.xsdmf_id) and (s1.xsdsel_xsdmf_id=".$xsdmf_id.") inner join
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on (m1.xsdmf_xdis_id = d1.xdis_id) left join
-					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m2 on (m2.xsdmf_id = s1.xsdsel_attribute_loop_xsdmf_id) left join 
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s2 on (m2.xsdmf_xsdsel_id = s2.xsdsel_id) left join
-					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m3 on (m3.xsdmf_id = s1.xsdsel_indicator_xsdmf_id) left join 
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s3 on (m3.xsdmf_xsdsel_id = s3.xsdsel_id)
+                    " . APP_TABLE_PREFIX . "xsd_loop_subelement s1 inner join
+                    " . APP_TABLE_PREFIX . "xsd_display_matchfields m1 on (s1.xsdsel_xsdmf_id = m1.xsdmf_id) and (s1.xsdsel_xsdmf_id=".$xsdmf_id.") inner join
+                    " . APP_TABLE_PREFIX . "xsd_display d1 on (m1.xsdmf_xdis_id = d1.xdis_id) left join
+					" . APP_TABLE_PREFIX . "xsd_display_matchfields m2 on (m2.xsdmf_id = s1.xsdsel_attribute_loop_xsdmf_id) left join 
+                    " . APP_TABLE_PREFIX . "xsd_loop_subelement s2 on (m2.xsdmf_xsdsel_id = s2.xsdsel_id) left join
+					" . APP_TABLE_PREFIX . "xsd_display_matchfields m3 on (m3.xsdmf_id = s1.xsdsel_indicator_xsdmf_id) left join 
+                    " . APP_TABLE_PREFIX . "xsd_loop_subelement s3 on (m3.xsdmf_xsdsel_id = s3.xsdsel_id)
 			
 					";
 		// @@@ CK - Added order statement to sublooping elements displayed in a desired order
@@ -99,7 +99,7 @@ class XSD_Loop_Subelement
         $stmt = "SELECT
 					*
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement
+                    " . APP_TABLE_PREFIX . "xsd_loop_subelement
                  WHERE
                     xsdsel_xsdmf_id=".$xsdmf_id;
 		$stmt .= " ORDER BY xsdsel_order ASC";
@@ -126,7 +126,7 @@ class XSD_Loop_Subelement
         $stmt = "SELECT
 					xsdsel_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement
+                    " . APP_TABLE_PREFIX . "xsd_loop_subelement
                  WHERE
                     xsdsel_xsdmf_id=".$xsdmf_id;
 		// @@@ CK - Added order statement to sublooping elements displayed in a desired order
@@ -161,12 +161,14 @@ class XSD_Loop_Subelement
 			s1.xsdsel_id,
             xsdrel_xdis_id        
 						 FROM
-							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1
-							INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m1 
+							". APP_TABLE_PREFIX . "xsd_loop_subelement s1
+							INNER JOIN " . APP_TABLE_PREFIX . "xsd_display_matchfields m1 
                             ON m1.xsdmf_element in ('!datastream!datastreamVersion!xmlContent', '!datastream!datastreamVersion!contentLocation', '!datastream!datastreamVersion!binaryContent')    
                             AND m1.xsdmf_xdis_id=".$xdis_id." AND s1.xsdsel_id = m1.xsdmf_xsdsel_id 
-                            LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship ON xsdrel_xsdmf_id = m1.xsdmf_id
+                            LEFT JOIN " . APP_TABLE_PREFIX . "xsd_relationship ON xsdrel_xsdmf_id = m1.xsdmf_id
+							INNER JOIN " . APP_TABLE_PREFIX . "xsd_display ON xsdrel_xdis_id = xdis_id
            ";
+
 		if ($specify_str != "") {				
 			$stmt .= " WHERE s1.xsdsel_title in ('".$specify_str."')";			
 		} elseif ($exclude_str != "") {
@@ -199,8 +201,8 @@ class XSD_Loop_Subelement
 			s1.xsdsel_title,
 			s1.xsdsel_id
 						 FROM
-							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1,
-							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m1
+							" . APP_TABLE_PREFIX . "xsd_loop_subelement s1,
+							" . APP_TABLE_PREFIX . "xsd_display_matchfields m1
 		WHERE 
 		m1.xsdmf_element in ('!datastream!datastreamVersion!xmlContent', '!datastream!datastreamVersion!contentLocation', '!datastream!datastreamVersion!binaryContent') 	
 		AND m1.xsdmf_xdis_id=".$xdis_id."	and s1.xsdsel_id = m1.xsdmf_xsdsel_id and s1.xsdsel_title = '".$dsTitle."'";
@@ -229,10 +231,10 @@ class XSD_Loop_Subelement
         $stmt = "SELECT
 					s1.*, m1.*, m2.xsdmf_id as child_xsdmf_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 inner join 
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m1 on s1.xsdsel_xsdmf_id = m1.xsdmf_id and m1.xsdmf_xdis_id = ".$xdis_id." 
+                    " . APP_TABLE_PREFIX . "xsd_loop_subelement s1 inner join 
+                    " . APP_TABLE_PREFIX . "xsd_display_matchfields m1 on s1.xsdsel_xsdmf_id = m1.xsdmf_id and m1.xsdmf_xdis_id = ".$xdis_id." 
 					and (INSTR('".$xml_element."', m1.xsdmf_element) = 1) and (m1.xsdmf_element != '".$xml_element."') and m1.xsdmf_html_input = 'xsd_loop_subelement' left join
-					 " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m2 on (m2.xsdmf_xsdsel_id = s1.xsdsel_id) and (m2.xsdmf_element = '".$xml_element."')
+					 " . APP_TABLE_PREFIX . "xsd_display_matchfields m2 on (m2.xsdmf_xsdsel_id = s1.xsdsel_id) and (m2.xsdmf_element = '".$xml_element."')
                     ";
 		$stmt .= " ORDER BY xsdsel_order ASC";
 //		echo $stmt;
@@ -258,12 +260,12 @@ class XSD_Loop_Subelement
         $items = @implode(", ", $HTTP_POST_VARS["items"]);
 
         $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement
+                    " . APP_TABLE_PREFIX . "xsd_loop_subelement
                  WHERE
                     xsdsel_id  IN (" . $items . ")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
                  WHERE
                     xsdmf_xsdsel_id  IN (" . $items . ")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -288,7 +290,7 @@ class XSD_Loop_Subelement
         global $HTTP_POST_VARS;
 
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement
+                    " . APP_TABLE_PREFIX . "xsd_loop_subelement
                  (
                     xsdsel_xsdmf_id,
                     xsdsel_title,
@@ -352,7 +354,7 @@ class XSD_Loop_Subelement
         global $HTTP_POST_VARS;
 
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement
+                    " . APP_TABLE_PREFIX . "xsd_loop_subelement
                  (
                     xsdsel_xsdmf_id,
                     xsdsel_title,
@@ -419,7 +421,7 @@ class XSD_Loop_Subelement
         }
 
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement
+                    " . APP_TABLE_PREFIX . "xsd_loop_subelement
                  SET 
                     xsdsel_xsdmf_id = '" . Misc::escapeString($params["xsdsel_xsdmf_id"]) . "',
                     xsdsel_title = '" . Misc::escapeString($params["xsdsel_title"]) . "',
@@ -458,7 +460,7 @@ class XSD_Loop_Subelement
     function updateAttributeLoopCandidate($xsdsel_id, $attribute_loop_candidate, $attribute_loop_candidate_xdis_id)
     {
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement
+                    " . APP_TABLE_PREFIX . "xsd_loop_subelement
                  SET 
                     xsdsel_attribute_loop_xsdmf_id = ".$attribute_loop_candidate.",
                     xsdsel_attribute_loop_xdis_id = ".$attribute_loop_candidate_xdis_id."                    
@@ -481,7 +483,7 @@ class XSD_Loop_Subelement
     function updateIndicator($xsdsel_id, $indicator_xsdmf_id, $indicator_xdis_id)
     {
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement
+                    " . APP_TABLE_PREFIX . "xsd_loop_subelement
                  SET 
                     xsdsel_indicator_xsdmf_id = ".$indicator_xsdmf_id.",
                     xsdsel_indicator_xdis_id = ".$indicator_xdis_id."                    
@@ -506,7 +508,7 @@ class XSD_Loop_Subelement
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement
+                    " . APP_TABLE_PREFIX . "xsd_loop_subelement
                  WHERE
                     xsdsel_id=".$xsdsel_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
@@ -532,8 +534,8 @@ class XSD_Loop_Subelement
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+                    " . APP_TABLE_PREFIX . "xsd_loop_subelement,
+                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
                  WHERE
                     xsdmf_html_input = '".$input_type."'  AND xsdmf_xsdsel_id = xsdsel_id AND xsdsel_id=".$xsdsel_id;
 		if ($exclude_attrib_loops == true) {

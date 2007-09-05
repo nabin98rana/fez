@@ -63,7 +63,7 @@ class Object_Type
 
         $items = @implode(", ", $HTTP_POST_VARS["items"]);
         $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "object_type
+                    " . APP_TABLE_PREFIX . "object_type
                  WHERE
                     ret_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -87,7 +87,7 @@ class Object_Type
         global $HTTP_POST_VARS;
 		
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "object_type
+                    " . APP_TABLE_PREFIX . "object_type
                  (
                     ret_title,
 					ret_order,
@@ -118,7 +118,7 @@ class Object_Type
         global $HTTP_POST_VARS;
 
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "object_type
+                    " . APP_TABLE_PREFIX . "object_type
                  SET 
                     ret_title = '" . Misc::escapeString($HTTP_POST_VARS["ret_title"]) . "',
 					ret_order = '" . Misc::escapeString($HTTP_POST_VARS["ret_order"]) . "',
@@ -147,7 +147,7 @@ class Object_Type
         $stmt = "SELECT
                     ret_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "object_type
+                    " . APP_TABLE_PREFIX . "object_type
                  WHERE
                     ret_id=".$ret_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -172,7 +172,7 @@ class Object_Type
         $stmt = "SELECT
                     ret_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "object_type
+                    " . APP_TABLE_PREFIX . "object_type
                  WHERE
                     ret_title='".$ret_title."'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -198,7 +198,7 @@ class Object_Type
                     ret_id,
 					CONCAT('(',ret_id,') ',ret_title) as ret_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "object_type
+                    " . APP_TABLE_PREFIX . "object_type
 				 WHERE ret_id not in  (0,4)
                  ORDER BY				 
                     ret_id ASC";
@@ -224,7 +224,7 @@ class Object_Type
                     ret_id,
 					CONCAT('(',ret_id,') ',ret_title) as ret_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "object_type
+                    " . APP_TABLE_PREFIX . "object_type
                  ORDER BY
                     ret_id ASC";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
@@ -247,7 +247,7 @@ class Object_Type
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "object_type
+                    " . APP_TABLE_PREFIX . "object_type
                  ORDER BY
                     ret_order ASC";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -275,7 +275,7 @@ class Object_Type
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "object_type
+                    " . APP_TABLE_PREFIX . "object_type
                  WHERE
                     ret_id=".$ret_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);

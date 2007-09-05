@@ -52,8 +52,12 @@ include_once(APP_INC_PATH . "private_key.php");
 
 global $NonRestrictedRoles;
 $NonRestrictedRoles = array("Viewer","Lister","Comment_Viewer");
+global $NonRestrictedRoleIDs;
+$NonRestrictedRoleIDs = array(10,9,5);
 global $defaultRoles;
 $defaultRoles = array("Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
+global $defaultRoleIDs;
+$defaultRoleIDs = array(8, 7, 5, 9, 2, 6, 1, 5, 4);
 
 global $auth_isBGP;
 global $auth_bgp_session;
@@ -136,6 +140,81 @@ class Auth
         Auth::createLoginSession($ses['username'], $ses['fullname'], $ses['email'], $ses['distinguishedname'], $ses['autologin']);
     }
 
+    
+	/**
+     * Method used to get the list of FezACML roles using in any XSD Display.
+     *
+     * @access  public
+     * @return  array The list of FezACML roles
+     */
+    function getAllRoleIDs()
+    {
+        $stmt = "SELECT aro_id, aro_role FROM ". APP_TABLE_PREFIX . "auth_roles ";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        } else {
+        	$result = array();
+        	foreach ($res as $key => $data) {
+        		$result[$data['aro_role']] = $data['aro_id'];
+       		}
+			return $result;
+		}
+		
+	}    
+
+	/**
+     * Method used to get the list of FezACML roles using in any XSD Display.
+     *
+     * @access  public
+     * @return  array The list of FezACML roles
+     */
+    function getAssocRoleIDs()
+    {
+        $stmt = "SELECT aro_id, aro_role FROM ". APP_TABLE_PREFIX . "auth_roles where aro_id != 0";
+        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        } else {
+			return $res;
+		}
+		
+	}
+
+    function convertTextRolesToIDS($aro_roles = array())
+    {
+		if (is_array($aro_roles)) {
+			if (count($aro_roles) > 0) {
+		        $stmt = "SELECT aro_id FROM ". APP_TABLE_PREFIX . "auth_roles where aro_title in (".implode(",", $aro_roles).") where aro_id != 0";
+		        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+		        if (PEAR::isError($res)) {
+		            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+		            return array();
+		        } else {
+					return $res;
+				}
+			} else {
+				return array();
+			}				
+		} else {
+			return array();
+		}
+	}
+	
+	function getRoleIDByTitle($title) {
+		$title = Misc::escapeString($title);
+        $stmt = "SELECT aro_id FROM ". APP_TABLE_PREFIX . "auth_roles where aro_role = '".$title."'";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        } else {
+			return $res;
+		}		
+	}
+    
     /**
      * Method used to get the list of FezACML roles using in any XSD Display.
      *
@@ -145,10 +224,10 @@ class Auth
     function getAllRoles()
     {
         $stmt = "SELECT distinct xsdsel_title 
-			from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1
-			inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on x1.xsdmf_id = xsdsel_xsdmf_id
-			inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on d1.xdis_id = x1.xsdmf_xdis_id
-			inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd x2 on x2.xsd_id = xdis_xsd_id and x2.xsd_title = 'FezACML'";
+			from " . APP_TABLE_PREFIX . "xsd_loop_subelement s1
+			inner join " . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on x1.xsdmf_id = xsdsel_xsdmf_id
+			inner join " . APP_TABLE_PREFIX . "xsd_display d1 on d1.xdis_id = x1.xsdmf_xdis_id
+			inner join " . APP_TABLE_PREFIX . "xsd x2 on x2.xsd_id = xdis_xsd_id and x2.xsd_title = 'FezACML'";
         $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -179,14 +258,9 @@ class Auth
 				array_push($ACMLArray, $fezACML_row); //add it to the acml array and dont go any further up the hierarchy
 			}
         } else {
-			$pre_stmt =  "SELECT r2.rmf_varchar 
-							FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
-								  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,							
-								  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
-							WHERE (s2.sek_title = 'isMemberOf' AND r2.rmf_xsdmf_id = x2.xsdmf_id " .
-                                    "AND s2.sek_id = x2.xsdmf_sek_id " .
-                                    "AND r2.rmf_rec_pid_num = '".Misc::numPid($pid)."' " .
-                                    "AND r2.rmf_rec_pid = '".$pid."')";
+			$pre_stmt =  "SELECT r2.rek_ismemberof 
+							FROM  " . APP_TABLE_PREFIX . "record_search_key_ismemberof r2
+							WHERE r2.rek_ismemberof_pid = '".$pid."')";
 //			debug_print_backtrace();
 //			echo $pre_stmt;
 			$res = $GLOBALS["db_api"]->dbh->getCol($pre_stmt);
@@ -197,14 +271,14 @@ class Auth
 			$stmt = "SELECT 
 						* 
 					 FROM
-						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1
-						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on (r1.rmf_xsdmf_id = x1.xsdmf_id)
-					    left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 on (k1.sek_title = 'isMemberOf' AND k1.sek_id = x1.xsdmf_sek_id)
-						left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on (x1.xsdmf_xdis_id = d1.xdis_id)
-						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd1 on (xsd1.xsd_id = d1.xdis_xsd_id and xsd1.xsd_title = 'FezACML')
-						left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+						" . APP_TABLE_PREFIX . "record_matching_field r1
+						inner join " . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on (r1.rek_xsdmf_id = x1.xsdmf_id)
+					    left join " . APP_TABLE_PREFIX . "search_key k1 on (k1.sek_title = 'isMemberOf' AND k1.sek_id = x1.xsdmf_sek_id)
+						left join " . APP_TABLE_PREFIX . "xsd_display d1 on (x1.xsdmf_xdis_id = d1.xdis_id)
+						inner join " . APP_TABLE_PREFIX . "xsd as xsd1 on (xsd1.xsd_id = d1.xdis_xsd_id and xsd1.xsd_title = 'FezACML')
+						left join " . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
 					 WHERE
-						r1.rmf_rec_pid in ('$parent_pid_string') and (r1.rmf_dsid IS NULL or r1.rmf_dsid = '')
+						r1.rek_pid in ('".$parent_pid_string."') and (r1.rek_dsid IS NULL or r1.rek_dsid = '')
 						"; 
 
 			$securityfields = Auth::getAllRoles();
@@ -214,15 +288,15 @@ class Auth
             }
             $return = array();	
 			foreach ($res as $result) {
-				if (!is_array(@$return[$result['rmf_rec_pid']])) {
-					$return[$result['rmf_rec_pid']]['exists'] = array();
+				if (!is_array(@$return[$result['rek_pid']])) {
+					$return[$result['rek_pid']]['exists'] = array();
 				}
 				if (in_array($result['xsdsel_title'], $securityfields) && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) ) {
-					if (!is_array(@$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
-						$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
+					if (!is_array(@$return[$result['rek_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
+						$return[$result['rek_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
 					}
-					if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
-						array_push($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+					if (!in_array($result['rek_'.$result['xsdmf_data_type']], $return[$result['rek_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
+						array_push($return[$result['rek_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rek_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
 					}
 				}
 			}
@@ -289,17 +363,17 @@ class Auth
 			}
 
 
-        } else {								
+        } else {
 			$stmt = "SELECT 
 						* 
 					 FROM
-						" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1
-						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on (r1.rmf_xsdmf_id = x1.xsdmf_id)
-						inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on (d1.xdis_id = x1.xsdmf_xdis_id and r1.rmf_rec_pid_num=".Misc::numPID($pid)." and r1.rmf_rec_pid ='".$pid."')
-						left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd x2 on (x2.xsd_id = d1.xdis_xsd_id and x2.xsd_title = 'FezACML')
-						left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
-						left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 on (k1.sek_title = 'isMemberOf' AND r1.rmf_xsdmf_id = x1.xsdmf_id AND k1.sek_id = x1.xsdmf_sek_id)
-						WHERE (r1.rmf_dsid IS NULL or r1.rmf_dsid = '')";
+						" . APP_TABLE_PREFIX . "record_matching_field r1
+						inner join " . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on (r1.rek_xsdmf_id = x1.xsdmf_id)
+						inner join " . APP_TABLE_PREFIX . "xsd_display d1 on (d1.xdis_id = x1.xsdmf_xdis_id and r1.rek_pid_num=".Misc::numPID($pid)." and r1.rek_pid ='".$pid."')
+						left join " . APP_TABLE_PREFIX . "xsd x2 on (x2.xsd_id = d1.xdis_xsd_id and x2.xsd_title = 'FezACML')
+						left join " . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+						left join " . APP_TABLE_PREFIX . "search_key k1 on (k1.sek_title = 'isMemberOf' AND r1.rek_xsdmf_id = x1.xsdmf_id AND k1.sek_id = x1.xsdmf_sek_id)
+						WHERE (r1.rek_dsid IS NULL or r1.rek_dsid = '')";
 	
 //          global $defaultRoles;
 //			$returnfields = $defaultRoles;
@@ -310,23 +384,23 @@ class Auth
 			$returns = array();			
 
 			foreach ($res as $result) {
-				if (!is_array(@$return[$result['rmf_rec_pid']])) {
-					$return[$result['rmf_rec_pid']]['exists'] = array();
+				if (!is_array(@$return[$result['rek_pid']])) {
+					$return[$result['rek_pid']]['exists'] = array();
 				}
 				if (in_array($result['xsdsel_title'], $securityfields)  && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) )  {
-					if (!is_array(@$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
-						$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
+					if (!is_array(@$return[$result['rek_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
+						$return[$result['rek_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
 					}
-					if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
-						array_push($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+					if (!in_array($result['rek_'.$result['xsdmf_data_type']], $return[$result['rek_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
+						array_push($return[$result['rek_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rek_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
 					}
 				}
 				if ($result['xsdmf_element'] == '!inherit_security') {
-					if (!is_array(@$return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'])) {
-						$return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'] = array();
+					if (!is_array(@$return[$result['rek_pid']]['FezACML'][0]['!inherit_security'])) {
+						$return[$result['rek_pid']]['FezACML'][0]['!inherit_security'] = array();
 					}
-					if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'])) {
-						array_push($return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'], $result['rmf_'.$result['xsdmf_data_type']]);
+					if (!in_array($result['rek_'.$result['xsdmf_data_type']], $return[$result['rek_pid']]['FezACML'][0]['!inherit_security'])) {
+						array_push($return[$result['rek_pid']]['FezACML'][0]['!inherit_security'], $result['rek_'.$result['xsdmf_data_type']]);
 					}
 				}								
 			}
@@ -386,9 +460,9 @@ class Auth
 		$ACMLArray = &$array;
         foreach ($parents as $parent) {
             $inherit = false;
-			$xdis_record = new RecordObject($parent['pid']);
-			$xdis_id = $xdis_record->getXmlDisplayId();						
-            $parentACML = Record::getACML($parent['pid']);		
+//			$xdis_record = new RecordObject($parent);
+//			$xdis_id = $xdis_record->getXmlDisplayId();
+            $parentACML = Record::getACML($parent);		
             if ($parentACML != false) {
                 array_push($ACMLArray, $parentACML); // add and then check if need to inherit				
                 $found_inherit_off = false;
@@ -415,13 +489,13 @@ class Auth
                 $inherit = !$found_inherit_off && ($found_inherit_on || $found_inherit_blank);
 
                 if ($inherit == true) { // if need to inherit
-                    $superParents = Record::getParents($parent['pid']);
+                    $superParents = Record::getParents($parent);
                     if ($superParents != false) {
                         Auth::getParentACMLs(&$ACMLArray, $superParents);
                     }
                 }
             } else { // if no ACML found then assume inherit
-                $superParents = Record::getParents($parent['pid']);
+                $superParents = Record::getParents($parent);
                 if ($superParents != false) {
                     Auth::getParentACMLs(&$ACMLArray, $superParents);
                 }
@@ -476,7 +550,7 @@ class Auth
             @session_start();
             $session =& $_SESSION;
         }
-
+        
 		$isAdministrator = Auth::isAdministrator();
 		if ($isAdministrator) {
 			return true;
@@ -641,11 +715,11 @@ class Auth
     {
 		foreach ($indexArray as $indexKey => $indexRecord) {
             $userPIDAuthGroups = Auth::getIndexAuthorisationGroups($indexRecord);
-            $editor_matches = array_intersect(explode(',',APP_EDITOR_ROLES), $userPIDAuthGroups);
+            $editor_matches = array_intersect(explode(',',APP_APPROVER_ROLES), $userPIDAuthGroups); 
 			$indexArray[$indexKey]['isCommunityAdministrator'] = (in_array('Community Administrator', $userPIDAuthGroups) || Auth::isAdministrator()); //editor is only for the children. To edit the actual community record details you need to be a community admin
+			$indexArray[$indexKey]['isApprover'] = (!empty($editor_matches) || $indexArray[$indexKey]['isCommunityAdministrator'] == true);
 			$indexArray[$indexKey]['isEditor'] = (!empty($editor_matches) || $indexArray[$indexKey]['isCommunityAdministrator'] == true);
 			$indexArray[$indexKey]['isCreator'] = (!empty($editor_matches) || $indexArray[$indexKey]['isCommunityAdministrator'] == true);
-			$indexArray[$indexKey]['isApprover'] = (!empty($editor_matches) || $indexArray[$indexKey]['isCommunityAdministrator'] == true);
 			$indexArray[$indexKey]['isArchivalViewer'] = (in_array('Archival_Viewer', $userPIDAuthGroups) || ($indexArray[$indexKey]['isEditor'] == true));
 			$indexArray[$indexKey]['isViewer'] = (in_array('Viewer', $userPIDAuthGroups) || ($indexArray[$indexKey]['isEditor'] == true));
 			$indexArray[$indexKey]['isLister'] = (in_array('Lister', $userPIDAuthGroups) || ($indexArray[$indexKey]['isViewer'] == true));
@@ -654,6 +728,49 @@ class Auth
 		return $indexArray;		
 	}
 
+	    function getAuthorisation(&$indexArray) 
+	    {
+//			foreach ($indexArray as $indexKey => $indexRecord) {
+				$userPIDAuthGroups = $indexArray['FezACML'];
+//	            $userPIDAuthGroups = Auth::getIndexAuthorisationGroups($indexRecord);
+	            $editor_matches = array_intersect(explode(',',APP_APPROVER_ROLES), $indexArray); 
+				$indexArray['isCommunityAdministrator'] = (in_array('Community Administrator', $userPIDAuthGroups) || Auth::isAdministrator()); //editor is only for the children. To edit the actual community record details you need to be a community admin
+				$indexArray['isApprover'] = (!empty($editor_matches) || $indexArray['isCommunityAdministrator'] == true);
+				$indexArray['isEditor'] = (!empty($editor_matches) || $indexArray['isCommunityAdministrator'] == true);
+				$indexArray['isCreator'] = (!empty($editor_matches) || $indexArray['isCommunityAdministrator'] == true);
+				$indexArray['isArchivalViewer'] = (in_array('Archival_Viewer', $userPIDAuthGroups) || ($indexArray['isEditor'] == true));
+				$indexArray['isViewer'] = (in_array('Viewer', $userPIDAuthGroups) || ($indexArray['isEditor'] == true));
+				$indexArray['isLister'] = (in_array('Lister', $userPIDAuthGroups) || ($indexArray['isViewer'] == true));
+//			}
+	//		print_r($indexArray);
+			return $indexArray;		
+		}
+
+    function getIndexAuthCascade($indexArray) 
+    {    	    	
+		$isAdministrator = Auth::isAdministrator();
+		foreach ($indexArray as $indexKey => $indexRecord) {            
+            
+            if ($indexRecord["authi_role"]) {
+            	$editor_matches = array_intersect(explode(',',APP_EDITOR_ROLE_IDS), $indexRecord["authi_role"]); 
+            	$userPIDAuthGroups = $indexRecord["authi_role"];
+            } else {
+            	$editor_matches = array();
+            	$userPIDAuthGroups = array();
+            }
+
+			$indexArray[$indexKey]['isCommunityAdministrator'] = (in_array(6, $userPIDAuthGroups) || $isAdministrator); //editor is only for the children. To edit the actual community record details you need to be a community admin
+			$indexArray[$indexKey]['isEditor'] = (!empty($editor_matches) || $indexArray[$indexKey]['isCommunityAdministrator'] == true);
+			$indexArray[$indexKey]['isCreator'] = (!empty($editor_matches) || $indexArray[$indexKey]['isCommunityAdministrator'] == true);
+			$indexArray[$indexKey]['isApprover'] = (!empty($editor_matches) || $indexArray[$indexKey]['isCommunityAdministrator'] == true);
+			$indexArray[$indexKey]['isArchivalViewer'] = (in_array(3, $userPIDAuthGroups) || ($indexArray[$indexKey]['isEditor'] == true));
+			$indexArray[$indexKey]['isViewer'] = (in_array(10, $userPIDAuthGroups) || ($indexArray[$indexKey]['isEditor'] == true));
+			$indexArray[$indexKey]['isLister'] = (in_array(9, $userPIDAuthGroups) || ($indexArray[$indexKey]['isViewer'] == true));
+		}
+//		print_r($indexArray);
+		return $indexArray;
+	}	
+	
     function getIndexAuthorisationGroupsByPid($pid, $indexArray) 
     {
         foreach ($indexArray as $indexKey => $indexRecord) {
@@ -919,6 +1036,197 @@ class Auth
         }
        return $userPIDAuthGroups;
     } 
+
+	    /**
+	     * getAuth
+		 * This method gets the roles (or authorisation groups) the user has, based on the given ACMLs using the Fez Fedora connection.
+		 * It performs some of the lookups using XPATH searches. This is called when the user is working directly with the object
+		 * eg view, update, edit etc.
+	     *
+	     * @access  public
+	     * @param   string $pid The persistent identifier of the object
+	     * @param   string $dsID (optional) The datastream ID 
+	     * @returns array $userPIDAuthGroups The authorisation groups (roles) the user belongs to against this object.
+	    */
+		function getAuth($pid, $dsID="") {
+	        global $auth_isBGP, $auth_bgp_session;
+	        if ($auth_isBGP) {
+	            $session =& $auth_bgp_session;
+	        } else {
+	            session_name(APP_SESSION);
+	            @session_start();
+	            $session =& $_SESSION;
+	        }
+	        static $roles_cache;
+			$inherit = false;
+			if ($dsID != "") {
+		        if (isset($roles_cache[$pid][$dsID])) {
+					return $roles_cache[$pid][$dsID];
+				}
+			} else {
+				if (isset($roles_cache[$pid])) {
+					return $roles_cache[$pid];
+				}
+			}
+	        $auth_groups = array($pid => array());
+	        $userPIDAuthGroups = array();
+			$usingDS = false;
+	        $acmlBase = false;
+			if ($dsID != "") {
+				$usingDS = true;
+		        $acmlBase = Record::getACML($pid, $dsID);
+			}
+			// if no FezACML exists for a datastream then it must inherit from the pid object
+	        if ($acmlBase == false) {
+				$usingDS = false;
+		        $acmlBase = Record::getACML($pid);
+			}
+	        $ACMLArray = array();
+	        if ($acmlBase == false) { // no FezACML was found for DS or PID object so go to parents straight away (inherit presumed)
+	//			echo "acmlBase not found";
+	            $parents = Record::getParents($pid);
+	            Auth::getParentACMLs(&$ACMLArray, $parents);
+	        } else { // otherwise found something so use that and check if need to inherit
+	//			echo "acmlBase found $pid";
+	            $ACMLArray[0] = $acmlBase;
+				// If found an ACML then check if it inherits security
+	            $found_inherit_off = false;
+	            $found_inherit_on = false;
+	            $found_inherit_blank = false;
+				$xpath = new DOMXPath($acmlBase);
+	            $anyRuleSearch = $xpath->query('/FezACML/rule/role/*[string-length(normalize-space()) > 0]');
+	            if ($anyRuleSearch->length == 0) {
+	              $found_inherit_blank = true;
+	            } else {            
+	              $inheritSearch = $xpath->query('/FezACML/inherit_security');
+	              // There shouldn't be more than one inherit_security node, but if there is, then turning inherit off
+	              // overrides any that turn it on. 
+	              foreach ($inheritSearch as $inheritRow) {
+	                if ($inheritRow->nodeValue == "on") { 
+	                  $found_inherit_on = true;
+	                } elseif (trim($inheritRow->nodeValue) == "") {
+	                  $found_inherit_blank = true;
+	                } else {
+	                  $found_inherit_off = true;
+	                }
+	              }
+	            }
+
+
+	            $inherit = !$found_inherit_off && ($found_inherit_on || $found_inherit_blank);
+				if ($inherit == true) { // if need to inherit, check if at dsID level or not first and then 
+					if (($dsID == "") || ($usingDS == false)) { // if already at PID level just get parent pids and add them
+						$parents = Record::getParents($pid);
+						Auth::getParentACMLs(&$ACMLArray, $parents);				
+					} else { // otherwise get the pid object first and check whether to inherit
+						$acmlBase = Record::getACML($pid);
+						if ($acmlBase == false) { // if pid level doesnt exist go higher
+							$parents = Record::getParents($pid);
+							Auth::getParentACMLs(&$ACMLArray, $parents);
+						} else { // otherwise found pid level so add to ACMLArray and check whether to inherit or not
+					    	array_push($ACMLArray, $acmlBase);
+							// If found an ACML then check if it inherits security
+							$inherit = false;
+							$xpath = new DOMXPath($acmlBase);
+							$inheritSearch = $xpath->query('/FezACML/inherit_security');
+							foreach ($inheritSearch as $inheritRow) {
+								if ($inheritRow->nodeValue == "on") {
+									$inherit = true;
+								}
+							}
+							if ($inherit == true) {
+								$parents = Record::getParents($pid);
+								Auth::getParentACMLs(&$ACMLArray, $parents);				
+							}
+						}
+					}
+				}
+	        }
+	        // Usually everyone can list, view and view comments
+	        global $NonRestrictedRoles;
+	        $userPIDAuthGroups = $NonRestrictedRoles;
+	        // loop through the ACML docs found for the current pid or in the ancestry
+			$cleanedArray = array();
+
+	        foreach ($ACMLArray as &$acml) {
+		
+		        // Usually everyone can list, view and view comments - these need to be reset for each ACML loop
+				// because they are presumed ok first
+	//		    $userPIDAuthGroups = Misc::array_merge_values($userPIDAuthGroups, $NonRestrictedRoles);
+	            // Use XPath to find all the roles that have groups set and loop through them
+//				echo $acml->saveXML();
+	            $xpath = new DOMXPath($acml);
+	            $roleNodes = $xpath->query('/FezACML/rule/role');
+	            foreach ($roleNodes as $roleNode) {
+	                $role = $roleNode->getAttribute('name');
+//					echo $role."<br />";
+	                //echo $acml->saveXML($roleNode);
+	                // Use XPath to get the sub groups that have values
+	                $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $roleNode); /* */
+	                if ($groupNodes->length) {
+	//                    echo $role;
+	                    // if the role is in the ACML then it is restricted so remove it
+	                    if (in_array($role, $userPIDAuthGroups) && in_array($role, $NonRestrictedRoles) && (@$cleanedArray[$role] != true)) {
+	                        $userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role, false, true);
+							$cleanedArray[$role] = true;
+	                    }
+	                }
+	                foreach ($groupNodes as $groupNode) {
+	                    $group_type = $groupNode->nodeName;
+//	                    echo $group_type."<br />";
+	                    $group_values = explode(',', $groupNode->nodeValue);
+	                    foreach ($group_values as $group_value) {
+	                        $group_value = trim($group_value, ' ');
+//							echo $group_value."<br />";
+	                        // @@@ CK - if the role has already been
+	                        // found then don't check for it again
+//	                        if (!in_array($role, $userPIDAuthGroups)) {
+							Auth::addRuleArray(&$auth_groups, $pid, $role, array("pid" => $pid, "role" => $role, "rule" => "!rule!role!".$group_type, "value" => $group_value));
+//	                                        array_push($userPIDAuthGroups, $role);
+//	                        } //if statement 
+	                    }
+	                }
+	            }
+	        }
+
+/*			if (in_array('Community_Administrator', $userPIDAuthGroups) && !in_array('Editor', $userPIDAuthGroups)) {
+				array_push($userPIDAuthGroups, "Editor");	
+			}
+			if (in_array('Community_Administrator', $userPIDAuthGroups) && !in_array('Creator', $userPIDAuthGroups)) {
+				array_push($userPIDAuthGroups, "Creator");	
+			}
+			if (in_array('Community_Administrator', $userPIDAuthGroups) && !in_array('Approver', $userPIDAuthGroups)) {
+				array_push($userPIDAuthGroups, "Approver");	
+			}
+			if (in_array('Editor', $userPIDAuthGroups) && !in_array('Archival_Viewer', $userPIDAuthGroups)) {
+				array_push($userPIDAuthGroups, "Archival_Viewer");	
+			}
+			if (in_array('Editor', $userPIDAuthGroups) && !in_array('Viewer', $userPIDAuthGroups)) {
+				array_push($userPIDAuthGroups, "Viewer");	
+			}
+			if (in_array('Viewer', $userPIDAuthGroups) && !in_array('Lister', $userPIDAuthGroups)) {
+				array_push($userPIDAuthGroups, "Lister");	
+			}
+*/
+	        if ($GLOBALS['app_cache']) {
+			  if ($dsID != "") {
+			      $roles_cache[$pid][$dsID] = $auth_groups;
+		  	  } else {			
+		          $roles_cache[$pid] = $auth_groups;
+			  }
+	        }
+
+			return $auth_groups;
+//	       return $userPIDAuthGroups;
+	    }
+
+	function addRuleArray(&$auth_groups, $pid, $role, $ruleArray = array()) {
+		if (!is_array($auth_groups[$pid][$role])) {
+			$auth_groups[$pid][$role] = array();
+		}
+		array_push($auth_groups[$pid][$role], $ruleArray);
+		
+	}
     
     /**
      * Find all the possible rights that this user has to any records in the system.  For example
@@ -930,14 +1238,12 @@ class Auth
      */
     function getAllIndexAuthorisationGroups($user_id)
     {
-    	$stmt = "SELECT distinct authi_role FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "auth_rule_group_users " .
-                "INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "auth_rule_group_rules " .
+    	$stmt = "SELECT distinct authi_role FROM " . APP_TABLE_PREFIX . "auth_rule_group_users " .
+                "INNER JOIN " . APP_TABLE_PREFIX . "auth_rule_group_rules " .
                         "ON argu_usr_id='".$user_id."' AND argr_arg_id=argu_arg_id " .
-                "INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "auth_index2 " .
+                "INNER JOIN " . APP_TABLE_PREFIX . "auth_index2 " .
                         "ON authi_arg_id=argr_arg_id ";
         $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
-        //Error_Handler::logError($stmt, __FILE__,__LINE__);
-        //Error_Handler::logError(print_r($res, true), __FILE__,__LINE__);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return array();
@@ -1106,7 +1412,7 @@ class Auth
         if (empty($username)) {
             return false;
           } else {
-            $stmt = "SELECT usr_administrator FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user WHERE usr_username='".$username."'";
+            $stmt = "SELECT usr_administrator FROM " . APP_TABLE_PREFIX . "user WHERE usr_username='".$username."'";
             $info = $GLOBALS["db_api"]->dbh->getOne($stmt);
             if (PEAR::isError($info)) {
                 Error_Handler::logError(array($info->getMessage(), $info->getDebugInfo()), __FILE__, __LINE__);
@@ -1491,7 +1797,7 @@ class Auth
 			} else {
 				$session['isInAD'] = true;
 				$session['isInDB'] = false;
-				$session['isInFederation'] = false;
+				$session['isInFederation'] = false;				
 				$userDetails = User::GetUserLDAPDetails($username, $password);
 				$fullname = $userDetails['displayname'];
 				$email = $userDetails['email'];
@@ -1643,7 +1949,6 @@ class Auth
                 $xdis_id = $xdis_array['xdis_id'][0];
                 $rowAuthGroups = Auth::getAuthorisationGroups($row['pid']);
                 // get only the roles which are of relevance/use on the listing screen. This logic may be changed later.
-                $details[$key]['isApprover'] = in_array('Approver', $rowAuthGroups); // probably not necessary at the listing stage
                 $details[$key]['isCommunityAdministrator'] = (in_array('Community Administrator', $rowAuthGroups) || Auth::isAdministrator()); //editor is only for the children. To edit the actual community record details you need to be a community admin
                 $details[$key]['isEditor'] = (in_array('Editor', $rowAuthGroups) || $details[$key]['isCommunityAdministrator'] == true);
                 $details[$key]['isCreator'] = (in_array('Creator', $rowAuthGroups) || $details[$key]['isCommunityAdministrator'] == true);
@@ -1679,6 +1984,18 @@ class Auth
         return $defaultRoles[$role_id];
     }
 
+	function getUserAuthRuleGroups($usr_id) {
+		$dbtp = APP_TABLE_PREFIX;		
+		$stmt = "SELECT argu_arg_id FROM ".$dbtp."auth_rule_group_users WHERE argu_usr_id = ".$usr_id;
+        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+			return $res;
+		}
+	}
+
     function setAuthRulesUsers()
     {
         global $auth_isBGP, $auth_bgp_session;
@@ -1687,11 +2004,11 @@ class Auth
             $ses = &Auth::getSession();
             $fez_groups_sql = Misc::arrayToSQL(@$ses[APP_INTERNAL_GROUPS_SESSION]);
             $ldap_groups_sql = Misc::arrayToSQL(@$ses[APP_LDAP_GROUPS_SESSION]);
-            $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+            $dbtp =  APP_TABLE_PREFIX;
             $usr_id = Auth::getUserID();
     
             // clear the rule matches for this user
-            $stmt = "DELETE FROM ".$dbtp."auth_rule_group_users WHERE argu_usr_id='".$usr_id."'";
+            $stmt = "DELETE FROM ".$dbtp."auth_rule_group_users WHERE argu_usr_id=".$usr_id;
     		$res = $GLOBALS["db_api"]->dbh->query($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -1699,7 +2016,7 @@ class Auth
             // test and insert matching rules for this user
             $authStmt = "
                 INSERT INTO ".$dbtp."auth_rule_group_users (argu_arg_id, argu_usr_id)
-                SELECT distinct argr_arg_id, '".$usr_id."' FROM ".$dbtp."auth_rule_group_rules
+                SELECT distinct argr_arg_id, ".$usr_id." FROM ".$dbtp."auth_rule_group_rules
                 INNER JOIN ".$dbtp."auth_rules ON argr_ar_id=ar_id
                 AND 
                 (
@@ -1782,6 +2099,8 @@ class Auth
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
                 return -1;
             }
+			//
+			Auth::setSession('auth_index_user_rule_groups', Auth::getUserAuthRuleGroups($usr_id));
             Auth::setSession('auth_index_highest_rule_group', AuthIndex::highestRuleGroup());
         }
         Auth::setSession('can_edit', null);
@@ -1856,6 +2175,7 @@ class Auth
             if (Auth::isAdministrator()) {
               $result = 1;    
             } else {
+//                $count = Collection::getEditListingCount();
                 $count = Collection::getEditListingCount();
                 $result = ($count > 0) ? 1 : -1;
             }

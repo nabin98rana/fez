@@ -83,7 +83,7 @@ class News
         }
 
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "news
+                    " . APP_TABLE_PREFIX . "news
                  (
                     nws_usr_id,
                     nws_created_date,
@@ -129,7 +129,7 @@ class News
 
         $items = @implode(", ", $HTTP_POST_VARS["items"]);
         $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "news
+                    " . APP_TABLE_PREFIX . "news
                  WHERE
                     nws_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -160,7 +160,7 @@ class News
         $existing_res = News::getDetails($HTTP_POST_VARS["id"]);
 
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "news
+                    " . APP_TABLE_PREFIX . "news
                  SET
                     nws_title='" . Misc::escapeString($HTTP_POST_VARS["title"]) . "',
                     nws_message='" . Misc::escapeString($HTTP_POST_VARS["message"]) . "',
@@ -196,7 +196,7 @@ class News
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "news
+                    " . APP_TABLE_PREFIX . "news
                  WHERE
                     nws_id=".$nws_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
@@ -220,8 +220,8 @@ class News
         $stmt = "SELECT
 					*
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "news,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user					
+                    " . APP_TABLE_PREFIX . "news,
+                    " . APP_TABLE_PREFIX . "user					
                  WHERE nws_status = 'active' and usr_id = nws_usr_id
                  ORDER BY
                     nws_created_date DESC
@@ -254,8 +254,8 @@ class News
         $stmt = "SELECT
 					*
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "news,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user					
+                    " . APP_TABLE_PREFIX . "news,
+                    " . APP_TABLE_PREFIX . "user					
 				 WHERE usr_id = nws_usr_id
                  ORDER BY
                     nws_created_date DESC";

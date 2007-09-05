@@ -65,7 +65,7 @@ class Group
         $stmt = "SELECT
                     COUNT(*) AS total
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group
+                    " . APP_TABLE_PREFIX . "group
                  WHERE
                     grp_id=".$grp_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -94,7 +94,7 @@ class Group
         $stmt = "SELECT
                     grp_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group
+                    " . APP_TABLE_PREFIX . "group
                  WHERE
                     grp_title='".$grp_title."'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -125,7 +125,7 @@ class Group
         $stmt = "SELECT
                     grp_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group
+                    " . APP_TABLE_PREFIX . "group
                  WHERE
                     grp_id=".$grp_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -153,7 +153,7 @@ class Group
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group
+                    " . APP_TABLE_PREFIX . "group
                  WHERE
                     grp_id=".$grp_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
@@ -179,7 +179,7 @@ class Group
 
         $items = @implode(", ", $HTTP_POST_VARS["items"]);
         $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group
+                    " . APP_TABLE_PREFIX . "group
                  WHERE
                     grp_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -205,7 +205,7 @@ class Group
     {
         $items = @implode(", ", $ids);
         $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group_user
+                    " . APP_TABLE_PREFIX . "group_user
                  WHERE
                     gpu_grp_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -232,7 +232,7 @@ class Group
             return -2;
         }
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group
+                    " . APP_TABLE_PREFIX . "group
                  SET
                     grp_title='" . Misc::escapeString($HTTP_POST_VARS["title"]) . "',
                     grp_status='" . Misc::escapeString($HTTP_POST_VARS["status"]) . "'
@@ -263,7 +263,7 @@ class Group
     function associateUser($grp_id, $usr_id)
     {
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group_user
+                    " . APP_TABLE_PREFIX . "group_user
                  (
                     gpu_usr_id,
                     gpu_grp_id
@@ -295,7 +295,7 @@ class Group
             return -2;
         }
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group
+                    " . APP_TABLE_PREFIX . "group
                  (
                     grp_created_date,
                     grp_title,
@@ -332,7 +332,7 @@ class Group
         $stmt = "SELECT
 					*
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group
+                    " . APP_TABLE_PREFIX . "group
                  ORDER BY
                     grp_title";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -365,8 +365,8 @@ class Group
                     grp_id,
                     grp_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group_user
+                    " . APP_TABLE_PREFIX . "group,
+                    " . APP_TABLE_PREFIX . "group_user
                  WHERE
                     grp_id=gpu_grp_id AND
                     gpu_usr_id=".$usr_id."
@@ -399,7 +399,7 @@ class Group
                     grp_id,
                     grp_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group
+                    " . APP_TABLE_PREFIX . "group
                  ORDER BY
                     grp_title";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
@@ -426,8 +426,8 @@ class Group
                     usr_id,
                     usr_full_name
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group_user
+                    " . APP_TABLE_PREFIX . "user,
+                    " . APP_TABLE_PREFIX . "group_user
                  WHERE
                     gpu_grp_id in (".$grp_id.") AND
                     gpu_usr_id=usr_id ";
@@ -457,8 +457,8 @@ class Group
         $stmt = "SELECT
                     usr_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group_user
+                    " . APP_TABLE_PREFIX . "user,
+                    " . APP_TABLE_PREFIX . "group_user
                  WHERE
                     gpu_grp_id=".$grp_id." AND
                     gpu_usr_id=usr_id
@@ -487,7 +487,7 @@ class Group
         $stmt = "SELECT
                     gpu_grp_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group_user
+                    " . APP_TABLE_PREFIX . "group_user
                  WHERE
                     gpu_usr_id=".$usr_id;
         $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
@@ -514,7 +514,7 @@ class Group
                     grp_id,
                     grp_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group
+                    " . APP_TABLE_PREFIX . "group
 				 WHERE grp_status = 'active'
                  ORDER BY
                     grp_title";
@@ -541,7 +541,7 @@ class Group
                     grp_id,
                     grp_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group
+                    " . APP_TABLE_PREFIX . "group
 				 WHERE grp_status = 'active'
                  ORDER BY
                     grp_title";
@@ -569,7 +569,7 @@ class Group
                     grp_id,
                     grp_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group
+                    " . APP_TABLE_PREFIX . "group
 				 WHERE grp_id <> ".$excluded_grp_id."
                  ORDER BY
                     grp_title";
@@ -598,8 +598,8 @@ class Group
                     usr_full_name,
                     usr_email
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group_user
+                    " . APP_TABLE_PREFIX . "user,
+                    " . APP_TABLE_PREFIX . "group_user
                  WHERE
                     gpu_grp_id=".$grp_id." AND
                     gpu_usr_id=usr_id AND
@@ -632,8 +632,8 @@ class Group
                     usr_full_name,
                     usr_email
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group_user
+                    " . APP_TABLE_PREFIX . "user,
+                    " . APP_TABLE_PREFIX . "group_user
                  WHERE
                     gpu_grp_id=".$grp_id." AND
                     gpu_usr_id=usr_id AND

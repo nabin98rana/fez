@@ -107,7 +107,7 @@ onclick=\"handleXSDMF_Editor('".$pid."','".$xsdmf_cols['xsdmf_id']."','".$vidx."
         $parents = $record_obj->getParents();
         $authors_sub_list = array();
         foreach ($parents as $parent) {
-            $parent_pid = $parent['pid'];
+            $parent_pid = $parent;
             if (!empty($parent_pid) && $parent_pid != "-1") {
               $parent_record = new RecordObject($parent_pid);
               $parent_xdis_id = $parent_record->getXmlDisplayId();

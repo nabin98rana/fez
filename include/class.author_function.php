@@ -64,7 +64,7 @@ class Author_Funct
         $stmt = "SELECT
                     fun_id, fun_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author_function
+                    " . APP_TABLE_PREFIX . "author_function
                  ORDER BY
                     fun_title";
 

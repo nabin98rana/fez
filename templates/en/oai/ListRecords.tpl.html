@@ -9,20 +9,40 @@
 {section name="i" loop=$list}
   <record>
     <header>
-      <identifier>oai:{$app_hostname}:{$list[i].pid}</identifier>
-      <datestamp>{$list[i].created_date.0}</datestamp>
-{assign var="loop_parents" value=$list[i].isMemberOf}
+      <identifier>oai:{$app_hostname}:{$list[i].rek_pid|escape:"html"}</identifier>
+      <datestamp>{$list[i].rek_created_date|escape:"html"}</datestamp>
+{assign var="loop_parents" value=$list[i].rek_isMemberOf}
 {section name="p" loop=$loop_parents}
-      <setSpec>oai:{$app_hostname}:{$loop_parents[p]}</setSpec>
+      <setSpec>oai:{$app_hostname}:{$loop_parents[p]|escape:"html"}</setSpec>
 {/section}   
-{assign var="loop_subjects" value=$list[i].subject_id}
+{assign var="loop_subjects" value=$list[i].rek_subject}
 {section name="s" loop=$loop_subjects}
-      <setSpec>{$app_hostname}:{$app_pid_namespace}:cvo_id:{$loop_subjects[s]}</setSpec>
+      <setSpec>{$app_hostname}:{$app_pid_namespace}:cvo_id:{$loop_subjects[s]|escape:"html"}</setSpec>
 {/section}            
     </header>
     <metadata>
       <oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
-        {$list[i].oai_dc}
+        <dc:title>{$list[i].rek_title|escape:"html"}</dc:title>
+        <dc:identifier>{$app_base_url}view.php?pid={$list[i].rek_pid|escape:"html"}</dc:identifier>
+        <dc:description>{$list[i].rek_description|escape:"html"}</dc:description>
+        <dc:type>{$list[i].rek_display_type_lookup|escape:"html"}</dc:type>
+		{assign var="loop_authors" value=$list[i].rek_author}
+		{section name="a" loop=$loop_authors}
+        <dc:creator>{$list[i].rek_author[a]|escape:"html"}</dc:creator>
+		{/section}
+		{assign var="loop_contributors" value=$list[i].rek_contributor}
+		{section name="a" loop=$loop_contributors}
+        <dc:contributor>{$list[i].rek_contributor[a]|escape:"html"}</dc:contributor>
+		{/section}		
+		{assign var="loop_subjects" value=$list[i].rek_subject_lookup}
+		{section name="s" loop=$loop_subjects}
+        <dc:subject>{$list[i].rek_subject_lookup[s]|escape:"html"}</dc:subject>
+		{/section}
+        <dc:publisher>{$list[i].rek_publisher|escape:"html"}</dc:publisher>
+		{assign var="loop_format" value=$list[i].rek_file_attachment_name}
+		{section name="f" loop=$loop_format}
+        <dc:format>{$app_base_url}eserv.php?pid={$list[i].rek_pid|escape:"html"}&amp;dsID={$list[i].rek_file_attachment_name[f]|escape:"html"}</dc:format>
+		{/section}
       </oai_dc:dc>
     </metadata>
   </record>

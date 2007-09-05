@@ -92,7 +92,7 @@ class Prefs
         $stmt = "SELECT
                     usr_preferences
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  WHERE
                     usr_id=".$usr_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -162,7 +162,7 @@ class Prefs
             'auto_append_sig'         => @$HTTP_POST_VARS['auto_append_sig']
         ));
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  SET
                     usr_preferences='" . Misc::escapeString($data) . "'
                  WHERE

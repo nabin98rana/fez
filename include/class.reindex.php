@@ -57,7 +57,7 @@ include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 include_once(APP_INC_PATH . "class.xsd_loop_subelement.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
-
+include_once(APP_INC_PATH . "class.fedora_direct_access.php");
 
 /**
   * Reindex
@@ -74,9 +74,9 @@ class Reindex
     function inIndex($pid)
     {
         $stmt = "SELECT
-                   *
+                   rek_pid
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field  where rmf_rec_pid='".$pid."' ";
+                    " . APP_TABLE_PREFIX . "record_search_key  where rek_pid='".$pid."' ";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -90,7 +90,7 @@ class Reindex
     {
         if (empty($this->fedoraObjects)) {
             if (!$this->resume) {
-                $res = Fedora_API::callFindObjects(array('pid', 'title', 'state'), 5, $this->terms);
+                $res = Fedora_API::callFindObjects(array('pid', 'title', 'description'), 5, $this->terms);
                 $this->resume = true;
             } else {
                 if (!empty($this->listSession['token'])) {
@@ -102,7 +102,7 @@ class Reindex
             //Error_Handler::logError(print_r($res, true));
 			//print_r($res['resultList']);
             $this->listSession = @$res['listSession'];
-            $this->fedoraObjects = @$res['resultList']['objectFields']; 
+            $this->fedoraObjects = @$res['resultList']['objectFields']; // 2.2 and up!
         }
         return @array_shift($this->fedoraObjects);
     }
@@ -115,7 +115,7 @@ class Reindex
      */
     function getFedoraObjectListDetails($pid)
     {
-        $res = Fedora_API::callFindObjects(array('pid', 'title', 'description', 'state'), 1, $pid);
+        $res = Fedora_API::callFindObjects(array('pid', 'title', 'description'), 1, $pid);
         // Probably should add some error checking here, but for now we only plan to call 
         // this function for PIDs that we are certain exist in the system.
         return @array_shift($res['resultList']['objectFields']);
@@ -159,7 +159,79 @@ class Reindex
      * @access  public
      * @return  array The list.
      */
-    function getMissingList($page = 0, $max=10, $terms)
+    function getMissingList($page = 0, $max=10, $terms="*")
+    {
+		$start = $max * $page;
+		$return = array();
+
+        // Direct Access to Fedora
+        $fedoraDirect = new Fedora_Direct_Access();
+        $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms);
+
+        // Correct for Oracle-produced array key case issue reported by Kostas
+		foreach ($fedoraList as $fkey => $flist) {
+            $fedoraList[$fkey] = array_change_key_case($flist, CASE_LOWER);
+        }
+
+        // Extract just the PIDs
+        $fedoraPIDs = array();
+		foreach ($fedoraList as $flist) {
+        	array_push($fedoraPIDs, $flist['pid']);
+        }
+
+        //$PIDsInFedora = Reindex::getAllFedoraPIDs(); // Old way.
+        $PIDsInFez = Reindex::getPIDlist();
+        $newPIDs = array_values(array_diff($fedoraPIDs, $PIDsInFez));
+
+		if (!is_numeric($max)) {
+			if ($max == "ALL") {
+				return array("list" => $newPIDs);
+			}
+		}
+        // Chop it down until we just have the required number.
+        $newPIDsReduced = array();
+        $listCounter = 0;
+        for ($ii = 0; count($newPIDsReduced) < $max && count($newPIDsReduced) <= count($newPIDs) - 1 && $listCounter < count($newPIDs); $ii++) {
+            if ($listCounter >= $start) {
+                if ($newPIDs[$ii] !== null) {
+                    array_push($newPIDsReduced, $newPIDs[$ii]);
+                }
+            }
+            $listCounter++;
+        }
+
+        foreach ($newPIDsReduced as $pid) {
+        	foreach ($fedoraList as &$flist) {
+        		if ($flist['pid'] == $pid) {
+        			array_push($return, $flist); 
+        		}
+            	//array_push($return, Reindex::getFedoraObjectListDetails($pid));     // Extract details ONLY for the records we're listing. // old way of doing it with fedora api - doesn't scale well
+        	}
+        }
+		$total_rows = sizeof($newPIDs);
+		if (($start + $max) < $total_rows) {
+	        $total_rows_limit = $start + $max;
+		} else {
+		   $total_rows_limit = $total_rows;
+		}
+		$total_pages = ceil($total_rows / $max);
+        $last_page = $total_pages - 1;
+        return array(
+            "list" => $return,
+            "info" => array(
+                "current_page"  => $page,
+                "start_offset"  => $start,
+                "end_offset"    => $start + ($total_rows_limit),
+                "total_rows"    => $total_rows,
+                "total_pages"   => $total_pages,
+                "prev_page" => ($page == 0) ? "-1" : ($page - 1),
+                "next_page"     => ($page == $last_page) ? "-1" : ($page + 1),
+                "last_page"     => $last_page
+            )
+        );
+	}
+
+    function getFullList($page = 0, $max=10, $terms="*")
     {
 		$start = $max * $page;
 		$return = array();
@@ -181,7 +253,7 @@ class Reindex
 
         //$PIDsInFedora = Reindex::getAllFedoraPIDs(); // Old way.
         $PIDsInFez = Reindex::getPIDlist();
-        $newPIDs = array_values(array_diff($fedoraPIDs, $PIDsInFez));
+        $newPIDs = array_values(array_intersect($fedoraPIDs, $PIDsInFez));
 
         // Chop it down until we just have the required number.
         $newPIDsReduced = array();
@@ -226,7 +298,7 @@ class Reindex
         );
 	}
 
-    function getFullList($page, $max, $terms)
+/*    function getFullList($page, $max, $terms)
     {
         $start = $page * $max;
         $this->terms = $terms;
@@ -235,12 +307,13 @@ class Reindex
         $detail = $this->getNextFedoraObject();
         
         for ($ii = 0; !empty($detail) && count($return) < $max ; $detail = $this->getNextFedoraObject()) {
-            if ($detail['state'] == 'A' && Reindex::inIndex($detail['pid'])) {
+            if (Reindex::inIndex($detail['pid'])) {
                 if (++$ii > $start) {
                     array_push($return, $detail);
                 }
             }
-        }
+        } 
+
         if (count($return) < $max) {
             $total_rows = $start + count($return);
         } else {
@@ -267,7 +340,7 @@ class Reindex
             )
         );  
     }
-
+*/
     /**
      * Method used to return a complete list of PIDs in the Fez index.
      *
@@ -277,21 +350,22 @@ class Reindex
      */
     function getPIDlist()
     {
-        $stmt = "SELECT DISTINCT(rmf_rec_pid) 
-                 FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field";
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        $stmt = "SELECT rek_pid
+                 FROM " . APP_TABLE_PREFIX . "record_search_key";
+		$res = $GLOBALS["db_api"]->dbh->getCol($stmt);
 	    if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);			
-			return $res;
+			return -1;
 		}
-        $fezPIDs = array();      // Array for storing the processed results.
+		return $res;
+//        $fezPIDs = array();      // Array for storing the processed results.
         // Step through the results.
-        foreach ($res as $PIDarray) {
+/*        foreach ($res as $PIDarray) {
             foreach ($PIDarray as $PIDarrayVal) {
                 array_push($fezPIDs, $PIDarrayVal);
             }            
-        }
-        return $fezPIDs;
+        }*/
+//        return $fezPIDs;
     }
 
     // This probably wants a re-write at some point too. But at least now we can trigger it ...
@@ -299,29 +373,76 @@ class Reindex
     {
         $this->terms = $terms;
         $ii = 0;
-        for ($detail = $this->getNextFedoraObject(); !empty($detail); $detail = $this->getNextFedoraObject()) {
-            if ($detail['state'] != 'A') {
+        $reindex_record_counter = 0;
+//		$list = Reindex::getMissingList(0,"ALL","*");
+        // Direct Access to Fedora
+        $fedoraDirect = new Fedora_Direct_Access();
+        $fedoraList = $fedoraDirect->fetchAllFedoraPIDs("*");
+		$record_count = count($fedoraList);
+        $bgp_details = $this->bgp->getDetails();
+        // Correct for Oracle-produced array key case issue reported by Kostas
+		if (APP_DB_TYPE == "oracle") {
+			foreach ($fedoraList as &$flist) {
+	            $flist = array_change_key_case($flist, CASE_LOWER);
+	        }
+			$fedoraList = $flist;
+		} 
+//		print_r($list); exit;
+//		$list_detail = $list['list'];
+		foreach ($fedoraList as $detail) {
+            $reindex_record_counter++;
+            if ($detail['objectstate'] != 'A') {
             	continue;
-        	}
+            }
+            $utc_date = Date_API::getSimpleDateUTC();
+            $time_per_object = Date_API::dateDiff("s", $bgp_details['bgp_started'], $utc_date);
+            $date_new = new Date(strtotime($bgp_details['bgp_started']));
+            $time_per_object = round(($time_per_object / $reindex_record_counter), 2);
+            //$expected_finish = Date_API::getFormattedDate($date_new->getTime());
+            $date_new->addSeconds($time_per_object*$record_count);
+            $tz = Date_API::getPreferredTimezone($bgp_details["bgp_usr_id"]);
+			$res[$key]["bgp_started"] = Date_API::getFormattedDate($res[$key]["bgp_started"], $tz);
+            $expected_finish = Date_API::getFormattedDate($date_new->getTime(), $tz);
+
 	        if (!empty($this->bgp)) {
-                $this->bgp->setProgress(++$ii);
-    	    }
-        	if (!Reindex::inIndex($detail['pid'])) {
-        	    if (!empty($this->bgp)) {
-     	    	   $this->bgp->setStatus("Adding: '".$detail['pid']."' '".$detail['title']."'");
-            	}
-	            $params['items'] = array($detail['pid']);
-                Reindex::indexFezFedoraObjects($params);                
-    	    } else {
+                $this->bgp->setProgress(intval(100*$reindex_record_counter/$record_count));
+//	            $this->bgp->setProgress(++$ii);
+	        }
+	        if (!Reindex::inIndex($detail['pid'])) {
 	            if (!empty($this->bgp)) {
+//	                $this->bgp->setStatus("Adding: '".$detail['pid']."' '".$detail['title']."'");
+                    $this->bgp->setStatus("Adding:  '".$detail['pid']."' ".$detail['title']. " (".$reindex_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");    	
+	            }
+	            $params['items'] = array($detail['pid']);
+	            Reindex::indexFezFedoraObjects($params);                
+	        } else {
+	            if (!empty($this->bgp)) {
+                    $this->bgp->setStatus("Skipping Because Already in Fez Index:  '".$detail['pid']."' ".$detail['title']. " (".$reindex_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
+//	                $this->bgp->setStatus("Skipping Because Already in Fez Index: '".$detail['pid']."' '".$detail['title']."'");
+	            }
+	        }
+		}		
+		
+/*        for ($detail = $this->getNextFedoraObject(); !empty($detail); $detail = $this->getNextFedoraObject()) {
+            if (!empty($this->bgp)) {
+                $this->bgp->setProgress(++$ii);
+            }
+            if (!Reindex::inIndex($detail['pid'])) {
+                if (!empty($this->bgp)) {
+                    $this->bgp->setStatus("Adding: '".$detail['pid']."' '".$detail['title']."'");
+                }
+                $params['items'] = array($detail['pid']);
+                Reindex::indexFezFedoraObjects($params);                
+            } else {
+                if (!empty($this->bgp)) {
                     $this->bgp->setStatus("Skipping: '".$detail['pid']."' '".$detail['title']."'");
-    	        }
-        	}
-        }
+                }
+            }
+        } */
     }
 
     function getIndexPIDCount() {
-        $stmt = "select count(distinct rmf_rec_pid) as pid_count from  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field";
+        $stmt = "select count(rek_pid) as pid_count from  " . APP_TABLE_PREFIX . "record_search_key";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -339,16 +460,19 @@ class Reindex
         $ii = 0;
         $reindex_record_counter = 0;
         $record_count = Reindex::getIndexPIDCount();
-        for ($detail = $this->getNextFedoraObject(); !empty($detail); $detail = $this->getNextFedoraObject()) {
-            if ($detail['state'] != 'A') {
+        $bgp_details = $this->bgp->getDetails();
+		$list = Reindex::getFullList(0,9999999999,"*");
+//		$list_detail = $list['list'];
+		foreach ($list['list'] as $detail) {
+            if ($detail['objectstate'] != 'A') {
             	continue;
-        	}
-	        if (!empty($this->bgp)) {
-    	        $this->bgp->setProgress(++$ii);
-        	}
+            }
+            if (!empty($this->bgp)) {
+                $this->bgp->setProgress(++$ii);
+            }
             $reindex_record_counter++;
 
-                    $bgp_details = $this->bgp->getDetails();
+//                    $bgp_details = $this->bgp->getDetails();
                     $utc_date = Date_API::getSimpleDateUTC();
                     $time_per_object = Date_API::dateDiff("s", $bgp_details['bgp_started'], $utc_date);
                     $date_new = new Date(strtotime($bgp_details['bgp_started']));
@@ -365,7 +489,7 @@ class Reindex
                  //   $this->bgp->setStatus("Reindexing: '".$detail['pid']."' '".$detail['title']."'");
                 }
                 $params['items'] = array($detail['pid']);
-                Reindex::indexFezFedoraObjects($params);                
+                Reindex::indexFezFedoraObjects($params);
             } else {
                 if (!empty($this->bgp)) {
                     $this->bgp->setStatus("Skipping: '".$detail['pid']."'  '".$detail['title']."'");

@@ -98,7 +98,7 @@ class History
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "premis_event
+                    " . APP_TABLE_PREFIX . "premis_event
                  WHERE ";
                  if ($show_hidden==false) {
                     $stmt .= "pre_is_hidden != 1 AND ";
@@ -130,7 +130,7 @@ class History
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "premis_event
+                    " . APP_TABLE_PREFIX . "premis_event
                  WHERE ";
                  if ($show_hidden==false) {
                     $stmt .= "pre_is_hidden != 1 AND ";
@@ -149,7 +149,7 @@ class History
             return $res;
         }
     }
-
+	
 	/**
 	 * @param array $term_array - key pairs where the key is the column and the value is the search term 
 	 * 								in the column.
@@ -163,7 +163,7 @@ class History
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "premis_event
+                    " . APP_TABLE_PREFIX . "premis_event
                  WHERE 1 ";
                  $stmt .= $search_clause;
                  if ($show_hidden==false) {
@@ -204,7 +204,7 @@ class History
     	$l_wfl_id = (is_null($wfl_id)) ? 'NULL' : $wfl_id;
     	
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "premis_event
+                    " . APP_TABLE_PREFIX . "premis_event
                  (
                     pre_wfl_id,
                     pre_date,

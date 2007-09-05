@@ -117,6 +117,7 @@ if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
 
 $tpl = new Template_API();
 $tpl->setTemplate("front_page.tpl.html");
+//$tpl->setTemplate("maintenance.tpl.html");
 
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
@@ -130,11 +131,18 @@ $tpl->assign("today", date("Y-m-d"));
 $tpl->assign("today_day_name", date("l"));
 $tpl->assign("yesterday", date("Y-m-d", time()-86400));
 $tpl->assign("last", "Last ");
+
+$list = array();
+//$list = Collection::browseListing(0, 5, "Created Date", $sort_by, 0);
+$options = array();
+$options["sort_order"] = "1";
 $sort_by = "searchKey".Search_Key::getID("Created Date");
-$list = Collection::browseListing(0, 5, "Created Date", $sort_by, 0);
+$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+$list = Record::getListing($options, $approved_roles=array("Lister"), 0,5, "Created Date");
 $tpl->assign("thisYear", date("Y"));
 $tpl->assign("lastYear", date("Y") - 1);
 $list = $list["list"];
+//$list=array();
 $tpl->assign("list", $list);
 $tpl->assign("eserv_url", APP_RELATIVE_URL."eserv.php");
 $news = News::getList(5);       // Maximum of 5 news posts for front page.
@@ -152,4 +160,5 @@ $tpl->headerscript .= "window.oTextbox_front_search
 $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
 $tpl->registerNajax(NAJAX_Client::register('Suggestor', 'index.php'));
 $tpl->displayTemplate();
+//echo ($GLOBALS['bench']->getOutput());
 ?>

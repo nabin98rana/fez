@@ -65,8 +65,13 @@ if ($isAdministrator) {
     if (@$HTTP_GET_VARS["cat"] == "edit") {
         $tpl->assign("info", Search_Key::getDetails($HTTP_GET_VARS["id"]));
     }
-
-    $tpl->assign("list", Search_Key::getList());
+	$list = Search_Key::getList();
+    $tpl->assign("list", $list);
+    $tpl->assign("list_count", count($list));
+	$sek_relationship_list = array(0 => "Core 1->1", 1 => "Related");
+    $tpl->assign("sek_relationship_list", $sek_relationship_list);
+	$sek_data_type_list = array("varchar" => "Varchar(255)", "text" => "Text", "int" => "Integer", "date" => "Date");
+	$tpl->assign("sek_data_type_list", $sek_data_type_list);
     $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 } else {
     $tpl->assign("show_not_allowed_msg", true);

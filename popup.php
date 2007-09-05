@@ -50,7 +50,7 @@ Auth::checkAuthentication(APP_SESSION, 'index.php?err=5', true);
 $isAdministrator = Auth::isAdministrator(); 
 $usr_id = Auth::getUserID();
 $cat = @$HTTP_GET_VARS["cat"] ? @$HTTP_GET_VARS["cat"] : @$HTTP_POST_VARS["cat"];
-
+//echo $cat; exit;
 switch ($cat) 
 {	
 
@@ -58,39 +58,45 @@ switch ($cat)
 	
     case 'purge_datastream':
         {
+			$record = new RecordObject($pid);
             $dsID = $HTTP_GET_VARS["dsID"];
             $pid = $HTTP_GET_VARS["pid"];		
-            $res = Fedora_API::callPurgeDatastream($pid, $dsID);
-            Record::removeIndexRecordByValue($pid, $dsID);
-            $thumbnail = "thumbnail_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
-            $web = "web_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
-            $preview = "preview_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
-            $FezACML_DS = "FezACML_".str_replace(" ", "_", $dsID).".xml";
-            $PresMD_DS = "presmd_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".xml";
-			Record::removeIndexRecord($pid, $dsID, 'keep');
-            if (Fedora_API::datastreamExists($pid, $thumbnail)) {
-                Fedora_API::callPurgeDatastream($pid, $thumbnail);
-                Record::removeIndexRecordByValue($pid, $thumbnail);
-            }
-            if (Fedora_API::datastreamExists($pid, $preview)) {
-				Record::removeIndexRecordByValue($pid, $preview);
-                Fedora_API::callPurgeDatastream($pid, $preview);
-			}
-            if (Fedora_API::datastreamExists($pid, $web)) {
-				Record::removeIndexRecordByValue($pid, $web);
-                Fedora_API::callPurgeDatastream($pid, $web);
-			}
-            if (Fedora_API::datastreamExists($pid, $FezACML_DS)) {
-				Record::removeIndexRecordByValue($pid, $FezACML_DS);			
-                Fedora_API::callPurgeDatastream($pid, $FezACML_DS);
-			}
-            if (Fedora_API::datastreamExists($pid, $PresMD_DS)) {
-				Record::removeIndexRecordByValue($pid, $PresMD_DS);			
-                Fedora_API::callPurgeDatastream($pid, $PresMD_DS);
-			}
+			$record = new RecordObject($pid);
+			if ($record->canEdit) {
+	            $res = Fedora_API::callPurgeDatastream($pid, $dsID);
+	            Record::removeIndexRecordByValue($pid, $dsID);
+	            $thumbnail = "thumbnail_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
+	            $web = "web_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
+	            $preview = "preview_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
+	            $FezACML_DS = "FezACML_".str_replace(" ", "_", $dsID).".xml";
+	            $PresMD_DS = "presmd_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".xml";
+				Record::removeIndexRecord($pid, $dsID, 'keep');
+	            if (Fedora_API::datastreamExists($pid, $thumbnail)) {
+	                Fedora_API::callPurgeDatastream($pid, $thumbnail);
+	                Record::removeIndexRecordByValue($pid, $thumbnail);
+	            }
+	            if (Fedora_API::datastreamExists($pid, $preview)) {
+					Record::removeIndexRecordByValue($pid, $preview);
+	                Fedora_API::callPurgeDatastream($pid, $preview);
+				}
+	            if (Fedora_API::datastreamExists($pid, $web)) {
+					Record::removeIndexRecordByValue($pid, $web);
+	                Fedora_API::callPurgeDatastream($pid, $web);
+				}
+	            if (Fedora_API::datastreamExists($pid, $FezACML_DS)) {
+					Record::removeIndexRecordByValue($pid, $FezACML_DS);			
+	                Fedora_API::callPurgeDatastream($pid, $FezACML_DS);
+				}
+	            if (Fedora_API::datastreamExists($pid, $PresMD_DS)) {
+					Record::removeIndexRecordByValue($pid, $PresMD_DS);			
+	                Fedora_API::callPurgeDatastream($pid, $PresMD_DS);
+				}
 
-            if (count($res) == 1) { $res = 1; } else { $res = -1; }
-            $tpl->assign("purge_datastream_result", $res);
+	            if (count($res) == 1) { $res = 1; } else { $res = -1; }
+	            $tpl->assign("purge_datastream_result", $res);
+			} else {
+				$tpl->assign("purge_datastream_result", -1);
+			}
             break;
         }
     case 'update_form':
@@ -111,7 +117,7 @@ switch ($cat)
             $dsID = $wfstatus->dsID;
 			if ($dsID != "") {
 	            $res = Record::editDatastreamSecurity($pid, $dsID);			
-			} else {
+			} else { 
 	            $res = Record::update($pid, array(""), array("FezACML"));
 			}
             $tpl->assign("update_form_result", $res);
@@ -120,16 +126,16 @@ switch ($cat)
         }		
     case 'purge_object':
         {
-            if ($isAdministrator) {
-                // first delete all indexes about this pid
-                $id = Misc::GETorPOST('id');
-                $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
-                $pid = $wfstatus->pid;
-                Record::removeIndexRecord($pid);
-                $res = Fedora_API::callPurgeObject($pid);
-                $tpl->assign("purge_object_result", $res);
-                $wfstatus->checkStateChange(true);
-            }
+			if ($isAdministrator) {
+	            // first delete all indexes about this pid
+	            $id = Misc::GETorPOST('id');
+	            $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
+	            $pid = $wfstatus->pid;
+	            Record::removeIndexRecord($pid);
+	            $res = Fedora_API::callPurgeObject($pid);
+	            $tpl->assign("purge_object_result", $res);
+	            $wfstatus->checkStateChange(true);
+			}
             break;
         }
     case 'new_workflow_triggers':
@@ -157,39 +163,41 @@ switch ($cat)
         }
     case 'delete_background_processes':
         {
-            $items = Misc::GETorPOST('items');
-            $bgpl = new BackgroundProcessList();
-            $res = $bgpl->delete($items);
-            $tpl->assign('generic_result', $res);
-            $tpl->assign("generic_action",'delete');
-            $tpl->assign("generic_type",'background processes');
+			if ($isAdministrator) {
+	            $items = Misc::GETorPOST('items');
+	            $bgpl = new BackgroundProcessList();
+	            $res = $bgpl->delete($items);
+	            $tpl->assign('generic_result', $res);
+	            $tpl->assign("generic_action",'delete');
+	            $tpl->assign("generic_type",'background processes');
+			}
             break;
         }
-	case 'purge_objects':
-	        {
-	            if ($isAdministrator) {
-					// first delete all indexes about this pid
-					$items = Misc::GETorPOST('items');
-					if (empty($items)) { // is named pids on the list form
-					    $items = Misc::GETorPOST('pids');
-					}
-					foreach ($items as $pid) {
-					//                $rec_obj = new Record($pid);
-					//                if ($rec_object->canDelete()) {
-					        Record::removeIndexRecord($pid);
-					        $res = Fedora_API::callPurgeObject($pid);
-					//                }
-					}
-					$tpl->assign("purge_object_result", $res);
-					break;
+    case 'purge_objects':
+        {
+            // first delete all indexes about this pid
+            $items = Misc::GETorPOST('items');
+            if (empty($items)) { // is named pids on the list form
+	            $items = Misc::GETorPOST('pids');
+            }
+            foreach ($items as $pid) {
+	            $rec_obj = new Record($pid);
+				if ($rec_object->canDelete()) {	    
+	                Record::removeIndexRecord($pid);
+	                $res = Fedora_API::callPurgeObject($pid);
 				}
-	        }
+            }
+            $tpl->assign("purge_object_result", $res);
+            break;
+        }
     case 'publish_objects':
         {
             $items = Misc::GETorPOST('pids');
             foreach ($items as $pid) {
-                $rec_obj = new RecordGeneral($pid);
-                $res = $rec_obj->setStatusId(2);
+                $rec_obj = new Record($pid);
+				if ($rec_object->canApprove()) {
+                	$res = $rec_obj->setStatusId(2);					
+				}
             }
             $tpl->assign('generic_result', $res);
             $tpl->assign("generic_action",'publish');
@@ -198,7 +206,6 @@ switch ($cat)
         }
 
 }
-
 
 
 $tpl->assign("current_user_prefs", Prefs::get($usr_id));

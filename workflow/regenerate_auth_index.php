@@ -9,7 +9,7 @@ if (!empty($pid) && !is_numeric($pid)) {
 } else {
     $list = Community::getList(0,1000000);
     foreach ($list['list'] as $item) {
-        AuthIndex::setIndexAuth($item['pid'],true);
+        AuthIndex::setIndexAuth($item['rek_pid'],true);
     }
 }
 

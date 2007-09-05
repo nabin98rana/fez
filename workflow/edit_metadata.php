@@ -75,6 +75,11 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
 $tpl->assign("isAdministrator", $isAdministrator);
 
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
+if (empty($wfstatus)) {
+	echo "This workflow has finished and cannot be resumed";
+	exit;
+}
+
 $pid = $wfstatus->pid;
 $wfstatus->setTemplateVars($tpl);
 $tpl->assign("submit_to_popup", true);

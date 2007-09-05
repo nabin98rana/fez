@@ -89,7 +89,7 @@ class WorkflowStatus {
     function newDBSession()
     {
         $usr_id = Auth::getUserID();
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         $stmt = "INSERT INTO ".$dbtp."workflow_sessions (wfses_usr_id, wfses_listing, wfses_date) " .
                 "VALUES ('".$usr_id."','',NOW())";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -110,8 +110,8 @@ class WorkflowStatus {
         }
         return $this->rec_obj;
     }
-    
-    function getRecordTtitle()
+
+    function getRecordTitle()
     {
     	if (empty($this->record_title)) {
 	        if ($this->pid && !is_numeric($this->pid)) {
@@ -131,7 +131,7 @@ class WorkflowStatus {
         $this->getStateDetails();
         $title = $this->wfl_details['wfl_title'].": ".$this->wfs_details['wfs_title'];
         if ($this->pid && !is_numeric($this->pid)) {
-            $title .= " on ".$this->pid.": ". $this->getRecordTtitle();
+            $title .= " on ".$this->pid.": ". $this->getRecordTitle();
         }
         $date = Date_API::getCurrentDateGMT();
         $usr_id = Auth::getUserID();
@@ -150,7 +150,7 @@ class WorkflowStatus {
         if (strlen($blob) > 64000) {
         	Error_Handler::logError("Maximum size of workflow session data exceeded", __FILE__,__LINE__);
         }
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         $stmt = "UPDATE ".$dbtp."workflow_sessions " .
                 "SET wfses_object='".$blob."', wfses_listing='".$title."', wfses_date='".$date."' " .
                 "WHERE wfses_id='".$id."' AND wfses_usr_id='".$usr_id."' ";
@@ -175,7 +175,7 @@ class WorkflowStatus {
     {
         $usr_id = Auth::getUserID();
         $id = $this->id;
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         $stmt = "DELETE FROM ".$dbtp."workflow_sessions " .
                 "WHERE wfses_id='".$id."' AND wfses_usr_id='".$usr_id."' ";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -219,7 +219,7 @@ class WorkflowStatus {
             $this->parents_list = null;
             if ($wft_type == 'Create') {
                 $this->parent_pid = $this->pid;
-            } elseif ($wft_type != 'Ingest') {
+            } elseif (($wft_type != 'Ingest') && ($this->dsID == "")) {
                 $this->getRecordObject();
                 $this->parents_list = $this->rec_obj->getParents();
             }
@@ -289,7 +289,7 @@ class WorkflowStatus {
             }
         }
     }
-    
+
     function addToStateHistory()
     {
         $history_end = Misc::array_last($this->states_done);
@@ -307,6 +307,7 @@ class WorkflowStatus {
         $this->getTriggerDetails();
         $this->getStateDetails();
         $this->addToStateHistory();
+        $this->states_done[] = array_merge($this->wfs_details, $this->wfb_details);
         $this->setSession();
 
         if ($this->wfb_details['wfb_auto']) {
@@ -345,7 +346,7 @@ class WorkflowStatus {
         if (($wft_type != 'Delete') && !empty($this->pid))  {
             History::addHistory($pid, $this->wfl_details['wfl_id'], $outcome, $outcome_details, true);
         } elseif (!empty($this->parents_list)) {
-            History::addHistory($this->parents_list[0]['pid'], $this->wfl_details['wfl_id'], "", "Deleted child ".$pid, true);
+            History::addHistory($this->parents_list['rek_pid'], $this->wfl_details['wfl_id'], "", "Deleted child ".$pid, true);
         }
         $this->clearSession();
         if ($wft_type != 'Ingest') {
@@ -547,7 +548,7 @@ class WorkflowStatusStatic
             $wfs_id = Misc::GETorPOST('wfs_id');
         }
         $obj = null;
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         $stmt = "SELECT wfses_object FROM ".$dbtp."workflow_sessions " .
                 "WHERE wfses_usr_id='".$usr_id."'  AND wfses_id='".$id."' ";  
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -571,7 +572,7 @@ class WorkflowStatusStatic
     
     function getList($usr_id = null)
     {
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         if (!empty($usr_id)) {
             $where_user = "wfses_usr_id='".$usr_id."'"; 
         } else {
@@ -599,7 +600,7 @@ class WorkflowStatusStatic
      */
     function remove($id = null, $usr_id = null)
     {
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         if (empty($id)) {
             $id = Misc::GETorPOST('id');
         }

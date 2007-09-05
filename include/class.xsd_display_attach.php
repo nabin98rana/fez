@@ -65,9 +65,9 @@ class XSD_Display_Attach
         $stmt = "SELECT
 					*
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_attach left join
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields on (att_parent_xsdmf_id=".$xsdmf_id." and att_child_xsdmf_id = xsdmf_id)
-                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display on (xdis_id = xsdmf_xdis_id)
+                    " . APP_TABLE_PREFIX . "xsd_display_attach left join
+                    " . APP_TABLE_PREFIX . "xsd_display_matchfields on (att_parent_xsdmf_id=".$xsdmf_id." and att_child_xsdmf_id = xsdmf_id)
+                    inner join " . APP_TABLE_PREFIX . "xsd_display on (xdis_id = xsdmf_xdis_id)
 					";
 		$stmt .= " ORDER BY att_order ASC";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -91,7 +91,7 @@ class XSD_Display_Attach
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_attach
+                    " . APP_TABLE_PREFIX . "xsd_display_attach
                  WHERE
                     att_id=".$att_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
@@ -115,7 +115,7 @@ class XSD_Display_Attach
         $items = @implode(", ", $HTTP_POST_VARS["items"]);
 
         $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_attach
+                    " . APP_TABLE_PREFIX . "xsd_display_attach
                  WHERE
                     att_id  IN (" . $items . ")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -140,7 +140,7 @@ class XSD_Display_Attach
         global $HTTP_POST_VARS;
 
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_attach
+                    " . APP_TABLE_PREFIX . "xsd_display_attach
                  (
                     att_parent_xsdmf_id,
                     att_child_xsdmf_id,
@@ -171,7 +171,7 @@ class XSD_Display_Attach
         global $HTTP_POST_VARS;
 
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_attach
+                    " . APP_TABLE_PREFIX . "xsd_display_attach
                  SET 
                     att_parent_xsdmf_id = " . Misc::escapeString($HTTP_POST_VARS["att_parent_xsdmf_id"]) . ",
                     att_child_xsdmf_id = " . Misc::escapeString($HTTP_POST_VARS["att_child_xsdmf_id"]) . ",

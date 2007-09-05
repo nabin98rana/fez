@@ -74,7 +74,7 @@ class Org_Structure
 		}
         $all_items = ltrim(Org_Structure::implode_r(", ", $all_items), ", ");
         $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure
+                    " . APP_TABLE_PREFIX . "org_structure
                  WHERE
                     org_id IN (".$all_items.")";
 		Org_Structure::deleteRelationship($all_items);
@@ -116,7 +116,7 @@ class Org_Structure
      */		
 	function deleteRelationship($items) {
         $stmt = "DELETE FROM 
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure_relationship
+                    " . APP_TABLE_PREFIX . "org_structure_relationship
                  WHERE
                     orr_parent_org_id IN (".$items.") OR orr_child_org_id IN (".$items.")";
 
@@ -141,7 +141,7 @@ class Org_Structure
         global $HTTP_POST_VARS;
 		
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure
+                    " . APP_TABLE_PREFIX . "org_structure
                  (
                     org_title,
 					org_desc,
@@ -185,7 +185,7 @@ class Org_Structure
 
 		
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure_relationship
+                    " . APP_TABLE_PREFIX . "org_structure_relationship
                  (
                     orr_parent_org_id,
                     orr_child_org_id					
@@ -213,7 +213,7 @@ class Org_Structure
         global $HTTP_POST_VARS;
 
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure
+                    " . APP_TABLE_PREFIX . "org_structure
                  SET 
                     org_title = '" . Misc::escapeString($HTTP_POST_VARS["org_title"]) . "',
                     org_desc = '" . Misc::escapeString($HTTP_POST_VARS["org_desc"]) . "',
@@ -243,7 +243,7 @@ class Org_Structure
         $stmt = "SELECT
                     org_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure
+                    " . APP_TABLE_PREFIX . "org_structure
                  WHERE
                     org_id=".$org_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -270,8 +270,8 @@ class Org_Structure
                     org_id,
 					org_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure
-			     WHERE org_id not in (SELECT orr_child_org_id from  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure_relationship)
+                    " . APP_TABLE_PREFIX . "org_structure
+			     WHERE org_id not in (SELECT orr_child_org_id from  " . APP_TABLE_PREFIX . "org_structure_relationship)
                  ORDER BY
                     org_title ASC";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
@@ -296,7 +296,7 @@ class Org_Structure
                     org_id,
 					org_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure
+                    " . APP_TABLE_PREFIX . "org_structure
                  ORDER BY
                     org_title ASC";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
@@ -322,7 +322,7 @@ class Org_Structure
                     org_id,
 					org_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure
+                    " . APP_TABLE_PREFIX . "org_structure
 				 WHERE org_id = ".$id;
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
         if (PEAR::isError($res)) {
@@ -347,7 +347,7 @@ class Org_Structure
                     org_id,
 					org_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure
+                    " . APP_TABLE_PREFIX . "org_structure
 				 WHERE org_ext_table = '".$org_level."'";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
         if (PEAR::isError($res)) {
@@ -372,7 +372,7 @@ class Org_Structure
                     distinct org_ext_table,
 					org_ext_table
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure";
+                    " . APP_TABLE_PREFIX . "org_structure";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -397,7 +397,7 @@ class Org_Structure
                     org_id,
 					org_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure
+                    " . APP_TABLE_PREFIX . "org_structure
 				 WHERE org_id = ".$id;
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt);
         if (PEAR::isError($res)) {
@@ -423,7 +423,7 @@ class Org_Structure
                     org_title,
                     org_ext_table 
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure
+                    " . APP_TABLE_PREFIX . "org_structure
                  ORDER BY 
                     org_title";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -452,13 +452,13 @@ class Org_Structure
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure ";
+                    " . APP_TABLE_PREFIX . "org_structure ";
 
 		if (is_numeric($parent_id)) {
-			$stmt .=   "," . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure_relationship 
+			$stmt .=   "," . APP_TABLE_PREFIX . "org_structure_relationship 
 					     WHERE orr_parent_org_id = ".$parent_id." AND orr_child_org_id = org_id ";			
 		} else {
-			$stmt .= " WHERE org_id not in (SELECT orr_child_org_id from  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure_relationship)";
+			$stmt .= " WHERE org_id not in (SELECT orr_child_org_id from  " . APP_TABLE_PREFIX . "org_structure_relationship)";
 		}
 		$stmt .= "
                  ORDER BY
@@ -496,13 +496,13 @@ class Org_Structure
                     org_id,
 					concat('".$indent."',org_title) as org_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure ";
+                    " . APP_TABLE_PREFIX . "org_structure ";
 
 		if (is_numeric($parent_id)) {
-			$stmt .=   "," . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure_relationship 
+			$stmt .=   "," . APP_TABLE_PREFIX . "org_structure_relationship 
 					     WHERE orr_parent_org_id = ".$parent_id." AND orr_child_org_id = org_id ";			
 		} else {
-			$stmt .= " WHERE org_id not in (SELECT orr_child_org_id from  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure_relationship)";
+			$stmt .= " WHERE org_id not in (SELECT orr_child_org_id from  " . APP_TABLE_PREFIX . "org_structure_relationship)";
 		}
 /*		$stmt .= "
                  ORDER BY
@@ -556,8 +556,8 @@ class Org_Structure
                     org_id,
 					concat('".$indent."',org_title) as org_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure ";
-			$stmt .=   "," . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure_relationship 
+                    " . APP_TABLE_PREFIX . "org_structure ";
+			$stmt .=   "," . APP_TABLE_PREFIX . "org_structure_relationship 
 					     WHERE orr_parent_org_id = org_id AND orr_child_org_id = ".$child_id;			
 		$stmt .= "
                  ORDER BY
@@ -606,7 +606,7 @@ class Org_Structure
                     aut_id,
                     concat_ws(', ',   aut_lname, aut_mname, aut_fname, aut_id) as aut_fullname
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author INNER JOIN ".
+                    " . APP_TABLE_PREFIX . "author INNER JOIN ".
 			            APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author_org_structure ON (auo_org_id = ".$org_id." AND aut_id = auo_aut_id)
 				 WHERE auo_assessed = 'Y'
                  ORDER BY
@@ -637,8 +637,8 @@ class Org_Structure
                     org_id,
 					concat('".$indent."',org_title) as org_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure ";
-			$stmt .=   "," . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure_relationship 
+                    " . APP_TABLE_PREFIX . "org_structure ";
+			$stmt .=   "," . APP_TABLE_PREFIX . "org_structure_relationship 
 					     WHERE orr_parent_org_id = org_id AND orr_child_org_id = ".$child_id;			
 		$stmt .= "
                  ORDER BY
@@ -685,12 +685,12 @@ class Org_Structure
         $stmt = "SELECT
                     org_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure ";
+                    " . APP_TABLE_PREFIX . "org_structure ";
 		if (is_numeric($parent_id)) {
-			$stmt .=   "," . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure_relationship 
+			$stmt .=   "," . APP_TABLE_PREFIX . "org_structure_relationship 
 						 WHERE orr_parent_org_id = ".$parent_id." AND orr_child_org_id = org_id ";			
 		} else {
-			$stmt .= " WHERE org_id not in (SELECT orr_child_org_id from  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure_relationship)";
+			$stmt .= " WHERE org_id not in (SELECT orr_child_org_id from  " . APP_TABLE_PREFIX . "org_structure_relationship)";
 		}
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt);
         if (PEAR::isError($res)) {
@@ -724,7 +724,7 @@ class Org_Structure
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure
+                    " . APP_TABLE_PREFIX . "org_structure
                  WHERE
                     org_id=".$org_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);

@@ -80,7 +80,7 @@ class Search_Key
 
         $items = @implode(", ", $HTTP_POST_VARS["items"]);
         $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
+                    " . APP_TABLE_PREFIX . "search_key
                  WHERE
                     sek_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -121,17 +121,22 @@ class Search_Key
 		
 		
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
+                    " . APP_TABLE_PREFIX . "search_key
                  (
                     sek_title,
 					sek_alt_title,
+					sek_meta_header,
 					sek_simple_used,
 					sek_adv_visible,
 					sek_myfez_visible,";
 				if (is_numeric($HTTP_POST_VARS["sek_order"])) {
 					$stmt .= " sek_order, ";
 				}
+				if (is_numeric($HTTP_POST_VARS["sek_relationship"])) {
+					$stmt .= " sek_relationship, ";
+				}				
 		$stmt .= "
+					sek_data_type,
 					sek_html_input,
 					sek_fez_variable,
 					sek_lookup_function,
@@ -143,13 +148,18 @@ class Search_Key
                  ) VALUES (
                     '" . Misc::escapeString($HTTP_POST_VARS["sek_title"]) . "',
 					'" . Misc::escapeString($HTTP_POST_VARS["sek_alt_title"]) . "',
+					'" . Misc::escapeString($HTTP_POST_VARS["sek_meta_header"]) . "',
 					" . $sek_simple_used .",
 					" . $sek_adv_visible .",
 					" . $sek_myfez_visible .",";
 					if (is_numeric($HTTP_POST_VARS["sek_order"])) {
 	                    $stmt .=  $HTTP_POST_VARS["sek_order"] . ",";
 					}
+					if (is_numeric($HTTP_POST_VARS["sek_relationship"])) {
+	                    $stmt .=  $HTTP_POST_VARS["sek_relationship"] . ",";
+					}					
 					$stmt .= "
+                    '" . Misc::escapeString($HTTP_POST_VARS["sek_data_type"]) . "',					
                     '" . Misc::escapeString($HTTP_POST_VARS["field_type"]) . "',					
                     '" . Misc::escapeString($HTTP_POST_VARS["sek_fez_variable"]) . "',
 					'" . Misc::escapeString($HTTP_POST_VARS["sek_lookup_function"]) . "',					
@@ -197,20 +207,25 @@ class Search_Key
 		
 		
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
+                    " . APP_TABLE_PREFIX . "search_key
                  SET 
                     sek_title = '" . Misc::escapeString($HTTP_POST_VARS["sek_title"]) . "',
 					sek_alt_title = '" . Misc::escapeString($HTTP_POST_VARS["sek_alt_title"]) . "',
+                    sek_meta_header = '" . Misc::escapeString($HTTP_POST_VARS["sek_meta_header"]) . "',
 					sek_simple_used = ".$sek_simple_used.",
 					sek_myfez_visible = ".$sek_myfez_visible.",
 					sek_adv_visible = ".$sek_adv_visible.",";
 					if ($HTTP_POST_VARS["sek_order"]) {
 						$stmt .= "sek_order = ".$HTTP_POST_VARS["sek_order"].",";
 					}
+					if ($HTTP_POST_VARS["sek_relationship"]) {
+						$stmt .= "sek_relationship = ".$HTTP_POST_VARS["sek_relationship"].",";
+					}
 					$stmt .= "
                     sek_html_input = '" . Misc::escapeString($HTTP_POST_VARS["field_type"]) . "',
                     sek_smarty_variable = '" . Misc::escapeString($HTTP_POST_VARS["sek_smarty_variable"]) . "',
 					sek_lookup_function = '" . Misc::escapeString($HTTP_POST_VARS["sek_lookup_function"]) . "',
+					sek_data_type = '" . Misc::escapeString($HTTP_POST_VARS["sek_data_type"]) . "',
                     sek_fez_variable = '" . Misc::escapeString($HTTP_POST_VARS["sek_fez_variable"]) . "'";
 					if (is_numeric($HTTP_POST_VARS["sek_cvo_id"])) {
 						$stmt .= ",sek_cvo_id = ".$HTTP_POST_VARS["sek_cvo_id"];
@@ -239,7 +254,7 @@ class Search_Key
     	$stmt = "SELECT
                      sek_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
+                    " . APP_TABLE_PREFIX . "search_key
                  WHERE
                     sek_title='".$sek_title."'";
     	$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -264,7 +279,7 @@ class Search_Key
         $stmt = "SELECT
                      IF(sek_alt_title <> '', sek_alt_title, sek_title)
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
+                   " . APP_TABLE_PREFIX . "search_key
                  WHERE
                     sek_id=".$sek_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -289,7 +304,7 @@ class Search_Key
         $stmt = "SELECT
                     sek_fez_variable
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
+                    " . APP_TABLE_PREFIX . "search_key
                  WHERE
                     sek_id=".$sek_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -311,9 +326,9 @@ class Search_Key
     function getMaxID()
     {
         $stmt = "SELECT
-                    max(sek_id)
+                    MAX(sek_id)
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key";
+                    " . APP_TABLE_PREFIX . "search_key";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -337,7 +352,7 @@ class Search_Key
                     sek_id,
 					IF(sek_alt_title <> '', sek_alt_title, sek_title)
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
+                    " . APP_TABLE_PREFIX . "search_key
                  ORDER BY
                     sek_order ASC";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
@@ -362,9 +377,9 @@ class Search_Key
                     sek_id,
 					IF(sek_alt_title <> '', sek_alt_title, sek_title)
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key ";
+                    " . APP_TABLE_PREFIX . "search_key ";
         if ($hide_unused == 1) {
-        	$stmt .= " INNER JOIN ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+        	$stmt .= " INNER JOIN " . APP_TABLE_PREFIX . "xsd_display_matchfields
                     on xsdmf_sek_id=sek_id ";
         }
         $stmt .= "
@@ -394,7 +409,7 @@ class Search_Key
 					IF(sek_alt_title <> '', sek_alt_title, sek_title),
 					sek_fez_variable
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
+                    " . APP_TABLE_PREFIX . "search_key
 				 WHERE sek_adv_visible = 1                    
                  ORDER BY
                     sek_order ASC";
@@ -445,7 +460,7 @@ class Search_Key
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
+                    " . APP_TABLE_PREFIX . "search_key
                  ORDER BY
                     sek_order ASC";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -476,7 +491,7 @@ class Search_Key
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
+                    " . APP_TABLE_PREFIX . "search_key
 				 WHERE sek_adv_visible = 1
                  ORDER BY
                     sek_order ASC";
@@ -508,7 +523,7 @@ class Search_Key
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
+                    " . APP_TABLE_PREFIX . "search_key
 				 WHERE sek_myfez_visible = 1
                  ORDER BY
                     sek_order ASC";
@@ -522,7 +537,7 @@ class Search_Key
             } else {
 	          for ($i = 0; $i < count($res); $i++) {
 	          	$res[$i]["field_options"] = Search_Key::getOptions($res[$i]["sek_smarty_variable"]);
-	          }	            	
+	          }
 	          return $res;
             }
         }
@@ -540,7 +555,7 @@ class Search_Key
     	$stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
+                    " . APP_TABLE_PREFIX . "search_key
 				 WHERE sek_simple_used = 1
                  ORDER BY
                     sek_order ASC";
@@ -581,7 +596,7 @@ class Search_Key
         $stmt = "SELECT
                     sek_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
+                    " . APP_TABLE_PREFIX . "search_key
 				 WHERE
 				   sek_simple_used = 1";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -609,8 +624,8 @@ class Search_Key
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
-                    left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+                    " . APP_TABLE_PREFIX . "search_key
+                    left join " . APP_TABLE_PREFIX . "xsd_display_matchfields
                     on xsdmf_sek_id=sek_id                    
                  WHERE
                     sek_id=".$sek_id;
@@ -620,10 +635,71 @@ class Search_Key
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
+    		$res['sek_title_db'] = Search_Key::makeSQLTableName($res['sek_title']);        	
             return $res;
         }
     }
 
+    /**
+     * Method used to get the details of a specific search key from a passed XSDMF match
+     *
+     * @access  public
+     * @param   integer $xsdmf_id The xsd matching field ID
+     * @return  array The search key details
+     */
+    function getDetailsByXSDMF_ID($xsdmf_id)
+    {
+        $stmt = "SELECT
+                    s1.*
+                 FROM
+                    " . APP_TABLE_PREFIX . "search_key as s1
+                    inner join " . APP_TABLE_PREFIX . "xsd_display_matchfields as x1
+                    on xsdmf_sek_id=sek_id                    
+                 WHERE
+                    xsdmf_id=".$xsdmf_id;
+        
+        $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+			if ($res['sek_id']) {
+    			$res['sek_title_db'] = Search_Key::makeSQLTableName($res['sek_title']);
+			}
+            return $res;
+        }
+    }
+
+
+    /**
+     * Method used to get the basic details of a specific search key.
+     *
+     * @access  public
+     * @param   integer $sek_id The search key ID
+     * @return  array The search key details
+     */
+    function getBasicDetails($sek_id)
+    {
+        $stmt = "SELECT
+                    *
+                 FROM
+                    " . APP_TABLE_PREFIX . "search_key
+                 WHERE
+                    sek_id=".$sek_id;
+        
+        $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+    		$res['sek_title_db'] = Search_Key::makeSQLTableName($res['sek_title']);        	
+            return $res;
+        }
+    }
+
+    function makeSQLTableName($sek_title) {
+    	return str_replace(" ", "_", trim(strtolower($sek_title)));
+    }
     /**
      * Method used to get the details of a specific search key.
      *
@@ -636,8 +712,8 @@ class Search_Key
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key
-                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+                    " . APP_TABLE_PREFIX . "search_key
+                    inner join " . APP_TABLE_PREFIX . "xsd_display_matchfields
                     on xsdmf_sek_id=sek_id
                  WHERE
                     sek_title='".$sek_title."'";
@@ -646,11 +722,40 @@ class Search_Key
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
+    		$res['sek_title_db'] = Search_Key::makeSQLTableName($res['sek_title']);        	
+            return $res;
+        }
+    }
+
+
+
+    /**
+     * Method used to get the details of a specific search key.
+     *
+     * @access  public
+     * @param   string $sek_title The search key title
+     * @return  array The search key details
+     */
+    function getBasicDetailsByTitle($sek_title)
+    {
+        $stmt = "SELECT
+                    *
+                 FROM
+                    " . APP_TABLE_PREFIX . "search_key
+                 WHERE
+                    sek_title='".$sek_title."'";
+        $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+    		$res['sek_title_db'] = Search_Key::makeSQLTableName($res['sek_title']);        	
             return $res;
         }
     }
 
 }
+
 
 // benchmarking the included file (aka setup time)
 if (APP_BENCHMARK) {

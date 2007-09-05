@@ -14,19 +14,43 @@
      {cycle values=$cycle assign="row_color"}
      <tr>
        <td bgcolor="{$row_color}" class="default">
-         &nbsp;<a href="{$rel_url}list.php?collection_pid={$list[i].pid|escape}">{$list[i].title.0|escape}</a>
+         &nbsp;<a href="{$rel_url}list.php?collection_pid={$list[i].rek_pid|escape}">{$list[i].rek_title|escape}</a>
        </td>
        <td bgcolor="{$row_color}" class="default">
-         &nbsp;{$list[i].community|escape}
+		{section name="m" loop=$list[i].rek_ismemberof.rek_pid}
+         &nbsp;{$list[i].rek_ismemberof.rek_title[m]|escape}
+		{/section}
+       </td>
+       <td bgcolor="{$row_color}" class="default" align="right">
+         &nbsp;{if $list[i].rek_ismemberof_count}{$list[i].rek_ismemberof_count|escape}{else}0{/if}
        </td>
        <td bgcolor="{$row_color}" class="default">
-         &nbsp;{$list[i].count|escape}
-       </td>
-       <td bgcolor="{$row_color}" class="default">
-         &nbsp;&nbsp;<a href='{$rel_url}workflow/update.php?pid={$list[i].pid|escape}&href={$smarty.server.REQUEST_URI}'
-         ><img title="Edit" align="absmiddle" src="{$rel_url}images/edit.gif" border="0"></a> 
-         <a href="javascript:void(null);" onclick="javascript: purgeObject('{$list[i].pid|escape}');" 
-         ><img title="Delete" align="absmiddle" src="{$rel_url}images/delete.gif" border="0"></a> 
+
+		  {section name="w" loop=$list[i].wft_id}
+		    {if $list[i].wft_icon[w] == 'images/security.gif'}
+		      {if $list[i].security == 'include'}
+		        {assign var="wf_icon" value="images/security_include.gif"}
+		      {elseif $list[i].security == 'exclude'}
+		        {assign var="wf_icon" value="images/security_exclude.gif"}
+		      {elseif $list[i].security == 'inherit'}
+	                {assign var="wf_icon" value="images/security_inherit.gif"}
+		      {else}
+		        {assign var="wf_icon" value=$list[i].wft_icon[w]}
+		      {/if}
+           {else}
+		      {assign var="wf_icon" value=$list[i].wft_icon[w]}
+		    {/if}
+                       {if $list[i].wft_type_id[w] == 6}
+                         {assign var='wf_url' value=$rel_url|cat:'workflow/export.php'}
+                       {else}
+                         {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
+          			    {/if}
+		<a href="{$wf_url}?pid={$list[i].rek_pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI}"><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" border="0" /></a> 
+		  {/section}
+	          
+           <a href="workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}">...</a> 
+
+
         </td>
      </tr>
      {sectionelse}

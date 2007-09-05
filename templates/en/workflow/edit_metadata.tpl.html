@@ -30,7 +30,7 @@
         {section name="i" loop=$xsd_display_fields}
 			{assign var="temp_fld_id" value=$xsd_display_fields[i].xsdmf_id}
 			{assign var='xsdmf' value=$xsd_display_fields[i]}
-			{if $xsd_display_fields[i].xsdmf_html_input != ''}
+			{if $xsd_display_fields[i].xsdmf_html_input != '' && $xsd_display_fields[i].xsdmf_enabled == 1}
 				{include file='workflow/edit_metadata_helpers/field_'|cat:$xsd_display_fields[i].xsdmf_html_input|cat:'.tpl.html'}
 			{/if}
 			{if $debug == 1}

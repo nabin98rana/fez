@@ -117,7 +117,7 @@ if ($access_ok) {
 	$xdis_collection_list = XSD_Display::getAssocListCollectionDocTypes(); // @@@ CK - 13/1/06 added for communities to be able to select their collection child document types/xdisplays
     $xdis_list = XSD_Display::getAssocListDocTypes();
     // LUR: get the communities and collections where the user is allowed to create collections   
-    $communities = Community::getList(0, 150);
+    $communities = Community::getCreatorList(0, 150);
 	$index=0;
 	foreach ($communities['list'] as $item) {
 		if ($item['isCreator'] != 1)
@@ -131,15 +131,14 @@ if ($access_ok) {
 	$community_list = array();
 	if (sizeof($communities['list']) > 0)
 	{
-		$community_list = Misc::keyPairs($communities['list'], 'pid', 'title');
+		$community_list = Misc::keyPairs($communities['list'], 'rek_pid', 'rek_title');
 		$community_list = Misc::stripOneElementArrays($community_list);
 	}
 	$collections = Collection::getEditList();
 	$collection_list = array();
 	if (sizeof($collections) > 0)
 	{
-		$collection_list = Misc::keyPairs($collections, 'pid', 'title');
-		$collection_list = Misc::stripOneElementArrays($collection_list);
+		$collection_list = Collection::getEditListAssoc();
 	}
 /*    $internal_user_list = User::getAssocList();
     $internal_group_list = Group::getAssocListAll(); */
@@ -199,7 +198,7 @@ if ($access_ok) {
 				if (!is_numeric($suggestor_count)) {
 					$suggestor_count = 1;
 				}
-				for ($x=0;$x<$suggestor_count;$x++) {
+				for ($x=1;$x<=$suggestor_count;$x++) {
 				 $tpl->headerscript .= "window.oTextbox_xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."_lookup
 						= new AutoSuggestControl(document.wfl_form1, 'xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."', document.getElementById('xsd_display_fields_{$dis_field['xsdmf_asuggest_xsdmf_id']}_".$x."'), document.getElementById('xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."_lookup'),
 								new StateSuggestions('Author','suggest',false,

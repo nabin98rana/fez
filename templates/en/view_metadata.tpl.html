@@ -6,8 +6,8 @@
 
 		  {if $xsd_display_fields[i].xsdmf_show_in_view == 1 && $details[$temp_fld_id]}
 			  {if $xsd_display_fields[i].xsdmf_data_type == 'date'}
-			  
-			<tr>			
+
+			<tr>
 			  <td align="right" bgcolor="{$cell_color}" class="default" width="20%" valign="top" nowrap><b>{$xsd_display_fields[i].xsdmf_title}</b>			{if $debug == 1}
 				{$xsd_display_fields[i].xsdmf_order}
 			{/if}</td>
@@ -19,22 +19,22 @@
  			  	{if $details[$attached_temp_fld_id] == 0}{$details[$temp_fld_id]|date_format:"%A, %B %e, %Y"}{else}{$details[$temp_fld_id]}{/if}
  			  {/if}
  			  </td>
-			</tr>		
+			</tr>
 			  {else}
 			<tr>
-			
+
 			  <td align="right" bgcolor="{$cell_color}" class="default" width="20%" valign="top"><b>{$xsd_display_fields[i].xsdmf_title}</b>			{if $debug == 1}
 				{$xsd_display_fields[i].xsdmf_order}
 			{/if}</td>
 
  			  <td align="left" bgcolor="{$light_color}" class="default">
-			  {$details[$temp_fld_id]} 
+			  {$details[$temp_fld_id]}
 			  </td>
 
-			</tr>					  
+			</tr>
 			  {/if}
 		  {/if}
-		{/if}	
+		{/if}
     {sectionelse}
         <tr bgcolor="gray">
           <td colspan="13" class="default" align="center">

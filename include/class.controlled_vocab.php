@@ -73,7 +73,7 @@ class Controlled_Vocab
 		}
         $all_items = ltrim(Controlled_Vocab::implode_r(", ", $all_items), ", ");
         $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
+                    " . APP_TABLE_PREFIX . "controlled_vocab
                  WHERE
                     cvo_id IN (".$all_items.")";
 		Controlled_Vocab::deleteRelationship($all_items);
@@ -115,7 +115,7 @@ class Controlled_Vocab
      */		
 	function deleteRelationship($items) {
         $stmt = "DELETE FROM 
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab_relationship
+                    " . APP_TABLE_PREFIX . "controlled_vocab_relationship
                  WHERE
                     cvr_parent_cvo_id IN (".$items.") OR cvr_child_cvo_id IN (".$items.")";
 
@@ -140,7 +140,7 @@ class Controlled_Vocab
         global $HTTP_POST_VARS;
 		
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
+                    " . APP_TABLE_PREFIX . "controlled_vocab
                  (
                     cvo_title,
                     cvo_desc";
@@ -180,7 +180,7 @@ class Controlled_Vocab
     {
 		
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
+                    " . APP_TABLE_PREFIX . "controlled_vocab
                  (
                     cvo_title";
 		if ($cvo_external_id != "") {
@@ -221,7 +221,6 @@ class Controlled_Vocab
 		$xpath_record = $HTTP_POST_VARS["cvi_xpath_record"];
 		$xpath_id = $HTTP_POST_VARS["cvi_xpath_id"];
 		$xpath_title = $HTTP_POST_VARS["cvi_xpath_title"];
-		$xpath_extparent_id = $HTTP_POST_VARS["cvi_xpath_extparent_id"];
 		$xpath_parent_id = $HTTP_POST_VARS["cvi_xpath_parent_id"];		
 /*		echo "xpath_record = ".$xpath_record."\n";
 		echo "xpath_id = ".$xpath_id."\n";				
@@ -288,7 +287,6 @@ class Controlled_Vocab
 	                }
 	            }				
 			}
-									
 			if ($record_id != "" && $record_title != "") {
 				if ($record_parent_id == "") {
 					$record_parent_id = $parent_id;
@@ -312,7 +310,7 @@ class Controlled_Vocab
         global $HTTP_POST_VARS;
 		
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab_relationship
+                    " . APP_TABLE_PREFIX . "controlled_vocab_relationship
                  (
                     cvr_parent_cvo_id,
                     cvr_child_cvo_id					
@@ -320,7 +318,6 @@ class Controlled_Vocab
                     " .$parent_id. ",
                     " .$child_id. "					
                  )";
-        
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -341,7 +338,7 @@ class Controlled_Vocab
         global $HTTP_POST_VARS;
 
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
+                    " . APP_TABLE_PREFIX . "controlled_vocab
                  SET 
                     cvo_title = '" . Misc::escapeString($HTTP_POST_VARS["cvo_title"]) . "',
                     cvo_external_id = '" . trim($HTTP_POST_VARS["cvo_external_id"]). "',
@@ -373,7 +370,7 @@ class Controlled_Vocab
         $stmt = "SELECT
                     cvo_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
+                    " . APP_TABLE_PREFIX . "controlled_vocab
                  WHERE
                     cvo_id=".$cvo_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -401,7 +398,7 @@ class Controlled_Vocab
         $stmt = "SELECT
                     cvo_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
+                    " . APP_TABLE_PREFIX . "controlled_vocab
                  WHERE
                     cvo_id=".Misc::escapeString($cvo_id);
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -430,7 +427,7 @@ class Controlled_Vocab
         $stmt = "SELECT
                     cvo_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
+                    " . APP_TABLE_PREFIX . "controlled_vocab
                  WHERE
                     cvo_external_id=".$cvo_external_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -456,7 +453,7 @@ class Controlled_Vocab
         $stmt = "SELECT
                     cvo_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
+                    " . APP_TABLE_PREFIX . "controlled_vocab
                  WHERE
                     cvo_external_id=".$cvo_external_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -468,7 +465,7 @@ class Controlled_Vocab
             return $res;
         }
     }
-        
+		
     /**
      * Method used to get the title of a specific controlled vocabulary.
      *
@@ -481,7 +478,7 @@ class Controlled_Vocab
         $stmt = "SELECT
                     cvo_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
+                    " . APP_TABLE_PREFIX . "controlled_vocab
                  WHERE
                     cvo_title='".$cvo_title."'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -507,8 +504,8 @@ class Controlled_Vocab
                     cvo_id,
 					cvo_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
-			     WHERE cvo_id not in (SELECT cvr_child_cvo_id from  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab_relationship)
+                    " . APP_TABLE_PREFIX . "controlled_vocab
+			     WHERE cvo_id not in (SELECT cvr_child_cvo_id from  " . APP_TABLE_PREFIX . "controlled_vocab_relationship)
                  ORDER BY
                     cvo_title ASC";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
@@ -533,7 +530,7 @@ class Controlled_Vocab
                     cvo_id,
 					cvo_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
+                    " . APP_TABLE_PREFIX . "controlled_vocab
 ";
         if (is_numeric($start) && is_numeric($max)) {
         	$stmt .= " LIMIT ".$start.", ".$max;
@@ -560,8 +557,8 @@ class Controlled_Vocab
                     cvo_id,
 					cvo_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
-				 WHERE cvo_id not in (SELECT cvr_parent_cvo_id from  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab_relationship)
+                    " . APP_TABLE_PREFIX . "controlled_vocab
+				 WHERE cvo_id not in (SELECT cvr_parent_cvo_id from  " . APP_TABLE_PREFIX . "controlled_vocab_relationship)
 				 ORDER BY cvo_id ASC";
         if (is_numeric($start) && is_numeric($max)) {
         	$stmt .= " LIMIT ".$start.", ".$max;
@@ -593,7 +590,7 @@ class Controlled_Vocab
                     cvo_id,
 					cvo_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
+                    " . APP_TABLE_PREFIX . "controlled_vocab
 				 WHERE cvo_id = ".$id;
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
         if (PEAR::isError($res)) {
@@ -617,7 +614,7 @@ class Controlled_Vocab
                     cvo_id,
 					cvo_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
+                    " . APP_TABLE_PREFIX . "controlled_vocab
 				 WHERE cvo_id = ".$id;
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt);
         if (PEAR::isError($res)) {
@@ -640,13 +637,13 @@ class Controlled_Vocab
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab ";
+                    " . APP_TABLE_PREFIX . "controlled_vocab ";
 
 		if (is_numeric($parent_id)) {
-			$stmt .=   "," . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab_relationship 
+			$stmt .=   "," . APP_TABLE_PREFIX . "controlled_vocab_relationship 
 					     WHERE cvr_parent_cvo_id = ".$parent_id." AND cvr_child_cvo_id = cvo_id ";			
 		} else {
-			$stmt .= " WHERE cvo_id not in (SELECT cvr_child_cvo_id from  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab_relationship)";
+			$stmt .= " WHERE cvo_id not in (SELECT cvr_child_cvo_id from  " . APP_TABLE_PREFIX . "controlled_vocab_relationship)";
 		}
 		$stmt .= "
                  ORDER BY
@@ -682,15 +679,15 @@ class Controlled_Vocab
 		$level++;
         $stmt = "SELECT
                     cvo_id,
-					concat('".$indent."',cvo_title) as cvo_title
+					cvo_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab ";
+                    " . APP_TABLE_PREFIX . "controlled_vocab ";
 
 		if (is_numeric($parent_id)) {
-			$stmt .=   "," . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab_relationship 
+			$stmt .=   "," . APP_TABLE_PREFIX . "controlled_vocab_relationship 
 					     WHERE cvr_parent_cvo_id = ".$parent_id." AND cvr_child_cvo_id = cvo_id ";			
 		} else {
-			$stmt .= " WHERE cvo_id not in (SELECT cvr_child_cvo_id from  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab_relationship)";
+			$stmt .= " WHERE cvo_id not in (SELECT cvr_child_cvo_id from  " . APP_TABLE_PREFIX . "controlled_vocab_relationship)";
 		}
 		$stmt .= "
                  ORDER BY
@@ -710,17 +707,17 @@ class Controlled_Vocab
 					$indent .= "---------";
 				}
 				foreach ($res as $key => $data) {
-					if ($parent_id != false) {
+//					if ($parent_id != false) {
 						$newArray[$key] = $data;
-					}
+//					}
 					$tempArray = Controlled_Vocab::getAssocListFullDisplay($key, $indent, $level, $level_limit);					
 					if (count($tempArray) > 0) {
-						if ($parent_id == false) {
+//						if ($parent_id == false) {
 							$newArray['data'][$key] = Misc::array_merge_preserve(@$newArray[$key], $tempArray);
 							$newArray['title'][$key] = $data;
-						} else {
-							$newArray = Misc::array_merge_preserve($newArray, $tempArray);
-						}
+//						} else {
+//							$newArray = Misc::array_merge_preserve($newArray, $tempArray);
+//						}
 					}
 				}
 				$res = $newArray;
@@ -747,8 +744,8 @@ class Controlled_Vocab
                     cvo_id,
 					concat('".$indent."',cvo_title) as cvo_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab ";
-			$stmt .=   "," . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab_relationship 
+                    " . APP_TABLE_PREFIX . "controlled_vocab ";
+			$stmt .=   "," . APP_TABLE_PREFIX . "controlled_vocab_relationship 
 					     WHERE cvr_parent_cvo_id = cvo_id AND cvr_child_cvo_id = ".$child_id;			
 		$stmt .= "
                  ORDER BY
@@ -799,8 +796,8 @@ class Controlled_Vocab
                     cvo_id,
 					concat('".$indent."',cvo_title) as cvo_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab ";
-			$stmt .=   "," . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab_relationship 
+                    " . APP_TABLE_PREFIX . "controlled_vocab ";
+			$stmt .=   "," . APP_TABLE_PREFIX . "controlled_vocab_relationship 
 					     WHERE cvr_parent_cvo_id = cvo_id AND cvr_child_cvo_id = ".$child_id;			
 		$stmt .= "
                  ORDER BY
@@ -847,12 +844,12 @@ class Controlled_Vocab
         $stmt = "SELECT
                     cvo_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab ";
+                    " . APP_TABLE_PREFIX . "controlled_vocab ";
 		if (is_numeric($parent_id)) {
-			$stmt .=   "," . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab_relationship 
+			$stmt .=   "," . APP_TABLE_PREFIX . "controlled_vocab_relationship 
 						 WHERE cvr_parent_cvo_id = ".$parent_id." AND cvr_child_cvo_id = cvo_id ";			
 		} else {
-			$stmt .= " WHERE cvo_id not in (SELECT cvr_child_cvo_id from  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab_relationship)";
+			$stmt .= " WHERE cvo_id not in (SELECT cvr_child_cvo_id from  " . APP_TABLE_PREFIX . "controlled_vocab_relationship)";
 		}
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt);
         if (PEAR::isError($res)) {
@@ -886,7 +883,7 @@ class Controlled_Vocab
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "controlled_vocab
+                    " . APP_TABLE_PREFIX . "controlled_vocab
                  WHERE
                     cvo_id=".$cvo_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);

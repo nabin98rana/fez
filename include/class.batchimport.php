@@ -1368,7 +1368,7 @@ class BatchImport
 	
 	function saveEprintPID($eprint_id, $pid) {
 		$stmt = "INSERT INTO
-				" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "eprints_import_pids
+				" . APP_TABLE_PREFIX . "eprints_import_pids
 			 (
 				epr_eprints_id,
 				epr_fez_pid,

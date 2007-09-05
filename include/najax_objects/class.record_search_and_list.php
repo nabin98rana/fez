@@ -19,8 +19,8 @@
         $res = array();
         foreach ($list['list'] as $item) {
             //$record = new RecordGeneral($item['pid']);
-            $text = $item['title']; //$record->getCitation();
-            $value = $item['pid'];
+            $text = $item['rek_title']; //$record->getCitation();
+            $value = $item['rek_pid'];
             $res[] = compact('value','text');
         }
         return $res;

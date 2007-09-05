@@ -77,15 +77,15 @@ if ($cat == 'submit') {
 $wfstatus->checkStateChange();
 
 // Find collections that the current user can create records in and then list the parent communities.
-$communities = Community::getList(0,1000);
-$communities_list = Misc::keyPairs($communities['list'], 'pid', 'title');
+/*$communities = Community::getList(0,1000);
+$communities_list = Misc::keyPairs($communities['list'], 'rek_pid', 'rek_title');
 $communities_list = Misc::stripOneElementArrays($communities_list);
 $communities_pids = array_keys($communities_list);
 $collection_list = Collection::getEditList();
 
 $communities_list2 = array();
 foreach ($collection_list as &$item) {
-   $parents = Misc::keyPairs(Collection::getParents2($item['pid']),'pid','title');
+   $parents = Misc::keyPairs(Collection::getParents2($item['rek_pid']),'rek_pid','rek_title');
    foreach ($parents as $parent_pid => $parent_title) {
        if (in_array($parent_pid, $communities_pids)) {
            $communities_list2[$parent_pid] = $communities_list[$parent_pid];
@@ -94,7 +94,11 @@ foreach ($collection_list as &$item) {
 }
 $communities_list = $communities_list2;
 $tpl->assign('communities_list', $communities_list);
-$tpl->assign('communities_list_selected', $communities['list'][0]['pid']);
+$tpl->assign('communities_list_selected', $communities['list'][0]['rek_pid']);*/
+$communities_list = Community::getCreatorListAssoc();
+$tpl->assign('communities_list', $communities_list);
+$tpl->assign('communities_list_selected', $communities_list[0]['rek_pid']);
+
 $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
 $tpl->registerNajax( NAJAX_Client::register('SelectCollection', 'select_collection.php'));
 

@@ -58,6 +58,7 @@ include_once(APP_INC_PATH . "class.fulltext_index.php");
 class OAI
 {
 
+
     /**
      * Method used to get the list of records publicly available in the 
      * system.
@@ -68,7 +69,75 @@ class OAI
      * @param   integer $max The maximum number of records to return	 
      * @return  array The list of records 
      */
-    function ListRecords($set, $identifier="", $current_row = 0, $max = 100, $order_by = 'Title', $from="", $until="", $setType)
+    function ListRecords($set, $identifier="", $current_row = 0, $max = 100, $order_by = 'Created Date', $from="", $until="", $setType)
+    {
+		$from = str_replace("T", " ", $from);
+		$from = str_replace("Z", " ", $from);
+		$until = str_replace("Z", " ", $until);		
+		$until = str_replace("Z", " ", $until);		
+        $order_dir = 'ASC';
+		$options = array();
+		if ($max == "ALL") {
+            $max = 9999999;
+        }
+        $current_row = ($current_row/100);
+
+        if (!empty($identifier)) {
+			$options["searchKey".Search_Key::getID("Pid")] = $identifier;
+        } elseif (!empty($set)) {
+			if ($setType == "isMemberOf") {
+				$options["searchKey".Search_Key::getID("isMemberOf")] = $set;
+			} else {
+				$options["searchKey".Search_Key::getID("Subject")] = $set;
+			}
+		}
+        if ($from != "" && $until != "") {
+			$options["searchKey".Search_Key::getID("Date")] = array();
+			$options["searchKey".Search_Key::getID("Date")]["filter_type"] = "between";
+			$options["searchKey".Search_Key::getID("Date")]["filter_enabled"] = 1;
+			$options["searchKey".Search_Key::getID("Date")]["start_date"] = $from;
+			$options["searchKey".Search_Key::getID("Date")]["end_date"] = $until;
+        } elseif (!empty($from) && empty($until)) {
+			$options["searchKey".Search_Key::getID("Date")] = array();
+			$options["searchKey".Search_Key::getID("Date")]["filter_type"] = "greater";
+			$options["searchKey".Search_Key::getID("Date")]["filter_enabled"] = 1;
+			$options["searchKey".Search_Key::getID("Date")]["start_date"] = $from;        	
+        } elseif (!empty($until) && empty($from)) {
+			$options["searchKey".Search_Key::getID("Date")] = array();
+			$options["searchKey".Search_Key::getID("Date")]["filter_type"] = "less";
+			$options["searchKey".Search_Key::getID("Date")]["filter_enabled"] = 1;
+			$options["searchKey".Search_Key::getID("Date")]["start_date"] = $until;
+        }
+ 		$return = Record::getListing($options, $approved_roles=array(9,10), $current_row,$max, $order_by);
+
+		if (is_array($return['list'])) {
+			foreach ($return['list'] as $rkey => $res) {
+				$fans = array();
+				if (is_array($res['rek_file_attachment_name'])) {
+					foreach($res['rek_file_attachment_name'] as $fan) {
+						if (Misc::isAllowedDatastream($fan)) {
+							array_push($fans, $fan);
+						}
+					}
+				}
+				$return['list'][$rkey]['rek_file_attachment_name'] = $fans;
+			}
+		}
+		return $return;
+	
+	 }
+	
+    /**
+     * Method used to get the list of records publicly available in the 
+     * system.
+     *
+     * @access  public
+     * @param   string $set oai set collection (optional). 	 	 
+     * @param   integer $current_row The point in the returned results to start from.
+     * @param   integer $max The maximum number of records to return	 
+     * @return  array The list of records 
+     */
+    function ListRecords_old($set, $identifier="", $current_row = 0, $max = 100, $order_by = 'Title', $from="", $until="", $setType)
     {
 		$from = str_replace("T", " ", $from);
 		$from = str_replace("Z", " ", $from);
@@ -82,97 +151,64 @@ class OAI
 
         // this query broken into pieces to try and get some speed.
 
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
 //        $order_by = 'Title';
-        $sekdet = Search_Key::getDetailsByTitle($order_by);		
-        $data_type = $sekdet['xsdmf_data_type'];
-		if (empty($data_type)) {
-			$data_type = "varchar";			
-		}
         $restrict_community = '';
 
 		$authArray = Collection::getAuthIndexStmt(array("Viewer"));
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];
 
-		$subjectList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Subject');
-		$isMemberOfList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('isMemberOf');
-		$createdDateList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Created Date');		
-		$statusList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Status');		
-		$displayTypeList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Display Type');				
-		$objectTypeList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Object Type');
-		$order_byList = XSD_HTML_Match::getXSDMF_IDsBySekTitle($order_by);				
+			
 		$sql_filter = array();
 		$sql_filter['where'] = "";
 		$sql_filter['elsewhere'] = "";
         if (!empty($identifier)) {
-        	$sql_filter['where'][] = "r2.rmf_rec_pid = '".Misc::escapeString($identifier)."'";
-        	$bodyStmtPart2 = " INNER JOIN ".$dbtp."record_matching_field AS r3
-                      ON r3.rmf_rec_pid_num = r2.rmf_rec_pid_num and r3.rmf_rec_pid = r2.rmf_rec_pid and r3.rmf_xsdmf_id in 
-					 (".implode(",", $statusList).")
-                      and r3.rmf_int=2 ";        	
+        	$sql_filter['where'][] = "r2.rek_pid = '".Misc::escapeString($identifier)."'";
+       	
         } elseif (!empty($set)) {
         	if ($setType == "isMemberOf") {
-	        	$sql_filter['where'][] = "r2.rmf_varchar = '".Misc::escapeString($set)."'";
-				$sql_filter['where'][] = "r2.rmf_xsdmf_id in (".implode(",", $isMemberOfList).")";
+	        	$bodyStmtPart2 = " INNER JOIN ".$dbtp."record_search_key_ismemberof AS r3
+	                      ON r3.rek_ismemberof_pid = r2.rek_pid and r2.rek_ismemberof = '".Misc::escapeString($set)."'";
+
         	} else { //cont vocab
-	        	$sql_filter['where'][] = "r2.rmf_int = ".Misc::escapeString($set)."";
-				$sql_filter['where'][] = "r2.rmf_xsdmf_id in (".implode(",", $subjectList).")";        		
+	        	$bodyStmtPart2 = " INNER JOIN ".$dbtp."record_search_key_subject AS r3
+	                      ON r3.rek_subject_pid = r2.rek_pid";
+	        	$sql_filter['where'][] = "r3.rek_subject = ".Misc::escapeString($set)."";
+
         	}
-        	$bodyStmtPart2 = " INNER JOIN ".$dbtp."record_matching_field AS r3
-                      ON r3.rmf_rec_pid_num = r2.rmf_rec_pid_num and r3.rmf_rec_pid = r2.rmf_rec_pid and r3.rmf_xsdmf_id in 
-					 (".implode(",", $statusList).")
-                      and r3.rmf_int=2 ";        	        	
-		} else {
-			$sql_filter['where'][] = "r2.rmf_int = 2";
-			$sql_filter['where'][] = "r2.rmf_xsdmf_id in (".implode(",", $statusList).")";        		
+		}
+			$sql_filter['where'][] = "r2.rek_status = 2";
 									
 			$elsewhere = "";
 			$bodyStmtPart2 = "";
-		}
+		
 
-        $bodyStmtPart1 = "FROM  ".$dbtp."record_matching_field AS r2 ".$bodyStmtPart2;
+        $bodyStmtPart1 = "FROM  ".$dbtp."record_search_key AS r2 ".$bodyStmtPart2
+						."INNER JOIN ".$dbtp."xsd_display_matchfields m1 on m1.xsdmf_id = r2.rek_xsdmf_id";
 
-		$bodyStmtPart1 .= "                      
-		           INNER JOIN ".$dbtp."record_matching_field AS r4
-                      ON r4.rmf_rec_pid_num = r2.rmf_rec_pid_num and r4.rmf_rec_pid = r2.rmf_rec_pid and r4.rmf_xsdmf_id in 
-					 (".implode(",", $objectTypeList).")
-                      and r4.rmf_int=3
-        
-                    $joinStmt
+		$sql_filter['where'][] = " (r2.rek_date >= '".$from."' and r2.rek_date <= '".$until."')";        
 
-                    $authStmt				
-
-                    ";
-        $bodyStmt = $bodyStmtPart1;
+        $bodyStmt = $bodyStmtPart1.$bodyStmtPart2;
         
         if ($from != "" && $until != "") {
-			$bodyStmt .=
-                   " INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r6 
-                    on r6.rmf_rec_pid_num = r2.rmf_rec_pid_num and r6.rmf_rec_pid = r2.rmf_rec_pid and r6.rmf_xsdmf_id in (".implode(",", $createdDateList).") 
-                    and (r6.rmf_date >= '".$from."' and r6.rmf_date <= '".$until."')";
+			$sql_filter['where'][] = " (r2.rek_date >= '".$from."' and r2.rek_date <= '".$until."')";
         	
         } elseif (!empty($from) && empty($until)) {
-			$bodyStmt .=
-                   " INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r6 
-                    on r6.rmf_rec_pid_num = r2.rmf_rec_pid_num and r6.rmf_rec_pid = r2.rmf_rec_pid and r6.rmf_xsdmf_id in (".implode(",", $createdDateList).") 
-                    and (r6.rmf_date >= '".$from."')";
+			$sql_filter['where'][] = " r2.rek_date >= '".$from."'";
+
         	
-        } elseif (!empty($until) && empty($from)) {        	
-			$bodyStmt .=
-                   " INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r6 
-                    on r6.rmf_rec_pid_num = r2.rmf_rec_pid_num and r6.rmf_rec_pid = r2.rmf_rec_pid and r6.rmf_xsdmf_id in (".implode(",", $createdDateList).") 
-                    and (r6.rmf_date <= '".$until."')";
-        	
+        } elseif (!empty($until) && empty($from)) {
+			$sql_filter['where'][] = "r6.rek_date <= '".$until."'";
         }
         
 
-		if ($order_by != "") {
+/*		if ($order_by != "") {
 			
 			$bodyStmt .=
-                   " LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r5 
-                    on r5.rmf_rec_pid_num = r2.rmf_rec_pid_num and r5.rmf_rec_pid = r2.rmf_rec_pid and r5.rmf_xsdmf_id in (".implode(",", $order_byList).")";
-		}                    
+                   " LEFT JOIN " . APP_TABLE_PREFIX . "record_matching_field r5 
+                    on r5.rek_pid_num = r2.rek_pid_num and r5.rek_pid = r2.rek_pid and r5.rek_xsdmf_id in (".implode(",", $order_byList).")";
+		}  */
 	    $bodyStmt .=                   
 					 ( ($sql_filter['where']) != "" ? "WHERE ".implode("\r\nAND ", $sql_filter['where']) : $elsewhere) . "
 					
@@ -181,36 +217,40 @@ class OAI
 
 
         $stmt = "
-                    SELECT ".APP_SQL_CACHE." r2.rmf_rec_pid
+                    SELECT ".APP_SQL_CACHE." *
+					LEFT JOIN ".$dbtp."record_search_key_ismemberof AS j1 ON j1.rek_ismemberof_pid = r2.rek_pid
+					LEFT JOIN ".$dbtp."record_search_key_subject AS j2 ON j2.rek_subject_pid = r2.rek_pid
                     ".$bodyStmt."
+					
+                    $joinStmt
+                    $authStmt				
 					order by ";
-        if ($order_by != "") {
-			$stmt .= " r5.rmf_".$data_type." ".$order_dir.", r2.rmf_rec_pid_num ASC";
-        } else {
-			$stmt .= " r2.rmf_rec_pid_num ASC";        	
-        }
-	    $stmt .= "		
-                    LIMIT ".$start.", ".$max."					                   
-            ";		
+/*        if ($order_by != "") {
+			$stmt .= " r5.rek_".$data_type." ".$order_dir.", r2.rek_created_date ASC";
+        } else { */
+			$stmt .= " r2.rek_created_date ASC";        	
+//        }
 
+		$stmt = $GLOBALS["db_api"]->dbh->modifyLimitQuery($stmt, $start, $max);
+/*
         $stmtWrap = "SELECT ".APP_SQL_CACHE."  r1.*, x1.*, s1.*, k1.*, d1.* 
             FROM ".$dbtp."record_matching_field AS r1
             INNER JOIN ".$dbtp."xsd_display_matchfields AS x1
-            ON r1.rmf_xsdmf_id = x1.xsdmf_id
+            ON r1.rek_xsdmf_id = x1.xsdmf_id
 
-				INNER JOIN (".$stmt.") as display on display.rmf_rec_pid = r1.rmf_rec_pid
+				INNER JOIN (".$stmt.") as display on display.rek_pid = r1.rek_pid
 
             LEFT JOIN ".$dbtp."xsd_loop_subelement s1 
             ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
             LEFT JOIN ".$dbtp."search_key k1 
             ON (k1.sek_id = x1.xsdmf_sek_id)
             LEFT JOIN ".$dbtp."xsd_display d1  
-            ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
+            ON (d1.xdis_id = r1.rek_int and k1.sek_title = 'Display Type')
 			
-			ORDER BY r1.rmf_rec_pid_num ASC, r1.rmf_id ASC
+			ORDER BY r1.rek_pid_num ASC, r1.rek_id ASC
             ";                    
-      
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmtWrap, DB_FETCHMODE_ASSOC);		
+*/      
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);		
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
@@ -232,86 +272,86 @@ class OAI
         
 		foreach ($res as $result) {
 			if ($result['sek_title'] == 'isMemberOf') {
-                $return[$result['rmf_rec_pid']]['isMemberOf'][] = $result['rmf_varchar'];
+                $return[$result['rek_pid']]['isMemberOf'][] = $result['rek_varchar'];
 			}			
-			if (($result['sek_title'] == 'Created Date' || $result['sek_title'] == 'Updated Date') && !(empty($result['rmf_date']))) {
-				if (!empty($result['rmf_date'])) {
-					$result['rmf_date'] = Date_API::getFedoraFormattedDate($result['rmf_date']);
+			if (($result['sek_title'] == 'Created Date' || $result['sek_title'] == 'Updated Date') && !(empty($result['rek_date']))) {
+				if (!empty($result['rek_date'])) {
+					$result['rek_date'] = Date_API::getFedoraFormattedDate($result['rek_date']);
 				}
             }
             if  ($result['sek_title'] == 'Subject' && ((($result['xsdmf_html_input'] == "contvocab") || ($result['xsdmf_html_input'] == "contvocab_selector")) && ($result['xsdmf_cvo_save_type'] != 1))) {            
-				$return[$result['rmf_rec_pid']]['subject_id'][] = $result['rmf_'.$result['xsdmf_data_type']];
-            	$result['rmf_'.$result['xsdmf_data_type']] = Controlled_Vocab::getTitle($result['rmf_'.$result['xsdmf_data_type']]);
+				$return[$result['rek_pid']]['subject_id'][] = $result['rek_'.$result['xsdmf_data_type']];
+            	$result['rek_'.$result['xsdmf_data_type']] = Controlled_Vocab::getTitle($result['rek_'.$result['xsdmf_data_type']]);
             }
             if (($result['xsdmf_enabled'] == 1) && ($result['xsdmf_meta_header'] == 1) && (trim($result['xsdmf_meta_header_name']) != "")) {			
             	$value = "";
 				$oai_name = str_replace(".", ":", strtolower($result['xsdmf_meta_header_name']));
-				if ($return[$result['rmf_rec_pid']]['oai_dc'] == "") {
-					$return[$result['rmf_rec_pid']]['oai_dc'] = '<dc:identifier>'.APP_BASE_URL.'view.php?pid='.$result['rmf_rec_pid'].'</dc:identifier>'."\n";
+				if ($return[$result['rek_pid']]['oai_dc'] == "") {
+					$return[$result['rek_pid']]['oai_dc'] = '<dc:identifier>'.APP_BASE_URL.'view.php?pid='.$result['rek_pid'].'</dc:identifier>'."\n";
 				}
 				if ($result['xsdmf_data_type'] == "date") {
 					if (!empty($value)) {
-						$value = Date_API::getFedoraFormattedDate($result['rmf_'.$result['xsdmf_data_type']]);
+						$value = Date_API::getFedoraFormattedDate($result['rek_'.$result['xsdmf_data_type']]);
 					}
 				} else {
-					$value = htmlspecialchars($result['rmf_'.$result['xsdmf_data_type']]);
+					$value = htmlspecialchars($result['rek_'.$result['xsdmf_data_type']]);
 				}
-            	$return[$result['rmf_rec_pid']]['oai_dc'] .=  '<'.$oai_name.'>'.$value.'</'.$oai_name.'>'."\n";
+            	$return[$result['rek_pid']]['oai_dc'] .=  '<'.$oai_name.'>'.$value.'</'.$oai_name.'>'."\n";
             }						
 			if (@$result['sek_title'] == 'isMemberOf') {
-				if (!is_array(@$return[$result['rmf_rec_pid']]['isMemberOf'])) {
-					$return[$result['rmf_rec_pid']]['isMemberOf'] = array();
+				if (!is_array(@$return[$result['rek_pid']]['isMemberOf'])) {
+					$return[$result['rek_pid']]['isMemberOf'] = array();
 				}
-				if (!in_array($result['rmf_varchar'], $return[$result['rmf_rec_pid']]['isMemberOf'])) {
-					array_push($return[$result['rmf_rec_pid']]['isMemberOf'], $result['rmf_varchar']);
+				if (!in_array($result['rek_varchar'], $return[$result['rek_pid']]['isMemberOf'])) {
+					array_push($return[$result['rek_pid']]['isMemberOf'], $result['rek_varchar']);
 				}
 			}			
 			// get the document type
             if (!empty($result['xdis_title'])) {
-                if (!is_array(@$return[$result['rmf_rec_pid']]['xdis_title'])) {
-                    $return[$result['rmf_rec_pid']]['xdis_title'] = array();
+                if (!is_array(@$return[$result['rek_pid']]['xdis_title'])) {
+                    $return[$result['rek_pid']]['xdis_title'] = array();
                 }
-                if (!in_array($result['xdis_title'],$return[$result['rmf_rec_pid']]['xdis_title'])) {
-                    array_push($return[$result['rmf_rec_pid']]['xdis_title'], $result['xdis_title']);
+                if (!in_array($result['xdis_title'],$return[$result['rek_pid']]['xdis_title'])) {
+                    array_push($return[$result['rek_pid']]['xdis_title'], $result['xdis_title']);
                 }
             }
 			if (is_numeric(@$result['sek_id'])) {
-				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
+				$return[$result['rek_pid']]['pid'] = $result['rek_pid'];
 				$search_var = strtolower(str_replace(" ", "_", $result['sek_title']));
-				if (@!is_array($return[$result['rmf_rec_pid']][$search_var])) {
-					$return[$result['rmf_rec_pid']][$search_var] = array();
+				if (@!is_array($return[$result['rek_pid']][$search_var])) {
+					$return[$result['rek_pid']][$search_var] = array();
 				}
-				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], 
-                            $return[$result['rmf_rec_pid']][$search_var])) {
-					array_push($return[$result['rmf_rec_pid']][$search_var], 
-                            $result['rmf_'.$result['xsdmf_data_type']]);
-//					sort($return[$result['rmf_rec_pid']][$search_var]);
+				if (!in_array($result['rek_'.$result['xsdmf_data_type']], 
+                            $return[$result['rek_pid']][$search_var])) {
+					array_push($return[$result['rek_pid']][$search_var], 
+                            $result['rek_'.$result['xsdmf_data_type']]);
+//					sort($return[$result['rek_pid']][$search_var]);
 
 				}
 			} 
 			// get thumbnails
 			if ($result['xsdmf_element'] == "!datastream!ID") {
-				if (is_numeric(strpos($result['rmf_varchar'], "thumbnail_"))) {
-					if (!is_array(@$return[$result['rmf_rec_pid']]['thumbnails'])) {
-						$return[$result['rmf_rec_pid']]['thumbnails'] = array();
+				if (is_numeric(strpos($result['rek_varchar'], "thumbnail_"))) {
+					if (!is_array(@$return[$result['rek_pid']]['thumbnails'])) {
+						$return[$result['rek_pid']]['thumbnails'] = array();
 					}
-					array_push($return[$result['rmf_rec_pid']]['thumbnails'], $result['rmf_varchar']);
+					array_push($return[$result['rek_pid']]['thumbnails'], $result['rek_varchar']);
 				} else {
 					if ($result['sek_title'] == 'File Attachment Name') { 
-						if (!is_array(@$return[$result['rmf_rec_pid']]['File_Attachment'])) {
-							$return[$result['rmf_rec_pid']]['File_Attachment'] = array();
+						if (!is_array(@$return[$result['rek_pid']]['File_Attachment'])) {
+							$return[$result['rek_pid']]['File_Attachment'] = array();
 						}						
-					    if ((!is_numeric(strpos($result['rmf_'.$result['xsdmf_data_type']], "thumbnail_"))) && (!is_numeric(strpos($result['rmf_'.$result['xsdmf_data_type']], "web_"))) && (!is_numeric(strpos($result['rmf_'.$result['xsdmf_data_type']], "preview_"))) && (!is_numeric(strpos($result['rmf_'.$result['xsdmf_data_type']], "presmd_"))) && (!is_numeric(strpos($result['rmf_'.$result['xsdmf_data_type']], "FezACML_"))) )   {
-					    	if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['File_Attachment'])) {
-								array_push($return[$result['rmf_rec_pid']]['File_Attachment'], $result['rmf_'.$result['xsdmf_data_type']]);
-								$return[$result['rmf_rec_pid']]['oai_dc'] .=  '<dc:format>'.APP_BASE_URL.'eserv.php?pid='.$result['rmf_rec_pid'].'&amp;dsID='.$result['rmf_'.$result['xsdmf_data_type']].'</dc:format>'."\n";
+					    if ((!is_numeric(strpos($result['rek_'.$result['xsdmf_data_type']], "thumbnail_"))) && (!is_numeric(strpos($result['rek_'.$result['xsdmf_data_type']], "web_"))) && (!is_numeric(strpos($result['rek_'.$result['xsdmf_data_type']], "preview_"))) && (!is_numeric(strpos($result['rek_'.$result['xsdmf_data_type']], "presmd_"))) && (!is_numeric(strpos($result['rek_'.$result['xsdmf_data_type']], "FezACML_"))) )   {
+					    	if (!in_array($result['rek_'.$result['xsdmf_data_type']], $return[$result['rek_pid']]['File_Attachment'])) {
+								array_push($return[$result['rek_pid']]['File_Attachment'], $result['rek_'.$result['xsdmf_data_type']]);
+								$return[$result['rek_pid']]['oai_dc'] .=  '<dc:format>'.APP_BASE_URL.'eserv.php?pid='.$result['rek_pid'].'&amp;dsID='.$result['rek_'.$result['xsdmf_data_type']].'</dc:format>'."\n";
 					    	}
 					    }
 					}
-					if (!is_array(@$return[$result['rmf_rec_pid']]['datastreams'])) {
-						$return[$result['rmf_rec_pid']]['datastreams'] = array();
+					if (!is_array(@$return[$result['rek_pid']]['datastreams'])) {
+						$return[$result['rek_pid']]['datastreams'] = array();
 					}
-					array_push($return[$result['rmf_rec_pid']]['datastreams'], $result['rmf_varchar']);
+					array_push($return[$result['rek_pid']]['datastreams'], $result['rek_varchar']);
 				}
 			}
 
@@ -346,14 +386,14 @@ class OAI
         // Should we restrict the list to a community.
         if ($community_pid) {
             $community_join = "	inner join (
-	 						SELECT ".APP_SQL_CACHE."  distinct r3.rmf_rec_pid 
+	 						SELECT ".APP_SQL_CACHE."  distinct r3.rek_pid 
 							FROM  
-							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r3,
-							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x3,
-							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s3
-							WHERE x3.xsdmf_sek_id = s3.sek_id AND s3.sek_title = 'isMemberOf' AND x3.xsdmf_id = r3.rmf_xsdmf_id 
-							  AND r3.rmf_varchar='$community_pid'
-							) as com1 on com1.rmf_rec_pid = r1.rmf_rec_pid ";
+							  " . APP_TABLE_PREFIX . "record_matching_field r3,
+							  " . APP_TABLE_PREFIX . "xsd_display_matchfields x3,
+							  " . APP_TABLE_PREFIX . "search_key s3
+							WHERE x3.xsdmf_sek_id = s3.sek_id AND s3.sek_title = 'isMemberOf' AND x3.xsdmf_id = r3.rek_xsdmf_id 
+							  AND r3.rek_varchar='$community_pid'
+							) as com1 on com1.rek_pid = r1.rek_pid ";
         } else {
             // list all collections 
             $community_join = "";
@@ -361,45 +401,45 @@ class OAI
         $stmt = "SELECT ".APP_SQL_CACHE." 
             * 
             FROM
-            " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1
-            inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 
-            ON r1.rmf_xsdmf_id = x1.xsdmf_id 
+            " . APP_TABLE_PREFIX . "record_matching_field r1
+            inner join " . APP_TABLE_PREFIX . "xsd_display_matchfields x1 
+            ON r1.rek_xsdmf_id = x1.xsdmf_id 
            $community_join 
 			inner join (
-                    SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid 
+                    SELECT ".APP_SQL_CACHE."  distinct r2.rek_pid 
                     FROM  
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2				  
-                    WHERE r2.rmf_xsdmf_id = x2.xsdmf_id 
+                    " . APP_TABLE_PREFIX . "record_matching_field r2,
+                    " . APP_TABLE_PREFIX . "xsd_display_matchfields x2,
+                    " . APP_TABLE_PREFIX . "search_key s2				  
+                    WHERE r2.rek_xsdmf_id = x2.xsdmf_id 
                     AND x2.xsdmf_sek_id = s2.sek_id 
                     AND s2.sek_title = 'Object Type' 
-                    AND r2.rmf_int = 2 
-                    ) as o1 on o1.rmf_rec_pid = r1.rmf_rec_pid
+                    AND r2.rek_int = 2 
+                    ) as o1 on o1.rek_pid = r1.rek_pid
 			inner join (
-                    SELECT ".APP_SQL_CACHE."  distinct rmf_rec_pid FROM 
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field AS rmf
-                    INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields AS xdm
-                    ON rmf.rmf_xsdmf_id = xdm.xsdmf_id
-                    WHERE rmf.rmf_int = 2
+                    SELECT ".APP_SQL_CACHE."  distinct rek_pid FROM 
+                    " . APP_TABLE_PREFIX . "record_matching_field AS rmf
+                    INNER JOIN " . APP_TABLE_PREFIX . "xsd_display_matchfields AS xdm
+                    ON rmf.rek_xsdmf_id = xdm.xsdmf_id
+                    WHERE rmf.rek_int = 2
                     AND xdm.xsdmf_element='!sta_id'
-                    ) as sta1 on sta1.rmf_rec_pid = r1.rmf_rec_pid					
+                    ) as sta1 on sta1.rek_pid = r1.rek_pid					
              left JOIN (
-                        SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid as sort_pid
+                        SELECT ".APP_SQL_CACHE."  distinct r2.rek_pid as sort_pid
 
-                        FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2
-                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2
-                        on r2.rmf_xsdmf_id = x2.xsdmf_id 
-                        inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
+                        FROM  " . APP_TABLE_PREFIX . "record_matching_field r2
+                        inner join " . APP_TABLE_PREFIX . "xsd_display_matchfields x2
+                        on r2.rek_xsdmf_id = x2.xsdmf_id 
+                        inner join " . APP_TABLE_PREFIX . "search_key s2
                         on s2.sek_id = x2.xsdmf_sek_id
                         where s2.sek_title = '$order_by'
                         ) as d3
-                on r1.rmf_rec_pid = d3.sort_pid
-                left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 
+                on r1.rek_pid = d3.sort_pid
+                left join " . APP_TABLE_PREFIX . "xsd_loop_subelement s1 
             on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
-            left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key k1 
+            left join " . APP_TABLE_PREFIX . "search_key k1 
             on (k1.sek_id = x1.xsdmf_sek_id)
-            order by r1.rmf_rec_pid_num ASC
+            order by r1.rek_pid_num ASC
             ";
 //		echo $stmt;
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);

@@ -93,7 +93,7 @@ if ($isAdministrator) {
     $tpl->assign('cmapx', $map); 
     $map_name = Graphviz::getGraphName($dot);
     $tpl->assign('map_name', $map_name); 
-
+    $tpl->assign("auth_role_options", Auth::getAssocRoleIDs());
     
     $link_check = WorkflowStateLink::checkLinks($wfl_id);
     $tpl->assign("link_check", $link_check);

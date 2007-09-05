@@ -68,7 +68,7 @@ class XSD_Display
 
         $items = @implode(", ", $params["items"]);
         $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
+                    " . APP_TABLE_PREFIX . "xsd_display
                  WHERE
                     xdis_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -78,20 +78,20 @@ class XSD_Display
         } else {
             // also remove any xsdmf's, sels and relationships that are connected to this display
             $stmt = "DELETE FROM
-                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement
+                        " . APP_TABLE_PREFIX . "xsd_loop_subelement
                      WHERE
-                        xsdsel_xsdmf_id IN ( SELECT xsdmf_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields where xsdmf_xdis_id IN (" . $items . "))";
+                        xsdsel_xsdmf_id IN ( SELECT xsdmf_id FROM " . APP_TABLE_PREFIX . "xsd_display_matchfields where xsdmf_xdis_id IN (" . $items . "))";
 
             $GLOBALS["db_api"]->dbh->query($stmt);
             $stmt = "DELETE FROM
-                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship
+                        " . APP_TABLE_PREFIX . "xsd_relationship
                      WHERE
-                        xsdrel_xsdmf_id IN ( SELECT xsdmf_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields where xsdmf_xdis_id IN (" . $items . "))";
+                        xsdrel_xsdmf_id IN ( SELECT xsdmf_id FROM " . APP_TABLE_PREFIX . "xsd_display_matchfields where xsdmf_xdis_id IN (" . $items . "))";
 
             $GLOBALS["db_api"]->dbh->query($stmt);
 
             $stmt = "DELETE FROM
-                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+                        " . APP_TABLE_PREFIX . "xsd_display_matchfields
                      WHERE
                         xsdmf_xdis_id IN (" . $items . ")";
             $GLOBALS["db_api"]->dbh->query($stmt);
@@ -115,7 +115,7 @@ class XSD_Display
 		$master_res = XSD_Display::getDetails($xdis_id);
 
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
+                    " . APP_TABLE_PREFIX . "xsd_display
                  (
                     xdis_title,
                     xdis_xsd_id,
@@ -264,7 +264,7 @@ class XSD_Display
         }
 				
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
+                    " . APP_TABLE_PREFIX . "xsd_display
                  (
                     ".$xdis_field_str."
                     xdis_title,
@@ -316,7 +316,7 @@ class XSD_Display
         }
 				
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
+                    " . APP_TABLE_PREFIX . "xsd_display
                  SET 
                     xdis_title = '" . Misc::escapeString($params["xdis_title"]) . "',
                     xdis_version = '" . Misc::escapeString($params["xdis_version"]) . "',
@@ -346,7 +346,7 @@ class XSD_Display
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
+                    " . APP_TABLE_PREFIX . "xsd_display
                  WHERE
                     xdis_xsd_id = ".$xsd_id." ".$where."
                  ORDER BY
@@ -373,7 +373,7 @@ class XSD_Display
                     xdis_id,
 					concat(xdis_title, ' Version ', xdis_version) as xdis_desc
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
+                    " . APP_TABLE_PREFIX . "xsd_display
                  WHERE xdis_enabled = 1
                  ORDER BY
                     xdis_title, xdis_version ASC";
@@ -399,7 +399,7 @@ class XSD_Display
                     xdis_id,
 					concat(xdis_title, ' Version ', xdis_version) as xdis_desc
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display 
+                    " . APP_TABLE_PREFIX . "xsd_display 
 				 WHERE xdis_object_type = 2	and xdis_enabled = 1			 
                  ORDER BY
                     xdis_title, xdis_version ASC";
@@ -426,7 +426,7 @@ class XSD_Display
                     xdis_id,
 					concat(xdis_title, ' Version ', xdis_version) as xdis_desc
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display 
+                    " . APP_TABLE_PREFIX . "xsd_display 
 				 WHERE xdis_object_type = ".$ret_id."			 
                  ORDER BY
                     xdis_title, xdis_version ASC";
@@ -452,7 +452,7 @@ class XSD_Display
                     xdis_id,
 					concat(xdis_title, ' Version ', xdis_version) as xdis_desc
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
+                    " . APP_TABLE_PREFIX . "xsd_display
 				 WHERE xdis_object_type = 3	and xdis_enabled = 1				 
                  ORDER BY
                     xdis_title, xdis_version ASC";
@@ -478,7 +478,7 @@ class XSD_Display
                     xdis_id,
 					concat(xdis_title, ' Version ', xdis_version) as xdis_desc
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
+                    " . APP_TABLE_PREFIX . "xsd_display
 				 WHERE xdis_object_type != 4 and xdis_enabled = 1		 
                  ORDER BY
                     xdis_title, xdis_version ASC";
@@ -503,7 +503,7 @@ class XSD_Display
         $stmt = "SELECT
                     xdis_xsd_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
+                    " . APP_TABLE_PREFIX . "xsd_display
                  WHERE
                     xdis_id=".$xdis_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -532,7 +532,7 @@ class XSD_Display
         $stmt = "SELECT
                    xdis_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
+                    " . APP_TABLE_PREFIX . "xsd_display
                  WHERE
                     xdis_title = '".$xdis_title."'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -560,10 +560,10 @@ class XSD_Display
         $stmt = "SELECT
                    d1.xdis_id 
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship r1,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields s1
+                    " . APP_TABLE_PREFIX . "xsd_display d1,
+                    " . APP_TABLE_PREFIX . "xsd_relationship r1,
+                    " . APP_TABLE_PREFIX . "xsd_display_matchfields x1,
+                    " . APP_TABLE_PREFIX . "xsd_display_matchfields s1
                  WHERE
 				    r1.xsdrel_xsdmf_id = x1.xsdmf_id AND x1.xsdmf_xdis_id = ".$related_xdis_id." AND s1.xsdsel_id = x1.xsdmf_xsdsel_id and
                     s1.xsdsel_title = '".$xdis_title."'";
@@ -588,7 +588,7 @@ class XSD_Display
         $stmt = "SELECT
                    xdis_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
+                    " . APP_TABLE_PREFIX . "xsd_display
                  WHERE
                     xdis_title in ('".implode("','", $xdis_titles)."')";
         $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
@@ -613,7 +613,7 @@ class XSD_Display
         $stmt = "SELECT
                    xdis_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
+                    " . APP_TABLE_PREFIX . "xsd_display
                  WHERE
                     xdis_id = ".$xdis_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -637,7 +637,7 @@ class XSD_Display
         $stmt = "SELECT
                    xdis_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
+                    " . APP_TABLE_PREFIX . "xsd_display
                  WHERE
                     xdis_title = '".$xdis_title."'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -662,7 +662,7 @@ class XSD_Display
         $stmt = "SELECT
                    xdis_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
+                    " . APP_TABLE_PREFIX . "xsd_display
                  WHERE
                     xdis_title = '".$xdis_title."' and xdis_version = '".$xdis_version."'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -685,7 +685,7 @@ class XSD_Display
         $stmt = "SELECT
                     max(xdis_id)
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display";
+                    " . APP_TABLE_PREFIX . "xsd_display";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -707,7 +707,7 @@ class XSD_Display
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
+                    " . APP_TABLE_PREFIX . "xsd_display
                  WHERE
                     xdis_id=".$xdis_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
@@ -970,37 +970,29 @@ class XSD_DisplayObject
                         "Please let the Fez admin know so that the Fez index can be repaired.",__FILE__,__LINE__);
                 return;
             }
-            //print_r($datastreams); 
-            //print_r($datastreamTitles);
 //			$datastreams = Fedora_API::callListDatastreams($pid);			
 			foreach ($datastreams as $ds_key => $ds_value) {
 				// get the matchfields for the FezACML of the datastream if any exists
 				if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M') {
+					$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_Title("!datastream!ID", "File_Attachment", $this->xdis_id);
+					if (!is_array(@$this->xsdmf_current[$xsdmf_id])) {
+						$this->xsdmf_current[$xsdmf_id] = array();
+					}
+					array_push($this->xsdmf_current[$xsdmf_id], $ds_value['ID']);
 					$FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
 					$FezACML_DS_name = "FezACML_".$ds_value['ID'].".xml";
 					if (Fedora_API::datastreamExistsInArray($datastreams, $FezACML_DS_name)) {
-						$FezACML_DS = Fedora_API::callGetDatastreamDissemination($pid, $FezACML_DS_name);
+						$FezACML_DS = Fedora_API::callGetDatastreamDissemination($pid, $FezACML_DS_name);				
 						if (isset($FezACML_DS['stream'])) {
 							$this->processXSDMFDatastream($FezACML_DS['stream'], $FezACML_xdis_id);
+							$this->xsd_html_match->gotMatchCols = false; // make sure it refreshes for the other xsd displays
 						} 
 					}
 				}
 			}
             foreach ($datastreamTitles as $dsValue) {
-				// first check if the XSD Display datastream is a template for a file attachment or a link as these are handled differently
-				if ($dsValue['xsdsel_title'] == "File_Attachment") {
-					// get all the binary managed content datastream details and add an index record for each									
-					$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_ID("!datastream!ID", $dsValue['xsdsel_id'], $dsValue['xsdmf_xdis_id']);
-					
-					foreach ($datastreams as $ds) {
-						if (isset($ds['controlGroup']) && $ds['controlGroup'] == 'M') {
-							if (!is_array(@$this->xsdmf_current[$xsdmf_id])) {
-								$this->xsdmf_current[$xsdmf_id] = array();
-							}
-							array_push($this->xsdmf_current[$xsdmf_id], $ds['ID']); 
-						}
-					}
-                } elseif ($dsValue['xsdsel_title'] == "DOI") {
+				// first check if the XSD Display datastream is a template for a link as these are handled differently
+                if ($dsValue['xsdsel_title'] == "DOI") {
                     // find the datastream for DOI and set it's value 
                     $xsdmf_id = $dsValue['xsdmf_id'];
 				
@@ -1023,7 +1015,7 @@ class XSD_DisplayObject
 						if (isset($DSResultArray['stream'])) {
 							$xmlDatastream = $DSResultArray['stream'];
 							// get the matchfields for the datastream (using the sub-display for this stream)						
-							$this->processXSDMFDatastream($xmlDatastream, $dsValue['xsdrel_xdis_id']);
+							$this->processXSDMFDatastream($xmlDatastream, $dsValue['xsdrel_xdis_id']);							
 						} else {
 							Error_Handler::logError("Couldn't get ".$dsValue['xsdsel_title']." on ".$pid,
                                 __FILE__,__LINE__);
@@ -1044,15 +1036,24 @@ class XSD_DisplayObject
     function processXSDMFDatastream($xmlDatastream, $xsdmf_xdis_id) 
     {
         $xsd_id = XSD_Display::getParentXSDID($xsdmf_xdis_id);
+//		print_r($xsdmf_xdis_id);
         $xsd_details = Doc_Type_XSD::getDetails($xsd_id);
+		$temp_xdis_array = $this->xsd_html_match->xdis_array;
+		$temp_xdis_id = $this->xdis_id;
+		if (!in_array($xsdmf_xdis_id, $this->xsd_html_match->xdis_array)) {
+			$this->xdis_id = $xsdmf_xdis_id;
+			$this->getXSD_HTML_Match(true); //refresh the match cols so it will find the fezacml for ds ids			
+		}
         $this->xsd_element_prefix = $xsd_details['xsd_element_prefix'];
         $this->xsd_top_element_name = $xsd_details['xsd_top_element_name'];
         $xmlnode = new DomDocument();
         @$xmlnode->loadXML($xmlDatastream);
         $cbdata = array('parentContent' => '', 'parent_key' => '', 'xdis_id' => $xsdmf_xdis_id);
         $this->mfcb_rootdone = false;
+
         Misc::XML_Walk($xmlnode, $this, 'matchFieldsCallback', $cbdata, $xmlnode);
-//		print_r($this->xsdmf_array);
+		$this->xsd_html_match->xdis_array = $temp_xdis_array;
+		$this->xdis_id = $temp_xdis_id;
     }
 
     /**
@@ -1145,9 +1146,9 @@ class XSD_DisplayObject
                             } else {
                                 $new_element = "!".$parentContent."!".$clean_nodeName; 
                             }
+
                             if ($cbdata['parent_key'] != "") { 
-                                $xsdmf_id = $this->xsd_html_match->getXSDMF_IDByParentKeyXDIS_ID($new_element, 
-                                        $cbdata['parent_key']);		
+                                $xsdmf_id = $this->xsd_html_match->getXSDMF_IDByParentKeyXDIS_ID($new_element, $cbdata['parent_key']);		
 							} elseif (is_numeric(@$cbdata['currentSEL'])) {						
 								$xsdmf_id = $this->xsd_html_match->getXSDMF_IDBySELXDIS_ID($new_element, $cbdata['currentSEL']);
                             } else {
@@ -1221,6 +1222,7 @@ class XSD_DisplayObject
 						$xsdmf_id = $this->xsd_html_match->getXSDMFByElement($new_element,$cbdata['xdis_id']);
 						if (is_array($xsdmf_id)) {
 							if (count($xsdmf_id) > 1) {
+//								print_r($xsdmf_id);
 								foreach ($xsdmf_id as $row) {
 									if ($row['xsdmf_html_input'] == 'xsd_loop_subelement' && is_numeric($row['xsdsel_indicator_xsdmf_id']) && $row['xsdsel_indicator_xsdmf_id'] != 0 && $row['xsdsel_indicator_value'] != "") {
 										$indicator_xpath = $row['xsd_element_prefix'].":".ltrim(str_replace("!", "/".$row['xsd_element_prefix'].":", $row['indicator_element']), "/");
@@ -1257,16 +1259,26 @@ class XSD_DisplayObject
             	return $cbdata;
                 break; 
         }
+//echo "xsdmf = "; print_r($xsdmf_id); echo "<br /> \n";
         if (is_numeric($xsdmf_id)) {
             // We have found a match!
             // Get the value for the match and store it in the result
             $xsdmf_details = $this->xsd_html_match->getDetailsByXSDMF_ID($xsdmf_id);
+//print_r($xsdmf_details);
             if (strlen($xsdmf_details['xsdmf_value_prefix']) > 0) {
                 $ptr_value = str_replace($xsdmf_details['xsdmf_value_prefix'], "", $domNode->nodeValue);
+//echo $domNode->nodeValue." - ".$ptr_value."<br />";
+//print_r($xsdmf_details);
             } else {
                 $ptr_value = $domNode->nodeValue;
             }
-            
+
+            if ($xsdmf_details['xsdmf_html_input'] == 'checkbox') { //we want to return an 'off' for elements that correspond to checkboxes if they are empty, as this is meaningful, while non-checkbox types empty is not worth indexing/returning				
+            	if ($ptr_value != "on") { //if the xml exists (has been saved) then if it is empty it means the checkbox is off (if the xml didnt exist it would mean on, but wouldn't get to this code area)					 
+            		$ptr_value = "off";
+            	}
+            }
+
             // Store the matchfields value against the matchfield id in the result array.
             // If there's already a value for this match field, then make an array for the value.
             if (isset($xsdmf_ptr[$xsdmf_id])) {

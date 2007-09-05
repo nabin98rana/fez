@@ -1,4 +1,4 @@
-create table `%TABLE_PREFIX%workflow_sessions` (  
+create table %TABLE_PREFIX%workflow_sessions (  
         `wfses_id` int NOT NULL AUTO_INCREMENT , 
         `wfses_usr_id` int NOT NULL , 
         `wfses_object` blob , 

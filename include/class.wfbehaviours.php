@@ -59,7 +59,7 @@ class WF_Behaviour
                     wfb_id,
                     wfb_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "wfbehaviour
+                    " . APP_TABLE_PREFIX . "wfbehaviour
                  ORDER BY
                     wfb_title ASC";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
@@ -88,7 +88,7 @@ class WF_Behaviour
 
         $items = @implode(", ", $HTTP_POST_VARS["items"]);
         $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "wfbehaviour
+                    " . APP_TABLE_PREFIX . "wfbehaviour
                  WHERE
                     wfb_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -112,7 +112,7 @@ class WF_Behaviour
         }
 		
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "wfbehaviour
+                    " . APP_TABLE_PREFIX . "wfbehaviour
                  (
                     wfb_title,
                     wfb_version,
@@ -148,7 +148,7 @@ class WF_Behaviour
         }
 		
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "wfbehaviour
+                    " . APP_TABLE_PREFIX . "wfbehaviour
                  SET 
                     wfb_title = '" . Misc::escapeString($params["wfb_title"]) . "',
                     wfb_version = '" . Misc::escapeString($params["wfb_version"]) . "',
@@ -179,7 +179,7 @@ class WF_Behaviour
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "wfbehaviour wfb
+                    " . APP_TABLE_PREFIX . "wfbehaviour wfb
                     ".$wherestr."
                  ORDER BY
                     wfb.wfb_title ASC";
@@ -206,7 +206,7 @@ class WF_Behaviour
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "wfbehaviour
+                    " . APP_TABLE_PREFIX . "wfbehaviour
                  WHERE
                     wfb_id=".$wfb_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);

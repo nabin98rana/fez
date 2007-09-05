@@ -9,18 +9,23 @@ class SelectReindexInfo {
 
     function getCollections($community_pid)
     {
-        $collections = Collection::getCommunityAssocList($community_pid);
-        $list = array();
-        foreach($collections as $item) {
-            $pid = $item['pid'];
-            $list[] = array('value' => $pid, 'text' => $item['title']);
+		$options = array();		
+	    $options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+	    $options["searchKey".Search_Key::getID("isMemberOf")] = $community_pid; // objects that are a member of selected pid only
+	    $list = Record::getListing($options, array("Lister"), 0, 100, "Title", true);
+		$listing = $list['list'];
+		$return = array();
+        foreach($listing as $item) {
+            $pid = $item['rek_pid'];
+            $return[] = array('value' => $pid, 'text' => $item['rek_title']);
         }
-        return $list;
+        return $return;
     }
 
     function getDocTypes($collection_pid)
     {
-	$childXDisplayOptions = Collection::getChildXDisplayOptions($collection_pid);
+		$childXDisplayOptions = Record::getSearchKeyIndexValue($collection_pid, "XSD Display Option");
+		//$childXDisplayOptions = Collection::getChildXDisplayOptions($collection_pid);
         $list = array();
         foreach ($childXDisplayOptions as $key => $item) {
             $list[] = array('text' => $item, 'value' => $key);

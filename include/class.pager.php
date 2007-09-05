@@ -102,7 +102,7 @@ class Pager
 	{
         $encoded = base64_encode(serialize(self::$cookie));
         @setcookie(APP_LIST_COOKIE, $encoded, APP_LIST_COOKIE_EXPIRE);
-	}
+    }
 
     /**
      * Method used to save the current search parameters in a cookie.
@@ -131,7 +131,6 @@ class Pager
         );
 
 		$existing_cookie = Pager::getCookieParams(); //Why do we need to get this for? commented out CK 6/12/06 // uncommented for search_key expansion by CK 27/2/07
-
 		$sek_count = Search_Key::getMaxID();
         $tempArray = array('searchKey_count' => $sek_count);
         $cookie = array_merge ($cookie, $tempArray);
@@ -150,7 +149,21 @@ class Pager
                     }
                 }
             }
+
             foreach ($searchKeyArray as $sek_id => $value) {
+				$sekdet = Search_Key::getDetails(str_replace("searchKey", "", $sek_id));
+				if ($sekdet['sek_html_input'] == 'date') {
+					if ($searchKeyArray[$sek_id]['start']['Month']) { $searchKeyArray[$sek_id]['start']['Month'] = str_pad($searchKeyArray[$sek_id]['start']['Month'], 2, '0', STR_PAD_LEFT); }
+					if ($searchKeyArray[$sek_id]['start']['Day'] != "") { $searchKeyArray[$sek_id]['start']['Day'] = str_pad($searchKeyArray[$sek_id]['start']['Day'], 2, '0', STR_PAD_LEFT); }
+					if ($searchKeyArray[$sek_id]['end']['Month'] != "") { $searchKeyArray[$sek_id]['end']['Month'] = str_pad($searchKeyArray[$sek_id]['end']['Month'], 2, '0', STR_PAD_LEFT); }
+					if ($searchKeyArray[$sek_id]['end']['Day'] != "") { $searchKeyArray[$sek_id]['end']['Day'] = str_pad($searchKeyArray[$sek_id]['end']['Day'], 2, '0', STR_PAD_LEFT); }
+					
+					$searchKeyArray[$sek_id]['start_date'] =  $searchKeyArray[$sek_id]['start']['Year'] . '-' . $searchKeyArray[$sek_id]['start']['Month'] . '-' . $searchKeyArray[$sek_id]['start']['Day'];
+					$searchKeyArray[$sek_id]['end_date'] =  $searchKeyArray[$sek_id]['end']['Year'] . '-' . $searchKeyArray[$sek_id]['end']['Month'] . '-' . $searchKeyArray[$sek_id]['end']['Day'];
+					
+				}
+			}
+			foreach ($searchKeyArray as $sek_id => $value) {
                 if ($from_cookie == true) {
                     $tempArray = array($sek_id => $value);
                 } else {

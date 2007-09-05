@@ -11,7 +11,7 @@ class BackgroundProcessList
     function getList($usr_id)
     {
         $usr_id = Misc::escapeString($usr_id);
-        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         $stmt = "SELECT bgp_id, bgp_usr_id, bgp_status_message, bgp_progress, bgp_state, bgp_heartbeat,bgp_name,bgp_started," .
                 "if (bgp_heartbeat < DATE_SUB(CURDATE(),INTERVAL 1 DAY), 1, 0) as is_old
             FROM ".$dbtp."background_process
@@ -33,7 +33,7 @@ class BackgroundProcessList
     
    function getDetails($id)
    {
-        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         $stmt = "SELECT *,if (bgp_heartbeat < DATE_SUB(CURDATE(),INTERVAL 1 DAY), 1, 0) as is_old
             FROM ".$dbtp."background_process
             WHERE bgp_id='".$id."'";
@@ -54,7 +54,7 @@ class BackgroundProcessList
 
     function delete($items) 
     {
-        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         foreach ($items as $item) {
             BackgroundProcessList::deleteLog($item);
         }
@@ -85,7 +85,7 @@ class BackgroundProcessList
     {
         $auto_delete_names = $this->auto_delete_names;
     	$usr_id = Misc::escapeString($usr_id);
-        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         $stmt = "SELECT bgp_id FROM ".$dbtp."background_process 
                 WHERE 
                     bgp_usr_id='".$usr_id."'  " .

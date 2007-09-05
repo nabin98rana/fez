@@ -86,7 +86,7 @@ class User
         $stmt = "SELECT
                     usr_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  WHERE
                     usr_username='" . Misc::escapeString($username) . "'";
 //		echo $stmt;
@@ -139,7 +139,7 @@ class User
                     usr_id,
                     usr_full_name
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  WHERE
                     usr_status='active' AND
                     usr_id != " . APP_SYSTEM_USER_ID;
@@ -170,7 +170,7 @@ class User
         $stmt = "SELECT
                     usr_administrator
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  WHERE
                     usr_username='".$username."'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -197,7 +197,7 @@ class User
         $stmt = "SELECT
                     usr_shib_login_count
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  WHERE
                     usr_id='".$usr_id."'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -221,7 +221,7 @@ class User
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  WHERE
                     usr_username='".$username."'";
 
@@ -248,7 +248,7 @@ class User
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  WHERE
                     usr_id=".$id;
 
@@ -292,7 +292,7 @@ class User
         $stmt = "SELECT
                     usr_full_name
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  WHERE
                     usr_id IN (" . implode(', ', $items) . ")";
         if (!is_array($usr_id)) {
@@ -332,7 +332,7 @@ class User
         $stmt = "SELECT
                     usr_status
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  WHERE
                     usr_username='" . Misc::escapeString($username) . "'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -362,7 +362,7 @@ class User
         $stmt = "SELECT
                     COUNT(*)
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  WHERE
                     usr_status='active'";
         $total_active = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -372,7 +372,7 @@ class User
 
         $items = @implode(", ", $HTTP_POST_VARS["items"]);
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  SET
                     usr_status='" . $HTTP_POST_VARS["status"] . "'
                  WHERE
@@ -392,7 +392,7 @@ class User
 
         $items = @implode(", ", $HTTP_POST_VARS["items"]);
         $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  WHERE
                     usr_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -423,7 +423,7 @@ class User
             return -3;
         }
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  SET
                     usr_password='" . md5($HTTP_POST_VARS["new_password"]) . "'
                  WHERE
@@ -452,7 +452,7 @@ class User
     function updateUsername($new_username, $old_username)
     {
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  SET
                     usr_username='" . Misc::escapeString($new_username) . "'
                  WHERE
@@ -477,7 +477,7 @@ class User
     function updateShibUsername($username, $shib_username)
     {
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  SET
                     usr_shib_username='" . Misc::escapeString($shib_username) . "'
                  WHERE
@@ -503,7 +503,7 @@ class User
         global $HTTP_POST_VARS;
 
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  SET
                     usr_full_name='" . Misc::escapeString($HTTP_POST_VARS["full_name"]) . "'
                  WHERE
@@ -530,7 +530,7 @@ class User
         global $HTTP_POST_VARS;
 
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  SET
                     usr_email='" . Misc::escapeString($HTTP_POST_VARS["email"]) . "'
                  WHERE
@@ -557,7 +557,7 @@ class User
         global $HTTP_POST_VARS;
 
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  SET
                     usr_login_count=usr_login_count + 1,
 					usr_last_login_date='" . Date_API::getCurrentDateGMT() . "'
@@ -584,7 +584,7 @@ class User
         global $HTTP_POST_VARS;
 
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  SET
                     usr_shib_login_count=usr_shib_login_count + 1,
 					usr_last_login_date='" . Date_API::getCurrentDateGMT() . "'
@@ -625,7 +625,7 @@ class User
 		}
 
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  SET
                     usr_username='" . Misc::escapeString($HTTP_POST_VARS["username"]) . "',
                     usr_full_name='" . Misc::escapeString($HTTP_POST_VARS["full_name"]) . "',
@@ -646,7 +646,7 @@ class User
         } else {
             // update the collection associations now
             $stmt = "DELETE FROM
-                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group_user
+                        " . APP_TABLE_PREFIX . "group_user
                      WHERE
                         gpu_usr_id=" . $HTTP_POST_VARS["id"];
             $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -656,7 +656,7 @@ class User
             } else {
                 for ($i = 0; $i < count($HTTP_POST_VARS["groups"]); $i++) {
                     $stmt = "INSERT INTO
-                                " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "group_user
+                                " . APP_TABLE_PREFIX . "group_user
                              (
                                 gpu_grp_id,
                                 gpu_usr_id
@@ -700,7 +700,7 @@ class User
 
         $prefs = Prefs::getDefaults();
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  (
                     usr_created_date,
                     usr_full_name,
@@ -757,7 +757,7 @@ class User
 
         $prefs = Prefs::getDefaults();
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  (
                     usr_created_date,
                     usr_full_name,
@@ -809,7 +809,7 @@ class User
 
         $prefs = Prefs::getDefaults();
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  (
                     usr_created_date,
                     usr_full_name,
@@ -867,7 +867,7 @@ class User
 
         $prefs = Prefs::getDefaults();
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  (
                     usr_created_date,
                     usr_full_name,
@@ -922,7 +922,7 @@ class User
 
         $prefs = Prefs::getDefaults();
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  (
                     usr_created_date,
                     usr_full_name,
@@ -1033,7 +1033,7 @@ class User
         $stmt = "SELECT SQL_CALC_FOUND_ROWS 
 					* ".$extra_stmt."
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
 				".$where_stmt."
                  ORDER BY ".$extra_order_stmt."
                     ".$order_by."
@@ -1086,7 +1086,7 @@ class User
                     usr_id,
                     usr_full_name
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  ORDER BY
                     usr_full_name ASC";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
@@ -1113,7 +1113,7 @@ class User
                     usr_id,
                     usr_full_name
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  WHERE
                     usr_administrator = 1 
                  ORDER BY
@@ -1149,7 +1149,7 @@ class User
                     usr_full_name,
                     usr_email
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  WHERE
                     usr_id=".$usr_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
@@ -1183,7 +1183,7 @@ class User
         $stmt = "SELECT
                     usr_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "user
+                    " . APP_TABLE_PREFIX . "user
                  WHERE
                     usr_external_usr_id=".$ext_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);

@@ -62,7 +62,7 @@ class Misc
 				if (strtolower(substr((trim($newString)), 0, 3)) == "and") {
 					$sql .= $newString;
 				} else {
-					$sql .= " and ".$newString;
+					$sql .= " AND ".$newString;
 				}
 			} else {
 				if (strtolower(substr((trim($newString)), 0, 3)) == "and") {
@@ -581,6 +581,7 @@ class Misc
 			// now try and find a FezACML metadata datastream of this datastream
 			$fezacml = "FezACML_".$ds['ID'].".xml";
 			$ds['fezacml'] = 0;
+
 			foreach ($original_dsList as $o_key => $o_ds) {
 				if ($fezacml == $o_ds['ID']) {  // found the fezacml datastream so save it against the record
 					$ds['fezacml'] = $fezacml;
@@ -588,6 +589,7 @@ class Misc
 					$record = new Record($pid);
 					$FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
 					$FezACML_display = new XSD_DisplayObject($FezACML_xdis_id);
+//echo $pid;
 					$FezACML_display->getXSDMF_Values($key);
 /*					echo "PID - ".$pid;
 					echo "XDIS ID - ".$FezACML_xdis_id;
@@ -618,6 +620,14 @@ class Misc
 		return $return;
 	}
 
+	function isAllowedDatastream($dsID) {
+		if ((is_numeric(strpos($dsID, "thumbnail_"))) || (is_numeric(strpos($dsID, "web_"))) || (is_numeric(strpos($dsID, "preview_"))) || (is_numeric(strpos($dsID, "presmd_"))) || (is_numeric(strpos($dsID, "FezACML_"))) )   {
+            return false;
+        } else {
+			return true;
+		}        
+	}
+
     /**
      * Method used to remove certain datastreams from the list of datastreams the user will see.
      *
@@ -626,7 +636,6 @@ class Misc
      * @return  array $return
      */
 	function cleanDatastreamListLite($dsList, $pid) {
-		print_r($dsList);
 		$original_dsList = $dsList;		
 		$return = array();
 		foreach ($dsList as $key => $ds) {		
@@ -769,7 +778,7 @@ class Misc
      */
     function escapeString($str)
     {
-        return $GLOBALS["db_api"]->escapeString($str);
+        return $GLOBALS["db_api"]->dbh->escapeSimple($str);
     }
 
 
@@ -934,8 +943,36 @@ class Misc
      */
 	function sql_array_to_string($array){
 		$return_str = "";
+		$existing_array = array();
 		foreach($array as $key=>$val) {
-			$return_str .= ",".$val[0];
+			if (!empty($val)) {
+				if (!in_array($val, $existing_array)) {
+					$return_str .= ",".$val[0];					
+					array_push($existing_array, $val);								
+				}
+			}
+		}
+		$return_str = substr($return_str, 1);
+		return $return_str;
+	}
+
+    /**
+     * Accepts an SQL array and returns a string of comma separated values from the array.
+     *
+     * @access  public
+     * @param   array $array 
+     * @return  string $return_str
+     */
+	function sql_array_to_string_simple($array){
+		$return_str = "";
+		$existing_array = array();
+		foreach($array as $key=>$val) {
+			if (!empty($val)) {
+				if (!in_array($val, $existing_array)) {
+					$return_str .= ",".$val;					
+					array_push($existing_array, $val);								
+				}
+			}
 		}
 		$return_str = substr($return_str, 1);
 		return $return_str;
@@ -1812,7 +1849,7 @@ class Misc
 								}
 							}
 						}
-						if (($current_name != $supertopelement) && ($current_name != "")) {
+						if (($current_name != $supertopelement) && ($current_name != "") && ($current_name != $parentnodename)) {
 							$array_ptr = &$array[$current_name];
 							$parentContent .= "!".$current_name;
 							$array_ptr['fez_hyperlink'] = $parentContent;
@@ -1910,9 +1947,6 @@ class Misc
      */	
 	function array_flatten(&$a,$pref='', $ignore_keys = false) {
 	   $ret=array();
-	   if (!is_array($a)) {
-	   		return array($a);
-	   }
 	   foreach ($a as $i => $j)
 		   if (is_array($j)) {
                if (!$ignore_keys) {
@@ -2294,7 +2328,7 @@ class Misc
         if (is_array($a)) {
             $b = $a;
             foreach ($a as $key => $value) {
-                $b[$key] = "'".mysql_escape_string($value)."'";
+                $b[$key] = "'".Misc::escapeString($value)."'";
             }
             return implode(',', $b);
         }
@@ -2459,7 +2493,7 @@ function backtrace()
                     	Error_Handler::logError("DOH!!!!",__FILE__,__LINE__);
                     }
                     $stmt = "UPDATE ".APP_DEFAULT_DB . "." . APP_TABLE_PREFIX."$table " .
-                            "set $field='$dbvalue' " .
+                            "SET $field='$dbvalue' " .
                             "WHERE $field='$xvalue' AND $restrict";
                     if ($debug) {
                       Error_Handler::logError($stmt,__FILE__,__LINE__);

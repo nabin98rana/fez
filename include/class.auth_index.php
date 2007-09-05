@@ -24,45 +24,71 @@ class AuthIndex {
     {
         $this->bgp->setHeartbeat();
         $this->bgp->setProgress(++$this->pid_count);
-        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $dbtp = APP_TABLE_PREFIX;
         // topcall means this is the first call and not a recursion.  We want to clear all our caches at the
         // start but then use them as we recurse.
         if ($topcall) {
             // clear the parent cache
             Record::getParents($pid, true);
         }
-        $res = AuthIndex::getIndexAuth($pid,$topcall);
+        $res = Auth::getAuth($pid);
+//		Error_Handler::logError($res, __FILE__, __LINE__);
+//		print_r($res); //exit;
+//        $res = AuthIndex::getIndexAuth($pid,$topcall);
         $rows = array();
-        $values = '';
+        $dupe_stopper = array();
+        $values = "";
+        $lister_values = "";
+        $roles = Auth::getAllRoleIDs();
         $has_list_rules = false;
+        $has_view_rules = false;
+// should not need this when going straight to fezacml xml rather than old rmf index
         if (!empty($res)) {
             // add some pre-processed special rules
             foreach ($res as $source_pid => $groups) {
                 foreach ($groups as $role => $group) {
                     foreach ($group as $row) {
                         // check for rules on listing to determine if this pid is public or not
-                        if ($row['role'] == 'Lister') {
+//                        if ($row['role'] == $roles['Lister'] && $row['value'] != "off") {
+                        if ($row['role'] == 'Lister' && $row['value'] != "off") {
                             $has_list_rules = true;
                         }
-                    }   
-
+                        // check for rules on viewing to determine if this pid is public or not
+                        if ($row['role'] == 'Viewer' && $row['value'] != "off") {
+                            $has_view_rules = true;
+                        }
+                    }
                 }
             }
-        }
+        } 
         // if no lister rules are found, then this pid is publically listable
         if (!$has_list_rules) {
-            $res[$pid]['Lister'][] = array('pid' => $pid, 'role' => 'Lister', 
+            $res[$pid]['Lister'][] = array('pid' => $pid, 'role' => $roles['Lister'], 
+                    'rule' => 'public_list', 'value' => 1);
+        }
+        // if no viewer rules are found, then this pid is publically listable
+        if (!$has_view_rules) {
+            $res[$pid]['Viewer'][] = array('pid' => $pid, 'role' => $roles['Viewer'], 
                     'rule' => 'public_list', 'value' => 1);
         }
         // get the group ids
+//        foreach ($res as $source_pid => $group) {
         foreach ($res as $source_pid => $groups) {
             foreach ($groups as $role => $group) {
-                $arg_id = AuthRules::getOrCreateRuleGroup($group,$topcall);
-                $values .= "('".$pid."', ".Misc::numPID($pid).", '".$role."', '".$arg_id."'),";
-                $rows[] = array('authi_pid' => $pid, 'authi_role' => $role, 'authi_arg_id' => $arg_id);
+            	$arg_id = AuthRules::getOrCreateRuleGroup($group,$topcall);
+            	$ukey = $pid."-".$role."-".$arg_id;
+	           	if (!in_array($ukey, $dupe_stopper)) {
+            		$dupe_stopper[] = $ukey;
+					if ($role == "Lister") {
+	                	$lister_values .= "('".$pid."', ".$arg_id."),";
+					}
+	                $values .= "('".$pid."', ".$roles[$role].", ".$arg_id."),";
+	                $rows[] = array('authi_pid' => $pid, 'authi_role' => $role, 'authi_arg_id' => $arg_id);
+            	}
             }
         }
         $values = rtrim($values,', ');
+        $lister_values = rtrim($lister_values,', ');
         // Only check for change of rules at top of recursion, otherwise it slows things down too much.
         if ($topcall) {
             // check if the auth rules have changed for this pid - if they haven't then we don't need to recurse.
@@ -111,7 +137,14 @@ class AuthIndex {
         }
         if ($rules_changed) {
             AuthIndex::clearIndexAuth($pid);
-            $stmt = "INSERT INTO ".$dbtp."auth_index2 (authi_pid,authi_pid_num,authi_role,authi_arg_id) VALUES ".$values." ";
+            $stmt = "INSERT INTO ".$dbtp."auth_index2 (authi_pid,authi_role,authi_arg_id) VALUES ".$values." ";
+            $res = $GLOBALS["db_api"]->dbh->query($stmt);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                return -1;
+            }
+			// now update the cut down speedier lister only auth index
+            $stmt = "INSERT INTO ".$dbtp."auth_index2_lister (authi_pid,authi_arg_id) VALUES ".$lister_values." ";
             $res = $GLOBALS["db_api"]->dbh->query($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -120,15 +153,17 @@ class AuthIndex {
             // get children and update their indexes.
             $rec = new RecordGeneral($pid);
             $children = $rec->getChildrenPids();
+			$title = Record::getSearchKeyIndexValue($pid, "Title", false);
             if (!empty($children)) {
-                $this->bgp->setStatus("Recursing into ".$rec->getTitle());
+				$child_count = count($children);
+                $this->bgp->setStatus("Recursing into ".$title." (".$child_count." child pids)");
             }
             foreach ($children as $child_pid) {
                 AuthIndex::setIndexAuthBGP($child_pid, $recurse, false);
             }
-            if (!empty($children)) {
-                $this->bgp->setStatus("Finished Index Auth for ".$rec->getTitle());
-            }
+//            if (!empty($children)) {
+            $this->bgp->setStatus("Finished Index Auth for ".$title);
+//            }
         }
         if ($topcall) {
             $this->cleanIndex();
@@ -136,7 +171,7 @@ class AuthIndex {
         return 1;
     }
 
-    function getIndexAuth($pids, $clearcache=false)
+/*    function getIndexAuth($pids, $clearcache=false)
     {
         $pid_cache = &$this->pid_cache;
         $done_pids = &$this->get_auth_done_pids;
@@ -152,12 +187,12 @@ class AuthIndex {
         foreach ($pids as $pid) {
             $auth_groups = array();
             if (!isset($pid_cache[$pid])) {
-            $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
-            $stmt = "SELECT rmf_rec_pid as pid, xsdmf_parent_key_match as role, xsdmf_element as rule, rmf_varchar as value 
+            $dbtp = APP_TABLE_PREFIX;
+            $stmt = "SELECT rek_pid as pid, xsdmf_parent_key_match as role, xsdmf_element as rule, rek_varchar as value 
                 FROM ".$dbtp."record_matching_field AS r1 
                     INNER JOIN ".$dbtp."xsd_display_matchfields AS x1 ON    
-                rmf_rec_pid = '".$pid."'
-                AND (r1.rmf_dsid IS NULL or r1.rmf_dsid = '') 
+                rek_pid = '".$pid."'
+                AND (r1.rek_dsid IS NULL or r1.rek_dsid = '') 
                 AND (xsdmf_element in ('!rule!role!Fez_User',
                             '!rule!role!AD_Group',
                             '!rule!role!AD_User',
@@ -174,7 +209,7 @@ class AuthIndex {
                             '!rule!role!eduPersonOrgUnitDN',
                             '!rule!role!eduPersonPrimaryOrgUnitDN')
                     )
-                    AND r1.rmf_xsdmf_id=x1.xsdmf_id
+                    AND r1.rek_xsdmf_id=x1.xsdmf_id
                     ";
             $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
             if (PEAR::isError($res)) {
@@ -214,9 +249,10 @@ class AuthIndex {
         foreach ($pids as $pid) {
             $auth_groups = array_merge_recursive($auth_groups, $pid_cache[$pid]);
         }
+		print_r($auth_groups); exit;
         return $auth_groups;
     }
-
+*/
     function clearIndexAuth($pids)
     {
         if (empty($pids)) {
@@ -225,8 +261,14 @@ class AuthIndex {
             $pids = array($pids);
         }
         $pids_str = Misc::arrayToSQL($pids);
-        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $dbtp = APP_TABLE_PREFIX;
         $stmt = "DELETE FROM ".$dbtp."auth_index2 WHERE authi_pid IN (".$pids_str.") ";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        }	
+        $stmt = "DELETE FROM ".$dbtp."auth_index2_lister WHERE authi_pid IN (".$pids_str.") ";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -237,7 +279,7 @@ class AuthIndex {
 
     function highestRuleGroup()
     {
-        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $dbtp = APP_TABLE_PREFIX;
         $stmt = "SELECT max(arg_id) FROM ".$dbtp."auth_rule_groups";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
@@ -253,7 +295,7 @@ class AuthIndex {
     function cleanIndex()
     {
         // check for unused rules
-        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $dbtp = APP_TABLE_PREFIX;
         $stmt = "select count(*) from ".$dbtp."auth_rule_groups where not exists (
             select * FROM ".$dbtp."auth_index2 where authi_arg_id=arg_id)";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);

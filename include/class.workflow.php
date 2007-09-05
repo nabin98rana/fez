@@ -61,7 +61,7 @@ class Workflow
 
         $items = @implode(", ", $HTTP_POST_VARS["items"]);
         $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow
+                    " . APP_TABLE_PREFIX . "workflow
                  WHERE
                     wfl_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -89,18 +89,16 @@ class Workflow
     	}
 		
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow
+                    " . APP_TABLE_PREFIX . "workflow
                  (
                     wfl_title,
                     wfl_version,
                     wfl_description,
-                    wfl_roles,
                     wfl_end_button_label
                  ) VALUES (
                     '" . Misc::escapeString($params["wfl_title"]) . "',
                     '" . Misc::escapeString($params["wfl_version"]) . "',
                     '" . Misc::escapeString($params["wfl_description"]) . "',
-                    '" . Misc::escapeString($params["wfl_roles"]) . "',
                     '" . Misc::escapeString($params["wfl_end_button_label"]) . "'
                  )";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -108,7 +106,40 @@ class Workflow
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-        	return $GLOBALS['db_api']->get_last_insert_id();
+            $new_wfl_id = $GLOBALS["db_api"]->get_last_insert_id();
+            // add the auth role associations!
+            for ($i = 0; $i < count($params["wfl_roles"]); $i++) {
+                Workflow::associateRole($params["wfl_roles"][$i], $new_wfl_id);
+            } 
+			return $new_wfl_id;
+        }
+    }
+
+    /**
+     * Method used to associate an workflow to an auth role.
+     *
+     * @access  public
+     * @param   integer $aro_id The auth role ID
+     * @param   integer $wfl_id The workflow ID
+     * @return  boolean
+     */
+    function associateRole($aro_id, $wfl_id)
+    {
+        $stmt = "INSERT INTO
+                    " . APP_TABLE_PREFIX . "workflow_roles
+                 (
+                    wfr_wfl_id,
+                    wfr_aro_id
+                 ) VALUES (
+                    ".$wfl_id.",
+                    ".$aro_id."
+                 )";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return false;
+        } else {
+            return true;
         }
     }
 
@@ -125,12 +156,11 @@ class Workflow
             $params = &$_POST;
         }
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow
+                    " . APP_TABLE_PREFIX . "workflow
                  SET 
                     wfl_title = '" . Misc::escapeString($params["wfl_title"]) . "',
                     wfl_version = '" . Misc::escapeString($params["wfl_version"]) . "',
                     wfl_description = '" . Misc::escapeString($params["wfl_description"]) . "',
-                    wfl_roles = '" . Misc::escapeString($params["wfl_roles"]) . "',
                     wfl_end_button_label = '" . Misc::escapeString($params["wfl_end_button_label"]) . "'
                  WHERE wfl_id = ".$wfl_id;
 //		echo $stmt;
@@ -139,7 +169,34 @@ class Workflow
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-			//
+	        // update the auth role associations now
+            $stmt = "DELETE FROM
+                        " . APP_TABLE_PREFIX . "workflow_roles
+                     WHERE
+                        wfr_wfl_id=" . $wfl_id;
+            $res = $GLOBALS["db_api"]->dbh->query($stmt);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                return -1;
+            } else {
+                for ($i = 0; $i < count($params["wfl_roles"]); $i++) {
+                    $stmt = "INSERT INTO
+                                " . APP_TABLE_PREFIX . "workflow_roles
+                             (
+                                wfr_wfl_id,
+                                wfr_aro_id
+                             ) VALUES (
+                                " . $wfl_id . ",
+                                " . $params["wfl_roles"][$i] . "
+                             )";
+                    $res = $GLOBALS["db_api"]->dbh->query($stmt);
+                    if (PEAR::isError($res)) {
+                        Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                        return -1;
+                    }
+                }
+            }
+            return 1;    
         }
     }
 
@@ -155,7 +212,7 @@ class Workflow
         $stmt = "SELECT
                     wfl_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow
+                    " . APP_TABLE_PREFIX . "workflow
                  WHERE
                     wfl_id=".$wfl_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -207,7 +264,7 @@ class Workflow
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow
+                    " . APP_TABLE_PREFIX . "workflow
                         ".$where.
                                 " order by    wfl_title 
                     ";
@@ -223,6 +280,8 @@ class Workflow
                 for ($i = 0; $i < count($res); $i++) {
                     // ignore workflow templates that have no states yet...
                     $states = Workflow_State::getList($res[$i]['wfl_id']);
+                    $auth_roles = Workflow::getAuthRoles($res[$i]['wfl_id']);
+					$res[$i]['wfl_roles'] = $auth_roles;
 					$res[$i]['total_states'] = count($states);
 
                     if (count($states) == 0) {
@@ -231,12 +290,47 @@ class Workflow
                     }
                     $res[$i]['states'] = $states;
                     $t[] = $res[$i];
+
+
+
                 }
                 return $t;
             }
         }
     }
 
+	function getAuthRoles($wfl_id) {
+        $stmt = "SELECT
+                    wfr_aro_id
+                 FROM
+                    " . APP_TABLE_PREFIX . "workflow_roles
+                 WHERE
+                    wfr_wfl_id=".$wfl_id;
+        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }				
+	}
+
+	function getAuthRoleTitles($wfl_id) {
+        $stmt = "SELECT
+                    aro_role
+                 FROM
+                    " . APP_TABLE_PREFIX . "auth_roles
+                 INNER JOIN " . APP_TABLE_PREFIX . "workflow_roles on wfr_aro_id = aro_id
+                 AND
+                    wfr_wfl_id=".$wfl_id;
+        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }				
+	}
 
     /**
      * Method used to get the details of a specific custom field.
@@ -250,14 +344,17 @@ class Workflow
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow
+                    " . APP_TABLE_PREFIX . "workflow
                  WHERE
                     wfl_id=".$wfl_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
-        } else {
+        } else {		
+	        $auth_roles = Workflow::getAuthRoles($res['wfl_id']);
+			$res['wfl_roles'] = $auth_roles;
+	        $res['wfl_role_titles'] = Workflow::getAuthRoleTitles($res['wfl_id']);
             return $res;
         }
     }
@@ -321,14 +418,9 @@ class Workflow
             return true;
         }
         $wfl = Workflow::getDetails($wfl_id);
-        if (!empty($wfl['wfl_roles'])) {
-            // the roles must be comma separated
-            $wfl_roles = preg_split("/[\s,;]+/", $wfl['wfl_roles']);
-			if (is_array($indexArray)) { 
-                $pid_roles = Auth::getIndexAuthorisationGroupsByPid($pid, $indexArray);
-			} else {
-				$pid_roles = Auth::getAuthorisationGroups($pid);							
-			}
+		$wfl_roles = $wfl['wfl_role_titles'];
+        if (is_array($wfl_roles)) {
+			$pid_roles = Auth::getAuthorisationGroups($pid);							
             foreach ($wfl_roles as $wfl_role) {
                 if (in_array(trim($wfl_role), $pid_roles)) {
                     return true;
@@ -356,10 +448,10 @@ class Workflow
         }
         $wfl = Workflow::getDetails($wfl_id);
         // assume roles must include edit
-            if (empty($wfl['wfl_roles'])) {
+            if (empty($wfl['wfl_role_titles'])) {
             	$wfl_roles = $trigger_role;
             } else {
-                $wfl_roles = preg_split("/[\s,;]+/", $wfl['wfl_roles']);
+                $wfl_roles = $wfl['wfl_role_titles'];
             }
             $pid_roles = Auth::getAllIndexAuthorisationGroups($user_id);
             //Error_Handler::logError(print_r($wfl_roles, true), __FILE__,__LINE__);
@@ -387,7 +479,7 @@ class Workflow
             $workflow_elem->setAttribute('wfl_title', $workflow['wfl_title']);
             $workflow_elem->setAttribute('wfl_version', $workflow['wfl_version']);
             $workflow_elem->setAttribute('wfl_description', $workflow['wfl_description']);
-            $workflow_elem->setAttribute('wfl_roles', $workflow['wfl_roles']);
+            $workflow_elem->setAttribute('wfl_roles', implode(",",$workflow['wfl_role_titles']));
             $workflow_elem->setAttribute('wfl_end_button_label', $workflow['wfl_end_button_label']);
 
             $states = Workflow_State::getList($wfl_id);
@@ -488,7 +580,7 @@ class Workflow
                 'wfl_title' => $xworkflow->getAttribute('wfl_title'),
                 'wfl_version' => $xworkflow->getAttribute('wfl_version'),
                 'wfl_description' => $xworkflow->getAttribute('wfl_description'),
-                'wfl_roles' => $xworkflow->getAttribute('wfl_roles'),
+                'wfl_roles' => explode(",",$xworkflow->getAttribute('wfl_role_titles')),
                 'wfl_end_button_label' => $xworkflow->getAttribute('wfl_end_button_label')
             );
             if ($overwrite) {

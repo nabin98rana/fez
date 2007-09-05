@@ -461,7 +461,7 @@ function getOpenerPageElement(name)
 
 function getFormElement(f, field_name, num)
 {
-//	alert(field_name);
+
     var y = 0;
     for (var i = 0; i < f.elements.length; i++) {
         if (num != null) {
@@ -637,34 +637,64 @@ function isElementVisible(element)
 
 function toggleVisibility(title, keep_basic_filter_form, create_cookie)
 {
+
     var element = getPageElement(title + '1');
-    if (isElementVisible(element)) {
-        var new_style = 'none';
-        if (title != 'basic_filter_form' && keep_basic_filter_form != 1) { 
-            var basic_element = getPageElement('basic_filter_form' + '1');
-			if (isElementVisible(basic_element)) {
-				toggleVisibility('basic_filter_form');
+//alert(title);
+	if (element == null) {
+    	var element = getPageElement('tr_' + title);
+		if (element == null) {
+	    	var element = getPageElement(title);
+			if (element != null) {
+			    if (isElementVisible(element)) {
+			        var new_style = 'none';
+			    } else {
+			        var new_style = getDisplayStyle();
+			    }
+				element.style.display = new_style;
+				return true;
+			} else {
+				return false;
 			}
+		} else {
+		    if (isElementVisible(element)) {
+		        var new_style = 'none';
+		    } else {
+		        var new_style = getDisplayStyle();
+		    }
+			element.style.display = new_style;
+			return true;
 		}
+    }
+
+	if (element != null) {	
+	    if (isElementVisible(element)) {
+	        var new_style = 'none';
+	        if (title != 'basic_filter_form' && keep_basic_filter_form != 1) { 
+	            var basic_element = getPageElement('basic_filter_form' + '1');
+				if (isElementVisible(basic_element)) {
+					toggleVisibility('basic_filter_form');
+				}
+			}
         
-    } else {
-        var new_style = getDisplayStyle();
-        if (title != 'basic_filter_form' && keep_basic_filter_form != 1) { 
-            var basic_element = getPageElement('basic_filter_form' + '1');
-			if (!isElementVisible(basic_element)) {
-				toggleVisibility('basic_filter_form');
+	    } else {
+	        var new_style = getDisplayStyle();
+	        if (title != 'basic_filter_form' && keep_basic_filter_form != 1) { 
+	            var basic_element = getPageElement('basic_filter_form' + '1');
+				if (!isElementVisible(basic_element)) {
+					toggleVisibility('basic_filter_form');
+				}
 			}
-		}
-    }
-    var i = 1;
-    while (1) {
-        element = getPageElement(title + i);
-        if (!element) {
-            break;
-        }
-        element.style.display = new_style;
-        i++;
-    }
+	    } //
+	    var i = 1;
+	    while (1) {
+	        element = getPageElement(title + i);
+	        if (!element) {
+	            break;
+	        }
+	        element.style.display = new_style;
+	        i++;
+	    }
+	}
     // if any elements were found, then...
     if (i > 1) {
         var link_element = getPageElement(title + '_link');
@@ -891,4 +921,71 @@ function resizePager(f, page_url)
     temp = replaceParam(page_url + "?" + temp, 'pager_row', '0');
     window.location.href = page_url + "?" + temp;
     
+}
+
+function toggleDateFields(f, field_name)
+{
+    var checkbox = getFormElement(f, 'filter[' + field_name + ']');
+    var filter_enabled = getFormElement(f, field_name + '[filter_enabled]');
+    var filter_type = getFormElement(f, field_name + '[filter_type]');
+    var month_field = getFormElement(f, field_name + '[start][Month]');
+    var day_field = getFormElement(f, field_name + '[start][Day]');
+    var year_field = getFormElement(f, field_name + '[start][Year]');
+
+    var month_end_field = getFormElement(f, field_name + '[end][Month]');
+        if (month_end_field == false) {
+            var pre_element_name = field_name.substring(0, field_name.indexOf('['));
+            var month_end_field = getFormElement(f, pre_element_name + '[end][Month]');
+        } 
+    var day_end_field = getFormElement(f, field_name + '[end][Day]');
+        if (day_end_field == false) {
+            var pre_element_name = field_name.substring(0, field_name.indexOf('['));
+            var day_end_field = getFormElement(f, pre_element_name+'[end][Day]');
+        } 
+    var year_end_field = getFormElement(f, field_name + '[end][Year]');
+        if (year_end_field == false) {
+            var pre_element_name = field_name.substring(0, field_name.indexOf('['));
+            var year_end_field = getFormElement(f, pre_element_name+'[end][Year]');
+        } 
+    if (checkbox.checked) {
+        var disable = false;
+    } else {
+        var disable = true;
+    }
+    filter_enabled.value = disable?'0':'1';
+    filter_type.disabled = disable;
+    month_field.disabled = disable;
+    day_field.disabled = disable;
+    year_field.disabled = disable;
+    month_end_field.disabled = disable;
+    day_end_field.disabled = disable;
+    year_end_field.disabled = disable;
+}
+function checkDateFilterType(f, type_field)
+{
+    var option = getSelectedOption(f, type_field.name);
+    var element_name = type_field.name.substring(0, type_field.name.indexOf('[filter'));
+    var element = getPageElement('tr_'+element_name);
+    if ((option == 'between') && (!isElementVisible(element))) {
+        toggleVisibility(element_name, false);
+    } else if ((option != 'between') && (isElementVisible(element))) {
+        toggleVisibility(element_name, false);
+    }
+}
+function selectDateOptions(field_prefix, date_str)
+{
+    if (date_str.length != 10) {
+        return false;
+    } else {
+        var year = date_str.substring(0, date_str.indexOf('-'));
+        var month = date_str.substring(date_str.indexOf('-')+1, date_str.lastIndexOf('-'));
+        var day = date_str.substring(date_str.lastIndexOf('-')+1);
+        selectDateField(field_prefix, day, month, year);
+    }
+}
+function selectDateField(field_name, day, month, year)
+{
+    selectOption(this.document.custom_filter_form, field_name + '[Day]', day);
+    selectOption(this.document.custom_filter_form, field_name + '[Month]', month);
+    selectOption(this.document.custom_filter_form, field_name + '[Year]', year);
 }

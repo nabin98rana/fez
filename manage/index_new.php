@@ -109,25 +109,28 @@ $tpl->assign("options", $options);
 if ($HTTP_POST_VARS["action"] == "prompt" || $HTTP_POST_VARS["action"] == "index") {
     if ($index_type == INDEX_TYPE_FEDORAINDEX) {
         $details = $reindex->getMissingList($pagerRow, $rows, $terms);
+//print_r($details);
     } else {
         $details = $reindex->getFullList($pagerRow, $rows, $terms);
     }
-	$tpl->onload("selectCommunity(getForm('reindex_form'), 'community_pid');");
-	$tpl->assign("list", $details['list']);
-	$tpl->assign("list_info", $details['info']);		
-	//        return $details; 
-
-	$status_list = Status::getAssocList();
-	$communities = Community::getList(0, 999999);
-	$communities_list = Misc::keyPairs($communities['list'], 'pid', 'title');
-	$communities_list = Misc::stripOneElementArrays($communities_list);
-	$tpl->assign('status_list', $status_list);
-	$tpl->assign('communities_list', $communities_list);
-	if (is_array($communities) && isset($communities['list'][0]['pid'])) {
-    	$tpl->assign('communities_list_selected', $communities['list'][0]['pid']);
-	}
-	$tpl->registerNajax(NAJAX_Client::register('SelectReindexInfo', APP_RELATIVE_URL.'ajax.php'));
 }
+
+$tpl->assign("list", $details['list']);
+$tpl->assign("list_info", $details['info']);		
+//        return $details; 
+
+$status_list = Status::getAssocList();
+//$communities = Community::getList(0, 999999);
+//$communities_list = Misc::keyPairs($communities['list'], 'rek_pid', 'rek_title');
+//$communities_list = Misc::stripOneElementArrays($communities_list);
+$communities_list = Community::getCreatorListAssoc();
+$tpl->assign('status_list', $status_list);
+$tpl->assign('communities_list', $communities_list);
+//if (is_array($communities_list) && isset($communities_list['rek_pid'])) {
+//	$tpl->assign('communities_list_selected', $communities_list['rek_pid']);
+//}
+$tpl->registerNajax(NAJAX_Client::register('SelectReindexInfo', APP_RELATIVE_URL.'ajax.php'));
+$tpl->onload("selectCommunity(getForm('reindex_form'), 'community_pid');");
 
 $tpl->displayTemplate();
 

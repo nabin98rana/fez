@@ -149,10 +149,11 @@ function upgrade()
     }
     
     // go through the upgrades and execute any that are greater than the current version
-    $sql_upgrade = $dbversion;
+ //   $sql_upgrade = $dbversion;
+//	print_r($sql_upgrades); exit;
     foreach ($sql_upgrades as $sql_upgrade) {
     	if ($sql_upgrade > $dbversion) {
-            if (parse_mysql_dump("$path/upgrade{$sql_upgrade}.sql")) {
+            if (parse_mysql_dump($path."/upgrade".$sql_upgrade.".sql")) {
                 $success = $success && true;
             } else {
                 $success = false;

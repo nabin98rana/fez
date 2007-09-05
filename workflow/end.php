@@ -71,12 +71,12 @@ $parents_list = unserialize(Misc::GETorPOST('parents_list'));
 
 if (is_array($parents_list)) {
     foreach ($parents_list as &$item) {
-        if (Misc::isValidPid($item['pid'])) {
-            $precord = new RecordObject($item['pid']);
+        if (Misc::isValidPid($item)) {
+            $precord = new RecordObject($item);
             if ($precord->isCommunity()) {
-                $item['url'] = APP_RELATIVE_URL."list.php?community_pid=".$item['pid'];
+                $item['url'] = APP_RELATIVE_URL."list.php?community_pid=".$item;
             } else {
-                $item['url'] = APP_RELATIVE_URL."list.php?collection_pid=".$item['pid'];
+                $item['url'] = APP_RELATIVE_URL."list.php?collection_pid=".$item;
             }
         }
     }

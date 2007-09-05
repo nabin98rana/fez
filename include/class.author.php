@@ -65,7 +65,7 @@ class Author
         $stmt = "SELECT
                     COUNT(*) AS total
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
+                    " . APP_TABLE_PREFIX . "author
                  WHERE
                     aut_id=".$aut_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -94,7 +94,7 @@ class Author
         $stmt = "SELECT
                     aut_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
+                    " . APP_TABLE_PREFIX . "author
                  WHERE
                     aut_title='".$aut_title."'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -121,7 +121,7 @@ class Author
         $stmt = "SELECT
                     aut_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
+                    " . APP_TABLE_PREFIX . "author
                  WHERE ";
 		if (is_numeric(strpos($aut_fname, "."))) {
 			$aut_fname = substr($aut_fname, 0, strpos($aut_fname, "."));			
@@ -156,7 +156,7 @@ class Author
         $stmt = "SELECT
                     aut_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
+                    " . APP_TABLE_PREFIX . "author
                  WHERE
                     aut_id=".$aut_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -184,7 +184,7 @@ class Author
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
+                    " . APP_TABLE_PREFIX . "author
                  WHERE
                     aut_id=".$aut_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
@@ -210,7 +210,7 @@ class Author
 
         $items = @implode(", ", $HTTP_POST_VARS["items"]);
         $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
+                    " . APP_TABLE_PREFIX . "author
                  WHERE
                     aut_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -239,13 +239,15 @@ class Author
             return -2;
         }
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
+                    " . APP_TABLE_PREFIX . "author
                  SET
                     aut_title='" . Misc::escapeString($HTTP_POST_VARS["title"]) . "',
                     aut_fname='" . Misc::escapeString($HTTP_POST_VARS["fname"]) . "',
                     aut_mname='" . Misc::escapeString($HTTP_POST_VARS["mname"]) . "',
                     aut_lname='" . Misc::escapeString($HTTP_POST_VARS["lname"]) . "',
                     aut_position='" . Misc::escapeString($HTTP_POST_VARS["position"]) . "',
+                    aut_org_staff_id='" . Misc::escapeString($HTTP_POST_VARS["org_staff_id"]) . "',
+                    aut_org_username='" . Misc::escapeString($HTTP_POST_VARS["org_username"]) . "',
                     aut_cv_link='" . Misc::escapeString($HTTP_POST_VARS["cv_link"]) . "',																				
                     aut_homepage_link='" . Misc::escapeString($HTTP_POST_VARS["homepage_link"]) . "'														
                  WHERE
@@ -274,13 +276,15 @@ class Author
             return -2;
         }
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
+                    " . APP_TABLE_PREFIX . "author
                  (
                     aut_title,
 					aut_fname,
 					aut_mname,
 					aut_lname,
 					aut_position,
+					aut_org_staff_id,
+					aut_org_username,
 					aut_cv_link,
 					aut_homepage_link,
                     aut_created_date					
@@ -291,6 +295,8 @@ class Author
 					'" . Misc::escapeString($HTTP_POST_VARS["mname"]) . "',
 					'" . Misc::escapeString($HTTP_POST_VARS["lname"]) . "',
 					'" . Misc::escapeString($HTTP_POST_VARS["position"]) . "',
+					'" . Misc::escapeString($HTTP_POST_VARS["org_staff_id"]) . "',
+					'" . Misc::escapeString($HTTP_POST_VARS["org_username"]) . "',
 					'" . Misc::escapeString($HTTP_POST_VARS["cv_link"]) . "',					
 					'" . Misc::escapeString($HTTP_POST_VARS["homepage_link"]) . "',					
                     '" . Date_API::getCurrentDateGMT() . "'
@@ -330,13 +336,13 @@ class Author
         $stmt = "SELECT SQL_CALC_FOUND_ROWS 
 					* ".$extra_stmt."
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
+                    fez." . APP_TABLE_PREFIX . "author
 				".$where_stmt."
                  ORDER BY ".$extra_order_stmt."
                     ".$order_by."
 				 LIMIT ".$start.", ".$max;
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-		$total_rows = $GLOBALS["db_api"]->dbh->getOne('SELECT FOUND_ROWS()');        
+		$total_rows = $GLOBALS["db_api"]->dbh->getOne('SELECT FOUND_ROWS()');
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
@@ -386,7 +392,7 @@ class Author
                     aut_id,
                     concat_ws(', ',   aut_lname, aut_mname, aut_fname, aut_id) as aut_fullname
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
+                    " . APP_TABLE_PREFIX . "author
                  ORDER BY
                     aut_lname";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
@@ -418,7 +424,7 @@ class Author
                     aut_id,
                     concat_ws(', ',   aut_lname, aut_fname, aut_id) as aut_fullname
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
+                    " . APP_TABLE_PREFIX . "author
                  ORDER BY
                     aut_fullname";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
@@ -444,7 +450,7 @@ class Author
                     aut_id,
                     concat_ws(' ',   aut_fname, aut_lname) as aut_fullname
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
+                    " . APP_TABLE_PREFIX . "author
                  ORDER BY
                     aut_fullname";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
@@ -471,13 +477,14 @@ class Author
 			 WHERE MATCH (aut_display_name) AGAINST ('*".$term."*' IN BOOLEAN MODE)
 			 ORDER BY Relevance DESC, aut_fullname LIMIT 0,20) as tempsuggest";
 	    $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
+     if (PEAR::isError($res)) {
+         Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+         return "";
+     } else {
+         return $res;
+     }
 	} 
+
 
     /**
      * Method used to get an associative array of author ID and title
@@ -490,9 +497,9 @@ class Author
     {
         $stmt = "SELECT
                     aut_id,
-                    concat_ws(' ', aut_title, aut_fname, aut_mname, aut_lname) as aut_fullname
+                    aut_display_name as aut_fullname
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
+                    " . APP_TABLE_PREFIX . "author
                  ORDER BY
                     aut_title";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
@@ -507,11 +514,11 @@ class Author
     function getFullname($aut_id) 
     {
         $stmt = "SELECT
-                    concat_ws(' ', aut_title, aut_fname, aut_mname, aut_lname) as aut_fullname
+                    aut_display_name as aut_fullname
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
+                    " . APP_TABLE_PREFIX . "author
                     WHERE
-                    aut_id='".$aut_id."'
+                    aut_id=".$aut_id."
                  ORDER BY
                     aut_title";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -523,13 +530,13 @@ class Author
         }
 
     }
-    
+
     function getDisplayName()
     {
         $stmt = "SELECT
                     aut_display_name
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
+                    " . APP_TABLE_PREFIX . "author
                     WHERE
                     aut_id='".$aut_id."'
                  ORDER BY
@@ -548,7 +555,7 @@ class Author
         $stmt = "SELECT
                     aut_org_staff_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
+                    " . APP_TABLE_PREFIX . "author
                     WHERE
                     aut_id=".$aut_id."
                  ORDER BY
@@ -577,7 +584,7 @@ class Author
                     aut_id,
                     concat_ws(' ', aut_title, aut_fname, aut_mname, aut_lname) as aut_fullname
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author
+                    " . APP_TABLE_PREFIX . "author
                  ORDER BY
                     aut_title";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);

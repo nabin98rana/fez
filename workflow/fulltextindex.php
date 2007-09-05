@@ -8,7 +8,7 @@ if (!empty($pid) && !is_numeric($pid)) {
 } else {
     $list = Community::getList(0,10000000);
     foreach ($list['list'] as $item) {
-        FulltextIndex::indexPid($item['pid']);
+        FulltextIndex::indexPid($item['rek_pid']);
     }
 }
 

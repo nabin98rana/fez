@@ -7,7 +7,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  * 
  */
-
+ 
 include_once(APP_INC_PATH.'class.record_edit_form.php'); 
  
 class DuplicatesReport {
@@ -27,7 +27,7 @@ class DuplicatesReport {
     var $wfl_id; // for recording history on any records that are modified.
 
 
-    
+   
     function __construct($pid=null) {
         $this->pid = $pid;    
     }
@@ -54,7 +54,7 @@ class DuplicatesReport {
         //Error_Handler::debugStart();
         $total_pids = count($pids);
         $progress = 0;
-        $dupes_count = 0;
+        $dupes_count = 0;        
         $report_array = array();
         for ($ii = 0; $ii < count($pids); $ii++) {
             $pid = $pids[$ii];
@@ -104,12 +104,12 @@ class DuplicatesReport {
                         if ($dup_row['relevance'] == self::RELEVANCE_ISI_LOC_MATCH) {
                     		$score = 1;
                     	} else {
-                    	    $score = $this->compareRecords($record, $dup_rec);
-                        	//echo "tokens: \n".print_r($tokens,true)."\n";
-                        	//echo "dup_tokens: \n".print_r($dup_tokens,true)."\n";
+                        $score = $this->compareRecords($record, $dup_rec);
+                        //echo "tokens: \n".print_r($tokens,true)."\n";
+                        //echo "dup_tokens: \n".print_r($dup_tokens,true)."\n";
                 		}
                         if ($score > self::DUPS_THRESHOLD) {
-	                		if (!isset($report_array[$pid])) {
+                            if (!isset($report_array[$pid])) {
                                 $report_array[$pid] = array(
                                 	'pid' => $pid,
                                 	'title' => $record->getTitle(),
@@ -119,7 +119,7 @@ class DuplicatesReport {
                             }
                             $report_array[$pid]['list'][$dup_pid] 
                             	= array('pid' => $dup_pid, 
-                                         'probability' => $score, 
+                                                                                 'probability' => $score, 
                                          'title' => $dup_rec->getTitle(),
                                          'rm_prn' => $this->getRM_PRN($dup_rec),
                                          'isi_loc' => $this->getISI_LOC($dup_rec));
@@ -306,21 +306,13 @@ class DuplicatesReport {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         
         // Do a isi_loc match on records that don't have the same pid as the candidate record
-        // and are type '3' (records not collections or communities)
 		$record = new RecordGeneral($pid);
 		$isi_loc = $this->getISI_LOC($record); 
 
-        $stmt = "SELECT distinct r2.rmf_rec_pid as pid, ".self::RELEVANCE_ISI_LOC_MATCH." as relevance " .
-                "FROM  ".$dbtp."record_matching_field AS r2 " .
-                "INNER JOIN ".$dbtp."xsd_display_matchfields AS x2 " .
-                " ON r2.rmf_xsdmf_id=x2.xsdmf_id AND x2.xsdmf_element='!identifier' " .
-                "    AND r2.rmf_varchar='$isi_loc' " .
-                "    AND NOT (r2.rmf_rec_pid_num = ".$pidnum." AND r2.rmf_rec_pid = '".$pid."') " .
-                "INNER JOIN ".$dbtp."record_matching_field AS r3 " .
-				" ON r3.rmf_rec_pid_num=r2.rmf_rec_pid_num AND r3.rmf_rec_pid=r2.rmf_rec_pid " .
-                "INNER JOIN ".$dbtp."xsd_display_matchfields AS x3 " .
-                " ON r3.rmf_xsdmf_id=x3.xsdmf_id AND x3.xsdmf_element='!identifier!type' " .
-                "    AND r3.rmf_varchar='isi_loc' " ;
+        $stmt = "SELECT distinct r2.rek_pid as pid, ".self::RELEVANCE_ISI_LOC_MATCH." as relevance " .
+                "FROM  ".$dbtp."record_search_key_identifier AS r2 " .
+                "    WHERE r2.rek_identifier='$isi_loc' " .
+                "    AND r2.rek_identifier_pid = '".$pid."' ";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -340,23 +332,11 @@ class DuplicatesReport {
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
         // Do a fuzzy title match on records that don't have the same pid as the candidate record
         // and are type '3' (records not collections or communities)
-        $stmt = "SELECT distinct r2.rmf_rec_pid as pid, " .
-                "  match (r2.rmf_varchar) against ('".Misc::escapeString($title)."') as relevance " .
-                "FROM  ".$dbtp."record_matching_field AS r2 " .
-                "INNER JOIN ".$dbtp."xsd_display_matchfields AS x2 " .
-                "  ON r2.rmf_xsdmf_id = x2.xsdmf_id " .
-                "  AND match (r2.rmf_varchar) against ('".Misc::escapeString($title)."') " .
-                "  AND NOT (rmf_rec_pid_num = ".$pidnum." AND rmf_rec_pid = '".$pid."') " .
-                "INNER JOIN ".$dbtp."search_key AS s2 " .
-                "  ON s2.sek_id = x2.xsdmf_sek_id " .
-                "  AND s2.sek_title = 'Title' " .
-                "INNER JOIN ".$dbtp."record_matching_field AS r3 " .
-                "  ON r2.rmf_rec_pid_num=r3.rmf_rec_pid_num " .
-                "  AND r2.rmf_rec_pid = r3.rmf_rec_pid " .
-                "  AND r3.rmf_int = 3 " .
-                "INNER JOIN ".$dbtp."xsd_display_matchfields AS x3 " .
-                "  ON r3.rmf_xsdmf_id = x3.xsdmf_id " .
-                "  AND x3.xsdmf_element = '!ret_id' " .
+        $stmt = "SELECT distinct r2.rek_pid as pid, " .
+                "  match (r2.rmf_title) against ('".Misc::escapeString($title)."') as relevance " .
+                "FROM  ".$dbtp."record_search_key AS r2 " .
+                "  WHERE match (r2.rek_title) against ('".Misc::escapeString($title)."') " .
+                "  AND rek_pid != '".$pid."' AND rek_object_type = 3" .
                 "ORDER BY relevance DESC " .
                 "LIMIT 0,10";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -366,7 +346,7 @@ class DuplicatesReport {
         }
         return $res;
     }
-    
+
     function autoMergeOnISI_LOC()
     {
         //Error_Handler::debugStart();

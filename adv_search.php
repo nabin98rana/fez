@@ -47,10 +47,9 @@ $tpl->setTemplate("adv_search.tpl.html");
 $list = Search_Key::getAdvSearchList();
 $sta_list = Status::getAssocList();
 $ret_list = Object_Type::getAssocList();
-$cvo_list = Controlled_Vocab::getAssocListFullDisplay(false, "", 0, 2);
+//$cvo_list = Controlled_Vocab::getAssocListFullDisplay(false, "", 0, false);
+//print_r($cvo_list);
 $xdis_list = XSD_Display::getAssocListDocTypes();
-$collection_assoc_list = array();
-$collection_assoc_list = Collection::getAssocList();
 
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
@@ -59,7 +58,7 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
 	$tpl->assign("isFezUser", $username);
 }
 $tpl->assign("isAdministrator", $isAdministrator);
-
+$options = Pager::saveSearchParams();
 
 foreach ($list as $list_key => $list_field) {
 	if ($list_field["sek_html_input"] == 'combo' || $list_field["sek_html_input"] == 'multiple') {
@@ -71,20 +70,25 @@ foreach ($list as $list_key => $list_field) {
 	    }
     }
     if ($list_field["sek_html_input"] == 'contvocab') {
-		$list[$list_key]['field_options'][0] = $cvo_list['data'][$list_field['sek_cvo_id']];
-		$list[$list_key]['cv_titles'][0] = $cvo_list['title'][$list_field['sek_cvo_id']];
-		$list[$list_key]['cv_ids'][0] = $list_field['sek_cvo_id'];
+		$temp_value = "";
+		if (is_array($options["searchKey".$list_field['sek_id']])) {		
+			foreach ($options["searchKey".$list_field['sek_id']] as $option) {
+				eval("\$temp_value = ".$list_field["sek_lookup_function"]."(".$option.");");		
+				$list[$list_key]["field_options"][$option] = $temp_value;
+			}
+		}
 	}
 	if ($list_field["sek_html_input"] == 'allcontvocab') {
-		$list[$list_key]['field_options'] = array_values($cvo_list['data']);
-		$list[$list_key]['cv_titles'] = array_values($cvo_list['title']);		
-		$list[$list_key]['cv_ids'] = array_keys($cvo_list['title']);		
-	}
-    if ($list_field["sek_id"] == Search_Key::getID("isMemberOf")) {
-        $list[$list_key]["field_options"] =  array("" => "any") + $collection_assoc_list;
-    }
+		$temp_value = "";
+		if (is_array($options["searchKey".$list_field['sek_id']])) {
+			foreach ($options["searchKey".$list_field['sek_id']] as $option) {
+				eval("\$temp_value = ".$list_field["sek_lookup_function"]."(".$option.");");		
+				$list[$list_key]["field_options"][$option] = $temp_value;
+			}
+		}
+	} 
 }
-
+$tpl->assign("options", $options);
 $tpl->assign("search_keys", $list);
 $tpl->displayTemplate();
 ?>

@@ -9,11 +9,10 @@ class SelectCollection {
 
     function getCollections($community_pid)
     {
-        $collections = Collection::getEditList($community_pid);
-        $list = array();
-        foreach($collections as $item) {
-            $pid = $item['pid'];
-            $list[] = array('value' => $pid, 'text' => $item['title']);
+        $result = Collection::getCreatorListAssoc($community_pid);
+		$list = array();
+        foreach($result as $pid => $item) {
+            $list[] = array('value' => $pid, 'text' => $item);
         }
         return $list;
     }
@@ -21,7 +20,7 @@ class SelectCollection {
     
     function najaxGetMeta()
     {
-        NAJAX_Client::mapMethods($this, array('getCollections' ));
+        NAJAX_Client::mapMethods($this, array('getCollections'));
         NAJAX_Client::publicMethods($this, array('getCollections'));
     }
 }

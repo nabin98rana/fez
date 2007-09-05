@@ -56,7 +56,7 @@ class Workflow_State
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow_state 
+                    " . APP_TABLE_PREFIX . "workflow_state 
                  WHERE
                     wfs_id=".$wfs_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
@@ -64,6 +64,9 @@ class Workflow_State
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return '';
         } else {
+	        $auth_roles = Workflow_State::getAuthRoles($res['wfs_id']);
+			$res['wfs_roles'] = $auth_roles;	    
+			$res['wfs_role_titles'] = Workflow_State::getAuthRoleTitles($res['wfs_id']);
             $res['next_ids'] = WorkflowStateLink::getListNext($wfs_id);
             $res['prev_ids'] = WorkflowStateLink::getListPrev($wfs_id);
             return $res;
@@ -86,12 +89,11 @@ class Workflow_State
         $wfs_wfb_id = $wfs_auto ? $params['wfs_wfb_id'] : @$params['wfs_wfb_id2'];
 
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow_state
+                    " . APP_TABLE_PREFIX . "workflow_state
                  (
                     wfs_wfl_id,
                     wfs_title,
                     wfs_description,
-                    wfs_roles,
                     wfs_auto,
                     wfs_wfb_id,
                     wfs_start,
@@ -101,7 +103,6 @@ class Workflow_State
                     '" . $params['wfs_wfl_id'] . "',
                     '" . Misc::escapeString($params['wfs_title']) . "',
                     '" . Misc::escapeString($params['wfs_description']) . "',
-                    '" . Misc::escapeString($params['wfs_roles']) . "',
                     '".$wfs_auto."',
                     '".$wfs_wfb_id."',
                     '" . Misc::checkBox(@$params['wfs_start']) . "',
@@ -115,10 +116,42 @@ class Workflow_State
         } else {
         	$wfs_id = $GLOBALS['db_api']->get_last_insert_id();
             WorkflowStateLink::insertPost($wfs_id);
+            // add the auth role associations!
+            for ($i = 0; $i < count($params["wfs_roles"]); $i++) {
+                Workflow_State::associateRole($params["wfs_roles"][$i], $wfs_id);
+            }
             return $wfs_id;
         }
     }
 
+
+    /**
+     * Method used to associate a workflow state to an auth role.
+     *
+     * @access  public
+     * @param   integer $aro_id The auth role ID
+     * @param   integer $wfl_id The workflow state ID
+     * @return  boolean
+     */
+    function associateRole($aro_id, $wfs_id)
+    {
+        $stmt = "INSERT INTO
+                    " . APP_TABLE_PREFIX . "workflow_state_roles
+                 (
+                    wfsr_wfs_id,
+                    wfsr_aro_id
+                 ) VALUES (
+                    ".$wfs_id.",
+                    ".$aro_id."
+                 )";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return false;
+        } else {
+            return true;
+        }
+    }
 
     /**
      * Method used to update the details of a specific workflow state.
@@ -126,31 +159,61 @@ class Workflow_State
      * @access  public
      * @return  integer 1 if the update worked, -1 or -2 otherwise
      */
-    function update()
+    function update($params = array())
     {
-        global $HTTP_POST_VARS;
-        $wfs_auto = Misc::checkBox(@$HTTP_POST_VARS['wfs_auto']);
-        $wfs_wfb_id = $wfs_auto ? $HTTP_POST_VARS['wfs_wfb_id'] : $HTTP_POST_VARS['wfs_wfb_id2'];
-
+//        global $HTTP_POST_VARS;
+		if (empty($params)) {
+            $params = &$_POST;
+        }
+        $wfs_auto = Misc::checkBox(@$params['wfs_auto']);
+        $wfs_wfb_id = $wfs_auto ? $params['wfs_wfb_id'] : $params['wfs_wfb_id2'];
+		$wfs_id = $params['id'];
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow_state
+                    " . APP_TABLE_PREFIX . "workflow_state
                  SET
-                    wfs_title='" . Misc::escapeString($HTTP_POST_VARS['wfs_title']) . "',
-                    wfs_description='" . Misc::escapeString($HTTP_POST_VARS['wfs_description']) . "',
-                    wfs_roles='" . Misc::escapeString($HTTP_POST_VARS['wfs_roles']) . "',
+                    wfs_title='" . Misc::escapeString($params['wfs_title']) . "',
+                    wfs_description='" . Misc::escapeString($params['wfs_description']) . "',
                     wfs_auto='".$wfs_auto."',
                     wfs_wfb_id='".$wfs_wfb_id."',
-                    wfs_start='".Misc::checkBox(@$HTTP_POST_VARS['wfs_start'])."',
-                    wfs_end='".Misc::checkBox(@$HTTP_POST_VARS['wfs_end'])."',
-                    wfs_transparent='".Misc::checkBox(@$HTTP_POST_VARS['wfs_transparent'])."'
+                    wfs_start='".Misc::checkBox(@$params['wfs_start'])."',
+                    wfs_end='".Misc::checkBox(@$params['wfs_end'])."',
+                    wfs_transparent='".Misc::checkBox(@$params['wfs_transparent'])."'
                  WHERE
-                    wfs_id=" . $HTTP_POST_VARS['id'];
+                    wfs_id=" . $params['id'];
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-            return WorkflowStateLink::updatePost();
+            WorkflowStateLink::updatePost();
+	        // update the auth role associations now
+            $stmt = "DELETE FROM
+                        " . APP_TABLE_PREFIX . "workflow_state_roles
+                     WHERE
+                        wfsr_wfs_id=" . $wfs_id;
+            $res = $GLOBALS["db_api"]->dbh->query($stmt);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                return -1;
+            } else {
+                for ($i = 0; $i < count($params["wfs_roles"]); $i++) {
+                    $stmt = "INSERT INTO
+                                " . APP_TABLE_PREFIX . "workflow_state_roles
+                             (
+                                wfsr_wfs_id,
+                                wfsr_aro_id
+                             ) VALUES (
+                                " . $wfs_id . ",
+                                " . $params["wfs_roles"][$i] . "
+                             )";
+                    $res = $GLOBALS["db_api"]->dbh->query($stmt);
+                    if (PEAR::isError($res)) {
+                        Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                        return -1;
+                    }
+                }
+            }
+            return 1;
         }
     }
 
@@ -166,7 +229,7 @@ class Workflow_State
 
         $items = @implode(", ", $HTTP_POST_VARS["items"]);
         $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow_state
+                    " . APP_TABLE_PREFIX . "workflow_state
                  WHERE
                     wfs_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -184,11 +247,11 @@ class Workflow_State
     	   return;
         } 
     	$items = Misc::arrayToSQL($wfl_ids);
-        $stmt = "SELECT wfs_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow_state" .
+        $stmt = "SELECT wfs_id FROM " . APP_TABLE_PREFIX . "workflow_state" .
                 " WHERE wfs_wfl_id IN (".$items.")";
         $wfs_ids = $GLOBALS["db_api"]->dbh->getCol($stmt);        
         $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow_state
+                    " . APP_TABLE_PREFIX . "workflow_state
                  WHERE
                     wfs_wfl_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -220,8 +283,8 @@ class Workflow_State
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "workflow_state AS ws
-                    LEFT JOIN ".APP_DEFAULT_DB.".".APP_TABLE_PREFIX."wfbehaviour AS wb ON ws.wfs_wfb_id=wb.wfb_id
+                    " . APP_TABLE_PREFIX . "workflow_state AS ws
+                    LEFT JOIN " . APP_TABLE_PREFIX . "wfbehaviour AS wb ON ws.wfs_wfb_id=wb.wfb_id
                  WHERE
                      ".$wherestr." ".$andstr." 
                     ";
@@ -239,6 +302,9 @@ class Workflow_State
                     $nexts = WorkflowStateLink::getNextByWkFlow($wfl_id);
                     $prevs = WorkflowStateLink::getPrevByWkFlow($wfl_id);
                     foreach ($res as &$row) {
+	
+	                    $auth_roles = Workflow_State::getAuthRoles($row['wfs_id']);
+						$row['wfs_roles'] = $auth_roles;	
                         // items that come from this id
                         $row['next_ids'] = @$nexts[$row['wfs_id']];
                         // items that go to this id
@@ -249,6 +315,40 @@ class Workflow_State
             }
         }
     }
+
+	function getAuthRoles($wfs_id) {
+        $stmt = "SELECT
+                    wfsr_aro_id
+                 FROM
+                    " . APP_TABLE_PREFIX . "workflow_state_roles
+                 WHERE
+                    wfsr_wfs_id=".$wfs_id;
+        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }		
+		
+	}
+
+	function getAuthRoleTitles($wfs_id) {
+        $stmt = "SELECT
+                    aro_role
+                 FROM
+                    " . APP_TABLE_PREFIX . "auth_roles
+                 INNER JOIN " . APP_TABLE_PREFIX . "workflow_state_roles on wfsr_aro_id = aro_id
+                 AND
+                    wfsr_wfs_id=".$wfs_id;
+        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }				
+	}
 
     /**
      * Find the first state for a workflow
@@ -293,9 +393,8 @@ class Workflow_State
             return true;
         }
         $wfs = Workflow_State::getDetails($wfs_id);
-        if (!empty($wfs['wfs_roles'])) {
-            // the roles may be space or comma separated
-            $wfs_roles = preg_split("/[\s,]+/", $wfs['wfs_roles']);
+        if (is_array($wfs['wfs_role_titles'])) {
+            $wfs_roles = $wfs['wfs_role_titles'];
             $pid_roles = Auth::getAuthorisationGroups($pid);
             foreach ($wfs_roles as $wfs_role) {
                 if (in_array($wfs_role, $pid_roles)) {
@@ -329,7 +428,7 @@ class Workflow_State
         $state_elem->setAttribute('wfs_end', $wfs_details['wfs_end']);
         $state_elem->setAttribute('wfs_assigned_role_id', $wfs_details['wfs_assigned_role_id']);
         $state_elem->setAttribute('wfs_transparent', $wfs_details['wfs_transparent']);
-        $state_elem->setAttribute('wfs_roles', $wfs_details['wfs_roles']);
+        $state_elem->setAttribute('wfs_roles', implode(",",$wfs_details['wfs_role_titles']));
         $workflow_elem->appendChild($state_elem);
         $wfb_id = $wfs_details['wfs_wfb_id'];
         if (!in_array($wfb_id, $wfb_ids)) {
@@ -369,7 +468,7 @@ class Workflow_State
                 'wfs_end' => $xstate->getAttribute('wfs_end'),
                 'wfs_assigned_role_id' => $xstate->getAttribute('wfs_assigned_role_id'),
                 'wfs_transparent' => $xstate->getAttribute('wfs_transparent'),
-                'wfs_roles' => $xstate->getAttribute('wfs_roles'),
+                'wfl_roles' => explode(",",$xstate->getAttribute('wfs_role_titles')),
             );
             $state_ids_map[$xstate->getAttribute('wfs_id')] = Workflow_State::insert($params);
         }

@@ -1,6 +1,6 @@
 {include file="header.tpl.html" extra_title="Advanced Search"}
 {include file="navigation.tpl.html"}
-<form name="custom_filter_form" action="list.php" method="get">
+<form name="custom_filter_form" action="list.php" method="get" onsubmit="javascript:return validateSearchForm();">
 <input type="hidden" name="cat" value="quick_filter" />
 {include file="custom_filter_form.tpl.html"}
 </form>

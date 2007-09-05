@@ -68,7 +68,11 @@ $cvo_details = Controlled_Vocab::getDetails($cvo_id);
 	$tpl->assign("max_subject_breadcrumb", $max_breadcrumb);
 	$tpl->assign("subject_breadcrumb", $newcrumb);
 
-$cvo_list = Controlled_Vocab::getAssocListFullDisplay($cvo_id, "", 0, 1);
+if (is_numeric($cvo_id)) {
+	$cvo_list = Controlled_Vocab::getAssocListFullDisplay($cvo_id, "", 0, 1);
+} else {
+	$cvo_list = Controlled_Vocab::getAssocList();
+}
 $parent_list = Controlled_Vocab::getList();
 
 $show_add = 1;
@@ -78,10 +82,14 @@ if ($xsdmf_cvo_min_level == 1) {
 			$show_add = 0;
 		}
 	}
+} 
+if (!is_numeric($cvo_id)) {
+	$show_add = 0;
 }
 
 $tpl->assign("cvo_details", $cvo_details);
 $tpl->assign("cvo_list", $cvo_list);
+$tpl->assign("cvo_id", $cvo_id);
 $tpl->assign("show_add", $show_add);
 $tpl->assign("xsdmf_cvo_min_level", $xsdmf_cvo_min_level);
 $tpl->assign("form", $form);

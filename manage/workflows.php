@@ -36,7 +36,6 @@ include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.workflow.php");
-include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "db_access.php");
 
 $tpl = new Template_API();
@@ -64,7 +63,7 @@ if ($isAdministrator) {
     if (@$HTTP_GET_VARS["cat"] == "edit") {
         $tpl->assign("info", Workflow::getDetails($HTTP_GET_VARS["id"]));
     }
-
+    $tpl->assign("auth_role_options", Auth::getAssocRoleIDs());
     $tpl->assign("list", Workflow::getList());
 } else {
     $tpl->assign("show_not_allowed_msg", true);

@@ -449,7 +449,7 @@ class DB
         if (!is_array($options)) {
             $options = array('persistent' => $options);
         }
-
+		//$persistent = true;
         if (isset($options['debug']) && $options['debug'] >= 2) {
             // expose php errors with sufficient debug level
             include_once "DB/{$type}.php";

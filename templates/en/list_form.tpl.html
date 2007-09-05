@@ -188,7 +188,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 				  <td align="left"> <b>Parent Communities: </b></td>
 				  <td align="left"> &nbsp;
 					{section name="i" loop=$parents}
-						<a href="list.php?community_pid={$parents[i].pid}">{$parents[i].title}</a> &nbsp;
+						<a href="list.php?community_pid={$parents[i].rek_pid}">{$parents[i].rek_title}</a> &nbsp;
 					{/section}
 				  </td>
 				</tr>
@@ -201,7 +201,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
         <tr>
           <td align="left" class="default" >
 			{if $list_type == 'community_list' && $isAdministrator}
-			<br /> <a target="_top" title="create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" /> <b>Create New Community</b></a>&nbsp;
+			<br /> <a target="_top" title="create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI}"><img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" /> <b>Create New Community</b></a>&nbsp;
 			{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
 				{if $childXDisplayOptions != 0}
 			<br /> <img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
@@ -263,7 +263,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 				  <tr>
 					  <td>
 					      {if $list[i].record_author_id != 0}
-					      <a href='{$rel_url}list.php?browse=author&author_id={$list[i].record_author_id|escape:'url'}'>{$list[i].record_author|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+					      <a class="author_id_link" href='{$rel_url}list.php?browse=author&author_id={$list[i].record_author_id|escape:'url'}'>{$list[i].record_author|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
 					      {else}
 							<a href='{$rel_url}list.php?browse=author&author={$list[i].record_author|escape:'url'}'>{$list[i].record_author|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
 						  {/if}
@@ -337,8 +337,11 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 				  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
 				  <tr>
 					  <td>
+					{if $list[i].record_year == 0}
+							(not set) ({$list[i].record_count|escape:"html"})
+					{else}
 							<a href='{$rel_url}list.php?browse=year&year={$list[i].record_year}'>{$list[i].record_year|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
-
+					{/if}
 						</td>
 					</tr>
 					  </table>
@@ -459,17 +462,17 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 
         {section name="i" loop=$list}
 		{if $browse_type == "browse_latest"}
-			{if $list[i].created_date} 
-					{if ($list[i].created_date.0|date_format:"%Y-%m-%d") != $today}
+			{if $list[i].rek_created_date} 
+					{if ($list[i].rek_created_date|date_format:"%Y-%m-%d") != $today}
 						{if (($list[i].day_name) != $day_name 
-								&& ($list[i].created_date.0|date_format:"%Y-%m-%d") != $yesterday) 
-							|| (($list[i].created_date.0|date_format:"%Y-%m-%d") == $yesterday 
+								&& ($list[i].created_date|date_format:"%Y-%m-%d") != $yesterday) 
+							|| (($list[i].created_date|date_format:"%Y-%m-%d") == $yesterday 
 								&& $day_name != "Yesterday")}
 							{if ($list[i].day_name) == $today_day_name}
 								{assign var="day_name_pre" value=$list[i].day_name}
 								{assign var="day_name" value=$last|cat:$day_name_pre}
 							{else}
-								{if ($list[i].created_date.0|date_format:"%Y-%m-%d") == $yesterday}								
+								{if ($list[i].created_date|date_format:"%Y-%m-%d") == $yesterday}								
 									{assign var="day_name" value="Yesterday"}		
 								{else}
 									{assign var="day_name" value=$list[i].day_name}							
@@ -506,16 +509,16 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 
 
         {if (($list[i].isLister==1 || $isAdministrator) && $list_type != 'browse_subjects_list')}
-	   		{if $list[i].object_type.0 == '1'}
-                {assign var="href_view" value="list.php?community_pid="|cat:$list[i].pid|escape:"html"}
+	   		{if $list[i].rek_object_type == 1}
+                {assign var="href_view" value="list.php?community_pid="|cat:$list[i].rek_pid|escape:"html"}
                 {assign var="icon" value="images/community.jpg" }
                 {if ($list[i].isEditor==1 || $isAdministrator)} 
                         {assign var="showEdit" value=true}
                 {else}
                         {assign var="showEdit" value=false}
                 {/if}
-           {elseif $list[i].object_type.0 == '2'}
-                {assign var="href_view" value="list.php?collection_pid="|cat:$list[i].pid|escape:"html"}
+           {elseif $list[i].rek_object_type == 2}
+                {assign var="href_view" value="list.php?collection_pid="|cat:$list[i].rek_pid|escape:"html"}
                 {assign var="icon" value="images/collection.jpg" }
                 {if $isUser && ($list[i].isEditor==1 || $isAdministrator)}  
                         {assign var="showEdit" value=true}
@@ -524,12 +527,12 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
                 {/if}
            {else}
                 {if ($list[i].isViewer==1 || $isAdministrator)}
-                  {assign var="href_view" value="view.php?pid="|cat:$list[i].pid|escape:"html"}
+                  {assign var="href_view" value="view.php?pid="|cat:$list[i].rek_pid|escape:"html"}
                 {else}
                   {assign var="href_view" value=""}
                 {/if}
-				{if $list[i].thumbnail != "0" && $list[i].isViewer==1}
-	                {assign var="icon" value=$eserv_url|cat:"?ls=0&pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].thumbnail}
+				{if $list[i].thumbnail.0 != "" && $list[i].isViewer==1}
+	                {assign var="icon" value=$eserv_url|cat:"?ls=0&pid="|cat:$list[i].rek_pid|cat:"&dsID="|cat:$list[i].thumbnail.0}
 				{else}
 	                {assign var="icon" value="images/record.jpg" }
 				{/if}
@@ -545,7 +548,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
               <td valign="top">
 	              <table bgcolor="#FFFFFF" cellpadding="2" cellspacing="1">			  
 	              	<tr>
-	                  <td width="4" bgcolor="{$cell_color}" nowrap="nowrap"><input type="checkbox" name="pids[]" value="{$list[i].pid}" /></td>
+	                  <td width="4" bgcolor="{$cell_color}" nowrap="nowrap"><input type="checkbox" name="pids[]" value="{$list[i].rek_pid}" /></td>
 	                </tr>
 	              </table>  
               </td>
@@ -557,10 +560,11 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
                         {if $href_view}<a href='{$href_view}' >{/if}<img src="{$icon}" alt="" border="0" />{if $href_view}</a>{/if}
 				  </td>
 				  <td align="left" valign="middle">
-                    {if $href_view}<a class="title_link" href='{$href_view}'>{/if}{$list[i].title.0|escape:"html"}{if $href_view}</a>{/if}
+                    {if $href_view}<a class="title_link" href='{$href_view}'>{/if}{$list[i].rek_title|escape:"html"}{if $href_view}</a>{/if}
+	{if $list[i].rek_object_type != 3}{if $list[i].rek_ismemberof_count != ""}({$list[i].rek_ismemberof_count}){else}(0){/if}{/if}
 			{if $showEdit || $isAdministrator}
-			  {section name="w" loop=$list[i].workflows}
-			    {if $list[i].workflows[w].wft_icon == 'images/security.gif'}
+			  {section name="w" loop=$list[i].wft_id}
+			    {if $list[i].wft_icon[w] == 'images/security.gif'}
 			      {if $list[i].security == 'include'}
 			        {assign var="wf_icon" value="images/security_include.gif"}
 			      {elseif $list[i].security == 'exclude'}
@@ -568,48 +572,43 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 			      {elseif $list[i].security == 'inherit'}
 		                {assign var="wf_icon" value="images/security_inherit.gif"}
 			      {else}
-			        {assign var="wf_icon" value=$list[i].workflows[w].wft_icon}
+			        {assign var="wf_icon" value=$list[i].wft_icon[w]}
 			      {/if}
 	            {else}
-			      {assign var="wf_icon" value=$list[i].workflows[w].wft_icon}
+			      {assign var="wf_icon" value=$list[i].wft_icon[w]}
 			    {/if}
-                            {if $list[i].workflows[w].wft_type_id == 6}
+                            {if $list[i].wft_type_id[w] == 6}
                               {assign var='wf_url' value=$rel_url|cat:'workflow/export.php'}
                             {else}
                               {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
                			    {/if}
-			<a href="{$wf_url}?pid={$list[i].pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].xdis_id.0}&amp;wft_id={$list[i].workflows[w].wft_id}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img alt="{$list[i].workflows[w].wfl_title}" title="{$list[i].workflows[w].wfl_title}" src="{$rel_url}{$wf_icon}" border="0" /></a> 
+			<a href="{$wf_url}?pid={$list[i].rek_pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI}"><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" border="0" /></a> 
 			  {/section}
-			      {if $isAdministrator}
-			<a href="javascript:void(null);" onclick="javascript: purgeObject('{$list[i].pid|escape}');" 
-                        ><img alt="Delete" title="Delete" src="{$rel_url}images/delete.gif" border="0" /></a> 
-		          {/if}
 		          
-                <a href="workflow/list_workflows2.php?pid={$list[i].pid|escape}">...</a> 
+                <a href="workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}">...</a> 
 
            {/if}
 
-			</td><td align="right" valign="top" width="">{if $list[i].Relevance} (Search Relevance: <b>{$list[i].Relevance}</b>)<br />{/if}
-					        {if $list[i].object_type.0 == '3'}{if $list[i].abstract_downloads}({$list[i].abstract_downloads|escape:"html"}&nbsp;Abstract&nbsp;View{if $list[i].abstract_downloads > 1}s{/if})<br />{/if} {if $list[i].file_downloads}({$list[i].file_downloads|escape:"html"}&nbsp;<a class="author_link" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}">File&nbsp;Download{if $list[i].file_downloads > 1}s{/if}</a>){/if}{/if} </td>
+			</td><td align="right" valign="top" width="">{if $list[i].Relevance} (Search Relevance: <b>{$list[i].Relevance|@number_format:2}</b>)<br />{/if}
+					        {if $list[i].rek_object_type == 3}{if $list[i].abstract_downloads}({$list[i].abstract_downloads|escape:"html"}&nbsp;Abstract&nbsp;View{if $list[i].abstract_downloads > 1}s{/if})<br />{/if} {if $list[i].file_downloads}({$list[i].file_downloads|escape:"html"}&nbsp;<a class="author_link" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}">File&nbsp;Download{if $list[i].file_downloads > 1}s{/if}</a>){/if}{/if} </td>
 
 				</tr>
 					<tr>
                      <td colspan="2">
-                        {if $list[i].author}
-                          {section name="author_loop" loop=$list[i].author}
+                        {if $list[i].rek_author}
+                          {section name="author_loop" loop=$list[i].rek_author}
                             {assign var="next_author" value=$smarty.section.author_loop.index+1}
-                            {if $list[i].author}
-                            {if $list[i].author_id && $list[i].author_id[author_loop] && $list[i].author_id[author_loop] != 0}
-                            <a class="author_id_link" title="Browse by Author ID for {$list[i].author[author_loop]} ({$list[i].author_id[author_loop]})" href="list.php?browse=author&author_id={$list[i].author_id[author_loop]}">{$list[i].author[author_loop]|escape:"html"}</a>
+                            {if $list[i].rek_author}
+                            {if $list[i].rek_author_id && $list[i].rek_author_id[author_loop] && $list[i].rek_author_id[author_loop] != 0}
+                            <a class="author_id_link" title="Browse by Author ID for {$list[i].rek_author[author_loop]} ({$list[i].rek_author_id[author_loop]})" href="list.php?browse=author&author_id={$list[i].rek_author_id[author_loop]}">{$list[i].rek_author[author_loop]|escape:"html"}</a>
                             {else}
-                            <a title="Browse by Author Name for {$list[i].author[author_loop]}" href="list.php?browse=author&author={$list[i].author[author_loop]}">{$list[i].author[author_loop]|escape:"html"}</a>                            
+                            <a title="Browse by Author Name for {$list[i].rek_author[author_loop]}" href="list.php?browse=author&author={$list[i].rek_author[author_loop]}">{$list[i].rek_author[author_loop]|escape:"html"}</a>                            
                             {/if}
                             {/if}
-                            {if $list[i].author[$next_author] != ""} and {/if}
-                          {/section}  {if $list[i].date.0} {else}<br />{/if}{/if}{if $list[i].date.0}({$list[i].date.0|date_format:"%Y"})<br />{/if}
-                	   {if $list[i].research_program.0}{$list[i].research_program.0|escape:"html"}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'} - <i>{$list[i].xdis_title.0|escape:"html"}</i>{/if}<br />{else}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'}<i>{$list[i].xdis_title.0|escape:"html"}</i><br />{/if}{/if}
-                       {if $list[i].description.0}{$list[i].description.0|escape:"html"}{if ($list[i].description.0|count_characters > 200)}...{/if}<br />{/if}
-					   {if $list[i].object_type == '3' && $list[i].datastreams.0}<b>Files:</b> {section name="d" loop=$list[i].datastreams}{if $href_view}<a href="{$eserv_url|cat:"?pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].datastreams[d]}">{/if}{$list[i].datastreams[d]}{if $href_view}</a>{/if} {/section}{/if}
+                            {if $list[i].rek_author[$next_author] != ""} and {/if}
+                          {/section}  {if $list[i].rek_date} {else}<br />{/if}{/if}{if $list[i].rek_date}({$list[i].rek_date|date_format:"%Y"})<br />{/if}
+                	   {if $list[i].rek_research_program.0}{$list[i].rek_research_program.0|escape:"html"}{if $list[i].display_type  && $list[i].object_type == 3} - <i>{$list[i].rek_display_type_lookup.0|escape:"html"}</i>{/if}<br />{else}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'}<i>{$list[i].xdis_title.0|escape:"html"}</i><br />{/if}{/if}                       
+					   {if $list[i].rek_object_type == '3' && $list[i].datastreams.0}<b>Files:</b> {section name="d" loop=$list[i].datastreams}{if $href_view}<a href="{$eserv_url|cat:"?pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].datastreams[d]}">{/if}{$list[i].datastreams[d]}{if $href_view}</a>{/if} {/section}{/if}
                     </td> 
                   </tr> 
 				  </table>
@@ -643,7 +642,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
         <tr>
           <td align="left" class="default" >
 			{if $list_type == 'community_list' && $isAdministrator}
-			<br /> <a target="_top" title="create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" /> <b>Create New Community</b></a>&nbsp;
+			<br /> <a target="_top" title="create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI}"><img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" /> <b>Create New Community</b></a>&nbsp;
 			{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
 				{if $childXDisplayOptions != 0}
 			<br /> <img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
@@ -679,7 +678,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 
                   <input type="button" value="All" class="shortcut" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" />
 			      <input type="button" value="Delete" onclick="javascript:return checkDeleteRecords(this.form);" class="button" />                  
-                  <input type="button" value="Run Workflow &gt;" class="shortcut" onclick="javascript:workflowItems(this.form, '{$rel_url}');" />
+                  <input type="button" value="Run Workflow &gt;" class="shortcut" onclick="javascript:workflowItems(this.form);" />
                   <select name="wft_id" class="default">
                     {html_options options=$bulk_workflows}
                   </select>
@@ -698,15 +697,15 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
                 </td>
                 <td nowrap="nowrap">
                   <span class="default_white">Rows per Page:</span>
-                  <select name="page_size" class="default" onchange="javascript:resizePager(this.form, page_url);">
-                    <option value="5" {if $options.rows == 5}selected="selected"{/if}>5</option>
-                    <option value="10" {if $options.rows == 10}selected="selected"{/if}>10</option>
-                    <option value="25" {if $options.rows == 25}selected="selected"{/if}>25</option>
-                    <option value="50" {if $options.rows == 50}selected="selected"{/if}>50</option>
-                    <option value="100" {if $options.rows == 100}selected="selected"{/if}>100</option>
-                    <option value="150" {if $options.rows == 150}selected="selected"{/if}>150</option>
-                    <option value="300" {if $options.rows == 300}selected="selected"{/if}>300</option>
-                    <option value="500" {if $options.rows == 500}selected="selected"{/if}>500</option>
+                  <select name="page_size" class="default" onchange="javascript:resizePager(this.form);">
+                    <option value="5" {if $options.rows == 5}selected{/if}>5</option>
+                    <option value="10" {if $options.rows == 10}selected{/if}>10</option>
+                    <option value="25" {if $options.rows == 25}selected{/if}>25</option>
+                    <option value="50" {if $options.rows == 50}selected{/if}>50</option>
+                    <option value="100" {if $options.rows == 100}selected{/if}>100</option>
+                    <option value="150" {if $options.rows == 150}selected{/if}>150</option>
+                    <option value="300" {if $options.rows == 300}selected{/if}>300</option>
+                    <option value="500" {if $options.rows == 500}selected{/if}>500</option>
                   </select>
                   <input type="button" value="Set" class="shortcut" onclick="javascript:resizePager(this.form,page_url);" />
                 </td>

@@ -59,7 +59,7 @@ class Status
 
         $items = @implode(", ", $HTTP_POST_VARS["items"]);
         $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "status
+                    " . APP_TABLE_PREFIX . "status
                  WHERE
                     sta_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -86,7 +86,7 @@ class Status
         }
 		
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "status
+                    " . APP_TABLE_PREFIX . "status
                  (
                     sta_title,
 					sta_order,
@@ -117,7 +117,7 @@ class Status
         global $HTTP_POST_VARS;
 
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "status
+                    " . APP_TABLE_PREFIX . "status
                  SET 
                     sta_title = '" . Misc::escapeString($HTTP_POST_VARS["sta_title"]) . "',
 					sta_order = '" . Misc::escapeString($HTTP_POST_VARS["sta_order"]) . "',
@@ -146,7 +146,7 @@ class Status
         $stmt = "SELECT
                     sta_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "status
+                    " . APP_TABLE_PREFIX . "status
                  WHERE
                     sta_id=".$sta_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -171,7 +171,7 @@ class Status
         $stmt = "SELECT
                     sta_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "status
+                    " . APP_TABLE_PREFIX . "status
                  WHERE
                     sta_title='".$sta_title."'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -197,7 +197,7 @@ class Status
                     sta_id,
 					sta_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "status
+                    " . APP_TABLE_PREFIX . "status
                  ORDER BY
                     sta_title ASC";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
@@ -222,7 +222,7 @@ class Status
                     sta_id,
 					sta_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "status
+                    " . APP_TABLE_PREFIX . "status
 				 WHERE sta_title != 'Published' 
                  ORDER BY
                     sta_title ASC";
@@ -247,7 +247,7 @@ class Status
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "status
+                    " . APP_TABLE_PREFIX . "status
                  ORDER BY
                     sta_order ASC";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -275,7 +275,7 @@ class Status
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "status
+                    " . APP_TABLE_PREFIX . "status
                  WHERE
                     sta_id=".$sta_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);

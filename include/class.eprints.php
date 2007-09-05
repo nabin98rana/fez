@@ -134,7 +134,7 @@ class ePrints
 	}
 
 	function getPIDfromePrintID($eprint_id) {
-		$stmt = "select epr_fez_pid from  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "eprints_import_pids where epr_eprints_id = ".$eprint_id;
+		$stmt = "select epr_fez_pid from  " . APP_TABLE_PREFIX . "eprints_import_pids where epr_eprints_id = ".$eprint_id;
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 	    if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);			

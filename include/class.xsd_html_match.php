@@ -135,7 +135,7 @@ class XSD_HTML_Match {
 			);
 		}
 		$stmt = "DELETE FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_mf_option
+		                    " . APP_TABLE_PREFIX . "xsd_display_mf_option
 		                 WHERE
 		                    mfo_id IN (" . implode(",", $mfo_id) . ")";
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -147,7 +147,7 @@ class XSD_HTML_Match {
 			// also remove any custom field option that is currently assigned to an issue
 			// XXX: review this
 			$stmt = "DELETE FROM
-			                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "issue_custom_field
+			                        " . APP_TABLE_PREFIX . "issue_custom_field
 			                     WHERE
 			                        icf_fld_id IN (" . implode(", ", $fld_id) . ") AND
 			                        icf_value IN (" . implode(", ", $mfo_id) . ")";
@@ -172,7 +172,7 @@ class XSD_HTML_Match {
 		}
 		foreach ($options as $option) {
 			$stmt = "INSERT INTO
-			                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_mf_option
+			                        " . APP_TABLE_PREFIX . "xsd_display_mf_option
 			                     (
 			                        mfo_fld_id,
 			                        mfo_value
@@ -200,7 +200,7 @@ class XSD_HTML_Match {
 	 */
 	function updateOption($mfo_id, $mfo_value) {
 		$stmt = "UPDATE
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_mf_option
+		                    " . APP_TABLE_PREFIX . "xsd_display_mf_option
 		                 SET
 		                    mfo_value='" . Misc::escapeString($mfo_value) . "'
 		                 WHERE
@@ -223,9 +223,7 @@ class XSD_HTML_Match {
 	 * @param   integer $xdis_id The XSD Display ID
 	 * @return  array The list of matching fields fields
 	 */
-	function getListByDisplaySpecify($xdis_id, $specify_titles = array (
-		'FezACML'
-	)) {
+	function getListByDisplaySpecify($xdis_id, $specify_titles = array ('FezACML')) {
 		$stmt = "SELECT
 		                    xsdmf_id,
 		                    xsdmf_element,
@@ -259,8 +257,8 @@ class XSD_HTML_Match {
 							xsdmf_cvo_save_type,
 							xsdsel_order
 		                 FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields left join
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement on (xsdsel_id = xsdmf_xsdsel_id)
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields left join
+		                    " . APP_TABLE_PREFIX . "xsd_loop_subelement on (xsdsel_id = xsdmf_xsdsel_id)
 		                 WHERE
 		                   xsdmf_xdis_id=".$xdis_id." AND xsdmf_enabled=1";
 		// @@@ CK - Added order statement to custom fields displayed in a desired order
@@ -321,8 +319,8 @@ class XSD_HTML_Match {
 		$stmt = "SELECT
 		                    distinct xsdmf_id, IFNULL(CONCAT('(', xsdmf_id, ') (', xsdsel_title, ') ', xsdmf_element), CONCAT('(', xsdmf_id, ') ', xsdmf_element)) as xsdmf_presentation
 						 FROM 
-							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields as m1 left join
-							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement as s1 on s1.xsdsel_id = m1.xsdmf_xsdsel_id
+							" . APP_TABLE_PREFIX . "xsd_display_matchfields as m1 left join
+							" . APP_TABLE_PREFIX . "xsd_loop_subelement as s1 on s1.xsdsel_id = m1.xsdmf_xsdsel_id
 			 			 WHERE xsdmf_xdis_id = " . $xdis_id . " 
 						 ORDER BY xsdsel_title";
 
@@ -346,20 +344,29 @@ class XSD_HTML_Match {
 	  * @param   array optional $specify_list The list of datastream IDs to specify 
 	  * @return  array The list of matching fields fields
 	  */
-	function getBasicListByDisplay($xdis_id, $exclude_list = array (), $specify_list = array ()) {
+	function getBasicListByDisplay($xdis_id, $exclude_list = array (), $specify_list = array()) {
 		$exclude_str = implode("', '", $exclude_list);
 		$specify_str = implode("', '", $specify_list);
 
-		$stmt = "(SELECT distinct r2.xsdrel_xdis_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship r2 right join
-							(SELECT m3.xsdmf_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields as m3 WHERE m3.xsdmf_xdis_id=" . $xdis_id . ")
-							as rels on (r2.xsdrel_xsdmf_id = (rels.xsdmf_id)) )";
-		$xsdrelall = $GLOBALS["db_api"]->dbh->getCol($stmt);
-		if (PEAR::isError($xsdrelall)) {
-			Error_Handler::logError(array (
-			$xsdrelall->getMessage(), $xsdrelall->getDebugInfo()), __FILE__, __LINE__);
-			$xsdrelall = array ();
+		if (in_array("FezACML for Datastreams", $specify_list)) {
+			$FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
+			$specify_str = "FezACML";
+			$xsdrelall = array();
+			array_push($xsdrelall, $FezACML_xdis_id);						
+		} else {
+			$stmt = "SELECT distinct r2.xsdrel_xdis_id FROM " . APP_TABLE_PREFIX . "xsd_relationship r2 right join
+								(SELECT m3.xsdmf_id FROM " . APP_TABLE_PREFIX . "xsd_display_matchfields as m3 WHERE m3.xsdmf_xdis_id=" . $xdis_id . ")
+								as rels on (r2.xsdrel_xsdmf_id = (rels.xsdmf_id))";
+			$xsdrelall = $GLOBALS["db_api"]->dbh->getCol($stmt);
+
+			if (PEAR::isError($xsdrelall)) {
+				Error_Handler::logError(array (
+				$xsdrelall->getMessage(), $xsdrelall->getDebugInfo()), __FILE__, __LINE__);
+				$xsdrelall = array();
+			}
+			array_push($xsdrelall, $xdis_id);			
 		}
-		array_push($xsdrelall, $xdis_id);
+
 
 		$stmt = "SELECT
 		                    distinct xsdmf_id,
@@ -421,25 +428,25 @@ class XSD_HTML_Match {
 							xsdmf_meta_header_name,
 							sek_title
 		                 FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields as m1
-							left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key as sk1 on sk1.sek_id = m1.xsdmf_sek_id ";
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields as m1
+							left join " . APP_TABLE_PREFIX . "search_key as sk1 on sk1.sek_id = m1.xsdmf_sek_id ";
 
 		if ($specify_str != "") {
 			$stmt .= "
 								inner join
-								(SELECT d1.xdis_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1, " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd WHERE xsd.xsd_id=d1.xdis_xsd_id AND xsd.xsd_title in ('" . $specify_str . "')) as displays on (m1.xsdmf_xdis_id in (displays.xdis_id) AND displays.xdis_id in (" . Misc::arrayToSQL($xsdrelall) . "))";
+								(SELECT d1.xdis_id FROM " . APP_TABLE_PREFIX . "xsd_display d1, " . APP_TABLE_PREFIX . "xsd as xsd WHERE xsd.xsd_id=d1.xdis_xsd_id AND xsd.xsd_title in ('" . $specify_str . "')) as displays on (m1.xsdmf_xdis_id in (displays.xdis_id) AND displays.xdis_id in (" . Misc::sql_array_to_string_simple($xsdrelall) . "))";
 		}
 		elseif ($exclude_str != "") {
 			$stmt .= "
 								inner join
-								(SELECT d1.xdis_id FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1, " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd WHERE xsd.xsd_id=d1.xdis_xsd_id AND xsd.xsd_title not in ('" . $exclude_str . "')) as displays on (m1.xsdmf_xdis_id in (displays.xdis_id) AND displays.xdis_id in (" . Misc::arrayToSQL($xsdrelall) . "))";
+								(SELECT d1.xdis_id FROM " . APP_TABLE_PREFIX . "xsd_display d1, " . APP_TABLE_PREFIX . "xsd as xsd WHERE xsd.xsd_id=d1.xdis_xsd_id AND xsd.xsd_title not in ('" . $exclude_str . "')) as displays on (m1.xsdmf_xdis_id in (displays.xdis_id) AND displays.xdis_id in (" . Misc::sql_array_to_string_simple($xsdrelall) . "))";
 		}
 		//				if ($specify_str == "") { 
 		//				}
 		$stmt .= "
 							left join
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement as s1 on (s1.xsdsel_id = m1.xsdmf_xsdsel_id)
-						WHERE m1.xsdmf_xdis_id in (" . Misc::arrayToSQL($xsdrelall) . ")";
+		                    " . APP_TABLE_PREFIX . "xsd_loop_subelement as s1 on (s1.xsdsel_id = m1.xsdmf_xsdsel_id)
+						WHERE m1.xsdmf_xdis_id in (" . Misc::sql_array_to_string_simple($xsdrelall) . ")";
 		// @@@ CK - Added order statement to custom fields displayed in a desired order
 
 		$stmt .= " ORDER BY xsdmf_order, xsdsel_order ASC";
@@ -454,7 +461,7 @@ class XSD_HTML_Match {
 			// Add any reference displays
 			foreach ($res as $rkey => $record) {
 				if (($record['xsdmf_multiple'] == 1) && (is_numeric($record['xsdmf_multiple_limit']))) {
-					$res[$rkey]['multiple_array'] = array ();
+					$res[$rkey]['multiple_array'] = array();
 					for ($x = 1; $x < ($record['xsdmf_multiple_limit'] + 1); $x++) {
 						array_push($res[$rkey]['multiple_array'], $x);
 					}
@@ -478,7 +485,7 @@ class XSD_HTML_Match {
 		$stmt = "SELECT
 							*
 		                 FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields as m1
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields as m1
 						 WHERE ISNULL(m1.xsdmf_xsdsel_id) AND m1.xsdmf_xdis_id = " . $xdis_id;
 		$stmt .= " ORDER BY xsdmf_id ASC";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -505,7 +512,7 @@ class XSD_HTML_Match {
 		$stmt = "SELECT
 							*
 		                 FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields as m1
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields as m1
 						 WHERE (m1.xsdmf_xsdsel_id = ".$xsdsel_id.") AND m1.xsdmf_xdis_id = " . $xdis_id;
 		$stmt .= " ORDER BY xsdmf_id ASC";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -558,7 +565,7 @@ class XSD_HTML_Match {
 		$stmt = "SELECT
 		                    mfo_value
 		                 FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_mf_option
+		                    " . APP_TABLE_PREFIX . "xsd_display_mf_option
 		                 WHERE
 		                    mfo_fld_id=".$fld_id." AND
 		                    mfo_id=".$value;
@@ -590,7 +597,7 @@ class XSD_HTML_Match {
 		$stmt = "SELECT
 		                    mfo_value
 		                 FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_mf_option
+		                    " . APP_TABLE_PREFIX . "xsd_display_mf_option
 		                 WHERE
 		                    mfo_id=".$mfo_id;
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -617,7 +624,7 @@ class XSD_HTML_Match {
 	 */
 	function remove($xdis_id, $xml_element) {
 		$stmt = "DELETE FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 WHERE
 		                    xsdmf_xdis_id = ".$xdis_id." AND xsdmf_element='" . $xml_element . "'";
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -649,7 +656,7 @@ class XSD_HTML_Match {
 			$att_list = XSD_HTML_Match::getChildren($xsdmf_id);
 			if (!empty ($att_list)) {
 				$att_ids = Misc::arrayToSQL(array_keys(Misc::keyArray($att_list, 'att_id')));
-				$stmt = "delete from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_attach " .
+				$stmt = "delete from " . APP_TABLE_PREFIX . "xsd_display_attach " .
 				"where att_id in (".$att_ids.")";
 				$res = $GLOBALS["db_api"]->dbh->query($stmt);
 				if (PEAR::isError($res)) {
@@ -660,7 +667,7 @@ class XSD_HTML_Match {
 			$mfo_list = XSD_HTML_Match::getOptions($xsdmf_id);
 			if (is_array($mfo_list) && !empty($mfo_list)) {
 				$mfo_ids = Misc::arrayToSQL(array_keys(Misc::keyArray($mfo_list, 'mfo_id')));
-				$stmt = "delete from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_mf_option " .
+				$stmt = "delete from " . APP_TABLE_PREFIX . "xsd_display_mf_option " .
 				"where mfo_id in (".$mfo_ids.")";
 				$res = $GLOBALS["db_api"]->dbh->query($stmt);
 				if (PEAR::isError($res)) {
@@ -671,7 +678,7 @@ class XSD_HTML_Match {
 			$subs = XSD_Loop_Subelement::getSimpleListByXSDMF($xsdmf_id);
 			if (!empty ($subs)) {
 				$xsdsel_ids = Misc::arrayToSQL(array_keys(Misc::keyArray($subs, 'xsdsel_id')));
-				$stmt = "delete from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement " .
+				$stmt = "delete from " . APP_TABLE_PREFIX . "xsd_loop_subelement " .
 				"where xsdsel_id in (".$xsdsel_ids.")";
 				$res = $GLOBALS["db_api"]->dbh->query($stmt);
 				if (PEAR::isError($res)) {
@@ -682,7 +689,7 @@ class XSD_HTML_Match {
 			$rels = XSD_Relationship::getSimpleListByXSDMF($xsdmf_id);
 			if (!empty ($rels)) {
 				$xsdrel_ids = Misc::arrayToSQL(array_keys(Misc::keyArray($rels, 'xsdrel_id')));
-				$stmt = "delete from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship " .
+				$stmt = "delete from " . APP_TABLE_PREFIX . "xsd_relationship " .
 				"where xsdrel_id in (".$xsdrel_ids.")";
 				$res = $GLOBALS["db_api"]->dbh->query($stmt);
 				if (PEAR::isError($res)) {
@@ -693,7 +700,7 @@ class XSD_HTML_Match {
 		}
 
 		$stmt = "DELETE FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 WHERE
 		                    xsdmf_id in (".$items.")";
 
@@ -802,7 +809,7 @@ class XSD_HTML_Match {
 		}
 
 		$stmt = "INSERT INTO
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 (
 		                    xsdmf_xdis_id,
 		                    xsdmf_element,
@@ -1058,7 +1065,7 @@ class XSD_HTML_Match {
 	function insertFromArray($xdis_id, $insertArray) {
 		$insertArray['xsdmf_xdis_id'] = $xdis_id;
 		$stmt = "INSERT INTO
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 ( ";
         foreach (XSD_HTML_Match::$xsdmf_columns as $col_name) {
         	if (!empty($insertArray[$col_name])) {
@@ -1096,7 +1103,7 @@ class XSD_HTML_Match {
 	 */
 	function insertFromArraySEL($xdis_id, $xsdsel_id, $insertArray) {
 		$stmt = "INSERT INTO
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 (
 		                    xsdmf_xdis_id,
 		                    xsdmf_element,
@@ -1109,7 +1116,7 @@ class XSD_HTML_Match {
 			$stmt .= " xsdmf_order,";
 		}
 
-        if (!empty ($insertArray["xsdmf_enabled"])) {
+		if (!empty ($insertArray["xsdmf_enabled"])) {
 			$stmt .= " xsdmf_enabled,";
 		}
 		if (!empty ($insertArray["xsdmf_indexed"])) {
@@ -1257,7 +1264,7 @@ class XSD_HTML_Match {
 			$stmt .= $insertArray["xsdmf_order"] . ",";
 		}
         
-        if (!empty ($insertArray["xsdmf_enabled"])) {
+		if (!empty ($insertArray["xsdmf_enabled"])) {
 			$stmt .= $insertArray["xsdmf_enabled"] . ",";
 		}
 
@@ -1272,21 +1279,21 @@ class XSD_HTML_Match {
 			$stmt .= $insertArray["xsdmf_multiple"] . ",";
 		}
 
-        if (!empty($insertArray["xsdmf_multiple_limit"])) {
-           $stmt .= $insertArray["xsdmf_multiple_limit"] . ",";
-        }
-        if (!empty($insertArray["xsdmf_sek_id"])) {
-           $stmt .= $insertArray["xsdmf_sek_id"] . ",";
-        }
-        if (!empty($insertArray["xsdmf_valueintag"])) {
-           $stmt .= $insertArray["xsdmf_valueintag"] . ",";
-        }
-        if (!empty($insertArray["xsdmf_is_key"])) {
-           $stmt .= $insertArray["xsdmf_is_key"] . ",";
-        }
-        if (!empty($insertArray["xsdmf_meta_header_name"])) {
-           $stmt .= "'".$insertArray["xsdmf_meta_header_name"] . "',";
-        }
+			if (!empty($insertArray["xsdmf_multiple_limit"])) {
+               $stmt .= $insertArray["xsdmf_multiple_limit"] . ",";
+			}
+			if (!empty($insertArray["xsdmf_sek_id"])) {
+               $stmt .= $insertArray["xsdmf_sek_id"] . ",";
+			}
+			if (!empty($insertArray["xsdmf_valueintag"])) {
+               $stmt .= $insertArray["xsdmf_valueintag"] . ",";
+			}
+			if (!empty($insertArray["xsdmf_is_key"])) {
+               $stmt .= $insertArray["xsdmf_is_key"] . ",";
+			}
+			if (!empty($insertArray["xsdmf_meta_header_name"])) {
+               $stmt .= "'".$insertArray["xsdmf_meta_header_name"] . "',";
+			}
 
 		if (!empty ($insertArray["xsdmf_meta_header"])) {
 			$stmt .= $insertArray["xsdmf_meta_header"] . ",";
@@ -1506,7 +1513,7 @@ class XSD_HTML_Match {
 		}
 
 		$stmt = "UPDATE
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 SET 
 		                    xsdmf_title = '" . Misc::escapeString($HTTP_POST_VARS["title"]) . "',
 		                    xsdmf_description = '" . Misc::escapeString($HTTP_POST_VARS["description"]) . "',
@@ -1537,8 +1544,8 @@ class XSD_HTML_Match {
 		if (is_numeric($HTTP_POST_VARS["xsdmf_sek_id"])) {
 			$stmt .= " xsdmf_sek_id = " . Misc::escapeString($HTTP_POST_VARS["xsdmf_sek_id"]) . ",";
 		} else {
-        	$stmt .= " xsdmf_sek_id = NULL,";
-        }
+			$stmt .= " xsdmf_sek_id = NULL,";
+		}
 		if ($HTTP_POST_VARS["xsdmf_org_level"] != "") {
 			$stmt .= " xsdmf_org_level = '" . Misc::escapeString($HTTP_POST_VARS["xsdmf_org_level"]) . "',";
 		}
@@ -1635,7 +1642,7 @@ class XSD_HTML_Match {
 				$stmt = "SELECT
 				                            mfo_id
 				                         FROM
-				                            " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_mf_option
+				                            " . APP_TABLE_PREFIX . "xsd_display_mf_option
 				                         WHERE
 				                            mfo_fld_id=" . $HTTP_POST_VARS['xsdmf_id'];
 				$current_options = $GLOBALS["db_api"]->dbh->getCol($stmt);
@@ -1673,7 +1680,7 @@ class XSD_HTML_Match {
 
     function updateFromArray($xsdmf_id, $params)
     {
-    	$stmt = "UPDATE " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields " .
+    	$stmt = "UPDATE " . APP_TABLE_PREFIX . "xsd_display_matchfields " .
                 "SET ";
         foreach (XSD_HTML_Match::$xsdmf_columns as $col_name) {
             if ($col_name == 'xsdmf_id') {
@@ -1729,7 +1736,7 @@ class XSD_HTML_Match {
 		$stmt = "SELECT
 		                    xsdmf_id
 		                 FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 WHERE
 		                    xsdmf_element = '".$xsdmf_element."' and xsdmf_xdis_id = ".$xsdmf_xdis_id." and xsdmf_xsdsel_id IS NULL";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt);
@@ -1756,7 +1763,7 @@ class XSD_HTML_Match {
 	 */
 	function updateXSDMF_ID_REF($xsdmf_id, $new_xsdmf_id_ref, $new_id_ref_xdis_id) {
 		$stmt = "UPDATE
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 SET xsdmf_id_ref = ".$new_xsdmf_id_ref.",
 		                     xsdmf_xdis_id_ref = ".$new_id_ref_xdis_id."
 		                 WHERE
@@ -1781,7 +1788,7 @@ class XSD_HTML_Match {
 	 */
 	function updateAuthorSuggestTarget($xsdmf_id, $new_xsdmf_id, $new_xdis_id) {
 		$stmt = "UPDATE
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 SET xsdmf_asuggest_xsdmf_id = ".$new_xsdmf_id.",
 		                     xsdmf_asuggest_xdis_id = ".$new_xdis_id."
 		                 WHERE
@@ -1806,7 +1813,7 @@ class XSD_HTML_Match {
 	 */
 	function updateOrgFillTarget($xsdmf_id, $new_xsdmf_id, $new_xdis_id) {
 		$stmt = "UPDATE
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 SET xsdmf_org_fill_xsdmf_id = ".$new_xsdmf_id.",
 		                     xsdmf_org_fill_xdis_id = ".$new_xdis_id."
 		                 WHERE
@@ -1831,7 +1838,7 @@ class XSD_HTML_Match {
 	 */
 	function updateParentOptionTarget($xsdmf_id, $new_xsdmf_id, $new_xdis_id) {
 		$stmt = "UPDATE
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 SET xsdmf_parent_option_child_xsdmf_id = ".$new_xsdmf_id.",
 		                     xsdmf_parent_option_xdis_id = ".$new_xdis_id."
 		                 WHERE
@@ -1856,7 +1863,7 @@ class XSD_HTML_Match {
 	 */
 	function updateAttachedTarget($xsdmf_id, $new_xsdmf_id) {
 		$stmt = "UPDATE
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 SET xsdmf_attached_xsdmf_id = ".$new_xsdmf_id."
 		                 WHERE
 		                    xsdmf_id = ".$xsdmf_id;
@@ -1882,7 +1889,7 @@ class XSD_HTML_Match {
 		$stmt = "SELECT
 		                    xsdmf_id
 		                 FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 WHERE
 		                     xsdmf_element = '".$xsdmf_element."' and xsdmf_xdis_id in (".$xdis_str.") and (xsdmf_is_key != 1 || xsdmf_is_key is null)";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt);
@@ -1914,7 +1921,7 @@ class XSD_HTML_Match {
 		$stmt = "SELECT
 		                    xsdmf_id
 		                 FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 WHERE
 		                    ('".$xsdmf_element."' = xsdmf_element) and xsdmf_xdis_id in (".$xdis_str.") and xsdmf_is_key = 1 and ('".$element_value."' = xsdmf_key_match)";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt);
@@ -1947,7 +1954,7 @@ class XSD_HTML_Match {
 		$stmt = "SELECT
 		                    xsdmf_id
 		                 FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 WHERE
 		                    '".$xsdmf_element."' = xsdmf_element and xsdmf_xdis_id in (".$xdis_str.") and xsdmf_parent_key_match = '".$parent_key."'";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt);
@@ -1983,7 +1990,7 @@ class XSD_HTML_Match {
 		$stmt = "SELECT
 		                    xsdmf_id
 		                 FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 WHERE
 		                    ('".$xsdmf_element."' = xsdmf_element) and xsdmf_xdis_id in (".$xdis_str.") and xsdmf_is_key = 1 and ('".$key_value."' = xsdmf_key_match) and xsdmf_xsdsel_id = ".$xsdsel_id;
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt);
@@ -2014,10 +2021,31 @@ class XSD_HTML_Match {
 		$stmt = "SELECT
 		                    xsdmf_id
 		                 FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 WHERE
 		                    xsdmf_element = '".$xsdmf_element."' and xsdmf_xdis_id in (".$xdis_str.") and xsdmf_xsdsel_id=" . $xsdsel_id;
 
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt);
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
+			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+			return "";
+		} else {
+			if (count($res) != 1) {
+				return false;
+			} else {
+				return $res[0][0];
+			}
+		}
+	}
+
+	function getXSDMF_IDByElementSEL_Title($xsdmf_element, $xsdsel_title, $xdis_id) {
+		$stmt = "SELECT
+		                    xsdmf_id
+		                FROM " . APP_TABLE_PREFIX . "xsd_display_matchfields
+						INNER JOIN " . APP_TABLE_PREFIX . "xsd_loop_subelement on xsdmf_xsdsel_id = xsdsel_id
+		                 WHERE
+		                    xsdmf_element = '".$xsdmf_element."' and xsdmf_xdis_id = ".$xdis_id." and xsdsel_title='" . $xsdsel_title."'";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt);
 		if (PEAR::isError($res)) {
 			Error_Handler::logError(array (
@@ -2050,7 +2078,7 @@ class XSD_HTML_Match {
 		$stmt = "SELECT
 		                    xsdmf_id
 		                 FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 WHERE
 		                    xsdmf_element = '".$xsdmf_element."' and xsdmf_xdis_id = ".$xsdmf_xdis_id." and xsdmf_xsdsel_id in (" . implode("," . $xsdsel_id) . ")";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt);
@@ -2083,7 +2111,7 @@ class XSD_HTML_Match {
 		$stmt = "SELECT
 		                    xsdmf_id
 		                 FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 WHERE
 		                    xsdmf_original_xsdmf_id = " . $original_xsdmf_id . " AND xsdmf_xdis_id = " . $xdis_id;
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt);
@@ -2121,8 +2149,8 @@ class XSD_HTML_Match {
 			$stmt = "SELECT
 	                   xsdmf_id
 	                FROM
-	                   " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1
-					INNER JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key AS s1  	
+	                   " . APP_TABLE_PREFIX . "xsd_display_matchfields x1
+					INNER JOIN " . APP_TABLE_PREFIX . "search_key AS s1  	
 	                ON
 	                   x1.xsdmf_sek_id = s1.sek_id and s1.sek_title = '".Misc::escapeString($sek_title)."'";			
 			$res = $GLOBALS["db_api"]->dbh->getCol($stmt);
@@ -2158,7 +2186,7 @@ class XSD_HTML_Match {
 			$stmt = "SELECT
 	                   xsdmf_id
 	                FROM
-	                   " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1
+	                   " . APP_TABLE_PREFIX . "xsd_display_matchfields x1
 					WHERE
 	                   x1.xsdmf_sek_id = ".$sek_id;			
 			$res = $GLOBALS["db_api"]->dbh->getCol($stmt);
@@ -2186,7 +2214,7 @@ class XSD_HTML_Match {
 		$stmt = "SELECT
 		                    xsdmf_id, xsdmf_element
 		                 FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 ORDER BY
 		                    xsdmf_element ASC";
 		$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
@@ -2203,7 +2231,7 @@ class XSD_HTML_Match {
 		$stmt = "SELECT
 		                    *
 		                 FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 WHERE xsdmf_xdis_id='".$xdis_id."'
 		                 ORDER BY
 		                    xsdmf_element ASC";
@@ -2229,8 +2257,8 @@ class XSD_HTML_Match {
 		$stmt = "SELECT
 		                    *
 		                 FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields left join
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement on (xsdmf_xsdsel_id = xsdsel_id)
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields left join
+		                    " . APP_TABLE_PREFIX . "xsd_loop_subelement on (xsdmf_xsdsel_id = xsdsel_id)
 		                 WHERE
 							 xsdmf_element='".$xml_element."' AND (xsdmf_xsdsel_id IS NULL) AND xsdmf_xdis_id=" . $xdis_id;
 		$res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
@@ -2260,8 +2288,8 @@ class XSD_HTML_Match {
 		$stmt = "SELECT
 		                    *
 		                 FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields left join
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement on (xsdmf_xsdsel_id = xsdsel_id)
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields left join
+		                    " . APP_TABLE_PREFIX . "xsd_loop_subelement on (xsdmf_xsdsel_id = xsdsel_id)
 		                 WHERE
 		                    xsdmf_id=" . $xsdmf_id;
 		$res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
@@ -2291,7 +2319,7 @@ class XSD_HTML_Match {
 		$stmt = "SELECT
 		                   xsdmf_xdis_id
 		                 FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 WHERE
 		                    xsdmf_id = ".$xsdmf_id;
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -2317,8 +2345,8 @@ class XSD_HTML_Match {
 		$stmt = "SELECT
 		                    *
 		                 FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields left join
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement on (xsdmf_xsdsel_id = xsdsel_id)
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields left join
+		                    " . APP_TABLE_PREFIX . "xsd_loop_subelement on (xsdmf_xsdsel_id = xsdsel_id)
 		                 WHERE
 		                    xsdmf_element='".$xml_element."' AND xsdmf_xsdsel_id = ".$xsdsel_id." AND xsdmf_xdis_id=" . $xdis_id;
 		$res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
@@ -2348,7 +2376,7 @@ class XSD_HTML_Match {
 		$stmt = "SELECT
 		                    xdis_xsd_id
 		                 FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display
+		                    " . APP_TABLE_PREFIX . "xsd_display
 		                 WHERE
 		                    xdis_id=".$xdis_id;
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -2372,11 +2400,11 @@ class XSD_HTML_Match {
 		$stmt = "SELECT count(*) as 
 		                    attach_count
 		                 FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 WHERE
 		                    xsdmf_attached_xsdmf_id=".$xsdmf_id." and xsdmf_id not in 
 							(select distinct ifnull(xsdmf_attached_xsdmf_id, 0)
-		        			   from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields where xsdmf_id = ".$xsdmf_id.");";
+		        			   from " . APP_TABLE_PREFIX . "xsd_display_matchfields where xsdmf_id = ".$xsdmf_id.");";
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 		if (PEAR::isError($res)) {
 			Error_Handler::logError(array (
@@ -2393,7 +2421,7 @@ class XSD_HTML_Match {
 
 	function getChildren($xsdmf_id) {
 		$stmt = "SELECT *  
-		                 FROM " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_attach
+		                 FROM " . APP_TABLE_PREFIX . "xsd_display_attach
 		                 WHERE att_parent_xsdmf_id = '".$xsdmf_id."'";
 
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -2407,7 +2435,7 @@ class XSD_HTML_Match {
 	}
 
 	function setChild($xsdmf_id, $att_child_xsdmf_id, $att_order) {
-		$stmt = "INSERT INTO " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_attach" .
+		$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "xsd_display_attach" .
 		"(att_parent_xsdmf_id, att_child_xsdmf_id, att_order)" .
 		"VALUES" .
 		"('".$xsdmf_id."', '".$att_child_xsdmf_id."', '".$att_order."')";
@@ -2430,7 +2458,7 @@ class XSD_HTML_Match {
 	 * @param   array $fld_id If the fld_id is an array of fld_ids, then the fucntion will return a list
 	 *                        of matching options for all the fields.
 	 * @return  array The list of matching field options as array(mfo_id => mfo_value), 
-	                  or if an array was passed, array(fld_id => array(mfo_id, mfo_value))
+	 *                 or if an array was passed, array(fld_id => array(mfo_id, mfo_value))
 	 */
 	function getOptions($fld_id) {
 		static $mfo_returns;
@@ -2444,7 +2472,7 @@ class XSD_HTML_Match {
 										mfo_id,
 										mfo_value
 									FROM
-										" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_mf_option
+										" . APP_TABLE_PREFIX . "xsd_display_mf_option
 									WHERE
 										mfo_fld_id IN (".$fld_id_str.")
 									ORDER BY
@@ -2456,7 +2484,7 @@ class XSD_HTML_Match {
 									mfo_id,
 									mfo_value
 									FROM
-										" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_mf_option
+										" . APP_TABLE_PREFIX . "xsd_display_mf_option
 										WHERE
 										mfo_fld_id='".$fld_id."'
 										ORDER BY
@@ -2483,14 +2511,14 @@ class XSD_HTML_Match {
 	 * @access  public
 	 * @param   integer $fld_id The matching field ID
 	 * @return  array The list of matching field options as array(mfo_id => mfo_value), 
-	                  or if an array was passed, array(fld_id => array(mfo_id, mfo_value))
+	 *                 or if an array was passed, array(fld_id => array(mfo_id, mfo_value))
 	 */
 	function getOptionsValueOnly($fld_id) {
 		$stmt = "SELECT
 		                    mfo_value,
 		                    mfo_value
 		                 FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_mf_option
+		                    " . APP_TABLE_PREFIX . "xsd_display_mf_option
 		                 WHERE
 		                    mfo_fld_id=".$fld_id."
 		                 ORDER BY
@@ -2549,7 +2577,7 @@ class XSD_HTML_Match {
 		$stmt = "SELECT 
 		                    xsdmf_element
 		                 FROM
-		                    " . APP_DEFAULT_DB . '.' . APP_TABLE_PREFIX . "xsd_display_matchfields
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 WHERE
 		                    xsdmf_xdis_id='".$xdis_id."'
 		                    ";
@@ -2578,8 +2606,8 @@ class XSD_HTML_Match {
 		$stmt = "SELECT 
 		                    xsdmf_id, xsdmf_element, xsdmf_title, xsdmf_id_ref, xsdmf_html_input, xsdmf_enabled, xsdmf_order, xsdmf_dynamic_text, xsdmf_static_text, xsdmf_xsdsel_id, xsdsel_title
 		                 FROM
-		                    " . APP_DEFAULT_DB . '.' . APP_TABLE_PREFIX . "xsd_display_matchfields left join
-		                    " . APP_DEFAULT_DB . '.' . APP_TABLE_PREFIX . "xsd_loop_subelement on (xsdmf_xsdsel_id = xsdsel_id)
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields left join
+		                    " . APP_TABLE_PREFIX . "xsd_loop_subelement on (xsdmf_xsdsel_id = xsdsel_id)
 		                 WHERE
 		                    xsdmf_xdis_id='".$xdis_id."'
 		                    ";
@@ -2610,13 +2638,13 @@ class XSD_HTML_Match {
 		$stmt = "SELECT 
 		                    *
 		                 FROM
-		                    " . APP_DEFAULT_DB . '.' . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
-							" . APP_DEFAULT_DB . '.' . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
+							" . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
 		                 WHERE
 		                    x1.xsdmf_xdis_id=".$xdis_id." and (x1.xsdmf_element not in ('".$xsd_list."') or x1.xsdmf_xsdsel_id not in (
 							     SELECT distinct(s2.xsdsel_id) FROM
-									 " . APP_DEFAULT_DB . '.' . APP_TABLE_PREFIX . "xsd_loop_subelement s2 left join
-									 " . APP_DEFAULT_DB . '.' . APP_TABLE_PREFIX . "xsd_display_matchfields x2 on (x2.xsdmf_xsdsel_id = s2.xsdsel_id)
+									 " . APP_TABLE_PREFIX . "xsd_loop_subelement s2 left join
+									 " . APP_TABLE_PREFIX . "xsd_display_matchfields x2 on (x2.xsdmf_xsdsel_id = s2.xsdsel_id)
 								  WHERE x2.xsdmf_xdis_id = ".$xdis_id."
 								))
 		                    ";
@@ -2643,13 +2671,13 @@ class XSD_HTML_Match {
 		$stmt = "SELECT 
 		                    count(*) as orphan_count
 		                 FROM
-		                    " . APP_DEFAULT_DB . '.' . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
-							" . APP_DEFAULT_DB . '.' . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
+							" . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
 		                 WHERE
 		                    x1.xsdmf_xdis_id=".$xdis_id." and (x1.xsdmf_element not in ('".$xsd_list."') or x1.xsdmf_xsdsel_id not in (
 							     SELECT distinct(s2.xsdsel_id) FROM
-									 " . APP_DEFAULT_DB . '.' . APP_TABLE_PREFIX . "xsd_loop_subelement s2 left join
-									 " . APP_DEFAULT_DB . '.' . APP_TABLE_PREFIX . "xsd_display_matchfields x2 on (x2.xsdmf_xsdsel_id = s2.xsdsel_id)
+									 " . APP_TABLE_PREFIX . "xsd_loop_subelement s2 left join
+									 " . APP_TABLE_PREFIX . "xsd_display_matchfields x2 on (x2.xsdmf_xsdsel_id = s2.xsdsel_id)
 								  WHERE x2.xsdmf_xdis_id = ".$xdis_id."
 								))
 		                    ";
@@ -2840,6 +2868,7 @@ class XSD_HTML_Match {
  */
 class XSD_HTML_MatchObject {
 	var $xdis_str;
+	var $xdis_array = array();
 
 	/** 
 	 * XSD_HTML_MatchObject
@@ -2865,28 +2894,28 @@ class XSD_HTML_MatchObject {
 			$GLOBALS['match_cols'] = array();
 		}
 		
-		// do query to get all the match cols for this display set
-		$stmt = "SELECT
-		                   m1.*,
-						   s1.xsdsel_title,
-                           s1.xsdsel_indicator_xsdmf_id,
-                           s1.xsdsel_indicator_value,
-                           x1.xsd_element_prefix,
-                           m2.xsdmf_element as indicator_element,
-		   				   m2.xsdmf_xsdsel_id as indicator_xsdsel_id
-		                FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m1 left join
-							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (m1.xsdmf_id = s1.xsdsel_xsdmf_id) left join
-							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on (m1.xsdmf_xdis_id = d1.xdis_id)  left join
-							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd x1 on (d1.xdis_xsd_id = x1.xsd_id) left join 
-							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m2 on (m2.xsdmf_id = s1.xsdsel_indicator_xsdmf_id)
-		                WHERE
-		                    m1.xsdmf_xdis_id in (".$this->xdis_str.")";
+			// do query to get all the match cols for this display set
+			$stmt = "SELECT
+			                   m1.*,
+							   s1.xsdsel_title,
+                               s1.xsdsel_indicator_xsdmf_id,
+                               s1.xsdsel_indicator_value,
+                               x1.xsd_element_prefix,
+                               m2.xsdmf_element as indicator_element,
+			   				   m2.xsdmf_xsdsel_id as indicator_xsdsel_id
+			                FROM
+			                    " . APP_TABLE_PREFIX . "xsd_display_matchfields m1 left join
+								" . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (m1.xsdmf_id = s1.xsdsel_xsdmf_id) left join
+								" . APP_TABLE_PREFIX . "xsd_display d1 on (m1.xsdmf_xdis_id = d1.xdis_id)  left join
+								" . APP_TABLE_PREFIX . "xsd x1 on (d1.xdis_xsd_id = x1.xsd_id) left join 
+								" . APP_TABLE_PREFIX . "xsd_display_matchfields m2 on (m2.xsdmf_id = s1.xsdsel_indicator_xsdmf_id)
+			                WHERE
+			                    m1.xsdmf_xdis_id in (".$this->xdis_str.")";
 
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-		if (PEAR::isError($res)) {
-			Error_Handler::logError(array (
-			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+			if (PEAR::isError($res)) {
+				Error_Handler::logError(array (
+				$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			$GLOBALS['match_cols'][$this->xdis_str] = array ();
 		} else {
 			$GLOBALS['match_cols'][$this->xdis_str] = $res;
@@ -2954,11 +2983,11 @@ class XSD_HTML_MatchObject {
 						   m2.xsdmf_element as indicator_element,
 		   				   m2.xsdmf_xsdsel_id as indicator_xsdsel_id
 		                FROM
-		                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m1 left join
-							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (m1.xsdmf_id = s1.xsdsel_xsdmf_id) left join
-							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on (m1.xsdmf_xdis_id = d1.xdis_id)  left join
-							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd x1 on (d1.xdis_xsd_id = x1.xsd_id) left join 
-							" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields m2 on (m2.xsdmf_id = s1.xsdsel_indicator_xsdmf_id)
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields m1 left join
+							" . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (m1.xsdmf_id = s1.xsdsel_xsdmf_id) left join
+							" . APP_TABLE_PREFIX . "xsd_display d1 on (m1.xsdmf_xdis_id = d1.xdis_id)  left join
+							" . APP_TABLE_PREFIX . "xsd x1 on (d1.xdis_xsd_id = x1.xsd_id) left join 
+							" . APP_TABLE_PREFIX . "xsd_display_matchfields m2 on (m2.xsdmf_id = s1.xsdsel_indicator_xsdmf_id)
 		                WHERE
 		                    m1.xsdmf_xdis_id in (".$xdis_str.") and m1.xsdmf_element = '".$xsdmf_element."'";
 

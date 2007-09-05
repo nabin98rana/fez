@@ -14,7 +14,7 @@ class AuthRules
         if (isset($gcache[$rmd5])) {
             return $gcache[$rmd5];
         }
-        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $dbtp = APP_TABLE_PREFIX;
         // does rule exist in table
         $stmt = "SELECT arg_id, arg_md5 FROM ".$dbtp."auth_rule_groups WHERE arg_md5='".$rmd5."' ";
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt,DB_FETCHMODE_ASSOC);
@@ -55,7 +55,7 @@ class AuthRules
 
     function getOrCreateRule($rule, $value)
     {
-        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $dbtp = APP_TABLE_PREFIX;
         // does rule exist in table
         $rule = Misc::escapeString($rule);
         $value = Misc::escapeString($value);

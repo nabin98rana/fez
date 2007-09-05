@@ -12,7 +12,7 @@ function StateSuggestions(class_name, method, show_all, include_name) {
     this.sugg.show_all = show_all;
     this.sugg.include_name = include_name;
     this.sugg.ongetSuggestionError = function() {
-        alert("getSuggestionError");
+        //alert("getSuggestionError");
         this.mutex--;
     }
     this.sugg.onGetIdError = function() {
@@ -126,7 +126,6 @@ StateSuggestions.prototype.addMulti = function (oAutoSuggestControl /*:AutoSugge
         }
         // get the id for the text value
         oSuggestor = this;
-//		alert(sTextboxValue);
         this.sugg.getId(sTextboxValue, function(value_id)
                 {
                 // add the option to the multi select and select it

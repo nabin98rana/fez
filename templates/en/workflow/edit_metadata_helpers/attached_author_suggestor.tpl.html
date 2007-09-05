@@ -34,3 +34,9 @@ function register_suggest_{$attached_field_id}_lookup() {ldelim}
 // -->
 </script>
 <div class="register_suggest" name="register_suggest">register_suggest_{$attached_field_id}_lookup();</div>
+{if $attached_xsdmf.xsdmf_attached_xsdmf_id != ""}
+	{assign var="attached_xsdmf_id" value=$attached_xsdmf.xsdmf_attached_xsdmf_id}
+	{section name='aas' loop=$xsd_display_fields}{if $xsd_display_fields[aas].xsdmf_id == $attached_xsdmf_id}{assign var="attached_xsdmf" value=$xsd_display_fields[aas]}{/if}{/section}
+	{assign var="attached_field_name" value="xsd_display_fields_"|cat:$attached_xsdmf_id|cat:"_"|cat:$loop_num}						
+	{include file='workflow/edit_metadata_helpers/attached_'|cat:$attached_xsdmf.xsdmf_html_input|cat:'.tpl.html'}
+{/if}

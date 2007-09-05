@@ -135,7 +135,7 @@ class Mail_Queue
         list(,$text_headers) = Mail_API::prepareHeaders($headers);
         $save_email_copy = $save_email_copy ? '1':'0';
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "mail_queue
+                    " . APP_TABLE_PREFIX . "mail_queue
                  (
                     maq_save_copy,
                     maq_queued_date,
@@ -191,15 +191,15 @@ class Mail_Queue
 
     function clearOld()
     {
-        $stmt = " delete from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "mail_queue_log where
-            mql_maq_id in (select maq_id from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "mail_queue where
+        $stmt = " delete from " . APP_TABLE_PREFIX . "mail_queue_log where
+            mql_maq_id in (select maq_id from " . APP_TABLE_PREFIX . "mail_queue where
                     maq_status='sent' and maq_queued_date < date_sub(NOW(), interval 1 month))";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
         }
 
-        $stmt = "delete from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "mail_queue where
+        $stmt = "delete from " . APP_TABLE_PREFIX . "mail_queue where
             maq_status='sent' and maq_queued_date < date_sub(NOW(), interval 1 month);
         ";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -277,7 +277,7 @@ class Mail_Queue
                     maq_headers headers,
                     maq_body body
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "mail_queue
+                    " . APP_TABLE_PREFIX . "mail_queue
                  WHERE
                     maq_status='$status'
                  ORDER BY
@@ -307,7 +307,7 @@ class Mail_Queue
     function _saveLog($maq_id, $status, $server_message)
     {
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "mail_queue_log
+                    " . APP_TABLE_PREFIX . "mail_queue_log
                  (
                     mql_maq_id,
                     mql_created_date,
@@ -325,7 +325,7 @@ class Mail_Queue
             return false;
         } else {
             $stmt = "UPDATE
-                        " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "mail_queue
+                        " . APP_TABLE_PREFIX . "mail_queue
                      SET
                         maq_status='$status'
                      WHERE

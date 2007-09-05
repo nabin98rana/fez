@@ -166,7 +166,7 @@ if ($resumptionToken != "") {
 //echo $resumptionToken;
 //exit;
 $collection_pid = "";
-$order_by = "";
+$order_by = "Created Date";
 
 if (!empty($verb)) {
 
@@ -179,7 +179,12 @@ if (!empty($verb)) {
 					}
 				}	
 				if ($identifier != "") {
-					if (preg_match("/^oai:[a-zA-Z][a-zA-Z0-9\-]*(\.[a-zA-Z][a-zA-Z0-9\-]+)+:[a-zA-Z0-9\-_\.!~\*'\(\);\/\?:\@\&=\+\$,\%]+$/", $originalIdentifier)) {
+// old regex was too prohibitive on pid namespaces
+//					if (preg_match("/^oai:[a-zA-Z][a-zA-Z0-9\-]*(\.[a-zA-Z][a-zA-Z0-9\-]+)+:[a-zA-Z0-9\-_\.!~\*'\(\);\/\?:\@\&=\+\$,\%]+$/", $originalIdentifier)) {
+					if (preg_match("/^oai\:.+\:.+\:.+$/", $originalIdentifier)) {
+						
+//					if (preg_match("/^oai:(.*:[a-zA-Z0-9\-_\.!~\*'\(\);\/\?:\@\&=\+\$,\%])+$/", $originalIdentifier)) {
+
 						// then check the record exists
 						$list = OAI::ListRecords($set, $identifier, $start, $rows, $order_by, $from, $until, $setType);
 						$list = $list["list"];
@@ -226,7 +231,8 @@ if (!empty($verb)) {
 				if ($metadataPrefix != "") {
 					if ($metadataPrefix == "oai_dc") {
 						if ($identifier != "") {
-							if (preg_match("/^oai:[a-zA-Z][a-zA-Z0-9\-]*(\.[a-zA-Z][a-zA-Z0-9\-]+)+:[a-zA-Z0-9\-_\.!~\*'\(\);\/\?:\@\&=\+\$,\%]+$/", $originalIdentifier)) {
+//							if (preg_match("/^oai:[a-zA-Z][a-zA-Z0-9\-]*(\.[a-zA-Z][a-zA-Z0-9\-]+)+:[a-zA-Z0-9\-_\.!~\*'\(\);\/\?:\@\&=\+\$,\%]+$/", $originalIdentifier)) {
+							if (preg_match("/^oai\:.+\:.+\:.+$/", $originalIdentifier)) {
 								$list = OAI::ListRecords($set, $identifier, $start, $rows, $order_by, $from, $until, $setType);
 								$list_info = $list["info"];
 								$list = $list["list"];

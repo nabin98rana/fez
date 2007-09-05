@@ -71,8 +71,8 @@ class Author_Org
         $stmt = "SELECT
                     auo_id, auo_assessed, auo_assessed_year, org_ext_table, org_title 
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author_org_structure, 
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "org_structure
+                    " . APP_TABLE_PREFIX . "author_org_structure, 
+                    " . APP_TABLE_PREFIX . "org_structure
                  WHERE auo_org_id = org_id 
                  AND auo_aut_id = " . $aut_id . " 
                  ORDER BY
@@ -104,7 +104,7 @@ class Author_Org
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author_org_structure
+                    " . APP_TABLE_PREFIX . "author_org_structure
                  WHERE
                     auo_id = ".$rel_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
@@ -137,7 +137,7 @@ class Author_Org
         empty($HTTP_POST_VARS["assessed_year"]) ? $assessed_year_val = null : $assessed_year_val = $HTTP_POST_VARS["assessed_year"];
 
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author_org_structure
+                    " . APP_TABLE_PREFIX . "author_org_structure
                  (
                     auo_org_id,
                     auo_aut_id,
@@ -178,7 +178,7 @@ class Author_Org
         }
 
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author_org_structure
+                    " . APP_TABLE_PREFIX . "author_org_structure
                  SET
                     auo_org_id='" . Misc::escapeString($HTTP_POST_VARS["organisation_id"]) . "',
                     auo_aut_id='" . Misc::escapeString($HTTP_POST_VARS["author_id"]) . "',
@@ -210,7 +210,7 @@ class Author_Org
 
         $items = @implode(", ", $HTTP_POST_VARS["items"]);
         $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author_org_structure
+                    " . APP_TABLE_PREFIX . "author_org_structure
                  WHERE
                     auo_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);

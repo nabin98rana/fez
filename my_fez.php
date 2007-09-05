@@ -67,10 +67,10 @@ $assign_grp_id = $options['grp_id'];
 $sta_id = $options['sta_id'];
 $assign_usr_id = $options['usr_id'];
 //echo $assign_usr_id." ". $sta_id." ".$assign_grp_id;
-
+//print_r($options);
 $sort_by = $options['sort_by'];
-if (empty($sort_by)) {
-	$sort_by = "Title";	
+if (empty($sort_by) || ($sort_by == "searchKey0" && empty($options['searchKey0']))) {
+	$sort_by = "searchKey".Search_Key::getID("Title");
 }
 
 $sort_by_dir = $options['sort_by_dir'];
@@ -101,16 +101,17 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
 }
 $tpl->assign("isAdministrator", $isAdministrator);
 
-$collection_list = Collection::getEditList();
+//$collection_list = Collection::getEditList();
 //print_r($collection_list);
 $collection_assoc_list = array();
 //$collection_assoc_list['ALL'] = '(All Assigned Collections)';
-foreach ($collection_list as &$item) {
+/*foreach ($collection_list as &$item) {
 //   $item['community'] = implode(',',Misc::keyPairs(Collection::getParents2($item['pid']),'pid','title'));
   //$item['count'] = Collection::getEditListingCount($item['pid']);
 //   $item['count'] = Collection::getSimpleListingCount($item['pid']);   
-   $collection_assoc_list[$item['pid']] = $item['title'][0];
-}
+   $collection_assoc_list[$item['rek_pid']] = $item['rek_title'];
+}*/
+$collection_assoc_list = Collection::getEditListAssoc();
 foreach ($search_keys as $skey => $svalue) {
 	if ($svalue["sek_id"] == Search_Key::getID("isMemberOf")) {
 		$search_keys[$skey]["field_options"] = $collection_assoc_list;
@@ -174,11 +175,12 @@ $tpl->assign("usr_list", $usr_list);
 $tpl->assign("isMemberOf_list", $collection_assoc_list);
 //$assigned_items= Record::getAssigned(Auth::getUsername(), $pager_row, $rows, $sort_by, $sort_by_dir, $isMemberOf);
 
-$assigned_items = Record::getListing($options, array("Editor", "Approver"), $pager_row, $rows, $options["sort_by"]);
-
-foreach ($assigned_items['list'] as $aikey => $aidata) {
+//$assigned_items = Record::getListing($options, array("Editor", "Approver"), $pager_row, $rows, $options["sort_by"]);
+$assigned_items = Record::getListing($options, array("Editor", "Approver"), $pager_row, $rows, $sort_by);
+Record::getParentsByPids($assigned_items['list']);
+/*foreach ($assigned_items['list'] as $aikey => $aidata) {
 	$assigned_items['list'][$aikey]['parents'] = Record::getParents($aidata['pid']);
-}
+}*/
 
 $tpl->assign('my_assigned_items_list', $assigned_items['list']);
 $tpl->assign('my_assigned_items_info', $assigned_items['info']);

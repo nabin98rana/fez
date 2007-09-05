@@ -1,5 +1,5 @@
 
-CREATE TABLE `%TABLE_PREFIX%mail_queue` (                                   
+CREATE TABLE %TABLE_PREFIX%mail_queue (                                   
                       `maq_id` int(11) unsigned NOT NULL auto_increment,                  
                       `maq_queued_date` datetime NOT NULL default '0000-00-00 00:00:00',  
                       `maq_status` varchar(8) NOT NULL default 'pending',                 
@@ -12,7 +12,7 @@ CREATE TABLE `%TABLE_PREFIX%mail_queue` (
                       KEY `maq_status` (`maq_status`)                                     
                     ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-CREATE TABLE `%TABLE_PREFIX%mail_queue_log` (                                
+CREATE TABLE %TABLE_PREFIX%mail_queue_log (                                
                           `mql_id` int(11) unsigned NOT NULL auto_increment,                   
                           `mql_maq_id` int(11) unsigned NOT NULL default '0',                  
                           `mql_created_date` datetime NOT NULL default '0000-00-00 00:00:00',  

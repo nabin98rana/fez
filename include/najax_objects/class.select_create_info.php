@@ -9,18 +9,18 @@ class SelectCreateInfo {
 
     function getCollections($community_pid)
     {
-        $collections = Collection::getEditList($community_pid,array('Creator', 'Community_Administrator'));
-        $list = array();
-        foreach($collections as $item) {
-            $pid = $item['pid'];
-            $list[] = array('value' => $pid, 'text' => $item['title']);
+        $result = Collection::getEditListAssoc($community_pid);
+		$list = array();
+        foreach($result as $pid => $item) {
+            $list[] = array('value' => $pid, 'text' => $item);
         }
         return $list;
     }
 
     function getDocTypes($collection_pid)
     {
-	$childXDisplayOptions = Collection::getChildXDisplayOptions($collection_pid);
+		$childXDisplayOptions = Record::getSearchKeyIndexValue($collection_pid, "XSD Display Option");
+//	$childXDisplayOptions = Collection::getChildXDisplayOptions($collection_pid);
         $list = array();
         foreach ($childXDisplayOptions as $key => $item) {
             $list[] = array('text' => $item, 'value' => $key);

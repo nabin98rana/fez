@@ -74,7 +74,7 @@ class Doc_Type_XSD
             XSD_Display::remove(array('items' => $xdis_items));
         }
         $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd
+                    " . APP_TABLE_PREFIX . "xsd
                  WHERE
                     xsd_id IN (".$items_str.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -108,7 +108,7 @@ class Doc_Type_XSD
         }
 
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd
+                    " . APP_TABLE_PREFIX . "xsd
                  (
                     xsd_title,
                     xsd_version,
@@ -137,7 +137,7 @@ class Doc_Type_XSD
     function insertAtId($xsd_id,$params)
     {
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd
+                    " . APP_TABLE_PREFIX . "xsd
                  (
                     xsd_id,
                     xsd_title,
@@ -197,7 +197,7 @@ class Doc_Type_XSD
         }
 		
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd
+                    " . APP_TABLE_PREFIX . "xsd
                  SET 
                     xsd_title = '" . Misc::escapeString($params["xsd_title"]) . "',
                     xsd_version = '" . Misc::escapeString($params["xsd_version"]) . "',
@@ -229,7 +229,7 @@ class Doc_Type_XSD
         $stmt = "SELECT
                     ".$select."
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd
+                    " . APP_TABLE_PREFIX . "xsd
                  ".$where."
                         ORDER BY
                     xsd_title ASC";
@@ -252,7 +252,7 @@ class Doc_Type_XSD
         $stmt = "SELECT
                     xsd_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd
+                    " . APP_TABLE_PREFIX . "xsd
                  where xsd_top_element_name='digitalObject' ";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
@@ -276,7 +276,7 @@ class Doc_Type_XSD
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd
+                    " . APP_TABLE_PREFIX . "xsd
                  WHERE
                     xsd_id=".$xsd_id;
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -301,7 +301,7 @@ class Doc_Type_XSD
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd
+                    " . APP_TABLE_PREFIX . "xsd
                  WHERE
                     xsd_id=".$xsd_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
@@ -325,7 +325,7 @@ class Doc_Type_XSD
         $stmt = "SELECT
                    xsd_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd
+                    " . APP_TABLE_PREFIX . "xsd
                  WHERE
                     xsd_id = ".$xsd_id;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);

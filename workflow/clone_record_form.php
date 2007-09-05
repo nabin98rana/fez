@@ -41,10 +41,10 @@ $parents = $record->getParents();
 $collection_pid = '';
 $collection_title = '';
 foreach ($parents as $parent) {
-    $col = new RecordGeneral($parent['pid']);
+    $col = new RecordGeneral($parent);
     if ($col->canCreate()) {
-        $collection_pid = $parent['pid'];
-        $collection_title = $parent['title'][0];
+        $collection_pid = $parent;
+        //$collection_title = $parent['title'][0]; //old way - if we really need the title we will need to look it up..
         break;
     }
 }

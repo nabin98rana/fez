@@ -53,7 +53,6 @@ $is_image = 0;
 
 $acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
 
-
 if (!empty($pid) && !empty($dsID)) {
 	$file_extension = strtolower(substr( strrchr( $dsID, "." ), 1 ));
 	switch( $file_extension ) {
@@ -150,7 +149,7 @@ if (!empty($pid) && !empty($dsID)) {
 						//$tpl->assign("APP_RELATIVE_URL", APP_RELATIVE_URL);
 						$tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
 						$tpl->assign("dsID", $dsID);				
-						$tpl->assign("pid", $pid);					
+						$tpl->assign("pid", $pid);
 						$tpl->displayTemplate();				
 						exit;
 					} else {
@@ -214,6 +213,7 @@ if (($is_image == 1) && (is_numeric(strpos($dsID, "archival_"))) ) { // if its t
 include_once(APP_INC_PATH . "class.template.php");
 $tpl = new Template_API();
 $tpl->setTemplate("view.tpl.html");
+$tpl->assign("pid", $pid);
 $tpl->assign("show_not_allowed_msg", true);
 $tpl->displayTemplate();
 

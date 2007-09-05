@@ -64,9 +64,13 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
 $tpl->assign("isAdministrator", $isAdministrator);
 
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
+if (empty($wfstatus)) {
+	echo "This workflow has finished and cannot be resumed";
+	exit;
+}
+
 $pid = $wfstatus->pid;
 $dsID = $wfstatus->dsID;
-
 $wfstatus->setTemplateVars($tpl);
 
 $tpl->assign("submit_to_popup", true);
@@ -129,7 +133,8 @@ $jtaskData = "";
 $maxG = 0;
 if ($dsID != "") {
 	$FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
-	$xsd_display_fields = XSD_HTML_Match::getListByDisplay($FezACML_xdis_id);
+//	$xsd_display_fields = XSD_HTML_Match::getListByDisplay($FezACML_xdis_id);
+	$xsd_display_fields = $record->display->getMatchFieldsList(array(), array("FezACML for Datastreams"));  // Specify FezACML as the only display needed for security
 } else {
 	$xsd_display_fields = $record->display->getMatchFieldsList(array(), array("FezACML"));  // Specify FezACML as the only display needed for security
 }

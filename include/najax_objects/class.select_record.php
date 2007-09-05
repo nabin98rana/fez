@@ -10,21 +10,24 @@ class SelectRecord {
 
     function getCollections($community_pid)
     {
-        $collections = Collection::getEditList($community_pid);
-        $list = array();
-        foreach($collections as $item) {
-            $pid = $item['pid'];
-            $list[] = array('value' => $pid, 'text' => $item['title']);
+        $result = Collection::getCreatorListAssoc($community_pid);
+		$list = array();
+        foreach($result as $pid => $item) {
+            $list[] = array('value' => $pid, 'text' => $item);
         }
         return $list;
     }
 
     function getRecords($collection_pid)
     {
-	$listing = Collection::getEditListing($collection_pid);
+	$options = array();		
+    $options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+    $options["searchKey".Search_Key::getID("isMemberOf")] = $collection_pid; // objects that are a member of selected pid only
+    $list = Record::getListing($options, array("Editor"), 0, 100, "Title", true);		
+	$listing = $list['list'];
         $list = array();
         foreach ($listing as $item) {
-            $list[] = array('text' => Misc::stripOneElementArrays($item['title']), 'value' => $item['pid']);
+            $list[] = array('text' => Misc::stripOneElementArrays($item['rek_title']), 'value' => $item['rek_pid']);
         }
         return $list;
     }

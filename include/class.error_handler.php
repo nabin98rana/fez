@@ -65,11 +65,19 @@ class Error_Handler
     {
        
          $txt = print_r($error_msg, true);
+         $ip = getenv("REMOTE_ADDR");
+         if (!empty($ip)) {
+         	$ip = "IP Address '" . $ip . "' - (".@gethostbyaddr($ip).") coming from the page (referrer) '" . getenv("HTTP_REFERER") . "'.";
+         }
+         
          $error = array(
              'txt' => explode("\n",$txt),
              'script' => $file = str_replace(APP_PATH,'',$script),
-             'line' => $line
+             'line' => $line,
+             'ip' => $ip
+             
          );
+                          
          $error_display = $error;
 		 if ((APP_DEBUG_LEVEL == 2) || (APP_DEBUG_LEVEL == 3))  { //debug level 2 or 3
             $backtrace = debug_backtrace();
@@ -144,7 +152,7 @@ class Error_Handler
         	}
         }
         if (APP_REPORT_ERROR_FILE) {
-            Error_Handler::_logToFile($error, $script, $line);
+        	Error_Handler::_logToFile($error, $script, $line);
         }
         $setup = Setup::load();
         if (@$setup['email_error']['status'] == 'enabled') {

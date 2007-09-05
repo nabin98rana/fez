@@ -1,7 +1,7 @@
 <?php
 /*
  * Fez Devel
- * Univeristy of Queensland Library
+ * University of Queensland Library
  * Created by Matthew Smith on 20/06/2007
  * This code is licensed under the GPL, see
  * http://www.gnu.org/copyleft/gpl.html
@@ -25,6 +25,7 @@
         $tpl->assign('sta_id', $sta_id); 
         
         $parents = $record->getParents();
+		$tpl->assign("parents", $parents);
         $tpl->assign("pid", $pid);
 
         $xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array(""));  // XSD_DisplayObject
@@ -116,8 +117,7 @@
         
         //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
         foreach ($xsd_display_fields  as $dis_key => $dis_field) {
-           
-			if ($dis_field["xsdmf_enabled"] == 1) {
+//            if ($dis_field["xsdmf_enabled"] == 1) {
       		  if ($dis_field["xsdmf_html_input"] == 'org_selector') {
                     if ($dis_field["xsdmf_org_level"] != "") {
                         $xsd_display_fields[$dis_key]['field_options'] = Org_Structure::getAssocListByLevel($dis_field["xsdmf_org_level"]);
@@ -128,7 +128,7 @@
                         // Loop through the parents - there is only one parent for entering metadata
                         if (in_array($dis_field["xsdmf_parent_option_xdis_id"], $parent_relationships)) {
                             foreach ($parents as $parent) {
-                                $parent_record = new RecordObject($parent['pid']);
+                                $parent_record = new RecordObject($parent);
                                 $parent_details = $parent_record->getDetails();
                                 if (is_numeric(@$parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]])) {
                                     $authors_sub_list = Org_Structure::getAuthorsByOrgID($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]]);
@@ -180,7 +180,7 @@
                             }
                         }
                     }   
-                }   
+//                }   
     /*          if (($dis_field["xsdmf_html_input"] == 'contvocab')) {
                     $xsd_display_fields[$dis_key]['field_options'] = $cvo_list['data'][$dis_field['xsdmf_cvo_id']];
                 } */
@@ -277,7 +277,7 @@
         $pid = $record->pid;
         $securityfields = Auth::getAllRoles();
         $datastreams = Fedora_API::callGetDatastreams($pid);
-        $datastreams = Misc::cleanDatastreamList($datastreams);
+        $datastreams = Misc::cleanDatastreamListLite($datastreams, $pid);
     
         $datastream_workflows = WorkflowTrigger::getListByTrigger('-1', 5); //5 is for datastreams
         $linkCount = 0;
@@ -286,7 +286,7 @@
         $datastream_isMemberOf = array(0 => $pid);
         $parents = $record->getParents();
         foreach ($parents as $parent) {
-            array_push($datastream_isMemberOf, $parent['pid']);
+            array_push($datastream_isMemberOf, $parent);
         }
         
         foreach ($datastreams as $ds_key => $ds) {

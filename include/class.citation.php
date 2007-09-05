@@ -37,7 +37,7 @@
      *                 or an empty array for no match.
      */
     function getDetails($xdis_id, $type='APA') {
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         $stmt = "SELECT * FROM ".$dbtp."citation WHERE cit_xdis_id='".$xdis_id."' AND cit_type='".$type."' ";
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
@@ -54,7 +54,7 @@
      * @return array - Citation table columns for the rows that match the xdis_id or an empty array for no match.
      */
     function getDetailsAllTypes($xdis_id) {
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         $stmt = "SELECT * FROM ".$dbtp."citation WHERE cit_xdis_id='".$xdis_id."' ";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
@@ -75,7 +75,7 @@
      */
     function save($xdis_id, $template, $type='APA') 
     {
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         $det = Citation::getDetails($xdis_id, $type);
         $template = Misc::escapeString($template);
         if (empty($det)) {
@@ -104,7 +104,7 @@
      */
     function deleteAllTypes($xdis_id)
     {
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         $stmt = "DELETE FROM ".$dbtp."citation WHERE cit_xdis_id='".$xdis_id."'";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -124,7 +124,7 @@
      */
     function renderCitation($xdis_id, $details, $xsd_display_fields, $type='APA')
     {
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         $det = Citation::getDetails($xdis_id, $type);
         $result = $det['cit_template'];
         if (empty($result)) {

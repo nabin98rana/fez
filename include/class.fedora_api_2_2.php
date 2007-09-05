@@ -217,7 +217,7 @@ class Fedora_API {
      */
 	function getListObjectsXML($searchTerms, $maxResults=2147483647, $returnfields=null) {
         $resultlist = array();
-		$searchTerms = urlencode("*$searchTerms*"); // encode it for url parsing
+		$searchTerms = urlencode("*".$searchTerms."*"); // encode it for url parsing
 		if (empty($returnfields)) {
 			$returnfields = array('pid', 'title', 'identifier', 'description', 'type');
 		}

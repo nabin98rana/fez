@@ -64,9 +64,9 @@ class XSD_Relationship
         $stmt = "SELECT
 					*
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+                    " . APP_TABLE_PREFIX . "xsd_relationship,
+                    " . APP_TABLE_PREFIX . "xsd_display,
+                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
                  WHERE
                     xsdrel_xsdmf_id=".$xsdmf_id." and xsdrel_xsdmf_id = xsdmf_id and xsdrel_xdis_id = xdis_id ";
 		$stmt .= " ORDER BY xsdrel_order ASC";
@@ -91,7 +91,7 @@ class XSD_Relationship
         $stmt = "SELECT
 					*
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship
+                    " . APP_TABLE_PREFIX . "xsd_relationship
                  WHERE
                     xsdrel_xsdmf_id=".$xsdmf_id." ";
 		$stmt .= " ORDER BY xsdrel_order ASC";
@@ -117,9 +117,9 @@ class XSD_Relationship
         $stmt = "SELECT
 					xsdrel_xdis_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+                    " . APP_TABLE_PREFIX . "xsd_relationship,
+                    " . APP_TABLE_PREFIX . "xsd_display,
+                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
                  WHERE
                    xsdmf_xdis_id = ".$xdis_id." and xsdrel_xsdmf_id = xsdmf_id and xsdrel_xdis_id = xdis_id ";
 		$stmt .= " ORDER BY xsdrel_order ASC";
@@ -148,9 +148,9 @@ class XSD_Relationship
         $stmt = "SELECT
 					xsdrel_xdis_id
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display,
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields
+                    " . APP_TABLE_PREFIX . "xsd_relationship,
+                    " . APP_TABLE_PREFIX . "xsd_display,
+                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
                  WHERE
                    xsdmf_xdis_id = ".$xdis_id." and xsdrel_xsdmf_id = xsdmf_id and xsdrel_xdis_id = xdis_id ";
 		$stmt .= " ORDER BY xsdrel_order ASC";
@@ -175,7 +175,7 @@ class XSD_Relationship
         $items = @implode(", ", $HTTP_POST_VARS["items"]);
 
         $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship
+                    " . APP_TABLE_PREFIX . "xsd_relationship
                  WHERE
                     xsdrel_id  IN (" . $items . ")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -200,7 +200,7 @@ class XSD_Relationship
         global $HTTP_POST_VARS;
 
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship
+                    " . APP_TABLE_PREFIX . "xsd_relationship
                  (
                     xsdrel_xsdmf_id,
                     xsdrel_xdis_id,
@@ -232,7 +232,7 @@ class XSD_Relationship
         global $HTTP_POST_VARS;
 
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship
+                    " . APP_TABLE_PREFIX . "xsd_relationship
                  (
                     xsdrel_xsdmf_id,
                     xsdrel_xdis_id,
@@ -268,7 +268,7 @@ class XSD_Relationship
         	$xsdrel_id = Misc::escapeString($params["xsdrel_id"]);
         }
         $stmt = "UPDATE
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_relationship
+                    " . APP_TABLE_PREFIX . "xsd_relationship
                  SET 
                     xsdrel_xsdmf_id = '" . Misc::escapeString($params["xsdrel_xsdmf_id"]) . "',
                     xsdrel_xdis_id = '" . Misc::escapeString($params["xsdrel_xdis_id"]) . "',

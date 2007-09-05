@@ -43,7 +43,7 @@ class FulltextIndex {
         $this->regen = $regen;
         $this->bgp->setHeartbeat();
         $this->bgp->setProgress(++$this->pid_count);
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         $rec = new RecordGeneral($pid);
 
         $dslist = $rec->getDatastreams();
@@ -147,7 +147,7 @@ class FulltextIndex {
             return;
         }
 
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         $stmt = "DELETE FROM ".$dbtp."fulltext_engine WHERE fte_fti_id='$fti_id' ";
         $res = $GLOBALS['db_api']->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -205,7 +205,7 @@ class FulltextIndex {
     function getKeyId($word) 
     {
         $word = substr($word, 0, 64); // limit the word to the length of the field in the DB
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         $stmt = "SELECT ftk_id FROM ".$dbtp."fulltext_keywords WHERE ftk_word = '".Misc::escapeString($word)."'";
         $res = $GLOBALS['db_api']->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
@@ -230,7 +230,7 @@ class FulltextIndex {
     function getItemId(&$rec, $dsID) 
     {
         $pid = $rec->getPid();
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         $stmt = "SELECT * FROM ".$dbtp."fulltext_index WHERE fti_pid='".$pid."' AND fti_dsid='".$dsID."'";
         $res = $GLOBALS['db_api']->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
@@ -257,7 +257,7 @@ class FulltextIndex {
     function getSearchJoin($fulltext_input)
     {
         $ft_stmt = '';
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         if (!empty($fulltext_input)) {
             $keywords = preg_split('/[^\w\d]/', $fulltext_input, -1, PREG_SPLIT_NO_EMPTY);
 
@@ -307,7 +307,7 @@ class FulltextIndex {
                  */
                 $ft_stmt .= "
                     GROUP BY fti.fti_pid
-                    ) as ft1 ON ft1.fti_pid=r1.rmf_rec_pid";
+                    ) as ft1 ON ft1.fti_pid=r1.rek_pid";
             }
 
          }
@@ -316,7 +316,7 @@ class FulltextIndex {
 
     function removeByPid($pid)
     {
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         $stmt = "SELECT fti_id FROM ".$dbtp."fulltext_index WHERE fti_pid='".$pid."' ";
         $res = $GLOBALS['db_api']->dbh->getCol($stmt);
         if (PEAR::isError($res)) {
@@ -342,7 +342,7 @@ class FulltextIndex {
     
     function removeByDS($pid,$dsID)
     {
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         $stmt = "SELECT fti_id FROM ".$dbtp."fulltext_index WHERE fti_pid='".$pid."' AND fti_dsid='".$dsID."' ";
         $res = $GLOBALS['db_api']->dbh->getCol($stmt);
         if (PEAR::isError($res)) {

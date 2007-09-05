@@ -1,6 +1,6 @@
 
 
-CREATE TABLE `%TABLE_PREFIX%auth_index2` (
+CREATE TABLE %TABLE_PREFIX%auth_index2 (
   `authi_id` int(11) NOT NULL auto_increment,
   `authi_pid` varchar(64) NOT NULL,
   `authi_role` varchar(64) NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE `%TABLE_PREFIX%auth_index2` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
-CREATE TABLE `%TABLE_PREFIX%auth_rule_group_rules` (
+CREATE TABLE %TABLE_PREFIX%auth_rule_group_rules (
   `argr_arg_id` int(11) NOT NULL,
   `argr_ar_id` int(11) NOT NULL,
   KEY `argr_arg_id` (`argr_arg_id`),
@@ -21,7 +21,7 @@ CREATE TABLE `%TABLE_PREFIX%auth_rule_group_rules` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
-CREATE TABLE `%TABLE_PREFIX%auth_rule_group_users` (
+CREATE TABLE %TABLE_PREFIX%auth_rule_group_users (
   `argu_id` int(11) NOT NULL auto_increment,
   `argu_usr_id` int(11) NOT NULL,
   `argu_arg_id` int(11) NOT NULL,
@@ -30,14 +30,14 @@ CREATE TABLE `%TABLE_PREFIX%auth_rule_group_users` (
   KEY `argu_arg_id` (`argu_arg_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-CREATE TABLE `%TABLE_PREFIX%auth_rule_groups` (
+CREATE TABLE %TABLE_PREFIX%auth_rule_groups (
   `arg_id` int(11) NOT NULL auto_increment,
   `arg_md5` varchar(128) NOT NULL,
   PRIMARY KEY  (`arg_id`),
   KEY `arg_md5` (`arg_md5`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-CREATE TABLE `%TABLE_PREFIX%auth_rules` (
+CREATE TABLE %TABLE_PREFIX%auth_rules (
   `ar_id` int(11) NOT NULL auto_increment,
   `ar_rule` varchar(64) NOT NULL,
   `ar_value` varchar(255) NOT NULL,
@@ -46,11 +46,11 @@ CREATE TABLE `%TABLE_PREFIX%auth_rules` (
   FULLTEXT KEY `ar_rule` (`ar_rule`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-ALTER TABLE `%TABLE_PREFIX%author` 
+ALTER TABLE %TABLE_PREFIX%author 
       CHANGE COLUMN `aut_assessed` `aut_assessed` varchar(1) default NULL,
       default CHARACTER SET utf8;
 
-ALTER TABLE `%TABLE_PREFIX%author_org_structure` 
+ALTER TABLE %TABLE_PREFIX%author_org_structure 
   CHANGE COLUMN `auo_assessed` `auo_assessed` varchar(1) default NULL,
   ADD COLUMN `auo_assessed_year` varchar(11) default NULL,
   ADD UNIQUE KEY `support_unique_key` (`auo_org_id`,`auo_aut_id`,`auo_cla_id`,`auo_fun_id`),
@@ -58,7 +58,7 @@ ALTER TABLE `%TABLE_PREFIX%author_org_structure`
 
 
 
-CREATE TABLE `%TABLE_PREFIX%config` (                     
+CREATE TABLE %TABLE_PREFIX%config (                     
               `config_id` int(11) NOT NULL auto_increment,  
               `config_name` varchar(32) NOT NULL,           
               `config_module` varchar(32) NOT NULL,         
@@ -67,27 +67,27 @@ CREATE TABLE `%TABLE_PREFIX%config` (
               UNIQUE KEY `config_name` (`config_name`,`config_module`) 
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-INSERT INTO `%TABLE_PREFIX%config` (config_name, config_module, config_value) 
+INSERT INTO %TABLE_PREFIX%config (config_name, config_module, config_value) 
 VALUES ('datamodel_version','core','1');
 
-ALTER TABLE `%TABLE_PREFIX%controlled_vocab` 
+ALTER TABLE %TABLE_PREFIX%controlled_vocab 
   ADD COLUMN `cvo_external_id` int(11) default NULL, 
   ADD KEY `cvo_title` (`cvo_title`);
 
-ALTER TABLE `%TABLE_PREFIX%controlled_vocab_relationship` 
+ALTER TABLE %TABLE_PREFIX%controlled_vocab_relationship 
   drop key `cvr_parent_cvo_id`,
   add KEY `cvr_child_cvo_id` (`cvr_child_cvo_id`),
   add KEY `cvr_parent_cvo_id` (`cvr_parent_cvo_id`);
 
 
-CREATE TABLE `%TABLE_PREFIX%eprints_import_pids` (
+CREATE TABLE %TABLE_PREFIX%eprints_import_pids (
   `epr_eprints_id` int(11) NOT NULL,
   `epr_fez_pid` varchar(255) NOT NULL,
   `epr_date_added` datetime default NULL,
   PRIMARY KEY  (`epr_eprints_id`,`epr_fez_pid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-CREATE TABLE `%TABLE_PREFIX%fulltext_engine` (
+CREATE TABLE %TABLE_PREFIX%fulltext_engine (
   `fte_id` int(11) NOT NULL auto_increment,
   `fte_fti_id` mediumint(9) NOT NULL default '0',
   `fte_key_id` mediumint(9) NOT NULL default '0',
@@ -96,7 +96,7 @@ CREATE TABLE `%TABLE_PREFIX%fulltext_engine` (
   KEY `key_id` (`fte_key_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-CREATE TABLE `%TABLE_PREFIX%fulltext_index` (
+CREATE TABLE %TABLE_PREFIX%fulltext_index (
   `fti_id` int(11) NOT NULL auto_increment,
   `fti_pid` varchar(64) NOT NULL,
   `fti_dsid` varchar(128) NOT NULL,
@@ -104,7 +104,7 @@ CREATE TABLE `%TABLE_PREFIX%fulltext_index` (
   PRIMARY KEY  (`fti_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-CREATE TABLE `%TABLE_PREFIX%fulltext_keywords` (
+CREATE TABLE %TABLE_PREFIX%fulltext_keywords (
   `ftk_id` int(11) NOT NULL auto_increment,
   `ftk_twoletters` char(2) NOT NULL,
   `ftk_word` varchar(64) NOT NULL,
@@ -114,12 +114,12 @@ CREATE TABLE `%TABLE_PREFIX%fulltext_keywords` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
  
-ALTER TABLE `%TABLE_PREFIX%org_structure`
+ALTER TABLE %TABLE_PREFIX%org_structure
   add column `org_desc` text,
   add column `org_image_filename` varchar(255) default NULL;
 
 
-CREATE TABLE `%TABLE_PREFIX%premis_event` (                     
+CREATE TABLE %TABLE_PREFIX%premis_event (                     
                     `pre_id` int(11) unsigned NOT NULL auto_increment,  
                     `pre_wfl_id` int(11) default NULL,                  
                     `pre_date` datetime default NULL,                   
@@ -132,39 +132,39 @@ CREATE TABLE `%TABLE_PREFIX%premis_event` (
                     PRIMARY KEY  (`pre_id`)                             
                   ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-ALTER TABLE `%TABLE_PREFIX%record_matching_field` 
-  drop key `rmf_rec_pid`,
+ALTER TABLE %TABLE_PREFIX%record_matching_field 
+  drop key `rek_pid`,
   drop KEY `combo_pid_xsdmf`,
-  drop key `rmf_varchar`;
+  drop key `rek_varchar`;
 
-ALTER TABLE `%TABLE_PREFIX%record_matching_field` 
-  change column `rmf_rec_pid` `rmf_rec_pid` blob,
-  change column `rmf_dsid` `rmf_dsid` blob,
-  change column `rmf_varchar` `rmf_varchar` blob;
+ALTER TABLE %TABLE_PREFIX%record_matching_field 
+  change column `rek_pid` `rek_pid` blob,
+  change column `rek_dsid` `rek_dsid` blob,
+  change column `rek_varchar` `rek_varchar` blob;
 
-ALTER TABLE `%TABLE_PREFIX%record_matching_field` 
-  change column `rmf_rec_pid` `rmf_rec_pid` varchar(64) character set utf8 NOT NULL default '',
-  change column `rmf_dsid` `rmf_dsid` varchar(255) character set utf8 default NULL,
-  change column `rmf_varchar` `rmf_varchar` varchar(255) character set utf8 default NULL,
-  ADD COLUMN `rmf_rec_pid_num` int(11) NOT NULL,
-  ADD KEY `rmf_rec_pid_num` (`rmf_rec_pid_num`),
-  ADD KEY `rmf_int` (`rmf_int`),
-  ADD KEY `rmf_rec_pid` (`rmf_rec_pid`),
-  ADD KEY `combo_pid_xsdmf` (`rmf_rec_pid`,`rmf_xsdmf_id`),
-  ADD KEY `combo_pid_num_xsdmf` (`rmf_rec_pid_num`,`rmf_xsdmf_id`),
-  ADD KEY `rmf_varchar_combo` (`rmf_xsdmf_id`,`rmf_varchar`),
-  ADD KEY `combo_pid_num_xsdmf_int` (`rmf_rec_pid_num`,`rmf_xsdmf_id`,`rmf_int`),
-  ADD FULLTEXT KEY `rmf_varchar` (`rmf_varchar`),  
-  ADD FULLTEXT KEY `rmf_varchar_combo_full` (`rmf_rec_pid`,`rmf_varchar`) ,
+ALTER TABLE %TABLE_PREFIX%record_matching_field 
+  change column `rek_pid` `rek_pid` varchar(64) character set utf8 NOT NULL default '',
+  change column `rek_dsid` `rek_dsid` varchar(255) character set utf8 default NULL,
+  change column `rek_varchar` `rek_varchar` varchar(255) character set utf8 default NULL,
+  ADD COLUMN `rek_pid_num` int(11) NOT NULL,
+  ADD KEY `rek_pid_num` (`rek_pid_num`),
+  ADD KEY `rek_int` (`rek_int`),
+  ADD KEY `rek_pid` (`rek_pid`),
+  ADD KEY `combo_pid_xsdmf` (`rek_pid`,`rek_xsdmf_id`),
+  ADD KEY `combo_pid_num_xsdmf` (`rek_pid_num`,`rek_xsdmf_id`),
+  ADD KEY `rek_varchar_combo` (`rek_xsdmf_id`,`rek_varchar`),
+  ADD KEY `combo_pid_num_xsdmf_int` (`rek_pid_num`,`rek_xsdmf_id`,`rek_int`),
+  ADD FULLTEXT KEY `rek_varchar` (`rek_varchar`),  
+  ADD FULLTEXT KEY `rek_varchar_combo_full` (`rek_pid`,`rek_varchar`) ,
   default CHARACTER SET utf8; 
  
 
 
-ALTER TABLE `%TABLE_PREFIX%search_key` 
+ALTER TABLE %TABLE_PREFIX%search_key 
   drop key `sek_title`;
 
 
-CREATE TABLE `%TABLE_PREFIX%statistics_all` (
+CREATE TABLE %TABLE_PREFIX%statistics_all (
   `stl_id` int(11) NOT NULL auto_increment,
   `stl_archive_name` varchar(255) default NULL,
   `stl_ip` varchar(15) default NULL,
@@ -183,7 +183,7 @@ CREATE TABLE `%TABLE_PREFIX%statistics_all` (
   KEY `stl_pid_num` (`stl_pid_num`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
-CREATE TABLE `%TABLE_PREFIX%statistics_proc` (
+CREATE TABLE %TABLE_PREFIX%statistics_proc (
   `stp_id` int(11) unsigned NOT NULL auto_increment,
   `stp_latestlog` timestamp NULL default NULL,
   `stp_lastproc` date default NULL,
@@ -194,7 +194,7 @@ CREATE TABLE `%TABLE_PREFIX%statistics_proc` (
   PRIMARY KEY  (`stp_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
-CREATE TABLE `%TABLE_PREFIX%statistics_robots` (
+CREATE TABLE %TABLE_PREFIX%statistics_robots (
   `str_id` int(11) NOT NULL auto_increment,
   `str_ip` varchar(15) default NULL,
   `str_hostname` varchar(255) default NULL,
@@ -202,7 +202,7 @@ CREATE TABLE `%TABLE_PREFIX%statistics_robots` (
   PRIMARY KEY  (`str_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
-CREATE TABLE `%TABLE_PREFIX%survey` (
+CREATE TABLE %TABLE_PREFIX%survey (
   `sur_id` int(11) unsigned NOT NULL auto_increment,
   `sur_usr_id` int(11) default NULL,
   `sur_experience` tinyint(1) default NULL,
@@ -234,7 +234,7 @@ CREATE TABLE `%TABLE_PREFIX%survey` (
   PRIMARY KEY  (`sur_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-ALTER TABLE `%TABLE_PREFIX%user`
+ALTER TABLE %TABLE_PREFIX%user
   change column `usr_password` `usr_password` varchar(32) default NULL,
   change column `usr_username` `usr_username` varchar(50) NOT NULL,
   ADD COLUMN `usr_given_names` varchar(255) default NULL after `usr_full_name`,
@@ -244,10 +244,10 @@ ALTER TABLE `%TABLE_PREFIX%user`
   ADD COLUMN `usr_external_usr_id` int(11) default NULL ,
   ADD FULLTEXT KEY `usr_fulltext` (`usr_full_name`,`usr_given_names`,`usr_family_name`,`usr_username`,`usr_shib_username`);
 
-ALTER TABLE `%TABLE_PREFIX%xsd_display` 
+ALTER TABLE %TABLE_PREFIX%xsd_display 
         add column `xdis_enabled` tinyint(4) default '1';
 
-ALTER TABLE `%TABLE_PREFIX%xsd_display_matchfields` 
+ALTER TABLE %TABLE_PREFIX%xsd_display_matchfields 
   change column `xsdmf_element` `xsdmf_element` varchar(50) default NULL,
   add column `xsdmf_xdis_id_ref` int(11) default NULL AFTER `xsdmf_dynamic_text`,
   add column `xsdmf_id_ref_save_type` tinyint(1) default '0' after `xsdmf_id_ref`,
@@ -260,13 +260,12 @@ ALTER TABLE `%TABLE_PREFIX%xsd_display_matchfields`
   add FULLTEXT KEY `xsdmf_element` (`xsdmf_element`),
     default CHARACTER SET utf8;
 
-ALTER TABLE `%TABLE_PREFIX%xsd_loop_subelement` 
+ALTER TABLE %TABLE_PREFIX%xsd_loop_subelement 
   add column `xsdsel_attribute_loop_xdis_id` int(11) default '0',
   add column `xsdsel_indicator_xdis_id` int(11) default '0',
   add column `xsdsel_indicator_xsdmf_id` int(11) default '0',
   add column `xsdsel_indicator_value` varchar(255) default NULL;
 
 
-DROP TABLE IF EXISTS `%TABLE_PREFIX%auth_index`;
-DROP TABLE IF EXISTS `%TABLE_PREFIX%statistics`;
-
+DROP TABLE IF EXISTS %TABLE_PREFIX%auth_index;
+DROP TABLE IF EXISTS %TABLE_PREFIX%statistics;

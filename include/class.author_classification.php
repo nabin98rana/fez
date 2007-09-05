@@ -64,7 +64,7 @@ class Author_Classif
         $stmt = "SELECT
                     cla_id, cla_title
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "author_classification
+                    " . APP_TABLE_PREFIX . "author_classification
                  ORDER BY
                     cla_title";
 

@@ -55,7 +55,7 @@ $grp_id = $options['grp_id'];
 $usr_id = $options['usr_id'];
 $sort_by = $options['sort_by'];
 if (empty($sort_by)) {
-	$sort_by = "Title";	
+	$sort_by = "searchKey".Search_Key::getID("Title");
 }
 $sort_by_dir = $options['sort_by_dir'];
 $sort_by_list = array();
@@ -83,19 +83,22 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
 $tpl->assign("isAdministrator", $isAdministrator);
 
 $collection_list = Collection::getEditList();
+
+
 //print_r($collection_list);
-$collection_assoc_list = array();
+/*$collection_assoc_list = array();
 $collection_assoc_list['ALL'] = '(All Assigned Collections)';
 foreach ($collection_list as &$item) {
-   $item['community'] = implode(',',Misc::keyPairs(Collection::getParents2($item['pid']),'pid','title'));
+   $item['community'] = implode(',',Misc::keyPairs(Collection::getParents2($item['rek_pid']),'rek_pid','rek_title'));
 //   $item['count'] = Collection::getEditListingCount($item['pid']);
-   $item['count'] = Collection::getSimpleListingCount($item['pid']);   
-   $collection_assoc_list[$item['pid']] = $item['title'][0];
-}
+   $item['count'] = Collection::getSimpleListingCount($item['rek_pid']);   
+   $collection_assoc_list[$item['rek_pid']] = $item['rek_title'];
+}*/
+//$collection_assoc_list = Collection::getEditListAssoc();
 //print_r($collection_assoc_list);
-$tpl->assign('my_collections_list', $collection_list);
-
-
+Record::getParentsByPids($collection_list['list']);
+//print_r($collection_list['list']);
+$tpl->assign('my_collections_list', $collection_list['list']);
 
 $tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
 

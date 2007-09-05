@@ -24,7 +24,7 @@ class Bulk_Assign_Record_User {
         $this->regen = $regen;
         $this->bgp->setHeartbeat();
         $this->bgp->setProgress(++$this->pid_count);
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
 		$record = new RecordObject($pid);		
 		$record->updateFezMD_User("usr_id", $assign_usr_id);
 		History::addHistory($pid, null, "", "", true, "Assigned Record to User ".User::getFullName($assign_usr_id)." (".$assign_usr_id.")");

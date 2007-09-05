@@ -122,12 +122,14 @@ if (!empty($pid) && $record->checkExists()) {
 		//$xsd_display_fields = $display->getMatchFieldsList();
 
 		$xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array(""));  // XSD_DisplayObject
+
 		$tpl->assign("xsd_display_fields", $xsd_display_fields);
 		$details = $record->getDetails();
-        //print_r($details);
+
 		$tpl->assign("details_array", $details);
-		$parents = $record->getParents();				
-//		$parents = Collection::getParents2($pid);
+		//$parents = $record->getParents();				
+		$parents = Record::getParentsDetails($pid);
+//		print_r($parents);
 
         // do citation before mucking about with the details array
         $citation_html = Citation::renderCitation($xdis_id, $details, $xsd_display_fields);
@@ -135,16 +137,15 @@ if (!empty($pid) && $record->checkExists()) {
 
 		$parent_relationships = array(); 
 		foreach ($parents as $parent) {
-			$parent_rel = XSD_Relationship::getColListByXDIS($parent['display_type'][0]);
-			$parent_relationships[$parent['pid']] = array();
+			$parent_rel = XSD_Relationship::getColListByXDIS($parent['rek_display_type']);
+			$parent_relationships[$parent['rek_pid']] = array();
 			foreach ($parent_rel as $prel) {
-				array_push($parent_relationships[$parent['pid']], $prel);
+				array_push($parent_relationships[$parent['rek_pid']], $prel);
 			}
-			array_push($parent_relationships[$parent['pid']], $parent['display_type'][0]);
+			array_push($parent_relationships[$parent['rek_pid']], $parent['rek_display_type']);
 		} 
 		// Now generate the META Tag headers
 		$meta_head = '<meta name="DC.Identifier" schema="URI" content="'.substr(APP_BASE_URL,0,-1).$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'"/>'."\n";
-
 		// Get some extra bits out of the record
 		foreach ($xsd_display_fields as $dis_key => $dis_field) {
 			// Look for the meta tag header items
@@ -192,8 +193,7 @@ if (!empty($pid) && $record->checkExists()) {
 				}				
 			}
 		}
-        $tpl->assign('meta_head', $meta_head);
-		
+        $tpl->assign('meta_head', $meta_head);		
 		$record_view = new RecordView($record);	
 		$details = $record_view->getDetails();
 		
@@ -211,7 +211,7 @@ if (!empty($pid) && $record->checkExists()) {
 		$fileCount = 0;		
 		$datastreams = Fedora_API::callGetDatastreams($pid);
 		$datastreamsAll = $datastreams;
-		$datastreams = Misc::cleanDatastreamList($datastreams);
+		$datastreams = Misc::cleanDatastreamListLite($datastreams, $pid);
 		$securityfields = Auth::getAllRoles();
 		$datastream_workflows = WorkflowTrigger::getListByTrigger('-1', 5);
 		foreach ($datastreams as $ds_key => $ds) {
@@ -243,25 +243,26 @@ if (!empty($pid) && $record->checkExists()) {
 						$datastreams[$ds_key]['archival_size'] = $fileSize;
 					}
 				}
+				/*
 				$FezACML_DS = array();
 				$FezACML_DS = Record::getIndexDatastream($pid, $ds['ID'], 'FezACML');
 			
 				$return = array();
 				foreach ($FezACML_DS as $result) {
 					if (in_array($result['xsdsel_title'], $securityfields)  && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) )  {
-						if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
-							$return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
+						if (!is_array($return[$result['rek_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
+							$return[$result['rek_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
 						}
-						if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
-							array_push($return[$result['rmf_rec_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rmf_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
+						if (!in_array($result['rek_'.$result['xsdmf_data_type']], $return[$result['rek_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
+							array_push($return[$result['rek_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rek_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
 						}
 					}
 					if ($result['xsdmf_element'] == '!inherit_security') {
-						if (!is_array($return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'])) {
-							$return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'] = array();
+						if (!is_array($return[$result['rek_pid']]['FezACML'][0]['!inherit_security'])) {
+							$return[$result['rek_pid']]['FezACML'][0]['!inherit_security'] = array();
 						}
-						if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'])) {
-							array_push($return[$result['rmf_rec_pid']]['FezACML'][0]['!inherit_security'], $result['rmf_'.$result['xsdmf_data_type']]);
+						if (!in_array($result['rek_'.$result['xsdmf_data_type']], $return[$result['rek_pid']]['FezACML'][0]['!inherit_security'])) {
+							array_push($return[$result['rek_pid']]['FezACML'][0]['!inherit_security'], $result['rek_'.$result['xsdmf_data_type']]);
 						}
 					}
 				}
@@ -278,23 +279,26 @@ if (!empty($pid) && $record->checkExists()) {
 						$datastreams[$ds_key]['security'] = "inherit";
 						$parentsACMLs = array();
 					} 
-					$parents = Record::getParents($pid);
-					Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid, $parents);
+					$temp_parents = Record::getParents($pid);
+					Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid, $temp_parents);
 					$datastreams[$ds_key]['FezACML'] = $parentsACMLs;			
 				} else {
 					$datastreams[$ds_key]['security'] = "exclude";			
-				}
+				} */
+				$datastreams[$ds_key]['FezACML'] = Auth::getAuthorisationGroups($pid, $datastreams[$ds_key]['ID']);
+				//$datastreams[$ds_key]['FezACML'] = 
+				Auth::getAuthorisation($datastreams[$ds_key]);
 			}
             if ($datastreams[$ds_key]['controlGroup'] == 'R' && $datastreams[$ds_key]['ID'] == 'DOI') {
                 $datastreams[$ds_key]['location'] = trim($datastreams[$ds_key]['location']);
                 $tpl->assign('doi', $datastreams[$ds_key]);
             }
 		} 
-		$datastreams = Auth::getIndexAuthorisation($datastreams);
+//		$datastreams['Fez'] = Auth::getAuthorisationGroups($datastreams);
 //		print_r($datastreams);
-		$tpl->assign("datastreams", $datastreams);	
+		$tpl->assign("datastreams", $datastreams);
 		$tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");		
-		$parents = Record::getParents($pid);
+		//$parents = Record::getParents($pid);
 		$tpl->assign("parents", $parents);	
 		if (count($parents) > 1) {
 			$tpl->assign("parent_heading", "Collections:");
@@ -305,11 +309,11 @@ if (!empty($pid) && $record->checkExists()) {
 		//what does this record succeed?
 		$hasVersions = 0;
 		$derivations = Record::getParentsAll($pid, 'isDerivationOf', true);
-		
+		//print_r($derivations); exit;
 		if (count($derivations) == 0) {
 //			echo "debug";
-			$derivations[0]['title'][0] = $record->getTitle();
-			$derivations[0]['pid'] = $pid;			
+			$derivations[0]['rek_title'][0] = Record::getSearchKeyIndexValue($pid, "Title");
+			$derivations[0]['rek_pid'] = $pid;			
 		} else {
 			$hasVersions = 1;
 		}

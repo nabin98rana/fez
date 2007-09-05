@@ -19,7 +19,7 @@ function validateForm(f)
 </script>
 {/literal}
 {if $SHIB_SWITCH == "ON"}
-<form name="IdPList" method="get">
+<form name="idplist" method="get">
 	<input type="hidden" name="shire" value="https://{$APP_HOSTNAME}/Shibboleth.sso/SAML/POST" />
 	<input type="hidden" name="target" value="cookie" />
 	<input type="hidden" name="providerId" value="{$SHIB_HOME_SP}" />
@@ -189,7 +189,7 @@ function setFocus()
     } else {
 		{/literal}
 		{if SHIB_SWITCH == "ON"}
-        document.IdPList.origin.focus();
+        document.idplist.origin.focus();
 		{else}
         document.login_form.username.focus();		
 		{/if}

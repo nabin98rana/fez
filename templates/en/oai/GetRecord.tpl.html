@@ -8,16 +8,36 @@
   <GetRecord>
     <record>
       <header>
-	    <identifier>oai:{$app_hostname}:{$list[0].pid}</identifier>
-	    <datestamp>{$list[0].created_date.0}</datestamp>
-	{assign var="loop_subjects" value=$list[0].subject_id}
+	    <identifier>oai:{$app_hostname}:{$list[0].rek_pid}</identifier>
+	    <datestamp>{$list[0].rek_created_date}</datestamp>
+	{assign var="loop_subjects" value=$list[0].rek_subject}
 	{section name="s" loop=$loop_subjects}
 	    <setSpec>{$app_hostname}:{$app_pid_namespace}:cvo_id:{$loop_subjects[s]}</setSpec>
 	{/section}            
 	  </header>
 	  <metadata>
 	    <oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
-	      {$list[0].oai_dc}
+		    <dc:title>{$list[0].rek_title|escape:"html"}</dc:title>
+	        <dc:identifier>{$app_base_url}view.php?pid={$list[0].rek_pid|escape:"html"}</dc:identifier>
+	        <dc:description>{$list[0].rek_description|escape:"html"}</dc:description>
+	        <dc:type>{$list[0].rek_display_type_lookup|escape:"html"}</dc:type>
+			{assign var="loop_authors" value=$list[0].rek_author}
+			{section name="a" loop=$loop_authors}
+	        <dc:creator>{$list[0].rek_author[a]|escape:"html"}</dc:creator>
+			{/section}
+			{assign var="loop_contributors" value=$list[0].rek_contributor}
+			{section name="a" loop=$loop_contributors}
+	        <dc:contributor>{$list[0].rek_contributor[a]|escape:"html"}</dc:contributor>
+			{/section}		
+			{assign var="loop_subjects" value=$list[0].rek_subject_lookup}
+			{section name="s" loop=$loop_subjects}
+	        <dc:subject>{$list[0].rek_subject_lookup[s]|escape:"html"}</dc:subject>
+			{/section}
+	        <dc:publisher>{$list[0].rek_publisher|escape:"html"}</dc:publisher>
+			{assign var="loop_format" value=$list[0].rek_file_attachment_name}
+			{section name="f" loop=$loop_format}
+	        <dc:format>{$app_base_url}eserv.php?pid={$list[0].rek_pid|escape:"html"}&amp;dsID={$list[0].rek_file_attachment_name[f]|escape:"html"}</dc:format>
+			{/section}
 	    </oai_dc:dc>
       </metadata>
     </record>

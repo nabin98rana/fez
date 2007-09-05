@@ -121,7 +121,7 @@ class WorkflowTrigger
     function removeByWorkflow($wfl_ids)
     {
         $items = Misc::arrayToSQL($wfl_ids);
-        $stmt = "DELETE FROM ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."workflow_trigger WHERE wft_wfl_id IN (".$items.")";
+        $stmt = "DELETE FROM " . APP_TABLE_PREFIX . "workflow_trigger WHERE wft_wfl_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -183,7 +183,7 @@ class WorkflowTrigger
               $set_str = '';
               break;
       }
-      $stmt = $actionstr." ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."workflow_trigger ".$set_str." ".$wherestr;
+      $stmt = $actionstr." " . APP_TABLE_PREFIX . "workflow_trigger ".$set_str." ".$wherestr;
       $res = $GLOBALS["db_api"]->dbh->query($stmt);
       if (PEAR::isError($res)) {
           Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -200,8 +200,8 @@ class WorkflowTrigger
      */
     function getList($pid, $wherestr='')
     {
-        $stmt = "SELECT * FROM ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."workflow_trigger
-				INNER JOIN ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."workflow on (wfl_id = wft_wfl_id) WHERE wft_pid='".$pid."'
+        $stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "workflow_trigger
+				INNER JOIN " . APP_TABLE_PREFIX . "workflow on (wfl_id = wft_wfl_id) WHERE wft_pid='".$pid."'
             ".$wherestr." ORDER BY wft_type_id, wft_xdis_id";
 
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -223,8 +223,8 @@ class WorkflowTrigger
      */
     function getAssocList($pid, $wherestr='')
     {
-        $stmt = "SELECT wft_id, wfl_title FROM ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."workflow_trigger
-				INNER JOIN ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."workflow on (wfl_id = wft_wfl_id) WHERE wft_pid='".$pid."'
+        $stmt = "SELECT wft_id, wfl_title FROM " . APP_TABLE_PREFIX . "workflow_trigger
+				INNER JOIN " . APP_TABLE_PREFIX . "workflow on (wfl_id = wft_wfl_id) WHERE wft_pid='".$pid."'
             ".$wherestr." ORDER BY wft_type_id, wft_xdis_id";
 
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
@@ -240,7 +240,7 @@ class WorkflowTrigger
     
     function getListByWorkflow($wfl_id, $wherestr='')
     {
-        $stmt = "SELECT * FROM ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."workflow_trigger
+        $stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "workflow_trigger
                 WHERE wft_wfl_id='".$wfl_id."' ".$wherestr." ORDER BY wft_type_id, wft_xdis_id";
 
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -401,7 +401,7 @@ class WorkflowTrigger
      */
     function getDetails($wft_id)
     {
-        $stmt = "SELECT * FROM ".APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX."workflow_trigger 		
+        $stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "workflow_trigger 		
             WHERE wft_id=".$wft_id;
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {

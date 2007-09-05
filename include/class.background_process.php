@@ -30,7 +30,7 @@ class BackgroundProcess {
     function getDetails()
     {
         if (!$this->details || $this->details['bgp_id'] != $this->bgp_id) {
-            $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+            $dbtp =  APP_TABLE_PREFIX;
             $stmt = "SELECT * FROM ".$dbtp."background_process WHERE bgp_id='".$this->bgp_id."'";
             $res = $GLOBALS['db_api']->dbh->getAll($stmt,DB_FETCHMODE_ASSOC);
             if (PEAR::isError($res)) {
@@ -49,7 +49,7 @@ class BackgroundProcess {
     function serialize()
     {
         $serialized = Misc::escapeString(serialize($this));
-        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         $stmt = "UPDATE ".$dbtp."background_process SET bgp_serialized='".$serialized."' WHERE bgp_id='".$this->bgp_id."'";
         $res = $GLOBALS['db_api']->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -60,7 +60,7 @@ class BackgroundProcess {
     function setProgress($percent)
     {
         $percent = Misc::escapeString($percent);
-        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         $stmt = "UPDATE ".$dbtp."background_process SET bgp_progress='".$percent."' WHERE bgp_id='".$this->bgp_id."'";
         $res = $GLOBALS['db_api']->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -78,7 +78,7 @@ class BackgroundProcess {
     {
         echo $msg."\n";
         $msg = Misc::escapeString($msg);
-        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         $stmt = "UPDATE ".$dbtp."background_process SET bgp_status_message='".$msg."' WHERE bgp_id='".$this->bgp_id."'";
         $res = $GLOBALS['db_api']->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -90,7 +90,7 @@ class BackgroundProcess {
     function setState($state)
     {
         $state = Misc::escapeString($state);
-        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         $stmt = "UPDATE ".$dbtp."background_process SET bgp_state='".$state."' WHERE bgp_id='".$this->bgp_id."'";
         $res = $GLOBALS['db_api']->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -101,7 +101,7 @@ class BackgroundProcess {
 
     function setHeartbeat()
     {
-        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
 //		$utc_date = Date_API::getDateGMT(date("Y-m-d H:i:s"));
 		$utc_date = Date_API::getSimpleDateUTC();		
         $stmt = "UPDATE ".$dbtp."background_process SET bgp_heartbeat='".$utc_date."' WHERE bgp_id='".$this->bgp_id."'";
@@ -113,7 +113,7 @@ class BackgroundProcess {
 
     function setExportFilename($filename, $headers)
     {
-        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         $filename = Misc::escapeString($filename);
         $headers = Misc::escapeString($headers);
         $stmt = "UPDATE ".$dbtp."background_process SET 
@@ -128,7 +128,7 @@ class BackgroundProcess {
 
     function getExportFile()
     {
-        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         $stmt = "SELECT bgp_filename, bgp_headers, bgp_usr_id 
             FROM ".$dbtp."background_process WHERE bgp_id='".$this->bgp_id."'";
         $res = $GLOBALS['db_api']->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
@@ -160,7 +160,7 @@ class BackgroundProcess {
         $this->inputs = $inputs;
         $this->wfses_id = $wfses_id; // optional workflow session
         $usr_id = Misc::escapeString($usr_id);
-        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         // keep background log files in a subdir so that they don't clutter up the /tmp dir so much
         if (!is_dir(APP_TEMP_DIR."fezbgp")) {
             mkdir(APP_TEMP_DIR."fezbgp");
@@ -207,7 +207,7 @@ class BackgroundProcess {
 
         $session =& $this->local_session;
 
-        $dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+        $dbtp =  APP_TABLE_PREFIX;
         $stmt = "SELECT * FROM ".$dbtp."background_process WHERE bgp_id='".$this->bgp_id."'";
         $res = $GLOBALS['db_api']->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {

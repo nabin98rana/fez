@@ -64,6 +64,7 @@ include_once(APP_INC_PATH . "class.auth_rules.php");
 include_once(APP_INC_PATH . "class.auth_index.php");
 include_once(APP_INC_PATH . "class.xml_helper.php");
 include_once(APP_INC_PATH . "class.record_lock.php");
+//include_once(APP_INC_PATH . "Zend/Search/Lucene.php");
 
 /**
   * Record
@@ -77,55 +78,6 @@ class Record
     const status_unpublished = 1;
     const status_published = 2;
 
-  /**
-	* Returns the parent details of the . Searches search key representing RELS-EXT "isDerivationOf".
-	*/
-
-	function getParentThreads($pid) {
-		//static stuff
-		$stmt = "SELECT ".APP_SQL_CACHE."  
-					* 
-				 FROM
-					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1 inner join 
-					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on r1.rmf_xsdmf_id = x1.xsdmf_id inner join
-					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s1 on s1.sek_id = x1.xsdmf_sek_id inner join
-					(SELECT ".APP_SQL_CACHE."  r2.rmf_varchar as parent_pid
-						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
-							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,							
-							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
-						WHERE (s2.sek_title = 'isDerivationOf' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid = '".$pid."'))
-					as p1 on p1.parent_pid = r1.rmf_rec_pid
-					";	
-						
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);						
-		$return = array();
-	}	
-
-  /**
-   * Returns a list of all the later records in the thread
-   */
-	function laterInThread($pid) {	
-		//static stuff
-		$stmt = "SELECT ".APP_SQL_CACHE."  
-					* 
-				 FROM
-					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1 inner join 
-					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on r1.rmf_xsdmf_id = x1.xsdmf_id inner join
-					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s1 on s1.sek_id = x1.xsdmf_sek_id inner join
-					(SELECT ".APP_SQL_CACHE."  r2.rmf_varchar as parent_pid
-						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
-							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,							
-							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
-						WHERE (s2.sek_title = 'isDerivationOf' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid = '".$pid."'))
-					as p1 on p1.parent_pid = r1.rmf_rec_pid
-					";	
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);						
-		$return = array();	
-		
-				
-	}
-	
-	
    /**
     * Method used to get the parents of a given record available in the 
     * system. 
@@ -136,124 +88,69 @@ class Record
     */
     function getParents($pid, $clearcache=false, $searchKey='isMemberOf')
     {
-
-		static $returns;
-
-        if ($clearcache) {
-            $returns = array();
-        }
-
-        if (isset($returns[$pid][$searchKey])) {
-            return $returns[$pid][$searchKey];
-        }
-
+    	$sek_title = Search_Key::makeSQLTableName($searchKey);
 		$stmt = "SELECT ".APP_SQL_CACHE."  
-					* 
+					m1.rek_".$sek_title." 
 				 FROM
-					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1 inner join 
-					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on r1.rmf_xsdmf_id = x1.xsdmf_id inner join
-					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s1 on s1.sek_id = x1.xsdmf_sek_id inner join
-					(SELECT ".APP_SQL_CACHE."  r2.rmf_varchar as parent_pid
-						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
-							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,							
-							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
-						WHERE (s2.sek_title = '".$searchKey."' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid_num = ".Misc::numPID($pid)." and r2.rmf_rec_pid = '".$pid."'))
-					as p1 on p1.parent_pid = r1.rmf_rec_pid 
-					";	
-
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);						
-		$return = array();
-		foreach ($res as $result) {
-			if (is_numeric($result['sek_id'])) {
-				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				$search_var = strtolower(str_replace(" ", "_", $result['sek_title']));
-				if (@!is_array($return[$result['rmf_rec_pid']][$search_var])) {
-					$return[$result['rmf_rec_pid']][$search_var] = array();
-				}
-				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']][$search_var])) {
-					array_push($return[$result['rmf_rec_pid']][$search_var], $result['rmf_'.$result['xsdmf_data_type']]);
-					sort($return[$result['rmf_rec_pid']][$search_var]);
-				}
-			}
-		}
-		$details = array_values($return);			
-		if ($GLOBALS['app_cache']) {
-		  $returns[$pid][$searchKey] = $details;
+					" . APP_TABLE_PREFIX . "record_search_key_".$sek_title." m1 
+				 WHERE m1.rek_".$sek_title."_pid = '".$pid."'";	
+		$res = $GLOBALS["db_api"]->dbh->getCol($stmt);						
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        } else {
+            return $res;
         }
+    }    
 
-		return $details; 
-    }
-
-	
    /**
-    * Method used to get the children of a given record available in the 
+    * Method used to get the parents of a given record available in the 
     * system. 
     *
     * @access  public
     * @param   string $pid The persistant identifier	 
     * @return  array The list
     */
-    function getChildren($pid, $clearcache=false, $searchKey='isMemberOf', $flatTree=true)
+    function getParentsDetails($pid, $clearcache=false, $searchKey='isMemberOf')
     {
-
-		static $returns;
-
-        if ($clearcache) {
-            $returns = array();
-        }
-
-        if (isset($returns[$pid][$searchKey])) {
-            return $returns[$pid][$searchKey];
-        }
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-
-		$bodyStmt .= "
-						FROM ".$dbtp."record_matching_field AS r4
-						INNER JOIN ".$dbtp."xsd_display_matchfields AS x4
-						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and r4.rmf_varchar='".$pid."'
-						INNER JOIN ".$dbtp."search_key AS s4  							  
-						  ON s4.sek_id = x4.xsdmf_sek_id AND s4.sek_title = '".$searchKey."' ";		
-				
-        $stmt = "SELECT ".APP_SQL_CACHE."  r1.*, x1.*, s1.*, k1.*, d1.* 
-            FROM ".$dbtp."record_matching_field AS r1
-            INNER JOIN ".$dbtp."xsd_display_matchfields AS x1
-            ON r1.rmf_xsdmf_id = x1.xsdmf_id
-            INNER JOIN (
-                    SELECT ".APP_SQL_CACHE."  distinct r4.rmf_rec_pid
-                    ".$bodyStmt."
-					order by r4.rmf_rec_pid desc
-                    ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid 
-            LEFT JOIN ".$dbtp."xsd_loop_subelement s1 
-            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
-            LEFT JOIN ".$dbtp."search_key k1 
-            ON (k1.sek_id = x1.xsdmf_sek_id)
-            LEFT JOIN ".$dbtp."xsd_display d1  
-            ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
-            ORDER BY r1.rmf_rec_pid DESC ";
-                    
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);						
-		$return = array();
-		foreach ($res as $result) {
-			if (is_numeric($result['sek_id'])) {
-				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				$search_var = strtolower(str_replace(" ", "_", $result['sek_title']));
-				if (@!is_array($return[$result['rmf_rec_pid']][$search_var])) {
-					$return[$result['rmf_rec_pid']][$search_var] = array();
-				}
-				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']][$search_var])) {
-					array_push($return[$result['rmf_rec_pid']][$search_var], $result['rmf_'.$result['xsdmf_data_type']]);
-					sort($return[$result['rmf_rec_pid']][$search_var]);
-				}
-			}
-		}
-		$details = array_values($return);			
-		if ($GLOBALS['app_cache']) {
-		  $returns[$pid][$searchKey] = $details;
-        }
-
-		return $details; 
-    }
-
+    	$sek_title = Search_Key::makeSQLTableName($searchKey);
+		$stmt = "SELECT ".APP_SQL_CACHE."  
+					r1.* 
+				 FROM
+					" . APP_TABLE_PREFIX . "record_search_key r1 inner join 
+					" . APP_TABLE_PREFIX . "record_search_key_".$sek_title." m1 on r1.rek_pid = m1.rek_".$sek_title." AND m1.rek_".$sek_title."_pid = '".$pid."'";	
+    	
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        } else {
+            return $res;
+        }		
+    }       
+    
+   /**
+    * Method used to get the parents of a given record available in the 
+    * system. 
+    *
+    * @access  public
+    * @param   string $pid The persistant identifier
+    * @return  array The list
+    */
+    function getChildrensDetails($pid, $clearcache=false, $searchKey='isMemberOf')
+    {
+    	$sek_title = Search_Key::makeSQLTableName($searchKey);
+		$stmt = "SELECT ".APP_SQL_CACHE."  
+					r1.* 
+				 FROM
+					" . APP_TABLE_PREFIX . "record_search_key r1 inner join 
+					" . APP_TABLE_PREFIX . "record_search_key_".$sek_title." m1 on r1.rek_pid = m1.rek_".$sek_title."_pid AND m1.rek_".$sek_title." = '".$pid."'";	
+    	
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);						 		
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        } else {
+            return $res;
+        }		
+    }     
 	
 	function generateDerivationTree($pid, $derivations, &$dTree, $shownPids=array()) {
 			if (!array($derivations)) {
@@ -261,24 +158,22 @@ class Record
 			}
 			$dTree .= "<ul>";
 			foreach ($derivations as $devkey => $dev) { // now build HTML of the citation
-				if (!in_array($dev['pid'], $shownPids)) {
+				if (!in_array($dev['rek_pid'], $shownPids)) {
 					if ($dev['pid'] != $pid) {
-						$xdis_title = XSD_Display::getTitle($dev['display_type'][0]);
+						$xdis_title = XSD_Display::getTitle($dev['rek_display_type']);
 						$dTree .= "<li>";
-						$dTree .= "<a href='".APP_RELATIVE_URL."view.php?pid=".$dev['pid']."'>".$dev['title'][0]."</a> <i>".$xdis_title."</i> (deposited ".Date_API::getFormattedSimpleDate($dev['created_date'][0]).")";
+						$dTree .= "<a href='".APP_RELATIVE_URL."view.php?pid=".$dev['rek_pid']."'>".$dev['rek_title']."</a> <i>".$xdis_title."</i> (deposited ".Date_API::getFormattedSimpleDate($dev['rek_created_date']).")";
 						$dTree .= "</li>";
 					} else {
 						$dTree .= "<li>";
-						$dTree .= "".$dev['title'][0]." <b>(Current Record)</b>";
+						$dTree .= "".$dev['rek_title']." <b>(Current Record)</b>";
 						$dTree .= "</li>";					
 					}
-					array_push($shownPids, $dev['pid']);					
+					array_push($shownPids, $dev['rek_pid']);
 					if (is_array($dev['children'])) {
 						Record::generateDerivationTree($pid, $dev['children'], &$dTree, &$shownPids);
 					}
-
 				}
-
 			}
 			$dTree .= "</ul>";
 		
@@ -302,40 +197,11 @@ class Record
             return $returns[$pid][$searchKey];
         }
 
-		$stmt = "SELECT ".APP_SQL_CACHE."  
-					* 
-				 FROM
-					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r1 inner join 
-					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on r1.rmf_xsdmf_id = x1.xsdmf_id inner join
-					" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s1 on s1.sek_id = x1.xsdmf_sek_id inner join
-					(SELECT ".APP_SQL_CACHE."  r2.rmf_varchar as parent_pid
-						FROM  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r2,
-							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2,							
-							  " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s2
-						WHERE (s2.sek_title = '".$searchKey."' AND r2.rmf_xsdmf_id = x2.xsdmf_id AND s2.sek_id = x2.xsdmf_sek_id AND r2.rmf_rec_pid = '".$pid."'))
-					as p1 on p1.parent_pid = r1.rmf_rec_pid
-					";	
-
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);						
-		$return = array();
-		foreach ($res as $result) {
-			if (is_numeric($result['sek_id'])) {
-				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				$search_var = strtolower(str_replace(" ", "_", $result['sek_title']));
-				if (@!is_array($return[$result['rmf_rec_pid']][$search_var])) {
-					$return[$result['rmf_rec_pid']][$search_var] = array();
-				}
-				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']][$search_var])) {
-					array_push($return[$result['rmf_rec_pid']][$search_var], $result['rmf_'.$result['xsdmf_data_type']]);
-					sort($return[$result['rmf_rec_pid']][$search_var]);
-				}
-			}
-		}
-		$details = array_values($return);
+		$res = Record::getParentsDetails($pid, false, $searchKey);
 		$recursive_details = array();
-		
+		$details = $res;
 		foreach ($details as $key => $row) {
-			$temp = Record::getParents($row['pid'], false, "isDerivationOf", $flatTree);
+			$temp = Record::getParentsDetails($row['rek_pid'], false, $searchKey, $flatTree);
 			foreach ($temp as $trow) {
 				array_push($recursive_details, $trow);
 			}
@@ -374,66 +240,13 @@ class Record
         if (isset($returns[$pid][$searchKey])) {
             return $returns[$pid][$searchKey];
         }
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-
-		$bodyStmt .= "
-						FROM ".$dbtp."record_matching_field AS r4
-						INNER JOIN ".$dbtp."xsd_display_matchfields AS x4
-						  ON r4.rmf_xsdmf_id = x4.xsdmf_id and r4.rmf_varchar='".$pid."'
-						INNER JOIN ".$dbtp."search_key AS s4  							  
-						  ON s4.sek_id = x4.xsdmf_sek_id AND s4.sek_title = '$searchKey' ";		
-				
-        $stmt = "SELECT ".APP_SQL_CACHE."  r1.*, x1.*, s1.*, k1.*, d1.* 
-            FROM ".$dbtp."record_matching_field AS r1
-            INNER JOIN ".$dbtp."xsd_display_matchfields AS x1
-            ON r1.rmf_xsdmf_id = x1.xsdmf_id
-            INNER JOIN (
-                    SELECT ".APP_SQL_CACHE."  distinct r4.rmf_rec_pid
-                    ".$bodyStmt."
-					order by r4.rmf_rec_pid desc
-                    ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid 
-            LEFT JOIN ".$dbtp."xsd_loop_subelement s1 
-            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
-            LEFT JOIN ".$dbtp."search_key k1 
-            ON (k1.sek_id = x1.xsdmf_sek_id)
-            LEFT JOIN ".$dbtp."xsd_display d1  
-            ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
-            ORDER BY r1.rmf_rec_pid DESC ";
-//		echo $stmt;
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);						
-//		print_r($res);
-		$return = array();
-		foreach ($res as $result) {
-			if (is_numeric($result['sek_id'])) {
-				$return[$result['rmf_rec_pid']]['pid'] = $result['rmf_rec_pid'];
-				$search_var = strtolower(str_replace(" ", "_", $result['sek_title']));
-				if (@!is_array($return[$result['rmf_rec_pid']][$search_var])) {
-					$return[$result['rmf_rec_pid']][$search_var] = array();
-				}
-				if (!in_array($result['rmf_'.$result['xsdmf_data_type']], $return[$result['rmf_rec_pid']][$search_var])) {
-					array_push($return[$result['rmf_rec_pid']][$search_var], $result['rmf_'.$result['xsdmf_data_type']]);
-					sort($return[$result['rmf_rec_pid']][$search_var]);
-				}
-			}
-		}
-//		print_r($return);
-		$details = array_values($return);
-//		$details = array_values($res);
-//		print_r($details);
+        $dbtp =  APP_TABLE_PREFIX;
+        
+        $details = Record::getChildrensDetails($pid); 
 		$recursive_details = array();
 		foreach ($details as $key => $row) {
-
-//			$temp = Record::getChildrenAll($row['pid'], false, $searchKey);			
-			$temp = Record::getChildrenAll($row['pid'], $searchKey, false);
+			$temp = Record::getChildrensDetails($row['rek_pid'], $searchKey, false);
 			foreach ($temp as $trow) {
-//				if ($flatTree == true) {
-//					array_push($recursive_details, $trow);
-/*				} else {
-					if (!is_array($recursive_details['children'])) {
-						$recursive_details['children'] = array();
-					}					
-					array_push($recursive_details['children'], $trow);
-				} */
 				if ($flatTree == true) {
 					array_push($details, $trow);
 				} else {
@@ -445,17 +258,6 @@ class Record
 				
 			}
 		}
-//		print_r($recursive_details);
-/*		foreach ($recursive_details as $rrow) {
-			if ($flatTree == true) {
-				array_push($details, $rrow);
-			} else {
-				if (!is_array($recursive_details['children'])) {
-					$details['children'] = array();
-				}
-				array_push($details['children'], $rrow);
-			} 
-		} */
 		$details = array_reverse($details);
 		if ($GLOBALS['app_cache']) {
 		  $returns[$pid][$searchKey] = $details;
@@ -499,7 +301,8 @@ class Record
 		$header .= "<".$xsd_element_prefix.$xsd_top_element_name." ";
 		$header .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $pid);
 		$header .= ">\n";    
-		$xmlObj .= Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, '', '', '');
+		$xmlObj .= Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, '', '', '', '', '', '');
+//		   function array_to_xml_instance($a, &$xmlObj="", $element_prefix, $sought_node_type="", $tagIndent="", $parent_sel_id="", $xdis_id, $pid, $top_xdis_id, $attrib_loop_index="", &$indexArray=array(), $file_downloads=0, $created_date, $updated_date, $depositor, $assign_usr_id=null, $assign_grp_id=null)
         $xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">\n";
 		$xmlObj = $header . $xmlObj;
 		$FezACML_dsID = "FezACML_".$dsID.".xml";
@@ -510,7 +313,7 @@ class Record
 			Fedora_API::getUploadLocation($pid, $FezACML_dsID, $xmlObj, "FezACML security for datastream - ".$dsID, 
 					"text/xml", "X");
 		}	
-		Record::insertIndexBatch($pid, $dsID, $indexArray, array(), array(), array("FezACML"));
+//		Record::insertIndexBatch($pid, $dsID, $indexArray, array(), array(), array("FezACML"));
 //		exit;
     }
 
@@ -608,29 +411,55 @@ class Record
         if (empty($pid)) {
             return -1;
         }
-		$exclude_str = implode("', '", $exclude_list);
-		$specify_str = implode("', '", $specify_list);
+//		$exclude_str = implode("', '", $exclude_list);
+//		$specify_str = implode("', '", $specify_list);
+
+
+		// get list of the Related 1-M search keys, delete those first, then delete the 1-1 core table entries
+		$sekDet = Search_Key::getList();
+		foreach ($sekDet as $skey => $sval) {
+			if ($sval['sek_relationship'] == 1) { // if is a 1-M needs its own delete sql, otherwise if a 0 (1-1) the core delete will do it
+				$sekTable = Search_Key::makeSQLTableName($sval['sek_title']);
+		        $stmt = "DELETE FROM
+		                    " . APP_TABLE_PREFIX . "record_search_key_".$sekTable."
+						 WHERE rek_".$sekTable."_pid = '" . $pid . "'";
+				$res = $GLOBALS["db_api"]->dbh->query($stmt);
+		        if (PEAR::isError($res)) {
+		            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+		        }				
+			}
+		}
 
         $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field
-				 WHERE rmf_rec_pid = '" . $pid . "'";
+                    " . APP_TABLE_PREFIX . "record_search_key
+				 WHERE rek_pid = '" . $pid . "'";
+		$res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        }				
+
+		// what about things that are indexed that don't have search keys.. should they be in the old index, die or move?
+/*
+        $stmt = "DELETE FROM
+                    " . APP_TABLE_PREFIX . "record_matching_field
+				 WHERE rek_pid = '" . $pid . "'";
 		if ($dsID != '') {
-			$stmt .= " and rmf_dsid = '".$dsID."' ";
+			$stmt .= " and rek_dsid = '".$dsID."' ";
 		} else {
 			if ($dsDelete=='keep') {		
-				$stmt .= " and (rmf_dsid IS NULL or rmf_dsid = '') "; // we don't want to delete the datastream fezacml indexes unless we are deleteing the whole object
+				$stmt .= " and (rek_dsid IS NULL or rek_dsid = '') "; // we don't want to delete the datastream fezacml indexes unless we are deleteing the whole object
 			}
 		}
 		if ($dsDelete=='keep') {
-			$stmt .= " and (rmf_xsdmf_id not in (SELECT ".APP_SQL_CACHE."  distinct(xsdmf_id) from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields where xsdmf_element = '!datastream!ID')";
+			$stmt .= " and (rek_xsdmf_id not in (SELECT ".APP_SQL_CACHE."  distinct(xsdmf_id) from " . APP_TABLE_PREFIX . "xsd_display_matchfields where xsdmf_element = '!datastream!ID')";
 		}
 		if ($specify_str != "") {				
-			$stmt .= " and rmf_xsdmf_id in (SELECT ".APP_SQL_CACHE."  distinct(x2.xsdmf_id) from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2 inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on x2.xsdmf_xdis_id=d1.xdis_id inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd1 on (xsd1.xsd_id = d1.xdis_xsd_id and xsd1.xsd_title in ('".$specify_str."'))) ";
+			$stmt .= " and rek_xsdmf_id in (SELECT ".APP_SQL_CACHE."  distinct(x2.xsdmf_id) from " . APP_TABLE_PREFIX . "xsd_display_matchfields x2 inner join " . APP_TABLE_PREFIX . "xsd_display d1 on x2.xsdmf_xdis_id=d1.xdis_id inner join " . APP_TABLE_PREFIX . "xsd as xsd1 on (xsd1.xsd_id = d1.xdis_xsd_id and xsd1.xsd_title in ('".$specify_str."'))) ";
 			if ($dsDelete=='keep') {
 				$stmt .= ")";
 			}
 		} elseif ($exclude_str != "") {
-			$stmt .= " and rmf_xsdmf_id in (SELECT ".APP_SQL_CACHE."  distinct(x2.xsdmf_id) from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x2 inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display d1 on x2.xsdmf_xdis_id=d1.xdis_id inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd as xsd1 on (xsd1.xsd_id = d1.xdis_xsd_id and xsd1.xsd_title not in ('".$exclude_str."'))) ";			
+			$stmt .= " and rek_xsdmf_id in (SELECT ".APP_SQL_CACHE."  distinct(x2.xsdmf_id) from " . APP_TABLE_PREFIX . "xsd_display_matchfields x2 inner join " . APP_TABLE_PREFIX . "xsd_display d1 on x2.xsdmf_xdis_id=d1.xdis_id inner join " . APP_TABLE_PREFIX . "xsd as xsd1 on (xsd1.xsd_id = d1.xdis_xsd_id and xsd1.xsd_title not in ('".$exclude_str."'))) ";			
 			if ($dsDelete=='keep') {
 				$stmt .= ")";
 			}
@@ -655,6 +484,7 @@ class Record
                 FulltextIndex::removeByDS($pid,$dsID);
             }
         }
+*/
     }
 
     /**
@@ -668,16 +498,16 @@ class Record
      */
     function removeIndexRecordByValue($pid, $value, $data_type='varchar')
     {
-         $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field
-				 WHERE rmf_rec_pid = '" . $pid . "' and rmf_".$data_type."='".$value."'";
+/*         $stmt = "DELETE FROM
+                    " . APP_TABLE_PREFIX . "record_matching_field
+				 WHERE rek_pid = '" . $pid . "' and rek_".$data_type."='".$value."'"; 
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
-        } else {
+        } else { */
             return $pid;
-        }
+//        }
     }
 
     /**
@@ -690,16 +520,33 @@ class Record
      */
     function removeIndexRecordByXSDMF_ID($pid, $xsdmf_id)
     {
-        $stmt = "DELETE FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field
-				 WHERE rmf_rec_pid = '" . $pid . "' and rmf_xsdmf_id=".$xsdmf_id;
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-            return $pid;
-        }
+	
+	
+		$sekDet = Search_Key::getDetailsByXSDMF_ID($xsdmf_id);
+		if (count($sekDet) != 1) { //if couldnt find  a search key, we won't insert this into the index even if it has xsdmf_indexed = 1
+			return -1;
+		}
+
+        if ($sekDet['sek_relationship'] == 1) {
+			$sekTableName = "_".$sekDet['sek_title_db'];
+		} else {
+			$sekTableName = "";
+		}
+	
+		if ($sekDet['sek_relationship'] == 1) { //should only be neccessary to delete in this function for non-core things, as they can just be updated on the insert. If a full delete the other main function would be being used so this should be safe.
+	        $stmt = "DELETE FROM
+	                    " . APP_TABLE_PREFIX . "record_search_key".$sekTableName."
+					 WHERE rek".$sekTableName."_pid = '" . $pid . "' and rek".$sekDet['sek_title_db']."_xsdmf_id=".$xsdmf_id;
+	        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+	        if (PEAR::isError($res)) {
+	            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+	            return -1;
+	        } else {
+	            return $pid;
+	        }
+		} else {
+		    return $pid;
+		}
     }
 
     /**
@@ -730,33 +577,64 @@ class Record
                 $value = $date->format('%Y-%m-%d %T');
             }
         }
-        /* rmf_varchar updates featuring extra-long strings cause the query below to die. We'll truncate 
+
+/*		$sekDet = Search_Key::getList();
+		foreach ($sekDet as $skey => $sval) {
+			if ($sval['sek_relationship'] == 1) { // if is a 1-M needs its own delete sql, otherwise if a 0 (1-1) the core delete will do it
+				$sekTable = Search_Key::makeSQLTableName($sval['sek_title']);
+*/
+		$sekDet = Search_Key::getDetailsByXSDMF_ID($xsdmf_id);
+
+		if (!is_numeric($sekDet['sek_id'])) { //if couldnt find  a search key, we won't insert this into the index even if it has xsdmf_indexed = 1
+			return -1;
+		}
+//		print_r($sekDet);
+        /* rek_varchar updates featuring extra-long strings cause the query below to die. We'll truncate 
            the field for now, but this obviously needs to be done a little better in the future. */
-        $dataTypeField = "rmf_".$data_type;
-        if ($dataTypeField == 'rmf_varchar') {
+        if ($sekDet['sek_data_type'] == 'varchar') {
             $value = substr($value, 0, 254);        // Only use the left-most 255 chars
         }
-        $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field
-                 (
-				 	rmf_rec_pid,
-				 	rmf_rec_pid_num,	 	
-				 	rmf_dsid,
-                    rmf_xsdmf_id,";
-		if ($xsdsel_id != "") {
-		  $stmt .= "rmf_xsdsel_id,";
+        if ($sekDet['sek_relationship'] == 1) {
+			$sekTableName = "_".$sekDet['sek_title_db'];
+		} else {
+			$sekTableName = "";
 		}
+        $stmt = "INSERT INTO
+                    " . APP_TABLE_PREFIX . "record_search_key".$sekTableName."
+                 (
+				 	rek".$sekTableName."_pid,
+                    rek_".$sekDet['sek_title_db']."_xsdmf_id,";
 		$stmt .= "                    
-			rmf_".$data_type."
+			rek_".$sekDet['sek_title_db']."
 		 ) VALUES (
 			'" . $pid . "',
-			" . Misc::numPID($pid) . ",			
-			'" . $dsID . "',
 			" . $xsdmf_id . ",";
-		if ($xsdsel_id != "") {
-			$stmt .= "'$xsdsel_id', ";
+		if ($sekDet['sek_data_type'] != 'int') { //quote and escape varchar/date/text values
+        	$value = "'".Misc::escapeString(trim($value)) . "'";
 		}
-        $stmt .= "'".Misc::escapeString(trim($value)) . "')";
+		$stmt .= $value . ")";
+		if (APP_SQL_DBTYPE == "mysql") { //on duplicate key only works with mysql, but will save time over the else statement below.. maybe
+			$stmt .= " ON DUPLICATE KEY UPDATE rek_".$sekDet['sek_title_db']."_xsdmf_id = ".$xsdmf_id.", rek_".$sekDet['sek_title_db']." = ".$value;
+		} else { // this will work with postgresql, might be better to do seperate queries for general dbs if the pgsql way is not ansi
+	        if ($sekDet['sek_relationship'] == 0) { //only check for dupes on core 1-1 table inserts as the others could have the same value legitimatly (eg two j smith author strings)
+				$stmt = "IF EXISTS( SELECT * FROM " . APP_TABLE_PREFIX . "record_search_key".$sekTableName."
+				  WHERE rek_pid = '".$pid."' )
+				  UPDATE " . APP_TABLE_PREFIX . "record_search_key".$sekTableName."
+				  SET rek_".$sekDet['sek_title_db']."_xsdmf_id = ".$xsdmf_id.", rek_".$sekDet['sek_title_db']." = ".$value."
+				  WHERE rek_pid = '".$pid."'
+				ELSE
+				  INSERT INTO " . APP_TABLE_PREFIX . "record_search_key".$sekTableName." 
+				  (rek".$sekTableName."_pid, rek_".$sekDet['sek_title_db']."_xsdmf_id, rek_".$sekDet['sek_title_db'].")
+				 VALUES
+				  (".$pid.", ".$xsdmf_id.", ".$value.")";
+			} else {
+				$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "record_search_key".$sekTableName." 
+				  (rek".$sekTableName."_pid, rek_".$sekDet['sek_title_db']."_xsdmf_id, rek_".$sekDet['sek_title_db'].")
+				 VALUES
+				  (".$pid.", ".$xsdmf_id.", ".$value.")";
+			}
+		}
+//		echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -778,10 +656,10 @@ class Record
      */
     function getIndexDatastream($pid, $dsID, $xsd_title)
     {
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX; // Database and table prefix
+        $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
         $stmt = "SELECT ".APP_SQL_CACHE."  * FROM 
         ".$dbtp."record_matching_field r1
-        inner join ".$dbtp."xsd_display_matchfields x1 on r1.rmf_xsdmf_id = x1.xsdmf_id and rmf_rec_pid = '".$pid."' and rmf_dsid = '".$dsID."'
+        inner join ".$dbtp."xsd_display_matchfields x1 on r1.rek_xsdmf_id = x1.xsdmf_id and rek_pid = '".$pid."' and rek_dsid = '".$dsID."'
         inner join ".$dbtp."xsd_display d1 on x1.xsdmf_xdis_id = d1.xdis_id
         inner join ".$dbtp."xsd x2 on x2.xsd_id = d1.xdis_xsd_id and x2.xsd_title = '".$xsd_title."'
         left join ".$dbtp."xsd_loop_subelement s1 on s1.xsdsel_id = x1.xsdmf_xsdsel_id";
@@ -896,7 +774,7 @@ class Record
         if (isset($acml_cache['pid'][$pid])) {
             return $acml_cache['pid'][$pid];
         }
-        $dsExists = Fedora_API::datastreamExists($pid, $ds_search, true);  	 	    
+        $dsExists = Fedora_API::datastreamExists($pid, $ds_search, true);
         if ($dsExists == true) {
 			$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $ds_search);
 			$xmlACML = @$DSResultArray['stream'];
@@ -924,6 +802,37 @@ class Record
 	}	
 
     /**
+     * Method used to get the details for a specific Record gotten directly from the Fedora repository.
+     *
+     * @access  public
+     * @param   string $pid The persistent identifier of the object
+     * @param   string $xdis_id  The XSD Display ID of the object
+     * @return  array $xsdmf_array The details for the XML object against its XSD Matching Field IDs
+     */
+    function getDetails($pid, $xdis_id)
+    {
+		// Get the Datastreams.
+		$datastreamTitles = XSD_Loop_Subelement::getDatastreamTitles($xdis_id);
+		foreach ($datastreamTitles as $dsValue) {
+			$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title']);
+            if (isset($DSResultArray['stream'])) {
+                $xmlDatastream = $DSResultArray['stream'];
+                $xsd_id = XSD_Display::getParentXSDID($dsValue['xsdmf_xdis_id']);
+                $xsd_details = Doc_Type_XSD::getDetails($xsd_id);
+                $xsd_element_prefix = $xsd_details['xsd_element_prefix'];
+                $xsd_top_element_name = $xsd_details['xsd_top_element_name'];
+
+                $xmlnode = new DomDocument();
+                $xmlnode->loadXML($xmlDatastream);
+				echo $xmlDatastream;
+                $array_ptr = array();
+                Misc::dom_xml_to_simple_array($xmlnode, $array_ptr, $xsd_top_element_name, $xsd_element_prefix, $xsdmf_array, $xdis_id);
+            }
+		}
+		return $xsdmf_array;
+    }
+
+    /**
      * Method used to get the default record XDIS_ID
      *
      * Developer Note: Need to make this able to be set in Administrative interface and stored in the Fez database,
@@ -938,158 +847,7 @@ class Record
 		$xdis_id = 5;
 		return $xdis_id;
     }
-
-    /**
-     * Find unpublished records that the user has a role on.
-     *
-     * @access  public
-     * @param string $username The username of the search is performed on
-     * @return array $res2 The index details of records associated with the user
-     */
-    function getAssigned($username,$current_page=0,$page_rows="ALL",$sort_by="Title", $sort_order=0, $isMemberOf='ALL')
-    {
-        if ($page_rows == "ALL") {
-            $page_rows = 9999999;
-        }
-        $start = $current_page * $page_rows;
-
-        $current_row = $current_page * $page_rows;
-        $sekdet = Search_Key::getDetailsByTitle($sort_by);
-        $data_type = $sekdet['xsdmf_data_type'];
-		$dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-
-		$authArray = Collection::getAuthIndexStmt(array("Editor", "Approver"));
-		$authStmt = $authArray['authStmt'];
-		$joinStmt = $authArray['joinStmt'];
-		if ($sort_order == 0) {
-			$order_dir = "ASC";
-		} else {
-			$order_dir = "DESC";			
-		}
-        if (!empty($authStmt)) {
-            $r4_join_field = "ai.authi_pid";
-        } else {
-            $r4_join_field = "r2.rmf_rec_pid";
-        }
-
-        
-		$isMemberOfList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('isMemberOf');
-		$statusList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Status');		
-		$displayTypeList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Display Type');				
-		$sort_byList = XSD_HTML_Match::getXSDMF_IDsBySekTitle($sort_by);				
-		$sql_filter = array();
-		$sql_filter['where'] = "";
-		$sql_filter['elsewhere'] = "";     
-        
-        $memberOfStmt = "";
-        if ($isMemberOf != "ALL"  && isMemberOf != "") {
-        	$sql_filter['where'][] = "r2.rmf_varchar = '".Misc::escapeString($collection_pid)."'";
-			//$sql_filter['where'][] = "r2.rmf_xsdmf_id in (".implode(",", $isMemberOfList).")";      	
-        	
-        	$memberOfStmt = "
-                        INNER JOIN ".$dbtp."record_matching_field AS r4
-                          ON r4.rmf_rec_pid = r2.rmf_rec_pid
-                        INNER JOIN ".$dbtp."xsd_display_matchfields AS x4
-                          ON r4.rmf_xsdmf_id = x4.xsdmf_id and r4.rmf_varchar = '".$isMemberOf."'
-                        and r4.rmf_xsdmf_id in  (".implode(",", $isMemberOfList).")";
-
-        }        
-        
-        $bodyStmtPart1 = "FROM  ".$dbtp."record_matching_field AS r2
-                    INNER JOIN ".$dbtp."xsd_display_matchfields AS x2
-                      ON r2.rmf_xsdmf_id = x2.xsdmf_id AND x2.xsdmf_element='!sta_id' and r2.rmf_int!=2
-
-					$memberOfStmt
-                    $authStmt
-
-                    ";
-        $bodyStmt = "$bodyStmtPart1
-
-                    LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r5 on r5.rmf_rec_pid = r2.rmf_rec_pid
-                    inner join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_display_matchfields x5
-                    on r5.rmf_xsdmf_id = x5.xsdmf_id
-                    left join " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "search_key s5			
-					on (s5.sek_id = x5.xsdmf_sek_id and s5.sek_title = '".$sort_by."')  
-					where (r5.rmf_".$data_type." is null) or s5.sek_title = '".$sort_by."'					
-					group by r5.rmf_rec_pid
-
-					
-                    
-             ";
-
-        $countStmt = "
-                    SELECT ".APP_SQL_CACHE."  count(distinct r2.rmf_rec_pid)
-                    ".$bodyStmtPart1."
-            ";
-
-/*$firstStmt = "SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid, min(r5.rmf_$data_type) as sort_column
-                    $bodyStmt
-					order by sort_column $order_dir, r2.rmf_rec_pid desc
-                    LIMIT $start, $page_rows
-                    ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid";
-                    
-*/                  
-                             
-        
-        $stmt = "SELECT ".APP_SQL_CACHE."  r1.*, x1.*, s1.*, k1.*, d1.* 
-            FROM ".$dbtp."record_matching_field AS r1
-            INNER JOIN ".$dbtp."xsd_display_matchfields AS x1
-            ON r1.rmf_xsdmf_id = x1.xsdmf_id
-            INNER JOIN (
-                    SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid, min(r5.rmf_".$data_type.") as sort_column
-                    ".$bodyStmt."
-					order by sort_column ".$order_dir.", r2.rmf_rec_pid desc
-                    LIMIT ".$start.", ".$page_rows."
-                    ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid 
-            LEFT JOIN ".$dbtp."xsd_loop_subelement s1 
-            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
-            LEFT JOIN ".$dbtp."search_key k1 
-            ON (k1.sek_id = x1.xsdmf_sek_id)
-            LEFT JOIN ".$dbtp."xsd_display d1  
-            ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
-            ORDER BY display.sort_column ".$order_dir.", r1.rmf_rec_pid DESC ";
-//echo $stmt;`
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-
-			if (PEAR::isError($res)) {
-				Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-				$res = array();
-			}
-		/*} else {
-			$res = array();
-		}*/
-
-        $return = Collection::makeReturnList($res);
-        $return = Collection::makeSecurityReturnList($return);
-//		$return = array_values($return);
-		$return = Auth::getIndexAuthorisation($return);
-//		print_r($return);		
-		$return = Collection::getWorkflows($return); 
-		foreach ($return as &$result) {
-        	$parents = Record::getParents($result['pid']);
-        	$result['parents'] = $parents;
-		}
-		$list = $return;
-		
-
-		$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
-//        $total_rows = count($list);
-//        $list = array_slice($list,$current_row, $page_rows);
-        $total_pages = intval($total_rows / $page_rows);
-        if ($total_rows % $page_rows) {
-            $total_pages++;
-        }
-        $next_page = ($current_page >= $total_pages) ? -1 : $current_page + 1;
-        $prev_page = ($current_page <= 0) ? -1 : $current_page - 1;
-        $last_page = $total_pages - 1;
-        $current_last_row = $current_row + count($list);
-        $info = compact('total_rows', 'page_rows', 'current_row','current_last_row','current_page','total_pages',
-                'next_page','prev_page','last_page');
-        return compact('info','list');
-    }
-
-
-
+    
     /**
      * .
      *
@@ -1097,105 +855,83 @@ class Record
      * @param string $options The search parameters
      * @return array $res2 The index details of records associated with the search params
      */
-    function getListing($options, $approved_roles=array("Viewer", "Lister"), $current_page=0,$page_rows="ALL", $sort_by)
+	function getListing($options, $approved_roles=array(9,10), $current_page=0,$page_rows="ALL", $sort_by="Title", $getSimple=false)
     {
         if ($page_rows == "ALL") {
             $page_rows = 9999999;
         }
         $start = $current_page * $page_rows;
-		$dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX; // Database and table prefix
+		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
         $current_row = $current_page * $page_rows;
-        //print_r($options);
-		/*if ($options["sort_order"] == 1) {
-			$order_dir = "DESC";
-		} else {
-			$order_dir = "ASC";			
-		}*/
-		/*
-        if (!empty($authStmt)) {
-            $r4_join_field = "ai.authi_pid";
-        } else {
-            $r4_join_field = "r2.rmf_rec_pid";
-        }*/
-		//print_r($options);
+		$options["searchKey_count"] = Search_Key::getMaxID();
+		// make sure the sort by is setup well
+		if (!is_numeric(strpos($sort_by, "searchKey"))) {
+			$sort_by_id = Search_Key::getID($sort_by);
+			if (is_numeric($sort_by_id)) {
+				$sort_by = "searchKey".$sort_by_id;
+			} else {
+				$sort_by_id = Search_Key::getID("Title");
+				$sort_by = "searchKey".$sort_by_id;
+			}				
+		} elseif (is_numeric(strpos($sort_by, "searchKey0"))) {
+			//will get picked up in the buildjoins function
+//			$sort_by_id = Search_Key::getID("Title");
+//			$sort_by = "searchKey".$sort_by_id;			
+		}
+
         $searchKey_join = Record::buildSearchKeyJoins($options, $sort_by);
-//		$authArray = Collection::getAuthIndexStmt(array("Editor", "Approver"), "r".$searchKey_join[4]);
-		//$authArray = Collection::getAuthIndexStmt(array("Viewer", "Lister"), "r".$searchKey_join[4]);
-		$authArray = Collection::getAuthIndexStmt($approved_roles, "r".$searchKey_join[4]);
+		$authArray = Collection::getAuthIndexStmt($approved_roles, "r1.rek_pid");
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];        
 		
 		$sql_filter = array();
 		$sql_filter['where'] = "";
-		$sql_filter['elsewhere'] = "";     
+		$sql_filter['elsewhere'] = "";
 
-		$bodyStmt = $searchKey_join[0].$searchKey_join[1].$authStmt;	
+		$bodyStmt = $searchKey_join[0].$searchKey_join[1].$authStmt;
+  $stmt = " FROM ".$dbtp."record_search_key AS r1
 
-        $countStmt = "
-                    SELECT ".APP_SQL_CACHE."  count(distinct r".$searchKey_join[4].".rmf_rec_pid) ".
-                    $searchKey_join[0].$authStmt.$searchKey_join[2];
-          
-                                     
-        $stmt = "SELECT ".APP_SQL_CACHE."  r1.*, x1.*, s1.*, k1.*, d1.*, st1.*";
-        if ($searchKey_join[6] != "") {
-        	$stmt .= ", display.Relevance ";
-        }
-        
-  $stmt .=" FROM ".$dbtp."record_matching_field AS r1
-            INNER JOIN ".$dbtp."xsd_display_matchfields AS x1
-            ON r1.rmf_xsdmf_id = x1.xsdmf_id
-            INNER JOIN (
-                    SELECT ".APP_SQL_CACHE."  distinct r".$searchKey_join[4].".rmf_rec_pid, r".$searchKey_join[4].".rmf_rec_pid_num ".$searchKey_join[6]." ".$searchKey_join[9]."
-					".$bodyStmt."
-					".$searchKey_join[2].$searchKey_join[8]."
-					order by ".$searchKey_join[3]." r".$searchKey_join[4].".rmf_rec_pid_num desc
-                    LIMIT ".$page_rows." OFFSET ".$start."
-                    ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid 
-            LEFT JOIN ".$dbtp."xsd_loop_subelement s1 
-            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
-            LEFT JOIN ".$dbtp."search_key k1 
-            ON (k1.sek_id = x1.xsdmf_sek_id)
-            LEFT JOIN ".$dbtp."xsd_display d1  
-            ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
-            LEFT JOIN ".$dbtp."status st1  
-            ON (st1.sta_id = r1.rmf_int and k1.sek_title = 'Status')";
-  			if ($searchKey_join[10] != "") {  				
-				$stmt .= "order by display.".$searchKey_join[10]." display.rmf_rec_pid_num desc, r1.rmf_id ASC";
-  			} else {
-  				$stmt .= "order by display.rmf_rec_pid_num desc, r1.rmf_id ASC";
-  			}
+			".$bodyStmt."
+			".$searchKey_join[2];
             
-  //echo "<pre>".$stmt."</pre>";
-       
+	if (APP_SQL_DBTYPE == "mysql") { // If the DB is mysql then you can use SQL_NUM_ROWS, even with a limit and get better performance, otherwise you need to do a seperate query to get the total count
+		$total_rows = 1;
+		$stmt =  "SELECT ".APP_SQL_CACHE." SQL_CALC_FOUND_ROWS r1.* ".$searchKey_join[6]." ".$stmt.$searchKey_join[8];  
+		$stmt .= " ORDER BY ".$searchKey_join[3]." r".$searchKey_join[4].".rek_pid DESC ";   
+	  
+	} else {
+  		$countStmt =  "SELECT ".APP_SQL_CACHE." COUNT(r1.rek_pid) ".$stmt;		
 		$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
-		//echo $countStmt;		
+		$stmt =  "SELECT ".APP_SQL_CACHE." r1.* ".$searchKey_join[6]." ".$stmt.$searchKey_join[8];  
+	    $stmt .= " ORDER BY ".$searchKey_join[3]." r".$searchKey_join[4].".rek_pid DESC ";   	  
+	}
+	$usr_id = Auth::getUserID();
 		if ($total_rows > 0) {
-			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-
+			$stmt = $GLOBALS["db_api"]->dbh->modifyLimitQuery($stmt, $start, $page_rows);
+//			echo "<pre>".$stmt."</pre>"; //exit;
+			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);		
 			if (PEAR::isError($res)) {
 				Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 				$res = array();
-			}
-		} else {
+			} else { //now add on the other search keys, security roles, workflows, if necessary
+				if (APP_SQL_DBTYPE == "mysql") {
+					$total_rows = $GLOBALS["db_api"]->dbh->getOne('SELECT FOUND_ROWS()');
+				}
+                if (count($res) > 0) {
+					if ($getSimple == false || empty($getSimple)) {
+	                    Record::getSearchKeysByPIDS($res);
+	                    Record::identifyThumbnails($res); 
+	                    Record::getAuthWorkflowsByPIDS($res, $usr_id);
+					}
+                    Record::getChildCountByPIDS($res, $usr_id);
+                }
+            }
+	    } else {
 			$res = array();
 		}
-
-        $return = Collection::makeReturnList($res);
-        $return = Collection::makeSecurityReturnList($return);        
-//		$return = array_values($return);
-		$return = Auth::getIndexAuthorisation($return);
-		//print_r($return);		
-		$usr_id = Auth::getUserID();
-		$isAdministrator = Auth::isAdministrator();
-		if (is_numeric($usr_id) && $usr_id != 0) { //only get the workflows if logged in an not an RSS feed. Admins get all.
-			$return = Collection::getWorkflows($return);
-		} 
-		/*foreach ($return as &$result) { // why do we need to get all the parents?
-        	$parents = Record::getParents($result['pid']);
-        	$result['parents'] = $parents;
-		}*/
+		$res = Auth::getIndexAuthCascade($res);
+		$return = $res;
 		$list = $return;
-		
         $total_pages = intval($total_rows / $page_rows);
         if ($total_rows % $page_rows) {
             $total_pages++;
@@ -1212,17 +948,418 @@ class Record
         $current_last_row = $current_row + count($list);
         $info = compact('total_rows', 'page_rows', 'current_row','current_last_row','current_page','total_pages',
                 'next_page','prev_page','last_page', 'noOrder', 'search_info');
-       // print_r($info); exit;
         return compact('info','list');
-    }    
+    }        
 
+    function identifyThumbnails(&$result) {
+    	for ($i = 0; $i < count($result); $i++) {	
+    		for ($x = 0; $x < count($result[$i]['rek_file_attachment_name']); $x++) {	
+    			if (is_numeric(strpos($result[$i]['rek_file_attachment_name'][$x], "thumbnail_"))) {
+					if (!is_array(@$result[$i]['thumbnail'])) {
+						$result[$i]['thumbnail'] = array();
+					}
+					array_push($result[$i]['thumbnail'], $result[$i]['rek_file_attachment_name'][$x]);
+    			}
+    		}
+    	}
+    }
+    	
+    function getSearchKeysByPIDS(&$result)
+    {
+        $pids = array();
+        for ($i = 0; $i < count($result); $i++) {
+            $pids[] = $result[$i]["rek_pid"];
+        }
+		if (count($pids) == 0) {
+			return;
+	  	}
+        $sek_details = Search_Key::getList();
+        foreach ($sek_details as $sekKey => $sekData) {
+            $sek_sql_title = Search_Key::makeSQLTableName($sekData['sek_title']);
+            if ($sekData['sek_relationship'] == 0) { //already have the data, just need to do any required lookups for 1-1
+                if ($sekData['sek_lookup_function'] != "") {
+                    for ($i = 0; $i < count($result); $i++) {
+                       if ($result[$i]['rek_'.$sek_sql_title]) {
+                           eval('$result[$i]["rek_'.$sek_sql_title.'_lookup"] = '.$sekData['sek_lookup_function'].'('.$result[$i]['rek_'.$sek_sql_title].');'); 
+                       } else {
+                           $result[$i]['rek_'.$sek_sql_title.'_lookup'] = "";
+                       }
+                    }
+                }
+
+            } else {
+                $res = Record::getSearchKeyByPIDS($sek_sql_title, $pids); 
+                $t = array();
+                $p = array();
+                for ($i = 0; $i < count($res); $i++) {
+                    if (!is_array($t[$res[$i]["rek_".$sek_sql_title."_pid"]])) {
+                        $t[$res[$i]["rek_".$sek_sql_title."_pid"]] = array();
+                    } 
+                	if ($sekData['sek_lookup_function'] != "") {		
+	                    if (!is_array($p[$res[$i]["rek_".$sek_sql_title."_pid"]])) {
+	                        $p[$res[$i]["rek_".$sek_sql_title."_pid"]] = array();
+	                    } 
+						eval('$res[$i]["rek_'.$sek_sql_title.'_lookup"] = '.$sekData['sek_lookup_function'].'('.$res[$i]['rek_'.$sek_sql_title].');'); 
+                    	$p[$res[$i]["rek_".$sek_sql_title."_pid"]][] =  $res[$i]["rek_".$sek_sql_title."_lookup"];
+					}
+                    $t[$res[$i]["rek_".$sek_sql_title."_pid"]][] =  $res[$i]["rek_".$sek_sql_title];
+                }
+                // now populate the $result variable again
+                for ($i = 0; $i < count($result); $i++) {
+                    if (!is_array($result[$i]["rek_".$sek_sql_title])) {
+                        $result[$i]["rek_".$sek_sql_title] = array();
+                    }
+                    $result[$i]["rek_".$sek_sql_title] = $t[$result[$i]["rek_pid"]];
+                	if ($sekData['sek_lookup_function'] != "") {
+                    	$result[$i]["rek_".$sek_sql_title."_lookup"] = $p[$result[$i]["rek_pid"]];
+					}
+                }
+            }
+        }
+        
+                //print_r($result);
+    }
+
+  function getSearchKeyByPIDS($sek_sql_title, $pids = array()) {
+	  if (count($pids) == 0) {
+		return array();
+	  }
+	  $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+      $pids = implode("', '", $pids);
+      $stmt = "SELECT 
+                    rek_" . $sek_sql_title ."_pid,
+                    rek_" . $sek_sql_title ."
+                 FROM
+                    " . $dbtp . "record_search_key_" . $sek_sql_title . "
+                 WHERE
+                    rek_".$sek_sql_title."_pid IN ('".$pids."')
+                 ORDER BY
+					rek_" . $sek_sql_title ."_id ASC ";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        } else {
+            return $res;
+        }
+  }
+
+  
+  function getAuthWorkflowsByPIDS(&$result, $usr_id) {
+       for ($i = 0; $i < count($result); $i++) {
+           $pids[] = $result[$i]["rek_pid"];
+       }
+	  $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+      $pids = implode("', '", $pids);
+      if (count($pids) == 0) {
+		return;
+	  }
+      if (!Auth::isAdministrator() && (is_numeric($usr_id))) {
+      $stmt = "SELECT 
+                    rek_pid, authi_pid, authi_role, wfl_id, wfl_title, wft_id, wft_icon
+                 FROM ";
+      	
+      	$stmt .=    $dbtp . "record_search_key inner join
+                    " . $dbtp . "auth_index2 ON rek_pid = authi_pid inner join 
+                    " . $dbtp . "auth_rule_group_users ON authi_arg_id = argu_arg_id and argu_usr_id = ".$usr_id." left join 
+      				" . $dbtp . "workflow_roles ON authi_role = wfr_aro_id inner join 
+                    " . $dbtp . "workflow ON wfr_wfl_id = wfl_id inner join 
+                    " . $dbtp . "workflow_trigger ON wfl_id = wft_wfl_id and wft_options = 1 and (wft_pid = -1 or wft_pid = authi_pid)
+                    and (wft_xdis_id = -1 or wft_xdis_id = rek_display_type) and (wft_ret_id = 0 or wft_ret_id = rek_object_type)
+ ";
+      	
+      $stmt .= "  WHERE
+                    rek_pid IN ('".$pids."')  
+                  ORDER BY wft_order ASC ";
+      } elseif (!is_numeric($usr_id)) { //no workflows for a non-logged in person - but may get lister and/or viewer roles   	
+      $stmt = "SELECT 
+                    rek_pid, authi_pid, authi_role
+                 FROM ";
+      	
+      	$stmt .=    $dbtp . "record_search_key inner join
+                    " . $dbtp . "auth_index2 ON rek_pid = authi_pid 
+
+					INNER JOIN ".$dbtp."auth_rule_group_rules on authi_arg_id = argr_arg_id
+                    INNER JOIN ".$dbtp."auth_rules ON ar_rule='public_list' AND ar_value='1' AND argr_ar_id=ar_id 
+ ";
+      	
+      $stmt .= "  WHERE
+                    rek_pid IN ('".$pids."')  ";      	
+      } else {
+  	      $stmt = "SELECT 
+                   rek_pid, authi_arg_id,  wfl_id, wfl_title, wft_id, wft_icon
+             FROM ";
+      	
+      	$stmt .=  $dbtp . "record_search_key 
+left join " . $dbtp . "auth_index2 on authi_pid = rek_pid
+
+inner join
+				" . $dbtp . "workflow_trigger ON wft_options = 1 and (wft_pid = -1 or wft_pid = rek_pid) 
+                     and (wft_xdis_id = -1 or wft_xdis_id = rek_display_type) and (wft_ret_id = 0 or wft_ret_id = rek_object_type) inner join 
+          			    " . $dbtp . "workflow on wfl_id = wft_wfl_id                     
+ ";
+      $stmt .= "  WHERE
+                    rek_pid IN ('".$pids."')
+                  ORDER BY wft_order ASC  ";
+
+      	
+      }
+      //echo $stmt; exit;
+
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        } else {
+            $t = array();
+            for ($i = 0; $i < count($res); $i++) {
+                if (!is_array($t[$res[$i]["rek_pid"]])) {
+                    $t[$res[$i]["rek_pid"]] = array();
+                }
+                if (!in_array($res[$i]["authi_role"], $t[$res[$i]["rek_pid"]])) {
+                	$t[$res[$i]["rek_pid"]][] =  $res[$i]["authi_role"];
+                }
+            }
+        	            
+            // now populate the $result variable again
+            for ($i = 0; $i < count($result); $i++) {
+                if (!is_array($result[$i]["authi_role"])) {
+                    $result[$i]["authi_role"] = array();
+                }
+                $result[$i]["authi_role"] = $t[$result[$i]["rek_pid"]];
+            }       	
+            
+            $w = array();
+            for ($i = 0; $i < count($res); $i++) {
+                if (!is_array($w[$res[$i]["rek_pid"]])) {
+                    $w[$res[$i]["rek_pid"]] = array();
+                }
+                if (!in_array($res[$i]["wfl_id"], $w[$res[$i]["rek_pid"]])) { 
+                	$w[$res[$i]["rek_pid"]][] =  $res[$i]["wfl_id"];
+                }
+            }
+        	            
+            // now populate the $result variable again
+            for ($i = 0; $i < count($result); $i++) {
+                if (!is_array($result[$i]["wfl_id"])) {
+                    $result[$i]["wfl_id"] = array();
+                }
+                $result[$i]["wfl_id"] = $w[$result[$i]["rek_pid"]];
+            }      	
+
+            $w = array();
+            for ($i = 0; $i < count($res); $i++) {
+                if (!is_array($w[$res[$i]["rek_pid"]])) {
+                    $w[$res[$i]["rek_pid"]] = array();
+                }
+                if (!in_array($res[$i]["wft_id"], $w[$res[$i]["rek_pid"]])) { 
+                	$w[$res[$i]["rek_pid"]][] =  $res[$i]["wft_id"];
+                }
+            }
+        	            
+            // now populate the $result variable again
+            for ($i = 0; $i < count($result); $i++) {
+                if (!is_array($result[$i]["wft_id"])) {
+                    $result[$i]["wft_id"] = array();
+                }
+                $result[$i]["wft_id"] = $w[$result[$i]["rek_pid"]];
+            }              
+            
+            $w = array();
+            for ($i = 0; $i < count($res); $i++) {
+                if (!is_array($w[$res[$i]["rek_pid"]])) {
+                    $w[$res[$i]["rek_pid"]] = array();
+                }
+                if (!in_array($res[$i]["wfl_title"], $w[$res[$i]["rek_pid"]])) { 
+                	$w[$res[$i]["rek_pid"]][] =  $res[$i]["wfl_title"];
+                }
+            }
+        	            
+            // now populate the $result variable again
+            for ($i = 0; $i < count($result); $i++) {
+                if (!is_array($result[$i]["wfl_title"])) {
+                    $result[$i]["wfl_title"] = array();
+                }
+                $result[$i]["wfl_title"] = $w[$result[$i]["rek_pid"]];
+            }      	
+            $w = array();
+            for ($i = 0; $i < count($res); $i++) {
+                if (!is_array($w[$res[$i]["rek_pid"]])) {
+                    $w[$res[$i]["rek_pid"]] = array();
+                }
+                if (!in_array($res[$i]["wft_icon"], $w[$res[$i]["rek_pid"]])) { 
+                	$w[$res[$i]["rek_pid"]][] =  $res[$i]["wft_icon"];
+                }
+            }
+        	            
+            // now populate the $result variable again
+            for ($i = 0; $i < count($result); $i++) {
+                if (!is_array($result[$i]["wft_icon"])) {
+                    $result[$i]["wft_icon"] = array();
+                }
+                $result[$i]["wft_icon"] = $w[$result[$i]["rek_pid"]];
+            }      	
+            
+            
+            
+            //return $res;
+        }
+  }  
+
+  
+    
+	function getChildCountByPIDS(&$result, $usr_id) {
+		$pids = array();
+       for ($i = 0; $i < count($result); $i++) {
+			if ($result[$i]["rek_object_type"] != "3") {
+				$pids[] = $result[$i]["rek_pid"];
+			}
+       }
+	  if (count($pids) == 0) {
+		return;
+	  }
+	  $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+      $pids = implode("', '", $pids);
+      $authArray = Collection::getAuthIndexStmt(array("Lister"), "r1.rek_pid");
+	  $authStmt = $authArray['authStmt'];
+      
+      $stmt = "SELECT 
+                    rek_ismemberof, count(rek_ismemberof) as rek_ismemberof_count
+                 FROM
+                    " . $dbtp . "record_search_key_ismemberof as r2 inner join 
+                    " . $dbtp . "record_search_key as r1 ON rek_pid = rek_ismemberof_pid and rek_status = 2 
+                    $authStmt
+                 WHERE
+                    rek_ismemberof IN ('".$pids."')
+                 GROUP BY
+                    rek_ismemberof "; 
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        } else {
+            $t = array();
+            for ($i = 0; $i < count($res); $i++) {               
+                $t[$res[$i]["rek_ismemberof"]] =  $res[$i]["rek_ismemberof_count"];
+                
+            }
+        	            
+            // now populate the $result variable again
+            for ($i = 0; $i < count($result); $i++) {
+                $result[$i]["rek_ismemberof_count"] = $t[$result[$i]["rek_pid"]];
+            }       	
+           
+            
+            
+            //return $res;
+        }
+  }  
+  
+
+	function getParentsByPIDS(&$result) {
+		$pids = array();
+		for ($i = 0; $i < count($result); $i++) {
+			if (is_array($result[$i]["rek_ismemberof"])) {
+				foreach($result[$i]["rek_ismemberof"] as $mpid) {
+					if (!in_array($mpid, $pids)) {
+	            		$pids[] = $mpid;
+					}
+				}
+			}
+		}
+	  if (count($pids) == 0) {
+		return;
+	  }		
+	  $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+      $pids = implode("', '", $pids);
+      $authArray = Collection::getAuthIndexStmt(array("Lister"), "r1.rek_pid");
+	  $authStmt = $authArray['authStmt'];
+      
+      $stmt = "SELECT 
+                   rek_pid, rek_title
+                 FROM
+                    " . $dbtp . "record_search_key as r1 
+                    $authStmt
+                 WHERE
+                    rek_pid IN ('".$pids."') ";
+
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        } else {
+            $t = array();
+            for ($i = 0; $i < count($res); $i++) {               
+                $t[$res[$i]["rek_pid"]] =  $res[$i]["rek_title"];                
+            }
+            // now populate the $result variable again
+            for ($i = 0; $i < count($result); $i++) {
+				$temp  = $result[$i]["rek_ismemberof"];
+				$result[$i]["rek_ismemberof"] = array();
+                $result[$i]["rek_ismemberof"]["rek_pid"] = array();
+                $result[$i]["rek_ismemberof"]["rek_title"] = array();
+                $result[$i]["rek_ismemberof"]["rek_pid"] = $temp;
+				if (is_array($temp)) {
+					foreach ($temp as $tpid) {
+	                	$result[$i]["rek_ismemberof"]["rek_title"][] = $t[$tpid];
+					}
+				}
+            }       	
+            //return $res;
+        }
+  }
+
+	function getSearchKeyIndexValue($pid, $searchKeyTitle, $getLookup=true) {
+		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+		$sek_details = Search_Key::getBasicDetailsByTitle($searchKeyTitle);
+		$sek_title = Search_Key::makeSQLTableName($sek_details['sek_title']);
+		if ($sek_details['sek_relationship'] == 1) { //1-M so will return an array
+			$stmt = "SELECT 
+                    rek_".$sek_title."
+                 FROM
+                    " . $dbtp . "record_search_key_".$sek_title."
+                 WHERE
+                    rek_".$sek_title."_pid = '".$pid."'";
+        	$res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+        	if (PEAR::isError($res)) {
+            	Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        	} else {
+        		if ($getLookup == true && $sek_details['sek_lookup_function'] != "") {
+        			$temp = array();
+        			foreach ($res as $rkey => $rdata) {
+        				eval("\$temp_value = ".$sek_details["sek_lookup_function"]."(".$rdata.");");
+        				$temp[$rdata] = $temp_value;	
+        			}
+        			$res = $temp;
+        		}
+        		return $res;
+        	}			
+		} else { //1-1 so will return single value
+			$stmt = "SELECT 
+                    rek_".$sek_title."
+                 FROM
+                    " . $dbtp . "record_search_key
+                 WHERE
+                    rek_pid = '".$pid."'";
+        	$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        	if (PEAR::isError($res)) {
+            	Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        	} else {
+        		if ($getLookup == true && $sek_details['sek_lookup_function'] != "") {
+        			$temp = array();        			
+        			eval("\$temp_value = ".$sek_details["sek_lookup_function"]."(".$res.");");
+        			$temp[$res] = $temp_value;	        			
+        			$res = $temp;
+        		}        	        		
+        		return $res;	
+        	}			        	
+		}		
+	}
+  
+  
     function buildSearchKeyJoins($options, $sort_by) {
     	$searchKey_join = array();
         $searchKey_join[0] = ""; // initialise the return sql searchKey fields join string
 		$searchKey_join[1] = ""; // initialise the return sql where string
 		$searchKey_join[2] = ""; // initialise the return sql left joins string - so count doesnt need to do it
         $searchKey_join[3] = ""; // initialise the return sql searchKey Order/Sort by join string
-        $searchKey_join[4] = 0; // initialise the first join searchKey ID
+        $searchKey_join[4] = 1; // initialise the first join searchKey ID
         $searchKey_join[5] = 0; // initialise the max count of extra searchKey field joins
 		$searchKey_join[6] = ""; //initialise the return sql term relevance matching when fulltext indexing is used
 		$searchKey_join[7] = ""; // initialise the search info string
@@ -1233,35 +1370,40 @@ class Record
 		$x = 0;
 		$firstX = 0;
 		$firstLoop = true; 
-		$sortRestriction = "";		
+		$sortRestriction = "";
+		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix //only mysql supports db prefixing, so will remove it - no reason not to
         if (!empty($options["searchKey_count"])) {
             if ($options["searchKey_count"] > 0) {
             	
-            	if ($options["searchKey0"]  && trim($options["searchKey0"]) != "") {
+            	if ($options["searchKey0"]  && trim($options["searchKey0"]) != "") { //this will have to replaced with lots of union select joins like eventum
+
             		$firstLoop = false;
-            		$joinType = " FROM ";
-            		$searchKey_join[4] = 0;
+            		$joinType = " INNER JOIN ";
+            		$searchKey_join[4] = 1;
             		$searchKey_join[7] .= "All Fields:\"".trim($options["searchKey".$x])."\", ";
-            		$termLike = " match (r".$x.".rmf_varchar) against ('*".Misc::escapeString($options["searchKey0"])."*' IN BOOLEAN MODE)";
-            		$searchKey_join[8] = " group by r".$x.".rmf_rec_pid ";
-            		$termRelevance = ", sum(match (r".$x.".rmf_varchar) against ('".Misc::escapeString($options["searchKey0"])."')) as Relevance";
+					$searchKey_join[0] .= $joinType." (SELECT rek_pid, MATCH(rek_pid, rek_title, rek_description) AGAINST ('".Misc::escapeString($options["searchKey0"])."') AS Relevance ".
+													" FROM ". $dbtp . "record_search_key ".
+													" WHERE MATCH (rek_pid, rek_title, rek_description) AGAINST ('*".Misc::escapeString($options["searchKey0"])."*' IN BOOLEAN MODE)".
+													" UNION ".
+													" SELECT rek_keywords_pid AS rek_pid, MATCH(rek_keywords) AGAINST ('".Misc::escapeString($options["searchKey0"])."') AS Relevance ".
+													" FROM ". $dbtp . "record_search_key_keywords ".
+													" WHERE MATCH (rek_keywords) AGAINST ('*".Misc::escapeString($options["searchKey0"])."*' IN BOOLEAN MODE))".
+													" AS search ON search.rek_pid = r1.rek_pid ";
+
+					$x = 1;
+            		$searchKey_join[8] = " GROUP BY r".$x.".rek_pid ";
+            		$termRelevance = ", SUM(search.Relevance) as Relevance";
             		$searchKey_join[6] = $termRelevance;
-            		$searchKey_join[0] .= $joinType."
-											     ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field as r0";
-            		Misc::addToWhere(&$searchKey_join[2], $termLike);
             	}            	
             	
             	for($x=1;$x < ($options["searchKey_count"] + 1);$x++) {
             	 	 if (!empty($options["searchKey".$x]) && trim($options["searchKey".$x]) != "") {            	 	 	
             	 	    $sekdet = Search_Key::getDetails($x);
-            	 	    //print_r($sekdet);
-            	 	    $sek_xsdmfs = array();
-            	 	    $sek_xsdmfs = XSD_HTML_Match::getXSDMF_IDsBySekTitle($sekdet['sek_title']);
             	 	    $options["sql"] = array();
             	 	    $temp_value = "";
             	 	    if (is_array($options["searchKey".$x])) {            	 	    	
-            	 	    	if ($sekdet['xsdmf_data_type'] == "int") {
-								$options["sql"]["searchKey".$x] = " in (".implode(",", $options["searchKey".$x]).")";
+            	 	    	if ($sekdet['sek_data_type'] == "int") {
+								$options["sql"]["searchKey".$x] = " IN (".implode(",", $options["searchKey".$x]).")";
 								$searchKey_join[7] .= $sekdet['sek_title'].":\"";
 								$temp_counter = 0;
 								foreach ($options["searchKey".$x] as $temp_int) {
@@ -1275,13 +1417,45 @@ class Record
 									}										
 								}
 								$searchKey_join[7] .= "\", ";
+            	 	    	} elseif ($sekdet['sek_data_type'] == "date") {
+								if (!empty($options["searchKey".$x]) && $options["searchKey".$x]['filter_enabled'] == 1) {								
+									switch ($options["searchKey".$x]['filter_type']) {
+										case 'greater':
+											if ($sekdet['sek_relationship'] == "1") {
+												$searchKey_join[0] .= " INNER JOIN ". $dbtp . "record_search_key_".$sekdet['sek_title_db']." as r".$x." on r".$x.".rek_".$sekdet['sek_title_db']."_pid = r".$searchKey_join[4].".rek_pid ";
+												$searchKey_join[0] .= " AND r".$x.".rek_".$sekdet['sek_title_db']." >= '".Misc::escapeString($options["searchKey".$x]['start_date'])."' ";
+											} else {
+												Misc::addToWhere(&$searchKey_join[2], " r".$searchKey_join[4].".rek_".$sekdet['sek_title_db']." >= '".Misc::escapeString($options["searchKey".$x]['start_date'])."' ");
+											}
+											$searchKey_join[7] .= $sekdet['sek_title'].":\" >= '" . $options["searchKey".$x]['start_date'] ."'\", ";
+											break;
+										case 'less':
+											if ($sekdet['sek_relationship'] == "1") {
+												$searchKey_join[0] .= " INNER JOIN ". $dbtp . "record_search_key_".$sekdet['sek_title_db']." as r".$x." on r".$x.".rek_".$sekdet['sek_title_db']."_pid = r".$searchKey_join[4].".rek_pid ";
+												$searchKey_join[0] .= " AND r".$x.".rek_".$sekdet['sek_title_db']." <= '".Misc::escapeString($options["searchKey".$x]['start_date'])."' ";
+											} else {
+												Misc::addToWhere(&$searchKey_join[2], " r".$searchKey_join[4].".rek_".$sekdet['sek_title_db']." <= '".Misc::escapeString($options["searchKey".$x]['start_date'])."' ");
+											}
+											$searchKey_join[7] .= $sekdet['sek_title'].":\" <= '" . $options["searchKey".$x]['start_date'] ."'\", ";
+											break;
+										case 'between':
+											if ($sekdet['sek_relationship'] == "1") {
+												$searchKey_join[0] .= " INNER JOIN ". $dbtp . "record_search_key_".$sekdet['sek_title_db']." as r".$x." on r".$x.".rek_".$sekdet['sek_title_db']."_pid = r".$searchKey_join[4].".rek_pid ";
+												$searchKey_join[0] .= " AND r".$x.".rek_".$sekdet['sek_title_db']." BETWEEN '".Misc::escapeString($options["searchKey".$x]['start_date'])."' AND '".Misc::escapeString($options["searchKey".$x]['end_date'])."'";
+											} else {
+												Misc::addToWhere(&$searchKey_join[2], " r".$searchKey_join[4].".rek_".$sekdet['sek_title_db']." BETWEEN '".Misc::escapeString($options["searchKey".$x]['start_date'])."' AND '".Misc::escapeString($options["searchKey".$x]['end_date'])."'");
+											}
+											$searchKey_join[7] .= $sekdet['sek_title'].":\"Between '" . $options["searchKey".$x]['start_date'] ."' and '".$options["searchKey".$x]['end_date']."'\", ";
+								            break;
+									}
+								}	
             	 	    	} else {
-								$options["sql"]["searchKey".$x] = " in ('".implode("','", Misc::escapeString($options["searchKey".$x]))."')";
-								$searchKey_join[7] .= $sekdet['sek_title'].":\"".implode("','", Misc::escapeString($options["searchKey".$x]))."\", ";       	 	    		
+								$options["sql"]["searchKey".$x] = " IN ('".implode("','", $options["searchKey".$x])."')";
+								$searchKey_join[7] .= $sekdet['sek_title'].":\"".implode("','", $options["searchKey".$x])."\", ";       	 	    		
             	 	    	}
             	 	    } else {            	 	    	
             	 	    	
-            	 	    	if ($sekdet['xsdmf_data_type'] == "int") {
+            	 	    	if ($sekdet['sek_data_type'] == "int") {
             	 	    		$options["sql"]["searchKey".$x] = " = ".$options["searchKey".$x];
             	 	    		if (is_numeric($options["searchKey".$x])) {
             	 	    			if (!empty($sekdet["sek_lookup_function"])) {
@@ -1289,85 +1463,63 @@ class Record
             	 	    				$searchKey_join[7] .= $sekdet['sek_title'].":\"".$temp_value."\", ";
             	 	    			} else {
             	 	    				$searchKey_join[7] .= $sekdet['sek_title'].":\"".trim($options["searchKey".$x])."\", ";
-            	 	    			}            	 	    			
-            	 	    		}            	 	    		 
+            	 	    			}
+            	 	    		}
             	 	    	} else {
             	 	    		$options["sql"]["searchKey".$x] = " = '".$options["searchKey".$x]."'";
             	 	    		$searchKey_join[7] .= $sekdet['sek_title'].":\"".trim($options["searchKey".$x])."\", ";
             	 	    	}
             	 	    }
-            	 	    if (count($sek_xsdmfs) > 0) {         
-            	 	    	if ($firstLoop === true) {
-            	 	    		$joinType = " FROM ";   	
-            	 	    		$searchKey_join[4] = $x; 	            	 	    		   	
-            	 	    	} else {
-            	 	    		$joinType = " INNER JOIN ";
-            	 	    	}
+            	 	    if (is_numeric($sekdet['sek_id'])) {         
+           	 	    		$joinType = " INNER JOIN ";
             	 	        if ($sekdet['sek_html_input'] == 'text') {
-            	 	        	
-            	 	        	
-            	 	        	if ($firstLoop === true) {  
-            	 	        		$firstX = $x;          	 	        
-            	 	 				$searchKey_join[0] .= $joinType." 
-											     ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field as r".$x;
-									Misc::addToWhere(&$searchKey_join[2], 
-											  " r".$x.".rmf_".$sekdet['xsdmf_data_type']." like '%".Misc::escapeString($options["searchKey".$x])."%' ".
-            	 	 						 " and r".$x.".rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).")");
+            	 	        	if ($sekdet['sek_relationship'] == 1) {
+            	 	 				$searchKey_join[0] .= $joinType."
+											     ". $dbtp . "record_search_key_".$sekdet['sek_title_db']." as r".$x." on r".$x.".rek_".$sekdet['sek_title_db']."_pid = r".$searchKey_join[4].".rek_pid ".
+											  " and r".$x.".rek_".$sekdet['sek_title_db']." like '%".Misc::escapeString($options["searchKey".$x])."%' ";            	 	        		
             	 	        	} else {
-            	 	 				$searchKey_join[0] .= $joinType." 
-											     ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field as r".$x." on r".$x.".rmf_rec_pid = r".$searchKey_join[4].".rmf_rec_pid ".
-											  " and r".$x.".rmf_".$sekdet['xsdmf_data_type']." like '%".Misc::escapeString($options["searchKey".$x])."%' ".
-            	 	 						 " and r".$x.".rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).")";            	 	        		
-            	 	        	}
+									if ($sekdet['sek_title_db'] == "pid") {
+            	 	        			Misc::addToWhere(&$searchKey_join[2], " r".$searchKey_join[4].".rek_".$sekdet['sek_title_db']." like '".str_replace("*", "%", Misc::escapeString($options["searchKey".$x]))."' ");
+									} else {
+            	 	        			Misc::addToWhere(&$searchKey_join[2], " r".$searchKey_join[4].".rek_".$sekdet['sek_title_db']." like '%".Misc::escapeString($options["searchKey".$x])."%' ");
+									}
+            	 	        	}			             	 	        		
+							} elseif ($sekdet['sek_data_type'] == "date") {
+								// already handled date above
             	 	        } else {     
-            	 	          	if ($firstLoop === true) {
-            	 	          		$firstX = $x;  
-            	 	          	}	        	
             	 	        	$restriction = "";
-            	 	        	if ($options["searchKey".$x] == "-1") {
-            	 	        		if ($firstLoop === true) {
-            	 	        			 $joinType = " FROM ";
-            	 	        			 Misc::addToWhere(&$searchKey_join[2], "not exists 
-										(select * from ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field as sr where sr.rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).") and sr.rmf_rec_pid = r".$x.".rmf_rec_pid)");            	 	        			 
-            	 	        		} else {
-            	 	        			$joinType = " LEFT JOIN ";
-            	 	        			Misc::addToWhere(&$searchKey_join[2], "r".$x.".rmf_".$sekdet['xsdmf_data_type']." is null ");
-            	 	        			$restriction = " and r".$x.".rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).")";            	 	        			
-            	 	        		}            	 	        	                   	 	        		  	 	        		            	 	        	            	 	        	
-
-            	 	   	    	} elseif ($options["searchKey".$x] == "-2") {
+            	 	        	if ($options["searchKey".$x] == "-1") { //where empty or not set
+        	 	        			$joinType = " LEFT JOIN ";
+        	 	        			Misc::addToWhere(&$searchKey_join[2], "r".$x.".rek_".$sekdet['sek_title_db']." is null ");
+            	 	   	    	} elseif ($options["searchKey".$x] == "-2") { //this user
             	 	        		$usr_id = Auth::getUserID();
-            	 	        		$restriction = " and r".$x.".rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).")"." and r".$x.".rmf_".$sekdet['xsdmf_data_type']." = ".$usr_id;
-            	 	   	    	} elseif ($options["searchKey".$x] == "-4") {
-            	 	        		$published_id = Status::getID("Published");
-            	 	        		$restriction = " and r".$x.".rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).")"." and r".$x.".rmf_".$sekdet['xsdmf_data_type']." != ".$published_id;            	 	        		
-            	 	   	    	} elseif ($options["searchKey".$x] == "-3") {            	 	        		
+            	 	        		$restriction = " r".$x.".rek_".$sekdet['sek_title_db']." = ".$usr_id;
+            	 	   	    	} elseif ($options["searchKey".$x] == "-4") { //not published
+            	 	        		$published_id = Status::getID("Published");            	 	        		
+            	 	        		$restriction = " r1.rek_".$sekdet['sek_title_db']." != ".$published_id;            	 	        		
+            	 	   	    	} elseif ($options["searchKey".$x] == "-3") { //not this use           	 	        		
             	 	        		$usr_id = Auth::getUserID();
-            	 	        		if ($firstLoop === true) {            	 	        			
-            	 	        			$firstX = $x;
-            	 	        			$joinType = " FROM ";
-	            	 	        		//$sortRestriction = " and (r".$x.".rmf_".$sekdet['xsdmf_data_type']." is null or r".$x.".rmf_".$sekdet['xsdmf_data_type']." = '".$usr_id."')";
-            	 	        		} else {
-            	 	        			$joinType = " LEFT JOIN ";
-            	 	        			            	 	        			            	 	        				
-            	 	        		}           	 	        		
-            	 	        		Misc::addToWhere(&$searchKey_join[2], " ((r".$x.".rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).") and r".$x.".rmf_".$sekdet['xsdmf_data_type']." = '".$usr_id."') or not exists 
-										(select * from ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field as sr where sr.rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).") and sr.rmf_rec_pid = r".$x.".rmf_rec_pid))");
-            	 	        	} else {            	 	        
-            	 	        		$restriction = " and r".$x.".rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).")"." and r".$x.".rmf_".$sekdet['xsdmf_data_type']." ".$options["sql"]["searchKey".$x]." ";
-            	 	        	}
-            	 	        	if ($firstLoop === true) {
-            	 	 				$searchKey_join[0] .= $joinType." 
-											     ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field as r".$x;
-            	 	 				Misc::addToWhere(&$searchKey_join[2],											  
-            	 	 						 $restriction);
+           	 	        			$joinType = " LEFT JOIN ";
+            	 	        		Misc::addToWhere(&$searchKey_join[2], " ((r".$x.".rek_".$sekdet['sek_title_db']." = '".$usr_id."') OR NOT EXISTS 
+										(SELECT * FROM ". $dbtp . "record_search_key_".$sekdet['sek_title_db']." AS sr WHERE sr.rek_".$sekdet['sek_title_db']."_pid = r".$x.".rek_pid))");
             	 	        	} else {
+            	 	        		if ($sekdet['sek_relationship'] == 1) {            	 	        
+            	 	        			$restriction = "  r".$x.".rek_".$sekdet['sek_title_db']." ".$options["sql"]["searchKey".$x]." ";
+            	 	        		} else {
+            	 	        			$restriction = "  r".$searchKey_join[4].".rek_".$sekdet['sek_title_db']." ".$options["sql"]["searchKey".$x]." ";
+            	 	        		}
+            	 	        	}
+            	 	        	if ($sekdet['sek_relationship'] == 1) {
             	 	 				$searchKey_join[0] .= $joinType." 
-											     ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field as r".$x." on r".$x.".rmf_rec_pid = r".$searchKey_join[4].".rmf_rec_pid ".											 
+											     ". $dbtp . "record_search_key_".$sekdet['sek_title_db']." as r".$x." on r".$x.".rek_".$sekdet['sek_title_db']."_pid = r".$searchKey_join[4].".rek_pid and ".											 
             	 	 						 $restriction;
-            	 	 				//$searchKey
+            	 	        	} else {            	 	 														 
+            	 	 				Misc::addToWhere(&$searchKey_join[2], $restriction);
             	 	        		
             	 	        	}
+            	 	 				//$searchKey
+            	 	        		
+            	 	        	//}
             	 	        }
             	 	        $firstLoop = false; 
             	 	    }
@@ -1375,11 +1527,6 @@ class Record
             	}                        	           
             }
         }       
-        if ($firstLoop === true) {
-        	$x = 0;        
-    	  	$searchKey_join[0] = "FROM ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field as r".$x;	
-        }
-        
         	
         if (!empty($sort_by) && $x != 0) { // only do a sort if the query has be limited in some way, otherwise it is far too slow        	
              $x = ltrim($sort_by, "searchKey");
@@ -1389,27 +1536,26 @@ class Record
 					             		             		             		
              		if ($options["sort_order"] == 0) {
 	             		$searchKey_join[3] .= " Relevance ASC, ";
-	             		$searchKey_join[10] .= " Relevance ASC, ";
+	             		//$searchKey_join[10] .= " Relevance ASC, ";
 					} else { 
 						$searchKey_join[3] .= " Relevance DESC, ";
-						$searchKey_join[10] .= " Relevance DESC, ";
+						//$searchKey_join[10] .= " Relevance DESC, ";
 					}
              	} else {
-		        	 $sekdet = Search_Key::getDetails($x);
-		             $sek_xsdmfs = XSD_HTML_Match::getXSDMF_IDsBySekTitle($sekdet['sek_title']);             
-		             if (count($sek_xsdmfs) > 0) {
+		        	$sekdet = Search_Key::getDetails($x);	     	 
+	             	if ($sekdet['sek_relationship'] == 1) {
 		        		$searchKey_join[1] .= " 
-						    LEFT JOIN ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field as rsort".$x." on rsort".$x.".rmf_rec_pid = r".$searchKey_join[4].".rmf_rec_pid ".
-						  " and rsort".$x.".rmf_xsdmf_id in (".implode(",", $sek_xsdmfs).")".$sortRestriction;
-		             	$searchKey_join[9] = ",  rsort".$x.".rmf_".$sekdet['xsdmf_data_type']." ";		             	
-					    if ($options["sort_order"] == "1") {		             		
-		             		$searchKey_join[3] .= " rsort".$x.".rmf_".$sekdet['xsdmf_data_type']." DESC, ";
-		             		$searchKey_join[10] .= "rmf_".$sekdet['xsdmf_data_type']." DESC, ";
-		             	} else {
-		             		$searchKey_join[3] .= " rsort".$x.".rmf_".$sekdet['xsdmf_data_type']." ASC, ";
-		             		$searchKey_join[10] .= "rmf_".$sekdet['xsdmf_data_type']." ASC, ";         
-		             	}
-		             }
+						    LEFT JOIN ". $dbtp . "record_search_key_".$sekdet['sek_title_db']." as rsort".$x." on rsort".$x.".rek_".$sekdet['sek_title_db']."_pid = r".$searchKey_join[4].".rek_pid ".$sortRestriction;
+						$searchKey_join[3] .= " rsort".$x;
+	             	} else {
+	             		$searchKey_join[3] .= "r".$searchKey_join[4];
+	             	} 
+				    if ($options["sort_order"] == "1") {		             		
+	             		$searchKey_join[3] .= ".rek_".$sekdet['sek_title_db']." DESC, ";
+	             		//$searchKey_join[10] .= "rek_".$sekdet['xsdmf_data_type']." DESC, ";
+	             	} else {
+	             		$searchKey_join[3] .= ".rek_".$sekdet['sek_title_db']." ASC, ";
+	             	}
              	}
              }
 //        } elseif ($options["searchKey0"] && trim($options["searchKey0"]) != "") { // If used a search all fields then sort by search relevance unless specific sort by variable was sent
@@ -1417,6 +1563,7 @@ class Record
         }
         return $searchKey_join;   	
     }
+     
     
     /**
      * Find all records where the user is creator  (based on getAssigned)
@@ -1434,109 +1581,7 @@ class Record
     	$usr_id = Auth::getUserID();
     	$options["searchKey".Search_Key::getID("Depositor")] = $usr_id;
     	return Record::getListing($options, array("Lister"), $current_page, $page_rows, $sort_by);
-/*    	
-    	
-        if ($page_rows == "ALL") {
-            $page_rows = 9999999;
-        }
-        $start = $current_page * $page_rows;
-
-        if ($sort_by == '') {
-        	$sort_by = "searchKey".Search_Key::getID("Title");
-        }        
-        $sek_id = ltrim($sort_by, "searchKey");
-        $current_row = $current_page * $page_rows;
-        $sekdet = Search_Key::getDetails($sek_id);
-        //print_r($sekdet);
-        $data_type = $sekdet['xsdmf_data_type'];
-		$dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-
-
-		$depositorList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Depositor');	
-		$orderByList = XSD_HTML_Match::getXSDMF_IDsBySekID($sekdet["sek_id"]);
-		
-        if (empty($usr_id)) {
-            $usr_id = Auth::getUserID(); 
-        }
-
-		if ($sort_order == 0) {
-			$order_dir = "ASC";
-		} else {
-			$order_dir = "DESC";			
-		}
-        $r4_join_field = "r2.rmf_rec_pid";
-
-        $bodyStmtPart1 = "FROM  {$dbtp}record_matching_field AS r2 ";
-        $bodyStmt = " $bodyStmtPart1
-
-                    LEFT JOIN " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "record_matching_field r5 on r5.rmf_rec_pid = r2.rmf_rec_pid
-                    and r5.rmf_xsdmf_id in (".implode(",", $depositorList).")
-                   
-					where r2.rmf_int=$usr_id and r2.rmf_xsdmf_id in (".implode(",", $depositorList).") 					
-					group by r5.rmf_rec_pid
-
-					
-                    
-             ";
-
-        $countStmt = "
-                    SELECT ".APP_SQL_CACHE."  count(distinct r2.rmf_rec_pid)
-                    $bodyStmtPart1
-            ";
-
-        $stmt = "SELECT ".APP_SQL_CACHE."  r1.*, x1.*, s1.*, k1.*, d1.* 
-            FROM {$dbtp}record_matching_field AS r1
-            INNER JOIN {$dbtp}xsd_display_matchfields AS x1
-            ON r1.rmf_xsdmf_id = x1.xsdmf_id
-            INNER JOIN (
-                    SELECT ".APP_SQL_CACHE."  distinct r2.rmf_rec_pid, min(r5.rmf_int) as sort_column
-                    $bodyStmt
-					order by sort_column $order_dir, r2.rmf_rec_pid desc
-                    LIMIT $start, $page_rows
-                    ) as display ON display.rmf_rec_pid=r1.rmf_rec_pid 
-            LEFT JOIN {$dbtp}xsd_loop_subelement s1 
-            ON (x1.xsdmf_xsdsel_id = s1.xsdsel_id) 
-            LEFT JOIN {$dbtp}search_key k1 
-            ON (k1.sek_id = x1.xsdmf_sek_id)
-            LEFT JOIN {$dbtp}xsd_display d1  
-            ON (d1.xdis_id = r1.rmf_int and k1.sek_title = 'Display Type')
-            ORDER BY display.sort_column $order_dir, r1.rmf_rec_pid DESC ";
-//echo $stmt;
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-
-			if (PEAR::isError($res)) {
-				Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-				$res = array();
-			}
-		/*} else {
-			$res = array();
-		}*/
-/*
-        $return = Collection::makeReturnList($res);
-        $return = Collection::makeSecurityReturnList($return);
-//		$return = array_values($return);
-		$return = Auth::getIndexAuthorisation($return);
-//		print_r($return);		
-		$return = Collection::getWorkflows($return); 
-		$list = $return;
-
-
-		$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
-//        $total_rows = count($list);
-//        $list = array_slice($list,$current_row, $page_rows);
-        $total_pages = intval($total_rows / $page_rows);
-        if ($total_rows % $page_rows) {
-            $total_pages++;
-        }
-        $next_page = ($current_page >= $total_pages) ? -1 : $current_page + 1;
-        $prev_page = ($current_page <= 0) ? -1 : $current_page - 1;
-        $last_page = $total_pages - 1;
-        $current_last_row = $current_row + count($list);
-        $info = compact('total_rows', 'page_rows', 'current_row','current_last_row','current_page','total_pages',
-                'next_page','prev_page','last_page');
-        return compact('info','list');*/
     }
-
 
     
     /**
@@ -1548,19 +1593,13 @@ class Record
      */
     function publishAllUnsetStatusPids($sta_id=2)
     {
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX; // Database and table prefix
-        $stmt = "SELECT ".APP_SQL_CACHE."  distinct rmf_rec_pid FROM 
-        ".$dbtp."record_matching_field 
-        WHERE rmf_rec_pid NOT IN (
-                SELECT ".APP_SQL_CACHE."  rmf.rmf_rec_pid FROM
-                ".$dbtp."record_matching_field AS rmf
-                INNER JOIN ".$dbtp."xsd_display_matchfields AS xdmf 
-                ON xdmf.xsdmf_id=rmf.rmf_xsdmf_id
-                WHERE xdmf.xsdmf_element='!sta_id' 
-                )";
+        $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+        $stmt = "SELECT ".APP_SQL_CACHE."   rek_pid FROM 
+        ".$dbtp."record_search_key
+        WHERE rek_status is null";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         foreach ($res as $row) {
-            $r = new RecordObject($row['rmf_rec_pid']);
+            $r = new RecordObject($row['rek_pid']);
             if ($r->getXmlDisplayId()) {
                 echo $r->getTitle()."<br/>\n";
                 $r->setStatusId($sta_id);
@@ -1761,8 +1800,10 @@ class Record
                 }
 			}
         }
-        History::addHistory($this->pid, null, "", "", true, "Record modified", null);
+
 		Record::setIndexMatchingFields($pid);
+		
+
     }
     
     function generatePresmd($pid, $dsIDName)
@@ -1852,7 +1893,6 @@ class Record
     {
         
     }
-    
 }
 
 
@@ -1945,14 +1985,11 @@ class RecordGeneral
 
     function getXmlDisplayIdUseIndex() 
     {
-    	$dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+    	$dbtp = APP_TABLE_PREFIX;
         if (!$this->no_xdis_id) {
             if (empty($this->xdis_id)) {
-				$stmt = "SELECT rmf_int FROM ".$dbtp."record_matching_field 
-						INNER JOIN ".$dbtp."xsd_display_matchfields 
-						ON xsdmf_id=rmf_xsdmf_id AND xsdmf_element = '!xdis_id' 
-						WHERE rmf_rec_pid_num = ".Misc::numPid($this->pid)." 
-							AND rmf_rec_pid = '".$this->pid."'";
+				$stmt = "SELECT rek_display_type FROM ".$dbtp."record_search_key 
+						WHERE rek_pid = '".$this->pid."'";
 				$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 				$this->xdis_id = $res;
 		        if (PEAR::isError($res)) {
@@ -2164,7 +2201,7 @@ class RecordGeneral
 		$fieldNodeList = $xpath->query("/*[local-name()='RDF' and namespace-uri()='http://www.w3.org/1999/02/22-rdf-syntax-ns#']/*[local-name()='description' and namespace-uri()='http://www.w3.org/1999/02/22-rdf-syntax-ns#'][1]/*[local-name()='isMemberOf' and namespace-uri()='info:fedora/fedora-system:def/relations-external#']");
 		foreach ($fieldNodeList as $fieldNode) { // first delete all the isMemberOfs
 			$parentNode = $fieldNode->parentNode;
-			Error_Handler::logError($fieldNode->nodeName.$fieldNode->nodeValue,__FILE__,__LINE__);			
+			Error_Handler::logError($fieldNode->nodeName.$fieldNode->nodeValue,__FILE__,__LINE__);
 			$parentNode->removeChild($fieldNode);
 		} 
 		$newNode = $doc->createElementNS('info:fedora/fedora-system:def/relations-external#', 'rel:isMemberOf');
@@ -2177,6 +2214,67 @@ class RecordGeneral
 			Record::setIndexMatchingFields($this->pid);            
         }
     }    
+
+    function fixInheritance() {
+		$dbtp = APP_TABLE_PREFIX;
+		  // first check if any rmf rows exist for the fezacml displays based on the fezacml xsd (29)
+  	      $stmt = "SELECT COUNT(rek_id) AS rek_count                  
+               FROM
+                  " . $dbtp . "record_matching_field INNER JOIN 
+                  " . $dbtp . "xsd_display_matchfields ON rek_xsdmf_id = xsdmf_id INNER JOIN
+                  " . $dbtp . "xsd_display ON xsdmf_xdis_id = xdis_id and xdis_xsd_id = 29                 
+               WHERE
+                  rek_pid = '".$this->pid."' and rek_varchar <> 'off'
+               ";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        } else {    	
+	    	if ($res['rek_count'] > 0) {
+	    		//if there are fezacml rules already set on the object it will check to see if the current value is on otherwise set it to off
+	    		$value = "off";
+	    	} else {
+	    		$value = "on";
+	    	}
+	    	
+	    	$newXML = "";
+	        $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'FezACML', true);
+	        if (!empty($xmlString)) {
+				$doc = DOMDocument::loadXML($xmlString);
+				$xpath = new DOMXPath($doc);
+				$found_existing = false;
+				$fieldNodeList = $xpath->query("//inherit_security");
+				if ($fieldNodeList->length > 0) {
+					foreach ($fieldNodeList as $fieldNode) { // first delete all the existing inherit_security associations (should really on be one, but just in case)
+						$temp_value = $fieldNode->nodeValue; //if there is already a value ('on') then keep it for saving later
+						$parentNode = $fieldNode->parentNode;
+						//if ($temp_value == 'on' || $temp_value == 'off') {
+						if ($temp_value == 'on') {
+							$found_existing = true;
+							//$value = $temp_value;
+						}  else { // if haven't found an on value then delete the current element to prepare for a new one					
+							//Error_Handler::logError($fieldNode->nodeName.$fieldNode->nodeValue,__FILE__,__LINE__);			
+							$parentNode->removeChild($fieldNode);
+						}
+					}
+				} else { 
+					// no inheritance element found at all so go with rek_count set value
+					$parentNode = $doc->lastChild;
+				}
+				if (!$found_existing) { //if havent found a on or off value then set it and save the record
+					$newNode = $doc->createElement('inherit_security');
+				    $newNode->nodeValue = $value;
+					$parentNode->insertBefore($newNode);
+			//		Error_Handler::logError($doc->SaveXML(),__FILE__,__LINE__);		
+					$newXML = $doc->SaveXML();
+			        if ($newXML != "") {
+			            Fedora_API::callModifyDatastreamByValue($this->pid, "FezACML", "A", "FezACML", $newXML, "text/xml", false);
+						Record::setIndexMatchingFields($this->pid, '', false); //instead of running this here             
+			        }
+				}
+	        }
+        }
+    }       
     
     /**
      * updateFezMD_User
@@ -2405,7 +2503,7 @@ class RecordGeneral
         }
         return $this->details;
     }
-    
+
     
     /**
      * Clear the cached details in this record.  Used when the record has been altered to force
@@ -2645,21 +2743,23 @@ class RecordGeneral
     }
 
 
-    function getChildrenPids()
+    function getChildrenPids($clearcache=false, $searchKey='isMemberOf')
     {
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-        $stmt = "SELECT ".APP_SQL_CACHE."  rmf_rec_pid 
-            FROM ".$dbtp."record_matching_field
-            INNER JOIN ".$dbtp."xsd_display_matchfields ON rmf_xsdmf_id=xsdmf_id AND rmf_varchar='".$this->pid."'
-            INNER JOIN ".$dbtp."search_key ON xsdmf_sek_id=sek_id AND sek_title='isMemberOf' ";
-        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+		$pid = $this->pid;
+    	$sek_title = Search_Key::makeSQLTableName($searchKey);
+		$stmt = "SELECT ".APP_SQL_CACHE."  
+					m1.rek_".$sek_title."_pid
+				 FROM
+					" . APP_TABLE_PREFIX . "record_search_key_".$sek_title." m1
+				 WHERE m1.rek_".$sek_title." = '".$pid."'";
+		$res = $GLOBALS["db_api"]->dbh->getCol($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return array();
+        } else {
+            return $res;
         }
-        return $res;
     }
-
+         
     function export()
     {
         return Fedora_API::export($this->pid);
@@ -2695,19 +2795,20 @@ class RecordGeneral
         $display = new XSD_DisplayObject($xdis_id);
         $array_ptr = array();
         $xsdmf_array = $display->getXSDMF_Values($pid);     
+
         Record::removeIndexRecord($pid, '', 'keep', array(), array(), $fteindex); //CK 22/5/06 = added last 2 params to make it keep the dsID indexes for Fezacml on datastreams // remove any existing index entry for that PID // CK added 9/1/06 - still working on this
-        //print_r($xsdmf_array); exit;
+//        print_r($xsdmf_array); exit;
         foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
             if (!is_array($xsdmf_value) && !empty($xsdmf_value) && (trim($xsdmf_value) != "")) {                    
                 $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
-                if ($xsdmf_details['xsdmf_indexed'] == 1) {
+                if ($xsdmf_details['xsdmf_indexed'] == 1 && ($xsdmf_details['xsdmf_html_input'] != 'checkbox' || $xsdmf_details['xsdmf_element'] == '!inherit_security')) {
                     Record::insertIndexMatchingField($pid, $dsID, $xsdmf_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_value);
                 }
             } elseif (is_array($xsdmf_value)) {
                 foreach ($xsdmf_value as $xsdmf_child_value) {
                     if ($xsdmf_child_value != "") {
                         $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
-                        if ($xsdmf_details['xsdmf_indexed'] == 1) {
+                        if ($xsdmf_details['xsdmf_indexed'] == 1 && ($xsdmf_details['xsdmf_html_input'] != 'checkbox' || $xsdmf_details['xsdmf_element'] == '!inherit_security')) {
                             Record::insertIndexMatchingField($pid, $dsID, $xsdmf_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_child_value);
                         }
                     }
@@ -2850,7 +2951,6 @@ class RecordGeneral
         
         return Citation::renderCitation($this->xdis_id, $details, $xsdmfs);
     }
-    
     /**
      * Mark the fedora state of the record as deleted.  This keeps the record around in case we want to undelete it
      * later. We tell the Fez indexer not to index Fedora Deleted objects.
@@ -2897,6 +2997,8 @@ class RecordGeneral
     }
     
     
+
+
 }
 
 /**
@@ -3092,7 +3194,7 @@ class RecordObject extends RecordGeneral
 				$this->getFileDownloadsCount();
 			} 
 			$file_downloads = $this->file_downloads;
-            $this->getXmlDisplayId();
+			$this->getXmlDisplayId();
 		}
         $pid = $this->pid;
 
@@ -3121,7 +3223,7 @@ class RecordObject extends RecordGeneral
 //		echo $xmlObj;
 		$datastreamTitles = $display->getDatastreamTitles($exclude_list, $specify_list); 
         Record::insertXML($pid, compact('datastreamTitles', 'exclude_list', 'specify_list', 'xmlObj', 'indexArray', 'existingDatastreams', 'xdis_id'), $ingestObject);
-        $this->clearDetails();  // force the details to be refreshed from fedora.
+		$this->clearDetails();  // force the details to be refreshed from fedora.
 		return $pid;
     }
     

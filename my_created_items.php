@@ -56,7 +56,7 @@ $grp_id = $options['grp_id'];
 $usr_id = $options['usr_id'];
 $sort_by = $options['sort_by'];
 
-if (empty($sort_by)) {
+if (empty($sort_by) || ($sort_by == "searchKey0" && empty($options['searchKey0']))) {
 	$sort_by = "searchKey".Search_Key::getID("Title");
 }
 
@@ -74,11 +74,7 @@ $tpl->assign('sort_by_default', $sort_by);
 $tpl->assign('sort_by_dir_default', $sort_by_dir);
 
 $search_keys = Search_Key::getMyFezSearchList();
-$collection_list = Collection::getEditList();
-$collection_assoc_list = array();
-foreach ($collection_list as &$item) {
-   $collection_assoc_list[$item['pid']] = $item['title'][0];
-}
+$collection_assoc_list = Collection::getEditListAssoc();
 foreach ($search_keys as $skey => $svalue) {
 	if ($svalue["sek_id"] == Search_Key::getID("isMemberOf")) {
 		$search_keys[$skey]["field_options"] = $collection_assoc_list;
@@ -165,9 +161,10 @@ if (empty($rows)) {
     $rows = APP_DEFAULT_PAGER_SIZE;
 }
 $sort_by = Pager::getParam('sort_by');
-if (empty($sort_by)) {
-    $sort_by = "searchKey".Search_Key::getID("Title");
+if (empty($sort_by) || ($sort_by == "searchKey0" && empty($options['searchKey0']))) {
+	$sort_by = "searchKey".Search_Key::getID("Title");
 }
+$tpl->assign('sort_by_default', $sort_by);
 $sort_by_dir = Pager::getParam('sort_by_dir');
 $created_items= Record::getCreated($options, $pager_row, $rows, $sort_by, $sort_by_dir);
 

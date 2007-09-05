@@ -69,7 +69,7 @@ class WorkflowStateLink
         $stmt = rtrim($stmt,', ');
         if (!empty($stmt)) {
             $stmt = "INSERT INTO 
-                ".APP_DEFAULT_DB.".".APP_TABLE_PREFIX."workflow_state_link 
+                " . APP_TABLE_PREFIX . "workflow_state_link 
                 (wfsl_wfl_id, wfsl_from_id, wfsl_to_id) VALUES
                 ".$stmt;
             $res1 = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -105,7 +105,7 @@ class WorkflowStateLink
     function insert($from, $to, $wfl_id) 
     {
     	$stmt = "INSERT INTO 
-                ".APP_DEFAULT_DB.".".APP_TABLE_PREFIX."workflow_state_link 
+                " . APP_TABLE_PREFIX . "workflow_state_link 
                 (wfsl_wfl_id, wfsl_from_id, wfsl_to_id) VALUES
                 ('".$wfl_id."','".$from."','".$to."')";
         $res1 = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -123,7 +123,7 @@ class WorkflowStateLink
 
     function getDetails($wfsl_id)
     {
-        $stmt = "SELECT * FROM ".APP_DEFAULT_DB.".".APP_TABLE_PREFIX."workflow_state_link
+        $stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "workflow_state_link
             WHERE wfsl_id='".$wfsl_id."'";
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt,DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
@@ -147,7 +147,7 @@ class WorkflowStateLink
         	return;
         }
         $stmt = "DELETE FROM 
-            ".APP_DEFAULT_DB.".".APP_TABLE_PREFIX."workflow_state_link 
+            " . APP_TABLE_PREFIX . "workflow_state_link 
             WHERE wfsl_from_id IN (".$items.") OR wfsl_to_id IN (".$items.")
             ";
         $res1 = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -164,7 +164,7 @@ class WorkflowStateLink
     function getListNext($state)
     {
         $stmt = "SELECT wfsl_to_id FROM 
-            ".APP_DEFAULT_DB.".".APP_TABLE_PREFIX."workflow_state_link 
+            " . APP_TABLE_PREFIX . "workflow_state_link 
             WHERE wfsl_from_id=".$state;
         $res1 = $GLOBALS["db_api"]->dbh->getCol($stmt);
         if (PEAR::isError($res1)) {
@@ -182,7 +182,7 @@ class WorkflowStateLink
     function getListPrev($state)
     {
         $stmt = "SELECT wfsl_from_id FROM 
-            ".APP_DEFAULT_DB.".".APP_TABLE_PREFIX."workflow_state_link 
+            " . APP_TABLE_PREFIX . "workflow_state_link 
             WHERE wfsl_to_id=".$state;
         $res1 = $GLOBALS["db_api"]->dbh->getCol($stmt);
         if (PEAR::isError($res1)) {
@@ -201,7 +201,7 @@ class WorkflowStateLink
     function getNextByWkFlow($wfl_id)
     {
         $stmt = "SELECT * FROM 
-            ".APP_DEFAULT_DB.".".APP_TABLE_PREFIX."workflow_state_link 
+            " . APP_TABLE_PREFIX . "workflow_state_link 
             WHERE wfsl_wfl_id=".$wfl_id;
         $res1 = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res1)) {
@@ -220,7 +220,7 @@ class WorkflowStateLink
     function getPrevByWkFlow($wfl_id)
     {
         $stmt = "SELECT * FROM 
-            ".APP_DEFAULT_DB.".".APP_TABLE_PREFIX."workflow_state_link 
+            " . APP_TABLE_PREFIX . "workflow_state_link 
             WHERE wfsl_wfl_id=".$wfl_id;
         $res1 = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res1)) {
@@ -238,7 +238,7 @@ class WorkflowStateLink
     function getList($wfl_id)
     {
         $stmt = "SELECT * FROM 
-            ".APP_DEFAULT_DB.".".APP_TABLE_PREFIX."workflow_state_link 
+            " . APP_TABLE_PREFIX . "workflow_state_link 
             WHERE wfsl_wfl_id=".$wfl_id;
         $res1 = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res1)) {

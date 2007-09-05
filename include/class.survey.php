@@ -87,7 +87,7 @@ class Survey
 		$sur_external_freq = is_numeric(@$HTTP_POST_VARS["sur_external_freq"]) ? $HTTP_POST_VARS["sur_external_freq"] : 5;
 				
         $stmt = "INSERT INTO
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "survey
+                    " . APP_TABLE_PREFIX . "survey
                  (
 				 	sur_usr_id,
                     sur_experience,
@@ -155,7 +155,7 @@ class Survey
     }
 
 	function hasFilledSurvey($usr_id) {
-		$stmt = "select count(*) from " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "survey where sur_usr_id = $usr_id";
+		$stmt = "select count(*) from " . APP_TABLE_PREFIX . "survey where sur_usr_id = $usr_id";
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 		if (($res > 0) && (!empty($res))) {
 			$filled = 1;

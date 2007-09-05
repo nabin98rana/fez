@@ -402,7 +402,7 @@ class Foxml
      */
     function array_to_xml_instance($a, &$xmlObj="", $element_prefix, $sought_node_type="", $tagIndent="", $parent_sel_id="", $xdis_id, $pid, $top_xdis_id, $attrib_loop_index="", &$indexArray=array(), $file_downloads=0, $created_date, $updated_date, $depositor, $assign_usr_id=null, $assign_grp_id=null) {
         global $HTTP_POST_VARS, $HTTP_POST_FILES; 
-//        $tagIndent .= "    ";
+//        $tagIndent .= "    ";	
 $tagIndent = "";
         // *** LOOP THROUGH THE XSD ARRAY
         foreach ($a as $i => $j) {
@@ -434,9 +434,20 @@ $tagIndent = "";
 									} elseif ($xsdmf_details['xsdmf_use_parent_option_list'] == 1) {
 										$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id];
 									} else {
-										$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id];
+										if ($HTTP_POST_VARS['cat'] != 'update_security' && $xsdmf_details['xsdmf_cso_value'] == 'checked') { // special exception for non-security forms creation of fezacml 
+											$attrib_value = "on";
+										} else {
+											$attrib_value = "off";
+										}
 									}
                                     array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])));
+                                } elseif ($xsdmf_details['xsdmf_html_input'] == 'checkbox') {
+									$checkbox_value = Misc::checkBox($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]);
+									if ($checkbox_value == 1) {
+										$attrib_value = "on";
+									} else {
+										$attrib_value = "off";
+									}                                    
                                 } elseif ($xsdmf_details['xsdmf_html_input'] == 'contvocab' || $xsdmf_details['xsdmf_html_input'] == 'contvocab_selector') {
                                     Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, array(), $attrib_loop_index, $element_prefix, $i, $xmlObj, $tagIndent);
                                 } elseif ($xsdmf_details['xsdmf_html_input'] == 'multiple') {
@@ -444,7 +455,7 @@ $tagIndent = "";
                                 } elseif ($xsdmf_details['xsdmf_html_input'] == 'xsdmf_id_ref') { // this assumes the xsdmf_id_ref will only refer to an xsdmf_id which is a text/textarea/combo/multiple, will have to modify if we need more
                                     $xsdmf_details_ref = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_details['xsdmf_id_ref']);
                                     if ($xsdmf_details_ref['xsdmf_html_input'] == 'date') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple							
-										$dateReturn = Misc::getPostedDate($xsdmf_id);
+										$dateReturn = Misc::getPostedDate($xsdmf_details['xsdmf_id_ref']);
 										$attrib_value = $dateReturn['value'];
                                         array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details_ref['xsdmf_data_type'], $attrib_value));
                                     } elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'combo') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple
@@ -457,6 +468,17 @@ $tagIndent = "";
 										}
 //                                        $attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']]);
                                         array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']])));									
+	                                } elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'checkbox') {
+										$checkbox_value = Misc::checkBox($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']]);
+										if ($checkbox_value == 1) {
+											$attrib_value = "on";
+										} else {
+											if ($HTTP_POST_VARS['cat'] != 'update_security' && $xsdmf_details_ref['xsdmf_cso_value'] == 'checked') { // special exception for non-security forms creation of fezacml 
+												$attrib_value = "on";
+											} else {
+												$attrib_value = "off";
+											}
+										}                                                                                                               
                                     } elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'contvocab' || $xsdmf_details_ref['xsdmf_html_input'] == 'contvocab_selector') {
                                         Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_details_ref['xsdmf_id'], $xsdmf_details_ref, $xsdmf_details, $attrib_loop_index, $xsdmf_details_ref['xsdmf_element_prefix'], $i, $xmlObj, $tagIndent);
                                     } elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'multiple') {
@@ -543,7 +565,7 @@ $tagIndent = "";
                                 }
                             }	
                             $attrib_value = "";
-                            if ($xsdmf_details['xsdmf_html_input'] == 'date') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple							
+                            if ($xsdmf_details['xsdmf_html_input'] == 'date') { 							
 								$dateReturn = Misc::getPostedDate($xsdmf_id);
                                 $attrib_value = $dateReturn['value'];
                                 array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
@@ -556,6 +578,17 @@ $tagIndent = "";
 									$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id];
 								}
                                 array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));									
+                            } elseif ($xsdmf_details['xsdmf_html_input'] == 'checkbox') {
+									$checkbox_value = Misc::checkBox($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]);
+									if ($checkbox_value == 1) {
+										$attrib_value = "on";
+									} else {
+										if ($HTTP_POST_VARS['cat'] != 'update_security' && $xsdmf_details['xsdmf_cso_value'] == 'checked') { // special exception for non-security forms creation of fezacml 
+											$attrib_value = "on";
+										} else {
+											$attrib_value = "off";
+										}										
+									} 
                             } elseif ($xsdmf_details['xsdmf_html_input'] == 'contvocab' || $xsdmf_details['xsdmf_html_input'] == 'contvocab_selector') {							
                                 Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, array(), $attrib_loop_index, $element_prefix, $i, $xmlObj, $tagIndent);
                             } elseif ($xsdmf_details['xsdmf_html_input'] == 'multiple' && isset($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) {
@@ -563,7 +596,7 @@ $tagIndent = "";
                             } elseif ($xsdmf_details['xsdmf_html_input'] == 'xsdmf_id_ref') { // this assumes the xsdmf_id_ref will only refer to an xsdmf_id which is a text/textarea/combo/multiple, will have to modify if we need more
                                 $xsdmf_details_ref = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_details['xsdmf_id_ref']);
                                 if ($xsdmf_details_ref['xsdmf_html_input'] == 'date') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple							
-									$dateReturn = Misc::getPostedDate($xsdmf_id);
+									$dateReturn = Misc::getPostedDate($xsdmf_details['xsdmf_id_ref']);
 									$attrib_value = $dateReturn['value'];
                                     array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details_ref['xsdmf_data_type'], $attrib_value));
                                 } elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'combo') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple
@@ -577,6 +610,20 @@ $tagIndent = "";
 										$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']];
 									}
 									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details_ref['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']])));
+                                } elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'checkbox') {
+									$checkbox_value = Misc::checkBox($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']]);
+									if ($checkbox_value == 1) {
+										$attrib_value = "on";
+									} else {
+										if ($HTTP_POST_VARS['cat'] != 'update_security' && $xsdmf_details_ref['xsdmf_cso_value'] == 'checked') { // special exception for non-security forms creation of fezacml 
+											$attrib_value = "on";
+										} else {
+											if ($HTTP_POST_VARS['cat'] != 'update_security' && $xsdmf_details['xsdmf_cso_value'] == 'checked') { // special exception for non-security forms creation of fezacml 
+												$attrib_value = "on";
+											} else {
+												$attrib_value = "off";
+											}	
+										}									}                                                                                                               								
                                 } elseif ($xsdmf_details['xsdmf_html_input'] == 'contvocab' || $xsdmf_details['xsdmf_html_input'] == 'contvocab_selector') {
                                     Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_details_ref['xsdmf_id'], $xsdmf_details_ref, $xsdmf_details, $attrib_loop_index, $xsdmf_details_ref['element_prefix'], $i, $xmlObj, $tagIndent);
                                 } elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'multiple') {

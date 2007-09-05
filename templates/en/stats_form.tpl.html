@@ -97,22 +97,6 @@ function disableFields()
 </script>
 {/literal}
 
-{literal}
-<script language="JavaScript">
-<!--
-function purgeObject(pid)
-{
-    if (!confirm('This action will permanently delete the selected object.')) {
-        return false;
-    } else {
-        var features = 'width=420,height=200,top=30,left=30,resizable=yes,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
-        var popupWin = window.open('popup.php?cat=purge_object&pid=' + pid, '_popup', features);
-        popupWin.focus();
-    }
-}
-//-->
-</script>
-{/literal}
 <table width="100%" bgcolor="{$cell_color}" cellspacing="0" cellpadding="1" align="center">
   <form name="list_form" method="get" action="{$smarty.server.PHP_SELF}">
   <input type="hidden" name="cat" value="assign">
@@ -120,22 +104,6 @@ function purgeObject(pid)
     <td>
       <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" >
 
-		{if $list_type == 'collection_records_list'}
-		<tr>
-		  <td align="left"> <br />
-			<table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="1">
-				<tr>
-				  <td align="left" class="default"> <b>Parent Communities: </b></td>
-				  <td align="left" class="default"> &nbsp;
-					{section name="i" loop=$parents}
-						<a href="list.php?community_pid={$parents[i].pid}">{$parents[i].title}</a> &nbsp;
-					{/section}
-				  </td>
-				</tr>
-			</table>
-		  </td>
-		</tr>
-		{/if}
 
         <tr><td align="center">
       <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1">
@@ -178,7 +146,7 @@ function purgeObject(pid)
 				  <tr>
 						<td align="right" width="10">{$smarty.section.i.index+1}</td>
 					  <td align="left">
-							<a href='{$rel_url}list.php?browse=author&author_id={$list[i].rmf_int|escape:'url'}'>{$list[i].record_author|escape:"html"}</a> 
+							<a class="author_id_link" href='{$rel_url}list.php?browse=author&author_id={$list[i].rek_author_id|escape:'url'}' title="Browse by Author ID for {$list[i].record_author} ({$list[i].rek_author_id})">{$list[i].record_author|escape:"html"}</a> 
 
 						</td>
 						<td align="right" nowrap>(<strong>{$list[i].file_downloads|escape:"html"}</strong> File Download{if $list[i].file_downloads > 1}s{/if})</td>
@@ -215,10 +183,10 @@ function purgeObject(pid)
 				  <tr>
 						<td align="right" width="10">{$smarty.section.i.index+1}</td>
 					  <td align="left">
-							<a href='{$rel_url}view.php?pid={$list[i].pid}'>{$list[i].title.0|escape:"html"}</a> 
+							<a href='{$rel_url}view.php?pid={$list[i].rek_pid}'>{$list[i].rek_title|escape:"html"}</a> 
 
 						</td>
-						<td align="right" nowrap>(<strong>{$list[i].file_downloads|escape:"html"}</strong> <a href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}">File Download{if $list[i].file_downloads > 1}s{/if}</a>)</td>
+						<td align="right" nowrap>(<strong>{$list[i].file_downloads|escape:"html"}</strong> <a href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">File Download{if $list[i].file_downloads > 1}s{/if}</a>)</td>
 					</tr>
 					  </table>
 					<!-- space between rows -->
@@ -252,10 +220,10 @@ function purgeObject(pid)
 				  <tr>
 						<td align="right" width="10">{$smarty.section.i.index+1}</td>
 					  <td align="left">
-							<a href='{$rel_url}view.php?pid={$list[i].pid}'>{$list[i].title.0|escape:"html"}</a> 
+							<a href='{$rel_url}view.php?pid={$list[i].rek_pid}'>{$list[i].rek_title|escape:"html"}</a> 
 
 						</td>
-						<td align="right" nowrap>(<strong>{$list[i].file_downloads|escape:"html"}</strong> <a href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}">File Download{if $list[i].file_downloads > 1}s{/if}</a>)</td>
+						<td align="right" nowrap>(<strong>{$list[i].file_downloads|escape:"html"}</strong> <a href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">File Download{if $list[i].file_downloads > 1}s{/if}</a>)</td>
 					</tr>
 					  </table>
 					<!-- space between rows -->
@@ -419,7 +387,7 @@ function purgeObject(pid)
         {section name="i" loop=$list}
         {if (($list[i].isLister==1 || $isAdministrator) && $list_type != 'browse_subjects_list')}
 	   		{if $list[i].ret_id == '1'}
-                {assign var="href_view" value="list.php?community_pid="|cat:$list[i].pid|escape:"html"}
+                {assign var="href_view" value="list.php?community_pid="|cat:$list[i].rek_pid|escape:"html"}
                 {assign var="icon" value="images/community.jpg" }
                 {if ($list[i].isEditor==1 || $isAdministrator)} 
                         {assign var="showEdit" value=true}
@@ -427,7 +395,7 @@ function purgeObject(pid)
                         {assign var="showEdit" value=false}
                 {/if}
            {elseif $list[i].ret_id == '2'}
-                {assign var="href_view" value="list.php?collection_pid="|cat:$list[i].pid|escape:"html"}
+                {assign var="href_view" value="list.php?collection_pid="|cat:$list[i].rek_pid|escape:"html"}
                 {assign var="icon" value="images/collection.jpg" }
                 {if $isUser && ($list[i].isEditor==1 || $isAdministrator)}  
                         {assign var="showEdit" value=true}
@@ -436,12 +404,12 @@ function purgeObject(pid)
                 {/if}
            {else}
                 {if ($list[i].isViewer==1 || $isAdministrator)}
-                  {assign var="href_view" value="view.php?pid="|cat:$list[i].pid|escape:"html"}
+                  {assign var="href_view" value="view.php?pid="|cat:$list[i].rek_pid|escape:"html"}
                 {else}
                   {assign var="href_view" value=""}
                 {/if}
 				{if $list[i].thumbnail != "0" && $list[i].isViewer==1}
-	                {assign var="icon" value=$eserv_url|cat:"?pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].thumbnail}
+	                {assign var="icon" value=$eserv_url|cat:"?pid="|cat:$list[i].rek_pid|cat:"&dsID="|cat:$list[i].thumbnail}
 				{else}
 	                {assign var="icon" value="images/record.jpg" }
 				{/if}
@@ -465,10 +433,10 @@ function purgeObject(pid)
 					{$list[i].title|escape:"html"}{if $href_view}</a>{/if}
 					  {if $showEdit || $isAdministrator}
 						{if $showEdit}
-							&nbsp;&nbsp;<a href='update.php?pid={$list[i].pid|escape:"html"}'><img title="Edit" align="absmiddle" src="{$rel_url}images/edit.gif" border="0"></a> 
+							&nbsp;&nbsp;<a href='update.php?pid={$list[i].rek_pid|escape:"html"}'><img title="Edit" align="absmiddle" src="{$rel_url}images/edit.gif" border="0"></a> 
 						{/if}
 						{if $isAdministrator}
-							 <a href='javascript:void(null);' onClick="javascript:purgeObject('{$list[i].pid|escape:"html"}');"><img title="Delete" align="absmiddle" src="{$rel_url}images/delete.gif" border="0"></a> 
+							 <a href='javascript:void(null);' onClick="javascript:purgeObject('{$list[i].rek_pid|escape:"html"}');"><img title="Delete" align="absmiddle" src="{$rel_url}images/delete.gif" border="0"></a> 
 						{/if}
 
 					  {/if}
@@ -481,7 +449,7 @@ function purgeObject(pid)
                        {if $list[i].description}{$list[i].description|escape:"html"}...<br />{/if}
                        {if $list[i].date}{$list[i].date|date_format:"%A, %B %e, %Y"}<br />{/if}
                        {if $list[i].type}{$list[i].type|escape:"html"}<br />{/if}   
-					   {if $list[i].ret_id == '3'}<b>Datastreams:</b> {section name="d" loop=$list[i].datastreams}{if $href_view}<a href="{$eserv_url|cat:"?pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].datastreams[d]}">{/if}{$list[i].datastreams[d]}{if $href_view}</a>{/if} {/section}{/if}
+					   {if $list[i].ret_id == '3'}<b>Datastreams:</b> {section name="d" loop=$list[i].datastreams}{if $href_view}<a href="{$eserv_url|cat:"?pid="|cat:$list[i].rek_pid|cat:"&dsID="|cat:$list[i].datastreams[d]}">{/if}{$list[i].datastreams[d]}{if $href_view}</a>{/if} {/section}{/if}
                     </td>
                   </tr>
 				  </table>

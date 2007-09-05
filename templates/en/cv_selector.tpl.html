@@ -22,6 +22,7 @@ function dblClickSubmit() {
 	<tr valign="top">
 	  <td class="default">
 		          {if $max_subject_breadcrumb != -1}
+					{if $cvo_id != ""}<a href='{$rel_url}cv_selector.php?element={$element}&form={$form}&cvo_id=&xsdmf_cvo_min_level={$xsdmf_cvo_min_level}'>All Subject Classifications</a> -> {/if}
 					  {section name="b" loop=$subject_breadcrumb}
 						  {assign var="counter" value=b}
 		                  {if $subject_breadcrumb[b].cvo_image_filename != ""}
@@ -31,7 +32,7 @@ function dblClickSubmit() {
  						  {assign var="cvo_id" value=$subject_breadcrumb[b].cvo_id}
 						  {if $subject_count[$cvo_id]}({$subject_count[$cvo_id]}){else}{/if}{if $max_subject_breadcrumb != $smarty.section.b.index}->{else}:{/if}					
 					  {/section}
-				   {else}Subject Classification:{/if}</b>		  
+				   {else}<a href='{$rel_url}cv_selector.php?element={$element}&form={$form}&cvo_id=&xsdmf_cvo_min_level={$xsdmf_cvo_min_level}'>All Subject Classifications</a>:{/if}</b>		  
 	  </td>
 	</tr>
 	<tr>

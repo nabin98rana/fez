@@ -130,6 +130,24 @@
               </tr>			  
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Organisation Staff ID: </b>
+                </td>
+                <td bgcolor="{$light_color}" width="80%">
+                  <input type="text" name="org_staff_id" size="40" class="default" value="{$info.aut_org_staff_id}">
+                  {include file="error_icon.tpl.html" field="org_staff_id"}
+                </td>
+              </tr>	
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Organisation Staff Username: </b>
+                </td>
+                <td bgcolor="{$light_color}" width="80%">
+                  <input type="text" name="org_username" size="40" class="default" value="{$info.aut_org_username}">
+                  {include file="error_icon.tpl.html" field="org_username"}
+                </td>
+              </tr>	
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Position: </b>
                 </td>
                 <td bgcolor="{$light_color}" width="80%">
@@ -228,6 +246,8 @@
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Middle Name</b></td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Last Name</b></td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Position</b></td>					  					  
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Org Staff ID</b></td>					  					  
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Org Username</b></td>					  					                                              
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>CV Link</b></td>					  
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Homepage Link</b></td>					  
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Created Date</b></td>					  
@@ -245,6 +265,8 @@
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_mname}</td>					  
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_lname}</td>
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_position}</td>
+                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_org_staff_id}</td>
+                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_org_username}</td>                                            
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_cv_link}</td>
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_homepage_link}</td>					  
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_created_date}</td>					  
@@ -252,13 +274,13 @@
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="11" bgcolor="{$light_color}" align="center" class="default">
+                      <td colspan="13" bgcolor="{$light_color}" align="center" class="default">
                         No authors could be found.
                       </td>
                     </tr>
                     {/section}
         <tr bgcolor="{$cell_color}">
-          <td colspan="11">
+          <td colspan="13">
             <table width="100%" cellspacing="0" cellpadding="0">
               <tr>
                 <td width="40%" align="center" nowrap>
@@ -292,7 +314,7 @@
                       <td width="4" bgcolor="{$cell_color}" align="center">
                         <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
                       </td>
-                      <td colspan="10" bgcolor="{$cell_color}" align="center">
+                      <td colspan="12" bgcolor="{$cell_color}" align="center">
                         <input type="submit" value="Delete" class="button">
                       </td>
                     </tr>

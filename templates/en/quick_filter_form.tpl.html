@@ -1,4 +1,4 @@
-<form name="custom_filter_form" action="list.php" method="get">
+<form name="custom_filter_form" action="list.php" method="get" onsubmit="javascript:return validateSearchForm();">
 <input type="hidden" name="cat" value="quick_filter" />
 
 <div class="outline">
@@ -12,7 +12,7 @@
 {section name="i" loop=$search_keys}
   {assign var="search_key_name" value='searchKey'|cat:$search_keys[i].sek_id}
   {assign var ="last_key" value=$options.$search_key_name}  
-  <div class="{if $last_key != 'ALL' && $last_key != ''}default-search-used{else}default{/if} quick_search_item">
+  <div class="{if $last_key != 'ALL' && $last_key != '' && $search_keys[i].sek_html_input != 'date' || ($search_keys[i].sek_html_input == 'date' && $last_key.filter_enabled ==1) }default-search-used{else}default{/if} quick_search_item">
   {if $search_keys[i].sek_alt_title}{$search_keys[i].sek_alt_title}{else}{$search_keys[i].sek_title}{/if}:<br/>
   {if $search_keys[i].sek_html_input != 'text' &&  $search_keys[i].sek_html_input != 'textarea'}
     <script language="JavaScript" type="text/javascript">
@@ -26,17 +26,54 @@
   <input id="search_keys[{$search_keys[i].sek_id}]" type="text" name="search_keys[{$search_keys[i].sek_id}]" maxlength="255" size="30" value="{$last_key}" />
   {elseif $search_keys[i].sek_html_input == 'textarea'}
   <textarea id="search_keys[{$search_keys[i].sek_id}]" name="search_keys[{$search_keys[i].sek_id}]" rows="10" cols="60" value="{$last_key}"></textarea>
+  {elseif $search_keys[i].sek_html_input == 'date'}
+
+                  {assign var="temp_sek_id" value=$search_keys[i].sek_id}
+
+                  {assign var="custom" value=$options.$temp_sek_id}
+                  <input type="hidden" value="{$last_key.filter_enabled|default:0}" 
+                    name="search_keys[{$search_keys[i].sek_id}][filter_enabled]" />
+                  <input {if $last_key.filter_enabled == 1}checked{/if} type="checkbox" name="filter[search_keys[{$search_keys[i].sek_id}]]" value="yes" onClick="javascript:toggleDateFields(this.form, 'search_keys[{$search_keys[i].sek_id}]');">
+                  <span class="default">{$search_keys[i].sek_title}:</span><br />
+                  <select name="search_keys[{$search_keys[i].sek_id}][filter_type]" id="search_keys[{$search_keys[i].sek_id}][filter_type]" class="default" onChange="javascript:checkDateFilterType(this.form, this);">
+                    <option {if $last_key.filter_type == "greater"}selected{/if} value="greater">After</option>
+                    <option {if $last_key.filter_type == "less"}selected{/if} value="less">Before</option>
+                    <option {if $last_key.filter_type == "between"}selected{/if} value="between">Between</option>
+                  </select>&nbsp;
+                  {html_select_date field_array="search_keys[$temp_sek_id][start]" prefix="" start_year="-10" end_year="+10" all_extra='class="default"'}
+                                  {literal}
+                  <script language="JavaScript" type="text/javascript">
+                  <!--
+                  tCalendar_search_keys{/literal}{$search_keys[i].sek_id}{literal} = new dynCalendar('tCalendar_search_keys{/literal}{$search_keys[i].sek_id}{literal}', 'calendarCallback_search_keys{/literal}{$search_keys[i].sek_id}{literal}', '{/literal}{$rel_url}{literal}images/');
+                  tCalendar_search_keys{/literal}{$search_keys[i].sek_id}{literal}.setMonthCombo(false);
+                  tCalendar_search_keys{/literal}{$search_keys[i].sek_id}{literal}.setYearCombo(false);
+                  //-->
+                  </script>{/literal}&nbsp;&nbsp;
+
+				<div id="tr_search_keys[{$temp_sek_id}]">
+
+                  <span class="default">{$search_keys[i].sek_title}: <i>(End date)</i></span><br />
+                  {html_select_date field_array="search_keys[$temp_sek_id][end]" prefix="" start_year="-10" end_year="+10" all_extra='class="default"'}
+                                  {literal}
+                  <script language="JavaScript" type="text/javascript">
+                  <!--
+                  tCalendar_search_keys_end{/literal}{$search_keys[i].sek_id}{literal} = new dynCalendar('tCalendar_search_keys_end{/literal}{$search_keys[i].sek_id}{literal}', 'calendarCallback_search_keys_end{/literal}{$search_keys[i].sek_id}{literal}', '{/literal}{$rel_url}{literal}images/');
+                  tCalendar_search_keys_end{/literal}{$search_keys[i].sek_id}{literal}.setMonthCombo(false);
+                  tCalendar_search_keys_end{/literal}{$search_keys[i].sek_id}{literal}.setYearCombo(false);
+                  //-->
+                  </script>
+                                  {/literal}
+
+				</div>
   {elseif $search_keys[i].sek_html_input == 'allcontvocab' or $search_keys[i].sek_html_input == 'contvocab'}
-	{section name="z" loop=$search_keys[i].field_options}
-	{assign var="loop_num" value=$search_keys[i].cv_ids[z]}
-	<div id="tr_list_{$search_keys[i].sek_id}_{$loop_num}" valign="top" class="quick_search_item">
-		<b>{$search_keys[i].sek_title}</b><br />{$search_keys[i].cv_titles[z]}
-		<select id="search_keys_{$search_keys[i].sek_id}_{$loop_num}" multiple size="5" class="default" name="search_keys[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}">
+	<div id="tr_list_{$search_keys[i].sek_id}" valign="top" class="quick_search_item">
+		<select id="search_keys_{$search_keys[i].sek_id}" multiple size="5" class="default" name="search_keys[{$search_keys[i].sek_id}][]">
+    		{html_options options=$search_keys[i].field_options}
 		</select>
-		<input class="default" type="button" value="Add Subject" onclick="javascript:small_window('cv_selector.php?cvo_id={$search_keys[i].cv_ids[z]}&amp;form=custom_filter_form&amp;element=list_{$search_keys[i].sek_id}_{$loop_num}');" />
-		<input class="default" type="button" value="Remove Subject" onclick="javascript:deleteSelectedItemsFromList(list_{$search_keys[i].sek_id}_{$loop_num});" />
+		<input class="default" type="button" value="Add Subject" onclick="javascript:small_window('cv_selector.php?cvo_id={$search_keys[i].cv_ids[z]}&amp;form=custom_filter_form&amp;element=search_keys_{$search_keys[i].sek_id}');" />
+		<input class="default" type="button" value="Remove Subject" onclick="javascript:deleteSelectedItemsFromList(search_keys_{$search_keys[i].sek_id});" />
 	</div>
-  {/section}	
+
 
   {else}
   <select id="search_keys[{$search_keys[i].sek_id}]" {if $search_keys[i].sek_html_input == 'multiple'}multiple size="8"{/if} name="search_keys[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}">
@@ -53,7 +90,7 @@
   </div>
 {/section}
      <input name="search_button" class="button quick_search_button" type="submit" value="Search" />
-     <!-- <input class="button" type="button" value="Clear" onclick="javascript:clearFilters(this.form);"> -->
+     <!-- <input class="button" type="button" value="Clear" onclick="javascript:clearFilters(this.form); validateForm();"> -->
 
 {if $user_can_edit && $bulk_search_workflows}
 <div class="quick_search_hide">
@@ -75,3 +112,71 @@
 
 </div>
 </form>
+{literal}
+<script language="JavaScript">
+<!--
+
+var f = getForm('custom_filter_form');
+
+var date_fields = new Array();
+{/literal}
+{assign var="custom_elements_to_hide" value=""}
+{section name="i" loop=$search_keys}
+{if $search_keys[i].sek_html_input == 'date'}
+{literal}
+function calendarCallback_search_keys{/literal}{$search_keys[i].sek_id}{literal}(day, month, year) { 
+	selectDateField('search_keys[{/literal}{$search_keys[i].sek_id}{literal}][start]', day, month, year); 
+}
+function calendarCallback_search_keys_end{/literal}{$search_keys[i].sek_id}{literal}(day, month, year) { 
+	selectDateField('search_keys[{/literal}{$search_keys[i].sek_id}{literal}][end]', day, month, year); 
+}
+{/literal}
+{assign var="temp_sek_id" value=$search_keys[i].sek_id}
+{assign var="search_key_name" value='searchKey'|cat:$search_keys[i].sek_id}
+{assign var ="last_key" value=$options.$search_key_name}  
+date_fields[date_fields.length] = new Option('search_keys[{$temp_sek_id}][start]', '{$last_key.start_date}');
+date_fields[date_fields.length] = new Option('search_keys[{$temp_sek_id}][end]', '{$last_key.end_date}');
+{if $custom_elements_to_hide != ""}
+{assign var="custom_elements_to_hide" value=$custom_elements_to_hide,'search_keys[$temp_sek_id]'}
+{else}
+{assign var="custom_elements_to_hide" value=$custom_elements_to_hide'search_keys[$temp_sek_id]'}
+{/if}
+{/if}
+{/section}
+
+var elements_to_hide = new Array({$custom_elements_to_hide});
+{literal}
+for (var i = 0; i < elements_to_hide.length; i++) {
+    toggleVisibility(elements_to_hide[i]);
+    toggleDateFields(f, elements_to_hide[i]);
+    var filter_type = getFormElement(f, elements_to_hide[i] + '[filter_type]');
+    checkDateFilterType(f, filter_type);
+}
+
+for (var i = 0; i < date_fields.length; i++) {
+    if (!isWhitespace(date_fields[i].value)) {
+        selectDateOptions(date_fields[i].text, date_fields[i].value);
+    }
+}
+
+function validateSearchForm() {
+{/literal}
+{section name="i" loop=$search_keys}
+// The controlled vocabulary selector should select all the fields in the multiple combo box so that they will
+// be included in the form submission.
+
+{if $search_keys[i].sek_html_input == 'allcontvocab' or $search_keys[i].sek_html_input == 'contvocab'}
+	var field = document.custom_filter_form.search_keys_{$search_keys[i].sek_id};
+	{literal}
+    for (var y = 0; y < field.options.length; y++) {
+        field.options[y].selected = true;
+    }
+	{/literal}
+{/if}
+{/section}
+{literal}
+	return true;
+}
+//-->
+</script>
+{/literal}
