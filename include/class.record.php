@@ -2252,7 +2252,13 @@ class RecordGeneral
         }
     }    
         
-    
+    /**
+     * Function can update a single xsdmf in the XML but doesn't work for sublooping elements.
+	 * @param integer $xsdmf_id the mapping to update
+	 * @param string $value what to set the element to
+	 * @param integer $idx the index of the item if this is a multiple item
+	 * @return boolean true on success, false on failure.
+     */
     function setValue($xsdmf_id, $value, $idx)
     {
     	$this->getDisplay();
@@ -2311,7 +2317,7 @@ class RecordGeneral
                 $use_idx = true;
             }
             $idx = 0;
-            foreach ($node->childNodes as &$childNode) {
+            foreach ($node->childNodes as $childNode) {
                 // remove namespace
                 $next_step_name = $next_step;
                 if (!strstr($next_step_name, '!dc:')) {
@@ -2320,19 +2326,19 @@ class RecordGeneral
                 if ($childNode->nodeName == $next_step_name) {
                     if ($use_idx) { 
                         if ($idx == $vidx) {
-                            $theNode = &$childNode;
+                            $theNode = $childNode;
                             break;
                         }
                         $idx++;
                     } else {
-                        $theNode = &$childNode;
+                        $theNode = $childNode;
                         break;
                     }
                 }
             }   
         }
         if (is_null($theNode)) {
-            $theNode = &$node->ownerDocument->createElement($next_step);
+            $theNode = $node->ownerDocument->createElement($next_step);
             $node->appendChild($theNode);
         }
         if (count($remaining_steps)) {
@@ -2569,7 +2575,8 @@ class RecordGeneral
 
 
     /**
-      function getParents() 	      * getParents
+     * function getParents() 	      
+     * getParents
      * Get the parent pids of an object
      *
      * @access  public
@@ -2725,6 +2732,9 @@ class RecordGeneral
     {
         if (empty($this->pid)) {
             return false;
+        }
+        if (empty($new_xdis_id)) {
+        	$new_xdis_id = $this->getXmlDisplayIdUseIndex();
         }
         $pid = $this->pid;
         $new_pid = Fedora_API::getNextPID();

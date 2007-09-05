@@ -51,9 +51,31 @@ class Bulk_Move_Record_Collection {
 				$this->bgp->setStatus("Skipped '".$record->getTitle()."'. User can't edit this record");
 			}
 		}
-    	$this->bgp->setStatus("Finished Bulk Move to Collection for ".$record->getTitle());	
+    	$this->bgp->setStatus("Finished Bulk Move to Collection");	
     }
 
+	function splitCollection($collection_pid, $chunk_size)
+	{
+		$col_record = new RecordGeneral($collection_pid);
+		$pids = $col_record->getChildrenPids();
+		$col_title = $col_record->getTitle();
+		$remaining_pids = $pids;
+
+		$sek_id = Search_Key::getID('Title');
+		$title_xsdmf_id = $col_record->display->xsd_html_match->getXSDMF_IDBySEK($sek_id);
+
+		for ($chunk_number = 0; count($remaining_pids) > 0; $chunk_number++) {
+			// create a collection to hold this chunk of records
+			$dest_pid = $col_record->copyToNewPID();
+			$dest_record = new RecordObject($dest_pid);
+			// set the title with an index chunk number
+			$dest_title = $col_title.' '. ($chunk_number + 1);
+			$dest_record->setValue($title_xsdmf_id, $dest_title, 0);
+			// move a chunk of records into the new collection
+			$this->moveBGP(array_slice($remaining_pids, 0, $chunk_size), $dest_pid);
+		}
+		
+	}
 
 
 }

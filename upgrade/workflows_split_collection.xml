@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<workflows schema_version="1.0">
+  <workflow wfl_id="195" wfl_title="Split Collection" wfl_version="1.0" wfl_description="Splits a collection into many collections with less records." wfl_roles="Administrator" wfl_end_button_label="Ok">
+    <WorkflowState wfs_id="693" wfs_title="Split" wfs_description="" wfs_auto="1" wfs_wfb_id="135" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="694" wfs_title="Running" wfs_description="The collection is currently being split in a running process which can be followed on the background process page." wfs_auto="0" wfs_wfb_id="127" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="1025" wfsl_from_id="693" wfsl_to_id="694"/>
+    <WorkflowTrigger wft_id="248" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="2" wft_options="0"/>
+  </workflow>
+  <WorkflowBehaviour wfb_id="127" wfb_title="Block on Background Process" wfb_description="Special state that displays information in the workflow state but disables the workflow buttons, instead it redirects them to the background processes page in my fez (after they have pressed ok)." wfb_version="1.0" wfb_script_name="block.php" wfb_auto="0"/>
+  <WorkflowBehaviour wfb_id="135" wfb_title="Split Collection" wfb_description="Split collection into many collections of smaller sizes" wfb_version="1.0" wfb_script_name="split_collection.php" wfb_auto="1"/>
+</workflows>
