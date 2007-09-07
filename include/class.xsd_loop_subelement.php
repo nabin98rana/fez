@@ -166,7 +166,7 @@ class XSD_Loop_Subelement
                             ON m1.xsdmf_element in ('!datastream!datastreamVersion!xmlContent', '!datastream!datastreamVersion!contentLocation', '!datastream!datastreamVersion!binaryContent')    
                             AND m1.xsdmf_xdis_id=".$xdis_id." AND s1.xsdsel_id = m1.xsdmf_xsdsel_id 
                             LEFT JOIN " . APP_TABLE_PREFIX . "xsd_relationship ON xsdrel_xsdmf_id = m1.xsdmf_id
-							INNER JOIN " . APP_TABLE_PREFIX . "xsd_display ON xsdrel_xdis_id = xdis_id
+							LEFT JOIN " . APP_TABLE_PREFIX . "xsd_display ON xsdrel_xdis_id = xdis_id
            ";
 
 		if ($specify_str != "") {				
