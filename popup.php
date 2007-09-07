@@ -62,7 +62,7 @@ switch ($cat)
             $dsID = $HTTP_GET_VARS["dsID"];
             $pid = $HTTP_GET_VARS["pid"];		
 			$record = new RecordObject($pid);
-			if ($record->canEdit) {
+			if ($record->canEdit()) {
 	            $res = Fedora_API::callPurgeDatastream($pid, $dsID);
 	            Record::removeIndexRecordByValue($pid, $dsID);
 	            $thumbnail = "thumbnail_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
