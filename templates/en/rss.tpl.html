@@ -8,28 +8,28 @@
   <generator>Fez {$application_version}</generator>
   <docs>http://blogs.law.harvard.edu/tech/rss</docs>
   {section name="i" loop=$list}
- 		{if $list[i].object_type.0 == '1'}
-          {assign var="href_view" value="list.php?community_pid="|cat:$list[i].pid|escape:"html"}  
-        {elseif $list[i].object_type.0 == '2'}
-	      {assign var="href_view" value="list.php?collection_pid="|cat:$list[i].pid|escape:"html"}
+ 		{if $list[i].reko_bject_type == 1}
+          {assign var="href_view" value="list.php?community_pid="|cat:$list[i].rek_pid|escape:"html"}  
+        {elseif $list[i].rek_object_type == 2}
+	      {assign var="href_view" value="list.php?collection_pid="|cat:$list[i].rek_pid|escape:"html"}
 	    {else}
-		  {assign var="href_view" value="view.php?pid="|cat:$list[i].pid|escape:"html"}	      
+		  {assign var="href_view" value="view.php?pid="|cat:$list[i].rek_pid|escape:"html"}	      
 		{/if}
   <item>
-	  <title>{$list[i].title.0|escape:"html"}</title>
+	  <title>{$list[i].rek_title|escape:"html"}</title>
 	  <link>{$app_base_url}{$href_view}</link>
-	  {if $list[i].description.0 != "null"}	
-	  	 <description>{$list[i].description.0|escape:"html"}</description>
+	  {if $list[i].rek_description != "null"}	
+	  	 <description>{$list[i].rek_description|escape:"html"}</description>
 	  {/if}
-	  {if $list[i].created_date.0}
-	  	<pubDate>{$list[i].created_date.0|date_format:"%a, %d %b %Y %H:%M:%S"}</pubDate>
+	  {if $list[i].rek_created_date}
+	  	<pubDate>{$list[i].rek_created_date|date_format:"%a, %d %b %Y %H:%M:%S"}</pubDate>
 	  {/if}
-		{if $list[i].author}
+		{if $list[i].rek_author}
 			<author>
-			{section name="author_loop" loop=$list[i].author}
+			{section name="author_loop" loop=$list[i].rek_author}
 				{assign var="next_author" value=$smarty.section.author_loop.index+1}
-						{$list[i].author[author_loop]|escape:"html"}
-				{if $list[i].author[$next_author] != ""} og {/if}
+						{$list[i].rek_author[author_loop]|escape:"html"}
+				{if $list[i].rek_author[$next_author] != ""} og {/if}
 			{/section}
 			</author>
 		{/if}
