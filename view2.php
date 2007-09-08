@@ -286,6 +286,7 @@ if (!empty($pid) && $record->checkExists()) {
 					$datastreams[$ds_key]['security'] = "exclude";			
 				} */
 				$datastreams[$ds_key]['FezACML'] = Auth::getAuthorisationGroups($pid, $datastreams[$ds_key]['ID']);
+				$datastreams[$ds_key]['downloads'] = Statistics::getStatsByDatastream($pid, $ds['ID']);			
 				//$datastreams[$ds_key]['FezACML'] = 
 				Auth::getAuthorisation($datastreams[$ds_key]);
 			}
