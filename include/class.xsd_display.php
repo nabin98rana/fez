@@ -1038,11 +1038,15 @@ class XSD_DisplayObject
         $xsd_id = XSD_Display::getParentXSDID($xsdmf_xdis_id);
 //		print_r($xsdmf_xdis_id);
         $xsd_details = Doc_Type_XSD::getDetails($xsd_id);
-		$temp_xdis_array = $this->xsd_html_match->xdis_array;
+//		$temp_xdis_array = $this->xsd_html_match->xdis_array;
+		$temp_xdis_str = $this->xsd_html_match->xdis_str;
 		$temp_xdis_id = $this->xdis_id;
-		if (!in_array($xsdmf_xdis_id, $this->xsd_html_match->xdis_array)) {
+		if (!in_array($xsdmf_xdis_id, explode(",", $this->xsd_html_match->xdis_str))) {
+//echo "not in ".$xsdmf_xdis_id;
 			$this->xdis_id = $xsdmf_xdis_id;
-			$this->getXSD_HTML_Match(true); //refresh the match cols so it will find the fezacml for ds ids			
+            //$this->xsd_html_match->xdis_array = array($xsdmf_xdis_id);
+            $this->xsd_html_match->xdis_str = $xsdmf_xdis_id;
+//			$this->getXSD_HTML_Match(true); //refresh the match cols so it will find the fezacml for ds ids			
 		}
         $this->xsd_element_prefix = $xsd_details['xsd_element_prefix'];
         $this->xsd_top_element_name = $xsd_details['xsd_top_element_name'];
@@ -1052,7 +1056,8 @@ class XSD_DisplayObject
         $this->mfcb_rootdone = false;
 
         Misc::XML_Walk($xmlnode, $this, 'matchFieldsCallback', $cbdata, $xmlnode);
-		$this->xsd_html_match->xdis_array = $temp_xdis_array;
+		//$this->xsd_html_match->xdis_array = $temp_xdis_array;
+		$this->xsd_html_match->xdis_str = $temp_xdis_str;
 		$this->xdis_id = $temp_xdis_id;
     }
 

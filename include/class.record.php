@@ -295,13 +295,13 @@ class Record
 //        $record = new RecordObject($pid);
 		$xdis_id = XSD_Display::getID('FezACML for Datastreams');
 		$display = new XSD_DisplayObject($xdis_id);
-        list($array_ptr,$xsd_element_prefix, $xsd_top_element_name, $xml_schema) 
-            = $display->getXsdAsReferencedArray();
+        list($array_ptr,$xsd_element_prefix, $xsd_top_element_name, $xml_schema) = $display->getXsdAsReferencedArray();
 		$indexArray = array();
 		$header .= "<".$xsd_element_prefix.$xsd_top_element_name." ";
 		$header .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $pid);
 		$header .= ">\n";    
-		$xmlObj .= Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, '', '', '', '', '', '');
+		//$xmlObj .= Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, '', '', '', '', '', '');
+		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, '', '', '', '', '', '');
 //		   function array_to_xml_instance($a, &$xmlObj="", $element_prefix, $sought_node_type="", $tagIndent="", $parent_sel_id="", $xdis_id, $pid, $top_xdis_id, $attrib_loop_index="", &$indexArray=array(), $file_downloads=0, $created_date, $updated_date, $depositor, $assign_usr_id=null, $assign_grp_id=null)
         $xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">\n";
 		$xmlObj = $header . $xmlObj;

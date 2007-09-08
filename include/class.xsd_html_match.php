@@ -2868,7 +2868,7 @@ class XSD_HTML_Match {
  */
 class XSD_HTML_MatchObject {
 	var $xdis_str;
-	var $xdis_array = array();
+//	var $xdis_array = array(); // doesnt appear to be used in here anymore - CK
 
 	/** 
 	 * XSD_HTML_MatchObject
