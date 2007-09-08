@@ -462,9 +462,13 @@ class Lister
             if (is_numeric($parent_id)) {	
                 $subject_list = Controlled_Vocab::getList($parent_id);
                 $treeIDs = Controlled_Vocab::getAllTreeIDs($parent_id);
-
                 $subject_count = Collection::getCVCountSearch($treeIDs, $parent_id);
-                $list = Collection::browseListing($pager_row, $rows, "Subject",$sort_by);	
+				$options = Search_Key::stripSearchKeys($options);                                                           
+            	$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+				$options["searchKey".Search_Key::getID("Subject")] = $parent_id; // 
+            	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by);	
+                
+//                $list = Collection::browseListing($pager_row, $rows, "Subject",$sort_by);	
                 $list_info = $list["info"];
                 $list = $list["list"];		
             } else {

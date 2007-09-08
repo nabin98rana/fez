@@ -313,11 +313,12 @@ class Collection
 		$termCounter = 2;
         $dbtp =  APP_TABLE_PREFIX;
         $subjectList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Subject');
-        $authArray = Collection::getAuthIndexStmt(array("Lister", "Viewer", "Editor", "Creator"));
+        $authArray = Collection::getAuthIndexStmt(array("Lister", "Viewer", "Editor", "Creator"), "r2.rek_subject_pid");
         $authStmt = $authArray['authStmt'];
 		$stringIDs = implode(", ", Misc::array_flatten($treeIDs));
-		$stmt = "SELECT ".APP_SQL_CACHE." r".$termCounter.".rek_subject, count(distinct r".$termCounter.".rek_pid)
+		$stmt = "SELECT ".APP_SQL_CACHE." r".$termCounter.".rek_subject, count(distinct r".$termCounter.".rek_subject_pid)
 				FROM  ".$dbtp."record_search_key_subject r".$termCounter."
+                INNER JOIN ".$dbtp."record_search_key r1 on r1.rek_pid = r2.rek_subject_pid and r1.rek_status = 2
 
                 ".$authStmt."
 		WHERE r".$termCounter.".rek_subject IN (".$stringIDs.")
@@ -325,7 +326,6 @@ class Collection
                 GROUP BY r".$termCounter.".rek_subject ";
 
 		//Error_Handler::logError($stmt);
-
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
