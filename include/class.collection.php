@@ -97,7 +97,7 @@ class Collection
 		if (!empty($community_pid)) {
 			$options["searchKey".Search_Key::getID("isMemberOf")] = $community_pid; // 
 		}
-	    $list = Record::getListing($options, array("Editor"), 0, 100, "Title", true);		
+	    $list = Record::getListing($options, array("Editor"), 0, 1000, "Title", true);		
 		$list = $list['list'];
 		$returnList = array();
 		foreach ($list as $element) {
@@ -113,7 +113,7 @@ class Collection
 		if (!empty($community_pid)) {
 			$options["searchKey".Search_Key::getID("isMemberOf")] = $community_pid; // 
 		}	
-        $list = Record::getListing($options, array("Creator"), 0, 100, "Title", true);		
+        $list = Record::getListing($options, array("Creator"), 0, 1000, "Title", true);		
 		$list = $list['list'];
 		$returnList = array();
 		foreach ($list as $element) {
@@ -1385,7 +1385,7 @@ $res_count = array();
 		$options = array();
         $options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 	    $options["searchKey".Search_Key::getID("Object Type")] = 2; // collections only
-        $list = Record::getListing($options, array("Lister"), 0, 100);
+        $list = Record::getListing($options, array("Lister"), 0, 1000);
 		$list = $list['list'];
 		$returnList = array();
 		foreach ($list as $element) {
