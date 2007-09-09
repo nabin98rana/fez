@@ -754,7 +754,7 @@ if ($sort_by == 'File Downloads') {
         if (!empty($letter)) {
             $letter = addslashes($letter);
             $letter_restrict = "WHERE (r3.rek_author LIKE '" . $letter . "%' OR r3.rek_author LIKE '" . strtolower($letter) . "%') and ";
-            $letter_restrict_id = "WHERE (a1.aut_lname LIKE '" . $letter . "%' OR a1.aut_lname LIKE '" . strtolower($letter) . "%') and ";
+            $letter_restrict_id = "WHERE (a1.aut_lname LIKE '" . $letter . "%' OR a1.aut_lname LIKE '" . strtolower($letter) . "%') ";
         } else {
         	$sql_where = " ";
         	$sql_where_id = " ";
