@@ -1031,7 +1031,7 @@ $stmt .= "
 				$limit .= " and month(date(stl_request_date)) = $month";
 			}
 		} elseif ($range != 'all' && $range == '4w') {
-			$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL '1 MONTH'";
+			$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
 		}
 
 		if ($max == "ALL") {
@@ -1143,7 +1143,7 @@ $stmt .= "
 				$limit .= " and month(date(stl_request_date)) = $month";
 			}
 		} elseif ($range != 'all' && $range == '4w') {
-			$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL '1 MONTH'";
+			$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
 		}
 
 		if ($max == "ALL") {
