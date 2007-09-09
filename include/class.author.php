@@ -336,7 +336,7 @@ class Author
         $stmt = "SELECT SQL_CALC_FOUND_ROWS 
 					* ".$extra_stmt."
                  FROM
-                    fez." . APP_TABLE_PREFIX . "author
+                    " . APP_TABLE_PREFIX . "author
 				".$where_stmt."
                  ORDER BY ".$extra_order_stmt."
                     ".$order_by."
