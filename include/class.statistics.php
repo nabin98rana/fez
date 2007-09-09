@@ -302,7 +302,7 @@ class Statistics
 				$limit .= " and month(date(stl_request_date)) = $month";
 			}
 		} elseif ($range != 'all' && $range == '4w') {
-			$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL '1 MONTH'";
+			$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
 		}
 
 		$stmt = "select count(*)  
@@ -332,7 +332,7 @@ class Statistics
 				$limit .= " and month(date(stl_request_date)) = ".$month;
 			}
 		} elseif ($range != 'all' && $range == '4w') {
-			$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL '1 MONTH'";
+			$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
 		}
 
 		$stmt = "select count(*)  
@@ -366,7 +366,7 @@ class Statistics
 				$limit .= " and month(date(stl_request_date)) = ".$month;
 			}
 		} elseif ($range != 'all' && $range == '4w') {
-			$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL '1 MONTH'";
+			$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
 		}
 
 		$stmt = "select count(*) as stl_country_count, stl_country_name, stl_country_code  
@@ -402,7 +402,7 @@ class Statistics
 				$limit .= " and month(date(stl_request_date)) = ".$month;
 			}
 		} elseif ($range != 'all' && $range == '4w') {
-			$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL '1 MONTH'";
+			$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
 		}
 		$limit .= " and stl_country_name = '".$country."'";
 		$stmt = "select count(*) as stl_country_count, stl_country_name, stl_country_code, stl_region, stl_city
@@ -514,7 +514,7 @@ class Statistics
 				$limit .= " and month(stl_request_date) = ".$month;
 			}
 		} elseif ($range != 'all' && $range == '4w') {
-			$limit .= " and stl_request_date >= CURDATE()-INTERVAL '1 MONTH'";
+			$limit .= " and stl_request_date >= CURDATE()-INTERVAL 1 MONTH";
 		}
 		$limit .= " and stl_country_name = '".$country."'";
 		
