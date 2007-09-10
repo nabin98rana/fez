@@ -892,11 +892,10 @@ class Auth
         $userPIDAuthGroups = $NonRestrictedRoles;
         // loop through the ACML docs found for the current pid or in the ancestry
 		$cleanedArray = array();
-
         foreach ($ACMLArray as &$acml) {
 	        // Usually everyone can list, view and view comments - these need to be reset for each ACML loop
 			// because they are presumed ok first
-//		    $userPIDAuthGroups = Misc::array_merge_values($userPIDAuthGroups, $NonRestrictedRoles);
+		    //$userPIDAuthGroups = Misc::array_merge_values($userPIDAuthGroups, $NonRestrictedRoles);
             // Use XPath to find all the roles that have groups set and loop through them
             $xpath = new DOMXPath($acml);
             $roleNodes = $xpath->query('/FezACML/rule/role');
@@ -905,20 +904,21 @@ class Auth
                 //echo $acml->saveXML($roleNode);
                 // Use XPath to get the sub groups that have values
                 $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $roleNode); /* */
-                if ($groupNodes->length) {
+                //if ($groupNodes->length) {
 //                    echo $role;
                     // if the role is in the ACML then it is restricted so remove it
-                    if (in_array($role, $userPIDAuthGroups) && in_array($role, $NonRestrictedRoles) && (@$cleanedArray[$role] != true)) {
-                        $userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role, false, true);
-						$cleanedArray[$role] = true;
-                    }
-                }
+               // }
                 foreach ($groupNodes as $groupNode) {
                     $group_type = $groupNode->nodeName;
                     //echo $group_type;
                     $group_values = explode(',', $groupNode->nodeValue);
                     foreach ($group_values as $group_value) {
                         $group_value = trim($group_value, ' ');
+                    // if the role is in the ACML with a non 'off' value and not empty value then it is restricted so remove it
+                    if ($group_value != "off" && $group_value != "" && in_array($role, $userPIDAuthGroups) && in_array($role, $NonRestrictedRoles) && (@$cleanedArray[$role] != true)) {
+                        $userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role, false, true);
+						$cleanedArray[$role] = true;
+                    }
                         // @@@ CK - if the role has already been
                         // found then don't check for it again
                         if (!in_array($role, $userPIDAuthGroups)) {
@@ -2176,7 +2176,9 @@ class Auth
               $result = 1;    
             } else {
 //                $count = Collection::getEditListingCount();
-                $count = Collection::getEditListingCount();
+                $list = Collection::getEditList();
+                $count = count($list);
+//                $count = Collection::getEditListingCount();
                 $result = ($count > 0) ? 1 : -1;
             }
         }
