@@ -46,9 +46,9 @@ class Bulk_Move_Record_Collection {
 			$record = new RecordObject($pid);
 			if ($record->canEdit()) {
 				$record->updateRELSEXT("rel:isMemberOf", $parent_pid);
-	        	$this->bgp->setStatus("Moved '".$record->getTitle()."'");	
+	        	$this->bgp->setStatus("Moved '".$pid."'");	
 			} else {
-				$this->bgp->setStatus("Skipped '".$record->getTitle()."'. User can't edit this record");
+				$this->bgp->setStatus("Skipped '".$pid."'. User can't edit this record");
 			}
 		}
     	$this->bgp->setStatus("Finished Bulk Move to Collection");	
@@ -72,7 +72,9 @@ class Bulk_Move_Record_Collection {
 			$dest_title = $col_title.' '. ($chunk_number + 1);
 			$dest_record->setValue($title_xsdmf_id, $dest_title, 0);
 			// move a chunk of records into the new collection
-			$this->moveBGP(array_slice($remaining_pids, 0, $chunk_size), $dest_pid);
+			$chunk = array_slice($remaining_pids, 0, $chunk_size);
+			$remaining_pids = array_diff($remaining_pids, $chunk);
+			$this->moveBGP($chunk, $dest_pid);
 		}
 		
 	}

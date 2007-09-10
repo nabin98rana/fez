@@ -312,7 +312,7 @@ class DuplicatesReport {
         $stmt = "SELECT distinct r2.rek_pid as pid, ".self::RELEVANCE_ISI_LOC_MATCH." as relevance " .
                 "FROM  ".$dbtp."record_search_key_identifier AS r2 " .
                 "    WHERE r2.rek_identifier='$isi_loc' " .
-                "    AND r2.rek_identifier_pid = '".$pid."' ";
+                "    AND NOT(r2.rek_identifier_pid = '".$pid."') ";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -336,7 +336,7 @@ class DuplicatesReport {
                 "  match (r2.rmf_title) against ('".Misc::escapeString($title)."') as relevance " .
                 "FROM  ".$dbtp."record_search_key AS r2 " .
                 "  WHERE match (r2.rek_title) against ('".Misc::escapeString($title)."') " .
-                "  AND rek_pid != '".$pid."' AND rek_object_type = 3" .
+                "  AND NOT(rek_pid = '".$pid."') AND rek_object_type = 3" .
                 "ORDER BY relevance DESC " .
                 "LIMIT 0,10";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -487,6 +487,9 @@ class DuplicatesReport {
 		        }
 		        if (!PEAR::isError($base_det)) {
 			        $base_det = $this->merge_R_Datastreams($base_record, $dup_record, $base_det);
+		        }
+		        if (!PEAR::isError($base_det)) {
+			        $base_det = $this->merge_M_Datastreams($base_record, $dup_record, $base_det);
 		        }
 			break;
 			case self::MERGE_TYPE_RM_ISI:
@@ -642,13 +645,30 @@ class DuplicatesReport {
     
     function removeDuplicateIdentifiers(&$base_record, $base_det)
     {
+		$error = 0;
 		$id_xsdmf_id = $base_record->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!identifier');
 		$type_xsdmf_id = $base_record->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!identifier!type');
-		// put the actual identifier as the key as the type can be non-unique
-		$identifier_key_pairs = array_combine($base_det[$id_xsdmf_id], $base_det[$type_xsdmf_id]);
-		$base_det[$id_xsdmf_id] = array_keys($identifier_key_pairs);
-		$base_det[$type_xsdmf_id] = array_values($identifier_key_pairs);
-		return $base_det;
+		if (!empty($base_det[$type_xsdmf_id]) && !empty($base_det[$id_xsdmf_id])) {
+			// put the actual identifier as the key as the type can be non-unique
+			if (!is_array($base_det[$type_xsdmf_id])) {
+				$base_det[$type_xsdmf_id] = array($base_det[$type_xsdmf_id]);
+			}
+			if (!is_array($base_det[$id_xsdmf_id])) {
+				$base_det[$id_xsdmf_id] = array($base_det[$id_xsdmf_id]);
+			}
+			if (count($base_det[$id_xsdmf_id]) == count($base_det[$type_xsdmf_id])) {
+				$identifier_key_pairs = array_combine($base_det[$id_xsdmf_id], $base_det[$type_xsdmf_id]);
+				$base_det[$id_xsdmf_id] = array_keys($identifier_key_pairs);
+				$base_det[$type_xsdmf_id] = array_values($identifier_key_pairs);
+			} else {
+				$error = PEAR::raiseError("The identifiers would not merge");
+			}
+		}
+		if (empty($error)) {
+			return $base_det;
+		} else {
+			return $error;
+		}
     }
 
 
@@ -904,6 +924,39 @@ class DuplicatesReport {
 			return $error;
 		}
 	}
+
+	function merge_M_Datastreams(&$base_record, &$dup_record, $base_det)
+	{
+		$error = 0;
+        $dup_datastreams = Fedora_API::callGetDatastreams($dup_record->pid);
+        $base_datastreams = Fedora_API::callGetDatastreams($base_record->pid);
+        $copied_ds = array();
+        foreach ($dup_datastreams as $ds_key => $ds) {
+			if ($ds['controlGroup'] == 'M') {
+				$found_in_base = false;
+				foreach ($base_datastreams as $base_ds_key => $base_ds) {
+					if ($base_ds['controlGroup'] == 'M') {
+						if ($base_ds['ID'] == $ds['ID']) {
+							$found_in_base = true;
+						}
+					}
+				}
+				if (!$found_in_base) {
+					// copy dup binary DS to base
+                    $value = Fedora_API::callGetDatastreamContents($dup_record->pid, $ds['ID'], true);
+                    Fedora_API::getUploadLocation($base_record->pid, $ds['ID'], $value, $ds['label'],
+                            $ds['MIMEType'], $ds['controlGroup']);
+                    $copied_ds[] = $ds['ID'];
+				}
+			}
+		}
+		if (empty($error)) {
+			return $base_det;
+		} else {
+			return $error;
+		}
+	}
+
 
     /** 
      * Look for <mods:identifier type="isi_loc"> on both records and if they're the same

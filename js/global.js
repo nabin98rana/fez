@@ -628,7 +628,7 @@ function getCookies()
 
 function isElementVisible(element)
 {
-    if ((!element.style.display) || (element.style.display == getDisplayStyle())) {
+    if (element != null && ((!element.style.display) || (element.style.display == getDisplayStyle()))) {
         return true;
     } else {
         return false;

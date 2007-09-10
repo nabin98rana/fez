@@ -40,29 +40,6 @@ function checkPublishRecords(f)
     }
 }
 
-function workflowItems(f)
-{
-    if (!hasOneChecked(f, 'pids[]')) {
-        alert('Please choose which entries to run this workflow against.');
-        return false;
-    }
-    if (f.wft_id.options[f.wft_id.selectedIndex].value == '') {
-        alert('Please choose the bulk workflow to use these objects.');
-        //f.users.focus();
-        selectField(f, 'wft_id');
-        return false;
-    }
-//    f.wfl_id = f.wft_id.selectedIndex;
-//    var features = 'width=420,height=200,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
-//    var popupWin = window.open('', '_popup', features);
-//    popupWin.focus();
-    f.method = 'get';
-    f.target = '';
-    f.cat.value = 'select_workflow';
-    f.action = '{/literal}{$rel_url}{literal}workflow/bulk_change.php';
-//    f.target = '_popup';
-    f.submit();
-}
 
 function resizePager(f)
 {
@@ -354,7 +331,7 @@ No items found
        </td>
        {/if}
        <td>                   
-         <input type="button" value="Run Workflow &gt;" class="shortcut" onClick="javascript:workflowItems(this.form);">
+         <input type="button" value="Run Workflow &gt;" class="shortcut" onClick="javascript:workflowItems(this.form, '{$rel_url}');">
          <select name="wft_id" class="default">
            {html_options options=$bulk_workflows}
           </select>

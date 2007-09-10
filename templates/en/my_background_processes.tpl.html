@@ -20,6 +20,7 @@ bgp_done[{$smarty.section.iii.index}] = 0;
 
 
 var updateProcess_mutex;
+var updateProcess_list_mutex;
 var showBgpLog_mutexes = new Array;
 {literal}
 
@@ -76,8 +77,10 @@ function updateProcesses()
     good_id = false;
     while (!good_id) {
         if (next_idx >= bgp_items.length) {
+            // reached end of list
             next_idx = 0;
             updateProcess_mutex--;
+            updateProcess_list_mutex--;
             return;
         }
         id = bgp_items[next_idx++];
@@ -101,7 +104,7 @@ function updateProcesses()
               setDone(id);
             }
             updateProcess_mutex--;
-            updateProcesses();
+            setTimeout("updateProcesses()", 10);
             });
 }
 
@@ -112,7 +115,11 @@ function updateBgpTimer()
         clearTimeout(bgp_timer);
         bgp_timer = 0;
     }
-    updateProcesses();
+    if (updateProcess_list_mutex++ == 0) {
+    	updateProcesses();
+	} else {
+		updateProcess_list_mutex--;
+	}
     bgp_timer = setTimeout("updateBgpTimer()", 5000);
 }
 
