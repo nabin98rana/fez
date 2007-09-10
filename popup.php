@@ -182,7 +182,7 @@ switch ($cat)
             }
             foreach ($items as $pid) {
 	            $rec_obj = new Record($pid);
-				if ($rec_object->canDelete()) {	    
+				if ($rec_obj->canDelete()) {	    
 	                Record::removeIndexRecord($pid);
 	                $res = Fedora_API::callPurgeObject($pid);
 				}
@@ -195,7 +195,7 @@ switch ($cat)
             $items = Misc::GETorPOST('pids');
             foreach ($items as $pid) {
                 $rec_obj = new Record($pid);
-				if ($rec_object->canApprove()) {
+				if ($rec_obj->canApprove()) {
                 	$res = $rec_obj->setStatusId(2);					
 				}
             }
