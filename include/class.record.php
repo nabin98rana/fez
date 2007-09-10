@@ -1908,6 +1908,7 @@ class RecordGeneral
     var $viewer_roles;
     var $editor_roles;
     var $creator_roles;
+    var $deleter_roles;
     var $checked_auth = false;
     var $auth_groups;
     var $display;
@@ -1935,6 +1936,7 @@ class RecordGeneral
         $this->viewer_roles = explode(',',APP_VIEWER_ROLES);
         $this->editor_roles = explode(',',APP_EDITOR_ROLES);
         $this->creator_roles = explode(',',APP_CREATOR_ROLES);
+        $this->deleter_roles = explode(',',APP_DELETER_ROLES);
 
     }
 
@@ -2087,6 +2089,20 @@ class RecordGeneral
     function canEdit($redirect=false) {
 		if (Auth::isAdministrator()) { return true; }
         return $this->checkAuth($this->editor_roles, $redirect);
+    }
+
+
+    /**
+     * canDelete
+     * Find out if the current user can edit this record
+     *
+     * @access  public
+     * @param  $redirect
+     * @return  void
+     */
+    function canDelete($redirect=false) {
+        if (Auth::isAdministrator()) { return true; }
+        return $this->checkAuth($this->deleter_roles, $redirect);
     }
 
     /**
