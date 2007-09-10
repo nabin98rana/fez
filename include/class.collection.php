@@ -420,7 +420,7 @@ class Collection
 	            $ses = &Auth::getSession();
 			}
 			if (is_array($ses['auth_index_user_rule_groups'])) {
-				if ($lister_only) {
+				if (!$lister_only) {
 	            	$authStmt .= " INNER JOIN ".$dbtp."auth_index2 ai
 	                	ON authi_role in (".$rolesStmt.") AND ai.authi_pid = ".$joinPrefix." AND ai.authi_arg_id in (".implode(",",$ses['auth_index_user_rule_groups']).")";
 				} else {
