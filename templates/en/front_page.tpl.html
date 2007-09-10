@@ -68,11 +68,12 @@ if (isElementVisible(basic_element)) {
 <table id="front-page-container">
   <tr>
     <td width="50%" valign="top">
-	  <div class="front-page-content-header"><img src="{$rel_url}images/search_22.jpg" alt="Search" title="Search" /> Search</div>
+	  <div class="front-page-content-header"><img src="{$rel_url}images/search_22.jpg" alt="Search" title="Search" /> Search </div> 
 	  <div class="front-page-content-detail">
 		<form name="search_frm" target="_top" method="get" action="{$rel_url}list.php">
 		  <input type="hidden" name="cat" value="quick_filter" />		
 		  <label for="search" accesskey="3"></label>
+ (title, keywords, abstract)<br />
 			<input type="hidden" name="sort_by" value="searchKey0" />
 			<input type="text" id="front_search" name="search_keys[0]" size="40" autocomplete="off" onkeyup="javascript: selectSearchSuggestor(this.form, 'front_search')" />
 			<div id="loading1" style="display:none;">Loading...</div>
