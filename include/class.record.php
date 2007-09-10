@@ -896,7 +896,7 @@ class Record
 
 	if (APP_SQL_DBTYPE == "mysql") { // If the DB is mysql then you can use SQL_NUM_ROWS, even with a limit and get better performance, otherwise you need to do a seperate query to get the total count
 		$total_rows = 1;
-		$stmt =  "SELECT ".APP_SQL_CACHE." SQL_CALC_FOUND_ROWS r1.* ".$searchKey_join[6]." ".$stmt.$searchKey_join[8];
+		$stmt =  "SELECT ".APP_SQL_CACHE." SQL_CALC_FOUND_ROWS DISTINCT r1.* ".$searchKey_join[6]." ".$stmt.$searchKey_join[8];
 		$stmt .= " ORDER BY ".$searchKey_join[3]." r".$searchKey_join[4].".rek_pid DESC ";
 
 	} else {
