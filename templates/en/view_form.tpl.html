@@ -220,8 +220,8 @@ function openHistory(pid)
 				<tr valign="top">
 				  <td align="left" class="default" nowrap> <b>Browse Collection:</b></td>
 				  <td align="left" class="default" width="100%"> 
-{if $prev}<a href="{$rel_url}view.php?pid={$prev.pid}&go_prev={$go_prev}">Prev: <i>{$prev.title.0}</i></a> {if $next}<br />{/if}{/if}
-{if $next}<a href="{$rel_url}view.php?pid={$next.pid}&go_next={$go_next}">Next: <i>{$next.title.0}</i></a> {/if}
+{if $prev}<a href="{$rel_url}view.php?pid={$prev.rek_pid}&go_prev={$go_prev}">Prev: <i>{$prev.rek_title}</i></a> {if $next}<br />{/if}{/if}
+{if $next}<a href="{$rel_url}view.php?pid={$next.rek_pid}&go_next={$go_next}">Next: <i>{$next.rek_title}</i></a> {/if}
 				  </td>
 				</tr>
 {/if}

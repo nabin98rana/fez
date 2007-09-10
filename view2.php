@@ -376,7 +376,7 @@ if (!empty($pid) && $record->checkExists()) {
         $list_idx = null;
 		if (is_array($list)) {
 			foreach ($list as $key => $item) {
-				if ($item['pid'] == $pid) {
+				if ($item['rek_pid'] == $pid) {
 					$list_idx = $key;
 					break;
 				}
