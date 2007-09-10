@@ -197,7 +197,7 @@
                     $value = strftime("%B %Y", strtotime($value));
                 break;
                 default:
-                    $value = strftime("%Y", strtotime($value));
+                    $value = substr(trim($value), 0, 4);
                 break;
             } 
             // hacky formatting of authors names.  Pretty easy to break - like
