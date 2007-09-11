@@ -1947,6 +1947,9 @@ class Misc
      */	
 	function array_flatten(&$a,$pref='', $ignore_keys = false) {
 	   $ret=array();
+	   if (!is_array($a)) {  	 	 
+               return array($a); 		 
+       }
 	   foreach ($a as $i => $j)
 		   if (is_array($j)) {
                if (!$ignore_keys) {

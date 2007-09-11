@@ -307,7 +307,6 @@ class WorkflowStatus {
         $this->getTriggerDetails();
         $this->getStateDetails();
         $this->addToStateHistory();
-        $this->states_done[] = array_merge($this->wfs_details, $this->wfb_details);
         $this->setSession();
 
         if ($this->wfb_details['wfb_auto']) {
