@@ -442,7 +442,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		   
 		   <b>({$list_info.total_rows} results found{if $list_info.end_offset > 0}, {math equation="x + 1" x=$list_info.start_offset|default:0} - {$list_info.end_offset} shown{/if})</b> 
 		   {if $list_type != 'community_list'}
-		   <a href="{$smarty.server.REQUEST_URI|escape:'url'}&amp;tpl=2"><img alt="Subscribe to the RSS feed for this list or search" title="Subscribe to the RSS feed for this list or search" border="0" src="{$rel_url}images/feed-icon16x16.png" /></a>
+		   <a href="{$smarty.server.REQUEST_URI|escape:'html'}&amp;tpl=2"><img alt="Subscribe to the RSS feed for this list or search" title="Subscribe to the RSS feed for this list or search" border="0" src="{$rel_url}images/feed-icon16x16.png" /></a>
 		   {/if}
                    </td>                                     
                    <td align="right"><span class="default">Order By </span>
