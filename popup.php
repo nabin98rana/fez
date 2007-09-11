@@ -53,9 +53,6 @@ $cat = @$HTTP_GET_VARS["cat"] ? @$HTTP_GET_VARS["cat"] : @$HTTP_POST_VARS["cat"]
 //echo $cat; exit;
 switch ($cat) 
 {	
-
-
-	
     case 'purge_datastream':
         {
 			$record = new RecordObject($pid);
@@ -181,7 +178,7 @@ switch ($cat)
 	            $items = Misc::GETorPOST('pids');
             }
             foreach ($items as $pid) {
-	            $rec_obj = new Record($pid);
+                $rec_obj = new RecordObject($pid);
 				if ($rec_obj->canDelete()) {	    
 	                Record::removeIndexRecord($pid);
 	                $res = Fedora_API::callPurgeObject($pid);
@@ -194,7 +191,7 @@ switch ($cat)
         {
             $items = Misc::GETorPOST('pids');
             foreach ($items as $pid) {
-                $rec_obj = new Record($pid);
+                $rec_obj = new RecordObject($pid);
 				if ($rec_obj->canApprove()) {
                 	$res = $rec_obj->setStatusId(2);					
 				}
@@ -204,9 +201,7 @@ switch ($cat)
             $tpl->assign("generic_type",'records');
             break;
         }
-
 }
-
 
 $tpl->assign("current_user_prefs", Prefs::get($usr_id));
 
