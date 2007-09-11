@@ -771,7 +771,7 @@ class User
                     usr_last_login_date
                  ) VALUES (
                     '" . Date_API::getCurrentDateGMT() . "',
-                    '" . ucwords(Misc::escapeString($HTTP_POST_VARS["fullname"])) . "',
+                    '" . Misc::escapeString(ucwords($HTTP_POST_VARS["fullname"])) . "',
                     '" . Misc::escapeString($HTTP_POST_VARS["email"]) . "',
                     " . $usr_administrator . ",
                     " . $ldap_authentication . ",
@@ -824,7 +824,7 @@ class User
                     usr_last_login_date
                  ) VALUES (
                     '" . Date_API::getCurrentDateGMT() . "',
-                    '" . ucwords(strtolower($usr_full_name)) . "',
+                    '" . Misc::escapeString(ucwords(strtolower($usr_full_name))) . "',
                     '" . $usr_email . "',
                     " . $usr_administrator . ",
                     " . $ldap_authentication . ",
@@ -935,7 +935,7 @@ class User
                     usr_last_login_date
                  ) VALUES (
                     '" . Date_API::getCurrentDateGMT() . "',
-                    '" . ucwords(strtolower($userDetails['displayname'])) . "',
+                    '" . Misc::escapeString(ucwords(strtolower($userDetails['displayname']))) . "',
                     '" . $userDetails['email'] . "',
                     " . $usr_administrator . ",
                     " . $ldap_authentication . ",
