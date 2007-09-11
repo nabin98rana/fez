@@ -337,8 +337,8 @@ class DuplicatesReport {
                 "FROM  ".$dbtp."record_search_key AS r2 " .
                 "  WHERE match (r2.rek_title) against ('".Misc::escapeString($title)."') " .
                 "  AND NOT(rek_pid = '".$pid."') AND rek_object_type = 3" .
-                "ORDER BY relevance DESC " .
-                "LIMIT 0,10";
+                " ORDER BY relevance DESC " .
+                " LIMIT 0,10";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
