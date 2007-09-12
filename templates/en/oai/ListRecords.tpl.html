@@ -26,6 +26,7 @@
         <dc:identifier>{$app_base_url}view.php?pid={$list[i].rek_pid|escape:"html"}</dc:identifier>
         <dc:description>{$list[i].rek_description|escape:"html"}</dc:description>
         <dc:type>{$list[i].rek_display_type_lookup|escape:"html"}</dc:type>
+        <dc:date>{$list[i].rek_date|escape:"html"}</dc:date>
 		{assign var="loop_authors" value=$list[i].rek_author}
 		{section name="a" loop=$loop_authors}
         <dc:creator>{$list[i].rek_author[a]|escape:"html"}</dc:creator>

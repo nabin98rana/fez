@@ -171,6 +171,38 @@ class AuthIndex {
         return 1;
     }
 
+
+	function getIndexAuthRoles($pid) {
+		$return = array();
+       	$dbtp = APP_TABLE_PREFIX;
+		$usr_id = Auth::getUserID();
+		if (!Auth::isAdministrator() && (is_numeric($usr_id))) {
+      $stmt = "SELECT
+                   authi_role
+                 FROM ";
+
+      	$stmt .=     $dbtp . "auth_index2 inner join " . 
+                    $dbtp . "auth_rule_group_users ON authi_arg_id = argu_arg_id and argu_usr_id = ".$usr_id.
+                   "  WHERE authi_pid = '".$pid."'";
+        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        } else {
+			$return = Auth::getIndexAuthCascade(array(array('rek_pid ' => $rek_pid, 'authi_role' => $res)));
+			$return = $return[0];
+            return $return;
+
+        }
+    } else {
+		$return = Auth::getIndexAuthCascade(array(array('rek_pid ' => $rek_pid)));
+		$return = $return[0];
+		return $return;
+	}
+
+      
+	}
+
 /*    function getIndexAuth($pids, $clearcache=false)
     {
         $pid_cache = &$this->pid_cache;

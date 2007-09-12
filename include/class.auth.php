@@ -782,7 +782,6 @@ class Auth
         return array(); // pid not found in listing
     }
 
-
     /**
      * getAuthorisationGroups
 	 * This method gets the roles (or authorisation groups) the user has, based on the given ACMLs using the Fez Fedora connection.
@@ -1238,11 +1237,14 @@ class Auth
      */
     function getAllIndexAuthorisationGroups($user_id)
     {
-    	$stmt = "SELECT distinct authi_role FROM " . APP_TABLE_PREFIX . "auth_rule_group_users " .
+    	$stmt = "SELECT distinct aro_role as authi_role FROM " . APP_TABLE_PREFIX . "auth_rule_group_users " .
                 "INNER JOIN " . APP_TABLE_PREFIX . "auth_rule_group_rules " .
-                        "ON argu_usr_id='".$user_id."' AND argr_arg_id=argu_arg_id " .
+                        "ON argu_usr_id=".$user_id." AND argr_arg_id=argu_arg_id " .
                 "INNER JOIN " . APP_TABLE_PREFIX . "auth_index2 " .
-                        "ON authi_arg_id=argr_arg_id ";
+                        "ON authi_arg_id=argr_arg_id " .
+                "INNER JOIN " . APP_TABLE_PREFIX . "auth_roles " .
+                        "ON authi_role=aro_id ";
+
         $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

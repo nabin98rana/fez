@@ -908,6 +908,7 @@ class Record
 	$usr_id = Auth::getUserID();
 		if ($total_rows > 0) {
 			$stmt = $GLOBALS["db_api"]->dbh->modifyLimitQuery($stmt, $start, $page_rows);
+//			Error_Handler::logError(array($stmt, $res->getDebugInfo()), __FILE__, __LINE__);
 //			echo "<pre>".$stmt."</pre>"; //exit;
 			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 			if (PEAR::isError($res)) {
@@ -1248,6 +1249,52 @@ inner join
 
 
 
+            //return $res;
+        }
+  }
+
+	function getOrgStaffIDsByPIDS(&$result) {
+		$aut_ids = array();
+       for ($i = 0; $i < count($result); $i++) {
+			if ($result[$i]["rek_object_type"] == "3") {
+				if (is_array($result[$i]["rek_author_id"])) {
+					$aut_ids = array_merge($aut_ids, $result[$i]["rek_author_id"]);
+				}
+			}
+       }
+	  if (count($aut_ids) == 0) {
+		return;
+	  }
+	  $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+      $aut_ids = implode(", ", $aut_ids);
+
+      $stmt = "SELECT
+                    aut_id, aut_org_staff_id
+                 FROM
+                    " . $dbtp . "author
+                 WHERE
+                    aut_id IN (".$aut_ids.")";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        } else {	
+            $t = array();
+            for ($i = 0; $i < count($res); $i++) {
+                $t[$res[$i]["aut_id"]] =  $res[$i]["aut_org_staff_id"];
+            }
+            // now populate the $result variable again
+            for ($i = 0; $i < count($result); $i++) {
+	            for ($y = 0; $y < count($result[$i]['rek_author_id']); $y++) {
+					if (!is_array($result[$i]["rek_author_id_external"])) {
+						$result[$i]["rek_author_id_external"] = array();
+					}
+					if (is_numeric($t[$result[$i]['rek_author_id'][$y]])) {
+                		$result[$i]["rek_author_id_external"][] = $t[$result[$i]['rek_author_id'][$y]];
+					} else {
+						$result[$i]["rek_author_id_external"][] = 0;
+					}
+				}
+            }
             //return $res;
         }
   }

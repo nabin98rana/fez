@@ -113,7 +113,7 @@ class Collection
 		if (!empty($community_pid)) {
 			$options["searchKey".Search_Key::getID("isMemberOf")] = $community_pid; // 
 		}	
-        $list = Record::getListing($options, array("Creator"), 0, 1000, "Title", true);		
+        $list = Record::getListing($options, array("Creator","Editor"), 0, 1000, "Title", true);		
 		$list = $list['list'];
 		$returnList = array();
 		foreach ($list as $element) {

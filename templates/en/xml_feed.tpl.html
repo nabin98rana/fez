@@ -1,93 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xmlfeed>
-  <title>{if $list_heading != ""}{$list_heading|escape:'html'} - {/if}{$application_title|escape:'html'}</title>
-  <link>{$app_base_url}</link>
-  <description>{$org_name}</description>
-  <language>{$lang}</language>
-  <generator>Fez {$application_version}</generator>
-  {section name="i" loop=$list}
- 		{if $list[i].object_type.0 == '1'}
-          {assign var="href_view" value="list.php?community_pid="|cat:$list[i].pid|escape:"html"}  
-        {elseif $list[i].object_type.0 == '2'}
-	      {assign var="href_view" value="list.php?collection_pid="|cat:$list[i].pid|escape:"html"}
-	    {else}
-		  {assign var="href_view" value="view.php?pid="|cat:$list[i].pid|escape:"html"}	      
-		{/if}
-  <item>
-	  <title>{$list[i].title.0|escape:"html"}</title>
-	  <pid>{$list[i].pid|escape:"html"}</pid>
-	  <link>{$app_base_url}{$href_view}</link>
-	  {if $list[i].description.0 != "null"}	
-	  	 <description>{$list[i].description.0|escape:"html"}</description>
-	  {/if}
-	  {if $list[i].created_date.0}
-	  	<created_date>{$list[i].created_date.0|date_format:"%a, %d %b %Y %H:%M:%S"}</created_date>
-	  {/if}
-	  {if $list[i].updated_date.0}
-	  	<updated_date>{$list[i].updated_date.0|date_format:"%a, %d %b %Y %H:%M:%S"}</updated_date>
-	  {/if}
-	  {if $list[i].date.0}
-	  	<publication_date>{$list[i].date.0}</publication_date>
-	  {/if}
-	
-		{if $list[i].author}
-			{section name="author_loop" loop=$list[i].author}
-				{assign var="next_author" value=$smarty.section.author_loop.index+1}
-				<author>{$list[i].author[author_loop]|escape:"html"}</author>
-			{/section}
-		{/if}
-		{if $list[i].author_id}
-			{section name="author_loop" loop=$list[i].author_id}
-				{assign var="next_author" value=$smarty.section.author_loop.index+1}
-				<author_id>{$list[i].author_id[author_loop]|escape:"html"}</author_id>
-			{/section}
-		{/if}		
-		{if $list[i].author_id_external}
-			{section name="author_loop" loop=$list[i].author_id_external}
-				{assign var="next_author" value=$smarty.section.author_loop.index+1}
-				<author_id_external>{$list[i].author_id_external[author_loop]|escape:"html"}</author_id_external>
-			{/section}
-		{/if}
-				
-		{if $list[i].xdis_title}
-			
-			{section name="xdis_title_loop" loop=$list[i].xdis_title}
-				{assign var="next_xdis_title" value=$smarty.section.xdis_title_loop.index+1}
-				<display_type>{$list[i].xdis_title[xdis_title_loop]|escape:"html"}</display_type>
-			{/section}
-			
-		{/if}
-		{if $list[i].isMemberOf}
-			{section name="isMemberOf_loop" loop=$list[i].isMemberOf}
-				{assign var="next_isMemberOf" value=$smarty.section.isMemberOf_loop.index+1}
-				<isMemberOf>{$list[i].isMemberOf[isMemberOf_loop]|escape:"html"}</isMemberOf>
-			{/section}			
-		{/if}
-		{if $list[i].description}
-			
-			{section name="description_loop" loop=$list[i].description}
-				{assign var="next_description" value=$smarty.section.description_loop.index+1}
-				<description>{$list[i].description[description_loop]|escape:"html"}</description>
-			{/section}			
-		{/if}
-		{if $list[i].keywords}
-			{section name="keywords_loop" loop=$list[i].keywords}
-				{assign var="next_keywords" value=$smarty.section.keywords_loop.index+1}
-				<keywords>{$list[i].keywords[keywords_loop]|escape:"html"}</keywords>
-			{/section}			
-		{/if}
-		{if $list[i].datastreams}
-			{section name="datastreams_loop" loop=$list[i].datastreams}
-			<datastream>{$list[i].datastreams[datastreams_loop]|escape:"html"}</datastream>	
-			{/section}
-		{/if}		
+<title>{if $list_heading != ""}{$list_heading|escape:'html'} - {/if}{$application_title|escape:'html'}</title>
+<link>{$app_base_url}</link>
+<description>{$org_name}</description>
+<language>{$lang}</language>
+<generator>Fez {$application_version}</generator>
+{section name="i" loop=$list}
+{if $list[i].rek_object_type == '1'}
+{assign var="href_view" value="list.php?community_pid="|cat:$list[i].rek_pid|escape:"html"}  
+{elseif $list[i].rek_object_type == '2'}
+{assign var="href_view" value="list.php?collection_pid="|cat:$list[i].rek_pid|escape:"html"}
+{else}
+{assign var="href_view" value="view.php?pid="|cat:$list[i].rek_pid|escape:"html"}	      
+{/if}
+<item>
+	<title>{$list[i].rek_title|escape:"html"}</title>
+	<pid>{$list[i].rek_pid|escape:"html"}</pid>
+	<identifier>{$app_base_url}{$href_view}</identifier>
+	{if $list[i].rek_description != "null"}	
+	<description>{$list[i].rek_description|escape:"html"}</description>
+	{/if}
+	{if $list[i].rek_created_date}
+	<created_date>{$list[i].rek_created_date|escape:"html"}</created_date>
+	{/if}
+	{if $list[i].rek_updated_date}
+	<updated_date>{$list[i].rek_updated_date|escape:"html"}</updated_date>
+	{/if}
+	{if $list[i].rek_date}
+	<publication_date>{$list[i].rek_date|escape:"html"}</publication_date>
+	{/if}
+	{if $list[i].rek_author}
+	{section name="author_loop" loop=$list[i].rek_author}
+	<author>{$list[i].rek_author[author_loop]|escape:"html"}</author>
+	{/section}
+	{/if}
 
-		{if $list[i].datastreams}
-			{section name="datastreams_loop" loop=$list[i].datastreams}
-			<datastream_link>{$app_base_url}eserv.php?pid={$list[i].pid|escape:"html"}&dsID={$list[i].datastreams[datastreams_loop]|escape:"html"}</datastream_link>	
-			{/section}
-		{/if}		
-
-  </item>
-  {/section}        
+	{if $list[i].rek_author_id}
+	{section name="author_loop" loop=$list[i].rek_author_id}
+	<author_id>{$list[i].rek_author_id[author_loop]|escape:"html"}</author_id>
+	{/section}
+	{/if}		
+	{if $list[i].rek_author_id_lookup}
+	{section name="author_loop" loop=$list[i].rek_author_id_lookup}
+	<author_id_lookup>{$list[i].rek_author_id_lookup[author_loop]|escape:"html"}</author_id_lookup>
+	{/section}
+	{/if}		
+	{if $list[i].rek_author_id_external}
+	{section name="author_loop" loop=$list[i].rek_author_id_external}
+	<author_id_external>{$list[i].rek_author_id_external[author_loop]|escape:"html"}</author_id_external>
+	{/section}
+	{/if}
+	{if $list[i].rek_ismemberof}{section name="isMemberOf_loop" loop=$list[i].rek_ismemberof}
+	<isMemberOf>{$list[i].rek_ismemberof[isMemberOf_loop]|escape:"html"}</isMemberOf>
+	{/section}{/if}
+	{if $list[i].rek_description}
+	{section name="description_loop" loop=$list[i].rek_description}
+	<description>{$list[i].rek_description[description_loop]|escape:"html"}</description>
+	{/section}			
+	{/if}
+	{if $list[i].rek_keywords}
+	{section name="keywords_loop" loop=$list[i].rek_keywords}
+	<keywords>{$list[i].rek_keywords[keywords_loop]|escape:"html"}</keywords>
+	{/section}			
+	{/if}
+	{assign var="loop_format" value=$list[i].rek_file_attachment_name}
+	{section name="f" loop=$loop_format}
+	<datastream_link>{$app_base_url}eserv.php?pid={$list[i].rek_pid|escape:"html"}&amp;dsID={$list[i].rek_file_attachment_name[f]|escape:"html"}</datastream_link>
+	{/section}
+	{section name="f" loop=$loop_format}
+	<datastream>{$list[i].rek_file_attachment_name[f]|escape:"html"}</datastream>
+	{/section}
+</item>
+{/section}
 </xmlfeed>

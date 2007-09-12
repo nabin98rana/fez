@@ -570,6 +570,23 @@ class Author
 
     }
 
+    function getIDsByOrgStaffIds($org_staff_ids=array()) 
+    {
+        $stmt = "SELECT
+                    aut_id
+                 FROM
+                    " . APP_TABLE_PREFIX . "author
+                    WHERE
+                    aut_org_staff_id in ('".Misc::escapeString(implode("', '", $org_staff_ids))."')";
+        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+
+    }
 
     /**
      * Method used to get an associative array of author ID and title

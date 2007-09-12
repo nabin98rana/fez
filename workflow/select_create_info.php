@@ -119,7 +119,7 @@ $communities_list = $communities_list2;
 $tpl->assign('communities_list', $communities_list);
 $tpl->assign('communities_list_selected', $communities['list'][0]['rek_pid']);
 */
-$communities_list = Community::getCreatorListAssoc();
+$communities_list = Community::getAssocList();
 $tpl->assign('communities_list', $communities_list);
 //$tpl->assign('communities_list_selected', $communities_list['rek_pid']);
 

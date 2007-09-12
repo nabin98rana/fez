@@ -218,18 +218,11 @@ class Lister
                 $tpl->assign("parents", $parents);
                 $collection_xdis_id = Collection::getCollectionXDIS_ID();
 //                $userPIDAuthGroups = Auth::getIndexAuthorisationGroups($collection_details);
-                $userPIDAuthGroups = Auth::getIndexAuthorisationGroups($collection_pid);
-//				print_r($userPIDAuthGroups);
-                $isCreator = (in_array("Creator", $userPIDAuthGroups) 
-                        || in_array("Community Administrator", $userPIDAuthGroups) 
-                        || in_array("Collection Administrator", $userPIDAuthGroups));
+                $userPIDAuthGroups = AuthIndex::getIndexAuthRoles($collection_pid);
+                $isCreator = @$userPIDAuthGroups['isCreator'] == 1;
                 $tpl->assign("isCreator", $isCreator);
-                $isEditor = (in_array("Creator", $userPIDAuthGroups) 
-                        || in_array("Community Administrator", $userPIDAuthGroups) 
-                        || in_array("Editor", $userPIDAuthGroups) 
-                        || in_array("Collection Administrator", $userPIDAuthGroups));
-                $tpl->assign("isEditor", $isEditor);	
-
+                $isEditor = @$userPIDAuthGroups['isEditor'] == 1;
+                $tpl->assign("isEditor", $isEditor);
                 $options = Search_Key::stripSearchKeys($options);                                                           
                 $options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 			    $options["searchKey".Search_Key::getID("isMemberOf")] = $collection_pid; // 
@@ -268,10 +261,10 @@ class Lister
                 $tpl->assign("community_pid", $community_pid);
                 //$xdis_id = Collection::getCollectionXDIS_ID();
                 //$community_xdis_id = Community::getCommunityXDIS_ID();
-                $userPIDAuthGroups = Auth::getIndexAuthorisationGroups($community_pid);
-                $isCreator = (in_array("Creator", $userPIDAuthGroups));
+                $userPIDAuthGroups = AuthIndex::getIndexAuthRoles($community_pid);
+                $isCreator = @$userPIDAuthGroups['isCreator'] == 1;
                 $tpl->assign("isCreator", $isCreator);
-                $isEditor = (in_array("Creator", $userPIDAuthGroups) || in_array("Community Administrator", $userPIDAuthGroups) || in_array("Editor", $userPIDAuthGroups));
+                $isEditor = @$userPIDAuthGroups['isEditor'] == 1;
                 $tpl->assign("isEditor", $isEditor);
                 $tpl->assign("xdis_id", $xdis_id);	
                 //$community_details = Community::getDetails($community_pid);
