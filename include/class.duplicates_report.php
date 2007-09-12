@@ -100,6 +100,14 @@ class DuplicatesReport {
                 		}
                 		
                         $dup_rec = new RecordGeneral($dup_pid);
+                        if (!$dup_rec->checkExists()) {
+                        	continue;
+                        }
+                        $dup_xdis_id = $dup_rec->getXmlDisplayId();
+                        if (empty($dup_xdis_id)) {
+                        	// record is damaged
+                        	continue;
+                    	}
                         
                         if ($dup_row['relevance'] == self::RELEVANCE_ISI_LOC_MATCH) {
                     		$score = 1;
@@ -309,7 +317,8 @@ class DuplicatesReport {
 		$record = new RecordGeneral($pid);
 		$isi_loc = $this->getISI_LOC($record); 
 
-        $stmt = "SELECT distinct r2.rek_pid as pid, ".self::RELEVANCE_ISI_LOC_MATCH." as relevance " .
+        $stmt = "SELECT distinct r2.rek_identifier_pid as pid, "
+        	        .self::RELEVANCE_ISI_LOC_MATCH." as relevance " .
                 "FROM  ".$dbtp."record_search_key_identifier AS r2 " .
                 "    WHERE r2.rek_identifier='$isi_loc' " .
                 "    AND NOT(r2.rek_identifier_pid = '".$pid."') ";
@@ -333,7 +342,7 @@ class DuplicatesReport {
         // Do a fuzzy title match on records that don't have the same pid as the candidate record
         // and are type '3' (records not collections or communities)
         $stmt = "SELECT distinct r2.rek_pid as pid, " .
-                "  match (r2.rmf_title) against ('".Misc::escapeString($title)."') as relevance " .
+                "  match (r2.rek_title) against ('".Misc::escapeString($title)."') as relevance " .
                 "FROM  ".$dbtp."record_search_key AS r2 " .
                 "  WHERE match (r2.rek_title) against ('".Misc::escapeString($title)."') " .
                 "  AND NOT(rek_pid = '".$pid."') AND rek_object_type = 3" .
@@ -689,7 +698,8 @@ class DuplicatesReport {
 											'!relatedItem!part!detail','Volume',
 											'!relatedItem!part!detail!number');
 		if ($xsdmf_id > 0) {
-			if (!empty($base_det[$xsdmf_id]) && $base_det[$xsdmf_id] != $dup_det[$xsdmf_id]) {
+			if (!empty($base_det[$xsdmf_id]) && !empty($dup_det[$xsdmf_id]) 
+							&& $base_det[$xsdmf_id] != $dup_det[$xsdmf_id]) {
 				$error = PEAR::raiseError("The base record has a different Volume value to the duplicate");
 			} elseif (empty($base_det[$xsdmf_id])) {
 				$base_det[$xsdmf_id] = $dup_det[$xsdmf_id];
