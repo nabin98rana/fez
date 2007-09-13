@@ -5,21 +5,21 @@
  * Created by Matthew Smith on 15/05/2007
  * This code is licensed under the GPL, see
  * http://www.gnu.org/copyleft/gpl.html
- * 
+ *
  */
- 
-include_once(APP_INC_PATH.'class.record_edit_form.php'); 
- 
+
+include_once(APP_INC_PATH.'class.record_edit_form.php');
+
 class DuplicatesReport {
 
 	const MERGE_TYPE_ALL = 0;
 	const MERGE_TYPE_HIDDEN = 1;
 	const MERGE_TYPE_RM_ISI = 2;
-	
+
 	const RELEVANCE_ISI_LOC_MATCH = -1;
-	
+
 	const DUPS_THRESHOLD = 0.8;
-	
+
     var $pid;
     var $bgp; // background process object for user feedback
     var $sets = array();
@@ -27,15 +27,15 @@ class DuplicatesReport {
     var $wfl_id; // for recording history on any records that are modified.
 
 
-   
+
     function __construct($pid=null) {
-        $this->pid = $pid;    
+        $this->pid = $pid;
     }
-    
+
     function setBGP(&$bgp) {
         $this->bgp = $bgp;
     }
-    
+
     function getWorkflowId()
     {
         if (empty($this->wfl_id)) {
@@ -43,30 +43,30 @@ class DuplicatesReport {
         }
         return $this->wfl_id;
     }
-    
+
     function setWorkflowId($wfl_id)
     {
         $this->wfl_id = $wfl_id;
     }
-    
-    
+
+
     function generate($pids) {
         //Error_Handler::debugStart();
         $total_pids = count($pids);
         $progress = 0;
-        $dupes_count = 0;        
+        $dupes_count = 0;
         $report_array = array();
         for ($ii = 0; $ii < count($pids); $ii++) {
             $pid = $pids[$ii];
             if (!empty($this->bgp)) {
                 $this->bgp->setProgress(++$progress / $total_pids * 100);
-                $this->bgp->setStatus("Processing " . $progress . " of " . $total_pids . ", " 
+                $this->bgp->setStatus("Processing " . $progress . " of " . $total_pids . ", "
                 	. $pid . ". "
                 	. $dupes_count . " dupes found so far.");
             }
             $record = new RecordGeneral($pid);
             if ($record->checkExists()) {
-                // recurse into collections and communities by appending the children to 
+                // recurse into collections and communities by appending the children to
                 // the end of the list.
                 if ($record->isCollection()) {
                 	$pids = array_merge($pids, array_diff($record->getChildrenPids(), $pids));
@@ -82,15 +82,15 @@ class DuplicatesReport {
                 if (count($res)) {
                     foreach ($res as $dup_row) {
                 		$dup_pid = $dup_row['pid'];
-                		
+
                 		// avoid checking same pid twice or detecting self
                 		if ($dup_pid == $pid || in_array($dup_pid,$dup_pids)) {
-                			continue;  
+                			continue;
                 		}
                 		$dup_pids[] = $dup_pid;
-                		
+
                 		// skip previously processed records
-                		$history_res = History::searchOnPid($dup_pid, 
+                		$history_res = History::searchOnPid($dup_pid,
                 			               			array('pre_detail' => '% Marked not duplicate of '.$pid));
                 		if (!empty($history_res)) {
 				            if (!empty($this->bgp)) {
@@ -98,7 +98,7 @@ class DuplicatesReport {
 			            	}
                 			continue;
                 		}
-                		
+
                         $dup_rec = new RecordGeneral($dup_pid);
                         if (!$dup_rec->checkExists()) {
                         	continue;
@@ -108,7 +108,7 @@ class DuplicatesReport {
                         	// record is damaged
                         	continue;
                     	}
-                        
+
                         if ($dup_row['relevance'] == self::RELEVANCE_ISI_LOC_MATCH) {
                     		$score = 1;
                     	} else {
@@ -125,9 +125,9 @@ class DuplicatesReport {
                                     'isi_loc' => $this->getISI_LOC($record)
                                 	);
                             }
-                            $report_array[$pid]['list'][$dup_pid] 
-                            	= array('pid' => $dup_pid, 
-                                                                                 'probability' => $score, 
+                            $report_array[$pid]['list'][$dup_pid]
+                            	= array('pid' => $dup_pid,
+                                                                                 'probability' => $score,
                                          'title' => $dup_rec->getTitle(),
                                          'rm_prn' => $this->getRM_PRN($dup_rec),
                                          'isi_loc' => $this->getISI_LOC($dup_rec));
@@ -145,7 +145,7 @@ class DuplicatesReport {
         //Error_Handler::debugStop();
 
     }
-    
+
     function generateXML($report_array)
     {
         if (!is_array($report_array)) {
@@ -173,7 +173,7 @@ class DuplicatesReport {
         }
         return $report_dom->saveXML();
     }
-    
+
     function addReportToFedoraObject($xml)
     {
         if (empty($xml)) {
@@ -185,12 +185,12 @@ class DuplicatesReport {
         $state = 'A';
         $label = 'DuplicatesReport';
         if (Fedora_API::datastreamExists($report_pid, $dsIDName)) {
-            Fedora_API::callModifyDatastreamByValue($report_pid, $dsIDName, $state, $label, $xml); 
+            Fedora_API::callModifyDatastreamByValue($report_pid, $dsIDName, $state, $label, $xml);
         } else {
             Fedora_API::getUploadLocation($report_pid, $dsIDName, $xml, $label, 'text/xml', 'X');
         }
     }
-    
+
     function getXML_DOM()
     {
         if (empty($this->xml_dom)) {
@@ -205,13 +205,13 @@ class DuplicatesReport {
             $this->xml_dom = $report_dom;
         }
         return $this->xml_dom;
-    } 
+    }
 
     function setXML_DOM($dom)
     {
         $this->xml_dom = $dom;
     }
-    
+
     function mergeSets($report_array)
     {
         $rearranged_report = $this->rearrangeSets($report_array);
@@ -249,7 +249,7 @@ class DuplicatesReport {
     }
 
     function mergeRearrangedSets($rearranged_report)
-    {    
+    {
         // Merge any sets that share the same base record.
         $final_groups = array();
         foreach ($rearranged_report as $group) {
@@ -272,7 +272,7 @@ class DuplicatesReport {
     }
 
     function recalcDupScores($final_groups)
-    { 
+    {
         // recalculate links to the base record for each group
         foreach ($final_groups as $key => $group)
         {
@@ -282,40 +282,40 @@ class DuplicatesReport {
             		$final_groups[$key]['list'][$dup_pid]['probability'] = 1;
             	} else {
 	                $dup_record = new RecordGeneral($dup_item['pid']);
-    	            $final_groups[$key]['list'][$dup_pid]['probability'] 
+    	            $final_groups[$key]['list'][$dup_pid]['probability']
     	            	= $this->compareRecords($base_record, $dup_record);
 	            }
             }
         }
         return $final_groups;
     }
-    
+
     function findSimilarRecords(&$record)
     {
 		$pid = $record->pid;
-        
+
         $isi_loc_res = Misc::keyArray($this->matchingISI_LOCQuery($pid), 'pid');
-        
-        $title = trim($record->getTitle()); 
+
+        $title = trim($record->getTitle());
         if (empty($title)) {
         	$title_res =  array();
     	} else {
      	   $title_res = Misc::keyArray($this->similarTitlesQuery($pid, $title), 'pid');
  		}
  		// the isi_loc matches will overwrite the title matches
- 		$res = array_merge($title_res, $isi_loc_res);  
+ 		$res = array_merge($title_res, $isi_loc_res);
  		return $res;
  	}
-    
-    
+
+
     function matchingISI_LOCQuery($pid)
     {
         $pidnum = substr($pid, strpos($pid, ':') + 1);
         $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
-        
+
         // Do a isi_loc match on records that don't have the same pid as the candidate record
 		$record = new RecordGeneral($pid);
-		$isi_loc = $this->getISI_LOC($record); 
+		$isi_loc = $this->getISI_LOC($record);
 
         $stmt = "SELECT distinct r2.rek_identifier_pid as pid, "
         	        .self::RELEVANCE_ISI_LOC_MATCH." as relevance " .
@@ -330,7 +330,7 @@ class DuplicatesReport {
 
         return $res;
     }
-    
+
     /**
      * @param string $pid - exclude this pid from the search
      * @param string $title - search for this title
@@ -393,18 +393,18 @@ class DuplicatesReport {
              	   if (!empty($this->bgp)) {
 	            	    $this->bgp->setStatus("Merging on matching isi_loc ".$dup_pid);
     	            }
-    		        if ($this->recordIsResearchMaster($base_record) 
+    		        if ($this->recordIsResearchMaster($base_record)
         	        	&& $this->recordIsUQCited($dup_record)) {
         		        $merge_res = $this->mergeRecords($base_record, $dup_record,
         		        	            		        self::MERGE_TYPE_RM_ISI, $test_mode);
     	            } else {
-    	        	    $merge_res = $this->mergeRecords($base_record, $dup_record, 
+    	        	    $merge_res = $this->mergeRecords($base_record, $dup_record,
 	    	            			    	            self::MERGE_TYPE_ALL, $test_mode);
 		    	    }
         		    if (!PEAR::isError($merge_res)) {
 		                if (!$test_mode) {
 					        // set some history on the object so we know why it was merged.
-				    	    History::addHistory($base_pid, $wfl_id, "", "", false, 
+				    	    History::addHistory($base_pid, $wfl_id, "", "", false,
 					        	'', "Merged on LOC_ISI with ".$dup_pid);
     	        	        $this->markDuplicate($base_pid, $dup_pid);
 	        	        }
@@ -420,7 +420,7 @@ class DuplicatesReport {
         }
         //Error_Handler::debugStop();
     }
-    
+
     function autoMergeRecords(&$base_record, &$dup_record)
     {
         Error_Handler::debugStart();
@@ -429,15 +429,15 @@ class DuplicatesReport {
 			$error = PEAR::raiseError("Can't automerge records of different document types");
 			return $error;
 		}
-        
+
         if ($this->recordIsResearchMaster($base_record) && $this->recordIsUQCited($dup_record)) {
 	        $merge_res = $this->mergeRecords($base_record, $dup_record, self::MERGE_TYPE_RM_ISI);
 	    } else {
     	    $merge_res = $this->mergeRecords($base_record, $dup_record);
         }
-        
+
         // Should we need to do this, for some reason the details don't update in these records
-        // and it merges the old record details	
+        // and it merges the old record details
         //if ($merge_res > 0) {
 	    //    $merge_res = $this->mergeRecords($base_record, $dup_record, self::MERGE_TYPE_HIDDEN);
         //}
@@ -450,7 +450,7 @@ class DuplicatesReport {
         Error_Handler::debugStop();
 		return $merge_res;
     }
-    
+
     function recordIsResearchMaster(&$record)
     {
     	$rm_prn = $this->getIdentifier($record,'rm_prn');
@@ -459,7 +459,7 @@ class DuplicatesReport {
     	}
     	return false;
     }
-    
+
     function recordIsUQCited(&$record)
     {
     	$rm_prn = $this->getIdentifier($record,'rm_prn');
@@ -469,11 +469,11 @@ class DuplicatesReport {
     	}
     	return false;
     }
-    
-    function mergeRecords(&$base_record, &$dup_record, $merge_type = self::MERGE_TYPE_ALL, 
+
+    function mergeRecords(&$base_record, &$dup_record, $merge_type = self::MERGE_TYPE_ALL,
     						$test_mode = false)
     {
-        
+
 		switch ($merge_type)
 		{
 			case self::MERGE_TYPE_ALL:
@@ -483,12 +483,6 @@ class DuplicatesReport {
 	        	}
 		        if (!PEAR::isError($base_det)) {
 			        $base_det = $this->mergeAuthorsGeneral($base_record, $dup_record, $base_det);
-		        }
-		        if (!PEAR::isError($base_det)) {
-			        $base_det = $this->merge_R_Datastreams($base_record, $dup_record, $base_det);
-		        }
-		        if (!PEAR::isError($base_det)) {
-			        $base_det = $this->merge_M_Datastreams($base_record, $dup_record, $base_det);
 		        }
 			break;
 			case self::MERGE_TYPE_HIDDEN:
@@ -518,12 +512,6 @@ class DuplicatesReport {
 		        if (!PEAR::isError($base_det)) {
 			        $base_det = $this->mergeAuthorsRM_UQCited($base_record, $dup_record, $base_det);
 		        }
-		        if (!PEAR::isError($base_det)) {
-			        $base_det = $this->merge_R_Datastreams($base_record, $dup_record, $base_det);
-		        }
-		        if (!PEAR::isError($base_det)) {
-			        $base_det = $this->merge_M_Datastreams($base_record, $dup_record, $base_det);
-		        }
 			break;
 		}
 
@@ -536,7 +524,7 @@ class DuplicatesReport {
     	    $params['sta_id'] = $base_record->getPublishedStatus();
 
 	        // Just want to find the basic xsdmf_ids for the title, date and user and set them to something useful
-	        $params['xsd_display_fields'] = $base_det; 
+	        $params['xsd_display_fields'] = $base_det;
 			$ref = new RecordEditForm();
 			$ref->fixParams(&$params, $base_record);
 
@@ -549,7 +537,7 @@ class DuplicatesReport {
     {
 		return $this->mergeRecords($base_record, $dup_record, self::MERGE_TYPE_HIDDEN);
     }
-    
+
 
 
     function mergeDetailsAll(&$base_record, &$dup_record)
@@ -574,7 +562,7 @@ class DuplicatesReport {
         	} else {
             	$base_det[$xsdmf_id] = array_values(array_merge($base_det[$xsdmf_id], array($dup_value)));
         	}
-        } elseif (!empty($dup_value) && !is_array($dup_value) 
+        } elseif (!empty($dup_value) && !is_array($dup_value)
         		    && !empty($base_det[$xsdmf_id]) && !is_array($base_det[$xsdmf_id])) {
         	// check if this is supposed to be a multiple element
         	$xsdmf = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
@@ -605,8 +593,8 @@ class DuplicatesReport {
         	}
         }
     }
-	
-    
+
+
     function mergeDetailsHiddenSameDocType(&$base_record, &$dup_record, $base_det = null)
     {
         // get the values for both records and copy over anything that isn't set in the base.
@@ -615,8 +603,8 @@ class DuplicatesReport {
     	}
         $dup_det = $dup_record->getDetails();
         $base_record->getDisplay();
-        $xsd_display_fields = Misc::keyArray($base_record->display->getMatchFieldsList(array("FezACML"), 
-        								array("")), 'xsdmf_id');  
+        $xsd_display_fields = Misc::keyArray($base_record->display->getMatchFieldsList(array("FezACML"),
+        								array("")), 'xsdmf_id');
     	foreach ($dup_det as $xsdmf_id => $dup_value) {
         	// skip everything except hidden fields
             if ($xsd_display_fields[$xsdmf_id]['xsdmf_html_input'] == 'hidden') {
@@ -663,7 +651,7 @@ class DuplicatesReport {
 
         return $base_det;
     }
-    
+
     function removeDuplicateIdentifiers(&$base_record, $base_det)
     {
 		$error = 0;
@@ -699,7 +687,7 @@ class DuplicatesReport {
 		$error = 0;
 		$dup_det = $dup_record->getDetails();
     	// title, journal name, date, start_page, end_page, volume_number?
-    	$elements = array('!titleInfo!title', '!relatedItem!name!namePart', '!originInfo!dateIssued', 
+    	$elements = array('!titleInfo!title', '!relatedItem!name!namePart', '!originInfo!dateIssued',
     						'!relatedItem!part!extent!start', '!relatedItem!part!extent!end');
     	foreach ($elements as $element) {
     		$xsdmf_id = $dup_record->display->xsd_html_match->getXSDMF_IDByXDIS_ID($element);
@@ -710,7 +698,7 @@ class DuplicatesReport {
 											'!relatedItem!part!detail','Volume',
 											'!relatedItem!part!detail!number');
 		if ($xsdmf_id > 0) {
-			if (!empty($base_det[$xsdmf_id]) && !empty($dup_det[$xsdmf_id]) 
+			if (!empty($base_det[$xsdmf_id]) && !empty($dup_det[$xsdmf_id])
 							&& $base_det[$xsdmf_id] != $dup_det[$xsdmf_id]) {
 				$error = PEAR::raiseError("The base record has a different Volume value to the duplicate");
 			} elseif (empty($base_det[$xsdmf_id])) {
@@ -721,7 +709,7 @@ class DuplicatesReport {
 					. "sublooping element on !part!detail!number", __FILE__,__LINE__);
 			$error = PEAR::raiseError("Expected Duplicate record to have a Volume "
 					. "sublooping element on !part!detail!number. "
-					. "getXSDMF_ID_ByElementInSubElement error code: ".$xsdmf_id); 
+					. "getXSDMF_ID_ByElementInSubElement error code: ".$xsdmf_id);
 		}
 		if (empty($error)) {
     		return $base_det;
@@ -729,15 +717,15 @@ class DuplicatesReport {
 			return $error;
 		}
     }
-    
+
     function mergeNormaliseKeywords(&$base_record, &$dup_record, $base_det)
     {
     	$base_keywords = Misc::array_flatten($base_record->getFieldValueBySearchKey('Keywords'),'',true);
     	$dup_keywords = Misc::array_flatten($dup_record->getFieldValueBySearchKey('Keywords'),'',true);
-    	
+
     	$base_keywords = array_map(create_function('$a', 'return ucwords(strtolower($a));'), $base_keywords);
     	$dup_keywords = array_map(create_function('$a', 'return ucwords(strtolower($a));'), $dup_keywords);
-    	
+
     	$sek_id = Search_Key::getID('Keywords');
 		$xsdmf_id = $base_record->display->xsd_html_match->getXSDMF_IDBySEK($sek_id);
 		if (is_numeric($xsdmf_id) && $xsdmf_id > 0) {
@@ -746,7 +734,7 @@ class DuplicatesReport {
 		}
     	return $base_det;
     }
-    
+
     /**
      * This function prefers to use the name from the dupe as the UQ Cited records apparently
      * have better names.
@@ -758,19 +746,19 @@ class DuplicatesReport {
     	   if the ids match, then use the UQ Cited Author Display name (dup)
     	   if the author names have a good levenstein score and the base id is not set (0) then use the dup
     	   if the author names have a bad score then return -1
-    	   	
+
     	*/
     	$error = 0;
-    	
+
     	$base_authors = Misc::array_flatten($base_record->getFieldValueBySearchKey('Author'),'',true);
     	$base_author_ids = Misc::array_flatten($base_record->getFieldValueBySearchKey('Author ID'),'',true);
-    	
+
     	$dup_authors = Misc::array_flatten($dup_record->getFieldValueBySearchKey('Author'),'',true);
     	$dup_author_ids = Misc::array_flatten($dup_record->getFieldValueBySearchKey('Author ID'),'',true);
-    	
+
     	$res_authors = array();
     	$res_author_ids = array();
-    	
+
 		for ($ii = 0; $ii < count($dup_authors); $ii++) {
 			if (empty($base_authors[$ii])) {
 				$res_authors[] = $dup_authors[$ii];
@@ -785,13 +773,13 @@ class DuplicatesReport {
 					$res_authors[] = $dup_authors[$ii];
 					$res_author_ids[] = $dup_author_ids[$ii];
 				} else {
-					$error = PEAR::raiseError("Author names '" . $base_authors[$ii] . "' and '" 
-						. $dup_authors[$ii] 
+					$error = PEAR::raiseError("Author names '" . $base_authors[$ii] . "' and '"
+						. $dup_authors[$ii]
 						. "' are too different to be confident that they are the same person (diff:"
 						. $lev . ")");
 					break;
 				}
-			} elseif (empty($dup_author_ids[$ii])) { 
+			} elseif (empty($dup_author_ids[$ii])) {
 				$lev = $this->calcAuthorLevenshtein($base_authors[$ii], $dup_authors[$ii]);
 				$minlen = min(strlen($base_authors[$ii]), strlen($dup_authors[$ii]));
 				if ($lev < $minlen / 2) {
@@ -810,7 +798,7 @@ class DuplicatesReport {
 				break;
 			}
 		}
-		
+
 		if (empty($error)) {
 			// find the authors and ids xsdmf_ids and merge them in
 			$sek_id = Search_Key::getID('Author');
@@ -826,27 +814,27 @@ class DuplicatesReport {
 	}
 
 	/**
-	 * This function will use the base record author names if there is one as we have no reason to 
+	 * This function will use the base record author names if there is one as we have no reason to
 	 * think the dupe will be any better.
 	 */
     function mergeAuthorsGeneral(&$base_record, &$dup_record, $base_det)
     {
     	$error = 0;
-    	
+
     	$base_authors = Misc::array_flatten($base_record->getFieldValueBySearchKey('Author'),'',true);
     	$base_author_ids = Misc::array_flatten($base_record->getFieldValueBySearchKey('Author ID'),'',true);
-    	
+
     	$dup_authors = Misc::array_flatten($dup_record->getFieldValueBySearchKey('Author'),'',true);
     	$dup_author_ids = Misc::array_flatten($dup_record->getFieldValueBySearchKey('Author ID'),'',true);
-    	
+
     	$res_authors = array();
     	$res_author_ids = array();
 
 		if (empty($dup_authors) && empty($base_authors)) {
 			// nothing to do here
-			return 	$base_det;		
+			return 	$base_det;
 		}
-    	
+
 		for ($ii = 0; $ii < count($dup_authors); $ii++) {
 			if (empty($base_authors[$ii])) {
 				$res_authors[] = $dup_authors[$ii];
@@ -861,13 +849,13 @@ class DuplicatesReport {
 					$res_authors[] = $base_authors[$ii];
 					$res_author_ids[] = $dup_author_ids[$ii]; // maybe the dupe has an id
 				} else {
-					$error = PEAR::raiseError("Author names '" . $base_authors[$ii] . "' and '" 
-						. $dup_authors[$ii] 
+					$error = PEAR::raiseError("Author names '" . $base_authors[$ii] . "' and '"
+						. $dup_authors[$ii]
 						. "' are too different to be confident that they are the same person (diff:"
 						. $lev . ")");
 					break;
 				}
-			} elseif (empty($dup_author_ids[$ii])) { 
+			} elseif (empty($dup_author_ids[$ii])) {
 				$lev = $this->calcAuthorLevenshtein($base_authors[$ii], $dup_authors[$ii]);
 				$minlen = min(strlen($base_authors[$ii]), strlen($dup_authors[$ii]));
 				if ($lev < $minlen / 2) {
@@ -886,7 +874,7 @@ class DuplicatesReport {
 				break;
 			}
 		}
-		
+
 		if (empty($error)) {
 			// find the authors and ids xsdmf_ids and merge them in
 			$sek_id = Search_Key::getID('Author');
@@ -902,7 +890,7 @@ class DuplicatesReport {
 	}
 
 
-	
+
 	function calcAuthorLevenshtein($left, $right)
 	{
 		// remove spaces and punctuation from authorname
@@ -911,13 +899,13 @@ class DuplicatesReport {
 		$right = preg_replace($pattern,'',$right);
 		return levenshtein($left, $right);
 	}
-	
+
 	function merge_R_Datastreams(&$base_record, &$dup_record, $base_det)
 	{
 		$error = 0;
         $datastreams = Fedora_API::callGetDatastreams($dup_record->pid);
         $datastreams = Misc::cleanDatastreamList($datastreams);
-        
+
         $links_xsdmf_id =  $dup_record->display->xsd_html_match->getXSDMF_ID_ByElementInSubElement(
 									'!datastream','Link','!datastream!datastreamVersion!contentLocation');
         $link_labels_xsdmf_id =  $dup_record->display->xsd_html_match->getXSDMF_ID_ByElementInSubElement(
@@ -928,7 +916,7 @@ class DuplicatesReport {
                 $link = trim($datastreams[$ds_key]['location']);
                 $link_label = trim($datastreams[$ds_key]['label']);
 			    // only raise an error if there is a link to be copied and the destination isn't right
-			    if (empty($links_xsdmf_id) || $links_xsdmf_id < 0 
+			    if (empty($links_xsdmf_id) || $links_xsdmf_id < 0
 			    		|| empty($link_labels_xsdmf_id) || $link_labels_xsdmf_id < 0) {
 		        	Error_Handler::logError("Couldn't merge the record link ".$link,__FILE__,__LINE__);
 		        	$error = PEAR::raiseError("Couldn't merge the record link: bad xsdmf_id on base "
@@ -939,7 +927,7 @@ class DuplicatesReport {
                 $this->mergeDetailGeneric($base_det, $link_labels_xsdmf_id, $link_label);
             }
         }
-		
+
 		if (empty($error)) {
 			return $base_det;
 		} else {
@@ -980,7 +968,7 @@ class DuplicatesReport {
 	}
 
 
-    /** 
+    /**
      * Look for <mods:identifier type="isi_loc"> on both records and if they're the same
      * return true.
      */
@@ -996,17 +984,17 @@ class DuplicatesReport {
         }
         return $res;
     }
-    
-    function getISI_LOC(&$record) 
+
+    function getISI_LOC(&$record)
     {
     	return $this->getIdentifier($record, 'isi_loc');
     }
 
-    function getRM_PRN(&$record) 
+    function getRM_PRN(&$record)
     {
     	return $this->getIdentifier($record, 'rm_prn');
     }
-    
+
     function getIdentifier(&$record, $find_type)
     {
         // get the mods:identifier.
@@ -1020,15 +1008,15 @@ class DuplicatesReport {
                     break;
                 }
             }
-        // If there is only one identifier element: ...    
+        // If there is only one identifier element: ...
         } elseif (!empty($types) && $types == $find_type) {
             $res = $identifiers;
         }
         return $res;
     }
 
-    
-    function compareRecords(&$record1, &$record2) 
+
+    function compareRecords(&$record1, &$record2)
     {
         $title_tokens1 = $this->tokenise(array($record1->getTitle()));
         $title_tokens2 = $this->tokenise(array($record2->getTitle()));
@@ -1037,9 +1025,9 @@ class DuplicatesReport {
         $author_tokens1 = $this->tokenise($record1->getFieldValueBySearchKey('Author'));
         $author_tokens2 = $this->tokenise($record2->getFieldValueBySearchKey('Author'));
         $author_score = $this->calcOverlap($author_tokens1, $author_tokens2);
-        
+
         // if this is a journal
-        if (is_numeric(strpos($record1->getDocumentType(), 'Journal Article')) 
+        if (is_numeric(strpos($record1->getDocumentType(), 'Journal Article'))
         		&& is_numeric(strpos($record2->getDocumentType(), 'Journal Article'))) {
         	$journal_tokens1 = $this->tokenise($record1->getDetailsByXSDMF_element(
         													'!relatedItem!name!namePart'));
@@ -1049,10 +1037,10 @@ class DuplicatesReport {
     	} else {
     		$journal_title_score = 1;
     	}
-        
-        return $title_score * $author_score * $journal_title_score; 
+
+        return $title_score * $author_score * $journal_title_score;
     }
-    
+
     function calcOverlap($array1,$array2)
     {
         if ((count($array1) + count($array2)) == 0) {
@@ -1060,7 +1048,7 @@ class DuplicatesReport {
         }
         return count(array_intersect($array1, $array2)) * 2  / (count($array1) + count($array2));
     }
-    
+
     function tokenise($array_of_strings)
     {
         $array_of_strings = Misc::array_flatten($array_of_strings, '', true);
@@ -1072,13 +1060,13 @@ class DuplicatesReport {
         // get rid of anything three chars or less - initials and stuff
         $tokens = array_filter($tokens, array($this,'shortWordsFilter'));
         return array_values($tokens);
-        
+
     }
-    
+
     function shortWordsFilter($a)
     {
         return strlen($a) > 3;
-    } 
+    }
 
     function getListing($page, $page_size, $show_resolved = true)
     {
@@ -1099,7 +1087,7 @@ class DuplicatesReport {
         for ($ii = 0; $ii < $items->length; $ii++) {
             $itemNode = $items->item($ii);
             if (!empty($itemNode)) {
-                list($max_score,$resolved,$isi_match, $dups_count, $merge_result) 
+                list($max_score,$resolved,$isi_match, $dups_count, $merge_result)
                 	                = $this->getDupsStats($itemNode, $xpath);
                 if ($resolved) {
                 	$resolved_count++;
@@ -1112,7 +1100,7 @@ class DuplicatesReport {
             	if ($merge_result) {
             		$merge_ok_count++;
             	}
-                if ($found_count >= $first_item && $found_count < $last_item 
+                if ($found_count >= $first_item && $found_count < $last_item
                 	&& (($resolved && $show_resolved) || !$resolved)) {
                 	$listing_item = array(
                     	'pid' => $itemNode->getAttribute('pid'),
@@ -1135,7 +1123,7 @@ class DuplicatesReport {
         						'merge_ok_count');
         return compact('listing','list_meta');
     }
-    
+
     function getDupsStats($itemNode, $xpath)
     {
         $max_score = 0;
@@ -1150,8 +1138,8 @@ class DuplicatesReport {
             if ($score > $max_score) {
                 $max_score = $score;
             }
-            // if we find at least one blank duplicate attribute in the set of 
-            // dupes then this is not resolved yet. 
+            // if we find at least one blank duplicate attribute in the set of
+            // dupes then this is not resolved yet.
             $dup_att = $dupNode->getAttribute('duplicate');
             if (empty($dup_att)) {
                 $resolved = false;
@@ -1169,17 +1157,17 @@ class DuplicatesReport {
         }
         return array($max_score,$resolved,$isi_match, $dups_count, $merge_result);
     }
-    
+
     function getPrevItem($pid, $show_resolved = true)
     {
     	return $this->getNextPrevItemCommon($pid, $show_resolved, 'previousSibling');
     }
-    
+
     function getNextItem($pid, $show_resolved = true)
     {
     	return $this->getNextPrevItemCommon($pid, $show_resolved, 'nextSibling');
     }
-    
+
     function getNextPrevItemCommon($pid, $show_resolved, $axis)
     {
         $report_dom = $this->getXML_DOM();
@@ -1209,13 +1197,13 @@ class DuplicatesReport {
  		}
  		return $res;
     }
-    
+
     function getItemDetails($pid)
     {
         $xml = Fedora_API::callGetDatastreamContents($this->pid, 'DuplicatesReport', true);
         return $this->getItemDetailsFromXML($pid,$xml);
     }
-    
+
     function getItemDetailsFromXML($pid,$xml)
     {
         if (is_null($xml) || !is_string($xml) || empty($xml)) {
@@ -1226,7 +1214,7 @@ class DuplicatesReport {
             return array();
         }
         $xpath = new DOMXPath($report_dom);
-        
+
         $items = $xpath->query('/DuplicatesReport/duplicatesReportItem[@pid=\''.$pid.'\']/duplicateItem');
         $listing = array();
         foreach ($items as $item) {
@@ -1242,7 +1230,7 @@ class DuplicatesReport {
         );
         return $res;
     }
-    
+
     function markDuplicate($base_pid, $dup_pid)
     {
         $res = $this->setDuplicateXML($base_pid, $dup_pid, true);
@@ -1277,21 +1265,21 @@ class DuplicatesReport {
             											"Marked not duplicate of " . $base_pid);
             History::addHistory($base_pid, $wfl_id, "", "", true, '',
             												"Resolved non-duplicate " . $dup_pid);
-            
+
         } else {
             Error_Handler::logError("Failed to set ".$dup_pid." as non-duplicate of ".$base_pid
                 ." in XML (report pid".$this->pid.")", __FILE__,__LINE__);
         }
     }
-    
-    
+
+
     /**
      * setDuplicateXML - sets the duplicate attribute on the dup_pid for the base_pid in the XML report.
      * @param string $base_pid
      * @param string $dup_pid
      * @param string $xml - must be valid XML of DuplicatesReport
      * @param boolean $is_duplicate - the duplicate attribute will be set to "true" or "false" based on this
-     * @return string modified XML string on success, null on failure. 
+     * @return string modified XML string on success, null on failure.
      */
     function setDuplicateXML($base_pid, $dup_pid, $is_duplicate = true)
     {
@@ -1328,7 +1316,7 @@ class DuplicatesReport {
                 ." in XML (report pid".$this->pid.")", __FILE__,__LINE__);
         }
     }
-    
+
     function setMergeResultXML($base_pid, $dup_pid, $mres)
     {
         $report_dom = $this->getXML_DOM();
@@ -1353,7 +1341,7 @@ class DuplicatesReport {
         }
         return 1;
     }
-    
+
     function swapBase($base_pid,$dup_pid)
     {
         $res = $this->swapBaseXML($base_pid,$dup_pid);
@@ -1372,7 +1360,7 @@ class DuplicatesReport {
                 ." in XML (report pid".$this->pid.")", __FILE__,__LINE__);
         }
     }
-    
+
     function swapBaseXML($base_pid,$dup_pid)
     {
         $report_dom = $this->getXML_DOM();
@@ -1400,15 +1388,15 @@ class DuplicatesReport {
         }
         $base_item = $items->item(0);
         $base_item->setAttribute('pid',$dup_pid);
-        
+
         return 1;
     }
-    
+
     /**
      * Finds a base record and updates the duplicate scores for the dup records.  Called if the base record is swapped.
      */
     function recalcDupScoresXML($base_pid)
-    { 
+    {
         $report_dom = $this->getXML_DOM();
         if (empty($report_dom)) {
             return -1;
@@ -1436,7 +1424,7 @@ class DuplicatesReport {
     function calcLevenshtein($left, $right)
     {
 		// for numeric values or pids, just give 0 or 1 (0 for == and 1 for !=)
-    	if ((Misc::isPid($left) && Misc::isPid($right)) 
+    	if ((Misc::isPid($left) && Misc::isPid($right))
     		|| (is_numeric($left) && is_numeric($right))) {
     		if ($left == $right) {
     			return 0;
@@ -1457,7 +1445,7 @@ class DuplicatesReport {
 			return 1;
 		}
     }
-    
+
     function generateLevenshteinScores($left_details, $right_details)
     {
     	$distances = array();
@@ -1467,7 +1455,7 @@ class DuplicatesReport {
 					$distances[$xsdmf_id] = array();
 	    			foreach ($det as $idx => $value) {
 						if (isset($left_details[$xsdmf_id][$idx])) {
-							$distances[$xsdmf_id][$idx] 
+							$distances[$xsdmf_id][$idx]
 								= $this->calcLevenshtein($left_details[$xsdmf_id][$idx], $value);
 						} else {
 							$distances[$xsdmf_id][$idx] = 1;
@@ -1494,7 +1482,7 @@ class DuplicatesReport {
     	}
     	return $distances;
     }
- 
+
     function convertLevColour($lev)
     {
     	if ($lev == 0) {
@@ -1504,7 +1492,7 @@ class DuplicatesReport {
 		}
     	return "rgb(" . $r . ", " . $g . ", " . $b . ")";
     }
-    
+
     function convertLevColours($distances)
     {
     	$colours = array();
@@ -1520,7 +1508,7 @@ class DuplicatesReport {
     	}
     	return $colours;
     }
-    
+
 }
 
 
