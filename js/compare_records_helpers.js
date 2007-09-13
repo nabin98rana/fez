@@ -29,7 +29,7 @@ function copy_field_checkbox(dest,value)
 	f = document.forms.wfl_form1;
 	fe = getFormElement(f, dest);
 	if (fe != null) {
-		if (value == '' || value == null || value == 0) {
+		if (value == '' || value == null || value == 0 || value == 'off' || value == 'no') {
 			fe.checked = false;
 		} else {
 			fe.checked = true;

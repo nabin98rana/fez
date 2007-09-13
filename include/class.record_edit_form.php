@@ -409,7 +409,8 @@
 				&& !empty($params['xsd_display_fields'][$dis_field["xsdmf_id"]])) {
 				// need to break this into array of Year / Month / Day
 				// We are expecting a YYYY-MM-DD format
-				if (preg_match('/(\d{4})(-(\d{1,2})(-(\d{1,2}))?)?/', 		trim($params['xsd_display_fields'][$dis_field["xsdmf_id"]]), $matches)) {
+				if (preg_match('/(\d{4})(-(\d{1,2})(-(\d{1,2}))?)?/',
+				 		trim($params['xsd_display_fields'][$dis_field["xsdmf_id"]]), $matches)) {
 					if (isset($matches[1])) {
 						$params['xsd_display_fields'][$dis_field["xsdmf_id"]] = array('Year' => $matches[1]);
 					}
@@ -421,6 +422,15 @@
 					}
 				}
 			}
+            	if ($dis_field["xsdmf_html_input"] == 'checkbox') {
+			$value = $params['xsd_display_fields'][$dis_field["xsdmf_id"]]; 
+			Error_Handler::logError($dis_field["xsdmf_id"].': '. $value,__FILE__,__LINE__);
+			if ($value == 1 || $value == 'on' || $value == 'yes') {	
+				$params['xsd_display_fields'][$dis_field["xsdmf_id"]] = 'on';
+			} elseif (empty($value) || $value == 0 || $value == 'off' || $value == 'no') {
+				$params['xsd_display_fields'][$dis_field["xsdmf_id"]] = '';
+			}
+		}
         }
         // as a last pass, strip out any non enabled items. We do this in a seperate loop because the attached fields 
         // need to be read in the first loop and they are not usually enabled.
