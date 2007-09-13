@@ -733,11 +733,13 @@ class Auth
 //			foreach ($indexArray as $indexKey => $indexRecord) {
 				$userPIDAuthGroups = $indexArray['FezACML'];
 //	            $userPIDAuthGroups = Auth::getIndexAuthorisationGroups($indexRecord);
-	            $editor_matches = array_intersect(explode(',',APP_APPROVER_ROLES), $indexArray); 
+	            $editor_matches = array_intersect(explode(',',APP_EDITOR_ROLES), $indexArray); 
+            	$creator_matches = array_intersect(explode(',',APP_CREATOR_ROLES), $indexArray); 
+            	$approver_matches = array_intersect(explode(',',APP_APPROVER_ROLES), $indexArray); 
 				$indexArray['isCommunityAdministrator'] = (in_array('Community Administrator', $userPIDAuthGroups) || Auth::isAdministrator()); //editor is only for the children. To edit the actual community record details you need to be a community admin
-				$indexArray['isApprover'] = (!empty($editor_matches) || $indexArray['isCommunityAdministrator'] == true);
+				$indexArray['isApprover'] = (!empty($approver_matches) || $indexArray['isCommunityAdministrator'] == true);
 				$indexArray['isEditor'] = (!empty($editor_matches) || $indexArray['isCommunityAdministrator'] == true);
-				$indexArray['isCreator'] = (!empty($editor_matches) || $indexArray['isCommunityAdministrator'] == true);
+				$indexArray['isCreator'] = (!empty($creator_matches) || $indexArray['isCommunityAdministrator'] == true);
 				$indexArray['isArchivalViewer'] = (in_array('Archival_Viewer', $userPIDAuthGroups) || ($indexArray['isEditor'] == true));
 				$indexArray['isViewer'] = (in_array('Viewer', $userPIDAuthGroups) || ($indexArray['isEditor'] == true));
 				$indexArray['isLister'] = (in_array('Lister', $userPIDAuthGroups) || ($indexArray['isViewer'] == true));
@@ -753,6 +755,8 @@ class Auth
             
             if ($indexRecord["authi_role"]) {
             	$editor_matches = array_intersect(explode(',',APP_EDITOR_ROLE_IDS), $indexRecord["authi_role"]); 
+            	$creator_matches = array_intersect(explode(',',APP_CREATOR_ROLE_IDS), $indexRecord["authi_role"]); 
+            	$approver_matches = array_intersect(explode(',',APP_APPROVER_ROLE_IDS), $indexRecord["authi_role"]); 
             	$userPIDAuthGroups = $indexRecord["authi_role"];
             } else {
             	$editor_matches = array();
@@ -761,8 +765,8 @@ class Auth
 
 			$indexArray[$indexKey]['isCommunityAdministrator'] = (in_array(6, $userPIDAuthGroups) || $isAdministrator); //editor is only for the children. To edit the actual community record details you need to be a community admin
 			$indexArray[$indexKey]['isEditor'] = (!empty($editor_matches) || $indexArray[$indexKey]['isCommunityAdministrator'] == true);
-			$indexArray[$indexKey]['isCreator'] = (!empty($editor_matches) || $indexArray[$indexKey]['isCommunityAdministrator'] == true);
-			$indexArray[$indexKey]['isApprover'] = (!empty($editor_matches) || $indexArray[$indexKey]['isCommunityAdministrator'] == true);
+			$indexArray[$indexKey]['isCreator'] = (!empty($creator_matches) || $indexArray[$indexKey]['isCommunityAdministrator'] == true);
+			$indexArray[$indexKey]['isApprover'] = (!empty($approver_matches) || $indexArray[$indexKey]['isCommunityAdministrator'] == true);
 			$indexArray[$indexKey]['isArchivalViewer'] = (in_array(3, $userPIDAuthGroups) || ($indexArray[$indexKey]['isEditor'] == true));
 			$indexArray[$indexKey]['isViewer'] = (in_array(10, $userPIDAuthGroups) || ($indexArray[$indexKey]['isEditor'] == true));
 			$indexArray[$indexKey]['isLister'] = (in_array(9, $userPIDAuthGroups) || ($indexArray[$indexKey]['isViewer'] == true));
