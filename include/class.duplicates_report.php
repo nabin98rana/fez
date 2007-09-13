@@ -484,6 +484,12 @@ class DuplicatesReport {
 		        if (!PEAR::isError($base_det)) {
 			        $base_det = $this->mergeAuthorsGeneral($base_record, $dup_record, $base_det);
 		        }
+		        if (!PEAR::isError($base_det)) {
+			        $base_det = $this->merge_R_Datastreams($base_record, $dup_record, $base_det);
+		        }
+		        if (!PEAR::isError($base_det)) {
+			        $base_det = $this->merge_M_Datastreams($base_record, $dup_record, $base_det);
+		        }
 			break;
 			case self::MERGE_TYPE_HIDDEN:
 				if ($base_record->getXmlDisplayId() == $dup_record->getXmlDisplayId()) {
@@ -511,6 +517,12 @@ class DuplicatesReport {
 	        	}
 		        if (!PEAR::isError($base_det)) {
 			        $base_det = $this->mergeAuthorsRM_UQCited($base_record, $dup_record, $base_det);
+		        }
+		        if (!PEAR::isError($base_det)) {
+			        $base_det = $this->merge_R_Datastreams($base_record, $dup_record, $base_det);
+		        }
+		        if (!PEAR::isError($base_det)) {
+			        $base_det = $this->merge_M_Datastreams($base_record, $dup_record, $base_det);
 		        }
 			break;
 		}
