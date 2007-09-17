@@ -166,12 +166,8 @@ class History
                     " . APP_TABLE_PREFIX . "premis_event
                  WHERE 1 ";
                  $stmt .= $search_clause;
-                 if ($show_hidden==false) {
-                    $stmt .= " AND pre_is_hidden != 1 AND ";
-                 }
-                 $stmt .= "pre_pid='".$pid."'
-                 ORDER BY
-                    pre_id DESC";
+                 $stmt .= " AND pre_pid='".$pid."'
+			                 ORDER BY pre_id DESC";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

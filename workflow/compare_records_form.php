@@ -115,6 +115,7 @@ if (@$_REQUEST['action'] == 'change_dup_pid') {
     Auth::redirect($_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id)));
 }
 
+
 $dup_list = $duplicates_report->getItemDetails($left_pid);
 // make sure the current dup pid is actually in the list (it might not be if we've just viewed
 // a different base pid
@@ -125,8 +126,17 @@ if (!in_array($current_dup_pid,array_keys($dup_pids))) {
 if ($current_dup_pid == '') {
     $current_dup_pid = $dup_list['listing'][0]['pid'];
 }
-$current_dup_pid_details = $dup_pids[$current_dup_pid];
 $wfstatus->assign('current_dup_pid', $current_dup_pid);
+
+// see if this record has been already resolved 
+$right_record = new RecordObject($current_dup_pid);
+$changed = $duplicates_report->checkResolvedElsewhere($left_record, $right_record);
+if ($changed > 0) {
+	// Need to get the details again if it has changed.
+	$dup_list = $duplicates_report->getItemDetails($left_pid);
+	$dup_pids = Misc::keyArray($dup_list['listing'], 'pid');
+}
+$current_dup_pid_details = $dup_pids[$current_dup_pid];
 
 // prepare the links for choosing the dup pid in the html
 $qparams = $_GET;
@@ -145,9 +155,6 @@ $tpl->assign(compact('link_to_prev','link_to_next'));
 $record_edit_form = new RecordEditForm();
 $record_edit_form->setTemplateVars($tpl, $left_record);
 
-
-
-$right_record = new RecordObject($current_dup_pid);
 $right_xdis_id = $right_record->getXmlDisplayId();
 
 if ($right_xdis_id == $left_xdis_id) {
@@ -171,6 +178,7 @@ $tpl->assign('left_issn', $duplicates_report->getIdentifier($left_record,'issn')
 $tpl->assign('right_issn', $duplicates_report->getIdentifier($right_record,'issn'));
 $tpl->assign('left_isbn', $duplicates_report->getIdentifier($left_record,'isbn'));
 $tpl->assign('right_isbn', $duplicates_report->getIdentifier($right_record,'isbn'));
+
 
 $left_details = $record_edit_form->getRecordDetails();
 

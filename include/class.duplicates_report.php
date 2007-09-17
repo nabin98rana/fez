@@ -1508,6 +1508,60 @@ class DuplicatesReport {
     	}
     	return $colours;
     }
+    
+    /**
+     * Checks if the records have been resolved in a different duplicates report and 
+     * updates the current report to reflect this.
+     * @return integer 1 if there was a change, 0 if no change and <0 on error
+     */
+    function checkResolvedElsewhere($base_record, $dup_record)
+    {
+		$res = 0;
+		$base_pid = $base_record->pid;
+		$dup_pid = $dup_record->pid;
+		
+		
+		$report_dom = $this->getXML_DOM();
+		$xpath = new DOMXPath($report_dom);
+        $items = $xpath->query('/DuplicatesReport/duplicatesReportItem[@pid=\''.$base_pid.'\']'
+        	. '/duplicateItem[@pid=\''.$dup_pid.'\']');
+        $item = $items->item(0);
+        $duplicate = $item->getAttribute('duplicate');
+        // if the item has been resolved in this report then no need to check whether it's been 
+        // resolved eleswhere.
+        if (!empty($duplicate)) {
+        	return $res;
+        }
+        
+		// look for marked as non duplicate
+		$history_res = History::searchOnPid($dup_pid, array('pre_detail' => '% Marked not duplicate of '
+    					               											. $base_pid));
+    	if (empty($history_res)) {
+			$history_res = History::searchOnPid($dup_pid, array('pre_detail' => '% Resolved non-duplicate ' 
+				    					            		   					. $base_pid));
+		}
+		if (!empty($history_res)) {
+        	$res = $this->setDuplicateXML($base_pid, $dup_pid, false);
+        	if ($res == 1) {
+            	$this->addReportToFedoraObject($this->xml_dom->saveXML());
+        	}
+    	} else {
+			// look for marked as dupe
+			$history_res = History::searchOnPid($dup_pid, array('pre_detail' => '% Marked Duplicate of '
+    					               											. $base_pid));
+	    	if (empty($history_res)) {
+				$history_res = History::searchOnPid($dup_pid, array('pre_detail' => '% Resolved duplicate ' 
+				    					            		   					. $base_pid));
+			}
+			if (!empty($history_res)) {
+        		$res = $this->setDuplicateXML($base_pid, $dup_pid, false);
+        		if ($res == 1) {
+	            	$this->addReportToFedoraObject($this->xml_dom->saveXML());
+    	    	}
+    		}
+		}
+		return $res;
+    }
 
 }
 
