@@ -741,7 +741,8 @@ if ($sort_by == 'File Downloads') {
 			$as_field = "record_author";
 			$extra_join .= "INNER JOIN ".$dbtp."author a1 on r3.rek_author_id = a1.aut_id ";
 			$show_field = "r3.rek_author_id";
-			$show_field_id = "a1.aut_display_name";
+			$show_field_id1 = "a1.aut_fname";
+            $show_field_id2 = "a1.aut_lname";
 			$order_field = " a1.aut_lname ASC, a1.aut_fname ASC ";
 /*		} elseif ($searchKey == "Author") {
 			$search_data_type = "varchar";
@@ -788,7 +789,7 @@ if ($sort_by == 'File Downloads') {
 $stmt .= "
 
 				SELECT ".APP_SQL_CACHE."
-                    COUNT(*) AS record_count, ".$show_field_id." AS ".$as_field.", a1.aut_id AS record_author_id ".$countStmt;
+                    COUNT(*) AS record_count, CONCAT(" . $show_field_id2 . ",', '," . $show_field_id1 . ") AS ".$as_field.", a1.aut_id AS record_author_id ".$countStmt;
 
 $countStmt = "
 				SELECT ".APP_SQL_CACHE." COUNT(DISTINCT a1.aut_id)
