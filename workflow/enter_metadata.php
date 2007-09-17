@@ -117,7 +117,7 @@ if ($access_ok) {
 	$xdis_collection_list = XSD_Display::getAssocListCollectionDocTypes(); // @@@ CK - 13/1/06 added for communities to be able to select their collection child document types/xdisplays
     $xdis_list = XSD_Display::getAssocListDocTypes();
     // LUR: get the communities and collections where the user is allowed to create collections   
-    $communities = Community::getCreatorList(0, 150);
+    $communities = Community::getCreatorList(0, 1000);
 	$index=0;
 	foreach ($communities['list'] as $item) {
 		if ($item['isCreator'] != 1)
@@ -127,13 +127,14 @@ if ($access_ok) {
 		else {
 			$index++;
 		}
-	}	
+	}
 	$community_list = array();
 	if (sizeof($communities['list']) > 0)
 	{
 		$community_list = Misc::keyPairs($communities['list'], 'rek_pid', 'rek_title');
 		$community_list = Misc::stripOneElementArrays($community_list);
 	}
+//	$community_list = 
 	$collections = Collection::getEditList();
 	$collection_list = array();
 	if (sizeof($collections) > 0)

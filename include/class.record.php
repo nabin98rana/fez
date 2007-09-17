@@ -1260,6 +1260,9 @@ inner join
 				if (is_array($result[$i]["rek_author_id"])) {
 					$aut_ids = array_merge($aut_ids, $result[$i]["rek_author_id"]);
 				}
+				if (is_array($result[$i]["rek_contributor_id"])) {
+					$aut_ids = array_merge($aut_ids, $result[$i]["rek_contributor_id"]);
+				}
 			}
        }
 	  if (count($aut_ids) == 0) {
@@ -1292,6 +1295,16 @@ inner join
                 		$result[$i]["rek_author_id_external"][] = $t[$result[$i]['rek_author_id'][$y]];
 					} else {
 						$result[$i]["rek_author_id_external"][] = 0;
+					}
+				}
+	            for ($y = 0; $y < count($result[$i]['rek_contributor_id']); $y++) {
+					if (!is_array($result[$i]["rek_contributor_id_external"])) {
+						$result[$i]["rek_contributor_id_external"] = array();
+					}
+					if (is_numeric($t[$result[$i]['rek_contributor_id'][$y]])) {
+                		$result[$i]["rek_contributor_id_external"][] = $t[$result[$i]['rek_contributor_id'][$y]];
+					} else {
+						$result[$i]["rek_contributor_id_external"][] = 0;
 					}
 				}
             }
@@ -1519,7 +1532,7 @@ inner join
             	 	    }
             	 	    if (is_numeric($sekdet['sek_id'])) {
            	 	    		$joinType = " INNER JOIN ";
-            	 	        if ($sekdet['sek_html_input'] == 'text') {
+            	 	        if ($sekdet['sek_data_type'] == 'text' || $sekdet['sek_data_type'] == 'varchar') {
             	 	        	if ($sekdet['sek_relationship'] == 1) {
             	 	 				$searchKey_join[0] .= $joinType."
 											     ". $dbtp . "record_search_key_".$sekdet['sek_title_db']." as r".$x." on r".$x.".rek_".$sekdet['sek_title_db']."_pid = r".$searchKey_join[4].".rek_pid ".

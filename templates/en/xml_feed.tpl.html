@@ -50,13 +50,33 @@
 	<author_id_external>{$list[i].rek_author_id_external[author_loop]|escape:"html"}</author_id_external>
 	{/section}
 	{/if}
+	{if $list[i].rek_contributor}
+	{section name="contributor_loop" loop=$list[i].rek_contributor}
+	<contributor>{$list[i].rek_contributor[contributor_loop]|escape:"html"}</contributor>
+	{/section}
+	{/if}
+	{if $list[i].rek_contributor_id}
+	{section name="contributor_loop" loop=$list[i].rek_contributor_id}
+	<contributor_id>{$list[i].rek_contributor_id[contributor_loop]|escape:"html"}</contributor_id>
+	{/section}
+	{/if}		
+	{if $list[i].rek_contributor_id_lookup}
+	{section name="contributor_loop" loop=$list[i].rek_contributor_id_lookup}
+	<contributor_id_lookup>{$list[i].rek_contributor_id_lookup[contributor_loop]|escape:"html"}</contributor_id_lookup>
+	{/section}
+	{/if}		
+	{if $list[i].rek_contributor_id_external}
+	{section name="contributor_loop" loop=$list[i].rek_contributor_id_external}
+	<contributor_id_external>{$list[i].rek_contributor_id_external[contributor_loop]|escape:"html"}</contributor_id_external>
+	{/section}
+	{/if}
 	{if $list[i].rek_ismemberof}{section name="isMemberOf_loop" loop=$list[i].rek_ismemberof}
 	<isMemberOf>{$list[i].rek_ismemberof[isMemberOf_loop]|escape:"html"}</isMemberOf>
 	{/section}{/if}
 	{if $list[i].rek_description}
 	{section name="description_loop" loop=$list[i].rek_description}
 	<description>{$list[i].rek_description[description_loop]|escape:"html"}</description>
-	{/section}			
+	{/section}
 	{/if}
 	{if $list[i].rek_keywords}
 	{section name="keywords_loop" loop=$list[i].rek_keywords}
@@ -65,7 +85,7 @@
 	{/if}
 	{assign var="loop_format" value=$list[i].rek_file_attachment_name}
 	{section name="f" loop=$loop_format}
-	<datastream_link>{$app_base_url}eserv.php?pid={$list[i].rek_pid|escape:"html"}&amp;dsID={$list[i].rek_file_attachment_name[f]|escape:"html"}</datastream_link>
+	<datastream_link>{$app_base_url}basiceserv.php?pid={$list[i].rek_pid|escape:"html"}&amp;dsID={$list[i].rek_file_attachment_name[f]|escape:"html"}</datastream_link>
 	{/section}
 	{section name="f" loop=$loop_format}
 	<datastream>{$list[i].rek_file_attachment_name[f]|escape:"html"}</datastream>
