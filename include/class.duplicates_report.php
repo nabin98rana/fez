@@ -1554,7 +1554,7 @@ class DuplicatesReport {
 				    					            		   					. $base_pid));
 			}
 			if (!empty($history_res)) {
-        		$res = $this->setDuplicateXML($base_pid, $dup_pid, false);
+        		$res = $this->setDuplicateXML($base_pid, $dup_pid, true);
         		if ($res == 1) {
 	            	$this->addReportToFedoraObject($this->xml_dom->saveXML());
     	    	}
