@@ -351,8 +351,8 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%workflow_state_roles (
 
 REPLACE INTO %TABLE_PREFIX%workflow_state_roles
 select wfs_id, aro_id from %TABLE_PREFIX%workflow_state
-inner join fez_auth_roles on instr(wfs_roles, aro_role) > 0 and aro_id != 0;
+inner join %TABLE_PREFIX%auth_roles on instr(wfs_roles, aro_role) > 0 and aro_id != 0;
 
 REPLACE INTO %TABLE_PREFIX%workflow_roles
 select wfL_id, aro_id from %TABLE_PREFIX%workflow
-inner join fez_auth_roles on instr(wfL_roles, aro_role) > 0 and aro_id != 0;
+inner join %TABLE_PREFIX%auth_roles on instr(wfL_roles, aro_role) > 0 and aro_id != 0;
