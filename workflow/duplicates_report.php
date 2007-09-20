@@ -63,9 +63,9 @@ $duplicates_report = new DuplicatesReport($pid);
 $duplicates_report->setWorkflowId($wfstatus->id);
 $listing = $duplicates_report->getListing($page, $page_size, $show_resolved);
 // correct problem of paging off the end of the list.
-if ($page > $listing['list_meta']['pages'] - 1) {
+if ($page != 0 && $page > $listing['list_meta']['pages'] - 1) {
 	$page = 0;
-	$listing = $duplicates_report->getListing($page, $page_size);
+	$listing = $duplicates_report->getListing($page, $page_size, $show_resolved);
 	Pager::setParam('duplicates_report_page',$page);
 	Pager::sendCookie();
 }

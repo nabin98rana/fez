@@ -25,6 +25,7 @@ class DuplicatesReport {
     var $sets = array();
     var $xml_dom;
     var $wfl_id; // for recording history on any records that are modified.
+    var $in_automerge = false;
 
 
 
@@ -141,7 +142,7 @@ class DuplicatesReport {
 
         $report_array = $this->mergeSets($report_array);
         $xml = $this->generateXML($report_array);
-        $this->addReportToFedoraObject($xml);
+        $this->saveReport($xml);
         //Error_Handler::debugStop();
 
     }
@@ -174,6 +175,17 @@ class DuplicatesReport {
         return $report_dom->saveXML();
     }
 
+	function saveReport($xml)
+	{
+        if (empty($xml)) {
+            return;
+        }
+    	$this->saveReportToFile($xml);
+        if (!$this->in_automerge) {
+        	$this->addReportToFedoraObject($xml);
+        }
+	}
+
     function addReportToFedoraObject($xml)
     {
         if (empty($xml)) {
@@ -190,11 +202,31 @@ class DuplicatesReport {
             Fedora_API::getUploadLocation($report_pid, $dsIDName, $xml, $label, 'text/xml', 'X');
         }
     }
+    
+    function saveReportToFile($xml)
+    {
+        if (empty($xml)) {
+            return;
+        }
+        // save the report to a file
+        $filename = $this->getReportFilename();
+        file_put_contents($filename, $xml);
+    }
+    
+    function getReportFilename()
+    {
+    	return '/usr/local/fez_duplicates_reports/fez_duplicates_report_'.str_replace(':','_',$this->pid);
+    }
 
     function getXML_DOM()
     {
         if (empty($this->xml_dom)) {
-            $xml = Fedora_API::callGetDatastreamContents($this->pid, 'DuplicatesReport', true);
+            $filename = $this->getReportFilename();
+            $xml = file_get_contents($filename);
+            //$xml = Fedora_API::callGetDatastreamContents($this->pid, 'DuplicatesReport', true);
+            if (is_null($xml) || !is_string($xml) || empty($xml)) {
+            	$xml = Fedora_API::callGetDatastreamContents($this->pid, 'DuplicatesReport', true);
+        	}
             if (is_null($xml) || !is_string($xml) || empty($xml)) {
                 return null;
             }
@@ -347,7 +379,7 @@ class DuplicatesReport {
                 "  WHERE match (r2.rek_title) against ('".Misc::escapeString($title)."') " .
                 "  AND NOT(rek_pid = '".$pid."') AND rek_object_type = 3" .
                 " ORDER BY relevance DESC " .
-                " LIMIT 0,10";
+                " LIMIT 0,5";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -359,7 +391,7 @@ class DuplicatesReport {
     function autoMergeOnISI_LOC()
     {
         //Error_Handler::debugStart();
-
+        $this->in_automerge = true;
         // get the report
         $report_dom = $this->getXML_DOM();
         $xpath = new DOMXPath($report_dom);
@@ -402,13 +434,13 @@ class DuplicatesReport {
 	    	            			    	            self::MERGE_TYPE_ALL, $test_mode);
 		    	    }
         		    if (!PEAR::isError($merge_res)) {
+	        	        $this->setMergeResult($base_pid, $dup_pid, 'ok', false);
 		                if (!$test_mode) {
 					        // set some history on the object so we know why it was merged.
 				    	    History::addHistory($base_pid, $wfl_id, "", "", false,
 					        	'', "Merged on LOC_ISI with ".$dup_pid);
-    	        	        $this->markDuplicate($base_pid, $dup_pid);
+    	        	        $this->markDuplicate($base_pid, $dup_pid, false);
 	        	        }
-	        	        $this->setMergeResult($base_pid, $dup_pid, 'ok');
             	    } else {
             	     	if (!empty($this->bgp)) {
                 	    	$this->bgp->setStatus("Merge failed: ".$merge_res->getMessage());
@@ -416,8 +448,11 @@ class DuplicatesReport {
 	                	$this->setMergeResult($base_pid, $dup_pid, $merge_res->getMessage());
             	    }
                 }
-            }
+    	    }
         }
+        $this->in_automerge = false;
+		$report_dom = $this->getXML_DOM();
+        $this->saveReport($report_dom->saveXML());
         //Error_Handler::debugStop();
     }
 
@@ -476,29 +511,11 @@ class DuplicatesReport {
 
 		switch ($merge_type)
 		{
-			case self::MERGE_TYPE_ALL:
-		        $base_det = $this->mergeDetailsAll($base_record, $dup_record);
-		        if (!PEAR::isError($base_det)) {
-		        	$base_det = $this->mergeNormaliseKeywords($base_record, $dup_record, $base_det);
-	        	}
-		        if (!PEAR::isError($base_det)) {
-			        $base_det = $this->mergeAuthorsGeneral($base_record, $dup_record, $base_det);
-		        }
-			break;
 			case self::MERGE_TYPE_HIDDEN:
 				if ($base_record->getXmlDisplayId() == $dup_record->getXmlDisplayId()) {
 			        $base_det = $this->mergeDetailsHiddenSameDocType($base_record, $dup_record);
 		        } else {
 			        $base_det = $this->mergeDetailsHiddenDiffDocType($base_record, $dup_record);
-		        }
-		        if (!PEAR::isError($base_det)) {
-			        $base_det = $this->removeDuplicateIdentifiers($base_record, $base_det);
-		        }
-		        if (!PEAR::isError($base_det)) {
-			        $base_det = $this->merge_R_Datastreams($base_record, $dup_record, $base_det);
-		        }
-		        if (!PEAR::isError($base_det)) {
-			        $base_det = $this->merge_M_Datastreams($base_record, $dup_record, $base_det);
 		        }
 			break;
 			case self::MERGE_TYPE_RM_ISI:
@@ -513,7 +530,26 @@ class DuplicatesReport {
 			        $base_det = $this->mergeAuthorsRM_UQCited($base_record, $dup_record, $base_det);
 		        }
 			break;
+			case self::MERGE_TYPE_ALL:
+			default:
+		        $base_det = $this->mergeDetailsAll($base_record, $dup_record);
+		        if (!PEAR::isError($base_det)) {
+		        	$base_det = $this->mergeNormaliseKeywords($base_record, $dup_record, $base_det);
+	        	}
+		        if (!PEAR::isError($base_det)) {
+			        $base_det = $this->mergeAuthorsGeneral($base_record, $dup_record, $base_det);
+		        }
+			break;
 		}
+        if (!PEAR::isError($base_det)) {
+	        $base_det = $this->removeDuplicateIdentifiers($base_record, $base_det);
+        }
+        if (!PEAR::isError($base_det)) {
+	        $base_det = $this->merge_R_Datastreams($base_record, $dup_record, $base_det);
+        }
+        if (!PEAR::isError($base_det)) {
+	        $base_det = $this->merge_M_Datastreams($base_record, $dup_record, $base_det);
+        }
 
 		// check for errors and don't merge if there was a problem
 	    if (PEAR::isError($base_det)) {
@@ -1200,16 +1236,7 @@ class DuplicatesReport {
 
     function getItemDetails($pid)
     {
-        $xml = Fedora_API::callGetDatastreamContents($this->pid, 'DuplicatesReport', true);
-        return $this->getItemDetailsFromXML($pid,$xml);
-    }
-
-    function getItemDetailsFromXML($pid,$xml)
-    {
-        if (is_null($xml) || !is_string($xml) || empty($xml)) {
-            return array();
-        }
-        $report_dom = DOMDocument::loadXML($xml);
+        $report_dom = $this->getXML_DOM();
         if (empty($report_dom)) {
             return array();
         }
@@ -1231,15 +1258,22 @@ class DuplicatesReport {
         return $res;
     }
 
-    function markDuplicate($base_pid, $dup_pid)
+	/**
+	 * @param boolean $merge_hidden - when automergeing, this should be set to false as there is no need 
+	 * to merge the hidden fields.  When manually merging, this is set to true so that the hidden fields 
+	 * will be mertged.
+	 */
+    function markDuplicate($base_pid, $dup_pid, $merge_hidden = true)
     {
         $res = $this->setDuplicateXML($base_pid, $dup_pid, true);
         if ($res == 1) {
-            $this->addReportToFedoraObject($this->xml_dom->saveXML());
-            // put object in limbo
+            $this->saveReport($this->xml_dom->saveXML());
             $rec = new RecordObject($dup_pid);
-            $base_rec = new RecordObject($base_pid);
-            $this->mergeRecordsHiddenFields($base_rec, $rec);
+            if ($merge_hidden) {
+            	$base_rec = new RecordObject($base_pid);
+            	$this->mergeRecordsHiddenFields($base_rec, $rec);
+        	}
+            // put object in limbo
             $rec->markAsDeleted();
             // set some history on the object
             $wfl_id = $this->getWorkflowId();
@@ -1255,7 +1289,7 @@ class DuplicatesReport {
     {
         $res = $this->setDuplicateXML($base_pid, $dup_pid, false);
         if ($res == 1) {
-            $this->addReportToFedoraObject($this->xml_dom->saveXML());
+            $this->saveReport($this->xml_dom->saveXML());
             // get object back from limbo
             $rec = new RecordObject($dup_pid);
             $rec->markAsActive();
@@ -1305,11 +1339,18 @@ class DuplicatesReport {
         return 1;
     }
 
-    function setMergeResult($base_pid, $dup_pid, $mres)
+	/**
+	 * @param boolean $save_now - Set this to true to cause the result to be saved to the fedora 
+	 * object, otherwise if there is going to be another call to change the XML, there is no need to 
+	 * write this.
+	 */
+    function setMergeResult($base_pid, $dup_pid, $mres, $save_now = true)
     {
     	$res = $this->setMergeResultXML($base_pid, $dup_pid, $mres);
     	if ($res == 1) {
-            $this->addReportToFedoraObject($this->xml_dom->saveXML());
+            if ($save_now) {
+            	$this->saveReport($this->xml_dom->saveXML());
+        	}
         } else {
             Error_Handler::logError("Failed to set merge result for dup "
                 .$dup_pid." on base ".$base_pid
@@ -1353,7 +1394,7 @@ class DuplicatesReport {
             return;
         }
         if ($res == 1) {
-            $this->addReportToFedoraObject($this->xml_dom->saveXML());
+            $this->saveReport($this->xml_dom->saveXML());
         } else {
             Error_Handler::logError("Failed to recalc dup scores when trying to swap dup "
                 .$dup_pid." for base ".$base_pid
@@ -1543,7 +1584,7 @@ class DuplicatesReport {
 		if (!empty($history_res)) {
         	$res = $this->setDuplicateXML($base_pid, $dup_pid, false);
         	if ($res == 1) {
-            	$this->addReportToFedoraObject($this->xml_dom->saveXML());
+            	$this->saveReport($this->xml_dom->saveXML());
         	}
     	} else {
 			// look for marked as dupe
@@ -1556,7 +1597,7 @@ class DuplicatesReport {
 			if (!empty($history_res)) {
         		$res = $this->setDuplicateXML($base_pid, $dup_pid, true);
         		if ($res == 1) {
-	            	$this->addReportToFedoraObject($this->xml_dom->saveXML());
+	            	$this->saveReport($this->xml_dom->saveXML());
     	    	}
     		}
 		}
