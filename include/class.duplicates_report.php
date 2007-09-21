@@ -215,7 +215,7 @@ class DuplicatesReport {
     
     function getReportFilename()
     {
-    	return '/usr/local/fez_duplicates_reports/fez_duplicates_report_'.str_replace(':','_',$this->pid);
+    	return APP_TEMP_DIR.'fez_duplicates_report_'.str_replace(':','_',$this->pid);
     }
 
     function getXML_DOM()
@@ -440,6 +440,8 @@ class DuplicatesReport {
 				    	    History::addHistory($base_pid, $wfl_id, "", "", false,
 					        	'', "Merged on LOC_ISI with ".$dup_pid);
     	        	        $this->markDuplicate($base_pid, $dup_pid, false);
+				            // cause the base record to be re-read for the next merge
+				            $base_record = new RecordObject($base_pid);
 	        	        }
             	    } else {
             	     	if (!empty($this->bgp)) {
