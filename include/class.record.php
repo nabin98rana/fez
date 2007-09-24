@@ -1532,7 +1532,7 @@ inner join
             	 	    }
             	 	    if (is_numeric($sekdet['sek_id'])) {
            	 	    		$joinType = " INNER JOIN ";
-            	 	        if ($sekdet['sek_data_type'] == 'text' || $sekdet['sek_data_type'] == 'varchar') {
+            	 	        if (($sekdet['sek_data_type'] == 'text' || $sekdet['sek_data_type'] == 'varchar') && ($sekdet['sek_html_input'] == 'text' || $sekdet['sek_html_input'] == 'textarea')) {
             	 	        	if ($sekdet['sek_relationship'] == 1) {
             	 	 				$searchKey_join[0] .= $joinType."
 											     ". $dbtp . "record_search_key_".$sekdet['sek_title_db']." as r".$x." on r".$x.".rek_".$sekdet['sek_title_db']."_pid = r".$searchKey_join[4].".rek_pid ".
