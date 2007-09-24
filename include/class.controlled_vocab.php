@@ -221,7 +221,8 @@ class Controlled_Vocab
 		$xpath_record = $HTTP_POST_VARS["cvi_xpath_record"];
 		$xpath_id = $HTTP_POST_VARS["cvi_xpath_id"];
 		$xpath_title = $HTTP_POST_VARS["cvi_xpath_title"];
-		$xpath_parent_id = $HTTP_POST_VARS["cvi_xpath_parent_id"];		
+		$xpath_parent_id = $HTTP_POST_VARS["cvi_xpath_parent_id"];
+        $xpath_extparent_id = $HTTP_POST_VARS["cvi_xpath_extparent_id"];
 /*		echo "xpath_record = ".$xpath_record."\n";
 		echo "xpath_id = ".$xpath_id."\n";				
 		echo "xpath_title = ".$xpath_title."\n";
