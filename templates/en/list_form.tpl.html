@@ -252,7 +252,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 			{if $smarty.get.browse == "author_id"}
 				<a href="{$smarty.server.PHP_SELF}?browse=author_id">All</a>
 			{else}
-				<a href="{$smarty.server.PHP_SELF}?browse=author">All</a>
+			<a href="{$smarty.server.PHP_SELF}?browse=author">All</a>
 			{/if}
 			</div>
           </td>
@@ -594,7 +594,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
            {/if}
 
 			</td><td align="right" valign="top" width="">{if $list[i].Relevance} (Search Relevance: <b>{$list[i].Relevance|@number_format:2}</b>)<br />{/if}
-					        {if $list[i].rek_object_type == 3}{if $list[i].abstract_downloads}({$list[i].abstract_downloads|escape:"html"}&nbsp;Abstract&nbsp;View{if $list[i].abstract_downloads > 1}s{/if})<br />{/if} {if $list[i].file_downloads}({$list[i].file_downloads|escape:"html"}&nbsp;<a class="author_link" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}">File&nbsp;Download{if $list[i].file_downloads > 1}s{/if}</a>){/if}{/if} </td>
+					        {if $list[i].rek_object_type == 3}{if $list[i].rek_views}({$list[i].rek_views|escape:"html"}&nbsp;Abstract&nbsp;View{if $list[i].rek_views > 1}s{/if})<br />{/if} {if $list[i].rek_downloads}({$list[i].rek_downloads|escape:"html"}&nbsp;<a class="author_link" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">File&nbsp;Download{if $list[i].rek_downloads > 1}s{/if}</a>){/if}{/if} </td>
 
 				</tr>
 					<tr>
@@ -612,7 +612,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
                             {if $list[i].rek_author[$next_author] != ""} and {/if}
                           {/section}  {if $list[i].rek_date} {else}<br />{/if}{/if}{if $list[i].rek_date}({$list[i].rek_date|date_format:"%Y"})<br />{/if}
                 	   {if $list[i].rek_research_program.0}{$list[i].rek_research_program.0|escape:"html"}{if $list[i].display_type  && $list[i].object_type == 3} - <i>{$list[i].rek_display_type_lookup.0|escape:"html"}</i>{/if}<br />{else}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'}<i>{$list[i].xdis_title.0|escape:"html"}</i><br />{/if}{/if}                       
-					   {if $list[i].rek_object_type == '3' && $list[i].datastreams.0}<b>Files:</b> {section name="d" loop=$list[i].datastreams}{if $href_view}<a href="{$eserv_url|cat:"?pid="|cat:$list[i].pid|cat:"&dsID="|cat:$list[i].datastreams[d]}">{/if}{$list[i].datastreams[d]}{if $href_view}</a>{/if} {/section}{/if}
+					   {if $list[i].rek_object_type == '3' && $list[i].datastreams.0}<b>Files:</b> {section name="d" loop=$list[i].datastreams}{if $href_view}<a href="{$eserv_url|cat:"?pid="|cat:$list[i].rek_pid|cat:"&dsID="|cat:$list[i].datastreams[d]}">{/if}{$list[i].datastreams[d]}{if $href_view}</a>{/if} {/section}{/if}
                     </td> 
                   </tr> 
 				  </table>

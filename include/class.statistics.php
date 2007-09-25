@@ -207,8 +207,10 @@ class Statistics
 			}
 		}
 		fclose($handle);
+		Statistics::updateSummaryStats();
 		$timeFinished = date('Y-m-d H:i:s');
 		Statistics::setLogRun($requestDateLatest, $counter, $counter_inserted, $timeStarted, $timeFinished);
+
     }
 
 	function setLogRun($request_date, $counter, $counter_inserted, $timeStarted, $timeFinished) {
@@ -218,6 +220,24 @@ class Statistics
 	*/
 		$stmt = "INSERT INTO
 				" . APP_TABLE_PREFIX . "statistics_proc (stp_latestlog, stp_lastproc, stp_count, stp_count_inserted, stp_timestarted, stp_timefinished)  values ('".date('Y-m-d H:i:s', $request_date)."', '".date('Y-m-d', $request_date)."', ".$counter.", ".$counter_inserted.", '".$timeStarted."', '".$timeFinished."')";
+		$res = $GLOBALS["db_api"]->dbh->query($stmt);
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+			return -1; //abort
+		} else {
+			//continue
+		}
+	}
+
+	function updateSummaryStats() {
+		$stmt = "UPDATE 
+				" . APP_TABLE_PREFIX . "record_search_key r1
+				SET rek_downloads = (
+				SELECT COUNT(*) FROM " . APP_TABLE_PREFIX . "statistics_all
+				WHERE stl_dsid <> '' AND stl_pid = r1.rek_pid),
+				rek_views = (
+				SELECT COUNT(*) FROM " . APP_TABLE_PREFIX . "statistics_all
+				WHERE stl_dsid = '' AND stl_pid = r1.rek_pid)";
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
 		if (PEAR::isError($res)) {
 			Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
