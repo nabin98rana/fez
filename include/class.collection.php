@@ -1076,9 +1076,8 @@ $stmt .= "
 			$group_field = $sekdet['sek_title_db'].", rek_pid";
 			$extra = ", rek_pid";
 		}
-        $bodyStmtPart1 = " FROM ".$dbtp."statistics_all stl
-        				INNER JOIN  ".$dbtp."record_search_key AS r2 on stl.stl_pid=r2.rek_pid and stl.stl_dsid <> ''                    
-                       and r2.rek_status=2
+        $bodyStmtPart1 = " FROM  ".$dbtp."record_search_key AS r2 
+                       
 
 
                     ".$authStmt."
@@ -1089,19 +1088,19 @@ $stmt .= "
                     ";
         $bodyStmt = $bodyStmtPart1."
 
-					 ".$limit."
+					 ".$limit." WHERE r2.rek_downloads > 0 AND r2.rek_status=2
                     GROUP BY rek_".$group_field."
              ";
 			 if  ( $authStmt <> "" ) { // so the stats will work even when there are auth rules
 //			 	$bodyStmt .= ", authi_id";
 			 }
         $countStmt = "
-                    SELECT ".APP_SQL_CACHE."  count(r2.rek_pid)
+                    SELECT ".APP_SQL_CACHE."  SUM(r2.rek_downloads)
                     ".$bodyStmtPart1."
             ";
 
 		$innerStmt = "
-                    SELECT ".APP_SQL_CACHE."  rek_".$sekdet['sek_title_db']." ".$as_field." ".$extra.", COUNT(stl_pid) AS sort_column
+                    SELECT ".APP_SQL_CACHE."  rek_".$sekdet['sek_title_db']." ".$as_field." ".$extra.", SUM(rek_downloads) AS sort_column
                     ".$bodyStmt."
 					ORDER BY sort_column ".$sort_order."
                     LIMIT ".$max." OFFSET ".$start."
@@ -1188,25 +1187,23 @@ $stmt .= "
 						INNER JOIN ".$dbtp."record_search_key_author_id AS r4 ON r4.rek_author_id_pid = r2.rek_pid					
 						INNER JOIN ".$dbtp."author a1 on a1.aut_id = r4.rek_author_id";
 
-        $bodyStmtPart1 = " FROM ".$dbtp."statistics_all stl
-        				INNER JOIN  ".$dbtp."record_search_key AS r2 ON stl.stl_pid=r2.rek_pid and stl.stl_dsid <> ''
-                    and r2.rek_status = 2
+        $bodyStmtPart1 = " FROM  ".$dbtp."record_search_key AS r2 
                     ".$memberOfStmt;
         $bodyStmt = $bodyStmtPart1."
 
-					 ".$limit."
+					 ".$limit." WHERE r2.rek_downloads > 0 AND r2.rek_status = 2
                     GROUP BY ".$group_field."
              ";
 			 if  ( $authStmt <> "" ) { // so the stats will work even when there are auth rules
 //			 	$bodyStmt .= ", authi_id";
 			 }
         $countStmt = "
-                    SELECT ".APP_SQL_CACHE."  COUNT(stl_pid)
+                    SELECT ".APP_SQL_CACHE."  SUM(rek_downloads)
                     ".$bodyStmtPart1."
             ";
 
 		$innerStmt = "
-                    SELECT ".APP_SQL_CACHE."  r4.rek_author_id ".$as_field." ".$extra.", COUNT(stl_pid) as sort_column
+                    SELECT ".APP_SQL_CACHE."  r4.rek_author_id ".$as_field." ".$extra.", SUM(rek_downloads) as sort_column
                     ".$bodyStmt."
 					ORDER BY sort_column ".$sort_order."
                     LIMIT ".$max." OFFSET ".$start."
