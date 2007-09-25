@@ -1,3 +1,57 @@
+{literal}
+<script language="JavaScript">
+<!--
+function clearFilters(f) {
+{/literal}
+var element0 = getPageElement('search_keys[0]');
+{literal}
+if (element0 != null) {
+    element0.value = '';
+}
+{/literal}
+{section name="i" loop=$search_keys}
+{if $search_keys[i].sek_html_input == 'text' ||  $search_keys[i].sek_html_input == 'textarea'}
+var element{$search_keys[i].sek_id} = getPageElement('search_keys[{$search_keys[i].sek_id}]');
+{literal}
+if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
+    element{/literal}{$search_keys[i].sek_id}{literal}.value = '';
+}
+{/literal}
+{elseif $search_keys[i].sek_html_input == 'date'}
+    // now for the fields that are only available through the advanced search page
+    setHiddenFieldValue(f, 'search_keys[{$search_keys[i].sek_id}][start][Year]', '');
+    setHiddenFieldValue(f, 'search_keys[{$search_keys[i].sek_id}][start][Month]', '');
+    setHiddenFieldValue(f, 'search_keys[{$search_keys[i].sek_id}][start][Day]', '');
+    setHiddenFieldValue(f, 'search_keys[{$search_keys[i].sek_id}][end][Year]', '');
+    setHiddenFieldValue(f, 'search_keys[{$search_keys[i].sek_id}][end][Month]', '');
+    setHiddenFieldValue(f, 'search_keys[{$search_keys[i].sek_id}][end][Day]', '');
+    setHiddenFieldValue(f, 'search_keys[{$search_keys[i].sek_id}][filter_type]', '');
+    setHiddenFieldValue(f, 'search_keys[{$search_keys[i].sek_id}][filter_enabled]', '');
+//    setHiddenFieldValue(f, 'filter[search_keys[{$search_keys[i].sek_id}]]', '');
+var element{$search_keys[i].sek_id} = getPageElement('filter[search_keys[{$search_keys[i].sek_id}]]');
+element{$search_keys[i].sek_id}.checked = '';
+{elseif $search_keys[i].sek_html_input == 'contvocab' or $search_keys[i].sek_html_input == 'allcontvocab'}
+    removeAllOptions(f, 'search_keys[{$search_keys[i].sek_id}][]');
+{elseif $search_keys[i].sek_html_input == 'checkbox'}
+var element{$search_keys[i].sek_id} = getPageElement('search_keys[{$search_keys[i].sek_id}]');
+{literal}
+if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
+    element{/literal}{$search_keys[i].sek_id}{literal}.checked = '';
+}
+{/literal}
+{elseif $search_keys[i].sek_html_input == 'multiple' or $search_keys[i].sek_html_input == 'combo'}
+var element{$search_keys[i].sek_id} = getPageElement('search_keys[{$search_keys[i].sek_id}]');
+{literal}
+if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
+    clearSelectedOptions(element{/literal}{$search_keys[i].sek_id}{literal});
+}
+{/literal}
+{/if}
+{/section}
+}
+//-->
+</script>
+
 <div class="outline">
 
 <div id="custom_filter_form1">
@@ -92,7 +146,7 @@
                   {assign var="custom" value=$options.$temp_sek_id}
                   <input type="hidden" value="{$last_key.filter_enabled|default:0}" 
                     name="search_keys[{$search_keys[i].sek_id}][filter_enabled]" />
-                  <input {if $last_key.filter_enabled == 1}checked{/if} type="checkbox" name="filter[search_keys[{$search_keys[i].sek_id}]]" value="yes" onClick="javascript:toggleDateFields(this.form, 'search_keys[{$search_keys[i].sek_id}]');">
+                  <input {if $last_key.filter_enabled == 1}checked{/if} type="checkbox" name="filter[search_keys[{$search_keys[i].sek_id}]]"  id="filter[search_keys[{$search_keys[i].sek_id}]]" value="yes" onClick="javascript:toggleDateFields(this.form, 'search_keys[{$search_keys[i].sek_id}]');">
                   <span class="default">{$search_keys[i].sek_title}:</span><br />
                   <select name="search_keys[{$search_keys[i].sek_id}][filter_type]" id="search_keys[{$search_keys[i].sek_id}][filter_type]" class="default" onChange="javascript:checkDateFilterType(this.form, this);">
                     <option {if $last_key.filter_type == "greater"}selected{/if} value="greater">After</option>
@@ -143,7 +197,7 @@
 {/section}
 
      <input name="search_button" class="button custom_search_button" type="submit" value="Search" />
-     <!-- <input class="button" type="button" value="Clear" onclick="javascript:clearFilters(this.form);"> -->
+     <input class="button" type="button" value="Clear" onclick="javascript:clearFilters(this.form);">
 </div>
 
  <div class="default quick_search_hide"> </div>
