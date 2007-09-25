@@ -245,12 +245,18 @@ class Author
                     aut_fname='" . Misc::escapeString($HTTP_POST_VARS["fname"]) . "',
                     aut_mname='" . Misc::escapeString($HTTP_POST_VARS["mname"]) . "',
                     aut_lname='" . Misc::escapeString($HTTP_POST_VARS["lname"]) . "',
+                    aut_display_name='" . Misc::escapeString($HTTP_POST_VARS["dname"]) . "',
                     aut_position='" . Misc::escapeString($HTTP_POST_VARS["position"]) . "',
-                    aut_org_staff_id='" . Misc::escapeString($HTTP_POST_VARS["org_staff_id"]) . "',
                     aut_org_username='" . Misc::escapeString($HTTP_POST_VARS["org_username"]) . "',
                     aut_cv_link='" . Misc::escapeString($HTTP_POST_VARS["cv_link"]) . "',																				
-                    aut_homepage_link='" . Misc::escapeString($HTTP_POST_VARS["homepage_link"]) . "'														
-                 WHERE
+                    aut_homepage_link='" . Misc::escapeString($HTTP_POST_VARS["homepage_link"]) . "',
+                    aut_update_date='" . Date_API::getCurrentDateGMT() . "'";
+        if ($HTTP_POST_VARS["org_staff_id"] !== "") {
+            $stmt .= ",aut_org_staff_id='" . Misc::escapeString($HTTP_POST_VARS["org_staff_id"]) . "' ";
+        } else {
+            $stmt .= ",aut_org_staff_id=null ";
+        }
+        $stmt .= "WHERE
                     aut_id=" . $HTTP_POST_VARS["id"];
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -275,33 +281,44 @@ class Author
         if (Validation::isWhitespace($HTTP_POST_VARS["lname"])) {
             return -2;
         }
-        $stmt = "INSERT INTO
+        $insert = "INSERT INTO
                     " . APP_TABLE_PREFIX . "author
                  (
                     aut_title,
 					aut_fname,
-					aut_mname,
 					aut_lname,
-					aut_position,
-					aut_org_staff_id,
-					aut_org_username,
-					aut_cv_link,
-					aut_homepage_link,
-                    aut_created_date					
-                 ) VALUES (
+                    aut_created_date,
+                    aut_display_name";
 
+        if ($HTTP_POST_VARS["org_staff_id"] !== "")     { $insert .= ", aut_org_staff_id "; }
+        if ($HTTP_POST_VARS["org_username"] !== "")     { $insert .= ", aut_org_username "; }
+        if ($HTTP_POST_VARS["mname"] !== "")            { $insert .= ", aut_mname "; }
+        if ($HTTP_POST_VARS["position"] !== "")         { $insert .= ", aut_position "; }
+        if ($HTTP_POST_VARS["cv_link"] !== "")          { $insert .= ", aut_cv_link "; }
+        if ($HTTP_POST_VARS["homepage_link"] !== "")    { $insert .= ", aut_homepage_link "; }
+
+        $values = ") VALUES (
                     '" . Misc::escapeString($HTTP_POST_VARS["title"]) . "',
 					'" . Misc::escapeString($HTTP_POST_VARS["fname"]) . "',					
-					'" . Misc::escapeString($HTTP_POST_VARS["mname"]) . "',
 					'" . Misc::escapeString($HTTP_POST_VARS["lname"]) . "',
-					'" . Misc::escapeString($HTTP_POST_VARS["position"]) . "',
-					'" . Misc::escapeString($HTTP_POST_VARS["org_staff_id"]) . "',
-					'" . Misc::escapeString($HTTP_POST_VARS["org_username"]) . "',
-					'" . Misc::escapeString($HTTP_POST_VARS["cv_link"]) . "',					
-					'" . Misc::escapeString($HTTP_POST_VARS["homepage_link"]) . "',					
                     '" . Date_API::getCurrentDateGMT() . "'
-                 )";
+                  ";
 
+        if ($HTTP_POST_VARS["dname"] !== "") {
+            $values .= ", '" . Misc::escapeString($HTTP_POST_VARS["dname"]) . "'";
+        } else {
+            $values .= ", '" . Misc::escapeString($HTTP_POST_VARS["fname"]) . " " . Misc::escapeString($HTTP_POST_VARS["lname"]) . "'";
+        }
+
+        if ($HTTP_POST_VARS["org_staff_id"] !== "") { $values .= ", '" . Misc::escapeString($HTTP_POST_VARS["org_staff_id"]) . "'"; }
+        if ($HTTP_POST_VARS["org_username"] !== "") { $values .= ", '" . Misc::escapeString($HTTP_POST_VARS["org_username"]) . "'"; }
+        if ($HTTP_POST_VARS["mname"] !== "")        { $values .= ", '" . Misc::escapeString($HTTP_POST_VARS["mname"]) . "'"; }
+        if ($HTTP_POST_VARS["position"] !== "")        { $values .= ", '" . Misc::escapeString($HTTP_POST_VARS["position"]) . "'"; }
+        if ($HTTP_POST_VARS["cv_link"] !== "")        { $values .= ", '" . Misc::escapeString($HTTP_POST_VARS["cv_link"]) . "'"; }
+        if ($HTTP_POST_VARS["homepage_link"] !== "")        { $values .= ", '" . Misc::escapeString($HTTP_POST_VARS["homepage_link"]) . "'"; }
+        $values .= ")";
+
+        $stmt = $insert . $values;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
