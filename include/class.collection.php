@@ -1222,7 +1222,7 @@ $stmt .= "
 			}
 			//print_r($res);
 
-			$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
+//			$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
 
 			$return = $res;
 
