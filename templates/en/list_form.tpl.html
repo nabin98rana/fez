@@ -594,7 +594,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
            {/if}
 
 			</td><td align="right" valign="top" width="">{if $list[i].Relevance} (Search Relevance: <b>{$list[i].Relevance|@number_format:2}</b>)<br />{/if}
-					        {if $list[i].rek_object_type == 3}{if $list[i].rek_views}({$list[i].rek_views|escape:"html"}&nbsp;Abstract&nbsp;View{if $list[i].rek_views > 1}s{/if})<br />{/if} {if $list[i].rek_downloads}({$list[i].rek_downloads|escape:"html"}&nbsp;<a class="author_link" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">File&nbsp;Download{if $list[i].rek_downloads > 1}s{/if}</a>){/if}{/if} </td>
+					        {if $list[i].rek_object_type == 3}{if $list[i].rek_views}({$list[i].rek_views|escape:"html"}&nbsp;Abstract&nbsp;View{if $list[i].rek_views > 1}s{/if})<br />{/if} {if $list[i].rek_file_downloads}({$list[i].rek_file_downloads|escape:"html"}&nbsp;<a class="author_link" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">File&nbsp;Download{if $list[i].rek_file_downloads > 1}s{/if}</a>){/if}{/if} </td>
 
 				</tr>
 					<tr>

@@ -211,7 +211,7 @@ if (isElementVisible(basic_element)) {
 					<!-- Thumbnail -->					
 					{if $list[i].thumbnail.0 != "" && $list[i].isViewer==1}<br />{/if}<img src="{$icon}" border="0" alt="" />
 					<!-- Downloads -->
-					{if $list[i].rek_downloads}<br /><!--a href="{$rel_url}stat_details.php?action=show_detail&amp;pid={$list[i].rek_pid}"-->{$list[i].rek_downloads|escape:"html"} File Download{if $list[i].rek_downloads > 1}s{/if}<!--/a--><br />
+					{if $list[i].rek_file_downloads}<br /><!--a href="{$rel_url}stat_details.php?action=show_detail&amp;pid={$list[i].rek_pid}"-->{$list[i].rek_file_downloads|escape:"html"} File Download{if $list[i].rek_file_downloads > 1}s{/if}<!--/a--><br />
 					{/if}
 					<br />
 					<!-- Abstract -->

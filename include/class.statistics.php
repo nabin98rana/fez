@@ -232,7 +232,7 @@ class Statistics
 	function updateSummaryStats() {
 		$stmt = "UPDATE 
 				" . APP_TABLE_PREFIX . "record_search_key r1
-				SET rek_downloads = (
+				SET rek_file_downloads = (
 				SELECT COUNT(*) FROM " . APP_TABLE_PREFIX . "statistics_all
 				WHERE stl_dsid <> '' AND stl_pid = r1.rek_pid),
 				rek_views = (

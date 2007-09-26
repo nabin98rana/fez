@@ -1088,19 +1088,19 @@ $stmt .= "
                     ";
         $bodyStmt = $bodyStmtPart1."
 
-					 ".$limit." WHERE r2.rek_downloads > 0 AND r2.rek_status=2
+					 ".$limit." WHERE r2.rek_file_downloads > 0 AND r2.rek_status=2
                     GROUP BY rek_".$group_field."
              ";
 			 if  ( $authStmt <> "" ) { // so the stats will work even when there are auth rules
 //			 	$bodyStmt .= ", authi_id";
 			 }
         $countStmt = "
-                    SELECT ".APP_SQL_CACHE."  SUM(r2.rek_downloads)
+                    SELECT ".APP_SQL_CACHE."  SUM(r2.rek_file_downloads)
                     ".$bodyStmtPart1."
             ";
 
 		$innerStmt = "
-                    SELECT ".APP_SQL_CACHE."  rek_".$sekdet['sek_title_db']." ".$as_field." ".$extra.", SUM(rek_downloads) AS sort_column
+                    SELECT ".APP_SQL_CACHE."  rek_".$sekdet['sek_title_db']." ".$as_field." ".$extra.", SUM(rek_file_downloads) AS sort_column
                     ".$bodyStmt."
 					ORDER BY sort_column ".$sort_order."
                     LIMIT ".$max." OFFSET ".$start."
@@ -1191,19 +1191,19 @@ $stmt .= "
                     ".$memberOfStmt;
         $bodyStmt = $bodyStmtPart1."
 
-					 ".$limit." WHERE r2.rek_downloads > 0 AND r2.rek_status = 2
+					 ".$limit." WHERE r2.rek_file_downloads > 0 AND r2.rek_status = 2
                     GROUP BY ".$group_field."
              ";
 			 if  ( $authStmt <> "" ) { // so the stats will work even when there are auth rules
 //			 	$bodyStmt .= ", authi_id";
 			 }
         $countStmt = "
-                    SELECT ".APP_SQL_CACHE."  SUM(rek_downloads)
+                    SELECT ".APP_SQL_CACHE."  SUM(rek_file_downloads)
                     ".$bodyStmtPart1."
             ";
 
 		$innerStmt = "
-                    SELECT ".APP_SQL_CACHE."  r4.rek_author_id ".$as_field." ".$extra.", SUM(rek_downloads) as sort_column
+                    SELECT ".APP_SQL_CACHE."  r4.rek_author_id ".$as_field." ".$extra.", SUM(rek_file_downloads) as sort_column
                     ".$bodyStmt."
 					ORDER BY sort_column ".$sort_order."
                     LIMIT ".$max." OFFSET ".$start."

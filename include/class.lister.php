@@ -155,12 +155,14 @@ class Lister
             $sort_by_list = array(
             	"searchKey".Search_Key::getID("Title") => 'Title',
            		"searchKey".Search_Key::getID("Description") => 'Description',
+        		"searchKey".Search_Key::getID("File Downloads") => 'File Downloads',
 				"searchKey".Search_Key::getID("Date") => 'Date'
             );
         } else {
         	$sort_by_list = array(
         	"searchKey".Search_Key::getID("Title") => 'Title',
         	"searchKey".Search_Key::getID("Description") => 'Description',
+        	"searchKey".Search_Key::getID("File Downloads") => 'File Downloads',
         	"searchKey".Search_Key::getID("Date") => 'Date'
 			);
         }
