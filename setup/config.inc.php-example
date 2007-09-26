@@ -263,6 +263,10 @@ if (APP_BENCHMARK) {
     $bench->start();
 }
 
+// handle the language preferences now
+@include_once(APP_INC_PATH . "class.language.php");
+Language::setPreference();
+
 include_once(APP_INC_PATH . "class.misc.php");
 
 if (isset($_GET)) {
@@ -285,7 +289,4 @@ $GLOBALS['app_cache'] = true; // Set this string to ON if you have given php.ini
 $HTTP_GET_VARS =& Misc::dispelMagicQuotes($HTTP_GET_VARS);
 $HTTP_POST_VARS =& Misc::dispelMagicQuotes($HTTP_POST_VARS);
 
-// handle the language preferences now
-@include_once(APP_INC_PATH . "class.language.php");
-Language::setPreference();
 ?>
