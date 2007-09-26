@@ -342,7 +342,7 @@ without submitting the following form. <br/>
             <nobr>&nbsp;<b>Fedora Database Type: *</b></nobr>
           </td>
           <td class="default">
-            <input type="text" name="fedora_db_type" class="default" size="30"  value="{$smarty.post.fedora_db_type|default:'mysql'}" /> Use &quot;mysql&quot; or &quot;postgres&quot; or &quot;oracle&quot; or any other PEAR-supported database that Fedora uses (Note: mckoi is NOT supported!)
+            <input type="text" name="fedora_db_type" class="default" size="30"  value="{$smarty.post.fedora_db_type|default:'mysql'}" /> Use &quot;mysql&quot; or &quot;pgsql&quot; or &quot;oracle&quot; or any other PEAR-supported database that Fedora uses (Note: mckoi is NOT supported!) - look in fez/include/pear/db/ dir for a full list and use the filename prefix eg pgsql
             {include file="error_icon.tpl.html" field="fedora_db_type"}
           </td>
         </tr>
