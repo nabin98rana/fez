@@ -1022,8 +1022,11 @@ $stmt .= "
      */
     function statsByAttribute($current_row = 0, $max = 50, $searchKey="Author", $year = "all", $month = "all", $range = "all")
     {
-
+	
+        $dbtp =  APP_TABLE_PREFIX;
+		$extra_join = "";
 		$limit = "";
+		$count_sql = "SUM(r2.rek_file_downloads)";
 		if ($year != 'all' && is_numeric($year)) {
 			$year = Misc::escapeString($year);
 			$limit = " and year(date(stl_request_date)) = $year";
@@ -1031,8 +1034,12 @@ $stmt .= "
 				$month = Misc::escapeString($month);
 				$limit .= " and month(date(stl_request_date)) = $month";
 			}
+			$extra_join = "INNER JOIN ".$dbtp."statistics_all ON stl_pid = r2.rek_pid AND stl_dsid <> ''";
+			$count_sql = "COUNT(stl_pid)";
 		} elseif ($range != 'all' && $range == '4w') {
 			$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
+			$extra_join = "INNER JOIN ".$dbtp."statistics_all ON stl_pid = r2.rek_pid AND stl_dsid <> ''";
+			$count_sql = "COUNT(stl_pid)";
 		}
 
 		if ($max == "ALL") {
@@ -1054,7 +1061,7 @@ $stmt .= "
 
         // this query broken into pieces to try and get some speed.
 		
-        $dbtp =  APP_TABLE_PREFIX;
+
         $sort_by = 'File Downloads';
         $sekdet = Search_Key::getBasicDetailsByTitle($searchKey);
 //        $data_type = $sekdet['xsdmf_data_type'];
@@ -1078,7 +1085,7 @@ $stmt .= "
 		}
         $bodyStmtPart1 = " FROM  ".$dbtp."record_search_key AS r2 
                        
-
+					".$extra_join."
 
                     ".$authStmt."
 
@@ -1094,13 +1101,13 @@ $stmt .= "
 			 if  ( $authStmt <> "" ) { // so the stats will work even when there are auth rules
 //			 	$bodyStmt .= ", authi_id";
 			 }
-        $countStmt = "
+/*        $countStmt = "
                     SELECT ".APP_SQL_CACHE."  SUM(r2.rek_file_downloads)
                     ".$bodyStmtPart1."
             ";
-
+*/
 		$innerStmt = "
-                    SELECT ".APP_SQL_CACHE."  rek_".$sekdet['sek_title_db']." ".$as_field." ".$extra.", SUM(rek_file_downloads) AS sort_column
+                    SELECT ".APP_SQL_CACHE."  rek_".$sekdet['sek_title_db']." ".$as_field." ".$extra.", ".$count_sql." AS sort_column
                     ".$bodyStmt."
 					ORDER BY sort_column ".$sort_order."
                     LIMIT ".$max." OFFSET ".$start."
