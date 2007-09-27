@@ -1159,43 +1159,7 @@ class XSD_DisplayObject
                             } else {
                                 $xsdmf_id = $this->xsd_html_match->getXSDMFByElement($new_element,$cbdata['xdis_id']);
 								if (is_array($xsdmf_id)) {
-									if (count($xsdmf_id) > 1) {
-										foreach ($xsdmf_id as $row) {
-											if ($row['xsdmf_html_input'] == 'xsd_loop_subelement' && is_numeric($row['xsdsel_indicator_xsdmf_id']) && $row['xsdsel_indicator_xsdmf_id'] != 0 && $row['xsdsel_indicator_value'] != "") {
-												$indicator_xpath = $row['xsd_element_prefix'].":".ltrim(str_replace("!", "/".$row['xsd_element_prefix'].":", $row['indicator_element']), "/");
-												$currentNodeLength = strlen($domNode->nodeName);
-												$currentNodePos = strpos($indicator_xpath, $domNode->nodeName);
-												$indicator_xpath = ".".substr($indicator_xpath, $currentNodePos + $currentNodeLength);
-												$xpath = new DOMXPath($rootNode);
-												$xpath->registerNamespace("mods", "http://www.loc.gov/mods/v3");
-												$indicatorNodes = $xpath->query($indicator_xpath, $domNode);
-												if ($indicatorNodes->length > 0) {
-													$indicatorValue = $indicatorNodes->item(0)->nodeValue; //should only ever be one search result in the array
-													if ($indicatorValue == $row['xsdsel_indicator_value']) {
-														$currentSEL = $row['indicator_xsdsel_id'];
-													}
-												} else { // search for attributes next
-													$attribPos = strrpos($indicator_xpath, "/");
-													if (is_numeric($attribPos)) {
-														$attrib = substr($indicator_xpath, $attribPos+1);
-														$indicator_xpath = substr($indicator_xpath, 0, $attribPos);													
-														$attrib = "@".str_replace($row['xsd_element_prefix'].":", "", $attrib);
-														$indicator_xpath .= "/".$attrib;
-														$indicatorNodes = $xpath->query($indicator_xpath, $domNode);
-														if ($indicatorNodes->length > 0) {
-															$indicatorValue = $indicatorNodes->item(0)->nodeValue; //should only ever be one search result in the array
-															if ($indicatorValue == $row['xsdsel_indicator_value']) {
-																$currentSEL = $row['indicator_xsdsel_id'];
-															}														
-														} 
-													}
-												}												
-											}
-										}
-										if (is_numeric($currentSEL)) {
-											$xsdmf_id = $this->xsd_html_match->getXSDMF_IDBySELXDIS_ID($new_element, $currentSEL);
-										}
-									} else {
+									if (count($xsdmf_id) == 1) {
 										$xsdmf_id = @$xsdmf_id[0]['xsdmf_id'];
 									}
 								}								

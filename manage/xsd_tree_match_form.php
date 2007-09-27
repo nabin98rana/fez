@@ -78,23 +78,6 @@ $xml_element_clean = str_replace("!", " -> ", $xml_element);
 $xml_element_clean = str_replace("^", " ", $xml_element_clean);
 $xml_element_clean = substr($xml_element_clean, 4);
 
-
-$parent_subelement_loops = XSD_Loop_Subelement::getTopParentLoopList($xml_element, $xdis_id);
-
-if (count($parent_subelement_loops) > 0) {
-	if (empty($xsdsel_id)) { 
-		$tpl->assign("xsdsel_loop_list", $parent_subelement_loops);
-		$show_subelement_parents = true;
-	} else {
-		$show_subelement_parents = false;
-	}
-} else {
-	$show_subelement_parents = false;
-}
-$tpl->assign("show_subelement_parents", $show_subelement_parents);
-$tpl->assign("xsdsel_id", $xsdsel_id);
-$tpl->assign("xsdsel_id_edit", $xsdsel_id_edit);
-
 $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 	if (is_numeric(strpos(@$HTTP_POST_VARS["form_name"], "xsdmf"))) {
 		if (is_numeric(strpos(@$HTTP_POST_VARS["submit"], "Delete"))) {
@@ -158,6 +141,22 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 		$tpl->assign("xsdsel_title", "N/A");
 	}	
 
+	$parent_subelement_loops = XSD_Loop_Subelement::getTopParentLoopList($xml_element, $xdis_id);
+
+	if (count($parent_subelement_loops) > 0) {
+		if (empty($xsdsel_id)) { 
+			$tpl->assign("xsdsel_loop_list", $parent_subelement_loops);
+			$show_subelement_parents = true;
+		} else {
+			$show_subelement_parents = false;
+		}
+	} else {
+		$show_subelement_parents = false;
+	}
+	$tpl->assign("show_subelement_parents", $show_subelement_parents);
+	$tpl->assign("xsdsel_id", $xsdsel_id);
+	$tpl->assign("xsdsel_id_edit", $xsdsel_id_edit);
+
 	if ((count($parent_subelement_loops) > 0) && is_numeric($xsdsel_id)) {	
 	// It does have parents so 
 		$info_array = XSD_HTML_Match::getDetailsSubelement($xdis_id, $xml_element, $xsdsel_id);
@@ -198,6 +197,11 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 			$tpl->assign("xsd_loop_subelement_details", $xsd_loop_subelement_details);
 		}
 		$xsdmf_id_ref_list = XSD_HTML_Match::getListAssoc();
+		if ($info_array['xsdmf_html_input'] == 'xsd_loop_subelement') {
+			$tpl->assign("is_sublooping_base_element", true);
+		} else {
+			$tpl->assign("is_sublooping_base_element", false);
+		}
 		$tpl->assign("xsdmf_id_ref_list", $xsdmf_id_ref_list);
 		$tpl->assign("org_levels", $org_levels);
 

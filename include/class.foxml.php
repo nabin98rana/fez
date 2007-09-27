@@ -520,12 +520,143 @@ $tagIndent = "";
                     // *** NOT AN ATTRIBUTE, SO LOOP THROUGH XML ELEMENTS
                 } elseif (!empty($j['fez_hyperlink'])) {
                     if (!isset($j['fez_nodetype']) || $j['fez_nodetype'] != 'attribute') {						
+						list($xmlObj, $xsdmf_id, $xsdmf_details) = Foxml::outputElementValue($i, $j, $xmlObj, $element_prefix, $sought_node_type, $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
+							
+						if (is_numeric($xsdmf_id)) {
+							
+                            // *** IF IT IS A LOOPING SUBELEMENT THEN GO RECURSIVE
+                            if ($xsdmf_details['xsdmf_html_input'] == 'xsd_loop_subelement') {
+                                $sel = XSD_Loop_Subelement::getListByXSDMF($xsdmf_id);
+                                if (count($sel) > 0) { //if there are xsd sublooping elements attached to it then prepare their headers and go recursive!
+                                    foreach($sel as $sel_record) {
+										if ($sel_record['xsdsel_type'] == 'attributeloop') {
+                                        	if (is_numeric($sel_record['xsdsel_attribute_loop_xsdmf_id']) && ($sel_record['xsdsel_attribute_loop_xsdmf_id'] != 0)) {
+                                            	$attrib_loop_details = XSD_HTML_Match::getDetailsByXSDMF_ID($sel_record['xsdsel_attribute_loop_xsdmf_id']);
+	                                            if ($attrib_loop_details['xsdmf_html_input'] == "file_input") {
+    	                                            $attrib_loop_child = @$HTTP_POST_FILES['xsd_display_fields']["name"][$sel_record['xsdsel_attribute_loop_xsdmf_id']];
+	                                            } else {
+    	                                            $attrib_loop_child = @$HTTP_POST_VARS['xsd_display_fields'][$sel_record['xsdsel_attribute_loop_xsdmf_id']];
+	                                            }
+                                            } else {
+												$attrib_loop_child = "";
+											}
+                                            if (is_array($attrib_loop_child)) {
+                                                $attrib_loop_count = count($attrib_loop_child);
+                                            } else {
+                                                $attrib_loop_count = 1;
+                                            }
+                                        } else {
+                                            $attrib_loop_details = array();
+                                            $attrib_loop_count = 1;
+                                            $attrib_loop_child = "";
+                                        }
+										
+                                        for ($x=0;$x<$attrib_loop_count;$x++) { // if this sel id is a loop of attributes then it will loop through each, otherwise it will just go through once
+                                            if (
+                                            ($sel_record['xsdsel_type'] == 'hardset')
+                                            || ((@$attrib_loop_details['xsdmf_html_input'] != "file_input") && (@$attrib_loop_details['xsdmf_html_input'] != "text"))
+                                            || (is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "file_input") && ($HTTP_POST_FILES['xsd_display_fields']["name"][$sel_record['xsdsel_attribute_loop_xsdmf_id']][$x] != ""))
+                                            || (!is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "file_input") && (!empty($HTTP_POST_FILES['xsd_display_fields']["name"][$sel_record['xsdsel_attribute_loop_xsdmf_id']])))
+                                            || (is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "text") && (!empty($HTTP_POST_VARS['xsd_display_fields'][$sel_record['xsdsel_attribute_loop_xsdmf_id']][$x])))
+                                            || (!is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "text") && (!empty($HTTP_POST_VARS['xsd_display_fields'][$sel_record['xsdsel_attribute_loop_xsdmf_id']])))
+                                               ) {
+                    							list($xmlObj, $sub_xsdmf_id, $sub_xsdmf_details) = Foxml::outputElementValue($i, $j, $xmlObj, $element_prefix, $sought_node_type, $tagIndent, $sel_record['xsdsel_id'], $xdis_id, $pid, $top_xdis_id, $x, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
+                    							
+                    							if (!is_numeric($sub_xsdmf_id)) {
+                    								// There are no mappings for the base sublooping element. 
+                    								// Need to just make a container element and check the attributes
+					                                if (!is_numeric(strpos($i, ":"))) {
+                					                    $xmlObj .= "\n".$tagIndent."<".$element_prefix.$i.$full_attached_attribute;
+					                                } else {
+    					                                $xmlObj .= "\n".$tagIndent."<".$i.$full_attached_attribute;
+					                                } 
+					                                Foxml::array_to_xml_instance($j, $xmlObj, $element_prefix, "attributes", $tagIndent, $sel_record['xsdsel_id'], $xdis_id, $pid, $top_xdis_id, $x, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
+					                                if ($xsdmf_details['xsdmf_valueintag'] == 1) {
+                    					                $xmlObj .= ">\n";
+					                                } else {
+                    					                $xmlObj .= "/>\n";
+					                                }
+                    								
+                    							}
+
+												//get the elements and recurse further
+                                                Foxml::array_to_xml_instance($j, $xmlObj, $element_prefix, "", $tagIndent, $sel_record['xsdsel_id'], $xdis_id, $pid, $top_xdis_id, $x, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
+
+                                                if (!is_numeric(strpos($i, ":"))) {
+                                                    $xmlObj .= "\n".$tagIndent."</".$element_prefix.$i.">\n";
+                                                } else {
+                                                    $xmlObj .= "\n".$tagIndent."</".$i.">\n";
+                                                }
+                                            } // end check for empty file posts
+                                        } // end attrib for loop
+                                    }
+                                }
+                            }
+                            // *** IF THERE ARE XSD RELATIONSHIPS ATTACHED TO IT THEN PREPARE THE HEADERS AND GO RECURSIVE
+                            $rel = XSD_Relationship::getListByXSDMF($xsdmf_id);
+                            if (count($rel) > 0) { //
+                                foreach($rel as $rel_record) {
+                                    $tagIndent .= "";
+                                    $xsd_id = XSD_Display::getParentXSDID($rel_record['xdis_id']);
+                                    $xsd_str = Doc_Type_XSD::getXSDSource($xsd_id);
+                                    $xsd_str = $xsd_str[0]['xsd_file'];
+                                    $xsd_details = Doc_Type_XSD::getDetails($xsd_id);
+                                    $xsd = new DomDocument();
+                                    $xsd->loadXML($xsd_str);
+                                    $xsd_element_prefix = $xsd_details['xsd_element_prefix'];
+                                    $xsd_top_element_name = $xsd_details['xsd_top_element_name'];
+                                    $xsd_extra_ns_prefixes = explode(",", $xsd_details['xsd_extra_ns_prefixes']); // get an array of the extra namespace prefixes
+                                    $xml_schema = Misc::getSchemaAttributes($xsd, $xsd_top_element_name, $xsd_element_prefix, $xsd_extra_ns_prefixes);
+                                    if ($xsd_element_prefix != "") {
+                                        $xsd_element_prefix .= ":";
+                                    }
+                                    $array_ptr = array();
+                                    Misc::dom_xsd_to_referenced_array($xsd, $xsd_top_element_name, $array_ptr, "", "", $xsd);
+                                    $xmlObj .= "\n".$tagIndent."<".$xsd_element_prefix.$xsd_top_element_name." ";
+                                    $xmlObj .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $pid);
+									if (trim($xml_schema) != "") {
+	                                    $xmlObj .= $xml_schema;
+									}
+                                    $xmlObj .= ">\n";
+                                    Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", $tagIndent, "", $rel_record['xsdrel_xdis_id'], $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
+                                    $xmlObj .= "\n".$tagIndent."</".$xsd_element_prefix.$xsd_top_element_name.">\n";
+                                }
+                            }
+                            Foxml::array_to_xml_instance($j, $xmlObj, $element_prefix, "", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
+                            $xmlObj .= $tagIndent;
+                            if ($xsdmf_details['xsdmf_html_input'] != 'xsd_loop_subelement') { // subloop element attributes get treated differently
+                                if ($xsdmf_details['xsdmf_valueintag'] == 1) {
+                                    if (!is_numeric(strpos($i, ":"))) {
+                                        $xmlObj .= "\n".$tagIndent."</".$element_prefix.$i.">\n";
+                                    } else {
+                                        $xmlObj .= "\n".$tagIndent."</".$i.">\n";
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        Foxml::array_to_xml_instance($j, $xmlObj, $element_prefix, "", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
+                    } // new if is numeric
+                } else {
+                    Foxml::array_to_xml_instance($j, $xmlObj, $element_prefix, "", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
+                }
+            }
+        }
+
+        return $xmlObj;
+    }
+    
+    function outputElementValue($i, $j, &$xmlObj, $element_prefix, $sought_node_type, $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, $attrib_loop_index, &$indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id)
+    {
+		global $HTTP_POST_VARS, $HTTP_POST_FILES;
+		$xsdmf_details = array();
                         if (is_numeric($parent_sel_id)) { 
                             $xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_ID(urldecode($j['fez_hyperlink']), $parent_sel_id, $xdis_id);
                         } else { 
                             $xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement(urldecode($j['fez_hyperlink']), $xdis_id);
                         }
                         if (is_numeric($xsdmf_id)) { // if the xsdmf_id exists - then this is the only time we want to add to the xml instance object for non attributes
+                        
                             $xmlObj .= $tagIndent;
                             $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
 					
@@ -695,117 +826,10 @@ $tagIndent = "";
 									$xmlObj .= $attrib_value; // The actual value to store inside the element tags, if one exists									
 								}
 							}
-							
-							
-							
-                            // *** IF IT IS A LOOPING SUBELEMENT THEN GO RECURSIVE
-                            if ($xsdmf_details['xsdmf_html_input'] == 'xsd_loop_subelement') {
-                                $sel = XSD_Loop_Subelement::getListByXSDMF($xsdmf_id);
-                                if (count($sel) > 0) { //if there are xsd sublooping elements attached to it then prepare their headers and go recursive!
-                                    foreach($sel as $sel_record) {
-                                        if (is_numeric($sel_record['xsdsel_attribute_loop_xsdmf_id']) && ($sel_record['xsdsel_attribute_loop_xsdmf_id'] != 0)) {
-                                            $attrib_loop_details = XSD_HTML_Match::getDetailsByXSDMF_ID($sel_record['xsdsel_attribute_loop_xsdmf_id']);
-                                            if ($attrib_loop_details['xsdmf_html_input'] == "file_input") {
-                                                $attrib_loop_child = @$HTTP_POST_FILES['xsd_display_fields']["name"][$sel_record['xsdsel_attribute_loop_xsdmf_id']];
-                                            } elseif ($sel_record['xsdsel_type'] == 'attributeloop') {
-                                                $attrib_loop_child = @$HTTP_POST_VARS['xsd_display_fields'][$sel_record['xsdsel_attribute_loop_xsdmf_id']];
-                                            } else {
-												$attrib_loop_child = "";
-											}
-                                            if (is_array($attrib_loop_child)) {
-                                                $attrib_loop_count = count($attrib_loop_child);
-                                            } else {
-                                                $attrib_loop_count = 1;
-                                            }
-                                        } else {
-                                            $attrib_loop_count = 1;
-                                        }
-										
-                                        for ($x=0;$x<$attrib_loop_count;$x++) { // if this sel id is a loop of attributes then it will loop through each, otherwise it will just go through once
-                                            if (((@$attrib_loop_details['xsdmf_html_input'] != "file_input") && (@$attrib_loop_details['xsdmf_html_input'] != "text"))
-                                                    || (is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "file_input") && ($HTTP_POST_FILES['xsd_display_fields']["name"][$sel_record['xsdsel_attribute_loop_xsdmf_id']][$x] != ""))
-                                                    || (!is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "file_input") && (!empty($HTTP_POST_FILES['xsd_display_fields']["name"][$sel_record['xsdsel_attribute_loop_xsdmf_id']])))
-                                                    || (is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "text") && (!empty($HTTP_POST_VARS['xsd_display_fields'][$sel_record['xsdsel_attribute_loop_xsdmf_id']][$x])))
-                                                    || (!is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "text") && (!empty($HTTP_POST_VARS['xsd_display_fields'][$sel_record['xsdsel_attribute_loop_xsdmf_id']])))
-                                               ) {
-                                                if (!is_numeric(strpos($i, ":"))) {
-                                                    $xmlObj .= "\n".$tagIndent."<".$element_prefix.$i;
-                                                } else {
-                                                    $xmlObj .= "\n".$tagIndent."<".$i;
-                                                } 
-												// get the attributes
-                                                Foxml::array_to_xml_instance($j, $xmlObj, $element_prefix, "attributes", $tagIndent, $sel_record['xsdsel_id'], $xdis_id, $pid, $top_xdis_id, $x, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
-                                                if ($xsdmf_details['xsdmf_valueintag'] == 1) {
-                                                    $xmlObj .= ">\n";
-                                                } else {
-                                                    $xmlObj .= "/>\n";
-                                                }
-												//get the elements and recurse further
-                                                Foxml::array_to_xml_instance($j, $xmlObj, $element_prefix, "", $tagIndent, $sel_record['xsdsel_id'], $xdis_id, $pid, $top_xdis_id, $x, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
-                                                if ($xsdmf_details['xsdmf_valueintag'] == 1) {
-                                                    if (!is_numeric(strpos($i, ":"))) {
-                                                        $xmlObj .= "\n".$tagIndent."</".$element_prefix.$i.">\n";
-                                                    } else {
-                                                        $xmlObj .= "\n".$tagIndent."</".$i.">\n";
-                                                    }
-                                                }
-                                            } // end check for empty file posts
-                                        } // end attrib for loop
-                                    }
-                                }
-                            }
-                            // *** IF THERE ARE XSD RELATIONSHIPS ATTACHED TO IT THEN PREPARE THE HEADERS AND GO RECURSIVE
-                            $rel = XSD_Relationship::getListByXSDMF($xsdmf_id);
-                            if (count($rel) > 0) { //
-                                foreach($rel as $rel_record) {
-                                    $tagIndent .= "";
-                                    $xsd_id = XSD_Display::getParentXSDID($rel_record['xdis_id']);
-                                    $xsd_str = Doc_Type_XSD::getXSDSource($xsd_id);
-                                    $xsd_str = $xsd_str[0]['xsd_file'];
-                                    $xsd_details = Doc_Type_XSD::getDetails($xsd_id);
-                                    $xsd = new DomDocument();
-                                    $xsd->loadXML($xsd_str);
-                                    $xsd_element_prefix = $xsd_details['xsd_element_prefix'];
-                                    $xsd_top_element_name = $xsd_details['xsd_top_element_name'];
-                                    $xsd_extra_ns_prefixes = explode(",", $xsd_details['xsd_extra_ns_prefixes']); // get an array of the extra namespace prefixes
-                                    $xml_schema = Misc::getSchemaAttributes($xsd, $xsd_top_element_name, $xsd_element_prefix, $xsd_extra_ns_prefixes);
-                                    if ($xsd_element_prefix != "") {
-                                        $xsd_element_prefix .= ":";
-                                    }
-                                    $array_ptr = array();
-                                    Misc::dom_xsd_to_referenced_array($xsd, $xsd_top_element_name, $array_ptr, "", "", $xsd);
-                                    $xmlObj .= "\n".$tagIndent."<".$xsd_element_prefix.$xsd_top_element_name." ";
-                                    $xmlObj .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $pid);
-									if (trim($xml_schema) != "") {
-	                                    $xmlObj .= $xml_schema;
-									}
-                                    $xmlObj .= ">\n";
-                                    Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", $tagIndent, "", $rel_record['xsdrel_xdis_id'], $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
-                                    $xmlObj .= "\n".$tagIndent."</".$xsd_element_prefix.$xsd_top_element_name.">\n";
-                                }
-                            }
-                            Foxml::array_to_xml_instance($j, $xmlObj, $element_prefix, "", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
-                            $xmlObj .= $tagIndent;
-                            if ($xsdmf_details['xsdmf_html_input'] != 'xsd_loop_subelement') { // subloop element attributes get treated differently
-                                if ($xsdmf_details['xsdmf_valueintag'] == 1) {
-                                    if (!is_numeric(strpos($i, ":"))) {
-                                        $xmlObj .= "\n".$tagIndent."</".$element_prefix.$i.">\n";
-                                    } else {
-                                        $xmlObj .= "\n".$tagIndent."</".$i.">\n";
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        Foxml::array_to_xml_instance($j, $xmlObj, $element_prefix, "", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
-                    } // new if is numeric
-                } else {
-                    Foxml::array_to_xml_instance($j, $xmlObj, $element_prefix, "", $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
-                }
-            }
-        }	
-        return $xmlObj;
-    }   
+						}
+						
+    	return array($xmlObj, $xsdmf_id, $xsdmf_details);
+    }
 
 
     function setDCTitle($title, $xmlObj)

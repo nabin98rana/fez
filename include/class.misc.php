@@ -1423,8 +1423,9 @@ class Misc
 //		$newcallbackdata = $callbackobject->$callbackmethod($domnode, $newcallbackdata, 'endopen', $rootnode);
 		// recurse children
 		Misc::XML_Walk($domnode->firstChild, $callbackobject, $callbackmethod, $newcallbackdata, $rootnode);
-		// recurse siblings
+		// close element
 		$callbackobject->$callbackmethod($domnode, $newcallbackdata, 'close', $rootnode);
+		// recurse siblings
 		Misc::XML_Walk($domnode->nextSibling, $callbackobject, $callbackmethod, $callbackdata, $rootnode);
 	}
 

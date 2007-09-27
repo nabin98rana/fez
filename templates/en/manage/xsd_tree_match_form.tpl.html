@@ -590,7 +590,7 @@
               </script>
               {/literal}
 
-{if $show_subelement_parents == true}
+{if $show_subelement_parents}
 
       <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
         <tr>
@@ -654,7 +654,8 @@
 		  </td>
 	    </tr>
 	  </table>	
-{else}
+{/if}
+{if !$show_subelement_parents || $is_sublooping_base_element}
       <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
         <tr>
           <td>
