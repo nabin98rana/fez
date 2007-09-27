@@ -2635,6 +2635,8 @@ class XSD_HTML_Match {
 	function getElementOrphanList($xdis_id, $xsd_array) {
 		$xsd_list = Misc::array_flatten($xsd_array);
 		$xsd_list = implode("', '", $xsd_list);
+        $sel_list = XSD_HTML_Match::getSubloopingElementByXDIS_ID($xdis_id);
+        $sel_list = implode(",", $sel_list);
 		$stmt = "SELECT 
 		                    *
 		                 FROM
@@ -2642,10 +2644,7 @@ class XSD_HTML_Match {
 							" . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
 		                 WHERE
 		                    x1.xsdmf_xdis_id=".$xdis_id." and (x1.xsdmf_element not in ('".$xsd_list."') or x1.xsdmf_xsdsel_id not in (
-							     SELECT distinct(s2.xsdsel_id) FROM
-									 " . APP_TABLE_PREFIX . "xsd_loop_subelement s2 left join
-									 " . APP_TABLE_PREFIX . "xsd_display_matchfields x2 on (x2.xsdmf_xsdsel_id = s2.xsdsel_id)
-								  WHERE x2.xsdmf_xdis_id = ".$xdis_id."
+                                ".$sel_list."
 								))
 		                    ";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -2658,6 +2657,26 @@ class XSD_HTML_Match {
 		}
 	}
 
+   function getSubloopingElementsByXDIS_ID($xdis_id){
+     if (!is_numeric($xdis_id)) {
+       return array(0);
+     }
+
+     $stmt = " SELECT distinct(s2.xsdsel_id) FROM
+                                     " . APP_TABLE_PREFIX . "xsd_loop_subelement s2 left join
+                                     " . APP_TABLE_PREFIX . "xsd_display_matchfields x2 on (x2.xsdmf_xsdsel_id = s2.xsdsel_id)
+                                  WHERE x2.xsdmf_xdis_id = ".$xdis_id;
+
+        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array (
+            $res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array(0);
+        } else {
+            return $res;
+        }
+    }
+
 	/**
 	 * Method used to get the count of XSDMF elements belonging to a XSD Display, but not found in the XSD Source itself.
 	 *
@@ -2668,6 +2687,8 @@ class XSD_HTML_Match {
 	function getElementOrphanCount($xdis_id, $xsd_array) {
 		$xsd_list = Misc::array_flatten($xsd_array);
 		$xsd_list = implode("', '", $xsd_list);
+        $sel_list = XSD_HTML_Match::getSubloopingElementsByXDIS_ID($xdis_id);
+        $sel_list = implode(",", $sel_list);
 		$stmt = "SELECT 
 		                    count(*) as orphan_count
 		                 FROM
@@ -2675,10 +2696,7 @@ class XSD_HTML_Match {
 							" . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
 		                 WHERE
 		                    x1.xsdmf_xdis_id=".$xdis_id." and (x1.xsdmf_element not in ('".$xsd_list."') or x1.xsdmf_xsdsel_id not in (
-							     SELECT distinct(s2.xsdsel_id) FROM
-									 " . APP_TABLE_PREFIX . "xsd_loop_subelement s2 left join
-									 " . APP_TABLE_PREFIX . "xsd_display_matchfields x2 on (x2.xsdmf_xsdsel_id = s2.xsdsel_id)
-								  WHERE x2.xsdmf_xdis_id = ".$xdis_id."
+                                ".$sel_list."
 								))
 		                    ";
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -2687,7 +2705,7 @@ class XSD_HTML_Match {
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return array ();
 		} else {
-			return $res['orphan_count'];
+			return $res;
 		}
 	}
 
