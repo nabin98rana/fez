@@ -1130,6 +1130,11 @@ class XSD_DisplayObject
 															$currentSEL = $row['indicator_xsdsel_id'];
 														}														
 													} 
+												} elseif ($row['xsdsel_indicator_value'] == '') {
+													// Matching on a blank indicator.
+													// We will get to this line if the indicator
+													// element didn't exist or was blank
+													$currentSEL = $row['indicator_xsdsel_id'];
 												}
 											}												
 										}
@@ -1191,7 +1196,8 @@ class XSD_DisplayObject
 						$xsdmf_id = $this->xsd_html_match->getXSDMFByElement($new_element,$cbdata['xdis_id']);
 						if (is_array($xsdmf_id)) {
 							if (count($xsdmf_id) > 1) {
-//								print_r($xsdmf_id);
+								// ##### Start of suspect block of code
+								Error_Handler::logError("MSS is pretty sure this block of code should never get executed but has left it here for now just in case.  xsdmf_id: ".$xsdmf_id, __FILE__,__LINE__);
 								foreach ($xsdmf_id as $row) {
 									if ($row['xsdmf_html_input'] == 'xsd_loop_subelement' && is_numeric($row['xsdsel_indicator_xsdmf_id']) && $row['xsdsel_indicator_xsdmf_id'] != 0 && $row['xsdsel_indicator_value'] != "") {
 										$indicator_xpath = $row['xsd_element_prefix'].":".ltrim(str_replace("!", "/".$row['xsd_element_prefix'].":", $row['indicator_element']), "/");
@@ -1212,6 +1218,7 @@ class XSD_DisplayObject
 								if (is_numeric($currentSEL)) {
 									$xsdmf_id = $this->xsd_html_match->getXSDMF_IDBySELXDIS_ID($new_element, $currentSEL);
 								}
+								// ##### End of suspect block of code
 							} else {
 								$xsdmf_id = $xsdmf_id[0]['xsdmf_id'];
 							}
