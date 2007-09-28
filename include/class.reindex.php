@@ -373,6 +373,7 @@ class Reindex
     {
         $this->terms = $terms;
         $ii = 0;
+
         $reindex_record_counter = 0;
 //		$list = Reindex::getMissingList(0,"ALL","*");
         // Direct Access to Fedora
@@ -459,30 +460,40 @@ class Reindex
         $this->terms = $terms;
         $ii = 0;
         $reindex_record_counter = 0;
-        $record_count = Reindex::getIndexPIDCount();
+//        $record_count = Reindex::getIndexPIDCount();
         $bgp_details = $this->bgp->getDetails();
-		$list = Reindex::getFullList(0,9999999999,"*");
+//		$list = Reindex::getFullList(0,9999999999,"*");
+        $fedoraDirect = new Fedora_Direct_Access();
+        $fedoraList = $fedoraDirect->fetchAllFedoraPIDs("*");
+		if (APP_DB_TYPE == "oracle") {
+			foreach ($fedoraList as &$flist) {
+	            $flist = array_change_key_case($flist, CASE_LOWER);
+	        }
+			$fedoraList = $flist;
+		} 
+        $record_count = count($fedoraList);
 //		$list_detail = $list['list'];
-		foreach ($list['list'] as $detail) {
-            if ($detail['objectstate'] != 'A') {
+		//foreach ($list['list'] as $detail) {
+		foreach ($fedoraList as $detail) {
+  /*          if ($detail['objectstate'] != 'A') { //redundant as this is done in the fedora direct access query
+	                    $this->bgp->setStatus("Skipping Because Already in Fez Index:  '".$detail['pid']."' ".$detail['title']. " (".$reindex_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
             	continue;
-            }
+            } */
+			$ii++;
             if (!empty($this->bgp)) {
-                $this->bgp->setProgress(++$ii);
+                $this->bgp->setProgress($ii);
             }
             $reindex_record_counter++;
-
-//                    $bgp_details = $this->bgp->getDetails();
-                    $utc_date = Date_API::getSimpleDateUTC();
-                    $time_per_object = Date_API::dateDiff("s", $bgp_details['bgp_started'], $utc_date);
-                    $date_new = new Date(strtotime($bgp_details['bgp_started']));
-                    $time_per_object = round(($time_per_object / $reindex_record_counter), 2);
-                    //$expected_finish = Date_API::getFormattedDate($date_new->getTime());
-                    $date_new->addSeconds($time_per_object*$record_count);
-                    $tz = Date_API::getPreferredTimezone($bgp_details["bgp_usr_id"]);
-    				$res[$key]["bgp_started"] = Date_API::getFormattedDate($res[$key]["bgp_started"], $tz);
-                    $expected_finish = Date_API::getFormattedDate($date_new->getTime(), $tz);
-            if (Reindex::inIndex($detail['pid'])) {
+            $utc_date = Date_API::getSimpleDateUTC();
+            $time_per_object = Date_API::dateDiff("s", $bgp_details['bgp_started'], $utc_date);
+            $date_new = new Date(strtotime($bgp_details['bgp_started']));
+            $time_per_object = round(($time_per_object / $reindex_record_counter), 2);
+            //$expected_finish = Date_API::getFormattedDate($date_new->getTime());
+            $date_new->addSeconds($time_per_object*$record_count);
+            $tz = Date_API::getPreferredTimezone($bgp_details["bgp_usr_id"]);
+			$res[$key]["bgp_started"] = Date_API::getFormattedDate($res[$key]["bgp_started"], $tz);
+            $expected_finish = Date_API::getFormattedDate($date_new->getTime(), $tz);
+            if (Reindex::inIndex($detail['pid']) == true) {
                 if (!empty($this->bgp)) {
                     $this->bgp->setProgress(intval(100*$reindex_record_counter/$record_count));
                     $this->bgp->setStatus("Reindexing:  '".$detail['pid']."' ".$detail['title']. " (".$reindex_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
@@ -492,7 +503,9 @@ class Reindex
                 Reindex::indexFezFedoraObjects($params);
             } else {
                 if (!empty($this->bgp)) {
-                    $this->bgp->setStatus("Skipping: '".$detail['pid']."'  '".$detail['title']."'");
+                    $this->bgp->setProgress(intval(100*$reindex_record_counter/$record_count));
+//                    $this->bgp->setStatus("Skipping: '".$detail['pid']."'  '".$detail['title']."'");
+                    $this->bgp->setStatus("Skipping Because not in Fez Index:  '".$detail['pid']."' ".$detail['title']. " (".$reindex_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
                 }
             }
         }
