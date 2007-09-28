@@ -2695,10 +2695,21 @@ class XSD_HTML_Match {
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields x1 left join
 							" . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
 		                 WHERE
-		                    x1.xsdmf_xdis_id=".$xdis_id." and (x1.xsdmf_element not in ('".$xsd_list."') or x1.xsdmf_xsdsel_id not in (
-                                ".$sel_list."
-								))
-		                    ";
+		                    x1.xsdmf_xdis_id=".$xdis_id;
+        if ($xsd_list !== "" || $sel_list !== "") {
+            $stmt .= " and (";            
+            if ($xsd_list !== "") {
+                $stmt .= "x1.xsdmf_element not in ('".$xsd_list."') ";
+            }
+            if ($sel_list !== "") {
+                if ($xsd_list !== "") {
+                    $stmt .= " or ";
+                }
+                $stmt .= "x1.xsdmf_xsdsel_id not in (".$sel_list.")";
+            }
+            $stmt .= ")";
+        }
+
 		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 		if (PEAR::isError($res)) {
 			Error_Handler::logError(array (
