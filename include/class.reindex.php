@@ -554,7 +554,7 @@ class Reindex
 				}
                 $rebuild_this = true;  // always rebuild non-fez objects
 			}
-            if ($rebuild_this) {
+            if ($rebuild_this == true) {
                 // need to rebuild presmd and image datastreams
                 // get list of datastreams and iterate over them
                 $ds = Fedora_API::callGetDatastreams($pid);
