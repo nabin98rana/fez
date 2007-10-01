@@ -54,6 +54,8 @@ if (($_SERVER["SERVER_PORT"] == 443) && (APP_HTTPS == "ON")) {
    header ("Location: http://".APP_HOSTNAME.APP_RELATIVE_URL."view.php"."?".$HTTP_SERVER_VARS['QUERY_STRING']);
 }
 
+$show_tombstone = true;  // tell view2.php to show the tombstone if the record has a deleted fedora status
+
 include_once('view2.php');
 $tpl->displayTemplateRecord($pid);
 ?>

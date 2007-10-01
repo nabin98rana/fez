@@ -190,21 +190,61 @@ class Fedora_API {
         return Fedora_API::openSoapCallAccess('findObjects', array(
             'resultFields' => $resultFields,
              new soapval('maxResults','nonNegativeInteger', $maxResults),
-            //new soapval('query','FieldSearchQuery',
-            //                array('terms' => "$query_terms*") 
-            //            ,false,'http://www.fedora.info/definitions/1/0/types/')
-            new soapval('query','FieldSearchQuery',
-                            array('terms' => "".$query_terms.""), 
+             new soapval('query','FieldSearchQuery',
+                            array('terms' => $query_terms), 
                         false,'http://www.fedora.info/definitions/1/0/types/')
         ));
         
         //$name='soapval',$type=false,$value=-1,$element_ns=false,$type_ns=false,$attributes=false
     }
+    
+    /**
+     * NOTE: This method doesn't work.  Use  search() instead.
+     * @param array $conditions - of form 
+     * 					array(
+     *						array('property' => 'pid','operator' => '=','value' => 'UQ:12345'), 
+     *						array('property' => 'title','operator' => '=','value' => 'Hello World'), ...)
+     */
+    function callFindObjectsQuery($conditions,
+    	    $resultFields = array('pid', 'title', 'identifier', 'description', 'state'),
+            $maxResults = 10)
+    {
+        // NOTE: This method / function doesn't work. Use  search() instead.
+    	$conditions_soap = array();
+        foreach ($conditions as $condition) {
+			$conditions_soap[] = new soapval('fedora-types:property', 'string', $condition['property']);
+			$conditions_soap[] = new soapval('fedora-types:operator', 'fedora-types:ComparisonOperator', $condition['operator']);
+			$conditions_soap[] = new soapval('fedora-types:value', 'string', $condition['value']);
+        }
+        $conditions_array_soap = new soapval('fedora-types:conditions','ArrayOfCondition',$conditions_soap /*, false, false, array('SOAP-ENC:arrayType'=>'fedora-types:Condition[]') */);
+        return Fedora_API::openSoapCallAccess('findObjects', array(
+            'fedora-types:resultFields' => $resultFields,
+            new soapval('fedora-types:maxResults','nonNegativeInteger', $maxResults),
+            new soapval('fedora-types:query','fedora-types:FieldSearchQuery',array('fedora-types:conditions' => $conditions_array_soap))
+            
+        ));
+    }
+    
 
     function callResumeFindObjects($token)
     {
     	return Fedora_API::openSoapCallAccess('resumeFindObjects', array('sessionToken' => $token));
     }
+    
+    /*
+     *
+     */
+    function getListObjectsQueryXML($terms, $fields)
+    {
+    	$fieldstr = '';
+    	foreach ($fields as $field) {
+    		$fieldstr .= '&'.$field.'=true';
+    	}
+    	$url = APP_FEDORA_SEARCH_URL.'?query='.urlencode($terms).'&xml=true'.$fieldstr;
+		list($xml,$info) = Misc::processURL($url);
+		return self::resultListXMLtoArray($xml, $fields);
+    }
+    
     /**
      * This function uses Fedora's simple search service which only really works against Dublin Core records,
 	 * so is not heavily used. Searches are mostly carried out against Fez's own (much more powerful) index.
@@ -216,7 +256,6 @@ class Fedora_API {
      * @return  array $resultList The search results.
      */
 	function getListObjectsXML($searchTerms, $maxResults=2147483647, $returnfields=null) {
-        $resultlist = array();
 		$searchTerms = urlencode("*".$searchTerms."*"); // encode it for url parsing
 		if (empty($returnfields)) {
 			$returnfields = array('pid', 'title', 'identifier', 'description', 'type');
@@ -234,6 +273,12 @@ class Fedora_API {
 //		$xml = file_get_contents($filename);
 		list($xml,$info) = Misc::processURL($filename);
 		$xml = preg_replace("'<object uri\=\"info\:fedora\/(.*)\"\/>'", "<pid>\\1</pid>", $xml); // fix the pid tags
+		return self::resultListXMLtoArray($xml,$returnfields);
+	}
+	
+	function resultListXMLtoArray($xml,$returnfields)
+	{
+        $resultlist = array();
 		$doc = DOMDocument::loadXML($xml);
 		$xpath = new DOMXPath($doc);
 		$xpath->registerNamespace('r', 'http://www.fedora.info/definitions/1/0/types/');
@@ -251,6 +296,7 @@ class Fedora_API {
 			$resultlist[] = $rItem;
 		}
 		return $resultlist;
+		
 	}
 
     /**
@@ -1007,7 +1053,8 @@ class Fedora_API {
 	   ********************************************/
 	   $client = new soapclient_internal(APP_FEDORA_ACCESS_API);
 	   $client->setCredentials(APP_FEDORA_USERNAME, APP_FEDORA_PWD);
-	   $result = $client->call($call, $parms);
+	   $client->namespaces['fedora-types'] = 'http://www.fedora.info/definitions/1/0/types/';
+	   $result = $client->call($call, $parms, 'http://www.fedora.info/definitions/1/0/types/');
        //Fedora_API::debugInfo($client);
 	   if (is_array($result) && isset($result['faultcode'])) {
             $fedoraError = "Error when calling ".$call." :".$result['faultstring'];

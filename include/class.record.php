@@ -3049,6 +3049,17 @@ class RecordGeneral
         // add it to the Fez index.
         Record::setIndexMatchingFields($this->pid);
     }
+    
+    function isDeleted()
+    {
+    	$res = Fedora_API::getListObjectsQueryXML('pid='.$this->pid, array('pid', 'state'));
+        if ($res[0]['state'] == 'D') {
+        	return true;
+        }
+        return false;
+    }
+    
+   
 
     function getLock($context=self::CONTEXT_NONE, $extra_context=null)
     {

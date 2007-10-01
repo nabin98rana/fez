@@ -65,10 +65,17 @@ if ($debug == 1) {
 if (!empty($pid)) {
 	$record = new RecordObject($pid);
     if (!$record->checkExists()) {
-    	Error_Handler::logError("Record ({$pid}) doesn't exist",__FILE__,__LINE__);
+    	$tpl->assign('not_exists', true);
     }
 } 
+
 if (!empty($pid) && $record->checkExists()) {
+	if (@$show_tombstone) {
+		// check if this record has been deleted
+		if ($record->isDeleted()) {
+			Error_Handler::logError('Record Deleted',__FILE__,__LINE__);
+		}
+	}
 	$tpl->assign("pid", $pid);
 	$record = new RecordObject($pid);
 	$xdis_id = $record->getXmlDisplayId();
