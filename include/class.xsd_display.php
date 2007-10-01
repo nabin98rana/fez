@@ -1102,7 +1102,7 @@ class XSD_DisplayObject
 							if (is_array($xsdmf_id)) {
 								if (count($xsdmf_id) > 1) {
 									foreach ($xsdmf_id as $row) {
-										if ($row['xsdmf_html_input'] == 'xsd_loop_subelement' && is_numeric($row['xsdsel_indicator_xsdmf_id']) && $row['xsdsel_indicator_xsdmf_id'] != 0 ) {
+										if ($row['xsdmf_html_input'] == 'xsd_loop_subelement' && is_numeric($row['xsdsel_indicator_xsdmf_id']) && $row['xsdsel_indicator_xsdmf_id'] != 0 && $row['xsdsel_indicator_value'] != '') {
 											$indicator_xpath = $row['xsd_element_prefix'].":".ltrim(str_replace("!", "/".$row['xsd_element_prefix'].":", $row['indicator_element']), "/");
 											$currentNodeLength = strlen($domNode->nodeName);
 											$currentNodePos = strpos($indicator_xpath, $domNode->nodeName);
@@ -1137,7 +1137,9 @@ class XSD_DisplayObject
 													$currentSEL = $row['indicator_xsdsel_id'];
 												}
 											}												
-										}
+                                        } elseif (!is_numeric($currentSEL)) {
+										   $currentSEL = $row['indicator_xsdsel_id'];
+                                        }
 									}
 									if (is_numeric($currentSEL)) {
 										$cbdata['currentSEL'] = $currentSEL;
