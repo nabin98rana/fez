@@ -109,7 +109,14 @@ class Workflow
             $new_wfl_id = $GLOBALS["db_api"]->get_last_insert_id();
             // add the auth role associations!
             for ($i = 0; $i < count($params["wfl_roles"]); $i++) {
-                Workflow::associateRole($params["wfl_roles"][$i], $new_wfl_id);
+                if (!is_numeric($params["wfl_roles"][$i])) {
+                  $aro_id = Auth::getRoleIDByTitle(trim($params["wfl_roles"][$i]));
+                } else {
+                  $aro_id = $params["wfl_roles"][$i];
+                }
+                if (is_numeric($aro_id)) {
+                  Workflow::associateRole($aro_id, $new_wfl_id);
+                }
             } 
 			return $new_wfl_id;
         }
@@ -180,6 +187,12 @@ class Workflow
                 return -1;
             } else {
                 for ($i = 0; $i < count($params["wfl_roles"]); $i++) {
+                    if (!is_numeric($params["wfl_roles"][$i])) {
+                      $aro_id = Auth::getRoleIDByTitle(trim($params["wfl_roles"][$i]));
+                    } else {
+                      $aro_id = $params["wfl_roles"][$i];
+                    }
+                    if (is_numeric($aro_id)) {
                     $stmt = "INSERT INTO
                                 " . APP_TABLE_PREFIX . "workflow_roles
                              (
@@ -187,12 +200,13 @@ class Workflow
                                 wfr_aro_id
                              ) VALUES (
                                 " . $wfl_id . ",
-                                " . $params["wfl_roles"][$i] . "
+                                " . $aro_id . "
                              )";
                     $res = $GLOBALS["db_api"]->dbh->query($stmt);
                     if (PEAR::isError($res)) {
                         Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
                         return -1;
+                    }
                     }
                 }
             }
@@ -580,7 +594,7 @@ class Workflow
                 'wfl_title' => $xworkflow->getAttribute('wfl_title'),
                 'wfl_version' => $xworkflow->getAttribute('wfl_version'),
                 'wfl_description' => $xworkflow->getAttribute('wfl_description'),
-                'wfl_roles' => explode(",",$xworkflow->getAttribute('wfl_role_titles')),
+                'wfl_roles' => explode(",",$xworkflow->getAttribute('wfl_roles')),
                 'wfl_end_button_label' => $xworkflow->getAttribute('wfl_end_button_label')
             );
             if ($overwrite) {

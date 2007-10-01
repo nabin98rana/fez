@@ -35,6 +35,7 @@
 
 include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.user.php");
+include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.workflow_state_link.php");
 
 /**
@@ -118,7 +119,14 @@ class Workflow_State
             WorkflowStateLink::insertPost($wfs_id);
             // add the auth role associations!
             for ($i = 0; $i < count($params["wfs_roles"]); $i++) {
-                Workflow_State::associateRole($params["wfs_roles"][$i], $wfs_id);
+                if (!is_numeric($params["wfs_roles"][$i])) {
+                  $aro_id = Auth::getRoleIDByTitle(trim($params["wfs_roles"][$i]));
+                } else {
+                  $aro_id = $params["wfs_roles"][$i];
+                }
+                if (is_numeric($aro_id)) {
+                  Workflow_State::associateRole($aro_id, $wfs_id);
+                }
             }
             return $wfs_id;
         }
@@ -197,6 +205,12 @@ class Workflow_State
                 return -1;
             } else {
                 for ($i = 0; $i < count($params["wfs_roles"]); $i++) {
+                    if (!is_numeric($params["wfs_roles"][$i])) {
+                      $aro_id = Auth::getRoleIDByTitle(trim($params["wfs_roles"][$i]));
+                    } else {
+                      $aro_id = $params["wfs_roles"][$i];
+                    }
+                    if (is_numeric($aro_id)) {
                     $stmt = "INSERT INTO
                                 " . APP_TABLE_PREFIX . "workflow_state_roles
                              (
@@ -204,12 +218,13 @@ class Workflow_State
                                 wfsr_aro_id
                              ) VALUES (
                                 " . $wfs_id . ",
-                                " . $params["wfs_roles"][$i] . "
+                                " . $aro_id . "
                              )";
                     $res = $GLOBALS["db_api"]->dbh->query($stmt);
                     if (PEAR::isError($res)) {
                         Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
                         return -1;
+                    }
                     }
                 }
             }
@@ -471,7 +486,7 @@ class Workflow_State
                 'wfs_end' => $xstate->getAttribute('wfs_end'),
                 'wfs_assigned_role_id' => $xstate->getAttribute('wfs_assigned_role_id'),
                 'wfs_transparent' => $xstate->getAttribute('wfs_transparent'),
-                'wfl_roles' => explode(",",$xstate->getAttribute('wfs_role_titles')),
+                'wfs_roles' => explode(",",$xstate->getAttribute('wfs_roles')),
             );
             $state_ids_map[$xstate->getAttribute('wfs_id')] = Workflow_State::insert($params);
         }
