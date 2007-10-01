@@ -143,8 +143,6 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
   {include file="error_icon.tpl.html" field="search_keys[$search_key_id]$search_key_sufix"}
   </div>
 {/section}
-     <input name="search_button" class="button quick_search_button" type="submit" value="Search" />
-     <input class="button" type="button" value="Clear" onclick="javascript:clearFilters(this.form);">
 
 {if $user_can_edit && $bulk_search_workflows}
 <div class="quick_search_hide">
@@ -156,7 +154,17 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
 </div>
 {/if}
 
+
+
+<div class="default">
+<input name="search_button"  type="submit" value="Search" />
+<input type="button" value="Clear Form" onclick="javascript:clearFilters(this.form);" />
 </div>
+
+
+</div>
+
+
 
  	 {if $browser.ie5up or $browser.ns6up or $browser.gecko}
   <div class="default quick_search_hide" >hide/show:

@@ -55,7 +55,18 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
 <div class="outline">
 
 <div id="custom_filter_form1">
-
+<div class="default">
+<img src="images/search_32.gif" alt="">				
+&nbsp;<b>Advanced Search</b> <br />
+Use as many or as few criteria as you like <br />
+</div
+<br />
+<br />
+<div class="default">
+<input name="search_button"  type="submit" value="Search" />
+<input type="button" value="Clear Form" onclick="javascript:clearFilters(this.form);" />
+</div>
+<br />
   <div class="{if $options.searchKey0 != ''}default-search-used{else}default{/if} custom_search_item">
     All Fields: <br />
 	<input id="search_keys[0]" type="text" name="search_keys[0]" maxlength="255" size="35" value="{$options.searchKey0}" />
@@ -196,11 +207,21 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
   {/if}
 {/section}
 
-     <input name="search_button" class="button custom_search_button" type="submit" value="Search" />
-     <input class="button" type="button" value="Clear" onclick="javascript:clearFilters(this.form);">
+ 
 </div>
 
- <div class="default quick_search_hide"> </div>
+ 
+
+
+
+
+<div class="default quick_search_hide"> </div>
+<br />
+<div class="default">
+<input name="search_button"  type="submit" value="Search" />
+<input type="button" value="Clear Form" onclick="javascript:clearFilters(this.form);" />
+</div>
+
 
 </div>
 
