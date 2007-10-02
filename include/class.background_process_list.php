@@ -68,7 +68,7 @@ class BackgroundProcessList
         }
         foreach ($res as $filename) {
             if (!empty($filename)) {
-                unlink($filename);
+                @unlink($filename);
             }
         }
 
@@ -126,7 +126,7 @@ class BackgroundProcessList
 
     function deleteLog($bgp_id)
     {
-        unlink(APP_TEMP_DIR."fezbgp/fezbgp_".$bgp_id.".log");
+        @unlink(APP_TEMP_DIR."fezbgp/fezbgp_".$bgp_id.".log");
     }
 
 }

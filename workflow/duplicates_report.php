@@ -60,7 +60,8 @@ $tpl->assign('show_resolved', $show_resolved);
 list($page, $page_size) = Pager::doPaging($tpl, 'duplicates_report_');
 
 $duplicates_report = new DuplicatesReport($pid);
-$duplicates_report->setWorkflowId($wfstatus->id);
+$wfl_details = $wfstatus->getWorkflowDetails();
+$duplicates_report->setWorkflowId($wfl_details['wfl_id']);
 $listing = $duplicates_report->getListing($page, $page_size, $show_resolved);
 // correct problem of paging off the end of the list.
 if ($page != 0 && $page > $listing['list_meta']['pages'] - 1) {

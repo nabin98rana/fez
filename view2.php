@@ -70,14 +70,24 @@ if (!empty($pid)) {
 } 
 
 if (!empty($pid) && $record->checkExists()) {
+	$tpl->assign("pid", $pid);
+	$deleted = false;
 	if (@$show_tombstone) {
+		$tpl->assign('show_tombstone',true);
 		// check if this record has been deleted
 		if ($record->isDeleted()) {
-			Error_Handler::logError('Record Deleted',__FILE__,__LINE__);
+			$tpl->assign('deleted',true);
+			$deleted = true;
+			$history_res = History::searchOnPid($pid, 
+								array('pre_detail' => '% Marked Duplicate of %'));
+	    	if (!empty($history_res)) {
+				preg_match('/Marked Duplicate of (\S+)/', $history_res[0]['pre_detail'], $matches);
+	    		$tpl->assign('duplicate_pid',$matches[1]);
+	    		$tpl->assign('duplicate_premis',$history_res[0]);
+	    		
+    		}
 		}
 	}
-	$tpl->assign("pid", $pid);
-	$record = new RecordObject($pid);
 	$xdis_id = $record->getXmlDisplayId();
 	$tpl->assign("xdis_id", $xdis_id);
 	$xdis_title = XSD_Display::getTitle($xdis_id);	
@@ -201,7 +211,7 @@ if (!empty($pid) && $record->checkExists()) {
 			}
 		}
         $tpl->assign('meta_head', $meta_head);		
-		$record_view = new RecordView($record);	
+		$record_view = new RecordView($record);	// record viewer object
 		$details = $record_view->getDetails();
 		
         // Setup the Najax Image Preview object.

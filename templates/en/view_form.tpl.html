@@ -197,7 +197,8 @@ function openHistory(pid)
 		</table>
 	  </td>
 	</tr> 		
-		{/if}
+{/if}
+{if $show_tombstone && !$deleted || !$show_tombstone}
 		<tr>
 		  <td align="left"> 
 			<table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="2" width="100%">
@@ -333,7 +334,6 @@ function openHistory(pid)
 		  <tr>
 			<td class="default" colspan="5">&nbsp;</td>
 		  </tr>
-
 		  <tr>
 			<td class="default_white" colspan="5" bgcolor="{$heading_color}"><b>Available Versions of this Record</b></td>
 		  </tr>
@@ -347,6 +347,26 @@ function openHistory(pid)
 		  <tr>
 			<td class="default" colspan="5">&nbsp;</td>
 		  </tr>    
+		  
+{else}
+	{* Show tombstone *}
+		<tr>
+			<td>
+				<div class="outline light_background">
+				<div class="admin-header">This record has been deleted.</div>
+				{if $duplicate_pid}
+					<div  class="admin-content">
+					<div>It was marked as a duplicate of <a href="{$rel_url}view.php?pid={$duplicate_pid}">{$duplicate_pid}</a></div>
+					<div>Event detail: {$duplicate_premis.pre_detail}</div>
+					<div>Date: {$duplicate_premis.pre_date|date_format:'%a, %d %b %Y, %H:%M:%S %z'}</div>
+					</div>
+				{/if}
+				</div>
+			</td>
+		</tr>
+{/if}
+		  
+		  
 		  <tr>
 			<td align="left" colspan="5">
 		<table width="100%" border="0" cellpadding="2" cellspacing="0"  bgcolor="#FFFFFF" >  
@@ -361,9 +381,9 @@ function openHistory(pid)
 				<tr>
 				  <td align="left" class="default" nowrap> <b>Created:</b></td>
 				  <td align="left" class="default" nowrap width="100%">  {$created_date} 
-				  {if $depositor != ""} by <a href="{$rel_url}list.php?browse=depositor&depositor={$depositor_id}" class="silent_link">{$depositor}</a>{/if}
+				  {if $depositor != ""} by <a href="{$rel_url}list.php?browse=depositor&depositor={$depositor_id}" class="silent_link">{$depositor}</a>.{/if}
 				  <a title="view the full history of changes on this object" href="javascript:void(null);" onclick="javascript:openHistory('{$pid}');">Detailed History</a>
-				  </td>
+			  </td>
 				</tr>
 
 		</table>
@@ -373,6 +393,7 @@ function openHistory(pid)
 	    </table>
 		
     </td>
+{if $show_tombstone && !$deleted || !$show_tombstone}
 	{if $show_preview_pane == "1"} 
     <td align="center" valign="top"  bgcolor="#FFFFFF" cellspacing="1" cellpadding="2" border="0">
       <table width="100%" border="0" cellpadding="2" cellspacing="0"  bgcolor="#FFFFFF" >
@@ -392,6 +413,7 @@ function openHistory(pid)
       </table>
     </td>
 	{/if}
+{/if}
   </tr>			
   </table>
   </td>

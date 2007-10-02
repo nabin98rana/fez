@@ -148,7 +148,7 @@ ul.my_views_tab a.my_views_tab_here
 background:[[$smarty.const.APP_CELL_COLOR]];
 }
 
-div.cv_selection
+div.cv_selection, .light_background
 {
 background:[[$smarty.const.APP_LIGHT_COLOR]];
 }

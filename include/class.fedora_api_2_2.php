@@ -234,7 +234,7 @@ class Fedora_API {
     /*
      *
      */
-    function getListObjectsQueryXML($terms, $fields)
+    function searchQuery($terms, $fields)
     {
     	$fieldstr = '';
     	foreach ($fields as $field) {
