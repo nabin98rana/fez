@@ -49,10 +49,6 @@ include_once(APP_INC_PATH . "class.fedora_api.php");
 $tpl = new Template_API();
 $tpl->setTemplate("view.tpl.html");
 $pid = @$HTTP_POST_VARS["pid"] ? $HTTP_POST_VARS["pid"] : $HTTP_GET_VARS["pid"];
-if (($_SERVER["SERVER_PORT"] == 443) && (APP_HTTPS == "ON")) {
-   header ("HTTP 302 Redirect");
-   header ("Location: http://".APP_HOSTNAME.APP_RELATIVE_URL."view.php"."?".$HTTP_SERVER_VARS['QUERY_STRING']);
-}
 
 $show_tombstone = true;  // tell view2.php to show the tombstone if the record has a deleted fedora status
 
