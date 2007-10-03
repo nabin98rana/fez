@@ -1953,6 +1953,29 @@ inner join
     {
 
     }
+    
+    function isDeleted($pid)
+    {
+       	$res = Fedora_API::searchQuery('pid='.$pid, array('pid', 'state'));
+        if ($res[0]['state'] == 'D') {
+        	return true;
+        }
+        return false;
+    }
+
+    function markAsActive($pid, $do_index = true)
+    {
+    	// tell fedora that the object is active.
+        Fedora_API::callModifyObject($pid, 'A', null);
+
+		if ($do_index) {
+        	// add it to the Fez index.
+        	Record::setIndexMatchingFields($pid);
+    	}
+    	
+    }
+
+
 }
 
 
@@ -3041,22 +3064,14 @@ class RecordGeneral
     /**
      * Mark the fedora state of the record as active.  Also restores the fez index of the object.
      */
-    function markAsActive()
+    function markAsActive($do_index = true)
     {
-        // tell fedora that the object is active.
-        Fedora_API::callModifyObject($this->pid, 'A', null);
-
-        // add it to the Fez index.
-        Record::setIndexMatchingFields($this->pid);
+    	return Record::markAsActive($this->pid, $do_index);
     }
     
     function isDeleted()
     {
-    	$res = Fedora_API::searchQuery('pid='.$this->pid, array('pid', 'state'));
-        if ($res[0]['state'] == 'D') {
-        	return true;
-        }
-        return false;
+    	return Record::isDeleted($this->pid);
     }
     
    

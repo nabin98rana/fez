@@ -209,6 +209,26 @@ class Fedora_API {
         $resultlist['resultList'] = array('objectFields' => $resultlist['resultList']);
         return $resultlist;
     }
+
+    /*
+     * This function uses Fedora's simple search service which only really works against Dublin Core records.
+	 * @param string $query The query by which the search will be carried out.  
+	 *		See http://www.fedora.info/wiki/index.php/API-A-Lite_findObjects#Parameters: for 
+	 *		documentation of the syntax of the query.
+	 * @param array $fields The list of DC and Fedora basic fields to search against.
+     * @return  array $resultList The search results.
+     */
+    function searchQuery($query, $fields = array('pid', 'title'))
+    {
+    	$fieldstr = '';
+    	foreach ($fields as $field) {
+    		$fieldstr .= '&'.$field.'=true';
+    	}
+    	$url = APP_FEDORA_SEARCH_URL.'?query='.urlencode($query).'&xml=true'.$fieldstr;
+		list($xml,$info) = Misc::processURL($url);
+		return self::resultListXMLtoArray($xml, $fields);
+    }
+
     
     /**
      * This function uses Fedora's simple search service which only really works against Dublin Core records,
@@ -239,6 +259,12 @@ class Fedora_API {
 //		$xml = file_get_contents($filename);
 		list($xml,$info) = Misc::processURL($filename);
 		$xml = preg_replace("'<object uri\=\"info\:fedora\/(.*)\"\/>'", "<pid>\\1</pid>", $xml); // fix the pid tags
+		return self::resultListXMLtoArray($xml,$returnfields);
+	}
+	
+	function resultListXMLtoArray($xml,$returnfields)
+	{
+        $resultlist = array();
 		$doc = DOMDocument::loadXML($xml);
 		$xpath = new DOMXPath($doc);
 		$xpath->registerNamespace('r', 'http://www.fedora.info/definitions/1/0/types/');
@@ -256,7 +282,9 @@ class Fedora_API {
 			$resultlist[] = $rItem;
 		}
 		return $resultlist;
+		
 	}
+
 
     /**
      * This function uses Fedora's Kowari Index ITQL search service which only really works against Dublin Core records,

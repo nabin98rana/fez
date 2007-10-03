@@ -64,6 +64,12 @@ include_once(APP_INC_PATH . "class.fedora_direct_access.php");
   */
 class Reindex
 {
+	const INDEX_TYPE_FEDORAINDEX = 1;
+	const INDEX_TYPE_REINDEX = 2;
+	const INDEX_TYPE_REINDEX_OBJECTS = 3;  // index specific pids
+	const INDEX_TYPE_UNDELETE = 4;  
+
+
     var $fedoraObjects = array();
     var $terms;
     var $listSession;
@@ -159,14 +165,14 @@ class Reindex
      * @access  public
      * @return  array The list.
      */
-    function getMissingList($page = 0, $max=10, $terms="*")
+    function getMissingList($page = 0, $max=10, $terms="*", $state = 'A')
     {
 		$start = $max * $page;
 		$return = array();
 
         // Direct Access to Fedora
         $fedoraDirect = new Fedora_Direct_Access();
-        $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms);
+        $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms, $state);
 
         // Correct for Oracle-produced array key case issue reported by Kostas
 		foreach ($fedoraList as $fkey => $flist) {
@@ -297,6 +303,7 @@ class Reindex
             )
         );
 	}
+	
 
 /*    function getFullList($page, $max, $terms)
     {
@@ -341,6 +348,13 @@ class Reindex
         );  
     }
 */
+
+	function getDeletedList($page = 0, $max=10, $terms="*")
+	{
+		return $this->getMissingList($page, $max, $terms, 'D');
+	}
+
+
     /**
      * Method used to return a complete list of PIDs in the Fez index.
      *
@@ -378,7 +392,14 @@ class Reindex
 //		$list = Reindex::getMissingList(0,"ALL","*");
         // Direct Access to Fedora
         $fedoraDirect = new Fedora_Direct_Access();
-        $fedoraList = $fedoraDirect->fetchAllFedoraPIDs("*");
+        // are we doing an undelete?
+        if (@$params['index_type'] == Reindex::INDEX_TYPE_UNDELETE) {
+	        $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms, 'D');
+        } else {
+	        $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms);
+        }
+
+        
 		$record_count = count($fedoraList);
         $bgp_details = $this->bgp->getDetails();
         // Correct for Oracle-produced array key case issue reported by Kostas
@@ -392,9 +413,6 @@ class Reindex
 //		$list_detail = $list['list'];
 		foreach ($fedoraList as $detail) {
             $reindex_record_counter++;
-            if ($detail['objectstate'] != 'A') {
-            	continue;
-            }
             $utc_date = Date_API::getSimpleDateUTC();
             $time_per_object = Date_API::dateDiff("s", $bgp_details['bgp_started'], $utc_date);
             $date_new = new Date(strtotime($bgp_details['bgp_started']));
@@ -464,7 +482,7 @@ class Reindex
         $bgp_details = $this->bgp->getDetails();
 //		$list = Reindex::getFullList(0,9999999999,"*");
         $fedoraDirect = new Fedora_Direct_Access();
-        $fedoraList = $fedoraDirect->fetchAllFedoraPIDs("*");
+        $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms);
 		if (APP_DB_TYPE == "oracle") {
 			foreach ($fedoraList as &$flist) {
 	            $flist = array_change_key_case($flist, CASE_LOWER);
@@ -535,8 +553,14 @@ class Reindex
 		$community_pid = @$params["community_pid"];
 		$collection_pid = @$params["collection_pid"];
         $rebuild = @$params["rebuild"];
+        $index_type = @$params["index_type"];
+		
 
 		foreach ($items as $pid) {
+	        if ($index_type == Reindex::INDEX_TYPE_UNDELETE) {
+				Record::markAsActive($pid, false);
+				History::addHistory($pid, null, "", "", true, 'Undeleted');
+			}
     		$rebuild_this = $rebuild;
             // determine if the record is a Fez record
             if (!Fedora_API::datastreamExists($pid, 'FezMD')) {

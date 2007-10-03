@@ -232,15 +232,20 @@ class Fedora_API {
     }
     
     /*
-     *
+     * This function uses Fedora's simple search service which only really works against Dublin Core records.
+	 * @param string $query The query by which the search will be carried out.  
+	 *		See http://www.fedora.info/wiki/index.php/API-A-Lite_findObjects#Parameters: for 
+	 *		documentation of the syntax of the query.
+	 * @param array $fields The list of DC and Fedora basic fields to search against.
+     * @return  array $resultList The search results.
      */
-    function searchQuery($terms, $fields)
+    function searchQuery($query, $fields = array('pid', 'title'))
     {
     	$fieldstr = '';
     	foreach ($fields as $field) {
     		$fieldstr .= '&'.$field.'=true';
     	}
-    	$url = APP_FEDORA_SEARCH_URL.'?query='.urlencode($terms).'&xml=true'.$fieldstr;
+    	$url = APP_FEDORA_SEARCH_URL.'?query='.urlencode($query).'&xml=true'.$fieldstr;
 		list($xml,$info) = Misc::processURL($url);
 		return self::resultListXMLtoArray($xml, $fields);
     }

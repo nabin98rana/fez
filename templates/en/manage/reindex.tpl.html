@@ -9,8 +9,9 @@
 	
     <form name="reindex" method="post" action="{$smarty.server.PHP_SELF}">
 		<input type="hidden" name="action" value="prompt"/>
-		&nbsp;&nbsp;&nbsp;<input type="submit" name="button" value="Discover new Fedora objects" class="submit" />
-		&nbsp;&nbsp;&nbsp;<input type="submit" name="button" value="Reindex known Fedora objects" class="submit" />
+		&nbsp;&nbsp;&nbsp;<input type="submit" name="discover" value="Discover new Fedora objects" class="submit" />
+		&nbsp;&nbsp;&nbsp;<input type="submit" name="reindex" value="Reindex known Fedora objects" class="submit" />
+		&nbsp;&nbsp;&nbsp;<input type="submit" name="undelete" value="Undelete Fedora objects" class="submit" />
 	</form>
 	<br />
 
@@ -197,9 +198,11 @@ function validateFormSelections() {
 <input type="hidden" name="pagerRow" value="" /> 
 
 {if $index_type == 1}
-<input type="hidden" name="button" value="Discover new Fedora objects" />
-{else}
-<input type="hidden" name="button" value="Reindex known Fedora objects" />
+<input type="hidden" name="discover" value="Discover new Fedora objects" />
+{elseif $index_type == 2}
+<input type="hidden" name="reindex" value="Reindex known Fedora objects" />
+{elseif $index_type == 4}
+<input type="hidden" name="undelete" value="Undelete Fedora objects" />
 {/if}
       <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
         <tr>
@@ -208,7 +211,7 @@ function validateFormSelections() {
 
               <tr>
                 <td colspan="2">
-				  <div class="admin-header">{if $index_type == 1}Discover new Fedora objects{else}Reindex known Fedora objects{/if}</div>
+				  <div class="admin-header">{if $index_type == 1}Discover new Fedora objects{elseif $index_type == 2}Reindex known Fedora objects{elseif $index_type == 4}Undelete Fedora Objects{/if}</div>
                 </td>
               </tr>
              <tr>
@@ -216,8 +219,10 @@ function validateFormSelections() {
                 <p>
                 {if $index_type == 1}
                 This is a list of items in the Fedora database that are not indexed in the Fez database. Check the boxes next to the objects you want Fez to index and click 'Index Selected Items Into Fez'.
-                {else}
+                {elseif $index_type == 2}
 				This is a list of items in the Fedora database that are already indexed in the Fez database. Check the boxes next to the objects you want Fez to reindex and click 'Reindex Selected Items'.
+                {elseif $index_type == 4}
+				This is a list of items in the Fedora database that are marked as deleted. Check the boxes next to the objects you want Fez to restore and click 'Undelete Selected Items'.
                 {/if}
                 </p>
                 <p>The reindexer will detect if the objects are already Fez objects and restore them if possible, otherwise the objects will be imported into the collection selected below.</p>
@@ -311,7 +316,7 @@ function validateFormSelections() {
                       <td width="5" bgcolor="{$cell_color}" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
                       <td width="100" bgcolor="{$cell_color}" class="default">&nbsp;<b>PID</b>&nbsp;</td>
                       <td width="" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b>&nbsp;</td>
-                      {if $index_type !== 1}<td width="50%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>Description</b>&nbsp;</td>{/if}
+                      {if $index_type == 2}<td width="50%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>Description</b>&nbsp;</td>{/if}
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
@@ -325,7 +330,7 @@ function validateFormSelections() {
                       <td bgcolor="{$row_color}" class="default">
                         &nbsp;{$list[i].title}
                       </td>
-                      {if $index_type !== 1}
+                      {if $index_type == 2}
 					  <td bgcolor="{$row_color}" class="default">
                         &nbsp;{$list[i].description}
                       </td>
@@ -335,7 +340,7 @@ function validateFormSelections() {
                     <tr>
                       <td colspan="4" bgcolor="{$light_color}" align="center" class="default">
                        {if $index_type == 1} No Fedora objects missing from the Fez Index could be found.
-                       {else}No objects were found in the Fez index{/if}
+                       {elseif $index_type == 2}No objects were found in the Fez index{elseif $index_type == 4}No deleted objects were found{/if}
                       </td>
                     </tr>
                     {/section}
@@ -345,12 +350,17 @@ function validateFormSelections() {
                       </td>
                       <td colspan="3" align="center" bgcolor="{$cell_color}">
 					    {if $index_type == 1}
-						<input type="submit" name="go_list" value="Index Selected Items Into Fez" class="button" onclick="{literal}if(checkForSelectedItem() == true){if(validateFormSelections() == true){this.form.method='post';document.reindex_form.submit();}else{return false;}}else{return false;}{/literal}" />
-						<input type="submit" name="do_all" value="Index All Pages Into Fez" class="button" onclick="{literal}if(validateFormSelections() == true){this.form.method='post';document.reindex_form.submit();}else{return false;}{/literal}" />
-						{else}
-						<input type="submit" name="go_list" value="Reindex Selected Items" class="button" onclick="{literal}if(checkForSelectedItem() == true){this.form.method='post';document.reindex_form.submit();}else{return false;}{/literal}" />
-						<input type="submit" name="do_all" value="Reindex All Pages" class="button" onclick="this.form.method='post';document.reindex_form.submit();" />
+						{assign var='button_label1' value='Index Selected Items Into Fez'}
+						{assign var='button_label2' value='Index All Items Into Fez'}
+						{elseif $index_type == 2}
+						{assign var='button_label1' value='Reindex Selected Items'}
+						{assign var='button_label2' value='Reindex All Pages'}
+						{elseif $index_type == 4}
+						{assign var='button_label1' value='Undelete Selected Items'}
+						{assign var='button_label2' value='Undelete All Pages'}
 						{/if}
+						<input type="submit" name="go_list" value="{$button_label1}" class="button" onclick="{literal}if(checkForSelectedItem() == true){if(validateFormSelections() == true){this.form.method='post';document.reindex_form.submit();}else{return false;}}else{return false;}{/literal}" />
+						<input type="submit" name="do_all" value="{$button_label2}" class="button" onclick="{literal}if(validateFormSelections() == true){this.form.method='post';document.reindex_form.submit();}else{return false;}{/literal}" />
                       </td>
                     </tr>
                   </table>

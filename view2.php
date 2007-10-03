@@ -79,7 +79,7 @@ if (!empty($pid) && $record->checkExists()) {
 			$tpl->assign('deleted',true);
 			$deleted = true;
 			$history_res = History::searchOnPid($pid, 
-								array('pre_detail' => '% Marked Duplicate of %'));
+								array('pre_detail' => '%Marked Duplicate of %'));
 	    	if (!empty($history_res)) {
 				preg_match('/Marked Duplicate of (\S+)/', $history_res[0]['pre_detail'], $matches);
 	    		$tpl->assign('duplicate_pid',$matches[1]);

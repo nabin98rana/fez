@@ -14,9 +14,6 @@ include_once(APP_INC_PATH.'class.record.php');
 include_once(APP_INC_PATH . "class.reindex.php");
 
 
-@define('INDEX_TYPE_FEDORAINDEX', 1);
-@define('INDEX_TYPE_REINDEX', 2);
-@define('INDEX_TYPE_REINDEX_OBJECTS', 3);  // index specific pids
 
 
 class BackgroundProcess_Index_Object extends BackgroundProcess
@@ -47,12 +44,15 @@ class BackgroundProcess_Index_Object extends BackgroundProcess
             $params = array();
         }
         if (empty($index_type)) {
-            $index_type = INDEX_TYPE_REINDEX;
+            $index_type = Reindex::INDEX_TYPE_REINDEX;
         }
+        $params['index_type'] = $index_type;
         $reindex->bgp = $this;
-        if ($index_type == INDEX_TYPE_FEDORAINDEX) {
-            $reindex->reindexMissingList($params,$terms);
-        } elseif ($index_type == INDEX_TYPE_REINDEX_OBJECTS) {
+        if ($index_type == Reindex::INDEX_TYPE_FEDORAINDEX || $index_type == Reindex::INDEX_TYPE_UNDELETE) {
+        	$reindex->reindexMissingList($params,$terms);
+        } elseif ($index_type == Reindex::INDEX_TYPE_REINDEX)  {
+            $reindex->reindexFullList($params,$terms);
+        } elseif ($index_type == Reindex::INDEX_TYPE_REINDEX_OBJECTS) {
         	if (!empty($pid)) {
         		$source_pids = array();
         		$parent_pids = array($pid);
@@ -93,8 +93,6 @@ class BackgroundProcess_Index_Object extends BackgroundProcess
 				$this->setProgress(100);
 				$this->setStatus("Reindexed ".count($source_pids)." items.");
         	}
-        } else  {
-            $reindex->reindexFullList($params,$terms);
         }
         $this->setState(2);        // done
     }

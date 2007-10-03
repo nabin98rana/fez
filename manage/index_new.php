@@ -68,23 +68,27 @@ if (!$isAdministrator) {
     $tpl->assign("show_not_allowed_msg", true);
 }
 
-if ($HTTP_POST_VARS["action"] !== "prompt" && $HTTP_POST_VARS["action"] !== "index") {
+if ($_POST["action"] !== "prompt" && $_POST["action"] !== "index") {
     $display_screen = "SHOW_OPSEANS";
 } else {
-    if ($HTTP_POST_VARS["button"] == "Discover new Fedora objects") {
-        $index_type = INDEX_TYPE_FEDORAINDEX;
-    } else {
-        $index_type = INDEX_TYPE_REINDEX;
+    if (!empty($_POST["discover"])) {
+        $index_type = Reindex::INDEX_TYPE_FEDORAINDEX;
+    } elseif (!empty($_POST["reindex"])) {
+        $index_type = Reindex::INDEX_TYPE_REINDEX;
+    } elseif (!empty($_POST["undelete"])) {
+        $index_type = Reindex::INDEX_TYPE_UNDELETE;
     }    
-    if ($HTTP_POST_VARS["action"] == "prompt") {
+    if ($_POST["action"] == "prompt") {
         $display_screen = "PROMPT";
-    } elseif ($HTTP_POST_VARS["action"] == "index") {
+    } elseif ($_POST["action"] == "index") {
         $display_screen = "INDEX";
-        if (!empty($HTTP_POST_VARS["go_list"])) {
-            Reindex::indexFezFedoraObjects();
+        if (!empty($_POST["go_list"])) {
+            $params = $_POST;
+        	$params['index_type'] = $index_type;
+        	Reindex::indexFezFedoraObjects($params);
         }
-        if (!empty($HTTP_POST_VARS["do_all"])) {
-            $params = &$HTTP_POST_VARS;
+        if (!empty($_POST["do_all"])) {
+            $params = &$_POST;
             $bgp = new BackgroundProcess_Index_Object();
             $bgp->register(serialize(compact('params','terms','index_type')), Auth::getUserID());
             Session::setMessage('The objects are being indexed as a background process (see My Fez to follow progress)');
@@ -107,11 +111,13 @@ $options = Pager::saveSearchParams();
 $tpl->assign("options", $options);
 
 if ($HTTP_POST_VARS["action"] == "prompt" || $HTTP_POST_VARS["action"] == "index") {
-    if ($index_type == INDEX_TYPE_FEDORAINDEX) {
+    if ($index_type == Reindex::INDEX_TYPE_FEDORAINDEX) {
         $details = $reindex->getMissingList($pagerRow, $rows, $terms);
 //print_r($details);
-    } else {
+    } elseif ($index_type == Reindex::INDEX_TYPE_REINDEX) {
         $details = $reindex->getFullList($pagerRow, $rows, $terms);
+    } elseif ($index_type == Reindex::INDEX_TYPE_UNDELETE) {
+    	$details = $reindex->getDeletedList($pagerRow, $rows, $terms);
     }
     
 	$tpl->assign("list", $details['list']);
