@@ -247,6 +247,26 @@ class Statistics
 		}
 	}
 
+	function updateSummaryStatsOnPid($pid) {
+		$stmt = "UPDATE 
+				" . APP_TABLE_PREFIX . "record_search_key r1
+				SET rek_file_downloads = (
+						SELECT COUNT(*) FROM " . APP_TABLE_PREFIX . "statistics_all
+						WHERE stl_dsid <> '' AND stl_pid = '".$pid."'),
+					rek_views = (
+						SELECT COUNT(*) FROM " . APP_TABLE_PREFIX . "statistics_all
+						WHERE stl_dsid = '' AND stl_pid = '".$pid."')
+				WHERE rek_pid = '".$pid."'
+				";
+		$res = $GLOBALS["db_api"]->dbh->query($stmt);
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+			return -1; //abort
+		} else {
+			//continue
+		}
+	}
+
 	function isRobot($ip) {	
 		// check if the ip is in the Fez robots listing so far
 		$stmt = "select count(*) from " . APP_TABLE_PREFIX . "statistics_robots where str_ip = '".$ip."'";

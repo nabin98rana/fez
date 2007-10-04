@@ -1129,15 +1129,10 @@ class XSD_DisplayObject
 														if ($indicatorValue == $row['xsdsel_indicator_value']) {
 															$currentSEL = $row['indicator_xsdsel_id'];
 														}														
-													} 
-												} elseif ($row['xsdsel_indicator_value'] == '') {
-													// Matching on a blank indicator.
-													// We will get to this line if the indicator
-													// element didn't exist or was blank
-													$currentSEL = $row['indicator_xsdsel_id'];
+													}
 												}
 											}												
-                                        } elseif (!is_numeric($currentSEL)) {
+                                        } elseif (!is_numeric($currentSEL) && $row['xsdmf_html_input'] == 'xsd_loop_subelement' && $row['xsdsel_indicator_value'] == '') {
 										   $currentSEL = $row['indicator_xsdsel_id'];
                                         }
 									}

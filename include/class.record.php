@@ -2922,6 +2922,7 @@ class RecordGeneral
                 }
             }
         }
+        Statistics::updateSummaryStatsOnPid($pid);
     }
 
     /**
