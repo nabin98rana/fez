@@ -1963,6 +1963,16 @@ inner join
         return false;
     }
 
+	function markAsDeleted($pid)
+	{
+	    // tell fedora that the object is deleted.
+        Fedora_API::callModifyObject($pid, 'D', null);
+
+        // delete it from the Fez index.
+        Record::removeIndexRecord($pid);
+    }
+
+
     function markAsActive($pid, $do_index = true)
     {
     	// tell fedora that the object is active.
@@ -3054,11 +3064,7 @@ class RecordGeneral
      */
     function markAsDeleted()
     {
-        // tell fedora that the object is deleted.
-        Fedora_API::callModifyObject($this->pid, 'D', null);
-
-        // delete it from the Fez index.
-        Record::removeIndexRecord($this->pid);
+    	return Record::markAsDeleted($this->pid);
     }
 
     /**
