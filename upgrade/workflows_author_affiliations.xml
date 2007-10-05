@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<workflows schema_version="1.0">
+  <workflow wfl_id="197" wfl_title="Edit Author Affiliations" wfl_version="1.0" wfl_description="HERDIC Author Affiliations" wfl_roles="Approver,Community_Administrator,Editor" wfl_end_button_label="Finished">
+    <WorkflowState wfs_id="696" wfs_title="Edit Affiliations" wfs_description="" wfs_auto="0" wfs_wfb_id="137" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowTrigger wft_id="249" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="3" wft_options="0"/>
+  </workflow>
+  <WorkflowBehaviour wfb_id="137" wfb_title="Edit Affiliations" wfb_description="This form allows percentage affiliations to be stored in a table for pids and authors.  Part of HERDIC requirements." wfb_version="1.0" wfb_script_name="edit_affiliation.php" wfb_auto="0"/>
+</workflows>

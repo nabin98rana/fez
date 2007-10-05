@@ -548,7 +548,7 @@ class Author
 
     }
 
-    function getDisplayName()
+    function getDisplayName($aut_id)
     {
         $stmt = "SELECT
                     aut_display_name

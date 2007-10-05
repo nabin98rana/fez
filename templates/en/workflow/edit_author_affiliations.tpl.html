@@ -1,0 +1,47 @@
+<script type="text/javascript">
+<!--
+{literal}
+function validateForm(f)
+{
+	;
+}
+{/literal}
+// -->
+</script>
+
+<tr><td>
+<div class="outline">
+	
+	<form name="form1">
+		<input type="hidden" name="action" value="save"/>
+		<input type="hidden" name="id" value="{$wf_id}"/>
+		<input type="hidden" name="af_id" value="{$current.af_id}"/>
+		<div>
+			<div>Author Name</div>
+			<div>{html_options name="af_author_id" values=$author_ids output=$authors selected=$current.af_author_id}</div>
+		</div>
+		<div>
+			<div>Percent Affiliation</div>
+			<div><input type="textfield" name="af_percent_affiliation" value="{$current.af_percent_affiliation}"/></div>
+		</div>
+		<div>
+			<div>School</div>
+			<div>{html_options name="af_school_id" options=$orgs selected=$current.af_school_id}</div>
+		</div>
+		<div>
+			<input type="submit" name="save" value="Save"/>
+		</div>
+	</form>
+	
+	<table>
+	{section name='ii' loop=$list}
+		<tr>
+			<td>{$list[ii].author_name}</td>
+			<td>{$list[ii].af_percent_affiliation}</td>
+			<td>{$list[ii].school_name}</td>
+			<td>[<a href="{$smarty.server.PHP_SELF}?id={$wf_id}&action=edit&af_id={$list[ii].af_id}">edit</a>]</td>
+		</tr>
+	{/section}
+	</table>
+</div>
+</td></tr>
