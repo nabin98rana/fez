@@ -14,6 +14,7 @@ class SelectXSDDisplay {
         foreach($xsdmf_list as $key => $item) {
             $list[] = array('value' => $key, 'text' => $item);
         }
+        //Error_Handler::logError($list);
         return $list; 
     }
    

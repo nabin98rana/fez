@@ -473,12 +473,18 @@ function selectDateField(field_name, day, month, year)
 						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" {if $loop_num != 0}style="display:none"{/if}>
 						  <td width="200" bgcolor="{$cell_color}" class="default">
 							<b>{$xsd_display_fields[i].xsdmf_title} {math equation="x + 1" x=$loop_num} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />{if $loop_num == 0}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appears as they are used up)</i>{/if}
+							{if $xsd_display_fields[i].xsdmf_description != ""}
+								<br /><i>{$xsd_display_fields[i].xsdmf_description}</i>
+							{/if}
 						  </td>
 						  <td bgcolor="{$light_color}">
 							<select id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" {if $xsd_display_fields[i].xsdmf_html_input == 'multiple'}multiple size="8"{/if} class="default" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple'}[]{/if}" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');">
 							  {if $xsd_display_fields[i].xsdmf_html_input != 'multiple'}<option value="-1">Please choose an option</option>{/if}
 							  {html_options options=$xsd_display_fields[i].field_options  selected=$xsd_display_fields[i].selected_option}
 							</select>
+							{if $xsd_display_fields[i].xsdmf_long_description != ""}
+								<span class="default">{$xsd_display_fields[i].xsdmf_long_description}</span>
+							{/if}
 							{include file="error_icon.tpl.html" field=$field_name}
 						 </td>
 						</tr>
@@ -487,6 +493,9 @@ function selectDateField(field_name, day, month, year)
 						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">
 						  <td width="200" bgcolor="{$cell_color}" class="default">
 							<b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
+							{if $xsd_display_fields[i].xsdmf_description != ""}
+								<br /><i>{$xsd_display_fields[i].xsdmf_description}</i>
+							{/if}
 						  </td>
 						  
 						  <td bgcolor="{$light_color}">
@@ -494,6 +503,9 @@ function selectDateField(field_name, day, month, year)
 							  {if $xsd_display_fields[i].xsdmf_html_input != 'multiple'}<option value="-1">Please choose an option</option>{/if}
 								  {html_options options=$xsd_display_fields[i].field_options selected=$xsd_display_fields[i].selected_option}
 							</select>
+							{if $xsd_display_fields[i].xsdmf_long_description != ""}
+								<span class="default">{$xsd_display_fields[i].xsdmf_long_description}</span>
+							{/if}
 							{include file="error_icon.tpl.html" field=$field_name}
 						 </td>
 						</tr>
