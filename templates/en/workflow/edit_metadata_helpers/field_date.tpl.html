@@ -2,6 +2,9 @@
               <tr>
 				  <td width="200" bgcolor="{$cell_color}" class="default">
 					<b>{$xsdmf.xsdmf_title} {if $xsdmf.xsdmf_required == 1} * {/if}</b>
+					{if $xsd_display_fields[i].xsdmf_description != ""}
+						<br /><i>{$xsd_display_fields[i].xsdmf_description}</i>
+					{/if}
 				  </td>
                 <td nowrap bgcolor="{$value_color}">
                   {assign var="temp_xsdmf_id" value=$xsdmf.xsdmf_id}
