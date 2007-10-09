@@ -2002,6 +2002,7 @@ class RecordGeneral
     var $editor_roles;
     var $creator_roles;
     var $deleter_roles;
+    var $approver_roles;
     var $checked_auth = false;
     var $auth_groups;
     var $display;
@@ -2030,6 +2031,7 @@ class RecordGeneral
         $this->editor_roles = explode(',',APP_EDITOR_ROLES);
         $this->creator_roles = explode(',',APP_CREATOR_ROLES);
         $this->deleter_roles = explode(',',APP_DELETER_ROLES);
+        $this->approver_roles = explode(',',APP_APPROVER_ROLES);
 
     }
 
@@ -2196,6 +2198,19 @@ class RecordGeneral
     function canDelete($redirect=false) {
         if (Auth::isAdministrator()) { return true; }
         return $this->checkAuth($this->deleter_roles, $redirect);
+    }
+
+    /**
+     * canApprove
+     * Find out if the current user can publish this record
+     *
+     * @access  public
+     * @param  $redirect
+     * @return  void
+     */
+    function canApprove($redirect=false) {
+        if (Auth::isAdministrator()) { return true; }
+        return $this->checkAuth($this->approver_roles, $redirect);
     }
 
     /**
