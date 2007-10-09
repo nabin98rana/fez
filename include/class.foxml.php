@@ -520,7 +520,7 @@ $tagIndent = "";
                     // *** NOT AN ATTRIBUTE, SO LOOP THROUGH XML ELEMENTS
                 } elseif (!empty($j['fez_hyperlink'])) {
                     if (!isset($j['fez_nodetype']) || $j['fez_nodetype'] != 'attribute') {						
-						list($xmlObj, $xsdmf_id, $xsdmf_details) = Foxml::outputElementValue($i, $j, $xmlObj, $element_prefix, $sought_node_type, $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
+						list($xmlObj, $xsdmf_id, $xsdmf_details, $element_prefix) = Foxml::outputElementValue($i, $j, $xmlObj, $element_prefix, $sought_node_type, $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
 							
 						if (is_numeric($xsdmf_id)) {
 							
@@ -560,7 +560,7 @@ $tagIndent = "";
                                             || (is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "text") && (!empty($HTTP_POST_VARS['xsd_display_fields'][$sel_record['xsdsel_attribute_loop_xsdmf_id']][$x])))
                                             || (!is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "text") && (!empty($HTTP_POST_VARS['xsd_display_fields'][$sel_record['xsdsel_attribute_loop_xsdmf_id']])))
                                                ) {
-                    							list($xmlObj, $sub_xsdmf_id, $sub_xsdmf_details) = Foxml::outputElementValue($i, $j, $xmlObj, $element_prefix, $sought_node_type, $tagIndent, $sel_record['xsdsel_id'], $xdis_id, $pid, $top_xdis_id, $x, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
+                    							list($xmlObj, $sub_xsdmf_id, $sub_xsdmf_details, $sub_element_prefix) = Foxml::outputElementValue($i, $j, $xmlObj, $element_prefix, $sought_node_type, $tagIndent, $sel_record['xsdsel_id'], $xdis_id, $pid, $top_xdis_id, $x, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
                     							
                     							if (!is_numeric($sub_xsdmf_id)) {
                     								// There are no mappings for the base sublooping element. 
@@ -828,7 +828,7 @@ $tagIndent = "";
 							}
 						}
 						
-    	return array($xmlObj, $xsdmf_id, $xsdmf_details);
+    	return array($xmlObj, $xsdmf_id, $xsdmf_details, $element_prefix);
     }
 
 

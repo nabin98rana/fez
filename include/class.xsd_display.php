@@ -1194,7 +1194,7 @@ class XSD_DisplayObject
 						if (is_array($xsdmf_id)) {
 							if (count($xsdmf_id) > 1) {
 								// ##### Start of suspect block of code
-								Error_Handler::logError("MSS is pretty sure this block of code should never get executed but has left it here for now just in case.  xsdmf_id: ".$xsdmf_id, __FILE__,__LINE__);
+								Error_Handler::logError("MSS is pretty sure this block of code should never get executed but has left it here for now just in case.  xsdmf_id: ".print_r($xsdmf_id,true), __FILE__,__LINE__);
 								foreach ($xsdmf_id as $row) {
 									if ($row['xsdmf_html_input'] == 'xsd_loop_subelement' && is_numeric($row['xsdsel_indicator_xsdmf_id']) && $row['xsdsel_indicator_xsdmf_id'] != 0 && $row['xsdsel_indicator_value'] != "") {
 										$indicator_xpath = $row['xsd_element_prefix'].":".ltrim(str_replace("!", "/".$row['xsd_element_prefix'].":", $row['indicator_element']), "/");
