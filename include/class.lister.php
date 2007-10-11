@@ -56,6 +56,7 @@ include_once(APP_INC_PATH . "class.community.php");
 include_once(APP_INC_PATH . "class.controlled_vocab.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.status.php");
+include_once(APP_INC_PATH . "class.citation.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "najax_classes.php");
@@ -70,7 +71,9 @@ class Lister
             0 => array('file' => 'list.tpl.html', 'title' => 'Default'),
             1 => array('file' => 'views/list/author_bulk_edit.tpl.html', 'title' => 'Edit Authors'),
             2 => array('file' => 'rss.tpl.html', 'title' => 'RSS Feed'),
-            3 => array('file' => 'xml_feed.tpl.html', 'title' => 'XML Feed')
+            3 => array('file' => 'xml_feed.tpl.html', 'title' => 'XML Feed'),
+            4 => array('file' => 'citation_only_list.tpl.html', 'title' => 'Citations Only'),
+            5 => array('file' => 'simple_list.tpl.html', 'title' => 'Classic Simple View')
         );
     
         $tpl_file = $tpls[$tpl_idx]['file'];    
@@ -235,6 +238,7 @@ class Lister
                 //$list = Collection::getListing($collection_pid, $pager_row, $rows, $sort_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
+				$list = Citation::renderIndexCitations($list);
                 $tpl->assign("list_heading", "List of Records in ".$collection_details[0]['title'][0]." Collection");
                 $tpl->assign("list_type", "collection_records_list");
 
@@ -281,6 +285,7 @@ class Lister
                 //$list = Collection::getListing($community_pid, $pager_row, $rows, $sort_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
+				$list = Citation::renderIndexCitations($list);
                 $tpl->assign("list_heading", "List of Collections in ".$community_title." Community");
                 $tpl->assign("list_type", "collection_list");
                 $childXDisplayOptions = Record::getSearchKeyIndexValue($community_pid, "XSD Display Option");
@@ -340,6 +345,7 @@ class Lister
             //print_r($list);
             $list_info = $list["info"];
             $list = $list["list"];
+			$list = Citation::renderIndexCitations($list);
             $search_keys = Search_Key::getQuickSearchList();
             $tpl->assign("browse_type", "browse_latest");
             $tpl->assign("list_heading", "Browse By Latest Additions");
@@ -368,6 +374,7 @@ class Lister
 				$list = Record::getListing($options, $approved_roles=array("Lister"), $pager_rows,$rows, $sort_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
+				$list = Citation::renderIndexCitations($list);
                 $tpl->assign("browse_heading", "Browse By Year ".$year);
                 $tpl->assign("list_heading", "List of Records");
             } else {
@@ -394,6 +401,7 @@ class Lister
                 //$list = Collection::browseListing($pager_row, $rows, "Author ID", $sort_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
+				$list = Citation::renderIndexCitations($list);
                 $tpl->assign("browse_heading", "Browse By Author ID - ".$author);
                 $tpl->assign("list_heading", "Browse By Author ID - ".$author);
             } elseif (!empty($author)) {	
@@ -404,6 +412,7 @@ class Lister
 //                $list = Collection::browseListing($pager_row, $rows, "Author", $sort_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
+				$list = Citation::renderIndexCitations($list);
                 $tpl->assign("browse_heading", "Browse By Author Name - ".$author);
 			    $tpl->assign("list_heading", "Browse By Author Name - ".$author);	                
             } else {
@@ -411,12 +420,14 @@ class Lister
 	                $list = Collection::listByAuthor($pager_row, $rows, $sort_by, $letter);
 	                $list_info = $list["info"];
 	                $list = $list["list"];
+					$list = Citation::renderIndexCitations($list);
 	                $tpl->assign("browse_heading", "Browse By ".APP_NAME." Author ID");
 				    $tpl->assign("list_heading", "Browse By ".APP_NAME." Author ID");
             	} else {
 	                $list = Collection::listByAttribute($pager_row, $rows, "Author", $sort_by, $letter);
 	                $list_info = $list["info"];
 	                $list = $list["list"];
+					$list = Citation::renderIndexCitations($list);
 	                $tpl->assign("browse_heading", "Browse By Author Name");
 				    $tpl->assign("list_heading", "Browse By Author Name");            		
             	}
@@ -438,12 +449,14 @@ class Lister
                 //$list = Collection::browseListing($pager_row, $rows, "Depositor",$sort_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
+				$list = Citation::renderIndexCitations($list);
                 $tpl->assign("browse_heading", "Browse By Depositor - ".$depositor_fullname);
 			    $tpl->assign("list_heading", "Browse By Depositor - ".$depositor_fullname);	
             } else {
                 $list = Collection::listByAttribute($pager_row, $rows, "Depositor",$sort_by);
                 $list_info = $list["info"];
-                $list = $list["list"];		
+                $list = $list["list"];
+				$list = Citation::renderIndexCitations($list);
                 $tpl->assign("browse_heading", "Browse By Depositor");
 			    $tpl->assign("list_heading", "Browse By Depositor");					
             }
@@ -466,6 +479,7 @@ class Lister
 //                $list = Collection::browseListing($pager_row, $rows, "Subject",$sort_by);	
                 $list_info = $list["info"];
                 $list = $list["list"];		
+				$list = Citation::renderIndexCitations($list);
             } else {
                 $subject_list = Controlled_Vocab::getList();	
             }
@@ -505,7 +519,7 @@ class Lister
         	$list_info = @$list["info"];
         	$terms = @$list_info['search_info'];
         	$list = @$list["list"];
-        	//print_r($list);
+			$list = Citation::renderIndexCitations($list);
         	$tpl->assign("list_heading", "Search Results ($terms)");        	 
         	$tpl->assign("list_type", "all_records_list");
         } else {
@@ -524,6 +538,7 @@ class Lister
             //$list = Community::getList($pager_row, $rows, $sort_by);
             $list_info = $list["info"];
             $list = $list["list"];
+			$list = Citation::renderIndexCitations($list);
             $tpl->assign("list_type", "community_list");
             $tpl->assign("list_heading", "List of Communities");
         }        

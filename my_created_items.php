@@ -171,7 +171,7 @@ $created_items= Record::getCreated($options, $pager_row, $rows, $sort_by, $sort_
 foreach ($created_items['list'] as $aikey => $aidata) {
 	$created_items['list'][$aikey]['parents'] = Record::getParents($aidata['pid']);
 }
-
+$created_items['list'] = Citation::renderIndexCitations($created_items['list']);
 $tpl->assign('my_created_items_list', $created_items['list']);
 $tpl->assign('my_created_items_info', $created_items['info']);
 

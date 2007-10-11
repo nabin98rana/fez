@@ -671,6 +671,29 @@ class Search_Key
     }
 
 
+    function getAllDetailsByXSDMF_ID($xsdmf_id)
+    {
+        $stmt = "SELECT
+                    *
+                 FROM
+                    " . APP_TABLE_PREFIX . "search_key as s1
+                    inner join " . APP_TABLE_PREFIX . "xsd_display_matchfields as x1
+                    on xsdmf_sek_id=sek_id                    
+                 WHERE
+                    xsdmf_id=".$xsdmf_id;
+        
+        $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+			if ($res['sek_id']) {
+    			$res['sek_title_db'] = Search_Key::makeSQLTableName($res['sek_title']);
+			}
+            return $res;
+        }
+    }
+
     /**
      * Method used to get the basic details of a specific search key.
      *

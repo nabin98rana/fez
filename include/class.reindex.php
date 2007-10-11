@@ -482,7 +482,7 @@ class Reindex
         $bgp_details = $this->bgp->getDetails();
 //		$list = Reindex::getFullList(0,9999999999,"*");
         $fedoraDirect = new Fedora_Direct_Access();
-        $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms);
+        $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms, ""); //get all pids including deleted ones so we can remove them from the fez index if necessary
 		if (APP_DB_TYPE == "oracle") {
 			foreach ($fedoraList as &$flist) {
 	            $flist = array_change_key_case($flist, CASE_LOWER);
@@ -493,10 +493,16 @@ class Reindex
 //		$list_detail = $list['list'];
 		//foreach ($list['list'] as $detail) {
 		foreach ($fedoraList as $detail) {
-  /*          if ($detail['objectstate'] != 'A') { //redundant as this is done in the fedora direct access query
-	                    $this->bgp->setStatus("Skipping Because Already in Fez Index:  '".$detail['pid']."' ".$detail['title']. " (".$reindex_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
-            	continue;
-            } */
+            if ($detail['objectstate'] != 'A') { //check if in the index and delete if in there
+            	if (Reindex::inIndex($detail['pid']) == true) {
+                    $this->bgp->setStatus("Removing from Index Because Fedora State not 'A':  '".$detail['pid']."' ".$detail['title']. " (".$reindex_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
+					Record::removeIndexRecord($detail['pid']);
+					continue;
+				} else {
+                   	$this->bgp->setStatus("Skipping Removing Non-A Fedora State object Because already not in Fez Index:  '".$detail['pid']."' ".$detail['title']. " (".$reindex_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
+            		continue;
+				}
+            } 
 			$ii++;
             if (!empty($this->bgp)) {
                 $this->bgp->setProgress($ii);

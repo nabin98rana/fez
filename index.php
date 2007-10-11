@@ -45,6 +45,7 @@ if (!defined('APP_INC_PATH')) {
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
+include_once(APP_INC_PATH . "class.citation.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.news.php");
 include_once(APP_INC_PATH . "class.survey.php");
@@ -142,6 +143,7 @@ $list = Record::getListing($options, $approved_roles=array("Lister"), 0,5, "Crea
 $tpl->assign("thisYear", date("Y"));
 $tpl->assign("lastYear", date("Y") - 1);
 $list = $list["list"];
+$list = Citation::renderIndexCitations($list);
 //$list=array();
 $tpl->assign("list", $list);
 $tpl->assign("eserv_url", APP_RELATIVE_URL."eserv.php");

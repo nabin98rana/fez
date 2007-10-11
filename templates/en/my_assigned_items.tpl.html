@@ -263,7 +263,7 @@ No items found
 
 
 		<a href="{$rel_url}view.php?pid={$list[i].rek_pid|escape}"><img align="absmiddle" src="{$icon}" border="0"></a>
-         <a href="{$rel_url}view.php?pid={$list[i].rek_pid|escape}" class="title_link">{$list[i].rek_title|escape}</a>
+         <a href="{$rel_url}view.php?pid={$list[i].rek_pid|escape}" class="title_link">{$list[i].rek_citation}</a>
 			  {section name="w" loop=$list[i].wft_id}
 			    {if $list[i].wft_icon[w] == 'images/security.gif'}
 			      {if $list[i].security == 'include'}
@@ -287,20 +287,7 @@ No items found
 			  {/section}
 		          
              <a href="workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}">...</a>		<br />
-	                           {if $list[i].rek_author}
-                          {section name="author_loop" loop=$list[i].rek_author}
-                            {assign var="next_author" value=$smarty.section.author_loop.index+1}
-                            {if $list[i].rek_author}
-                            {if $list[i].rek_author_id && $list[i].rek_author_id[author_loop] && $list[i].rek_author_id[author_loop] != 0}
-                            <a class="author_id_link" title="Browse by Author ID for {$list[i].rek_author[author_loop]} ({$list[i].rek_author_id[author_loop]})" href="list.php?browse=author&author_id={$list[i].rek_author_id[author_loop]}">{$list[i].rek_author[author_loop]|escape:"html"}</a>
-                            {else}
-                            <a title="Browse by Author Name for {$list[i].rek_author[author_loop]}" href="list.php?browse=author&author={$list[i].rek_author[author_loop]}">{$list[i].rek_author[author_loop]|escape:"html"}</a>                            
-                            {/if}
-                            {/if}
-                            {if $list[i].rek_author[$next_author] != ""} and {/if}
-                          {/section}
-                          {if $list[i].rek_date} {else}<br />{/if}{/if}{if $list[i].rek_date}({$list[i].rek_date|date_format:"%Y"})<br />{/if}
-	   {if $list[i].rek_research_program}{$list[i].rek_research_program|escape:"html"}{if $list[i].display_type  && $list[i].rek_object_type == '3'} - <i>{$list[i].display_type|escape:"html"}</i>{/if}<br />{else}{if $list[i].display_type}<i>{$list[i].display_type|escape:"html"}</i><br />{/if}{/if}
+
 		 (Created: {$list[i].rek_created_date|date_format:"%c"}{if $list[i].rek_updated_date <> $list[i].rek_created_date} Last Updated: {$list[i].rek_updated_date|date_format:"%c"}{/if})
        </td>
        <td nowrap align="right" valign="top">{if $list[i].Relevance} (Search Relevance: <b>{$list[i].Relevance|@number_format:"2"}</b>)<br />{/if}

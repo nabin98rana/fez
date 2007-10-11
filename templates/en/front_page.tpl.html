@@ -203,21 +203,7 @@ if (isElementVisible(basic_element)) {
 					{/if}
 			{/if}
 					<li>
-                    {if $href_view}<a class="tool-tip" href='{$href_view}' >{/if}<!--img src="{$icon}" border="0"-->{if $href_view}</a>{/if} 
-                    {if $href_view}<a class="tool-tip" href='{$href_view}'>{/if}
-					<span class="tool-tip">
-					<!-- Document type -->
-					{if $list[i].rek_research_program.0}{$list[i].rek_research_program.0|escape:"html"}{if $list[i].rek_display_type_lookup && $list[i].rek_object_type == '3'} - <b>{$list[i].rek_display_type_lookup|escape:"html"}</b>{/if} - {else}{if $list[i].rek_display_type && $list[i].rek_object_type == '3'}<b>{$list[i].rek_display_type_lookup|escape:"html"}</b>{/if}{/if}
-					<!-- Thumbnail -->					
-					{if $list[i].thumbnail.0 != "" && $list[i].isViewer==1}<br />{/if}<img src="{$icon}" border="0" alt="" />
-					<!-- Downloads -->
-					{if $list[i].rek_file_downloads}<br /><!--a href="{$rel_url}stat_details.php?action=show_detail&amp;pid={$list[i].rek_pid}"-->{$list[i].rek_file_downloads|escape:"html"} File Download{if $list[i].rek_file_downloads > 1}s{/if}<!--/a--><br />
-					{/if}
-					<br />
-					<!-- Abstract -->
-					{if $list[i].rek_description}{$list[i].rek_description|truncate:100:"..."|escape:"html"}<br />{/if}
-					</span>
-					<b>{$list[i].rek_title|escape:"html"}{if $href_view}</b></a>{/if}
+					{$list[i].rek_citation}
 					{if $list[i].rek_object_type != 3}{if $list[i].rek_ismemberof_count != ""}({$list[i].rek_ismemberof_count}){else}(0){/if}{/if}
 							{if $showEdit || $isAdministrator}
 							  {section name="w" loop=$list[i].wft_id}
@@ -243,18 +229,7 @@ if (isElementVisible(basic_element)) {
 							  {/section}
 				                <a href="workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}">...</a> 
 				           {/if}
-                       {if $list[i].rek_author} by
-                          {section name="author_loop" loop=$list[i].rek_author}
-                            {assign var="next_author" value=$smarty.section.rek_author_loop.index+1}
-                            {if $list[i].rek_author}
-                            {if $list[i].rek_author_id && $list[i].rek_author_id[author_loop] && $list[i].rek_author_id[author_loop] != 0}
-                            <a class="author_id_link" title="Browse by Author ID for {$list[i].rek_author[author_loop]} ({$list[i].rek_author_id[author_loop]})" href="list.php?browse=author&amp;author_id={$list[i].rek_author_id[author_loop]}">{$list[i].rek_author[author_loop]|escape:"html"}</a>
-                            {else}
-                            <a title="Browse by Author Name for {$list[i].rek_author[author_loop]}" href="list.php?browse=author&amp;author={$list[i].rek_author[author_loop]}">{$list[i].rek_author[author_loop]|escape:"html"}</a>                            
-                            {/if}
-                            {/if}
-                            {if $list[i].rek_author[$next_author] != ""} and {/if}
-                          {/section}{if $list[i].rek_date} {else}{/if}{/if}{if $list[i].rek_date}({$list[i].rek_date|date_format:"%Y"}){/if}
+
 					</li>
 			{sectionelse}
 			  <li>No publicly viewable items have been published in the last week.</li>

@@ -47,7 +47,7 @@
             return $res;
         }
     }
-    
+   
     /**
      * getDetailsAllTypes - retrieves the citatiosn table rows for all types of citations on a given display
      * @param integer $xdis_id - The display id that the citations are for.
@@ -133,6 +133,44 @@
         return Citation::renderCitationTemplate($result, $details, $xsd_display_fields, $type);
     }
 
+
+	function renderIndexCitations($list, $type='APA') {
+
+		foreach ($list as $row => $value) {
+			$xdis_id = $value['rek_display_type'];
+	        $det = Citation::getDetails($xdis_id, $type);
+	        $result = $det['cit_template'];
+			if (empty($result)) {
+	            continue;
+	        }	
+			$list[$row]['rek_citation'] = Citation::renderIndexCitationTemplate($result, $list[$row], $type);
+			
+		} 
+		return $list;
+	}
+
+
+    function renderIndexCitationTemplate($template, $details, $type='APA')
+    {	
+        preg_match_all('/\{(.*?)\}/',$template,$matches,PREG_PATTERN_ORDER);
+        foreach ($matches[1] as $key => $match) {
+            list($xsdmf_id,$prefix,$suffix,$option) = explode('|',$match);
+			$xsdmf_details = Search_Key::getAllDetailsByXSDMF_ID($xsdmf_id);
+			$sek_title = "rek_".$xsdmf_details['sek_title_db'];
+			if (array_key_exists($sek_title, $details)) {
+            	$value = Citation::formatValue($details[$sek_title], '', $details, $xsdmf_details, $option, $type);				
+			} else {
+				$value = "";
+			}
+            if (!empty($value)) {
+                $value = $prefix.$value.$suffix;
+            }
+            //Error_Handler::logError($match);
+            $template = str_replace('{'.$match.'}', $value, $template);
+        } 
+        return $template;
+    }
+
     /**
      * renderCitation - produce a HTML rendering of a citation given the template, xsdmf and record data.
      * This can be used to render a citation that hasn't been saved in the database yet - e.g. previewing
@@ -148,7 +186,7 @@
         $xsdmf_list = Misc::keyArray($xsd_display_fields, 'xsdmf_id');
         foreach ($matches[1] as $key => $match) {
             list($xsdmf_id,$prefix,$suffix,$option) = explode('|',$match);
-            $value = Citation::formatValue($details[$xsdmf_id], $xsdmf_list[$xsdmf_id], $option, $type);
+            $value = Citation::formatValue($details[$xsdmf_id], '', array(), $xsdmf_list[$xsdmf_id], $option, $type);
             if (!empty($value)) {
                 $value = $prefix.$value.$suffix;
             }
@@ -162,11 +200,13 @@
      * formatValue - format a single value in the template.  e.g. if the value is a timestamp, it can be shown as
      * a formatted date according to the citation type.
      * @param mixed $value - the value from the record.
+     * @param mixed $yy - the current loop id (to match with parallel data like author -> author ids).
+     * @param array $details - row data for this object 
      * @param array $xsdmf - matchfields table columns for this value 
      * @param string $option - optional template item parameter
      * @param string $type - Optional citation type (default is 'APA').
      */
-    function formatValue($value, $xsdmf, $option = '', $type='APA')
+    function formatValue($value, $yy='', $details, $xsdmf, $option = '', $type='APA')
     {
         if (is_array($value)) {
             // If the item is an array, then we'll format a list of values and 
@@ -182,7 +222,7 @@
                     }
                 }
                 // recurse for each item of list.
-                $list .= Citation::formatValue($value[$ii],$xsdmf, $option, $type);
+                $list .= Citation::formatValue($value[$ii], $ii, $details, $xsdmf, $option, $type);
             }
             $value = $list;
         } elseif ($xsdmf['xsdmf_data_type'] == 'date' || $xsdmf['xsdmf_html_input'] == 'date_selector') {
@@ -201,14 +241,44 @@
                 break;
             } 
             // hacky formatting of authors names.  Pretty easy to break - like
-            // if the field doesn't use the selector or the sek_title or xsdmf_title is in a different language.
+            // if the field doesn't use the selector or the sek_title or xsdmf_title is in a different language. WILL PROBABLY NEVER BE USED!
         } elseif ($xsdmf['xsdmf_html_input'] == 'author_selector') {
-           $value = Citation::formatAuthor(Author::getFullname($value), $type);
+           $value = Citation::formatAuthor(Author::getFullname($value), $type);	
             // special case hack for editors name fix
-        } elseif ($xsdmf['sek_title'] == "Author"
-                    || strpos($xsdmf['xsdmf_title'], 'Editor') !== false) {
+        } elseif ($xsdmf['sek_title'] == "Author" || strpos($xsdmf['xsdmf_title'], 'Editor') !== false) {
             $value = Citation::formatAuthor($value, $type);
-        } 
+        }
+		if (count($details) > 0) {
+//			print_r($details);
+			if (is_numeric($yy)) {
+				if ($xsdmf['sek_title'] == "Author") {
+					if (is_array($details['rek_author_id']) && $details['rek_author_id'][$yy] != 0) {
+						$value = '<a class="author_id_link" title="Browse by Author ID for '.$details['rek_author_id_lookup'][$yy].'" href="list.php?browse=author&author_id='.$details['rek_author_id'][$yy].'">'.$value.'</a>';
+					} else {
+						$value = '<a title="Browse by Author Name for '.$details['rek_author'][$yy].'" href="list.php?browse=author&author='.$details['rek_author'][$yy].'">'.$value.'</a>';
+					}
+				}
+			} else {
+				if ($xsdmf['sek_title'] == "Title") {
+					if ($details['rek_object_type'] == 3) {
+						$value = '<a title="Click to view '.$value.'" href="view.php?pid='.$details['rek_pid'].'">'.$value.'</a>';
+					} elseif ($details['rek_object_type'] == 2) {
+						$value = '<a title="Click to list records in collection  '.$value.'" href="list.php?collection_pid='.$details['rek_pid'].'">'.$value.'</a>';						
+					} elseif ($details['rek_object_type'] == 1) {
+						$value = '<a title="Click to list collections in community  '.$value.'" href="list.php?community_pid='.$details['rek_pid'].'">'.$value.'</a>';												
+					}
+				}			
+				if ($xsdmf['sek_title'] == "Date") {
+					$value = '<a title="Browse by Year '.$value.'" href="list.php?browse=year&year='.$value.'">'.$value.'</a>';				
+				}			
+			}
+		}
+//		$value = 
+//<a class="author_id_link" title="Browse by Author ID for {$list[i].rek_author[author_loop]} ({$list[i].rek_author_id[author_loop]})" href="list.php?browse=author&author_id={$list[i].rek_author_id[author_loop]}">
+
+
+
+
         return $value;
     }
     
@@ -367,7 +437,7 @@
 				}
 				Citation::save($xdis_id, $template, $cit_type);
     		}
-    	}
+        }
     }
  }
 ?>

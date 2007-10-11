@@ -181,7 +181,7 @@ Record::getParentsByPids($assigned_items['list']);
 /*foreach ($assigned_items['list'] as $aikey => $aidata) {
 	$assigned_items['list'][$aikey]['parents'] = Record::getParents($aidata['pid']);
 }*/
-
+$assigned_items['list'] = Citation::renderIndexCitations($assigned_items['list']);
 $tpl->assign('my_assigned_items_list', $assigned_items['list']);
 $tpl->assign('my_assigned_items_info', $assigned_items['info']);
 
