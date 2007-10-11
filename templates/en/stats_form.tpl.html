@@ -146,7 +146,7 @@ function disableFields()
 				  <tr>
 						<td align="right" width="10">{$smarty.section.i.index+1}</td>
 					  <td align="left">
-							<a class="author_id_link" href='{$rel_url}list.php?browse=author&author_id={$list[i].rek_author_id|escape:'url'}' title="Browse by Author ID for {$list[i].record_author} ({$list[i].rek_author_id})">{$list[i].record_author|escape:"html"}</a> 
+							<a class="author_id_link" href='{$rel_url}list.php?browse=author&author_id={$list[i].rek_author_id|escape:'url'}&sort_by=searchKey16&sort_order=1' title="Browse by Author ID for {$list[i].record_author} ({$list[i].rek_author_id}) by File Downloads Desc">{$list[i].record_author|escape:"html"}</a> 
 
 						</td>
 						<td align="right" nowrap>(<strong>{$list[i].file_downloads|escape:"html"}</strong> File Download{if $list[i].file_downloads > 1}s{/if})</td>
@@ -175,23 +175,27 @@ function disableFields()
            &nbsp;<b>{$browse_heading}:</b>		  
 			</td>
         </tr>
+		  <tr>
+			  <td>
+			  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="3" class="listrecord">
+				<tr>
+					  <td colspan="3" align="right">
+						<img src="{$rel_url}images/downloads.gif" valign='middle' title="File Downloads" alt="File Downloads" />
+					</td>
+				</tr>
+
 			{section name="i" loop=$list}
-			{if $list[i].file_downloads > 0}
-			  <tr>
-				  <td>
-				  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
+			{if $list[i].rek_file_downloads > 0}
+				
+				
+				
 				  <tr>
-						<td align="right" width="10">{$smarty.section.i.index+1}</td>
+						<td align="right" width="10" valign='top'><strong>{$smarty.section.i.index+1}</strong></td>
 					  <td align="left">
-							<a href='{$rel_url}view.php?pid={$list[i].rek_pid}'>{$list[i].rek_title|escape:"html"}</a> 
+							<a href='{$rel_url}view.php?pid={$list[i].rek_pid}'>{$list[i].rek_citation}</a> 
 
 						</td>
-						<td align="right" nowrap>(<strong>{$list[i].file_downloads|escape:"html"}</strong> <a href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">File Download{if $list[i].file_downloads > 1}s{/if}</a>)</td>
-					</tr>
-					  </table>
-					<!-- space between rows -->
-				</td>
-				</tr>
+						<td align="right" valign="top" width="" nowrap>&nbsp;{if $list[i].rek_file_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">{$list[i].rek_file_downloads|escape:"html"}</a>{/if} </td>
 			{/if}
 			{sectionelse}
 			<tr>
@@ -204,6 +208,12 @@ function disableFields()
 						</td>
 				</tr>
 			{/section}
+				</tr>
+				  </table>
+				<!-- space between rows -->
+			</td>
+			</tr>
+
 
 		{elseif ($browse_type == "browse_top50papers")} 
         <tr>
@@ -212,23 +222,27 @@ function disableFields()
            &nbsp;<b>{$browse_heading}:</b>		  
 			</td>
         </tr>
+		  <tr>
+			  <td>
+			  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="3" class="listrecord">
+				<tr>
+					  <td colspan="3" align="right">
+						<img src="{$rel_url}images/downloads.gif" valign='middle' title="File Downloads" alt="File Downloads" />
+					</td>
+				</tr>
+
 			{section name="i" loop=$list}
-			{if $list[i].file_downloads > 0}
-			  <tr>
-				  <td>
-				  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
+			{if $list[i].rek_file_downloads > 0}
+				
+				
+				
 				  <tr>
-						<td align="right" width="10">{$smarty.section.i.index+1}</td>
+						<td align="right" width="10" valign='top'><strong>{$smarty.section.i.index+1}</strong></td>
 					  <td align="left">
-							<a href='{$rel_url}view.php?pid={$list[i].rek_pid}'>{$list[i].rek_title|escape:"html"}</a> 
+							<a href='{$rel_url}view.php?pid={$list[i].rek_pid}'>{$list[i].rek_citation}</a> 
 
 						</td>
-						<td align="right" nowrap>(<strong>{$list[i].file_downloads|escape:"html"}</strong> <a href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">File Download{if $list[i].file_downloads > 1}s{/if}</a>)</td>
-					</tr>
-					  </table>
-					<!-- space between rows -->
-				</td>
-				</tr>
+						<td align="right" valign="top" width="" nowrap>&nbsp;{if $list[i].rek_file_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">{$list[i].rek_file_downloads|escape:"html"}</a>{/if} </td>
 			{/if}
 			{sectionelse}
 			<tr>
@@ -241,6 +255,11 @@ function disableFields()
 						</td>
 				</tr>
 			{/section}
+				</tr>
+				  </table>
+				<!-- space between rows -->
+			</td>
+			</tr>
 
 		{elseif ($browse_type == "browse_author")} 
         <tr>

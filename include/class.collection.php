@@ -1106,8 +1106,9 @@ $stmt .= "
                     ".$bodyStmtPart1."
             ";
 */
+//                    SELECT ".APP_SQL_CACHE."  rek_".$sekdet['sek_title_db']." ".$as_field." ".$extra.", ".$count_sql." AS sort_column
 		$innerStmt = "
-                    SELECT ".APP_SQL_CACHE."  rek_".$sekdet['sek_title_db']." ".$as_field." ".$extra.", ".$count_sql." AS sort_column
+                    SELECT ".APP_SQL_CACHE."  r2.*, ".$count_sql." AS sort_column
                     ".$bodyStmt."
 					ORDER BY sort_column ".$sort_order."
                     LIMIT ".$max." OFFSET ".$start."
@@ -1120,8 +1121,9 @@ $stmt .= "
             return "";
         } else {
 			foreach ($res as $key => $result) {
-				$res[$key]['file_downloads'] = $res[$key]['sort_column'];
+				$res[$key]['rek_file_downloads'] = $res[$key]['sort_column'];
 			}
+            Record::getSearchKeysByPIDS($res);
 			return array(
                 "list" => $res,
                 "info" => array()
