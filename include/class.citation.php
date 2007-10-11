@@ -338,13 +338,36 @@
      *                           was exported, so be sure to use the xdis_id passed in the function params.
      * @return null             
      */
-    function import($xdis, $xdis_id)
+    function import($xdis, $xdis_id, &$maps)
     {
         $xpath = new DOMXPath($xdis->ownerDocument);
         $xcits = $xpath->query('citations/citation', $xdis);
         foreach ($xcits as $xcit) {
-            Citation::save($xdis_id, $xcit->nodeValue, $xcit->getAttribute('cit_type'));
+            $template = $xcit->nodeValue;
+            $cit_type = $xcit->getAttribute('cit_type');
+        	Citation::save($xdis_id, $template, $cit_type);
+        	$maps['citations'][$xdis_id][$cit_type] = 1;
         }
+    }
+    
+    function remapImport(&$maps)
+    {
+    	foreach ($maps['citations'] as $xdis_id => $type_items) {
+    		foreach ($type_items as $cit_type => $dummy) {
+		    	// getTemplate
+		    	$cit_details = Citation::getDetails($xdis_id, $cit_type);
+		    	$template = $cit_details['cit_template'];
+		    	if (preg_match_all('/\{(\d+)\D/', $template, $matches)) {
+    				foreach ($matches[1] as $xsdmf_id) {
+    					if ($xsdmf_id != $maps['xsdmf_map'][$xsdmf_id]) {
+    						$template = preg_replace('/\{'.$xsdmf_id.'(\D)/',
+    						    				'{'.$maps['xsdmf_map'][$xsdmf_id].'$1', $template);
+						}
+					}
+				}
+				Citation::save($xdis_id, $template, $cit_type);
+    		}
+    	}
     }
  }
 ?>

@@ -813,7 +813,7 @@ class XSD_Display
                 }
                 $maps['xdis_map'][$xdis->getAttribute('xdis_id')] = $xdis_id;
                 XSD_HTML_Match::importMatchFields($xdis, $xdis_id, $maps);
-                Citation::import($xdis, $xdis_id);
+                Citation::import($xdis, $xdis_id, $maps);
         }
     }
     

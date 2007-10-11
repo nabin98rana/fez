@@ -2874,6 +2874,9 @@ class XSD_HTML_Match {
 		//remap the relationships
 		$bgp->setStatus("Remapping XSD Relationships");
 		XSD_Relationship::remapImport($maps);
+		$bgp->setStatus("Remapping Citation templates");
+		Citation::remapImport($maps);
+
 	}
 
 	function escapeXPath($xpath) {
