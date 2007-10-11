@@ -597,10 +597,9 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 				{/if}
 				  <td align="left" {if $icon}{else}colspan="2"{/if} valign="middle" width="90%">
                     {$list[i].rek_citation}
-				  </td>
-
-				
 	{if $list[i].rek_object_type != 3}{if $list[i].rek_ismemberof_count != ""}({$list[i].rek_ismemberof_count}){else}(0){/if}{/if}
+				  </td>		
+
 			{if $showEdit || $isAdministrator}
 			  <td align="left" valign="middle" nowrap>
 			  {section name="w" loop=$list[i].wft_id}
