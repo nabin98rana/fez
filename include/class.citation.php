@@ -253,23 +253,23 @@
 			if (is_numeric($yy)) {
 				if ($xsdmf['sek_title'] == "Author") {
 					if (is_array($details['rek_author_id']) && $details['rek_author_id'][$yy] != 0) {
-						$value = '<a class="author_id_link" title="Browse by Author ID for '.$details['rek_author_id_lookup'][$yy].'" href="list.php?browse=author&author_id='.$details['rek_author_id'][$yy].'">'.$value.'</a>';
+						$value = '<a class="author_id_link" title="Browse by Author ID for '.htmlentities($details['rek_author_id_lookup'][$yy]).'" href="list.php?browse=author&author_id='.$details['rek_author_id'][$yy].'">'.$value.'</a>';
 					} else {
-						$value = '<a title="Browse by Author Name for '.$details['rek_author'][$yy].'" href="list.php?browse=author&author='.$details['rek_author'][$yy].'">'.$value.'</a>';
+						$value = '<a title="Browse by Author Name for '.$details['rek_author'][$yy].'" href="list.php?browse=author&author='.htmlentities($details['rek_author'][$yy]).'">'.$value.'</a>';
 					}
 				}
 			} else {
 				if ($xsdmf['sek_title'] == "Title") {
 					if ($details['rek_object_type'] == 3) {
-						$value = '<a title="Click to view '.$value.'" href="view.php?pid='.$details['rek_pid'].'">'.$value.'</a>';
+						$value = '<a title="Click to view '.$details['rek_display_type_lookup'].': '.htmlentities($value).'" href="view.php?pid='.$details['rek_pid'].'">'.$value.'</a>';
 					} elseif ($details['rek_object_type'] == 2) {
-						$value = '<a title="Click to list records in collection  '.$value.'" href="list.php?collection_pid='.$details['rek_pid'].'">'.$value.'</a>';						
+						$value = '<a title="Click to list records in collection  '.htmlentities($value).'" href="list.php?collection_pid='.$details['rek_pid'].'">'.$value.'</a>';						
 					} elseif ($details['rek_object_type'] == 1) {
-						$value = '<a title="Click to list collections in community  '.$value.'" href="list.php?community_pid='.$details['rek_pid'].'">'.$value.'</a>';												
+						$value = '<a title="Click to list collections in community  '.htmlentities($value).'" href="list.php?community_pid='.$details['rek_pid'].'">'.$value.'</a>';												
 					}
 				}			
 				if ($xsdmf['sek_title'] == "Date") {
-					$value = '<a title="Browse by Year '.$value.'" href="list.php?browse=year&year='.$value.'">'.$value.'</a>';				
+					$value = '<a title="Browse by Year '.htmlentities($value).'" href="list.php?browse=year&year='.htmlentities($value).'">'.$value.'</a>';				
 				}			
 			}
 		}
