@@ -37,7 +37,7 @@ table.nav-table-bottom { height: 10px; }
 .feedback {
 	height: 20px;
 	background-image: url("../images/gradient4.gif");
-	border-bottom: 1px solid #949494;
+	border-bottom: 1px solid #949494; 
 }
 
 .footerlinks {
@@ -220,7 +220,7 @@ a:link .footerlinks {
 	font-weight: normal;
 	font-size: 75%;
 	padding-bottom: 2px;
-	border-bottom: 1px solid #DDDDDD;
+/*	border-bottom: 1px solid #DDDDDD; */
 }
 
 .listrecord a {
