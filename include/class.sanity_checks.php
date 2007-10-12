@@ -196,7 +196,7 @@
         }
         if (SanityChecks::resultsClean($results)) {
         	// if all the other checks have passed, we should be able to run jhove on a file
-                copy(APP_PATH."images/1rightarrow_16.gif", APP_TEMP_DIR."test.gif");
+                copy(APP_PATH."images/1leftarrow.png", APP_TEMP_DIR."test.gif");
                 Workflow::checkForPresMD("test.gif");
               	$result = SanityChecks::checkXML('Jhove Result',APP_TEMP_DIR."presmd_test.xml",
                     '/j:jhove/j:repInfo/j:mimeType[\'image/gif\']',
@@ -277,7 +277,7 @@
         	$results = array_merge($results, SanityChecks::checkFile('APP_PATH/images/APP_WATERMARK', APP_PATH."images/".APP_WATERMARK));
         }
         if (SanityChecks::resultsClean($results)) {
-            copy(APP_PATH."images/1rightarrow_16.gif", APP_TEMP_DIR."test.gif");
+            copy(APP_PATH."images/1leftarrow.png", APP_TEMP_DIR."test.gif");
             $getString = APP_BASE_URL."webservices/wfb.image_resize.php?image="
                         .urlencode("test.gif")."&height=20&width=20&ext=jpg&outfile="."thumbnail_test.jpg";
             Misc::ProcessURL($getString);
@@ -292,7 +292,7 @@
 
         // check copyright
         if (SanityChecks::resultsClean($results)) {
-            copy(APP_PATH."images/1rightarrow_16.gif", APP_TEMP_DIR."test.gif");
+            copy(APP_PATH."images/1leftarrow.png", APP_TEMP_DIR."test.gif");
             $getString = APP_BASE_URL."webservices/wfb.image_resize.php?image="
                         .urlencode("test.gif")."&height=20&width=20&ext=jpg&outfile="."thumbnail_test.jpg&copyright=hello";
             Misc::ProcessURL($getString);
@@ -301,7 +301,7 @@
         }
         // check watermark
         if (SanityChecks::resultsClean($results)) {
-            copy(APP_PATH."images/1rightarrow_16.gif", APP_TEMP_DIR."test.gif");
+            copy(APP_PATH."images/1leftarrow.png", APP_TEMP_DIR."test.gif");
             $getString = APP_BASE_URL."webservices/wfb.image_resize.php?image="
                         .urlencode("test.gif")."&height=20&width=20&ext=jpg&outfile="."thumbnail_test.jpg&watermark=1";
             Misc::ProcessURL($getString);
@@ -310,7 +310,7 @@
         }
         // check copyright and watermark
         if (SanityChecks::resultsClean($results)) {
-            copy(APP_PATH."images/1rightarrow_16.gif", APP_TEMP_DIR."test.gif");
+            copy(APP_PATH."images/1leftarrow.png", APP_TEMP_DIR."test.gif");
             $getString = APP_BASE_URL."webservices/wfb.image_resize.php?image="
                         .urlencode("test.gif")."&height=20&width=20&ext=jpg&outfile="
                         ."thumbnail_test.jpg&watermark=1&copyright=hello";

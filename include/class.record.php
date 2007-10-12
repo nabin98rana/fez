@@ -947,8 +947,19 @@ class Record
         $prev_page = ($current_page <= 0) ? -1 : $current_page - 1;
         $last_page = $total_pages - 1;
         $current_last_row = $current_row + count($list);
+        if (($current_page - 10) > 0) {
+            $start_range = $current_page - 10;
+        } else {
+            $start_range = 0;
+        }
+        if (($current_page + 10) >= $last_page) {
+            $end_range = $last_page + 1;
+        } else {
+            $end_range = $current_page + 10;
+        }
+        $printable_page = $current_page + 1;
         $info = compact('total_rows', 'page_rows', 'current_row','current_last_row','current_page','total_pages',
-                'next_page','prev_page','last_page', 'noOrder', 'search_info');
+                'next_page','prev_page','last_page', 'noOrder', 'search_info', 'start_range', 'end_range', 'printable_page');
         return compact('info','list');
     }
 

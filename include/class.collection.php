@@ -826,13 +826,17 @@ $stmt .= "
 		}
 		$total_pages = ceil($total_rows / $max);
         $last_page = $total_pages - 1;
-
-
-
-
-		//$return = Misc::limitListResults($return, $start, ($start + $max));
-
-
+        if (($current_row - 10) > 0) {
+            $start_range = $current_row - 10;
+        } else {
+            $start_range = 0;
+        }
+        if (($current_row + 10) >= $last_page) {
+            $end_range = $last_page + 1;
+        } else {
+            $end_range = $current_row + 10;
+        }
+        $printable_page = $current_row + 1;
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
@@ -845,10 +849,13 @@ $stmt .= "
                     "end_offset"    => $total_rows_limit,
                     "total_rows"    => $total_rows,
                     "total_pages"   => $total_pages,
-                    "prev_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+                    "prev_page"     => ($current_row == 0) ? "-1" : ($current_row - 1),
                     "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
                     "last_page"     => $last_page,
-                    "hidden_rows"     => $hidden_rows - $total_rows
+                    "hidden_rows"   => $hidden_rows - $total_rows,
+                    "start_range"   => $start_range,
+                    "end_range"     => $end_range,
+                    "printable_page"=> $printable_page
                 )
             );
         }
@@ -985,10 +992,18 @@ $stmt .= "
 		}
 		$total_pages = ceil($total_rows / $max);
         $last_page = $total_pages - 1;
-
+        if (($current_row - 10) > 0) {
+            $start_range = $current_row - 10;
+        } else {
+            $start_range = 0;
+        }
+        if (($current_row + 10) >= $last_page) {
+            $end_range = $last_page + 1;
+        } else {
+            $end_range = $current_row + 10;
+        }
+        $printable_page = $current_row + 1;
 		$return = Misc::limitListResults($return, $start, ($start + $max));
-
-
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
@@ -1004,7 +1019,10 @@ $stmt .= "
                     "prev_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
                     "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
                     "last_page"     => $last_page,
-                    "hidden_rows"     => $hidden_rows - $total_rows
+                    "hidden_rows"     => $hidden_rows - $total_rows,
+                    "start_range"   => $start_range,
+                    "end_range"     => $end_range,
+                    "printable_page"=> $printable_page
                 )
             );
         }

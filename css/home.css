@@ -481,3 +481,14 @@ h1.public {
 	padding: 5px;
 	font-size: 80%;
 }
+
+.pager-display {
+	font-family: Verdana, Arial, Helvetica, Sans-Serif;
+	padding: 15px;
+	text-align: center;
+	font-size: 85%;
+	font-weight: normal;
+}
+
+.pager-display a:link, .pager-display a:visited { color: #3561C2; text-decoration: none; }
+.pager-display a:hover { color: #FF0000; text-decoration: none; }

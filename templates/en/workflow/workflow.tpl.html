@@ -41,7 +41,7 @@ You don't have permission to access this function
 Workflow Progress:
 {section name="i" loop=$states_done}
 <span class="wfl_progress">{if !$states_done[i].wfs_auto}<a class="link" href="{$rel_url}workflow/{$states_done[i].wfb_script_name}?id={$id}&amp;wfs_id={$states_done[i].wfs_id}">{/if}{$states_done[i].wfs_title}{if !$states_done[i].wfs_auto}</a>{/if}</span>
-<img src="{$rel_url}images/1rightarrow_16.gif" alt=" -> "  class="wfl_progress"/>
+<img src="{$rel_url}images/1leftarrow.png" alt=" -> "  class="wfl_progress"/>
 {/section}
 </div>
 {/if}
