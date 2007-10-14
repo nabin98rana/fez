@@ -1410,7 +1410,7 @@ $res_count = array();
 		$options = array();
         $options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 	    $options["searchKey".Search_Key::getID("Object Type")] = 2; // collections only
-        $list = Record::getListing($options, array("Lister"), 0, 1000);
+        $list = Record::getListing($options, array("Lister"), 0, 1000, "Title", true, false);
 		$list = $list['list'];
 		$returnList = array();
 		foreach ($list as $element) {

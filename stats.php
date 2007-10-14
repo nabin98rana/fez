@@ -86,7 +86,7 @@ if ($browse == "top50authors") {
 	$options["sort_order"] = 1; // sort desc
 	$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 	$options["searchKey".Search_Key::getID("Object Type")] = 3; // enforce records only
-	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by);
+	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, false, true);
 //	$list = Collection::statsByAttribute(0, $rows, "Title");
 	$list_info = $list["info"];
 	$list = $list["list"];

@@ -139,11 +139,11 @@ $options = array();
 $options["sort_order"] = "1";
 $sort_by = "searchKey".Search_Key::getID("Created Date");
 $options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-$list = Record::getListing($options, $approved_roles=array("Lister"), 0,5, "Created Date");
+$list = Record::getListing($options, $approved_roles=array("Lister"), 0,5, "Created Date", false, true);
 $tpl->assign("thisYear", date("Y"));
 $tpl->assign("lastYear", date("Y") - 1);
 $list = $list["list"];
-$list = Citation::renderIndexCitations($list);
+//$list = Citation::renderIndexCitations($list);
 //$list=array();
 $tpl->assign("list", $list);
 $tpl->assign("eserv_url", APP_RELATIVE_URL."eserv.php");

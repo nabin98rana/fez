@@ -134,21 +134,64 @@
     }
 
 
-	function renderIndexCitations($list, $type='APA') {
-
+	function renderIndexCitations($list, $type='APA', $cache = true, $knownFull = false) {
+//	Error_Handler::logError('', __FILE__, __LINE__);
+//		print_r($list);
 		foreach ($list as $row => $value) {
-			$xdis_id = $value['rek_display_type'];
-	        $det = Citation::getDetails($xdis_id, $type);
-	        $result = $det['cit_template'];
-			if (empty($result)) {
-	            continue;
-	        }	
-			$list[$row]['rek_citation'] = Citation::renderIndexCitationTemplate($result, $list[$row], $type);
-			
+			if ($list[$row]['rek_citation'] == "" || $cache == false) {
+				$xdis_id = $value['rek_display_type'];
+		        $det = Citation::getDetails($xdis_id, $type);
+		        $result = $det['cit_template'];
+				if (empty($result)) {
+		            continue;
+		        }
+				if ($knownFull == false) {
+					//get a full index load of data for this row
+					$options = array();
+					$options["searchKey".Search_Key::getID("Pid")] = $list[$row]['rek_pid']; // enforce records only
+					$list_full = Record::getListing($options, array("Lister"), 0, 1, "Title", false, false);
+					$list[$row] = $list_full["list"][0];
+				}
+				$citation = Citation::renderIndexCitationTemplate($result, $list[$row], $type);
+				if ($citation != "") {
+					Citation::updateCitationCache($list[$row]['rek_pid'], $citation);
+				}
+				$list[$row]['rek_citation'] = $citation;
+			}			
 		} 
 		return $list;
 	}
 
+	function updateCitationCache($pid, $citation="") {		
+		if ($citation == "") {
+			$options = array();
+			$options["searchKey".Search_Key::getID("Pid")] = $pid; // enforce records only
+			$list = Record::getListing($options, array("Lister"), 0, 1, "Title", false, false);
+		//	$list = Collection::statsByAttribute(0, $rows, "Title");
+			$list = $list["list"];
+			$list = Citation::renderIndexCitations($list, 'APA', false, true);
+			if (count($list) != 1) {
+				return;
+			}		
+			$citation = $list[0]['rek_citation'];	
+		}		
+		if ($citation == "") {
+			return;
+		}		
+		$citation = Misc::escapeString($citation);	
+		$stmt = "UPDATE 
+				" . APP_TABLE_PREFIX . "record_search_key r1
+				SET rek_citation = '".$citation."'
+				WHERE rek_pid = '".$pid."'
+				";
+		$res = $GLOBALS["db_api"]->dbh->query($stmt);
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+			return -1; //abort
+		} else {
+			//continue
+		}
+	}
 
     function renderIndexCitationTemplate($template, $details, $type='APA')
     {	

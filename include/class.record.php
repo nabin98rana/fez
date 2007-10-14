@@ -855,7 +855,7 @@ class Record
      * @param string $options The search parameters
      * @return array $res2 The index details of records associated with the search params
      */
-	function getListing($options, $approved_roles=array(9,10), $current_page=0,$page_rows="ALL", $sort_by="Title", $getSimple=false)
+	function getListing($options, $approved_roles=array(9,10), $current_page=0,$page_rows="ALL", $sort_by="Title", $getSimple=false, $citationCache=false)
     {
         if ($page_rows == "ALL") {
             $page_rows = 9999999;
@@ -920,8 +920,11 @@ class Record
 				}
                 if (count($res) > 0) {
 					if ($getSimple == false || empty($getSimple)) {
-	                    Record::getSearchKeysByPIDS($res);
-	                    Record::identifyThumbnails($res);
+						if ($citationCache == false) {	
+//							Error_Handler::logError(array(), __FILE__, __LINE__);
+	                    	Record::getSearchKeysByPIDS($res);
+						}
+	                    Record::identifyThumbnails($res, $citationCache);
 	                    Record::getAuthWorkflowsByPIDS($res, $usr_id);
 					}
                     Record::getChildCountByPIDS($res, $usr_id);
@@ -929,6 +932,9 @@ class Record
             }
 	    } else {
 			$res = array();
+		}
+		if ($citationCache == true) {
+			$res = Citation::renderIndexCitations($res, 'APA', true, false);
 		}
 		$res = Auth::getIndexAuthCascade($res);
 		$return = $res;
@@ -963,7 +969,38 @@ class Record
         return compact('info','list');
     }
 
-    function identifyThumbnails(&$result) {
+    function identifyThumbnails(&$result, $citationCache = false) {
+	
+
+		if ($citationCache == true) { //need to go and get the left join for file_attachments if simple			
+	        $pids = array();
+	        for ($i = 0; $i < count($result); $i++) {
+	            $pids[] = $result[$i]["rek_pid"];
+	        }
+			if (count($pids) == 0) {
+				return;
+		  	}
+	        $sek_details = Search_Key::getBasicDetailsByTitle("File Attachment Name");	
+			$sek_sql_title = $sek_details['sek_title_db'];
+			$res = array();
+			$res = Record::getSearchKeyByPIDS($sek_sql_title, $pids);
+            $t = array();
+            $p = array();
+            for ($i = 0; $i < count($res); $i++) {
+                if (!is_array($t[$res[$i]["rek_".$sek_sql_title."_pid"]])) {
+                    $t[$res[$i]["rek_".$sek_sql_title."_pid"]] = array();
+                }
+                $t[$res[$i]["rek_".$sek_sql_title."_pid"]][] =  $res[$i]["rek_".$sek_sql_title];
+            }
+            // now populate the $result variable again
+            for ($i = 0; $i < count($result); $i++) {
+                if (!is_array($result[$i]["rek_".$sek_sql_title])) {
+                    $result[$i]["rek_".$sek_sql_title] = array();
+                }
+                $result[$i]["rek_".$sek_sql_title] = $t[$result[$i]["rek_pid"]];
+            }
+		}
+		
     	for ($i = 0; $i < count($result); $i++) {
     		for ($x = 0; $x < count($result[$i]['rek_file_attachment_name']); $x++) {
     			if (is_numeric(strpos($result[$i]['rek_file_attachment_name'][$x], "thumbnail_"))) {
@@ -2948,6 +2985,7 @@ class RecordGeneral
                 }
             }
         }
+		Citation::updateCitationCache($pid, "");
         Statistics::updateSummaryStatsOnPid($pid);
     }
 
