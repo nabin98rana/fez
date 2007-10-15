@@ -5,13 +5,15 @@
     {capture name="qs"}{$smarty.server.PHP_SELF}?{$smarty.server.QUERY_STRING|regex_replace:"/pager_row=[\d]*/":"pager_row=[[[PAGER_ROW]]]"}{/capture}
   {/if}
 
+  {math assign='end_range' equation='x - y' x=$list_info.end_range y=$list_info.start_range}
+
 <div class="pager-display">
 	Page results<br />
 	{if $list_info.printable_page != 1}
 	<a href="{$smarty.capture.qs|replace:"[[[PAGER_ROW]]]":"0"}" title="First page"><img src="images/browse_first_16.png" border="" alt="" width="16" height="16" /></a> 
 	<a href="{$smarty.capture.qs|replace:"[[[PAGER_ROW]]]":$list_info.prev_page}" title="Previous page"><img src="images/browse_previous_16.png" border="" alt="" width="16" height="16" /></a>&nbsp;
 	{/if}
-	{section name=pages start=$list_info.start_range loop=$list_info.total_pages step=1 max=$list_info.end_range}
+	{section name=pages start=$list_info.start_range loop=100 step=1 max=$end_range}
 	  {if $smarty.section.pages.index == $list_info.current_page}
 		<a href="{$smarty.capture.qs|replace:"[[[PAGER_ROW]]]":$smarty.section.pages.index}" style="color: red; font-weight: bold;" title="Current page">{math equation="x + 1" x=$smarty.section.pages.index}</a>
 	  {else}
