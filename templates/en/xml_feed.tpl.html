@@ -16,6 +16,7 @@
 <item>
 	<title>{$list[i].rek_title|escape:"html"}</title>
 	<pid>{$list[i].rek_pid|escape:"html"}</pid>
+        <citation><![CDATA[{$list[i].rek_citation}]]></citation>
 	<identifier>{$app_base_url}{$href_view}</identifier>
 	{if $list[i].rek_description != "null"}	
 	<description>{$list[i].rek_description|escape:"html"}</description>
