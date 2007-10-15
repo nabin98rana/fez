@@ -83,7 +83,7 @@ class Lister
 		}
 		$getSimple = false;
 		if ($tpl_idx == 4) {
-			$getSimple = true;
+//			$getSimple = true;
 		}
         $tpl_file = $tpls[$tpl_idx]['file'];    
         $tpl->setTemplate($tpl_file);
