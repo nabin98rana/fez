@@ -201,11 +201,13 @@
 			$xsdmf_details = Search_Key::getAllDetailsByXSDMF_ID($xsdmf_id);
 			$sek_title = "rek_".$xsdmf_details['sek_title_db'];
 			if (array_key_exists($sek_title, $details)) {
-            	$value = Citation::formatValue($details[$sek_title], '', $details, $xsdmf_details, $option, $type);				
-			} else {
-				$value = "";
+                            $value = $details[$sek_title];
+                            if (!empty($value) && !is_null($value) && $value != "") {
+                        	$value = Citation::formatValue($details[$sek_title], '', $details, $xsdmf_details, $option, $type);			             }	
+                        } else {
+		        	$value = "";
 			}
-            if (!empty($value)) {
+            if (!empty($value) && !is_null($value) && $value != "") {
                 $value = $prefix.$value.$suffix;
             }
             //Error_Handler::logError($match);
@@ -230,7 +232,7 @@
         foreach ($matches[1] as $key => $match) {
             list($xsdmf_id,$prefix,$suffix,$option) = explode('|',$match);
             $value = Citation::formatValue($details[$xsdmf_id], '', array(), $xsdmf_list[$xsdmf_id], $option, $type);
-            if (!empty($value)) {
+            if (!empty($value) && !is_null($value)) {
                 $value = $prefix.$value.$suffix;
             }
             //Error_Handler::logError($match);
@@ -269,6 +271,7 @@
             }
             $value = $list;
         } elseif ($xsdmf['xsdmf_data_type'] == 'date' || $xsdmf['xsdmf_html_input'] == 'date_selector') {
+            if (!empty($value) && !is_null($value) && $value != "") {
             switch($option) {
                 case 'ymd':
                     $value = strftime("%Y, %B %d", strtotime($value));
@@ -282,6 +285,7 @@
                 default:
                     $value = substr(trim($value), 0, 4);
                 break;
+            } 
             } 
             // hacky formatting of authors names.  Pretty easy to break - like
             // if the field doesn't use the selector or the sek_title or xsdmf_title is in a different language. WILL PROBABLY NEVER BE USED!
