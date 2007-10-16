@@ -387,7 +387,7 @@ class Reindex
     {
         $this->terms = $terms;
         $ii = 0;
-
+        $reindex_add_record_counter = 0;
         $reindex_record_counter = 0;
 //		$list = Reindex::getMissingList(0,"ALL","*");
         // Direct Access to Fedora
@@ -416,7 +416,11 @@ class Reindex
             $utc_date = Date_API::getSimpleDateUTC();
             $time_per_object = Date_API::dateDiff("s", $bgp_details['bgp_started'], $utc_date);
             $date_new = new Date(strtotime($bgp_details['bgp_started']));
-            $time_per_object = round(($time_per_object / $reindex_record_counter), 2);
+			if ($reindex_add_record_counter > 0) {
+            	$time_per_object = round(($time_per_object / $reindex_add_record_counter), 2);
+			} else {
+            	$time_per_object = round(($time_per_object / $reindex_record_counter), 2);
+			}
             //$expected_finish = Date_API::getFormattedDate($date_new->getTime());
             $date_new->addSeconds($time_per_object*$record_count);
             $tz = Date_API::getPreferredTimezone($bgp_details["bgp_usr_id"]);
@@ -429,8 +433,9 @@ class Reindex
 	        }
 	        if (!Reindex::inIndex($detail['pid'])) {
 	            if (!empty($this->bgp)) {
+		            $reindex_add_record_counter++;
 //	                $this->bgp->setStatus("Adding: '".$detail['pid']."' '".$detail['title']."'");
-                    $this->bgp->setStatus("Adding:  '".$detail['pid']."' ".$detail['title']. " (".$reindex_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");    	
+                    $this->bgp->setStatus("Adding:  '".$detail['pid']."' ".$detail['title']. " (".$reindex_record_counter."/".$record_count." - ".$reindex_add_record_counter." Added) (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");    	
 	            }
 	            $params['items'] = array($detail['pid']);
 	            Reindex::indexFezFedoraObjects($params);                
