@@ -3033,6 +3033,11 @@ class XSD_HTML_MatchObject {
 		}
 	}
 
+	function getXSDMF_IDsByElement($element)
+    {
+    	return Misc::keyArray($this->getXSDMFByElement($element), 'xsdmf_id');
+    }
+
 	/**
 	 * getXSDMF_IDByKeyXDIS_ID 
 	 * Find a match field for an element that matches a key on the element value 
@@ -3115,7 +3120,9 @@ class XSD_HTML_MatchObject {
 	 */
 	function getXSDMF_ID_ByElementInSubElement($loop_base_element, $loop_name, $element)
     {
-		$sub_xsdmf_id = $this->getXSDMF_IDByXDIS_ID($loop_base_element);
+		// use the static function because it excludes members of sublooping elements - so will get the base
+		// sublooping element even if there are mappings on the base
+    	$sub_xsdmf_id = $this->getSELBaseXSDMF_IDByElement($loop_base_element);
 		if (!empty($sub_xsdmf_id)) {							
 			$subs = XSD_Loop_Subelement::getSimpleListByXSDMF($sub_xsdmf_id);
 		}
@@ -3131,6 +3138,34 @@ class XSD_HTML_MatchObject {
 			return $xsdmf_id;
 		} else {
 			return -1;
+		}
+    }
+    
+    function getSELBaseXSDMF_IDByElement($loop_base_element, $xdis_ids = '')
+    {
+		if (empty($xdis_ids)) {
+		    $xdis_str = $this->xdis_str;
+		} else {
+		    $xdis_str = $xdis_ids;
+		}
+        
+        $stmt = "SELECT
+		                   m1.xsdmf_id
+		                FROM
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields m1
+		                WHERE
+		                    m1.xsdmf_xdis_id in (".$xdis_str.") 
+							AND m1.xsdmf_element = '".$loop_base_element."'
+							AND m1.xsdmf_xsdsel_id IS NULL
+							";
+
+		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
+			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+			return false;
+		} else {
+			return $res;
 		}
     }
 }

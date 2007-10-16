@@ -349,11 +349,11 @@ class DuplicatesReport {
 		$record = new RecordGeneral($pid);
 		$isi_loc = $this->getISI_LOC($record);
 
-        $stmt = "SELECT distinct r2.rek_identifier_pid as pid, "
+        $stmt = "SELECT distinct r2.rek_isi_loc_pid as pid, "
         	        .self::RELEVANCE_ISI_LOC_MATCH." as relevance " .
-                "FROM  ".$dbtp."record_search_key_identifier AS r2 " .
-                "    WHERE r2.rek_identifier='$isi_loc' " .
-                "    AND NOT(r2.rek_identifier_pid = '".$pid."') ";
+                "FROM  ".$dbtp."record_search_key_isi_loc AS r2 " .
+                "    WHERE r2.rek_isi_loc='$isi_loc' " .
+                "    AND NOT(r2.rek_isi_loc_pid = '".$pid."') ";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -654,61 +654,85 @@ class DuplicatesReport {
 
     function mergeDetailsHiddenDiffDocType(&$base_record, &$dup_record)
     {
+		// the records are different document types
+		// not much we can do but will try to rescue any isi_loc or rm_prn
+
         // get the values for both records and copy over anything that isn't set in the base.
         $base_det = $base_record->getDetails();
         $dup_det = $dup_record->getDetails();
 
-		// the records are different document types
-		// not much we can do but will try to rescue any isi_loc or rm_prn
-		$id_xsdmf_id = $base_record->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!identifier');
-		$type_xsdmf_id = $base_record->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!identifier!type');
-		// make sure the base record slots for identifiers are arrays
-		if (!isset($base_det[$id_xsdmf_id])) {
-			$base_det[$id_xsdmf_id] = array();
-		} elseif (!is_array($base_det[$id_xsdmf_id])) {
-			$base_det[$id_xsdmf_id] = array($base_det[$id_xsdmf_id]);
-		}
-		if (!isset($base_det[$type_xsdmf_id])) {
-			$base_det[$type_xsdmf_id] = array();
-		} elseif (!is_array($base_det[$type_xsdmf_id])) {
-			$base_det[$type_xsdmf_id] = array($base_det[$type_xsdmf_id]);
-		}
-		// copy over the identifiers from the dupe
-		foreach (array('rm_prn', 'isi_loc', 'isbn','issn') as $id_type) {
-			// don't merge if the identifier type is already in the base record
-			if (in_array($id_type, $base_det[$type_xsdmf_id])) {
-				continue;
+        // assumes the sub looping title is the identifier type in caps with no underscore
+		$xsdmf_id = $base_record->display->xsd_html_match->getXSDMF_ID_ByElementInSubElement(
+											'!identifier','ISI LOC',
+											'!identifier');
+		if ($xsdmf_id < 0) {
+			$id_xsdmf_id = $base_record->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!identifier');
+			$type_xsdmf_id = $base_record->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!identifier!type');
+			// make sure the base record slots for identifiers are arrays
+			if (!isset($base_det[$id_xsdmf_id])) {
+				$base_det[$id_xsdmf_id] = array();
+			} elseif (!is_array($base_det[$id_xsdmf_id])) {
+				$base_det[$id_xsdmf_id] = array($base_det[$id_xsdmf_id]);
 			}
-			// copy the identifier over to the base record
-			$dup_id = $this->getIdentifier($dup_record, $id_type);
-			if (!empty($dup_id)) {
-				$base_det[$id_xsdmf_id][] = $dup_id;
-				$base_det[$type_xsdmf_id][] = $id_type;
+			if (!isset($base_det[$type_xsdmf_id])) {
+				$base_det[$type_xsdmf_id] = array();
+			} elseif (!is_array($base_det[$type_xsdmf_id])) {
+				$base_det[$type_xsdmf_id] = array($base_det[$type_xsdmf_id]);
+			}
+			// copy over the identifiers from the dupe
+			foreach (array('rm_prn', 'isi_loc', 'isbn','issn') as $id_type) {
+				// don't merge if the identifier type is already in the base record
+				if (in_array($id_type, $base_det[$type_xsdmf_id])) {
+					continue;
+				}
+				// copy the identifier over to the base record
+				$dup_id = $this->getIdentifier($dup_record, $id_type);
+				if (!empty($dup_id)) {
+					$base_det[$id_xsdmf_id][] = $dup_id;
+					$base_det[$type_xsdmf_id][] = $id_type;
+				}
+			}
+		} else {
+			foreach (array('rm_prn', 'isi_loc', 'isbn','issn') as $id_type) {
+				$sel_title = str_replace('_', ' ', strtoupper($id_type));
+				$base_xsdmf_id = $base_record->display->xsd_html_match->getXSDMF_ID_ByElementInSubElement(
+											'!identifier',$sel_title,
+											'!identifier');
+				if (empty($base_det[$base_xsdmf_id])) {
+					$dup_id = $this->getIdentifier($dup_record, $id_type);
+					if (!empty($dup_id)) {
+						$base_det[$base_xsdmf_id] = $dup_id;
+					}
+				}
 			}
 		}
-
-        return $base_det;
+	    return $base_det;
     }
 
     function removeDuplicateIdentifiers(&$base_record, $base_det)
     {
 		$error = 0;
-		$id_xsdmf_id = $base_record->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!identifier');
-		$type_xsdmf_id = $base_record->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!identifier!type');
-		if (!empty($base_det[$type_xsdmf_id]) && !empty($base_det[$id_xsdmf_id])) {
-			// put the actual identifier as the key as the type can be non-unique
-			if (!is_array($base_det[$type_xsdmf_id])) {
-				$base_det[$type_xsdmf_id] = array($base_det[$type_xsdmf_id]);
-			}
-			if (!is_array($base_det[$id_xsdmf_id])) {
-				$base_det[$id_xsdmf_id] = array($base_det[$id_xsdmf_id]);
-			}
-			if (count($base_det[$id_xsdmf_id]) == count($base_det[$type_xsdmf_id])) {
-				$identifier_key_pairs = array_combine($base_det[$id_xsdmf_id], $base_det[$type_xsdmf_id]);
-				$base_det[$id_xsdmf_id] = array_keys($identifier_key_pairs);
-				$base_det[$type_xsdmf_id] = array_values($identifier_key_pairs);
-			} else {
-				$error = PEAR::raiseError("The identifiers would not merge");
+		$xsdmf_id = $base_record->display->xsd_html_match->getXSDMF_ID_ByElementInSubElement(
+											'!identifier','ISI LOC',
+											'!identifier');
+		if ($xsdmf_id < 0) {
+			$id_xsdmf_id = $base_record->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!identifier');
+			$type_xsdmf_id = $base_record->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!identifier!type');
+			if (!empty($base_det[$type_xsdmf_id]) && !empty($base_det[$id_xsdmf_id])) {
+				// put the actual identifier as the key as the type can be non-unique
+				if (!is_array($base_det[$type_xsdmf_id])) {
+					$base_det[$type_xsdmf_id] = array($base_det[$type_xsdmf_id]);
+				}
+				if (!is_array($base_det[$id_xsdmf_id])) {
+					$base_det[$id_xsdmf_id] = array($base_det[$id_xsdmf_id]);
+				}
+				if (count($base_det[$id_xsdmf_id]) == count($base_det[$type_xsdmf_id])) {
+					$identifier_key_pairs = array_combine($base_det[$id_xsdmf_id], 	$base_det[$type_xsdmf_id]);
+					$base_det[$id_xsdmf_id] = array_keys($identifier_key_pairs);
+					$base_det[$type_xsdmf_id] = array_values($identifier_key_pairs);
+				} else {
+					$error = PEAR::raiseError("The identifiers would not merge");
+				}
 			}
 		}
 		if (empty($error)) {
@@ -1033,23 +1057,49 @@ class DuplicatesReport {
     	return $this->getIdentifier($record, 'rm_prn');
     }
 
+	function getIdentifierXSDMF_ID(&$record, $find_type)
+	{
+		$in_sublooping_element = true;
+		$sel_title = str_replace('_', ' ', strtoupper($find_type));
+		$xsdmf_id = $record->display->xsd_html_match->getXSDMF_ID_ByElementInSubElement(
+											'!identifier',$sel_title,
+											'!identifier');
+		if ($xsdmf_id < 0) {
+			$xsdmf_id = $record->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!identifier');
+			$in_sublooping_element = false;
+		}
+		return array($xsdmf_id, $in_sublooping_element);
+	}
+
     function getIdentifier(&$record, $find_type)
     {
         // get the mods:identifier.
-        $res = '';
-        $types = $record->getDetailsByXSDMF_element('!identifier!type');
-        $identifiers = $record->getDetailsByXSDMF_element('!identifier');
-        if (is_array($types)) {
-            foreach ($types as $key => $type) {
-                if ($type == $find_type) {
-                    $res = $identifiers[$key];
-                    break;
-                }
-            }
-        // If there is only one identifier element: ...
-        } elseif (!empty($types) && $types == $find_type) {
-            $res = $identifiers;
-        }
+        
+        // assumes the sub looping title is the identifier type in caps with no underscore
+		$sel_title = str_replace('_', ' ', strtoupper($find_type));
+		$record->getDisplay();
+		$record->display->getXSD_HTML_Match();
+		$xsdmf_id = $record->display->xsd_html_match->getXSDMF_ID_ByElementInSubElement(
+											'!identifier',$sel_title,
+											'!identifier');
+		if ($xsdmf_id < 0) {
+	        $res = '';
+    	    $types = $record->getDetailsByXSDMF_element('!identifier!type');
+        	$identifiers = $record->getDetailsByXSDMF_element('!identifier');
+	        if (is_array($types)) {
+    	        foreach ($types as $key => $type) {
+        	        if ($type == $find_type) {
+            	        $res = $identifiers[$key];
+                	    break;
+	                }
+    	        }
+        	// If there is only one identifier element: ...
+	        } elseif (!empty($types) && $types == $find_type) {
+    	        $res = $identifiers;
+	        }
+	    } else {
+	 		$res = $record->getDetailsByXSDMF_ID($xsdmf_id);
+	    }
         return $res;
     }
 
