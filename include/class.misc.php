@@ -98,7 +98,6 @@ class Misc
         }
         $url = str_replace('&amp;','&', $url);
         $ch = curl_init();
-        Logger::debug("CURL_URL=" . $url);
         curl_setopt($ch, CURLOPT_URL, $url);
 	    
         if ($filehandle != null) {	    		    	    	
