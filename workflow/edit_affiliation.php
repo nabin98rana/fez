@@ -32,6 +32,20 @@ $record = new RecordObject($pid);
 
 $access_ok = $record->canEdit();
 if ($access_ok) {
+	
+	
+	if ($_POST['action'] == 'save') {
+		$saveResult = AuthorAffiliations::save($_POST['af_id'], $pid, $_POST['af_author_id'], $_POST['af_percent_affiliation'], $_POST['af_school_id']);
+		if ($saveResult != -1) {
+			Auth::redirect(APP_BASE_URL.'workflow/edit_affiliation.php?id='.$wf_id);
+		} else {
+			echo "Error on save of author affiliation";
+		}
+	} elseif ($_REQUEST['action'] == 'delete') {
+		AuthorAffiliations::remove($_REQUEST['af_id']);
+	}
+	
+	
 	// get list of authors for this pid
 	$authors = Misc::array_flatten($record->getFieldValueBySearchKey('Author'),'',true);
 	$author_ids = Misc::array_flatten($record->getFieldValueBySearchKey('Author ID'),'',true);
@@ -47,11 +61,6 @@ if ($access_ok) {
 	$list = AuthorAffiliations::getList($pid);
 	$list_keyed = Misc::keyArray($list, 'af_id');
 	$tpl->assign('orgs', Org_Structure::getAssocList());
-
-	if ($_POST['action'] == 'save') {
-		AuthorAffiliations::save($_POST['af_id'], $pid, $_POST['af_author_id'], $_POST['af_percent_affiliation'], $_POST['af_school_id']);
-		Auth::redirect(APP_BASE_URL.'workflow/edit_affiliation.php?id='.$wf_id);
-	}
 
 	if ($_REQUEST['action'] == 'edit') {
 		$tpl->assign('current', $list_keyed[$_REQUEST['af_id']]);
