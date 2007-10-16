@@ -611,10 +611,10 @@ class Reindex
                         $new_dsID = Foxml::makeNCName($dsIDName);
                         // get the datastream into a file where we can do stuff to it
                         $urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsIDName; 
-                        $urlReturn = Misc::ProcessURL($urldata);
-                        $handle = fopen(APP_TEMP_DIR.$new_dsID, "w");
-                        fwrite($handle, $urlReturn[0]);
-                        fclose($handle);
+                        $handle = fopen(APP_TEMP_DIR.$new_dsID, "w");                     
+                        $urlReturn = Misc::ProcessURL($urldata, false, $handle);                        
+                        //fwrite($handle, $urlReturn[0]);
+                        fclose($handle);                        
                         if ($new_dsID != $dsIDName) {
                             Error_Handler::logError($pid.": ".$dsIDName.": need to repair dsID");
                             // delete and re-ingest - need to do this because sometimes the object made it
