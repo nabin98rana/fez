@@ -464,6 +464,15 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		</table>
 		</td>
 		</tr>
+
+		{if $list_info.total_pages > 1}
+		<tr>
+		  <td>
+		    <span class="default">You are viewing page <b>{$list_info.printable_page}</b> of <b>{$list_info.total_pages}</b></span>
+		  </td>
+		</tr>
+		{/if}
+
 		<tr>
 		<td width="100%">
 		<table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">			  
