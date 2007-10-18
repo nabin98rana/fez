@@ -251,6 +251,7 @@ function validateFormSelections() {
 			  </td>
 			  <td bgcolor="{$light_color}">
 				<select class="default" name="community_pid" onChange="javascript: selectCommunity(this.form, 'community_pid')" >
+					<option value="">(no community)</option>
 				  {html_options options=$communities_list selected=$communities_list_selected }
 				</select>
 			  </td>

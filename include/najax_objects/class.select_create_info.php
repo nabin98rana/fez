@@ -9,8 +9,17 @@ class SelectCreateInfo {
 
     function getCollections($community_pid)
     {
-        $result = Collection::getEditListAssoc($community_pid);
-		$list = array();
+	
+	
+		$return = array();
+		if ($community_pid == "") {
+			$return[] = array('value' => "", 'text' => "(no collection)");
+			return $return;					
+		} else {	
+	        $result = Collection::getEditListAssoc($community_pid);
+			$list = array();
+		}
+
         foreach($result as $pid => $item) {
             $list[] = array('value' => $pid, 'text' => $item);
         }
@@ -19,8 +28,12 @@ class SelectCreateInfo {
 
     function getDocTypes($collection_pid)
     {
-		$childXDisplayOptions = Record::getSearchKeyIndexValue($collection_pid, "XSD Display Option");
-//	$childXDisplayOptions = Collection::getChildXDisplayOptions($collection_pid);
+	
+		if ($collection_pid == "") {
+			$childXDisplayOptions = XSD_Display::getAssocListDocTypes();
+		} else {
+			$childXDisplayOptions = Record::getSearchKeyIndexValue($collection_pid, "XSD Display Option");
+		}
         $list = array();
         foreach ($childXDisplayOptions as $key => $item) {
             $list[] = array('text' => $item, 'value' => $key);

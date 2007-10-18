@@ -120,6 +120,9 @@ $tpl->assign('communities_list', $communities_list);
 $tpl->assign('communities_list_selected', $communities['list'][0]['rek_pid']);
 */
 $communities_list = Community::getAssocList();
+//$no_community = array(0 => "(no community)");
+//array_unshift($communities_list, $no_community);
+$communities_list = array_merge(array("" => "(no community)"), $communities_list);
 $tpl->assign('communities_list', $communities_list);
 //$tpl->assign('communities_list_selected', $communities_list['rek_pid']);
 

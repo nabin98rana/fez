@@ -575,13 +575,15 @@ class Reindex
     		$rebuild_this = $rebuild;
             // determine if the record is a Fez record
             if (!Fedora_API::datastreamExists($pid, 'FezMD')) {
-                $relsext = Reindex::buildRELSEXT($collection_pid, $pid);
-				$fezmd = Reindex::buildFezMD($xdis_id, $sta_id);			
-				if (Fedora_API::datastreamExists($pid, "RELS-EXT")) {
-					Fedora_API::callModifyDatastreamByValue($pid, "RELS-EXT", "A", "Relationships to other objects", $relsext, "text/xml", true);
-				} else {
-					Fedora_API::getUploadLocation($pid, "RELS-EXT", $relsext, "Relationships to other objects", "text/xml", "X");
+				if ($collection_pid != "") {
+                	$relsext = Reindex::buildRELSEXT($collection_pid, $pid);
+					if (Fedora_API::datastreamExists($pid, "RELS-EXT")) {
+						Fedora_API::callModifyDatastreamByValue($pid, "RELS-EXT", "A", "Relationships to other objects", $relsext, "text/xml", true);
+					} else {
+						Fedora_API::getUploadLocation($pid, "RELS-EXT", $relsext, "Relationships to other objects", "text/xml", "X");
+					}
 				}
+				$fezmd = Reindex::buildFezMD($xdis_id, $sta_id);			
 				if (Fedora_API::datastreamExists($pid, "FezMD")) {
 					Fedora_API::callModifyDatastreamByValue($pid, "FezMD", "A", "Fez extension metadata", $fezmd, "text/xml", true);
 				} else {

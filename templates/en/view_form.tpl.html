@@ -208,7 +208,8 @@ function openHistory(pid)
 				  <td align="left" class="citation" width="100%"> {$citation}
 				  </td>
 				</tr>
-                {/if}				
+                {/if}
+				{if $parents}
 				<tr>
 				  <td align="left" class="default"> <b>{$parent_heading} </b></td>
 				  <td align="left" class="default" width="100%"> 
@@ -217,6 +218,7 @@ function openHistory(pid)
 					{/section}
 				  </td>
 				</tr>
+				{/if}
 {if $prev || $next}
 				<tr valign="top">
 				  <td align="left" class="default" nowrap> <b>Browse Collection:</b></td>

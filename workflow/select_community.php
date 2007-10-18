@@ -80,6 +80,8 @@ $wfstatus->checkStateChange();
 $communities = Community::getList();
 $communities_list = Misc::keyPairs($communities['list'], 'rek_pid', 'rek_title');
 $communities_list = Misc::stripOneElementArrays($communities_list);
+$no_community = array("" => "(No Community)");
+array_unshift($communities_list['list'], $no_community);
 $tpl->assign('communities_list', $communities_list);
 $tpl->assign('communities_list_selected', $communities['list'][0]['rek_pid']);
 
