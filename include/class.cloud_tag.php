@@ -56,12 +56,16 @@ class Cloud_Tag
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];
 
-        $stmt = "SELECT rek_keywords AS tag, COUNT(rek_keywords_id) AS quantity
-                FROM " . APP_TABLE_PREFIX . "record_search_key_keywords kw
-                " . $authStmt . "
-                GROUP BY rek_keywords
+        $stmt = "SELECT tag, quantity from
+                (SELECT rek_keywords AS tag, COUNT(rek_keywords_id) AS quantity, rek_keywords
+                  FROM " . APP_TABLE_PREFIX . "record_search_key_keywords kw
+                  " . $authStmt . "
+                  INNER JOIN " . APP_TABLE_PREFIX . "record_search_key x1 on x1.rek_pid = kw.rek_keywords_pid AND rek_status = 2 
+                  GROUP BY rek_keywords
+                  ORDER BY quantity DESC
+                  LIMIT 0, 20) as jerds 
                 ORDER BY rek_keywords ASC";
-        
+
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
