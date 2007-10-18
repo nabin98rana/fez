@@ -28,7 +28,8 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
@@ -51,6 +52,7 @@ include_once(APP_INC_PATH . "class.news.php");
 include_once(APP_INC_PATH . "class.survey.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.validation.php");
+include_once(APP_INC_PATH . "class.cloud_tag.php");
 include_once(APP_INC_PATH . "najax/najax.php");
 include_once(APP_INC_PATH . "najax_objects/class.suggestor.php");
 
@@ -152,6 +154,8 @@ $news_count = count($news);
 $tpl->assign("news", $news);
 $tpl->assign("isHomePage", "true");
 $tpl->assign("news_count", $news_count);
+$cloudTag = Cloud_Tag::buildCloudTag();
+$tpl->assign("cloud_tag", $cloudTag);
 $tpl->headerscript .= "window.oTextbox_front_search
 	= new AutoSuggestControl(document.search_frm, 'front_search', document.getElementById('front_search'), document.getElementById('front_search'),
 			new StateSuggestions('Collection','suggest',false,

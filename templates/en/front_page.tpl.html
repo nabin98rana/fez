@@ -106,6 +106,12 @@ if (isElementVisible(basic_element)) {
 	  </div>
 {/if}
 
+{if $CLOUD_TAG == ''}
+	  <div class="front-page-content-header"><img src="{$rel_url}images/favourites_22.png" alt="Popular Tags" title="Popular Tags" /> Popular Tags</div>
+	  <div class="front-page-content-detail">{$cloud_tag}</div>
+	  <br />
+{/if}
+
 {if $SELF_REGISTRATION == 'ON'}
 	  <div class="front-page-content-header"><img src="{$rel_url}images/editor_22.jpg" alt="Registered Users" title="Registered Users" /> Registered Users</div>
 	  <div class="front-page-content-detail">
