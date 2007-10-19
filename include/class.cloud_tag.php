@@ -56,15 +56,17 @@ class Cloud_Tag
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];
 
-        $stmt = "SELECT tag, quantity from
-                (SELECT rek_keywords AS tag, COUNT(rek_keywords_id) AS quantity, rek_keywords
+/*        " . $authStmt . "
+        INNER JOIN " . APP_TABLE_PREFIX . "record_search_key x1 on x1.rek_pid = kw.rek_keywords_pid AND rek_status = 2 
+*/
+
+
+        $stmt = "SELECT tag, quantity from (
+                SELECT rek_keywords AS tag, COUNT(rek_keywords) AS quantity
                   FROM " . APP_TABLE_PREFIX . "record_search_key_keywords kw
-                  " . $authStmt . "
-                  INNER JOIN " . APP_TABLE_PREFIX . "record_search_key x1 on x1.rek_pid = kw.rek_keywords_pid AND rek_status = 2 
                   GROUP BY rek_keywords
                   ORDER BY quantity DESC
-                  LIMIT 0, 20) as jerds 
-                ORDER BY rek_keywords ASC";
+                  LIMIT 0, 20) as t1 ORDER BY tag ASC";
 
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
@@ -78,6 +80,10 @@ class Cloud_Tag
 
         $max_size = 250; // Max font size in %
         $min_size = 100; // Min font size in %
+
+		if (!is_array($tags)) {
+			return "";
+		}
 
         // Get the largest and smallest array values
         $max_qty = max(array_values($tags));
