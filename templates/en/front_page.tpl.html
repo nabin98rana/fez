@@ -209,7 +209,13 @@ if (isElementVisible(basic_element)) {
 					{/if}
 			{/if}
 					<li>
+					{if $list[i].rek_citation != ""}
 					{$list[i].rek_citation}
+					{else}
+					{if $href_view}<a href='{$href_view}' >{/if}
+					{$list[i].rek_title}
+					{if $href_view}</a>{/if}
+					{/if}
 					{if $list[i].rek_object_type != 3}{if $list[i].rek_ismemberof_count != ""}({$list[i].rek_ismemberof_count}){else}(0){/if}{/if}
 							{if $showEdit || $isAdministrator}
 							  {section name="w" loop=$list[i].wft_id}
