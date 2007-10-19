@@ -103,7 +103,7 @@ class Cloud_Tag
         foreach ($tags as $key => $value) {
             $size = $min_size + (($value - $min_qty) * $step);
             $size = ceil($size);     // uncomment for sizes in whole %:
-            $cloudTag .= '<a href="' . APP_BASE_URL . 'list.php?cat=quick_filter&search_keys%5B0%5D=' . $key . '" style="font-size: ' . $size . '%" ';
+            $cloudTag .= '<a href="' . APP_BASE_URL . 'list.php?cat=quick_filter&amp;search_keys%5B0%5D=' . urlencode($key) . '" style="font-size: ' . $size . '%" ';
             if ($value == 1) {
                 $cloudTag .= 'title="' . $value . ' record tagged with ' . $key . '">' . $key . '</a> ';
             } else {
