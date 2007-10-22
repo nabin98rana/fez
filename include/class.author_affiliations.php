@@ -17,7 +17,7 @@ class AuthorAffiliations
         // Add text versions of the author and school
         foreach ($res as $key => $item) {
         	$res[$key]['author_name'] = Author::getFullname($item['af_author_id']);
-        	$res[$key]['school_name'] = Org_Structure::getTitle($item['af_org_id']);
+        	$res[$key]['org_title'] = Org_Structure::getTitle($item['af_org_id']);
         }
         return $res;
 	}

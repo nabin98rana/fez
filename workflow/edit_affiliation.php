@@ -35,7 +35,7 @@ if ($access_ok) {
 	
 	
 	if ($_POST['action'] == 'save') {
-		$saveResult = AuthorAffiliations::save($_POST['af_id'], $pid, $_POST['af_author_id'], $_POST['af_percent_affiliation'], $_POST['af_school_id']);
+		$saveResult = AuthorAffiliations::save($_POST['af_id'], $pid, $_POST['af_author_id'], $_POST['af_percent_affiliation'], $_POST['af_org_id']);
 		if ($saveResult != -1) {
 			Auth::redirect(APP_BASE_URL.'workflow/edit_affiliation.php?id='.$wf_id);
 		} else {
