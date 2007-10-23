@@ -1,0 +1,36 @@
+body.mainsite {  margin-top: 0px;  margin-left: 0px;  background-color: #66cc66;}
+div.thumbnail {  float: left;  width: 200px;  height: 200px;  font-family: arial,helvetica;  font-size: x-small;  padding-top: 20px;}
+div.spacer {  clear: both;}
+div.footer {  clear: both;}
+p.footer-text {  text-align: center;  font-size: small;}
+p.result-query {  display: none;}
+div.pagination {  position: relative;  height: 45px;  padding: 0px 5px;  margin-top: 10px;  margin-bottom: 5px;}
+div.pagination-masked {  position: relative;  height: 45px;  padding: 0px 5px;  margin-bottom: 5px;}
+a.previous-page-link {  position: absolute;  left: 10px;  top: 20px;  color: rgb(25,25,100);}
+a.next-page-link {  position: absolute;  left: 120px;  top: 20px;  color: rgb(25,25,100);}
+p.pagination-info {  text-align: left;  font-size: 14px;  height: 20px;  margin-top: 20px;}
+h1.ds-div-head {  display: none;}h2.ds-div-head {  display: none;}
+h2.advanced-search-heading {  text-align: center;}
+hr.header {  width: 100%;  background-color: #FFFFFF;  margin-top: 25px;}
+ul.pagination-links {  display: none;}
+table.search {  border-spacing: 10px;  width: 100%;  border-width: 1px;  border-style: solid;}
+tr.ds-table-header-row {  text-align: left;  margin-left: 10px;  color: red;}
+img.general {  border: medium none inherit;}
+img.preview {  margin-top: 30px;  border: medium none inherit;}
+span.bold {  font-weight: bold;}
+td.nowrap {  white-space: nowrap;}
+p.item-view-toggle {  display: none;}
+a.imageref {  text-decoration: none;}
+a.menu-home {  background-color: url('http://anulib.anu.edu.au/subjects/ap/digilib/sasia/tig/tig_images/tigerstop_r1_c3.jpg') top left no-repeat;  width: 55px;  height: 36px;  float: left;  clear: both;}
+a.menu-home:hover {  background-image: url('http://anulib.anu.edu.au/subjects/ap/digilib/sasia/tig/tig_images/tigerstop_r1_c3_f2.jpg');}
+a.menu-about {  background-color: url('http://anulib.anu.edu.au/subjects/ap/digilib/sasia/tig/tig_images/tigerstop_r1_c4.jpg') top left no-repeat;  width: 55px;  height: 36px;  float: left;  clear: both;}
+a.menu-about:hover {  background-image: url('http://anulib.anu.edu.au/subjects/ap/digilib/sasia/tig/tig_images/tigerstop_r1_c4_f2.jpg');}
+a.menu-browse {  background-color: url('http://anulib.anu.edu.au/subjects/ap/digilib/sasia/tig/tig_images/tigerstop_r1_c5.jpg') top left no-repeat;  width: 63px;  height: 36px;  float: left;  clear: both;}
+a.menu-browse:hover {  background-image: url('http://anulib.anu.edu.au/subjects/ap/digilib/sasia/tig/tig_images/tigerstop_r1_c5_f2.jpg');}
+a.menu-search {  background-color: url('http://anulib.anu.edu.au/subjects/ap/digilib/sasia/tig/tig_images/tigerstop_r1_c6.jpg') top left no-repeat;  width: 59px;  height: 36px;  float: left;  clear: both;}
+a.menu-search:hover {  background-image: url('http://anulib.anu.edu.au/subjects/ap/digilib/sasia/tig/tig_images/tigerstop_r1_c6_f2.jpg');}
+a.menu-bib {  background-color: url('http://anulib.anu.edu.au/subjects/ap/digilib/sasia/tig/tig_images/tigerstop_r1_c7.jpg') top left no-repeat;  width: 110px;  height: 36px;  float: left;  clear: both;}
+a.menu-bib:hover {  background-image: url('http://anulib.anu.edu.au/subjects/ap/digilib/sasia/tig/tig_images/tigerstop_r1_c7_f2.jpg');}
+td img {  display: block;}
+td {  padding: 0px;}
+table.nav {  width: 135px;  border-collapse: collapse;  border: 0 none inherit;}

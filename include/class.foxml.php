@@ -617,6 +617,11 @@ $tagIndent = "";
 									if (trim($xml_schema) != "") {
 	                                    $xmlObj .= $xml_schema;
 									}
+									Foxml::array_to_xml_instance($array_ptr, $xmlObj, $element_prefix,
+										"attributes", $tagIndent, $sel_record['xsdrel_xdis_id'], $xdis_id, 
+										$pid,$top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads,
+										$created_date, $updated_date, $depositor, $assign_usr_id,
+										$assign_grp_id);
                                     $xmlObj .= ">\n";
                                     Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", $tagIndent, "", $rel_record['xsdrel_xdis_id'], $pid, $top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
                                     $xmlObj .= "\n".$tagIndent."</".$xsd_element_prefix.$xsd_top_element_name.">\n";

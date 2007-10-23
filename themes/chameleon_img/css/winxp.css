@@ -1,0 +1,69 @@
+	BODY {
+		font: 11px/1.6em "Lucida Grande", LucidaGrande, Lucida, Helvetica, Arial, sans-serif;
+		padding:0px;
+		margin:0px;
+		width:100%;
+		height:100%;
+		border:0px;
+	}
+	IFRAME {width:100%;height:0px;border:0px;margin:0px;}
+	TD { font:normal 10px arial; color:rgb(0,0,0); }
+/*<group=Toolbar>*/
+	.tool_bar { 
+		background:url(../images/winxp/toolbar_bg.gif); 
+		width:100%;
+		height: 22px; 
+		margin:0px; 
+		padding:0px; 
+		border:0px;
+		vertical-align:middle;
+	}
+	.tool_bar A { 
+		padding:3px 2px; 
+		color:rgb(0,0,0); 
+		font: 11px/20px arial; 
+		font-weight:bold;
+		text-decoration:none; display:inline;
+		vertical-align: middle; 
+		cursor:pointer;
+		margin: 1px;
+	}
+	.tool_bar A:hover{ 
+		padding:3px 2px ;
+		margin: 0px;
+		line-height: 20px;
+		font-size: 11px; 
+		border: 1px solid rgb(0,0,128);
+		background:url(../images/winxp/toolbar_bg_on.gif);
+		
+	}
+	.tool_bar .btn_img { padding: 4px 8px; background-position: center center; text-decoration:none; }
+	.tool_bar .btn_img:hover {padding: 4px 8px; } 
+	.tool_bar .menu_start { padding:0px 0px 0px 5px; background:url(../images/toolbar_start.gif) no-repeat center; width:3px; display:inline;}
+	.tool_bar .divider { background:url(../images/lh_divider.gif) no-repeat center; width:3px; display:inline;}
+/*</group>*/
+/*<group=Page Status Bar>*/
+	#page_status_bar {width:100%;height:20px;border:1px outset rgb(242,242,242);background-color:#EFEBDE;}
+	#page_status_bar TR TD{ border:1px inset rgb(242,242,242);}
+
+/*</group>*/
+/*<group=File Upload List>*/
+	#list_body { width: 100%; }
+	#list_body TR TD{
+		font: 11px Arial;
+		line-height:16px;
+		border: 0px;
+		height: 16px;
+		padding: 0px 0px 0px 4px;
+		cursor: pointer;
+		vertical-align:middle;
+	}
+	#list_body .on { background: rgb(234,244,255);}
+/*</group>*/
+/*<group=Upload Bar>*/
+	#upload_bar { height: 12px; padding: 0px;	margin: 0px; background: url(../images/safari/upload_bar_bg.gif) left top;}
+	#upload_bar DIV { height: 12px; line-height:12px; font-size:10px; margin: 0px; padding: 0px; background:url(../images/safari/upload_bar_bg_on.gif) left top;}
+	.upload_filename {	color: rgb(0,0,0);	font-weight: bold;font-size: 12px;}
+	.upload_stats {color: rgb(100,100,100);font-size: 10px;}
+/*</group>*/
+		

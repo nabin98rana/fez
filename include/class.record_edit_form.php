@@ -98,6 +98,20 @@
 				if (empty($xdis_list)) {
 			        $xdis_list = XSD_Display::getAssocListDocTypes(); 
 		        }
+		    case '$xdis_collection_and_object_list':
+				global $xdis_list;
+				global $xdis_collection_list;
+				global $xdis_collection_and_object_list;
+				if (empty($xdis_collection_and_object_list)) {
+					if (empty($xdis_collection_list)) {
+		        		$xdis_collection_list = XSD_Display::getAssocListCollectionDocTypes(); 
+		        	}
+					if (empty($xdis_list)) {
+				        $xdis_list = XSD_Display::getAssocListDocTypes(); 
+		    	    }
+		    	    $xdis_collection_and_object_list = $xdis_list + $xdis_collection_list;
+	        	}
+		    
         	break;
 		}
 	}

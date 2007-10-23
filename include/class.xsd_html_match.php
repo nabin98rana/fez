@@ -3033,11 +3033,6 @@ class XSD_HTML_MatchObject {
 		}
 	}
 
-	function getXSDMF_IDsByElement($element)
-    {
-    	return Misc::keyArray($this->getXSDMFByElement($element), 'xsdmf_id');
-    }
-
 	/**
 	 * getXSDMF_IDByKeyXDIS_ID 
 	 * Find a match field for an element that matches a key on the element value 

@@ -261,6 +261,9 @@ AutoSuggestControl.prototype.init = function () {
     
     this.showingSuggestions = false;
     //assign the onkeyup event handler
+    if (this.textbox == null) {
+    	return;
+	}
     this.textbox.onkeyup = function (oEvent) {
     
         //check for the proper location of the event object

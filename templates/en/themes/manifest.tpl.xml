@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <rdf:Description rdf:about="rqfdemo:65869"> <!-- pid of journal is rqfdemo:658698 -->
+      <mods:mods xmlns:mods="http://www.loc.gov/mods/v3">
+         <mods:identifier type="filename">n01072005.jpg</mods:identifier>
+         <mods:genre>cover</mods:genre>
+      </mods:mods>
+   </rdf:Description>
+   <rdf:Description rdf:about="section">
+      <mods:mods xmlns:mods="http://www.loc.gov/mods/v3">
+         <mods:titleInfo>
+            <mods:title>Features</mods:title>
+         </mods:titleInfo>
+         <mods:titleinfo type="abbreviated">
+            <mods:title>PRF</mods:title>
+         </mods:titleinfo>
+         <mods:genre>section</mods:genre>
+      </mods:mods>
+      <rdf:Seq>
+         <rdf:li rdf:resource="rqfdemo:65871"/>
+      </rdf:Seq>
+   </rdf:Description>
+   
+</rdf:RDF>

@@ -63,7 +63,7 @@ class Mail_Queue
         if (!empty($pid)) {
 		   // the pid file exists, but may have been left orphaned by a previous failed run
 		   // so we want to check that the process $pid is actually running
-			$running_pid = trim( `ps -auwwx | grep $pid | grep -v grep | awk '{print $2}'` );
+			$running_pid = trim( `ps auwwx | grep $pid | grep -v grep | awk '{print $2}'` );
 			if ( $running_pid == "" ) {
 				// the process $pid is not actually running, so create the pid file and say it's safe to run
 				$fp = fopen(Mail_Queue::_getProcessFilename(), 'w');
