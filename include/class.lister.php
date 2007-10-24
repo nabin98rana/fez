@@ -82,6 +82,11 @@ class Lister
 			$citationCache = true;
 		}
 		$getSimple = false;
+		if ($tpl_idx == 2 || $tpl_idx == 3) {
+			$header = "Content-type: application/xml\n";
+			header($header);
+		}
+		
 		if ($tpl_idx == 4) {
 //			$getSimple = true;
 		}
@@ -161,21 +166,24 @@ class Lister
             $sort_by_list = array(
                 "searchKey".Search_Key::getID("Title") => 'Title',
                 "searchKey".Search_Key::getID("Description") => 'Description',
-                "searchKey".Search_Key::getID("Date") => 'Date'
+                "searchKey".Search_Key::getID("Date") => 'Date',
+                "searchKey".Search_Key::getID("Sequence") => 'Sequence'
             );
         } elseif (empty($community_pid) && empty($collection_pid) && empty($browse)) {
             $sort_by_list = array(
             	"searchKey".Search_Key::getID("Title") => 'Title',
            		"searchKey".Search_Key::getID("Description") => 'Description',
         		"searchKey".Search_Key::getID("File Downloads") => 'File Downloads',
-				"searchKey".Search_Key::getID("Date") => 'Date'
+				"searchKey".Search_Key::getID("Date") => 'Date',
+                "searchKey".Search_Key::getID("Sequence") => 'Sequence'				
             );
         } else {
         	$sort_by_list = array(
         	"searchKey".Search_Key::getID("Title") => 'Title',
         	"searchKey".Search_Key::getID("Description") => 'Description',
         	"searchKey".Search_Key::getID("File Downloads") => 'File Downloads',
-        	"searchKey".Search_Key::getID("Date") => 'Date'
+        	"searchKey".Search_Key::getID("Date") => 'Date',
+            "searchKey".Search_Key::getID("Sequence") => 'Sequence'
 			);
         }
        //print_r($options);
@@ -229,6 +237,7 @@ class Lister
                 $tpl->assign("xdis_id", Record::getSearchKeyIndexValue($collection_pid, "Display Type"));
 //                $collection_details = Collection::getDetails($collection_pid);
                 $parents = Record::getParentsDetails($collection_pid);
+
                 $tpl->assign("parents", $parents);
                 $collection_xdis_id = Collection::getCollectionXDIS_ID();
 //                $userPIDAuthGroups = Auth::getIndexAuthorisationGroups($collection_details);
@@ -247,12 +256,13 @@ class Lister
                 //$list = Collection::getListing($collection_pid, $pager_row, $rows, $sort_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
-//                $collection_title = Record::getSearchKeyIndexValue($collection_pid, "Title");
+                $title = Record::getSearchKeyIndexValue($collection_pid, "Title");
                 $display_type = Record::getSearchKeyIndexValue($collection_pid, "Display Type");
 				$display_type = array_values($display_type);
 				$citation = Record::getCitationIndex($collection_pid);
 //                $tpl->assign("list_heading", "List of Records in ".$collection_title." ".$display_type[0]);
-                $tpl->assign("list_heading", "List of Records in ".$citation." ".$display_type[0]);
+                $tpl->assign("list_heading", "List of Records in ".$title." ".$display_type[0]);
+                $tpl->assign("list_heading_citation", "List of Records in ".$citation." ".$display_type[0]);
                 $tpl->assign("list_type", "collection_records_list");
 
                 $tpl->assign("collection_pid", $collection_pid);
@@ -298,12 +308,16 @@ class Lister
                 //$list = Collection::getListing($community_pid, $pager_row, $rows, $sort_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
-
+                $title = Record::getSearchKeyIndexValue($community_pid, "Title");
                 $display_type = Record::getSearchKeyIndexValue($community_pid, "Display Type");
 				$display_type = array_values($display_type);
 				$citation = Record::getCitationIndex($community_pid);
 //                $tpl->assign("list_heading", "List of Records in ".$collection_title." ".$display_type[0]);
-                $tpl->assign("list_heading", "List of Collections in ".$citation." ".$display_type[0]);				
+                $tpl->assign("list_heading", "List of Collections in ".$title." ".$display_type[0]);		
+                $tpl->assign("list_heading_citation", "List of Collections in ".$citation." ".$display_type[0]);
+
+
+		
 //                $tpl->assign("list_heading", "List of Collections in ".$community_title." Community");
                 $tpl->assign("list_type", "collection_list");
                 $childXDisplayOptions = Record::getSearchKeyIndexValue($community_pid, "XSD Display Option");

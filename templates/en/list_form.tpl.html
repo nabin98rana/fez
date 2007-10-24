@@ -181,20 +181,26 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
       <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" >
 
 		{if $list_type == 'collection_records_list'}
+		{if $parents}
 		<tr>
 		  <td align="left" class="default"> <br />
 			<table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="1">
 				<tr>
-				  <td align="left"> <b>Parent Communities: </b></td>
+				  <td align="left"> <b>Parents: </b></td>
 				  <td align="left"> &nbsp;
 					{section name="i" loop=$parents}
+						{if $parents[i].rek_object_type == 1}
 						<a href="list.php?community_pid={$parents[i].rek_pid}">{$parents[i].rek_title}</a> &nbsp;
+						{else}
+						<a href="list.php?collection_pid={$parents[i].rek_pid}">{$parents[i].rek_title}</a> &nbsp;
+						{/if}
 					{/section}
 				  </td>
 				</tr>
 			</table>
 		  </td>
 		</tr>
+		{/if}
 		{/if}
 		<form name="list_form" method="get" action="{$smarty.server.PHP_SELF}">
 		{if $isUser}
@@ -608,7 +614,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 					{if $list[i].rek_citation != ""}
                     {$list[i].rek_citation}
 					{else}
-                    {if $href_view}<a href='{$href_view}'>{/if}{$list[i].rek_title|escape:"html"}{if $href_view}</a>{/if}
+                    {if $href_view}<a href='{$href_view}' title='{$list[i].rek_title}'>{/if}{$list[i].rek_title|escape:"html"}{if $href_view}</a>{/if}
 					{/if}
 	{if $list[i].rek_object_type != 3}{if $list[i].rek_ismemberof_count != ""}({$list[i].rek_ismemberof_count}){else}(0){/if}{/if}
 				  </td>		
