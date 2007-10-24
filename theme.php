@@ -23,7 +23,7 @@ include('dri.php');
 $dri_xml = ob_get_contents();
 ob_end_clean();
 
-//Error_Handler::logError($dri_xml);
+Error_Handler::logError($dri_xml);
 $dri_dom = DOMDOcument::loadXML($dri_xml);
 
 // transform the DRI XML with the theme XSLT

@@ -241,8 +241,8 @@
       {/if}
       
       {section name=i loop=$list}
-      <object objectIdentifier="hdl:123456789/301" url="/manakin/handle/123456789/301"
-        repositoryIdentifier="hdl:123456789">
+      <object objectIdentifier="{$list[i].rek_pid}" url="view.php?pid={$list[i].rek_pid}"
+        repositoryIdentifier="{$list[i].rek_pid}">
         <mets:METS xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/TR/xlink/"
           xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" LABEL="DSpace Collection"
           PROFILE="DSPACE METS SIP Profile 1.0 (DRI extensions for DIM and communities/collections)"
@@ -251,8 +251,8 @@
             <mets:mdWrap OTHERMDTYPE="DIM" MDTYPE="OTHER">
               <mets:xmlData>
                 <dim:dim dspaceType="ITEM">
-                  <dim:field element="description" mdschema="dc"/>
-                  <dim:field element="description" mdschema="dc" qualifier="abstract"/>
+                  <dim:field element="description" mdschema="dc">{$list[i].rek_description|escape}</dim:field>
+                  <dim:field element="description" mdschema="dc" qualifier="abstract">{$list[i].rek_title|escape}</dim:field>
                   <dim:field element="description" mdschema="dc" qualifier="tableofcontents"/>
                   <dim:field element="identifier" mdschema="dc" qualifier="uri"
                     >{$list[i].rek_pid}</dim:field>

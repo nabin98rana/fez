@@ -28,19 +28,20 @@ $stmt = "SELECT rek_file_attachment_name
 				WHERE rek_file_attachment_name_pid='$issue_pid' ";
 $res =  $GLOBALS['db_api']->dbh->getCol($stmt);
 foreach ($res as $file) {
-    if (stristr($file, ".jpg") 
+    if ((stristr($file, ".jpg") 
             	|| stristr($file, ".jpeg") 
             	|| stristr($file, ".png") 
-            	|| stristr($file, ".gif") 
+            	|| stristr($file, ".gif"))
+            && stristr($file, "web_")
 	    ) {
-	    	$attachment = $file;
+	    	$attachment = APP_BASE_URL.'eserv.php?pid='.$issue_pid.'&amp;dsID='.$file;
     	}
 }
 
 header('Content-Type: application/xml');
 $tpl = new Template_API;
 $tpl->setTemplate('themes/manifest.tpl.xml');
-$tpl->assign(compact('sections','issue_pid','file'));
+$tpl->assign(compact('sections','issue_pid','attachment'));
 $tpl->displayTemplate();
 
 ?>

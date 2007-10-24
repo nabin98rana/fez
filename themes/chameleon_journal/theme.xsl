@@ -60,9 +60,12 @@
 			select="/dri:document/dri:meta/dri:userMeta/dri:metadata[@element='resource' and @qualifier='collection_admin']"
 		/>
 	</xsl:variable>
-
-
-
+	
+	
+	<!-- <xsl:variable name="issueCoverImageRef">
+		<xsl:value-of
+			select="document($manifestUrl)/rdf:RDF/rdf:Description[@rdf:about=$context]/mods:mods[mods:genre='cover']/mods:identifier[@type='filename']"/>
+	</xsl:variable> -->
 	<!-- hide the alpha browse and other unnecessary UI features -->
 	<xsl:template
 		match="dri:options|dri:div[@interactive='yes' and not(contains(@n,'search-query'))]"/>
@@ -97,7 +100,7 @@
 				<h2 class="toc">Table of Contents</h2>
 				<table cellspacing="15" align="left">
 					<xsl:variable name="manifestUrl"
-						select="concat($serverUrl,mets:file/mets:FLocat/@xlink:href)"/>
+					select="concat($serverUrl,mets:file/mets:FLocat/@xlink:href)"/>
 					<!-- <xsl:value-of select="$manifestUrl" /> -->
 					<xsl:for-each
 						select="document($manifestUrl)/rdf:RDF/rdf:Description[@rdf:about='section']">

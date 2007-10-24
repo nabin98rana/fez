@@ -29,21 +29,41 @@ if (empty($theme_id)) {
 
 // get the dri
 $tpl = new Template_API; 
-$tpl->setTemplate('themes/dri_browse_title.tpl.xml');
 
 $username = Auth::getUsername();
-$tpl->assign("isUser", $username);
 $isAdministrator = User::isUserAdministrator($username);
-$tpl->assign("isAdministrator", $isAdministrator);
 
 // setup the dri contents
 switch($action)
 {
 	case 'browse-title':
+		$tpl->setTemplate('themes/dri_browse_title.tpl.xml');
 		$tpl->assign('include_manifest',true);
 		$head = 'Browse by Title';
 	break;
+	case 'collection-home':
+		$tpl->setTemplate('themes/dri_browse_title.tpl.xml');
+		$tpl->assign('include_manifest',true);
+		$head = 'Issue';
+		$stmt = "SELECT rek_pid, rek_title, rek_description FROM ".APP_TABLE_PREFIX."record_search_key where rek_pid='$parent_pid' ";
+		$list = $GLOBALS['db_api']->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+		$tpl->assign('list',$list);
+	break;
+	case 'search':
+	$searchKey = $_REQUEST['searchKey1'];
+	$query = $_REQUEST['query1'];
+	$list = array();
+	if (!empty($query)) {
+		$options['searchKey'.Search_Key::getID($searchKey)] = $query;
+		$list_res = Record::getListing($options, array("Lister", "Viewer"));
+		$list = $list_res['list'];
+		$tpl->assign('rend','search-results');
+	}
+	$tpl->setTemplate('themes/search.tpl.xml');
+	$tpl->assign('list',$list);
+	break;
 	default: // view item
+		$tpl->setTemplate('themes/dri_browse_title.tpl.xml');
 		$stmt = "SELECT rek_pid, rek_title FROM ".APP_TABLE_PREFIX."record_search_key where rek_pid='$pid' ";
 		$list = $GLOBALS['db_api']->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		foreach ($list as $key => $item) {
@@ -56,6 +76,8 @@ switch($action)
 		$tpl->assign('list',$list);
 	break;
 }
+$tpl->assign("isAdministrator", $isAdministrator);
+$tpl->assign("isUser", $username);
 $tpl->assign(compact('pid','theme_id','parent_pid','action','head'));
 $dri_xml = $tpl->displayTemplate();
 

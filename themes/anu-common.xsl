@@ -3,10 +3,16 @@
 	xmlns:dir="http://apache.org/cocoon/directory/2.0" xmlns:dri="http://di.tamu.edu/DRI/1.0/"
 	xmlns:mets="http://www.loc.gov/METS/" xmlns:dc="http://purl.org/dc/elements/1.1/"
 	xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" xmlns:xlink="http://www.w3.org/TR/xlink/"
-	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:mods="http://www.loc.gov/mods/v3"
+	version="1.0">
 
 	<xsl:import href="dri2xhtml.xsl"/>
 	<xsl:key name="objectbyIdentifier" match="dri:object" use="@objectIdentifier"/>
+
+
+
+
 	<xsl:variable name="theme.cssPath">
 		<xsl:value-of
 			select="/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='theme'][@qualifier='cssPath']"
@@ -47,6 +53,10 @@
 		/>
 	</xsl:variable>
 
+	<xsl:variable name="themeName">
+		<xsl:value-of select="substring-after($themeLoc,'themes/')"/>
+	</xsl:variable>
+
 
 	<xsl:variable name="objects" select="/dri:document/dri:meta/dri:objectMeta"/>
 
@@ -73,7 +83,8 @@
 
 	<xsl:variable name="context">
 		<xsl:value-of
-			select="/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='focus' and @qualifier='container']"		/>
+			select="/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='focus' and @qualifier='container']"
+		/>
 	</xsl:variable>
 	<!--xsl:variable name="rnd">
               <xsl:text>?</xsl:text>
@@ -121,6 +132,7 @@
 		<html>
 			<xsl:call-template name="doMeta"/>
 			<xsl:call-template name="doHomePage"/>
+			<!-- xsl:value-of select="$issueCoverImageRef"/ -->
 		</html>
 	</xsl:template>
 
@@ -168,6 +180,37 @@
 		</html>
 	</xsl:template>
 
+	<xsl:variable name="issueCover">
+		<xsl:variable name="manifestUrl">
+			<xsl:choose>
+				<xsl:when test="//mets:file/mets:FLocat/@xlink:href[contains(., 'manifest.php')]">
+					<xsl:value-of
+						select="concat($serverUrl,//mets:file/mets:FLocat/@xlink:href[contains(., 'manifest.php')])"
+					/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:text>null</xsl:text>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+		<xsl:choose>
+			<xsl:when
+				test="$manifestUrl != 'null' and document($manifestUrl)//mods:mods[mods:genre='cover']">
+				<xsl:value-of
+					select="document($manifestUrl)//mods:mods[mods:genre='cover']/mods:identifier[@type='filename']"/>
+
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="$serverUrl"/>
+				<xsl:value-of select="$themeLoc"/>
+				<xsl:text>/images/</xsl:text>
+				<xsl:value-of select="$themeIdent"/>
+				<xsl:text>-cover.jpg</xsl:text>
+			</xsl:otherwise>
+		</xsl:choose>
+
+	</xsl:variable>
+
 
 	<xsl:template name="doHomePage">
 		<body class="homepage">
@@ -178,18 +221,15 @@
 						<xsl:attribute name="href">
 							<xsl:value-of select="$serverUrl"/>
 							<xsl:value-of select="$siteContext"/>
-							<xsl:text>/handle/</xsl:text>
+							<xsl:text>theme.php?parent_pid=</xsl:text>
 							<xsl:value-of select="$handle"/>
-							<xsl:text>/browse-title</xsl:text>
+							<xsl:text>&amp;action=browse-title</xsl:text>
+							<xsl:text>&amp;theme_id=</xsl:text>
+							<xsl:value-of select="$themeName"/>
 						</xsl:attribute>
-						<img border="0" name="rollover"
-							alt="The Collection coverpage {$themeIdent}-cover.jpg">
+						<img border="0" name="rollover" alt="The Issue  coverpage">
 							<xsl:attribute name="src">
-								<xsl:value-of select="$serverUrl"/>
-								<xsl:value-of select="$themeLoc"/>
-								<xsl:text>/images/</xsl:text>
-								<xsl:value-of select="$themeIdent"/>
-								<xsl:text>-cover.jpg</xsl:text>
+								<xsl:value-of select="$issueCover"/>
 							</xsl:attribute>
 						</img>
 					</a>
@@ -197,12 +237,12 @@
 				<div class="abstract">
 					<div class="title">
 						<xsl:apply-templates
-							select="$objects/dri:object[@objectIdentifier = concat('hdl:',$handle)]/mets:METS/mets:dmdSec[1]//dim:dim/dim:field[@element='description' and @qualifier = 'abstract']"
+							select="$objects/dri:object[@objectIdentifier = $handle]/mets:METS/mets:dmdSec[1]//dim:dim/dim:field[@element='description' and @qualifier = 'abstract']"
 						/>
 					</div>
 					<div class="description">
 						<xsl:apply-templates
-							select="$objects/dri:object[@objectIdentifier = concat('hdl:',$handle)]/mets:METS/mets:dmdSec[1]//dim:dim/dim:field[@element='description' and not(@qualifier)]"
+							select="$objects/dri:object[@objectIdentifier = $handle]/mets:METS/mets:dmdSec[1]//dim:dim/dim:field[@element='description' and not(@qualifier)]"
 						/>
 					</div>
 
@@ -390,14 +430,7 @@
 			/>
 		</xsl:variable>
 		<h2 class="advanced-search-heading">Search the Collection</h2>
-		<form method="get" class="advanced-search-form">
-			<xsl:attribute name="action">
-				<xsl:value-of
-					select="/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='contextPath'][not(@qualifier)]"/>
-				<xsl:text>/handle/</xsl:text>
-				<xsl:value-of select="$search-context"/>
-				<xsl:text>/advanced-search</xsl:text>
-			</xsl:attribute>
+		<form method="get" class="advanced-search-form" action="{$serverUrl}theme.php">
 			<!--xsl:call-template name="doSearchTable"/-->
 			<xsl:apply-templates select=".//dri:table[@n='search-query']" mode="search"/>
 			<input type="hidden" name="scope">
@@ -405,6 +438,9 @@
 					<xsl:value-of select="$handle"/>
 				</xsl:attribute>
 			</input>
+			<input type="hidden" name="parent_pid" value="{$handle}" />
+			<input type="hidden" name="action" value="search" />
+			<input type="hidden" name="theme_id" value="{$themeName}" />
 		</form>
 		<xsl:if test="dri:div[@n='search-results' and not(dri:includeSet)]">
 			<p>No search results found</p>
@@ -528,10 +564,11 @@
 	<xsl:template name="doMenu">
 		<xsl:param name="handle" select="$context"/>
 		<div class="menu-options">
-			<a href="{$serverUrl}theme.php?parent_pid={$handle}" class="menu">HOME</a>&#x00A0;<a
-				href="{$serverUrl}theme.php?parent_pid={$handle}&amp;action=browse-title" class="menu"
-				>BROWSE</a>&#x00A0;<a href="{$siteContext}/handle/{$handle}/advanced-search"
-				class="menu">SEARCH</a></div>
+			<a href="{$serverUrl}theme.php?parent_pid={$handle}&amp;theme_id={$themeName}"
+				class="menu">HOME</a>&#x00A0;<a
+					href="{$serverUrl}theme.php?parent_pid={$handle}&amp;action=browse-title&amp;theme_id={$themeName}"
+				class="menu">BROWSE</a>&#x00A0;<a
+					href="{$serverUrl}theme.php?parent_pid={$handle}&amp;action=search&amp;theme_id={$themeName}" class="menu">SEARCH</a></div>
 	</xsl:template>
 
 
@@ -559,14 +596,14 @@
 	<xsl:template match="dri:table[@n='search-query']" mode="search">
 		<table class="search">
 			<tr class="ds-table-header-row">
-				<th class="ds-table-header-cell odd">Conjunction</th>
+				<th class="ds-table-header-cell odd"></th>
 				<th class="ds-table-header-cell even">Search Type</th>
 				<th class="ds-table-header-cell odd">Search Term</th>
 			</tr>
 			<tr class="ds-table-row even">
 				<td class="ds-table-cell odd"/>
 				<td class="ds-table-cell even">
-					<select type="select" class="ds-select-field" name="field1">
+					<select type="select" class="ds-select-field" name="searchKey1">
 						<option value="ANY" selected="true">All Fields</option>
 						<option value="title">Title</option>
 						<option value="keyword">Subject</option>
@@ -577,46 +614,8 @@
 					<input size="60" class="ds-text-field" name="query1" type="text"/>
 				</td>
 			</tr>
-			<tr class="ds-table-row odd">
-				<td class="ds-table-cell odd">
-					<select class="ds-select-field" name="conjunction1" type="select">
-						<option value="AND" selected="true">AND</option>
-						<option value="OR">OR</option>
-						<option value="NOT">NOT</option>
-					</select>
-				</td>
-				<td class="ds-table-cell even">
-					<select type="select" class="ds-select-field" name="field2">
-						<option value="ANY">All Fields</option>
-						<option value="title" selected="true">Title</option>
-						<option value="keyword">Subject</option>
-						<option value="abstract">Description</option>
-					</select>
-				</td>
-				<td>
-					<input size="60" class="ds-text-field" name="query2" type="text"/>
-				</td>
-			</tr>
-			<tr class="ds-table-row even">
-				<td class="ds-table-cell odd">
-					<select class="ds-select-field" name="conjunction2" type="select">
-						<option value="AND" selected="true">AND</option>
-						<option value="OR">OR</option>
-						<option value="NOT">NOT</option>
-					</select>
-				</td>
-				<td class="ds-table-cell even">
-					<select type="select" class="ds-select-field" name="field3">
-						<option value="ANY">All Fields</option>
-						<option value="title">Title</option>
-						<option value="keyword" selected="true">Subject</option>
-						<option value="abstract">Description</option>
-					</select>
-				</td>
-				<td>
-					<input size="60" class="ds-text-field" name="query3" type="text"/>
-				</td>
-			</tr>
+			
+			
 			<tr>
 				<td align="center" colspan="3">
 					<input type="hidden" name="num_search_field" value="3"/>
