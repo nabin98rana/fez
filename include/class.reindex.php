@@ -657,7 +657,8 @@ class Reindex
 	function buildFezMD($xdis_id, $sta_id) {
 		$created_date = Date_API::getFedoraFormattedDateUTC();
 		$updated_date = $created_date;
-		$ret_id = 3; // standard record type id
+		$xdis_details = XSD_Display::getDetails($xdis_id);
+		$ret_id = $xdis_details['xdis_object_type']; // standard record type id
 
 		$xml = '<FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
 			    	<xdis_id>'.$xdis_id.'</xdis_id>

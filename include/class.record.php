@@ -1413,6 +1413,25 @@ inner join
         }
   }
 
+	function getCitationIndex($pid) {
+		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+		$stmt = "SELECT
+                rek_citation
+             FROM
+                " . $dbtp . "record_search_key
+             WHERE
+                rek_pid = '".$pid."'";
+    	$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+    	if (PEAR::isError($res)) {
+        	Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+    	} else {
+			if ($res == "") {
+               $res = Record::getSearchKeyIndexValue($pid, "Title");
+			}		
+			return $res;
+		}		
+	}	
+
 	function getSearchKeyIndexValue($pid, $searchKeyTitle, $getLookup=true) {
 		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
 		$sek_details = Search_Key::getBasicDetailsByTitle($searchKeyTitle);
