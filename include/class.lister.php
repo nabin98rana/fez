@@ -227,7 +227,7 @@ class Lister
             if ($canView) {
 
                 $tpl->assign("xdis_id", Record::getSearchKeyIndexValue($collection_pid, "Display Type"));
-                //$collection_details = Collection::getDetails($collection_pid);
+//                $collection_details = Collection::getDetails($collection_pid);
                 $parents = Record::getParentsDetails($collection_pid);
                 $tpl->assign("parents", $parents);
                 $collection_xdis_id = Collection::getCollectionXDIS_ID();
@@ -247,8 +247,8 @@ class Lister
                 //$list = Collection::getListing($collection_pid, $pager_row, $rows, $sort_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
-				
-                $tpl->assign("list_heading", "List of Records in ".$collection_details[0]['title'][0]." Collection");
+                $collection_title = Record::getSearchKeyIndexValue($collection_pid, "Title");
+                $tpl->assign("list_heading", "List of Records in ".$collection_title." Collection");
                 $tpl->assign("list_type", "collection_records_list");
 
                 $tpl->assign("collection_pid", $collection_pid);

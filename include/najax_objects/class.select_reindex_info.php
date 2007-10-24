@@ -32,7 +32,7 @@ class SelectReindexInfo {
     function getDocTypes($collection_pid)
     {
 		if ($collection_pid == "") {
-			$childXDisplayOptions = XSD_Display::getAssocListDocTypes();
+			$childXDisplayOptions = XSD_Display::getAssocListDocTypesAll();
 		} else {
 			$childXDisplayOptions = Record::getSearchKeyIndexValue($collection_pid, "XSD Display Option");
 		}

@@ -310,9 +310,9 @@
 					if ($details['rek_object_type'] == 3) {
 						$value = '<a title="Click to view '.$details['rek_display_type_lookup'].': '.htmlentities($value).'" href="view.php?pid='.$details['rek_pid'].'">'.$value.'</a>';
 					} elseif ($details['rek_object_type'] == 2) {
-						$value = '<a title="Click to list records in collection  '.htmlentities($value).'" href="list.php?collection_pid='.$details['rek_pid'].'">'.$value.'</a>';						
+						$value = '<a title="Click to list records in '.$details['rek_display_type_lookup'].' '.htmlentities($value).'" href="list.php?collection_pid='.$details['rek_pid'].'">'.$value.'</a>';						
 					} elseif ($details['rek_object_type'] == 1) {
-						$value = '<a title="Click to list collections in community  '.htmlentities($value).'" href="list.php?community_pid='.$details['rek_pid'].'">'.$value.'</a>';												
+						$value = '<a title="Click to list collections in '.$details['rek_display_type_lookup'].' '.htmlentities($value).'" href="list.php?community_pid='.$details['rek_pid'].'">'.$value.'</a>';												
 					}
 				}			
 				if ($xsdmf['sek_title'] == "Date") {
