@@ -2,6 +2,7 @@
 
 include_once('../config.inc.php');
 
+
 header('Content-type: application/xml');
 print("<?xml version='1.0'?>\n");
 print("<dir:directory xmlns:dir=\"http://apache.org/cocoon/directory/2.0\">\n");

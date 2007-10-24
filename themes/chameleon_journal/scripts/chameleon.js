@@ -230,7 +230,8 @@ String.prototype.trim = function() {
 
             xmlhttp.onreadystatechange = function() {
                 if (xmlhttp.readyState == 4) {
-                if (xmlhttp.responseText.indexOf('Resource Not Found') != -1) {
+                     //   alert(xmlhttp.responseText);
+                if (xmlhttp.responseText.indexOf('404') != -1) {
                         UI.statusMsg('Trying the Default stylesheet....');      
                         CSS.loadDefault(true);
                     }
@@ -256,7 +257,8 @@ String.prototype.trim = function() {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState == 4) {
-        if (xmlhttp.responseText.indexOf('Resource Not Found') != -1) {
+
+        if (xmlhttp.responseText.indexOf('404') != -1) {
            alert('There was an error loading from the server:\n' + xmlhttp.responseText.replace(/error /, '') + '.');
            return;
         }
@@ -287,6 +289,7 @@ String.prototype.trim = function() {
             var xmlhttp = new XMLHttpRequest();
             xmlhttp.onreadystatechange = function() {
                 if (xmlhttp.readyState == 4) {
+                //alert(xmlhttp.responseText);
                     if (xmlhttp.responseText.indexOf('error') != -1) {
                         UI.statusMsg('There was an error saving to the server:\n' + xmlhttp.responseText.replace(/error /, '') + '.', 'chameleon-error');
                     } else {
@@ -305,6 +308,7 @@ String.prototype.trim = function() {
             xmlContent += "<data id=\"cssFile\">" + document.getElementById("cssFile").firstChild.nodeValue + "</data>";
             xmlContent += "<data id=\"cssContent\">" + css + "</data>";
             xmlContent += "</update>";
+            //alert(xmlContent);
             xmlhttp.send(xmlContent);
         },
         

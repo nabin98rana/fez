@@ -14,9 +14,16 @@ $action = $_REQUEST['action'];
 $theme_dom = DOMDOcument::load(APP_PATH.'themes/'.$theme_id.'/theme.xsl');
 
 // get the dri
-list($dri_xml, $dri_info) = Misc::processURL(APP_BASE_URL."dri.php?theme_id=$theme_id&pid=$pid");
+if (empty($action)) {
+	$action='collection-home';
+}
+$no_headers = true;
+ob_start();
+include('dri.php');
+$dri_xml = ob_get_contents();
+ob_end_clean();
 
-//print_r($dri_xml);
+//Error_Handler::logError($dri_xml);
 $dri_dom = DOMDOcument::loadXML($dri_xml);
 
 // transform the DRI XML with the theme XSLT

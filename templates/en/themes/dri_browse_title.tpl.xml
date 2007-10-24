@@ -2,9 +2,9 @@
 <document xmlns="http://di.tamu.edu/DRI/1.0/" xmlns:i18n="http://apache.org/cocoon/i18n/2.1"
   version="1.0">
   <body>
-    <div rend="primary" n="browse-by-title" id="artifactbrowser.BrowseTitles.div.browse-by-title">
-      <head>Browse By Title</head>
-      <div interactive="yes" rend="secondary navigation" action="browse-title" n="browse-navigation"
+    <div rend="primary" n="{$action}" id="artifactbrowser.BrowseTitles.div.browse-by-title">
+      <head>{$head}</head>
+      <div interactive="yes" rend="secondary navigation" action="{$action}" n="browse-navigation"
         method="post" id="artifactbrowser.BrowseTitles.div.browse-navigation">
         <list rend="alphabet" type="simple" n="jump-list"
           id="artifactbrowser.BrowseTitles.list.jump-list">
@@ -167,13 +167,16 @@
     <list n="administrative" id="artifactbrowser.Navigation.list.administrative"/>
   </options>
   <meta>
-    <userMeta authenticated="no">
+    <userMeta authenticated="{if $isAdministrator}yes{else}no{/if}">
+      <metadata element="resource" qualifier="collection_admin">{if $isAdministrator}yes{else}no{/if}</metadata>
       <metadata element="identifier" qualifier="loginURL">login.php</metadata>
       <metadata element="language" qualifier="RFC3066">en_US</metadata>
       <metadata element="language" qualifier="RFC3066">en</metadata>
+      <!-- user authenticated to edit theme -->
     </userMeta>
     <pageMeta>
-      <metadata element="contextPath">themes/{$theme_id}</metadata>
+      <metadata element="contextPath"></metadata>
+      <metadata element="theme" qualifier="path">themes/{$theme_id}</metadata>
       <metadata element="request" qualifier="queryString"/>
       <metadata element="request" qualifier="scheme">{$smarty.const.APP_SCHEME}</metadata>
       <metadata element="request" qualifier="serverPort">{$smarty.const.APP_PORT}</metadata>
@@ -186,7 +189,7 @@
       <metadata element="search" qualifier="queryField">query</metadata>
       <metadata element="page" qualifier="contactURL">dri.php?action=contact</metadata>
       <metadata element="page" qualifier="feedbackURL">dri.php?action=feedback</metadata>
-      <metadata element="focus" qualifier="container">{$pid}</metadata>
+      <metadata element="focus" qualifier="container">{$parent_pid}</metadata>
       <metadata element="title">Browse By Title</metadata>
       <trail target="/manakin/">DSpace Home</trail>
       <trail target="/manakin/handle/123456789/1">African Journal of Information &amp;
@@ -196,6 +199,7 @@
     </pageMeta>
     <objectMeta>
       
+      {if $include_manifest}
       <object objectIdentifier="hdl:123456789/313" url="/manakin/handle/123456789/313" repositoryIdentifier="hdl:123456789">
         <mets:METS xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/TR/xlink/" xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" LABEL="DSpace Item" PROFILE="DSPACE METS SIP Profile 1.0 (DRI extensions for DIM)" ID="hdl:123456789/313">
           <mets:dmdSec GROUPID="group_dmd_0" ID="dmd_1">
@@ -221,7 +225,7 @@
           <mets:fileSec>
             <mets:fileGrp USE="CONTENT">
               <mets:file SIZE="3595" GROUP_ID="group_file_437" CHECKSUM="ca20a6ab94866ce74767643ef2f12f3f" MIMETYPE="text/xml" CHECKSUMTYPE="MD5" ID="file_437">
-                <mets:FLocat LOCTYPE="URL" xlink:href="manifest.php" xlink:title="manifest.xml" xlink:type="locator"/>
+                <mets:FLocat LOCTYPE="URL" xlink:href="manifest.php?issue_pid={$parent_pid}" xlink:title="manifest.xml" xlink:type="locator"/>
               </mets:file>
             </mets:fileGrp>
           </mets:fileSec>
@@ -234,7 +238,9 @@
           </mets:structMap>
         </mets:METS>
       </object>
+      {/if}
       
+      {section name=i loop=$list}
       <object objectIdentifier="hdl:123456789/301" url="/manakin/handle/123456789/301"
         repositoryIdentifier="hdl:123456789">
         <mets:METS xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/TR/xlink/"
@@ -244,128 +250,36 @@
           <mets:dmdSec GROUPID="group_dmd_0" ID="dmd_1">
             <mets:mdWrap OTHERMDTYPE="DIM" MDTYPE="OTHER">
               <mets:xmlData>
-                <dim:dim dspaceType="COLLECTION">
+                <dim:dim dspaceType="ITEM">
                   <dim:field element="description" mdschema="dc"/>
                   <dim:field element="description" mdschema="dc" qualifier="abstract"/>
                   <dim:field element="description" mdschema="dc" qualifier="tableofcontents"/>
                   <dim:field element="identifier" mdschema="dc" qualifier="uri"
-                    >http://hdl.handle.net/123456789/301</dim:field>
+                    >{$list[i].rek_pid}</dim:field>
                   <dim:field element="provenance" mdschema="dc"/>
                   <dim:field element="rights" mdschema="dc"/>
                   <dim:field element="rights" mdschema="dc" qualifier="license"/>
-                  <dim:field element="title" mdschema="dc">Volume 1 Issue 1</dim:field>
-                </dim:dim>
-              </mets:xmlData>
-            </mets:mdWrap>
-          </mets:dmdSec>
-          <mets:structMap TYPE="LOGICAL" LABEL="DSpace">
-            <mets:div TYPE="DSpace Collection" DMDID="dmd_1"/>
-          </mets:structMap>
-        </mets:METS>
-      </object>
-      <object objectIdentifier="hdl:123456789/1" url="/manakin/handle/123456789/1"
-        repositoryIdentifier="hdl:123456789">
-        <mets:METS xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/TR/xlink/"
-          xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" LABEL="DSpace Community"
-          PROFILE="DSPACE METS SIP Profile 1.0 (DRI extensions for DIM and communities/collections)"
-          ID="hdl:123456789/1">
-          <mets:dmdSec GROUPID="group_dmd_0" ID="dmd_1">
-            <mets:mdWrap OTHERMDTYPE="DIM" MDTYPE="OTHER">
-              <mets:xmlData>
-                <dim:dim dspaceType="COMMUNITY">
-                  <dim:field element="description" mdschema="dc"/>
-                  <dim:field element="description" mdschema="dc" qualifier="abstract"/>
-                  <dim:field element="description" mdschema="dc" qualifier="tableofcontents"/>
-                  <dim:field element="identifier" mdschema="dc" qualifier="uri"
-                    >http://hdl.handle.net/123456789/1</dim:field>
-                  <dim:field element="rights" mdschema="dc"/>
-                  <dim:field element="title" mdschema="dc">African Journal of Information &amp;
-                    Communication Technology</dim:field>
-                </dim:dim>
-              </mets:xmlData>
-            </mets:mdWrap>
-          </mets:dmdSec>
-          <mets:structMap TYPE="LOGICAL" LABEL="DSpace">
-            <mets:div TYPE="DSpace Community" DMDID="dmd_1"/>
-          </mets:structMap>
-        </mets:METS>
-      </object>
-      {section name='i'  loop=$list}
-      <object objectIdentifier="{$list[i].rek_pid}" url="view.php?pid={$list[i].rek_pid}"
-        repositoryIdentifier="UQ:">
-        <mets:METS xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/TR/xlink/"
-          xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" LABEL="DSpace Item"
-          PROFILE="DSPACE METS SIP Profile 1.0 (DRI extensions for DIM)" ID="{$list[i].rek_pid}">
-          <mets:dmdSec GROUPID="group_dmd_0" ID="dmd_1">
-            <mets:mdWrap OTHERMDTYPE="DIM" MDTYPE="OTHER">
-              <mets:xmlData>
-                <dim:dim dspaceType="ITEM">
-                  {section name="author_loop" loop=$list[i].rek_author}
-                  <dim:field element="contributor" mdschema="dc" qualifier="author">{$list[i].rek_author[author_loop]|escape:"html"}</dim:field>
-                  {/section}
-                  <dim:field element="date" mdschema="dc" qualifier="accessioned"
-                    >2007-07-27T06:23:28Z</dim:field>
-                  <dim:field element="date" mdschema="dc" qualifier="available">2007-07-27T06:23:28Z</dim:field>
-                  <dim:field element="date" mdschema="dc" qualifier="issued">2005-09-14</dim:field>
-                  <dim:field element="identifier" mdschema="dc" qualifier="uri"
-                    >http://hdl.handle.net/{$items[ii].rek_pid}</dim:field>
-                  <dim:field element="description" mdschema="dc" qualifier="abstract">{$list[i].rek_description|escape:"html"}</dim:field>
-                  <dim:field element="description" mdschema="dc" qualifier="provenance"
-                    language="en">Made available in DSpace on 2007-07-27T06:23:28Z (GMT). No. of
-                    bitstreams: 2 26-47-1-SM.pdf: 485062 bytes, checksum:
-                    d0959e43855366658c9619b5e4a2c53c (MD5) metadata.xml: 3115 bytes, checksum:
-                    393aef26270ab56c9fe67b4c1275647a (MD5) Previous issue date: 2005-09-14</dim:field>
-                  <dim:field element="format" mdschema="dc" qualifier="extent">7 pages</dim:field>
-                  <dim:field element="language" mdschema="dc" qualifier="iso">en</dim:field>
-                  <dim:field element="subject" mdschema="dc">ad hoc and sensor networks</dim:field>
-                  <dim:field element="title" mdschema="dc">A New Resource Management Scheme for Ad
-                    Hoc and Sensor Networks</dim:field>
-                  <dim:field element="type" mdschema="dc">article</dim:field>
-                  <dim:field element="contributor" mdschema="dc" qualifier="affiliation">Ronan de
-                    Renesse: ronan.de renesse@kcl.ac.uk</dim:field>
-                  <dim:field element="contributor" mdschema="dc" qualifier="affiliation">Ronan de
-                    Renesse: Center for Telecommunications Research, KingÃ¢â�¬â�¢s College London,
-                    26-29 Drury Lane, London WC2B 5RL, UK</dim:field>
-                  <dim:field element="contributor" mdschema="dc" qualifier="affiliation">Vasilis
-                    Friderikos: vasilis.friderikos@kcl.ac.uk</dim:field>
-                  <dim:field element="contributor" mdschema="dc" qualifier="affiliation">Vasilis
-                    Friderikos: Center for Telecommunications Research, KingÃ¢â�¬â�¢s College
-                    London, 26-29 Drury Lane, London WC2B 5RL, UK</dim:field>
-                  <dim:field element="contributor" mdschema="dc" qualifier="affiliation">Hamid
-                    Aghvami: hamid.aghvami@kcl.ac.uk</dim:field>
-                  <dim:field element="contributor" mdschema="dc" qualifier="affiliation">Hamid
-                    Aghvami: Center for Telecommunications Research, KingÃ¢â�¬â�¢s College London,
-                    26-29 Drury Lane, London WC2B 5RL, UK</dim:field>
+                  <dim:field element="title" mdschema="dc">{$list[i].rek_title|escape}</dim:field>
                 </dim:dim>
               </mets:xmlData>
             </mets:mdWrap>
           </mets:dmdSec>
           <mets:fileSec>
             <mets:fileGrp USE="CONTENT">
-              <mets:file SIZE="485062" GROUP_ID="group_file_427"
-                CHECKSUM="d0959e43855366658c9619b5e4a2c53c" MIMETYPE="application/pdf"
-                CHECKSUMTYPE="MD5" ID="file_427">
+              {assign var="loop_format" value=$list[i].rek_file_attachment_name}
+              {section name="f" loop=$loop_format}
+              <mets:file SIZE="3595" GROUP_ID="group_file_437"
+                CHECKSUM="ca20a6ab94866ce74767643ef2f12f3f" MIMETYPE="text/xml" CHECKSUMTYPE="MD5"
+                ID="file_437">
                 <mets:FLocat LOCTYPE="URL"
-                  xlink:href="/manakin/bitstream/handle/123456789/309/26-47-1-SM.pdf?sequence=1"
-                  xlink:title="26-47-1-SM.pdf" xlink:type="locator"/>
+                  xlink:href="{$app_base_url}eserv.php?pid={$list[i].rek_pid|escape}&amp;dsID={$list[i].rek_file_attachment_name[f]|escape}"
+                  xlink:title="manifest.xml" xlink:type="locator"/>
               </mets:file>
-            </mets:fileGrp>
-            <mets:fileGrp USE="METADATA">
-              <mets:file SIZE="3115" GROUP_ID="group_file_428"
-                CHECKSUM="393aef26270ab56c9fe67b4c1275647a" MIMETYPE="text/xml" CHECKSUMTYPE="MD5"
-                ID="file_428">
-                <mets:FLocat LOCTYPE="URL"
-                  xlink:href="/manakin/bitstream/handle/123456789/309/metadata.xml?sequence=2"
-                  xlink:title="metadata.xml" xlink:type="locator"/>
-              </mets:file>
+              {/section}
             </mets:fileGrp>
           </mets:fileSec>
           <mets:structMap TYPE="LOGICAL" LABEL="DSpace">
-            <mets:div TYPE="DSpace Item" DMDID="dmd_1">
-              <mets:div TYPE="DSpace Content Bitstream" ID="div_2">
-                <mets:fptr FILEID="file_427"/>
-              </mets:div>
-            </mets:div>
+            <mets:div TYPE="DSpace Collection" DMDID="dmd_1"/>
           </mets:structMap>
         </mets:METS>
       </object>

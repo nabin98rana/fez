@@ -24,7 +24,7 @@
 		/>
 	</xsl:variable>
 
-	<xsl:variable name="themeIdent" select="substring-after($containerHandle , '/')"/>
+	<xsl:variable name="themeIdent" select="$containerHandle"/>
 
 	<xsl:variable name="imageLoc">
 		<xsl:value-of
@@ -67,14 +67,13 @@
 	<!-- variable holding object context -->
 	<xsl:variable name="handle">
 		<xsl:value-of
-			select="substring-after(/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='focus' and @qualifier='container'],':')"
+			select="/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='focus' and @qualifier='container']"
 		/>
 	</xsl:variable>
 
 	<xsl:variable name="context">
 		<xsl:value-of
-			select="substring-after(/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='focus' and @qualifier='container'],':')"
-		/>
+			select="/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='focus' and @qualifier='container']"		/>
 	</xsl:variable>
 	<!--xsl:variable name="rnd">
               <xsl:text>?</xsl:text>
@@ -92,7 +91,7 @@
 	</xsl:variable>
 
 	<xsl:variable name="themeSpecCss">
-		<xsl:value-of select="$themeIdent"/>
+		<xsl:value-of select="translate($themeIdent,':','_')"/>
 		<xsl:text>.css</xsl:text>
 	</xsl:variable>
 
@@ -490,18 +489,16 @@
 					<xsl:value-of select="$themeLoc"/>
 				</THEME_ROOT>
 				<THEME_NAME id="themeName">
-					<xsl:value-of select="substring-after($themeLoc,'/manakin/themes/')"/>
+					<xsl:value-of select="substring-after($themeLoc,'themes/')"/>
 				</THEME_NAME>
 				<CSS_FILE id="cssFile">
-					<xsl:value-of select="$themeIdent"/>
-					<xsl:text>.css</xsl:text>
+					<xsl:value-of select="$themeSpecCss"/>
 				</CSS_FILE>
 				<REMOTE_URI id="cssLocation">
 					<xsl:value-of select="$serverUrl"/>
 					<xsl:value-of select="$themeLoc"/>
 					<xsl:text>/css/</xsl:text>
-					<xsl:value-of select="$themeIdent"/>
-					<xsl:text>.css</xsl:text>
+					<xsl:value-of select="$themeSpecCss"/>
 				</REMOTE_URI>
 				<REMOTE_URI id="defaultCssLocation">
 					<xsl:value-of select="$serverUrl"/>
@@ -510,18 +507,17 @@
 				</REMOTE_URI>
 				<REMOTE_URI id="imageLocation">
 					<xsl:value-of select="$serverUrl"/>
+					<xsl:text>themes/image_dir_content.php?path=</xsl:text>
 					<xsl:value-of select="$themeLoc"/>
-					<xsl:text>/dirContent/</xsl:text>
-					<xsl:value-of select="substring-after($themeLoc,'/manakin/themes/')"/>
 					<xsl:text>/images</xsl:text>
 				</REMOTE_URI>
 				<REMOTE_URI id="imageUploadUri">
 					<xsl:value-of select="$serverUrl"/>
-					<xsl:text>/dspace/imageUpload</xsl:text>
+					<xsl:text>themes/image_uploader.php</xsl:text>
 				</REMOTE_URI>
 				<REMOTE_URI id="cssUploadUri">
 					<xsl:value-of select="$serverUrl"/>
-					<xsl:text>/dspace/cssModifier</xsl:text>
+					<xsl:text>themes/css_updater.php</xsl:text>
 				</REMOTE_URI>
 			</xml>
 		</xsl:if>
@@ -532,8 +528,8 @@
 	<xsl:template name="doMenu">
 		<xsl:param name="handle" select="$context"/>
 		<div class="menu-options">
-			<a href="{$siteContext}/handle/{$handle}" class="menu">HOME</a>&#x00A0;<a
-				href="{$siteContext}/handle/{$handle}/browse-title" class="menu"
+			<a href="{$serverUrl}theme.php?parent_pid={$handle}" class="menu">HOME</a>&#x00A0;<a
+				href="{$serverUrl}theme.php?parent_pid={$handle}&amp;action=browse-title" class="menu"
 				>BROWSE</a>&#x00A0;<a href="{$siteContext}/handle/{$handle}/advanced-search"
 				class="menu">SEARCH</a></div>
 	</xsl:template>

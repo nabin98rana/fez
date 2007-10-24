@@ -50,45 +50,10 @@
 	<!-- show the "ORIGINAL" bitstream -->
 	<xsl:variable name="driPath">dri.php?pid=</xsl:variable>
 	<!-- variable to hold the context location of this theme -->
-	<!--xsl:variable name="themeLoc">
-		<xsl:value-of
-			select="/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='contextPath'][not(@qualifier)]"/>
-		<xsl:text>/themes/</xsl:text>
-		<xsl:value-of
-			select="/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='theme'][@qualifier='path']"
-		/>
-	</xsl:variable-->
 
-	<xsl:variable name="containerHandle">
-		<xsl:value-of
-			select="/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='focus'][@qualifier='container']"
-		/>
-	</xsl:variable>
-
-	<xsl:variable name="themeIdent" select="substring-after($containerHandle , '/')"/>
-	<!-- variable holding url of css server -->
-
-	<!-- variable holding webapp context -->
-	<xsl:variable name="siteContext">
-		<xsl:value-of
-			select="/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='contextPath'][not(@qualifier)]"
-		/>
-	</xsl:variable>
-
-	<!-- variable holding object context -->
-	<xsl:variable name="handle">
-		<xsl:value-of
-			select="substring-after(/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='focus' and @qualifier='container'],':')"
-		/>
-	</xsl:variable>
 
 	<xsl:variable name="objects" select="/dri:document/dri:meta/dri:objectMeta"/>
 
-	<xsl:variable name="context">
-		<xsl:value-of
-			select="substring-after(/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='focus' and @qualifier='container'],':')"
-		/>
-	</xsl:variable>
 
 	<xsl:variable name="canUserEditTheme">
 		<xsl:value-of
@@ -166,6 +131,7 @@
 		<li>
 			<div class="tocEntry">
 				<span class="toc-a">
+					<!-- <xsl:value-of select="concat($serverUrl,$driPath,$identifier)"/> -->
 					<a>
 						<xsl:attribute name="href">
 							<xsl:value-of
