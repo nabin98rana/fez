@@ -27,7 +27,7 @@ if (is_dir($dir)) {
             	|| stristr($file, ".png") 
             	|| stristr($file, ".gif") 
 	        ) {
-        		$xml .= "<file type=\"img\">images/$file</file>\n";
+        		$xml .= "<file type=\"img\">../images/$file</file>\n";
     		}
         }
         closedir($dh);

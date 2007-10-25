@@ -15,7 +15,7 @@ $theme_dom = DOMDOcument::load(APP_PATH.'themes/'.$theme_id.'/theme.xsl');
 
 // get the dri
 if (empty($action)) {
-	$action='collection-home';
+	$action='community-home';
 }
 $no_headers = true;
 ob_start();
@@ -23,7 +23,7 @@ include('dri.php');
 $dri_xml = ob_get_contents();
 ob_end_clean();
 
-Error_Handler::logError($dri_xml);
+//Error_Handler::logError($dri_xml);
 $dri_dom = DOMDOcument::loadXML($dri_xml);
 
 // transform the DRI XML with the theme XSLT

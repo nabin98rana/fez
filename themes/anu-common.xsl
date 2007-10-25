@@ -254,19 +254,14 @@
 	<xsl:template name="doCommunityHomePage">
 		<body class="homepage">
 			<div id="collection-list">
-				<h3>Collections</h3>
+				<h3>Issues</h3>
 				<xsl:apply-templates
 					select="dri:body/dri:div/dri:div[@id='artifactbrowser.CommunityViewer.div.community-view']"
 				/>
 			</div>
 			<div id="community-cover">
-				<img name="rollover" alt="The Community coverpage">
-					<xsl:attribute name="src">
-						<xsl:value-of select="$serverUrl"/>
-						<xsl:value-of select="$themeLoc"/>
-						<xsl:text>/images/community.jpg</xsl:text>
-					</xsl:attribute>
-				</img>
+				<xsl:variable name="imgsrc" select="//mets:fileGrp[@USE='preview'][1]/mets:file/mets:FLocat/@xlink:href"/>
+				<img name="rollover" alt="The Community coverpage" src="{$imgsrc}" />
 			</div>
 		</body>
 	</xsl:template>
@@ -276,30 +271,31 @@
 	</xsl:template>
 
 	<xsl:template match="dri:objectInclude">
-		<xsl:variable name="communityHandle" select="substring-after(@objectSource, ':')"/>
-		<xsl:variable name="communityID" select="substring-after($communityHandle, '/')"/>
-		<xsl:variable name="imgsrc">
-			<xsl:value-of select="$serverUrl"/>
-			<xsl:value-of select="$themeLoc"/>
-			<xsl:text>/images/</xsl:text>
-			<xsl:value-of select="$communityID"/>
-			<xsl:text>-cover.jpg</xsl:text>
-		</xsl:variable>
+		<xsl:variable name="communityID" select="@objectSource"/>
+
+		
+		<xsl:variable name="thumbsrc" select="key('objectbyIdentifier' ,$communityID)/mets:METS/mets:fileSec/mets:fileGrp[@USE='thumbnail']/mets:file/mets:FLocat/@xlink:href"/>
+		<xsl:variable name="imgsrc" select="key('objectbyIdentifier' ,$communityID)/mets:METS/mets:fileSec/mets:fileGrp[@USE='preview']/mets:file/mets:FLocat/@xlink:href"/>
 		<xsl:variable name="href">
 			<xsl:value-of select="$serverUrl"/>
 			<xsl:value-of select="$siteContext"/>
-			<xsl:text>/handle/</xsl:text>
-			<xsl:value-of select="$communityHandle"/>
+			<xsl:text>theme.php?parent_pid=</xsl:text>
+			<xsl:value-of select="$communityID"/>
+			<xsl:text>&amp;action=collection-home</xsl:text>
+			<xsl:text>&amp;theme_id=</xsl:text>
+			<xsl:value-of select="$themeName"/>
 		</xsl:variable>
 		<div class="thumbnail">
 			<a class="imageref" href="{$href}">
-				<img alt="The Collection coverpage {$communityID}-cover.jpg" width="130"
-					height="180" src="{$imgsrc}" onMouseOver="document.rollover.src='{$imgsrc}'"/>
+				<img alt="The Collection coverpage {$communityID}-cover.jpg" 
+					 src="{$thumbsrc}" onMouseOver="document.rollover.src='{$imgsrc}'"/>
 			</a>
 			<p class="thumbtitle">
-				<xsl:value-of
+				<a href="{$href}">
+					<xsl:value-of
 					select="key('objectbyIdentifier' ,@objectSource)/mets:METS/mets:dmdSec[1]/mets:mdWrap/mets:xmlData/dim:dim/dim:field[@element='title']"
 				/>
+				</a>
 			</p>
 		</div>
 	</xsl:template>
@@ -445,6 +441,7 @@
 		<xsl:if test="dri:div[@n='search-results' and not(dri:includeSet)]">
 			<p>No search results found</p>
 		</xsl:if>
+		
 		<div class="spacer">&#x00A0;</div>
 	</xsl:template>
 
@@ -564,7 +561,7 @@
 	<xsl:template name="doMenu">
 		<xsl:param name="handle" select="$context"/>
 		<div class="menu-options">
-			<a href="{$serverUrl}theme.php?parent_pid={$handle}&amp;theme_id={$themeName}"
+			<a href="{$serverUrl}theme.php?parent_pid={$handle}&amp;action=collection-home&amp;theme_id={$themeName}"
 				class="menu">HOME</a>&#x00A0;<a
 					href="{$serverUrl}theme.php?parent_pid={$handle}&amp;action=browse-title&amp;theme_id={$themeName}"
 				class="menu">BROWSE</a>&#x00A0;<a

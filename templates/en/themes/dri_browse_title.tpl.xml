@@ -168,21 +168,21 @@
   </options>
   <meta>
     <userMeta authenticated="{if $isAdministrator}yes{else}no{/if}">
-      <metadata element="resource" qualifier="collection_admin">{if $isAdministrator}yes{else}no{/if}</metadata>
+      <metadata element="resource" qualifier="collection_admin">{if
+        $isAdministrator}yes{else}no{/if}</metadata>
       <metadata element="identifier" qualifier="loginURL">login.php</metadata>
       <metadata element="language" qualifier="RFC3066">en_US</metadata>
       <metadata element="language" qualifier="RFC3066">en</metadata>
       <!-- user authenticated to edit theme -->
     </userMeta>
     <pageMeta>
-      <metadata element="contextPath"></metadata>
+      <metadata element="contextPath"/>
       <metadata element="theme" qualifier="path">themes/{$theme_id}</metadata>
       <metadata element="request" qualifier="queryString"/>
       <metadata element="request" qualifier="scheme">{$smarty.const.APP_SCHEME}</metadata>
       <metadata element="request" qualifier="serverPort">{$smarty.const.APP_PORT}</metadata>
       <metadata element="request" qualifier="serverName">{$smarty.const.APP_HOSTNAME}</metadata>
-      <metadata element="server" qualifier="url"
-        >{$smarty.const.APP_BASE_URL}</metadata>
+      <metadata element="server" qualifier="url">{$smarty.const.APP_BASE_URL}</metadata>
       <metadata element="request" qualifier="URI">dri.php?action=browse-title&amp;pid={$pid}</metadata>
       <metadata element="search" qualifier="simpleURL">dri.php?action=search</metadata>
       <metadata element="search" qualifier="advancedURL">dri.php?action=adv_search</metadata>
@@ -199,22 +199,30 @@
     </pageMeta>
     <objectMeta>
       
-      {if $include_manifest}
-      <object objectIdentifier="hdl:123456789/313" url="/manakin/handle/123456789/313" repositoryIdentifier="hdl:123456789">
-        <mets:METS xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/TR/xlink/" xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" LABEL="DSpace Item" PROFILE="DSPACE METS SIP Profile 1.0 (DRI extensions for DIM)" ID="hdl:123456789/313">
+      {if $include_manifest} 
+      <object objectIdentifier="hdl:123456789/313"
+        url="/manakin/handle/123456789/313" repositoryIdentifier="hdl:123456789">
+        <mets:METS xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/TR/xlink/"
+          xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" LABEL="DSpace Item"
+          PROFILE="DSPACE METS SIP Profile 1.0 (DRI extensions for DIM)" ID="hdl:123456789/313">
           <mets:dmdSec GROUPID="group_dmd_0" ID="dmd_1">
             <mets:mdWrap OTHERMDTYPE="DIM" MDTYPE="OTHER">
               <mets:xmlData>
                 <dim:dim dspaceType="ITEM">
-                  <dim:field element="date" mdschema="dc" qualifier="accessioned">2007-07-27T06:23:29Z</dim:field>
+                  <dim:field element="date" mdschema="dc" qualifier="accessioned"
+                    >2007-07-27T06:23:29Z</dim:field>
                   <dim:field element="date" mdschema="dc" qualifier="available">2007-07-27T06:23:29Z</dim:field>
                   <dim:field element="date" mdschema="dc" qualifier="issued">2007-07-27T06:23:29Z</dim:field>
-                  <dim:field element="identifier" mdschema="dc" qualifier="uri">http://hdl.handle.net/123456789/313</dim:field>
-                  <dim:field element="description" mdschema="dc" qualifier="provenance" language="en">Submitted by Scott Yeadon (scott.yeadon@anu.edu.au) on 2007-07-27T06:23:29Z
-                    No. of bitstreams: 1
-                    manifest.xml: 3595 bytes, checksum: ca20a6ab94866ce74767643ef2f12f3f (MD5)</dim:field>
-                  <dim:field element="description" mdschema="dc" qualifier="provenance" language="en">Made available in DSpace on 2007-07-27T06:23:29Z (GMT). No. of bitstreams: 1
-                    manifest.xml: 3595 bytes, checksum: ca20a6ab94866ce74767643ef2f12f3f (MD5)</dim:field>
+                  <dim:field element="identifier" mdschema="dc" qualifier="uri"
+                    >http://hdl.handle.net/123456789/313</dim:field>
+                  <dim:field element="description" mdschema="dc" qualifier="provenance"
+                    language="en">Submitted by Scott Yeadon (scott.yeadon@anu.edu.au) on
+                    2007-07-27T06:23:29Z No. of bitstreams: 1 manifest.xml: 3595 bytes, checksum:
+                    ca20a6ab94866ce74767643ef2f12f3f (MD5)</dim:field>
+                  <dim:field element="description" mdschema="dc" qualifier="provenance"
+                    language="en">Made available in DSpace on 2007-07-27T06:23:29Z (GMT). No. of
+                    bitstreams: 1 manifest.xml: 3595 bytes, checksum:
+                    ca20a6ab94866ce74767643ef2f12f3f (MD5)</dim:field>
                   <dim:field element="title" mdschema="dc">Journal Manifest</dim:field>
                   <dim:field element="identifier" mdschema="dc" qualifier="volume">1</dim:field>
                   <dim:field element="identifier" mdschema="dc" qualifier="issue">1</dim:field>
@@ -224,8 +232,11 @@
           </mets:dmdSec>
           <mets:fileSec>
             <mets:fileGrp USE="CONTENT">
-              <mets:file SIZE="3595" GROUP_ID="group_file_437" CHECKSUM="ca20a6ab94866ce74767643ef2f12f3f" MIMETYPE="text/xml" CHECKSUMTYPE="MD5" ID="file_437">
-                <mets:FLocat LOCTYPE="URL" xlink:href="manifest.php?issue_pid={$parent_pid}" xlink:title="manifest.xml" xlink:type="locator"/>
+              <mets:file SIZE="3595" GROUP_ID="group_file_437"
+                CHECKSUM="ca20a6ab94866ce74767643ef2f12f3f" MIMETYPE="text/xml" CHECKSUMTYPE="MD5"
+                ID="file_437">
+                <mets:FLocat LOCTYPE="URL" xlink:href="manifest.php?issue_pid={$parent_pid}"
+                  xlink:title="manifest.xml" xlink:type="locator"/>
               </mets:file>
             </mets:fileGrp>
           </mets:fileSec>
@@ -238,11 +249,11 @@
           </mets:structMap>
         </mets:METS>
       </object>
-      {/if}
+      {/if} 
       
-      {section name=i loop=$list}
-      <object objectIdentifier="{$list[i].rek_pid}" url="view.php?pid={$list[i].rek_pid}"
-        repositoryIdentifier="{$list[i].rek_pid}">
+      {section name=i loop=$list} 
+      <object objectIdentifier="{$list[i].rek_pid}"
+        url="view.php?pid={$list[i].rek_pid}" repositoryIdentifier="{$list[i].rek_pid}">
         <mets:METS xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/TR/xlink/"
           xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" LABEL="DSpace Collection"
           PROFILE="DSPACE METS SIP Profile 1.0 (DRI extensions for DIM and communities/collections)"
@@ -252,10 +263,11 @@
               <mets:xmlData>
                 <dim:dim dspaceType="ITEM">
                   <dim:field element="description" mdschema="dc">{$list[i].rek_description|escape}</dim:field>
-                  <dim:field element="description" mdschema="dc" qualifier="abstract">{$list[i].rek_title|escape}</dim:field>
+                  <dim:field element="description" mdschema="dc" qualifier="abstract"
+                    >{$list[i].rek_title|escape} Volume: {$list[i].rek_volume_number|escape} Issue:
+                    {$list[i].rek_issue_number|escape} - {$list[i].rek_date|date_format:'%B %Y'}</dim:field>
                   <dim:field element="description" mdschema="dc" qualifier="tableofcontents"/>
-                  <dim:field element="identifier" mdschema="dc" qualifier="uri"
-                    >{$list[i].rek_pid}</dim:field>
+                  <dim:field element="identifier" mdschema="dc" qualifier="uri">{$list[i].rek_pid}</dim:field>
                   <dim:field element="provenance" mdschema="dc"/>
                   <dim:field element="rights" mdschema="dc"/>
                   <dim:field element="rights" mdschema="dc" qualifier="license"/>
@@ -265,26 +277,22 @@
             </mets:mdWrap>
           </mets:dmdSec>
           <mets:fileSec>
-            <mets:fileGrp USE="CONTENT">
-              {assign var="loop_format" value=$list[i].rek_file_attachment_name}
-              {section name="f" loop=$loop_format}
-              <mets:file SIZE="3595" GROUP_ID="group_file_437"
+            <mets:fileGrp USE="CONTENT"> {assign var="loop_format"
+              value=$list[i].rek_file_attachment_name} {section name="f" loop=$loop_format}
+                <mets:file SIZE="3595" GROUP_ID="group_file_437"
                 CHECKSUM="ca20a6ab94866ce74767643ef2f12f3f" MIMETYPE="text/xml" CHECKSUMTYPE="MD5"
                 ID="file_437">
                 <mets:FLocat LOCTYPE="URL"
                   xlink:href="{$app_base_url}eserv.php?pid={$list[i].rek_pid|escape}&amp;dsID={$list[i].rek_file_attachment_name[f]|escape}"
                   xlink:title="manifest.xml" xlink:type="locator"/>
-              </mets:file>
-              {/section}
-            </mets:fileGrp>
+              </mets:file> {/section} </mets:fileGrp>
           </mets:fileSec>
           <mets:structMap TYPE="LOGICAL" LABEL="DSpace">
             <mets:div TYPE="DSpace Collection" DMDID="dmd_1"/>
           </mets:structMap>
         </mets:METS>
-      </object>
-      {/section}
-
+      </object> 
+      {/section} 
     </objectMeta>
     <repositoryMeta>
       <repository url="" repositoryIdentifier="UQ:">

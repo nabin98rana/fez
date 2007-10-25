@@ -60,8 +60,8 @@
 			select="/dri:document/dri:meta/dri:userMeta/dri:metadata[@element='resource' and @qualifier='collection_admin']"
 		/>
 	</xsl:variable>
-	
-	
+
+
 	<!-- <xsl:variable name="issueCoverImageRef">
 		<xsl:value-of
 			select="document($manifestUrl)/rdf:RDF/rdf:Description[@rdf:about=$context]/mods:mods[mods:genre='cover']/mods:identifier[@type='filename']"/>
@@ -100,7 +100,7 @@
 				<h2 class="toc">Table of Contents</h2>
 				<table cellspacing="15" align="left">
 					<xsl:variable name="manifestUrl"
-					select="concat($serverUrl,mets:file/mets:FLocat/@xlink:href)"/>
+						select="concat($serverUrl,mets:file/mets:FLocat/@xlink:href)"/>
 					<!-- <xsl:value-of select="$manifestUrl" /> -->
 					<xsl:for-each
 						select="document($manifestUrl)/rdf:RDF/rdf:Description[@rdf:about='section']">
@@ -131,31 +131,78 @@
 
 	<xsl:template match="rdf:Seq/rdf:li">
 		<xsl:variable name="identifier" select="@rdf:resource"/>
+		<xsl:variable name="driDoc" select="document(concat($serverUrl,$driPath,$identifier))"/>
 		<li>
 			<div class="tocEntry">
 				<span class="toc-a">
 					<!-- <xsl:value-of select="concat($serverUrl,$driPath,$identifier)"/> -->
 					<a>
 						<xsl:attribute name="href">
-							<xsl:value-of
-								select="document(concat($serverUrl,$driPath,$identifier))//mets:FLocat/@xlink:href"
-							/>
+							<xsl:value-of select="$driDoc//mets:FLocat/@xlink:href"/>
 						</xsl:attribute>
-						<xsl:value-of
-							select="document(concat($serverUrl,$driPath,$identifier))//dim:field[@element='title']"
-						/>
+						<xsl:value-of select="$driDoc//dim:field[@element='title']"/>
 					</a>
 				</span>
 				<span class="toc-c">
-					<xsl:value-of
-						select="document(concat($serverUrl,$driPath,$identifier))//dim:field[@element='contributor']"
-					/>
+					<xsl:value-of select="$driDoc//dim:field[@element='contributor']"/>
 				</span>
 			</div>
 		</li>
 	</xsl:template>
 
-
+	<xsl:template
+		match="dri:div[@n='advanced-search' and not(dri:div[@n='search-results'])] | dri:div[@n='advanced-search' and dri:div[@n='search-results' and not(dri:includeSet)]]">
+		<xsl:variable name="search-context">
+			<xsl:value-of
+				select="substring-after(../../dri:meta/dri:pageMeta/dri:metadata[@element='focus' and @qualifier='container'], ':')"
+			/>
+		</xsl:variable>
+		<h2 class="advanced-search-heading">Search the Collection</h2>
+		<form method="get" class="advanced-search-form" action="{$serverUrl}theme.php">
+			<!--xsl:call-template name="doSearchTable"/-->
+			<xsl:apply-templates select=".//dri:table[@n='search-query']" mode="search"/>
+			<input type="hidden" name="scope">
+				<xsl:attribute name="value">
+					<xsl:value-of select="$handle"/>
+				</xsl:attribute>
+			</input>
+			<input type="hidden" name="parent_pid" value="{$handle}"/>
+			<input type="hidden" name="action" value="search"/>
+			<input type="hidden" name="theme_id" value="{$themeName}"/>
+		</form>
+		<xsl:choose>
+			<xsl:when test="dri:div[@n='search-results' and not(//dri:object)]">
+				<p>No search results found</p>
+			</xsl:when>
+			<xsl:when test="dri:div[@n='search-results'] and //dri:object"> 
+				<h3>Result Documents</h3>
+				<ul>
+				<xsl:apply-templates select="//dri:object" mode="result-set"/>
+				</ul>
+			</xsl:when>
+		</xsl:choose>
+		
+		
+		<div class="spacer">&#x00A0;</div>
+	</xsl:template>
+	
+	<xsl:template match="dri:object" mode="result-set">
+		<li>
+			<div class="tocEntry">
+				<span class="toc-a">
+					<a>
+						<xsl:attribute name="href">
+							<xsl:value-of select="//mets:FLocat/@xlink:href"/>
+						</xsl:attribute>
+						<xsl:value-of select="mets:METS/mets:dmdSec/mets:mdWrap/mets:xmlData/dim:dim/dim:field[@element='title']"/>
+					</a>
+				</span>
+				<span class="toc-c">
+					<xsl:value-of select="mets:METS/mets:dmdSec/mets:mdWrap/mets:xmlData/dim:dim/dim:field[@element='contributor']"/>
+				</span>
+			</div>
+		</li>
+	</xsl:template>
 	<!-- HOME PAGE STYLESHEET STARTS HERE-->
 
 	<xsl:template

@@ -359,7 +359,7 @@ String.prototype.trim = function() {
             if (value) {
                 var func = CSS.__requiresFunction(prop);
                 if (func && value != 'none') {
-                    CSS.__localCSS[selector][prop] = func + '(../' + value + ')';
+                    CSS.__localCSS[selector][prop] = func + '(' + value + ')';
                 } else if (matches) {
                // alert('3');
                     CSS.__localCSS[selector]['border-left-' + matches[1]] = value;

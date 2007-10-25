@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document xmlns="http://di.tamu.edu/DRI/1.0/" xmlns:i18n="http://apache.org/cocoon/i18n/2.1"
+    version="1.0">
+    <body>
+        <div rend="primary" n="advanced-search"
+            id="artifactbrowser.AdvancedSearch.div.advanced-search">
+            <head>Advanced Search</head>
+            <div interactive="yes" rend="secondary" action="/manakin/advanced-search"
+                n="{$n}" method="get" id="artifactbrowser.AdvancedSearch.div.search-query">
+                <list type="form" n="search-query"
+                    id="artifactbrowser.AdvancedSearch.list.search-query"/>
+                <table cols="3" rows="4" n="search-query"
+                    id="artifactbrowser.AdvancedSearch.table.search-query">
+                    <row role="header">
+                        <cell>Conjunction</cell>
+                        <cell>Search type</cell>
+                        <cell>Search for</cell>
+                    </row>
+                    <row role="data">
+                        <cell/>
+                        <cell>
+                            <field type="select" n="field1"
+                                id="artifactbrowser.AdvancedSearch.field.field1">
+                                <params/>
+                                <option returnValue="ANY">Keyword</option>
+                                <option returnValue="keyword">Subject</option>
+                                <option returnValue="title">Title</option>
+                                <option returnValue="abstract">Abstract</option>
+                                <option returnValue="sponsor">Sponsor</option>
+                                <option returnValue="identifier">Identifier</option>
+                                <option returnValue="language">Language (ISO)</option>
+                                <option returnValue="series">Series</option>
+                                <option returnValue="author">Author</option>
+                                <value type="option" option="ANY"/>
+                            </field>
+                        </cell>
+                        <cell>
+                            <field type="text" n="query1"
+                                id="artifactbrowser.AdvancedSearch.field.query1">
+                                <params/>
+                            </field>
+                        </cell>
+                    </row>
+                </table>
+                <p rend="button-list">
+                    <field type="button" n="submit" id="artifactbrowser.AdvancedSearch.field.submit">
+                        <params/>
+                        <value type="raw">Go</value>
+                    </field>
+                </p>
+            </div>
+        </div>
+    </body>
+    <options>
+        <list n="browse" id="artifactbrowser.Navigation.list.browse">
+            <head>Browse</head>
+            <list n="global" id="artifactbrowser.Navigation.list.global">
+                <head>All of DSpace</head>
+                <item>
+                    <xref target="/manakin/community-list">Communities &amp; Collections</xref>
+                </item>
+                <item>
+                    <xref target="/manakin/browse-title">Titles</xref>
+                </item>
+                <item>
+                    <xref target="/manakin/browse-author">Authors</xref>
+                </item>
+                <item>
+                    <xref target="/manakin/browse-subject">Subjects</xref>
+                </item>
+                <item>
+                    <xref target="/manakin/browse-date">By Dates</xref>
+                </item>
+            </list>
+            <list n="context" id="artifactbrowser.Navigation.list.context">
+                <head>This Collection</head>
+                <item>
+                    <xref target="/manakin/handle/1030.58/17239/browse-title">Titles</xref>
+                </item>
+                <item>
+                    <xref target="/manakin/handle/1030.58/17239/browse-author">Authors</xref>
+                </item>
+                <item>
+                    <xref target="/manakin/handle/1030.58/17239/browse-subject">Subjects</xref>
+                </item>
+                <item>
+                    <xref target="/manakin/handle/1030.58/17239/browse-date">By Dates</xref>
+                </item>
+            </list>
+        </list>
+        <list n="account" id="artifactbrowser.Navigation.list.account">
+            <head>My Account</head>
+            <item>
+                <xref target="/manakin/login">Login</xref>
+            </item>
+            <item>
+                <xref target="/manakin/register">Register</xref>
+            </item>
+        </list>
+        <list n="administrative" id="artifactbrowser.Navigation.list.administrative"/>
+    </options>
+    <meta>
+        <userMeta authenticated="{if $isAdministrator}yes{else}no{/if}">
+            <metadata element="resource" qualifier="collection_admin">{if $isAdministrator}yes{else}no{/if}</metadata>
+            <metadata element="identifier" qualifier="loginURL">login.php</metadata>
+            <metadata element="language" qualifier="RFC3066">en_US</metadata>
+            <metadata element="language" qualifier="RFC3066">en</metadata>
+            <!-- user authenticated to edit theme -->
+        </userMeta>
+        <pageMeta>
+            <metadata element="contextPath"></metadata>
+            <metadata element="theme" qualifier="path">themes/{$theme_id}</metadata>
+            <metadata element="request" qualifier="queryString"/>
+            <metadata element="request" qualifier="scheme">{$smarty.const.APP_SCHEME}</metadata>
+            <metadata element="request" qualifier="serverPort">{$smarty.const.APP_PORT}</metadata>
+            <metadata element="request" qualifier="serverName">{$smarty.const.APP_HOSTNAME}</metadata>
+            <metadata element="server" qualifier="url"
+                >{$smarty.const.APP_BASE_URL}</metadata>
+            <metadata element="request" qualifier="URI">dri.php?action=browse-title&amp;pid={$pid}</metadata>
+            <metadata element="search" qualifier="simpleURL">dri.php?action=search</metadata>
+            <metadata element="search" qualifier="advancedURL">dri.php?action=adv_search</metadata>
+            <metadata element="search" qualifier="queryField">query</metadata>
+            <metadata element="page" qualifier="contactURL">dri.php?action=contact</metadata>
+            <metadata element="page" qualifier="feedbackURL">dri.php?action=feedback</metadata>
+            <metadata element="focus" qualifier="container">{$parent_pid}</metadata>
+            <metadata element="title">Browse By Title</metadata>
+            <trail target="/manakin/">DSpace Home</trail>
+            <trail target="/manakin/handle/123456789/1">African Journal of Information &amp;
+                Communication Technology</trail>
+            <trail target="/manakin/handle/123456789/301">Volume 1 Issue 1</trail>
+            <trail>Browse By Title</trail>
+        </pageMeta>
+        <objectMeta>
+          
+          {section name=i loop=$list}
+            <object objectIdentifier="{$list[i].rek_pid}" url="view.php?pid={$list[i].rek_pid}"
+                repositoryIdentifier="{$list[i].rek_pid}">
+                <mets:METS xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/TR/xlink/"
+                    xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" LABEL="DSpace Collection"
+                    PROFILE="DSPACE METS SIP Profile 1.0 (DRI extensions for DIM and communities/collections)"
+                    ID="hdl:123456789/301">
+                    <mets:dmdSec GROUPID="group_dmd_0" ID="dmd_1">
+                        <mets:mdWrap OTHERMDTYPE="DIM" MDTYPE="OTHER">
+                            <mets:xmlData>
+                                <dim:dim dspaceType="ITEM">
+                                    <dim:field element="description" mdschema="dc">{$list[i].rek_description|escape}</dim:field>
+                                    <dim:field element="description" mdschema="dc" qualifier="abstract">{$list[i].rek_title|escape}</dim:field>
+                                    <dim:field element="description" mdschema="dc" qualifier="tableofcontents"/>
+                                    <dim:field element="identifier" mdschema="dc" qualifier="uri"
+                                        >{$list[i].rek_pid}</dim:field>
+                                    <dim:field element="provenance" mdschema="dc"/>
+                                    <dim:field element="rights" mdschema="dc"/>
+                                    <dim:field element="rights" mdschema="dc" qualifier="license"/>
+                                    <dim:field element="title" mdschema="dc">{$list[i].rek_title|escape}</dim:field>
+                                </dim:dim>
+                            </mets:xmlData>
+                        </mets:mdWrap>
+                    </mets:dmdSec>
+                    <mets:fileSec>
+                        <mets:fileGrp USE="CONTENT">
+                            {assign var="loop_format" value=$list[i].rek_file_attachment_name}
+                            {section name="f" loop=$loop_format}
+                            <mets:file SIZE="3595" GROUP_ID="group_file_437"
+                                CHECKSUM="ca20a6ab94866ce74767643ef2f12f3f" MIMETYPE="text/xml" CHECKSUMTYPE="MD5"
+                                ID="file_437">
+                                <mets:FLocat LOCTYPE="URL"
+                                    xlink:href="{$app_base_url}eserv.php?pid={$list[i].rek_pid|escape}&amp;dsID={$list[i].rek_file_attachment_name[f]|escape}"
+                                    xlink:title="manifest.xml" xlink:type="locator"/>
+                            </mets:file>
+                            {/section}
+                        </mets:fileGrp>
+                    </mets:fileSec>
+                    <mets:structMap TYPE="LOGICAL" LABEL="DSpace">
+                        <mets:div TYPE="DSpace Collection" DMDID="dmd_1"/>
+                    </mets:structMap>
+                </mets:METS>
+            </object>
+            {/section}
+            
+           
+        </objectMeta>
+        <repositoryMeta>
+            <repository url="/manakin/" repositoryIdentifier="hdl:1030.58">
+                <mets:METS xmlns:mets="http://www.loc.gov/METS/"
+                    xmlns:xlink="http://www.w3.org/TR/xlink/" ID="hdl:1030.58"
+                    PROFILE="DRI DSPACE Repository Profile 1.0" LABEL="DSpace Repository">
+                    <mets:dmdSec ID="dmd_0" GROUPID="group_dmd_1">
+                        <mets:mdWrap MDTYPE="MODS">
+                            <mets:xmlData>
+                                <mods:mods xmlns:mods="http://www.loc.gov/mods/v3">
+                                    <mods:titleInfo>
+                                        <mods:title>DSpace Development</mods:title>
+                                    </mods:titleInfo>
+                                    <mods:publisherInfo>
+                                        <mods:publisher>dspace-dev</mods:publisher>
+                                    </mods:publisherInfo>
+                                    <mods:identifier type="uri"
+                                        >http://dspace-dev.anu.edu.au/manakin/</mods:identifier>
+                                </mods:mods>
+                            </mets:xmlData>
+                        </mets:mdWrap>
+                    </mets:dmdSec>
+                    <mets:structMap TYPE="LOGICAL" LABEL="DSpace">
+                        <mets:div TYPE="DSpace Repository" DMDID="dmd_0">
+                            <mets:div TYPE="DSpace Community">
+                                <mets:mptr LOCTYPE="HANDLE" xlink:href="hdl:1030.58/16187"/>
+                                <mets:div TYPE="DSpace Community">
+                                    <mets:mptr LOCTYPE="HANDLE" xlink:href="hdl:1030.58/16187"/>
+                                    <mets:div TYPE="DSpace Community">
+                                        <mets:mptr LOCTYPE="HANDLE" xlink:href="hdl:1030.58/17238"/>
+                                        <mets:div TYPE="DSpace Collection">
+                                            <mets:mptr LOCTYPE="HANDLE"
+                                                xlink:href="hdl:1030.58/17239"/>
+                                        </mets:div>
+                                    </mets:div>
+                                </mets:div>
+                            </mets:div>
+                        </mets:div>
+                    </mets:structMap>
+                </mets:METS>
+            </repository>
+        </repositoryMeta>
+    </meta>
+</document>
