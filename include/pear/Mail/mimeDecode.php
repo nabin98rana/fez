@@ -32,7 +32,7 @@
 // | Author: Richard Heyes <richard@phpguru.org>                           |
 // +-----------------------------------------------------------------------+
 
-require_once APP_PEAR_PATH . 'PEAR.php';
+require_once 'PEAR.php';
 
 /**
 *  +----------------------------- IMPORTANT ------------------------------+

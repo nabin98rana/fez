@@ -44,21 +44,6 @@
  class SanityChecks
  {
 
-    function runSpecificCheck($field, $value) {
-
-        //echo "Field is: " . $field . "<br />";      // LKDB
-        //echo "Value is: " . $value . "<br />";      // LKDB
-
-        if ($field == "app_convert_cmd") {
-            return SanityChecks::check_app_convert_cmd($value);
-        } else {
-            return "Just ran a check on " . $field . ", value " . $value;
-        }
-
-    }
-
-
-
 
     function runAllChecks()
     {
@@ -156,7 +141,7 @@
     	$results = array_merge($results, SanityChecks::checkDir('APP_TEMP_DIR', APP_TEMP_DIR, true));
         $results = array_merge($results, SanityChecks::checkDir('APP_SAN_IMPORT_DIR', APP_SAN_IMPORT_DIR));
         $results = array_merge($results, SanityChecks::checkDir('APP_PATH/templates_c', APP_PATH."templates_c/", true));
-        if (APP_REPORT_ERROR_FILE == "true") {
+        if (APP_REPORT_ERROR_FILE) {
         	$results = array_merge($results, SanityChecks::checkFile('APP_ERROR_LOG', APP_ERROR_LOG, true));
         }
         if (SanityChecks::resultsClean($results)) {
@@ -347,7 +332,7 @@
         	// run a test bgp
             $bgp = new BackgroundProcess_Test();
             $id = $bgp->register(serialize(array('test'=>'Hello')),1);
-            sleep(10);
+            sleep(3); // Allowing just 1 second results in failure most of the time on my test server - LK
             $bgp = new BackgroundProcess($id);
             $det = $bgp->getDetails();
             if ($det['bgp_status_message'] != "I got Hello") {
@@ -671,24 +656,6 @@
        return array();
     }
 
-
-
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // NEW STUFF HERE
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /* This is a prototype function for how we'll be doing sanity checking in the future. */
-    function check_app_convert_cmd($value)
-    {
-        // This is where all sanity checks specifically relating to app_convert_cmd will appear.
-        // Repeat for every other input / setting we may wish to examine.
-        return "EVERYTHING LOOKS GOOOOOD!";     // LKDB
-    }
 
  }
 ?>

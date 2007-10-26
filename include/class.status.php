@@ -290,7 +290,7 @@ class Status
 }
 
 // benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
+if (APP_BENCHMARK) {
     $GLOBALS['bench']->setMarker('Included Status Class');
 }
 ?>

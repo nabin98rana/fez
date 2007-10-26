@@ -905,7 +905,7 @@ class Controlled_Vocab
 }
 
 // benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
+if (APP_BENCHMARK) {
     $GLOBALS['bench']->setMarker('Included Controlled Vocabulary Class');
 }
 ?>

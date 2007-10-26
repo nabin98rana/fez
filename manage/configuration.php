@@ -36,8 +36,6 @@
 include_once("../config.inc.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.template.php");
-include_once(APP_INC_PATH . "class.configuration.php");
-include_once(APP_INC_PATH . "class.date.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");
@@ -54,15 +52,7 @@ if (!$isAdministrator) {
     $tpl->assign("show_not_allowed_msg", true);
 }
 
-if ($HTTP_POST_VARS["action"] == "save") {
-    $tpl->assign("action", "save");
-    $saveAttempt = Configuration::saveConf();
-    $tpl->assign("save_errors", $saveAttempt);
-}
-
-$tpl->assign("config_settings", Configuration::getConfAll());
-$tpl->assign("admin_users", User::getAdminsAssocList());            // For the APP_SYSTEM_USER_ID selector
-$tpl->assign("timezones", Date_API::getTimezoneList());             // For the APP_DEFAULT_USER_TIMEZONE selector
+// Do stuff here.
 
 $tpl->displayTemplate();
 

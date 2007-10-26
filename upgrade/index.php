@@ -33,13 +33,10 @@
 //
 //
 
-@DEFINE("APP_BENCHMARK", false);
-@DEFINE("APP_CURRENT_LANG", "en");
 
 include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
-include_once(APP_INC_PATH . "class.sanity_checks.php");
-
+include_once(APP_INC_PATH.'class.sanity_checks.php');
 
 
 function parse_mysql_dump($url, $ignoreerrors = false) {
@@ -128,142 +125,6 @@ function set_data_model_version($dbversion)
         return 1;
     }
 }
-
-function saveExistingConfigToDB()
-{
-    $defaultData['webserver_log_statistics']            = WEBSERVER_LOG_STATISTICS;
-    $defaultData['webserver_log_dir']                   = WEBSERVER_LOG_DIR;
-    $defaultData['webserver_log_file']                  = WEBSERVER_LOG_FILE;
-    $defaultData['app_geoip_path']                      = APP_GEOIP_PATH;
-    $defaultData['shib_switch']                         = SHIB_SWITCH;
-    $defaultData['shib_direct_login']                   = SHIB_DIRECT_LOGIN;
-    $defaultData['shib_federation_name']                = SHIB_FEDERATION_NAME;
-    $defaultData['shib_federation']                     = SHIB_FEDERATION;
-    $defaultData['shib_home_sp']                        = SHIB_HOME_SP;
-    $defaultData['shib_home_idp']                       = SHIB_HOME_IDP;
-    $defaultData['shib_wayf_metadata_location']         = SHIB_WAYF_METADATA_LOCATION;
-    $defaultData['app_fedora_version']                  = APP_FEDORA_VERSION;
-    $defaultData['app_fedora_username']                 = APP_FEDORA_USERNAME;
-    $defaultData['app_fedora_pwd']                      = APP_FEDORA_PWD;
-    $defaultData['fedora_db_host']                      = FEDORA_DB_HOST;
-    $defaultData['fedora_db_type']                      = FEDORA_DB_TYPE;
-    $defaultData['fedora_db_database_name']             = FEDORA_DB_DATABASE_NAME;
-    $defaultData['fedora_db_username']                  = FEDORA_DB_USERNAME;
-    $defaultData['fedora_db_passwd']                    = FEDORA_DB_PASSWD;
-    $defaultData['app_shaded_bar']                      = APP_SHADED_BAR;
-    $defaultData['app_cell_color']                      = APP_CELL_COLOR;
-    $defaultData['app_value_color']                     = APP_VALUE_COLOR;
-    $defaultData['app_light_color']                     = APP_LIGHT_COLOR;
-    $defaultData['app_selected_color']                  = APP_SELECTED_COLOR;
-    $defaultData['app_middle_color']                    = APP_MIDDLE_COLOR;
-    $defaultData['app_dark_color']                      = APP_DARK_COLOR;
-    $defaultData['app_heading_color']                   = APP_HEADING_COLOR;
-    $defaultData['app_internal_color']                  = APP_INTERNAL_COLOR;
-    $defaultData['app_fedora_setup']                    = APP_FEDORA_SETUP;
-    $defaultData['app_fedora_location']                 = APP_FEDORA_LOCATION;
-    $defaultData['app_fedora_ssl_location']             = APP_FEDORA_SSL_LOCATION;
-    $defaultData['ldap_switch']                         = LDAP_SWITCH;
-    $defaultData['ldap_organisation']                   = LDAP_ORGANISATION;
-    $defaultData['ldap_root_dn']                        = LDAP_ROOT_DN;
-    $defaultData['ldap_prefix']                         = LDAP_PREFIX;
-    $defaultData['ldap_server']                         = LDAP_SERVER;
-    $defaultData['ldap_port']                           = LDAP_PORT;
-    $defaultData['eprints_oai']                         = EPRINTS_OAI;
-    $defaultData['eprints_username']                    = EPRINTS_USERNAME;
-    $defaultData['eprints_passwd']                      = EPRINTS_PASSWD;
-    $defaultData['eprints_subject_authority']           = EPRINTS_SUBJECT_AUTHORITY;
-    $defaultData['eprints_db_host']                     = EPRINTS_DB_HOST;
-    $defaultData['eprints_db_type']                     = EPRINTS_DB_TYPE;
-    $defaultData['eprints_db_database_name']            = EPRINTS_DB_DATABASE_NAME;
-    $defaultData['eprints_db_username']                 = EPRINTS_DB_USERNAME;
-    $defaultData['eprints_db_passwd']                   = EPRINTS_DB_PASSWD;
-    $defaultData['eprints_import_users']                = EPRINTS_IMPORT_USERS;
-    $defaultData['self_registration']                   = SELF_REGISTRATION;
-    $defaultData['app_hostname']                        = APP_HOSTNAME;
-    $defaultData['app_name']                            = APP_NAME;
-    $defaultData['app_admin_email']                     = APP_ADMIN_EMAIL;
-    $defaultData['app_org_name']                        = APP_ORG_NAME;
-    $defaultData['app_short_org_name']                  = APP_SHORT_ORG_NAME;
-    $defaultData['app_pid_namespace']                   = APP_PID_NAMESPACE;
-    $defaultData['app_url']                             = APP_URL;
-    $defaultData['app_relative_url']                    = APP_RELATIVE_URL;
-    $defaultData['app_image_preview_max_width']         = APP_IMAGE_PREVIEW_MAX_WIDTH;
-    $defaultData['app_image_preview_max_height']        = APP_IMAGE_PREVIEW_MAX_HEIGHT;
-    $defaultData['app_https']                           = APP_HTTPS;
-    $defaultData['app_debug_level']                     = APP_DEBUG_LEVEL;
-    $defaultData['app_display_error_level']             = APP_DISPLAY_ERROR_LEVEL;
-    $defaultData['app_display_errors_user']             = APP_DISPLAY_ERRORS_USER;
-    $defaultData['app_error_log']                       = APP_ERROR_LOG;
-    $defaultData['app_system_user_id']                  = APP_SYSTEM_USER_ID;
-    $defaultData['app_email_system_from_address']       = APP_EMAIL_SYSTEM_FROM_ADDRESS;
-    $defaultData['app_email_smtp']                      = APP_EMAIL_SMTP;
-    $defaultData['app_watermark']                       = APP_WATERMARK;
-    $defaultData['app_default_user_timezone']           = APP_DEFAULT_USER_TIMEZONE;
-    $defaultData['app_san_import_dir']                  = APP_SAN_IMPORT_DIR;
-    $defaultData['app_default_refresh_rate']            = APP_DEFAULT_REFRESH_RATE;
-    $defaultData['app_temp_dir']                        = APP_TEMP_DIR;
-    $defaultData['app_convert_cmd']                     = APP_CONVERT_CMD;
-    $defaultData['app_composite_cmd']                   = APP_COMPOSITE_CMD;
-    $defaultData['app_identify_cmd']                    = APP_IDENTIFY_CMD;
-    $defaultData['app_jhove_dir']                       = APP_JHOVE_DIR;
-    $defaultData['app_dot_exec']                        = APP_DOT_EXEC;
-    $defaultData['app_php_exec']                        = APP_PHP_EXEC;
-    $defaultData['app_pdftotext_exec']                  = APP_PDFTOTEXT_EXEC;
-    $defaultData['app_sql_cache']                       = APP_SQL_CACHE;
-    $defaultData['app_default_pager_size']              = APP_DEFAULT_PAGER_SIZE;
-    $defaultData['app_cookie']                          = APP_COOKIE;
-    $defaultData['app_https_curl_check_cert']           = APP_HTTPS_CURL_CHECK_CERT;
-    $defaultData['batch_import_type']                   = BATCH_IMPORT_TYPE;
-    $defaultData['app_link_prefix']                     = APP_LINK_PREFIX;
-
-    // Hard-wired / modified variables
-    $defaultData['app_version']                         = "2.0 RC1";
-
-    $cycleColors = explode(",", APP_CYCLE_COLORS);
-    $defaultData['app_cycle_color_one']                 = $cycleColors[0];
-    $defaultData['app_cycle_color_two']                 = $cycleColors[1];
-
-    $defaultData['app_image_web_max_width']             = 400;
-    $defaultData['app_image_web_max_height']            = 300;
-    $defaultData['app_thumbnail_width']                 = 40;
-    $defaultData['app_thumbnail_height']                = 30;
-
-    if (!defined('FEDORA_DB_PORT')) {
-        $defaultData['fedora_db_port']                  = "3306";
-    } else {
-        $defaultData['fedora_db_port']                  = FEDORA_DB_PORT;
-    }
-
-    if (APP_REPORT_ERROR_FILE == false) {
-        $defaultData['app_report_error_file']               = "false";
-    } else {
-        $defaultData['app_report_error_file']               = "true";
-    }
-
-    if (SHIB_SURVEY == false || SHIB_SURVEY == "OFF") {
-        $defaultData['shib_survey']                         = "OFF";
-    } else {
-        $defaultData['shib_survey']                         = "ON";
-    }
-
-    if (APP_DISABLE_PASSWORD_CHECKING == false) {
-        $defaultData['app_disable_password_checking']       = "false";
-    } else {
-        $defaultData['app_disable_password_checking']       = "true";
-    }
-
-    // Write everything we have to the config table
-    foreach ($defaultData as $key => $value) {
-        //echo $key . " ........................... " . $value . "<br />";       // LKDB
-        $res = $GLOBALS["db_api"]->dbh->query("UPDATE " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "config SET config_value = '" . Misc::escapeString($value) . "' WHERE config_name = '" . $key . "' AND config_module = 'core'");
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return 0;
-        }
-    }
-
-    return 1;
-}
  
 function upgrade()
 {
@@ -299,7 +160,6 @@ function upgrade()
             }
         }
     }
-
     if ($success && set_data_model_version($sql_upgrade)) {
         return array($success, "Upgrade to database version $sql_upgrade succeeded.");
     } else {
@@ -307,18 +167,7 @@ function upgrade()
     }
 }
 
-function runningDBconfig()
-{
-    // Determine if we are running off DB config. If not, return 0, so we know to 
-    // display the appropriate upgrade instructions.
-    if (defined('DATAMODEL_VERSION')) {
-        return 1;
-    } else {
-        return 0;
-    }
-}
-
-$step = @$_GET["step"] ? @$_GET["step"] : @$_POST["step"];
+$step = Misc::GETorPOST('step');
 if (empty($step)) {
 	$step = 1;
 }
@@ -335,7 +184,6 @@ switch ($step) {
         list($res, $message) = upgrade();
         $tpl->assign("result", $message);
         $tpl->assign("result_good", $res);
-        $tpl->assign('display_config_changes', runningDBconfig());
         if (!$res) {
         	$step = 1;
         }
@@ -344,11 +192,6 @@ switch ($step) {
     case 3:
         $sanity = SanityChecks::runAllChecks();
         $tpl->assign('sanity_results',$sanity);
-    break;
-    case 4:
-        // Run the config upgrade thing.
-        $result = saveExistingConfigToDB();
-        $tpl->assign("upgrade_result", $result);
     break;
 }
 

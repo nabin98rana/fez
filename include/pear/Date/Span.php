@@ -47,12 +47,12 @@
 /**
  * Get the Date class
  */
-require_once APP_PEAR_PATH . 'Date.php';
+require_once 'Date.php';
 
 /**
  * Get the Date_Calc class
  */
-require_once APP_PEAR_PATH . 'Date/Calc.php';
+require_once 'Date/Calc.php';
 
 // }}}
 // {{{ Constants

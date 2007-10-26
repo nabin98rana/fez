@@ -420,7 +420,7 @@ class Collection
 			            $ses = &Auth::getSession();
 					}
 					if (is_array($ses['auth_index_user_rule_groups'])) {
-						if (count($ses['auth_index_user_rule_groups']) > 0) {
+						if (!is_array($ses['auth_index_user_rule_groups'])) { // to catch when the fez index/auth index is empty
 							if (!$lister_only) {
 				            	$authStmt .= " INNER JOIN ".$dbtp."auth_index2 ai
 				                	ON authi_role in (".$rolesStmt.") AND ai.authi_pid = ".$joinPrefix." AND ai.authi_arg_id in (".implode(",",$ses['auth_index_user_rule_groups']).")";
@@ -446,10 +446,8 @@ class Collection
 		//                and ai.authi_pid = ".$joinPrefix;
 		        } else {
 		        	$publicGroups = Collection::getPublicAuthIndexGroups();
-					if (is_array($publicGroups)) { // to catch when the fez index/auth index is empty
-						if (count($publicGroups) > 0) {
-			            	$authStmt = " INNER JOIN ".$dbtp."auth_index2_lister ON authi_pid=".$joinPrefix." and authi_arg_id in (".implode(",", $publicGroups).")";
-						}
+					if (!is_array($publicGroups)) { // to catch when the fez index/auth index is empty
+			            $authStmt = " INNER JOIN ".$dbtp."auth_index2_lister ON authi_pid=".$joinPrefix." and authi_arg_id in (".implode(",", $publicGroups).")";
 					}
 		            $joinStmt .= "";
 		        }
@@ -1433,7 +1431,7 @@ $res_count = array();
 }
 
 // benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
+if (APP_BENCHMARK) {
     $GLOBALS['bench']->setMarker('Included Collection Class');
 }
 ?>
