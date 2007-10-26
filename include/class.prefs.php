@@ -68,6 +68,7 @@ class Prefs
 //            'timezone'                => Date_API::getDefaultTimezone(),
             'list_refresh_rate'       => APP_DEFAULT_REFRESH_RATE,
             'emails_refresh_rate'     => APP_DEFAULT_REFRESH_RATE,
+            'front_page'     => "front_page",
             'email_signature'         => '',
             'auto_append_sig'         => 'no'
         ));
@@ -159,6 +160,7 @@ class Prefs
             'list_refresh_rate'       => $HTTP_POST_VARS['list_refresh_rate'],
             'emails_refresh_rate'     => $HTTP_POST_VARS['emails_refresh_rate'],
             'email_signature'         => @$HTTP_POST_VARS['signature'],
+            'front_page'         => @$HTTP_POST_VARS['front_page'],
             'auto_append_sig'         => @$HTTP_POST_VARS['auto_append_sig']
         ));
         $stmt = "UPDATE

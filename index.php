@@ -53,6 +53,7 @@ include_once(APP_INC_PATH . "class.survey.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "class.cloud_tag.php");
+include_once(APP_INC_PATH . "class.pager.php");
 include_once(APP_INC_PATH . "najax/najax.php");
 include_once(APP_INC_PATH . "najax_objects/class.suggestor.php");
 
@@ -119,14 +120,28 @@ if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
 }
 
 $tpl = new Template_API();
-$tpl->setTemplate("front_page.tpl.html");
 //$tpl->setTemplate("maintenance.tpl.html");
-
+$front_page = "";
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
 if (Auth::userExists($username)) { // if the user is registered as a Fez user
 	$tpl->assign("isFezUser", $username);
+    $prefs = Prefs::get(Auth::getUserID());  	
+	$front_page = $prefs['front_page'];
+} else {
+	$front_page = Pager::getParam("front_page");
 }
+
+if ($front_page == "" || $front_page == "front_page") {
+	$front_page = "front_page.tpl.html";
+} elseif ($front_page == "simple_front_page") {
+	$front_page = "simple_front_page.tpl.html";
+} elseif ($front_page == "very_simple_front_page") {
+	$front_page = "very_simple_front_page.tpl.html";
+}
+$tpl->setTemplate($front_page);
+
+
 $isAdministrator = User::isUserAdministrator($username);
 $tpl->assign("isAdministrator", $isAdministrator);
 // get the 5 most recently added items this week

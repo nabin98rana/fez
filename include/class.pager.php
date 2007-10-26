@@ -122,6 +122,7 @@ class Pager
         
         $rows = Pager::getParam('rows',$params);
         $cookie = array(
+            'front_page'     => $front_page ? $front_page : "front_page",
             'rows'           => $rows ? $rows : APP_DEFAULT_PAGER_SIZE,
             "sort_by"        => $sort_by ? $sort_by : "title",                        
             "isMemberOf"     => $isMemberOf != "" ? $isMemberOf : "ALL",            

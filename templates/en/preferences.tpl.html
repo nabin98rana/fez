@@ -218,12 +218,21 @@ function validateAccount(f)
           </td>
         </tr>
         <tr>
+          <td width="190" bgcolor="{$cell_color}" class="default">
+            <b>Front Page Style:</b>
+          </td>
+          <td bgcolor="{$light_color}">
+            <select class="default" name="front_page">
+              {html_options options=$front_pages selected=$user_prefs.front_page}
+            </select>
+          </td>
+        </tr>
+        <tr>
           <td colspan="2" bgcolor="{$cell_color}" align="center">
             <input class="button" type="submit" value="Update Preferences" />
             <input class="button" type="reset" value="Reset" />
           </td>
         </tr>
-
       </table>
       </form>
     </td>

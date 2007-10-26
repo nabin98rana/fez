@@ -89,9 +89,16 @@ if (isset($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]) && is_array($_SESSION[APP_SHIB
 		}
 	}
 }
+
+$front_pages = array("front_page" => "Standard Full Front Page",
+                      "simple_front_page" => "Simple Front Page",
+                      "very_simple_front_page" => "Very Simple Front Page");
+
+
 $tpl->assign("SHIB_SWITCH", SHIB_SWITCH);
 $tpl->assign("shibAttribs", $shibAttribs);
 $tpl->assign("user_prefs", $prefs);
+$tpl->assign("front_pages", $front_pages);
 $tpl->assign("zones", Date_API::getTimezoneList());
 
 if (Auth::isInDB() && !Auth::isInAD() && !Auth::isInFederation()) {

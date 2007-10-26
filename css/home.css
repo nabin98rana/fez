@@ -281,6 +281,32 @@ td.checkbox_column {
 width: 2em;
 }
 
+
+#front-page-container-simple {
+	margin-bottom: 20px;
+	margin-top: 5px;
+	font-size: 10pt;
+}
+
+#front-page-container-simple a {
+	text-decoration: none;
+	color: #3179C6;
+}
+
+#front-page-container-simple a:hover {
+	/*text-decoration: underline;*/
+	color: #61ADFF;
+}
+
+#front-page-container-simple a.author_id_link {
+	color: #4F7F37;
+	text-decoration: none;
+}
+
+#front-page-container-simple a:hover.author_id_link {
+	color: #C1EFB3;
+}
+
 #front-page-container {
 	width: 80%;
 	margin-bottom: 20px;

@@ -1,0 +1,230 @@
+
+{include file="header.tpl.html" extra_title="Home"}
+{include file="navigation.tpl.html"}
+
+{literal}
+<script language="JavaScript" type="text/javascript">
+<!--
+{/literal}{$najax_register}{literal}
+function purgeObject(pid)
+{
+    if (!confirm('This action will permanently delete the selected object.')) {
+        return false;
+    } else {
+        window.location.replace('{/literal}{$rel_url}workflow/delete.php?pid=' + pid + '&href={$smarty.server.REQUEST_URI}{literal}');
+        return true;
+    }
+}
+var dt1_load_state = 0;
+function showLoading1()
+{
+	document.body.style.cursor = 'wait';
+	document.getElementById('loading1').style.display = 'block';
+}
+
+function hideLoading1()
+{
+	document.body.style.cursor = '';
+	document.getElementById('loading1').style.display = 'none';
+}
+
+function selectSearchSuggestor(f, field_name)
+{
+
+	if (dt1_load_state > 0) {
+	   return false;
+	}
+	var field = getFormElement(f, field_name);
+	/*var selections = getSelectedItems(field);*/
+	if (field.value != '') {
+		dt1_load_state++;
+
+		showLoading1();
+		var obj = new Suggestor();
+		obj.ongetSuggestionError = function() {
+			removeAllOptions(f, 'front_search');
+			hideLoading1();
+			dt1_load_state = dt1_load_state - 1;
+		}
+		obj.setTimeout(10000);
+
+		obj.getSuggestion(field, function(dt_list) {
+				removeAllOptions(f, 'front_search');
+				addOptions(f, 'front_search', dt_list);
+				hideLoading1();
+				/*autoComplete(field, dt_list);*/
+				dt1_load_state = dt1_load_state - 1;
+				});
+	}
+}
+var basic_element = getPageElement('basic_filter_form' + '1');
+if (isElementVisible(basic_element)) {
+	toggleVisibility('basic_filter_form');
+}
+-->
+</script>
+{/literal}
+
+<table id="front-page-container">
+  <tr>
+    <td width="50%" valign="top">
+	  <div class="front-page-content-header"><img src="{$rel_url}images/search_22.jpg" alt="Search" title="Search" /> Search </div> 
+	  <div class="front-page-content-detail">
+		<form name="search_frm" target="_top" method="get" action="{$rel_url}list.php">
+		  <input type="hidden" name="cat" value="quick_filter" />		
+		  <label for="search" accesskey="3"></label>
+ (title, keywords, abstract)<br />
+			<input type="hidden" name="sort_by" value="searchKey0" />
+			<input type="text" id="front_search" name="search_keys[0]" size="40" autocomplete="off" onkeyup="javascript: selectSearchSuggestor(this.form, 'front_search')" />
+			<div id="loading1" style="display:none;">Loading...</div>
+			<input type="submit" value="Search" />
+			<a href="#" onclick="javascript:alert( 'Search All Fields\n\n Enter a phrase.  Objects where any field contains the phrase will be returned.\n This is a case-insensitive search, and you may use the * or ? wildcards.\n\n Examples:\n\n li*y\n finds objects that start with li and end with y\n\n b?ts\n finds words that start with b followed by any letter and then ts.  e.g. bits, bats, byts')">Help</a><br />Use <a href="{$rel_url}adv_search.php"><b>Advanced Search</b></a> to search by multiple criteria<br />&nbsp;
+		</form>	  
+	  </div>
+
+	  <div class="front-page-content-header"><img src="{$rel_url}images/browse_22.jpg" alt="Browse" title="Browse" /> Browse</div>
+	  <div class="front-page-content-detail">
+		<ul class="front-page-list">
+<a class="author_id_link" href="{$rel_url}list.php?browse=author_id" title="Browse records linked to Author IDs (won't show non-{$application_title} authors)">by {$application_title} Author ID</a>
+<a href="{$rel_url}list.php?browse=author" title="Browse by Author Names (strings) as they appear in records (not author ID linked)">by Author Name</a> |
+<a href="{$rel_url}list.php?browse=subject">by Subject</a> |
+<a href="{$rel_url}list.php">by Organisational Unit</a> |
+<a href="{$rel_url}list.php?browse=year">by Year</a> |
+<a href="{$rel_url}list.php?browse=latest">by Latest additions</a>
+		</ul>
+	  </div>
+
+
+	  <div class="front-page-content-header"><img src="{$rel_url}images/news_22.jpg" alt="News" title="News" /> News</div>
+	  <div class="front-page-content-detail">
+		  <ul class="front-page-list">
+		  {section name="i" loop=$news}
+		  <li><a href="news.php#{$news[i].nws_id}">{$news[i].nws_title}</a></li>
+		  {/section}
+		  <li><a href="news.php?show=rss">RSS</a> | <a href="news.php">More...</a></li>
+		  </ul>
+	  </div>
+
+	  <div class="front-page-content-header"><img src="{$rel_url}images/folder_new_22.jpg" alt="Recently Added Items" title="Recently Added Items" /> Recently Added Items</div>
+	  <div class="front-page-content-detail">
+		<ul class="front-page-list">
+	        {section name="i" loop=$list}		
+				{if $list[i].rek_object_type == 1}
+	                {assign var="href_view" value="list.php?community_pid="|cat:$list[i].rek_pid|escape:"html"}
+	                {assign var="icon" value="images/community.jpg" }
+	                {if ($list[i].isEditor==1 || $isAdministrator)} 
+	                        {assign var="showEdit" value=true}
+	                {else}
+	                        {assign var="showEdit" value=false}
+	                {/if}
+	           {elseif $list[i].rek_object_type == 2}
+	                {assign var="href_view" value="list.php?collection_pid="|cat:$list[i].rek_pid|escape:"html"}
+	                {assign var="icon" value="images/collection.jpg" }
+	                {if $isUser && ($list[i].isEditor==1 || $isAdministrator)}  
+	                        {assign var="showEdit" value=true}
+	                {else}
+	                        {assign var="showEdit" value=false}
+	                {/if}
+	           {else}
+	                {if ($list[i].isViewer==1 || $isAdministrator)}
+	                  {assign var="href_view" value="view.php?pid="|cat:$list[i].rek_pid|escape:"html"}
+	                {else}
+	                  {assign var="href_view" value=""}
+	                {/if}
+					{if $list[i].thumbnail.0 != "" && $list[i].isViewer==1}
+		                {assign var="icon" value=$eserv_url|cat:"?ls=0&pid="|cat:$list[i].rek_pid|cat:"&dsID="|cat:$list[i].thumbnail.0}
+					{else}
+		                {assign var="icon" value="images/record.jpg" }
+					{/if}
+	                {if $isUser } 
+	                        {assign var="showEdit" value=true}
+	                {else}
+	                        {assign var="showEdit" value=false}
+	                {/if}
+	           {/if}
+				{if $list[i].rek_created_date} 
+					{if ($list[i].rek_created_date|date_format:"%Y-%m-%d") != $today}
+						{if (($list[i].day_name) != $day_name && ($list[i].rek_created_date|date_format:"%Y-%m-%d") != $yesterday) || (($list[i].rek_created_date|date_format:"%Y-%m-%d") == $yesterday && $day_name != "Yesterday")}
+							{if ($list[i].day_name) == $today_day_name}
+								{assign var="day_name_pre" value=$list[i].day_name}
+								{assign var="day_name" value=$last|cat:$day_name_pre}
+							{else}
+								{if ($list[i].rek_created_date|date_format:"%Y-%m-%d") == $yesterday}								
+									{assign var="day_name" value="Yesterday"}		
+								{else}
+									{assign var="day_name" value=$list[i].day_name}							
+								{/if}
+							{/if}
+		  <!--tr>
+			  <td>
+			  <table bgcolor="#FFFFFF" width="100%" cellpadding="3" cellspacing="0">
+				  <tr>
+					  <td class="default_white" {$shaded_bar}><strong>{$day_name}</strong>
+					  </td>
+				  </tr>
+			 </table>
+			 </td>
+		  </tr-->	
+						{/if}				
+					{elseif $day_name != "Today"}
+					  {assign var="day_name" value="Today"}
+		  <!--tr>
+			  <td>
+			  <table bgcolor="#FFFFFF" width="100%" cellpadding="3" cellspacing="0">
+				  <tr>
+					  <td class="default_white" {$shaded_bar}><strong>{$day_name}</strong>
+					  </td>
+				  </tr>
+			 </table>
+			 </td>
+		  </tr-->
+
+					{/if}
+			{/if}
+					<li>
+					{if $list[i].rek_citation != ""}
+					{$list[i].rek_citation}
+					{else}
+					{if $href_view}<a href='{$href_view}' >{/if}
+					{$list[i].rek_title}
+					{if $href_view}</a>{/if}
+					{/if}
+					{if $list[i].rek_object_type != 3}{if $list[i].rek_ismemberof_count != ""}({$list[i].rek_ismemberof_count}){else}(0){/if}{/if}
+							{if $showEdit || $isAdministrator}
+							  {section name="w" loop=$list[i].wft_id}
+							    {if $list[i].wft_icon[w] == 'images/security.gif'}
+							      {if $list[i].security == 'include'}
+							        {assign var="wf_icon" value="images/security_include.gif"}
+							      {elseif $list[i].security == 'exclude'}
+							        {assign var="wf_icon" value="images/security_exclude.gif"}
+							      {elseif $list[i].security == 'inherit'}
+						                {assign var="wf_icon" value="images/security_inherit.gif"}
+							      {else}
+							        {assign var="wf_icon" value=$list[i].wft_icon[w]}
+							      {/if}
+					            {else}
+							      {assign var="wf_icon" value=$list[i].wft_icon[w]}
+							    {/if}
+				                            {if $list[i].wft_type_id[w] == 6}
+				                              {assign var='wf_url' value=$rel_url|cat:'workflow/export.php'}
+				                            {else}
+				                              {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
+				               			    {/if}
+							<a href="{$wf_url}?pid={$list[i].rek_pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI}"><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" border="0" /></a> 
+							  {/section}
+				                <a href="workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}">...</a> 
+				           {/if}
+
+					</li>
+			{sectionelse}
+			  <li>No publicly viewable items have been published in the last week.</li>
+			{/section}
+		</ul>
+	  </div>
+
+	  </div>
+    </td>
+  </tr>
+</table>
+
+{include file="app_info.tpl.html"} {include file="footer.tpl.html"}
