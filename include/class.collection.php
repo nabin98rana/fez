@@ -415,38 +415,42 @@ class Collection
 		$joinStmt = "";
 		//echo $joinPrefix;
         $usr_id = Auth::getUserID();
-        if (is_numeric($usr_id)) {	
-	        if (!$auth_isBGP) {
-	            $ses = &Auth::getSession();
-			}
-			if (is_array($ses['auth_index_user_rule_groups'])) {
-				if (!$lister_only) {
-	            	$authStmt .= " INNER JOIN ".$dbtp."auth_index2 ai
-	                	ON authi_role in (".$rolesStmt.") AND ai.authi_pid = ".$joinPrefix." AND ai.authi_arg_id in (".implode(",",$ses['auth_index_user_rule_groups']).")";
-				} else {
-	            	$authStmt .= " INNER JOIN ".$dbtp."auth_index2_lister ai
-	                	ON ai.authi_pid = ".$joinPrefix." AND ai.authi_arg_id in (".implode(",",$ses['auth_index_user_rule_groups']).")";					
-				}
-			} else {
-				if ($lister_only) {
-		            $authStmt .= " INNER JOIN ".$dbtp."auth_index2_lister ai
-		                ON ai.authi_pid = ".$joinPrefix."
-		                INNER JOIN ".$dbtp."auth_rule_group_users
-		                ON argu_usr_id=".$usr_id." AND ai.authi_arg_id=argu_arg_id ";
-				} else {
-		            $authStmt .= " INNER JOIN ".$dbtp."auth_index2 ai
-		                ON authi_role in (".$rolesStmt.") AND ai.authi_pid = ".$joinPrefix."
-		                INNER JOIN ".$dbtp."auth_rule_group_users
-		                ON argu_usr_id=".$usr_id." AND ai.authi_arg_id=argu_arg_id ";					
-				}
-			}
-//            $authStmt .= "
-//                and ai.authi_pid = ".$joinPrefix;
-        } else {
-        	$publicGroups = Collection::getPublicAuthIndexGroups();
-            $authStmt = " INNER JOIN ".$dbtp."auth_index2_lister ON authi_pid=".$joinPrefix." and authi_arg_id in (".implode(",", $publicGroups).")";
-            $joinStmt .= "";
-        }
+		        if (is_numeric($usr_id)) {	
+			        if (!$auth_isBGP) {
+			            $ses = &Auth::getSession();
+					}
+					if (is_array($ses['auth_index_user_rule_groups'])) {
+						if (!is_array($ses['auth_index_user_rule_groups'])) { // to catch when the fez index/auth index is empty
+							if (!$lister_only) {
+				            	$authStmt .= " INNER JOIN ".$dbtp."auth_index2 ai
+				                	ON authi_role in (".$rolesStmt.") AND ai.authi_pid = ".$joinPrefix." AND ai.authi_arg_id in (".implode(",",$ses['auth_index_user_rule_groups']).")";
+							} else {
+				            	$authStmt .= " INNER JOIN ".$dbtp."auth_index2_lister ai
+				                	ON ai.authi_pid = ".$joinPrefix." AND ai.authi_arg_id in (".implode(",",$ses['auth_index_user_rule_groups']).")";					
+							}
+						}
+					} else {
+						if ($lister_only) {
+				            $authStmt .= " INNER JOIN ".$dbtp."auth_index2_lister ai
+				                ON ai.authi_pid = ".$joinPrefix."
+				                INNER JOIN ".$dbtp."auth_rule_group_users
+				                ON argu_usr_id=".$usr_id." AND ai.authi_arg_id=argu_arg_id ";
+						} else {
+				            $authStmt .= " INNER JOIN ".$dbtp."auth_index2 ai
+				                ON authi_role in (".$rolesStmt.") AND ai.authi_pid = ".$joinPrefix."
+				                INNER JOIN ".$dbtp."auth_rule_group_users
+				                ON argu_usr_id=".$usr_id." AND ai.authi_arg_id=argu_arg_id ";					
+						}
+					}
+		//            $authStmt .= "
+		//                and ai.authi_pid = ".$joinPrefix;
+		        } else {
+		        	$publicGroups = Collection::getPublicAuthIndexGroups();
+					if (!is_array($publicGroups)) { // to catch when the fez index/auth index is empty
+			            $authStmt = " INNER JOIN ".$dbtp."auth_index2_lister ON authi_pid=".$joinPrefix." and authi_arg_id in (".implode(",", $publicGroups).")";
+					}
+		            $joinStmt .= "";
+		        }
 //echo $authStmt;
         return array('authStmt' => $authStmt, 'joinStmt' => $joinStmt);
     }
