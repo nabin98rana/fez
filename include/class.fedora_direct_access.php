@@ -65,6 +65,8 @@ class Fedora_Direct_Access {
             'port'     => FEDORA_DB_PORT
         );
 		$options = array('persistent' => false);
+		$this->pid = "";
+		$this->xml = "";
         $this->dbh = DB::connect($dsn, options);
         if (PEAR::isError($this->dbh)) {
             Error_Handler::logError(array($this->dbh->getMessage(), $this->dbh->getDebugInfo()), __FILE__, __LINE__);
@@ -101,6 +103,51 @@ class Fedora_Direct_Access {
         }
         return $result;
     }
+
+    /**
+     * getObjectXML
+     *
+     */
+	function getObjectXML($pid) {
+
+        $result = $this->dbh->getOne("SELECT path FROM objectPaths WHERE token = '".$pid."'");
+        if (PEAR::isError($result)) {
+                return "";
+        }
+
+		$xml = "";
+		$xml = file_get_contents($result);
+		$this->xml = $xml;
+		echo $xml;
+        return $xml;
+    }
+
+	function getDatastreamDissemination($pid, $dsID) {
+		
+		if ($this->pid != $pid || $this->xml == "") {
+			$this->getObjectXML($pid);
+		}
+		if ($this->xml == "") {
+			return false;
+		}
+		$xmldoc= new DomDocument();
+		$xmldoc->preserveWhiteSpace = false;
+		$xmldoc->loadXML($this->xml);
+		
+        $xpath = new DOMXPath($xmldoc);
+        $dvs = $xpath->query("//foxml:datastream[@ID='".$dsID."']/datastreamVersion[@ID]");
+
+/*        foreach ($dvs as $dv) {
+            $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $dv); 
+            if ($dv->firstChild->nodeValue == "[TBG]") {
+                // Assemble $historyDetail
+			}
+		}
+*/		
+		
+		
+	}
+
 
 }
 

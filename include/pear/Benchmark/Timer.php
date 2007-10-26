@@ -17,7 +17,7 @@
 // $Id: Timer.php,v 1.14 2005/11/06 09:07:10 toggg Exp $
 //
 
-require_once 'PEAR.php';
+require_once APP_PEAR_PATH . 'PEAR.php';
 
 /**
  * Provides timing and profiling information.

@@ -1442,7 +1442,7 @@ class Auth
      */
     function isCorrectPassword($username, $password)
     {
-        if (APP_DISABLE_PASSWORD_CHECKING === true) {
+        if (APP_DISABLE_PASSWORD_CHECKING == "true") {
             return true;
         } else {
             global $HTTP_POST_VARS;
@@ -1647,7 +1647,7 @@ class Auth
      * @return  boolean true if the user successfully binds to the LDAP server
      */
 	function ldap_authenticate($p_user_id, $p_password) {
-        if (APP_DISABLE_PASSWORD_CHECKING === true) {
+        if (APP_DISABLE_PASSWORD_CHECKING == "true") {
             return true; // switch this on and comment the rest out for debugging/development
         } else {
             $t_authenticated 		= false;
@@ -2217,7 +2217,7 @@ class Auth
 }
 
 // benchmarking the included file (aka setup time)
-if (APP_BENCHMARK) {
+if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
     $GLOBALS['bench']->setMarker('Included Auth Class');
 }
 ?>

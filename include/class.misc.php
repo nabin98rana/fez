@@ -47,11 +47,11 @@
 include_once(APP_INC_PATH . 'common.inc.php');
 include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.setup.php");
-include_once(APP_INC_PATH . "class.xsd_html_match.php");
-include_once(APP_INC_PATH . "class.doc_type_xsd.php");
-include_once(APP_INC_PATH . "class.record.php");
-include_once(APP_INC_PATH . "class.xsd_display.php");
-include_once(APP_INC_PATH . "class.xsd_loop_subelement.php");
+//include_once(APP_INC_PATH . "class.xsd_html_match.php");
+//include_once(APP_INC_PATH . "class.doc_type_xsd.php");
+//include_once(APP_INC_PATH . "class.record.php");
+//include_once(APP_INC_PATH . "class.xsd_display.php");
+//include_once(APP_INC_PATH . "class.xsd_loop_subelement.php");
 
 class Misc
 {
@@ -2652,7 +2652,7 @@ function backtrace()
 } // end of Misc class
 
 // benchmarking the included file (aka setup time)
-if (APP_BENCHMARK) {
+if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
     $GLOBALS['bench']->setMarker('Included Misc Class');
 }
 ?>

@@ -68,10 +68,10 @@ if (isElementVisible(basic_element)) {
 <table id="front-page-container">
   <tr>
     <td width="50%" valign="top">
-	  <div class="front-page-content-header"><img src="{$rel_url}images/search_22.jpg" alt="Search" title="Search" /> Search </div> 
+	  <div class="front-page-content-header"><img src="{$rel_url}images/search_22.jpg" alt="Search" title="Search" /> Search </div>
 	  <div class="front-page-content-detail">
 		<form name="search_frm" target="_top" method="get" action="{$rel_url}list.php">
-		  <input type="hidden" name="cat" value="quick_filter" />		
+		  <input type="hidden" name="cat" value="quick_filter" />
 		  <label for="search" accesskey="3"></label>
  (title, keywords, abstract)<br />
 			<input type="hidden" name="sort_by" value="searchKey0" />
@@ -79,7 +79,7 @@ if (isElementVisible(basic_element)) {
 			<div id="loading1" style="display:none;">Loading...</div>
 			<input type="submit" value="Search" />
 			<a href="#" onclick="javascript:alert( 'Search All Fields\n\n Enter a phrase.  Objects where any field contains the phrase will be returned.\n This is a case-insensitive search, and you may use the * or ? wildcards.\n\n Examples:\n\n li*y\n finds objects that start with li and end with y\n\n b?ts\n finds words that start with b followed by any letter and then ts.  e.g. bits, bats, byts')">Help</a><br />Use <a href="{$rel_url}adv_search.php"><b>Advanced Search</b></a> to search by multiple criteria<br />&nbsp;
-		</form>	  
+		</form>
 	  </div>
 
 	  <div class="front-page-content-header"><img src="{$rel_url}images/browse_22.jpg" alt="Browse" title="Browse" /> Browse</div>
@@ -135,11 +135,11 @@ if (isElementVisible(basic_element)) {
 	  <div class="front-page-content-header"><img src="{$rel_url}images/folder_new_22.jpg" alt="Recently Added Items" title="Recently Added Items" /> Recently Added Items</div>
 	  <div class="front-page-content-detail">
 		<ul class="front-page-list">
-	        {section name="i" loop=$list}		
+	        {section name="i" loop=$list}
 				{if $list[i].rek_object_type == 1}
 	                {assign var="href_view" value="list.php?community_pid="|cat:$list[i].rek_pid|escape:"html"}
 	                {assign var="icon" value="images/community.jpg" }
-	                {if ($list[i].isEditor==1 || $isAdministrator)} 
+	                {if ($list[i].isEditor==1 || $isAdministrator)}
 	                        {assign var="showEdit" value=true}
 	                {else}
 	                        {assign var="showEdit" value=false}
@@ -147,7 +147,7 @@ if (isElementVisible(basic_element)) {
 	           {elseif $list[i].rek_object_type == 2}
 	                {assign var="href_view" value="list.php?collection_pid="|cat:$list[i].rek_pid|escape:"html"}
 	                {assign var="icon" value="images/collection.jpg" }
-	                {if $isUser && ($list[i].isEditor==1 || $isAdministrator)}  
+	                {if $isUser && ($list[i].isEditor==1 || $isAdministrator)}
 	                        {assign var="showEdit" value=true}
 	                {else}
 	                        {assign var="showEdit" value=false}
@@ -163,23 +163,23 @@ if (isElementVisible(basic_element)) {
 					{else}
 		                {assign var="icon" value="images/record.jpg" }
 					{/if}
-	                {if $isUser } 
+	                {if $isUser }
 	                        {assign var="showEdit" value=true}
 	                {else}
 	                        {assign var="showEdit" value=false}
 	                {/if}
 	           {/if}
-				{if $list[i].rek_created_date} 
+				{if $list[i].rek_created_date}
 					{if ($list[i].rek_created_date|date_format:"%Y-%m-%d") != $today}
 						{if (($list[i].day_name) != $day_name && ($list[i].rek_created_date|date_format:"%Y-%m-%d") != $yesterday) || (($list[i].rek_created_date|date_format:"%Y-%m-%d") == $yesterday && $day_name != "Yesterday")}
 							{if ($list[i].day_name) == $today_day_name}
 								{assign var="day_name_pre" value=$list[i].day_name}
 								{assign var="day_name" value=$last|cat:$day_name_pre}
 							{else}
-								{if ($list[i].rek_created_date|date_format:"%Y-%m-%d") == $yesterday}								
-									{assign var="day_name" value="Yesterday"}		
+								{if ($list[i].rek_created_date|date_format:"%Y-%m-%d") == $yesterday}
+									{assign var="day_name" value="Yesterday"}
 								{else}
-									{assign var="day_name" value=$list[i].day_name}							
+									{assign var="day_name" value=$list[i].day_name}
 								{/if}
 							{/if}
 		  <!--tr>
@@ -191,8 +191,8 @@ if (isElementVisible(basic_element)) {
 				  </tr>
 			 </table>
 			 </td>
-		  </tr-->	
-						{/if}				
+		  </tr-->
+						{/if}
 					{elseif $day_name != "Today"}
 					  {assign var="day_name" value="Today"}
 		  <!--tr>
@@ -237,9 +237,9 @@ if (isElementVisible(basic_element)) {
 				                            {else}
 				                              {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
 				               			    {/if}
-							<a href="{$wf_url}?pid={$list[i].rek_pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI}"><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" border="0" /></a> 
+							<a href="{$wf_url}?pid={$list[i].rek_pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI}"><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" border="0" /></a>
 							  {/section}
-				                <a href="workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}">...</a> 
+				                <a href="workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}">...</a>
 				           {/if}
 
 					</li>

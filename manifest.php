@@ -12,7 +12,9 @@ inner join fez_record_search_key_ismemberof AS im2
 ON im2.rek_ismemberof=im1.rek_ismemberof_pid
 inner join fez_record_search_key rs1 ON rs1.rek_pid=im1.rek_ismemberof_pid
 inner join fez_record_search_key rs2 ON rs2.rek_pid=im2.rek_ismemberof_pid
-WHERE im1.rek_ismemberof='$issue_pid'";
+WHERE im1.rek_ismemberof='$issue_pid'
+ORDER BY rs2.rek_sequence, rs1.rek_sequence
+";
 $res = $GLOBALS['db_api']->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 
 $sections = array();

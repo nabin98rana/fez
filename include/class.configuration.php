@@ -35,9 +35,8 @@
 //
 
 include_once(APP_INC_PATH . "class.validation.php");
+include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.misc.php");
-include_once(APP_INC_PATH . "class.auth.php");
-
 /**
  * This class exists for interacting with the configuration settings sub-system.
  */
@@ -51,7 +50,7 @@ class Configuration
      * Returns an associative array of all core configuration names/values in the config table.
      */
     function getConfAll() {
-        
+//   		include_once(APP_INC_PATH . "class.misc.php");
         $stmt = "SELECT
                     config_name, config_value
                  FROM
@@ -88,7 +87,6 @@ class Configuration
         foreach ($settings as $name => $value) {
             define(strtoupper($name), $value);
         }
-
         // Assemble compound variables
         define("APP_CYCLE_COLORS", APP_CYCLE_COLOR_ONE . "," . APP_CYCLE_COLOR_TWO);
         define("APP_TPL_PATH", APP_PATH . "templates/");

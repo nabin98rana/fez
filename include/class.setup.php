@@ -43,7 +43,7 @@
  */
 
 include_once(APP_INC_PATH . "class.error_handler.php");
-include_once(APP_INC_PATH . "class.misc.php");
+//include_once(APP_INC_PATH . "class.misc.php");
 
 class Setup
 {
@@ -96,7 +96,7 @@ class Setup
 }
 
 // benchmarking the included file (aka setup time)
-if (APP_BENCHMARK) {
+if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
     $GLOBALS['bench']->setMarker('Included Setup Class');
 }
 ?>

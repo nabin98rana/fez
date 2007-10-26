@@ -612,7 +612,7 @@ class Mime_Helper
 }
 
 // benchmarking the included file (aka setup time)
-if (APP_BENCHMARK) {
+if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
     $GLOBALS['bench']->setMarker('Included Mime_Helper Class');
 }
 ?>

@@ -39,6 +39,7 @@ include_once(APP_INC_PATH . "class.prefs.php");
 include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "db_access.php");
+include_once(APP_INC_PATH . "class.fedora_direct_access.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("preferences.tpl.html");
@@ -100,6 +101,9 @@ $tpl->assign("shibAttribs", $shibAttribs);
 $tpl->assign("user_prefs", $prefs);
 $tpl->assign("front_pages", $front_pages);
 $tpl->assign("zones", Date_API::getTimezoneList());
+
+$fda = new Fedora_Direct_Access();
+$fda->getObjectXML("UQ:1");
 
 if (Auth::isInDB() && !Auth::isInAD() && !Auth::isInFederation()) {
     $tpl->assign("local_db_user", "1");

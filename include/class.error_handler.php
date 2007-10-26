@@ -42,7 +42,7 @@
  * @author Jo�o Prado Maia <jpm@mysql.com>
  */
 
-include_once(APP_INC_PATH . "class.misc.php");
+//include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.setup.php");
 
 
@@ -151,7 +151,7 @@ class Error_Handler
         		 Error_Handler::$app_errors[] = $error_display; 
         	}
         }
-        if (APP_REPORT_ERROR_FILE) {
+        if (APP_REPORT_ERROR_FILE == "true") {
         	Error_Handler::_logToFile($error, $script, $line);
         }
         $setup = Setup::load();
@@ -258,7 +258,7 @@ class Error_Handler
     }
 }
 // benchmarking the included file (aka setup time)
-if (APP_BENCHMARK) {
+if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
     $GLOBALS['bench']->setMarker('Included Error_Handler Class');
 }
 ?>

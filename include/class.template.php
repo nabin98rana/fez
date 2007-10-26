@@ -64,6 +64,9 @@ class Template_API
      */
     function Template_API()
     {
+        if (!defined('APP_CURRENT_LANG')) {
+            DEFINE("APP_CURRENT_LANG", "en");
+        }
         $this->smarty = new Smarty;
         $this->smarty->template_dir = APP_PATH . "templates/" . APP_CURRENT_LANG;
         $this->smarty->compile_dir = APP_PATH . "templates_c";
@@ -121,7 +124,7 @@ class Template_API
      */
     function displayTemplate()
     {
-        if (APP_BENCHMARK) {
+        if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
             // stop the benchmarking
             $GLOBALS["bench"]->stop();
             $profiling = $GLOBALS["bench"]->getProfiling();
@@ -142,7 +145,7 @@ class Template_API
      */
     function displayTemplateRecord($record_id)
     {
-        if (APP_BENCHMARK) {
+        if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
             // stop the benchmarking
             $GLOBALS["bench"]->stop();
             $profiling = $GLOBALS["bench"]->getProfiling();
@@ -312,7 +315,7 @@ class Template_API
 
 
 // benchmarking the included file (aka setup time)
-if (APP_BENCHMARK) {
+if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
     $GLOBALS['bench']->setMarker('Included Template Class');
 }
 ?>

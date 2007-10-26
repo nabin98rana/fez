@@ -947,7 +947,7 @@ class Statistics
 
 
 // benchmarking the included file (aka setup time)
-if (APP_BENCHMARK) {
+if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
     $GLOBALS['bench']->setMarker('Included Statistics Class');
 }
 ?>

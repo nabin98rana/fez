@@ -1051,7 +1051,7 @@ class XSD_DisplayObject
         $this->xsd_element_prefix = $xsd_details['xsd_element_prefix'];
         $this->xsd_top_element_name = $xsd_details['xsd_top_element_name'];
         $xmlnode = new DomDocument();
-        @$xmlnode->loadXML($xmlDatastream);
+        $xmlnode->loadXML($xmlDatastream);
         $cbdata = array('parentContent' => '', 'parent_key' => '', 'xdis_id' => $xsdmf_xdis_id);
         $this->mfcb_rootdone = false;
 
@@ -1317,7 +1317,7 @@ class XSD_DisplayObject
 }
 
 // benchmarking the included file (aka setup time)
-if (APP_BENCHMARK) {
+if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
     $GLOBALS['bench']->setMarker('Included XSD Display Class');
 }
 ?>
