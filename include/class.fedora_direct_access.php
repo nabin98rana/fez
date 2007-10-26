@@ -135,15 +135,16 @@ class Fedora_Direct_Access {
 		$xmldoc->loadXML($this->xml);
 		
         $xpath = new DOMXPath($xmldoc);
-        $dvs = $xpath->query("//foxml:datastream[@ID='".$dsID."']/datastreamVersion[@ID]");
+        $dvs = $xpath->query("substring-after(//foxml:datastream[@ID='".$dsID."']/datastreamVersion[@ID], '".$dsID.".')]");
 
-/*        foreach ($dvs as $dv) {
-            $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $dv); 
+        foreach ($dvs as $dv) {
+			echo $dv->nodeValue;
+/*            $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $dv); 
             if ($dv->firstChild->nodeValue == "[TBG]") {
                 // Assemble $historyDetail
-			}
+			} */
 		}
-*/		
+		
 		
 		
 	}
