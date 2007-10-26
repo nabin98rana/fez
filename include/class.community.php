@@ -215,7 +215,7 @@ class Community
 
 }
 
-if (APP_BENCHMARK) {
+if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
     $GLOBALS['bench']->setMarker('Included Community Class');
 }
 ?>

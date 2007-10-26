@@ -319,7 +319,7 @@ class XSD_Relationship
     }
 }
 // benchmarking the included file (aka setup time)
-if (APP_BENCHMARK) {
+if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
     $GLOBALS['bench']->setMarker('Included XSD_Relationship Class');
 }
 ?>

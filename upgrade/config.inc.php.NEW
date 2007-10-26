@@ -1,0 +1,106 @@
+<?php
+/* vim: set expandtab tabstop=4 shiftwidth=4: */
+// +----------------------------------------------------------------------+
+// | Fez - Digital Repository System                                      |
+// +----------------------------------------------------------------------+
+// | Copyright (c) 2005, 2006 The University of Queensland,               |
+// | Australian Partnership for Sustainable Repositories,                 |
+// | eScholarship Project                                                 |
+// |                                                                      |
+// | Some of the Fez code was derived from Eventum (Copyright 2003, 2004  |
+// | MySQL AB - http://dev.mysql.com/downloads/other/eventum/ - GPL)      |
+// |                                                                      |
+// | This program is free software; you can redistribute it and/or modify |
+// | it under the terms of the GNU General Public License as published by |
+// | the Free Software Foundation; either version 2 of the License, or    |
+// | (at your option) any later version.                                  |
+// |                                                                      |
+// | This program is distributed in the hope that it will be useful,      |
+// | but WITHOUT ANY WARRANTY; without even the implied warranty of       |
+// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        |
+// | GNU General Public License for more details.                         |
+// |                                                                      |
+// | You should have received a copy of the GNU General Public License    |
+// | along with this program; if not, write to:                           |
+// |                                                                      |
+// | Free Software Foundation, Inc.                                       |
+// | 59 Temple Place - Suite 330                                          |
+// | Boston, MA 02111-1307, USA.                                          |
+// +----------------------------------------------------------------------+
+// | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
+// +----------------------------------------------------------------------+
+//
+
+ini_set('allow_url_fopen', 0);
+ini_set("display_errors", 1);
+error_reporting(1);
+error_reporting(E_ALL ^ E_NOTICE);
+set_time_limit(0);
+
+/////////////////////////////////////////
+// BEGIN USER-CONFIGURABLE DEFINITIONS //
+/////////////////////////////////////////
+define("APP_SQL_DBTYPE",    "mysql");
+define("APP_SQL_DBHOST",    "HOST_NAME_HERE");
+define("APP_SQL_DBNAME",    "DB_NAME_HERE");
+define("APP_SQL_DBUSER",    "USER_HERE");
+define("APP_SQL_DBPASS",    "PASS_HERE");
+define("APP_DEFAULT_DB",    APP_SQL_DBNAME);
+define("APP_TABLE_PREFIX",  "fez_");
+define("APP_PATH", '/usr/local/apache/htdocs/YOUR_PATH_HERE/');
+define("APP_INC_PATH", APP_PATH . "include/");
+define("APP_PEAR_PATH", APP_INC_PATH . "pear/");
+define("APP_SMARTY_PATH", APP_INC_PATH . "Smarty/");
+/////////////////////////////////////////
+// END USER-CONFIGURABLE DEFINITIONS   //
+/////////////////////////////////////////
+
+// OS-specific tweaks. (Formerly Bill vs Linus).
+if (stristr(PHP_OS, 'darwin')) {
+    // Darwin
+    ini_set("include_path", ".:" . APP_PEAR_PATH);
+} elseif (stristr(PHP_OS, 'win')) {
+    // Windows
+    ini_set("include_path", ".;" . APP_PEAR_PATH);
+} else {
+    // Nix
+    ini_set("include_path", ".:" . APP_PEAR_PATH);
+}
+
+define("APP_BENCHMARK", true);
+if (APP_BENCHMARK) {
+    include_once("Benchmark/Timer.php");
+    $bench = new Benchmark_Timer;
+    $bench->start();
+}
+
+include_once(APP_INC_PATH . "class.configuration.php");
+Configuration::registerConf();
+
+if (isset($_GET)) {
+    $HTTP_POST_VARS = $_POST;
+    $HTTP_GET_VARS = $_GET;
+    $HTTP_SERVER_VARS = $_SERVER;
+    $HTTP_ENV_VARS = $_ENV;
+    $HTTP_POST_FILES = $_FILES;
+    // Seems like PHP 4.1.0 didn't implement the $_SESSION auto-global ...
+    if (isset($_SESSION)) {
+        $HTTP_SESSION_VARS = $_SESSION;
+    }
+    //$HTTP_SESSION_VARS = $_SESSION;
+    $HTTP_COOKIE_VARS = $_COOKIE;
+}
+
+$GLOBALS['app_cache'] = true; // Set this string to true if you have given php.ini at least 256M to use. It will improve performance by storing some Fedora and SQL queries in PHP memory rather than fetch them twice or more during a single page load. This gets hardset to false globally for indexing and reindexing in background processes as this won't scale over 500M with over 10,000 objects otherwise (you will get PHP fatal memory error for example).
+
+// Fix magic_quote_gpc'ed values
+$HTTP_GET_VARS =& Misc::dispelMagicQuotes($HTTP_GET_VARS);
+$HTTP_POST_VARS =& Misc::dispelMagicQuotes($HTTP_POST_VARS);
+
+// Handle the language preferences
+@include_once(APP_INC_PATH . "class.language.php");
+Language::setPreference();
+
+?>

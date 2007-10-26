@@ -30,7 +30,44 @@ the new version.  Be sure to backup your current DB before clicking.  If you hav
 <li><a href="#1_3">Upgrading from Fez 1.3</a></li>
 </ul>
 
-<hr />
+{if $display_config_changes == 0}
+<div style="border: 2px red solid; margin: 20px; padding: 10px;">
+
+<h2>IMPORTANT CONFIGURATION CHANGES</h2>
+
+<p>This version of Fez requires some manual upgrades to be performed.</p>
+
+<ol>
+<li>Make all the required changes to config.inc.php described below this box.</li>
+<li>Click <a href="{$smarty.const.PHP_SELF}?step=4" target="_blank">this link</a> to run the Fez Configuration Updater.</li>
+<li>Back-up your existing config.inc.php file, and copy <b>/your_fez/upgrade/config.inc.php.NEW</b> into its place (ensuring you remove the .NEW extension)</li>
+<li>Open this file, and edit the variables below to contain appropriate values for your installation:</li>
+
+<pre>
+/////////////////////////////////////////
+// BEGIN USER-CONFIGURABLE DEFINITIONS //
+/////////////////////////////////////////
+define("APP_SQL_DBTYPE",    "mysql");
+define("APP_SQL_DBHOST",    "HOST_NAME_HERE");
+define("APP_SQL_DBNAME",    "DB_NAME_HERE");
+define("APP_SQL_DBUSER",    "USER_HERE");
+define("APP_SQL_DBPASS",    "PASS_HERE");
+define("APP_DEFAULT_DB",    APP_SQL_DBNAME);
+define("APP_TABLE_PREFIX",  "fez_");
+define("APP_PATH", '/usr/local/apache/htdocs/YOUR_PATH_HERE/');
+define("APP_INC_PATH", APP_PATH . "include/");
+define("APP_PEAR_PATH", APP_INC_PATH . "pear/");
+define("APP_SMARTY_PATH", APP_INC_PATH . "Smarty/");
+/////////////////////////////////////////
+// END USER-CONFIGURABLE DEFINITIONS   //
+/////////////////////////////////////////
+</pre>
+
+<li>Proceed to the bottom of this page, and move to sanity checks.</li>
+
+</ol>
+</div>
+{/if}
 
 <a name="1_2"></a><h2>Upgrading from Fez 1.2 or earlier</h2>
 <div>Edit your config.inc.php file and update these new or changed configuration variables:
@@ -190,6 +227,17 @@ section on the Fez Wiki or search the <a href="http://sourceforge.net/mailarchiv
 to newer bundled versions if you wish.  See the Wiki for more details <a href="http://dev-repo.library.uq.edu.au/wiki/index.php/Upgrading">Fez Wiki: Upgrading</a>
 </p>
 <p> <a href="{$rel_url}">[Home]</a></p>
+</div>
+
+{elseif $step == 4}
+<div>
+<p>
+{if $upgrade_result == "1"}
+Success! The Fez Configuration Updater ran successfully.
+{else}
+ERROR: Something didn't work. Please check error_handler.log for more information.
+{/if}
+</p>
 </div>
 {/if}
 

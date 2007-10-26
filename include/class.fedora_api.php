@@ -33,6 +33,10 @@
 //
 //
 
-include_once(APP_INC_PATH."class.fedora_api_".str_replace(".", "_", APP_FEDORA_VERSION).".php");
+if (APP_FEDORA_VERSION == "2.2") {
+    include_once(APP_INC_PATH . "class.fedora_api_2_2.php");
+} else {
+    include_once(APP_INC_PATH . "class.fedora_api_2_1_1.php");
+}
 
 ?>

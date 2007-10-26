@@ -44,7 +44,7 @@
 
 $TOTAL_QUERIES = 0;
 
-include_once("DB.php");
+include_once(APP_PEAR_PATH . "DB.php");
 include_once(APP_INC_PATH . "class.error_handler.php");
 
 class DB_API
@@ -118,7 +118,7 @@ class DB_API
 }
 
 // benchmarking the included file (aka setup time)
-if (APP_BENCHMARK) {
+if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
     $GLOBALS['bench']->setMarker('Included DB_API Class');
 }
 ?>

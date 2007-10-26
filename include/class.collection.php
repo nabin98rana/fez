@@ -1431,7 +1431,7 @@ $res_count = array();
 }
 
 // benchmarking the included file (aka setup time)
-if (APP_BENCHMARK) {
+if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
     $GLOBALS['bench']->setMarker('Included Collection Class');
 }
 ?>
