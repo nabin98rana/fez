@@ -571,19 +571,11 @@
 
 	<xsl:template name="doFooter">
 		<div class="footer">
-			<p id="content" class="footer-text">
-				<xsl:text>The&#x00A0;Australian&#x00A0;National&#x00A0;University&#x00A0;-&#x00A0;CRICOS&#x00A0;Provider&#x00A0;Number:&#x00A0;00120C</xsl:text>
-			</p>
-			<p class="footer-text">
-				<a target="_blank" href="http://www.dspace.org/">DSpace Software</a>
-				<xsl:text>&#x00A0;Copyright&#x00A0;&#x00A9;&#x00A0;2002-2005&#x00A0;</xsl:text>
-				<a target="_blank" href="http://web.mit.edu/">MIT</a>
-				<xsl:text>&#x00A0;and&#x00A0;</xsl:text>
-				<a target="_blank" href="http://www.hp.com/">Hewlett-Packard</a>
-				<xsl:text>&#x00A0;-</xsl:text>
-				<a target="_blank"
-					href="/feedback?fromPage=http%3A%2F%2Fsts59132.anu.edu.au%2Fhome.jsp"
-				>Feedback</a>
+			<p  class="footer-text">
+				Powered by <a href="http://sourceforge.net/projects/fez" target="_blank" title="More information about Fez software">Fez 1.3 BETA</a> software<br />
+				Copyright &amp;copy; 2005, 2007 <a href="http://www.library.uq.edu.au/escholarship" title="Visit the APSR eScholarship site">APSR eScholarshipUQ</a><br />
+				
+				<br />
 			</p>
 		</div>
 	</xsl:template>

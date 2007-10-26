@@ -138,7 +138,7 @@
 					<!-- <xsl:value-of select="concat($serverUrl,$driPath,$identifier)"/> -->
 					<a>
 						<xsl:attribute name="href">
-							<xsl:value-of select="$driDoc//mets:FLocat/@xlink:href"/>
+							<xsl:value-of select="$driDoc//mets:fileGrp[@USE='CONTENT']//mets:FLocat/@xlink:href"/>
 						</xsl:attribute>
 						<xsl:value-of select="$driDoc//dim:field[@element='title']"/>
 					</a>
@@ -192,7 +192,7 @@
 				<span class="toc-a">
 					<a>
 						<xsl:attribute name="href">
-							<xsl:value-of select="//mets:FLocat/@xlink:href"/>
+							<xsl:value-of select="mets:METS//mets:fileGrp[@USE='CONTENT']//mets:FLocat/@xlink:href"/>
 						</xsl:attribute>
 						<xsl:value-of select="mets:METS/mets:dmdSec/mets:mdWrap/mets:xmlData/dim:dim/dim:field[@element='title']"/>
 					</a>
@@ -211,25 +211,5 @@
 	<!--xsl:template match="dri:document/dri:body/dri:div[@n='collection-home']"-->
 
 
-	<xsl:template name="doFooter">
-		<div class="footer">
-			<xsl:attribute name="id">footer</xsl:attribute>
-			<p id="content" class="footer-text">
-				<xsl:text>The&#x00A0;Australian&#x00A0;National&#x00A0;University&#x00A0;-&#x00A0;CRICOS&#x00A0;Provider&#x00A0;Number:&#x00A0;00120C</xsl:text>
-			</p>
-			<p class="footer-text">
-				<a target="_blank" href="http://www.dspace.org/">DSpace Software</a>
-				<xsl:text>&#x00A0;Copyright&#x00A0;&#x00A9;&#x00A0;2002-2005&#x00A0;</xsl:text>
-				<a target="_blank" href="http://web.mit.edu/">MIT</a>
-				<xsl:text>&#x00A0;and&#x00A0;</xsl:text>
-				<a target="_blank" href="http://www.hp.com/">Hewlett-Packard</a>
-				<xsl:text>&#x00A0;-</xsl:text>
-				<a target="_blank"
-					href="/feedback?fromPage=http%3A%2F%2Fsts59132.anu.edu.au%2Fhome.jsp"
-				>Feedback</a>
-			</p>
-		</div>
-	</xsl:template>
-
-
+	
 </xsl:stylesheet>

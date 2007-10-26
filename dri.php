@@ -96,7 +96,7 @@ switch($action)
 		} else {
 			$options['searchKey0'] = $query;
 		}
-		$options['searchKey'.Search_Key::getID('isMemberOf')] = array($parent_pid) + $res;
+		$options['searchKey'.Search_Key::getID('isMemberOf')] = $res;
 		$list_res = Record::getListing($options, array("Lister", "Viewer"));
 		$list = $list_res['list'];
 		$tpl->assign('n','search-results');
@@ -112,8 +112,28 @@ switch($action)
 			$stmt = "SELECT rek_file_attachment_name 
 				FROM ".APP_TABLE_PREFIX."record_search_key_file_attachment_name 
 				WHERE rek_file_attachment_name_pid='".$item['rek_pid']."' ";
-			$list[$key]['rek_file_attachment_name']
-				= $GLOBALS['db_api']->dbh->getCol($stmt);
+			$list[$key]['files']
+				= $GLOBALS['db_api']->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+			foreach ($list[$key]['files'] as $fkey => $filename) {
+				$use = substr($filename['rek_file_attachment_name'], 0, strpos($filename['rek_file_attachment_name'], '_'));
+				if (!in_array($use, array('presmd','web','thumbnail','preview'))) {
+					//$ext_pos = strrpos($filename['rek_file_attachment_name'], '.');
+					//if ($ext_pos !== false) {
+						// get file extension
+					//	$use = substr($filename['rek_file_attachment_name'], $ext_pos + 1);
+					//} else {
+						$use = 'CONTENT';
+					//}
+				}
+				$list[$key]['files'][$fkey]['use'] = $use;
+			}
+		}
+		foreach ($list as $key => $item) {
+			$stmt = "SELECT rek_author 
+				FROM ".APP_TABLE_PREFIX."record_search_key_author 
+				WHERE rek_author_pid='".$item['rek_pid']."' ";
+			$list[$key]['authors']
+				= $GLOBALS['db_api']->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		}
 		$tpl->assign('list',$list);
 	break;
@@ -121,6 +141,7 @@ switch($action)
 $tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("isUser", $username);
 $tpl->assign(compact('pid','theme_id','parent_pid','action','head'));
-$dri_xml = $tpl->displayTemplate();
+$tpl->displayTemplate();
+//Error_Handler::logError($tpl->getTemplateContents());
 
 ?>

@@ -249,7 +249,7 @@
                                 ID="file_437">
                                 <mets:FLocat LOCTYPE="URL"
                                     xlink:href="{$app_base_url}eserv.php?pid={$list[i].rek_pid|escape}&amp;dsID={$list[i].files[f].rek_file_attachment_name|escape}"
-                                    xlink:title="manifest.xml" xlink:type="locator"/>
+                                    xlink:title="{$list[i].files[f].rek_file_attachment_name|escape}" xlink:type="locator"/>
                             </mets:file>
                         </mets:fileGrp>
                         {/section} 

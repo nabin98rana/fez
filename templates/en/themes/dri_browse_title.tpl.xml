@@ -102,17 +102,9 @@
         n="browse-by-title-results" id="artifactbrowser.BrowseTitles.div.browse-by-title-results">
         <includeSet type="summaryList" orderBy="title" n="browse-by-title"
           id="artifactbrowser.BrowseTitles.includeSet.browse-by-title">
-          <objectInclude repositorySource="hdl:123456789" objectSource="hdl:123456789/309"/>
-          <objectInclude repositorySource="hdl:123456789" objectSource="hdl:123456789/312"/>
-          <objectInclude repositorySource="hdl:123456789" objectSource="hdl:123456789/310"/>
-          <objectInclude repositorySource="hdl:123456789" objectSource="hdl:123456789/308"/>
-          <objectInclude repositorySource="hdl:123456789" objectSource="hdl:123456789/307"/>
-          <objectInclude repositorySource="hdl:123456789" objectSource="hdl:123456789/313"/>
-          <objectInclude repositorySource="hdl:123456789" objectSource="hdl:123456789/304"/>
-          <objectInclude repositorySource="hdl:123456789" objectSource="hdl:123456789/303"/>
-          <objectInclude repositorySource="hdl:123456789" objectSource="hdl:123456789/311"/>
-          <objectInclude repositorySource="hdl:123456789" objectSource="hdl:123456789/306"/>
-          <objectInclude repositorySource="hdl:123456789" objectSource="hdl:123456789/305"/>
+          {section name=i loop=$list} 
+        <objectInclude repositorySource="{$list[i].rek_pid}" objectSource="{$list[i].rek_pid}"/>
+        {/section}
         </includeSet>
       </div>
     </div>
@@ -268,6 +260,11 @@
                     {$list[i].rek_issue_number|escape} - {$list[i].rek_date|date_format:'%B %Y'}</dim:field>
                   <dim:field element="description" mdschema="dc" qualifier="tableofcontents"/>
                   <dim:field element="identifier" mdschema="dc" qualifier="uri">{$list[i].rek_pid}</dim:field>
+                  {assign var="loop_format" value=$list[i].authors} 
+                  {section name="f" loop=$loop_format}
+                  <dim:field element="contributor" mdschema="dc">{$list[i].authors[f].rek_author}</dim:field>
+                  {/section}
+
                   <dim:field element="provenance" mdschema="dc"/>
                   <dim:field element="rights" mdschema="dc"/>
                   <dim:field element="rights" mdschema="dc" qualifier="license"/>
@@ -276,17 +273,21 @@
               </mets:xmlData>
             </mets:mdWrap>
           </mets:dmdSec>
-          <mets:fileSec>
-            <mets:fileGrp USE="CONTENT"> {assign var="loop_format"
-              value=$list[i].rek_file_attachment_name} {section name="f" loop=$loop_format}
-                <mets:file SIZE="3595" GROUP_ID="group_file_437"
-                CHECKSUM="ca20a6ab94866ce74767643ef2f12f3f" MIMETYPE="text/xml" CHECKSUMTYPE="MD5"
-                ID="file_437">
-                <mets:FLocat LOCTYPE="URL"
-                  xlink:href="{$app_base_url}eserv.php?pid={$list[i].rek_pid|escape}&amp;dsID={$list[i].rek_file_attachment_name[f]|escape}"
-                  xlink:title="manifest.xml" xlink:type="locator"/>
-              </mets:file> {/section} </mets:fileGrp>
-          </mets:fileSec>
+                    <mets:fileSec>
+                            {assign var="loop_format"
+                            value=$list[i].files} 
+                            {section name="f" loop=$loop_format}
+                        <mets:fileGrp USE="{$list[i].files[f].use}"> 
+                            <mets:file SIZE="3595" GROUP_ID="group_file_437"
+                                CHECKSUM="ca20a6ab94866ce74767643ef2f12f3f" MIMETYPE="text/xml" CHECKSUMTYPE="MD5"
+                                ID="file_437">
+                                <mets:FLocat LOCTYPE="URL"
+                                    xlink:href="{$app_base_url}eserv.php?pid={$list[i].rek_pid|escape}&amp;dsID={$list[i].files[f].rek_file_attachment_name|escape}"
+                                    xlink:title="{$list[i].files[f].rek_file_attachment_name|escape}" xlink:type="locator"/>
+                            </mets:file>
+                        </mets:fileGrp>
+                        {/section} 
+                    </mets:fileSec>
           <mets:structMap TYPE="LOGICAL" LABEL="DSpace">
             <mets:div TYPE="DSpace Collection" DMDID="dmd_1"/>
           </mets:structMap>
