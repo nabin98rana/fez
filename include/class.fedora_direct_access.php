@@ -118,12 +118,11 @@ class Fedora_Direct_Access {
 		$xml = "";
 		$xml = file_get_contents($result);
 		$this->xml = $xml;
-		echo $xml;
+//		echo $xml;
         return $xml;
     }
 
-	function getDatastreamDissemination($pid, $dsID) {
-		
+	function getMaxDatastreamVersion($pid, $dsID) {
 		if ($this->pid != $pid || $this->xml == "") {
 			$this->getObjectXML($pid);
 		}
@@ -135,18 +134,99 @@ class Fedora_Direct_Access {
 		$xmldoc->loadXML($this->xml);
 		
         $xpath = new DOMXPath($xmldoc);
-        $dvs = $xpath->query("substring-after(//foxml:datastream[@ID='".$dsID."']/datastreamVersion[@ID], '".$dsID.".')]");
-
+		$dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion/@ID";
+        $dvs = $xpath->query($dvStmt);
+		$maxVersion = 0;
         foreach ($dvs as $dv) {
-			echo $dv->nodeValue;
-/*            $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $dv); 
-            if ($dv->firstChild->nodeValue == "[TBG]") {
-                // Assemble $historyDetail
-			} */
+	
+			$tempNum = substr($dv->nodeValue, (strpos($dv->nodeValue, $dsID.".") + strlen($dsID.".")));
+//			echo "HERE-".$dv->nodeValue."-".$tempNum."-";
+			if (is_numeric($tempNum)) {
+				if ($tempNum > $maxVersion) {
+					$maxVersion = $tempNum;
+				}
+			}
+		}
+		return $maxVersion;
+	}
+
+	function getDatastreamDissemination($pid, $dsID) {
+		
+		if ($this->pid != $pid || $this->xml == "") {
+			$this->getObjectXML($pid);
+		}
+		if ($this->xml == "") {
+			return false;
 		}
 		
+		$maxDV = $this->getMaxDatastreamVersion($pid, $dsID);
+//		echo $dsID.$maxDV;
+		$xmldoc= new DomDocument();
+		$xmldoc->preserveWhiteSpace = false;
+		$xmldoc->loadXML($this->xml);
 		
+        $xpath = new DOMXPath($xmldoc);
+//		$dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='".$dsID.".".$maxDV."']/foxml:xmlContent/".$dsID;
+		$dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='".$dsID.".".$maxDV."']/foxml:xmlContent/*";		
+//		echo $dvStmt;
+        $dvs = $xpath->query($dvStmt); // returns nodeList
+		$xmlContent = new DomDocument();
+        foreach ($dvs as $dv) {
+			$xmlContent->appendChild($xmlContent->importNode($dv,true));
+		}
+//		print "<pre>" . htmlspecialchars($xmlContent->saveXML()) . "</pre>";
+		return $xmlContent->saveXML();	
+	}
+
+	function listDatastreams($pid) {
+		if ($this->pid != $pid || $this->xml == "") {
+			$this->getObjectXML($pid);
+		}
+		if ($this->xml == "") {
+			return false;
+		}
+
+				$xmldoc= new DomDocument();
+				$xmldoc->preserveWhiteSpace = false;
+				$xmldoc->loadXML($this->xml);
+
+		        $xpath = new DOMXPath($xmldoc);
+		//		$dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='".$dsID.".".$maxDV."']/foxml:xmlContent/".$dsID;
+				$dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='".$dsID.".".$maxDV."']/foxml:xmlContent/*";		
+		//		echo $dvStmt;
+		        $dvs = $xpath->query($dvStmt); // returns nodeList
+				$xmlContent = new DomDocument();
+		        foreach ($dvs as $dv) {
+					$xmlContent->appendChild($xmlContent->importNode($dv,true));
+				}
+		//		print "<pre>" . htmlspecialchars($xmlContent->saveXML()) . "</pre>";
+				return $xmlContent->saveXML();	
 		
+	}	
+
+	function getDatastreams($pid) {
+		if ($this->pid != $pid || $this->xml == "") {
+			$this->getObjectXML($pid);
+		}
+		if ($this->xml == "") {
+			return false;
+		}
+
+				$xmldoc= new DomDocument();
+				$xmldoc->preserveWhiteSpace = false;
+				$xmldoc->loadXML($this->xml);
+
+		        $xpath = new DOMXPath($xmldoc);
+		//		$dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='".$dsID.".".$maxDV."']/foxml:xmlContent/".$dsID;
+				$dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='".$dsID.".".$maxDV."']/foxml:xmlContent/*";		
+		//		echo $dvStmt;
+		        $dvs = $xpath->query($dvStmt); // returns nodeList
+				$xmlContent = new DomDocument();
+		        foreach ($dvs as $dv) {
+					$xmlContent->appendChild($xmlContent->importNode($dv,true));
+				}
+		//		print "<pre>" . htmlspecialchars($xmlContent->saveXML()) . "</pre>";
+				return $xmlContent->saveXML();		
 	}
 
 

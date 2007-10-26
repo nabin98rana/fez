@@ -50,6 +50,7 @@ include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "class.misc.php");
 require_once(APP_INC_PATH . "nusoap.php");
 include_once(APP_PEAR_PATH . "/HTTP/Request.php");
+require_once(APP_INC_PATH . "class.fedora_direct_access.php");
 
 class Fedora_API {
 
@@ -639,6 +640,7 @@ class Fedora_API {
         if (!is_numeric($pid)) {
             $parms=array('pid' => $pid, 'asOfDateTime' => NULL, 'dsState' => NULL);
             $dsIDListArray = Fedora_API::openSoapCall('getDatastreams', $parms);
+//			print_r($dsIDListArray);
             if (empty($dsIDListArray) || (is_array($dsIDListArray) && isset($dsIDListArray['faultcode']))) {
                 return false;
             }
@@ -801,6 +803,12 @@ class Fedora_API {
     * @return array $dsIDListArray The datastream returned in an array
     */
 	function callGetDatastreamDissemination($pid, $dsID, $asofDateTime="") {
+		if (APP_FEDORA_APIA_DIRECT == "ON") {
+			$fda = new Fedora_Direct_Access();
+			$stream = $fda->getDatastreamDissemination($pid, $dsID);
+			return array("stream" => $stream);
+		}		
+		
 	   if ($asofDateTime == "") {
 		   $parms=array('pid' => $pid, 'dsID' => $dsID);
 		} else {
