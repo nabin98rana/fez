@@ -491,7 +491,7 @@
             }
         }
         if (SanityChecks::resultsClean($results)) {
-            $stmt = "SELECT * FROM ".APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "xsd_loop_subelement limit 1";
+            $stmt = "SELECT * FROM ".APP_SQL_DBNAME . "." . APP_TABLE_PREFIX . "xsd_loop_subelement limit 1";
             $res = $GLOBALS["db_api"]->dbh->getAll($stmt);
             if (PEAR::isError($res)) {
                 $results[] = new ConfigResult('SQL','APP_TABLE_PREFIX',APP_TABLE_PREFIX,"Failed to query " .

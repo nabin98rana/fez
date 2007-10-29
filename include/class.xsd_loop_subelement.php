@@ -580,7 +580,7 @@ class XSD_Loop_Subelement
         	return;
         }    
         foreach ($maps['xsdsel_map'] as $xsdsel_id) {
-            $stmt = "SELECT * FROM ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX ."xsd_loop_subelement " .
+            $stmt = "SELECT * FROM ". APP_SQL_DBNAME . "." . APP_TABLE_PREFIX ."xsd_loop_subelement " .
                     "WHERE xsdsel_id='$xsdsel_id' ";
             $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
             if (PEAR::isError($res)) {

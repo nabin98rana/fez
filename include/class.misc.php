@@ -2508,7 +2508,7 @@ function backtrace()
                     if (in_array($xvalue, $wrote[$field])) {
                     	Error_Handler::logError("DOH!!!!",__FILE__,__LINE__);
                     }
-                    $stmt = "UPDATE ".APP_DEFAULT_DB . "." . APP_TABLE_PREFIX."$table " .
+                    $stmt = "UPDATE ".APP_SQL_DBNAME . "." . APP_TABLE_PREFIX."$table " .
                             "SET $field='$dbvalue' " .
                             "WHERE $field='$xvalue' AND $restrict";
                     if ($debug) {

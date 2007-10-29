@@ -54,7 +54,7 @@ class Configuration
         $stmt = "SELECT
                     config_name, config_value
                  FROM
-                    " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "config 
+                    " . APP_SQL_DBNAME . "." . APP_TABLE_PREFIX . "config 
                  WHERE
                     config_module = 'core'";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -348,7 +348,7 @@ class Configuration
 
         // For each config variable we know about, update it with the value from the form.
         foreach ($originalSettings as $key => $value) {
-            $res = $GLOBALS["db_api"]->dbh->query("UPDATE " . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX . "config SET config_value = '" . Misc::escapeString($HTTP_POST_VARS[$key]) . "' WHERE config_name = '" . Misc::escapeString($key) . "' AND config_module = 'core'");
+            $res = $GLOBALS["db_api"]->dbh->query("UPDATE " . APP_SQL_DBNAME . "." . APP_TABLE_PREFIX . "config SET config_value = '" . Misc::escapeString($HTTP_POST_VARS[$key]) . "' WHERE config_name = '" . Misc::escapeString($key) . "' AND config_module = 'core'");
             if (PEAR::isError($res)) {
                 array_push($problemUpdates, $key);
             }

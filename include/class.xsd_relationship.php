@@ -304,7 +304,7 @@ class XSD_Relationship
             return;
         }    
         foreach ($maps['xsdrel_map'] as $xsdrel_id) {
-            $stmt = "SELECT * FROM ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX ."xsd_relationship " .
+            $stmt = "SELECT * FROM ". APP_SQL_DBNAME . "." . APP_TABLE_PREFIX ."xsd_relationship " .
                     "WHERE xsdrel_id='".$xsdrel_id."' ";
             $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
             if (PEAR::isError($res)) {

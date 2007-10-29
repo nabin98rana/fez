@@ -485,7 +485,7 @@ class Author
      * @return  array List of authors
      */
 	function suggest($term) {
-		$dbtp = APP_DEFAULT_DB.'.'.APP_TABLE_PREFIX;
+		$dbtp = APP_SQL_DBNAME.'.'.APP_TABLE_PREFIX;
 		$term = Misc::escapeString($term);
 		$stmt = " SELECT aut_id, aut_fullname FROM (
 			  SELECT aut_id, 

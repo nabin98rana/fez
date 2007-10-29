@@ -47,7 +47,6 @@ define("APP_SQL_DBHOST",    "HOST_NAME_HERE");
 define("APP_SQL_DBNAME",    "DB_NAME_HERE");
 define("APP_SQL_DBUSER",    "USER_HERE");
 define("APP_SQL_DBPASS",    "PASS_HERE");
-define("APP_DEFAULT_DB",    APP_SQL_DBNAME);
 define("APP_TABLE_PREFIX",  "fez_");
 define("APP_PATH", '/usr/local/apache/htdocs/YOUR_PATH_HERE/');
 define("APP_INC_PATH", APP_PATH . "include/");

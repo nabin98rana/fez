@@ -2819,7 +2819,7 @@ class XSD_HTML_Match {
         
         $bgp->setStatus("Remapping XSDMF ids");
         foreach ($maps['xsdmf_map'] as $xsdmf_id) {
-        	$stmt = "SELECT * FROM ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX ."xsd_display_matchfields " .
+        	$stmt = "SELECT * FROM ". APP_SQL_DBNAME . "." . APP_TABLE_PREFIX ."xsd_display_matchfields " .
                     "WHERE xsdmf_id='".$xsdmf_id."' ";
             $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
             if (PEAR::isError($res)) {
@@ -2842,7 +2842,7 @@ class XSD_HTML_Match {
                 XSD_HTML_Match::updateFromArray($xsdmf_id,$res);
             }
             // remap attachments
-            $stmt = "SELECT * FROM ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX ."xsd_display_attach " .
+            $stmt = "SELECT * FROM ". APP_SQL_DBNAME . "." . APP_TABLE_PREFIX ."xsd_display_attach " .
                     "WHERE att_parent_xsdmf_id='".$xsdmf_id."' ";
             $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
             if (PEAR::isError($res)) {
@@ -2853,7 +2853,7 @@ class XSD_HTML_Match {
                     Misc::arraySearchReplace($res, 
                         array('att_child_xsdmf_id'),
                         $maps['xsdmf_map']);
-                    $stmt = "UPDATE ". APP_DEFAULT_DB . "." . APP_TABLE_PREFIX ."xsd_display_attach " .
+                    $stmt = "UPDATE ". APP_SQL_DBNAME . "." . APP_TABLE_PREFIX ."xsd_display_attach " .
                             "SET " ;
                     foreach ($res as $key => $value) {
                         $stmt .= " ".$key." = '".$value."', ";        	

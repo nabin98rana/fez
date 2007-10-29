@@ -343,7 +343,7 @@ class DuplicatesReport {
     function matchingISI_LOCQuery($pid)
     {
         $pidnum = substr($pid, strpos($pid, ':') + 1);
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $dbtp = APP_SQL_DBNAME . "." . APP_TABLE_PREFIX;
 
         // Do a isi_loc match on records that don't have the same pid as the candidate record
 		$record = new RecordGeneral($pid);
@@ -370,7 +370,7 @@ class DuplicatesReport {
     function similarTitlesQuery($pid, $title)
     {
         $pidnum = substr($pid, strpos($pid, ':') + 1);
-        $dbtp = APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
+        $dbtp = APP_SQL_DBNAME . "." . APP_TABLE_PREFIX;
         // Do a fuzzy title match on records that don't have the same pid as the candidate record
         // and are type '3' (records not collections or communities)
         $stmt = "SELECT distinct r2.rek_pid as pid, " .
