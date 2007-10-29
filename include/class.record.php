@@ -1974,7 +1974,7 @@ inner join
         foreach ($datastreams as $ds_key => $ds_value) {
             if ($ds_value['ID'] == 'PremisEvent') {
                 $value = Fedora_API::callGetDatastreamContents($pid, 'PremisEvent', true);
-
+                $value = $value['stream'];
                 /* It's time for a spot of DOMage */
                 $xmlDoc = new DOMDocument();
                 $xmlDoc->preserveWhiteSpace = false;
@@ -2023,6 +2023,11 @@ inner join
     
     function isDeleted($pid)
     {
+
+        if (APP_FEDORA_APIA_DIRECT == "ON") {
+            $fda = new Fedora_Direct_Access();
+            return $fda->isDeleted($pid);
+        }
        	$res = Fedora_API::searchQuery('pid='.$pid, array('pid', 'state'));
         if ($res[0]['state'] == 'D') {
         	return true;

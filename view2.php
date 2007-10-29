@@ -254,8 +254,9 @@ if (!empty($pid) && $record->checkExists()) {
                 }
 				foreach ($datastreamsAll as $dsa) {
 					if ($dsa['ID'] == $Jhove_DS_ID) {					
-						$Jhove_XML = Fedora_API::callGetDatastreamContents($pid, $Jhove_DS_ID, true);
-						$fileSize = Jhove_Helper::extractFileSize($Jhove_XML);
+						//$Jhove_XML = Fedora_API::callGetDatastreamContents($pid, $Jhove_DS_ID, true);
+						$Jhove_XML = Fedora_API::callGetDatastreamDissemination($pid, $Jhove_DS_ID);
+						$fileSize = Jhove_Helper::extractFileSize($Jhove_XML['stream']);
 						$fileSize = Misc::size_hum_read($fileSize);
 						$datastreams[$ds_key]['archival_size'] = $fileSize;
 					}

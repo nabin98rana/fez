@@ -149,6 +149,10 @@ class Fedora_API {
      * @return  string $result The XML of the object
      */
 	function getObjectXMLByPID($pid) {
+        if (APP_FEDORA_APIA_DIRECT == "ON") {
+            $fda = new Fedora_Direct_Access();
+            return $fda->getObjectXML($pid);
+        } 
 		$parms = array('pid' => $pid);
 		$result = Fedora_API::openSoapCall('getObjectXML', $parms);
         $result =  base64_decode($result);
@@ -187,7 +191,7 @@ class Fedora_API {
      */
     function callFindObjects($resultFields = array('pid', 'title', 'identifier', 'description', 'state'),
                             $maxResults = 10, $query_terms="")
-    {
+    { 
         return Fedora_API::openSoapCallAccess('findObjects', array(
             'resultFields' => $resultFields,
              new soapval('maxResults','nonNegativeInteger', $maxResults),
@@ -242,6 +246,7 @@ class Fedora_API {
      */
     function searchQuery($query, $fields = array('pid', 'title'))
     {
+
     	$fieldstr = '';
     	foreach ($fields as $field) {
     		$fieldstr .= '&'.$field.'=true';
@@ -638,6 +643,14 @@ class Fedora_API {
     */
     function callGetDatastreams($pid) {
         if (!is_numeric($pid)) {
+
+            if (APP_FEDORA_APIA_DIRECT == "ON") {
+                $fda = new Fedora_Direct_Access();
+                $datastreams = $fda->getDatastreams($pid);
+                return $datastreams;
+            }
+
+
             $parms=array('pid' => $pid, 'asOfDateTime' => NULL, 'dsState' => NULL);
             $dsIDListArray = Fedora_API::openSoapCall('getDatastreams', $parms);
 //			print_r($dsIDListArray);
@@ -662,6 +675,11 @@ class Fedora_API {
     */
     function callListDatastreams($pid) {
         if (!is_numeric($pid)) {
+            if (APP_FEDORA_APIA_DIRECT == "ON") {
+                $fda = new Fedora_Direct_Access();
+                $dsIDListArray = $fda->listDatastreams($pid);
+                return $dsIDListArray;
+            }
             $parms=array('pid' => $pid, 'asOfDateTime' => NULL);
             $dsIDListArray = Fedora_API::openSoapCallAccess('listDatastreams', $parms);
             sort($dsIDListArray);
@@ -685,11 +703,15 @@ class Fedora_API {
 		if (!is_array($returns)) {
 			$returns = array();
 		}
-
         if (!is_numeric($pid)) {
 		    if ($refresh != false && isset($returns[$pid]) && is_array($returns[$pid])) {
 				return $returns[$pid];
 			}
+            if (APP_FEDORA_APIA_DIRECT == "ON") {
+                $fda = new Fedora_Direct_Access();
+                $dsIDListArray = $fda->listDatastreams($pid);
+                return $dsIDListArray;
+            }
 			$getString = APP_BASE_FEDORA_APIA_DOMAIN."/listDatastreams/".$pid."?xml=true";
 			$ch = curl_init($getString);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -716,6 +738,7 @@ class Fedora_API {
 				}
 				$counter++;
 			}
+            //print_r($resultlist);
 			if ($GLOBALS['app_cache']) {
 			  $returns[$pid] = $resultlist;
             }
@@ -728,6 +751,13 @@ class Fedora_API {
 	
 
     function objectExists($pid) {
+
+        if (APP_FEDORA_APIA_DIRECT == "ON") {
+            $fda = new Fedora_Direct_Access();
+            $exists = $fda->objectExists($pid);
+            return $exists;
+        }
+
 		$parms = array('pid' => $pid);
 		$result = Fedora_API::openSoapCall('getObjectXML', $parms, false);
         if (is_array($result) && isset($result['faultcode'])) {
@@ -760,7 +790,7 @@ class Fedora_API {
     * @return boolean
     */
 	function datastreamExists ($pid, $dsID, $refresh=false) {
-		$dsExists = false;
+		$dsExists = false; 
 //		$rs = Fedora_API::callListDatastreams($pid); // old way
 		$rs = Fedora_API::callListDatastreamsLite($pid, $refresh);
         if (is_array($rs)) {
@@ -829,11 +859,13 @@ class Fedora_API {
     * @return array $resultlist The requested of datastream in an array.
     */
 	function callGetDatastreamContents($pid, $dsID, $getraw = false) {
+   //Error_Handler::logError("here", __FILE__,__LINE__);    
 		$resultlist = array();
 		$dsExists = Fedora_API::datastreamExists($pid, $dsID);
 		if ($dsExists === true) {			
-			$filename = APP_FEDORA_GET_URL."/".$pid."/".$dsID;
-			list($blob,$info) = Misc::processURL($filename);
+	//		$filename = APP_FEDORA_GET_URL."/".$pid."/".$dsID;
+//			list($blob,$info) = Misc::processURL($filename);
+            $blob = Fedora_API::callGetDatastreamDissemination($pid, $dsID);
             // check if this is even XML, it might be binary, in which case we'll just return it.
             if ($info['content_type'] != 'text/xml' || $getraw) {
 				return $blob;
@@ -868,6 +900,7 @@ class Fedora_API {
     */
 	function callGetDatastreamContentsField($pid, $dsID, $returnfields) {
 
+//   Error_Handler::logError("here", __FILE__,__LINE__);    
 		static $counter;
 		if (!isset($counter)) {
 			$counter = 0;
@@ -877,8 +910,11 @@ class Fedora_API {
 		$resultlist = array();
 		$dsExists = Fedora_API::datastreamExists($pid, $dsID);
 		if ($dsExists == true) {
-			$filename = APP_FEDORA_GET_URL."/".$pid."/".$dsID;
-			list($xml, $info) = Misc::processURL($filename);
+//			$filename = APP_FEDORA_GET_URL."/".$pid."/".$dsID;
+//			list($xml, $info) = Misc::processURL($filename);
+            $xml = Fedora_API::callGetDatastreamDissemination($pid, $dsID);
+//echo $pid."-".$dsID;
+            $xml = $xml['stream'];
 			if (!empty($xml) && $xml != false) {
 				$doc = DOMDocument::loadXML($xml);
 				$xpath = new DOMXPath($doc);

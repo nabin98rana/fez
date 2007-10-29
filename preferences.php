@@ -102,6 +102,11 @@ $tpl->assign("user_prefs", $prefs);
 $tpl->assign("front_pages", $front_pages);
 $tpl->assign("zones", Date_API::getTimezoneList());
 
+$fda = new Fedora_Direct_Access();
+//echo $fda->getDatastreamDissemination("UQ:1", "FezMD");
+print_r($fda->getDatastreams("UQ:3504"));
+
+
 if (Auth::isInDB() && !Auth::isInAD() && !Auth::isInFederation()) {
     $tpl->assign("local_db_user", "1");
 } else {

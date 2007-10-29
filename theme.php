@@ -1,7 +1,7 @@
 <?php
 
 include_once('config.inc.php');
-
+include_once(APP_INC_PATH . "class.template.php");
 $parent_pid = $_REQUEST['parent_pid'];
 $pid = $_REQUEST['pid'];
 $theme_id = $_REQUEST['theme_id'];

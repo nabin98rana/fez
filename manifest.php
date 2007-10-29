@@ -1,12 +1,12 @@
 <?php
 
 include_once('config.inc.php');
-
+include_once(APP_INC_PATH . "class.template.php");
 $issue_pid = $_REQUEST['issue_pid'];
 
 $stmt = "select im1.rek_ismemberof_pid as section_pid, rs1.rek_title as section_title,
- im2.rek_ismemberof_pid as article_pid, 
- rs2.rek_title as article_title 
+ im2.rek_ismemberof_pid as article_pid,
+ rs2.rek_title as article_title
 from fez_record_search_key_ismemberof AS im1
 inner join fez_record_search_key_ismemberof AS im2
 ON im2.rek_ismemberof=im1.rek_ismemberof_pid
@@ -25,14 +25,14 @@ foreach ($res as $item) {
 $sections = array_values($sections);
 
 
-$stmt = "SELECT rek_file_attachment_name 
-			FROM ".APP_TABLE_PREFIX."record_search_key_file_attachment_name 
+$stmt = "SELECT rek_file_attachment_name
+			FROM ".APP_TABLE_PREFIX."record_search_key_file_attachment_name
 				WHERE rek_file_attachment_name_pid='$issue_pid' ";
 $res =  $GLOBALS['db_api']->dbh->getCol($stmt);
 foreach ($res as $file) {
-    if ((stristr($file, ".jpg") 
-            	|| stristr($file, ".jpeg") 
-            	|| stristr($file, ".png") 
+    if ((stristr($file, ".jpg")
+            	|| stristr($file, ".jpeg")
+            	|| stristr($file, ".png")
             	|| stristr($file, ".gif"))
             && stristr($file, "web_")
 	    ) {
