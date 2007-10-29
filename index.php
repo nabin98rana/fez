@@ -169,7 +169,11 @@ $news_count = count($news);
 $tpl->assign("news", $news);
 $tpl->assign("isHomePage", "true");
 $tpl->assign("news_count", $news_count);
-$cloudTag = Cloud_Tag::buildCloudTag();
+if (APP_CLOUD_TAG == "ON") {
+    $cloudTag = Cloud_Tag::buildCloudTag();
+} else {
+    $cloudTag = "";
+}
 $tpl->assign("cloud_tag", $cloudTag);
 $tpl->headerscript .= "window.oTextbox_front_search
 	= new AutoSuggestControl(document.search_frm, 'front_search', document.getElementById('front_search'), document.getElementById('front_search'),

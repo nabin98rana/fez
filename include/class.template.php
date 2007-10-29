@@ -214,6 +214,7 @@ class Template_API
 		$this->assign("SHIB_SWITCH", SHIB_SWITCH);
 		$this->assign("SHIB_DIRECT_LOGIN", SHIB_DIRECT_LOGIN);		
 		$this->assign("APP_HOSTNAME", APP_HOSTNAME);
+        $this->assign("APP_CLOUD_TAG", APP_CLOUD_TAG);
 		$this->assign("SHIB_HOME_SP", SHIB_HOME_SP);
 		$this->assign("SHIB_HOME_IDP", SHIB_HOME_IDP);
 		$this->assign("SHIB_FEDERATION_NAME", SHIB_FEDERATION_NAME);

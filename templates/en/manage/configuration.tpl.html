@@ -197,6 +197,17 @@ function runSanityCheck(el)
 			</td>
   		  </tr>
 		  <tr>
+		    <td class="colname">Cloud tag</td>
+			<td class="coldetail">
+			  <select name="app_cloud_tag">
+			    <option value="ON"{if $config_settings.app_cloud_tag == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_cloud_tag == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  <br />Whether or not to display the keyword cloud tag on the front page.
+			  {include file="error_icon.tpl.html" field="app_cloud_tag"}
+			</td>
+  		  </tr>
+		  <tr>
 		    <td class="colname">Secure logins</td>
 			<td class="coldetail">
 			  <select name="app_https">
