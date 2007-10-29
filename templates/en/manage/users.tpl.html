@@ -156,6 +156,16 @@
 				  <input type="checkbox" name="administrator" {if $info.usr_administrator == 1}checked{/if}>
                 </td>
               </tr>
+			  {if $isSuperAdministrator == '1'}
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Super Administrator?:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+				  <input type="checkbox" name="super_administrator" {if $info.usr_super_administrator == 1}checked{/if}>
+                </td>
+              </tr>
+			  {/if}
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Use LDAP Authentication?:</b>
@@ -283,7 +293,8 @@
                       <td bgcolor="{$cell_color}" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Username</b></td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Name</b></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Administrator?</b></td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Admin?</b></td>
+					  <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Super Admin?</b></td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>LDAP Authentication?</b></td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>E-mail</b></td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Status</b></td>
@@ -304,6 +315,9 @@
                       </td>
                       <td bgcolor="{$row_color}" class="default">
                         &nbsp;{if $list[i].usr_administrator == 1}Yes{else}No{/if}
+                      </td>
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{if $list[i].usr_super_administrator == 1}Yes{else}No{/if}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
                         &nbsp;{if $list[i].usr_ldap_authentication == 1}Yes{else}No{/if}

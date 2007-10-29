@@ -48,9 +48,11 @@ $tpl->assign("type", "configuration");
 $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
+$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
+$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
-if (!$isAdministrator) {
+if (!$isSuperAdministrator) {
     $tpl->assign("show_not_allowed_msg", true);
 }
 
@@ -61,7 +63,7 @@ if ($HTTP_POST_VARS["action"] == "save") {
 }
 
 $tpl->assign("config_settings", Configuration::getConfAll());
-$tpl->assign("admin_users", User::getAdminsAssocList());            // For the APP_SYSTEM_USER_ID selector
+$tpl->assign("admin_users", User::getSuperAdminsAssocList());       // For the APP_SYSTEM_USER_ID selector
 $tpl->assign("timezones", Date_API::getTimezoneList());             // For the APP_DEFAULT_USER_TIMEZONE selector
 
 $tpl->displayTemplate();

@@ -48,8 +48,12 @@ $tpl->assign("type", "users");
 
 $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
+
 $isAdministrator = User::isUserAdministrator($isUser);
+$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
+$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
+
 $pagerRow = Pager::getParam('pagerRow',$params);
 if (empty($pagerRow)) {
 	$pagerRow = 0;
@@ -68,7 +72,7 @@ if ($isAdministrator) {
     if (@$HTTP_POST_VARS["cat"] == "new") {
         $tpl->assign("result", User::insert());
     } elseif (@$HTTP_POST_VARS["cat"] == "update") {
-        $tpl->assign("result", User::update());
+        $tpl->assign("result", User::update($isSuperAdministrator));
     } elseif (@$HTTP_POST_VARS["cat"] == "change_status" && empty($HTTP_POST_VARS["delete"])) {
         User::changeStatus();
     } elseif (!empty($HTTP_POST_VARS["delete"])) {

@@ -186,6 +186,33 @@ class User
     }
 
     /**
+     * Method used to check whether an user is a super administrator.
+     *
+     * @access  public
+     * @param   string $username The username of the user
+     * @return  boolean
+     */
+    function isUserSuperAdministrator($username)
+    {
+        $stmt = "SELECT
+                    usr_super_administrator
+                 FROM
+                    " . APP_TABLE_PREFIX . "user
+                 WHERE
+                    usr_username='".$username."'";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            return false;
+        } else {
+			if ($res['usr_super_administrator'] == 1) {
+				return true;
+			} else {
+				return false;
+			}
+        }
+    }
+
+    /**
      * Method used to check whether an user is an administrator.
      *
      * @access  public
@@ -605,7 +632,7 @@ class User
      * @access  public
      * @return  integer 1 if the update worked, -1 otherwise
      */
-    function update()
+    function update($superAdmin = 0)
     {
         global $HTTP_POST_VARS;
 
@@ -618,6 +645,16 @@ class User
 		} else {
 			$usr_administrator = 0;
 		}
+        if ($superAdmin) {
+            if (@$HTTP_POST_VARS["super_administrator"]) {
+                $usr_super_administrator = 1;
+            } else {
+                $usr_super_administrator = 0;
+            }
+            $superAdminUpdateStatement = "usr_super_administrator=" . $usr_super_administrator . ", ";
+        } else {
+            $superAdminUpdateStatement = "";
+        }
 		if (@$HTTP_POST_VARS["ldap_authentication"]) {
 			$ldap_authentication = 1;
 		} else {
@@ -631,7 +668,9 @@ class User
                     usr_full_name='" . Misc::escapeString($HTTP_POST_VARS["full_name"]) . "',
                     usr_email='" . Misc::escapeString($HTTP_POST_VARS["email"]) . "',
                     usr_administrator=" . $usr_administrator . ",
+                    " . $superAdminUpdateStatement . "
                     usr_ldap_authentication=" . $ldap_authentication;
+
         if ((!empty($HTTP_POST_VARS["password"])) && (($HTTP_POST_VARS["change_password"]))) {
             $stmt .= ",
                     usr_password='" . md5($HTTP_POST_VARS["password"]) . "'";
@@ -692,6 +731,12 @@ class User
 			$usr_administrator = 0;
 		}
 
+		if (@$HTTP_POST_VARS["super_administrator"]) {
+			$usr_super_administrator = 1;
+		} else {
+			$usr_super_administrator = 0;
+		}
+
 		if (@$HTTP_POST_VARS["ldap_authentication"]) {
 			$ldap_authentication = 1;
 		} else {
@@ -706,6 +751,7 @@ class User
                     usr_full_name,
                     usr_email,
                     usr_administrator,
+                    usr_super_administrator,
                     usr_ldap_authentication,
                     usr_preferences,
                     usr_username";
@@ -719,6 +765,7 @@ class User
                     '" . Misc::escapeString($HTTP_POST_VARS["full_name"]) . "',
                     '" . Misc::escapeString($HTTP_POST_VARS["email"]) . "',
                     " . $usr_administrator . ",
+                    " . $usr_super_administrator . ",
                     " . $ldap_authentication . ",
                     '" . Misc::escapeString($prefs) . "',
                     '" . Misc::escapeString($HTTP_POST_VARS["username"]) . "'";
@@ -1116,6 +1163,35 @@ class User
                     " . APP_TABLE_PREFIX . "user
                  WHERE
                     usr_administrator = 1 
+                 ORDER BY
+                    usr_full_name ASC";
+        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
+
+
+
+    /**
+     * Method used to get an associative array of the user ID and 
+     * full name of all super admins available in the system.
+     *
+     * @access  public
+     * @return  array The list of admin users
+     */
+    function getSuperAdminsAssocList()
+    {
+        $stmt = "SELECT
+                    usr_id,
+                    usr_full_name
+                 FROM
+                    " . APP_TABLE_PREFIX . "user
+                 WHERE
+                    usr_super_administrator = 1 
                  ORDER BY
                     usr_full_name ASC";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
