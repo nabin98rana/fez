@@ -542,10 +542,65 @@ class XSD_HTML_Match {
 		if (count($res) == 0) {
 			return array ();
 		} else {
-			for ($i = 0; $i < count($res); $i++) {
-				$res[$i]["field_options"] = XSD_HTML_Match::getOptions($res[$i]["xsdmf_id"]);
+			/** 
+			 * ORIGINAL FEZ CODE 
+			 * KJ: optimized for performance - a single MySQL query was used for each matchfield
+			 * (but most matchfields don't have any options at all). This was slowing down record
+			 * display in view.php.
+			 */				
+			/**		
+			for ($i = 0; $i < count($res); $i++) {				
+				$res[$i]["field_options"] = XSD_HTML_Match::getOptions($res[$i]["xsdmf_id"]);				
 				$res[$i]["field_options_value_only"] = XSD_HTML_Match::getOptionsValueOnly($res[$i]["xsdmf_id"]);
 			}
+			*/
+
+			/**
+			 * OPTIMIZED CODE
+			 * Use a single query for all matchfields and requery for values only if there are any options.
+			 * mfo_value is already selected for a possible later performance optimization
+			 */
+			// one query to get all matchfield options
+			$ids = array();
+			for ($i = 0; $i < count($res); $i++) {
+				array_push($ids, $res[$i]["xsdmf_id"]);												
+			}
+			$fld_id_str = implode(',', $ids);
+			$stmt = "SELECT mfo_fld_id, mfo_id, mfo_value ".
+					"FROM ".APP_TABLE_PREFIX."xsd_display_mf_option ".
+					"WHERE mfo_fld_id IN (".$fld_id_str.") ORDER BY	mfo_fld_id, mfo_value ASC";				
+									
+			// last parameter of getAssoc $group=true: pushes values for the same key (mfo_fld_id) 
+			// into an array
+			$mfoResult = $GLOBALS["db_api"]->dbh->getAssoc($stmt, false, array(), DB_FETCHMODE_DEFAULT, true);
+			if (PEAR::isError($mfoResult)) {
+				Error_Handler::logError(array ($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+				return array ();
+			}
+									
+			// iterate over match field list: only get value(s) if there are any options at all
+			
+			for ($i = 0; $i < count($res); $i++) {	
+				$res[$i]["field_options"] = array();
+				$res[$i]["field_options_value_only"] = array();
+				
+				$mfoEntries = $mfoResult[$res[$i]['xsdmf_id']];		
+				
+				// check if this field has any options
+				if (count($mfoEntries) > 0) {
+					
+					for ($n=0; $n<count($mfoEntries); $n++) {
+						$res[$i]["field_options"][$mfoEntries[$n][0]] = $mfoEntries[$n][1];
+					}
+					
+					// this could be further optimized, but is just called in very few cases
+					$res[$i]["field_options_value_only"] = XSD_HTML_Match::getOptionsValueOnly($res[$i]["xsdmf_id"]);
+					
+					//print_r($res[$i]["field_options"]);
+					//print_r($res[$i]["field_options_value_only"]);
+				} 								
+			}
+								
 			return $res;
 		}
 	}
@@ -559,6 +614,7 @@ class XSD_HTML_Match {
 	 * @return  string The matching field option value
 	 */
 	function getOptionValue($fld_id, $value) {
+Logger::debug("-----------getOptionValue");		
 		if (empty ($value)) {
 			return "";
 		}
@@ -591,6 +647,7 @@ class XSD_HTML_Match {
 	 * @return  string The custom field option value
 	 */
 	function getOptionValueByMFO_ID($mfo_id) {
+Logger::debug("-----------getOptionValueByMFO_ID");			
 		if (!is_numeric($mfo_id)) {
 			return "";
 		}
@@ -2476,7 +2533,7 @@ class XSD_HTML_Match {
 									WHERE
 										mfo_fld_id IN (".$fld_id_str.")
 									ORDER BY
-										mfo_value ASC";
+										mfo_value ASC";				
 				$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
 			} else {
 
@@ -2488,7 +2545,7 @@ class XSD_HTML_Match {
 										WHERE
 										mfo_fld_id='".$fld_id."'
 										ORDER BY
-										mfo_value ASC";
+										mfo_value ASC";				
 				$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
 				if (!PEAR::isError($res)) {
 					if ($GLOBALS['app_cache']) {
@@ -2515,8 +2572,7 @@ class XSD_HTML_Match {
 	 */
 	function getOptionsValueOnly($fld_id) {
 		$stmt = "SELECT
-		                    mfo_value,
-		                    mfo_value
+		                    mfo_value, mfo_value
 		                 FROM
 		                    " . APP_TABLE_PREFIX . "xsd_display_mf_option
 		                 WHERE
