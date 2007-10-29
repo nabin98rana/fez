@@ -461,6 +461,20 @@ function runSanityCheck(el)
 			  {include file="error_icon.tpl.html" field="fedora_db_passwd"}
 			</td>
   		  </tr>
+		  <tr>
+		    <td class="colname">&nbsp;</td>
+			<td class="coldetail">&nbsp;</td>
+  		  </tr>
+		  <tr>
+		    <td class="colname">Direct APIA Access</td>
+			<td class="coldetail">
+			  <select name="app_fedora_apia_direct">
+			    <option value="ON"{if $config_settings.app_fedora_apia_direct == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_fedora_apia_direct == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  {include file="error_icon.tpl.html" field="app_fedora_apia_direct"}
+			</td>
+  		  </tr>
 		</table>
 		</div>
 

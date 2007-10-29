@@ -133,10 +133,10 @@ class RecordView {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {		
-								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".APP_RELATIVE_URL."list.php?cat=quick_filter&search_keys%5B0%5D=".htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey], ENT_QUOTES)."'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
+								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".APP_RELATIVE_URL."list.php?cat=quick_filter&search_keys%5B0%5D=".urlencode(htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey], ENT_QUOTES))."'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
 							}
 						} else {
-							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_RELATIVE_URL."list.php?cat=quick_filter&search_keys%5B0%5D=".htmlspecialchars($details[$dis_field['xsdmf_id']], ENT_QUOTES)."'>".$details[$dis_field['xsdmf_id']]."</a>";
+							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_RELATIVE_URL."list.php?cat=quick_filter&search_keys%5B0%5D=".urlencode(htmlspecialchars($details[$dis_field['xsdmf_id']], ENT_QUOTES))."'>".$details[$dis_field['xsdmf_id']]."</a>";
 						}
 					}
 				}	
