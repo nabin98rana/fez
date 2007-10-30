@@ -859,20 +859,18 @@ class Fedora_API {
     * @return array $resultlist The requested of datastream in an array.
     */
 	function callGetDatastreamContents($pid, $dsID, $getraw = false) {
-   //Error_Handler::logError("here", __FILE__,__LINE__);    
 		$resultlist = array();
 		$dsExists = Fedora_API::datastreamExists($pid, $dsID);
 		if ($dsExists === true) {			
-	//		$filename = APP_FEDORA_GET_URL."/".$pid."/".$dsID;
-//			list($blob,$info) = Misc::processURL($filename);
-            $blob = Fedora_API::callGetDatastreamDissemination($pid, $dsID);
+			$ds_array = Fedora_API::callGetDatastreamDissemination($pid, $dsID);
+			$blob = $ds_array['stream'];
+			$mime_type = $ds_array['MIMEType'];
             // check if this is even XML, it might be binary, in which case we'll just return it.
-            if ($info['content_type'] != 'text/xml' || $getraw) {
+            if ($mime_type != 'text/xml' || $getraw) {
 				return $blob;
 			} 
             // We've checked the mimetype is XML so lets parse it and make a simple array
 			if (!empty($blob) && $blob != false) {
-				//print_r($blob);
 				$doc = DOMDocument::loadXML($blob);
 				$xpath = new DOMXPath($doc);
 				$fieldNodeList = $xpath->query("/*/*");
