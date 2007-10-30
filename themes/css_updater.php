@@ -1,6 +1,7 @@
 <?php
 
 include_once('../config.inc.php');
+include_once(APP_INC_PATH . "class.template.php");
 $username = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($username);
 if (!$isAdministrator) {
