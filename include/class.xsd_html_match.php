@@ -614,7 +614,7 @@ class XSD_HTML_Match {
 	 * @return  string The matching field option value
 	 */
 	function getOptionValue($fld_id, $value) {
-Logger::debug("-----------getOptionValue");		
+        //Logger::debug("-----------getOptionValue");		
 		if (empty ($value)) {
 			return "";
 		}
@@ -647,7 +647,7 @@ Logger::debug("-----------getOptionValue");
 	 * @return  string The custom field option value
 	 */
 	function getOptionValueByMFO_ID($mfo_id) {
-Logger::debug("-----------getOptionValueByMFO_ID");			
+        //Logger::debug("-----------getOptionValueByMFO_ID");			
 		if (!is_numeric($mfo_id)) {
 			return "";
 		}
