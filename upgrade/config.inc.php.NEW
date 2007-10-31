@@ -42,7 +42,7 @@ set_time_limit(0);
 /////////////////////////////////////////
 // BEGIN USER-CONFIGURABLE DEFINITIONS //
 /////////////////////////////////////////
-define("APP_SQL_DBTYPE",    "mysql");
+define("APP_SQL_DBTYPE",    "DATABASE_TYPE_HERE");       // "mysql" or "pgsql"
 define("APP_SQL_DBHOST",    "HOST_NAME_HERE");
 define("APP_SQL_DBNAME",    "DB_NAME_HERE");
 define("APP_SQL_DBUSER",    "USER_HERE");

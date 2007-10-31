@@ -50,7 +50,7 @@ function validateForm(f)
 
 function runSanityCheck(el)
 {
-	var queryString = '../setup/check_sanity.php?field=' + el;
+	var queryString = '../upgrade/check_sanity.php?field=' + el;
 	var formValue = '&value=' + document.getElementsByName(el).item(0).value;
 	window.open(queryString + formValue, "sanity", "status=0, scrollbars=1, toolbar=0, width=400, height=300");
 }
@@ -79,7 +79,7 @@ function runSanityCheck(el)
 	    Configuration settings were successfully saved.
 	  {/section}
 	  </p>
-	  <p>It is highly recommended that you run the <a href="../setup/check_sanity.php" target="_blank">Sanity Check</a> now.</p>
+	  <p><img src="{$rel_url}images/warning_16.png" alt="Warning" title="Warning" width="16" height="16" /> It is highly recommended that you run the <a href="../upgrade/check_sanity.php" target="_blank">Sanity Checks</a> now, to ensure there are no serious problems with your changes.</p>
 	  <br />
 	{/if}
 
@@ -363,7 +363,7 @@ function runSanityCheck(el)
 			<td class="coldetail">
 			  <select name="app_fedora_version">
 			    <option value="2.1.1"{if $config_settings.app_fedora_version == "2.1.1"} selected="selected"{/if}>2.1.1</option>
-				<option value="2.2"{if $config_settings.app_fedora_version == "2.2"} selected="selected"{/if}>2.2</option>
+				<option value="2.2"{if $config_settings.app_fedora_version == "2.2"} selected="selected"{/if}>2.2 or 2.2.1</option>
 			  </select>
 			</td>
   		  </tr>
@@ -598,6 +598,20 @@ function runSanityCheck(el)
 			<td class="coldetail">
 			  <input type="text" name="app_value_color" value="{$config_settings.app_value_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_value_color')"/><div id="app_value_color" style="background-color: {$config_settings.app_value_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_value_color"}
+			</td>
+  		  </tr>
+		  <tr>
+		    <td class="colname">Advanced cell colour</td>
+			<td class="coldetail">
+			  <input type="text" name="app_adv_color_dark" value="{$config_settings.app_adv_color_dark|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_adv_color_dark')" /><div id="app_adv_color_dark" style="background-color: {$config_settings.app_adv_color_dark}; height: 10px; width: 85px;"></div>
+			  {include file="error_icon.tpl.html" field="app_adv_color_dark"}
+			</td>
+  		  </tr>
+		  <tr>
+		    <td class="colname">Advanced value colour</td>
+			<td class="coldetail">
+			  <input type="text" name="app_adv_color_light" value="{$config_settings.app_adv_color_light|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_adv_color_light')"/><div id="app_adv_color_light" style="background-color: {$config_settings.app_adv_color_light}; height: 10px; width: 85px;"></div>
+			  {include file="error_icon.tpl.html" field="app_adv_color_light"}
 			</td>
   		  </tr>
 		  <tr>

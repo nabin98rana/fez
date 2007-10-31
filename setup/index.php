@@ -33,9 +33,6 @@
 // +----------------------------------------------------------------------+
 //
 //
-// XXX: try reading $_ENV['HOSTNAME'] and then ask the user if nothing could be found
-// XXX: don't use array_map() when possible, but array_walk instead. array_walk() doesn't create a copy
-// XXX: dynamically check the email blob and skips the email if it is bigger than 16mb on PHP4 versions
 
 if (isset($_GET)) {
     $HTTP_POST_VARS = $_POST;
@@ -43,12 +40,356 @@ if (isset($_GET)) {
     $HTTP_SERVER_VARS = $_SERVER;
     $HTTP_ENV_VARS = $_ENV;
     $HTTP_POST_FILES = $_FILES;
-    // seems like PHP 4.1.0 didn't implement the $_SESSION auto-global...
+    // Seems like PHP 4.1.0 didn't implement the $_SESSION auto-global ...
     if (isset($_SESSION)) {
         $HTTP_SESSION_VARS = $_SESSION;
     }
     $HTTP_COOKIE_VARS = $_COOKIE;
 }
+
+startSetup();       // Let's get this moveable feast underway!
+exit;
+
+
+
+/**
+ * This is the main method that controls the flow of the setup process, and triggers the different stages.
+ * 
+ */
+function startSetup() {
+
+    ini_set("include_path", '.');
+    include_once("../include/Smarty/Smarty.class.php");
+    include_once("../include/class.default.data.php");
+
+    $tpl = new Smarty();
+    $tpl->template_dir = '../templates/en';
+    $tpl->compile_dir = "../templates_c";
+    $tpl->config_dir = '';
+
+    $step = @$_GET["step"] ? @$_GET["step"] : @$_POST["step"];
+    if ($step == "") { $step = 0; }
+    $tpl->assign('step', $step);
+
+    // Step-specific routines
+    switch ($step) {
+        case 0:
+            $problems = prepareForSuperHappyFun();
+            $tpl->assign('problems', $problems);
+            break;
+        case 1:
+            if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) {
+                $tpl->assign('default_path', "C:/apache/htdocs/your-fez-directory/");
+            } else {
+                $tpl->assign('default_path', "/usr/local/apache/htdocs/your-fez-directory/");            
+            }
+            break;
+       case 2:
+            // Test the values we've been given.
+            $testResult = testBaseConfigValues();
+            if ($testResult !== "") {
+                $tpl->assign('test_result', $testResult);
+                break;
+            }
+            // Write the values to the configuration file.
+            $writeConfigResult = writeBaseConfigFile();
+            if ($writeConfigResult !== "") {
+                $tpl->assign('test_result', $writeConfigResult);
+                break;
+            }
+            // Run all the SQL bits & pieces. Aight?
+            $dbConfigResult = runDatabaseTasks();
+            if ($dbConfigResult !== "") {
+                $tpl->assign('sql_result', $dbConfigResult);
+                break;
+            }
+            break;
+    }
+
+    $tpl->assign('rel_url', "../");
+    $tpl->display('setup.tpl.html');
+    exit;
+
+}
+
+
+
+
+
+/**
+ * This method checks the existance / writability of different files required in the installation process.
+ *
+ */
+function prepareForSuperHappyFun() {
+
+    // If there's already a configuration file there, the site may already be setup.
+    clearstatcache();
+    if (file_exists('../config.inc.php') && filesize('../config.inc.php') > 0) {
+        return "An existing 'config.inc.php' was found in Fez's root directory. Your site may already be configured. If you wish to proceed with this installation, delete the file and refresh this page.";
+    }
+
+    // If the file exists, check that it's writable. If it doesn't, create it.
+    clearstatcache();
+    if (file_exists('../config.inc.php')) {
+        if (!is_writable('../config.inc.php')) {
+            return "The file 'config.inc.php' in Fez's root directory needs to be writable by the web server user. Please correct this problem and refresh this page.";
+        }
+    } else {
+        $fp = fopen('../config.inc.php', 'w');
+        if ($fp === false) {
+            return "Could not create the file 'config.inc.php'. The web server needs to be able to create this file in Fez's root directory. You can bypass this error message by creating the file yourself, and ensuring that it is writable by the web server. Please correct this problem and refresh this page.";
+        }
+        if (fwrite($fp, "") === false) {
+            return "Could not write to 'config.inc.php'. The file should be writable by the user that the web server runs as. Please correct this problem and refresh this page.";
+        }
+        fclose($fp);
+    }
+
+    // Find out if we can read the configuration template.
+    clearstatcache();
+    if (!is_readable('../upgrade/config.inc.php.NEW')) {
+        return "The file '/upgrade/config.inc.php.NEW' needs to be readable by the web server user. Please correct this problem and refresh this page.";
+    }
+
+    return "";
+
+}
+
+
+
+
+
+/**
+ * This method tests the core variables for basic sanity. If things look reasonable, we will proceed to the next step.
+ *
+ */
+function testBaseConfigValues() {
+
+    // Extract the form values
+    global $HTTP_POST_VARS;
+    $path       = $HTTP_POST_VARS['app_path'];
+    $relURL     = $HTTP_POST_VARS['app_relative_url'];
+    $host       = $HTTP_POST_VARS['app_sql_dbhost'];
+    $database   = $HTTP_POST_VARS['app_sql_dbname'];
+    $user       = $HTTP_POST_VARS['app_sql_dbuser'];
+    $pass       = $HTTP_POST_VARS['app_sql_dbpass'];
+
+    // Make sure we're not obviously going to crash and burn.
+    if ($path == "" || $host == "" || $database == "" || $user == "" || $pass == "" || $relURL == "") {
+        return "You did not specify values for one or more variables.";
+    }
+    // Try plugging in the application path.
+    clearstatcache();
+    if (!file_exists($path)) {
+        return "The specified path does not exist.";
+    }
+    // Attempt database connection with the supplied credentials.
+    $conn = @mysql_connect($HTTP_POST_VARS['app_sql_dbhost'], $HTTP_POST_VARS['app_sql_dbuser'], $HTTP_POST_VARS['app_sql_dbpass']);
+    if (!$conn) {
+        return "Could not connect to the specified database host with these credentials.";
+    }
+    mysql_close($conn);
+
+    // If we get to here, we're probably OK to proceed.
+    return "";
+
+}
+
+
+
+
+
+/**
+ * This method assembles the core configuration file, and writes it to disk.
+ *
+ */
+function writeBaseConfigFile() {
+
+    // Extract the form values
+    global $HTTP_POST_VARS;
+    $path       = $HTTP_POST_VARS['app_path'];
+    $dbtype     = $HTTP_POST_VARS['app_sql_dbtype'];
+    $host       = $HTTP_POST_VARS['app_sql_dbhost'];
+    $database   = $HTTP_POST_VARS['app_sql_dbname'];
+    $user       = $HTTP_POST_VARS['app_sql_dbuser'];
+    $pass       = $HTTP_POST_VARS['app_sql_dbpass'];
+
+    // Get the config file template
+    clearstatcache();
+    $filename = '../upgrade/config.inc.php.NEW';
+    $handle = fopen($filename, "r");
+    $contents = fread($handle, filesize($filename));
+    fclose($handle);
+
+    // Perform swap-outs for user-supplied values
+    $contents = str_replace("DATABASE_TYPE_HERE", $dbtype, $contents);
+    $contents = str_replace("HOST_NAME_HERE", $host, $contents);
+    $contents = str_replace("DB_NAME_HERE", $database, $contents);
+    $contents = str_replace("USER_HERE", $user, $contents);
+    $contents = str_replace("PASS_HERE", $pass, $contents);
+    $contents = str_replace("/usr/local/apache/htdocs/YOUR_PATH_HERE/", $path, $contents);
+
+    // Write the file to where it needs to go
+    clearstatcache();
+    $fp = fopen('../config.inc.php', 'w');
+    if ($fp === FALSE) {
+        return "Could not open the file 'config.inc.php' for writing. The permissions on the file should be set as to allow the user that the web server runs as to open it. Please correct this problem and refresh this page.";
+    }
+    $res = fwrite($fp, $contents);
+    if ($fp === FALSE) {
+        return "Could not write the configuration information to 'config.inc.php'. The file should be writable by the user that the web server runs as. Please correct this problem and refresh this page.";
+    }
+    fclose($fp);
+
+    return "";
+
+}
+
+
+
+
+
+/**
+ * This method creates the database (if necessary), and sets up all tables & start-up data.
+ *
+ */
+function runDatabaseTasks() {
+
+    // Extract the form values
+    global $HTTP_POST_VARS;
+    $relURL     = $HTTP_POST_VARS['app_relative_url'];
+    $host       = $HTTP_POST_VARS['app_sql_dbhost'];
+    $database   = $HTTP_POST_VARS['app_sql_dbname'];
+    $user       = $HTTP_POST_VARS['app_sql_dbuser'];
+    $pass       = $HTTP_POST_VARS['app_sql_dbpass'];
+
+    // Attempt database connection with the supplied credentials.
+    $conn = @mysql_connect($host, $user, $pass);
+    if (!$conn) {
+        return "Could not connect to the specified database host with these credentials.";
+    }
+
+    // Connect to the specified database.
+    if (!mysql_select_db($database)) {
+        // If we can't, attempt to create it.
+        $dbCreateResult = attemptCreateDB($database, $conn);
+        if ($dbCreateResult !== "") {
+            return $dbCreateResult;
+        } else {
+            // Second attempt database connection with the supplied credentials.
+            if (!mysql_select_db($database)) {
+                return "Could not connect to the newly created database with the nominated credentials.";
+            }
+        }
+    }
+
+    // Once we have a database, and can successfully connect to it ... execute the SQL schema dump.
+    $attemptSQLparse = parseMySQLdump("schema.sql");
+    if ($attemptSQLparse !== "") {
+        return $attemptSQLparse;
+    }
+
+    // Provided this went off without a hitch, insert some minimal data.
+    $attemptSQLparse = parseMySQLdump("data.sql");
+    if ($attemptSQLparse !== "") {
+        return $attemptSQLparse;
+    }
+
+    // Add some other crucial stuff to the config table that is reliant on form-based variables.
+    $query = "INSERT INTO fez_config (`config_name`, `config_module`, `config_value`) values ('app_relative_url','core','" . $relURL . "');";
+    mysql_query($query);
+
+    // Build and write configuration stuff.
+    if (!writeDefaultConfigValues()) {
+        return "There was a problem writing the default configuration values to the config table.";
+    }
+
+    return "";
+
+}
+
+
+
+
+/**
+ * This method grabs an SQL dump file and runs whatever it finds inside. Thrills for the whole family!
+ *
+ */
+function parseMySQLdump($url, $ignoreerrors = false) {
+    $file_content = file($url);
+    $query = "";
+    foreach($file_content as $ln => $sql_line) {
+        $sql_line = str_replace('%TABLE_PREFIX%', 'fez_', $sql_line);
+        $tsl = trim($sql_line);
+        if (($sql_line != "") && (substr($tsl, 0, 2) != "--") && (substr($tsl, 0, 1) != "#")) {
+            $query .= $sql_line;
+            if(preg_match("/;\s*$/", $sql_line)) {
+                $result = mysql_query($query);
+                if (!$result && !$ignoreerrors) {
+                    return mysql_error();
+                }
+                $query = "";
+            }
+        }
+    }
+
+    return "";
+}
+
+
+
+
+
+/**
+ * This method creates an empty database of the specified name. This is invoked if the requested DB name 
+ * cannot be found. If we aren't able to succeed, return a message to the calling function.
+ *
+ */
+function attemptCreateDB($dbName, $conn) {
+
+    if (!mysql_query('CREATE DATABASE ' . $dbName, $conn)) {
+        return getErrorMessage('create_db', mysql_error());
+    }
+
+    return "";
+
+}
+
+
+
+/**
+ * writeDefaultConfigValues
+ *
+ * This method writes default values for most configuration variables into the config table.
+ * 
+ * Returns true if success
+ * Returns false if problem
+ */
+function writeDefaultConfigValues() {
+    
+    $configPairs = Default_Data::getConfDefaults();
+    foreach ($configPairs as $key => $value) {
+        $query = "INSERT INTO fez_config (`config_name`, `config_module`, `config_value`) values ('" . $key . "','core','" . mysql_escape_string($value) . "');";
+        mysql_query($query);
+    }
+
+    return true;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* // Old stuff below. Retaining for reference, as we're not completely done with re-writing this setup script yet.
 
 function checkPermissions($file, $desc, $is_directory = FALSE)
 {
@@ -96,25 +437,6 @@ function checkPermissions($file, $desc, $is_directory = FALSE)
     }
     return "";
 }
-
-
- function parse_mysql_dump($url, $ignoreerrors = false) {
-   $file_content = file($url);
-   //print_r($file_content);
-   $query = "";
-   foreach($file_content as $ln => $sql_line) {
-	 $sql_line = replace_table_prefix($sql_line);
-     $tsl = trim($sql_line);
-     if (($sql_line != "") && (substr($tsl, 0, 2) != "--") && (substr($tsl, 0, 1) != "#")) {
-       $query .= $sql_line;
-       if(preg_match("/;\s*$/", $sql_line)) {
-         $result = mysql_query($query);
-         if (!$result && !$ignoreerrors) die(mysql_error()." Line:$ln\n");
-         $query = "";
-       }
-     }
-   }
-  }
 
 function checkRequirements()
 {
@@ -226,13 +548,13 @@ if (!empty($html)) {
     exit;
 }
 
-ini_set("include_path", '.');
-include_once("../include/Smarty/Smarty.class.php");
-
-$tpl = new Smarty();
-$tpl->template_dir = '../templates/en';
-$tpl->compile_dir = "../templates_c";
-$tpl->config_dir = '';
+//ini_set("include_path", '.');
+//include_once("../include/Smarty/Smarty.class.php");
+//
+//$tpl = new Smarty();
+//$tpl->template_dir = '../templates/en';
+//$tpl->compile_dir = "../templates_c";
+//$tpl->config_dir = '';
 
 function replace_table_prefix($str)
 {
@@ -311,14 +633,12 @@ function install()
     if (!is_writable('../config.inc.php')) {
         return "The file 'config.inc.php' in Fez's root directory needs to be writable by the web server user. Please correct this problem and try again.";
     }
+
     // gotta check and see if the provided installation path really exists...
     if (!file_exists($HTTP_POST_VARS['path'])) {
         return "The provided installation path could not be found. Please review your information and try again.";
     }
-    // need to create a random private key variable
-    $private_key = '<?php
-$private_key = "' . md5(microtime()) . '";
-?>';
+
     if (!is_writable('../include/private_key.php')) {
         return "The file 'include/private_key.php' needs to be writable by the web server user. Please correct this problem and try again.";
     }
@@ -331,6 +651,10 @@ $private_key = "' . md5(microtime()) . '";
         return "Could not write the configuration information to 'include/private_key.php'. The file should be writable by the user that the web server runs as. Please correct this problem and try again.";
     }
     fclose($fp);
+
+
+
+
     // check if we can connect
     $conn = @mysql_connect($HTTP_POST_VARS['db_hostname'], $HTTP_POST_VARS['db_username'], $HTTP_POST_VARS['db_password']);
     if (!$conn) {
@@ -389,35 +713,7 @@ $private_key = "' . md5(microtime()) . '";
         return getErrorMessage('drop_test', mysql_error());
     }
 	parse_mysql_dump("schema.sql");
-/*$contents = file_get_contents("schema.sql");
-//    $contents = implode("", file("schema.sql"));
-//    $queries = preg_split("/\;$/", $contents); //now with this regex we will no longer need to massage the ;'s out of the sql schemas
-//	unset($queries[count($queries)-1]);
-    // COMPAT: the next line requires PHP >= 4.0.6
-$contents = replace_table_prefix($contents);
-$stmt = $contents;
- if (!mysql_query($stmt, $conn)) {
-	 return getErrorMessage('create_table', mysql_error());
-	 
- }*/
-/*    $queries = array_map("trim", $queries);
-    $queries = array_map("replace_table_prefix", $queries);
 
-    foreach ($queries as $stmt) {
-        if ((stristr($stmt, 'DROP TABLE')) && (@$HTTP_POST_VARS['drop_tables'] != 'yes')) {
-            continue;
-        }
-        // need to check if a CREATE TABLE on an existing table throws an error
-        if (!mysql_query($stmt, $conn)) {
-            if (stristr($stmt, 'DROP TABLE')) {
-                $type = 'drop_table';
-            } else {
-                $type = 'create_table';
-            }
-			
-            return getErrorMessage($type, mysql_error()."<br/>".$stmt);
-        }
-    } */
     // substitute the appropriate values in config.inc.php!!!
     if (@$HTTP_POST_VARS['alternate_user'] == 'yes') {
         $HTTP_POST_VARS['db_username'] = $HTTP_POST_VARS['fez_user'];
@@ -553,4 +849,7 @@ $tpl->assign('fedora_setup_options', array(
     ));
 
 $tpl->display('setup.tpl.html');
+
+*/
+
 ?>

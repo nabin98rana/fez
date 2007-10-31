@@ -50,7 +50,6 @@ class Configuration
      * Returns an associative array of all core configuration names/values in the config table.
      */
     function getConfAll() {
-//   		include_once(APP_INC_PATH . "class.misc.php");
         $stmt = "SELECT
                     config_name, config_value
                  FROM
@@ -87,6 +86,7 @@ class Configuration
         foreach ($settings as $name => $value) {
             define(strtoupper($name), $value);
         }
+
         // Assemble compound variables
         define("APP_CYCLE_COLORS", APP_CYCLE_COLOR_ONE . "," . APP_CYCLE_COLOR_TWO);
         define("APP_TPL_PATH", APP_PATH . "templates/");
@@ -183,135 +183,6 @@ class Configuration
 
 
     /**
-     * getConfDefaults
-     *
-     * This function sets up an array of configuration defaults. Basically, it can be used for
-     * resetting the site to a default state (such as a clean install, for example), or if the
-     * user b0rks their settings and just wants to go back to how things were initially.
-     *
-     * This function is roughly equivalent to the old config.inc.php-example file.
-     */
-    function getConfDefaults() {
-
-        $defaultData = array();
-
-        // Web Statistics
-        $defaultData['webserver_log_statistics']            = "OFF";
-        if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) {
-            $defaultData['webserver_log_dir']               = "c:/PROGRA~1/APACHE~1/Apache2.2/logs/";
-            $defaultData['webserver_log_file']              = "access.log";
-            $defaultData['app_geoip_path']                  = "c:/PROGRA~1/APACHE~1/Apache2.2/htdocs/geoip/";
-        } else {
-            $defaultData['webserver_log_dir']               = "/usr/local/apache/logs/";
-            $defaultData['webserver_log_file']              = "access_log";
-            $defaultData['app_geoip_path']                  = "/usr/local/share/geoip/";
-        }
-
-        $defaultData['datamodel_version']                   = "2007101900";
-        $defaultData['shib_switch']                         = "";
-        $defaultData['shib_direct_login']                   = "";
-        $defaultData['shib_federation_name']                = "";
-        $defaultData['shib_survey']                         = "";
-        $defaultData['shib_federation']                     = "";
-        $defaultData['shib_home_sp']                        = "";
-        $defaultData['shib_home_idp']                       = "";
-        $defaultData['shib_wayf_metadata_location']         = "";
-        $defaultData['app_fedora_version']                  = "";
-        $defaultData['app_fedora_username']                 = "";
-        $defaultData['app_fedora_pwd']                      = "";
-        $defaultData['fedora_db_host']                      = "";
-        $defaultData['fedora_db_type']                      = "";
-        $defaultData['fedora_db_database_name']             = "";
-        $defaultData['fedora_db_username']                  = "";
-        $defaultData['fedora_db_passwd']                    = "";
-        $defaultData['fedora_db_port']                      = "";
-        $defaultData['app_shaded_bar']                      = "";
-        $defaultData['app_cell_color']                      = "";
-        $defaultData['app_value_color']                     = "";
-        $defaultData['app_light_color']                     = "";
-        $defaultData['app_selected_color']                  = "";
-        $defaultData['app_middle_color']                    = "";
-        $defaultData['app_dark_color']                      = "";
-        $defaultData['app_heading_color']                   = "";
-        $defaultData['app_cycle_color_one']                 = "";
-        $defaultData['app_internal_color']                  = "";
-        $defaultData['app_fedora_setup']                    = "";
-        $defaultData['app_fedora_location']                 = "";
-        $defaultData['app_fedora_ssl_location']             = "";
-        $defaultData['ldap_switch']                         = "";
-        $defaultData['ldap_organisation']                   = "";
-        $defaultData['ldap_root_dn']                        = "";
-        $defaultData['ldap_prefix']                         = "";
-        $defaultData['ldap_server']                         = "";
-        $defaultData['ldap_port']                           = "";
-        $defaultData['eprints_oai']                         = "";
-        $defaultData['eprints_username']                    = "";
-        $defaultData['eprints_passwd']                      = "";
-        $defaultData['eprints_subject_authority']           = "";
-        $defaultData['eprints_db_host']                     = "";
-        $defaultData['eprints_db_type']                     = "";
-        $defaultData['eprints_db_database_name']            = "";
-        $defaultData['eprints_db_username']                 = "";
-        $defaultData['eprints_db_passwd']                   = "";
-        $defaultData['eprints_import_users']                = "";
-        $defaultData['self_registration']                   = "";
-        $defaultData['app_hostname']                        = "";
-        $defaultData['app_name']                            = "";
-        $defaultData['app_admin_email']                     = "";
-        $defaultData['app_org_name']                        = "";
-        $defaultData['app_short_org_name']                  = "";
-        $defaultData['app_pid_namespace']                   = "";
-        $defaultData['app_url']                             = "";
-        $defaultData['app_relative_url']                    = "";
-        $defaultData['app_image_preview_max_width']         = "";
-        $defaultData['app_image_preview_max_height']        = "";
-        $defaultData['app_https']                           = "";
-        $defaultData['app_disable_password_checking']       = "";
-        $defaultData['app_debug_level']                     = "";
-        $defaultData['app_display_error_level']             = "";
-        $defaultData['app_display_errors_user']             = "";
-        $defaultData['app_report_error_file']               = "";
-        $defaultData['app_error_log']                       = "";
-        $defaultData['app_system_user_id']                  = "";
-        $defaultData['app_email_system_from_address']       = "";
-        $defaultData['app_email_smtp']                      = "";
-        $defaultData['app_watermark']                       = "";
-        $defaultData['app_thumbnail_width']                 = "";
-        $defaultData['app_thumbnail_height']                = "";
-        $defaultData['app_image_web_max_width']             = "";
-        $defaultData['app_image_web_max_height']            = "";
-        $defaultData['app_default_user_timezone']           = "";
-        $defaultData['app_cycle_color_two']                 = "";
-        $defaultData['app_san_import_dir']                  = "";
-        $defaultData['app_default_refresh_rate']            = "";
-        $defaultData['app_temp_dir']                        = "";
-        $defaultData['app_convert_cmd']                     = "";
-        $defaultData['app_composite_cmd']                   = "";
-        $defaultData['app_identify_cmd']                    = "";
-        $defaultData['app_jhove_dir']                       = "";
-        $defaultData['app_dot_exec']                        = "";
-        $defaultData['app_php_exec']                        = "";
-        $defaultData['app_pdftotext_exec']                  = "";
-        $defaultData['app_sql_cache']                       = "";
-        $defaultData['app_default_pager_size']              = "";
-        $defaultData['app_version']                         = "";
-        $defaultData['app_cookie']                          = "";
-        $defaultData['app_https_curl_check_cert']           = "";
-        $defaultData['batch_import_type']                   = "";
-        $defaultData['app_link_prefix']                     = "";
-
-        // We want to provide a value (even if blank) for every setting in the config table. This doesn't
-        // need to ship with the first commit, provided a tool exists for scraping an existing config file.
-        // However, this will need to be completed in time for the Fez 2.0 release, as users installing 
-        // Fez from scratch will need some start values.
-
-        return $defaultData;
-
-    }
-
-
-
-    /**
      * checkConf
      *
      * This is where we satisfy ourselves that sensible / compliant values have been set for 
@@ -321,7 +192,7 @@ class Configuration
      */
     function checkConf() {
 
-        //echo "Checking conguriation ... <br />";
+        //echo "Checking conguriation ... <br />";      // LKDB
 
         return;
 
@@ -355,24 +226,6 @@ class Configuration
         }
 
         return $problemUpdates;
-
-    }
-
-
-
-    /**
-     * scrapeConfFromFile
-     *
-     * This function will examine an installation's existing config.inc.php file, and 
-     * build the array of configuration name/value pairs. These may then be written
-     * to the database table.
-     *
-     * Note: This function will probably only be invoked once, when running "upgrade"
-     * from a previous installation.
-     */
-    function scrapeConfFromFile() {
-
-        // This functionality has been ported to the upgrade area.
 
     }
 

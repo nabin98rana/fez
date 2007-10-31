@@ -1,8 +1,44 @@
-{include file="header.tpl.html"}
+{include file="header.tpl.html" application_title="Fez Upgrade"}
 {include file="app_errors.tpl.html"}
 
-<h1>Upgrading Fez</h1>
+{literal}
+<style type="text/css">
 
+.left-col {
+	width: 200px;
+	text-align: right;
+	padding-right: 15px;
+}
+
+.right-col {
+	width: 500px;
+	text-align: left;
+	font-size: 80%;
+}
+
+</style>
+
+<script language="JavaScript">
+<!--
+function validateForm(f)
+{
+    if (isWhitespace(f.app_name.value)) {
+        errors[errors.length] = new Option('Application Name', 'app_name');
+    }
+    return true;
+}
+
+//-->
+</script>
+{/literal}
+
+<body style="background-color: #ECF6FF;">
+<div style="padding: 30px;">
+<div class="outline" style="padding: 10px; width: 750px; border: 1px #80C0FF solid; background-color: white;">
+
+<div class="admin-header">Upgrading Fez</div>
+
+<div class="default admin-content">
 {if $result}
 {if $result_good}
 <div class="sanity_result_passed">{$result}</div>
@@ -14,6 +50,7 @@
 <div>Clicking 'Upgrade' will upgrade your database from the previous version.  You should do this once after unpacking 
 the new version.  Be sure to backup your current DB before clicking.  If you have already done this step, then click 
 'Skip this Step'</div>
+<br />
 <form action="{$smarty.const.PHP_SELF}" method="post">
 <input type="hidden" name="step" value="2" />
 <input type="submit" name="upgrade" value="Upgrade" />
@@ -43,24 +80,24 @@ the new version.  Be sure to backup your current DB before clicking.  If you hav
 <li>Back-up your existing config.inc.php file, and copy <b>/your_fez/upgrade/config.inc.php.NEW</b> into its place (ensuring you remove the .NEW extension)</li>
 <li>Open this file, and edit the variables below to contain appropriate values for your installation:</li>
 
-<pre>
-/////////////////////////////////////////
-// BEGIN USER-CONFIGURABLE DEFINITIONS //
-/////////////////////////////////////////
-define("APP_SQL_DBTYPE",    "mysql");
-define("APP_SQL_DBHOST",    "HOST_NAME_HERE");
-define("APP_SQL_DBNAME",    "DB_NAME_HERE");
-define("APP_SQL_DBUSER",    "USER_HERE");
-define("APP_SQL_DBPASS",    "PASS_HERE");
-define("APP_TABLE_PREFIX",  "fez_");
-define("APP_PATH", '/usr/local/apache/htdocs/YOUR_PATH_HERE/');
-define("APP_INC_PATH", APP_PATH . "include/");
-define("APP_PEAR_PATH", APP_INC_PATH . "pear/");
-define("APP_SMARTY_PATH", APP_INC_PATH . "Smarty/");
-/////////////////////////////////////////
-// END USER-CONFIGURABLE DEFINITIONS   //
-/////////////////////////////////////////
-</pre>
+<code>
+/////////////////////////////////////////<br />
+// BEGIN USER-CONFIGURABLE DEFINITIONS //<br />
+/////////////////////////////////////////<br />
+define("APP_SQL_DBTYPE",    "mysql");<br />
+define("APP_SQL_DBHOST",    "HOST_NAME_HERE");<br />
+define("APP_SQL_DBNAME",    "DB_NAME_HERE");<br />
+define("APP_SQL_DBUSER",    "USER_HERE");<br />
+define("APP_SQL_DBPASS",    "PASS_HERE");<br />
+define("APP_TABLE_PREFIX",  "fez_");<br />
+define("APP_PATH", '/usr/local/apache/htdocs/YOUR_PATH_HERE/');<br />
+define("APP_INC_PATH", APP_PATH . "include/");<br />
+define("APP_PEAR_PATH", APP_INC_PATH . "pear/");<br />
+define("APP_SMARTY_PATH", APP_INC_PATH . "Smarty/");<br />
+/////////////////////////////////////////<br />
+// END USER-CONFIGURABLE DEFINITIONS   //<br />
+/////////////////////////////////////////<br />
+</code>
 
 <li>Proceed to the bottom of this page, and move to sanity checks.</li>
 
@@ -70,162 +107,159 @@ define("APP_SMARTY_PATH", APP_INC_PATH . "Smarty/");
 
 <a name="1_2"></a><h2>Upgrading from Fez 1.2 or earlier</h2>
 <div>Edit your config.inc.php file and update these new or changed configuration variables:
-<pre>
-
-*** Edit these existing variables
-
-Move @define(APP_HOSTNAME... to above all the other defines.
-
-@define("APP_VERSION", "1.3");
-
-// definitions of Organisation Shibboleth related variables. You may need to query your Org's Shibboleth expert for help on these settings.
-@define("SHIB_HOME_IDP", SHIB_FEDERATION."idp.yourinst.edu");  // Change this to the urn of your home instituition IDP
-
-// Make sure APP_JHOVE_DIR has a trailing slash (Fez 1.2 used these without a trailing slash)
-@define("APP_JHOVE_DIR", "/usr/local/jhove/");
-
-// default San import dir to just be the temp path - move this to a place below where APP_TEMP_DIR is defined
-@define("APP_SAN_IMPORT_DIR", APP_TEMP_DIR);
-
-// Correct the API-A url for the ssl-authenticate-ssl-apim option
-{literal}} elseif (APP_FEDORA_SETUP == 'sslapim') {{/literal}
-    @define("APP_BASE_FEDORA_APIA_DOMAIN", APP_FEDORA_APIA_PROTOCOL_TYPE.APP_FEDORA_LOCATION); // the location of your fedora ssl server for apia
-
-{literal}// Correct the administrator email address, if it is set to {APP_ADMIN_EMAL}
-@define("APP_ADMIN_EMAIL", "admin@yourinst.edu"); // used in the OAI identify verb and page footer{/literal}
-
-*** All of the following are New Variables
-
-// definitions of Organisation Shibboleth related variables. You may need to query your Org's Shibboleth expert for help on these settings.
-@define("SHIB_DIRECT_LOGIN", "ON"); // If SHIB_SWITCH is ON and this is ON the front page of Fez will have a link to direct login for Fez home institution shib login and a link to Other for non home institution Shib and Fez logins
-@define("SHIB_SURVEY", false);  // Switch to ON to turn the post shibboleth login survey on
-@define("SHIB_FEDERATION", "urn:mace:federation.org.au:testfed:level-1:");  //Change this to the base urn of your federation eg Inqueue or InCommon
-@define("SHIB_HOME_SP", SHIB_FEDERATION.APP_HOSTNAME);  // Change this to the urn of your Fez Service Provider if different
-
-// Web server log files used for statistics scheduled tasks / cron jobs nightly statistics gathering
-@define("WEBSERVER_LOG_STATISTICS", "OFF");
-@define("WEBSERVER_LOG_DIR", "/usr/local/apache/logs/");
-@define("WEBSERVER_LOG_FILE", "access_log"); //change to the name of your fez access log if different
-@define("APP_GEOIP_PATH", "/usr/local/apache/api/fez/"); // the path for files that should be below the document root eg configs, geoip data
-
-// whether you want users to be able to create their own fez accounts - not necessary for LDAP/AD/Shibboleth enabled sites
-@define("SELF_REGISTRATION", "OFF");
-
-// eprints migration
-@define("EPRINTS_USERNAME", ""); //ePrints requires basic auth for the download of secured PDFs and files
-@define("EPRINTS_PASSWD", "");
-@define("EPRINTS_SUBJECT_AUTHORITY", ""); // (ePrints batch import) for use when your ePrints IR uses a controlled vocabulary eg Australian ASRC use 'asrc', otherwise leave blank
-@define("EPRINTS_DB_HOST", ""); // Used to get things that are not in the ePrints export XML that really should be for migration purposes
-@define("EPRINTS_DB_TYPE", ""); //generally 'mysql' although other will probably work as long as they are support by PEAR DB
-@define("EPRINTS_DB_DATABASE_NAME", "");
-@define("EPRINTS_DB_USERNAME", "");
-@define("EPRINTS_DB_PASSWD", "");
-@define("EPRINTS_IMPORT_USERS", "ON"); //If this is ON then Fez will create usernames for all the ePrints server users so it can match depositor with the imported eprints objects. Passwords cannot be brought across so user account need tomove to LDAP/Shibboleth or have passwords reissued
-
-@define("BATCH_IMPORT_TYPE", "MODS 1.0"); // Either MODS 1.0 or Dublin Core 1.0
-@define("APP_SQL_CACHE", ""); // Set this string to SQL_NO_CACHE if you want to test MySQL performance without query caching, keep "" for optimal performance (caching on)
-$GLOBALS['app_cache'] = true; // Set this string to true if you have given php.ini at least 256M to use. It will improve performance by storing some fedora and sql queries in php memo
-ry rather than fetch them twice or more during a single page load. This gets hardset to OFF globally for indexing and reindexing in background processes as this won't scale over 5
-00M with over 10,000 objects otherwise (you will get  php fatal memory error for example).
-
-*** In the Bill vs Linus section:
-// Windows
-    @define("APP_DOT_EXEC", "\"C:/Program Files/ATT/Graphviz/bin/dot.exe\"");
-    @define("APP_PHP_EXEC", "\"C:/php/php.exe\"");
-    @define("APP_PDFTOTEXT_EXEC", "\"C:/utils/pdftotext.exe\"");
-// Linux
-    @define("APP_DOT_EXEC", "/usr/local/bin/dot");
-    @define("APP_PHP_EXEC", "/usr/local/bin/php");
-    @define("APP_PDFTOTEXT_EXEC", "/usr/bin/pdftotext");
-*** End of Bill vs Linus
-
-// In the FEDORA VARIABLES section:
-@define("APP_FEDORA_VERSION", "2.2");   // Or set to 2.1.1, if running an older version of Fedora.
-
-@define("FEDORA_DB_HOST", "enter_your_host");
-@define("FEDORA_DB_TYPE", "enter_your_db_type"); // mysql || pgsql || oracle || any other pear db supported database - look in fez/include/pear/db/ dir 
-@define("FEDORA_DB_DATABASE_NAME", "enter_your_db_name");
-@define("FEDORA_DB_USERNAME", "enter_your_db_username");
-@define("FEDORA_DB_PASSWD", "enter_your_db_passwd");
-@define("FEDORA_DB_PORT", "enter_your_db_port"); // mysql is 3306, pgsql is 5432
-
-@define("APP_HTTPS_CURL_CHECK_CERT", "OFF"); //if you have a dev. host with an SSL cert. that's not officially signed, set this OFF, otherwise Fedora SSL calls will fail in CURL
-
-*** Put this near APP_ERROR_LOG 
-@define("APP_DISABLE_PASSWORD_CHECKING", false);  // used for testing
-@define("APP_DEBUG_LEVEL", 2); // 0 or 1 is basic error message, 2 is basic + stacktrace, 3 is basic + stacktrace + function arguments passed - recommend level 2 as default, 3 only for heavy debugging
-@define("APP_DISPLAY_ERROR_LEVEL", 1); //  *is always limited by the max of APP_DEBUG_LEVEL* 0 is no display of errors to the browser, 1 is basic error message, 2 is basic + stacktrace, 3 is basic + stacktrace + function arguments passed (highest detail) *recommend to leave this at 0 or 1, 3 may show passwords in thepassed args*
-@define("APP_DISPLAY_ERRORS_USER", 2); //  0 is no display of errors to any users, 1 to only show errors to administrators, 2 for show errors for all users - default is 2
-@define("APP_REPORT_ERROR_FILE", true); // set to false if you don't want the error messages saved to a error file to the user/browser
-
-@define("APP_DEFAULT_USER_TIMEZONE", "Australia/Brisbane"); // Change this to your local timezone eg Australia/Brisbane. Fez will still store dates as UTC butwill default display them as this timezone until the user has logged in with their preffered timezone user setting.  See include/pear/date/TimeZone.php (line 402 - 3622) for other string examples
-
-// these lists of roles control which roles can assume the roles of others, e.g. the
-// Community_Admin role can do all the roles an Editor can do. 
-@define('APP_VIEWER_ROLES',"Viewer,Community_Admin,Editor,Creator,Annotator,Approver"); 
-@define('APP_EDITOR_ROLES',"Community_Admin,Editor,Approver");
-@define('APP_CREATOR_ROLES',"Creator,Community_Admin,Editor,Approver");
-
-</pre>
+<code>
+<br />
+*** Edit these existing variables<br />
+<br />
+Move @define(APP_HOSTNAME... to above all the other defines.<br />
+<br />
+@define("APP_VERSION", "1.3");<br />
+<br />
+// definitions of Organisation Shibboleth related variables. You may need to query your Org's Shibboleth expert for help on these settings.<br />
+@define("SHIB_HOME_IDP", SHIB_FEDERATION."idp.yourinst.edu");  // Change this to the urn of your home instituition IDP<br />
+<br />
+// Make sure APP_JHOVE_DIR has a trailing slash (Fez 1.2 used these without a trailing slash)<br />
+@define("APP_JHOVE_DIR", "/usr/local/jhove/");<br />
+<br />
+// default San import dir to just be the temp path - move this to a place below where APP_TEMP_DIR is defined<br />
+@define("APP_SAN_IMPORT_DIR", APP_TEMP_DIR);<br />
+<br />
+// Correct the API-A url for the ssl-authenticate-ssl-apim option<br />
+{literal}} elseif (APP_FEDORA_SETUP == 'sslapim') {{/literal}<br />
+    @define("APP_BASE_FEDORA_APIA_DOMAIN", APP_FEDORA_APIA_PROTOCOL_TYPE.APP_FEDORA_LOCATION); // the location of your fedora ssl server for apia<br />
+<br />
+{literal}// Correct the administrator email address, if it is set to {APP_ADMIN_EMAL}<br />
+@define("APP_ADMIN_EMAIL", "admin@yourinst.edu"); // used in the OAI identify verb and page footer{/literal}<br />
+<br />
+*** All of the following are New Variables<br />
+<br />
+// definitions of Organisation Shibboleth related variables. You may need to query your Org's Shibboleth expert for help on these settings.<br />
+@define("SHIB_DIRECT_LOGIN", "ON"); // If SHIB_SWITCH is ON and this is ON the front page of Fez will have a link to direct login for Fez home institution shib login and a link to Other for non home institution Shib and Fez logins<br />
+@define("SHIB_SURVEY", false);  // Switch to ON to turn the post shibboleth login survey on<br />
+@define("SHIB_FEDERATION", "urn:mace:federation.org.au:testfed:level-1:");  //Change this to the base urn of your federation eg Inqueue or InCommon<br />
+@define("SHIB_HOME_SP", SHIB_FEDERATION.APP_HOSTNAME);  // Change this to the urn of your Fez Service Provider if different<br />
+<br />
+// Web server log files used for statistics scheduled tasks / cron jobs nightly statistics gathering<br />
+@define("WEBSERVER_LOG_STATISTICS", "OFF");<br />
+@define("WEBSERVER_LOG_DIR", "/usr/local/apache/logs/");<br />
+@define("WEBSERVER_LOG_FILE", "access_log"); //change to the name of your fez access log if different<br />
+@define("APP_GEOIP_PATH", "/usr/local/apache/api/fez/"); // the path for files that should be below the document root eg configs, geoip data<br />
+<br />
+// whether you want users to be able to create their own fez accounts - not necessary for LDAP/AD/Shibboleth enabled sites<br />
+@define("SELF_REGISTRATION", "OFF");<br />
+<br />
+// eprints migration<br />
+@define("EPRINTS_USERNAME", ""); //ePrints requires basic auth for the download of secured PDFs and files<br />
+@define("EPRINTS_PASSWD", "");<br />
+@define("EPRINTS_SUBJECT_AUTHORITY", ""); // (ePrints batch import) for use when your ePrints IR uses a controlled vocabulary eg Australian ASRC use 'asrc', otherwise leave blank<br />
+@define("EPRINTS_DB_HOST", ""); // Used to get things that are not in the ePrints export XML that really should be for migration purposes<br />
+@define("EPRINTS_DB_TYPE", ""); //generally 'mysql' although other will probably work as long as they are support by PEAR DB<br />
+@define("EPRINTS_DB_DATABASE_NAME", "");<br />
+@define("EPRINTS_DB_USERNAME", "");<br />
+@define("EPRINTS_DB_PASSWD", "");<br />
+@define("EPRINTS_IMPORT_USERS", "ON"); //If this is ON then Fez will create usernames for all the ePrints server users so it can match depositor with the imported eprints objects. Passwords cannot be brought across so user account need tomove to LDAP/Shibboleth or have passwords reissued<br />
+<br />
+@define("BATCH_IMPORT_TYPE", "MODS 1.0"); // Either MODS 1.0 or Dublin Core 1.0<br />
+@define("APP_SQL_CACHE", ""); // Set this string to SQL_NO_CACHE if you want to test MySQL performance without query caching, keep "" for optimal performance (caching on)<br />
+$GLOBALS['app_cache'] = true; // Set this string to true if you have given php.ini at least 256M to use. It will improve performance by storing some fedora and sql queries in php memo<br />
+ry rather than fetch them twice or more during a single page load. This gets hardset to OFF globally for indexing and reindexing in background processes as this won't scale over 500M with over 10,000 objects otherwise (you will get  php fatal memory error for example).<br />
+<br />
+*** In the Bill vs Linus section:<br />
+// Windows<br />
+    @define("APP_DOT_EXEC", "\"C:/Program Files/ATT/Graphviz/bin/dot.exe\"");<br />
+    @define("APP_PHP_EXEC", "\"C:/php/php.exe\"");<br />
+    @define("APP_PDFTOTEXT_EXEC", "\"C:/utils/pdftotext.exe\"");<br />
+// Linux<br />
+    @define("APP_DOT_EXEC", "/usr/local/bin/dot");<br />
+    @define("APP_PHP_EXEC", "/usr/local/bin/php");<br />
+    @define("APP_PDFTOTEXT_EXEC", "/usr/bin/pdftotext");<br />
+*** End of Bill vs Linus<br />
+<br />
+// In the FEDORA VARIABLES section:<br />
+@define("APP_FEDORA_VERSION", "2.2");   // Or set to 2.1.1, if running an older version of Fedora.<br />
+<br />
+@define("FEDORA_DB_HOST", "enter_your_host");<br />
+@define("FEDORA_DB_TYPE", "enter_your_db_type"); // mysql || pgsql || oracle || any other pear db supported database - look in fez/include/pear/db/ dir <br />
+@define("FEDORA_DB_DATABASE_NAME", "enter_your_db_name");<br />
+@define("FEDORA_DB_USERNAME", "enter_your_db_username");<br />
+@define("FEDORA_DB_PASSWD", "enter_your_db_passwd");<br />
+@define("FEDORA_DB_PORT", "enter_your_db_port"); // mysql is 3306, pgsql is 5432<br />
+<br />
+@define("APP_HTTPS_CURL_CHECK_CERT", "OFF"); //if you have a dev. host with an SSL cert. that's not officially signed, set this OFF, otherwise Fedora SSL calls will fail in CURL<br />
+<br />
+*** Put this near APP_ERROR_LOG <br />
+@define("APP_DISABLE_PASSWORD_CHECKING", false);  // used for testing<br />
+@define("APP_DEBUG_LEVEL", 2); // 0 or 1 is basic error message, 2 is basic + stacktrace, 3 is basic + stacktrace + function arguments passed - recommend level 2 as default, 3 only for heavy debugging<br />
+@define("APP_DISPLAY_ERROR_LEVEL", 1); //  *is always limited by the max of APP_DEBUG_LEVEL* 0 is no display of errors to the browser, 1 is basic error message, 2 is basic + stacktrace, 3 is basic + stacktrace + function arguments passed (highest detail) *recommend to leave this at 0 or 1, 3 may show passwords in thepassed args*<br />
+@define("APP_DISPLAY_ERRORS_USER", 2); //  0 is no display of errors to any users, 1 to only show errors to administrators, 2 for show errors for all users - default is 2<br />
+@define("APP_REPORT_ERROR_FILE", true); // set to false if you don't want the error messages saved to a error file to the user/browser<br />
+<br />
+@define("APP_DEFAULT_USER_TIMEZONE", "Australia/Brisbane"); // Change this to your local timezone eg Australia/Brisbane. Fez will still store dates as UTC butwill default display them as this timezone until the user has logged in with their preffered timezone user setting.  See include/pear/date/TimeZone.php (line 402 - 3622) for other string examples<br />
+<br />
+// these lists of roles control which roles can assume the roles of others, e.g. the<br />
+// Community_Admin role can do all the roles an Editor can do. <br />
+@define('APP_VIEWER_ROLES',"Viewer,Community_Admin,Editor,Creator,Annotator,Approver"); <br />
+@define('APP_EDITOR_ROLES',"Community_Admin,Editor,Approver");<br />
+@define('APP_CREATOR_ROLES',"Creator,Community_Admin,Editor,Approver");<br />
+<br />
+</code>
 </div>
 <div>Edit your config.inc.php file and DELETE these old configuration variables:
-<pre>
-@define("APP_TEST", "false"); // this has changed to be APP_DISABLE_PASSWORD_CHECKING
-</pre>
+<code>
+@define("APP_TEST", "false"); // this has changed to be APP_DISABLE_PASSWORD_CHECKING<br />
+</code>
 </div>
 
-<hr />
+<br /><br />
 
 <a name="1_3"></a><h2>Upgrading from Fez 1.3</h2>
 <div>Edit your config.inc.php file and update these new or changed configuration variables:
-<pre>
-{literal}// Correct the administrator email address, if it is set to {APP_ADMIN_EMAL}
-@define("APP_ADMIN_EMAIL", "admin@yourinst.edu"); // used in the OAI identify verb and page footer{/literal}
-
-// In the FEDORA VARIABLES section:
-@define("APP_FEDORA_VERSION", "2.2");   // Or set to 2.1.1, if running an older version of Fedora.
-
-@define("FEDORA_DB_HOST", "enter_your_host");
-@define("FEDORA_DB_TYPE", "mysql");        Use &quot;mysql&quot; or &quot;pgsql&quot; or &quot;oracle&quot; or any other PEAR-supported database that Fedora uses (Note: mckoi is NOT supported!) - look in fez/include/pear/db/ dir for a full list and use the filename prefix eg pgsql
-@define("FEDORA_DB_DATABASE_NAME", "enter_your_db_name");
-@define("FEDORA_DB_USERNAME", "enter_your_db_username");
-@define("FEDORA_DB_PASSWD", "enter_your_db_passwd");
-@define("FEDORA_DB_PORT", "enter_your_db_port"); // mysql is 3306, pgsql is 5432
-
-// email settings
-@define('APP_EMAIL_SYSTEM_FROM_ADDRESS', APP_SHORT_NAME.'@'.APP_HOSTNAME);
-@define('APP_EMAIL_SMTP', APP_HOSTNAME);
-
-// roles
-@define('APP_APPROVER_ROLES',"Community_Admin,Approver");
-@define('APP_DELETER_ROLES',"Community_Admin");
-
-@define('APP_VIEWER_ROLE_IDS',"10,6,8,7,1,2");
-@define('APP_EDITOR_ROLE_IDS',"6,8,2");
-@define('APP_CREATOR_ROLE_IDS',"7,6,8,2");
-@define('APP_APPROVER_ROLE_IDS',"6,2");
-@define('APP_DELETER_ROLE_IDS',"6");
-
-</pre>
+<code>
+{literal}// Correct the administrator email address, if it is set to {APP_ADMIN_EMAL}<br />
+@define("APP_ADMIN_EMAIL", "admin@yourinst.edu"); // used in the OAI identify verb and page footer{/literal}<br />
+<br />
+// In the FEDORA VARIABLES section:<br />
+@define("APP_FEDORA_VERSION", "2.2");   // Or set to 2.1.1, if running an older version of Fedora.<br />
+<br />
+@define("FEDORA_DB_HOST", "enter_your_host");<br />
+@define("FEDORA_DB_TYPE", "mysql");        Use &quot;mysql&quot; or &quot;pgsql&quot; or &quot;oracle&quot; or any other PEAR-supported database that Fedora uses (Note: mckoi is NOT supported!) - look in fez/include/pear/db/ dir for a full list and use the filename prefix eg pgsql<br />
+@define("FEDORA_DB_DATABASE_NAME", "enter_your_db_name");<br />
+@define("FEDORA_DB_USERNAME", "enter_your_db_username");<br />
+@define("FEDORA_DB_PASSWD", "enter_your_db_passwd");<br />
+@define("FEDORA_DB_PORT", "enter_your_db_port"); // mysql is 3306, pgsql is 5432<br />
+<br />
+// email settings<br />
+@define('APP_EMAIL_SYSTEM_FROM_ADDRESS', APP_SHORT_NAME.'@'.APP_HOSTNAME);<br />
+@define('APP_EMAIL_SMTP', APP_HOSTNAME);<br />
+<br />
+// roles<br />
+@define('APP_APPROVER_ROLES',"Community_Admin,Approver");<br />
+@define('APP_DELETER_ROLES',"Community_Admin");<br />
+<br />
+@define('APP_VIEWER_ROLE_IDS',"10,6,8,7,1,2");<br />
+@define('APP_EDITOR_ROLE_IDS',"6,8,2");<br />
+@define('APP_CREATOR_ROLE_IDS',"7,6,8,2");<br />
+@define('APP_APPROVER_ROLE_IDS',"6,2");<br />
+@define('APP_DELETER_ROLE_IDS',"6");<br />
+<br />
+</code>
 </div>
-
-<hr />
 
 <input type="submit" name="next" value="Proceed to Sanity Check" />
 </form>
 {elseif $step == 3}
+
 <div>
 This page causes a number of tests to be run and shows the results with suggestions on how to fix any 
-problems.  For more help, see the <a href="http://dev-repo.library.uq.edu.au/wiki/index.php/Troubleshooting">Troubleshooting</a>
-section on the Fez Wiki or search the <a href="http://sourceforge.net/mailarchive/forum.php?forum_id=46814">mailing list archives</a>.</div>
+problems.  For more help, see the <a href="http://dev-repo.library.uq.edu.au/wiki/index.php/Troubleshooting" target="_blank">Troubleshooting</a>
+section on the <a href="http://dev-repo.library.uq.edu.au/wiki/index.php/Main_Page" target="_blank">Fez Wiki</a> or search the <a href="http://sourceforge.net/mailarchive/forum.php?forum_id=46814" target="_blank">mailing list archives</a>.</div>
 <br/>
 {include file="sanity_check_results.tpl.html"}
 <br/>
-<p>Correct any problems and <a href="{$smarty.const.PHP_SELF}?step=3">click here to run checks again.</a></p>
+<p>Correct any problems and <a href="{$smarty.const.PHP_SELF}?step=3">click here to run checks again</a>.</p>
 <p>If all the checks passed, then the upgrade is done, however, you can upgrade your XSDs and Workflows
-to newer bundled versions if you wish.  See the Wiki for more details <a href="http://dev-repo.library.uq.edu.au/wiki/index.php/Upgrading">Fez Wiki: Upgrading</a>
-</p>
-<p> <a href="{$rel_url}">[Home]</a></p>
+to newer bundled versions if you wish. See the <a href="http://dev-repo.library.uq.edu.au/wiki/index.php/Upgrading" target="_blank">Fez Wiki for more details</a>.</p>
+<p><a href="{$rel_url}">Fez main page</a></p>
 </div>
 
 {elseif $step == 4}
@@ -239,5 +273,9 @@ ERROR: Something didn't work. Please check error_handler.log for more informatio
 </p>
 </div>
 {/if}
+
+</div>
+</div>
+</div>
 
 {include file="footer.tpl.html"}

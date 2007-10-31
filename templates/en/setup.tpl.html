@@ -1,6 +1,22 @@
-{include file="header.tpl.html" application_title="Fez Installation"}
+{include file="header.tpl.html" application_title="Fez Setup"}
 
 {literal}
+<style type="text/css">
+
+.left-col {
+	width: 200px;
+	text-align: right;
+	padding-right: 15px;
+}
+
+.right-col {
+	width: 500px;
+	text-align: left;
+	font-size: 80%;
+}
+
+</style>
+
 <script language="JavaScript">
 <!--
 function validateForm(f)
@@ -8,611 +24,142 @@ function validateForm(f)
     if (isWhitespace(f.app_name.value)) {
         errors[errors.length] = new Option('Application Name', 'app_name');
     }
-    if (isWhitespace(f.app_admin_email.value)) {
-        errors[errors.length] = new Option('Application Administrator Email Address', 'app_admin_email');
-    }     
-    if (isWhitespace(f.organisation.value)) {
-        errors[errors.length] = new Option('Organisation name', 'organisation');
-    }
-    if (isWhitespace(f.short_org.value)) {
-        errors[errors.length] = new Option('Organisation Name Initials', 'short_org');
-    }
-    if (isWhitespace(f.hostname.value)) {
-        errors[errors.length] = new Option('Hostname for the fez server', 'hostname');
-    }
-    if (isWhitespace(f.relative_url.value)) {
-        errors[errors.length] = new Option('Relative URL of this installation of Fez', 'relative_url');
-    }
-    if (isWhitespace(f.path.value)) {
-        errors[errors.length] = new Option('Full path to the base of the applciation in the fez server', 'path');
-    }
-    if (isWhitespace(f.fedora_version.value)) {
-        errors[errors.length] = new Option('Fedora Version', 'fedora_version');
-    }
-    if (isWhitespace(f.fedora_username.value)) {
-        errors[errors.length] = new Option('Fedora Username', 'fedora_username');
-    }
-    if (isWhitespace(f.fedora_password.value)) {
-        errors[errors.length] = new Option('Fedora Password', 'fedora_password');
-    }
-    if (isWhitespace(f.fedora_pid_namespace.value)) {
-        errors[errors.length] = new Option('Fedora PID Namespace (the fedora.fcfg pidNamespace value)', 'fedora_pid_namespace');
-    }
-    if (isWhitespace(f.fedora_db_type.value)) {
-        errors[errors.length] = new Option('Fedora Database type', 'fedora_db_type');
-    }
-    if (isWhitespace(f.fedora_db_hostname.value)) {
-        errors[errors.length] = new Option('Fedora Database hostname', 'fedora_db_hostname');
-    }
-    if (isWhitespace(f.fedora_db_name.value)) {
-        errors[errors.length] = new Option('Fedora Database name', 'fedora_db_name');
-    }
-    if (isWhitespace(f.fedora_db_username.value)) {
-        errors[errors.length] = new Option('Fedora Database username', 'fedora_db_username');
-    }
-    if (isWhitespace(f.fedora_db_password.value)) {
-        errors[errors.length] = new Option('Fedora Database password', 'fedora_db_password');
-    }
-    if (isWhitespace(f.fedora_db_port.value)) {
-        errors[errors.length] = new Option('Fedora Database port', 'fedora_db_port');
-    }    
-    if (isWhitespace(f.db_hostname.value)) {
-        errors[errors.length] = new Option('Fez Database hostname', 'db_hostname');
-    }
-    if (isWhitespace(f.db_password.value)) {
-        errors[errors.length] = new Option('Fez Database password', 'db_password');
-    }
-    if (isWhitespace(f.db_name.value)) {
-        errors[errors.length] = new Option('Fez Database name', 'db_name');
-    }
-    if (isWhitespace(f.db_username.value)) {
-        errors[errors.length] = new Option('Fez Database username', 'db_username');
-    }
-    if (f.alternate_user.checked) {
-        if (isWhitespace(f.fez_user.value)) {
-	        errors[errors.length] = new Option('Alternate username', 'fez_user');
-        }
-        if (isWhitespace(f.fez_password.value)) {
-	        errors[errors.length] = new Option('Alternate password', 'fez_password');
-        }
-    }
     return true;
 }
-function toggleAlternateUserFields()
-{
-    var f = getForm('install_form');
-    var element = getPageElement('alternate_user_row');
-    if (f.alternate_user.checked) {
-        element.style.display = '';
-        f.fez_user.focus();
-    } else {
-        element.style.display = 'none';
-//        f.alternate_user.focus();
-    }
-}
-function toggleLDAPFields()
-{
-    var f = getForm('install_form');
-    var element = getPageElement('ldap_row');
-    if (f.ldap.checked) {
-        element.style.display = '';
-        f.ldap_org.focus();
-    } else {
-        element.style.display = 'none';
-//        f.ldap.focus();
-    }
-}
-function toggleBaseLocation(show_field)
-{
-  var f = getForm('install_form');
-  var field = getFormElement(f, 'fedora_location');
-  field.disabled = show_field;
-  return true;
-}
-function toggleSSLBaseLocation(show_field)
-{
-  var f = getForm('install_form');
-  var field = getFormElement(f, 'fedora_ssl_location');
-  field.disabled = show_field;
-  return true;
-}
-
-function addClicksToFedoraSetup()
-{
-	var f = getForm('install_form');
-    var field = getFormElement(f, 'fedora_setup', 0); // ssl-authenticate-all
-    field.onclick = function() {toggleSSLBaseLocation(false);toggleBaseLocation(true);};
-    var field = getFormElement(f, 'fedora_setup', 1); // ssl-authenticate-apim
-    field.onclick = function() {toggleSSLBaseLocation(false);toggleBaseLocation(false);};
-    var field = getFormElement(f, 'fedora_setup', 2); // no-ssl-authenticate-all
-    field.onclick = function() {toggleSSLBaseLocation(true);toggleBaseLocation(false);};
-    var field = getFormElement(f, 'fedora_setup', 3); // no-ssl-authenticate-apim
-    field.onclick = function() {toggleSSLBaseLocation(true);toggleBaseLocation(false);};
-}
 
 //-->
 </script>
 {/literal}
 
-{if $result != '' and $result != 'success'}
-<br />
-<table width="400" bgcolor="#003366" border="0" cellspacing="0" cellpadding="1" align="center">
-  <tr>
-    <td>
-      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-        <tr>
-          <td><img src="{$rel_url}images/icons/error.gif" hspace="2" vspace="2" border="0" align="left"></td>
-          <td width="100%" class="default"><span style="font-weight: bold; font-size: 160%; color: red;">An Error Was Found</span></td>
-        </tr>
-        <tr>
-          <td colspan="2" class="default">
-            <br />
-            <b>Details: {$result}</b>
-            <br /><br />
+<body style="background-color: #ECF6FF;">
+<div style="padding: 30px;">
+<div class="outline" style="padding: 10px; width: 650px; border: 1px #80C0FF solid; background-color: white;">
 
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
+{if $step == 0}
+	<div class="admin-header">Fez Installation</div>
+	<div class="default admin-content">
+	{if $problems != ''}
+		{$problems}
+	{else}
+		Welcome to the Fez installation script. Everything looks ready to go.<br /><br />
+		<form action="index.php?step=1" method="POST">
+			<input type="submit" name="button" value="Proceed to the first step">
+		</form>
+	{/if}
+	</div>
+
+{elseif $step == 1}
+
+<div class="admin-header">Core Variables</div>
+<div class="default admin-content">Please supply the following values.
+
+<br /><br />
+
+<form action="index.php?step=2" method="POST">
+
+<table>
+
+<tr>
+<td class="left-col">Application path</td>
+<td class="right-col">
+  <input type="text" name="app_path" value="{$default_path}" size="50" />
+  <br />Change this to the location of your Fez installation on disk.
+  {include file="error_icon.tpl.html" field="app_path"}
+</td>
+</tr>
+
+<tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+
+<tr>
+<td class="left-col">Relative path</td>
+<td class="right-col">
+  <input type="text" name="app_relative_url" value="/" size="50" />
+  <br />If fez will be running somewhere other than the base directory of your domain - e.g. http://yourdomain.com<b>/fez/</b> - then enter the path here ('/fez/'). Otherwise, leave this value set to '/'.
+  {include file="error_icon.tpl.html" field="app_relative_url"}
+</td>
+</tr>
+
+<tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+
+<tr>
+<td class="left-col">Database type</td>
+<td class="right-col">
+  <select name="app_sql_dbtype">
+	<option value="mysql">MySQL</option>
+	<!--option value="pgsql">PostgreSQL</option-->
+	<!-- Have commented out all PEAR db systems that the Fedora site doens't claim they support -->
+	<!--option value="sybase">Sybase</option>
+	<option value="odbc">ODBC</option>
+	<option value="oci8">Oracle 8</option>
+	<option value="mssql">Microsoft SQL Server</option>
+	<option value="msql">Mini-SQL</option>
+	<option value="ifx">Informix</option>
+	<option value="ibase">Interbase</option>
+	<option value="fbsql">FrontBase</option>
+	<option value="dbase">dbase</option-->
+  </select>
+</td>
+</tr>
+<tr>
+<td class="left-col">Database host</td>
+<td class="right-col">
+  <input type="text" name="app_sql_dbhost" value="" size="30" />
+  {include file="error_icon.tpl.html" field="app_sql_dbhost"}
+</td>
+</tr>
+<tr>
+<td class="left-col">Database name</td>
+<td class="right-col">
+  <input type="text" name="app_sql_dbname" value="" size="30" />
+  {include file="error_icon.tpl.html" field="app_sql_dbname"}
+</td>
+</tr>
+<tr>
+<td class="left-col">Database username</td>
+<td class="right-col">
+  <input type="text" name="app_sql_dbuser" value="" size="30" />
+  {include file="error_icon.tpl.html" field="app_sql_dbuser"}
+</td>
+</tr>
+<tr>
+<td class="left-col">Database password</td>
+<td class="right-col">
+  <input type="text" name="app_sql_dbpass" value="" size="30" />
+  {include file="error_icon.tpl.html" field="app_sql_dbpass"}
+</td>
+</tr>
 </table>
-{/if}
 
-{if $result == 'success'}
-<br />
-<table width="400" bgcolor="#003366" border="0" cellspacing="0" cellpadding="1" align="center">
-  <tr>
-    <td>
-      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-        <tr>
-          <td width="100%" class="default"><span style="font-weight: bold; font-size: 160%;">Success!</span></td>
-        </tr>
-        <tr>
-          <td class="default">
-            Proceed to the <a href="check_sanity.php">Sanity Check</a> which will confirm the system is correctly
-            configured.
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-{else}
-<br />
-<table width="700" bgcolor="#000000" border="0" cellspacing="0" cellpadding="1" align="center">
-<form name="install_form" action="{$smarty.server.PHP_SELF}" method="post" onSubmit="javascript:return checkFormSubmission(this,'validateForm');">
-<input type="hidden" name="cat" value="install">
-  <tr>
-    <td>
-      <table bgcolor="#CCCCCC" width="100%" cellspacing="1" cellpadding="2" border="0">
-{if $maybe_configured}
-        <tr>
-          <td colspan="2" align="center">
-<h1>Sanity Check</h1>
-<div class="default">
-It appears that you have already configured these values. Click 
-<a href="{$rel_url}setup/check_sanity.php">here to go straight to Sanity Check</a>
-without submitting the following form. <br/> 
-<b>NOTE: Submitting the following form will overwrite config.inc.php</b>
-</div>
-<hr size="1" noshade color="#000000">
-          </td>
-        </tr>
-{/if}
-        <tr>
-          <td colspan="2" align="center">
-            <h1>Fez Installation</h1>
-            <hr size="1" noshade color="#000000">
-			This setup script will create a config.inc.php file in the Fez root directory and setup the Fez database. <br />
-			It is assumed you have already setup Fedora and all the Fez prerequisites.
-          </td>
-        </tr>
-        <tr>
-          <td class="default" align="right">
-            <b>Your Organisation: *</b>
-          </td>
-          <td>
-            <input type="text" name="organisation" value="{$smarty.post.organisation|default:'University of Fez'}" class="default" size="30">
-            {include file="error_icon.tpl.html" field="organisation"}
-          </td>
-        </tr>
-        <tr>
-          <td class="default" align="right">
-            <b>Your Organisation (Initials): *</b>
-          </td>
-          <td>
-            <input type="text" name="short_org" value="{$smarty.post.short_org|default:'UF'}" class="default" size="30">
-            {include file="error_icon.tpl.html" field="short_org"}
-          </td>
-        </tr>
-       <tr>
-          <td class="default" align="right">
-            <b>Application Name: *</b>
-          </td>
-          <td>
-            <input type="text" name="app_name" value="{$smarty.post.app_name|default:'Fez'}" class="default" size="30">
-            {include file="error_icon.tpl.html" field="app_name"}
-          </td>
-        </tr>
-       <tr>
-          <td class="default" align="right">
-            <b>Application Administrator Email Address: *</b>
-          </td>
-          <td>
-            <input type="text" name="app_admin_email" value="{$smarty.post.app_admin_email|default:'fez@localhost'}" class="default" size="30">
-            {include file="error_icon.tpl.html" field="app_admin_email"}
-          </td>
-        </tr>      
-        <tr>
-          <td class="default" align="right">
-            <b>Server Hostname: *</b>
-          </td>
-          <td>
-            <input type="text" name="hostname" value="{$smarty.post.hostname|default:$smarty.server.HTTP_HOST}" class="default" size="30">
-            {include file="error_icon.tpl.html" field="hostname"}
-            <input type="checkbox" name="is_ssl" value="yes" {if $ssl_mode == 'enabled'}checked{/if}> <span class="default"><b><a id="link" class="link" href="javascript:void(null);" onClick="javascript:toggleCheckbox('install_form', 'is_ssl');">SSL Server</a></b></span>
-          </td>
-        </tr>
-        <tr>
-          <td class="default" align="right">
-            <b>Fez Relative URL: *</b>
-          </td>
-          <td>
-            <input type="text" name="relative_url" value="{$smarty.post.rel_url|default:$rel_url}" class="default" size="30">
-            {include file="error_icon.tpl.html" field="relative_url"}
-          </td>
-        </tr>
-        <tr>
-          <td class="default" align="right">
-            <b>Installation Path: *</b>
-          </td>
-          <td>
-            <input type="text" name="path" value="{$smarty.post.path|default:$installation_path}" class="default" size="50">
-            {include file="error_icon.tpl.html" field="path"}
-          </td>
-        </tr>
-		<tr>
-		  <td class="default" align="right">
-            <b>Fedora Server Setup: *</b>
-          </td>
-			<td bgcolor="#DDDDDD" class="default">
-			  {html_radios name='fedora_setup' options=$fedora_setup_options
-			  	selected=$smarty.post.fedora_setup|default:'nosslapim' separator='<br/>'}
-			  <!-- <input type="radio" name="fedora_setup" value="sslall"  onClick="javascript:toggleSSLBaseLocation(false);toggleBaseLocation(true);" {if $smarty.post.fedora_setup == 'sslall'}checked="on"{/if}/> -->
-			</td>
-		</tr>
-		<tr>
-		  <td class="default" align="right"><b>Fedora Version: *</b></td>
-		  <td class="default"><input type="text" name="fedora_version" value="{$smarty.post.fedora_version|default:'2.2'}" size="10">
-            {include file="error_icon.tpl.html" field="fedora_version"}<br />The above must be set to either &quot;2.2&quot; or &quot;2.1.1&quot;.</td>
-		</tr>
-        <tr>
-          <td class="default" align="right">
-            <b>Fedora Server Base Location: </b>
-          </td>
-          <td class="default">
-            <b>http://</b><input type="text" name="fedora_location" size="50" value="{$smarty.post.fedora_location|default:'localhost:8080/fedora'}">
-            {include file="error_icon.tpl.html" field="fedora_location"}
-          </td>
-        </tr>
-        <tr>
-          <td class="default" align="right" nowrap>
-            <b>Fedora Server Base SSL Location: </b>
-          </td>
-          <td class="default">
-            <b>https://</b><input type="text" name="fedora_ssl_location" size="50"  value="{$smarty.post.fedora_ssl_location|default:'localhost:8443/fedora'}">
-            {include file="error_icon.tpl.html" field="fedora_ssl_location"}
-          </td>
-        </tr>		
-        <tr>
-          <td colspan="2" class="default" align="center">
-            <b>Note:</b> The Fedora username and password default to 'fedoraAdmin' but if you changed them in your fedora.fcfg (which you should for security) then tell Fez what they are here.
-          </td>
-        </tr>
+<br /><br />
 
-        <tr>
-          <td class="default" align="right">
-            <b>Fedora Username: *</b>
-          </td>
-          <td>
-            <input type="text" name="fedora_username" class="default" size="20" value="{$smarty.post.fedora_username|default:'fedoraAdmin'}">
-            {include file="error_icon.tpl.html" field="fedora_username"}
-          </td>
-        </tr>
-        <tr>
-          <td class="default" align="right">
-            <b>Fedora Password: *</b>
-          </td>
-          <td>
-            <input type="password" name="fedora_password" class="default" size="20" value="{$smarty.post.fedora_password|default:'fedoraAdmin'}">
-            {include file="error_icon.tpl.html" field="fedora_password"}
-          </td>
-        </tr>
-        <tr>
-          <td class="default" align="right">
-            <b>Fedora PID Namespace (must match fedora.fcfg pidNamespace value): *</b>
-          </td>
-          <td>
-            <input type="text" name="fedora_pid_namespace" class="default" size="20" value="{$smarty.post.fedora_pid_namespace}">
-            {include file="error_icon.tpl.html" field="fedora_pid_namespace"}
-          </td>
-        </tr>        
-        <tr>
-          <td class="default" align="right">
-            <nobr>&nbsp;<b>Fedora Database Type: *</b></nobr>
-          </td>
-          <td class="default">
-            <input type="text" name="fedora_db_type" class="default" size="30"  value="{$smarty.post.fedora_db_type|default:'mysql'}" /> Use &quot;mysql&quot; or &quot;pgsql&quot; or &quot;oracle&quot; or any other PEAR-supported database that Fedora uses (Note: mckoi is NOT supported!) - look in fez/include/pear/db/ dir for a full list and use the filename prefix eg pgsql
-            {include file="error_icon.tpl.html" field="fedora_db_type"}
-          </td>
-        </tr>
-        <tr>
-          <td class="default" align="right">
-            <nobr>&nbsp;<b>Fedora Database Server Hostname: *</b></nobr>
-          </td>
-          <td class="default">
-            <input type="text" name="fedora_db_hostname" class="default" size="30"  value="{$smarty.post.fedora_db_hostname}" />
-            {include file="error_icon.tpl.html" field="fedora_db_hostname"}
-          </td>
-        </tr>
-        <tr>
-          <td class="default" align="right">
-            <nobr>&nbsp;<b>Fedora Database Server Port (mysql should be 3306, postgresql 5432): *</b></nobr>
-          </td>
-          <td class="default">
-            <input type="text" name="fedora_db_port" class="default" size="30"  value="{$smarty.post.fedora_db_port}" />
-            {include file="error_icon.tpl.html" field="fedora_db_port"}
-          </td>
-        </tr>
-        <tr>
-          <td class="default" align="right">
-            <nobr>&nbsp;<b>Fedora Database Name: *</b></nobr>
-          </td>
-          <td class="default">
-            <input type="text" name="fedora_db_name" class="default" size="30"  value="{$smarty.post.fedora_db_name}" />
-            {include file="error_icon.tpl.html" field="fedora_db_name"}
-          </td>
-        </tr>
-        <tr>
-          <td class="default" align="right">
-            <nobr>&nbsp;<b>Fedora Database Username: *</b></nobr>
-          </td>
-          <td class="default">
-            <input type="text" name="fedora_db_username" class="default" size="30"  value="{$smarty.post.fedora_db_username}" />
-            {include file="error_icon.tpl.html" field="fedora_db_username"}
-          </td>
-        </tr>
-        <tr>
-          <td class="default" align="right">
-            <nobr>&nbsp;<b>Fedora Database Password: *</b></nobr>
-          </td>
-          <td class="default">
-            <input type="text" name="fedora_db_password" class="default" size="30"  value="{$smarty.post.fedora_db_password}" />
-            {include file="error_icon.tpl.html" field="fedora_db_password"}
-          </td>
-        </tr>
-        <tr>
-          <td class="default" align="right">
-            <nobr>&nbsp;<b>Fez Database Server Hostname: *</b></nobr>
-          </td>
-          <td>
-            <input type="text" name="db_hostname" class="default" size="30"  value="{$smarty.post.db_hostname}">
-            {include file="error_icon.tpl.html" field="db_hostname"}
-          </td>
-        </tr>
-        <tr>
-          <td class="default" align="right">
-            <b>Fez Database Name: *</b>
-          </td>
-          <td>
-            <input type="text" name="db_name" class="default" size="30" value="{$smarty.post.db_name}">
-            {include file="error_icon.tpl.html" field="db_name"}
-            <input type="checkbox" name="create_db" value="yes" {if $smarty.post.create_db == 'yes'}checked{/if}> <span class="default"><b><a id="link" class="link" href="javascript:void(null);" onClick="javascript:toggleCheckbox('install_form', 'create_db');">Create Database</a></b></span>
-          </td>
-        </tr>
-        <tr>
-          <td class="default" align="right">
-            <b>Fez Table Prefix:</b>
-          </td>
-          <td>
-            <input type="text" name="db_table_prefix" value="{$smarty.post.db_table_prefix|default:'fez_'}" class="default" size="30">
-          </td>
-        </tr>
-        <tr>
-          <td colspan="2" class="default" align="center">
-            <input type="checkbox" name="drop_tables" value="yes" {if $smarty.post.drop_tables == 'yes'}checked{/if}> <b><a id="link" class="link" href="javascript:void(null);" onClick="javascript:toggleCheckbox('install_form', 'drop_tables');">Drop Tables If They Already Exist</a></b>
-          </td>
-        </tr>
-        <tr>
-          <td class="default" align="right">
-            <b>Fez Database Username: *</b>
-          </td>
-          <td>
-            <input type="text" name="db_username" class="default" size="20" value="{$smarty.post.db_username}">
-            {include file="error_icon.tpl.html" field="db_username"}
-          </td>
-        </tr>
-        <tr>
-          <td colspan="2" class="default" align="center">
-            <b>Note:</b> This user requires permission to create and drop tables in the specified database
-          </td>
-        </tr>
-        <tr>
-          <td class="default" align="right">
-            <b>Fez Database Password: *</b>
-          </td>
-          <td>
-            <input type="password" name="db_password" class="default" size="20" value="{$smarty.post.db_password}">
-            {include file="error_icon.tpl.html" field="db_password"}
-          </td>
-        </tr>
-        <tr>
-          <td colspan="2" class="default" align="center">
-            <input type="checkbox" name="alternate_user" value="yes" onClick="javascript:toggleAlternateUserFields();" {if $smarty.post.alternate_user == 'yes'}checked{/if}> <b><a id="link" class="link" href="javascript:void(null);" onClick="javascript:toggleCheckbox('install_form', 'alternate_user');toggleAlternateUserFields();">Use a Separate Database User for Normal Fez Use</a></b>
-          </td>
-        </tr>
-        <tr id="alternate_user_row">
-          <td colspan="2" align="center">
-            <table>
-              <tr>
-                <td>
-                  <table width="300" cellpadding="1" cellspacing="0" bgcolor="white" border="0">
-                    <tr>
-                      <td>
-                        <table width="100%" border="0" cellspacing="0" cellpadding="1" bgcolor="#C0C0C0">
-                          <tr>
-                            <td colspan="2" class="default">
-                              <b>Enter the details below:</b>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td class="default" align="right">
-                              <nobr>&nbsp;<b>Username: *</b>&nbsp;</nobr>
-                            </td>
-                            <td>
-                              <nobr><input type="text" class="default" name="fez_user" size="20" value="{$smarty.post.fez_user}">&nbsp;</nobr>
-                              {include file="error_icon.tpl.html" field="fez_user"}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td class="default" align="right">
-                              <nobr>&nbsp;<b>Password:</b>&nbsp;</nobr>
-                            </td>
-                            <td>
-                              <nobr><input type="password" class="default" name="fez_password" size="20" value="{$smarty.post.fez_password}">&nbsp;</nobr>
-                              {include file="error_icon.tpl.html" field="fez_password"}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td colspan="2" class="default" align="center">
-                              <input type="checkbox" name="create_user" value="yes" {if $smarty.post.create_user == 'yes'}checked{/if}> <b><a id="link" class="link" href="javascript:void(null);" onClick="javascript:toggleCheckbox('install_form', 'create_user');">Create User and Permissions</a></b>
-                            </td>
-                          </tr>
-                        </table>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-        <tr>
-          <td colspan="2" class="default" align="center">
-            <input type="checkbox" name="ldap" value="yes" onClick="javascript:toggleLDAPFields();" {if $smarty.post.ldap == 'yes'}checked{/if}> <b><a id="link" class="link" href="javascript:void(null);" onClick="javascript:toggleCheckbox('install_form', 'ldap');toggleLDAPFields();">Use a LDAP Server for Authentication (together with Fez Authentication)</a></b>
-          </td>
-        </tr>		
-        <tr id="ldap_row">
-          <td colspan="2" align="center">
-            <table>
-              <tr>
-                <td>
-                  <table width="300" cellpadding="1" cellspacing="0" bgcolor="white" border="0">
-                    <tr>
-                      <td>
-                        <table width="100%" border="0" cellspacing="0" cellpadding="1" bgcolor="#C0C0C0">
-                          <tr>
-                            <td colspan="2" class="default">
-                              <b>Enter the details below:</b>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td class="default" align="right">
-                              <nobr>&nbsp;<b>LDAP Organisation: </b>&nbsp;</nobr>
-                            </td>
-                            <td nowrap>
-                              <nobr><input type="text" class="default" name="ldap_org" size="20" value="{$smarty.post.ldap_org}">&nbsp;</nobr>
-								<span class="default">eg o=The University of Fez, c=AU</span>
-                              {include file="error_icon.tpl.html" field="ldap_org"}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td class="default" align="right">
-                              <nobr>&nbsp;<b>LDAP Root DN:</b>&nbsp;</nobr>
-                            </td>
-                            <td nowrap>
-                              <nobr><input type="text" class="default" name="ldap_root_dn" size="20" value="{$smarty.post.ldap_root_dn}">&nbsp;</nobr>
-								<span class="default">eg DC=uq,DC=edu,DC=au</span>
-                              {include file="error_icon.tpl.html" field="ldap_root_dn"}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td class="default" align="right">
-                              <nobr>&nbsp;<b>LDAP Prefix:</b>&nbsp;</nobr>
-                            </td>
-                            <td nowrap>
-                              <nobr><input type="text" class="default" name="ldap_prefix" size="20" value="{$smarty.post.ldap_prefix}">&nbsp;</nobr>
-								<span class="default">eg UQ</span>
-                              {include file="error_icon.tpl.html" field="ldap_prefix"}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td class="default" align="right">
-                              <nobr>&nbsp;<b>LDAP Server:</b>&nbsp;</nobr>
-                            </td>
-                            <td nowrap>
-                              <nobr><input type="text" class="default" name="ldap_server" size="20" value="{$smarty.post.ldap_server}">&nbsp;</nobr>
-								<span class="default">yourldapserver.yourdomain.edu</span>
-                              {include file="error_icon.tpl.html" field="ldap_server"}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td class="default" align="right">
-                              <nobr>&nbsp;<b>LDAP Port:</b>&nbsp;</nobr>
-                            </td>
-                            <td nowrap>
-                              <nobr><input type="text" class="default" name="ldap_port" size="20" value="{$smarty.post.ldap_port|default:'389'}">&nbsp;</nobr>
-								<span class="default">Usually 389</span>
-                              {include file="error_icon.tpl.html" field="ldap_port"}
-                            </td>
-                          </tr>
+<input type="submit" name="button" value="Proceed to the next step" onclick="javascript:window.alert('Please allow a couple of minutes for the next step to be performed.\nDo not refresh the next page during this time.');">
+<input type="reset" name="reset" value="Reset to initial values">
 
-                        </table>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>		
-		
-        <tr>
-          <td colspan="2" class="default" align="right">&nbsp;
-            
-          </td>
-        </tr>
-        <tr>
-          <td colspan="2" bgcolor="#666666" align="right">
-            <input style="font-family: Verdana, Arial, Helvetica, sans-serif; font-weight: bold; font-size: 90%;" type="submit" value="Start Installation &gt;&gt;">
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td bgcolor="#FFFFFF" class="default">
-      <b>* Required Fields</b>
-    </td>
-  </tr>
 </form>
-</table>
 
-{literal}
-<script language="JavaScript">
-<!--
-window.onload = setFocus;
-function setFocus()
-{
-    document.install_form.organisation.focus();
-    toggleAlternateUserFields();
-    toggleLDAPFields();	
-	toggleSSLBaseLocation(true);toggleBaseLocation(false);
-	addClicksToFedoraSetup();
-}
-//-->
-</script>
-{/literal}
+</div>
+
+{elseif $step == 2}
+    {if $test_result != ''}
+		<div class="admin-header">Error</div>
+		<div class="default admin-content">There was a problem with the values you supplied. Please click back and try again.
+		<br /><br /><span style="color: red;">{$test_result}</span></div>
+    {elseif $sql_result != ''}
+		<div class="admin-header">Error</div>
+		<div class="default admin-content">There was a problem with the database setup. Please review the error below and try again.
+		<br /><br /><span style="color: red;">{$sql_result}</span></div>
+    {elseif $test_result == '' && $sql_result == ''}
+		<div class="admin-header">Success!</div>
+		<div class="default admin-content">The Fez installation process completed successfully.<br /><br />
+		<div style="border: 2px red solid; padding: 10px;">
+		<b>IMPORTANT SECURITY INFORMATION:</b> Once you have verified that your installation is working, delete the /setup/ directory.
+		</div>
+		<br /><br />You should now be able to log into <a href="../login.php?action=setup&url=manage/configuration.php" target="_blank">Fez Administration</a> and complete the rest of the setup process. In particular, you will need to configure your Fedora settings.
+		</div>
+	{/if}
 {/if}
+
+</div>
+</div>
 
 {include file="footer.tpl.html"}
