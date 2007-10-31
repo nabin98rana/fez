@@ -1,317 +1,338 @@
 <?xml version="1.0" encoding="utf-8"?>
 <workflows schema_version="1.0">
   <workflow wfl_id="73" wfl_title="Batch Import" wfl_version="1.0" wfl_description="Imports a set of files from a directory local to the server." wfl_roles="Approver,Community_Administrator,Creator,Editor" wfl_end_button_label="Ok">
-    <WorkflowState wfs_id="414" wfs_title="Set Template" wfs_description="&lt;p&gt;This form sets the default metadata to be applied to each record as it is imported. The title field will be over-written with the name of the file. &#13;&#10;&lt;/p&gt;&#13;&#10;&lt;p&gt;If importing from a source that already has metadata such as ePrints, then skip this step.&lt;/p&gt;" wfs_auto="0" wfs_wfb_id="18" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="412" wfs_title="Process Running" wfs_description="The batch import process has started.  The progress of the job can be monitored on the 'My Fez' page." wfs_auto="0" wfs_wfb_id="33" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="413" wfs_title="Select Batch Import Location" wfs_description="&lt;p&gt;The collection to be imported must be scanned and copied into a subdirectory in the Fez batch import directory.  This form lists the subdirectories found in the Fez import directory.  If your directory hasn't been created yet, then create it now and refresh this page.&#13;&#10;&lt;/p&gt;&#13;&#10;&lt;p&gt;&#13;&#10;When done, click 'Set Template' if you want to enter default metadata for each record or go straight to Batch Import if you are importing from ePrints or a source that already has metadata.&lt;/p&gt;&#13;&#10;" wfs_auto="0" wfs_wfb_id="15" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="411" wfs_title="Batch Import" wfs_description="" wfs_auto="1" wfs_wfb_id="31" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="415" wfs_title="Select Collection" wfs_description="" wfs_auto="0" wfs_wfb_id="22" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="807" wfsl_from_id="415" wfsl_to_id="413"/>
-    <WorkflowStateLinks wfsl_id="806" wfsl_from_id="413" wfsl_to_id="411"/>
-    <WorkflowStateLinks wfsl_id="805" wfsl_from_id="414" wfsl_to_id="411"/>
-    <WorkflowStateLinks wfsl_id="804" wfsl_from_id="411" wfsl_to_id="412"/>
-    <WorkflowStateLinks wfsl_id="803" wfsl_from_id="413" wfsl_to_id="414"/>
-    <WorkflowTrigger wft_id="120" wft_pid="-1" wft_type_id="4" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/scanner_22.jpg" wft_ret_id="0" wft_options="0"/>
+    <WorkflowState wfs_id="499" wfs_title="Select Batch Import Location" wfs_description="&lt;p&gt;The collection to be imported must be scanned and copied into a subdirectory in the Fez batch import directory.  This form lists the subdirectories found in the Fez import directory.  If your directory hasn't been created yet, then create it now and refresh this page.&#13;&#10;&lt;/p&gt;&#13;&#10;&lt;p&gt;&#13;&#10;When done, click 'Set Template' if you want to enter default metadata for each record or go straight to Batch Import if you are importing from ePrints or a source that already has metadata.&lt;/p&gt;&#13;&#10;" wfs_auto="0" wfs_wfb_id="15" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="500" wfs_title="Batch Import" wfs_description="" wfs_auto="1" wfs_wfb_id="31" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="498" wfs_title="Process Running" wfs_description="The batch import process has started.  The progress of the job can be monitored on the 'My Fez' page." wfs_auto="0" wfs_wfb_id="33" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="497" wfs_title="Set Template" wfs_description="&lt;p&gt;This form sets the default metadata to be applied to each record as it is imported. The title field will be over-written with the name of the file. &#13;&#10;&lt;/p&gt;&#13;&#10;&lt;p&gt;If importing from a source that already has metadata such as ePrints, then skip this step.&lt;/p&gt;" wfs_auto="0" wfs_wfb_id="18" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="501" wfs_title="Select Collection" wfs_description="" wfs_auto="0" wfs_wfb_id="22" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="901" wfsl_from_id="499" wfsl_to_id="497"/>
+    <WorkflowStateLinks wfsl_id="900" wfsl_from_id="500" wfsl_to_id="498"/>
+    <WorkflowStateLinks wfsl_id="899" wfsl_from_id="497" wfsl_to_id="500"/>
+    <WorkflowStateLinks wfsl_id="898" wfsl_from_id="499" wfsl_to_id="500"/>
+    <WorkflowStateLinks wfsl_id="897" wfsl_from_id="501" wfsl_to_id="499"/>
+    <WorkflowTrigger wft_id="163" wft_pid="-1" wft_type_id="4" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/scanner_22.jpg" wft_ret_id="0" wft_options="0"/>
   </workflow>
   <workflow wfl_id="7" wfl_title="Batch Import Into Selected Collection" wfl_version="1.0" wfl_description="Imports a set of files from a directory local to the server." wfl_roles="Approver,Community_Administrator,Creator,Editor" wfl_end_button_label="Ok">
-    <WorkflowState wfs_id="419" wfs_title="Process Running" wfs_description="The batch import process has started.  The progress of the job can be monitored on the 'My Fez' page." wfs_auto="0" wfs_wfb_id="33" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="418" wfs_title="Select Batch Import Location" wfs_description="The collection to be imported must be scanned and copied into a subdirectory in the Fez batch import directory.  This form lists the subdirectories found in the Fez import directory.  If your directory hasn't been created yet, then create it now and refresh this page.&#13;&#10;&#13;&#10;When done, click 'Set Template' if you want to enter default metadata for each record or go straight to Batch Import if you are importing from ePrints or a source that already has metadata." wfs_auto="0" wfs_wfb_id="15" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="416" wfs_title="Batch Import" wfs_description="" wfs_auto="1" wfs_wfb_id="31" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="417" wfs_title="Set Template" wfs_description="This form sets the default metadata to be applied to each record as it is imported.  However, the title field will be over-written with the name of the file.  If importing from a source that already has metadata such as ePrints, then skip this step." wfs_auto="0" wfs_wfb_id="18" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="811" wfsl_from_id="416" wfsl_to_id="419"/>
-    <WorkflowStateLinks wfsl_id="810" wfsl_from_id="418" wfsl_to_id="417"/>
-    <WorkflowStateLinks wfsl_id="809" wfsl_from_id="417" wfsl_to_id="416"/>
-    <WorkflowStateLinks wfsl_id="808" wfsl_from_id="418" wfsl_to_id="416"/>
-    <WorkflowTrigger wft_id="121" wft_pid="-1" wft_type_id="4" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/scanner_22.jpg" wft_ret_id="0" wft_options="0"/>
+    <WorkflowState wfs_id="505" wfs_title="Set Template" wfs_description="This form sets the default metadata to be applied to each record as it is imported.  However, the title field will be over-written with the name of the file.  If importing from a source that already has metadata such as ePrints, then skip this step." wfs_auto="0" wfs_wfb_id="18" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="503" wfs_title="Select Batch Import Location" wfs_description="The collection to be imported must be scanned and copied into a subdirectory in the Fez batch import directory.  This form lists the subdirectories found in the Fez import directory.  If your directory hasn't been created yet, then create it now and refresh this page.&#13;&#10;&#13;&#10;When done, click 'Set Template' if you want to enter default metadata for each record or go straight to Batch Import if you are importing from ePrints or a source that already has metadata." wfs_auto="0" wfs_wfb_id="15" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="502" wfs_title="Process Running" wfs_description="The batch import process has started.  The progress of the job can be monitored on the 'My Fez' page." wfs_auto="0" wfs_wfb_id="33" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="504" wfs_title="Batch Import" wfs_description="" wfs_auto="1" wfs_wfb_id="31" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="905" wfsl_from_id="503" wfsl_to_id="504"/>
+    <WorkflowStateLinks wfsl_id="904" wfsl_from_id="505" wfsl_to_id="504"/>
+    <WorkflowStateLinks wfsl_id="903" wfsl_from_id="503" wfsl_to_id="505"/>
+    <WorkflowStateLinks wfsl_id="902" wfsl_from_id="504" wfsl_to_id="502"/>
+    <WorkflowTrigger wft_id="164" wft_pid="-1" wft_type_id="4" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/scanner_22.jpg" wft_ret_id="0" wft_options="0"/>
   </workflow>
-  <workflow wfl_id="86" wfl_title="Bulk Assign to Group" wfl_version="1.0" wfl_description="" wfl_roles="Approver,Community_Administrator,Editor" wfl_end_button_label="Ok">
-    <WorkflowState wfs_id="407" wfs_title="Select Group" wfs_description="" wfs_auto="0" wfs_wfb_id="48" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="408" wfs_title="Bulk Assign Records to Selected Group" wfs_description="" wfs_auto="1" wfs_wfb_id="46" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="801" wfsl_from_id="407" wfsl_to_id="408"/>
-    <WorkflowTrigger wft_id="118" wft_pid="-1" wft_type_id="7" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="0" wft_options="0"/>
+  <workflow wfl_id="85" wfl_title="Bulk Assign to Group" wfl_version="1.0" wfl_description="" wfl_roles="Approver,Community_Administrator,Editor" wfl_end_button_label="Ok">
+    <WorkflowState wfs_id="506" wfs_title="Select Group" wfs_description="" wfs_auto="0" wfs_wfb_id="45" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="507" wfs_title="Bulk Assign Records to Selected Group" wfs_description="" wfs_auto="1" wfs_wfb_id="44" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="906" wfsl_from_id="506" wfsl_to_id="507"/>
+    <WorkflowTrigger wft_id="165" wft_pid="-1" wft_type_id="7" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="0" wft_options="0"/>
   </workflow>
-  <workflow wfl_id="87" wfl_title="Bulk Assign to User" wfl_version="1.0" wfl_description="" wfl_roles="Approver,Community_Administrator,Editor" wfl_end_button_label="Ok">
-    <WorkflowState wfs_id="410" wfs_title="Bulk Assign Record to User" wfs_description="" wfs_auto="1" wfs_wfb_id="47" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="409" wfs_title="Select User" wfs_description="" wfs_auto="0" wfs_wfb_id="49" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="802" wfsl_from_id="409" wfsl_to_id="410"/>
-    <WorkflowTrigger wft_id="119" wft_pid="-1" wft_type_id="7" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="0" wft_options="0"/>
+  <workflow wfl_id="86" wfl_title="Bulk Assign to User" wfl_version="1.0" wfl_description="" wfl_roles="Approver,Community_Administrator,Editor" wfl_end_button_label="Ok">
+    <WorkflowState wfs_id="509" wfs_title="Select User" wfs_description="" wfs_auto="0" wfs_wfb_id="47" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="508" wfs_title="Bulk Assign Record to User" wfs_description="" wfs_auto="1" wfs_wfb_id="46" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="907" wfsl_from_id="509" wfsl_to_id="508"/>
+    <WorkflowTrigger wft_id="166" wft_pid="-1" wft_type_id="7" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="0" wft_options="0"/>
   </workflow>
   <workflow wfl_id="83" wfl_title="Bulk Move to Collection" wfl_version="1.0" wfl_description="" wfl_roles="Community_Administrator" wfl_end_button_label="Ok">
-    <WorkflowState wfs_id="306" wfs_title="Select Collection" wfs_description="" wfs_auto="0" wfs_wfb_id="24" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="307" wfs_title="Bulk Move into Selected Collection" wfs_description="" wfs_auto="1" wfs_wfb_id="41" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="310" wfs_title="Started" wfs_description="The bulk mover is running as a background task.  Progress can be followed on the My Fez page." wfs_auto="0" wfs_wfb_id="33" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="715" wfsl_from_id="307" wfsl_to_id="310"/>
-    <WorkflowStateLinks wfsl_id="712" wfsl_from_id="306" wfsl_to_id="307"/>
-    <WorkflowTrigger wft_id="72" wft_pid="-1" wft_type_id="7" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="0" wft_options="0"/>
+    <WorkflowState wfs_id="511" wfs_title="Bulk Move into Selected Collection" wfs_description="" wfs_auto="1" wfs_wfb_id="41" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="510" wfs_title="Select Collection" wfs_description="" wfs_auto="0" wfs_wfb_id="24" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="512" wfs_title="Started" wfs_description="The bulk mover is running as a background task.  Progress can be followed on the My Fez page." wfs_auto="0" wfs_wfb_id="33" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="909" wfsl_from_id="510" wfsl_to_id="511"/>
+    <WorkflowStateLinks wfsl_id="908" wfsl_from_id="511" wfsl_to_id="512"/>
+    <WorkflowTrigger wft_id="167" wft_pid="-1" wft_type_id="7" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="0" wft_options="0"/>
   </workflow>
-  <workflow wfl_id="85" wfl_title="Clone Selected Record" wfl_version="1.0" wfl_description="Copy a record to a new PID." wfl_roles="Approver,Community_Administrator,Creator,Editor" wfl_end_button_label="Ok">
-    <WorkflowState wfs_id="426" wfs_title="Submit for Approval" wfs_description="The record has been added to the list of unpublished records to be reviewed for this collection ." wfs_auto="0" wfs_wfb_id="33" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="424" wfs_title="Preview" wfs_description="" wfs_auto="0" wfs_wfb_id="30" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="425" wfs_title="Publish" wfs_description="" wfs_auto="1" wfs_wfb_id="28" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Approver"/>
-    <WorkflowState wfs_id="423" wfs_title="Edit Cloned Record Metadata" wfs_description="This is the metadata for the cloned record. " wfs_auto="0" wfs_wfb_id="16" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="422" wfs_title="Clone Record" wfs_description="" wfs_auto="1" wfs_wfb_id="44" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="421" wfs_title="unpublish" wfs_description="" wfs_auto="1" wfs_wfb_id="29" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="1" wfs_roles=""/>
-    <WorkflowState wfs_id="420" wfs_title="Select Clone Options" wfs_description="Fill out the following options for cloning the record." wfs_auto="0" wfs_wfb_id="45" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="820" wfsl_from_id="421" wfsl_to_id="423"/>
-    <WorkflowStateLinks wfsl_id="819" wfsl_from_id="424" wfsl_to_id="426"/>
-    <WorkflowStateLinks wfsl_id="818" wfsl_from_id="424" wfsl_to_id="423"/>
-    <WorkflowStateLinks wfsl_id="817" wfsl_from_id="423" wfsl_to_id="425"/>
-    <WorkflowStateLinks wfsl_id="816" wfsl_from_id="423" wfsl_to_id="424"/>
-    <WorkflowStateLinks wfsl_id="815" wfsl_from_id="424" wfsl_to_id="425"/>
-    <WorkflowStateLinks wfsl_id="814" wfsl_from_id="423" wfsl_to_id="426"/>
-    <WorkflowStateLinks wfsl_id="813" wfsl_from_id="420" wfsl_to_id="422"/>
-    <WorkflowStateLinks wfsl_id="812" wfsl_from_id="422" wfsl_to_id="421"/>
-    <WorkflowTrigger wft_id="122" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/folder_new.gif" wft_ret_id="3" wft_options="0"/>
+  <workflow wfl_id="87" wfl_title="Clone Selected Record" wfl_version="1.0" wfl_description="Copy a record to a new PID." wfl_roles="Approver,Community_Administrator,Creator,Editor" wfl_end_button_label="Ok">
+    <WorkflowState wfs_id="519" wfs_title="Select Clone Options" wfs_description="Fill out the following options for cloning the record." wfs_auto="0" wfs_wfb_id="53" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="518" wfs_title="unpublish" wfs_description="" wfs_auto="1" wfs_wfb_id="29" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="1" wfs_roles=""/>
+    <WorkflowState wfs_id="516" wfs_title="Edit Cloned Record Metadata" wfs_description="This is the metadata for the cloned record. " wfs_auto="0" wfs_wfb_id="16" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="517" wfs_title="Clone Record" wfs_description="" wfs_auto="1" wfs_wfb_id="52" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="515" wfs_title="Publish" wfs_description="" wfs_auto="1" wfs_wfb_id="28" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Approver"/>
+    <WorkflowState wfs_id="514" wfs_title="Preview" wfs_description="" wfs_auto="0" wfs_wfb_id="30" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="513" wfs_title="Submit for Approval" wfs_description="The record has been added to the list of unpublished records to be reviewed for this collection ." wfs_auto="0" wfs_wfb_id="33" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="918" wfsl_from_id="517" wfsl_to_id="518"/>
+    <WorkflowStateLinks wfsl_id="917" wfsl_from_id="519" wfsl_to_id="517"/>
+    <WorkflowStateLinks wfsl_id="916" wfsl_from_id="516" wfsl_to_id="513"/>
+    <WorkflowStateLinks wfsl_id="915" wfsl_from_id="514" wfsl_to_id="515"/>
+    <WorkflowStateLinks wfsl_id="914" wfsl_from_id="516" wfsl_to_id="514"/>
+    <WorkflowStateLinks wfsl_id="913" wfsl_from_id="516" wfsl_to_id="515"/>
+    <WorkflowStateLinks wfsl_id="912" wfsl_from_id="514" wfsl_to_id="516"/>
+    <WorkflowStateLinks wfsl_id="911" wfsl_from_id="514" wfsl_to_id="513"/>
+    <WorkflowStateLinks wfsl_id="910" wfsl_from_id="518" wfsl_to_id="516"/>
+    <WorkflowTrigger wft_id="168" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/folder_new.gif" wft_ret_id="3" wft_options="0"/>
   </workflow>
   <workflow wfl_id="78" wfl_title="Create Collection" wfl_version="1.0" wfl_description="" wfl_roles="Approver,Community_Administrator,Creator,Editor" wfl_end_button_label="Done">
-    <WorkflowState wfs_id="429" wfs_title="Enter Metadata" wfs_description="" wfs_auto="0" wfs_wfb_id="13" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="428" wfs_title="Publish" wfs_description="" wfs_auto="1" wfs_wfb_id="28" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Approver"/>
-    <WorkflowState wfs_id="427" wfs_title="Submit for Approval" wfs_description="" wfs_auto="1" wfs_wfb_id="51" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="430" wfs_title="Select Community" wfs_description="" wfs_auto="0" wfs_wfb_id="43" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="823" wfsl_from_id="430" wfsl_to_id="429"/>
-    <WorkflowStateLinks wfsl_id="822" wfsl_from_id="429" wfsl_to_id="428"/>
-    <WorkflowStateLinks wfsl_id="821" wfsl_from_id="429" wfsl_to_id="427"/>
-    <WorkflowTrigger wft_id="123" wft_pid="-1" wft_type_id="4" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/folder_new.gif" wft_ret_id="2" wft_options="0"/>
+    <WorkflowState wfs_id="523" wfs_title="Select Community" wfs_description="" wfs_auto="0" wfs_wfb_id="43" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="522" wfs_title="Submit for Approval" wfs_description="" wfs_auto="1" wfs_wfb_id="48" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="521" wfs_title="Publish" wfs_description="" wfs_auto="1" wfs_wfb_id="28" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Approver"/>
+    <WorkflowState wfs_id="520" wfs_title="Enter Metadata" wfs_description="" wfs_auto="0" wfs_wfb_id="13" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="921" wfsl_from_id="520" wfsl_to_id="522"/>
+    <WorkflowStateLinks wfsl_id="920" wfsl_from_id="520" wfsl_to_id="521"/>
+    <WorkflowStateLinks wfsl_id="919" wfsl_from_id="523" wfsl_to_id="520"/>
+    <WorkflowTrigger wft_id="169" wft_pid="-1" wft_type_id="4" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/folder_new.gif" wft_ret_id="2" wft_options="0"/>
   </workflow>
   <workflow wfl_id="5" wfl_title="Create Collection In Selected Community" wfl_version="1.0" wfl_description="" wfl_roles="Approver,Community_Administrator,Creator,Editor" wfl_end_button_label="Done">
-    <WorkflowState wfs_id="432" wfs_title="Publish" wfs_description="" wfs_auto="1" wfs_wfb_id="28" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Approver"/>
-    <WorkflowState wfs_id="431" wfs_title="Submit for Approval" wfs_description="" wfs_auto="1" wfs_wfb_id="51" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="433" wfs_title="Enter Metadata" wfs_description="" wfs_auto="0" wfs_wfb_id="13" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="825" wfsl_from_id="433" wfsl_to_id="431"/>
-    <WorkflowStateLinks wfsl_id="824" wfsl_from_id="433" wfsl_to_id="432"/>
-    <WorkflowTrigger wft_id="124" wft_pid="-1" wft_type_id="4" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/folder_new.gif" wft_ret_id="2" wft_options="0"/>
+    <WorkflowState wfs_id="526" wfs_title="Enter Metadata" wfs_description="" wfs_auto="0" wfs_wfb_id="13" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="525" wfs_title="Submit for Approval" wfs_description="" wfs_auto="1" wfs_wfb_id="48" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="524" wfs_title="Publish" wfs_description="" wfs_auto="1" wfs_wfb_id="28" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Approver"/>
+    <WorkflowStateLinks wfsl_id="923" wfsl_from_id="526" wfsl_to_id="524"/>
+    <WorkflowStateLinks wfsl_id="922" wfsl_from_id="526" wfsl_to_id="525"/>
+    <WorkflowTrigger wft_id="170" wft_pid="-1" wft_type_id="4" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/folder_new.gif" wft_ret_id="2" wft_options="0"/>
   </workflow>
   <workflow wfl_id="4" wfl_title="Create Community" wfl_version="1.0" wfl_description="" wfl_roles="Community_Administrator" wfl_end_button_label="Done">
-    <WorkflowState wfs_id="435" wfs_title="Set XDIS ID" wfs_description="" wfs_auto="1" wfs_wfb_id="27" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="1" wfs_roles=""/>
-    <WorkflowState wfs_id="434" wfs_title="Publish" wfs_description="" wfs_auto="1" wfs_wfb_id="28" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Approver"/>
-    <WorkflowState wfs_id="436" wfs_title="Enter Metadata" wfs_description="" wfs_auto="0" wfs_wfb_id="13" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="827" wfsl_from_id="436" wfsl_to_id="434"/>
-    <WorkflowStateLinks wfsl_id="826" wfsl_from_id="435" wfsl_to_id="436"/>
-    <WorkflowTrigger wft_id="125" wft_pid="-1" wft_type_id="4" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/folder_new.gif" wft_ret_id="1" wft_options="0"/>
-    <WorkflowTrigger wft_id="126" wft_pid="-1" wft_type_id="4" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/folder_new.gif" wft_ret_id="1" wft_options="0"/>
+    <WorkflowState wfs_id="529" wfs_title="Enter Metadata" wfs_description="" wfs_auto="0" wfs_wfb_id="13" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="528" wfs_title="Publish" wfs_description="" wfs_auto="1" wfs_wfb_id="28" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Approver"/>
+    <WorkflowState wfs_id="527" wfs_title="Set XDIS ID" wfs_description="" wfs_auto="1" wfs_wfb_id="27" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="1" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="925" wfsl_from_id="527" wfsl_to_id="529"/>
+    <WorkflowStateLinks wfsl_id="924" wfsl_from_id="529" wfsl_to_id="528"/>
+    <WorkflowTrigger wft_id="171" wft_pid="-1" wft_type_id="4" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/folder_new.gif" wft_ret_id="1" wft_options="0"/>
+    <WorkflowTrigger wft_id="172" wft_pid="-1" wft_type_id="4" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/folder_new.gif" wft_ret_id="1" wft_options="0"/>
   </workflow>
   <workflow wfl_id="72" wfl_title="Create Generic Record In Selected Collection" wfl_version="1.0" wfl_description="" wfl_roles="Approver,Community_Administrator,Creator,Editor" wfl_end_button_label="">
-    <WorkflowState wfs_id="438" wfs_title="Publish" wfs_description="" wfs_auto="1" wfs_wfb_id="28" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Approver"/>
-    <WorkflowState wfs_id="437" wfs_title="Submit for Approval" wfs_description="" wfs_auto="1" wfs_wfb_id="51" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="439" wfs_title="Enter Metadata" wfs_description="" wfs_auto="0" wfs_wfb_id="13" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="829" wfsl_from_id="439" wfsl_to_id="437"/>
-    <WorkflowStateLinks wfsl_id="828" wfsl_from_id="439" wfsl_to_id="438"/>
-    <WorkflowTrigger wft_id="127" wft_pid="-1" wft_type_id="4" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/folder_new.gif" wft_ret_id="3" wft_options="0"/>
+    <WorkflowState wfs_id="532" wfs_title="Enter Metadata" wfs_description="" wfs_auto="0" wfs_wfb_id="13" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="531" wfs_title="Submit for Approval" wfs_description="" wfs_auto="1" wfs_wfb_id="48" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="530" wfs_title="Publish" wfs_description="" wfs_auto="1" wfs_wfb_id="28" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Approver"/>
+    <WorkflowStateLinks wfsl_id="927" wfsl_from_id="532" wfsl_to_id="530"/>
+    <WorkflowStateLinks wfsl_id="926" wfsl_from_id="532" wfsl_to_id="531"/>
+    <WorkflowTrigger wft_id="173" wft_pid="-1" wft_type_id="4" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/folder_new.gif" wft_ret_id="3" wft_options="0"/>
   </workflow>
   <workflow wfl_id="74" wfl_title="Create Record" wfl_version="1.0" wfl_description="" wfl_roles="Approver,Community_Administrator,Creator,Editor" wfl_end_button_label="">
-    <WorkflowState wfs_id="443" wfs_title="Preview" wfs_description="" wfs_auto="0" wfs_wfb_id="30" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="442" wfs_title="Publish" wfs_description="" wfs_auto="1" wfs_wfb_id="28" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Approver"/>
-    <WorkflowState wfs_id="441" wfs_title="Submit for Approval" wfs_description="" wfs_auto="1" wfs_wfb_id="51" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="440" wfs_title="Select Collection" wfs_description="" wfs_auto="0" wfs_wfb_id="22" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="444" wfs_title="Review Metadata" wfs_description="" wfs_auto="0" wfs_wfb_id="16" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="445" wfs_title="Enter Metadata" wfs_description="" wfs_auto="0" wfs_wfb_id="13" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="839" wfsl_from_id="445" wfsl_to_id="443"/>
-    <WorkflowStateLinks wfsl_id="838" wfsl_from_id="443" wfsl_to_id="441"/>
-    <WorkflowStateLinks wfsl_id="837" wfsl_from_id="444" wfsl_to_id="442"/>
-    <WorkflowStateLinks wfsl_id="836" wfsl_from_id="444" wfsl_to_id="443"/>
-    <WorkflowStateLinks wfsl_id="835" wfsl_from_id="443" wfsl_to_id="442"/>
-    <WorkflowStateLinks wfsl_id="834" wfsl_from_id="440" wfsl_to_id="445"/>
-    <WorkflowStateLinks wfsl_id="833" wfsl_from_id="445" wfsl_to_id="442"/>
-    <WorkflowStateLinks wfsl_id="832" wfsl_from_id="444" wfsl_to_id="441"/>
-    <WorkflowStateLinks wfsl_id="831" wfsl_from_id="445" wfsl_to_id="441"/>
-    <WorkflowStateLinks wfsl_id="830" wfsl_from_id="443" wfsl_to_id="444"/>
-    <WorkflowTrigger wft_id="128" wft_pid="-1" wft_type_id="4" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/folder_new.gif" wft_ret_id="3" wft_options="0"/>
+    <WorkflowState wfs_id="537" wfs_title="Review Metadata" wfs_description="" wfs_auto="0" wfs_wfb_id="16" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="536" wfs_title="Select Collection" wfs_description="" wfs_auto="0" wfs_wfb_id="22" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="535" wfs_title="Submit for Approval" wfs_description="" wfs_auto="1" wfs_wfb_id="48" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="534" wfs_title="Publish" wfs_description="" wfs_auto="1" wfs_wfb_id="28" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Approver"/>
+    <WorkflowState wfs_id="533" wfs_title="Preview" wfs_description="" wfs_auto="0" wfs_wfb_id="30" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="538" wfs_title="Enter Metadata" wfs_description="" wfs_auto="0" wfs_wfb_id="13" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="937" wfsl_from_id="533" wfsl_to_id="537"/>
+    <WorkflowStateLinks wfsl_id="936" wfsl_from_id="538" wfsl_to_id="535"/>
+    <WorkflowStateLinks wfsl_id="935" wfsl_from_id="537" wfsl_to_id="535"/>
+    <WorkflowStateLinks wfsl_id="934" wfsl_from_id="538" wfsl_to_id="534"/>
+    <WorkflowStateLinks wfsl_id="933" wfsl_from_id="536" wfsl_to_id="538"/>
+    <WorkflowStateLinks wfsl_id="932" wfsl_from_id="533" wfsl_to_id="534"/>
+    <WorkflowStateLinks wfsl_id="931" wfsl_from_id="537" wfsl_to_id="533"/>
+    <WorkflowStateLinks wfsl_id="930" wfsl_from_id="537" wfsl_to_id="534"/>
+    <WorkflowStateLinks wfsl_id="929" wfsl_from_id="533" wfsl_to_id="535"/>
+    <WorkflowStateLinks wfsl_id="928" wfsl_from_id="538" wfsl_to_id="533"/>
+    <WorkflowTrigger wft_id="174" wft_pid="-1" wft_type_id="4" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/folder_new.gif" wft_ret_id="3" wft_options="0"/>
   </workflow>
   <workflow wfl_id="77" wfl_title="Delete Collection" wfl_version="1.0" wfl_description="" wfl_roles="Community_Administrator" wfl_end_button_label="Done">
-    <WorkflowState wfs_id="446" wfs_title="Select Collection" wfs_description="" wfs_auto="0" wfs_wfb_id="24" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="447" wfs_title="Delete" wfs_description="" wfs_auto="1" wfs_wfb_id="17" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="840" wfsl_from_id="446" wfsl_to_id="447"/>
+    <WorkflowState wfs_id="596" wfs_title="Delete" wfs_description="" wfs_auto="1" wfs_wfb_id="63" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="597" wfs_title="Select Collection" wfs_description="" wfs_auto="0" wfs_wfb_id="24" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="977" wfsl_from_id="597" wfsl_to_id="596"/>
   </workflow>
   <workflow wfl_id="81" wfl_title="Delete Community" wfl_version="1.0" wfl_description="" wfl_roles="Community_Administrator" wfl_end_button_label="Done">
-    <WorkflowState wfs_id="449" wfs_title="Select Community" wfs_description="" wfs_auto="0" wfs_wfb_id="25" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="448" wfs_title="Delete" wfs_description="" wfs_auto="1" wfs_wfb_id="17" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="841" wfsl_from_id="449" wfsl_to_id="448"/>
+    <WorkflowState wfs_id="599" wfs_title="Delete" wfs_description="" wfs_auto="1" wfs_wfb_id="63" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="598" wfs_title="Select Community" wfs_description="" wfs_auto="0" wfs_wfb_id="25" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="978" wfsl_from_id="598" wfsl_to_id="599"/>
   </workflow>
-  <workflow wfl_id="76" wfl_title="Delete Record" wfl_version="1.0" wfl_description="" wfl_roles="Community_Administrator" wfl_end_button_label="">
-    <WorkflowState wfs_id="450" wfs_title="Select Record" wfs_description="" wfs_auto="0" wfs_wfb_id="23" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="451" wfs_title="Delete" wfs_description="" wfs_auto="1" wfs_wfb_id="17" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="842" wfsl_from_id="450" wfsl_to_id="451"/>
+  <workflow wfl_id="76" wfl_title="Delete Record" wfl_version="1.0" wfl_description="" wfl_roles="Community_Administrator" wfl_end_button_label="Done">
+    <WorkflowState wfs_id="600" wfs_title="Select Record" wfs_description="" wfs_auto="0" wfs_wfb_id="23" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="601" wfs_title="Delete" wfs_description="" wfs_auto="1" wfs_wfb_id="63" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="979" wfsl_from_id="600" wfsl_to_id="601"/>
   </workflow>
-  <workflow wfl_id="89" wfl_title="Duplicates Report" wfl_version="1.0" wfl_description="Workflow for finding duplicates in a collection." wfl_roles="Approver,Community_Administrator,Editor" wfl_end_button_label="Finished">
-    <WorkflowState wfs_id="494" wfs_title="Show Duplicates List" wfs_description="This is a report of duplicates found for the selected records.  Select an item to see it's duplicate records." wfs_auto="0" wfs_wfb_id="58" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowTrigger wft_id="155" wft_pid="-1" wft_type_id="1" wft_xdis_id="285" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="3" wft_options="0"/>
+  <workflow wfl_id="94" wfl_title="Delete Selected Record" wfl_version="1.0" wfl_description="Marks record as deleted.  (Can be undeleted by an Administrator)" wfl_roles="Community_Administrator,Editor" wfl_end_button_label="Delete">
+    <WorkflowState wfs_id="602" wfs_title="Delete" wfs_description="" wfs_auto="1" wfs_wfb_id="63" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowTrigger wft_id="210" wft_pid="-1" wft_type_id="3" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/delete.gif" wft_ret_id="1" wft_options="0"/>
+    <WorkflowTrigger wft_id="211" wft_pid="-1" wft_type_id="3" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/delete.gif" wft_ret_id="2" wft_options="0"/>
+    <WorkflowTrigger wft_id="212" wft_pid="-1" wft_type_id="3" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/delete.gif" wft_ret_id="3" wft_options="1"/>
+  </workflow>
+  <workflow wfl_id="88" wfl_title="Duplicates Report" wfl_version="1.0" wfl_description="Workflow for finding duplicates in a collection." wfl_roles="Approver,Community_Administrator,Editor" wfl_end_button_label="Finished">
+    <WorkflowState wfs_id="545" wfs_title="Show Duplicates List" wfs_description="This is a report of duplicates found for the selected records.  Select an item to see it's duplicate records." wfs_auto="0" wfs_wfb_id="56" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowTrigger wft_id="175" wft_pid="-1" wft_type_id="1" wft_xdis_id="285" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="3" wft_options="0"/>
+  </workflow>
+  <workflow wfl_id="93" wfl_title="Edit Author Affiliations" wfl_version="1.0" wfl_description="HERDIC Author Affiliations" wfl_roles="Approver,Community_Administrator,Editor" wfl_end_button_label="Finished">
+    <WorkflowState wfs_id="595" wfs_title="Edit Affiliations" wfs_description="" wfs_auto="0" wfs_wfb_id="62" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowTrigger wft_id="209" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="3" wft_options="0"/>
   </workflow>
   <workflow wfl_id="23" wfl_title="Edit Security for Select Record" wfl_version="1.0" wfl_description="" wfl_roles="Community_Administrator" wfl_end_button_label="Save Changes">
-    <WorkflowState wfs_id="452" wfs_title="Edit Security" wfs_description="" wfs_auto="0" wfs_wfb_id="32" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowTrigger wft_id="129" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/security.gif" wft_ret_id="3" wft_options="1"/>
+    <WorkflowState wfs_id="546" wfs_title="Edit Security" wfs_description="" wfs_auto="0" wfs_wfb_id="32" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowTrigger wft_id="176" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/security.gif" wft_ret_id="3" wft_options="1"/>
   </workflow>
   <workflow wfl_id="22" wfl_title="Edit Security for Selected Collection" wfl_version="1.0" wfl_description="" wfl_roles="Community_Administrator" wfl_end_button_label="Save Changes">
-    <WorkflowState wfs_id="453" wfs_title="Edit Security" wfs_description="" wfs_auto="0" wfs_wfb_id="32" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowTrigger wft_id="130" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/security.gif" wft_ret_id="2" wft_options="1"/>
+    <WorkflowState wfs_id="547" wfs_title="Edit Security" wfs_description="" wfs_auto="0" wfs_wfb_id="32" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowTrigger wft_id="177" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/security.gif" wft_ret_id="2" wft_options="1"/>
   </workflow>
   <workflow wfl_id="21" wfl_title="Edit Security for Selected Community" wfl_version="1.0" wfl_description="" wfl_roles="Community_Administrator" wfl_end_button_label="Save Changes">
-    <WorkflowState wfs_id="454" wfs_title="Edit Security" wfs_description="" wfs_auto="0" wfs_wfb_id="32" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowTrigger wft_id="131" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/security.gif" wft_ret_id="1" wft_options="1"/>
+    <WorkflowState wfs_id="548" wfs_title="Edit Security" wfs_description="" wfs_auto="0" wfs_wfb_id="32" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowTrigger wft_id="178" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/security.gif" wft_ret_id="1" wft_options="1"/>
   </workflow>
   <workflow wfl_id="24" wfl_title="Edit Security for Selected Datastream" wfl_version="1.0" wfl_description="" wfl_roles="Approver,Community_Administrator,Editor" wfl_end_button_label="Save Changes">
-    <WorkflowState wfs_id="455" wfs_title="Edit Security" wfs_description="" wfs_auto="0" wfs_wfb_id="32" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowTrigger wft_id="132" wft_pid="-1" wft_type_id="5" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/security.gif" wft_ret_id="0" wft_options="0"/>
+    <WorkflowState wfs_id="549" wfs_title="Edit Security" wfs_description="" wfs_auto="0" wfs_wfb_id="32" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowTrigger wft_id="179" wft_pid="-1" wft_type_id="5" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/security.gif" wft_ret_id="0" wft_options="0"/>
   </workflow>
-  <workflow wfl_id="26" wfl_title="Export Spreadsheet for Selected Record" wfl_version="1" wfl_description="" wfl_roles="Community_Administrator" wfl_end_button_label="Done">
+  <workflow wfl_id="26" wfl_title="Export CSV for Selected Record" wfl_version="1" wfl_description="" wfl_roles="Community_Administrator" wfl_end_button_label="">
     <WorkflowState wfs_id="349" wfs_title="Do Export" wfs_description="" wfs_auto="1" wfs_wfb_id="37" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
     <WorkflowTrigger wft_id="88" wft_pid="-1" wft_type_id="6" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/spreadsheet_16.gif" wft_ret_id="3" wft_options="0"/>
     <WorkflowTrigger wft_id="87" wft_pid="UQ:105" wft_type_id="6" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="" wft_ret_id="2" wft_options="0"/>
   </workflow>
-  <workflow wfl_id="28" wfl_title="Export Spreadsheet for Selected Record in Background" wfl_version="1.0" wfl_description="Exports Spreadsheet as background process" wfl_roles="Community_Administrator" wfl_end_button_label="Ok">
+  <workflow wfl_id="28" wfl_title="Export CSV for Selected Record in Background" wfl_version="1.0" wfl_description="Exports CSV as background process" wfl_roles="Community_Administrator" wfl_end_button_label="Ok">
     <WorkflowState wfs_id="351" wfs_title="Do Export" wfs_description="" wfs_auto="1" wfs_wfb_id="38" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
     <WorkflowState wfs_id="350" wfs_title="Done" wfs_description="The CSV export is running in the background.  The progress can be viewed on the My_Fez page.  Click the file icon on the background list when the process has completed to download the exported file." wfs_auto="0" wfs_wfb_id="33" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
     <WorkflowStateLinks wfsl_id="747" wfsl_from_id="351" wfsl_to_id="350"/>
     <WorkflowTrigger wft_id="90" wft_pid="-1" wft_type_id="6" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/spreadsheet_16.gif" wft_ret_id="1" wft_options="0"/>
     <WorkflowTrigger wft_id="89" wft_pid="-1" wft_type_id="6" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/spreadsheet_16.gif" wft_ret_id="2" wft_options="0"/>
   </workflow>
-  <workflow wfl_id="31" wfl_title="Fulltext Index" wfl_version="1.0" wfl_description="Generate fulltext index for a pid or whole repository (if no pid selected)" wfl_roles="Approver,Community_Administrator,Creator,Editor" wfl_end_button_label="Ok">
-    <WorkflowState wfs_id="353" wfs_title="Start" wfs_description="" wfs_auto="1" wfs_wfb_id="40" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="352" wfs_title="Started" wfs_description="The indexer is running as a background task.  Progress can be followed on the My Fez page." wfs_auto="0" wfs_wfb_id="33" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="748" wfsl_from_id="353" wfsl_to_id="352"/>
-    <WorkflowTrigger wft_id="91" wft_pid="-1" wft_type_id="1" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/regen.gif" wft_ret_id="0" wft_options="0"/>
-    <WorkflowTrigger wft_id="92" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/regen.gif" wft_ret_id="0" wft_options="0"/>
+  <workflow wfl_id="89" wfl_title="Export Spreadsheet for Selected Record" wfl_version="1" wfl_description="" wfl_roles="Community_Administrator" wfl_end_button_label="Done">
+    <WorkflowState wfs_id="550" wfs_title="Do Export" wfs_description="" wfs_auto="1" wfs_wfb_id="37" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowTrigger wft_id="180" wft_pid="-1" wft_type_id="6" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/spreadsheet_16.gif" wft_ret_id="3" wft_options="0"/>
+    <WorkflowTrigger wft_id="181" wft_pid="UQ:105" wft_type_id="6" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="" wft_ret_id="2" wft_options="0"/>
   </workflow>
-  <workflow wfl_id="88" wfl_title="Generate Duplicates Report" wfl_version="1.0" wfl_description="Generates a duplicates report." wfl_roles="Community_Administrator" wfl_end_button_label="Finished">
-    <WorkflowState wfs_id="486" wfs_title="Generating Report" wfs_description="The Duplicates Report is being generated and may take some time to run.  You will be notified by email when it completes.  You can check the progress in the dashboard under 'Background Processes'." wfs_auto="0" wfs_wfb_id="52" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="487" wfs_title="Merge on ISI_LOCs" wfs_description="Merging the records in the report if they match on the isi_loc element." wfs_auto="1" wfs_wfb_id="54" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="488" wfs_title="Generate Report" wfs_description="" wfs_auto="1" wfs_wfb_id="55" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="489" wfs_title="Goto Report" wfs_description="" wfs_auto="1" wfs_wfb_id="53" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="1" wfs_roles=""/>
-    <WorkflowState wfs_id="490" wfs_title="Merging on ISI_LOCs" wfs_description="The report is being reprocessed to automatically merge records with matching isi_loc elements.  You will be notified by email when this task completes." wfs_auto="0" wfs_wfb_id="52" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="491" wfs_title="Select Report Collection" wfs_description="Please enter some details about the report." wfs_auto="0" wfs_wfb_id="24" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="492" wfs_title="Email User" wfs_description="This state should email the user about the previous state finishing." wfs_auto="1" wfs_wfb_id="56" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="1" wfs_roles=""/>
-    <WorkflowState wfs_id="493" wfs_title="Get Source PIDs" wfs_description="" wfs_auto="1" wfs_wfb_id="57" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="869" wfsl_from_id="487" wfsl_to_id="490"/>
-    <WorkflowStateLinks wfsl_id="870" wfsl_from_id="486" wfsl_to_id="487"/>
-    <WorkflowStateLinks wfsl_id="871" wfsl_from_id="491" wfsl_to_id="488"/>
-    <WorkflowStateLinks wfsl_id="872" wfsl_from_id="492" wfsl_to_id="489"/>
-    <WorkflowStateLinks wfsl_id="873" wfsl_from_id="493" wfsl_to_id="491"/>
-    <WorkflowStateLinks wfsl_id="874" wfsl_from_id="490" wfsl_to_id="492"/>
-    <WorkflowStateLinks wfsl_id="875" wfsl_from_id="488" wfsl_to_id="486"/>
-    <WorkflowTrigger wft_id="153" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="2" wft_options="0"/>
-    <WorkflowTrigger wft_id="154" wft_pid="-1" wft_type_id="7" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="3" wft_options="0"/>
+  <workflow wfl_id="90" wfl_title="Export Spreadsheet for Selected Record in Background" wfl_version="1.0" wfl_description="Exports Spreadsheet as background process" wfl_roles="Community_Administrator" wfl_end_button_label="Ok">
+    <WorkflowState wfs_id="551" wfs_title="Do Export" wfs_description="" wfs_auto="1" wfs_wfb_id="38" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="552" wfs_title="Done" wfs_description="The CSV export is running in the background.  The progress can be viewed on the My_Fez page.  Click the file icon on the background list when the process has completed to download the exported file." wfs_auto="0" wfs_wfb_id="33" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="941" wfsl_from_id="551" wfsl_to_id="552"/>
+    <WorkflowTrigger wft_id="183" wft_pid="-1" wft_type_id="6" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/spreadsheet_16.gif" wft_ret_id="2" wft_options="0"/>
+    <WorkflowTrigger wft_id="182" wft_pid="-1" wft_type_id="6" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/spreadsheet_16.gif" wft_ret_id="1" wft_options="0"/>
+  </workflow>
+  <workflow wfl_id="31" wfl_title="Fulltext Index" wfl_version="1.0" wfl_description="Generate fulltext index for a pid or whole repository (if no pid selected)" wfl_roles="Approver,Community_Administrator,Creator,Editor" wfl_end_button_label="Ok">
+    <WorkflowState wfs_id="554" wfs_title="Started" wfs_description="The indexer is running as a background task.  Progress can be followed on the My Fez page." wfs_auto="0" wfs_wfb_id="33" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="553" wfs_title="Start" wfs_description="" wfs_auto="1" wfs_wfb_id="40" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="942" wfsl_from_id="553" wfsl_to_id="554"/>
+    <WorkflowTrigger wft_id="184" wft_pid="-1" wft_type_id="1" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/regen.gif" wft_ret_id="0" wft_options="0"/>
+    <WorkflowTrigger wft_id="185" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/regen.gif" wft_ret_id="0" wft_options="0"/>
+  </workflow>
+  <workflow wfl_id="91" wfl_title="Generate Duplicates Report" wfl_version="1.0" wfl_description="Generates a duplicates report." wfl_roles="Community_Administrator" wfl_end_button_label="Finished">
+    <WorkflowState wfs_id="560" wfs_title="Select Report Collection" wfs_description="Please enter some details about the report." wfs_auto="0" wfs_wfb_id="24" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="558" wfs_title="Goto Report" wfs_description="" wfs_auto="1" wfs_wfb_id="55" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="1" wfs_roles=""/>
+    <WorkflowState wfs_id="559" wfs_title="Merging on ISI_LOCs" wfs_description="The report is being reprocessed to automatically merge records with matching isi_loc elements.  You will be notified by email when this task completes." wfs_auto="0" wfs_wfb_id="54" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="557" wfs_title="Generate Report" wfs_description="" wfs_auto="1" wfs_wfb_id="58" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="556" wfs_title="Merge on ISI_LOCs" wfs_description="Merging the records in the report if they match on the isi_loc element." wfs_auto="1" wfs_wfb_id="57" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="555" wfs_title="Generating Report" wfs_description="The Duplicates Report is being generated and may take some time to run.  You will be notified by email when it completes.  You can check the progress in the dashboard under 'Background Processes'." wfs_auto="0" wfs_wfb_id="54" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="561" wfs_title="Email User" wfs_description="This state should email the user about the previous state finishing." wfs_auto="1" wfs_wfb_id="59" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="1" wfs_roles=""/>
+    <WorkflowState wfs_id="562" wfs_title="Get Source PIDs" wfs_description="" wfs_auto="1" wfs_wfb_id="60" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="949" wfsl_from_id="557" wfsl_to_id="555"/>
+    <WorkflowStateLinks wfsl_id="948" wfsl_from_id="559" wfsl_to_id="561"/>
+    <WorkflowStateLinks wfsl_id="947" wfsl_from_id="562" wfsl_to_id="560"/>
+    <WorkflowStateLinks wfsl_id="946" wfsl_from_id="561" wfsl_to_id="558"/>
+    <WorkflowStateLinks wfsl_id="945" wfsl_from_id="560" wfsl_to_id="557"/>
+    <WorkflowStateLinks wfsl_id="944" wfsl_from_id="555" wfsl_to_id="556"/>
+    <WorkflowStateLinks wfsl_id="943" wfsl_from_id="556" wfsl_to_id="559"/>
+    <WorkflowTrigger wft_id="186" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="2" wft_options="0"/>
+    <WorkflowTrigger wft_id="187" wft_pid="-1" wft_type_id="7" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="3" wft_options="0"/>
   </workflow>
   <workflow wfl_id="1" wfl_title="Ingest Image" wfl_version="1.0" wfl_description="Creates a thumbnail of the image" wfl_roles="Approver,Community_Administrator,Creator,Editor" wfl_end_button_label="">
-    <WorkflowState wfs_id="458" wfs_title="Preview Format" wfs_description="" wfs_auto="1" wfs_wfb_id="34" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="457" wfs_title="Web Format" wfs_description="" wfs_auto="1" wfs_wfb_id="35" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="456" wfs_title="Thumbnail" wfs_description="" wfs_auto="1" wfs_wfb_id="1" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="844" wfsl_from_id="458" wfsl_to_id="457"/>
-    <WorkflowStateLinks wfsl_id="843" wfsl_from_id="456" wfsl_to_id="458"/>
-    <WorkflowTrigger wft_id="133" wft_pid="UQL-fed:24993" wft_type_id="0" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="" wft_ret_id="0" wft_options="0"/>
-    <WorkflowTrigger wft_id="134" wft_pid="-1" wft_type_id="0" wft_xdis_id="-1" wft_order="0" wft_mimetype="image/gif image/jpeg image/tif image/tiff image/png image/x-MS-bmp image/pjpeg" wft_icon="images/folder_new.gif" wft_ret_id="0" wft_options="0"/>
-    <WorkflowTrigger wft_id="135" wft_pid="UQL-fed:24995" wft_type_id="0" wft_xdis_id="40" wft_order="0" wft_mimetype="" wft_icon="" wft_ret_id="0" wft_options="0"/>
-    <WorkflowTrigger wft_id="136" wft_pid="UQL-fed:24993" wft_type_id="0" wft_xdis_id="40" wft_order="0" wft_mimetype="" wft_icon="" wft_ret_id="0" wft_options="0"/>
-    <WorkflowTrigger wft_id="137" wft_pid="UQL-fed:24995" wft_type_id="1" wft_xdis_id="40" wft_order="0" wft_mimetype="" wft_icon="" wft_ret_id="0" wft_options="0"/>
+    <WorkflowState wfs_id="565" wfs_title="Thumbnail" wfs_description="" wfs_auto="1" wfs_wfb_id="1" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="564" wfs_title="Web Format" wfs_description="" wfs_auto="1" wfs_wfb_id="35" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="563" wfs_title="Preview Format" wfs_description="" wfs_auto="1" wfs_wfb_id="34" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="951" wfsl_from_id="565" wfsl_to_id="563"/>
+    <WorkflowStateLinks wfsl_id="950" wfsl_from_id="563" wfsl_to_id="564"/>
+    <WorkflowTrigger wft_id="189" wft_pid="-1" wft_type_id="0" wft_xdis_id="-1" wft_order="0" wft_mimetype="image/gif image/jpeg image/tif image/tiff image/png image/x-MS-bmp image/pjpeg" wft_icon="images/folder_new.gif" wft_ret_id="0" wft_options="0"/>
+    <WorkflowTrigger wft_id="188" wft_pid="UQL-fed:24993" wft_type_id="0" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="" wft_ret_id="0" wft_options="0"/>
+    <WorkflowTrigger wft_id="191" wft_pid="UQL-fed:24993" wft_type_id="0" wft_xdis_id="40" wft_order="0" wft_mimetype="" wft_icon="" wft_ret_id="0" wft_options="0"/>
+    <WorkflowTrigger wft_id="190" wft_pid="UQL-fed:24995" wft_type_id="0" wft_xdis_id="40" wft_order="0" wft_mimetype="" wft_icon="" wft_ret_id="0" wft_options="0"/>
+    <WorkflowTrigger wft_id="192" wft_pid="UQL-fed:24995" wft_type_id="1" wft_xdis_id="40" wft_order="0" wft_mimetype="" wft_icon="" wft_ret_id="0" wft_options="0"/>
   </workflow>
   <workflow wfl_id="9" wfl_title="Purge Selected Record - Generic" wfl_version="1.0" wfl_description="" wfl_roles="Community_Administrator" wfl_end_button_label="Done">
-    <WorkflowState wfs_id="459" wfs_title="Purge" wfs_description="" wfs_auto="1" wfs_wfb_id="17" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowTrigger wft_id="139" wft_pid="-1" wft_type_id="3" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/delete.gif" wft_ret_id="2" wft_options="0"/>
-    <WorkflowTrigger wft_id="138" wft_pid="-1" wft_type_id="3" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/delete.gif" wft_ret_id="3" wft_options="1"/>
-    <WorkflowTrigger wft_id="140" wft_pid="-1" wft_type_id="3" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/delete.gif" wft_ret_id="1" wft_options="0"/>
+    <WorkflowState wfs_id="603" wfs_title="Purge" wfs_description="" wfs_auto="1" wfs_wfb_id="17" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
   </workflow>
   <workflow wfl_id="29" wfl_title="Regenerate Auth Index" wfl_version="1.0" wfl_description="Regenerates the Auth Index for a selected Object or for the whole repository if no record is selected.  This does not make changes to the fedora repository." wfl_roles="Community_Administrator" wfl_end_button_label="Ok">
-    <WorkflowState wfs_id="460" wfs_title="Regenerate Auth Index" wfs_description="" wfs_auto="1" wfs_wfb_id="39" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="461" wfs_title="Regenerating" wfs_description="The auth index for the selected object is being regenerated as a background task.  The progress can be followed on your 'My_Fez' page." wfs_auto="0" wfs_wfb_id="33" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="845" wfsl_from_id="460" wfsl_to_id="461"/>
-    <WorkflowTrigger wft_id="141" wft_pid="-1" wft_type_id="1" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/regen.gif" wft_ret_id="0" wft_options="0"/>
-    <WorkflowTrigger wft_id="142" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/regen.gif" wft_ret_id="0" wft_options="0"/>
+    <WorkflowState wfs_id="568" wfs_title="Regenerating" wfs_description="The auth index for the selected object is being regenerated as a background task.  The progress can be followed on your 'My_Fez' page." wfs_auto="0" wfs_wfb_id="33" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="567" wfs_title="Regenerate Auth Index" wfs_description="" wfs_auto="1" wfs_wfb_id="39" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="952" wfsl_from_id="567" wfsl_to_id="568"/>
+    <WorkflowTrigger wft_id="196" wft_pid="-1" wft_type_id="1" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/regen.gif" wft_ret_id="0" wft_options="0"/>
+    <WorkflowTrigger wft_id="197" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/regen.gif" wft_ret_id="0" wft_options="0"/>
   </workflow>
   <workflow wfl_id="25" wfl_title="Regenerate Image Datastreams" wfl_version="1.0" wfl_description="" wfl_roles="Community_Administrator" wfl_end_button_label="">
-    <WorkflowState wfs_id="462" wfs_title="Regenerate Images" wfs_description="" wfs_auto="1" wfs_wfb_id="36" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="463" wfs_title="Select Record" wfs_description="" wfs_auto="0" wfs_wfb_id="23" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="846" wfsl_from_id="463" wfsl_to_id="462"/>
-    <WorkflowTrigger wft_id="143" wft_pid="-1" wft_type_id="1" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="3" wft_options="0"/>
+    <WorkflowState wfs_id="570" wfs_title="Select Record" wfs_description="" wfs_auto="0" wfs_wfb_id="23" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="569" wfs_title="Regenerate Images" wfs_description="" wfs_auto="1" wfs_wfb_id="36" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="953" wfsl_from_id="570" wfsl_to_id="569"/>
+    <WorkflowTrigger wft_id="198" wft_pid="-1" wft_type_id="1" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="3" wft_options="0"/>
   </workflow>
   <workflow wfl_id="27" wfl_title="Regenerate Image Datastreams On Selected Record" wfl_version="1.0" wfl_description="" wfl_roles="Approver,Community_Administrator,Editor" wfl_end_button_label="">
-    <WorkflowState wfs_id="464" wfs_title="Regenerate Images" wfs_description="" wfs_auto="1" wfs_wfb_id="36" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowTrigger wft_id="144" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/regen.gif" wft_ret_id="3" wft_options="0"/>
+    <WorkflowState wfs_id="571" wfs_title="Regenerate Images" wfs_description="" wfs_auto="1" wfs_wfb_id="36" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowTrigger wft_id="199" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/regen.gif" wft_ret_id="3" wft_options="0"/>
   </workflow>
   <workflow wfl_id="84" wfl_title="Regenerate Object Index" wfl_version="1.0" wfl_description="Regenerates the metadata index for the selected objects in fez.   Recurses to any sub-objects. This index is used for searching for and listing objects." wfl_roles="Community_Administrator" wfl_end_button_label="Ok">
-    <WorkflowState wfs_id="465" wfs_title="Running" wfs_description="The index is being regenerated as a background process." wfs_auto="0" wfs_wfb_id="33" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="466" wfs_title="Regenerate Object Index" wfs_description="The index of the repository objects will be regenerated.  If this is a collection, or community, then children will also be regenerated.  This index is used to search and list objects.&#13;&#10;&#13;&#10;This process will run in the background." wfs_auto="1" wfs_wfb_id="42" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="847" wfsl_from_id="466" wfsl_to_id="465"/>
-    <WorkflowTrigger wft_id="145" wft_pid="-1" wft_type_id="1" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/regen.gif" wft_ret_id="0" wft_options="0"/>
-    <WorkflowTrigger wft_id="146" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/regen.gif" wft_ret_id="0" wft_options="0"/>
+    <WorkflowState wfs_id="573" wfs_title="Regenerate Object Index" wfs_description="The index of the repository objects will be regenerated.  If this is a collection, or community, then children will also be regenerated.  This index is used to search and list objects.&#13;&#10;&#13;&#10;This process will run in the background." wfs_auto="1" wfs_wfb_id="42" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="572" wfs_title="Running" wfs_description="The index is being regenerated as a background process." wfs_auto="0" wfs_wfb_id="33" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="954" wfsl_from_id="573" wfsl_to_id="572"/>
+    <WorkflowTrigger wft_id="200" wft_pid="-1" wft_type_id="1" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/regen.gif" wft_ret_id="0" wft_options="0"/>
+    <WorkflowTrigger wft_id="201" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/regen.gif" wft_ret_id="0" wft_options="0"/>
   </workflow>
-  <workflow wfl_id="90" wfl_title="Split Collection" wfl_version="1.0" wfl_description="Splits a collection into many collections with less records." wfl_roles="Community_Administrator" wfl_end_button_label="Ok">
-    <WorkflowState wfs_id="495" wfs_title="Split" wfs_description="" wfs_auto="1" wfs_wfb_id="59" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="496" wfs_title="Running" wfs_description="The collection is currently being split in a running process which can be followed on the background process page." wfs_auto="0" wfs_wfb_id="52" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="876" wfsl_from_id="495" wfsl_to_id="496"/>
-    <WorkflowTrigger wft_id="156" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="2" wft_options="0"/>
+  <workflow wfl_id="92" wfl_title="Split Collection" wfl_version="1.0" wfl_description="Splits a collection into many collections with less records." wfl_roles="Community_Administrator" wfl_end_button_label="Ok">
+    <WorkflowState wfs_id="574" wfs_title="Split" wfs_description="" wfs_auto="1" wfs_wfb_id="61" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="575" wfs_title="Running" wfs_description="The collection is currently being split in a running process which can be followed on the background process page." wfs_auto="0" wfs_wfb_id="54" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="955" wfsl_from_id="574" wfsl_to_id="575"/>
+    <WorkflowTrigger wft_id="202" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="2" wft_options="0"/>
   </workflow>
   <workflow wfl_id="79" wfl_title="Update Collection" wfl_version="1.0" wfl_description="" wfl_roles="Approver,Community_Administrator,Editor" wfl_end_button_label="Done">
-    <WorkflowState wfs_id="469" wfs_title="Publish" wfs_description="" wfs_auto="1" wfs_wfb_id="28" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Approver"/>
-    <WorkflowState wfs_id="468" wfs_title="Submit for Approval" wfs_description="" wfs_auto="1" wfs_wfb_id="51" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="467" wfs_title="Edit Metadata" wfs_description="" wfs_auto="0" wfs_wfb_id="16" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="470" wfs_title="Select Collection" wfs_description="" wfs_auto="0" wfs_wfb_id="24" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="850" wfsl_from_id="467" wfsl_to_id="469"/>
-    <WorkflowStateLinks wfsl_id="849" wfsl_from_id="470" wfsl_to_id="467"/>
-    <WorkflowStateLinks wfsl_id="848" wfsl_from_id="467" wfsl_to_id="468"/>
-    <WorkflowTrigger wft_id="147" wft_pid="-1" wft_type_id="1" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="2" wft_options="0"/>
+    <WorkflowState wfs_id="579" wfs_title="Select Collection" wfs_description="" wfs_auto="0" wfs_wfb_id="24" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="578" wfs_title="Edit Metadata" wfs_description="" wfs_auto="0" wfs_wfb_id="16" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="577" wfs_title="Submit for Approval" wfs_description="" wfs_auto="1" wfs_wfb_id="48" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="576" wfs_title="Publish" wfs_description="" wfs_auto="1" wfs_wfb_id="28" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Approver"/>
+    <WorkflowStateLinks wfsl_id="958" wfsl_from_id="578" wfsl_to_id="577"/>
+    <WorkflowStateLinks wfsl_id="957" wfsl_from_id="579" wfsl_to_id="578"/>
+    <WorkflowStateLinks wfsl_id="956" wfsl_from_id="578" wfsl_to_id="576"/>
+    <WorkflowTrigger wft_id="203" wft_pid="-1" wft_type_id="1" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="2" wft_options="0"/>
   </workflow>
   <workflow wfl_id="80" wfl_title="Update Community" wfl_version="1.0" wfl_description="" wfl_roles="Community_Administrator" wfl_end_button_label="Done">
-    <WorkflowState wfs_id="473" wfs_title="Edit Metadata" wfs_description="" wfs_auto="0" wfs_wfb_id="16" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="472" wfs_title="Publish" wfs_description="" wfs_auto="1" wfs_wfb_id="28" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Approver"/>
-    <WorkflowState wfs_id="471" wfs_title="Submit for Approval" wfs_description="" wfs_auto="1" wfs_wfb_id="51" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="474" wfs_title="Select Community" wfs_description="" wfs_auto="0" wfs_wfb_id="25" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="853" wfsl_from_id="474" wfsl_to_id="473"/>
-    <WorkflowStateLinks wfsl_id="852" wfsl_from_id="473" wfsl_to_id="472"/>
-    <WorkflowStateLinks wfsl_id="851" wfsl_from_id="473" wfsl_to_id="471"/>
-    <WorkflowTrigger wft_id="148" wft_pid="-1" wft_type_id="1" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="1" wft_options="0"/>
+    <WorkflowState wfs_id="583" wfs_title="Select Community" wfs_description="" wfs_auto="0" wfs_wfb_id="25" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="582" wfs_title="Submit for Approval" wfs_description="" wfs_auto="1" wfs_wfb_id="48" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="581" wfs_title="Publish" wfs_description="" wfs_auto="1" wfs_wfb_id="28" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Approver"/>
+    <WorkflowState wfs_id="580" wfs_title="Edit Metadata" wfs_description="" wfs_auto="0" wfs_wfb_id="16" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="961" wfsl_from_id="580" wfsl_to_id="582"/>
+    <WorkflowStateLinks wfsl_id="960" wfsl_from_id="580" wfsl_to_id="581"/>
+    <WorkflowStateLinks wfsl_id="959" wfsl_from_id="583" wfsl_to_id="580"/>
+    <WorkflowTrigger wft_id="204" wft_pid="-1" wft_type_id="1" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="1" wft_options="0"/>
   </workflow>
   <workflow wfl_id="75" wfl_title="Update Record" wfl_version="1.0" wfl_description="" wfl_roles="Approver,Community_Administrator,Editor" wfl_end_button_label="">
-    <WorkflowState wfs_id="479" wfs_title="Publish" wfs_description="" wfs_auto="1" wfs_wfb_id="28" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Approver"/>
-    <WorkflowState wfs_id="478" wfs_title="Unpublish and End" wfs_description="" wfs_auto="1" wfs_wfb_id="29" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="477" wfs_title="Unpublish" wfs_description="" wfs_auto="1" wfs_wfb_id="29" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="1" wfs_roles=""/>
-    <WorkflowState wfs_id="476" wfs_title="Preview" wfs_description="" wfs_auto="0" wfs_wfb_id="30" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="475" wfs_title="Edit Metadata" wfs_description="" wfs_auto="0" wfs_wfb_id="16" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="480" wfs_title="Select Record" wfs_description="" wfs_auto="0" wfs_wfb_id="23" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="861" wfsl_from_id="476" wfsl_to_id="479"/>
-    <WorkflowStateLinks wfsl_id="860" wfsl_from_id="475" wfsl_to_id="479"/>
-    <WorkflowStateLinks wfsl_id="859" wfsl_from_id="477" wfsl_to_id="476"/>
-    <WorkflowStateLinks wfsl_id="858" wfsl_from_id="475" wfsl_to_id="477"/>
-    <WorkflowStateLinks wfsl_id="857" wfsl_from_id="480" wfsl_to_id="475"/>
-    <WorkflowStateLinks wfsl_id="856" wfsl_from_id="476" wfsl_to_id="475"/>
-    <WorkflowStateLinks wfsl_id="855" wfsl_from_id="476" wfsl_to_id="478"/>
-    <WorkflowStateLinks wfsl_id="854" wfsl_from_id="475" wfsl_to_id="478"/>
-    <WorkflowTrigger wft_id="149" wft_pid="-1" wft_type_id="1" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="3" wft_options="0"/>
+    <WorkflowState wfs_id="588" wfs_title="Edit Metadata" wfs_description="" wfs_auto="0" wfs_wfb_id="16" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="587" wfs_title="Preview" wfs_description="" wfs_auto="0" wfs_wfb_id="30" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="586" wfs_title="Unpublish" wfs_description="" wfs_auto="1" wfs_wfb_id="29" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="1" wfs_roles=""/>
+    <WorkflowState wfs_id="585" wfs_title="Unpublish and End" wfs_description="" wfs_auto="1" wfs_wfb_id="29" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="584" wfs_title="Publish" wfs_description="" wfs_auto="1" wfs_wfb_id="28" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Approver"/>
+    <WorkflowState wfs_id="589" wfs_title="Select Record" wfs_description="" wfs_auto="0" wfs_wfb_id="23" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="969" wfsl_from_id="588" wfsl_to_id="585"/>
+    <WorkflowStateLinks wfsl_id="968" wfsl_from_id="587" wfsl_to_id="585"/>
+    <WorkflowStateLinks wfsl_id="967" wfsl_from_id="587" wfsl_to_id="588"/>
+    <WorkflowStateLinks wfsl_id="966" wfsl_from_id="589" wfsl_to_id="588"/>
+    <WorkflowStateLinks wfsl_id="965" wfsl_from_id="588" wfsl_to_id="586"/>
+    <WorkflowStateLinks wfsl_id="964" wfsl_from_id="586" wfsl_to_id="587"/>
+    <WorkflowStateLinks wfsl_id="963" wfsl_from_id="588" wfsl_to_id="584"/>
+    <WorkflowStateLinks wfsl_id="962" wfsl_from_id="587" wfsl_to_id="584"/>
+    <WorkflowTrigger wft_id="205" wft_pid="-1" wft_type_id="1" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="3" wft_options="0"/>
   </workflow>
   <workflow wfl_id="8" wfl_title="Update Selected Record - Generic" wfl_version="1.0" wfl_description="" wfl_roles="Approver,Community_Administrator,Editor" wfl_end_button_label="">
-    <WorkflowState wfs_id="483" wfs_title="Preview" wfs_description="" wfs_auto="0" wfs_wfb_id="30" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="482" wfs_title="Publish" wfs_description="" wfs_auto="1" wfs_wfb_id="28" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Approver"/>
-    <WorkflowState wfs_id="481" wfs_title="Submit for Approval" wfs_description="" wfs_auto="1" wfs_wfb_id="51" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="484" wfs_title="Status to In Review" wfs_description="" wfs_auto="1" wfs_wfb_id="50" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="1" wfs_roles=""/>
-    <WorkflowState wfs_id="485" wfs_title="Review Metadata" wfs_description="" wfs_auto="0" wfs_wfb_id="16" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="867" wfsl_from_id="483" wfsl_to_id="481"/>
-    <WorkflowStateLinks wfsl_id="866" wfsl_from_id="485" wfsl_to_id="481"/>
-    <WorkflowStateLinks wfsl_id="865" wfsl_from_id="485" wfsl_to_id="482"/>
-    <WorkflowStateLinks wfsl_id="864" wfsl_from_id="483" wfsl_to_id="482"/>
-    <WorkflowStateLinks wfsl_id="863" wfsl_from_id="485" wfsl_to_id="484"/>
-    <WorkflowStateLinks wfsl_id="862" wfsl_from_id="483" wfsl_to_id="485"/>
-    <WorkflowStateLinks wfsl_id="868" wfsl_from_id="484" wfsl_to_id="483"/>
-    <WorkflowTrigger wft_id="152" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="1" wft_options="1"/>
-    <WorkflowTrigger wft_id="151" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="2" wft_options="1"/>
-    <WorkflowTrigger wft_id="150" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="3" wft_options="1"/>
+    <WorkflowState wfs_id="594" wfs_title="Review Metadata" wfs_description="" wfs_auto="0" wfs_wfb_id="16" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="593" wfs_title="Status to In Review" wfs_description="" wfs_auto="1" wfs_wfb_id="51" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="1" wfs_roles=""/>
+    <WorkflowState wfs_id="592" wfs_title="Submit for Approval" wfs_description="" wfs_auto="1" wfs_wfb_id="48" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="591" wfs_title="Publish" wfs_description="" wfs_auto="1" wfs_wfb_id="28" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Approver"/>
+    <WorkflowState wfs_id="590" wfs_title="Preview" wfs_description="" wfs_auto="0" wfs_wfb_id="30" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="976" wfsl_from_id="593" wfsl_to_id="590"/>
+    <WorkflowStateLinks wfsl_id="975" wfsl_from_id="590" wfsl_to_id="594"/>
+    <WorkflowStateLinks wfsl_id="974" wfsl_from_id="594" wfsl_to_id="593"/>
+    <WorkflowStateLinks wfsl_id="973" wfsl_from_id="590" wfsl_to_id="591"/>
+    <WorkflowStateLinks wfsl_id="972" wfsl_from_id="594" wfsl_to_id="591"/>
+    <WorkflowStateLinks wfsl_id="971" wfsl_from_id="594" wfsl_to_id="592"/>
+    <WorkflowStateLinks wfsl_id="970" wfsl_from_id="590" wfsl_to_id="592"/>
+    <WorkflowTrigger wft_id="208" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="3" wft_options="1"/>
+    <WorkflowTrigger wft_id="207" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="2" wft_options="1"/>
+    <WorkflowTrigger wft_id="206" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="1" wft_options="1"/>
   </workflow>
   <WorkflowBehaviour wfb_id="31" wfb_title="Batch Import" wfb_description="Needs the select batchimport to have been run first.  Does the actual importing.  Will use any template that has been set in 'set_template' or else will make mostly blank metadata." wfb_version="" wfb_script_name="batchimport.php" wfb_auto="1"/>
-  <WorkflowBehaviour wfb_id="52" wfb_title="Block on Background Process" wfb_description="Special state that displays information in the workflow state but disables the workflow buttons, instead it redirects them to the background processes page in my fez (after they have pressed ok)." wfb_version="1.0" wfb_script_name="block.php" wfb_auto="0"/>
-  <WorkflowBehaviour wfb_id="46" wfb_title="Bulk Assign Record to Group" wfb_description="Accepts a list of PIDs and changes their grp_id value to a given Fez group ID parameter. Does this in each xml FezMD datastream and reindexes the object including security. Runs in background." wfb_version="1.0" wfb_script_name="bulk_assign_record_group.php" wfb_auto="1"/>
-  <WorkflowBehaviour wfb_id="47" wfb_title="Bulk Assign Record to User" wfb_description="Accepts a list of PIDs and changes their FezMD usr_id value to a given Fez usr ID parameter. Does this in each xml FezMD datastream and reindexes the object including security. Runs in background." wfb_version="1.0" wfb_script_name="bulk_assign_record_user.php" wfb_auto="1"/>
+  <WorkflowBehaviour wfb_id="54" wfb_title="Block on Background Process" wfb_description="Special state that displays information in the workflow state but disables the workflow buttons, instead it redirects them to the background processes page in my fez (after they have pressed ok)." wfb_version="1.0" wfb_script_name="block.php" wfb_auto="0"/>
+  <WorkflowBehaviour wfb_id="44" wfb_title="Bulk Assign Record to Group" wfb_description="Accepts a list of PIDs and changes their grp_id value to a given Fez group ID parameter. Does this in each xml FezMD datastream and reindexes the object including security. Runs in background." wfb_version="1.0" wfb_script_name="bulk_assign_record_group.php" wfb_auto="1"/>
+  <WorkflowBehaviour wfb_id="46" wfb_title="Bulk Assign Record to User" wfb_description="Accepts a list of PIDs and changes their FezMD usr_id value to a given Fez usr ID parameter. Does this in each xml FezMD datastream and reindexes the object including security. Runs in background." wfb_version="1.0" wfb_script_name="bulk_assign_record_user.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="41" wfb_title="Bulk Move Record to Collection" wfb_description="Accepts a list of PIDs and changes their isMemberOf value to a  new given collection PID parameter. Does this in each xml RELS-EXT datastream and reindexes the object including security. Runs in background." wfb_version="1.0" wfb_script_name="bulk_move_record_collection.php" wfb_auto="1"/>
-  <WorkflowBehaviour wfb_id="53" wfb_title="Chain Workflow" wfb_description="Links to another workflow based on trigger wft_id stored in workflow var 'chain_wft_id'" wfb_version="1.0" wfb_script_name="chain_workflow.php" wfb_auto="1"/>
-  <WorkflowBehaviour wfb_id="44" wfb_title="Clone Record" wfb_description="Do the cloning.  Assumes that the source pid has already been set  and that the is_successor variable has been set." wfb_version="1.0" wfb_script_name="clone_record.php" wfb_auto="1"/>
-  <WorkflowBehaviour wfb_id="45" wfb_title="Clone Record Options" wfb_description="Form to request options for clone record." wfb_version="1.0" wfb_script_name="clone_record_form.php" wfb_auto="0"/>
-  <WorkflowBehaviour wfb_id="58" wfb_title="Duplicates Report" wfb_description="Reports duplicates" wfb_version="1.0" wfb_script_name="duplicates_report.php" wfb_auto="0"/>
-  <WorkflowBehaviour wfb_id="54" wfb_title="Duplicates Report Merge ISI_LOC" wfb_description="Processes a duplciates report and merges records based on matching isi_loc in the mods:identifier element." wfb_version="1.0" wfb_script_name="duplicates_report_auto_merge_isi_loc.php" wfb_auto="1"/>
+  <WorkflowBehaviour wfb_id="55" wfb_title="Chain Workflow" wfb_description="Links to another workflow based on trigger wft_id stored in workflow var 'chain_wft_id'" wfb_version="1.0" wfb_script_name="chain_workflow.php" wfb_auto="1"/>
+  <WorkflowBehaviour wfb_id="52" wfb_title="Clone Record" wfb_description="Do the cloning.  Assumes that the source pid has already been set  and that the is_successor variable has been set." wfb_version="1.0" wfb_script_name="clone_record.php" wfb_auto="1"/>
+  <WorkflowBehaviour wfb_id="53" wfb_title="Clone Record Options" wfb_description="Form to request options for clone record." wfb_version="1.0" wfb_script_name="clone_record_form.php" wfb_auto="0"/>
+  <WorkflowBehaviour wfb_id="56" wfb_title="Duplicates Report" wfb_description="Reports duplicates" wfb_version="1.0" wfb_script_name="duplicates_report.php" wfb_auto="0"/>
+  <WorkflowBehaviour wfb_id="57" wfb_title="Duplicates Report Merge ISI_LOC" wfb_description="Processes a duplciates report and merges records based on matching isi_loc in the mods:identifier element." wfb_version="1.0" wfb_script_name="duplicates_report_auto_merge_isi_loc.php" wfb_auto="1"/>
+  <WorkflowBehaviour wfb_id="62" wfb_title="Edit Affiliations" wfb_description="This form allows percentage affiliations to be stored in a table for pids and authors.  Part of HERDIC requirements." wfb_version="1.0" wfb_script_name="edit_affiliation.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="16" wfb_title="Edit Metadata" wfb_description="" wfb_version="1.0" wfb_script_name="edit_metadata.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="32" wfb_title="Edit Security" wfb_description="" wfb_version="1.0" wfb_script_name="edit_security.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="13" wfb_title="Enter Metadata" wfb_description="" wfb_version="1.0" wfb_script_name="enter_metadata.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="37" wfb_title="Export Spreadsheet" wfb_description="" wfb_version="1.0" wfb_script_name="export_spreadsheet.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="38" wfb_title="Export Spreadsheet Background" wfb_description="Exports a spreadsheet as a background process" wfb_version="1.0" wfb_script_name="export_spreadsheet_bgp.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="40" wfb_title="Fulltext Index" wfb_description="Generate search index for fulltext searching." wfb_version="1.0" wfb_script_name="fulltextindex.php" wfb_auto="1"/>
-  <WorkflowBehaviour wfb_id="55" wfb_title="Generate Duplicates Report" wfb_description="Generates a duplicates report and saves it as a PID." wfb_version="1.0" wfb_script_name="generate_duplicates_report.php" wfb_auto="1"/>
-  <WorkflowBehaviour wfb_id="50" wfb_title="In Review" wfb_description="" wfb_version="1.0" wfb_script_name="in_review.php" wfb_auto="1"/>
+  <WorkflowBehaviour wfb_id="58" wfb_title="Generate Duplicates Report" wfb_description="Generates a duplicates report and saves it as a PID." wfb_version="1.0" wfb_script_name="generate_duplicates_report.php" wfb_auto="1"/>
+  <WorkflowBehaviour wfb_id="51" wfb_title="In Review" wfb_description="" wfb_version="1.0" wfb_script_name="in_review.php" wfb_auto="1"/>
+  <WorkflowBehaviour wfb_id="63" wfb_title="Mark as Deleted" wfb_description="Sets the fedora 'D' object state." wfb_version="1.0" wfb_script_name="mark_as_deleted.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="33" wfb_title="No Action" wfb_description="Just displays the state information.  Use to have an information only step." wfb_version="" wfb_script_name="no_action.php" wfb_auto="0"/>
-  <WorkflowBehaviour wfb_id="56" wfb_title="Notify Process Finished" wfb_description="Sends an email to the owner of the workflow to notify that a background process has finished.  The workflow variable 'notify' can be used to set some specific message text." wfb_version="1.0" wfb_script_name="notify_done.php" wfb_auto="1"/>
+  <WorkflowBehaviour wfb_id="59" wfb_title="Notify Process Finished" wfb_description="Sends an email to the owner of the workflow to notify that a background process has finished.  The workflow variable 'notify' can be used to set some specific message text." wfb_version="1.0" wfb_script_name="notify_done.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="30" wfb_title="Preview" wfb_description="" wfb_version="" wfb_script_name="preview.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="34" wfb_title="Preview Image Resizer" wfb_description="Resize a given image to a 400x700 jpeg (constraining to ratio). " wfb_version="1.0" wfb_script_name="preview_format_image.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="28" wfb_title="Publish" wfb_description="" wfb_version="" wfb_script_name="publish.php" wfb_auto="1"/>
@@ -319,19 +340,19 @@
   <WorkflowBehaviour wfb_id="39" wfb_title="Regenerate AuthIndex" wfb_description="Regenerates the auth index for a selected pid.  Or for the whole repository if no pid is selected." wfb_version="1.0" wfb_script_name="regenerate_auth_index.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="36" wfb_title="Regenerate Images" wfb_description="" wfb_version="1.0" wfb_script_name="regenerate_images.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="42" wfb_title="Regenerate Object Index" wfb_description="Regenerates the metadata index for the selected objects in fez. Recurses to any sub-objects. This index is used for searching for and listing objects." wfb_version="1.0" wfb_script_name="regenerate_object_index.php" wfb_auto="1"/>
-  <WorkflowBehaviour wfb_id="57" wfb_title="Save Source Pids" wfb_description="Works out source pids (int he collection in $this-&gt;pid) for the workflow and puts them in $this-&gt;pids so that you can then run another step to select a destination which will overwrite $this-&gt;pid" wfb_version="1.0" wfb_script_name="save_source_pids.php" wfb_auto="1"/>
+  <WorkflowBehaviour wfb_id="60" wfb_title="Save Source Pids" wfb_description="Works out source pids (int he collection in $this-&gt;pid) for the workflow and puts them in $this-&gt;pids so that you can then run another step to select a destination which will overwrite $this-&gt;pid" wfb_version="1.0" wfb_script_name="save_source_pids.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="15" wfb_title="Select Batch Import" wfb_description="Allows user to select a server local directory for a batch import." wfb_version="1.0" wfb_script_name="select_batchimport.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="24" wfb_title="Select Collection" wfb_description="" wfb_version="" wfb_script_name="select_collection.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="43" wfb_title="Select Collection Create Info" wfb_description="" wfb_version="1.0" wfb_script_name="select_collection_create_info.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="25" wfb_title="Select Community" wfb_description="" wfb_version="" wfb_script_name="select_community.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="22" wfb_title="Select Community, Collection and Doc type" wfb_description="" wfb_version="" wfb_script_name="select_create_info.php" wfb_auto="0"/>
-  <WorkflowBehaviour wfb_id="48" wfb_title="Select Group" wfb_description="" wfb_version="1.0" wfb_script_name="select_group.php" wfb_auto="0"/>
+  <WorkflowBehaviour wfb_id="45" wfb_title="Select Group" wfb_description="" wfb_version="1.0" wfb_script_name="select_group.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="23" wfb_title="Select Record" wfb_description="Select Community, Collection and Record using javascript to drill down." wfb_version="" wfb_script_name="select_record.php" wfb_auto="0"/>
-  <WorkflowBehaviour wfb_id="49" wfb_title="Select User" wfb_description="" wfb_version="1.0" wfb_script_name="select_user.php" wfb_auto="0"/>
+  <WorkflowBehaviour wfb_id="47" wfb_title="Select User" wfb_description="" wfb_version="1.0" wfb_script_name="select_user.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="27" wfb_title="Set Community XDIS_ID" wfb_description="" wfb_version="" wfb_script_name="set_community_xdis_id.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="18" wfb_title="Set Template Form" wfb_description="" wfb_version="" wfb_script_name="set_template.php" wfb_auto="0"/>
-  <WorkflowBehaviour wfb_id="59" wfb_title="Split Collection" wfb_description="Split collection into many collections of smaller sizes" wfb_version="1.0" wfb_script_name="split_collection.php" wfb_auto="1"/>
-  <WorkflowBehaviour wfb_id="51" wfb_title="Submit for Approval" wfb_description="" wfb_version="1.0" wfb_script_name="submit_for_approval.php" wfb_auto="1"/>
+  <WorkflowBehaviour wfb_id="61" wfb_title="Split Collection" wfb_description="Split collection into many collections of smaller sizes" wfb_version="1.0" wfb_script_name="split_collection.php" wfb_auto="1"/>
+  <WorkflowBehaviour wfb_id="48" wfb_title="Submit for Approval" wfb_description="" wfb_version="1.0" wfb_script_name="submit_for_approval.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="1" wfb_title="Thumbnail Resizer" wfb_description="Resize a given image to a 50x50 jpeg (constraining to ratio)." wfb_version="1.0" wfb_script_name="thumbnail.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="29" wfb_title="Unpublish" wfb_description="" wfb_version="" wfb_script_name="unpublish.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="35" wfb_title="Web Format Resizer" wfb_description="Resize a given image to a 800x600 jpeg (constraining to ratio). " wfb_version="1.0" wfb_script_name="web_format_image.php" wfb_auto="1"/>
