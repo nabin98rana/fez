@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------+
 // | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2005, 2006 The University of Queensland,               |
+// | Copyright (c) 2005, 2006, 2007 The University of Queensland,         |
 // | Australian Partnership for Sustainable Repositories,                 |
 // | eScholarship Project                                                 |
 // |                                                                      |
@@ -28,7 +28,8 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
@@ -37,15 +38,20 @@ include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.workflow.php");
 
+$tpl = new Template_API();
+$tpl->setTemplate("manage/index.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION);
 
 $isUser = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($isUser);
+$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
+$tpl->assign("isUser", $isUser);
+$tpl->assign("isAdministrator", $isAdministrator);
+$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
-if (!$isAdministrator) {
-    Error_Handler::logError("Administrator Only",__FILE__,__LINE__);
-    exit;
+if (!$isSuperAdministrator) {
+    $tpl->assign("show_not_allowed_msg", true);
 }
 
 if ($_POST['go']) {
@@ -58,8 +64,6 @@ if ($_POST['go']) {
     exit;
 }
 
-$tpl = new Template_API();
-$tpl->setTemplate("manage/index.tpl.html");
 $tpl->assign("type", "export_workflows");
 $tpl->assign("isUser", $isUser);
 $tpl->assign("isAdministrator", $isAdministrator);

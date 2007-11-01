@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------+
 // | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2005, 2006 The University of Queensland,               |
+// | Copyright (c) 2005, 2006, 2007 The University of Queensland,         |
 // | Australian Partnership for Sustainable Repositories,                 |
 // | eScholarship Project                                                 |
 // |                                                                      |
@@ -28,7 +28,8 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
@@ -63,13 +64,24 @@ if (NAJAX_Server::runServer()) {
 	exit;
 }
 
-$username = Auth::getUsername();
-$tpl->assign("isUser", $username);
-$isAdministrator = User::isUserAdministrator($username);
-if (Auth::userExists($username)) { // if the user is registered as a Fez user
-	$tpl->assign("isFezUser", $username);
-}
+
+
+
+
+$isUser = Auth::getUsername();
+$isAdministrator = User::isUserAdministrator($isUser);
+$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
+$tpl->assign("isUser", $isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
+$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
+
+if (!$isSuperAdministrator) {
+    $tpl->assign("show_not_allowed_msg", true);
+}
+
+if (Auth::userExists($isUser)) { // if the user is registered as a Fez user
+	$tpl->assign("isFezUser", $isUser);
+}
 
 $record_id = Misc::GETorPOST('pid');
 $cat = Misc::GETorPOST('cat');
@@ -78,7 +90,7 @@ $tpl->assign("pid", $pid);
 $xdis_list = array(-2 => 'None', -1 => 'Any') + XSD_Display::getAssocListDocTypes(); 
 if ($pid == -1) {
     // setting trigger on the overall repository - default triggers
-    $canEdit = $isAdministrator;
+    $canEdit = $isSuperAdministrator;
     $tpl->assign('record_type', 'Default Triggers');
     $xdis_list += array(Collection::getCollectionXDIS_ID() => 'Collection', 
             Community::getCommunityXDIS_ID() => 'Community'); 
@@ -146,7 +158,7 @@ if ($canEdit) {
     // show number of triggers
     $tpl->assign('triggers', count($list));
     // if user is an espace user then get prefs
-    if (Auth::userExists($username)) {
+    if (Auth::userExists($isUser)) {
         $prefs = Prefs::get(Auth::getUserID());
     }
 

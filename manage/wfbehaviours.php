@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------+
 // | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2005, 2006 The University of Queensland,               |
+// | Copyright (c) 2005, 2006, 2007 The University of Queensland,         |
 // | Australian Partnership for Sustainable Repositories,                 |
 // | eScholarship Project                                                 |
 // |                                                                      |
@@ -28,7 +28,8 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
@@ -47,31 +48,32 @@ Auth::checkAuthentication(APP_SESSION);
 $tpl->assign("type", "wfbehaviours");
 
 $isUser = Auth::getUsername();
-$tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
+$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
+$tpl->assign("isUser", $isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
+$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
+
+if (!$isSuperAdministrator) {
+    $tpl->assign("show_not_allowed_msg", true);
+}
 
 $wfl_id = @$HTTP_GET_VARS["wfl_id"] ? $HTTP_GET_VARS["wfl_id"] : @$HTTP_POST_VARS["wfl_id"];
 
-if ($isAdministrator) {
-  
-    if (@$HTTP_POST_VARS["cat"] == "new") {
-        $tpl->assign("result", WF_Behaviour::insert());
-    } elseif (@$HTTP_POST_VARS["cat"] == "update") {
-        $tpl->assign("result", WF_Behaviour::update($HTTP_POST_VARS["id"]));
-    } elseif (@$HTTP_POST_VARS["cat"] == "delete") {
-        WF_Behaviour::remove();
-    }
-
-    if (@$HTTP_GET_VARS["cat"] == "edit") {
-        $tpl->assign("info", WF_Behaviour::getDetails($HTTP_GET_VARS["id"]));
-    }
-
-    $tpl->assign("list", WF_Behaviour::getList());
-    $tpl->assign("wfl_id", $wfl_id);
-} else {
-    $tpl->assign("show_not_allowed_msg", true);
+if (@$HTTP_POST_VARS["cat"] == "new") {
+    $tpl->assign("result", WF_Behaviour::insert());
+} elseif (@$HTTP_POST_VARS["cat"] == "update") {
+    $tpl->assign("result", WF_Behaviour::update($HTTP_POST_VARS["id"]));
+} elseif (@$HTTP_POST_VARS["cat"] == "delete") {
+    WF_Behaviour::remove();
 }
+
+if (@$HTTP_GET_VARS["cat"] == "edit") {
+    $tpl->assign("info", WF_Behaviour::getDetails($HTTP_GET_VARS["id"]));
+}
+
+$tpl->assign("list", WF_Behaviour::getList());
+$tpl->assign("wfl_id", $wfl_id);
 
 $tpl->displayTemplate();
 ?>

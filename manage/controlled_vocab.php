@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------+
 // | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2005, 2006 The University of Queensland,               |
+// | Copyright (c) 2005, 2006, 2007 The University of Queensland,         |
 // | Australian Partnership for Sustainable Repositories,                 |
 // | eScholarship Project                                                 |
 // |                                                                      |
@@ -28,7 +28,8 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
@@ -63,34 +64,36 @@ $parent_id = @$HTTP_POST_VARS["parent_id"] ? $HTTP_POST_VARS["parent_id"] : @$HT
 	$tpl->assign("subject_breadcrumb", $newcrumb);
 
 $tpl->assign("parent_id", $parent_id);
+
 $isUser = Auth::getUsername();
-$tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
+$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
+$tpl->assign("isUser", $isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
+$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
-if ($isAdministrator) {
-  
-    if (@$HTTP_POST_VARS["cat"] == "new") {
-        $tpl->assign("result", Controlled_Vocab::insert());
-    } elseif (@$HTTP_POST_VARS["cat"] == "update") {
-        $tpl->assign("result", Controlled_Vocab::update($HTTP_POST_VARS["id"]));
-    } elseif (@$HTTP_POST_VARS["cat"] == "delete") {
-        Controlled_Vocab::remove();
-    }
-
-    if (@$HTTP_GET_VARS["cat"] == "edit") {
-        $tpl->assign("info", Controlled_Vocab::getDetails($HTTP_GET_VARS["id"]));
-    }
-//    $tpl->assign("parents", $parents); // for the parents about the very first one
-	if (is_numeric($parent_id)) {
-	    $tpl->assign("parent_title", Controlled_Vocab::getTitle($parent_id));
-	} else {
-		$tpl->assign("parent_title", "0");
-	}
-    $tpl->assign("list", Controlled_Vocab::getList($parent_id));
-} else {
+if (!$isSuperAdministrator) {
     $tpl->assign("show_not_allowed_msg", true);
 }
 
+if (@$HTTP_POST_VARS["cat"] == "new") {
+    $tpl->assign("result", Controlled_Vocab::insert());
+} elseif (@$HTTP_POST_VARS["cat"] == "update") {
+    $tpl->assign("result", Controlled_Vocab::update($HTTP_POST_VARS["id"]));
+} elseif (@$HTTP_POST_VARS["cat"] == "delete") {
+    Controlled_Vocab::remove();
+}
+
+if (@$HTTP_GET_VARS["cat"] == "edit") {
+    $tpl->assign("info", Controlled_Vocab::getDetails($HTTP_GET_VARS["id"]));
+}
+//    $tpl->assign("parents", $parents); // for the parents about the very first one
+if (is_numeric($parent_id)) {
+    $tpl->assign("parent_title", Controlled_Vocab::getTitle($parent_id));
+} else {
+    $tpl->assign("parent_title", "0");
+}
+$tpl->assign("list", Controlled_Vocab::getList($parent_id));
 $tpl->displayTemplate();
+
 ?>

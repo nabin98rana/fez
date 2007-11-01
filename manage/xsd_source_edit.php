@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------+
 // | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2005, 2006 The University of Queensland,               |
+// | Copyright (c) 2005, 2006, 2007 The University of Queensland,         |
 // | Australian Partnership for Sustainable Repositories,                 |
 // | eScholarship Project                                                 |
 // |                                                                      |
@@ -48,11 +48,13 @@ $tpl->assign("type", "xsd_source_edit");
 
 $xsd_id = @$HTTP_POST_VARS["xsd_id"] ? $HTTP_POST_VARS["xsd_id"] : $HTTP_GET_VARS["xsd_id"];
 $isUser = Auth::getUsername();
-$tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
+$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
+$tpl->assign("isUser", $isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
+$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
-if ($isAdministrator) {
+if ($isSuperAdministrator) {
     if (@$HTTP_POST_VARS["cat"] == "update") {
         $tpl->assign("result", Doc_Type_XSD::update($xsd_id));
     }

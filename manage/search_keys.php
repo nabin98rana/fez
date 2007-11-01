@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------+
 // | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2005, 2006 The University of Queensland,               |
+// | Copyright (c) 2005, 2006, 2007 The University of Queensland,         |
 // | Australian Partnership for Sustainable Repositories,                 |
 // | eScholarship Project                                                 |
 // |                                                                      |
@@ -28,7 +28,8 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
@@ -48,34 +49,35 @@ Auth::checkAuthentication(APP_SESSION);
 $tpl->assign("type", "search_keys");
 
 $isUser = Auth::getUsername();
-$tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
+$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
+$tpl->assign("isUser", $isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
+$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
-if ($isAdministrator) {
-  
-    if (@$HTTP_POST_VARS["cat"] == "new") {
-        $tpl->assign("result", Search_Key::insert());
-    } elseif (@$HTTP_POST_VARS["cat"] == "update") {
-        $tpl->assign("result", Search_Key::update($HTTP_POST_VARS["id"]));
-    } elseif (@$HTTP_POST_VARS["cat"] == "delete") {
-        Search_Key::remove();
-    }
-
-    if (@$HTTP_GET_VARS["cat"] == "edit") {
-        $tpl->assign("info", Search_Key::getDetails($HTTP_GET_VARS["id"]));
-    }
-	$list = Search_Key::getList();
-    $tpl->assign("list", $list);
-    $tpl->assign("list_count", count($list));
-	$sek_relationship_list = array(0 => "Core 1->1", 1 => "Related");
-    $tpl->assign("sek_relationship_list", $sek_relationship_list);
-	$sek_data_type_list = array("varchar" => "Varchar(255)", "text" => "Text", "int" => "Integer", "date" => "Date");
-	$tpl->assign("sek_data_type_list", $sek_data_type_list);
-    $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
-} else {
+if (!$isSuperAdministrator) {
     $tpl->assign("show_not_allowed_msg", true);
 }
 
+if (@$HTTP_POST_VARS["cat"] == "new") {
+    $tpl->assign("result", Search_Key::insert());
+} elseif (@$HTTP_POST_VARS["cat"] == "update") {
+    $tpl->assign("result", Search_Key::update($HTTP_POST_VARS["id"]));
+} elseif (@$HTTP_POST_VARS["cat"] == "delete") {
+    Search_Key::remove();
+}
+
+if (@$HTTP_GET_VARS["cat"] == "edit") {
+    $tpl->assign("info", Search_Key::getDetails($HTTP_GET_VARS["id"]));
+}
+$list = Search_Key::getList();
+$tpl->assign("list", $list);
+$tpl->assign("list_count", count($list));
+$sek_relationship_list = array(0 => "Core 1->1", 1 => "Related");
+$tpl->assign("sek_relationship_list", $sek_relationship_list);
+$sek_data_type_list = array("varchar" => "Varchar(255)", "text" => "Text", "int" => "Integer", "date" => "Date");
+$tpl->assign("sek_data_type_list", $sek_data_type_list);
+$tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 $tpl->displayTemplate();
+
 ?>

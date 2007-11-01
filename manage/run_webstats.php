@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------+
 // | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2005, 2006 The University of Queensland,               |
+// | Copyright (c) 2005, 2006, 2007 The University of Queensland,         |
 // | Australian Partnership for Sustainable Repositories,                 |
 // | eScholarship Project                                                 |
 // |                                                                      |
@@ -45,29 +45,31 @@ Auth::checkAuthentication(APP_SESSION);
 
 $tpl->assign("type", "stats");
 $isUser = Auth::getUsername();
-$tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
+$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
+$tpl->assign("isUser", $isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
+$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
-if ($isAdministrator) {
-    if (WEBSERVER_LOG_STATISTICS !== 'ON') {
-        die("<b>Error:</b> The WEBSERVER_LOG_STATISTICS directive in the configuration file must be set to ON to invoke this function.");
-    }
-    if (@$HTTP_POST_VARS["action"] == "go_summary_only") {
-        $bgp = new BackgroundProcess_Run_Webstats(true);
-        $id = $bgp->register(serialize(array()), Auth::getUserID());
-        $bgp = new BackgroundProcess($id);
-        Session::setMessage('The statistics summaries are being updated as a background process (see My Fez to follow progress)');
-        $tpl->assign("is_running", true);
-    } elseif (@$HTTP_POST_VARS["action"] == "go") {
-        $bgp = new BackgroundProcess_Run_Webstats(false);
-        $id = $bgp->register(serialize(array()), Auth::getUserID());
-        $bgp = new BackgroundProcess($id);
-        Session::setMessage('The statistics (and then summaries) are being updated as a background process (see My Fez to follow progress)');
-        $tpl->assign("is_running", true);
-    }
-} else {
+if (!$isSuperAdministrator) {
     $tpl->assign("show_not_allowed_msg", true);
+}
+
+if (WEBSERVER_LOG_STATISTICS !== 'ON') {
+    die("<b>Error:</b> The WEBSERVER_LOG_STATISTICS directive in the configuration file must be set to ON to invoke this function.");
+}
+if (@$HTTP_POST_VARS["action"] == "go_summary_only") {
+    $bgp = new BackgroundProcess_Run_Webstats(true);
+    $id = $bgp->register(serialize(array()), Auth::getUserID());
+    $bgp = new BackgroundProcess($id);
+    Session::setMessage('The statistics summaries are being updated as a background process (see My Fez to follow progress)');
+    $tpl->assign("is_running", true);
+} elseif (@$HTTP_POST_VARS["action"] == "go") {
+    $bgp = new BackgroundProcess_Run_Webstats(false);
+    $id = $bgp->register(serialize(array()), Auth::getUserID());
+    $bgp = new BackgroundProcess($id);
+    Session::setMessage('The statistics (and then summaries) are being updated as a background process (see My Fez to follow progress)');
+    $tpl->assign("is_running", true);
 }
 
 $tpl->displayTemplate();

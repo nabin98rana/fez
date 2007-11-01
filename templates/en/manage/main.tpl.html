@@ -6,6 +6,7 @@
 	Choose a common task, or select from the navigation menu on the left.
 	<br /><br />
 
+		{if $isSuperAdministrator}
 		<table cellpadding="5" cellspacing="10">
 		  <tr>
 			<td valign="top">
@@ -20,6 +21,20 @@
 			</td>
 		  </tr>
 		</table>
+		{else}
+		<table cellpadding="5" cellspacing="10">
+		  <tr>
+			<td valign="top">
+				<a href="news.php"><img align="absmiddle" src="{$rel_url}images/globe_22.png" border="0" alt="Manage News" /> Manage News</a><br /><br />
+				<a href="users.php"><img align="absmiddle" src="{$rel_url}images/editor_22.png" border="0" alt="Manage Users" /> Manage Users</a><br /><br />
+			</td>
+		    <td valign="top">
+				<a href="authors.php"><img align="absmiddle" src="{$rel_url}images/approver.png" border="0" alt="Manage Authors" /> Manage Authors</a><br /><br />
+				<a href="groups.php"><img align="absmiddle" src="{$rel_url}images/granter.png" border="0" alt="Manage Groups" /> Manage Groups</a><br /><br />
+			</td>
+		  </tr>
+		</table>
+		{/if}
 
 	</div>
 

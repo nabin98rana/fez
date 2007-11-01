@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------+
 // | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2005, 2006 The University of Queensland,               |
+// | Copyright (c) 2005, 2006, 2007 The University of Queensland,         |
 // | Australian Partnership for Sustainable Repositories,                 |
 // | eScholarship Project                                                 |
 // |                                                                      |
@@ -28,7 +28,8 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
@@ -46,51 +47,54 @@ Auth::checkAuthentication(APP_SESSION);
 
 $tpl->assign("type", "import_workflows");
 $isUser = Auth::getUsername();
-$tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
+$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
+$tpl->assign("isUser", $isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
+$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
-if ($isAdministrator) {
-    $step = Misc::GETorPOST('step');
-    if (empty($step)) {
-    	$step = 1;
-    }
-    switch ($step) {
-    	case 1:
-          // show the file upload form
-        break;
-        case 2:
-            if (@$HTTP_POST_VARS["cat"] == "go") {
-            	extract($_FILES['import_xml']);
-                if ($type != 'text/xml') {
-                	Error_Handler::logError("Can't import files of type $type", __FILE__,__LINE__);
-                    exit;
-                }
-                $filename = APP_TEMP_DIR.'fezwfl'.basename($tmp_name);
-                copy($tmp_name, $filename);
-                $tpl->assign('filename', $filename);
-                $wfl_list = Workflow::listXML($filename);
-                $tpl->assign("wfl_list", $wfl_list);
-            }
-        break;
-        case 3:
-            if (@$HTTP_POST_VARS["cat"] == "go") {
-               $filename = $_POST['filename'];
-               $wfl_ids = $_POST['wfl_ids'];
-               if (empty($wfl_ids)) {
-                    $wfl_ids = array();
-               }
-               $feedback = Workflow::importWorkflows($filename,$wfl_ids);
-               $feedback[] = "Done";
-               unlink($filename);
-               $tpl->assign('feedback',$feedback);
-            }
-        break;
-    }
-    $tpl->assign("step", $step);
-} else {
+if (!$isSuperAdministrator) {
     $tpl->assign("show_not_allowed_msg", true);
 }
 
+$step = Misc::GETorPOST('step');
+if (empty($step)) {
+    $step = 1;
+}
+switch ($step) {
+    case 1:
+      // show the file upload form
+    break;
+    case 2:
+        if (@$HTTP_POST_VARS["cat"] == "go") {
+            extract($_FILES['import_xml']);
+            if ($type != 'text/xml') {
+                Error_Handler::logError("Can't import files of type $type", __FILE__,__LINE__);
+                exit;
+            }
+            $filename = APP_TEMP_DIR.'fezwfl'.basename($tmp_name);
+            copy($tmp_name, $filename);
+            $tpl->assign('filename', $filename);
+            $wfl_list = Workflow::listXML($filename);
+            $tpl->assign("wfl_list", $wfl_list);
+        }
+    break;
+    case 3:
+        if (@$HTTP_POST_VARS["cat"] == "go") {
+           $filename = $_POST['filename'];
+           $wfl_ids = $_POST['wfl_ids'];
+           if (empty($wfl_ids)) {
+                $wfl_ids = array();
+           }
+           $feedback = Workflow::importWorkflows($filename,$wfl_ids);
+           $feedback[] = "Done";
+           unlink($filename);
+           $tpl->assign('feedback',$feedback);
+        }
+    break;
+}
+
+$tpl->assign("step", $step);
 $tpl->displayTemplate();
+
 ?>

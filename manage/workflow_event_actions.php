@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------+
 // | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2005, 2006 The University of Queensland,               |
+// | Copyright (c) 2005, 2006, 2007 The University of Queensland,         |
 // | Australian Partnership for Sustainable Repositories,                 |
 // | eScholarship Project                                                 |
 // |                                                                      |
@@ -50,14 +50,17 @@ Auth::checkAuthentication(APP_SESSION);
 $tpl->assign("type", "workflow_event_actions");
 
 $isUser = Auth::getUsername();
-$tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
+$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
+$tpl->assign("isUser", $isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
+$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
+
 $wfl_id = @$HTTP_POST_VARS['wfl_id'] ? $HTTP_POST_VARS['wfl_id'] : $HTTP_GET_VARS['wfl_id'];
 $wfa_id = @$HTTP_POST_VARS['wfa_id'] ? $HTTP_POST_VARS['wfa_id'] : $HTTP_GET_VARS['wfa_id'];
 $wfe_id = @$HTTP_POST_VARS['wfe_id'] ? $HTTP_POST_VARS['wfe_id'] : $HTTP_GET_VARS['wfe_id'];
 
-if ($isAdministrator) {
+if ($isSuperAdministrator) {
   
     if (@$HTTP_POST_VARS["cat"] == "new") {
         $tpl->assign("result", Workflow_Event_Action::insert());

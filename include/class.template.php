@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------+
 // | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2005, 2006 The University of Queensland,               |
+// | Copyright (c) 2005, 2006, 2007 The University of Queensland,         |
 // | Australian Partnership for Sustainable Repositories,                 |
 // | eScholarship Project                                                 |
 // |                                                                      |
@@ -306,10 +306,12 @@ class Template_API
         $username = Auth::getUsername();
         $this->assign("isUser", $username);
         $isAdministrator = User::isUserAdministrator($username);
+        $isSuperAdministrator = User::isUserSuperAdministrator($username);
         if (Auth::userExists($username)) { // if the user is registered as a Fez user
             $this->assign("isFezUser", $username);
         }
         $this->assign("isAdministrator", $isAdministrator);
+        $this->assign("isSuperAdministrator", $isSuperAdministrator);
     }
 
 }

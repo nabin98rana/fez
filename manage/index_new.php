@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------+
 // | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2005, 2006 The University of Queensland,               |
+// | Copyright (c) 2005, 2006, 2007 The University of Queensland,         |
 // | Australian Partnership for Sustainable Repositories,                 |
 // | eScholarship Project                                                 |
 // |                                                                      |
@@ -57,16 +57,19 @@ $tpl->assign("type", "reindex");
 
 Auth::checkAuthentication(APP_SESSION);
 $isUser = Auth::getUsername();
-$tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
+$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
+$tpl->assign("isUser", $isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
+$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
+
+if (!$isSuperAdministrator) {
+    $tpl->assign("show_not_allowed_msg", true);
+}
+
 $reindex = new Reindex;
 $terms = Pager::getParam('keywords')."*"; 
 $tpl->assign('keywords', Pager::getParam('keywords'));
-
-if (!$isAdministrator) {
-    $tpl->assign("show_not_allowed_msg", true);
-}
 
 if ($_POST["action"] !== "prompt" && $_POST["action"] !== "index") {
     $display_screen = "SHOW_OPSEANS";
