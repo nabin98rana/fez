@@ -372,7 +372,7 @@ class Lister
 			$options["sort_order"] = "1";
 			$sort_by = "searchKey".Search_Key::getID("Created Date");
 			$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-			$list = Record::getListing($options, $approved_roles=array("Lister"), $pager_rows,$rows, $sort_by, $getSimple, $citationCache);
+			$list = Record::getListing($options, $approved_roles=array("Lister"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);
 //            $list = Collection::browseListing($pager_row, $rows, "Created Date", $sort_by);
             //print_r($list);
             $list_info = $list["info"];
@@ -403,7 +403,7 @@ class Lister
 				$options["searchKey".Search_Key::getID("Date")]["filter_enabled"] = 1;
 				$options["searchKey".Search_Key::getID("Date")]["start_date"] = $year."-01-01";
 				$options["searchKey".Search_Key::getID("Date")]["end_date"] = $year."-12-31";			
-				$list = Record::getListing($options, $approved_roles=array("Lister"), $pager_rows,$rows, $sort_by, $getSimple, $citationCache);
+				$list = Record::getListing($options, $approved_roles=array("Lister"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);
                 $list_info = $list["info"];
                 $list = $list["list"];
 				

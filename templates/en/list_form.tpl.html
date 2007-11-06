@@ -529,7 +529,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 									{assign var="day_name" value=$list[i].day_name}							
 								{/if}
 							{/if}
-		  <tr>
+		  <!--tr>
 			  <td colspan="2">
 			  <table bgcolor="#FFFFFF" width="100%" cellpadding="3" cellspacing="0">
 				  <tr>
@@ -538,12 +538,12 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 				  </tr>
 			 </table>
 			 </td>
-		  </tr>
+		  </tr-->
 	
 						{/if}				
 					{elseif $day_name != "Today"}
 					  {assign var="day_name" value="Today"}
-		  <tr>
+		  <!--tr>
 			  <td>
 			  <table bgcolor="#FFFFFF" width="100%" cellpadding="3" cellspacing="0">
 				  <tr>
@@ -552,7 +552,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 				  </tr>
 			 </table>
 			 </td>
-		  </tr>
+		  </tr-->
 
 					{/if}
 			{/if}
