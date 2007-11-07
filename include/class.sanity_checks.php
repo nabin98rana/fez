@@ -79,6 +79,7 @@
         $results = array_merge($results, SanityChecks::dot());
         $results = array_merge($results, SanityChecks::tidy());
         $results = array_merge($results, SanityChecks::fedora());
+        $results = array_merge($results, SanityChecks::fedoraDirect());
         $results = array_merge($results, SanityChecks::sql());
         $results = array_merge($results, SanityChecks::pdftotext());
         $results = array_merge($results, SanityChecks::stats());
@@ -467,6 +468,30 @@
         }
         if (SanityChecks::resultsClean($results)) {
             $results[] = ConfigResult::messageOk('All Fedora tests passed');
+        }
+        return $results;
+    }
+
+    function fedoraDirect()
+    {
+        // I'm not very happy about this. We should be actually testing the credentials. Re-write this entire class at some point.
+    	$results = array(ConfigResult::message('Testing Fedora Direct Access'));
+        $server = FEDORA_DB_HOST;
+        $port = FEDORA_DB_PORT;
+        $results = array_merge($results, SanityChecks::checkConnect('FEDORA_DB_HOST', $server . ':' . $port));
+        if (SanityChecks::resultsClean($results)) {
+            $stmt = "use " . FEDORA_DB_DATABASE_NAME;
+            $res = $GLOBALS["db_api"]->dbh->query($stmt);
+            if (PEAR::isError($res)) {
+                $results[] = new ConfigResult('Fedora Direct','FEDORA_DB_DATABASE_NAME',FEDORA_DB_DATABASE_NAME,"Failed to use DB. " .
+                        "Check that the specified database user has permissions on the Fedora database. " .
+                        "Check that the database password is correct. " .
+                        "Check that database name is set correctly. DB Error: " .
+                        "".$res->getMessage().' '.print_r($res->getDebugInfo(),true));
+            }
+        }
+        if (SanityChecks::resultsClean($results)) {
+            $results[] = ConfigResult::messageOk('All Fedora Direct Access tests passed');
         }
         return $results;
     }

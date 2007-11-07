@@ -300,9 +300,9 @@
 			if (is_numeric($yy)) {
 				if ($xsdmf['sek_title'] == "Author") {
 					if (is_array($details['rek_author_id']) && $details['rek_author_id'][$yy] != 0) {
-						$value = '<a class="author_id_link" title="Browse by Author ID for '.htmlentities($details['rek_author_id_lookup'][$yy]).'" href="list.php?browse=author&author_id='.$details['rek_author_id'][$yy].'">'.$value.'</a>';
+						$value = '<a class="author_id_link" title="Browse by Author ID for '.htmlentities($details['rek_author_id_lookup'][$yy]).'" href="list.php?browse=author&amp;author_id='.$details['rek_author_id'][$yy].'">'.$value.'</a>';
 					} else {
-						$value = '<a title="Browse by Author Name for '.$details['rek_author'][$yy].'" href="list.php?browse=author&author='.htmlentities($details['rek_author'][$yy]).'">'.$value.'</a>';
+						$value = '<a title="Browse by Author Name for '.$details['rek_author'][$yy].'" href="list.php?browse=author&amp;author='.htmlentities($details['rek_author'][$yy]).'">'.$value.'</a>';
 					}
 				}
 			} else {
@@ -316,7 +316,7 @@
 					}
 				}			
 				if ($xsdmf['sek_title'] == "Date") {
-					$value = '<a title="Browse by Year '.htmlentities($value).'" href="list.php?browse=year&year='.htmlentities($value).'">'.$value.'</a>';				
+					$value = '<a title="Browse by Year '.htmlentities($value).'" href="list.php?browse=year&amp;year='.htmlentities($value).'">'.$value.'</a>';				
 				}			
 			}
 		}
