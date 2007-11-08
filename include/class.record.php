@@ -1974,7 +1974,7 @@ inner join
         foreach ($datastreams as $ds_key => $ds_value) {
             if ($ds_value['ID'] == 'PremisEvent') {
                 $value = Fedora_API::callGetDatastreamContents($pid, 'PremisEvent', true);
-                $value = $value['stream'];
+                //$value = $value['stream'];
                 /* It's time for a spot of DOMage */
                 $xmlDoc = new DOMDocument();
                 $xmlDoc->preserveWhiteSpace = false;
