@@ -1,5 +1,6 @@
 #header {
-background-image: url("[[$smarty.const.APP_BASE_URL]]images/fez_banner_glass.gif");
+background-image: url("[[$smarty.const.APP_BASE_URL]]images/fez_2_banner_gradient.png");
+height: 77px;
 }
 
 div.wfl_description {

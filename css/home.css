@@ -10,9 +10,19 @@ table.nav-table-top td {
 	font-family: Verdana, Arial, sans-serif;
 	font-size: 8pt;
 	padding: 0px;
-	background-image: url("../images/gradient.gif");
 	background-repeat: repeat-x;
 	width: 100%;
+	border-top: 1px solid #82e6ff;
+	border-bottom: 1px solid #82e6ff;
+
+}
+
+table.nav-table-top a, table.nav-table-top a:visited {
+	color: #252525;
+}
+
+table.nav-table-top a:hover {
+	color: #075b70;
 }
 
 table.nav-table-top form {
@@ -24,7 +34,8 @@ border: none;
 
 table.nav-table-bottom td {
 	padding: 2px;
-	background-color: #EFF7FF;
+	background-color: #e7f9ff;
+	border-bottom: 1px solid #c3f3ff;
 }
 
 
@@ -35,9 +46,9 @@ table.nav-table-bottom { height: 10px; }
 /************************* Footer Tags *************************/
 
 .feedback {
-	height: 20px;
-	background-image: url("../images/gradient4.gif");
-	border-bottom: 1px solid #949494; 
+	height: 10px;
+	background-color: #e7f9ff;
+	border-bottom: 1px solid #c3f3ff;
 }
 
 .footerlinks {
@@ -440,6 +451,10 @@ h1.public {
 	font-weight: bold;
 	color: #00358B;
 	padding: 0px 0px 0px 20px;
+}
+
+.admin-wrapper {
+	background-color: #e7f9ff;
 }
 
 .admin-side-nav-title {

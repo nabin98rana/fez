@@ -42,21 +42,21 @@ function setCurrentCollection()
 		{/if}
 	  </td>
 	  {if $isHomePage != "true"}
-	  <td align="right"><img src="{$rel_url}images/home_16.gif" alt="" /></td>
+	  <td align="right"><img src="{$rel_url}images/home_16.png" alt="" /></td>
 	  <td nowrap="nowrap"> &nbsp;<a target="_top" title="Click here to go to the {$application_title} homepage" href="{$rel_url}" class="white_link">Home</a> &nbsp; </td>
 	  {/if}
 	  {if $isAdministrator}
-	  <td nowrap="nowrap"><img src="{$rel_url}images/administrator_16.gif" alt="" /></td>
-	  <td nowrap="nowrap"> &nbsp;<a target="_top" title="manage the application settings, users, etc" href="{$rel_url}manage/" class="white_link">Administration</a> &nbsp; 	  </td>
+	  <td nowrap="nowrap"><img src="{$rel_url}images/administrator_16.png" alt="" /></td>
+	  <td nowrap="nowrap"> &nbsp;<a target="_top" title="Manage the application settings, users, etc" href="{$rel_url}manage/" class="white_link">Administration</a> &nbsp; 	  </td>
 	  {/if}
-	  <td nowrap="nowrap"><img src="{$rel_url}images/community_16.gif" alt="" /></td>
-	  <td nowrap="nowrap"> &nbsp;<a target="_top" title="list the communities stored in {$application_title}" href="{$rel_url}list.php" class="white_link">Browse Communities</a> &nbsp; </td>
+	  <td nowrap="nowrap"><img src="{$rel_url}images/browse_16.png" alt="" /></td>
+	  <td nowrap="nowrap"> &nbsp;<a target="_top" title="List the communities stored in {$application_title}" href="{$rel_url}list.php" class="white_link">Browse Communities</a> &nbsp; </td>
 	  {if $isAdministrator || $isUser}
-	  <td nowrap="nowrap"><img src="{$rel_url}images/my_fez_16.gif" alt="" /></td>
+	  <td nowrap="nowrap"><img src="{$rel_url}images/my_fez_16.png" alt="" /></td>
 	  <td nowrap="nowrap"> &nbsp;<a target="_top" title="" href="{$rel_url}my_fez.php" class="white_link">My {$application_title}</a> &nbsp; </td>
 	  {/if}
-	  <td nowrap="nowrap"><img src="{$rel_url}images/help.gif" alt="" /></td>
-	  <td nowrap="nowrap"> &nbsp;<a title="help documentation" href="{$rel_url}help.php?topic=main" target="_blank" class="help">Help</a> &nbsp; </td>
+	  <td nowrap="nowrap"><img src="{$rel_url}images/help_16.png" alt="" /></td>
+	  <td nowrap="nowrap"> &nbsp;<a title="Help documentation" href="{$rel_url}help.php?topic=main" target="_blank" class="white_link">Help</a> &nbsp; </td>
 	</tr>
 </table>
 
