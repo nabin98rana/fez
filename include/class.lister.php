@@ -101,7 +101,7 @@ class Lister
         if (Auth::userExists($username)) { // if the user is registered as a Fez user
             $tpl->assign("isFezUser", $username);
         }
-        $tpl->assign("isAdministrator", $isAdministrator);
+  		$tpl->assign("isAdministrator", $isAdministrator);
         if (Auth::canEdit() == 1) {
         	$tpl->assign("user_can_edit", 1);
         }

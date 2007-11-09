@@ -31,8 +31,8 @@ class Bulk_Move_Record_Collection {
 
 	function getPidsFromSearchBGP($options)
 	{
-		$list = Record::getListing($options, array("Lister", "Viewer"), 0, 'ALL', 'searchKey0');
-		$pids = array_keys(Misc::keyArray($list['list'],'pid'));
+		$list = Record::getListing($options, array(9,10), 0, 'ALL', 'searchKey0');
+		$pids = array_keys(Misc::keyArray($list['list'],'rek_pid'));
 		return $pids;
 	}
 	

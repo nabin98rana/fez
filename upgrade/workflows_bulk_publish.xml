@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<workflows schema_version="1.0">
+  <workflow wfl_id="95" wfl_title="Bulk Publish" wfl_version="1.0" wfl_description="Bulk Publish" wfl_roles="Approver,Community_Administrator" wfl_end_button_label="Ok">
+    <WorkflowState wfs_id="604" wfs_title="Publish" wfs_description="" wfs_auto="1" wfs_wfb_id="28" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="605" wfs_title="Publishing" wfs_description="The records are being publsihed as a background process.  Click Ok to see the progress on the My Background Processes page." wfs_auto="0" wfs_wfb_id="33" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="982" wfsl_from_id="604" wfsl_to_id="605"/>
+    <WorkflowTrigger wft_id="213" wft_pid="-1" wft_type_id="8" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="0" wft_options="0"/>
+  </workflow>
+  <WorkflowBehaviour wfb_id="33" wfb_title="No Action" wfb_description="Just displays the state information.  Use to have an information only step." wfb_version="" wfb_script_name="no_action.php" wfb_auto="0"/>
+  <WorkflowBehaviour wfb_id="28" wfb_title="Publish" wfb_description="" wfb_version="" wfb_script_name="publish.php" wfb_auto="1"/>
+</workflows>

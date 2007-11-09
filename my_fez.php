@@ -100,6 +100,9 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
 //	Auth::redirect(APP_RELATIVE_URL . "register.php?err=5&username=" . $username);	
 }
 $tpl->assign("isAdministrator", $isAdministrator);
+if (Auth::canEdit() == 1) {
+	$tpl->assign("user_can_edit", 1);
+}
 
 //$collection_list = Collection::getEditList();
 //print_r($collection_list);
@@ -159,6 +162,9 @@ if (is_numeric($grp_id)) {
 }
 $bulk_workflows = WorkflowTrigger::getAssocListByTrigger("-1", 7); //get the bulk change workflows
 $tpl->assign("bulk_workflows", $bulk_workflows);
+$bulk_search_workflows = WorkflowTrigger::getAssocListByTrigger("-1", 
+	WorkflowTrigger::getTriggerId('Bulk Change Search')); 
+$tpl->assign("bulk_search_workflows", $bulk_search_workflows);
 
 if (Misc::GETorPost("search_button") == "Search" && trim($options["searchKey0"]) != "") { //if search button was just pressed and all fields search has something in it then sort by relevance enforced
 	$options["sort_by"] = "searchKey0";

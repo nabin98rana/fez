@@ -39,6 +39,7 @@ include_once(APP_INC_PATH.'class.workflow_trigger.php');
 include_once(APP_INC_PATH.'class.foxml.php');
 include_once(APP_INC_PATH . 'class.bgp_generate_duplicates_report.php');
 include_once(APP_INC_PATH . 'class.bgp_duplicates_report_merge_isi_loc.php');
+include_once(APP_INC_PATH. 'class.bgp_publish.php');
 include_once(APP_INC_PATH . 'class.template.php');
 include_once(APP_INC_PATH . 'class.mail.php');
 

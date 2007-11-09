@@ -33,8 +33,16 @@
 //
 //
 // set sta_id=2 for published
-$this->getRecordObject();
-$sta_id = Status::getID("Published");
-$this->rec_obj->setStatusId($sta_id);
+
+if ($this->wft_details['wft_type_id'] == WorkflowTrigger::getTriggerId('Bulk Change Search')) {
+	$options = Pager::saveSearchParams($request_params);
+	$bgp = new BackgroundProcess_Publish();
+	$bgp->register(serialize(compact('options')), Auth::getUserID());
+} else {
+	$this->getRecordObject();
+	$sta_id = Status::getID("Published");
+	$this->rec_obj->setStatusId($sta_id);	
+}
+
 
 ?>
