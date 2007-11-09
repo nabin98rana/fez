@@ -191,7 +191,7 @@ function openHistory(pid)
 			    {/if}
 			<a href='{$wf_url}?pid={$pid|escape:"html"}&cat=select_workflow&xdis_id={$xdis_id}&wft_id={$workflows[w].wft_id}&href={$smarty.server.REQUEST_URI}'><img title="{$workflows[w].wfl_title}" align="absmiddle" src="{$rel_url}{$wf_icon}" border="0"></a> 
 			  {/section}
-			<a href="workflow/list_workflows2.php?pid={$pid|escape}">...</a>             
+			<a href="workflow/list_workflows2.php?pid={$pid|escape}"><img src="{$rel_url}images/options_16.png" align="absmiddle" alt="More options" title="More options" border="0" width="16" height="16" /></a>             
 			</td>
 		</tr>
 		</table>

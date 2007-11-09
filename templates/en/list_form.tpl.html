@@ -643,7 +643,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 			<a href="{$wf_url}?pid={$list[i].rek_pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" border="0" /></a> 
 			  {/section}
 		          
-                <a href="workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}">...</a> 
+                <a href="workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" border="0" width="16" height="16" /></a> 
 			</td>
            {/if}
 			{if $smarty.get.cat =='Search' || $smarty.get.cat == 'all_fields' || $smarty.get.cat == 'quick_filter'}

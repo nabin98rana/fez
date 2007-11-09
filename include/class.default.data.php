@@ -93,9 +93,9 @@ class Default_Data
         $defaultData['shib_home_idp']                       = $defaultData['shib_federation'] . "idp.yourinst.edu";
         $defaultData['shib_wayf_metadata_location']         = "/usr/local/shibboleth-sp/etc/shibboleth/level-1-metadata.xml";
         $defaultData['app_fedora_version']                  = "2.2";
-        $defaultData['app_fedora_username']                 = "";   // Empty default
-        $defaultData['app_fedora_pwd']                      = "";   // Empty default
-        $defaultData['fedora_db_host']                      = "";   // Empty default
+        $defaultData['app_fedora_username']                 = "fedoraAdmin";
+        $defaultData['app_fedora_pwd']                      = "fedoraAdmin";
+        $defaultData['fedora_db_host']                      = "localhost";
         $defaultData['fedora_db_type']                      = "mysql";
         $defaultData['fedora_db_database_name']             = "";   // Empty default
         $defaultData['fedora_db_username']                  = "";   // Empty default
