@@ -906,12 +906,16 @@ function workflowBulkChangeSearch(f, rel_url)
         selectField(f, 'wft_id');
         return false;
     }
+    if (!confirm('This will run ' + f.wft_id.options[f.wft_id.selectedIndex].text + ' on all objects in the search result.  Are you sure?')) {
+    	return false;
+	}
     f.wft_id = f.wft_id.selectedIndex;
     f.cat.value = 'select_workflow';
     f.action = rel_url + 'workflow/bulk_change_from_search.php';
     f.target='';
     f.method='post';
     f.submit();
+	 
 }
 
 function resizePager(f, page_url)
