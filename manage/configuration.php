@@ -37,6 +37,7 @@ include_once("../config.inc.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.configuration.php");
+include_once(APP_INC_PATH . "class.default.data.php");
 include_once(APP_INC_PATH . "class.date.php");
 
 $tpl = new Template_API();
@@ -63,7 +64,9 @@ if ($HTTP_POST_VARS["action"] == "save") {
     $tpl->assign("save_errors", $saveAttempt);
 }
 
+
 $tpl->assign("config_settings", Configuration::getConfAll());
+$tpl->assign("colour_defaults", Default_Data::associateDefaultColours(Default_Data::getConfDefaults()));
 $tpl->assign("admin_users", User::getSuperAdminsAssocList());       // For the APP_SYSTEM_USER_ID selector
 $tpl->assign("timezones", Date_API::getTimezoneList());             // For the APP_DEFAULT_USER_TIMEZONE selector
 

@@ -169,7 +169,7 @@ function purgeObject(pid)
 	    <tr>
 			<td align="left">
 				<table cellspacing="0" cellpadding="3" width="800">
-					<tr {$shaded_bar}>
+					<tr bgcolor="{$heading_color}">
 						<td colspan="4" class="default_white"><strong>Abstract views and document downloads {$dateString}</strong></td>
 					</tr>
 					{if $abstractViewsWidth == 0 && $downloadsWidth == 0}
@@ -200,7 +200,7 @@ function purgeObject(pid)
 	    <tr>
 			<td align="left">
 				<table cellspacing="0" cellpadding="3" width="800">
-					<tr {$shaded_bar}>
+					<tr bgcolor="{$heading_color}">
 						<td colspan="4" class="default_white"><strong>Views by country (derived from IP address of query) {$dateString}</strong></td>
 					</tr>
 					{if $listCountryCount == 0}
@@ -232,7 +232,7 @@ function purgeObject(pid)
 	    <tr>
 			<td align="left">
 				<table cellspacing="0" cellpadding="3" width="800">
-					<tr {$shaded_bar}>
+					<tr bgcolor="{$heading_color}">
 						<td colspan="4" class="default_white"><strong>History of views for this record</strong></td>
 					</tr>
 					<tr>
@@ -258,7 +258,7 @@ function purgeObject(pid)
 			    <tr>
 			<td align="left">
 				<table cellspacing="0" cellpadding="3" width="800">
-					<tr {$shaded_bar}>
+					<tr bgcolor="{$heading_color}">
 						<td colspan="4" class="default_white"><strong>Abstract views and document downloads by month/year</strong></td>
 					</tr>
 					<tr>
@@ -284,7 +284,7 @@ function purgeObject(pid)
 	    <tr>
 			<td align="left">
 				<table cellspacing="0" cellpadding="3" width="800">
-					<tr {$shaded_bar}>
+					<tr bgcolor="{$heading_color}">
 						<td colspan="4" class="default_white"><strong>Views by country (derived from IP address of query) {$dateString}</strong></td>
 					</tr>
 					{if $listCountryCount == 0}
@@ -316,7 +316,7 @@ function purgeObject(pid)
 	    <tr>
 			<td align="left">
 				<table cellspacing="0" cellpadding="3" width="800">
-					<tr {$shaded_bar}>
+					<tr bgcolor="{$heading_color}">
 						<td colspan="5" class="default_white"><strong>Views for {$country_name} by state city/suburb (derived from IP address of query) {$dateString}</strong></td>
 					</tr>
 					{if $listCountryCount == 0}

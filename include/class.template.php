@@ -252,12 +252,12 @@ class Template_API
         $this->assign("total_queries", $GLOBALS['TOTAL_QUERIES']);
 
         $this->assign(array(
-            "shaded_bar"     => "background='".APP_RELATIVE_URL."images/".APP_SHADED_BAR."'",
-            "heading_color"     => APP_HEADING_COLOR,
-            "value_color"     => APP_VALUE_COLOR,
+            //"shaded_bar"     => "background='".APP_RELATIVE_URL."images/".APP_SHADED_BAR."'",
+            "heading_color"  => APP_HEADING_COLOR,
+            "value_color"    => APP_VALUE_COLOR,
             "cell_color"     => APP_CELL_COLOR,
             "light_color"    => APP_LIGHT_COLOR,
-            "selected_color"    => APP_SELECTED_COLOR,
+            "selected_color" => APP_SELECTED_COLOR,
             "middle_color"   => APP_MIDDLE_COLOR,
             "dark_color"     => APP_DARK_COLOR,
             "cycle"          => APP_CYCLE_COLORS,

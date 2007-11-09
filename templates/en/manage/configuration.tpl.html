@@ -55,6 +55,19 @@ function runSanityCheck(el)
 	window.open(queryString + formValue, "sanity", "status=0, scrollbars=1, toolbar=0, width=400, height=300");
 }
 
+function restoreDefaultColours(el)
+{
+	if (el.checked == true) {
+		// Change every known colour back to whatever the default config says it was to begin with.
+		{/literal}
+		{foreach from=$colour_defaults key=var_name item=var_value}
+		document.getElementsByName('{$var_name}').item(0).value = "{$var_value}";
+		document.getElementById('{$var_name}').style.backgroundColor = "{$var_value}";
+		{/foreach}
+		{literal}
+	}
+}
+
 //-->
 </script>
 {/literal}
@@ -579,14 +592,21 @@ function runSanityCheck(el)
 			  <h2>Themes &amp; Appearance</h2>
 			</td>
   		  </tr>
+
 		  <tr>
+			<td class="coldetail" colspan="2">
+			  <input type="checkbox" name="restore_default_colours" onclick="javascript:restoreDefaultColours(this);" value="1" /> Check this box to restore all colours to default values
+			</td>
+  		  </tr>
+
+		  <!--tr>
 		    <td class="colname">Shaded bar</td>
 			<td class="coldetail">
 			  <input type="text" name="app_shaded_bar" value="{$config_settings.app_shaded_bar|escape:"html"}" size="20" />
 			  <br />This should be set to an image filename.<br />Place the image in the 'images' directory.
 			  {include file="error_icon.tpl.html" field="app_shaded_bar"}
 			</td>
-  		  </tr>
+  		  </tr-->
 		  <tr>
 		    <td class="colname">Cell colour</td>
 			<td class="coldetail">
