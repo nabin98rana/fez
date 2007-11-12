@@ -61,6 +61,7 @@ $wft_type = Misc::GETorPOST('wft_type');
 $parent_pid = Misc::GETorPOST('parent_pid');
 $action = Misc::GETorPOST('action');
 $href = Misc::GETorPOST('href');
+$href_title = ucwords(str_replace('_', ' ', basename(parse_url($href,PHP_URL_PATH), '.php')));
 $tpl->assign('href',$href);
 if ($href) {
     $tpl->assign('refresh_rate', 5);
@@ -118,7 +119,7 @@ if ($parent_pid) {
     }
 } 
 $tpl->assign(compact('wfl_title','wft_type','parent_title','record_title', 'view_record_url', 
-            'view_parent_url', 'parents_list', 'action'));
+            'view_parent_url', 'parents_list', 'action', 'href_title'));
 
 
 $tpl->displayTemplate();
