@@ -160,6 +160,7 @@ class Statistics
                 $city = Misc::escapeString($city);
                 $pid = Misc::escapeString($pid);
                 $dsid = Misc::escapeString($dsid);
+                $pidNum = Misc::escapeString(Misc::numPID($pid));
 
 				// below commented out lines are other GeoIP information you could possibly use if you are interested
 /*				print $record->postal_code . "\n";
@@ -181,7 +182,8 @@ class Statistics
 								stl_region,
 								stl_city,
 								stl_pid,																							
-								stl_dsid
+								stl_dsid,
+                                stl_pid_num
 							 ) VALUES (
 								'" . $archive_name . "',
 								'" . $ip . "',
@@ -192,7 +194,8 @@ class Statistics
 								'" . $region . "',
 								'" . $city . "',
 								'" . $pid . "',			
-								'" . $dsid . "'
+								'" . $dsid . "',
+								'" . $pidNum . "'
 							 )"; 
 					$res = $GLOBALS["db_api"]->dbh->query($stmt);
 					if (PEAR::isError($res)) {

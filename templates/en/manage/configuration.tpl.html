@@ -65,6 +65,14 @@ function restoreDefaultColours(el)
 		document.getElementById('{$var_name}').style.backgroundColor = "{$var_value}";
 		{/foreach}
 		{literal}
+	} else {
+		// Change every known colour back to the value it had when the form was loaded.
+		{/literal}
+		{foreach from=$colour_defaults key=var_name item=var_value}
+		document.getElementsByName('{$var_name}').item(0).value = "{$config_settings.$var_name}";
+		document.getElementById('{$var_name}').style.backgroundColor = "{$config_settings.$var_name}";
+		{/foreach}
+		{literal}
 	}
 }
 
