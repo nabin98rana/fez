@@ -187,7 +187,7 @@ CREATE TABLE `%TABLE_PREFIX%config` (
   `config_id` int(11) NOT NULL auto_increment,
   `config_name` varchar(32) NOT NULL,
   `config_module` varchar(32) NOT NULL,
-  `config_value` varchar(256) default NULL,
+  `config_value` varchar(512) default NULL,
   PRIMARY KEY  (`config_id`),
   UNIQUE KEY `config_name` (`config_name`,`config_module`)
 ) ENGINE=MyISAM AUTO_INCREMENT=99 DEFAULT CHARSET=utf8;

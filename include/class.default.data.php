@@ -83,7 +83,7 @@ class Default_Data
             $defaultData['app_san_import_dir']              = "/fez/incoming/";
         }   // Can add some other defaults here for other common OS setups
 
-        $defaultData['datamodel_version']                   = "2007103199";                 // Change this to last upgrade + 1
+        $defaultData['datamodel_version']                   = "2007111201";                 // Change this to last upgrade + 1
         $defaultData['shib_switch']                         = "OFF";
         $defaultData['shib_direct_login']                   = "OFF";
         $defaultData['shib_federation_name']                = "MAMS Testbed Federation";
