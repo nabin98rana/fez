@@ -61,7 +61,10 @@ $wft_type = Misc::GETorPOST('wft_type');
 $parent_pid = Misc::GETorPOST('parent_pid');
 $action = Misc::GETorPOST('action');
 $href = Misc::GETorPOST('href');
-$href_title = ucwords(str_replace('_', ' ', basename(parse_url($href,PHP_URL_PATH), '.php')));
+$href_title = substr($href, 0, strpos($href, "?"));
+$href_title = basename($href_title, ".php");
+$href_title = ucwords(str_replace('_', ' ', basename($href_title, ".php")));
+
 $tpl->assign('href',$href);
 if ($href) {
     $tpl->assign('refresh_rate', 5);
