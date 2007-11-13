@@ -39,7 +39,7 @@ if ($access_ok) {
 		if ($saveResult != -1) {
 			Auth::redirect(APP_BASE_URL.'workflow/edit_affiliation.php?id='.$wf_id);
 		} else {
-			echo "Error on save of author affiliation";
+            $tpl->assign("error_message", "Error on save of author affiliation");
 		}
 	} elseif ($_REQUEST['action'] == 'delete') {
 		AuthorAffiliations::remove($_REQUEST['af_id']);

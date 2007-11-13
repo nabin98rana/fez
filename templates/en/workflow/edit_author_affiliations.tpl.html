@@ -3,46 +3,103 @@
 {literal}
 function validateForm(f)
 {
-	;
+	if (!IsNumeric(f.af_percent_affiliation.value) || f.af_percent_affiliation.value <= 0 || f.af_percent_affiliation.value > 100) {
+		errors[errors.length] = new Option('Percent Affiliation', 'af_percent_affiliation');
+	}
 }
 {/literal}
 // -->
 </script>
 
 <tr><td>
+
 <div class="outline">
+
+<div class="admin-header">Edit Author Affiliations</div>
+
+  <div class="default admin-content">
+
+  <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+	<tr>
+	  <td>
+		<table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+
+        <form name="form1" onsubmit="javascript:validateForm(this)">
+  <div class="error">{$error_message}</div>
+        <input type="hidden" name="action" value="save"/>
+        <input type="hidden" name="id" value="{$wf_id}"/>
+        <input type="hidden" name="af_id" value="{$current.af_id}"/>
+		
+		  <tr>
+			<td width="140" bgcolor="{$cell_color}" class="default">
+			  <b>Author Name:</b>
+			</td>
+			<td bgcolor="{$light_color}">
+			  {html_options name="af_author_id" values=$author_ids output=$authors selected=$current.af_author_id}
+			</td>
+          </tr>
+
+		  <tr>
+			<td width="140" bgcolor="{$cell_color}" class="default">
+			  <b>Organisational Unit:</b>
+			</td>
+			<td bgcolor="{$light_color}">
+			  {html_options name="af_org_id" options=$orgs selected=$current.af_org_id}
+			</td>
+          </tr>
+
+		  <tr>
+			<td width="140" bgcolor="{$cell_color}" class="default">
+			  <b>Percent Affiliation:</b>
+			</td>
+			<td bgcolor="{$light_color}">
+			  <input type="textfield" name="af_percent_affiliation" value="{$current.af_percent_affiliation}"/>
+			</td>
+          </tr>
+
+		  <tr>
+			<td width="140" bgcolor="{$cell_color}" class="default"></td>
+			<td bgcolor="{$light_color}">
+			  <input type="submit" name="save" value="Save"/>
+			</td>
+          </tr>
+
+        </form>
+
+		</table>
+	  </td>
+	</tr>
+  </table>
+
 	
-	<form name="form1">
-		<input type="hidden" name="action" value="save"/>
-		<input type="hidden" name="id" value="{$wf_id}"/>
-		<input type="hidden" name="af_id" value="{$current.af_id}"/>
-		<div>
-			<div>Author Name</div>
-			<div>{html_options name="af_author_id" values=$author_ids output=$authors selected=$current.af_author_id}</div>
-		</div>
-		<div>
-			<div>Percent Affiliation</div>
-			<div><input type="textfield" name="af_percent_affiliation" value="{$current.af_percent_affiliation}"/></div>
-		</div>
-		<div>
-			<div>Organisational Unit</div>
-			<div>{html_options name="af_org_id" options=$orgs selected=$current.af_org_id}</div>
-		</div>
-		<div>
-			<input type="submit" name="save" value="Save"/>
-		</div>
-	</form>
-	
-	<table>
+	<br />
+
+	<table cellpadding="2" cellspacing="2">
 	{section name='ii' loop=$list}
+	{if $smarty.section.ii.first}
+      <tr>
+		<td bgcolor="{$cell_color}"><b>Author</b></td>
+		<td bgcolor="{$cell_color}"><b>%</b></td>
+		<td bgcolor="{$cell_color}"><b>Organisational Unit</b></td>
+		<td bgcolor="{$cell_color}"></td>
+		<td bgcolor="{$cell_color}"></td>
+      </tr>
+	{/if}
+
+	{cycle values=$cycle assign="row_color"}
 		<tr>
-			<td>{$list[ii].author_name}</td>
-			<td>{$list[ii].af_percent_affiliation}</td>
-			<td>{$list[ii].org_title}</td>
-			<td>[<a href="{$smarty.server.PHP_SELF}?id={$wf_id}&action=edit&af_id={$list[ii].af_id}">edit</a>]</td>
-			<td>[<a href="{$smarty.server.PHP_SELF}?id={$wf_id}&action=delete&af_id={$list[ii].af_id}">remove</a>]</td>
+			<td bgcolor="{$row_color}" width="">{$list[ii].author_name}</td>
+			<td bgcolor="{$row_color}" width="">{$list[ii].af_percent_affiliation}</td>
+			<td bgcolor="{$row_color}" width="">{$list[ii].org_title}</td>
+			<td bgcolor="{$row_color}" width=""><a href="{$smarty.server.PHP_SELF}?id={$wf_id}&action=edit&af_id={$list[ii].af_id}" title="Edit this affiliation">Edit</a></td>
+			<td bgcolor="{$row_color}" width=""><a href="{$smarty.server.PHP_SELF}?id={$wf_id}&action=delete&af_id={$list[ii].af_id}" title="Remove this affiliation">Remove</a></td>
 		</tr>
+	{sectionelse}
+		<tr><td>There are currently no affiliations recorded for this record.</td></tr>
 	{/section}
 	</table>
+
+  </div>
 </div>
+
 </td></tr>
