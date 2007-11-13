@@ -9,8 +9,9 @@
  *
  */
 
- include_once(APP_INC_PATH.'class.bgp_test.php');
- include_once(APP_INC_PATH. 'class.graphviz.php');
+include_once(APP_INC_PATH.'class.bgp_test.php');
+include_once(APP_INC_PATH. 'class.graphviz.php');
+include_once(APP_INC_PATH . "class.fedora_direct_access.php");
 
  class ConfigResult
  {
@@ -480,14 +481,24 @@
         $port = FEDORA_DB_PORT;
         $results = array_merge($results, SanityChecks::checkConnect('FEDORA_DB_HOST', $server . ':' . $port));
         if (SanityChecks::resultsClean($results)) {
-            $stmt = "use " . FEDORA_DB_DATABASE_NAME;
-            $res = $GLOBALS["db_api"]->dbh->query($stmt);
-            if (PEAR::isError($res)) {
-                $results[] = new ConfigResult('Fedora Direct','FEDORA_DB_DATABASE_NAME',FEDORA_DB_DATABASE_NAME,"Failed to use DB. " .
+            $fedoraDirect = new Fedora_Direct_Access();
+            if (PEAR::isError($fedoraDirect->dbh)) {
+                $results[] = new ConfigResult('Fedora Direct','FEDORA_DB_DATABASE_NAME',FEDORA_DB_DATABASE_NAME,"Failed to connect to DB. " .
+                        "Check that the specified database user has permissions on the Fedora database. " .
+                        "Check that the database password is correct. " .
+                        "Check that database name is set correctly. DB Error: " .
+                        "".$fedoraDirect->dbh->getMessage().' '.print_r($fedoraDirect->dbh->getDebugInfo(),true));
+			} else {
+            	$stmt = "SELECT dopid FROM doregistry ";
+            	$fedoraDirect->dbh->modifyLimitQuery($stmt,0,1);
+            	$res = $fedoraDirect->dbh->query($stmt);
+            	if (PEAR::isError($res)) {
+                	$results[] = new ConfigResult('Fedora Direct','FEDORA_DB_DATABASE_NAME',FEDORA_DB_DATABASE_NAME,"Failed to query DB. " .
                         "Check that the specified database user has permissions on the Fedora database. " .
                         "Check that the database password is correct. " .
                         "Check that database name is set correctly. DB Error: " .
                         "".$res->getMessage().' '.print_r($res->getDebugInfo(),true));
+                }
             }
         }
         if (SanityChecks::resultsClean($results)) {

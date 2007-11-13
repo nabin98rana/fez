@@ -72,7 +72,6 @@ class Fedora_Direct_Access {
             Error_Handler::logError(array($this->dbh->getMessage(), $this->dbh->getDebugInfo()), __FILE__, __LINE__);
             $error_type = "db";
             //include_once(APP_PATH . "offline.php");
-            exit;
         }
         return;
     }
