@@ -18,6 +18,7 @@ class AuthorAffiliations
         foreach ($res as $key => $item) {
         	$res[$key]['author_name'] = Author::getFullname($item['af_author_id']);
         	$res[$key]['org_title'] = Org_Structure::getTitle($item['af_org_id']);
+            $res[$key]['af_percent_affiliation'] = $item['af_percent_affiliation'] / 1000;
         }
         return $res;
 	}
@@ -52,7 +53,7 @@ class AuthorAffiliations
 		if (!is_numeric($af_author_id) || !is_numeric($af_percent_affiliation)) {
 			return -1;
 		}
-		if (($af_percent_affiliation > 100) || ($af_percent_affiliation < 1)) {
+		if (($af_percent_affiliation > 100) || ($af_percent_affiliation < 0.001)) {
 			return -1;
 		}
 		if (empty($af_id)) {
@@ -60,6 +61,9 @@ class AuthorAffiliations
 		} else {
 			$stmt = "UPDATE ";
 		}
+
+        $af_percent_affiliation = $af_percent_affiliation * 1000;
+
 		$stmt .= APP_TABLE_PREFIX . "author_affiliation SET 
 			af_pid='".$pid."',
 			af_author_id=".$af_author_id.",
