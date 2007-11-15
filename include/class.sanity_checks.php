@@ -489,7 +489,7 @@ include_once(APP_INC_PATH . "class.fedora_direct_access.php");
                         "Check that database name is set correctly. DB Error: " .
                         "".$fedoraDirect->dbh->getMessage().' '.print_r($fedoraDirect->dbh->getDebugInfo(),true));
 			} else {
-            	$stmt = "SELECT dopid FROM doregistry ";
+            	$stmt = "SELECT * FROM policy ";
             	$fedoraDirect->dbh->modifyLimitQuery($stmt,0,1);
             	$res = $fedoraDirect->dbh->query($stmt);
             	if (PEAR::isError($res)) {
