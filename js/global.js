@@ -993,3 +993,11 @@ function selectDateField(field_name, day, month, year)
     selectOption(this.document.custom_filter_form, field_name + '[Month]', month);
     selectOption(this.document.custom_filter_form, field_name + '[Year]', year);
 }
+
+function confirmDelete() {
+    if (confirm("This action will delete this object. Are you certain you wish to do this?")) {
+        return true;
+    } else {
+        return false;
+	}
+}

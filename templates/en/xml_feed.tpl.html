@@ -18,335 +18,332 @@
 	<pid>{$list[i].rek_pid|escape:"html"}</pid>
         <citation><![CDATA[{$list[i].rek_citation}]]></citation>
 	<identifier>{$app_base_url}{$href_view}</identifier>
-	{if $list[i].rek_description != "null"}	
 	<description>{$list[i].rek_description|escape:"html"}</description>
-	{/if}
-	{if $list[i].rek_created_date}
+	<genre>{$list[i].rek_display_type_lookup|escape:"html"}</genre>
 	<created_date>{$list[i].rek_created_date|escape:"html"}</created_date>
-	{/if}
-	{if $list[i].rek_updated_date}
 	<updated_date>{$list[i].rek_updated_date|escape:"html"}</updated_date>
-	{/if}
-	{if $list[i].rek_date}
 	<publication_date>{$list[i].rek_date|escape:"html"}</publication_date>
-	{/if}
-	{if $list[i].rek_report_number}
 	<report_numbers>
 	{section name="report_number_loop" loop=$list[i].rek_report_number}
 	<report_number>{$list[i].rek_report_number[report_number_loop]|escape:"html"}</report_number>
+	{sectionelse}
+	<report_number />
 	{/section}
 	</report_numbers>
-	{/if}
-	{if $list[i].rek_org_name}
 	<org_names>
 	{section name="org_name_loop" loop=$list[i].rek_org_name}
 	<org_name>{$list[i].rek_org_name[org_name_loop]|escape:"html"}</org_name>
+	{sectionelse}
+	<org_name />
 	{/section}
 	</org_names>
-	{/if}
-	{if $list[i].rek_org_unit_name}
 	<org_unit_names>
 	{section name="org_unit_name_loop" loop=$list[i].rek_org_unit_name}
 	<org_unit_name>{$list[i].rek_org_unit_name[org_unit_name_loop]|escape:"html"}</org_unit_name>
+	{sectionelse}
+	<org_unit_name />
 	{/section}
 	</org_unit_names>
-	{/if}
-	{if $list[i].rek_sensitivity_explanation}
 	<sensitivity_explanations>
 	{section name="sensitivity_explanation_loop" loop=$list[i].rek_sensitivity_explanation}
 	<sensitivity_explanation>{$list[i].rek_sensitivity_explanation[sensitivity_explanation_loop]|escape:"html"}</sensitivity_explanation>
+	{sectionelse}
+	<sensitivity_explanation />
 	{/section}
 	</sensitivity_explanations>
-	{/if}
-	{if $list[i].rek_na_explanation}
 	<na_explanations>
 	{section name="na_explanation_loop" loop=$list[i].rek_na_explanation}
 	<na_explanation>{$list[i].rek_na_explanation[na_explanation_loop]|escape:"html"}</na_explanation>
+	{sectionelse}
+	<na_explanation />
 	{/section}
 	</na_explanations>
-	{/if}
-	{if $list[i].rek_output_availability}
 	<output_availabilitys>
 	{section name="output_availability_loop" loop=$list[i].rek_output_availability}
 	<output_availability>{$list[i].rek_output_availability[output_availability_loop]|escape:"html"}</output_availability>
+	{sectionelse}
+	<output_availability />
 	{/section}
 	</output_availabilitys>
-	{/if}
-	{if $list[i].rek_prn}
 	<prns>
 	{section name="prn_loop" loop=$list[i].rek_prn}
 	<prn>{$list[i].rek_prn[prn_loop]|escape:"html"}</prn>
+	{sectionelse}
+	<prn />
 	{/section}
 	</prns>
-	{/if}
-	{if $list[i].rek_isi_loc}
 	<isi_locs>
 	{section name="isi_loc_loop" loop=$list[i].rek_isi_loc}
 	<isi_loc>{$list[i].rek_isi_loc[isi_loc_loop]|escape:"html"}</isi_loc>
+	{sectionelse}
+	<isi_loc />
 	{/section}
 	</isi_locs>
-	{/if}
-	{if $list[i].rek_isbn}
 	<isbns>
 	{section name="isbn_loop" loop=$list[i].rek_isbn}
 	<isbn>{$list[i].rek_isbn[isbn_loop]|escape:"html"}</isbn>
+	{sectionelse}
+	<isbn />
 	{/section}
 	</isbns>
-	{/if}
-	{if $list[i].rek_issn}
 	<issns>
 	{section name="issn_loop" loop=$list[i].rek_issn}
 	<issn>{$list[i].rek_issn[issn_loop]|escape:"html"}</issn>
+	{sectionelse}
+	<issn />
 	{/section}
 	</issns>
-	{/if}
-	{if $list[i].rek_translated_conference_name}
 	<translated_conference_names>
 	{section name="translated_conference_name_loop" loop=$list[i].rek_translated_conference_name}
 	<translated_conference_name>{$list[i].rek_translated_conference_name[translated_conference_name_loop]|escape:"html"}</translated_conference_name>
+	{sectionelse}
+	<translated_conference_name />
 	{/section}
 	</translated_conference_names>
-	{/if}
-	{if $list[i].rek_phonetic_conference_name}
 	<phonetic_conference_names>
 	{section name="phonetic_conference_name_loop" loop=$list[i].rek_phonetic_conference_name}
 	<phonetic_conference_name>{$list[i].rek_phonetic_conference_name[phonetic_conference_name_loop]|escape:"html"}</phonetic_conference_name>
+	{sectionelse}
+	<phonetic_conference_name />
 	{/section}
 	</phonetic_conference_names>
-	{/if}
-	{if $list[i].rek_translated_newspaper}
 	<translated_newspapers>
 	{section name="translated_newspaper_loop" loop=$list[i].rek_translated_newspaper}
 	<translated_newspaper>{$list[i].rek_translated_newspaper[translated_newspaper_loop]|escape:"html"}</translated_newspaper>
+	{sectionelse}
+	<translated_newspaper />
 	{/section}
 	</translated_newspapers>
-	{/if}
-	{if $list[i].rek_phonetic_newspaper}
 	<phonetic_newspapers>
 	{section name="phonetic_newspaper_loop" loop=$list[i].rek_phonetic_newspaper}
 	<phonetic_newspaper>{$list[i].rek_phonetic_newspaper[phonetic_newspaper_loop]|escape:"html"}</phonetic_newspaper>
+	{sectionelse}
+	<phonetic_newspaper />
 	{/section}
 	</phonetic_newspapers>
-	{/if}
-	{if $list[i].rek_translated_book_title}
 	<translated_book_titles>
 	{section name="translated_book_title_loop" loop=$list[i].rek_translated_book_title}
 	<translated_book_title>{$list[i].rek_translated_book_title[translated_book_title_loop]|escape:"html"}</translated_book_title>
+	{sectionelse}
+	<translated_book_title />
 	{/section}
 	</translated_book_titles>
-	{/if}
-	{if $list[i].rek_phonetic_book_title}
 	<phonetic_book_titles>
 	{section name="phonetic_book_title_loop" loop=$list[i].rek_phonetic_book_title}
 	<phonetic_book_title>{$list[i].rek_phonetic_book_title[phonetic_book_title_loop]|escape:"html"}</phonetic_book_title>
+	{sectionelse}
+	<phonetic_book_title />
 	{/section}
 	</phonetic_book_titles>
-	{/if}
-	{if $list[i].rek_translated_journal_name}
 	<translated_journal_names>
 	{section name="translated_journal_name_loop" loop=$list[i].rek_translated_journal_name}
 	<translated_journal_name>{$list[i].rek_translated_journal_name[translated_journal_name_loop]|escape:"html"}</translated_journal_name>
+	{sectionelse}
+	<translated_journal_name />
 	{/section}
 	</translated_journal_names>
-	{/if}
-	{if $list[i].rek_phonetic_journal_name}
 	<phonetic_journal_names>
 	{section name="phonetic_journal_name_loop" loop=$list[i].rek_phonetic_journal_name}
 	<phonetic_journal_name>{$list[i].rek_phonetic_journal_name[phonetic_journal_name_loop]|escape:"html"}</phonetic_journal_name>
+	{sectionelse}
+	<phonetic_journal_name />
 	{/section}
 	</phonetic_journal_names>
-	{/if}
-	{if $list[i].rek_translated_title}
 	<translated_titles>
 	{section name="translated_title_loop" loop=$list[i].rek_translated_title}
 	<translated_title>{$list[i].rek_translated_title[translated_title_loop]|escape:"html"}</translated_title>
+	{sectionelse}
+	<translated_title />
 	{/section}
 	</translated_titles>
-	{/if}
-	{if $list[i].rek_language_of_title}
 	<language_of_titles>
 	{section name="language_of_title_loop" loop=$list[i].rek_language_of_title}
 	<language_of_title>{$list[i].rek_language_of_title[language_of_title_loop]|escape:"html"}</language_of_title>
+	{sectionelse}
+	<language_of_title />
 	{/section}
 	</language_of_titles>
-	{/if}
-	{if $list[i].rek_phonetic_title}
 	<phonetic_titles>
 	{section name="phonetic_title_loop" loop=$list[i].rek_phonetic_title}
 	<phonetic_title>{$list[i].rek_phonetic_title[phonetic_title_loop]|escape:"html"}</phonetic_title>
+	{sectionelse}
+	<phonetic_title />
 	{/section}
 	</phonetic_titles>
-	{/if}
-	{if $list[i].rek_language}
 	<languages>
 	{section name="language_loop" loop=$list[i].rek_language}
 	<language>{$list[i].rek_language[language_loop]|escape:"html"}</language>
+	{sectionelse}
+	<language />
 	{/section}
 	</languages>
-	{/if}
-	{if $list[i].rek_date_available}
 	<date_availables>
 	{section name="date_available_loop" loop=$list[i].rek_date_available}
 	<date_available>{$list[i].rek_date_available[date_available_loop]|escape:"html"}</date_available>
+	{sectionelse}
+	<date_available />
 	{/section}
 	</date_availables>
-	{/if}
-	{if $list[i].rek_country_of_issue}
 	<country_of_issues>
 	{section name="country_of_issue_loop" loop=$list[i].rek_country_of_issue}
 	<country_of_issue>{$list[i].rek_country_of_issue[country_of_issue_loop]|escape:"html"}</country_of_issue>
+	{sectionelse}
+	<country_of_issue />
 	{/section}
 	</country_of_issues>
-	{/if}
-	{if $list[i].rek_patent_number}
 	<patent_numbers>
 	{section name="patent_number_loop" loop=$list[i].rek_patent_number}
 	<patent_number>{$list[i].rek_patent_number[patent_number_loop]|escape:"html"}</patent_number>
+	{sectionelse}
+	<patent_number />
 	{/section}
 	</patent_numbers>
-	{/if}
-	{if $list[i].rek_conference_location}
 	<conference_locations>
 	{section name="conference_location_loop" loop=$list[i].rek_conference_location}
 	<conference_location>{$list[i].rek_conference_location[conference_location_loop]|escape:"html"}</conference_location>
+	{sectionelse}
+	<conference_location />
 	{/section}
 	</conference_locations>
-	{/if}
-	{if $list[i].rek_conference_dates}
 	<conference_datess>
 	{section name="conference_dates_loop" loop=$list[i].rek_conference_dates}
 	<conference_dates>{$list[i].rek_conference_dates[conference_dates_loop]|escape:"html"}</conference_dates>
+	{sectionelse}
+	<conference_dates />
 	{/section}
 	</conference_datess>
-	{/if}
-	{if $list[i].rek_volume_number}
 	<volume_numbers>
 	{section name="volume_number_loop" loop=$list[i].rek_volume_number}
 	<volume_number>{$list[i].rek_volume_number[volume_number_loop]|escape:"html"}</volume_number>
+	{sectionelse}
+	<volume_number />
 	{/section}
 	</volume_numbers>
-	{/if}
-	{if $list[i].rek_issue_number}
 	<issue_numbers>
 	{section name="issue_number_loop" loop=$list[i].rek_issue_number}
 	<issue_number>{$list[i].rek_issue_number[issue_number_loop]|escape:"html"}</issue_number>
+	{sectionelse}
+	<issue_number />
 	{/section}
 	</issue_numbers>
-	{/if}
-	{if $list[i].rek_chapter_number}
 	<chapter_numbers>
 	{section name="chapter_number_loop" loop=$list[i].rek_chapter_number}
 	<chapter_number>{$list[i].rek_chapter_number[chapter_number_loop]|escape:"html"}</chapter_number>
+	{sectionelse}
+	<chapter_number />
 	{/section}
 	</chapter_numbers>
-	{/if}
-	{if $list[i].rek_end_page}
 	<end_pages>
 	{section name="end_page_loop" loop=$list[i].rek_end_page}
 	<end_page>{$list[i].rek_end_page[end_page_loop]|escape:"html"}</end_page>
+	{sectionelse}
+	<end_page />
 	{/section}
 	</end_pages>
-	{/if}
-	{if $list[i].rek_start_page}
 	<start_pages>
 	{section name="start_page_loop" loop=$list[i].rek_start_page}
 	<start_page>{$list[i].rek_start_page[start_page_loop]|escape:"html"}</start_page>
+	{sectionelse}
+	<start_page />
 	{/section}
 	</start_pages>
-	{/if}
-	{if $list[i].rek_place_of_publication}
 	<place_of_publications>
 	{section name="place_of_publication_loop" loop=$list[i].rek_place_of_publication}
 	<place_of_publication>{$list[i].rek_place_of_publication[place_of_publication_loop]|escape:"html"}</place_of_publication>
+	{sectionelse}
+	<place_of_publication />
 	{/section}
 	</place_of_publications>
-	{/if}
-	{if $list[i].rek_edition}
 	<editions>
 	{section name="edition_loop" loop=$list[i].rek_edition}
 	<edition>{$list[i].rek_edition[edition_loop]|escape:"html"}</edition>
+	{sectionelse}
+	<edition />
 	{/section}
 	</editions>
-	{/if}
-	{if $list[i].rek_author}
 	<authors>
 	{section name="author_loop" loop=$list[i].rek_author}
 	<author>{$list[i].rek_author[author_loop]|escape:"html"}</author>
+	{sectionelse}
+	<author />
 	{/section}
 	</authors>
-	{/if}
-	{if $list[i].rek_author_id}
 	<author_ids>
 	{section name="author_loop" loop=$list[i].rek_author_id}
 	<author_id>{$list[i].rek_author_id[author_loop]|escape:"html"}</author_id>
+	{sectionelse}
+	<author_id />
 	{/section}
 	</author_ids>
-	{/if}		
-	{if $list[i].rek_author_id_lookup}
 	<author_id_lookups>
 	{section name="author_loop" loop=$list[i].rek_author_id_lookup}
 	<author_id_lookup>{$list[i].rek_author_id_lookup[author_loop]|escape:"html"}</author_id_lookup>
+	{sectionelse}
+	<author_id_lookup />
 	{/section}
 	</author_id_lookups>
-	{/if}		
-	{if $list[i].rek_author_id_external}
 	<author_id_externals>
 	{section name="author_loop" loop=$list[i].rek_author_id_external}
 	<author_id_external>{$list[i].rek_author_id_external[author_loop]|escape:"html"}</author_id_external>
+	{sectionelse}
+	<author_id_external />
 	{/section}
 	</author_id_externals>
-	{/if}
-	{if $list[i].rek_contributor}
 	<contributors>
 	{section name="contributor_loop" loop=$list[i].rek_contributor}
 	<contributor>{$list[i].rek_contributor[contributor_loop]|escape:"html"}</contributor>
+	{sectionelse}
+	<contributor />
 	{/section}
 	</contributors>
-	{/if}
-	{if $list[i].rek_contributor_id}
 	<contributor_ids>
 	{section name="contributor_loop" loop=$list[i].rek_contributor_id}
 	<contributor_id>{$list[i].rek_contributor_id[contributor_loop]|escape:"html"}</contributor_id>
+	{sectionelse}
+	<contributor_id />
 	{/section}
 	</contributor_ids>
-	{/if}		
-	{if $list[i].rek_contributor_id_lookup}
 	<contributor_id_lookups>
 	{section name="contributor_loop" loop=$list[i].rek_contributor_id_lookup}
 	<contributor_id_lookup>{$list[i].rek_contributor_id_lookup[contributor_loop]|escape:"html"}</contributor_id_lookup>
+	{sectionelse}
+	<contributor_id_lookup />
 	{/section}
 	</contributor_id_lookups>
-	{/if}		
-	{if $list[i].rek_contributor_id_external}
 	<contributor_id_externals>
 	{section name="contributor_loop" loop=$list[i].rek_contributor_id_external}
 	<contributor_id_external>{$list[i].rek_contributor_id_external[contributor_loop]|escape:"html"}</contributor_id_external>
+	{sectionelse}
+	<contributor_id_external />
 	{/section}
 	</contributor_id_externals>
-	{/if}
-	{if $list[i].rek_ismemberof}
 	<isMemberOfs>
 	{section name="isMemberOf_loop" loop=$list[i].rek_ismemberof}
 	<isMemberOf>{$list[i].rek_ismemberof[isMemberOf_loop]|escape:"html"}</isMemberOf>
+	{sectionelse}
+	<isMemberOf />
 	{/section}
 	</isMemberOfs>
-	{/if}
-	{if $list[i].rek_keywords}
 	<keywords>
 	{section name="keywords_loop" loop=$list[i].rek_keywords}
 	<keyword>{$list[i].rek_keywords[keywords_loop]|escape:"html"}</keyword>
+	{sectionelse}
+	<keyword />
 	{/section}
 	</keywords>
-	{/if}
 	{assign var="loop_format" value=$list[i].rek_file_attachment_name}
 	<datastream_links>
 	{section name="f" loop=$loop_format}
 	<datastream_link>{$app_base_url}basiceserv.php?pid={$list[i].rek_pid|escape:"html"}&amp;dsID={$list[i].rek_file_attachment_name[f]|escape:"html"}</datastream_link>
+	{sectionelse}
+	<datastream_link />
 	{/section}
 	</datastream_links>
 	<datastreams>
 	{section name="f" loop=$loop_format}
 	<datastream>{$list[i].rek_file_attachment_name[f]|escape:"html"}</datastream>
+	{sectionelse}
+	<datastream />
 	{/section}
 	</datastreams>
 </item>
