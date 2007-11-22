@@ -33,7 +33,7 @@ CREATE TABLE `%TABLE_PREFIX%auth_index2_pre_fez2_upgrade` (
   KEY `authi_role` (`authi_role`),
   KEY `authi_arg_id` (`authi_arg_id`),
   KEY `authi_role_pid` (`authi_pid`,`authi_role`)
-) ENGINE=MyISAM AUTO_INCREMENT=393 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%auth_roles` */
 
@@ -42,7 +42,7 @@ CREATE TABLE `%TABLE_PREFIX%auth_roles` (
   `aro_role` varchar(64) NOT NULL,
   `aro_ranking` int(11) unsigned NOT NULL,
   PRIMARY KEY  (`aro_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%auth_rule_group_rules` */
 
@@ -62,7 +62,7 @@ CREATE TABLE `%TABLE_PREFIX%auth_rule_group_users` (
   PRIMARY KEY  (`argu_id`),
   KEY `argu_usr_id` (`argu_usr_id`),
   KEY `argu_arg_id` (`argu_arg_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=64 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%auth_rule_groups` */
 
@@ -71,7 +71,7 @@ CREATE TABLE `%TABLE_PREFIX%auth_rule_groups` (
   `arg_md5` varchar(128) NOT NULL,
   PRIMARY KEY  (`arg_id`),
   KEY `arg_md5` (`arg_md5`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%auth_rules` */
 
@@ -82,7 +82,7 @@ CREATE TABLE `%TABLE_PREFIX%auth_rules` (
   PRIMARY KEY  (`ar_id`),
   KEY `ar_value` (`ar_value`),
   FULLTEXT KEY `ar_rule` (`ar_rule`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%author` */
 
@@ -107,7 +107,7 @@ CREATE TABLE `%TABLE_PREFIX%author` (
   UNIQUE KEY `aut_org_staff_id` (`aut_org_staff_id`),
   FULLTEXT KEY `aut_fname` (`aut_fname`,`aut_lname`),
   FULLTEXT KEY `aut_display_name` (`aut_display_name`)
-) ENGINE=MyISAM AUTO_INCREMENT=112250 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 /*Table structure for table `%TABLE_PREFIX%author_affiliation` */
 
@@ -169,7 +169,7 @@ CREATE TABLE `%TABLE_PREFIX%background_process` (
   KEY `bgp_started` (`bgp_started`),
   KEY `bgp_state` (`bgp_state`),
   KEY `bgp_usr_id` (`bgp_usr_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=3011 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%citation` */
 
@@ -179,7 +179,7 @@ CREATE TABLE `%TABLE_PREFIX%citation` (
   `cit_template` text NOT NULL,
   `cit_type` varchar(10) NOT NULL,
   PRIMARY KEY  (`cit_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=52 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 /*Table structure for table `%TABLE_PREFIX%config` */
 
@@ -190,7 +190,7 @@ CREATE TABLE `%TABLE_PREFIX%config` (
   `config_value` varchar(512) default NULL,
   PRIMARY KEY  (`config_id`),
   UNIQUE KEY `config_name` (`config_name`,`config_module`)
-) ENGINE=MyISAM AUTO_INCREMENT=99 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%controlled_vocab` */
 
@@ -203,7 +203,7 @@ CREATE TABLE `%TABLE_PREFIX%controlled_vocab` (
   PRIMARY KEY  (`cvo_id`),
   UNIQUE KEY `cvo_id` (`cvo_id`),
   KEY `cvo_title` (`cvo_title`)
-) ENGINE=MyISAM AUTO_INCREMENT=450779 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%controlled_vocab_relationship` */
 
@@ -213,7 +213,7 @@ CREATE TABLE `%TABLE_PREFIX%controlled_vocab_relationship` (
   `cvr_child_cvo_id` int(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`cvr_id`),
   UNIQUE KEY `cvr_parent_cvo_id` (`cvr_parent_cvo_id`,`cvr_child_cvo_id`,`cvr_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1913 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%eprints_import_pids` */
 
@@ -233,7 +233,7 @@ CREATE TABLE `%TABLE_PREFIX%fulltext_engine` (
   `fte_weight` smallint(4) NOT NULL default '0',
   PRIMARY KEY  (`fte_id`),
   KEY `key_id` (`fte_key_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=4926 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%fulltext_index` */
 
@@ -243,7 +243,7 @@ CREATE TABLE `%TABLE_PREFIX%fulltext_index` (
   `fti_dsid` varchar(128) NOT NULL,
   `fti_indexed` datetime NOT NULL,
   PRIMARY KEY  (`fti_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%fulltext_keywords` */
 
@@ -254,7 +254,7 @@ CREATE TABLE `%TABLE_PREFIX%fulltext_keywords` (
   PRIMARY KEY  (`ftk_id`),
   UNIQUE KEY `ftk_word` (`ftk_word`),
   KEY `ftk_twoletters` (`ftk_twoletters`)
-) ENGINE=MyISAM AUTO_INCREMENT=986 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%group` */
 
@@ -316,7 +316,7 @@ CREATE TABLE `%TABLE_PREFIX%news` (
   `nws_updated_date` datetime default '0000-00-00 00:00:00',
   PRIMARY KEY  (`nws_id`),
   UNIQUE KEY `nws_title` (`nws_title`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%object_type` */
 
@@ -337,7 +337,7 @@ CREATE TABLE `%TABLE_PREFIX%org_structure` (
   `org_title` varchar(255) default NULL,
   `org_is_current` int(1) default '1',
   PRIMARY KEY  (`org_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=786 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%org_structure_relationship` */
 
@@ -361,7 +361,7 @@ CREATE TABLE `%TABLE_PREFIX%premis_event` (
   `pre_pid` varchar(255) default NULL,
   `pre_is_hidden` tinyint(1) default '0',
   PRIMARY KEY  (`pre_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=377 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_locks` */
 
@@ -372,7 +372,7 @@ CREATE TABLE `%TABLE_PREFIX%record_locks` (
   `rl_context_type` int(11) NOT NULL,
   `rl_context_value` int(11) NOT NULL,
   PRIMARY KEY  (`rl_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=22 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_matching_field` */
 
@@ -394,7 +394,7 @@ CREATE TABLE `%TABLE_PREFIX%record_matching_field` (
   KEY `combo_pid_xsdmf` (`rmf_rec_pid`,`rmf_xsdmf_id`),
   KEY `combo_pid_num_xsdmf` (`rmf_rec_pid_num`,`rmf_xsdmf_id`),
   FULLTEXT KEY `rmf_varchar` (`rmf_varchar`)
-) ENGINE=MyISAM AUTO_INCREMENT=4255 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key` */
 
@@ -487,7 +487,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_assigned_group_id` (
   PRIMARY KEY  (`rek_assigned_group_id_id`),
   KEY `rek_assigned_group_id_pid` (`rek_assigned_group_id_pid`),
   KEY `rek_assigned_group_id` (`rek_assigned_group_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=84 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_assigned_user_id` */
 
@@ -499,7 +499,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_assigned_user_id` (
   PRIMARY KEY  (`rek_assigned_user_id_id`),
   KEY `rek_assigned_user_id_pid` (`rek_assigned_user_id_pid`),
   KEY `rek_assigned_user_id` (`rek_assigned_user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_author` */
 
@@ -511,7 +511,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_author` (
   PRIMARY KEY  (`rek_author_id`),
   KEY `rek_author_pid` (`rek_author_pid`),
   KEY `rek_author` (`rek_author`)
-) ENGINE=MyISAM AUTO_INCREMENT=131684 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_author_id` */
 
@@ -523,7 +523,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_author_id` (
   PRIMARY KEY  (`rek_author_id_id`),
   KEY `rek_author_id_pid` (`rek_author_id_pid`),
   KEY `rek_author_id` (`rek_author_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=72370 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_book_title` */
 
@@ -535,7 +535,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_book_title` (
   PRIMARY KEY  (`rek_book_title_id`),
   KEY `rek_book_title` (`rek_book_title`),
   KEY `rek_book_title_pid` (`rek_book_title_pid`)
-) ENGINE=MyISAM AUTO_INCREMENT=997 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_chapter_number` */
 
@@ -547,7 +547,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_chapter_number` (
   PRIMARY KEY  (`rek_chapter_number_id`),
   KEY `rek_chapter_number` (`rek_chapter_number`),
   KEY `rek_chapter_number_pid` (`rek_chapter_number_pid`)
-) ENGINE=MyISAM AUTO_INCREMENT=194 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_conference_dates` */
 
@@ -571,7 +571,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_conference_location` (
   PRIMARY KEY  (`rek_conference_location_id`),
   KEY `rek_conference_location` (`rek_conference_location`),
   KEY `rek_conference_location_pid` (`rek_conference_location_pid`)
-) ENGINE=MyISAM AUTO_INCREMENT=2929 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_conference_name` */
 
@@ -583,7 +583,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_conference_name` (
   PRIMARY KEY  (`rek_conference_name_id`),
   KEY `rek_conference_name_pid` (`rek_conference_name_pid`),
   KEY `rek_conference_name` (`rek_conference_name`)
-) ENGINE=MyISAM AUTO_INCREMENT=6284 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_contributor` */
 
@@ -595,7 +595,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_contributor` (
   PRIMARY KEY  (`rek_contributor_id`),
   KEY `rek_contributor_pid` (`rek_contributor_pid`),
   KEY `rek_contributor` (`rek_contributor`)
-) ENGINE=MyISAM AUTO_INCREMENT=18152 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_contributor_id` */
 
@@ -607,7 +607,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_contributor_id` (
   PRIMARY KEY  (`rek_contributor_id_id`),
   KEY `rek_contributor_id_pid` (`rek_contributor_id_pid`),
   KEY `rek_contributor_id` (`rek_contributor_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1155 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_country_of_issue` */
 
@@ -631,7 +631,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_date_available` (
   PRIMARY KEY  (`rek_date_available_id`),
   KEY `rek_date_available` (`rek_date_available`),
   KEY `rek_date_available_pid` (`rek_date_available_pid`)
-) ENGINE=MyISAM AUTO_INCREMENT=98 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_edition` */
 
@@ -643,7 +643,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_edition` (
   PRIMARY KEY  (`rek_edition_id`),
   KEY `rek_edition` (`rek_edition`),
   KEY `rek_edition_pid` (`rek_edition_pid`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_end_page` */
 
@@ -655,7 +655,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_end_page` (
   PRIMARY KEY  (`rek_end_page_id`),
   KEY `rek_end_page` (`rek_end_page`),
   KEY `rek_end_page_pid` (`rek_end_page_pid`)
-) ENGINE=MyISAM AUTO_INCREMENT=7061 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_english_publisher` */
 
@@ -702,7 +702,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_file_attachment_name` (
   UNIQUE KEY `rek_file_attachment_name_pid_unique` (`rek_file_attachment_name_pid`,`rek_file_attachment_name`),
   KEY `rek_file_attachment_name_id` (`rek_file_attachment_name_pid`),
   KEY `rek_file_attachment_name` (`rek_file_attachment_name`)
-) ENGINE=MyISAM AUTO_INCREMENT=58506 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_file_downloads` */
 
@@ -724,7 +724,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_identifier` (
   PRIMARY KEY  (`rek_identifier_id`),
   KEY `rek_identifier_pid` (`rek_identifier_pid`),
   KEY `rek_identifier` (`rek_identifier`)
-) ENGINE=MyISAM AUTO_INCREMENT=2172 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_isannotationof` */
 
@@ -745,7 +745,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_isbn` (
   `rek_isbn` varchar(255) default NULL,
   PRIMARY KEY  (`rek_isbn_id`),
   KEY `rek_isbn_pid` (`rek_isbn_pid`,`rek_isbn`)
-) ENGINE=MyISAM AUTO_INCREMENT=123 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_isdatacomponentof` */
 
@@ -767,7 +767,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_isderivationof` (
   PRIMARY KEY  (`rek_isderivationof_id`),
   KEY `rek_isderivationof` (`rek_isderivationof`),
   KEY `rek_isderivationof_pid` (`rek_isderivationof_pid`)
-) ENGINE=MyISAM AUTO_INCREMENT=218 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_isi_loc` */
 
@@ -778,7 +778,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_isi_loc` (
   `rek_isi_loc` varchar(255) default NULL,
   PRIMARY KEY  (`rek_isi_loc_id`),
   KEY `rek_isi_loc_pid` (`rek_isi_loc_pid`,`rek_isi_loc`)
-) ENGINE=MyISAM AUTO_INCREMENT=65 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_ismemberof` */
 
@@ -790,7 +790,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_ismemberof` (
   PRIMARY KEY  (`rek_ismemberof_id`),
   KEY `rek_ismemberof_pid_value` (`rek_ismemberof_pid`,`rek_ismemberof`),
   KEY `rek_ismemberof_pid` (`rek_ismemberof`)
-) ENGINE=MyISAM AUTO_INCREMENT=44452 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_issn` */
 
@@ -813,7 +813,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_issue_number` (
   PRIMARY KEY  (`rek_issue_number_id`),
   KEY `rek_issue_number` (`rek_issue_number`),
   KEY `rek_issue_number_pid` (`rek_issue_number_pid`)
-) ENGINE=MyISAM AUTO_INCREMENT=4322 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_journal_name` */
 
@@ -825,7 +825,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_journal_name` (
   PRIMARY KEY  (`rek_journal_name_id`),
   KEY `rek_journal_name_pid` (`rek_journal_name_pid`),
   KEY `rek_journal_name` (`rek_journal_name`)
-) ENGINE=MyISAM AUTO_INCREMENT=28654 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_keywords` */
 
@@ -838,7 +838,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_keywords` (
   KEY `rek_keywords_pid` (`rek_keywords_pid`),
   KEY `rek_keywords` (`rek_keywords`),
   FULLTEXT KEY `rek_keywords_fulltext` (`rek_keywords`)
-) ENGINE=MyISAM AUTO_INCREMENT=200668 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_language` */
 
@@ -850,7 +850,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_language` (
   PRIMARY KEY  (`rek_language_id`),
   KEY `rek_language` (`rek_language`),
   KEY `rek_language_pid` (`rek_language_pid`)
-) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_language_of_title` */
 
@@ -874,7 +874,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_na_explanation` (
   PRIMARY KEY  (`rek_na_explanation_id`),
   KEY `rek_na_explanation_pid` (`rek_na_explanation_pid`),
   FULLTEXT KEY `rek_na_explanation` (`rek_na_explanation`)
-) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_newspaper` */
 
@@ -886,7 +886,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_newspaper` (
   PRIMARY KEY  (`rek_newspaper_id`),
   KEY `rek_newspaper_pid` (`rek_newspaper_pid`),
   KEY `rek_newspaper` (`rek_newspaper`)
-) ENGINE=MyISAM AUTO_INCREMENT=190 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_notes` */
 
@@ -898,7 +898,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_notes` (
   PRIMARY KEY  (`rek_notes_id`),
   KEY `rek_notes_pid` (`rek_notes_pid`),
   FULLTEXT KEY `rek_notes` (`rek_notes`)
-) ENGINE=MyISAM AUTO_INCREMENT=13430 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_org_name` */
 
@@ -931,7 +931,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_output_availability` (
   `rek_output_availability` varchar(1) default NULL,
   PRIMARY KEY  (`rek_output_availability_id`),
   KEY `rek_output_availability_pid` (`rek_output_availability_pid`,`rek_output_availability`)
-) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_patent_number` */
 
@@ -943,7 +943,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_patent_number` (
   PRIMARY KEY  (`rek_patent_number_id`),
   KEY `rek_patent_number` (`rek_patent_number`),
   KEY `rek_patent_number_pid` (`rek_patent_number_pid`)
-) ENGINE=MyISAM AUTO_INCREMENT=112 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_phonetic_book_title` */
 
@@ -1010,7 +1010,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_place_of_publication` (
   PRIMARY KEY  (`rek_place_of_publication_id`),
   KEY `rek_place_of_publication` (`rek_place_of_publication`),
   KEY `rek_place_of_publication_pid` (`rek_place_of_publication_pid`)
-) ENGINE=MyISAM AUTO_INCREMENT=159 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_prn` */
 
@@ -1021,7 +1021,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_prn` (
   `rek_prn` varchar(255) default NULL,
   PRIMARY KEY  (`rek_prn_id`),
   KEY `rek_prn_pid` (`rek_prn_pid`,`rek_prn`)
-) ENGINE=MyISAM AUTO_INCREMENT=136 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_publisher` */
 
@@ -1033,7 +1033,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_publisher` (
   PRIMARY KEY  (`rek_publisher_id`),
   KEY `rek_publisher_pid` (`rek_publisher_pid`),
   KEY `rek_publisher` (`rek_publisher`)
-) ENGINE=MyISAM AUTO_INCREMENT=2192 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_refereed` */
 
@@ -1068,7 +1068,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_research_program` (
   PRIMARY KEY  (`rek_research_program_id`),
   KEY `rek_research_program_pid` (`rek_research_program_pid`),
   KEY `rek_research_program` (`rek_research_program`)
-) ENGINE=MyISAM AUTO_INCREMENT=90 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_sensitivity_explanation` */
 
@@ -1080,7 +1080,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_sensitivity_explanation` (
   PRIMARY KEY  (`rek_sensitivity_explanation_id`),
   KEY `rek_sensitivity_explanation_pid` (`rek_sensitivity_explanation_pid`),
   FULLTEXT KEY `rek_sensitivity_explanation` (`rek_sensitivity_explanation`)
-) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_series` */
 
@@ -1092,7 +1092,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_series` (
   PRIMARY KEY  (`rek_series_id`),
   KEY `rek_series_pid` (`rek_series_pid`),
   KEY `rek_series` (`rek_series`)
-) ENGINE=MyISAM AUTO_INCREMENT=112 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_start_page` */
 
@@ -1104,7 +1104,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_start_page` (
   PRIMARY KEY  (`rek_start_page_id`),
   KEY `rek_start_page` (`rek_start_page`),
   KEY `rek_start_page_pid` (`rek_start_page_pid`)
-) ENGINE=MyISAM AUTO_INCREMENT=7065 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_subject` */
 
@@ -1115,7 +1115,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_subject` (
   `rek_subject` int(11) default NULL,
   PRIMARY KEY  (`rek_subject_id`),
   KEY `rek_subject_pid` (`rek_subject_pid`,`rek_subject`)
-) ENGINE=MyISAM AUTO_INCREMENT=70849 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_translated_book_title` */
 
@@ -1182,7 +1182,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_volume_number` (
   PRIMARY KEY  (`rek_volume_number_id`),
   KEY `rek_volume_number` (`rek_volume_number`),
   KEY `rek_volume_number_pid` (`rek_volume_number_pid`)
-) ENGINE=MyISAM AUTO_INCREMENT=5653 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key_xsd_display_option` */
 
@@ -1194,7 +1194,7 @@ CREATE TABLE `%TABLE_PREFIX%record_search_key_xsd_display_option` (
   PRIMARY KEY  (`rek_xsd_display_option_id`),
   KEY `rek_xsd_display_option_pid` (`rek_xsd_display_option_pid`),
   KEY `rek_xsd_display_option` (`rek_xsd_display_option`)
-) ENGINE=MyISAM AUTO_INCREMENT=1217 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `%TABLE_PREFIX%search_key` (
   `sek_id` int(11) unsigned NOT NULL auto_increment,
@@ -1213,7 +1213,7 @@ CREATE TABLE `%TABLE_PREFIX%search_key` (
   `sek_relationship` tinyint(1) default '0' COMMENT '0 is 1-1, 1 is 1-M',
   `sek_meta_header` varchar(64) default NULL,
   PRIMARY KEY  (`sek_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=74 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%statistics_all` */
 
@@ -1234,7 +1234,7 @@ CREATE TABLE `%TABLE_PREFIX%statistics_all` (
   KEY `stl_pid` (`stl_pid`),
   KEY `stl_dsid` (`stl_dsid`),
   KEY `stl_pid_num` (`stl_pid_num`)
-) ENGINE=MyISAM AUTO_INCREMENT=92 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 /*Table structure for table `%TABLE_PREFIX%statistics_proc` */
 
@@ -1247,7 +1247,7 @@ CREATE TABLE `%TABLE_PREFIX%statistics_proc` (
   `stp_timestarted` timestamp NULL default NULL,
   `stp_timefinished` timestamp NULL default NULL,
   PRIMARY KEY  (`stp_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 /*Table structure for table `%TABLE_PREFIX%statistics_robots` */
 
@@ -1267,7 +1267,7 @@ CREATE TABLE `%TABLE_PREFIX%status` (
   `sta_order` int(11) unsigned default NULL,
   `sta_color` varchar(255) default NULL,
   PRIMARY KEY  (`sta_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%survey` */
 
@@ -1328,7 +1328,7 @@ CREATE TABLE `%TABLE_PREFIX%user` (
   PRIMARY KEY  (`usr_id`),
   UNIQUE KEY `usr_username` (`usr_username`),
   FULLTEXT KEY `usr_fulltext` (`usr_full_name`,`usr_given_names`,`usr_family_name`,`usr_username`,`usr_shib_username`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%wfbehaviour` */
 
@@ -1340,7 +1340,7 @@ CREATE TABLE `%TABLE_PREFIX%wfbehaviour` (
   `wfb_script_name` varchar(255) NOT NULL default '',
   `wfb_auto` tinyint(1) NOT NULL default '0',
   PRIMARY KEY  (`wfb_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=133 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%workflow` */
 
@@ -1352,7 +1352,7 @@ CREATE TABLE `%TABLE_PREFIX%workflow` (
   `wfl_roles` varchar(255) default NULL,
   `wfl_end_button_label` varchar(64) default NULL,
   PRIMARY KEY  (`wfl_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=197 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%workflow_roles` */
 
@@ -1388,7 +1388,7 @@ CREATE TABLE `%TABLE_PREFIX%workflow_state` (
   `wfs_transparent` tinyint(1) default '0',
   `wfs_roles` varchar(255) default NULL,
   PRIMARY KEY  (`wfs_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=745 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%workflow_state_link` */
 
@@ -1398,7 +1398,7 @@ CREATE TABLE `%TABLE_PREFIX%workflow_state_link` (
   `wfsl_from_id` int(11) NOT NULL default '0',
   `wfsl_to_id` int(11) NOT NULL default '0',
   PRIMARY KEY  (`wfsl_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1063 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%workflow_state_roles` */
 
@@ -1422,7 +1422,7 @@ CREATE TABLE `%TABLE_PREFIX%workflow_trigger` (
   `wft_ret_id` int(11) NOT NULL default '0',
   `wft_options` int(11) NOT NULL default '0',
   PRIMARY KEY  (`wft_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=279 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%xsd` */
 
@@ -1435,7 +1435,7 @@ CREATE TABLE `%TABLE_PREFIX%xsd` (
   `xsd_element_prefix` varchar(50) default NULL,
   `xsd_extra_ns_prefixes` varchar(255) default NULL,
   PRIMARY KEY  (`xsd_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=87 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%xsd_display` */
 
@@ -1447,7 +1447,7 @@ CREATE TABLE `%TABLE_PREFIX%xsd_display` (
   `xdis_object_type` tinyint(1) unsigned default '0',
   `xdis_enabled` tinyint(4) default '1',
   PRIMARY KEY  (`xdis_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=295 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%xsd_display_attach` */
 
@@ -1457,7 +1457,7 @@ CREATE TABLE `%TABLE_PREFIX%xsd_display_attach` (
   `att_child_xsdmf_id` int(11) unsigned NOT NULL default '0',
   `att_order` int(7) default NULL,
   PRIMARY KEY  (`att_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%xsd_display_matchfields` */
 
@@ -1527,7 +1527,7 @@ CREATE TABLE `%TABLE_PREFIX%xsd_display_matchfields` (
   KEY `xsdmf_xdis_id` (`xsdmf_xdis_id`),
   KEY `xsdmf_sek_id` (`xsdmf_sek_id`),
   FULLTEXT KEY `xsdmf_element` (`xsdmf_element`)
-) ENGINE=MyISAM AUTO_INCREMENT=11053 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 /*Table structure for table `%TABLE_PREFIX%xsd_display_mf_option` */
 
@@ -1537,7 +1537,7 @@ CREATE TABLE `%TABLE_PREFIX%xsd_display_mf_option` (
   `mfo_value` varchar(64) NOT NULL default '',
   PRIMARY KEY  (`mfo_id`),
   KEY `icf_fld_id` (`mfo_fld_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=155 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%xsd_loop_subelement` */
 
@@ -1553,7 +1553,7 @@ CREATE TABLE `%TABLE_PREFIX%xsd_loop_subelement` (
   `xsdsel_indicator_xsdmf_id` int(11) default '0',
   `xsdsel_indicator_value` varchar(255) default NULL,
   PRIMARY KEY  (`xsdsel_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1488 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 /*Table structure for table `%TABLE_PREFIX%xsd_relationship` */
 
@@ -1563,4 +1563,4 @@ CREATE TABLE `%TABLE_PREFIX%xsd_relationship` (
   `xsdrel_xdis_id` int(11) default NULL,
   `xsdrel_order` int(6) default NULL,
   PRIMARY KEY  (`xsdrel_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=600 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
