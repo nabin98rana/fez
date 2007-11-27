@@ -107,7 +107,7 @@ CREATE TABLE `%TABLE_PREFIX%author` (
   UNIQUE KEY `aut_org_staff_id` (`aut_org_staff_id`),
   FULLTEXT KEY `aut_fname` (`aut_fname`,`aut_lname`),
   FULLTEXT KEY `aut_display_name` (`aut_display_name`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%author_affiliation` */
 
@@ -148,7 +148,7 @@ CREATE TABLE `%TABLE_PREFIX%author_org_structure` (
   `auo_assessed_year` varchar(11) default NULL,
   PRIMARY KEY  (`auo_id`),
   UNIQUE KEY `support_unique_key` (`auo_org_id`,`auo_aut_id`,`auo_cla_id`,`auo_fun_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%background_process` */
 
@@ -179,7 +179,7 @@ CREATE TABLE `%TABLE_PREFIX%citation` (
   `cit_template` text NOT NULL,
   `cit_type` varchar(10) NOT NULL,
   PRIMARY KEY  (`cit_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%config` */
 
@@ -394,7 +394,7 @@ CREATE TABLE `%TABLE_PREFIX%record_matching_field` (
   KEY `combo_pid_xsdmf` (`rmf_rec_pid`,`rmf_xsdmf_id`),
   KEY `combo_pid_num_xsdmf` (`rmf_rec_pid_num`,`rmf_xsdmf_id`),
   FULLTEXT KEY `rmf_varchar` (`rmf_varchar`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%record_search_key` */
 
@@ -1234,7 +1234,7 @@ CREATE TABLE `%TABLE_PREFIX%statistics_all` (
   KEY `stl_pid` (`stl_pid`),
   KEY `stl_dsid` (`stl_dsid`),
   KEY `stl_pid_num` (`stl_pid_num`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%statistics_proc` */
 
@@ -1247,7 +1247,7 @@ CREATE TABLE `%TABLE_PREFIX%statistics_proc` (
   `stp_timestarted` timestamp NULL default NULL,
   `stp_timefinished` timestamp NULL default NULL,
   PRIMARY KEY  (`stp_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%statistics_robots` */
 
@@ -1257,7 +1257,7 @@ CREATE TABLE `%TABLE_PREFIX%statistics_robots` (
   `str_hostname` varchar(255) default NULL,
   `str_date_added` date default NULL,
   PRIMARY KEY  (`str_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%status` */
 
@@ -1527,7 +1527,7 @@ CREATE TABLE `%TABLE_PREFIX%xsd_display_matchfields` (
   KEY `xsdmf_xdis_id` (`xsdmf_xdis_id`),
   KEY `xsdmf_sek_id` (`xsdmf_sek_id`),
   FULLTEXT KEY `xsdmf_element` (`xsdmf_element`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%xsd_display_mf_option` */
 
@@ -1553,7 +1553,7 @@ CREATE TABLE `%TABLE_PREFIX%xsd_loop_subelement` (
   `xsdsel_indicator_xsdmf_id` int(11) default '0',
   `xsdsel_indicator_value` varchar(255) default NULL,
   PRIMARY KEY  (`xsdsel_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `%TABLE_PREFIX%xsd_relationship` */
 
@@ -1563,4 +1563,4 @@ CREATE TABLE `%TABLE_PREFIX%xsd_relationship` (
   `xsdrel_xdis_id` int(11) default NULL,
   `xsdrel_order` int(6) default NULL,
   PRIMARY KEY  (`xsdrel_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
