@@ -65,8 +65,11 @@ class Lister
 {
     function getList($params, $display=true) {
         $tpl = new Template_API();
-
-        $tpl_idx = intval($_GET['tpl']);
+		if (is_numeric($_GET['tpl'])) {
+        	$tpl_idx = intval($_GET['tpl']);
+		} else {
+			$tpl_idx = 0;
+		}
         $tpls = array(
             0 => array('file' => 'list.tpl.html', 'title' => 'Default'),
             1 => array('file' => 'views/list/author_bulk_edit.tpl.html', 'title' => 'Edit Authors'),
@@ -216,7 +219,7 @@ class Lister
         $tpl->assign("bulk_workflows", $bulk_workflows);
 
 		$bulk_search_workflows = WorkflowTrigger::getAssocListByTrigger("-1", 
-			        							WorkflowTrigger::getTriggerId('Bulk Change Search')); 
+		WorkflowTrigger::getTriggerId('Bulk Change Search')); 
 //		print_r($bulk_search_workflows);
         $tpl->assign("bulk_search_workflows", $bulk_search_workflows);
 
@@ -251,8 +254,7 @@ class Lister
 			    $options["searchKey".Search_Key::getID("isMemberOf")] = $collection_pid; // 
 
                 $list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);	
-                
-                
+                                
                 //$list = Collection::getListing($collection_pid, $pager_row, $rows, $sort_by);
                 $list_info = $list["info"];
                 $list = $list["list"];

@@ -1507,7 +1507,7 @@ inner join
             		$firstLoop = false;
             		$joinType = " INNER JOIN ";
             		$searchKey_join[4] = 1;
-            		$searchKey_join[7] .= "All Fields:\"".trim($options["searchKey".$x])."\", ";
+            		$searchKey_join[7] .= "All Fields:\"".trim(htmlspecialchars($options["searchKey".$x]))."\", ";
 					$searchKey_join[0] .= $joinType." (SELECT rek_pid, MATCH(rek_pid, rek_title, rek_description) AGAINST ('".Misc::escapeString($options["searchKey0"])."') AS Relevance ".
 													" FROM ". $dbtp . "record_search_key ".
 													" WHERE MATCH (rek_pid, rek_title, rek_description) AGAINST ('*".Misc::escapeString($options["searchKey0"])."*' IN BOOLEAN MODE)".
@@ -1539,7 +1539,7 @@ inner join
 										if ($temp_counter != 0) {
 											$searchKey_join[7] .= ",";
 										}
-            	 	    				$searchKey_join[7] .= " ".$temp_value;
+            	 	    				$searchKey_join[7] .= " ".trim(htmlspecialchars($temp_value));
             	 	    				$temp_counter++;
 									}
 								}
@@ -1554,7 +1554,7 @@ inner join
 											} else {
 												Misc::addToWhere(&$searchKey_join[2], " r".$searchKey_join[4].".rek_".$sekdet['sek_title_db']." >= '".Misc::escapeString($options["searchKey".$x]['start_date'])."' ");
 											}
-											$searchKey_join[7] .= $sekdet['sek_title'].":\" >= '" . $options["searchKey".$x]['start_date'] ."'\", ";
+											$searchKey_join[7] .= $sekdet['sek_title'].":\" >= '" . htmlspecialchars($options["searchKey".$x]['start_date']) ."'\", ";
 											break;
 										case 'less':
 											if ($sekdet['sek_relationship'] == "1") {
@@ -1563,7 +1563,7 @@ inner join
 											} else {
 												Misc::addToWhere(&$searchKey_join[2], " r".$searchKey_join[4].".rek_".$sekdet['sek_title_db']." <= '".Misc::escapeString($options["searchKey".$x]['start_date'])."' ");
 											}
-											$searchKey_join[7] .= $sekdet['sek_title'].":\" <= '" . $options["searchKey".$x]['start_date'] ."'\", ";
+											$searchKey_join[7] .= $sekdet['sek_title'].":\" <= '" . htmlspecialchars($options["searchKey".$x]['start_date']) ."'\", ";
 											break;
 										case 'between':
 											if ($sekdet['sek_relationship'] == "1") {
@@ -1572,13 +1572,13 @@ inner join
 											} else {
 												Misc::addToWhere(&$searchKey_join[2], " r".$searchKey_join[4].".rek_".$sekdet['sek_title_db']." BETWEEN '".Misc::escapeString($options["searchKey".$x]['start_date'])."' AND '".Misc::escapeString($options["searchKey".$x]['end_date'])."'");
 											}
-											$searchKey_join[7] .= $sekdet['sek_title'].":\"Between '" . $options["searchKey".$x]['start_date'] ."' and '".$options["searchKey".$x]['end_date']."'\", ";
+											$searchKey_join[7] .= $sekdet['sek_title'].":\"Between '" . htmlspecialchars($options["searchKey".$x]['start_date']) ."' and '".htmlspecialchars($options["searchKey".$x]['end_date'])."'\", ";
 								            break;
 									}
 								}
             	 	    	} else {
 								$options["sql"]["searchKey".$x] = " IN ('".implode("','", $options["searchKey".$x])."')";
-								$searchKey_join[7] .= $sekdet['sek_title'].":\"".implode("','", $options["searchKey".$x])."\", ";
+								$searchKey_join[7] .= $sekdet['sek_title'].":\"".htmlspecialchars(implode("','", $options["searchKey".$x]))."\", ";
             	 	    	}
             	 	    } else {
 
@@ -1587,14 +1587,14 @@ inner join
             	 	    		if (is_numeric($options["searchKey".$x])) {
             	 	    			if (!empty($sekdet["sek_lookup_function"])) {
             	 	    				eval("\$temp_value = ".$sekdet["sek_lookup_function"]."(".$options["searchKey".$x].");");
-            	 	    				$searchKey_join[7] .= $sekdet['sek_title'].":\"".$temp_value."\", ";
+            	 	    				$searchKey_join[7] .= $sekdet['sek_title'].":\"".htmlspecialchars($temp_value)."\", ";
             	 	    			} else {
-            	 	    				$searchKey_join[7] .= $sekdet['sek_title'].":\"".trim($options["searchKey".$x])."\", ";
+            	 	    				$searchKey_join[7] .= $sekdet['sek_title'].":\"".htmlspecialchars(trim($options["searchKey".$x]))."\", ";
             	 	    			}
             	 	    		}
             	 	    	} else {
             	 	    		$options["sql"]["searchKey".$x] = " = '".$options["searchKey".$x]."'";
-            	 	    		$searchKey_join[7] .= $sekdet['sek_title'].":\"".trim($options["searchKey".$x])."\", ";
+            	 	    		$searchKey_join[7] .= $sekdet['sek_title'].":\"".htmlspecialchars(trim($options["searchKey".$x]))."\", ";
             	 	    	}
             	 	    }
             	 	    if (is_numeric($sekdet['sek_id'])) {

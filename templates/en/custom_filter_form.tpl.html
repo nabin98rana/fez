@@ -69,7 +69,7 @@ Use as many or as few criteria as you like <br />
 <br />
   <div class="{if $options.searchKey0 != ''}default-search-used{else}default{/if} custom_search_item">
     All Fields: <br />
-	<input id="search_keys[0]" type="text" name="search_keys[0]" maxlength="255" size="35" value="{$options.searchKey0}" />
+	<input id="search_keys[0]" type="text" name="search_keys[0]" maxlength="255" size="35" value="{$options.searchKey0|escape:'html'}" />
   </div>
   {* Do little items first, then buly items *}
 {section name="i" loop=$search_keys}
@@ -94,10 +94,10 @@ Use as many or as few criteria as you like <br />
     </script>
   {/if}
   {if $search_keys[i].sek_html_input == 'text'}
-  <input id="search_keys[{$search_keys[i].sek_id}]" type="text" name="search_keys[{$search_keys[i].sek_id}]" maxlength="255" size="30" value="{$last_key}" />
+  <input id="search_keys[{$search_keys[i].sek_id}]" type="text" name="search_keys[{$search_keys[i].sek_id}]" maxlength="255" size="30" value="{$last_key|escape:'html'}" />
   {elseif $search_keys[i].sek_html_input == 'combo'}
   <select id="search_keys[{$search_keys[i].sek_id}]" {if $search_keys[i].sek_html_input == 'multiple'}multiple size="8"{/if} name="search_keys[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}">
-    {html_options options=$search_keys[i].field_options selected=$last_key}
+    {html_options options=$search_keys[i].field_options selected=$last_key|escape:'html'}
   </select>
   {/if}
   {assign var="search_key_id" value=$search_keys[i].sek_id}
@@ -141,7 +141,7 @@ Use as many or as few criteria as you like <br />
   {/if}
 
   {if $search_keys[i].sek_html_input == 'textarea'}
-  <textarea id="search_keys[{$search_keys[i].sek_id}]" name="search_keys[{$search_keys[i].sek_id}]" rows="10" cols="60" value="{$last_key}"></textarea>
+  <textarea id="search_keys[{$search_keys[i].sek_id}]" name="search_keys[{$search_keys[i].sek_id}]" rows="10" cols="60" value="{$last_key|escape:'html'}"></textarea>
   {elseif $search_keys[i].sek_html_input == 'allcontvocab' or $search_keys[i].sek_html_input == 'contvocab'}
 	<div id="tr_list_{$search_keys[i].sek_id}" valign="top" class="quick_search_item">
 		<select id="search_keys_{$search_keys[i].sek_id}" multiple size="5" class="default" name="search_keys[{$search_keys[i].sek_id}][]">
