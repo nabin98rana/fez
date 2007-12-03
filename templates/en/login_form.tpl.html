@@ -154,7 +154,7 @@ function validateForm(f)
         <tr>
           <td align="right"  class="default" bgcolor="{$cell_color}" valign="middle" nowrap="nowrap"><b>{if $SHIB_SWITCH != "ON"}{if $ldap_switch == "ON"}{$org_short_name} or {/if}{$application_title}{/if} <u>U</u>sername:</b></td>
           <td width="60%" bgcolor="{$cell_color}" valign="bottom" nowrap="nowrap">
-            <input accesskey="U" class="default" type="text" name="username" value="{$username|default:$smarty.get.username}" size="30" />
+            <input accesskey="U" class="default" type="text" name="username" value="{$username|default:$smarty.get.username|escape:'html'}" size="30" />
             {include file="error_icon.tpl.html" field="username"}
           </td>
         </tr>
