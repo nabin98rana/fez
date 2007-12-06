@@ -83,6 +83,7 @@
 	        case '$collection_list':
 				global $collection_list;
 				if (empty($collection_list)) {
+//		            $collection_list = Collection::getCreatorListAssoc();
 		            $collection_list = Collection::getEditListAssoc();
 	            }
 	            break;

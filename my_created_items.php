@@ -74,7 +74,7 @@ $tpl->assign('sort_by_default', $sort_by);
 $tpl->assign('sort_by_dir_default', $sort_by_dir);
 
 $search_keys = Search_Key::getMyFezSearchList();
-$collection_assoc_list = Collection::getEditListAssoc();
+$collection_assoc_list = Collection::getCreatorListAssoc();
 foreach ($search_keys as $skey => $svalue) {
 	if ($svalue["sek_id"] == Search_Key::getID("isMemberOf")) {
 		$search_keys[$skey]["field_options"] = $collection_assoc_list;

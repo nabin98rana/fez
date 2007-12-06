@@ -523,7 +523,7 @@ class Record
 
 
 		$sekDet = Search_Key::getDetailsByXSDMF_ID($xsdmf_id);
-		if (count($sekDet) != 1) { //if couldnt find  a search key, we won't insert this into the index even if it has xsdmf_indexed = 1
+		if (count($sekDet) != 1) { //if couldnt find  a search key, we won't be able to remove this from the index 
 			return -1;
 		}
 
@@ -585,7 +585,7 @@ class Record
 */
 		$sekDet = Search_Key::getDetailsByXSDMF_ID($xsdmf_id);
 
-		if (!is_numeric($sekDet['sek_id'])) { //if couldnt find  a search key, we won't insert this into the index even if it has xsdmf_indexed = 1
+		if (!is_numeric($sekDet['sek_id'])) { //if couldnt find  a search key, we won't insert this into the index 
 			return -1;
 		}
 //		print_r($sekDet);
@@ -937,6 +937,7 @@ class Record
 			$res = Citation::renderIndexCitations($res, 'APA', true, false);
 		}
 		$res = Auth::getIndexAuthCascade($res);
+//		print_r($res);
 		$return = $res;
 		$list = $return;
         $total_pages = intval($total_rows / $page_rows);
@@ -2241,7 +2242,8 @@ class RecordGeneral
         if ($this->getPublishedStatus() == 2) {
             return $this->checkAuth($this->viewer_roles, $redirect);
         } else {
-            return $this->canEdit($redirect);
+            return $this->canCreate($redirect); //changed this so that creators can view the objects even when they are not published
+//            return $this->canEdit($redirect);
         }
     }
 
@@ -2995,14 +2997,14 @@ class RecordGeneral
         foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
             if (!is_array($xsdmf_value) && !empty($xsdmf_value) && (trim($xsdmf_value) != "")) {
                 $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
-                if ($xsdmf_details['xsdmf_indexed'] == 1 && ($xsdmf_details['xsdmf_html_input'] != 'checkbox' || $xsdmf_details['xsdmf_element'] == '!inherit_security')) {
+                if (is_numeric($xsdmf_details['xsdmf_sek_id']) && ($xsdmf_details['xsdmf_html_input'] != 'checkbox' || $xsdmf_details['xsdmf_element'] == '!inherit_security')) {
                     Record::insertIndexMatchingField($pid, $dsID, $xsdmf_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_value);
                 }
             } elseif (is_array($xsdmf_value)) {
                 foreach ($xsdmf_value as $xsdmf_child_value) {
                     if ($xsdmf_child_value != "") {
                         $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
-                        if ($xsdmf_details['xsdmf_indexed'] == 1 && ($xsdmf_details['xsdmf_html_input'] != 'checkbox' || $xsdmf_details['xsdmf_element'] == '!inherit_security')) {
+                        if (is_numeric($xsdmf_details['xsdmf_sek_id']) && ($xsdmf_details['xsdmf_html_input'] != 'checkbox' || $xsdmf_details['xsdmf_element'] == '!inherit_security')) {
                             Record::insertIndexMatchingField($pid, $dsID, $xsdmf_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_child_value);
                         }
                     }

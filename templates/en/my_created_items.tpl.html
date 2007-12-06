@@ -245,6 +245,7 @@ No items found
 		<a href="{$rel_url}view.php?pid={$list[i].rek_pid|escape}"><img align="absmiddle" src="{$icon}" border="0"></a>
        <a href="{$rel_url}view.php?pid={$list[i].rek_pid|escape}" class="title_link">{$list[i].rek_citation}</a>
 			  {section name="w" loop=$list[i].wft_id}
+			    {if $list[i].wft_id[w] != ''}
 			    {if $list[i].wft_icon[w] == 'images/security.gif'}
 			      {if $list[i].security == 'include'}
 			        {assign var="wf_icon" value="images/security_include.gif"}
@@ -264,9 +265,11 @@ No items found
                          {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
           			    {/if}
 			<a href="{$wf_url}?pid={$list[i].rek_pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" border="0" /></a> 
+			  {/if}
 			  {/section}
-		          
+			{if $list[i].isEditor==1 || $isAdministrator}		          
            <a href="workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" border="0" width="16" height="16" /></a>		<br />
+			{/if}
 		 (Created: {$list[i].rek_created_date|date_format:"%c"}{if $list[i].rek_updated_date <> $list[i].rek_created_date} Last Updated: {$list[i].rek_updated_date|date_format:"%c"}{/if})
      </td>
      <td nowrap align="right" valign="top">{if $list[i].Relevance} (Search Relevance: <b>{$list[i].Relevance|@number_format:"2"}</b>)<br />{/if}

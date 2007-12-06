@@ -198,20 +198,25 @@
         preg_match_all('/\{(.*?)\}/',$template,$matches,PREG_PATTERN_ORDER);
         foreach ($matches[1] as $key => $match) {
             list($xsdmf_id,$prefix,$suffix,$option) = explode('|',$match);
-			$xsdmf_details = Search_Key::getAllDetailsByXSDMF_ID($xsdmf_id);
-			$sek_title = "rek_".$xsdmf_details['sek_title_db'];
-			if (array_key_exists($sek_title, $details)) {
-                            $value = $details[$sek_title];
-                            if (!empty($value) && !is_null($value) && $value != "") {
-                        	$value = Citation::formatValue($details[$sek_title], '', $details, $xsdmf_details, $option, $type);			             }	
-                        } else {
-		        	$value = "";
+			if (is_numeric($xsdmf_id)) {
+				$xsdmf_details = Search_Key::getAllDetailsByXSDMF_ID($xsdmf_id);
+				$value = "";			
+				$sek_title = "rek_".$xsdmf_details['sek_title_db'];
+				if (is_array($details)) {
+					if (array_key_exists($sek_title, $details)) {
+		                            $value = $details[$sek_title];
+		                            if (!empty($value) && !is_null($value) && $value != "") {
+		                        	$value = Citation::formatValue($details[$sek_title], '', $details, $xsdmf_details, $option, $type);			             }	
+		                        } else {
+				        	$value = "";
+					}
+				}
+	            if (!empty($value) && !is_null($value) && $value != "") {
+	                $value = $prefix.$value.$suffix;
+	            }
+	            //Error_Handler::logError($match);
+	            $template = str_replace('{'.$match.'}', $value, $template);
 			}
-            if (!empty($value) && !is_null($value) && $value != "") {
-                $value = $prefix.$value.$suffix;
-            }
-            //Error_Handler::logError($match);
-            $template = str_replace('{'.$match.'}', $value, $template);
         } 
         return $template;
     }
@@ -231,12 +236,14 @@
         $xsdmf_list = Misc::keyArray($xsd_display_fields, 'xsdmf_id');
         foreach ($matches[1] as $key => $match) {
             list($xsdmf_id,$prefix,$suffix,$option) = explode('|',$match);
-            $value = Citation::formatValue($details[$xsdmf_id], '', array(), $xsdmf_list[$xsdmf_id], $option, $type);
-            if (!empty($value) && !is_null($value)) {
-                $value = $prefix.$value.$suffix;
-            }
-            //Error_Handler::logError($match);
-            $template = str_replace('{'.$match.'}', $value, $template);
+			if (is_numeric($xsdmf_id)) {
+	            $value = Citation::formatValue($details[$xsdmf_id], '', array(), $xsdmf_list[$xsdmf_id], $option, $type);
+	            if (!empty($value) && !is_null($value)) {
+	                $value = $prefix.$value.$suffix;
+	            }
+	            //Error_Handler::logError($match);
+	            $template = str_replace('{'.$match.'}', $value, $template);
+			}
         } 
         return $template;
     }

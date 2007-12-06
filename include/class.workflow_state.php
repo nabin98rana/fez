@@ -408,10 +408,15 @@ class Workflow_State
             return true;
         }
         $wfs = Workflow_State::getDetails($wfs_id);
+
         if (is_array($wfs['wfs_role_titles'])) {
 			if (count($wfs['wfs_role_titles']) == 0) {
 				return true;
-			}			
+			} elseif (count($wfs['wfs_role_titles']) == 1) {
+				if ($wfs['wfs_role_titles'][0] == '') {
+					return true;
+				}
+			}
             $wfs_roles = $wfs['wfs_role_titles'];
             $pid_roles = Auth::getAuthorisationGroups($pid);
             foreach ($wfs_roles as $wfs_role) {

@@ -165,6 +165,7 @@ Use as many or as few criteria as you like <br />
                     <option {if $last_key.filter_type == "between"}selected{/if} value="between">Between</option>
                   </select>&nbsp;
                   {html_select_date field_array="search_keys[$temp_sek_id][start]" prefix="" start_year="-10" end_year="+10" all_extra='class="default"'}
+				 <script language="JavaScript" type="text/javascript" src="{$rel_url}js/dynCalendar.js"></script>
                                   {literal}
                   <script language="JavaScript" type="text/javascript">
                   <!--

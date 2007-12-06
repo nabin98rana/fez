@@ -215,6 +215,23 @@ class WorkflowTrigger
         return $res;
     }
 
+    function getWorkflowID($wft_id)
+    {
+		if (!is_numeric($wft_id)) { 
+			return false;
+		}
+        $stmt = "SELECT wft_wfl_id FROM " . APP_TABLE_PREFIX . "workflow_trigger
+				 WHERE wft_id=".$wft_id;
+
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+			return "";
+        } else {
+			return $res;
+		}
+	}
+
     /**
      * Get a list of workflow triggers
      * @param string $pid Record that triggers are associcated with

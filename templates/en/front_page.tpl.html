@@ -217,8 +217,9 @@ if (isElementVisible(basic_element)) {
 					{if $href_view}</a>{/if}
 					{/if}
 					{if $list[i].rek_object_type != 3}{if $list[i].rek_ismemberof_count != ""}({$list[i].rek_ismemberof_count}){else}(0){/if}{/if}
-							{if $showEdit || $isAdministrator}
+							{if $list[i].isEditor==1 || $isAdministrator}
 							  {section name="w" loop=$list[i].wft_id}
+							    {if $list[i].wft_id[w] != ''}
 							    {if $list[i].wft_icon[w] == 'images/security.gif'}
 							      {if $list[i].security == 'include'}
 							        {assign var="wf_icon" value="images/security_include.gif"}
@@ -238,6 +239,7 @@ if (isElementVisible(basic_element)) {
 				                              {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
 				               			    {/if}
 							<a href="{$wf_url}?pid={$list[i].rek_pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI}"{if $list[i].wft_icon[w] == 'images/delete.gif'} onclick="return confirmDelete();"{/if}><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" border="0" /></a>
+							  {/if}
 							  {/section}
 				                <a href="workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" border="0" width="16" height="16" /></a>
 				           {/if}

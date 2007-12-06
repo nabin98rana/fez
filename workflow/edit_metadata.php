@@ -80,6 +80,9 @@ if (empty($wfstatus)) {
 	exit;
 }
 
+$link_self = $_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id));
+$tpl->assign('link_self', $link_self);
+
 $pid = $wfstatus->pid;
 $wfstatus->setTemplateVars($tpl);
 $tpl->assign("submit_to_popup", true);

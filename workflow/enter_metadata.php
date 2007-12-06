@@ -74,7 +74,10 @@ $tpl->assign("isAdministrator", $isAdministrator);
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 $pid = $wfstatus->pid;
 $tpl->assign("pid", $pid);
-
+if (empty($pid)) {
+	echo "The system is currently setup to only allow administrators to create objects without any communities/collections. Please go back and choose a community and collection.";
+	exit;
+}
 $wfstatus->setTemplateVars($tpl);
 // get the xdis_id of what we're creating
 $xdis_id = $wfstatus->getXDIS_ID();
@@ -119,7 +122,9 @@ if ($access_ok) {
     $xdis_collection_and_object_list = $xdis_list + $xdis_collection_list;
 
     // LUR: get the communities and collections where the user is allowed to create collections   
+
     $communities = Community::getCreatorList(0, 1000);
+//print_r($communities);
 	$index=0;
 	foreach ($communities['list'] as $item) {
 		if ($item['isCreator'] != 1)
@@ -131,18 +136,22 @@ if ($access_ok) {
 		}
 	}
 	$community_list = array();
-	if (sizeof($communities['list']) > 0)
+    $community_list = Community::getCreatorListAssoc(0, 1000);
+/*	if (sizeof($communities['list']) > 0)
 	{
 		$community_list = Misc::keyPairs($communities['list'], 'rek_pid', 'rek_title');
 		$community_list = Misc::stripOneElementArrays($community_list);
-	}
+	}*/
+	
+	
 //	$community_list = 
-	$collections = Collection::getEditList();
+//	$collections = Collection::getEditList();
 	$collection_list = array();
-	if (sizeof($collections) > 0)
-	{
-		$collection_list = Collection::getEditListAssoc();
-	}
+/*	if (sizeof($collections) > 0)
+	{ */
+	$collection_list = Collection::getCreatorListAssoc();
+//		$collection_list = Collection::getEditListAssoc();
+//	}
 /*    $internal_user_list = User::getAssocList();
     $internal_group_list = Group::getAssocListAll(); */
 /*	$author_list = Author::getAssocListAll();

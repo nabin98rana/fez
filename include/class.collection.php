@@ -91,13 +91,14 @@ class Collection
       * @return array Associative array of collections - (pid, title)
       */
     function getEditListAssoc($community_pid=null) {
-		$options = array();		
+        $roles = explode(',',APP_EDITOR_ROLES);
+		$options = array();				
         $options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 	    $options["searchKey".Search_Key::getID("Object Type")] = 2; // collections only
 		if (!empty($community_pid)) {
 			$options["searchKey".Search_Key::getID("isMemberOf")] = $community_pid; // 
 		}
-	    $list = Record::getListing($options, array("Editor"), 0, 1000, "Title", true);		
+	    $list = Record::getListing($options, $roles, 0, 1000, "Title", true);		
 		$list = $list['list'];
 		$returnList = array();
 		foreach ($list as $element) {
@@ -108,12 +109,13 @@ class Collection
 
     function getCreatorListAssoc($community_pid=null) {
 		$options = array();		
+        $roles = explode(',',APP_CREATOR_ROLES);
         $options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 	    $options["searchKey".Search_Key::getID("Object Type")] = 2; // collections only
 		if (!empty($community_pid)) {
 			$options["searchKey".Search_Key::getID("isMemberOf")] = $community_pid; // 
 		}	
-        $list = Record::getListing($options, array("Creator","Editor"), 0, 1000, "Title", true);		
+        $list = Record::getListing($options, $roles, 0, 1000, "Title", true);		
 		$list = $list['list'];
 		$returnList = array();
 		foreach ($list as $element) {

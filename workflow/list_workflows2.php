@@ -67,7 +67,38 @@ $cat = Misc::GETorPOST('cat');
 if ($cat == 'select_workflow') {
     $wft_id = Misc::GETorPOST("wft_id");
 //    $pid = Misc::GETorPOST("pid");
-    Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID);
+//    Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID);
+
+	if (is_numeric($wft_id)) {
+		$wfl_id = WorkflowTrigger::getWorkflowID($wft_id);
+		if (is_numeric($wfl_id)) {
+			if (!empty($pids) || $trigger_type == 'Bulk Change Search') {
+		        if (Workflow::userCanTrigger($wfl_id,$user_id)) {
+	    			Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);				
+				} else {
+					$message = "You do not have the rights to run this workflow";					
+				}
+			} elseif ((empty($pid) && empty($pids)) || $pid == -2) { //workflow where the user selects the pid etc
+		        if (Workflow::userCanTrigger($wfl_id,$user_id)) {
+	    			Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);				
+				} else {
+					$message = "You do not have the rights to run this workflow";					
+				}
+			} else {
+	            if (Workflow::canTrigger($wfl_id, $pid)) {
+	    			Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);	
+				} else {
+					$message = "You do not have the rights to run this workflow";					
+				}
+			}	
+		} else {
+			$message = "No workflow found for given trigger";
+		}
+	} else {
+		$message = "Workflow trigger must be numeric";
+	}
+
+
 }
 
 $message = '';
@@ -119,7 +150,37 @@ if (empty($workflows)) {
     $message .= "Error: No workflows defined for $trigger_type<br/>";
 } elseif (count($workflows) == 1) {
     // no need for user to select a workflow - just start the only one available
-    Workflow::start($workflows[0]['wft_id'], $pid, $xdis_id, $href);
+//    Workflow::start($workflows[0]['wft_id'], $pid, $xdis_id, $href);
+	if (is_numeric($wft_id)) {
+		$wfl_id = WorkflowTrigger::getWorkflowID($wft_id);
+		if (is_numeric($wfl_id)) {
+			if (!empty($pids) || $trigger_type == 'Bulk Change Search') {
+		        if (Workflow::userCanTrigger($wfl_id,$user_id)) {
+	    			Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);				
+				} else {
+					$message = "You do not have the rights to run this workflow";					
+				}
+			} elseif ((empty($pid) && empty($pids)) || $pid == -2) { //workflow where the user selects the pid etc
+		        if (Workflow::userCanTrigger($wfl_id,$user_id)) {
+	    			Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);				
+				} else {
+					$message = "You do not have the rights to run this workflow";					
+				}
+			} else {
+	            if (Workflow::canTrigger($wfl_id, $pid)) {
+	    			Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);	
+				} else {
+					$message = "You do not have the rights to run this workflow";					
+				}
+			}	
+		} else {
+			$message = "No workflow found for given trigger";
+		}
+	} else {
+		$message = "Workflow trigger must be numeric";
+	}
+
+
 }
 
 $tpl->assign('message', $message);

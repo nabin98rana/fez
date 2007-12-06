@@ -163,6 +163,7 @@ function openHistory(pid)
         </tr>
 
 {if $isUser && !$hide_edit}
+{if $isEditor || $isAdministrator}
 		<tr>
 		  <td align="left"> 
 			<table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="1">
@@ -171,6 +172,7 @@ function openHistory(pid)
 		 <td align="left" class="default" nowrap> <b>Workflows:</b></td>		
           <td align="left" class="default" nowrap> &nbsp;
 			  {section name="w" loop=$workflows}
+			    {if $workflows[w].wft_id != ''}
 			    {if $workflows[w].wft_icon == 'images/security.gif'}
 			      {if $list[i].security == 'include'}
 			        {assign var="wf_icon" value="images/security_include.gif"}
@@ -190,13 +192,15 @@ function openHistory(pid)
                               {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
 			    {/if}
 			<a href='{$wf_url}?pid={$pid|escape:"html"}&cat=select_workflow&xdis_id={$xdis_id}&wft_id={$workflows[w].wft_id}&href={$smarty.server.REQUEST_URI}'><img title="{$workflows[w].wfl_title}" align="absmiddle" src="{$rel_url}{$wf_icon}" border="0"></a> 
+				{/if}
 			  {/section}
 			<a href="workflow/list_workflows2.php?pid={$pid|escape}"><img src="{$rel_url}images/options_16.png" align="absmiddle" alt="More options" title="More options" border="0" width="16" height="16" /></a>             
 			</td>
 		</tr>
 		</table>
 	  </td>
-	</tr> 		
+	</tr>
+{/if}
 {/if}
 {if $show_tombstone && !$deleted || !$show_tombstone}
 		<tr>

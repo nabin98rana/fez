@@ -170,19 +170,21 @@ class Community
      */
     function getCreatorList($current_row = 0, $max = 25, $sort_by="Title")
     {
+        $roles = explode(',',APP_CREATOR_ROLES);
 		$options = array();	
         $options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 	    $options["searchKey".Search_Key::getID("Object Type")] = 1; // communities only
-        $list = Record::getListing($options, array("Creator"), $current_row, $max, "Title", true);	
+        $list = Record::getListing($options, $roles, $current_row, $max, "Title", true);	
 		return $list;
     }
 
     function getCreatorListAssoc($current_row = 0, $max = 25, $sort_by="Title")
     {
+        $roles = explode(',',APP_CREATOR_ROLES);
 		$options = array();		
 	    $options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 	    $options["searchKey".Search_Key::getID("Object Type")] = 1; // communities only
-	    $list = Record::getListing($options, array("Creator"), 0, 1000, "Title", true);		
+	    $list = Record::getListing($options, $roles, 0, 1000, "Title", true);		
 		$list = $list['list'];
 		$returnList = array();
 		foreach ($list as $element) {

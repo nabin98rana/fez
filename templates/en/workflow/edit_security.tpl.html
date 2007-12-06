@@ -56,7 +56,7 @@ function openDetailPage()
 {/literal}
 {/if}
 {literal}
-<script language="JavaScript" src="{/literal}{$rel_url}{literal}js/dynCalendar.js"></script>
+
 
 <script language="JavaScript">
 <!--
@@ -375,6 +375,7 @@ function selectDateField(field_name, day, month, year)
 					{/if}
 
                   {html_select_date time=$full_date month_empty='' year_empty='' day_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="-50" end_year="+0" all_extra='class="default" onChange="javascript:checkDateFilterType(this.form, this);"'}
+				<script language="JavaScript" type="text/javascript" src="{$rel_url}js/dynCalendar.js"></script>
                                   {literal}
                   <script language="JavaScript" type="text/javascript">
                   <!--
