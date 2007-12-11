@@ -60,7 +60,7 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
 <div id="custom_filter_form1" {get_display_style element_name="custom_filter_form"}>
 
   <div class="{if $options.searchKey0 != ''}default-search-used{else}default{/if} quick_search_item">
-    All Fields: <br />
+    Title, Abstract, Keywords: <br />
 	<input id="search_keys[0]" type="text" name="search_keys[0]" maxlength="255" size="35" value="{$options.searchKey0|escape:'html'}" />
   </div>
 {section name="i" loop=$search_keys}
