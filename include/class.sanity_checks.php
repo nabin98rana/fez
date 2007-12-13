@@ -97,53 +97,58 @@ include_once(APP_INC_PATH . "class.fedora_direct_access.php");
         phpinfo();
         $contents = ob_get_contents();
         ob_end_clean();
+
+        if (!preg_match("/mod_rewrite2/U", $contents)) {
+            $results[] = new ConfigResult('Apache modules','mod_rewrite', '',"The mod_rewrite module needs to be enabled in your Apache configuration file (httpd.conf) in order for Fez to work properly. You will need to restart Apache after enabling this extension.");
+        }
+
         if (!preg_match("/GD Support.*<\/td><td.*>enabled/U", $contents)) {
-            $results[] = new ConfigResult('PHP extensions', 'GD Support', '', "The GD extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly.");
+            $results[] = new ConfigResult('PHP extensions', 'GD Support', '', "The GD extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly. You will need to restart Apache after enabling this extension.");
         }
         if (!preg_match("/Tidy support.*<\/th><th.*>enabled/U", $contents)) {
-            $results[] = new ConfigResult('PHP extensions','Tidy support', '',"The Tidy extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly.");
+            $results[] = new ConfigResult('PHP extensions','Tidy support', '',"The Tidy extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly. You will need to restart Apache after enabling this extension.");
         }
         if (!preg_match("/[cC]URL support.*<\/td><td.*>enabled/i", $contents)) {
-            $results[] = new ConfigResult('PHP extensions','CURL support', '',"The CURL extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly.");
+            $results[] = new ConfigResult('PHP extensions','CURL support', '',"The CURL extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly. You will need to restart Apache after enabling this extension.");
         }
         if (!preg_match("/DOM\/XML.*<\/td><td.*>enabled/U", $contents)) {
-            $results[] = new ConfigResult('PHP extensions','DOM XML', '',"The DOM extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly.");
+            $results[] = new ConfigResult('PHP extensions','DOM XML', '',"The DOM extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly. You will need to restart Apache after enabling this extension.");
         }
         if (LDAP_SWITCH == "ON") {
         	if (!preg_match("/LDAP Support.*<\/td><td.*>enabled/U", $contents)) {
-                $results[] = new ConfigResult('PHP extensions','LDAP Support', '',"The LDAP Support extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly.");
+                $results[] = new ConfigResult('PHP extensions','LDAP Support', '',"The LDAP Support extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly. You will need to restart Apache after enabling this extension.");
             }
         }
 
         // check for MySQL support
         if (!function_exists('mysql_query')) {
-            $results[] = new ConfigResult('PHP extensions','mysql_query', '',"The MySQL extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly.");
+            $results[] = new ConfigResult('PHP extensions','mysql_query', '',"The MySQL extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly. You will need to restart Apache after enabling this extension.");
         }
 
         // check for the file_uploads php.ini directive
         if (ini_get('file_uploads') != "1") {
-            $results[] = new ConfigResult('PHP extensions','file_uploads', '',"The 'file_uploads' directive needs to be enabled in your PHP.INI file in order for Fez to work properly.");
+            $results[] = new ConfigResult('PHP extensions','file_uploads', '',"The 'file_uploads' directive needs to be enabled in your PHP.INI file in order for Fez to work properly. You will need to restart Apache after enabling this extension.");
         }
         if (ini_get('allow_call_time_pass_reference') != "1") {
             $results[] = new ConfigResult('PHP extensions','allow_call_time_pass_reference', '',
-                'allow_call_time_pass_reference',"The 'allow_call_time_pass_reference' directive needs to be enabled in your PHP.INI file in order for Fez to work properly.");
+                'allow_call_time_pass_reference',"The 'allow_call_time_pass_reference' directive needs to be enabled in your PHP.INI file in order for Fez to work properly. You will need to restart Apache after enabling this extension.");
         }
         $mem = Misc::convertSize(ini_get('memory_limit'));
         if ($mem > 0 && $mem < 33554432) {
             $results[] = new ConfigResult('PHP extensions', 'memory_limit',$mem, "The 'memory_limit' directive " .
                     "should be set higher than 32M in your PHP.INI file in order for Fez to work properly. " .
-                    "This depends somewhat on the size of files that Fez should be handling. ");
+                    "This depends somewhat on the size of files that Fez should be handling. You will need to restart Apache after enabling this extension.");
         }
         $mem = Misc::convertSize(ini_get('upload_max_filesize'));
         if ($mem > 0 && $mem < 10485760) {
             $results[] = new ConfigResult('php.ini', 'upload_max_filesize',$mem, "The 'upload_max_filesize' directive " .
                     "should be set higher than 10M in your PHP.INI file in order for Fez to work properly. " .
-                    "This depends somewhat on the size of files that Fez should be handling. ");
+                    "This depends somewhat on the size of files that Fez should be handling. You will need to restart Apache after enabling this extension.");
         }
         $post_max_size = Misc::convertSize(ini_get('post_max_size'));
         if ($post_max_size > 0 && $post_max_size < $mem) {
             $results[] = new ConfigResult('php.ini', 'post_max_size',$post_max_size, "The post_max_size setting must be " .
-                    "equal or greater than the upload_max_filesize parameter.");
+                    "equal or greater than the upload_max_filesize parameter. You will need to restart Apache after enabling this extension.");
         }
 
         if (SanityChecks::resultsClean($results)) {
@@ -174,22 +179,22 @@ include_once(APP_INC_PATH . "class.fedora_direct_access.php");
             $results = array_merge($results, SanityChecks::checkDir('WEBSERVER_LOG_DIR', WEBSERVER_LOG_DIR));
             $results = array_merge($results, SanityChecks::checkFile('WEBSERVER_LOG_DIR.WEBSERVER_LOG_FILE', WEBSERVER_LOG_DIR . WEBSERVER_LOG_FILE));
             if (SanityChecks::resultsClean($results)) {
-            $logf = WEBSERVER_LOG_DIR . WEBSERVER_LOG_FILE;
-            $archive_name = APP_HOSTNAME;
-            $handle = fopen($logf, "r");
-            $found_match = false;
-            while (!feof($handle)) {
-                $buffer = fgets($handle, 4096);
-                if (preg_match("/^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) - - \[(.*?)\] \"GET ".preg_quote(APP_RELATIVE_URL,'/')."\/?\S* HTTP\/1..\" 200 .*/i",$buffer,$matches)) {
-                    $found_match = true;
-                    break;
-                }
-            }
-            fclose($handle);
-            if (!$found_match) {
-               $results[] = new ConfigResult('Stats', '', '', 'The apache logfile didn\'t match the expected format. ' .
-                    'The format should be \'combined\'.  See \'Download Statistics setup\' in the Fez Wiki');
-            }
+				$logf = WEBSERVER_LOG_DIR . WEBSERVER_LOG_FILE;
+				$archive_name = APP_HOSTNAME;
+				$handle = fopen($logf, "r");
+				$found_match = false;
+				while (!feof($handle)) {
+					$buffer = fgets($handle, 4096);
+					if (preg_match("/^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) - - \[(.*?)\] \"GET ".preg_quote(APP_RELATIVE_URL,'/')."\/?\S* HTTP\/1..\" 200 .*/i",$buffer,$matches)) {
+						$found_match = true;
+						break;
+					}
+				}
+				fclose($handle);
+				if (!$found_match) {
+				   $results[] = new ConfigResult('Stats', '', '', 'The apache logfile didn\'t match the expected format. ' .
+						'The format should be \'combined\'.  See \'Download Statistics setup\' in the Fez Wiki');
+				}
             }
             return $results;
         } else {
