@@ -23,7 +23,7 @@
     <metadata>
       <oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
         <dc:title>{$list[i].rek_title|escape:"html"}</dc:title>
-        <dc:identifier>{$app_base_url}view.php?pid={$list[i].rek_pid|escape:"html"}</dc:identifier>
+        <dc:identifier>{$app_base_url}view/{$list[i].rek_pid|escape:"html"}</dc:identifier>
         <dc:description>{$list[i].rek_description|escape:"html"}</dc:description>
         <dc:type>{$list[i].rek_display_type_lookup|escape:"html"}</dc:type>
         <dc:date>{$list[i].rek_date|escape:"html"}</dc:date>

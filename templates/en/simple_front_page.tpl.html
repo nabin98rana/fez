@@ -127,7 +127,7 @@ if (isElementVisible(basic_element)) {
 	                {/if}
 	           {else}
 	                {if ($list[i].isViewer==1 || $isAdministrator)}
-	                  {assign var="href_view" value="view.php?pid="|cat:$list[i].rek_pid|escape:"html"}
+	                  {assign var="href_view" value="view/"|cat:$list[i].rek_pid|escape:"html"}
 	                {else}
 	                  {assign var="href_view" value=""}
 	                {/if}

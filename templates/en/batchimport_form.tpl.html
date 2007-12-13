@@ -9,7 +9,7 @@
             <b>Thank you, the new record was created successfully. Please choose 
             from one of the options below:</b>
             <ul>
-              <li><a href="view.php?id={$new_record_id}" class="link">Open the Record Details Page</a></li>
+              <li><a href="view/{$new_record_id}" class="link">Open the Record Details Page</a></li>
               <li><a href="list.php" class="link">Open the Record Listing Page</a></li>
               {if $app_setup.support_email == 'enabled' and $current_role > $roles.viewer}
               <li><a href="emails.php" class="link">Open the Emails Listing Page</a></li>
@@ -30,7 +30,7 @@ setTimeout('openDetailPage()', 5000);
 function openDetailPage()
 {
 {/literal}
-    window.location.href = 'view.php?pid={$new_record_id}';
+    window.location.href = 'view/{$new_record_id}';
 {literal}
 }
 //-->

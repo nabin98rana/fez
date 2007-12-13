@@ -87,7 +87,7 @@ if (is_array($parents_list)) {
 }
 $pid = Misc::GETorPOST('pid');
 if ($wft_type != 'Delete') {
-    $view_record_url = APP_RELATIVE_URL."view.php?pid=".$pid;
+    $view_record_url = APP_RELATIVE_URL."view/".$pid;
     if (Misc::isValidPid($pid)) {
         $record = new RecordObject($pid);
         if ($record->isCommunity()) {

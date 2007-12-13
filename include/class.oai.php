@@ -287,7 +287,7 @@ class OAI
             	$value = "";
 				$oai_name = str_replace(".", ":", strtolower($result['xsdmf_meta_header_name']));
 				if ($return[$result['rek_pid']]['oai_dc'] == "") {
-					$return[$result['rek_pid']]['oai_dc'] = '<dc:identifier>'.APP_BASE_URL.'view.php?pid='.$result['rek_pid'].'</dc:identifier>'."\n";
+					$return[$result['rek_pid']]['oai_dc'] = '<dc:identifier>'.APP_BASE_URL.'view/'.$result['rek_pid'].'</dc:identifier>'."\n";
 				}
 				if ($result['xsdmf_data_type'] == "date") {
 					if (!empty($value)) {

@@ -36,8 +36,8 @@ function loadPreview(pid,datastreamID, alt)
     ip_obj.setTimeout(100000);
     ip_obj.getPreview(pid, datastreamID, max_width, max_height, false, function() { */
 //            pv_img.src = rel_url+'webservices/image_resize_cache.php?pid='+pid+'&dsID='+datastreamID+'&width='+max_width+'&height='+max_height;
-            pv_img.src = rel_url+'eserv.php?ls=0&pid='+pid+'&dsID=preview_'+datastreamID;
-			pv_img_href.href = rel_url+'eserv.php?pid='+pid+'&dsID='+datastreamID;
+            pv_img.src = rel_url+'eserv/'+pid+'/preview_'+datastreamID;
+			pv_img_href.href = rel_url+'eserv/'+pid+'/'+datastreamID;
             pv_img.alt = alt;
             pv_loading.style.display = 'none';
             image_preview_loading = 0;
@@ -227,8 +227,8 @@ function openHistory(pid)
 				<tr valign="top">
 				  <td align="left" class="default" nowrap> <b>Browse Collection:</b></td>
 				  <td align="left" class="default" width="100%"> 
-{if $prev}<a href="{$rel_url}view.php?pid={$prev.rek_pid}&go_prev={$go_prev}">Prev: <i>{$prev.rek_title}</i></a> {if $next}<br />{/if}{/if}
-{if $next}<a href="{$rel_url}view.php?pid={$next.rek_pid}&go_next={$go_next}">Next: <i>{$next.rek_title}</i></a> {/if}
+{if $prev}<a href="{$rel_url}view/{$prev.rek_pid}&go_prev={$go_prev}">Prev: <i>{$prev.rek_title}</i></a> {if $next}<br />{/if}{/if}
+{if $next}<a href="{$rel_url}view/{$next.rek_pid}&go_next={$go_next}">Next: <i>{$next.rek_title}</i></a> {/if}
 				  </td>
 				</tr>
 {/if}
@@ -269,9 +269,9 @@ function openHistory(pid)
 				<td nowrap>
             {if $datastreams[d].thumbnail != "0"}{if $datastreams[d].canPreview || $isAdministrator}<a href="#">{/if}
 				{assign var="show_preview_pane" value="1"}
-			<img align="absmiddle" title="Click on the thumbnail image to show the corresponding preview image" src="{$eserv_url}{$datastreams[d].thumbnail}&ls=0" border="1"
+			<img align="absmiddle" title="Click on the thumbnail image to show the corresponding preview image" src="{$eserv_url}{$datastreams[d].thumbnail}" border="1"
             {if $datastreams[d].canPreview || $isAdministrator}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].preview}', '{$datastreams[d].ID|escape:'html'}');"{/if}
-            >{if $datastreams[d].canPreview || $isAdministrator}</a>{/if}{/if}{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}images/default.png">{/if} {if $datastreams[d].isViewer == 1 || $isAdministrator}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].ID}">{/if}{$datastreams[d].ID}{if $datastreams[d].isViewer == 1 || $isAdministrator}</a> &nbsp;{/if} {if ($datastreams[d].isArchivalViewer == 1 || $isAdministrator) && $datastreams[d].thumbnail != "0"}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID=archival_{$datastreams[d].ID}"><img title="archival version" align="absmiddle" border="0" src="{$rel_url}images/archival_22.gif"></a>&nbsp;{/if} {if $datastreams[d].presmd != "0" && ($isAdministrator)}<a target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$datastreams[d].presmd}"><img title="preservation metadata" align="absmiddle" border="0" src="{$rel_url}images/presmd_22.gif"></a>&nbsp;{/if} 	
+            >{if $datastreams[d].canPreview || $isAdministrator}</a>{/if}{/if}{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}images/default.png">{/if} {if $datastreams[d].isViewer == 1 || $isAdministrator}<a target="_blank" href="{$rel_url}eserv/{$pid}/{$datastreams[d].ID}">{/if}{$datastreams[d].ID}{if $datastreams[d].isViewer == 1 || $isAdministrator}</a> &nbsp;{/if} {if ($datastreams[d].isArchivalViewer == 1 || $isAdministrator) && $datastreams[d].thumbnail != "0"}<a target="_blank" href="{$rel_url}eserv/{$pid}/archival_{$datastreams[d].ID}"><img title="archival version" align="absmiddle" border="0" src="{$rel_url}images/archival_22.gif"></a>&nbsp;{/if} {if $datastreams[d].presmd != "0" && ($isAdministrator)}<a target="_blank" href="{$rel_url}eserv/{$pid}/{$datastreams[d].presmd}"><img title="preservation metadata" align="absmiddle" border="0" src="{$rel_url}images/presmd_22.gif"></a>&nbsp;{/if} 	
 				</td>
 				<td>{$datastreams[d].label}</td>
 				<td>{$datastreams[d].MIMEType}</td>
@@ -362,7 +362,7 @@ function openHistory(pid)
 				<div class="admin-header">This record has been deleted.</div>
 				{if $duplicate_pid}
 					<div  class="admin-content">
-					<div>It was marked as a duplicate of <a href="{$rel_url}view.php?pid={$duplicate_pid}">{$duplicate_pid}</a></div>
+					<div>It was marked as a duplicate of <a href="{$rel_url}view/{$duplicate_pid}">{$duplicate_pid}</a></div>
 					<div>Event detail: {$duplicate_premis.pre_detail}</div>
 					<div>Date: {$duplicate_premis.pre_date|date_format:'%a, %d %b %Y, %H:%M:%S %z'}</div>
 					</div>
@@ -411,7 +411,7 @@ function openHistory(pid)
         <tr>
         <td class="default">
           {if $preview_ds_1}
-          <a id="datastream_preview_href" title="Click on the image to see a larger version"  target="_blank" href="{$rel_url}eserv.php?pid={$pid}&dsID={$preview_ds_1.ID}"><img border=0 id="datastream_preview" alt="Datastream Preview"/></a>
+          <a id="datastream_preview_href" title="Click on the image to see a larger version"  target="_blank" href="{$rel_url}eserv/{$pid}/{$preview_ds_1.ID}"><img border=0 id="datastream_preview" alt="Datastream Preview"/></a>
           <script language="JavaScript">loadPreview('{$pid}','{$preview_ds_1.preview}','{$preview_ds_1.ID|escape:'html'}');</script>
           {/if}
         </td>

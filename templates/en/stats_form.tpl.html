@@ -109,7 +109,7 @@ function disableFields()
       <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1">
 		{if ($browse_type == "browse_top50authors") || ($browse_type == "browse_top50papers") || ($browse_type == "browse_show_detail_date")} 
 		 <tr class="default">
-			<td class="contentheader" align="left"><img src="{$rel_url}images/statistics_22.gif" alt="" align="absmiddle"> Access Statistics: <a href="{$rel_url}view.php?pid={$pid}">{$title}</a>
+			<td class="contentheader" align="left"><img src="{$rel_url}images/statistics_22.gif" alt="" align="absmiddle"> Access Statistics: <a href="{$rel_url}view/{$pid}">{$title}</a>
 			</td>
 		</tr>
 
@@ -192,7 +192,7 @@ function disableFields()
 				  <tr>
 						<td align="right" width="10" valign='top'><strong>{$smarty.section.i.index+1}</strong></td>
 					  <td align="left">
-							<a href='{$rel_url}view.php?pid={$list[i].rek_pid}'>{$list[i].rek_citation}</a> 
+							<a href='{$rel_url}view/{$list[i].rek_pid}'>{$list[i].rek_citation}</a> 
 
 						</td>
 						<td align="right" valign="top" width="" nowrap>&nbsp;{if $list[i].rek_file_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">{$list[i].rek_file_downloads|escape:"html"}</a>{/if} </td>
@@ -239,7 +239,7 @@ function disableFields()
 				  <tr>
 						<td align="right" width="10" valign='top'><strong>{$smarty.section.i.index+1}</strong></td>
 					  <td align="left">
-							<a href='{$rel_url}view.php?pid={$list[i].rek_pid}'>{$list[i].rek_citation}</a> 
+							<a href='{$rel_url}view/{$list[i].rek_pid}'>{$list[i].rek_citation}</a> 
 
 						</td>
 						<td align="right" valign="top" width="" nowrap>&nbsp;{if $list[i].rek_file_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">{$list[i].rek_file_downloads|escape:"html"}</a>{/if} </td>
@@ -423,7 +423,7 @@ function disableFields()
                 {/if}
            {else}
                 {if ($list[i].isViewer==1 || $isAdministrator)}
-                  {assign var="href_view" value="view.php?pid="|cat:$list[i].rek_pid|escape:"html"}
+                  {assign var="href_view" value="view/"|cat:$list[i].rek_pid|escape:"html"}
                 {else}
                   {assign var="href_view" value=""}
                 {/if}

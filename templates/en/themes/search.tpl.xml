@@ -133,7 +133,7 @@
         <objectMeta>
           
           {section name=i loop=$list}
-            <object objectIdentifier="{$list[i].rek_pid}" url="view.php?pid={$list[i].rek_pid}"
+            <object objectIdentifier="{$list[i].rek_pid}" url="view/{$list[i].rek_pid}"
                 repositoryIdentifier="{$list[i].rek_pid}">
                 <mets:METS xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/TR/xlink/"
                     xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" LABEL="DSpace Collection"

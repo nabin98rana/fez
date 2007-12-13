@@ -15,7 +15,7 @@
 <table class="listing default" id="edit_metadata_form_table">
 <tr class="default">
  <td colspan="2" class="compare_records_left_side">
- 	<h2>Base Record: <a href="{$rel_url}view.php?pid={$left_pid}" target="_blank">{$left_pid}</a></h2>
+ 	<h2>Base Record: <a href="{$rel_url}view/{$left_pid}" target="_blank">{$left_pid}</a></h2>
 	{if $sta_id != 2}
 	<div class="default">
 	NOTE: This record is not published.
@@ -41,7 +41,7 @@
 	</div>
  </td>
  <td colspan="2" class="compare_records_right_side">
- <h2>Possible Duplicate: <a href="{$rel_url}view.php?pid={$current_dup_pid}" target="_blank">{$current_dup_pid}</a></h2>
+ <h2>Possible Duplicate: <a href="{$rel_url}view/{$current_dup_pid}" target="_blank">{$current_dup_pid}</a></h2>
 	{if $right_isi_loc}
 	<div>ISI LOC: {$right_isi_loc}</div>
 	{/if}

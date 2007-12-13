@@ -53,8 +53,8 @@ $tpl->assign("isAdministrator", $isAdministrator);
 
 
 $tpl->assign("fez_root_dir", APP_PATH);
-$tpl->assign("eserv_url", APP_BASE_URL."eserv.php?pid=".$pid."&dsID=");
-$tpl->assign("local_eserv_url", APP_BASE_URL."eserv.php?pid=".$pid."&dsID=");
+$tpl->assign("eserv_url", APP_BASE_URL."eserv/".$pid."/");
+$tpl->assign("local_eserv_url", APP_BASE_URL."eserv/".$pid."/");
 $tpl->assign("extra_title", "Record #".$pid." Details");
 $debug = @$_REQUEST['debug'];
 if ($debug == 1) {
@@ -372,13 +372,13 @@ if (!empty($pid) && $record->checkExists()) {
         // get prev / next info
         
         // Check if we have moved onto the next listing page
-        if (@$_GET['go_next']) {
+        if (@$_GET['next']) {
             $res = getNextPage();
         }
-        if (@$_GET['go_prev']) {
+        if (@$_GET['prev']) {
             $res = getPrevPage();
         }
-        if (@$_GET['go_next'] || @$_GET['go_prev']) {
+        if (@$_GET['next'] || @$_GET['prev']) {
             $_SESSION['list'] = $res['list'];
             $_SESSION['list_params'] = $res['list_params'];
             $_SESSION['list_info'] = $res['list_info'];

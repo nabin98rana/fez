@@ -162,7 +162,7 @@ class Record
 					if ($dev['pid'] != $pid) {
 						$xdis_title = XSD_Display::getTitle($dev['rek_display_type']);
 						$dTree .= "<li>";
-						$dTree .= "<a href='".APP_RELATIVE_URL."view.php?pid=".$dev['rek_pid']."'>".$dev['rek_title']."</a> <i>".$xdis_title."</i> (deposited ".Date_API::getFormattedSimpleDate($dev['rek_created_date']).")";
+						$dTree .= "<a href='".APP_RELATIVE_URL."view/".$dev['rek_pid']."'>".$dev['rek_title']."</a> <i>".$xdis_title."</i> (deposited ".Date_API::getFormattedSimpleDate($dev['rek_created_date']).")";
 						$dTree .= "</li>";
 					} else {
 						$dTree .= "<li>";

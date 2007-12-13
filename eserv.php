@@ -113,6 +113,12 @@ if (!empty($pid) && !empty($dsID)) {
 		case 'mdb'  :
 				$header = "Content-type: application/msaccess";
 				break;
+		case 'htm'  :
+				$header = "Content-type: text/html\n";
+				break;
+		case 'html'  :
+				$header = "Content-type: text/html\n";
+				break;
 		case 'flv'  :
 				if ($stream == 1) {
 					if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $HTTP_SERVER_VARS['PHP_SELF']."?".urlencode($HTTP_SERVER_VARS['QUERY_STRING'])) == true) {
