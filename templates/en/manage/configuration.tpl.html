@@ -102,6 +102,9 @@ function restoreDefaultColours(el)
 	  </p>
 	  <p><img src="{$rel_url}images/warning_16.png" alt="Warning" title="Warning" width="16" height="16" /> It is highly recommended that you run the <a href="../upgrade/check_sanity.php" target="_blank">Sanity Checks</a> now, to ensure there are no serious problems with your changes.</p>
 	  <br />
+    {else}
+      <p>&raquo; <a href="../upgrade/check_sanity.php" target="_blank">Run Sanity Check</a></p>
+	  <br />
 	{/if}
 
 	<table>
@@ -772,6 +775,7 @@ function restoreDefaultColours(el)
 		    <td class="colname">Log directory</td>
 			<td class="coldetail">
 			  <input type="text" name="webserver_log_dir" value="{$config_settings.webserver_log_dir|escape:"html"}" size="50" />
+			  <br />You must include a trailing slash.
 			  {include file="error_icon.tpl.html" field="webserver_log_dir"}
 			</td>
   		  </tr>
@@ -786,6 +790,7 @@ function restoreDefaultColours(el)
 		    <td class="colname">GEOIP path</td>
 			<td class="coldetail">
 			  <input type="text" name="app_geoip_path" value="{$config_settings.app_geoip_path|escape:"html"}" size="50" />
+			  <br />You must include a trailing slash.
 			  {include file="error_icon.tpl.html" field="app_geoip_path"}
 			</td>
   		  </tr>

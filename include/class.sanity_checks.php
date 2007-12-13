@@ -97,11 +97,9 @@ include_once(APP_INC_PATH . "class.fedora_direct_access.php");
         phpinfo();
         $contents = ob_get_contents();
         ob_end_clean();
-
-        if (!preg_match("/mod_rewrite2/U", $contents)) {
+        if (!preg_match("/mod_rewrite/U", $contents)) {
             $results[] = new ConfigResult('Apache modules','mod_rewrite', '',"The mod_rewrite module needs to be enabled in your Apache configuration file (httpd.conf) in order for Fez to work properly. You will need to restart Apache after enabling this extension.");
         }
-
         if (!preg_match("/GD Support.*<\/td><td.*>enabled/U", $contents)) {
             $results[] = new ConfigResult('PHP extensions', 'GD Support', '', "The GD extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly. You will need to restart Apache after enabling this extension.");
         }

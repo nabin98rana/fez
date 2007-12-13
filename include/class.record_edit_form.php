@@ -58,8 +58,8 @@
         }
     //  print_r($details);
     //    print_r($datastreams);
-        $tpl->assign("eserv_url", APP_BASE_URL."eserv.php?pid=".$pid."&dsID=");
-        $tpl->assign("local_eserv_url", APP_RELATIVE_URL."eserv.php?pid=".$pid."&dsID=");
+        $tpl->assign("eserv_url", APP_BASE_URL."eserv/".$pid."/");
+        $tpl->assign("local_eserv_url", APP_RELATIVE_URL."eserv/".$pid."/");
         $tpl->assign('triggers', count(WorkflowTrigger::getList($pid)));
         $tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");
         $tpl->assign("isEditor", 1);

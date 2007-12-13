@@ -36,7 +36,7 @@ foreach ($res as $file) {
             	|| stristr($file, ".gif"))
             && stristr($file, "web_")
 	    ) {
-	    	$attachment = APP_BASE_URL.'eserv.php?pid='.$issue_pid.'&amp;dsID='.$file;
+	    	$attachment = APP_BASE_URL.'eserv/'.$issue_pid.'/'.$file;
     	}
 }
 
