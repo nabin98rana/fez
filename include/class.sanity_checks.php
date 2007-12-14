@@ -98,7 +98,7 @@ include_once(APP_INC_PATH . "class.fedora_direct_access.php");
         $contents = ob_get_contents();
         ob_end_clean();
         if (!preg_match("/mod_rewrite/U", $contents)) {
-            $results[] = new ConfigResult('Apache modules','mod_rewrite', '',"The mod_rewrite module needs to be enabled in your Apache configuration file (httpd.conf) in order for Fez to work properly. You will need to restart Apache after enabling this extension.");
+            $results[] = new ConfigResult('Apache modules','mod_rewrite', '',"The mod_rewrite module needs to be enabled in your Apache configuration file (httpd.conf) in order for Fez to work properly. To enable with Apache 2.2 you would run 'a2enmod rewrite'. You will need to restart Apache after enabling this extension.");
         }
         if (!preg_match("/GD Support.*<\/td><td.*>enabled/U", $contents)) {
             $results[] = new ConfigResult('PHP extensions', 'GD Support', '', "The GD extension needs to be enabled in your PHP.INI (for windows) or configured during source compile (Linux) file in order for Fez to work properly. You will need to restart Apache after enabling this extension.");
@@ -175,7 +175,7 @@ include_once(APP_INC_PATH . "class.fedora_direct_access.php");
             $results = array(ConfigResult::message('Testing Stats Setup'));
             $results = array_merge($results, SanityChecks::checkDir('APP_GEOIP_PATH', APP_GEOIP_PATH));
             $results = array_merge($results, SanityChecks::checkDir('WEBSERVER_LOG_DIR', WEBSERVER_LOG_DIR));
-            $results = array_merge($results, SanityChecks::checkFile('WEBSERVER_LOG_DIR.WEBSERVER_LOG_FILE', WEBSERVER_LOG_DIR . WEBSERVER_LOG_FILE));
+            $results = array_merge($results, SanityChecks::checkFile('WEBSERVER_LOG_DIR.WEBSERVER_LOG_FILE', WEBSERVER_LOG_DIR . WEBSERVER_LOG_FILE, false, false, true));
             if (SanityChecks::resultsClean($results)) {
 				$logf = WEBSERVER_LOG_DIR . WEBSERVER_LOG_FILE;
 				$archive_name = APP_HOSTNAME;
@@ -591,7 +591,7 @@ include_once(APP_INC_PATH . "class.fedora_direct_access.php");
         return array();
     }
 
-    function checkFile($configDefine, $value, $writeable = false, $exec = false)
+    function checkFile($configDefine, $value, $writeable = false, $exec = false, $readable = false)
     {
         if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
             $value = str_replace('/','\\',$value);
@@ -612,6 +612,12 @@ include_once(APP_INC_PATH . "class.fedora_direct_access.php");
             if (!is_writable($value) ) {
                 return array(new ConfigResult('File', $configDefine, $value, "The web server user doesn't" .
                         " have write permissions on this file."));
+            }
+        }
+        if ($readable) {
+            if (!is_readable($value) ) {
+                return array(new ConfigResult('File', $configDefine, $value, "The web server user doesn't" .
+                        " have read permissions on this file."));
             }
         }
         return array();
