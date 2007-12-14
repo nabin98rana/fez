@@ -125,7 +125,7 @@ if ($pid == -1) {
     } else {
         $tpl->assign('record_type', 'Record');
         $tpl->assign('parent_type', 'Collection');
-        $tpl->assign('view_href', APP_RELATIVE_URL."view.php?pid=$pid");
+        $tpl->assign('view_href', APP_RELATIVE_URL."view/".$pid);
     }
     $details = $record->getDetails();
     $tpl->assign("details", $details);
