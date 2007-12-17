@@ -733,9 +733,9 @@ class Auth
 //			foreach ($indexArray as $indexKey => $indexRecord) {
 				$userPIDAuthGroups = $indexArray['FezACML'];
 //	            $userPIDAuthGroups = Auth::getIndexAuthorisationGroups($indexRecord);
-	            $editor_matches = array_intersect(explode(',',APP_EDITOR_ROLES), $indexArray); 
-            	$creator_matches = array_intersect(explode(',',APP_CREATOR_ROLES), $indexArray); 
-            	$approver_matches = array_intersect(explode(',',APP_APPROVER_ROLES), $indexArray); 
+	            $editor_matches = array_intersect(explode(',',APP_EDITOR_ROLES), $userPIDAuthGroups); 
+            	$creator_matches = array_intersect(explode(',',APP_CREATOR_ROLES), $userPIDAuthGroups); 
+            	$approver_matches = array_intersect(explode(',',APP_APPROVER_ROLES), $userPIDAuthGroups); 
 				$indexArray['isCommunityAdministrator'] = (in_array('Community Administrator', $userPIDAuthGroups) || Auth::isAdministrator()); //editor is only for the children. To edit the actual community record details you need to be a community admin
 				$indexArray['isApprover'] = (!empty($approver_matches) || $indexArray['isCommunityAdministrator'] == true);
 				$indexArray['isEditor'] = (!empty($editor_matches) || $indexArray['isCommunityAdministrator'] == true);
