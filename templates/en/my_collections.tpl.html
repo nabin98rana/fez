@@ -14,7 +14,7 @@
      {cycle values=$cycle assign="row_color"}
      <tr>
        <td bgcolor="{$row_color}" class="default">
-         &nbsp;<a href="{$rel_url}list.php?collection_pid={$list[i].rek_pid|escape}">{$list[i].rek_title|escape}</a>
+         &nbsp;<a href="{$rel_url}collection/{$list[i].rek_pid|escape}">{$list[i].rek_title|escape}</a>
        </td>
        <td bgcolor="{$row_color}" class="default">
 		{section name="m" loop=$list[i].rek_ismemberof.rek_pid}

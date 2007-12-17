@@ -114,11 +114,11 @@ if ($pid == -1) {
     if ($record->isCollection()) {
         $tpl->assign('record_type', 'Collection');
         $tpl->assign('parent_type', 'Community');
-        $tpl->assign('view_href', APP_RELATIVE_URL."list.php?collection_pid=$pid");
+        $tpl->assign('view_href', APP_RELATIVE_URL."collection/$pid");
         $xdis_list += array(Collection::getCollectionXDIS_ID() => 'Collection'); 
     } elseif ($record->isCommunity()) {
         $tpl->assign('record_type', 'Community');
-        $tpl->assign('view_href', APP_RELATIVE_URL."list.php?community_pid=$pid");
+        $tpl->assign('view_href', APP_RELATIVE_URL."community/$pid");
         $xdis_list += array(Collection::getCollectionXDIS_ID() => 'Collection', 
                 Community::getCommunityXDIS_ID() => 'Community'); 
         $tpl->assign('xdis_list', array(-2 => 'None', -1 => 'Any') + $xdis_list);

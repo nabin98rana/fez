@@ -226,10 +226,10 @@ $tpl->assign("title", $title);
 if ($record->isCollection()) {
     $tpl->assign('record_type', 'Collection');
     $tpl->assign('parent_type', 'Community');
-    $tpl->assign('view_href', APP_RELATIVE_URL."list.php?collection_pid=$pid");
+    $tpl->assign('view_href', APP_RELATIVE_URL."collection/$pid");
 } elseif ($record->isCommunity()) {
     $tpl->assign('record_type', 'Community');
-    $tpl->assign('view_href', APP_RELATIVE_URL."list.php?community_pid=$pid");
+    $tpl->assign('view_href', APP_RELATIVE_URL."community/$pid");
 } else {
     $tpl->assign('record_type', 'Record');
     $tpl->assign('parent_type', 'Collection');

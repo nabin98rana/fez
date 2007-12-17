@@ -218,7 +218,7 @@ function openHistory(pid)
 				  <td align="left" class="default"> <b>{$parent_heading} </b></td>
 				  <td align="left" class="default" width="100%"> 
 					{section name="i" loop=$parents}
-						<a href="{$rel_url}list.php?collection_pid={$parents[i].rek_pid}">{$parents[i].rek_title}</a> &nbsp;
+						<a href="{$rel_url}collection/{$parents[i].rek_pid}">{$parents[i].rek_title}</a> &nbsp;
 					{/section}
 				  </td>
 				</tr>

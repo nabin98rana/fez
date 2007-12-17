@@ -9,9 +9,9 @@
   <docs>http://blogs.law.harvard.edu/tech/rss</docs>
   {section name="i" loop=$list}
  		{if $list[i].reko_bject_type == 1}
-          {assign var="href_view" value="list.php?community_pid="|cat:$list[i].rek_pid|escape:"html"}  
+          {assign var="href_view" value="community/"|cat:$list[i].rek_pid|escape:"html"}  
         {elseif $list[i].rek_object_type == 2}
-	      {assign var="href_view" value="list.php?collection_pid="|cat:$list[i].rek_pid|escape:"html"}
+	      {assign var="href_view" value="collection/"|cat:$list[i].rek_pid|escape:"html"}
 	    {else}
 		  {assign var="href_view" value="view/"|cat:$list[i].rek_pid|escape:"html"}	      
 		{/if}

@@ -406,7 +406,7 @@ function disableFields()
         {section name="i" loop=$list}
         {if (($list[i].isLister==1 || $isAdministrator) && $list_type != 'browse_subjects_list')}
 	   		{if $list[i].ret_id == '1'}
-                {assign var="href_view" value="list.php?community_pid="|cat:$list[i].rek_pid|escape:"html"}
+                {assign var="href_view" value="community/"|cat:$list[i].rek_pid|escape:"html"}
                 {assign var="icon" value="images/community.jpg" }
                 {if ($list[i].isEditor==1 || $isAdministrator)} 
                         {assign var="showEdit" value=true}
@@ -414,7 +414,7 @@ function disableFields()
                         {assign var="showEdit" value=false}
                 {/if}
            {elseif $list[i].ret_id == '2'}
-                {assign var="href_view" value="list.php?collection_pid="|cat:$list[i].rek_pid|escape:"html"}
+                {assign var="href_view" value="collection/"|cat:$list[i].rek_pid|escape:"html"}
                 {assign var="icon" value="images/collection.jpg" }
                 {if $isUser && ($list[i].isEditor==1 || $isAdministrator)}  
                         {assign var="showEdit" value=true}

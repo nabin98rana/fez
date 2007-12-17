@@ -232,7 +232,7 @@ No items found
 	   {if $options.searchKey8 == ""}
      <td class="default">
 		{section name="m" loop=$list[i].rek_ismemberof.rek_pid}
-      <a title="click to open the published list of records in this collection" href="{$rel_url}list.php?collection_pid={$list[i].rek_ismemberof.rek_pid[m]}">{$list[i].rek_ismemberof.rek_title[m]|escape}</a><br />
+      <a title="click to open the published list of records in this collection" href="{$rel_url}collection/{$list[i].rek_ismemberof.rek_pid[m]}">{$list[i].rek_ismemberof.rek_title[m]|escape}</a><br />
 		{/section}
      </td>
      {/if}

@@ -128,7 +128,7 @@ function purgeObject(pid)
 				  <td align="left" class="default"> <b>Parent Communities: </b></td>
 				  <td align="left" class="default"> &nbsp;
 					{section name="i" loop=$parents}
-						<a href="list.php?community_pid={$parents[i].pid}">{$parents[i].title}</a> &nbsp;
+						<a href="community/{$parents[i].pid}">{$parents[i].title}</a> &nbsp;
 					{/section}
 				  </td>
 				</tr>

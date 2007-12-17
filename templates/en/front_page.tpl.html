@@ -137,7 +137,7 @@ if (isElementVisible(basic_element)) {
 		<ul class="front-page-list">
 	        {section name="i" loop=$list}
 				{if $list[i].rek_object_type == 1}
-	                {assign var="href_view" value="list.php?community_pid="|cat:$list[i].rek_pid|escape:"html"}
+	                {assign var="href_view" value="community/"|cat:$list[i].rek_pid|escape:"html"}
 	                {assign var="icon" value="images/community.jpg" }
 	                {if ($list[i].isEditor==1 || $isAdministrator)}
 	                        {assign var="showEdit" value=true}
@@ -145,7 +145,7 @@ if (isElementVisible(basic_element)) {
 	                        {assign var="showEdit" value=false}
 	                {/if}
 	           {elseif $list[i].rek_object_type == 2}
-	                {assign var="href_view" value="list.php?collection_pid="|cat:$list[i].rek_pid|escape:"html"}
+	                {assign var="href_view" value="collection/"|cat:$list[i].rek_pid|escape:"html"}
 	                {assign var="icon" value="images/collection.jpg" }
 	                {if $isUser && ($list[i].isEditor==1 || $isAdministrator)}
 	                        {assign var="showEdit" value=true}

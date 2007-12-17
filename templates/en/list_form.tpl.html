@@ -190,9 +190,9 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 				  <td align="left"> &nbsp;
 					{section name="i" loop=$parents}
 						{if $parents[i].rek_object_type == 1}
-						<a href="list.php?community_pid={$parents[i].rek_pid}">{$parents[i].rek_title}</a> &nbsp;
+						<a href="{$rel_url}community/{$parents[i].rek_pid}">{$parents[i].rek_title}</a> &nbsp;
 						{else}
-						<a href="list.php?collection_pid={$parents[i].rek_pid}">{$parents[i].rek_title}</a> &nbsp;
+						<a href="{$rel_url}collection/{$parents[i].rek_pid}">{$parents[i].rek_title}</a> &nbsp;
 						{/if}
 					{/section}
 				  </td>
@@ -561,7 +561,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 
         {if (($list[i].isLister==1 || $isAdministrator) && $list_type != 'browse_subjects_list')}
 	   		{if $list[i].rek_object_type == 1}
-                {assign var="href_view" value="list.php?community_pid="|cat:$list[i].rek_pid|escape:"html"}
+                {assign var="href_view" value="community/"|cat:$list[i].rek_pid|escape:"html"}
                 {assign var="icon" value="images/community.jpg" }
                 {if ($list[i].isEditor==1 || $isAdministrator)} 
                         {assign var="showEdit" value=true}
@@ -569,7 +569,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
                         {assign var="showEdit" value=false}
                 {/if}
            {elseif $list[i].rek_object_type == 2}
-                {assign var="href_view" value="list.php?collection_pid="|cat:$list[i].rek_pid|escape:"html"}
+                {assign var="href_view" value="collection/"|cat:$list[i].rek_pid|escape:"html"}
                 {assign var="icon" value="images/collection.jpg" }
                 {if $isUser && ($list[i].isEditor==1 || $isAdministrator)}  
                         {assign var="showEdit" value=true}
@@ -607,14 +607,14 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 
 				{if $icon != ""}
                   <td width="1%" align='right'>
-                        {if $href_view}<a href='{$href_view}' >{/if}<img valign='top' align='right' src="{$icon}" alt="" border="0" />{if $href_view}</a>{/if}
+                        {if $href_view}<a href='{$rel_url}{$href_view}' >{/if}<img valign='top' align='right' src="{$icon}" alt="" border="0" />{if $href_view}</a>{/if}
 				  </td>
 				{/if}
 				  <td align="left" {if $icon}{else}colspan="2"{/if} valign="middle" width="90%">
 					{if $list[i].rek_citation != ""}
                     {$list[i].rek_citation}
 					{else}
-                    {if $href_view}<a href='{$href_view}' title='{$list[i].rek_title}'>{/if}{$list[i].rek_title|escape:"html"}{if $href_view}</a>{/if}
+                    {if $href_view}<a href='{$rel_url}{$href_view}' title='{$list[i].rek_title}'>{/if}{$list[i].rek_title|escape:"html"}{if $href_view}</a>{/if}
 					{/if}
 	{if $list[i].rek_object_type != 3}{if $list[i].rek_ismemberof_count != ""}({$list[i].rek_ismemberof_count}){else}(0){/if}{/if}
 				  </td>		

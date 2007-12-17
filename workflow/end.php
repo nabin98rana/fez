@@ -78,9 +78,9 @@ if (is_array($parents_list)) {
         if (Misc::isValidPid($item)) {
             $precord = new RecordObject($item);
             if ($precord->isCommunity()) {
-                $item['url'] = APP_RELATIVE_URL."list.php?community_pid=".$item;
+                $item['url'] = APP_RELATIVE_URL."community/".$item;
             } else {
-                $item['url'] = APP_RELATIVE_URL."list.php?collection_pid=".$item;
+                $item['url'] = APP_RELATIVE_URL."collection/".$item;
             }
         }
     }
@@ -91,9 +91,9 @@ if ($wft_type != 'Delete') {
     if (Misc::isValidPid($pid)) {
         $record = new RecordObject($pid);
         if ($record->isCommunity()) {
-            $view_record_url = APP_RELATIVE_URL."list.php?community_pid=".$pid;
+            $view_record_url = APP_RELATIVE_URL."community/".$pid;
         } elseif ($record->isCollection()) {
-            $view_record_url = APP_RELATIVE_URL."list.php?collection_pid=".$pid;
+            $view_record_url = APP_RELATIVE_URL."collection/".$pid;
         }
         $record_title = $record->getTitle();
     } else {
@@ -110,9 +110,9 @@ if ($parent_pid) {
             $precord = new RecordObject($parent_pid);
             if ($precord) {
                 if ($precord->isCommunity()) {
-                    $view_parent_url = APP_RELATIVE_URL."list.php?community_pid=".$parent_pid;
+                    $view_parent_url = APP_RELATIVE_URL."community/".$parent_pid;
                 } else {
-                    $view_parent_url = APP_RELATIVE_URL."list.php?collection_pid=".$parent_pid;
+                    $view_parent_url = APP_RELATIVE_URL."collection/".$parent_pid;
                 }
                 $parent_title = $precord->getTitle();
             } else {
