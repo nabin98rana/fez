@@ -1,7 +1,15 @@
 {literal}
 <script language="JavaScript" type="text/javascript">
 <!--
-var page_url = '{/literal}{$smarty.server.PHP_SELF}{literal}';
+{/literal}
+{if $list_type == 'collection_records_list'}
+var page_url = '{$rel_url}collection/{$collection_pid}';
+{elseif $list_type == 'community_list'}
+var page_url = '{$rel_url}list';
+{elseif $list_type == 'collection_list'}
+var page_url = '{$rel_url}community/{$community_pid}';
+{/if}
+{literal}
 var current_page = {/literal}{if $list_info.current_page != ""}{$list_info.current_page}{else}0{/if}{literal};
 var last_page = {/literal}{if $list_info.last_page != ""}{$list_info.last_page}{else}0{/if}{literal};
 function assignItems(f)
@@ -44,9 +52,9 @@ function assignWorkflow(f) {
 function hideClosed(f)
 {
     if (f.hide_closed.checked) {
-        window.location.href = page_url + "?" + replaceParam(window.location.href, 'hide_closed', '1');
+        window.location.href = page_url + "/" + replaceParam(window.location.href, 'hide_closed', '1');
     } else {
-        window.location.href = c + "?" + replaceParam(window.location.href, 'hide_closed', '0');
+        window.location.href = c + "/" + replaceParam(window.location.href, 'hide_closed', '0');
     }
 }
 
@@ -73,7 +81,7 @@ function setPage(new_page)
             (new_page == current_page)) {
         return false;
     }
-    window.location.href = page_url + "?" + replaceParam(window.location.href, 'pager_row', new_page);
+    window.location.href = page_url + "/" + replaceParam(window.location.href, 'pager_row', new_page);
 }
 function downloadCSV()
 {
@@ -101,17 +109,17 @@ function disableFields()
 
 function sortList(f, field) {
     sort_by = getSelectedOption(f, field);
-    window.location.href = page_url + "?" + replaceParam(window.location.href, 'sort_by', sort_by);
+    window.location.href = page_url + "/" + replaceParam(window.location.href, 'sort_by', sort_by);
 }
 
 function sortListOrder(f, field) {
     sort_order = getSelectedOption(f, field);
-    window.location.href = page_url + "?" + replaceParam(window.location.href, 'sort_order', sort_order);
+    window.location.href = page_url + "/" + replaceParam(window.location.href, 'sort_order', sort_order);
 }
 
 function setTemplate(f, field) {
     tpl = getSelectedOption(f, field);
-    window.location.href = page_url + "?" + replaceParam(window.location.href, 'tpl', tpl);
+    window.location.href = page_url + "/" + replaceParam(window.location.href, 'tpl', tpl);
 }
 
 -->
@@ -607,7 +615,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 
 				{if $icon != ""}
                   <td width="1%" align='right'>
-                        {if $href_view}<a href='{$rel_url}{$href_view}' >{/if}<img valign='top' align='right' src="{$icon}" alt="" border="0" />{if $href_view}</a>{/if}
+                        {if $href_view}<a href='{$rel_url}{$href_view}' >{/if}<img valign='top' align='right' src="{$rel_url}{$icon}" alt="" border="0" />{if $href_view}</a>{/if}
 				  </td>
 				{/if}
 				  <td align="left" {if $icon}{else}colspan="2"{/if} valign="middle" width="90%">
