@@ -290,7 +290,7 @@ class OAI
 					$return[$result['rek_pid']]['oai_dc'] = '<dc:identifier>'.APP_BASE_URL.'view/'.$result['rek_pid'].'</dc:identifier>'."\n";
 				}
 				if ($result['xsdmf_data_type'] == "date") {
-					if (!empty($value)) {
+					if (!empty($result['rmf_date'])) {
 						$value = Date_API::getFedoraFormattedDate($result['rek_'.$result['xsdmf_data_type']]);
 					}
 				} else {
