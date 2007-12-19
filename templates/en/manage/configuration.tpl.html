@@ -369,6 +369,17 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_cookie"}
 			</td>
   		  </tr>
+  		  <tr>
+		    <td class="colname">Google Analytics ID</td>
+			<td class="coldetail">
+			  <input type="radio" name="app_analytics_switch" value="ON" {if $config_settings.app_analytics_switch == "ON"}checked{/if}/> Enabled &nbsp; 
+			  <input type="radio" name="app_analytics_switch" value="OFF" {if $config_settings.app_analytics_switch == "OFF"}checked{/if}/> Disabled  &nbsp; &nbsp; 
+		    
+			  <input type="text" name="app_analytics_id" value="{$config_settings.app_analytics_id|escape:"html"}" size="20" />
+			  Format: <strong><i>xxxxxx-x</i></strong><br />
+			  {include file="error_icon.tpl.html" field="app_analytics_id"}
+			</td>
+  		  </tr>
 		</table>
 		</div>
 

@@ -200,6 +200,9 @@ class Template_API
         $this->assign("app_setup", Setup::load());
         $this->assign("app_setup_path", APP_SETUP_PATH);
         $this->assign("app_setup_file", APP_SETUP_FILE);
+        $this->assign('app_analytics_switch', APP_ANALYTICS_SWITCH);
+        $this->assign('app_analytics_id', APP_ANALYTICS_ID);
+        
         $this->assign("ldap_switch", LDAP_SWITCH);
         $this->assign("application_version", APP_VERSION);
         $this->assign("application_title", APP_NAME);
@@ -264,7 +267,6 @@ class Template_API
             "internal_color" => APP_INTERNAL_COLOR
         ));
         $this->assign('phpini_upload_max_filesize', Misc::convertSize(ini_get('upload_max_filesize')));
-
 
         $this->registerNajax(NAJAX_Client::register('Session', APP_RELATIVE_URL.'ajax.php'));
         $this->onload("getFlashMessage();");

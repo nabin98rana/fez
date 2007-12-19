@@ -169,6 +169,8 @@ class Default_Data
         $defaultData['app_link_prefix']                     = "";   // Empty default
         $defaultData['app_cloud_tag']                       = "ON";
         $defaultData['app_fedora_apia_direct']              = "OFF";
+        $defaultData['app_analytics_id']              		= "";
+        $defaultData['app_analytics_switch']              	= "OFF";
 
         return $defaultData;
 
