@@ -81,7 +81,7 @@ class Fedora_API {
 	}
 
     /**
-     * Opens a given url and reads it into a variable and returns the string variable.
+     * Opens a given URL and reads it into a variable and returns the string variable.
      *
      * @access  public
 	 * @param string $ur1 The URL of the website to read
@@ -91,13 +91,18 @@ class Fedora_API {
 	{
        // Fake the browser type
        ini_set('user_agent','MSIE 4\.0b2;');
-       $dh = fopen("$url",'r');
+       $i = 0;
+       do {
+         $dh = fopen("$url",'r');
+         $i++;
+       } while ($i < 2 && $dh !== FALSE); // RCA - give up after three attempts
+       if (!$dh) return;
        $result = "";
        $temp_result = "";
        while ($temp_result = fread($dh,8192)) {
 	       $result .= $temp_result;
-	   }
-	   fclose($dh);
+       }
+       fclose($dh);
        return $result;
 	}
 

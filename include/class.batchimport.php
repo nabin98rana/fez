@@ -146,7 +146,7 @@ class BatchImport
 	   $xmlDocumentType = "";		
 		if (is_array(@$nameArrayExtra[$key])) {
 		    foreach ($nameArrayExtra[$key] as $name) {
-				if (array_key_exists("id", $name)) {
+				if (array_key_exists("id", (array)$name)) {
 					$xmlDocumentType .= '<mods:name ID="'.$name["id"].'" authority="The University of Queensland">';
 				} else {
 					$xmlDocumentType .= '<mods:name>';
@@ -177,7 +177,7 @@ class BatchImport
      * @return  void
      */
     function handleEntireEprintsImport($pid, $collection_pid, $xmlObj, $use_MODS=1) {
-		$eprints_sql = 1;
+		$eprints_sql = 0;  // RCA imo the first if should not be here, developers forgot to remove it?
 		if ($eprints_sql == 1) {
 			$eprints_object = new ePrints();
 			$eprints_object->importFromSQL($pid, $collection_pid, $xmlObj, $this, $use_MODS);
@@ -240,7 +240,7 @@ class BatchImport
 	                $keyword_split = array();
 	                $keyword_split = explode(";", $keyword_field->nodeValue);
 	                foreach($keyword_split as $kw) {
-	                    array_push($keywordArray[$eprint_id], trim($kw));
+	                    $this->addToArray($keywordArray, $eprint_id, trim($kw));
 	                }
 	            }
 	
@@ -262,33 +262,32 @@ class BatchImport
 						$fez_editor_id = Author::getIDByName($family, $given);				
 					}
 					if ($fez_editor_id != "") {
-						array_push($editorArrayExtra[$eprint_id]["id"], $fez_editor_id);					
+						$this->addToArray($editorArrayExtra[$eprint_id], "id", $fez_editor_id);					
 					}
-	                array_push($editorArrayExtra[$eprint_id]["fullname"], $family.", ".$given);
-	                array_push($editorArray[$eprint_id], $family.", ".$given);
+	                $this->addToArray($editorArrayExtra[$eprint_id], "fullname", $family.", ".$given);
+	                $this->addToArray($editorArray, $eprint_id, $family.", ".$given);
 	            }				
 	            $authorArray[$eprint_id] = array();
 	            $authorArrayExtra[$eprint_id] = array();			
 	            $author_fields = $xpath->query("./*[contains(@name, 'authors')]", $recordNode);
 	            foreach ($author_fields as $author_field) {
-					$fez_author_id = "";
-	                $family_name = $xpath->query("./*[contains(@name, 'family')]", $author_field);
-	                foreach ($family_name as $fname) {
-	                    $family = $fname->nodeValue;
-	                }
-	
-	                $given_name = $xpath->query("./*[contains(@name, 'given')]", $author_field);
-	                foreach ($given_name as $gname) {
-	                    $given = $gname->nodeValue;
-	                }				
-					if ($given != "" && $family != "") {
-						$fez_author_id = Author::getIDByName($family, $given);				
-					}
-					if ($fez_author_id != "") {
-						array_push($authorArrayExtra[$eprint_id]["id"], $fez_author_id);					
-					}
-	                array_push($authorArrayExtra[$eprint_id]["fullname"], $family.", ".$given);
-	                array_push($authorArray[$eprint_id], $family.", ".$given);
+                $fez_author_id = "";
+                $family_name = $xpath->query("./*[contains(@name, 'family')]", $author_field);
+                foreach ($family_name as $fname) {
+                  $family = $fname->nodeValue;
+                }
+                
+                $given_name = $xpath->query("./*[contains(@name, 'given')]", $author_field);
+                foreach ($given_name as $gname) {
+                  $given = $gname->nodeValue;
+                }				
+                if ($given != "" && $family != "") {
+                  $fez_author_id = Author::getIDByName($family, $given);				
+                }
+                if ($fez_author_id != "") {
+                  $this->addToArray($authorArrayExtra[$eprint_id], "id", $fez_author_id);					
+                }                
+                $this->addToArray($authorArrayExtra[$eprint_id], "fullname", $family.", ".$given);                
 	            }
 	
 	            $fieldNodes = $xpath->query("./field[string-length(normalize-space())>0 and not(contains(@name, 'type'))]", $recordNode); 
@@ -301,7 +300,7 @@ class BatchImport
 	                    if (!is_array(@$importArray[$record_type][$eprint_id][$field])) {
 	                        $importArray[$record_type][$eprint_id][$field] = array();
 	                    }
-	                    array_push($importArray[$record_type][$eprint_id][$field], $fieldValue);
+	                    $this->addToArray($importArray[$record_type][$eprint_id], $field, $fieldValue);
 	                }
 	            }
 	        }
@@ -976,51 +975,54 @@ class BatchImport
 	
 	                $oai_dc_url = EPRINTS_OAI.$key; // This gets the EPRINTS OAI DC feed for the Eprints DC record. This is neccessary because the Eprints export_xml does not give the URL for the attached PDFs etc
 	                $oai_dc_xml = Fedora_API::URLopen($oai_dc_url);
-	                $config = array(
-	                        'indent' => true,
-	                        'input-xml' => true,
-	                        'output-xml' => true,
-	                        'wrap' => 200);
-	
-	                $tidy = new tidy;
-	                $tidy->parseString($oai_dc_xml, $config, 'utf8');
-	                $tidy->cleanRepair();
-	                $oai_dc_xml = $tidy;
-	
-	                $xmlOAIDoc= new DomDocument();
-	                $xmlOAIDoc->preserveWhiteSpace = false;
-	                $xmlOAIDoc->loadXML($oai_dc_xml);
-	
-	                $oai_xpath = new DOMXPath($xmlOAIDoc);
-	                $oai_xpath->registerNamespace('oai_dc', 'http://www.openarchives.org/OAI/2.0/oai_dc/');
-	                $oai_xpath->registerNamespace('dc', 'http://purl.org/dc/elements/1.1/');
-	                $oai_xpath->registerNamespace('d', 'http://www.openarchives.org/OAI/2.0/');
-	
-	                $formatNodes = $oai_xpath->query('//d:OAI-PMH/d:GetRecord/d:record/d:metadata/oai_dc:dc/dc:format');
-	                $oai_ds = array();
-	                foreach ($formatNodes as $format) {
-	                    $httpFind = "http://";
-	                    if (is_numeric(strpos($format->nodeValue, $httpFind))) {
-	                        array_push($oai_ds, substr($format->nodeValue, strpos($format->nodeValue, $httpFind)));
-	                    }
-	                } 
-	                $xmlEnd = "";
-	                foreach($oai_ds as $ds) {
-	                    $short_ds = $ds;
-	                    if (is_numeric(strpos($ds, "/"))) {
-	                        $short_ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
-	                    }
-	                    // ID must start with _ or letter
-	                    $short_ds = Misc::shortFilename(Foxml::makeNCName($short_ds), 20);
-	                    $mimetype = Misc::get_content_type($ds);
-	
-	                    $xmlEnd.= '
-	                        <foxml:datastream ID="'.$short_ds.'" CONTROL_GROUP="M" STATE="A">
-	                        <foxml:datastreamVersion ID="'.$short_ds.'.0" MIMETYPE="'.$mimetype.'" LABEL="'.$short_ds.'">
-	                        <foxml:contentLocation REF="'.htmlspecialchars($ds).'" TYPE="URL"/>
-	                        </foxml:datastreamVersion>
-	                        </foxml:datastream>';
-	                }	  
+
+                    if ($oai_dc_xml) {  // RCA did we get the file?
+						$config = array(
+								'indent' => true,
+								'input-xml' => true,
+								'output-xml' => true,
+								'wrap' => 200);
+		
+						$tidy = new tidy;
+						$tidy->parseString($oai_dc_xml, $config, 'utf8');
+						$tidy->cleanRepair();
+						$oai_dc_xml = $tidy;
+		
+						$xmlOAIDoc= new DomDocument();
+						$xmlOAIDoc->preserveWhiteSpace = false;
+						$xmlOAIDoc->loadXML($oai_dc_xml);
+		
+						$oai_xpath = new DOMXPath($xmlOAIDoc);
+						$oai_xpath->registerNamespace('oai_dc', 'http://www.openarchives.org/OAI/2.0/oai_dc/');
+						$oai_xpath->registerNamespace('dc', 'http://purl.org/dc/elements/1.1/');
+						$oai_xpath->registerNamespace('d', 'http://www.openarchives.org/OAI/2.0/');
+		
+						$formatNodes = $oai_xpath->query('//d:OAI-PMH/d:GetRecord/d:record/d:metadata/oai_dc:dc/dc:format');
+						$oai_ds = array();
+						foreach ($formatNodes as $format) {
+							$httpFind = "http://";
+							if (is_numeric(strpos($format->nodeValue, $httpFind))) {
+								array_push($oai_ds, substr($format->nodeValue, strpos($format->nodeValue, $httpFind)));
+							}
+						} 
+						$xmlEnd = "";
+						foreach($oai_ds as $ds) {
+							$short_ds = $ds;
+							if (is_numeric(strpos($ds, "/"))) {
+								$short_ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
+							}
+							// ID must start with _ or letter
+							$short_ds = Misc::shortFilename(Foxml::makeNCName($short_ds), 20);
+							$mimetype = Misc::get_content_type($ds);
+		
+							$xmlEnd.= '
+								<foxml:datastream ID="'.$short_ds.'" CONTROL_GROUP="M" STATE="A">
+								<foxml:datastreamVersion ID="'.$short_ds.'.0" MIMETYPE="'.$mimetype.'" LABEL="'.$short_ds.'">
+								<foxml:contentLocation REF="'.htmlspecialchars($ds).'" TYPE="URL"/>
+								</foxml:datastreamVersion>
+								</foxml:datastream>';
+						}
+					} // End of fetching of EPrints files from URLs
 	
 	                $xmlObj = '<?xml version="1.0" ?>
 	                    <foxml:digitalObject PID="'.$pid.'"
@@ -1131,7 +1133,7 @@ class BatchImport
 						Error_Handler::logError("$errMsg \n", __FILE__,__LINE__);
 	
 	                }
-	                foreach($oai_ds as $ds) {
+	                foreach((array)$oai_ds as $ds) { // RCA - oai_ds is a xml file downloaded which might be empty if the link was broken
 	
 	                    $short_ds = $ds;
 	                    if (is_numeric(strpos($ds, "/"))) {
@@ -1164,7 +1166,7 @@ class BatchImport
 	                }	  
 	
 	                // process ingest trigger after all the datastreams are in
-	                foreach($oai_ds as $ds) {
+	                foreach((array)$oai_ds as $ds) {
 	                    $mimetype = Misc::get_content_type($ds);
 	                    Workflow::processIngestTrigger($pid, $ds, $mimetype);
 	                    $short_ds = $ds;
@@ -1596,6 +1598,23 @@ class BatchImport
             ';				 		 
         return $xmlObj;	
     }
+    /**
+    ** Takes what should be added to the array, it creates the key if not exists
+    ** @param array reference
+    ** @param string key
+    ** @param string value to be added
+    **
+    ** @return void
+    */
+    function addToArray(&$array, $key, $value) {      
+      if($array[$key]) {
+        $array[$key] = array_merge((array)$array[$key], (array)$value);
+      }
+      else {
+        $array[$key] = $value;
+      }
+    }
+
 }
 
 // benchmarking the included file (aka setup time)
