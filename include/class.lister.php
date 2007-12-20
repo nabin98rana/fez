@@ -159,7 +159,16 @@ class Lister
         $letter = Pager::getParam('letter',$params);
         $collection_pid = Pager::getParam('collection_pid',$params);
         $community_pid = Pager::getParam("community_pid",$params);
-        //$sort_by = Pager::getParam('sort_by',$params);
+		if (!empty($collection_pid)) {
+			$pid = $collection_pid;
+			$browse_mode = "collection";
+		} elseif (!empty($community_pid)) {
+			$pid = $community_pid;
+			$browse_mode = "community";
+		}
+		$tpl->assign("pid", $pid);
+		$tpl->assign("browse_mode", $browse_mode);
+		//$sort_by = Pager::getParam('sort_by',$params);
 		$sort_by = $options["sort_by"];
 //		$sort_order = $options["sort_order"];
 		$sort_by_list = array();

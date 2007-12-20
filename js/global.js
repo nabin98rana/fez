@@ -921,10 +921,7 @@ function workflowBulkChangeSearch(f, rel_url)
 function resizePager(f, page_url)
 {
     var pagesize = f.page_size.options[f.page_size.selectedIndex].value;   
-    var temp = replaceParam(window.location.href, 'rows', pagesize);
-    temp = replaceParam(page_url + "?" + temp, 'pager_row', '0');
-    window.location.href = page_url + "?" + temp;
-    
+    window.location.href = page_url + "/rows=" + pagesize + "&pager_row=0";
 }
 
 function toggleDateFields(f, field_name)
