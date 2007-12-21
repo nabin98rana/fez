@@ -88,6 +88,7 @@
                     "cit_type='".$type."' " .
                     "WHERE cit_id='".$det['cit_id']."' ";
         }
+		Citation::clearCitationCacheByType($xdis_id);
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -106,6 +107,22 @@
     {
         $dbtp =  APP_TABLE_PREFIX;
         $stmt = "DELETE FROM ".$dbtp."citation WHERE cit_xdis_id='".$xdis_id."'";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return false;
+        }
+        return true;
+    }
+
+
+    function clearCitationCacheByType($xdis_id)
+    {
+		if (!is_numeric($xdis_id)) {
+			return false;
+		}
+        $dbtp =  APP_TABLE_PREFIX;
+        $stmt = "UPDATE ".$dbtp."record_search_key set rek_citation = '' WHERE rek_display_type=".$xdis_id;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
