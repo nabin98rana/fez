@@ -441,44 +441,48 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		  <tr>
 			  <td colspan="2">
 			  <table bgcolor="#FFFFFF" width="100%" cellpadding="3" cellspacing="0">
-        <tr>
-			<td align="left" valign="middle" class="default" width ="1%" nowrap>
-		{if $list_type == 'all_records_list' || $list_type == 'collection_records_list'}
-			<img src="{$rel_url}images/record_32.jpg" alt="" />		
-		{elseif $list_type == 'community_list'}
-			<img src="{$rel_url}images/community_32.jpg" alt="" />
-		{elseif $list_type == 'collection_list'}
-			<img src="{$rel_url}images/collection_32.jpg" alt="" />
-		{elseif $browse_type == 'browse_author'}			
-			<a href="{$rel_url}list.php?browse=author"><img title="Browse by all authors" alt="Browse by all authors" border="0" src="{$rel_url}images/browse_32.jpg" /></a>
-		{elseif $list_type == 'browse_subjects_list'}		
-
-		{/if}
-		</td>
-		<td class="default" align="left" valign="middle">
-           &nbsp;<b>{$list_heading}: </b>
-		   
-		   <b>({$list_info.total_rows} results found{if $list_info.end_offset > 0}, {math equation="x + 1" x=$list_info.start_offset|default:0} - {$list_info.end_offset} shown{/if})</b> 
-		   {if $list_type != 'community_list'}
-		   <a href="{$smarty.server.REQUEST_URI|escape:'html'}&amp;tpl=2"><img alt="Subscribe to the RSS feed for this list or search" title="Subscribe to the RSS feed for this list or search" border="0" src="{$rel_url}images/feed-icon16x16.png" /></a>
-		   <a href="{$smarty.server.REQUEST_URI|escape:'html'}&amp;tpl=4"><img alt="Show the copy-friendly citations only display for this list or search" title="Show the copy-friendly citations only display for this list or search" border="0" src="{$rel_url}images/citation.png" /></a>
-		   {/if}
-                   </td>                                     
-                   <td align="right"><span class="default">Order By </span>
-                   <select class="default" name="sort_by" onchange="javascript:sortList(this.form, 'sort_by');">
-                       {html_options options=$sort_by_list selected=$sort_by_default}
-                   </select>
-                    <select class="default" name="sort_order" onchange="javascript:sortListOrder(this.form, 'sort_order');">
-                       <option value="0" {if $sort_order == 0}selected="selected"{/if}>Asc</option>
-                       <option value="1" {if $sort_order == 1}selected="selected"{/if}>Desc</option>
-                   </select>
-                   
+			  {if $spell_suggest != ""}
+			  	<tr>
+			  		<td class="default" colspan="2">&nbsp;<font color="Red">Did you mean?: </font><a href="?{$spell_suggest_url}">{$spell_suggest}</a><br /><br /></td>
+			  	</tr>
+			  {/if}
+		        <tr>
+					<td align="left" valign="middle" class="default" width ="1%" nowrap>
+				{if $list_type == 'all_records_list' || $list_type == 'collection_records_list'}
+					<img src="{$rel_url}images/record_32.jpg" alt="" />		
+				{elseif $list_type == 'community_list'}
+					<img src="{$rel_url}images/community_32.jpg" alt="" />
+				{elseif $list_type == 'collection_list'}
+					<img src="{$rel_url}images/collection_32.jpg" alt="" />
+				{elseif $browse_type == 'browse_author'}			
+					<a href="{$rel_url}list.php?browse=author"><img title="Browse by all authors" alt="Browse by all authors" border="0" src="{$rel_url}images/browse_32.jpg" /></a>
+				{elseif $list_type == 'browse_subjects_list'}		
+		
+				{/if}
+				</td>
+				<td class="default" align="left" valign="middle">
+					&nbsp;<b>{$list_heading}: </b>
+				   
+				   <b>({$list_info.total_rows} results found{if $list_info.end_offset > 0}, {math equation="x + 1" x=$list_info.start_offset|default:0} - {$list_info.end_offset} shown{/if})</b> 
+				   {if $list_type != 'community_list'}
+				   <a href="{$smarty.server.REQUEST_URI|escape:'html'}&amp;tpl=2"><img alt="Subscribe to the RSS feed for this list or search" title="Subscribe to the RSS feed for this list or search" border="0" src="{$rel_url}images/feed-icon16x16.png" /></a>
+				   <a href="{$smarty.server.REQUEST_URI|escape:'html'}&amp;tpl=4"><img alt="Show the copy-friendly citations only display for this list or search" title="Show the copy-friendly citations only display for this list or search" border="0" src="{$rel_url}images/citation.png" /></a>
+				   {/if}
+		                   </td>                                     
+		                   <td align="right"><span class="default">Order By </span>
+		                   <select class="default" name="sort_by" onchange="javascript:sortList(this.form, 'sort_by');">
+		                       {html_options options=$sort_by_list selected=$sort_by_default}
+		                   </select>
+		                    <select class="default" name="sort_order" onchange="javascript:sortListOrder(this.form, 'sort_order');">
+		                       <option value="0" {if $sort_order == 0}selected="selected"{/if}>Asc</option>
+		                       <option value="1" {if $sort_order == 1}selected="selected"{/if}>Desc</option>
+		                   </select>
+		                   
+					</td>
+		        </tr>
+			</table>
 			</td>
-        </tr>
-		</table>
-		</td>
 		</tr>
-
 		{if $list_info.total_pages > 1}
 		<tr>
 		  <td>

@@ -127,6 +127,7 @@ class Lister
         }
         $options = Pager::saveSearchParams($params);           
         $search_keys = Search_Key::getQuickSearchList();
+        
 	    foreach ($search_keys as $skey => $svalue) {
 			if (!in_array($svalue["sek_html_input"], array('multiple','allcontvocab','contvocab')) && $svalue["sek_smarty_variable"] != 'Status::getUnpublishedAssocList()') {
 				$search_keys[$skey]["field_options"] = array("" => "any") + $search_keys[$skey]["field_options"];		
@@ -149,6 +150,7 @@ class Lister
 				}
 			}
 	    }
+	    
         $tpl->assign("search_keys", $search_keys);
 
         $options['tpl_idx'] = $tpl_idx;     
@@ -170,34 +172,24 @@ class Lister
 		$tpl->assign("browse_mode", $browse_mode);
 		//$sort_by = Pager::getParam('sort_by',$params);
 		$sort_by = $options["sort_by"];
-//		$sort_order = $options["sort_order"];
-		$sort_by_list = array();
 
-        $sort_by_list = array();
-        if (!empty($community_pid)) {
-            $sort_by_list = array(
-                "searchKey".Search_Key::getID("Title") => 'Title',
-                "searchKey".Search_Key::getID("Description") => 'Description',
-                "searchKey".Search_Key::getID("Date") => 'Date',
-                "searchKey".Search_Key::getID("Sequence") => 'Sequence'
-            );
-        } elseif (empty($community_pid) && empty($collection_pid) && empty($browse)) {
-            $sort_by_list = array(
-            	"searchKey".Search_Key::getID("Title") => 'Title',
-           		"searchKey".Search_Key::getID("Description") => 'Description',
-        		"searchKey".Search_Key::getID("File Downloads") => 'File Downloads',
-				"searchKey".Search_Key::getID("Date") => 'Date',
-                "searchKey".Search_Key::getID("Sequence") => 'Sequence'				
-            );
-        } else {
-        	$sort_by_list = array(
-        	"searchKey".Search_Key::getID("Title") => 'Title',
-        	"searchKey".Search_Key::getID("Description") => 'Description',
-        	"searchKey".Search_Key::getID("File Downloads") => 'File Downloads',
-        	"searchKey".Search_Key::getID("Date") => 'Date',
+		/*
+		 * These options are used in a dropdown box to allow the 
+		 * user to sort a list
+		 */
+        $sort_by_list = array(
+            "searchKey".Search_Key::getID("Title") => 'Title',
+            "searchKey".Search_Key::getID("Description") => 'Description',
+            "searchKey".Search_Key::getID("File Downloads") => 'File Downloads',
+            "searchKey".Search_Key::getID("Date") => 'Date',
             "searchKey".Search_Key::getID("Sequence") => 'Sequence'
-			);
+        );
+        
+        if(!empty($community_pid))
+        {
+        	unset($sort_by_list["searchKey".Search_Key::getID("File Downloads")]);
         }
+        
        //print_r($options);
        //print_r($sort_by_list);
         if (($cat == 'search' || $cat == 'all_fields' || $cat == 'quick_filter') && $options["searchKey0"] != "") {        	
@@ -211,9 +203,9 @@ class Lister
         }
         
         $tpl->assign('sort_by_list', $sort_by_list);
-        //print_r($sort_by_list);
 		$sort_by_keys = $sort_by_list;
-        //$sort_by_keys = array_keys($sort_by_list);
+        
+		// Default Sort
         if (!array_key_exists($sort_by, $sort_by_keys)) {
         	$sort_by = "searchKey".Search_Key::getID("Title");
         }
@@ -544,6 +536,10 @@ class Lister
             $tpl->assign("list_heading", "List of Subject Classifications Records");
             $tpl->assign("browse_type", "browse_subject");
         } elseif ($cat == "quick_filter") {
+        	
+        	include_once(APP_INC_PATH . "class.spell.php");
+        	include_once(APP_INC_PATH . "class.language.php");
+        	
         	if (empty($sort_by)) {      
         		if ($options["searchKey0"] == "") {
         			$sort_by = "searchKey".Search_Key::getID("Title");	
@@ -556,9 +552,27 @@ class Lister
 			//$options = Pager::saveSearchParams(); // already done up above
 			// enforce certain search parameters			
 			$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-
+			
 			$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);        	
 
+			$spell = new spellcheck(APP_DEFAULT_LANG);
+			
+			if( $spell )
+			{
+			    $spell_suggest = $spell->query_suggest($_REQUEST['search_keys'][0]);
+			    
+			    // Did pspell return any suggestions?
+			    if( $spell_suggest )
+			    {
+			        // Replace search_key[0]={search} with search_key[0]={suggestion}
+			        // search key 0 will be 'Title, Abstract, Keywords'
+    			    $spell_suggest_url = preg_replace('/search_keys%5B0%5D=[a-zA-z]+/', 'search_keys%5B0%5D='.$spell_suggest, $_SERVER['QUERY_STRING']);
+    			    
+                    $tpl->assign("spell_suggest", $spell_suggest);
+                    $tpl->assign("spell_suggest_url", $spell_suggest_url); 
+			    } 
+			}
+			
         	$list_info = @$list["info"];
         	$terms = @$list_info['search_info'];
         	$list = @$list["list"];
@@ -582,7 +596,7 @@ class Lister
 			
             $tpl->assign("list_type", "community_list");
             $tpl->assign("list_heading", "List of Communities");
-        }        
+        }     
         
         $tpl->assign('sort_by_default', $sort_by);        
         $workflows_list = Misc::keyPairs(Workflow::getList(), 'wfl_id', 'wfl_title');
@@ -599,7 +613,7 @@ class Lister
         }
         $tpl->registerNajax(NAJAX_Client::register('NajaxRecord', APP_RELATIVE_URL.'ajax.php')."\n"
             .NAJAX_Client::register('Suggestor', APP_RELATIVE_URL.'ajax.php')."\n");
-        
+            
         if ($display) {
             //print_r($tpl);
             $tpl->displayTemplate();
