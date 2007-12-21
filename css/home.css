@@ -12,8 +12,8 @@ table.nav-table-top td {
 	padding: 0px;
 	background-repeat: repeat-x;
 	width: 100%;
-	border-top: 1px solid #82e6ff;
-	border-bottom: 1px solid #82e6ff;
+	border-top: 1px solid #99BEFF;
+	border-bottom: 1px solid #99BEFF;
 
 }
 
@@ -34,7 +34,7 @@ border: none;
 
 table.nav-table-bottom td {
 	padding: 2px;
-	background-color: #e7f9ff;
+	background-color: #E7EDF9;
 	/*border-bottom: 1px solid #c3f3ff;*/
 }
 
@@ -47,8 +47,8 @@ table.nav-table-bottom { height: 10px; }
 
 .feedback {
 	height: 10px;
-	background-color: #e7f9ff;
-	border-bottom: 1px solid #c3f3ff;
+	background-color: #E7EDF9;
+	border-bottom: 1px solid #99BEFF;
 }
 
 .footerlinks {
@@ -454,7 +454,13 @@ h1.public {
 }
 
 .admin-wrapper {
-	background-color: #e7f9ff;
+	background-color: #E7EDF9;
+}
+
+.admin-box {
+	border: 1px solid #99BEFF;
+	background-color: white;
+	padding: 4px;
 }
 
 .admin-side-nav-title {

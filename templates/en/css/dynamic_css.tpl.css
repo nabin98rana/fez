@@ -1,6 +1,13 @@
 #header {
 background-image: url("[[$smarty.const.APP_BASE_URL]]images/fez_2_banner_gradient.png");
-height: 77px;
+background-repeat: repeat-y;
+background-position: right;
+background-color: #FFFFFF;
+height: 98px;
+}
+
+#header a:link, #header a:visited, #header a:hover {
+	text-decoration: none;
 }
 
 div.wfl_description {
