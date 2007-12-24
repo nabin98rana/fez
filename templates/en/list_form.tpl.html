@@ -275,9 +275,9 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		   {if $smarty.get.author == "" && $smarty.get.author_id == ""}
 			{section name="i" loop=$list}
 
-			  <tr>
+			  <tr bgcolor="{cycle values="$cycle_colours"}">
 				  <td>
-				  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
+				  <table width="100%" cellpadding="2" cellspacing="1" class="listrecord">
 				  <tr>
 					  <td>
 					      {if $list[i].record_author_id != 0}
@@ -314,9 +314,9 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		   {if $smarty.get.depositor == ""}
 			{section name="i" loop=$list}
 
-			  <tr>
+			  <tr bgcolor="{cycle values="$cycle_colours"}">
 				  <td colspan="2">
-				  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
+				  <table width="100%" cellpadding="2" cellspacing="1" class="listrecord">
 				  <tr>
 					  <td>
 							<a href='{$rel_url}list.php?browse=depositor&depositor={$list[i].record_depositor}'>{$list[i].record_desc|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
@@ -350,9 +350,9 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		   {if $smarty.get.year == ""}
 			{section name="i" loop=$list}
 
-			  <tr>
+			  <tr bgcolor="{cycle values="$cycle_colours"}">
 				  <td>
-				  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
+				  <table width="100%" cellpadding="2" cellspacing="1" class="listrecord">
 				  <tr>
 					  <td>
 					{if $list[i].record_year == 0}
@@ -400,9 +400,9 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 
 
         {section name="i" loop=$subject_list}
-		  <tr>
+		  <tr bgcolor="{cycle values="$cycle_colours"}">
 			  <td colspan="2">
-			  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
+			  <table width="100%" cellpadding="2" cellspacing="1" class="listrecord">
               <tr>
                   <td>{if $subject_list[i].cvo_image_filename != ""}<img src="{$rel_url}images/{$subject_list[i].cvo_image_filename}" alt="" />{/if}
                         <a href='{$rel_url}list.php?browse=subject&parent_id={$subject_list[i].cvo_id}'>{$subject_list[i].cvo_title|escape:"html"}</a>
@@ -493,7 +493,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 
 		<tr>
 		<td width="100%">
-		<table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">			  
+		<table width="100%" cellpadding="2" cellspacing="1" class="listrecord">			  
 		  <tr>
  		  	{if ($isAdministrator)}
 			  <td>
@@ -606,7 +606,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
                 {/if}
            {/if}
 
-		  <tr>
+		  <tr bgcolor="{cycle values="$cycle_colours"}">
 		  {if ($isAdministrator)}  		  
               <td valign="top">
 	              <table bgcolor="#FFFFFF" cellpadding="2" cellspacing="1">			  
