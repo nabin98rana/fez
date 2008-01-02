@@ -937,7 +937,6 @@ class Record
 			$res = Citation::renderIndexCitations($res, 'APA', true, false);
 		}
 		$res = Auth::getIndexAuthCascade($res);
-//		print_r($res);
 		$return = $res;
 		$list = $return;
         $total_pages = intval($total_rows / $page_rows);
@@ -1508,7 +1507,7 @@ inner join
             		$firstLoop = false;
             		$joinType = " INNER JOIN ";
             		$searchKey_join[4] = 1;
-            		$searchKey_join[7] .= "All Fields:\"".trim(htmlspecialchars($options["searchKey".$x]))."\", ";
+            		$searchKey_join[7] .= "Title, Abstract, Keywords:\"".trim(htmlspecialchars($options["searchKey".$x]))."\", ";
 					$searchKey_join[0] .= $joinType." (SELECT rek_pid, MATCH(rek_pid, rek_title, rek_description) AGAINST ('".Misc::escapeString($options["searchKey0"])."') AS Relevance ".
 													" FROM ". $dbtp . "record_search_key ".
 													" WHERE MATCH (rek_pid, rek_title, rek_description) AGAINST ('*".Misc::escapeString($options["searchKey0"])."*' IN BOOLEAN MODE)".
@@ -3075,7 +3074,21 @@ class RecordGeneral
                     $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
                     Fedora_API::callModifyDatastreamByValue($new_pid, $ds_value['ID'], $ds_value['state'],
                         $ds_value['label'], $value, $ds_value['MIMEType'], "false");
+					if (!array_key_exists("MODS", $datastreams)) {
+						// transform the DC into a MODS datastream and attach it
+						$dc_to_mods_xsl = APP_INC_PATH . "xslt/dc_to_mods.xsl";
+						$xsl_dom = DOMDocument::load($dc_to_mods_xsl);
+						$dc_dom = DOMDocument::loadXML($value);
+						// transform the DC to MODS with the XSLT
+						$proc = new XSLTProcessor();
+						$proc->importStyleSheet($xsl_dom);
+						$transformResult = $proc->transformToXML($dc_dom);
+	                    Fedora_API::getUploadLocation($new_pid, "MODS", $transformResult, "Metadata Object Description Schema", "text/xml", "X", "MODS");
+					}
                 break;
+                case 'BookMD':
+				break;
+
                 case 'FezMD':
                     // let's fix up a few things in FezMD
                     $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
@@ -3431,12 +3444,14 @@ class RecordObject extends RecordGeneral
         $trigger = WorkflowTrigger::getIngestTrigger($this->pid, $this->xdis_id, $mimetype);
         if (!$trigger) {
             $this->getParents();
-            foreach ($this->record_parents as $ppid) {
-                $trigger = WorkflowTrigger::getIngestTrigger($ppid, $this->xdis_id, $mimetype);
-                if ($trigger) {
-                    break;
-                }
-            }
+			if (is_array($this->record_parents)) {
+	            foreach ($this->record_parents as $ppid) {
+	                $trigger = WorkflowTrigger::getIngestTrigger($ppid, $this->xdis_id, $mimetype);
+	                if ($trigger) {
+	                    break;
+	                }
+	            }
+			}
             if (!$trigger) {
                 // get defaults
                 $trigger = WorkflowTrigger::getIngestTrigger(-1, $this->xdis_id, $mimetype);
