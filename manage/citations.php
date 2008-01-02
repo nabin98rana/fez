@@ -35,6 +35,7 @@
 //
 
 include_once("../config.inc.php");
+include_once(APP_INC_PATH.'class.auth.php');
 include_once(APP_INC_PATH.'class.template.php');
 include_once(APP_INC_PATH.'class.citation.php');
 
@@ -121,6 +122,16 @@ switch ($action)
         }
         Auth::redirect($_SERVER['PHP_SELF']."?action=select_display");
     break;
+    case 'clear_cache':
+    	$res = Citation::ClearAllCitationCache();
+	    if ($res == 1) {
+	        Session::setMessage('Citation cache cleared');
+	    } else {
+	        Session::setMessage('Error: Citation cache not cleared');
+	    }
+       	Auth::redirect($_SERVER['PHP_SELF']."?action=select_display");
+    break;
+
 }
 
 $tpl->displayTemplate();
