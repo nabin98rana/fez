@@ -598,7 +598,7 @@ class Lister
             $tpl->assign("list_heading", "List of Communities");
         }     
         
-		$tpl->assign("cycle_colours", "white, " . APP_CYCLE_COLOR_TWO. "");
+		$tpl->assign("cycle_colours", "#FFFFFF," . APP_CYCLE_COLOR_TWO. "");
         $tpl->assign('sort_by_default', $sort_by);        
         $workflows_list = Misc::keyPairs(Workflow::getList(), 'wfl_id', 'wfl_title');
         $tpl->assign('workflows_list', $workflows_list);
