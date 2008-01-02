@@ -93,12 +93,24 @@
 		        	$xdis_collection_list = XSD_Display::getAssocListCollectionDocTypes(); 
 	        	}
 	        	break;
-	        case '$xdis_list':
-				global $xdis_list;
-				// @@@ CK - 24/8/05 added for collections to be able to select their child document types/xdisplays
-				if (empty($xdis_list)) {
-			        $xdis_list = XSD_Display::getAssocListDocTypes(); 
-		        }
+			case '$community_and_collection_list':
+				global $community_list;
+				global $community_and_collection_list;
+				if (empty($community_list)) {
+	        		$community_list = Community::getAssocList();
+        		}
+				global $collection_list;
+				if (empty($collection_list)) {
+		            $collection_list = Collection::getEditListAssoc();
+	            }
+				$community_and_collection_list = $community_list + $collection_list;
+			break;
+        	case '$xdis_list':
+			global $xdis_list;
+			// @@@ CK - 24/8/05 added for collections to be able to select their child document types/xdisplays
+			if (empty($xdis_list)) {
+		        $xdis_list = XSD_Display::getAssocListDocTypes(); 
+	        }
 		    case '$xdis_collection_and_object_list':
 				global $xdis_list;
 				global $xdis_collection_list;
@@ -317,6 +329,7 @@
                     }
                 }
             } elseif ($datastreams[$ds_key]['controlGroup'] == 'M') {
+				$datastreams[$ds_key]['workflows'] = $datastream_workflows;
                 $datastreams[$ds_key]['FezACML'] = Auth::getAuthorisationGroups($pid, $ds['ID']);
 				$datastreams[$ds_key] = Auth::getAuthorisation($datastreams[$ds_key]);
                 $fileCount++;

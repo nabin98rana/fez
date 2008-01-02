@@ -150,6 +150,7 @@ if ($access_ok) {
 /*	if (sizeof($collections) > 0)
 	{ */
 	$collection_list = Collection::getCreatorListAssoc();
+	$community_and_collection_list = $community_list + $collection_list;
 //		$collection_list = Collection::getEditListAssoc();
 //	}
 /*    $internal_user_list = User::getAssocList();
