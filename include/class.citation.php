@@ -116,6 +116,18 @@
     }
 
 
+    function clearAllCitationCache()
+    {
+        $dbtp =  APP_TABLE_PREFIX;
+        $stmt = "UPDATE ".$dbtp."record_search_key set rek_citation = ''";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return false;
+        }
+        return true;
+    }
+
     function clearCitationCacheByType($xdis_id)
     {
 		if (!is_numeric($xdis_id)) {
