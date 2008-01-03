@@ -402,7 +402,7 @@ function showDiv(p)
            <td align="left" class="default" bgcolor="{$light_color}" style="border-bottom: 2px solid #FFFFFF;">
             <p>
              <blockquote>{$usercomments[uc].comment}</blockquote>
-             {if $usercomments[uc].usc_rating}<br /><i><b>Rating: <img src="{$rel_url}images/rating{$usercomments[uc].usc_rating}.png" alt="{$usercomments[uc].usc_rating}"> </b></i>{/if}
+             {if $usercomments[uc].usc_rating}<br /><i><b>Rating:</b></i> {section name="rating" loop=$usercomments[uc].usc_rating}<img src="{$rel_url}images/rating_16.png" alt="{$usercomments[uc].usc_rating}">{/section}{/if}
              <br/>
              <cite><i><b>Posted by:</b> <a href="mailto:{$usercomments[uc].usr_email}">{$usercomments[uc].usr_full_name}</a> {$usercomments[uc].formatted_date_created}</i></cite><br>
             </p>
