@@ -57,20 +57,20 @@ $tpl->assign("isUser", $isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
-$wfl_id = @$HTTP_POST_VARS['wfl_id'] ? $HTTP_POST_VARS['wfl_id'] : @$HTTP_GET_VARS['wfl_id'];
-$wfs_id = @$HTTP_POST_VARS['wfs_id'] ? $HTTP_POST_VARS['wfs_id'] : @$HTTP_GET_VARS['wfs_id'];
+$wfl_id = @$_POST['wfl_id'] ? $_POST['wfl_id'] : @$_GET['wfl_id'];
+$wfs_id = @$_POST['wfs_id'] ? $_POST['wfs_id'] : @$_GET['wfs_id'];
 
 if ($isSuperAdministrator) {
   
-    if (@$HTTP_POST_VARS["cat"] == "new") {
+    if (@$_POST["cat"] == "new") {
         $tpl->assign("result", Workflow_State::insert());
-    } elseif (@$HTTP_POST_VARS["cat"] == "update") {
+    } elseif (@$_POST["cat"] == "update") {
         $tpl->assign("result", Workflow_State::update());
-    } elseif (@$HTTP_POST_VARS["cat"] == "delete") {
+    } elseif (@$_POST["cat"] == "delete") {
         Workflow_State::remove();
     }
 
-    if (@$HTTP_GET_VARS["cat"] == "edit") {
+    if (@$_GET["cat"] == "edit") {
         $info = Workflow_State::getDetails($wfs_id);
         if (empty($info['next_ids'])) {
             $info['next_ids'] = array(-1);

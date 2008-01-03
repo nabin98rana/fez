@@ -46,7 +46,7 @@ Auth::checkAuthentication(APP_SESSION);
 
 $tpl->assign("type", "xsd_source_edit");
 
-$xsd_id = @$HTTP_POST_VARS["xsd_id"] ? $HTTP_POST_VARS["xsd_id"] : $HTTP_GET_VARS["xsd_id"];
+$xsd_id = @$_POST["xsd_id"] ? $_POST["xsd_id"] : $_GET["xsd_id"];
 $isUser = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($isUser);
 $isSuperAdministrator = User::isUserSuperAdministrator($isUser);
@@ -55,7 +55,7 @@ $tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
 if ($isSuperAdministrator) {
-    if (@$HTTP_POST_VARS["cat"] == "update") {
+    if (@$_POST["cat"] == "update") {
         $tpl->assign("result", Doc_Type_XSD::update($xsd_id));
     }
 	$list = Doc_Type_XSD::getXSDSource($xsd_id);

@@ -171,8 +171,6 @@ class Error_Handler
      */
     function _notify($error_msg = "unknown", $script = "unknown", $line = "unknown")
     {
-        global $HTTP_SERVER_VARS;
-
         $setup = Setup::load();
         $notify_list = trim($setup['email_error']['addresses']);
         if (empty($notify_list)) {
@@ -186,7 +184,7 @@ class Error_Handler
         $msg .= "An error was found at " . date("m/d/Y H:i:s") . " (" . time() . ") on line '" . $line . "' of script " . "'$script'.\n\n";
         $msg .= "The error message passed to us was:\n\n";
         $msg .= print_r($error_msg,true)."\n";
-        $msg .= "That happened on page '" . $HTTP_SERVER_VARS["PHP_SELF"] . "' from IP Address '" . getenv("REMOTE_ADDR") . "' coming from the page (referrer) '" . getenv("HTTP_REFERER") . "'.\n\n";
+        $msg .= "That happened on page '" . $_SERVER["PHP_SELF"] . "' from IP Address '" . getenv("REMOTE_ADDR") . "' coming from the page (referrer) '" . getenv("HTTP_REFERER") . "'.\n\n";
         $msg .= "Sincerely yours,\nAutomated Error_Handler Class";
         foreach ($notify_list as $notify_email) {
      //       $mail = new Mail_API;
@@ -206,7 +204,6 @@ class Error_Handler
      */
     function _logToFile($error_msg = "unknown", $script = "unknown", $line = "unknown")
     {
-        global $HTTP_SERVER_VARS;
         $msg = "[" . date("D M d H:i:s Y") . "] " . print_r($error_msg,true) ."\n";
 //		echo $msg;
 //		echo APP_ERROR_LOG;

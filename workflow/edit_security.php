@@ -54,7 +54,7 @@ include_once(APP_INC_PATH . "class.workflow_trigger.php");
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", "edit_security");
-Auth::checkAuthentication(APP_SESSION, $HTTP_SERVER_VARS['PHP_SELF']."?".$HTTP_SERVER_VARS['QUERY_STRING']);
+Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
 $isAdministrator = User::isUserAdministrator($username);
@@ -76,8 +76,8 @@ $wfstatus->setTemplateVars($tpl);
 $tpl->assign("submit_to_popup", true);
 $wfstatus->checkStateChange();
 
-$collection_pid = @$HTTP_POST_VARS["collection_pid"] ? $HTTP_POST_VARS["collection_pid"] : @$HTTP_GET_VARS["collection_pid"];	
-$community_pid = @$HTTP_POST_VARS["community_pid"] ? $HTTP_POST_VARS["community_pid"] : @$HTTP_GET_VARS["community_pid"];	
+$collection_pid = @$_POST["collection_pid"] ? $_POST["collection_pid"] : @$_GET["collection_pid"];	
+$community_pid = @$_POST["community_pid"] ? $_POST["community_pid"] : @$_GET["community_pid"];	
 
 $tpl->assign("collection_pid", $collection_pid);
 $tpl->assign("community_pid", $community_pid);
@@ -110,10 +110,10 @@ $tpl->assign("extra_title", "Edit Security for ".$pid_title." (".$xdis_title.")"
 //$xdis_list = XSD_Display::getAssocListDocTypes(); // @@@ CK - 24/8/05 added for collections to be able to select their child document types/xdisplays
 
 $acceptable_roles = array("Community_Admin", "Editor", "Creator", "Community_Admin");
-if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $HTTP_SERVER_VARS['PHP_SELF']."?".$HTTP_SERVER_VARS['QUERY_STRING']) == true) {
+if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']) == true) {
 
 if (!is_numeric($xdis_id)) {
-	$xdis_id = @$HTTP_POST_VARS["xdis_id"] ? $HTTP_POST_VARS["xdis_id"] : $HTTP_GET_VARS["xdis_id"];	
+	$xdis_id = @$_POST["xdis_id"] ? $_POST["xdis_id"] : $_GET["xdis_id"];	
 	if (is_numeric($xdis_id)) { // must have come from select xdis so save xdis in the FezMD
 		Record::updateAdminDatastream($pid, $xdis_id);
 	}

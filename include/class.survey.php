@@ -59,32 +59,30 @@ class Survey
      */
     function insert()
     {
-        global $HTTP_POST_VARS;
+		$sur_3_cat = @$_POST["sur_3_cat"] ? 1 : 0;
+		$sur_3_elearn = @$_POST["sur_3_elearn"] ? 1 : 0;
+		$sur_3_journals = @$_POST["sur_3_journals"] ? 1 : 0;
+		$sur_3_blackboard = @$_POST["sur_3_blackboard"] ? 1 : 0;
+		$sur_3_lecture = @$_POST["sur_3_lecture"] ? 1 : 0;				
+		$sur_3_instrumentation = @$_POST["sur_3_instrumentation"] ? 1 : 0;		
+		$sur_3_datasets = @$_POST["sur_3_datasets"] ? 1 : 0;
+		$sur_3_remotedb = @$_POST["sur_3_remotedb"] ? 1 : 0;
+		$sur_3_extcom = @$_POST["sur_3_extcom"] ? 1 : 0;
+		$sur_3_collab = @$_POST["sur_3_collab"] ? 1 : 0;
 
-		$sur_3_cat = @$HTTP_POST_VARS["sur_3_cat"] ? 1 : 0;
-		$sur_3_elearn = @$HTTP_POST_VARS["sur_3_elearn"] ? 1 : 0;
-		$sur_3_journals = @$HTTP_POST_VARS["sur_3_journals"] ? 1 : 0;
-		$sur_3_blackboard = @$HTTP_POST_VARS["sur_3_blackboard"] ? 1 : 0;
-		$sur_3_lecture = @$HTTP_POST_VARS["sur_3_lecture"] ? 1 : 0;				
-		$sur_3_instrumentation = @$HTTP_POST_VARS["sur_3_instrumentation"] ? 1 : 0;		
-		$sur_3_datasets = @$HTTP_POST_VARS["sur_3_datasets"] ? 1 : 0;
-		$sur_3_remotedb = @$HTTP_POST_VARS["sur_3_remotedb"] ? 1 : 0;
-		$sur_3_extcom = @$HTTP_POST_VARS["sur_3_extcom"] ? 1 : 0;
-		$sur_3_collab = @$HTTP_POST_VARS["sur_3_collab"] ? 1 : 0;
-
-		$sur_4_cat = @$HTTP_POST_VARS["sur_4_cat"] ? 1 : 0;
-		$sur_4_elearn = @$HTTP_POST_VARS["sur_4_elearn"] ? 1 : 0;
-		$sur_4_journals = @$HTTP_POST_VARS["sur_4_journals"] ? 1 : 0;
-		$sur_4_blackboard = @$HTTP_POST_VARS["sur_4_blackboard"] ? 1 : 0;
-		$sur_4_lecture = @$HTTP_POST_VARS["sur_4_lecture"] ? 1 : 0;				
-		$sur_4_instrumentation = @$HTTP_POST_VARS["sur_4_instrumentation"] ? 1 : 0;		
-		$sur_4_datasets = @$HTTP_POST_VARS["sur_4_datasets"] ? 1 : 0;
-		$sur_4_remotedb = @$HTTP_POST_VARS["sur_4_remotedb"] ? 1 : 0;
-		$sur_4_extcom = @$HTTP_POST_VARS["sur_4_extcom"] ? 1 : 0;
-		$sur_4_collab = @$HTTP_POST_VARS["sur_4_collab"] ? 1 : 0;
+		$sur_4_cat = @$_POST["sur_4_cat"] ? 1 : 0;
+		$sur_4_elearn = @$_POST["sur_4_elearn"] ? 1 : 0;
+		$sur_4_journals = @$_POST["sur_4_journals"] ? 1 : 0;
+		$sur_4_blackboard = @$_POST["sur_4_blackboard"] ? 1 : 0;
+		$sur_4_lecture = @$_POST["sur_4_lecture"] ? 1 : 0;				
+		$sur_4_instrumentation = @$_POST["sur_4_instrumentation"] ? 1 : 0;		
+		$sur_4_datasets = @$_POST["sur_4_datasets"] ? 1 : 0;
+		$sur_4_remotedb = @$_POST["sur_4_remotedb"] ? 1 : 0;
+		$sur_4_extcom = @$_POST["sur_4_extcom"] ? 1 : 0;
+		$sur_4_collab = @$_POST["sur_4_collab"] ? 1 : 0;
 		
-		$sur_experience = is_numeric(@$HTTP_POST_VARS["sur_experience"]) ? $HTTP_POST_VARS["sur_experience"] : 5;
-		$sur_external_freq = is_numeric(@$HTTP_POST_VARS["sur_external_freq"]) ? $HTTP_POST_VARS["sur_external_freq"] : 5;
+		$sur_experience = is_numeric(@$_POST["sur_experience"]) ? $_POST["sur_experience"] : 5;
+		$sur_external_freq = is_numeric(@$_POST["sur_external_freq"]) ? $_POST["sur_external_freq"] : 5;
 				
         $stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "survey
@@ -130,7 +128,7 @@ class Survey
                     " . $sur_3_remotedb . ",
                     " . $sur_3_extcom . ",																									
                     " . $sur_3_collab . ",																									
-					'" . Misc::escapeString($HTTP_POST_VARS["sur_3_other"]) . "',
+					'" . Misc::escapeString($_POST["sur_3_other"]) . "',
                     " . $sur_4_cat . ",
                     " . $sur_4_elearn . ",
                     " . $sur_4_journals . ",
@@ -141,8 +139,8 @@ class Survey
                     " . $sur_4_remotedb . ",
                     " . $sur_4_extcom . ",																									
                     " . $sur_4_collab . ",																													
-					'" . Misc::escapeString($HTTP_POST_VARS["sur_4_other"]) . "',
-					'" . Misc::escapeString($HTTP_POST_VARS["sur_comments"]) . "',
+					'" . Misc::escapeString($_POST["sur_4_other"]) . "',
+					'" . Misc::escapeString($_POST["sur_comments"]) . "',
 					NOW()
                  )"; 
         $res = $GLOBALS["db_api"]->dbh->query($stmt);

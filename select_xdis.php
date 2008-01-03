@@ -52,20 +52,20 @@ $tpl->setTemplate("select_xdis.tpl.html");
 $collection_doc_types = XSD_Display::getAssocList();
 $tpl->assign("collection_doc_types", $collection_doc_types);
 
-$pid = @$HTTP_POST_VARS["pid"] ? $HTTP_POST_VARS["pid"] : @$HTTP_GET_VARS["pid"];
-$return = @$HTTP_POST_VARS["return"] ? $HTTP_POST_VARS["return"] : @$HTTP_GET_VARS["return"];
+$pid = @$_POST["pid"] ? $_POST["pid"] : @$_GET["pid"];
+$return = @$_POST["return"] ? $_POST["return"] : @$_GET["return"];
 
-$collection_pid = @$HTTP_POST_VARS["collection_pid"] ? $HTTP_POST_VARS["collection_pid"] : @$HTTP_GET_VARS["collection_pid"];	
-$community_pid = @$HTTP_POST_VARS["community_pid"] ? $HTTP_POST_VARS["community_pid"] : @$HTTP_GET_VARS["community_pid"];	
+$collection_pid = @$_POST["collection_pid"] ? $_POST["collection_pid"] : @$_GET["collection_pid"];	
+$community_pid = @$_POST["community_pid"] ? $_POST["community_pid"] : @$_GET["community_pid"];	
 
 $tpl->assign("collection_pid", $collection_pid);
 $tpl->assign("community_pid", $community_pid);
 
 $tpl->assign("pid", $pid);
 $tpl->assign("return", $return);
-if (@$HTTP_POST_VARS["cat"] == "select") {
+if (@$_POST["cat"] == "select") {
 	//redirect to the create/update/view form for the pid
-	$xdis_id = $HTTP_POST_VARS['collection_doc_type'];
+	$xdis_id = $_POST['collection_doc_type'];
 
 	$extra_redirect = "";
 	if (!empty($collection_pid)) {

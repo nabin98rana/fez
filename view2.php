@@ -44,13 +44,13 @@ include_once(APP_INC_PATH . "class.statistics.php");
 include_once(APP_INC_PATH . "class.citation.php");
 include_once(APP_INC_PATH . "class.org_structure.php");
 include_once(APP_INC_PATH . "class.record_view.php");
+include_once(APP_INC_PATH . "class.user_comments.php");
 
 include_once(APP_PEAR_PATH . "Date.php");
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
 $isAdministrator = Auth::isAdministrator(); 
 $tpl->assign("isAdministrator", $isAdministrator);
-
 
 $tpl->assign("fez_root_dir", APP_PATH);
 $tpl->assign("eserv_url", APP_BASE_URL."eserv/".$pid."/");
@@ -93,7 +93,7 @@ if (!empty($pid) && $record->checkExists()) {
 	$xdis_title = XSD_Display::getTitle($xdis_id);	
     $tpl->assign("xdis_title", $xdis_title);
 	if (!is_numeric($xdis_id)) {
-		$xdis_id = @$HTTP_POST_VARS["xdis_id"] ? $HTTP_POST_VARS["xdis_id"] : @$HTTP_GET_VARS["xdis_id"];	
+		$xdis_id = @$_POST["xdis_id"] ? $_POST["xdis_id"] : @$_GET["xdis_id"];	
 		if (is_numeric($xdis_id)) { // must have come from select xdis so save xdis in the Fez MD
 			$record->updateAdminDatastream($xdis_id);
 		}
@@ -219,15 +219,15 @@ if (!empty($pid) && $record->checkExists()) {
         $tpl->registerNajax( NAJAX_Client::register('NajaxImagePreview', APP_BASE_URL.'najax_services/image_preview.php'));
 	} else {
 		$tpl->assign("show_not_allowed_msg", true);
-	} 
-
+	}
+	
 	if (empty($details)) {
 		$tpl->assign('details', '');
 	} else {
 		$linkCount = 0;
 		$fileCount = 0;		
 		$datastreams = Fedora_API::callGetDatastreams($pid);
-		$datastreamsAll = $datastreams;
+		$datastreamsAll = $datastreams;		
 		$datastreams = Misc::cleanDatastreamListLite($datastreams, $pid);
 		$securityfields = Auth::getAllRoles();
 		$datastream_workflows = WorkflowTrigger::getListByTrigger('-1', 5);
@@ -429,6 +429,17 @@ if (!empty($pid) && $record->checkExists()) {
 } else {
 	$tpl->assign("show_not_allowed_msg", true);
 }
+
+// display user comments, if any
+$uc = new UserComments($pid);
+
+// Users must be logged in to submit comments
+if(!empty($username))
+{
+    $tpl->assign('addusercomment', true);
+}
+$tpl->assign('displayusercomments', true);
+$tpl->assign('usercomments', $uc->comments);
 
 
 function getNextPage()

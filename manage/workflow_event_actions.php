@@ -56,21 +56,21 @@ $tpl->assign("isUser", $isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
-$wfl_id = @$HTTP_POST_VARS['wfl_id'] ? $HTTP_POST_VARS['wfl_id'] : $HTTP_GET_VARS['wfl_id'];
-$wfa_id = @$HTTP_POST_VARS['wfa_id'] ? $HTTP_POST_VARS['wfa_id'] : $HTTP_GET_VARS['wfa_id'];
-$wfe_id = @$HTTP_POST_VARS['wfe_id'] ? $HTTP_POST_VARS['wfe_id'] : $HTTP_GET_VARS['wfe_id'];
+$wfl_id = @$_POST['wfl_id'] ? $_POST['wfl_id'] : $_GET['wfl_id'];
+$wfa_id = @$_POST['wfa_id'] ? $_POST['wfa_id'] : $_GET['wfa_id'];
+$wfe_id = @$_POST['wfe_id'] ? $_POST['wfe_id'] : $_GET['wfe_id'];
 
 if ($isSuperAdministrator) {
   
-    if (@$HTTP_POST_VARS["cat"] == "new") {
+    if (@$_POST["cat"] == "new") {
         $tpl->assign("result", Workflow_Event_Action::insert());
-    } elseif (@$HTTP_POST_VARS["cat"] == "update") {
+    } elseif (@$_POST["cat"] == "update") {
         $tpl->assign("result", Workflow_Event_Action::update());
-    } elseif (@$HTTP_POST_VARS["cat"] == "delete") {
+    } elseif (@$_POST["cat"] == "delete") {
         Workflow::remove();
     }
 
-    if (@$HTTP_GET_VARS["cat"] == "edit") {
+    if (@$_GET["cat"] == "edit") {
         $tpl->assign("info", Workflow_Event_Action::getDetails($wfa_id));
     }
 

@@ -58,16 +58,16 @@ class Language
      */
     function setPreference()
     {
-        global $HTTP_GET_VARS, $app_lang, $avail_langs;
+        global $app_lang, $avail_langs;
 
             session_name(APP_SESSION);
         @session_start();
-        if (!empty($HTTP_GET_VARS["lang"])) {
+        if (!empty($_GET["lang"])) {
             session_register("app_lang");
-            if (!in_array($HTTP_GET_VARS["lang"], $avail_langs)) {
+            if (!in_array($_GET["lang"], $avail_langs)) {
                 $app_lang = APP_DEFAULT_LANG;
             } else {
-                $app_lang = $HTTP_GET_VARS["lang"];
+                $app_lang = $_GET["lang"];
             }
         }
         if (empty($app_lang)) {

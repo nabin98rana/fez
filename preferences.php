@@ -58,16 +58,16 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
 $tpl->assign("isAdministrator", $isAdministrator);
 
 
-if (@$HTTP_POST_VARS["cat"] == "update_account") {
+if (@$_POST["cat"] == "update_account") {
     $res = Prefs::set($usr_id);
     $tpl->assign('update_account_result', $res);
-} elseif (@$HTTP_POST_VARS["cat"] == "update_name") {
+} elseif (@$_POST["cat"] == "update_name") {
     $res = User::updateFullName($usr_id);
     $tpl->assign('update_name_result', $res);
-} elseif (@$HTTP_POST_VARS["cat"] == "update_email") {
+} elseif (@$_POST["cat"] == "update_email") {
     $res = User::updateEmail($usr_id);
     $tpl->assign('update_email_result', $res);
-} elseif (@$HTTP_POST_VARS["cat"] == "update_password") {
+} elseif (@$_POST["cat"] == "update_password") {
     $res = User::updatePassword($usr_id);
     $tpl->assign('update_password_result', $res);
 }

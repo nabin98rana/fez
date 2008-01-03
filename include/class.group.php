@@ -175,9 +175,7 @@ class Group
      */
     function remove()
     {
-        global $HTTP_POST_VARS;
-
-        $items = @implode(", ", $HTTP_POST_VARS["items"]);
+        $items = @implode(", ", $_POST["items"]);
         $stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "group
                  WHERE
@@ -187,7 +185,7 @@ class Group
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return false;
         } else {
-            Group::removeUserByGroups($HTTP_POST_VARS["items"]);
+            Group::removeUserByGroups($_POST["items"]);
             return true; 
         }
     }
@@ -226,26 +224,24 @@ class Group
      */
     function update()
     {
-        global $HTTP_POST_VARS;
-
-        if (Validation::isWhitespace($HTTP_POST_VARS["title"])) {
+        if (Validation::isWhitespace($_POST["title"])) {
             return -2;
         }
         $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "group
                  SET
-                    grp_title='" . Misc::escapeString($HTTP_POST_VARS["title"]) . "',
-                    grp_status='" . Misc::escapeString($HTTP_POST_VARS["status"]) . "'
+                    grp_title='" . Misc::escapeString($_POST["title"]) . "',
+                    grp_status='" . Misc::escapeString($_POST["status"]) . "'
                  WHERE
-                    grp_id=" . $HTTP_POST_VARS["id"];
+                    grp_id=" . $_POST["id"];
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-            Group::removeUserByGroups(array($HTTP_POST_VARS["id"]));
-            for ($i = 0; $i < count($HTTP_POST_VARS["users"]); $i++) {
-                Group::associateUser($HTTP_POST_VARS["id"], $HTTP_POST_VARS["users"][$i]);
+            Group::removeUserByGroups(array($_POST["id"]));
+            for ($i = 0; $i < count($_POST["users"]); $i++) {
+                Group::associateUser($_POST["id"], $_POST["users"][$i]);
             }
             return 1;
         }
@@ -289,9 +285,7 @@ class Group
      */
     function insert()
     {
-        global $HTTP_POST_VARS;
-
-        if (Validation::isWhitespace($HTTP_POST_VARS["title"])) {
+        if (Validation::isWhitespace($_POST["title"])) {
             return -2;
         }
         $stmt = "INSERT INTO
@@ -302,8 +296,8 @@ class Group
                     grp_status
                  ) VALUES (
                     '" . Date_API::getCurrentDateGMT() . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["title"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["status"]) . "'
+                    '" . Misc::escapeString($_POST["title"]) . "',
+                    '" . Misc::escapeString($_POST["status"]) . "'
                  )";
 
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -312,8 +306,8 @@ class Group
             return -1;
         } else {
             $new_grp_id = $GLOBALS["db_api"]->get_last_insert_id();
-            for ($i = 0; $i < count($HTTP_POST_VARS["users"]); $i++) {
-                Group::associateUser($new_grp_id, $HTTP_POST_VARS["users"][$i]);
+            for ($i = 0; $i < count($_POST["users"]); $i++) {
+                Group::associateUser($new_grp_id, $_POST["users"][$i]);
             }
             return 1;
         }

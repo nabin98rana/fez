@@ -87,7 +87,7 @@ if ($pid == -1 || !$pid) {
 }
 if ($access_ok) {
     // check for post action
-    if (@$HTTP_POST_VARS["cat"] == "report") {
+    if (@$_POST["cat"] == "report") {
         $res = Record::makeInsertTemplate();
         $wfstatus->assign('template', $res);
     }

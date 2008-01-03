@@ -38,7 +38,7 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.misc.php");
 
 if ((($_SERVER["SERVER_PORT"] != 443) && (APP_HTTPS == "ON"))) { //should be ssl when using basic auth
-	header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."basiceserv.php"."?".$HTTP_SERVER_VARS['QUERY_STRING']);
+	header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."basiceserv.php"."?".$_SERVER['QUERY_STRING']);
 	exit;        		
 }
 
@@ -58,7 +58,7 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 				$pw = $_SERVER['PHP_AUTH_PW'];
         		if (Auth::isCorrectPassword($username, $pw)) {
         			Auth::LoginAuthenticatedUser($username, $pw, false);
-					header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."eserv.php"."?".$HTTP_SERVER_VARS['QUERY_STRING']);
+					header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."eserv.php"."?".$_SERVER['QUERY_STRING']);
     				exit;        		        			
         		} else {
         			header('WWW-Authenticate: Basic realm="'.APP_HOSTNAME.'"');

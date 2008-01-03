@@ -460,6 +460,7 @@ class Fedora_API {
               curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
             }
 		    $uploadLocation = curl_exec($ch);
+		    
 			if ($uploadLocation) {
 				$uploadLocation = trim(str_replace("\n", "", $uploadLocation));
 				$dsIDNameOld = $dsIDName;
@@ -474,7 +475,6 @@ class Fedora_API {
 	              //Call callAddDatastream
 	              $dsID = Fedora_API::callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsLabel, $mimetype, $controlGroup);
 	              return $dsID;
-//	              exit;
 	           } elseif ($dsIDName != NULL) {
 	              //Call ModifyDatastreamByReference
 				  Fedora_API::callPurgeDatastream ($pid, $dsIDName);
@@ -607,7 +607,19 @@ class Fedora_API {
 			}
 		}
 	   $versionable = 'false';
-	   $parms=array('PID' => $pid, 'dsID' => $dsID, 'altIDs' => array(), 'label' => $dsLabel, new soapval('versionable', 'boolean', $versionable), 'MIMEType' => $mimetype, 'formatURI' => 'unknown', new soapval('location', 'string', $uploadLocation), 'controlGroup' => $controlGroup, 'dsState' => 'A', 'logMessage' => 'Added Datastream');//
+	   $parms = array(
+    	   'PID'           => $pid, 
+    	   'dsID'          => $dsID, 
+    	   'altIDs'        => array(), 
+    	   'label'         => $dsLabel, 
+    	   new soapval('versionable', 'boolean', $versionable), 
+    	   'MIMEType'      => $mimetype, 
+    	   'formatURI'     => 'unknown', 
+    	   new soapval('location', 'string', $uploadLocation), 
+    	   'controlGroup'  => $controlGroup, 
+    	   'dsState'       => 'A', 
+    	   'logMessage'    => 'Added Datastream'
+	   );
 	   //Call addDatastream
 	   Fedora_API::openSoapCall('addDatastream', $parms);
 	}
@@ -634,7 +646,19 @@ class Fedora_API {
 		   		$dsLabel = $dsIDName;
 			}
 	   	}
-	   $parms=array('PID' => $pid, 'dsID' => $dsIDName, 'altIDs' => array(), 'dsLabel' => $dsLabel, new soapval('versionable', 'boolean', $versionable), 'MIMEType' => $mimetype, 'formatURI' => 'unknown', 'dsLocation' => $uploadLocation, 'controlGroup' => $controlGroup, 'dsState' => 'A', 'logMessage' => 'Added new datastream from Fez');
+	   $parms=array(
+    	   'PID'           => $pid, 
+    	   'dsID'          => $dsIDName, 
+    	   'altIDs'        => array(), 
+    	   'dsLabel'       => $dsLabel, 
+    	   new soapval('versionable', 'boolean', $versionable), 
+    	   'MIMEType'      => $mimetype, 
+    	   'formatURI'     => 'unknown', 
+    	   'dsLocation'    => $uploadLocation, 
+    	   'controlGroup'  => $controlGroup, 
+    	   'dsState'       => 'A', 
+    	   'logMessage'    => 'Added new datastream from Fez'
+	   );
 	   $dsID = Fedora_API::openSoapCall('addDatastream', $parms);
 	   return $dsID;
 	}
@@ -971,7 +995,17 @@ class Fedora_API {
 			$versionable = 'false';
 		}*/
 		//$versionable = 'false'; //overriding this here.
-		$parms= array('PID' => $pid, 'datastreamID' => $dsID, 'altIDs' => array(), 'dsLabel' => $label, 'mimeType' => $mimetype, 'formatURI' => 'unknown', new soapval("dsContent","base64Binary",$dsContent), 'logMessage' => $logmsg, new soapval('force', 'boolean', 'true'));
+		$parms= array(
+            'PID'           => $pid, 
+            'datastreamID'  => $dsID, 
+            'altIDs'        => array(), 
+            'dsLabel'       => $label, 
+            'mimeType'      => $mimetype, 
+            'formatURI'     => 'unknown', 
+            new soapval("dsContent","base64Binary",$dsContent), 
+            'logMessage'    => $logmsg, 
+            new soapval('force', 'boolean', 'true')
+        );
 //		echo "\n\n before open soap call,after tidy and base64encode for modify ".$dsID." "; echo date("l dS of F Y h:i:s A");
 	    Fedora_API::openSoapCall('modifyDatastreamByValue', $parms);
 //		echo "\n\n after open soal call for modify ".$dsID." "; echo date("l dS of F Y h:i:s A");
@@ -990,8 +1024,19 @@ class Fedora_API {
 	function callModifyDatastreamByReference ($pid, $dsID, $dsLabel, $dsLocation=NULL, $mimetype) {
 	   $logmsg = 'Modifying datastream by reference';
 	   $versionable = 'false';
-	   $parms= array('PID' => $pid, 'datastreamID' => $dsID, 'altIDs' => array(), 'dsLabel' => $dsLabel, new soapval('versionable', 'boolean', $versionable),  'mimeType' => $mimetype, 'formatURI' => 'unknown', 'dsLocation' => $dsLocation, 'logMessage' => $logmsg, 'force' => true);
-	   Fedora_API::openSoapCall('modifyDatastreamByReference', $parms);
+	   $parms= array(
+	       'PID'           => $pid, 
+	       'datastreamID'  => $dsID, 
+	       'altIDs'        => array(), 
+	       'dsLabel'       => $dsLabel, 
+	       new soapval('versionable', 'boolean', $versionable), 
+	       'mimeType'      => $mimetype, 
+	       'formatURI'     => 'unknown', 
+	       'dsLocation'    => $dsLocation, 
+	       'logMessage'    => $logmsg, 
+	       'force'         => true
+        );
+        Fedora_API::openSoapCall('modifyDatastreamByReference', $parms);
 	}
 
     /** 

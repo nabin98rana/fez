@@ -173,25 +173,24 @@ class Doc_Type_XSD
     function update($xsd_id, $params = array())
     {
         if (empty($params)) {
-            global $HTTP_POST_VARS, $HTTP_POST_FILES;
             $files = array();
-            for ($i = 0; $i < count($HTTP_POST_FILES["xsd_file"]); $i++) {
-                $filename = @$HTTP_POST_FILES["xsd_file"]["name"][$i];
+            for ($i = 0; $i < count($_FILES["xsd_file"]); $i++) {
+                $filename = @$_FILES["xsd_file"]["name"][$i];
                 if (empty($filename)) {
                     continue;
                 }
-                $blob = Misc::getFileContents($HTTP_POST_FILES["xsd_file"]["tmp_name"][$i]);
+                $blob = Misc::getFileContents($_FILES["xsd_file"]["tmp_name"][$i]);
                 $files[] = array(
                     "filename"  =>  $filename,
-                    "type"      =>  $HTTP_POST_FILES['xsd_file']['type'][$i],
+                    "type"      =>  $_FILES['xsd_file']['type'][$i],
                     "blob"      =>  $blob
                 );
             }
     		// If no file was uploaded then just use the textarea
     		if (strlen($blob) == 0) {
-    			$blob = $HTTP_POST_VARS["xsd_source"];
+    			$blob = $_POST["xsd_source"];
     		}
-            $params = &$HTTP_POST_VARS;
+            $params = &$_POST;
         } else {
         	$blob = $params['xsd_file'];
         }

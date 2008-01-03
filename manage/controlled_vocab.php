@@ -45,7 +45,7 @@ $tpl->setTemplate("manage/index.tpl.html");
 Auth::checkAuthentication(APP_SESSION);
 
 $tpl->assign("type", "controlled_vocab");
-$parent_id = @$HTTP_POST_VARS["parent_id"] ? $HTTP_POST_VARS["parent_id"] : @$HTTP_GET_VARS["parent_id"];	
+$parent_id = @$_POST["parent_id"] ? $_POST["parent_id"] : @$_GET["parent_id"];	
 //$parents = Controlled_Vocab::getParentAssocListFullDisplay($parent_id);
 	$cvo_id = $parent_id;
 	$max_breadcrumb = "";
@@ -76,16 +76,16 @@ if (!$isSuperAdministrator) {
     $tpl->assign("show_not_allowed_msg", true);
 }
 
-if (@$HTTP_POST_VARS["cat"] == "new") {
+if (@$_POST["cat"] == "new") {
     $tpl->assign("result", Controlled_Vocab::insert());
-} elseif (@$HTTP_POST_VARS["cat"] == "update") {
-    $tpl->assign("result", Controlled_Vocab::update($HTTP_POST_VARS["id"]));
-} elseif (@$HTTP_POST_VARS["cat"] == "delete") {
+} elseif (@$_POST["cat"] == "update") {
+    $tpl->assign("result", Controlled_Vocab::update($_POST["id"]));
+} elseif (@$_POST["cat"] == "delete") {
     Controlled_Vocab::remove();
 }
 
-if (@$HTTP_GET_VARS["cat"] == "edit") {
-    $tpl->assign("info", Controlled_Vocab::getDetails($HTTP_GET_VARS["id"]));
+if (@$_GET["cat"] == "edit") {
+    $tpl->assign("info", Controlled_Vocab::getDetails($_GET["id"]));
 }
 //    $tpl->assign("parents", $parents); // for the parents about the very first one
 if (is_numeric($parent_id)) {

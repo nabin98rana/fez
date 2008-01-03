@@ -24,8 +24,8 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
     $tpl->assign("isFezUser", $username);
 }
 
-$field = $HTTP_GET_VARS["field"];  // The request may be to check a specific config variable
-$value = $HTTP_GET_VARS["value"];  // The request may be accompanied by a specific value to check
+$field = $_GET["field"];  // The request may be to check a specific config variable
+$value = $_GET["value"];  // The request may be accompanied by a specific value to check
 if (!empty($field)) {
     $tpl->assign("mode", "individual");
     $res = SanityChecks::runSpecificCheck($field, $value);

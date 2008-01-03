@@ -210,16 +210,14 @@ class Configuration
      * Returns NULL if success
      * Returns array of error tokens if problem.
      */
-    function saveConf() {
-        
-        global $HTTP_POST_VARS;     // GET READY FOR SOME FORM LOVE
-
+    function saveConf() 
+    {
         $originalSettings = Configuration::getConfAll();
         $problemUpdates = array();
 
         // For each config variable we know about, update it with the value from the form.
         foreach ($originalSettings as $key => $value) {
-            $res = $GLOBALS["db_api"]->dbh->query("UPDATE " . APP_SQL_DBNAME . "." . APP_TABLE_PREFIX . "config SET config_value = '" . Misc::escapeString($HTTP_POST_VARS[$key]) . "' WHERE config_name = '" . Misc::escapeString($key) . "' AND config_module = 'core'");
+            $res = $GLOBALS["db_api"]->dbh->query("UPDATE " . APP_SQL_DBNAME . "." . APP_TABLE_PREFIX . "config SET config_value = '" . Misc::escapeString($_POST[$key]) . "' WHERE config_name = '" . Misc::escapeString($key) . "' AND config_module = 'core'");
             if (PEAR::isError($res)) {
                 array_push($problemUpdates, $key);
             }

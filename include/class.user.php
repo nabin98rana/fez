@@ -383,8 +383,6 @@ class User
      */
     function changeStatus()
     {
-        global $HTTP_POST_VARS;
-
         // check if the user being inactivated is the last one
         $stmt = "SELECT
                     COUNT(*)
@@ -393,15 +391,15 @@ class User
                  WHERE
                     usr_status='active'";
         $total_active = $GLOBALS["db_api"]->dbh->getOne($stmt);
-        if (($total_active < 2) && ($HTTP_POST_VARS["status"] == "inactive")) {
+        if (($total_active < 2) && ($_POST["status"] == "inactive")) {
             return false;
         }
 
-        $items = @implode(", ", $HTTP_POST_VARS["items"]);
+        $items = @implode(", ", $_POST["items"]);
         $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "user
                  SET
-                    usr_status='" . $HTTP_POST_VARS["status"] . "'
+                    usr_status='" . $_POST["status"] . "'
                  WHERE
                     usr_id IN (".$items.")";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -415,9 +413,7 @@ class User
 
     function remove()
     {
-        global $HTTP_POST_VARS;
-
-        $items = @implode(", ", $HTTP_POST_VARS["items"]);
+        $items = @implode(", ", $_POST["items"]);
         $stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "user
                  WHERE
@@ -441,18 +437,16 @@ class User
      */
     function updatePassword($usr_id, $send_notification = FALSE)
     {
-        global $HTTP_POST_VARS;
-
-        if ($HTTP_POST_VARS['new_password'] != $HTTP_POST_VARS['confirm_password']) {
+        if ($_POST['new_password'] != $_POST['confirm_password']) {
             return -2;
         }
-        if (strlen($HTTP_POST_VARS['new_password']) < 6) {
+        if (strlen($_POST['new_password']) < 6) {
             return -3;
         }
         $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "user
                  SET
-                    usr_password='" . md5($HTTP_POST_VARS["new_password"]) . "'
+                    usr_password='" . md5($_POST["new_password"]) . "'
                  WHERE
                     usr_id=".$usr_id;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -461,7 +455,7 @@ class User
             return -1;
         } else {
             if ($send_notification) {
-//                Notification::notifyUserPassword($usr_id, $HTTP_POST_VARS["new_password"]);
+//                Notification::notifyUserPassword($usr_id, $_POST["new_password"]);
             }
             return 1;
         }
@@ -527,12 +521,10 @@ class User
      */
     function updateFullName($usr_id)
     {
-        global $HTTP_POST_VARS;
-
         $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "user
                  SET
-                    usr_full_name='" . Misc::escapeString($HTTP_POST_VARS["full_name"]) . "'
+                    usr_full_name='" . Misc::escapeString($_POST["full_name"]) . "'
                  WHERE
                     usr_id=".$usr_id;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -540,7 +532,7 @@ class User
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-            $_SESSION['fullname'] = $HTTP_POST_VARS["full_name"];
+            $_SESSION['fullname'] = $_POST["full_name"];
             return 1;
         }
     } 
@@ -554,12 +546,10 @@ class User
      */
     function updateEmail($usr_id)
     {
-        global $HTTP_POST_VARS;
-
         $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "user
                  SET
-                    usr_email='" . Misc::escapeString($HTTP_POST_VARS["email"]) . "'
+                    usr_email='" . Misc::escapeString($_POST["email"]) . "'
                  WHERE
                     usr_id=".$usr_id;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -567,7 +557,7 @@ class User
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-			$_SESSION['email'] = $HTTP_POST_VARS["email"];		
+			$_SESSION['email'] = $_POST["email"];		
             return 1;
         }
     }
@@ -581,8 +571,6 @@ class User
      */
     function updateLoginDetails($usr_id)
     {
-        global $HTTP_POST_VARS;
-
         $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "user
                  SET
@@ -608,8 +596,6 @@ class User
      */
     function updateShibLoginDetails($usr_id)
     {
-        global $HTTP_POST_VARS;
-
         $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "user
                  SET
@@ -634,19 +620,17 @@ class User
      */
     function update($superAdmin = 0)
     {
-        global $HTTP_POST_VARS;
-
         // system account should not be updateable
-/*        if ($HTTP_POST_VARS["id"] == APP_SYSTEM_USER_ID) {
+/*        if ($_POST["id"] == APP_SYSTEM_USER_ID) {
             return 1;
         }*/
-		if (@$HTTP_POST_VARS["administrator"]) {
+		if (@$_POST["administrator"]) {
 			$usr_administrator = 1;
 		} else {
 			$usr_administrator = 0;
 		}
         if ($superAdmin) {
-            if (@$HTTP_POST_VARS["super_administrator"]) {
+            if (@$_POST["super_administrator"]) {
                 $usr_super_administrator = 1;
             } else {
                 $usr_super_administrator = 0;
@@ -655,7 +639,7 @@ class User
         } else {
             $superAdminUpdateStatement = "";
         }
-		if (@$HTTP_POST_VARS["ldap_authentication"]) {
+		if (@$_POST["ldap_authentication"]) {
 			$ldap_authentication = 1;
 		} else {
 			$ldap_authentication = 0;
@@ -664,20 +648,20 @@ class User
         $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "user
                  SET
-                    usr_username='" . Misc::escapeString($HTTP_POST_VARS["username"]) . "',
-                    usr_full_name='" . Misc::escapeString($HTTP_POST_VARS["full_name"]) . "',
-                    usr_email='" . Misc::escapeString($HTTP_POST_VARS["email"]) . "',
+                    usr_username='" . Misc::escapeString($_POST["username"]) . "',
+                    usr_full_name='" . Misc::escapeString($_POST["full_name"]) . "',
+                    usr_email='" . Misc::escapeString($_POST["email"]) . "',
                     usr_administrator=" . $usr_administrator . ",
                     " . $superAdminUpdateStatement . "
                     usr_ldap_authentication=" . $ldap_authentication;
 
-        if ((!empty($HTTP_POST_VARS["password"])) && (($HTTP_POST_VARS["change_password"]))) {
+        if ((!empty($_POST["password"])) && (($_POST["change_password"]))) {
             $stmt .= ",
-                    usr_password='" . md5($HTTP_POST_VARS["password"]) . "'";
+                    usr_password='" . md5($_POST["password"]) . "'";
         } 
         $stmt .= "
                  WHERE
-                    usr_id=" . $HTTP_POST_VARS["id"];
+                    usr_id=" . $_POST["id"];
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -687,21 +671,21 @@ class User
             $stmt = "DELETE FROM
                         " . APP_TABLE_PREFIX . "group_user
                      WHERE
-                        gpu_usr_id=" . $HTTP_POST_VARS["id"];
+                        gpu_usr_id=" . $_POST["id"];
             $res = $GLOBALS["db_api"]->dbh->query($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
                 return -1;
             } else {
-                for ($i = 0; $i < count($HTTP_POST_VARS["groups"]); $i++) {
+                for ($i = 0; $i < count($_POST["groups"]); $i++) {
                     $stmt = "INSERT INTO
                                 " . APP_TABLE_PREFIX . "group_user
                              (
                                 gpu_grp_id,
                                 gpu_usr_id
                              ) VALUES (
-                                " . $HTTP_POST_VARS["groups"][$i] . ",
-                                " . $HTTP_POST_VARS["id"] . "
+                                " . $_POST["groups"][$i] . ",
+                                " . $_POST["id"] . "
                              )";
                     $res = $GLOBALS["db_api"]->dbh->query($stmt);
                     if (PEAR::isError($res)) {
@@ -723,21 +707,19 @@ class User
      */
     function insert()
     {
-        global $HTTP_POST_VARS;
-
-		if (@$HTTP_POST_VARS["administrator"]) {
+		if (@$_POST["administrator"]) {
 			$usr_administrator = 1;
 		} else {
 			$usr_administrator = 0;
 		}
 
-		if (@$HTTP_POST_VARS["super_administrator"]) {
+		if (@$_POST["super_administrator"]) {
 			$usr_super_administrator = 1;
 		} else {
 			$usr_super_administrator = 0;
 		}
 
-		if (@$HTTP_POST_VARS["ldap_authentication"]) {
+		if (@$_POST["ldap_authentication"]) {
 			$ldap_authentication = 1;
 		} else {
 			$ldap_authentication = 0;
@@ -755,22 +737,22 @@ class User
                     usr_ldap_authentication,
                     usr_preferences,
                     usr_username";
-        if (!empty($HTTP_POST_VARS["password"]))  {
+        if (!empty($_POST["password"]))  {
             $stmt .= ",usr_password";
         } 
 
 			$stmt .= "
                  ) VALUES (
                     '" . Date_API::getCurrentDateGMT() . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["full_name"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["email"]) . "',
+                    '" . Misc::escapeString($_POST["full_name"]) . "',
+                    '" . Misc::escapeString($_POST["email"]) . "',
                     " . $usr_administrator . ",
                     " . $usr_super_administrator . ",
                     " . $ldap_authentication . ",
                     '" . Misc::escapeString($prefs) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["username"]) . "'";
-	    if (!empty($HTTP_POST_VARS["password"]))  {					
-			$stmt .= ",'" . md5($HTTP_POST_VARS["password"]) . "'";
+                    '" . Misc::escapeString($_POST["username"]) . "'";
+	    if (!empty($_POST["password"]))  {					
+			$stmt .= ",'" . md5($_POST["password"]) . "'";
 		}
 			$stmt .= "
                  )";
@@ -781,8 +763,8 @@ class User
         } else {
             $new_usr_id = $GLOBALS["db_api"]->get_last_insert_id();
             // add the group associations!
-            for ($i = 0; $i < count($HTTP_POST_VARS["groups"]); $i++) {
-                Group::associateUser($HTTP_POST_VARS["groups"][$i], $new_usr_id);
+            for ($i = 0; $i < count($_POST["groups"]); $i++) {
+                Group::associateUser($_POST["groups"][$i], $new_usr_id);
             } 
             return 1;
         }
@@ -796,8 +778,6 @@ class User
      */
     function insertFromLogin()
     {
-        global $HTTP_POST_VARS;
-
 		$usr_administrator = 0;
 
 		$ldap_authentication = 0;
@@ -818,13 +798,13 @@ class User
                     usr_last_login_date
                  ) VALUES (
                     '" . Date_API::getCurrentDateGMT() . "',
-                    '" . Misc::escapeString(ucwords($HTTP_POST_VARS["fullname"])) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["email"]) . "',
+                    '" . Misc::escapeString(ucwords($_POST["fullname"])) . "',
+                    '" . Misc::escapeString($_POST["email"]) . "',
                     " . $usr_administrator . ",
                     " . $ldap_authentication . ",
                     '" . Misc::escapeString($prefs) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["username"]) . "',
-                    '" . md5(Misc::escapeString($HTTP_POST_VARS["passwd"])) . "',
+                    '" . Misc::escapeString($_POST["username"]) . "',
+                    '" . md5(Misc::escapeString($_POST["passwd"])) . "',
 					1,
                     '" . Date_API::getCurrentDateGMT() . "'
                  )";
@@ -848,8 +828,6 @@ class User
      */
     function insertFromShibLogin($usr_username, $usr_full_name, $usr_email)
     {
-        global $HTTP_POST_VARS;
-
 		$usr_administrator = 0;
 
 		$ldap_authentication = 0;
@@ -960,12 +938,10 @@ class User
      */
     function insertFromLDAPLogin()
     {
-        global $HTTP_POST_VARS;
-
 		$usr_administrator = 0;
-//print_r($HTTP_POST_VARS);
+//print_r($_POST);
 		$ldap_authentication = 1;
-		$userDetails = User::GetUserLDAPDetails($HTTP_POST_VARS["username"], $HTTP_POST_VARS["passwd"]);
+		$userDetails = User::GetUserLDAPDetails($_POST["username"], $_POST["passwd"]);
 
         $prefs = Prefs::getDefaults();
         $stmt = "INSERT INTO
@@ -987,7 +963,7 @@ class User
                     " . $usr_administrator . ",
                     " . $ldap_authentication . ",
                     '" . Misc::escapeString($prefs) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["username"]) . "',
+                    '" . Misc::escapeString($_POST["username"]) . "',
 					1,
                     '" . Date_API::getCurrentDateGMT() . "'
                  )";

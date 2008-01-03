@@ -49,15 +49,15 @@ $tpl->setTemplate("popup.tpl.html");
 Auth::checkAuthentication(APP_SESSION, 'index.php?err=5', true);
 $isAdministrator = Auth::isAdministrator(); 
 $usr_id = Auth::getUserID();
-$cat = @$HTTP_GET_VARS["cat"] ? @$HTTP_GET_VARS["cat"] : @$HTTP_POST_VARS["cat"];
+$cat = @$_GET["cat"] ? @$_GET["cat"] : @$_POST["cat"];
 //echo $cat; exit;
 switch ($cat) 
 {	
     case 'purge_datastream':
         {
 			$record = new RecordObject($pid);
-            $dsID = $HTTP_GET_VARS["dsID"];
-            $pid = $HTTP_GET_VARS["pid"];		
+            $dsID = $_GET["dsID"];
+            $pid = $_GET["pid"];		
 			$record = new RecordObject($pid);
 			if ($record->canEdit()) {
 	            $res = Fedora_API::callPurgeDatastream($pid, $dsID);

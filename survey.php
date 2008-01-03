@@ -49,7 +49,7 @@ $tpl->assign("isUser", $username);
 $isAdministrator = User::isUserAdministrator($username);
 $tpl->assign("isAdministrator", $isAdministrator);
 
-$cat = @$HTTP_POST_VARS["cat"] ? $HTTP_POST_VARS["cat"] : $HTTP_GET_VARS["cat"];
+$cat = @$_POST["cat"] ? $_POST["cat"] : $_GET["cat"];
 if (Survey::hasFilledSurvey(Auth::getUserID()) == 1) {
 	Auth::redirect(APP_BASE_URL);
 }

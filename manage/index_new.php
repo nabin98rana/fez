@@ -113,7 +113,7 @@ if (empty($pagerRow)) {
 $options = Pager::saveSearchParams();
 $tpl->assign("options", $options);
 
-if ($HTTP_POST_VARS["action"] == "prompt" || $HTTP_POST_VARS["action"] == "index") {
+if ($_POST["action"] == "prompt" || $_POST["action"] == "index") {
     if ($index_type == Reindex::INDEX_TYPE_FEDORAINDEX) {
         $details = $reindex->getMissingList($pagerRow, $rows, $terms);
 //print_r($details);

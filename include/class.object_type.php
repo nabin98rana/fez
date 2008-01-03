@@ -59,9 +59,7 @@ class Object_Type
      */
     function remove()
     {
-        global $HTTP_POST_VARS;
-
-        $items = @implode(", ", $HTTP_POST_VARS["items"]);
+        $items = @implode(", ", $_POST["items"]);
         $stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "object_type
                  WHERE
@@ -84,8 +82,6 @@ class Object_Type
      */
     function insert()
     {
-        global $HTTP_POST_VARS;
-		
         $stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "object_type
                  (
@@ -93,9 +89,9 @@ class Object_Type
 					ret_order,
 					ret_color
                  ) VALUES (
-                    '" . Misc::escapeString($HTTP_POST_VARS["ret_title"]) . "',
-					'" . Misc::escapeString($HTTP_POST_VARS["ret_order"]) . "',
-					'" . Misc::escapeString($HTTP_POST_VARS["ret_color"]) . "'					
+                    '" . Misc::escapeString($_POST["ret_title"]) . "',
+					'" . Misc::escapeString($_POST["ret_order"]) . "',
+					'" . Misc::escapeString($_POST["ret_color"]) . "'					
                  )";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -115,14 +111,12 @@ class Object_Type
      */
     function update($ret_id)
     {
-        global $HTTP_POST_VARS;
-
         $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "object_type
                  SET 
-                    ret_title = '" . Misc::escapeString($HTTP_POST_VARS["ret_title"]) . "',
-					ret_order = '" . Misc::escapeString($HTTP_POST_VARS["ret_order"]) . "',
-					ret_color = '" . Misc::escapeString($HTTP_POST_VARS["ret_color"]) . "'
+                    ret_title = '" . Misc::escapeString($_POST["ret_title"]) . "',
+					ret_order = '" . Misc::escapeString($_POST["ret_order"]) . "',
+					ret_color = '" . Misc::escapeString($_POST["ret_color"]) . "'
                  WHERE ret_id = ".$ret_id;
 
         $res = $GLOBALS["db_api"]->dbh->query($stmt);

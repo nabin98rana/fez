@@ -169,7 +169,6 @@ class Workflow_State
      */
     function update($params = array())
     {
-//        global $HTTP_POST_VARS;
 		if (empty($params)) {
             $params = &$_POST;
         }
@@ -240,9 +239,7 @@ class Workflow_State
      */
     function remove()
     {
-        global $HTTP_POST_VARS;
-
-        $items = @implode(", ", $HTTP_POST_VARS["items"]);
+        $items = @implode(", ", $_POST["items"]);
         $stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "workflow_state
                  WHERE

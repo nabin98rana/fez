@@ -650,12 +650,20 @@ class Misc
 	function cleanDatastreamListLite($dsList, $pid) {
 		$original_dsList = $dsList;		
 		$return = array();
-		foreach ($dsList as $key => $ds) {		
-//			$pid = $pid;
-			$keep = true;
-            if ((is_numeric(strpos($ds['ID'], "thumbnail_"))) || (is_numeric(strpos($ds['ID'], "MODS"))) || (is_numeric(strpos($ds['ID'], "web_"))) || (is_numeric(strpos($ds['ID'], "preview_"))) || (is_numeric(strpos($ds['ID'], "presmd_"))) || (is_numeric(strpos($ds['ID'], "FezACML_"))) )   {
-                $keep = false;
+		foreach ($dsList as $key => $ds) 
+		{
+		    // The following ID's should be removed
+            if ((is_numeric(strpos($ds['ID'], "thumbnail_"))) 
+                || (is_numeric(strpos($ds['ID'], "MODS"))) 
+                || (is_numeric(strpos($ds['ID'], "web_"))) 
+                || (is_numeric(strpos($ds['ID'], "preview_"))) 
+                || (is_numeric(strpos($ds['ID'], "presmd_"))) 
+                || (is_numeric(strpos($ds['ID'], "FezACML_")))
+                || (is_numeric(strpos($ds['ID'], "FezComments"))) )   
+            {
+                continue;
             }
+            
 			// now try and find a thumbnail datastream of this datastream
 			$thumbnail = "thumbnail_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."jpg";
 			$ds['thumbnail'] = 0;
@@ -723,9 +731,7 @@ class Misc
                 $ds['canPreview'] = false;
             }
                 
-			if ($keep == true) {
-				$return[$key] = $ds;
-			}
+			$return[$key] = $ds;
 		}
 		$return = array_values($return);
 		return $return;
@@ -999,9 +1005,8 @@ class Misc
      * @param   array $existingDatastreams Optional Used to check for any "Link" hyperlink datastreams
      * @return  array $return
      */
-	function getDatastreamXMLHeaders($datastreamTitles, $xmlString, $existingDatastreams = array()) {
-		global $HTTP_POST_FILES;
-		global $HTTP_POST_VARS;	
+	function getDatastreamXMLHeaders($datastreamTitles, $xmlString, $existingDatastreams = array()) 
+	{
 		$return = array();
 		$next_link = Misc::getNextLink($existingDatastreams);
 		$searchvars = array("ID", "CONTROL_GROUP", "STATE", "VERSIONABLE", "versionID", "LABEL", "MIMETYPE"); // For items which repeat, (like ID (ID and versionID)) make the searchable part uppercase and the name difference lowercase
@@ -1039,71 +1044,71 @@ class Misc
 					$file_res = XSD_Loop_Subelement::getXSDMFInputType($dsTitle['xsdsel_id'], 'file_input');
 					$label_res = XSD_Loop_Subelement::getXSDMFInputType($dsTitle['xsdsel_id'], 'text', true); // true for exclude file and link, only want the file and link labels
 					if (count($file_res) == 1) {
-						if (is_array($HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']])) {
-							foreach ($HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']] as $key => $data) {
-								if (trim($HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key]) != "") {
+						if (is_array($_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']])) {
+							foreach ($_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']] as $key => $data) {
+								if (trim($_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key]) != "") {
 									$return[$dsTitle['xsdsel_title'].$key]['CONTROL_GROUP'] = $return[$dsTitle['xsdsel_title']]['CONTROL_GROUP'];
 									$return[$dsTitle['xsdsel_title'].$key]['STATE'] = $return[$dsTitle['xsdsel_title']]['STATE'];
 									$return[$dsTitle['xsdsel_title'].$key]['VERSIONABLE'] = $return[$dsTitle['xsdsel_title']]['VERSIONABLE'];
-									$return[$dsTitle['xsdsel_title'].$key]['ID'] = str_replace(" ", "_", $HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key]);
+									$return[$dsTitle['xsdsel_title'].$key]['ID'] = str_replace(" ", "_", $_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key]);
                                     // change file extension to lower case
 									if (is_numeric(strpos($return[$dsTitle['xsdsel_title'].$key]['ID'], "."))) {
 										$filename_ext = strtolower(substr($return[$dsTitle['xsdsel_title'].$key]['ID'], (strrpos($return[$dsTitle['xsdsel_title'].$key]['ID'], ".") + 1)));
 										$return[$dsTitle['xsdsel_title'].$key]['ID'] = substr($return[$dsTitle['xsdsel_title'].$key]['ID'], 0, strrpos($return[$dsTitle['xsdsel_title'].$key]['ID'], ".") + 1).$filename_ext;
 									}
 									$return[$dsTitle['xsdsel_title'].$key]['versionID'] = $return[$dsTitle['xsdsel_title'].$key]['ID'].".0";																
-									if (trim($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key]) != "") {
-										$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = $HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key];
+									if (trim($_POST['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key]) != "") {
+										$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = $_POST['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key];
 									} else {
-										$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = $HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key];
+										$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = $_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key];
 									}
                                     // To help determine the MIME type, the file needs to have the correct extension.
                                     // Some versions of PHP call all uploads <hash>.tmp so we make a copy with the right name before 
                                     // checking for the MIME type.  Not using file upload 'type' because it is unreliable.
-                                    $temp_store = APP_TEMP_DIR.$HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key];
-                                    copy($HTTP_POST_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']][$key],$temp_store);
+                                    $temp_store = APP_TEMP_DIR.$_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key];
+                                    copy($_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']][$key],$temp_store);
 									$return[$dsTitle['xsdsel_title'].$key]['MIMETYPE'] 
                                         = Misc::mime_content_type($temp_store);
                                     unlink($temp_store);
 								}
 							}							
 						} else { // file input is not a array, so only just one file
-							$return[$dsTitle['xsdsel_title']]['ID'] = str_replace(" ", "_", $HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']]);
+							$return[$dsTitle['xsdsel_title']]['ID'] = str_replace(" ", "_", $_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']]);
                             // change file extension to lower case
 							if (is_numeric(strpos($return[$dsTitle['xsdsel_title']]['ID'], "."))) {
 								$filename_ext = strtolower(substr($return[$dsTitle['xsdsel_title']]['ID'], (strrpos($return[$dsTitle['xsdsel_title']]['ID'], ".") + 1)));
 								$return[$dsTitle['xsdsel_title']]['ID'] = substr($return[$dsTitle['xsdsel_title']]['ID'], 0, strrpos($return[$dsTitle['xsdsel_title']]['ID'], ".") + 1).$filename_ext;
 							}
 							$return[$dsTitle['xsdsel_title']]['versionID'] = $return[$dsTitle['xsdsel_title']]['ID'].".0";																							
-							if ($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']] != "") {
-								$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = $HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']];
+							if ($_POST['xsd_display_fields'][$label_res[0]['xsdmf_id']] != "") {
+								$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = $_POST['xsd_display_fields'][$label_res[0]['xsdmf_id']];
 							} else {
-								$return[$dsTitle['xsdsel_title']]['LABEL'] = $HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']];
+								$return[$dsTitle['xsdsel_title']]['LABEL'] = $_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']];
 							}
                             // To help determine the MIME type, the file needs to have the correct extension.
                             // Some versions of PHP call all uploads <hash>.tmp so we make a copy with the right name before 
                             // checking for the MIME type.  Not using file upload 'type' because it is unreliable.
-                            $temp_store = APP_TEMP_DIR.$HTTP_POST_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']];
-                            copy($HTTP_POST_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']],$temp_store);
+                            $temp_store = APP_TEMP_DIR.$_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']];
+                            copy($_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']],$temp_store);
 							$return[$dsTitle['xsdsel_title']]['MIMETYPE'] = 
                                 Misc::mime_content_type($temp_store);
                             unlink($temp_store);
 						}
 					} elseif (count($label_res) == 1 && ($dsTitle['xsdsel_title'] == "Link")) { // no file inputs are involved so might be a link
 //					} elseif (($dsTitle['xsdsel_title'] == "Link")) { // no file inputs are involved so might be a link
-						if (is_array($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']])) {
-							foreach ($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']] as $key => $data) {
-//								if ($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key] != "") { // was just checking the desc existed
+						if (is_array($_POST['xsd_display_fields'][$label_res[0]['xsdmf_id']])) {
+							foreach ($_POST['xsd_display_fields'][$label_res[0]['xsdmf_id']] as $key => $data) {
+//								if ($_POST['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key] != "") { // was just checking the desc existed
 								// fixed it so that it requires the url, not the description
-								if ($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdsel_attribute_loop_xsdmf_id']][$key] != "") {											
+								if ($_POST['xsd_display_fields'][$label_res[0]['xsdsel_attribute_loop_xsdmf_id']][$key] != "") {											
 									$return[$dsTitle['xsdsel_title'].$key]['CONTROL_GROUP'] = $return[$dsTitle['xsdsel_title']]['CONTROL_GROUP'];
 									$return[$dsTitle['xsdsel_title'].$key]['STATE'] = $return[$dsTitle['xsdsel_title']]['STATE'];
 									$return[$dsTitle['xsdsel_title'].$key]['VERSIONABLE'] = $return[$dsTitle['xsdsel_title']]['VERSIONABLE'];
 									$return[$dsTitle['xsdsel_title'].$key]['ID'] = "link_".$next_link;
 									$next_link++;
 									$return[$dsTitle['xsdsel_title'].$key]['versionID'] = $return[$dsTitle['xsdsel_title'].$key]['ID'].".0";																
-									if ($HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key] != "") { // NOW check the desc/label
-										$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = $HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key];
+									if ($_POST['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key] != "") { // NOW check the desc/label
+										$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = $_POST['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key];
 									} else { // if it wasnt saved then just use the default
 										$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = "Link";
 //										$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = $return[$dsTitle['xsdsel_title']]['LABEL'];
@@ -1118,8 +1123,8 @@ class Misc
 							$return[$dsTitle['xsdsel_title']]['ID'] = "link_".$next_link;
 							$next_link++;
 							$return[$dsTitle['xsdsel_title']]['versionID'] = $return[$dsTitle['xsdsel_title']]['ID'].".0";																
-							if (@$HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']] != "") {
-								$return[$dsTitle['xsdsel_title']]['LABEL'] = $HTTP_POST_VARS['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key];
+							if (@$_POST['xsd_display_fields'][$label_res[0]['xsdmf_id']] != "") {
+								$return[$dsTitle['xsdsel_title']]['LABEL'] = $_POST['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key];
 							} else {
 								$return[$dsTitle['xsdsel_title']]['LABEL'] = "Link";
 //								$return[$dsTitle['xsdsel_title']]['LABEL'] = $return[$dsTitle['xsdsel_title']]['LABEL'];
@@ -1991,8 +1996,8 @@ class Misc
      * @param   string $pid The persistent identifier
      * @return  array $res
      */	
-	function getSchemaSubAttributes($a, $top_element_name, $xdis_id, $pid) {
-		global $HTTP_POST_VARS;
+	function getSchemaSubAttributes($a, $top_element_name, $xdis_id, $pid) 
+	{
 		$res = "";
 		foreach ($a[$top_element_name] as $i => $j) {
 			if (is_array($j)) {
@@ -2006,7 +2011,7 @@ class Misc
 							} elseif ($xsdmf_details['xsdmf_fez_variable'] == "xdis_id") {
 								$res .= ' '.$i.'="'.$top_xdis_id.'" ';
 							} else {
-								$res .= ' '.$i.'="'.$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id].'" ';
+								$res .= ' '.$i.'="'.$_POST['xsd_display_fields'][$xsdmf_id].'" ';
 							}
 						}
 					}
@@ -2023,29 +2028,29 @@ class Misc
      * @param   integer $xsdmf_id
      * @return  string The date
      */
-	function getPostedDate($xsdmf_id) {
-		global $HTTP_POST_VARS;
+	function getPostedDate($xsdmf_id) 
+	{
 		$return = array();
 		$dateType = 0; // full date by default
-		if ((!empty($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year'])) &&
-			 (!empty($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Month'])) &&
-			 (!empty($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Day']))) {
-			$return['value'] = sprintf('%04d-%02d-%02d', $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year'],
-												$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Month'],
-												$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Day']);
-		} elseif ((!empty($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year'])) &&
-			 (!empty($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Month']))) {
-			$return['value'] = sprintf('%04d-%02d', $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year'],
-												$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Month']);
+		if ((!empty($_POST['xsd_display_fields'][$xsdmf_id]['Year'])) &&
+			 (!empty($_POST['xsd_display_fields'][$xsdmf_id]['Month'])) &&
+			 (!empty($_POST['xsd_display_fields'][$xsdmf_id]['Day']))) {
+			$return['value'] = sprintf('%04d-%02d-%02d', $_POST['xsd_display_fields'][$xsdmf_id]['Year'],
+												$_POST['xsd_display_fields'][$xsdmf_id]['Month'],
+												$_POST['xsd_display_fields'][$xsdmf_id]['Day']);
+		} elseif ((!empty($_POST['xsd_display_fields'][$xsdmf_id]['Year'])) &&
+			 (!empty($_POST['xsd_display_fields'][$xsdmf_id]['Month']))) {
+			$return['value'] = sprintf('%04d-%02d', $_POST['xsd_display_fields'][$xsdmf_id]['Year'],
+												$_POST['xsd_display_fields'][$xsdmf_id]['Month']);
 			$dateType = 2;	// year and month
-		} elseif (!empty($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year'])) {
-			$return['value'] = sprintf('%04d',$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]['Year']);
+		} elseif (!empty($_POST['xsd_display_fields'][$xsdmf_id]['Year'])) {
+			$return['value'] = sprintf('%04d',$_POST['xsd_display_fields'][$xsdmf_id]['Year']);
 			$dateType = 1; // year only 
 		} else {
 			$return['value'] = '';
 		}
 		$return['dateType'] = $dateType;
-//		$return['value'] = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id];
+//		$return['value'] = $_POST['xsd_display_fields'][$xsdmf_id];
 		return $return;
 	}
 
@@ -2314,8 +2319,7 @@ class Misc
      */
     function GETorPOST($key)
     {
-        global $HTTP_POST_VARS, $HTTP_GET_VARS;
-        return @$HTTP_GET_VARS[$key] ? @$HTTP_GET_VARS[$key] : @$HTTP_POST_VARS[$key];
+        return @$_GET[$key] ? @$_GET[$key] : @$_POST[$key];
     }
 
     /**
@@ -2327,8 +2331,7 @@ class Misc
      */
     function GETorPOST_prefix($key)
     {
-        global $HTTP_POST_VARS, $HTTP_GET_VARS;
-        $allvars = array_merge($HTTP_GET_VARS, $HTTP_POST_VARS);
+        $allvars = array_merge($_GET, $_POST);
         foreach ($allvars as $vkey => $value) {
             $res = strstr($vkey, $key);
             if ($res) {

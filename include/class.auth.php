@@ -77,8 +77,7 @@ class Auth
      */
     function getRequestedURL()
     {
-        global $HTTP_SERVER_VARS;
-        return $HTTP_SERVER_VARS["REQUEST_URI"].$HTTP_SERVER_VARS["QUERY_STRING"];
+        return $_SERVER["REQUEST_URI"].$_SERVER["QUERY_STRING"];
     }
 
     /**
@@ -89,14 +88,13 @@ class Auth
      */
    	function getHomeIDPCookie()
     {
-        global $HTTP_COOKIE_VARS;
-        return @unserialize(base64_decode($HTTP_COOKIE_VARS[APP_SHIB_HOME_IDP_COOKIE]));
+        return @unserialize(base64_decode($_COOKIE[APP_SHIB_HOME_IDP_COOKIE]));
     }
 
 
-	function setHomeIDPCookie($home_idp) {
-		global $HTTP_COOKIE_VARS;
-//        $HTTP_COOKIE_VARS[APP_SHIB_HOME_IDP_COOKIE] = @serialize(base64_decode($home_idp));
+	function setHomeIDPCookie($home_idp) 
+	{
+//        $_COOKIE[APP_SHIB_HOME_IDP_COOKIE] = @serialize(base64_decode($home_idp));
 		$encoded = base64_encode(serialize($home_idp));
         @setcookie(APP_SHIB_HOME_IDP_COOKIE, $encoded, APP_SHIB_HOME_IDP_COOKIE_EXPIRE);
 	}
@@ -114,7 +112,7 @@ class Auth
      */
     function checkAuthentication($session_name, $failed_url = NULL, $is_popup = false)
     {
-        global $HTTP_SERVER_VARS, $auth_isBGP, $auth_bgp_session;
+        global $auth_isBGP, $auth_bgp_session;
 
         if ($auth_isBGP) {
             $ses =& $auth_bgp_session;
@@ -1268,8 +1266,7 @@ class Auth
      */
     function hasSessionSupport($session_name)
     {
-        global $HTTP_SESSION_VARS;
-        if (@!in_array($session_name, array_keys($HTTP_SESSION_VARS))) {
+        if (@!in_array($session_name, array_keys($_SESSION))) {
             return false;
         } else {
             return true;
@@ -1309,11 +1306,10 @@ class Auth
      */
     function isValidSession(&$session)
     {
-        global $HTTP_SERVER_VARS;
         if ((empty($session["username"])) || (empty($session["hash"])) 
                 || ($session["hash"] != md5($GLOBALS["private_key"] . md5($session["login_time"]) 
                         . $session["username"]))
-                || ($session['ipaddress'] != @$HTTP_SERVER_VARS['REMOTE_ADDR'])) {
+                || ($session['ipaddress'] != @$_SERVER['REMOTE_ADDR'])) {
             return false;
         } else {
 			return true;
@@ -1334,14 +1330,14 @@ class Auth
      */
     function createLoginSession($username, $fullname,  $email, $distinguishedname, $autologin = 0)
     {
-		global $HTTP_SERVER_VARS, $auth_bgp_session, $auth_isBGP;
+		global $auth_bgp_session, $auth_isBGP;
 
         if ($auth_isBGP) {
             $ses =& $auth_bgp_session;
         } else {
             $ses =& $_SESSION;
         }
-		$ipaddress = @$HTTP_SERVER_VARS['REMOTE_ADDR'];
+		$ipaddress = @$_SERVER['REMOTE_ADDR'];
         $time = time();
         $ses["username"] = $username;
         $ses["fullname"] = $fullname;
@@ -1445,9 +1441,8 @@ class Auth
         if (APP_DISABLE_PASSWORD_CHECKING == "true") {
             return true;
         } else {
-            global $HTTP_POST_VARS;
             if (empty($username)) {
-            	$username = $HTTP_POST_VARS["username"];
+            	$username = $_POST["username"];
             }
             if (Auth::userExists($username)) {
                 $userDetails = User::getDetails($username);
@@ -1851,7 +1846,7 @@ class Auth
 			Auth::GetUsersInternalGroups($usr_id);
             
         }
-        Auth::createLoginSession($username, $fullname, $email, $distinguishedname, @$HTTP_POST_VARS["remember_login"]);
+        Auth::createLoginSession($username, $fullname, $email, $distinguishedname, @$_POST["remember_login"]);
         // pre process authorisation rules matches for this user
         Auth::setAuthRulesUsers();
 		return 0;

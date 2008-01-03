@@ -100,12 +100,10 @@ class Net_URL {
     */
     function Net_URL($url = null)
     {
-        global $HTTP_SERVER_VARS;
-
         /**
         * Figure out host/port
         */
-        if (!empty($HTTP_SERVER_VARS['HTTP_HOST']) AND preg_match('/^(.*)(:([0-9]+))?$/U', $HTTP_SERVER_VARS['HTTP_HOST'], $matches)) {
+        if (!empty($_SERVER['HTTP_HOST']) AND preg_match('/^(.*)(:([0-9]+))?$/U', $_SERVER['HTTP_HOST'], $matches)) {
             $host = $matches[1];
             if (!empty($matches[3])) {
                 $port = $matches[3];
@@ -115,13 +113,13 @@ class Net_URL {
         }
 
         $this->url         = $url;
-        $this->protocol    = 'http' . (@$HTTP_SERVER_VARS['HTTPS'] == 'on' ? 's' : '');
+        $this->protocol    = 'http' . (@$_SERVER['HTTPS'] == 'on' ? 's' : '');
         $this->user        = '';
         $this->pass        = '';
-        $this->host        = !empty($host) ? $host : (isset($HTTP_SERVER_VARS['SERVER_NAME']) ? $HTTP_SERVER_VARS['SERVER_NAME'] : 'localhost');
-        $this->port        = !empty($port) ? $port : (isset($HTTP_SERVER_VARS['SERVER_PORT']) ? $HTTP_SERVER_VARS['SERVER_PORT'] : 80);
-        $this->path        = $HTTP_SERVER_VARS['PHP_SELF'];
-        $this->querystring = isset($HTTP_SERVER_VARS['QUERY_STRING']) ? $this->_parseRawQuerystring($HTTP_SERVER_VARS['QUERY_STRING']) : null;
+        $this->host        = !empty($host) ? $host : (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost');
+        $this->port        = !empty($port) ? $port : (isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : 80);
+        $this->path        = $_SERVER['PHP_SELF'];
+        $this->querystring = isset($_SERVER['QUERY_STRING']) ? $this->_parseRawQuerystring($_SERVER['QUERY_STRING']) : null;
         $this->anchor      = '';
 
         // Parse the uri and store the various parts

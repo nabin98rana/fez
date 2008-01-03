@@ -84,9 +84,7 @@ class WF_Behaviour
      */
     function remove()
     {
-        global $HTTP_POST_VARS;
-
-        $items = @implode(", ", $HTTP_POST_VARS["items"]);
+        $items = @implode(", ", $_POST["items"]);
         $stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "wfbehaviour
                  WHERE

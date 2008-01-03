@@ -71,22 +71,22 @@ $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
 if ($isSuperAdministrator) {
 
-$xdis_id = @$HTTP_POST_VARS["xdis_id"] ? $HTTP_POST_VARS["xdis_id"] : @$HTTP_GET_VARS["xdis_id"];
-$xsdsel_id = @$HTTP_POST_VARS["xsdsel_id"] ? $HTTP_POST_VARS["xsdsel_id"] : @$HTTP_GET_VARS["xsdsel_id"];
-$xsdsel_id_edit = @$HTTP_POST_VARS["xsdsel_id_edit"] ? $HTTP_POST_VARS["xsdsel_id_edit"] : @$HTTP_GET_VARS["xsdsel_id_edit"];
-$att_id_edit = @$HTTP_POST_VARS["att_id_edit"] ? $HTTP_POST_VARS["att_id_edit"] : @$HTTP_GET_VARS["att_id_edit"];
-$xml_element = @$HTTP_POST_VARS["xml_element"] ? $HTTP_POST_VARS["xml_element"] : @$HTTP_GET_VARS["xml_element"];
+$xdis_id = @$_POST["xdis_id"] ? $_POST["xdis_id"] : @$_GET["xdis_id"];
+$xsdsel_id = @$_POST["xsdsel_id"] ? $_POST["xsdsel_id"] : @$_GET["xsdsel_id"];
+$xsdsel_id_edit = @$_POST["xsdsel_id_edit"] ? $_POST["xsdsel_id_edit"] : @$_GET["xsdsel_id_edit"];
+$att_id_edit = @$_POST["att_id_edit"] ? $_POST["att_id_edit"] : @$_GET["att_id_edit"];
+$xml_element = @$_POST["xml_element"] ? $_POST["xml_element"] : @$_GET["xml_element"];
 $xml_element_clean = str_replace("!", " -> ", $xml_element);
 $xml_element_clean = str_replace("^", " ", $xml_element_clean);
 $xml_element_clean = substr($xml_element_clean, 4);
 
 $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
-	if (is_numeric(strpos(@$HTTP_POST_VARS["form_name"], "xsdmf"))) {
-		if (is_numeric(strpos(@$HTTP_POST_VARS["submit"], "Delete"))) {
+	if (is_numeric(strpos(@$_POST["form_name"], "xsdmf"))) {
+		if (is_numeric(strpos(@$_POST["submit"], "Delete"))) {
 			$form_cat = "delete";
 			$tpl->assign("cat", $form_cat);
 		} else { 
-			$form_cat = @$HTTP_POST_VARS["form_cat"];
+			$form_cat = @$_POST["form_cat"];
 		}
 	
 		if ($form_cat == "new") {
@@ -97,36 +97,36 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 			$tpl->assign("result", XSD_HTML_Match::remove($xdis_id, $xml_element));
 		}
 
-	} elseif (is_numeric(strpos(@$HTTP_POST_VARS["form_name"], "att_main"))) {
-		$form_cat = @$HTTP_POST_VARS["form_cat"];
+	} elseif (is_numeric(strpos(@$_POST["form_name"], "att_main"))) {
+		$form_cat = @$_POST["form_cat"];
 		$anchor = "#att_main";
 		if ($form_cat == "new") {
 			$tpl->assign("result", XSD_Display_Attach::insert());
 		}
 
-	} elseif (is_numeric(strpos(@$HTTP_POST_VARS["form_name"], "xsdrel_main"))) {
-		$form_cat = @$HTTP_POST_VARS["form_cat"];
+	} elseif (is_numeric(strpos(@$_POST["form_name"], "xsdrel_main"))) {
+		$form_cat = @$_POST["form_cat"];
 		$anchor = "#xsdrel_main";
 		if ($form_cat == "new") {
 			$tpl->assign("result", XSD_Relationship::insert());
 		}
-	} elseif (is_numeric(strpos(@$HTTP_POST_VARS["form_name"], "xsdsel_main"))) {
-		$form_cat = @$HTTP_POST_VARS["form_cat"];
+	} elseif (is_numeric(strpos(@$_POST["form_name"], "xsdsel_main"))) {
+		$form_cat = @$_POST["form_cat"];
 		$anchor = "#xsd_loop_subelement_form";
 		if ($form_cat == "new") {
 			$tpl->assign("result", XSD_Loop_Subelement::insert());
 		} elseif ($form_cat == "update") {
 			$tpl->assign("result", XSD_Loop_Subelement::update());		
 		}
-	} elseif (is_numeric(strpos(@$HTTP_POST_VARS["form_name"], "att_delete"))) {
+	} elseif (is_numeric(strpos(@$_POST["form_name"], "att_delete"))) {
 		$anchor = "#att_main";
 		$form_cat = "delete";
 		$tpl->assign("result", XSD_Display_Attach::remove());
-	} elseif (is_numeric(strpos(@$HTTP_POST_VARS["form_name"], "xsdrel_delete"))) {
+	} elseif (is_numeric(strpos(@$_POST["form_name"], "xsdrel_delete"))) {
 		$anchor = "#xsdrel_main";
 		$form_cat = "delete";
 		$tpl->assign("result", XSD_Relationship::remove());
-	} elseif (is_numeric(strpos(@$HTTP_POST_VARS["form_name"], "xsdsel_delete"))) {
+	} elseif (is_numeric(strpos(@$_POST["form_name"], "xsdsel_delete"))) {
 		$anchor = "#xsd_loop_subelement_form";
 		$form_cat = "delete";
 		$tpl->assign("result", XSD_Loop_Subelement::remove());
@@ -189,11 +189,11 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 		$xsd_display_att_list = XSD_Display_Attach::getListByXSDMF($info_array['xsdmf_id']);
 		$xsd_loop_subelement_list = XSD_Loop_Subelement::getListByXSDMF($info_array['xsdmf_id']);
 		$org_levels = Org_Structure::getAssocListLevels(); 
-		if ((is_numeric($att_id_edit)) && ($HTTP_GET_VARS['att_cat'] == "edit")) {
+		if ((is_numeric($att_id_edit)) && ($_GET['att_cat'] == "edit")) {
 			$xsd_attach_details = XSD_Display_Attach::getDetails($att_id_edit); // changed to xsdsel_id_edit for loops on loops - CK
 			$tpl->assign("xsd_attach_details", $xsd_attach_details);
 		}
-		if ((is_numeric($xsdsel_id_edit)) && ($HTTP_GET_VARS['xsdsel_cat'] == "edit")) {
+		if ((is_numeric($xsdsel_id_edit)) && ($_GET['xsdsel_cat'] == "edit")) {
 			$anchor = "#xsd_loop_subelement_form";
 			$xsd_loop_subelement_details = XSD_Loop_Subelement::getDetails($xsdsel_id_edit); // changed to xsdsel_id_edit for loops on loops - CK
 			$tpl->assign("xsd_loop_subelement_details", $xsd_loop_subelement_details);

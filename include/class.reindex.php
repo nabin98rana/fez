@@ -553,10 +553,8 @@ class Reindex
      */
     function indexFezFedoraObjects($params = array())
     {
-        global $HTTP_POST_VARS;
-
         if (empty($params)) {
-            $params = &$HTTP_POST_VARS;
+            $params = &$_POST;
         }
         $items = @$params["items"];
 		$xdis_id = @$params["xdis_id"];

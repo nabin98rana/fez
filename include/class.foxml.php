@@ -23,8 +23,8 @@ class Foxml
      * @return  void ($attrib_value and $indexArray passed by reference)
      */
     function handleTextInstance(&$attrib_value, &$indexArray, $pid, $parent_sel_id, $xdis_id, 
-            $xsdmf_id, $xsdmf_details, $xsdmf_details_ref, $attrib_loop_index, $element_prefix, $i, &$xmlObj, $tagIndent) {
-        global $HTTP_POST_VARS;
+            $xsdmf_id, $xsdmf_details, $xsdmf_details_ref, $attrib_loop_index, $element_prefix, $i, &$xmlObj, $tagIndent) 
+    {
 		$full_attached_attribute = "";
         // The attrib value is escaped for XML generically at the end of this function.  Use the following flag
         // if there is some special case for the escaping
@@ -33,22 +33,22 @@ class Foxml
         if ($xsdmf_details['xsdmf_html_input'] == 'xsdmf_id_ref') { 
             // value is a reference that we have to look up
             if (is_numeric($attrib_loop_index) 
-                    && (is_array(@$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details_ref['xsdmf_id']]))) {
+                    && (is_array(@$_POST['xsd_display_fields'][$xsdmf_details_ref['xsdmf_id']]))) {
                 // the value is one of many in an attribute loop
                 $attrib_value = Misc::addPrefix(
-                        $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details_ref['xsdmf_id']][$attrib_loop_index],
+                        $_POST['xsd_display_fields'][$xsdmf_details_ref['xsdmf_id']][$attrib_loop_index],
                         $xsdmf_details['xsdmf_value_prefix']);
                 array_push($indexArray, array($pid, $xsdmf_details_ref['xsdmf_indexed'], $xsdmf_id, 
                             $xdis_id, $parent_sel_id, $xsdmf_details_ref['xsdmf_data_type'], $attrib_value));
             } else {
                 // lookup the value
-                @$attrib_value = Misc::addPrefix($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details_ref['xsdmf_id']],
+                @$attrib_value = Misc::addPrefix($_POST['xsd_display_fields'][$xsdmf_details_ref['xsdmf_id']],
                         $xsdmf_details_ref['xsdmf_value_prefix']);
                 array_push($indexArray, array($pid, $xsdmf_details_ref['xsdmf_indexed'], $xsdmf_id, 
                             $xdis_id, $parent_sel_id, $xsdmf_details_ref['xsdmf_data_type'], $attrib_value));
             }
         } else {
-            if (is_numeric($attrib_loop_index) && (@is_array($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) 
+            if (is_numeric($attrib_loop_index) && (@is_array($_POST['xsd_display_fields'][$xsdmf_id])) 
                     && ($xsdmf_details['xsdmf_multiple'] == 1) && ($xsdmf_details['xsdsel_type'] == 'attributeloop')) {	
                 // multiple attribute loop
 					// attached matching fields						
@@ -59,7 +59,7 @@ class Foxml
 						$post_idx = 'xsd_display_fields_'.$xsdmf_details['xsdmf_attached_xsdmf_id']
 							.'_'.($attrib_loop_index);
 
-						$attached_value = @$HTTP_POST_VARS[$post_idx];
+						$attached_value = @$_POST[$post_idx];
 
 						if ( (is_numeric($attached_value) && ($attached_value != -1))
                              || (!is_numeric($attached_value) && !empty($attached_value)) ) {
@@ -82,12 +82,12 @@ class Foxml
 					} else { //otherwise it adds onto the current element
 
 					}
-					    $attrib_value = Misc::addPrefix($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id][$attrib_loop_index],
+					    $attrib_value = Misc::addPrefix($_POST['xsd_display_fields'][$xsdmf_id][$attrib_loop_index],
                         $xsdmf_details['xsdmf_value_prefix']);						
 		                array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, 
                         $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
 					
-/*					$multiple_element = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id][$attrib_loop_index];
+/*					$multiple_element = $_POST['xsd_display_fields'][$xsdmf_id][$attrib_loop_index];
 					if (!empty($multiple_element)) {
 						if ($attrib_value == "") {
 							$attrib_value = Misc::addPrefix($multiple_element,
@@ -111,22 +111,22 @@ class Foxml
 					
             } elseif ($xsdmf_details['xsdmf_multiple'] != 1) {
                 // simple single instance - just get the value
-//                $attrib_value = Misc::addPrefix(@$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id],
+//                $attrib_value = Misc::addPrefix(@$_POST['xsd_display_fields'][$xsdmf_id],
 //                        $xsdmf_details['xsdmf_value_prefix']);
-				$attrib_value = @$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id];
+				$attrib_value = @$_POST['xsd_display_fields'][$xsdmf_id];
                 array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], 
                             $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
             } elseif ($xsdmf_details['xsdmf_multiple'] == 1) {
                 // multiple input fields
-                if (@is_array($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) {
+                if (@is_array($_POST['xsd_display_fields'][$xsdmf_id])) {
                     $loop_count = 0;
-                    foreach ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] as $multiple_element) {
+                    foreach ($_POST['xsd_display_fields'][$xsdmf_id] as $multiple_element) {
                         // attached matching fields						
                         $full_attached_attribute = "";
                         if (is_numeric($xsdmf_details['xsdmf_attached_xsdmf_id'])) {
                             $post_idx = 'xsd_display_fields_'.$xsdmf_details['xsdmf_attached_xsdmf_id']
                                 .'_'.$loop_count;
-                            $attached_value = @$HTTP_POST_VARS[$post_idx];
+                            $attached_value = @$_POST[$post_idx];
                             // if it's numeric, then a -1 means we should drop it
                             // if it's not numeric but not empty then let it through
                             if ( (is_numeric($attached_value) && ($attached_value != -1))
@@ -267,16 +267,16 @@ class Foxml
      * @param   string $xmlObj The current xmlObj string as it currently stands
      * @return  void ($attrib_value and $indexArray passed by reference)
      */
-    function handleMultipleInstance(&$attrib_value, &$indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $xsdmf_details_ref = array(), $attrib_loop_index, $element_prefix, $i, $xmlObj, $tagIndent) {
-        global $HTTP_POST_VARS;
+    function handleMultipleInstance(&$attrib_value, &$indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $xsdmf_details_ref = array(), $attrib_loop_index, $element_prefix, $i, $xmlObj, $tagIndent) 
+    {
 //		if ($xsdmf_details['xsdmf_html_input'] == 'author_selector') {
 
 //		} else {
 			$loop_count = 0;
-			if (is_array(@$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) {
+			if (is_array(@$_POST['xsd_display_fields'][$xsdmf_id])) {
 
 //				echo "attrib_value = $attrib_value and XSDMF = $xsdmf_id AND ID REF = ".$xsdmf_details_ref['xsdmf_id']." AND attrib loop ID = ".$attrib_loop_index."<br />\n";
-				if ($xsdmf_details['xsdsel_type'] == 'attributeloop' && is_numeric($attrib_loop_index) && (@is_array($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) 
+				if ($xsdmf_details['xsdsel_type'] == 'attributeloop' && is_numeric($attrib_loop_index) && (@is_array($_POST['xsd_display_fields'][$xsdmf_id])) 
 							) {	
 //							echo "made it in for $xsdmf_id\n";
 /*					if (!is_numeric(strpos($i, ":"))) {
@@ -285,18 +285,18 @@ class Foxml
 						$attrib_value .= "</".$i.">\n";
 					} */
 					if ((($xsdmf_details['xsdmf_cvo_save_type'] == 1) && empty($xsdmf_details_ref)) || (($xsdmf_details_ref['xsdmf_cvo_save_type'] == 1) && !empty($xsdmf_details_ref))) {
-						$cv_title = Controlled_Vocab::getTitle($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id][$attrib_loop_index]);
+						$cv_title = Controlled_Vocab::getTitle($_POST['xsd_display_fields'][$xsdmf_id][$attrib_loop_index]);
 						$attrib_value = $cv_title;
 						$attrib_value = Misc::addPrefix($attrib_value,$xsdmf_details['xsdmf_value_prefix']);
 						array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));						
 					} else {
-						$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id][$attrib_loop_index];
+						$attrib_value = $_POST['xsd_display_fields'][$xsdmf_id][$attrib_loop_index];
 						$attrib_value = Misc::addPrefix($attrib_value,$xsdmf_details['xsdmf_value_prefix']);
 						array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
 //						echo $xmlObj."\n\n";
 					}
 				} else {
-					foreach ($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] as $multiple_element) {
+					foreach ($_POST['xsd_display_fields'][$xsdmf_id] as $multiple_element) {
 					  if (!empty($multiple_element)) {
 						if ($attrib_value == "") {
 							if ($xsdmf_details['xsdmf_smarty_variable'] == ""
@@ -407,8 +407,8 @@ class Foxml
      * @param   string $updated_date 	 	 
      * @return  string $xmlObj The xml object, plus the indexArray is passed back by reference
      */
-    function array_to_xml_instance($a, &$xmlObj="", $element_prefix, $sought_node_type="", $tagIndent="", $parent_sel_id="", $xdis_id, $pid, $top_xdis_id, $attrib_loop_index="", &$indexArray=array(), $file_downloads=0, $created_date, $updated_date, $depositor, $assign_usr_id=null, $assign_grp_id=null) {
-        global $HTTP_POST_VARS, $HTTP_POST_FILES; 
+    function array_to_xml_instance($a, &$xmlObj="", $element_prefix, $sought_node_type="", $tagIndent="", $parent_sel_id="", $xdis_id, $pid, $top_xdis_id, $attrib_loop_index="", &$indexArray=array(), $file_downloads=0, $created_date, $updated_date, $depositor, $assign_usr_id=null, $assign_grp_id=null) 
+    {
 //        $tagIndent .= "    ";	
 $tagIndent = "";
         // *** LOOP THROUGH THE XSD ARRAY
@@ -437,19 +437,19 @@ $tagIndent = "";
                                     array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
                                 } elseif ($xsdmf_details['xsdmf_html_input'] == 'combo') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple
 									if ($xsdmf_details['xsdmf_smarty_variable'] == "" && $xsdmf_details['xsdmf_use_parent_option_list'] == 0) {
-										$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]);
+										$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($_POST['xsd_display_fields'][$xsdmf_id]);
 									} elseif ($xsdmf_details['xsdmf_use_parent_option_list'] == 1) {
-										$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id];
+										$attrib_value = $_POST['xsd_display_fields'][$xsdmf_id];
 									} else {
-										if ($HTTP_POST_VARS['cat'] != 'update_security' && $xsdmf_details['xsdmf_cso_value'] == 'checked') { // special exception for non-security forms creation of fezacml 
+										if ($_POST['cat'] != 'update_security' && $xsdmf_details['xsdmf_cso_value'] == 'checked') { // special exception for non-security forms creation of fezacml 
 											$attrib_value = "on";
 										} else {
 											$attrib_value = "off";
 										}
 									}
-                                    array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])));
+                                    array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($_POST['xsd_display_fields'][$xsdmf_id])));
                                 } elseif ($xsdmf_details['xsdmf_html_input'] == 'checkbox') {
-									$checkbox_value = Misc::checkBox($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]);
+									$checkbox_value = Misc::checkBox($_POST['xsd_display_fields'][$xsdmf_id]);
 									if ($checkbox_value == 1) {
 										$attrib_value = "on";
 									} else {
@@ -467,20 +467,20 @@ $tagIndent = "";
                                         array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details_ref['xsdmf_data_type'], $attrib_value));
                                     } elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'combo') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple
 										if ($xsdmf_details_ref['xsdmf_smarty_variable'] == "" && $xsdmf_details_ref['xsdmf_use_parent_option_list'] == 0) {
-	                                        $attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']]);
+	                                        $attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($_POST['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']]);
 										} elseif ($xsdmf_details_ref['xsdmf_use_parent_option_list'] == 1) {
-											$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']];
+											$attrib_value = $_POST['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']];
 										} else {
-											$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']];
+											$attrib_value = $_POST['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']];
 										}
-//                                        $attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']]);
-                                        array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']])));									
+//                                        $attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($_POST['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']]);
+                                        array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($_POST['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']])));									
 	                                } elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'checkbox') {
-										$checkbox_value = Misc::checkBox($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']]);
+										$checkbox_value = Misc::checkBox($_POST['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']]);
 										if ($checkbox_value == 1) {
 											$attrib_value = "on";
 										} else {
-											if ($HTTP_POST_VARS['cat'] != 'update_security' && $xsdmf_details_ref['xsdmf_cso_value'] == 'checked') { // special exception for non-security forms creation of fezacml 
+											if ($_POST['cat'] != 'update_security' && $xsdmf_details_ref['xsdmf_cso_value'] == 'checked') { // special exception for non-security forms creation of fezacml 
 												$attrib_value = "on";
 											} else {
 												$attrib_value = "off";
@@ -497,13 +497,13 @@ $tagIndent = "";
                                     Foxml::handleStaticInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $attrib_loop_index, $element_prefix, $i, $created_date, $updated_date, $depositor, $file_downloads, $top_xdis_id, $assign_usr_id, $assign_grp_id);
                                 } elseif ($xsdmf_details['xsdmf_html_input'] == 'dynamic') {
 	//                                 eval("\$attrib_value = \$xsdmf_details['xsdmf_dynamic_text'];");
-                                    $attrib_value = Misc::addPrefix($HTTP_POST_VARS[$xsdmf_details['xsdmf_dynamic_text']], $xsdmf_details['xsdmf_value_prefix']);
+                                    $attrib_value = Misc::addPrefix($_POST[$xsdmf_details['xsdmf_dynamic_text']], $xsdmf_details['xsdmf_value_prefix']);
                                     array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
                                 } elseif ($xsdmf_details['xsdmf_html_input'] == 'text' || $xsdmf_details['xsdmf_html_input'] == 'textarea' || $xsdmf_details['xsdmf_html_input'] == 'hidden') {
                                     Foxml::handleTextInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $xsdmf_details_ref, $attrib_loop_index, $element_prefix, $i, $xmlObj, $tagIndent);
 //                                } elseif ($xsdmf_details['xsdmf_html_input'] == 'text') {									
-//                                    $attrib_value = $xsdmf_details['xsdmf_value_prefix'] . @$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id];
-//                                    array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_details['xsdmf_value_prefix'] . @$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]));
+//                                    $attrib_value = $xsdmf_details['xsdmf_value_prefix'] . @$_POST['xsd_display_fields'][$xsdmf_id];
+//                                    array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_details['xsdmf_value_prefix'] . @$_POST['xsd_display_fields'][$xsdmf_id]));
                                     //								Foxml::handleStaticInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $attrib_loop_index, $element_prefix, $i, $created_date, $updated_date, $file_downloads, $top_xdis_id);
                                 }
 //                                if (XSD_HTML_Match::isAttachedXSDMF($xsdmf_details['xsdmf_id']) != true) { // attached matching  //uncommented this if statement because its not what we want - CK 18/8/06
@@ -533,9 +533,9 @@ $tagIndent = "";
                                         	if (is_numeric($sel_record['xsdsel_attribute_loop_xsdmf_id']) && ($sel_record['xsdsel_attribute_loop_xsdmf_id'] != 0)) {
                                             	$attrib_loop_details = XSD_HTML_Match::getDetailsByXSDMF_ID($sel_record['xsdsel_attribute_loop_xsdmf_id']);
 	                                            if ($attrib_loop_details['xsdmf_html_input'] == "file_input") {
-    	                                            $attrib_loop_child = @$HTTP_POST_FILES['xsd_display_fields']["name"][$sel_record['xsdsel_attribute_loop_xsdmf_id']];
+    	                                            $attrib_loop_child = @$_FILES['xsd_display_fields']["name"][$sel_record['xsdsel_attribute_loop_xsdmf_id']];
 	                                            } else {
-    	                                            $attrib_loop_child = @$HTTP_POST_VARS['xsd_display_fields'][$sel_record['xsdsel_attribute_loop_xsdmf_id']];
+    	                                            $attrib_loop_child = @$_POST['xsd_display_fields'][$sel_record['xsdsel_attribute_loop_xsdmf_id']];
 	                                            }
                                             } else {
 												$attrib_loop_child = "";
@@ -555,10 +555,10 @@ $tagIndent = "";
                                             if (
                                             ($sel_record['xsdsel_type'] == 'hardset')
                                             || ((@$attrib_loop_details['xsdmf_html_input'] != "file_input") && (@$attrib_loop_details['xsdmf_html_input'] != "text"))
-                                            || (is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "file_input") && ($HTTP_POST_FILES['xsd_display_fields']["name"][$sel_record['xsdsel_attribute_loop_xsdmf_id']][$x] != ""))
-                                            || (!is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "file_input") && (!empty($HTTP_POST_FILES['xsd_display_fields']["name"][$sel_record['xsdsel_attribute_loop_xsdmf_id']])))
-                                            || (is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "text") && (!empty($HTTP_POST_VARS['xsd_display_fields'][$sel_record['xsdsel_attribute_loop_xsdmf_id']][$x])))
-                                            || (!is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "text") && (!empty($HTTP_POST_VARS['xsd_display_fields'][$sel_record['xsdsel_attribute_loop_xsdmf_id']])))
+                                            || (is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "file_input") && ($_FILES['xsd_display_fields']["name"][$sel_record['xsdsel_attribute_loop_xsdmf_id']][$x] != ""))
+                                            || (!is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "file_input") && (!empty($_FILES['xsd_display_fields']["name"][$sel_record['xsdsel_attribute_loop_xsdmf_id']])))
+                                            || (is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "text") && (!empty($_POST['xsd_display_fields'][$sel_record['xsdsel_attribute_loop_xsdmf_id']][$x])))
+                                            || (!is_array($attrib_loop_child) && ($attrib_loop_details['xsdmf_html_input'] == "text") && (!empty($_POST['xsd_display_fields'][$sel_record['xsdsel_attribute_loop_xsdmf_id']])))
                                                ) {
                     							list($xmlObj, $sub_xsdmf_id, $sub_xsdmf_details, $sub_element_prefix) = Foxml::outputElementValue($i, $j, $xmlObj, $element_prefix, $sought_node_type, $tagIndent, $sel_record['xsdsel_id'], $xdis_id, $pid, $top_xdis_id, $x, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
                     							
@@ -653,7 +653,6 @@ $tagIndent = "";
     
     function outputElementValue($i, $j, &$xmlObj, $element_prefix, $sought_node_type, $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, $attrib_loop_index, &$indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id)
     {
-		global $HTTP_POST_VARS, $HTTP_POST_FILES;
 		$xsdmf_details = array();
                         if (is_numeric($parent_sel_id)) { 
                             $xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_ID(urldecode($j['fez_hyperlink']), $parent_sel_id, $xdis_id);
@@ -672,7 +671,7 @@ $tagIndent = "";
 							$full_attached_attribute = "";
 							if (is_numeric($xsdmf_details['xsdmf_attached_xsdmf_id'])) {
 								$loop_count = 0; 
-								$attached_value = @$HTTP_POST_VARS['xsd_display_fields_'.$xsdmf_details['xsdmf_attached_xsdmf_id'].'_'.$loop_count];
+								$attached_value = @$_POST['xsd_display_fields_'.$xsdmf_details['xsdmf_attached_xsdmf_id'].'_'.$loop_count];
 								if ( (is_numeric($attached_value) && ($attached_value != -1)) 
                                      || (!is_numeric($attached_value) && !empty($attached_value)) ) {
                                 
@@ -707,19 +706,19 @@ $tagIndent = "";
                                 array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
                             } elseif ($xsdmf_details['xsdmf_html_input'] == 'combo') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple
 								if ($xsdmf_details['xsdmf_smarty_variable'] == "" && $xsdmf_details['xsdmf_use_parent_option_list'] == 0) {
-									$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID(@$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]);
+									$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID(@$_POST['xsd_display_fields'][$xsdmf_id]);
 								} elseif ($xsdmf_details['xsdmf_use_parent_option_list'] == 1) {
-									$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id];
+									$attrib_value = $_POST['xsd_display_fields'][$xsdmf_id];
 								} else {
-									$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id];
+									$attrib_value = $_POST['xsd_display_fields'][$xsdmf_id];
 								}
                                 array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));									
                             } elseif ($xsdmf_details['xsdmf_html_input'] == 'checkbox') {
-									$checkbox_value = Misc::checkBox($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]);
+									$checkbox_value = Misc::checkBox($_POST['xsd_display_fields'][$xsdmf_id]);
 									if ($checkbox_value == 1) {
 										$attrib_value = "on";
 									} else {
-										if ($HTTP_POST_VARS['cat'] != 'update_security' && $xsdmf_details['xsdmf_cso_value'] == 'checked') { // special exception for non-security forms creation of fezacml 
+										if ($_POST['cat'] != 'update_security' && $xsdmf_details['xsdmf_cso_value'] == 'checked') { // special exception for non-security forms creation of fezacml 
 											$attrib_value = "on";
 										} else {
 											$attrib_value = "off";
@@ -727,7 +726,7 @@ $tagIndent = "";
 									} 
                             } elseif ($xsdmf_details['xsdmf_html_input'] == 'contvocab' || $xsdmf_details['xsdmf_html_input'] == 'contvocab_selector') {							
                                 Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, array(), $attrib_loop_index, $element_prefix, $i, $xmlObj, $tagIndent);
-                            } elseif ($xsdmf_details['xsdmf_html_input'] == 'multiple' && isset($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id])) {
+                            } elseif ($xsdmf_details['xsdmf_html_input'] == 'multiple' && isset($_POST['xsd_display_fields'][$xsdmf_id])) {
                                 Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, array(), $attrib_loop_index, $element_prefix, $i, $xmlObj, $tagIndent);
                             } elseif ($xsdmf_details['xsdmf_html_input'] == 'xsdmf_id_ref') { // this assumes the xsdmf_id_ref will only refer to an xsdmf_id which is a text/textarea/combo/multiple, will have to modify if we need more
                                 $xsdmf_details_ref = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_details['xsdmf_id_ref']);
@@ -737,24 +736,24 @@ $tagIndent = "";
                                     array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details_ref['xsdmf_data_type'], $attrib_value));
                                 } elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'combo') { // Combo boxes only allow for one choice so don't have to go through the pain of the multiple
 									if ($xsdmf_details_ref['xsdmf_smarty_variable'] == "" && $xsdmf_details_ref['xsdmf_use_parent_option_list'] == 0) {
-										$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']]);
+										$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID($_POST['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']]);
 									} elseif ($xsdmf_details['xsdmf_use_parent_option_list'] == 1) {
 /*										$parent_option_xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_details['xsdmf_parent_option_xsdmf_id']);
 										if ($parent_option_xsdmf_details['xsdmf_html_input'] == 'text') {
-											$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']];
+											$attrib_value = $_POST['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']];
 										} */
-										$attrib_value = $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']];
+										$attrib_value = $_POST['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']];
 									}
-									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details_ref['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']])));
+									array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details_ref['xsdmf_data_type'], XSD_HTML_Match::getOptionValueByMFO_ID($_POST['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']])));
                                 } elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'checkbox') {
-									$checkbox_value = Misc::checkBox($HTTP_POST_VARS['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']]);
+									$checkbox_value = Misc::checkBox($_POST['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']]);
 									if ($checkbox_value == 1) {
 										$attrib_value = "on";
 									} else {
-										if ($HTTP_POST_VARS['cat'] != 'update_security' && $xsdmf_details_ref['xsdmf_cso_value'] == 'checked') { // special exception for non-security forms creation of fezacml 
+										if ($_POST['cat'] != 'update_security' && $xsdmf_details_ref['xsdmf_cso_value'] == 'checked') { // special exception for non-security forms creation of fezacml 
 											$attrib_value = "on";
 										} else {
-											if ($HTTP_POST_VARS['cat'] != 'update_security' && $xsdmf_details['xsdmf_cso_value'] == 'checked') { // special exception for non-security forms creation of fezacml 
+											if ($_POST['cat'] != 'update_security' && $xsdmf_details['xsdmf_cso_value'] == 'checked') { // special exception for non-security forms creation of fezacml 
 												$attrib_value = "on";
 											} else {
 												$attrib_value = "off";
@@ -767,22 +766,22 @@ $tagIndent = "";
                                 } elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'file_input' || $xsdmf_details_ref['xsdmf_html_input'] == 'file_selector') {
                                     // check for file upload error
                                     if (is_numeric($attrib_loop_index) 
-                                        && is_array($HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']])
-                                        && $HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']][$attrib_loop_index] > 0) {
-                                        $fu_name = $HTTP_POST_FILES["xsd_display_fields"]["name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index];
-                                        $fu_error = $HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']][$attrib_loop_index];
+                                        && is_array($_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']])
+                                        && $_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']][$attrib_loop_index] > 0) {
+                                        $fu_name = $_FILES["xsd_display_fields"]["name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index];
+                                        $fu_error = $_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']][$attrib_loop_index];
                                         Session::setMessage("File upload failed, file: ".$fu_name.", Error: ".Misc::fileUploadErr($fu_error));
                                     } elseif (!is_numeric($attrib_loop_index) 
-                                        && !is_array($HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']])
-                                        && $HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']] > 0) {
-                                        $fu_name = $HTTP_POST_FILES["xsd_display_fields"]["name"][$xsdmf_details['xsdmf_id']];
-                                        $fu_error = $HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']];
+                                        && !is_array($_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']])
+                                        && $_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']] > 0) {
+                                        $fu_name = $_FILES["xsd_display_fields"]["name"][$xsdmf_details['xsdmf_id']];
+                                        $fu_error = $_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']];
                                         Session::setMessage("File upload failed, file: ".$fu_name.", Error: ".Misc::fileUploadErr($fu_error));
                                     } else {
-                                        if (is_numeric($attrib_loop_index) && is_array($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']])) {
-                                            $attrib_value = (fread(fopen($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index], "r"), $HTTP_POST_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']][$attrib_loop_index]));
+                                        if (is_numeric($attrib_loop_index) && is_array($_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']])) {
+                                            $attrib_value = (fread(fopen($_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index], "r"), $_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']][$attrib_loop_index]));
                                         } else {
-                                            $attrib_value = (fread(fopen($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']], "r"), $HTTP_POST_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']]));													
+                                            $attrib_value = (fread(fopen($_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']], "r"), $_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']]));													
                                         }
                                     }
                                 } elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'text' || $xsdmf_details_ref['xsdmf_html_input'] == 'textarea' || $xsdmf_details_ref['xsdmf_html_input'] == 'hidden') {
@@ -793,36 +792,36 @@ $tagIndent = "";
                                 Foxml::handleStaticInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $attrib_loop_index, $element_prefix, $i, $created_date, $updated_date, $depositor, $file_downloads, $top_xdis_id, $assign_usr_id, $assign_grp_id);
                             } elseif ($xsdmf_details['xsdmf_html_input'] == 'dynamic') {
     //                            eval("\$attrib_value = \$xsdmf_details['xsdmf_dynamic_text'];");
-	                            $attrib_value = Misc::addPrefix($HTTP_POST_VARS[$xsdmf_details['xsdmf_dynamic_text']], $xsdmf_details['xsdmf_value_prefix']);
+	                            $attrib_value = Misc::addPrefix($_POST[$xsdmf_details['xsdmf_dynamic_text']], $xsdmf_details['xsdmf_value_prefix']);
                                 array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
-                            } elseif (($xsdmf_details['xsdmf_html_input'] == 'file_input' || $xsdmf_details['xsdmf_html_input'] == 'file_selector') && !empty($HTTP_POST_FILES["xsd_display_fields"]["name"][$xsdmf_details['xsdmf_id']])) {
+                            } elseif (($xsdmf_details['xsdmf_html_input'] == 'file_input' || $xsdmf_details['xsdmf_html_input'] == 'file_selector') && !empty($_FILES["xsd_display_fields"]["name"][$xsdmf_details['xsdmf_id']])) {
                                     if (is_numeric($attrib_loop_index) 
-                                        && is_array($HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']])
-                                        && $HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']][$attrib_loop_index] > 0) {
-                                        $fu_name = $HTTP_POST_FILES["xsd_display_fields"]["name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index];
-                                        $fu_error = $HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']][$attrib_loop_index];
+                                        && is_array($_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']])
+                                        && $_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']][$attrib_loop_index] > 0) {
+                                        $fu_name = $_FILES["xsd_display_fields"]["name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index];
+                                        $fu_error = $_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']][$attrib_loop_index];
                                         Session::setMessage("File upload failed, file: ".$fu_name.", Error: ".Misc::fileUploadErr($fu_error));
                                     } elseif (!is_numeric($attrib_loop_index) 
-                                        && !is_array($HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']])
-                                        && $HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']] > 0) {
-                                        $fu_name = $HTTP_POST_FILES["xsd_display_fields"]["name"][$xsdmf_details['xsdmf_id']];
-                                        $fu_error = $HTTP_POST_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']];
+                                        && !is_array($_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']])
+                                        && $_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']] > 0) {
+                                        $fu_name = $_FILES["xsd_display_fields"]["name"][$xsdmf_details['xsdmf_id']];
+                                        $fu_error = $_FILES["xsd_display_fields"]["error"][$xsdmf_details['xsdmf_id']];
                                         Session::setMessage("File upload failed, file: ".$fu_name.", Error: ".Misc::fileUploadErr($fu_error));
                                     } else {
-                                        if (is_numeric($attrib_loop_index) && is_array($HTTP_POST_FILES["xsd_display_fields"]["name"][$xsdmf_details['xsdmf_id']])) {
-                                            if (!empty($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index])) {
-                                                $attrib_value = (fread(fopen($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index], "r"), $HTTP_POST_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']][$attrib_loop_index]));
+                                        if (is_numeric($attrib_loop_index) && is_array($_FILES["xsd_display_fields"]["name"][$xsdmf_details['xsdmf_id']])) {
+                                            if (!empty($_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index])) {
+                                                $attrib_value = (fread(fopen($_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index], "r"), $_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']][$attrib_loop_index]));
                                             }										
                                         } else {
-                                            $attrib_value = (fread(fopen($HTTP_POST_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']], "r"), $HTTP_POST_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']]));													
+                                            $attrib_value = (fread(fopen($_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']], "r"), $_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']]));													
                                         }
                                     }
                             } elseif ($xsdmf_details['xsdmf_html_input'] == 'text' || $xsdmf_details['xsdmf_html_input'] == 'textarea' || $xsdmf_details['xsdmf_html_input'] == 'hidden') {			
 //                                $xsdmf_details_ref = array();
                                 Foxml::handleTextInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $xsdmf_details_ref, $attrib_loop_index, $element_prefix, $i, $xmlObj, $tagIndent);
                             } else { // not necessary in this side
-                                $attrib_value = Misc::addPrefix(@$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id], $xsdmf_details['xsdmf_value_prefix']);
-                                array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], @$HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id]));
+                                $attrib_value = Misc::addPrefix(@$_POST['xsd_display_fields'][$xsdmf_id], $xsdmf_details['xsdmf_value_prefix']);
+                                array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], @$_POST['xsd_display_fields'][$xsdmf_id]));
                             }
 							if (trim($attrib_value) != "") { 
 								$xmlObj .= $attrib_value; // The actual value to store inside the element tags, if one exists									

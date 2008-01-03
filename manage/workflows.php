@@ -57,16 +57,16 @@ if (!$isSuperAdministrator) {
     $tpl->assign("show_not_allowed_msg", true);
 }
 
-if (@$HTTP_POST_VARS["cat"] == "new") {
+if (@$_POST["cat"] == "new") {
     $tpl->assign("result", Workflow::insert());
-} elseif (@$HTTP_POST_VARS["cat"] == "update") {
-    $tpl->assign("result", Workflow::update($HTTP_POST_VARS["id"]));
-} elseif (@$HTTP_POST_VARS["cat"] == "delete") {
+} elseif (@$_POST["cat"] == "update") {
+    $tpl->assign("result", Workflow::update($_POST["id"]));
+} elseif (@$_POST["cat"] == "delete") {
     Workflow::remove();
 }
 
-if (@$HTTP_GET_VARS["cat"] == "edit") {
-    $tpl->assign("info", Workflow::getDetails($HTTP_GET_VARS["id"]));
+if (@$_GET["cat"] == "edit") {
+    $tpl->assign("info", Workflow::getDetails($_GET["id"]));
 }
 $tpl->assign("auth_role_options", Auth::getAssocRoleIDs());
 $tpl->assign("list", Workflow::getList());

@@ -69,17 +69,17 @@ $tpl->assign("options", $options);
 
 
 if ($isAdministrator) {
-    if (@$HTTP_POST_VARS["cat"] == "new") {
+    if (@$_POST["cat"] == "new") {
         $tpl->assign("result", Author::insert());
-    } elseif (@$HTTP_POST_VARS["cat"] == "update") {
+    } elseif (@$_POST["cat"] == "update") {
         $tpl->assign("result", Author::update());
-    } elseif (@$HTTP_POST_VARS["cat"] == "delete") {
+    } elseif (@$_POST["cat"] == "delete") {
         Author::remove();
     }
-    if (@$HTTP_GET_VARS["cat"] == "edit") {
-        $tpl->assign("info", Author::getDetails($HTTP_GET_VARS["id"]));
+    if (@$_GET["cat"] == "edit") {
+        $tpl->assign("info", Author::getDetails($_GET["id"]));
     }
-	if (@$HTTP_GET_VARS["cat"] == "search") {
+	if (@$_GET["cat"] == "search") {
 		$filter = Pager::getParam('search_filter',$params);
 		$tpl->assign("search_filter", $filter);
 		$author_list = Author::getList($pagerRow, $rows, 'aut_lname', $filter);		

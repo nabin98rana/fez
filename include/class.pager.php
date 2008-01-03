@@ -56,9 +56,8 @@ class Pager
      */
     function getCookieParams()
     {
-        global $HTTP_COOKIE_VARS;
         if (empty(self::$cookie)) {
-			$return = @unserialize(base64_decode($HTTP_COOKIE_VARS[APP_LIST_COOKIE]));
+			$return = @unserialize(base64_decode($_COOKIE[APP_LIST_COOKIE]));
 			self::$cookie = $return;
 		}
         return self::$cookie;
@@ -73,15 +72,14 @@ class Pager
      */
     function getParam($name, $params=array())
     {
-        global $HTTP_POST_VARS, $HTTP_GET_VARS;
         $cookie = Pager::getCookieParams();
         $result = '';
         if (isset($params[$name])) {
              $result =  $params[$name];
-        } elseif (isset($HTTP_GET_VARS[$name])) {
-             $result =  $HTTP_GET_VARS[$name];
-        } elseif (isset($HTTP_POST_VARS[$name])) {
-             $result =  $HTTP_POST_VARS[$name];
+        } elseif (isset($_GET[$name])) {
+             $result =  $_GET[$name];
+        } elseif (isset($_POST[$name])) {
+             $result =  $_POST[$name];
         } elseif (isset($cookie[$name])) {
              $result =  $cookie[$name];
         }
@@ -252,11 +250,9 @@ class Pager
      */
     function _buildQueryString()
     {
-        global $HTTP_GET_VARS;
-
         $query_str = "";
         // gotta check manually here
-        $params = $HTTP_GET_VARS;
+        $params = $_GET;
         while (list($key, $value) = each($params)) {
             if ($key != "pagerRow") {
                 $query_str .= "&" . $key . "=" . urlencode($value);
@@ -281,8 +277,6 @@ class Pager
      */
     function getLinks($row, $total_rows, $per_page, $show_links = "all", $show_blank = "off", $link_str = -1)
     {
-        global $HTTP_SERVER_VARS;
-
         // check for emptyness
         if ((empty($total_rows)) || (empty($per_page))) {
             return array();
@@ -301,7 +295,7 @@ class Pager
             }
         }
         $extra_vars = Pager::_buildQueryString();
-        $file = $HTTP_SERVER_VARS["SCRIPT_NAME"];
+        $file = $_SERVER["SCRIPT_NAME"];
         $number_of_pages = ceil($total_rows / $per_page);
         $subscript = 0;
         for ($current = 0; $current < $number_of_pages; $current++) {

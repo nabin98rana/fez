@@ -256,9 +256,7 @@ class XSD_Loop_Subelement
      */
     function remove()
     {
-		global $HTTP_POST_VARS;
-
-        $items = @implode(", ", $HTTP_POST_VARS["items"]);
+        $items = @implode(", ", $_POST["items"]);
 
         $stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "xsd_loop_subelement
@@ -288,24 +286,22 @@ class XSD_Loop_Subelement
      */
     function insert()
     {
-        global $HTTP_POST_VARS;
-
         $stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "xsd_loop_subelement
                  (
                     xsdsel_xsdmf_id,
                     xsdsel_title,
                     xsdsel_type,";
-			if (is_numeric($HTTP_POST_VARS["xsdsel_attribute_loop_xdis_id"])) {
+			if (is_numeric($_POST["xsdsel_attribute_loop_xdis_id"])) {
                 $stmt .= "xsdsel_attribute_loop_xdis_id,";
 			}
-			if (is_numeric($HTTP_POST_VARS["xsdsel_attribute_loop_xsdmf_id"])) {
+			if (is_numeric($_POST["xsdsel_attribute_loop_xsdmf_id"])) {
                 $stmt .= "xsdsel_attribute_loop_xsdmf_id,";
 			}
-			if (is_numeric($HTTP_POST_VARS["xsdsel_indicator_xdis_id"])) {
+			if (is_numeric($_POST["xsdsel_indicator_xdis_id"])) {
                 $stmt .= "xsdsel_indicator_xdis_id,";
 			}
-			if (is_numeric($HTTP_POST_VARS["xsdsel_indicator_xsdmf_id"])) {
+			if (is_numeric($_POST["xsdsel_indicator_xsdmf_id"])) {
                 $stmt .= "xsdsel_indicator_xsdmf_id,";
 			}
 	        $stmt .= "xsdsel_indicator_value,";
@@ -314,26 +310,26 @@ class XSD_Loop_Subelement
 				$stmt .="
 					xsdsel_order
                  ) VALUES (
-                    " . Misc::escapeString($HTTP_POST_VARS["xsdsel_xsdmf_id"]) . ",
-                    '" . Misc::escapeString($HTTP_POST_VARS["xsdsel_title"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["xsdsel_type"]) . "',";
-			if (is_numeric($HTTP_POST_VARS["xsdsel_attribute_loop_xdis_id"])) {
-               $stmt .=  Misc::escapeString($HTTP_POST_VARS["xsdsel_attribute_loop_xdis_id"]) . ",";
+                    " . Misc::escapeString($_POST["xsdsel_xsdmf_id"]) . ",
+                    '" . Misc::escapeString($_POST["xsdsel_title"]) . "',
+                    '" . Misc::escapeString($_POST["xsdsel_type"]) . "',";
+			if (is_numeric($_POST["xsdsel_attribute_loop_xdis_id"])) {
+               $stmt .=  Misc::escapeString($_POST["xsdsel_attribute_loop_xdis_id"]) . ",";
 			}
-			if (is_numeric($HTTP_POST_VARS["xsdsel_attribute_loop_xsdmf_id"])) {
-               $stmt .=  Misc::escapeString($HTTP_POST_VARS["xsdsel_attribute_loop_xsdmf_id"]) . ",";
+			if (is_numeric($_POST["xsdsel_attribute_loop_xsdmf_id"])) {
+               $stmt .=  Misc::escapeString($_POST["xsdsel_attribute_loop_xsdmf_id"]) . ",";
 			}
-			if (is_numeric($HTTP_POST_VARS["xsdsel_indicator_xdis_id"])) {
-               $stmt .=  Misc::escapeString($HTTP_POST_VARS["xsdsel_indicator_xdis_id"]) . ",";
+			if (is_numeric($_POST["xsdsel_indicator_xdis_id"])) {
+               $stmt .=  Misc::escapeString($_POST["xsdsel_indicator_xdis_id"]) . ",";
 			}
-			if (is_numeric($HTTP_POST_VARS["xsdsel_indicator_xsdmf_id"])) {
-               $stmt .=  Misc::escapeString($HTTP_POST_VARS["xsdsel_indicator_xsdmf_id"]) . ",";
+			if (is_numeric($_POST["xsdsel_indicator_xsdmf_id"])) {
+               $stmt .=  Misc::escapeString($_POST["xsdsel_indicator_xsdmf_id"]) . ",";
 			}
                $stmt .=
-                    "'".Misc::escapeString($HTTP_POST_VARS["xsdsel_indicator_value"]) . "',";
+                    "'".Misc::escapeString($_POST["xsdsel_indicator_value"]) . "',";
 
                $stmt .=
-                    Misc::escapeString($HTTP_POST_VARS["xsdsel_order"]) . "
+                    Misc::escapeString($_POST["xsdsel_order"]) . "
                  )";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -352,8 +348,6 @@ class XSD_Loop_Subelement
      */
     function insertFromArray($xsdmf_id, $insertArray)
     {
-        global $HTTP_POST_VARS;
-
         $stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "xsd_loop_subelement
                  (

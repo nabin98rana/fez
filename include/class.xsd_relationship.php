@@ -170,9 +170,7 @@ class XSD_Relationship
      */
     function remove()
     {
-		global $HTTP_POST_VARS;
-
-        $items = @implode(", ", $HTTP_POST_VARS["items"]);
+        $items = @implode(", ", $_POST["items"]);
 
         $stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "xsd_relationship
@@ -197,8 +195,6 @@ class XSD_Relationship
      */
     function insert()
     {
-        global $HTTP_POST_VARS;
-
         $stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "xsd_relationship
                  (
@@ -206,9 +202,9 @@ class XSD_Relationship
                     xsdrel_xdis_id,
 					xsdrel_order
                  ) VALUES (
-                    " . Misc::escapeString($HTTP_POST_VARS["xsdrel_xsdmf_id"]) . ",
-                    " . Misc::escapeString($HTTP_POST_VARS["xsd_display_id"]) . ",
-                    " . Misc::escapeString($HTTP_POST_VARS["xsdrel_order"]) . "
+                    " . Misc::escapeString($_POST["xsdrel_xsdmf_id"]) . ",
+                    " . Misc::escapeString($_POST["xsd_display_id"]) . ",
+                    " . Misc::escapeString($_POST["xsdrel_order"]) . "
                  )";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -229,8 +225,6 @@ class XSD_Relationship
      */
     function insertFromArray($xsdmf_id, $insertArray)
     {
-        global $HTTP_POST_VARS;
-
         $stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "xsd_relationship
                  (

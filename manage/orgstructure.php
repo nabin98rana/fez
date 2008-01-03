@@ -44,7 +44,7 @@ $tpl->setTemplate("manage/index.tpl.html");
 Auth::checkAuthentication(APP_SESSION);
 
 $tpl->assign("type", "orgstructure");
-$parent_id = @$HTTP_POST_VARS["parent_id"] ? $HTTP_POST_VARS["parent_id"] : @$HTTP_GET_VARS["parent_id"];	
+$parent_id = @$_POST["parent_id"] ? $_POST["parent_id"] : @$_GET["parent_id"];	
 //$parents = Org_Structure::getParentAssocListFullDisplay($parent_id);
 	$org_id = $parent_id;
 	$max_breadcrumb = "";
@@ -72,16 +72,16 @@ $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
 if ($isAdministrator) {
   
-    if (@$HTTP_POST_VARS["cat"] == "new") {
+    if (@$_POST["cat"] == "new") {
         $tpl->assign("result", Org_Structure::insert());
-    } elseif (@$HTTP_POST_VARS["cat"] == "update") {
-        $tpl->assign("result", Org_Structure::update($HTTP_POST_VARS["id"]));
-    } elseif (@$HTTP_POST_VARS["cat"] == "delete") {
+    } elseif (@$_POST["cat"] == "update") {
+        $tpl->assign("result", Org_Structure::update($_POST["id"]));
+    } elseif (@$_POST["cat"] == "delete") {
         Org_Structure::remove();
     }
 
-    if (@$HTTP_GET_VARS["cat"] == "edit") {
-        $tpl->assign("info", Org_Structure::getDetails($HTTP_GET_VARS["id"]));
+    if (@$_GET["cat"] == "edit") {
+        $tpl->assign("info", Org_Structure::getDetails($_GET["id"]));
     }
 //    $tpl->assign("parents", $parents); // for the parents about the very first one
 	if (is_numeric($parent_id)) {

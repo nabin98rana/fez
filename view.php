@@ -48,7 +48,7 @@ include_once(APP_INC_PATH . "class.fedora_api.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("view.tpl.html");
-$pid = @$HTTP_POST_VARS["pid"] ? $HTTP_POST_VARS["pid"] : $HTTP_GET_VARS["pid"];
+$pid = @$_POST["pid"] ? $_POST["pid"] : $_GET["pid"];
 
 $show_tombstone = true;  // tell view2.php to show the tombstone if the record has a deleted fedora status
 

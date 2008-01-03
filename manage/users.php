@@ -69,21 +69,21 @@ $tpl->assign("options", $options);
 
 if ($isAdministrator) {
 
-    if (@$HTTP_POST_VARS["cat"] == "new") {
+    if (@$_POST["cat"] == "new") {
         $tpl->assign("result", User::insert());
-    } elseif (@$HTTP_POST_VARS["cat"] == "update") {
+    } elseif (@$_POST["cat"] == "update") {
         $tpl->assign("result", User::update($isSuperAdministrator));
-    } elseif (@$HTTP_POST_VARS["cat"] == "change_status" && empty($HTTP_POST_VARS["delete"])) {
+    } elseif (@$_POST["cat"] == "change_status" && empty($_POST["delete"])) {
         User::changeStatus();
-    } elseif (!empty($HTTP_POST_VARS["delete"])) {
+    } elseif (!empty($_POST["delete"])) {
         User::remove();
     }
 
-    if (@$HTTP_GET_VARS["cat"] == "edit") {
-        $tpl->assign("info", User::getDetailsByID($HTTP_GET_VARS["id"]));
+    if (@$_GET["cat"] == "edit") {
+        $tpl->assign("info", User::getDetailsByID($_GET["id"]));
     }
 
-	if (@$HTTP_GET_VARS["cat"] == "search") {
+	if (@$_GET["cat"] == "search") {
 		$filter = Pager::getParam('search_filter',$params);
 		$tpl->assign("search_filter", $filter);
 		$user_list = User::getList($pagerRow, $rows, 'usr_full_name', $filter);		

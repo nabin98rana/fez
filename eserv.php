@@ -42,9 +42,9 @@ include_once(APP_INC_PATH . "class.misc.php");
 $username = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($username);
 
-$stream = @$HTTP_POST_VARS["stream"] ? $HTTP_POST_VARS["stream"] : $HTTP_GET_VARS["stream"];
-$pid = @$HTTP_POST_VARS["pid"] ? $HTTP_POST_VARS["pid"] : $HTTP_GET_VARS["pid"];
-$dsID = @$HTTP_POST_VARS["dsID"] ? $HTTP_POST_VARS["dsID"] : $HTTP_GET_VARS["dsID"];
+$stream = @$_POST["stream"] ? $_POST["stream"] : $_GET["stream"];
+$pid = @$_POST["pid"] ? $_POST["pid"] : $_GET["pid"];
+$dsID = @$_POST["dsID"] ? $_POST["dsID"] : $_GET["dsID"];
 
 if ( (is_numeric(strpos($pid, ".."))) && (is_numeric(strpos($dsID, "..")))) { 
 	die; 
@@ -121,7 +121,7 @@ if (!empty($pid) && !empty($dsID)) {
 				break;
 		case 'flv'  :
 				if ($stream == 1) {
-					if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $HTTP_SERVER_VARS['PHP_SELF']."?".urlencode($HTTP_SERVER_VARS['QUERY_STRING'])) == true) {
+					if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $_SERVER['PHP_SELF']."?".urlencode($_SERVER['QUERY_STRING'])) == true) {
 						$urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsID;
 	 					$header = "Content-type: video/x-flv";
 						$file = $urldata;
@@ -140,7 +140,7 @@ if (!empty($pid) && !empty($dsID)) {
 			        exit;
 				} else {
 					
-					if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $HTTP_SERVER_VARS['PHP_SELF']."?".urlencode($HTTP_SERVER_VARS['QUERY_STRING'])) == true) {
+					if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $_SERVER['PHP_SELF']."?".urlencode($_SERVER['QUERY_STRING'])) == true) {
                         include_once(APP_INC_PATH . "class.template.php");
 						$tpl = new Template_API();
 						$tpl->setTemplate("flv.tpl.html");
@@ -190,7 +190,7 @@ if (($is_image == 1) && (is_numeric(strpos($dsID, "archival_"))) ) { // if its t
 //	$xdis_array = Fedora_API::callGetDatastreamContentsField ($pid, 'FezMD', array('xdis_id'));
 //	$xdis_id = $xdis_array['xdis_id'][0];
 //	if (is_numeric($xdis_id)) {	
-		if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $HTTP_SERVER_VARS['PHP_SELF']."?".urlencode($HTTP_SERVER_VARS['QUERY_STRING'])) == true) {
+		if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $_SERVER['PHP_SELF']."?".urlencode($_SERVER['QUERY_STRING'])) == true) {
 			$urldata = APP_FEDORA_GET_URL."/".$pid."/".$real_dsID; // this should stop them dang haxors (forces the http on the front for starters)
 			$urlpath = $urldata;					
 

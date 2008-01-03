@@ -50,8 +50,8 @@ Auth::checkAuthentication(APP_SESSION);
 
 $tpl->assign("type", "orgstructure_author");
 
-$author_id = @$HTTP_POST_VARS["auth"] ? $HTTP_POST_VARS["auth"] : @$HTTP_GET_VARS["auth"];
-$aouid = @$HTTP_POST_VARS["id"] ? $HTTP_POST_VARS["id"] : @$HTTP_GET_VARS["id"];
+$author_id = @$_POST["auth"] ? $_POST["auth"] : @$_GET["auth"];
+$aouid = @$_POST["id"] ? $_POST["id"] : @$_GET["id"];
 
 $breadcrumb = "";
 
@@ -68,11 +68,11 @@ $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
 if ($isAdministrator) {
 
-    if (@$HTTP_POST_VARS["cat"] == "new") {
+    if (@$_POST["cat"] == "new") {
         $tpl->assign("result", Author_Org::insert());
-    } elseif (@$HTTP_POST_VARS["cat"] == "update") {
-        $tpl->assign("result", Author_Org::update($HTTP_POST_VARS["id"]));
-    } elseif (@$HTTP_POST_VARS["cat"] == "delete") {
+    } elseif (@$_POST["cat"] == "update") {
+        $tpl->assign("result", Author_Org::update($_POST["id"]));
+    } elseif (@$_POST["cat"] == "delete") {
         $tpl->assign("result", Author_Org::remove());
     }
 
@@ -83,7 +83,7 @@ if ($isAdministrator) {
     $functions_list = Author_Funct::getList();
     $tpl->assign("fun_list", $functions_list);
 
-    if (@$HTTP_GET_VARS["cat"] == "edit") {
+    if (@$_GET["cat"] == "edit") {
         $org_details = Author_Org::getDetails($aouid);
         $tpl->assign("info", $org_details);
         $author_id = $org_details['auo_aut_id'];

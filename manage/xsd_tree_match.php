@@ -58,7 +58,7 @@ if (!$isSuperAdministrator) {
     echo "Invalid role";
     exit;
 }
-$xdis_id = @$HTTP_POST_VARS["xdis_id"] ? $HTTP_POST_VARS["xdis_id"] : $HTTP_GET_VARS["xdis_id"];
+$xdis_id = @$_POST["xdis_id"] ? $_POST["xdis_id"] : $_GET["xdis_id"];
 $tpl->assign("xdis_id", $xdis_id);
 
 $xsd_id = XSD_HTML_Match::getXSD_ID($xdis_id);

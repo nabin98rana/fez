@@ -60,10 +60,9 @@ class Org_Structure
      */
     function remove()
     {
-        global $HTTP_POST_VARS;
 		// first delete all children
 		// get all immediate children
-        $items = $HTTP_POST_VARS["items"];
+        $items = $_POST["items"];
 		if (!is_array($items)) { return false; }
 		$all_items = $items;
 		foreach ($items as $item) {
@@ -138,8 +137,6 @@ class Org_Structure
      */
     function insert()
     {
-        global $HTTP_POST_VARS;
-		
         $stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "org_structure
                  (
@@ -148,10 +145,10 @@ class Org_Structure
 					org_ext_table,
 					org_image_filename
                  ) VALUES (
-                    '" . Misc::escapeString($HTTP_POST_VARS["org_title"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["org_desc"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["org_ext_table"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["org_image_filename"]) . "'										
+                    '" . Misc::escapeString($_POST["org_title"]) . "',
+                    '" . Misc::escapeString($_POST["org_desc"]) . "',
+                    '" . Misc::escapeString($_POST["org_ext_table"]) . "',
+                    '" . Misc::escapeString($_POST["org_image_filename"]) . "'										
                  )";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -160,7 +157,7 @@ class Org_Structure
         } else {
 			// get last db entered id
 			$new_id = $GLOBALS["db_api"]->get_last_insert_id();
-			Org_Structure::associateParent($HTTP_POST_VARS["parent_id"], $new_id);
+			Org_Structure::associateParent($_POST["parent_id"], $new_id);
 			return 1;
         }
     }
@@ -176,8 +173,6 @@ class Org_Structure
      */
     function associateParent($parent_id, $child_id)
     {
-        global $HTTP_POST_VARS;
-        
         // no need to associate null parent
         if (empty($parent_id)) {
             return -1;
@@ -210,15 +205,13 @@ class Org_Structure
      */
     function update($org_id)
     {
-        global $HTTP_POST_VARS;
-
         $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "org_structure
                  SET 
-                    org_title = '" . Misc::escapeString($HTTP_POST_VARS["org_title"]) . "',
-                    org_desc = '" . Misc::escapeString($HTTP_POST_VARS["org_desc"]) . "',
-                    org_ext_table = '" . Misc::escapeString($HTTP_POST_VARS["org_ext_table"]) . "',
-                    org_image_filename = '" . Misc::escapeString($HTTP_POST_VARS["org_image_filename"]) . "'
+                    org_title = '" . Misc::escapeString($_POST["org_title"]) . "',
+                    org_desc = '" . Misc::escapeString($_POST["org_desc"]) . "',
+                    org_ext_table = '" . Misc::escapeString($_POST["org_ext_table"]) . "',
+                    org_image_filename = '" . Misc::escapeString($_POST["org_image_filename"]) . "'
                  WHERE org_id = ".$org_id;
 
         $res = $GLOBALS["db_api"]->dbh->query($stmt);

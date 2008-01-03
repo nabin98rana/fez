@@ -55,9 +55,7 @@ class Status
      */
     function remove()
     {
-        global $HTTP_POST_VARS;
-
-        $items = @implode(", ", $HTTP_POST_VARS["items"]);
+        $items = @implode(", ", $_POST["items"]);
         $stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "status
                  WHERE
@@ -80,9 +78,8 @@ class Status
      */
     function insert($params = array())
     {
-        global $HTTP_POST_VARS;
         if (empty($params)) {
-            $params = $HTTP_POST_VARS;
+            $params = $_POST;
         }
 		
         $stmt = "INSERT INTO
@@ -114,14 +111,12 @@ class Status
      */
     function update($sta_id)
     {
-        global $HTTP_POST_VARS;
-
         $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "status
                  SET 
-                    sta_title = '" . Misc::escapeString($HTTP_POST_VARS["sta_title"]) . "',
-					sta_order = '" . Misc::escapeString($HTTP_POST_VARS["sta_order"]) . "',
-					sta_color = '" . Misc::escapeString($HTTP_POST_VARS["sta_color"]) . "'
+                    sta_title = '" . Misc::escapeString($_POST["sta_title"]) . "',
+					sta_order = '" . Misc::escapeString($_POST["sta_order"]) . "',
+					sta_color = '" . Misc::escapeString($_POST["sta_color"]) . "'
                  WHERE sta_id = ".$sta_id;
 
         $res = $GLOBALS["db_api"]->dbh->query($stmt);

@@ -221,8 +221,7 @@ class Benchmark_Timer extends PEAR {
         {
             $http = isset($_SERVER['SERVER_PROTOCOL']);
         } else {
-            global $HTTP_SERVER_VARS;
-            $http = isset($HTTP_SERVER_VARS['SERVER_PROTOCOL']);
+            $http = isset($_SERVER['SERVER_PROTOCOL']);
         }
 
         $total  = $this->TimeElapsed();

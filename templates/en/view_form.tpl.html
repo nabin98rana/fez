@@ -391,6 +391,40 @@ function openHistory(pid)
 				  <a title="view the full history of changes on this object" href="javascript:void(null);" onclick="javascript:openHistory('{$pid}');">Detailed History</a>
 			  </td>
 				</tr>
+				
+{if $displayusercomments}
+                <tr valign="top">
+                    <td align="left" class="default" nowrap> <b>User Comments:</b></td>
+                   <td align="left" class="default" nowrap>
+                   {section name="uc" loop=$usercomments}
+                    <p>
+                     <i><b>Comment</b> from <a href="mailto:{$usercomments[uc].usr_email}">{$usercomments[uc].usr_full_name}</a>, posted {$usercomments[uc].formatted_date_created}:</i><br>
+                     {$usercomments[uc].comment}<br>
+                     {if $usercomments[uc].usc_rating}<i><b>Rating: <img src="{$rel_url}images/rating{$usercomments[uc].usc_rating}.png" alt="{$usercomments[uc].usc_rating}"> </b></i>{/if}
+                    </p>
+                   {/section}
+                   {if $addusercomment}
+                    <form name="addusercommentform" action="/add_comment.php" method="post">
+                     <p>
+                      <i><b>Add a comment:</b></i> <br>
+                      <textarea name="usercommenttext" rows="10" cols="45"></textarea> <br>
+                      <input type="hidden" name="pid" value="{$pid}">
+                      <select name="rating">
+                       <option value="0">Rating out of 5 stars (optional)</option>
+                       <option value="1">One star (Awful)</option>
+                       <option value="2">Two stars</option>
+                       <option value="3">Three stars</option>
+                       <option value="4">Four stars</option>
+                       <option value="5">Five stars (Superb)</option>
+                      </select>
+                      <br>
+                      <input type="submit" value="Add Comment">
+                     </p>
+                    </form>
+                   {/if}
+                   </td>
+                 </tr>
+{/if}
 
 		</table>
 			</td>		

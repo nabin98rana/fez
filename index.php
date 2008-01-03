@@ -92,26 +92,26 @@ if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
 		Auth::redirect($url);			
 		exit;
 	}
-} elseif (count($HTTP_POST_VARS) > 0) {
-	if (Validation::isWhitespace($HTTP_POST_VARS["username"])) {
+} elseif (count($_POST) > 0) {
+	if (Validation::isWhitespace($_POST["username"])) {
 		Auth::redirect(APP_RELATIVE_URL . "login.php?err=1");
 	}
-	if (Validation::isWhitespace($HTTP_POST_VARS["passwd"])) {
-		Auth::redirect(APP_RELATIVE_URL . "login.php?err=2&username=" . $HTTP_POST_VARS["username"]);
+	if (Validation::isWhitespace($_POST["passwd"])) {
+		Auth::redirect(APP_RELATIVE_URL . "login.php?err=2&username=" . $_POST["username"]);
 	}
-    if (!Auth::isActiveUser($HTTP_POST_VARS['username'])) {
-        Auth::redirect(APP_RELATIVE_URL . "login.php?err=7&username=" . $HTTP_POST_VARS["username"]);
+    if (!Auth::isActiveUser($_POST['username'])) {
+        Auth::redirect(APP_RELATIVE_URL . "login.php?err=7&username=" . $_POST["username"]);
     }
 	// check if the password matches
-	if (!Auth::isCorrectPassword($HTTP_POST_VARS["username"], $HTTP_POST_VARS["passwd"])) {
-		Auth::redirect(APP_RELATIVE_URL . "login.php?err=3&username=" . $HTTP_POST_VARS["username"]);
+	if (!Auth::isCorrectPassword($_POST["username"], $_POST["passwd"])) {
+		Auth::redirect(APP_RELATIVE_URL . "login.php?err=3&username=" . $_POST["username"]);
 	}
-    $loginres = Auth::LoginAuthenticatedUser($HTTP_POST_VARS["username"], $HTTP_POST_VARS["passwd"]);
+    $loginres = Auth::LoginAuthenticatedUser($_POST["username"], $_POST["passwd"]);
     if ($loginres > 0) {
-        Auth::redirect(APP_RELATIVE_URL . "login.php?err={$loginres}&username=" . $HTTP_POST_VARS["username"]);	
+        Auth::redirect(APP_RELATIVE_URL . "login.php?err={$loginres}&username=" . $_POST["username"]);	
     } 	
-	if (!empty($HTTP_POST_VARS["url"])) {
-		Auth::redirect(urldecode($HTTP_POST_VARS["url"])); 
+	if (!empty($_POST["url"])) {
+		Auth::redirect(urldecode($_POST["url"])); 
 	} else {
 //		Auth::redirect(APP_RELATIVE_URL); // even though its the same page redirect so if they refresh it doesnt have the post vars
 		Auth::redirect(APP_BASE_URL); // even though its the same page redirect so if they refresh it doesnt have the post vars

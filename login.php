@@ -129,9 +129,9 @@ function parseSSO($string, $IDProviders, $redirectCookieName){
 if ((($_SERVER["SERVER_PORT"] != 443) && (APP_HTTPS == "ON")) || ($_SERVER['HTTP_HOST'] != APP_HOSTNAME))  {
    header ("HTTP 302 Redirect");
    if (APP_HTTPS == "ON") {
-       header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."login.php"."?".$HTTP_SERVER_VARS['QUERY_STRING']);
+       header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."login.php"."?".$_SERVER['QUERY_STRING']);
    } else {
-	   header ("Location: http://".APP_HOSTNAME.APP_RELATIVE_URL."login.php"."?".$HTTP_SERVER_VARS['QUERY_STRING']);
+	   header ("Location: http://".APP_HOSTNAME.APP_RELATIVE_URL."login.php"."?".$_SERVER['QUERY_STRING']);
    }
 }
 
@@ -140,8 +140,8 @@ $tpl->setTemplate("index.tpl.html");
 
 if (Auth::hasValidSession(APP_SESSION)) {
     if ($_SESSION["autologin"]) {    	
-        if (!empty($HTTP_GET_VARS["url"])) {
-            $extra = '?url=' . $HTTP_GET_VARS["url"];
+        if (!empty($_GET["url"])) {
+            $extra = '?url=' . $_GET["url"];
         } else {
             $extra = '';
         }
@@ -154,8 +154,8 @@ if (Auth::hasValidSession(APP_SESSION)) {
 }
 $tpl->assign("SHIB_SWITCH", SHIB_SWITCH);
 if (SHIB_SWITCH == "ON") {
-	if (!empty($HTTP_GET_VARS["url"])) { // set the url session for shib logins so redirects to index.php (front page) then redirecto to the original url		
-		$_SESSION["url"] = $HTTP_GET_VARS["url"];			
+	if (!empty($_GET["url"])) { // set the url session for shib logins so redirects to index.php (front page) then redirecto to the original url		
+		$_SESSION["url"] = $_GET["url"];			
 	}
 	// Configuration
 //	$commonDomain = '.au'; // Must start with a .

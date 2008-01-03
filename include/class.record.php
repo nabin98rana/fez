@@ -726,7 +726,6 @@ class Record
      */
     function getSortingInfo($options)
     {
-        global $HTTP_SERVER_VARS;
         $fields = array(
             "rec_id",
             "rec_date",
@@ -744,9 +743,9 @@ class Record
                 } else {
                     $sort_order = "asc";
                 }
-                $items["links"][$fields[$i]] = $HTTP_SERVER_VARS["PHP_SELF"] . "?sort_by=" . $fields[$i] . "&sort_order=" . $sort_order;
+                $items["links"][$fields[$i]] = $_SERVER["PHP_SELF"] . "?sort_by=" . $fields[$i] . "&sort_order=" . $sort_order;
             } else {
-                $items["links"][$fields[$i]] = $HTTP_SERVER_VARS["PHP_SELF"] . "?sort_by=" . $fields[$i] . "&sort_order=asc";
+                $items["links"][$fields[$i]] = $_SERVER["PHP_SELF"] . "?sort_by=" . $fields[$i] . "&sort_order=asc";
             }
         }
         return $items;
@@ -1741,12 +1740,11 @@ inner join
      */
     function makeInsertTemplate()
     {
-        global $HTTP_POST_VARS, $HTTP_POST_FILES;
 		$existingDatastreams = array();
         $created_date = Date_API::getFedoraFormattedDateUTC();
         $updated_date = $created_date;
         $pid = '__makeInsertTemplate_PID__';
-        $xdis_id = $HTTP_POST_VARS["xdis_id"];
+        $xdis_id = $_POST["xdis_id"];
         $display = new XSD_DisplayObject($xdis_id);
         list($array_ptr,$xsd_element_prefix, $xsd_top_element_name, $xml_schema) = $display->getXsdAsReferencedArray();
         // find the title elements for this display (!dc:title or MODS)
@@ -1755,17 +1753,17 @@ inner join
         $inherit_xsdmf_id = $display->xsd_html_match->getXSDMF_IDByXDIS_ID('!inherit_security');
 		if ($inherit_xsdmf_id) {
             // fake the form input for inherit security
-            $HTTP_POST_VARS['xsd_display_fields'][$inherit_xsdmf_id] = 'on';
+            $_POST['xsd_display_fields'][$inherit_xsdmf_id] = 'on';
 		}
 
         if ($xsdmf_id) {
             // fake the form input for the object title
-            $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] = '__makeInsertTemplate_DCTitle__';
+            $_POST['xsd_display_fields'][$xsdmf_id] = '__makeInsertTemplate_DCTitle__';
         } else {
             $xsdmf_id = $display->xsd_html_match->getXSDMF_IDByXDIS_ID('!dc:title');
             if ($xsdmf_id) {
                 // fake the form input for the object title
-                $HTTP_POST_VARS['xsd_display_fields'][$xsdmf_id] = '__makeInsertTemplate_DCTitle__';
+                $_POST['xsd_display_fields'][$xsdmf_id] = '__makeInsertTemplate_DCTitle__';
             }
         }
 
@@ -2013,6 +2011,39 @@ inner join
         }
         return;
     }
+    
+    
+    function propagateCommentsDatastreamToFez($pid)
+    {
+        include_once(APP_INC_PATH . "class.user_comments.php");
+        
+        $datastreams = Fedora_API::callGetDatastreams($pid);
+        if (empty($datastreams)) {
+            return;     // No datastreams at all; let's bail out.
+        }
+        
+        $usr_comments = new UserComments($pid);
+        
+        foreach ($datastreams as $ds_key => $ds_value) 
+        {
+            if ($ds_value['ID'] == 'FezComments') 
+            {
+                $value = Fedora_API::callGetDatastreamContents($pid, 'FezComments', true);
+                //echo $value;exit;
+                
+                $xml = new SimpleXMLElement($value);
+                //echo $xml->asXML();
+                
+                foreach ($xml->comment as $comment) 
+                {
+                    echo $comment->text . '<br />';
+                    //$usr_comments->addUserComment($comment->text, $comment->rating, $comment->user_id);
+                }
+            }
+        }
+        
+        return;
+    }
 
 
 
@@ -2218,12 +2249,12 @@ class RecordGeneral
      * @access  public
      * @return  void
      */
-    function checkAuth($roles, $redirect=true) {
-        global $HTTP_SERVER_VARS;
+    function checkAuth($roles, $redirect=true) 
+    {
         $this->getAuth();
-        $ret_url = $HTTP_SERVER_VARS['PHP_SELF'];
-        if (!empty($HTTP_SERVER_VARS['QUERY_STRING'])) {
-            $ret_url .= "?".$HTTP_SERVER_VARS['QUERY_STRING'];
+        $ret_url = $_SERVER['PHP_SELF'];
+        if (!empty($_SERVER['QUERY_STRING'])) {
+            $ret_url .= "?".$_SERVER['QUERY_STRING'];
         }
 		return Auth::checkAuthorisation($this->pid, "", $roles, $ret_url, $this->auth_groups, $redirect);
     }
@@ -3372,11 +3403,10 @@ class RecordObject extends RecordGeneral
      */
     function fedoraInsertUpdate($exclude_list=array(), $specify_list=array(), $params = array())
     {
-        global $HTTP_POST_VARS;
         if (!empty($params)) {
             // dirty double hack as this function and all the ones it calls assumes this is
             // to do with a form submission
-            $HTTP_POST_VARS = $params;
+            $_POST = $params;
             $_POST = $params;
         }
 
@@ -3410,7 +3440,7 @@ class RecordObject extends RecordGeneral
 
 
         if (empty($this->xdis_id)) {
-            $this->xdis_id = $HTTP_POST_VARS["xdis_id"];
+            $this->xdis_id = $_POST["xdis_id"];
         }
         $xdis_id = $this->xdis_id;
         $assign_usr_id = $this->assign_usr_id;

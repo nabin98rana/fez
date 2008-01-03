@@ -47,8 +47,8 @@ $tpl->setTemplate("manage/index.tpl.html");
 Auth::checkAuthentication(APP_SESSION);
 $tpl->assign("type", "xsd_displays");
 
-$xsd_id = @$HTTP_POST_VARS["xsd_id"] ? $HTTP_POST_VARS["xsd_id"] : $HTTP_GET_VARS["xsd_id"];
-$xdis_id = @$HTTP_POST_VARS["id"] ? $HTTP_POST_VARS["id"] : $HTTP_GET_VARS["id"];
+$xsd_id = @$_POST["xsd_id"] ? $_POST["xsd_id"] : $_GET["xsd_id"];
+$xdis_id = @$_POST["id"] ? $_POST["id"] : $_GET["id"];
 $isUser = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($isUser);
 $isSuperAdministrator = User::isUserSuperAdministrator($isUser);
@@ -57,17 +57,17 @@ $tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
 if ($isSuperAdministrator) {
-    if (@$HTTP_POST_VARS["cat"] == "new") {
+    if (@$_POST["cat"] == "new") {
         $tpl->assign("result", XSD_Display::insert($xsd_id));
-    } elseif (@$HTTP_POST_VARS["cat"] == "update") {
+    } elseif (@$_POST["cat"] == "update") {
         $tpl->assign("result", XSD_Display::update($xdis_id)); 
-    } elseif (@$HTTP_POST_VARS["cat"] == "delete") {
+    } elseif (@$_POST["cat"] == "delete") {
         XSD_Display::remove();
     }
-    if (@$HTTP_GET_VARS["cat"] == "edit") {
+    if (@$_GET["cat"] == "edit") {
         $tpl->assign("info", XSD_Display::getDetails($xdis_id));
     }
-    if (@$HTTP_GET_VARS["cat"] == "clone") {
+    if (@$_GET["cat"] == "clone") {
         $tpl->assign("info", XSD_Display::cloneDisplay($xdis_id));
     }
 	$tpl->assign("xsd_id", ($xsd_id));

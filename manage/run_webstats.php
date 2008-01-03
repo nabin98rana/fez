@@ -58,13 +58,13 @@ if (!$isSuperAdministrator) {
 if (WEBSERVER_LOG_STATISTICS !== 'ON') {
     die("<b>Error:</b> The WEBSERVER_LOG_STATISTICS directive in the configuration file must be set to ON to invoke this function.");
 }
-if (@$HTTP_POST_VARS["action"] == "go_summary_only") {
+if (@$_POST["action"] == "go_summary_only") {
     $bgp = new BackgroundProcess_Run_Webstats(true);
     $id = $bgp->register(serialize(array()), Auth::getUserID());
     $bgp = new BackgroundProcess($id);
     Session::setMessage('The statistics summaries are being updated as a background process (see My Fez to follow progress)');
     $tpl->assign("is_running", true);
-} elseif (@$HTTP_POST_VARS["action"] == "go") {
+} elseif (@$_POST["action"] == "go") {
     $bgp = new BackgroundProcess_Run_Webstats(false);
     $id = $bgp->register(serialize(array()), Auth::getUserID());
     $bgp = new BackgroundProcess($id);

@@ -59,10 +59,9 @@ class Controlled_Vocab
      */
     function remove()
     {
-        global $HTTP_POST_VARS;
 		// first delete all children
 		// get all immediate children
-        $items = $HTTP_POST_VARS["items"];
+        $items = $_POST["items"];
 		if (!is_array($items)) { return false; }
 		$all_items = $items;
 		foreach ($items as $item) {
@@ -137,22 +136,20 @@ class Controlled_Vocab
      */
     function insert()
     {
-        global $HTTP_POST_VARS;
-		
         $stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "controlled_vocab
                  (
                     cvo_title,
                     cvo_desc";
-		if (is_numeric($HTTP_POST_VARS["cvo_external_id"])) {
+		if (is_numeric($_POST["cvo_external_id"])) {
 			$stmt .= ", cvo_external_id";
 		}
 		$stmt .= "
                  ) VALUES (
-                    '" . Misc::escapeString($HTTP_POST_VARS["cvo_title"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["cvo_desc"]) . "'";
-		if (is_numeric($HTTP_POST_VARS["cvo_external_id"])) {
-            $stmt .=        "," . trim($HTTP_POST_VARS["cvo_external_id"]) . "";
+                    '" . Misc::escapeString($_POST["cvo_title"]) . "',
+                    '" . Misc::escapeString($_POST["cvo_desc"]) . "'";
+		if (is_numeric($_POST["cvo_external_id"])) {
+            $stmt .=        "," . trim($_POST["cvo_external_id"]) . "";
 		}
 			$stmt .="
                  )";
@@ -163,8 +160,8 @@ class Controlled_Vocab
         } else {
 			// get last db entered id
 			$new_id = $GLOBALS["db_api"]->get_last_insert_id();
-			if (is_numeric($HTTP_POST_VARS["parent_id"])) {
-				Controlled_Vocab::associateParent($HTTP_POST_VARS["parent_id"], $new_id);
+			if (is_numeric($_POST["parent_id"])) {
+				Controlled_Vocab::associateParent($_POST["parent_id"], $new_id);
 			}
 			return 1;
         }
@@ -216,13 +213,11 @@ class Controlled_Vocab
      */
     function import($parent_id, $xmlObj)
     {
-        global $HTTP_POST_VARS;
-
-		$xpath_record = $HTTP_POST_VARS["cvi_xpath_record"];
-		$xpath_id = $HTTP_POST_VARS["cvi_xpath_id"];
-		$xpath_title = $HTTP_POST_VARS["cvi_xpath_title"];
-		$xpath_parent_id = $HTTP_POST_VARS["cvi_xpath_parent_id"];
-        $xpath_extparent_id = $HTTP_POST_VARS["cvi_xpath_extparent_id"];
+		$xpath_record = $_POST["cvi_xpath_record"];
+		$xpath_id = $_POST["cvi_xpath_id"];
+		$xpath_title = $_POST["cvi_xpath_title"];
+		$xpath_parent_id = $_POST["cvi_xpath_parent_id"];
+        $xpath_extparent_id = $_POST["cvi_xpath_extparent_id"];
 /*		echo "xpath_record = ".$xpath_record."\n";
 		echo "xpath_id = ".$xpath_id."\n";				
 		echo "xpath_title = ".$xpath_title."\n";
@@ -308,8 +303,6 @@ class Controlled_Vocab
      */
     function associateParent($parent_id, $child_id)
     {
-        global $HTTP_POST_VARS;
-		
         $stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "controlled_vocab_relationship
                  (
@@ -336,14 +329,12 @@ class Controlled_Vocab
      */
     function update($cvo_id)
     {
-        global $HTTP_POST_VARS;
-
         $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "controlled_vocab
                  SET 
-                    cvo_title = '" . Misc::escapeString($HTTP_POST_VARS["cvo_title"]) . "',
-                    cvo_external_id = '" . trim($HTTP_POST_VARS["cvo_external_id"]). "',
-                    cvo_desc = '" . Misc::escapeString($HTTP_POST_VARS["cvo_desc"]) . "'
+                    cvo_title = '" . Misc::escapeString($_POST["cvo_title"]) . "',
+                    cvo_external_id = '" . trim($_POST["cvo_external_id"]). "',
+                    cvo_desc = '" . Misc::escapeString($_POST["cvo_desc"]) . "'
                  WHERE cvo_id = '".$cvo_id."' ";
 
         $res = $GLOBALS["db_api"]->dbh->query($stmt);

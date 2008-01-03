@@ -48,7 +48,6 @@ class Default_Data
      */
     function getConfDefaults() {
 
-        global $HTTP_POST_VARS;
         $defaultData = array();
 
         $defaultData['app_hostname']                        = $_SERVER['SERVER_NAME'];      // This should be OK.
@@ -153,7 +152,7 @@ class Default_Data
         $defaultData['app_display_error_level']             = "1";
         $defaultData['app_display_errors_user']             = "2";
         $defaultData['app_report_error_file']               = "true";
-        $defaultData['app_error_log']                       = $HTTP_POST_VARS['app_path'] . "error_handler.log";
+        $defaultData['app_error_log']                       = $_POST['app_path'] . "error_handler.log";
         $defaultData['app_system_user_id']                  = "1";
         $defaultData['app_email_system_from_address']       = "fez@yourdomain.com";
         $defaultData['app_email_smtp']                      = "mail.yourdomain.com";

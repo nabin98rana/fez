@@ -72,9 +72,9 @@ if ($pid == -1 || !$pid) {
     $access_ok = $record->canCreate();
 }
 if ($access_ok) {
-    if (@$HTTP_POST_VARS["cat"] == "submit") {
+    if (@$_POST["cat"] == "submit") {
         $wftpl = $wfstatus->getvar('template');
-		if ( !empty($HTTP_POST_VARS['directory'])) {
+		if ( !empty($_POST['directory'])) {
             $wfstatus->assign('batch_directory', $_POST['directory']);
         }
         $wfstatus->setCreatedPid($pid);

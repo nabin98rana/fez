@@ -58,18 +58,18 @@ if (!$isSuperAdministrator) {
     $tpl->assign("show_not_allowed_msg", true);
 }
 
-$wfl_id = @$HTTP_GET_VARS["wfl_id"] ? $HTTP_GET_VARS["wfl_id"] : @$HTTP_POST_VARS["wfl_id"];
+$wfl_id = @$_GET["wfl_id"] ? $_GET["wfl_id"] : @$_POST["wfl_id"];
 
-if (@$HTTP_POST_VARS["cat"] == "new") {
+if (@$_POST["cat"] == "new") {
     $tpl->assign("result", WF_Behaviour::insert());
-} elseif (@$HTTP_POST_VARS["cat"] == "update") {
-    $tpl->assign("result", WF_Behaviour::update($HTTP_POST_VARS["id"]));
-} elseif (@$HTTP_POST_VARS["cat"] == "delete") {
+} elseif (@$_POST["cat"] == "update") {
+    $tpl->assign("result", WF_Behaviour::update($_POST["id"]));
+} elseif (@$_POST["cat"] == "delete") {
     WF_Behaviour::remove();
 }
 
-if (@$HTTP_GET_VARS["cat"] == "edit") {
-    $tpl->assign("info", WF_Behaviour::getDetails($HTTP_GET_VARS["id"]));
+if (@$_GET["cat"] == "edit") {
+    $tpl->assign("info", WF_Behaviour::getDetails($_GET["id"]));
 }
 
 $tpl->assign("list", WF_Behaviour::getList());

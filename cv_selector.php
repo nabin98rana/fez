@@ -46,10 +46,10 @@ include_once(APP_INC_PATH . "class.workflow_trigger.php");
 $tpl = new Template_API();
 $tpl->setTemplate("cv_selector.tpl.html");
 
-$cvo_id = @$HTTP_GET_VARS["cvo_id"] ? @$HTTP_GET_VARS["cvo_id"] : @$HTTP_POST_VARS["cvo_id"];
-$xsdmf_cvo_min_level = @$HTTP_GET_VARS["xsdmf_cvo_min_level"] ? @$HTTP_GET_VARS["xsdmf_cvo_min_level"] : @$HTTP_POST_VARS["xsdmf_cvo_min_level"];
-$element = @$HTTP_GET_VARS["element"] ? @$HTTP_GET_VARS["element"] : @$HTTP_POST_VARS["element"];
-$form = @$HTTP_GET_VARS["form"] ? @$HTTP_GET_VARS["form"] : @$HTTP_POST_VARS["form"];
+$cvo_id = @$_GET["cvo_id"] ? @$_GET["cvo_id"] : @$_POST["cvo_id"];
+$xsdmf_cvo_min_level = @$_GET["xsdmf_cvo_min_level"] ? @$_GET["xsdmf_cvo_min_level"] : @$_POST["xsdmf_cvo_min_level"];
+$element = @$_GET["element"] ? @$_GET["element"] : @$_POST["element"];
+$form = @$_GET["form"] ? @$_GET["form"] : @$_POST["form"];
 // get one level of the selected cvo_id
 if (!is_numeric($cvo_id)) {
 	$cvo_id = $_GET['cv_fields'];

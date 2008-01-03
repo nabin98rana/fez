@@ -59,16 +59,16 @@ if (!$isSuperAdministrator) {
     $tpl->assign("show_not_allowed_msg", true);
 }
 
-if (@$HTTP_POST_VARS["cat"] == "new") {
+if (@$_POST["cat"] == "new") {
     $tpl->assign("result", Search_Key::insert());
-} elseif (@$HTTP_POST_VARS["cat"] == "update") {
-    $tpl->assign("result", Search_Key::update($HTTP_POST_VARS["id"]));
-} elseif (@$HTTP_POST_VARS["cat"] == "delete") {
+} elseif (@$_POST["cat"] == "update") {
+    $tpl->assign("result", Search_Key::update($_POST["id"]));
+} elseif (@$_POST["cat"] == "delete") {
     Search_Key::remove();
 }
 
-if (@$HTTP_GET_VARS["cat"] == "edit") {
-    $tpl->assign("info", Search_Key::getDetails($HTTP_GET_VARS["id"]));
+if (@$_GET["cat"] == "edit") {
+    $tpl->assign("info", Search_Key::getDetails($_GET["id"]));
 }
 $list = Search_Key::getList();
 $tpl->assign("list", $list);

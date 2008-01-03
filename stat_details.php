@@ -68,7 +68,7 @@ if (WEBSERVER_LOG_STATISTICS != 'ON') {
 $abstractViews = 0;
 $downloads = 0;
 
-$pid = @$HTTP_POST_VARS["pid"] ? $HTTP_POST_VARS["pid"] : $HTTP_GET_VARS["pid"];
+$pid = @$_POST["pid"] ? $_POST["pid"] : $_GET["pid"];
 $pid = (!empty($pid)) ? $pid : 'all';
 $action = @$_REQUEST['action'];
 $country = @$_REQUEST['country'];

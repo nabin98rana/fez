@@ -76,9 +76,7 @@ class Search_Key
      */
     function remove()
     {
-        global $HTTP_POST_VARS;
-
-        $items = @implode(", ", $HTTP_POST_VARS["items"]);
+        $items = @implode(", ", $_POST["items"]);
         $stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "search_key
                  WHERE
@@ -101,19 +99,17 @@ class Search_Key
      */
     function insert()
     {
-        global $HTTP_POST_VARS;
-
-		if (@$HTTP_POST_VARS["sek_simple_used"]) {
+		if (@$_POST["sek_simple_used"]) {
 			$sek_simple_used = 1;
 		} else {
 			$sek_simple_used = 0;
 		}
-		if (@$HTTP_POST_VARS["sek_adv_visible"]) {
+		if (@$_POST["sek_adv_visible"]) {
 			$sek_adv_visible = 1;
 		} else {
 			$sek_adv_visible = 0;
 		}
-		if (@$HTTP_POST_VARS["sek_myfez_visible"]) {
+		if (@$_POST["sek_myfez_visible"]) {
 			$sek_myfez_visible = 1;
 		} else {
 			$sek_myfez_visible = 0;
@@ -129,10 +125,10 @@ class Search_Key
 					sek_simple_used,
 					sek_adv_visible,
 					sek_myfez_visible,";
-				if (is_numeric($HTTP_POST_VARS["sek_order"])) {
+				if (is_numeric($_POST["sek_order"])) {
 					$stmt .= " sek_order, ";
 				}
-				if (is_numeric($HTTP_POST_VARS["sek_relationship"])) {
+				if (is_numeric($_POST["sek_relationship"])) {
 					$stmt .= " sek_relationship, ";
 				}				
 		$stmt .= "
@@ -141,31 +137,31 @@ class Search_Key
 					sek_fez_variable,
 					sek_lookup_function,
 					sek_smarty_variable ";
-				if (is_numeric($HTTP_POST_VARS["sek_cvo_id"])) {
+				if (is_numeric($_POST["sek_cvo_id"])) {
 					$stmt .= " ,sek_cvo_id ";
 				}
 		$stmt .= "				
                  ) VALUES (
-                    '" . Misc::escapeString($HTTP_POST_VARS["sek_title"]) . "',
-					'" . Misc::escapeString($HTTP_POST_VARS["sek_alt_title"]) . "',
-					'" . Misc::escapeString($HTTP_POST_VARS["sek_meta_header"]) . "',
+                    '" . Misc::escapeString($_POST["sek_title"]) . "',
+					'" . Misc::escapeString($_POST["sek_alt_title"]) . "',
+					'" . Misc::escapeString($_POST["sek_meta_header"]) . "',
 					" . $sek_simple_used .",
 					" . $sek_adv_visible .",
 					" . $sek_myfez_visible .",";
-					if (is_numeric($HTTP_POST_VARS["sek_order"])) {
-	                    $stmt .=  $HTTP_POST_VARS["sek_order"] . ",";
+					if (is_numeric($_POST["sek_order"])) {
+	                    $stmt .=  $_POST["sek_order"] . ",";
 					}
-					if (is_numeric($HTTP_POST_VARS["sek_relationship"])) {
-	                    $stmt .=  $HTTP_POST_VARS["sek_relationship"] . ",";
+					if (is_numeric($_POST["sek_relationship"])) {
+	                    $stmt .=  $_POST["sek_relationship"] . ",";
 					}					
 					$stmt .= "
-                    '" . Misc::escapeString($HTTP_POST_VARS["sek_data_type"]) . "',					
-                    '" . Misc::escapeString($HTTP_POST_VARS["field_type"]) . "',					
-                    '" . Misc::escapeString($HTTP_POST_VARS["sek_fez_variable"]) . "',
-					'" . Misc::escapeString($HTTP_POST_VARS["sek_lookup_function"]) . "',					
-                    '" . Misc::escapeString($HTTP_POST_VARS["sek_smarty_variable"]) . "'";
-					if (is_numeric($HTTP_POST_VARS["sek_cvo_id"])) {
-	                    $stmt .=  "," . $HTTP_POST_VARS["sek_cvo_id"];
+                    '" . Misc::escapeString($_POST["sek_data_type"]) . "',					
+                    '" . Misc::escapeString($_POST["field_type"]) . "',					
+                    '" . Misc::escapeString($_POST["sek_fez_variable"]) . "',
+					'" . Misc::escapeString($_POST["sek_lookup_function"]) . "',					
+                    '" . Misc::escapeString($_POST["sek_smarty_variable"]) . "'";
+					if (is_numeric($_POST["sek_cvo_id"])) {
+	                    $stmt .=  "," . $_POST["sek_cvo_id"];
 					}
 		$stmt .= "
                  )";
@@ -187,19 +183,17 @@ class Search_Key
      */
     function update($sek_id)
     {
-        global $HTTP_POST_VARS;
-
-		if (@$HTTP_POST_VARS["sek_simple_used"]) {
+		if (@$_POST["sek_simple_used"]) {
 			$sek_simple_used = 1;
 		} else {
 			$sek_simple_used = 0;
 		}
-		if (@$HTTP_POST_VARS["sek_adv_visible"]) {
+		if (@$_POST["sek_adv_visible"]) {
 			$sek_adv_visible = 1;
 		} else {
 			$sek_adv_visible = 0;
 		}
-		if (@$HTTP_POST_VARS["sek_myfez_visible"]) {
+		if (@$_POST["sek_myfez_visible"]) {
 			$sek_myfez_visible = 1;
 		} else {
 			$sek_myfez_visible = 0;
@@ -209,26 +203,26 @@ class Search_Key
         $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "search_key
                  SET 
-                    sek_title = '" . Misc::escapeString($HTTP_POST_VARS["sek_title"]) . "',
-					sek_alt_title = '" . Misc::escapeString($HTTP_POST_VARS["sek_alt_title"]) . "',
-                    sek_meta_header = '" . Misc::escapeString($HTTP_POST_VARS["sek_meta_header"]) . "',
+                    sek_title = '" . Misc::escapeString($_POST["sek_title"]) . "',
+					sek_alt_title = '" . Misc::escapeString($_POST["sek_alt_title"]) . "',
+                    sek_meta_header = '" . Misc::escapeString($_POST["sek_meta_header"]) . "',
 					sek_simple_used = ".$sek_simple_used.",
 					sek_myfez_visible = ".$sek_myfez_visible.",
 					sek_adv_visible = ".$sek_adv_visible.",";
-					if ($HTTP_POST_VARS["sek_order"]) {
-						$stmt .= "sek_order = ".$HTTP_POST_VARS["sek_order"].",";
+					if ($_POST["sek_order"]) {
+						$stmt .= "sek_order = ".$_POST["sek_order"].",";
 					}
-					if ($HTTP_POST_VARS["sek_relationship"]) {
-						$stmt .= "sek_relationship = ".$HTTP_POST_VARS["sek_relationship"].",";
+					if ($_POST["sek_relationship"]) {
+						$stmt .= "sek_relationship = ".$_POST["sek_relationship"].",";
 					}
 					$stmt .= "
-                    sek_html_input = '" . Misc::escapeString($HTTP_POST_VARS["field_type"]) . "',
-                    sek_smarty_variable = '" . Misc::escapeString($HTTP_POST_VARS["sek_smarty_variable"]) . "',
-					sek_lookup_function = '" . Misc::escapeString($HTTP_POST_VARS["sek_lookup_function"]) . "',
-					sek_data_type = '" . Misc::escapeString($HTTP_POST_VARS["sek_data_type"]) . "',
-                    sek_fez_variable = '" . Misc::escapeString($HTTP_POST_VARS["sek_fez_variable"]) . "'";
-					if (is_numeric($HTTP_POST_VARS["sek_cvo_id"])) {
-						$stmt .= ",sek_cvo_id = ".$HTTP_POST_VARS["sek_cvo_id"];
+                    sek_html_input = '" . Misc::escapeString($_POST["field_type"]) . "',
+                    sek_smarty_variable = '" . Misc::escapeString($_POST["sek_smarty_variable"]) . "',
+					sek_lookup_function = '" . Misc::escapeString($_POST["sek_lookup_function"]) . "',
+					sek_data_type = '" . Misc::escapeString($_POST["sek_data_type"]) . "',
+                    sek_fez_variable = '" . Misc::escapeString($_POST["sek_fez_variable"]) . "'";
+					if (is_numeric($_POST["sek_cvo_id"])) {
+						$stmt .= ",sek_cvo_id = ".$_POST["sek_cvo_id"];
 					}
 				$stmt .= "
                  WHERE sek_id = ".$sek_id;

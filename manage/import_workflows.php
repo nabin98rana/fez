@@ -66,7 +66,7 @@ switch ($step) {
       // show the file upload form
     break;
     case 2:
-        if (@$HTTP_POST_VARS["cat"] == "go") {
+        if (@$_POST["cat"] == "go") {
             extract($_FILES['import_xml']);
             if ($type != 'text/xml') {
                 Error_Handler::logError("Can't import files of type $type", __FILE__,__LINE__);
@@ -80,7 +80,7 @@ switch ($step) {
         }
     break;
     case 3:
-        if (@$HTTP_POST_VARS["cat"] == "go") {
+        if (@$_POST["cat"] == "go") {
            $filename = $_POST['filename'];
            $wfl_ids = $_POST['wfl_ids'];
            if (empty($wfl_ids)) {

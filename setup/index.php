@@ -34,18 +34,18 @@
 //
 //
 
-if (isset($_GET)) {
-    $HTTP_POST_VARS = $_POST;
-    $HTTP_GET_VARS = $_GET;
-    $HTTP_SERVER_VARS = $_SERVER;
-    $HTTP_ENV_VARS = $_ENV;
-    $HTTP_POST_FILES = $_FILES;
-    // Seems like PHP 4.1.0 didn't implement the $_SESSION auto-global ...
-    if (isset($_SESSION)) {
-        $HTTP_SESSION_VARS = $_SESSION;
-    }
-    $HTTP_COOKIE_VARS = $_COOKIE;
-}
+//if (isset($_GET)) {
+//    $HTTP_POST_VARS = $_POST;
+//    $HTTP_GET_VARS = $_GET;
+//    $HTTP_SERVER_VARS = $_SERVER;
+//    $HTTP_ENV_VARS = $_ENV;
+//    $HTTP_POST_FILES = $_FILES;
+//    // Seems like PHP 4.1.0 didn't implement the $_SESSION auto-global ...
+//    if (isset($_SESSION)) {
+//        $HTTP_SESSION_VARS = $_SESSION;
+//    }
+//    $HTTP_COOKIE_VARS = $_COOKIE;
+//}
 
 startSetup();       // Let's get this moveable feast underway!
 exit;
@@ -166,13 +166,12 @@ function prepareForSuperHappyFun() {
 function testBaseConfigValues() {
 
     // Extract the form values
-    global $HTTP_POST_VARS;
-    $path       = $HTTP_POST_VARS['app_path'];
-    $relURL     = $HTTP_POST_VARS['app_relative_url'];
-    $host       = $HTTP_POST_VARS['app_sql_dbhost'];
-    $database   = $HTTP_POST_VARS['app_sql_dbname'];
-    $user       = $HTTP_POST_VARS['app_sql_dbuser'];
-    $pass       = $HTTP_POST_VARS['app_sql_dbpass'];
+    $path       = $_POST['app_path'];
+    $relURL     = $_POST['app_relative_url'];
+    $host       = $_POST['app_sql_dbhost'];
+    $database   = $_POST['app_sql_dbname'];
+    $user       = $_POST['app_sql_dbuser'];
+    $pass       = $_POST['app_sql_dbpass'];
 
     // Make sure we're not obviously going to crash and burn.
     if ($path == "" || $host == "" || $database == "" || $user == "" || $pass == "" || $relURL == "") {
@@ -184,7 +183,7 @@ function testBaseConfigValues() {
         return "The specified path does not exist.";
     }
     // Attempt database connection with the supplied credentials.
-    $conn = @mysql_connect($HTTP_POST_VARS['app_sql_dbhost'], $HTTP_POST_VARS['app_sql_dbuser'], $HTTP_POST_VARS['app_sql_dbpass']);
+    $conn = @mysql_connect($_POST['app_sql_dbhost'], $_POST['app_sql_dbuser'], $_POST['app_sql_dbpass']);
     if (!$conn) {
         return "Could not connect to the specified database host with these credentials.";
     }
@@ -206,13 +205,12 @@ function testBaseConfigValues() {
 function writeBaseConfigFile() {
 
     // Extract the form values
-    global $HTTP_POST_VARS;
-    $path       = $HTTP_POST_VARS['app_path'];
-    $dbtype     = $HTTP_POST_VARS['app_sql_dbtype'];
-    $host       = $HTTP_POST_VARS['app_sql_dbhost'];
-    $database   = $HTTP_POST_VARS['app_sql_dbname'];
-    $user       = $HTTP_POST_VARS['app_sql_dbuser'];
-    $pass       = $HTTP_POST_VARS['app_sql_dbpass'];
+    $path       = $_POST['app_path'];
+    $dbtype     = $_POST['app_sql_dbtype'];
+    $host       = $_POST['app_sql_dbhost'];
+    $database   = $_POST['app_sql_dbname'];
+    $user       = $_POST['app_sql_dbuser'];
+    $pass       = $_POST['app_sql_dbpass'];
 
     // Get the config file template
     clearstatcache();
@@ -256,12 +254,11 @@ function writeBaseConfigFile() {
 function runDatabaseTasks() {
 
     // Extract the form values
-    global $HTTP_POST_VARS;
-    $relURL     = $HTTP_POST_VARS['app_relative_url'];
-    $host       = $HTTP_POST_VARS['app_sql_dbhost'];
-    $database   = $HTTP_POST_VARS['app_sql_dbname'];
-    $user       = $HTTP_POST_VARS['app_sql_dbuser'];
-    $pass       = $HTTP_POST_VARS['app_sql_dbpass'];
+    $relURL     = $_POST['app_relative_url'];
+    $host       = $_POST['app_sql_dbhost'];
+    $database   = $_POST['app_sql_dbname'];
+    $user       = $_POST['app_sql_dbuser'];
+    $pass       = $_POST['app_sql_dbpass'];
 
     // Attempt database connection with the supplied credentials.
     $conn = @mysql_connect($host, $user, $pass);
@@ -558,9 +555,9 @@ if (!empty($html)) {
 
 function replace_table_prefix($str)
 {
-    global $HTTP_POST_VARS;
+    global $_POST;
 
-    return str_replace('%TABLE_PREFIX%', $HTTP_POST_VARS['db_table_prefix'], $str);
+    return str_replace('%TABLE_PREFIX%', $_POST['db_table_prefix'], $str);
 }
 
 function getErrorMessage($type, $message)
@@ -626,7 +623,7 @@ function endsWith($haystack, $needle)
 
 function install()
 {
-    global $HTTP_POST_VARS;
+    global $_POST;
 
     clearstatcache();
     // check if config.inc.php in the root directory is writable
@@ -635,7 +632,7 @@ function install()
     }
 
     // gotta check and see if the provided installation path really exists...
-    if (!file_exists($HTTP_POST_VARS['path'])) {
+    if (!file_exists($_POST['path'])) {
         return "The provided installation path could not be found. Please review your information and try again.";
     }
 
@@ -656,48 +653,48 @@ function install()
 
 
     // check if we can connect
-    $conn = @mysql_connect($HTTP_POST_VARS['db_hostname'], $HTTP_POST_VARS['db_username'], $HTTP_POST_VARS['db_password']);
+    $conn = @mysql_connect($_POST['db_hostname'], $_POST['db_username'], $_POST['db_password']);
     if (!$conn) {
         return getErrorMessage('connect', mysql_error());
     }
     $db_list = getDatabaseList($conn);
     $db_list = array_map('strtolower', $db_list);
-    if (@$HTTP_POST_VARS['create_db'] == 'yes') {
-        if (!in_array(strtolower($HTTP_POST_VARS['db_name']), $db_list)) {
-            if (!mysql_query('CREATE DATABASE ' . $HTTP_POST_VARS['db_name'], $conn)) {
+    if (@$_POST['create_db'] == 'yes') {
+        if (!in_array(strtolower($_POST['db_name']), $db_list)) {
+            if (!mysql_query('CREATE DATABASE ' . $_POST['db_name'], $conn)) {
                 return getErrorMessage('create_db', mysql_error());
             }
         }
     } else {
-        if ((count($db_list) > 0) && (!in_array(strtolower($HTTP_POST_VARS['db_name']), $db_list))) {
+        if ((count($db_list) > 0) && (!in_array(strtolower($_POST['db_name']), $db_list))) {
             return "The provided database name could not be found. Review your information or specify that the database should be created in the form below.";
         }
     }
     // create the new user, if needed
-    if (@$HTTP_POST_VARS["alternate_user"] == 'yes') {
+    if (@$_POST["alternate_user"] == 'yes') {
         $user_list = getUserList($conn);
         if (count($user_list) > 0) {
             $user_list = array_map('strtolower', $user_list);
-            if (@$HTTP_POST_VARS["create_user"] == 'yes') {
-                if (!in_array(strtolower(@$HTTP_POST_VARS['fez_user']), $user_list)) {
-                    if ($HTTP_POST_VARS['db_hostname'] == 'localhost') {
-                        $stmt = "GRANT SELECT, UPDATE, DELETE, INSERT ON " . $HTTP_POST_VARS['db_name'] . ".* TO '" . $HTTP_POST_VARS["fez_user"] . "'@localhost IDENTIFIED BY '" . $HTTP_POST_VARS["fez_password"] . "'";
+            if (@$_POST["create_user"] == 'yes') {
+                if (!in_array(strtolower(@$_POST['fez_user']), $user_list)) {
+                    if ($_POST['db_hostname'] == 'localhost') {
+                        $stmt = "GRANT SELECT, UPDATE, DELETE, INSERT ON " . $_POST['db_name'] . ".* TO '" . $_POST["fez_user"] . "'@localhost IDENTIFIED BY '" . $_POST["fez_password"] . "'";
                     } else {
-                        $stmt = "GRANT SELECT, UPDATE, DELETE, INSERT ON " . $HTTP_POST_VARS['db_name'] . ".* TO '" . $HTTP_POST_VARS["fez_user"] . "'@'%' IDENTIFIED BY '" . $HTTP_POST_VARS["fez_password"] . "'";
+                        $stmt = "GRANT SELECT, UPDATE, DELETE, INSERT ON " . $_POST['db_name'] . ".* TO '" . $_POST["fez_user"] . "'@'%' IDENTIFIED BY '" . $_POST["fez_password"] . "'";
                     }
                     if (!mysql_query($stmt, $conn)) {
                         return getErrorMessage('create_user', mysql_error());
                     }
                 }
             } else {
-                if (!in_array(strtolower(@$HTTP_POST_VARS['fez_user']), $user_list)) {
+                if (!in_array(strtolower(@$_POST['fez_user']), $user_list)) {
                     return "The provided MySQL username could not be found. Review your information or specify that the username should be created in the form below.";
                 }
             }
         }
     }
     // check if we can use the database
-    if (!mysql_select_db($HTTP_POST_VARS['db_name'])) {
+    if (!mysql_select_db($_POST['db_name'])) {
         return getErrorMessage('select_db', mysql_error());
     }
     // check the CREATE and DROP privileges by trying to create and drop a test table
@@ -715,55 +712,55 @@ function install()
 	parse_mysql_dump("schema.sql");
 
     // substitute the appropriate values in config.inc.php!!!
-    if (@$HTTP_POST_VARS['alternate_user'] == 'yes') {
-        $HTTP_POST_VARS['db_username'] = $HTTP_POST_VARS['fez_user'];
-        $HTTP_POST_VARS['db_password'] = $HTTP_POST_VARS['fez_password'];
+    if (@$_POST['alternate_user'] == 'yes') {
+        $_POST['db_username'] = $_POST['fez_user'];
+        $_POST['db_password'] = $_POST['fez_password'];
     }
     $config_contents = implode("", file("config.inc.php-example"));
-    if (@$HTTP_POST_VARS['ldap'] == 'yes') {
+    if (@$_POST['ldap'] == 'yes') {
     	$config_contents = str_replace("%{LDAP_SWITCH}%", "ON", $config_contents);		
     } else {
     	$config_contents = str_replace("%{LDAP_SWITCH}%", "OFF", $config_contents);		
 	}
-	$config_contents = str_replace("%{LDAP_ORGANISATION}%", $HTTP_POST_VARS['ldap_org'], $config_contents);
-	$config_contents = str_replace("%{LDAP_ROOT_DN}%", $HTTP_POST_VARS['ldap_root_dn'], $config_contents);
-	$config_contents = str_replace("%{LDAP_PREFIX}%", $HTTP_POST_VARS['ldap_prefix'], $config_contents);
-	$config_contents = str_replace("%{LDAP_SERVER}%", $HTTP_POST_VARS['ldap_server'], $config_contents);		
-	$config_contents = str_replace("%{LDAP_PORT}%", $HTTP_POST_VARS['ldap_port'], $config_contents);		
-    $config_contents = str_replace("%{APP_FEDORA_VERSION}%", $HTTP_POST_VARS['fedora_version'], $config_contents);    
-    $config_contents = str_replace("%{APP_FEDORA_LOCATION}%", $HTTP_POST_VARS['fedora_location'], $config_contents);
-    $config_contents = str_replace("%{APP_FEDORA_SSL_LOCATION}%", $HTTP_POST_VARS['fedora_ssl_location'], $config_contents);
-    $config_contents = str_replace("%{APP_FEDORA_USERNAME}%", $HTTP_POST_VARS['fedora_username'], $config_contents);
-    $config_contents = str_replace("%{APP_FEDORA_PWD}%", $HTTP_POST_VARS['fedora_password'], $config_contents);	
-    $config_contents = str_replace("%{APP_ORG_NAME}%", $HTTP_POST_VARS['organisation'], $config_contents);
-    $config_contents = str_replace("%{APP_SHORT_ORG_NAME}%", $HTTP_POST_VARS['short_org'], $config_contents);
-    $config_contents = str_replace("%{APP_NAME}%", $HTTP_POST_VARS['app_name'], $config_contents);		
-    $config_contents = str_replace("%{APP_ADMIN_EMAIL}%", $HTTP_POST_VARS['app_admin_email'], $config_contents);		    
-    $config_contents = str_replace("%{APP_PID_NAMESPACE}%", $HTTP_POST_VARS['fedora_pid_namespace'], $config_contents);		    
-    $app_path = trim($HTTP_POST_VARS['path']);
+	$config_contents = str_replace("%{LDAP_ORGANISATION}%", $_POST['ldap_org'], $config_contents);
+	$config_contents = str_replace("%{LDAP_ROOT_DN}%", $_POST['ldap_root_dn'], $config_contents);
+	$config_contents = str_replace("%{LDAP_PREFIX}%", $_POST['ldap_prefix'], $config_contents);
+	$config_contents = str_replace("%{LDAP_SERVER}%", $_POST['ldap_server'], $config_contents);		
+	$config_contents = str_replace("%{LDAP_PORT}%", $_POST['ldap_port'], $config_contents);		
+    $config_contents = str_replace("%{APP_FEDORA_VERSION}%", $_POST['fedora_version'], $config_contents);    
+    $config_contents = str_replace("%{APP_FEDORA_LOCATION}%", $_POST['fedora_location'], $config_contents);
+    $config_contents = str_replace("%{APP_FEDORA_SSL_LOCATION}%", $_POST['fedora_ssl_location'], $config_contents);
+    $config_contents = str_replace("%{APP_FEDORA_USERNAME}%", $_POST['fedora_username'], $config_contents);
+    $config_contents = str_replace("%{APP_FEDORA_PWD}%", $_POST['fedora_password'], $config_contents);	
+    $config_contents = str_replace("%{APP_ORG_NAME}%", $_POST['organisation'], $config_contents);
+    $config_contents = str_replace("%{APP_SHORT_ORG_NAME}%", $_POST['short_org'], $config_contents);
+    $config_contents = str_replace("%{APP_NAME}%", $_POST['app_name'], $config_contents);		
+    $config_contents = str_replace("%{APP_ADMIN_EMAIL}%", $_POST['app_admin_email'], $config_contents);		    
+    $config_contents = str_replace("%{APP_PID_NAMESPACE}%", $_POST['fedora_pid_namespace'], $config_contents);		    
+    $app_path = trim($_POST['path']);
     if (!endsWith($app_path, '/')) {
         $app_path .= '/';
     }
     $config_contents = str_replace("%{APP_PATH}%", $app_path, $config_contents);
-    $config_contents = str_replace("%{APP_SQL_DBHOST}%", $HTTP_POST_VARS['db_hostname'], $config_contents);
-    $config_contents = str_replace("%{APP_SQL_DBNAME}%", $HTTP_POST_VARS['db_name'], $config_contents);
-    $config_contents = str_replace("%{APP_SQL_DBUSER}%", $HTTP_POST_VARS['db_username'], $config_contents);
-    $config_contents = str_replace("%{APP_SQL_DBPASS}%", $HTTP_POST_VARS['db_password'], $config_contents);
-    $config_contents = str_replace("%{APP_TABLE_PREFIX}%", $HTTP_POST_VARS['db_table_prefix'], $config_contents);
-    $config_contents = str_replace("%{APP_HOSTNAME}%", $HTTP_POST_VARS['hostname'], $config_contents);
-    $config_contents = str_replace("%{FEDORA_DB_HOST}%", $HTTP_POST_VARS['fedora_db_hostname'], $config_contents);
-    $config_contents = str_replace("%{FEDORA_DB_TYPE}%", $HTTP_POST_VARS['fedora_db_type'], $config_contents);
-    $config_contents = str_replace("%{FEDORA_DB_DATABASE_NAME}%", $HTTP_POST_VARS['fedora_db_name'], $config_contents);
-    $config_contents = str_replace("%{FEDORA_DB_USERNAME}%", $HTTP_POST_VARS['fedora_db_username'], $config_contents);
-    $config_contents = str_replace("%{FEDORA_DB_PASSWD}%", $HTTP_POST_VARS['fedora_db_password'], $config_contents);
-    $config_contents = str_replace("%{FEDORA_DB_PORT}%", $HTTP_POST_VARS['fedora_db_port'], $config_contents);
+    $config_contents = str_replace("%{APP_SQL_DBHOST}%", $_POST['db_hostname'], $config_contents);
+    $config_contents = str_replace("%{APP_SQL_DBNAME}%", $_POST['db_name'], $config_contents);
+    $config_contents = str_replace("%{APP_SQL_DBUSER}%", $_POST['db_username'], $config_contents);
+    $config_contents = str_replace("%{APP_SQL_DBPASS}%", $_POST['db_password'], $config_contents);
+    $config_contents = str_replace("%{APP_TABLE_PREFIX}%", $_POST['db_table_prefix'], $config_contents);
+    $config_contents = str_replace("%{APP_HOSTNAME}%", $_POST['hostname'], $config_contents);
+    $config_contents = str_replace("%{FEDORA_DB_HOST}%", $_POST['fedora_db_hostname'], $config_contents);
+    $config_contents = str_replace("%{FEDORA_DB_TYPE}%", $_POST['fedora_db_type'], $config_contents);
+    $config_contents = str_replace("%{FEDORA_DB_DATABASE_NAME}%", $_POST['fedora_db_name'], $config_contents);
+    $config_contents = str_replace("%{FEDORA_DB_USERNAME}%", $_POST['fedora_db_username'], $config_contents);
+    $config_contents = str_replace("%{FEDORA_DB_PASSWD}%", $_POST['fedora_db_password'], $config_contents);
+    $config_contents = str_replace("%{FEDORA_DB_PORT}%", $_POST['fedora_db_port'], $config_contents);
     
-    $rel_url = trim($HTTP_POST_VARS['relative_url']);
+    $rel_url = trim($_POST['relative_url']);
     if (!endsWith($rel_url, '/')) {
         $rel_url .= '/';
     }
     $config_contents = str_replace("%{APP_RELATIVE_URL}%", $rel_url, $config_contents);
-    if (@$HTTP_POST_VARS['is_ssl'] == 'yes') {
+    if (@$_POST['is_ssl'] == 'yes') {
         $protocol_type = 'https://';
 		$app_https = "ON";
     } else {
@@ -772,12 +769,12 @@ function install()
     }
     $config_contents = str_replace("%{APP_HTTPS}%", $app_https, $config_contents);
     $config_contents = str_replace("%{PROTOCOL_TYPE}%", $protocol_type, $config_contents);
-    $config_contents = str_replace("%{APP_FEDORA_SETUP}%", $HTTP_POST_VARS['fedora_setup'], $config_contents);	
-	if (@$HTTP_POST_VARS['fedora_setup'] == 'sslall') { 
+    $config_contents = str_replace("%{APP_FEDORA_SETUP}%", $_POST['fedora_setup'], $config_contents);	
+	if (@$_POST['fedora_setup'] == 'sslall') { 
 		$fedora_apim_protocol_type = 'https://';
 		$fedora_apia_protocol_type = 'https://';				
 	} else {
-		if (@$HTTP_POST_VARS['fedora_setup'] == 'sslapim') { 
+		if (@$_POST['fedora_setup'] == 'sslapim') { 
 			$fedora_apim_protocol_type = 'https://';
 		} else {
 			$fedora_apim_protocol_type = 'http://';
@@ -799,7 +796,7 @@ function install()
     return 'success';
 }
 
-if (@$HTTP_POST_VARS["cat"] == 'install') {
+if (@$_POST["cat"] == 'install') {
     $res = install();
     $tpl->assign("result", $res);
 }
@@ -816,7 +813,7 @@ if (is_file('../config.inc.php')) {
     }
 }
 
-$full_url = dirname($HTTP_SERVER_VARS['PHP_SELF']);
+$full_url = dirname($_SERVER['PHP_SELF']);
 $pieces = explode("/", $full_url);
 $relative_url = array();
 $relative_url[] = '';
@@ -828,14 +825,14 @@ foreach ($pieces as $piece) {
 $relative_url[] = '';
 $relative_url = implode("/", $relative_url);
 
-if (substr($HTTP_SERVER_VARS['DOCUMENT_ROOT'], -1) == '/') {
-    $HTTP_SERVER_VARS['DOCUMENT_ROOT'] = substr($HTTP_SERVER_VARS['DOCUMENT_ROOT'], 0, -1);
+if (substr($_SERVER['DOCUMENT_ROOT'], -1) == '/') {
+    $_SERVER['DOCUMENT_ROOT'] = substr($_SERVER['DOCUMENT_ROOT'], 0, -1);
 }
-$installation_path = $HTTP_SERVER_VARS['DOCUMENT_ROOT'] . $relative_url;
+$installation_path = $_SERVER['DOCUMENT_ROOT'] . $relative_url;
 
 $tpl->assign("rel_url", $relative_url);
 $tpl->assign("installation_path", $installation_path);
-if (!empty($HTTP_SERVER_VARS['HTTPS'])) {
+if (!empty($_SERVER['HTTPS'])) {
     $ssl_mode = 'enabled';
 } else {
     $ssl_mode = 'disabled';

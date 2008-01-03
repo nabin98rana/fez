@@ -125,16 +125,14 @@ class Author_Org
      */
     function insert()
     {
-        global $HTTP_POST_VARS;
-
         // Run the 'isWhitespace' check on all required fields, in case JavaScript has been turned off.
-        if (Validation::isWhitespace($HTTP_POST_VARS["organisation_id"]) || Validation::isWhitespace($HTTP_POST_VARS["classification_id"]) || Validation::isWhitespace($HTTP_POST_VARS["function_id"])) {
+        if (Validation::isWhitespace($_POST["organisation_id"]) || Validation::isWhitespace($_POST["classification_id"]) || Validation::isWhitespace($_POST["function_id"])) {
             return -1;
         }
 
         // Perform some basic null-setting clean-up.
-        empty($HTTP_POST_VARS["assessed"]) ? $assessed_val = null : $assessed_val = $HTTP_POST_VARS["assessed"];
-        empty($HTTP_POST_VARS["assessed_year"]) ? $assessed_year_val = null : $assessed_year_val = $HTTP_POST_VARS["assessed_year"];
+        empty($_POST["assessed"]) ? $assessed_val = null : $assessed_val = $_POST["assessed"];
+        empty($_POST["assessed_year"]) ? $assessed_year_val = null : $assessed_year_val = $_POST["assessed_year"];
 
         $stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "author_org_structure
@@ -146,10 +144,10 @@ class Author_Org
                     auo_assessed,
                     auo_assessed_year
                 ) VALUES (
-                    '" . Misc::escapeString($HTTP_POST_VARS["organisation_id"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["author_id"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["classification_id"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["function_id"]) . "',
+                    '" . Misc::escapeString($_POST["organisation_id"]) . "',
+                    '" . Misc::escapeString($_POST["author_id"]) . "',
+                    '" . Misc::escapeString($_POST["classification_id"]) . "',
+                    '" . Misc::escapeString($_POST["function_id"]) . "',
                     '" . Misc::escapeString($assessed_val) . "',
                     '" . Misc::escapeString($assessed_year_val) . "'
                  )";
@@ -171,23 +169,21 @@ class Author_Org
      */
     function update()
     {
-        global $HTTP_POST_VARS;
-
-        if (Validation::isWhitespace($HTTP_POST_VARS["organisation_id"]) || Validation::isWhitespace($HTTP_POST_VARS["classification_id"]) || Validation::isWhitespace($HTTP_POST_VARS["function_id"])) {
+        if (Validation::isWhitespace($_POST["organisation_id"]) || Validation::isWhitespace($_POST["classification_id"]) || Validation::isWhitespace($_POST["function_id"])) {
             return -1;
         }
 
         $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "author_org_structure
                  SET
-                    auo_org_id='" . Misc::escapeString($HTTP_POST_VARS["organisation_id"]) . "',
-                    auo_aut_id='" . Misc::escapeString($HTTP_POST_VARS["author_id"]) . "',
-                    auo_cla_id='" . Misc::escapeString($HTTP_POST_VARS["classification_id"]) . "',
-                    auo_fun_id='" . Misc::escapeString($HTTP_POST_VARS["function_id"]) . "',
-                    auo_assessed='" . Misc::escapeString($HTTP_POST_VARS["assessed"]) . "',
-                    auo_assessed_year='" . Misc::escapeString($HTTP_POST_VARS["assessed_year"]) . "' 
+                    auo_org_id='" . Misc::escapeString($_POST["organisation_id"]) . "',
+                    auo_aut_id='" . Misc::escapeString($_POST["author_id"]) . "',
+                    auo_cla_id='" . Misc::escapeString($_POST["classification_id"]) . "',
+                    auo_fun_id='" . Misc::escapeString($_POST["function_id"]) . "',
+                    auo_assessed='" . Misc::escapeString($_POST["assessed"]) . "',
+                    auo_assessed_year='" . Misc::escapeString($_POST["assessed_year"]) . "' 
                  WHERE
-                    auo_id=" . $HTTP_POST_VARS["id"];
+                    auo_id=" . $_POST["id"];
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -206,9 +202,7 @@ class Author_Org
      */
     function remove()
     {
-        global $HTTP_POST_VARS;
-
-        $items = @implode(", ", $HTTP_POST_VARS["items"]);
+        $items = @implode(", ", $_POST["items"]);
         $stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "author_org_structure
                  WHERE

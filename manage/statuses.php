@@ -54,16 +54,16 @@ $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
 if ($isAdministrator) {
   
-    if (@$HTTP_POST_VARS["cat"] == "new") {
+    if (@$_POST["cat"] == "new") {
         $tpl->assign("result", Status::insert());
-    } elseif (@$HTTP_POST_VARS["cat"] == "update") {
-        $tpl->assign("result", Status::update($HTTP_POST_VARS["id"]));
-    } elseif (@$HTTP_POST_VARS["cat"] == "delete") {
+    } elseif (@$_POST["cat"] == "update") {
+        $tpl->assign("result", Status::update($_POST["id"]));
+    } elseif (@$_POST["cat"] == "delete") {
         Status::remove();
     }
 
-    if (@$HTTP_GET_VARS["cat"] == "edit") {
-        $tpl->assign("info", Status::getDetails($HTTP_GET_VARS["id"]));
+    if (@$_GET["cat"] == "edit") {
+        $tpl->assign("info", Status::getDetails($_GET["id"]));
     }
 
     $tpl->assign("list", Status::getList());

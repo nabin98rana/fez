@@ -1,9 +1,14 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
 // +----------------------------------------------------------------------+
-// | Eventum - Issue Tracking System                                      |
+// | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2003, 2004 MySQL AB                                    |
+// | Copyright (c) 2005, 2006 The University of Queensland,               |
+// | Australian Partnership for Sustainable Repositories,                 |
+// | eScholarship Project                                                 |
+// |                                                                      |
+// | Some of the Fez code was derived from Eventum (Copyright 2003, 2004  |
+// | MySQL AB - http://dev.mysql.com/downloads/other/eventum/ - GPL)      |
 // |                                                                      |
 // | This program is free software; you can redistribute it and/or modify |
 // | it under the terms of the GNU General Public License as published by |
@@ -22,23 +27,49 @@
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
-// | Authors: João Prado Maia <jpm@mysql.com>                             |
+// | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
+// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
-//
-// @(#) $Id: s.history.php 1.4 03/01/16 01:47:32-00:00 jpm $
-//
-include_once("config.inc.php");
-include_once(APP_INC_PATH . "class.template.php");
-include_once(APP_INC_PATH . "class.auth.php");
-include_once(APP_INC_PATH . "class.history.php");
-include_once(APP_INC_PATH . "db_access.php");
 
-$tpl = new Template_API();
-$tpl->setTemplate("history.tpl.html");
+include_once "config.inc.php";
+include_once APP_INC_PATH . "db_access.php";
+include_once APP_INC_PATH . "class.user_comments.php";
+include_once APP_INC_PATH . "class.auth.php";
 
+// bounce if not logged in
 
-$tpl->assign("changes", History::getListing($_GET["pid"]));
+$username = Auth::getUsername();
+if (empty($username)) 
+{
+    $errorurl = "" . APP_BASE_URL . "list.php";
+    header("Location: $errorurl");
+}
 
-$tpl->displayTemplate();
+// grab the user comment POST vars
+if (!empty($_POST['pid'])) {
+    $pid = $_POST['pid'];
+} else {
+    $errorurl = "" . APP_BASE_URL . "list.php";
+	header("Location: $errorurl");
+}
+$comment = $_POST['usercommenttext'];
+
+$rating = 0;
+if (isset($_POST['rating'])) {
+    $rating  = $_POST['rating'];
+}
+
+// add the user comment
+$uc = new UserComments($pid);
+$uc->addUserComment($comment, $rating);
+
+if( !$uc->uploadCommentsToFedora() )
+{
+    Error_Handler::logError("Uploading Comments to Fedora - Failed",__FILE__,__LINE__);
+}
+
+// redirect back to the PID
+$url = APP_BASE_URL . "view.php?pid=$pid";
+header("Location: $url");
+
 ?>
-

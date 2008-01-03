@@ -48,19 +48,18 @@ class News
      */
     function checkFieldData()
     {
-        global $HTTP_POST_VARS;
         // Check for non-supplied field data
-        if (Validation::isWhitespace($HTTP_POST_VARS["title"])) {
+        if (Validation::isWhitespace($_POST["title"])) {
             return -2;
         }
-        if (Validation::isWhitespace($HTTP_POST_VARS["message"])) {
+        if (Validation::isWhitespace($_POST["message"])) {
             return -3;
         }
         // Check for field data that exceeds the length of underlying DB field limits
-        if (strlen($HTTP_POST_VARS["title"]) > 255) {
+        if (strlen($_POST["title"]) > 255) {
             return -4;
         }
-        if (strlen($HTTP_POST_VARS["message"]) > 65535) {
+        if (strlen($_POST["message"]) > 65535) {
             return -5;
         }
         return 1;
@@ -75,8 +74,6 @@ class News
      */
     function insert()
     {
-        global $HTTP_POST_VARS;
-
         $checkResult = News::checkFieldData();
         if ($checkResult !== 1) {
             return $checkResult;
@@ -89,7 +86,7 @@ class News
                     nws_created_date,
                     nws_title,
                     nws_message,";
-			if ($HTTP_POST_VARS["status"] == "active") {
+			if ($_POST["status"] == "active") {
 				$stmt .= "nws_published_date,";
 			}
 			$stmt .= "
@@ -97,15 +94,15 @@ class News
                  ) VALUES (
                     " . Auth::getUserID() . ",
                     '" . Date_API::getCurrentDateGMT() . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["title"]) . "',
-                    '" . Misc::escapeString($HTTP_POST_VARS["message"]) . "',";
-				if ($HTTP_POST_VARS["status"] == "active") {
+                    '" . Misc::escapeString($_POST["title"]) . "',
+                    '" . Misc::escapeString($_POST["message"]) . "',";
+				if ($_POST["status"] == "active") {
 					$stmt .= "
 					'" . Date_API::getCurrentDateGMT() . "',";
 				}
 
 					$stmt .= "
-                    '" . Misc::escapeString($HTTP_POST_VARS["status"]) . "'
+                    '" . Misc::escapeString($_POST["status"]) . "'
                  )";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -125,9 +122,7 @@ class News
      */
     function remove()
     {
-        global $HTTP_POST_VARS;
-
-        $items = @implode(", ", $HTTP_POST_VARS["items"]);
+        $items = @implode(", ", $_POST["items"]);
         $stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "news
                  WHERE
@@ -150,30 +145,29 @@ class News
      */
     function update()
     {
-        global $HTTP_POST_VARS;
         $checkResult = News::checkFieldData();
         if ($checkResult !== 1) {
             return $checkResult;
         }
 
         // get existing details for the publish date condition
-        $existing_res = News::getDetails($HTTP_POST_VARS["id"]);
+        $existing_res = News::getDetails($_POST["id"]);
 
         $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "news
                  SET
-                    nws_title='" . Misc::escapeString($HTTP_POST_VARS["title"]) . "',
-                    nws_message='" . Misc::escapeString($HTTP_POST_VARS["message"]) . "',
-                    nws_status='" . Misc::escapeString($HTTP_POST_VARS["status"]) . "',
+                    nws_title='" . Misc::escapeString($_POST["title"]) . "',
+                    nws_message='" . Misc::escapeString($_POST["message"]) . "',
+                    nws_status='" . Misc::escapeString($_POST["status"]) . "',
 					";
-				if (($HTTP_POST_VARS["status"] == "active") && ($existing_res['published_date'] != '0000-00-00 00:00:00')) {
+				if (($_POST["status"] == "active") && ($existing_res['published_date'] != '0000-00-00 00:00:00')) {
 					$stmt .= "
 					nws_published_date = '" . Date_API::getCurrentDateGMT() . "',";
 				}
 					$stmt .= "
                     nws_updated_date='" . Date_API::getCurrentDateGMT() . "'					
                  WHERE
-                    nws_id=" . $HTTP_POST_VARS["id"];
+                    nws_id=" . $_POST["id"];
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

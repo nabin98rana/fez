@@ -45,7 +45,7 @@ $tpl->setTemplate("manage/index.tpl.html");
 Auth::checkAuthentication(APP_SESSION);
 $tpl->assign("extra_title", "Import Controlled Vocabulary");
 $tpl->assign("type", "import_controlled_vocab");
-$parent_id = @$HTTP_POST_VARS["parent_id"] ? $HTTP_POST_VARS["parent_id"] : @$HTTP_GET_VARS["parent_id"];	
+$parent_id = @$_POST["parent_id"] ? $_POST["parent_id"] : @$_GET["parent_id"];	
 //$parents = Controlled_Vocab::getParentAssocListFullDisplay($parent_id);
 	$cvo_id = $parent_id;
 	$max_breadcrumb = "";
@@ -73,17 +73,17 @@ $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
 if ($isSuperAdministrator) {
   
-    if (@$HTTP_POST_VARS["cat"] == "import") {
+    if (@$_POST["cat"] == "import") {
         $files = array();
-        for ($i = 0; $i < count($HTTP_POST_FILES["cvi_xml_filename"]); $i++) {
-            $filename = @$HTTP_POST_FILES["cvi_xml_filename"]["name"][$i];
+        for ($i = 0; $i < count($_FILES["cvi_xml_filename"]); $i++) {
+            $filename = @$_FILES["cvi_xml_filename"]["name"][$i];
             if (empty($filename)) {
                 continue;
             }
-            $blob = Misc::getFileContents($HTTP_POST_FILES["cvi_xml_filename"]["tmp_name"][$i]);
+            $blob = Misc::getFileContents($_FILES["cvi_xml_filename"]["tmp_name"][$i]);
             $files[] = array(
                 "filename"  =>  $filename,
-                "type"      =>  $HTTP_POST_FILES['cvi_xml_filename']['type'][$i],
+                "type"      =>  $_FILES['cvi_xml_filename']['type'][$i],
                 "blob"      =>  $blob
             );
         }

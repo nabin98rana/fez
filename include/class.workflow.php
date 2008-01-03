@@ -57,9 +57,7 @@ class Workflow
      */
     function remove()
     {
-        global $HTTP_POST_VARS;
-
-        $items = @implode(", ", $HTTP_POST_VARS["items"]);
+        $items = @implode(", ", $_POST["items"]);
         $stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "workflow
                  WHERE
@@ -69,8 +67,8 @@ class Workflow
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return false;
         } else {
-          Workflow_State::removeByWorkflow($HTTP_POST_VARS["items"]);
-          WorkflowTrigger::removeByWorkflow($HTTP_POST_VARS["items"]);
+          Workflow_State::removeByWorkflow($_POST["items"]);
+          WorkflowTrigger::removeByWorkflow($_POST["items"]);
 		  return true;
         }
     }

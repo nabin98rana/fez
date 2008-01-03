@@ -109,9 +109,8 @@ class XSD_Display
 	 * @param   integer $xdis_id The XSD Display ID to clone
      * @return  integer 1 if the insert worked, -1 otherwise
      */
-    function cloneDisplay($xdis_id) {
-        global $HTTP_POST_VARS;
-
+    function cloneDisplay($xdis_id) 
+    {
 		$master_res = XSD_Display::getDetails($xdis_id);
 
         $stmt = "INSERT INTO
@@ -305,9 +304,8 @@ class XSD_Display
     function update($xdis_id, $params = array())
     {
         if (empty($params)) {
-            global $HTTP_POST_VARS;
 
-            $params = &$HTTP_POST_VARS;
+            $params = &$_POST;
         }
         if (@$params["xdis_enabled"]) {
             $xdis_enabled = 1;

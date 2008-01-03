@@ -111,8 +111,7 @@ class XSD_Display_Attach
      */
     function remove()
     {
-		global $HTTP_POST_VARS;
-        $items = @implode(", ", $HTTP_POST_VARS["items"]);
+        $items = @implode(", ", $_POST["items"]);
 
         $stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "xsd_display_attach
@@ -137,8 +136,6 @@ class XSD_Display_Attach
      */
     function insert()
     {
-        global $HTTP_POST_VARS;
-
         $stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "xsd_display_attach
                  (
@@ -146,9 +143,9 @@ class XSD_Display_Attach
                     att_child_xsdmf_id,
 					att_order
                  ) VALUES (
-                    " . Misc::escapeString($HTTP_POST_VARS["att_parent_xsdmf_id"]) . ",
-                    " . Misc::escapeString($HTTP_POST_VARS["att_child_xsdmf_id"]) . ",
-                    " . Misc::escapeString($HTTP_POST_VARS["att_order"]) . "
+                    " . Misc::escapeString($_POST["att_parent_xsdmf_id"]) . ",
+                    " . Misc::escapeString($_POST["att_child_xsdmf_id"]) . ",
+                    " . Misc::escapeString($_POST["att_order"]) . "
                  )";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -168,15 +165,13 @@ class XSD_Display_Attach
      */
     function update()
     {
-        global $HTTP_POST_VARS;
-
         $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "xsd_display_attach
                  SET 
-                    att_parent_xsdmf_id = " . Misc::escapeString($HTTP_POST_VARS["att_parent_xsdmf_id"]) . ",
-                    att_child_xsdmf_id = " . Misc::escapeString($HTTP_POST_VARS["att_child_xsdmf_id"]) . ",
-                    att_order = " . Misc::escapeString($HTTP_POST_VARS["att_order"]) . "
-                 WHERE att_id = " . Misc::escapeString($HTTP_POST_VARS["att_id"]) . "";
+                    att_parent_xsdmf_id = " . Misc::escapeString($_POST["att_parent_xsdmf_id"]) . ",
+                    att_child_xsdmf_id = " . Misc::escapeString($_POST["att_child_xsdmf_id"]) . ",
+                    att_order = " . Misc::escapeString($_POST["att_order"]) . "
+                 WHERE att_id = " . Misc::escapeString($_POST["att_id"]) . "";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

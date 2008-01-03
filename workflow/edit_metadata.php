@@ -65,7 +65,7 @@ if (NAJAX_Server::runServer()) {
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", "edit_metadata");
-Auth::checkAuthentication(APP_SESSION, $HTTP_SERVER_VARS['PHP_SELF']."?".$HTTP_SERVER_VARS['QUERY_STRING']);
+Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);
 $isAdministrator = User::isUserAdministrator($username);
@@ -130,7 +130,7 @@ $access_ok = $record->canEdit();
 if ($access_ok) {
 
     if (!is_numeric($xdis_id)) {
-        $xdis_id = @$HTTP_POST_VARS["xdis_id"] ? $HTTP_POST_VARS["xdis_id"] : $HTTP_GET_VARS["xdis_id"];	
+        $xdis_id = @$_POST["xdis_id"] ? $_POST["xdis_id"] : $_GET["xdis_id"];	
         if (is_numeric($xdis_id)) { // must have come from select xdis so save xdis in the FezMD
             Record::updateAdminDatastream($pid, $xdis_id);
         }
