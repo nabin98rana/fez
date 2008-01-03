@@ -146,6 +146,20 @@ function openHistory(pid)
     var popupWin = window.open('{/literal}{$rel_url}{literal}history.php?pid=' + pid, '_impact', features);
     popupWin.focus();
 }
+
+function showDiv(p)
+{
+    //elm = document.getElementById(p);
+    
+    if( document.getElementById(p).style.display == "block" )
+    {
+        document.getElementById(p).style.display = "none";
+    }
+    else
+    {
+        document.getElementById(p).style.display = "block";
+    }
+}
 //-->
 </script>
 {/literal}
@@ -372,10 +386,73 @@ function openHistory(pid)
 		</tr>
 {/if}
 		  
-		  
+{if $displayusercomments}
+	   <tr>
+          <table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="2" width="95%" align="center">
+    
+    	  <tr>
+    		<td class="default" colspan="5">&nbsp;</td>
+    	  </tr>
+    	  <tr>
+    		<td class="default_white" colspan="5" bgcolor="{$heading_color}"><b>User Comments</b></td>
+    	  </tr>
+    
+        {section name="uc" loop=$usercomments}
+           <tr valign="top">
+           <td align="left" class="default" bgcolor="{$light_color}" style="border-bottom: 2px solid #FFFFFF;">
+            <p>
+             <blockquote>{$usercomments[uc].comment}</blockquote>
+             {if $usercomments[uc].usc_rating}<br /><i><b>Rating: <img src="{$rel_url}images/rating{$usercomments[uc].usc_rating}.png" alt="{$usercomments[uc].usc_rating}"> </b></i>{/if}
+             <br/>
+             <cite><i><b>Posted by:</b> <a href="mailto:{$usercomments[uc].usr_email}">{$usercomments[uc].usr_full_name}</a> {$usercomments[uc].formatted_date_created}</i></cite><br>
+            </p>
+            </td>
+           </tr>
+        {/section}
+        
+       {if $addusercomment}
+       <tr>
+        <td class="default"><a href="#comment" onclick="javascript:showDiv('comment');"><strong>Add a comment</strong></a></td>
+       </tr>
+       <tr>
+        <td>
+        <div id="comment" style="display: none">
+        <form name="addusercommentform" action="/add_comment.php" method="post">
+         <p>
+          <textarea name="usercommenttext" rows="10" cols="45"></textarea> <br>
+          <input type="hidden" name="pid" value="{$pid}">
+          <select name="rating">
+           <option value="0">Rating out of 5 stars (optional)</option>
+           <option value="1">One star (Awful)</option>
+           <option value="2">Two stars</option>
+           <option value="3">Three stars</option>
+           <option value="4">Four stars</option>
+           <option value="5">Five stars (Superb)</option>
+          </select>
+          <br>
+          <input type="submit" value="Add Comment">
+         </p>
+        </form>
+        </div>
+         </td>
+        </tr>
+       {/if}
+       </td>
+     </tr>
+             
+        <tr>
+    	  <td class="default" colspan="5">&nbsp;</td>
+        </tr>
+             
+     </table>
+     </tr>
+{/if}
+
+
+
 		  <tr>
 			<td align="left" colspan="5">
-		<table width="100%" border="0" cellpadding="2" cellspacing="0"  bgcolor="#FFFFFF" >  
+		      <table width="100%" border="0" cellpadding="2" cellspacing="0"  bgcolor="#FFFFFF" >  
 {if $WEBSERVER_LOG_STATISTICS == 'ON'}   		
 				<tr>
 				  <td align="left" class="default" nowrap> <b>Access Statistics:</b></td>
@@ -392,45 +469,13 @@ function openHistory(pid)
 			  </td>
 				</tr>
 				
-{if $displayusercomments}
-                <tr valign="top">
-                    <td align="left" class="default" nowrap> <b>User Comments:</b></td>
-                   <td align="left" class="default" nowrap>
-                   {section name="uc" loop=$usercomments}
-                    <p>
-                     <i><b>Comment</b> from <a href="mailto:{$usercomments[uc].usr_email}">{$usercomments[uc].usr_full_name}</a>, posted {$usercomments[uc].formatted_date_created}:</i><br>
-                     {$usercomments[uc].comment}<br>
-                     {if $usercomments[uc].usc_rating}<i><b>Rating: <img src="{$rel_url}images/rating{$usercomments[uc].usc_rating}.png" alt="{$usercomments[uc].usc_rating}"> </b></i>{/if}
-                    </p>
-                   {/section}
-                   {if $addusercomment}
-                    <form name="addusercommentform" action="/add_comment.php" method="post">
-                     <p>
-                      <i><b>Add a comment:</b></i> <br>
-                      <textarea name="usercommenttext" rows="10" cols="45"></textarea> <br>
-                      <input type="hidden" name="pid" value="{$pid}">
-                      <select name="rating">
-                       <option value="0">Rating out of 5 stars (optional)</option>
-                       <option value="1">One star (Awful)</option>
-                       <option value="2">Two stars</option>
-                       <option value="3">Three stars</option>
-                       <option value="4">Four stars</option>
-                       <option value="5">Five stars (Superb)</option>
-                      </select>
-                      <br>
-                      <input type="submit" value="Add Comment">
-                     </p>
-                    </form>
-                   {/if}
-                   </td>
-                 </tr>
-{/if}
-
-		</table>
+			  </table>
 			</td>		
 		  </tr>
     
 	    </table>
+
+		
 		
     </td>
 {if $show_tombstone && !$deleted || !$show_tombstone}
