@@ -1,5 +1,5 @@
 #header {
-background-image: url("[[$smarty.const.APP_BASE_URL]]images/fez_2_banner_gradient.png");
+background-image: url("[[$rel_url]]images/fez_2_banner_gradient.png");
 background-repeat: repeat-y;
 background-position: right;
 background-color: #FFFFFF;
