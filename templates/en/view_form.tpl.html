@@ -241,8 +241,8 @@ function showDiv(p)
 				<tr valign="top">
 				  <td align="left" class="default" nowrap> <b>Browse Collection:</b></td>
 				  <td align="left" class="default" width="100%"> 
-{if $prev}<a href="{$rel_url}view/{$prev.rek_pid}&go_prev={$go_prev}">Prev: <i>{$prev.rek_title}</i></a> {if $next}<br />{/if}{/if}
-{if $next}<a href="{$rel_url}view/{$next.rek_pid}&go_next={$go_next}">Next: <i>{$next.rek_title}</i></a> {/if}
+{if $prev}<a href="{$rel_url}view/{$prev.rek_pid}">Prev: <i>{$prev.rek_title}</i></a> {if $next}<br />{/if}{/if}
+{if $next}<a href="{$rel_url}view/{$next.rek_pid}">Next: <i>{$next.rek_title}</i></a> {/if}
 				  </td>
 				</tr>
 {/if}
@@ -417,7 +417,7 @@ function showDiv(p)
        <tr>
         <td>
         <div id="comment" style="display: none">
-        <form name="addusercommentform" action="/add_comment.php" method="post">
+        <form name="addusercommentform" action="{$rel_url}/add_comment.php" method="post">
          <p>
           <textarea name="usercommenttext" rows="10" cols="45"></textarea> <br>
           <input type="hidden" name="pid" value="{$pid}">
