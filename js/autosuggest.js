@@ -111,7 +111,12 @@ AutoSuggestControl.prototype.createDropDown = function () {
 			oThis.highlightSuggestion(oTarget);
 			oThis.hideSuggestions();
 		} else if (oEvent.type == "mouseover") {
-            oThis.highlightSuggestion(oTarget);
+            // Turning this off as once you move your mouse
+            // over a suggestion, it says highlighted. Then
+            // when you click to lose focus, the highlighted suggestion
+            // is selected
+            
+		    //oThis.highlightSuggestion(oTarget);
         } else {
             oThis.textboxcopy.focus();
         }

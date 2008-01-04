@@ -18,11 +18,9 @@
 	{/if}
 </select>
 <!-- Google suggest style selection -->
-<input type="text" name="{$attached_field_id}_lookup" id="{$attached_field_id}_lookup" size="30"
-	autocomplete="off" class="default" />
+<input type="text" name="{$attached_field_id}_lookup" id="{$attached_field_id}_lookup" size="30" autocomplete="off" class="default" />
 <script type="text/javascript">
 <!--
-function register_suggest_{$attached_field_id}_lookup() {ldelim}
     window.oTextbox_{$attached_field_id}_lookup
 						= new AutoSuggestControl(document.wfl_form1, 
 								'{$attached_field_id}', 
@@ -30,10 +28,9 @@ function register_suggest_{$attached_field_id}_lookup() {ldelim}
 								document.getElementById('{$attached_field_id}_lookup'),
 								new StateSuggestions('Author', 'suggest', false, 'class.author.php'), 
 								'authorSuggestorCallback');
-{rdelim}
 // -->
 </script>
-<div class="register_suggest" name="register_suggest">register_suggest_{$attached_field_id}_lookup();</div>
+
 {if $attached_xsdmf.xsdmf_attached_xsdmf_id != ""}
 	{assign var="attached_xsdmf_id" value=$attached_xsdmf.xsdmf_attached_xsdmf_id}
 	{section name='aas' loop=$xsd_display_fields}{if $xsd_display_fields[aas].xsdmf_id == $attached_xsdmf_id}{assign var="attached_xsdmf" value=$xsd_display_fields[aas]}{/if}{/section}
