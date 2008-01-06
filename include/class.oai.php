@@ -108,7 +108,7 @@ class OAI
 			$options["searchKey".Search_Key::getID("Date")]["filter_enabled"] = 1;
 			$options["searchKey".Search_Key::getID("Date")]["start_date"] = $until;
         }
- 		$return = Record::getListing($options, $approved_roles=array(9,10), $current_row,$max, $order_by);
+ 		$return = Record::getListing($options, $approved_roles=array(9,10), $current_row, $max, $order_by);
 
 		if (is_array($return['list'])) {
 			foreach ($return['list'] as $rkey => $res) {
@@ -120,6 +120,12 @@ class OAI
 						}
 					}
 				}
+				
+				if( !empty($res['rek_created_date']) )
+				{
+				    $return['list'][$rkey]['rek_created_date'] = Date_API::getFedoraFormattedDateUTC(strtotime($res['rek_created_date']));
+				}
+				
 				$return['list'][$rkey]['rek_file_attachment_name'] = $fans;
 			}
 		}
