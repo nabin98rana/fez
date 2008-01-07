@@ -167,6 +167,8 @@ class Lister
 		} elseif (!empty($community_pid)) {
 			$pid = $community_pid;
 			$browse_mode = "community";
+		} else {
+			$browse_mode = "list";
 		}
 		$tpl->assign("pid", $pid);
 		$tpl->assign("browse_mode", $browse_mode);
@@ -609,6 +611,21 @@ class Lister
 //		}
         $tpl->assign("list", $list);
         $tpl->assign("list_info", $list_info);
+
+		// Try to make sense of the query string, and push through the relevant bits for page formatting.
+		$queryStringReduced = $_SERVER['QUERY_STRING'];
+		$queryStringReduced = preg_replace("/(.*)&rows=[\d]+/i", "$1", $queryStringReduced);	// Strip rows
+		$queryStringReduced = preg_replace("/(.*)&pager_row=[\d]+/i", "$1", $queryStringReduced);	// Strip pager_row
+		if ($browse_mode == "collection" || $browse_mode == "collection") {
+			$queryPlus = APP_RELATIVE_URL . $browse_mode ."/" . $pid ."/";
+			$queryStringReduced = "";
+		} else {
+			$queryPlus = APP_RELATIVE_URL . "list/";
+		}
+
+		$tpl->assign("query_reduced", $queryStringReduced);
+		$tpl->assign("query_plus", $queryPlus);
+
         if (Auth::userExists($username)) {
             $prefs = Prefs::get(Auth::getUserID());
         }

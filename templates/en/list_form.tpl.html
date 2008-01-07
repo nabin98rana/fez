@@ -8,6 +8,8 @@ var page_url = '{$rel_url}collection/{$collection_pid}';
 var page_url = '{$rel_url}list';
 {elseif $list_type == 'collection_list'}
 var page_url = '{$rel_url}community/{$community_pid}';
+{else}
+var page_url = '{$rel_url}list';
 {/if}
 {literal}
 var current_page = {/literal}{if $list_info.current_page != ""}{$list_info.current_page}{else}0{/if}{literal};
