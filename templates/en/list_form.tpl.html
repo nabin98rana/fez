@@ -115,8 +115,26 @@ function sortList(f, field) {
 }
 
 function sortListOrder(f, field) {
-    sort_order = getSelectedOption(f, field);
+	sort_order = getSelectedOption(f, field);
     window.location.href = page_url + "/" + replaceParam(window.location.href, 'sort_order', sort_order);
+}
+
+function orderAndSort(f, field1, field2) {
+	sort_by = getSelectedOption(f, field1);
+	sort_order = getSelectedOption(f, field2);
+	{/literal}
+	{if $browse_mode == 'collection' || $browse_mode == 'community'}
+		sortURL = '{$query_plus}{$query_reduced_sans_sort}sort_by=' + sort_by + '&sort_order=' + sort_order;
+	{else}
+		{if $$query_reduced_sans_sort != ''}
+			sortURL = '{$query_plus}{$query_reduced_sans_sort}&sort_by=' + sort_by + '&sort_order=' + sort_order;
+		{else}
+			sortURL = '{$query_plus}{$query_reduced_sans_sort}sort_by=' + sort_by + '&sort_order=' + sort_order;
+		{/if}
+
+	{/if}{literal}
+	//window.alert(sortURL);
+	window.location.href = sortURL;
 }
 
 function setTemplate(f, field) {
@@ -250,7 +268,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		{if ($browse_type == "browse_author") && (!$smarty.get.author && !$smarty.get.author_id)} 
         <tr>
 			<td align="left" class="default">
-			<a href="{$rel_url}list.php?browse=author"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a>
+			<a href="{$rel_url}list/browse=author"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a>
            &nbsp;<b>{$browse_heading}:</b>		  
 			</td>
         </tr>
@@ -260,15 +278,15 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 			<div class="letter-list">
 			{section name="i" loop=$alphabet_list}
                           {if $smarty.get.browse == "author_id"}
-				<a href="{$smarty.server.PHP_SELF}?browse=author_id&amp;letter={$alphabet_list[i]}">{$alphabet_list[i]}</a> | 
+				<a href="{$rel_url}list/browse=author_id&amp;letter={$alphabet_list[i]}">{$alphabet_list[i]}</a> | 
                           {else}
-				<a href="{$smarty.server.PHP_SELF}?browse=author&amp;letter={$alphabet_list[i]}">{$alphabet_list[i]}</a> | 
+				<a href="{$rel_url}list/browse=author&amp;letter={$alphabet_list[i]}">{$alphabet_list[i]}</a> | 
                           {/if}
 			{/section}
 			{if $smarty.get.browse == "author_id"}
-				<a href="{$smarty.server.PHP_SELF}?browse=author_id">All</a>
+				<a href="{$rel_url}list/browse=author_id">All</a>
 			{else}
-			<a href="{$smarty.server.PHP_SELF}?browse=author">All</a>
+			<a href="{$rel_url}list/browse=author">All</a>
 			{/if}
 			</div>
           </td>
@@ -283,9 +301,9 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 				  <tr>
 					  <td>
 					      {if $list[i].record_author_id != 0}
-					      <a class="author_id_link" href='{$rel_url}list.php?browse=author&author_id={$list[i].record_author_id|escape:'url'}'>{$list[i].record_author|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+					      <a class="author_id_link" href='{$rel_url}list/browse=author&author_id={$list[i].record_author_id|escape:'url'}'>{$list[i].record_author|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
 					      {else}
-							<a href='{$rel_url}list.php?browse=author&author={$list[i].record_author|escape:'url'}'>{$list[i].record_author|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+							<a href='{$rel_url}list/browse=author&author={$list[i].record_author|escape:'url'}'>{$list[i].record_author|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
 						  {/if}
 						</td>
 					</tr>
@@ -309,7 +327,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		{elseif ($browse_type == "browse_depositor")} 
         <tr>
 			<td align="left" class="default" colspan="2"><br />
-			<a href="{$rel_url}list.php?browse=depositor"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a>
+			<a href="{$rel_url}list/browse=depositor"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a>
            &nbsp;<b>{$browse_heading}:</b>		  
 			</td>
         </tr>
@@ -321,7 +339,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 				  <table width="100%" cellpadding="2" cellspacing="1" class="listrecord">
 				  <tr>
 					  <td>
-							<a href='{$rel_url}list.php?browse=depositor&depositor={$list[i].record_depositor}'>{$list[i].record_desc|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+							<a href='{$rel_url}list/browse=depositor&depositor={$list[i].record_depositor}'>{$list[i].record_desc|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
 
 						</td>
 					</tr>
@@ -345,7 +363,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		{elseif ($browse_type == "browse_year")} 
         <tr>
 			<td align="left" class="default" colspan="2" ><br />
-			<a href="{$rel_url}list.php?browse=year"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a>
+			<a href="{$rel_url}list/browse=year"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a>
            &nbsp;<b>{$browse_heading}:</b>		  
 			</td>
         </tr>
@@ -360,7 +378,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 					{if $list[i].record_year == 0}
 							(not set) ({$list[i].record_count|escape:"html"})
 					{else}
-							<a href='{$rel_url}list.php?browse=year&year={$list[i].record_year}'>{$list[i].record_year|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+							<a href='{$rel_url}list/browse=year&year={$list[i].record_year}'>{$list[i].record_year|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
 					{/if}
 						</td>
 					</tr>
@@ -384,7 +402,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		{elseif $browse_type == "browse_subject"}
         <tr>
 			<td colspan="2" align="left" class="default"><br />
-			<a href="{$rel_url}list.php?browse=subject"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a>
+			<a href="{$rel_url}list/browse=subject"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a>
            &nbsp;<b>Browse by 
 		          {if $max_subject_breadcrumb != -1}
 					  {section name="b" loop=$subject_breadcrumb}
@@ -392,7 +410,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		                  {if $subject_breadcrumb[b].cvo_image_filename != ""}
 						    <img src="{$rel_url}images/{$subject_breadcrumb[b].cvo_image_filename}" alt="" />
 						  {/if}
-                          {if $max_subject_breadcrumb != $smarty.section.b.index}<a href='{$rel_url}list.php?browse=subject&parent_id={$subject_breadcrumb[b].cvo_id}'>{else}<b>{/if}{$subject_breadcrumb[b].cvo_title|escape:"html"}{if $max_subject_breadcrumb != $smarty.section.b.index}</a>{else}</b>{/if}
+                          {if $max_subject_breadcrumb != $smarty.section.b.index}<a href='{$rel_url}list/browse=subject&parent_id={$subject_breadcrumb[b].cvo_id}'>{else}<b>{/if}{$subject_breadcrumb[b].cvo_title|escape:"html"}{if $max_subject_breadcrumb != $smarty.section.b.index}</a>{else}</b>{/if}
  						  {assign var="cvo_id" value=$subject_breadcrumb[b].cvo_id}
 						  {if $max_subject_breadcrumb != $smarty.section.b.index}->{else}:{/if}					
 					  {/section}
@@ -407,7 +425,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 			  <table width="100%" cellpadding="2" cellspacing="1" class="listrecord">
               <tr>
                   <td>{if $subject_list[i].cvo_image_filename != ""}<img src="{$rel_url}images/{$subject_list[i].cvo_image_filename}" alt="" />{/if}
-                        <a href='{$rel_url}list.php?browse=subject&parent_id={$subject_list[i].cvo_id}'>{$subject_list[i].cvo_title|escape:"html"}</a>
+                        <a href='{$rel_url}list/browse=subject&parent_id={$subject_list[i].cvo_id}'>{$subject_list[i].cvo_title|escape:"html"}</a>
 						{assign var="cvo_id" value=$subject_list[i].cvo_id}
 						{if $subject_count[$cvo_id]}({$subject_count[$cvo_id]}){elseif ($smarty.get.parent_id)}(0){/if}
 					</td>
@@ -457,7 +475,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 				{elseif $list_type == 'collection_list'}
 					<img src="{$rel_url}images/collection_32.jpg" alt="" />
 				{elseif $browse_type == 'browse_author'}			
-					<a href="{$rel_url}list.php?browse=author"><img title="Browse by all authors" alt="Browse by all authors" border="0" src="{$rel_url}images/browse_32.jpg" /></a>
+					<a href="{$rel_url}list/browse=author"><img title="Browse by all authors" alt="Browse by all authors" border="0" src="{$rel_url}images/browse_32.jpg" /></a>
 				{elseif $list_type == 'browse_subjects_list'}		
 		
 				{/if}
@@ -471,15 +489,15 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 				   <a href="{$smarty.server.REQUEST_URI|escape:'html'}&amp;tpl=4"><img alt="Show the copy-friendly citations only display for this list or search" title="Show the copy-friendly citations only display for this list or search" border="0" src="{$rel_url}images/citation.png" /></a>
 				   {/if}
 		                   </td>                                     
-		                   <td align="right"><span class="default">Order By </span>
-		                   <select class="default" name="sort_by" onchange="javascript:sortList(this.form, 'sort_by');">
+		                   <td align="right">
+						   <span class="default">Order By </span>
+		                   <select class="default" name="sort_by" onchange="javascript:orderAndSort(this.form, 'sort_by', 'sort_order');">
 		                       {html_options options=$sort_by_list selected=$sort_by_default}
 		                   </select>
-		                    <select class="default" name="sort_order" onchange="javascript:sortListOrder(this.form, 'sort_order');">
+		                    <select class="default" name="sort_order" onchange="javascript:orderAndSort(this.form, 'sort_by', 'sort_order');">
 		                       <option value="0" {if $sort_order == 0}selected="selected"{/if}>Asc</option>
 		                       <option value="1" {if $sort_order == 1}selected="selected"{/if}>Desc</option>
 		                   </select>
-		                   
 					</td>
 		        </tr>
 			</table>
