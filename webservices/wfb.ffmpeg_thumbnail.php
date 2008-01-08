@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------+
 // | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2005, 2006, 2007 The University of Queensland,         |
+// | Copyright (c) 2005 - 2008 The University of Queensland,         |
 // | Australian Partnership for Sustainable Repositories,                 |
 // | eScholarship Project                                                 |
 // |                                                                      |
@@ -32,66 +32,59 @@
 // +----------------------------------------------------------------------+
 //
 //
+// @@@ CK - 10/12/2007
+// FFMpeg video to flash video converter webservice
+// - Takes url parameters to convert an video file to a flash video cached dissemination
 
-$pid = $this->pid;
-$xdis_id = $this->xdis_id;
-$dsInfo = $this->dsInfo;
-$dsIDName = $dsInfo['ID'];
-$filename=$dsIDName;
+include_once("../config.inc.php");
+include_once(APP_INC_PATH."class.foxml.php");
+$file = escapeshellcmd(urldecode($_GET['file']));
+$file_dir = "";	
 
-// Added a check to see if the file is coming from a batch import location, therefore don't try to check if it is in the temp directory - which is only really for form uploads
-if ((is_numeric(strpos($filename, "/"))) || (is_numeric(strpos($filename, "\\")))) {
-	$filepath = $filename;
-} else {
-	$filepath = APP_TEMP_DIR.$filename;
+if (is_numeric(strpos($file, "/"))) {
+	$file_dir = substr($file, 0, strrpos($file, "/"));
+	$file = substr($file, strrpos($file, "/")+1);
+
 }
-
-if (!file_exists($filepath)) {
-    Error_Handler::logError("No base file $filepath<br/>\n",__FILE__,__LINE__);
-} else {
-
-    if (empty($file_name_prefix)) {
-        $file_name_prefix = "thumbnail_";
-    }
-    if (empty($height)) {
-        $height = APP_THUMBNAIL_HEIGHT;
-    }
-    if (empty($width)) {
-        $width = APP_THUMBNAIL_WIDTH;
-    }
-
-
-    if (is_numeric(strpos($filename, "/"))) {
-        $new_file = $file_name_prefix.Foxml::makeNCName(substr($filename,strrpos($filename,"/")+1));
+if (trim($file_dir) == "") { $file_dir = APP_TEMP_DIR; }
+if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) { // check for command hax
+	if (is_numeric(strrpos($file, '.'))) {
+        $ffpmeg_file = APP_TEMP_DIR.'thumbnail_'.Foxml::makeNCName(substr($file, 0, strrpos($file, '.'))).'.jpg';
     } else {
-        $new_file = $file_name_prefix.Foxml::makeNCName($filename);
+        $ffpmeg_file = APP_TEMP_DIR.'thumbnail_'.Foxml::makeNCName($file).'.jpg';
     }
-    if (is_numeric(strpos($new_file, "."))) {
-        $new_file = substr($new_file, 0, strrpos($new_file, ".")).".jpg";
+	if (is_file($presmd_file)) { // if already exists, delete it
+		unlink($presmd_file);
+	}
+    $full_file = $file_dir.'/'.$file;
+    if (is_numeric(strpos($full_file, " "))) {
+        $newfile = Foxml::makeNCName($file);
+ 		Misc::processURL($full_file, true, APP_TEMP_DIR.$newfile);
+//        copy($full_file, APP_TEMP_DIR.$newfile);
+        $full_file = APP_TEMP_DIR.$newfile;
+    }
+    if (!stristr(PHP_OS, 'win') || stristr(PHP_OS, 'darwin')) { // Not Windows Server
+        $unix_extra = " 2>&1";
     } else {
-        $new_file .= ".jpg";
+        $unix_extra = '';
+        $full_file = str_replace('/','\\',$full_file);
     }
-    $getString = APP_BASE_URL."webservices/wfb.image_resize.php?image="
-        .urlencode($filename)."&height=$height&width=$width&ext=jpg&outfile=".$new_file;
-//	echo $getString;
-	Misc::ProcessURL($getString);
-	
-    if (!empty($new_file)) {
-        if (Fedora_API::datastreamExists($pid, $new_file)) {
-            Fedora_API::callPurgeDatastream($pid, $new_file);
-        }
-        $delete_file = APP_TEMP_DIR.$new_file;
-        $new_file = APP_TEMP_DIR.$new_file;
-        if (file_exists($new_file)) {
-            Fedora_API::getUploadLocationByLocalRef($pid, $new_file, $new_file, $new_file, 'image/jpeg', 'M');
-            if (is_file($new_file)) {
-                $deleteCommand = APP_DELETE_CMD." ".$delete_file;
-                exec($deleteCommand);
-            }
-        } else {
-            Error_Handler::logError("File not created $new_file<br/>\n", __FILE__,__LINE__);
-        }
+	$command = APP_FFMPEG_CMD.' -i '."$full_file -ss 00:00:05 -s ".APP_THUMBNAIL_WIDTH."x".APP_THUMBNAIL_HEIGHT." -vframes 1 -y -f image2 $ffpmeg_file";
+    if(!$file) $error .= "<b>ERROR:</b> no file specified<br>";
+    if(!is_file($full_file)) { $error .= "<b>ERROR:</b> given file filename not found or bad filename given<br>"; }
+    if (!empty($error)) {
+        Error_Handler::logError($error,__FILE__,__LINE__);
     }
-}
+	$return_status = 0;
+	$return_array = array();
+	exec($command.$unix_extra , $return_array, $return_status);
+	if ($return_status <> 0) {
+		Error_Handler::logError("FFMpeg Error: ".implode(",", $return_array).", return status = $return_status, for command $command \n", __FILE__,__LINE__);
+	}
+        if (!empty($newfile)) {
+            unlink($full_file);
+        }
+        echo $ffpmeg_file;
+} 
 
 ?>

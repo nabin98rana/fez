@@ -1055,6 +1055,12 @@ class Record
 					}
 					array_push($result[$i]['thumbnail'], $result[$i]['rek_file_attachment_name'][$x]);
     			}
+    			if (is_numeric(strpos($result[$i]['rek_file_attachment_name'][$x], "stream_"))) {
+					if (!is_array(@$result[$i]['stream'])) {
+						$result[$i]['stream'] = array();
+					}
+					array_push($result[$i]['stream'], $result[$i]['rek_file_attachment_name'][$x]);
+    			}
     		}
     	}
     }
@@ -3161,7 +3167,7 @@ class RecordGeneral
         }
 
         // exclude these prefixes if we're not cloning the binaries
-        $exclude_prefix = array('presmd','thumbnail','web','preview');
+        $exclude_prefix = array('presmd','thumbnail','web','preview', 'stream');
 
         foreach ($datastreams as $ds_key => $ds_value) {
             if (!$clone_attached_datastreams) {
@@ -3571,18 +3577,24 @@ class RecordObject extends RecordGeneral
         foreach ($ds as $dsKey => $dsTitle) {
             $dsIDName = $dsTitle['ID'];
             if ($dsTitle['controlGroup'] == 'M'
-                    && is_numeric(strpos($dsTitle['MIMEType'],"image/"))
+                    && (is_numeric(strpos($dsTitle['MIMEType'],"image/")) || is_numeric(strpos($dsTitle['MIMEType'],"video/")))
                     && !Misc::hasPrefix($dsIDName, 'preview_')
                     && !Misc::hasPrefix($dsIDName, 'web_')
+                    && !Misc::hasPrefix($dsIDName, 'stream_')
                     && !Misc::hasPrefix($dsIDName, 'thumbnail_')
                )
             {
                 // first extract the image and save temporary copy
                 $urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsIDName;
 //              copy($urldata,APP_TEMP_DIR.$dsIDName);
-				$urlReturn = Misc::ProcessURL($urldata);
+				/*$urlReturn = Misc::ProcessURL($urldata);
 				$handle = fopen(APP_TEMP_DIR.$dsIDName, "w");
 				fwrite($handle, $urlReturn[0]);
+				fclose($handle);*/
+				
+//				$urlReturn = Misc::ProcessURL($urldata);
+				$handle = fopen(APP_TEMP_DIR.$dsIDName, "w");
+				Misc::processURL($urldata, false, $handle);
 				fclose($handle);
                 // delete and re-ingest - need to do this because sometimes the object made it
                 // into the repository even though it's dsID is illegal.

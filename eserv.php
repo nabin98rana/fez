@@ -36,6 +36,7 @@ include_once("config.inc.php");
 //include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.misc.php");
+include_once(APP_INC_PATH . "class.fedora_direct_access.php");
 //include_once(APP_INC_PATH . "class.record.php");
 //include_once(APP_INC_PATH . "class.fedora_api.php");
 
@@ -43,6 +44,7 @@ $username = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($username);
 
 $stream = @$_POST["stream"] ? $_POST["stream"] : $_GET["stream"];
+$wrapper = @$_POST["wrapper"] ? $_POST["wrapper"] : $_GET["wrapper"];
 $pid = @$_POST["pid"] ? $_POST["pid"] : $_GET["pid"];
 $dsID = @$_POST["dsID"] ? $_POST["dsID"] : $_GET["dsID"];
 
@@ -123,9 +125,14 @@ if (!empty($pid) && !empty($dsID)) {
 				if ($stream == 1) {
 					if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $_SERVER['PHP_SELF']."?".urlencode($_SERVER['QUERY_STRING'])) == true) {
 						$urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsID;
-	 					$header = "Content-type: video/x-flv";
 						$file = $urldata;
-						$seekat = $_GET["pos"];					
+						$seekat = $_GET["pos"];		
+				        $size = Misc::remote_filesize($urldata);
+						# content headers
+						header("Content-Type: video/x-flv");
+						header("Content-Disposition: attachment; filename=\"" . $dsID . "\"");
+//						header("Content-Length: " . $size);
+									
 					    if ($seekat != 0) {
 				        	print("FLV");
 	               			print(pack('C', 1 ));
@@ -133,10 +140,17 @@ if (!empty($pid) && !empty($dsID)) {
 	                		print(pack('N', 9 ));
 	                		print(pack('N', 9 ));
 					    }
-	        			$fh = fopen($file, "r");					        
-				        $size = Misc::remote_filesize($urldata);
-						echo stream_get_contents($fh, $size, $seekat);
-					}
+//						if (APP_FEDORA_APIA_DIRECT == "ON") {
+						if (1 == 1) {
+			                $fda = new Fedora_Direct_Access();		            
+							$dsVersionID = $fda->getMaxDatastreamVersion($pid, $dsID);
+							$fda->getDatastreamManagedContentStream($pid, $dsID, $dsVersionID, $seekat);
+						} else {
+	        				$fh = fopen($file, "rb");					        
+							echo stream_get_contents($fh, $size, $seekat); 
+						}
+					} 
+					fclose($fh);
 			        exit;
 				} else {
 					
@@ -154,9 +168,11 @@ if (!empty($pid) && !empty($dsID)) {
 						$tpl->assign("APP_BASE_URL", APP_BASE_URL);
 						//$tpl->assign("APP_RELATIVE_URL", APP_RELATIVE_URL);
 						$tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
-						$tpl->assign("dsID", $dsID);				
+						$tpl->assign("dsID", $dsID);
+//						if (APP_FEDORA_APIA_DIRECT == "ON") {
+						$tpl->assign("wrapper", $wrapper);
 						$tpl->assign("pid", $pid);
-						$tpl->displayTemplate();				
+						$tpl->displayTemplate();
 						exit;
 					} else {
                         include_once(APP_INC_PATH . "class.template.php");
@@ -194,8 +210,12 @@ if (($is_image == 1) && (is_numeric(strpos($dsID, "archival_"))) ) { // if its t
 			$urldata = APP_FEDORA_GET_URL."/".$pid."/".$real_dsID; // this should stop them dang haxors (forces the http on the front for starters)
 			$urlpath = $urldata;					
 
-			list($data,$info) = Misc::processURL($urldata);			
+//			list($data,$info) = Misc::processURL($urldata, true);
             //ob_start();
+			list($data,$info) = Misc::processURL_info($urldata);
+//			print_r($data);
+//			print_r($info);
+//			exit;
             if (!empty($header)) {
             	//echo $header; exit;
                 header($header);
@@ -205,12 +225,16 @@ if (($is_image == 1) && (is_numeric(strpos($dsID, "archival_"))) ) { // if its t
                 header("Content-type: text/xml");
             }
             header('Content-Disposition: filename="'.substr($urldata, (strrpos($urldata, '/')+1) ).'"');
+//            header('Content-Disposition: filename="'.$dsID.'"');
+			if (!empty($info['download_content_length'])) {
+				header("Content-length: ".$info['download_content_length']);
+			}
 
             header('Pragma: private');
             header('Cache-control: private, must-revalidate');
 
-            
-			echo($data);
+			list($data,$info) = Misc::processURL($urldata, true);            
+//			echo($data);
 
             exit;
 		}

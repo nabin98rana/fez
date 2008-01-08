@@ -33,8 +33,8 @@
 //
 //
 
-include_once(APP_INC_PATH . "najax/najax.php");
-include_once(APP_INC_PATH . "najax_objects/class.image_preview.php");
+//include_once(APP_INC_PATH . "najax/najax.php");
+//include_once(APP_INC_PATH . "najax_objects/class.image_preview.php");
 include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.lister.php");
 include_once(APP_INC_PATH . "class.workflow.php");
@@ -213,10 +213,10 @@ if (!empty($pid) && $record->checkExists()) {
         $tpl->assign('meta_head', $meta_head);		
 		$record_view = new RecordView($record);	// record viewer object
 		$details = $record_view->getDetails();
-		
+//		print_r($details);
         // Setup the Najax Image Preview object.
-        $tpl->assign('najax_header', NAJAX_Utilities::header(APP_BASE_URL.'include/najax'));
-        $tpl->registerNajax( NAJAX_Client::register('NajaxImagePreview', APP_BASE_URL.'najax_services/image_preview.php'));
+//        $tpl->assign('najax_header', NAJAX_Utilities::header(APP_BASE_URL.'include/najax'));
+//        $tpl->registerNajax( NAJAX_Client::register('NajaxImagePreview', APP_BASE_URL.'najax_services/image_preview.php'));
 	} else {
 		$tpl->assign("show_not_allowed_msg", true);
 	}

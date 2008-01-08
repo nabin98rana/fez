@@ -1,9 +1,10 @@
-
+{if $wrapper != "no"}
 {include file="header.tpl.html" extra_title=$extra_title}
+{/if}
 <script type="text/javascript" src="{$rel_url}js/swfobject.js"></script>
+{if $wrapper != "no"}
 {include file="navigation.tpl.html"}
-
-
+{/if}
 <table width=100% cellpadding=0 cellspacing=0 border=0>
 <tr><td valign="top">
 
@@ -12,13 +13,13 @@
 Start FLV Player Code
 {$eserv_url}?pid={$pid}&dsID={$dsID}
 -->
-
 {literal}
+
 <CENTER>
 <p id="player1"><a href="http://www.macromedia.com/go/getflashplayer">Get the Flash Player</a> to see this player.</p>
 
 <script type="text/javascript">
-	var s1 = new SWFObject("{/literal}{$rel_url}{literal}js/flvplayer.swf","single","320","240","7");
+	var s1 = new SWFObject("{/literal}{$rel_url}{literal}js/flvplayer.swf","single","425","350","7");
 	s1.addParam("allowfullscreen","true");
 	s1.addVariable("image","{/literal}{$rel_url}{literal}images/copyright.jpg");
 	s1.addVariable("streamscript","{/literal}{$eserv_url}{literal}?pid={/literal}{$pid}{literal}");	
@@ -36,9 +37,10 @@ end FLV Player Code
 -->
 
 </td></tr></table>
-
+{if $wrapper != "no"}
 
 <br />
 
 {include file="app_info.tpl.html"}
 {include file="footer.tpl.html"}
+{/if}

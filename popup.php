@@ -61,11 +61,15 @@ switch ($cat)
 			$record = new RecordObject($pid);
 			if ($record->canEdit()) {
 	            $res = Fedora_API::callPurgeDatastream($pid, $dsID);
+	            $stream = "stream_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".flv";
 	            $thumbnail = "thumbnail_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
 	            $web = "web_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
 	            $preview = "preview_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
 	            $FezACML_DS = "FezACML_".str_replace(" ", "_", $dsID).".xml";
 	            $PresMD_DS = "presmd_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".xml";
+	            if (Fedora_API::datastreamExists($pid, $stream)) {
+	                Fedora_API::callPurgeDatastream($pid, $stream);
+	            }
 	            if (Fedora_API::datastreamExists($pid, $thumbnail)) {
 	                Fedora_API::callPurgeDatastream($pid, $thumbnail);
 	            }

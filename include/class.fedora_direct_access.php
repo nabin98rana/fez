@@ -177,6 +177,38 @@ class Fedora_Direct_Access {
     }
 
 
+	    function getDatastreamManagedContentPath($pid, $dsID, $dsVersionID) {
+
+	        $result = $this->dbh->getOne("SELECT path FROM datastreampaths WHERE token = '".$pid."+".$dsID."+".$dsID.".".$dsVersionID."'");
+	        if (PEAR::isError($result)) {
+	                return "";
+	        }
+	        if ($result == "") {
+	          return "";
+	        }
+	        return $result;
+	    }
+
+		// like many of these functions requires the fedora path to be available to the apache/php webserver
+	    function getDatastreamManagedContentStream($pid, $dsID, $dsVersionID, $seekPos) {
+
+	        $result = $this->dbh->getOne("SELECT path FROM datastreampaths WHERE token = '".$pid."+".$dsID."+".$dsID.".".$dsVersionID."'");
+	        if (PEAR::isError($result)) {
+	                return "";
+	        }
+	        if ($result == "") {
+	          return "";
+	        }
+			$fh = fopen($result, 'rb');
+			# seek to requested file position
+//			fseek($fh, $seekPos);
+			$size = filesize($result);
+			# output file
+			echo stream_get_contents($fh, $size, $seekPos); 
+			
+	    }
+
+
 	function getMaxDatastreamVersion($pid, $dsID) {
 		if ($this->pid != $pid || $this->xml == "") {
 			$this->getObjectXML($pid);

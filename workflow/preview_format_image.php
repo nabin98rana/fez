@@ -1,8 +1,8 @@
 <?php
 
 $file_name_prefix = "preview_";
-$height = 700;
-$width = 400;
+$height = APP_IMAGE_PREVIEW_MAX_HEIGHT;
+$width = APP_IMAGE_PREVIEW_MAX_WIDTH;
 include('thumbnail.php');
 
 ?>

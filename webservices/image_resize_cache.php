@@ -3,8 +3,8 @@
 include_once('../config.inc.php');
 include_once(APP_INC_PATH.'najax_objects/class.image_preview.php');
 
-$width=400;
-$height=400;
+$width = APP_IMAGE_PREVIEW_MAX_WIDTH;
+$height = APP_IMAGE_PREVIEW_MAX_HEIGHT;
 $pid = '';
 $dsID = '';
 $regen = false;

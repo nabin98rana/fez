@@ -47,17 +47,17 @@ if ((is_numeric(strpos($filename, "/"))) || (is_numeric(strpos($filename, "\\"))
 }
 
 if (!file_exists($filepath)) {
-    Error_Handler::logError("No base file $filepath<br/>\n",__FILE__,__LINE__);
+    Error_Handler::logError("No base file ".$filepath."<br/>\n",__FILE__,__LINE__);
 } else {
 
     if (empty($file_name_prefix)) {
         $file_name_prefix = "thumbnail_";
     }
     if (empty($height)) {
-        $height = APP_THUMBNAIL_HEIGHT;
+        $height = 50;
     }
     if (empty($width)) {
-        $width = APP_THUMBNAIL_WIDTH;
+        $width = 50;
     }
 
 
@@ -71,8 +71,8 @@ if (!file_exists($filepath)) {
     } else {
         $new_file .= ".jpg";
     }
-    $getString = APP_BASE_URL."webservices/wfb.image_resize.php?image="
-        .urlencode($filename)."&height=$height&width=$width&ext=jpg&outfile=".$new_file;
+    $getString = APP_BASE_URL."webservices/wfb.ffmpeg_thumbnail.php?file="
+        .urlencode($filename);
 //	echo $getString;
 	Misc::ProcessURL($getString);
 	
@@ -83,7 +83,7 @@ if (!file_exists($filepath)) {
         $delete_file = APP_TEMP_DIR.$new_file;
         $new_file = APP_TEMP_DIR.$new_file;
         if (file_exists($new_file)) {
-            Fedora_API::getUploadLocationByLocalRef($pid, $new_file, $new_file, $new_file, 'image/jpeg', 'M');
+            Fedora_API::getUploadLocationByLocalRef($pid, $new_file, $new_file, $new_file, 'image/x-jpg', 'M');
             if (is_file($new_file)) {
                 $deleteCommand = APP_DELETE_CMD." ".$delete_file;
                 exec($deleteCommand);

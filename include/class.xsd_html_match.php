@@ -546,7 +546,7 @@ class XSD_HTML_Match {
 			 * ORIGINAL FEZ CODE 
 			 * KJ: optimized for performance - a single MySQL query was used for each matchfield
 			 * (but most matchfields don't have any options at all). This was slowing down record
-			 * display in view.php.
+			 * display in view
 			 */				
 			/**		
 			for ($i = 0; $i < count($res); $i++) {				

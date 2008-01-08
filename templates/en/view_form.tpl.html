@@ -20,36 +20,37 @@ function loadPreview(pid,datastreamID, alt)
         return;
     }
     image_preview_loading = 1;
-    pv_img = document.getElementById('datastream_preview');
-    pv_img_href = document.getElementById('datastream_preview_href');    
+
     // display the 'loading...' text. (unhide it)
     pv_loading = document.getElementById('datastream_preview_loading');
     pv_loading.innerHTML = ' - Loading...';
     pv_loading.style.display = '';
-    // get the resized image
-/*    ip_obj = new NajaxImagePreview();
-    ip_obj.onGetPreviewError = function () {
-        pv_loading.innerHTML = ' - Couldn\'t load preview';
-        image_preview_loading = 0;
-        pv_img.alt = 'Image Preview';
-    };
-    ip_obj.setTimeout(100000);
-    ip_obj.getPreview(pid, datastreamID, max_width, max_height, false, function() { */
-//            pv_img.src = rel_url+'webservices/image_resize_cache.php?pid='+pid+'&dsID='+datastreamID+'&width='+max_width+'&height='+max_height;
-            pv_img.src = rel_url+'eserv/'+pid+'/preview_'+datastreamID;
-			pv_img_href.href = rel_url+'eserv/'+pid+'/'+datastreamID;
-            pv_img.alt = alt;
-            pv_loading.style.display = 'none';
-            image_preview_loading = 0;
-            if (image_preview_current_id.length > 0) {
-              tr_list = document.getElementById(image_preview_current_id);
-              tr_list.style.backgroundColor='{/literal}{$light_color}{literal}';
-            }
-            tr_list = document.getElementById('datastream_list_'+alt);
-            tr_list.style.backgroundColor='{/literal}{$selected_color}{literal}';
-            image_preview_current_id = 'datastream_list_'+alt;
-//            });
-    
+
+
+	if (datastreamID.substring(0, 7) == 'stream_') {
+		document.getElementById('datastream_preview_frame').innerHTML='<iframe frameborder="no" width="100%" height="400" src="'+rel_url+'eserv/'+pid+'/'+datastreamID+'?wrapper=no"></iframe>';
+	} else {
+		{/literal}
+		document.getElementById('datastream_preview_frame').innerHTML='<a id="datastream_preview_href" title="Click on the image to see a larger version"  target="_blank" href="{$rel_url}eserv/{$pid}/{$preview_ds_1.ID}"><img width="100%" border=0 id="datastream_preview" alt="Datastream Preview"/></a>';
+		{literal}
+	    pv_img = document.getElementById('datastream_preview');
+	    pv_img_href = document.getElementById('datastream_preview_href');
+	    // get the resized image
+			
+        pv_img.src = rel_url+'eserv/'+pid+'/preview_'+datastreamID;
+		pv_img_href.href = rel_url+'eserv/'+pid+'/'+datastreamID;
+        pv_img.alt = alt;
+	}
+    pv_loading.style.display = 'none';
+    image_preview_loading = 0;
+    if (image_preview_current_id.length > 0) {
+      tr_list = document.getElementById(image_preview_current_id);
+      tr_list.style.backgroundColor='{/literal}{$light_color}{literal}';
+    }
+    tr_list = document.getElementById('datastream_list_'+alt);
+    tr_list.style.backgroundColor='{/literal}{$selected_color}{literal}';
+    image_preview_current_id = 'datastream_list_'+alt;
+
 }
 
 
@@ -275,16 +276,17 @@ function showDiv(p)
   			  <tr class="default" id="datastream_list_{$datastreams[d].ID}" bgcolor="{$light_color}"> 			  
 				{assign var="image_file_name" value=$datastreams[d].MIMEType|replace:"/":"_"|cat:".png"}
 				{assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$image_file_name} 			
-				{if ($datastreams[d].canPreview || $isAdministrator) && !$preview_ds_1 && $datastreams[d].preview != "0"}
+				{if ($datastreams[d].canPreview || $isAdministrator) && !$preview_ds_1 && ($datastreams[d].preview != "0" || $datastreams[d].stream != "0")}
 				  {assign var="preview_ds_1" value=$datastreams[d]}
 				{/if}
 				{assign var="image_file_string" value=""}
 				{fetch file=$image_name assign="image_file_string"}
 				<td nowrap>
-            {if $datastreams[d].thumbnail != "0"}{if $datastreams[d].canPreview || $isAdministrator}<a href="#">{/if}
+            {if $datastreams[d].thumbnail != "0" || $datastreams[d].stream != "0"}{if $datastreams[d].canPreview || $isAdministrator}<a href="#">{/if}
 				{assign var="show_preview_pane" value="1"}
-			<img align="absmiddle" title="Click on the thumbnail image to show the corresponding preview image" src="{$eserv_url}{$datastreams[d].thumbnail}" border="1"
-            {if $datastreams[d].canPreview || $isAdministrator}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].preview}', '{$datastreams[d].ID|escape:'html'}');"{/if}
+			<img align="absmiddle" title="Click on the thumbnail image to show the corresponding preview" src="{$eserv_url}{$datastreams[d].thumbnail}" border="1"
+            {if ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].stream != "0"}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].stream}', '{$datastreams[d].ID|escape:'html'}');"{else}
+            {if ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].thumbnail != "0"}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].preview}', '{$datastreams[d].ID|escape:'html'}');"{/if}{/if}
             >{if $datastreams[d].canPreview || $isAdministrator}</a>{/if}{/if}{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}images/default.png">{/if} {if $datastreams[d].isViewer == 1 || $isAdministrator}<a target="_blank" href="{$rel_url}eserv/{$pid}/{$datastreams[d].ID}">{/if}{$datastreams[d].ID}{if $datastreams[d].isViewer == 1 || $isAdministrator}</a> &nbsp;{/if} {if ($datastreams[d].isArchivalViewer == 1 || $isAdministrator) && $datastreams[d].thumbnail != "0"}<a target="_blank" href="{$rel_url}eserv/{$pid}/archival_{$datastreams[d].ID}"><img title="archival version" align="absmiddle" border="0" src="{$rel_url}images/archival_22.gif"></a>&nbsp;{/if} {if $datastreams[d].presmd != "0" && ($isAdministrator)}<a target="_blank" href="{$rel_url}eserv/{$pid}/{$datastreams[d].presmd}"><img title="preservation metadata" align="absmiddle" border="0" src="{$rel_url}images/presmd_22.gif"></a>&nbsp;{/if} 	
 				</td>
 				<td>{$datastreams[d].label}</td>
@@ -483,15 +485,17 @@ function showDiv(p)
     <td align="center" valign="top"  bgcolor="#FFFFFF" cellspacing="1" cellpadding="2" border="0">
       <table width="100%" border="0" cellpadding="2" cellspacing="0"  bgcolor="#FFFFFF" >
         <tr>
-          <td class="default_white" colspan="4" bgcolor="{$heading_color}"><b>Image Preview (click the image for a larger version)</b>
+          <td class="default_white" colspan="4" bgcolor="{$heading_color}"><b>Image Preview (click the image for a larger/higher quality version)</b>
           <span id="datastream_preview_loading" style="display:none;"></span>
           </td>
         </tr>
         <tr>
         <td class="default">
           {if $preview_ds_1}
-          <a id="datastream_preview_href" title="Click on the image to see a larger version"  target="_blank" href="{$rel_url}eserv/{$pid}/{$preview_ds_1.ID}"><img border=0 id="datastream_preview" alt="Datastream Preview"/></a>
-          <script language="JavaScript">loadPreview('{$pid}','{$preview_ds_1.preview}','{$preview_ds_1.ID|escape:'html'}');</script>
+		  <div id="datastream_preview_frame">
+          <a id="datastream_preview_href" title="Click on the image to see a larger version"  target="_blank" href="{$rel_url}eserv/{$pid}/{$preview_ds_1.ID}"><img width="100%" border=0 id="datastream_preview" alt="Datastream Preview"/></a>
+          <script language="JavaScript">loadPreview('{$pid}','{if $preview_ds_1.stream != "0"}{$preview_ds_1.stream}{else}{$preview_ds_1.preview}{/if}','{$preview_ds_1.ID|escape:'html'}');</script>
+		  </div>
           {/if}
         </td>
         </tr>

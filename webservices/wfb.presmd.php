@@ -59,6 +59,7 @@ if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) 
     $full_file = $file_dir.'/'.$file;
     if (is_numeric(strpos($full_file, " "))) {
         $newfile = Foxml::makeNCName($file);
+// 		Misc::processURL(Misc::escapeString($full_file), true, APP_TEMP_DIR.$newfile);
         copy($full_file, APP_TEMP_DIR.$newfile);
         $full_file = APP_TEMP_DIR.$newfile;
     }

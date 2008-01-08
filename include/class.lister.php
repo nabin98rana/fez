@@ -199,7 +199,7 @@ class Lister
             if ((Misc::GETorPOST("sort_by")) == "") {
             	$sort_by = "searchKey0";            	
             }
-            if (!is_numeric(Misc::GETorPOST("sort_order")) && ($sort_by == "searchKey0")) { // if searching by all fields and sort order not specifically set in the querystring (from a manual sort order change) than make search revelance sort descending
+            if (!is_numeric(Misc::GETorPOST("sort_order")) && ($sort_by == "searchKey0")) { // if searching by Title, Abstract, Keywords and sort order not specifically set in the querystring (from a manual sort order change) than make search revelance sort descending
             	$options["sort_order"] = 1; // DESC relevance
         	}
         }
