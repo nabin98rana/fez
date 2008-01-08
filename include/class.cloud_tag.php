@@ -41,6 +41,52 @@ include_once(APP_INC_PATH . "class.error_handler.php");
 class Cloud_Tag
 {
 
+    function getTags()
+    {
+           $stmt = "SELECT tag, quantity 
+                    FROM (
+                        SELECT rek_keywords AS tag, COUNT(rek_keywords) AS quantity
+                        FROM " . APP_TABLE_PREFIX . "record_search_key_keywords kw
+                        GROUP BY rek_keywords
+                        ORDER BY quantity DESC
+                        LIMIT 0, 20
+                    ) as t1 ORDER BY tag ASC";
+
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        }
+
+        foreach ($res as $key => $row) {			
+              $tags[$row['tag']] = $row['quantity'];
+		}
+		
+		return $tags;
+    }
+    
+    function getCachedTags()
+    {
+        $stmt = "SELECT keyword, quantity 
+                 FROM " . APP_TABLE_PREFIX . "cloud_tag
+                 ORDER BY keyword ASC";
+
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        }
+        
+        if( count($res) == 0 )
+            return "";
+        
+        foreach ($res as $key => $row) {			
+              $tags[$row['keyword']] = $row['quantity'];
+		}
+		
+		return $tags;
+    }
+    
     /**
      * Method used to assemble the HTML cloud tag construct.
      *
@@ -51,31 +97,13 @@ class Cloud_Tag
     function buildCloudTag() {
 
         // Based on tutorial found at http://prism-perfect.net/archive/php-tag-cloud-tutorial/
-
-		$authArray = Collection::getAuthIndexStmt(array("Lister"), "kw.rek_keywords_pid");
-		$authStmt = $authArray['authStmt'];
-		$joinStmt = $authArray['joinStmt'];
-
-/*        " . $authStmt . "
-        INNER JOIN " . APP_TABLE_PREFIX . "record_search_key x1 on x1.rek_pid = kw.rek_keywords_pid AND rek_status = 2 
-*/
-
-
-        $stmt = "SELECT tag, quantity from (
-                SELECT rek_keywords AS tag, COUNT(rek_keywords) AS quantity
-                  FROM " . APP_TABLE_PREFIX . "record_search_key_keywords kw
-                  GROUP BY rek_keywords
-                  ORDER BY quantity DESC
-                  LIMIT 0, 20) as t1 ORDER BY tag ASC";
-
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        }
-
-        foreach ($res as $key => $row) {			
-              $tags[$row['tag']] = $row['quantity'];
+        
+		$tags = Cloud_Tag::getCachedTags();
+		
+		// If nothing is in the cache, build the tags
+		if( !$tags )
+		{
+		    $tags = Cloud_Tag::getTags();
 		}
 
         $max_size = 250; // Max font size in %
@@ -114,6 +142,31 @@ class Cloud_Tag
 
         return $cloudTag;
 
+    }
+    
+    
+    function saveTags($tags)
+    {
+        foreach ( $tags as $keyword => $quantity )
+        {
+            $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "cloud_tag " . 
+                    "(keyword, quantity) VALUES ('$keyword', $quantity)";
+            $res = $GLOBALS["db_api"]->dbh->query($stmt);
+            
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            }
+        }
+    }
+    
+    function deleteSavedTags()
+    {
+        $stmt = "DELETE FROM " . APP_TABLE_PREFIX . "cloud_tag";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        }
     }
 
 }

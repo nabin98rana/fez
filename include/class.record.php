@@ -830,6 +830,45 @@ class Record
 		}
 		return $xsdmf_array;
     }
+    
+    /**
+     * Get details about a pid(s)
+     *
+     * @param string/array $pid  the pid(s) to get details about
+     *
+     * @return array  the pid and their details ie. title, description etc
+     * @access public
+     */
+    function getDetailsLite($pid)
+    {
+        if( $pid == '' )
+            return array();
+        
+        $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+        $order = '';
+        
+        if( is_array($pid)) {
+            $where = "rek_pid IN ('" . implode("','", $pid) . "')";
+            $order = "rek_created_date";
+        } else {
+            $where = "rek_pid = '$pid'";
+        }
+        
+        $sql =  "SELECT * " .
+                "FROM {$dbtp}record_search_key " .
+                "WHERE $where";
+                
+        if( $order ) {
+            $sql .= " ORDER BY $order DESC";
+        }
+                
+        $res = $GLOBALS["db_api"]->dbh->getAll($sql, DB_FETCHMODE_ASSOC);
+        
+        $usr_id = Auth::getUserID();
+        Record::getAuthWorkflowsByPIDS($res, $usr_id);
+        
+        return $res;
+    }
 
     /**
      * Method used to get the default record XDIS_ID
@@ -846,7 +885,19 @@ class Record
 		$xdis_id = 5;
 		return $xdis_id;
     }
-
+    
+    
+    function getRecentRecords()
+    {
+        $sql =  'SELECT * ' . 
+                'FROM ' . APP_TABLE_PREFIX . 'recently_added_items ';
+                
+        $res = $GLOBALS["db_api"]->dbh->getAll($sql, DB_FETCHMODE_FLIPPED);
+        
+        return $res;
+    }
+    
+    
     /**
      * .
      *
@@ -872,12 +923,8 @@ class Record
 				$sort_by_id = Search_Key::getID("Title");
 				$sort_by = "searchKey".$sort_by_id;
 			}
-		} elseif (is_numeric(strpos($sort_by, "searchKey0"))) {
-			//will get picked up in the buildjoins function
-//			$sort_by_id = Search_Key::getID("Title");
-//			$sort_by = "searchKey".$sort_by_id;
-		}
-
+		}	
+		
         $searchKey_join = Record::buildSearchKeyJoins($options, $sort_by);
 		$authArray = Collection::getAuthIndexStmt($approved_roles, "r1.rek_pid");
 		$authStmt = $authArray['authStmt'];
@@ -888,27 +935,28 @@ class Record
 		$sql_filter['elsewhere'] = "";
 
 		$bodyStmt = $searchKey_join[0].$searchKey_join[1].$authStmt;
-  $stmt = " FROM ".$dbtp."record_search_key AS r1
+        $stmt = " FROM ".$dbtp."record_search_key AS r1
 
 			".$bodyStmt."
 			".$searchKey_join[2];
-
-	if (APP_SQL_DBTYPE == "mysql") { // If the DB is mysql then you can use SQL_NUM_ROWS, even with a limit and get better performance, otherwise you need to do a seperate query to get the total count
-		$total_rows = 1;
-		$stmt =  "SELECT ".APP_SQL_CACHE." SQL_CALC_FOUND_ROWS DISTINCT r1.* ".$searchKey_join[6]." ".$stmt.$searchKey_join[8];
-		$stmt .= " ORDER BY ".$searchKey_join[3]." r".$searchKey_join[4].".rek_pid DESC ";
-
-	} else {
-  		$countStmt =  "SELECT ".APP_SQL_CACHE." COUNT(r1.rek_pid) ".$stmt;
-		$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
-		$stmt =  "SELECT ".APP_SQL_CACHE." r1.* ".$searchKey_join[6]." ".$stmt.$searchKey_join[8];
-	    $stmt .= " ORDER BY ".$searchKey_join[3]." r".$searchKey_join[4].".rek_pid DESC ";
-	}
-	$usr_id = Auth::getUserID();
+    
+    	if (APP_SQL_DBTYPE == "mysql") { // If the DB is mysql then you can use SQL_NUM_ROWS, even with a limit and get better performance, otherwise you need to do a seperate query to get the total count
+    		$total_rows = 1;
+    		$stmt =  "SELECT ".APP_SQL_CACHE." SQL_CALC_FOUND_ROWS DISTINCT r1.* ".$searchKey_join[6]." ".$stmt.$searchKey_join[8];
+    		$stmt .= " ORDER BY ".$searchKey_join[3]." r".$searchKey_join[4].".rek_pid DESC ";
+    
+    	} else {
+      		$countStmt =  "SELECT ".APP_SQL_CACHE." COUNT(r1.rek_pid) ".$stmt;
+    		$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
+    		$stmt =  "SELECT ".APP_SQL_CACHE." r1.* ".$searchKey_join[6]." ".$stmt.$searchKey_join[8];
+    	    $stmt .= " ORDER BY ".$searchKey_join[3]." r".$searchKey_join[4].".rek_pid DESC ";
+    	}
+    	$usr_id = Auth::getUserID();
+	
 		if ($total_rows > 0) {
 			$stmt = $GLOBALS["db_api"]->dbh->modifyLimitQuery($stmt, $start, $page_rows);
 //			Error_Handler::logError(array($stmt, $res->getDebugInfo()), __FILE__, __LINE__);
-//			echo "<pre>".$stmt."</pre>"; //exit;
+			//echo "<pre>".$stmt."</pre>"; //exit;
 			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 			if (PEAR::isError($res)) {
 				Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -935,9 +983,8 @@ class Record
 		if ($citationCache == true) {
 			$res = Citation::renderIndexCitations($res, 'APA', true, false);
 		}
-		$res = Auth::getIndexAuthCascade($res);
-		$return = $res;
-		$list = $return;
+		$list = Auth::getIndexAuthCascade($res);
+		
         $total_pages = intval($total_rows / $page_rows);
         if ($total_rows % $page_rows) {
             $total_pages++;
@@ -1930,6 +1977,29 @@ inner join
 
 
     }
+    
+    
+    function insertRecentRecords($pids)
+    {
+        $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "recently_added_items" . 
+                " VALUES ('" . implode("'),('", $pids) . "')";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        }
+    }
+    
+    function deleteRecentRecords()
+    {
+        $stmt = "DELETE FROM " . APP_TABLE_PREFIX . "recently_added_items";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        }
+    }
+    
 
     function generatePresmd($pid, $dsIDName)
     {

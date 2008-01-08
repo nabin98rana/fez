@@ -150,13 +150,21 @@ $tpl->assign("today_day_name", date("l"));
 $tpl->assign("yesterday", date("Y-m-d", time()-86400));
 $tpl->assign("last", "Last ");
 
+
 $list = array();
 //$list = Collection::browseListing(0, 5, "Created Date", $sort_by, 0);
 $options = array();
 $options["sort_order"] = "1";
 $sort_by = "searchKey".Search_Key::getID("Created Date");
 $options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-$list = Record::getListing($options, $approved_roles=array("Lister"), 0,5, "Created Date", false, true);
+
+// Old method of retrieving recent records - SLOW
+//$list = Record::getListing($options, $approved_roles=array("Lister"), 0,5, "Created Date", false, true);
+
+// Get recent records cached in the DB
+$recentRecordsPIDs = Record::getRecentRecords();
+$list['list'] = Record::getDetailsLite($recentRecordsPIDs[0]);
+
 $tpl->assign("thisYear", date("Y"));
 $tpl->assign("lastYear", date("Y") - 1);
 $list = $list["list"];
