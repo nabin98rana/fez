@@ -2328,10 +2328,11 @@ class RecordGeneral
     function checkAuth($roles, $redirect=true) 
     {
         $this->getAuth();
-        $ret_url = $_SERVER['PHP_SELF'];
-        if (!empty($_SERVER['QUERY_STRING'])) {
-            $ret_url .= "?".$_SERVER['QUERY_STRING'];
-        }
+        $ret_url = $_SERVER['REQUEST_URI'];
+/*	        $ret_url = $_SERVER['PHP_SELF'];
+	        if (!empty($_SERVER['QUERY_STRING'])) {
+	            $ret_url .= "?".$_SERVER['QUERY_STRING'];
+	        } */
 		return Auth::checkAuthorisation($this->pid, "", $roles, $ret_url, $this->auth_groups, $redirect);
     }
 

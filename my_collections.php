@@ -100,7 +100,7 @@ Record::getParentsByPids($collection_list['list']);
 //print_r($collection_list['list']);
 $tpl->assign('my_collections_list', $collection_list['list']);
 
-$tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
+$tpl->assign("eserv_url", APP_BASE_URL."eserv/");
 
 
 

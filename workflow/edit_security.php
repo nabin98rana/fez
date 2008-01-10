@@ -238,8 +238,8 @@ if ($record->isCollection()) {
 
 $tpl->assign("datastreams", $datastreams);
 $tpl->assign("fez_root_dir", APP_PATH);
-$tpl->assign("eserv_url", APP_BASE_URL."eserv.php?pid=".$pid."&dsID=");
-$tpl->assign("local_eserv_url", APP_RELATIVE_URL."eserv.php?pid=".$pid."&dsID=");
+$tpl->assign("eserv_url", APP_BASE_URL."eserv/".$pid."/");
+$tpl->assign("local_eserv_url", APP_RELATIVE_URL."/".$pid."/");
 $tpl->assign('triggers', count(WorkflowTrigger::getList($pid)));
 $tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");
 $tpl->assign("isEditor", 1);

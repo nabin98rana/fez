@@ -120,7 +120,7 @@ if (Auth::canEdit() == 1) {
 	$tpl->assign("user_can_edit", 1);
 }
 
-$tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
+$tpl->assign("eserv_url", APP_BASE_URL."eserv/");
 
 $tpl->assign("roles_list", Auth::getDefaultRoles());
 $pager_row = Pager::getParam('pager_row_my_created');

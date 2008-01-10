@@ -167,7 +167,7 @@ for ($i=0;$i<count($allHistory);$i++) {
 
 $tpl->assign("action", $action);
 $tpl->assign("pid", $pid);
-$tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
+$tpl->assign("eserv_url", APP_BASE_URL."eserv/");
 $tpl->assign("thisYear", date("Y"));
 $tpl->assign("lastYear", date("Y")-1);
 $tpl->assign("downloads", $downloads);

@@ -171,7 +171,7 @@ $list = $list["list"];
 //$list = Citation::renderIndexCitations($list);
 //$list=array();
 $tpl->assign("list", $list);
-$tpl->assign("eserv_url", APP_RELATIVE_URL."eserv.php");
+$tpl->assign("eserv_url", APP_RELATIVE_URL."eserv/");
 $news = News::getList(5);       // Maximum of 5 news posts for front page.
 $news_count = count($news);
 $tpl->assign("news", $news);

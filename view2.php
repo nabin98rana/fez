@@ -356,11 +356,11 @@ if (!empty($pid) && $record->checkExists()) {
 			Record::generateDerivationTree($pid, $derivations, $derivationTree);
 		}
 				
-		$tpl->assign("linkCount", $linkCount);		
-		$tpl->assign("hasVersions", $hasVersions);				
-		$tpl->assign("fileCount", $fileCount);				
-		$tpl->assign("derivationTree", $derivationTree);						
-		$tpl->assign("created_date", $created_date);				
+		$tpl->assign("linkCount", $linkCount);
+		$tpl->assign("hasVersions", $hasVersions);
+		$tpl->assign("fileCount", $fileCount);
+		$tpl->assign("derivationTree", $derivationTree);
+		$tpl->assign("created_date", $created_date);
 		$tpl->assign("depositor", $depositor);
 		$tpl->assign("depositor_id", $depositor_id);
 		$tpl->assign("details", $details);

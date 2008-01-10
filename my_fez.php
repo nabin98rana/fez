@@ -138,7 +138,7 @@ foreach ($search_keys as $skey => $svalue) {
 
 $tpl->assign('my_collections_list', $collection_list);
 
-$tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
+$tpl->assign("eserv_url", APP_BASE_URL."eserv/");
 
 $tpl->assign('search_keys', $search_keys);
 

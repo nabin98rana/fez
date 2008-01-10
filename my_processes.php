@@ -95,7 +95,7 @@ $tpl->assign('bgp_list', $bgp_list_auth);
 
 $tpl->assign('bgp_states', $bgp_list->getStates());
 
-$tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
+$tpl->assign("eserv_url", APP_BASE_URL."eserv/");
 
 
 

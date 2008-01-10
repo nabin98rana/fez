@@ -171,7 +171,7 @@ function assembleSearchQuery(theForm) {
 	                  {assign var="href_view" value=""}
 	                {/if}
 					{if $list[i].thumbnail.0 != "" && $list[i].isViewer==1}
-		                {assign var="icon" value=$eserv_url|cat:"?ls=0&pid="|cat:$list[i].rek_pid|cat:"&dsID="|cat:$list[i].thumbnail.0}
+		                {assign var="icon" value=$eserv_url|cat:$list[i].rek_pid|cat:"/"|cat:$list[i].thumbnail.0}
 					{else}
 		                {assign var="icon" value="images/record.jpg" }
 					{/if}

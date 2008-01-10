@@ -543,7 +543,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
                   {assign var="href_view" value=""}
                 {/if}
 				{if $list[i].thumbnail.0 != "" && $list[i].isViewer==1}
-	                {assign var="icon" value=$eserv_url|cat:"?ls=0&pid="|cat:$list[i].rek_pid|cat:"&dsID="|cat:$list[i].thumbnail.0}
+	                {assign var="icon" value=$eserv_url|cat:$list[i].rek_pid|cat:"/"|cat:$list[i].thumbnail.0}
 				{else}
 	                {assign var="icon" value="images/record.jpg" }
 				{/if}
@@ -619,7 +619,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
                             {if $list[i].rek_author[$next_author] != ""} and {/if}
                           {/section}  {if $list[i].rek_date} {else}<br />{/if}{/if}{if $list[i].rek_date}({$list[i].rek_date|date_format:"%Y"})<br />{/if}
                 	   {if $list[i].rek_research_program.0}{$list[i].rek_research_program.0|escape:"html"}{if $list[i].display_type  && $list[i].object_type == 3} - <i>{$list[i].rek_display_type_lookup.0|escape:"html"}</i>{/if}<br />{else}{if $list[i].xdis_title.0  && $list[i].object_type.0 == '3'}<i>{$list[i].xdis_title.0|escape:"html"}</i><br />{/if}{/if}                       
-					   {if $list[i].rek_object_type == '3' && $list[i].datastreams.0}<b>Files:</b> {section name="d" loop=$list[i].datastreams}{if $href_view}<a href="{$eserv_url|cat:"?pid="|cat:$list[i].rek_pid|cat:"&dsID="|cat:$list[i].datastreams[d]}">{/if}{$list[i].datastreams[d]}{if $href_view}</a>{/if} {/section}{/if}
+					   {if $list[i].rek_object_type == '3' && $list[i].datastreams.0}<b>Files:</b> {section name="d" loop=$list[i].datastreams}{if $href_view}<a href="{$eserv_url|cat:$list[i].rek_pid|cat:"/"|cat:$list[i].datastreams[d]}">{/if}{$list[i].datastreams[d]}{if $href_view}</a>{/if} {/section}{/if}
                     </td> 
                   </tr> 
 				  </table>

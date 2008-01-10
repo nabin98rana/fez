@@ -604,7 +604,7 @@ class Lister
         $tpl->assign('sort_by_default', $sort_by);        
         $workflows_list = Misc::keyPairs(Workflow::getList(), 'wfl_id', 'wfl_title');
         $tpl->assign('workflows_list', $workflows_list);
-        $tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
+        $tpl->assign("eserv_url", APP_BASE_URL."eserv/");
         $tpl->assign('sort_order', $options["sort_order"]);
 //		if ($tpl_idx == 0 || $tpl_idx == 4) {
 //			$list = Citation::renderIndexCitations($list);

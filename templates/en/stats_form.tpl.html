@@ -428,7 +428,7 @@ function disableFields()
                   {assign var="href_view" value=""}
                 {/if}
 				{if $list[i].thumbnail != "0" && $list[i].isViewer==1}
-	                {assign var="icon" value=$eserv_url|cat:"?pid="|cat:$list[i].rek_pid|cat:"&dsID="|cat:$list[i].thumbnail}
+	                {assign var="icon" value=$eserv_url|cat:$list[i].rek_pid|cat:"/"|cat:$list[i].thumbnail}
 				{else}
 	                {assign var="icon" value="images/record.jpg" }
 				{/if}
@@ -468,7 +468,7 @@ function disableFields()
                        {if $list[i].description}{$list[i].description|escape:"html"}...<br />{/if}
                        {if $list[i].date}{$list[i].date|date_format:"%A, %B %e, %Y"}<br />{/if}
                        {if $list[i].type}{$list[i].type|escape:"html"}<br />{/if}   
-					   {if $list[i].ret_id == '3'}<b>Datastreams:</b> {section name="d" loop=$list[i].datastreams}{if $href_view}<a href="{$eserv_url|cat:"?pid="|cat:$list[i].rek_pid|cat:"&dsID="|cat:$list[i].datastreams[d]}">{/if}{$list[i].datastreams[d]}{if $href_view}</a>{/if} {/section}{/if}
+					   {if $list[i].ret_id == '3'}<b>Datastreams:</b> {section name="d" loop=$list[i].datastreams}{if $href_view}<a href="{$eserv_url|cat:$list[i].rek_pid|cat:"/"|cat:$list[i].datastreams[d]}">{/if}{$list[i].datastreams[d]}{if $href_view}</a>{/if} {/section}{/if}
                     </td>
                   </tr>
 				  </table>
