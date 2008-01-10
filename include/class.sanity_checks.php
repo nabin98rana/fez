@@ -76,6 +76,7 @@ include_once(APP_INC_PATH . "class.fedora_direct_access.php");
         $results = array_merge($results, SanityChecks::shib());
         $results = array_merge($results, SanityChecks::ldap());
         $results = array_merge($results, SanityChecks::imageMagick());
+        $results = array_merge($results, SanityChecks::FFMPEG());
         $results = array_merge($results, SanityChecks::backgroundProcess());
         $results = array_merge($results, SanityChecks::dot());
         $results = array_merge($results, SanityChecks::tidy());
@@ -278,6 +279,16 @@ include_once(APP_INC_PATH . "class.fedora_direct_access.php");
         	return array();
         }
     }
+
+    function FFMPEG()
+    {
+    	$results = array(ConfigResult::message('Testing FFMPEG Video Encoder'));
+        $results = array_merge($results, SanityChecks::checkFile('APP_FFMPEG_CMD', APP_FFMPEG_CMD, false, true));
+        if (SanityChecks::resultsClean($results)) {
+            $results[] = ConfigResult::messageOk('All FFMPEG tests passed');
+        }
+        return $results;
+	}
 
     function imageMagick()
     {
