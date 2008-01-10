@@ -69,7 +69,7 @@ if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) 
         $unix_extra = '';
         $full_file = str_replace('/','\\',$full_file);
     }
-	$command = APP_FFMPEG_CMD.' -i '."$full_file -ss 00:00:05 -s ".APP_THUMBNAIL_WIDTH."x".APP_THUMBNAIL_HEIGHT." -vframes 1 -y -f image2 $ffpmeg_file";
+	$command = APP_FFMPEG_CMD.' -i '."$full_file -ss ".APP_FFMPEG_DEFAULT_THUMB_POS." -s ".APP_THUMBNAIL_WIDTH."x".APP_THUMBNAIL_HEIGHT." -vframes 1 -y -f image2 $ffpmeg_file";
     if(!$file) $error .= "<b>ERROR:</b> no file specified<br>";
     if(!is_file($full_file)) { $error .= "<b>ERROR:</b> given file filename not found or bad filename given<br>"; }
     if (!empty($error)) {

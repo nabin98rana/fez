@@ -550,6 +550,14 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
 		  <tr>
+		    <td class="colname">FFMPEG command</td>
+			<td class="coldetail">
+			  <input type="text" name="app_ffmpeg_cmd" value="{$config_settings.app_ffmpeg_cmd|escape:"html"}" size="40" /> 
+			  <br />This is part of FFMPEG Video Encoder tool 
+			  {include file="error_icon.tpl.html" field="app_ffmpeg_cmd"}
+			</td>
+  		  </tr>
+		  <tr>
 		    <td class="colname">Convert command</td>
 			<td class="coldetail">
 			  <input type="text" name="app_convert_cmd" value="{$config_settings.app_convert_cmd|escape:"html"}" size="40" /> 
@@ -660,7 +668,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <td class="colname">Light colour</td>
 			<td class="coldetail">
-			  <input type="text" name="app_light_color" value="{$config_settings.app_light_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_light_color')"/><div id="app_light_color" style="background-color: {$config_settings.app_light_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" name="app_light_color" value="{$config_settings.app_light_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColourColour('app_light_color')"/><div id="app_light_color" style="background-color: {$config_settings.app_light_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_light_color"}
 			</td>
   		  </tr>
@@ -713,6 +721,27 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
 		  <tr><td colspan="2">&nbsp;<br /></td></tr>
+		  <tr>
+		    <td class="colname">Default FFMPEG Flash Video Width</td>
+			<td class="coldetail">
+			  <input type="text" name="app_ffmpeg_default_width" value="{$config_settings.app_ffmpeg_default_width|escape:"html"}" size="10" />
+			  {include file="error_icon.tpl.html" field="app_ffmpeg_default_width"}
+			</td>
+  		  </tr>
+		  <tr>
+		    <td class="colname">Default FFMPEG Flash Video Height</td>
+			<td class="coldetail">
+			  <input type="text" name="app_ffmpeg_default_height" value="{$config_settings.app_ffmpeg_default_height|escape:"html"}" size="10" />
+			  {include file="error_icon.tpl.html" field="app_ffmpeg_default_height"}
+			</td>
+  		  </tr>
+		  <tr>
+		    <td class="colname">Default FFMPEG Video Thumbnail/Screenshot Start Position (time - default 5 seconds = 00:00:05)</td>
+			<td class="coldetail">
+			  <input type="text" name="app_ffmpeg_default_thumb_pos" value="{$config_settings.app_ffmpeg_default_thumb_pos|escape:"html"}" size="10" />
+			  {include file="error_icon.tpl.html" field="app_ffmpeg_default_thumb_pos"}
+			</td>
+  		  </tr>
 		  <tr>
 		    <td class="colname">Thumbnail max width</td>
 			<td class="coldetail">
