@@ -627,8 +627,11 @@ class Lister
 		if (substr($queryStringReducedSansSort, -1, 1) == "&") {
 			$queryStringReducedSansSort = substr($queryStringReducedSansSort, 0, -1);
 		}
+		$queryStringReducedSansSort = preg_replace("/(.*)tpl=\d+/i", "$1", $queryStringReducedSansSort, -1);	// Strip sort_order
+		if (substr($queryStringReducedSansSort, -1, 1) == "&") {
+			$queryStringReducedSansSort = substr($queryStringReducedSansSort, 0, -1);
+		}
 		$queryStringReducedSansSort = str_replace("&&", "&", $queryStringReducedSansSort);		// Clean-up
-
 		if ($browse_mode == "collection" || $browse_mode == "community") {
 			$queryPlus = APP_RELATIVE_URL . $browse_mode ."/" . $pid ."/";
 		} else {
@@ -638,6 +641,7 @@ class Lister
 		$tpl->assign("query_reduced", $queryStringReduced);
 		$tpl->assign("query_reduced_sans_sort", $queryStringReducedSansSort);
 		$tpl->assign("query_plus", $queryPlus);
+		$tpl->assign("template_mode", $tpl_idx);
 
         if (Auth::userExists($username)) {
             $prefs = Prefs::get(Auth::getUserID());

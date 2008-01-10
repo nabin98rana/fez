@@ -1,9 +1,20 @@
 {literal}
 <script language="JavaScript" type="text/javascript">
 <!--
-var page_url = '{/literal}{$smarty.server.PHP_SELF}{literal}';
+{/literal}
+{if $list_type == 'collection_records_list'}
+var page_url = '{$rel_url}collection/{$collection_pid}';
+{elseif $list_type == 'community_list'}
+var page_url = '{$rel_url}list';
+{elseif $list_type == 'collection_list'}
+var page_url = '{$rel_url}community/{$community_pid}';
+{else}
+var page_url = '{$rel_url}list';
+{/if}
+{literal}
 var current_page = {/literal}{if $list_info.current_page != ""}{$list_info.current_page}{else}0{/if}{literal};
 var last_page = {/literal}{if $list_info.last_page != ""}{$list_info.last_page}{else}0{/if}{literal};
+
 function assignItems(f)
 {
     if (!hasOneChecked(f, 'item[]')) {
@@ -99,19 +110,54 @@ function disableFields()
     }
 }
 
-function sortList(f, field) {
-    sort_by = getSelectedOption(f, field);
-    window.location.href = page_url + "?" + replaceParam(window.location.href, 'sort_by', sort_by);
+function orderAndSort(f, field1, field2) {
+	sort_by = getSelectedOption(f, field1);
+	sort_order = getSelectedOption(f, field2);
+	{/literal}
+	{if $browse_mode == 'collection' || $browse_mode == 'community'}
+		sortURL = '{$query_plus}{$query_reduced_sans_sort}sort_by=' + sort_by + '&sort_order=' + sort_order;
+	{else}
+		{if $$query_reduced_sans_sort != ''}
+			sortURL = '{$query_plus}{$query_reduced_sans_sort}&sort_by=' + sort_by + '&sort_order=' + sort_order;
+		{else}
+			sortURL = '{$query_plus}{$query_reduced_sans_sort}sort_by=' + sort_by + '&sort_order=' + sort_order;
+		{/if}
+
+	{/if}{literal}
+	window.location.href = sortURL;
 }
 
-function sortListOrder(f, field) {
-    sort_order = getSelectedOption(f, field);
-    window.location.href = page_url + "?" + replaceParam(window.location.href, 'sort_order', sort_order);
+function resizePagerNew(f)
+{
+	{/literal}
+    var pagesize = f.page_size.options[f.page_size.selectedIndex].value;
+	{if $query_reduced == ''}var queryReducedString = '';{else}var queryReducedString = '{$query_reduced}';{/if}
+	if (queryReducedString.length > 0) {literal}{{/literal}
+		var pagingURL = "{$query_plus}{$query_reduced}&rows=" + pagesize + "&pager_row=0";
+	{literal}}{/literal} else {literal}{{/literal}
+		var pagingURL = "{$query_plus}{$query_reduced}rows=" + pagesize + "&pager_row=0";
+	{literal}}{/literal}
+
+	var theTemplate = '{$template_mode}';
+//	if (theTemplate !== "0") {literal}{{/literal}
+//		pagingURL = pagingURL + '&tpl=' + theTemplate;
+//	{literal}}{/literal}
+    window.location.href = pagingURL;
+	{literal}
 }
 
-function setTemplate(f, field) {
-    tpl = getSelectedOption(f, field);
-    window.location.href = page_url + "?" + replaceParam(window.location.href, 'tpl', tpl);
+function setTemplateNew(f, field) {
+	{/literal}
+    var tpl = getSelectedOption(f, field);
+	{if $query_reduced == ''}var queryReducedString = '';{else}var queryReducedString = '{$query_reduced}';{/if}
+
+	if (queryReducedString.length > 0) {literal}{{/literal}
+		var templateURL = "{$query_plus}{$query_reduced}&rows={$list_info.page_rows}&pager_row={$list_info.current_page}&tpl=" + tpl;
+	{literal}}{/literal} else {literal}{{/literal}
+		var templateURL = "{$query_plus}{$query_reduced}rows={$list_info.page_rows}&pager_row={$list_info.current_page}&tpl=" + tpl;
+	{literal}}{/literal}
+    window.location.href = templateURL;
+	{literal}
 }
 
 -->
@@ -240,7 +286,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		{if ($browse_type == "browse_author") && (!$smarty.get.author && !$smarty.get.author_id)} 
         <tr>
 			<td align="left" class="default">
-			<a href="{$rel_url}list.php?browse=author"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a>
+			<a href="{$rel_url}list/browse=author"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a>
            &nbsp;<b>{$browse_heading}:</b>		  
 			</td>
         </tr>
@@ -273,9 +319,9 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 				  <tr>
 					  <td>
 					      {if $list[i].record_author_id != 0}
-					      <a class="author_id_link" href='{$rel_url}list.php?browse=author&author_id={$list[i].record_author_id|escape:'url'}'>{$list[i].record_author|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+					      <a class="author_id_link" href='{$rel_url}list/browse=author&author_id={$list[i].record_author_id|escape:'url'}'>{$list[i].record_author|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
 					      {else}
-							<a href='{$rel_url}list.php?browse=author&author={$list[i].record_author|escape:'url'}'>{$list[i].record_author|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+							<a href='{$rel_url}list/browse=author&author={$list[i].record_author|escape:'url'}'>{$list[i].record_author|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
 						  {/if}
 						</td>
 					</tr>
@@ -299,7 +345,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		{elseif ($browse_type == "browse_depositor")} 
         <tr>
 			<td align="left" class="default" colspan="2"><br />
-			<a href="{$rel_url}list.php?browse=depositor"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a>
+			<a href="{$rel_url}list/browse=depositor"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a>
            &nbsp;<b>{$browse_heading}:</b>		  
 			</td>
         </tr>
@@ -311,7 +357,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 				  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
 				  <tr>
 					  <td>
-							<a href='{$rel_url}list.php?browse=depositor&depositor={$list[i].record_depositor}'>{$list[i].record_desc|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+							<a href='{$rel_url}list/browse=depositor&depositor={$list[i].record_depositor}'>{$list[i].record_desc|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
 
 						</td>
 					</tr>
@@ -335,7 +381,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		{elseif ($browse_type == "browse_year")} 
         <tr>
 			<td align="left" class="default" colspan="2" ><br />
-			<a href="{$rel_url}list.php?browse=year"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a>
+			<a href="{$rel_url}list/browse=year"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a>
            &nbsp;<b>{$browse_heading}:</b>		  
 			</td>
         </tr>
@@ -350,7 +396,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 					{if $list[i].record_year == 0}
 							(not set) ({$list[i].record_count|escape:"html"})
 					{else}
-							<a href='{$rel_url}list.php?browse=year&year={$list[i].record_year}'>{$list[i].record_year|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+							<a href='{$rel_url}list/browse=year&year={$list[i].record_year}'>{$list[i].record_year|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
 					{/if}
 						</td>
 					</tr>
@@ -374,7 +420,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		{elseif $browse_type == "browse_subject"}
         <tr>
 			<td colspan="2" align="left" class="default"><br />
-			<a href="{$rel_url}list.php?browse=subject"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a>
+			<a href="{$rel_url}list/browse=subject"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a>
            &nbsp;<b>Browse by 
 		          {if $max_subject_breadcrumb != -1}
 					  {section name="b" loop=$subject_breadcrumb}
@@ -382,7 +428,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		                  {if $subject_breadcrumb[b].cvo_image_filename != ""}
 						    <img src="{$rel_url}images/{$subject_breadcrumb[b].cvo_image_filename}" alt="" />
 						  {/if}
-                          {if $max_subject_breadcrumb != $smarty.section.b.index}<a href='{$rel_url}list.php?browse=subject&parent_id={$subject_breadcrumb[b].cvo_id}'>{else}<b>{/if}{$subject_breadcrumb[b].cvo_title|escape:"html"}{if $max_subject_breadcrumb != $smarty.section.b.index}</a>{else}</b>{/if}
+                          {if $max_subject_breadcrumb != $smarty.section.b.index}<a href='{$rel_url}list/browse=subject&parent_id={$subject_breadcrumb[b].cvo_id}'>{else}<b>{/if}{$subject_breadcrumb[b].cvo_title|escape:"html"}{if $max_subject_breadcrumb != $smarty.section.b.index}</a>{else}</b>{/if}
  						  {assign var="cvo_id" value=$subject_breadcrumb[b].cvo_id}
 						  {if $max_subject_breadcrumb != $smarty.section.b.index}->{else}:{/if}					
 					  {/section}
@@ -397,7 +443,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 			  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
               <tr>
                   <td>{if $subject_list[i].cvo_image_filename != ""}<img src="{$rel_url}images/{$subject_list[i].cvo_image_filename}" alt="" />{/if}
-                        <a href='{$rel_url}list.php?browse=subject&parent_id={$subject_list[i].cvo_id}'>{$subject_list[i].cvo_title|escape:"html"}</a>
+                        <a href='{$rel_url}list/browse=subject&parent_id={$subject_list[i].cvo_id}'>{$subject_list[i].cvo_title|escape:"html"}</a>
 						{assign var="cvo_id" value=$subject_list[i].cvo_id}
 						{if $subject_count[$cvo_id]}({$subject_count[$cvo_id]}){elseif ($smarty.get.parent_id)}(0){/if}
 					</td>
@@ -442,7 +488,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		{elseif $list_type == 'collection_list'}
 			<img src="{$rel_url}images/collection_32.jpg" alt="" />
 		{elseif $browse_type == 'browse_author'}			
-			<a href="{$rel_url}list.php?browse=author"><img title="Browse by all authors" alt="Browse by all authors" border="0" src="{$rel_url}images/browse_32.jpg" /></a>
+			<a href="{$rel_url}list/browse=author"><img title="Browse by all authors" alt="Browse by all authors" border="0" src="{$rel_url}images/browse_32.jpg" /></a>
 		{elseif $list_type == 'browse_subjects_list'}		
 
 		{/if}
@@ -457,10 +503,10 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		   {/if}
                    </td>                                     
                    <td align="right"><span class="default">Order By </span>
-                   <select class="default" name="sort_by" onchange="javascript:sortList(this.form, 'sort_by');">
+                   <select class="default" name="sort_by" onchange="javascript:orderAndSort(this.form, 'sort_by', 'sort_order');">
                        {html_options options=$sort_by_list selected=$sort_by_default}
                    </select>
-                    <select class="default" name="sort_order" onchange="javascript:sortListOrder(this.form, 'sort_order');">
+                    <select class="default" name="sort_order" onchange="javascript:orderAndSort(this.form, 'sort_by', 'sort_order');">
                        <option value="0" {if $sort_order == 0}selected="selected"{/if}>Asc</option>
                        <option value="1" {if $sort_order == 1}selected="selected"{/if}>Desc</option>
                    </select>
@@ -570,7 +616,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 							{if $list[i].rek_citation != ""}
 		                    {$list[i].rek_citation}
 							{else}
-		                    {if $href_view}<a href='{$href_view}'>{/if}{$list[i].rek_title|escape:"html"}{if $href_view}</a>{/if}
+		                    {if $href_view}<a href='{$rel_url}{$href_view}'>{/if}{$list[i].rek_title|escape:"html"}{if $href_view}</a>{/if}
 							{/if}
 			{if $list[i].rek_object_type != 3}{if $list[i].rek_ismemberof_count != ""}({$list[i].rek_ismemberof_count}){else}(0){/if}{/if}
 				  </td>
@@ -605,6 +651,12 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		</table>
         </td>
         </tr>
+		<tr>
+		  <td>
+		    {include file="paging_control.tpl.html" field="paginat0r"}
+		  </td>
+		</tr>
+
 		{if $isUser}
         <tr>
           <td align="left" class="default" >
@@ -652,19 +704,9 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
                   {include file="error_icon.tpl.html" field="users"}
                   {/if}
                 </td>
-                <td width="40%" align="center" nowrap="nowrap">
-                  <div style="white-space: nowrap;">
-                    <input name="first" type="button" value="|&lt;" class="shortcut" onclick="javascript:setPage(0);" />
-                    <input name="previous" type="button" value="&lt;&lt;" class="shortcut" onclick="javascript:setPage({$list_info.prev_page});" />
-                    <input type="text" name="page" size="3" maxlength="3" value="{math equation="x + 1" x=$list_info.current_page|default:0}" style="background: {$cell_color};" class="paging_input" onkeypress="javascript:return checkPageField(event);" />
-                    <input name="go" type="button" value="Go" class="shortcut" onclick="javascript:goPage(this.form, this.form.page.value);" />
-                    <input name="next" type="button" value="&gt;&gt;" class="shortcut" onclick="javascript:setPage({$list_info.next_page});" />
-                    <input name="last" type="button" value="&gt;|" class="shortcut" onclick="javascript:setPage({$list_info.last_page});" />
-                  </div>
-                </td>
                 <td nowrap="nowrap">
                   <span class="default_white">Rows per Page:</span>
-                  <select name="page_size" class="default" onchange="javascript:resizePager(this.form,page_url);">
+                  <select name="page_size" class="default" onchange="javascript:resizePagerNew(this.form);">
                     <option value="5" {if $options.rows == 5}selected{/if}>5</option>
                     <option value="10" {if $options.rows == 10}selected{/if}>10</option>
                     <option value="25" {if $options.rows == 25}selected{/if}>25</option>
@@ -674,11 +716,11 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
                     <option value="300" {if $options.rows == 300}selected{/if}>300</option>
                     <option value="500" {if $options.rows == 500}selected{/if}>500</option>
                   </select>
-                  <input type="button" value="Set" class="shortcut" onclick="javascript:resizePager(this.form,page_url);" />
+                  <input type="button" value="Set" class="shortcut" onclick="javascript:resizePagerNew(this.form);" />
                 </td>
                 <td width="30%" align="right">
                 {* if $isAdministrator *}
-                   <span class="default_white">Change View:</span><select  name="tpl" onchange="javascript:setTemplate(this.form, 'tpl');">
+                   <span class="default_white">Change View:</span><select  name="tpl" onchange="javascript:setTemplateNew(this.form, 'tpl');">
                        {html_options options=$tpl_list selected=$smarty.get.tpl}
                    </select>
                    {* /if *}

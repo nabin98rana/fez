@@ -998,3 +998,13 @@ function confirmDelete() {
         return false;
 	}
 }
+
+function sortList(f, field) {
+    sort_by = getSelectedOption(f, field);
+    window.location.href = page_url + "/" + replaceParam(window.location.href, 'sort_by', sort_by);
+}
+
+function sortListOrder(f, field) {
+	sort_order = getSelectedOption(f, field);
+    window.location.href = page_url + "/" + replaceParam(window.location.href, 'sort_order', sort_order);
+}
