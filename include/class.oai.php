@@ -81,7 +81,7 @@ class OAI
             $max = 9999999;
         }
         $current_row = ($current_row/100);
-
+ 		$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
         if (!empty($identifier)) {
 			$options["searchKey".Search_Key::getID("Pid")] = $identifier;
         } elseif (!empty($set)) {
