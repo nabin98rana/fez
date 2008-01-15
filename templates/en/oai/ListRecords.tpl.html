@@ -39,7 +39,14 @@
 		{section name="s" loop=$loop_subjects}
         <dc:subject>{$list[i].rek_subject_lookup[s]|escape:"html"}</dc:subject>
 		{/section}
-        <dc:publisher>{$list[i].rek_publisher|escape:"html"}</dc:publisher>
+		{assign var="loop_keywords" value=$list[i].rek_keywords}
+		{section name="s" loop=$loop_keywords}
+        <dc:subject>{$list[i].rek_keywords[s]|escape:"html"}</dc:subject>
+		{/section}
+        {assign var="loop_publisher" value=$list[i].rek_publisher}
+		{section name="s" loop=$loop_publisher}
+        <dc:publisher>{$list[i].rek_publisher[s]|escape:"html"}</dc:publisher>
+		{/section}
 		{assign var="loop_format" value=$list[i].rek_file_attachment_name}
 		{section name="f" loop=$loop_format}
         <dc:format>{$app_base_url}eserv.php?pid={$list[i].rek_pid|escape:"html"}&amp;dsID={$list[i].rek_file_attachment_name[f]|escape:"html"}</dc:format>
