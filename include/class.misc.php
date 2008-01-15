@@ -56,16 +56,16 @@ include_once(APP_INC_PATH . "class.setup.php");
 class Misc
 {
 
-	function addToWhere($sql, $newString) {
+	function addToWhere($sql, $newString, $operator = 'and') {
 		if ((trim($newString) != "") && (!empty($newString))) {
 			if (is_numeric(stripos($sql, "WHERE"))) { 
-				if (strtolower(substr((trim($newString)), 0, 3)) == "and") {
+				if (strtolower(substr((trim($newString)), 0, 3)) == $operator) {
 					$sql .= $newString;
 				} else {
-					$sql .= " AND ".$newString;
+					$sql .= " $operator ".$newString;
 				}
 			} else {
-				if (strtolower(substr((trim($newString)), 0, 3)) == "and") {
+				if (strtolower(substr((trim($newString)), 0, 3)) == $operator) {
 					$sql = " WHERE ".substr((trim($newString)), 3);
 				} else {
 					$sql = " WHERE ".$newString;

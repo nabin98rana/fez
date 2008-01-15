@@ -90,9 +90,6 @@ class Lister
 			header($header);
 		}
 		
-		if ($tpl_idx == 4) {
-//			$getSimple = true;
-		}
         $tpl_file = $tpls[$tpl_idx]['file'];    
         $tpl->setTemplate($tpl_file);
 
@@ -117,6 +114,7 @@ class Lister
             $rows = APP_DEFAULT_PAGER_SIZE;
         }
         
+        
         switch ($tpl_idx) {
         	case 2:
         		$rows = "ALL"; //If an RSS feed show all the rows
@@ -125,7 +123,11 @@ class Lister
         	default:
         		break;
         }
-        $options = Pager::saveSearchParams($params);           
+        
+        $cookie_key = Pager::getParam('form_name',$params);
+        
+        $options = Pager::saveSearchParams($params, $cookie_key);
+        
         $search_keys = Search_Key::getQuickSearchList();
         
 	    foreach ($search_keys as $skey => $svalue) {
@@ -151,6 +153,8 @@ class Lister
 			}
 	    }
 	    
+	    
+	    
         $tpl->assign("search_keys", $search_keys);
 
         $options['tpl_idx'] = $tpl_idx;     
@@ -174,6 +178,7 @@ class Lister
 		$tpl->assign("browse_mode", $browse_mode);
 		//$sort_by = Pager::getParam('sort_by',$params);
 		$sort_by = $options["sort_by"];
+		$operator = $options["operator"];
 
 		/*
 		 * These options are used in a dropdown box to allow the 
@@ -225,8 +230,7 @@ class Lister
 		WorkflowTrigger::getTriggerId('Bulk Change Search')); 
 //		print_r($bulk_search_workflows);
         $tpl->assign("bulk_search_workflows", $bulk_search_workflows);
-
-
+        
         if (!empty($collection_pid)) {
             if (empty($sort_by)) {
                 $sort_by = "searchKey".Search_Key::getID("Title");
@@ -537,8 +541,8 @@ class Lister
             $tpl->assign("browse_heading", "Browse By Subject Classifications Records");
             $tpl->assign("list_heading", "List of Subject Classifications Records");
             $tpl->assign("browse_type", "browse_subject");
-        } elseif ($cat == "quick_filter") {
-        	
+        } elseif ($cat == "quick_filter") { // Advanced Search
+
         	include_once(APP_INC_PATH . "class.spell.php");
         	include_once(APP_INC_PATH . "class.language.php");
         	
@@ -549,14 +553,19 @@ class Lister
         			$sort_by = "searchKey0"; // Search Relevance
 					$options["sort_dir"] = 1;
         		}
-        	}        	
-        	// search Fez			
-			//$options = Pager::saveSearchParams(); // already done up above
+        	}
+        	
+        	// search Fez
+        	
 			// enforce certain search parameters			
-			$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+			// enforce published records only
+			$options["searchKey".Search_Key::getID("Status")] = array(
+			     'override_op'   =>  'AND',
+			     'value'         =>  2,
+			);
 			
-			$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);        	
-
+			$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $operator);
+			
 			$spell = new spellcheck(APP_DEFAULT_LANG);
 			
 			if( $spell )
@@ -590,15 +599,15 @@ class Lister
             $tpl->assign("xdis_id", $xdis_id);
             $options = Search_Key::stripSearchKeys($options);                                                           
             $options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-			$options["searchKey".Search_Key::getID("Object Type")] = 1; // enforce communities only
-            $list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);	
+            $options["searchKey".Search_Key::getID("Object Type")] = 1; // enforce communities only
+            $list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);    
             //$list = Community::getList($pager_row, $rows, $sort_by);
             $list_info = $list["info"];
             $list = $list["list"];
-			
+            
             $tpl->assign("list_type", "community_list");
             $tpl->assign("list_heading", "List of Communities");
-        }     
+        }
         
 		$tpl->assign("cycle_colours", "#FFFFFF," . APP_CYCLE_COLOR_TWO. "");
         $tpl->assign('sort_by_default', $sort_by);        

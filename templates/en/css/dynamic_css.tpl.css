@@ -168,3 +168,34 @@ background-color: [[$smarty.const.APP_LIGHT_COLOR]];
 .dark_background {
 background-color: [[$smarty.const.APP_DARK_COLOR]];
 }
+
+/*
+ * Advanced Search
+ */
+.search_fields th {
+padding: 4px;
+}
+	
+.search_fields td {
+padding: 4px;
+}
+
+.search_fields th {
+padding:4px;
+}
+
+th.search_heading {
+border-top:1px dashed [[$smarty.const.APP_DARK_COLOR]];
+padding-bottom:0.5em;
+padding-right:0.5em;
+padding-top:0.5em;
+text-align:right;
+font-size: .75em;
+}
+
+td.search_multi_input {
+border-left:1px dashed [[$smarty.const.APP_DARK_COLOR]];
+border-top:1px dashed [[$smarty.const.APP_DARK_COLOR]];
+padding:0.5em;
+font-size: .75em;
+}

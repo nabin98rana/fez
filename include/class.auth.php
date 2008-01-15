@@ -1746,7 +1746,12 @@ class Auth
 			$alreadyLoggedIn = false;
 		}
 		
-		if (($shib_login == true) && (@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "")) {
+		
+		if ($shib_login == true && @$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] == "") {
+		    return 24;
+		}
+		
+		if ($shib_login == true) {
 			// Get the username from eduPerson Targeted ID. If empty then they are (really) anonymous
 			if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "") {
 				$username = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'];
@@ -1771,7 +1776,7 @@ class Auth
 		}
 
         if (!Auth::userExists($username)) { // If the user isn't a registered fez user, get their details elsewhere (The AD/LDAP) as they must have logged in with LDAP or Shibboleth
-			if (($shib_login == true) && ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "")) {
+			if ($shib_login == true) {
 				$session['isInAD'] = false;
 				$session['isInDB'] = false;
 				$session['isInFederation'] = true;			
@@ -1800,6 +1805,7 @@ class Auth
 				$session['isInDB'] = false;
 				$session['isInFederation'] = false;				
 				$userDetails = User::GetUserLDAPDetails($username, $password);
+				
 				$fullname = $userDetails['displayname'];
 				$email = $userDetails['email'];
 				$distinguishedname = $userDetails['distinguishedname'];
@@ -1814,7 +1820,7 @@ class Auth
             if (!Auth::isActiveUser($username)) {
             	return 7;
             }		
-			if (($shib_login == true) && (@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "")) {
+			if ($shib_login == true) {
 				$session['isInFederation'] = true;
 			} else {
 				$session['isInFederation'] = false;

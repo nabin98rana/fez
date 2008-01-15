@@ -60,6 +60,7 @@ class Pager
 			$return = @unserialize(base64_decode($_COOKIE[APP_LIST_COOKIE]));
 			self::$cookie = $return;
 		}
+		
         return self::$cookie;
     }
 
@@ -108,7 +109,7 @@ class Pager
      * @access  public
      * @return  array The search parameters
      */
-    function saveSearchParams($params = array())
+    function saveSearchParams($params = array(), $cookie_key = '')
     {	
 		// @@@ CK 21/7/2004 - Added this global for the custom fields check.
         $isMemberOf = Pager::getParam('isMemberOf',$params);			
@@ -126,10 +127,17 @@ class Pager
             "isMemberOf"     => $isMemberOf != "" ? $isMemberOf : "ALL",            
             "sort_order"     => is_numeric($sort_order) ? $sort_order : 1,
             // quick filter form
-            'keywords'       => Pager::getParam('keywords',$params)
+            'keywords'       => Pager::getParam('keywords',$params),
         );
-
-		$existing_cookie = Pager::getCookieParams(); //Why do we need to get this for? commented out CK 6/12/06 // uncommented for search_key expansion by CK 27/2/07
+        
+        if( $cookie_key == '' )
+        {
+            $cookie_key         = $_SERVER['SCRIPT_NAME'];
+        }
+        $cookieToSave       = Pager::getCookieParams(); //Why do we need to get this for? commented out CK 6/12/06 // uncommented for search_key expansion by CK 27/2/07
+        $existing_cookie    = $cookieToSave[$cookie_key];
+        
+        
 		$sek_count = Search_Key::getMaxID();
         $tempArray = array('searchKey_count' => $sek_count);
         $cookie = array_merge ($cookie, $tempArray);
@@ -142,7 +150,6 @@ class Pager
                 $searchKeyArray = array();
                 $from_cookie = true;
                 for($x=0;$x<$sek_count;$x++) {
-                    $existing_cookie = Pager::getCookieParams();
                     if (isset($existing_cookie['searchKey'.$x])) {
                         $searchKeyArray = array_merge($searchKeyArray, array('searchKey'.$x => $existing_cookie['searchKey'.$x]));
                     }
@@ -169,16 +176,26 @@ class Pager
                     $tempArray = array('searchKey'.$sek_id => $value);
                 }
                 $cookie = array_merge ($cookie, $tempArray);
-                if (!empty($sek_id)) {
-
-                }
             }
         }		
         if (!empty($cookie["searchKey0"]) && empty($sort_by)) { 
         	$cookie['sort_by'] = "searchKey0";
         }
-		$encoded = base64_encode(serialize($cookie));
-        @setcookie(APP_LIST_COOKIE, $encoded, APP_LIST_COOKIE_EXPIRE);
+        
+        $operator = Pager::getParam('operator',$params);
+        
+        if( empty($operator) && !empty($existing_cookie['operator']) ) {
+            $operator = $existing_cookie['operator'];
+        }
+        
+        if ($operator) { 
+        	$cookie['operator'] = $operator;
+        }
+        
+        
+        $cookieToSave[$cookie_key] = $cookie;
+		$encoded = base64_encode(serialize($cookieToSave));
+        setcookie(APP_LIST_COOKIE, $encoded, APP_LIST_COOKIE_EXPIRE, "/");
         return $cookie;
     }
 

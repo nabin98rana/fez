@@ -563,16 +563,15 @@ class Search_Key
     		} else {
     			for ($i = 0; $i < count($res); $i++) {
     				$res[$i]["field_options"] = Search_Key::getOptions($res[$i]["sek_smarty_variable"]);
+    				
     				if ($res[$i]["sek_html_input"] == "contvocab") {
 						$cvo_list = Controlled_Vocab::getAssocListFullDisplay(false, "", 0, 2);
 						$res[$i]['field_options'][0] = $cvo_list['data'][$res[$i]['sek_cvo_id']];
     					$res[$i]['cv_titles'][0] = $cvo_list['title'][$res[$i]['sek_cvo_id']];
     					$res[$i]['cv_ids'][0] = $res[$i]['sek_cvo_id'];
-    				} elseif ($res[$i]["sek_html_input"] == "combo") {
-    				//	$ret_list = Object_Type::getAssocList();    				    		
-    				//  $xdis_list = XSD_Display::getAssocListDocTypes();
     				}
     			}
+    			
     			return $res;
     		}
     	}

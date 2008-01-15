@@ -2,7 +2,8 @@
 {include file="navigation.tpl.html"}
 <form name="custom_filter_form" action="list.php" method="get" onsubmit="javascript:return validateSearchForm();">
 <input type="hidden" name="cat" value="quick_filter" />
-{include file="custom_filter_form.tpl.html"}
+<input type="hidden" name="form_name" value="adv_search" />
+{include file="custom_filter_form2.tpl.html"}
 </form>
 {literal}
 <script language="JavaScript">

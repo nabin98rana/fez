@@ -99,17 +99,15 @@ if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
 	if (Validation::isWhitespace($_POST["passwd"])) {
 		Auth::redirect(APP_RELATIVE_URL . "login.php?err=2&username=" . $_POST["username"]);
 	}
-    if (!Auth::isActiveUser($_POST['username'])) {
-        Auth::redirect(APP_RELATIVE_URL . "login.php?err=7&username=" . $_POST["username"]);
-    }
 	// check if the password matches
+	// This method can also check via LDAP
 	if (!Auth::isCorrectPassword($_POST["username"], $_POST["passwd"])) {
 		Auth::redirect(APP_RELATIVE_URL . "login.php?err=3&username=" . $_POST["username"]);
 	}
     $loginres = Auth::LoginAuthenticatedUser($_POST["username"], $_POST["passwd"]);
     if ($loginres > 0) {
         Auth::redirect(APP_RELATIVE_URL . "login.php?err={$loginres}&username=" . $_POST["username"]);	
-    } 	
+    }
 	if (!empty($_POST["url"])) {
 		Auth::redirect(urldecode($_POST["url"])); 
 	} else {

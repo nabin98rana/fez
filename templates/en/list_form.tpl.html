@@ -478,6 +478,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		  <tr>
 			  <td colspan="2">
 			  <table bgcolor="#FFFFFF" width="100%" cellpadding="3" cellspacing="0">
+
 			  {if $spell_suggest != ""}
 			  	<tr>
 			  		<td class="default" colspan="2">&nbsp;<font color="Red">Did you mean?: </font><a href="?{$spell_suggest_url}">{$spell_suggest}</a><br /><br /></td>
@@ -518,6 +519,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 					</td>
 		        </tr>
 			</table>
+
 			</td>
 		</tr>
 		{if $list_info.total_pages > 1}

@@ -58,7 +58,9 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
 	$tpl->assign("isFezUser", $username);
 }
 $tpl->assign("isAdministrator", $isAdministrator);
-$options = Pager::saveSearchParams();
+$options = Pager::saveSearchParams(array(), 'adv_search');
+
+
 
 foreach ($list as $list_key => $list_field) {
 	if ($list_field["sek_html_input"] == 'combo' || $list_field["sek_html_input"] == 'multiple') {
@@ -67,6 +69,7 @@ foreach ($list as $list_key => $list_field) {
 			if ($list_field["sek_html_input"] == 'combo') {
 				$list[$list_key]['field_options'] = array("" => "any") + $list[$list_key]['field_options'];
 			}
+			$list[$list_key]['field_options_count'] = count($list[$list_key]['field_options']);
 	    }
     }
     if ($list_field["sek_html_input"] == 'contvocab') {
@@ -76,6 +79,8 @@ foreach ($list as $list_key => $list_field) {
 				eval("\$temp_value = ".$list_field["sek_lookup_function"]."(".$option.");");		
 				$list[$list_key]["field_options"][$option] = $temp_value;
 			}
+			
+			$list[$list_key]['field_options_count'] = count($list[$list_key]["field_options"]);
 		}
 	}
 	if ($list_field["sek_html_input"] == 'allcontvocab') {
@@ -85,9 +90,11 @@ foreach ($list as $list_key => $list_field) {
 				eval("\$temp_value = ".$list_field["sek_lookup_function"]."(".$option.");");		
 				$list[$list_key]["field_options"][$option] = $temp_value;
 			}
+			$list[$list_key]['field_options_count'] = count($list[$list_key]["field_options"]);
 		}
 	} 
 }
+
 $tpl->assign("options", $options);
 $tpl->assign("search_keys", $list);
 $tpl->displayTemplate();
