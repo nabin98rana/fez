@@ -404,7 +404,7 @@ class Record
 				}
 				if ($index[6] != "") {
                     // pid, dsID, xsdmf_id, data_type, value
-					Record::insertIndexMatchingField($index[0], $dsID, $index[2], $index[5], $index[6]);
+					Record::insertIndexMatchingField($index[0], $dsID, $index[2], $index[6]);
 				}
 			}
 		}
@@ -568,12 +568,14 @@ class Record
      * @param   string $pid The persistent identifier of the record
      * @param   string $dsID The ID of the datastream (optional)
      * @param   integer $xsdmf_id The XSD Matching Field ID
-     * @param   string $data_type The data_type of the index to save the value into
      * @param   string $value The value of the index to be saved
      * @return  string The $pid if successful, otherwise -1
      */
-    function insertIndexMatchingField($pid, $dsID='', $xsdmf_id, $data_type, $value)
+    function insertIndexMatchingField($pid, $dsID='', $xsdmf_id, $value)
     {
+
+		$sekDet = Search_Key::getDetailsByXSDMF_ID($xsdmf_id);
+		$data_type = $sekDet['sek_data_type'];
         $xsdsel_id = '';
         // MySQL doesn't always handle date string conversions so convert to MySQL style date manually
         if ($data_type == 'date') {
@@ -595,7 +597,7 @@ class Record
 			if ($sval['sek_relationship'] == 1) { // if is a 1-M needs its own delete sql, otherwise if a 0 (1-1) the core delete will do it
 				$sekTable = Search_Key::makeSQLTableName($sval['sek_title']);
 */
-		$sekDet = Search_Key::getDetailsByXSDMF_ID($xsdmf_id);
+
 
 		if (!is_numeric($sekDet['sek_id'])) { //if couldnt find  a search key, we won't insert this into the index 
 			return -1;
@@ -2546,7 +2548,7 @@ class RecordGeneral
         $this->display->getXSD_HTML_Match();
         $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!sta_id');
         Record::removeIndexRecordByXSDMF_ID($this->pid, $xsdmf_id);
-        Record::insertIndexMatchingField($this->pid, '', $xsdmf_id, "int", $sta_id);
+        Record::insertIndexMatchingField($this->pid, '', $xsdmf_id, $sta_id);
         return 1;
     }
 
@@ -3204,14 +3206,14 @@ class RecordGeneral
             if (!is_array($xsdmf_value) && !empty($xsdmf_value) && (trim($xsdmf_value) != "")) {
                 $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
                 if (is_numeric($xsdmf_details['xsdmf_sek_id']) && ($xsdmf_details['xsdmf_html_input'] != 'checkbox' || $xsdmf_details['xsdmf_element'] == '!inherit_security')) {
-                    Record::insertIndexMatchingField($pid, $dsID, $xsdmf_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_value);
+                    Record::insertIndexMatchingField($pid, $dsID, $xsdmf_id, $xsdmf_value);
                 }
             } elseif (is_array($xsdmf_value)) {
                 foreach ($xsdmf_value as $xsdmf_child_value) {
                     if ($xsdmf_child_value != "") {
                         $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
                         if (is_numeric($xsdmf_details['xsdmf_sek_id']) && ($xsdmf_details['xsdmf_html_input'] != 'checkbox' || $xsdmf_details['xsdmf_element'] == '!inherit_security')) {
-                            Record::insertIndexMatchingField($pid, $dsID, $xsdmf_id, $xsdmf_details['xsdmf_data_type'], $xsdmf_child_value);
+                            Record::insertIndexMatchingField($pid, $dsID, $xsdmf_id, $xsdmf_child_value);
                         }
                     }
                 }
@@ -3526,7 +3528,7 @@ class RecordObject extends RecordGeneral
 			Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez extension metadata", $newXML, "text/xml", true);
 			$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement("!xdis_id", 15);
 			Record::removeIndexRecordByXSDMF_ID($this->pid, $xsdmf_id);
-			Record::insertIndexMatchingField($this->pid, '', $xsdmf_id, "int", $this->xdis_id);
+			Record::insertIndexMatchingField($this->pid, '', $xsdmf_id, $this->xdis_id);
 		}
     }
    /**
@@ -3565,7 +3567,7 @@ class RecordObject extends RecordGeneral
 			Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez extension metadata", $newXML, "text/xml", true);
 			$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement("!file_downloads", 15);
 			Record::removeIndexRecordByXSDMF_ID($this->pid, $xsdmf_id);
-			Record::insertIndexMatchingField($this->pid, '', $xsdmf_id, "int", $this->file_downloads);
+			Record::insertIndexMatchingField($this->pid, '', $xsdmf_id, $this->file_downloads);
 
 	    }
     }
