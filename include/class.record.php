@@ -876,10 +876,14 @@ class Record
                 
         $res = $GLOBALS["db_api"]->dbh->getAll($sql, DB_FETCHMODE_ASSOC);
         
-        $usr_id = Auth::getUserID();
-        Record::getAuthWorkflowsByPIDS($res, $usr_id);
-        
-        return $res;
+	    if (PEAR::isError($res)) {
+	        Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+			return false;
+	    } else {
+	        $usr_id = Auth::getUserID();
+	        Record::getAuthWorkflowsByPIDS($res, $usr_id);
+	        return $res;
+	    }
     }
 
     /**
@@ -906,8 +910,13 @@ class Record
                 
         $res = $GLOBALS["db_api"]->dbh->getAll($sql, DB_FETCHMODE_FLIPPED);
         
-        return $res;
+	    if (PEAR::isError($res)) {
+	        Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+	    } else {
+	        return $res;
+	    }
     }
+
     
     
     /**
