@@ -31,6 +31,18 @@ function loadPreview(pid,datastreamID, alt)
 		document.getElementById('datastream_preview_frame').innerHTML='<iframe frameborder="no" width="100%" height="400" src="'+rel_url+'eserv/'+pid+'/'+datastreamID+'?wrapper=no"></iframe>';
 	} else {
 		{/literal}
+		
+		{if $img_width > 0}
+		datastream_preview_td_width = screen.width * .3;
+        image_width = {$img_width};
+        {literal}
+        if(datastream_preview_td_width > image_width)
+        {
+            document.getElementById('datastream_preview_td').width = image_width;
+        }
+        {/literal}
+        {/if}
+        
 		document.getElementById('datastream_preview_frame').innerHTML='<a id="datastream_preview_href" title="Click on the image to see a larger version"  target="_blank" href="{$rel_url}eserv/{$pid}/{$preview_ds_1.ID}"><img width="100%" border=0 id="datastream_preview" alt="Datastream Preview"/></a>';
 		{literal}
 	    pv_img = document.getElementById('datastream_preview');
@@ -482,7 +494,7 @@ function showDiv(p)
     </td>
 {if $show_tombstone && !$deleted || !$show_tombstone}
 	{if $show_preview_pane == "1"} 
-    <td align="center" valign="top"  bgcolor="#FFFFFF" cellspacing="1" cellpadding="2" border="0">
+    <td align="center" valign="top"  bgcolor="#FFFFFF" cellspacing="1" cellpadding="2" border="0" width="30%" id="datastream_preview_td">
       <table width="100%" border="0" cellpadding="2" cellspacing="0"  bgcolor="#FFFFFF" >
         <tr>
           <td class="default_white" colspan="4" bgcolor="{$heading_color}"><b>Image Preview (click the image for a larger/higher quality version)</b>

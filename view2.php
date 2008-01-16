@@ -227,6 +227,7 @@ if (!empty($pid) && $record->checkExists()) {
 		$linkCount = 0;
 		$fileCount = 0;		
 		$datastreams = Fedora_API::callGetDatastreams($pid);
+		
 		$datastreamsAll = $datastreams;		
 		$datastreams = Misc::cleanDatastreamListLite($datastreams, $pid);
 		$securityfields = Auth::getAllRoles();
@@ -259,6 +260,16 @@ if (!empty($pid) && $record->checkExists()) {
 						$fileSize = Jhove_Helper::extractFileSize($Jhove_XML['stream']);
 						$fileSize = Misc::size_hum_read($fileSize);
 						$datastreams[$ds_key]['archival_size'] = $fileSize;
+						
+						$spatialMetrics = Jhove_Helper::extractSpatialMetrics($Jhove_XML['stream']);
+						
+						if( is_numeric($spatialMetrics[0]) && $spatialMetrics[0] > 0 ) {
+                            $tpl->assign("img_width", $spatialMetrics[0]);
+						}
+						  
+						if( is_numeric($spatialMetrics[1]) && $spatialMetrics[1] > 0 ) {
+                            $tpl->assign("img_heigth", $spatialMetrics[1]);
+						}
 					}
 				}
 				/*

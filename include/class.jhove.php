@@ -49,6 +49,28 @@ class Jhove_Helper
 	    }
 		return $fileSize;
    }
+   
+   
+   function extractSpatialMetrics($xmlObj) {
+        
+        $width = 0;
+        $height = 0;
+       
+        $xml = new SimpleXMLElement($xmlObj);
+        $xml->registerXPathNamespace('mix', 'http://www.loc.gov/mix/');
+        
+        foreach ($xml->xpath('//mix:ImageWidth') as $imgWidth) 
+        {
+            $width = (int)$imgWidth[0];
+        }
+        
+        foreach ($xml->xpath('//mix:ImageLength') as $imgLength) 
+        {
+            $height = (int)$imgLength[0];
+        }
+		
+		return array($width, $height);
+   }
     
 }
 

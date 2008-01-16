@@ -1588,17 +1588,19 @@ inner join
  	        	    {
  	        	        $joinType = " LEFT JOIN ";
  	        	    }
+ 	        	    
+ 	        	    $escapedInput = Misc::escapeString($options["searchKey0"]);
             		
             		$searchKey_join[SK_KEY_ID] = 1;
             		$searchKey_join[SK_SEARCH_TXT] .= "Title, Abstract, Keywords:\"".trim(htmlspecialchars($options["searchKey".$x]))."\", ";
-					$searchKey_join[SK_JOIN] .= $joinType." (SELECT rek_pid, MATCH(rek_pid, rek_title, rek_description) AGAINST ('".Misc::escapeString($options["searchKey0"])."') AS Relevance ".
-													" FROM ". $dbtp . "record_search_key ".
-													" WHERE MATCH (rek_pid, rek_title, rek_description) AGAINST ('*".Misc::escapeString($options["searchKey0"])."*' IN BOOLEAN MODE)".
-													" UNION ".
-													" SELECT rek_keywords_pid AS rek_pid, MATCH(rek_keywords) AGAINST ('".Misc::escapeString($options["searchKey0"])."') AS Relevance ".
-													" FROM ". $dbtp . "record_search_key_keywords ".
-													" WHERE MATCH (rek_keywords) AGAINST ('*".Misc::escapeString($options["searchKey0"])."*' IN BOOLEAN MODE))".
-													" AS search ON search.rek_pid = r1.rek_pid ";
+					$searchKey_join[SK_JOIN] .= $joinType." (SELECT rek_pid, MATCH(rek_pid, rek_title, rek_description) AGAINST ('$escapedInput') AS Relevance ".
+        													" FROM {$dbtp}record_search_key ".
+        													" WHERE MATCH (rek_pid, rek_title, rek_description) AGAINST ('*$escapedInput*' IN BOOLEAN MODE)".
+        													" UNION ".
+        													" SELECT rek_keywords_pid AS rek_pid, MATCH(rek_keywords) AGAINST ('$escapedInput') AS Relevance ".
+        													" FROM {$dbtp}record_search_key_keywords ".
+        													" WHERE MATCH (rek_keywords) AGAINST ('*$escapedInput*' IN BOOLEAN MODE))".
+        													" AS search ON search.rek_pid = r1.rek_pid ";
                     
             		$searchKey_join[SK_GROUP_BY] = " GROUP BY r1.rek_pid ";
             		$termRelevance = ", SUM(search.Relevance) as Relevance";
