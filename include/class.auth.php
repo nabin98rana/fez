@@ -1758,10 +1758,17 @@ class Auth
 
 				if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] != "") { // if user has a principal name already in fez add their shibboleth username, but otherwise their username is their epTid
 					$principal_prefix = substr($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], 0, strpos($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], "@"));
-					if (Auth::userExists($principal_prefix)) { //this is mainly to cater for having login available for both shib and ldap/ad
-						User::updateShibUsername($principal_prefix, $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID']);
-						$username = $principal_prefix;
-					}				
+					
+					if ($principal_prefix != '' ) {
+					    if (Auth::userExists($username)) {
+					       User::updateUsername($principal_prefix, $username);
+					    }
+					    
+					    $username = $principal_prefix;
+                        if (Auth::userExists($principal_prefix)) { //this is mainly to cater for having login available for both shib and ldap/ad
+                            User::updateShibUsername($principal_prefix, $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID']);
+                        }
+					}
 				}
 			} elseif ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] != "") { // if no eptid then try using EP principalname - this should be rare
 				$principal_prefix = substr($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], 0, strpos($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], "@"));
@@ -1797,9 +1804,16 @@ class Auth
 				} else {				
 					$email = "";
 				}
+				
+				if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "") {
+					$shib_username = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'];
+				} else {				
+					$shib_username = $username;
+				}
+				
 				$distinguishedname = "";
 				// Create the user in Fez
-				User::insertFromShibLogin($username, $fullname, $email);
+				User::insertFromShibLogin($username, $fullname, $email, $shib_username);
 			} else {
 				$session['isInAD'] = true;
 				$session['isInDB'] = false;
@@ -1832,10 +1846,10 @@ class Auth
 					} else {
 						$distinguishedname = '';
 					}
-					$session['isInAD'] = true;			
+					$session['isInAD'] = true;
 				}  else {
                     $distinguishedname = '';
-					$session['isInAD'] = false;			
+					$session['isInAD'] = false;
 				}
 			}
             $fullname = $userDetails['usr_full_name'];
@@ -1845,13 +1859,19 @@ class Auth
 	            User::updateLoginDetails($usr_id); //incremement login count and last login date
 				if ($shib_login == true) {
 		            User::updateShibLoginDetails($usr_id); //incremement login count for shib logins for this user
+		            
+		            // Save attribs incase we need them when shib server goes down
+		            User::updateShibAttribs($usr_id);
+				}
+				else {
+				    User::loadShibAttribs($usr_id);
 				}
 			}
 
             // get internal fez groups
 			Auth::GetUsersInternalGroups($usr_id);
-            
         }
+        
         Auth::createLoginSession($username, $fullname, $email, $distinguishedname, @$_POST["remember_login"]);
         // pre process authorisation rules matches for this user
         Auth::setAuthRulesUsers();

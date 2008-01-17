@@ -611,6 +611,58 @@ class User
             return 1;
         }
     }
+    
+    
+    function updateShibAttribs($usr_id)
+    {
+        $dbRes = 1;
+        
+        foreach ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION] as $shib_name => $shib_value)
+        {
+            if ( is_numeric(strpos($shib_name, "Shib-EP")) && $shib_value != '' ) {
+                $stmt = "REPLACE INTO
+                            " . APP_TABLE_PREFIX . "user_shibboleth_attribs
+                            (
+                            usa_usr_id,
+                            usa_shib_name,
+                            usa_shib_value
+                            )
+                         VALUES (
+                            $usr_id,
+                            '$shib_name',
+        					'$shib_value'
+        				)";
+                $res = $GLOBALS["db_api"]->dbh->query($stmt);
+                
+                if (PEAR::isError($res)) {
+                    Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                    $dbRes = -1;
+                }
+            }
+        }
+        
+        return $dbRes;
+    }
+    
+    function loadShibAttribs($usr_id)
+    {
+        $stmt = "SELECT * 
+                 FROM " . APP_TABLE_PREFIX . "user_shibboleth_attribs
+                 WHERE usa_usr_id = " . $usr_id;
+                
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+                
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return false;
+        }
+        
+        foreach ($res as $row) {
+            $_SESSION[APP_SHIB_ATTRIBUTES_SESSION][$row['usa_shib_name']] = $row['usa_shib_value'];
+        }
+        
+        return true;
+    }
 
     /**
      * Method used to update the account details for a specific user.
@@ -826,11 +878,10 @@ class User
      * @access  public
      * @return  integer 1 if the update worked, -1 otherwise
      */
-    function insertFromShibLogin($usr_username, $usr_full_name, $usr_email)
+    function insertFromShibLogin($usr_username, $usr_full_name, $usr_email, $shib_username)
     {
 		$usr_administrator = 0;
-
-		$ldap_authentication = 0;
+		$ldap_authentication = 1;
 
         $prefs = Prefs::getDefaults();
         $stmt = "INSERT INTO
@@ -855,7 +906,7 @@ class User
                     " . $ldap_authentication . ",
                     '" . Misc::escapeString($prefs) . "',
                     '" . Misc::escapeString($usr_username) . "',
-                    '" . Misc::escapeString($usr_username) . "',
+                    '" . Misc::escapeString($shib_username) . "',
 					1,
 					1,
                     '" . Date_API::getCurrentDateGMT() . "'
