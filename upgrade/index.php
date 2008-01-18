@@ -75,16 +75,21 @@ function parse_mysql_dump($url, $ignoreerrors = false) {
  *                              Defaults to "upgrade/local"
  * @return array                A sorted array of sql upgrade filenames.
  */
-function getUpdateSqlList($lookin_reldir = 'upgrade/sql_scripts') {
+function getUpdateSqlList($lookin_reldir = 'upgrade/sql_scripts', $dbversion) {
     $upgrades = array();
     $path = APP_PATH . $lookin_reldir;
-
+    
     if (file_exists($path) and filetype($path) == 'dir') {
         $dirhandle = opendir($path);
         while (false !== ($filename = readdir($dirhandle))) {
             $tokens = strtok($filename, '.');
             if (preg_match("/upgrade[0-9]{10}\.sql/", $filename)) {
-                $upgrades[] = substr($filename, 7, 10);
+                
+                $sqlFileNum = substr($filename, 7, 10);
+                if($sqlFileNum > $dbversion )
+                {
+                    $upgrades[] = $sqlFileNum;
+                }
             }
         }
         closedir($dirhandle);
@@ -276,9 +281,10 @@ function upgrade()
      *  }
      */
     $path = APP_PATH .  'upgrade/sql_scripts';
-    $sql_upgrades = getUpdateSqlList();
-    $success = true;
     $dbversion = get_data_model_version();
+    $sql_upgrades = getUpdateSqlList('upgrade/sql_scripts', $dbversion);
+    $success = true;
+    
     if ($dbversion == 0) {
         if (parse_mysql_dump("upgrade.sql")) {
             $success = $success && true;
@@ -290,18 +296,16 @@ function upgrade()
     
     // go through the upgrades and execute any that are greater than the current version
  //   $sql_upgrade = $dbversion;
-//	print_r($sql_upgrades); exit;
     foreach ($sql_upgrades as $sql_upgrade) {
-    	if ($sql_upgrade > $dbversion) {
-            if (parse_mysql_dump($path."/upgrade".$sql_upgrade.".sql")) {
-                $success = $success && true;
-            } else {
-                $success = false;
-            }
+        if (parse_mysql_dump($path."/upgrade".$sql_upgrade.".sql")) {
+            $success = $success && set_data_model_version($sql_upgrade);
+        } else {
+            $success = false;
+            break;
         }
     }
 
-    if ($success && set_data_model_version($sql_upgrade)) {
+    if ($success) {
         return array($success, "Upgrade to database version $sql_upgrade succeeded.");
     } else {
         return array($success, 'The upgrade failed - check error_handler.log');
