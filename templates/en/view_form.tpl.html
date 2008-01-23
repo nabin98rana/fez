@@ -48,7 +48,7 @@ function loadPreview(pid,datastreamID, alt)
 	    pv_img = document.getElementById('datastream_preview');
 	    pv_img_href = document.getElementById('datastream_preview_href');
 	    // get the resized image
-			
+		datastreamID = str_replace(datastreamID, '.tif', '.jpg');	
         pv_img.src = rel_url+'eserv/'+pid+'/preview_'+datastreamID;
 		pv_img_href.href = rel_url+'eserv/'+pid+'/web_'+datastreamID;
         pv_img.alt = alt;
