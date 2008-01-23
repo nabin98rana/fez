@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------+
 // | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2005, 2006, 2007 The University of Queensland,         |
+// | Copyright (c) 2005, 2006, 2007, 2008 The University of Queensland,   |
 // | Australian Partnership for Sustainable Repositories,                 |
 // | eScholarship Project                                                 |
 // |                                                                      |
@@ -48,8 +48,8 @@ $wrapper = @$_POST["wrapper"] ? $_POST["wrapper"] : $_GET["wrapper"];
 $pid = @$_POST["pid"] ? $_POST["pid"] : $_GET["pid"];
 $dsID = @$_POST["dsID"] ? $_POST["dsID"] : $_GET["dsID"];
 
-if ( (is_numeric(strpos($pid, ".."))) && (is_numeric(strpos($dsID, "..")))) { 
-	die; 
+if ( (is_numeric(strpos($pid, ".."))) && (is_numeric(strpos($dsID, "..")))) {
+	die;
 } // to stop haxors snooping our confs
 
 $acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
@@ -62,13 +62,13 @@ if (!empty($pid) && !empty($dsID)) {
 	}
 	$real_dsID = $dsID;
 	$is_video = 0;
-	$is_image = 0;	
+	$is_image = 0;
 	list($data,$info) = Misc::processURL_info(APP_FEDORA_GET_URL."/".$pid."/".$dsID);
 	$ctype = $info['content_type'];
 	if (is_numeric(strpos($ctype, "video"))) {
 		$is_video = 1;
 	} elseif (is_numeric(strpos($ctype, "image"))) {
-		$is_image = 1;	
+		$is_image = 1;
 	}
 	if (($is_image == 1) && (!is_numeric(strpos($dsID, "web_"))) && (!is_numeric(strpos($dsID, "preview_"))) && (!is_numeric(strpos($dsID, "thumbnail_"))) ) {
 		$acceptable_roles = array("Community_Admin", "Editor", "Creator", "Archival_Viewer");
@@ -88,7 +88,7 @@ if (!empty($pid) && !empty($dsID)) {
 			# content headers
 			header("Content-Type: video/x-flv");
 			header("Content-Disposition: attachment; filename=\"" . $dsID . "\"");
-					
+
 		    if ($seekat != 0) {
 	        	print("FLV");
 	   			print(pack('C', 1 ));
@@ -97,7 +97,7 @@ if (!empty($pid) && !empty($dsID)) {
 	    		print(pack('N', 9 ));
 		    }
 			if (APP_FEDORA_APIA_DIRECT == "ON") {
-	            $fda = new Fedora_Direct_Access();		            
+	            $fda = new Fedora_Direct_Access();
 				$dsVersionID = $fda->getMaxDatastreamVersion($pid, $dsID);
 				$fda->getDatastreamManagedContentStream($pid, $dsID, $dsVersionID, $seekat);
 			} else {
@@ -112,7 +112,7 @@ if (!empty($pid) && !empty($dsID)) {
 //				  $seekat += $buffer;
 //				}
 			}
-		} 
+		}
 		fclose($fh);
 	    exit;
 	} elseif (($is_video == 1) && (is_numeric(strpos($ctype, "flv")))) {
@@ -140,12 +140,12 @@ if (!empty($pid) && !empty($dsID)) {
 			$tpl->setTemplate("view.tpl.html");
 			$tpl->assign("show_not_allowed_msg", true);
 			$tpl->displayTemplate();
-			exit;	
-		}										
+			exit;
+		}
 	}
 	if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $_SERVER['REQUEST_URI']) == true) {
 		$urldata = APP_FEDORA_GET_URL."/".$pid."/".$real_dsID; // this should stop them dang haxors (forces the http on the front for starters)
-		$urlpath = $urldata;					
+		$urlpath = $urldata;
 //		list($data,$info) = Misc::processURL_info($urldata);
         if (!empty($header)) {
         	//echo $header; exit;
@@ -161,7 +161,7 @@ if (!empty($pid) && !empty($dsID)) {
 		}
            header('Pragma: private');
            header('Cache-control: private, must-revalidate');
-		list($data,$info) = Misc::processURL($urldata, true);            
+		list($data,$info) = Misc::processURL($urldata, true);
            exit;
 	}
 }
