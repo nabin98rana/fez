@@ -1,14 +1,31 @@
 <script type="text/javascript">
 <!--
 {literal}
-function validateForm(f)
-{
+function validateForm(f) {
+	var f = document.forms['wfl_form1'];
+
+	if (f.workflow_button_{/literal}{$workflow_buttons[i].wfs_id}{literal}.value == 'Finished') {
+		return;
+	}
+
 	if (!IsNumeric(f.af_percent_affiliation.value) || f.af_percent_affiliation.value <= 0 || f.af_percent_affiliation.value > 100) {
 		errors[errors.length] = new Option('Percent Affiliation', 'af_percent_affiliation');
 	}
 	if (f.af_percent_affiliation.value.length > 6) {
 		errors[errors.length] = new Option('Percent Affiliation -- a maximum of three decimal places is allowed.', 'af_percent_affiliation');
 	}
+}
+
+function submitSuggestedAffiliation(authorID, orgID, iteration) {
+	var f = document.forms['wfl_form1'];
+	var authorID = authorID;
+	var orgID = orgID;
+	var percentage = document.getElementById('percentage-' + iteration).value;
+	//window.alert('VALUES TO SUBMIT: ' + authorID + ', ' + orgID + ', ' + percentage);
+	f.af_author_id.value = authorID;
+	f.af_org_id.value = orgID;
+	f.af_percent_affiliation.value = percentage;
+	f.submit();
 }
 {/literal}
 // -->
@@ -18,17 +35,71 @@ function validateForm(f)
 
 <div class="outline">
 
+
+
 <div class="admin-header">Edit Author Affiliations</div>
 
   <div class="default admin-content">
+
+	<div style="border: solid 1px red; padding: 10px; margin: 10px; width: 800;"">
+
+	<input type="hidden" name="action" value="save"/>
+	<input type="hidden" name="id" value="{$wf_id}"/>
+	<input type="hidden" name="af_id" value="{$current.af_id}"/>
+
+	{section name='jj' loop=$affiliation_suggestions}
+	  {if $smarty.section.jj.first}<h3>Suggested author affiliations</h3><table class="default" style="border-collapse: collapse; padding: 5px; margin: 0;">{/if}
+	  <tr bgcolor="{cycle values="$cycle_colours"}">
+	    <td width="200">{$affiliation_suggestions[jj].name}</td>
+		<!--td width="150" bgcolor="red">PRF: {$affiliation_suggestions[jj].payroll_flag}</td-->
+		<!--td width="150" bgcolor="red">FTE: {$affiliation_suggestions[jj].fte}</td-->
+		<!--td width="150" bgcolor="red">AUTHOR ID: {$affiliation_suggestions[jj].aut_id}</td-->
+		<!--td width="150" bgcolor="red">ORG ID: {$affiliation_suggestions[jj].org_id}</td-->
+		<!--td width="150" bgcolor="red">WAMIKEY: {$affiliation_suggestions[jj].wamikey}</td-->
+		<!--td width="150" bgcolor="red">AOU: {$affiliation_suggestions[jj].aou}</td-->
+		<td width="550">{$affiliation_suggestions[jj].org_title}</td>
+		<td width="80"><input type="text" id="percentage-{$smarty.section.jj.iteration}" value="{$affiliation_suggestions[jj].percentage}" size="6" class="default" />%</td>
+		<td width=""><input type="button" onclick="javasacript:submitSuggestedAffiliation({$affiliation_suggestions[jj].aut_id}, {$affiliation_suggestions[jj].org_id}, {$smarty.section.jj.iteration});" value="Use this affiliation" class="button" /><br />
+		</td>
+		<!--td width="150" bgcolor="red">DEBUG: {$affiliation_suggestions[jj].debug}</td-->
+	  </tr>
+	  {if $smarty.section.jj.last}</table>{/if}
+	{sectionelse}
+	<p>No suggested affiliations for these authors.</p>
+	{/section}
+
+	</div>
+
+	<br />
+
+	<div style="border: solid 1px green; padding: 10px; margin: 10px; width: 800;">
+
+	{section name='ii' loop=$list}
+	{if $smarty.section.ii.first}<h3>Registered author affiliations</h3><table class="default" style="border-collapse: collapse; padding: 5px; margin: 0;">{/if}
+      <tr bgcolor="{cycle values="$cycle_colours"}">
+        <td width="200">{$list[ii].author_name}</td>
+        <td width="550">{$list[ii].org_title}</td>
+		<td width="65">{$list[ii].af_percent_affiliation}%</td>
+        <td width="30"><a href="{$smarty.server.PHP_SELF}?id={$wf_id}&action=edit&af_id={$list[ii].af_id}" title="Edit this affiliation">Edit</a></td>
+        <td width="30"><a href="{$smarty.server.PHP_SELF}?id={$wf_id}&action=delete&af_id={$list[ii].af_id}" title="Remove this affiliation">Remove</a></td>
+      </tr>
+      {if $smarty.section.ii.last}</table>{/if}
+    {sectionelse}
+	<p>No affiliations currently recorded.</p>
+	{/section}
+
+	</div>
+
+	<br />
+
+	{if $action == 'edit'}<h3>Edit affiliation</h3>{else}<h3>Add new affiliation</h3>{/if}
 
   <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
 	<tr>
 	  <td>
 		<table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
 
-        <form name="form1" onsubmit="javascript:validateForm(this)">
-  <div class="error">{$error_message}</div>
+		<div class="error">{$error_message}</div>
         <input type="hidden" name="action" value="save"/>
         <input type="hidden" name="id" value="{$wf_id}"/>
         <input type="hidden" name="af_id" value="{$current.af_id}"/>
@@ -56,51 +127,21 @@ function validateForm(f)
 			  <b>Percent Affiliation:</b>
 			</td>
 			<td bgcolor="{$light_color}">
-			  <input type="textfield" name="af_percent_affiliation" value="{$current.af_percent_affiliation}"/>
+			  <input type="textfield" name="af_percent_affiliation" value="{$current.af_percent_affiliation}" size="6" />% (supports up to 3 decimal places)
 			</td>
           </tr>
 
 		  <tr>
 			<td width="140" bgcolor="{$cell_color}" class="default"></td>
 			<td bgcolor="{$light_color}">
-			  <input type="submit" name="save" value="Save" class="button" />
+			  <input type="submit" name="save" value="Save" class="button" onclick="javascript:validateForm(this);" />
 			</td>
           </tr>
-
-        </form>
 
 		</table>
 	  </td>
 	</tr>
   </table>
-
-	
-	<br />
-
-	<table cellpadding="2" cellspacing="2">
-	{section name='ii' loop=$list}
-	{if $smarty.section.ii.first}
-      <tr>
-		<td bgcolor="{$cell_color}"><b>Author</b></td>
-		<td bgcolor="{$cell_color}"><b>%</b></td>
-		<td bgcolor="{$cell_color}"><b>Organisational Unit</b></td>
-		<td bgcolor="{$cell_color}"></td>
-		<td bgcolor="{$cell_color}"></td>
-      </tr>
-	{/if}
-
-	{cycle values=$cycle assign="row_color"}
-		<tr>
-			<td bgcolor="{$row_color}" width="">{$list[ii].author_name}</td>
-			<td bgcolor="{$row_color}" width="">{$list[ii].af_percent_affiliation}</td>
-			<td bgcolor="{$row_color}" width="">{$list[ii].org_title}</td>
-			<td bgcolor="{$row_color}" width=""><a href="{$smarty.server.PHP_SELF}?id={$wf_id}&action=edit&af_id={$list[ii].af_id}" title="Edit this affiliation">Edit</a></td>
-			<td bgcolor="{$row_color}" width=""><a href="{$smarty.server.PHP_SELF}?id={$wf_id}&action=delete&af_id={$list[ii].af_id}" title="Remove this affiliation">Remove</a></td>
-		</tr>
-	{sectionelse}
-		<tr><td>There are currently no affiliations recorded for this record.</td></tr>
-	{/section}
-	</table>
 
   </div>
 </div>

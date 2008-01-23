@@ -56,14 +56,28 @@ if ($access_ok) {
 			unset($author_ids[$key]);
 		}
 	}
+
+	$suggestseans = array();
+	foreach ($author_ids as $key => $author_id) {
+
+		$affiliationData = AuthorAffiliations::getPresetAffiliations($author_id);
+		foreach ($affiliationData as $affiliationRecord) {
+			array_push($suggestseans, $affiliationRecord);
+		}
+
+	}
+
+	$tpl->assign('affiliation_suggestions', $suggestseans);
+	$tpl->assign("cycle_colours", APP_CYCLE_COLOR_TWO . ",#FFFFFF");
 	$authors = array_values($authors);
 	$author_ids = array_values($author_ids);
 	$list = AuthorAffiliations::getList($pid);
 	$list_keyed = Misc::keyArray($list, 'af_id');
-	$tpl->assign('orgs', Org_Structure::getAssocList());
+	$tpl->assign('orgs', Org_Structure::getAssocListHR());
 
 	if ($_REQUEST['action'] == 'edit') {
 		$tpl->assign('current', $list_keyed[$_REQUEST['af_id']]);
+		$tpl->assign('action', 'edit');
 	}
 
 	$tpl->assign(compact('list','authors','author_ids','wf_id'));

@@ -275,7 +275,35 @@ class Org_Structure
             return $res;
         }
     }
-	
+
+    /**
+     * Method used to get the list of organsational structures available in the 
+     * system returned in an associative array for drop down lists. This method
+	 * returns only those org units that are tagged as coming from HR.
+     *
+     * @access  public
+     * @return  array The list of HR organsational structures in an associative array (for drop down lists).
+     */
+    function getAssocListHR()
+    {
+        $stmt = "SELECT
+                    org_id,
+					org_title
+                 FROM
+                    " . APP_TABLE_PREFIX . "org_structure
+			     WHERE org_id not in (SELECT orr_child_org_id from  " . APP_TABLE_PREFIX . "org_structure_relationship)
+				 AND org_extdb_name = 'hr'
+                 ORDER BY
+                    org_title ASC";
+        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
+
     /**
      * Method used to get the list of organsational structures available in the 
      * system returned in an associative array for drop down lists.
