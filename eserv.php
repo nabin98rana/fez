@@ -51,194 +51,119 @@ $dsID = @$_POST["dsID"] ? $_POST["dsID"] : $_GET["dsID"];
 if ( (is_numeric(strpos($pid, ".."))) && (is_numeric(strpos($dsID, "..")))) { 
 	die; 
 } // to stop haxors snooping our confs
-$is_image = 0;
 
 $acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
 
 if (!empty($pid) && !empty($dsID)) {
-	$file_extension = strtolower(substr( strrchr( $dsID, "." ), 1 ));
-	switch( $file_extension ) {
-		
-		case 'pdf'  :
-				$header = "Content-type: application/pdf\n";
-				break;
-		case 'xls'  :
-				$header = "Content-type: application/vnd.ms-excel\n";
-				break;
-		case 'doc'  :
-				$header = "Content-type: application/msword\n";
-				break;
-		case 'ica'  :
-				$header = "Content-type: application/x-ica\n";
-				break;
-		case 'gif'  :
-				$is_image = 1;
-				$header = "Content-type: image/gif\n";
-				break;
-		case 'tif'  :
-				$is_image = 1;
-				$header = "Content-type: image/tif\n";
-				break;
-		case 'tiff'  :
-				$is_image = 1;
-				$header = "Content-type: image/tiff\n";
-				break;
-		case 'bmp'  :
-				$is_image = 1;
-				$header = "Content-type: image/bmp\n";
-				break;
-		case 'png'  :
-				$is_image = 1;
-				$header = "Content-type: image/png\n";
-				break;
-		case 'jpg'  :
-				$is_image = 1;
-				$header = "Content-type: image/jpeg\n";
-				break;
-		case 'jpeg'  :
-				$is_image = 1;
-				$header = "Content-type: image/jpeg\n";
-				break;
-		case 'ico'  :
-				$is_image = 1;
-				$header = "Content-type: image/ico\n";
-				break;
-		case 'ppt'  :
-				$header = "Content-type: application/vnd.ms-powerpoint";
-				break;
-		case 'txt'  :
-				$header = "Content-type: text/plain";
-				break;
-		case 'zip'  :
-				$header = "Content-type: application/zip";
-				break;
-		case 'mdb'  :
-				$header = "Content-type: application/msaccess";
-				break;
-		case 'htm'  :
-				$header = "Content-type: text/html\n";
-				break;
-		case 'html'  :
-				$header = "Content-type: text/html\n";
-				break;
-		case 'flv'  :
-				if ($stream == 1) {
-					if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $_SERVER['REQUEST_URI']) == true) {
-						$urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsID;
-						$file = $urldata;
-						$seekat = $_GET["pos"];		
-				        $size = Misc::remote_filesize($urldata);
-						# content headers
-						header("Content-Type: video/x-flv");
-						header("Content-Disposition: attachment; filename=\"" . $dsID . "\"");
-//						header("Content-Length: " . $size);
-									
-					    if ($seekat != 0) {
-				        	print("FLV");
-	               			print(pack('C', 1 ));
-	                		print(pack('C', 1 ));
-	                		print(pack('N', 9 ));
-	                		print(pack('N', 9 ));
-					    }
-//						if (APP_FEDORA_APIA_DIRECT == "ON") {
-						if (1 == 1) {
-			                $fda = new Fedora_Direct_Access();		            
-							$dsVersionID = $fda->getMaxDatastreamVersion($pid, $dsID);
-							$fda->getDatastreamManagedContentStream($pid, $dsID, $dsVersionID, $seekat);
-						} else {
-	        				$fh = fopen($file, "rb");					        
-							echo stream_get_contents($fh, $size, $seekat); 
-						}
-					} 
-					fclose($fh);
-			        exit;
-				} else {
-					
-					if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $_SERVER['REQUEST_URI']) == true) {
-                        include_once(APP_INC_PATH . "class.template.php");
-						$tpl = new Template_API();
-						$tpl->setTemplate("flv.tpl.html");
-						$username = Auth::getUsername();
-						$tpl->assign("isUser", $username);
-						if (Auth::userExists($username)) { // if the user is registered as a Fez user
-							$tpl->assign("isFezUser", $username);
-						}
-						$isAdministrator = User::isUserAdministrator($username);
-						$tpl->assign("isAdministrator", $isAdministrator);
-						$tpl->assign("APP_BASE_URL", APP_BASE_URL);
-						//$tpl->assign("APP_RELATIVE_URL", APP_RELATIVE_URL);
-						$tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
-						$tpl->assign("dsID", $dsID);
-//						if (APP_FEDORA_APIA_DIRECT == "ON") {
-						$tpl->assign("wrapper", $wrapper);
-						$tpl->assign("pid", $pid);
-						$tpl->displayTemplate();
-						exit;
-					} else {
-                        include_once(APP_INC_PATH . "class.template.php");
-						$tpl = new Template_API();
-						$tpl->setTemplate("view.tpl.html");
-						$tpl->assign("show_not_allowed_msg", true);
-						$tpl->displayTemplate();			
-					}										
-				}
-				break;
-		
-		default		:
-				break;
-	
-	} // end switch field_extension
-	
-
-if (($is_image == 1) && (is_numeric(strpos($dsID, "archival_"))) ) { // if its trying to find the archival version then check
-	$real_dsID = str_replace("archival_", "", $dsID);
-	$acceptable_roles = array("Community_Admin", "Editor", "Creator", "Archival_Viewer");
-} elseif (($is_image == 1) && (!is_numeric(strpos($dsID, "web_"))) && (!is_numeric(strpos($dsID, "preview_"))) && (!is_numeric(strpos($dsID, "thumbnail_"))) ) {
-	$real_dsID = "web_".substr($dsID, 0, strrpos($dsID, ".") + 1)."jpg";
-	$acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
-	$header = "Content-type: image/jpeg\n";
-} else {
+	$dissemination_dsID = "";
+	if (is_numeric(strpos($dsID, "archival_"))) {
+		$dsID = str_replace("archival_", "", $dsID);
+		Auth::redirect(APP_BASE_URL."eserv/".$pid."/".$dsID);
+	}
 	$real_dsID = $dsID;
-	$acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
-}
-	
-	
-//	$xdis_array = Fedora_API::callGetDatastreamContentsField ($pid, 'FezMD', array('xdis_id'));
-//	$xdis_id = $xdis_array['xdis_id'][0];
-//	if (is_numeric($xdis_id)) {	
+	$is_video = 0;
+	$is_image = 0;	
+	list($data,$info) = Misc::processURL_info(APP_FEDORA_GET_URL."/".$pid."/".$dsID);
+	$ctype = $info['content_type'];
+	if (is_numeric(strpos($ctype, "video"))) {
+		$is_video = 1;
+	} elseif (is_numeric(strpos($ctype, "image"))) {
+		$is_image = 1;	
+	}
+	if (($is_image == 1) && (!is_numeric(strpos($dsID, "web_"))) && (!is_numeric(strpos($dsID, "preview_"))) && (!is_numeric(strpos($dsID, "thumbnail_"))) ) {
+		$acceptable_roles = array("Community_Admin", "Editor", "Creator", "Archival_Viewer");
+		$dissemination_dsID = "web_".substr($dsID, 0, strrpos($dsID, ".") + 1)."jpg";
+	} elseif (($is_video == 1) && (!is_numeric(strpos($dsID, "stream_")) && (!is_numeric(strpos($ctype, "flv"))))) {
+		$acceptable_roles = array("Community_Admin", "Editor", "Creator", "Archival_Viewer");
+		$dissemination_dsID = "stream_".substr($dsID, 0, strrpos($dsID, ".") + 1)."flv";
+	} else {
+		$acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
+	}
+	if (($stream == 1 && $is_video == 1) && (is_numeric(strpos($ctype, "flv")))) {
 		if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $_SERVER['REQUEST_URI']) == true) {
-			$urldata = APP_FEDORA_GET_URL."/".$pid."/".$real_dsID; // this should stop them dang haxors (forces the http on the front for starters)
-			$urlpath = $urldata;					
+			$urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsID;
+			$file = $urldata;
+			$seekat = $_GET["pos"];
+	        $size = Misc::remote_filesize($urldata);
+			# content headers
+			header("Content-Type: video/x-flv");
+			header("Content-Disposition: attachment; filename=\"" . $dsID . "\"");
+					
+		    if ($seekat != 0) {
+	        	print("FLV");
+	   			print(pack('C', 1 ));
+	    		print(pack('C', 1 ));
+	    		print(pack('N', 9 ));
+	    		print(pack('N', 9 ));
+		    }
+			if (APP_FEDORA_APIA_DIRECT == "ON") {
+	            $fda = new Fedora_Direct_Access();		            
+				$dsVersionID = $fda->getMaxDatastreamVersion($pid, $dsID);
+				$fda->getDatastreamManagedContentStream($pid, $dsID, $dsVersionID, $seekat);
+			} else {
+				$fh = fopen($file, "rb");
+				$buffer = 512;
 
-//			list($data,$info) = Misc::processURL($urldata, true);
-            //ob_start();
-			list($data,$info) = Misc::processURL_info($urldata);
-//			print_r($data);
-//			print_r($info);
-//			exit;
-            if (!empty($header)) {
-            	//echo $header; exit;
-                header($header);
-            } elseif (!empty($info['content_type'])) {
-                header("Content-type: {$info['content_type']}");
-            } else {
-                header("Content-type: text/xml");
-            }
-            header('Content-Disposition: filename="'.substr($urldata, (strrpos($urldata, '/')+1) ).'"');
-//            header('Content-Disposition: filename="'.$dsID.'"');
-			if (!empty($info['download_content_length'])) {
-				header("Content-length: ".$info['download_content_length']);
+//				while ($seekat <= $size) {
+				// temp thing to test buffering
+
+			  	echo stream_get_contents($fh, $size, $seekat);
+
+//				  $seekat += $buffer;
+//				}
 			}
-
-            header('Pragma: private');
-            header('Cache-control: private, must-revalidate');
-
-			list($data,$info) = Misc::processURL($urldata, true);            
-//			echo($data);
-
-            exit;
+		} 
+		fclose($fh);
+	    exit;
+	} elseif (($is_video == 1) && (is_numeric(strpos($ctype, "flv")))) {
+		if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $_SERVER['REQUEST_URI']) == true) {
+	        include_once(APP_INC_PATH . "class.template.php");
+			$tpl = new Template_API();
+			$tpl->setTemplate("flv.tpl.html");
+			$username = Auth::getUsername();
+			$tpl->assign("isUser", $username);
+			if (Auth::userExists($username)) { // if the user is registered as a Fez user
+				$tpl->assign("isFezUser", $username);
+			}
+			$isAdministrator = User::isUserAdministrator($username);
+			$tpl->assign("isAdministrator", $isAdministrator);
+			$tpl->assign("APP_BASE_URL", APP_BASE_URL);
+			$tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
+			$tpl->assign("dsID", $dsID);
+			$tpl->assign("wrapper", $wrapper);
+			$tpl->assign("pid", $pid);
+			$tpl->displayTemplate();
+			exit;
+		} else {
+	        include_once(APP_INC_PATH . "class.template.php");
+			$tpl = new Template_API();
+			$tpl->setTemplate("view.tpl.html");
+			$tpl->assign("show_not_allowed_msg", true);
+			$tpl->displayTemplate();
+			exit;	
+		}										
+	}
+	if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $_SERVER['REQUEST_URI']) == true) {
+		$urldata = APP_FEDORA_GET_URL."/".$pid."/".$real_dsID; // this should stop them dang haxors (forces the http on the front for starters)
+		$urlpath = $urldata;					
+//		list($data,$info) = Misc::processURL_info($urldata);
+        if (!empty($header)) {
+        	//echo $header; exit;
+            header($header);
+        } elseif (!empty($info['content_type'])) {
+            header("Content-type: {$info['content_type']}");
+        } else {
+            header("Content-type: text/xml");
+        }
+        header('Content-Disposition: filename="'.substr($urldata, (strrpos($urldata, '/')+1) ).'"');
+		if (!empty($info['download_content_length'])) {
+			header("Content-length: ".$info['download_content_length']);
 		}
-//	}		
+           header('Pragma: private');
+           header('Cache-control: private, must-revalidate');
+		list($data,$info) = Misc::processURL($urldata, true);            
+           exit;
+	}
 }
 include_once(APP_INC_PATH . "class.template.php");
 $tpl = new Template_API();

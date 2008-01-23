@@ -694,7 +694,7 @@ class Misc
 			$ds['preview'] = 0;
 			foreach ($original_dsList as $o_key => $o_ds) {
 				if ($preview == $o_ds['ID']) {  // found the preview datastream so save it against the record
-					$ds['preview'] = substr($preview, 8);
+					$ds['preview'] = $preview;
 				}
 			}
 
@@ -718,12 +718,12 @@ class Misc
 					$FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
 					$FezACML_display = new XSD_DisplayObject($FezACML_xdis_id);
 //					$FezACML_display->getXSDMF_Values($key);
-					$FezACML_display->getXSDMF_Values($pid);					
+					$FezACML_display->getXSDMF_Values($pid);
 /*					echo "PID - ".$pid;
 					echo "XDIS ID - ".$FezACML_xdis_id;
 					echo "HERe -> "; print_r($FezACML_display->matchfields); */
 					if ($return[$key]['FezACML'][0]['!inherit_security'][0] == "on") {
-						$parentsACMLs = $return[$key]['FezACML'];				
+						$parentsACMLs = $return[$key]['FezACML'];
 						$return[$key]['security'] = "include";
 					} else {
 						$return[$key]['security'] = "inherit";
