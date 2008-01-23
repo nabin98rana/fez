@@ -872,12 +872,15 @@ class Controlled_Vocab
      */
     function getDetails($cvo_id)
     {
+
         $stmt = "SELECT
                     *
                  FROM
-                    " . APP_TABLE_PREFIX . "controlled_vocab
-                 WHERE
-                    cvo_id=".$cvo_id;
+                    " . APP_TABLE_PREFIX . "controlled_vocab ";
+		if ($cvo_id !== "") {
+			$stmt .= "WHERE cvo_id=" . $cvo_id;
+		}
+
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

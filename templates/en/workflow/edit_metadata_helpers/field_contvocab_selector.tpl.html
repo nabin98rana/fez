@@ -13,7 +13,7 @@
 							 {/if}
 						</select>
 						{include file="error_icon.tpl.html" field=$field_name}
-						<input class="default" type=button value="Add Subject" onclick = "javascript:small_window('{$rel_url}cv_selector.php?cvo_id={$xsd_display_fields[i].xsdmf_cvo_id}&form=wfl_form1&element=xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0&xsdmf_cvo_min_level={$xsd_display_fields[i].xsdmf_cvo_min_level}');">
+						<input class="default" type=button value="Add Subject" onclick = "javascript:small_window('{$rel_url}cv_selector.php?cvo_id=&form=wfl_form1&element=xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0&xsdmf_cvo_min_level={$xsd_display_fields[i].xsdmf_cvo_min_level}');">
 						<input class="default" type=button value="Remove Subject" onclick =" javascript:deleteSelectedItemsFromList(xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0);">
 					{if $xsd_display_fields[i].xsdmf_required == 1}
         		    <script type="text/javascript">
