@@ -507,7 +507,7 @@ function showDiv(p)
           {if $preview_ds_1}
 		  <div id="datastream_preview_frame">
           <a id="datastream_preview_href" title="Click on the image to see a larger version"  target="_blank" href="{$rel_url}eserv/{$pid}/{$preview_ds_1.ID}"><img width="100%" border=0 id="datastream_preview" alt="Datastream Preview"/></a>
-          <script language="JavaScript">loadPreview('{$pid}','{if $preview_ds_1.stream != "0"}{$preview_ds_1.stream}{else}{$preview_ds_1.preview}{/if}','{$preview_ds_1.ID|escape:'html'}');</script>
+          <script language="JavaScript">loadPreview('{$pid}','{if $preview_ds_1.stream != "0"}{$preview_ds_1.stream}{else}{$preview_ds_1.ID}{/if}','{$preview_ds_1.ID|escape:'html'}');</script>
 		  </div>
           {/if}
         </td>
