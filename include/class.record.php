@@ -3285,7 +3285,8 @@ class RecordGeneral
                     $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
                     Fedora_API::callModifyDatastreamByValue($new_pid, $ds_value['ID'], $ds_value['state'],
                         $ds_value['label'], $value, $ds_value['MIMEType'], "false");
-					if (!array_key_exists("MODS", $datastreams)) {
+//					if (!array_key_exists("MODS", $datastreams)) {
+					if (!Misc::in_multi_array("MODS", $datastreams)) {
 						// transform the DC into a MODS datastream and attach it
 						$dc_to_mods_xsl = APP_INC_PATH . "xslt/dc_to_mods.xsl";
 						$xsl_dom = DOMDocument::load($dc_to_mods_xsl);
