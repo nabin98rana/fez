@@ -89,7 +89,7 @@ if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
 	if (!empty($_SESSION["url"])) { 
 		$url = $_SESSION["url"];
 		$_SESSION["url"] = "";
-		Auth::redirect($url);			
+		Auth::redirect($url);
 		exit;
 	}
 } elseif (count($_POST) > 0) {

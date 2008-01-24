@@ -121,6 +121,20 @@
 	<phonetic_newspaper />
 	{/section}
 	</phonetic_newspapers>
+	<book_titles>
+	{section name="book_title_loop" loop=$list[i].rek_book_title}
+	<book_title>{$list[i].rek_book_title[book_title_loop]|escape:"html"}</book_title>
+	{sectionelse}
+	<book_title />
+	{/section}
+	</book_titles>
+	<chapter_titles>
+	{section name="chapter_title_loop" loop=$list[i].rek_chapter_title}
+	<chapter_title>{$list[i].rek_chapter_title[chapter_title_loop]|escape:"html"}</chapter_title>
+	{sectionelse}
+	<chapter_title />
+	{/section}
+	</chapter_titles>
 	<translated_book_titles>
 	{section name="translated_book_title_loop" loop=$list[i].rek_translated_book_title}
 	<translated_book_title>{$list[i].rek_translated_book_title[translated_book_title_loop]|escape:"html"}</translated_book_title>
@@ -135,6 +149,20 @@
 	<phonetic_book_title />
 	{/section}
 	</phonetic_book_titles>
+	<journal_names>
+	{section name="journal_name_loop" loop=$list[i].rek_journal_name}
+	<journal_name>{$list[i].rek_journal_name[journal_name_loop]|escape:"html"}</journal_name>
+	{sectionelse}
+	<journal_name />
+	{/section}
+	</journal_names>
+	<conference_names>
+	{section name="conference_name_loop" loop=$list[i].rek_conference_name}
+	<conference_name>{$list[i].rek_conference_name[conference_name_loop]|escape:"html"}</conference_name>
+	{sectionelse}
+	<conference_name />
+	{/section}
+	</conference_names>
 	<translated_journal_names>
 	{section name="translated_journal_name_loop" loop=$list[i].rek_translated_journal_name}
 	<translated_journal_name>{$list[i].rek_translated_journal_name[translated_journal_name_loop]|escape:"html"}</translated_journal_name>
