@@ -907,6 +907,15 @@
                 </td>
               </tr>
               <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Invisible?:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="checkbox" name="invisible" class="default" {if ($info.xsdmf_invisible == 1)}checked{/if}><br />
+                  <span class="small_default">(If this enabled tickbox is ticked this element will be wrapped in an invisible DIV tag - good for disabling fields temporarily while keeping their values intact when the edit metadata form is updated)</span>
+                </td>
+              </tr>
+              <tr>
                 <td colspan="2" width="120" bgcolor="{$smarty.const.APP_ADV_COLOR_DARK}" class="default">
                   <b>Advanced Settings (not required for most mappings)</b>
                 </td>

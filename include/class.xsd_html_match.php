@@ -76,6 +76,7 @@ class XSD_HTML_Match {
 		'xsdmf_is_key',
 		'xsdmf_key_match',
 		'xsdmf_show_in_view',
+		'xsdmf_invisible',
 		'xsdmf_smarty_variable',
 		'xsdmf_fez_variable',
 		'xsdmf_enforced_prefix',
@@ -236,6 +237,7 @@ class XSD_HTML_Match {
 		                    xsdmf_enabled,
 		                    xsdmf_indexed,
 		                    xsdmf_show_in_view,
+		                    xsdmf_invisible,
 		                    xsdmf_multiple,
 		                    xsdmf_multiple_limit,
 							xsdmf_static_text,
@@ -379,6 +381,7 @@ class XSD_HTML_Match {
                             xsdmf_validation_type,
 		                    xsdmf_enabled,
 		                    xsdmf_show_in_view,
+		                    xsdmf_invisible,
 		                    xsdmf_multiple,
 		                    xsdmf_multiple_limit,
 							xsdmf_static_text,
@@ -808,6 +811,11 @@ class XSD_HTML_Match {
 		} else {
 			$show_in_view = 0;
 		}
+		if (@ $_POST["invisible"]) {
+			$invisible = 1;
+		} else {
+			$invisible = 0;
+		}
 		if (@ $_POST["valueintag"]) {
 			$valueintag = 1;
 		} else {
@@ -961,6 +969,7 @@ class XSD_HTML_Match {
 		$stmt .= "xsdmf_cso_value,";
 
 		$stmt .= "xsdmf_show_in_view,
+							xsdmf_invisible,
 							xsdmf_enforced_prefix,
 							xsdmf_value_prefix,
 							xsdmf_image_location,
@@ -1071,7 +1080,7 @@ class XSD_HTML_Match {
 
 		$stmt .= "'" . Misc::escapeString($_POST["checkbox_selected_option"]) . "',";
 
-		$stmt .= $show_in_view . ",
+		$stmt .= $show_in_view . ", ". $invisible .", 
 		                    '" . Misc::escapeString($_POST["enforced_prefix"]) . "',
 		                    '" . Misc::escapeString($_POST["value_prefix"]) . "',
 		                    '" . Misc::escapeString($_POST["image_location"]) . "',
@@ -1253,6 +1262,9 @@ class XSD_HTML_Match {
 		if (is_numeric($insertArray["xsdmf_show_in_view"])) {
 			$stmt .= "xsdmf_show_in_view,";
 		}
+		if (is_numeric($insertArray["invisible"])) {
+			$stmt .= "invisible,";
+		}
 
 		if (!empty ($insertArray["xsdmf_use_parent_option_list"])) {
 			$stmt .= "xsdmf_use_parent_option_list,";
@@ -1405,6 +1417,9 @@ class XSD_HTML_Match {
 		if (is_numeric($insertArray["xsdmf_show_in_view"])) {
 			$stmt .= $insertArray["xsdmf_show_in_view"] . ",";
 		}
+		if (is_numeric($insertArray["xsdmf_invisible"])) {
+			$stmt .= $insertArray["xsdmf_invisible"] . ",";
+		}
 
 		if (!empty ($insertArray["xsdmf_use_parent_option_list"])) {
 			$stmt .= $insertArray["xsdmf_use_parent_option_list"] . ",";
@@ -1510,6 +1525,11 @@ class XSD_HTML_Match {
 			$show_in_view = 1;
 		} else {
 			$show_in_view = 0;
+		}
+		if (@ $_POST["invisible"]) {
+			$invisible = 1;
+		} else {
+			$invisible = 0;
 		}
 
 		if (@ $_POST["is_key"]) {
@@ -1646,6 +1666,7 @@ class XSD_HTML_Match {
 		                    xsdmf_valueintag = " . $valueintag . ",
 		                    xsdmf_is_key = " . $is_key . ",
 		                    xsdmf_show_in_view = " . $show_in_view . ",
+		                    xsdmf_invisible = " . $invisible . ",
 		                    xsdmf_key_match = '" . Misc::escapeString($_POST["key_match"]) . "',
 		                    xsdmf_parent_key_match = '" . Misc::escapeString($_POST["parent_key_match"]) . "',
 		                    xsdmf_data_type = '" . Misc::escapeString($_POST["xsdmf_data_type"]) . "',";
@@ -1751,6 +1772,8 @@ class XSD_HTML_Match {
             } elseif (strstr($col_name, 'xsdmf_is_key') && empty($value)) {
                 $stmt .= " ".$col_name."=null,\n";
             } elseif (strstr($col_name, 'xsdmf_show_in_view') && empty($value)) {
+                $stmt .= " ".$col_name."=null,\n";
+            } elseif (strstr($col_name, 'xsdmf_invisible') && empty($value)) {
                 $stmt .= " ".$col_name."=null,\n";
             } elseif (strstr($col_name, 'xsdmf_cvo_min_level') && empty($value)) {
                 $stmt .= " ".$col_name."=null,\n";
@@ -2655,7 +2678,7 @@ class XSD_HTML_Match {
 	 */
 	function getElementMatchListDetails($xdis_id) {
 		$stmt = "SELECT 
-		                    xsdmf_id, xsdmf_element, xsdmf_title, xsdmf_id_ref, xsdmf_html_input, xsdmf_enabled, xsdmf_order, xsdmf_dynamic_text, xsdmf_static_text, xsdmf_xsdsel_id, xsdsel_title
+		                    xsdmf_id, xsdmf_element, xsdmf_title, xsdmf_id_ref, xsdmf_html_input, xsdmf_enabled, xsdmf_invisible, xsdmf_order, xsdmf_dynamic_text, xsdmf_static_text, xsdmf_xsdsel_id, xsdsel_title
 		                 FROM
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields left join
 		                    " . APP_TABLE_PREFIX . "xsd_loop_subelement on (xsdmf_xsdsel_id = xsdsel_id)

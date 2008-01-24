@@ -3,7 +3,7 @@
 	{if $xsdmf.xsdmf_multiple == 1}
 		{assign var="field_name" value=$field_name|cat:"[]"}
 	{/if}
-	<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0">
+	<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0" {if $xsdmf.xsdmf_invisible == 1}style="display:none;"{/if}>
 		<td width="200" bgcolor="{$cell_color}" class="default">
 			<b>{$xsdmf.xsdmf_title} {if $xsdmf.xsdmf_required == 1} * {/if}</b>
 		</td>
