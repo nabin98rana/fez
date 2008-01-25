@@ -33,9 +33,9 @@ $record = new RecordObject($pid);
 $access_ok = $record->canEdit();
 if ($access_ok) {
 	
-	
 	if ($_POST['action'] == 'save') {
 		$saveResult = AuthorAffiliations::save($_POST['af_id'], $pid, $_POST['af_author_id'], $_POST['af_percent_affiliation'], $_POST['af_org_id']);
+		$validateResult = AuthorAffiliations::validateAffiliations($pid);
 		if ($saveResult != -1) {
 			Auth::redirect(APP_BASE_URL.'workflow/edit_affiliation.php?id='.$wf_id);
 		} else {
@@ -43,8 +43,8 @@ if ($access_ok) {
 		}
 	} elseif ($_REQUEST['action'] == 'delete') {
 		AuthorAffiliations::remove($_REQUEST['af_id']);
+		$validateResult = AuthorAffiliations::validateAffiliations($pid);
 	}
-	
 	
 	// get list of authors for this pid
 	$authors = Misc::array_flatten($record->getFieldValueBySearchKey('Author'),'',true);
@@ -59,20 +59,20 @@ if ($access_ok) {
 
 	$suggestseans = array();
 	foreach ($author_ids as $key => $author_id) {
-
 		$affiliationData = AuthorAffiliations::getPresetAffiliations($author_id);
 		foreach ($affiliationData as $affiliationRecord) {
 			array_push($suggestseans, $affiliationRecord);
 		}
-
 	}
 
 	$tpl->assign('affiliation_suggestions', $suggestseans);
 	$tpl->assign("cycle_colours", APP_CYCLE_COLOR_TWO . ",#FFFFFF");
 	$authors = array_values($authors);
 	$author_ids = array_values($author_ids);
-	$list = AuthorAffiliations::getList($pid);
-	$list_keyed = Misc::keyArray($list, 'af_id');
+	$list = AuthorAffiliations::getList($pid, 1);
+	$problem_list = AuthorAffiliations::getList($pid, 0);
+	$listAll = AuthorAffiliations::getListAll($pid);
+	$list_keyed = Misc::keyArray($listAll, 'af_id');
 	$tpl->assign('orgs', Org_Structure::getAssocListHR());
 
 	if ($_REQUEST['action'] == 'edit') {
@@ -80,7 +80,7 @@ if ($access_ok) {
 		$tpl->assign('action', 'edit');
 	}
 
-	$tpl->assign(compact('list','authors','author_ids','wf_id'));
+	$tpl->assign(compact('list','authors','author_ids','wf_id', 'problem_list'));
 	
 } else {
     $tpl->assign("show_not_allowed_msg", true);
