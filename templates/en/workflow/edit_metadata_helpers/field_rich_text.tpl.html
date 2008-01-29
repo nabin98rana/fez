@@ -1,0 +1,42 @@
+{if $xsdmf.xsdmf_enabled == 1}
+            <!-- Checkbox -->
+				{if $xsdmf.xsdmf_multiple == 1}
+					{section name="z" loop=$xsdmf.multiple_array}
+						{assign var="loop_num" value=$xsdmf.multiple_array[z]}
+						<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}" {if $loop_num != 1 || $xsdmf.xsdmf_invisible == 1}style="display:none"{/if} valign="top">
+						  <td width="200" bgcolor="{$cell_color}" class="default">
+							<b>{$xsdmf.xsdmf_title} {$loop_num}</b>{if $xsdmf.xsdmf_required == 1} * {/if}<br />{if $loop_num == 1}<i>(More {$xsdmf.xsdmf_title} input boxes will appears as they are used up)</i>{/if}
+						  </td>
+						  <td bgcolor="{$value_color}">						
+							{assign var="fckpath" value=$rel_url|cat:"js/fckeditor/"}
+							{assign var="InstanceName" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
+							{fckeditor BasePath=$fckpath InstanceName=$InstanceName Width="450px" Height="100px" ToolbarSet="FezBasic" Value=$details[$temp_fld_id][$loop_num]} 											
+							{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
+							{if $xsdmf.xsdmf_long_description != ""}
+								<span class="default">{$xsdmf.xsdmf_long_description}</span>
+							{/if}
+
+						 </td>
+				  {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
+						</tr>
+					{/section}
+				{else}
+						<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0" valign="top" {if $xsdmf.xsdmf_invisible == 1}style="display:none;"{/if}>
+						  <td width="200" bgcolor="{$cell_color}" class="default">
+							<b>{$xsdmf.xsdmf_title}{if $xsdmf.xsdmf_required == 1} * {/if}</b>
+						  </td>
+						  <td bgcolor="{$value_color}">
+							{assign var="fckpath" value=$rel_url|cat:"js/fckeditor/"}
+							{assign var="InstanceName" value="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
+							{fckeditor BasePath=$fckpath InstanceName=$InstanceName Width="450px" Height="100px" ToolbarSet="FezBasic" Value=$details[$temp_fld_id]} 
+						
+						{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
+							{if $xsdmf.xsdmf_long_description != ""}
+								<span class="default">{$xsdmf.xsdmf_long_description}</span>
+							{/if}
+
+						 </td>
+				  {include file='workflow/compare_records_helpers/get_right_column.tpl.html  input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
+						</tr>
+				{/if}
+{/if}
