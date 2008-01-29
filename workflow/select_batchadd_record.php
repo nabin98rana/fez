@@ -52,9 +52,9 @@ $tpl->assign("type", 'batchimport_record');
 
 Auth::checkAuthentication(APP_SESSION);
 
-$isUser = Auth::getUsername();
-$tpl->assign("isUser", $isUser);
-$isAdministrator = User::isUserAdministrator($isUser);
+$username = Auth::getUsername();
+$tpl->assign("isUser", $username);
+$isAdministrator = User::isUserAdministrator($username);
 $tpl->assign("isAdministrator", $isAdministrator);
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 $pid = $wfstatus->pid;
@@ -72,9 +72,9 @@ $xdis_id = $wfstatus->getXDIS_ID();
     $access_ok = $record->canCreate();
 //}
 if ($access_ok) {
-    if (@$HTTP_POST_VARS["cat"] == "submit") {
+    if (@$_POST["cat"] == "submit") {
         $wftpl = $wfstatus->getvar('template');
-		if (!empty($HTTP_POST_VARS['files'])) {
+		if (!empty($_POST['files'])) {
             $wfstatus->assign('files', $_POST['files']);
         }
         $wfstatus->setCreatedPid($pid);
@@ -87,15 +87,17 @@ if ($access_ok) {
     $maxG = 0;
     //open the current directory
     $dir_loc = APP_SAN_IMPORT_DIR.$username;
+    
 	if (!is_dir($dir_loc)) {
 		$message = "The direct import SAN directory for your username has not been setup. Ask an administrator to set this up for you and try again.";
 	} else {
 	    $directory = opendir($dir_loc);
 	    while (false !== ($file = readdir($directory))) { 
-	        if (!is_dir($file)) {
+	        if (!is_dir($dir_loc.$file)) {
 	            $filenames[$file] = $file;
 	        }
 	    }
+	    closedir($directory);
 	}
     $tpl->assign("message", $message);
     $tpl->assign("filenames", $filenames);

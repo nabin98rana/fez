@@ -53,6 +53,16 @@ $cat = @$_GET["cat"] ? @$_GET["cat"] : @$_POST["cat"];
 //echo $cat; exit;
 switch ($cat) 
 {	
+    case 'file_manager':
+        {
+            $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
+            $wfstatus->assign('folder',     $_POST['currentFolderPath']);
+            $wfstatus->assign('files',      $_POST['check']);
+            $wfstatus->setSession();
+            
+            $tpl->assign("file_manager_result", 1);
+            break;
+        }
     case 'purge_datastream':
         {
 			$record = new RecordObject($pid);
