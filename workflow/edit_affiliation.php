@@ -71,6 +71,7 @@ if ($access_ok) {
 	$author_ids = array_values($author_ids);
 	$list = AuthorAffiliations::getList($pid, 1);
 	$problem_list = AuthorAffiliations::getList($pid, 0);
+	$problem_list = array_merge($problem_list, AuthorAffiliations::getOrphanedAffiliations($pid));
 	$listAll = AuthorAffiliations::getListAll($pid);
 	$list_keyed = Misc::keyArray($listAll, 'af_id');
 	$tpl->assign('orgs', Org_Structure::getAssocListHR());

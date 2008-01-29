@@ -10,6 +10,11 @@ class AuthorAffiliations
 		$stmt = "SELECT * FROM ". APP_TABLE_PREFIX ."author_affiliation " .
 			"WHERE af_pid = '".$pid."' " .
 			"AND af_status = " . $status . " " .
+			"AND af_author_id IN " .
+				"(SELECT rek_author_id " .
+				"FROM " . APP_TABLE_PREFIX . "record_search_key_author_id " .
+				"WHERE rek_author_id_pid = '".$pid."' " .
+				") " .
 			"ORDER BY af_author_id";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
@@ -21,6 +26,8 @@ class AuthorAffiliations
         	$res[$key]['author_name'] = Author::getFullname($item['af_author_id']);
         	$res[$key]['org_title'] = Org_Structure::getTitle($item['af_org_id']);
             $res[$key]['af_percent_affiliation'] = $item['af_percent_affiliation'] / 1000;
+			$res[$key]['error_desc'] = "Percentages for each author must add to 100%";
+			$res[$key]['error'] = "percentage";
         }
         return $res;
 	}
@@ -30,6 +37,11 @@ class AuthorAffiliations
 	{
 		$stmt = "SELECT * FROM ". APP_TABLE_PREFIX ."author_affiliation " .
 			"WHERE af_pid = '".$pid."' " .
+			"AND af_author_id IN " .
+				"(SELECT rek_author_id " .
+				"FROM " . APP_TABLE_PREFIX . "record_search_key_author_id " .
+				"WHERE rek_author_id_pid = '".$pid."' " .
+				") " .
 			"ORDER BY af_author_id";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
@@ -283,6 +295,41 @@ class AuthorAffiliations
             return 0;
         }
 		return $res[0]['total_percentage'];
+
+	}
+
+
+    /**
+     * Method used to retrieve an array of orphaned affiliations. These are affiliations
+	 * for which the author has subsequently been removed form the record.
+     *
+     * @access  public
+     * @return  array The associative array of orphaned affiliations.
+     */
+	function getOrphanedAffiliations($pid) {
+
+		$stmt = "SELECT * " .
+				"FROM " . APP_TABLE_PREFIX . "author_affiliation " .
+				"WHERE af_author_id NOT IN " .
+				"(SELECT rek_author_id " .
+				"FROM " . APP_TABLE_PREFIX . "record_search_key_author_id " .
+				"WHERE rek_author_id_pid = '".$pid."' " .
+				") " .
+				"AND af_pid = '".$pid."' ";
+		
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        }
+		foreach ($res as $key => $item) {
+        	$res[$key]['author_name'] = Author::getFullname($item['af_author_id']);
+        	$res[$key]['org_title'] = Org_Structure::getTitle($item['af_org_id']);
+            $res[$key]['af_percent_affiliation'] = $item['af_percent_affiliation'] / 1000;
+			$res[$key]['error_desc'] = "Author for this affiliation has been deleted";
+			$res[$key]['error'] = "orphan";
+        }
+        return $res;
 
 	}
 

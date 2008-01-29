@@ -74,10 +74,11 @@ function submitSuggestedAffiliation(authorID, orgID, iteration) {
 	{if $smarty.section.kk.first}<br /><div style="border: solid 1px red; padding: 10px; margin: 10px; width: 800; color: red"><h3>CORRECTION REQUIRED - Problematic author affiliations</h3><table class="default" style="border-collapse: collapse; padding: 5px; margin: 0;">{/if}
       <tr bgcolor="{cycle values="$cycle_colours"}">
         <td width="200">{$problem_list[kk].author_name}</td>
-        <td width="550">{$problem_list[kk].org_title}</td>
-		<td width="65">{$problem_list[kk].af_percent_affiliation}%</td>
-        <td width="30"><a href="{$smarty.server.PHP_SELF}?id={$wf_id}&action=edit&af_id={$problem_list[kk].af_id}" title="Edit this affiliation">Edit</a></td>
-        <td width="30"><a href="{$smarty.server.PHP_SELF}?id={$wf_id}&action=delete&af_id={$problem_list[kk].af_id}" title="Remove this affiliation">Remove</a></td>
+        <td width="360">{$problem_list[kk].org_title}</td>
+		<td width="75">{$problem_list[kk].af_percent_affiliation}%</td>
+        <td width="30">{if $problem_list[kk].error != 'orphan'}<a href="{$smarty.server.PHP_SELF}?id={$wf_id}&action=edit&af_id={$problem_list[kk].af_id}" title="Edit this affiliation">Edit</a>{/if}</td>
+        <td width="70"><a href="{$smarty.server.PHP_SELF}?id={$wf_id}&action=delete&af_id={$problem_list[kk].af_id}" title="Remove this affiliation">Remove</a></td>
+		<td width="310">{$problem_list[kk].error_desc}</td>
       </tr>
       {if $smarty.section.kk.last}</table></div>{/if}
 	{/section}
