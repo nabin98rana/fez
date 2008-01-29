@@ -46,8 +46,6 @@ include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 
 
-
-
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", 'batchimport_record_group');
@@ -59,10 +57,23 @@ $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 
-$usr_id = User::getUserIDByUsername($isUser);
-$groups = Group::getAssocList($usr_id);
+echo $isAdministrator. '<br />';
 
-$_SESSION['canViewFolders'] = $groups;
+/* 
+ * Admins can view all folders
+ * Otherwise normal users can only view folders
+ * that have the same name as groups they belong to
+ */
+if( !$isAdministrator )
+{
+    $usr_id = User::getUserIDByUsername($isUser);
+    $groups = Group::getAssocList($usr_id);
+    $_SESSION['canViewFolders'] = $groups;
+}
+else 
+{
+    unset($_SESSION['canViewFolders']);
+}
 
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 $pid = $wfstatus->pid;
@@ -74,7 +85,6 @@ $xdis_id = $wfstatus->getXDIS_ID();
 
 $record = new RecordObject($pid);
 $access_ok = $record->canCreate();
-
 
 if ($access_ok) {
     if (@$_POST["cat"] == "submit") {
@@ -104,23 +114,4 @@ if ($access_ok) {
 $tpl->assign("config_theme_name", CONFIG_THEME_NAME);
 $tpl->displayTemplate();
 
-
-function getDirFiles( $dir )
-{
-    global $dir_loc;
-    
-    $directory = opendir($dir_loc.$dir);
-    while (false !== ($file = readdir($directory))) { 
-        if( $file != "." && $file != "..") {
-            if (is_dir($dir_loc.$file)) {
-                $filenames[$file] = getDirFiles($file);
-            } else {
-                $filenames[] = $file;
-            }
-        }
-    }
-    closedir($directory);
-    
-    return $filenames;
-}
 ?>
