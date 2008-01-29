@@ -47,6 +47,26 @@ class AuthorAffiliations
 
 
     /**
+     * Method used to find all affiliations recorded for a particular author in a particular school.
+     *
+     * @access  public
+     * @return  array The list of affiliations.
+     */
+	function getListAuthorSchool($af_author_id, $pid, $af_org_id) {
+		$stmt = "SELECT af_id FROM ". APP_TABLE_PREFIX ."author_affiliation " .
+			"WHERE af_pid = '" . $pid . "' " .
+			"AND af_author_id = " . $af_author_id . " " .
+			"AND af_org_id = " . $af_org_id . "";
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        }
+        return $res;
+	}
+
+
+    /**
      * Method used to remove an author affiliation from the system.
      *
      * @access  public
@@ -79,14 +99,25 @@ class AuthorAffiliations
 		if (($af_percent_affiliation > 100) || ($af_percent_affiliation < 0)) {
 			return -1;
 		}
+
+        $af_percent_affiliation = $af_percent_affiliation * 1000;
+		
 		if (empty($af_id)) {
 			$stmt = "INSERT ";
+			// See if there is anything existing for this author / pid / school
+			$existingPercentage = AuthorAffiliations::getExistingAuthorSchoolPercentages($af_author_id, $pid, $af_org_id);
+			if ($existingPercentage > 0) {
+				$af_percent_affiliation = $af_percent_affiliation + $existingPercentage;
+				$affiliationsToDelete = AuthorAffiliations::getListAuthorSchool($af_author_id, $pid, $af_org_id);
+				foreach ($affiliationsToDelete as $affiliationToDelete) {
+					AuthorAffiliations::remove($affiliationToDelete['af_id']);
+				}
+			}
 		} else {
 			$stmt = "UPDATE ";
 		}
 
-        $af_percent_affiliation = $af_percent_affiliation * 1000;
-
+		// Write the new record
 		$stmt .= APP_TABLE_PREFIX . "author_affiliation SET 
 			af_pid='".$pid."',
 			af_author_id=".$af_author_id.",
@@ -227,8 +258,32 @@ class AuthorAffiliations
 				}
 			}
 		}
-
         return $res;
+	}
+
+
+    /**
+     * Method used to retrieve total percentage of existing affiliations for
+	 * a given author + school.
+     *
+     * @access  public
+     * @return  int The total percentage (if any) assigned to this author in this school.
+     */
+	function getExistingAuthorSchoolPercentages($authorID, $pid, $unitID) {
+
+		$stmt .= "SELECT SUM(af_percent_affiliation) AS total_percentage " .
+					"FROM " . APP_TABLE_PREFIX . "author_affiliation " .
+					"WHERE af_pid = '" . $pid . "' " .
+					"AND af_author_id = " . $authorID . " " .
+					"AND af_org_id = " . $unitID . "";
+
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return 0;
+        }
+		return $res[0]['total_percentage'];
+
 	}
 
 }

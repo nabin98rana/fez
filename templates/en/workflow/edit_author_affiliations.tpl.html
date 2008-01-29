@@ -71,7 +71,7 @@ function submitSuggestedAffiliation(authorID, orgID, iteration) {
 	</div>
 
 	{section name='kk' loop=$problem_list}
-	{if $smarty.section.kk.first}<br /><div style="border: solid 1px red; padding: 10px; margin: 10px; width: 800;"><h3>Problematic author affiliations</h3><table class="default" style="border-collapse: collapse; padding: 5px; margin: 0;">{/if}
+	{if $smarty.section.kk.first}<br /><div style="border: solid 1px red; padding: 10px; margin: 10px; width: 800; color: red"><h3>CORRECTION REQUIRED - Problematic author affiliations</h3><table class="default" style="border-collapse: collapse; padding: 5px; margin: 0;">{/if}
       <tr bgcolor="{cycle values="$cycle_colours"}">
         <td width="200">{$problem_list[kk].author_name}</td>
         <td width="550">{$problem_list[kk].org_title}</td>
