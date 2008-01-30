@@ -111,9 +111,10 @@ if (!empty($pid) && !empty($dsID)) {
 
 //				  $seekat += $buffer;
 //				}
+				fclose($fh);
 			}
 		}
-		fclose($fh);
+
 	    exit;
 	} elseif (($is_video == 1) && (is_numeric(strpos($ctype, "flv")))) {
 		if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $_SERVER['REQUEST_URI']) == true) {

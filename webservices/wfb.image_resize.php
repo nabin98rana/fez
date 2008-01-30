@@ -55,7 +55,11 @@ if (is_numeric(strpos($image, "/"))) {
 
 if (trim($image_dir) == "") { $image_dir = APP_TEMP_DIR; }
 
-$temp_file = preg_replace('/\.\S*?$/', ".$ext", $outfile);
+//$temp_file = preg_replace('/\.\S*?$/', ".$ext", $outfile);
+$ext_loc = strrpos($outfile, ".");
+if (is_numeric($ext_loc)) {
+	$temp_file = substr($outfile, 0, $ext_loc);
+}
 if (!strstr($temp_file,$ext)) {
     $temp_file .= ".$ext";
 }

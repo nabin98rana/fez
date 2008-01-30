@@ -57,7 +57,7 @@ $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 
-echo $isAdministrator. '<br />';
+
 
 /* 
  * Admins can view all folders
