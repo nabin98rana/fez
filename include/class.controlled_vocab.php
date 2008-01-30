@@ -28,7 +28,8 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
@@ -671,7 +672,7 @@ class Controlled_Vocab
 		$level++;
         $stmt = "SELECT
                     cvo_id,
-					cvo_title
+					CONCAT(cvo_title, ' ', cvo_desc) as cvo_title
                  FROM
                     " . APP_TABLE_PREFIX . "controlled_vocab ";
 
