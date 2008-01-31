@@ -70,7 +70,7 @@ FCKConfig.AdditionalNumericEntities = ''  ;		// Single Quote: "'"
 FCKConfig.FillEmptyBlocks	= false ;
 
 FCKConfig.FormatSource		= true ;
-FCKConfig.FormatOutput		= true ;
+FCKConfig.FormatOutput		= false ;
 FCKConfig.FormatIndentator	= '    ' ;
 
 FCKConfig.StartupFocus	= false ;
