@@ -52,6 +52,17 @@ $tpl->assign("isUser", $username);
 $isAdministrator = Auth::isAdministrator(); 
 $tpl->assign("isAdministrator", $isAdministrator);
 
+if ($isAdministrator) {
+	if (APP_FEDORA_SETUP == 'sslall' || APP_FEDORA_SETUP == 'sslapim') {
+		$get_url = APP_FEDORA_APIM_PROTOCOL_TYPE.APP_FEDORA_SSL_LOCATION."/get"."/".$pid;
+	} else {
+		$get_url = APP_FEDORA_APIM_PROTOCOL_TYPE.APP_FEDORA_LOCATION."/get"."/".$pid;	
+	}
+	$tpl->assign("fedora_get_view", $get_url);	
+} else {
+	$tpl->assign("fedora_get_view", 0);	
+}
+
 $tpl->assign("fez_root_dir", APP_PATH);
 $tpl->assign("eserv_url", APP_BASE_URL."eserv/".$pid."/");
 $tpl->assign("local_eserv_url", APP_BASE_URL."eserv/".$pid."/");

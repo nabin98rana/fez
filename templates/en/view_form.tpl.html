@@ -81,7 +81,7 @@ function assignItems(f)
     var features = 'width=420,height=200,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
     var popupWin = window.open('', '_popup', features);
     popupWin.focus();
-    f.action = 'popup.php';
+    f.action = '{/literal}{$rel_url}{literal}popup.php';
     f.target = '_popup';
     f.submit();
 }
@@ -186,7 +186,7 @@ function showDiv(p)
       <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="1" border="0">
 
         <tr>
-          <td align="left" class="default" colspan="2"><br /><img align="absmiddle" src="{$rel_url}images/record_view_32.jpg"/> <b>View {$xdis_title}: <i>{$title}</i> </b> <br /><br /></td>
+          <td align="left" class="default" colspan="2"><br />{if $fedora_get_view != "0"}<a title="click to open this PID in Fedora (admin access only)" href="{$fedora_get_view}" target='_blank' >{/if}<img border=0 align="absmiddle" src="{$rel_url}images/record_view_32.jpg"/>{if $fedora_get_view != "0"}</a>{/if} <b>View {$xdis_title}: <i>{$title}</i> </b> <br /><br /></td>
         </tr>
 
 {if $isUser && !$hide_edit}

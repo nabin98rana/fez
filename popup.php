@@ -36,6 +36,7 @@ include_once("config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.auth.php");
+include_once(APP_INC_PATH . "class.history.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
@@ -141,6 +142,36 @@ switch ($cat)
 			}
             break;
         }
+
+    case 'delete_object':
+        {
+            $rec_obj = new RecordObject($pid);
+			if ($rec_obj->canDelete()) {
+				$rec_obj->markAsDeleted();
+				History::addHistory($pid, null, '', '', true, 'Deleted');
+	            $tpl->assign("delete_object_result", 1);
+			}
+            break;
+        }
+
+    case 'delete_objects':
+        {
+            // first delete all indexes about this pid
+            $items = Misc::GETorPOST('items');
+            if (empty($items)) { // is named pids on the list form
+	            $items = Misc::GETorPOST('pids');
+            }
+            foreach ($items as $pid) {
+                $rec_obj = new RecordObject($pid);
+				if ($rec_obj->canDelete()) {	    
+					$rec_obj->markAsDeleted();
+					History::addHistory($pid, null, '', '', true, 'Bulk Deleted');
+				}
+            }
+            $tpl->assign("delete_object_result", 1);
+            break;
+        }
+
     case 'new_workflow_triggers':
         {
             $tpl->assign("generic_result",WorkflowTrigger::insert());
@@ -199,7 +230,8 @@ switch ($cat)
             foreach ($items as $pid) {
                 $rec_obj = new RecordObject($pid);
 				if ($rec_obj->canApprove()) {
-                	$res = $rec_obj->setStatusId(2);					
+                	$res = $rec_obj->setStatusId(2);
+					History::addHistory($pid, null, '', '', true, 'Bulk Published');
 				}
             }
             $tpl->assign('generic_result', $res);

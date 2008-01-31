@@ -46,6 +46,7 @@ class BackgroundProcess_Publish extends BackgroundProcess
             	$rec = new RecordGeneral($pid);
 				$sta_id = Status::getID("Published");
 				$rec->setStatusId($sta_id);
+				History::addHistory($pid, null, '', '', true, 'Published');
             }
         }
         $this->setState(2);

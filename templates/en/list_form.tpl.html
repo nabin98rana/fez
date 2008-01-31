@@ -29,7 +29,7 @@ function assignItems(f)
     var features = 'width=420,height=200,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
     var popupWin = window.open('', '_popup', features);
     popupWin.focus();
-    f.action = 'popup.php';
+    f.action = '{/literal}{$rel_url}{literal}popup.php';
     f.target = '_popup';
     f.submit();
 }
@@ -47,7 +47,7 @@ function assignWorkflow(f) {
     var popupWin = window.open('', '_popup', features);
     popupWin.focus();
     f.target = '_popup';
-    f.action = 'popup.php';
+    f.action = '{/literal}{$rel_url}{literal}popup.php';
     f.submit();
 }
  
@@ -184,8 +184,8 @@ function checkDeleteRecords(f)
     if (!confirm('The checked items will be deleted, are you sure?')) {
         return false;
     } else {
-	f.cat.value = 'purge_objects';
-    f.action = 'popup.php';
+	f.cat.value = 'delete_objects';
+    f.action = '{/literal}{$rel_url}{literal}popup.php';
     f.target = '_popup';
 	f.method = 'post';
         var features = 'width=420,height=200,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';

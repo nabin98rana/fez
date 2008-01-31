@@ -21,6 +21,11 @@
 {elseif $purge_object_result == 1}
   <b>Thank you, the object was purged successfully.</b>
 {/if}
+{if $delete_object_result == -1}
+  <b>An error occurred while trying to delete the object</b>
+{elseif $delete_object_result == 1}
+  <b>Thank you, the object was deleted successfully.</b>
+{/if}
 {if $generic_result==-1}
   <b>An error occurred while performing {$generic_action} on the {$generic_type}</b>
 {elseif $generic_result==1}

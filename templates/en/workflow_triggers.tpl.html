@@ -191,7 +191,7 @@
               //-->
               </script>
               {/literal}
-              <form name="entry_form" onSubmit="javascript:return validateForm(this) && updateForm();" target="_update_record_details" method="post" action="popup.php" enctype="multipart/form-data">
+              <form name="entry_form" onSubmit="javascript:return validateForm(this) && updateForm();" target="_update_record_details" method="post" action="{$rel_url}popup.php" enctype="multipart/form-data">
               {if $smarty.get.cat == 'edit'}
               <input type="hidden" name="cat" value="edit_{$type}">
               <input type="hidden" name="id" value="{$info.wft_id}">
@@ -336,7 +336,7 @@
                   </script>
                   {/literal}
                     <form onSubmit="javascript:return updateForm();" 
-                    target="_update_record_details" method="post" action="popup.php" enctype="multipart/form-data">
+                    target="_update_record_details" method="post" action="{$rel_url}popup.php" enctype="multipart/form-data">
                     <input type="hidden" name="cat" value="list_action_{$type}">
                     <input type="hidden" name="pid" value="{$pid}">
               <tr>
