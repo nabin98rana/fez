@@ -44,6 +44,10 @@ class Foxml
                 // lookup the value
                 @$attrib_value = Misc::addPrefix($_POST['xsd_display_fields'][$xsdmf_details_ref['xsdmf_id']],
                         $xsdmf_details_ref['xsdmf_value_prefix']);
+				if ($attrib_value == "&nbsp;" || $attrib_value == "<br />") { 
+					$attrib_value = "";
+				}
+				$attrib_value = str_replace('<br type="_moz" />', '', $attrib_value);
                 array_push($indexArray, array($pid, $xsdmf_details_ref['xsdmf_indexed'], $xsdmf_id, 
                             $xdis_id, $parent_sel_id, $xsdmf_details_ref['xsdmf_data_type'], $attrib_value));
             }
@@ -114,6 +118,10 @@ class Foxml
 //                $attrib_value = Misc::addPrefix(@$_POST['xsd_display_fields'][$xsdmf_id],
 //                        $xsdmf_details['xsdmf_value_prefix']);
 				$attrib_value = @$_POST['xsd_display_fields'][$xsdmf_id];
+				if ($attrib_value == "&nbsp;" || $attrib_value == "<br />") { 
+					$attrib_value = "";
+				}
+				$attrib_value = str_replace('<br type="_moz" />', '', $attrib_value);
                 array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], 
                             $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
             } elseif ($xsdmf_details['xsdmf_multiple'] == 1) {
