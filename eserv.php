@@ -155,7 +155,7 @@ if (!empty($pid) && !empty($dsID)) {
 	        } elseif (!empty($info['content_type'])) {
 	            header("Content-type: {$info['content_type']}");
 	        } else {
-	            header("Content-type: text/xml");
+	            header("Content-type: text/html");
 	        }
 	        header('Content-Disposition: filename="'.substr($urldata, (strrpos($urldata, '/')+1) ).'"');
 			if (!empty($info['download_content_length'])) {
