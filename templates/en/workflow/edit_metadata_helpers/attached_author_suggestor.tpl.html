@@ -1,35 +1,90 @@
+
 <br />
-<span class="default"><b>{$attached_xsdmf.xsdmf_title}:</b></span>
-{assign var="attached_field_id" value="xsd_display_fields_"|cat:$attached_xsdmf_id|cat:"_"|cat:$loop_num}
-<select class="default" id="{$attached_field_id}" name="{$attached_field_id}">	
-   <option value="0">(none)</option>
-   {if ($details[$temp_fld_id][$loop_num] != "" && $details[$attached_xsdmf_id][$loop_num] != 0)}
-	   {if is_array($details[$attached_xsdmf_id])}
-		 {if $details[$attached_xsdmf_id][$loop_num] != ""}
-		   {assign var="author_id" value=$details[$attached_xsdmf_id][$loop_num]}
-		   <option value="{$details[$attached_xsdmf_id][$loop_num]}" selected>{$author_ids[$author_id]} ({$details[$attached_xsdmf_id][$loop_num]})</option>
-		  {/if}
-	   {else}
-		  {if $details[$attached_xsdmf_id] != ""}
-			{assign var="author_id" value=$details[$attached_xsdmf_id]}
-		 	<option value="{$details[$attached_xsdmf_id]}" selected>{$author_ids[$author_id]} ({$details[$attached_xsdmf_id]})</option>										   
-		  {/if}
-	   {/if}
-	{/if}
-</select>
-<!-- Google suggest style selection -->
-<input type="text" name="{$attached_field_id}_lookup" id="{$attached_field_id}_lookup" size="30" autocomplete="off" class="default" />
-<script type="text/javascript">
-<!--
-    window.oTextbox_{$attached_field_id}_lookup
-						= new AutoSuggestControl(document.wfl_form1, 
-								'{$attached_field_id}', 
-								document.getElementById('xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}'), 
-								document.getElementById('{$attached_field_id}_lookup'),
-								new StateSuggestions('Author', 'suggest', false, 'class.author.php'), 
-								'authorSuggestorCallback');
-// -->
-</script>
+<table>
+   <tr>
+       <td>
+           <span class="default"><b>{$attached_xsdmf.xsdmf_title}:</b></span>
+            {assign var="attached_field_id" value="xsd_display_fields_"|cat:$attached_xsdmf_id|cat:"_"|cat:$loop_num}
+            <select class="default" id="{$attached_field_id}" name="{$attached_field_id}">	
+               <option value="0">(none)</option>
+               {if ($details[$temp_fld_id][$loop_num] != "" && $details[$attached_xsdmf_id][$loop_num] != 0)}
+            	   {if is_array($details[$attached_xsdmf_id])}
+            		 {if $details[$attached_xsdmf_id][$loop_num] != ""}
+            		   {assign var="author_id" value=$details[$attached_xsdmf_id][$loop_num]}
+            		   <option value="{$details[$attached_xsdmf_id][$loop_num]}" selected>{$author_ids[$author_id]} ({$details[$attached_xsdmf_id][$loop_num]})</option>
+            		  {/if}
+            	   {else}
+            		  {if $details[$attached_xsdmf_id] != ""}
+            			{assign var="author_id" value=$details[$attached_xsdmf_id]}
+            		 	<option value="{$details[$attached_xsdmf_id]}" selected>{$author_ids[$author_id]} ({$details[$attached_xsdmf_id]})</option>										   
+            		  {/if}
+            	   {/if}
+            	{/if}
+            </select>
+    	</td>
+    	<td>
+            <!-- Google suggest style selection -->
+            {* IE HACK: We want the suggest dropdown to be on top of any other auto-suggest controls which appear below it *}
+            {* smarty.section.i.index is used incase this suggest control is used by more than 1 element ie. Author and Editor *}
+    		<div id="authorsuggest" style="width:15em;height:2em;position:relative;z-index:{math equation="2000 - x - y" y=$loop_num x=$smarty.section.i.index};">
+            	<input id="{$attached_field_id}_lookup" type="text" />
+            	<div id="{$attached_field_id}_container"></div>
+            </div>
+        </td>
+    </tr>
+</table>
+    
+    {literal}
+    <script type="text/javascript">
+    
+    // Instantiate first JS Array DataSource
+    var myServer = "/author_suggest_proxy.php";
+    var mySchema = ["Result","name"];
+    var myDataSource = new YAHOO.widget.DS_XHR(myServer, mySchema);
+    
+    // Instantiate first AutoComplete
+    this.oAutoComp{/literal}{$loop_num}{literal} = new YAHOO.widget.AutoComplete('{/literal}{$attached_field_id}_lookup','{$attached_field_id}_container{literal}', myDataSource);
+    this.oAutoComp{/literal}{$loop_num}{literal}.maxResultsDisplayed = 60; 
+    this.oAutoComp{/literal}{$loop_num}{literal}.formatResult = function(oResultItem, sQuery) {//return oResultItem[0].name;
+        this.mysqlRowId = oResultItem[1].id;
+        var usernameTxt = "";
+        
+        if( oResultItem[1].username != "" )
+        {
+            usernameTxt = ' (' +  oResultItem[1].username + ')'
+        }
+        
+        return oResultItem[1].name + usernameTxt;
+    };
+    
+    this.oAutoComp{/literal}{$loop_num}{literal}.registerControls(document.getElementById('xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}_{$loop_num}'), document.getElementById('{$attached_field_id}'){literal});
+    
+    this.oAutoComp{/literal}{$loop_num}{literal}.textboxFocusEvent.subscribe(function(){
+        var sInputValue = YAHOO.util.Dom.get('{/literal}{$attached_field_id}_lookup{literal}').value;
+        if(sInputValue.length === 0) {
+            var oSelf = this;
+            setTimeout(function(){oSelf.sendQuery(sInputValue);},0);
+        }
+    });
+    
+    this.oAutoComp{/literal}{$loop_num}{literal}.itemSelectEvent.subscribe(function(){
+        javascript:unhideRow('xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}{literal}');
+    });
+    
+    </script>
+    
+    <style type="text/css">
+    #{/literal}{$attached_field_id}{literal}_container .yui-ac-content {
+        max-height:11em;
+        /* height: 150px; */
+        width: 250px;
+        overflow:auto;
+        overflow-x:hidden; /* scrolling */
+        _height:11em; /* ie6 */
+    }
+    </style>
+    
+    {/literal}
 
 {if $attached_xsdmf.xsdmf_attached_xsdmf_id != ""}
 	{assign var="attached_xsdmf_id" value=$attached_xsdmf.xsdmf_attached_xsdmf_id}

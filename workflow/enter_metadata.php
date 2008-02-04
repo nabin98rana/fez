@@ -211,13 +211,13 @@ if ($access_ok) {
 				if (!is_numeric($suggestor_count)) {
 					$suggestor_count = 1;
 				}
-				for ($x=0;$x<=$suggestor_count;$x++) {
-				 $tpl->headerscript .= "window.oTextbox_xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."_lookup
-						= new AutoSuggestControl(document.wfl_form1, 'xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."', document.getElementById('xsd_display_fields_{$dis_field['xsdmf_asuggest_xsdmf_id']}_".$x."'), document.getElementById('xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."_lookup'),
-								new StateSuggestions('Author','suggest',false,
-									'class.author.php'), 'authorSuggestorCallback');
-						";
-				}
+//				for ($x=0;$x<=$suggestor_count;$x++) {
+//				 $tpl->headerscript .= "window.oTextbox_xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."_lookup
+//						= new AutoSuggestControl(document.wfl_form1, 'xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."', document.getElementById('xsd_display_fields_{$dis_field['xsdmf_asuggest_xsdmf_id']}_".$x."'), document.getElementById('xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."_lookup'),
+//								new StateSuggestions('Author','suggest',false,
+//									'class.author.php'), 'authorSuggestorCallback');
+//						";
+//				}
 			}
 			if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple') {
 				if (!empty($dis_field["xsdmf_smarty_variable"]) && $dis_field["xsdmf_smarty_variable"] != "none") {

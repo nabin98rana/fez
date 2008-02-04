@@ -478,16 +478,25 @@ class Author
      * @access  public
      * @return  array List of authors
      */
-	function suggest($term) {
+	function suggest($term, $assoc = false) {
 		$dbtp = APP_SQL_DBNAME.'.'.APP_TABLE_PREFIX;
 		$term = Misc::escapeString($term);
-		$stmt = " SELECT aut_id, aut_fullname FROM (
+		$stmt = " SELECT aut_id as id, aut_org_username as username, aut_fullname as name  FROM (
 			  SELECT aut_id, 
-				aut_display_name as aut_fullname,
+			    aut_org_username,
+			    aut_display_name as aut_fullname,
 				MATCH(aut_display_name) AGAINST ('".$term."') as Relevance FROM ".$dbtp."author
 			 WHERE MATCH (aut_display_name) AGAINST ('*".$term."*' IN BOOLEAN MODE)
-			 ORDER BY Relevance DESC, aut_fullname LIMIT 0,20) as tempsuggest";
-	    $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+			 ORDER BY Relevance DESC, aut_fullname LIMIT 0,20
+			 ) as tempsuggest";
+		
+		if( $assoc ) {
+		    $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+		}
+		else {
+		    $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+		}
+	    
      if (PEAR::isError($res)) {
          Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
          return "";

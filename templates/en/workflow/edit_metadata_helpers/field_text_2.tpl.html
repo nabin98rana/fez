@@ -1,5 +1,4 @@
-			<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}" 
-				{if ($details[$temp_fld_id][$loop_num] == '' && $details[$temp_fld_id][$check_num] == '' && $show_num != 0) || $xsdmf.xsdmf_invisible == 1}style="display:none"{/if}>
+			<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}" {if ($details[$temp_fld_id][$loop_num] == '' && $details[$temp_fld_id][$check_num] == '' && $show_num != 0) || $xsdmf.xsdmf_invisible == 1}style="display:none"{/if}>
 			  <td width="200" bgcolor="{$cell_color}" class="default" valign="top">
 				<b>{$xsdmf.xsdmf_title}{if $xsdmf.xsdmf_multiple == 1} {math equation="x + 1" x=$loop_num}{/if}</b>
 				{if $xsdmf.xsdmf_required == 1 && $loop_num == 0} * {/if}<br />
@@ -7,20 +6,18 @@
 			  </td>
 			  <td bgcolor="{$value_color}">
 				{assign var="field_id" value="xsd_display_fields_"|cat:$xsdmf.xsdmf_id|cat:"_"|cat:$loop_num}
-				<input class="default" type="text" 
-					id="{$field_id}" 
-					size="50"
+				<input class="default" type="text" id="{$field_id}" size="50"
 					{if $xsdmf.xsdmf_multiple == 1}
 						name="xsd_display_fields[{$xsdmf.xsdmf_id}]{$squares}" 
 						value="{$details[$temp_fld_id][$loop_num]|escape:"html"}" 
 						onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'edit_metadata_form_table');" 
 						onFocus="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'edit_metadata_form_table');" 
-						onChange="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'edit_metadata_form_table');" 
+						onChange="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'edit_metadata_form_table');" />
 					{else}
 						name="xsd_display_fields[{$xsdmf.xsdmf_id}]" 
-						value="{$details[$temp_fld_id]|escape:"html"}" 
+						value="{$details[$temp_fld_id]|escape:"html"}" />
 					{/if}
-					>
+					
 				{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"|cat:$squares}
 				{if $xsdmf.xsdmf_attached_xsdmf_id != ""}
 					{assign var="attached_xsdmf_id" value=$xsdmf.xsdmf_attached_xsdmf_id}
