@@ -49,7 +49,7 @@
         this.mysqlRowId = oResultItem[1].id;
         var usernameTxt = "";
         
-        if( oResultItem[1].username != "" )
+        if( oResultItem[1].username != "" && oResultItem[1].username != null )
         {
             usernameTxt = ' (' +  oResultItem[1].username + ')'
         }
