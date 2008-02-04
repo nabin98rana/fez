@@ -712,35 +712,22 @@ class Misc
 			$ds['fezacml'] = 0;
 			foreach ($original_dsList as $o_key => $o_ds) {
 				if ($fezacml == $o_ds['ID']) {  // found the fezacml datastream so save it against the record
-					$ds['fezacml'] = $fezacml;
-					// now see if its allowed to show etc
-					$record = new Record($pid);
-					$FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
-					$FezACML_display = new XSD_DisplayObject($FezACML_xdis_id);
-//					$FezACML_display->getXSDMF_Values($key);
-					$FezACML_display->getXSDMF_Values($pid);
-/*					echo "PID - ".$pid;
-					echo "XDIS ID - ".$FezACML_xdis_id;
-					echo "HERe -> "; print_r($FezACML_display->matchfields); */
-					if ($return[$key]['FezACML'][0]['!inherit_security'][0] == "on") {
-						$parentsACMLs = $return[$key]['FezACML'];
-						$return[$key]['security'] = "include";
-					} else {
-						$return[$key]['security'] = "inherit";
-						$parentsACMLs = array();
-					} 
-					Auth::getIndexParentACMLMemberList(&$parentsACMLs, $key, $row['isMemberOf']);
-					$return[$key]['FezACML'] = $parentsACMLs;
-	
+					$ds['fezacml_roles'] = Auth::getAuthorisationGroups($pid, $ds['ID']);
 				}
 			}
-            if (is_numeric(strpos(@$ds['MIMEType'],'image/'))) {
-                $ds['canPreview'] = true;
-            } else {
-                $ds['canPreview'] = false;
-            }
-                
-			$return[$key] = $ds;
+			//roles for previewing images
+			$acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
+            $ds['canPreview'] = false;
+			if (is_array($ds['fezacml_roles'])) {
+	            foreach ($acceptable_roles as $role) {
+	                if (in_array($role, $ds['fezacml_roles'])) {
+		                $ds['canPreview'] = true;
+	                }
+	            }
+	        } else {
+				$ds['canPreview'] = true;
+			}
+	        $return[$key] = $ds;
 		}
 		$return = array_values($return);
 		return $return;

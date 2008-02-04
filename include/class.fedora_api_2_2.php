@@ -816,17 +816,27 @@ class Fedora_API {
     * @access  public
 	* @param string $pid The persistant identifier of the object
 	* @param string $dsID The ID of the datastream to be checked
+	* @param string $pattern a regex pattern to search against if given instead of ==/equivalence
     * @return boolean
     */
-	function datastreamExists ($pid, $dsID, $refresh=false) {
+	function datastreamExists ($pid, $dsID, $refresh=false, $pattern=false) {
 		$dsExists = false; 
 //		$rs = Fedora_API::callListDatastreams($pid); // old way
 		$rs = Fedora_API::callListDatastreamsLite($pid, $refresh);
         if (is_array($rs)) {
 		foreach ($rs as $row) {
 //			if (isset($row['ID']) && $row['ID'] == $dsID) { // old way
-			if (isset($row['dsid']) && $row['dsid'] == $dsID) {				
-				$dsExists = true;
+				
+			if ($pattern != false) {
+//				$ds_matches = preg_match($pattern, $row['dsid']);
+				if (isset($row['dsid']) && preg_match($pattern, $row['dsid'], $ds_matches)) {
+					return $ds_matches[0];
+					$dsExists = true;
+				}			
+			} else {
+				if (isset($row['dsid']) && $row['dsid'] == $dsID) {				
+					$dsExists = true;
+				}
 			}
 		}
         }

@@ -282,52 +282,9 @@ if (!empty($pid) && $record->checkExists()) {
                             $tpl->assign("img_heigth", $spatialMetrics[1]);
 						}
 					}
-				}
-				/*
-				$FezACML_DS = array();
-				$FezACML_DS = Record::getIndexDatastream($pid, $ds['ID'], 'FezACML');
-			
-				$return = array();
-				foreach ($FezACML_DS as $result) {
-					if (in_array($result['xsdsel_title'], $securityfields)  && ($result['xsdmf_element'] != '!rule!role!name') && is_numeric(strpos($result['xsdmf_element'], '!rule!role!')) )  {
-						if (!is_array($return[$result['rek_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
-							$return[$result['rek_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']] = array();
-						}
-						if (!in_array($result['rek_'.$result['xsdmf_data_type']], $return[$result['rek_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']])) {
-							array_push($return[$result['rek_pid']]['FezACML'][0][$result['xsdsel_title']][$result['xsdmf_element']], $result['rek_'.$result['xsdmf_data_type']]); // need to array_push because there can be multiple groups/users for a role
-						}
-					}
-					if ($result['xsdmf_element'] == '!inherit_security') {
-						if (!is_array($return[$result['rek_pid']]['FezACML'][0]['!inherit_security'])) {
-							$return[$result['rek_pid']]['FezACML'][0]['!inherit_security'] = array();
-						}
-						if (!in_array($result['rek_'.$result['xsdmf_data_type']], $return[$result['rek_pid']]['FezACML'][0]['!inherit_security'])) {
-							array_push($return[$result['rek_pid']]['FezACML'][0]['!inherit_security'], $result['rek_'.$result['xsdmf_data_type']]);
-						}
-					}
-				}
-				$datastreams[$ds_key]['downloads'] = Statistics::getStatsByDatastream($pid, $ds['ID']);			
-				$datastreams[$ds_key]['FezACML'] = @$return[$pid]['FezACML'];
-				$datastreams[$ds_key]['workflows'] = $datastream_workflows;
-				$parentsACMLs = array();
-				if (count($FezACML_DS) == 0 || $datastreams[$ds_key]['FezACML'][0]['!inherit_security'][0] == "on") {
-					// if there is no FezACML set for this row yet, then is it will inherit from above, so show this for the form
-					if ($datastreams[$ds_key]['FezACML'][0]['!inherit_security'][0] == "on") {
-						$datastreams[$ds_key]['security'] = "include";
-						$parentsACMLs = $datastreams[$ds_key]['FezACML'];
-					} else {
-						$datastreams[$ds_key]['security'] = "inherit";
-						$parentsACMLs = array();
-					} 
-					$temp_parents = Record::getParents($pid);
-					Auth::getIndexParentACMLMemberList(&$parentsACMLs, $pid, $temp_parents);
-					$datastreams[$ds_key]['FezACML'] = $parentsACMLs;			
-				} else {
-					$datastreams[$ds_key]['security'] = "exclude";			
-				} */
+				}			
 				$datastreams[$ds_key]['FezACML'] = Auth::getAuthorisationGroups($pid, $datastreams[$ds_key]['ID']);
 				$datastreams[$ds_key]['downloads'] = Statistics::getStatsByDatastream($pid, $ds['ID']);			
-				//$datastreams[$ds_key]['FezACML'] = 
 				Auth::getAuthorisation($datastreams[$ds_key]);
 			}
             if ($datastreams[$ds_key]['controlGroup'] == 'R' && $datastreams[$ds_key]['ID'] == 'DOI') {
@@ -335,8 +292,6 @@ if (!empty($pid) && $record->checkExists()) {
                 $tpl->assign('doi', $datastreams[$ds_key]);
             }
 		} 
-//		$datastreams['Fez'] = Auth::getAuthorisationGroups($datastreams);
-//		print_r($datastreams);
 		$tpl->assign("datastreams", $datastreams);
 		$tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");		
 		//$parents = Record::getParents($pid);

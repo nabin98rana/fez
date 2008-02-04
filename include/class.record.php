@@ -775,21 +775,29 @@ class Record
      */
 	function getACML($pid, $dsID="") {
         static $acml_cache;
+		$ds_pattern = false;
 		if ($dsID != "") {
 	        if (isset($acml_cache['ds'][$dsID][$pid])) {
 				return $acml_cache['ds'][$dsID][$pid];
 			} else {
-				$ds_search = 'FezACML_'.$dsID.'.xml';
+				$dsIDCore = preg_replace("/(web_|preview_|thumb_|stream_)/", "", $dsID);
+				$dsIDCore = substr($dsIDCore, 0, strrpos($dsIDCore, "."));
+				$ds_pattern = '/^FezACML_'.$dsIDCore.'(.*)\.xml$/';
+//				$ds_search = 'FezACML_'.$dsID.'.xml';
 			}
 		} else {
 			$ds_search = 'FezACML';
+	        if (isset($acml_cache['pid'][$pid])) {
+	            return $acml_cache['pid'][$pid];
+	        }
 		}
-        if (isset($acml_cache['pid'][$pid])) {
-            return $acml_cache['pid'][$pid];
-        }
-        $dsExists = Fedora_API::datastreamExists($pid, $ds_search, true);
-        if ($dsExists == true) {
-			$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $ds_search);
+        $dsExists = Fedora_API::datastreamExists($pid, $ds_search, true, $ds_pattern);
+        if ($dsExists != false) {
+			if ($ds_pattern != false) {
+				$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsExists);
+			} else {
+				$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $ds_search);
+			}
 			$xmlACML = @$DSResultArray['stream'];
 			$xmldoc= new DomDocument();
 			$xmldoc->preserveWhiteSpace = false;

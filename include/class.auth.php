@@ -816,11 +816,15 @@ class Auth
 			}
 		}
         $userPIDAuthGroups = array();
+        // Usually everyone can list, view and view comments
+        global $NonRestrictedRoles;
+        $userPIDAuthGroups = $NonRestrictedRoles;
 		$usingDS = false;
         $acmlBase = false;
 		if ($dsID != "") {
 			$usingDS = true;
 	        $acmlBase = Record::getACML($pid, $dsID);
+//			echo $pid.$dsID.$acmlBase->saveXML();
 		}
 		// if no FezACML exists for a datastream then it must inherit from the pid object
         if ($acmlBase == false) {
@@ -861,6 +865,7 @@ class Auth
 
             $inherit = !$found_inherit_off && ($found_inherit_on || $found_inherit_blank);
 			if ($inherit == true) { // if need to inherit, check if at dsID level or not first and then 
+				$userPIDAuthGroups["security"] = "inherit";	
 				if (($dsID == "") || ($usingDS == false)) { // if already at PID level just get parent pids and add them
 					$parents = Record::getParents($pid);
 					Auth::getParentACMLs(&$ACMLArray, $parents);				
@@ -870,6 +875,7 @@ class Auth
 						$parents = Record::getParents($pid);
 						Auth::getParentACMLs(&$ACMLArray, $parents);
 					} else { // otherwise found pid level so add to ACMLArray and check whether to inherit or not
+						$userPIDAuthGroups["security"] = "include";	
 				    	array_push($ACMLArray, $acmlBase);
 						// If found an ACML then check if it inherits security
 						$inherit = false;
@@ -886,11 +892,10 @@ class Auth
 						}
 					}
 				}
+			} else {
+				$userPIDAuthGroups["security"] = "exclude";	
 			}
         }
-        // Usually everyone can list, view and view comments
-        global $NonRestrictedRoles;
-        $userPIDAuthGroups = $NonRestrictedRoles;
         // loop through the ACML docs found for the current pid or in the ancestry
 		$cleanedArray = array();
         foreach ($ACMLArray as &$acml) {
@@ -1137,7 +1142,7 @@ class Auth
 							}
 							if ($inherit == true) {
 								$parents = Record::getParents($pid);
-								Auth::getParentACMLs(&$ACMLArray, $parents);				
+								Auth::getParentACMLs(&$ACMLArray, $parents);
 							}
 						}
 					}
@@ -1708,8 +1713,7 @@ class Auth
 							$SSO = $type_field->nodeValue;
 						}
 					}
-
-					if ($OrganisationDisplayName != "" && $entityID != "" && $SSO != "") {
+					if ($OrganisationDisplayName != "" && $entityID != "" && $SSO != "" && is_numeric(strpos($entityID,SHIB_FEDERATION))) {
 						$IDPArray['List'][$entityID] = $OrganisationDisplayName;
 						$IDPArray['SSO'][$entityID]['SSO'] = $SSO;
 //						$IDPArray['SSO'][$entityID]['SSO'] = "https://$SSO/shibboleth-idp/SSO";
