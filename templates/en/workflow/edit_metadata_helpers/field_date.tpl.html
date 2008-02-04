@@ -35,7 +35,7 @@
 						{assign var="display_days" value="false"}
 						{assign var="display_months" value="false"}
 					{/if}
-                  {html_select_date display_days=$display_days display_months=$display_months time=$full_date month_empty='' year_empty='' day_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="-100" end_year="+10" all_extra='class="default"'}
+                  {html_select_date reverse_years=true display_days=$display_days display_months=$display_months time=$full_date month_empty='' year_empty='' day_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="1900" end_year="+10" all_extra='class="default"'}
 				  {if $xsd_display_fields[i].xsdmf_date_type !== 0}
 				 <script language="JavaScript" type="text/javascript" src="{$rel_url}js/dynCalendar.js"></script>
                   <script type="text/javascript">

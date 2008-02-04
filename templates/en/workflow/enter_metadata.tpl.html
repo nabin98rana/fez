@@ -554,7 +554,7 @@ function selectDateField(field_name, day, month, year)
                 <td nowrap bgcolor="{$light_color}">
                   {assign var="temp_xsdmf_id" value=$xsd_display_fields[i].xsdmf_id}
 				  {if $xsd_display_fields[i].xsdmf_date_type == 0}
-					  {html_select_date month_empty='' year_empty='' day_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="-100" end_year="+10" all_extra='class="default"'}
+					  {html_select_date time="0000-00-00" reverse_years=true month_empty='' year_empty='' day_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="1900" end_year="+0" all_extra='class="default"'}
 									  {literal}
 					  <script language="JavaScript" type="text/javascript">
 					  <!--
@@ -564,7 +564,7 @@ function selectDateField(field_name, day, month, year)
 					  //-->
 					  </script>{/literal}&nbsp;&nbsp;
 				  {else}
-					  {html_select_date display_days=false display_months=false year_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="-100" end_year="+0" all_extra='class="default" onChange="javascript:checkDateFilterType(this.form, this);"'}
+					  {html_select_date time="0000-00-00" reverse_years=true display_days=false display_months=false year_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="1900" end_year="+0" all_extra='class="default" onChange="javascript:checkDateFilterType(this.form, this);"'}
 				  {/if}
                 </td>
               </tr>
