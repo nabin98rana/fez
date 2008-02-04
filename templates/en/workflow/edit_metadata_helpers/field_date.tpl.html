@@ -1,4 +1,4 @@
-            {if  $xsdmf.xsdmf_enabled == 1}
+			{if  $xsdmf.xsdmf_enabled == 1}
               <tr {if $xsdmf.xsdmf_invisible == 1}style="display:none;"{/if}>
 				  <td width="200" bgcolor="{$cell_color}" class="default">
 					<b>{$xsdmf.xsdmf_title} {if $xsdmf.xsdmf_required == 1} * {/if}</b>
@@ -31,9 +31,12 @@
 						{/if}
 						{assign var="full_date" value=$full_year|cat:"-"|cat:$full_month|cat:"-"|cat:$full_day}
 					{/if}
-
-
-                  {html_select_date time=$full_date month_empty='' year_empty='' day_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="-100" end_year="+10" all_extra='class="default"'}
+					{if $xsd_display_fields[i].xsdmf_date_type == 0}
+						{assign var="display_days" value="false"}
+						{assign var="display_months" value="false"}
+					{/if}
+                  {html_select_date display_days=$display_days display_months=$display_months time=$full_date month_empty='' year_empty='' day_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="-100" end_year="+10" all_extra='class="default"'}
+				  {if $xsd_display_fields[i].xsdmf_date_type !== 0}
 				 <script language="JavaScript" type="text/javascript" src="{$rel_url}js/dynCalendar.js"></script>
                   <script type="text/javascript">
                   <!--
@@ -50,6 +53,7 @@
         		    //-->
 		            </script>
         		    {/if}
+				  {/if}
                 </td>
  				  {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields[$temp_xsdmf_id]"}
               </tr>
