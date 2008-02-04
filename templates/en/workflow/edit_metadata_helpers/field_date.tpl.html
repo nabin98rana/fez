@@ -36,7 +36,7 @@
 						{assign var="display_months" value="false"}
 					{/if}
                   {html_select_date reverse_years=true display_days=$display_days display_months=$display_months time=$full_date month_empty='' year_empty='' day_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="1900" end_year="+10" all_extra='class="default"'}
-				  {if $xsd_display_fields[i].xsdmf_date_type !== 0}
+				  {if $xsd_display_fields[i].xsdmf_date_type == 0}
 				 <script language="JavaScript" type="text/javascript" src="{$rel_url}js/dynCalendar.js"></script>
                   <script type="text/javascript">
                   <!--
@@ -44,16 +44,17 @@
                   tCalendar_xsd_display_fields{$xsdmf.xsdmf_id}.setMonthCombo(false);
                   tCalendar_xsd_display_fields{$xsdmf.xsdmf_id}.setYearCombo(false);
                   //-->
+				  {/if}
                   </script>
+				  {include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
 					{if $xsdmf.xsdmf_required == 1}
         		    <script type="text/javascript">
 			        <!--
-        		    xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsdmf.xsdmf_id}], '{$xsdmf.xsdmf_title}');
-		            required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsdmf.xsdmf_id}]', 'whitespace');
+        		    xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsdmf.xsdmf_id}][Year]', '{$xsdmf.xsdmf_title}');
+		            required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsdmf.xsdmf_id}][Year]', 'whitespace');
         		    //-->
 		            </script>
         		    {/if}
-				  {/if}
                 </td>
  				  {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields[$temp_xsdmf_id]"}
               </tr>

@@ -384,6 +384,10 @@ function checkRequiredFields(f, required_fields)
             if (!hasOnlyOneChecked(f, field.name)) {
                 errors[errors.length] = new Option(getXSD_DisplayFieldTitle(required_fields[i].text), required_fields[i].text);
             }
+        } else if (required_fields[i].value == 'date') {
+			if (isWhitespace(field.value)) {
+                errors[errors.length] = new Option(getXSD_DisplayFieldTitle(required_fields[i].text), required_fields[i].text);
+            }
 		} else if (required_fields[i].value == 'whitespace') {
 			if (isWhitespace(field.value)) {
                 errors[errors.length] = new Option(getXSD_DisplayFieldTitle(required_fields[i].text), required_fields[i].text);

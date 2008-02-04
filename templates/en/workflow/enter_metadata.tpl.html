@@ -219,8 +219,29 @@ function selectDateField(field_name, day, month, year)
             {if $xsd_display_fields[i].xsdmf_required == 1 && $xsd_display_fields[i].xsdmf_enabled == 1}
             <script language="JavaScript">
             <!--
-            xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab' || $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' || $xsd_display_fields[i].xsdmf_multiple == 1}[]{/if}', '{$xsd_display_fields[i].xsdmf_title}');
-            required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple'|| $xsd_display_fields[i].xsdmf_html_input == 'contvocab' || $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' || $xsd_display_fields[i].xsdmf_multiple == 1}[]{/if}', {if $xsd_display_fields[i].xsdmf_html_input == 'multiple' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab' || $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector'}'multiple'{elseif $xsd_display_fields[i].xsdmf_html_input == 'checkbox'}'checkbox'{elseif $xsd_display_fields[i].xsdmf_html_input == 'combo' || $xsd_display_fields[i].xsdmf_html_input == 'author_selector'}'combo'{else}'whitespace'{/if});
+			{if $xsd_display_fields[i].xsdmf_html_input == 'date'}
+			xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][Year]', '{$xsd_display_fields[i].xsdmf_title}');
+			{else}
+            xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple' 
+			|| $xsd_display_fields[i].xsdmf_html_input == 'contvocab' 
+			|| $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' 
+			|| $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' 
+			|| $xsd_display_fields[i].xsdmf_multiple == 1}[]{/if}', '{$xsd_display_fields[i].xsdmf_title}');
+			{/if}
+
+			{if $xsd_display_fields[i].xsdmf_html_input == 'date'}
+			required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][Year]', 'whitespace' );
+			{else}
+            required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple' 
+			|| $xsd_display_fields[i].xsdmf_html_input == 'contvocab' 
+			|| $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' 
+			|| $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' 
+			|| $xsd_display_fields[i].xsdmf_multiple == 1}[]{/if}', {if $xsd_display_fields[i].xsdmf_html_input == 'multiple' 
+			|| $xsd_display_fields[i].xsdmf_html_input == 'contvocab' 
+			|| $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' 
+			|| $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector'}'multiple'{elseif $xsd_display_fields[i].xsdmf_html_input == 'checkbox'}'checkbox'{elseif $xsd_display_fields[i].xsdmf_html_input == 'combo' 
+			|| $xsd_display_fields[i].xsdmf_html_input == 'author_selector'}'combo'{elseif $xsd_display_fields[i].xsdmf_html_input == 'date'}'date'{else}'whitespace'{/if});
+			{/if}
             //-->
             </script>
             {/if}
@@ -617,9 +638,9 @@ function selectDateField(field_name, day, month, year)
 						</tr>
 				{/if}
             {elseif $xsd_display_fields[i].xsdmf_html_input == 'date' && $xsd_display_fields[i].xsdmf_enabled == 1}
-              <tr>
+              <tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">
 				  <td width="200" bgcolor="{$cell_color}" class="default">
-					<b>{$xsd_display_fields[i].xsdmf_title}</b><br />
+					<b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />
 				  </td>
                 <td nowrap bgcolor="{$light_color}">
                   {assign var="temp_xsdmf_id" value=$xsd_display_fields[i].xsdmf_id}
@@ -636,8 +657,10 @@ function selectDateField(field_name, day, month, year)
 				  {else}
 					  {html_select_date time="0000-00-00" reverse_years=true display_days=false display_months=false year_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="1900" end_year="+0" all_extra='class="default" onChange="javascript:checkDateFilterType(this.form, this);"'}
 				  {/if}
+				  {include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
                 </td>
               </tr>
+
             {elseif $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' && $xsd_display_fields[i].xsdmf_enabled == 1}
 
 					<tr id="tr_list_{$list[i].xsdmf_id}_0" valign="top">
