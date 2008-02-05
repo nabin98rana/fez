@@ -306,22 +306,22 @@
                 $list .= Citation::formatValue($value[$ii], $ii, $details, $xsdmf, $option, $type);
             }
             $value = $list;
-        } elseif ($xsdmf['xsdmf_data_type'] == 'date' || $xsdmf['xsdmf_html_input'] == 'date_selector') {
+        } elseif ($xsdmf['sek_data_type'] == 'date' || $xsdmf['xsdmf_html_input'] == 'date_selector') {
             if (!empty($value) && !is_null($value) && $value != "") {
-            switch($option) {
-                case 'ymd':
-                    $value = strftime("%Y, %B %d", strtotime($value));
-                break;
-                case 'ym':
-                    $value = strftime("%Y, %B", strtotime($value));
-                break;
-                case 'my':
-                    $value = strftime("%B %Y", strtotime($value));
-                break;
-                default:
-                    $value = substr(trim($value), 0, 4);
-                break;
-            } 
+				switch($option) {
+					case 'ymd':
+						$value = strftime("%Y, %B %d", strtotime($value));
+					break;
+					case 'ym':
+						$value = strftime("%Y, %B", strtotime($value));
+					break;
+					case 'my':
+						$value = strftime("%B %Y", strtotime($value));
+					break;
+					default:
+						$value = substr(trim($value), 0, 4);
+					break;
+				} 
             } 
             // hacky formatting of authors names.  Pretty easy to break - like
             // if the field doesn't use the selector or the sek_title or xsdmf_title is in a different language. WILL PROBABLY NEVER BE USED!
@@ -336,9 +336,9 @@
 			if (is_numeric($yy)) {
 				if ($xsdmf['sek_title'] == "Author") {
 					if (is_array($details['rek_author_id']) && $details['rek_author_id'][$yy] != 0) {
-						$value = '<a class="author_id_link" title="Browse by Author ID for '.htmlentities($details['rek_author_id_lookup'][$yy]).'" href="' . APP_RELATIVE_URL . 'list.php?browse=author&amp;author_id='.$details['rek_author_id'][$yy].'">'.$value.'</a>';
+						$value = '<a class="author_id_link" title="Browse by Author ID for '.htmlentities($details['rek_author_id_lookup'][$yy]).'" href="' . APP_RELATIVE_URL . 'list/browse=author&amp;author_id='.$details['rek_author_id'][$yy].'">'.$value.'</a>';
 					} else {
-						$value = '<a title="Browse by Author Name for '.$details['rek_author'][$yy].'" href="' . APP_RELATIVE_URL . 'list.php?browse=author&amp;author='.htmlentities($details['rek_author'][$yy]).'">'.$value.'</a>';
+						$value = '<a title="Browse by Author Name for '.$details['rek_author'][$yy].'" href="' . APP_RELATIVE_URL . 'list/browse=author&amp;author='.htmlentities($details['rek_author'][$yy]).'">'.$value.'</a>';
 					}
 				}
 			} else {
@@ -352,7 +352,7 @@
 					}
 				}			
 				if ($xsdmf['sek_title'] == "Date") {
-					$value = '<a title="Browse by Year '.htmlentities($value).'" href="' . APP_RELATIVE_URL . 'list.php?browse=year&amp;year='.htmlentities($value).'">'.$value.'</a>';				
+					$value = '<a title="Browse by Year '.htmlentities($value).'" href="' . APP_RELATIVE_URL . 'list/browse=year&amp;year='.htmlentities($value).'">'.$value.'</a>';				
 				}			
 			}
 		}
