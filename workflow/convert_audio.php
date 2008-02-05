@@ -71,7 +71,7 @@ if (!file_exists($filepath)) {
     } else {
         $new_file .= ".flv";
     }
-    $getString = APP_BASE_URL."webservices/wfb.ffmpeg.php?file="
+    $getString = APP_BASE_URL."webservices/wfb.ffmpeg_audio.php?file="
         .urlencode($filename);
 //	echo $getString;
 	Misc::ProcessURL($getString);
