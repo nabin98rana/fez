@@ -350,10 +350,6 @@ YAHOO.widget.AutoComplete.prototype.textBoxCopy /*:HTMLInputElement*/ = null;
  */
 YAHOO.widget.AutoComplete.prototype.selectBox /*:HTMLSelectBoxInputElement*/ = null;
 
-
-
-YAHOO.widget.AutoComplete.prototype.mysqlRowID = null;
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // Public methods
@@ -1263,7 +1259,10 @@ YAHOO.widget.AutoComplete.prototype._populateList = function(sQuery, aResults, o
             oItemi.style.display = "list-item";
             oItemi._sResultKey = oResultItemi[0];
             oItemi._oResultData = oResultItemi;
-
+            
+            // Save database row ID
+            if( oResultItemi[1].id != '' )
+                oItemi._dbID = oResultItemi[1].id;
         }
 
         // Empty out remaining items if any
@@ -1651,12 +1650,10 @@ YAHOO.widget.AutoComplete.prototype._updateValue = function(oItem) {
         {
             this.textBoxCopy.value = oTextbox.value;
         }
-        
-        //this.textBoxCopy.value = sResultKey;
     }
     
     if( this.selectBox ) {
-        this.addMulti(oTextbox.value, this.selectBox);
+        this.addMulti(oTextbox.value, this.selectBox, oItem._dbID);
     }
 
     this._oCurItem = oItem;
@@ -2150,7 +2147,7 @@ YAHOO.widget.AutoComplete.prototype.registerControls = function(oTextboxCopy, oI
 };
 
 
-YAHOO.widget.AutoComplete.prototype.addMulti = function (stextBoxValue, multi) {
+YAHOO.widget.AutoComplete.prototype.addMulti = function (stextBoxValue, multi, dbID) {
     
     if (stextBoxValue.length > 0) {
         options_exists = false;
@@ -2163,8 +2160,8 @@ YAHOO.widget.AutoComplete.prototype.addMulti = function (stextBoxValue, multi) {
         
         // add the option to the multi select and select it
         multi.options.length = multi.options.length + 1;
-        multi.options[multi.options.length-1].text = stextBoxValue + ' (' + this.mysqlRowId + ')';
-        multi.options[multi.options.length-1].value = this.mysqlRowId;
+        multi.options[multi.options.length-1].text = stextBoxValue + ' (' + dbID + ')';
+        multi.options[multi.options.length-1].value = dbID;
         multi.options[multi.options.length-1].selected = true;
     }
 };

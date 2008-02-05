@@ -436,7 +436,6 @@ function selectDateField(field_name, day, month, year)
                                         this.oAutoComp{/literal}{$loop_num}{literal} = new YAHOO.widget.AutoComplete('{/literal}{$attached_field_id}_lookup','{$attached_field_id}_container{literal}', myDataSource);
                                         this.oAutoComp{/literal}{$loop_num}{literal}.maxResultsDisplayed = 60; 
                                         this.oAutoComp{/literal}{$loop_num}{literal}.formatResult = function(oResultItem, sQuery) {
-                                            this.mysqlRowId = oResultItem[1].id;
                                             var usernameTxt = "";
                                             
                                             if( oResultItem[1].username != "" && oResultItem[1].username != null )
