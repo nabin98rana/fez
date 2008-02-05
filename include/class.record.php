@@ -3690,7 +3690,7 @@ class RecordObject extends RecordGeneral
         foreach ($ds as $dsKey => $dsTitle) {
             $dsIDName = $dsTitle['ID'];
             if ($dsTitle['controlGroup'] == 'M'
-                    && (is_numeric(strpos($dsTitle['MIMEType'],"image/")) || is_numeric(strpos($dsTitle['MIMEType'],"video/")))
+                    && (is_numeric(strpos($dsTitle['MIMEType'],"image/")) || is_numeric(strpos($dsTitle['MIMEType'],"video/")) || is_numeric(strpos($dsTitle['MIMEType'],"audio/")))
                     && !Misc::hasPrefix($dsIDName, 'preview_')
                     && !Misc::hasPrefix($dsIDName, 'web_')
                     && !Misc::hasPrefix($dsIDName, 'stream_')

@@ -673,14 +673,17 @@ class Misc
 					$ds['thumbnail'] = $thumbnail;
 				}
 			}
-			// now try and find a stream datastream of this datastream
+			// now try and find a stream datastream of this datastream as long as the datastream is a video or audio (streamable datastream), not an image
+
 			$stream = "stream_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."flv";
 			$ds['stream'] = 0;
-			foreach ($original_dsList as $o_key => $o_ds) {
-				if ($stream == $o_ds['ID']) {  // found the stream datastream so save it against the record
-					$ds['stream'] = $stream;
+			if (!is_numeric(strpos($ds['MIMEType'], 'image'))) {
+				foreach ($original_dsList as $o_key => $o_ds) {
+					if ($stream == $o_ds['ID']) {  // found the stream datastream so save it against the record
+						$ds['stream'] = $stream;
+					}
 				}
-			}			
+			}
 			// now try and find a web datastream of this datastream
 			$web = "web_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."jpg";
 			$ds['web'] = 0;

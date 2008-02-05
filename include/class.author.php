@@ -483,7 +483,7 @@ class Author
      * @return  array List of authors
      */
 	function suggest($term, $assoc = false) {
-		$dbtp = APP_SQL_DBNAME.'.'.APP_TABLE_PREFIX;
+		$dbtp = APP_TABLE_PREFIX;
 		$term = Misc::escapeString($term);
 		$stmt = " SELECT aut_id as id, aut_org_username as username, aut_fullname as name  FROM (
 			  SELECT aut_id, 

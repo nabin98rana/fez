@@ -66,6 +66,11 @@ if (!empty($pid) && !empty($dsID)) {
 	list($data,$info) = Misc::processURL_info(APP_FEDORA_GET_URL."/".$pid."/".$dsID);
 	if ($not_exists == false) {
 		$ctype = $info['content_type'];
+		if ($ctype == "application/octet-stream") {
+			if (substr($dsID, -4) == ".flv") {
+				$ctype = "video/x-flv";
+			}
+		}
 		if (is_numeric(strpos($ctype, "video"))) {
 			$is_video = 1;
 		} elseif (is_numeric(strpos($ctype, "image"))) {
@@ -132,6 +137,7 @@ if (!empty($pid) && !empty($dsID)) {
 				$tpl->assign("APP_BASE_URL", APP_BASE_URL);
 				$tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
 				$tpl->assign("dsID", $dsID);
+				$tpl->assign("preview_ds", str_replace(".flv", ".jpg", str_replace("stream_", "preview_", $ds_id)));
 				$tpl->assign("wrapper", $wrapper);
 				$tpl->assign("pid", $pid);
 				$tpl->displayTemplate();
