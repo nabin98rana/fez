@@ -246,6 +246,7 @@ class Author
                     aut_org_username='" . Misc::escapeString($_POST["org_username"]) . "',
                     aut_cv_link='" . Misc::escapeString($_POST["cv_link"]) . "',																				
                     aut_homepage_link='" . Misc::escapeString($_POST["homepage_link"]) . "',
+                    aut_ref_num='" . Misc::escapeString($_POST["aut_ref_num"]) . "',
                     aut_update_date='" . Date_API::getCurrentDateGMT() . "'";
         if ($_POST["org_staff_id"] !== "") {
             $stmt .= ",aut_org_staff_id='" . Misc::escapeString($_POST["org_staff_id"]) . "' ";
@@ -290,6 +291,7 @@ class Author
         if ($_POST["position"] !== "")         { $insert .= ", aut_position "; }
         if ($_POST["cv_link"] !== "")          { $insert .= ", aut_cv_link "; }
         if ($_POST["homepage_link"] !== "")    { $insert .= ", aut_homepage_link "; }
+        if ($_POST["aut_ref_num"] !== "")      { $insert .= ", aut_ref_num "; }
 
         $values = ") VALUES (
                     '" . Misc::escapeString($_POST["title"]) . "',
@@ -310,6 +312,8 @@ class Author
         if ($_POST["position"] !== "")        { $values .= ", '" . Misc::escapeString($_POST["position"]) . "'"; }
         if ($_POST["cv_link"] !== "")        { $values .= ", '" . Misc::escapeString($_POST["cv_link"]) . "'"; }
         if ($_POST["homepage_link"] !== "")        { $values .= ", '" . Misc::escapeString($_POST["homepage_link"]) . "'"; }
+        if ($_POST["aut_ref_num"] !== "")        { $values .= ", '" . Misc::escapeString($_POST["aut_ref_num"]) . "'"; }
+        
         $values .= ")";
 
         $stmt = $insert . $values;
@@ -487,7 +491,7 @@ class Author
 			    aut_display_name as aut_fullname,
 				MATCH(aut_display_name) AGAINST ('".$term."') as Relevance FROM ".$dbtp."author
 			 WHERE MATCH (aut_display_name) AGAINST ('*".$term."*' IN BOOLEAN MODE)
-			 ORDER BY Relevance DESC, aut_fullname LIMIT 0,20
+			 ORDER BY Relevance DESC, aut_fullname LIMIT 0,60
 			 ) as tempsuggest";
 		
 		if( $assoc ) {

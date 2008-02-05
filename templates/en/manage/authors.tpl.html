@@ -148,6 +148,15 @@
               </tr>	
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Author Reference Number: </b>
+                </td>
+                <td bgcolor="{$light_color}" width="80%">
+                  <input type="text" name="aut_ref_num" size="40" class="default" value="{$info.aut_ref_num}">
+                  {include file="error_icon.tpl.html" field="aut_ref_num"}
+                </td>
+              </tr>	
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Organisation Staff Username: </b>
                 </td>
                 <td bgcolor="{$light_color}" width="80%">
@@ -256,7 +265,8 @@
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Last Name</b></td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Position</b></td>					  					  
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Org Staff ID</b></td>					  					  
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Org Username</b></td>					  					                                              
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Org Username</b></td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Ref Num</b></td>					  					                                              
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>CV Link</b></td>					  
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Homepage Link</b></td>					  
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Created Date</b></td>					  
@@ -275,7 +285,8 @@
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_lname}</td>
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_position}</td>
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_org_staff_id}</td>
-                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_org_username}</td>                                            
+                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_org_username}</td>
+                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_ref_num}</td>                                           
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_cv_link}</td>
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_homepage_link}</td>					  
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_created_date}</td>					  

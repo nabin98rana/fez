@@ -1,0 +1,1 @@
+ALTER TABLE %TABLE_PREFIX%author ADD COLUMN aut_ref_num varchar(50);
