@@ -1013,7 +1013,7 @@ function sortListOrder(f, field) {
     window.location.href = page_url + "/" + replaceParam(window.location.href, 'sort_order', sort_order);
 }
 
-function swapAuthor(textbox, xsdmf_id, loopnum, direction)
+function swapTextBox(textbox, xsdmf_id, loopnum, direction)
 {
     var swapLoopNumId = (parseInt(loopnum) + parseInt(direction));
     
@@ -1026,7 +1026,11 @@ function swapAuthor(textbox, xsdmf_id, loopnum, direction)
    
     var curDropDown = document.getElementById('xsd_display_fields_'  + xsdmf_id + '_' + loopnum);
     var prevDropDown = document.getElementById('xsd_display_fields_' + xsdmf_id + '_' + swapLoopNumId);
-    swapDropDownValues(curDropDown, prevDropDown);
+    
+    if(curDropDown && prevDropDown)
+    {
+        swapDropDownValues(curDropDown, prevDropDown);
+    }
 }
 
 
