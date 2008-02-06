@@ -281,7 +281,7 @@ function showDiv(p)
 			<td>Size</td>			
 			<td align="right">Downloads</td>			
 		  </tr>
-
+		{assign var="ds_show_onclick" value=""}
 		{assign var="show_preview_pane" value="0"}
         {section name="d" loop=$datastreams}
 			{if $datastreams[d].controlGroup == "M" && $datastreams[d].isLister == 1}
@@ -295,13 +295,52 @@ function showDiv(p)
 				{assign var="image_file_string" value=""}
 				{fetch file=$image_name assign="image_file_string"}
 				<td nowrap>
-            {if $datastreams[d].thumbnail != "0" || $datastreams[d].stream != "0"}{if $datastreams[d].canPreview || $isAdministrator}<a href="#">{/if}
+            {if $datastreams[d].thumbnail != "0" || $datastreams[d].stream != "0"}
+				{if $datastreams[d].canPreview || $isAdministrator}
+					<a href="#">
+				{/if}
 				{assign var="show_preview_pane" value="1"}
 				{if $datastreams[d].thumbnail != "0"}
-			<img align="absmiddle" title="Click on the thumbnail image to show the corresponding preview" src="{$eserv_url}{$datastreams[d].thumbnail}" border="1"
-            {if ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].stream != "0"}{assign var="ds_show" value=$datastreams[d].stream}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].stream}', '{$datastreams[d].ID|escape:'html'}');"{else}
-            {if ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].web != "0"}{assign var="ds_show" value=$datastreams[d].web}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].ID}', '{$datastreams[d].ID|escape:'html'}');"{/if}{/if}
-            >{if $datastreams[d].canPreview || $isAdministrator}</a>{/if}{/if}{else}</a>{/if}{if $image_file_string != ""}<img align="absmiddle" border="0" src="{$rel_url}images/{$image_file_name}">{else}<img border="0" align="absmiddle" src="{$rel_url}images/default.png">{/if} {if $datastreams[d].isViewer == 1 || $isAdministrator}<a target="_blank" href="{$rel_url}eserv/{$pid}/{$ds_show}">{/if}{$datastreams[d].ID}{if $datastreams[d].isViewer == 1 || $isAdministrator}</a> &nbsp;{/if} {if ($datastreams[d].isArchivalViewer == 1 || $isAdministrator) && $datastreams[d].thumbnail != "0"}<a target="_blank" href="{$rel_url}eserv/{$pid}/{$datastreams[d].ID}"><img title="archival version" align="absmiddle" border="0" src="{$rel_url}images/archival_22.gif"></a>&nbsp;{/if} {if $datastreams[d].presmd != "0" && ($isAdministrator)}<a target="_blank" href="{$rel_url}eserv/{$pid}/{$datastreams[d].presmd}"><img title="preservation metadata" align="absmiddle" border="0" src="{$rel_url}images/presmd_22.gif"></a>&nbsp;{/if} 	
+					<img align="absmiddle" title="Click to show the corresponding preview" src="{$eserv_url}{$datastreams[d].thumbnail}" border="1"
+		            {if ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].stream != "0"}
+						{assign var="ds_show" value=$datastreams[d].stream}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].stream}', '{$datastreams[d].ID|escape:'html'}');"
+					{else}
+		            	{if ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].web != "0"}
+							{assign var="ds_show" value=$datastreams[d].web}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].ID}', '{$datastreams[d].ID|escape:'html'}');"
+						{/if}
+					{/if}
+		            >
+					{if $datastreams[d].canPreview || $isAdministrator}
+						</a>
+					{/if}
+				{elseif ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].stream != "0"}
+					{assign var="ds_show" value=$datastreams[d].stream}
+					{assign var="ds_show_extra" value=$datastreams[d].stream}
+				{/if}
+				
+			{else}
+				</a>
+			{/if}
+			{if $image_file_string != ""}
+				<img align="absmiddle" border="0" src="{$rel_url}images/{$image_file_name}"
+				{if $ds_show_extra != ""}onclick="javascript:loadPreview('{$pid}','{$ds_show_extra}', '{$datastreams[d].ID|escape:'html'}');"{/if}>
+			{else}
+				<img border="0" align="absmiddle" src="{$rel_url}images/default.png"
+								{if $ds_show_extra != ""}onclick="javascript:loadPreview('{$pid}','{$ds_show_extra}', '{$datastreams[d].ID|escape:'html'}');"{/if}>
+			{/if}
+			{if $datastreams[d].isViewer == 1 || $isAdministrator}
+				<a target="_blank" href="{$rel_url}eserv/{$pid}/{$ds_show}">
+			{/if}
+			{$datastreams[d].ID}
+			{if $datastreams[d].isViewer == 1 || $isAdministrator}
+				</a> &nbsp;
+			{/if}
+			{if ($datastreams[d].isArchivalViewer == 1 || $isAdministrator) && $datastreams[d].thumbnail != "0"}
+				<a target="_blank" href="{$rel_url}eserv/{$pid}/{$datastreams[d].ID}"><img title="archival version" align="absmiddle" border="0" src="{$rel_url}images/archival_22.gif"></a>&nbsp;
+			{/if}
+			{if $datastreams[d].presmd != "0" && ($isAdministrator)}
+				<a target="_blank" href="{$rel_url}eserv/{$pid}/{$datastreams[d].presmd}"><img title="preservation metadata" align="absmiddle" border="0" src="{$rel_url}images/presmd_22.gif"></a>&nbsp;
+			{/if} 	
 				</td>
 				<td>{$datastreams[d].label}</td>
 				<td>{$datastreams[d].MIMEType}</td>
