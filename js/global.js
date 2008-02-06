@@ -21,8 +21,9 @@ function unhideRow(element_name, table_name)
 	var x = 0;
 	// for each row in the set of elements (with _x suffix)
 	for(row = document.getElementById('tr_' + element_name + '_' + x);
-			row != null && row != false; 
-			row = document.getElementById('tr_' + element_name + '_' + ++x)) {
+		row != null && row != false; 
+		row = document.getElementById('tr_' + element_name + '_' + ++x)) 
+	{
 		var rowInput = document.getElementById(element_name + '_' + x);
 
 		// are there any visible rows that have no values?
@@ -36,10 +37,13 @@ function unhideRow(element_name, table_name)
 			break;
 		}
 	}
+	
 	// did we find a hidden one?
 	if (firstHiddenRow > 0 && emptyRowExists == 0) {
 		var show_tr = document.getElementById('tr_' + element_name + '_' + firstHiddenRow);
 		show_tr.style.display = '';
+		
+		document.getElementById(element_name + '_' + (firstHiddenRow-1)+'_arrow').style.display = 'inline';
 	}
 }
 
@@ -1007,4 +1011,33 @@ function sortList(f, field) {
 function sortListOrder(f, field) {
 	sort_order = getSelectedOption(f, field);
     window.location.href = page_url + "/" + replaceParam(window.location.href, 'sort_order', sort_order);
+}
+
+function swapAuthor(textbox, xsdmf_id, loopnum, direction)
+{
+    var swapLoopNumId = (parseInt(loopnum) + parseInt(direction));
+    
+    var curTextbox = document.getElementById(textbox + '_' + loopnum);
+    var swapTextbox = document.getElementById(textbox + '_' + swapLoopNumId);
+    var tmpValue = curTextbox.value;
+    
+    curTextbox.value = swapTextbox.value;
+    swapTextbox.value = tmpValue;
+   
+    var curDropDown = document.getElementById('xsd_display_fields_'  + xsdmf_id + '_' + loopnum);
+    var prevDropDown = document.getElementById('xsd_display_fields_' + xsdmf_id + '_' + swapLoopNumId);
+    swapDropDownValues(curDropDown, prevDropDown);
+}
+
+
+function swapDropDownValues(dropDownOne, DropDownTwo)
+{
+    var tmpDropDownText = dropDownOne.options[dropDownOne.selectedIndex].text;
+    var tmpDropDownVal = dropDownOne.options[dropDownOne.selectedIndex].value;
+    
+    dropDownOne.options[dropDownOne.selectedIndex].text = DropDownTwo.options[DropDownTwo.selectedIndex].text;
+    dropDownOne.options[dropDownOne.selectedIndex].value = DropDownTwo.options[DropDownTwo.selectedIndex].value;
+    
+    DropDownTwo.options[DropDownTwo.selectedIndex].text = tmpDropDownText;
+    DropDownTwo.options[DropDownTwo.selectedIndex].value = tmpDropDownVal;
 }
