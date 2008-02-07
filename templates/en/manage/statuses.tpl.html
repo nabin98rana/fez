@@ -9,7 +9,7 @@
               var editing_option_id = -1;
               function validateForm(f)
               {
-                  if (isWhitespace(f.title.value)) {
+                  if (isWhitespace(f.sta_title.value)) {
                       alert('Please enter the title of this status.');
                       selectField(f, 'title');
                       return false;
@@ -218,10 +218,10 @@
                   function checkDelete(f)
                   {
                       if (!hasOneChecked(f, 'items[]')) {
-                          alert('Please select at least one of the statuss.');
+                          alert('Please select at least one of the statuses.');
                           return false;
                       }
-                      if (!confirm('This action will permanently remove the selected statuss.')) {
+                      if (!confirm('This action will permanently remove the selected statuses.')) {
                           return false;
                       } else {
                           return true;
