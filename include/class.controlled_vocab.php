@@ -897,6 +897,63 @@ class Controlled_Vocab
         NAJAX_Client::publicMethods($this, array('getTitle'));
     }
 
+
+    /**
+     * Method used to assemble the CV tree in dTree-ready JavaScript form, as an array.
+     *
+     * @access  public
+     * @param   none
+     * @return  array The JavaScript tree creation statements
+     */
+	function buildCVtree() {
+
+		$stmt = "SELECT cvo_id, cvo_title, CONCAT(cvo_title, ' ', cvo_desc) as cvo_title_extended, cvr_parent_cvo_id as cvo_parent_id " .
+				"FROM " . APP_TABLE_PREFIX . "controlled_vocab AS t1 " .
+				"LEFT JOIN " .
+				"(SELECT cvr_parent_cvo_id, cvr_child_cvo_id " .
+				"FROM " . APP_TABLE_PREFIX . "controlled_vocab_relationship) AS t2 " .
+				"ON t1.cvo_id = t2.cvr_child_cvo_id " .
+				"ORDER BY cvr_parent_cvo_id ASC";
+
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        }
+
+		$cvTree = array();
+		array_push($cvTree, "tree.add(0, -1, 'Select from:');");
+		foreach ($res as $row) {
+			if (is_null($row['cvo_parent_id'])) {
+				array_push($cvTree, "tree.add(" . $row['cvo_id'] . ", 0, '" . addslashes($row['cvo_title']) . "');");
+			} else {
+				// PHP writing JavaScript writing JavaScript. It doesn't get much more perverted than this.
+				array_push($cvTree, "tree.add(" . $row['cvo_id'] . ", " . $row['cvo_parent_id'] . ", '" . addslashes($row['cvo_title_extended']) . "', 'javascript:addItemToParent(" . $row['cvo_id'] . ", \'" . addslashes($row['cvo_title_extended']) . "\');');");
+			}
+		}
+
+		return $cvTree;
+	}
+
+
+    /**
+     * Method used to produce the dTree-ready JavaScript as a printable string.
+     *
+     * @access  public
+     * @param   array The JavaScript tree creation statements
+     * @return  string The JavaScript tree creation statements
+     */
+	function renderCVtree($cvTreeArray) {
+
+		$output = "";
+		foreach ($cvTreeArray as $cvThing) {
+			$output .= $cvThing . "\n";
+		}
+
+		return $output;
+	}
+
 }
 
 // benchmarking the included file (aka setup time)

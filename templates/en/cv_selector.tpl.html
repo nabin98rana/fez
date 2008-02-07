@@ -3,10 +3,20 @@
 <script language="JavaScript">
 
 <!-- Begin
-function addSelectedItemsToParent() {
-   self.opener.addToParentList(window.document.frmMain.cv_fields, self.opener.document.{/literal}{$form}.{$element}{literal});
-//   window.close();
+function toggleOld() {
+	if (document.getElementById('oldForm').style.display !== "block") {
+		document.getElementById('oldForm').style.display = "block";
+		document.getElementById('hider').value = "Hide old selector control";
+	} else {
+		document.getElementById('oldForm').style.display = "none";
+		document.getElementById('hider').value = "Show old selector control";
+	}
 }
+
+function addSelectedItemsToParent() {
+	self.opener.addToParentList(window.document.frmMain.cv_fields, self.opener.document.{/literal}{$form}.{$element}{literal});
+}
+
 function dblClickSubmit() {
 	for(var count = document.frmMain.cv_fields.options.length - 1; count >= 0; count--) {
 		if (document.frmMain.cv_fields.options[count].selected) {
@@ -14,11 +24,22 @@ function dblClickSubmit() {
 		}
 	}
 }
+
+function addItemToParent(selectedItem, selectedItemDescription) {
+	var selectedItem = parseInt(selectedItem);
+	//window.alert('Selected: ' + selectedItem);
+	document.frmMain.newOptions.options[0] = new Option(selectedItemDescription, selectedItem, true, true);
+	self.opener.addToParentList(window.document.frmMain.newOptions, self.opener.document.{/literal}{$form}.{$element}{literal});
+}
+
+
 // End -->
 </script>
 {/literal}
+<div id="oldForm" style="display: none;">
 <table>
 <form name="frmMain" method="GET" action="cv_selector.php">
+
 	<tr valign="top">
 	  <td class="default">
 		          {if $max_subject_breadcrumb != -1}
@@ -62,6 +83,45 @@ function dblClickSubmit() {
 	 </td>
 	</tr>				
 	{/if}
-</form>
 </table>
+</div>
+
+<link rel="StyleSheet" href="{$rel_url}css/other.css" type="text/css" />
+<link rel="StyleSheet" href="{$rel_url}css/dtree.css" type="text/css" />
+<script type="text/javascript" src="{$rel_url}js/dtree.js"></script>
+
+<select name="newOptions" style="display: none;"></select>
+
+<div class="dtree" style="padding: 10px;">
+<script type="text/javascript">
+<!--
+tree = new dTree('tree');
+tree.config.useCookies = false;
+tree.config.inOrder = true;
+tree.icon.root = '{$rel_url}images/dtree/globe.gif';
+tree.icon.folder = '{$rel_url}images/dtree/page.gif';
+tree.icon.folderOpen = '{$rel_url}images/dtree/page.gif';
+tree.icon.node = '{$rel_url}images/dtree/page.gif';
+tree.icon.empty = '{$rel_url}images/dtree/empty.gif';
+tree.icon.line = '{$rel_url}images/dtree/line.gif';
+tree.icon.join= '{$rel_url}images/dtree/join.gif';
+tree.icon.joinBottom = '{$rel_url}images/dtree/joinbottom.gif';
+tree.icon.plus = '{$rel_url}images/dtree/plus.gif';
+tree.icon.plusBottom = '{$rel_url}images/dtree/plusbottom.gif';
+tree.icon.minus = '{$rel_url}images/dtree/minus.gif';
+tree.icon.minusBottom = '{$rel_url}images/dtree/minusbottom.gif';
+tree.icon.nlPlus = '{$rel_url}images/dtree/nolines_plus.gif';
+tree.icon.nlMinus = '{$rel_url}images/dtree/nolines_minus.gif';
+
+{$cv_tree}
+document.write(tree);
+
+//-->
+</script>
+</div>
+
+<br />&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" id="hider" value="Show old selector control" onclick="javascript:toggleOld();" class="default" />
+
+</form>
+
 {include file="footer.tpl.html"}
