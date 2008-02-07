@@ -113,11 +113,6 @@ CREATE TABLE %TABLE_PREFIX%fulltext_keywords (
   KEY `ftk_twoletters` (`ftk_twoletters`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
- 
-ALTER TABLE %TABLE_PREFIX%org_structure
-  add column `org_desc` text,
-  add column `org_image_filename` varchar(255) default NULL;
-
 
 CREATE TABLE %TABLE_PREFIX%premis_event (                     
                     `pre_id` int(11) unsigned NOT NULL auto_increment,  
