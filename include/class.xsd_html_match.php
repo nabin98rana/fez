@@ -1164,316 +1164,210 @@ class XSD_HTML_Match {
 	 * @return  integer 1 if the insert worked, -1 otherwise
 	 */
 	function insertFromArraySEL($xdis_id, $xsdsel_id, $insertArray) {
-		$stmt = "INSERT INTO
-		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
-		                 (
-		                    xsdmf_xdis_id,
-		                    xsdmf_element,
-		                    xsdmf_title,
-		                    xsdmf_description,
-		                    xsdmf_html_input,
-		                    xsdmf_validation_type,";
+
+		$inserts = "xsdmf_xdis_id, 
+					xsdmf_element,
+					xsdmf_title,
+					xsdmf_description,
+					xsdmf_html_input,
+					xsdmf_validation_type,
+					xsdmf_parent_key_match,
+					xsdmf_key_match,
+					";
+		$values = "" . $xdis_id . ", 
+					'" . Misc::escapeString($insertArray["xsdmf_element"]) . "',
+					'" . Misc::escapeString($insertArray["xsdmf_title"]) . "',
+					'" . Misc::escapeString($insertArray["xsdmf_description"]) . "',
+					'" . Misc::escapeString($insertArray["xsdmf_html_input"]) . "',
+					'" . Misc::escapeString($insertArray["xsdmf_validation_type"]) . "',
+                    '" . Misc::escapeString($insertArray["xsdmf_parent_key_match"]) . "',
+                    '" . Misc::escapeString($insertArray["xsdmf_key_match"]) . "',
+					";
 
 		if (!empty ($insertArray["xsdmf_order"])) {
-			$stmt .= " xsdmf_order,";
+			$inserts .= " xsdmf_order, ";
+			$values  .= $insertArray["xsdmf_order"] . ", ";
 		}
-
 		if (!empty ($insertArray["xsdmf_enabled"])) {
-			$stmt .= " xsdmf_enabled,";
+			$inserts .= " xsdmf_enabled, ";
+			$values  .= $insertArray["xsdmf_enabled"] . ", ";
 		}
 		if (!empty ($insertArray["xsdmf_indexed"])) {
-			$stmt .= " xsdmf_indexed,";
+			$inserts .= " xsdmf_indexed, ";
+			$values  .= $insertArray["xsdmf_indexed"] . ", ";
 		}
 		if (!empty ($insertArray["xsdmf_required"])) {
-			$stmt .= " xsdmf_required,";
+			$inserts .= " xsdmf_required, ";
+			$values  .= $insertArray["xsdmf_required"] . ", ";
 		}
 		if (!empty ($insertArray["xsdmf_multiple"])) {
-			$stmt .= " xsdmf_multiple,";
+			$inserts .= " xsdmf_multiple, ";
+			$values  .= $insertArray["xsdmf_multiple"] . ", ";
 		}
-
 		if (!empty ($insertArray["xsdmf_multiple_limit"])) {
-			$stmt .= "xsdmf_multiple_limit,";
+			$inserts .= " xsdmf_multiple_limit, ";
+			$values  .= $insertArray["xsdmf_multiple_limit"] . ", ";
 		}
 		if (!empty ($insertArray["xsdmf_sek_id"])) {
-			$stmt .= "xsdmf_sek_id,";
+			$inserts .= " xsdmf_sek_id, ";
+			$values  .= $insertArray["xsdmf_sek_id"] . ", ";
 		}
 		if (!empty ($insertArray["xsdmf_valueintag"])) {
-			$stmt .= "xsdmf_valueintag,";
+			$inserts .= " xsdmf_valueintag, ";
+			$values  .= $insertArray["xsdmf_valueintag"] . ", ";
 		}
 		if (!empty ($insertArray["xsdmf_is_key"])) {
-			$stmt .= "xsdmf_is_key,";
+			$inserts .= " xsdmf_is_key, ";
+			$values  .= $insertArray["xsdmf_is_key"] . ", ";
 		}
 		if (!empty ($insertArray["xsdmf_meta_header_name"])) {
-			$stmt .= "xsdmf_meta_header_name,";
+			$inserts .= " xsdmf_meta_header_name, ";
+			$values  .= "'" . $insertArray["xsdmf_meta_header_name"] . "', ";
 		}
 		if (!empty ($insertArray["xsdmf_meta_header"])) {
-			$stmt .= "xsdmf_meta_header,";
+			$inserts .= " xsdmf_meta_header, ";
+			$values  .= $insertArray["xsdmf_meta_header"] . ", ";
 		}
 		if (!empty ($insertArray["xsdmf_citation_browse"])) {
-			$stmt .= "xsdmf_citation_browse,";
+			$inserts .= " xsdmf_citation_browse, ";
+			$values  .= $insertArray["xsdmf_citation_browse"] . ", ";
 		}
 		if (!empty ($insertArray["xsdmf_citation"])) {
-			$stmt .= "xsdmf_citation,";
+			$inserts .= " xsdmf_citation, ";
+			$values  .= $insertArray["xsdmf_citation"] . ", ";
 		}
 		if (!empty ($insertArray["xsdmf_citation_bold"])) {
-			$stmt .= "xsdmf_citation_bold,";
+			$inserts .= " xsdmf_citation_bold, ";
+			$values  .= $insertArray["xsdmf_citation_bold"] . ", ";
 		}
 		if (!empty ($insertArray["xsdmf_citation_italics"])) {
-			$stmt .= "xsdmf_citation_italics,";
+			$inserts .= " xsdmf_citation_italics, ";
+			$values  .= $insertArray["xsdmf_citation_italics"] . ", ";
 		}
 		if (!empty ($insertArray["xsdmf_citation_brackets"])) {
-			$stmt .= "xsdmf_citation_brackets,";
+			$inserts .= " xsdmf_citation_brackets, ";
+			$values  .= $insertArray["xsdmf_citation_brackets"] . ", ";
 		}
 		if (!empty ($insertArray["xsdmf_citation_order"])) {
-			$stmt .= "xsdmf_citation_order,";
+			$inserts .= " xsdmf_citation_order, ";
+			$values  .= $insertArray["xsdmf_citation_order"] . ", ";
 		}
 		if (!empty ($insertArray["xsdmf_citation_prefix"])) {
-			$stmt .= "xsdmf_citation_prefix,";
+			$inserts .= " xsdmf_citation_prefix, ";
+			$values  .= "'" . $insertArray["xsdmf_citation_prefix"] . "', ";
 		}
 		if (!empty ($insertArray["xsdmf_citation_suffix"])) {
-			$stmt .= "xsdmf_citation_suffix,";
+			$inserts .= " xsdmf_citation_suffix, ";
+			$values  .= "'" . $insertArray["xsdmf_citation_suffix"] . "', ";
 		}
-
-		$stmt .= "
-		                    xsdmf_parent_key_match,
-		                    xsdmf_key_match,";
 		if (!empty ($insertArray["xsdmf_xdis_id_ref"])) {
-			$stmt .= "xsdmf_xdis_id_ref,";
+			$inserts .= " xsdmf_xdis_id_ref, ";
+			$values  .= $insertArray["xsdmf_xdis_id_ref"] . ", ";
 		}
 		if (!empty ($insertArray["xsdmf_id_ref"])) {
-			$stmt .= "xsdmf_id_ref,";
+			$inserts .= " xsdmf_id_ref, ";
+			$values  .= $insertArray["xsdmf_id_ref"] . ", ";
 		}
 		if (!empty ($insertArray["xsdmf_id_ref_save_type"])) {
-			$stmt .= "xsdmf_id_ref_save_type,";
+			$inserts .= " xsdmf_id_ref_save_type, ";
+			$values  .= $insertArray["xsdmf_id_ref_save_type"] . ", ";
 		}
-
 		if (!empty ($insertArray["xsdmf_smarty_variable"])) {
-			$stmt .= "xsdmf_smarty_variable,";
+			$inserts .= " xsdmf_smarty_variable, ";
+			$values  .= "'" . $insertArray["xsdmf_smarty_variable"] . "', ";
 		}
 		if (!empty ($insertArray["xsdmf_fez_variable"])) {
-			$stmt .= "xsdmf_fez_variable,";
+			$inserts .= " xsdmf_fez_variable, ";
+			$values  .= "'" . $insertArray["xsdmf_fez_variable"] . "', ";
 		}
 		if (!empty ($insertArray["xsdmf_dynamic_selected_option"])) {
-			$stmt .= "xsdmf_dynamic_selected_option,";
+			$inserts .= " xsdmf_dynamic_selected_option, ";
+			$values  .= "'" . $insertArray["xsdmf_dynamic_selected_option"] . "', ";
 		}
 		if (!empty ($insertArray["xsdmf_selected_option"])) {
-			$stmt .= "xsdmf_selected_option,";
+			$inserts .= " xsdmf_selected_option, ";
+			$values  .= "'" . $insertArray["xsdmf_selected_option"] . "', ";
 		}
 		if (is_numeric($insertArray["xsdmf_show_in_view"])) {
-			$stmt .= "xsdmf_show_in_view,";
-		}
-		if (is_numeric($insertArray["invisible"])) {
-			$stmt .= "invisible,";
-		}
-
-		if (!empty ($insertArray["xsdmf_use_parent_option_list"])) {
-			$stmt .= "xsdmf_use_parent_option_list,";
-		}
-		if (!empty ($insertArray["xsdmf_parent_option_xdis_id"])) {
-			$stmt .= "xsdmf_parent_option_xdis_id,";
-		}
-		if (!empty ($insertArray["xsdmf_parent_option_xsdmf_id"])) {
-			$stmt .= "xsdmf_parent_option_xsdmf_id,";
-		}
-		if (!empty ($insertArray["xsdmf_asuggest_xdis_id"])) {
-			$stmt .= "xsdmf_asuggest_xdis_id,";
-		}
-		if (!empty ($insertArray["xsdmf_asuggest_xsdmf_id"])) {
-			$stmt .= "xsdmf_asuggest_xsdmf_id,";
-		}
-		if (!empty ($insertArray["xsdmf_cvo_save_type"])) {
-			$stmt .= "xsdmf_cvo_save_type,";
-		}
-		if (!empty ($insertArray["xsdmf_cvo_min_level"])) {
-			$stmt .= "xsdmf_cvo_min_level,";
-		}
-		if (!empty ($insertArray["xsdmf_cvo_id"])) {
-			$stmt .= "xsdmf_cvo_id,";
-		}
-
-		if (!empty ($insertArray["xsdmf_org_level"])) {
-			$stmt .= "xsdmf_org_level,";
-		}
-		if (!empty ($insertArray["xsdmf_use_org_to_fill"])) {
-			$stmt .= "xsdmf_use_org_to_fill,";
-		}
-		if (!empty ($insertArray["xsdmf_org_fill_xdis_id"])) {
-			$stmt .= "xsdmf_org_fill_xdis_id,";
-		}
-		if (!empty ($insertArray["xsdmf_org_fill_xsdmf_id"])) {
-			$stmt .= "xsdmf_org_fill_xsdmf_id,";
-		}
-		if (!empty ($insertArray["xsdmf_attached_xsdmf_id"])) {
-			$stmt .= "xsdmf_attached_xsdmf_id,";
-		}
-
-		$stmt .= "xsdmf_enforced_prefix,
-							xsdmf_value_prefix,
-							xsdmf_image_location,
-							xsdmf_static_text,
-							xsdmf_dynamic_text,
-							xsdmf_original_xsdmf_id";
-		if (is_numeric($xsdsel_id)) {
-			$stmt .= ", xsdmf_xsdsel_id";
-		}
-		$stmt .= "
-		                 ) VALUES (
-		                    ".$xdis_id.",
-		                    '" . Misc::escapeString($insertArray["xsdmf_element"]) . "',
-		                    '" . Misc::escapeString($insertArray["xsdmf_title"]) . "',
-		                    '" . Misc::escapeString($insertArray["xsdmf_description"]) . "',
-		                    '" . Misc::escapeString($insertArray["xsdmf_html_input"]) . "',
-		                    '" . Misc::escapeString($insertArray["xsdmf_validation_type"]) . "',";
-
-		if (!empty ($insertArray["xsdmf_order"])) {
-			$stmt .= $insertArray["xsdmf_order"] . ",";
-		}
-        
-		if (!empty ($insertArray["xsdmf_enabled"])) {
-			$stmt .= $insertArray["xsdmf_enabled"] . ",";
-		}
-
-		if (!empty ($insertArray["xsdmf_required"])) {
-			$stmt .= $insertArray["xsdmf_required"] . ",";
-		}
-
-		if (!empty ($insertArray["xsdmf_indexed"])) {
-			$stmt .= $insertArray["xsdmf_indexed"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_multiple"])) {
-			$stmt .= $insertArray["xsdmf_multiple"] . ",";
-		}
-
-			if (!empty($insertArray["xsdmf_multiple_limit"])) {
-               $stmt .= $insertArray["xsdmf_multiple_limit"] . ",";
-			}
-			if (!empty($insertArray["xsdmf_sek_id"])) {
-               $stmt .= $insertArray["xsdmf_sek_id"] . ",";
-			}
-			if (!empty($insertArray["xsdmf_valueintag"])) {
-               $stmt .= $insertArray["xsdmf_valueintag"] . ",";
-			}
-			if (!empty($insertArray["xsdmf_is_key"])) {
-               $stmt .= $insertArray["xsdmf_is_key"] . ",";
-			}
-			if (!empty($insertArray["xsdmf_meta_header_name"])) {
-               $stmt .= "'".$insertArray["xsdmf_meta_header_name"] . "',";
-			}
-
-		if (!empty ($insertArray["xsdmf_meta_header"])) {
-			$stmt .= $insertArray["xsdmf_meta_header"] . ",";
-		}
-
-		if (!empty ($insertArray["xsdmf_citation_browse"])) {
-			$stmt .= $insertArray["xsdmf_citation_browse"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_citation"])) {
-			$stmt .= $insertArray["xsdmf_citation"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_citation_bold"])) {
-			$stmt .= $insertArray["xsdmf_citation_bold"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_citation_italics"])) {
-			$stmt .= $insertArray["xsdmf_citation_italics"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_citation_brackets"])) {
-			$stmt .= $insertArray["xsdmf_citation_brackets"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_citation_order"])) {
-			$stmt .= $insertArray["xsdmf_citation_order"] . ",";
-		}
-		if (!empty ($insertArray["xsdmf_citation_prefix"])) {
-			$stmt .= "'" . $insertArray["xsdmf_citation_prefix"] . "',";
-		}
-		if (!empty ($insertArray["xsdmf_citation_suffix"])) {
-			$stmt .= "'" . $insertArray["xsdmf_citation_suffix"] . "',";
-		}
-		$stmt .= "
-		                    '" . Misc::escapeString($insertArray["xsdmf_parent_key_match"]) . "',
-		                    '" . Misc::escapeString($insertArray["xsdmf_key_match"]) . "',";
-
-		if (!empty ($insertArray["xsdmf_xdis_id_ref"])) {
-			$stmt .= Misc::escapeString($insertArray["xsdmf_xdis_id_ref"]) . ",";
-		}
-		if (!empty ($insertArray["xsdmf_id_ref"])) {
-			$stmt .= Misc::escapeString($insertArray["xsdmf_id_ref"]) . ",";
-		}
-		if (!empty ($insertArray["xsdmf_id_ref_save_type"])) {
-			$stmt .= Misc::escapeString($insertArray["xsdmf_id_ref_save_type"]) . ",";
-		}
-
-		if (!empty ($insertArray["xsdmf_smarty_variable"])) {
-			$stmt .= "'" . Misc::escapeString($insertArray["xsdmf_smarty_variable"]) . "',";
-		}
-		if (!empty ($insertArray["xsdmf_fez_variable"])) {
-			$stmt .= "'" . Misc::escapeString($insertArray["xsdmf_fez_variable"]) . "',";
-		}
-		if (!empty ($insertArray["xsdmf_dynamic_selected_option"])) {
-			$stmt .= "'" . Misc::escapeString($insertArray["xsdmf_dynamic_selected_option"]) . "',";
-		}
-		if (!empty ($insertArray["xsdmf_selected_option"])) {
-			$stmt .= "'" . Misc::escapeString($insertArray["xsdmf_selected_option"]) . "',";
-		}
-		if (is_numeric($insertArray["xsdmf_show_in_view"])) {
-			$stmt .= $insertArray["xsdmf_show_in_view"] . ",";
+			$inserts .= " xsdmf_show_in_view, ";
+			$values  .= $insertArray["xsdmf_show_in_view"] . ", ";
 		}
 		if (is_numeric($insertArray["xsdmf_invisible"])) {
-			$stmt .= $insertArray["xsdmf_invisible"] . ",";
+			$inserts .= " xsdmf_invisible, ";
+			$values  .= $insertArray["xsdmf_invisible"] . ", ";
 		}
-
 		if (!empty ($insertArray["xsdmf_use_parent_option_list"])) {
-			$stmt .= $insertArray["xsdmf_use_parent_option_list"] . ",";
+			$inserts .= " xsdmf_use_parent_option_list, ";
+			$values  .= $insertArray["xsdmf_use_parent_option_list"] . ", ";
 		}
 		if (!empty ($insertArray["xsdmf_parent_option_xdis_id"])) {
-			$stmt .= $insertArray["xsdmf_parent_option_xdis_id"] . ",";
+			$inserts .= " xsdmf_parent_option_xdis_id, ";
+			$values  .= $insertArray["xsdmf_parent_option_xdis_id"] . ", ";
 		}
 		if (!empty ($insertArray["xsdmf_parent_option_xsdmf_id"])) {
-			$stmt .= $insertArray["xsdmf_parent_option_xsdmf_id"] . ",";
+			$inserts .= " xsdmf_parent_option_xsdmf_id, ";
+			$values  .= $insertArray["xsdmf_parent_option_xsdmf_id"] . ", ";
 		}
 		if (!empty ($insertArray["xsdmf_asuggest_xdis_id"])) {
-			$stmt .= $insertArray["xsdmf_asuggest_xdis_id"] . ",";
+			$inserts .= " xsdmf_asuggest_xdis_id, ";
+			$values  .= $insertArray["xsdmf_asuggest_xdis_id"] . ", ";
 		}
 		if (!empty ($insertArray["xsdmf_asuggest_xsdmf_id"])) {
-			$stmt .= $insertArray["xsdmf_asuggest_xsdmf_id"] . ",";
+			$inserts .= " xsdmf_asuggest_xsdmf_id, ";
+			$values  .= $insertArray["xsdmf_asuggest_xsdmf_id"] . ", ";
 		}
 		if (!empty ($insertArray["xsdmf_cvo_save_type"])) {
-			$stmt .= $insertArray["xsdmf_cvo_save_type"] . ",";
+			$inserts .= " xsdmf_cvo_save_type, ";
+			$values  .= $insertArray["xsdmf_cvo_save_type"] . ", ";
 		}
 		if (!empty ($insertArray["xsdmf_cvo_min_level"])) {
-			$stmt .= $insertArray["xsdmf_cvo_min_level"] . ",";
+			$inserts .= " xsdmf_cvo_min_level, ";
+			$values  .= $insertArray["xsdmf_cvo_min_level"] . ", ";
 		}
 		if (!empty ($insertArray["xsdmf_cvo_id"])) {
-			$stmt .= $insertArray["xsdmf_cvo_id"] . ",";
+			$inserts .= " xsdmf_cvo_id, ";
+			$values  .= $insertArray["xsdmf_cvo_id"] . ", ";
 		}
-
 		if (!empty ($insertArray["xsdmf_org_level"])) {
-			$stmt .= "'" . Misc::escapeString($insertArray["xsdmf_org_level"]) . "',";
+			$inserts .= " xsdmf_org_level, ";
+			$values  .= "'" . $insertArray["xsdmf_org_level"] . "', ";
 		}
 		if (!empty ($insertArray["xsdmf_use_org_to_fill"])) {
-			$stmt .= $insertArray["xsdmf_use_org_to_fill"] . ",";
+			$inserts .= " xsdmf_use_org_to_fill, ";
+			$values  .= $insertArray["xsdmf_use_org_to_fill"] . ", ";
 		}
 		if (!empty ($insertArray["xsdmf_org_fill_xdis_id"])) {
-			$stmt .= $insertArray["xsdmf_org_fill_xdis_id"] . ",";
+			$inserts .= " xsdmf_org_fill_xdis_id, ";
+			$values  .= $insertArray["xsdmf_org_fill_xdis_id"] . ", ";
 		}
 		if (!empty ($insertArray["xsdmf_org_fill_xsdmf_id"])) {
-			$stmt .= $insertArray["xsdmf_org_fill_xsdmf_id"] . ",";
+			$inserts .= " xsdmf_org_fill_xsdmf_id, ";
+			$values  .= $insertArray["xsdmf_org_fill_xsdmf_id"] . ", ";
 		}
 		if (!empty ($insertArray["xsdmf_attached_xsdmf_id"])) {
-			$stmt .= $insertArray["xsdmf_attached_xsdmf_id"] . ",";
+			$inserts .= " xsdmf_attached_xsdmf_id, ";
+			$values  .= $insertArray["xsdmf_attached_xsdmf_id"] . ", ";
 		}
-		$stmt .= "
-		                    '" . Misc::escapeString($insertArray["xsdmf_enforced_prefix"]) . "',
-		                    '" . Misc::escapeString($insertArray["xsdmf_value_prefix"]) . "',
-		                    '" . Misc::escapeString($insertArray["xsdmf_image_location"]) . "',
-		                    '" . Misc::escapeString($insertArray["xsdmf_static_text"]) . "',
-		                    '" . Misc::escapeString($insertArray["xsdmf_dynamic_text"]) . "',
-							" . $insertArray["xsdmf_id"];
-
 		if (is_numeric($xsdsel_id)) {
-			$stmt .= ", " . $xsdsel_id;
+			$inserts .= " xsdmf_xsdsel_id, ";
+			$values  .= $xsdsel_id . ", ";
+
 		}
-		$stmt .= "
-		                 )";
+		$inserts .= "xsdmf_enforced_prefix,
+					xsdmf_value_prefix,
+					xsdmf_image_location,
+					xsdmf_static_text,
+					xsdmf_dynamic_text,
+					xsdmf_original_xsdmf_id";
+		$values .= "'" . Misc::escapeString($insertArray["xsdmf_enforced_prefix"]) . "',
+		            '" . Misc::escapeString($insertArray["xsdmf_value_prefix"]) . "',
+		            '" . Misc::escapeString($insertArray["xsdmf_image_location"]) . "',
+		            '" . Misc::escapeString($insertArray["xsdmf_static_text"]) . "',
+		            '" . Misc::escapeString($insertArray["xsdmf_dynamic_text"]) . "',
+					" . $insertArray["xsdmf_id"];
+
+		$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "xsd_display_matchfields
+		                 (" . $inserts . ") VALUES (" . $values . ")";
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
 		if (PEAR::isError($res)) {
 			Error_Handler::logError(array (
