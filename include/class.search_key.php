@@ -165,12 +165,37 @@ class Search_Key
 					}
 		$stmt .= "
                  )";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+		
+		$res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-			return 1;
+            
+            if($_POST['create_sql']) {
+		    
+    		    if($_POST["sek_relationship"] == 1) {
+    		        
+    		       $sek_id = $GLOBALS["db_api"]->dbh->getLastInsertId(APP_TABLE_PREFIX . "search_key", 'sek_id');
+    		       return Search_Key::createSearchKeyDB($sek_id);
+    		       
+    		    } elseif($_POST["sek_relationship"] == 0) {
+    		        
+    		        include_once(APP_INC_PATH.'class.bgp_create_searchkey.php');
+    		        $sek_id = $GLOBALS["db_api"]->dbh->getLastInsertId(APP_TABLE_PREFIX . "search_key", 'sek_id');
+    		        
+    		        /*
+    		         * Because the alter might take a while, run in 
+    		         * a background process
+    		         */
+    		        $bgp = new BackgroundProcess_Create_SearchKey();
+                    $bgp->register(serialize(array('sek_id' => $sek_id)), Auth::getUserID());
+                    Session::setMessage('The column is being created as a background process (see My Fez to follow progress)');
+                    return 1;
+    		        
+    		    }
+            
+            }
         }
     }
 
@@ -212,7 +237,7 @@ class Search_Key
 					if ($_POST["sek_order"]) {
 						$stmt .= "sek_order = ".$_POST["sek_order"].",";
 					}
-					if ($_POST["sek_relationship"]) {
+					if (isset($_POST["sek_relationship"])) {
 						$stmt .= "sek_relationship = ".$_POST["sek_relationship"].",";
 					}
 					$stmt .= "
@@ -226,13 +251,43 @@ class Search_Key
 					}
 				$stmt .= "
                  WHERE sek_id = ".$sek_id;
-
+        
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-			return 1;
+            
+            /*
+             * Should we create the table/column for this search key?
+             */
+			if($_POST['create_sql']) {
+		    
+    		    if($_POST["sek_relationship"] == 1) {
+    		       
+    		        /*
+    		         * Create new table
+    		         */
+    		       return Search_Key::createSearchKeyDB($sek_id);
+    		       
+    		    } elseif($_POST["sek_relationship"] == 0) {
+    		        
+    		        /*
+    		         * Create column which requires an alter
+    		         */
+    		        include_once(APP_INC_PATH.'class.bgp_create_searchkey.php');
+    		        
+    		        /*
+    		         * Because the alter might take a while, run in 
+    		         * a background process
+    		         */
+    		        $bgp = new BackgroundProcess_Create_SearchKey();
+                    $bgp->register(serialize(array('sek_id' => $sek_id)), Auth::getUserID());
+                    Session::setMessage('The column is being created as a background process (see My Fez to follow progress)');
+                    return 1;
+    		        
+    		    }
+            }
         }
     }
 
@@ -461,16 +516,17 @@ class Search_Key
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
-        } else {
-            if (empty($res)) {
-                return array();
-            } else {
-/*	          for ($i = 0; $i < count($res); $i++) {
-	          	$res[$i]["field_options"] = Search_Key::getOptions($res[$i]["sek_smarty_variable"]);
-	          }*/	
-	          return $res;	            	
-            }
+        } 
+        
+        if (empty($res)) {
+            return array();
         }
+            
+        for ($i = 0; $i < count($res); $i++) {
+            $res[$i]['sek_title_db'] = Search_Key::makeSQLTableName($res[$i]['sek_title']);
+            $res[$i]['key_table_exists'] = Search_Key::checkIfKeyTableExists($res[$i]['sek_title_db'], $res[$i]['sek_relationship']);
+        }
+        return $res;
     }
 
     /**
@@ -628,7 +684,9 @@ class Search_Key
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-    		$res['sek_title_db'] = Search_Key::makeSQLTableName($res['sek_title']);        	
+    		$res['sek_title_db'] = Search_Key::makeSQLTableName($res['sek_title']);  
+    		$res['key_table_exists'] = Search_Key::checkIfKeyTableExists($res['sek_title_db'], $res['sek_relationship']);
+    		
             return $res;
         }
     }
@@ -768,6 +826,158 @@ class Search_Key
     		$res['sek_title_db'] = Search_Key::makeSQLTableName($res['sek_title']);        	
             return $res;
         }
+    }
+    
+    /**
+     * Determine if a search key has its corresponding database schema
+     * setup
+     *
+     * @param string $sek_title_db  the name of search key
+     * @param int    $relationship  determines if search key a column 
+     *                              or table
+     *
+     * @return int  1 if setup. 0 if not setup
+     *
+     * @access public
+     * @since Method available since Fez 2.0
+     */
+    function checkIfKeyTableExists($sek_title_db, $relationship)
+    {
+        if( $relationship == 1 ) {
+            
+            /*
+             * Check if table exists
+             */
+            $sek_title_db = APP_TABLE_PREFIX.'record_search_key_'.$sek_title_db;
+            
+            $stmt = "   SELECT count(*) as cnt 
+                        FROM information_schema.tables
+                        WHERE table_schema = '".APP_SQL_DBNAME."'
+                            AND table_name = '$sek_title_db'";
+            $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                return 0;
+            } 
+                
+            return $res['cnt'];
+            
+        } else {
+            
+            /*
+             * Check if column exists
+             */
+            $table_name = APP_TABLE_PREFIX . 'record_search_key';
+            $column_name = 'rek_' . $sek_title_db;
+            
+            $stmt = "   SELECT count(*) as cnt
+                        FROM information_schema.columns
+                        WHERE table_schema = '".APP_SQL_DBNAME."' 
+                            AND table_name = '$table_name' 
+                            AND column_name = '$column_name'";
+            $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
+            if (PEAR::isError($res)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                return 0;
+            } 
+                
+            return $res['cnt'];
+        }
+    }
+    
+    /**
+     * Create in the database a column/table for a 
+     * particular search key
+     *
+     * @param int $sek_id  the search key id
+     *
+     * @return int  1 if sql creation was succesful. -2 if sql failed
+     *
+     * @access public
+     * @since Method available since Fez 2.0
+     */
+    function createSearchKeyDB($sek_id)
+    {
+        $sql = Search_Key::createSQL($sek_id);
+        
+        if(!$sql) {
+            return -2;
+        }
+        
+        $res = $GLOBALS["db_api"]->dbh->query($sql);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -2;
+        }
+        
+        return 1;
+    }
+    
+    /**
+     * Create sql for column/table for a search key
+     *
+     * @param int $sek_id  the search key id
+     *
+     * @return string   the sql to create the column/table. FALSE if sek_id
+     *                  is not valid
+     *
+     * @access public
+     * @since Method available since Fez 2.0
+     */
+    function createSQL($sek_id)
+    {
+        $details = Search_Key::getDetails($sek_id);
+        
+        $sek_title_db = $details['sek_title_db'];
+        $relationship = $details['sek_relationship'];
+        $column_type  = $details['sek_data_type'];
+        
+        if( !isset($sek_title_db) || $sek_title_db == "" || $column_type == "" ) {
+            return -2;
+        }
+        
+        if( $column_type == 'varchar' ) {
+            $column_type = 'varchar(255)';
+        } elseif( $column_type == 'date' ) {
+            $column_type = 'datetime';
+        }
+        
+        if( $relationship == 1 ) {
+            
+            /*
+             * Create new table
+             */
+            $table_name     = APP_TABLE_PREFIX.'record_search_key_'.$sek_title_db;
+            $column_prefix   = 'rek_' . $sek_title_db;
+            
+            $sql = "CREATE TABLE `$table_name` ( \n" .
+                   "     `{$column_prefix}_id` int(11) NOT NULL auto_increment, \n" .
+                   "     `{$column_prefix}_pid` varchar(64) default NULL, \n" .
+                   "     `{$column_prefix}_xsdmf_id` int(11) default NULL,\n " .
+                   "     `$column_prefix` $column_type default NULL, \n" .
+                   "     PRIMARY KEY (`{$column_prefix}_id`), \n" .
+                   "     KEY `$column_prefix` (`$column_prefix`), \n" .
+                   "     KEY `{$column_prefix}_pid` (`{$column_prefix}_pid`) \n" .
+                   ") ENGINE=MyISAM DEFAULT CHARSET=utf8";
+                   
+            return $sql;
+            
+        } elseif( $relationship == 0 ) {
+            
+            /*
+             * Create new column
+             */ 
+            $table_name     = APP_TABLE_PREFIX.'record_search_key';
+            $column_name    = 'rek_' . $sek_title_db;
+            
+            $sql = "ALTER TABLE `$table_name` \n" .
+                   "    ADD COLUMN `$column_name` $column_type \n";
+             
+            return $sql;
+            
+        }
+        
+        return false;
     }
 
 }

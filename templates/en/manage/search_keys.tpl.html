@@ -208,6 +208,8 @@
                   {if $smarty.post.cat == "new"}
                     {if $result == -1}
                       An error occurred while trying to add the new search key.
+                    {elseif $result == -2}
+                      An error occurred while trying to create the table for the new search key.
                     {elseif $result == 1}
                       Thank you, the search key was added successfully.
                     {/if}
@@ -306,24 +308,24 @@
                 </td>
                 <td bgcolor="{$light_color}" class="default">
 				  {literal}
-                  <input type="radio" name="field_type" value="text" {/literal} {if $info.sek_html_input == 'text'}checked{/if}{literal} onClick="javascript: toggleAllControlledVocab(false);toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(true);">
-                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('custom_field_form', 'field_type', 0);  toggleAllControlledVocab(false);toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(true);">Text Input</a>&nbsp;
-                  <input type="radio" name="field_type" value="textarea" {/literal} {if $info.sek_html_input == 'textarea'}checked{/if}{literal} onClick="javascript:  toggleAllControlledVocab(false);toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(true);">
-                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('custom_field_form', 'field_type', 1); toggleAllControlledVocab(false); toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(true);}">Text Area</a>&nbsp;
-                  <input type="radio" name="field_type" value="combo" {/literal} {if $info.sek_html_input == 'combo'}checked{/if}{literal} onClick="javascript:toggleAllControlledVocab(false);toggleControlledVocab(false);toggleEspaceVarText(true);toggleSmartyVarText(true);toggleDynamicText(false);toggleFieldOptions(true);toggleValidationType(false);">
-                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('custom_field_form', 'field_type', 2);  toggleAllControlledVocab(false);toggleControlledVocab(false);toggleEspaceVarText(true);toggleSmartyVarText(true);toggleDynamicText(false);toggleFieldOptions(true);toggleValidationType(false);">Combo Box</a>&nbsp;
+                  <input type="radio" name="field_type" value="text" {/literal} {if $info.sek_html_input == 'text'}checked{/if}{literal} onClick="javascript: toggleAllControlledVocab(false);toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('custom_field_form', 'field_type', 0);  toggleAllControlledVocab(false);toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);">Text Input</a>&nbsp;
+                  <input type="radio" name="field_type" value="textarea" {/literal} {if $info.sek_html_input == 'textarea'}checked{/if}{literal} onClick="javascript:  toggleAllControlledVocab(false);toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('custom_field_form', 'field_type', 1); toggleAllControlledVocab(false); toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);}">Text Area</a>&nbsp;
+                  <input type="radio" name="field_type" value="combo" {/literal} {if $info.sek_html_input == 'combo'}checked{/if}{literal} onClick="javascript:toggleAllControlledVocab(false);toggleControlledVocab(false);toggleEspaceVarText(true);toggleSmartyVarText(true);toggleDynamicText(false);">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('custom_field_form', 'field_type', 2);  toggleAllControlledVocab(false);toggleControlledVocab(false);toggleEspaceVarText(true);toggleSmartyVarText(true);toggleDynamicText(false);">Combo Box</a>&nbsp;
 
-                  <input type="radio" name="field_type" value="multiple" {/literal} {if $info.sek_html_input == 'multiple'}checked{/if}{literal} onClick="javascript: toggleAllControlledVocab(false);toggleControlledVocab(false);toggleEspaceVarText(true);toggleSmartyVarText(true);toggleDynamicText(false);toggleFieldOptions(true);toggleValidationType(false);">
-	              <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('custom_field_form', 'field_type', 3);  toggleAllControlledVocab(false);toggleControlledVocab(false);toggleEspaceVarText(true);toggleSmartyVarText(true);toggleDynamicText(false);toggleFieldOptions(true);toggleValidationType(false);">Multiple Combo Box</a>
+                  <input type="radio" name="field_type" value="multiple" {/literal} {if $info.sek_html_input == 'multiple'}checked{/if}{literal} onClick="javascript: toggleAllControlledVocab(false);toggleControlledVocab(false);toggleEspaceVarText(true);toggleSmartyVarText(true);toggleDynamicText(false);">
+	              <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('custom_field_form', 'field_type', 3);  toggleAllControlledVocab(false);toggleControlledVocab(false);toggleEspaceVarText(true);toggleSmartyVarText(true);toggleDynamicText(false);">Multiple Combo Box</a>
 
-<br />            <input type="radio" name="field_type" value="checkbox" {/literal} {if $info.sek_html_input == 'checkbox'}checked{/if}{literal} onClick="javascript:toggleAllControlledVocab(false);toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);">
-                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('custom_field_form', 'field_type', 4);  toggleAllControlledVocab(false);toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);">Check Box</a>&nbsp;
-		         <input type="radio" name="field_type" value="date" {/literal} {if $info.sek_html_input == 'date'}checked{/if}{literal} onClick="javascript:toggleAllControlledVocab(false);toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);">
-                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('custom_field_form', 'field_type', 5);  toggleAllControlledVocab(false);toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);">Date Selector</a>
-		         <input type="radio" name="field_type" value="contvocab" {/literal} {if $info.sek_html_input == 'contvocab'}checked{/if}{literal} onClick="javascript:toggleAllControlledVocab(false);toggleControlledVocab(true);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);">
-                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('custom_field_form', 'field_type', 6);  toggleAllControlledVocab(false);toggleControlledVocab(true);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);">Controlled Vocabulary</a>
-		         <input type="radio" name="field_type" value="allcontvocab" {/literal} {if $info.sek_html_input == 'allcontvocab'}checked{/if}{literal} onClick="javascript:toggleAllControlledVocab(true);toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(true);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);">
-                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('custom_field_form', 'field_type', 7);  toggleAllControlledVocab(true);toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(true);toggleDynamicText(false);toggleFieldOptions(false);toggleValidationType(false);">All Controlled Vocabularies</a>
+<br />            <input type="radio" name="field_type" value="checkbox" {/literal} {if $info.sek_html_input == 'checkbox'}checked{/if}{literal} onClick="javascript:toggleAllControlledVocab(false);toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('custom_field_form', 'field_type', 4);  toggleAllControlledVocab(false);toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);">Check Box</a>&nbsp;
+		         <input type="radio" name="field_type" value="date" {/literal} {if $info.sek_html_input == 'date'}checked{/if}{literal} onClick="javascript:toggleAllControlledVocab(false);toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('custom_field_form', 'field_type', 5);  toggleAllControlledVocab(false);toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);">Date Selector</a>
+		         <input type="radio" name="field_type" value="contvocab" {/literal} {if $info.sek_html_input == 'contvocab'}checked{/if}{literal} onClick="javascript:toggleAllControlledVocab(false);toggleControlledVocab(true);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('custom_field_form', 'field_type', 6);  toggleAllControlledVocab(false);toggleControlledVocab(true);toggleEspaceVarText(false);toggleSmartyVarText(false);toggleDynamicText(false);">Controlled Vocabulary</a>
+		         <input type="radio" name="field_type" value="allcontvocab" {/literal} {if $info.sek_html_input == 'allcontvocab'}checked{/if}{literal} onClick="javascript:toggleAllControlledVocab(true);toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(true);toggleDynamicText(false);">
+                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:checkRadio('custom_field_form', 'field_type', 7);  toggleAllControlledVocab(true);toggleControlledVocab(false);toggleEspaceVarText(false);toggleSmartyVarText(true);toggleDynamicText(false);">All Controlled Vocabularies</a>
                 {/literal}
                 </td>
               </tr>
@@ -387,8 +389,20 @@
 					<INPUT TYPE=RADIO NAME="sek_fez_variable" VALUE="sta_id" {if $info.sek_fez_variable == "sta_id"}checked{/if}/>Fez Object Status ID<BR>
 				</td>
  			  </tr> 
-
-
+ 			  {if $info.key_table_exists != 1}
+		      <tr>
+		          <td width="120" bgcolor="#FFCC66" class="default"><b>Create table/column in database</b></td>
+		          <td class="default" bgcolor="#FFCC66">
+					<select name="create_sql">
+					   <option value="0">No</option>
+					   <option value="1">Yes</option>
+					</select>
+					<br /><strong>NOTE:</strong> If Core 1->1 is selected, an alter table will have to be performed which could affect the performance of your machine.
+				</td>
+		      </tr>
+		      {/if}
+        
+                
               <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $smarty.get.cat == 'edit'}
@@ -442,9 +456,11 @@
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>OAI/Header</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Data Type</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Data Relationship</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>View SQL</b>&nbsp;</td>
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
+                    {if $list[i].key_table_exists == 0}{assign var="row_color" value="#FFCCCC"}{/if}
                     <tr>
                       <td width="4" nowrap bgcolor="{$row_color}" align="center">
                         <input type="checkbox" name="items[]" value="{$list[i].sek_id}" {if $smarty.section.i.total == 0}disabled{/if}>
@@ -487,6 +503,9 @@
                  		{assign var="sek_relationship" value=$list[i].sek_relationship}
                         &nbsp;{$sek_relationship_list[$sek_relationship]}
                       </td>
+                      <td  bgcolor="{$row_color}" class="default">
+                        <a href="javascript:small_window('{$rel_url}manage/search_keys.php?cat=view_sql&id={$list[i].sek_id}');">View</a>
+                      </td>
                     </tr>
                     {sectionelse}
                     <tr>
@@ -499,7 +518,7 @@
                       <td width="4" align="center" bgcolor="{$cell_color}">
                         <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
                       </td>
-                      <td colspan="12" bgcolor="{$cell_color}">
+                      <td colspan="13" bgcolor="{$cell_color}">
                         <input type="submit" value="Delete" class="button">
                       </td>
                     </tr>

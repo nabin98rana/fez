@@ -10,6 +10,7 @@
  */
 
 include_once(APP_INC_PATH.'class.bgp_test.php');
+include_once(APP_INC_PATH.'class.search_key.php');
 include_once(APP_INC_PATH. 'class.graphviz.php');
 include_once(APP_INC_PATH . "class.fedora_direct_access.php");
 
@@ -85,6 +86,7 @@ include_once(APP_INC_PATH . "class.fedora_direct_access.php");
         $results = array_merge($results, SanityChecks::sql());
         $results = array_merge($results, SanityChecks::pdftotext());
         $results = array_merge($results, SanityChecks::stats());
+        $results = array_merge($results, SanityChecks::checkSearchKeys());
         if (SanityChecks::resultsClean($results)) {
             $results[] = ConfigResult::messageOk('All tests Passed');
         }
@@ -725,6 +727,24 @@ include_once(APP_INC_PATH . "class.fedora_direct_access.php");
                     "Perhaps it is blocked at a firewall."));
        }
        return array();
+    }
+    
+    function checkSearchKeys()
+    {
+        $results = array(ConfigResult::message('Testing Search keys'));
+        $searchKeys = Search_Key::getList();
+        
+        foreach ($searchKeys as $skey) {
+            
+            if($skey['key_table_exists'] == 0) {
+                $results = array_merge($results, array(new ConfigResult('', $configDefine, $value, "One of the search keys doesn't " .
+                    "have a corresponding database column or table. Please check search keys in Admin panel")));
+                return $results;
+            }
+        }
+        
+        $results[] = ConfigResult::messageOk('All Search keys tests passed');
+        return $results;
     }
 
 

@@ -69,13 +69,29 @@ if (@$_POST["cat"] == "new") {
 
 if (@$_GET["cat"] == "edit") {
     $tpl->assign("info", Search_Key::getDetails($_GET["id"]));
+} elseif (@$_GET["cat"] == "view_sql") {
+    if(is_numeric(($_GET["id"]))) {
+        echo '<pre>'.Search_Key::createSQL($_GET["id"]) . '</pre>';
+        exit();
+    }
 }
+
+$sek_data_type_list = array(
+    "varchar" => "Varchar(255)", 
+    "text" => "Text", 
+    "int" => "Integer",
+    "date" => "Date"
+);
+$sek_relationship_list = array(
+    0 => "Core 1->1", 
+    1 => "Related"
+);
+
 $list = Search_Key::getList();
+
 $tpl->assign("list", $list);
 $tpl->assign("list_count", count($list));
-$sek_relationship_list = array(0 => "Core 1->1", 1 => "Related");
 $tpl->assign("sek_relationship_list", $sek_relationship_list);
-$sek_data_type_list = array("varchar" => "Varchar(255)", "text" => "Text", "int" => "Integer", "date" => "Date");
 $tpl->assign("sek_data_type_list", $sek_data_type_list);
 $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 $tpl->displayTemplate();
