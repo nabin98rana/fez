@@ -114,8 +114,9 @@ class DuplicatesReport {
                     		$score = 1;
                     	} else {
                         $score = $this->compareRecords($record, $dup_rec);
-                        //echo "tokens: \n".print_r($tokens,true)."\n";
-                        //echo "dup_tokens: \n".print_r($dup_tokens,true)."\n";
+echo "\n Comparing ".$pid." - ".$dup_pid.", Score = ".$score."\n";
+//                        echo "tokens: \n".print_r($tokens,true)."\n";
+//                        echo "dup_tokens: \n".print_r($dup_tokens,true)."\n";
                 		}
                         if ($score > self::DUPS_THRESHOLD) {
                             if (!isset($report_array[$pid])) {
@@ -188,6 +189,7 @@ class DuplicatesReport {
 
     function addReportToFedoraObject($xml)
     {
+return;
         if (empty($xml)) {
             return;
         }
@@ -215,7 +217,7 @@ class DuplicatesReport {
     
     function getReportFilename()
     {
-    	return APP_TEMP_DIR.'fez_duplicates_report_'.str_replace(':','_',$this->pid);
+    	return '/usr/local/fez_duplicates_reports/fez_duplicates_report_'.str_replace(':','_',$this->pid);
     }
 
     function getXML_DOM()
@@ -1106,8 +1108,8 @@ class DuplicatesReport {
 
     function compareRecords(&$record1, &$record2)
     {
-        $title_tokens1 = $this->tokenise(array($record1->getTitle()));
-        $title_tokens2 = $this->tokenise(array($record2->getTitle()));
+        $title_tokens1 = $this->tokenise(array(strtolower($record1->getTitle())));
+        $title_tokens2 = $this->tokenise(array(strtolower($record2->getTitle())));
         $title_score = $this->calcOverlap($title_tokens1, $title_tokens2);
 
         $author_tokens1 = $this->tokenise($record1->getFieldValueBySearchKey('Author'));
@@ -1117,15 +1119,21 @@ class DuplicatesReport {
         // if this is a journal
         if (is_numeric(strpos($record1->getDocumentType(), 'Journal Article'))
         		&& is_numeric(strpos($record2->getDocumentType(), 'Journal Article'))) {
-        	$journal_tokens1 = $this->tokenise($record1->getDetailsByXSDMF_element(
-        													'!relatedItem!name!namePart'));
-        	$journal_tokens2 = $this->tokenise($record2->getDetailsByXSDMF_element(
-        													'!relatedItem!name!namePart'));
+        	$journal_tokens1 = $this->tokenise($record1->getFieldValueBySearchKey('Journal Name'));
+        	//$journal_tokens1 = $this->tokenise($record1->getDetailsByXSDMF_element(
+        	//												'!relatedItem!name!namePart'));
+        	$journal_tokens2 = $this->tokenise($record2->getFieldValueBySearchKey('Journal Name'));
+        	//$journal_tokens2 = $this->tokenise($record2->getDetailsByXSDMF_element(
+        	//												'!relatedItem!name!namePart'));
+echo "\n journal tokens 1: ";
+print_r($journal_tokens1);
+echo "\n journal tokens 2: ";
+print_r($journal_tokens2); 
         	$journal_title_score = $this->calcOverlap($journal_tokens1, $journal_tokens2);
     	} else {
     		$journal_title_score = 1;
     	}
-
+echo "\n".$title_score." - ".$author_score." - ".$journal_title_score."\n"; 
         return $title_score * $author_score * $journal_title_score;
     }
 
