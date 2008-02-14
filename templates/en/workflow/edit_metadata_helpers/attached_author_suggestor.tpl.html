@@ -38,7 +38,7 @@
     <script type="text/javascript">
     
     // Instantiate first JS Array DataSource
-    var myServer = "/author_suggest_proxy.php";
+    var myServer = "{/literal}{$rel_url}{literal}author_suggest_proxy.php";
     var mySchema = ["Result","name"];
     var myDataSource = new YAHOO.widget.DS_XHR(myServer, mySchema);
     
