@@ -1,3 +1,6 @@
+<link rel="stylesheet" href="{$rel_url}css/autocomplete.css" type="text/css" />
+<script type="text/javascript" src="{$rel_url}js/yahoo/utilities.js"></script>
+<script type="text/javascript" src="{$rel_url}js/yahoo/autocomplete.js"></script>
 <script type="text/javascript">
 <!--
 {literal}
@@ -119,34 +122,65 @@ function submitSuggestedAffiliation(authorID, orgID, iteration) {
 		
 		  <tr>
 			<td width="140" bgcolor="{$cell_color}" class="default">
-			  <b>Author Name:</b>
+			  <b>Author&nbsp;Name:</b>
 			</td>
-			<td bgcolor="{$light_color}">
+			<td bgcolor="{$light_color}" colspan="2">
 			  {html_options name="af_author_id" values=$author_ids output=$authors selected=$current.af_author_id}
 			</td>
           </tr>
 
 		  <tr>
 			<td width="140" bgcolor="{$cell_color}" class="default">
-			  <b>Organisational Unit:</b>
+			  <b>Organisational&nbsp;Unit:</b>
 			</td>
 			<td bgcolor="{$light_color}">
-			  {html_options name="af_org_id" options=$orgs selected=$current.af_org_id}
+				<select id="af_org_id" name="af_org_id">
+				{foreach from=$orgs key=k item=v}
+					<option value="{$k}">{$v}</option>
+				{/foreach}
+				</select>
+			</td>
+			<td bgcolor="{$light_color}" width="100%">
+				<div style="width:15em; height:2em; position:relative; z-index:1866;">
+					<input id="org_unit_suggester" type="text" />
+					<div id="org_unit_suggestions" style="max-height:400px; width: 250px; overflow:auto; overflow-x:hidden; height: 11em;" tabindex="-1"></div>
+				</div>
+				<script type="text/javascript">
+				// Set up Org Unit Suggester
+				var myServer = "{$rel_url}org_unit_suggest_proxy.php"; 
+				var mySchema = ["Result","name","id","aou"];
+				var myDataSource = new YAHOO.widget.DS_XHR(myServer, mySchema);
+
+				var myAutoComp = new YAHOO.widget.AutoComplete("org_unit_suggester","org_unit_suggestions", myDataSource);
+				myAutoComp.maxResultsDisplayed = 20; 
+				{literal}
+				myAutoComp.itemSelectEvent.subscribe(function(oResultItem, sQuery) {
+					var orgID = sQuery[2][1];		// Value the user has just selected
+					selectObject = document.getElementById('af_org_id');
+					for(index = 0; index < selectObject.length - 1; index++) {
+						if(selectObject[index].value == orgID) {
+							selectObject.selectedIndex = index;
+						}
+					}
+					document.getElementById('org_unit_suggester').value = '';
+				});
+				{/literal}
+				</script>
 			</td>
           </tr>
 
 		  <tr>
 			<td width="140" bgcolor="{$cell_color}" class="default">
-			  <b>Percent Affiliation:</b>
+			  <b>Percent&nbsp;Affiliation:</b>
 			</td>
-			<td bgcolor="{$light_color}">
+			<td bgcolor="{$light_color}" colspan="2">
 			  <input type="textfield" name="af_percent_affiliation" value="{$current.af_percent_affiliation}" size="6" />% (supports up to 3 decimal places)
 			</td>
           </tr>
 
 		  <tr>
 			<td width="140" bgcolor="{$cell_color}" class="default"></td>
-			<td bgcolor="{$light_color}">
+			<td bgcolor="{$light_color}" colspan="2">
 			  <input type="submit" name="save" value="Save" class="button" onclick="javascript:validateForm(this);" />
 			</td>
           </tr>

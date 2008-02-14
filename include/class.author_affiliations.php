@@ -333,6 +333,35 @@ class AuthorAffiliations
 
 	}
 
+
+    /**
+     * Method used to search and suggest all the org unit names for a given string.
+     *
+     * @access  public
+     * @return  array List of organisational units
+     */
+	function suggestOrgUnits($term, $assoc = false) {
+
+		$term = Misc::escapeString($term);
+		$stmt = "SELECT org_id AS id, org_extdb_id AS aou, org_title AS name " .
+				"FROM " . APP_TABLE_PREFIX . "org_structure " .
+				"WHERE org_title LIKE '%" . $term . "%' " .
+				"AND org_extdb_name = 'hr' " .
+				"ORDER BY org_title LIMIT 0, 20";
+
+		if($assoc) {
+			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+		} else {
+			$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+		}
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+			return "";
+		} else {
+			return $res;
+		}
+
+	} 
 }
 
 ?>
