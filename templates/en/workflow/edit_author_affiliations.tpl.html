@@ -143,7 +143,7 @@ function submitSuggestedAffiliation(authorID, orgID, iteration) {
 			<td bgcolor="{$light_color}" width="100%">
 				<div style="width:15em; height:2em; position:relative; z-index:1866;">
 					<input id="org_unit_suggester" type="text" />
-					<div id="org_unit_suggestions" style="max-height:400px; width: 250px; overflow:auto; overflow-x:hidden; height: 11em;" tabindex="-1"></div>
+					<div id="org_unit_suggestions" style="max-height:400px; width: 350px; overflow:auto; overflow-x:hidden; height: 11em;" tabindex="-1"></div>
 				</div>
 				<script type="text/javascript">
 				// Set up Org Unit Suggester
@@ -157,7 +157,7 @@ function submitSuggestedAffiliation(authorID, orgID, iteration) {
 				myAutoComp.itemSelectEvent.subscribe(function(oResultItem, sQuery) {
 					var orgID = sQuery[2][1];		// Value the user has just selected
 					selectObject = document.getElementById('af_org_id');
-					for(index = 0; index < selectObject.length - 1; index++) {
+					for(index = 0; index < selectObject.length; index++) {
 						if(selectObject[index].value == orgID) {
 							selectObject.selectedIndex = index;
 						}
