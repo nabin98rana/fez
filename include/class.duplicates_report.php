@@ -1115,6 +1115,7 @@ return;
         $author_tokens1 = $this->tokenise($record1->getFieldValueBySearchKey('Author'));
         $author_tokens2 = $this->tokenise($record2->getFieldValueBySearchKey('Author'));
         $author_score = $this->calcOverlap($author_tokens1, $author_tokens2);
+		$author_score = (($author_score+1)/2);
 
         // if this is a journal
         if (is_numeric(strpos($record1->getDocumentType(), 'Journal Article'))
@@ -1125,15 +1126,19 @@ return;
         	$journal_tokens2 = $this->tokenise($record2->getFieldValueBySearchKey('Journal Name'));
         	//$journal_tokens2 = $this->tokenise($record2->getDetailsByXSDMF_element(
         	//												'!relatedItem!name!namePart'));
-echo "\n journal tokens 1: ";
+/*echo "\n journal tokens 1: ";
 print_r($journal_tokens1);
 echo "\n journal tokens 2: ";
-print_r($journal_tokens2); 
+print_r($journal_tokens2); */
         	$journal_title_score = $this->calcOverlap($journal_tokens1, $journal_tokens2);
     	} else {
     		$journal_title_score = 1;
     	}
-echo "\n".$title_score." - ".$author_score." - ".$journal_title_score."\n"; 
+		if ($title_score == 1) {
+			echo "\n (t)".$title_score."\n";
+			return 1;
+		}
+echo "\n (t)".$title_score." - (a)".$author_score." - (j)".$journal_title_score."\n"; 
         return $title_score * $author_score * $journal_title_score;
     }
 
