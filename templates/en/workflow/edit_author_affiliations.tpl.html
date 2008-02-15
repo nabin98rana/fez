@@ -136,7 +136,7 @@ function submitSuggestedAffiliation(authorID, orgID, iteration) {
 			<td bgcolor="{$light_color}">
 				<select id="af_org_id" name="af_org_id">
 				{foreach from=$orgs key=k item=v}
-					<option value="{$k}">{$v}</option>
+					<option value="{$k}"{if $current.af_org_id == $k} selected{/if}>{$v}</option>
 				{/foreach}
 				</select>
 			</td>
