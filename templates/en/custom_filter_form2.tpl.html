@@ -133,7 +133,7 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
 
               {assign var="custom" value=$options.$temp_sek_id}
               
-              {html_select_date field_array="search_keys[$temp_sek_id][start]" prefix="" start_year="-10" end_year="+10" all_extra='class="default"'}
+              {html_select_date field_array="search_keys[$temp_sek_id][start]" prefix="" start_year="-10" end_year="+10" all_extra='class="default"' time=$start_date}
 			 <script language="JavaScript" type="text/javascript" src="{$rel_url}js/dynCalendar.js"></script>
             {literal}
               <script language="JavaScript" type="text/javascript">
@@ -146,7 +146,7 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
 
 			<div id="tr_search_keys[{$temp_sek_id}]">
               <span class="default">{$search_keys[i].sek_title}: <i>(End date)</i></span><br />
-              {html_select_date field_array="search_keys[$temp_sek_id][end]" prefix="" start_year="-10" end_year="+10" all_extra='class="default"'}
+              {html_select_date field_array="search_keys[$temp_sek_id][end]" prefix="" start_year="-10" end_year="+10" all_extra='class="default"' time=$end_date}
               {literal}
               <script language="JavaScript" type="text/javascript">
               <!--

@@ -95,6 +95,8 @@ foreach ($list as $list_key => $list_field) {
 	} 
 }
 
+$tpl->assign("start_date", date('Y-m-d', mktime(0,0,0,1,1,date('Y'))));
+$tpl->assign("end_date", date('Y-m-d', mktime(0,0,0,12,31,date('Y'))));
 $tpl->assign("options", $options);
 $tpl->assign("search_keys", $list);
 $tpl->displayTemplate();
