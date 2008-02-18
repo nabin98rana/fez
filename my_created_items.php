@@ -81,7 +81,11 @@ foreach ($search_keys as $skey => $svalue) {
 	}
 	
 	if ($svalue["sek_smarty_variable"] == 'User::getAssocList()') {
-		$search_keys[$skey]["field_options"] = array("-1" => "un-assigned", "-2" => "myself", "-3" => "myself and un-assigned") + $search_keys[$skey]["field_options"];
+		$search_keys[$skey]["field_options"] = array(
+    		"-1" => "un-assigned", 
+    		"-2" => "myself", 
+    		"-3" => "myself and un-assigned"
+		) + $search_keys[$skey]["field_options"];
 	}
 	if ($svalue["sek_html_input"] != 'multiple' && $svalue["sek_smarty_variable"] != 'Status::getUnpublishedAssocList()') {
 		$search_keys[$skey]["field_options"] = array("" => "any") + $search_keys[$skey]["field_options"];		
@@ -94,8 +98,8 @@ foreach ($search_keys as $skey => $svalue) {
 		$search_keys[$skey]["field_options"] = array("-4" => "any Unpublished") + Status::getAssocList(); //get all status's
 	}
 	if ($svalue["sek_id"] == Search_Key::getID("Status")) {
-		if (!array_key_exists($options["searchKey9"], $search_keys[$skey]["field_options"])) {
-			$options["searchKey9"] = "";
+		if (!array_key_exists($options["searchKeycore_9"], $search_keys[$skey]["field_options"])) {
+			$options["searchKeycore_9"] = "";
 		}
 	}	
 	if ($svalue["sek_id"]  == Search_Key::getID("Status")) {

@@ -70,7 +70,7 @@ if (@$_POST["cat"] == "new") {
 if (@$_GET["cat"] == "edit") {
     $tpl->assign("info", Search_Key::getDetails($_GET["id"]));
 } elseif (@$_GET["cat"] == "view_sql") {
-    if(is_numeric(($_GET["id"]))) {
+    if(!empty($_GET["id"])) {
         echo '<pre>'.Search_Key::createSQL($_GET["id"]) . '</pre>';
         exit();
     }

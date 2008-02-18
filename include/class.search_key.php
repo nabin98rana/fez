@@ -76,11 +76,11 @@ class Search_Key
      */
     function remove()
     {
-        $items = @implode(", ", $_POST["items"]);
+        $items = @implode("', '", $_POST["items"]);
         $stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "search_key
                  WHERE
-                    sek_id IN (".$items.")";
+                    sek_id IN ('".$items."')";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -115,10 +115,15 @@ class Search_Key
 			$sek_myfez_visible = 0;
 		}
 		
+		$sekIncrId = Search_Key::getNextIncrId(APP_PID_NAMESPACE);
+		$sek_id = APP_PID_NAMESPACE . '_' . $sekIncrId;
 		
         $stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "search_key
                  (
+                    sek_id,
+                    sek_namespace,
+                    sek_incr_id,
                     sek_title,
 					sek_alt_title,
 					sek_meta_header,
@@ -142,6 +147,9 @@ class Search_Key
 				}
 		$stmt .= "				
                  ) VALUES (
+                    '$sek_id',
+                    '" . APP_PID_NAMESPACE . "',
+                    $sekIncrId,
                     '" . Misc::escapeString($_POST["sek_title"]) . "',
 					'" . Misc::escapeString($_POST["sek_alt_title"]) . "',
 					'" . Misc::escapeString($_POST["sek_meta_header"]) . "',
@@ -198,6 +206,23 @@ class Search_Key
             }
         }
     }
+    
+    
+    function getNextIncrId($namespace)
+    {
+        $stmt = "SELECT MAX(sek_incr_id) + 1 as incr_id " .
+                 "FROM  " . APP_TABLE_PREFIX . "search_key " .
+                 "WHERE sek_namespace = '$namespace'";
+         
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return 1;
+        }
+        
+        return $res;
+    }
+    
 
     /**
      * Method used to update details of a search key.
@@ -250,7 +275,7 @@ class Search_Key
 						$stmt .= ",sek_cvo_id = ".$_POST["sek_cvo_id"];
 					}
 				$stmt .= "
-                 WHERE sek_id = ".$sek_id;
+                 WHERE sek_id = '".$sek_id . "'";
         
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
@@ -330,7 +355,7 @@ class Search_Key
                  FROM
                    " . APP_TABLE_PREFIX . "search_key
                  WHERE
-                    sek_id=".$sek_id;
+                    sek_id= '".$sek_id . "'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 
         if (PEAR::isError($res)) {
@@ -355,7 +380,7 @@ class Search_Key
                  FROM
                     " . APP_TABLE_PREFIX . "search_key
                  WHERE
-                    sek_id=".$sek_id;
+                    sek_id= '".$sek_id . "'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 
         if (PEAR::isError($res)) {
@@ -375,7 +400,7 @@ class Search_Key
     function getMaxID()
     {
         $stmt = "SELECT
-                    MAX(sek_id)
+                    COUNT(sek_id)
                  FROM
                     " . APP_TABLE_PREFIX . "search_key";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -617,9 +642,9 @@ class Search_Key
     		if (empty($res)) {
     			return array();
     		} else {
+    		    
     			for ($i = 0; $i < count($res); $i++) {
     				$res[$i]["field_options"] = Search_Key::getOptions($res[$i]["sek_smarty_variable"]);
-    				
     				if ($res[$i]["sek_html_input"] == "contvocab") {
 						$cvo_list = Controlled_Vocab::getAssocListFullDisplay(false, "", 0, 2);
 						$res[$i]['field_options'][0] = $cvo_list['data'][$res[$i]['sek_cvo_id']];
@@ -627,7 +652,6 @@ class Search_Key
     					$res[$i]['cv_ids'][0] = $res[$i]['sek_cvo_id'];
     				}
     			}
-    			
     			return $res;
     		}
     	}
@@ -677,7 +701,7 @@ class Search_Key
                     left join " . APP_TABLE_PREFIX . "xsd_display_matchfields
                     on xsdmf_sek_id=sek_id                    
                  WHERE
-                    sek_id=".$sek_id;
+                    sek_id= '". $sek_id ."'";
         
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
@@ -759,7 +783,7 @@ class Search_Key
                  FROM
                     " . APP_TABLE_PREFIX . "search_key
                  WHERE
-                    sek_id=".$sek_id;
+                    sek_id= '".$sek_id."'";
         
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
@@ -931,6 +955,7 @@ class Search_Key
         $sek_title_db = $details['sek_title_db'];
         $relationship = $details['sek_relationship'];
         $column_type  = $details['sek_data_type'];
+        $key_type     = 'KEY';
         
         if( !isset($sek_title_db) || $sek_title_db == "" || $column_type == "" ) {
             return -2;
@@ -940,6 +965,8 @@ class Search_Key
             $column_type = 'varchar(255)';
         } elseif( $column_type == 'date' ) {
             $column_type = 'datetime';
+        } elseif( $column_type = 'text' ) {
+            $key_type = 'FULLTEXT';
         }
         
         if( $relationship == 1 ) {
@@ -956,7 +983,7 @@ class Search_Key
                    "     `{$column_prefix}_xsdmf_id` int(11) default NULL,\n " .
                    "     `$column_prefix` $column_type default NULL, \n" .
                    "     PRIMARY KEY (`{$column_prefix}_id`), \n" .
-                   "     KEY `$column_prefix` (`$column_prefix`), \n" .
+                   "     $key_type `$column_prefix` (`$column_prefix`), \n" .
                    "     KEY `{$column_prefix}_pid` (`{$column_prefix}_pid`) \n" .
                    ") ENGINE=MyISAM DEFAULT CHARSET=utf8";
                    

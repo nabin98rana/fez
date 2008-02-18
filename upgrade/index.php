@@ -102,6 +102,7 @@ function getUpdateSqlList($lookin_reldir = 'upgrade/sql_scripts', $dbversion) {
 
 function replace_table_prefix($str)
 {
+    $str = str_replace('%PID_NAMESPACE%', APP_PID_NAMESPACE, $str);
     return str_replace('%TABLE_PREFIX%', APP_TABLE_PREFIX, $str);
 }
 

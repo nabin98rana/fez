@@ -117,9 +117,8 @@ class Pager
 //        $order_by = Pager::getParam('order_by',$params);        
       //  $order_by_dir = Pager::getParam('order_by_dir',$params);                
         $sort_order = Pager::getParam('sort_order',$params);
-        
-        
         $rows = Pager::getParam('rows',$params);
+        
         $cookie = array(
             'front_page'     => $front_page ? $front_page : "front_page",
             'rows'           => $rows ? $rows : APP_DEFAULT_PAGER_SIZE,
@@ -132,52 +131,79 @@ class Pager
         
         if( $cookie_key == '' )
         {
-            $cookie_key         = $_SERVER['SCRIPT_NAME'];
+            $cookie_key     = $_SERVER['SCRIPT_NAME'];
         }
         $cookieToSave       = Pager::getCookieParams(); //Why do we need to get this for? commented out CK 6/12/06 // uncommented for search_key expansion by CK 27/2/07
         $existing_cookie    = $cookieToSave[$cookie_key];
         
-        
 		$sek_count = Search_Key::getMaxID();
-        $tempArray = array('searchKey_count' => $sek_count);
-        $cookie = array_merge ($cookie, $tempArray);
 
+		/*
+		 * Extract search keys from cookie
+		 */
+		if(is_array($existing_cookie)) {
+            foreach ($existing_cookie as $sek_id => $value) {
+    			if (strpos($sek_id, "searchKey") !== false) {
+    				$searchKeys[str_replace("searchKey", "", $sek_id)] = $value;
+    			}
+    		}
+		}
+		
         if ($sek_count > 0) {
             $searchKeyArray = array();
             $from_cookie = false;
             $searchKeyArray = Pager::getParam('search_keys',$params);
-            if (empty($searchKeyArray)) {
+            
+            /*
+             * If no search keys were submitted
+             * retrieve from cookie
+             */
+            if (empty($searchKeyArray) && is_array($searchKeys)) {
                 $searchKeyArray = array();
                 $from_cookie = true;
-                for($x=0;$x<$sek_count;$x++) {
-                    if (isset($existing_cookie['searchKey'.$x])) {
-                        $searchKeyArray = array_merge($searchKeyArray, array('searchKey'.$x => $existing_cookie['searchKey'.$x]));
+                
+                foreach ($searchKeys as $sek_id => $searchValue) {
+                    
+                    if (isset($existing_cookie['searchKey'.$sek_id])) {
+                        $existing = array(
+                            'searchKey'.$sek_id => $existing_cookie['searchKey'.$sek_id]
+                        );
+                        $searchKeyArray = array_merge($searchKeyArray, $existing);
                     }
                 }
             }
-
-            foreach ($searchKeyArray as $sek_id => $value) {
-				$sekdet = Search_Key::getDetails(str_replace("searchKey", "", $sek_id));
-				if ($sekdet['sek_html_input'] == 'date') {
-					if ($searchKeyArray[$sek_id]['start']['Month']) { $searchKeyArray[$sek_id]['start']['Month'] = str_pad($searchKeyArray[$sek_id]['start']['Month'], 2, '0', STR_PAD_LEFT); }
-					if ($searchKeyArray[$sek_id]['start']['Day'] != "") { $searchKeyArray[$sek_id]['start']['Day'] = str_pad($searchKeyArray[$sek_id]['start']['Day'], 2, '0', STR_PAD_LEFT); }
-					if ($searchKeyArray[$sek_id]['end']['Month'] != "") { $searchKeyArray[$sek_id]['end']['Month'] = str_pad($searchKeyArray[$sek_id]['end']['Month'], 2, '0', STR_PAD_LEFT); }
-					if ($searchKeyArray[$sek_id]['end']['Day'] != "") { $searchKeyArray[$sek_id]['end']['Day'] = str_pad($searchKeyArray[$sek_id]['end']['Day'], 2, '0', STR_PAD_LEFT); }
-					
-					$searchKeyArray[$sek_id]['start_date'] =  $searchKeyArray[$sek_id]['start']['Year'] . '-' . $searchKeyArray[$sek_id]['start']['Month'] . '-' . $searchKeyArray[$sek_id]['start']['Day'];
-					$searchKeyArray[$sek_id]['end_date'] =  $searchKeyArray[$sek_id]['end']['Year'] . '-' . $searchKeyArray[$sek_id]['end']['Month'] . '-' . $searchKeyArray[$sek_id]['end']['Day'];
-					
-				}
-			}
-			foreach ($searchKeyArray as $sek_id => $value) {
-                if ($from_cookie == true) {
-                    $tempArray = array($sek_id => $value);
-                } else {
-                    $tempArray = array('searchKey'.$sek_id => $value);
+            
+            if( is_array($searchKeyArray)) {
+                
+                /*
+                 * Format date
+                 */
+                foreach ($searchKeyArray as $sek_id => $value) {
+    				$sekdet = Search_Key::getDetails(str_replace("searchKey", "", $sek_id));
+    				if ($sekdet['sek_html_input'] == 'date') {
+    					
+    				    if ($searchKeyArray[$sek_id]['start']['Month']) { $searchKeyArray[$sek_id]['start']['Month'] = str_pad($searchKeyArray[$sek_id]['start']['Month'], 2, '0', STR_PAD_LEFT); }
+    					if ($searchKeyArray[$sek_id]['start']['Day'] != "") { $searchKeyArray[$sek_id]['start']['Day'] = str_pad($searchKeyArray[$sek_id]['start']['Day'], 2, '0', STR_PAD_LEFT); }
+    					if ($searchKeyArray[$sek_id]['end']['Month'] != "") { $searchKeyArray[$sek_id]['end']['Month'] = str_pad($searchKeyArray[$sek_id]['end']['Month'], 2, '0', STR_PAD_LEFT); }
+    					if ($searchKeyArray[$sek_id]['end']['Day'] != "") { $searchKeyArray[$sek_id]['end']['Day'] = str_pad($searchKeyArray[$sek_id]['end']['Day'], 2, '0', STR_PAD_LEFT); }
+    					
+    					$searchKeyArray[$sek_id]['start_date'] =  $searchKeyArray[$sek_id]['start']['Year'] . '-' . $searchKeyArray[$sek_id]['start']['Month'] . '-' . $searchKeyArray[$sek_id]['start']['Day'];
+    					$searchKeyArray[$sek_id]['end_date'] =  $searchKeyArray[$sek_id]['end']['Year'] . '-' . $searchKeyArray[$sek_id]['end']['Month'] . '-' . $searchKeyArray[$sek_id]['end']['Day'];
+    				}
+    			}
+    			
+    			foreach ($searchKeyArray as $sek_id => $value) {
+                    if ($from_cookie == true) {
+                        $tempArray = array($sek_id => $value);
+                    } else {
+                        $tempArray = array('searchKey'.$sek_id => $value);
+                    }
+                    $cookie = array_merge($cookie, $tempArray);
                 }
-                $cookie = array_merge ($cookie, $tempArray);
+            
             }
-        }		
+        }	
+        	
         if (!empty($cookie["searchKey0"]) && empty($sort_by)) { 
         	$cookie['sort_by'] = "searchKey0";
         }
@@ -191,7 +217,6 @@ class Pager
         if ($operator) { 
         	$cookie['operator'] = $operator;
         }
-        
         
         $cookieToSave[$cookie_key] = $cookie;
 		$encoded = base64_encode(serialize($cookieToSave));

@@ -599,7 +599,7 @@ class Record
 */
 
 
-		if (!is_numeric($sekDet['sek_id'])) { //if couldnt find  a search key, we won't insert this into the index 
+		if ($sekDet['sek_id'] == "") { //if couldnt find  a search key, we won't insert this into the index 
 			return -1;
 		}
 //		print_r($sekDet);
@@ -944,11 +944,19 @@ class Record
         $start = $current_page * $page_rows;
 		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
         $current_row = $current_page * $page_rows;
-		$options["searchKey_count"] = Search_Key::getMaxID();
+		
+		if( Search_Key::getMaxID() == 0 )
+		{
+		    Error_Handler::logError('No Search Keys', __FILE__, __LINE__);
+		    return array();
+		}
+		
+		
+		
 		// make sure the sort by is setup well
 		if (!is_numeric(strpos($sort_by, "searchKey"))) {
 			$sort_by_id = Search_Key::getID($sort_by);
-			if (is_numeric($sort_by_id)) {
+			if ($sort_by_id != "") {
 				$sort_by = "searchKey".$sort_by_id;
 			} else {
 				$sort_by_id = Search_Key::getID("Title");
@@ -956,6 +964,7 @@ class Record
 			}
 		}
 		
+		//echo $sort_by . '<br />';
         $searchKey_join = Record::buildSearchKeyJoins($options, $sort_by, $operator);
         
 		$authArray = Collection::getAuthIndexStmt($approved_roles, "r1.rek_pid");
@@ -1575,231 +1584,240 @@ inner join
 		$searchKey_join['sk_where_AND'] = '';
 		$searchKey_join['sk_where_OR'] = '';
 		
+		foreach ($options as $sek_id => $value) {
+			if (strpos($sek_id, "searchKey") !== false) {
+				$searchKeys[str_replace("searchKey", "", $sek_id)] = $value;
+			}
+		}
 		
 		$joinType = "";
 		$x = 0;
 		$sortRestriction = "";
 		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix //only mysql supports db prefixing, so will remove it - no reason not to
         
-		if (!empty($options["searchKey_count"])) {
-            if ($options["searchKey_count"] > 0) {
+        $operatorToUse = trim($operator);
+        
+        /*
+         * Fulltext SQL (Special Case)
+         */
+    	if ($searchKeys["0"]  && trim($searchKeys["0"]) != "") { //this will have to replaced with lots of union select joins like eventum
+            
+    	    $joinType = " INNER JOIN ";
+    	    if( $operatorToUse == 'OR' )
+    	    {
+    	        $joinType = " LEFT JOIN ";
+    	    }
+    	    
+    	    $escapedInput = Misc::escapeString($searchKeys["0"]);
+    		
+    		$searchKey_join[SK_KEY_ID] = 1;
+    		$searchKey_join[SK_SEARCH_TXT] .= "Title, Abstract, Keywords:\"".trim(htmlspecialchars($searchKeys["0"]))."\", ";
+			$searchKey_join[SK_JOIN] .= $joinType." (SELECT rek_pid, MATCH(rek_pid, rek_title, rek_description) AGAINST ('$escapedInput') AS Relevance ".
+													" FROM {$dbtp}record_search_key ".
+													" WHERE MATCH (rek_pid, rek_title, rek_description) AGAINST ('*$escapedInput*' IN BOOLEAN MODE)".
+													" UNION ".
+													" SELECT rek_keywords_pid AS rek_pid, MATCH(rek_keywords) AGAINST ('$escapedInput') AS Relevance ".
+													" FROM {$dbtp}record_search_key_keywords ".
+													" WHERE MATCH (rek_keywords) AGAINST ('*$escapedInput*' IN BOOLEAN MODE))".
+													" AS search ON search.rek_pid = r1.rek_pid ";
+            
+    		$searchKey_join[SK_GROUP_BY] = " GROUP BY r1.rek_pid ";
+    		$termRelevance = ", SUM(search.Relevance) as Relevance";
+    		$searchKey_join[SK_FULLTEXT_REL] = $termRelevance;
+    	}
 
-                $operatorToUse = trim($operator);
+    	/*
+    	 * For each search key build SQL if data was submitted
+    	 */
+    	$tableJoinID = 1;
+    	foreach ($searchKeys as $sek_id => $searchValue ) {
+    	    
+    	 	 if (!empty($searchValue) && trim($searchValue) != "") {
                 
-                /*
-                 * Fulltext SQL
-                 */
-            	if ($options["searchKey0"]  && trim($options["searchKey0"]) != "") { //this will have to replaced with lots of union select joins like eventum
+    	 	    $sekdet = Search_Key::getDetails($sek_id);
+    	 	    
+    	 	    if(empty($sekdet['sek_id']))
+                    continue;
+    	 	    
+    	 	    $options["sql"] = array();
+    	 	    $temp_value = "";
+    	 	    $joinID = '';
+    	 	    $sqlColumnName = '';
+    	 	    $operatorToUse = trim($operator);
+    	 	    
+    	 	    /*
+    	 	     * joinID is the prefix when using a column in the SQL
+    	 	     *
+    	 	     * For search keys that have a many-to-many relationship we are
+    	 	     * going to join the table to the search query and prefex it with
+    	 	     * $x ie.JOIN table r3. So all columns in 'table' will need to use 'r3'
+    	 	     *
+    	 	     * 1-to-1 search keys will be in default table 
+    	 	     * So you default prefix - r1
+    	 	     */
+    	 	    if ($sekdet['sek_relationship'] == "1") {
+    	 	        $joinID = ++$tableJoinID;
+    	 	    }
+    	 	    else {
+    	 	        $joinID = $searchKey_join[SK_KEY_ID];
+    	 	    }
+    	 	    
+    	 	    $sqlColumnName = "r{$joinID}.rek_".$sekdet['sek_title_db'];
+    	 	    
+    	 	    /*
+    	 	     * Build the SQL for this particular search key
+    	 	     */
+    	 	    if (is_array($searchValue)) {
+    	 	        
+    	 	        if( isset($searchValue['override_op']) ) {
+    	                $operatorToUse = $searchValue['override_op'];
+    	                unset($searchValue['override_op']);
+ 	    	        }
+    	 	        
+    	 	        // Multiple type is 'All Of' or 'Any of'
+    	 	        $multiple_type = '';
+    	 	        if( @isset($searchValue['multiple_type']) ) {
+	 	    	        $multiple_type = $searchValue['multiple_type'];
+	 	    	        unset($searchValue['multiple_type']);
+	 	    	        
+	 	    	        /*
+	 	    	         * Multiple type is always submitted for multiselect controls, 
+	 	    	         * so if it was the only thing in the array, nothing was actually
+	 	    	         * selected - so skip this
+	 	    	         */
+	 	    	        if( count($searchValue) == 0 ) {
+	 	    	            continue;
+	 	    	        }
+	 	    	    }
+    	 	        
+    	 	    	if ($sekdet['sek_data_type'] == "int") {
+    	 	    	    
+    	 	    	    if( $multiple_type == 'all' ) {
+    	 	    	        $searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName = " . implode(" AND $sqlColumnName = ", $searchValue);
+    	 	    	    } else {
+    	 	    	        $searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName IN (".implode(",", $searchValue).")";
+    	 	    	    }
+						
+						$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"";
+						$temp_counter = 0;
+						foreach ($searchValue as $temp_int) {
+							if (is_numeric($temp_int) && (!empty($sekdet["sek_lookup_function"]))) {
+								eval("\$temp_value = ".$sekdet["sek_lookup_function"]."(".$temp_int.");");
+								if ($temp_counter != 0) {
+									$searchKey_join[SK_SEARCH_TXT] .= ",";
+								}
+    	 	    				$searchKey_join[SK_SEARCH_TXT] .= " ".trim(htmlspecialchars($temp_value));
+    	 	    				$temp_counter++;
+							}
+						}
+						$searchKey_join[SK_SEARCH_TXT] .= "\", ";
+						
+    	 	    	} elseif ($sekdet['sek_data_type'] == "date") {
+    	 	    	    
+						if (!empty($searchValue) && $searchValue['filter_enabled'] == 1) {
+						    $sqlDate = '';
+						    switch ($searchValue['filter_type']) {
+								case 'greater':
+									$sqlDate = " >= '".Misc::escapeString($searchValue['start_date'])."' ";
+									break;
+								case 'less':
+									$sqlDate = " <= '".Misc::escapeString($searchValue['start_date'])."' ";
+									break;
+								case 'between':
+						            $sqlDate = " BETWEEN '".Misc::escapeString($searchValue['start_date'])."' AND '".Misc::escapeString($searchValue['end_date'])."'";
+									break;
+							}
+							
+							$searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName . $sqlDate;
+							$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\" $sqlDate \", ";
+						}
+						
+    	 	    	} else {
+    	 	    	    
+    	 	    	    if( $multiple_type == 'all' ) {
+    	 	    	        $searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName = '" . implode("' AND $sqlColumnName = '", $searchValue) . "'";
+    	 	    	    } else {
+    	 	    	        $searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName IN ('".implode("','", $searchValue)."')";
+    	 	    	    }
+						
+						$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(implode("','", $searchValue))."\", ";
+    	 	    	}
+    	 	    	
+    	 	    } else { // Array was not submitted for this search key
                     
-            	    $joinType = " INNER JOIN ";
+    	 	        if ($searchValue == "-1") { //where empty or not set
+ 	        			$searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName is null ";
+	 	   	    	} elseif ($searchValue == "-2") { //this user
+	 	        		$usr_id = Auth::getUserID();
+	 	        		$searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName = $usr_id";
+	 	   	    	} elseif ($searchValue == "-4") { //not published
+	 	        		$published_id = Status::getID("Published");
+	 	        		$searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName != $published_id";
+	 	   	    	} elseif ($searchValue == "-3") { //not this user
+	 	        		$usr_id = Auth::getUserID();
+	 	        		$searchKey_join["sk_where_$operatorToUse"][] = " (($sqlColumnName = '".$usr_id."') OR NOT EXISTS
+							(SELECT * FROM {$dbtp}record_search_key_".$sekdet['sek_title_db']." AS sr WHERE sr.rek_".$sekdet['sek_title_db']."_pid = r{$joinID}.rek_pid))";
+	 	        	}
+    	 	    	elseif ($sekdet['sek_data_type'] == "int") {
+    	 	    		
+    	 	    		if (is_numeric($searchValue)) {
+    	 	    		    $searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName = ".$searchValue;
+    	 	    		    
+    	 	    			if (!empty($sekdet["sek_lookup_function"])) {
+    	 	    				eval("\$temp_value = ".$sekdet["sek_lookup_function"]."(".$searchValue.");");
+    	 	    				$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars($temp_value)."\", ";
+    	 	    			} else {
+    	 	    				$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(trim($searchValue))."\", ";
+    	 	    			}
+    	 	    		}
+    	 	    		
+    	 	    	} elseif (($sekdet['sek_data_type'] == 'text' || $sekdet['sek_data_type'] == 'varchar') 
+	 	                     && ($sekdet['sek_html_input'] == 'text' || $sekdet['sek_html_input'] == 'textarea')) {
+    	 	        	
+						if ($sekdet['sek_title_db'] == "pid") {
+						    // Check if user has done a google like search by adding *
+						    $searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName like '".str_replace("*", "%", Misc::escapeString($searchValue))."' ";
+						} else {
+						    $searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName like '%".Misc::escapeString($searchValue)."%' ";
+						}
+    	 	        	
+    	 	        	$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(trim($searchValue))."\", ";
+ 	        	
+    	 	    	} else {
+    	 	    		$searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName = '".Misc::escapeString($searchValue)."'";
+    	 	    		$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(trim($searchValue))."\", ";
+    	 	    	}
+	 	        	
+    	 	    }
+	 	    		
+	 	    		/*
+	 	    		 * If this search key has a 1-To-Many relationship
+	 	    		 * it will have its own table, so we need to join to it
+	 	    		 */
+ 	        	if ($sekdet['sek_relationship'] == 1) {
+                    
+ 	        	    $joinType = " INNER JOIN ";
  	        	    if( $operatorToUse == 'OR' )
  	        	    {
  	        	        $joinType = " LEFT JOIN ";
  	        	    }
  	        	    
- 	        	    $escapedInput = Misc::escapeString($options["searchKey0"]);
-            		
-            		$searchKey_join[SK_KEY_ID] = 1;
-            		$searchKey_join[SK_SEARCH_TXT] .= "Title, Abstract, Keywords:\"".trim(htmlspecialchars($options["searchKey".$x]))."\", ";
-					$searchKey_join[SK_JOIN] .= $joinType." (SELECT rek_pid, MATCH(rek_pid, rek_title, rek_description) AGAINST ('$escapedInput') AS Relevance ".
-        													" FROM {$dbtp}record_search_key ".
-        													" WHERE MATCH (rek_pid, rek_title, rek_description) AGAINST ('*$escapedInput*' IN BOOLEAN MODE)".
-        													" UNION ".
-        													" SELECT rek_keywords_pid AS rek_pid, MATCH(rek_keywords) AGAINST ('$escapedInput') AS Relevance ".
-        													" FROM {$dbtp}record_search_key_keywords ".
-        													" WHERE MATCH (rek_keywords) AGAINST ('*$escapedInput*' IN BOOLEAN MODE))".
-        													" AS search ON search.rek_pid = r1.rek_pid ";
+                    $searchKey_join[SK_JOIN] .= "\n$joinType {$dbtp}record_search_key_".$sekdet['sek_title_db']." as r{$joinID} on r{$joinID}.rek_".$sekdet['sek_title_db']."_pid = r".$searchKey_join[SK_KEY_ID].".rek_pid ";
+ 	        	}
+	 	        
+    	  	}
+    	}
+    	
+        /*
+         * Only do a sort if the query has be limited in some way, 
+         * otherwise it is far too slow
+         */
+        if (!empty($sort_by)) { //  && $tableJoinID != 1
+            
+            $sek_id = str_replace("searchKey", "", $sort_by);
+            if ($sek_id != '') {
+                if ($sek_id == '0' && (trim($searchKeys[0]) != "")) {
                     
-            		$searchKey_join[SK_GROUP_BY] = " GROUP BY r1.rek_pid ";
-            		$termRelevance = ", SUM(search.Relevance) as Relevance";
-            		$searchKey_join[SK_FULLTEXT_REL] = $termRelevance;
-            	}
-
-            	/*
-            	 * For each search key build SQL if data was submitted
-            	 */
-            	for($x=1;$x < ($options["searchKey_count"] + 1);$x++) {
-            	    
-            	 	 if (!empty($options["searchKey".$x]) && trim($options["searchKey".$x]) != "") {
-                        
-            	 	    $sekdet = Search_Key::getDetails($x);
-            	 	    $options["sql"] = array();
-            	 	    $temp_value = "";
-            	 	    $joinID = '';
-            	 	    $sqlColumnName = '';
-            	 	    $operatorToUse = trim($operator);
-            	 	    
-            	 	    /*
-            	 	     * joinID is the prefix when using a column in the SQL
-            	 	     *
-            	 	     * For search keys that have a many-to-many relationship we are
-            	 	     * going to join the table to the search query and prefex it with
-            	 	     * $x ie.JOIN table r3. So all columns in 'table' will need to use 'r3'
-            	 	     *
-            	 	     * 1-to-1 search keys will be in default table 
-            	 	     * So you default prefix - r1
-            	 	     */
-            	 	    if ($sekdet['sek_relationship'] == "1") {
-            	 	        $joinID = $x;
-            	 	    }
-            	 	    else {
-            	 	        $joinID = $searchKey_join[SK_KEY_ID];
-            	 	    }
-            	 	    
-            	 	    $sqlColumnName = "r{$joinID}.rek_".$sekdet['sek_title_db'];
-            	 	    
-            	 	    /*
-            	 	     * Build the SQL for this particular search key
-            	 	     */
-            	 	    if (is_array($options["searchKey".$x])) {
-            	 	        
-            	 	        if( isset($options["searchKey".$x]['override_op']) ) {
-	 	    	                $operatorToUse = $options["searchKey".$x]['override_op'];
-	 	    	                unset($options["searchKey".$x]['override_op']);
-    	 	    	        }
-            	 	        
-            	 	        // Multiple type is 'All Of' or 'Any of'
-            	 	        $multiple_type = '';
-            	 	        if( @isset($options["searchKey".$x]['multiple_type']) ) {
-        	 	    	        $multiple_type = $options["searchKey".$x]['multiple_type'];
-        	 	    	        unset($options["searchKey".$x]['multiple_type']);
-        	 	    	        
-        	 	    	        /*
-        	 	    	         * Multiple type is always submitted for multiselect controls, 
-        	 	    	         * so if it was the only thing in the array, nothing was actually
-        	 	    	         * selected - so skip this
-        	 	    	         */
-        	 	    	        if( count($options["searchKey".$x]) == 0 ) {
-        	 	    	            continue;
-        	 	    	        }
-        	 	    	    }
-            	 	        
-            	 	    	if ($sekdet['sek_data_type'] == "int") {
-            	 	    	    
-            	 	    	    if( $multiple_type == 'all' ) {
-            	 	    	        $searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName = " . implode(" AND $sqlColumnName = ", $options["searchKey".$x]);
-            	 	    	    } else {
-            	 	    	        $searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName IN (".implode(",", $options["searchKey".$x]).")";
-            	 	    	    }
-								
-								$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"";
-								$temp_counter = 0;
-								foreach ($options["searchKey".$x] as $temp_int) {
-									if (is_numeric($temp_int) && (!empty($sekdet["sek_lookup_function"]))) {
-										eval("\$temp_value = ".$sekdet["sek_lookup_function"]."(".$temp_int.");");
-										if ($temp_counter != 0) {
-											$searchKey_join[SK_SEARCH_TXT] .= ",";
-										}
-            	 	    				$searchKey_join[SK_SEARCH_TXT] .= " ".trim(htmlspecialchars($temp_value));
-            	 	    				$temp_counter++;
-									}
-								}
-								$searchKey_join[SK_SEARCH_TXT] .= "\", ";
-								
-            	 	    	} elseif ($sekdet['sek_data_type'] == "date") {
-            	 	    	    
-								if (!empty($options["searchKey".$x]) && $options["searchKey".$x]['filter_enabled'] == 1) {
-								    $sqlDate = '';
-								    switch ($options["searchKey".$x]['filter_type']) {
-										case 'greater':
-											$sqlDate = " >= '".Misc::escapeString($options["searchKey".$x]['start_date'])."' ";
-											break;
-										case 'less':
-											$sqlDate = " <= '".Misc::escapeString($options["searchKey".$x]['start_date'])."' ";
-											break;
-										case 'between':
-								            $sqlDate = " BETWEEN '".Misc::escapeString($options["searchKey".$x]['start_date'])."' AND '".Misc::escapeString($options["searchKey".$x]['end_date'])."'";
-											break;
-									}
-									
-									$searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName . $sqlDate;
-									$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\" $sqlDate \", ";
-								}
-								
-            	 	    	} else {
-            	 	    	    
-            	 	    	    if( $multiple_type == 'all' ) {
-            	 	    	        $searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName = '" . implode("' AND $sqlColumnName = '", $options["searchKey".$x]) . "'";
-            	 	    	    } else {
-            	 	    	        $searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName IN ('".implode("','", $options["searchKey".$x])."')";
-            	 	    	    }
-								
-								$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(implode("','", $options["searchKey".$x]))."\", ";
-            	 	    	}
-            	 	    	
-            	 	    } else { // Array was not submitted for this search key
-                            
-            	 	        if ($options["searchKey".$x] == "-1") { //where empty or not set
-    	 	        			$searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName is null ";
-        	 	   	    	} elseif ($options["searchKey".$x] == "-2") { //this user
-        	 	        		$usr_id = Auth::getUserID();
-        	 	        		$searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName = $usr_id";
-        	 	   	    	} elseif ($options["searchKey".$x] == "-4") { //not published
-        	 	        		$published_id = Status::getID("Published");
-        	 	        		$searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName != $published_id";
-        	 	   	    	} elseif ($options["searchKey".$x] == "-3") { //not this user
-        	 	        		$usr_id = Auth::getUserID();
-        	 	        		$searchKey_join["sk_where_$operatorToUse"][] = " (($sqlColumnName = '".$usr_id."') OR NOT EXISTS
-									(SELECT * FROM {$dbtp}record_search_key_".$sekdet['sek_title_db']." AS sr WHERE sr.rek_".$sekdet['sek_title_db']."_pid = r{$joinID}.rek_pid))";
-        	 	        	}
-            	 	    	elseif ($sekdet['sek_data_type'] == "int") {
-            	 	    		$searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName = ".$options["searchKey".$x];
-            	 	    		
-            	 	    		if (is_numeric($options["searchKey".$x])) {
-            	 	    			if (!empty($sekdet["sek_lookup_function"])) {
-            	 	    				eval("\$temp_value = ".$sekdet["sek_lookup_function"]."(".$options["searchKey".$x].");");
-            	 	    				$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars($temp_value)."\", ";
-            	 	    			} else {
-            	 	    				$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(trim($options["searchKey".$x]))."\", ";
-            	 	    			}
-            	 	    		}
-            	 	    		
-            	 	    	} elseif (($sekdet['sek_data_type'] == 'text' || $sekdet['sek_data_type'] == 'varchar') 
-        	 	                     && ($sekdet['sek_html_input'] == 'text' || $sekdet['sek_html_input'] == 'textarea')) {
-            	 	        	
-								if ($sekdet['sek_title_db'] == "pid") {
-								    // Check if user has done a google like search by adding *
-								    $searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName like '".str_replace("*", "%", Misc::escapeString($options["searchKey".$x]))."' ";
-								} else {
-								    $searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName like '%".Misc::escapeString($options["searchKey".$x])."%' ";
-								}
-            	 	        	
-            	 	        	$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(trim($options["searchKey".$x]))."\", ";
-    	 	        	
-            	 	    	} else {
-            	 	    		$searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName = '".$options["searchKey".$x]."'";
-            	 	    		$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(trim($options["searchKey".$x]))."\", ";
-            	 	    	}
-        	 	        	
-            	 	    }
-       	 	    		
-       	 	    		/*
-       	 	    		 * If this search key has a 1-To-Many relationship
-       	 	    		 * it will have its own table, so we need to join to it
-       	 	    		 */
-    	 	        	if ($sekdet['sek_relationship'] == 1) {
-                            
-    	 	        	    $joinType = " INNER JOIN ";
-    	 	        	    if( $operatorToUse == 'OR' )
-    	 	        	    {
-    	 	        	        $joinType = " LEFT JOIN ";
-    	 	        	    }
-    	 	        	    
-                            $searchKey_join[SK_JOIN] .= "\n$joinType {$dbtp}record_search_key_".$sekdet['sek_title_db']." as r{$joinID} on r{$joinID}.rek_".$sekdet['sek_title_db']."_pid = r".$searchKey_join[SK_KEY_ID].".rek_pid ";
-    	 	        	}
-        	 	        
-            	  	}
-            	}
-            }
-        }
-		
-
-        if (!empty($sort_by) && $x != 0) { // only do a sort if the query has be limited in some way, otherwise it is far too slow
-             
-            $x = ltrim($sort_by, "searchKey");
-             if (is_numeric($x)) {
-             	if ($x == 0 && ($options["searchKey0"]  && trim($options["searchKey0"]) != "")) {
-
              		if ($options["sort_order"] == 0) {
 	             		$searchKey_join[SK_SORT_ORDER] .= " Relevance ASC, ";
 					} else {
@@ -1808,10 +1826,10 @@ inner join
 					
              	} else {
              	    
-		        	$sekdet = Search_Key::getDetails($x);
+		        	$sekdet = Search_Key::getDetails($sek_id);
 	             	if ($sekdet['sek_relationship'] == 1) {
-		        		$searchKey_join[SK_LEFT_JOIN] .= " LEFT JOIN {$dbtp}record_search_key_".$sekdet['sek_title_db']." as rsort{$x} on rsort{$x}.rek_".$sekdet['sek_title_db']."_pid = r".$searchKey_join[SK_KEY_ID].".rek_pid ".$sortRestriction;
-						$searchKey_join[SK_SORT_ORDER] .= " rsort".$x;
+		        		$searchKey_join[SK_LEFT_JOIN] .= " LEFT JOIN {$dbtp}record_search_key_".$sekdet['sek_title_db']." as rsort on rsort.rek_".$sekdet['sek_title_db']."_pid = r".$searchKey_join[SK_KEY_ID].".rek_pid ".$sortRestriction;
+						$searchKey_join[SK_SORT_ORDER] .= " rsort";
 	             	} else {
 	             		$searchKey_join[SK_SORT_ORDER] .= "r".$searchKey_join[SK_KEY_ID];
 	             	}
@@ -1822,7 +1840,7 @@ inner join
 	             		$searchKey_join[SK_SORT_ORDER] .= ".rek_".$sekdet['sek_title_db']." ASC, ";
 	             	}
              	}
-             }
+            }
              
         }
         
@@ -3205,30 +3223,30 @@ class RecordGeneral
         if (!is_numeric($xdis_id)) {
             $xdis_id = XSD_Display::getXDIS_IDByTitle('Generic Document');
         }
-//      echo $xdis_id; exit;
         $display = new XSD_DisplayObject($xdis_id);
         $array_ptr = array();
         $xsdmf_array = $display->getXSDMF_Values($pid);
-
+        
         Record::removeIndexRecord($pid, '', 'keep', array(), array(), $fteindex); //CK 22/5/06 = added last 2 params to make it keep the dsID indexes for Fezacml on datastreams // remove any existing index entry for that PID // CK added 9/1/06 - still working on this
 //        print_r($xsdmf_array); exit;
         foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
             if (!is_array($xsdmf_value) && !empty($xsdmf_value) && (trim($xsdmf_value) != "")) {
                 $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
-                if (is_numeric($xsdmf_details['xsdmf_sek_id']) && ($xsdmf_details['xsdmf_html_input'] != 'checkbox' || $xsdmf_details['xsdmf_element'] == '!inherit_security')) {
+                if (($xsdmf_details['xsdmf_sek_id'] != "") && ($xsdmf_details['xsdmf_html_input'] != 'checkbox' || $xsdmf_details['xsdmf_element'] == '!inherit_security')) {
                     Record::insertIndexMatchingField($pid, $dsID, $xsdmf_id, $xsdmf_value);
                 }
             } elseif (is_array($xsdmf_value)) {
                 foreach ($xsdmf_value as $xsdmf_child_value) {
                     if ($xsdmf_child_value != "") {
                         $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
-                        if (is_numeric($xsdmf_details['xsdmf_sek_id']) && ($xsdmf_details['xsdmf_html_input'] != 'checkbox' || $xsdmf_details['xsdmf_element'] == '!inherit_security')) {
+                        if (($xsdmf_details['xsdmf_sek_id'] != "") && ($xsdmf_details['xsdmf_html_input'] != 'checkbox' || $xsdmf_details['xsdmf_element'] == '!inherit_security')) {
                             Record::insertIndexMatchingField($pid, $dsID, $xsdmf_id, $xsdmf_child_value);
                         }
                     }
                 }
             }
         }
+        
 		Citation::updateCitationCache($pid, "");
         Statistics::updateSummaryStatsOnPid($pid);
     }

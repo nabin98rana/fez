@@ -1017,7 +1017,7 @@ class XSD_HTML_Match {
 			$stmt .= Misc::escapeString($_POST["multiple_limit"]) . ",";
 		}
 		if ($_POST["xsdmf_sek_id"] != "") {
-			$stmt .= Misc::escapeString($_POST["xsdmf_sek_id"]) . ",";
+			$stmt .= "'" . Misc::escapeString($_POST["xsdmf_sek_id"]) . "',";
 		}
 		if ($_POST["xsdmf_org_level"] != "") {
 			$stmt .= "'" . Misc::escapeString($_POST["xsdmf_org_level"]) . "',";
@@ -1210,7 +1210,7 @@ class XSD_HTML_Match {
 		}
 		if (!empty ($insertArray["xsdmf_sek_id"])) {
 			$inserts .= " xsdmf_sek_id, ";
-			$values  .= $insertArray["xsdmf_sek_id"] . ", ";
+			$values  .= "'" . $insertArray["xsdmf_sek_id"] . "', ";
 		}
 		if (!empty ($insertArray["xsdmf_valueintag"])) {
 			$inserts .= " xsdmf_valueintag, ";
@@ -1507,8 +1507,8 @@ class XSD_HTML_Match {
 		if ($_POST["multiple_limit"] != "") {
 			$stmt .= " xsdmf_multiple_limit = " . Misc::escapeString($_POST["multiple_limit"]) . ",";
 		}
-		if (is_numeric($_POST["xsdmf_sek_id"])) {
-			$stmt .= " xsdmf_sek_id = " . Misc::escapeString($_POST["xsdmf_sek_id"]) . ",";
+		if (!empty($_POST["xsdmf_sek_id"])) {
+			$stmt .= " xsdmf_sek_id = '" . Misc::escapeString($_POST["xsdmf_sek_id"]) . "',";
 		} else {
 			$stmt .= " xsdmf_sek_id = NULL,";
 		}
@@ -2157,7 +2157,7 @@ class XSD_HTML_Match {
 	                FROM
 	                   " . APP_TABLE_PREFIX . "xsd_display_matchfields x1
 					WHERE
-	                   x1.xsdmf_sek_id = ".$sek_id;			
+	                   x1.xsdmf_sek_id = '".$sek_id . "'";			
 			$res = $GLOBALS["db_api"]->dbh->getCol($stmt);
 			if (PEAR::isError($res)) {
 				Error_Handler::logError(array (

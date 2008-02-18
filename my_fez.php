@@ -55,11 +55,11 @@ $search_keys = Search_Key::getMyFezSearchList();
 $isMemberOf = $options['isMemberOf'];
 //print_r($search_keys);
 //print_r($options);
-if (!array_key_exists("searchKey9", $options)) { // for the my fez unpublished items page need to set the default to any non-published items 
-	$options["searchKey9"] = "-4"; 
+if (!array_key_exists("searchKeycore_9", $options)) { // for the my fez unpublished items page need to set the default to any non-published items 
+	$options["searchKeycore_9"] = "-4"; 
 	$options["noOrder"] = 0;
 }
-//if (!in_array($options["searchKey9"], $search_keys[])) {
+//if (!in_array($options["searchKeycore_9"], $search_keys[])) {
 //	$
 	
 //}
@@ -78,6 +78,7 @@ $sort_by_list = array();
 foreach (Search_Key::getAssocList() as $key => $value) {
     $sort_by_list["searchKey".$key] = $value;
 }
+
 $tpl->assign('isMemberOf_default', $isMemberOf);
 $tpl->assign('myFezView', "MAI");
 $tpl->assign('extra_title', "Assigned Unpublished Items");
@@ -120,7 +121,11 @@ foreach ($search_keys as $skey => $svalue) {
 		$search_keys[$skey]["field_options"] = $collection_assoc_list;
 	}
 	if ($svalue["sek_smarty_variable"] == 'User::getAssocList()') {
-		$search_keys[$skey]["field_options"] = array("-1" => "un-assigned", "-2" => "myself", "-3" => "myself and un-assigned") + $search_keys[$skey]["field_options"];
+		$search_keys[$skey]["field_options"] = array(
+    		  "-1" => "un-assigned", 
+    		  "-2" => "myself", 
+    		  "-3" => "myself and un-assigned"
+		  ) + $search_keys[$skey]["field_options"];
 	}			
 	if ($svalue["sek_html_input"] != 'multiple' && $svalue["sek_smarty_variable"] != 'Status::getUnpublishedAssocList()') {
 		$search_keys[$skey]["field_options"] = array("" => "any") + $search_keys[$skey]["field_options"];		
@@ -129,8 +134,8 @@ foreach ($search_keys as $skey => $svalue) {
 		$search_keys[$skey]["field_options"] = array("-4" => "any Unpublished") + $search_keys[$skey]["field_options"]; //get all status's
 	}	
 	if ($svalue["sek_id"] == Search_Key::getID("Status")) {
-		if (!array_key_exists($options["searchKey9"], $search_keys[$skey]["field_options"])) {
-			$options["searchKey9"] = "-4";
+		if (!array_key_exists($options["searchKeycore_9"], $search_keys[$skey]["field_options"])) {
+			$options["searchKeycore_9"] = "-4";
 		}
 	}
 }

@@ -431,33 +431,35 @@ class Doc_Type_XSD
                 $found_matching_title = true;
                 $doc_id = $exist_list[0]['xsd_id'];
             }
-                $xsd_file_nodelist =  $xpath->query('xsd_file',$xdoc);
-                $xsd_file_node = $xsd_file_nodelist->item(0);
-                $xsd_file = $xsd_file_node->textContent; 
                 
-                $params = array(
-                    'xsd_title' => $title,
-                    'xsd_version' => $xdoc->getAttribute('xsd_version'),
-                    'xsd_file' => $xsd_file,
-                    'xsd_top_element_name' => $xdoc->getAttribute('xsd_top_element_name'),
-                    'xsd_element_prefix' => $xdoc->getAttribute('xsd_element_prefix'),
-                    'xsd_extra_ns_prefixes' => $xdoc->getAttribute('xsd_extra_ns_prefixes'),
-                );
-                if ($found_matching_title) {
-                    $bgp->setStatus("Overwriting XSD $title $version");
-                    Doc_Type_XSD::update($doc_id, $params);
+            $xsd_file_nodelist =  $xpath->query('xsd_file',$xdoc);
+            $xsd_file_node = $xsd_file_nodelist->item(0);
+            $xsd_file = $xsd_file_node->textContent; 
+                
+            $params = array(
+                'xsd_title' => $title,
+                'xsd_version' => $xdoc->getAttribute('xsd_version'),
+                'xsd_file' => $xsd_file,
+                'xsd_top_element_name' => $xdoc->getAttribute('xsd_top_element_name'),
+                'xsd_element_prefix' => $xdoc->getAttribute('xsd_element_prefix'),
+                'xsd_extra_ns_prefixes' => $xdoc->getAttribute('xsd_extra_ns_prefixes'),
+            );
+            if ($found_matching_title) {
+                $bgp->setStatus("Overwriting XSD $title $version");
+                Doc_Type_XSD::update($doc_id, $params);
+            } else {
+                $bgp->setStatus("Inserting XSD $title $version");
+                // need to try and insert at the XML doc_id.  If there's something there already
+                // then we know it doesn't match so do a insert with new id in that case
+                $det =  Doc_Type_XSD::getDetails($xdoc->getAttribute('xsd_id'));
+                if (empty($det)) {
+                	$doc_id = $xdoc->getAttribute('xsd_id');
+                    Doc_Type_XSD::insertAtId($doc_id,$params);
                 } else {
-                    $bgp->setStatus("Inserting XSD $title $version");
-                    // need to try and insert at the XML doc_id.  If there's something there already
-                    // then we know it doesn't match so do a insert with new id in that case
-                    $det =  Doc_Type_XSD::getDetails($xdoc->getAttribute('xsd_id'));
-                    if (empty($det)) {
-                    	$doc_id = $xdoc->getAttribute('xsd_id');
-                        Doc_Type_XSD::insertAtId($doc_id,$params);
-                    } else {
-                        $doc_id = Doc_Type_XSD::insert($params);
-                    }
+                    $doc_id = Doc_Type_XSD::insert($params);
                 }
+            }
+                
             if ($doc_id) {
                 // check for new displays 
                 XSD_Display::importDisplays($xdoc, $doc_id, $xdis_ids, $maps,$bgp);

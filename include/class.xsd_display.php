@@ -784,34 +784,35 @@ class XSD_Display
                 $found_matching_title = true;
                 $xdis_id = $list[0]['xdis_id'];
             }
-                $params = array(
-                    'xdis_xsd_id' => $xsd_id,
-                    'xdis_title' => $title,
-                    'xdis_version' => $xdis->getAttribute('xdis_version'),
-                    'xdis_enabled' => $xdis->getAttribute('xdis_enabled'),
-                    'xdis_object_type' => $xdis->getAttribute('xdis_object_type'),
-                );
-                if ($found_matching_title) {
-                  $bgp->setStatus("Overwriting Display $title $version");
-                  XSD_Display::update($xdis_id, $params);
-                  // need to delete any matchfields that refer to this xdis as we are about to bring
-                  // the ones from the XML doc in
-                  XSD_HTML_Match::removeByXDIS_ID($xdis_id);
-                } else {
-                  $bgp->setStatus("Inserting Display $title $version");
-                  // need to try and insert at the xdis_id in the XML.  If there's something there already
-                  // then we know it doesn't match so do a insert with new id in that case 
-                  $det = XSD_Display::getDetails($xdis->getAttribute('xdis_id'));
-                  if (empty($det)) {
-                  	$xdis_id = $xdis->getAttribute('xdis_id');
-                    XSD_Display::insertAtId($xdis_id, $xsd_id, $params);
-                  } else {
-                    $xdis_id = XSD_Display::insert($xsd_id, $params);
-                  }
-                }
-                $maps['xdis_map'][$xdis->getAttribute('xdis_id')] = $xdis_id;
-                XSD_HTML_Match::importMatchFields($xdis, $xdis_id, $maps);
-                Citation::import($xdis, $xdis_id, $maps);
+                
+            $params = array(
+                'xdis_xsd_id' => $xsd_id,
+                'xdis_title' => $title,
+                'xdis_version' => $xdis->getAttribute('xdis_version'),
+                'xdis_enabled' => $xdis->getAttribute('xdis_enabled'),
+                'xdis_object_type' => $xdis->getAttribute('xdis_object_type'),
+            );
+            if ($found_matching_title) {
+              $bgp->setStatus("Overwriting Display $title $version");
+              XSD_Display::update($xdis_id, $params);
+              // need to delete any matchfields that refer to this xdis as we are about to bring
+              // the ones from the XML doc in
+              XSD_HTML_Match::removeByXDIS_ID($xdis_id);
+            } else {
+              $bgp->setStatus("Inserting Display $title $version");
+              // need to try and insert at the xdis_id in the XML.  If there's something there already
+              // then we know it doesn't match so do a insert with new id in that case 
+              $det = XSD_Display::getDetails($xdis->getAttribute('xdis_id'));
+              if (empty($det)) {
+              	$xdis_id = $xdis->getAttribute('xdis_id');
+                XSD_Display::insertAtId($xdis_id, $xsd_id, $params);
+              } else {
+                $xdis_id = XSD_Display::insert($xsd_id, $params);
+              }
+            }
+            $maps['xdis_map'][$xdis->getAttribute('xdis_id')] = $xdis_id;
+            XSD_HTML_Match::importMatchFields($xdis, $xdis_id, $maps);
+            Citation::import($xdis, $xdis_id, $maps);
         }
     }
     
