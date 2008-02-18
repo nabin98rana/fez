@@ -194,6 +194,9 @@ class Template_API
             $this->assign("current_user_id", Auth::getUserID());
         }
 		
+        $this->assign("start_date", date('Y-m-d', mktime(0,0,0,1,1,date('Y'))));
+        $this->assign("end_date", date('Y-m-d', mktime(0,0,0,12,31,date('Y'))));
+        
         $this->assign("app_path", APP_PATH);
         $this->assign("app_setup", Setup::load());
         $this->assign("app_setup_path", APP_SETUP_PATH);
