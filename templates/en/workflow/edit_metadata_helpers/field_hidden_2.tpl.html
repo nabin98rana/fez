@@ -1,9 +1,10 @@
-			<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}" style="display:none">
-			  <td>{$xsdmf.xsdmf_title}
-			  </td>
-			  <td>
+{if $isAdministrator == "1"}{assign var="show" value=true}{else}{assign var="show" value=false}{/if}
+			
+			<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}"{if $show} bgcolor="{$cell_color}" class="default" valign="top"{else} style="display:none"{/if}>
+			  <td><b>{$xsdmf.xsdmf_title}</b></td>
+			  <td{if $show} bgcolor="{$value_color}"{/if}>
 				{assign var="field_id" value="xsd_display_fields_"|cat:$xsdmf.xsdmf_id|cat:"_"|cat:$loop_num}
-				<input class="default" type="hidden" 
+				<input class="default" type="{if $show}text{else}hidden{/if}" 
 					id="{$field_id}" 
 					{if $xsdmf.xsdmf_multiple == 1}
 						name="xsd_display_fields[{$xsdmf.xsdmf_id}]{$squares}" 
