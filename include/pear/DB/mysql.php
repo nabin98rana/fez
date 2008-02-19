@@ -870,8 +870,18 @@ class DB_mysql extends DB_common
             return $query . " LIMIT $from, $count";
         }
     */  
+        if( !is_numeric($count)) {
+            $count = 100;
+        }
+    
         // This is more SQL ANSI compatible and still works the same in mysql
-        $query = $query . " LIMIT $count OFFSET $from";
+        $query = $query . " LIMIT $count";
+        
+        if( is_numeric($from)) {
+            $query = $query . " OFFSET $from";
+        }
+        
+        //$query = $query . " LIMIT $count OFFSET $from";
         return $query;
     }
     // }}}

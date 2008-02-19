@@ -599,7 +599,15 @@ class DB_pgsql extends DB_common
     function modifyLimitQuery($query, $from, $count)
     {
         //$query = $query . " LIMIT $count, $from"; // CK fixed (21/6/2007)
-        $query = $query . " LIMIT $count OFFSET $from";
+        if( !is_numeric($count)) {
+            $count = 100;
+        }
+        
+        $query = $query . " LIMIT $count";
+        
+        if( is_numeric($from)) {
+            $query = $query . " OFFSET $from";
+        }
         return $query;
     }
 
