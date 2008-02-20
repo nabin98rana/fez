@@ -143,7 +143,7 @@ if ($access_ok) {
 		$community_list = Misc::stripOneElementArrays($community_list);
 	}*/
 	
-	$default_depositor_org_id = Org_Structure::getDefaultOrgIDByUsername($username);
+	$default_depositor_org_id = Org_Structure::getDefaultOrgIDByUsername($isUser);
 //	$community_list = 
 //	$collections = Collection::getEditList();
 	$collection_list = array();
