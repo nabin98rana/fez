@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<workflows schema_version="1.0">
+  <workflow wfl_id="197" wfl_title="Register Main Chapter" wfl_version="1.0" wfl_description="HERDC Main Chapter Registration" wfl_roles="Approver,Community_Administrator,Editor" wfl_end_button_label="Finished">
+    <WorkflowState wfs_id="696" wfs_title="Register Main Chapter" wfs_description="" wfs_auto="0" wfs_wfb_id="137" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowTrigger wft_id="249" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/main_chapter_16.png" wft_ret_id="3" wft_options="0"/>
+  </workflow>
+  <WorkflowBehaviour wfb_id="137" wfb_title="Register Main Chapter" wfb_description="This form allows registration of main chapter status for certain authors. Part of HERDC requirements." wfb_version="1.0" wfb_script_name="main_chapter.php" wfb_auto="0"/>
+</workflows>

@@ -1,0 +1,41 @@
+<script type="text/javascript">
+<!--
+{literal}
+function validateForm(f) {
+	var f = document.forms['wfl_form1'];
+	if (f.workflow_button_{/literal}{$workflow_buttons[i].wfs_id}{literal}.value == 'Finished') {
+		return;
+	}
+}
+{/literal}
+// -->
+</script>
+
+<tr><td>
+
+<div class="outline">
+
+<div class="admin-header">Edit Main Chapter Registrations</div>
+
+  <div class="default admin-content">
+
+	<input type="hidden" name="action" value="save"/>
+	<input type="hidden" name="id" value="{$wf_id}"/>
+	<input type="hidden" name="af_id" value="{$current.af_id}"/>
+
+	{section name='ii' loop=$list}
+	{if $smarty.section.ii.first}<h3>Tick to register an author</h3><table class="default" style="border-collapse: collapse; padding: 5px; margin: 0;">{/if}
+      <tr bgcolor="{cycle values="$cycle_colours"}">
+        <td width="350"><input type="checkbox" name="author_id[]" value="{$list[ii].aut_id}" {if $list[ii].mc_status !== null}checked{/if}/> {$list[ii].aut_display_name}</td>
+      </tr>
+      {if $smarty.section.ii.last}<tr><td><br /><input type="submit" name="save" value="Save" class="button" onclick="javascript:validateForm(this);" /></td></tr></table>{/if}
+    {sectionelse}
+	<p>No authors are attached to this record.</p>
+	{/section}
+
+	</div>
+
+</div>
+</div>
+
+</td></tr>
