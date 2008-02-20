@@ -965,7 +965,7 @@ class Search_Key
             $column_type = 'varchar(255)';
         } elseif( $column_type == 'date' ) {
             $column_type = 'datetime';
-        } elseif( $column_type = 'text' ) {
+        } elseif( $column_type == 'text' ) {
             $key_type = 'FULLTEXT';
         }
         
@@ -992,14 +992,15 @@ class Search_Key
         } elseif( $relationship == 0 ) {
             
             /*
-             * Create new column
+             * Create new columns
              */ 
             $table_name     = APP_TABLE_PREFIX.'record_search_key';
             $column_name    = 'rek_' . $sek_title_db;
             
             $sql = "ALTER TABLE `$table_name` \n" .
+                   "    ADD COLUMN `{$column_name}_xsdmf_id` int(11), \n" .
                    "    ADD COLUMN `$column_name` $column_type \n";
-             
+            
             return $sql;
             
         }
