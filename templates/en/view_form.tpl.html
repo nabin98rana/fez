@@ -520,7 +520,7 @@ function showDiv(p)
 				<tr>
 				  <td align="left" class="default" nowrap> <b>Created:</b></td>
 				  <td align="left" class="default" nowrap width="100%">  {$created_date} 
-				  {if $depositor != ""} by <a href="{$rel_url}list.php?browse=depositor&depositor={$depositor_id}" class="silent_link">{$depositor}</a> 
+				  {if $depositor != ""} by <a href="{$rel_url}list/browse=depositor&amp;depositor={$depositor_id}" class="silent_link">{$depositor}</a> 
 				  {if $depositor_org != ""} on behalf of {$depositor_org}{/if}.{/if}
 				  <a title="view the full history of changes on this object" href="javascript:void(null);" onclick="javascript:openHistory('{$pid}');">Detailed History</a>
 			  </td>
