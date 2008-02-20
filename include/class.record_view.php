@@ -71,7 +71,7 @@ class RecordView {
 						}
 					}
 				}
-                if ($dis_field["xsdmf_html_input"] == 'org_selector') {
+                if ($dis_field["xsdmf_html_input"] == 'org_selector' || $dis_field["xsdmf_html_input"] == 'depositor_org') {
                     if (!empty($details[$dis_field['xsdmf_id']])) {
                         if (is_array($details[$dis_field['xsdmf_id']])) {
                             foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {

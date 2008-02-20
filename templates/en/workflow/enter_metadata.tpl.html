@@ -341,6 +341,34 @@ function selectDateField(field_name, day, month, year)
 							 </td>
 							</tr>
 					{/if}
+			{elseif ($xsd_display_fields[i].xsdmf_html_input == 'depositor_org') }
+				{assign var="xsdmf" value=$xsd_display_fields[i]}
+				<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">
+				  <td width="200" bgcolor="{$cell_color}" class="default" valign="top">
+					<b>{$xsdmf.xsdmf_title} {if $xsdmf.xsdmf_required == 1} * {/if}</b>
+					{if $xsdmf.xsdmf_description != ""}<br />{$xsdmf.xsdmf_description}{/if}
+				  </td>
+				  <td bgcolor="{if $default_depositor_org_id == 1}yellow{else}{$value_color}{/if}">
+						    {assign var="field_name" value="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}							
+					{if $xsdmf.xsdmf_html_input == 'multiple'}
+						{assign var="field_name" value=$field_name|cat:"[]"}
+					{/if}
+					<select {if $xsdmf.xsdmf_html_input == 'multiple'}multiple size="8"{/if} class="default" name="{$field_name}">
+					  {if $xsdmf.xsdmf_html_input != 'multiple'}<option value="-1"></option>{/if}
+					  {html_options options=$xsdmf.field_options selected=$default_depositor_org_id}
+					</select>
+					{include file="error_icon.tpl.html" field=$field_name}
+						{if $xsdmf.xsdmf_required == 1}
+		    		    <script type="text/javascript">
+		       			<!--
+		    		    xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsdmf.xsdmf_id}]{if $xsdmf.xsdmf_html_input == 'multiple'}[]{/if}', '{$xsdmf.xsdmf_title}');
+		          		required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsdmf.xsdmf_id}]{if $xsdmf.xsdmf_html_input == 'multiple'}[]{/if}', {if $xsdmf.xsdmf_html_input == 'multiple'}'multiple'{else}'combo'{/if});
+		    		    //-->
+		          		</script>
+		    		    {/if}
+				  </td>
+		  		{include file='workflow/compare_records_helpers/get_right_column.tpl.html' input_field_name=$field_name}
+				 </tr>
 			{elseif ($xsd_display_fields[i].xsdmf_html_input == 'static' && $xsd_display_fields[i].xsdmf_show_in_view == 1 && $xsd_display_fields[i].xsdmf_static_text != '') && $xsd_display_fields[i].xsdmf_enabled == 1}
 				{assign var="image_name" value=$app_path|cat:"images/"|cat:$xsd_display_fields[i].xsdmf_image_location} 
 				{assign var="image_file_string" value=""}

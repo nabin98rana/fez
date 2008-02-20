@@ -251,6 +251,33 @@ class Org_Structure
 
 
     /**
+     * Method used to get the default org id of a user from their HR feed data
+     *
+     * @access  public
+     * @param   integer $org_id The organisational structure ID
+     * @return  string The title of the organisational structure
+     */
+    function getDefaultOrgIDByUsername($username)
+    {
+        $stmt = "SELECT
+                    org_id
+                 FROM
+                    " . APP_TABLE_PREFIX . "org_structure
+                 INNER JOIN hr_position_vw ON AOU = org_extdb_id
+                 INNER JOIN " . APP_TABLE_PREFIX . "author ON WAMIKEY = aut_org_staff_id and aut_org_username = '".$username."'
+                 WHERE
+                    org_extdb_name='HR'";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return '';
+        } else {
+            return $res;
+        }
+    }
+
+    /**
      * Method used to get the list of organsational structures available in the 
      * system returned in an associative array for drop down lists.
      *

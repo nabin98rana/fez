@@ -143,7 +143,7 @@ if ($access_ok) {
 		$community_list = Misc::stripOneElementArrays($community_list);
 	}*/
 	
-	
+	$default_depositor_org_id = Org_Structure::getDefaultOrgIDByUsername($username);
 //	$community_list = 
 //	$collections = Collection::getEditList();
 	$collection_list = array();
@@ -187,6 +187,9 @@ if ($access_ok) {
 				if ($dis_field["xsdmf_org_level"] != "") {
 					$xsd_display_fields[$dis_key]['field_options'] = Org_Structure::getAssocListByLevel($dis_field["xsdmf_org_level"]);
 				}
+			}
+			if ($dis_field["xsdmf_html_input"] == 'depositor_org') {
+				$xsd_display_fields[$dis_key]['field_options'] = Org_Structure::getAssocListHR();
 			}
 			if ($dis_field["xsdmf_html_input"] == 'author_selector') {
 				if ($dis_field["xsdmf_use_parent_option_list"] == 1) {
@@ -262,6 +265,7 @@ if ($access_ok) {
     }
     $tpl->assign("xsd_display_fields", $xsd_display_fields);
     $tpl->assign("xdis_id", $xdis_id);
+    $tpl->assign("default_depositor_org_id", $default_depositor_org_id);
     $tpl->assign("form_title", "Create New Record");
     $tpl->assign("form_submit_button", "Create Record");
 

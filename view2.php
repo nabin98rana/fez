@@ -219,6 +219,19 @@ if (!empty($pid) && $record->checkExists()) {
 						}
 					}
 				}				
+				if ($dis_field['xsdmf_element'] == "!depositor_affiliation") {
+					if (!empty($details[$dis_field['xsdmf_id']])) {
+						if (is_array($details[$dis_field['xsdmf_id']])) {
+							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {		
+								$depositor_org_id = $cdata;								
+								$depositor_org = Org_Structure::getTitle($cdata);
+							}
+						} else {
+							$depositor_org_id = $details[$dis_field['xsdmf_id']];
+							$depositor_org =  Org_Structure::getTitle($details[$dis_field['xsdmf_id']]);
+						}
+					}
+				}								
 			}
 		}
         $tpl->assign('meta_head', $meta_head);		
@@ -340,6 +353,8 @@ if (!empty($pid) && $record->checkExists()) {
 		$tpl->assign("created_date", $created_date);
 		$tpl->assign("depositor", $depositor);
 		$tpl->assign("depositor_id", $depositor_id);
+		$tpl->assign("depositor_org", $depositor_org);
+		$tpl->assign("depositor_org_id", $depositor_org_id);
 		$tpl->assign("details", $details);
         $tpl->assign('title', $record->getTitle());
 //		$tpl->assign("controlled_vocabs", $controlled_vocabs);				

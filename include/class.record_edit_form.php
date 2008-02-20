@@ -14,6 +14,7 @@
  {
     var $details;
     var $xsd_display_fields;
+	var $default_depositor_org_id;
     
      function setTemplateVars($tpl, $record)
      {
@@ -27,7 +28,7 @@
         $parents = $record->getParents();
 		$tpl->assign("parents", $parents);
         $tpl->assign("pid", $pid);
-
+		$this->default_depositor_org_id = 0;
         $xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array(""));  // XSD_DisplayObject
         $this->fixDisplayFields($xsd_display_fields, $record);
         $this->xsd_display_fields = $xsd_display_fields;
@@ -63,6 +64,7 @@
         $tpl->assign('triggers', count(WorkflowTrigger::getList($pid)));
         $tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");
         $tpl->assign("isEditor", 1);
+        $tpl->assign("default_depositor_org_id", $this->default_depositor_org_id); // a flag to set to 1 later if the edit forms default depositor org id combo box was set due to it being empty - so need to show a "not saved message next to the control"
         $tpl->assign("details", $details);
         $tpl->registerNajax( NAJAX_Client::register('SelectOrgStructure', 'edit_metadata.php')."\n"
                         .NAJAX_Client::register('Suggestor', 'edit_metadata.php'));
@@ -145,7 +147,10 @@
         //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
         foreach ($xsd_display_fields  as $dis_key => $dis_field) {
 //            if ($dis_field["xsdmf_enabled"] == 1) {
-      		  if ($dis_field["xsdmf_html_input"] == 'org_selector') {
+               if ($dis_field["xsdmf_html_input"] == 'depositor_org') {
+					$xsd_display_fields[$dis_key]['field_options'] = Org_Structure::getAssocListHR();
+			   }
+      		   if ($dis_field["xsdmf_html_input"] == 'org_selector') {
                     if ($dis_field["xsdmf_org_level"] != "") {
                         $xsd_display_fields[$dis_key]['field_options'] = Org_Structure::getAssocListByLevel($dis_field["xsdmf_org_level"]);
                     }
@@ -230,6 +235,15 @@
                         $details[$dis_field['xsdmf_id']] = preg_replace('/\s\s+/', ' ', trim($details[$dis_field['xsdmf_id']]));
                     }               
                 }
+				// for the depositor org affilation control, check if it is empty then suggest a default if possible
+                if ($dis_field["xsdmf_html_input"] == 'depositor_org') {
+					$tempValue = $details[$dis_field["xsdmf_id"]];
+					if ($tempValue == "") {
+						$username = Auth::getUsername();
+						$details[$dis_field["xsdmf_id"]] = Org_Structure::getDefaultOrgIDByUsername($username);
+						$this->default_depositor_org_id = 1; // will show a message on the form warning this was set from default lookup and needs saving to take affect
+					}
+				} 
                 if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'contvocab' || $dis_field["xsdmf_html_input"] == 'contvocab_selector') {
                     if (@$details[$dis_field["xsdmf_id"]]) { // if a record detail matches a display field xsdmf entry
                         if (($dis_field["xsdmf_html_input"] == 'contvocab_selector') && ($dis_field['xsdmf_cvo_save_type'] != 1)) {         
