@@ -490,9 +490,11 @@ class Author
 			    aut_org_username,
 			    aut_display_name as aut_fullname,
 				MATCH(aut_display_name) AGAINST ('".$term."') as Relevance FROM ".$dbtp."author
-			 WHERE MATCH (aut_display_name) AGAINST ('*".$term."*' IN BOOLEAN MODE)
-			 ORDER BY Relevance DESC, aut_fullname LIMIT 0,60
-			 ) as tempsuggest";
+			 WHERE MATCH (aut_display_name) AGAINST ('*".$term."*' IN BOOLEAN MODE)";
+		if (APP_AUTHOR_SUGGEST_MODE == 2) {
+			$stmt .= "AND (aut_org_username IS NOT NULL OR aut_org_staff_id IS NOT NULL)";
+		}
+		$stmt .= "ORDER BY Relevance DESC, aut_fullname LIMIT 0,60) as tempsuggest";
 		
 		if( $assoc ) {
 		    $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);

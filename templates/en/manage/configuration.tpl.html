@@ -380,6 +380,15 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_analytics_id"}
 			</td>
   		  </tr>
+  		  <tr>
+		    <td class="colname">Author auto-suggest mode</td>
+			<td class="coldetail">
+			  <select name="app_author_suggest_mode">
+			    <option value="1"{if $config_settings.app_author_suggest_mode == "1"} selected="selected"{/if}>No restriction - list all authors</option>
+				<option value="2"{if $config_settings.app_author_suggest_mode == "2"} selected="selected"{/if}>Limit suggestions to authors with an internal username or ID</option>
+			  </select>
+			</td>
+  		  </tr>
 		</table>
 		</div>
 

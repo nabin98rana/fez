@@ -66,6 +66,7 @@ class Default_Data
             $defaultData['app_php_exec']                    = "C:/php/php.exe";
             $defaultData['app_pdftotext_exec']              = "C:/utils/pdftotext.exe";
             $defaultData['app_san_import_dir']              = "C:/fez/incoming/";
+			$defaultData['app_ffmpeg_cmd']					= "C:/ffmpeg/ffmpeg.exe";
         } else {
             // Unix
             $defaultData['webserver_log_dir']               = "/usr/local/apache/logs/";
@@ -80,6 +81,7 @@ class Default_Data
             $defaultData['app_php_exec']                    = "/usr/local/bin/php";
             $defaultData['app_pdftotext_exec']              = "/usr/bin/pdftotext";
             $defaultData['app_san_import_dir']              = "/fez/incoming/";
+			$defaultData['app_ffmpeg_cmd']					= "/usr/bin/ffmpeg";
         }   // Can add some other defaults here for other common OS setups
 
         $defaultData['datamodel_version']                   = "2007111201";                 // Change this to last upgrade + 1
@@ -170,6 +172,7 @@ class Default_Data
         $defaultData['app_fedora_apia_direct']              = "OFF";
         $defaultData['app_analytics_id']              		= "";
         $defaultData['app_analytics_switch']              	= "OFF";
+		$defaultData['app_author_suggest_mode']             = "1";
 
         return $defaultData;
 
