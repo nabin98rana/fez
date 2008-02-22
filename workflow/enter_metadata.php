@@ -143,7 +143,7 @@ if ($access_ok) {
 		$community_list = Misc::stripOneElementArrays($community_list);
 	}*/
 	
-	$default_depositor_org_id = Org_Structure::getDefaultOrgIDByUsername($isUser);
+	$default_depositor_org_id = -1;
 //	$community_list = 
 //	$collections = Collection::getEditList();
 	$collection_list = array();
@@ -190,6 +190,7 @@ if ($access_ok) {
 			}
 			if ($dis_field["xsdmf_html_input"] == 'depositor_org') {
 				$xsd_display_fields[$dis_key]['field_options'] = Org_Structure::getAssocListHR();
+				$default_depositor_org_id = Org_Structure::getDefaultOrgIDByUsername($isUser);
 			}
 			if ($dis_field["xsdmf_html_input"] == 'author_selector') {
 				if ($dis_field["xsdmf_use_parent_option_list"] == 1) {
