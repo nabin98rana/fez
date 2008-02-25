@@ -1827,18 +1827,23 @@ inner join
              	} else {
              	    
 		        	$sekdet = Search_Key::getDetails($sek_id);
-	             	if ($sekdet['sek_relationship'] == 1) {
-		        		$searchKey_join[SK_LEFT_JOIN] .= " LEFT JOIN {$dbtp}record_search_key_".$sekdet['sek_title_db']." as rsort on rsort.rek_".$sekdet['sek_title_db']."_pid = r".$searchKey_join[SK_KEY_ID].".rek_pid ".$sortRestriction;
-						$searchKey_join[SK_SORT_ORDER] .= " rsort";
-	             	} else {
-	             		$searchKey_join[SK_SORT_ORDER] .= "r".$searchKey_join[SK_KEY_ID];
-	             	}
-	             	
-				    if ($options["sort_order"] == "1") {
-	             		$searchKey_join[SK_SORT_ORDER] .= ".rek_".$sekdet['sek_title_db']." DESC, ";
-	             	} else {
-	             		$searchKey_join[SK_SORT_ORDER] .= ".rek_".$sekdet['sek_title_db']." ASC, ";
-	             	}
+		        	
+		        	if( !empty($sekdet['sek_id']) ) {
+		        	    
+    	             	if ($sekdet['sek_relationship'] == 1) {
+    		        		$searchKey_join[SK_LEFT_JOIN] .= " LEFT JOIN {$dbtp}record_search_key_".$sekdet['sek_title_db']." as rsort on rsort.rek_".$sekdet['sek_title_db']."_pid = r".$searchKey_join[SK_KEY_ID].".rek_pid ".$sortRestriction;
+    						$searchKey_join[SK_SORT_ORDER] .= " rsort";
+    	             	} else {
+    	             		$searchKey_join[SK_SORT_ORDER] .= "r".$searchKey_join[SK_KEY_ID];
+    	             	}
+    	             	
+    				    if ($options["sort_order"] == "1") {
+    	             		$searchKey_join[SK_SORT_ORDER] .= ".rek_".$sekdet['sek_title_db']." DESC, ";
+    	             	} else {
+    	             		$searchKey_join[SK_SORT_ORDER] .= ".rek_".$sekdet['sek_title_db']." ASC, ";
+    	             	}
+    	             	
+		        	}
              	}
             }
              
