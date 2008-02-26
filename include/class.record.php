@@ -2628,7 +2628,7 @@ class RecordGeneral
      * @param  $value
      * @return  void
      */
-    function updateRELSEXT($key, $value)
+    function updateRELSEXT($key, $value, $removeCurrent = true)
     {
 
 		$newXML = "";
@@ -2639,18 +2639,62 @@ class RecordGeneral
 		foreach ($fieldNodeList as $fieldNode) { // first delete all the isMemberOfs
 			$parentNode = $fieldNode->parentNode;
 			//Error_Handler::logError($fieldNode->nodeName.$fieldNode->nodeValue,__FILE__,__LINE__);
-			$parentNode->removeChild($fieldNode);
+			if ( $removeCurrent ) {
+                $parentNode->removeChild($fieldNode);
+			}
 		}
 		$newNode = $doc->createElementNS('info:fedora/fedora-system:def/relations-external#', 'rel:isMemberOf');
 	    $newNode->setAttribute('rdf:resource', 'info:fedora/'.$value);
 		$parentNode->appendChild($newNode);
-//		Error_Handler::logError($doc->SaveXML(),__FILE__,__LINE__);
 		$newXML = $doc->SaveXML();
         if ($newXML != "") {
             Fedora_API::callModifyDatastreamByValue($this->pid, "RELS-EXT", "A", "Relationships to other objects", $newXML, "text/xml", false);
 			Record::setIndexMatchingFields($this->pid);
         }
     }
+    
+    /**
+     * Remove record from collection
+     *
+     * @param string $collection  the pid of the collection
+     *
+     * @return bool  TRUE if removed OK. FALSE if not removed.
+     *
+     * @access public
+     * @since Method available since RC1
+     */
+    function removeFromCollection($collection)
+    {
+        if( $collection == "" ) {
+            return false;
+        }
+        
+        $newXML = "";
+        $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'RELS-EXT', true);
+        
+        $doc = DOMDocument::loadXML($xmlString);
+        $xpath = new DOMXPath($doc);
+        
+        $fieldNodeList = $xpath->query("//rel:isMemberOf[@rdf:resource='info:fedora/$collection']");
+        
+		if( $fieldNodeList->length == 0 ) {
+            return false;
+		}
+		  
+		$collectionNode   = $fieldNodeList->item(0);
+		$parentNode       = $collectionNode->parentNode;
+		$parentNode->removeChild($collectionNode);
+		
+		$newXML = $doc->SaveXML();
+        if ($newXML != "") {
+            Fedora_API::callModifyDatastreamByValue($this->pid, "RELS-EXT", "A", "Relationships to other objects", $newXML, "text/xml", false);
+			Record::setIndexMatchingFields($this->pid);
+			return true;
+        }
+        
+        return false;
+    }
+    
 
     function fixInheritance() {
 		$dbtp = APP_TABLE_PREFIX;
