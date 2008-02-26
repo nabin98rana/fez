@@ -913,7 +913,7 @@ function workflowBulkChangeSearch(f, rel_url)
     if (!confirm('This will run ' + f.wft_id.options[f.wft_id.selectedIndex].text + ' on all objects in the search result.  Are you sure?')) {
     	return false;
 	}
-    f.wft_id = f.wft_id.selectedIndex;
+    //f.wft_id = f.wft_id.selectedIndex;
     f.cat.value = 'select_workflow';
     f.action = rel_url + 'workflow/bulk_change_from_search.php';
     f.target='';
