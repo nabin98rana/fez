@@ -45,7 +45,7 @@ class BackgroundProcess_Bulk_Copy_Record_Collection extends BackgroundProcess
 
     function run()
     {
-        $this->setState(1);
+        $this->setState(BGP_RUNNING);
         extract(unserialize($this->inputs));
 
 		if (!empty($options)) {
@@ -57,8 +57,7 @@ class BackgroundProcess_Bulk_Copy_Record_Collection extends BackgroundProcess
 		/*
 		 * Copy pid(s) to collection
 		 */
-		if (!empty($pids) && is_array($pids)) { 
-            //$bmrc->copyBGP($pids, $parent_pid, $regen, true);
+		if (!empty($pids) && is_array($pids)) {
             
     		foreach ($pids as $pid) {
     	        $this->setHeartbeat();
@@ -76,7 +75,7 @@ class BackgroundProcess_Bulk_Copy_Record_Collection extends BackgroundProcess
             $this->setStatus("Finished Bulk Copy to Collection");
             
 		}
-        $this->setState(2);
+        $this->setState(BGP_FINISHED);
     }
     
     function getPidsFromSearchBGP($options)

@@ -45,7 +45,7 @@ class BackgroundProcess_Bulk_Remove_Record_Collection extends BackgroundProcess
 
     function run()
     {
-        $this->setState(1);
+        $this->setState(BGP_RUNNING);
         extract(unserialize($this->inputs));
 		
 		/*
@@ -62,7 +62,7 @@ class BackgroundProcess_Bulk_Remove_Record_Collection extends BackgroundProcess
     				
     			    $res = $record->removeFromCollection($collection_pid);
     				if( $res ) {
-    				    $this->setStatus("Remove '".$pid."' from collection '".$collection_pid."'");	
+    				    $this->setStatus("Removed record '".$pid."' from collection '".$collection_pid."'");	
     				} else {
     				    $this->setStatus("ERROR Removing '".$pid."' from collection '".$collection_pid."'");
     				}
@@ -72,10 +72,10 @@ class BackgroundProcess_Bulk_Remove_Record_Collection extends BackgroundProcess
     			}
     		}
     		
-            $this->setStatus("Finished Bulk Copy to Collection");
+            $this->setStatus("Finished Bulk Remove from Collection");
             
 		}
-        $this->setState(2);
+        $this->setState(BGP_FINISHED);
     }
 }
 

@@ -1,4 +1,9 @@
 <?php
+
+define('BGP_UNDEFINED', 0);
+define('BGP_RUNNING',   1);
+define('BGP_FINISHED',  2);
+
 include_once(APP_INC_PATH . "class.date.php");
 /**
   * This is a virtual class.

@@ -40,18 +40,7 @@ $pids           = $this->pids;  /* The Pids to copy */
 $collection_pid = $this->pid;   /* The collection to copy PID's into */
 $regen          = false;
 
-if ($this->wft_details['wft_type_id'] == WorkflowTrigger::getTriggerId('Bulk Change Search')) {
-    
-	$options = Pager::saveSearchParams($request_params);
-	echo "<pre>";
-	print_r($_REQUEST);
-	echo "</pre>";
-	exit;
-	$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-    $bgp = new BackgroundProcess_Bulk_Copy_Record_Collection; 
-    $bgp->register(serialize(compact('options', 'collection_pid', 'regen')), Auth::getUserID());
-    
-} elseif (!empty($pids) && is_array($pids)) { 
+if (!empty($pids) && is_array($pids)) { 
     
     $bgp = new BackgroundProcess_Bulk_Copy_Record_Collection; 
     $bgp->register(serialize(compact('pids', 'collection_pid', 'regen')), Auth::getUserID());

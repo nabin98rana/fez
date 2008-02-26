@@ -14,7 +14,7 @@ class BackgroundProcess_Bulk_Move_Record_Collection extends BackgroundProcess
 
     function run()
     {
-        $this->setState(1);
+        $this->setState(BGP_RUNNING);
         extract(unserialize($this->inputs));
 
         $bmrc = new Bulk_Move_Record_Collection;
@@ -28,7 +28,7 @@ class BackgroundProcess_Bulk_Move_Record_Collection extends BackgroundProcess
 		if (!empty($pids) && is_array($pids)) { 
             $bmrc->moveBGP($pids, $parent_pid, $regen, true);
 		}
-        $this->setState(2);
+        $this->setState(BGP_FINISHED);
     }
 }
 
