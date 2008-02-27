@@ -1,0 +1,145 @@
+
+      <table width="100%" class="admin-box" border="0" cellspacing="0" cellpadding="0" align="center">
+        <tr>
+          <td>
+            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+              {literal}
+              <script language="JavaScript">
+              <!--
+             
+              //-->
+              </script>
+              {/literal}
+              <form name="custom_field_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
+              {if $smarty.get.cat == 'edit_skey'}
+              <input type="hidden" name="cat" value="update_skey">
+              <input type="hidden" name="cvsk_id" value="{$info.cvsk_id}">
+              <input type="hidden" name="cview_id" value="{$info.cvsk_cview_id}">
+              {else}
+              <input type="hidden" name="cat" value="new_skey">
+              <input type="hidden" name="cview_id" value="{$cview_id}">
+              {/if}
+              <tr>
+                <td colspan="2">
+                  <div class="admin-header">Manage Custom View Search Keys for {$cview_name}</div>
+                </td>
+              </tr>
+              {if $result != ""}
+              <tr>
+                <td colspan="2" bgcolor="{$cell_color}" align="center" class="{if $result == 1 || $result == 3}success{else}error{/if}">
+                    {if $result == 1}
+                      Thank you, the row was added successfully.
+                    {elseif $result == -1}
+                      An error occurred while trying to add the row
+                    {elseif $result == 3}
+                      The row(s) were successfully deleted
+                    {elseif $result == 4}
+                       An error occurred while trying to delete row(s)
+                    {/if}
+                </td>
+              </tr>
+              {/if}
+              <tr>
+                <td width="140" bgcolor="{$cell_color}" class="default">
+                  <b>Search Key ID:</b>
+                </td>
+                <td bgcolor="{$light_color}" class="default">
+                  <input type="text" name="cvsk_sek_id" size="40" class="default" value="{$info.cvsk_sek_id}"> [<a href="#" onclick="javascript:small_window('/manage/custom_views.php?cat=list_sek_ids');">Select</a>]
+                  {include file="error_icon.tpl.html" field="name"}
+                </td>
+              </tr>
+              <tr>
+                <td width="140" bgcolor="{$cell_color}" class="default">
+                  <b>Name:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="text" name="cvsk_sek_name" size="40" class="default" value="{$info.cvsk_sek_name}">
+                  {include file="error_icon.tpl.html" field="header_tpl"}
+                </td>
+              </tr>
+              
+              <tr>
+                <td colspan="2" bgcolor="{$cell_color}" align="center">
+                  {if $smarty.get.cat == 'edit_skey'}
+                  <input class="button" type="submit" value="Update Search Key">
+                  {else}
+                  <input class="button" type="submit" value="Add Search Key">
+                  {/if}
+                  <input class="button" type="reset" value="Reset">
+                </td>
+              </tr>
+              </form>
+              <tr>
+                <td colspan="2" class="default">
+                  <b>Existing Search Keys ({$sek_list_count}):</b>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="2">
+                  <script language="JavaScript">
+                  <!--
+                  {literal}
+                  function checkDelete(f)
+                  {
+                      if (!hasOneChecked(f, 'items[]')) {
+                          alert('Please select at least one of the custom views.');
+                          return false;
+                      }
+                      if (!confirm('This action will permanently remove the selected custom views.')) {
+                          return false;
+                      } else {
+                          return true;
+                      }
+                  }
+                  //-->
+                  </script>
+                  {/literal}
+                  <table border="0" width="100%" cellpadding="1" cellspacing="1">
+                    <form onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
+                    <input type="hidden" name="cat" value="delete_skey">
+                    <input type="hidden" name="cview_id" value="{$cview_id}">
+                    <tr>
+                      <td width="5" bgcolor="{$cell_color}" align="center" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Search Key</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Display Name</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Order</b>&nbsp;</td>
+                    </tr>
+                    {section name="i" loop=$sek_list}
+                    {cycle values=$cycle assign="row_color"}
+                    <tr>
+                      <td width="4" nowrap bgcolor="{$row_color}" align="center">
+                        <input type="checkbox" name="items[]" value="{$sek_list[i].cvsk_id}" {if $smarty.section.i.total == 0}disabled{/if}>
+                      </td>
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;<a href="custom_views.php?cat=edit_skey&cvsk_id={$sek_list[i].cvsk_id}">{$sek_list[i].sek_title}</a>
+                      </td>
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{$sek_list[i].cvsk_sek_name}
+                      </td>
+                      <td bgcolor="{$row_color}" class="default">
+                       &nbsp;{$sek_list[i].cvsk_order}
+                      </td>
+                    </tr>
+                    {sectionelse}
+                    <tr>
+                      <td colspan="13" bgcolor="{$light_color}" align="center" class="default">
+                        No custom views could be found.
+                      </td>
+                    </tr>
+                    {/section}
+                    <tr>
+                      <td width="4" align="center" bgcolor="{$cell_color}">
+                        <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
+                      </td>
+                      <td colspan="13" bgcolor="{$cell_color}">
+                        <input type="submit" value="Delete" class="button">
+                      </td>
+                    </tr>
+                    </form>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>

@@ -155,7 +155,7 @@ class Community
 	    $options["searchKey".Search_Key::getID("Object Type")] = 1; // communities only
         $list = Record::getListing($options, array("Lister"), 0, 1000, "Title");		
 
-		return $returnList;
+		return $list;
 
     }
 

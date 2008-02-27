@@ -235,6 +235,7 @@ class Lister
             if (empty($sort_by)) {
                 $sort_by = "searchKey".Search_Key::getID("Title");
             }
+            
             // list a collection
             // first check the user has view rights over the collection object
             $record = new RecordObject($collection_pid);
@@ -243,7 +244,7 @@ class Lister
             $tpl->assign("isViewer", $canView);
 
             if ($canView) {
-
+                
                 $tpl->assign("xdis_id", Record::getSearchKeyIndexValue($collection_pid, "Display Type"));
 //                $collection_details = Collection::getDetails($collection_pid);
                 $parents = Record::getParentsDetails($collection_pid);
@@ -286,16 +287,43 @@ class Lister
                 $tpl->assign("show_not_allowed_msg", true);
             } 
         } elseif (!empty($community_pid)) {
-            /*if (empty($sort_by)) {
-                $sort_by = "searchKey".Search_Key::getID("Title");
-            }*/
+            
+            include_once(APP_INC_PATH . "class.custom_view.php");
+            
 			$sort_by = "searchKey".Search_Key::getID("Title");
+			
             // list collections in a community
             // first check the user has view rights over the collection object
             $record = new RecordObject($community_pid);
             $canView = $record->canView(true);
             $tpl->assign("isViewer", $canView);
             if ($canView) {	
+                
+                /* 
+                 * Custom View
+                 */
+                $customView = Custom_View::getCommCview($community_pid);
+                
+                if($customView) {
+                    $path       = $customView['cview_folder'];
+                    $header     = APP_PATH. $path . $customView['cview_header_tpl'];
+                    $content    = APP_PATH. $path . $customView['cview_content_tpl'];
+                    $footer     = APP_PATH. $path . $customView['cview_footer_tpl'];
+                    $css        = APP_PATH. $path . $customView['cview_css'];
+                    
+                    if( is_file($header) )
+                        $tpl->assign('cv_header',   $header);
+                    
+                    if( is_file($content) )
+                        $tpl->assign('cv_content',  $content);
+                        
+                    if( is_file($footer) )
+                        $tpl->assign('cv_footer',   $footer);
+                        
+                    if( is_file($css) )
+                        $tpl->assign('cv_css',      $css);
+                }
+                
                 $tpl->assign("community_pid", $community_pid);
                 //$xdis_id = Collection::getCollectionXDIS_ID();
                 //$community_xdis_id = Community::getCommunityXDIS_ID();

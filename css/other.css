@@ -79,7 +79,15 @@
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-style: normal;
 	font-weight: bold;
-	color: yellow;
+	color: red;
+	font-size: 12px;
+}
+
+.success {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-style: normal;
+	font-weight: bold;
+	color: green;
 	font-size: 12px;
 }
 

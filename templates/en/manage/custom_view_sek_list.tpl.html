@@ -1,0 +1,14 @@
+<html>
+{literal}
+<script language="javascript">
+function populateForm(sek_id) 
+{
+    window.opener.document.custom_field_form.cvsk_sek_id.value = sek_id;
+    window.close();
+}
+</script>
+{/literal}
+{section name="i" loop=$sek_ids}
+ - <a href="#" onclick="javascript:populateForm('{$sek_ids[i].sek_id}');">{$sek_ids[i].sek_title}</a> <br />
+{/section}
+</html>
