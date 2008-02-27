@@ -61,7 +61,7 @@ if (isset($_POST['rating'])) {
 
 // add the user comment
 $uc = new UserComments($pid);
-$uc->addUserComment($comment, $rating);
+$uc->addUserComment($comment, $rating, Auth::getUserID());
 
 if( !$uc->uploadCommentsToFedora() )
 {

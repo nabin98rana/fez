@@ -127,7 +127,7 @@ class UserComments
             while ($res->fetchInto($row, DB_FETCHMODE_ASSOC)) {
                 // TODO: use the PEAR::Date class or something?
                 $row['formatted_date_created'] = strftime("%H:%M, %A %e %B %Y", strtotime($row['usc_date_created']));
-                $row['comment'] = stripslashes(htmlspecialchars($row['usc_comment']));
+                $row['comment'] = stripslashes($row['usc_comment']);
                 $this->comments[] = $row;
                 if ($row['usc_rating'] > 0) {
                     $this->number_of_ratings ++;
@@ -152,16 +152,16 @@ class UserComments
      *                           defaults to the currently logged in user.
      * @return  boolean          Success or failure of the database insert.
      */
-    function addUserComment($comment, $rating = 0, $usr_id = 0) {
-    	// use the currently logged in user by default
+    function addUserComment($comment, $rating = 0, $usr_id) {
+    	
         if (empty($usr_id)) {
-    		$usr_id = Auth::getUserID();
+    		return false;
     	}
     	
     	$comment = array(
             'usc_pid'           => $this->pid,
             'usc_userid'        => $usr_id,
-            'usc_comment'       => $comment,
+            'usc_comment'       => nl2br(htmlentities($comment)),
             'usc_rating'        => $rating,
             'usc_date_created'  => date('Y-m-d H:i:s')
         );
@@ -208,7 +208,7 @@ class UserComments
   <user_id>{$comment['usc_userid']}</user_id>
   <user_full_name>{$comment['usr_full_name']}</user_full_name>
   <pid>{$comment['usc_pid']}</pid>
-  <text>" . htmlentities($comment['usc_comment']) ."</text>
+  <text>" . $comment['usc_comment'] ."</text>
   <rating>{$comment['usc_rating']}</rating>
   <date_created>{$comment['usc_date_created']}</date_created>
  </comment>
