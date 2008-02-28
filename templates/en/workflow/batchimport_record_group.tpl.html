@@ -45,7 +45,12 @@ function validateForm(f)
         <td class="default">
             <ul>
             {foreach item=file from=$checked_files}
-    	       <li>{$file}</li>
+    	       <li>{$file} &nbsp;
+				<select class="default" name="{$file}_FezACML">
+				  {if $xsdmf.xsdmf_html_input != 'multiple'}<option value="-1">Use objects security (default)</option>{/if}
+				  {html_options options=$quick_auth_templates}
+				</select>
+				</li>
     	   {/foreach}
     	   </ul>
         </td>

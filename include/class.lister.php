@@ -72,12 +72,13 @@ class Lister
 		}
         $tpls = array(
             0 => array('file' => 'list.tpl.html', 'title' => 'Default'),
-            1 => array('file' => 'views/list/author_bulk_edit.tpl.html', 'title' => 'Edit Authors'),
             2 => array('file' => 'rss.tpl.html', 'title' => 'RSS Feed'),
             3 => array('file' => 'xml_feed.tpl.html', 'title' => 'XML Feed'),
             4 => array('file' => 'citation_only_list.tpl.html', 'title' => 'Citations Only'),
             5 => array('file' => 'simple_list.tpl.html', 'title' => 'Classic Simple View')
         );
+		// disabled edit authors view until it can be looked again in the future
+        // 1 => array('file' => 'views/list/author_bulk_edit.tpl.html', 'title' => 'Edit Authors'),
     
 		if ($tpl_idx != 0 && $tpl_index != 4) {
 			$citationCache = false;

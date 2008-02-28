@@ -555,7 +555,7 @@ class Auth
 		}
 		if (!is_array($acceptable_roles) || empty($pid) ) {
 			return false;
-		}		
+		}
         // find out which role groups this user belongs to
         if (is_null($userPIDAuthGroups)) {
             $userPIDAuthGroups = Auth::getAuthorisationGroups($pid, $dsID);
@@ -851,9 +851,12 @@ class Auth
               $inheritSearch = $xpath->query('/FezACML/inherit_security');
               // There shouldn't be more than one inherit_security node, but if there is, then turning inherit off
               // overrides any that turn it on. 
+
               foreach ($inheritSearch as $inheritRow) {
                 if ($inheritRow->nodeValue == "on") { 
                   $found_inherit_on = true;
+				} elseif ($inheritRow->nodeValue == "off") { 
+                  $found_inherit_off = true;
                 } elseif (trim($inheritRow->nodeValue) == "") {
                   $found_inherit_blank = true;
                 } else {
@@ -922,6 +925,7 @@ class Auth
                         $group_value = trim($group_value, ' ');
                     // if the role is in the ACML with a non 'off' value and not empty value then it is restricted so remove it
                     if ($group_value != "off" && $group_value != "" && in_array($role, $userPIDAuthGroups) && in_array($role, $NonRestrictedRoles) && (@$cleanedArray[$role] != true)) {
+//						echo "cleaning out ".$role; echo $group_type. " - ". $group_value;
                         $userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role, false, true);
 						$cleanedArray[$role] = true;
                     }

@@ -52,6 +52,7 @@ include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.workflow.php");
 include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
+include_once(APP_INC_PATH . "class.fezacml.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
@@ -76,9 +77,9 @@ class BatchAdd
         $this->bgp = $bgp;
     }
 
-	function insert($files, $xdis_id, $pid, $wftpl) {
+	function insert($files, $files_FezACML, $xdis_id, $pid, $wftpl) {
 		if (is_array($files)) {
-			foreach($files as $ds) {
+			foreach($files as $key => $ds) {
 		         $short_ds = $ds;
 		         if (is_numeric(strpos($ds, "/"))) {
 		             $short_ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
@@ -91,7 +92,28 @@ class BatchAdd
                  if ($presmd_check != false) {
                     Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, 
                              $presmd_check, "text/xml", "M");
-                 }			
+                 }
+				if (array_key_exists($key, $files_FezACML)) {
+					if (!empty($files_FezACML[$key])) {
+						$xmlObjNum = $files_FezACML[$key];
+						if (is_numeric($xmlObjNum) && $xmlObjNum != "-1" && $xmlObjNum != -1) {
+							$xmlObj = FezACML::getQuickTemplateValue($xmlObjNum);
+							
+							if ($xmlObj != false) {
+								$dsID = $short_ds;				
+								$FezACML_dsID = "FezACML_".$dsID.".xml";
+								if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {
+									Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A", "FezACML security for datastream - ".$dsID,
+											$xmlObj, "text/xml", "true");
+								} else {
+									Fedora_API::getUploadLocation($pid, $FezACML_dsID, $xmlObj, "FezACML security for datastream - ".$dsID,
+											"text/xml", "X");
+								}
+							}
+						}
+					}
+				}
+				
                  if (is_file(APP_TEMP_DIR.basename($presmd_check))) {
                      $deleteCommand = APP_DELETE_CMD." ".APP_TEMP_DIR.basename($presmd_check);
                      exec($deleteCommand);

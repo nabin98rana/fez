@@ -149,7 +149,7 @@ class Search_Key
                  ) VALUES (
                     '$sek_id',
                     '" . APP_PID_NAMESPACE . "',
-                    $sekIncrId,
+                    ".$sekIncrId.",
                     '" . Misc::escapeString($_POST["sek_title"]) . "',
 					'" . Misc::escapeString($_POST["sek_alt_title"]) . "',
 					'" . Misc::escapeString($_POST["sek_meta_header"]) . "',
@@ -212,15 +212,18 @@ class Search_Key
     {
         $stmt = "SELECT MAX(sek_incr_id) + 1 as incr_id " .
                  "FROM  " . APP_TABLE_PREFIX . "search_key " .
-                 "WHERE sek_namespace = '$namespace'";
+                 "WHERE sek_namespace = '".$namespace."'";
          
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return 1;
-        }
-        
+        }        
+		if (is_null($res)) {
+			return 1;
+		}
         return $res;
+
     }
     
 
@@ -927,6 +930,7 @@ class Search_Key
         if(!$sql) {
             return -2;
         }
+		//echo $sql;
         
         $res = $GLOBALS["db_api"]->dbh->query($sql);
         if (PEAR::isError($res)) {

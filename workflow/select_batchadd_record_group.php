@@ -39,6 +39,7 @@ include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.batchimport.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.setup.php");
+include_once(APP_INC_PATH . "class.fezacml.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.community.php");
@@ -64,14 +65,11 @@ $tpl->assign("isAdministrator", $isAdministrator);
  * Otherwise normal users can only view folders
  * that have the same name as groups they belong to
  */
-if( !$isAdministrator )
-{
+if( !$isAdministrator) {
     $usr_id = User::getUserIDByUsername($isUser);
     $groups = Group::getAssocList($usr_id);
     $_SESSION['canViewFolders'] = $groups;
-}
-else 
-{
+} else {
     unset($_SESSION['canViewFolders']);
 }
 
@@ -101,7 +99,8 @@ if ($access_ok) {
     $tpl->assign("pid", $pid);
     
     $files = $wfstatus->getvar('files');
-    
+	$quick_auth_templates = FezACML::getQuickTemplateAssocList();
+	$tpl->assign("quick_auth_templates", $quick_auth_templates);    
 	$tpl->assign("checked_files", $files);
     $tpl->assign("message", $message);
     $tpl->assign("filenames", $filenames);

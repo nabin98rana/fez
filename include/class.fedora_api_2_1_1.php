@@ -754,15 +754,15 @@ class Fedora_API {
         if (is_array($rs)) {
 		foreach ($rs as $row) {
 //			if (isset($row['ID']) && $row['ID'] == $dsID) { // old way
-
+				
 			if ($pattern != false) {
-				$ds_matches = preg_match($pattern, $row['dsid']);
-				if (isset($row['dsid']) && preg_match($pattern, $row['dsid'])) {	
+//				$ds_matches = preg_match($pattern, $row['dsid']);
+				if (isset($row['dsid']) && preg_match($pattern, $row['dsid'], $ds_matches)) {
 					return $ds_matches[0];
 					$dsExists = true;
 				}			
 			} else {
-				if (isset($row['dsid']) && $row['dsid'] == $dsID) {				
+				if (isset($row['dsid']) && strtolower($row['dsid']) == strtolower($dsID)) {				
 					$dsExists = true;
 				}
 			}

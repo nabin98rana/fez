@@ -43,16 +43,23 @@ $temp_files = $this->getVar('files');
 $folder = $this->getVar('folder');
 if (is_array($temp_files)) {
 	$files = array();
+	$files_FezACML = array();
 	$username = Auth::getUsername();
 	foreach ($temp_files as $t_file) {
 		$t2_file = $folder.$t_file;
 		if (is_file($t2_file)) {
+			$t_file = str_replace(".", "_", $t_file);
+			if ($_POST[$t_file."_FezACML"]) {
+				array_push($files_FezACML, $_POST[$t_file."_FezACML"]);
+			} else {
+				array_push($files_FezACML, "-1");
+			}
 			array_push($files, $t2_file);
 		}
     }   
     
 	$bgp_batch = new BackgroundProcess_BatchAdd_Record;
-	$inputs = compact('files', 'xdis_id', 'pid', 'wftpl');
+	$inputs = compact('files', 'files_FezACML', 'xdis_id', 'pid', 'wftpl');
 	$inputs_str = serialize($inputs);
 	$bgp_batch->register($inputs_str, Auth::getUserID());
 }

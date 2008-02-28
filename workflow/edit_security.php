@@ -212,7 +212,7 @@ if ($dsID == "") {
 	}
 } else {
 	foreach ($datastreams as $security_check) {
-		if ($security_check['dsid'] == 'FezACML_'.$dsID.'.xml') {
+		if (strtolower($security_check['dsid']) == strtolower('FezACML_'.$dsID.'.xml')) {
 			$FezACML_exists = 1;
 		}
 	}

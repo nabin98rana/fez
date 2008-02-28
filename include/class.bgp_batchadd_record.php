@@ -50,7 +50,7 @@ class BackgroundProcess_BatchAdd_Record extends BackgroundProcess
         extract(unserialize($this->inputs));
         $batch = new BatchAdd;
         $batch->setBackgroundObject($this);
-        $batch->insert($files, $xdis_id, $pid, $wftpl);
+        $batch->insert($files, $files_FezACML, $xdis_id, $pid, $wftpl);
         $this->setState(2);
     }
 }
