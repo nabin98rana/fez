@@ -5,7 +5,7 @@ CREATE TABLE %TABLE_PREFIX%custom_views (
     cview_content_tpl varchar(100),
     cview_footer_tpl varchar(100),
     cview_css varchar(100),
-    cview_folder varchar(255)
+    cview_folder varchar(255),
     PRIMARY KEY(cview_id)
 );
 
