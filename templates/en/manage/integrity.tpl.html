@@ -1,0 +1,61 @@
+{if $action == "report"}
+
+<div class="admin-box">
+
+	<div class="admin-header">HERDC Record Integrity Report</div>
+
+    <div class="default admin-content">
+
+		{section name="jj" loop=$orphaned}
+		  {if $smarty.section.jj.first}<h3><img src="{$rel_url}images/redled.png" alt="Problem" /> Orphaned author affiliations</h3><table width="100%">{/if}
+		  <tr bgcolor="{cycle values="$cycle_colours"}">
+			<td width="100">{$orphaned[jj].af_pid}</td>
+			<td><a href="../view/{$orphaned[jj].af_pid}" target="_blank">{$orphaned[jj].rek_title}</a></td>
+		  </tr>
+		  {if $smarty.section.jj.last}</table>{/if}
+		  {sectionelse}
+		  <p><img src="{$rel_url}images/tick_16.png" alt="OK" /> No orphaned affiliations found.</p>
+		{/section}
+
+		<br />
+
+		{section name="ii" loop=$bad_sums}
+		  {if $smarty.section.ii.first}<h3><img src="{$rel_url}images/redled.png" alt="Problem" /> Non-summing author affiliations</h3><table width="100%">{/if}
+		  <tr bgcolor="{cycle values="$cycle_colours"}">
+			<td width="100">{$bad_sums[ii].af_pid}</td>
+			<td><a href="../view/{$bad_sums[ii].af_pid}" target="_blank">{$bad_sums[ii].rek_title}</a></td>
+		  </tr>
+		  {if $smarty.section.ii.last}</table>{/if}
+		  {sectionelse}
+		  <p><img src="{$rel_url}images/tick_16.png" alt="OK" /> All affiliation percentages summed correctly.</p>
+		{/section}
+		
+		<br />
+
+		<form name="reindex" method="post" action="{$smarty.server.PHP_SELF}">
+			<input type="hidden" name="action" value="report"/>
+			<input type="submit" name="discover" value="Regenerate report" class="submit" />
+		</form>
+
+    </div>
+	
+</div>
+
+{else}
+
+<div class="admin-box">
+
+	<div class="admin-header">HERDC Record Integrity Report</div>
+
+    <div class="default admin-content">
+		<img align="absmiddle" src="{$rel_url}images/important_32.png" border="0" /> Generate a report of all records with broken author affiliations.<br /><br />
+		<form name="reindex" method="post" action="{$smarty.server.PHP_SELF}">
+			<input type="hidden" name="action" value="report"/>
+			<input type="submit" name="discover" value="Build report" class="submit" />
+		</form>
+
+    </div>
+
+</div>
+
+{/if}

@@ -28,9 +28,9 @@
                     <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'workflow_triggers.php?pid=-1'}class="focus" {/if}href="{$rel_url}workflow_triggers.php?pid=-1">Default Workflows</a></li>
                     <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/controlled_vocab.php'}class="focus" {/if}href="{$rel_url}manage/controlled_vocab.php">Manage Controlled Vocabularies</a></li>
                     <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/search_keys.php'}class="focus" {/if}href="{$rel_url}manage/search_keys.php">Manage Search Keys</a></li>
-					<li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/configuration.php'}class="focus" {/if}href="{$rel_url}manage/configuration.php">Site Configuration</a></li>
 					<li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/custom_views.php'}class="focus" {/if}href="{$rel_url}manage/custom_views.php">Manage Custom Views</a></li>
 					<li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/community_views.php'}class="focus" {/if}href="{$rel_url}manage/custom_views_comm.php">Manage Community Views</a></li>
+					<li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/configuration.php'}class="focus" {/if}href="{$rel_url}manage/configuration.php">Site Configuration</a></li>
                   </ul>
 				  {/if}
 
@@ -42,6 +42,7 @@
                     <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/groups.php'}class="focus" {/if}href="{$rel_url}manage/groups.php">Manage Groups</a></li>
                     <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/orgstructure.php'}class="focus" {/if}href="{$rel_url}manage/orgstructure.php">Manage Organisational Structure</a></li>
                     <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/authors.php'}class="focus" {/if} href="{$rel_url}manage/authors.php">Manage Authors</a></li>
+					{if $APP_HERDC_INTEGRITY_REPORTS == 'ON'}<li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/integrity.php'}class="focus" {/if} href="{$rel_url}manage/integrity.php">HERDC Integrity Report</a></li>{/if}
                   </ul>
 
 				  {if $isSuperAdministrator}

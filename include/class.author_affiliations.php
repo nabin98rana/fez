@@ -2,7 +2,6 @@
 
 include_once(APP_INC_PATH . "class.org_structure.php");
 
-
 class AuthorAffiliations
 {
 	function getList($pid, $status = 1)
@@ -362,6 +361,61 @@ class AuthorAffiliations
 		}
 
 	} 
+
+
+    /**
+     * Method used to retrieve the list of PIDs with orphaned affiliations. Scans the 
+	 * entire repository and reports everything it can find.
+     *
+     * @access  public
+     * @return  array The associative array of PIDs and their titles.
+     */
+	function getOrphanedAffiliationsAll() {
+
+		$stmt = "SELECT DISTINCT(af_pid), rek_title " .
+				"FROM " . APP_TABLE_PREFIX . "author_affiliation AS t1, " . APP_TABLE_PREFIX . "record_search_key " .
+				"WHERE af_author_id NOT IN " .
+				"(SELECT rek_author_id " .
+				"FROM fez_record_search_key_author_id " .
+				"WHERE rek_author_id_pid = t1.af_pid " .
+				") " .
+				"AND af_pid = rek_pid";
+		
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        }
+        return $res;
+
+	}
+
+
+    /**
+     * Method used to retrieve the list of PIDs with incorrect percentages (percentages that
+	 * do not total either 0% or 100% for a given author). We don't actually do the calculation
+	 * on the fly, but rather, examine a flag that should have been zeroed if the percentages
+	 * did not add up properly at data entry time.
+     *
+     * @access  public
+     * @return  array The associative array of PIDs and their titles.
+     */
+	function getBadSums() {
+
+		$stmt = "SELECT DISTINCT(af_pid), rek_title " .
+				"FROM " . APP_TABLE_PREFIX . "author_affiliation, " . APP_TABLE_PREFIX . "record_search_key " .
+				"WHERE af_pid = rek_pid " .
+				"AND af_status = 0";
+		
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        }
+        return $res;
+
+	}
+
 }
 
 ?>

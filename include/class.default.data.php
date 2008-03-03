@@ -173,6 +173,7 @@ class Default_Data
         $defaultData['app_analytics_id']              		= "";
         $defaultData['app_analytics_switch']              	= "OFF";
 		$defaultData['app_author_suggest_mode']             = "1";
+		$defaultData['app_herdc_integrity_reports']         = "OFF";
 
         return $defaultData;
 
