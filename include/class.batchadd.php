@@ -51,6 +51,7 @@ include_once(APP_INC_PATH . "class.eprints.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.workflow.php");
 include_once(APP_INC_PATH . "class.status.php");
+include_once(APP_INC_PATH . "class.fezacml.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.fezacml.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
@@ -101,7 +102,7 @@ class BatchAdd
 							
 							if ($xmlObj != false) {
 								$dsID = $short_ds;				
-								$FezACML_dsID = "FezACML_".$dsID.".xml";
+								$FezACML_dsID = FezACML::getFezACMLDSName($dsID);
 								if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {
 									Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A", "FezACML security for datastream - ".$dsID,
 											$xmlObj, "text/xml", "true");

@@ -56,6 +56,7 @@ include_once(APP_INC_PATH . "class.workflow.php");
 include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "class.history.php");
 include_once(APP_INC_PATH . "class.foxml.php");
+include_once(APP_INC_PATH . "class.fezacml.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
@@ -317,7 +318,7 @@ class Record
 //		   function array_to_xml_instance($a, &$xmlObj="", $element_prefix, $sought_node_type="", $tagIndent="", $parent_sel_id="", $xdis_id, $pid, $top_xdis_id, $attrib_loop_index="", &$indexArray=array(), $file_downloads=0, $created_date, $updated_date, $depositor, $assign_usr_id=null, $assign_grp_id=null)
         $xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">\n";
 		$xmlObj = $header . $xmlObj;
-		$FezACML_dsID = "FezACML_".$dsID.".xml";
+		$FezACML_dsID = FezACML::getFezACMLDSName($dsID);		
 		if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {
 			Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A", "FezACML security for datastream - ".$dsID,
 					$xmlObj, "text/xml", "true");
@@ -831,7 +832,7 @@ class Record
      * @return  array $xsdmf_array The details for the XML object against its XSD Matching Field IDs
      */
     function getDetails($pid, $xdis_id)
-    {
+    { 
 		// Get the Datastreams.
 		$datastreamTitles = XSD_Loop_Subelement::getDatastreamTitles($xdis_id);
 		foreach ($datastreamTitles as $dsValue) {
@@ -2971,13 +2972,22 @@ class RecordGeneral
      * @access  public
      * @return  array $this->details The details of the object
      */
-    function getDetails()
+    function getDetails($dsID = "", $xdis_id = "")
     {
-        if (is_null($this->details)) {
+        if (is_null($this->details) || $dsID != "") {
             // Get the Datastreams.
-            $this->getDisplay();
+			if ($xdis_id == "") {
+            	$this->getDisplay();
+			} else {
+				$this->display = new XSD_DisplayObject($xdis_id);
+				$this->display->getXSD_HTML_Match();
+			}
             if ($this->display) {
-                $this->details = $this->display->getXSDMF_Values($this->pid);
+				if ($dsID != "") {
+					$this->details = $this->display->getXSDMF_Values_Datastream($this->pid, $dsID);
+				} else {
+                	$this->details = $this->display->getXSDMF_Values($this->pid);
+				}
             } else {
   				Error_Handler::logError("The PID ".$this->pid." has an error getting it's display details. This object is currently in an erroneous state.",__FILE__,__LINE__);
             }

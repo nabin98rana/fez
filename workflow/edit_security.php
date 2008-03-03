@@ -44,6 +44,7 @@ include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.controlled_vocab.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.community.php");
+include_once(APP_INC_PATH . "class.fezacml.php");
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
@@ -99,8 +100,6 @@ $tpl->assign("pid", $pid);
 $tpl->assign("dsID", $dsID);
 $record = new RecordObject($pid);
 $record->getDisplay();
-$pid_title = $record->getTitle();
-$tpl->assign("pid_title", $pid_title);
 
 $xdis_id = $record->getXmlDisplayId();
 
@@ -135,8 +134,11 @@ if ($dsID != "") {
 	$FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
 //	$xsd_display_fields = XSD_HTML_Match::getListByDisplay($FezACML_xdis_id);
 	$xsd_display_fields = $record->display->getMatchFieldsList(array(), array("FezACML for Datastreams"));  // Specify FezACML as the only display needed for security
+	$details = $record->getDetails($dsID, $FezACML_xdis_id);
+	$record->clearDetails();
 } else {
 	$xsd_display_fields = $record->display->getMatchFieldsList(array(), array("FezACML"));  // Specify FezACML as the only display needed for security
+	$details = $record->getDetails();
 }
 
 //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
@@ -157,7 +159,7 @@ foreach ($xsd_display_fields  as $dis_key => $dis_field) {
 $tpl->assign("xsd_display_fields", $xsd_display_fields);
 
 $tpl->assign("xdis_id", $xdis_id);
-$details = $record->getDetails();
+//$details = $record->getDetails();
 
 //$controlled_vocabs = Controlled_Vocab::getAssocListAll();
 //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
@@ -212,7 +214,8 @@ if ($dsID == "") {
 	}
 } else {
 	foreach ($datastreams as $security_check) {
-		if (strtolower($security_check['dsid']) == strtolower('FezACML_'.$dsID.'.xml')) {
+		$FezACML_DS_name = FezACML::getFezACMLDSName($dsID);
+		if (strtolower($security_check['dsid']) == strtolower($FezACML_DS_name)) {
 			$FezACML_exists = 1;
 		}
 	}
@@ -235,6 +238,8 @@ if ($record->isCollection()) {
     $tpl->assign('parent_type', 'Collection');
     $tpl->assign('view_href', APP_RELATIVE_URL."view/$pid");
 }
+$pid_title = $record->getTitle();
+$tpl->assign("pid_title", $pid_title);
 
 $tpl->assign("datastreams", $datastreams);
 $tpl->assign("fez_root_dir", APP_PATH);

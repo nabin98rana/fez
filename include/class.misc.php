@@ -45,6 +45,7 @@
  */
 
 include_once(APP_INC_PATH . 'common.inc.php');
+include_once(APP_INC_PATH . 'class.fezacml.php');
 include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.setup.php");
 //include_once(APP_INC_PATH . "class.xsd_html_match.php");
@@ -591,7 +592,7 @@ class Misc
 				}
 			}
 			// now try and find a FezACML metadata datastream of this datastream
-			$fezacml = "FezACML_".$ds['ID'].".xml";
+			$fezacml = FezACML::getFezACMLDSName($ds['ID']);
 			$ds['fezacml'] = 0;
 
 			foreach ($original_dsList as $o_key => $o_ds) {
@@ -711,7 +712,7 @@ class Misc
 				}
 			}
 			// now try and find a FezACML metadata datastream of this datastream
-			$fezacml = "FezACML_".$ds['ID'].".xml";
+			$fezacml = FezACML::getFezACMLDSName($ds['ID']);
 			$ds['fezacml'] = 0;
 			foreach ($original_dsList as $o_key => $o_ds) {
 				if ($fezacml == $o_ds['ID']) {  // found the fezacml datastream so save it against the record

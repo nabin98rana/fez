@@ -43,6 +43,7 @@
 
 include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.misc.php");
+include_once(APP_INC_PATH . "class.fezacml.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.auth.php");
@@ -935,6 +936,30 @@ class XSD_DisplayObject
         return $this->xsdmf_array[$pid];
     }
 
+	// To get the values for a specific xml datastream only (eg for when there are many FezACML for datastream values set so they don't get confused)
+    function getXSDMF_Values_Datastream($pid, $dsID)
+    {
+	
+	    if (!isset($this->xsdmf_array[$pid])) {
+            $this->xsdmf_array[$pid] = array();
+            $this->xsdmf_current = &$this->xsdmf_array[$pid];
+            $this->getXSD_HTML_Match();
+    	}
+	
+		$FezACML_DS_name = FezACML::getFezACMLDSName($dsID);
+		if (Fedora_API::datastreamExists($pid, $FezACML_DS_name)) {
+			$FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');		
+			$FezACML_DS = Fedora_API::callGetDatastreamDissemination($pid, $FezACML_DS_name);				
+			if (isset($FezACML_DS['stream'])) {
+				$this->processXSDMFDatastream($FezACML_DS['stream'], $FezACML_xdis_id);
+			}
+	        return $this->xsdmf_array[$pid];
+		} else {
+			return array();
+		}
+    }
+
+
     function getXSD_HTML_Match()
     {
         if (!$this->xsd_html_match) {
@@ -979,7 +1004,8 @@ class XSD_DisplayObject
 					}
 					array_push($this->xsdmf_current[$xsdmf_id], $ds_value['ID']);
 					$FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
-					$FezACML_DS_name = "FezACML_".$ds_value['ID'].".xml";
+//					$FezACML_DS_name = "FezACML_".$ds_value['ID'].".xml";
+					$FezACML_DS_name = FezACML::getFezACMLDSName($ds_value['ID']);
 					if (Fedora_API::datastreamExistsInArray($datastreams, $FezACML_DS_name)) {
 						$FezACML_DS = Fedora_API::callGetDatastreamDissemination($pid, $FezACML_DS_name);				
 						if (isset($FezACML_DS['stream'])) {
@@ -1035,13 +1061,12 @@ class XSD_DisplayObject
     function processXSDMFDatastream($xmlDatastream, $xsdmf_xdis_id) 
     {
         $xsd_id = XSD_Display::getParentXSDID($xsdmf_xdis_id);
-//		print_r($xsdmf_xdis_id);
         $xsd_details = Doc_Type_XSD::getDetails($xsd_id);
 //		$temp_xdis_array = $this->xsd_html_match->xdis_array;
 		$temp_xdis_str = $this->xsd_html_match->xdis_str;
 		$temp_xdis_id = $this->xdis_id;
 		if (!in_array($xsdmf_xdis_id, explode(",", $this->xsd_html_match->xdis_str))) {
-//echo "not in ".$xsdmf_xdis_id;
+//echo $this->xsd_html_match->xdis_str."not in ".$xsdmf_xdis_id;
 			$this->xdis_id = $xsdmf_xdis_id;
             //$this->xsd_html_match->xdis_array = array($xsdmf_xdis_id);
             $this->xsd_html_match->xdis_str = $xsdmf_xdis_id;
