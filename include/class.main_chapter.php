@@ -124,6 +124,34 @@ class MainChapter
 		return 1;
 	}
 
+
+
+	/**
+	 * Retrieves a list of all records that have main chapters registered for authors that are
+	 * no longer attached to the record.
+	 *
+     * @access  public
+     * @return  array The associative array of PIDs and their titles.
+	 */
+	function getOrphanedMainChaptersAll()
+	{
+		$stmt = "SELECT DISTINCT(mc_pid), rek_title " .
+				"FROM " . APP_TABLE_PREFIX . "main_chapter AS t1, " . APP_TABLE_PREFIX . "record_search_key " .
+				"WHERE mc_author_id NOT IN " .
+				"(SELECT rek_author_id " .
+				"FROM " . APP_TABLE_PREFIX . "record_search_key_author_id " .
+				"WHERE rek_author_id_pid = t1.mc_pid " .
+				") " .
+				"AND mc_pid = rek_pid";
+
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        }
+        return $res;
+	}
+
 }
 
 ?>

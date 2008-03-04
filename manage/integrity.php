@@ -37,6 +37,7 @@ include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.author_affiliations.php");
+include_once(APP_INC_PATH . "class.main_chapter.php");
 include_once(APP_INC_PATH . "db_access.php");
 
 $tpl = new Template_API();
@@ -59,8 +60,9 @@ $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 if ($isAdministrator) {
     if (@$_POST["action"] == "report") {
 		$tpl->assign("action", "report");
-		$tpl->assign("orphaned", AuthorAffiliations::getOrphanedAffiliationsAll());
+		$tpl->assign("orphaned_affiliations", AuthorAffiliations::getOrphanedAffiliationsAll());
 		$tpl->assign("bad_sums", AuthorAffiliations::getBadSums());
+		$tpl->assign("orphaned_main_chapters", MainChapter::getOrphanedMainChaptersAll());
     } else {
 		$tpl->assign("action", "prompt");
 	}
