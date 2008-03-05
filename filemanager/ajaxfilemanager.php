@@ -98,7 +98,7 @@ $(document).ready(
 
 	
 </script>
-<link rel="stylesheet" type="text/css" href="<?php echo $rel_url; ?>css/filemanager.css" />
+<link rel="stylesheet" type="text/css" href="<?php echo $rel_url; ?>css/filemanager_css.php" />
 <title>Ajax File Manager</title>
 </head>
 <body>
