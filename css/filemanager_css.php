@@ -1,7 +1,7 @@
 <?php 
 include_once("../config.inc.php");
 header("Content-type: text/css");
-$rel_url = APP_RELATIVE_PATH;
+$rel_url = APP_RELATIVE_URL;
 ?>
 /*~~~~~~Global Setting ~~~~~~~~*/
 html, body{
