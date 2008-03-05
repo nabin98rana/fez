@@ -33,7 +33,7 @@ $manager = new manager();
 $manager->setSessionAction($sessionAction);
 $fileList = $manager->getFileList();
 $folderInfo = $manager->getFolderInfo();
-
+$rel_url = APP_RELATIVE_URL;
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -42,7 +42,7 @@ $folderInfo = $manager->getFolderInfo();
 <meta name="author" content="Logan Cai" />
 <meta name="website" content="http://www.phpletter.com" /> 
 
-<script type="text/javascript" src="/js/ajaxfilemanager_compressed.js"></script>
+<script type="text/javascript" src="<?php echo $rel_url; ?>js/ajaxfilemanager_compressed.js"></script>
 
 <script type="text/javascript">
 function enableEditable()
@@ -54,13 +54,13 @@ function enableEditable()
 					 height    : '14',
 					 loadtype  : 'POST',
 					 event	   :  'dblclick',
-					 indicator : "<img src='theme/{$config_theme_name}/images/loading.gif'>",
+					 indicator : "<img src='<?php echo $rel_url; ?>theme/<?php $config_theme_name; ?>images/loading.gif'>",
 					 tooltip   : '<?php echo TIP_DOC_RENAME; ?>'
 		 }
 		 
 		 );	 	
 }
-	var tb_pathToImage = "theme/<?php echo CONFIG_THEME_NAME; ?>/images/loadingAnimation.gif";
+	var tb_pathToImage = "theme/<?php echo CONFIG_THEME_NAME; ?><?php echo $rel_url; ?>images/loadingAnimation.gif";
 	var urlPreview = '<?php echo appendQueryString(CONFIG_URL_PREVIEW, makeQueryString(array('path'))); ?>';
 	var msgNotPreview = '<?php echo PREVIEW_NOT_PREVIEW; ?>';
 	var urlCut = '<?php echo appendQueryString(CONFIG_URL_CUT, makeQueryString(array('path'))); ?>';
@@ -98,13 +98,13 @@ $(document).ready(
 
 	
 </script>
-<link rel="stylesheet" type="text/css" href="/css/filemanager.css" />
+<link rel="stylesheet" type="text/css" href="<?php echo $rel_url; ?>css/filemanager.css" />
 <title>Ajax File Manager</title>
 </head>
 <body>
 	<div id="container-filemanager">
 		<div id="leftCol-filemanager">
-			<form action="/popup.php" method="POST" name="formAction" id="formAction">
+			<form action="<?php echo $rel_url; ?>popup.php" method="POST" name="formAction" id="formAction">
 			<input type="hidden" name="cat" value="file_manager" />
 			<input type="hidden" name="id" value="<?php echo $_GET['id'] ?>" />
 			<input type="hidden" name="action_value" value="" id="action_value" />
