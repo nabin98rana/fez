@@ -165,9 +165,7 @@ class Configuration
         define("APP_FEDORA_ACCESS_API", APP_BASE_FEDORA_APIA_DOMAIN . "/services/access");
         define("APP_FEDORA_MANAGEMENT_API", APP_BASE_FEDORA_APIM_DOMAIN . "/services/management");
 
-        if( APP_FEDORA_APIA_DIRECT == "ON" ) {
-            $GLOBALS['db_api']->setupFDAConn();
-        }
+        $GLOBALS['db_api']->setupFDAConn();
         
         // OS-specific tweaks (Formerly Bill vs Linus).
         if (stristr(PHP_OS, 'darwin')) {
