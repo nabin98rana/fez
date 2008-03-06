@@ -150,6 +150,13 @@ class AuthIndex {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
                 return -1;
             }
+            
+            //
+            // KJ: Lucene re-index object because security has changed            
+            //
+            Logger::debug(">>>>> AuthIndex::setIndexAuthBGP --> update lucene security index");       
+            FulltextQueue::singleton()->add($pid);
+            
             // get children and update their indexes.
             $rec = new RecordGeneral($pid);
             $children = $rec->getChildrenPids();
@@ -160,6 +167,10 @@ class AuthIndex {
             }
             foreach ($children as $child_pid) {
                 AuthIndex::setIndexAuthBGP($child_pid, $recurse, false);
+                
+                // KJ/ETH: fulltext indexing of $pid should automatically
+                // recurse to children                
+            	FulltextQueue::singleton()->add($child_pid);
             }
 //            if (!empty($children)) {
             $this->bgp->setStatus("Finished Index Auth for ".$title);

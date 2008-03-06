@@ -242,7 +242,7 @@
 			Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return -1; //abort
 		} else {
-			//continue
+			return $citation;
 		}
 	}
 

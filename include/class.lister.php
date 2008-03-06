@@ -154,7 +154,11 @@ class Lister
 			}
 	    }
 	    
-	    
+	    $getFunction = 'getListing';
+        if( APP_SOLR_SWITCH == "ON" )
+        {
+            $getFunction = 'getSearchListing';
+        }
 	    
         $tpl->assign("search_keys", $search_keys);
 
@@ -593,7 +597,8 @@ class Lister
 			     'value'         =>  2,
 			);
 			
-			$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $operator);
+			//$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $operator);
+			$list = Record::$getFunction($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);
 			
 			$spell = new spellcheck(APP_DEFAULT_LANG);
 			
@@ -617,6 +622,10 @@ class Lister
         	$terms = @$list_info['search_info'];
         	$list = @$list["list"];
 			
+        	// KJ@ETH
+        	$tpl->assign("major_function", "search");
+			$tpl->assign("q", $options["q"]);
+        	
         	$tpl->assign("list_heading", "Search Results ($terms)");        	 
         	$tpl->assign("list_type", "all_records_list");
         } else {

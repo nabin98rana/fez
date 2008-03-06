@@ -451,6 +451,24 @@ class Record
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
         }
 
+        
+        //
+        // KJ: remove from fulltext index
+        //
+        if (APP_FULLTEXT_INDEX == "solr") {
+        	if ($dsDelete == 'keep') {
+        		// if set to 'keep', this will trigger a re-index
+        		
+        		// it would be possible to re-write the fulltext index to automagically
+        		// delete objects on update when they are not in the Fez index anymore
+        		
+        		Logger::debug("Record::removeIndexRecord() using keep=true");
+        		FulltextQueue::singleton()->add($pid);
+        	} else {
+        		FulltextQueue::singleton()->remove($pid);
+        	}
+        }
+        
 		// what about things that are indexed that don't have search keys.. should they be in the old index, die or move?
 /*
         $stmt = "DELETE FROM
@@ -555,9 +573,27 @@ class Record
 	            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 	            return -1;
 	        } else {
+	            //
+				// KJ: update lucene index (get document into cache, remove field content)
+				//
+				if (APP_FULLTEXT_INDEX == "solr") {
+
+		        	FulltextQueue::singleton()->add($pid);
+
+		        }
 	            return $pid;
 	        }
 		} else {
+		    
+		    //
+			// KJ: update lucene index (get document into cache, remove field content)
+			//
+			if (APP_FULLTEXT_INDEX == "solr") {
+
+	        	FulltextQueue::singleton()->add($pid);
+
+	        }
+		    
 		    return $pid;
 		}
     }
@@ -655,6 +691,14 @@ class Record
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
+            
+            //
+	        // KJ: update fulltext index
+			//
+			if (APP_FULLTEXT_INDEX == "solr") {
+				FulltextQueue::singleton()->add($pid);
+	        }
+            
             return $pid;
         }
     }
@@ -699,11 +743,15 @@ class Record
     {
         $record = new RecordObject($pid);
         $record->setIndexMatchingFields($dsID, $fteindex);
-        AuthIndex::setIndexAuth($pid); //set the security index
-        if (!$record->isCommunity() && !$record->isCollection() && $fteindex) {
-            FulltextIndex::indexPid($pid);
+        
+        //
+        // KJ/ETH
+		//
+		if (APP_FULLTEXT_INDEX == "solr") {
+        	//FulltextQueue::singleton()->add($pid);
         }
-//      exit;
+        
+        AuthIndex::setIndexAuth($pid); //set the security index
     }
 
     function setIndexMatchingFieldsRecurse($pid, $bgp=null, $fteindex = true)
@@ -1051,6 +1099,175 @@ class Record
         return compact('info','list');
     }
 
+    
+    /**
+     * Extracts and prepares search specific parameters from the $_GET/$_POST request.
+     * This performs kind of a parameter validation and packs variables in
+     * arrays.
+     * 
+     * KJ/ETH 2/08
+     *
+     * @param unknown_type $request
+     */
+    
+	private function extractSearchParameters() {
+		// WORD SEARCH
+		
+		// w(\d+)	keyword number $1, example w1=test
+		// wop=[and|or]	global default operator, used if no individual operators were set
+		// wf(\d+)	name of field number $1
+		
+		$wop = Misc::GETorPOST("wop");
+		if (!$wop) {
+			$wop = "AND";
+		}
+		// start with search word #1
+		$num = 1;
+		$params['words'] = array();
+		
+		while (Misc::GETorPOST("w$num")) {
+			$w = Misc::GETorPOST("w$num");
+			$wf = Misc::GETorPOST("wf$num");
+			if (!$wf || $wf=='ALL') {
+				// default: search everything/all fields
+				$wf = "ALL";
+			} else {
+				// map search key id to name
+				$wf = strtolower($wf);
+				/*
+				$id = preg_replace("/searchKey(\d*)/",'$1', $wf);
+				if ($id) {
+					$wf = Search_key::getTitle($id);
+				}
+				*/
+			}
+			$wopn = Misc::GETorPOST("wop$num");
+			if (!$wopn) {
+				// use default operator
+				$wopn = $wop;
+			}
+			$keyword = array('wf' => $wf, 'w' => $w, 'op' => $wopn);			
+			$params['words'][$num] = $keyword;
+			
+			$num++;
+		}
+	
+		// EXPERT SEARCH
+		$q = Misc::GETorPOST('q');
+		if ($q) {
+			$params['direct'] = array('q' => $q);
+		}
+		
+		
+		// FILTERS
+		// dates
+		// ...
+		//var_dump($params);
+		return $params;
+	}
+	
+	/**
+     * Searches repository for matching documents/collections/communities.
+     *
+     * @access  public
+     * @param string $options The search parameters
+     * @return array $res2 The index details of records associated with the search params
+     */
+	function getSearchListing($options, $approved_roles=array(9,10), $current_page=0,
+				$page_rows="ALL", $sort_by="", $getSimple=false, $citationCache=false)
+    {
+    	// paging preparation
+        if ($page_rows == "ALL") {
+            $page_rows = 9999999;
+        }
+        //$page_rows = 10;
+        $start = $current_page * $page_rows;
+        $current_row = $current_page * $page_rows;        
+        
+		$params = self::extractSearchParameters();
+		
+		$index = new FulltextIndex_Solr();
+		$res = $index->search($params, $options, $approved_roles, $sort_by, $start, $page_rows);
+		
+		$total_rows = $res['total_rows'];
+		$res = $res['list'];
+        
+        // disable citation caching for the moment
+		$citationCache = true;
+
+		if (count($res) > 0) {
+			if ($getSimple == false || empty($getSimple)) {
+				if ($citationCache == false) {					
+                	Record::getSearchKeysByPIDS($res);
+				}
+                Record::identifyThumbnails($res, $citationCache);
+                Record::getAuthWorkflowsByPIDS($res, $usr_id);
+			}
+            Record::getChildCountByPIDS($res, $usr_id);
+        }
+		
+		// KJ/ETH: if the object came up to here, it can be listed (Solr filter!)
+		if (!empty($res)) {		
+			
+			$citationCache = false;
+			
+			if ($citationCache == false) {
+				//$res = Citation::renderIndexCitations($res, 'APA', $citationCache, false);
+			}
+			
+			// is this really needed - here it's only about listing...?				
+			$res = Auth::getIndexAuthCascade($res);
+									
+			foreach ($res as $key => $rec) {
+				$res[$key]['isLister'] = true;
+			}		
+		}
+		
+		// query display...
+		$search_info = $options["q"];
+
+		//
+		// handle pageing
+		//
+		//$return = $res;
+		$list = $res;
+        $total_pages = intval($total_rows / $page_rows);
+        if ($total_rows % $page_rows) {
+            $total_pages++;
+        }
+
+        $noOrder = 0;  // KJ: don't know what this is...
+
+        $next_page = ($current_page >= $total_pages) ? -1 : $current_page + 1;
+        $prev_page = ($current_page <= 0) ? -1 : $current_page - 1;
+        $last_page = $total_pages - 1;
+        $current_last_row = $current_row + count($list);
+        if (($current_page - 10) > 0) {
+            $start_range = $current_page - 10;
+        } else {
+            $start_range = 0;
+        }
+        if (($current_page + 10) >= $last_page) {
+            $end_range = $last_page + 1;
+        } else {
+            $end_range = $current_page + 10;
+        }
+        $printable_page = $current_page + 1;
+
+
+        // return result
+        $info = compact('total_rows', 'page_rows', 'current_row','current_last_row',
+        				'current_page','total_pages','next_page','prev_page','last_page',
+        				'noOrder', 'search_info', 'start_range', 'end_range', 'printable_page');
+        				
+//		echo "<pre>";
+//		print_r($list);
+//		echo "</pre>";
+//		exit;
+
+        return compact('info','list');
+    }
+    
     function identifyThumbnails(&$result, $citationCache = false) {
 	
 
@@ -1208,17 +1425,14 @@ class Record
                     rek_pid IN ('".$pids."') and (wft_options = 1 or wfl_id is null)
                   ORDER BY wft_order ASC ";                  
       } elseif (!is_numeric($usr_id)) { //no workflows for a non-logged in person - but may get lister and/or viewer roles
-      $stmt = "SELECT
+      
+        $stmt = "SELECT
                     rek_pid, authi_pid, authi_role
                  FROM ";
-
-      	$stmt .=    $dbtp . "record_search_key inner join
-                    " . $dbtp . "auth_index2 ON rek_pid = authi_pid
-
+      	$stmt .=    $dbtp . "record_search_key 
+      	            INNER JOIN ".$dbtp."auth_index2 ON rek_pid = authi_pid
 					INNER JOIN ".$dbtp."auth_rule_group_rules on authi_arg_id = argr_arg_id
-                    INNER JOIN ".$dbtp."auth_rules ON ar_rule='public_list' AND ar_value='1' AND argr_ar_id=ar_id
- ";
-
+                    INNER JOIN ".$dbtp."auth_rules ON ar_rule='public_list' AND ar_value='1' AND argr_ar_id=ar_id";
       $stmt .= "  WHERE
                     rek_pid IN ('".$pids."')  ";
       } else {
@@ -1520,10 +1734,14 @@ inner join
 		}		
 	}	
 
-	function getSearchKeyIndexValue($pid, $searchKeyTitle, $getLookup=true) {
+	function getSearchKeyIndexValue($pid, $searchKeyTitle, $getLookup=true, $sek_details="") {
 		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
-		$sek_details = Search_Key::getBasicDetailsByTitle($searchKeyTitle);
+		
+        if(!$sek_details) {
+            $sek_details = Search_Key::getBasicDetailsByTitle($searchKeyTitle);
+		}
 		$sek_title = Search_Key::makeSQLTableName($sek_details['sek_title']);
+		
 		if ($sek_details['sek_relationship'] == 1) { //1-M so will return an array
 			$stmt = "SELECT
                     rek_".$sek_title."
@@ -1565,6 +1783,7 @@ inner join
         		return $res;
         	}
 		}
+		
 	}
 
 

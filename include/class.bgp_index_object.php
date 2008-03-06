@@ -115,6 +115,10 @@ class BackgroundProcess_Index_Object extends BackgroundProcess
 				$this->setStatus("Reindexed ".count($source_pids)." items.");
         	}
         }
+        elseif( $index_type == Reindex::INDEX_TYPE_SOLR )
+        {
+            $reindex->reindexSolrFullList($params,$terms);
+        }
         $this->setState(2);        // done
     }
 }

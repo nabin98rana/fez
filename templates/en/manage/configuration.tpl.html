@@ -25,6 +25,7 @@ function hideAllSubPages()
 	document.getElementById('ldap').style.display = "none";
 	document.getElementById('eprints').style.display = "none";
 	document.getElementById('submit').style.display = "none";
+	document.getElementById('solr').style.display = "none";
 }
 
 function updatePreviewColour(el)
@@ -114,12 +115,14 @@ function restoreDefaultColours(el)
 		  <a href="#" onclick="javascript:showSubPage('fedora');">Fedora Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('paths');">Programs and Paths</a><br />
 		  <a href="#" onclick="javascript:showSubPage('themes');">Themes &amp; Appearance</a><br />
+		  <a href="#" onclick="javascript:showSubPage('solr');">Solr Settings</a><br />
 		</td>
 	    <td>
 		  <a href="#" onclick="javascript:showSubPage('webstats');">Web Statistics</a><br />
 		  <a href="#" onclick="javascript:showSubPage('shib');">Shibboleth Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('ldap');">LDAP Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('eprints');">ePrints Settings</a><br />
+		  
 		</td>
 	  </tr>
 	</table>
@@ -1086,6 +1089,44 @@ function restoreDefaultColours(el)
 				<option value="Dublin Core 1.0"{if $config_settings.batch_import_type == "Dublin Core 1.0"} selected="selected"{/if}>Dublin Core 1.0</option>
 			  </select>
 			  {include file="error_icon.tpl.html" field="batch_import_type"}
+			</td>
+  		  </tr>
+		</table>
+		</div>
+		
+		<div id="solr" style="display: none;">
+		<table width="100%" class="config-group">
+		  <tr>
+			<td colspan="2">
+			  <h2>Solr Settings</h2>
+			</td>
+  		  </tr>
+  		  </tr>
+		 <tr>
+			<td colspan="2">
+			  <input type="radio" name="app_solr_switch" value="ON" {if $config_settings.app_solr_switch == "ON"}checked{/if}/> Enabled &nbsp; 
+			  <input type="radio" name="app_solr_switch" value="OFF" {if $config_settings.app_solr_switch == "OFF"}checked{/if}/> Disabled
+			</td>
+  		  </tr>
+		  <tr>
+		    <td class="colname">Solr Host</td>
+			<td class="coldetail">
+			  <input type="text" name="app_solr_host" value="{$config_settings.app_solr_host|escape:"html"}" size="50" />
+			  {include file="error_icon.tpl.html" field="app_solr_host"}
+			</td>
+  		  </tr>
+		  <tr>
+		    <td class="colname">Solr Port</td>
+			<td class="coldetail">
+			  <input type="text" name="app_solr_port" value="{$config_settings.app_solr_port|escape:"html"}" size="50" />
+			  {include file="error_icon.tpl.html" field="app_solr_port"}
+			</td>
+  		  </tr>
+		  <tr>
+		    <td class="colname">Solr Path</td>
+			<td class="coldetail">
+			  <input type="text" name="app_solr_path" value="{$config_settings.app_solr_path|escape:"html"}" size="50" />
+			  {include file="error_icon.tpl.html" field="app_solr_path"}
 			</td>
   		  </tr>
 		</table>

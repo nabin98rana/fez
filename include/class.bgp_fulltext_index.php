@@ -27,9 +27,7 @@
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
-// | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Lachlun Kuhn <l.kuhn@library.uq.edu.au>,                    |
-// |          Rhys Palmer <r.rpalmer@library.uq.edu.au>                   |
+// | Authors: Kai Jauslin <kai.jauslin@library.ethz.ch>                   |
 // +----------------------------------------------------------------------+
 
 include_once(APP_INC_PATH.'class.background_process.php');
@@ -41,21 +39,19 @@ class BackgroundProcess_Fulltext_Index extends BackgroundProcess
     {
         parent::__construct();
         $this->include = 'class.bgp_fulltext_index.php';
-        $this->name = 'Fulltext Index';
+        $this->name = 'Fulltext Index Update';       
     }
 
     function run()
-    {
+    {    
         $this->setState(1);
         extract(unserialize($this->inputs));
 
-        $ft_index = new FulltextIndex;
-        $ft_index->setBGP($this);
-        $ft_index->indexBGP($pid, $regen, true);
+        $ft_index = new FulltextIndex_Solr();
+        $ft_index->setBGP($this);       
+        $ft_index->startBGP($pid, $regen, true);
         $this->setState(2);
     }
 }
-
-
 
 ?>

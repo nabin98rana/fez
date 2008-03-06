@@ -55,24 +55,10 @@ class Fedora_Direct_Access {
      * This method sets up the database connection.
      */
     function Fedora_Direct_Access() {
-
-		$dsn = array(
-            'phptype'  => FEDORA_DB_TYPE,
-            'hostspec' => FEDORA_DB_HOST,
-            'database' => FEDORA_DB_DATABASE_NAME,
-            'username' => FEDORA_DB_USERNAME,            
-            'password' => FEDORA_DB_PASSWD,
-            'port'     => FEDORA_DB_PORT
-        );
-		$options = array('persistent' => false);
+        
 		$this->pid = "";
 		$this->xml = "";
-        $this->dbh = DB::connect($dsn, options);
-        if (PEAR::isError($this->dbh)) {
-            Error_Handler::logError(array($this->dbh->getMessage(), $this->dbh->getDebugInfo()), __FILE__, __LINE__);
-            $error_type = "db";
-            //include_once(APP_PATH . "offline.php");
-        }
+		
         return;
     }
 
@@ -91,10 +77,10 @@ class Fedora_Direct_Access {
 		if ($object_state != "") {			
 			$state_sql = " AND objectState = '".$object_state."'";
 		}
-        $result = $this->dbh->getAll("SELECT dopid AS pid, label AS title, objectstate FROM doregistry WHERE (dopid LIKE '%" . $terms . "%' OR label LIKE '%" . $terms . "%') ".$state_sql, DB_FETCHMODE_ASSOC);
+        $result = $GLOBALS['db_api']->dbh_fda->getAll("SELECT dopid AS pid, label AS title, objectstate FROM doregistry WHERE (dopid LIKE '%" . $terms . "%' OR label LIKE '%" . $terms . "%') ".$state_sql, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($result)) {
             // Attempt the same thing with the other known table spelling.
-            $result = $this->dbh->getAll("SELECT dopid AS pid, label AS title, objectstate FROM doRegistry WHERE (dopid LIKE '%" . $terms . "%' OR label LIKE '%" . $terms . "%') ".$state_sql, DB_FETCHMODE_ASSOC);
+            $result = $GLOBALS['db_api']->dbh_fda->getAll("SELECT dopid AS pid, label AS title, objectstate FROM doRegistry WHERE (dopid LIKE '%" . $terms . "%' OR label LIKE '%" . $terms . "%') ".$state_sql, DB_FETCHMODE_ASSOC);
             if (PEAR::isError($result)) {
                 Error_Handler::logError(array($result->getMessage(), $result->getDebugInfo()), __FILE__, __LINE__);			
                 return array();
@@ -113,7 +99,6 @@ class Fedora_Direct_Access {
             $returns = array();
         }
         if (count($returns) > 10) {
-           echo "here";
             $returns = array();
         }
         if ($refresh != true && isset($returns[$pid]) && ($returns[$pid] != "")) {
@@ -121,7 +106,7 @@ class Fedora_Direct_Access {
             return $returns[$pid];
         }
 
-        $result = $this->dbh->getOne("SELECT path FROM objectPaths WHERE token = '".$pid."'");
+        $result = $GLOBALS['db_api']->dbh_fda->getOne("SELECT path FROM objectPaths WHERE token = '".$pid."'");
         if (PEAR::isError($result)) {
                 return "";
         }
@@ -134,7 +119,7 @@ class Fedora_Direct_Access {
     }
 
     function objectExists($pid) {
-        $result = $this->dbh->getOne("SELECT path FROM objectPaths WHERE token = '".$pid."'");
+        $result = $GLOBALS['db_api']->dbh_fda->getOne("SELECT path FROM objectPaths WHERE token = '".$pid."'");
         if (PEAR::isError($result)) {
                 return "";
         }
@@ -147,7 +132,7 @@ class Fedora_Direct_Access {
     }
 
     function isDeleted($pid) {
-        $result = $this->dbh->getOne("SELECT dostate FROM dObj WHERE dopid = '".$pid."'");
+        $result = $GLOBALS['db_api']->dbh_fda->getOne("SELECT dostate FROM dObj WHERE dopid = '".$pid."'");
         if (PEAR::isError($result)) {
                 return "";
         }
@@ -162,7 +147,7 @@ class Fedora_Direct_Access {
 
     function getDatastreamManagedContent($pid, $dsID, $dsVersionID) {
 
-        $result = $this->dbh->getOne("SELECT path FROM datastreampaths WHERE token = '".$pid."+".$dsID."+".$dsID.".".$dsVersionID."'");
+        $result = $GLOBALS['db_api']->dbh_fda->getOne("SELECT path FROM datastreampaths WHERE token = '".$pid."+".$dsID."+".$dsID.".".$dsVersionID."'");
         if (PEAR::isError($result)) {
                 return "";
         }
@@ -179,7 +164,7 @@ class Fedora_Direct_Access {
 
 	    function getDatastreamManagedContentPath($pid, $dsID, $dsVersionID) {
 
-	        $result = $this->dbh->getOne("SELECT path FROM datastreampaths WHERE token = '".$pid."+".$dsID."+".$dsID.".".$dsVersionID."'");
+	        $result = $GLOBALS['db_api']->dbh_fda->getOne("SELECT path FROM datastreampaths WHERE token = '".$pid."+".$dsID."+".$dsID.".".$dsVersionID."'");
 	        if (PEAR::isError($result)) {
 	                return "";
 	        }
@@ -192,7 +177,7 @@ class Fedora_Direct_Access {
 		// like many of these functions requires the fedora path to be available to the apache/php webserver
 	    function getDatastreamManagedContentStream($pid, $dsID, $dsVersionID, $seekPos) {
 
-	        $result = $this->dbh->getOne("SELECT path FROM datastreampaths WHERE token = '".$pid."+".$dsID."+".$dsID.".".$dsVersionID."'");
+	        $result = $GLOBALS['db_api']->dbh_fda->getOne("SELECT path FROM datastreampaths WHERE token = '".$pid."+".$dsID."+".$dsID.".".$dsVersionID."'");
 	        if (PEAR::isError($result)) {
 	                return "";
 	        }
@@ -308,7 +293,7 @@ class Fedora_Direct_Access {
         return $dsList;
     }
 
-
+    
 	function getDatastreams($pid, $maxDV="") {
 		if ($this->pid != $pid || $this->xml == "") {
 			$this->getObjectXML($pid);

@@ -181,11 +181,17 @@ if (APP_CLOUD_TAG == "ON") {
     $cloudTag = "";
 }
 $tpl->assign("cloud_tag", $cloudTag);
-$tpl->headerscript .= "window.oTextbox_front_search
-	= new AutoSuggestControl(document.search_frm, 'front_search', document.getElementById('front_search'), document.getElementById('front_search'),
-			new StateSuggestions('Collection','suggest',false,
-				'class.collection.php'));
-	";
+
+if( APP_SOLR_SWITCH == "OFF" ) {
+    $tpl->headerscript .= "window.oTextbox_front_search
+    	= new AutoSuggestControl(document.search_frm, 'front_search', document.getElementById('front_search'), document.getElementById('front_search'),
+    			new StateSuggestions('Collection','suggest',false,
+    				'class.collection.php'));";
+    
+    $tpl->assign("quickSearchName", "search_keys[0]");
+} else {
+    $tpl->assign("quickSearchName", "q");
+}
 
 
 $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));

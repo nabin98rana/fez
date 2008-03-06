@@ -532,7 +532,7 @@ class Search_Key
      * @access  public
      * @return  array The list of search keys 
      */
-    function getList()
+    function getList($checkTableExists = true)
     {
         $stmt = "SELECT
                     *
@@ -544,19 +544,30 @@ class Search_Key
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
-        } 
+        }
         
         if (empty($res)) {
             return array();
         }
-            
+        
         for ($i = 0; $i < count($res); $i++) {
-            $res[$i]['sek_title_db'] = Search_Key::makeSQLTableName($res[$i]['sek_title']);
-            $res[$i]['key_table_exists'] = Search_Key::checkIfKeyTableExists($res[$i]['sek_title_db'], $res[$i]['sek_relationship']);
+            $res[$i]['sek_title_db'] = Search_Key::makeSQLTableName($res[$i]['sek_title'], $i);
+            
+            if($checkTableExists) {
+                $res[$i]['key_table_exists'] = Search_Key::checkIfKeyTableExists($res[$i]['sek_title_db'], $res[$i]['sek_relationship']);
+            }
         }
+        
         return $res;
     }
 
+    
+    function getListforSolr() 
+    {
+        
+    }
+    
+    
     /**
      * Method used to get the list of search keys available in the 
      * system.
@@ -798,8 +809,10 @@ class Search_Key
         }
     }
 
-    function makeSQLTableName($sek_title) {
-    	return str_replace(" ", "_", trim(strtolower($sek_title)));
+    function makeSQLTableName($sek_title, $i=0) {
+        $retString = str_replace(" ", "_", trim(strtolower($sek_title)));
+        
+    	return $retString;
     }
     /**
      * Method used to get the details of a specific search key.

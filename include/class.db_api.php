@@ -50,6 +50,7 @@ include_once(APP_INC_PATH . "class.error_handler.php");
 class DB_API
 {
     var $dbh;
+    var $dbh_fda;
 
     /**
      * Connects to the database and creates a data dictionary array to be used
@@ -114,6 +115,23 @@ class DB_API
             return mysql_escape_string($str);
         }
 		*/
+    }
+    
+    function setupFDAConn() {
+        
+        $dsn = array(
+            'phptype'  => FEDORA_DB_TYPE,
+            'hostspec' => FEDORA_DB_HOST,
+            'database' => FEDORA_DB_DATABASE_NAME,
+            'username' => FEDORA_DB_USERNAME,            
+            'password' => FEDORA_DB_PASSWD,
+            'port'     => FEDORA_DB_PORT
+        );
+        $this->dbh_fda = DB::connect($dsn, false);
+        if (PEAR::isError($this->dbh_fda)) {
+            Error_Handler::logError(array($this->dbh_fda->getMessage(), $this->dbh_fda->getDebugInfo()), __FILE__, __LINE__);
+        }
+        
     }
 }
 

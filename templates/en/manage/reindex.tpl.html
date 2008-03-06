@@ -362,6 +362,7 @@ function validateFormSelections() {
 						{/if}
 						<input type="submit" name="go_list" value="{$button_label1}" class="button" onclick="{literal}if(checkForSelectedItem() == true){if(validateFormSelections() == true){this.form.method='post';document.reindex_form.submit();}else{return false;}}else{return false;}{/literal}" />
 						<input type="submit" name="do_all" value="{$button_label2}" class="button" onclick="{literal}if(validateFormSelections() == true){this.form.method='post';document.reindex_form.submit();}else{return false;}{/literal}" />
+						{if $index_type == 2}<input type="submit" name="solr_do_all" value="Solr Only Reindex All" class="button" onclick="{literal}if(validateFormSelections() == true){this.form.method='post';document.reindex_form.submit();}else{return false;}{/literal}" />{/if}
                       </td>
                     </tr>
                   </table>

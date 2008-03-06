@@ -27,87 +27,479 @@
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
-// | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Lachlun Kuhn <l.kuhn@library.uq.edu.au>,                    |
-// |          Rhys Palmer <r.rpalmer@library.uq.edu.au>                   |
+// | Authors: Kai Jauslin <kai.jauslin@library.ethz.ch>                   |
 // +----------------------------------------------------------------------+
 
+/**
+ * This class provides the interface and base functions for fulltext
+ * indexing. 
+ * 
+ * For the indexing engine subclasses, implement at least
+ * <ul>
+ * <li>updateFulltextIndex
+ * <li>executeQuery
+ * </ul>
+ * 
+ * @author Kai Jauslin <kai.jauslin@library.ethz.ch>
+ * @version 1.1, February 2008
+ *
+ */	
+include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.bgp_fulltext_index.php");
+include_once(APP_INC_PATH . "class.fulltext_queue.php");
+include_once(APP_INC_PATH . "class.fulltext_tools.php");
+include_once(APP_INC_PATH . "class.fulltext_index_solr.php");
+include_once(APP_INC_PATH . "class.citation.php");
+include_once(APP_INC_PATH . "Apache/Solr/Service.php");
 
+abstract class FulltextIndex {
+	const FIELD_TYPE_INT = 0;
+	const FIELD_TYPE_DATE = 1;
+	const FIELD_TYPE_VARCHAR = 2;
+	const FIELD_TYPE_TEXT = 3;
+			
+	//const FULLTEXT_TABLE_NAME = "record_search_key_file_attachment_content";
+	const FULLTEXT_TABLE_NAME = "fulltext_cache";
+	
+	const FIELD_MOD_MULTI = '_multivalue';
+	const FIELD_NAME_AUTH = '_authlister';
+	const FIELD_NAME_FULLTEXT = 'content';
+	
+    private $bgp;    
+	protected $pid_count = 0;
+	protected $countDocs = 0;
+	
+	// how often the index optimizer is called
+	const COMMIT_COUNT = 500;
 
-class FulltextIndex {
-
-    var $bgp;
-    var $mimetypes = array('application/pdf','text/plain');
-    // ignorewords based on http://www.world-english.org/english500.htm
-    // see also http://www.ranks.nl/tools/stopwords.html
-    var $ignorewords = array(
-            'the', 'of','to', 'and','a', 'in','is', 'it','you', 'that', 'he', 'was', 'for', 'on', 'are', 'with',
-            'as', 'I', 'his', 'they', 'be', 'at', 'one', 'have', 'this', 'from', 'or', 'had', 'by', 'hot', 'but',
-            'some', 'what', 'there', 'we', 'can', 'out', 'other', 'were', 'all', 'your', 'when', 'up', 'use', 'word',
-            'how', 'said', 'an', 'each', 'she', 'which', 'do', 'their', 'time', 'if', 'will', 'way', 'about',
-            'many', 'then', 'them', 'would', 'like', 'so', 'these', 'her', 'make',
-            'see', 'him',  'has', 'look', 'more',  'could', 'go', 'come', 'did', 'my', 
-            'no', 'most',  'who', 'over', 'know',  'than', 'call',   'may',
-            'down', 'side', 'been', 'now', 'find', 'any', 'new', 'work', 'part', 'take', 'get',  'made',
-            'where', 'after', 'back',  'only',  'man', 'year', 'came', 'show', 'every',
-            'me', 'give', 'our', 'name', 'very', 'through', 'just', 'form', 'much',  'think',
-            'say',   'turn', 'cause', 'same', 'mean',  'move', 'right',
-            'too', 'does', 'tell',  'set', 'three', 'want', 'well', 'also', 
-            'small', 'end', 'put', 'home', 'read', 'hand', 'port',  'add', 'even',  'here',
-            'must', 'big',  'such',  'why', 'ask', 'men',  'went',  'kind',
-            'off',  'try', 'us', 'own',  'should', 'found', 'let',  'never', 'last', 'don\'t', 'while' );
-    var $pid_count = 0;
-
-
-    function setBGP(&$bgp) {
+	
+	/**
+	 * Links this instance to a corresponding background process.
+	 *
+	 * @param BackgroundProcess_Fulltext_Index $bgp
+	 */
+    public function setBGP(&$bgp) {
         $this->bgp = &$bgp;
     }
 
-    function indexPid($pid, $regen=false) {
-       $bgp = new BackgroundProcess_Fulltext_Index; 
-       $bgp->register(serialize(compact('pid','regen')), Auth::getUserID());
+    /**
+     * Releases lock held by this thread.
+     *
+     */
+    private function releaseLock() {
+		$sql = "DELETE FROM ".APP_TABLE_PREFIX."fulltext_locks WHERE ftl_name='";
+		$sql .= FulltextQueue::LOCK_NAME_FULLTEXT_INDEX."'";
+		//Logger::debug($sql);
+    	$res = $GLOBALS['db_api']->dbh->query($sql);
+    	
+    	if ($res != DB_OK) {
+    		Logger::error("FulltextIndex::releaseLock failed ".Logger::str_r($res));
+    	}  	
     }
 
-    function indexBGP($pid, $regen=false,$topcall=true)
+    
+    /**
+     * Updates the queue lock to reflect the current process id.
+     * The lock can be retaken if the process with this id does
+     * not exist anymore.
+     *
+     */
+    private function updateLock() {    	
+    	//Logger::debug("updateLock() begin");
+		$my_process = FulltextQueue::getProcessInfo();
+		$my_pid = $my_process['pid'];
+		if (!is_numeric($my_pid)) {
+			$my_pid = 'null';
+		}
+		
+		$sql =  "UPDATE ".APP_TABLE_PREFIX."fulltext_locks SET ftl_pid=$my_pid ";
+		$sql .= "WHERE ftl_name='".FulltextQueue::LOCK_NAME_FULLTEXT_INDEX."'";
+		//Logger::debug($sql);
+		
+		$res = $GLOBALS['db_api']->dbh->query($sql);
+		if (PEAR::isError($res)) {
+			return false;
+		} 
+			
+		return true;	
+    }
+        
+    /**
+     * This function is called when the queue triggers an index update
+     * and the update process is called. It will process it as long as there are more
+     * items in the queue. If this process got started, it has the necessary lock
+     * and is the only one.
+     *
+     */
+    public function startBGP() {
+    	//Logger::debug("FulltextIndexUpdate::startBGP begin USE_LOCKING=".FulltextQueue::USE_LOCKING);   
+    	
+    	// mark lock with pid
+    	if (FulltextQueue::USE_LOCKING) {
+    		$this->updateLock();
+    	}
+    	    	
+    	$this->bgp->setStatus("Fulltext index update started");
+	    	    	    	
+    	$this->countDocs = 0;
+    	$queueEmpty = false;
+    	while (!$queueEmpty) {
+
+    		Logger::debug("startBGP: call processQueue mem_used=".memory_get_usage());
+
+    		$this->processQueue();
+	    	
+	    	//
+	    	// check if queue is empty
+	    	//
+	    	$res = $GLOBALS['db_api']->dbh->autoCommit(true);
+	    	//$GLOBALS['db_api']->dbh->setOption('autofree', true);
+	    
+	    	$sql = "SELECT COUNT(*) FROM ".APP_TABLE_PREFIX."fulltext_queue ";
+	   		$res = $GLOBALS['db_api']->dbh->getOne($sql);
+
+	   		//Logger::debug("startBGP: queue count=".$res);
+	   		if ($res == 0) {
+	   			Logger::debug("startBGP: queue is empty, release bgp lock");
+								
+				// from here on, new indexers may start safely (if not using locking)
+		    	$queueEmpty = true;
+		    	
+	   		}
+    	}
+    	
+    	if (FulltextQueue::USE_LOCKING) {
+    		$this->releaseLock();
+    	}
+    	
+    	$this->bgp->setStatus("Fulltext indexer finished. Processed $countDocs item(s).");
+    }
+
+    
+    /**
+     * This function is called AFTER an object has been added or removed from
+     * the index. It can be used for periodical index optimization (default
+     * behaviour).
+     *
+     * @param unknown_type $pid
+     * @param unknown_type $op
+     */
+    protected function postProcessIndex($pid, $op) {
+    		
+		if (($this->countDocs % self::COMMIT_COUNT) == 0) {
+						
+			Logger::debug($this->countDocs . " / " . self::COMMIT_COUNT);
+			$this->optimizeIndex();			
+			
+		}
+ 	
+    }
+    
+    /**
+     * Optimizes the index. Can be implemented in subclass, if needed.
+     * Default behaviour: do nothing.
+     *
+     */
+    protected function optimizeIndex() {
+    	//Logger::debug("FulltextIndex::optimizeIndex called, but not defined overwritten in subclass");
+    	return;
+    }
+    
+    
+    /**
+     * Processes the queue. Retrieves an item using the pop() function
+     * of the queue and calls the index or remove methods.
+     *
+     */
+    public function processQueue() {
+        
+        $countDocs = 0;
+    	do {
+    		$empty = false;
+
+    		$queue = FulltextQueue::singleton();
+    		$result = $queue->pop();
+    		    		
+    		if (is_array($result)) {
+    			extract($result, EXTR_REFS);
+    			
+    			if ($ftq_op == FulltextQueue::ACTION_DELETE) {
+					//Logger::debug("FulltextIndex::processQueue - calling removeByPid for $ftq_pid");
+    				$this->removeByPid($ftq_pid);
+    			} else {
+    				//Logger::debug("FulltextIndex::processQueue - calling indexRecord for $ftq_pid");
+		        	$this->indexRecord($ftq_pid);
+    			}
+
+    		} else {
+    			//Logger::error("processQueue error ".Logger::str_r($result));
+    			$empty = true;
+    		}
+    		
+    		//Logger::debug("processQueue: almost finished indexing mem_used=".memory_get_usage());
+    		
+    		unset($result);
+    		unset($ftq_op);
+    		unset($ftq_pid);
+    		unset($ftq_key);
+    		
+    		// abort after 1 item
+    		//$empty = true;
+
+    		$this->countDocs++;    		
+    		//$this->postprocessIndex($ftq_pid, $ftq_op);
+    		
+    	} while (!$empty);
+
+    	return $countDocs;
+    }
+
+    
+    /**
+     * Returns the rule groups a user can have for listing
+     * this object.
+     *
+     * @param unknown_type $pid
+     * @return unknown
+     */
+    private function getListerRuleGroups($pid) {
+
+		$stmt =  "SELECT * FROM ".APP_TABLE_PREFIX."auth_index2_lister ";
+		$stmt .= "WHERE authi_pid='".$pid."' ORDER BY authi_arg_id";
+		$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+
+		if (PEAR::isError($res)) {
+	        Logger::error($res->getMessage());
+	        return "";
+	    }
+
+		if (count($res[$pid]) > 1) {
+			$ruleGroups = implode(" ", $res[$pid]);
+		} else {
+			$ruleGroups = $res[$pid];
+		}
+
+		return $ruleGroups;
+    }
+
+	/**
+	 * Maps a field to match the search engine syntax. For example
+	 * date/time formats. Default: date processing to Java format.
+	 *
+	 */
+	protected function mapFieldValue($title, $datatype, $value) {
+		if (empty($value)) {
+			return;
+		}
+		if ($datatype == FulltextIndex::FIELD_TYPE_DATE) {	        		
+			// update date format
+			$date = new Date($strValue);
+        	//$strValue = $date->format('%Y%m%d T 00:00:00Z');
+        	$value = Date_API::getFedoraFormattedDateUTC($value);
+		}
+
+		return $value;
+	}
+	
+	
+	/**
+     * Inserts or updates records in the fulltext index. This function
+     * will recurse into collection or communities.
+     *
+     * @param unknown_type $pid
+     * @param unknown_type $regen
+     * @param unknown_type $topcall
+     */
+    public function indexRecord($pid, $regen=false, $topcall=true)
     {
+    	// maybe do test? (!$record->isCommunity() && !$record->isCollection())
+		$GLOBALS['db_api']->dbh->autoCommit(true);
+
+    	//Logger::debug("FulltextIndex::indexRecordSolr start mem_usage=".memory_get_usage());
         $this->regen = $regen;
-        $this->bgp->setHeartbeat();
-        $this->bgp->setProgress(++$this->pid_count);
-        $dbtp =  APP_TABLE_PREFIX;
-        $rec = new RecordGeneral($pid);
 
-        $dslist = $rec->getDatastreams();
-        if (empty($dslist)) {
-            return;
+        if ($this->bgp) {
+	        $this->bgp->setHeartbeat();
+	        $this->bgp->setProgress(++$this->pid_count);
         }
+
+        //
+        // process datastreams (update Fez database search index)
+        //
+        $record = new RecordGeneral($pid);
+        $dslist = $record->getDatastreams();
         foreach ($dslist as $dsitem) {
-            $this->indexDS($rec,$dsitem);
+            $this->indexDS($record, $dsitem);
         }
 
+        //
+        // get record metadata from Fez search index
+        //
+        
+        // use all search keys (large list), because e.g. status is not in advanced search
+        $searchKeys = Search_Key::getList(false);
+        $docfields = array();
+        $fieldTypes = array();
+        
+        /*
+         * Custom search key (not a registered search key)
+         */
+        $citationKey = array(
+            'sek_title'         =>  'citation',
+            'sek_title_db'      =>  'rek_citation', 
+            'sek_data_type'     =>  'text',
+            'sek_relationship'  =>  0,
+        );
+        
+        $searchKeys[] = $citationKey;
+        
+        //Logger::debug("FulltextIndex::indexRecordSolr before searchKeys mem_usage=".memory_get_usage());
+        
+        foreach ($searchKeys as $sekDetails) {
+        	$title = $sekDetails["sek_title"];
+        	if ($title == 'File Attachment Content') {
+        		continue;
+        	}
+
+        	// TODO: lookups are disabled for the moment
+        	// they are a problem because data type does not match,
+        	// e.g. "Display Type" (integer, core 1:1) -> lookup returns string
+        	// but for full-text searching subjects this would be nice to have
+        	$fieldValue = Record::getSearchKeyIndexValue($pid, $title, false, $sekDetails);
+        	
+        	// We want solr to cache all citations
+        	if($fieldValue == "" && $title == 'citation') {
+        	    $fieldValue = Citation::updateCitationCache($pid);
+        	}
+            
+        	// consolidate field types
+        	$fieldType = $this->mapType($sekDetails['sek_data_type']);        	        	
+
+        	// search-engine specific mapping of field content (date!)
+        	$fieldValue = $this->mapFieldValue($title, $fieldType, $fieldValue);
+        	
+        	if( $fieldValue != "" ) {
+        	    // mark multi-valued search keys        	
+            	$isMultiValued = false;
+            	if ($sekDetails["sek_relationship"] == 1) {
+            		$isMultiValued = true;
+            		$fieldTypes[$title.FulltextIndex::FIELD_MOD_MULTI] = true;
+            	}  
+        	    
+            	// search-engine specific mapping of field name
+            	$title = $this->getFieldName($title, $fieldType, $isMultiValued);						 
+             	$docfields[$title] = $fieldValue;
+             	$fieldTypes[$title] = $fieldType;
+             	
+             	// for debugging
+//             	$strValue = $fieldValue;
+//            	if (strlen($strValue) > 255 && !$fieldTypes['_multivalue']) {
+//            		$strValue = substr($strValue, 0, 255);
+//            	}        	
+            	//Logger::debug("---> setting field value for \"$title\" to \"$strValue\" (type ".$fieldTypes[$title].")");
+            	unset($fieldValue);
+            	unset($fieldType);
+        	}
+        	//     	
+        }
+        
+        unset($searchKeys);
+
+        //
+        // add fulltext for each datastream (fulltext is supposed to be in the special cache)
+        //                        
+        $title = $this->getFieldName(self::FIELD_NAME_FULLTEXT, self::FIELD_TYPE_TEXT, true);             
+        $docfields[$title] = array();
+        $fieldTypes[$title] = self::FIELD_TYPE_TEXT;
+        $fieldTypes[$title.FulltextIndex::FIELD_MOD_MULTI] = true;
+        
+        //Logger::debug("FulltextIndex::indexRecordSolr before DSLIST mem_usage=".memory_get_usage());
+        
+        foreach ($dslist as $dsitem) {        	
+        	$dsid = $dsitem['ID'];
+            $ftResult = $this->getCachedContent($pid, $dsid);
+            if (!empty($ftResult) && !empty($ftResult['content'])) {                        
+	            $docfields[$title][$dsid] = $ftResult['content'];  
+	            //Logger::debug("added fulltext($pid,$dsid) with content = ".Logger::str_r(&$ftResult['content'])); 
+            }         
+            unset($ftResult);
+        }
+        
+        //Logger::debug("FulltextIndex::indexRecordSolr after DSLIST mem_usage=".memory_get_usage());
+        
+        //$GLOBALS['timer']->setMarker('Start of Processing Security Index');
+        //
+        // add lister security index to document - kind of special
+        // maybe this needs more abstraction for new search engines
+        // _authindex solr: tokenized, indexed and stored _t
+        //
+        $auth_title = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTH, FulltextIndex::FIELD_TYPE_TEXT, false);        								
+        $docfields[$auth_title] = $this->getListerRuleGroups($pid);                
+        $fieldTypes[$auth_title] = FulltextIndex::FIELD_TYPE_TEXT ; 
+        
+       //Logger::debug("FulltextIndex::indexRecordSolr after _authindex mem_usage=".memory_get_usage());
+        
+        //
+        // now we have everything in $docfields >> do update
+        //
+        $this->updateFulltextIndex($pid, $docfields, $fieldTypes);
+                
+		//Logger::debug("FulltextIndex::indexRecordSolr finished solr update mem_usage=".memory_get_usage());
+
+        //
         // recurse children
-        $children = $rec->getChildrenPids();
-        if (!empty($children)) {
-            $this->bgp->setStatus("Recursing into ".$rec->getTitle());
+        //
+        //$children = $record->getChildrenPids();
+        
+        //Logger::debug("- children: ".Logger::str_r($children));
+//        if (!empty($children)) {
+//            if ($this->bgp) {
+//            	Logger::debug("Recursing into children of pid ".$pid);
+//            	Logger::debug("Recursing into children of (title=".$record->getTitle().")");
+//            	$this->bgp->setStatus("Recursing into ".$record->getTitle());
+//            }
+//            
+//            foreach ($children as $child_pid) {
+//            	$regen = false;
+//                //$this->indexRecord($child_pid, $regen, false);
+//                Logger::debug("Adding child <".$child_pid."> to queue");
+//                FulltextQueue::singleton()->add($child_pid);
+//                Logger::debug("Adding child <".$child_pid."> to queue done.");
+//            }
+//        }
+        
+
+        if ($this->bgp) {
+            //Logger::debug("BGP Finished Solr fulltext indexing for pid ".$pid);
+            //Logger::debug("BGP Finished Solr fulltext indexing for (title=".$record->getTitle().")");
+
+        	$this->bgp->setStatus("Finished Solr fulltext indexing for ".$record->getTitle()." ($pid)");
         }
-        foreach ($children as $child_pid) {
-            $this->indexBGP($child_pid,$regen,false);
-        }
-        $this->bgp->setStatus("Finished Fulltext Index for ".$rec->getTitle());
+        
+        unset($docfields);
+        unset($fieldTypes);
+        unset($record);
+        unset($dslist);
+        
+        // optimize lucene index if topcall=true?
+        //Logger::debug("====== finished fulltext indexing for ($pid)");
     }
+
 
     /**
-      * @param array $dsitem - a ds listing item as returned from getDatastreams
-      */
-    function indexDS(&$rec,$dsitem) 
+     * Indexes the content of a datastream. Taken over from previous fulltext implementation.
+     * 
+     * @param array $dsitem - a ds listing item as returned from getDatastreams
+     */
+    private function indexDS($rec, $dsitem)
     {
-        // determine the type of object
+        // determine the type of datastream
         switch ($dsitem['controlGroup']) {
             case 'X':
                 break;
             case 'M':
                 // managed means that we have a copy here
-                $this->indexManaged($rec,$dsitem);
+                $this->indexManaged($rec, $dsitem);
                 break;
             case 'R':
                 // index the remote object
@@ -118,286 +510,414 @@ class FulltextIndex {
                 // don't index it if it's unknown
                 break;
         }
-
     }
 
-    function indexManaged(&$rec, $dsitem)
+    /**
+     * Indexes a managed datastream and does the plaintext extraction.
+     *
+     * @param unknown_type $rec
+     * @param unknown_type $dsitem
+     */
+    private function indexManaged($rec, $dsitem)
     {
-        $can_index = $this->checkMimeType($dsitem['MIMEType']);
+    	$GLOBALS['db_api']->dbh->autoCommit(true);
+
+    	// check if the fulltext index can do anything with this stream
+        $can_index = Fulltext_Tools::checkMimeType($dsitem['MIMEType']);
         if (!$can_index) {
             return;
         }
-        // get a copy of the file and put it in the temp directory
-        $filename = APP_TEMP_DIR."fulltext_".$dsitem['ID'];
-        $content = &$rec->getDatastreamContents($dsitem['ID']);
+
+        // test for cached content
+        $pid = $rec->getPid();
+        $res = $this->getCachedContent($pid, $dsitem['ID']);
+        //Logger::debug("---------------> cached content res is: ".$res['pid']);
+        
+        if (!empty($res) && !empty($res['pid'])) {
+        	Logger::debug("- use cached content for $pid/".$dsitem['ID']);
+        	return;
+        }
+
+        // very slow... 
+        // TODO: have to find a solution for very large files...
+        $filename = APP_TEMP_DIR."fulltext_".rand()."_".$dsitem['ID'];
+        $content = $rec->getDatastreamContents($dsitem['ID']);
         file_put_contents($filename, $content);
-        $textfilename = $this->convertFile($dsitem['MIMEType'], $filename);
+        
+        unset($content);
+
+        // temporary performance hack?
+        // TODO!
+        /*
+        $tempFilename = APP_TEMP_DIR."fulltext_".$dsitem['ID'].rand(1000000);
+        $fd = fopen($tempFilename, "w");
+        $fedoraFilename = APP_FEDORA_GET_URL."/".$rec->pid."/".$dsitem['ID'];
+		list($blob,$info) = Misc::processURL($filename, true, $fd);
+        */
+
+        $textfilename = Fulltext_Tools::convertFile($dsitem['MIMEType'], $filename);
         unlink($filename);
+
         if (!empty($textfilename) && is_file($textfilename)) {
+        	Logger::debug("- got converted text in file ".$textfilename);
             $plaintext = file($textfilename);
             unlink($textfilename);
+
             // index the plaintext
             if (!empty($plaintext)) {
-                $this->indexPlaintext($rec,$dsitem['ID'],$plaintext);
+            	Logger::debug("calling indexPlaintext for datastream ".$dsitem['ID']);
+                $this->indexPlaintext($rec, $dsitem['ID'], $plaintext);
             }
         }
     }
 
-    function checkMimeType($mimetype)
+	/**
+     * Updates the fulltext index with a new or existing document. This function
+     * has to be implemented by child classes.
+     *
+     * @param unknown_type $pid
+     * @param unknown_type $fields
+     */
+    protected abstract function updateFulltextIndex($pid, $fields, $fieldTypes);
+    
+
+	/**
+	 * Prepares the plaintext and inserts it into the database fulltext cache.
+	 * Note: the database table should be setup with media/large text fields.
+	 *
+	 * @param unknown_type $rec
+	 * @param unknown_type $dsID
+	 * @param unknown_type $plaintext
+	 */
+	private function indexPlaintext(&$rec, $dsID, &$plaintext)
     {
-        return in_array($mimetype, $this->mimetypes);
+    	$pid = $rec->getPid();
+     	Logger::debug("FulltextIndex::indexPlaintext preparing fulltext for $pid");   
+        		       	
+        // plaintext comes in lines
+        foreach ($plaintext as $num => $line) {        	
+        	$line_only = trim(str_ireplace(chr(255), '', $line));
+        	
+        	if (strlen($line_only) > 0) {
+        		$fulltext .= $line . " ";
+        	}
+        }
+        if (strlen($fulltext) > 0) {
+        	chop($fulltext);
+        }
+        
+        // insert or replace current entry
+        $this->updateFulltextCache($pid, $dsID, $fulltext);                
+    }
+    	
+
+	/**
+     * Completely removes this PID from the fulltext index (Solr + MySQL cache).
+     * This function has to be overwritten in subclasses. Make sure to call the
+     * parent class for caching clean-up.
+     *
+     * @param string $pid
+     */
+    private function removeByPid($pid)
+    {
+    	Logger::debug("removeByPid($pid)");
+    	$this->deleteFulltextCache($pid);
+
+    }
+        
+    
+    /**
+     * Builds a fulltext query from the specified search options. This function
+     * can/should be overwritten in inherited classes to implement a search engine
+     * specific syntax. Default implementation uses the Lucene/Solr syntax.
+     *
+     * @param unknown_type $options
+     */
+    protected function prepareQuery($params, $options, $rulegroups, $approved_roles, $sort_by, $start, $page_rows) {    	
+    	return $options["q"];
     }
 
-    function convertFile($mimetype, $filename) 
-    {
-        $textfilename = $filename.".txt";
+    /**
+     * Executes the prepared query in the subclass. This is an abstract class
+     * that has to be used for the specific implementation.
+     *
+     * @param unknown_type $query
+     */
+    protected abstract function executeQuery($query, $options, $approved_roles, $sort_by, $start, $page_rows);
+    
+    
+    /**
+     * Issues a search request to the fulltext search engine. This is the main
+     * function to call for search. It includes dealing with sorting, authorization, 
+     * paging and hit highlighting. Usually, this function is not overwritten
+     * in subclasses since it already calls the appropriate functions in the subclasses.       
+     *
+     * @param $params search parameters
+     * @param unknown_type $options paging options
+     * @param unknown_type $approved_roles
+     * @param unknown_type $sort_by
+     * @param unknown_type $start
+     * @param unknown_type $page_rows
+     * @return unknown
+     */
+ 	public function search($params, $options, $approved_roles, $sort_by, $start, $page_rows) {
 
-        // convert to plain text
-        $plaintext = '';
-        switch ($mimetype) {
-            case 'application/pdf':
-                exec(APP_PDFTOTEXT_EXEC." $filename $textfilename");
-                break;
-            case 'text/plain':
-                $textfilename = $filename;
-                break;
-            default:
-                // if we couldn't convert the file, then return a blank textfilename
-                $textfilename = null;
-                break;
-        }
-        return $textfilename;
+ 	    
+ 		// gets user rule groups for this user		
+		$userID = Auth::getUserID();		
+		if (empty($userID)) {
+			// get public lister rulegroups
+			$userRuleGroups = Collection::getPublicAuthIndexGroups();
+		} else {
+			//$userRuleGroups = Auth::getUserAuthRuleGroups(Auth::getUserID());
+			$ses = Auth::getSession();
+			$userRuleGroups = $ses['auth_index_user_rule_groups'];
+		}
+		$ruleGroupStmt = implode(" OR ", $userRuleGroups);					
+		Logger::debug("FulltextIndex::search userid='".$userID."', rule groups='$ruleGroupStmt'");		
+		Logger::debug("FulltextIndex::search sort_by='".$sort_by."'");	
+		
+		if ($sort_by) {
+			$sortby_details = Search_Key::getBasicDetailsByTitle($sort_by);
+			//var_dump($sortby_details);
+			$sort_by = $this->getFieldName($sort_by, $this->mapType($sort_by), false);
+		}
+		
+		// prepare fulltext query string (including auth filters)
+		$query = $this->prepareQuery($params, $options, $ruleGroupStmt, $approved_roles, $sort_by, $start, $page_rows);
+		
+		// send query to search engine
+		Logger::debug("FulltextIndex::search query string='".Logger::str_r($query)."'");
+		Logger::debug("FulltextIndex::search sort_by='".$sort_by."'");
+		$qresult = $this->executeQuery($query, $options, $approved_roles, $sort_by, $start, $page_rows);
+		
+//		echo "<pre>";
+//		print_r($qresult);
+//		echo "</pre>";
+		
+		
+		$total_rows = $qresult['total_rows'];
+		$snips = $qresult['snips'];
+		
+		Logger::debug("FulltextIndex::search found $total_rows items");
+
+//		if ($total_rows > 0) {				                        
+//	            
+//			$i = 0;
+//			$res = array();
+//            foreach ($qresult['docs'] as $doc) {
+//            	$pid = $doc['pid'];
+//
+//            	// for the moment: lookup 1:1 values from record_search_key table
+//            	$sql =  "SELECT * FROM ".APP_TABLE_PREFIX."record_search_key ";
+//            	$sql .= "WHERE rek_pid='".$pid."'";
+//            	
+//            	$objRes = $GLOBALS["db_api"]->dbh->getAll($sql, DB_FETCHMODE_ASSOC);
+//
+//            	$res[$i] = $objRes[0];               	        	
+//				$res[$i]['xtract'] = $snips[$pid];					
+//
+//				$i++;
+//	            		
+//		    } 		    
+//		} 
+
+//		echo "<pre>";
+//		print_r($res);
+//		echo "</pre>";
+		
+		$result = array();
+		$result['list'] = $qresult['docs'];
+		$result['total_rows'] = $total_rows;
+		
+		return $result;
+	}
+
+
+	/**
+	 * This function exists for historical reasons (e.g. workflow fulltext index)
+	 * and can be called to insert/update an object in the fulltext index.
+	 *
+	 * @param string $pid
+	 */
+	public static function indexPid($pid) {
+		FulltextQueue::singleton()->add($pid);
+	}
+
+	/**
+	 * Removes the single datastream of an object from the fulltext index. 
+	 * The caller has to ensure that the datastream is also deleted in
+	 * Fedora - otherwise nothing will happen.
+	 * 
+	 * This function is public and can be called from anywhere (like indexPid).
+	 *
+	 * @param string $pid
+	 * @param string $dsID
+	 */
+    public function removeByDS($pid, $dsID)
+    {
+    	//Logger::debug("FulltextIndex::removeByDS");
+    	// delete fulltext cache for this datastream
+    	$this->deleteFulltextCache($pid, $dsID);
+
+    	// Re-index object. Since the datastream is not in Fedora 
+    	// anymore, the cache will not be rebuilt
+    	FulltextQueue::singleton()->add($pid);
+
     }
-
-    function indexPlaintext(&$rec, $dsID, &$plaintext)
-    {
-        list($fti_id, $new_item) = $this->getItemId($rec, $dsID);
-        // If the item has already been indexed, then we'll only regenerate the index if the regen flag was sent.
-        // Otherwise just return from here without doing anything.
-        if (!$this->regen && !$new_item) {
-            return;
-        }
-
-        $dbtp =  APP_TABLE_PREFIX;
-        $stmt = "DELETE FROM ".$dbtp."fulltext_engine WHERE fte_fti_id='$fti_id' ";
-        $res = $GLOBALS['db_api']->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-        }
-
-        $words = array();
-        foreach ($plaintext as $num => $line) {
-            // get keywords
-            $keywords = preg_split('/[^\w\d]/', $line, -1, PREG_SPLIT_NO_EMPTY);
-
-            // ignorewords
-            $ignore_words = &$this->getIgnoreWords();
-            foreach ($keywords as $word) {
-                $word = trim(strtolower($word));
-                // skip anything less than three letters
-                if (strlen($word) < 3) {
-                    continue;
-                }
-                // skip numbers
-                if (is_numeric($word)) {
-                    continue;
-                }
-                // skip ignore words
-                if (in_array($word, $ignore_words)) {
-                    continue;
-                }
-                // count occurances
-                if (!isset($words[$word])) {
-                    $words[$word] = 1;
-                } else {
-                    $words[$word]++;
-                }
-            }
-        }
-        foreach ($words as $word => $weight) {
-            // get a key_id for the word
-            $key_id = $this->getKeyId($word);
-
-            // associate words with pid
-            $stmt = "INSERT INTO ".$dbtp."fulltext_engine (fte_fti_id,fte_key_id,fte_weight) 
-                VALUES ('".$fti_id."','".$key_id."','".$weight."') ";
-            $res = $GLOBALS['db_api']->dbh->query($stmt);
-            if (PEAR::isError($res)) {
-                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            }
-        }
-    }
-
-    function getIgnoreWords()
-    {
-        return $this->ignorewords;
-    }
-
-    function getKeyId($word) 
-    {
-        $word = substr($word, 0, 64); // limit the word to the length of the field in the DB
-        $dbtp =  APP_TABLE_PREFIX;
-        $stmt = "SELECT ftk_id FROM ".$dbtp."fulltext_keywords WHERE ftk_word = '".Misc::escapeString($word)."'";
-        $res = $GLOBALS['db_api']->dbh->getOne($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            $res = 0;
-        }
-        if ($res > 0) {
-            $key_id = $res;
-        } else {
-            $stmt = "INSERT INTO ".$dbtp."fulltext_keywords (ftk_word, ftk_twoletters) VALUES
-                ('".Misc::escapeString($word)."',
-                 '".Misc::escapeString(substr(str_replace('\\','',$word),0,2))."') ";
-            $res = $GLOBALS['db_api']->dbh->query($stmt);
-            if (PEAR::isError($res)) {
-                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            }
-            $key_id = $GLOBALS['db_api']->get_last_insert_id();
-        }
-        return $key_id;
-    }
-
-    function getItemId(&$rec, $dsID) 
-    {
-        $pid = $rec->getPid();
-        $dbtp =  APP_TABLE_PREFIX;
-        $stmt = "SELECT * FROM ".$dbtp."fulltext_index WHERE fti_pid='".$pid."' AND fti_dsid='".$dsID."'";
-        $res = $GLOBALS['db_api']->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            $res = array();
-        }
-        if (!empty($res)) {
-            $fti_id = $res['fti_id'];
-            $new_id = false;
-        } else {
-            $stmt = "INSERT INTO ".$dbtp."fulltext_index (fti_pid, fti_dsid, fti_indexed) 
-                VALUES ('".$pid."', '".$dsID."', NOW()) ";
-            $res = $GLOBALS['db_api']->dbh->query($stmt);
-            if (PEAR::isError($res)) {
-                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            }
-            $fti_id = $GLOBALS['db_api']->get_last_insert_id();
-            $new_id = true;
-        }
-        return array($fti_id, $new_id);
-    }
-
-
-    function getSearchJoin($fulltext_input)
-    {
-        $ft_stmt = '';
-        $dbtp =  APP_TABLE_PREFIX;
-        if (!empty($fulltext_input)) {
-            $keywords = preg_split('/[^\w\d]/', $fulltext_input, -1, PREG_SPLIT_NO_EMPTY);
-
-            // ignorewords
-            $ignore_words = &$this->getIgnoreWords();
-            $keywords = array_diff($keywords, $ignore_words);
-            $keywords = array_unique($keywords);
-            $numeric_words = array_filter($keywords, 'is_numeric');
-            $keywords = array_values(array_diff($keywords, $numeric_words));
-
-            if (!empty($keywords)) {
-                // For AND operator, sum up the weights from each of the joins
-                $ft_weight_select = '';
-                foreach ($keywords as $num => $word) {
-                    $ft_weight_select .= "sum(fte".$num.".fte_weight)+";
-                }
-                $ft_weight_select = rtrim($ft_weight_select,'+');
-                $ft_stmt = "INNER JOIN (
-                    SELECT fti_pid, ".$ft_weight_select." as Relevance FROM ".$dbtp."fulltext_index as fti  
-                    ";
-                // Use INNER JOINS to AND the keywords
-                foreach ($keywords as $num => $word) {
-                    $ft_stmt .= "INNER JOIN ".$dbtp."fulltext_engine as fte".$num." ON fte".$num.".fte_fti_id=fti.fti_id
-                       INNER JOIN ".$dbtp."fulltext_keywords as ftk".$num." 
-                       ON ftk".$num.".ftk_twoletters='".Misc::escapeString(substr(str_replace('\\','',$word),0,2))."'
-                       AND ftk".$num.".ftk_word like '".Misc::escapeString($word)."%' 
-                       AND ftk".$num.".ftk_id=fte".$num.".fte_key_id ";
-                }
-                /**
-                 *      This works for an OR operator
-                 *  $ft_stmt .= "INNER JOIN (
-                 *   SELECT fti_pid, sum(fte.fte_weight) as Relevance FROM {$dbtp}fulltext_index as fti
-                 *   INNER JOIN {$dbtp}fulltext_engine as fte ON fte.fte_fti_id=fti.fti_id
-                 *   INNER JOIN ( ";        // ))
-                 *  foreach ($keywords as $num => $word) {
-                 *      if ($num > 0) {
-                 *          $ft_stmt .= "
-                 *              UNION ";
-                 *      }
-                 *      $ft_stmt .= "
-                 *          SELECT ftk_id FROM {$dbtp}fulltext_keywords
-                 *          WHERE ftk_twoletters='".Misc::escapeString(substr(str_replace('\\','',$word),0,2))."'
-                 *          AND ftk_word like '".Misc::escapeString($word)."%' ";
-                 *  }
-                 *  $ft_stmt .= "
-                 *      ) as jftk ON jftk.ftk_id=fte.fte_key_id";
-                 */
-                $ft_stmt .= "
-                    GROUP BY fti.fti_pid
-                    ) as ft1 ON ft1.fti_pid=r1.rek_pid";
-            }
-
-         }
-        return $ft_stmt;
-    }
-
-    function removeByPid($pid)
-    {
-        $dbtp =  APP_TABLE_PREFIX;
-        $stmt = "SELECT fti_id FROM ".$dbtp."fulltext_index WHERE fti_pid='".$pid."' ";
-        $res = $GLOBALS['db_api']->dbh->getCol($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            $res = array();
-        }
-        if (!empty($res)) {
-            $ftis = Misc::array_to_sql($res);
-            $stmt = "DELETE FROM ".$dbtp."fulltext_engine WHERE fte_fti_id IN (".$ftis.") ";
-            $res = $GLOBALS['db_api']->dbh->query($stmt);
-            if (PEAR::isError($res)) {
-                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-                $res = null;
-            }
-            $stmt = "DELETE FROM ".$dbtp."fulltext_index WHERE fti_pid='".$pid."' ";
-            $res = $GLOBALS['db_api']->dbh->query($stmt);
-            if (PEAR::isError($res)) {
-                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-                $res = null;
-            }
-        }
+    	
+	/**
+	 * Internally maps the name of a Fez search key to the search engine's
+	 * internal syntax. This function is usually overwritten in subclasses
+	 * The default behaviour is to replace spaces with underscores.
+	 *
+	 * @param string $fezName
+	 * @param int $datatype
+	 * @param string $multiple
+	 * @return string name of field in search engine
+	 */
+	protected function getFieldName($fezName, $datatype=FulltextIndex::FIELD_TYPE_TEXT, 
+		$multiple=false) {
+			
+    	return strtolower(preg_replace('/\s/', '_', $fezName));
     }
     
-    function removeByDS($pid,$dsID)
-    {
-        $dbtp =  APP_TABLE_PREFIX;
-        $stmt = "SELECT fti_id FROM ".$dbtp."fulltext_index WHERE fti_pid='".$pid."' AND fti_dsid='".$dsID."' ";
-        $res = $GLOBALS['db_api']->dbh->getCol($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            $res = array();
-        }
-        if (!empty($res)) {
-            $ftis = Misc::array_to_sql($res);
-            $stmt = "DELETE FROM ".$dbtp."fulltext_engine WHERE fte_fti_id IN (".$ftis.") ";
-            $res = $GLOBALS['db_api']->dbh->query($stmt);
-            if (PEAR::isError($res)) {
-                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-                $res = null;
-            }
-            $stmt = "DELETE FROM ".$dbtp."fulltext_index WHERE fti_pid='".$pid."'  AND fti_dsid='".$dsID."' ";
-            $res = $GLOBALS['db_api']->dbh->query($stmt);
-            if (PEAR::isError($res)) {
-                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-                $res = null;
-            }
-        }
+    /**
+     * Maps the Fez search key type to the search engine specific type.
+     *
+     * @param unknown_type $fezName
+     */
+    protected function mapType($sek_data_type) {
+    	
+    	//$sek_details = Search_Key::getDetailsByTitle($fezName);
+    	//var_dump($sek_details);
+		switch ($sek_data_type) {
+			case "varchar":
+				$datatype = FulltextIndex::FIELD_TYPE_TEXT; break; // _s?
+			case "int":
+				$datatype = FulltextIndex::FIELD_TYPE_INT; break;
+			case "text":
+				$datatype = FulltextIndex::FIELD_TYPE_TEXT; break;
+			case "date":
+				$datatype = FulltextIndex::FIELD_TYPE_DATE; break;    				
+    		default:
+    			$datatype = FulltextIndex::FIELD_TYPE_TEXT; break;
+    	}    	
+    	
+    	return $datatype;
     }
 
-}
 
+    /**
+     * Retrieves the cached plaintext for a (pid,datastream) pair from the
+     * fulltext cache.
+     *
+     * @param string $pid
+     * @param string $dsID
+     * @return plaintext of datastream, null on error
+     */
+    protected function getCachedContent($pid, $dsID) {
+    	$GLOBALS['db_api']->dbh->autoCommit(true);
+    	
+		$sqlPid = Misc::escapeString($pid);
+		$sqlDsId = Misc::escapeString($dsID);
+		    	
+    	$stmt = "SELECT ftc_pid as pid, ftc_dsid as dsid, ftc_content as content ".        		
+        		"FROM ".APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME." ".
+        		"WHERE ftc_pid='".$sqlPid."' ".
+        		"AND ftc_dsid='".$sqlDsId."'";
+        				      	
+        $res = $GLOBALS['db_api']->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);		
+        if (PEAR::isError($res)) {
+	        Logger::error($res->getMessage());	        
+	        $res = null;
+	    }
+	    
+        return $res;
+    }
+
+    /**
+     * Removes the specified datastream(s) from the MySQL fulltext cache. If
+     * datastream id is left blank, the whole object is removed from the 
+     * fulltext index.
+     *
+     * @param string $pid
+     * @param string $dsID
+     */
+    protected function deleteFulltextCache($pid, $dsID='') {
+    	$sqlPid = Misc::escapeString($pid);
+		$sqlDsId = Misc::escapeString($dsID);
+
+		$stmt = "DELETE FROM ".APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME." ".
+				"WHERE ".
+	        	"ftc_pid='".$sqlPid."'";
+
+	    if ($dsID > '') {
+	    	$stmt .= " AND".
+	        		 " ftc_dsid='".$sqlDsId."'";
+		}		
+		$res = $GLOBALS['db_api']->dbh->query($stmt);					
+		
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            Logger::error($res->getMessage());
+        }
+        
+	    //Logger::debug("deleted existing content for ($pid, $dsID)");
+    }
+    
+    /**
+     * Updates the fulltext cache. Inserts new and replaces existing entries.
+     *
+     * @param unknown_type $pid
+     * @param unknown_type $dsID
+     */
+    protected function updateFulltextCache($pid, $dsID, &$fulltext) {
+        //Logger::debug("FulltextIndex::indexPlaintext inserting fulltext for ($pid,$dsID) into database");
+
+    	// prepare ids
+		$sqlPid = Misc::escapeString($pid);
+		$sqlDsId = Misc::escapeString($dsID);
+
+		// prepare text for SQL
+	    $fulltext = utf8_encode($fulltext);
+	    $fulltext = Misc::escapeString($fulltext);
+    	if (!empty($fulltext)) {
+        	$fulltext = "'".$fulltext."'";
+        } else {
+        	//Logger::debug("inserting <null> fulltext for ($pid,$dsID)");
+        	$fulltext = "null";
+        }        
+                
+        // start a new transaction        
+		//$GLOBALS['db_api']->dbh->autoCommit(false);		
+        //$this->deleteFulltextCache($pid, $dsID);
+        
+        // REPLACE: MySQL specific syntax
+        // can be replaced with IF EXISTS INSERT or DELETE/INSERT for other databases
+        // or use transactional integrity - if using multiple indexing processes
+        $stmt = "REPLACE INTO ".APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME." ".
+        	"(ftc_pid, ftc_dsid, ftc_content) VALUES (".
+        	"'".$sqlPid."','".$sqlDsId."',$fulltext)";
+                       
+       	$res = $GLOBALS['db_api']->dbh->query($stmt);
+       	
+		if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            Logger::error($res->getMessage());
+        }       	    	
+        
+        /* if using transactions
+       	// commit transaction
+       	$GLOBALS['db_api']->dbh->commit();
+       	if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            Logger::error($res->getMessage());
+        } 	
+        */
+    }
+    
+    
+}
 
 ?>

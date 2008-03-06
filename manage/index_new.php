@@ -77,7 +77,11 @@ if ($_POST["action"] !== "prompt" && $_POST["action"] !== "index") {
     if (!empty($_POST["discover"])) {
         $index_type = Reindex::INDEX_TYPE_FEDORAINDEX;
     } elseif (!empty($_POST["reindex"])) {
-        $index_type = Reindex::INDEX_TYPE_REINDEX;
+        if( !empty($_POST["solr_do_all"]) ) {
+            $index_type = Reindex::INDEX_TYPE_SOLR;
+        } else {
+            $index_type = Reindex::INDEX_TYPE_REINDEX;
+        }
     } elseif (!empty($_POST["undelete"])) {
         $index_type = Reindex::INDEX_TYPE_UNDELETE;
     }    
@@ -90,7 +94,8 @@ if ($_POST["action"] !== "prompt" && $_POST["action"] !== "index") {
         	$params['index_type'] = $index_type;
         	Reindex::indexFezFedoraObjects($params);
         }
-        if (!empty($_POST["do_all"])) {
+        
+        if (!empty($_POST["do_all"]) || !empty($_POST["solr_do_all"])) {
             $params = &$_POST;
             $bgp = new BackgroundProcess_Index_Object();
             $bgp->register(serialize(compact('params','terms','index_type')), Auth::getUserID());

@@ -68,6 +68,7 @@ class Reindex
 	const INDEX_TYPE_REINDEX = 2;
 	const INDEX_TYPE_REINDEX_OBJECTS = 3;  // index specific pids
 	const INDEX_TYPE_UNDELETE = 4;  
+	const INDEX_TYPE_SOLR = 5;
 
 
     var $fedoraObjects = array();
@@ -540,6 +541,38 @@ class Reindex
         }
     }
 
+    function reindexSolrFullList($params,$terms)
+    {
+        include_once(APP_INC_PATH . "class.fulltext_queue.php");
+        
+        $bgp_details = $this->bgp->getDetails();
+        $reindex_record_counter = 0;
+        
+        $fedoraDirect = new Fedora_Direct_Access();
+        $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms);
+        if (APP_DB_TYPE == "oracle") {
+			foreach ($fedoraList as &$flist) {
+	            $flist = array_change_key_case($flist, CASE_LOWER);
+	        }
+			$fedoraList = $flist;
+		}
+        $record_count = count($fedoraList);
+        
+        foreach ($fedoraList as $detail) {
+            
+            FulltextQueue::singleton()->add($detail['pid']);
+            $this->bgp->setProgress(intval(100*$reindex_record_counter/$record_count));
+            $this->bgp->setStatus("Solr Reindexing:  '".$detail['pid']."' ".$detail['title']. " (".$reindex_record_counter."/".$record_count.")");
+            
+            if( $reindex_record_counter % 100 == 0 ) {
+                FulltextQueue::commit();
+            }
+            
+            $reindex_record_counter++;
+        }
+        
+        FulltextQueue::commit();
+    }
     
 
     
