@@ -336,6 +336,7 @@ function lookupField(f, search_field, field_name, callbacks)
 
 function clearSelectedOptions(field)
 {
+    field.options[0].selected = true;
     for (var i = 0; i < field.options.length; i++) {
         field.options[i].selected = false;
     }
