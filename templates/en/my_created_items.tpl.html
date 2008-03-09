@@ -243,7 +243,9 @@ No items found
 
 
 		<a href="{$rel_url}view/{$list[i].rek_pid|escape}"><img align="absmiddle" src="{$icon}" border="0"></a>
-       <a href="{$rel_url}view/{$list[i].rek_pid|escape}" class="title_link">{$list[i].rek_citation}</a>
+       <a href="{$rel_url}view/{$list[i].rek_pid|escape}" class="title_link">
+         {if ($list[i].rek_citation)}{$list[i].rek_citation}{else}{$list[i].rek_title}{/if}
+       </a>
 			  {section name="w" loop=$list[i].wft_id}
 			    {if $list[i].wft_id[w] != ''}
 			    {if $list[i].wft_icon[w] == 'images/security.gif'}
