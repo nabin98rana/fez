@@ -131,13 +131,13 @@
 			     'pid'   =>  getmypid(),
 			    );
 			} else {
-				$ps = shell_exec("ps ".$pid);
+				exec("ps ".$pid, $output);
 				
-                if(count($ps) < 2){
+                if(count($output) < 2){
                     return false;
                 }
                 
-                return $ps;
+                return $output;
 			}
         }
 		
@@ -167,14 +167,14 @@
 			$sql = "SELECT ftl_value, ftl_pid FROM ".APP_TABLE_PREFIX."fulltext_locks ".
 					"WHERE ftl_name='".self::LOCK_NAME_FULLTEXT_INDEX."'";
 			$res = $GLOBALS["db_api"]->dbh->getRow($sql, DB_FETCHMODE_ASSOC);
-			//Logger::debug(Logger::str_r($res));
+			
 			$process_id = $res['ftl_pid'];
 			$lockValue = $res['ftl_value'];
 			$acquireLock = true;
 			
 			//Logger::debug("FulltextIndex::triggerUpdate got lockValue=".$lockValue.", pid=".$process_id);
-			if ($lockValue > 0 && !empty($process_id) && is_numeric($process_id)) {	
-							
+			if ($lockValue > 0 && !empty($process_id) && is_numeric($process_id)) {
+			    
 				// check if process is still running or if this is an invalid lock
 				$psinfo = self::getProcessInfo($process_id);
 				
@@ -185,7 +185,7 @@
 					// override existing lock
 					$acquireLock = false;
 				}				
-			} 
+			}
 			
 			// worst case: a background process is started, but the queue already 
 			// empty at this point (very fast indexer)
@@ -219,7 +219,7 @@
 					self::createUpdateProcess();
 				}
 			} else {
-				//Logger::debug("FulltextIndex::triggerUpdate lock already taken by another process");
+				Logger::debug("FulltextIndex::triggerUpdate lock already taken by another process");
 			}
 						
 		}
@@ -321,6 +321,18 @@
 			
 			//Logger::debug("FulltextQueue::pop() success! ".Logger::str_r($result));
 			return $result;
+		}
+		
+		public function size() {
+		    
+		    $sql  = "SELECT count(*) FROM ".APP_TABLE_PREFIX."fulltext_queue ";
+		    $result = $GLOBALS['db_api']->dbh->getOne($sql);
+		    
+		    if (PEAR::isError($result)) {
+                return 0;
+	        }
+		    
+		    return $result;
 		}
 		
 //		public function popChunk() {

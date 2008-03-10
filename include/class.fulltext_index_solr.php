@@ -80,7 +80,7 @@ class FulltextIndex_Solr extends FulltextIndex {
 		    //$solr->addDocument($doc);
 		    $this->docsAdded++;
 		    
-		    if( $this->docsAdded % 150 == 0 ) {
+		    if( $this->docsAdded % 250 == 0 ) {
                 $this->solr->addDocuments($this->docs);
                 $this->solr->commit();
                 
@@ -305,11 +305,22 @@ class FulltextIndex_Solr extends FulltextIndex {
     	}
     }
     
-    
-    function __destruct() {
+    protected function forceCommit() {
         if(!empty($this->docs)) {
-            $this->solr->addDocuments($this->docs);
-            $this->solr->commit();
+            
+            try {
+                
+                $this->solr->addDocuments($this->docs);
+                $this->solr->commit();
+                
+                unset($this->docs);
+                Logger::debug("======= FulltextIndex::updateFulltextIndex committed mem_usage=".memory_get_usage(). " =======");
+                
+            } catch (Exception $e) {
+                
+                Logger::error("Error on searching: ".$e->getMessage());
+                
+            }
         }
     }
 }

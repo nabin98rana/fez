@@ -875,7 +875,7 @@ class Fedora_API {
 		if (APP_FEDORA_APIA_DIRECT == "ON") {
 			$fda = new Fedora_Direct_Access();
 			$stream = $fda->getDatastreamDissemination($pid, $dsID);
-			return array("stream" => $stream);
+			return array("stream" => $stream, 'MIMEType' => 'text/xml');
 		}		
 		
 	   if ($asofDateTime == "") {
@@ -908,6 +908,8 @@ class Fedora_API {
             if ($mime_type != 'text/xml' || $getraw) {
 				return $blob;
 			} 
+			
+			
             // We've checked the mimetype is XML so lets parse it and make a simple array
 			if (!empty($blob) && $blob != false) {
 				$doc = DOMDocument::loadXML($blob);

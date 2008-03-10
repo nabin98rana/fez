@@ -219,7 +219,8 @@
 		if ($citation == "") {
 			$options = array();
 			$options["searchKey".Search_Key::getID("Pid")] = $pid; // enforce records only
-			$list = Record::getListing($options, array("Lister"), 0, 1, "Title", false, false);
+			//$list = Record::getListing($options, array("Lister"), 0, 1, "Title", false, false);
+			$list = Record::getListingForCitation($options, array("Lister"));
 		//	$list = Collection::statsByAttribute(0, $rows, "Title");
 			$list = $list["list"];
 			$list = Citation::renderIndexCitations($list, 'APA', false, true);
@@ -230,13 +231,12 @@
 		}		
 		if ($citation == "") {
 			return;
-		}		
-		$citation = Misc::escapeString($citation);	
+		}
+		
 		$stmt = "UPDATE 
 				" . APP_TABLE_PREFIX . "record_search_key r1
-				SET rek_citation = '".$citation."'
-				WHERE rek_pid = '".$pid."'
-				";
+				SET rek_citation = '".Misc::escapeString($citation)."'
+				WHERE rek_pid = '".$pid."'";
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
 		if (PEAR::isError($res)) {
 			Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

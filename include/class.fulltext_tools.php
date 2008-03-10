@@ -132,7 +132,7 @@ class Fulltext_Tools {
         $plaintext = '';
         switch ($mimetype) {
             case 'application/pdf':
-                exec(APP_PDFTOTEXT_EXEC." $filename $textfilename");
+                exec(APP_PDFTOTEXT_EXEC.' '.$filename.' '.$textfilename);
                 break;
 
             case 'text/plain':

@@ -534,6 +534,13 @@ class Search_Key
      */
     function getList($checkTableExists = true)
     {
+        if(function_exists('apc_fetch')) {
+            $res = apc_fetch('sek_list');
+            if(!empty($res)) {
+                return $res;
+            }
+        }
+        
         $stmt = "SELECT
                     *
                  FROM
@@ -553,9 +560,13 @@ class Search_Key
         for ($i = 0; $i < count($res); $i++) {
             $res[$i]['sek_title_db'] = Search_Key::makeSQLTableName($res[$i]['sek_title'], $i);
             
-            if($checkTableExists) {
+            if($checkTableExists == true) {
                 $res[$i]['key_table_exists'] = Search_Key::checkIfKeyTableExists($res[$i]['sek_title_db'], $res[$i]['sek_relationship']);
             }
+        }
+        
+        if(function_exists('apc_add')) {
+            apc_add('sek_list', $res, 0);
         }
         
         return $res;

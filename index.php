@@ -187,10 +187,6 @@ if( APP_SOLR_SWITCH == "OFF" ) {
     	= new AutoSuggestControl(document.search_frm, 'front_search', document.getElementById('front_search'), document.getElementById('front_search'),
     			new StateSuggestions('Collection','suggest',false,
     				'class.collection.php'));";
-    
-    $tpl->assign("quickSearchName", "search_keys[0]");
-} else {
-    $tpl->assign("quickSearchName", "q");
 }
 
 

@@ -1100,6 +1100,42 @@ class Record
     }
 
     
+    function getListingForCitation($options, $approved_roles, $sort_by="Title", $operator='AND') {
+        
+        $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+        $searchKey_join = Record::buildSearchKeyJoins($options, $sort_by, $operator);
+        
+		$authArray = Collection::getAuthIndexStmt($approved_roles, "r1.rek_pid");
+		$authStmt = $authArray['authStmt'];
+		$joinStmt = $authArray['joinStmt'];
+
+		$stmt =  "SELECT DISTINCT r1.* " .
+                  "FROM {$dbtp}record_search_key AS r1 ".
+            	   $searchKey_join[SK_JOIN].$searchKey_join[SK_LEFT_JOIN].$authStmt." ".
+	               $searchKey_join[SK_WHERE];
+        
+	    $usr_id = Auth::getUserID();
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+		
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+			$res = array();
+		} else {
+            
+			if (count($res) > 0) {
+				
+            	Record::getSearchKeysByPIDS($res);
+            	Record::getChildCountByPIDS($res, $usr_id);
+                    
+			}
+        }
+        
+	    return array(
+	       'info'  =>  '',
+	       'list'  =>  $res,
+	    );
+    }
+    
     /**
      * Extracts and prepares search specific parameters from the $_GET/$_POST request.
      * This performs kind of a parameter validation and packs variables in
@@ -1153,7 +1189,7 @@ class Record
 		}
 	
 		// EXPERT SEARCH
-		$q = Misc::GETorPOST('q');
+		$q = $_REQUEST['search_keys'][0];
 		if ($q) {
 			$params['direct'] = array('q' => $q);
 		}
@@ -1192,6 +1228,7 @@ class Record
 		$total_rows = $res['total_rows'];
 		$res = $res['list'];
         
+		$usr_id = Auth::getUserID();
         // disable citation caching for the moment
 		$citationCache = true;
 
@@ -1209,22 +1246,15 @@ class Record
 		// KJ/ETH: if the object came up to here, it can be listed (Solr filter!)
 		if (!empty($res)) {		
 			
-			$citationCache = false;
-			
-			if ($citationCache == false) {
-				//$res = Citation::renderIndexCitations($res, 'APA', $citationCache, false);
-			}
-			
-			// is this really needed - here it's only about listing...?				
+			// needed for viewer			
 			$res = Auth::getIndexAuthCascade($res);
 									
 			foreach ($res as $key => $rec) {
 				$res[$key]['isLister'] = true;
 			}		
 		}
-		
 		// query display...
-		$search_info = $options["q"];
+		$search_info = $options["searchKey0"];
 
 		//
 		// handle pageing
@@ -1259,11 +1289,6 @@ class Record
         $info = compact('total_rows', 'page_rows', 'current_row','current_last_row',
         				'current_page','total_pages','next_page','prev_page','last_page',
         				'noOrder', 'search_info', 'start_range', 'end_range', 'printable_page');
-        				
-//		echo "<pre>";
-//		print_r($list);
-//		echo "</pre>";
-//		exit;
 
         return compact('info','list');
     }
@@ -1327,7 +1352,7 @@ class Record
 		if (count($pids) == 0) {
 			return;
 	  	}
-        $sek_details = Search_Key::getList();
+        $sek_details = Search_Key::getList(false);
         foreach ($sek_details as $sekKey => $sekData) {
             $sek_sql_title = Search_Key::makeSQLTableName($sekData['sek_title']);
             if ($sekData['sek_relationship'] == 0) { //already have the data, just need to do any required lookups for 1-1
