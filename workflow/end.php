@@ -78,9 +78,15 @@ if (is_array($parents_list)) {
         if (Misc::isValidPid($item)) {
             $precord = new RecordObject($item);
             if ($precord->isCommunity()) {
-                $item['url'] = APP_RELATIVE_URL."community/".$item;
+				$item = array(
+					"url"=>APP_RELATIVE_URL."community/".$item,
+					"rek_title"=>$precord->getTitle()
+				);
             } else {
-                $item['url'] = APP_RELATIVE_URL."collection/".$item;
+                $item = array(
+					"url"=>APP_RELATIVE_URL."collection/".$item,
+					"rek_title"=>$precord->getTitle()
+				);
             }
         }
     }
