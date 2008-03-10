@@ -51,7 +51,7 @@ include_once(APP_INC_PATH . "class.fulltext_tools.php");
 include_once(APP_INC_PATH . "class.fulltext_index_solr.php");
 include_once(APP_INC_PATH . "class.citation.php");
 include_once(APP_INC_PATH . "Apache/Solr/Service.php");
-include_once(APP_INC_PATH . "class.memory.php");
+//include_once(APP_INC_PATH . "class.memory.php");
 
 abstract class FulltextIndex {
 	const FIELD_TYPE_INT = 0;
