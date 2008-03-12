@@ -78,25 +78,11 @@ if (APP_BENCHMARK) {
 include_once(APP_INC_PATH . "class.configuration.php");
 Configuration::registerConf();
 
-if (isset($_GET)) {
-    $HTTP_POST_VARS = $_POST;
-    $HTTP_GET_VARS = $_GET;
-    $HTTP_SERVER_VARS = $_SERVER;
-    $HTTP_ENV_VARS = $_ENV;
-    $HTTP_POST_FILES = $_FILES;
-    // Seems like PHP 4.1.0 didn't implement the $_SESSION auto-global ...
-    if (isset($_SESSION)) {
-        $HTTP_SESSION_VARS = $_SESSION;
-    }
-    //$HTTP_SESSION_VARS = $_SESSION;
-    $HTTP_COOKIE_VARS = $_COOKIE;
-}
-
 $GLOBALS['app_cache'] = true; // Set this string to true if you have given php.ini at least 256M to use. It will improve performance by storing some Fedora and SQL queries in PHP memory rather than fetch them twice or more during a single page load. This gets hardset to false globally for indexing and reindexing in background processes as this won't scale over 500M with over 10,000 objects otherwise (you will get PHP fatal memory error for example).
 
 // Fix magic_quote_gpc'ed values
-$HTTP_GET_VARS =& Misc::dispelMagicQuotes($HTTP_GET_VARS);
-$HTTP_POST_VARS =& Misc::dispelMagicQuotes($HTTP_POST_VARS);
+$_GET =& Misc::dispelMagicQuotes($_GET);
+$_POST =& Misc::dispelMagicQuotes($_POST);
 
 // Handle the language preferences
 @include_once(APP_INC_PATH . "class.language.php");
