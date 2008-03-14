@@ -659,15 +659,19 @@ class Lister
 
 		// Try to make sense of the query string, and push through the relevant bits for page formatting.
 		$queryStringReduced = $_SERVER['QUERY_STRING'];
+		
+		//echo $queryStringReduced . '<br />';
 		$queryStringReduced = preg_replace("/(.*)(?:collection|community){1}_pid=(?:[A-Za-z]+):(?:[0-9]+)(?:&?)(.*)/i", "$1$2", $queryStringReduced);	// Strip collection or community
 		$queryStringReduced = preg_replace("/(.*)rows=\d+&pager_row=\d+/i", "$1", $queryStringReduced);	// Strip rows && pager_row parts
 		if (substr($queryStringReduced, -1, 1) == "&") {
 			$queryStringReduced = substr($queryStringReduced, 0, -1);
 		}
-		$queryStringReducedSansSort = preg_replace("/(.*)sort_by=searchKey\d*(.*)/i", "$1$2", $queryStringReduced, -1);	// Strip sort_by
+		
+		$queryStringReducedSansSort = preg_replace("/(.*)sort_by=searchKey.*&+(.*)/iU", "$1$2", $queryStringReduced, -1);	// Strip sort_by
 		if (substr($queryStringReducedSansSort, -1, 1) == "&") {
 			$queryStringReducedSansSort = substr($queryStringReducedSansSort, 0, -1);
 		}
+		
 		$queryStringReducedSansSort = preg_replace("/(.*)sort_order=[0-1]{1}(.*)/i", "$1$2", $queryStringReducedSansSort, -1);	// Strip sort_order
 		if (substr($queryStringReducedSansSort, -1, 1) == "&") {
 			$queryStringReducedSansSort = substr($queryStringReducedSansSort, 0, -1);

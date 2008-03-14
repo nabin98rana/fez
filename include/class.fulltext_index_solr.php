@@ -195,7 +195,7 @@ class FulltextIndex_Solr extends FulltextIndex {
 			$queryString = '"'.$query['query'] .'"';
 			$params['fl'] = '*,score';
 			
-			$sort_by = 'score';
+			//$sort_by = 'score';
 			
 			// sorting
 			if (!empty($sort_by)) {
@@ -203,13 +203,15 @@ class FulltextIndex_Solr extends FulltextIndex {
 				if ($options['sort_order'] == 1) {
 					$params['sort'] .= ' desc';
 				} else {
-					$params['sort'] .= ' desc';
+					$params['sort'] .= ' asc';
 				}
 				//var_dump($params['sort']);
 			}
 			
+			
 			Logger::debug("Solr filter query: ".$params['fq']);
 			Logger::debug("Solr query string: $queryString");
+			Logger::debug("Solr sort by: ".$params['sort']);
 			
 			$response = $this->solr->search($queryString, $start, $page_rows, $params);
 			
@@ -271,25 +273,45 @@ class FulltextIndex_Solr extends FulltextIndex {
     }
     
     
-	protected function getFieldName($fezName, $datatype=FulltextIndex::FIELD_TYPE_TEXT, 
-		$multiple=false) {
+	public function getFieldName($fezName, $datatype=FulltextIndex::FIELD_TYPE_TEXT, 
+		$multiple=false, $is_sort=false) {
 			
-    	$name = parent::getFieldName($fezName, $datatype, $multiple);
-    	$name .= '_';
+    	$fezName .= '_';
     	if ($multiple) {
-    		$name .= 'm';
-    	} 
-    	switch ($datatype) {
-    		case FulltextIndex::FIELD_TYPE_TEXT: $name .= 't'; break;
-    		case FulltextIndex::FIELD_TYPE_DATE: $name .= 'dt'; break;
-    		case FulltextIndex::FIELD_TYPE_INT: $name .= 'i'; break;
-    		case FulltextIndex::FIELD_TYPE_VARCHAR : $name .= 't'; break;
-    		default:
-    			$name .= 't';
+    		$fezName .= 'm';
     	}
     	
-    	//Logger::debug("FulltextIndex_Solr::getFieldName from '$fezName' to '$name'");
-    	return $name;
+    	switch ($datatype) {
+    		case FulltextIndex::FIELD_TYPE_TEXT: 
+                $fezName .= 't'; 
+                if($is_sort) {
+                    $fezName .= '_s';
+                }
+                break;
+                
+    		case FulltextIndex::FIELD_TYPE_DATE: 
+                $fezName .= 'dt';
+                break;
+                
+    		case FulltextIndex::FIELD_TYPE_INT: 
+                $fezName .= 'i'; 
+                break;
+                
+    		case FulltextIndex::FIELD_TYPE_VARCHAR : 
+                $fezName .= 't'; 
+                if($is_sort) {
+                    $fezName .= '_s';
+                }
+                break;
+                
+    		default:
+    			$fezName .= 't';
+    			if($is_sort) {
+                    $fezName .= '_s';
+                }
+    	}
+    	
+    	return $fezName;
     }
 
     

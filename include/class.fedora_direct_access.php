@@ -253,7 +253,7 @@ class Fedora_Direct_Access {
 */
         $mContent = $this->getDatastreamManagedContent($pid, $dsID, $maxDV);
         if ($mContent != "") {
-            return $mContent;
+            return array('stream' => $mContent);
         }
 //  echo $dsID." - ".$maxDV."\n";
         if ($maxDV != "1.0") {
@@ -275,13 +275,19 @@ class Fedora_Direct_Access {
 //		print "<pre>" . htmlspecialchars($xmlContent->saveXML()) . "</pre>";
         $xml = "";
         if ($found == true) {
-//  echo $dsID." - ".$maxDV."\n";
 
-          $xml =  $xmlContent->saveXML();
+            $xml =  $xmlContent->saveXML();
+            
+            return array(
+                'stream'    =>  $xml,
+                'MIMEType'  =>  'text/xml',
+            );
+          
         } elseif ($pmaxDV == "") {
-          $xml = $this->getDatastreamDissemination($pid, $dsID, "1.0");
-        }
-		return $xml;	
+            
+            return $this->getDatastreamDissemination($pid, $dsID, "1.0");
+          
+        }	
 	}
 
     function listDatastreams($pid) {

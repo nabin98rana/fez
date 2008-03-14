@@ -47,7 +47,7 @@ class BackgroundProcess_Fulltext_Index extends BackgroundProcess
         $this->setState(1);
         extract(unserialize($this->inputs));
 
-        $ft_index = new FulltextIndex_Solr();
+        $ft_index = new FulltextIndex_Solr_CSV();
         $ft_index->setBGP($this);       
         $ft_index->startBGP($pid, $regen, true);
         $this->setState(2);

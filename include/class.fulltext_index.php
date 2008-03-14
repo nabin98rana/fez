@@ -49,6 +49,7 @@ include_once(APP_INC_PATH . "class.bgp_fulltext_index.php");
 include_once(APP_INC_PATH . "class.fulltext_queue.php");
 include_once(APP_INC_PATH . "class.fulltext_tools.php");
 include_once(APP_INC_PATH . "class.fulltext_index_solr.php");
+include_once(APP_INC_PATH . "class.fulltext_index_solr_csv.php");
 include_once(APP_INC_PATH . "class.citation.php");
 include_once(APP_INC_PATH . "Apache/Solr/Service.php");
 //include_once(APP_INC_PATH . "class.memory.php");
@@ -66,11 +67,12 @@ abstract class FulltextIndex {
 	const FIELD_NAME_AUTH = '_authlister';
 	const FIELD_NAME_FULLTEXT = 'content';
 	
-    private $bgp;    
+    protected $bgp;    
 	protected $pid_count = 0;
 	protected $countDocs = 0;
 	protected $totalDocs = 0;
 	protected $bgpDetails;
+	protected $searchKeyData;
 	
 	//public $memory_man;
 	
@@ -271,7 +273,7 @@ abstract class FulltextIndex {
     private function getListerRuleGroups($pid) {
 
 		$stmt =  "SELECT * FROM ".APP_TABLE_PREFIX."auth_index2_lister ";
-		$stmt .= "WHERE authi_pid='".$pid."' ORDER BY authi_arg_id";
+		$stmt .= "WHERE authi_pid='".$pid."'";
 		$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
 
 		if (PEAR::isError($res)) {
@@ -317,7 +319,7 @@ abstract class FulltextIndex {
      * @param unknown_type $topcall
      */
     public function indexRecord($pid, $regen=false, $topcall=true)
-    {
+    {        
     	// maybe do test? (!$record->isCommunity() && !$record->isCollection())
 		$GLOBALS['db_api']->dbh->autoCommit(true);
 
@@ -447,20 +449,14 @@ abstract class FulltextIndex {
             unset($ftResult);
         }
         
-        //Logger::debug("FulltextIndex::indexRecordSolr after DSLIST mem_usage=".memory_get_usage());
-        //$this->memory_man->register("FulltextIndex::indexRecordSolr after DSLIST");
-        
-        //$GLOBALS['timer']->setMarker('Start of Processing Security Index');
         //
         // add lister security index to document - kind of special
         // maybe this needs more abstraction for new search engines
         // _authindex solr: tokenized, indexed and stored _t
         //
-        $auth_title = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTH, FulltextIndex::FIELD_TYPE_TEXT, false);        								
-        $docfields[$auth_title] = $this->getListerRuleGroups($pid);                
-        $fieldTypes[$auth_title] = FulltextIndex::FIELD_TYPE_TEXT ; 
-        
-        //Logger::debug("FulltextIndex::indexRecordSolr after _authindex mem_usage=".memory_get_usage());
+        $auth_title = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTH, FulltextIndex::FIELD_TYPE_TEXT, false);
+        $docfields[$auth_title] = $this->getListerRuleGroups($pid);
+        $fieldTypes[$auth_title] = FulltextIndex::FIELD_TYPE_TEXT;
        
         //
         // now we have everything in $docfields >> do update
@@ -522,7 +518,7 @@ abstract class FulltextIndex {
      * 
      * @param array $dsitem - a ds listing item as returned from getDatastreams
      */
-    private function indexDS($rec, $dsitem)
+    protected function indexDS($rec, $dsitem)
     {
         // determine the type of datastream
         switch ($dsitem['controlGroup']) {
@@ -549,7 +545,7 @@ abstract class FulltextIndex {
      * @param unknown_type $rec
      * @param unknown_type $dsitem
      */
-    private function indexManaged($rec, $dsitem)
+    protected function indexManaged($rec, $dsitem)
     {
         Logger::debug("FulltextIndex::indexManaged mem_usage=".memory_get_usage());
     	$GLOBALS['db_api']->dbh->autoCommit(true);
@@ -562,10 +558,10 @@ abstract class FulltextIndex {
 
         // test for cached content
         $pid = $rec->getPid();
-        $res = $this->getCachedContent($pid, $dsitem['ID']);
+        $res = $this->checkCachedContent($pid, $dsitem['ID']);
         //Logger::debug("---------------> cached content res is: ".$res['pid']);
         
-        if (!empty($res) && !empty($res['pid'])) {
+        if (!empty($res) && $res['cnt'] > 1) {
         	Logger::debug("- use cached content for $pid/".$dsitem['ID']);
         	return;
         }
@@ -705,28 +701,26 @@ abstract class FulltextIndex {
 			$userRuleGroups = $ses['auth_index_user_rule_groups'];
 		}
 		$ruleGroupStmt = implode(" OR ", $userRuleGroups);					
-		Logger::debug("FulltextIndex::search userid='".$userID."', rule groups='$ruleGroupStmt'");		
-		Logger::debug("FulltextIndex::search sort_by='".$sort_by."'");	
+		Logger::debug("FulltextIndex::search userid='".$userID."', rule groups='$ruleGroupStmt'");
 		
-		if ($sort_by) {
-			$sortby_details = Search_Key::getBasicDetailsByTitle($sort_by);
-			//var_dump($sortby_details);
-			$sort_by = $this->getFieldName($sort_by, $this->mapType($sort_by), false);
+		if (!empty($sort_by)) {
+		    
+		    $sek_id = str_replace("searchKey", "", $sort_by);
+    		$sek_data = Search_Key::getDetails($sek_id);
+    		$sort_name = FulltextIndex::getFieldName($sek_data['sek_title']);
+		       
+			$sort_by = $this->getFieldName($sort_name, $this->mapType($sek_data['sek_data_type']), false, true);
 		}
 		
 		// prepare fulltext query string (including auth filters)
 		$query = $this->prepareQuery($params, $options, $ruleGroupStmt, $approved_roles, $sort_by, $start, $page_rows);
 		
+		
 		// send query to search engine
 		Logger::debug("FulltextIndex::search query string='".Logger::str_r($query)."'");
 		Logger::debug("FulltextIndex::search sort_by='".$sort_by."'");
 		$qresult = $this->executeQuery($query, $options, $approved_roles, $sort_by, $start, $page_rows);
-		
-//		echo "<pre>";
-//		print_r($qresult);
-//		echo "</pre>";
-		
-		
+				
 		$total_rows = $qresult['total_rows'];
 		$snips = $qresult['snips'];
 		
@@ -807,7 +801,7 @@ abstract class FulltextIndex {
 	 * @param string $multiple
 	 * @return string name of field in search engine
 	 */
-	protected function getFieldName($fezName, $datatype=FulltextIndex::FIELD_TYPE_TEXT, 
+	public function getFieldName($fezName, $datatype=FulltextIndex::FIELD_TYPE_TEXT, 
 		$multiple=false) {
 			
     	return strtolower(preg_replace('/\s/', '_', $fezName));
@@ -818,7 +812,7 @@ abstract class FulltextIndex {
      *
      * @param unknown_type $fezName
      */
-    protected function mapType($sek_data_type) {
+    public function mapType($sek_data_type) {
     	
     	//$sek_details = Search_Key::getDetailsByTitle($fezName);
     	//var_dump($sek_details);
@@ -865,6 +859,28 @@ abstract class FulltextIndex {
 	    }
 	    
         return $res;
+    }
+    
+    protected function checkCachedContent($pid, $dsID) {
+        
+        $GLOBALS['db_api']->dbh->autoCommit(true);
+    	
+		$sqlPid = Misc::escapeString($pid);
+		$sqlDsId = Misc::escapeString($dsID);
+		    	
+    	$stmt = "SELECT count(ftc_pid) as cnt ".        		
+        		"FROM ".APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME." ".
+        		"WHERE ftc_pid='".$sqlPid."' ".
+        		"AND ftc_dsid='".$sqlDsId."'";
+        				      	
+        $res = $GLOBALS['db_api']->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);		
+        if (PEAR::isError($res)) {
+	        Logger::error($res->getMessage());	        
+	        $res = null;
+	    }
+	    
+        return $res;
+        
     }
 
     /**

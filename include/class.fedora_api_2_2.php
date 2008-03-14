@@ -872,20 +872,21 @@ class Fedora_API {
     * @return array $dsIDListArray The datastream returned in an array
     */
 	function callGetDatastreamDissemination($pid, $dsID, $asofDateTime="") {
-		if (APP_FEDORA_APIA_DIRECT == "ON") {
-			$fda = new Fedora_Direct_Access();
+        if (APP_FEDORA_APIA_DIRECT == "ON") {
+            $fda = new Fedora_Direct_Access();
 			$stream = $fda->getDatastreamDissemination($pid, $dsID);
-			return array("stream" => $stream, 'MIMEType' => 'text/xml');
+			return $stream;
 		}		
 		
-	   if ($asofDateTime == "") {
+        if ($asofDateTime == "") {
 		   $parms=array('pid' => $pid, 'dsID' => $dsID);
 		} else {
 		   $parms=array('pid' => $pid, 'dsID' => $dsID, 'asofDateTime' => $asofDateTime);
 		}
 		$dsIDListArray = Fedora_API::openSoapCallAccess('getDatastreamDissemination', $parms);		
 		$dsIDListArray['stream'] = base64_decode($dsIDListArray['stream']);
-	   return $dsIDListArray;
+	   
+        return $dsIDListArray;
 	}
 
    /**
@@ -907,8 +908,7 @@ class Fedora_API {
             // check if this is even XML, it might be binary, in which case we'll just return it.
             if ($mime_type != 'text/xml' || $getraw) {
 				return $blob;
-			} 
-			
+			}
 			
             // We've checked the mimetype is XML so lets parse it and make a simple array
 			if (!empty($blob) && $blob != false) {

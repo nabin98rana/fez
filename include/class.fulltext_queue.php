@@ -335,62 +335,52 @@
 		    return $result;
 		}
 		
-//		public function popChunk() {
-//		    
-//		    // start transaction
-//			//$GLOBALS['db_api']->dbh->autoCommit(false);			
-//			
-//			// fetch first row
-//			$sql  = "SELECT * FROM ".APP_TABLE_PREFIX."fulltext_queue ";
-//			$sql .= "LEFT JOIN ".APP_TABLE_PREFIX."record_search_key ON rek_pid = ftq_pid<br/> ";			
-//			
-//			
-//			$searchKeys = Search_Key::getList();
-//			foreach ($searchKeys as $sekDetails) {
-//			    
-//			    /*
-//			     * Only add 1-to-Many tables
-//			     * We have already joined 1-to-1
-//			     */
-//			    if ($sekDetails["sek_relationship"] > 0) {
-//			        
-//                    $sql .= "LEFT JOIN ".APP_TABLE_PREFIX."record_search_key_{$sekDetails["sek_title_db"]} 
-//                                ON rek_{$sekDetails["sek_title_db"]}_pid = ftq_pid<br/> ";
-//                    
-//			    }
-//			}
-//			
-//			$sql = $GLOBALS['db_api']->dbh->modifyLimitQuery($sql, 0, 1000);
-//			
-//			$sql .= " FOR UPDATE "; 	
-//			  
-//			//Logger::debug($sql);
-//			$result = $GLOBALS['db_api']->dbh->getAll($sql, DB_FETCHMODE_ASSOC);
-//			if (PEAR::isError($result)) {
-//				Logger::error("FulltextQueue::pop() can't read queue - ".Logger::str_r($result));
-//			}
-//			if (count($result) == 0) {
-//				Logger::debug("FulltextQueue::pop() Queue is empty.");
-//				return null;
-//			}			
-//			
-//			// delete row
-//			$sql =  "DELETE FROM ".APP_TABLE_PREFIX."fulltext_queue ";
-//			$sql .= "WHERE ftq_key IN (".$result['ftq_key'] . ")";
-//			//Logger::debug($sql);
-//			$GLOBALS['db_api']->dbh->query($sql);
-//			
-//			$status = $GLOBALS['db_api']->dbh->commit();
-//			
-//			if ($status != DB_OK) {
-//				Logger::error("FulltextQueue::pop ".Logger::str_r($result));
-//				return null;
-//			}
-//			
-//			//Logger::debug("FulltextQueue::pop() success! ".Logger::str_r($result));
-//			return $result;
-//			
-//		}
+		public function popChunk($singleColumns) {
+		    
+		    global $bench;
+		    
+			$pids = array();
+			
+			// fetch first row
+			$sql  = "SELECT ftq_key, sk.rek_pid, CONCAT_WS('\",\"' ";
+			 
+			foreach ($singleColumns as $column) {
+			    
+			    if($column['type'] == FulltextIndex::FIELD_TYPE_DATE ) {
+			        $sql .= ",IFNULL(DATE_FORMAT(sk.".$column['name'] .",'%Y-%m-%dT%H:%i:%sZ'),'') ";
+			    } else {
+                    $sql .= ",IFNULL(REPLACE(sk.".$column['name'] .",'\"','\"\"'),'') ";
+			    }
+			}
+			
+			$sql .= ") as row FROM ".APP_TABLE_PREFIX."fulltext_queue 
+			             LEFT JOIN ".APP_TABLE_PREFIX."record_search_key as sk ON rek_pid = ftq_pid LIMIT 5000";
+			
+			$result = $GLOBALS['db_api']->dbh->getAll($sql, DB_FETCHMODE_ASSOC);
+			if (PEAR::isError($result)) {
+				Logger::error("FulltextQueue::pop() can't read queue - ".Logger::str_r($result));
+			}
+			
+			if (count($result) == 0) {
+				Logger::debug("FulltextQueue::pop() Queue is empty.");
+				return false;
+			}
+						
+			foreach ( $result as $row ) {
+			    $keys[] = $row['ftq_key'];
+			}
+			
+			$keys = '"'.implode('","', $keys).'"';
+			
+			// delete chunk from queue
+			$sql =  "DELETE FROM ".APP_TABLE_PREFIX."fulltext_queue ";
+			$sql .= "WHERE ftq_key IN (".$keys.")";
+			
+			//Logger::debug($sql);
+			$GLOBALS['db_api']->dbh->query($sql);
+
+			return $result;
+		}
 		
 		
 		function __destruct() {	
@@ -401,6 +391,7 @@
 				$this->commit();
 			}
 		}
+        
 	}
 	
 
