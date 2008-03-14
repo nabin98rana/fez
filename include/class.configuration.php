@@ -129,11 +129,13 @@ class Configuration
         define('APP_CREATOR_ROLES', "Creator,Community_Administrator,Editor,Approver");
         define('APP_APPROVER_ROLES', "Community_Admin,Approver");
         define('APP_DELETER_ROLES', "Community_Admin");
+        define('APP_LISTER_ROLES', "Lister,Viewer,Community_Administrator,Editor,Creator,Annotator,Approver"); 
         define('APP_VIEWER_ROLE_IDS', "10,6,8,7,1,2"); 
         define('APP_EDITOR_ROLE_IDS', "6,8,2");
         define('APP_CREATOR_ROLE_IDS', "7,6,8,2");
         define('APP_APPROVER_ROLE_IDS', "6,2");
         define('APP_DELETER_ROLE_IDS', "6");
+        define('APP_LISTER_ROLE_IDS', "9,10,6,8,7,1,2"); 
 
         // Fedora stuff
         if (APP_FEDORA_SETUP == 'sslall') {

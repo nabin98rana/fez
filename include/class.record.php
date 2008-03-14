@@ -1189,9 +1189,9 @@ class Record
 		}
 	
 		// EXPERT SEARCH
-		$q = $_REQUEST['search_keys'][0];
+		$q = Misc::GETorPOST('search_keys');
 		if ($q) {
-			$params['direct'] = array('q' => $q);
+			$params['direct'] = array('q' => $q[0]);
 		}
 		
 		
@@ -1221,7 +1221,7 @@ class Record
         $current_row = $current_page * $page_rows;        
         
 		$params = self::extractSearchParameters();
-		
+
 		$index = new FulltextIndex_Solr();
 		$res = $index->search($params, $options, $approved_roles, $sort_by, $start, $page_rows);
 		
@@ -2557,6 +2557,7 @@ class RecordGeneral
     var $xdis_id;
     var $no_xdis_id = false;  // true if we couldn't find the xdis_id
     var $viewer_roles;
+    var $lister_roles;
     var $editor_roles;
     var $creator_roles;
     var $deleter_roles;
@@ -2585,6 +2586,7 @@ class RecordGeneral
     function RecordGeneral($pid=null)
     {
         $this->pid = $pid;
+        $this->lister_roles = explode(',',APP_LISTER_ROLES);
         $this->viewer_roles = explode(',',APP_VIEWER_ROLES);
         $this->editor_roles = explode(',',APP_EDITOR_ROLES);
         $this->creator_roles = explode(',',APP_CREATOR_ROLES);
@@ -2727,6 +2729,24 @@ class RecordGeneral
 		if (Auth::isAdministrator()) { return true; }
         if ($this->getPublishedStatus() == 2) {
             return $this->checkAuth($this->viewer_roles, $redirect);
+        } else {
+            return $this->canCreate($redirect); //changed this so that creators can view the objects even when they are not published
+//            return $this->canEdit($redirect);
+        }
+    }
+
+    /**
+     * canList
+     * Find out if the current user can list this record
+	 *
+     * @access  public
+	 * @param  $redirect
+     * @return  void
+     */
+    function canList($redirect=true) {
+		if (Auth::isAdministrator()) { return true; }
+        if ($this->getPublishedStatus() == 2) {
+            return $this->checkAuth($this->lister_roles, $redirect);
         } else {
             return $this->canCreate($redirect); //changed this so that creators can view the objects even when they are not published
 //            return $this->canEdit($redirect);

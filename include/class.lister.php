@@ -244,11 +244,11 @@ class Lister
             // list a collection
             // first check the user has view rights over the collection object
             $record = new RecordObject($collection_pid);
-            $canView = $record->canView(true);
+            $canList = $record->canList(true);
 
-            $tpl->assign("isViewer", $canView);
+            $tpl->assign("isLister", $canList);
 
-            if ($canView) {
+            if ($canList) {
                 
                 $tpl->assign("xdis_id", Record::getSearchKeyIndexValue($collection_pid, "Display Type"));
 //                $collection_details = Collection::getDetails($collection_pid);
