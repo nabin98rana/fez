@@ -561,7 +561,7 @@ abstract class FulltextIndex {
         $res = $this->checkCachedContent($pid, $dsitem['ID']);
         //Logger::debug("---------------> cached content res is: ".$res['pid']);
         
-        if (!empty($res) && $res['cnt'] > 1) {
+        if (!empty($res) && $res['cnt'] > 0) {
         	Logger::debug("- use cached content for $pid/".$dsitem['ID']);
         	return;
         }
@@ -706,10 +706,14 @@ abstract class FulltextIndex {
 		if (!empty($sort_by)) {
 		    
 		    $sek_id = str_replace("searchKey", "", $sort_by);
-    		$sek_data = Search_Key::getDetails($sek_id);
-    		$sort_name = FulltextIndex::getFieldName($sek_data['sek_title']);
-		       
-			$sort_by = $this->getFieldName($sort_name, $this->mapType($sek_data['sek_data_type']), false, true);
+		    if( $sek_id == 0 ) {
+		        $sort_by = 'score';
+		    } else {
+        		$sek_data = Search_Key::getDetails($sek_id);
+        		$sort_name = FulltextIndex::getFieldName($sek_data['sek_title']);
+        		$sort_by = $this->getFieldName($sort_name, $this->mapType($sek_data['sek_data_type']), false, true);
+		    }
+		    
 		}
 		
 		// prepare fulltext query string (including auth filters)

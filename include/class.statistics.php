@@ -206,6 +206,10 @@ class Statistics
 					} else {
 						$counter_inserted++;
 						//continue
+						
+						if(  APP_SOLR_SWITCH == "ON" ) {
+						    FulltextQueue::singleton()->add($pid);
+						}
 					}
 					
 				}

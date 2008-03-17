@@ -127,12 +127,12 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
          */
     	while( ($chunk = $queue->popChunk($singleColumns)) != false ) {
     	    
-    	    $csv = array();
-    	    $pids_arr = array();
-    	    $pids = '';
-    	    $spliting = '';
+    	    $csv       = array();
+    	    $pids_arr  = array();
+    	    $pids      = '';
+    	    $spliting  = '';
     	    
-    		$csvHeader = 'id,'.implode(',', $singleColumnsHeader) . ',' . $authLister_t . ','. implode(',', $mtColumnsHeader) . ",content_mt\n";
+    		$csvHeader = 'id,'.implode(',', $singleColumnsHeader) . ',' . $authLister_t . ','. implode(',', $mtColumnsHeader) . ",content\n";
 			
 			foreach ( $chunk as $row ) {
 			    
@@ -203,12 +203,12 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
 			/*
 			 * Add datasteam text to CSV array
 			 */
-			$content_mt = $this->getCachedContent($pids);
+			$content = $this->getCachedContent($pids);
 			
 			foreach ($csv as $rek_pid => $rek_line) {
 			        
-                if( !empty($content_mt[$rek_pid]) ) {
-                    $csv[$rek_pid] .= ',"' . $content_mt[$rek_pid] .'"';
+                if( !empty($content[$rek_pid]) ) {
+                    $csv[$rek_pid] .= ',"' . $content[$rek_pid] .'"';
                 } else {
                     $csv[$rek_pid] .= ',""';
                 }
@@ -230,7 +230,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
                 $spliting .= "&f.$mtHeader.split=true&f.$mtHeader.separator=%09";
             }
             
-            $spliting .= "&f.content_mt.split=true&f.content_mt.separator=%09";
+            $spliting .= "&f.content.split=true&f.content.separator=%09";
             
             $url = "http://localhost:8080/solr/update/csv?commit=true&stream.file=".$tmpfname.$spliting;
 		    

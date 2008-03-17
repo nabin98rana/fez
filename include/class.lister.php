@@ -624,9 +624,9 @@ class Lister
 			
         	// KJ@ETH
         	$tpl->assign("major_function", "search");
-			$tpl->assign("q", $_REQUEST['search_keys'][0]);
+			$tpl->assign("q", htmlspecialchars($_REQUEST['search_keys'][0]));
         	
-        	$tpl->assign("list_heading", "Search Results ($terms)");        	 
+        	$tpl->assign("list_heading", htmlspecialchars("Search Results ($terms)"));        	 
         	$tpl->assign("list_type", "all_records_list");
         } else {
             // list all communities
