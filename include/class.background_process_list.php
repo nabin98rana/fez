@@ -42,12 +42,19 @@ class BackgroundProcessList
     
     function getList($usr_id)
     {
+	
+		$isAdministrator = Auth::isAdministrator();
+		$extra_sql = "";
+		if ($isAdministrator) {
+			$extra_sql = " OR bgp_state = 1";
+		}
+		
         $usr_id = Misc::escapeString($usr_id);
         $dbtp =  APP_TABLE_PREFIX;
         $stmt = "SELECT bgp_id, bgp_usr_id, bgp_status_message, bgp_progress, bgp_state, bgp_heartbeat,bgp_name,bgp_started," .
                 "if (bgp_heartbeat < DATE_SUB(CURDATE(),INTERVAL 1 DAY), 1, 0) as is_old
             FROM ".$dbtp."background_process
-            WHERE bgp_usr_id='".$usr_id."'
+            WHERE bgp_usr_id='".$usr_id."'".$extra_sql."
             ORDER BY bgp_started";
         $res = $GLOBALS['db_api']->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
