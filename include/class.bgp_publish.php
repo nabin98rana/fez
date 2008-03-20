@@ -55,8 +55,10 @@ class BackgroundProcess_Publish extends BackgroundProcess
             $this->setStatus("Found ".count($pids). " records");
             $record_count = count($pids);
         }
+		
         if (!empty($pids) && is_array($pids)) { 
             $record_counter = 0;
+			$sta_id = Status::getID("Published");
         	foreach ($pids as $pid) {
 					$record_counter++;
 
@@ -75,10 +77,13 @@ class BackgroundProcess_Publish extends BackgroundProcess
                     $this->setStatus("Publishing:  '".$pid."'  (".$record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
 
 				// publish the pid
-            	$rec = new RecordGeneral($pid);
-				$sta_id = Status::getID("Published");
-				$rec->setStatusId($sta_id);
-				History::addHistory($pid, null, '', '', true, 'Published');
+            	$rec = new RecordObject($pid);
+				if ($rec->canApprove()) {
+					$rec->setStatusId($sta_id);
+					History::addHistory($pid, null, '', '', true, 'Published');
+				} else {
+					//echo "no publishing".$pid." as user does not have approver rights\n";
+				}
             }
         }
         $this->setState(2);

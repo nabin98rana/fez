@@ -40,9 +40,14 @@ if ($this->wft_details['wft_type_id'] == WorkflowTrigger::getTriggerId('Bulk Cha
 	$bgp->register(serialize(compact('options')), Auth::getUserID());
 } else {
 	$this->getRecordObject();
-	$sta_id = Status::getID("Published");
-	$this->rec_obj->setStatusId($sta_id);	
-	History::addHistory($this->rec_obj->getPid(), null, '', '', true, 'Published');
+	if ($this->rec_obj->canApprove()) {
+		$sta_id = Status::getID("Published");
+		$this->rec_obj->setStatusId($sta_id);	
+		History::addHistory($this->rec_obj->getPid(), null, '', '', true, 'Published');
+	} else {
+//		$pid = $this->rec_obj->getPid();
+//		echo "User has no approver rights on ".$pid."\n";
+	}
 }
 
 
