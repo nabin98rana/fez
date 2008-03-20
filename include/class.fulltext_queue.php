@@ -167,11 +167,9 @@
 			$sql = "SELECT ftl_value, ftl_pid FROM ".APP_TABLE_PREFIX."fulltext_locks ".
 					"WHERE ftl_name='".self::LOCK_NAME_FULLTEXT_INDEX."'";
 			$res = $GLOBALS["db_api"]->dbh->getRow($sql, DB_FETCHMODE_ASSOC);
-			
 			$process_id = $res['ftl_pid'];
 			$lockValue = $res['ftl_value'];
 			$acquireLock = true;
-			
 			//Logger::debug("FulltextIndex::triggerUpdate got lockValue=".$lockValue.", pid=".$process_id);
 			if ($lockValue > 0 && !empty($process_id) && is_numeric($process_id)) {
 			    
@@ -187,10 +185,9 @@
 				}				
 			}
 			
-			// worst case: a background process is started, but the queue already 
-			// empty at this point (very fast indexer)
-					
-			if ($acquireLock) {
+// worst case: a background process is started, but the queue already
+// empty at this point (very fast indexer)
+if ($acquireLock) {  
 				// acquire lock
 				Logger::debug("FulltextIndex::triggerUpdate acquire lock");				
 				
@@ -221,7 +218,6 @@
 			} else {
 				Logger::debug("FulltextIndex::triggerUpdate lock already taken by another process");
 			}
-						
 		}
 		
 		/**
@@ -354,7 +350,7 @@
 			}
 			
 			$sql .= ") as row FROM ".APP_TABLE_PREFIX."fulltext_queue 
-			             LEFT JOIN ".APP_TABLE_PREFIX."record_search_key as sk ON rek_pid = ftq_pid LIMIT 5000";
+			             LEFT JOIN ".APP_TABLE_PREFIX."record_search_key as sk ON rek_pid = ftq_pid LIMIT 500";
 			
 			$result = $GLOBALS['db_api']->dbh->getAll($sql, DB_FETCHMODE_ASSOC);
 			if (PEAR::isError($result)) {
