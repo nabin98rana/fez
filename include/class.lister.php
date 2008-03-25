@@ -118,8 +118,8 @@ class Lister
         
         switch ($tpl_idx) {
         	case 2:
-        		$rows = "ALL"; //If an RSS feed show all the rows
-				$pager_row = 0;
+//        		$rows = "ALL"; //If an RSS feed show all the rows
+//				$pager_row = 0;
         		break;
         	default:
         		break;
