@@ -1,4 +1,9 @@
 {include file="header.tpl.html"}
+
+<link type="text/css" rel="stylesheet" href="{$rel_url}css/treeview.css">
+<script src = "{$rel_url}js/yahoo/yahoo-min.js" ></script>
+<script src = "{$rel_url}js/yahoo/event-min.js" ></script>
+<script src = "{$rel_url}js/yahoo/treeview-min.js" ></script>
 {literal}
 <script language="JavaScript">
 
@@ -22,60 +27,49 @@ function addItemToParent(selectedItem, selectedItemDescription) {
 	self.opener.addToParentList(window.document.frmMain.newOptions, self.opener.document.{/literal}{$form}.{$element}{literal});
 }
 
-
 // End -->
 </script>
 {/literal}
-<div id="oldForm">
-<table>
-<form name="frmMain" method="GET" action="cv_selector.php">
-
-	<tr valign="top">
-	  <td class="default">
-		          {if $max_subject_breadcrumb != -1}
-					{if $cvo_id != ""}<a href='{$rel_url}cv_selector.php?element={$element}&form={$form}&cvo_id=&xsdmf_cvo_min_level={$xsdmf_cvo_min_level}'>All Subject Classifications</a> -> {/if}
-					  {section name="b" loop=$subject_breadcrumb}
-						  {assign var="counter" value=b}
-		                  {if $subject_breadcrumb[b].cvo_image_filename != ""}
-						    <img align="absmiddle" src="{$rel_url}images/{$subject_breadcrumb[b].cvo_image_filename}"/>
-						  {/if}
-                          {if $max_subject_breadcrumb != $smarty.section.b.index}<a href='{$rel_url}cv_selector.php?element={$element}&form={$form}&cvo_id={$subject_breadcrumb[b].cvo_id}&xsdmf_cvo_min_level={$xsdmf_cvo_min_level}'>{else}<b>{/if}{$subject_breadcrumb[b].cvo_title|escape:"html"}{if $max_subject_breadcrumb != $smarty.section.b.index}</a>{else}</b>{/if}
- 						  {assign var="cvo_id" value=$subject_breadcrumb[b].cvo_id}
-						  {if $subject_count[$cvo_id]}({$subject_count[$cvo_id]}){else}{/if}{if $max_subject_breadcrumb != $smarty.section.b.index}->{else}:{/if}					
-					  {/section}
-				   {else}<a href='{$rel_url}cv_selector.php?element={$element}&form={$form}&cvo_id=&xsdmf_cvo_min_level={$xsdmf_cvo_min_level}'>All Subject Classifications</a>:{/if}</b>		  
-	  </td>
-	</tr>
-	<tr>
-	  <td bgcolor="{$light_color}">
-		<select size="30" class="default" name="cv_fields" onDblClick="javascript:dblClickSubmit();">
-			  {html_options options=$cvo_list}
-		</select>
-	  </td>
-	</tr>
-	<tr>
-	  <td bgcolor="{$light_color}">
-		{if $show_add == 1}
-		<input type="button" value="Add and Continue" onClick = "javascript:addSelectedItemsToParent();">
-		{/if}
-		<input type="submit" value="Show Sub-Categories">
-		<input type="button" value="Close" onClick = "javascript:window.close()">
-		<input type="hidden" name="xsdmf_cvo_min_level" value="{$xsdmf_cvo_min_level}"/>
-		<input type="hidden" name="form" value="{$form}"/>
-		<input type="hidden" name="element" value="{$element}"/>		
-	 </td>
-	</tr>				
-	{if $show_add == 0}
-	<tr>
-	  <td bgcolor="{$light_color}">
-		<span class="default">This category selector requires you to go to a sub-category before  <br /> you can add a value. 
-		You can do this by double clicking on one of the values, <br /> or highlighting one and clicking 'Show Sub-Categories'.</span>
-	 </td>
-	</tr>				
-	{/if}
-</table>
-</div>
-
+<div id="oldForm" style="display: show;">
+  <form name="frmMain" method="GET" action="cv_selector.php">
+    <select name="newOptions" style="display: none;"></select>
+  </div>
 </form>
+
+<div id="treeDiv1" style="padding-left: 10px;"></div> 
+
+{literal}
+<script language="JavaScript">
+
+//global variable to allow console inspection of tree:
+var tree;
+
+//anonymous function wraps the remainder of the logic:
+(function() {
+
+	// Function to initialize the tree
+    function treeInit() {
+		// Instantiate the tree
+        tree = new YAHOO.widget.TreeView("treeDiv1");
+		{/literal}{$cv_tree}{literal}
+
+		/*
+		// Trees with TextNodes will fire an event for when the label is clicked:
+		tree.subscribe("labelClick", function(node) {
+			window.alert(node.data.id + " label was clicked");
+		});
+		// Taken straight from Yahoo example - doesn't work. Need to look at this. For now,
+		// just use hard-coded onclick events to transfer codes.
+		*/
+
+        tree.draw();
+    }
+	// Add a window onload handler to build the tree when the load event fires.
+    YAHOO.util.Event.addListener(window, "load", treeInit);
+
+})();
+
+</script>
+{/literal}
 
 {include file="footer.tpl.html"}
