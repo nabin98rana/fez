@@ -1301,6 +1301,20 @@ $stmt .= "
     
 	function suggest($terms, $current_row = 0, $max = 10) {
 
+        if (APP_SOLR_SWITCH == "ON" ) {
+			//return FulltextIndex_Solr::suggest($terms, $current_row, $max);	
+			
+			$index = new FulltextIndex_Solr();
+			$sort_by = "";
+			$approved_roles=array(9,10);
+			$params = array();
+			$params['query'] = $terms;
+			$res = $index->suggestQuery($params, $options, $approved_roles, $sort_by, $start, $max);
+//			print_r($res);
+			return ($res['docs']);
+			
+		}
+
 		if (empty($terms)) {
 			return array();
 		}

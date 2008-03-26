@@ -216,7 +216,12 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
 		    }
 			
 			$csv = implode("\n", $csv);
-		    $tmpfname = tempnam("/tmp", "solrCsv");
+		    //$tmpfname = tempnam("/tmp", "solrCsv");
+//                  if (APP_SOLR_HOST == APP_HOSTNAME) {
+		    $tmpfname = tempnam(APP_PATH."solr_upload", "solrCsv");
+//                  } else {
+//		    $tmpfname = tempnam("http://".APP_HOSTNAME.APP_RELATIVE_URL."solr_upload", "solrCsv");
+//                  } 
 
             $handle = fopen($tmpfname, "w");
             fwrite($handle, $csvHeader);
@@ -232,7 +237,15 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
             
             $spliting .= "&f.content.split=true&f.content.separator=%09";
             
-            $url = "http://localhost:8080/solr/update/csv?commit=true&stream.file=".$tmpfname.$spliting;
+            Logger::debug("processQueue: about to send");
+            if (APP_SOLR_HOST == APP_HOSTNAME) {
+              $url = "http://".APP_SOLR_HOST.":".APP_SOLR_PORT.APP_SOLR_PATH."update/csv?commit=true&stream.file=".$tmpfname.$spliting;
+            } else {
+              $url_loc = "http://".APP_HOSTNAME.APP_RELATIVE_URL."solr_upload/".substr($tmpfname, (strrpos($tmpfname, "/")+1));
+              echo $url_loc."\n";
+              $url = "http://".APP_SOLR_HOST.":".APP_SOLR_PORT.APP_SOLR_PATH."update/csv?commit=true&stream.url=".$url_loc.$spliting;
+            }
+            //$url = "http://localhost:8080/solr/update/csv?commit=true&stream.file=".$tmpfname.$spliting;
 		    
             if( $this->bgp ) {
                 $this->bgp->setStatus("Sending CSV file to Solr");
@@ -345,8 +358,11 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
 	        Logger::error($res->getMessage());
 	        return "";
 	    }
-	    
+	    $rebuildCount = count($res);
+            $rCounter = 0; 
 	    foreach ($res as $pidData) {
+                $rCounter++;
+                Logger::debug("processQueue: about to pre build citation ".$pidData['rek_pid']." (".$rCounter."/".$rebuildCount.")");
 	        Citation::updateCitationCache($pidData['rek_pid']);
 	    }
     }

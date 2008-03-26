@@ -492,8 +492,8 @@ abstract class FulltextIndex {
         if ($this->bgp) {
             //Logger::debug("BGP Finished Solr fulltext indexing for pid ".$pid);
             //Logger::debug("BGP Finished Solr fulltext indexing for (title=".$record->getTitle().")");
-           
-        	
+        	$this->bgp->setStatus("Finished Solr fulltext indexing for ".$record->getFieldValueBySearchKey("Title")." ($pid)");
+//        	$this->bgp->setStatus("Finished Solr fulltext indexing for ".$record->getTitle()." ($pid)");
         }
         
         unset($record);
@@ -569,8 +569,8 @@ abstract class FulltextIndex {
         // very slow... 
         // TODO: have to find a solution for very large files...
         $filename = APP_TEMP_DIR."fulltext_".rand()."_".$dsitem['ID'];
-        $content = $rec->getDatastreamContents($dsitem['ID']);
-        file_put_contents($filename, $content);
+//        $content = $rec->getDatastreamContents($dsitem['ID']);
+        file_put_contents($filename, $rec->getDatastreamContents($dsitem['ID']));
         
         unset($content);
 
@@ -620,7 +620,7 @@ abstract class FulltextIndex {
 	private function indexPlaintext(&$rec, $dsID, &$plaintext)
     {
     	$pid = $rec->getPid();
-     	Logger::debug("FulltextIndex::indexPlaintext preparing fulltext for $pid");   
+     	Logger::debug("FulltextIndex::indexPlaintext preparing fulltext for ".$pid);   
         		       	
         // plaintext comes in lines
         foreach ($plaintext as $num => $line) {        	
@@ -718,7 +718,7 @@ abstract class FulltextIndex {
 		
 		// prepare fulltext query string (including auth filters)
 		$query = $this->prepareQuery($params, $options, $ruleGroupStmt, $approved_roles, $sort_by, $start, $page_rows);
-		
+
 		
 		// send query to search engine
 		Logger::debug("FulltextIndex::search query string='".Logger::str_r($query)."'");
@@ -728,7 +728,7 @@ abstract class FulltextIndex {
 		$total_rows = $qresult['total_rows'];
 		$snips = $qresult['snips'];
 		
-		Logger::debug("FulltextIndex::search found $total_rows items");
+		Logger::debug("FulltextIndex::search found ".$total_rows." items");
 
 //		if ($total_rows > 0) {				                        
 //	            

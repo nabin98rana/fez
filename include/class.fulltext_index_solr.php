@@ -162,12 +162,58 @@ class FulltextIndex_Solr extends FulltextIndex {
 		$filterQuery = "(_authlister_t:(" .$rulegroups . ")) AND (status_i:2)";
 		
 		//var_dump($query);
+//		echo $queryString;
         return array(
 		  'query' => $queryString, 
           'filter'=> $filterQuery
         );	
     }
-    
+
+    public function suggestQuery($query, $approved_roles, $start, $page_rows) {
+		try {
+	    	$queryString = "title_t:".$query['query'].'';
+			$params['fl'] = 'title_t,author_mt';
+			$params['fl'] = 'title_t,author_mt';
+			echo "qs = ".$queryString;
+		
+			$response = $this->solr->search($queryString, $start, $page_rows, $params);
+			$total_rows = $response->response->numFound;
+			
+			$docs = array();
+			$snips = array();
+			if ($total_rows > 0) {
+				$i = 0;
+				foreach ($response->response->docs as $doc) {
+					// resolve result
+					$docs[$doc->title_t] = 33;
+				}       
+	         }
+		
+		
+		
+
+		} catch (Exception $e) {
+
+			//
+			// catches any Solr service exceptions (malformed syntax etc.)
+			//
+
+			// TODO add fine grained control, user message error handling
+			Logger::error("Error on searching: ".$e->getMessage());
+
+			// report nothing found on error
+			$docs = array();
+			$total_rows = 0;	
+
+    	}
+
+    	return array(
+    	   'total_rows' => $total_rows, 
+    	   'docs'       => $docs, 
+    	   'snips'      => $snips
+	   );
+	}
+
     
     protected function executeQuery($query, $options, $approved_roles, $sort_by, $start, $page_rows) {
     	
@@ -175,7 +221,7 @@ class FulltextIndex_Solr extends FulltextIndex {
 			
 			//$solr = $this->getSolr();
 			//Logger::debug("solr ping ".$solr->ping());
-			
+
 			// Solr search params
 			$params = array();
 			
@@ -192,7 +238,7 @@ class FulltextIndex_Solr extends FulltextIndex {
 			
 			// filtering
 			$params['fq'] = $query['filter'];			
-			$queryString = '"'.$query['query'] .'"';
+			$queryString = $query['query'];
 			$params['fl'] = '*,score';
 			
 			//$sort_by = 'score';
@@ -214,7 +260,6 @@ class FulltextIndex_Solr extends FulltextIndex {
 			Logger::debug("Solr sort by: ".$params['sort']);
 			
 			$response = $this->solr->search($queryString, $start, $page_rows, $params);
-			
 			$total_rows = $response->response->numFound;
 			
 			$docs = array();
