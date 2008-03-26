@@ -927,7 +927,7 @@ class Controlled_Vocab
 			if (is_null($row['cvo_parent_id'])) {
 				array_push($cvTree, "var tmpNode".$row['cvo_id']." = new YAHOO.widget.TextNode('" . addslashes($row['cvo_title']) . "', tree.getRoot(), false);");
 			} else {
-				array_push($cvTree, "var tmpNode".$row['cvo_id']." = new YAHOO.widget.TextNode({label: '<a href=\"javascript:addItemToParent(" . $row['cvo_id'] . ", \'" . addslashes($row['cvo_title_extended']) . "\');\">" . addslashes($row['cvo_title_extended']) . "</a>', id: tmpNode".$row['cvo_id']."}, tmpNode" . $row['cvo_parent_id'] . ", false);");
+				array_push($cvTree, "var tmpNode".$row['cvo_id']." = new YAHOO.widget.TextNode('<a href=\"javascript:addItemToParent(" . $row['cvo_id'] . ", \'" . addslashes(addslashes($row['cvo_title_extended'])) . "\');\">" . addslashes($row['cvo_title_extended']) . "</a>', tmpNode" . $row['cvo_parent_id'] . ", false);");
 			}
 		}
 
