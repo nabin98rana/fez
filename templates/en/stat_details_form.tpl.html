@@ -140,28 +140,29 @@ function purgeObject(pid)
         <tr  align="center"><td>
       <table bgcolor="#FFFFFF" width="800" cellpadding="2" cellspacing="1" class="default">
 		 <tr>
-			<td align="left" class="contentheader"><img src="{$rel_url}images/statistics_22.gif" alt="" align="absmiddle"> Access Statistics: <a href="{$rel_url}view/{$pid}">{$title}</a>
-			</td>
-		</tr>
+		  <td>
+		   <h1 class="public"><img src="images/statistics_22.gif" alt="Access Statistics" />	Access Statistics <a href="{$rel_url}view/{$pid}">{$title}</a></h1> 
+		  </td>
+		 </tr>
 		 <tr>
 			<td align="left">
 			<p>
 			{if $pid != 'all'}
 			<p><strong>For this record:</strong>
-			[<a href="{$smarty.server.PHP_SELF}?action=show_detail&pid={$pid}&range=4w">Past four weeks</a>]
-			[<a href="{$smarty.server.PHP_SELF}?action=show_detail&pid={$pid}&year={$thisYear}">This year</a>]
-			[<a href="{$smarty.server.PHP_SELF}?action=show_detail&pid={$pid}&year={$lastYear}">Last year</a>]
-			[<a href="{$smarty.server.PHP_SELF}?action=show_detail&pid={$pid}">All years</a>]</p>
+			<a href="{$smarty.server.PHP_SELF}?action=show_detail&pid={$pid}&range=4w">Past four weeks</a> | 
+			<a href="{$smarty.server.PHP_SELF}?action=show_detail&pid={$pid}&year={$thisYear}">This year</a> | 
+			<a href="{$smarty.server.PHP_SELF}?action=show_detail&pid={$pid}&year={$lastYear}">Last year</a> | 
+			<a href="{$smarty.server.PHP_SELF}?action=show_detail&pid={$pid}">All years</a></p>
 			</p>
 			{/if}
 			<p><strong>Most viewed records:</strong>
-			[<a href="{$rel_url}stats.php?browse=show_detail_date&range=4w">Past four weeks</a>] 
-			[<a href="{$rel_url}stats.php?browse=show_detail_date&year={$thisYear}">This year</a>]
-			[<a href="{$rel_url}stats.php?browse=show_detail_date&year={$lastYear}">Last year</a>]
-			[<a href="{$rel_url}stats.php?browse=show_detail_date">All years</a>]
+			<a href="{$rel_url}stats.php?browse=show_detail_date&range=4w">Past four weeks</a> | 
+			<a href="{$rel_url}stats.php?browse=show_detail_date&year={$thisYear}">This year</a> | 
+			<a href="{$rel_url}stats.php?browse=show_detail_date&year={$lastYear}">Last year</a> | 
+			<a href="{$rel_url}stats.php?browse=show_detail_date">All years</a>
 			<br /><br /><strong>Repository-wide statistics:</strong>
-			[<a href="{$smarty.server.PHP_SELF}?action=cumulative_usage&range=all">by Year/month</a>] 
-			[<a href="{$smarty.server.PHP_SELF}?action=cumulative_usage_country">by Country</a>] 
+			<a href="{$smarty.server.PHP_SELF}?action=cumulative_usage&range=all">by Year/month</a> | 
+			<a href="{$smarty.server.PHP_SELF}?action=cumulative_usage_country">by Country</a>
 			<p>
 			</td>
 		</tr>

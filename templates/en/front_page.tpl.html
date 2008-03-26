@@ -1,6 +1,6 @@
-
 {include file="header.tpl.html" extra_title="Home"}
 {include file="navigation.tpl.html"}
+<link rel="stylesheet" href="{$rel_url}css/front_css.php" type="text/css" />
 
 {literal}
 <script language="JavaScript" type="text/javascript">
@@ -75,213 +75,148 @@ function assembleSearchQuery(theForm) {
 
 -->
 </script>
+
+
+<script type="text/javascript" src="{/literal}{$rel_url}{literal}js/tabcontent.js">
+/***********************************************
+* Tab Content script v2.0- (C) Dynamic Drive DHTML code library (www.dynamicdrive.com)
+* This notice MUST stay intact for legal use
+* Visit Dynamic Drive at http://www.dynamicdrive.com/ for full source code
+***********************************************/
+</script>
+<script type="text/javascript" src="{/literal}{$rel_url}{literal}js/ajaxtabs.js">
+/***********************************************
+* Ajax Tabs Content script v2.0- (C) Dynamic Drive DHTML code library (www.dynamicdrive.com)
+* This notice MUST stay intact for legal use
+* Visit Dynamic Drive at http://www.dynamicdrive.com/ for full source code
+***********************************************/
+</script>
+
+
+<body onLoad="self.focus();document.search_frm.front_search.focus()">
+<!--a name="top"></a-->
+
+
+<script language="JavaScript" type="text/javascript">
+<!--
+function setCurrentCollection()
+{
+  var features = 'width=420,height=200,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
+  var projWin = window.open('', '_active_collection', features);
+  projWin.focus();
+  return true;
+}
+//-->
+</script>
+
+
 {/literal}
 
-<table id="front-page-container">
-  <tr>
-    <td width="50%" valign="top">
-	  <div class="front-page-content-header"><img src="{$rel_url}images/search_22.jpg" alt="Search" title="Search" /> Search </div>
-	  <div class="front-page-content-detail">
-		<form name="search_frm" target="_top" method="get" action="{$rel_url}list/">
-		  <input type="hidden" name="cat" value="quick_filter" />
-		  <label for="search" accesskey="3"></label>
-            (title, keywords, abstract)<br />
-			<input type="hidden" name="sort_by" value="searchKey0" />
-			<input type="text" id="front_search" name="search_keys[0]" size="40" autocomplete="off" />
-			<div id="loading1" style="display:none;">Loading...</div>
-			<input type="submit" value="Search" />
-			<a href="#" onclick="javascript:alert( 'Search Title, Abstract, Keywords:\n\n Enter a phrase.  Objects where any field contains the phrase will be returned.\n This is a case-insensitive search, and you may use the * or ? wildcards.\n\n Examples:\n\n li*y\n finds objects that start with li and end with y\n\n b?ts\n finds words that start with b followed by any letter and then ts.  e.g. bits, bats, byts')">Help</a><br />Use <a href="{$rel_url}adv_search.php"><b>Advanced Search</b></a> to search by multiple criteria<br />&nbsp;
-		</form>
-	  </div>
+<script language="JavaScript" type="text/javascript">
+<!--
 
-	  <div class="front-page-content-header"><img src="{$rel_url}images/browse_22.jpg" alt="Browse" title="Browse" /> Browse</div>
-	  <div class="front-page-content-detail">
-		<ul class="front-page-list">
-			<li><a class="author_id_link" href="{$rel_url}list/browse=author_id" title="Browse records linked to Author IDs (won't show non-{$application_title} authors)">by {$application_title} Author ID</a></li>
-			<li><a href="{$rel_url}list/browse=author" title="Browse by Author Names (strings) as they appear in records (not author ID linked)">by Author Name</a></li>
-			<li><a href="{$rel_url}list/browse=subject">by Subject</a></li>
-			<li><a href="{$rel_url}list/">by Organisational Unit</a></li>
-			<li><a href="{$rel_url}list/browse=year">by Year</a></li>
-			<li><a href="{$rel_url}list/browse=latest">by Latest additions</a></li>
-		</ul>
-	  </div>
+{literal}
+Suggestor=function(){return {"class_name":"","include_name":"","show_all":true,"method":"suggest","__meta":{"class_name":"string","include_name":"string","show_all":"bool","method":"string"},"__size":4,"__class":"Suggestor","__url":"index.php","__uid":"c687d7f30f7be5fb1e0300ab6ad70eac","__output":null,"__timeout":null,"__clone":function(obj){najax.clone(this, obj)},"__serialize":function(){return najax.serialize(this)},"catchEvent":function(){return najax.catchEvent(this, arguments)},"ignoreEvent":function(){return najax.ignoreEvent(this, arguments)},"postEvent":function(){return najax.postEvent(this, arguments)},"fetchOutput":function(){return this.__output},"setTimeout":function(miliseconds){this.__timeout = miliseconds},"getTimeout":function(){return this.__timeout},"clearTimeout":function(){this.__timeout = null},"getSuggestion":function(){return najax.call(this,"getSuggestion",arguments)}}}
 
-{if $WEBSERVER_LOG_STATISTICS == 'ON'}
-	  <div class="front-page-content-header"><img src="{$rel_url}images/statistics_22.gif" alt="Download Statistics" title="Download Statistics" /> Download Statistics</div>
-	  <div class="front-page-content-detail">
-		<ul class="front-page-list">
-		  <li><a class="author_id_link" href="{$rel_url}stats.php?browse=top50authors">Top 50 {$application_title} authors</a></li>
-		  <li><a href="{$rel_url}stats.php?browse=top50papers">Top 50 papers</a></li>
-		  <li>Most viewed - <a href="{$rel_url}stats.php?browse=show_detail_date&amp;range=4w">Last 4 weeks</a> | <a href="{$rel_url}stats.php?browse=show_detail_date&amp;year={$thisYear}">This year</a> | <!--a href="{$rel_url}stats.php?browse=show_detail_date&amp;year={$lastYear}">Last year</a> |--> <a href="{$rel_url}stats.php?browse=show_detail_date">All years</a></li>
-		  <li>All statistics - <a href="{$rel_url}stat_details.php?action=cumulative_usage&amp;range=all">by Date</a> | <a href="{$rel_url}stat_details.php?action=cumulative_usage_country">by Country</a></li>
-		</ul>
-	  </div>
-{/if}
+Session=function(){return {"__meta":null,"__size":0,"__class":"Session","__url":"\/ajax.php","__uid":"885d92c15d6b35176c39a0fd00f680bc","__output":null,"__timeout":null,"__clone":function(obj){najax.clone(this, obj)},"__serialize":function(){return najax.serialize(this)},"catchEvent":function(){return najax.catchEvent(this, arguments)},"ignoreEvent":function(){return najax.ignoreEvent(this, arguments)},"postEvent":function(){return najax.postEvent(this, arguments)},"fetchOutput":function(){return this.__output},"setTimeout":function(miliseconds){this.__timeout = miliseconds},"getTimeout":function(){return this.__timeout},"clearTimeout":function(){this.__timeout = null},"setSession":function(){return najax.call(this,"setSession",arguments)},"getSession":function(){return najax.call(this,"getSession",arguments)},"setMessage":function(){return najax.call(this,"setMessage",arguments)},"clearMessage":function(){return najax.call(this,"clearMessage",arguments)},"getMessage":function(){return najax.call(this,"getMessage",arguments)}}}
 
-{if $APP_CLOUD_TAG == 'ON'}
-	  <div class="front-page-content-header"><img src="{$rel_url}images/favourites_22.png" alt="Popular Tags" title="Popular Tags" /> Popular Tags</div>
-	  <div class="front-page-content-detail">{$cloud_tag}</div>
-	  <br />
-{/if}
+var page_url = '/';
 
-{if $SELF_REGISTRATION == 'ON'}
-	  <div class="front-page-content-header"><img src="{$rel_url}images/editor_22.jpg" alt="Registered Users" title="Registered Users" /> Registered Users</div>
-	  <div class="front-page-content-detail">
-		<a href="{$rel_url}register.php">Register</a> | <a href="{$rel_url}my_fez.php">Deposit or manage papers</a>
-	  </div>
-{/if}
+function purgeObject(pid)
+{
+    if (!confirm('This action will permanently delete the selected object.')) {
+        return false;
+    } else {
+        window.location.replace('/workflow/delete.php?pid=' + pid + '&href=/');
+        return true;
+    }
+}
+var dt1_load_state = 0;
+{/literal}
+-->
+</script>
+
+	<div id="container">
+
+	<div id="inner-container">
+
+		<div id="first-box" class="floated-boxes">
+
+			<div id="intro-text">Welcome to {$smarty.const.APP_ORG_NAME}'s institutional digital repository</div>
+
+			<div id="search-box">
+				<div id="searchbox-content">
+					<form name="search_frm" target="_top" method="get" action="/list/">
+						<input type="hidden" name="cat" value="quick_filter" />
+						<label for="search" accesskey="3"><strong>Quick Search UQ eSpace</strong> <a href="#" class="icon-help"><img src="{$rel_url}images/icons/help.png" style="vertical-align:bottom;" alt="Help on Searching" title="Help on searching" onclick="javascript:alert( 'Search Title, Abstract, Keywords:\n\n Enter a phrase.  Objects where any field contains the phrase will be returned.\n This is a case-insensitive search, and you may use the * or ? wildcards.\n\n Examples:\n\n li*y\n finds objects that start with li and end with y\n\n b?ts\n finds words that start with b followed by any letter and then ts.  e.g. bits, bats, byts')" /></a></label>
+						<input type="hidden" name="sort_by" value="searchKey0" />
+						<input type="text" id="front_search" name="search_keys[0]" size="40" autocomplete="off" />
+						<div id="loading1" style="display:none;">Loading...</div>
+						<input type="submit" value="Search" id="submit-button" onclick="assembleSearchQuery(this.form); return false;" />
+				</form>
+				<p class="advanced-search-link">Use <a title="Advanced Serch" href="{$rel_url}adv_search.php">Advanced Search</a> to search by multiple criteria.</p>
+				</div>
+			</div>
+
+			<div id="news-box">
+			<p><strong>Did you know that</strong> you can customize your UQ eSpace RSS feeds by multiple search criteria?</p><p><!--a href="javascript:window.alert('BW to write some content');">Show me how</a> | --><a href="http://www.google.com.au/search?hl=en&amp;q=What+is+RSS%3F&amp;btnG=Google+Search&amp;meta=" target="_blank">What is RSS?</a></p>
+			</div>
+
+			<div id="news-box">
+			<p><br /><strong>Our open repository</strong> content is indexed by:</p>
+			<p><a href="http://oaister.umdl.umich.edu/o/oaister" target="_blank"><img src="{$rel_url}images/logo_oaister.gif" alt="OAIster - University of Michigan Digital Library Production Services" title="OAIster - University of Michigan Digital Library Production Services" border="0" /></a> &nbsp; 
+			<a href="http://search.arrow.edu.au/apps/ArrowUI/?adapter=ViewSearchFormAdapter" target="_blank"><img src="{$rel_url}images/logo_arrow.gif" alt="ARROW - National Library of Australia's resource discovery service" title="ARROW - National Library of Australia's resource discovery service" border="0" /></a> &nbsp; 
+			<a href="http://scholar.google.com/" target="_blank"><img src="{$rel_url}images/logo_google_scholar.jpg" alt="Google Scholar - broadly search for scholarly literature" title="Google Scholar - broadly search for scholarly literature" border="0" /></a></p>
+			</div>
+
+		</div>
+
+		<div id="snapshot-box" class="floated-boxes">
+			<h2>Daily Snapshot</h2>
+			<ul id="snapshottabs" class="shadetabs clearfix">
+			<li><a href="#" rel="#default" class="selected">News</a></li>
+			<li><a href="{$rel_url}tabcontent_snapshot.php?browse=recentitems" rel="snapshotcontainer">Recently Added</a></li>
+			<li><a href="{$rel_url}tabcontent_snapshot.php?browse=topdownloads" rel="snapshotcontainer">Top Downloads</a></li>
+			<li><a href="{$rel_url}tabcontent_snapshot.php?browse=tagcloud" rel="snapshotcontainer">Tags</a></li>
+			</ul>
+			<div class="box-content clearfix">
+			<div id="snapshotcontainer">
+				<ul style="list-style-type: square">
+				{section name="i" loop=$news}
+				<li><a href="news.php#{$news[i].nws_id}">{$news[i].nws_title}</a></li><br />
+				{/section}
+				<li  style="list-style-type: none"><!--img src="{$rel_url}images/feed-icon16x16.png" alt="RSS" width="14" height="14" /--><a href="news.php?show=rss">RSS</a> | <a href="news.php">More...</a></li>
+				</ul>
+			</div>
+		</div>
+
+		</div>
 
 
-    </td>
-    <td width="50%" valign="top">
-	  <div class="front-page-content-header"><img src="{$rel_url}images/news_22.png" alt="News" title="News" /> News</div>
-	  <div class="front-page-content-detail">
-		  <ul class="front-page-list">
-		  {section name="i" loop=$news}
-		  <li><a href="news.php#{$news[i].nws_id}">{$news[i].nws_title}</a></li>
-		  {/section}
-		  <li><a href="news.php?show=rss">RSS</a> | <a href="news.php">More...</a></li>
-		  </ul>
-	  </div>
+		
 
-	  <div class="front-page-content-header"><img src="{$rel_url}images/recently_added_22.png" alt="Recently Added Items" title="Recently Added Items" /> Recently Added Items</div>
-	  <div class="front-page-content-detail">
-		<ul class="front-page-list">
-	        {section name="i" loop=$list}
-				{if $list[i].rek_object_type == 1}
-	                {assign var="href_view" value="community/"|cat:$list[i].rek_pid|escape:"html"}
-	                {assign var="icon" value="images/community.jpg" }
-	                {if ($list[i].isEditor==1 || $isAdministrator)}
-	                        {assign var="showEdit" value=true}
-	                {else}
-	                        {assign var="showEdit" value=false}
-	                {/if}
-	           {elseif $list[i].rek_object_type == 2}
-	                {assign var="href_view" value="collection/"|cat:$list[i].rek_pid|escape:"html"}
-	                {assign var="icon" value="images/collection.jpg" }
-	                {if $isUser && ($list[i].isEditor==1 || $isAdministrator)}
-	                        {assign var="showEdit" value=true}
-	                {else}
-	                        {assign var="showEdit" value=false}
-	                {/if}
-	           {else}
-	                {if ($list[i].isViewer==1 || $isAdministrator)}
-	                  {assign var="href_view" value="view/"|cat:$list[i].rek_pid|escape:"html"}
-	                {else}
-	                  {assign var="href_view" value=""}
-	                {/if}
-					{if $list[i].thumbnail.0 != "" && $list[i].isViewer==1}
-		                {assign var="icon" value=$eserv_url|cat:$list[i].rek_pid|cat:"/"|cat:$list[i].thumbnail.0}
-					{else}
-		                {assign var="icon" value="images/record.jpg" }
-					{/if}
-	                {if $isUser }
-	                        {assign var="showEdit" value=true}
-	                {else}
-	                        {assign var="showEdit" value=false}
-	                {/if}
-	           {/if}
-				{if $list[i].rek_created_date}
-					{if ($list[i].rek_created_date|date_format:"%Y-%m-%d") != $today}
-						{if (($list[i].day_name) != $day_name && ($list[i].rek_created_date|date_format:"%Y-%m-%d") != $yesterday) || (($list[i].rek_created_date|date_format:"%Y-%m-%d") == $yesterday && $day_name != "Yesterday")}
-							{if ($list[i].day_name) == $today_day_name}
-								{assign var="day_name_pre" value=$list[i].day_name}
-								{assign var="day_name" value=$last|cat:$day_name_pre}
-							{else}
-								{if ($list[i].rek_created_date|date_format:"%Y-%m-%d") == $yesterday}
-									{assign var="day_name" value="Yesterday"}
-								{else}
-									{assign var="day_name" value=$list[i].day_name}
-								{/if}
-							{/if}
-		  <!--tr>
-			  <td>
-			  <table bgcolor="#FFFFFF" width="100%" cellpadding="3" cellspacing="0">
-				  <tr>
-					  <td class="default_white" bgcolor="{$heading_color}"><strong>{$day_name}</strong>
-					  </td>
-				  </tr>
-			 </table>
-			 </td>
-		  </tr-->
-						{/if}
-					{elseif $day_name != "Today"}
-					  {assign var="day_name" value="Today"}
-		  <!--tr>
-			  <td>
-			  <table bgcolor="#FFFFFF" width="100%" cellpadding="3" cellspacing="0">
-				  <tr>
-					  <td class="default_white" bgcolor="{$heading_color}"><strong>{$day_name}</strong>
-					  </td>
-				  </tr>
-			 </table>
-			 </td>
-		  </tr-->
+		<div id="browse-box" class="boxes"></div>
+		
+	</div>
+	
+	</div>
 
-					{/if}
-			{/if}
-					<li>
-					{if $list[i].rek_citation != ""}
-					{$list[i].rek_citation}
-					{else}
-					{if $href_view}<a href='{$href_view}' >{/if}
-					{$list[i].rek_title}
-					{if $href_view}</a>{/if}
-					{/if}
-					{if $list[i].rek_object_type != 3}{if $list[i].rek_ismemberof_count != ""}({$list[i].rek_ismemberof_count}){else}(0){/if}{/if}
-							{if $list[i].isEditor==1 || $isAdministrator}
-							  {section name="w" loop=$list[i].wft_id}
-							    {if $list[i].wft_id[w] != ''}
-							    {if $list[i].wft_icon[w] == 'images/security.gif'}
-							      {if $list[i].security == 'include'}
-							        {assign var="wf_icon" value="images/security_include.gif"}
-							      {elseif $list[i].security == 'exclude'}
-							        {assign var="wf_icon" value="images/security_exclude.gif"}
-							      {elseif $list[i].security == 'inherit'}
-						                {assign var="wf_icon" value="images/security_inherit.gif"}
-							      {else}
-							        {assign var="wf_icon" value=$list[i].wft_icon[w]}
-							      {/if}
-					            {else}
-							      {assign var="wf_icon" value=$list[i].wft_icon[w]}
-							    {/if}
-				                            {if $list[i].wft_type_id[w] == 6}
-				                              {assign var='wf_url' value=$rel_url|cat:'workflow/export.php'}
-				                            {else}
-				                              {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
-				               			    {/if}
-							<a href="{$wf_url}?pid={$list[i].rek_pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI}"{if $list[i].wft_icon[w] == 'images/delete.gif'} onclick="return confirmDelete();"{/if}><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" border="0" /></a>
-							  {/if}
-							  {/section}
-				                <a href="workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" border="0" width="16" height="16" /></a>
-				           {/if}
+	</div>
 
-					</li>
-			{sectionelse}
-			  <li>No publicly viewable items have been published in the last week.</li>
-			{/section}
-		</ul>
-	  </div>
+	</div>
 
-	  <div class="front-page-content-header"><img src="{$rel_url}images/about_22.png" alt="About" title="About" /> About</div>
-	  <div class="front-page-content-detail">
-	  <ul class="front-page-list">
-	    <li><a href="{$rel_url}help.php?topic=main#copyright">What about copyright?</a> | <a href="{$rel_url}help.php?topic=main">Frequently Asked Questions</a></li>
-	    <li>Find out more about <a href="about.php">{$application_title}</a></li>
-		<li>Or, try these other digital repository search tools:</li>
-	  </ul>
+	  </script>
+	</td>
 
-		<table id="front-page-logo-set">
-		  <tr>
-			<td><a href="http://oaister.umdl.umich.edu/o/oaister" target="_blank"><img src="{$rel_url}images/logo_oaister.gif" alt="OAIster - University of Michigan Digital Library Production Services" title="OAIster - University of Michigan Digital Library Production Services" border="0" /></a></td>
-			<td><a href="http://search.arrow.edu.au/apps/ArrowUI/?adapter=ViewSearchFormAdapter" target="_blank"><img src="{$rel_url}images/logo_arrow.gif" alt="ARROW - National Library of Australia's resource discovery service" title="ARROW - National Library of Australia's resource discovery service" border="0" /></a></td>
-			<td><a href="http://scholar.google.com/" target="_blank"><img src="{$rel_url}images/logo_google_scholar.jpg" alt="Google Scholar - broadly search for scholarly literature" title="Google Scholar - broadly search for scholarly literature" border="0" /></a></td>
-		  </tr>
-		</table>
+</tr>
 
-	  </div>
-    </td>
-  </tr>
-</table>
+<script type="text/javascript">
+var countries=new ddajaxtabs("snapshottabs", "snapshotcontainer")
+countries.setpersist(true)
+countries.setselectedClassTarget("linkparent") //"link" or "linkparent"
+countries.init()
+</script>
 
-{include file="app_info.tpl.html"} {include file="footer.tpl.html"}
+<!-- ****************************** page content ends here ****************************** -->
+
+{include file="app_info.tpl.html"}{include file="footer.tpl.html"}

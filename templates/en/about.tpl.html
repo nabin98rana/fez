@@ -1,42 +1,29 @@
 {include file="header.tpl.html" extra_title="About"}
 {include file="navigation.tpl.html"}
 
-<table cellpadding="5" cellspacing="5">
-  <tr class="default">
-    <td class="contentheader"><img src="{$rel_url}images/about_22.png" alt="News" align="absmiddle"> About {$application_title}</td>
-  </tr>
+<h1 class="public">About {$application_title}</h1>
 
-  <tr class="default">
-    <td>
+<div class="default" style="padding:25px;">
 
-<p><strong>{$application_title}</strong> is {$org_name}'s institutional digital repository for publications, research, and teaching materials. Deposited material covers a very wide range of <a href="list.php?browse=subject&parent_id=1">subjects and disciplines</a>.
+<p><strong>{$application_title}</strong> is {$org_name}'s institutional digital repository for publications, research, and teaching materials. Deposited material covers a very wide range of <a href="{$rel_url}list/browse=subject&parent_id=1">subjects and disciplines</a>.</p>
 
-</p>
-
-<p>
-The repository holds the <strong>electronic full text</strong> of many peer-reviewed published articles and conference papers, as well as book chapters, theses and other forms of written research from {$org_short_name} academic staff and postgraduate students. It contains 'grey literature' such as working and discussion papers, technical reports and some preprints. Research datasets, sound and image collections, multimedia, software and other forms of research data are also held. Learning objects and other
-course-related materials are welcome. Some publications may be citation only because of copyright issues. For depositors anxious about copyright, the policies of the major journal publishers regarding copyright can be checked at <a href="http://www.sherpa.ac.uk/romeo.php">SHERPA</a>. Policies of many publishers, including Australian publishers, can also be checked in the OAKList database (<a href="http://www.oaklist.qut.edu.au/">http://www.oaklist.qut.edu.au/</a>) . {$smarty.const.APP_ORG_NAME} staff can also provide information.</p>
+<p>The repository holds the <strong>electronic full text</strong> of many peer-reviewed published articles and conference papers, as well as book chapters, theses and other forms of written research from {$org_short_name} academic staff and postgraduate students. It contains 'grey literature' such as working and discussion papers, technical reports and some preprints. Research datasets, sound and image collections, multimedia, software and other forms of research data are also held. Learning objects and other
+course-related materials are welcome. Some publications may be citation only because of copyright issues. For depositors anxious about copyright, the policies of the major journal publishers regarding copyright can be checked at <a href="http://www.sherpa.ac.uk/romeo.php" target="_blank">SHERPA</a>. Policies of many publishers, including Australian publishers, can also be checked in the <a href="http://www.oaklist.qut.edu.au/" target="_blank">OAKList database</a>. {$smarty.const.APP_ORG_NAME} staff can also provide information.</p>
 
 <p><strong>{$application_title}</strong> provides free, searchable access to openly available {$org_short_name} research, publications and teaching materials and manages their long-term archiving.</p>
 
 <p>{$org_short_name} staff and students must log in to deposit materials. Log in with your usual {$org_short_name} log in username and password. Browsing and searching can be done without logging in.</p>
 
-<p><strong>{$application_title}</strong> is running on <strong>Fez</strong> software. <strong>Fez</strong> is part of a wider project entitled <a href="http://www.library.uq.edu.au/escholarship/">eScholarshipUQ</a>, which is the local testbed for the <a href="http://www.apsr.edu.au/">Australian Partnership for Sustainable Repositories</a>. The aim of this <a href="http://www.dest.gov.au/">DEST</a>-funded project is to make all of UQ's openly available research visible, accessible and usable over the long term. The project also aims to make UQ's research visible and accessible through a global network of services such as <a href="http://oaister.umdl.umich.edu/o/oaister">OAIster</a>, <a href="http://www.arrow.edu.au/">ARROW</a>, <a
+<p><strong>{$application_title}</strong> is running on <strong>Fez</strong> software. <strong>Fez</strong> is part of a wider project entitled <a href="http://www.library.uq.edu.au/escholarship/" target="_blank">eScholarshipUQ</a>, which is the local testbed for the <a href="http://www.apsr.edu.au/" target="_blank">Australian Partnership for Sustainable Repositories</a>. The aim of this <a href="http://www.dest.gov.au/" target="_blank">DEST</a>-funded project is to make all of UQ's openly available research visible, accessible and usable over the long term. The project also aims to make UQ's research visible and accessible through a global network of services such as <a href="http://oaister.umdl.umich.edu/o/oaister" target="_blank">OAIster</a>, <a href="http://www.arrow.edu.au/" target="_blank">ARROW</a>, <a
 href="http://scholar.google.com/">Google Scholar</a> and Internet search
-engines. See the <strong>Fez</strong> <a href="http://dev-repo.library.uq.edu.au/wiki">Wiki</a> for more information.
-
-<!--p>Fez is running on <a href="http://www.fedora.info/"><em>Fedora 2.1.1</em></a> digital repository software.</p>
-
-<p>The Fez digital repository software is available for free at <a href="http://sourceforge.net/projects/fez/">http://sourceforge.net/projects/fez/</a>. Information and background on Fez initiatives is available from <a href="http://www.library.uq.edu.au/escholarship">http://www.library.uq.edu.au/escholarship</a></p-->
+engines. See the <strong>Fez</strong> <a href="http://dev-repo.library.uq.edu.au/wiki" target="_blank">Wiki</a> for more information.
 
 <p>&nbsp;</p>
 
-<p><a href="http://sourceforge.net/projects/fez/" target="_blank"><img src="{$rel_url}images/fez_2.0_logo.png" alt="Fez 2.0 logo" title="Fez 2.0 logo" border="0" align="center"/></a> &nbsp;			  
+<p><a href="http://sourceforge.net/projects/fez/" target="_blank"><img src="{$rel_url}images/fez_2.0_logo.png" alt="Fez 2.0 logo" title="Fez 2.0 logo" border="0" align="center"/></a> &nbsp;	
 <a href="http://www.fedora-commons.org/" target="_blank"><img src="{$rel_url}images/fedora_logo.png" alt="Fedora logo" title="Fedora logo" border="0" align="center"/></a></p>
 
-    </td>
-  </tr>
-</table>
+</div>
 
 {include file="app_info.tpl.html"}
 {include file="footer.tpl.html"}

@@ -1,47 +1,16 @@
+<div id="footer">
+	<p>&copy 2008 <a title="{$smarty.const.APP_NAME}" href="{$rel_url}">{$smarty.const.APP_NAME}</a> &middot; <!--a href="privpolicy.php?subnav=privpolicy_1">Privacy Policy</a> &middot; <a href="{$rel_url}terms.php">Terms of use</a> &middot; -->Powered by <a title="Fez Wiki website"href="http://dev-repo.library.uq.edu.au/wiki/" target="_blank">Fez {$application_version} Software</a> &middot; <a href="{$rel_url}contact.php">Contact us</a></p>
+	{if $benchmark_total && $isAdministrator}
+	<p>Page generated in {$benchmark_total} seconds {if $total_queries}({$total_queries} queries){/if}</p>
+	{/if}
 
+	<div id="omc">
+		<a href="http://www.uq.edu.au/terms-of-use/" target="_blank">Copyright</a> | <a href="http://www.uq.edu.au/terms-of-use/" target="_blank">Privacy</a> | <a href="http://www.uq.edu.au/terms-of-use/" target="_blank">Disclaimer</a><br />
+		&copy; 2008 The University of Queensland, Brisbane, Australia<br />
+		ABN 63 942 912 684, CRICOS Provider No: <a href="http://cricos.dest.gov.au/" target="_blank">00025B</a><br />
+		Authorised by: University Librarian<br />
+		Maintained by: UQ Library<br />
+		Updated daily
+	</div>
 
-
-<table border="0" cellpadding="0" cellspacing="0" width="100%">
-  <tr>  
-	<td class="feedback" height="28">
-	  {if $benchmark_total}
-	  {literal}
-	  <script language="JavaScript" type="text/javascript">
-	  <!--
-	  function openBenchmark()
-	  {
-		  var f = getForm('benchmark_form');
-		  var width = 500;
-		  var height = 450;
-		  var w_offset = 30;
-		  var h_offset = 30;
-		  var location = 'top=' + h_offset + ',left=' + w_offset + ',';
-		  if (screen.width) {
-			  location = 'top=' + h_offset + ',left=' + (screen.width - (width + w_offset)) + ',';
-		  }
-		  var features = 'width=' + width + ',height=' + height + ',' + location + 'resizable=yes,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
-		  var benchmarkWin = window.open('', '_benchmark', features);
-		  f.submit();
-		  benchmarkWin.focus();
-	  }
-	  //-->
-	  </script>
-	  {/literal}
-	  <form name="benchmark_form" target="_benchmark" method="post" action="{$rel_url}benchmark.php">
-	  <input type="hidden" name="encoded_stats" value="{$benchmark_results}" />
-	  </form>
-	  {/if}&nbsp;	
-	</td>
-</tr>
-  <tr>
-    <td valign="top" class="footer">
-      Powered by <a href="http://sourceforge.net/projects/fez" target="_blank" title="More information about Fez software">Fez {$application_version}</a> software<br />
-      Copyright &copy; 2005, 2007 <a href="http://www.library.uq.edu.au/escholarship" title="Visit the APSR eScholarship site">APSR eScholarshipUQ</a><br />
-      Contact the {$smarty.const.APP_NAME} Coordinator at: <a href="mailto:{$smarty.const.APP_ADMIN_EMAIL}" title="Contact the {$smarty.const.APP_NAME} Coordinator">{$smarty.const.APP_ADMIN_EMAIL}</a>
-      {if $benchmark_total}
-      <br />
-      Page generated in {$benchmark_total} seconds {if $total_queries}({$total_queries} queries){/if}    
-      {/if}
-    </td>
-  </tr>
-</table>
+</div>

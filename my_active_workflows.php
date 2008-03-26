@@ -29,7 +29,7 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
 $tpl->assign("isAdministrator", $isAdministrator);
 
 $list = WorkflowStatusStatic::getList(Auth::getUserID());
-
+$tpl->assign("active_nav", "my_fez");
 $tpl->assign(compact('list'));
 $tpl->displayTemplate();
  

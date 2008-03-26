@@ -177,28 +177,52 @@ function showDiv(p)
 //-->
 </script>
 {/literal}
+
+<input type="hidden" name="cat" value="assign">
+
 <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="0" align="center">
   <tr>
     <td>
     <table bgcolor="#FFFFFF" width="100%" cellspacing="0" cellpadding="0" border="0">
     <tr>
-    <td width="50%" valign="top">
-      <input type="hidden" name="cat" value="assign">
-      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="1" border="0">
-
+    <td valign="top">
+      <table width="100%" cellspacing="1" cellpadding="1" border="0">
         <tr>
-          <td align="left" class="default" colspan="2"><br />{if $fedora_get_view != "0"}<a title="click to open this PID in Fedora (admin access only)" href="{$fedora_get_view}" target='_blank' >{/if}<img border=0 align="absmiddle" src="{$rel_url}images/record_view_32.jpg"/>{if $fedora_get_view != "0"}</a>{/if} <b>View {$xdis_title}: <i>{$title}</i> </b> <br /><br /></td>
+          <td align="left" class="default" colspan="2">
+			  <table style="margin-left: 15px;">
+			  <tr>
+			  <td valign="top" width="10">{if $fedora_get_view != "0"}<a title="Click to open this PID in Fedora (admin access only)" href="{$fedora_get_view}" target='_blank' >{/if}<img border="0" src="{$rel_url}images/record_view_32.jpg" vspace="5" alt="" />{if $fedora_get_view != "0"}</a>{/if}
+			  </td>
+			  <td>
+				  <h1>{$title}</h1>
+				  {if $citation != ""}
+					<span>{$citation}</span>
+					<br /><br />
+				  {/if}
+			  </td>
+			  </tr>
+			  </table>
+	  	  </td>
         </tr>
+	  </table>
+
+	  <div style="border: 1px solid #8e8e8e; margin-left: 50px; margin-right: 50px;">
+      <table cellspacing="0" cellpadding="5" style="padding: 5px;" class="default">
+
+		<tr>
+		<td width="20" align="right">
+		  <span style="font-weight: bold;">Document&nbsp;type:</span>
+		</td>
+		<td width="">{$xdis_title}</td>
+		</tr>
 
 {if $isUser && !$hide_edit}
 {if $isEditor || $isAdministrator}
 		<tr>
-		  <td align="left"> 
-			<table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="1">
-
-		<tr>
-		 <td align="left" class="default" nowrap> <b>Workflows:</b></td>		
-          <td align="left" class="default" nowrap> &nbsp;
+		  <td width="20" align="right"> 
+			<span style="font-weight: bold;">Workflows:</span>
+		  </td>		
+          <td width="">
 			  {section name="w" loop=$workflows}
 			    {if $workflows[w].wft_id != ''}
 			    {if $workflows[w].wft_icon == 'images/security.gif'}
@@ -219,51 +243,47 @@ function showDiv(p)
                             {else}
                               {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
 			    {/if}
-			<a href='{$wf_url}?pid={$pid|escape:"html"}&cat=select_workflow&xdis_id={$xdis_id}&wft_id={$workflows[w].wft_id}&href={$smarty.server.REQUEST_URI}'><img title="{$workflows[w].wfl_title}" align="absmiddle" src="{$rel_url}{$wf_icon}" border="0"></a> 
+			<a href='{$wf_url}?pid={$pid|escape:"html"}&cat=select_workflow&xdis_id={$xdis_id}&wft_id={$workflows[w].wft_id}&href={$smarty.server.REQUEST_URI}'><img title="{$workflows[w].wfl_title}" align="absmiddle" src="{$rel_url}{$wf_icon}" border="0" /></a> 
 				{/if}
 			  {/section}
 			<a href="{$rel_url}workflow/list_workflows2.php?pid={$pid|escape}"><img src="{$rel_url}images/options_16.png" align="absmiddle" alt="More options" title="More options" border="0" width="16" height="16" /></a>             
 			</td>
-		</tr>
-		</table>
-	  </td>
-	</tr>
+          </tr>
 {/if}
 {/if}
 {if $show_tombstone && !$deleted || !$show_tombstone}
+
+{if $parents}		
 		<tr>
-		  <td align="left"> 
-			<table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="2" width="100%">
- 		       {if $citation != ""}
-				<tr valign="top">
-				  <td align="left" class="citation"> <b>Citation:</b></td>
-				  <td align="left" class="citation" width="100%"> {$citation}
-				  </td>
-				</tr>
-                {/if}
-				{if $parents}
-				<tr>
-				  <td align="left" class="default"> <b>{$parent_heading} </b></td>
-				  <td align="left" class="default" width="100%"> 
-					{section name="i" loop=$parents}
-						<a href="{$rel_url}collection/{$parents[i].rek_pid}">{$parents[i].rek_title}</a> &nbsp;
-					{/section}
-				  </td>
-				</tr>
-				{/if}
-{if $prev || $next}
-				<tr valign="top">
-				  <td align="left" class="default" nowrap> <b>Browse Collection:</b></td>
-				  <td align="left" class="default" width="100%"> 
-{if $prev}<a href="{$rel_url}view/{$prev.rek_pid}">Prev: <i>{$prev.rek_title}</i></a> {if $next}<br />{/if}{/if}
-{if $next}<a href="{$rel_url}view/{$next.rek_pid}">Next: <i>{$next.rek_title}</i></a> {/if}
-				  </td>
-				</tr>
-{/if}
-{if $fileCount > 0}
-			</table>
+		  <td width="20" align="right"> 
+			<span style="font-weight: bold;">{$parent_heading}</span>
 		  </td>
-		</tr> 
+		  <td width="">
+			{section name="i" loop=$parents}
+				<a href="{$rel_url}collection/{$parents[i].rek_pid}">{$parents[i].rek_title}</a> &nbsp;
+			{/section}
+		  </td>
+		</tr>
+{/if}
+
+{if $prev || $next}
+		<tr>
+			<td width="20" align="right">
+			  <span style="font-weight: bold;">Browse&nbsp;Collection:</span>
+			</td>
+			<td width=""> 
+			  {if $prev}<a href="{$rel_url}view/{$prev.rek_pid}">Prev: <i>{$prev.rek_title}</i></a> {if $next}<br />{/if}{/if}
+				{if $next}<a href="{$rel_url}view/{$next.rek_pid}">Next: <i>{$next.rek_title}</i></a> {/if}
+			</td>
+		</tr>
+{/if}
+
+</table>
+</div>
+
+<table>
+
+{if $fileCount > 0}
 		<tr>
 		  <td align="left"> 
 			<table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="2" width="100%">
@@ -372,7 +392,7 @@ function showDiv(p)
                 </td>
                 </tr>
       </table>
-		<table width="100%" border="0" cellpadding="2" cellspacing="0"  bgcolor="#FFFFFF" >
+		<table width="100%" border="0" cellpadding="2" cellspacing="0" bgcolor="#FFFFFF">
 
 	{if $linkCount > 0}
 		  <tr>
@@ -444,7 +464,7 @@ function showDiv(p)
 		  
 {if $displayusercomments}
 	   <tr>
-          <table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="2" width="95%" align="center">
+          <table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="2" width="100%" align="center">
     
     	  <tr>
     		<td class="default" colspan="5">&nbsp;</td>

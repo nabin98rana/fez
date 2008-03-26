@@ -1,0 +1,98 @@
+<div id="snapshotcontainer">
+<ul style="list-style-type: square">
+	{section name="i" loop=$list}
+		{if $list[i].rek_object_type == 1}
+			{assign var="href_view" value="community/"|cat:$list[i].rek_pid|escape:"html"}
+			{assign var="icon" value="images/community.jpg" }
+			{if ($list[i].isEditor==1 || $isAdministrator)}
+					{assign var="showEdit" value=true}
+			{else}
+					{assign var="showEdit" value=false}
+			{/if}
+	   {elseif $list[i].rek_object_type == 2}
+			{assign var="href_view" value="collection/"|cat:$list[i].rek_pid|escape:"html"}
+			{assign var="icon" value="images/collection.jpg" }
+			{if $isUser && ($list[i].isEditor==1 || $isAdministrator)}
+					{assign var="showEdit" value=true}
+			{else}
+					{assign var="showEdit" value=false}
+			{/if}
+	   {else}
+			{if ($list[i].isViewer==1 || $isAdministrator)}
+			  {assign var="href_view" value="view/"|cat:$list[i].rek_pid|escape:"html"}
+			{else}
+			  {assign var="href_view" value=""}
+			{/if}
+			{if $list[i].thumbnail.0 != "" && $list[i].isViewer==1}
+				{assign var="icon" value=$eserv_url|cat:$list[i].rek_pid|cat:"/"|cat:$list[i].thumbnail.0}
+			{else}
+				{assign var="icon" value="images/record.jpg" }
+			{/if}
+			{if $isUser }
+					{assign var="showEdit" value=true}
+			{else}
+					{assign var="showEdit" value=false}
+			{/if}
+	   {/if}
+		{if $list[i].rek_created_date}
+			{if ($list[i].rek_created_date|date_format:"%Y-%m-%d") != $today}
+				{if (($list[i].day_name) != $day_name && ($list[i].rek_created_date|date_format:"%Y-%m-%d") != $yesterday) || (($list[i].rek_created_date|date_format:"%Y-%m-%d") == $yesterday && $day_name != "Yesterday")}
+					{if ($list[i].day_name) == $today_day_name}
+						{assign var="day_name_pre" value=$list[i].day_name}
+						{assign var="day_name" value=$last|cat:$day_name_pre}
+					{else}
+						{if ($list[i].rek_created_date|date_format:"%Y-%m-%d") == $yesterday}
+							{assign var="day_name" value="Yesterday"}
+						{else}
+							{assign var="day_name" value=$list[i].day_name}
+						{/if}
+					{/if}
+				{/if}
+			{elseif $day_name != "Today"}
+			  {assign var="day_name" value="Today"}
+			{/if}
+	{/if}
+			<li>
+			{if $list[i].rek_citation != ""}
+			{$list[i].rek_citation}
+			{else}
+			{if $href_view}<a href='{$href_view}' >{/if}
+			{$list[i].rek_title}
+			{if $href_view}</a>{/if}
+			{/if}
+			{if $list[i].rek_object_type != 3}{if $list[i].rek_ismemberof_count != ""}({$list[i].rek_ismemberof_count}){else}(0){/if}{/if}
+					{if $list[i].isEditor==1 || $isAdministrator}
+					  {section name="w" loop=$list[i].wft_id}
+						{if $list[i].wft_id[w] != ''}
+						{if $list[i].wft_icon[w] == 'images/security.gif'}
+						  {if $list[i].security == 'include'}
+							{assign var="wf_icon" value="images/security_include.gif"}
+						  {elseif $list[i].security == 'exclude'}
+							{assign var="wf_icon" value="images/security_exclude.gif"}
+						  {elseif $list[i].security == 'inherit'}
+								{assign var="wf_icon" value="images/security_inherit.gif"}
+						  {else}
+							{assign var="wf_icon" value=$list[i].wft_icon[w]}
+						  {/if}
+						{else}
+						  {assign var="wf_icon" value=$list[i].wft_icon[w]}
+						{/if}
+									{if $list[i].wft_type_id[w] == 6}
+									  {assign var='wf_url' value=$rel_url|cat:'workflow/export.php'}
+									{else}
+									  {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
+									{/if}
+					<a href="{$wf_url}?pid={$list[i].rek_pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI}"{if $list[i].wft_icon[w] == 'images/delete.gif'} onclick="return confirmDelete();"{/if}><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" border="0" /></a>
+					  {/if}
+					  {/section}
+						<a href="workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" border="0" width="16" height="16" /></a>
+				   {/if}
+
+			</li>
+			<br />
+			{if $smarty.section.i.last}<li style="list-style-type: none"><!--img src="{$rel_url}images/feed-icon16x16.png" alt="RSS" width="14" height="14" /--><a href="{$rel_url}list/browse=latest&amp;tpl=2">RSS</a> | <a href="{$rel_url}list/browse=latest">More...</a></li>{/if}
+	{sectionelse}
+	  <li>No publicly viewable items have been published in the last week.</li>
+	{/section}
+</ul>
+</div>

@@ -14,7 +14,7 @@ function setCurrentCollection()
 </script>
 {/literal}
 
-<table width="100%" border="0" cellspacing="0" cellpadding="0" class="nav-table-top">
+<!--table width="100%" border="0" cellspacing="0" cellpadding="0" class="nav-table-top">
 	<tr>
 	  <td nowrap="nowrap" >
 		{if $isUser}
@@ -50,7 +50,7 @@ function setCurrentCollection()
 	  <td nowrap="nowrap"> &nbsp;<a target="_top" title="Manage the application settings, users, etc" href="{$rel_url}manage/" class="white_link">Administration</a> &nbsp; 	  </td>
 	  {/if}
 	  <td nowrap="nowrap"><img src="{$rel_url}images/browse_16.png" alt="" /></td>
-	  <td nowrap="nowrap"> &nbsp;<a target="_top" title="List the communities stored in {$application_title}" href="{$rel_url}list/" class="white_link">Browse Communities</a> &nbsp; </td>
+	  <td nowrap="nowrap"> &nbsp;<a target="_top" title="List the organisational units stored in {$application_title}" href="{$rel_url}list/" class="white_link">Browse Organisational Units</a> &nbsp; </td>
 	  {if $isAdministrator || $isUser}
 	  <td nowrap="nowrap"><img src="{$rel_url}images/my_fez_16.png" alt="" /></td>
 	  <td nowrap="nowrap"> &nbsp;<a target="_top" title="" href="{$rel_url}my_fez.php" class="white_link">My {$application_title}</a> &nbsp; </td>
@@ -58,7 +58,7 @@ function setCurrentCollection()
 	  <td nowrap="nowrap"><img src="{$rel_url}images/help_16.png" alt="" /></td>
 	  <td nowrap="nowrap"> &nbsp;<a title="Help documentation" href="{$rel_url}help.php?topic=main" target="_blank" class="white_link">Help</a> &nbsp; </td>
 	</tr>
-</table>
+</table-->
 
 {literal}
 <script language="JavaScript" type="text/javascript">
@@ -74,7 +74,7 @@ function setCurrentCollection()
 </script>
 {/literal}
 
-<table width="100%" border="0" cellspacing="0" cellpadding="0" class="nav-table-bottom">
+<!--table width="100%" border="0" cellspacing="0" cellpadding="0" class="nav-table-bottom">
   <tr>
 	  {if $isUser}
 	  <td nowrap="nowrap" class="default">
@@ -91,13 +91,12 @@ function setCurrentCollection()
 		<a href="{$rel_url}adv_search.php"><img border="0" alt="Click Here for Advanced Search page" title="Click Here for Advanced Search page" src="{$rel_url}images/search_16.gif" /></a> <label for="search" accesskey="3"></label>
 		<input type="text" id="search" name="search_keys[0]" value="" size="15" class="shortcut" />
 		<input type="submit" value="Search" class="shortcut" /> [<a style="font-size:10px" href="{$rel_url}adv_search.php">Advanced Search</a>]
-<!--a href="#" onClick="javascript:alert( 'Search Title, Abstract, Keywords\n\n Enter a phrase.  Objects where any field contains the phrase will be returned.\n This is a case-insensitive search, and you may use the * or ? wildcards.\n\n Examples:\n\n li*y\n finds objects that start with li and end with y\n\n b?ts\n finds words that start with b followed by any letter and then ts.  e.g. bits, bats, byts')"><i>search help</i></a-->
 		&nbsp;
 	  </form>
 	  
     </td>
   </tr>
-</table>
+</table-->
 {literal}
 
 <script language="JavaScript" type="text/javascript">

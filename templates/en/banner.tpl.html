@@ -1,15 +1,77 @@
-<body>
-<!--Header starts here -->
+
+<body bgcolor="{if $bgcolor}{$bgcolor}{else}#FFFFFF{/if}" marginwidth="0" marginheight="0" leftmargin="0" topmargin="0" rightmargin="0" bottommargin="0">
 <a name="top"></a>
 <!--START: Header -->
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-header" summary="{$smarty.const.APP_NAME} header" style="background-image: url('{$rel_url}images/banner_grad.gif');">
+	<tbody>
+	 <tr>
+	  <td width="10%" rowspan="2" valign="top"><br />
+	  {if $isAdministrator}
+	  <a href="{$rel_url}manage/"><img src="{$rel_url}images/administration.gif" width="200" height="19" alt="Click here to access administration functions" border="0" /></a>
+	  {/if}
+	  </td>
+	  <td class="toplinks" width="90%" colspan="3"></td>
+	</tr>
+	<tr>
+	  <td width="100%" align="left" valign="top">
+	  
+	    <div id="banner-sitename"><a href="{$app_base_url}">{$application_title}</a></div>
+	    <div id="banner-watermark"></div>
+	  
+	    <div id="navigation" style="padding-top: 10px;">
+			<div id="n-bar">
+				<div id="n-action">
+					<ul class="tabs">
+						<li><a href="{$rel_url}"{if $active_nav == 'home'} id="nav-focus"{/if}>Home</a></li>
+						<li><a href="{$rel_url}list/"{if $active_nav == 'list'} id="nav-focus"{/if}>Browse</a></li>
+						<li><a href="{$rel_url}adv_search.php"{if $active_nav == 'search'} id="nav-focus"{/if}>Search</a></li>
+						<li><a href="{$rel_url}deposit.php" class="iconized icon-lock-go"{if $active_nav == 'deposit'} id="nav-focus"{/if}>Deposit</a></li>
+					</ul>
+				</div>
+				<div id="n-info">
+					<ul class="tabs">
+						{if $isUser}
+						<li><a href="{$rel_url}preferences.php"{if $active_nav == 'preferences'} style="background-color: white;border: 1px solid white;color: #2A2A2A;"{/if}>Prefs</a></li>
+						<li><a href="{$rel_url}my_fez.php"{if $active_nav == 'my_fez'} style="background-color: white;border: 1px solid white;color: #2A2A2A;"{/if}>My&nbsp;eSpace</a></li>
+						<li><a href="{$rel_url}logout.php">Logout</a></li>
+						{else}
+						<li><a title="Browse the Frequently Asked Questions section" href="{$rel_url}help.php?topic=main" class="iconized icon-help"{if $active_nav == 'help'} style="background-color: white;border: 1px solid white;color: #2A2A2A;"{/if}>FAQs</a></li>
+						<li><a href="{$rel_url}about.php"{if $active_nav == 'about'} style="background-color: white;border: 1px solid white;color: #2A2A2A;"{/if}>About</a></li>
+						<li><a href="{$rel_url}login.php"{if $active_nav == 'login'} style="background-color: white;border: 1px solid white;color: #2A2A2A;"{/if}>Login</a></li>
+						{/if}
+					</ul>
+				</div>
+			</div>
+		</div>
 
-<div id="header">
-<!-- ************** Put your page heading below here ************** -->
-<a href="{$app_base_url}" target="_top">
-<img hspace="4" vspace="4" alt="Click here to go the the {$application_title} homepage" title="Click here to go the the {$application_title} homepage" border="0" align="top" src="{$rel_url}images/fez_2.0_logo.png" width="120" height="90" />
-<img hspace="12" vspace="42" alt="Click here to go the the {$application_title} homepage" title="Click here to go the the {$application_title} homepage" border="0" align="top" src="{$rel_url}images/fez_2_banner_title.png" />
-</a>
-<!-- ************** Put your page heading above here ************** -->
-</div>
+	  </td>
+	</tr>
+   </tbody>
+  </table>
+
+
+  <table width="100%" cellpadding="0" cellspacing="0">	
+	<tr>
+	  <td style="background-color: white; text-align: right; padding: 15px;" width="30%" height="30">
+	    {if $isUser}<span id="logged-in">You are logged in as {$current_full_name}.</span>{/if}
+	  </td>
+      <td style="background-color: white; text-align: right; padding: 15px;" width="30%" height="30">
+	    <div id="flash_message_div" class="flash_message" style="display:none;"></div>
+	  </td>
+	  <td style="background-color: white; text-align: right; padding: 15px;" width="40%" height="30">
+	  <form target="_top" name="basic_filter_form" method="get" action="{$rel_url}list.php" id="basic_filter_form1">
+		<input type="hidden" name="order_by" value="Relevance" />
+		<input type="hidden" name="cat" value="quick_filter" />
+		<a href="{$rel_url}adv_search.php"><img border="0" alt="Go to advanced search page" title="Go to advanced search page" src="{$rel_url}images/search_16.gif" /></a>
+		<label for="search" accesskey="3"></label>
+		<input type="text" id="search" name="search_keys[0]" value="" size="15" class="shortcut" />
+		<input type="submit" value="Quick Search" class="shortcut" />
+	  </form>
+
+	  </td>
+    </tr>
+  </table>
 
 <!--END: Header -->
+
+<!-- -- -- -- -- -- -- -- -- -- -- page content starts here -- -- -- -- -- -- -- -- -- -- -->

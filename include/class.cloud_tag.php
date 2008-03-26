@@ -49,7 +49,7 @@ class Cloud_Tag
                         FROM " . APP_TABLE_PREFIX . "record_search_key_keywords kw
                         GROUP BY rek_keywords
                         ORDER BY quantity DESC
-                        LIMIT 0, 20
+                        LIMIT 0, 30
                     ) as t1 ORDER BY tag ASC";
 
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -137,6 +137,7 @@ class Cloud_Tag
             } else {
                 $cloudTag .= 'title="' . $value . ' records tagged with ' . htmlspecialchars($key, ENT_QUOTES) . '">' . htmlspecialchars($key, ENT_QUOTES) . '</a> ';
             }
+			$cloudTag .= " &nbsp; ";
         }
         $cloudTag .= '</div>';
 

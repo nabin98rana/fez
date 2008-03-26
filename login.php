@@ -364,5 +364,8 @@ $tpl->assign("APP_HOSTNAME", APP_HOSTNAME);
 $tpl->assign("SHIB_HOME_SP", SHIB_HOME_SP);
 $tpl->assign("SHIB_HOME_IDP", $shib_home_idp);
 $tpl->assign("SHIB_FEDERATION_NAME", SHIB_FEDERATION_NAME);
+$tpl->assign("active_nav", "login");
+$tpl->assign("app_short_org_name", APP_SHORT_ORG_NAME);
+
 $tpl->displayTemplate();
 ?>

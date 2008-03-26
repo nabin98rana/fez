@@ -52,7 +52,6 @@ include_once(APP_INC_PATH . "class.news.php");
 include_once(APP_INC_PATH . "class.survey.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.validation.php");
-include_once(APP_INC_PATH . "class.cloud_tag.php");
 include_once(APP_INC_PATH . "class.pager.php");
 include_once(APP_INC_PATH . "najax/najax.php");
 include_once(APP_INC_PATH . "najax_objects/class.suggestor.php");
@@ -139,59 +138,23 @@ if ($front_page == "" || $front_page == "front_page") {
 }
 $tpl->setTemplate($front_page);
 
-
 $isAdministrator = User::isUserAdministrator($username);
 $tpl->assign("isAdministrator", $isAdministrator);
-// get the 5 most recently added items this week
-$tpl->assign("today", date("Y-m-d"));
-$tpl->assign("today_day_name", date("l"));
-$tpl->assign("yesterday", date("Y-m-d", time()-86400));
-$tpl->assign("last", "Last ");
 
-
-$list = array();
-//$list = Collection::browseListing(0, 5, "Created Date", $sort_by, 0);
-$options = array();
-$options["sort_order"] = "1";
-$sort_by = "searchKey".Search_Key::getID("Created Date");
-$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-
-// Old method of retrieving recent records - SLOW
-//$list = Record::getListing($options, $approved_roles=array("Lister"), 0,5, "Created Date", false, true);
-
-// Get recent records cached in the DB
-$recentRecordsPIDs = Record::getRecentRecords();
-$list['list'] = Record::getDetailsLite($recentRecordsPIDs[0]);
-
-$tpl->assign("thisYear", date("Y"));
-$tpl->assign("lastYear", date("Y") - 1);
-$list = $list["list"];
-//$list = Citation::renderIndexCitations($list);
-//$list=array();
-$tpl->assign("list", $list);
-$tpl->assign("eserv_url", APP_RELATIVE_URL."eserv/");
 $news = News::getList(5);       // Maximum of 5 news posts for front page.
 $news_count = count($news);
 $tpl->assign("news", $news);
 $tpl->assign("isHomePage", "true");
 $tpl->assign("news_count", $news_count);
-if (APP_CLOUD_TAG == "ON") {
-    $cloudTag = Cloud_Tag::buildCloudTag();
-} else {
-    $cloudTag = "";
-}
-$tpl->assign("cloud_tag", $cloudTag);
-
-if( APP_SOLR_SWITCH == "OFF" ) {
-    $tpl->headerscript .= "window.oTextbox_front_search
-    	= new AutoSuggestControl(document.search_frm, 'front_search', document.getElementById('front_search'), document.getElementById('front_search'),
-    			new StateSuggestions('Collection','suggest',false,
-    				'class.collection.php'));";
-}
-
+$tpl->headerscript .= "window.oTextbox_front_search
+	= new AutoSuggestControl(document.search_frm, 'front_search', document.getElementById('front_search'), document.getElementById('front_search'),
+			new StateSuggestions('Collection','suggest',false,
+				'class.collection.php'));
+	";
 
 $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
 $tpl->registerNajax(NAJAX_Client::register('Suggestor', 'index.php'));
+$tpl->assign("active_nav", "home");
 $tpl->displayTemplate();
 //echo ($GLOBALS['bench']->getOutput());
 ?>

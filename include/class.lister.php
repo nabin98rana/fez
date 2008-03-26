@@ -691,6 +691,7 @@ class Lister
 		$tpl->assign("query_reduced_sans_sort", $queryStringReducedSansSort);
 		$tpl->assign("query_plus", $queryPlus);
 		$tpl->assign("template_mode", $tpl_idx);
+		$tpl->assign("active_nav", "list");
 
         if (Auth::userExists($username)) {
             $prefs = Prefs::get(Auth::getUserID());

@@ -97,7 +97,7 @@ function disableFields()
 </script>
 {/literal}
 
-<table width="100%" bgcolor="{$cell_color}" cellspacing="0" cellpadding="1" align="center">
+<table width="100%" cellspacing="0" cellpadding="0" align="center">
   <form name="list_form" method="get" action="{$smarty.server.PHP_SELF}">
   <input type="hidden" name="cat" value="assign">
   <tr>
@@ -108,24 +108,25 @@ function disableFields()
         <tr><td align="center">
       <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1">
 		{if ($browse_type == "browse_top50authors") || ($browse_type == "browse_top50papers") || ($browse_type == "browse_show_detail_date")} 
-		 <tr class="default">
-			<td class="contentheader" align="left"><img src="{$rel_url}images/statistics_22.gif" alt="" align="absmiddle"> Access Statistics: <a href="{$rel_url}view/{$pid}">{$title}</a>
+		 <tr>
+			<td>
+			  <h1 class="public"><img src="images/statistics_22.gif" alt="Access Statistics" />	Access Statistics <a href="{$rel_url}view/{$pid}">{$title}</a></h1> 
 			</td>
 		</tr>
 
 		 <tr class="default">
 			<td align="left">
 			<p><strong>Top 50:</strong>
-			[<a href="{$rel_url}stats.php?browse=top50authors">{$application_title} Authors</a>] 
-			[<a href="{$rel_url}stats.php?browse=top50papers">Papers</a>] 
+			<a href="{$rel_url}stats.php?browse=top50authors">{$application_title} Authors</a> | 
+			<a href="{$rel_url}stats.php?browse=top50papers">Papers</a>
 			<p><strong>Most viewed records:</strong>
-			[<a href="{$rel_url}stats.php?browse=show_detail_date&range=4w">Past four weeks</a>] 
-			[<a href="{$rel_url}stats.php?browse=show_detail_date&year={$thisYear}">This year</a>]
-			[<a href="{$rel_url}stats.php?browse=show_detail_date&year={$lastYear}">Last year</a>]
-			[<a href="{$rel_url}stats.php?browse=show_detail_date">All years</a>]
+			<a href="{$rel_url}stats.php?browse=show_detail_date&range=4w">Past four weeks</a> | 
+			<a href="{$rel_url}stats.php?browse=show_detail_date&year={$thisYear}">This year</a> | 
+			<a href="{$rel_url}stats.php?browse=show_detail_date&year={$lastYear}">Last year</a> | 
+			<a href="{$rel_url}stats.php?browse=show_detail_date">All years</a>
 			<br /><br /><strong>Repository-wide statistics:</strong>
-			[<a href="{$rel_url}stat_details.php?action=cumulative_usage&range=all">by Year/month</a>] 
-			[<a href="{$rel_url}stat_details.php?action=cumulative_usage_country">by Country</a>] 
+			<a href="{$rel_url}stat_details.php?action=cumulative_usage&range=all">by Year/month</a> | 
+			<a href="{$rel_url}stat_details.php?action=cumulative_usage_country">by Country</a>
 			<p>
 			</td>
 		</tr>
@@ -133,40 +134,37 @@ function disableFields()
 		{if ($browse_type == "browse_top50authors")} 
         <tr>
 			<td align="left" class="default"><br />
-			<a href="{$rel_url}list.php?browse=author"><img border="0" src="{$rel_url}images/browse_32.jpg" align="absmiddle"/></a>
-           &nbsp;<b>{$browse_heading}:</b>		  
+			<a href="{$rel_url}list/browse=author"><img border="0" src="{$rel_url}images/browse_32.jpg" align="absmiddle"/></a>
+           &nbsp;<b>{$browse_heading}:</b>
 			</td>
         </tr>
 		   {if $smarty.get.author == ""}
+
+			<tr>
+			  <td>
+				<table width="100%" cellpadding="5" cellspacing="5">
+
 			{section name="i" loop=$list}
-
-			  <tr>
-				  <td>
-				  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
-				  <tr>
-						<td align="right" width="10">{$smarty.section.i.index+1}</td>
-					  <td align="left">
-							<a class="author_id_link" href='{$rel_url}list.php?browse=author&author_id={$list[i].rek_author_id|escape:'url'}&sort_by=searchKeycore_16&sort_order=1' title="Browse by Author ID for {$list[i].record_author} ({$list[i].rek_author_id}) by File Downloads Desc">{$list[i].record_author|escape:"html"}</a> 
-
-						</td>
-						<td align="right" nowrap>(<strong>{$list[i].file_downloads|escape:"html"}</strong> File Download{if $list[i].file_downloads > 1}s{/if})</td>
-					</tr>
-					  </table>
-					<!-- space between rows -->
-				</td>
-				</tr>
+				  <tr class="listrecord">
+					<td align="right" width="10" style="border-top:1px dashed #87ABE9;">{$smarty.section.i.index+1}</td>
+					<td align="left" style="border-top:1px dashed #87ABE9;">
+					  <a class="author_id_link" href="{$rel_url}list/browse=author&amp;author_id={$list[i].rek_author_id|escape:'url'}&amp;sort_by=searchKeycore_16&amp;sort_order=1" title="Browse by Author ID for {$list[i].record_author} ({$list[i].rek_author_id}) by File Downloads Desc">{$list[i].record_author|escape:"html"}</a> 
+					</td>
+					<td align="right" style="border-top:1px dashed #87ABE9;" nowrap>(<strong>{$list[i].file_downloads|escape:"html"}</strong> File Download{if $list[i].file_downloads > 1}s{/if})</td>
+				  </tr>
 
 			{sectionelse}
 			<tr>
-			<td>
-			  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
-			<tr><td>
+			  <td>
 				No authors could be found.
-			</td></tr>
-			</table>
-						</td>
-				</tr>
+			  </td>
+			</tr>
 			{/section}
+
+				</table>
+			  </td>
+			</tr>
+
 			{/if}
 		{elseif ($browse_type == "browse_show_detail_date")} 
         <tr>
@@ -177,10 +175,10 @@ function disableFields()
         </tr>
 		  <tr>
 			  <td>
-			  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="3" class="listrecord">
+			  <table width="100%" cellpadding="5" cellspacing="5" class="listrecord">
 				<tr>
 					  <td colspan="3" align="right">
-						<img src="{$rel_url}images/downloads.gif" valign='middle' title="File Downloads" alt="File Downloads" />
+						<img src="{$rel_url}images/downloads_16.png" title="File Downloads" alt="File Downloads" valign="middle"/>
 					</td>
 				</tr>
 
@@ -188,12 +186,12 @@ function disableFields()
 			{if $list[i].rek_file_downloads > 0}
 				
 				  <tr>
-						<td align="right" width="10" valign='top'><strong>{$smarty.section.i.index+1}</strong></td>
-					  <td align="left">
+						<td align="right" width="10" valign="top" style="border-top:1px dashed #87ABE9;"><strong>{$smarty.section.i.index+1}</strong></td>
+					  <td align="left" style="border-top:1px dashed #87ABE9;">
 							<a href='{$rel_url}view/{$list[i].rek_pid}'>{$list[i].rek_citation}</a> 
 
 						</td>
-						<td align="right" valign="top" width="" nowrap>&nbsp;{if $list[i].rek_file_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">{$list[i].rek_file_downloads|escape:"html"}</a>{/if} </td>
+						<td align="right" valign="top" width="" style="border-top:1px dashed #87ABE9;" nowrap>&nbsp;{if $list[i].rek_file_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">{$list[i].rek_file_downloads|escape:"html"}</a>{/if} </td>
 			{/if}
 			{sectionelse}
 			<tr>
@@ -222,25 +220,23 @@ function disableFields()
         </tr>
 		  <tr>
 			  <td>
-			  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="3" class="listrecord">
+			  <table width="100%" cellpadding="5" cellspacing="5" class="listrecord">
 				<tr>
 					  <td colspan="3" align="right">
-						<img src="{$rel_url}images/downloads.gif" valign='middle' title="File Downloads" alt="File Downloads" />
+						<img src="{$rel_url}images/downloads_16.png" title="File Downloads" alt="File Downloads" valign="middle" />
 					</td>
 				</tr>
 
 			{section name="i" loop=$list}
 			{if $list[i].rek_file_downloads > 0}
 				
-				
-				
 				  <tr>
-						<td align="right" width="10" valign='top'><strong>{$smarty.section.i.index+1}</strong></td>
-					  <td align="left">
-							<a href='{$rel_url}view/{$list[i].rek_pid}'>{$list[i].rek_citation}</a> 
-
-						</td>
-						<td align="right" valign="top" width="" nowrap>&nbsp;{if $list[i].rek_file_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">{$list[i].rek_file_downloads|escape:"html"}</a>{/if} </td>
+					<td align="right" width="10" valign='top' style="border-top:1px dashed #87ABE9;"><strong>{$smarty.section.i.index+1}</strong></td>
+					<td align="left" style="border-top:1px dashed #87ABE9;">
+					  <a href='{$rel_url}view/{$list[i].rek_pid}'>{$list[i].rek_citation}</a>
+					</td>
+					<td align="right" valign="top" width="" style="border-top:1px dashed #87ABE9;" nowrap>{if $list[i].rek_file_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">{$list[i].rek_file_downloads|escape:"html"}</a>{/if}
+					</td>
 			{/if}
 			{sectionelse}
 			<tr>
@@ -262,7 +258,7 @@ function disableFields()
 		{elseif ($browse_type == "browse_author")} 
         <tr>
 			<td align="left" class="default"><br />
-			<a href="{$rel_url}list.php?browse=author"><img border="0" src="{$rel_url}images/browse_32.jpg" align="absmiddle"/></a>
+			<a href="{$rel_url}list/browse=author"><img border="0" src="{$rel_url}images/browse_32.jpg" align="absmiddle"/></a>
            &nbsp;<b>{$browse_heading}:</b>		  
 			</td>
         </tr>
@@ -271,10 +267,10 @@ function disableFields()
 			{if $list[i].file_downloads > 0}
 			  <tr>
 				  <td>
-				  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
+				  <table width="100%" cellpadding="5" cellspacing="5" class="listrecord">
 				  <tr>
-					  <td>
-							<a href='{$rel_url}list.php?browse=author&author={$list[i].record_author|escape:'url'}'>{$list[i].record_author|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+					  <td style="border-top:1px dashed #87ABE9;">
+							<a href='{$rel_url}list/browse=author&amp;author={$list[i].record_author|escape:'url'}'>{$list[i].record_author|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
 
 						</td>
 					</tr>
@@ -298,7 +294,7 @@ function disableFields()
 		{elseif ($browse_type == "browse_year")} 
         <tr>
 			<td align="left" class="default"><br />
-			<a href="{$rel_url}list.php?browse=year"><img border="0" src="{$rel_url}images/browse_32.jpg" align="absmiddle"/></a>
+			<a href="{$rel_url}list/browse=year"><img border="0" src="{$rel_url}images/browse_32.jpg" align="absmiddle"/></a>
            &nbsp;<b>{$browse_heading}:</b>		  
 			</td>
         </tr>
@@ -307,10 +303,10 @@ function disableFields()
 
 			  <tr>
 				  <td>
-				  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
+				  <table width="100%" cellpadding="5" cellspacing="5" class="listrecord">
 				  <tr>
-					  <td>
-							<a href='{$rel_url}list.php?browse=year&year={$list[i].record_year}'>{$list[i].record_year|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+					  <td style="border-top:1px dashed #87ABE9;">
+							<a href='{$rel_url}list/browse=year&amp;year={$list[i].record_year}'>{$list[i].record_year|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
 
 						</td>
 					</tr>
@@ -334,7 +330,7 @@ function disableFields()
 		{elseif $browse_type == "browse_subject"}
         <tr>
 			<td align="left" class="default"><br />
-			<a href="{$rel_url}list.php?browse=subject"><img border="0" src="{$rel_url}images/browse_32.jpg" align="absmiddle"/></a>
+			<a href="{$rel_url}list/browse=subject"><img border="0" src="{$rel_url}images/browse_32.jpg" align="absmiddle"/></a>
            &nbsp;<b>Browse by 
 		          {if $max_subject_breadcrumb != -1}
 					  {section name="b" loop=$subject_breadcrumb}
@@ -342,7 +338,7 @@ function disableFields()
 		                  {if $subject_breadcrumb[b].cvo_image_filename != ""}
 						    <img align="absmiddle" src="{$rel_url}images/{$subject_breadcrumb[b].cvo_image_filename}"/>
 						  {/if}
-                          {if $max_subject_breadcrumb != $smarty.section.b.index}<a href='{$rel_url}list.php?browse=subject&parent_id={$subject_breadcrumb[b].cvo_id}'>{else}<b>{/if}{$subject_breadcrumb[b].cvo_title|escape:"html"}{if $max_subject_breadcrumb != $smarty.section.b.index}</a>{else}</b>{/if}
+                          {if $max_subject_breadcrumb != $smarty.section.b.index}<a href='{$rel_url}list/browse=subject&amp;parent_id={$subject_breadcrumb[b].cvo_id}'>{else}<b>{/if}{$subject_breadcrumb[b].cvo_title|escape:"html"}{if $max_subject_breadcrumb != $smarty.section.b.index}</a>{else}</b>{/if}
  						  {assign var="cvo_id" value=$subject_breadcrumb[b].cvo_id}
 						  {if $subject_count[$cvo_id]}({$subject_count[$cvo_id]}){else}{/if}{if $max_subject_breadcrumb != $smarty.section.b.index}->{else}:{/if}					
 					  {/section}
@@ -357,7 +353,7 @@ function disableFields()
 			  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
               <tr>
                   <td>{if $subject_list[i].cvo_image_filename != ""}<img align="absmiddle" src="{$rel_url}images/{$subject_list[i].cvo_image_filename}"/>{/if}
-                        <a href='{$rel_url}list.php?browse=subject&parent_id={$subject_list[i].cvo_id}'>{$subject_list[i].cvo_title|escape:"html"}</a>
+                        <a href='{$rel_url}list/browse=subject&amp;parent_id={$subject_list[i].cvo_id}'>{$subject_list[i].cvo_title|escape:"html"}</a>
 						{assign var="cvo_id" value=$subject_list[i].cvo_id}
 						{if $subject_count[$cvo_id]}({$subject_count[$cvo_id]}){else}(0){/if}
 					</td>

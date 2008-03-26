@@ -15,9 +15,24 @@ function validateForm(f)
         return false;
     }
 }
+
+var visStatus = 0;
+
+function toggleHideSecondaryLogin()
+{
+	if (visStatus) {
+		document.getElementById('secondary-login').style.display = "none";
+		visStatus = 0;
+	} else {
+		document.getElementById('secondary-login').style.display = "block";
+		visStatus = 1;
+	}
+}
+
 //-->
 </script>
 {/literal}
+<center>
 {if $SHIB_SWITCH == "ON"}
 <form name="idplist" method="get">
 	<input type="hidden" name="shire" value="https://{$APP_HOSTNAME}/Shibboleth.sso/SAML/POST" />
@@ -56,11 +71,10 @@ function validateForm(f)
 							<select class="default" name="origin">
 							  {html_options options=$SHIB_IDP_LIST selected=$SHIB_HOME_IDP}
 							</select>          
-            <input type="submit" name="federation_login" value="Select" class="button" />
           </td>
         </tr>
         <tr>
-          <td colspan="2" bgcolor="{$cell_color}"><img src="images/blank.gif" width="1" height="5" alt="" /></td>
+          <td colspan="2" bgcolor="{$cell_color}" align="center"><input type="submit" name="federation_login" value="Login" class="button" /></td>
         </tr>		
 
       </table>
@@ -70,21 +84,13 @@ function validateForm(f)
 </form>
 {/if}	
 
-{if $SHIB_SWITCH == "ON"}
-<table align="center" width="500" border="0" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF">
-  <tr>
-    <td align="center">
+{if $SHIB_SWITCH == "ON"}<div id="secondary-login-unhider" style="margin: 20px;"><a href="#" onclick="javascript:toggleHideSecondaryLogin(); return false;">Non-{$app_short_org_name} login</a></div>{/if}
 
-<h1>OR</h1>
-</td>
-</tr>
-</table>
-{/if}
+<div id="secondary-login" style="display: none;">
 
 <form name="login_form" onsubmit="javascript:return checkFormSubmission(this, 'validateForm');" method="post" action="index.php">
 <input type="hidden" name="cat" value="login" />
 <input type="hidden" name="url" value="{$smarty.get.url}" />
-
 
 <table align="center" width="500" border="0" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF">
   <tr>
@@ -93,7 +99,7 @@ function validateForm(f)
       <table bgcolor="{$heading_color}" width="100%" border="0" cellspacing="0" cellpadding="4">
         <tr>
           <td colspan="2" align="center" class="default_white">
-            <img src="{$rel_url}images/lock_22.png" border="0" alt="" hspace="5" /><b>{if $SHIB_SWITCH == "ON"}Secondary Login Method: {/if}Login to {$application_title}{if $SHIB_SWITCH == "ON"} with a {$org_short_name} username or internal {$application_title} username ONLY if you do not belong to one of the institutions in the above drop down list or if the federated login is down{/if}</b>
+            <img src="{$rel_url}images/lock_22.png" border="0" alt="" hspace="5" /><b>Login to {$application_title}{if $SHIB_SWITCH == "ON"} with a {$org_short_name} username or internal {$application_title} username ONLY if you do not belong to one of the institutions in the above drop down list or if the federated login is down{/if}</b>
           </td>
         </tr>
       </table>
@@ -176,8 +182,13 @@ function validateForm(f)
   </tr>
 </table>
 
+	<div style="padding: 30px;"><a href="mailto:{$smarty.const.APP_ADMIN_EMAIL}?subject={$application_title}: Non-{$app_short_org_name} access request">Request access to the system</a></div>
+
+</div>
+
 </form>
 <br />
+</center>
 {literal}
 <script language="JavaScript" type="text/javascript">
 <!--

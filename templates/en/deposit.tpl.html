@@ -1,0 +1,30 @@
+{include file="header.tpl.html" extra_title="Deposit"}
+{include file="navigation.tpl.html"}
+
+<h1 class="public"><img src="{$rel_url}images/icons/lock_go.png" alt="Deposit" title="Deposit" /> Deposit</h1>
+
+<div class="default" style="padding:25px;">
+
+{if $isUser == false}
+<p>To deposit records in UQ eSpace, you must be logged in.</p>
+
+<p>Please use the <b>Login</b> link if you are currently a UQ staff member or student.</p>
+
+<p>External registered users should use the <b>Non-{$smarty.const.APP_SHORT_ORG_NAME} login</b> on the <b>Login</b> page. If you are a former staff member or postgraduate student, and you would like to register as a user, please contact us about obtaining a log in.</p>
+{/if}
+
+<p>Deposits of items should begin in the collection to which the item will belong, e.g. <b>Publications of the Advanced Wastewater Management Centre</b>; <b>Publications of the School of Engineering</b>.</p>
+
+<p>To find the collections to which you have rights, first log in, then click <b>My eSpace</b>, then click the <b>Collections</b> tab. A list will appear. An edit icon will appear next to collections in which you can create records.</p>
+
+<p>Click on the desired collection. This will open the Web page for that collection.</p>
+
+<p>Select your desired document type from the drop-down list, e.g. Journal article, then click <b>Create</b>. If you do not see the document type you need, please contact us for help.</p>
+
+<p>Fill in the details of the form, link to or upload a file, then click <b>Submit for Approval</b>.
+That completes the deposit process.</p>
+
+</div>
+
+{include file="app_info.tpl.html"}
+{include file="footer.tpl.html"}

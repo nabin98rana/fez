@@ -97,6 +97,7 @@ foreach ($list as $list_key => $list_field) {
 
 $tpl->assign("options", $options);
 $tpl->assign("search_keys", $list);
+$tpl->assign("active_nav", "search");
 $tpl->displayTemplate();
-?>
 
+?>

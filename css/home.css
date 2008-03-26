@@ -231,7 +231,7 @@ a:link .footerlinks {
 	font-weight: normal;
 	font-size: 75%;
 	padding-bottom: 2px;
-/*	border-bottom: 1px solid #DDDDDD; */
+	margin-top: -20px;
 }
 
 .listrecord a {

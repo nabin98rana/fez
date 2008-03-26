@@ -47,6 +47,7 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
     $tpl->assign("isFezUser", $username);
 }
 $tpl->assign("isAdministrator", $isAdministrator);
+$tpl->assign("active_nav", "about");
 
 $tpl->displayTemplate();
 
