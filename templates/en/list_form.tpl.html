@@ -309,23 +309,35 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 </div>
 
 
-
-
-
-
-
-
-
-
+	{if $isUser}
+	  <div class="create-box">
+		{if $list_type == 'community_list' && $isAdministrator}
+		<a target="_top" title="Create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" /> <b>Create New Community</b></a> 
+		{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
+			{if $childXDisplayOptions != 0}
+			<img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
+			<input type="hidden" name="community_pid" value="{$community_pid}" />
+			<select name="xdis_id_top">
+			  {html_options options=$childXDisplayOptions}
+			</select>
+			<input type="button" value="Create" onClick="javascript:createRecord(this.form, this.form.xdis_id_top)" />
+			{/if}
+		{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}			
+			{if $childXDisplayOptions != 0}
+			<img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
+			<input type="hidden" name="collection_pid" value="{$collection_pid}" />
+			<select name="xdis_id_top">
+			  {html_options options=$childXDisplayOptions}
+			</select>
+			<input type="button" value="Create" onClick="javascript:createRecord(this.form, this.form.xdis_id_top)" />
+			{/if}
+		{/if}
+	  </div>
+	  <br /><br />&nbsp;
+	{/if}
 
       <table width="100%" cellpadding="10" cellspacing="0" class="listrecord">
 		{if ($browse_type == "browse_author") && (!$smarty.get.author && !$smarty.get.author_id)} 
-        <!--tr>
-			<td align="left" class="default">
-			<a href="{$rel_url}list/browse=author"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a>
-           &nbsp;<b>{$browse_heading}:</b>		  
-			</td>
-        </tr-->
 		<tr>
 		  <td align="left">
 			<div class="letter-list">
@@ -336,7 +348,6 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 				<a href="{$rel_url}list/browse=author&amp;letter={$alphabet_list[i]}">{$alphabet_list[i]}</a> | 
               {/if}
 			{/section}
-			
 			{if $smarty.get.browse == "author_id"}
 			 <a href="{$rel_url}list/browse=author_id">All</a>
 			{else}
@@ -368,14 +379,10 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 
 			{sectionelse}
 			<tr>
-			<td>
-			  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1">
-			<tr><td>
-				No authors could be found.
-			</td></tr>
-			</table>
-						</td>
-				</tr>
+			 <td colspan="2">
+			  No authors could be found.
+			 </td>
+			</tr>
 			{/section}
 			{/if}
 		{elseif ($browse_type == "browse_depositor")} 
@@ -404,14 +411,10 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 
 			{sectionelse}
 			<tr>
-			<td>
-			  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
-			<tr><td>
-				No depositors could be found.
-			</td></tr>
-			</table>
-						</td>
-				</tr>
+			 <td colspan="2">
+			  No depositors could be found.
+			 </td>
+			</tr>
 			{/section}
 			{/if}			
 		{elseif ($browse_type == "browse_year")} 
@@ -435,14 +438,10 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 
 			{sectionelse}
 			<tr>
-			<td>
-			  <table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1" class="listrecord">
-			<tr><td>
-				No records with saved dates could be found.
-			</td></tr>
-			</table>
-						</td>
-				</tr>
+			 <td colspan="2">
+			  No records with saved dates could be found.
+			 </td>
+			</tr>
 			{/section}
 			{/if}
 		{elseif $browse_type == "browse_subject"}
@@ -513,33 +512,6 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 		</tr>
 		{/if}
 		</table>
-
-		{if $isUser}
-		  <div class="create-box">
-			{if $list_type == 'community_list' && $isAdministrator}
-			<a target="_top" title="Create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" /> <b>Create New Community</b></a> 
-			{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
-				{if $childXDisplayOptions != 0}
-				<img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
-				<input type="hidden" name="community_pid" value="{$community_pid}" />
-				<select name="xdis_id_top">
-				  {html_options options=$childXDisplayOptions}
-				</select>
-				<input type="button" value="Create" onClick="javascript:createRecord(this.form, this.form.xdis_id_top)" />
-				{/if}
-			{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}			
-				{if $childXDisplayOptions != 0}
-				<img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
-				<input type="hidden" name="collection_pid" value="{$collection_pid}" />
-				<select name="xdis_id_top">
-				  {html_options options=$childXDisplayOptions}
-				</select>
-				<input type="button" value="Create" onClick="javascript:createRecord(this.form, this.form.xdis_id_top)" />
-				{/if}
-			{/if}
-		  </div>
-		{/if}
-
 
 		<table width="100%" cellpadding="10" cellspacing="0" class="listrecord">
 		  <tr>

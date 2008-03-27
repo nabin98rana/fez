@@ -787,6 +787,10 @@ hr {
 	font-size: 10pt;
 	font-weight: normal;
 	text-align: left;
+	width: 350px;
+	float: left;
+	margin-bottom: 20px;
+	margin-top: -15px;
 }
 
 .create-box a:link {
