@@ -1,0 +1,68 @@
+<tr>
+    <td colspan="6" style="padding: 0px;">
+
+        <table width="100%" cellspacing="0" cellpadding="0" class="my_fez_table_footer">
+          
+           <tr>    
+                <td width="10px"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" /></td>
+                 
+                {if $isAdministrator} 
+                 <td>
+                 <input type="submit" value="Delete"  onClick="javascript:return checkDeleteRecords(this.form);" />
+                 <input type="submit" value="Publish" onClick="javascript:return checkPublishRecords(this.form);" />
+                 </td>
+                {/if}
+                
+                 <td>                   
+                   <input type="button" value="Run Workflow &gt;" onClick="javascript:workflowItems(this.form, '{$rel_url}');">
+                   <select name="wft_id">
+                     {html_options options=$bulk_workflows}
+                    </select>
+                   {include file="error_icon.tpl.html" field="users"} 
+                 </td>
+                 
+                 <td align="center" nowrap width="40%">
+                     <nobr>    
+                     <strong>Page: </strong>                
+                     {if $items_info.printable_page != 1}
+                    	<a href="{$page_url}&rows={$items_info.page_rows}&pager_row=0" title="First page" style="text-decoration: none; margin-left: 0.25em;">&#171; first</a> 
+                    	<a href="{$page_url}&rows={$items_info.page_rows}&pager_row={$items_info.prev_page}" title="Previous page" style="text-decoration: none; margin-left: 0.25em;">&#139; previous</a>&nbsp;
+                     {/if}
+                     
+                	{section name=pages start=$items_info.start_range loop=100 step=1 max=$items_info.end_range}
+                	  {if $smarty.section.pages.index == $items_info.current_page}
+                		<span class="page">{math equation="y + 1" y=$smarty.section.pages.index}</span>
+                	  {else}
+                		<a href="{$page_url}&rows={$items_info.page_rows}&pager_row={$smarty.section.pages.index}" style="text-decoration: none;" title="Page {math equation="y + 1" y=$smarty.section.pages.index}">{math equation="y + 1" y=$smarty.section.pages.index}</a> 
+                      {/if}
+                	{/section}
+                	
+                	{if $items_info.printable_page != $items_info.total_pages}
+                	&nbsp;<a href="{$page_url}&rows={$items_info.page_rows}&pager_row={$items_info.next_page}" title="Next page" style="text-decoration: none; margin-left: 0.25em;">next &#155;</a> 
+                	<a href="{$page_url}&rows={$items_info.page_rows}&pager_row={$items_info.last_page}" title="Last page" style="text-decoration: none; margin-left: 0.25em;">last &#187;</a>
+                	{/if}
+                     
+                    </nobr>
+                </td>
+                      
+                <td nowrap>
+                    <strong>Rows:</strong><select name="page_size" onChange="javascript:resizePagerMyFez(this.form, '{$page_url}');">
+                    <option value="5" {if $options.rows == 5}selected{/if}>5</option>
+                    <option value="10" {if $options.rows == 10}selected{/if}>10</option>
+                    <option value="15" {if $options.rows == 15}selected{/if}>15</option>
+                    <option value="25" {if $options.rows == 25}selected{/if}>25</option>
+                    <option value="50" {if $options.rows == 50}selected{/if}>50</option>
+                    <option value="100" {if $options.rows == 100}selected{/if}>100</option>
+                    <option value="150" {if $options.rows == 150}selected{/if}>150</option>
+                    <option value="300" {if $options.rows == 300}selected{/if}>300</option>
+                    <option value="500" {if $options.rows == 500}selected{/if}>500</option>
+                    </select>
+                </td>
+                      
+           </tr>
+           
+        </table>
+
+    </td>
+
+</tr>

@@ -57,7 +57,7 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
 
 <div class="outline">
 
-<div id="custom_filter_form1" {get_display_style element_name="custom_filter_form"}>
+<div id="custom_filter_form1" style="display:none;">
 
   <div class="{if $options.searchKey0 != ''}default-search-used{else}default{/if} quick_search_item">
     Title, Abstract, Keywords: <br />
@@ -237,6 +237,7 @@ function validateSearchForm() {
 {literal}
 	return true;
 }
+
 //-->
 </script>
 {/literal}

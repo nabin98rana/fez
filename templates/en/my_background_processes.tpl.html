@@ -187,59 +187,58 @@ function checkDelete(f)
 // -->
 </script>
 <div class="outline">
+<br />
 <div class="contentheader">
 Running Processes
 </div>
 <form name="background_processes" method="post">
 <input type="hidden" name="cat" value="delete_background_processes" />
-<table class="listing">
-<tr bgcolor="{$cell_color}" class="tableheader">
-<td><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form,'items[]');" class="button"/></td>
-<td class="default tableheader" >Started</td>
-<td class="default tableheader" >Name</td>
-<td class="default tableheader" >Progress</td>
-<td class="default tableheader" >Message</td>
-<td class="default tableheader" >Last Heartbeat</td>
-<td class="default tableheader" >Status</td>
-<td class="default tableheader" ></td>
-</tr>
-{section name="iii" loop=$bgp_list}
-{cycle values=$cycle assign="row_color"}
-<tr bgcolor="{$row_color}" class="default">
-<td><input type="checkbox" name="items[]" value="{$bgp_list[iii].bgp_id}"/></td>
-<td id="{$bgp_list[iii].bgp_id}_started">{$bgp_list[iii].bgp_started}</td>
-<td id="{$bgp_list[iii].bgp_id}_name">{$bgp_list[iii].bgp_name}</td>
-<td id="{$bgp_list[iii].bgp_id}_progress">{$bgp_list[iii].bgp_progress}</td>
-<td id="{$bgp_list[iii].bgp_id}_status_message">{$bgp_list[iii].bgp_status_message}</td>
-<td id="{$bgp_list[iii].bgp_id}_heartbeat" {if $bgp_list[iii].is_old}class="old_bgp"{/if}>{$bgp_list[iii].bgp_heartbeat}</td>
-<td id="{$bgp_list[iii].bgp_id}_state">{assign var="bgp_state" value=$bgp_list[iii].bgp_state}
-<td ><a href="javascript:void(0);" onclick="showBgpLog('{$bgp_list[iii].bgp_id}')"
-><img src="{$rel_url}images/system_16.png" alt="log" border="0" /></a> 
-<a href="{$rel_url}get_bgp_file.php?bgp_id={$bgp_list[iii].bgp_id}"><img 
-   src="{$rel_url}images/file.gif" alt="Get exported file" border="0"  /></a></td>
+<table cellpadding="5" cellspacing="0" class="my_fez_table" width="100%">
 
-</tr>
-<tr id="tr_log_{$bgp_list[iii].bgp_id}" style="display:none">
-<td colspan="20" >
-<div style="text-align:right">
-<input type="button" value="close" class="button" onclick="hideBgpLog('{$bgp_list[iii].bgp_id}')" />
-</div>
-<div id="div_log_{$bgp_list[iii].bgp_id}" ></div>
-<div style="text-align:right">
-<input type="button" value="close" class="button" onclick="hideBgpLog('{$bgp_list[iii].bgp_id}')" />
-</div>
-</td></tr>
-{sectionelse}
-<tr >
-<td colspan="20" class="default" bgcolor={$light_color} align="center" >No Items</td>
-</tr>
-{/section}
-<tr bgcolor="{$cell_color}" >
-<td><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form,'items[]');" class="button"/></td>
-<td colspan="10">
-<input type="button" value="Delete" onclick="javascript:return checkDelete(this.form);"  class="button"/>
-</td>
-</tr>
+    <tr bgcolor="{$cell_color}" class="tableheader">
+        <th><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form,'items[]');" class="button"/></th>
+        <th class="default">Started</th>
+        <th class="default">Name</th>
+        <th class="default">Progress</th>
+        <th class="default">Message</th>
+        <th class="default">Last Heartbeat</th>
+        <th class="default">Status</th>
+        <th class="default"></th>
+    </tr>
+    {section name="iii" loop=$bgp_list}
+    {cycle values=$cycle assign="row_color"}
+    <tr>
+        <td><input type="checkbox" name="items[]" value="{$bgp_list[iii].bgp_id}"/></td>
+        <td id="{$bgp_list[iii].bgp_id}_started">{$bgp_list[iii].bgp_started}</td>
+        <td id="{$bgp_list[iii].bgp_id}_name">{$bgp_list[iii].bgp_name}</td>
+        <td id="{$bgp_list[iii].bgp_id}_progress">{$bgp_list[iii].bgp_progress}</td>
+        <td id="{$bgp_list[iii].bgp_id}_status_message">{$bgp_list[iii].bgp_status_message}</td>
+        <td id="{$bgp_list[iii].bgp_id}_heartbeat" {if $bgp_list[iii].is_old}class="old_bgp"{/if}>{$bgp_list[iii].bgp_heartbeat}</td>
+        <td id="{$bgp_list[iii].bgp_id}_state">{assign var="bgp_state" value=$bgp_list[iii].bgp_state}
+        <td ><a href="javascript:void(0);" onclick="showBgpLog('{$bgp_list[iii].bgp_id}')"><img src="{$rel_url}images/system_16.png" alt="log" border="0" /></a> 
+        <a href="{$rel_url}get_bgp_file.php?bgp_id={$bgp_list[iii].bgp_id}"><img src="{$rel_url}images/file.gif" alt="Get exported file" border="0"  /></a></td>
+    </tr>
+    <tr id="tr_log_{$bgp_list[iii].bgp_id}" style="display:none">
+        <td colspan="20">
+        <div style="text-align:right">
+        <input type="button" value="close" class="button" onclick="hideBgpLog('{$bgp_list[iii].bgp_id}')" />
+        </div>
+        <div id="div_log_{$bgp_list[iii].bgp_id}" ></div>
+        <div style="text-align:right">
+        <input type="button" value="close" class="button" onclick="hideBgpLog('{$bgp_list[iii].bgp_id}')" />
+        </div>
+        </td>
+    </tr>
+    {sectionelse}
+    <tr >
+        <td colspan="20" class="default" bgcolor={$light_color} align="center" >No Items</td>
+    </tr>
+    {/section}
+    <tr class="my_fez_table_footer" >
+        <td><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form,'items[]');" class="button"/></td>
+        <td colspan="10"><input type="button" value="Delete" onclick="javascript:return checkDelete(this.form);"  class="button"/></td>
+    </tr>
+    
 </table>
 </form>
 

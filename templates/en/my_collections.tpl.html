@@ -1,30 +1,32 @@
 <div class="outline">
+<br />
 <div class="contentheader">
-    Assigned Collections
+   My Assigned Collections
 </div>
- <table class="listing">
+
+ <table cellpadding="5" cellspacing="0" class="my_fez_table" width="100%">
      <tr>
-       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b></td>
-       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Community</b></td>
-       <td bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>Items</b></td>
-       <td bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>Action</b></td>
+       <th class="default">&nbsp;<b>Title</b></th>
+       <th class="default">&nbsp;<b>Community</b></th>
+       <th class="default" nowrap>&nbsp;<b>Items</b></th>
+       <th class="default" nowrap>&nbsp;<b>Action</b></th>
      </tr>
      {assign var="list" value=$my_collections_list}
      {section name="i" loop=$list}
      {cycle values=$cycle assign="row_color"}
      <tr>
-       <td bgcolor="{$row_color}" class="default">
+       <td>
          &nbsp;<a href="{$rel_url}collection/{$list[i].rek_pid|escape}">{$list[i].rek_title|escape}</a>
        </td>
-       <td bgcolor="{$row_color}" class="default">
+       <td>
 		{section name="m" loop=$list[i].rek_ismemberof.rek_pid}
          &nbsp;{$list[i].rek_ismemberof.rek_title[m]|escape}
 		{/section}
        </td>
-       <td bgcolor="{$row_color}" class="default" align="right">
+       <td align="right">
          &nbsp;{if $list[i].rek_ismemberof_count}{$list[i].rek_ismemberof_count|escape}{else}0{/if}
        </td>
-       <td bgcolor="{$row_color}" class="default">
+       <td>
 
 		  {section name="w" loop=$list[i].wft_id}
 		    {if $list[i].wft_id[w] != ''}
@@ -34,18 +36,19 @@
 		      {elseif $list[i].security == 'exclude'}
 		        {assign var="wf_icon" value="images/security_exclude.gif"}
 		      {elseif $list[i].security == 'inherit'}
-	                {assign var="wf_icon" value="images/security_inherit.gif"}
+	            {assign var="wf_icon" value="images/security_inherit.gif"}
 		      {else}
 		        {assign var="wf_icon" value=$list[i].wft_icon[w]}
 		      {/if}
            {else}
 		      {assign var="wf_icon" value=$list[i].wft_icon[w]}
 		    {/if}
-                       {if $list[i].wft_type_id[w] == 6}
-                         {assign var='wf_url' value=$rel_url|cat:'workflow/export.php'}
-                       {else}
-                         {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
-          			    {/if}
+                       
+		    {if $list[i].wft_type_id[w] == 6}
+             {assign var='wf_url' value=$rel_url|cat:'workflow/export.php'}
+            {else}
+             {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
+			{/if}
 		<a href="{$wf_url}?pid={$list[i].rek_pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI}"><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" border="0" /></a> 
 		  {/if}
 		  {/section}
@@ -65,3 +68,4 @@
    </table>
 
   </div>
+  <br />

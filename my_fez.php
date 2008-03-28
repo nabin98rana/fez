@@ -41,99 +41,53 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
-include_once(APP_INC_PATH . "class.group.php");
 include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "class.collection.php");
-include_once(APP_INC_PATH . "class.background_process_list.php");
-include_once(APP_INC_PATH.'najax/najax.php');
-include_once(APP_INC_PATH.'najax_objects/class.background_process_list.php');
+
+Auth::checkAuthentication(APP_SESSION);
+$username = Auth::getUsername();
+$isAdministrator = User::isUserAdministrator($username);
 
 $tpl = new Template_API();
 $tpl->setTemplate("my_fez.tpl.html");
 $options = Pager::saveSearchParams();
-$search_keys = Search_Key::getMyFezSearchList();
-$isMemberOf = $options['isMemberOf'];
-//print_r($search_keys);
-//print_r($options);
-if (!array_key_exists("searchKeycore_9", $options)) { // for the my fez unpublished items page need to set the default to any non-published items 
+
+// for the my fez unpublished items page need to set the default to any non-published items 
+if (!array_key_exists("searchKeycore_9", $options)) {
 	$options["searchKeycore_9"] = "-4"; 
 	$options["noOrder"] = 0;
 }
-//if (!in_array($options["searchKeycore_9"], $search_keys[])) {
-//	$
-	
-//}
-$assign_grp_id = $options['grp_id'];
-$sta_id = $options['sta_id'];
-$assign_usr_id = $options['usr_id'];
-//echo $assign_usr_id." ". $sta_id." ".$assign_grp_id;
-//print_r($options);
-$sort_by = $options['sort_by'];
+
 if (empty($sort_by) || ($sort_by == "searchKey0" && empty($options['searchKey0']))) {
 	$sort_by = "searchKey".Search_Key::getID("Title");
 }
 
-$sort_by_dir = $options['sort_by_dir'];
-$sort_by_list = array();
-foreach (Search_Key::getAssocList() as $key => $value) {
-    $sort_by_list["searchKey".$key] = $value;
-}
-
-$tpl->assign('isMemberOf_default', $isMemberOf);
-$tpl->assign('myFezView', "MAI");
-$tpl->assign('extra_title', "Assigned Unpublished Items");
-$tpl->assign('sort_by_list', $sort_by_list);
-$tpl->assign('sort_by_dir_list', array("Asc", "Desc"));
-$tpl->assign('sort_by_default', $sort_by);
-$tpl->assign('sort_by_dir_default', $sort_by_dir);
-
-
-
-Auth::checkAuthentication(APP_SESSION);
-$username = Auth::getUsername();
-$tpl->assign("isUser", $username);
-$isAdministrator = User::isUserAdministrator($username);
-if (Auth::userExists($username)) { // if the user is registered as a Fez user
-	$tpl->assign("isFezUser", $username);
-	$prefs = Prefs::get(Auth::getUserID());
-} elseif ($username != ""){
-// don't require registration now for logged in users, although they can (to get prefs etc) but don't force them
-//	Auth::redirect(APP_RELATIVE_URL . "register.php?err=5&username=" . $username);	
-}
-$tpl->assign("isAdministrator", $isAdministrator);
-if (Auth::canEdit() == 1) {
-	$tpl->assign("user_can_edit", 1);
-}
-
-//$collection_list = Collection::getEditList();
-//print_r($collection_list);
 $collection_assoc_list = array();
-//$collection_assoc_list['ALL'] = '(All Assigned Collections)';
-/*foreach ($collection_list as &$item) {
-//   $item['community'] = implode(',',Misc::keyPairs(Collection::getParents2($item['pid']),'pid','title'));
-  //$item['count'] = Collection::getEditListingCount($item['pid']);
-//   $item['count'] = Collection::getSimpleListingCount($item['pid']);   
-   $collection_assoc_list[$item['rek_pid']] = $item['rek_title'];
-}*/
 $collection_assoc_list = Collection::getEditListAssoc();
+
+$search_keys = Search_Key::getMyFezSearchList();
 foreach ($search_keys as $skey => $svalue) {
 	if ($svalue["sek_id"] == Search_Key::getID("isMemberOf")) {
 		$search_keys[$skey]["field_options"] = $collection_assoc_list;
 	}
+	
 	if ($svalue["sek_smarty_variable"] == 'User::getAssocList()') {
 		$search_keys[$skey]["field_options"] = array(
     		  "-1" => "un-assigned", 
     		  "-2" => "myself", 
     		  "-3" => "myself and un-assigned"
 		  ) + $search_keys[$skey]["field_options"];
-	}			
+	}
+    
 	if ($svalue["sek_html_input"] != 'multiple' && $svalue["sek_smarty_variable"] != 'Status::getUnpublishedAssocList()') {
 		$search_keys[$skey]["field_options"] = array("" => "any") + $search_keys[$skey]["field_options"];		
 	}	
+	
 	if ($svalue["sek_id"]  == Search_Key::getID("Status")) {
-		$search_keys[$skey]["field_options"] = array("-4" => "any Unpublished") + $search_keys[$skey]["field_options"]; //get all status's
-	}	
-	if ($svalue["sek_id"] == Search_Key::getID("Status")) {
+		$search_keys[$skey]["field_options"] = array(
+		      "-4" => "any Unpublished"
+		  ) + $search_keys[$skey]["field_options"]; //get all status's
+		
 		if (!array_key_exists($options["searchKeycore_9"], $search_keys[$skey]["field_options"])) {
 			$options["searchKeycore_9"] = "-4";
 		}
@@ -141,63 +95,67 @@ foreach ($search_keys as $skey => $svalue) {
 }
 
 
-$tpl->assign('my_collections_list', $collection_list);
+$pager_row  = $_GET['pager_row'];
+$rows       = $_GET['rows'];
 
-$tpl->assign("eserv_url", APP_BASE_URL."eserv/");
+if (empty($pager_row))  $pager_row = 0;
+if (empty($rows))       $rows = APP_DEFAULT_PAGER_SIZE;
 
-$tpl->assign('search_keys', $search_keys);
+$urlDataOrderBy = array(
+    'cat'           =>  $_GET['cat'],
+    'search_keys'   =>  $_GET['search_keys'],
+    'rows'          =>  $rows,
+    'pager_row'     =>  $pager_row,
+);
+$urlnoSort = Misc::query_string_encode($urlDataOrderBy);
 
-$tpl->assign("roles_list", Auth::getDefaultRoles());
-$pager_row = Pager::getParam('pager_row_my_assigned');
-if (empty($pager_row)) {
-    $pager_row = 0;
-}
-$rows = Pager::getParam('rows');
-if (empty($rows)) {
-    $rows = APP_DEFAULT_PAGER_SIZE;
-}
+$urlData = array(
+    'cat'           =>  $_GET['cat'],
+    'search_keys'   =>  $_GET['search_keys'],
+    'sort_by'       =>  $_GET['sort_by'],
+    'sort_order'    =>  $_GET['sort_order'],
+);
+$urlnoOrder = Misc::query_string_encode($urlData);
 
-$status_list = Status::getAssocList();
-
-$grp_list = Group::getAssocListAll();
-if (is_numeric($grp_id)) {
-	$usr_list = Group::getUserAssocList($usr_id);
-} else {
-	$usr_list = User::getAssocList();
-}
 $bulk_workflows = WorkflowTrigger::getAssocListByTrigger("-1", 7); //get the bulk change workflows
-$tpl->assign("bulk_workflows", $bulk_workflows);
-$bulk_search_workflows = WorkflowTrigger::getAssocListByTrigger("-1", 
-	WorkflowTrigger::getTriggerId('Bulk Change Search')); 
-$tpl->assign("bulk_search_workflows", $bulk_search_workflows);
+$bulk_search_workflows = WorkflowTrigger::getAssocListByTrigger("-1", WorkflowTrigger::getTriggerId('Bulk Change Search')); 
 
-if (Misc::GETorPost("search_button") == "Search" && trim($options["searchKey0"]) != "") { //if search button was just pressed and all fields search has something in it then sort by relevance enforced
+ 
+// if search button was just pressed and all fields search 
+// has something in it then sort by relevance enforced
+if (Misc::GETorPost("search_button") == "Search" && trim($options["searchKey0"]) != "") {
 	$options["sort_by"] = "searchKey0";
 }
 
 if ($options["searchKey0"] != "" && (Misc::GETorPost("sort_by") == "" || $options["sort_by"] == "searchKey0")) {
 	$options["sort_order"] = 1;
+} elseif (!is_numeric($options["sort_order"])) {
+	$options["sort_order"] = 0;	
 }
 
-$tpl->assign("options", $options);
-$tpl->assign("grp_list", $grp_list);
-$tpl->assign("status_list", $status_list);
-$tpl->assign("usr_list", $usr_list);
-$tpl->assign("isMemberOf_list", $collection_assoc_list);
-//$assigned_items= Record::getAssigned(Auth::getUsername(), $pager_row, $rows, $sort_by, $sort_by_dir, $isMemberOf);
 
-//$assigned_items = Record::getListing($options, array("Editor", "Approver"), $pager_row, $rows, $options["sort_by"]);
 $assigned_items = Record::getListing($options, array("Editor", "Approver"), $pager_row, $rows, $sort_by);
 Record::getParentsByPids($assigned_items['list']);
-/*foreach ($assigned_items['list'] as $aikey => $aidata) {
-	$assigned_items['list'][$aikey]['parents'] = Record::getParents($aidata['pid']);
-}*/
 $assigned_items['list'] = Citation::renderIndexCitations($assigned_items['list']);
-$tpl->assign('my_assigned_items_list', $assigned_items['list']);
-$tpl->assign('my_assigned_items_info', $assigned_items['info']);
 
-$tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
-$tpl->registerNajax( NAJAX_Client::register('NajaxBackgroundProcessList', APP_RELATIVE_URL.'najax_services/generic.php'));
+$tpl->assign("isUser",                  $username);
+$tpl->assign("isAdministrator",         $isAdministrator);
+
+$tpl->assign("bulk_workflows",          $bulk_workflows);
+$tpl->assign("bulk_search_workflows",   $bulk_search_workflows);
+
+$tpl->assign("page_url_order",          $_SERVER['PHP_SELF'].'?'.$urlnoSort);
+$tpl->assign("page_url",                $_SERVER['PHP_SELF'].'?'.$urlnoOrder);
+
+$tpl->assign('myFezView',               "MAI");
+$tpl->assign('extra_title',             "Assigned Unpublished Items");
+$tpl->assign('search_keys',             $search_keys);
+$tpl->assign("eserv_url",               APP_BASE_URL."eserv/");
+$tpl->assign("options",                 $options);
+$tpl->assign("status_list",             Status::getAssocList());
+$tpl->assign('my_assigned_items_list',  $assigned_items['list']);
+$tpl->assign('items_info',              $assigned_items['info']);
+
 $tpl->assign("active_nav", "my_fez");
 $tpl->displayTemplate();
 

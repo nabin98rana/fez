@@ -444,12 +444,13 @@ background-color: [[$smarty.const.APP_LIGHT_COLOR]];
 
 .outline
 {
-width:99%;
-padding: 2px 2px 2px 2px;
-margin: 0px 2px 2px 2px;
-border: 1px solid [[$smarty.const.APP_CELL_COLOR]];
-background-color: white;
+    /* width:99%; */
+    /* padding: 2px 2px 2px 2px; */
+    /* margin: 0px 2px 2px 2px; */
+    border: 1px solid [[$smarty.const.APP_CELL_COLOR]];
+    background-color: white;
 }
+
 .msg {
 color: black;
 background-color: [[$smarty.const.APP_CELL_COLOR]];
@@ -472,150 +473,186 @@ vertical-align: middle;
 }
 
 .table_label_cell {
-background-color: [[$smarty.const.APP_CELL_COLOR]];
-font-family: Verdana, Arial, Helvetica, sans-serif;
-font-style: normal;
-font-weight: bold;
-font-size: 11px;
-padding: 3px;
-vertical-align: middle;
-width: 20%;
+    background-color: [[$smarty.const.APP_CELL_COLOR]];
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 11px;
+    padding: 3px;
+    vertical-align: middle;
+    width: 20%;
 }
 
 .table_value_cell {
-background-color: [[$smarty.const.APP_LIGHT_COLOR]];
-font-family: Verdana, Arial, Helvetica, sans-serif;
-font-style: normal;
-font-weight: normal;
-font-size: 11px;
-padding: 3px;
-vertical-align: middle;
-width: 40%;
+    background-color: [[$smarty.const.APP_LIGHT_COLOR]];
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 11px;
+    padding: 3px;
+    vertical-align: middle;
+    width: 40%;
 }
 
 .listing_row_light {
-background-color: #DDDDDD;
+    background-color: #DDDDDD;
 }
 
 .listing_row_dark {
-background-color: #CACACA;
+    background-color: #CACACA;
 }
 
 
 .citation_preview {
-padding: 3px;
-border: 1px solid [[$smarty.const.APP_DARK_COLOR]];
-background-color: [[$smarty.const.APP_LIGHT_COLOR]];
+    padding: 3px;
+    border: 1px solid [[$smarty.const.APP_DARK_COLOR]];
+    background-color: [[$smarty.const.APP_LIGHT_COLOR]];
 }
 
 div.fez_form {
-padding: 3px;
-border: 1px solid [[$smarty.const.APP_CELL_COLOR]];
-background-color: [[$smarty.const.APP_LIGHT_COLOR]];
+    padding: 3px;
+    border: 1px solid [[$smarty.const.APP_CELL_COLOR]];
+    background-color: [[$smarty.const.APP_LIGHT_COLOR]];
 }
 
 div.fez_form_item {
-display: table-row;
-border: 1px solid [[$smarty.const.APP_LIGHT_COLOR]];
+    display: table-row;
+    border: 1px solid [[$smarty.const.APP_LIGHT_COLOR]];
 }
 
 .fez_form label {
-display: table-cell;
-background-color: [[$smarty.const.APP_CELL_COLOR]];
-font-family: Verdana, Arial, Helvetica, sans-serif;
-font-style: normal;
-font-weight: bold;
-font-size: 11px;
-padding: 5px;
-width: 200px;
-vertical-align: top;
+    display: table-cell;
+    background-color: [[$smarty.const.APP_CELL_COLOR]];
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 11px;
+    padding: 5px;
+    width: 200px;
+    vertical-align: top;
  }
  
 span.fez_form_input {
-display: table-cell;
-background-color: [[$smarty.const.APP_LIGHT_COLOR]];
-font-family: Verdana, Arial, Helvetica, sans-serif;
-font-style: normal;
-font-size: 11px;
-padding: 2px;
+    display: table-cell;
+    background-color: [[$smarty.const.APP_LIGHT_COLOR]];
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-style: normal;
+    font-size: 11px;
+    padding: 2px;
 }
 
 ul.my_views_tab {
-width:100%;
-padding:0 0 23px 1em;
-margin:0;
-list-style-type:none;
-line-height:1em;
+    width:100%;
+    /* padding:0 0 23px 1em; */
+    margin:0;
+    list-style-type:none;
+    line-height:1em;
 }
 
 ul.my_views_tab li {
-display:inline;
-margin:0;
-padding:0;
+    display:inline;
+    margin:0;
+    padding:0;
 }
 
 ul.my_views_tab a, ul.my_views_tab a:visited, ul.my_views_tab a:active {
-float:left;
-color:#444;
-text-decoration:none;
-font-weight:bold;
-font-size: 12px;
-background:[[$smarty.const.APP_LIGHT_COLOR]];
-margin:0;
-padding:0.25em 1em;
-border-left:1px solid #fff;
-border-top:1px solid #fff;
-border-right:1px solid [[$smarty.const.APP_CELL_COLOR]];
+    float:left;
+    color:#444;
+    text-decoration:none;
+    font-weight:bold;
+    font-size: 12px;
+    background:[[$smarty.const.APP_LIGHT_COLOR]];
+    margin:0;
+    padding:0.25em 1em;
+    border-left:1px solid #fff;
+    border-top:1px solid #fff;
+    border-right:1px solid [[$smarty.const.APP_CELL_COLOR]];
 }
 
 ul.my_views_tab a:hover,
 ul.my_views_tab a.my_views_tab_here
 {
-background:[[$smarty.const.APP_CELL_COLOR]];
+    background:[[$smarty.const.APP_CELL_COLOR]];
 }
 
 div.cv_selection, .light_background
 {
-background:[[$smarty.const.APP_LIGHT_COLOR]];
+    background:[[$smarty.const.APP_LIGHT_COLOR]];
 }
 
 .compare_records_left_side {
-background-color: [[$smarty.const.APP_LIGHT_COLOR]];
+    background-color: [[$smarty.const.APP_LIGHT_COLOR]];
 }
 
 .dark_background {
-background-color: [[$smarty.const.APP_DARK_COLOR]];
+    background-color: [[$smarty.const.APP_DARK_COLOR]];
 }
+
+/*
+ * My Fez
+ */
+.my_fez_table td {
+    font-size: .70em;
+}
+ 
+.my_fez_table th {
+    background-color:#EFEFEF;
+}
+
+.my_fez_table td, .my_fez_table th {
+    border:1px solid #CCCCCC;
+    border-spacing:0px;
+    padding:5px;
+}
+
+.my_fez_table {
+    border-collapse:collapse;
+}
+
+.my_fez_table_footer {
+    background-color:#EFEFEF;
+    padding: 0px;
+    border: none;
+    font-family:Verdana,Arial,Helvetica,sans-serif;
+    font-weight:normal;
+    font-style:normal;
+    font-size: 1.5em;
+}
+
+.my_fez_table_footer td {
+    border: none;
+}
+
 
 /*
  * Advanced Search
  */
 .search_fields th {
-padding: 4px;
+    padding: 4px;
 }
 	
 .search_fields td {
-padding: 4px;
+    padding: 4px;
 }
 
 .search_fields th {
-padding:4px;
+    padding:4px;
 }
 
 th.search_heading {
-border-top:1px dashed [[$smarty.const.APP_DARK_COLOR]];
-padding-bottom:0.5em;
-padding-right:0.5em;
-padding-top:0.5em;
-text-align:right;
-font-size: .75em;
+    border-top:1px dashed [[$smarty.const.APP_DARK_COLOR]];
+    padding-bottom:0.5em;
+    padding-right:0.5em;
+    padding-top:0.5em;
+    text-align:right;
+    font-size: .75em;
 }
 
 td.search_multi_input {
-border-left:1px dashed [[$smarty.const.APP_DARK_COLOR]];
-border-top:1px dashed [[$smarty.const.APP_DARK_COLOR]];
-padding:0.5em;
-font-size: .75em;
+    border-left:1px dashed [[$smarty.const.APP_DARK_COLOR]];
+    border-top:1px dashed [[$smarty.const.APP_DARK_COLOR]];
+    padding:0.5em;
+    font-size: .75em;
 }
 
 #paging-box {
@@ -662,11 +699,11 @@ font-size: .75em;
 }
 
 #result-box h2 {
-		background: #317DCE url([[$smarty.const.APP_RELATIVE_URL]]images/bg-boxes-top.png) top left no-repeat;
-		color: white;
-		font-size: 18px;
-		padding: 20px 0 5px 15px;
-		text-align: left;
+	background: #317DCE url([[$smarty.const.APP_RELATIVE_URL]]images/bg-boxes-top.png) top left no-repeat;
+	color: white;
+	font-size: 18px;
+	padding: 20px 0 5px 15px;
+	text-align: left;
 }
 
 #order-box, #workflows-box {

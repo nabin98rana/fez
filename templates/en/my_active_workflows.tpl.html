@@ -1,20 +1,22 @@
 <div class="outline">
 
+<br />
 <div class="default">This is a list of your active workflows.  Click on a workflow to resume it.</div>
 
 <form name="form1" method="post">
-<table class="listing">
-<tr bgcolor="{$cell_color}" class="tableheader">
-{* <td class="checkbox_column"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form,'items[]');" class="button"/></td> *}
-<td class="default tableheader" >Date</td>
-<td class="default tableheader" >Workflow</td>
-<td class="default tableheader" ></td>
+
+<table class="my_fez_table">
+<tr bgcolor="{$cell_color}">
+{* <th class="checkbox_column"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form,'items[]');" class="button"/></td> *}
+<th class="default tableheader" >Date</td>
+<th class="default tableheader" >Workflow</td>
+<th class="default tableheader" ></td>
 </tr>
 
 
 {section name="iii" loop=$list}
 {cycle values=$cycle assign="row_color"}
-<tr bgcolor="{$row_color}" class="default">
+<tr>
 {* <td><input type="checkbox" name="items[]" value="{$list[iii].wfses_id}"/></td> *}
 <td>{$list[iii].wfses_date}</td>
 <td><a href="{$rel_url}workflow/resume.php?id={$list[iii].wfses_id}">{$list[iii].wfses_listing}</a></td>

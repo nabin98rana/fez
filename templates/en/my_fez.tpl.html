@@ -21,51 +21,32 @@ if (!isElementVisible(basic_element)) {
 </script>
 {/literal}
 
-<table width="100%" class="default">
-<tr>
-  <td>Actions 
-  <a href="{$rel_url}workflow/new.php?href={$smarty.server.REQUEST_URI}">Create</a> 
-  | <a href="{$rel_url}workflow/update.php?href={$smarty.server.REQUEST_URI}">Edit</a> 
-  | <a href="{$rel_url}workflow/export.php?href={$smarty.server.REQUEST_URI}">Export</a>
-  </td>
-  </tr>
-  </table>
-  </td>
-</tr>
-<tr>
-  <td>
-  <table width="98%" cellpadding="0" cellspacing="0"><tr><td>
+    {if $isAdministrator }
+    <p class="default">Actions <a href="{$rel_url}workflow/new.php?href={$smarty.server.REQUEST_URI}">Create</a></p>
+    {/if}
+    
     <ul class="my_views_tab">
-    <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_fez.php'}class="my_views_tab_here"{/if} 
-    		href="{$rel_url}my_fez.php">Unpublished Items</a></li> 
-    <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_created_items.php'}class="my_views_tab_here"{/if}
-    	href="{$rel_url}my_created_items.php">My Created Items</a></li> 
-    <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_collections.php'}class="my_views_tab_here"{/if}
-    	href="{$rel_url}my_collections.php">Collections</a></li> 
-    <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_active_workflows.php'}class="my_views_tab_here"{/if}
-    	href="{$rel_url}my_active_workflows.php">Active Workflows</a></li> 
-    <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_processes.php'}class="my_views_tab_here"{/if}
-    	href="{$rel_url}my_processes.php">Background Processes</a></li> 
-    </ul>  
-{if $myFezView == "MAI"}
-{include file="my_assigned_items.tpl.html"}
-{elseif $myFezView == "MCL"}
-{include file="my_collections.tpl.html"}
-{* records where the current user has role = creator  *}
-{elseif $myFezView == "MCI"}
-{include file="my_created_items.tpl.html"}
-{elseif $myFezView == "MBP"}
-{include file="my_background_processes.tpl.html"}
-{elseif $myFezView == "MWF"}
-{include file="my_active_workflows.tpl.html"}
-{else}
-{include file="my_assigned_items.tpl.html"}
-{/if}
-</td></tr></table>
-  </td>
-</tr>
-
-</table>
+        <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_collections.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_collections.php">My Collections</a></li>
+        <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_created_items.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_created_items.php">My Created Items</a></li>
+        {if $isAdministrator }<li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_fez.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_fez.php">Unpublished Items</a></li>{/if}
+        {if $isAdministrator }<li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_active_workflows.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_active_workflows.php">Active Workflows</a></li>{/if}
+        {if $isAdministrator }<li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_processes.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_processes.php">Background Processes</a></li>{/if}
+    </ul>
+    
+    {if $myFezView == "MAI"}
+    {include file="my_assigned_items.tpl.html"}
+    {elseif $myFezView == "MCL"}
+    {include file="my_collections.tpl.html"}
+    {* records where the current user has role = creator  *}
+    {elseif $myFezView == "MCI"}
+    {include file="my_created_items.tpl.html"}
+    {elseif $myFezView == "MBP"}
+    {include file="my_background_processes.tpl.html"}
+    {elseif $myFezView == "MWF"}
+    {include file="my_active_workflows.tpl.html"}
+    {else}
+    {include file="my_assigned_items.tpl.html"}
+    {/if}
 
 {include file="app_info.tpl.html"}
 {include file="footer.tpl.html"}
