@@ -10,6 +10,8 @@ table.nav-table-top td {
 	font-family: Verdana, Arial, sans-serif;
 	font-size: 8pt;
 	padding: 0px;
+	color: #FFFFFF;
+	background-image: url("../images/gradient.gif");
 	background-repeat: repeat-x;
 	width: 100%;
 	border-top: 1px solid #99BEFF;
@@ -18,7 +20,8 @@ table.nav-table-top td {
 }
 
 table.nav-table-top a, table.nav-table-top a:visited {
-	color: #252525;
+	/* color: #252525; */
+	color: #FFFFFF;
 }
 
 table.nav-table-top a:hover {

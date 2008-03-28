@@ -498,8 +498,7 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 
 		{/if}		
 		{if ($browse_heading == "") ||  ($browse_type != "" && ($smarty.get.author != "" || $smarty.get.author_id != "")) || ($browse_type != "" & $smarty.get.depositor != "") || ($browse_type != "" & $smarty.get.year != "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)} 
-          {if $isCreator != true}
-		{/if}
+        
 		{if $spell_suggest != ""}
 		  <tr>
 		    <td colspan="2">

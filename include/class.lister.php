@@ -659,8 +659,6 @@ class Lister
 
 		// Try to make sense of the query string, and push through the relevant bits for page formatting.
 		$queryStringReduced = $_SERVER['QUERY_STRING'];
-		
-		//echo $queryStringReduced . '<br />';
 		$queryStringReduced = preg_replace("/(.*)(?:collection|community){1}_pid=(?:[A-Za-z]+):(?:[0-9]+)(?:&?)(.*)/i", "$1$2", $queryStringReduced);	// Strip collection or community
 		$queryStringReduced = preg_replace("/(.*)rows=\d+&pager_row=\d+/i", "$1", $queryStringReduced);	// Strip rows && pager_row parts
 		if (substr($queryStringReduced, -1, 1) == "&") {

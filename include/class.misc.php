@@ -2772,6 +2772,34 @@ function create_dirs($path)
   }
 }
 
+
+    function query_string_encode($query, $exclude = array(), $parent = '') 
+    {
+        $params = array();
+        foreach ($query as $key => $value) {
+            $key = urlencode($key);
+            if ($parent) {
+              $key = $parent .'['. $key .']';
+            }
+            
+            if (in_array($key, $exclude)) {
+                continue;
+            }
+            
+            if (is_array($value)) {
+              $params[] = Misc::query_string_encode($value, $exclude, $key);
+            }
+            else 
+            {
+                if(!empty($value)) {
+                    $params[] = $key .'='. urlencode($value);
+                }
+            }
+        }
+        
+        return implode('&', $params);
+    }
+
   
 } // end of Misc class
 

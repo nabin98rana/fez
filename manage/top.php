@@ -47,4 +47,4 @@ $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 
 $tpl->displayTemplate();
-?> 
+?>
