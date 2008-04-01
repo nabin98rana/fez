@@ -85,6 +85,7 @@ if ($_POST["action"] !== "prompt" && $_POST["action"] !== "index") {
     } elseif (!empty($_POST["undelete"])) {
         $index_type = Reindex::INDEX_TYPE_UNDELETE;
     }    
+    
     if ($_POST["action"] == "prompt") {
         $display_screen = "PROMPT";
     } elseif ($_POST["action"] == "index") {
@@ -119,9 +120,9 @@ $options = Pager::saveSearchParams();
 $tpl->assign("options", $options);
 
 if ($_POST["action"] == "prompt" || $_POST["action"] == "index") {
+    
     if ($index_type == Reindex::INDEX_TYPE_FEDORAINDEX) {
         $details = $reindex->getMissingList($pagerRow, $rows, $terms);
-//print_r($details);
     } elseif ($index_type == Reindex::INDEX_TYPE_REINDEX) {
         $details = $reindex->getFullList($pagerRow, $rows, $terms);
     } elseif ($index_type == Reindex::INDEX_TYPE_UNDELETE) {
@@ -129,19 +130,13 @@ if ($_POST["action"] == "prompt" || $_POST["action"] == "index") {
     }
     
 	$tpl->assign("list", $details['list']);
-	$tpl->assign("list_info", $details['info']);		
-	//        return $details; 
+	$tpl->assign("list_info", $details['info']);
 	
 	$status_list = Status::getAssocList();
-	//$communities = Community::getList(0, 999999);
-	//$communities_list = Misc::keyPairs($communities['list'], 'rek_pid', 'rek_title');
-	//$communities_list = Misc::stripOneElementArrays($communities_list);
 	$communities_list = Community::getCreatorListAssoc();
+	
 	$tpl->assign('status_list', $status_list);
 	$tpl->assign('communities_list', $communities_list);
-	//if (is_array($communities_list) && isset($communities_list['rek_pid'])) {
-	//	$tpl->assign('communities_list_selected', $communities_list['rek_pid']);
-	//}
 	$tpl->registerNajax(NAJAX_Client::register('SelectReindexInfo', APP_RELATIVE_URL.'ajax.php'));
 	$tpl->onload("selectCommunity(getForm('reindex_form'), 'community_pid');");
 

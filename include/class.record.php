@@ -424,10 +424,7 @@ class Record
         if (empty($pid)) {
             return -1;
         }
-//		$exclude_str = implode("', '", $exclude_list);
-//		$specify_str = implode("', '", $specify_list);
-
-
+        
 		// get list of the Related 1-M search keys, delete those first, then delete the 1-1 core table entries
 		$sekDet = Search_Key::getList();
 		foreach ($sekDet as $skey => $sval) {
@@ -455,7 +452,7 @@ class Record
         //
         // KJ: remove from fulltext index
         //
-        if (APP_FULLTEXT_INDEX == "solr") {
+        if (APP_FULLTEXT_INDEX == "solr" && APP_SOLR_SWITCH == "ON" ) {
         	if ($dsDelete == 'keep') {
         		// if set to 'keep', this will trigger a re-index
         		
@@ -469,53 +466,6 @@ class Record
         	}
         }
         
-		// what about things that are indexed that don't have search keys.. should they be in the old index, die or move?
-/*
-        $stmt = "DELETE FROM
-                    " . APP_TABLE_PREFIX . "record_matching_field
-				 WHERE rek_pid = '" . $pid . "'";
-		if ($dsID != '') {
-			$stmt .= " and rek_dsid = '".$dsID."' ";
-		} else {
-			if ($dsDelete=='keep') {
-				$stmt .= " and (rek_dsid IS NULL or rek_dsid = '') "; // we don't want to delete the datastream fezacml indexes unless we are deleteing the whole object
-			}
-		}
-		if ($dsDelete=='keep') {
-			$stmt .= " and (rek_xsdmf_id not in (SELECT ".APP_SQL_CACHE."  distinct(xsdmf_id) from " . APP_TABLE_PREFIX . "xsd_display_matchfields where xsdmf_element = '!datastream!ID')";
-		}
-		if ($specify_str != "") {
-			$stmt .= " and rek_xsdmf_id in (SELECT ".APP_SQL_CACHE."  distinct(x2.xsdmf_id) from " . APP_TABLE_PREFIX . "xsd_display_matchfields x2 inner join " . APP_TABLE_PREFIX . "xsd_display d1 on x2.xsdmf_xdis_id=d1.xdis_id inner join " . APP_TABLE_PREFIX . "xsd as xsd1 on (xsd1.xsd_id = d1.xdis_xsd_id and xsd1.xsd_title in ('".$specify_str."'))) ";
-			if ($dsDelete=='keep') {
-				$stmt .= ")";
-			}
-		} elseif ($exclude_str != "") {
-			$stmt .= " and rek_xsdmf_id in (SELECT ".APP_SQL_CACHE."  distinct(x2.xsdmf_id) from " . APP_TABLE_PREFIX . "xsd_display_matchfields x2 inner join " . APP_TABLE_PREFIX . "xsd_display d1 on x2.xsdmf_xdis_id=d1.xdis_id inner join " . APP_TABLE_PREFIX . "xsd as xsd1 on (xsd1.xsd_id = d1.xdis_xsd_id and xsd1.xsd_title not in ('".$exclude_str."'))) ";
-			if ($dsDelete=='keep') {
-				$stmt .= ")";
-			}
-		} else {
-			if ($dsDelete=='keep') {
-				$stmt .= ")";
-			}
-		}
-
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-        }
-
-        if (empty($dsID)) {
-            AuthIndex::clearIndexAuth($pid);
-            if ($fteindex) {
-                FulltextIndex::removeByPid($pid);
-            }
-        } else {
-            if ($fteindex) {
-                FulltextIndex::removeByDS($pid,$dsID);
-            }
-        }
-*/
     }
 
     /**
@@ -551,8 +501,6 @@ class Record
      */
     function removeIndexRecordByXSDMF_ID($pid, $xsdmf_id)
     {
-
-
 		$sekDet = Search_Key::getDetailsByXSDMF_ID($xsdmf_id);
 		if (count($sekDet) != 1) { //if couldnt find  a search key, we won't be able to remove this from the index 
 			return -1;
@@ -564,7 +512,12 @@ class Record
 			$sekTableName = "";
 		}
 
-		if ($sekDet['sek_relationship'] == 1) { //should only be neccessary to delete in this function for non-core things, as they can just be updated on the insert. If a full delete the other main function would be being used so this should be safe.
+		/* 
+		 * Should only be neccessary to delete in this function for non-core things, 
+		 * as they can just be updated on the insert. 
+		 * If a full delete the other main function would be being used so this should be safe.
+		 */
+		if ($sekDet['sek_relationship'] == 1) { 
 	        $stmt = "DELETE FROM
 	                    " . APP_TABLE_PREFIX . "record_search_key".$sekTableName."
 					 WHERE rek".$sekTableName."_pid = '" . $pid . "' and rek".$sekDet['sek_title_db']."_xsdmf_id=".$xsdmf_id;
@@ -572,30 +525,19 @@ class Record
 	        if (PEAR::isError($res)) {
 	            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 	            return -1;
-	        } else {
-	            //
-				// KJ: update lucene index (get document into cache, remove field content)
-				//
-				if (APP_FULLTEXT_INDEX == "solr") {
-
-		        	FulltextQueue::singleton()->add($pid);
-
-		        }
-	            return $pid;
 	        }
-		} else {
-		    
-		    //
-			// KJ: update lucene index (get document into cache, remove field content)
-			//
-			if (APP_FULLTEXT_INDEX == "solr") {
-
-	        	FulltextQueue::singleton()->add($pid);
-
-	        }
-		    
-		    return $pid;
 		}
+		
+		//
+		// KJ: update lucene index (get document into cache, remove field content)
+		//
+		if (APP_FULLTEXT_INDEX == "solr" && APP_SOLR_SWITCH == "ON") {
+
+        	FulltextQueue::singleton()->add($pid);
+
+        }
+	    
+	    return $pid;
     }
 
     /**
@@ -610,7 +552,6 @@ class Record
      */
     function insertIndexMatchingField($pid, $dsID='', $xsdmf_id, $value)
     {
-
 		$sekDet = Search_Key::getDetailsByXSDMF_ID($xsdmf_id);
 		$data_type = $sekDet['sek_data_type'];
         $xsdsel_id = '';
@@ -629,17 +570,10 @@ class Record
             }
         }
 
-/*		$sekDet = Search_Key::getList();
-		foreach ($sekDet as $skey => $sval) {
-			if ($sval['sek_relationship'] == 1) { // if is a 1-M needs its own delete sql, otherwise if a 0 (1-1) the core delete will do it
-				$sekTable = Search_Key::makeSQLTableName($sval['sek_title']);
-*/
-
-
 		if ($sekDet['sek_id'] == "") { //if couldnt find  a search key, we won't insert this into the index 
 			return -1;
 		}
-//		print_r($sekDet);
+		
         /* rek_varchar updates featuring extra-long strings cause the query below to die. We'll truncate
            the field for now, but this obviously needs to be done a little better in the future. */
         if ($sekDet['sek_data_type'] == 'varchar') {
@@ -664,10 +598,14 @@ class Record
         	$value = "'".Misc::escapeString(trim($value)) . "'";
 		}
 		$stmt .= $value . ")";
-		if (APP_SQL_DBTYPE == "mysql") { //on duplicate key only works with mysql, but will save time over the else statement below.. maybe
+		
+		// on duplicate key only works with mysql, 
+		// but will save time over the else statement below.. maybe
+		if (APP_SQL_DBTYPE == "mysql") { 
 			$stmt .= " ON DUPLICATE KEY UPDATE rek_".$sekDet['sek_title_db']."_xsdmf_id = ".$xsdmf_id.", rek_".$sekDet['sek_title_db']." = ".$value;
 		} else { // this will work with postgresql, might be better to do seperate queries for general dbs if the pgsql way is not ansi
-	        if ($sekDet['sek_relationship'] == 0) { //only check for dupes on core 1-1 table inserts as the others could have the same value legitimatly (eg two j smith author strings)
+	        
+		    if ($sekDet['sek_relationship'] == 0) { //only check for dupes on core 1-1 table inserts as the others could have the same value legitimatly (eg two j smith author strings)
 				$stmt = "IF EXISTS( SELECT * FROM " . APP_TABLE_PREFIX . "record_search_key".$sekTableName."
 				  WHERE rek_pid = '".$pid."' )
 				  UPDATE " . APP_TABLE_PREFIX . "record_search_key".$sekTableName."
@@ -684,8 +622,9 @@ class Record
 				 VALUES
 				  (".$pid.", ".$xsdmf_id.", ".$value.")";
 			}
+			
 		}
-//		echo $stmt;
+		
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -695,7 +634,7 @@ class Record
             //
 	        // KJ: update fulltext index
 			//
-			if (APP_FULLTEXT_INDEX == "solr") {
+			if (APP_FULLTEXT_INDEX == "solr" && APP_SOLR_SWITCH == "ON") {
 				FulltextQueue::singleton()->add($pid);
 	        }
             
@@ -747,7 +686,7 @@ class Record
         //
         // KJ/ETH
 		//
-		if (APP_FULLTEXT_INDEX == "solr") {
+		if (APP_FULLTEXT_INDEX == "solr" && APP_SOLR_SWITCH == "ON") {
         	//FulltextQueue::singleton()->add($pid);
         }
         
@@ -3541,7 +3480,6 @@ class RecordGeneral
     function setIndexMatchingFields($dsID='', $fteindex = true)
     {
         // careful what you do with the record object - don't want to use the index while reindexing
-
         $pid = $this->pid;
         $xdis_id = $this->getXmlDisplayId();
         if (!is_numeric($xdis_id)) {
@@ -3551,8 +3489,11 @@ class RecordGeneral
         $array_ptr = array();
         $xsdmf_array = $display->getXSDMF_Values($pid);
         
-        Record::removeIndexRecord($pid, '', 'keep', array(), array(), $fteindex); //CK 22/5/06 = added last 2 params to make it keep the dsID indexes for Fezacml on datastreams // remove any existing index entry for that PID // CK added 9/1/06 - still working on this
-//        print_r($xsdmf_array); exit;
+        //CK 22/5/06 = added last 2 params to make it keep the dsID indexes for Fezacml on datastreams 
+        // remove any existing index entry for that PID 
+        // CK added 9/1/06 - still working on this
+        Record::removeIndexRecord($pid, '', 'keep', array(), array(), $fteindex); 
+        
         foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
             if (!is_array($xsdmf_value) && !empty($xsdmf_value) && (trim($xsdmf_value) != "")) {
                 $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);

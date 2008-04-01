@@ -306,50 +306,6 @@ class Reindex
 	}
 	
 
-/*    function getFullList($page, $max, $terms)
-    {
-        $start = $page * $max;
-        $this->terms = $terms;
-        $start = $max * $page;
-        $return = array();
-        $detail = $this->getNextFedoraObject();
-        
-        for ($ii = 0; !empty($detail) && count($return) < $max ; $detail = $this->getNextFedoraObject()) {
-            if (Reindex::inIndex($detail['pid'])) {
-                if (++$ii > $start) {
-                    array_push($return, $detail);
-                }
-            }
-        } 
-
-        if (count($return) < $max) {
-            $total_rows = $start + count($return);
-        } else {
-            $total_rows = $start+$max+1;
-        }
-        if (($start + $max) < $total_rows) {
-            $total_rows_limit = $start + $max;
-        } else {
-           $total_rows_limit = $total_rows;
-        }
-        $total_pages = ceil($total_rows / $max);
-        $last_page = $total_pages - 1;
-        return array(
-            "list" => $return,
-            "info" => array(
-                "current_page"  => $page,
-                "start_offset"  => $start,
-                "end_offset"    => $start + ($total_rows_limit),
-                "total_rows"    => $total_rows,
-                "total_pages"   => $total_pages,
-                "prev_page" => ($page == 0) ? "-1" : ($page - 1),
-                "next_page"     => ($page == $last_page) ? "-1" : ($page + 1),
-                "last_page"     => $last_page
-            )
-        );  
-    }
-*/
-
 	function getDeletedList($page = 0, $max=10, $terms="*")
 	{
 		return $this->getMissingList($page, $max, $terms, 'D');
@@ -373,14 +329,6 @@ class Reindex
 			return -1;
 		}
 		return $res;
-//        $fezPIDs = array();      // Array for storing the processed results.
-        // Step through the results.
-/*        foreach ($res as $PIDarray) {
-            foreach ($PIDarray as $PIDarrayVal) {
-                array_push($fezPIDs, $PIDarrayVal);
-            }            
-        }*/
-//        return $fezPIDs;
     }
 
     // This probably wants a re-write at some point too. But at least now we can trigger it ...
@@ -448,22 +396,6 @@ class Reindex
 	        }
 		}		
 		
-/*        for ($detail = $this->getNextFedoraObject(); !empty($detail); $detail = $this->getNextFedoraObject()) {
-            if (!empty($this->bgp)) {
-                $this->bgp->setProgress(++$ii);
-            }
-            if (!Reindex::inIndex($detail['pid'])) {
-                if (!empty($this->bgp)) {
-                    $this->bgp->setStatus("Adding: '".$detail['pid']."' '".$detail['title']."'");
-                }
-                $params['items'] = array($detail['pid']);
-                Reindex::indexFezFedoraObjects($params);                
-            } else {
-                if (!empty($this->bgp)) {
-                    $this->bgp->setStatus("Skipping: '".$detail['pid']."' '".$detail['title']."'");
-                }
-            }
-        } */
     }
 
     function getIndexPIDCount() {
@@ -596,14 +528,14 @@ class Reindex
 		$collection_pid = @$params["collection_pid"];
         $rebuild = @$params["rebuild"];
         $index_type = @$params["index_type"];
-		
-
+        
 		foreach ($items as $pid) {
 	        if ($index_type == Reindex::INDEX_TYPE_UNDELETE) {
 				Record::markAsActive($pid, false);
 				History::addHistory($pid, null, "", "", true, 'Undeleted');
 			}
     		$rebuild_this = $rebuild;
+    		
             // determine if the record is a Fez record
             if (!Fedora_API::datastreamExists($pid, 'FezMD')) {
 				if ($collection_pid != "") {
@@ -622,12 +554,14 @@ class Reindex
 				}
                 $rebuild_this = true;  // always rebuild non-fez objects
 			}
+			
             if ($rebuild_this == true) {
                 // need to rebuild presmd and image datastreams
                 // get list of datastreams and iterate over them
                 $ds = Fedora_API::callGetDatastreams($pid);
                 // delete any fez derived datastreams that might be hanging around for no reason.  We'll 
                 // recreate them later if they are still needed
+                
                 foreach ($ds as $dsKey => $dsTitle) {
                     $dsIDName = $dsTitle['ID'];
                     if ($dsTitle['controlGroup'] == "M" 
@@ -638,6 +572,7 @@ class Reindex
                         Fedora_API::callPurgeDatastream($pid, $dsIDName);
                     } 
                 }
+                
                 foreach ($ds as $dsKey => $dsTitle) {
                     $dsIDName = $dsTitle['ID'];
                     if ($dsTitle['controlGroup'] == "M" 
@@ -652,6 +587,7 @@ class Reindex
                         $handle = fopen(APP_TEMP_DIR.$new_dsID, "w");                     
                         $urlReturn = Misc::ProcessURL($urldata, false, $handle);                        
                         //fwrite($handle, $urlReturn[0]);
+                        
                         fclose($handle);                        
                         if ($new_dsID != $dsIDName) {
                             Error_Handler::logError($pid.": ".$dsIDName.": need to repair dsID");
@@ -669,9 +605,11 @@ class Reindex
                     }
                 }
             }
+            
             Record::propagateExistingPremisDatastreamToFez($pid);
 			Record::setIndexMatchingFields($pid, '', $rebuild_this);
 		}
+		
         return true;
     }
 

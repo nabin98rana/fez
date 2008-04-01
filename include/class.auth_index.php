@@ -135,6 +135,7 @@ class AuthIndex {
             // We are already recursing 
             $rules_changed = true;
         }
+        
         if ($rules_changed) {
             AuthIndex::clearIndexAuth($pid);
             $stmt = "INSERT INTO ".$dbtp."auth_index2 (authi_pid,authi_role,authi_arg_id) VALUES ".$values." ";
@@ -151,11 +152,13 @@ class AuthIndex {
                 return -1;
             }
             
-            //
-            // KJ: Lucene re-index object because security has changed            
-            //
-            Logger::debug(">>>>> AuthIndex::setIndexAuthBGP --> update lucene security index");       
-            FulltextQueue::singleton()->add($pid);
+            if( APP_SOLR_SWITCH == "ON" ) {
+                //
+                // KJ: Lucene re-index object because security has changed            
+                //
+                Logger::debug(">>>>> AuthIndex::setIndexAuthBGP --> update lucene security index");       
+                FulltextQueue::singleton()->add($pid);
+            }
             
             // get children and update their indexes.
             $rec = new RecordGeneral($pid);
@@ -168,14 +171,16 @@ class AuthIndex {
             foreach ($children as $child_pid) {
                 AuthIndex::setIndexAuthBGP($child_pid, $recurse, false);
                 
-                // KJ/ETH: fulltext indexing of $pid should automatically
-                // recurse to children                
-            	FulltextQueue::singleton()->add($child_pid);
+                if( APP_SOLR_SWITCH == "ON" ) {
+                    // KJ/ETH: fulltext indexing of $pid should automatically
+                    // recurse to children                
+                	FulltextQueue::singleton()->add($child_pid);
+                }
             }
-//            if (!empty($children)) {
+            
             $this->bgp->setStatus("Finished Index Auth for ".$title);
-//            }
         }
+        
         if ($topcall) {
             $this->cleanIndex();
         }
@@ -188,114 +193,31 @@ class AuthIndex {
        	$dbtp = APP_TABLE_PREFIX;
 		$usr_id = Auth::getUserID();
 		if (!Auth::isAdministrator() && (is_numeric($usr_id))) {
-      $stmt = "SELECT
-                   authi_role
-                 FROM ";
-
-      	$stmt .=     $dbtp . "auth_index2 inner join " . 
-                    $dbtp . "auth_rule_group_users ON authi_arg_id = argu_arg_id and argu_usr_id = ".$usr_id.
-                   "  WHERE authi_pid = '".$pid."'";
-        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return array();
-        } else {
-			$return = Auth::getIndexAuthCascade(array(array('rek_pid ' => $rek_pid, 'authi_role' => $res)));
-			$return = $return[0];
-            return $return;
-
-        }
-    } else {
-		$return = Auth::getIndexAuthCascade(array(array('rek_pid ' => $rek_pid)));
-		$return = $return[0];
-		return $return;
-	}
-
-      
-	}
-
-/*    function getIndexAuth($pids, $clearcache=false)
-    {
-        $pid_cache = &$this->pid_cache;
-        $done_pids = &$this->get_auth_done_pids;
-
-        if ($clearcache) {
-            $pid_cache = array();
-        }
-        if (empty($pids)) {
-            return array();
-        } elseif (!is_array($pids)) {
-            $pids = array($pids);
-        }
-        foreach ($pids as $pid) {
-            $auth_groups = array();
-            if (!isset($pid_cache[$pid])) {
-            $dbtp = APP_TABLE_PREFIX;
-            $stmt = "SELECT rek_pid as pid, xsdmf_parent_key_match as role, xsdmf_element as rule, rek_varchar as value 
-                FROM ".$dbtp."record_matching_field AS r1 
-                    INNER JOIN ".$dbtp."xsd_display_matchfields AS x1 ON    
-                rek_pid = '".$pid."'
-                AND (r1.rek_dsid IS NULL or r1.rek_dsid = '') 
-                AND (xsdmf_element in ('!rule!role!Fez_User',
-                            '!rule!role!AD_Group',
-                            '!rule!role!AD_User',
-                            '!rule!role!AD_DistinguishedName',
-                            '!rule!role!Fez_Group',
-                            '!rule!role!in_AD',
-                            '!rule!role!in_Fez',
-                            '!inherit_security',
-                            '!rule!role!eduPersonTargetedID',
-                            '!rule!role!eduPersonAffiliation',
-                            '!rule!role!eduPersonScopedAffiliation',
-                            '!rule!role!eduPersonPrimaryAffiliation',
-                            '!rule!role!eduPersonPrincipalName',
-                            '!rule!role!eduPersonOrgUnitDN',
-                            '!rule!role!eduPersonPrimaryOrgUnitDN')
-                    )
-                    AND r1.rek_xsdmf_id=x1.xsdmf_id
-                    ";
-            $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+          $stmt = "SELECT
+                       authi_role
+                     FROM ";
+    
+          	$stmt .=     $dbtp . "auth_index2 inner join " . 
+                        $dbtp . "auth_rule_group_users ON authi_arg_id = argu_arg_id and argu_usr_id = ".$usr_id.
+                       "  WHERE authi_pid = '".$pid."'";
+            $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-                $res = array();
-            }	
-            $found_inherit_off = false;
-            if (!empty($res)) {
-                // split into roles
-                $groups = Misc::collateArray($res, 'role');
-                foreach ($groups as $role => $group) {
-                    $auth_groups[$pid][$role] = $group;
-                }
-                
-                // check the inherit flag and merge
-                foreach ($res as $row) {
-                    if ($row['rule'] == '!inherit_security') {
-                        if (!empty($row['value']) && $row['value'] != 'on') {
-                            $found_inherit_off = true;
-                        }
-                    } 
-                }
+                return array();
+            } else {
+    			$return = Auth::getIndexAuthCascade(array(array('rek_pid ' => $rek_pid, 'authi_role' => $res)));
+    			$return = $return[0];
+                return $return;
+    
             }
+        } else {
+    		$return = Auth::getIndexAuthCascade(array(array('rek_pid ' => $rek_pid)));
+    		$return = $return[0];
+    		return $return;
+    	}
+    
+	}
 
-            if (!$found_inherit_off) {
-                // get security from parents 
-                    $parents1 = Record::getParents($pid);
-                    $parents = array_keys(Misc::keyArray($parents1, 'pid'));
-                    $auth_groups = array_merge_recursive($auth_groups, 
-                            AuthIndex::getIndexAuth($parents,false));
-            }
-                $pid_cache[$pid] = $auth_groups;
-            }
-            $done_pids[] = $pid;
-        }
-        $auth_groups = array();
-        foreach ($pids as $pid) {
-            $auth_groups = array_merge_recursive($auth_groups, $pid_cache[$pid]);
-        }
-		print_r($auth_groups); exit;
-        return $auth_groups;
-    }
-*/
     function clearIndexAuth($pids)
     {
         if (empty($pids)) {
