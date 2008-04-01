@@ -433,10 +433,11 @@ class Fedora_API {
 		}
 		if ($mimetype == 'text/xml') {
 			$config = array(
-			  'indent'         => true,
-			  'input-xml'   => true,
-			  'output-xml'   => true,
-			  'wrap'           => 200);
+                'indent'        => true,
+                'input-xml'     => true,
+                'output-xml'    => true,
+                'wrap'          => 0
+			);
 
 			if (!defined('APP_NO_TIDY') || !APP_NO_TIDY) {			  
 				$tidy = new tidy;
@@ -534,11 +535,12 @@ class Fedora_API {
 		}
 		if ($controlGroup == 'X') { //If the file is xml, Tidy it up. You can't trust your xml creation tools sometimes, although now JHOVE is M content instead of X so no need to worry about jhove
 			$xml = file_get_contents($local_file_location);
-			$config = array(
-			  'indent'         => true,
-			  'input-xml'   => true,
-			  'output-xml'   => true,
-			  'wrap'           => 200);
+            $config = array(
+                'indent'        => true,
+                'input-xml'     => true,
+                'output-xml'    => true,
+                'wrap'          => 0,
+            );
 			if (!defined('APP_NO_TIDY') || !APP_NO_TIDY) {
 				$tidy = new tidy;
 				$tidy->parseString($xml, $config, 'utf8');
@@ -874,9 +876,8 @@ class Fedora_API {
 	function callGetDatastreamDissemination($pid, $dsID, $asofDateTime="") {
         if (APP_FEDORA_APIA_DIRECT == "ON") {
             $fda = new Fedora_Direct_Access();
-			$stream = $fda->getDatastreamDissemination($pid, $dsID);
-			return $stream;
-		}		
+            return $fda->getDatastreamDissemination($pid, $dsID);
+        }		
 		
         if ($asofDateTime == "") {
 		   $parms=array('pid' => $pid, 'dsID' => $dsID);
@@ -983,12 +984,15 @@ class Fedora_API {
     */
 	function callModifyDatastreamByValue ($pid, $dsID, $state, $label, $dsContent, $mimetype='text/xml', $versionable="false") {
 //		echo "\n\n before tidy for modify ".$dsID." "; echo date("l dS of F Y h:i:s A");
-		if ($mimetype == 'text/xml') {
+		
+       
+        if ($mimetype == 'text/xml') {
 			$config = array(
-			  'indent'         => true,
+			  'indent'      => true,
 			  'input-xml'   => true,
-			  'output-xml'   => true,
-			  'wrap'           => 200);
+			  'output-xml'  => true,
+			  'wrap'        => 0
+			  );
 			if (!defined('APP_NO_TIDY') || !APP_NO_TIDY) {
 				$tidy = new tidy;
 				$tidy->parseString($dsContent, $config, 'utf8');
@@ -996,6 +1000,8 @@ class Fedora_API {
 				$dsContent = $tidy;
 			}
 		}
+		
+		
 	    $dsContent = base64_encode(trim($dsContent));
 	    $logmsg = 'Modifying datastream from Fez';
 		/*if (empty($versionable)) {

@@ -227,43 +227,38 @@ class Fedora_Direct_Access {
 		if ($this->pid != $pid || $this->xml == "") {
 			$this->getObjectXML($pid);
 		}
+		
 		if ($this->xml == "") {
 			return false;
 		}
+		
 	    if ($pmaxDV == "") {	
 		  $maxDV = $this->getMaxDatastreamVersion($pid, $dsID);
         } else {
           $maxDV = $pmaxDV;
         } 
-//		echo $dsID.$maxDV;
+        
 		$xmldoc= new DomDocument();
 		$xmldoc->preserveWhiteSpace = false;
 		$xmldoc->loadXML($this->xml);
 		
         $xpath = new DOMXPath($xmldoc);
-//		$dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='".$dsID.".".$maxDV."']/foxml:xmlContent/".$dsID;
-
-/*		$dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='".$dsID.".".$maxDV."']/foxml:contentLocation[@TYPE='INTERNAL_ID']";		
-        $dvs = $xpath->query($dvStmt); // returns nodeList
-
-        foreach ($dvs as $dv) {
-            $location = $dvNode->getAttribute('REF');
-           
-        }
-*/
+        
         $mContent = $this->getDatastreamManagedContent($pid, $dsID, $maxDV);
         if ($mContent != "") {
-            return array('stream' => $mContent);
+            return array(
+                'MIMEType'  =>  'raw',
+                'stream'    =>  $mContent,
+            );
         }
-//  echo $dsID." - ".$maxDV."\n";
+        
         if ($maxDV != "1.0") {
-		  $dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='".$dsID.".".$maxDV."']/foxml:xmlContent/*";
-//echo $dvStmt."\n";
+            $dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='".$dsID.".".$maxDV."']/foxml:xmlContent/*";
+        } elseif ($maxDV == "1.0" && $dsID == 'FezACML') { 
+            $dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='FezACML".$maxDV."']/foxml:xmlContent/*";
         } else {
-//echo "hfdsere".$maxDV;
-		  //$dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='".$dsID.$maxDV."']/foxml:xmlContent/*";
-		  $dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='"."Fez".$maxDV."']/foxml:xmlContent/*";
-//		echo $dvStmt; exit;
+		    //$dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='".$dsID.$maxDV."']/foxml:xmlContent/*";
+            $dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='Fez".$maxDV."']/foxml:xmlContent/*";
         }		
         $dvs = $xpath->query($dvStmt); // returns nodeList
 		$xmlContent = new DomDocument();
@@ -272,15 +267,14 @@ class Fedora_Direct_Access {
             $found = true;
 			$xmlContent->appendChild($xmlContent->importNode($dv,true));
 		}
-//		print "<pre>" . htmlspecialchars($xmlContent->saveXML()) . "</pre>";
+		
         $xml = "";
         if ($found == true) {
-
-            $xml =  $xmlContent->saveXML();
             
+            $xml =  $xmlContent->saveXML();
             return array(
-                'stream'    =>  $xml,
                 'MIMEType'  =>  'text/xml',
+                'stream'    =>  $xml,
             );
           
         } elseif ($pmaxDV == "") {

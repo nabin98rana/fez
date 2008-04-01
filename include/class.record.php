@@ -2266,10 +2266,11 @@ inner join
             // will have to exclude the non X control group xml and add the datastreams after the base ingestion.
             $xmlObj = Misc::removeNonXMLDatastreams($datastreamXMLHeaders, $xmlObj);
             $config = array(
-                    'indent'         => true,
-                    'input-xml'   => true,
+                    'indent'       => true,
+                    'input-xml'    => true,
                     'output-xml'   => true,
-                    'wrap'           => 200);
+                    'wrap'         => 0,
+            );
             if (!defined('APP_NO_TIDY') || !APP_NO_TIDY) {
                 $tidy = new tidy;
                 $tidy->parseString($xmlObj, $config, 'utf8');
@@ -3936,7 +3937,6 @@ class RecordObject extends RecordGeneral
         if (!empty($params)) {
             // dirty double hack as this function and all the ones it calls assumes this is
             // to do with a form submission
-            $_POST = $params;
             $_POST = $params;
         }
 
