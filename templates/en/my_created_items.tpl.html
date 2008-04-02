@@ -71,29 +71,27 @@ No items found
 		{/if}
 		
    <tr>
-        <td width="10"><input type="checkbox" name="pids[]" value="{$list[i].rek_pid}" /></td>
+        <td width="10" class="default"><input type="checkbox" name="pids[]" value="{$list[i].rek_pid}" /></td>
 	    {assign var="status_id" value=$list[i].rek_status}
         {if $options.searchKeycore_9 == "" || $options.searchKeycore_9 == '-4'}
-        <td>{$status_list[$status_id]}</td>
+        <td class="default">{$status_list[$status_id]}</td>
         {/if}     
         
 	   {if $options.searchKeycore_8 == ""}
 
-         <td>
+         <td class="default">
     		{section name="m" loop=$list[i].rek_ismemberof.rek_pid}
           <a title="click to open the published list of records in this collection" href="{$rel_url}collection/{$list[i].rek_ismemberof.rek_pid[m]}">{$list[i].rek_ismemberof.rek_title[m]|escape}</a><br />
     		{/section}
          </td>
        {/if}
-     
-        <td>
-            
+        <td class="default">
             <a href="{$rel_url}view/{$list[i].rek_pid|escape}"><img align="absmiddle" src="{$icon}" border="0"></a>
             <a href="{$rel_url}view/{$list[i].rek_pid|escape}" class="title_link">{$list[i].rek_citation}</a>
             <br />(Created: {$list[i].rek_created_date|date_format:"%c"}{if $list[i].rek_updated_date <> $list[i].rek_created_date} Last Updated: {$list[i].rek_updated_date|date_format:"%c"}{/if})
                    
        </td>
-   <td nowrap valign="middle">
+   <td nowrap valign="middle" class="default">
    {if $list[i].isEditor==1 || $isAdministrator}		          
            <a href="workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" border="0" width="16" height="16" /></a>
 
@@ -122,7 +120,7 @@ No items found
 	  {/if}
 	  {/section}
      </td>
-     <td nowrap align="center" valign="middle">
+     <td nowrap align="center" valign="middle" class="default">
         {if $list[i].Relevance}<b>{$list[i].Relevance|@number_format:"2"}</b>{/if}
         {if $list[i].rek_object_type == '3'}
             {if $list[i].rek_views}<br />{$list[i].rek_views|escape:"html"}&nbsp;Abstract&nbsp;View{if $list[i].rek_views > 1}s{/if}<br />{/if} 
@@ -133,7 +131,7 @@ No items found
    </tr>
    {sectionelse}
    <tr>
-     <td colspan="6" bgcolor="{$light_color}" align="center">
+     <td colspan="6" bgcolor="{$light_color}" align="center" class="default">
        No items with that search filter could be found.
      </td>
    </tr>

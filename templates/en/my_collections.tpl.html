@@ -11,19 +11,18 @@
      {section name="i" loop=$list}
      {cycle values=$cycle assign="row_color"}
      <tr>
-       <td>
+       <td class="default">
          &nbsp;<a href="{$rel_url}collection/{$list[i].rek_pid|escape}">{$list[i].rek_title|escape}</a>
        </td>
-       <td>
+       <td class="default">
 		{section name="m" loop=$list[i].rek_ismemberof.rek_pid}
          &nbsp;{$list[i].rek_ismemberof.rek_title[m]|escape}
 		{/section}
        </td>
-       <td align="right">
+       <td align="right" class="default">
          &nbsp;{if $list[i].rek_ismemberof_count}{$list[i].rek_ismemberof_count|escape}{else}0{/if}
        </td>
-       <td>
-
+       <td class="default">
 		  {section name="w" loop=$list[i].wft_id}
 		    {if $list[i].wft_id[w] != ''}
 		    {if $list[i].wft_icon[w] == 'images/security.gif'}
