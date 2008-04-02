@@ -1,16 +1,11 @@
-
 {include file="js/my_fez.tpl.js"}
 
-<div class="outline">
-<br />
+
 <form name="custom_filter_form" action="my_created_items.php" method="get" onsubmit="javascript:return validateSearchForm();">
 {include file="quick_filter_form.tpl.html"}
-<br />  
 
-<div class="contentheader">
-Created Items <span class="default">(your deposited items you can list)</span>
+<div class="contentheader">Created Items <span class="default">(your deposited items you can list)</span></div>
 
-</div>
 <span class="default">
 {if $items_info.total_rows != 0}
 Showing items {math equation="x + 1" x=$items_info.current_row|default:0} 
@@ -24,16 +19,16 @@ No items found
 (No search restrictions set, so order sorting disabled)
 </span>
 {/if}
-<br />
+<br /><br />
 
        
 </form>
 <form name="assigned_records" method="post" action="{$rel_url}popup.php" target="_popup">     
 <input type="hidden" name="cat" value="delete_objects" />
 
-   <table class="my_fez_table" width="100%" cellpadding=0>
+   <table class="my_fez_table" width="100%" cellpadding="0">
      <tr>
-       <th width="10"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" class="button" /></th>
+       <th width="10"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" /></th>
        {if $options.searchKeycore_9 == "" || $options.searchKeycore_9 == "ALL" || $options.searchKeycore_9 == '-4'}     
        <th class="default tableheader" nowrap>
        {if $options.sort_order == "1"}
@@ -64,8 +59,7 @@ No items found
        <th>
         &nbsp;
        </th>
-       <th align="center">
-        &nbsp;<img src='{$ref_url}images/thermometer_16.png' />
+       <th class="default tableheader" align="center">Stats
        </th>
      </tr>
 {assign var="list" value=$my_created_items_list}
@@ -131,8 +125,8 @@ No items found
      <td nowrap align="center" valign="middle">
         {if $list[i].Relevance}<b>{$list[i].Relevance|@number_format:"2"}</b>{/if}
         {if $list[i].rek_object_type == '3'}
-            {if $list[i].rek_views}<br />({$list[i].rek_views|escape:"html"}&nbsp;Abstract&nbsp;View{if $list[i].rek_views > 1}s{/if})<br />{/if} 
-            {if $list[i].rek_file_downloads}({$list[i].rek_file_downloads|escape:"html"}&nbsp;<a class="author_link" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">File&nbsp;Download{if $list[i].rek_file_downloads > 1}s{/if}</a>){/if}
+            {if $list[i].rek_views}<br />{$list[i].rek_views|escape:"html"}&nbsp;Abstract&nbsp;View{if $list[i].rek_views > 1}s{/if}<br />{/if} 
+            {if $list[i].rek_file_downloads}{$list[i].rek_file_downloads|escape:"html"}&nbsp;<a class="author_link" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">File&nbsp;Download{if $list[i].rek_file_downloads > 1}s{/if}</a>{/if}
         {/if} 
         </td>
      

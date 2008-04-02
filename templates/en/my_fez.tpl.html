@@ -21,16 +21,18 @@ if (!isElementVisible(basic_element)) {
 </script>
 {/literal}
 
+<div id="my-fez-container">
+
     {if $isAdministrator }
-    <p class="default">Actions <a href="{$rel_url}workflow/new.php?href={$smarty.server.REQUEST_URI}">Create</a></p>
+    <p class="default"><a href="{$rel_url}workflow/new.php?href={$smarty.server.REQUEST_URI}"><img src="{$rel_url}images/new_22.png" width="22" height="22" border="0" alt="Create" /> Create</a></p>
     {/if}
     
     <ul class="my_views_tab">
-        <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_collections.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_collections.php">My Collections</a></li>
-        <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_created_items.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_created_items.php">My Created Items</a></li>
-        {if $isAdministrator }<li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_fez.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_fez.php">Unpublished Items</a></li>{/if}
-        {if $isAdministrator }<li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_active_workflows.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_active_workflows.php">Active Workflows</a></li>{/if}
-        {if $isAdministrator }<li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_processes.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_processes.php">Background Processes</a></li>{/if}
+        <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_collections.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_collections.php" title="See the complete list of collections you have access to.">My Collections</a></li>
+        <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_created_items.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_created_items.php" title="See the list of items you have created.">My Created Items</a></li>
+        {if $isAdministrator }<li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_fez.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_fez.php" title="See which of your items are not yet published.">Unpublished Items</a></li>{/if}
+        {if $isAdministrator }<li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_active_workflows.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_active_workflows.php" title="See the list of active workflows you have running.">Active Workflows</a></li>{/if}
+        {if $isAdministrator }<li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_processes.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_processes.php" title="View background process information.">Background Processes</a></li>{/if}
     </ul>
     
     {if $myFezView == "MAI"}
@@ -47,6 +49,8 @@ if (!isElementVisible(basic_element)) {
     {else}
     {include file="my_assigned_items.tpl.html"}
     {/if}
+
+</div>
 
 {include file="app_info.tpl.html"}
 {include file="footer.tpl.html"}

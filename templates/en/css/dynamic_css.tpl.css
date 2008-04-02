@@ -542,17 +542,15 @@ span.fez_form_input {
 }
 
 ul.my_views_tab {
-    width:100%;
-    /* padding:0 0 23px 1em; */
-    margin:0;
     list-style-type:none;
     line-height:1em;
+	margin-bottom: 10px;
 }
 
 ul.my_views_tab li {
     display:inline;
-    margin:0;
-    padding:0;
+    margin:0px;
+    padding:0px;
 }
 
 ul.my_views_tab a, ul.my_views_tab a:visited, ul.my_views_tab a:active {
@@ -592,7 +590,7 @@ div.cv_selection, .light_background
  * My Fez
  */
 .my_fez_table td {
-    font-size: .70em;
+    font-size: .80em;
 }
  
 .my_fez_table th {
@@ -610,19 +608,22 @@ div.cv_selection, .light_background
 }
 
 .my_fez_table_footer {
-    background-color:#EFEFEF;
+	background-color:#EFEFEF;
     padding: 0px;
     border: none;
+    font-size: 12pt;
+}
+
+.my_fez_table_footer input {
     font-family:Verdana,Arial,Helvetica,sans-serif;
     font-weight:normal;
     font-style:normal;
-    font-size: 1.5em;
+    font-size: 9pt;
 }
 
 .my_fez_table_footer td {
     border: none;
 }
-
 
 /*
  * Advanced Search
@@ -854,4 +855,8 @@ hr {
 	font-size: 7pt;
 	text-align: right;
 	color: #999999;
+}
+
+#my-fez-container {
+	padding: 10px;
 }

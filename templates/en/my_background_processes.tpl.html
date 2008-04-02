@@ -186,17 +186,15 @@ function checkDelete(f)
 
 // -->
 </script>
-<div class="outline">
-<br />
-<div class="contentheader">
-Running Processes
-</div>
+
+<div class="contentheader">Running Processes</div>
+
 <form name="background_processes" method="post">
 <input type="hidden" name="cat" value="delete_background_processes" />
 <table cellpadding="5" cellspacing="0" class="my_fez_table" width="100%">
 
     <tr bgcolor="{$cell_color}" class="tableheader">
-        <th><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form,'items[]');" class="button"/></th>
+        <th><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form,'items[]');" /></th>
         <th class="default">Started</th>
         <th class="default">Name</th>
         <th class="default">Progress</th>
@@ -242,7 +240,6 @@ Running Processes
 </table>
 </form>
 
-</div>
 <script type="text/javascript">
 <!--
 updateBgpTimer();

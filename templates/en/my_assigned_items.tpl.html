@@ -29,9 +29,9 @@ No items found
 <form name="assigned_records" method="post" action="{$rel_url}popup.php" target="_popup">     
 <input type="hidden" name="cat" value="delete_objects" />
 
-   <table class="my_fez_table" width="100%" cellpadding=0>
+   <table class="my_fez_table" width="100%" cellpadding="0">
      <tr>
-       <th width="10"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" class="button" /></th>
+       <th width="10"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" /></th>
        {if $options.searchKeycore_9 == "" || $options.searchKeycore_9 == "ALL" || $options.searchKeycore_9 == '-4'}     
        <th class="default tableheader" nowrap valign="middle">
        {if $options.sort_order == "1"}
@@ -62,8 +62,7 @@ No items found
        <th>
         &nbsp;
        </th>
-       <th align="center" valign="middle">
-        &nbsp;<img src='{$ref_url}images/thermometer_16.png' />
+       <th class="default tableheader" align="center">Stats
        </th>		       		
      </tr>
 

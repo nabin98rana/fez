@@ -263,9 +263,10 @@ a:link .footerlinks {
 
 .contentheader {
 	font-family: Arial, Verdana, Helvetica, Sans-Serif;
-	/*font-size: 18px;*/
 	font-weight: bold;
 	color: #333;
+	clear: left;
+	padding-top: 10px;
 }
 
 .listrecord .td {

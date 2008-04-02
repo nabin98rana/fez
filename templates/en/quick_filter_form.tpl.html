@@ -55,9 +55,7 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
 </script>
 
 
-<div class="outline">
-
-<div id="custom_filter_form1" style="display:none;">
+<div id="custom_filter_form1" style="display:none; padding: 20px; clear: left;">
 
   <div class="{if $options.searchKey0 != ''}default-search-used{else}default{/if} quick_search_item">
     Title, Abstract, Keywords: <br />
@@ -166,11 +164,9 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
 
 
 
-  <div class="default quick_search_hide" >hide/show:
-  [ <a class="link" title="hide / show the quick search form" href="javascript:void(null);" onclick="javascript:toggleVisibility('custom_filter_form'{if $myFezView}, 1{/if});{if !$myFezView}toggleVisibility('basic_filter_form');{/if}">quick search</a> ]</div>
+  <div class="default quick_search_hide" style="padding-top: 10px; padding-bottom: 5px; padding-left: 20px;">
+  <a class="link" title="hide / show the quick search form" href="javascript:void(null);" onclick="javascript:toggleVisibility('custom_filter_form'{if $myFezView}, 1{/if});{if !$myFezView}toggleVisibility('basic_filter_form');{/if}">Hide/show Quick Search</a></div>
 
-
-</div>
 </form>
 {literal}
 <script language="JavaScript">
