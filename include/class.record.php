@@ -579,6 +579,12 @@ class Record
         if ($sekDet['sek_data_type'] == 'varchar') {
             $value = substr($value, 0, 254);        // Only use the left-most 255 chars
         }
+        
+        
+        if($sekDet['sek_data_type'] == 'varchar' || $sekDet['sek_data_type'] == 'text') {
+            $value = preg_replace('/\n/', ' ', $value);
+        }
+        
         if ($sekDet['sek_relationship'] == 1) {
 			$sekTableName = "_".$sekDet['sek_title_db'];
 		} else {
