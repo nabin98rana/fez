@@ -86,7 +86,7 @@ function toggleHideSecondaryLogin()
 
 {if $SHIB_SWITCH == "ON"}<div id="secondary-login-unhider" style="margin: 20px;"><a href="#" onclick="javascript:toggleHideSecondaryLogin(); return false;">Non-{$app_short_org_name} login</a></div>{/if}
 
-<div id="secondary-login" style="display: none;">
+<div id="secondary-login"{if $SHIB_SWITCH == "ON"} style="display: none;"{/if}>
 
 <form name="login_form" onsubmit="javascript:return checkFormSubmission(this, 'validateForm');" method="post" action="index.php">
 <input type="hidden" name="cat" value="login" />
