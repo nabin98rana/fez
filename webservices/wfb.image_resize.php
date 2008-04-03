@@ -101,23 +101,23 @@ if (!stristr(PHP_OS, 'win') || stristr(PHP_OS, 'darwin')) { // Not Windows Serve
 if ($watermark == "" && $copyright == "") {
 //	if(!is_file(APP_TEMP_DIR.$temp_file)) {
 	if(!is_file(APP_TEMP_DIR.$temp_file)) {
-		$command = APP_CONVERT_CMD." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" -colorspace rgb ".$image_dir.escapeshellcmd($image)." ".APP_TEMP_DIR.escapeshellcmd($temp_file);
+		$command = APP_CONVERT_CMD." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" -colorspace rgb \"".$image_dir.escapeshellcmd($image)."\" ".APP_TEMP_DIR.escapeshellcmd($temp_file);
 		exec($command.$unix_extra, $return_array, $return_status);
 //		$error_message = shell_exec($command.$unix_extra);		
 	//	exec(escapeshellcmd($command));
 	} 
 } elseif ($watermark == "" && $copyright != "") {
-	$command = APP_CONVERT_CMD." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" -colorspace rgb ".$image_dir.escapeshellcmd($image)." ".APP_TEMP_DIR.escapeshellcmd($temp_file);
+	$command = APP_CONVERT_CMD." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" -colorspace rgb \"".$image_dir.escapeshellcmd($image)."\" ".APP_TEMP_DIR.escapeshellcmd($temp_file);
 	exec($command.$unix_extra, $return_array, $return_status);
 	$command = APP_CONVERT_CMD.' '.APP_TEMP_DIR.escapeshellcmd($temp_file).' -font Arial -pointsize 20 -draw "gravity center fill black text 0,12 \'Copyright'.$copyright.'\' fill white  text 1,11 \'Copyright'.$copyright.'\'" '.APP_TEMP_DIR.escapeshellcmd($temp_file).'';
 	exec($command.$unix_extra, $return_array, $return_status);
 } elseif ($watermark != "" && $copyright == "") {
-	$command = APP_CONVERT_CMD." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" -colorspace rgb ".$image_dir.escapeshellcmd($image)." ".APP_TEMP_DIR.escapeshellcmd($temp_file);
+	$command = APP_CONVERT_CMD." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" -colorspace rgb \"".$image_dir.escapeshellcmd($image)."\" ".APP_TEMP_DIR.escapeshellcmd($temp_file);
 	exec($command.$unix_extra, $return_array, $return_status);
 	$command = APP_COMPOSITE_CMD." -dissolve 15 -tile ".escapeshellcmd(APP_PATH)."/images/".APP_WATERMARK." ".APP_TEMP_DIR.escapeshellcmd($temp_file)." ".APP_TEMP_DIR.escapeshellcmd($temp_file)."";
 	exec($command.$unix_extra, $return_array, $return_status);
 } elseif ($watermark != "" && $copyright != "") {
-	$command = APP_CONVERT_CMD." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" -colorspace rgb ".$image_dir.escapeshellcmd($image)." ".APP_TEMP_DIR.escapeshellcmd($temp_file);
+	$command = APP_CONVERT_CMD." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" -colorspace rgb \"".$image_dir.escapeshellcmd($image)."\" ".APP_TEMP_DIR.escapeshellcmd($temp_file);
 	exec($command.$unix_extra, $return_array, $return_status);
 	$command = APP_CONVERT_CMD.' '.APP_TEMP_DIR.escapeshellcmd($temp_file).' -font Arial -pointsize 20 -draw "gravity center fill black text 0,12 \'Copyright'.$copyright.'\' fill white  text 1,11 \'Copyright'.$copyright.'\'" '.APP_TEMP_DIR.escapeshellcmd($temp_file).'';
 	exec($command.$unix_extra, $return_array, $return_status);
