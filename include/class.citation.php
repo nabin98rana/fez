@@ -380,14 +380,14 @@
         } elseif ($xsdmf['sek_title'] == "Author" || strpos($xsdmf['xsdmf_title'], 'Editor') !== false) {
             $value = Citation::formatAuthor($value, $type);
         }
+        
 		if (count($details) > 0) {
-//			print_r($details);
 			if (is_numeric($yy)) {
 				if ($xsdmf['sek_title'] == "Author") {
 					if (is_array($details['rek_author_id']) && $details['rek_author_id'][$yy] != 0) {
-						$value = '<a class="author_id_link" title="Browse by Author ID for '.htmlentities($details['rek_author_id_lookup'][$yy]).'" href="' . APP_RELATIVE_URL . 'list/browse=author&amp;author_id='.$details['rek_author_id'][$yy].'">'.$value.'</a>';
+						$value = '<a class="author_id_link" title="Browse by Author ID for '.htmlentities($details['rek_author_id_lookup'][$yy]).'" href="' . APP_RELATIVE_URL . 'list/author_id/'.$details['rek_author_id'][$yy].'/">'.$value.'</a>';
 					} else {
-						$value = '<a title="Browse by Author Name for '.$details['rek_author'][$yy].'" href="' . APP_RELATIVE_URL . 'list/browse=author&amp;author='.htmlentities($details['rek_author'][$yy]).'">'.$value.'</a>';
+						$value = '<a title="Browse by Author Name for '.$details['rek_author'][$yy].'" href="' . APP_RELATIVE_URL . 'list/author/'.htmlentities($details['rek_author'][$yy]).'/">'.$value.'</a>';
 					}
 				}
 			} else {
@@ -401,16 +401,11 @@
 					}
 				}			
 				if ($xsdmf['sek_title'] == "Date") {
-					$value = '<a title="Browse by Year '.htmlentities($value).'" href="' . APP_RELATIVE_URL . 'list/browse=year&amp;year='.htmlentities($value).'">'.$value.'</a>';				
+					$value = '<a title="Browse by Year '.htmlentities($value).'" href="' . APP_RELATIVE_URL . 'list/year/'.htmlentities($value).'/">'.$value.'</a>';				
 				}			
 			}
 		}
-//		$value = 
-//<a class="author_id_link" title="Browse by Author ID for {$list[i].rek_author[author_loop]} ({$list[i].rek_author_id[author_loop]})" href="list.php?browse=author&author_id={$list[i].rek_author_id[author_loop]}">
-
-
-
-
+		
         return $value;
     }
     

@@ -978,7 +978,7 @@ $stmt .= "
 				 } else {
 				 	$stmt .= $group_field;
 				 }
-//echo $stmt;
+//echo $stmt;exit;
 //		$stmt = $GLOBALS["db_api"]->dbh->modifyLimitQuery($stmt, $start, $max);
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		//print_r($res);
@@ -1030,7 +1030,8 @@ $stmt .= "
                     "hidden_rows"     => $hidden_rows - $total_rows,
                     "start_range"   => $start_range,
                     "end_range"     => $end_range,
-                    "printable_page"=> $printable_page
+                    "printable_page"=> $printable_page,
+                    "page_rows"     =>  $max,
                 )
             );
         }
@@ -1319,15 +1320,6 @@ $stmt .= "
 			return array();
 		}
 		$terms = mysql_real_escape_string($terms);
-// old simple and quick way of doing suggest
-/*        $stmt = "SELECT ".APP_SQL_CACHE."  substring(r1.rek_varchar, instr(r1.rek_varchar, 'chr'), char_length(substring_index(substring(r1.rek_varchar, instr(r1.rek_varchar, '$terms')), ' ', 2))) as matchword,
-count(substring(r1.rek_varchar, instr(r1.rek_varchar, 'chr'), char_length(substring_index(substring(r1.rek_varchar, instr(r1.rek_varchar, '$terms')), ' ', 2)))) as matchcount
-            FROM " . APP_TABLE_PREFIX . "record_matching_field AS r1
-            WHERE r1.rek_varchar like '% $terms%' or r1.rek_varchar like '$terms%'
-            GROUP BY matchword
-            ORDER BY matchcount desc
-            LIMIT $current_row, $max
-            "; */
 		$authArray = Collection::getAuthIndexStmt();
 		$authStmt = $authArray['authStmt'];
 		$joinStmt = $authArray['joinStmt'];
@@ -1335,18 +1327,17 @@ count(substring(r1.rek_varchar, instr(r1.rek_varchar, 'chr'), char_length(substr
 		//$status_xsdmfs = XSD_HTML_Match::getXSDMF_IDsBySekTitle("Status");
 		$spaceCount = substr_count($terms, " ");
 		$spaceCount+=1;
-//        $stmt = "SELECT ".APP_SQL_CACHE." distinct substr(r2.rek_varchar, instr(r2.rek_varchar, ' $terms'), char_length(substring_index(substring(r2.rek_varchar, instr(r2.rek_varchar, ' $terms')), ' ', ".$spaceCount."))) as matchword
-   $stmt = "SELECT ".APP_SQL_CACHE."
-substr(trim(substr(r2.rek_title, instr(r2.rek_title, ' ".$terms."'))),
-1,char_length(substring_index(concat(trim(substring(r2.rek_title, instr(r2.rek_title, ' ".$terms."'))),  ' '),
- ' ', ".$spaceCount.")))  as matchword, 33 as cword
-            FROM " . APP_TABLE_PREFIX . "record_search_key AS r2
-			".$authStmt."
-            WHERE (r2.rek_title like '% ".$terms."%') and r2.rek_status = 2
-			limit 20 offset 0
-            ";
-//			Error_Handler::logError($stmt, __FILE__, __LINE__);
-//			having matchword <> '' and matchword REGEXP \"^([[:alnum:]]|\\')|(\\ )+$\"
+
+		$stmt = "SELECT ".APP_SQL_CACHE."
+                    substr(trim(substr(r2.rek_title, instr(r2.rek_title, ' ".$terms."'))),
+                    1,char_length(substring_index(concat(trim(substring(r2.rek_title, instr(r2.rek_title, ' ".$terms."'))),  ' '),
+                    ' ', ".$spaceCount.")))  as matchword, 33 as cword
+                FROM " . APP_TABLE_PREFIX . "record_search_key AS r2 ".$authStmt."
+                WHERE (r2.rek_title like '% ".$terms."%') and r2.rek_status = 2
+                LIMIT 20 OFFSET 0";
+		
+		
+		
 // 		$securityfields = Auth::getAllRoles(); // will need to add security soon
 		$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
         if (PEAR::isError($res)) {
@@ -1354,51 +1345,34 @@ substr(trim(substr(r2.rek_title, instr(r2.rek_title, ' ".$terms."'))),
             return 0;
         }
 		
-		
-//		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+		$termCounter = 100;
 
-			$termCounter = 100;
-//			$sekdet = Search_Key::getDetailsByTitle($sort_by);
-//			$data_type = $sekdet['xsdmf_data_type'];
-
-$return = array();
-$sorter = array();
-$res_count = array();
-//		$return = array();
+        $return = array();
+        $sorter = array();
+        $res_count = array();
+        
 		foreach ($res as $word => $count) {
-			$termLike = " r2.rek_title like '%".$word."%'";
 
-
-			$bodyStmtPart1 = "FROM  ".$dbtp."record_search_key AS r2
-
-							".$authStmt."
-
-							WHERE ".$termLike." and r2.rek_status = 2
-							";
-
-
-				$countStmt = "
-							SELECT ".APP_SQL_CACHE."  count(r2.rek_pid)
-							".$bodyStmtPart1."
-					";
-
+			$countStmt = "SELECT ".APP_SQL_CACHE." count(r2.rek_pid) 
+			              FROM ".$dbtp."record_search_key AS r2
+						  ".$authStmt."
+						  WHERE r2.rek_title like '% ".$word."%' and r2.rek_status = 2";
 
 			$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
-		 if (PEAR::isError($total_rows)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return 0;
-        }
+            
+			if (PEAR::isError($total_rows)) {
+                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                return 0;
+            }
 			
-//			$total_rows = 1;
-					$sorter[$total_rows] = $word;
-//					$return[$word] = $word."        (".$total_rows." matches)";
-//			$return[$word] = $word."        (".$count." matches)";
-
+			$sorter[$total_rows] = $word;
 		}
+		
 		krsort($sorter);
 		foreach ($sorter as $s1 => $s2) {
 			$return[$s2] = $s2."        (".$s1." title matches)";
 		}
+		
 		return $return;
 
 	}

@@ -112,34 +112,16 @@ function orderAndSort(f, field1, field2) {
 	sort_by = getSelectedOption(f, field1);
 	sort_order = getSelectedOption(f, field2);
 	{/literal}
-	{if $browse_mode == 'collection' || $browse_mode == 'community'}
-		sortURL = '{$query_plus}{$query_reduced_sans_sort}sort_by=' + sort_by + '&sort_order=' + sort_order;
-	{else}
-		{if $$query_reduced_sans_sort != ''}
-			sortURL = '{$query_plus}{$query_reduced_sans_sort}&sort_by=' + sort_by + '&sort_order=' + sort_order;
-		{else}
-			sortURL = '{$query_plus}{$query_reduced_sans_sort}sort_by=' + sort_by + '&sort_order=' + sort_order;
-		{/if}
-
-	{/if}{literal}
+	sortURL = '{$PAGE_URL}?{if $url_wo_sort != ""}{$url_wo_sort}&{/if}sort_by=' + sort_by + '&sort_order=' + sort_order;
+	{literal}
 	window.location.href = sortURL;
 }
 
 function resizePagerNew(f)
 {
 	{/literal}
-    var pagesize = f.page_size.options[f.page_size.selectedIndex].value;
-	{if $query_reduced == ''}var queryReducedString = '';{else}var queryReducedString = '{$query_reduced}';{/if}
-	if (queryReducedString.length > 0) {literal}{{/literal}
-		var pagingURL = "{$query_plus}{$query_reduced}&rows=" + pagesize + "&pager_row=0";
-	{literal}}{/literal} else {literal}{{/literal}
-		var pagingURL = "{$query_plus}{$query_reduced}rows=" + pagesize + "&pager_row=0";
-	{literal}}{/literal}
-
-	var theTemplate = '{$template_mode}';
-//	if (theTemplate !== "0") {literal}{{/literal}
-//		pagingURL = pagingURL + '&tpl=' + theTemplate;
-//	{literal}}{/literal}
+    var pagesize = f.rows.options[f.rows.selectedIndex].value;
+	var pagingURL = "{$PAGE_URL}?{if $url_wo_rows != ""}{$url_wo_rows}&{/if}rows=" + pagesize + "&pager_row=0";
     window.location.href = pagingURL;
 	{literal}
 }
@@ -147,13 +129,7 @@ function resizePagerNew(f)
 function setTemplateNew(f, field) {
 	{/literal}
     var tpl = getSelectedOption(f, field);
-	{if $query_reduced == ''}var queryReducedString = '';{else}var queryReducedString = '{$query_reduced}';{/if}
-
-	if (queryReducedString.length > 0) {literal}{{/literal}
-		var templateURL = "{$query_plus}{$query_reduced}&rows={$list_info.page_rows}&pager_row={$list_info.current_page}&tpl=" + tpl;
-	{literal}}{/literal} else {literal}{{/literal}
-		var templateURL = "{$query_plus}{$query_reduced}rows={$list_info.page_rows}&pager_row={$list_info.current_page}&tpl=" + tpl;
-	{literal}}{/literal}
+	var templateURL = "{$PAGE_URL}?{if $url_wo_tpl != ""}{$url_wo_tpl}&{/if}tpl=" + tpl;
     window.location.href = templateURL;
 	{literal}
 }

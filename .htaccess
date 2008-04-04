@@ -1,8 +1,9 @@
 RewriteEngine   on
 RewriteRule     ^view/([A-Za-z]+):([0-9]+)(\?.*)*$                  view.php?pid=$1:$2$3 [L]
 RewriteRule     ^eserv/([A-Za-z]+):([0-9]+)/(.+)(/.+)*$             eserv.php?pid=$1:$2&dsID=$3$4 [L,QSA]
-RewriteRule     ^community/([A-Za-z]+):([0-9]+)$	                list.php?community_pid=$1:$2 [L]
-RewriteRule     ^community/([A-Za-z]+):([0-9]+)/(.+)$	            list.php?community_pid=$1:$2&$3 [L]
-RewriteRule     ^collection/([A-Za-z]+):([0-9]+)$                   list.php?collection_pid=$1:$2 [L]
-RewriteRule     ^collection/([A-Za-z]+):([0-9]+)/(.+)$              list.php?collection_pid=$1:$2&$3 [L]
+RewriteRule     ^community/([A-Za-z]+):([0-9]+)$	                list.php?community_pid=$1:$2 [L,QSA]
+RewriteRule     ^community/([A-Za-z]+):([0-9]+)/(.+)$	            list.php?community_pid=$1:$2&$3 [L,QSA]
+RewriteRule     ^collection/([A-Za-z]+):([0-9]+)$                 list.php?collection_pid=$1:$2 [L,QSA]
+RewriteRule     ^collection/([A-Za-z]+):([0-9]+)/(.+)$              list.php?collection_pid=$1:$2&$3 [L,QSA]
+RewriteRule     ^list/([^/]*)/([^/]*)(?:/?)$                        list.php?browse=$1&value=$2 [L,QSA]
 RewriteRule     ^list/(.*)$                                         list.php?$1 [L,QSA]

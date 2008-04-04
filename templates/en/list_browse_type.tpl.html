@@ -1,0 +1,149 @@
+<table class="listrecord" width="100%" cellpadding="10">
+{if ($browse_type == "browse_author") && (!$author && !$author_id)} 
+		<tr>
+		  <td align="left">
+			<div class="letter-list">
+			{section name="i" loop=$alphabet_list}
+              {if $browse == "author_id"}
+				<a href="{$rel_url}list/author_id/{$alphabet_list[i]}/">{$alphabet_list[i]}</a> | 
+              {else}
+				<a href="{$rel_url}list/author/{$alphabet_list[i]}/">{$alphabet_list[i]}</a> | 
+              {/if}
+			{/section}
+			{if $browse == "author_id"}
+			 <a href="{$rel_url}list/author_id/">All</a>
+			{else}
+			 <a href="{$rel_url}list/author/">All</a>
+			{/if}
+			</div>
+          </td>
+		</tr>
+
+	   {if $author == "" && $author_id == ""}
+		{section name="i" loop=$list}
+
+        <tr>
+            <td style="border-top: 1px dashed #87ABE9;" align="left">
+            {if $list[i].record_author_id != 0}
+            <a class="author_id_link" href='{$rel_url}list/author/{$list[i].record_author_id|escape:'url'}/'>{$list[i].record_author|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+            {else}
+            <a href='{$rel_url}list/author/{$list[i].record_author|escape:'url'}/'>{$list[i].record_author|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+            {/if}
+            </td>
+        </tr>
+
+		{sectionelse}
+		<tr>
+		 <td colspan="2">
+		  No authors could be found.
+		 </td>
+		</tr>
+		{/section}
+		{/if}
+		
+	{elseif ($browse_type == "browse_depositor")} 
+    <tr>
+		<td align="left" class="default" colspan="2"><br />
+		<a href="{$rel_url}list/depositor/"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a>
+       &nbsp;<b>{$browse_heading}:</b>		  
+		</td>
+    </tr>
+	   {if $depositor == ""}
+		{section name="i" loop=$list}
+
+        <tr>
+            <td style="border-top: 1px dashed #87ABE9;" align="left">
+                <a href='{$rel_url}list/depositor/{$list[i].record_depositor}/'>{$list[i].record_desc|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+            </td>
+        </tr>
+
+		{sectionelse}
+		<tr>
+		 <td colspan="2">
+		  No depositors could be found.
+		 </td>
+		</tr>
+		{/section}
+		{/if}			
+	{elseif ($browse_type == "browse_year")} 
+    <tr>
+		<td align="left" class="default" colspan="2" >
+		  <h2><a href="{$rel_url}list/year/"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a> &nbsp; {$browse_heading}</h2>
+		</td>
+    </tr>
+	   {if $year == "" }
+		{section name="i" loop=$list}
+
+		  <tr>
+				  <td style="border-top: 1px dashed #87ABE9;" align="left">
+				{if $list[i].record_year == 0}
+						(not set) ({$list[i].record_count|escape:"html"})
+				{else}
+						<a href='{$rel_url}list/year/{$list[i].record_year}/'>{$list[i].record_year|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+				{/if}
+			</td>
+			</tr>
+
+		{sectionelse}
+		<tr>
+		 <td colspan="2">
+		  No records with saved dates could be found.
+		 </td>
+		</tr>
+		{/section}
+		{/if}
+	{elseif $browse_type == "browse_subject"}
+    <tr>
+		<td width="100%" colspan="2" align="left" class="default">
+		<h2><a href="{$rel_url}list/browse=subject"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a> &nbsp;Browse by 
+	          {if $max_subject_breadcrumb != -1}
+				  {section name="b" loop=$subject_breadcrumb}
+					  {assign var="counter" value=b}
+	                  {if $subject_breadcrumb[b].cvo_image_filename != ""}
+					    <img src="{$rel_url}images/{$subject_breadcrumb[b].cvo_image_filename}" alt="" />
+					  {/if}
+                      {if $max_subject_breadcrumb != $smarty.section.b.index}<a href='{$rel_url}list/subject/{$subject_breadcrumb[b].cvo_id}/'>{else}<b>{/if}{$subject_breadcrumb[b].cvo_title|escape:"html"}{if $max_subject_breadcrumb != $smarty.section.b.index}</a>{else}</b>{/if}
+						  {assign var="cvo_id" value=$subject_breadcrumb[b].cvo_id}
+					  {if $max_subject_breadcrumb != $smarty.section.b.index}->{else}:{/if}					
+				  {/section}
+			   {else}Subject Classification{/if}</h2>		  
+		</td>
+    </tr>
+
+    {section name="i" loop=$subject_list}
+	  <tr>
+		  <td colspan="2" style="border-top: 1px dashed #87ABE9;" align="left">
+		  <table width="100%" cellpadding="2" cellspacing="1">
+          <tr>
+              <td>{if $subject_list[i].cvo_image_filename != ""}<img src="{$rel_url}images/{$subject_list[i].cvo_image_filename}" alt="" />{/if}
+                    <a href='{$rel_url}list/subject/{$subject_list[i].cvo_id}/'>{$subject_list[i].cvo_title|escape:"html"}</a>
+					{assign var="cvo_id" value=$subject_list[i].cvo_id}
+					{if $subject_count[$cvo_id]}({$subject_count[$cvo_id]}){elseif ($parent_id)}(0){/if}
+				</td>
+			</tr>
+			<tr>
+                <td>
+					{$subject_list[i].cvo_desc}
+                </td>
+              </tr>
+			  </table>
+            <!-- space between rows -->
+        </td>
+        </tr>
+    {sectionelse}
+	<tr>
+	  <td colspan="2">
+        No further child subject classifications could be found.
+      </td>
+    </tr>
+	{/section}
+
+	<tr>
+	  <td colspan="2">
+        <hr />
+      </td>
+    </tr>
+
+{/if}
+
+</table>

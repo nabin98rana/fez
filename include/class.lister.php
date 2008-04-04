@@ -64,6 +64,39 @@ include_once(APP_INC_PATH . "najax_classes.php");
 class Lister
 {
     function getList($params, $display=true) {
+        
+        /*
+         * These are the only $_GET vars that can be passed to this page.
+         * Strip out any that aren't in this list
+         */
+        $args = array(
+            'browse'        =>  'string',
+            'author_id'     =>  'numeric',
+            'collection_pid'=>  'string',
+            'community_pid' =>  'string',
+            'cat'           =>  'string',
+            'author'        =>  'string',
+            'tpl'           =>  'numeric',
+            'year'          =>  'numeric',
+            'rows'          =>  'numeric',
+            'pager_row'     =>  'numeric',
+            'sort'          =>  'string',
+            'sort_by'       =>  'string',
+            'search_keys'   =>  'array',
+            'order_by'      =>  'string',
+            'value'         =>  'string',
+        );
+        foreach ($args as $getName => $getType) {
+            
+            if( Misc::sanity_check($_GET[$getName], $getType) ) {
+                $GET_VARS[$getName] = $_GET[$getName];
+            }
+            
+        }
+        
+        $_GET = $GET_VARS;
+        
+        
         $tpl = new Template_API();
 		if (is_numeric($_GET['tpl'])) {
         	$tpl_idx = intval($_GET['tpl']);
@@ -93,8 +126,7 @@ class Lister
 		
         $tpl_file = $tpls[$tpl_idx]['file'];    
         $tpl->setTemplate($tpl_file);
-
-        $tpl->assign('tpl_list', array_map(create_function('$a','return $a[\'title\'];'), $tpls));
+        
         
         $username = Auth::getUsername();
         $tpl->assign("isUser", $username);
@@ -114,7 +146,6 @@ class Lister
         if (empty($rows)) {
             $rows = APP_DEFAULT_PAGER_SIZE;
         }
-        
         
         switch ($tpl_idx) {
         	case 2:
@@ -164,12 +195,14 @@ class Lister
 
         $options['tpl_idx'] = $tpl_idx;     
         $tpl->assign("options", $options);
-        $terms = Pager::getParam('terms',$params);
-        $cat = Misc::GETorPOST('cat');
-        $browse = Pager::getParam('browse',$params);
-        $letter = Pager::getParam('letter',$params);
-        $collection_pid = Pager::getParam('collection_pid',$params);
-        $community_pid = Pager::getParam("community_pid",$params);
+        
+        $terms          = $_REQUEST['terms'];
+        $cat            = $_REQUEST['cat'];
+        $browse         = $_REQUEST['browse'];
+        $letter         = $_REQUEST['letter'];
+        $collection_pid = $_REQUEST['collection_pid'];
+        $community_pid  = $_REQUEST['community_pid'];
+        
 		if (!empty($collection_pid)) {
 			$pid = $collection_pid;
 			$browse_mode = "collection";
@@ -181,7 +214,6 @@ class Lister
 		}
 		$tpl->assign("pid", $pid);
 		$tpl->assign("browse_mode", $browse_mode);
-		//$sort_by = Pager::getParam('sort_by',$params);
 		$sort_by = $options["sort_by"];
 		$operator = $options["operator"];
 
@@ -197,49 +229,34 @@ class Lister
             "searchKey".Search_Key::getID("Sequence") => 'Sequence'
         );
         
-        if(!empty($community_pid))
-        {
-        	unset($sort_by_list["searchKey".Search_Key::getID("File Downloads")]);
-        }
-        
-       //print_r($options);
-       //print_r($sort_by_list);
         if (($cat == 'search' || $cat == 'all_fields' || $cat == 'quick_filter') && $options["searchKey0"] != "") {        	
             $sort_by_list['searchKey0'] = "Search Relevance";           
             if ((Misc::GETorPOST("sort_by")) == "") {
             	$sort_by = "searchKey0";            	
             }
-            if (!is_numeric(Misc::GETorPOST("sort_order")) && ($sort_by == "searchKey0")) { // if searching by Title, Abstract, Keywords and sort order not specifically set in the querystring (from a manual sort order change) than make search revelance sort descending
+            
+            // if searching by Title, Abstract, Keywords and sort order not specifically set in the querystring 
+            // (from a manual sort order change) than make search revelance sort descending
+            if (!is_numeric(Misc::GETorPOST("sort_order")) && ($sort_by == "searchKey0")) {
             	$options["sort_order"] = 1; // DESC relevance
         	}
         }
         
-        $tpl->assign('sort_by_list', $sort_by_list);
-		$sort_by_keys = $sort_by_list;
-        
 		// Default Sort
-        if (!array_key_exists($sort_by, $sort_by_keys)) {
+        if (!array_key_exists($sort_by, $sort_by_list)) {
         	$sort_by = "searchKey".Search_Key::getID("Title");
         }
         
-        //print_r($sort_by);
         $list_info = array();
         
         //get the bulk change workflows
-		$bulk_workflows = WorkflowTrigger::getAssocListByTrigger("-1", 
-			        							WorkflowTrigger::getTriggerId('Bulk Change')); 
-//		print_r($bulk_workflows);
-        $tpl->assign("bulk_workflows", $bulk_workflows);
-
-		$bulk_search_workflows = WorkflowTrigger::getAssocListByTrigger("-1", 
-		WorkflowTrigger::getTriggerId('Bulk Change Search')); 
-//		print_r($bulk_search_workflows);
-        $tpl->assign("bulk_search_workflows", $bulk_search_workflows);
+		$bulk_workflows = WorkflowTrigger::getAssocListByTrigger("-1", WorkflowTrigger::getTriggerId('Bulk Change'));
+		$bulk_search_workflows = WorkflowTrigger::getAssocListByTrigger("-1", WorkflowTrigger::getTriggerId('Bulk Change Search')); 
+		
+        $tpl->assign("bulk_workflows",          $bulk_workflows);
+        $tpl->assign("bulk_search_workflows",   $bulk_search_workflows);
         
         if (!empty($collection_pid)) {
-            if (empty($sort_by)) {
-                $sort_by = "searchKey".Search_Key::getID("Title");
-            }
             
             // list a collection
             // first check the user has view rights over the collection object
@@ -251,12 +268,10 @@ class Lister
             if ($canList) {
                 
                 $tpl->assign("xdis_id", Record::getSearchKeyIndexValue($collection_pid, "Display Type"));
-//                $collection_details = Collection::getDetails($collection_pid);
                 $parents = Record::getParentsDetails($collection_pid);
 
                 $tpl->assign("parents", $parents);
                 $collection_xdis_id = Collection::getCollectionXDIS_ID();
-//                $userPIDAuthGroups = Auth::getIndexAuthorisationGroups($collection_details);
                 $userPIDAuthGroups = AuthIndex::getIndexAuthRoles($collection_pid);
                 $isCreator = @$userPIDAuthGroups['isCreator'] == 1;
                 $tpl->assign("isCreator", $isCreator);
@@ -275,22 +290,27 @@ class Lister
                 $display_type = Record::getSearchKeyIndexValue($collection_pid, "Display Type");
 				$display_type = array_values($display_type);
 				$citation = Record::getCitationIndex($collection_pid);
-//                $tpl->assign("list_heading", "List of Records in ".$collection_title." ".$display_type[0]);
                 $tpl->assign("list_heading", "List of Records in ".$title." ".$display_type[0]);
                 $tpl->assign("list_heading_citation", "List of Records in ".$citation." ".$display_type[0]);
                 $tpl->assign("list_type", "collection_records_list");
 
                 $tpl->assign("collection_pid", $collection_pid);
                 $childXDisplayOptions = Record::getSearchKeyIndexValue($collection_pid, "XSD Display Option");
-                //$childXDisplayOptions = Collection::getChildXDisplayOptions($collection_pid);
+                
                 if (count($childXDisplayOptions) > 0) {
                     $tpl->assign("childXDisplayOptions", $childXDisplayOptions);
                 } else {
                     $tpl->assign("childXDisplayOptions", 0);
                 } 
+                
+                unset($_GET['collection_pid']);
+                
+                $tpl->assign('url', Misc::query_string_encode($_GET));
+                
             } else {
                 $tpl->assign("show_not_allowed_msg", true);
-            } 
+            }
+            
         } elseif (!empty($community_pid)) {
             
             include_once(APP_INC_PATH . "class.custom_view.php");
@@ -330,8 +350,6 @@ class Lister
                 }
                 
                 $tpl->assign("community_pid", $community_pid);
-                //$xdis_id = Collection::getCollectionXDIS_ID();
-                //$community_xdis_id = Community::getCommunityXDIS_ID();
                 $userPIDAuthGroups = AuthIndex::getIndexAuthRoles($community_pid);
                 $isCreator = @$userPIDAuthGroups['isCreator'] == 1;
                 $tpl->assign("isCreator", $isCreator);
@@ -346,22 +364,17 @@ class Lister
 				$options["searchKey".Search_Key::getID("isMemberOf")] = $community_pid; // 
             	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);	
                 
-                
-                //$list = Collection::getListing($community_pid, $pager_row, $rows, $sort_by);
                 $list_info = $list["info"];
                 $list = $list["list"];
                 $title = Record::getSearchKeyIndexValue($community_pid, "Title");
                 $display_type = Record::getSearchKeyIndexValue($community_pid, "Display Type");
 				$display_type = array_values($display_type);
 				$citation = Record::getCitationIndex($community_pid);
-//                $tpl->assign("list_heading", "List of Records in ".$collection_title." ".$display_type[0]);
+				
                 $tpl->assign("list_heading", "List of Collections in ".$title." ".$display_type[0]);		
                 $tpl->assign("list_heading_citation", "List of Collections in ".$citation." ".$display_type[0]);
-
-
-		
-//                $tpl->assign("list_heading", "List of Collections in ".$community_title." Community");
                 $tpl->assign("list_type", "collection_list");
+                
                 $childXDisplayOptions = Record::getSearchKeyIndexValue($community_pid, "XSD Display Option");
                 if (count($childXDisplayOptions) > 0) {
                     $tpl->assign("childXDisplayOptions", $childXDisplayOptions);
@@ -371,56 +384,33 @@ class Lister
             } else {
                 $tpl->assign("show_not_allowed_msg", true);
             }
-/*        } elseif ($cat == "all_fields") {
-        	//print_r($options); echo $sort_by;
-        	if (empty($sort_by)) {
-        		if ($options["search_keys0"] == "") {
-        			$sort_by = "searchKey".Search_Key::getID("Title");
-        		} else {
-        			$sort_by = "searchKey0"; // Search Relevance
-        			$options["sort_dir"] = 1;
-        		}
-        	}
-
-        	// search Fez
-        	$options = Pager::saveSearchParams();
-        	$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-        	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by);
-
-        	$list_info = @$list["info"];
-        	$terms = @$list_info['search_info'];
-        	$list = @$list["list"];
-        	$tpl->assign("list_heading", "Search Results ($terms)");
-        	$tpl->assign("list_type", "all_records_list"); */
-/*        } elseif ($cat == "search") {
-            if (empty($sort_by)) {
-                $sort_by = "searchKey".Search_Key::getID("Title");
-            }
-            $search_keys = Search_Key::getQuickSearchList();
-            // search 
-            $list = Collection::advSearchListing($pager_row, $rows, $sort_by);	
-            $list_info = @$list["info"];
-            $terms = @$list_info['search_info'];
-            $list = @$list["list"];
-            $tpl->assign("list_heading", "Search Results ($terms)");
-            $tpl->assign("list_type", "all_records_list");*/
+            
+            /*
+             * Remove these sort options when viewing a list of community
+             */
+        	unset($sort_by_list["searchKey".Search_Key::getID("File Downloads")]);
+        	unset($sort_by_list["searchKey".Search_Key::getID("Sequence")]);
+        	unset($sort_by_list["searchKey".Search_Key::getID("Description")]);
+        	unset($sort_by_list["searchKey".Search_Key::getID("Date")]);
+        	
+        	/*
+        	 * Remove 'citation' and 'classic' display option when viewing a list of subjects
+        	 */
+        	unset($tpls[4]);
+        	unset($tpls[5]);
+            
         } elseif ($browse == "latest") {
-            // browse by latest additions / created date desc
-            // reget the order by thing so we can change the default
-            if (empty($sort_by)) {
-                $sort_by = 'Created Date';
-            }
+            
 			$options = array();
 			$options["sort_order"] = "1";
-			$sort_by = "searchKey".Search_Key::getID("Created Date");
 			$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+			
+			$sort_by = "searchKey".Search_Key::getID("Created Date");
+			
 			$list = Record::getListing($options, $approved_roles=array("Lister"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);
-//            $list = Collection::browseListing($pager_row, $rows, "Created Date", $sort_by);
-            //print_r($list);
             $list_info = $list["info"];
             $list = $list["list"];
 			
-            $search_keys = Search_Key::getQuickSearchList();
             $tpl->assign("browse_type", "browse_latest");
             $tpl->assign("list_heading", "Browse By Latest Additions");
             $tpl->assign("today", date("Y-m-d"));
@@ -428,17 +418,14 @@ class Lister
             $tpl->assign("yesterday", date("Y-m-d", time()-86400));
             $tpl->assign("last", "Last ");
             $tpl->assign("list_type", "all_records_list");
+            
         } elseif ($browse == "year") {
+            
             // browse by year
-            $year = Pager::getParam('year',$params);
-            $search_keys = Search_Key::getQuickSearchList();
-            if (empty($sort_by)) {
-           		$sort_by = "searchKey".Search_Key::getID("Title");
-            }
-            if (is_numeric($year)) {	
-//              $list = Collection::browseListing($pager_row, $rows, "Date", $sort_by);//
+            $year = Lister::getValue('year');
+            if (is_numeric($year)) {
+                
 				$options = array();
-//				$sort_by = "searchKey".Search_Key::getID("Date");
 				$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 				$options["searchKey".Search_Key::getID("Date")] = array();
 				$options["searchKey".Search_Key::getID("Date")]["filter_type"] = "between";
@@ -449,6 +436,7 @@ class Lister
                 $list_info = $list["info"];
                 $list = $list["list"];
 				
+                $tpl->assign("year", $year);
                 $tpl->assign("browse_heading", "Browse By Year ".$year);
                 $tpl->assign("list_heading", "List of Records");
             } else {
@@ -456,40 +444,58 @@ class Lister
                 $list_info = $list["info"];
                 $list = $list["list"];
                 $tpl->assign("browse_heading", "Browse By Year");
+                
+                /*
+                 * Remove these sort options when viewing a list of subjects
+                 */
+            	unset($sort_by_list["searchKey".Search_Key::getID("File Downloads")]);
+            	unset($sort_by_list["searchKey".Search_Key::getID("Sequence")]);
+            	unset($sort_by_list["searchKey".Search_Key::getID("Description")]);
+            	unset($sort_by_list["searchKey".Search_Key::getID("Date")]);
+            	
+            	/*
+            	 * Remove 'citation' and 'classic' display option when viewing a list of subjects
+            	 */
+            	unset($tpls[4]);
+            	unset($tpls[5]);
             }
             $tpl->assign("browse_type", "browse_year");
+            
         } elseif (($browse == "author") || ($browse == "author_id")) {
+            
             // browse by author
-            $author = Pager::getParam('author',$params);
-            $author_id = Pager::getParam('author_id',$params);
-            if (Misc::GETorPOST("sort_by") == "") {            	
-                $sort_by = "searchKey".Search_Key::getID("Title");
-            }
+            if( $browse == "author")
+                $author = Lister::getValue('author');
+                
+            if( $browse == "author_id" )
+                $author_id = Lister::getValue('author_id');
+            
             if (!empty($author_id)) {            	
             	$options = Search_Key::stripSearchKeys($options);                                                           
             	$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 				$options["searchKey".Search_Key::getID("Author ID")] = $author_id; //
 				$author = Author::getFullname($author_id); 
             	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by);
-            	//print_r($list);	                        	
-                //$list = Collection::browseListing($pager_row, $rows, "Author ID", $sort_by);
+            	
                 $list_info = $list["info"];
                 $list = $list["list"];
 				
+                $tpl->assign("author_id", $author_id);
                 $tpl->assign("browse_heading", "Browse By Author ID - ".$author);
                 $tpl->assign("list_heading", "Browse By Author ID - ".$author);
             } elseif (!empty($author)) {	
 	        	$options = Search_Key::stripSearchKeys($options);                                                           
             	$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 				$options["searchKey".Search_Key::getID("Author")] = $author; //
-            	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);    
-//                $list = Collection::browseListing($pager_row, $rows, "Author", $sort_by);
+            	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);
                 $list_info = $list["info"];
                 $list = $list["list"];
 				
+                $tpl->assign("author", $author);
                 $tpl->assign("browse_heading", "Browse By Author Name - ".$author);
-			    $tpl->assign("list_heading", "Browse By Author Name - ".$author);	                
+			    $tpl->assign("list_heading", "Browse By Author Name - ".$author);
             } else {
+                
             	if ($browse == "author_id") {
 	                $list = Collection::listByAuthor($pager_row, $rows, $sort_by, $letter);
 	                $list_info = $list["info"];
@@ -503,27 +509,40 @@ class Lister
 	                $list = $list["list"];
 					
 	                $tpl->assign("browse_heading", "Browse By Author Name");
-				    $tpl->assign("list_heading", "Browse By Author Name");            		
+				    $tpl->assign("list_heading", "Browse By Author Name");
             	}
+            	
+            	/*
+                 * Remove these sort options when viewing a list of authors
+                 */
+            	unset($sort_by_list["searchKey".Search_Key::getID("File Downloads")]);
+            	unset($sort_by_list["searchKey".Search_Key::getID("Sequence")]);
+            	unset($sort_by_list["searchKey".Search_Key::getID("Description")]);
+            	unset($sort_by_list["searchKey".Search_Key::getID("Date")]);
+            	
+            	/*
+            	 * Remove 'citation' display option when viewing a list of authors
+            	 */
+            	unset($tpls[4]);
             }
             $tpl->assign("browse_type", "browse_author");
             $tpl->assign("alphabet_list", Misc::generateAlphabetArray());
+        
         } elseif ($browse == "depositor") {
+            
             // browse by depositor
-            $depositor = Pager::getParam('depositor',$params);
+            $depositor = Lister::getValue('depositor');
 			$depositor_fullname = User::getFullName($depositor);
-			if (Misc::GETorPOST("sort_by") == "") {
-				$sort_by = "searchKey".Search_Key::getID("Title");
-			}
+			
 			if (!empty($depositor)) {				
 				$options = Search_Key::stripSearchKeys($options);                                                           
             	$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 				$options["searchKey".Search_Key::getID("Depositor")] = $depositor; // 
-            	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);	
-                //$list = Collection::browseListing($pager_row, $rows, "Depositor",$sort_by);
+            	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);
                 $list_info = $list["info"];
                 $list = $list["list"];
 				
+                $tpl->assign("depositor", $depositor);
                 $tpl->assign("browse_heading", "Browse By Depositor - ".$depositor_fullname);
 			    $tpl->assign("list_heading", "Browse By Depositor - ".$depositor_fullname);	
             } else {
@@ -532,32 +551,60 @@ class Lister
                 $list = $list["list"];
 				
                 $tpl->assign("browse_heading", "Browse By Depositor");
-			    $tpl->assign("list_heading", "Browse By Depositor");					
+			    $tpl->assign("list_heading", "Browse By Depositor");
+			    
+			    /*
+                 * Remove these sort options when viewing a list of Depositors
+                 */
+            	unset($sort_by_list["searchKey".Search_Key::getID("File Downloads")]);
+            	unset($sort_by_list["searchKey".Search_Key::getID("Sequence")]);
+            	unset($sort_by_list["searchKey".Search_Key::getID("Description")]);
+            	unset($sort_by_list["searchKey".Search_Key::getID("Date")]);
+            	
+            	/*
+            	 * Remove 'citation' display option when viewing a list of depositors
+            	 */
+            	unset($tpls[4]);
             }
-            $tpl->assign("browse_type", "browse_depositor");			
+            $tpl->assign("browse_type", "browse_depositor");
+            
         } elseif ($browse == "subject") {
-        	if (Misc::GETorPOST("sort_by") == "") {
-        		$sort_by = "searchKey".Search_Key::getID("Title");
-        	}
+        	
             // browse by subject
-            $parent_id = Pager::getParam('parent_id',$params);
+            $parent_id = Lister::getValue('parent_id');
+            
             if (is_numeric($parent_id)) {	
                 $subject_list = Controlled_Vocab::getList($parent_id);
                 $treeIDs = Controlled_Vocab::getAllTreeIDs($parent_id);
                 $subject_count = Collection::getCVCountSearch($treeIDs, $parent_id);
+                
 				$options = Search_Key::stripSearchKeys($options);                                                           
             	$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 				$options["searchKey".Search_Key::getID("Subject")] = $parent_id; // 
             	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);	
                 
-//                $list = Collection::browseListing($pager_row, $rows, "Subject",$sort_by);	
                 $list_info = $list["info"];
-                $list = $list["list"];		
+                $list = $list["list"];
+                
+                $tpl->assign('parent_id', $parent_id);
 				
             } else {
-                $subject_list = Controlled_Vocab::getList();	
+                $subject_list = Controlled_Vocab::getList();
+                
+                /*
+                 * Remove these sort options when viewing a list of subjects
+                 */
+            	unset($sort_by_list["searchKey".Search_Key::getID("File Downloads")]);
+            	unset($sort_by_list["searchKey".Search_Key::getID("Sequence")]);
+            	unset($sort_by_list["searchKey".Search_Key::getID("Description")]);
+            	unset($sort_by_list["searchKey".Search_Key::getID("Date")]);
+            	
+            	/*
+            	 * Remove 'citation' display option when viewing a list of subjects
+            	 */
+            	unset($tpls[4]);
             }
-            //exit;
+            
             $breadcrumb = Controlled_Vocab::getParentAssocListFullDisplay($parent_id);
             $breadcrumb = Misc::array_merge_preserve($breadcrumb, Controlled_Vocab::getAssocListByID($parent_id));
             $newcrumb = array();
@@ -565,6 +612,7 @@ class Lister
                 array_push($newcrumb, array("cvo_id" => $key, "cvo_title" => $data));
             }
             $max_breadcrumb = (count($newcrumb) -1);
+            
             $tpl->assign("max_subject_breadcrumb", $max_breadcrumb);
             $tpl->assign("subject_breadcrumb", $newcrumb);
             $tpl->assign("list_type", "all_records_list");
@@ -574,6 +622,7 @@ class Lister
             $tpl->assign("browse_heading", "Browse By Subject Classifications Records");
             $tpl->assign("list_heading", "List of Subject Classifications Records");
             $tpl->assign("browse_type", "browse_subject");
+            
         } elseif ($cat == "quick_filter") { // Advanced Search
 
         	include_once(APP_INC_PATH . "class.spell.php");
@@ -629,80 +678,104 @@ class Lister
         	$tpl->assign("list_heading", htmlspecialchars("Search Results ($terms)"));        	 
         	$tpl->assign("list_type", "all_records_list");
         } else {
-            // list all communities
-            if (empty($sort_by)) {
-                $sort_by = "searchKey".Search_Key::getID("Title");
-            }            
+                       
             $xdis_id = Community::getCommunityXDIS_ID();
             $tpl->assign("xdis_id", $xdis_id);
             $options = Search_Key::stripSearchKeys($options);                                                           
             $options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
             $options["searchKey".Search_Key::getID("Object Type")] = 1; // enforce communities only
-            $list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);    
-            //$list = Community::getList($pager_row, $rows, $sort_by);
+            $list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);
             $list_info = $list["info"];
             $list = $list["list"];
             
             $tpl->assign("list_type", "community_list");
             $tpl->assign("list_heading", "List of Communities");
+            
+            /*
+             * Remove these sort options when viewing a list of communities
+             */
+        	unset($sort_by_list["searchKey".Search_Key::getID("File Downloads")]);
+        	unset($sort_by_list["searchKey".Search_Key::getID("Sequence")]);
+        	unset($sort_by_list["searchKey".Search_Key::getID("Description")]);
+        	unset($sort_by_list["searchKey".Search_Key::getID("Date")]);
+        	
+        	/*
+        	 * Remove 'citation' and 'classic' display option when viewing a list of communities
+        	 */
+        	unset($tpls[4]);
+        	unset($tpls[5]);
         }
         
-		$tpl->assign("cycle_colours", "#FFFFFF," . APP_CYCLE_COLOR_TWO. "");
+        $tpl->assign('tpl_list', array_map(create_function('$a','return $a[\'title\'];'), $tpls));
+        $tpl->assign('browse', $browse);
+        $tpl->assign('sort_by_list', $sort_by_list);
+		$tpl->assign("cycle_colours", "#FFFFFF," . APP_CYCLE_COLOR_TWO);
         $tpl->assign('sort_by_default', $sort_by);
         $tpl->assign("eserv_url", APP_BASE_URL."eserv/");
         $tpl->assign('sort_order', $options["sort_order"]);
-//		if ($tpl_idx == 0 || $tpl_idx == 4) {
-//			$list = Citation::renderIndexCitations($list);
-//		}
         $tpl->assign("list", $list);
         $tpl->assign("list_info", $list_info);
+        
+        // Hack to get SCRIPT_URL without querystrings.
+        // Usually we could get this info from $_SERVER['SCRIPT_URL'], but can't since 
+        // we are doing rewrite rules on a per-directory basis via .htaccess file
+        $PAGE_URL = preg_replace('/(\?.*)/','',$_SERVER['REQUEST_URI']);
+        
+        // When generating the URL's for sorting etc do not include 
+        // these variables as they will already be in the PAGE_URL
+        $exclude = array(
+            'pager_row',
+            'browse',
+            'value',
+            'community_pid',
+        );
+        
+        if(count($_GET) > 0) {
+            
+            $exclude[] = 'rows';
+            $tpl->assign('url_wo_rows', Misc::query_string_encode($_GET,$exclude));
+            array_pop($exclude);
+            
+            $exclude[] = 'tpl';
+            $tpl->assign('url_wo_tpl',  Misc::query_string_encode($_GET,$exclude));
+            array_pop($exclude);
+            
+            $exclude[] = 'sort';
+            $exclude[] = 'sort_by';
+            $tpl->assign('url_wo_sort', Misc::query_string_encode($_GET,$exclude));
+        }
 
-		// Try to make sense of the query string, and push through the relevant bits for page formatting.
-		$queryStringReduced = $_SERVER['QUERY_STRING'];
-		$queryStringReduced = preg_replace("/(.*)(?:collection|community){1}_pid=(?:[A-Za-z]+):(?:[0-9]+)(?:&?)(.*)/i", "$1$2", $queryStringReduced);	// Strip collection or community
-		$queryStringReduced = preg_replace("/(.*)rows=\d+&pager_row=\d+/i", "$1", $queryStringReduced);	// Strip rows && pager_row parts
-		if (substr($queryStringReduced, -1, 1) == "&") {
-			$queryStringReduced = substr($queryStringReduced, 0, -1);
-		}
-		
-		$queryStringReducedSansSort = preg_replace("/(.*)sort_by=searchKey.*&+(.*)/iU", "$1$2", $queryStringReduced, -1);	// Strip sort_by
-		if (substr($queryStringReducedSansSort, -1, 1) == "&") {
-			$queryStringReducedSansSort = substr($queryStringReducedSansSort, 0, -1);
-		}
-		
-		$queryStringReducedSansSort = preg_replace("/(.*)sort_order=[0-1]{1}(.*)/i", "$1$2", $queryStringReducedSansSort, -1);	// Strip sort_order
-		if (substr($queryStringReducedSansSort, -1, 1) == "&") {
-			$queryStringReducedSansSort = substr($queryStringReducedSansSort, 0, -1);
-		}
-		$queryStringReducedSansSort = preg_replace("/(.*)tpl=\d+/i", "$1", $queryStringReducedSansSort, -1);	// Strip sort_order
-		if (substr($queryStringReducedSansSort, -1, 1) == "&") {
-			$queryStringReducedSansSort = substr($queryStringReducedSansSort, 0, -1);
-		}
-		$queryStringReducedSansSort = str_replace("&&", "&", $queryStringReducedSansSort);		// Clean-up
-		if ($browse_mode == "collection" || $browse_mode == "community") {
-			$queryPlus = APP_RELATIVE_URL . $browse_mode ."/" . $pid ."/";
-		} else {
-			$queryPlus = APP_RELATIVE_URL . "list/";
-		}
-
-		$tpl->assign("query_reduced", $queryStringReduced);
-		$tpl->assign("query_reduced_sans_sort", $queryStringReducedSansSort);
-		$tpl->assign("query_plus", $queryPlus);
+        $tpl->assign('PAGE_URL', $PAGE_URL);
 		$tpl->assign("template_mode", $tpl_idx);
 		$tpl->assign("active_nav", "list");
-
-        if (Auth::userExists($username)) {
-            $prefs = Prefs::get(Auth::getUserID());
-        }
+        
         $tpl->registerNajax(NAJAX_Client::register('NajaxRecord', APP_RELATIVE_URL.'ajax.php')."\n"
             .NAJAX_Client::register('Suggestor', APP_RELATIVE_URL.'ajax.php')."\n");
             
         if ($display) {
-            //print_r($tpl);
             $tpl->displayTemplate();
         } 
         return compact('list','list_info');
     }
+    
+    
+    function getValue($varName) {
+        
+        if(isset($_GET[$varName])) {
+            
+            return $_GET[$varName];
+            
+        } elseif(isset($_GET['value'])) {
+            
+            return $_GET['value'];
+            
+        }
+        
+        return false;
+    }
 }
+
+
+
 
 ?>

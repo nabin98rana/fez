@@ -48,11 +48,6 @@ include_once(APP_INC_PATH . 'common.inc.php');
 include_once(APP_INC_PATH . 'class.fezacml.php');
 include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.setup.php");
-//include_once(APP_INC_PATH . "class.xsd_html_match.php");
-//include_once(APP_INC_PATH . "class.doc_type_xsd.php");
-//include_once(APP_INC_PATH . "class.record.php");
-//include_once(APP_INC_PATH . "class.xsd_display.php");
-//include_once(APP_INC_PATH . "class.xsd_loop_subelement.php");
 
 class Misc
 {
@@ -2772,7 +2767,17 @@ function create_dirs($path)
   }
 }
 
-
+    /**
+     * Build a URL from array
+     *
+     * @param array  $query     array of variables to create URL
+     * @param array  $exclude   if any values exist in query do put them in URL
+     * @param string $parent    array parent name
+     *
+     * @return string  encoded url
+     *
+     * @access public
+     */
     function query_string_encode($query, $exclude = array(), $parent = '') 
     {
         $params = array();
@@ -2798,6 +2803,29 @@ function create_dirs($path)
         }
         
         return implode('&', $params);
+    }
+    
+    /**
+     * Check that a variable is off a certain type
+     *
+     * @param string $variable  variable to check
+     * @param string $type      type to check against
+     *
+     * @return string  return variable if it passes check
+     *
+     * @access public
+     */
+    function sanity_check($variable, $type) {
+        
+        if(!isset($variable)) 
+            return false;
+            
+        $checkFunction = 'is_' . $type;
+            
+        if(!$checkFunction($variable))
+            return false;
+            
+        return $variable;
     }
 
   

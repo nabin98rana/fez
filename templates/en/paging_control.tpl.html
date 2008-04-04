@@ -7,19 +7,19 @@
 	<p class="result-range">Page <b>{$list_info.printable_page}</b> of <b>{$list_info.total_pages}</b></p>
 	<p class="result-pages"><strong>Result Pages:</strong> &nbsp;&nbsp;	
 	{if $list_info.printable_page != 1}
-	<a href="{$query_plus}{$query_reduced}{if $query_reduced != ''}&{/if}rows={$list_info.page_rows}&pager_row=0" title="First page" style="text-decoration: none; margin-left: 0.25em;">&#171; first</a> 
-	<a href="{$query_plus}{$query_reduced}{if $query_reduced != ''}&{/if}rows={$list_info.page_rows}&pager_row={$list_info.prev_page}" title="Previous page" style="text-decoration: none; margin-left: 0.25em;">&#139; previous</a>&nbsp;
+	<a href="{$PAGE_URL}?{if $url_wo_rows != ""}{$url_wo_rows}&{else}pager_row=0{/if}" title="First page" style="text-decoration: none; margin-left: 0.25em;">&#171; first</a> 
+	<a href="{$PAGE_URL}?{if $url_wo_rows != ""}{$url_wo_rows}&{else}pager_row={$list_info.prev_page}{/if}" title="Previous page" style="text-decoration: none; margin-left: 0.25em;">&#139; previous</a>&nbsp;
 	{/if}
 	{section name=pages start=$list_info.start_range loop=100 step=1 max=$end_range}
 	  {if $smarty.section.pages.index == $list_info.current_page}
 		<span class="page">{math equation="x + 1" x=$smarty.section.pages.index}</span>
 	  {else}
-		<a href="{$query_plus}{$query_reduced}{if $query_reduced != ''}&{/if}rows={$list_info.page_rows}&pager_row={$smarty.section.pages.index}" style="text-decoration: none;" title="Page {math equation="x + 1" x=$smarty.section.pages.index}">{math equation="x + 1" x=$smarty.section.pages.index}</a> 
+		<a href="{$PAGE_URL}?{if $url_wo_rows != ""}{$url_wo_rows}&{/if}rows={$list_info.page_rows}&pager_row={$smarty.section.pages.index}" style="text-decoration: none;" title="Page {math equation="x + 1" x=$smarty.section.pages.index}">{math equation="x + 1" x=$smarty.section.pages.index}</a> 
       {/if}
 	{/section}
 	{if $list_info.printable_page != $list_info.total_pages}
-	&nbsp;<a href="{$query_plus}{$query_reduced}{if $query_reduced != ''}&{/if}rows={$list_info.page_rows}&pager_row={$list_info.next_page}" title="Next page" style="text-decoration: none; margin-left: 0.25em;">next &#155;</a> 
-	<a href="{$query_plus}{$query_reduced}{if $query_reduced != ''}&{/if}rows={$list_info.page_rows}&pager_row={$list_info.last_page}" title="Last page" style="text-decoration: none; margin-left: 0.25em;">last &#187;</a>
+	&nbsp;<a href="{$PAGE_URL}?{if $url != ""}{$url}&{else}pager_row={$list_info.next_page}{/if}" title="Next page" style="text-decoration: none; margin-left: 0.25em;">next &#155;</a> 
+	<a href="{$PAGE_URL}?{if $url != ""}{$url}&{else}pager_row={$list_info.last_page}{/if}" title="Last page" style="text-decoration: none; margin-left: 0.25em;">last &#187;</a>
 	{/if}
 	</p>
 </div>
