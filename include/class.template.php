@@ -194,6 +194,17 @@ class Template_API
             $this->assign("current_user_id", Auth::getUserID());
         }
 		
+		// Because we should only have to do this once ...
+		$usr_id = Auth::getUserID();
+		$this->assign("isUser", $username);
+		$isAdministrator = User::isUserAdministrator($username);
+		if (Auth::userExists($username)) { // if the user is registered as a Fez user
+			$this->assign("isFezUser", $username);
+		} else {
+			Auth::redirect(APP_RELATIVE_URL . "register.php?err=5&username=" . $username);
+		}
+		$this->assign("isAdministrator", $isAdministrator);
+
         $this->assign("start_date", date('Y-m-d', mktime(0,0,0,1,1,date('Y'))));
         $this->assign("end_date", date('Y-m-d', mktime(0,0,0,12,31,date('Y'))));
         
