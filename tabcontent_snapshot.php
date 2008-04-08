@@ -26,6 +26,15 @@ function displayTopDownloads() {
 
 	$tpl = new Template_API();
 	$tpl->setTemplate("tab_top_downloads.html");
+
+	$username = Auth::getUsername();
+	$tpl->assign("isUser", $username);
+	$isAdministrator = User::isUserAdministrator($username);
+	if (Auth::userExists($username)) { // if the user is registered as a Fez user
+		$tpl->assign("isFezUser", $username);
+	}
+	$tpl->assign("isAdministrator", $isAdministrator);
+
 	$rows = 5; // Number to display
 	$pager_row = 0;	
 	$sort_by = "File Downloads";
@@ -47,6 +56,15 @@ function displayTopDownloads() {
 function displayRecentItems() {
 
 	$tpl = new Template_API();
+
+	$username = Auth::getUsername();
+	$tpl->assign("isUser", $username);
+	$isAdministrator = User::isUserAdministrator($username);
+	if (Auth::userExists($username)) { // if the user is registered as a Fez user
+		$tpl->assign("isFezUser", $username);
+	}
+	$tpl->assign("isAdministrator", $isAdministrator);
+
 	$tpl->setTemplate("tab_recent_items.html");
 	$recentRecordsPIDs = Record::getRecentRecords();
 	$list['list'] = Record::getDetailsLite($recentRecordsPIDs[0]);

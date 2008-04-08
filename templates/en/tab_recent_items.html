@@ -55,11 +55,9 @@
 	{/if}
 			<li>
 			{if $list[i].rek_citation != ""}
-			{$list[i].rek_citation}
+			  {$list[i].rek_citation}
 			{else}
-			{if $href_view}<a href='{$href_view}' >{/if}
-			{$list[i].rek_title}
-			{if $href_view}</a>{/if}
+			  <a href="{$href_view}">{$list[i].rek_title}</a>
 			{/if}
 			</li>
 			<br />
