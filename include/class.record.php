@@ -610,8 +610,7 @@ class Record
 		if (APP_SQL_DBTYPE == "mysql") { 
 			$stmt .= " ON DUPLICATE KEY UPDATE rek_".$sekDet['sek_title_db']."_xsdmf_id = ".$xsdmf_id.", rek_".$sekDet['sek_title_db']." = ".$value;
 		} else { // this will work with postgresql, might be better to do seperate queries for general dbs if the pgsql way is not ansi
-	        
-		    if ($sekDet['sek_relationship'] == 0) { //only check for dupes on core 1-1 table inserts as the others could have the same value legitimatly (eg two j smith author strings)
+	        if ($sekDet['sek_relationship'] == 0) { //only check for dupes on core 1-1 table inserts as the others could have the same value legitimatly (eg two j smith author strings)
 				$stmt = "IF EXISTS( SELECT * FROM " . APP_TABLE_PREFIX . "record_search_key".$sekTableName."
 				  WHERE rek_pid = '".$pid."' )
 				  UPDATE " . APP_TABLE_PREFIX . "record_search_key".$sekTableName."

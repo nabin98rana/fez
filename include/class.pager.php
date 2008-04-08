@@ -124,7 +124,7 @@ class Pager
             'rows'           => $rows ? $rows : APP_DEFAULT_PAGER_SIZE,
             "sort_by"        => $sort_by ? $sort_by : "title",                        
             "isMemberOf"     => $isMemberOf != "" ? $isMemberOf : "ALL",            
-            "sort_order"     => is_numeric($sort_order) ? $sort_order : 1,
+            "sort_order"     => is_numeric($sort_order) ? $sort_order : 0,
             // quick filter form
             'keywords'       => Pager::getParam('keywords',$params),
         );

@@ -297,8 +297,7 @@ EOT;
             $dot .= "\"".$link['wfsl_from_id']."\" -> "
                 ."\"".$link['wfsl_to_id']."\";\n";
         }
-//        $dot .= "}\n";
-        $dot .= "}";
+        $dot .= "}\n";
         return $dot;
      }
 
