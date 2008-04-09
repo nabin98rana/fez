@@ -447,6 +447,7 @@ function showDiv(p)
 {else}
 	{* Show tombstone *}
 		<tr>
+		    <td class="default">&nbsp;</td>
 			<td>
 				<div class="outline light_background">
 				<div class="admin-header">This record has been deleted.</div>
@@ -462,7 +463,8 @@ function showDiv(p)
 		</tr>
 {/if}
 		  
-{if $displayusercomments}
+{if $displayusercomments && $show_tombstone && !$deleted}
+
 	   <tr>
           <table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="2" width="100%" align="center">
     
