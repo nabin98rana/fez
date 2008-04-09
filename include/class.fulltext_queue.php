@@ -107,7 +107,7 @@
 			Logger::debug("FulltextQueue::createUpdateProcess");
 			$bgp = new BackgroundProcess_Fulltext_Index();        		
 			//$bgp->register(serialize(compact('pid','regen')), Auth::getUserID());
-			$bgp->register(serialize(array()), 1); // todo: maybe take something other than admin
+			$bgp->register(serialize(array()), APP_SYSTEM_USER_ID); // todo: maybe take something other than admin
 			//Logger::debug("FulltextQueue::createUpdateProcess bgp registered");
 		}
 			
