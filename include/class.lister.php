@@ -96,7 +96,6 @@ class Lister
         
         $_GET = $GET_VARS;
         
-        
         $tpl = new Template_API();
 		if (is_numeric($_GET['tpl'])) {
         	$tpl_idx = intval($_GET['tpl']);
@@ -127,24 +126,27 @@ class Lister
         $tpl_file = $tpls[$tpl_idx]['file'];    
         $tpl->setTemplate($tpl_file);
         
-        
-        $username = Auth::getUsername();
-        $tpl->assign("isUser", $username);
-        $isAdministrator = User::isUserAdministrator($username);
         if (Auth::userExists($username)) { // if the user is registered as a Fez user
             $tpl->assign("isFezUser", $username);
         }
-  		$tpl->assign("isAdministrator", $isAdministrator);
-        if (Auth::canEdit() == 1) {
-        	$tpl->assign("user_can_edit", 1);
-        }
-        $pager_row = Pager::getParam('pager_row',$params);
+        
+        $pager_row = $_REQUEST['pager_row'];
         if (empty($pager_row)) {
             $pager_row = 0;
         }
-        $rows = Pager::getParam('rows',$params);
+        
+        
+        $rows = $_REQUEST['rows'];
         if (empty($rows)) {
-            $rows = APP_DEFAULT_PAGER_SIZE;
+            
+            if(!empty($_SESSION['rows'])) {
+                $rows = $_SESSION['rows'];
+            } else {
+                $rows = APP_DEFAULT_PAGER_SIZE;
+            }
+            
+        } else {
+            $_SESSION['rows'] = $rows;
         }
         
         switch ($tpl_idx) {
@@ -157,41 +159,13 @@ class Lister
         }
         
         $cookie_key = Pager::getParam('form_name',$params);
-        
         $options = Pager::saveSearchParams($params, $cookie_key);
-        
-        $search_keys = Search_Key::getQuickSearchList();
-        
-	    foreach ($search_keys as $skey => $svalue) {
-			if (!in_array($svalue["sek_html_input"], array('multiple','allcontvocab','contvocab')) && $svalue["sek_smarty_variable"] != 'Status::getUnpublishedAssocList()') {
-				$search_keys[$skey]["field_options"] = array("" => "any") + $search_keys[$skey]["field_options"];		
-			} elseif (in_array($svalue["sek_html_input"], array('contvocab')) && is_array($options["searchKey".$svalue['sek_id']])) {
-				$cv_temp = $search_keys[$skey]["field_options"]; 
-				$search_keys[$skey]["field_options"] = array();
-				$temp_value = "";
-				foreach ($options["searchKey".$svalue['sek_id']] as $option) {		
-					eval("\$temp_value = ".$search_keys[$skey]["sek_lookup_function"]."(".$option.");");		
-					$search_keys[$skey]["field_options"][$option] = $temp_value;
-				}
-				
-			} elseif (in_array($svalue["sek_html_input"], array('allcontvocab')) && is_array($options["searchKey".$svalue['sek_id']])) {
-				$cv_temp = $search_keys[$skey]["field_options"]; 
-				$search_keys[$skey]["field_options"] = array();
-				$temp_value = "";
-				foreach ($options["searchKey".$svalue['sek_id']] as $option) {		
-					eval("\$temp_value = ".$search_keys[$skey]["sek_lookup_function"]."(".$option.");");		
-					$search_keys[$skey]["field_options"][$option] = $temp_value;
-				}
-			}
-	    }
 	    
 	    $getFunction = 'getListing';
         if( APP_SOLR_SWITCH == "ON" )
         {
             $getFunction = 'getSearchListing';
         }
-	    
-        $tpl->assign("search_keys", $search_keys);
 
         $options['tpl_idx'] = $tpl_idx;     
         $tpl->assign("options", $options);
@@ -713,6 +687,7 @@ class Lister
         	unset($tpls[5]);
         }
         
+        $tpl->assign('rows', $rows);
         $tpl->assign('tpl_list', array_map(create_function('$a','return $a[\'title\'];'), $tpls));
         $tpl->assign('browse', $browse);
         $tpl->assign('sort_by_list', $sort_by_list);

@@ -30,17 +30,11 @@
 
 <div id="result-box" class="clearfix" style="width: 980px;">
 
-  {if $spell_suggest != ""}
-	<span style="color: red;">Did you mean?: </span><a href="?{$spell_suggest_url}">{$spell_suggest}</a><br /><br />
-  {/if}
-
   <h2>Browse Results ({$list_info.total_rows} results found)</h2>
   {if $list_type != 'community_list'}
   <p class="rss"><a title="Subscribe to the RSS feed for this result set" href="{$PAGE_URL}?{if $url_wo_tpl != ''}{$url_wo_tpl}&{/if}tpl=2"><img src="{$rel_url}images/icons/rss-icon.png" alt="Subscribe to the RSS feed for this result set" /></a>Subscribe to the RSS feed for this result set</p>					
   {/if}
-
-
-    <!-- Spelling suggestor -->
+    
     <div id="order-box" class="clearfix">
     	<div class="order-element">
     		<label for="">Sort results by</label>
@@ -64,14 +58,14 @@
     		<label for="order-number">Set objects per page</label>
     		
     		  <select name="rows" class="default" onchange="javascript:resizePagerNew(this.form);">
-    			<option value="5" {if $options.rows == 5}selected{/if}>5</option>
-    			<option value="10" {if $options.rows == 10}selected{/if}>10</option>
-    			<option value="25" {if $options.rows == 25}selected{/if}>25</option>
-    			<option value="50" {if $options.rows == 50}selected{/if}>50</option>
-    			<option value="100" {if $options.rows == 100}selected{/if}>100</option>
-    			<option value="150" {if $options.rows == 150}selected{/if}>150</option>
-    			<option value="300" {if $options.rows == 300}selected{/if}>300</option>
-    			<option value="500" {if $options.rows == 500}selected{/if}>500</option>
+    			<option value="5" {if $rows == 5}selected{/if}>5</option>
+    			<option value="10" {if $rows == 10}selected{/if}>10</option>
+    			<option value="25" {if $rows == 25}selected{/if}>25</option>
+    			<option value="50" {if $rows == 50}selected{/if}>50</option>
+    			<option value="100" {if $rows == 100}selected{/if}>100</option>
+    			<option value="150" {if $rows == 150}selected{/if}>150</option>
+    			<option value="300" {if $rows == 300}selected{/if}>300</option>
+    			<option value="500" {if $rows == 500}selected{/if}>500</option>
     		  </select>
     
     	</div>
