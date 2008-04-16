@@ -481,7 +481,7 @@ class Lister
             	$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 				$options["searchKey".Search_Key::getID("Author ID")] = $author_id; //
 				$author = Author::getFullname($author_id); 
-            	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by);
+            	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);
             	
                 $list_info = $list["info"];
                 $list = $list["list"];
@@ -666,10 +666,11 @@ class Lister
 			    {
 			        // Replace search_key[0]={search} with search_key[0]={suggestion}
 			        // search key 0 will be 'Title, Abstract, Keywords'
-    			    $spell_suggest_url = preg_replace('/search_keys%5B0%5D=[a-zA-z]+/', 'search_keys%5B0%5D='.$spell_suggest, $_SERVER['QUERY_STRING']);
-    			    
                     $tpl->assign("spell_suggest", $spell_suggest);
-                    $tpl->assign("spell_suggest_url", $spell_suggest_url); 
+                    
+                    $exclude[] = 'search_keys';
+                    $tpl->assign('spell_suggest_url', Misc::query_string_encode($_GET,$exclude) . '&search_keys[0]='.$spell_suggest);
+                    array_pop($exclude);
 			    } 
 			}
 			
