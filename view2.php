@@ -33,8 +33,6 @@
 //
 //
 
-//include_once(APP_INC_PATH . "najax/najax.php");
-//include_once(APP_INC_PATH . "najax_objects/class.image_preview.php");
 include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.lister.php");
 include_once(APP_INC_PATH . "class.workflow.php");
@@ -45,12 +43,10 @@ include_once(APP_INC_PATH . "class.citation.php");
 include_once(APP_INC_PATH . "class.org_structure.php");
 include_once(APP_INC_PATH . "class.record_view.php");
 include_once(APP_INC_PATH . "class.user_comments.php");
-
 include_once(APP_PEAR_PATH . "Date.php");
+
 $username = Auth::getUsername();
-$tpl->assign("isUser", $username);
 $isAdministrator = Auth::isAdministrator(); 
-$tpl->assign("isAdministrator", $isAdministrator);
 
 if ($isAdministrator) {
 	if (APP_FEDORA_SETUP == 'sslall' || APP_FEDORA_SETUP == 'sslapim') {
@@ -67,20 +63,20 @@ $tpl->assign("fez_root_dir", APP_PATH);
 $tpl->assign("eserv_url", APP_BASE_URL."eserv/".$pid."/");
 $tpl->assign("local_eserv_url", APP_BASE_URL."eserv/".$pid."/");
 $tpl->assign("extra_title", "Record #".$pid." Details");
+
 $debug = @$_REQUEST['debug'];
 if ($debug == 1) {
 	$tpl->assign("debug", "1");
 } else {
 	$tpl->assign("debug", "0");	
 }
+
 if (!empty($pid)) {
 	$record = new RecordObject($pid);
-    if (!$record->checkExists()) {
-    	$tpl->assign('not_exists', true);
-    }
-} 
+}
 
 if (!empty($pid) && $record->checkExists()) {
+    
 	$tpl->assign("pid", $pid);
 	$deleted = false;
 	if (@$show_tombstone) {
@@ -99,6 +95,7 @@ if (!empty($pid) && $record->checkExists()) {
     		}
 		}
 	}
+	
 	$xdis_id = $record->getXmlDisplayId();
 	$tpl->assign("xdis_id", $xdis_id);
 	$xdis_title = XSD_Display::getTitle($xdis_id);	
@@ -115,6 +112,7 @@ if (!empty($pid) && $record->checkExists()) {
 	
 	$canEdit = false;
 	$canView = true;
+	
 	$canEdit = $record->canEdit(false);
     if ($canEdit == true) {
 		$canView = true;
@@ -127,9 +125,10 @@ if (!empty($pid) && $record->checkExists()) {
 
         $ret_id = 3;
         $strict = false;
-        $workflows = array_merge($record->getWorkflowsByTriggerAndRET_ID('Update', $ret_id, $strict),
-            $record->getWorkflowsByTriggerAndRET_ID('Export', $ret_id, $strict));
-        // check which workflows can be triggered           
+        $workflows = array_merge(   $record->getWorkflowsByTriggerAndRET_ID('Update', $ret_id, $strict),
+                                    $record->getWorkflowsByTriggerAndRET_ID('Export', $ret_id, $strict));
+        
+        // check which workflows can be triggered
         $workflows1 = array();
         if (is_array($workflows)) {
             foreach ($workflows as $trigger) {
@@ -139,25 +138,19 @@ if (!empty($pid) && $record->checkExists()) {
                 }
             }
             $workflows = $workflows1;
-        } 
+        }
+        
         $tpl->assign("workflows", $workflows); 
-
-
 		$tpl->assign("isEditor", $canEdit);
 		$tpl->assign("sta_id", $record->getPublishedStatus()); 
-		$display = new XSD_DisplayObject($xdis_id);
 		
-		//$xsd_display_fields = $display->getMatchFieldsList();
-
+		$display = new XSD_DisplayObject($xdis_id);
 		$xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array(""));  // XSD_DisplayObject
 
 		$tpl->assign("xsd_display_fields", $xsd_display_fields);
 		$details = $record->getDetails();
-
-		$tpl->assign("details_array", $details);
-		//$parents = $record->getParents();				
+        	
 		$parents = Record::getParentsDetails($pid);
-//		print_r($parents);
 
         // do citation before mucking about with the details array
         $citation_html = Citation::renderCitation($xdis_id, $details, $xsd_display_fields);
@@ -176,6 +169,7 @@ if (!empty($pid) && $record->checkExists()) {
 		$meta_head = '<meta name="DC.Identifier" schema="URI" content="'.substr(APP_BASE_URL,0,-1).$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'"/>'."\n";
 		// Get some extra bits out of the record
 		foreach ($xsd_display_fields as $dis_key => $dis_field) {
+		    
 			// Look for the meta tag header items
 			if (($dis_field['xsdmf_enabled'] == 1) && ($dis_field['xsdmf_meta_header'] == 1) && (trim($dis_field['xsdmf_meta_header_name']) != "")) {
 				if (is_array($details[$dis_field['xsdmf_id']])) {
@@ -234,13 +228,11 @@ if (!empty($pid) && $record->checkExists()) {
 				}								
 			}
 		}
+		
         $tpl->assign('meta_head', $meta_head);		
 		$record_view = new RecordView($record);	// record viewer object
 		$details = $record_view->getDetails();
-//		print_r($details);
-        // Setup the Najax Image Preview object.
-//        $tpl->assign('najax_header', NAJAX_Utilities::header(APP_BASE_URL.'include/najax'));
-//        $tpl->registerNajax( NAJAX_Client::register('NajaxImagePreview', APP_BASE_URL.'najax_services/image_preview.php'));
+		
 	} else {
 		$tpl->assign("show_not_allowed_msg", true);
 	}
@@ -249,17 +241,18 @@ if (!empty($pid) && $record->checkExists()) {
 		$tpl->assign('details', '');
 	} else {
 		$linkCount = 0;
-		$fileCount = 0;		
-		$datastreams = Fedora_API::callGetDatastreams($pid);
+		$fileCount = 0;
 		
+		$datastreams = Fedora_API::callGetDatastreams($pid);
 		$datastreamsAll = $datastreams;		
 		$datastreams = Misc::cleanDatastreamListLite($datastreams, $pid);
-		$securityfields = Auth::getAllRoles();
-		$datastream_workflows = WorkflowTrigger::getListByTrigger('-1', 5);
+		
 		foreach ($datastreams as $ds_key => $ds) {
-			if ($datastreams[$ds_key]['controlGroup'] == 'R') {
+			
+		    if ($datastreams[$ds_key]['controlGroup'] == 'R') {
 				$linkCount++;				
 			}
+			
 			if ($datastreams[$ds_key]['controlGroup'] == 'R' && $datastreams[$ds_key]['ID'] != 'DOI') {
 				$datastreams[$ds_key]['location'] = trim($datastreams[$ds_key]['location']);
 				
@@ -270,45 +263,56 @@ if (!empty($pid) && $record->checkExists()) {
 					}
 				}
 			} elseif ($datastreams[$ds_key]['controlGroup'] == 'M') {
-//				$Jhove_DS =
-				$fileCount++;
+				
+			    $fileCount++;
                 if (is_numeric(strrpos($datastreams[$ds_key]['ID'], "."))) {
 				    $Jhove_DS_ID = "presmd_".substr($datastreams[$ds_key]['ID'], 0, strrpos($datastreams[$ds_key]['ID'], ".")).".xml";
                 } else {
                     $Jhove_DS_ID = "presmd_".$datastreams[$ds_key]['ID'].".xml";
                 }
+                
 				foreach ($datastreamsAll as $dsa) {
-					if ($dsa['ID'] == $Jhove_DS_ID) {					
-						//$Jhove_XML = Fedora_API::callGetDatastreamContents($pid, $Jhove_DS_ID, true);
+				    
+					if ($dsa['ID'] == $Jhove_DS_ID) {
 						$Jhove_XML = Fedora_API::callGetDatastreamDissemination($pid, $Jhove_DS_ID);
-						$fileSize = Jhove_Helper::extractFileSize($Jhove_XML['stream']);
-						$fileSize = Misc::size_hum_read($fileSize);
-						$datastreams[$ds_key]['archival_size'] = $fileSize;
 						
-						$spatialMetrics = Jhove_Helper::extractSpatialMetrics($Jhove_XML['stream']);
-						
-						if( is_numeric($spatialMetrics[0]) && $spatialMetrics[0] > 0 ) {
-                            $tpl->assign("img_width", $spatialMetrics[0]);
-						}
-						  
-						if( is_numeric($spatialMetrics[1]) && $spatialMetrics[1] > 0 ) {
-                            $tpl->assign("img_heigth", $spatialMetrics[1]);
+						if(!empty($Jhove_XML['stream'])) {
+    						$jhoveHelp = new Jhove_Helper($Jhove_XML['stream']);
+    						
+    						$fileSize = $jhoveHelp->extractFileSize();
+    						$fileSize = Misc::size_hum_read($fileSize);
+    						$datastreams[$ds_key]['archival_size'] = $fileSize;
+    						
+    						$spatialMetrics = $jhoveHelp->extractSpatialMetrics();
+    						
+    						if( is_numeric($spatialMetrics[0]) && $spatialMetrics[0] > 0 ) {
+                                $tpl->assign("img_width", $spatialMetrics[0]);
+    						}
+    						  
+    						if( is_numeric($spatialMetrics[1]) && $spatialMetrics[1] > 0 ) {
+                                $tpl->assign("img_heigth", $spatialMetrics[1]);
+    						}
+    						
+    						unset($jhoveHelp);
+    						unset($Jhove_XML);
 						}
 					}
 				}			
 				$datastreams[$ds_key]['FezACML'] = Auth::getAuthorisationGroups($pid, $datastreams[$ds_key]['ID']);
 				$datastreams[$ds_key]['downloads'] = Statistics::getStatsByDatastream($pid, $ds['ID']);			
 				Auth::getAuthorisation($datastreams[$ds_key]);
+				
 			}
+			
             if ($datastreams[$ds_key]['controlGroup'] == 'R' && $datastreams[$ds_key]['ID'] == 'DOI') {
                 $datastreams[$ds_key]['location'] = trim($datastreams[$ds_key]['location']);
                 $tpl->assign('doi', $datastreams[$ds_key]);
             }
 		} 
 		$tpl->assign("datastreams", $datastreams);
-		$tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");		
-		//$parents = Record::getParents($pid);
-		$tpl->assign("parents", $parents);	
+		$tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");
+		$tpl->assign("parents", $parents);
+		
 		if (count($parents) > 1) {
 			$tpl->assign("parent_heading", "Collections:");
 		} else {
@@ -320,7 +324,6 @@ if (!empty($pid) && $record->checkExists()) {
 		$derivations = Record::getParentsAll($pid, 'isDerivationOf', true);
 		//print_r($derivations); exit;
 		if (count($derivations) == 0) {
-//			echo "debug";
 			$derivations[0]['rek_title'][0] = Record::getSearchKeyIndexValue($pid, "Title");
 			$derivations[0]['rek_pid'] = $pid;			
 		} else {
@@ -333,12 +336,7 @@ if (!empty($pid) && $record->checkExists()) {
 			if (count($child_devs) != 0) {
 				$hasVersions = 1;
 			}
-/*			if (!is_array($derivations[$devkey]['children'])) {
-				$derivations[$devkey]['children'] = array();
-			}
-			array_push($derivations[$devkey]['children'], $child_devs);			*/
 			$derivations[$devkey]['children'] = $child_devs;
-//			$derivations[$devkey] = $child_devs;
 		}
 //		print_r($derivations);
 		$derivationTree = "";
@@ -356,26 +354,25 @@ if (!empty($pid) && $record->checkExists()) {
 		$tpl->assign("depositor_org", $depositor_org);
 		$tpl->assign("depositor_org_id", $depositor_org_id);
 		$tpl->assign("details", $details);
-        $tpl->assign('title', $record->getTitle());
-//		$tpl->assign("controlled_vocabs", $controlled_vocabs);				
+        $tpl->assign('title', $record->getTitle());		
 
 		$tpl->assign("statsAbstract", Statistics::getStatsByAbstractView($pid));				
 		$tpl->assign("statsFiles", Statistics::getStatsByAllFileDownloads($pid));						
         // get prev / next info
         
         // Check if we have moved onto the next listing page
-        if (@$_GET['next']) {
-            $res = getNextPage();
-        }
-        if (@$_GET['prev']) {
-            $res = getPrevPage();
-        }
-        if (@$_GET['next'] || @$_GET['prev']) {
-            $_SESSION['list'] = $res['list'];
-            $_SESSION['list_params'] = $res['list_params'];
-            $_SESSION['list_info'] = $res['list_info'];
-            $_SESSION['view_page'] = $res['list_info']['current_page'];
-        }
+//        if (@$_GET['next']) {
+//            $res = getNextPage();
+//        }
+//        if (@$_GET['prev']) {
+//            $res = getPrevPage();
+//        }
+//        if (@$_GET['next'] || @$_GET['prev']) {
+//            $_SESSION['list'] = $res['list'];
+//            $_SESSION['list_params'] = $res['list_params'];
+//            $_SESSION['list_info'] = $res['list_info'];
+//            $_SESSION['view_page'] = $res['list_info']['current_page'];
+//        }
 
         // Get the current listing 
         $list = $_SESSION['list'];
@@ -419,6 +416,7 @@ if (!empty($pid) && $record->checkExists()) {
         $tpl->assign(compact('prev','next','go_next','go_prev'));
 	}
 } else {
+    $tpl->assign('not_exists', true);
 	$tpl->assign("show_not_allowed_msg", true);
 }
 

@@ -189,10 +189,14 @@ class Template_API
         // create the list of collections
         $username = Auth::getUsername();
         if ($username != '') {
+            $this->assign("isUser", $username);
             $this->assign("current_full_name", Auth::getUserFullName());
             $this->assign("current_email", Auth::getUserEmail());
             $this->assign("current_user_id", Auth::getUserID());
         }
+        
+        $isAdministrator = Auth::isAdministrator();
+        $this->assign("isAdministrator", $isAdministrator);
 		
         $this->assign("start_date", date('Y-m-d', mktime(0,0,0,1,1,date('Y'))));
         $this->assign("end_date", date('Y-m-d', mktime(0,0,0,12,31,date('Y'))));
@@ -223,7 +227,7 @@ class Template_API
 		$this->assign("SHIB_HOME_SP", SHIB_HOME_SP);
 		$this->assign("SHIB_HOME_IDP", SHIB_HOME_IDP);
 		$this->assign("SHIB_FEDERATION_NAME", SHIB_FEDERATION_NAME);
-        $isAdministrator = Auth::isAdministrator();
+        
         if (count(Error_Handler::$app_errors) > 0) {
         	if ((APP_DISPLAY_ERRORS_USER == 1) && ($isAdministrator)) {
 	            $this->assign('app_errors', Error_Handler::$app_errors);

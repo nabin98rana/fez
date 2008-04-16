@@ -464,8 +464,14 @@ class Lister
         } elseif (($browse == "author") || ($browse == "author_id")) {
             
             // browse by author
-            if( $browse == "author")
-                $author = Lister::getValue('author');
+            if( $browse == "author") {
+                
+                if( strlen(Lister::getValue('author')) == 1 ) {
+                    $letter = Lister::getValue('author');
+                } else {
+                    $author = Lister::getValue('author');
+                }
+            }
                 
             if( $browse == "author_id" )
                 $author_id = Lister::getValue('author_id');

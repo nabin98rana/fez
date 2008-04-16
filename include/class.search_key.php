@@ -573,12 +573,6 @@ class Search_Key
     }
 
     
-    function getListforSolr() 
-    {
-        
-    }
-    
-    
     /**
      * Method used to get the list of search keys available in the 
      * system.
