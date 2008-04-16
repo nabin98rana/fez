@@ -185,9 +185,9 @@
 				}				
 			}
 			
-// worst case: a background process is started, but the queue already
-// empty at this point (very fast indexer)
-if ($acquireLock) {  
+            // worst case: a background process is started, but the queue already
+            // empty at this point (very fast indexer)
+            if ($acquireLock) {  
 				// acquire lock
 				Logger::debug("FulltextIndex::triggerUpdate acquire lock");				
 				

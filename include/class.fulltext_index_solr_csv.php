@@ -214,14 +214,9 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
                 }
                     
 		    }
-			
+		    
 			$csv = implode("\n", $csv);
-		    //$tmpfname = tempnam("/tmp", "solrCsv");
-//                  if (APP_SOLR_HOST == APP_HOSTNAME) {
 		    $tmpfname = tempnam(APP_PATH."solr_upload", "solrCsv");
-//                  } else {
-//		    $tmpfname = tempnam("http://".APP_HOSTNAME.APP_RELATIVE_URL."solr_upload", "solrCsv");
-//                  } 
 
             $handle = fopen($tmpfname, "w");
             fwrite($handle, $csvHeader);
@@ -250,6 +245,8 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
             if( $this->bgp ) {
                 $this->bgp->setStatus("Sending CSV file to Solr");
 			}
+			
+			Logger::debug($url);
             
             /*
              * Use cURL to tell solr it has a CSV file to process
@@ -358,12 +355,14 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
 	        Logger::error($res->getMessage());
 	        return "";
 	    }
+	    
 	    $rebuildCount = count($res);
-            $rCounter = 0; 
+        $rCounter = 0; 
 	    foreach ($res as $pidData) {
-                $rCounter++;
-                Logger::debug("processQueue: about to pre build citation ".$pidData['rek_pid']." (".$rCounter."/".$rebuildCount.")");
-	        Citation::updateCitationCache($pidData['rek_pid']);
+            $rCounter++;
+            Logger::debug("processQueue: about to pre build citation ".$pidData['rek_pid']." (".$rCounter."/".$rebuildCount.")");
+	        
+            Citation::updateCitationCache($pidData['rek_pid']);
 	    }
     }
     
@@ -404,9 +403,10 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
      */
     public function getCachedContent($pids) {
     	
-    	$stmt = 'SELECT ftc_pid as pid, REPLACE(REPLACE(ftc_content, \'"\',\'""\'), "\n", "") as content '.        		
+        // Remove newlines, page breaks and replace " with "" (which is how to escape for CSV files)
+    	$stmt = 'SELECT ftc_pid as pid, REPLACE(REPLACE(REPLACE(ftc_content, \'"\',\'""\'), "\n", ""), "\f", "") as content '.        		
         		'FROM '.APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME.
-        		' WHERE ftc_pid IN ('.$pids.') ';
+        		' WHERE ftc_pid IN ('.$pids.') AND ftc_is_text_usable = 1';
         				      	
         $res = $GLOBALS['db_api']->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);		
         if (PEAR::isError($res)) {

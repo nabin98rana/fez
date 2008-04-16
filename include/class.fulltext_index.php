@@ -588,13 +588,14 @@ abstract class FulltextIndex {
 
         if (!empty($textfilename) && is_file($textfilename)) {
         	Logger::debug("- got converted text in file ".$textfilename);
-            $plaintext = file($textfilename);
+            $plaintext = file_get_contents($textfilename);
             unlink($textfilename);
 
             // index the plaintext
             if (!empty($plaintext)) {
             	Logger::debug("calling indexPlaintext for datastream ".$dsitem['ID']);
                 $this->indexPlaintext($rec, $dsitem['ID'], $plaintext);
+                unset($plaintext);
             }
         }
     }
@@ -620,22 +621,49 @@ abstract class FulltextIndex {
 	private function indexPlaintext(&$rec, $dsID, &$plaintext)
     {
     	$pid = $rec->getPid();
-     	Logger::debug("FulltextIndex::indexPlaintext preparing fulltext for ".$pid);   
-        		       	
-        // plaintext comes in lines
-        foreach ($plaintext as $num => $line) {        	
-        	$line_only = trim(str_ireplace(chr(255), '', $line));
-        	
-        	if (strlen($line_only) > 0) {
-        		$fulltext .= $line . " ";
-        	}
-        }
-        if (strlen($fulltext) > 0) {
-        	chop($fulltext);
-        }
+     	Logger::debug("FulltextIndex::indexPlaintext preparing fulltext for ".$pid);
+     	
+     	$isTextUsable = true;
+     	
+     	/*
+     	 * Some PDF's are obfuscated so we are performing a check
+     	 * to see if the text we extracted is actually human readable text
+     	 *
+     	 * The hueristic is that the first 1000 characters should contain 
+     	 * 5 dictionary words
+     	 */
+     	if(function_exists('pspell_check')) {
+     	    
+     	    $pspell_link = pspell_new(APP_DEFAULT_LANG);
+     	    
+         	$chunkToTest  = explode(' ', $plaintext, 1000);
+         	$numDictWords = 0;
+         	
+         	foreach ($chunkToTest as $word) {
+         	    
+         	    // 1 character words are valid
+         	    // according to pspell
+         	    if (strlen($word) <= 1)
+                    continue;
+         	    
+     	        if (pspell_check($pspell_link, $word)) {
+     	            
+     	            $numDictWords++;
+     	            if( $numDictWords >= 5 ) {
+     	                break;
+     	            }
+     	            
+     	        }
+         	}
+         	
+         	if( $numDictWords < 5 ) {
+         	    $isTextUsable = 0;
+         	}
+     	
+     	}
         
         // insert or replace current entry
-        $this->updateFulltextCache($pid, $dsID, $fulltext);                
+        $this->updateFulltextCache($pid, $dsID, $plaintext, $isTextUsable);                
     }
     	
 
@@ -818,8 +846,6 @@ abstract class FulltextIndex {
      */
     public function mapType($sek_data_type) {
     	
-    	//$sek_details = Search_Key::getDetailsByTitle($fezName);
-    	//var_dump($sek_details);
 		switch ($sek_data_type) {
 			case "varchar":
 				$datatype = FulltextIndex::FIELD_TYPE_TEXT; break; // _s?
@@ -854,7 +880,8 @@ abstract class FulltextIndex {
     	$stmt = "SELECT ftc_pid as pid, ftc_dsid as dsid, ftc_content as content ".        		
         		"FROM ".APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME." ".
         		"WHERE ftc_pid='".$sqlPid."' ".
-        		"AND ftc_dsid='".$sqlDsId."'";
+        		"AND ftc_dsid='".$sqlDsId."' " .
+        		"AND ftc_is_text_usable = 1";;
         				      	
         $res = $GLOBALS['db_api']->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);		
         if (PEAR::isError($res)) {
@@ -923,7 +950,7 @@ abstract class FulltextIndex {
      * @param unknown_type $pid
      * @param unknown_type $dsID
      */
-    protected function updateFulltextCache($pid, $dsID, &$fulltext) {
+    protected function updateFulltextCache($pid, $dsID, &$fulltext, $is_text_usable = 1) {
         //Logger::debug("FulltextIndex::indexPlaintext inserting fulltext for ($pid,$dsID) into database");
 
     	// prepare ids
@@ -948,15 +975,17 @@ abstract class FulltextIndex {
         // can be replaced with IF EXISTS INSERT or DELETE/INSERT for other databases
         // or use transactional integrity - if using multiple indexing processes
         $stmt = "REPLACE INTO ".APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME." ".
-        	"(ftc_pid, ftc_dsid, ftc_content) VALUES (".
-        	"'".$sqlPid."','".$sqlDsId."',$fulltext)";
+        	"(ftc_pid, ftc_dsid, ftc_content, ftc_is_text_usable) VALUES (".
+        	"'".$sqlPid."','".$sqlDsId."',$fulltext, $is_text_usable)";
                        
        	$res = $GLOBALS['db_api']->dbh->query($stmt);
        	
 		if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             Logger::error($res->getMessage());
-        }       	    	
+        }
+        
+        unset($fulltext);
         
         /* if using transactions
        	// commit transaction
