@@ -378,6 +378,7 @@ function small_window(myurl) {
 	var newWindow;
 	var props = 'scrollBars=yes,resizable=yes,toolbar=no,menubar=no,location=no,directories=no,top=50,left=100,width=800,height=550';
 	newWindow = window.open(myurl, "Add_from_Src_to_Dest", props);
+	newWindow.focus();
 }
 
 // Adds the list of selected items selected in the child
