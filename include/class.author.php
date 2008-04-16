@@ -334,7 +334,7 @@ class Author
      * @access  public
      * @return  array The list of authors
      */
-    function getList($current_row = 0, $max = 25, $order_by = 'aut_lname', $filter="")
+    function getList($current_row = 0, $max = 25, $order_by = 'aut_lname', $filter="", $staff_id = "")
     {
 
     	$where_stmt = "";
@@ -344,7 +344,9 @@ class Author
     	if (!empty($filter)) {
 	    	$where_stmt .= " WHERE match(aut_fname, aut_lname) AGAINST ('*".$filter."*' IN BOOLEAN MODE) ";
 	    	$extra_stmt = " , match(aut_fname, aut_lname) AGAINST ('".$filter."') as Relevance ";
-	    	$extra_order_stmt = " Relevance DESC, ";    	    		    	
+	    	$extra_order_stmt = " Relevance DESC, ";
+    	} elseif(!empty($staff_id)) {
+    	    $where_stmt .= " WHERE aut_org_staff_id = '".$staff_id."'";
     	}
     	
 		$start = $current_row * $max;
@@ -356,7 +358,7 @@ class Author
                  ORDER BY ".$extra_order_stmt."
                     ".$order_by."
 				 LIMIT ".$start.", ".$max;
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);        
 		$total_rows = $GLOBALS["db_api"]->dbh->getOne('SELECT FOUND_ROWS()');
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

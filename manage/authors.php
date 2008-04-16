@@ -81,8 +81,12 @@ if ($isAdministrator) {
     }
 	if (@$_GET["cat"] == "search") {
 		$filter = Pager::getParam('search_filter',$params);
+		$staff_id = Pager::getParam('staff_id',$params);
+		
 		$tpl->assign("search_filter", $filter);
-		$author_list = Author::getList($pagerRow, $rows, 'aut_lname', $filter);		
+		$tpl->assign("staff_id", $staff_id);
+		
+		$author_list = Author::getList($pagerRow, $rows, 'aut_lname', $filter,$staff_id);		
 	} else {
 		$author_list = Author::getList($pagerRow, $rows);    
 	}

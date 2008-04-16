@@ -218,6 +218,17 @@
                   {include file="error_icon.tpl.html" field="search_filter"}
 				 <input class="button" type="submit" value="Search">                  
                 </td>
+              </tr>
+              
+              <tr>
+                <td class="default">
+                  <b>{if $search_filter != ""}<font color="red">{/if}Search Authors (by Org Staff ID){if $search_filter != ""}</font>{/if}</b>
+                </td>
+                 <td nowrap bgcolor="{$light_color}" width="80%">
+                  <input type="text" name="staff_id" size="40" class="default" value="{$staff_id}">
+                  {include file="error_icon.tpl.html" field="search_filter"}
+				 <input class="button" type="submit" value="Search">                  
+                </td>
               </tr>		
 			  </form>              
 
@@ -300,7 +311,7 @@
                     </tr>
                     {/section}
         <tr bgcolor="{$cell_color}">
-          <td colspan="13">
+          <td colspan="14">
             <table width="100%" cellspacing="0" cellpadding="0">
               <tr>
                 <td width="40%" align="center" nowrap>
@@ -334,7 +345,7 @@
                       <td width="4" bgcolor="{$cell_color}" align="center">
                         <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
                       </td>
-                      <td colspan="12" bgcolor="{$cell_color}" align="center">
+                      <td colspan="13" bgcolor="{$cell_color}" align="center">
                         <input type="submit" value="Delete" class="button">
                       </td>
                     </tr>
