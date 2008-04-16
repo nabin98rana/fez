@@ -265,8 +265,7 @@ class Org_Structure
                     " . APP_TABLE_PREFIX . "org_structure
                  INNER JOIN hr_position_vw ON AOU = org_extdb_id
                  INNER JOIN " . APP_TABLE_PREFIX . "author ON WAMIKEY = aut_org_staff_id and aut_org_username = '".$username."'
-                 WHERE org_extdb_name='HR'
-                 OR org_extdb_name='RRTD'";
+                 WHERE (org_extdb_name = 'hr' OR org_extdb_name = 'rrtd')";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 
         if (PEAR::isError($res)) {
@@ -319,8 +318,7 @@ class Org_Structure
                  FROM
                     " . APP_TABLE_PREFIX . "org_structure
 			     WHERE org_id not in (SELECT orr_child_org_id from  " . APP_TABLE_PREFIX . "org_structure_relationship)
-				 AND org_extdb_name = 'hr'
-				 OR org_extdb_name = 'rrtd'
+				 AND (org_extdb_name = 'hr' OR org_extdb_name = 'rrtd') 
                  ORDER BY
                     org_title ASC";
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
