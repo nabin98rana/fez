@@ -241,7 +241,7 @@ return;
     
     function getReportFilename()
     {
-    	return '/usr/local/fez_duplicates_reports/fez_duplicates_report_'.str_replace(':','_',$this->pid);
+    	return APP_DUPLICATES_REPORTS_LOCATION . 'fez_duplicates_report_'.str_replace(':','_',$this->pid);
     }
 
     function getXML_DOM()
