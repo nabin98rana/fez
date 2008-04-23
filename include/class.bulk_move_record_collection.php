@@ -71,16 +71,20 @@ class Bulk_Move_Record_Collection {
     function moveBGP($pids, $parent_pid, $regen=false,$topcall=true)
     {
         $this->regen = $regen;
+        $this->bgp->setStatus("Moving ".count($pids)." Records to ".$parent_pid);
+        
 		foreach ($pids as $pid) {
 	        $this->bgp->setHeartbeat();
-    	    $this->bgp->setProgress(++$this->pid_count);
+    	    $this->bgp->setStatus("Trying to move '".$pid."'");
 			$record = new RecordObject($pid);
 			if ($record->canEdit()) {
 				$record->updateRELSEXT("rel:isMemberOf", $parent_pid);
-	        	$this->bgp->setStatus("Moved '".$pid."'");	
+	        	$this->bgp->setStatus("Moved '".$pid."'");
 			} else {
 				$this->bgp->setStatus("Skipped '".$pid."'. User can't edit this record");
 			}
+			
+			$this->bgp->setProgress($this->pid_count++);
 		}
     	$this->bgp->setStatus("Finished Bulk Move to Collection");	
     }
