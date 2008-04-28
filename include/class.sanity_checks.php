@@ -520,17 +520,16 @@ include_once(APP_INC_PATH . "class.fedora_direct_access.php");
         $port = FEDORA_DB_PORT;
         $results = array_merge($results, SanityChecks::checkConnect('FEDORA_DB_HOST', $server . ':' . $port));
         if (SanityChecks::resultsClean($results)) {
-            $fedoraDirect = new Fedora_Direct_Access();
-            if (PEAR::isError($fedoraDirect->dbh)) {
+            if (PEAR::isError($GLOBALS['db_api']->dbh_fda)) {
                 $results[] = new ConfigResult('Fedora Direct','FEDORA_DB_DATABASE_NAME',FEDORA_DB_DATABASE_NAME,"Failed to connect to DB. " .
                         "Check that the specified database user has permissions on the Fedora database. " .
                         "Check that the database password is correct. " .
                         "Check that database name is set correctly. DB Error: " .
-                        "".$fedoraDirect->dbh->getMessage().' '.print_r($fedoraDirect->dbh->getDebugInfo(),true));
+                        "".$GLOBALS['db_api']->dbh_fda->dbh->getMessage().' '.print_r($GLOBALS['db_api']->dbh_fda->getDebugInfo(),true));
 			} else {
             	$stmt = "SELECT * FROM policy ";
-            	$fedoraDirect->dbh->modifyLimitQuery($stmt,0,1);
-            	$res = $fedoraDirect->dbh->query($stmt);
+            	$GLOBALS['db_api']->dbh_fda->modifyLimitQuery($stmt,0,1);
+            	$res = $GLOBALS['db_api']->dbh_fda->query($stmt);
             	if (PEAR::isError($res)) {
                 	$results[] = new ConfigResult('Fedora Direct','FEDORA_DB_DATABASE_NAME',FEDORA_DB_DATABASE_NAME,"Failed to query DB. " .
                         "Check that the specified database user has permissions on the Fedora database. " .
