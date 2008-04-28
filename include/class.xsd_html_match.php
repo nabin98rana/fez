@@ -2603,7 +2603,7 @@ class XSD_HTML_Match {
 	function getElementOrphanList($xdis_id, $xsd_array) {
 		$xsd_list = Misc::array_flatten($xsd_array);
 		$xsd_list = implode("', '", $xsd_list);
-        $sel_list = XSD_HTML_Match::getSubloopingElementByXDIS_ID($xdis_id);
+        $sel_list = XSD_HTML_Match::getSubloopingElementsByXDIS_ID($xdis_id);
         $sel_list = implode(",", $sel_list);
 		$stmt = "SELECT 
 		                    *
