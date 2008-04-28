@@ -944,8 +944,6 @@ class Record
 		    return array();
 		}
 		
-		
-		
 		// make sure the sort by is setup well
 		if (!is_numeric(strpos($sort_by, "searchKey"))) {
 			$sort_by_id = Search_Key::getID($sort_by);
@@ -2226,14 +2224,8 @@ inner join
                 Error_Handler::logError($xmlObj, __FILE__,__LINE__);
             }
         }
-
-/*		if (@is_array($datastreamXMLHeaders["File_Attachment0"])) { // it must be a multiple file upload so remove the generic one
-			$datastreamXMLHeaders = Misc::array_clean_key($datastreamXMLHeaders, "File_Attachment", true, true);
-		}
-*/
+        
 		$convert_check = false;
-
-//		Record::insertIndexBatch($pid, '', $indexArray, $datastreamXMLHeaders, $exclude_list, $specify_list);
 
         // ingest the datastreams
 		foreach ($datastreamXMLHeaders as $dsKey => $dsTitle) {
@@ -2251,14 +2243,9 @@ inner join
 				if ($dsTitle['CONTROL_GROUP'] == "R" ) { // if its a redirect we don't need to upload the file
                     if (Fedora_API::datastreamExists($pid, $dsIDName)) {
                         Fedora_API::callPurgeDatastream($pid, $dsIDName);
-//				    	Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, $dsTitle['STATE'], $dsTitle['LABEL'],
-//    	                    $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], "false");
-
                     }
                     $location = trim($datastreamXMLContent[$dsKey]);
                     if (!empty($location)) {
-//						Fedora_API::getUploadLocation($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey], $dsTitle['LABEL'],
-//							$dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
                         Fedora_API::callAddDatastream($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey],
                                 $dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
                     }
@@ -2840,12 +2827,16 @@ class RecordGeneral
      */
     function updateRELSEXT($key, $value, $removeCurrent = true)
     {
-
 		$newXML = "";
         $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'RELS-EXT', true);
 		$doc = DOMDocument::loadXML($xmlString);
 		$xpath = new DOMXPath($doc);
 		$fieldNodeList = $xpath->query("/*[local-name()='RDF' and namespace-uri()='http://www.w3.org/1999/02/22-rdf-syntax-ns#']/*[local-name()='description' and namespace-uri()='http://www.w3.org/1999/02/22-rdf-syntax-ns#'][1]/*[local-name()='isMemberOf' and namespace-uri()='info:fedora/fedora-system:def/relations-external#']");
+		
+		if($fieldNodeList->length == 0) {
+		    return false;
+		}
+		
 		foreach ($fieldNodeList as $fieldNode) { // first delete all the isMemberOfs
 			$parentNode = $fieldNode->parentNode;
 			//Error_Handler::logError($fieldNode->nodeName.$fieldNode->nodeValue,__FILE__,__LINE__);
@@ -2860,7 +2851,10 @@ class RecordGeneral
         if ($newXML != "") {
             Fedora_API::callModifyDatastreamByValue($this->pid, "RELS-EXT", "A", "Relationships to other objects", $newXML, "text/xml", false);
 			Record::setIndexMatchingFields($this->pid);
+			return true;
         }
+        
+        return false;
     }
     
     /**
@@ -3201,6 +3195,7 @@ class RecordGeneral
   				Error_Handler::logError("The PID ".$this->pid." has an error getting it's display details. This object is currently in an erroneous state.",__FILE__,__LINE__);
             }
         }
+        
         return $this->details;
     }
 

@@ -78,8 +78,11 @@ class Bulk_Move_Record_Collection {
     	    $this->bgp->setStatus("Trying to move '".$pid."'");
 			$record = new RecordObject($pid);
 			if ($record->canEdit()) {
-				$record->updateRELSEXT("rel:isMemberOf", $parent_pid);
-	        	$this->bgp->setStatus("Moved '".$pid."'");
+				if($record->updateRELSEXT("rel:isMemberOf", $parent_pid) ) {
+                    $this->bgp->setStatus("Moved '".$pid."'");
+				} else {
+				    $this->bgp->setStatus("Skipped '".$pid."' because xquery did not return any results");
+				}
 			} else {
 				$this->bgp->setStatus("Skipped '".$pid."'. User can't edit this record");
 			}
