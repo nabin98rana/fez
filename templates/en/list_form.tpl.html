@@ -45,15 +45,9 @@
         
 	{if $spell_suggest != ""}
 	<table width="100%" cellpadding="10" cellspacing="0" class="listrecord">
-	  <tr>
-	    <td colspan="2">
-		  <table bgcolor="#FFFFFF" width="100%" cellpadding="3" cellspacing="0">
-		  	<tr>
-		  		<td class="default" colspan="2">&nbsp;<span style="color: red">Did you mean?: </span><a href="?{$spell_suggest_url}">{$spell_suggest}</a><br /><br /></td>
-		  	</tr>
-		  </table>
-	  </td>
-	</tr>
+	  	<tr>
+	  		<td class="default" colspan="2">&nbsp;<span style="color: red">Did you mean?: </span><a href="?{$spell_suggest_url}">{$spell_suggest}</a><br /><br /></td>
+	  	</tr>
 	</table>
 	{/if}
 		
@@ -142,7 +136,7 @@
             {/if}
 			
             {if $list[i].rek_object_type != 3}
-                {if $list[i].rek_ismemberof_count != ""}({$list[i].rek_ismemberof_count}){else}(0){/if}
+                {if $list[i].rek_ismemberof_count != ""}({$list[i].rek_ismemberof_count}){/if}
             {/if}
 		  </td>		
 

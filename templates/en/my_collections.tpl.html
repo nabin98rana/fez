@@ -4,7 +4,6 @@
      <tr>
        <th class="default">&nbsp;<b>Title</b></th>
        <th class="default">&nbsp;<b>Community</b></th>
-       <th class="default" nowrap>&nbsp;<b>Items</b></th>
        <th class="default" nowrap>&nbsp;<b>Action</b></th>
      </tr>
      {assign var="list" value=$my_collections_list}
@@ -18,9 +17,6 @@
 		{section name="m" loop=$list[i].rek_ismemberof.rek_pid}
          &nbsp;{$list[i].rek_ismemberof.rek_title[m]|escape}
 		{/section}
-       </td>
-       <td align="right" class="default">
-         &nbsp;{if $list[i].rek_ismemberof_count}{$list[i].rek_ismemberof_count|escape}{else}0{/if}
        </td>
        <td class="default">
 		  {section name="w" loop=$list[i].wft_id}

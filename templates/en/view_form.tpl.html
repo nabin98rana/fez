@@ -238,10 +238,10 @@ function showDiv(p)
 		            {else}
 			      {assign var="wf_icon" value=$workflows[w].wft_icon}
 			    {/if}
-                            {if $workflows[w].wft_type_id == 6}
-                              {assign var='wf_url' value=$rel_url|cat:'workflow/export.php'}
-                            {else}
-                              {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
+                {if $workflows[w].wft_type_id == 6}
+                  {assign var='wf_url' value=$rel_url|cat:'workflow/export.php'}
+                {else}
+                  {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
 			    {/if}
 			<a href='{$wf_url}?pid={$pid|escape:"html"}&cat=select_workflow&xdis_id={$xdis_id}&wft_id={$workflows[w].wft_id}&href={$smarty.server.REQUEST_URI}'><img title="{$workflows[w].wfl_title}" align="absmiddle" src="{$rel_url}{$wf_icon}" border="0" /></a> 
 				{/if}

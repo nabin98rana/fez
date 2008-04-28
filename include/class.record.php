@@ -1000,7 +1000,7 @@ class Record
 	                    Record::identifyThumbnails($res, $citationCache);
 	                    Record::getAuthWorkflowsByPIDS($res, $usr_id);
 					}
-                    Record::getChildCountByPIDS($res, $usr_id);
+                    //Record::getChildCountByPIDS($res, $usr_id);
                 }
             }
 	    } else {

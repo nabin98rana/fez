@@ -1407,13 +1407,15 @@ $stmt .= "
         $options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 	    $options["searchKey".Search_Key::getID("Object Type")] = 2; // collections only
         $list = Record::getListing($options, array("Lister"), 0, 1000, "Title", true, false);
+        
 		$list = $list['list'];
 		$returnList = array();
+		
 		foreach ($list as $element) {
 			if (is_numeric($element['rek_ismemberof_count'])) {
 				$returnList[$element['rek_pid']] = $element['rek_title']." (".$element['rek_ismemberof_count'].")";
 			} else {
-				$returnList[$element['rek_pid']] = $element['rek_title']." (0)";
+				$returnList[$element['rek_pid']] = $element['rek_title'];
 			}
 		}
 		return $returnList;
