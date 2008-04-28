@@ -1940,10 +1940,21 @@ inner join
 	 	   	    	} elseif ($searchValue == "-4") { //not published
 	 	        		$published_id = Status::getID("Published");
 	 	        		$searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName != $published_id";
-	 	   	    	} elseif ($searchValue == "-3") { //not this user
+	 	   	    	} elseif ($searchValue == "-3") { //myself or un-assigned
 	 	        		$usr_id = Auth::getUserID();
-	 	        		$searchKey_join["sk_where_$operatorToUse"][] = " (($sqlColumnName = '".$usr_id."') OR NOT EXISTS
-							(SELECT * FROM {$dbtp}record_search_key_".$sekdet['sek_title_db']." AS sr WHERE sr.rek_".$sekdet['sek_title_db']."_pid = r{$joinID}.rek_pid))";
+	 	        		
+	 	        		$tmpSql = " (($sqlColumnName = '".$usr_id."') ";
+	 	        		
+	 	        		if ($sekdet['sek_relationship'] == 1) {
+    		        		 $tmpSql .= "OR NOT EXISTS
+            							(SELECT * 
+            							 FROM {$dbtp}record_search_key_".$sekdet['sek_title_db']." AS sr 
+            							 WHERE sr.rek_".$sekdet['sek_title_db']."_pid = r{$joinID}.rek_pid))";
+    	             	} else {
+    	             		$tmpSql .= "OR ($sqlColumnName IS NULL OR $sqlColumnName = ''))";
+    	             	}
+	 	        		
+	 	        		$searchKey_join["sk_where_$operatorToUse"][] =  $tmpSql;
 	 	        	}
     	 	    	elseif ($sekdet['sek_data_type'] == "int") {
     	 	    		
