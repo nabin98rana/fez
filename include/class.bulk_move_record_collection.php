@@ -77,19 +77,35 @@ class Bulk_Move_Record_Collection {
 	        $this->bgp->setHeartbeat();
     	    $this->bgp->setStatus("Trying to move '".$pid."'");
 			$record = new RecordObject($pid);
+			
 			if ($record->canEdit()) {
-				if($record->updateRELSEXT("rel:isMemberOf", $parent_pid) ) {
-                    $this->bgp->setStatus("Moved '".$pid."'");
-				} else {
+			    
+			    $res = $record->updateRELSEXT("rel:isMemberOf", $parent_pid);
+			    
+			    if($res == -3) {
+                    $this->bgp->setStatus("Skipped '".$pid."' because PID does not exist");
+				} elseif($res == -2) {
 				    $this->bgp->setStatus("Skipped '".$pid."' because xquery did not return any results");
+				} elseif($res == 1) {
+                    $this->bgp->setStatus("Moved '".$pid."'");
+                    $this->pid_count++;
+				} else {
+				    $this->bgp->setStatus("Moving '".$pid."' failed");
 				}
+				
 			} else {
 				$this->bgp->setStatus("Skipped '".$pid."'. User can't edit this record");
 			}
 			
-			$this->bgp->setProgress($this->pid_count++);
+			$this->bgp->setProgress($this->pid_count);
 		}
-    	$this->bgp->setStatus("Finished Bulk Move to Collection");	
+		
+		$extra_msg = '';
+		if($this->pid_count != count($pids)) {
+		    $skipped =  count($pids) - $this->pid_count;
+		    $extra_msg = ' Skipped ' . $skipped;
+		}
+    	$this->bgp->setStatus("Finished Bulk Move to Collection.".$extra_msg);	
     }
 
 	function splitCollection($collection_pid, $chunk_size)

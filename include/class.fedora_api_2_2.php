@@ -823,24 +823,20 @@ class Fedora_API {
     */
 	function datastreamExists ($pid, $dsID, $refresh=false, $pattern=false) {
 		$dsExists = false; 
-//		$rs = Fedora_API::callListDatastreams($pid); // old way
 		$rs = Fedora_API::callListDatastreamsLite($pid, $refresh);
         if (is_array($rs)) {
-		foreach ($rs as $row) {
-//			if (isset($row['ID']) && $row['ID'] == $dsID) { // old way
-				
-			if ($pattern != false) {
-//				$ds_matches = preg_match($pattern, $row['dsid']);
-				if (isset($row['dsid']) && preg_match($pattern, $row['dsid'], $ds_matches)) {
-					return $ds_matches[0];
-					$dsExists = true;
-				}			
-			} else {
-				if (isset($row['dsid']) && strtolower($row['dsid']) == strtolower($dsID)) {				
-					$dsExists = true;
-				}
-			}
-		}
+    		foreach ($rs as $row) {
+    			if ($pattern != false) {
+    				if (isset($row['dsid']) && preg_match($pattern, $row['dsid'], $ds_matches)) {
+    					return $ds_matches[0];
+    					$dsExists = true;
+    				}			
+    			} else {
+    				if (isset($row['dsid']) && strtolower($row['dsid']) == strtolower($dsID)) {				
+    					$dsExists = true;
+    				}
+    			}
+    		}
         }
 		return $dsExists;
 	}

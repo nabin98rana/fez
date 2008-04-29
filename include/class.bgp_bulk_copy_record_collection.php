@@ -59,17 +59,27 @@ class BackgroundProcess_Bulk_Copy_Record_Collection extends BackgroundProcess
 		 */
 		if (!empty($pids) && is_array($pids)) {
             
+		    $this->bgp->setStatus("Copying ".count($pids)." Records to ".$collection_pid);
+		    
     		foreach ($pids as $pid) {
     	        $this->setHeartbeat();
-        	    $this->setProgress(++$this->pid_count);
-        	    
+    	        
     			$record = new RecordObject($pid);
     			if ($record->canEdit()) {
-    				$record->updateRELSEXT("rel:isMemberOf", $collection_pid, false);
-    	        	$this->setStatus("Copied '".$pid."'");	
+    				
+    			    $res = $record->updateRELSEXT("rel:isMemberOf", $collection_pid, false);
+    			    
+    			    if($res >= 1) {
+                        $this->setStatus("Copied '".$pid."'");	
+                        $this->pid_count++;
+    			    } else {
+    			        $this->setStatus("Copied '".$pid."' Failed");	
+    			    }
     			} else {
     				$this->setStatus("Skipped '".$pid."'. User can't edit this record");
     			}
+    			
+    			$this->bgp->setProgress($this->pid_count);
     		}
     		
             $this->setStatus("Finished Bulk Copy to Collection");

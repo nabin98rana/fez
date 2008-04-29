@@ -2840,12 +2840,17 @@ class RecordGeneral
     {
 		$newXML = "";
         $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'RELS-EXT', true);
+        
+        if(empty($xmlString) || !is_string($xmlString)) {
+            return -3;
+        }
+        
 		$doc = DOMDocument::loadXML($xmlString);
 		$xpath = new DOMXPath($doc);
 		$fieldNodeList = $xpath->query("/*[local-name()='RDF' and namespace-uri()='http://www.w3.org/1999/02/22-rdf-syntax-ns#']/*[local-name()='description' and namespace-uri()='http://www.w3.org/1999/02/22-rdf-syntax-ns#'][1]/*[local-name()='isMemberOf' and namespace-uri()='info:fedora/fedora-system:def/relations-external#']");
 		
 		if($fieldNodeList->length == 0) {
-		    return false;
+		    return -2;
 		}
 		
 		foreach ($fieldNodeList as $fieldNode) { // first delete all the isMemberOfs
@@ -2862,10 +2867,10 @@ class RecordGeneral
         if ($newXML != "") {
             Fedora_API::callModifyDatastreamByValue($this->pid, "RELS-EXT", "A", "Relationships to other objects", $newXML, "text/xml", false);
 			Record::setIndexMatchingFields($this->pid);
-			return true;
+			return 1;
         }
         
-        return false;
+        return -1;
     }
     
     /**
