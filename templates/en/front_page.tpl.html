@@ -148,7 +148,7 @@ var dt1_load_state = 0;
 				<div id="searchbox-content">
 					<form name="search_frm" target="_top" method="get" action="/list/">
 						<input type="hidden" name="cat" value="quick_filter" />
-						<label for="search" accesskey="3"><strong>Quick Search UQ eSpace</strong> <a href="#" class="icon-help"><img src="{$rel_url}images/icons/help.png" style="vertical-align:bottom;" alt="Help on Searching" title="Help on searching" onclick="javascript:alert( 'Search Title, Abstract, Keywords:\n\n Enter a phrase.  Objects where any field contains the phrase will be returned.\n This is a case-insensitive search, and you may use the * or ? wildcards.\n\n Examples:\n\n li*y\n finds objects that start with li and end with y\n\n b?ts\n finds words that start with b followed by any letter and then ts.  e.g. bits, bats, byts')" /></a></label>
+						<label for="search" accesskey="3"><strong>Quick Search {$smarty.const.APP_SHORT_ORG_NAME} eSpace</strong> <a href="#" class="icon-help"><img src="{$rel_url}images/icons/help.png" style="vertical-align:bottom;" alt="Help on Searching" title="Help on searching" onclick="javascript:alert( 'Search Title, Abstract, Keywords:\n\n Enter a phrase.  Objects where any field contains the phrase will be returned.\n This is a case-insensitive search, and you may use the * or ? wildcards.\n\n Examples:\n\n li*y\n finds objects that start with li and end with y\n\n b?ts\n finds words that start with b followed by any letter and then ts.  e.g. bits, bats, byts')" /></a></label>
 						<input type="hidden" name="sort_by" value="searchKey0" />
 						<input type="text" id="front_search" name="search_keys[0]" size="40" autocomplete="off" />
 						<div id="loading1" style="display:none;">Loading...</div>
@@ -159,13 +159,13 @@ var dt1_load_state = 0;
 			</div>
 
 			<div id="news-box">
-			<p><strong>Did you know that</strong> you can customize your UQ eSpace RSS feeds by multiple search criteria?</p><p><!--a href="javascript:window.alert('BW to write some content');">Show me how</a> | --><a href="http://www.google.com.au/search?hl=en&amp;q=What+is+RSS%3F&amp;btnG=Google+Search&amp;meta=" target="_blank">What is RSS?</a></p>
+			<p><strong>Did you know that</strong> you can customize your {$smarty.const.APP_SHORT_ORG_NAME} eSpace RSS feeds by multiple search criteria?</p><p><!--a href="javascript:window.alert('BW to write some content');">Show me how</a> | --><a href="http://www.google.com.au/search?hl=en&amp;q=What+is+RSS%3F&amp;btnG=Google+Search&amp;meta=" target="_blank">What is RSS?</a></p>
 			</div>
 
 			<div id="news-box">
 			<p><br /><strong>Our open repository</strong> content is indexed by:</p>
 			<p><a href="http://oaister.umdl.umich.edu/o/oaister" target="_blank"><img src="{$rel_url}images/logo_oaister.gif" alt="OAIster - University of Michigan Digital Library Production Services" title="OAIster - University of Michigan Digital Library Production Services" border="0" /></a> &nbsp; 
-			<a href="http://search.arrow.edu.au/apps/ArrowUI/?adapter=ViewSearchFormAdapter" target="_blank"><img src="{$rel_url}images/logo_arrow.gif" alt="ARROW - National Library of Australia's resource discovery service" title="ARROW - National Library of Australia's resource discovery service" border="0" /></a> &nbsp; 
+			<a href="http://search.arrow.edu.au/" target="_blank"><img src="{$rel_url}images/logo_arrow.gif" alt="ARROW - National Library of Australia's resource discovery service" title="ARROW - National Library of Australia's resource discovery service" border="0" /></a> &nbsp; 
 			<a href="http://scholar.google.com/" target="_blank"><img src="{$rel_url}images/logo_google_scholar.jpg" alt="Google Scholar - broadly search for scholarly literature" title="Google Scholar - broadly search for scholarly literature" border="0" /></a></p>
 			</div>
 
