@@ -933,6 +933,26 @@ class Controlled_Vocab
 
 		return $cvTree;
 	}
+	
+	
+	function suggest($id) {
+	    
+        $dbtp = APP_TABLE_PREFIX;
+        $term = Misc::escapeString($term);
+        $stmt = " SELECT cvo_id, cvo_title
+                  FROM " . APP_TABLE_PREFIX . "controlled_vocab
+                  WHERE cvo_id LIKE '%$id%'"; //, cvo_title
+        
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+        
+	}
 
 
     /**

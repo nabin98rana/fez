@@ -1,9 +1,13 @@
 {include file="header.tpl.html"}
 
 <link type="text/css" rel="stylesheet" href="{$rel_url}css/treeview.css">
+<link type="text/css" rel="stylesheet" href="{$rel_url}css/autocomplete.css"  />
 <script src = "{$rel_url}js/yahoo/yahoo-min.js" ></script>
 <script src = "{$rel_url}js/yahoo/event-min.js" ></script>
 <script src = "{$rel_url}js/yahoo/treeview-min.js" ></script>
+
+<script type="text/javascript" src="{$rel_url}js/yahoo/utilities.js"></script>
+<script type="text/javascript" src="{$rel_url}js/yahoo/autocomplete.js"></script>
 {literal}
 <script language="JavaScript">
 
@@ -71,5 +75,90 @@ var tree;
 
 </script>
 {/literal}
+<br />
+<div style="padding: 10px;"><strong>OR</strong></div>
+<div style="padding: 10px;">
+Search by ID here:
+<div id="authorsuggest" style="width:15em;height:2em;position:relative;">
+	<input id="cv_lookup" type="text" />
+	<div id="cv_container"></div>
+</div>
+<br />
+<select id="cv_id_select" class="default" size="5" multiple=""><input type="button" value="Add" onclick="javascript:addSelectBoxToParent();"/>
+</select>
+</div>
+
+
+{literal}
+    <script type="text/javascript">
+    
+    // Instantiate first JS Array DataSource
+    var myServer = "{/literal}{$rel_url}{literal}cv_id_proxy.php";
+    var mySchema = ["Result","cvo_id"];
+    var myDataSource = new YAHOO.widget.DS_XHR(myServer, mySchema);
+    
+    // Instantiate first AutoComplete
+    this.oAutoComp = new YAHOO.widget.AutoComplete('cv_lookup','cv_container', myDataSource);
+    this.oAutoComp.maxResultsDisplayed = 60; 
+    this.oAutoComp.formatResult = function(oResultItem, sQuery) {
+        return oResultItem[1].cvo_title;
+    };
+    
+    this.oAutoComp.itemSelectEvent.subscribe(function(sType, aArgs){
+        var selectBox = YAHOO.util.Dom.get('cv_id_select');
+        
+        var aData = aArgs[2];
+        
+        var elOptNew = document.createElement('option');
+        elOptNew.text = aData[1].cvo_title;
+        elOptNew.value = aData[1].cvo_id;
+        
+        if (selectBox.length == 0) {
+            selectBox.options[0] = elOptNew;
+            selectBox.selectedIndex = 0;
+        } else if (selectBox.selectedIndex >= 0) {
+            
+            var elOptOld = selectBox.options[selectBox.selectedIndex];  
+            
+            try {
+              selectBox.add(elOptNew, elOptOld); // standards compliant; doesn't work in IE
+            }
+            catch(ex) {
+              selectBox.add(elOptNew, selectBox.selectedIndex); // IE only
+            }
+        }
+        
+        var cvTextBox = YAHOO.util.Dom.get('cv_lookup');
+        cvTextBox.value = '';
+
+    });
+    
+    function addSelectBoxToParent() {
+        
+        var cvSelectBox = YAHOO.util.Dom.get('cv_id_select');
+        
+        if (cvSelectBox.length > 0) {
+            for(i=0; i<cvSelectBox.length; i++) {
+                addItemToParent(cvSelectBox.options[i].value, cvSelectBox.options[i].text);
+            }
+        }
+        
+        cvSelectBox.options.length = 0;
+        
+    }
+    
+    </script>
+    
+    <style type="text/css">
+    #cv_container .yui-ac-content {
+        max-height:11em;
+        width: 250px;
+        overflow:auto;
+        overflow-x:hidden; /* scrolling */
+        _height:11em; /* ie6 */
+    }
+    </style>
+    
+    {/literal}
 
 {include file="footer.tpl.html"}
