@@ -125,18 +125,18 @@ class RecordView {
                                 $temp_xsdmf_id = $dis_field['xsdmf_attached_xsdmf_id'];
                                 if ( is_array($details[$temp_xsdmf_id]) &&  (is_numeric($details[$temp_xsdmf_id][$ckey])) && ($details[$temp_xsdmf_id][$ckey] != 0)) {
                                 //if ( array_key_exists($temp_xsdmf_id, $details) ) {
-								  $details[$dis_field['xsdmf_id']][$ckey] = "<a title='Browse by Author ID for ".$details[$dis_field['xsdmf_id']][$ckey]."' class='author_id_link' href='".APP_BASE_URL."list/author_id/".htmlspecialchars($details[$temp_xsdmf_id][$ckey], ENT_QUOTES)."/'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
+								  $details[$dis_field['xsdmf_id']][$ckey] = "<a title='Browse by Author ID for ".$details[$dis_field['xsdmf_id']][$ckey]."' class='author_id_link' href='".APP_BASE_URL."list/author_id/".urlencode($details[$temp_xsdmf_id][$ckey])."/'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
                                 } else {
-								  $details[$dis_field['xsdmf_id']][$ckey] = "<a title='Browse by Author Name for ".$details[$dis_field['xsdmf_id']][$ckey]."' class='silent_link' href='".APP_BASE_URL."list/author/".htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey], ENT_QUOTES)."/'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
+								  $details[$dis_field['xsdmf_id']][$ckey] = "<a title='Browse by Author Name for ".$details[$dis_field['xsdmf_id']][$ckey]."' class='silent_link' href='".APP_BASE_URL."list/author/".urlencode($details[$dis_field['xsdmf_id']][$ckey])."/'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
 
                                 }                	
 							}
 						} else {
                              $temp_xsdmf_id = $dis_field['xsdmf_attached_xsdmf_id'];
                              if ((is_numeric($details[$temp_xsdmf_id])) && ($details[$temp_xsdmf_id] != 0)) {
-							   $details[$dis_field['xsdmf_id']] = "<a title='Browse by Author ID for ".$details[$dis_field['xsdmf_id']]."' class='author_id_link' href='".APP_BASE_URL."list/author_id/".htmlspecialchars($details[$temp_xsdmf_id], ENT_QUOTES)."/'>".$details[$dis_field['xsdmf_id']]."</a>";
+							   $details[$dis_field['xsdmf_id']] = "<a title='Browse by Author ID for ".$details[$dis_field['xsdmf_id']]."' class='author_id_link' href='".APP_BASE_URL."list/author_id/".urlencode($details[$temp_xsdmf_id])."/'>".$details[$dis_field['xsdmf_id']]."</a>";
                              } else {
-							   $details[$dis_field['xsdmf_id']] = "<a title='Browse by Author Name for ".$details[$dis_field['xsdmf_id']]."' class='silent_link' href='".APP_BASE_URL."list/author/".htmlspecialchars($details[$dis_field['xsdmf_id']], ENT_QUOTES)."/'>".$details[$dis_field['xsdmf_id']]."</a>";
+							   $details[$dis_field['xsdmf_id']] = "<a title='Browse by Author Name for ".$details[$dis_field['xsdmf_id']]."' class='silent_link' href='".APP_BASE_URL."list/author/".urlencode($details[$dis_field['xsdmf_id']])."/'>".$details[$dis_field['xsdmf_id']]."</a>";
                              }
 						}
 					}

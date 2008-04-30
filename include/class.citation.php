@@ -387,7 +387,7 @@
 					if (is_array($details['rek_author_id']) && $details['rek_author_id'][$yy] != 0) {
 						$value = '<a class="author_id_link" title="Browse by Author ID for '.htmlentities($details['rek_author_id_lookup'][$yy]).'" href="' . APP_RELATIVE_URL . 'list/author_id/'.$details['rek_author_id'][$yy].'/">'.$value.'</a>';
 					} else {
-						$value = '<a title="Browse by Author Name for '.$details['rek_author'][$yy].'" href="' . APP_RELATIVE_URL . 'list/author/'.htmlentities($details['rek_author'][$yy]).'/">'.$value.'</a>';
+						$value = '<a title="Browse by Author Name for '.$details['rek_author'][$yy].'" href="' . APP_RELATIVE_URL . 'list/author/'.urlencode(htmlentities($details['rek_author'][$yy])).'/">'.$value.'</a>';
 					}
 				}
 			} else {

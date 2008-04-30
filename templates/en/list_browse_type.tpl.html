@@ -25,9 +25,9 @@
         <tr>
             <td style="border-top: 1px dashed #87ABE9;" align="left">
             {if $list[i].record_author_id != 0}
-            <a class="author_id_link" href='{$rel_url}list/author_id/{$list[i].record_author_id|escape:'url'}/'>{$list[i].record_author|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+            <a class="author_id_link" href='{$rel_url}list/author_id/{$list[i].record_author_id|escape:"url"}/'>{$list[i].record_author|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
             {else}
-            <a href='{$rel_url}list/author/{$list[i].record_author|escape:'url'}/'>{$list[i].record_author|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+            <a href='{$rel_url}list/author/{$list[i].record_author|escape:'url'}/'>{$list[i].record_author|escape:"url"}</a> ({$list[i].record_count|escape:"html"})
             {/if}
             </td>
         </tr>
@@ -53,7 +53,7 @@
 
         <tr>
             <td style="border-top: 1px dashed #87ABE9;" align="left">
-                <a href='{$rel_url}list/depositor/{$list[i].record_depositor}/'>{$list[i].record_desc|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+                <a href='{$rel_url}list/depositor/{$list[i].record_depositor|escape:"url"}/'>{$list[i].record_desc|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
             </td>
         </tr>
 
