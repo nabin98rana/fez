@@ -123,11 +123,6 @@
               <tr>
 				  <td align="left" valign="middle" >
 	                {if $href_view}<a class="title_link" href='{$rel_url}{$href_view}' title='{$list[i].rek_title}'>{/if}{$list[i].rek_title|escape:"html"}{if $href_view}</a>{/if}
-                    
-                    {if $list[i].rek_object_type != 3}
-                        {if $list[i].rek_ismemberof_count != ""}({$list[i].rek_ismemberof_count}){else}(0){/if}
-                    {/if}
-                    
 			     </td>
 
 				</tr>
