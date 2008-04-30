@@ -59,7 +59,7 @@ class BackgroundProcess_Bulk_Copy_Record_Collection extends BackgroundProcess
 		 */
 		if (!empty($pids) && is_array($pids)) {
             
-		    $this->bgp->setStatus("Copying ".count($pids)." Records to ".$collection_pid);
+		    $this->setStatus("Copying ".count($pids)." Records to ".$collection_pid);
 		    
     		foreach ($pids as $pid) {
     	        $this->setHeartbeat();
@@ -79,7 +79,7 @@ class BackgroundProcess_Bulk_Copy_Record_Collection extends BackgroundProcess
     				$this->setStatus("Skipped '".$pid."'. User can't edit this record");
     			}
     			
-    			$this->bgp->setProgress($this->pid_count);
+    			$this->setProgress($this->pid_count);
     		}
     		
             $this->setStatus("Finished Bulk Copy to Collection");
