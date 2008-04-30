@@ -867,10 +867,6 @@ ul.shadetabs li{
 	display: inline;
 	padding: 5px 13px 7px 12px;
 	background: transparent url([[$smarty.const.APP_BASE_URL]]images/tab-arrow.gif) 5px 50% no-repeat;
-	border-top: 2px solid;
-	border-right: 2px solid;
-	border-left: 2px solid;
-	border-color: transparent;
 }
 
 ul.shadetabs li a:hover{
