@@ -54,7 +54,10 @@ $form = @$_GET["form"] ? @$_GET["form"] : @$_POST["form"];
 if (!is_numeric($cvo_id)) {
 	$cvo_id = $_GET['cv_fields'];
 }
-$cvo_details = Controlled_Vocab::getDetails($cvo_id);
+
+if(!empty($cvo_id)) {
+    $cvo_details = Controlled_Vocab::getDetails($cvo_id);
+}
 
 	$breadcrumb = Controlled_Vocab::getParentAssocListFullDisplay($cvo_id);
 	$breadcrumb = Misc::array_merge_preserve($breadcrumb, Controlled_Vocab::getAssocListByID($cvo_id));
