@@ -28,7 +28,7 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Lachlun Kuhn <l.kuhn@library.uq.edu.au                      |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au                      |
 // |          Rhys Palmer <r.palmer@library.uq.edu.au                     |
 // +----------------------------------------------------------------------+
 //
