@@ -86,6 +86,9 @@ class Search_Key
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return false;
         } else {
+			if(function_exists('apc_clear_cache')) {
+				apc_clear_cache('user');
+		 	}
 		  return true;
         }
     }
@@ -99,6 +102,11 @@ class Search_Key
      */
     function insert()
     {
+	
+		if(function_exists('apc_clear_cache')) {
+			apc_clear_cache('user');
+	 	}	
+	
 		if (@$_POST["sek_simple_used"]) {
 			$sek_simple_used = 1;
 		} else {
@@ -114,7 +122,6 @@ class Search_Key
 		} else {
 			$sek_myfez_visible = 0;
 		}
-		
 		$sekIncrId = Search_Key::getNextIncrId(APP_PID_NAMESPACE);
 		$sek_id = APP_PID_NAMESPACE . '_' . $sekIncrId;
 		
@@ -251,7 +258,10 @@ class Search_Key
 		} else {
 			$sek_myfez_visible = 0;
 		}
-		
+
+		if(function_exists('apc_clear_cache')) {
+			apc_clear_cache('user');
+	 	}		
 		
         $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "search_key
@@ -568,7 +578,7 @@ class Search_Key
         if(function_exists('apc_add')) {
             apc_add('sek_list', $res, 0);
         }
-        
+
         return $res;
     }
 
@@ -948,7 +958,7 @@ class Search_Key
         if(!$sql) {
             return -2;
         }
-		//echo $sql;
+//		echo $sql;
         
         $res = $GLOBALS["db_api"]->dbh->query($sql);
         if (PEAR::isError($res)) {
@@ -973,7 +983,6 @@ class Search_Key
     function createSQL($sek_id)
     {
         $details = Search_Key::getDetails($sek_id);
-        
         $sek_title_db = $details['sek_title_db'];
         $relationship = $details['sek_relationship'];
         $column_type  = $details['sek_data_type'];
@@ -990,7 +999,7 @@ class Search_Key
         } elseif( $column_type == 'text' ) {
             $key_type = 'FULLTEXT';
         }
-        
+
         if( $relationship == 1 ) {
             
             /*
@@ -1008,11 +1017,9 @@ class Search_Key
                    "     $key_type `$column_prefix` (`$column_prefix`), \n" .
                    "     KEY `{$column_prefix}_pid` (`{$column_prefix}_pid`) \n" .
                    ") ENGINE=MyISAM DEFAULT CHARSET=utf8";
-                   
             return $sql;
             
         } elseif( $relationship == 0 ) {
-            
             /*
              * Create new columns
              */ 

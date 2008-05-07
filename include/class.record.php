@@ -3911,6 +3911,7 @@ class RecordObject extends RecordGeneral
 			$file_downloads = 0;
         } else {
 			$existingDatastreams = Fedora_API::callGetDatastreams($this->pid);
+			Misc::purgeExistingLinks($this->pid, $existingDatastreams);
 			$this->getObjectAdminMD();
 			if (empty($this->created_date)) {
 				$this->created_date = Date_API::getFedoraFormattedDateUTC();

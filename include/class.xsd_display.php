@@ -1032,6 +1032,36 @@ class XSD_DisplayObject
                             $this->xsdmf_current[$xsdmf_id] = $value;
                         }
 					}
+					
+				} elseif ($dsValue['xsdsel_title'] == "Link") {
+
+					$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_Title("!datastream!datastreamVersion!contentLocation", "Link", $this->xdis_id);
+                    foreach ($datastreams as $ds) {
+                        if (isset($ds['controlGroup']) && $ds['controlGroup'] == 'R' && is_numeric(strpos($ds['ID'], 'link_'))) {
+                            $value = trim($ds['location']);
+                            if (!empty($value) && strlen($xsdmf_details['xsdmf_value_prefix']) > 0) {
+                                $value = str_replace($xsdmf_details['xsdmf_value_prefix'], "", $value);
+                            }
+							if (!is_array(@$this->xsdmf_current[$xsdmf_id])) {
+								$this->xsdmf_current[$xsdmf_id] = array();
+							}
+							array_push($this->xsdmf_current[$xsdmf_id], $value);
+                        }
+					}					
+					$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_Title("!datastream!datastreamVersion!LABEL", "Link", $this->xdis_id);
+                    foreach ($datastreams as $ds) {					
+                        if (isset($ds['controlGroup']) && $ds['controlGroup'] == 'R' && is_numeric(strpos($ds['ID'], 'link_'))) {
+                            $value = trim($ds['label']);
+                            if (!empty($value) && strlen($xsdmf_details['xsdmf_value_prefix']) > 0) {
+                                $value = str_replace($xsdmf_details['xsdmf_value_prefix'], "", $value);
+                            }
+							if (!is_array(@$this->xsdmf_current[$xsdmf_id])) {
+								$this->xsdmf_current[$xsdmf_id] = array();
+							}
+							array_push($this->xsdmf_current[$xsdmf_id], $value);
+                        }
+					}					
+
 				} else {
 					// find out if this record has the xml based datastream
 					if (Fedora_API::datastreamExistsInArray($datastreams, $dsValue['xsdsel_title'])) {

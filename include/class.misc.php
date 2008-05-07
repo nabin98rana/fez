@@ -1160,6 +1160,34 @@ class Misc
 		return $max_link;
 	}
 
+    /**
+     * Clears all the links so they can be regenerated
+     *
+     * @access  public
+     * @param   array $existingDatastreams 
+     * @return  integer 1 on success, 0 on failure
+     */
+	function purgeExistingLinks($pid, $existingDatastreams) {
+		$max_link = 0;
+		$new_max_link = 0;	
+	
+		foreach ($existingDatastreams as $eds) {
+			$link_pos = strpos($eds['ID'], "link_");
+			
+			if (is_numeric($link_pos)) { // if found a link datatream
+	            $res = Fedora_API::callPurgeDatastream($pid, $eds['ID']);
+				/*$new_max_link = substr($eds['ID'], ($link_pos+5)); // get its number
+				if (is_numeric($new_max_link)) {
+					if ($new_max_link > $max_link) {
+						$max_link = $new_max_link;
+					}
+				}*/
+			}
+		}
+
+		return 1;
+	}
+
 
     /**
      * Retrieves the inline xml content datastream of the given titles in the xml string.
