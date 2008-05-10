@@ -2257,6 +2257,7 @@ inner join
                     }
                     $location = trim($datastreamXMLContent[$dsKey]);
                     if (!empty($location)) {
+                        $location = str_replace("&amp;", "&", $location); 
                         Fedora_API::callAddDatastream($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey],
                                 $dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
                     }

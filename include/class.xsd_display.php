@@ -1039,6 +1039,7 @@ class XSD_DisplayObject
                     foreach ($datastreams as $ds) {
                         if (isset($ds['controlGroup']) && $ds['controlGroup'] == 'R' && is_numeric(strpos($ds['ID'], 'link_'))) {
                             $value = trim($ds['location']);
+                            $value = str_replace("&amp;", "&", $value);
                             if (!empty($value) && strlen($xsdmf_details['xsdmf_value_prefix']) > 0) {
                                 $value = str_replace($xsdmf_details['xsdmf_value_prefix'], "", $value);
                             }
