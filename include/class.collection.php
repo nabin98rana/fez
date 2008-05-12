@@ -964,6 +964,18 @@ $stmt .= "
             $letter_restrict = "WHERE r".$tid.".rek_".$sekdet['sek_title_db']." LIKE '" . $letter . "%' OR r".$tid.".rek_".$sekdet['sek_title_db']." LIKE '" . strtolower($letter) . "%' and r1.rek_status = 2";
         }
         $middleStmt .= $authStmt." ";
+
+
+        $stmtCount = "SELECT ".APP_SQL_CACHE."
+ 				count(distinct ".$show_field.") AS count_".$as_field."
+				".$middleStmt."
+
+				".$extra_join."
+                ".$letter_restrict;
+				
+		$total_rows = $GLOBALS["db_api"]->dbh->getOne($stmtCount);
+
+
         $stmt = "SELECT ".APP_SQL_CACHE."
                     COUNT(*) as record_count, ".$show_field." AS ".$as_field."
 				".$middleStmt."
@@ -979,7 +991,7 @@ $stmt .= "
 				 	$stmt .= $group_field;
 				 }
 //echo $stmt;exit;
-//		$stmt = $GLOBALS["db_api"]->dbh->modifyLimitQuery($stmt, $start, $max);
+		$stmt = $GLOBALS["db_api"]->dbh->modifyLimitQuery($stmt, $start, $max);
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		//print_r($res);
 		foreach ($res as $key => $row) {
@@ -991,13 +1003,13 @@ $stmt .= "
 				$return[$key]['record_count'] = $row['record_count'];
 			}
 		}
-		$hidden_rows = count($return);
+/*		$hidden_rows = count($return);
 		$total_rows = count($return);
 		if (($start + $max) < $total_rows) {
 	        $total_rows_limit = $start + $max;
 		} else {
 		   $total_rows_limit = $total_rows;
-		}
+		} */
 		$total_pages = ceil($total_rows / $max);
         $last_page = $total_pages - 1;
         if (($current_row - 10) > 0) {
@@ -1011,7 +1023,7 @@ $stmt .= "
             $end_range = $current_row + 10;
         }
         $printable_page = $current_row + 1;
-		$return = Misc::limitListResults($return, $start, ($start + $max));
+//		$return = Misc::limitListResults($return, $start, ($start + $max));
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
