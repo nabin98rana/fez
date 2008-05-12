@@ -568,7 +568,7 @@ class Collection
 			$subqueryExtra = ", r".$termCounter.".rek_".$sek_det['sek_title_db'];
 			$terms = str_replace(" ", " +", mysql_escape_string($_GET['author']));
 
-			$restrictSQL = "AND r".$termCounter.".rek_".$sek_det['sek_title_db']." like '%".$terms."%'";
+			$restrictSQL = "AND r".$termCounter.".rek_".$sek_det['sek_title_db']." like '".$terms."%'";
 		} else {
 			$subqueryExtra = ", r".$termCounter.".rek_".$sek_det['sek_title_db'];
 
