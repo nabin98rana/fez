@@ -944,10 +944,15 @@ $stmt .= "
 			$as_field = "record_author";
 //			echo "here";
 			
-			$stmtCount = "SELECT sql_no_cache count(r2.rek_author) AS count_record_author
-              FROM fez_record_search_key_author AS r2 
- 			group by r2.rek_author";
+			$stmtCount = "SELECT ".APP_SQL_CACHE." count(r2.rek_author) AS count_record_author
+              FROM fez_record_search_key_author AS r2 ";
+		        if (!empty($letter)) {
+		            $letter = addslashes($letter);
+		            $letter_restrict = "WHERE r2.rek_".$sekdet['sek_title_db']." LIKE '" . $letter . "%' OR r".$tid.".rek_".$sekdet['sek_title_db']." LIKE '" . strtolower($letter) . "%' ";
+					$stmtCount .= $letter_restrict;
+		        }
 
+			$stmtCount .= "group by r2.rek_author";
 			
 		} elseif ($searchKey == "Depositor") {
 			$search_data_type = "int";
@@ -982,7 +987,7 @@ $stmt .= "
 					".$extra_join."
 	                ".$letter_restrict;
 			$total_rows = $GLOBALS["db_api"]->dbh->getOne($stmtCount);
-		} else { //group by is a lot faster for rek_author than count(distinct 16ms compared to 828ms)			
+		} else { //group by is a lot faster for rek_author than count(distinct 16ms compared to 828ms)\
 			$total_rows = $GLOBALS["db_api"]->dbh->getCol($stmtCount);
 			$total_rows = count($total_rows);
 		}		
