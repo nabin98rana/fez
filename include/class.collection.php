@@ -894,6 +894,7 @@ $stmt .= "
 		$middleStmt = "";
 		$order_field = "";
 		$termCounter = 1;
+		$stmtCount = "";
 		$extra_join = "";
         $letter_restrict = "";
 		$show_field = "";
@@ -941,6 +942,13 @@ $stmt .= "
 			$search_data_type = "varchar";
 			$group_field = "r".$tid.".rek_".$sekdet['sek_title_db'];
 			$as_field = "record_author";
+//			echo "here";
+			
+			$stmtCount = "SELECT sql_no_cache count(r2.rek_author) AS count_record_author
+              FROM fez_record_search_key_author AS r2 
+ 			group by r2.rek_author";
+
+			
 		} elseif ($searchKey == "Depositor") {
 			$search_data_type = "int";
 			$group_field = "r".$tid.".rek_".$sekdet['sek_title_db'];
@@ -953,7 +961,8 @@ $stmt .= "
 //			$search_data_type = "varchar";
 			$search_data_type =  "r".$tid.".rek_".$sekdet['sek_title_db'];
 			$group_field = "r".$tid.".rek_".$sekdet['sek_title_db'];
-			$as_field = "record_author";
+			$as_field = "record_author";			
+			
 		}
 		if ($show_field == "") {
 			$show_field = $group_field;
@@ -965,15 +974,19 @@ $stmt .= "
         }
         $middleStmt .= $authStmt." ";
 
+		if ($stmtCount == "") {
+	        $stmtCount = "SELECT ".APP_SQL_CACHE."
+	 				count(distinct ".$show_field.") AS count_".$as_field."
+					".$middleStmt."
 
-        $stmtCount = "SELECT ".APP_SQL_CACHE."
- 				count(distinct ".$show_field.") AS count_".$as_field."
-				".$middleStmt."
+					".$extra_join."
+	                ".$letter_restrict;
+			$total_rows = $GLOBALS["db_api"]->dbh->getOne($stmtCount);
+		} else { //group by is a lot faster for rek_author than count(distinct 16ms compared to 828ms)			
+			$total_rows = $GLOBALS["db_api"]->dbh->getCol($stmtCount);
+			$total_rows = count($total_rows);
+		}		
 
-				".$extra_join."
-                ".$letter_restrict;
-				
-		$total_rows = $GLOBALS["db_api"]->dbh->getOne($stmtCount);
 
 
         $stmt = "SELECT ".APP_SQL_CACHE."
@@ -990,7 +1003,7 @@ $stmt .= "
 				 } else {
 				 	$stmt .= $group_field;
 				 }
-//echo $stmt;exit;
+
 		$stmt = $GLOBALS["db_api"]->dbh->modifyLimitQuery($stmt, $start, $max);
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		//print_r($res);
