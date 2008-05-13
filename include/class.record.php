@@ -1976,7 +1976,7 @@ inner join
 						    // Check if user has done a google like search by adding *
 						    $searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName like '".str_replace("*", "%", Misc::escapeString($searchValue))."' ";
 						} else {
-						    $searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName like '".Misc::escapeString($searchValue)."%' ";
+						    $searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName like '%".Misc::escapeString($searchValue)."%' ";
 						}
     	 	        	
     	 	        	$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(trim($searchValue))."\", ";
