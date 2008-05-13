@@ -40,4 +40,5 @@ Auth::removeSession(APP_LDAP_GROUPS_SESSION);
 Auth::removeSession(APP_INTERNAL_GROUPS_SESSION);
 Auth::removeSession(APP_SHIB_ATTRIBUTES_SESSION);
 Auth::redirect(APP_RELATIVE_URL . "index.php?err=6");
+
 ?>
