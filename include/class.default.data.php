@@ -180,6 +180,7 @@ class Default_Data
         $defaultData['app_solr_host']              	        = "";
 		$defaultData['app_solr_port']                       = "";
 		$defaultData['app_solr_path']                       = "";
+		$defaultData['app_earliest_input_year']				= "1900";
 
         return $defaultData;
 

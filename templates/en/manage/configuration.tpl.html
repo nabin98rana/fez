@@ -365,6 +365,14 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
 		  <tr>
+		    <td class="colname">Earliest Input Year</td>
+			<td class="coldetail">
+			  <input type="text" name="app_earliest_input_year" value="{$config_settings.app_earliest_input_year|escape:"html"}" size="4" />
+			  <br />The earliest year to appear in date drop-downs. Enter a 4-digit year.
+			  {include file="error_icon.tpl.html" field="app_earliest_input_year"}
+			</td>
+  		  </tr>
+		  <tr>
 		    <td class="colname">Cookie / session name</td>
 			<td class="coldetail">
 			  <input type="text" name="app_cookie" value="{$config_settings.app_cookie|escape:"html"}" size="20" />

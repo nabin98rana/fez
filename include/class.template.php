@@ -216,6 +216,7 @@ class Template_API
         $this->assign("app_base_url", APP_BASE_URL);
         $this->assign("rel_url", APP_RELATIVE_URL);
         $this->assign("lang", APP_CURRENT_LANG);
+		$this->assign("app_earliest_input_year", APP_EARLIEST_INPUT_YEAR);
 		$this->assign("SELF_REGISTRATION", SELF_REGISTRATION);					
 		$this->assign("WEBSERVER_LOG_STATISTICS", WEBSERVER_LOG_STATISTICS);		
 		$this->assign("APP_HERDC_INTEGRITY_REPORTS", APP_HERDC_INTEGRITY_REPORTS);		
