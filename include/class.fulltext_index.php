@@ -569,10 +569,15 @@ abstract class FulltextIndex {
         // very slow... 
         // TODO: have to find a solution for very large files...
         $filename = APP_TEMP_DIR."fulltext_".rand()."_".$dsitem['ID'];
-//        $content = $rec->getDatastreamContents($dsitem['ID']);
-        file_put_contents($filename, $rec->getDatastreamContents($dsitem['ID']));
         
-        unset($content);
+        $filehandle = fopen($filename, "w");
+        $rec->getDatastreamContents($dsitem['ID'], $filehandle);
+        fclose($filehandle);
+        
+//        $content = $rec->getDatastreamContents($dsitem['ID']);
+        //file_put_contents($filename, $rec->getDatastreamContents($dsitem['ID']));
+        
+        //unset($content);
 
         // temporary performance hack?
         // TODO!
@@ -595,7 +600,7 @@ abstract class FulltextIndex {
             if (!empty($plaintext)) {
             	Logger::debug("calling indexPlaintext for datastream ".$dsitem['ID']);
                 $this->indexPlaintext($rec, $dsitem['ID'], $plaintext);
-                unset($plaintext);
+                //unset($plaintext);
             }
         }
     }
@@ -894,8 +899,6 @@ abstract class FulltextIndex {
     
     protected function checkCachedContent($pid, $dsID) {
         
-        $GLOBALS['db_api']->dbh->autoCommit(true);
-    	
 		$sqlPid = Misc::escapeString($pid);
 		$sqlDsId = Misc::escapeString($dsID);
 		    	

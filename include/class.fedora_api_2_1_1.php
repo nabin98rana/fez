@@ -586,7 +586,19 @@ class Fedora_API {
 			}
 		}
 	   $versionable = 'false';
-	   $parms=array('PID' => $pid, 'dsID' => $dsID, 'altIDs' => array(), 'dsLabel' => $dsLabel, new soapval('versionable', 'boolean', $versionable), 'MIMEType' => $mimetype, 'formatURI' => 'unknown', new soapval('dsLocation', 'string', $uploadLocation), 'controlGroup' => $controlGroup, 'dsState' => 'A', 'logMessage' => 'Added Datastream');//
+	   $parms=array(
+	       'PID'           => $pid, 
+	       'dsID'          => $dsID, 
+	       'altIDs'        => array(), 
+	       'dsLabel'       => $dsLabel,
+	       'MIMEType'      => $mimetype,
+	       'formatURI'     => 'unknown',
+	       'controlGroup' => $controlGroup,
+	       'dsState'       => 'A', 
+	       'logMessage'    => 'Added Datastream',
+	       new soapval('dsLocation', 'string', $uploadLocation), 
+	       new soapval('versionable', 'boolean', $versionable), 
+       );//
 	   //Call addDatastream
 	   Fedora_API::openSoapCall('addDatastream', $parms);
 	}
@@ -750,24 +762,20 @@ class Fedora_API {
     */
 	function datastreamExists ($pid, $dsID, $refresh=false, $pattern=false) {
 		$dsExists = false; 
-//		$rs = Fedora_API::callListDatastreams($pid); // old way
 		$rs = Fedora_API::callListDatastreamsLite($pid, $refresh);
         if (is_array($rs)) {
-		foreach ($rs as $row) {
-//			if (isset($row['ID']) && $row['ID'] == $dsID) { // old way
-				
-			if ($pattern != false) {
-//				$ds_matches = preg_match($pattern, $row['dsid']);
-				if (isset($row['dsid']) && preg_match($pattern, $row['dsid'], $ds_matches)) {
-					return $ds_matches[0];
-					$dsExists = true;
-				}			
-			} else {
-				if (isset($row['dsid']) && strtolower($row['dsid']) == strtolower($dsID)) {				
-					$dsExists = true;
-				}
-			}
-		}
+    		foreach ($rs as $row) {
+    			if ($pattern != false) {
+    				if (isset($row['dsid']) && preg_match($pattern, $row['dsid'], $ds_matches)) {
+    					return $ds_matches[0];
+    					$dsExists = true;
+    				}			
+    			} else {
+    				if (isset($row['dsid']) && strtolower($row['dsid']) == strtolower($dsID)) {				
+    					$dsExists = true;
+    				}
+    			}
+    		}
         }
 		return $dsExists;
 	}
@@ -820,12 +828,19 @@ class Fedora_API {
 	* @param boolean $getxml Get as xml
     * @return array $resultlist The requested of datastream in an array.
     */
-	function callGetDatastreamContents($pid, $dsID, $getraw = false) {
+	function callGetDatastreamContents($pid, $dsID, $getraw = false, $filehandle = null) {
 		$resultlist = array();
 		$dsExists = Fedora_API::datastreamExists($pid, $dsID);
 		if ($dsExists === true) {			
 			$filename = APP_FEDORA_GET_URL."/".$pid."/".$dsID;
-			list($blob,$info) = Misc::processURL($filename);
+			
+			if($filehandle != null) {
+			    $ret = Misc::processURL($filename, false, $filehandle);
+			    return $ret;
+			} else {
+			    list($blob,$info) = Misc::processURL($filename);
+			}
+			
             // check if this is even XML, it might be binary, in which case we'll just return it.
             if ($info['content_type'] != 'text/xml' || $getraw) {
 				return $blob;

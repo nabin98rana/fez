@@ -3490,8 +3490,8 @@ class RecordGeneral
     {
         return Fedora_API::objectExists($this->pid);
     }
-    function getDatastreamContents($dsID) {
-		return Fedora_API::callGetDatastreamContents($this->pid, $dsID);
+    function getDatastreamContents($dsID, $filehandle=null) {
+		return Fedora_API::callGetDatastreamContents($this->pid, $dsID, false, $filehandle);
     }
 
     function setIndexMatchingFields($dsID='', $fteindex = true)
@@ -3949,6 +3949,8 @@ class RecordObject extends RecordGeneral
 		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, $file_downloads, $this->created_date, $this->updated_date, $this->depositor, $this->assign_usr_id, $this->assign_grp_id);
 
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
+		
+		//echo $xmlObj;exit;
 		//Error_Handler::logError($xmlObj,__FILE__,__LINE__);
 		
 		$datastreamTitles = $display->getDatastreamTitles($exclude_list, $specify_list);
