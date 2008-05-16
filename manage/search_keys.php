@@ -83,15 +83,35 @@ $sek_data_type_list = array(
     "date" => "Date"
 );
 $sek_relationship_list = array(
-    0 => "Core 1->1", 
-    1 => "Related"
+    0 => "Core One to One (1->1)", 
+    1 => "One to Many (1->M)"
 );
 
-$list = Search_Key::getList();
+$sek_relationship_list_short = array(
+    0 => "Core table (1->1)", 
+    1 => "Own table (1->M)"
+);
 
+$sek_cardinality_list = array(
+    0 => "Core One to One (1->1)", 
+    1 => "One to Many (1->M)"
+);
+
+$sek_cardinality_list_short = array(
+    0 => "Core table (1->1)", 
+    1 => "Own table (1->M)"
+);
+
+
+$list = Search_Key::getList();
+//print_r($list);
 $tpl->assign("list", $list);
 $tpl->assign("list_count", count($list));
 $tpl->assign("sek_relationship_list", $sek_relationship_list);
+$tpl->assign("sek_relationship_list_short", $sek_relationship_list_short);
+$tpl->assign("sek_cardinality_list", $sek_cardinality_list);
+$tpl->assign("sek_cardinality_list_short", $sek_cardinality_list_short);
+
 $tpl->assign("sek_data_type_list", $sek_data_type_list);
 $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 $tpl->displayTemplate();

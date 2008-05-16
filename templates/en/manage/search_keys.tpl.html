@@ -363,8 +363,16 @@
 					<input class="default" type="text" name="sek_lookup_function" size="40" value="{$info.sek_lookup_function}">
 			  	</td>
 		     </tr>
+              <tr id="cardinality_tr">
+                 <td width="120" bgcolor="{$cell_color}" class="default"><b>Data Cardinality (1-1/1-M):</b></td>
+ 				<td bgcolor="{$light_color}">
+				<select class="default" name="sek_cardinality">
+				  {html_options options=$sek_cardinality_list selected=$info.sek_cardinality}
+				</select>
+			  	</td>
+		     </tr>
               <tr id="relationship_tr">
-                 <td width="120" bgcolor="{$cell_color}" class="default"><b>Data Relationship:</b></td>
+                 <td width="120" bgcolor="{$cell_color}" class="default"><b>Data Storage (in own table or core table):</b></td>
  				<td bgcolor="{$light_color}">
 				<select class="default" name="sek_relationship">
 				  {html_options options=$sek_relationship_list selected=$info.sek_relationship}
@@ -455,7 +463,8 @@
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Order</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>OAI/Header</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Data Type</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Data Relationship</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Data Cardinality</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Data Storage</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>View SQL</b>&nbsp;</td>
                     </tr>
                     {section name="i" loop=$list}
@@ -500,8 +509,12 @@
                       &nbsp;{$sek_data_type_list[$sek_data_type]}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
+                 		{assign var="sek_cardinality" value=$list[i].sek_cardinality}
+                        &nbsp;{$sek_cardinality_list_short[$sek_cardinality]}
+                      </td>
+                      <td bgcolor="{$row_color}" class="default">
                  		{assign var="sek_relationship" value=$list[i].sek_relationship}
-                        &nbsp;{$sek_relationship_list[$sek_relationship]}
+                        &nbsp;{$sek_relationship_list_short[$sek_relationship]}
                       </td>
                       <td  bgcolor="{$row_color}" class="default">
                         <a href="javascript:small_window('{$rel_url}manage/search_keys.php?cat=view_sql&id={$list[i].sek_id}');">View</a>
@@ -509,7 +522,7 @@
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="13" bgcolor="{$light_color}" align="center" class="default">
+                      <td colspan="14" bgcolor="{$light_color}" align="center" class="default">
                         No search keys could be found.
                       </td>
                     </tr>
@@ -518,7 +531,7 @@
                       <td width="4" align="center" bgcolor="{$cell_color}">
                         <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
                       </td>
-                      <td colspan="13" bgcolor="{$cell_color}">
+                      <td colspan="14" bgcolor="{$cell_color}">
                         <input type="submit" value="Delete" class="button">
                       </td>
                     </tr>

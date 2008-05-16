@@ -143,6 +143,10 @@ class Search_Key
 				if (is_numeric($_POST["sek_relationship"])) {
 					$stmt .= " sek_relationship, ";
 				}				
+				if (is_numeric($_POST["sek_cardinality"])) {
+					$stmt .= " sek_cardinality, ";
+				}				
+
 		$stmt .= "
 					sek_data_type,
 					sek_html_input,
@@ -169,6 +173,10 @@ class Search_Key
 					if (is_numeric($_POST["sek_relationship"])) {
 	                    $stmt .=  $_POST["sek_relationship"] . ",";
 					}					
+					if (is_numeric($_POST["sek_cardinality"])) {
+	                    $stmt .=  $_POST["sek_cardinality"] . ",";
+					}					
+
 					$stmt .= "
                     '" . Misc::escapeString($_POST["sek_data_type"]) . "',					
                     '" . Misc::escapeString($_POST["field_type"]) . "',					
@@ -278,6 +286,10 @@ class Search_Key
 					if (isset($_POST["sek_relationship"])) {
 						$stmt .= "sek_relationship = ".$_POST["sek_relationship"].",";
 					}
+					if (isset($_POST["sek_cardinality"])) {
+						$stmt .= "sek_cardinality = ".$_POST["sek_cardinality"].",";
+					}
+
 					$stmt .= "
                     sek_html_input = '" . Misc::escapeString($_POST["field_type"]) . "',
                     sek_smarty_variable = '" . Misc::escapeString($_POST["sek_smarty_variable"]) . "',
@@ -985,8 +997,10 @@ class Search_Key
         $details = Search_Key::getDetails($sek_id);
         $sek_title_db = $details['sek_title_db'];
         $relationship = $details['sek_relationship'];
+        $cardinality = $details['sek_cardinality'];
         $column_type  = $details['sek_data_type'];
         $key_type     = 'KEY';
+		$cardinality_extra = "";
         
         if( !isset($sek_title_db) || $sek_title_db == "" || $column_type == "" ) {
             return -2;
@@ -1007,11 +1021,16 @@ class Search_Key
              */
             $table_name     = APP_TABLE_PREFIX.'record_search_key_'.$sek_title_db;
             $column_prefix   = 'rek_' . $sek_title_db;
-            
+			if ($cardinality == 1) {
+				$cardinality_extra = "     `{$column_prefix}_order` int(11) default 1,\n ";
+			}
+
+
             $sql = "CREATE TABLE `$table_name` ( \n" .
                    "     `{$column_prefix}_id` int(11) NOT NULL auto_increment, \n" .
                    "     `{$column_prefix}_pid` varchar(64) default NULL, \n" .
                    "     `{$column_prefix}_xsdmf_id` int(11) default NULL,\n " .
+					$cardinality_extra .
                    "     `$column_prefix` $column_type default NULL, \n" .
                    "     PRIMARY KEY (`{$column_prefix}_id`), \n" .
                    "     $key_type `$column_prefix` (`$column_prefix`), \n" .
