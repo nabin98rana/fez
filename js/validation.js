@@ -297,29 +297,40 @@ function errorDetails(f, field_name, show)
     }
 }
 
-function getXSD_DisplayFieldTitle(field_name)
+function getFieldTitle(titles_array, field_name)
 {
-    for (var i = 0; i < xsd_display_fields.length; i++) {
-        if (xsd_display_fields[i].text == field_name) {
-            return xsd_display_fields[i].value;
+    for (var i = 0; i < titles_array.length; i++) {
+        if (titles_array[i].text == field_name) {
+            return titles_array[i].value;
         }
     }
 }
 
-function getCustomFieldTitle(field_name)
+function checkRequiredFieldsExt(f, required_fields, required_fields_titles)
 {
-    for (var i = 0; i < custom_fields.length; i++) {
-        if (custom_fields[i].text == field_name) {
-            return custom_fields[i].value;
-        }
-    }
-}
+    for (var i = 0; i < required_fields.length; i++) {
 
-function getInstantCustomFieldTitle(field_name)
-{
-    for (var i = 0; i < instant_custom_fields.length; i++) {
-        if (instant_custom_fields[i].text == field_name) {
-            return instant_custom_fields[i].value;
+		var field = getFormElement(f, required_fields[i].text);		
+		if (required_fields[i].value == 'combo') {
+            if (getSelectedOption(f, field.name) == '-1') {
+                errors[errors.length] = new Option(getFieldTitle(required_fields_titles,required_fields[i].text), required_fields[i].text);
+            }
+        } else if (required_fields[i].value == 'multiple') {
+            if (!hasOneSelected(f, field.name)) {
+                errors[errors.length] = new Option(getFieldTitle(required_fields_titles,required_fields[i].text), required_fields[i].text);
+			}
+        } else if (required_fields[i].value == 'checkbox') {
+            if (!hasOnlyOneChecked(f, field.name)) {
+                errors[errors.length] = new Option(getFieldTitle(required_fields_titles,required_fields[i].text), required_fields[i].text);
+            }
+        } else if (required_fields[i].value == 'date') {
+			if (isWhitespace(field.value)) {
+                errors[errors.length] = new Option(getFieldTitle(required_fields_titles,required_fields[i].text), required_fields[i].text);
+            }
+		} else if (required_fields[i].value == 'whitespace') {
+			if (isWhitespace(field.value)) {
+                errors[errors.length] = new Option(getFieldTitle(required_fields_titles,required_fields[i].text), required_fields[i].text);
+            }
         }
     }
 }
@@ -330,19 +341,19 @@ function checkRequiredCustomFields(f, required_fields)
         var field = getFormElement(f, required_fields[i].text);
         if (required_fields[i].value == 'combo') {
             if (getSelectedOption(f, field.name) == '-1') {
-                errors[errors.length] = new Option(getCustomFieldTitle(required_fields[i].text), required_fields[i].text);
+                errors[errors.length] = new Option(getFieldTitle(custom_fields,required_fields[i].text), required_fields[i].text);
             }
         } else if (required_fields[i].value == 'multiple') {
             if (!hasOneSelected(f, field.name)) {
-                errors[errors.length] = new Option(getCustomFieldTitle(required_fields[i].text), required_fields[i].text);
+                errors[errors.length] = new Option(getFieldTitle(custom_fields,required_fields[i].text), required_fields[i].text);
             }
         } else if (required_fields[i].value == 'checkbox') {
             if (!hasOnlyOneChecked(f, field.name)) {
-                errors[errors.length] = new Option(getCustomFieldTitle(required_fields[i].text), required_fields[i].text);
+                errors[errors.length] = new Option(getFieldTitle(custom_fields,required_fields[i].text), required_fields[i].text);
             }
 		} else if (required_fields[i].value == 'whitespace') {
             if (isWhitespace(field.value)) {
-                errors[errors.length] = new Option(getCustomFieldTitle(required_fields[i].text), required_fields[i].text);
+                errors[errors.length] = new Option(getFieldTitle(custom_fields,required_fields[i].text), required_fields[i].text);
             }
         }
     }
@@ -374,23 +385,23 @@ function checkRequiredFields(f, required_fields)
 		var field = getFormElement(f, required_fields[i].text);		
 		if (required_fields[i].value == 'combo') {
             if (getSelectedOption(f, field.name) == '-1') {
-                errors[errors.length] = new Option(getXSD_DisplayFieldTitle(required_fields[i].text), required_fields[i].text);
+                errors[errors.length] = new Option(getFieldTitle(xsd_display_fields,required_fields[i].text), required_fields[i].text);
             }
         } else if (required_fields[i].value == 'multiple') {
             if (!hasOneSelected(f, field.name)) {
-                errors[errors.length] = new Option(getXSD_DisplayFieldTitle(required_fields[i].text), required_fields[i].text);
+                errors[errors.length] = new Option(getFieldTitle(xsd_display_fields,required_fields[i].text), required_fields[i].text);
 			}
         } else if (required_fields[i].value == 'checkbox') {
             if (!hasOnlyOneChecked(f, field.name)) {
-                errors[errors.length] = new Option(getXSD_DisplayFieldTitle(required_fields[i].text), required_fields[i].text);
+                errors[errors.length] = new Option(getFieldTitle(xsd_display_fields,required_fields[i].text), required_fields[i].text);
             }
         } else if (required_fields[i].value == 'date') {
 			if (isWhitespace(field.value)) {
-                errors[errors.length] = new Option(getXSD_DisplayFieldTitle(required_fields[i].text), required_fields[i].text);
+                errors[errors.length] = new Option(getFieldTitle(xsd_display_fields,required_fields[i].text), required_fields[i].text);
             }
 		} else if (required_fields[i].value == 'whitespace') {
 			if (isWhitespace(field.value)) {
-                errors[errors.length] = new Option(getXSD_DisplayFieldTitle(required_fields[i].text), required_fields[i].text);
+                errors[errors.length] = new Option(getFieldTitle(xsd_display_fields,required_fields[i].text), required_fields[i].text);
             }
         }
     }
@@ -402,15 +413,15 @@ function checkRequiredInstantCustomFields(f, required_fields)
         var field = getFormElement(f, required_fields[i].text);
         if (required_fields[i].value == 'combo') {
             if (getSelectedOption(f, field.name) == '-1') {
-                errors[errors.length] = new Option(getInstantCustomFieldTitle(required_fields[i].text), required_fields[i].text);
+                errors[errors.length] = new Option(getFieldTitle(instant_custom_fields,required_fields[i].text), required_fields[i].text);
             }
         } else if (required_fields[i].value == 'multiple') {
             if (!hasOneSelected(f, field.name)) {
-                errors[errors.length] = new Option(getInstantCustomFieldTitle(required_fields[i].text), required_fields[i].text);
+                errors[errors.length] = new Option(getFieldTitle(instant_custom_fields,required_fields[i].text), required_fields[i].text);
             }
         } else if (required_fields[i].value == 'whitespace') {
             if (isWhitespace(field.value)) {
-                errors[errors.length] = new Option(getInstantCustomFieldTitle(required_fields[i].text), required_fields[i].text);
+                errors[errors.length] = new Option(getFieldTitle(instant_custom_fields,required_fields[i].text), required_fields[i].text);
             }
         }
     }
