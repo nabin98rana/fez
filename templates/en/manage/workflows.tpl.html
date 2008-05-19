@@ -165,7 +165,7 @@
                       </td>
                       <td bgcolor="{$row_color}" class="default">
                         	  {section name="r" loop=$list[i].wfl_roles}
-								  {assign var="aro_id" value=$list[i].wfl_roles[r].wfr_aro_id}
+								  {assign var="aro_id" value=$list[i].wfl_roles[r]}
 								  {$auth_role_options[$aro_id]}
 							  {/section}
                       </td>
