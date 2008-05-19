@@ -452,7 +452,7 @@ class Record
         //
         // KJ: remove from fulltext index
         //
-        if (APP_FULLTEXT_INDEX == "solr" && APP_SOLR_SWITCH == "ON" ) {
+        if ( APP_SOLR_INDEXER == "ON" ) {
         	if ($dsDelete == 'keep') {
         		// if set to 'keep', this will trigger a re-index
         		
@@ -531,7 +531,7 @@ class Record
 		//
 		// KJ: update lucene index (get document into cache, remove field content)
 		//
-		if (APP_FULLTEXT_INDEX == "solr" && APP_SOLR_SWITCH == "ON") {
+		if (APP_SOLR_INDEXER == "ON") {
 
         	FulltextQueue::singleton()->add($pid);
 
@@ -648,7 +648,7 @@ class Record
             //
 	        // KJ: update fulltext index
 			//
-			if (APP_FULLTEXT_INDEX == "solr" && APP_SOLR_SWITCH == "ON") {
+			if (APP_SOLR_INDEXER == "ON") {
 				FulltextQueue::singleton()->add($pid);
 	        }
             
@@ -696,13 +696,6 @@ class Record
     {
         $record = new RecordObject($pid);
         $record->setIndexMatchingFields($dsID, $fteindex);
-        
-        //
-        // KJ/ETH
-		//
-		if (APP_FULLTEXT_INDEX == "solr" && APP_SOLR_SWITCH == "ON") {
-        	//FulltextQueue::singleton()->add($pid);
-        }
         
         AuthIndex::setIndexAuth($pid); //set the security index
     }

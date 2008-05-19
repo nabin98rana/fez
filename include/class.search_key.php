@@ -556,12 +556,12 @@ class Search_Key
      */
     function getList($checkTableExists = true)
     {
-        if(function_exists('apc_fetch')) {
-            $res = apc_fetch('sek_list');
-            if(!empty($res)) {
-                return $res;
-            }
-        }
+//        if(function_exists('apc_fetch')) {
+//            $res = apc_fetch('sek_list');
+//            if(!empty($res)) {
+//                return $res;
+//            }
+//        }
         
         $stmt = "SELECT
                     *
@@ -587,9 +587,9 @@ class Search_Key
             }
         }
         
-        if(function_exists('apc_add')) {
-            apc_add('sek_list', $res, 0);
-        }
+//        if(function_exists('apc_add')) {
+//            apc_add('sek_list', $res, 0);
+//        }
 
         return $res;
     }

@@ -383,6 +383,13 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
             $record = new RecordGeneral($pidData['rek_pid']);
             $dslist = $record->getDatastreams();
             
+            if( count($dslist) == 0 ) {
+                if( $this->bgp ) {
+                    $this->bgp->setStatus($pidData['rek_pid'] . " has no datastreams but it should");
+                }
+                continue;
+            }
+            
             foreach ($dslist as $dsitem) {
                 $this->indexDS($record, $dsitem);
             }

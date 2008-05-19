@@ -244,7 +244,7 @@
 			foreach ($this->pids as $pid => $action) {	
 				//Logger::debug("FulltextQueue::commit() queing ". Misc::escapeString($pid).", ".Misc::escapeString($action));
 								
-				$sql = "INSERT INTO ".APP_TABLE_PREFIX."fulltext_queue (ftq_pid,ftq_op) VALUES ('".
+				$sql = "REPLACE INTO ".APP_TABLE_PREFIX."fulltext_queue (ftq_pid,ftq_op) VALUES ('".
 						Misc::escapeString($pid)."', '".Misc::escapeString($action)."')";
 						
 				$res = $GLOBALS["db_api"]->dbh->query($sql);				

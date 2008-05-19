@@ -152,12 +152,12 @@ class AuthIndex {
                 return -1;
             }
             
-            if( APP_SOLR_SWITCH == "ON" ) {
+            if( APP_SOLR_INDEXER == "ON" ) {
                 //
                 // KJ: Lucene re-index object because security has changed            
                 //
                 Logger::debug(">>>>> AuthIndex::setIndexAuthBGP --> update lucene security index");       
-                FulltextQueue::singleton()->add($pid);
+                //FulltextQueue::singleton()->add($pid);
             }
             
             // get children and update their indexes.
@@ -171,7 +171,7 @@ class AuthIndex {
             foreach ($children as $child_pid) {
                 AuthIndex::setIndexAuthBGP($child_pid, $recurse, false);
                 
-                if( APP_SOLR_SWITCH == "ON" ) {
+                if( APP_SOLR_INDEXER == "ON" ) {
                     // KJ/ETH: fulltext indexing of $pid should automatically
                     // recurse to children                
                 	FulltextQueue::singleton()->add($child_pid);

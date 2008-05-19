@@ -1118,10 +1118,18 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
   		  </tr>
-		 <tr>
-			<td colspan="2">
+		  <tr>
+	        <td class="colname">Use Solr for Search</td>
+			<td class="coldetail">
 			  <input type="radio" name="app_solr_switch" value="ON" {if $config_settings.app_solr_switch == "ON"}checked{/if}/> Enabled &nbsp; 
 			  <input type="radio" name="app_solr_switch" value="OFF" {if $config_settings.app_solr_switch == "OFF"}checked{/if}/> Disabled
+			</td>
+  		  </tr>
+  		  <tr>
+	        <td class="colname">Solr Indexer</td>
+			<td class="coldetail">
+			  <input type="radio" name="app_solr_indexer" value="ON" {if $config_settings.app_solr_indexer == "ON"}checked{/if}/> On &nbsp; 
+			  <input type="radio" name="app_solr_indexer" value="OFF" {if $config_settings.app_solr_indexer == "OFF"}checked{/if}/> Off
 			</td>
   		  </tr>
 		  <tr>

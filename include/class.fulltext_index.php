@@ -600,7 +600,7 @@ abstract class FulltextIndex {
             if (!empty($plaintext)) {
             	Logger::debug("calling indexPlaintext for datastream ".$dsitem['ID']);
                 $this->indexPlaintext($rec, $dsitem['ID'], $plaintext);
-                //unset($plaintext);
+                unset($plaintext);
             }
         }
     }
@@ -988,7 +988,7 @@ abstract class FulltextIndex {
             Logger::error($res->getMessage());
         }
         
-        unset($fulltext);
+        unset($stmt);
         
         /* if using transactions
        	// commit transaction

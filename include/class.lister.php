@@ -399,7 +399,7 @@ class Lister
             $year = Lister::getValue('year');
             if (is_numeric($year)) {
                 
-				$options = array();
+				$options = Search_Key::stripSearchKeys($options);
 				$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 				$options["searchKey".Search_Key::getID("Date")] = array();
 				$options["searchKey".Search_Key::getID("Date")]["filter_type"] = "between";
@@ -515,7 +515,7 @@ class Lister
 			$depositor_fullname = User::getFullName($depositor);
 			
 			if (!empty($depositor)) {				
-				$options = Search_Key::stripSearchKeys($options);                                                           
+				$options = Search_Key::stripSearchKeys($options);
             	$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 				$options["searchKey".Search_Key::getID("Depositor")] = $depositor; // 
             	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);
