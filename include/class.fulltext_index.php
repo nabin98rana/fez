@@ -679,7 +679,7 @@ abstract class FulltextIndex {
      *
      * @param string $pid
      */
-    private function removeByPid($pid)
+    protected function removeByPid($pid)
     {
     	Logger::debug("removeByPid($pid)");
     	$this->deleteFulltextCache($pid);

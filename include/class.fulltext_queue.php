@@ -350,7 +350,9 @@
 			}
 			
 			$sql .= ") as row FROM ".APP_TABLE_PREFIX."fulltext_queue 
-			             LEFT JOIN ".APP_TABLE_PREFIX."record_search_key as sk ON rek_pid = ftq_pid LIMIT 500";
+			             LEFT JOIN ".APP_TABLE_PREFIX."record_search_key as sk ON rek_pid = ftq_pid 
+		             WHERE ftq_op = '".FulltextQueue::ACTION_INSERT."'
+		             LIMIT 500";
 			
 			$result = $GLOBALS['db_api']->dbh->getAll($sql, DB_FETCHMODE_ASSOC);
 			if (PEAR::isError($result)) {
@@ -375,6 +377,41 @@
 			//Logger::debug($sql);
 			$GLOBALS['db_api']->dbh->query($sql);
 
+			return $result;
+		}
+		
+		function popDeleteChunk() {
+		    
+		    $sql = "  SELECT * 
+		              FROM ".APP_TABLE_PREFIX."fulltext_queue 
+		              WHERE ftq_op = '".FulltextQueue::ACTION_DELETE."'";
+		    
+		    $result = $GLOBALS['db_api']->dbh->getAll($sql, DB_FETCHMODE_ASSOC);
+		    if (PEAR::isError($result)) {
+				Logger::error("FulltextQueue::pop() can't read queue - ".Logger::str_r($result));
+				return false;
+			}
+		    
+		    if (count($result) == 0) {
+				Logger::debug("FulltextQueue::popDeleteChunk() Delete Queue is empty.");
+				return false;
+			}
+			
+			foreach ( $result as $row ) {
+			    $keys[] = $row['ftq_key'];
+			}
+			
+			$keys = '"'.implode('","', $keys).'"';
+			
+			// delete chunk from queue
+			$sql =  "DELETE FROM ".APP_TABLE_PREFIX."fulltext_queue ";
+			$sql .= "WHERE ftq_key IN (".$keys.")";
+			$GLOBALS['db_api']->dbh->query($sql);
+			
+			if (PEAR::isError($result)) {
+				Logger::error("FulltextQueue::popDeleteChunk() can't delete queue - ".Logger::str_r($result));
+			}
+			
 			return $result;
 		}
 		

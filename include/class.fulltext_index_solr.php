@@ -115,7 +115,6 @@ class FulltextIndex_Solr extends FulltextIndex {
     	parent::removeByPid($pid);
 
     	Logger::debug("removeByPid($pid) -> call apache solr with deleteById($pid)");
-    	$this->solr = $this->getSolr();
     	$this->solr->deleteById($pid);
     	$this->solr->commit();
 

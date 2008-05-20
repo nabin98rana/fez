@@ -264,14 +264,11 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
                 curl_close ($ch);
             }
             
-            
-            
-            
             unlink($tmpfname);
             
             if( $info['http_code'] != 200 ) {
                 Error_Handler::logError($info,__FILE__,__LINE__);
-                Logger::debug($info);
+                Logger::debug(var_export($info,true));
             }
     		    		
     		//$this->postprocessIndex($ftq_pid, $ftq_op);
@@ -283,6 +280,25 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
                 $this->bgp->setStatus("Finished Solr fulltext indexing for (".$countDocs."/".$this->totalDocs." Added)");
 			}
     		
+    	}
+    	
+    	if( $this->bgp ) {
+    	   $this->bgp->setStatus("Processing any PIDS to delete from solr");
+    	}
+    	
+    	$deletePids = $queue->popDeleteChunk();
+    	
+    	if( $deletePids ) {
+    	    
+    	    $this->connectToSolr();
+    	    
+    	    if( $this->bgp ) {
+    	       $this->bgp->setStatus("Deleting " . count($deletePids) . " from Solr Index");
+    	    }
+    	    
+    	    foreach ( $deletePids as $row) {
+    	        $this->removeByPid($row['ftq_pid']);
+    	    }
     	}
     	
     	return $countDocs;
@@ -300,7 +316,6 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
     	parent::removeByPid($pid);
 
     	Logger::debug("removeByPid($pid) -> call apache solr with deleteById($pid)");
-    	$this->solr = $this->getSolr();
     	$this->solr->deleteById($pid);
     	$this->solr->commit();
 
@@ -443,6 +458,15 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
     
     protected function updateFulltextIndex($pid, $fields, $fieldTypes) {
     	
+    }
+    
+    private function connectToSolr() {
+        
+        $this->solrHost = APP_SOLR_HOST;
+	    $this->solrPort = APP_SOLR_PORT;
+	    $this->solrPath = APP_SOLR_PATH;
+	    
+	    $this->solr = new Apache_Solr_Service($this->solrHost, $this->solrPort, $this->solrPath);
     }
 }
 
