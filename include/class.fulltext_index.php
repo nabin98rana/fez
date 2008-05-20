@@ -547,7 +547,7 @@ abstract class FulltextIndex {
      */
     protected function indexManaged($rec, $dsitem)
     {
-        Logger::debug("FulltextIndex::indexManaged mem_usage=".memory_get_usage());
+        //Logger::debug("FulltextIndex::indexManaged mem_usage=".memory_get_usage());
     	$GLOBALS['db_api']->dbh->autoCommit(true);
 
     	// check if the fulltext index can do anything with this stream
@@ -562,7 +562,7 @@ abstract class FulltextIndex {
         //Logger::debug("---------------> cached content res is: ".$res['pid']);
         
         if (!empty($res) && $res['cnt'] > 0) {
-        	Logger::debug("- use cached content for $pid/".$dsitem['ID']);
+        	//Logger::debug("- use cached content for $pid/".$dsitem['ID']);
         	return;
         }
 
@@ -592,13 +592,13 @@ abstract class FulltextIndex {
         unlink($filename);
 
         if (!empty($textfilename) && is_file($textfilename)) {
-        	Logger::debug("- got converted text in file ".$textfilename);
+        	//Logger::debug("- got converted text in file ".$textfilename);
             $plaintext = file_get_contents($textfilename);
             unlink($textfilename);
 
             // index the plaintext
             if (!empty($plaintext)) {
-            	Logger::debug("calling indexPlaintext for datastream ".$dsitem['ID']);
+            	//Logger::debug("calling indexPlaintext for datastream ".$dsitem['ID']);
                 $this->indexPlaintext($rec, $dsitem['ID'], $plaintext);
                 unset($plaintext);
             }

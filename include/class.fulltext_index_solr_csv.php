@@ -264,10 +264,14 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
                 curl_close ($ch);
             }
             
+            
+            
+            
             unlink($tmpfname);
             
             if( $info['http_code'] != 200 ) {
-                Error_Handler::logError($data,__FILE__,__LINE__);
+                Error_Handler::logError($info,__FILE__,__LINE__);
+                Logger::debug($info);
             }
     		    		
     		//$this->postprocessIndex($ftq_pid, $ftq_op);
