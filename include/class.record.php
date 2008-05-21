@@ -2145,6 +2145,11 @@ inner join
         
         $operatorToUse = trim($operator);
         
+//        echo "<pre>";
+//        print_r($searchKeys);
+//        echo "</pre>";
+//        exit;
+        
         /*
          * Fulltext SQL (Special Case)
          */
@@ -2156,6 +2161,8 @@ inner join
     		$searchKey_join[SK_KEY_ID] = 1;
     		$searchKey_join[SK_SEARCH_TXT] .= "All Fields:\"".trim(htmlspecialchars($searchKeys["0"]))."\", ";
             
+    		
+    		$searchKey_join["sk_where_AND"][] = "all:" .$escapedInput;
     	}
 
     	/*
