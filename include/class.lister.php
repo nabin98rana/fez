@@ -251,11 +251,12 @@ class Lister
                 $tpl->assign("isCreator", $isCreator);
                 $isEditor = @$userPIDAuthGroups['isEditor'] == 1;
                 $tpl->assign("isEditor", $isEditor);
-                $options = Search_Key::stripSearchKeys($options);                                                           
-                $options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-			    $options["searchKey".Search_Key::getID("isMemberOf")] = $collection_pid; // 
+                $options = Search_Key::stripSearchKeys($options); 
+				$filter = array();
+                $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+			    $filter["searchKey".Search_Key::getID("isMemberOf")] = $collection_pid; // 
 
-                $list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);	
+                $list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
                                 
                 //$list = Collection::getListing($collection_pid, $pager_row, $rows, $sort_by);
                 $list_info = $list["info"];
@@ -309,9 +310,10 @@ class Lister
                     $content    = APP_PATH. $path . $customView['cview_content_tpl'];
                     $footer     = APP_PATH. $path . $customView['cview_footer_tpl'];
                     $css        = APP_PATH. $path . $customView['cview_css'];
-                    
-                    if( is_file($header) )
+
+                    if( is_file($header) ) {
                         $tpl->assign('cv_header',   $header);
+					}
                     
                     if( is_file($content) )
                         $tpl->assign('cv_content',  $content);
@@ -333,10 +335,11 @@ class Lister
                 //$community_details = Community::getDetails($community_pid);
                 $community_title = Record::getSearchKeyIndexValue($community_pid, "Title");
                 
-                $options = Search_Key::stripSearchKeys($options);                                                           
-            	$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-				$options["searchKey".Search_Key::getID("isMemberOf")] = $community_pid; // 
-            	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);	
+                $options = Search_Key::stripSearchKeys($options);
+				$filter = array();
+            	$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+				$filter["searchKey".Search_Key::getID("isMemberOf")] = $community_pid; // 
+            	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
                 
                 $list_info = $list["info"];
                 $list = $list["list"];
@@ -376,12 +379,13 @@ class Lister
         } elseif ($browse == "latest") {
             
 			$options = array();
+			$filter = array();
 			$options["sort_order"] = "1";
-			$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+			$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 			
 			$sort_by = "searchKey".Search_Key::getID("Created Date");
 			
-			$list = Record::getListing($options, $approved_roles=array("Lister"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);
+			$list = Record::getListing($options, $approved_roles=array("Lister"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
             $list_info = $list["info"];
             $list = $list["list"];
 			
@@ -400,13 +404,14 @@ class Lister
             if (is_numeric($year)) {
                 
 				$options = Search_Key::stripSearchKeys($options);
-				$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-				$options["searchKey".Search_Key::getID("Date")] = array();
-				$options["searchKey".Search_Key::getID("Date")]["filter_type"] = "between";
-				$options["searchKey".Search_Key::getID("Date")]["filter_enabled"] = 1;
-				$options["searchKey".Search_Key::getID("Date")]["start_date"] = $year."-01-01";
-				$options["searchKey".Search_Key::getID("Date")]["end_date"] = $year."-12-31";			
-				$list = Record::getListing($options, $approved_roles=array("Lister"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);
+				$filter = array();
+				$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+				$filter["searchKey".Search_Key::getID("Date")] = array();
+				$filter["searchKey".Search_Key::getID("Date")]["filter_type"] = "between";
+				$filter["searchKey".Search_Key::getID("Date")]["filter_enabled"] = 1;
+				$filter["searchKey".Search_Key::getID("Date")]["start_date"] = $year."-01-01";
+				$filter["searchKey".Search_Key::getID("Date")]["end_date"] = $year."-12-31";			
+				$list = Record::getListing($options, $approved_roles=array("Lister"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
                 $list_info = $list["info"];
                 $list = $list["list"];
 				
@@ -451,11 +456,12 @@ class Lister
                 $author_id = Lister::getValue('author_id');
             
             if (!empty($author_id)) {            	
-            	$options = Search_Key::stripSearchKeys($options);                                                           
-            	$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-				$options["searchKey".Search_Key::getID("Author ID")] = $author_id; //
+            	$options = Search_Key::stripSearchKeys($options);
+				$filter = array();
+            	$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+				$filter["searchKey".Search_Key::getID("Author ID")] = $author_id; //
 				$author = Author::getFullname($author_id); 
-            	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);
+            	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
             	
                 $list_info = $list["info"];
                 $list = $list["list"];
@@ -464,10 +470,11 @@ class Lister
                 $tpl->assign("browse_heading", "Browse By Author ID - ".$author);
                 $tpl->assign("list_heading", "Browse By Author ID - ".$author);
             } elseif (!empty($author)) {	
-	        	$options = Search_Key::stripSearchKeys($options);                                                           
-            	$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-				$options["searchKey".Search_Key::getID("Author")] = $author; //
-            	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);
+	        	$options = Search_Key::stripSearchKeys($options);
+				$filter = array();
+            	$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+				$filter["searchKey".Search_Key::getID("Author")] = $author; //
+            	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
                 $list_info = $list["info"];
                 $list = $list["list"];
 				
@@ -516,9 +523,10 @@ class Lister
 			
 			if (!empty($depositor)) {				
 				$options = Search_Key::stripSearchKeys($options);
-            	$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-				$options["searchKey".Search_Key::getID("Depositor")] = $depositor; // 
-            	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);
+				$filter = array();
+            	$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+				$filter["searchKey".Search_Key::getID("Depositor")] = $depositor; // 
+            	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
                 $list_info = $list["info"];
                 $list = $list["list"];
 				
@@ -558,10 +566,11 @@ class Lister
                 $treeIDs = Controlled_Vocab::getAllTreeIDs($parent_id);
                 $subject_count = Collection::getCVCountSearch($treeIDs, $parent_id);
                 
-				$options = Search_Key::stripSearchKeys($options);                                                           
-            	$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-				$options["searchKey".Search_Key::getID("Subject")] = $parent_id; // 
-            	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);	
+				$options = Search_Key::stripSearchKeys($options);
+				$filter = array();
+            	$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+				$filter["searchKey".Search_Key::getID("Subject")] = $parent_id; // 
+            	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);	
                 
                 $list_info = $list["info"];
                 $list = $list["list"];
@@ -625,9 +634,13 @@ class Lister
 			     'override_op'   =>  'AND',
 			     'value'         =>  2,
 			);
+			$filter["searchKey".Search_Key::getID("Status")] = array(
+			     'override_op'   =>  'AND',
+			     'value'         =>  2,
+			);
 			
 			//$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $operator);
-			$list = Record::$getFunction($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);
+			$list = Record::$getFunction($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
 			
 			$spell = new spellcheck(APP_DEFAULT_LANG);
 			
@@ -662,10 +675,11 @@ class Lister
                        
             $xdis_id = Community::getCommunityXDIS_ID();
             $tpl->assign("xdis_id", $xdis_id);
-            $options = Search_Key::stripSearchKeys($options);                                                           
-            $options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-            $options["searchKey".Search_Key::getID("Object Type")] = 1; // enforce communities only
-            $list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache);
+            $options = Search_Key::stripSearchKeys($options);
+			$filter = array();
+            $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+            $filter["searchKey".Search_Key::getID("Object Type")] = 1; // enforce communities only
+            $list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
             $list_info = $list["info"];
             $list = $list["list"];
             

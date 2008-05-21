@@ -706,6 +706,22 @@ abstract class FulltextIndex {
      */
     protected abstract function executeQuery($query, $options, $approved_roles, $sort_by, $start, $page_rows);
     
+
+	public function prepareRuleGroups($approved_roles) {
+		// gets user rule groups for this user		
+		$userID = Auth::getUserID();		
+		if (empty($userID)) {
+			// get public lister rulegroups
+			$userRuleGroups = Collection::getPublicAuthIndexGroups();
+		} else {
+			//$userRuleGroups = Auth::getUserAuthRuleGroups(Auth::getUserID());
+			$ses = Auth::getSession();
+			$userRuleGroups = $ses['auth_index_user_rule_groups'];
+		}
+		return $userRuleGroups;
+	}
+
+ 	public function searchAdvancedQuery($searchKey_join, $approved_roles, $start, $page_rows) {}
     
     /**
      * Issues a search request to the fulltext search engine. This is the main
@@ -723,16 +739,8 @@ abstract class FulltextIndex {
      */
  	public function search($params, $options, $approved_roles, $sort_by, $start, $page_rows) {
  	    
- 		// gets user rule groups for this user		
-		$userID = Auth::getUserID();		
-		if (empty($userID)) {
-			// get public lister rulegroups
-			$userRuleGroups = Collection::getPublicAuthIndexGroups();
-		} else {
-			//$userRuleGroups = Auth::getUserAuthRuleGroups(Auth::getUserID());
-			$ses = Auth::getSession();
-			$userRuleGroups = $ses['auth_index_user_rule_groups'];
-		}
+
+		$userRuleGroups = $this->prepareRuleGroups($approved_roles);
 		$ruleGroupStmt = implode(" OR ", $userRuleGroups);					
 		Logger::debug("FulltextIndex::search userid='".$userID."', rule groups='$ruleGroupStmt'");
 		
@@ -752,7 +760,6 @@ abstract class FulltextIndex {
 		// prepare fulltext query string (including auth filters)
 		$query = $this->prepareQuery($params, $options, $ruleGroupStmt, $approved_roles, $sort_by, $start, $page_rows);
 
-		
 		// send query to search engine
 		Logger::debug("FulltextIndex::search query string='".Logger::str_r($query)."'");
 		Logger::debug("FulltextIndex::search sort_by='".$sort_by."'");

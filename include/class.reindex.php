@@ -410,6 +410,17 @@ class Reindex
     }
 
 
+    function getAllFezIndexPIDs() {
+        $stmt = "SELECT rek_pid, rek_title FROM  " . APP_TABLE_PREFIX . "record_search_key";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        } else {
+            return $res;
+        }
+    }
+
 
     function reindexFullList($params,$terms)
     {
@@ -479,31 +490,41 @@ class Reindex
         
         $bgp_details = $this->bgp->getDetails();
         $reindex_record_counter = 0;
+
+
+		if (APP_SQL_DBTYPE == "mysql") { 	
+			$this->bgp->setStatus("Adding All Fez Index PIDs Solr Queue (with a insert/select)");
+			$stmt .= "INSERT INTO " . APP_TABLE_PREFIX . "fulltext_queue (ftq_pid, ftq_op)
+			SELECT rek_pid, 'I'
+			FROM " . APP_TABLE_PREFIX . "record_search_key";			
+			$res = $GLOBALS["db_api"]->dbh->query($stmt);
+		} else {        
+//	        $fedoraDirect = new Fedora_Direct_Access();
+//	        $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms);
+			$fezList = Reindex::getAllFezIndexPIDs();
+	        if (APP_DB_TYPE == "oracle") {
+				foreach ($fezList as &$flist) {
+		            $flist = array_change_key_case($flist, CASE_LOWER);
+		        }
+				$fezList = $flist;
+			}
+	        $record_count = count($fezList);
         
-        $fedoraDirect = new Fedora_Direct_Access();
-        $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms);
-        if (APP_DB_TYPE == "oracle") {
-			foreach ($fedoraList as &$flist) {
-	            $flist = array_change_key_case($flist, CASE_LOWER);
+	        foreach ($fezList as $detail) {
+            
+	            FulltextQueue::singleton()->add($detail['rek_pid']);
+	            $this->bgp->setProgress(intval(100*$reindex_record_counter/$record_count));
+	            $this->bgp->setStatus("Adding to Solr Queue:  '".$detail['rek_pid']."' ".$detail['rek_title']. " (".$reindex_record_counter."/".$record_count.")");
+            
+	            if( $reindex_record_counter % 100 == 0 ) {
+	                FulltextQueue::commit();
+	            }
+            
+	            $reindex_record_counter++;
 	        }
-			$fedoraList = $flist;
-		}
-        $record_count = count($fedoraList);
-        
-        foreach ($fedoraList as $detail) {
-            
-            FulltextQueue::singleton()->add($detail['pid']);
-            $this->bgp->setProgress(intval(100*$reindex_record_counter/$record_count));
-            $this->bgp->setStatus("Solr Reindexing:  '".$detail['pid']."' ".$detail['title']. " (".$reindex_record_counter."/".$record_count.")");
-            
-            if( $reindex_record_counter % 100 == 0 ) {
-                FulltextQueue::commit();
-            }
-            
-            $reindex_record_counter++;
         }
-        
         FulltextQueue::commit();
+		FulltextQueue::singleton()->triggerUpdate();
     }
     
 

@@ -213,6 +213,131 @@ class FulltextIndex_Solr extends FulltextIndex {
 	   );
 	}
 
+
+	protected function prepareAdvancedQuery($searchKey_join, $filter_join, $approved_roles) {
+//		print_r($searchKey_join);
+		if ($searchKey_join[2] == "") {
+			$searchQuery = "*:*";
+		} else {
+			$searchQuery = $searchKey_join[2];
+		}
+		
+		$rulegroups = $this->prepareRuleGroups($approved_roles);
+		
+		
+		if ($filter_join[2] == "") {
+			$filterQuery = "(_authlister_t:(" . implode(" OR ", $rulegroups) . "))";
+		} else {
+			$filterQuery = "(_authlister_t:(" . implode(" OR ", $rulegroups) . ")) AND ".$filter_join[2];
+		}
+//		$searchQuery = urlencode($searchQuery);
+//		$filterQuery = urlencode($filterQuery);
+//		$searchQuery = str_replace(" ", "%20", trim($searchQuery));
+//		$filterQuery = str_replace(" ", "%20", trim($filterQuery));
+//		$filterQuery = "";
+		return array('query' => $searchQuery, 'filter' => $filterQuery);
+	}
+
+	public function searchAdvancedQuery($searchKey_join, $filter_join, $approved_roles, $start, $page_rows) {
+
+
+		try {
+
+			//$solr = $this->getSolr();
+			//Logger::debug("solr ping ".$solr->ping());
+			$query = $this->prepareAdvancedQuery($searchKey_join, $filter_join, $approved_roles);
+			// Solr search params
+			$params = array();
+
+			// hit highlighting
+			$params['hl'] = 'true';			
+			$params['hl.fl'] = 'content_mt'; //'content_mt,alternative_title_mt,author_mt,keywords_mt';
+			$params['hl.requireFieldMatch'] = 'false';			
+			$params['hl.snippets'] = 3;
+			//$params['hl.formatter'] = 'gap';
+			//$params['hl.formatter'] = 'simple';
+			$params['hl.fragmenter'] = 'gap';
+			$params['hl.fragsize'] = 150;
+			$params['hl.mergeContiguous'] = "true";
+
+			// filtering
+			$params['fq'] = $query['filter'];
+			$queryString = $query['query'];
+			$params['fl'] = '*,score';
+
+			//$sort_by = 'score';
+//			$sort_by
+			// sorting
+			if (empty($searchKey_join[SK_SORT_ORDER])) {
+				$params['sort'] = "";
+			} else {
+				$params['sort'] = $searchKey_join[SK_SORT_ORDER];
+			}
+
+
+			Logger::debug("Solr filter query: ".$params['fq']);
+			Logger::debug("Solr query string: ".$queryString);
+			Logger::debug("Solr sort by: ".$params['sort']);
+
+			$response = $this->solr->search($queryString, $start, $page_rows, $params);
+			$total_rows = $response->response->numFound;
+
+			$docs = array();
+			$snips = array();
+			if ($total_rows > 0) {		
+				$i = 0;
+				foreach ($response->response->docs as $doc) {
+					// resolve result
+					$docs[$i]['rek_pid'] = $doc->id;
+					$docs[$i]['rek_title'] = $doc->title_t;
+					$docs[$i]['Relevance'] = $doc->score;
+					$docs[$i]['rek_citation'] = $doc->citation_t;
+					$docs[$i]['rek_object_type'] = $doc->object_type_i;
+
+					$i++;
+				}
+
+				// Solr hit highlighting				
+	            foreach ($response->highlighting as $pid => $snippet) {	            	
+	            	if (isset($snippet->content_mt)) {    	            	       	
+		            	foreach ($snippet->content_mt as $part) {
+		            		$part = trim(str_ireplace(chr(12), ' | ', $part));		            		
+		            		$snips[$pid] .= $part;
+		            	}	
+	            	} 
+	            	if (isset($snippet->keywords_mt)) {
+	            		foreach ($snippet->content_mt as $part) {
+		            		$part = trim(str_ireplace(chr(12), ' | ', $part));		            		
+		            		$snips[$pid] .= $part;
+		            	}
+	            	}
+	            } 	
+
+	         }	
+
+		} catch (Exception $e) {
+
+			//
+			// catches any Solr service exceptions (malformed syntax etc.)
+			//
+
+			// TODO add fine grained control, user message error handling
+			Logger::error("Error on searching: ".$e->getMessage());
+
+			// report nothing found on error
+			$docs = array();
+			$total_rows = 0;	
+
+    	}
+
+    	return array(
+    	   'total_rows' => $total_rows, 
+    	   'docs'       => $docs, 
+    	   'snips'      => $snips
+	   );		
+		
+	}
+
     
     protected function executeQuery($query, $options, $approved_roles, $sort_by, $start, $page_rows) {
     	
