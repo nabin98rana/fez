@@ -267,13 +267,14 @@ class FulltextIndex_Solr extends FulltextIndex {
 
 			//$sort_by = 'score';
 //			$sort_by
+
 			// sorting
 			if (empty($searchKey_join[SK_SORT_ORDER])) {
 				$params['sort'] = "";
 			} else {
 				$params['sort'] = $searchKey_join[SK_SORT_ORDER];
 			}
-
+			$search_keys = 
 
 			Logger::debug("Solr filter query: ".$params['fq']);
 			Logger::debug("Solr query string: ".$queryString);
@@ -281,19 +282,21 @@ class FulltextIndex_Solr extends FulltextIndex {
 
 			$response = $this->solr->search($queryString, $start, $page_rows, $params);
 			$total_rows = $response->response->numFound;
-
+			$sekdet = Search_Key::getList();
 			$docs = array();
 			$snips = array();
 			if ($total_rows > 0) {		
 				$i = 0;
 				foreach ($response->response->docs as $doc) {
 					// resolve result
-					$docs[$i]['rek_pid'] = $doc->id;
-					$docs[$i]['rek_title'] = $doc->title_t;
 					$docs[$i]['Relevance'] = $doc->score;
-					$docs[$i]['rek_citation'] = $doc->citation_t;
-					$docs[$i]['rek_object_type'] = $doc->object_type_i;
-
+//					$docs[$i]['rek_citation'] = $doc->citation_t;
+					foreach ($sekdet as $skey => $sval) {
+						$solr_suffix = Record::getSolrSuffix($sval);
+						$solr_name = $sval['sek_title_db'].$solr_suffix;
+						$docs[$i]["rek_".$sval['sek_title_db']] = $doc->$solr_name;
+						
+					}
 					$i++;
 				}
 
@@ -391,13 +394,15 @@ class FulltextIndex_Solr extends FulltextIndex {
 			if ($total_rows > 0) {		
 				$i = 0;
 				foreach ($response->response->docs as $doc) {
-					
 					// resolve result
-					$docs[$i]['rek_pid'] = $doc->id;
 					$docs[$i]['Relevance'] = $doc->score;
-					$docs[$i]['rek_citation'] = $doc->citation_t;
-					$docs[$i]['rek_object_type'] = $doc->object_type_i;
-					
+	//				$docs[$i]['rek_citation'] = $doc->citation_t;
+					foreach ($sekdet as $skey => $sval) {
+						$solr_suffix = Record::getSolrSuffix($sval);
+						$solr_name = $sval['sek_title_db'].$solr_suffix;
+						$docs[$i]["rek_".$sval['sek_title_db']] = $doc->$solr_name;
+
+					}
 					$i++;
 				}
 				
