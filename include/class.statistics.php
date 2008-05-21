@@ -205,16 +205,22 @@ class Statistics
 						return -1; //abort
 					} else {
 						$counter_inserted++;
-						//continue
 						
-						if(  APP_SOLR_SWITCH == "ON" ) {
-						    FulltextQueue::singleton()->add($pid);
+						if( APP_SOLR_INDEXER == "ON" ) {
+						    $changedPids[$pid] = true;
 						}
 					}
 					
 				}
 			}
 		}
+		
+		if( APP_SOLR_INDEXER == "ON" ) {
+		    foreach ($changedPids as $pid => $null) {
+                FulltextQueue::singleton()->add($pid);
+		    }
+		}
+		
 		fclose($handle);
 		Statistics::updateSummaryStats();
 		$timeFinished = date('Y-m-d H:i:s');
