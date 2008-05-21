@@ -290,7 +290,7 @@ class FulltextIndex_Solr extends FulltextIndex {
 				foreach ($response->response->docs as $doc) {
 					// resolve result
 					$docs[$i]['Relevance'] = $doc->score;
-//					$docs[$i]['rek_citation'] = $doc->citation_t;
+					$docs[$i]['rek_citation'] = $doc->citation_t;
 					foreach ($sekdet as $skey => $sval) {
 						$solr_suffix = Record::getSolrSuffix($sval);
 						$solr_name = $sval['sek_title_db'].$solr_suffix;
@@ -396,7 +396,7 @@ class FulltextIndex_Solr extends FulltextIndex {
 				foreach ($response->response->docs as $doc) {
 					// resolve result
 					$docs[$i]['Relevance'] = $doc->score;
-	//				$docs[$i]['rek_citation'] = $doc->citation_t;
+					$docs[$i]['rek_citation'] = $doc->citation_t;
 					foreach ($sekdet as $skey => $sval) {
 						$solr_suffix = Record::getSolrSuffix($sval);
 						$solr_name = $sval['sek_title_db'].$solr_suffix;
