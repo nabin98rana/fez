@@ -203,7 +203,8 @@ class Lister
             "searchKey".Search_Key::getID("Sequence") => 'Sequence'
         );
         
-        if (($cat == 'search' || $cat == 'all_fields' || $cat == 'quick_filter') && $options["searchKey0"] != "") {        	
+        
+        if (($cat == 'search' || $cat == 'all_fields' || $cat == 'quick_filter') ) {        	
             $sort_by_list['searchKey0'] = "Search Relevance";           
             if ((Misc::GETorPOST("sort_by")) == "") {
             	$sort_by = "searchKey0";            	

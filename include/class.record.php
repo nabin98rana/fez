@@ -2280,7 +2280,7 @@ inner join
 	 	        		$searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":".$usr_id;
 	 	   	    	} elseif ($searchValue == "-4") { //not published
 	 	        		$published_id = Status::getID("Published");
-	 	        		$searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":!".$published_id;
+	 	        		$searchKey_join["sk_where_$operatorToUse"][] = "-".$sqlColumnName.$suffix.":".$published_id;
 	 	   	    	} elseif ($searchValue == "-3") { //myself or un-assigned
 	 	        		$usr_id = Auth::getUserID();
 	 	        		
