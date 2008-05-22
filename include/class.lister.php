@@ -641,7 +641,7 @@ class Lister
 			);
 			
 			//$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $operator);
-			$list = Record::$getFunction($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
+			$list = Record::$getFunction($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, $operator);
 			
 			$spell = new spellcheck(APP_DEFAULT_LANG);
 			
