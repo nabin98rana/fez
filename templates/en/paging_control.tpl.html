@@ -18,8 +18,8 @@
       {/if}
 	{/section}
 	{if $list_info.printable_page != $list_info.total_pages}
-	&nbsp;<a href="{$PAGE_URL}?{if $url != ""}{$url}&{/if}rows={$list_info.page_rows}&pager_row={$list_info.next_page}" title="Next page" style="text-decoration: none; margin-left: 0.25em;">next &#155;</a> 
-	<a href="{$PAGE_URL}?{if $url != ""}{$url}&{/if}rows={$list_info.page_rows}&pager_row={$list_info.last_page}" title="Last page" style="text-decoration: none; margin-left: 0.25em;">last &#187;</a>
+	&nbsp;<a href="{$PAGE_URL}?{if $url_wo_rows != ""}{$url_wo_rows}&{/if}rows={$list_info.page_rows}&pager_row={$list_info.next_page}" title="Next page" style="text-decoration: none; margin-left: 0.25em;">next &#155;</a> 
+	<a href="{$PAGE_URL}?{if $url_wo_rows != ""}{$url_wo_rows}&{/if}rows={$list_info.page_rows}&pager_row={$list_info.last_page}" title="Last page" style="text-decoration: none; margin-left: 0.25em;">last &#187;</a>
 	{/if}
 	</p>
 </div>
