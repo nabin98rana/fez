@@ -820,11 +820,11 @@ $tagIndent = "";
                                         Session::setMessage("File upload failed, file: ".$fu_name.", Error: ".Misc::fileUploadErr($fu_error));
                                     } else {
                                         if (is_numeric($attrib_loop_index) && is_array($_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']])) {
-                                            $attrib_value = (fread(fopen($_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index], "r"), $_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']][$attrib_loop_index]));
+                                      //      $attrib_value = (fread(fopen($_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index], "r"), $_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']][$attrib_loop_index]));
                                         } else {
-                                            $attrib_value = (fread(fopen($_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']], "r"), $_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']]));													
+                                      //      $attrib_value = (fread(fopen($_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']], "r"), $_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']]));													
                                         }
-                                    }
+                                    } 
                                 } elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'text' || $xsdmf_details_ref['xsdmf_html_input'] == 'rich_text' || $xsdmf_details_ref['xsdmf_html_input'] == 'textarea' || $xsdmf_details_ref['xsdmf_html_input'] == 'hidden') {
 //                                    $xsdmf_details_ref = array();
                                     Foxml::handleTextInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $xsdmf_details_ref, $attrib_loop_index, $element_prefix, $i, $xmlObj, $tagIndent);
@@ -851,12 +851,13 @@ $tagIndent = "";
                                     } else {
                                         if (is_numeric($attrib_loop_index) && is_array($_FILES["xsd_display_fields"]["name"][$xsdmf_details['xsdmf_id']])) {
                                             if (!empty($_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index])) {
-                                                $attrib_value = (fread(fopen($_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index], "r"), $_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']][$attrib_loop_index]));
+  //                                              $attrib_value = (fread(fopen($_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']][$attrib_loop_index], "r"), $_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']][$attrib_loop_index]));
                                             }										
                                         } else {
-                                            $attrib_value = (fread(fopen($_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']], "r"), $_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']]));													
+//                                            $attrib_value = (fread(fopen($_FILES["xsd_display_fields"]["tmp_name"][$xsdmf_details['xsdmf_id']], "r"), $_FILES["xsd_display_fields"]["size"][$xsdmf_details['xsdmf_id']]));													
                                         }
                                     }
+
                             } elseif ($xsdmf_details['xsdmf_html_input'] == 'text' || $xsdmf_details['xsdmf_html_input'] == 'rich_text' || $xsdmf_details['xsdmf_html_input'] == 'textarea' || $xsdmf_details['xsdmf_html_input'] == 'hidden') {			
 //                                $xsdmf_details_ref = array();
                                 Foxml::handleTextInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $xsdmf_details_ref, $attrib_loop_index, $element_prefix, $i, $xmlObj, $tagIndent);

@@ -165,6 +165,27 @@ class Record
         }
     }
 
+    function getCollectionChildrensDetails($pid, $clearcache=false, $searchKey='isMemberOf')
+    {
+
+    	$sek_title = Search_Key::makeSQLTableName($searchKey);
+
+		$stmt = "SELECT ".APP_SQL_CACHE."
+					r1.*
+				 FROM
+					" . APP_TABLE_PREFIX . "record_search_key r1 inner join
+					" . APP_TABLE_PREFIX . "record_search_key_".$sek_title." m1 on r1.rek_pid = m1.rek_".$sek_title."_pid AND m1.rek_".$sek_title." = '".$pid."'
+				 WHERE r1.rek_object_type = 2";
+
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        } else {
+            return $res;
+        }
+    }
+
+
 	function generateDerivationTree($pid, $derivations, &$dTree, $shownPids=array()) {
 			if (!array($derivations)) {
 				return;
@@ -259,6 +280,40 @@ class Record
 		$recursive_details = array();
 		foreach ($details as $key => $row) {
 			$temp = Record::getChildrensDetails($row['rek_pid'], $searchKey, false);
+			foreach ($temp as $trow) {
+				if ($flatTree == true) {
+					array_push($details, $trow);
+				} else {
+					if (!is_array($details[$key]['children'])) {
+						$details[$key]['children'] = array();
+					}
+					array_push($details[$key]['children'], $trow);
+				}
+
+			}
+		}
+		$details = array_reverse($details);
+		if ($GLOBALS['app_cache']) {
+		  $returns[$pid][$searchKey] = $details;
+        }
+		return $details;
+    }
+
+
+    function getCollectionChildrenAll($pid, $searchKey="isMemberOf", $flatTree=true)
+    {
+
+		static $returns;
+
+        if (isset($returns[$pid][$searchKey])) {
+            return $returns[$pid][$searchKey];
+        }
+        $dbtp =  APP_TABLE_PREFIX;
+
+        $details = Record::getCollectionChildrensDetails($pid);
+		$recursive_details = array();
+		foreach ($details as $key => $row) {
+			$temp = Record::getCollectionChildrensDetails($row['rek_pid'], false, $searchKey);
 			foreach ($temp as $trow) {
 				if ($flatTree == true) {
 					array_push($details, $trow);
@@ -1182,6 +1237,7 @@ class Record
 		$filter_join = self::buildSearchKeyFilterSolr($filter, $sort_by, $operator);
 		$index = new FulltextIndex_Solr();
 //		$res = $index->search($params, $options, $approved_roles, $sort_by, $start, $page_rows);
+
 		$res = $index->searchAdvancedQuery($searchKey_join, $filter_join, $approved_roles, $start, $page_rows);
 		$total_rows = $res['total_rows'];
 		$res = $res['docs'];
@@ -2144,7 +2200,6 @@ inner join
 		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix //only mysql supports db prefixing, so will remove it - no reason not to
         
         $operatorToUse = trim($operator);
-        
 //        echo "<pre>";
 //        print_r($searchKeys);
 //        echo "</pre>";
@@ -2156,12 +2211,13 @@ inner join
     	if ($searchKeys["0"]  && trim($searchKeys["0"]) != "") { //this will have to replaced with lots of union select joins like eventum
             
     	    
-    	    $escapedInput = Misc::escapeString($searchKeys["0"]);
-    		
+//    	    $escapedInput = Misc::escapeString($searchKeys["0"]);
+    		$escapedInput = $searchKeys["0"];
     		$searchKey_join[SK_KEY_ID] = 1;
     		$searchKey_join[SK_SEARCH_TXT] .= "All Fields:\"".trim(htmlspecialchars($searchKeys["0"]))."\", ";
             
     		
+//    		$searchKey_join["sk_where_AND"][] = "all:" .$escapedInput;
     		$searchKey_join["sk_where_AND"][] = "all:" .$escapedInput;
     	}
 
@@ -2272,7 +2328,7 @@ inner join
     	 	    	    if( $multiple_type == 'all' ) {
     	 	    	        $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.": " . implode(" AND ".$sqlColumnName."_ms:", Record::escapeSolr($searchValue)) . "";
     	 	    	    } else {
-    	 	    	        $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(".implode("','", Record::escapeSolr($searchValue)).")";
+    	 	    	        $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(".implode(" OR ", Record::escapeSolr($searchValue)).")";
     	 	    	    }
 						
 						$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(implode("','", $searchValue))."\", ";
@@ -2626,8 +2682,11 @@ inner join
 					if (Fedora_API::datastreamExists($pid, $ncName)) {
 						Fedora_API::callPurgeDatastream($pid, $ncName);
 					}
-					Fedora_API::getUploadLocation($pid, $ncName, $datastreamXMLContent[$dsKey], $dsTitle['LABEL'],
-							$dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
+//					echo filesize($dsTitle['File_Location']); exit;
+//					Fedora_API::getUploadLocation($pid, $ncName, $dsTitle['File_Location'], $dsTitle['LABEL'],
+//							$dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
+					Fedora_API::getUploadLocationByLocalRef($pid, $ncName, $dsTitle['File_Location'], $dsTitle['LABEL'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
+							
 			         Record::generatePresmd($pid, $dsIDName);
 
 				}

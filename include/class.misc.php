@@ -885,6 +885,13 @@ class Misc
 			$f = escapeshellarg($f);
 			$ret = trim( `file -bi $f` );
 		}
+		if ($ret == "application/octet-stream") {
+			$filename_ext = str_replace("'", "", strtolower(substr($f, (strrpos($f, ".") + 1))));
+//			Error_Handler::logError(array($filename_ext,$ret));
+			if ($filename_ext == "wmv") {
+				$ret = "video/x-wmv";
+			}	
+		}
         //Error_Handler::logError(array($f,$ret));
         return $ret;
 	}
@@ -1035,7 +1042,9 @@ class Misc
 					}
 					// Now for file uploads get the Datastream ID and Label (and maybe the MIMEType later?) from the actual file
 					$file_res = array();
-					$label_res = array();				
+					$label_res = array();		
+//					print_r($_FILES);		
+//					Error_Handler::logError(array($_FILES), __FILE__, __LINE__);									
 					$file_res = XSD_Loop_Subelement::getXSDMFInputType($dsTitle['xsdsel_id'], 'file_input');
 					$label_res = XSD_Loop_Subelement::getXSDMFInputType($dsTitle['xsdsel_id'], 'text', true); // true for exclude file and link, only want the file and link labels
 					if (count($file_res) == 1) {
@@ -1057,13 +1066,35 @@ class Misc
 									} else {
 										$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = $_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key];
 									}
-                                    // To help determine the MIME type, the file needs to have the correct extension.
-                                    // Some versions of PHP call all uploads <hash>.tmp so we make a copy with the right name before 
-                                    // checking for the MIME type.  Not using file upload 'type' because it is unreliable.
-                                    $temp_store = APP_TEMP_DIR.$_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key];
-                                    copy($_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']][$key],$temp_store);
-									$return[$dsTitle['xsdsel_title'].$key]['MIMETYPE'] = Misc::mime_content_type($temp_store);
-                                    @unlink($temp_store);
+									
+									$error = $_FILES['xsd_display_fields']['error'][$file_res[0]['xsdmf_id']][$key];
+									$errorText = "";
+									switch ($error) {
+									  case 1:
+									           $errorText = "The file is bigger than this PHP installation allows";
+									           break;
+									    case 2:
+									           $errorText = "The file is bigger than this form allows";
+									           break;
+									    case 3:
+									           $errorText = "Only part of the file was uploaded";
+									           break;
+									    case 4:
+									           $errorText = "No file was uploaded";
+									           break;
+									 }
+									if ($errorText != "") {
+										Error_Handler::logError($errorText, __FILE__, __LINE__);									
+									} else {
+	                                    // To help determine the MIME type, the file needs to have the correct extension.
+	                                    // Some versions of PHP call all uploads <hash>.tmp so we make a copy with the right name before 
+	                                    // checking for the MIME type.  Not using file upload 'type' because it is unreliable.
+	                                    $temp_store = APP_TEMP_DIR.$_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key];
+	                                    copy($_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']][$key],$temp_store);
+										$return[$dsTitle['xsdsel_title'].$key]['MIMETYPE'] = Misc::mime_content_type($temp_store);
+										$return[$dsTitle['xsdsel_title'].$key]['File_Location'] = $_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']][$key];
+										//                                    @unlink($temp_store);
+									}
 								}
 							}							
 						} else { // file input is not a array, so only just one file
@@ -1079,14 +1110,34 @@ class Misc
 							} else {
 								$return[$dsTitle['xsdsel_title']]['LABEL'] = $_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']];
 							}
-                            // To help determine the MIME type, the file needs to have the correct extension.
-                            // Some versions of PHP call all uploads <hash>.tmp so we make a copy with the right name before 
-                            // checking for the MIME type.  Not using file upload 'type' because it is unreliable.
-                            $temp_store = APP_TEMP_DIR.$_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']];
-                            copy($_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']],$temp_store);
-							$return[$dsTitle['xsdsel_title']]['MIMETYPE'] = 
-                                Misc::mime_content_type($temp_store);
-                            unlink($temp_store);
+							$error = $_FILES['xsd_display_fields']['error'][$file_res[0]['xsdmf_id']];
+							$errorText = "";
+							switch ($error) {
+							  case 1:
+							           $errorText = "The file is bigger than this PHP installation allows";
+							           break;
+							    case 2:
+							           $errorText = "The file is bigger than this form allows";
+							           break;
+							    case 3:
+							           $errorText = "Only part of the file was uploaded";
+							           break;
+							    case 4:
+							           $errorText = "No file was uploaded";
+							           break;
+							 }
+							if ($errorText != "") {
+								Error_Handler::logError($errorText, __FILE__, __LINE__);									
+							} else {
+	                            // To help determine the MIME type, the file needs to have the correct extension.
+	                            // Some versions of PHP call all uploads <hash>.tmp so we make a copy with the right name before 
+	                            // checking for the MIME type.  Not using file upload 'type' because it is unreliable.
+	                            $temp_store = APP_TEMP_DIR.$_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']];
+	                            copy($_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']],$temp_store);
+								$return[$dsTitle['xsdsel_title']]['File_Location'] = $_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']];
+								$return[$dsTitle['xsdsel_title']]['MIMETYPE'] = Misc::mime_content_type($temp_store);
+	//                            unlink($temp_store);
+							}
 						}
 					} elseif (count($label_res) == 1 && ($dsTitle['xsdsel_title'] == "Link")) { // no file inputs are involved so might be a link
 //					} elseif (($dsTitle['xsdsel_title'] == "Link")) { // no file inputs are involved so might be a link
@@ -1210,9 +1261,10 @@ class Misc
 				if (is_numeric(strpos($searchXMLString, '<foxml:xmlContent>'))) {
 					$XMLContentStartPos = strpos($searchXMLString, '<foxml:xmlContent>') + 18;
 					$XMLContentEndPos = strpos($searchXMLString, '</foxml:xmlContent>', $XMLContentStartPos);
-				} elseif (is_numeric(strpos($searchXMLString, '<foxml:binaryContent>'))) {
+/*				} elseif (is_numeric(strpos($searchXMLString, '<foxml:binaryContent>'))) {
 					$XMLContentStartPos = strpos($searchXMLString, '<foxml:binaryContent>') + 22;
 					$XMLContentEndPos = strpos($searchXMLString, '</foxml:binaryContent>', $XMLContentStartPos);
+*/					
 				} elseif (is_numeric(strpos($searchXMLString, '<foxml:contentLocation>'))) {
 					$XMLContentStartPos = strpos($searchXMLString, '<foxml:contentLocation>') + 23;
 					$XMLContentEndPos = strpos($searchXMLString, '</foxml:contentLocation>', $XMLContentStartPos);
