@@ -26,6 +26,7 @@ function hideAllSubPages()
 	document.getElementById('eprints').style.display = "none";
 	document.getElementById('submit').style.display = "none";
 	document.getElementById('solr').style.display = "none";
+	document.getElementById('origami').style.display = "none";
 }
 
 function updatePreviewColour(el)
@@ -122,7 +123,7 @@ function restoreDefaultColours(el)
 		  <a href="#" onclick="javascript:showSubPage('shib');">Shibboleth Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('ldap');">LDAP Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('eprints');">ePrints Settings</a><br />
-		  
+		  <a href="#" onclick="javascript:showSubPage('origami');">Origami Settings</a><br />
 		</td>
 	  </tr>
 	</table>
@@ -649,6 +650,13 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_pdftotext_exec"}
 			</td>
   		  </tr>
+  		  <tr>
+		    <td class="colname">Python executable location</td>
+			<td class="coldetail">
+			  <input type="text" name="app_py_exec" value="{$config_settings.app_py_exec|escape:"html"}" size="40" />
+			  {include file="error_icon.tpl.html" field="app_py_exec"}
+			</td>
+  		  </tr>
 		</table>
 		</div>
 
@@ -1151,6 +1159,31 @@ function restoreDefaultColours(el)
 			<td class="coldetail">
 			  <input type="text" name="app_solr_path" value="{$config_settings.app_solr_path|escape:"html"}" size="50" />
 			  {include file="error_icon.tpl.html" field="app_solr_path"}
+			</td>
+  		  </tr>
+		</table>
+		</div>
+		
+		<div id="origami" style="display: none;">
+		<table width="100%" class="config-group">
+		  <tr>
+			<td colspan="2">
+			  <h2>Origami Settings</h2>
+			</td>
+  		  </tr>
+  		  </tr>
+		  <tr>
+	        <td class="colname">Use Origami</td>
+			<td class="coldetail">
+			  <input type="radio" name="app_origami_switch" value="ON" {if $config_settings.app_origami_switch == "ON"}checked{/if}/> On &nbsp; 
+			  <input type="radio" name="app_origami_switch" value="OFF" {if $config_settings.app_origami_switch == "OFF"}checked{/if}/> Off
+			</td>
+  		  </tr>
+		  <tr>
+		    <td class="colname">Path To Origami</td>
+			<td class="coldetail">
+			  <input type="text" name="app_origami_path" value="{$config_settings.app_origami_path|escape:"html"}" size="50" />
+			  {include file="error_icon.tpl.html" field="app_solr_host"}
 			</td>
   		  </tr>
 		</table>

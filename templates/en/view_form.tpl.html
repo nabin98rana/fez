@@ -14,7 +14,7 @@ var image_preview_loading = 0;
 var image_preview_current_id = '';
 
 // get an image and put it in the preview image
-function loadPreview(pid,datastreamID, alt)
+function loadPreview(pid,datastreamID, alt, origami)
 {
     if (image_preview_loading > 0) {
         return;
@@ -48,10 +48,19 @@ function loadPreview(pid,datastreamID, alt)
 		{literal}
 	    pv_img = document.getElementById('datastream_preview');
 	    pv_img_href = document.getElementById('datastream_preview_href');
+	    
 	    // get the resized image
-		datastreamID = str_replace(datastreamID, '.tif', '.jpg');	
-        pv_img.src = rel_url+'eserv/'+pid+'/preview_'+datastreamID;
-		pv_img_href.href = rel_url+'eserv/'+pid+'/web_'+datastreamID;
+		pv_img_href.href = rel_url+'eserv/'+pid;
+		if(origami == "true") {
+		    pv_img_href.href += '/'+datastreamID+'?oi=1';
+		    // This replace must be done AFTER creating href
+		    datastreamID = str_replace(datastreamID, '.tif', '.jpg');
+		} else {
+		    datastreamID = str_replace(datastreamID, '.tif', '.jpg');
+		    pv_img_href.href += '/web_'+datastreamID;
+		}
+		
+		pv_img.src = rel_url+'eserv/'+pid+'/preview_'+datastreamID;
         pv_img.alt = alt;
 	}
     pv_loading.style.display = 'none';
@@ -305,6 +314,17 @@ function showDiv(p)
 		{assign var="ds_show_onclick" value=""}
 		{assign var="show_preview_pane" value="0"}
         {section name="d" loop=$datastreams}
+            
+		    {if $datastreams[d].archival_size_raw > 1048576 && $origami == 'ON' 
+		         && ($datastreams[d].MIMEType == 'image/jpeg' || 
+		             $datastreams[d].MIMEType == 'image/tiff' || 
+		             $datastreams[d].MIMEType == 'image/tif' || 
+		             $datastreams[d].MIMEType == 'image/jpg')}
+                {assign var="origami_preview" value="true"}
+			{else}
+                {assign var="origami_preview" value="false"}
+			{/if}
+        
 			{if $datastreams[d].controlGroup == "M" && $datastreams[d].isLister == 1}
 			{assign var="ds_show" value=$datastreams[d].ID}
   			  <tr class="default" id="datastream_list_{$datastreams[d].ID}" bgcolor="{$light_color}"> 			  
@@ -312,6 +332,7 @@ function showDiv(p)
 				{assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$image_file_name} 			
 				{if ($datastreams[d].canPreview || $isAdministrator) && !$preview_ds_1 && ($datastreams[d].preview != "0" || $datastreams[d].stream != "0")}
 				  {assign var="preview_ds_1" value=$datastreams[d]}
+				  {assign var="preview_ds_origami" value=$origami_preview}
 				{/if}
 				{assign var="image_file_string" value=""}
 				{fetch file=$image_name assign="image_file_string"}
@@ -324,13 +345,13 @@ function showDiv(p)
 				{if $datastreams[d].thumbnail != "0"}
 					<img align="absmiddle" title="Click to show the corresponding preview" src="{$eserv_url}{$datastreams[d].thumbnail}" border="1"
 		            {if ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].stream != "0"}
-						{assign var="ds_show" value=$datastreams[d].stream}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].stream}', '{$datastreams[d].ID|escape:'html'}');"
+						{assign var="ds_show" value=$datastreams[d].stream}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].stream}', '{$datastreams[d].ID|escape:'html'}', '{$origami_preview}');">
 					{else}
 		            	{if ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].web != "0"}
-							{assign var="ds_show" value=$datastreams[d].web}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].ID}', '{$datastreams[d].ID|escape:'html'}');"
+							{assign var="ds_show" value=$datastreams[d].web}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].ID}', '{$datastreams[d].ID|escape:'html'}', '{$origami_preview}');">
 						{/if}
 					{/if}
-		            >
+		            
 					{if $datastreams[d].canPreview || $isAdministrator}
 						</a>
 					{/if}
@@ -344,13 +365,21 @@ function showDiv(p)
 			{/if}
 			{if $image_file_string != ""}
 				<img align="absmiddle" border="0" src="{$rel_url}images/{$image_file_name}"
-				{if $ds_show_extra != ""}onclick="javascript:loadPreview('{$pid}','{$ds_show_extra}', '{$datastreams[d].ID|escape:'html'}');"{/if}>
+				{if $ds_show_extra != ""}onclick="javascript:loadPreview('{$pid}','{$ds_show_extra}', '{$datastreams[d].ID|escape:'html'}', '{$origami_preview}');"{/if}>
 			{else}
 				<img border="0" align="absmiddle" src="{$rel_url}images/default.png"
-								{if $ds_show_extra != ""}onclick="javascript:loadPreview('{$pid}','{$ds_show_extra}', '{$datastreams[d].ID|escape:'html'}');"{/if}>
+								{if $ds_show_extra != ""}onclick="javascript:loadPreview('{$pid}','{$ds_show_extra}', '{$datastreams[d].ID|escape:'html'}', '{$origami_preview}');"{/if}>
 			{/if}
 			{if $datastreams[d].isViewer == 1 || $isAdministrator}
+			    {if $datastreams[d].archival_size_raw > 1048576 && $origami == 'ON' 
+			         && ($datastreams[d].MIMEType == 'image/jpeg' || 
+			             $datastreams[d].MIMEType == 'image/tiff' || 
+			             $datastreams[d].MIMEType == 'image/tif' || 
+			             $datastreams[d].MIMEType == 'image/jpg')}
+				<a target="_blank" href="{$rel_url}eserv/{$pid}/{$datastreams[d].ID}?oi=1">
+				{else}
 				<a target="_blank" href="{$rel_url}eserv/{$pid}/{$ds_show}">
+				{/if}
 			{/if}
 			{$datastreams[d].ID}
 			{if $datastreams[d].isViewer == 1 || $isAdministrator}
@@ -371,10 +400,7 @@ function showDiv(p)
 			 {/if}
         {/section}
         
-
-	
     {/if}
-
 
 			</table><br />
 		  </td>
@@ -571,7 +597,7 @@ function showDiv(p)
           {if $preview_ds_1}
 		  <div id="datastream_preview_frame">
           <a id="datastream_preview_href" title="Click on the image to see a larger version"  target="_blank" href="{$rel_url}eserv/{$pid}/{$preview_ds_1.ID}"><img width="100%" border=0 id="datastream_preview" alt="Datastream Preview"/></a>
-          <script language="JavaScript">loadPreview('{$pid}','{if $preview_ds_1.stream != "0"}{$preview_ds_1.stream}{else}{$preview_ds_1.ID}{/if}','{$preview_ds_1.ID|escape:'html'}');</script>
+          <script language="JavaScript">loadPreview('{$pid}','{if $preview_ds_1.stream != "0"}{$preview_ds_1.stream}{else}{$preview_ds_1.ID}{/if}','{$preview_ds_1.ID|escape:'html'}', '{$preview_ds_origami}');</script>
 		  </div>
           {/if}
         </td>

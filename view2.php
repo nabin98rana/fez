@@ -280,8 +280,8 @@ if (!empty($pid) && $record->checkExists()) {
     						$jhoveHelp = new Jhove_Helper($Jhove_XML['stream']);
     						
     						$fileSize = $jhoveHelp->extractFileSize();
-    						$fileSize = Misc::size_hum_read($fileSize);
-    						$datastreams[$ds_key]['archival_size'] = $fileSize;
+    						$datastreams[$ds_key]['archival_size'] =  Misc::size_hum_read($fileSize);
+    						$datastreams[$ds_key]['archival_size_raw'] = $fileSize;
     						
     						$spatialMetrics = $jhoveHelp->extractSpatialMetrics();
     						
@@ -309,6 +309,9 @@ if (!empty($pid) && $record->checkExists()) {
                 $tpl->assign('doi', $datastreams[$ds_key]);
             }
 		} 
+		
+		
+		
 		$tpl->assign("datastreams", $datastreams);
 		$tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");
 		$tpl->assign("parents", $parents);
@@ -344,6 +347,7 @@ if (!empty($pid) && $record->checkExists()) {
 			Record::generateDerivationTree($pid, $derivations, $derivationTree);
 		}
 				
+		$tpl->assign("origami", APP_ORIGAMI_SWITCH);
 		$tpl->assign("linkCount", $linkCount);
 		$tpl->assign("hasVersions", $hasVersions);
 		$tpl->assign("fileCount", $fileCount);
@@ -354,26 +358,11 @@ if (!empty($pid) && $record->checkExists()) {
 		$tpl->assign("depositor_org", $depositor_org);
 		$tpl->assign("depositor_org_id", $depositor_org_id);
 		$tpl->assign("details", $details);
-        $tpl->assign('title', $record->getTitle());		
+        $tpl->assign('title', $record->getTitle());
 
 		$tpl->assign("statsAbstract", Statistics::getStatsByAbstractView($pid));				
 		$tpl->assign("statsFiles", Statistics::getStatsByAllFileDownloads($pid));						
-        // get prev / next info
         
-        // Check if we have moved onto the next listing page
-//        if (@$_GET['next']) {
-//            $res = getNextPage();
-//        }
-//        if (@$_GET['prev']) {
-//            $res = getPrevPage();
-//        }
-//        if (@$_GET['next'] || @$_GET['prev']) {
-//            $_SESSION['list'] = $res['list'];
-//            $_SESSION['list_params'] = $res['list_params'];
-//            $_SESSION['list_info'] = $res['list_info'];
-//            $_SESSION['view_page'] = $res['list_info']['current_page'];
-//        }
-
         // Get the current listing 
         $list = $_SESSION['list'];
         $list_info = $_SESSION['list_info'];

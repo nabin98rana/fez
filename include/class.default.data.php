@@ -64,6 +64,7 @@ class Default_Data
             $defaultData['app_jhove_dir']                   = "C:/jhove/";
             $defaultData['app_dot_exec']                    = "C:/PROGRA~1/ATT/Graphviz/bin/dot.exe";
             $defaultData['app_php_exec']                    = "C:/php/php.exe";
+            $defaultData['app_py_exec']                     = "C:/python/python.exe";
             $defaultData['app_pdftotext_exec']              = "C:/utils/pdftotext.exe";
             $defaultData['app_san_import_dir']              = "C:/fez/incoming/";
 			$defaultData['app_ffmpeg_cmd']					= "C:/ffmpeg/ffmpeg.exe";
@@ -80,6 +81,7 @@ class Default_Data
             $defaultData['app_jhove_dir']                   = "/usr/local/jhove/";
             $defaultData['app_dot_exec']                    = "/usr/local/bin/dot";
             $defaultData['app_php_exec']                    = "/usr/local/bin/php";
+            $defaultData['app_py_exec']                     = "/usr/bin/python";
             $defaultData['app_pdftotext_exec']              = "/usr/bin/pdftotext";
             $defaultData['app_san_import_dir']              = "/fez/incoming/";
 			$defaultData['app_ffmpeg_cmd']					= "/usr/bin/ffmpeg";
@@ -182,6 +184,8 @@ class Default_Data
 		$defaultData['app_solr_port']                       = "";
 		$defaultData['app_solr_path']                       = "";
 		$defaultData['app_earliest_input_year']				= "1900";
+		$defaultData['app_origami_switch']				    = "OFF";
+		$defaultData['app_origami_path']				    = "";
 
         return $defaultData;
 
