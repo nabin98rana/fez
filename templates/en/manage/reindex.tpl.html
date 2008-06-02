@@ -12,6 +12,7 @@
 		&nbsp;&nbsp;&nbsp;<input type="submit" name="discover" value="Discover new Fedora objects" class="submit" />
 		&nbsp;&nbsp;&nbsp;<input type="submit" name="reindex" value="Reindex known Fedora objects" class="submit" />
 		&nbsp;&nbsp;&nbsp;<input type="submit" name="undelete" value="Undelete Fedora objects" class="submit" />
+		&nbsp;&nbsp;&nbsp;<input type="submit" name="origami" value="Reindex Origami Images" class="submit" />
 	</form>
 	<br />
 
@@ -203,7 +204,10 @@ function validateFormSelections() {
 <input type="hidden" name="reindex" value="Reindex known Fedora objects" />
 {elseif $index_type == 4}
 <input type="hidden" name="undelete" value="Undelete Fedora objects" />
+{elseif $index_type == 6}
+<input type="hidden" name="origami" value="Reindex Origami Images" />
 {/if}
+
       <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
         <tr>
           <td>
@@ -211,7 +215,12 @@ function validateFormSelections() {
 
               <tr>
                 <td colspan="2">
-				  <div class="admin-header">{if $index_type == 1}Discover new Fedora objects{elseif $index_type == 2}Reindex known Fedora objects{elseif $index_type == 4}Undelete Fedora Objects{/if}</div>
+				  <div class="admin-header">
+				  {if $index_type == 1}Discover new Fedora objects
+				  {elseif $index_type == 2}Reindex known Fedora objects
+				  {elseif $index_type == 4}Undelete Fedora Objects
+				  {elseif $index_type == 6}Reindex Origami Images{/if}
+				  </div>
                 </td>
               </tr>
              <tr>
@@ -225,89 +234,89 @@ function validateFormSelections() {
 				This is a list of items in the Fedora database that are marked as deleted. Check the boxes next to the objects you want Fez to restore and click 'Undelete Selected Items'.
                 {/if}
                 </p>
+                {if $index_type != 6}
                 <p>The reindexer will detect if the objects are already Fez objects and restore them if possible, otherwise the objects will be imported into the collection selected below.</p>
+                {/if}
                 </td>
               </tr>
+          {if $index_type != 6}
 		  <tr>
 			<td>
 			  <table>
                     
-			<tr>
-				<td class="default" colspan="2">
-				Find Records (search fedora): <input type="textfield" name="keywords" value="{$keywords}"/>
-				<input type="submit" name="search" value="Search"/>
-				</td>
-			</tr>		  
-			<tr id="tr_heading">
-			  <td class="default" colspan="2">
-				<b><img align="absmiddle" src="{$rel_url}images/collection.jpg" border="0"> &nbsp; Default Values</b>
-				<br/>
-				These values will be set on records that don't have the values set.
-			  </td>
-			</tr>			
-				<tr id="tr_community_pid">
-			  <td  bgcolor="{$cell_color}" class="default" nowrap>
-				<b>Parent Community</b>
-			  </td>
-			  <td bgcolor="{$light_color}">
-				<select class="default" name="community_pid" onChange="javascript: selectCommunity(this.form, 'community_pid')" >
-					<option value="">(no community)</option>
-				  {html_options options=$communities_list selected=$communities_list_selected }
-				</select>
-			  </td>
-			</tr>
-			<tr style="display:none;" id="tr_collection_pid">
-			  <td bgcolor="{$cell_color}" class="default">
-				<b>Collection</b>
-			  </td>
-			  <td bgcolor="{$light_color}">
-				<div id="loading" style="display:none;">Loading...</div>
-				<select class="default" name="collection_pid" onChange="javascript: selectCollection(this.form, 'collection_pid')">
-				</select>
-			  </td>
-			</tr>
-				
-			<tr  id="tr_xdis_id">
-			  <td bgcolor="{$cell_color}" class="default">
-				<b>Document Type</b>
-			  </td>
-			  <td bgcolor="{$light_color}">
-				<div id="loading1" style="display:none;">Loading...</div>
-				<select class="default" name="xdis_id">
-				</select>
-			  </td>
-			</tr>
-			<tr  id="tr_sta_id">
-			  <td bgcolor="{$cell_color}" class="default">
-				<b>Publishing Status</b>
-			  </td>
-			  <td bgcolor="{$light_color}">
-				<select class="default" name="sta_id">
-					 {html_options options=$status_list}
-				</select>
-			  </td>
-			</tr>			
+        			<tr>
+        				<td class="default" colspan="2">
+        				Find Records (search fedora): <input type="textfield" name="keywords" value="{$keywords}"/>
+        				<input type="submit" name="search" value="Search"/>
+        				</td>
+        			</tr>		  
+        			<tr id="tr_heading">
+        			  <td class="default" colspan="2">
+        				<b><img align="absmiddle" src="{$rel_url}images/collection.jpg" border="0"> &nbsp; Default Values</b>
+        				<br/>
+        				These values will be set on records that don't have the values set.
+        			  </td>
+        			</tr>			
+        				<tr id="tr_community_pid">
+        			  <td  bgcolor="{$cell_color}" class="default" nowrap>
+        				<b>Parent Community</b>
+        			  </td>
+        			  <td bgcolor="{$light_color}">
+        				<select class="default" name="community_pid" onChange="javascript: selectCommunity(this.form, 'community_pid')" >
+        					<option value="">(no community)</option>
+        				  {html_options options=$communities_list selected=$communities_list_selected }
+        				</select>
+        			  </td>
+        			</tr>
+        			<tr style="display:none;" id="tr_collection_pid">
+        			  <td bgcolor="{$cell_color}" class="default">
+        				<b>Collection</b>
+        			  </td>
+        			  <td bgcolor="{$light_color}">
+        				<div id="loading" style="display:none;">Loading...</div>
+        				<select class="default" name="collection_pid" onChange="javascript: selectCollection(this.form, 'collection_pid')">
+        				</select>
+        			  </td>
+        			</tr>
+        				
+        			<tr  id="tr_xdis_id">
+        			  <td bgcolor="{$cell_color}" class="default">
+        				<b>Document Type</b>
+        			  </td>
+        			  <td bgcolor="{$light_color}">
+        				<div id="loading1" style="display:none;">Loading...</div>
+        				<select class="default" name="xdis_id">
+        				</select>
+        			  </td>
+        			</tr>
+        			<tr  id="tr_sta_id">
+        			  <td bgcolor="{$cell_color}" class="default">
+        				<b>Publishing Status</b>
+        			  </td>
+        			  <td bgcolor="{$light_color}">
+        				<select class="default" name="sta_id">
+        					 {html_options options=$status_list}
+        				</select>
+        			  </td>
+        			</tr>			
+        			<tr>
+        		     
+        			  <td  bgcolor="{$cell_color}" class="default">
+        				<b>Rebuild Datastreams:</b>
+        			  </td>
+        			  <td bgcolor="{$light_color}">
+        			  	<input type="checkbox" name="rebuild" value="on" {if $smarty.request.rebuild}checked="1"{/if} />
+        			  	<label for="rebuild" class="default">Should Fez rebuild the presmd and derived datastreams such as image thumbnails? 
+        			  	(these will be generated for objects that appear to be new to Fez regardless)</label>
+        			  </td> 
+        			  
+        	       </tr>
 			
 				  </table>
 				</td>
- 			  </tr>			
-
-			  <tr>
-			  	<td>
-				  	<table>
-					<tr>
-					  <td  bgcolor="{$cell_color}" class="default">
-						<b>Rebuild Datastreams:</b>
-					  </td>
-					  <td bgcolor="{$light_color}">
-					  	<input type="checkbox" name="rebuild" value="on" {if $smarty.request.rebuild}checked="1"{/if} />
-					  	<label for="rebuild" class="default">Should Fez rebuild the presmd and derived datastreams such as image thumbnails? 
-					  	(these will be generated for objects that appear to be new to Fez regardless)</label>
-					  </td>
-				  </tr>
-				  </table>
-				</td>
- 			  </tr>			
+ 			  </tr>	
+ 			  {/if}		
+                
 
 			  <tr>
 			  	<td>
@@ -359,6 +368,9 @@ function validateFormSelections() {
 						{elseif $index_type == 4}
 						{assign var='button_label1' value='Undelete Selected Items'}
 						{assign var='button_label2' value='Undelete All Pages'}
+						{elseif $index_type == 6}
+						{assign var='button_label1' value='Reindex Selected pids'}
+						{assign var='button_label2' value='Reindex All pids'}
 						{/if}
 						<input type="submit" name="go_list" value="{$button_label1}" class="button" onclick="{literal}if(checkForSelectedItem() == true){if(validateFormSelections() == true){this.form.method='post';document.reindex_form.submit();}else{return false;}}else{return false;}{/literal}" />
 						<input type="submit" name="do_all" value="{$button_label2}" class="button" onclick="{literal}if(validateFormSelections() == true){this.form.method='post';document.reindex_form.submit();}else{return false;}{/literal}" />
@@ -369,38 +381,38 @@ function validateFormSelections() {
                 </td>
               </tr>
               
-        <tr bgcolor="{$cell_color}">
-          <td colspan="{math equation="x + 12" x=$ColumnAdd}">
-            <table width="100%" cellspacing="0" cellpadding="0">
-              <tr>
-                <td width="30%" nowrap>
-                </td>
-                <td width="40%" align="center" nowrap>
-                  <nobr>
-                  <input name="first" type="button" value="|&lt;" class="shortcut" onClick="javascript:setPage(0);" />
-                  <input name="previous" type="button" value="&lt;&lt;" class="shortcut" onClick="javascript:setPage({$list_info.prev_page});" />
-                  <input type="text" name="page" size="3" maxlength="3" value="{math equation="x + 1" x=$list_info.current_page}" style="background: {$cell_color};" class="paging_input" onKeyPress="javascript:return checkPageField(event);" />
-                  <input name="go" type="button" value="Go" class="shortcut" onClick="javascript:goPage(this.form, this.form.page.value);" />
-                  <input name="next" type="button" value="&gt;&gt;" class="shortcut" onClick="javascript:setPage({$list_info.next_page});" />
-                  <input name="last" type="button" value="&gt;|" class="shortcut" onClick="javascript:setPage({$list_info.last_page});" />
-                  </nobr>
-                </td>
-                <td width="30%" nowrap>
-                  <span class="default_white">Rows per Page:</span>
-                  <select name="page_size" class="default" onChange="javascript:resizePager(this.form);">
-                    <option value="5" {if $options.rows == 5}selected{/if}>5</option>
-                    <option value="10" {if $options.rows == 10}selected{/if}>10</option>
-                    <option value="25" {if $options.rows == 25}selected{/if}>25</option>
-                    <option value="50" {if $options.rows == 50}selected{/if}>50</option>
-                    <option value="100" {if $options.rows == 100}selected{/if}>100</option>
-                    <option value="150" {if $options.rows == 150}selected{/if}>150</option>
-                  </select>
-                  <input type="button" value="Set" class="shortcut" onClick="javascript:resizePager(this.form);" />
-                </td>
-              </tr>
-			</table>
-		</td>
-		</tr>
+              <tr bgcolor="{$cell_color}">
+                  <td colspan="{math equation="x + 12" x=$ColumnAdd}">
+                    <table width="100%" cellspacing="0" cellpadding="0">
+                      <tr>
+                        <td width="30%" nowrap>
+                        </td>
+                        <td width="40%" align="center" nowrap>
+                          <nobr>
+                          <input name="first" type="button" value="|&lt;" class="shortcut" onClick="javascript:setPage(0);" />
+                          <input name="previous" type="button" value="&lt;&lt;" class="shortcut" onClick="javascript:setPage({$list_info.prev_page});" />
+                          <input type="text" name="page" size="3" maxlength="3" value="{math equation="x + 1" x=$list_info.current_page}" style="background: {$cell_color};" class="paging_input" onKeyPress="javascript:return checkPageField(event);" />
+                          <input name="go" type="button" value="Go" class="shortcut" onClick="javascript:goPage(this.form, this.form.page.value);" />
+                          <input name="next" type="button" value="&gt;&gt;" class="shortcut" onClick="javascript:setPage({$list_info.next_page});" />
+                          <input name="last" type="button" value="&gt;|" class="shortcut" onClick="javascript:setPage({$list_info.last_page});" />
+                          </nobr>
+                        </td>
+                        <td width="30%" nowrap>
+                          <span class="default_white">Rows per Page:</span>
+                          <select name="page_size" class="default" onChange="javascript:resizePager(this.form);">
+                            <option value="5" {if $options.rows == 5}selected{/if}>5</option>
+                            <option value="10" {if $options.rows == 10}selected{/if}>10</option>
+                            <option value="25" {if $options.rows == 25}selected{/if}>25</option>
+                            <option value="50" {if $options.rows == 50}selected{/if}>50</option>
+                            <option value="100" {if $options.rows == 100}selected{/if}>100</option>
+                            <option value="150" {if $options.rows == 150}selected{/if}>150</option>
+                          </select>
+                          <input type="button" value="Set" class="shortcut" onClick="javascript:resizePager(this.form);" />
+                        </td>
+                      </tr>
+        			</table>
+        		</td>
+            </tr>
 		
             </table>
           </td>

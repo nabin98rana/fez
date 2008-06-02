@@ -35,7 +35,8 @@
 include_once(APP_INC_PATH.'class.background_process.php');
 include_once(APP_INC_PATH.'class.community.php');
 include_once(APP_INC_PATH.'class.record.php');
-include_once(APP_INC_PATH . "class.reindex.php");
+include_once(APP_INC_PATH.'class.reindex.php');
+include_once(APP_INC_PATH.'class.origami.php');
 
 class BackgroundProcess_Index_Object extends BackgroundProcess
 {
@@ -73,6 +74,46 @@ class BackgroundProcess_Index_Object extends BackgroundProcess
         	$reindex->reindexMissingList($params,$terms);
         } elseif ($index_type == Reindex::INDEX_TYPE_REINDEX)  {
             $reindex->reindexFullList($params,$terms);
+        } elseif( $index_type == Reindex::INDEX_TYPE_ORIGAMI ) {
+            
+            $cnt    = 0;
+            if($params['items']) {
+                $pids   = $params['items'];
+            } else {
+                $pids   = Reindex::getPIDlist();
+            }
+            $total  = count($pids);
+            
+            foreach ($pids as $pid) {
+                
+                $ds = Fedora_API::callGetDatastreams($pid);
+                
+                foreach ($ds as $stream) {
+                    
+                    if((strpos($stream['ID'], 'web_') === false) &&
+                        (strpos($stream['ID'], 'preview_') === false) &&
+                        (strpos($stream['ID'], 'thumbnail_') === false) &&
+                        ($stream['MIMEType'] == 'image/jpeg' || 
+                         $stream['MIMEType'] == 'image/jpg' || 
+                         $stream['MIMEType'] == 'image/tif' || 
+                         $stream['MIMEType'] == 'image/tiff')) {
+                            
+                        $this->setStatus("Creating Title for DS - " .$stream['ID']);
+                        Origami::createTitles($pid, $stream['ID'], $stream['MIMEType']);
+                    }
+                    
+                }
+                
+                $cnt++;
+                if(($cnt % 1000) == 0) {
+                    $this->setStatus("Processed ($cnt/$total) pids");
+                }
+            }
+            
+            if($cnt > 0) {
+                $this->setStatus("Processed ($cnt/$total) pids");
+            }
+            
         } elseif ($index_type == Reindex::INDEX_TYPE_REINDEX_OBJECTS) {
         	if (!empty($pid)) {
         		$source_pids = array();
@@ -99,7 +140,6 @@ class BackgroundProcess_Index_Object extends BackgroundProcess
                     $time_per_object = Date_API::dateDiff("s", $bgp_details['bgp_started'], $utc_date);
                     $date_new = new Date(strtotime($bgp_details['bgp_started']));
                     $time_per_object = round(($time_per_object / $reindex_record_counter), 2);
-                    //$expected_finish = Date_API::getFormattedDate($date_new->getTime());
                     $date_new->addSeconds($time_per_object*$record_count);
                     $tz = Date_API::getPreferredTimezone($bgp_details["bgp_usr_id"]);
     				$res[$key]["bgp_started"] = Date_API::getFormattedDate($res[$key]["bgp_started"], $tz);

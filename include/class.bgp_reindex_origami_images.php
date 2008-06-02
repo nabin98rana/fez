@@ -31,13 +31,55 @@
 // |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>,                    |
 // |          Rhys Palmer <r.rpalmer@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
- 
-if( APP_ORIGAMI_SWITCH == "OFF" ) {
-    return;
-}
 
+include_once(APP_INC_PATH.'class.background_process.php');
 include_once(APP_INC_PATH . "class.origami.php");
 
-Origami::createTitles($this->pid, $this->dsInfo['ID'], $this->dsInfo['MIMETYPE']);
+class BackgroundProcess_Reindex_Origami_Images extends BackgroundProcess
+{
+    function __construct() 
+    {
+        parent::__construct();
+        $this->include = 'class.bgp_reindex_origami_images.php';
+        $this->name = 'Reindex Origami Images';
+    }
+
+    function run()
+    {
+        $this->setState(BGP_RUNNING);
+		
+        $cnt    = 0;
+        $pids   = Reindex::getPIDlist();
+        $total  = count($pids);
+        
+        foreach ($pids as $pid) {
+            
+            $ds = Fedora_API::callGetDatastreams($pid);
+            
+            foreach ($ds as $stream) {
+                
+                if((strpos($stream['ID'], 'web_') === false) &&
+                    (strpos($stream['ID'], 'preview_') === false) &&
+                    (strpos($stream['ID'], 'thumbnail_') === false) &&
+                    ($stream['MIMEType'] == 'image/jpeg' || 
+                     $stream['MIMEType'] == 'image/jpg' || 
+                     $stream['MIMEType'] == 'image/tif' || 
+                     $stream['MIMEType'] == 'image/tiff')) {
+                    
+                    $this->setStatus("Creating Title for DS - " .$stream['ID']);
+                    Origami::createTitles($pid, $stream['ID'], $stream['MIMEType']);
+                }
+                
+            }
+            
+            $cnt++;
+            if(($cnt % 1000) == 0) {
+                $this->setStatus("Processed ($cnt\\$total) pids");
+            }
+        }
+        
+        $this->setState(BGP_FINISHED);
+    }
+}
 
 ?>

@@ -46,6 +46,7 @@ include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.pager.php");
 include_once(APP_INC_PATH . "class.bgp_index_object.php");
+include_once(APP_INC_PATH . "class.bgp_index_object.php");
 include_once(APP_INC_PATH . "najax_classes.php");
 include_once(APP_INC_PATH . "class.fedora_direct_access.php");
 
@@ -57,15 +58,17 @@ $tpl->assign("type", "reindex");
 
 Auth::checkAuthentication(APP_SESSION);
 $isUser = Auth::getUsername();
-$isAdministrator = User::isUserAdministrator($isUser);
 $isSuperAdministrator = User::isUserSuperAdministrator($isUser);
-$tpl->assign("isUser", $isUser);
-$tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
 if (!$isSuperAdministrator) {
     $tpl->assign("show_not_allowed_msg", true);
 }
+
+//echo "<pre>";
+//print_r($_REQUEST);
+//echo "</pre>";
+//exit;
 
 $reindex = new Reindex;
 $terms = Pager::getParam('keywords')."*"; 
@@ -84,19 +87,21 @@ if ($_POST["action"] !== "prompt" && $_POST["action"] !== "index") {
         }
     } elseif (!empty($_POST["undelete"])) {
         $index_type = Reindex::INDEX_TYPE_UNDELETE;
-    }    
+    } elseif (!empty($_POST["origami"])) {
+        $index_type = Reindex::INDEX_TYPE_ORIGAMI;
+    }
     
     if ($_POST["action"] == "prompt") {
         $display_screen = "PROMPT";
     } elseif ($_POST["action"] == "index") {
         $display_screen = "INDEX";
-        if (!empty($_POST["go_list"])) {
+        if (!empty($_POST["go_list"]) && empty($_POST["origami"])) {
             $params = $_POST;
         	$params['index_type'] = $index_type;
         	Reindex::indexFezFedoraObjects($params);
         }
         
-        if (!empty($_POST["do_all"]) || !empty($_POST["solr_do_all"])) {
+        if (!empty($_POST["do_all"]) || !empty($_POST["solr_do_all"]) || !empty($_POST["origami"])) {
             $params = &$_POST;
             $bgp = new BackgroundProcess_Index_Object();
             $bgp->register(serialize(compact('params','terms','index_type')), Auth::getUserID());
@@ -123,7 +128,7 @@ if ($_POST["action"] == "prompt" || $_POST["action"] == "index") {
     
     if ($index_type == Reindex::INDEX_TYPE_FEDORAINDEX) {
         $details = $reindex->getMissingList($pagerRow, $rows, $terms);
-    } elseif ($index_type == Reindex::INDEX_TYPE_REINDEX) {
+    } elseif ($index_type == Reindex::INDEX_TYPE_REINDEX || $index_type == Reindex::INDEX_TYPE_ORIGAMI) {
         $details = $reindex->getFullList($pagerRow, $rows, $terms);
     } elseif ($index_type == Reindex::INDEX_TYPE_UNDELETE) {
     	$details = $reindex->getDeletedList($pagerRow, $rows, $terms);

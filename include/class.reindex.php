@@ -69,6 +69,7 @@ class Reindex
 	const INDEX_TYPE_REINDEX_OBJECTS = 3;  // index specific pids
 	const INDEX_TYPE_UNDELETE = 4;  
 	const INDEX_TYPE_SOLR = 5;
+	const INDEX_TYPE_ORIGAMI = 6;
 
 
     var $fedoraObjects = array();
@@ -421,15 +422,12 @@ class Reindex
         }
     }
 
-
     function reindexFullList($params,$terms)
     {
         $this->terms = $terms;
         $ii = 0;
         $reindex_record_counter = 0;
-//        $record_count = Reindex::getIndexPIDCount();
         $bgp_details = $this->bgp->getDetails();
-//		$list = Reindex::getFullList(0,9999999999,"*");
         $fedoraDirect = new Fedora_Direct_Access();
         $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms, ""); //get all pids including deleted ones so we can remove them from the fez index if necessary
 		if (APP_DB_TYPE == "oracle") {
@@ -439,8 +437,7 @@ class Reindex
 			$fedoraList = $flist;
 		} 
         $record_count = count($fedoraList);
-//		$list_detail = $list['list'];
-		//foreach ($list['list'] as $detail) {
+        
 		foreach ($fedoraList as $detail) {
             if ($detail['objectstate'] != 'A') { //check if in the index and delete if in there
             	if (Reindex::inIndex($detail['pid']) == true) {
@@ -470,14 +467,12 @@ class Reindex
                 if (!empty($this->bgp)) {
                     $this->bgp->setProgress(intval(100*$reindex_record_counter/$record_count));
                     $this->bgp->setStatus("Reindexing:  '".$detail['pid']."' ".$detail['title']. " (".$reindex_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
-                 //   $this->bgp->setStatus("Reindexing: '".$detail['pid']."' '".$detail['title']."'");
                 }
                 $params['items'] = array($detail['pid']);
                 Reindex::indexFezFedoraObjects($params);
             } else {
                 if (!empty($this->bgp)) {
                     $this->bgp->setProgress(intval(100*$reindex_record_counter/$record_count));
-//                    $this->bgp->setStatus("Skipping: '".$detail['pid']."'  '".$detail['title']."'");
                     $this->bgp->setStatus("Skipping Because not in Fez Index:  '".$detail['pid']."' ".$detail['title']. " (".$reindex_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
                 }
             }
