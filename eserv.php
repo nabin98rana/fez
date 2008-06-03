@@ -131,13 +131,12 @@ if (!empty($pid) && !empty($dsID)) {
 	} elseif( $origami == true ) {
 	    
         include_once(APP_INC_PATH . "class.template.php");
+        include_once(APP_INC_PATH . "class.origami.php");
+        
 		$tpl = new Template_API();
-		$tpl->setTemplate("flviewer.tpl.html");
-		
-		$pidData    = explode(':', $pid);
-        $folder     = $pidData[1] % 1000;     
-           
-		$tpl->assign("url", "$folder/".str_replace(":", "_",$pid)."/". md5($dsID) ."/");
+		$tpl->setTemplate("flviewer.tpl.html");           
+        
+		$tpl->assign("url", Origami::getTitleLocation($pid, $dsID));
 		$tpl->displayTemplate();
 		exit;
 	    
