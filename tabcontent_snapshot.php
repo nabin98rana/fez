@@ -27,26 +27,11 @@ function displayTopDownloads() {
 	$tpl = new Template_API();
 	$tpl->setTemplate("tab_top_downloads.html");
 
-	$username = Auth::getUsername();
-	$tpl->assign("isUser", $username);
-	$isAdministrator = User::isUserAdministrator($username);
-	if (Auth::userExists($username)) { // if the user is registered as a Fez user
-		$tpl->assign("isFezUser", $username);
-	}
-	$tpl->assign("isAdministrator", $isAdministrator);
-
-	$rows = 5; // Number to display
-	$pager_row = 0;	
-	$sort_by = "File Downloads";
-	$options = array();                                                          
-	$options["sort_order"] = 1; // sort desc
-	$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-	$options["searchKey".Search_Key::getID("Object Type")] = 3; // enforce records only
-	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, false, true);
-	$list_info = $list["info"];
-	$list = $list["list"];
-	$list = Citation::renderIndexCitations($list);
+	$recentDownloads = Record::getRecentDLRecords();
+	$list = Record::getDetailsLite($recentDownloads[0]);
+	
 	$tpl->assign("list", $list);
+	$tpl->assign("downloads", $recentDownloads[1]);
 	$tpl->displayTemplate();
 
 }
@@ -56,19 +41,10 @@ function displayTopDownloads() {
 function displayRecentItems() {
 
 	$tpl = new Template_API();
-
-	$username = Auth::getUsername();
-	$tpl->assign("isUser", $username);
-	$isAdministrator = User::isUserAdministrator($username);
-	if (Auth::userExists($username)) { // if the user is registered as a Fez user
-		$tpl->assign("isFezUser", $username);
-	}
-	$tpl->assign("isAdministrator", $isAdministrator);
-
+	
 	$tpl->setTemplate("tab_recent_items.html");
 	$recentRecordsPIDs = Record::getRecentRecords();
-	$list['list'] = Record::getDetailsLite($recentRecordsPIDs[0]);
-	$list = $list["list"];
+	$list = Record::getDetailsLite($recentRecordsPIDs[0]);
 	$tpl->assign("list", $list);
 	$tpl->assign("eserv_url", APP_RELATIVE_URL."eserv/");
 	$tpl->displayTemplate();

@@ -933,7 +933,7 @@ class Record
         if( $order ) {
             $sql .= " ORDER BY $order DESC";
         }
-                
+        
         $res = $GLOBALS["db_api"]->dbh->getAll($sql, DB_FETCHMODE_ASSOC);
         
 	    if (PEAR::isError($res)) {
@@ -969,6 +969,21 @@ class Record
                 'FROM ' . APP_TABLE_PREFIX . 'recently_added_items ';
                 
         $res = $GLOBALS["db_api"]->dbh->getAll($sql, DB_FETCHMODE_FLIPPED);
+        
+	    if (PEAR::isError($res)) {
+	        Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+	    } else {
+	        return $res;
+	    }
+    }
+    
+    function getRecentDLRecords()
+    {
+        $sql =  'SELECT * ' . 
+                'FROM ' . APP_TABLE_PREFIX . 'recently_downloaded_items '.
+                'ORDER BY rdi_downloads DESC ';
+                
+        $res = $GLOBALS["db_api"]->dbh->getAll($sql, DB_FETCHMODE_FLIPPED); //DB_FETCHMODE_ASSOC
         
 	    if (PEAR::isError($res)) {
 	        Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -2732,6 +2747,39 @@ inner join
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
         }
     }
+    
+    
+    function insertRecentDLRecords($pids)
+    {
+        $first = true;
+        $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "recently_downloaded_items" . 
+                " VALUES ";
+        foreach ($pids as $pid) {
+            if(!$first) {
+                $stmt .= ",";
+            } else {
+                $first = false;
+            }
+            $stmt .= "('".$pid['stl_pid']. "'," . $pid['downloads'].")";
+        }
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        }
+    }
+    
+    function deleteRecentDLRecords()
+    {
+        $stmt = "DELETE FROM " . APP_TABLE_PREFIX . "recently_downloaded_items";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        }
+    }
+    
+    
     
 
     function generatePresmd($pid, $dsIDName)

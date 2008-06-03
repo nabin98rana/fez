@@ -312,6 +312,24 @@ class Statistics
 
 	}	
 
+	function getRecentPopularItems($limit) {
+	    
+	    $stmt = "SELECT stl_pid, COUNT(*) as downloads
+                 FROM fez_statistics_all
+                 WHERE stl_dsid <> '' AND stl_request_date > '".date('Y-m-d H:i:s',strtotime("-1 week"))."'
+                 GROUP BY stl_pid
+                 ORDER BY downloads DESC
+                 LIMIT $limit";
+	    
+	    $res = $GLOBALS["db_api"]->dbh->getAll($stmt,  DB_FETCHMODE_ASSOC);
+	    if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return false;
+        }
+	    
+        return $res;
+	}
+	
 	function getLastestLogEntry() {	
 		// First get the date of latest log entry
 		$stmt = "select max(stp_latestlog) from " . APP_TABLE_PREFIX . "statistics_proc";
