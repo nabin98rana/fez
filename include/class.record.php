@@ -65,7 +65,7 @@ include_once(APP_INC_PATH . "class.auth_rules.php");
 include_once(APP_INC_PATH . "class.auth_index.php");
 include_once(APP_INC_PATH . "class.xml_helper.php");
 include_once(APP_INC_PATH . "class.record_lock.php");
-//include_once(APP_INC_PATH . "Zend/Search/Lucene.php");
+include_once(APP_INC_PATH . "class.fulltext_queue.php");
 
 define('SK_JOIN',           0);
 define('SK_LEFT_JOIN',      1);
@@ -3260,7 +3260,6 @@ class RecordGeneral
 		
 		foreach ($fieldNodeList as $fieldNode) { // first delete all the isMemberOfs
 			$parentNode = $fieldNode->parentNode;
-			//Error_Handler::logError($fieldNode->nodeName.$fieldNode->nodeValue,__FILE__,__LINE__);
 			if ( $removeCurrent ) {
                 $parentNode->removeChild($fieldNode);
 			}
@@ -3272,6 +3271,9 @@ class RecordGeneral
         if ($newXML != "") {
             Fedora_API::callModifyDatastreamByValue($this->pid, "RELS-EXT", "A", "Relationships to other objects", $newXML, "text/xml", false);
 			Record::setIndexMatchingFields($this->pid);
+			if( APP_SOLR_INDEXER == "ON" ) {
+            	FulltextQueue::singleton()->add($this->pid);
+            }
 			return 1;
         }
         
@@ -3314,6 +3316,9 @@ class RecordGeneral
         if ($newXML != "") {
             Fedora_API::callModifyDatastreamByValue($this->pid, "RELS-EXT", "A", "Relationships to other objects", $newXML, "text/xml", false);
 			Record::setIndexMatchingFields($this->pid);
+			if( APP_SOLR_INDEXER == "ON" ) {
+            	FulltextQueue::singleton()->add($this->pid);
+            }
 			return true;
         }
         

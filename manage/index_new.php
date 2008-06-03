@@ -65,11 +65,6 @@ if (!$isSuperAdministrator) {
     $tpl->assign("show_not_allowed_msg", true);
 }
 
-//echo "<pre>";
-//print_r($_REQUEST);
-//echo "</pre>";
-//exit;
-
 $reindex = new Reindex;
 $terms = Pager::getParam('keywords')."*"; 
 $tpl->assign('keywords', Pager::getParam('keywords'));
