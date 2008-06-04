@@ -2,15 +2,18 @@
 <span style="padding-left: 35px">Most Downloaded in the Last Week:</span>
 <ul>
 
-{section name="i" loop=$list}
+{foreach from=$list key=pid item=pidData name=dlstats}
 
-	<li>{$smarty.section.i.index+1}. <a href='{$rel_url}view/{$list[i].rek_pid}'>{$list[i].rek_citation}</a> {if $downloads[i] <> ''} &nbsp;&nbsp;&nbsp; (<a title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">{$downloads[i]|escape:"html"} download{if $downloads[i] > 1}s{/if}</a>){/if}</li><br />
+	<li>{$smarty.foreach.dlstats.iteration}. <a href='{$rel_url}view/{$pid}'>{$pidData.citation}</a> {if $pidData.downloads <> ''} &nbsp;&nbsp;&nbsp; (<a title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$pid}">{$pidData.downloads|escape:"html"} download{if $pidData.downloads > 1}s{/if}</a>){/if}</li><br />
 	
-	{if $smarty.section.i.last}<br /><a href="{$rel_url}stats.php?browse=top50papers">Top 50 Papers</a> | <a href="{$rel_url}stats.php?browse=top50authors">Top 50 Authors</a></li>{/if}
+	{if $smarty.foreach.dlstats.last}<br /><a href="{$rel_url}stats.php?browse=top50papers">Top 50 Papers</a> | <a href="{$rel_url}stats.php?browse=top50authors">Top 50 Authors</a></li>{/if}
 
-{sectionelse}
+{/foreach}
+
+{if $smarty.foreach.dlstats.total == 0}
 	Stats are not currently available.
-{/section}
+{/if}
+
 
 </ul>
 </div>
