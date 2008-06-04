@@ -139,7 +139,7 @@ class Statistics
 				}
 				// Try and find any thumbnails and preview copies of images as these should not be counted towards the file downloads for an image datastream
 				$image_matches = 0;
-				$image_matches = preg_match("/^.*\?.+((thumbnail_)|(ls=0)|(preview_)|(presmd_)).*/i", $buffer);
+				$image_matches = preg_match("/^.*/((thumbnail_)|(preview_)|(presmd_)).*/i", $buffer);
 				if ($image_matches > 0) {
 					continue;
 				}
@@ -239,8 +239,6 @@ class Statistics
 		if (PEAR::isError($res)) {
 			Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return -1; //abort
-		} else {
-			//continue
 		}
 	}
 
@@ -257,8 +255,6 @@ class Statistics
 		if (PEAR::isError($res)) {
 			Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return -1; //abort
-		} else {
-			//continue
 		}
 	}
 
@@ -271,14 +267,12 @@ class Statistics
 					rek_views = (
 						SELECT COUNT(*) FROM " . APP_TABLE_PREFIX . "statistics_all
 						WHERE stl_dsid = '' AND stl_pid = '".$pid."')
-				WHERE rek_pid = '".$pid."'
-				";
+				WHERE rek_pid = '".$pid."'";
+		
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
 		if (PEAR::isError($res)) {
 			Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return -1; //abort
-		} else {
-			//continue
 		}
 	}
 
@@ -306,8 +300,6 @@ class Statistics
 		if (PEAR::isError($res)) {
 			Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return -1; //abort
-		} else {
-			//continue
 		}
 
 	}	
