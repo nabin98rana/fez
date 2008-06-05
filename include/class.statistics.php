@@ -139,7 +139,7 @@ class Statistics
 				}
 				// Try and find any thumbnails and preview copies of images as these should not be counted towards the file downloads for an image datastream
 				$image_matches = 0;
-				$image_matches = preg_match("/^.*/((thumbnail_)|(preview_)|(presmd_)).*/i", $buffer);
+				$image_matches = preg_match("/^.*\/((thumbnail_)|(preview_)|(presmd_)).*/i", $buffer);
 				if ($image_matches > 0) {
 					continue;
 				}
