@@ -181,6 +181,10 @@
     <WorkflowState wfs_id="658" wfs_title="Show Duplicates List" wfs_description="This is a report of duplicates found for the selected records.  Select an item to see it's duplicate records." wfs_auto="0" wfs_wfb_id="58" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
     <WorkflowTrigger wft_id="228" wft_pid="-1" wft_type_id="1" wft_xdis_id="285" wft_order="10" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="3" wft_options="0"/>
   </workflow>
+  <workflow wfl_id="92" wfl_title="Edit Author Affiliations" wfl_version="1.0" wfl_description="HERDC Author Affiliations" wfl_roles="Approver,Community_Administrator,Editor" wfl_end_button_label="Finished">
+    <WorkflowState wfs_id="659" wfs_title="Edit Affiliations" wfs_description="" wfs_auto="0" wfs_wfb_id="60" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowTrigger wft_id="229" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="11" wft_mimetype="" wft_icon="images/author_affiliation_16.png" wft_ret_id="3" wft_options="1"/>
+  </workflow>
   <workflow wfl_id="23" wfl_title="Edit Security for Select Record" wfl_version="1.0" wfl_description="" wfl_roles="Community_Administrator" wfl_end_button_label="Save Changes">
     <WorkflowState wfs_id="660" wfs_title="Edit Security" wfs_description="" wfs_auto="0" wfs_wfb_id="32" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
     <WorkflowTrigger wft_id="230" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="15" wft_mimetype="" wft_icon="images/security.gif" wft_ret_id="3" wft_options="1"/>
@@ -251,17 +255,19 @@
     <WorkflowState wfs_id="717" wfs_title="Convert Audio to Flash Video" wfs_description="" wfs_auto="1" wfs_wfb_id="68" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="1" wfs_roles=""/>
     <WorkflowTrigger wft_id="266" wft_pid="-1" wft_type_id="0" wft_xdis_id="-1" wft_order="0" wft_mimetype="audio/x-wav audio/wav" wft_icon="images/folder_new.gif" wft_ret_id="0" wft_options="0"/>
   </workflow>
-  <workflow wfl_id="1" wfl_title="Ingest Image" wfl_version="1.0" wfl_description="Creates a thumbnail of the image" wfl_roles="Approver,Community_Administrator,Creator,Editor" wfl_end_button_label="">
-    <WorkflowState wfs_id="682" wfs_title="Thumbnail" wfs_description="" wfs_auto="1" wfs_wfb_id="1" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="681" wfs_title="Web Format" wfs_description="" wfs_auto="1" wfs_wfb_id="35" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowState wfs_id="680" wfs_title="Preview Format" wfs_description="" wfs_auto="1" wfs_wfb_id="34" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="1018" wfsl_from_id="682" wfsl_to_id="680"/>
-    <WorkflowStateLinks wfsl_id="1017" wfsl_from_id="680" wfsl_to_id="681"/>
-    <WorkflowTrigger wft_id="247" wft_pid="-1" wft_type_id="0" wft_xdis_id="-1" wft_order="0" wft_mimetype="image/gif image/jpeg image/tif image/tiff image/png image/x-MS-bmp image/pjpeg" wft_icon="images/folder_new.gif" wft_ret_id="0" wft_options="0"/>
-    <WorkflowTrigger wft_id="246" wft_pid="UQL-fed:24993" wft_type_id="0" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="" wft_ret_id="0" wft_options="0"/>
-    <WorkflowTrigger wft_id="249" wft_pid="UQL-fed:24993" wft_type_id="0" wft_xdis_id="40" wft_order="0" wft_mimetype="" wft_icon="" wft_ret_id="0" wft_options="0"/>
-    <WorkflowTrigger wft_id="248" wft_pid="UQL-fed:24995" wft_type_id="0" wft_xdis_id="40" wft_order="0" wft_mimetype="" wft_icon="" wft_ret_id="0" wft_options="0"/>
-    <WorkflowTrigger wft_id="250" wft_pid="UQL-fed:24995" wft_type_id="1" wft_xdis_id="40" wft_order="0" wft_mimetype="" wft_icon="" wft_ret_id="0" wft_options="0"/>
+  <workflow wfl_id="1" wfl_title="Ingest Image" wfl_version="1.1" wfl_description="Creates a thumbnail of the image" wfl_roles="Approver,Community_Administrator,Creator,Editor" wfl_end_button_label="Save">
+    <WorkflowState wfs_id="727" wfs_title="Process Origami Images" wfs_description="" wfs_auto="1" wfs_wfb_id="72" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="726" wfs_title="Preview Format" wfs_description="" wfs_auto="1" wfs_wfb_id="34" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="725" wfs_title="Web Format" wfs_description="" wfs_auto="1" wfs_wfb_id="35" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="728" wfs_title="Thumbnail" wfs_description="" wfs_auto="1" wfs_wfb_id="1" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="1052" wfsl_from_id="725" wfsl_to_id="727"/>
+    <WorkflowStateLinks wfsl_id="1051" wfsl_from_id="728" wfsl_to_id="726"/>
+    <WorkflowStateLinks wfsl_id="1053" wfsl_from_id="726" wfsl_to_id="725"/>
+    <WorkflowTrigger wft_id="272" wft_pid="UQL-fed:24993" wft_type_id="0" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="" wft_ret_id="0" wft_options="0"/>
+    <WorkflowTrigger wft_id="271" wft_pid="-1" wft_type_id="0" wft_xdis_id="-1" wft_order="0" wft_mimetype="image/gif image/jpeg image/tif image/tiff image/png image/x-MS-bmp image/pjpeg" wft_icon="images/folder_new.gif" wft_ret_id="0" wft_options="0"/>
+    <WorkflowTrigger wft_id="274" wft_pid="UQL-fed:24993" wft_type_id="0" wft_xdis_id="40" wft_order="0" wft_mimetype="" wft_icon="" wft_ret_id="0" wft_options="0"/>
+    <WorkflowTrigger wft_id="273" wft_pid="UQL-fed:24995" wft_type_id="0" wft_xdis_id="40" wft_order="0" wft_mimetype="" wft_icon="" wft_ret_id="0" wft_options="0"/>
+    <WorkflowTrigger wft_id="275" wft_pid="UQL-fed:24995" wft_type_id="1" wft_xdis_id="40" wft_order="0" wft_mimetype="" wft_icon="" wft_ret_id="0" wft_options="0"/>
   </workflow>
   <workflow wfl_id="97" wfl_title="Ingest Video" wfl_version="1.0" wfl_description="Creates a flash video dissemination of an archival original uploaded video." wfl_roles="Approver,Community_Administrator,Creator,Editor" wfl_end_button_label="Save">
     <WorkflowState wfs_id="683" wfs_title="Convert Video" wfs_description="Creates a flash video dissemination of the archival video file." wfs_auto="1" wfs_wfb_id="64" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="1" wfs_roles=""/>
@@ -295,6 +301,10 @@
     <WorkflowStateLinks wfsl_id="1022" wfsl_from_id="692" wfsl_to_id="691"/>
     <WorkflowTrigger wft_id="256" wft_pid="-1" wft_type_id="1" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/regen.gif" wft_ret_id="0" wft_options="0"/>
     <WorkflowTrigger wft_id="257" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/regen.gif" wft_ret_id="0" wft_options="0"/>
+  </workflow>
+  <workflow wfl_id="100" wfl_title="Register Main Chapter" wfl_version="1.0" wfl_description="HERDC Main Chapter Registration" wfl_roles="Approver,Community_Administrator,Editor" wfl_end_button_label="Finished">
+    <WorkflowState wfs_id="718" wfs_title="Register Main Chapter" wfs_description="" wfs_auto="0" wfs_wfb_id="69" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowTrigger wft_id="267" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/main_chapter_16.png" wft_ret_id="3" wft_options="0"/>
   </workflow>
   <workflow wfl_id="90" wfl_title="Split Collection" wfl_version="1.0" wfl_description="Splits a collection into many collections with less records." wfl_roles="Community_Administrator" wfl_end_button_label="Ok">
     <WorkflowState wfs_id="694" wfs_title="Running" wfs_description="The collection is currently being split in a running process which can be followed on the background process page." wfs_auto="0" wfs_wfb_id="52" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
@@ -372,6 +382,7 @@
   <WorkflowBehaviour wfb_id="64" wfb_title="Convert Video" wfb_description="Accepts almost any video format that FFMpeg suppors and creates a flash video streaming dissemination copy." wfb_version="1.0" wfb_script_name="convert_video.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="58" wfb_title="Duplicates Report" wfb_description="Reports duplicates" wfb_version="1.0" wfb_script_name="duplicates_report.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="54" wfb_title="Duplicates Report Merge ISI_LOC" wfb_description="Processes a duplciates report and merges records based on matching isi_loc in the mods:identifier element." wfb_version="1.0" wfb_script_name="duplicates_report_auto_merge_isi_loc.php" wfb_auto="1"/>
+  <WorkflowBehaviour wfb_id="60" wfb_title="Edit Affiliations" wfb_description="This form allows percentage affiliations to be stored in a table for pids and authors.  Part of HERDC requirements." wfb_version="1.0" wfb_script_name="edit_affiliation.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="16" wfb_title="Edit Metadata" wfb_description="" wfb_version="1.0" wfb_script_name="edit_metadata.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="32" wfb_title="Edit Security" wfb_description="" wfb_version="1.0" wfb_script_name="edit_security.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="13" wfb_title="Enter Metadata" wfb_description="" wfb_version="1.0" wfb_script_name="enter_metadata.php" wfb_auto="0"/>
@@ -385,11 +396,13 @@
   <WorkflowBehaviour wfb_id="56" wfb_title="Notify Process Finished" wfb_description="Sends an email to the owner of the workflow to notify that a background process has finished.  The workflow variable 'notify' can be used to set some specific message text." wfb_version="1.0" wfb_script_name="notify_done.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="30" wfb_title="Preview" wfb_description="" wfb_version="" wfb_script_name="preview.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="34" wfb_title="Preview Image Resizer" wfb_description="Resize a given image to a 400x700 jpeg (constraining to ratio). " wfb_version="1.0" wfb_script_name="preview_format_image.php" wfb_auto="1"/>
+  <WorkflowBehaviour wfb_id="72" wfb_title="Process Origami Images" wfb_description="" wfb_version="1.0" wfb_script_name="process_origami_images.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="28" wfb_title="Publish" wfb_description="" wfb_version="" wfb_script_name="publish.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="17" wfb_title="Purge Object" wfb_description="" wfb_version="1.0" wfb_script_name="purge.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="39" wfb_title="Regenerate AuthIndex" wfb_description="Regenerates the auth index for a selected pid.  Or for the whole repository if no pid is selected." wfb_version="1.0" wfb_script_name="regenerate_auth_index.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="36" wfb_title="Regenerate Images" wfb_description="" wfb_version="1.0" wfb_script_name="regenerate_images.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="42" wfb_title="Regenerate Object Index" wfb_description="Regenerates the metadata index for the selected objects in fez. Recurses to any sub-objects. This index is used for searching for and listing objects." wfb_version="1.0" wfb_script_name="regenerate_object_index.php" wfb_auto="1"/>
+  <WorkflowBehaviour wfb_id="69" wfb_title="Register Main Chapter" wfb_description="This form allows registration of main chapter status for certain authors. Part of HERDC requirements." wfb_version="1.0" wfb_script_name="main_chapter.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="57" wfb_title="Save Source Pids" wfb_description="Works out source pids (int he collection in $this-&gt;pid) for the workflow and puts them in $this-&gt;pids so that you can then run another step to select a destination which will overwrite $this-&gt;pid" wfb_version="1.0" wfb_script_name="save_source_pids.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="15" wfb_title="Select Batch Import" wfb_description="Allows user to select a server local directory for a batch import." wfb_version="1.0" wfb_script_name="select_batchimport.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="24" wfb_title="Select Collection" wfb_description="" wfb_version="" wfb_script_name="select_collection.php" wfb_auto="0"/>
