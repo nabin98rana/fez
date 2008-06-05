@@ -1,3 +1,21 @@
+#options {
+text-align:center;	
+clear:both;	
+padding-top:30px;
+
+
+
+}
+#options ul {
+
+}
+
+#options ul li {
+padding-right:15px;
+display:inline;
+list-style:none;	
+}
+
 a.app_errors {
 display:block;
 width: 90%;

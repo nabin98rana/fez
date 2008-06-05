@@ -129,7 +129,7 @@ class Custom_View
     
     function getSekList($cvsk_cview_id)
     {
-        $stmt = "SELECT cvsk.*, sk.sek_title
+        $stmt = "SELECT cvsk.*, sk.*
                  FROM " . APP_TABLE_PREFIX . "custom_views_search_keys as cvsk
                  LEFT JOIN " . APP_TABLE_PREFIX . "search_key as sk ON cvsk.cvsk_sek_id = sk.sek_id
                  WHERE cvsk.cvsk_cview_id = ". $cvsk_cview_id .
@@ -140,7 +140,19 @@ class Custom_View
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
         } else {
-            return $res;
+	
+	        if (empty($res)) {
+                return array();
+            } else {
+	          for ($i = 0; $i < count($res); $i++) {
+				if ($res[$i]["cvsk_sek_name"] != "") {
+					$res[$i]["sek_alt_title"] = $res[$i]["cvsk_sek_name"];
+				}
+				$res[$i]["field_options"] = Search_Key::getOptions($res[$i]["sek_smarty_variable"]);
+	          }	
+	          return $res;            	
+            }
+        
         }
     }
     
@@ -166,19 +178,9 @@ class Custom_View
         $stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "custom_views
                  (
-                    cview_name,
-                    cview_header_tpl,
-                    cview_content_tpl,
-					cview_footer_tpl,
-					cview_css,
-					cview_folder
+                    cview_name
                  ) VALUES (
-                    '" . Misc::escapeString($_POST["cview_name"]) . "',
-					'" . Misc::escapeString($_POST["cview_header_tpl"]) . "',
-					'" . Misc::escapeString($_POST["cview_content_tpl"]) . "',
-					'" . Misc::escapeString($_POST["cview_footer_tpl"]) . "',
-					'" . Misc::escapeString($_POST["cview_css"]) . "',
-					'" . Misc::escapeString($_POST["cview_folder"]) . "'
+                    '" . Misc::escapeString($_POST["cview_name"]) . "'
                  )";
 		
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -223,9 +225,11 @@ class Custom_View
                     " . APP_TABLE_PREFIX . "custom_views_community
                  (
                     cvcom_cview_id,
+                    cvcom_hostname_id,
                     cvcom_com_pid
                  ) VALUES (
                     '" . Misc::escapeString($_POST["cview_id"]) . "',
+                    '" . Misc::escapeString($_POST["hostname"]) . "',
 					'" . Misc::escapeString($_POST["comm_pid"]) . "'
                  )";
         
@@ -244,14 +248,9 @@ class Custom_View
     {
         $stmt = "UPDATE " . APP_TABLE_PREFIX . "custom_views
                  SET 
-                    cview_name = '" . Misc::escapeString($_POST["cview_name"]) . "',
-					cview_header_tpl = '" . Misc::escapeString($_POST["cview_header_tpl"]) . "',
-                    cview_content_tpl = '" . Misc::escapeString($_POST["cview_content_tpl"]) . "',
-					cview_footer_tpl = '" . Misc::escapeString($_POST["cview_footer_tpl"]) . "',
-					cview_css = '" . Misc::escapeString($_POST["cview_css"]) . "',
-					cview_folder = '" . Misc::escapeString($_POST["cview_folder"]) . "'
+                    cview_name = '" . Misc::escapeString($_POST["cview_name"]) . "'
 				 WHERE cview_id = ".$cview_id;
-        
+
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -282,6 +281,25 @@ class Custom_View
             
         }
     }
+
+
+    function searchKeyUsedCview($sek_id)
+    {
+        $stmt = "SELECT cvsk_sek_id FROM " . APP_TABLE_PREFIX . "custom_views_search_keys
+				 WHERE cvsk_sek_id = '".$sek_id."'";
+        
+        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+            if (count($res) != 0) {
+            	return 1;
+			} else {
+				return 0;
+			}
+        }
+    }
     
     
     function updateCommCview($cvcom_id)
@@ -289,6 +307,7 @@ class Custom_View
         $stmt = "UPDATE " . APP_TABLE_PREFIX . "custom_views_community
                  SET 
                     cvcom_cview_id = '" . Misc::escapeString($_POST["cview_id"]) . "',
+                    cvcom_hostname = '" . Misc::escapeString($_POST["hostname"]) . "',
 					cvcom_com_pid = '" . Misc::escapeString($_POST["comm_pid"]) . "'
 				 WHERE cvcom_id = ".$cvcom_id;
         

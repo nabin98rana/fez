@@ -106,8 +106,26 @@ if (!empty($pid) && $record->checkExists()) {
 			$record->updateAdminDatastream($xdis_id);
 		}
 	}
+	
+
+	
 	if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for it
 		Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=view_form&pid=".$pid.$extra_redirect, false);
+	}
+
+	$custom_view_pid = $_GET['custom_view_pid'];
+
+	if (!empty($custom_view_pid)) {
+		$parents = Record::getParentsAll($pid);
+		$found = false;
+		foreach ($parents as $parent) {
+			if ($custom_view_pid == $parent['rek_pid']) {
+				$found = true;
+			}
+		}
+		if (!$found) {
+			Auth::redirect("http://".APP_HOSTNAME . APP_RELATIVE_URL . "view/".$pid, false);			
+		}
 	}
 	
 	$canEdit = false;

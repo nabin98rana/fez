@@ -891,6 +891,10 @@ class Misc
 			if ($filename_ext == "wmv") {
 				$ret = "video/x-wmv";
 			}	
+			if ($filename_ext == "mp4") {
+				$ret = "video/x-mp4";
+			}	
+
 		}
         //Error_Handler::logError(array($f,$ret));
         return $ret;

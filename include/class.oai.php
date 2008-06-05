@@ -69,47 +69,48 @@ class OAI
      * @param   integer $max The maximum number of records to return	 
      * @return  array The list of records 
      */
-    function ListRecords($set, $identifier="", $current_row = 0, $max = 100, $order_by = 'Created Date', $from="", $until="", $setType)
+    function ListRecords($set, $identifier="", $current_row = 0, $max = 100, $order_by = 'Created Date', $from="", $until="", $setType, $filter=array())
     {
 		$from = str_replace("T", " ", $from);
 		$from = str_replace("Z", " ", $from);
 		$until = str_replace("Z", " ", $until);		
-		$until = str_replace("Z", " ", $until);		
+		$until = str_replace("Z", " ", $until);	
+
         $order_dir = 'ASC';
 		$options = array();
 		if ($max == "ALL") {
             $max = 9999999;
         }
         $current_row = ($current_row/100);
- 		$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+ 		$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
         if (!empty($identifier)) {
-			$options["searchKey".Search_Key::getID("Pid")] = $identifier;
+			$filter["searchKey".Search_Key::getID("Pid")] = $identifier;
         } elseif (!empty($set)) {
 			if ($setType == "isMemberOf") {
-				$options["searchKey".Search_Key::getID("isMemberOf")] = $set;
+				$filter["searchKey".Search_Key::getID("isMemberOf")] = $set;
 			} else {
-				$options["searchKey".Search_Key::getID("Subject")] = $set;
+				$filter["searchKey".Search_Key::getID("Subject")] = $set;
 			}
 		}
         if ($from != "" && $until != "") {
-			$options["searchKey".Search_Key::getID("Date")] = array();
-			$options["searchKey".Search_Key::getID("Date")]["filter_type"] = "between";
-			$options["searchKey".Search_Key::getID("Date")]["filter_enabled"] = 1;
-			$options["searchKey".Search_Key::getID("Date")]["start_date"] = $from;
-			$options["searchKey".Search_Key::getID("Date")]["end_date"] = $until;
+			$filter["searchKey".Search_Key::getID("Date")] = array();
+			$filter["searchKey".Search_Key::getID("Date")]["filter_type"] = "between";
+			$filter["searchKey".Search_Key::getID("Date")]["filter_enabled"] = 1;
+			$filter["searchKey".Search_Key::getID("Date")]["start_date"] = $from;
+			$filter["searchKey".Search_Key::getID("Date")]["end_date"] = $until;
         } elseif (!empty($from) && empty($until)) {
-			$options["searchKey".Search_Key::getID("Date")] = array();
-			$options["searchKey".Search_Key::getID("Date")]["filter_type"] = "greater";
-			$options["searchKey".Search_Key::getID("Date")]["filter_enabled"] = 1;
-			$options["searchKey".Search_Key::getID("Date")]["start_date"] = $from;        	
+			$filter["searchKey".Search_Key::getID("Date")] = array();
+			$filter["searchKey".Search_Key::getID("Date")]["filter_type"] = "greater";
+			$filter["searchKey".Search_Key::getID("Date")]["filter_enabled"] = 1;
+			$filter["searchKey".Search_Key::getID("Date")]["start_date"] = $from;        	
         } elseif (!empty($until) && empty($from)) {
-			$options["searchKey".Search_Key::getID("Date")] = array();
-			$options["searchKey".Search_Key::getID("Date")]["filter_type"] = "less";
-			$options["searchKey".Search_Key::getID("Date")]["filter_enabled"] = 1;
-			$options["searchKey".Search_Key::getID("Date")]["start_date"] = $until;
+			$filter["searchKey".Search_Key::getID("Date")] = array();
+			$filter["searchKey".Search_Key::getID("Date")]["filter_type"] = "less";
+			$filter["searchKey".Search_Key::getID("Date")]["filter_enabled"] = 1;
+			$filter["searchKey".Search_Key::getID("Date")]["start_date"] = $until;
         }
- 		$return = Record::getListing($options, $approved_roles=array(9,10), $current_row, $max, $order_by);
 
+ 		$return = Record::getListing($options, $approved_roles=array(9,10), $current_row, $max, $order_by, false, false, $filter);
 		if (is_array($return['list'])) {
 			foreach ($return['list'] as $rkey => $res) {
 				$fans = array();

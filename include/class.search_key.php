@@ -194,18 +194,22 @@ class Search_Key
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-            
+            if(function_exists('apc_clear_cache')) {
+				apc_clear_cache('user');
+		 	}	
+			
             if($_POST['create_sql']) {
 		    
     		    if($_POST["sek_relationship"] == 1) {
-    		        
-    		       $sek_id = $GLOBALS["db_api"]->dbh->getLastInsertId(APP_TABLE_PREFIX . "search_key", 'sek_id');
+    		       // no longer need to get sek_id - as it is pre-got before the insert 
+    	//	       $sek_id = $GLOBALS["db_api"]->dbh->getLastInsertId(APP_TABLE_PREFIX . "search_key", 'sek_id');
     		       return Search_Key::createSearchKeyDB($sek_id);
     		       
     		    } elseif($_POST["sek_relationship"] == 0) {
     		        
     		        include_once(APP_INC_PATH.'class.bgp_create_searchkey.php');
-    		        $sek_id = $GLOBALS["db_api"]->dbh->getLastInsertId(APP_TABLE_PREFIX . "search_key", 'sek_id');
+    		       // no longer need to get sek_id - as it is pre-got before the insert 
+    	//	        $sek_id = $GLOBALS["db_api"]->dbh->getLastInsertId(APP_TABLE_PREFIX . "search_key", 'sek_id');
     		        
     		        /*
     		         * Because the alter might take a while, run in 
@@ -307,7 +311,10 @@ class Search_Key
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-            
+            if(function_exists('apc_clear_cache')) {
+				apc_clear_cache('user');
+		 	}	
+			
             /*
              * Should we create the table/column for this search key?
              */
@@ -966,11 +973,11 @@ class Search_Key
     function createSearchKeyDB($sek_id)
     {
         $sql = Search_Key::createSQL($sek_id);
-        
+//		echo $sql;        
         if(!$sql) {
             return -2;
         }
-//		echo $sql;
+
         
         $res = $GLOBALS["db_api"]->dbh->query($sql);
         if (PEAR::isError($res)) {

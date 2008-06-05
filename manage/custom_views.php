@@ -172,5 +172,15 @@ switch ($_REQUEST['cat'])
         break;
 }
 
+$list = Custom_View::getList();
+
+$tpl->assign("list", $list);
+$tpl->assign("list_count", count($list));
+
+if($_GET['result']) {
+    $tpl->assign("result", $_GET['result']);
+}
+
+
 $tpl->displayTemplate();
 ?>

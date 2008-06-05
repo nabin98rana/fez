@@ -61,7 +61,14 @@
                   </select>
                 </td>
               </tr>
-              
+              <tr>
+                <td width="140" bgcolor="{$cell_color}" class="default">
+                  <b>Hostname:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="text" name="hostname" size="40" class="default" value="{$info.cvcom_hostname}"><div class="default">(without 'http://', eg customview.library.edu)</div>
+                </td>
+              </tr>
               <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $smarty.get.cat == 'edit'}
@@ -105,6 +112,7 @@
                       <td width="5" bgcolor="{$cell_color}" align="center" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Community</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Custom View</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Hostname</b>&nbsp;</td> 
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
@@ -117,6 +125,9 @@
                       </td>
                       <td bgcolor="{$row_color}" class="default">
                         &nbsp;{$list[i].cview_name}
+                      </td>
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{$list[i].cvcom_hostname}
                       </td>
                     </tr>
                     {sectionelse}

@@ -11,6 +11,7 @@
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.fulltext_index.php");
 include_once(APP_INC_PATH . "class.fulltext_queue.php");
+include_once(APP_INC_PATH . "class.custom_view.php");
 include_once(APP_INC_PATH . "Apache/Solr/Service.php");
 	
 class FulltextIndex_Solr_CSV extends FulltextIndex {
@@ -93,7 +94,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
 		     */
             if(  $sekDetails["sek_simple_used"] == 1 || 
 	             $sekDetails["sek_myfez_visible"] == 1 || 
-	             $sekDetails["sek_adv_visible"] == 1)
+	             $sekDetails["sek_adv_visible"] == 1 || (Custom_View::searchKeyUsedCview($sekDetails["sek_id"]) == 1))
             {
                 $fieldType = $this->mapType($sekDetails['sek_data_type']);
                 

@@ -71,6 +71,15 @@ class Template_API
         $this->smarty->template_dir = APP_PATH . "templates/" . APP_CURRENT_LANG;
         $this->smarty->compile_dir = APP_PATH . "templates_c";
         $this->smarty->config_dir = '';
+
+		$custom_view_pid = $_GET['custom_view_pid'];
+		if (!empty($custom_view_pid)) {
+			$customView = Custom_View::getCommCview($custom_view_pid);
+            if($customView) {
+				$this->smarty->custom_view_dir = $customView['cview_id'];
+			}
+		}
+
     }
 
 
@@ -82,7 +91,12 @@ class Template_API
      */
     function setTemplate($tpl_name)
     {
-        $this->tpl_name = $tpl_name;
+		$_curr_path = $this->smarty->template_dir;
+	    $_fullpath = $_curr_path . "/". $this->smarty->custom_view_dir. "/" .  $tpl_name;
+	    if (file_exists($_fullpath) && is_file($_fullpath)) {
+			$tpl_name = $_fullpath;
+		}
+		$this->tpl_name = $tpl_name;
     }
 
 
@@ -197,6 +211,17 @@ class Template_API
         
         $isAdministrator = Auth::isAdministrator();
         $this->assign("isAdministrator", $isAdministrator);
+		$custom_view_pid = $_GET['custom_view_pid'];
+		if (!empty($custom_view_pid)) {
+			$customView = Custom_View::getCommCview($custom_view_pid);
+            if ($customView) {
+				$cv_title = Record::getSearchKeyIndexValue($custom_view_pid, "Title", false);
+                $this->assign('cv_id',   $customView['cview_id']);
+                $this->assign('cv_pid',   $custom_view_pid);
+            }
+		}
+
+
 		
         $this->assign("start_date", date('Y-m-d', mktime(0,0,0,1,1,date('Y'))));
         $this->assign("end_date", date('Y-m-d', mktime(0,0,0,12,31,date('Y'))));
@@ -210,7 +235,14 @@ class Template_API
         
         $this->assign("ldap_switch", LDAP_SWITCH);
         $this->assign("application_version", APP_VERSION);
-        $this->assign("application_title", APP_NAME);
+		
+
+		if (is_array($customView)) {
+			$this->assign("application_title", $cv_title);			
+		} else {
+			$this->assign("application_title", APP_NAME);
+			
+		}
         $this->assign("org_name", APP_ORG_NAME);
         $this->assign("org_short_name", APP_SHORT_ORG_NAME);
         $this->assign("app_base_url", APP_BASE_URL);
@@ -222,8 +254,12 @@ class Template_API
 		$this->assign("APP_HERDC_INTEGRITY_REPORTS", APP_HERDC_INTEGRITY_REPORTS);		
         $this->assign("SID", SID);
 		$this->assign("SHIB_SWITCH", SHIB_SWITCH);
-		$this->assign("SHIB_DIRECT_LOGIN", SHIB_DIRECT_LOGIN);		
-		$this->assign("APP_HOSTNAME", APP_HOSTNAME);
+		$this->assign("SHIB_DIRECT_LOGIN", SHIB_DIRECT_LOGIN);
+		if (is_array($customView)) {
+			$this->assign("APP_HOSTNAME", $customView['cvcom_hostname']);
+		} else {
+			$this->assign("APP_HOSTNAME", APP_HOSTNAME);
+		}
         $this->assign("APP_CLOUD_TAG", APP_CLOUD_TAG);
 		$this->assign("SHIB_HOME_SP", SHIB_HOME_SP);
 		$this->assign("SHIB_HOME_IDP", SHIB_HOME_IDP);

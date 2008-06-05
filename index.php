@@ -57,7 +57,7 @@ include_once(APP_INC_PATH . "najax/najax.php");
 include_once(APP_INC_PATH . "najax_objects/class.suggestor.php");
 
 // Redirect if sent from an alias or IP as shibboleth and sessions won't like it otherwise
-if ($_SERVER['HTTP_HOST'] != APP_HOSTNAME)  {
+if (($_SERVER['HTTP_HOST'] != APP_HOSTNAME) && (!is_numeric(APP_CUSTOM_VIEW_ID))) {
 	   header ("HTTP 302 Redirect");
        header ("Location: http://".APP_HOSTNAME);
 }
@@ -140,6 +140,12 @@ $tpl->setTemplate($front_page);
 
 $isAdministrator = User::isUserAdministrator($username);
 $tpl->assign("isAdministrator", $isAdministrator);
+//check for custom view search keys
+if (is_numeric(APP_CUSTOM_VIEW_ID)) {
+	include_once(APP_INC_PATH . "class.custom_view.php");
+	$search_keys = Custom_View::getSekList(APP_CUSTOM_VIEW_ID); 
+	$tpl->assign("search_keys", $search_keys);
+}
 
 $news = News::getList(5);       // Maximum of 5 news posts for front page.
 $news_count = count($news);

@@ -394,6 +394,15 @@ class Smarty
      */
     var $config_class          =   'Config_File';
 
+
+    /**
+     * The custom view directory to check for any template files for custom view overriding
+     *
+     * @var string
+     */
+    var $custom_view_dir          =   '';
+
+
 /**#@+
  * END Smarty Configuration Section
  * There should be no need to touch anything below this line.
@@ -1126,7 +1135,7 @@ class Smarty
     function fetch($resource_name, $cache_id = null, $compile_id = null, $display = false)
     {
         static $_cache_info = array();
-        
+
         $_smarty_old_error_level = $this->debugging ? error_reporting() : error_reporting(isset($this->error_reporting)
                ? $this->error_reporting : error_reporting() & ~E_NOTICE);
 
@@ -1469,6 +1478,7 @@ class Smarty
 
         $smarty_compiler = new $this->compiler_class;
 
+        $smarty_compiler->custom_view_dir   = $this->custom_view_dir;
         $smarty_compiler->template_dir      = $this->template_dir;
         $smarty_compiler->compile_dir       = $this->compile_dir;
         $smarty_compiler->plugins_dir       = $this->plugins_dir;
@@ -1886,6 +1896,19 @@ class Smarty
 
     function _smarty_include($params)
     {
+		if (isset($params['resource_base_path'])) {
+		    $_resource_base_path = (array)$params['resource_base_path'];
+		} else {
+		    $_resource_base_path = (array)$this->template_dir;
+		    $_resource_base_path[] = '.';
+		}
+		foreach ($_resource_base_path as $_curr_path) {
+		    $_fullpath = $_curr_path . DIRECTORY_SEPARATOR . $this->custom_view_dir. DIRECTORY_SEPARATOR .  $params['smarty_include_tpl_file'];
+		    if (file_exists($_fullpath) && is_file($_fullpath)) {
+				$params['smarty_include_tpl_file'] = $_fullpath;
+			}
+		}
+		
         if ($this->debugging) {
             $_params = array();
             require_once(SMARTY_DIR . 'core' . DIRECTORY_SEPARATOR . 'core.get_microtime.php');

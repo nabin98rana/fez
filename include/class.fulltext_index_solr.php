@@ -274,7 +274,6 @@ class FulltextIndex_Solr extends FulltextIndex {
 			} else {
 				$params['sort'] = $searchKey_join[SK_SORT_ORDER];
 			}
-			$search_keys = 
 
 			Logger::debug("Solr filter query: ".$params['fq']);
 			Logger::debug("Solr query string: ".$queryString);

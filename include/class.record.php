@@ -514,9 +514,10 @@ class Record
         		// it would be possible to re-write the fulltext index to automagically
         		// delete objects on update when they are not in the Fez index anymore
         		
-        		Logger::debug("Record::removeIndexRecord() using keep=true");
+        		Logger::debug("Record::removeIndexRecord() ADDING ".$pid." TO QUEUE using keep=true");
         		FulltextQueue::singleton()->add($pid);
         	} else {
+        		Logger::debug("Record::removeIndexRecord() REMOVING ".$pid." FROM QUEUE");
         		FulltextQueue::singleton()->remove($pid);
         	}
         }
@@ -704,6 +705,7 @@ class Record
 	        // KJ: update fulltext index
 			//
 			if (APP_SOLR_INDEXER == "ON") {
+        		Logger::debug("Record::insertMatchingField() ADDING ".$pid." TO QUEUE");
 				FulltextQueue::singleton()->add($pid);
 	        }
             

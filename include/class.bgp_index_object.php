@@ -115,15 +115,22 @@ class BackgroundProcess_Index_Object extends BackgroundProcess
             }
             
         } elseif ($index_type == Reindex::INDEX_TYPE_REINDEX_OBJECTS) {
+            $this->setStatus("Beginning Reindex of ".$pid." and any of its children objects");
         	if (!empty($pid)) {
         		$source_pids = array();
         		$parent_pids = array($pid);
         		for ($ii = 0; $ii < count($parent_pids); $ii++) {
+//        			$record = new RecordGeneral($pid);
+					$pid = $parent_pids[$ii];
         			$record = new RecordGeneral($pid);
         			if ($record->isCollection()) {
+	            		$this->setStatus("Getting children of collection ".$pid."");
         				$source_pids = array_unique(array_merge($source_pids, $record->getChildrenPids()));
+	            		$this->setStatus("Source pids of ".$pid." are ".implode(", ", $source_pids));
     				} elseif ($record->isCommunity()) {
-    					$parent_pids = array_merge($parent_pids, $record->getChildrenPids());
+	            		$this->setStatus("Getting children of community ".$pid."");
+    					$parent_pids = array_unique(array_merge($parent_pids, $record->getChildrenPids()));
+	            		$this->setStatus("Children of community ".$pid." are ".implode(", ", $parent_pids));
 					} else {
         				$source_pids = array_unique(array_merge($source_pids, array($pid)));
 					}

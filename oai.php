@@ -43,6 +43,7 @@ $metadataPrefix = trim(Misc::GETorPOST('metadataPrefix'));
 $originalIdentifier = trim(Misc::GETorPOST('identifier'));
 $identifier = str_replace("oai:".APP_HOSTNAME.":", "", $originalIdentifier);
 $from = trim(Misc::GETorPOST('from'));
+$custom_view_pid = trim(Misc::GETorPOST('custom_view_pid'));
 $until = trim(Misc::GETorPOST('until'));
 $originalSet = trim(Misc::GETorPOST('set'));
 $originalResumptionHash = (Misc::GETorPOST('resumptionToken'));
@@ -56,6 +57,16 @@ if (is_numeric(strpos($originalSet, ":cvo_id:"))) {
 	$setObject = new RecordObject($set);
 
 }
+$filter = array();
+if (!empty($custom_view_pid)) {
+	$child_collections = Record::getCollectionChildrenAll($custom_view_pid);
+	$child_pids = array();
+	$filter["searchKey".Search_Key::getID("isMemberOf")]['override_op'] = 'OR';
+	$filter["searchKey".Search_Key::getID("isMemberOf")][] = $custom_view_pid;
+	foreach ($child_collections as $rek_row) {
+		$filter["searchKey".Search_Key::getID("isMemberOf")][] = $rek_row['rek_pid'];
+	}
+} 
 
 /*$test = base64_decode("Jm1ldGFkYXRhUHJlZml4PW9haV9kYw=="); 
 $test = ltrim($test, "&");
@@ -67,15 +78,15 @@ if (empty($_GET)) {
 } else {
 	$querystring = $_GET;
 }
-$acceptable_vars = array("verb", "metadataPrefix", "identifier", "from", "until", "resumptionToken", "set");
-$resumption_acceptable_vars = array("metadataPrefix", "from", "until", "set");
+$acceptable_vars = array("verb", "metadataPrefix", "identifier", "from", "until", "resumptionToken", "set", "custom_view_pid");
+$resumption_acceptable_vars = array("metadataPrefix", "from", "until", "set", "custom_view_pid");
 
-$identify_acceptable_vars = array("verb");
-$list_metadata_formats_acceptable_vars = array("verb", "identifier");
+$identify_acceptable_vars = array("verb", "custom_view_pid");
+$list_metadata_formats_acceptable_vars = array("verb", "identifier", "custom_view_pid");
 $list_records_acceptable_vars = $acceptable_vars;
 $list_identifiers_acceptable_vars = $acceptable_vars;
-$get_record_acceptable_vars = array("verb", "metadataPrefix", "identifier");
-$list_sets_acceptable_vars = array("verb", "metadataPrefix", "resumptionToken");
+$get_record_acceptable_vars = array("verb", "metadataPrefix", "identifier", "custom_view_pid");
+$list_sets_acceptable_vars = array("verb", "metadataPrefix", "resumptionToken", "custom_view_pid");
 
 $errors = array();
 $i_errors = array();
@@ -186,7 +197,7 @@ if (!empty($verb)) {
 //					if (preg_match("/^oai:(.*:[a-zA-Z0-9\-_\.!~\*'\(\);\/\?:\@\&=\+\$,\%])+$/", $originalIdentifier)) {
 
 						// then check the record exists
-						$list = OAI::ListRecords($set, $identifier, $start, $rows, $order_by, $from, $until, $setType);
+						$list = OAI::ListRecords($set, $identifier, $start, $rows, $order_by, $from, $until, $setType, $filter);
 						$list = $list["list"];
 						if (count($list) < 1) {
 							$errors["code"][] = "idDoesNotExist";
@@ -233,7 +244,7 @@ if (!empty($verb)) {
 						if ($identifier != "") {
 //							if (preg_match("/^oai:[a-zA-Z][a-zA-Z0-9\-]*(\.[a-zA-Z][a-zA-Z0-9\-]+)+:[a-zA-Z0-9\-_\.!~\*'\(\);\/\?:\@\&=\+\$,\%]+$/", $originalIdentifier)) {
 							if (preg_match("/^oai\:.+\:.+\:.+$/", $originalIdentifier)) {
-								$list = OAI::ListRecords($set, $identifier, $start, $rows, $order_by, $from, $until, $setType);
+								$list = OAI::ListRecords($set, $identifier, $start, $rows, $order_by, $from, $until, $setType, $filter);
 								$list_info = $list["info"];
 								$list = $list["list"];
 								$tpl->assign("list", $list);
@@ -312,7 +323,7 @@ if (!empty($verb)) {
 							}
 						}					
 						// probably first need to check that the set exists if not empty					
-						$list = OAI::ListRecords($set, $identifier, $start, $rows, $order_by, $from, $until, $setType);
+						$list = OAI::ListRecords($set, $identifier, $start, $rows, $order_by, $from, $until, $setType, $filter);
 						$list_info = $list["info"];
 						$list = $list["list"];		
 						$tpl->assign("list", $list);
@@ -373,7 +384,7 @@ if (!empty($verb)) {
 							}
 						}					
 						// probably first need to check that the set exists if not empty
-						$list = OAI::ListRecords($set, $identifier, $start, $rows, $order_by, $from, $until, $setType);
+						$list = OAI::ListRecords($set, $identifier, $start, $rows, $order_by, $from, $until, $setType, $filter);
 						$list_info = $list["info"];
 						$list = $list["list"];		
 						$tpl->assign("list", $list);

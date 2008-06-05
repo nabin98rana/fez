@@ -36,6 +36,7 @@
 
 include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "db_access.php");
+include_once(APP_INC_PATH . "class.custom_view.php");
 include_once(APP_INC_PATH . "class.misc.php");
 /**
  * This class exists for interacting with the configuration settings sub-system.
@@ -87,6 +88,12 @@ class Configuration
             define(strtoupper($name), $value);
         }
 
+		$custom_view_pid = $_GET['custom_view_pid'];
+		if (!empty($custom_view_pid)) {
+			$customView = Custom_View::getCommCview($custom_view_pid);			
+		}
+
+
         // Assemble compound variables
         define("APP_CYCLE_COLORS", APP_CYCLE_COLOR_ONE . "," . APP_CYCLE_COLOR_TWO);
         define("APP_TPL_PATH", APP_PATH . "templates/");
@@ -96,7 +103,16 @@ class Configuration
         define("APP_SETUP_FILE", APP_SETUP_PATH . "setup.conf.php");
         define("APP_DELETE_DIR", APP_TEMP_DIR);
         define("APP_JHOVE_TEMP_DIR", APP_TEMP_DIR);
-        define("APP_BASE_URL", "http://" . APP_HOSTNAME . APP_RELATIVE_URL);
+        if ($customView) {
+	        define("APP_BASE_URL", "http://" . $customView['cvcom_hostname'] . APP_RELATIVE_URL);
+	        define("APP_CUSTOM_VIEW_ID", $customView['cview_id']);
+	        define("APP_CUSTOM_VIEW_PID", $custom_view_pid);
+        } else {
+	        define("APP_CUSTOM_VIEW_ID", "");
+	        define("APP_CUSTOM_VIEW_PID", "");
+	        define("APP_BASE_URL", "http://" . APP_HOSTNAME . APP_RELATIVE_URL);
+		}
+
         define("APP_RQF_REALLY_AUTO_MERGE", true);
         define("APP_DEFAULT_TIMEZONE", "UTC");
         define("APP_SHORT_NAME", APP_NAME);
