@@ -34,7 +34,6 @@
 //
 // @@@ CK - 28/7/05
 // Preservation Metadata automatic extraction webservice
-// - Takes url parameters to convert an image file in the Fez temp directory into a image file of the given format and size
 
 include_once("../config.inc.php");
 include_once(APP_INC_PATH."class.foxml.php");
@@ -57,6 +56,7 @@ if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) 
 		unlink($presmd_file);
 	}
     $full_file = $file_dir.'/'.$file;
+//	Error_Handler::logError($full_file, __FILE__,__LINE__);
     if (is_numeric(strpos($full_file, " "))) {
         $newfile = Foxml::makeNCName($file);
 // 		Misc::processURL(Misc::escapeString($full_file), true, APP_TEMP_DIR.$newfile);
@@ -71,7 +71,7 @@ if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) 
     }
 	$command = APP_JHOVE_DIR.'jhove -h xml -o '."$presmd_file $full_file";
     if(!$file) $error .= "<b>ERROR:</b> no file specified<br>";
-    if(!is_file($full_file)) { $error .= "<b>ERROR:</b> given file filename not found or bad filename given<br>"; }
+    if(!is_file($full_file)) { $error .= "<b>ERROR:</b>$command :given file filename not found or bad filename given<br>"; }
     if (!empty($error)) {
         Error_Handler::logError($error,__FILE__,__LINE__);
     }

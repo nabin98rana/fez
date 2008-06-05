@@ -41,6 +41,7 @@ include_once(APP_INC_PATH. 'class.error_handler.php');
 
 // Get image and size
 $image = urldecode($_GET["image"]);
+$quality = $_GET["quality"]; //maximum width
 $width = $_GET["width"]; //maximum width
 $height = $_GET["height"]; //maximum height
 $copyright = $_GET["copyright"]; //the copyright message to add (if any)
@@ -78,7 +79,8 @@ if (preg_match('/^https?:\/\//',$image_dir.$image)) {
 
 
 if(!is_file($image_dir.$image)) { $error .= "<b>ERROR:</b> given image filename not found or bad filename given<br>"; }
-if(!is_numeric($width) && !is_numeric($height)) $error .= "<b>ERROR:</b> no sizes specified<br>";
+if(!is_numeric($width) && !is_numeric($height)) $error .= "<b>ERROR:</b> no numeric sizes specified<br>";
+if(!is_numeric($quality)) $quality = 100;
 if($error){ Error_Handler::logError($error, __FILE__,__LINE__); die; }
 
 // Set the header type
@@ -101,23 +103,23 @@ if (!stristr(PHP_OS, 'win') || stristr(PHP_OS, 'darwin')) { // Not Windows Serve
 if ($watermark == "" && $copyright == "") {
 //	if(!is_file(APP_TEMP_DIR.$temp_file)) {
 	if(!is_file(APP_TEMP_DIR.$temp_file)) {
-		$command = APP_CONVERT_CMD." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" -colorspace rgb \"".$image_dir.escapeshellcmd($image)."\" ".APP_TEMP_DIR.escapeshellcmd($temp_file);
+		$command = APP_CONVERT_CMD." -strip -quality ".escapeshellcmd($quality)." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" -colorspace rgb \"".$image_dir.escapeshellcmd($image)."\" ".APP_TEMP_DIR.escapeshellcmd($temp_file);
 		exec($command.$unix_extra, $return_array, $return_status);
 //		$error_message = shell_exec($command.$unix_extra);		
 	//	exec(escapeshellcmd($command));
 	} 
 } elseif ($watermark == "" && $copyright != "") {
-	$command = APP_CONVERT_CMD." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" -colorspace rgb \"".$image_dir.escapeshellcmd($image)."\" ".APP_TEMP_DIR.escapeshellcmd($temp_file);
+	$command = APP_CONVERT_CMD." -strip -quality ".escapeshellcmd($quality)." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" -colorspace rgb \"".$image_dir.escapeshellcmd($image)."\" ".APP_TEMP_DIR.escapeshellcmd($temp_file);
 	exec($command.$unix_extra, $return_array, $return_status);
 	$command = APP_CONVERT_CMD.' '.APP_TEMP_DIR.escapeshellcmd($temp_file).' -font Arial -pointsize 20 -draw "gravity center fill black text 0,12 \'Copyright'.$copyright.'\' fill white  text 1,11 \'Copyright'.$copyright.'\'" '.APP_TEMP_DIR.escapeshellcmd($temp_file).'';
 	exec($command.$unix_extra, $return_array, $return_status);
 } elseif ($watermark != "" && $copyright == "") {
-	$command = APP_CONVERT_CMD." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" -colorspace rgb \"".$image_dir.escapeshellcmd($image)."\" ".APP_TEMP_DIR.escapeshellcmd($temp_file);
+	$command = APP_CONVERT_CMD." -strip -quality ".escapeshellcmd($quality)." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" -colorspace rgb \"".$image_dir.escapeshellcmd($image)."\" ".APP_TEMP_DIR.escapeshellcmd($temp_file);
 	exec($command.$unix_extra, $return_array, $return_status);
 	$command = APP_COMPOSITE_CMD." -dissolve 15 -tile ".escapeshellcmd(APP_PATH)."/images/".APP_WATERMARK." ".APP_TEMP_DIR.escapeshellcmd($temp_file)." ".APP_TEMP_DIR.escapeshellcmd($temp_file)."";
 	exec($command.$unix_extra, $return_array, $return_status);
 } elseif ($watermark != "" && $copyright != "") {
-	$command = APP_CONVERT_CMD." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" -colorspace rgb \"".$image_dir.escapeshellcmd($image)."\" ".APP_TEMP_DIR.escapeshellcmd($temp_file);
+	$command = APP_CONVERT_CMD." -strip -quality ".escapeshellcmd($quality)." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" -colorspace rgb \"".$image_dir.escapeshellcmd($image)."\" ".APP_TEMP_DIR.escapeshellcmd($temp_file);
 	exec($command.$unix_extra, $return_array, $return_status);
 	$command = APP_CONVERT_CMD.' '.APP_TEMP_DIR.escapeshellcmd($temp_file).' -font Arial -pointsize 20 -draw "gravity center fill black text 0,12 \'Copyright'.$copyright.'\' fill white  text 1,11 \'Copyright'.$copyright.'\'" '.APP_TEMP_DIR.escapeshellcmd($temp_file).'';
 	exec($command.$unix_extra, $return_array, $return_status);

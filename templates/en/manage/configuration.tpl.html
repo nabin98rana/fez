@@ -789,6 +789,14 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_ffmpeg_default_thumb_pos"}
 			</td>
   		  </tr>
+                  <tr>
+                    <td class="colname">Thumbnail quality (default 70)</td>
+                        <td class="coldetail">
+                          <input type="text" name="app_thumbnail_quality" value="{$config_settings.app_thumbnail_quality|escape:"html"}" size=
+"10" />
+                          {include file="error_icon.tpl.html" field="app_thumbnail_quality"}
+                        </td>
+                  </tr>
 		  <tr>
 		    <td class="colname">Thumbnail max width</td>
 			<td class="coldetail">
@@ -803,6 +811,13 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_thumbnail_height"}
 			</td>
   		  </tr>
+                  <tr>
+                    <td class="colname">Preview quality (default 80)</td>
+                        <td class="coldetail">
+                          <input type="text" name="app_image_preview_quality" value="{$config_settings.app_image_preview_quality|escape:"html"}" size="10" />
+                          {include file="error_icon.tpl.html" field="app_image_preview_quality"}
+                        </td>
+                  </tr>
 		  <tr>
 		    <td class="colname">Preview max width</td>
 			<td class="coldetail">
@@ -817,6 +832,14 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_image_preview_max_height"}
 			</td>
   		  </tr>
+                  <tr>
+                    <td class="colname">Web image quality (default 100)</td>
+                        <td class="coldetail">
+                          <input type="text" name="app_image_web_quality" value="{$config_settings.app_image_web_quality|escape:"html"
+}" size="10" />
+                          {include file="error_icon.tpl.html" field="app_image_web_quality"}
+                        </td>
+                  </tr>
 		  <tr>
 		    <td class="colname">Web image max width</td>
 			<td class="coldetail">

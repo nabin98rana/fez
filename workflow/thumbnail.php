@@ -53,6 +53,9 @@ if (!file_exists($filepath)) {
     if (empty($file_name_prefix)) {
         $file_name_prefix = "thumbnail_";
     }
+    if (empty($quality)) {
+        $quality = APP_THUMBNAIL_QUALITY;
+    }
     if (empty($height)) {
         $height = APP_THUMBNAIL_HEIGHT;
     }
@@ -69,10 +72,11 @@ if (!file_exists($filepath)) {
     if (is_numeric(strpos($new_file, "."))) {
         $new_file = substr($new_file, 0, strrpos($new_file, ".")).".jpg";
     } else {
+	
         $new_file .= ".jpg";
     }
     $getString = APP_BASE_URL."webservices/wfb.image_resize.php?image="
-        .urlencode($filename)."&height=$height&width=$width&ext=jpg&outfile=".$new_file;
+        .urlencode($filename)."&height=$height&width=$width&quality=$quality&ext=jpg&outfile=".$new_file;
 //	echo $getString;
 	Misc::ProcessURL($getString);
 	
