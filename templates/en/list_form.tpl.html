@@ -76,7 +76,8 @@
         </tr>
 
         {section name="i" loop=$list}
-
+        {assign var="icon_width" value=""}
+        {assign var="icon_height" value=""}
         {if (($list[i].isLister==1 || $isAdministrator) && $list_type != 'browse_subjects_list')}
 	   		{if $list[i].rek_object_type == 1}
                 {assign var="href_view" value="community/"|cat:$list[i].rek_pid|escape:"html"}
@@ -101,8 +102,10 @@
                   {assign var="href_view" value=""}
                 {/if}
                 
-				{if $list[i].thumbnail.0 != "" && $list[i].isViewer==1}				
+				{if $list[i].thumbnail.0 != "" && $list[i].isViewer==1}
 	                {assign var="icon" value=$eserv_url|cat:$list[i].rek_pid|cat:"/"|cat:$list[i].thumbnail.0}
+	        		{assign var="icon_height" value=$list[i].thumbnail_height.0}
+	        		{assign var="icon_width" value=$list[i].thumbnail_width.0}
 				{else}
 	                {assign var="icon" value=""}
 				{/if}
@@ -123,7 +126,7 @@
 
 		  {if $icon != ""}
           <td align='right' style="border-top:1px dashed #87ABE9; width: 1%;">
-                {if $href_view}<a href='{$rel_url}{$href_view}' >{/if}<img valign='top' align='right' src="{$icon}" alt="" border="0" />{if $href_view}</a>{/if}
+                {if $href_view}<a href='{$rel_url}{$href_view}' >{/if}<img {if ($icon_width != "" && $icon_height != "")}width={$icon_width} height={$icon_height}{/if} valign='top' align='right' src="{$icon}" alt="" border="0" />{if $href_view}</a>{/if}
 		  </td>
 		  {/if}
 				  

@@ -99,6 +99,7 @@ include_once(APP_INC_PATH . "class.fedora_direct_access.php");
         $results = array_merge($results, SanityChecks::jhove());
         $results = array_merge($results, SanityChecks::shib());
         $results = array_merge($results, SanityChecks::ldap());
+        $results = array_merge($results, SanityChecks::exiftool());
         $results = array_merge($results, SanityChecks::imageMagick());
         $results = array_merge($results, SanityChecks::FFMPEG());
         $results = array_merge($results, SanityChecks::backgroundProcess());
@@ -108,7 +109,7 @@ include_once(APP_INC_PATH . "class.fedora_direct_access.php");
         $results = array_merge($results, SanityChecks::fedoraDirect());
         $results = array_merge($results, SanityChecks::sql());
         $results = array_merge($results, SanityChecks::pdftotext());
-        $results = array_merge($results, SanityChecks::stats());
+        $results = array_merge($results, SanityChecks::stats()); 
         $results = array_merge($results, SanityChecks::checkSearchKeys());
         if (SanityChecks::resultsClean($results)) {
             $results[] = ConfigResult::messageOk('All tests Passed');
@@ -588,6 +589,21 @@ include_once(APP_INC_PATH . "class.fedora_direct_access.php");
         }
         return $results;
     }
+
+    function exiftool()
+    {
+    	$results = array(ConfigResult::message('Testing ExifTool'));
+		if (APP_EXIFTOOL_SWITCH != "ON") {
+			$results[] = ConfigResult::messageOk('Bypassing check for ExifTool because exiftool config switch is not ON');			
+		} else {
+	        $results = array_merge($results, SanityChecks::checkFile('APP_EXIFTOOL_CMD',APP_EXIFTOOL_CMD, false, true));
+	        if (SanityChecks::resultsClean($results)) {
+	            $results[] = ConfigResult::messageOk('All ExifTool tests passed');
+	        }
+		}
+        return $results;
+    }
+
 
     function resultsClean($results)
     {

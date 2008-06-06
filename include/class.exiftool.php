@@ -33,17 +33,127 @@
 //
 class Exiftool
 {
-    
+
+    function insert($exif_array)
+    {
+	
+		if (!is_array($exif_array)) {
+			return -1;
+		}
+        $stmt = "INSERT INTO
+                    " . APP_TABLE_PREFIX . "exif
+                 (
+                    exif_pid,
+                    exif_dsid,
+					exif_file_size,
+					exif_file_size_human,
+					exif_image_width,
+					exif_image_height,
+					exif_mime_type,
+					exif_camera_model_name,
+					exif_make,
+					exif_create_date,
+					exif_file_type,
+					exif_page_count,
+					exif_play_duration,
+					exif_all                    
+                 ) VALUES (
+                    '" . Misc::escapeString($exif_array["pid"]) . "',
+                    '" . Misc::escapeString($exif_array["dsid"]) . "',
+                    '" . Misc::escapeString($exif_array["file_size"]) . "',
+                    '" . Misc::escapeString($exif_array["file_size_human"]) . "',
+                    '" . Misc::escapeString($exif_array["image_width"]) . "',
+                    '" . Misc::escapeString($exif_array["image_height"]) . "',
+                    '" . Misc::escapeString($exif_array["mime_type"]) . "',
+                    '" . Misc::escapeString($exif_array["camera_model_name"]) . "',
+                    '" . Misc::escapeString($exif_array["make"]) . "',
+                    '" . Misc::escapeString($exif_array["create_date"]) . "',
+                    '" . Misc::escapeString($exif_array["file_type"]) . "',
+                    '" . Misc::escapeString($exif_array["page_count"]) . "',
+                    '" . Misc::escapeString($exif_array["play_duration"]) . "',
+                    '" . Misc::escapeString($exif_array["exif_all"]) . "'
+                 )";
+
+                $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+           return 1;
+        }
+    }
+
+
+    function remove($pid, $dsID)
+    {
+		if ($pid == "" || $dsID == "") { 
+			return false;
+		}
+	
+        $stmt = "DELETE FROM
+                    " . APP_TABLE_PREFIX . "exif
+                 WHERE
+                    exif_pid = '" . Misc::escapeString($pid) . "'
+					AND exif_dsid = '" . Misc::escapeString($dsID) . "'";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return false;
+        } else {
+		  return true;
+        }
+    }
+
+    function getDetails($pid, $dsID)
+    {
+        $stmt = "SELECT
+                    * FROM
+                    " . APP_TABLE_PREFIX . "exif
+                 WHERE
+                    exif_pid = '" . Misc::escapeString($pid) . "'
+					AND exif_dsid = '" . Misc::escapeString($dsID) . "'";
+        
+        $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
+
+
+
+    function saveExif($pid, $dsID) {
+		if (APP_EXIFTOOL_SWITCH == "ON") {
+			$exif_array = Exiftool::extractMetadata(APP_TEMP_DIR.$dsID);
+			if (!is_array($exif_array)) {
+				return false;
+			} else {
+				Exiftool::remove($pid, $dsID);
+				$exif_array['pid'] = $pid;
+				$exif_array['dsid'] = $dsID;
+				return Exiftool::insert($exif_array);
+			}
+		}
+	}
+
+
 	/**
 	* Returns the exiftool information as an array - credit goes to the Drupal MAQUM module for this function
 	*/
 	function extractMetadata($path) {
-	  $temp = shell_exec('exiftool --list '.escapeshellarg($path));
+		$temp = shell_exec('exiftool -n --list '.escapeshellarg($path));
+		$info['exif_all'] = $temp;
 	  $temp = explode("\n", $temp);
 	  foreach ($temp as $item) {
 	    $pos = strpos($item, ':');
-	    $info[trim(substr($item, 0, $pos))] = trim(substr($item, $pos+1));
+	    $info[str_replace(" ", "_", strtolower(trim(substr($item, 0, $pos))))] = trim(substr($item, $pos+1));
 	  }
+	  if (array_key_exists('file_size', $info)) {
+	  	$info['file_size_human'] = Misc::size_hum_read($info['file_size']);
+	  }
+
 	  return $info;
 	} 
     

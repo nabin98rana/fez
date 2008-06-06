@@ -283,39 +283,48 @@ if (!empty($pid) && $record->checkExists()) {
 			} elseif ($datastreams[$ds_key]['controlGroup'] == 'M') {
 				
 			    $fileCount++;
-                if (is_numeric(strrpos($datastreams[$ds_key]['ID'], "."))) {
-				    $Jhove_DS_ID = "presmd_".substr($datastreams[$ds_key]['ID'], 0, strrpos($datastreams[$ds_key]['ID'], ".")).".xml";
-                } else {
-                    $Jhove_DS_ID = "presmd_".$datastreams[$ds_key]['ID'].".xml";
-                }
+			
+				if (APP_EXIFTOOL_SWITCH != "ON") { //if Exiftool isn't on then get the datastream info from JHOVE (which is a lot slower than EXIFTOOL)
+	                if (is_numeric(strrpos($datastreams[$ds_key]['ID'], "."))) {
+					    $Jhove_DS_ID = "presmd_".substr($datastreams[$ds_key]['ID'], 0, strrpos($datastreams[$ds_key]['ID'], ".")).".xml";
+	                } else {
+	                    $Jhove_DS_ID = "presmd_".$datastreams[$ds_key]['ID'].".xml";
+	                }
                 
-				foreach ($datastreamsAll as $dsa) {
+					foreach ($datastreamsAll as $dsa) {
 				    
-					if ($dsa['ID'] == $Jhove_DS_ID) {
-						$Jhove_XML = Fedora_API::callGetDatastreamDissemination($pid, $Jhove_DS_ID);
+						if ($dsa['ID'] == $Jhove_DS_ID) {						
+							$Jhove_XML = Fedora_API::callGetDatastreamDissemination($pid, $Jhove_DS_ID);
 						
-						if(!empty($Jhove_XML['stream'])) {
-    						$jhoveHelp = new Jhove_Helper($Jhove_XML['stream']);
+							if(!empty($Jhove_XML['stream'])) {
+	    						$jhoveHelp = new Jhove_Helper($Jhove_XML['stream']);
     						
-    						$fileSize = $jhoveHelp->extractFileSize();
-    						$datastreams[$ds_key]['archival_size'] =  Misc::size_hum_read($fileSize);
-    						$datastreams[$ds_key]['archival_size_raw'] = $fileSize;
+	    						$fileSize = $jhoveHelp->extractFileSize();
+	    						$datastreams[$ds_key]['archival_size'] =  Misc::size_hum_read($fileSize);
+	    						$datastreams[$ds_key]['archival_size_raw'] = $fileSize;
     						
-    						$spatialMetrics = $jhoveHelp->extractSpatialMetrics();
+	    						$spatialMetrics = $jhoveHelp->extractSpatialMetrics();
     						
-    						if( is_numeric($spatialMetrics[0]) && $spatialMetrics[0] > 0 ) {
-                                $tpl->assign("img_width", $spatialMetrics[0]);
-    						}
+	    						if( is_numeric($spatialMetrics[0]) && $spatialMetrics[0] > 0 ) {
+	                                $tpl->assign("img_width", $spatialMetrics[0]);
+	    						}
     						  
-    						if( is_numeric($spatialMetrics[1]) && $spatialMetrics[1] > 0 ) {
-                                $tpl->assign("img_heigth", $spatialMetrics[1]);
-    						}
+	    						if( is_numeric($spatialMetrics[1]) && $spatialMetrics[1] > 0 ) {
+	                                $tpl->assign("img_height", $spatialMetrics[1]);
+	    						}
     						
-    						unset($jhoveHelp);
-    						unset($Jhove_XML);
+	    						unset($jhoveHelp);
+	    						unset($Jhove_XML);
+							}
 						}
-					}
-				}			
+					} 
+				}	else {
+					$datastreams[$ds_key]['exif'] = Exiftool::getDetails($pid, $datastreams[$ds_key]['ID']);
+					$datastreams[$ds_key]['archival_size'] =  $datastreams[$ds_key]['exif']['exif_file_size_human'];
+					$datastreams[$ds_key]['archival_size_raw'] = $datastreams[$ds_key]['exif']['exif_file_size'];
+					$tpl->assign("img_height",  $datastreams[$ds_key]['exif']['exif_image_height']);
+					$tpl->assign("img_width", $datastreams[$ds_key]['exif']['exif_image_width']);
+				}
 				$datastreams[$ds_key]['FezACML'] = Auth::getAuthorisationGroups($pid, $datastreams[$ds_key]['ID']);
 				$datastreams[$ds_key]['downloads'] = Statistics::getStatsByDatastream($pid, $ds['ID']);			
 				Auth::getAuthorisation($datastreams[$ds_key]);

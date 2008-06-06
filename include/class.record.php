@@ -66,6 +66,7 @@ include_once(APP_INC_PATH . "class.auth_index.php");
 include_once(APP_INC_PATH . "class.xml_helper.php");
 include_once(APP_INC_PATH . "class.record_lock.php");
 include_once(APP_INC_PATH . "class.fulltext_queue.php");
+include_once(APP_INC_PATH . "class.exiftool.php");
 
 define('SK_JOIN',           0);
 define('SK_LEFT_JOIN',      1);
@@ -1362,6 +1363,19 @@ class Record
 						$result[$i]['thumbnail'] = array();
 					}
 					array_push($result[$i]['thumbnail'], $result[$i]['rek_file_attachment_name'][$x]);
+					if (APP_EXIFTOOL_SWITCH == 'ON') {
+						$exif_details = Exiftool::getDetails($result[$i]['rek_pid'], $result[$i]['rek_file_attachment_name'][$x]);
+						if (count($exif_details) != 0) {
+							if (!is_array(@$result[$i]['thumbnail_width'])) {
+								$result[$i]['thumbnail_width'] = array();
+							}
+							if (!is_array(@$result[$i]['thumbnail_height'])) {
+								$result[$i]['thumbnail_height'] = array();
+							}
+							array_push($result[$i]['thumbnail_width'], $exif_details['exif_image_width']);
+							array_push($result[$i]['thumbnail_height'], $exif_details['exif_image_height']);
+						}
+					}
     			}
     			if (is_numeric(strpos($result[$i]['rek_file_attachment_name'][$x], "stream_"))) {
 					if (!is_array(@$result[$i]['stream'])) {
@@ -2786,7 +2800,11 @@ inner join
 
     function generatePresmd($pid, $dsIDName)
     {
-        $presmd_check = Workflow::checkForPresMD(Foxml::makeNCName($dsIDName));
+	
+	
+		//Jhove
+		$ncName = Foxml::makeNCName($dsIDName);
+        $presmd_check = Workflow::checkForPresMD($ncName);
         if ($presmd_check != false) {
             if (is_numeric(strpos($presmd_check, chr(92)))) {
                 $presmd_check = substr($presmd_check, strrpos($presmd_check, chr(92))+1);
@@ -2800,6 +2818,11 @@ inner join
                 unlink(APP_TEMP_DIR.basename($presmd_check));
             }
         }
+		//ExifTool
+		
+		Exiftool::saveExif($pid, $dsIDName);
+
+
     }
 
 
@@ -4503,6 +4526,7 @@ class RecordObject extends RecordGeneral
                         exec($deleteCommand);
                     }
                 }
+				Exiftool::saveExif($pid, $dsIDName);
                 // process it's ingest workflows
                 Workflow::processIngestTrigger($pid, $dsIDName, $dsTitle['MIMEType']);
                 //clear the managed content file temporarily saved in the APP_TEMP_DIR

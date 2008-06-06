@@ -69,8 +69,10 @@ class Default_Data
             $defaultData['app_san_import_dir']              = "C:/fez/incoming/";
 			$defaultData['app_ffmpeg_cmd']					= "C:/ffmpeg/ffmpeg.exe";
 			$defaultData['app_duplicates_reports_location']	= "C:/temp/fez_duplicates_reports/";
+	        $defaultData['app_exiftool_cmd']                = "C:/exiftool/exiftool.exe";
         } else {
             // Unix
+        	$defaultData['app_exiftool_cmd']                    = "/usr/bin/exiftool";
             $defaultData['webserver_log_dir']               = "/usr/local/apache/logs/";
             $defaultData['webserver_log_file']              = "access_log";
             $defaultData['app_geoip_path']                  = "/usr/local/share/geoip/";
@@ -146,6 +148,7 @@ class Default_Data
         $defaultData['app_pid_namespace']                   = "";   // Empty default
         $defaultData['app_url']                             = "http://yourdomain.com/fez-location/";
         //$defaultData['app_relative_url']                    = "";                         // From setup form.
+        $defaultData['app_exiftool_switch      ']           = "ON";
         $defaultData['app_image_preview_quality']           = "80";
         $defaultData['app_image_preview_max_width']         = "500";
         $defaultData['app_image_preview_max_height']        = "1000";
