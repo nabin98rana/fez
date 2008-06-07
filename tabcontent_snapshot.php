@@ -28,14 +28,16 @@ function displayTopDownloads() {
 	$tpl->setTemplate("tab_top_downloads.html");
 
 	$recentDownloads = Record::getRecentDLRecords();
-	
+        if (!is_array($recentDownloads)) {	
 	foreach ($recentDownloads[0] as $rowID => $pid) {
 	    $dlStats[$pid] = array(
 	       'citation'   =>  Record::getCitationIndex($pid),
 	       'downloads'  =>  $recentDownloads[1][$rowID],
 	    );
 	}
-	
+	} else {
+          $dlStats = array();
+        }
 	$tpl->assign("list",   $dlStats);
 	$tpl->displayTemplate();
 
