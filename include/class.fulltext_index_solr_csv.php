@@ -38,8 +38,6 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
      */
     public function processQueue() {
         
-        global $bench;
-        
         $countDocs = 0;
         
         $searchKeys = Search_Key::getList();
@@ -136,6 +134,9 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
     		$csvHeader = 'id,'.implode(',', $singleColumnsHeader) . ',' . $authLister_t . ','. implode(',', $mtColumnsHeader) . ",content\n";
 			
 			foreach ( $chunk as $row ) {
+			    
+			    if(empty($row['rek_pid']))
+                    continue;
 			    
 			    $csv[$row['rek_pid']] = '"'.$row['rek_pid'] .'","'.$row['row'] .  '"';
 			    $pids_arr[] = $row['rek_pid'];
@@ -436,7 +437,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
     public function getCachedContent($pids) {
     	
         // Remove newlines, page breaks and replace " with "" (which is how to escape for CSV files)
-    	$stmt = 'SELECT ftc_pid as pid, REPLACE(REPLACE(REPLACE(ftc_content, \'"\',\'""\'), "\n", ""), "\f", "") as content '.        		
+    	$stmt = 'SELECT ftc_pid as pid, REPLACE(REPLACE(REPLACE(ftc_content, \'"\',\'""\'), "\n", " "), "\f", " ") as content '.        		
         		'FROM '.APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME.
         		' WHERE ftc_pid IN ('.$pids.') AND ftc_is_text_usable = 1';
         				      	
