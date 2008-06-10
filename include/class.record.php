@@ -1224,13 +1224,6 @@ class Record
 		//var_dump($params);
 		return $params;
 	}
-
-	function extractSearchFilter($options) {
-		
-		
-		
-		
-	}
 	
 	/**
      * Searches repository for matching documents/collections/communities.
@@ -4426,7 +4419,6 @@ class RecordObject extends RecordGeneral
 
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
 		
-		//echo $xmlObj;exit;
 		//Error_Handler::logError($xmlObj,__FILE__,__LINE__);
 		
 		$datastreamTitles = $display->getDatastreamTitles($exclude_list, $specify_list);

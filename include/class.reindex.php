@@ -58,6 +58,7 @@ include_once(APP_INC_PATH . "class.xsd_html_match.php");
 include_once(APP_INC_PATH . "class.xsd_loop_subelement.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.fedora_direct_access.php");
+include_once(APP_INC_PATH . "class.fulltext_queue.php");
 
 /**
   * Reindex
@@ -180,7 +181,8 @@ class Reindex
 		foreach ($fedoraList as $fkey => $flist) {
             $fedoraList[$fkey] = array_change_key_case($flist, CASE_LOWER);
         }
-
+        
+        
         // Extract just the PIDs
         $fedoraPIDs = array();
 		foreach ($fedoraList as $flist) {
@@ -188,7 +190,7 @@ class Reindex
         }
 
         //$PIDsInFedora = Reindex::getAllFedoraPIDs(); // Old way.
-        $PIDsInFez = Reindex::getPIDlist();
+        $PIDsInFez = Reindex::getPIDlist();        
         $newPIDs = array_values(array_diff($fedoraPIDs, $PIDsInFez));
 
 		if (!is_numeric($max)) {
@@ -339,9 +341,10 @@ class Reindex
         $ii = 0;
         $reindex_add_record_counter = 0;
         $reindex_record_counter = 0;
-//		$list = Reindex::getMissingList(0,"ALL","*");
+        
         // Direct Access to Fedora
         $fedoraDirect = new Fedora_Direct_Access();
+        
         // are we doing an undelete?
         if (@$params['index_type'] == Reindex::INDEX_TYPE_UNDELETE) {
 	        $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms, 'D');
@@ -352,15 +355,15 @@ class Reindex
         
 		$record_count = count($fedoraList);
         $bgp_details = $this->bgp->getDetails();
+        
         // Correct for Oracle-produced array key case issue reported by Kostas
 		if (APP_DB_TYPE == "oracle") {
 			foreach ($fedoraList as &$flist) {
 	            $flist = array_change_key_case($flist, CASE_LOWER);
 	        }
 			$fedoraList = $flist;
-		} 
-//		print_r($list); exit;
-//		$list_detail = $list['list'];
+		}
+		
 		foreach ($fedoraList as $detail) {
             $reindex_record_counter++;
             $utc_date = Date_API::getSimpleDateUTC();
@@ -371,7 +374,7 @@ class Reindex
 			} else {
             	$time_per_object = round(($time_per_object / $reindex_record_counter), 2);
 			}
-            //$expected_finish = Date_API::getFormattedDate($date_new->getTime());
+			
             $date_new->addSeconds($time_per_object*$record_count);
             $tz = Date_API::getPreferredTimezone($bgp_details["bgp_usr_id"]);
 			$res[$key]["bgp_started"] = Date_API::getFormattedDate($res[$key]["bgp_started"], $tz);
@@ -379,12 +382,11 @@ class Reindex
 
 	        if (!empty($this->bgp)) {
                 $this->bgp->setProgress(intval(100*$reindex_record_counter/$record_count));
-//	            $this->bgp->setProgress(++$ii);
 	        }
+	        
 	        if (!Reindex::inIndex($detail['pid'])) {
 	            if (!empty($this->bgp)) {
 		            $reindex_add_record_counter++;
-//	                $this->bgp->setStatus("Adding: '".$detail['pid']."' '".$detail['title']."'");
                     $this->bgp->setStatus("Adding:  '".$detail['pid']."' ".$detail['title']. " (".$reindex_record_counter."/".$record_count." - ".$reindex_add_record_counter." Added) (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");    	
 	            }
 	            $params['items'] = array($detail['pid']);
@@ -392,7 +394,6 @@ class Reindex
 	        } else {
 	            if (!empty($this->bgp)) {
                     $this->bgp->setStatus("Skipping Because Already in Fez Index:  '".$detail['pid']."' ".$detail['title']. " (".$reindex_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
-//	                $this->bgp->setStatus("Skipping Because Already in Fez Index: '".$detail['pid']."' '".$detail['title']."'");
 	            }
 	        }
 		}		
@@ -621,6 +622,10 @@ class Reindex
                     }
                 }
             }
+            
+            if (APP_SOLR_INDEXER == "ON") {
+				FulltextQueue::singleton()->add($pid);
+	        }
             
             Record::propagateExistingPremisDatastreamToFez($pid);
 			Record::setIndexMatchingFields($pid, '', $rebuild_this);
