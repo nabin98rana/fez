@@ -593,6 +593,10 @@ return;
 			$ref->fixParams(&$params, $base_record);
 
 	        $base_record->fedoraInsertUpdate(array("FezACML"), array(""),$params);
+	        
+	        if ( APP_SOLR_INDEXER == "ON" ) {
+        		FulltextQueue::singleton()->add($base_record->pid);
+            }
         }
         return 1;
     }
