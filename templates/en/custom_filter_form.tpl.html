@@ -68,7 +68,7 @@ Use as many or as few criteria as you like <br />
 </div>
 <br />
   <div class="{if $options.searchKey0 != ''}default-search-used{else}default{/if} custom_search_item">
-    Title, Abstract, Keywords: <br />
+    {if $smarty.const.APP_SOLR_SWITCH == 'ON'}All Fields{else}Title, Abstract, Keywords{/if}: <br />
 	<input id="search_keys[0]" type="text" name="search_keys[0]" maxlength="255" size="35" value="{$options.searchKey0|escape:'html'}" />
   </div>
   {* Do little items first, then buly items *}

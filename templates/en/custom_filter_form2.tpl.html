@@ -68,7 +68,7 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
 <table class="search_fields" cellspacing="1" border="0" width="70%" align="center">
 
     <tr>
-        <th class="search_heading">Title, Abstract, Keywords</th>
+        <th class="search_heading">{if $smarty.const.APP_SOLR_SWITCH == 'ON'}All Fields{else}Title, Abstract, Keywords{/if}</th>
         <td class="search_multi_input" align="center">contains</td>
         <td class="search_multi_input"><input id="search_keys[0]" type="text" name="search_keys[0]" size="30" maxlength="255" value="{$options.searchKey0|escape:'html'}" /></td>
     </tr>
