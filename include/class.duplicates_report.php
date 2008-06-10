@@ -1372,6 +1372,10 @@ echo "\n (t)".$title_score." - (a)".$author_score." - (j)".$journal_title_score.
             $wfl_id = $this->getWorkflowId();
             History::addHistory($dup_pid, $wfl_id, "", "", false, '', "Marked Duplicate of ".$base_pid);
             History::addHistory($base_pid, $wfl_id, "", "", true, '', "Resolved duplicate ".$dup_pid);
+            
+            if ( APP_SOLR_INDEXER == "ON" ) {
+        		FulltextQueue::singleton()->remove($dup_pid);
+            }
         } else {
             Error_Handler::logError("Failed to set ".$dup_pid." as duplicate of ".$base_pid
                 ." in XML (report pid".$this->pid.")", __FILE__,__LINE__);
