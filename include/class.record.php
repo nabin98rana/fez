@@ -1285,8 +1285,10 @@ class Record
 				$res[$key]['isLister'] = true;
 			}		
 		}
+		
+		
 		// query display...
-		$search_info = $options["searchKey0"];
+		$search_info = rtrim($searchKey_join[SK_SEARCH_TXT], ', ');
 
 		//
 		// handle pageing
@@ -2231,24 +2233,16 @@ inner join
 		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix //only mysql supports db prefixing, so will remove it - no reason not to
         
         $operatorToUse = trim($operator);
-//        echo "<pre>";
-//        print_r($searchKeys);
-//        echo "</pre>";
-//        exit;
         
         /*
          * Fulltext SQL (Special Case)
          */
     	if ($searchKeys["0"]  && trim($searchKeys["0"]) != "") { //this will have to replaced with lots of union select joins like eventum
             
-    	    
-//    	    $escapedInput = Misc::escapeString($searchKeys["0"]);
     		$escapedInput = $searchKeys["0"];
     		$searchKey_join[SK_KEY_ID] = 1;
     		$searchKey_join[SK_SEARCH_TXT] .= "All Fields:\"".trim(htmlspecialchars($searchKeys["0"]))."\", ";
             
-    		
-//    		$searchKey_join["sk_where_AND"][] = "all:" .$escapedInput;
     		$searchKey_join["sk_where_AND"][] = "all:" .$escapedInput;
     	}
 
