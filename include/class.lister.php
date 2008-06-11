@@ -398,14 +398,25 @@ class Lister
             
         } elseif ($browse == "latest") {
             
+            $sort_by_list["searchKey".Search_Key::getID("Created Date")] = 'Created Date';
+            
+            /*
+             * Remove these sort options when viewing the latest records
+             */
+            unset($sort_by_list["searchKey".Search_Key::getID("Title")]);
+        	unset($sort_by_list["searchKey".Search_Key::getID("File Downloads")]);
+        	unset($sort_by_list["searchKey".Search_Key::getID("Sequence")]);
+        	unset($sort_by_list["searchKey".Search_Key::getID("Description")]);
+        	unset($sort_by_list["searchKey".Search_Key::getID("Date")]);
+            
 			$options = array();
 
-			$options["sort_order"] = "1";
+			$options["sort_order"] = 1;
 			$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 			
 			$sort_by = "searchKey".Search_Key::getID("Created Date");
 			
-			$list = Record::getListing($options, $approved_roles=array("Lister"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
+			$list = Record::$getFunction($options, $approved_roles=array("Lister"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
             $list_info = $list["info"];
             $list = $list["list"];
 			
@@ -655,8 +666,7 @@ class Lister
 			     'override_op'   =>  'AND',
 			     'value'         =>  2,
 			);
-
-			//$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $operator);
+            
 			$list = Record::$getFunction($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, $operator);
 			
 			$spell = new spellcheck(APP_DEFAULT_LANG);

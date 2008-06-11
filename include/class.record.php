@@ -1237,17 +1237,15 @@ class Record
         if ($page_rows == "ALL") {
             $page_rows = 9999999;
         }
-        //$page_rows = 10;
-//		print_r($options);
-//		print_r($filter);
-        $start = $current_page * $page_rows;
-        $current_row = $current_page * $page_rows;        
         
-		$params = self::extractSearchParameters();
-		$searchKey_join = self::buildSearchKeyFilterSolr($options, $sort_by, $operator);
-		$filter_join = self::buildSearchKeyFilterSolr($filter, $sort_by, $operator);
+        $start = $current_page * $page_rows;
+        $current_row = $current_page * $page_rows; 
+        
+		$params           = self::extractSearchParameters();
+		$searchKey_join   = self::buildSearchKeyFilterSolr($options, $sort_by, $operator);
+		$filter_join      = self::buildSearchKeyFilterSolr($filter, "", $operator);
+		
 		$index = new FulltextIndex_Solr();
-//		$res = $index->search($params, $options, $approved_roles, $sort_by, $start, $page_rows);
 
 		$res = $index->searchAdvancedQuery($searchKey_join, $filter_join, $approved_roles, $start, $page_rows);
 		$total_rows = $res['total_rows'];
@@ -2243,169 +2241,178 @@ inner join
     	 * For each search key build SQL if data was submitted
     	 */
 		if (is_array($searchKeys)) {
-    	foreach ($searchKeys as $sek_id => $searchValue ) {
-    	    
-    	 	 if (!empty($searchValue) && trim($searchValue) != "") {
-                
-    	 	    $sekdet = Search_Key::getDetails($sek_id);
-    	 	    $suffix = Record::getSolrSuffix($sekdet);
-    	 	    if(empty($sekdet['sek_id']))
-                    continue;
-    	 	    
-    	 	    $options["sql"] = array();
-    	 	    $temp_value = "";
-    	 	    $joinID = '';
-    	 	    $sqlColumnName = '';
-    	 	    $operatorToUse = trim($operator);
-    	 	    
-    	 	    /*
-    	 	     * joinID is the prefix when using a column in the SQL
-    	 	     *
-    	 	     * For search keys that have a many-to-many relationship we are
-    	 	     * going to join the table to the search query and prefex it with
-    	 	     * $x ie.JOIN table r3. So all columns in 'table' will need to use 'r3'
-    	 	     *
-    	 	     * 1-to-1 search keys will be in default table 
-    	 	     * So you default prefix - r1
-    	 	     */
-//    	 	    $sqlColumnName = "r{$joinID}.rek_".$sekdet['sek_title_db'];
-    	 	    $sqlColumnName = $sekdet['sek_title_db'];
-    	 	    
-    	 	    /*
-    	 	     * Build the SQL for this particular search key
-    	 	     */
-    	 	    if (is_array($searchValue)) {
-	
-	
-		 	        if (isset($searchValue['override_op']) ) {
-    	                $operatorToUse = $searchValue['override_op'];
-    	                unset($searchValue['override_op']);
- 	    	        }
-    	 	        
-    	 	        // Multiple type is 'All Of' or 'Any of'
-    	 	        $multiple_type = '';
-    	 	        if( @isset($searchValue['multiple_type']) ) {
-	 	    	        $multiple_type = $searchValue['multiple_type'];
-	 	    	        unset($searchValue['multiple_type']);
-	 	    	        
-	 	    	        /*
-	 	    	         * Multiple type is always submitted for multiselect controls, 
-	 	    	         * so if it was the only thing in the array, nothing was actually
-	 	    	         * selected - so skip this
-	 	    	         */
-	 	    	        if( count($searchValue) == 0 ) {
-	 	    	            continue;
-	 	    	        }
-	 	    	    }
-	
-	
-    	 	    	if ($sekdet['sek_data_type'] == "int") {
-    	 	        	if ($searchValue[0] != "any") {
-	    	 	    	    if( $multiple_type == 'all' ) {
-	    	 	    	        $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(" . Record::escapeSolr(implode(" ", $searchValue)).")";
-	    	 	    	    } else {
-	    	 	    	        $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(".Record::escapeSolr(implode(" ", $searchValue)).")";
-	    	 	    	    }
-						
-							$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"";
-							$temp_counter = 0;
-							foreach ($searchValue as $temp_int) {
-								if (is_numeric($temp_int) && (!empty($sekdet["sek_lookup_function"]))) {
-									eval("\$temp_value = ".$sekdet["sek_lookup_function"]."(".Record::escapeSolr($temp_int).");");
-									if ($temp_counter != 0) {
-										$searchKey_join[SK_SEARCH_TXT] .= ",";
-									}
-	    	 	    				$searchKey_join[SK_SEARCH_TXT] .= " ".trim(htmlspecialchars($temp_value));
-	    	 	    				$temp_counter++;
-								}
-							}
-							$searchKey_join[SK_SEARCH_TXT] .= "\", ";
-						}
-    	 	    	} elseif ($sekdet['sek_data_type'] == "date") {
-    	 	    	    
-						if (!empty($searchValue) && $searchValue['filter_enabled'] == 1) {
-						    $sqlDate = '';
-						    switch ($searchValue['filter_type']) {
-								case 'greater':
-//									$sqlDate = " >= '".Misc::escapeString($searchValue['start_date'])."' ";
-									$sqlDate = "[".Record::escapeSolr(Date_API::getFedoraFormattedDate($searchValue['start_date']))." TO * ] ";
-									break;
-								case 'less':
-									$sqlDate = "[ * TO ".Record::escapeSolr(Date_API::getFedoraFormattedDate($searchValue['start_date']))."] ";
-									break;
-								case 'between':
-						            $sqlDate = " [".Record::escapeSolr(Date_API::getFedoraFormattedDate($searchValue['start_date']))." TO ".Record::escapeSolr(Date_API::getFedoraFormattedDate($searchValue['end_date']))."]";
-									break;
-							}
-							
-							$searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName .$suffix. ":" .$sqlDate;
-							$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\" $sqlDate \", ";
-						}
-						
-    	 	    	} else {
-    	 	    	    if( $multiple_type == 'all' ) {
-    	 	    	        $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.": " . implode(" AND ".$sqlColumnName."_ms:", Record::escapeSolr($searchValue)) . "";
-    	 	    	    } else {
-    	 	    	        $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(".implode(" OR ", Record::escapeSolr($searchValue)).")";
-    	 	    	    }
-						
-						$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(implode("','", $searchValue))."\", ";
-    	 	    	}
-    	 	    	
-    	 	    } else { // Array was not submitted for this search key
+        	foreach ($searchKeys as $sek_id => $searchValue ) {
+        	    
+        	 	 if (!empty($searchValue) && trim($searchValue) != "") {
                     
-    	 	        if ($searchValue == "-1") { //where empty or not set
- 	        			$searchKey_join["sk_where_$operatorToUse"][] = "-".$sqlColumnName.$suffix.":[* TO *]";
-	 	   	    	} elseif ($searchValue == "-2") { //this user
-	 	        		$usr_id = Auth::getUserID();
-	 	        		$searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":".$usr_id;
-	 	   	    	} elseif ($searchValue == "-4") { //not published
-	 	        		$published_id = Status::getID("Published");
-	 	        		$searchKey_join["sk_where_$operatorToUse"][] = "-".$sqlColumnName.$suffix.":".$published_id;
-	 	   	    	} elseif ($searchValue == "-3") { //myself or un-assigned
-	 	        		$usr_id = Auth::getUserID();
-	 	        		
-	 	        		$tmpSql = " ((".$sqlColumnName.$suffix.":".$usr_id.") ";
-	 	        		
-   	             		$tmpSql .= "OR (-".$sqlColumnName.$suffix.":[* TO *]))";
-	 	        		
-	 	        		$searchKey_join["sk_where_$operatorToUse"][] =  $tmpSql;
-	 	        	} elseif ($sekdet['sek_data_type'] == "int") {
-    	 	    		
-    	 	    		if (is_numeric($searchValue)) {
-    	 	    		    $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":".Record::escapeSolr($searchValue);
-    	 	    		    
-    	 	    			if (!empty($sekdet["sek_lookup_function"])) {
-    	 	    				eval("\$temp_value = ".$sekdet["sek_lookup_function"]."(".Record::escapeSolr($searchValue).");");
-    	 	    				$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars($temp_value)."\", ";
-    	 	    			} else {
-    	 	    				$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(trim($searchValue))."\", ";
-    	 	    			}
-    	 	    		}
-    	 	    		
-    	 	    	} elseif (($sekdet['sek_data_type'] == 'text' || $sekdet['sek_data_type'] == 'varchar') 
-	 	                     && ($sekdet['sek_html_input'] == 'text' || $sekdet['sek_html_input'] == 'textarea')) {
-    	 	        	
-						if ($sekdet['sek_title_db'] == "pid") {
-						    // Check if user has done a google like search by adding *
-						    $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(".Record::escapeSolr($searchValue).") ";
-						} else {
-						    $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(".Record::escapeSolr($searchValue).") ";
-						}
-    	 	        	
-    	 	        	$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(trim($searchValue))."\", ";
- 	        	
-    	 	    	} else {
-    	 	    		$searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":".Record::escapeSolr($searchValue)."";
-    	 	    		$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(trim($searchValue))."\", ";
-    	 	    	}
-	 	        	
-    	 	    }
-	 	        
-    	  	}
-    	}
+        	 	    $sekdet = Search_Key::getDetails($sek_id);
+        	 	    $suffix = Record::getSolrSuffix($sekdet);
+        	 	    if(empty($sekdet['sek_id']))
+                        continue;
+        	 	    
+        	 	    $options["sql"] = array();
+        	 	    $temp_value = "";
+        	 	    $joinID = '';
+        	 	    $sqlColumnName = '';
+        	 	    $operatorToUse = trim($operator);
+        	 	    
+        	 	    $sqlColumnName = $sekdet['sek_title_db'];
+        	 	    
+        	 	    /*
+        	 	     * Build the SQL for this particular search key
+        	 	     */
+        	 	    if (is_array($searchValue)) {
     	
-        /*
+    	
+    		 	        if (isset($searchValue['override_op']) ) {
+        	                $operatorToUse = $searchValue['override_op'];
+        	                unset($searchValue['override_op']);
+     	    	        }
+        	 	        
+        	 	        // Multiple type is 'All Of' or 'Any of'
+        	 	        $multiple_type = '';
+        	 	        if( @isset($searchValue['multiple_type']) ) {
+    	 	    	        $multiple_type = $searchValue['multiple_type'];
+    	 	    	        unset($searchValue['multiple_type']);
+    	 	    	        
+    	 	    	        /*
+    	 	    	         * Multiple type is always submitted for multiselect controls, 
+    	 	    	         * so if it was the only thing in the array, nothing was actually
+    	 	    	         * selected - so skip this
+    	 	    	         */
+    	 	    	        if( count($searchValue) == 0 ) {
+    	 	    	            continue;
+    	 	    	        }
+    	 	    	    }
+    	
+    	
+        	 	    	if ($sekdet['sek_data_type'] == "int") {
+        	 	        	if ($searchValue[0] != "any") {
+    	    	 	    	    if( $multiple_type == 'all' ) {
+    	    	 	    	        $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(" . Record::escapeSolr(implode(" ", $searchValue)).")";
+    	    	 	    	    } else {
+    	    	 	    	        $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(".Record::escapeSolr(implode(" ", $searchValue)).")";
+    	    	 	    	    }
+    						
+    							$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"";
+    							$temp_counter = 0;
+    							foreach ($searchValue as $temp_int) {
+    								if (is_numeric($temp_int) && (!empty($sekdet["sek_lookup_function"]))) {
+    									eval("\$temp_value = ".$sekdet["sek_lookup_function"]."(".Record::escapeSolr($temp_int).");");
+    									if ($temp_counter != 0) {
+    										$searchKey_join[SK_SEARCH_TXT] .= ",";
+    									}
+    	    	 	    				$searchKey_join[SK_SEARCH_TXT] .= " ".trim(htmlspecialchars($temp_value));
+    	    	 	    				$temp_counter++;
+    								}
+    							}
+    							$searchKey_join[SK_SEARCH_TXT] .= "\", ";
+    						}
+        	 	    	} elseif ($sekdet['sek_data_type'] == "date") {
+        	 	    	    
+    						if (!empty($searchValue) && $searchValue['filter_enabled'] == 1) {
+    						    $sqlDate = '';
+    						    switch ($searchValue['filter_type']) {
+    								case 'greater':
+    									$sqlDate = "[".Record::escapeSolr(Date_API::getFedoraFormattedDate($searchValue['start_date']))." TO * ] ";
+    									break;
+    								case 'less':
+    									$sqlDate = "[ * TO ".Record::escapeSolr(Date_API::getFedoraFormattedDate($searchValue['start_date']))."] ";
+    									break;
+    								case 'between':
+    						            $sqlDate = " [".Record::escapeSolr(Date_API::getFedoraFormattedDate($searchValue['start_date']))." TO ".Record::escapeSolr(Date_API::getFedoraFormattedDate($searchValue['end_date']))."]";
+    									break;
+    							}
+    							
+    							$searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName .$suffix. ":" .$sqlDate;
+    							$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\" $sqlDate \", ";
+    						}
+    						
+        	 	    	} else {
+        	 	    	    if( $multiple_type == 'all' ) {
+        	 	    	        $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.": " . implode(" AND ".$sqlColumnName."_ms:", Record::escapeSolr($searchValue)) . "";
+        	 	    	    } else {
+        	 	    	        $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(".implode(" OR ", Record::escapeSolr($searchValue)).")";
+        	 	    	    }
+    						
+    						$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(implode("','", $searchValue))."\", ";
+        	 	    	}
+        	 	    	
+        	 	    } else { // Array was not submitted for this search key
+                        
+        	 	        if ($searchValue == "-1") { //where empty or not set
+     	        			$searchKey_join["sk_where_$operatorToUse"][] = "-".$sqlColumnName.$suffix.":[* TO *]";
+    	 	   	    	} elseif ($searchValue == "-2") { //this user
+    	 	        		$usr_id = Auth::getUserID();
+    	 	        		$searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":".$usr_id;
+    	 	   	    	} elseif ($searchValue == "-4") { //not published
+    	 	        		$published_id = Status::getID("Published");
+    	 	        		$searchKey_join["sk_where_$operatorToUse"][] = "-".$sqlColumnName.$suffix.":".$published_id;
+    	 	   	    	} elseif ($searchValue == "-3") { //myself or un-assigned
+    	 	        		$usr_id = Auth::getUserID();
+    	 	        		
+    	 	        		$tmpSql = " ((".$sqlColumnName.$suffix.":".$usr_id.") ";
+    	 	        		
+       	             		$tmpSql .= "OR (-".$sqlColumnName.$suffix.":[* TO *]))";
+    	 	        		
+    	 	        		$searchKey_join["sk_where_$operatorToUse"][] =  $tmpSql;
+    	 	        	} elseif ($sekdet['sek_data_type'] == "int") {
+        	 	    		
+        	 	    		if (is_numeric($searchValue)) {
+        	 	    		    $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":".Record::escapeSolr($searchValue);
+        	 	    		    
+        	 	    			if (!empty($sekdet["sek_lookup_function"])) {
+        	 	    				eval("\$temp_value = ".$sekdet["sek_lookup_function"]."(".Record::escapeSolr($searchValue).");");
+        	 	    				$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars($temp_value)."\", ";
+        	 	    			} else {
+        	 	    				$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(trim($searchValue))."\", ";
+        	 	    			}
+        	 	    		}
+        	 	    		
+        	 	    	} elseif (($sekdet['sek_data_type'] == 'text' || $sekdet['sek_data_type'] == 'varchar') 
+    	 	                     && ($sekdet['sek_html_input'] == 'text' || $sekdet['sek_html_input'] == 'textarea')) {
+        	 	        	
+    						if ($sekdet['sek_title_db'] == "pid") {
+    						    // Check if user has done a google like search by adding *
+    						    $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(".Record::escapeSolr($searchValue).") ";
+    						} else {
+    						    $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(".Record::escapeSolr($searchValue).") ";
+    						}
+        	 	        	
+        	 	        	$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(trim($searchValue))."\", ";
+     	        	
+        	 	    	} else {
+        	 	    		$searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":".Record::escapeSolr($searchValue)."";
+        	 	    		$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(trim($searchValue))."\", ";
+        	 	    	}
+    	 	        	
+        	 	    }
+    	 	        
+        	  	}
+        	}
+        	
+            
+            if( is_array($searchKey_join['sk_where_AND']) || is_array($searchKey_join['sk_where_OR']) ) {
+                
+                $sk_where_and = false;
+                $searchKey_join[SK_WHERE] = "  ";
+                
+                if( is_array($searchKey_join['sk_where_AND']) ) {
+                    $searchKey_join[SK_WHERE] .= " (" . implode(' AND ', $searchKey_join['sk_where_AND']) . ") ";
+                    $sk_where_and = true;
+                }
+                
+                if( is_array($searchKey_join['sk_where_OR']) ) {
+                    if( $sk_where_and )
+                        $searchKey_join[SK_WHERE] .= " AND ";
+                    
+                    $searchKey_join[SK_WHERE] .= " (" . implode(' OR ', $searchKey_join['sk_where_OR']) . ") ";
+                }
+                
+            }
+		}
+		
+		/*
          * Only do a sort if the query has be limited in some way, 
          * otherwise it is far too slow
          */
@@ -2423,8 +2430,7 @@ inner join
 					
              	} else {
              	    
-		        	$sekdet = Search_Key::getDetails($sek_id);
-		
+		        	$sekdet = Search_Key::getDetails($sek_id);		
 		        	
 		        	if( !empty($sekdet['sek_id']) ) {
     	             	$sort_suffix = Record::getSolrSuffix($sekdet, 1);
@@ -2437,26 +2443,6 @@ inner join
              	}
             }             
         }
-
-        if( is_array($searchKey_join['sk_where_AND']) || is_array($searchKey_join['sk_where_OR']) ) {
-            
-            $sk_where_and = false;
-            $searchKey_join[SK_WHERE] = "  ";
-            
-            if( is_array($searchKey_join['sk_where_AND']) ) {
-                $searchKey_join[SK_WHERE] .= " (" . implode(' AND ', $searchKey_join['sk_where_AND']) . ") ";
-                $sk_where_and = true;
-            }
-            
-            if( is_array($searchKey_join['sk_where_OR']) ) {
-                if( $sk_where_and )
-                    $searchKey_join[SK_WHERE] .= " AND ";
-                
-                $searchKey_join[SK_WHERE] .= " (" . implode(' OR ', $searchKey_join['sk_where_OR']) . ") ";
-            }
-            
-        }
-		}
 
         return $searchKey_join;
     }
