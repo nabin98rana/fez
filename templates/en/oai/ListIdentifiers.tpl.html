@@ -16,7 +16,9 @@
 {/section}      
 {assign var="loop_subjects" value=$list[i].rek_subject}
 {section name="s" loop=$loop_subjects}
+{if $loop_subjects[s] != ""}
       <setSpec>{$app_hostname}:{$app_pid_namespace}:cvo_id:{$loop_subjects[s]}</setSpec>
+{/if}
 {/section}      
   </header>
 {/section}
