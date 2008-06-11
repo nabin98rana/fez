@@ -1238,6 +1238,17 @@ class Record
             $page_rows = 9999999;
         }
         
+        // make sure the sort by is setup well
+		if (!is_numeric(strpos($sort_by, "searchKey"))) {
+			$sort_by_id = Search_Key::getID($sort_by);
+			if ($sort_by_id != "") {
+				$sort_by = "searchKey".$sort_by_id;
+			} else {
+				$sort_by_id = Search_Key::getID("Title");
+				$sort_by = "searchKey".$sort_by_id;
+			}
+		}
+        
         $start = $current_page * $page_rows;
         $current_row = $current_page * $page_rows; 
         
