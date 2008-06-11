@@ -52,7 +52,7 @@ $options["sort_order"] = "1";
 $sort_by = "searchKey".Search_Key::getID("Created Date");
 $options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 
-$list = Record::getListing($options, array("Lister"), 0, $limit, "Created Date", false, true);
+$list = Record::getListing($options, array("Lister"), 0, $limit, $sort_by, false, true);
 
 foreach ( $list['list'] as $pidData )
 {
