@@ -86,6 +86,7 @@ class Lister
             'search_keys'   =>  'array',
             'order_by'      =>  'string',
             'value'         =>  'string',
+            'operator'      =>  'string',
             'custom_view_pid' =>  'string',
         );
         foreach ($args as $getName => $getType) {
