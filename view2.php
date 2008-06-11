@@ -283,8 +283,8 @@ if (!empty($pid) && $record->checkExists()) {
 			} elseif ($datastreams[$ds_key]['controlGroup'] == 'M') {
 				
 			    $fileCount++;
-			
-				if (APP_EXIFTOOL_SWITCH != "ON") { //if Exiftool isn't on then get the datastream info from JHOVE (which is a lot slower than EXIFTOOL)
+				$datastreams[$ds_key]['exif'] = Exiftool::getDetails($pid, $datastreams[$ds_key]['ID']);			
+				if (APP_EXIFTOOL_SWITCH != "ON" || !is_numeric($datastreams[$ds_key]['exif']['exif_file_size'])) { //if Exiftool isn't on then get the datastream info from JHOVE (which is a lot slower than EXIFTOOL)
 	                if (is_numeric(strrpos($datastreams[$ds_key]['ID'], "."))) {
 					    $Jhove_DS_ID = "presmd_".substr($datastreams[$ds_key]['ID'], 0, strrpos($datastreams[$ds_key]['ID'], ".")).".xml";
 	                } else {
@@ -293,7 +293,7 @@ if (!empty($pid) && $record->checkExists()) {
                 
 					foreach ($datastreamsAll as $dsa) {
 				    
-						if ($dsa['ID'] == $Jhove_DS_ID) {						
+						if ($dsa['ID'] == $Jhove_DS_ID) {
 							$Jhove_XML = Fedora_API::callGetDatastreamDissemination($pid, $Jhove_DS_ID);
 						
 							if(!empty($Jhove_XML['stream'])) {
@@ -319,7 +319,6 @@ if (!empty($pid) && $record->checkExists()) {
 						}
 					} 
 				}	else {
-					$datastreams[$ds_key]['exif'] = Exiftool::getDetails($pid, $datastreams[$ds_key]['ID']);
 					$datastreams[$ds_key]['archival_size'] =  $datastreams[$ds_key]['exif']['exif_file_size_human'];
 					$datastreams[$ds_key]['archival_size_raw'] = $datastreams[$ds_key]['exif']['exif_file_size'];
 					$tpl->assign("img_height",  $datastreams[$ds_key]['exif']['exif_image_height']);
