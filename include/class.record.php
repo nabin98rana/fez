@@ -503,12 +503,12 @@ class Record
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
         }
-
         
         //
         // KJ: remove from fulltext index
         //
         if ( APP_SOLR_INDEXER == "ON" ) {
+            
         	if ($dsDelete == 'keep') {
         		// if set to 'keep', this will trigger a re-index
         		
@@ -519,6 +519,7 @@ class Record
         		FulltextQueue::singleton()->add($pid);
         	} else {
         		Logger::debug("Record::removeIndexRecord() REMOVING ".$pid." FROM QUEUE");
+        		
         		FulltextQueue::singleton()->remove($pid);
         	}
         }
@@ -994,7 +995,6 @@ class Record
 	        return $res;
 	    }
     }
-
     
     
     /**
@@ -1075,13 +1075,11 @@ class Record
                 if (count($res) > 0) {
 					if ($getSimple == false || empty($getSimple)) {
 						if ($citationCache == false) {	
-//							Error_Handler::logError(array(), __FILE__, __LINE__);
 	                    	Record::getSearchKeysByPIDS($res);
 						}
 	                    Record::identifyThumbnails($res, $citationCache);
 	                    Record::getAuthWorkflowsByPIDS($res, $usr_id);
 					}
-                    //Record::getChildCountByPIDS($res, $usr_id);
                 }
             }
 	    } else {
@@ -1271,6 +1269,7 @@ class Record
 				if ($citationCache == false) {					
                 	Record::getSearchKeysByPIDS($res);
 				}
+				
                 Record::identifyThumbnails($res, $citationCache);
                 Record::getAuthWorkflowsByPIDS($res, $usr_id);
 			}
@@ -1288,14 +1287,9 @@ class Record
 			}		
 		}
 		
-		
 		// query display...
 		$search_info = rtrim($searchKey_join[SK_SEARCH_TXT], ', ');
 
-		//
-		// handle pageing
-		//
-		//$return = $res;
 		$list = $res;
         $total_pages = intval($total_rows / $page_rows);
         if ($total_rows % $page_rows) {
@@ -1330,7 +1324,6 @@ class Record
     
     function identifyThumbnails(&$result, $citationCache = false) {
 	
-
 		if ($citationCache == true) { //need to go and get the left join for file_attachments if simple			
 	        $pids = array();
 	        for ($i = 0; $i < count($result); $i++) {
@@ -1630,51 +1623,49 @@ inner join
 
 
 
-	function getChildCountByPIDS(&$result, $usr_id) {
-		$pids = array();
-       for ($i = 0; $i < count($result); $i++) {
-			if ($result[$i]["rek_object_type"] != "3") {
-				$pids[] = $result[$i]["rek_pid"];
-			}
-       }
-	  if (count($pids) == 0) {
-		return;
-	  }
-	  $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
-      $pids = implode("', '", $pids);
-      $authArray = Collection::getAuthIndexStmt(array("Lister"), "r1.rek_pid");
-	  $authStmt = $authArray['authStmt'];
-
-      $stmt = "SELECT
+	function getChildCountByPIDS(&$result, $usr_id) 
+	{
+        $pids = array();
+        for ($i = 0; $i < count($result); $i++) {
+            if ($result[$i]["rek_object_type"] != "3") {
+                $pids[] = $result[$i]["rek_pid"];
+            }
+        }
+        
+        if (count($pids) == 0) {
+            return;
+        }
+        $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+        $pids = implode("', '", $pids);
+        $authArray = Collection::getAuthIndexStmt(array("Lister"), "r1.rek_pid");
+        $authStmt = $authArray['authStmt'];
+        
+        $stmt = "SELECT
                     rek_ismemberof, count(rek_ismemberof) as rek_ismemberof_count
-                 FROM
+                FROM
                     " . $dbtp . "record_search_key_ismemberof as r2 inner join
                     " . $dbtp . "record_search_key as r1 ON rek_pid = rek_ismemberof_pid and rek_status = 2
                     $authStmt
-                 WHERE
+                WHERE 
                     rek_ismemberof IN ('".$pids."')
-                 GROUP BY
+                GROUP BY 
                     rek_ismemberof ";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
         } else {
             $t = array();
             for ($i = 0; $i < count($res); $i++) {
                 $t[$res[$i]["rek_ismemberof"]] =  $res[$i]["rek_ismemberof_count"];
-
             }
-
+            
             // now populate the $result variable again
             for ($i = 0; $i < count($result); $i++) {
                 $result[$i]["rek_ismemberof_count"] = $t[$result[$i]["rek_pid"]];
             }
-
-
-
-            //return $res;
         }
-  }
+    }
 
 	function getOrgStaffIDsByPIDS(&$result) {
 		$aut_ids = array();
@@ -1736,33 +1727,40 @@ inner join
   }
 
 
-	function getParentsByPIDS(&$result) {
-		$pids = array();
+    function getParentsByPIDS(&$result) {
+        $pids = array();
+        
 		for ($i = 0; $i < count($result); $i++) {
-			if (is_array($result[$i]["rek_ismemberof"])) {
-				foreach($result[$i]["rek_ismemberof"] as $mpid) {
-					if (!in_array($mpid, $pids)) {
-	            		$pids[] = $mpid;
-					}
-				}
+			if (!empty($result[$i]["rek_ismemberof"])) {
+			    if(is_array($result[$i]["rek_ismemberof"])) {
+    				foreach($result[$i]["rek_ismemberof"] as $mpid) {
+    					if (!in_array($mpid, $pids)) {
+    	            		$pids[$mpid] = $mpid;
+    					}
+    				}
+			    } else {
+			        $pids[$result[$i]["rek_ismemberof"]] = $result[$i]["rek_ismemberof"];
+			    }
 			}
 		}
-	  if (count($pids) == 0) {
-		return;
-	  }
-	  $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
-      $pids = implode("', '", $pids);
-      $authArray = Collection::getAuthIndexStmt(array("Lister"), "r1.rek_pid");
-	  $authStmt = $authArray['authStmt'];
-
-      $stmt = "SELECT
+		
+        if (count($pids) == 0) {
+            return;
+        }
+        
+        $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+        $pids = implode("', '", $pids);
+        $authArray = Collection::getAuthIndexStmt(array("Lister"), "r1.rek_pid");
+        $authStmt = $authArray['authStmt'];
+        
+        $stmt = "SELECT
                    rek_pid, rek_title
                  FROM
                     " . $dbtp . "record_search_key as r1
                     $authStmt
                  WHERE
                     rek_pid IN ('".$pids."') ";
-
+        
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -1771,22 +1769,35 @@ inner join
             for ($i = 0; $i < count($res); $i++) {
                 $t[$res[$i]["rek_pid"]] =  $res[$i]["rek_title"];
             }
+            
+            $numResults = count($result) - 1;
+            
             // now populate the $result variable again
-            for ($i = 0; $i < count($result); $i++) {
-				$temp  = $result[$i]["rek_ismemberof"];
-				$result[$i]["rek_ismemberof"] = array();
-                $result[$i]["rek_ismemberof"]["rek_pid"] = array();
-                $result[$i]["rek_ismemberof"]["rek_title"] = array();
-                $result[$i]["rek_ismemberof"]["rek_pid"] = $temp;
-				if (is_array($temp)) {
-					foreach ($temp as $tpid) {
-	                	$result[$i]["rek_ismemberof"]["rek_title"][] = $t[$tpid];
-					}
-				}
+            for ($i = 0; $i < $numResults; $i++) {
+        		$temp  = $result[$i]["rek_ismemberof"];
+        		
+        		if (is_array($temp)) {
+        		    
+                    $result[$i]["rek_ismemberof"] = array(
+                        "rek_pid" =>  $temp,
+                    );
+        		    
+        			foreach ($temp as $tpid) {
+                    	$result[$i]["rek_ismemberof"]["rek_title"][] = $t[$tpid];
+        			}
+        		} else {
+        		    
+        		    $result[$i]["rek_ismemberof"] = array(
+                        "rek_pid" => array(
+                            $temp
+                        ),
+                    );
+        		    
+        		    $result[$i]["rek_ismemberof"]["rek_title"][] = $t[$temp];
+        		}
             }
-            //return $res;
         }
-  }
+    }
 
 	function getCitationIndex($pid) {
 		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
