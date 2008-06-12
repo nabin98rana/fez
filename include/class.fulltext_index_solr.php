@@ -216,25 +216,27 @@ class FulltextIndex_Solr extends FulltextIndex {
 
 	protected function prepareAdvancedQuery($searchKey_join, $filter_join, $approved_roles) {
 //		print_r($searchKey_join);
+	    $filterQuery = "";
+	    $searchQuery = "";
+    
 		if ($searchKey_join[2] == "") {
 			$searchQuery = "*:*";
 		} else {
 			$searchQuery = $searchKey_join[2];
 		}
-		
-		$rulegroups = $this->prepareRuleGroups($approved_roles);
-		
-		
-		if ($filter_join[2] == "") {
+	
+		if (!Auth::isAdministrator()) {
+			$rulegroups = $this->prepareRuleGroups($approved_roles);
 			$filterQuery = "(_authlister_t:(" . implode(" OR ", $rulegroups) . "))";
-		} else {
-			$filterQuery = "(_authlister_t:(" . implode(" OR ", $rulegroups) . ")) AND ".$filter_join[2];
 		}
-//		$searchQuery = urlencode($searchQuery);
-//		$filterQuery = urlencode($filterQuery);
-//		$searchQuery = str_replace(" ", "%20", trim($searchQuery));
-//		$filterQuery = str_replace(" ", "%20", trim($filterQuery));
-//		$filterQuery = "";
+	
+		if($filter_join[2] != "") {
+		    if($filterQuery != "") {
+		        $filterQuery .= " AND ";
+		    }
+		    $filterQuery .= $filter_join[2];
+		}
+	
 		return array('query' => $searchQuery, 'filter' => $filterQuery);
 	}
 
