@@ -37,7 +37,7 @@
 						{else}
 						<li><a title="Browse the Frequently Asked Questions section" href="{$rel_url}help.php?topic=main" class="iconized icon-help"{if $active_nav == 'help'} style="background-color: white;border: 1px solid white;color: #2A2A2A;"{/if}>FAQs</a></li>
 						<li><a href="{$rel_url}about.php"{if $active_nav == 'about'} style="background-color: white;border: 1px solid white;color: #2A2A2A;"{/if}>About</a></li>
-						<li><a href="{$rel_url}login.php"{if $active_nav == 'login'} style="background-color: white;border: 1px solid white;color: #2A2A2A;"{/if}>Login</a></li>
+						<li><a href="{$rel_url}login.php?url={$smarty.server.REQUEST_URI}"{if $active_nav == 'login'} style="background-color: white;border: 1px solid white;color: #2A2A2A;"{/if}>Login</a></li>
 						{/if}
 					</ul>
 				</div>
