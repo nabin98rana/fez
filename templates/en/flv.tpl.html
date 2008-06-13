@@ -17,12 +17,15 @@ Start FLV Player Code
 
 <CENTER>
 <p id="player1"><a href="http://www.macromedia.com/go/getflashplayer">Get the Flash Player</a> to see this player.</p>
-
 <script type="text/javascript">
-	var s1 = new SWFObject("{/literal}{$rel_url}{literal}js/flvplayer.swf","single","{/literal}{$player_width}{literal}","{/literal}{$player_height}{literal}","7");
+	var s1 = new SWFObject("{/literal}{$rel_url}{literal}js/mediaplayer.swf","single","425","350","7");
 	s1.addParam("allowfullscreen","true");
-	s1.addVariable("streamscript","{/literal}{$eserv_url}{literal}?pid={/literal}{$pid}{literal}");	
-	s1.addVariable("file","{/literal}{$dsID}{literal}");	
+	s1.addVariable("streamscript","{/literal}{$eserv_url}{literal}");	
+	s1.addVariable("file",escape("dummy&pid={/literal}{$pid}{literal}&stream=1&dsID={/literal}{$dsID}{literal}"));	
+	{/literal}
+	{assign var="image_file_name" value=$dsID|replace:"stream":"thumbnail"|replace:"flv":"jpg"}
+	{literal}
+	s1.addVariable("image", "{/literal}{$eserv_url|replace:".php":""}{literal}/{/literal}{$pid}{literal}/{/literal}{$image_file_name}{literal}");
 	s1.addVariable("enablejs","true");
 	s1.write("player1");
 </script>
