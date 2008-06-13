@@ -572,6 +572,7 @@ class Auth
             // Perhaps the user hasn't logged in
 			if (!Auth::isValidSession($session)) {
 				if ($redirect != false) {
+					$failed_url = base64_encode($failed_url);
 				    Auth::redirect(APP_RELATIVE_URL . "login.php?err=21&url=".$failed_url, $is_popup);
 				}
 			} else {

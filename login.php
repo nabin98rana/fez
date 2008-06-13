@@ -136,7 +136,7 @@ if ((($_SERVER["SERVER_PORT"] != 443) && (APP_HTTPS == "ON")) || ($_SERVER['HTTP
 
 $tpl = new Template_API();
 $tpl->setTemplate("index.tpl.html");
-
+$_GET['url'] = base64_decode($_GET['url']);
 if (Auth::hasValidSession(APP_SESSION)) {
     if ($_SESSION["autologin"]) {    	
         if (!empty($_GET["url"])) {

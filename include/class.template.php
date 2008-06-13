@@ -247,6 +247,7 @@ class Template_API
         $this->assign("org_short_name", APP_SHORT_ORG_NAME);
         $this->assign("app_base_url", APP_BASE_URL);
         $this->assign("rel_url", APP_RELATIVE_URL);
+        $this->assign("uri_encoded", base64_encode($_SERVER['REQUEST_URI']));
         $this->assign("lang", APP_CURRENT_LANG);
 		$this->assign("app_earliest_input_year", APP_EARLIEST_INPUT_YEAR);
 		$this->assign("SELF_REGISTRATION", SELF_REGISTRATION);					
