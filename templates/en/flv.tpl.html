@@ -19,7 +19,7 @@ Start FLV Player Code
 <p id="player1"><a href="http://www.macromedia.com/go/getflashplayer">Get the Flash Player</a> to see this player.</p>
 
 <script type="text/javascript">
-	var s1 = new SWFObject("{/literal}{$rel_url}{literal}js/flvplayer.swf","single","425","350","7");
+	var s1 = new SWFObject("{/literal}{$rel_url}{literal}js/flvplayer.swf","single","{/literal}{$player_width}{literal}","{/literal}{$player_height}{literal}","7");
 	s1.addParam("allowfullscreen","true");
 	s1.addVariable("streamscript","{/literal}{$eserv_url}{literal}?pid={/literal}{$pid}{literal}");	
 	s1.addVariable("file","{/literal}{$dsID}{literal}");	

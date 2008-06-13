@@ -35,6 +35,7 @@
 include_once("config.inc.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.misc.php");
+include_once(APP_INC_PATH . "class.exiftool.php");
 include_once(APP_INC_PATH . "class.fedora_direct_access.php");
 
 $stream     = @$_REQUEST["stream"];
@@ -59,8 +60,14 @@ if (!empty($pid) && !empty($dsID)) {
 	
 	$is_video = 0;
 	$is_image = 0;
-	list($data,$info) = Misc::processURL_info(APP_FEDORA_GET_URL."/".$pid."/".$dsID);
-	
+	$info = array();
+	$exif_array = Exiftool::getDetails($pid, $dsID);
+	if (!is_numeric($exif_array['exif_file_size'])) {
+		list($data,$info) = Misc::processURL_info(APP_FEDORA_GET_URL."/".$pid."/".$dsID);
+	} else {
+		$info['content_type'] = $exif_array['exif_mime_type'];
+		$info['download_content_length'] = $exif_array['exif_file_size'];
+	}
 	$ctype = $info['content_type'];
 	
 	if ($ctype == "application/octet-stream") {
@@ -155,6 +162,16 @@ if (!empty($pid) && !empty($dsID)) {
 		$tpl->assign("APP_BASE_URL", APP_BASE_URL);
 		$tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
 		$tpl->assign("dsID", $dsID);
+		if (is_numeric($exif_array['exif_image_height']) && is_numeric($exif_array['exif_image_width'])) { 
+			$player_height = $exif_array['exif_image_height'];
+			$player_width = $exif_array['exif_image_width'];
+		} else {
+			$player_height = 350;
+			$player_width = 425;
+		}
+		$tpl->assign("player_height", $player_height);
+		$tpl->assign("player_width",  $player_width);
+		$tpl->assign("dsID", $dsID);
 		$tpl->assign("preview_ds", str_replace(".flv", ".jpg", str_replace("stream_", "preview_", $ds_id)));
 		$tpl->assign("wrapper", $wrapper);
 		$tpl->assign("pid", $pid);
@@ -183,7 +200,7 @@ if (!empty($pid) && !empty($dsID)) {
 	/*
 	 * Send file to user
 	 */
-	Misc::processURL($urldata, true);
+	 Misc::processURL($urldata, true);
 	exit;
 	
 }
