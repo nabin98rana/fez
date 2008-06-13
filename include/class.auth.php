@@ -123,6 +123,7 @@ class Auth
             if (empty($failed_url)) {
                 $failed_url = APP_RELATIVE_URL . "login.php?err=5";
             } else {
+				$failed_url = base64_encode($failed_url);
                 $failed_url = APP_RELATIVE_URL . "login.php?err=21&url=".$failed_url;
             }
 
