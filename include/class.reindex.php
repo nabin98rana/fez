@@ -563,7 +563,7 @@ class Reindex
 						Fedora_API::getUploadLocation($pid, "RELS-EXT", $relsext, "Relationships to other objects", "text/xml", "X");
 					}
 				}
-				$fezmd = Reindex::buildFezMD($xdis_id, $sta_id);			
+				$fezmd = Reindex::buildFezMD($xdis_id, $sta_id);
 				if (Fedora_API::datastreamExists($pid, "FezMD")) {
 					Fedora_API::callModifyDatastreamByValue($pid, "FezMD", "A", "Fez extension metadata", $fezmd, "text/xml", true);
 				} else {
@@ -585,6 +585,7 @@ class Reindex
                         && (Misc::hasPrefix($dsIDName, 'preview_')
                             || Misc::hasPrefix($dsIDName, 'web_')
                             || Misc::hasPrefix($dsIDName, 'thumbnail_')
+                            || Misc::hasPrefix($dsIDName, 'stream_')
                             || Misc::hasPrefix($dsIDName, 'presmd_'))) {
                         Fedora_API::callPurgeDatastream($pid, $dsIDName);
                     } 
@@ -596,6 +597,7 @@ class Reindex
                         && !Misc::hasPrefix($dsIDName, 'preview_')
                         && !Misc::hasPrefix($dsIDName, 'web_')
                         && !Misc::hasPrefix($dsIDName, 'thumbnail_')
+                        && !Misc::hasPrefix($dsIDName, 'stream_')
                         && !Misc::hasPrefix($dsIDName, 'presmd_') // since presmd is stored as a binary to avoid parsing by fedora at the moment.
                         ) {
                         $new_dsID = Foxml::makeNCName($dsIDName);

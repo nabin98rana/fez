@@ -98,7 +98,7 @@ class BackgroundProcess_Index_Object extends BackgroundProcess
                          $stream['MIMEType'] == 'image/tif' || 
                          $stream['MIMEType'] == 'image/tiff')) {
                             
-                        $this->setStatus("Creating Title for DS - " .$stream['ID']);
+                        $this->setStatus("Creating Origami Tiles for DS - " .$stream['ID']);
                         Origami::createTitles($pid, $stream['ID'], $stream['MIMEType']);
                     }
                     
@@ -115,7 +115,13 @@ class BackgroundProcess_Index_Object extends BackgroundProcess
             }
             
         } elseif ($index_type == Reindex::INDEX_TYPE_REINDEX_OBJECTS) {
-            $this->setStatus("Beginning Reindex of ".$pid." and any of its children objects");
+            if ($rebuild == true) {
+              $this->setStatus("Beginning Reindex and Regen of Derived Datastreams of ".$pid." and any of its children objects");
+               $params['rebuild'] = true;
+            } else {
+              $this->setStatus("Beginning Reindex of ".$pid." and any of its children objects");
+               $params['rebuild'] = false;
+            }
         	if (!empty($pid)) {
         		$source_pids = array();
         		$parent_pids = array($pid);
@@ -155,7 +161,6 @@ class BackgroundProcess_Index_Object extends BackgroundProcess
                     $this->setStatus("Reindexing:  '".$source_pid."'  (".$reindex_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
 
 					$params['items'] = array($source_pid);
-					$params['rebuild'] = false;
 					$reindex->indexFezFedoraObjects($params);
 				}
 				$this->setProgress(100);

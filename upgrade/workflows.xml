@@ -302,6 +302,12 @@
     <WorkflowTrigger wft_id="256" wft_pid="-1" wft_type_id="1" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/regen.gif" wft_ret_id="0" wft_options="0"/>
     <WorkflowTrigger wft_id="257" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/regen.gif" wft_ret_id="0" wft_options="0"/>
   </workflow>
+  <workflow wfl_id="103" wfl_title="Regenerate Object Index and Derivated Datastreams" wfl_version="1.0" wfl_description="" wfl_roles="Community_Administrator" wfl_end_button_label="Ok">
+    <WorkflowState wfs_id="729" wfs_title="Regenerate Object Index and Derivated Datastreams" wfs_description="" wfs_auto="1" wfs_wfb_id="73" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="730" wfs_title="Running" wfs_description="" wfs_auto="0" wfs_wfb_id="33" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="1054" wfsl_from_id="729" wfsl_to_id="730"/>
+    <WorkflowTrigger wft_id="276" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/regen.gif" wft_ret_id="0" wft_options="0"/>
+  </workflow>
   <workflow wfl_id="100" wfl_title="Register Main Chapter" wfl_version="1.0" wfl_description="HERDC Main Chapter Registration" wfl_roles="Approver,Community_Administrator,Editor" wfl_end_button_label="Finished">
     <WorkflowState wfs_id="718" wfs_title="Register Main Chapter" wfs_description="" wfs_auto="0" wfs_wfb_id="69" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
     <WorkflowTrigger wft_id="267" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/main_chapter_16.png" wft_ret_id="3" wft_options="0"/>
@@ -402,6 +408,7 @@
   <WorkflowBehaviour wfb_id="39" wfb_title="Regenerate AuthIndex" wfb_description="Regenerates the auth index for a selected pid.  Or for the whole repository if no pid is selected." wfb_version="1.0" wfb_script_name="regenerate_auth_index.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="36" wfb_title="Regenerate Images" wfb_description="" wfb_version="1.0" wfb_script_name="regenerate_images.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="42" wfb_title="Regenerate Object Index" wfb_description="Regenerates the metadata index for the selected objects in fez. Recurses to any sub-objects. This index is used for searching for and listing objects." wfb_version="1.0" wfb_script_name="regenerate_object_index.php" wfb_auto="1"/>
+  <WorkflowBehaviour wfb_id="73" wfb_title="Regenerate Object Index and Derivated Datastreams" wfb_description="Regenerates the object (and any of its children) index, auth index, preservation metadata, exif data and derived datastreams (thumbs, streams etc)" wfb_version="1.0" wfb_script_name="regenerate_object_all.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="69" wfb_title="Register Main Chapter" wfb_description="This form allows registration of main chapter status for certain authors. Part of HERDC requirements." wfb_version="1.0" wfb_script_name="main_chapter.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="57" wfb_title="Save Source Pids" wfb_description="Works out source pids (int he collection in $this-&gt;pid) for the workflow and puts them in $this-&gt;pids so that you can then run another step to select a destination which will overwrite $this-&gt;pid" wfb_version="1.0" wfb_script_name="save_source_pids.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="15" wfb_title="Select Batch Import" wfb_description="Allows user to select a server local directory for a batch import." wfb_version="1.0" wfb_script_name="select_batchimport.php" wfb_auto="0"/>
