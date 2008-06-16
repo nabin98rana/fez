@@ -143,18 +143,17 @@ class Exiftool
 	* Returns the exiftool information as an array - credit goes to the Drupal MAQUM module for this function
 	*/
 	function extractMetadata($path) {
-		$temp = shell_exec('exiftool -n --list '.escapeshellarg($path));
+		$temp = shell_exec(APP_EXIFTOOL_CMD . ' -n --list '.escapeshellarg($path));
 		$info['exif_all'] = $temp;
-	  $temp = explode("\n", $temp);
-	  foreach ($temp as $item) {
-	    $pos = strpos($item, ':');
-	    $info[str_replace(" ", "_", strtolower(trim(substr($item, 0, $pos))))] = trim(substr($item, $pos+1));
-	  }
-	  if (array_key_exists('file_size', $info)) {
-	  	$info['file_size_human'] = Misc::size_hum_read($info['file_size']);
-	  }
-
-	  return $info;
+		$temp = explode("\n", $temp);
+		foreach ($temp as $item) {
+			$pos = strpos($item, ':');
+			$info[str_replace(" ", "_", strtolower(trim(substr($item, 0, $pos))))] = trim(substr($item, $pos+1));
+		}
+		if (array_key_exists('file_size', $info)) {
+			$info['file_size_human'] = Misc::size_hum_read($info['file_size']);
+		}
+		return $info;
 	} 
     
 }
