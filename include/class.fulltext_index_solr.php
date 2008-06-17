@@ -297,8 +297,18 @@ class FulltextIndex_Solr extends FulltextIndex {
 					foreach ($sekdet as $skey => $sval) {
 						$solr_suffix = Record::getSolrSuffix($sval);
 						$solr_name = $sval['sek_title_db'].$solr_suffix;
-						$docs[$i]["rek_".$sval['sek_title_db']] = $doc->$solr_name;
-						
+						if ($sval['sek_relationship'] == 1) {
+							if (is_array($doc->$solr_name)) {
+								$docs[$i]["rek_".$sval['sek_title_db']] = $doc->$solr_name;
+							} else {
+								$docs[$i]["rek_".$sval['sek_title_db']] = array();
+								if ($doc->$solr_name != "") {
+									$docs[$i]["rek_".$sval['sek_title_db']][0] = $doc->$solr_name;
+								}
+							}
+						} else {
+							$docs[$i]["rek_".$sval['sek_title_db']] = $doc->$solr_name;							
+						}
 					}
 					$i++;
 				}

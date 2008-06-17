@@ -51,7 +51,7 @@
 		{/section}
 		{assign var="loop_format" value=$list[i].rek_file_attachment_name}
 		{section name="f" loop=$loop_format}
-        <dc:format>{$app_base_url}eserv.php?pid={$list[i].rek_pid|escape:"html"}&amp;dsID={$list[i].rek_file_attachment_name[f]|escape:"html"}</dc:format>
+        <dc:format>{$app_base_url}eserv/{$list[i].rek_pid|escape:"html"}/{$list[i].rek_file_attachment_name[f]|escape:"html"}</dc:format>
 		{/section}
       </oai_dc:dc>
     </metadata>
