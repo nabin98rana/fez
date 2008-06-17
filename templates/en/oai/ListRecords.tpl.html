@@ -11,7 +11,7 @@
     <header>
       <identifier>oai:{$app_hostname}:{$list[i].rek_pid|escape:"html"}</identifier>
       <datestamp>{$list[i].rek_created_date|escape:"html"}</datestamp>
-{assign var="loop_parents" value=$list[i].rek_isMemberOf}
+{assign var="loop_parents" value=$list[i].rek_ismemberof}
 {section name="p" loop=$loop_parents}
       <setSpec>oai:{$app_hostname}:{$loop_parents[p]|escape:"html"}</setSpec>
 {/section}   

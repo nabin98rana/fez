@@ -1261,8 +1261,8 @@ class Record
 		$res = $res['docs'];
         
 		$usr_id = Auth::getUserID();
-        // disable citation caching for the moment
-		$citationCache = true;
+        // disable citation caching for the moment - CK commented out forced citation true on 17/6/08, was a Rhys thin
+//		$citationCache = true;
 
 		if (count($res) > 0) {
 			if ($getSimple == false || empty($getSimple)) {
