@@ -28,6 +28,7 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
@@ -40,7 +41,12 @@ class Exiftool
 		if (!is_array($exif_array)) {
 			return -1;
 		}
-        $stmt = "INSERT INTO
+
+		if ($exif_array["exif_all"] == "") {
+			return -1;
+		}
+
+        $insert = "INSERT INTO
                     " . APP_TABLE_PREFIX . "exif
                  (
                     exif_pid,
@@ -52,12 +58,12 @@ class Exiftool
 					exif_mime_type,
 					exif_camera_model_name,
 					exif_make,
-					exif_create_date,
 					exif_file_type,
-					exif_page_count,
 					exif_play_duration,
-					exif_all                    
-                 ) VALUES (
+					exif_all  
+					";
+
+		$values = ") VALUES (
                     '" . Misc::escapeString($exif_array["pid"]) . "',
                     '" . Misc::escapeString($exif_array["dsid"]) . "',
                     '" . Misc::escapeString($exif_array["file_size"]) . "',
@@ -67,14 +73,26 @@ class Exiftool
                     '" . Misc::escapeString($exif_array["mime_type"]) . "',
                     '" . Misc::escapeString($exif_array["camera_model_name"]) . "',
                     '" . Misc::escapeString($exif_array["make"]) . "',
-                    '" . Misc::escapeString($exif_array["create_date"]) . "',
                     '" . Misc::escapeString($exif_array["file_type"]) . "',
-                    '" . Misc::escapeString($exif_array["page_count"]) . "',
                     '" . Misc::escapeString($exif_array["play_duration"]) . "',
                     '" . Misc::escapeString($exif_array["exif_all"]) . "'
-                 )";
+                 ";
 
-                $res = $GLOBALS["db_api"]->dbh->query($stmt);
+		if (is_integer($exif_array["page_count"])) {
+			$insert .= ",exif_page_count";
+			$values .= ",'" . Misc::escapeString($exif_array["page_count"]) . "'";
+		}
+
+		$insert .= ",exif_create_date";
+		if ($exif_array["create_date"] == "" || empty($exif_array["create_date"])) {
+			$values .= ",NULL";
+		} else {
+			$values .= ",'" . Misc::escapeString($exif_array["create_date"]) . "'";
+		}
+		$values .= ")";
+
+		$stmt = $insert . $values;
+		$res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
