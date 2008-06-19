@@ -338,7 +338,6 @@ class Reindex
     function reindexMissingList($params, $terms)
     {
         $this->terms = $terms;
-        $ii = 0;
         $reindex_add_record_counter = 0;
         $reindex_record_counter = 0;
         
@@ -364,11 +363,14 @@ class Reindex
 			$fedoraList = $flist;
 		}
 		
+		$date_new = new Date(strtotime($bgp_details['bgp_started']));
+		$tz = Date_API::getPreferredTimezone($bgp_details["bgp_usr_id"]);
+		
 		foreach ($fedoraList as $detail) {
             $reindex_record_counter++;
             $utc_date = Date_API::getSimpleDateUTC();
             $time_per_object = Date_API::dateDiff("s", $bgp_details['bgp_started'], $utc_date);
-            $date_new = new Date(strtotime($bgp_details['bgp_started']));
+            
 			if ($reindex_add_record_counter > 0) {
             	$time_per_object = round(($time_per_object / $reindex_add_record_counter), 2);
 			} else {
@@ -376,8 +378,7 @@ class Reindex
 			}
 			
             $date_new->addSeconds($time_per_object*$record_count);
-            $tz = Date_API::getPreferredTimezone($bgp_details["bgp_usr_id"]);
-			$res[$key]["bgp_started"] = Date_API::getFormattedDate($res[$key]["bgp_started"], $tz);
+            
             $expected_finish = Date_API::getFormattedDate($date_new->getTime(), $tz);
 
 	        if (!empty($this->bgp)) {
@@ -426,18 +427,23 @@ class Reindex
     function reindexFullList($params,$terms)
     {
         $this->terms = $terms;
-        $ii = 0;
         $reindex_record_counter = 0;
         $bgp_details = $this->bgp->getDetails();
         $fedoraDirect = new Fedora_Direct_Access();
-        $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms, ""); //get all pids including deleted ones so we can remove them from the fez index if necessary
+        
+        // get all pids including deleted ones so 
+        // we can remove them from the fez index if necessary
+        $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms, ""); 
 		if (APP_DB_TYPE == "oracle") {
 			foreach ($fedoraList as &$flist) {
 	            $flist = array_change_key_case($flist, CASE_LOWER);
 	        }
 			$fedoraList = $flist;
 		} 
+		
         $record_count = count($fedoraList);
+        $date_started = new Date(strtotime($bgp_details['bgp_started']));
+        $tz = Date_API::getPreferredTimezone($bgp_details["bgp_usr_id"]);
         
 		foreach ($fedoraList as $detail) {
             if ($detail['objectstate'] != 'A') { //check if in the index and delete if in there
@@ -449,27 +455,22 @@ class Reindex
                    	$this->bgp->setStatus("Skipping Removing Non-A Fedora State object Because already not in Fez Index:  '".$detail['pid']."' ".$detail['title']. " (".$reindex_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
             		continue;
 				}
-            } 
-			$ii++;
-            if (!empty($this->bgp)) {
-                $this->bgp->setProgress($ii);
             }
             $reindex_record_counter++;
+            $records_left = $record_count - $reindex_record_counter;
             $utc_date = Date_API::getSimpleDateUTC();
             $time_per_object = Date_API::dateDiff("s", $bgp_details['bgp_started'], $utc_date);
-            $date_new = new Date(strtotime($bgp_details['bgp_started']));
             $time_per_object = round(($time_per_object / $reindex_record_counter), 2);
-            //$expected_finish = Date_API::getFormattedDate($date_new->getTime());
-            $date_new->addSeconds($time_per_object*$record_count);
-            $tz = Date_API::getPreferredTimezone($bgp_details["bgp_usr_id"]);
-			$res[$key]["bgp_started"] = Date_API::getFormattedDate($res[$key]["bgp_started"], $tz);
-            $expected_finish = Date_API::getFormattedDate($date_new->getTime(), $tz);
+            $date_started->addSeconds($time_per_object*$records_left);
+            $expected_finish = Date_API::getFormattedDate($date_started->getTime(), $tz);
+            
             if (Reindex::inIndex($detail['pid']) == true) {
+                $params['items'] = array($detail['pid']);
                 if (!empty($this->bgp)) {
                     $this->bgp->setProgress(intval(100*$reindex_record_counter/$record_count));
                     $this->bgp->setStatus("Reindexing:  '".$detail['pid']."' ".$detail['title']. " (".$reindex_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
                 }
-                $params['items'] = array($detail['pid']);
+                
                 Reindex::indexFezFedoraObjects($params);
             } else {
                 if (!empty($this->bgp)) {
@@ -493,7 +494,7 @@ class Reindex
 			$stmt .= "INSERT INTO " . APP_TABLE_PREFIX . "fulltext_queue (ftq_pid, ftq_op)
 			SELECT rek_pid, 'I'
 			FROM " . APP_TABLE_PREFIX . "record_search_key";			
-			$res = $GLOBALS["db_api"]->dbh->query($stmt);
+			$GLOBALS["db_api"]->dbh->query($stmt);
 		} else {        
 //	        $fedoraDirect = new Fedora_Direct_Access();
 //	        $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms);
@@ -540,8 +541,7 @@ class Reindex
         }
         $items = @$params["items"];
 		$xdis_id = @$params["xdis_id"];
-		$sta_id = @$params["sta_id"];		
-		$community_pid = @$params["community_pid"];
+		$sta_id = @$params["sta_id"];
 		$collection_pid = @$params["collection_pid"];
         $rebuild = @$params["rebuild"];
         $index_type = @$params["index_type"];
@@ -579,7 +579,7 @@ class Reindex
                 // delete any fez derived datastreams that might be hanging around for no reason.  We'll 
                 // recreate them later if they are still needed
                 
-                foreach ($ds as $dsKey => $dsTitle) {
+                foreach ($ds as $dsTitle) {
                     $dsIDName = $dsTitle['ID'];
                     if ($dsTitle['controlGroup'] == "M" 
                         && (Misc::hasPrefix($dsIDName, 'preview_')
@@ -591,7 +591,7 @@ class Reindex
                     } 
                 }
                 
-                foreach ($ds as $dsKey => $dsTitle) {
+                foreach ($ds as $dsTitle) {
                     $dsIDName = $dsTitle['ID'];
                     if ($dsTitle['controlGroup'] == "M" 
                         && !Misc::hasPrefix($dsIDName, 'preview_')
@@ -604,8 +604,7 @@ class Reindex
                         // get the datastream into a file where we can do stuff to it
                         $urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsIDName; 
                         $handle = fopen(APP_TEMP_DIR.$new_dsID, "w");                     
-                        $urlReturn = Misc::ProcessURL($urldata, false, $handle);                        
-                        //fwrite($handle, $urlReturn[0]);
+                        Misc::ProcessURL($urldata, false, $handle);
                         
                         fclose($handle);                        
                         if ($new_dsID != $dsIDName) {

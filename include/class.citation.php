@@ -236,9 +236,7 @@
 		if ($citation == "") {
 			$options = array();
 			$options["searchKey".Search_Key::getID("Pid")] = $pid; // enforce records only
-			//$list = Record::getListing($options, array("Lister"), 0, 1, "Title", false, false);
 			$list = Record::getListingForCitation($options, array("Lister"));
-		//	$list = Collection::statsByAttribute(0, $rows, "Title");
 			$list = $list["list"];
 			$list = Citation::renderIndexCitations($list, 'APA', false, true);
 			if (count($list) != 1) {
@@ -437,27 +435,6 @@
         if (empty($value)) {
             return '';
         }
-        // First convert to display names style - Title FName MName/Init LName
-/*
-// Commented this out because it munges too many names
-
-        $parts = explode(',', $value, 2);
-        if (count($parts) > 1) {
-            $value = $parts[1].' '.$parts[0];     
-        }
-        $value = str_replace('.', '. ', $value);
-        
-        switch($type)
-        {
-            case 'APA':
-                $parts = explode(' ', $value);
-                $parts = array_filter($parts, create_function('$a', 'return !empty($a);'));
-                $lname = array_pop($parts);
-                $inits = array_map(create_function('$a', 'return substr(trim($a), 0, 1);'), $parts);
-                $value = $lname.', '.implode('. ',$inits).'.';
-            break;
-        }
-*/
         return $value;
     }
 

@@ -982,42 +982,50 @@ class XSD_DisplayObject
      */ 
     function processXSDMF($pid) 
     {
-        if (!isset($this->xsdmf_array[$pid])) {
-            $this->xsdmf_array[$pid] = array();
-            $this->xsdmf_current = &$this->xsdmf_array[$pid];
-            $this->getXSD_HTML_Match();
-            // Find datastreams that may be used by this display
-            $datastreamTitles = $this->getDatastreamTitles();
-			$datastreams = Fedora_API::callGetDatastreams($pid); // need the full get datastreams to get the controlGroup etc
-            if (empty($datastreams)) {
+        if (isset($this->xsdmf_array[$pid])) {
+        	return;
+        }
+        
+        $this->xsdmf_array[$pid] = array();
+        $this->xsdmf_current = &$this->xsdmf_array[$pid];
+        $this->getXSD_HTML_Match();
+            
+        // Find datastreams that may be used by this display
+        $datastreamTitles = $this->getDatastreamTitles();
+            
+        // need the full get datastreams to get the controlGroup etc
+        $datastreams = Fedora_API::callGetDatastreams($pid); 
+        if (empty($datastreams)) {
             	Error_Handler::logError("The PID ".$pid." doesn't appear to be in the fedora repository - perhaps it was not ingested correctly.  " .
                         "Please let the Fez admin know so that the Fez index can be repaired.",__FILE__,__LINE__);
                 return;
-            }
-//			$datastreams = Fedora_API::callListDatastreams($pid);			
-			foreach ($datastreams as $ds_key => $ds_value) {
-				// get the matchfields for the FezACML of the datastream if any exists
-				if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M') {
-					$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_Title("!datastream!ID", "File_Attachment", $this->xdis_id);
-					if (!is_array(@$this->xsdmf_current[$xsdmf_id])) {
-						$this->xsdmf_current[$xsdmf_id] = array();
-					}
-					array_push($this->xsdmf_current[$xsdmf_id], $ds_value['ID']);
-					$FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
-//					$FezACML_DS_name = "FezACML_".$ds_value['ID'].".xml";
-					$FezACML_DS_name = FezACML::getFezACMLDSName($ds_value['ID']);
-					if (Fedora_API::datastreamExistsInArray($datastreams, $FezACML_DS_name)) {
-						$FezACML_DS = Fedora_API::callGetDatastreamDissemination($pid, $FezACML_DS_name);				
-						if (isset($FezACML_DS['stream'])) {
-							$this->processXSDMFDatastream($FezACML_DS['stream'], $FezACML_xdis_id);
-							$this->xsd_html_match->gotMatchCols = false; // make sure it refreshes for the other xsd displays
-						} 
-					}
+        }
+            			
+        foreach ($datastreams as $ds_value) {
+			// get the matchfields for the FezACML of the datastream if any exists
+			if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M') {
+				$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_Title("!datastream!ID", "File_Attachment", $this->xdis_id);
+				if (!is_array(@$this->xsdmf_current[$xsdmf_id])) {
+					$this->xsdmf_current[$xsdmf_id] = array();
+				}
+				array_push($this->xsdmf_current[$xsdmf_id], $ds_value['ID']);
+				
+				$FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
+				$FezACML_DS_name = FezACML::getFezACMLDSName($ds_value['ID']);
+				if (Fedora_API::datastreamExistsInArray($datastreams, $FezACML_DS_name)) {
+					$FezACML_DS = Fedora_API::callGetDatastreamDissemination($pid, $FezACML_DS_name);				
+					if (isset($FezACML_DS['stream'])) {
+						$this->processXSDMFDatastream($FezACML_DS['stream'], $FezACML_xdis_id);
+						$this->xsd_html_match->gotMatchCols = false; // make sure it refreshes for the other xsd displays
+					} 
 				}
 			}
-            foreach ($datastreamTitles as $dsValue) {
-				// first check if the XSD Display datastream is a template for a link as these are handled differently
-                if ($dsValue['xsdsel_title'] == "DOI") {
+        }
+			
+        foreach ($datastreamTitles as $dsValue) {
+			// first check if the XSD Display datastream is a template 
+			// for a link as these are handled differently
+            if ($dsValue['xsdsel_title'] == "DOI") {
                     // find the datastream for DOI and set it's value 
                     $xsdmf_id = $dsValue['xsdmf_id'];
 				
@@ -1033,52 +1041,51 @@ class XSD_DisplayObject
                         }
 					}
 					
-				} elseif ($dsValue['xsdsel_title'] == "Link") {
+            } elseif ($dsValue['xsdsel_title'] == "Link") {
 
-					$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_Title("!datastream!datastreamVersion!contentLocation", "Link", $this->xdis_id);
-                    foreach ($datastreams as $ds) {
-                        if (isset($ds['controlGroup']) && $ds['controlGroup'] == 'R' && is_numeric(strpos($ds['ID'], 'link_'))) {
-                            $value = trim($ds['location']);
-                            $value = str_replace("&amp;", "&", $value);
-                            if (!empty($value) && strlen($xsdmf_details['xsdmf_value_prefix']) > 0) {
-                                $value = str_replace($xsdmf_details['xsdmf_value_prefix'], "", $value);
-                            }
-							if (!is_array(@$this->xsdmf_current[$xsdmf_id])) {
-								$this->xsdmf_current[$xsdmf_id] = array();
-							}
-							array_push($this->xsdmf_current[$xsdmf_id], $value);
+				$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_Title("!datastream!datastreamVersion!contentLocation", "Link", $this->xdis_id);
+                foreach ($datastreams as $ds) {
+                    if (isset($ds['controlGroup']) && $ds['controlGroup'] == 'R' && is_numeric(strpos($ds['ID'], 'link_'))) {
+                        $value = trim($ds['location']);
+                        $value = str_replace("&amp;", "&", $value);
+                        if (!empty($value) && strlen($xsdmf_details['xsdmf_value_prefix']) > 0) {
+                            $value = str_replace($xsdmf_details['xsdmf_value_prefix'], "", $value);
                         }
-					}					
-					$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_Title("!datastream!datastreamVersion!LABEL", "Link", $this->xdis_id);
-                    foreach ($datastreams as $ds) {					
-                        if (isset($ds['controlGroup']) && $ds['controlGroup'] == 'R' && is_numeric(strpos($ds['ID'], 'link_'))) {
-                            $value = trim($ds['label']);
-                            if (!empty($value) && strlen($xsdmf_details['xsdmf_value_prefix']) > 0) {
-                                $value = str_replace($xsdmf_details['xsdmf_value_prefix'], "", $value);
-                            }
-							if (!is_array(@$this->xsdmf_current[$xsdmf_id])) {
-								$this->xsdmf_current[$xsdmf_id] = array();
-							}
-							array_push($this->xsdmf_current[$xsdmf_id], $value);
+                        if (!is_array(@$this->xsdmf_current[$xsdmf_id])) {
+                            $this->xsdmf_current[$xsdmf_id] = array();
                         }
-					}					
-
-				} else {
-					// find out if this record has the xml based datastream
-					if (Fedora_API::datastreamExistsInArray($datastreams, $dsValue['xsdsel_title'])) {
-						$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title']);
-//						print_r($DSResultArray);
-						if (isset($DSResultArray['stream'])) {
-							$xmlDatastream = $DSResultArray['stream'];
-							// get the matchfields for the datastream (using the sub-display for this stream)						
-							$this->processXSDMFDatastream($xmlDatastream, $dsValue['xsdrel_xdis_id']);							
-						} else {
-							Error_Handler::logError("Couldn't get ".$dsValue['xsdsel_title']." on ".$pid,
-                                __FILE__,__LINE__);
+                        array_push($this->xsdmf_current[$xsdmf_id], $value);
+                    }
+                }
+					
+                $xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_Title("!datastream!datastreamVersion!LABEL", "Link", $this->xdis_id);
+                foreach ($datastreams as $ds) {					
+					if (isset($ds['controlGroup']) && $ds['controlGroup'] == 'R' && is_numeric(strpos($ds['ID'], 'link_'))) {
+					   $value = trim($ds['label']);
+						if (!empty($value) && strlen($xsdmf_details['xsdmf_value_prefix']) > 0) {
+						  $value = str_replace($xsdmf_details['xsdmf_value_prefix'], "", $value);
 						}
+						if (!is_array(@$this->xsdmf_current[$xsdmf_id])) {
+						  $this->xsdmf_current[$xsdmf_id] = array();
+						}
+                        array_push($this->xsdmf_current[$xsdmf_id], $value);
+                    }
+                }					
+
+            } else {
+            	
+				// find out if this record has the xml based datastream
+				if (Fedora_API::datastreamExistsInArray($datastreams, $dsValue['xsdsel_title'])) {
+					$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title']);
+					if (isset($DSResultArray['stream'])) {
+						$xmlDatastream = $DSResultArray['stream'];
+						// get the matchfields for the datastream (using the sub-display for this stream)						
+						$this->processXSDMFDatastream($xmlDatastream, $dsValue['xsdrel_xdis_id']);							
+					} else {
+						Error_Handler::logError("Couldn't get ".$dsValue['xsdsel_title']." on ".$pid,__FILE__,__LINE__);
 					}
 				}
-            }
+			}
         }
     }
 
@@ -1093,25 +1100,28 @@ class XSD_DisplayObject
     {
         $xsd_id = XSD_Display::getParentXSDID($xsdmf_xdis_id);
         $xsd_details = Doc_Type_XSD::getDetails($xsd_id);
-//		$temp_xdis_array = $this->xsd_html_match->xdis_array;
+        
 		$temp_xdis_str = $this->xsd_html_match->xdis_str;
 		$temp_xdis_id = $this->xdis_id;
+		
 		if (!in_array($xsdmf_xdis_id, explode(",", $this->xsd_html_match->xdis_str))) {
-//echo $this->xsd_html_match->xdis_str."not in ".$xsdmf_xdis_id;
 			$this->xdis_id = $xsdmf_xdis_id;
-            //$this->xsd_html_match->xdis_array = array($xsdmf_xdis_id);
-            $this->xsd_html_match->xdis_str = $xsdmf_xdis_id;
-//			$this->getXSD_HTML_Match(true); //refresh the match cols so it will find the fezacml for ds ids			
+            $this->xsd_html_match->xdis_str = $xsdmf_xdis_id;	
 		}
+		
         $this->xsd_element_prefix = $xsd_details['xsd_element_prefix'];
         $this->xsd_top_element_name = $xsd_details['xsd_top_element_name'];
         $xmlnode = new DomDocument();
         @$xmlnode->loadXML($xmlDatastream);
-        $cbdata = array('parentContent' => '', 'parent_key' => '', 'xdis_id' => $xsdmf_xdis_id);
+        $cbdata = array(
+	        'parentContent' => '', 
+	        'parent_key'    => '', 
+	        'xdis_id'       => $xsdmf_xdis_id
+        );
         $this->mfcb_rootdone = false;
 
         Misc::XML_Walk($xmlnode, $this, 'matchFieldsCallback', $cbdata, $xmlnode);
-		//$this->xsd_html_match->xdis_array = $temp_xdis_array;
+        
 		$this->xsd_html_match->xdis_str = $temp_xdis_str;
 		$this->xdis_id = $temp_xdis_id;
     }
@@ -1164,7 +1174,6 @@ class XSD_DisplayObject
 											$indicator_xpath = ".".substr($indicator_xpath, $currentNodePos + $currentNodeLength);
 											$xpath = new DOMXPath($rootNode);
 											$xpath->registerNamespace("mods", "http://www.loc.gov/mods/v3");
-//											echo "DEBUG: ".$indicator_xpath."<br />";
 											$indicatorNodes = $xpath->query($indicator_xpath, $domNode);
 											if ($indicatorNodes->length > 0) {
 												$indicatorValue = $indicatorNodes->item(0)->nodeValue; //should only ever be one search result in the array
@@ -1229,6 +1238,7 @@ class XSD_DisplayObject
                         break;
                 }
                 break;
+                
             case XML_ATTRIBUTE_NODE:
                 if ((is_numeric(strpos(substr($cbdata['parentContent'], 0, 1), "!"))) || ($cbdata['parentContent'] == "")) {
 	                $new_element = $cbdata['parentContent']."!".$cbdata['clean_nodeName']."!".$clean_nodeName;
@@ -1240,69 +1250,75 @@ class XSD_DisplayObject
                 // look for key match on the attribute value first - this is where the matchfield needs the 
                 // attribute to be set to a certain value to match.
                 $xsdmf_id = $this->xsd_html_match->getXSDMF_IDByKeyXDIS_ID($new_element, $domNode->nodeValue); 
-                if (empty($xsdmf_id)) {
-                    // look for a straight attribute match
-					if (is_numeric(@$cbdata['currentSEL'])) {
-						$xsdmf_id = $this->xsd_html_match->getXSDMF_IDBySELXDIS_ID($new_element, $cbdata['currentSEL']);
-					} else {
-						$xsdmf_id = $this->xsd_html_match->getXSDMFByElement($new_element,$cbdata['xdis_id']);
-						if (is_array($xsdmf_id)) {
-							if (count($xsdmf_id) > 1) {
-								// ##### Start of suspect block of code
-//								Error_Handler::logError("MSS is pretty sure this block of code should never get executed but has left it here for now just in case.  xsdmf_id: ".print_r($xsdmf_id,true), __FILE__,__LINE__);
-								foreach ($xsdmf_id as $row) {
-									if ($row['xsdmf_html_input'] == 'xsd_loop_subelement' && is_numeric($row['xsdsel_indicator_xsdmf_id']) && $row['xsdsel_indicator_xsdmf_id'] != 0 && $row['xsdsel_indicator_value'] != "") {
-										$indicator_xpath = $row['xsd_element_prefix'].":".ltrim(str_replace("!", "/".$row['xsd_element_prefix'].":", $row['indicator_element']), "/");
-										$currentNodeLength = strlen($domNode->nodeName);
-										$currentNodePos = strpos($indicator_xpath, $domNode->nodeName);
-										$indicator_xpath = ".".substr($indicator_xpath, $currentNodePos + $currentNodeLength);
-										$xpath = new DOMXPath($rootNode);
-										$xpath->registerNamespace("mods", "http://www.loc.gov/mods/v3");
-										$indicatorNodes = $xpath->query($indicator_xpath, $domNode);
-										if ($indicatorNodes->length > 0) {
-											$indicatorValue = $indicatorNodes->item(0)->nodeValue; //should only ever be one search result in the array
-											if ($indicatorValue == $row['xsdsel_indicator_value']) {
+                if (!empty($xsdmf_id)) {
+                	break;
+                }
+                
+                // look for a straight attribute match
+			    if (is_numeric(@$cbdata['currentSEL'])) {
+					$xsdmf_id = $this->xsd_html_match->getXSDMF_IDBySELXDIS_ID($new_element, $cbdata['currentSEL']);
+				} else {
+					$xsdmf_id = $this->xsd_html_match->getXSDMFByElement($new_element,$cbdata['xdis_id']);
+					if (is_array($xsdmf_id)) {
+						if (count($xsdmf_id) > 1) {
+							// ##### Start of suspect block of code
+							foreach ($xsdmf_id as $row) {
+								if ($row['xsdmf_html_input'] == 'xsd_loop_subelement' && is_numeric($row['xsdsel_indicator_xsdmf_id']) && $row['xsdsel_indicator_xsdmf_id'] != 0 && $row['xsdsel_indicator_value'] != "") {
+									$indicator_xpath = $row['xsd_element_prefix'].":".ltrim(str_replace("!", "/".$row['xsd_element_prefix'].":", $row['indicator_element']), "/");
+									$currentNodeLength = strlen($domNode->nodeName);
+									$currentNodePos = strpos($indicator_xpath, $domNode->nodeName);
+									$indicator_xpath = ".".substr($indicator_xpath, $currentNodePos + $currentNodeLength);
+									$xpath = new DOMXPath($rootNode);
+									$xpath->registerNamespace("mods", "http://www.loc.gov/mods/v3");
+									$indicatorNodes = $xpath->query($indicator_xpath, $domNode);
+									if ($indicatorNodes->length > 0) {
+										$indicatorValue = $indicatorNodes->item(0)->nodeValue; //should only ever be one search result in the array
+										if ($indicatorValue == $row['xsdsel_indicator_value']) {
 												$currentSEL = $row['indicator_xsdsel_id'];
-											}
-										} 												
-									}
+										}
+									} 												
 								}
-								if (is_numeric($currentSEL)) {
-									$xsdmf_id = $this->xsd_html_match->getXSDMF_IDBySELXDIS_ID($new_element, $currentSEL);
-								}
-								// ##### End of suspect block of code
-							} else {
-								$xsdmf_id = $xsdmf_id[0]['xsdmf_id'];
 							}
-						}								
-					}
-	                if (empty($xsdmf_id)) {
-						// if still can't find it, try it further up the tree - eg for MODS name|ID looked for in name|namePart
-		                $new_element = "!".$cbdata['parentContent']."!".$clean_nodeName;
-						$xsdmf_id = $this->xsd_html_match->getXSDMF_IDByXDIS_ID($new_element);						
-					}
-                }	
+							if (is_numeric($currentSEL)) {
+								$xsdmf_id = $this->xsd_html_match->getXSDMF_IDBySELXDIS_ID($new_element, $currentSEL);
+							}
+							// ##### End of suspect block of code
+						} else {
+							$xsdmf_id = $xsdmf_id[0]['xsdmf_id'];
+						}
+					}								
+				}
+					
+	            if (empty($xsdmf_id)) {
+					// if still can't find it, try it further up the tree - 
+					// eg for MODS name|ID looked for in name|namePart
+		            $new_element = "!".$cbdata['parentContent']."!".$clean_nodeName;
+				    $xsdmf_id = $this->xsd_html_match->getXSDMF_IDByXDIS_ID($new_element);						
+				}
+                
                 break;
+                
             default:
             	return $cbdata;
                 break; 
         }
-//echo "xsdmf = "; print_r($xsdmf_id); echo "<br /> \n";
+        
         if (is_numeric($xsdmf_id)) {
             // We have found a match!
             // Get the value for the match and store it in the result
             $xsdmf_details = $this->xsd_html_match->getDetailsByXSDMF_ID($xsdmf_id);
-//print_r($xsdmf_details);
             if (strlen($xsdmf_details['xsdmf_value_prefix']) > 0) {
                 $ptr_value = str_replace($xsdmf_details['xsdmf_value_prefix'], "", $domNode->nodeValue);
-//echo $domNode->nodeValue." - ".$ptr_value."<br />";
-//print_r($xsdmf_details);
             } else {
                 $ptr_value = $domNode->nodeValue;
             }
 
-            if ($xsdmf_details['xsdmf_html_input'] == 'checkbox') { //we want to return an 'off' for elements that correspond to checkboxes if they are empty, as this is meaningful, while non-checkbox types empty is not worth indexing/returning				
-            	if ($ptr_value != "on") { //if the xml exists (has been saved) then if it is empty it means the checkbox is off (if the xml didnt exist it would mean on, but wouldn't get to this code area)					 
+            // we want to return an 'off' for elements that correspond to checkboxes if they are empty, 
+            // as this is meaningful, while non-checkbox types empty is not worth indexing/returning
+            if ($xsdmf_details['xsdmf_html_input'] == 'checkbox') { 				
+            	//if the xml exists (has been saved) then if it is empty it means the checkbox is off 
+            	// (if the xml didnt exist it would mean on, but wouldn't get to this code area)
+            	if ($ptr_value != "on") { 					 
             		$ptr_value = "off";
             	}
             }
@@ -1312,7 +1328,6 @@ class XSD_DisplayObject
             if (isset($xsdmf_ptr[$xsdmf_id])) {
                 if (is_array($xsdmf_ptr[$xsdmf_id])) {
                     // add to the array of values
-					
                     $xsdmf_ptr[$xsdmf_id][] = $ptr_value;
                 } else {
                     // make an array from the single value

@@ -9,7 +9,7 @@ class AuthIndex {
     var $pid_cache = array();
     var $pid_count = 0;
 
-    function setIndexAuth($pid, $recurse=false)
+    function setIndexAuth($pid)
     {
        $bgp = new BackgroundProcess_Index_Auth; 
        $bgp->register(serialize(compact('pid','recurse')), Auth::getUserID());
@@ -63,17 +63,25 @@ class AuthIndex {
         } 
         // if no lister rules are found, then this pid is publically listable
         if (!$has_list_rules) {
-            $res[$pid]['Lister'][] = array('pid' => $pid, 'role' => $roles['Lister'], 
-                    'rule' => 'public_list', 'value' => 1);
+            $res[$pid]['Lister'][] = array(
+	            'pid' => $pid, 
+	            'role' => $roles['Lister'], 
+	            'rule' => 'public_list', 
+	            'value' => 1
+            );
         }
         // if no viewer rules are found, then this pid is publically listable
         if (!$has_view_rules) {
-            $res[$pid]['Viewer'][] = array('pid' => $pid, 'role' => $roles['Viewer'], 
-                    'rule' => 'public_list', 'value' => 1);
+            $res[$pid]['Viewer'][] = array(
+	            'pid' => $pid, 
+	            'role' => $roles['Viewer'], 
+	            'rule' => 'public_list', 
+	            'value' => 1
+            );
         }
+        
         // get the group ids
-//        foreach ($res as $source_pid => $group) {
-        foreach ($res as $source_pid => $groups) {
+        foreach ($res as $groups) {
             foreach ($groups as $role => $group) {
             	$arg_id = AuthRules::getOrCreateRuleGroup($group,$topcall);
             	$ukey = $pid."-".$role."-".$arg_id;
@@ -152,13 +160,6 @@ class AuthIndex {
                 return -1;
             }
             
-            if( APP_SOLR_INDEXER == "ON" ) {
-                //
-                // KJ: Lucene re-index object because security has changed            
-                //
-                Logger::debug(">>>>> AuthIndex::setIndexAuthBGP --> update lucene security index");       
-                //FulltextQueue::singleton()->add($pid);
-            }
             
             // get children and update their indexes.
             $rec = new RecordGeneral($pid);

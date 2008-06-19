@@ -404,25 +404,6 @@ class Record
         }
     }
 
-   /**
-     * Method used to increment the file download counter of a specific Record.
-     *
-     * @access  public
-     * @param   string $pid The persistent identifier of the record
-     * @return  integer 1 if the update worked, -1 otherwise
-     */
-    function incrementFileDownloads($pid)
-    {
-		if (!empty($pid)) {
-			$record = new RecordObject($pid);
-			if ($record->incrementFileDownloads()) {
-				return 1;
-			} else {
-				return -1;
-			}
-		}
-    }
-
 
     /**
      * Method used to add a new Record using the normal report form.
@@ -483,7 +464,7 @@ class Record
         
 		// get list of the Related 1-M search keys, delete those first, then delete the 1-1 core table entries
 		$sekDet = Search_Key::getList();
-		foreach ($sekDet as $skey => $sval) {
+		foreach ($sekDet as $sval) {
 			if ($sval['sek_relationship'] == 1) { // if is a 1-M needs its own delete sql, otherwise if a 0 (1-1) the core delete will do it
 				$sekTable = Search_Key::makeSQLTableName($sval['sek_title']);
 		        $stmt = "DELETE FROM
@@ -527,29 +508,6 @@ class Record
     }
 
     /**
-     * Method used to remove an entry in the Fez Index by its value
-     *
-     * @access  public
-     * @param   string $pid The persistent identifier of the record
-     * @param   string $value The value to check for when deleting
-     * @param   string $data_type defaults to varchar, but can be date, int, text etc
-     * @return  string The $pid if successful, otherwise -1
-     */
-    function removeIndexRecordByValue($pid, $value, $data_type='varchar')
-    {
-/*         $stmt = "DELETE FROM
-                    " . APP_TABLE_PREFIX . "record_matching_field
-				 WHERE rek_pid = '" . $pid . "' and rek_".$data_type."='".$value."'";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else { */
-            return $pid;
-//        }
-    }
-
-    /**
      * Method used to remove an entry in the Fez Index by its XSD Matching Field ID
      *
      * @access  public
@@ -560,7 +518,10 @@ class Record
     function removeIndexRecordByXSDMF_ID($pid, $xsdmf_id)
     {
 		$sekDet = Search_Key::getDetailsByXSDMF_ID($xsdmf_id);
-		if (count($sekDet) != 1) { //if couldnt find  a search key, we won't be able to remove this from the index 
+		
+		// if couldnt find  a search key, 
+		// we won't be able to remove this from the index 
+		if (!isset($sekDet['sek_id'])) {
 			return -1;
 		}
 
@@ -578,7 +539,7 @@ class Record
 		if ($sekDet['sek_relationship'] == 1) { 
 	        $stmt = "DELETE FROM
 	                    " . APP_TABLE_PREFIX . "record_search_key".$sekTableName."
-					 WHERE rek".$sekTableName."_pid = '" . $pid . "' and rek".$sekDet['sek_title_db']."_xsdmf_id=".$xsdmf_id;
+					 WHERE rek".$sekTableName."_pid = '" . $pid . "' and rek_".$sekDet['sek_title_db']."_xsdmf_id=".$xsdmf_id;
 	        $res = $GLOBALS["db_api"]->dbh->query($stmt);
 	        if (PEAR::isError($res)) {
 	            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -586,15 +547,6 @@ class Record
 	        }
 		}
 		
-		//
-		// KJ: update lucene index (get document into cache, remove field content)
-		//
-		if (APP_SOLR_INDEXER == "ON") {
-
-        	FulltextQueue::singleton()->add($pid);
-
-        }
-	    
 	    return $pid;
     }
 
@@ -612,7 +564,6 @@ class Record
     {
 		$sekDet = Search_Key::getDetailsByXSDMF_ID($xsdmf_id);
 		$data_type = $sekDet['sek_data_type'];
-        $xsdsel_id = '';
 
 		$cardinality_extra_column = "";
 		$cardinality_extra_value = "";
@@ -713,6 +664,90 @@ class Record
             
             return $pid;
         }
+    }
+    
+    function updateSearchKeys($pid, $sekData) {
+    	
+    	$ret = true;
+    	
+    	/*
+    	 *  Update 1-to-1 search keys
+    	 */
+    	$values = array();
+    	$stmt[] = 'rek_pid';
+    	$valuesIns[] = "'".$pid."'";
+    	foreach ($sekData[0] as $sek_column => $sek_value) {
+    		if(!empty($sek_value['xsdmf_value'])) {
+                $stmt[] = "rek_{$sek_column}, rek_{$sek_column}_xsdmf_id";
+                $valuesIns[] = "'".Misc::escapeString(trim($sek_value['xsdmf_value'])) . "', {$sek_value['xsdmf_id']}";
+                $valuesUpd[] = "rek_{$sek_column} = '".Misc::escapeString(trim($sek_value['xsdmf_value'])) . "', rek_{$sek_column}_xsdmf_id = {$sek_value['xsdmf_id']}";
+    		}
+    	}
+    	
+    	$stmtIns = "INSERT INTO " . APP_TABLE_PREFIX . "record_search_key (" . implode(",", $stmt) . ") ";
+    	$stmtIns .= " VALUES (" . implode(",", $valuesIns) . ")";
+    	
+    	if (APP_SQL_DBTYPE == "mysql") { 
+    		$stmt = $stmtIns ." ON DUPLICATE KEY UPDATE " . implode(",", $valuesUpd);
+    	} else {
+    		
+            $stmt = "IF EXISTS( SELECT * FROM " . APP_TABLE_PREFIX . "record_search_key WHERE rek_pid = '".$pid."' )
+                        UPDATE " . APP_TABLE_PREFIX . "record_search_key
+                        SET " . implode(",", $valuesUpd) . "
+                        WHERE rek_pid = '".$pid."'
+                     ELSE ".$stmtIns;
+    	}
+    	
+    	//echo $stmt . "<br />";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            $ret = false;
+        }
+
+    	/*
+         *  Update 1-to-Many search keys
+         */
+        foreach ($sekData[1] as $sek_table => $sek_value) {
+        	
+        	$stmt = "";
+        	if(!empty($sek_value['xsdmf_value'])) {
+	        	
+        		$cardinalityCol = "";
+	        	if(is_array($sek_value['xsdmf_value'])) {
+	        		$cardinalityCol = ",rek_".$sek_table."_order";
+	        	}
+	        	
+	        	$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "record_search_key_".$sek_table."
+	                        (rek_".$sek_table."_pid, rek_".$sek_table."_xsdmf_id, rek_".$sek_table . $cardinalityCol.")
+	                    VALUES ";
+	                    
+	        	if(is_array($sek_value['xsdmf_value'])) {
+	        		
+		            $cardinalityVal = 1;
+		            foreach ($sek_value['xsdmf_value'] as $value ) {
+                        $stmtVars[] = "('$pid',{$sek_value['xsdmf_id']},'".Misc::escapeString($value)."',$cardinalityVal)";
+                        
+                        $cardinalityVal++;
+		            }
+		            $stmt .= implode(",", $stmtVars);
+		            unset($stmtVars);
+		            
+	        	} else {
+	        		
+	        		$stmt .= "('$pid',{$sek_value['xsdmf_id']},'".Misc::escapeString($sek_value['xsdmf_value']). "')";
+	        		
+	        	}
+	        	
+                $res = $GLOBALS["db_api"]->dbh->query($stmt);
+                if (PEAR::isError($res)) {
+                    Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                    $ret = false;
+                }
+        	}
+        }
+        
+        return $ret;
     }
 
 
@@ -1085,6 +1120,7 @@ class Record
 	    } else {
 			$res = array();
 		}
+		
 		if ($citationCache == true) {
 			$res = Citation::renderIndexCitations($res, 'APA', true, false);
 		}
@@ -1134,8 +1170,7 @@ class Record
                   "FROM {$dbtp}record_search_key AS r1 ".
             	   $searchKey_join[SK_JOIN].$searchKey_join[SK_LEFT_JOIN].$authStmt." ".
 	               $searchKey_join[SK_WHERE];
-        
-	    $usr_id = Auth::getUserID();
+	    
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		
 		if (PEAR::isError($res)) {
@@ -1145,6 +1180,7 @@ class Record
             
 			if (count($res) > 0) {
 				
+				$usr_id = Auth::getUserID();
             	Record::getSearchKeysByPIDS($res);
             	Record::getChildCountByPIDS($res, $usr_id);
                     
@@ -1230,7 +1266,7 @@ class Record
      * @param string $options The search parameters
      * @return array $res2 The index details of records associated with the search params
      */
-	function getSearchListing($options, $approved_roles=array(9,10), $current_page=0, $page_rows="ALL", $sort_by="", $getSimple=false, $citationCache=false, $filter=array(), $operator='AND') {
+	function getSearchListing($options, $approved_roles=array(9,10), $current_page=0, $page_rows="ALL", $sort_by="", $getSimple=false, $citationCache=false, $filter=array(), $operator="AND") {
     	// paging preparation
         if ($page_rows == "ALL") {
             $page_rows = 9999999;
@@ -1246,11 +1282,10 @@ class Record
 				$sort_by = "searchKey".$sort_by_id;
 			}
 		}
-        
+		
         $start = $current_page * $page_rows;
         $current_row = $current_page * $page_rows; 
         
-		$params           = self::extractSearchParameters();
 		$searchKey_join   = self::buildSearchKeyFilterSolr($options, $sort_by, $operator);
 		$filter_join      = self::buildSearchKeyFilterSolr($filter, "", $operator);
 		
@@ -1258,6 +1293,7 @@ class Record
 
 		$res = $index->searchAdvancedQuery($searchKey_join, $filter_join, $approved_roles, $start, $page_rows);
 		$total_rows = $res['total_rows'];
+		$facets = $res['facets'];
 		$res = $res['docs'];
         
 		$usr_id = Auth::getUserID();
@@ -1266,9 +1302,6 @@ class Record
 
 		if (count($res) > 0) {
 			if ($getSimple == false || empty($getSimple)) {
-				if ($citationCache == false) {					
-                	Record::getSearchKeysByPIDS($res);
-				}
 				
                 Record::identifyThumbnails($res, $citationCache);
                 Record::getAuthWorkflowsByPIDS($res, $usr_id);
@@ -1319,7 +1352,7 @@ class Record
         				'current_page','total_pages','next_page','prev_page','last_page',
         				'noOrder', 'search_info', 'start_range', 'end_range', 'printable_page');
 
-        return compact('info','list');
+        return compact('info','list','facets');
     }
     
     function identifyThumbnails(&$result, $citationCache = false) {
@@ -1464,162 +1497,96 @@ class Record
   }
 
 
-  function getAuthWorkflowsByPIDS(&$result, $usr_id) {
-       for ($i = 0; $i < count($result); $i++) {
+	function getAuthWorkflowsByPIDS(&$result, $usr_id) {
+  		
+		for ($i = 0; $i < count($result); $i++) {
            $pids[] = $result[$i]["rek_pid"];
-       }
-	  $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
-      $pids = implode("', '", $pids);
-      if (count($pids) == 0) {
-		return;
-	  }
-      if (!Auth::isAdministrator() && (is_numeric($usr_id))) {
-      $stmt = "SELECT
-                    rek_pid, authi_pid, authi_role, wfl_id, wfl_title, wft_id, wft_icon
-                 FROM ";
-
-      	$stmt .=    $dbtp . "record_search_key inner join
-                    " . $dbtp . "auth_index2 ON rek_pid = authi_pid inner join
-                    " . $dbtp . "auth_rule_group_users ON authi_arg_id = argu_arg_id and argu_usr_id = ".$usr_id." left join
-      				" . $dbtp . "workflow_roles ON authi_role = wfr_aro_id left join
-                    " . $dbtp . "workflow ON wfr_wfl_id = wfl_id left join
-                    " . $dbtp . "workflow_trigger ON wfl_id = wft_wfl_id and (wft_pid = -1 or wft_pid = authi_pid)
-                    and (wft_xdis_id = -1 or wft_xdis_id = rek_display_type) and (wft_ret_id = 0 or wft_ret_id = rek_object_type)
- ";
-
-      $stmt .= "  WHERE
-                    rek_pid IN ('".$pids."') and (wft_options = 1 or wfl_id is null)
-                  ORDER BY wft_order ASC ";                  
-      } elseif (!is_numeric($usr_id)) { //no workflows for a non-logged in person - but may get lister and/or viewer roles
+		}
+		
+		if (count($pids) == 0) {
+			return;
+		}
+		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+		$pids = implode("', '", $pids);
       
-        $stmt = "SELECT
-                    rek_pid, authi_pid, authi_role
-                 FROM ";
-      	$stmt .=    $dbtp . "record_search_key 
-      	            INNER JOIN ".$dbtp."auth_index2 ON rek_pid = authi_pid
-					INNER JOIN ".$dbtp."auth_rule_group_rules on authi_arg_id = argr_arg_id
-                    INNER JOIN ".$dbtp."auth_rules ON ar_rule='public_list' AND ar_value='1' AND argr_ar_id=ar_id";
-      $stmt .= "  WHERE
-                    rek_pid IN ('".$pids."')  ";
-      } else {
-  	      $stmt = "SELECT
-                   rek_pid, authi_arg_id,  wfl_id, wfl_title, wft_id, wft_icon
-             FROM ";
-
-      	$stmt .=  $dbtp . "record_search_key
-left join " . $dbtp . "auth_index2 on authi_pid = rek_pid
-
-inner join
-				" . $dbtp . "workflow_trigger ON wft_options = 1 and (wft_pid = -1 or wft_pid = rek_pid)
-                     and (wft_xdis_id = -1 or wft_xdis_id = rek_display_type) and (wft_ret_id = 0 or wft_ret_id = rek_object_type) inner join
-          			    " . $dbtp . "workflow on wfl_id = wft_wfl_id
- ";
-      $stmt .= "  WHERE
-                    rek_pid IN ('".$pids."')
-                  ORDER BY wft_order ASC  ";
-
-
-      }
-      //echo $stmt; exit;
-
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+		if (!Auth::isAdministrator() && (is_numeric($usr_id))) {
+      
+	      	$stmt = "SELECT rek_pid, authi_pid, authi_role, wfl_id, wfl_title, wft_id, wft_icon
+	                 FROM ".$dbtp."record_search_key 
+	                 INNER JOIN ".$dbtp."auth_index2 ON rek_pid = authi_pid 
+	                 INNER JOIN ".$dbtp."auth_rule_group_users ON authi_arg_id = argu_arg_id and argu_usr_id = ".$usr_id." 
+	                 LEFT JOIN ".$dbtp."workflow_roles ON authi_role = wfr_aro_id 
+	                 LEFT JOIN ".$dbtp."workflow ON wfr_wfl_id = wfl_id 
+	                 LEFT JOIN ".$dbtp."workflow_trigger ON wfl_id = wft_wfl_id 
+	                      							AND (wft_pid = -1 or wft_pid = authi_pid)
+	                    							AND (wft_xdis_id = -1 or wft_xdis_id = rek_display_type) 
+	                    							AND (wft_ret_id = 0 or wft_ret_id = rek_object_type)
+	 				WHERE rek_pid IN ('".$pids."') and (wft_options = 1 or wfl_id IS NULL)
+	                ORDER BY wft_order ASC ";
+                               
+		} elseif (!is_numeric($usr_id)) { //no workflows for a non-logged in person - but may get lister and/or viewer roles
+      
+			$stmt = "SELECT rek_pid, authi_pid, authi_role
+                 	 FROM {$dbtp}record_search_key 
+                     INNER JOIN ".$dbtp."auth_index2 ON rek_pid = authi_pid
+				     INNER JOIN ".$dbtp."auth_rule_group_rules on authi_arg_id = argr_arg_id
+                     INNER JOIN ".$dbtp."auth_rules ON ar_rule='public_list' AND ar_value='1' AND argr_ar_id=ar_id
+      				 WHERE rek_pid IN ('".$pids."')";
+		} else {
+			
+			$stmt = "SELECT DISTINCT rek_pid, authi_arg_id, wfl_id, wfl_title, wft_id, wft_icon ".
+             		"FROM {$dbtp}record_search_key " .
+					"LEFT JOIN ".$dbtp."auth_index2 on authi_pid = rek_pid " .
+					"INNER JOIN ".$dbtp."workflow_trigger ON wft_options = 1 " .
+										"AND (wft_pid = -1 or wft_pid = rek_pid) " .
+                     					"AND (wft_xdis_id = -1 or wft_xdis_id = rek_display_type) " .
+                     					"AND (wft_ret_id = 0 or wft_ret_id = rek_object_type) " .
+                    "INNER JOIN ".$dbtp."workflow on wfl_id = wft_wfl_id " .
+ 					"WHERE rek_pid IN ('".$pids."') " .
+                  	"ORDER BY wft_order ASC";
+		}
+		
+		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+		
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
         } else {
-            $t = array();
-            for ($i = 0; $i < count($res); $i++) {
-                if (!is_array($t[$res[$i]["rek_pid"]])) {
-                    $t[$res[$i]["rek_pid"]] = array();
+        	
+        	if(count($res) == 0) {
+         		return;
+        	}
+        	
+        	$tmp = array();
+        	for ($i = 0; $i < count($res); $i++) {
+        		
+                if (@!in_array($res[$i]["authi_role"], $tmp[$res[$i]["rek_pid"]]["authi_role"])) {
+                    $tmp[$res[$i]["rek_pid"]]["authi_role"][] = $res[$i]["authi_role"];
                 }
-                if (!in_array($res[$i]["authi_role"], $t[$res[$i]["rek_pid"]])) {
-                	$t[$res[$i]["rek_pid"]][] =  $res[$i]["authi_role"];
+                
+                if (@!in_array($res[$i]["wfl_id"], $tmp[$res[$i]["rek_pid"]]["wfl_id"])) {
+                    $tmp[$res[$i]["rek_pid"]]["wfl_id"][] = $res[$i]["wfl_id"];
                 }
+                
+                if (@!in_array($res[$i]["wft_id"], $tmp[$res[$i]["rek_pid"]]["wft_id"])) {
+                    $tmp[$res[$i]["rek_pid"]]["wft_id"][] = $res[$i]["wft_id"];
+                }
+                
+                if (@!in_array($res[$i]["wfl_title"], $tmp[$res[$i]["rek_pid"]]["wfl_title"])) {
+                    $tmp[$res[$i]["rek_pid"]]["wfl_title"][] = $res[$i]["wfl_title"];
+                }
+	            
+                if (@!in_array($res[$i]["wft_icon"], $tmp[$res[$i]["rek_pid"]]["wft_icon"])) {
+                    $tmp[$res[$i]["rek_pid"]]["wft_icon"][] = $res[$i]["wft_icon"];
+                }
+        	}
+        	
+        	for ($i = 0; $i < count($result); $i++) {
+        		if($tmp[$result[$i]["rek_pid"]]) {
+                	$result[$i] = array_merge($result[$i], $tmp[$result[$i]["rek_pid"]]);
+        		}
             }
-
-            // now populate the $result variable again
-            for ($i = 0; $i < count($result); $i++) {
-                if (!is_array($result[$i]["authi_role"])) {
-                    $result[$i]["authi_role"] = array();
-                }
-                $result[$i]["authi_role"] = $t[$result[$i]["rek_pid"]];
-            }
-
-            $w = array();
-            for ($i = 0; $i < count($res); $i++) {
-                if (!is_array($w[$res[$i]["rek_pid"]])) {
-                    $w[$res[$i]["rek_pid"]] = array();
-                }
-                if (!in_array($res[$i]["wfl_id"], $w[$res[$i]["rek_pid"]])) {
-                	$w[$res[$i]["rek_pid"]][] =  $res[$i]["wfl_id"];
-                }
-            }
-
-            // now populate the $result variable again
-            for ($i = 0; $i < count($result); $i++) {
-                if (!is_array($result[$i]["wfl_id"])) {
-                    $result[$i]["wfl_id"] = array();
-                }
-                $result[$i]["wfl_id"] = $w[$result[$i]["rek_pid"]];
-            }
-
-            $w = array();
-            for ($i = 0; $i < count($res); $i++) {
-                if (!is_array($w[$res[$i]["rek_pid"]])) {
-                    $w[$res[$i]["rek_pid"]] = array();
-                }
-                if (!in_array($res[$i]["wft_id"], $w[$res[$i]["rek_pid"]])) {
-                	$w[$res[$i]["rek_pid"]][] =  $res[$i]["wft_id"];
-                }
-            }
-
-            // now populate the $result variable again
-            for ($i = 0; $i < count($result); $i++) {
-                if (!is_array($result[$i]["wft_id"])) {
-                    $result[$i]["wft_id"] = array();
-                }
-                $result[$i]["wft_id"] = $w[$result[$i]["rek_pid"]];
-            }
-
-            $w = array();
-            for ($i = 0; $i < count($res); $i++) {
-                if (!is_array($w[$res[$i]["rek_pid"]])) {
-                    $w[$res[$i]["rek_pid"]] = array();
-                }
-                if (!in_array($res[$i]["wfl_title"], $w[$res[$i]["rek_pid"]])) {
-                	$w[$res[$i]["rek_pid"]][] =  $res[$i]["wfl_title"];
-                }
-            }
-
-            // now populate the $result variable again
-            for ($i = 0; $i < count($result); $i++) {
-                if (!is_array($result[$i]["wfl_title"])) {
-                    $result[$i]["wfl_title"] = array();
-                }
-                $result[$i]["wfl_title"] = $w[$result[$i]["rek_pid"]];
-            }
-            $w = array();
-            for ($i = 0; $i < count($res); $i++) {
-                if (!is_array($w[$res[$i]["rek_pid"]])) {
-                    $w[$res[$i]["rek_pid"]] = array();
-                }
-                if (!in_array($res[$i]["wft_icon"], $w[$res[$i]["rek_pid"]])) {
-                	$w[$res[$i]["rek_pid"]][] =  $res[$i]["wft_icon"];
-                }
-            }
-
-            // now populate the $result variable again
-            for ($i = 0; $i < count($result); $i++) {
-                if (!is_array($result[$i]["wft_icon"])) {
-                    $result[$i]["wft_icon"] = array();
-                }
-                $result[$i]["wft_icon"] = $w[$result[$i]["rek_pid"]];
-            }
-
-
-
-            //return $res;
         }
-  }
+    }
 
 
 
@@ -1770,10 +1737,8 @@ inner join
                 $t[$res[$i]["rek_pid"]] =  $res[$i]["rek_title"];
             }
             
-            $numResults = count($result) - 1;
-            
             // now populate the $result variable again
-            for ($i = 0; $i < $numResults; $i++) {
+            for ($i = 0; $i < count($result); $i++) {
         		$temp  = $result[$i]["rek_ismemberof"];
         		
         		if (is_array($temp)) {
@@ -2217,7 +2182,7 @@ inner join
 
 
 
-    function buildSearchKeyFilterSolr($options, $sort_by, $operator) 
+    function buildSearchKeyFilterSolr($options, $sort_by, $operator = "AND") 
     {
         $searchKey_join = array();
         $searchKey_join[SK_JOIN] = ""; // initialise the return sql searchKey fields join string
@@ -2464,13 +2429,13 @@ inner join
 		        	}
              	}
             }             
-        }
+        }        
 
         return $searchKey_join;
     }
 
 
-	function getSolrSuffix($sek_det, $sort=0) {
+	function getSolrSuffix($sek_det, $sort=0, $facet=0) {
 		$suffix = "";
 		$sek_data_type = $sek_det['sek_data_type'];
 		$sek_relationship = $sek_det['sek_relationship'];
@@ -2482,11 +2447,17 @@ inner join
 			$suffix = "_t";
 			if ($sort == 1) {
 				$suffix .= "_s";
+			} elseif($facet == 1) {
+			    //$suffix .= "f";
 			}
 		} elseif (($sek_data_type == 'varchar' || $sek_data_type == 'text') && $sek_relationship == 1) {
-			$suffix = "_mt";
+			$suffix = "_m";
 			if ($sort == 1) {
-				$suffix .= "_s";
+				$suffix .= "s";
+			} elseif($facet == 1) {
+			    //$suffix .= "f";
+			} else {
+			    $suffix .= "t";
 			}
 		} elseif (($sek_data_type == 'date') && ($sek_relationship == 0)) {
 			$suffix = "_dt";
@@ -2708,13 +2679,9 @@ inner join
 					if (Fedora_API::datastreamExists($pid, $ncName)) {
 						Fedora_API::callPurgeDatastream($pid, $ncName);
 					}
-//					echo filesize($dsTitle['File_Location']); exit;
-//					Fedora_API::getUploadLocation($pid, $ncName, $dsTitle['File_Location'], $dsTitle['LABEL'],
-//							$dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
-					Fedora_API::getUploadLocationByLocalRef($pid, $ncName, $dsTitle['File_Location'], $dsTitle['LABEL'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
-							
-			         Record::generatePresmd($pid, $dsIDName);
-
+					
+					Fedora_API::getUploadLocationByLocalRef($pid, $ncName, $dsTitle['File_Location'], $dsTitle['LABEL'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);	
+			        Record::generatePresmd($pid, $dsIDName);
 				}
 			}
 		}
@@ -2733,8 +2700,6 @@ inner join
         }
 
 		Record::setIndexMatchingFields($pid);
-
-
     }
     
     
@@ -3980,34 +3945,25 @@ class RecordGeneral
             $xdis_id = XSD_Display::getXDIS_IDByTitle('Generic Document');
         }
         $display = new XSD_DisplayObject($xdis_id);
-        $array_ptr = array();
         $xsdmf_array = $display->getXSDMF_Values($pid);
         
-        //CK 22/5/06 = added last 2 params to make it keep the dsID indexes for Fezacml on datastreams 
-        // remove any existing index entry for that PID 
-        // CK added 9/1/06 - still working on this
-        Record::removeIndexRecord($pid, '', 'keep', array(), array(), $fteindex); 
+        $searchKeyData = array();
         
         foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
-            if (!is_array($xsdmf_value) && !empty($xsdmf_value) && (trim($xsdmf_value) != "")) {
-                $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
-                if (($xsdmf_details['xsdmf_sek_id'] != "") && ($xsdmf_details['xsdmf_html_input'] != 'checkbox' || $xsdmf_details['xsdmf_element'] == '!inherit_security')) {
-                    Record::insertIndexMatchingField($pid, $dsID, $xsdmf_id, $xsdmf_value);
-                }
-            } elseif (is_array($xsdmf_value)) {
-                foreach ($xsdmf_value as $xsdmf_child_value) {
-                    if ($xsdmf_child_value != "") {
-                        $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
-                        if (($xsdmf_details['xsdmf_sek_id'] != "") && ($xsdmf_details['xsdmf_html_input'] != 'checkbox' || $xsdmf_details['xsdmf_element'] == '!inherit_security')) {
-                            Record::insertIndexMatchingField($pid, $dsID, $xsdmf_id, $xsdmf_child_value);
-                        }
-                    }
-                }
-            }
+        	$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
+        	if ($xsdmf_details['xsdmf_sek_id'] != "") {
+        		Record::removeIndexRecordByXSDMF_ID($pid,$xsdmf_id);
+        		
+        		$sekDetails = Search_Key::getBasicDetails($xsdmf_details['xsdmf_sek_id']);
+        		$searchKeyData[$sekDetails['sek_relationship']][$sekDetails['sek_title_db']] = array (
+		        		  "xsdmf_id"    => $xsdmf_id,
+		        		  "xsdmf_value" => $xsdmf_value
+        		);
+        	}
         }
         
+        Record::updateSearchKeys($pid, $searchKeyData);
 		Citation::updateCitationCache($pid, "");
-        Statistics::updateSummaryStatsOnPid($pid);
     }
 
     /**
@@ -4272,20 +4228,6 @@ class RecordObject extends RecordGeneral
     }
 
     /**
-     * getFileDownloadsCount
-     * Retrieve the count of file downloads for this record
-     */
-    function getFileDownloadsCount() {
-		$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD');
-//		print_r($xdis_array);
-		if (is_numeric(trim(@$xdis_array['file_downloads'][0]))) {
-			$this->file_downloads = trim($xdis_array['file_downloads'][0]);
-		} else {
-			$this->file_downloads = 0;
-		}
-    }
-
-    /**
      * updateAdminDatastream
      * Used to associate a display for this record
 	 *
@@ -4319,46 +4261,6 @@ class RecordObject extends RecordGeneral
 			Record::insertIndexMatchingField($this->pid, '', $xsdmf_id, $this->xdis_id);
 		}
     }
-   /**
-     * Method used to increment the file download counter of a specific Record.
-     *
-     * @access  public
-     * @return  void
-     */
-    function incrementFileDownloads() {
-		$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD');
-		if (isset($xdis_array['file_downloads'][0])) {
-			$this->file_downloads = $xdis_array['file_downloads'][0];
-		} else {
-			$this->file_downloads = 0;
-		}
-
-		$this->file_downloads++;
-
-		$newXML = '<FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">';
-		$foundElement = false;
-		foreach ($xdis_array as $xkey => $xdata) {
-			foreach ($xdata as $xinstance) {
-				if ($xkey == "file_downloads") {
-					$foundElement = true;
-					$newXML .= "<".$xkey.">".$this->file_downloads."</".$xkey.">";
-				} elseif ($xinstance != "") {
-					$newXML .= "<".$xkey.">".$xinstance."</".$xkey.">";
-				}
-			}
-		}
-		if ($foundElement != true) {
-			$newXML .= "<file_downloads>".$this->file_downloads."</file_downloads>";
-		}
-		$newXML .= "</FezMD>";
-		if ($newXML != "") {
-			Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez extension metadata", $newXML, "text/xml", true);
-			$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement("!file_downloads", 15);
-			Record::removeIndexRecordByXSDMF_ID($this->pid, $xsdmf_id);
-			Record::insertIndexMatchingField($this->pid, '', $xsdmf_id, $this->file_downloads);
-
-	    }
-    }
 
     /**
      * fedoraInsertUpdate
@@ -4386,7 +4288,6 @@ class RecordObject extends RecordGeneral
 			$this->updated_date = $this->created_date;
 			$this->depositor = Auth::getUserID();
 			$existingDatastreams = array();
-			$file_downloads = 0;
         } else {
 			$existingDatastreams = Fedora_API::callGetDatastreams($this->pid);
 			Misc::purgeExistingLinks($this->pid, $existingDatastreams);
@@ -4394,12 +4295,7 @@ class RecordObject extends RecordGeneral
 			if (empty($this->created_date)) {
 				$this->created_date = Date_API::getFedoraFormattedDateUTC();
 			}
-			$depositor = $this->depositor;
 			$this->updated_date = Date_API::getFedoraFormattedDateUTC();
-			if (!is_numeric($this->file_downloads)) {
-				$this->getFileDownloadsCount();
-			}
-			$file_downloads = $this->file_downloads;
 			$this->getXmlDisplayId();
 		}
         $pid = $this->pid;
@@ -4409,8 +4305,6 @@ class RecordObject extends RecordGeneral
             $this->xdis_id = $_POST["xdis_id"];
         }
         $xdis_id = $this->xdis_id;
-        $assign_usr_id = $this->assign_usr_id;
-        $assign_grp_id = $this->assign_grp_id;
         $this->getDisplay();
         $display = &$this->display;
         list($array_ptr,$xsd_element_prefix, $xsd_top_element_name, $xml_schema)
@@ -4423,11 +4317,9 @@ class RecordObject extends RecordGeneral
  		// @@@ CK - 6/5/2005 - Added xdis so xml building could search using the xml display ids
 		$indexArray = array();
 
-		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, $file_downloads, $this->created_date, $this->updated_date, $this->depositor, $this->assign_usr_id, $this->assign_grp_id);
+		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, 0, $this->created_date, $this->updated_date, $this->depositor, $this->assign_usr_id, $this->assign_grp_id);
 
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
-		
-		//Error_Handler::logError($xmlObj,__FILE__,__LINE__);
 		
 		$datastreamTitles = $display->getDatastreamTitles($exclude_list, $specify_list);
         Record::insertXML($pid, compact('datastreamTitles', 'exclude_list', 'specify_list', 'xmlObj', 'indexArray', 'existingDatastreams', 'xdis_id'), $ingestObject);

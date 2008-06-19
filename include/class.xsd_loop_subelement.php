@@ -156,18 +156,17 @@ class XSD_Loop_Subelement
 		$specify_str = implode("', '", $specify_list);
 
 		// Get the datastream titles and xdisplay ids that are references to other display ids, and also get any binary content (file upload/select) datastreams
-		$stmt = "SELECT	m1.xsdmf_id, m1.xsdmf_xdis_id,
-			s1.xsdsel_title,
-			s1.xsdsel_id,
-            xsdrel_xdis_id        
-						 FROM
-							". APP_TABLE_PREFIX . "xsd_loop_subelement s1
-							INNER JOIN " . APP_TABLE_PREFIX . "xsd_display_matchfields m1 
+		$stmt = "SELECT	m1.xsdmf_id, 
+						m1.xsdmf_xdis_id,
+						s1.xsdsel_title,
+						s1.xsdsel_id,
+            			xsdrel_xdis_id        
+				FROM ". APP_TABLE_PREFIX . "xsd_loop_subelement s1
+				INNER JOIN " . APP_TABLE_PREFIX . "xsd_display_matchfields m1 
                             ON m1.xsdmf_element in ('!datastream!datastreamVersion!xmlContent', '!datastream!datastreamVersion!contentLocation', '!datastream!datastreamVersion!binaryContent')    
                             AND m1.xsdmf_xdis_id=".$xdis_id." AND s1.xsdsel_id = m1.xsdmf_xsdsel_id 
-                            LEFT JOIN " . APP_TABLE_PREFIX . "xsd_relationship ON xsdrel_xsdmf_id = m1.xsdmf_id
-							LEFT JOIN " . APP_TABLE_PREFIX . "xsd_display ON xsdrel_xdis_id = xdis_id
-           ";
+                LEFT JOIN " . APP_TABLE_PREFIX . "xsd_relationship ON xsdrel_xsdmf_id = m1.xsdmf_id
+				LEFT JOIN " . APP_TABLE_PREFIX . "xsd_display ON xsdrel_xdis_id = xdis_id ";
 
 		if ($specify_str != "") {				
 			$stmt .= " WHERE s1.xsdsel_title in ('".$specify_str."')";			
