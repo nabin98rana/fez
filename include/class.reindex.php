@@ -377,7 +377,8 @@ class Reindex
             	$time_per_object = round(($time_per_object / $reindex_record_counter), 2);
 			}
 			
-            $date_new->addSeconds($time_per_object*$record_count);
+			$records_left = $record_count - $reindex_record_counter;
+            $date_new->addSeconds($time_per_object*$records_left);
             
             $expected_finish = Date_API::getFormattedDate($date_new->getTime(), $tz);
 
@@ -624,12 +625,8 @@ class Reindex
                 }
             }
             
-            if (APP_SOLR_INDEXER == "ON") {
-				FulltextQueue::singleton()->add($pid);
-	        }
-            
             Record::propagateExistingPremisDatastreamToFez($pid);
-			Record::setIndexMatchingFields($pid, '', $rebuild_this);
+			Record::setIndexMatchingFields($pid);
 		}
 		
         return true;

@@ -673,7 +673,6 @@ class Record
     	/*
     	 *  Update 1-to-1 search keys
     	 */
-    	$values = array();
     	$stmt[] = 'rek_pid';
     	$valuesIns[] = "'".$pid."'";
     	foreach ($sekData[0] as $sek_column => $sek_value) {
@@ -698,7 +697,6 @@ class Record
                      ELSE ".$stmtIns;
     	}
     	
-    	//echo $stmt . "<br />";
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -747,6 +745,14 @@ class Record
         	}
         }
         
+        //
+        // KJ: update fulltext index
+        //
+        if (APP_SOLR_INDEXER == "ON") {
+            Logger::debug("Record::insertMatchingField() ADDING ".$pid." TO QUEUE");
+            FulltextQueue::singleton()->add($pid);
+        }
+        
         return $ret;
     }
 
@@ -786,10 +792,10 @@ class Record
      * @param   string $pid The persistent identifier of the object
      * @return  void
      */
-    function setIndexMatchingFields($pid, $dsID='', $fteindex = true)
+    function setIndexMatchingFields($pid)
     {
         $record = new RecordObject($pid);
-        $record->setIndexMatchingFields($dsID, $fteindex);
+        $record->setIndexMatchingFields();
         
         AuthIndex::setIndexAuth($pid); //set the security index
     }
@@ -801,7 +807,7 @@ class Record
             $bgp->incrementProgress();
         }
         $record = new RecordObject($pid);
-        $record->setIndexMatchingFields('', $fteindex);
+        $record->setIndexMatchingFields();
         if (!$record->isCommunity() && !$record->isCollection() && $fteindex) {
             FulltextIndex::indexPid($pid);
         }
@@ -3285,11 +3291,21 @@ class RecordGeneral
         
 		$doc = DOMDocument::loadXML($xmlString);
 		$xpath = new DOMXPath($doc);
-		$fieldNodeList = $xpath->query("/*[local-name()='RDF' and namespace-uri()='http://www.w3.org/1999/02/22-rdf-syntax-ns#']/*[local-name()='description' and namespace-uri()='http://www.w3.org/1999/02/22-rdf-syntax-ns#'][1]/*[local-name()='isMemberOf' and namespace-uri()='info:fedora/fedora-system:def/relations-external#']");
+		$fieldNodeList = $xpath->query("/rdf:RDF//rel:isMemberOf");
+        
+        if($fieldNodeList->length == 0) {
+           
+        	/*
+        	 * There was a point in time when incorrect RELS-EXT xml 
+        	 * was created, with an incorrect namespace 'rdf:isMemberOf'
+        	 * instead of 'rel:isMemberOf'.
+        	 */
+            $fieldNodeList = $xpath->query("/rdf:RDF//rdf:isMemberOf");
+            if($fieldNodeList->length == 0) {
+                return -2;
+            }
+        }
 		
-		if($fieldNodeList->length == 0) {
-		    return -2;
-		}
 		
 		foreach ($fieldNodeList as $fieldNode) { // first delete all the isMemberOfs
 			$parentNode = $fieldNode->parentNode;
@@ -3304,9 +3320,6 @@ class RecordGeneral
         if ($newXML != "") {
             Fedora_API::callModifyDatastreamByValue($this->pid, "RELS-EXT", "A", "Relationships to other objects", $newXML, "text/xml", false);
 			Record::setIndexMatchingFields($this->pid);
-			if( APP_SOLR_INDEXER == "ON" ) {
-            	FulltextQueue::singleton()->add($this->pid);
-            }
 			return 1;
         }
         
@@ -3409,11 +3422,10 @@ class RecordGeneral
 					$newNode = $doc->createElement('inherit_security');
 				    $newNode->nodeValue = $value;
 					$parentNode->insertBefore($newNode);
-			//		Error_Handler::logError($doc->SaveXML(),__FILE__,__LINE__);
 					$newXML = $doc->SaveXML();
 			        if ($newXML != "") {
 			            Fedora_API::callModifyDatastreamByValue($this->pid, "FezACML", "A", "FezACML", $newXML, "text/xml", false);
-						Record::setIndexMatchingFields($this->pid, '', false); //instead of running this here
+						Record::setIndexMatchingFields($this->pid);
 			        }
 				}
 	        }
@@ -3936,7 +3948,7 @@ class RecordGeneral
 		return Fedora_API::callGetDatastreamContents($this->pid, $dsID, false, $filehandle);
     }
 
-    function setIndexMatchingFields($dsID='', $fteindex = true)
+    function setIndexMatchingFields()
     {
         // careful what you do with the record object - don't want to use the index while reindexing
         $pid = $this->pid;
